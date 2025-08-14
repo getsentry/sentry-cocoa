@@ -44,6 +44,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (NSArray<SentryBreadcrumb *> *)breadcrumbs;
 
+- (void)setSpan:(nullable id<SentrySpan>)span;
+
 /**
  * used to add values in event context.
  */

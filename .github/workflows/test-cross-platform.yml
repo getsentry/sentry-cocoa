@@ -30,7 +30,7 @@ jobs:
     name: React Native Installation
     runs-on: macos-15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           repository: getsentry/sentry-cocoa
           path: sentry-cocoa
@@ -40,7 +40,7 @@ jobs:
         working-directory: sentry-cocoa
 
       - name: Clone Sentry React Native Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           repository: getsentry/sentry-react-native
           path: sentry-react-native

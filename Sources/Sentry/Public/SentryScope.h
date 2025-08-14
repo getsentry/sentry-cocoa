@@ -33,7 +33,11 @@ NS_SWIFT_NAME(Scope)
  * Returns current Span or Transaction.
  * @return current Span or Transaction or null if transaction has not been set.
  */
+#if SDK_V9
+@property (nullable, nonatomic, readonly, strong) id<SentrySpan> span;
+#else
 @property (nullable, nonatomic, strong) id<SentrySpan> span;
+#endif // SDK_V9
 
 /**
  * The id of current session replay.

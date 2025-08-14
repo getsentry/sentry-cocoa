@@ -1,6 +1,13 @@
 # Changelog
 
-## Unreleased
+## 8.55.0
+
+### Various fixes & improvements
+
+- ci: Bump iOS and tvOS versions to 18.6 (#5942) by @itaybre
+- fix: Build error on Xcode 14.2 (#5917) by @itaybre
+
+## 8.54.1-alpha.2
 
 > [!Important]
 > Xcode 26 no longer allows individual frameworks to contain arm64e slices anymore if the main binary doesn't contain them.
@@ -14,11 +21,19 @@
 > If your app does not need arm64e, you don't need to make any changes.
 > But if your app _needs arm64e_ please use `Sentry-Dynamic-WithARM64e` or `Sentry-WithoutUIKitOrAppKit-WithARM64e` from 8.55.0 so you don't have issues uploading to the App Store.
 
+### Fixes
+
+- Add null-handling for parsed DSN in SentryHTTPTransport (#5800)
+
 ### Features
 
 - Structured Logs: Flush logs on SDK flush/close (#5834)
 - Add a new prebuilt framework with ARM64e for WithoutUIKitOrAppKit (#5897)
 - Add source context and vars fields to SentryFrame (#5853)
+
+### Fixes
+
+- Fixed a build error in `SentryFeedback.swift` when building with cocoapods on Xcode 14.2 (#5917)
 
 ## 8.54.1-alpha.1
 

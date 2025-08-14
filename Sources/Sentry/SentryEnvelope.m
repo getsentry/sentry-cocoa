@@ -5,6 +5,7 @@
 #import "SentryEnvelopeAttachmentHeader.h"
 #import "SentryEnvelopeItemHeader.h"
 #import "SentryEnvelopeItemType.h"
+#import "SentryEvent+Serialize.h"
 #import "SentryEvent.h"
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"

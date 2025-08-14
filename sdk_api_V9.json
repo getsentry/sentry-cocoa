@@ -7174,7 +7174,6 @@
             "objc_name": "init",
             "declAttributes": [
               "Override",
-              "Required",
               "ObjC",
               "Dynamic"
             ],
@@ -7252,12 +7251,6 @@
           "ObjectiveC.NSObject"
         ],
         "conformances": [
-          {
-            "kind": "Conformance",
-            "name": "SentrySerializable",
-            "printedName": "SentrySerializable",
-            "usr": "c:objc(pl)SentrySerializable"
-          },
           {
             "kind": "Conformance",
             "name": "Copyable",
@@ -22320,49 +22313,6 @@
                   "Dynamic"
                 ],
                 "accessorKind": "get"
-              },
-              {
-                "kind": "Accessor",
-                "name": "Set",
-                "printedName": "Set()",
-                "children": [
-                  {
-                    "kind": "TypeNameAlias",
-                    "name": "Void",
-                    "printedName": "Swift.Void",
-                    "children": [
-                      {
-                        "kind": "TypeNominal",
-                        "name": "Void",
-                        "printedName": "()"
-                      }
-                    ]
-                  },
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Optional",
-                    "printedName": "(any Sentry.Span)?",
-                    "children": [
-                      {
-                        "kind": "TypeNominal",
-                        "name": "Span",
-                        "printedName": "any Sentry.Span",
-                        "usr": "c:objc(pl)SentrySpan"
-                      }
-                    ],
-                    "usr": "s:Sq"
-                  }
-                ],
-                "declKind": "Accessor",
-                "usr": "c:objc(cs)SentryScope(im)setSpan:",
-                "moduleName": "Sentry",
-                "isOpen": true,
-                "objc_name": "setSpan:",
-                "declAttributes": [
-                  "ObjC",
-                  "Dynamic"
-                ],
-                "accessorKind": "set"
               }
             ]
           },
@@ -31333,49 +31283,6 @@
         "moduleName": "Sentry"
       },
       {
-        "kind": "TypeAlias",
-        "name": "SentrySpanCallback",
-        "printedName": "SentrySpanCallback",
-        "children": [
-          {
-            "kind": "TypeFunc",
-            "name": "Function",
-            "printedName": "((any Sentry.Span)?) -> Swift.Void",
-            "children": [
-              {
-                "kind": "TypeNameAlias",
-                "name": "Void",
-                "printedName": "Swift.Void",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Void",
-                    "printedName": "()"
-                  }
-                ]
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "Optional",
-                "printedName": "(any Sentry.Span)?",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Span",
-                    "printedName": "any Sentry.Span",
-                    "usr": "c:objc(pl)SentrySpan"
-                  }
-                ],
-                "usr": "s:Sq"
-              }
-            ]
-          }
-        ],
-        "declKind": "TypeAlias",
-        "usr": "c:@T@SentrySpanCallback",
-        "moduleName": "Sentry"
-      },
-      {
         "kind": "TypeDecl",
         "name": "SentrySpanStatus",
         "printedName": "SentrySpanStatus",
@@ -34230,58 +34137,6 @@
             "protocolReq": true,
             "objc_name": "setDataValue:forKey:",
             "declAttributes": [
-              "ObjC",
-              "Dynamic"
-            ],
-            "reqNewWitnessTableEntry": true,
-            "funcSelfKind": "NonMutating"
-          },
-          {
-            "kind": "Function",
-            "name": "setExtra",
-            "printedName": "setExtra(value:key:)",
-            "children": [
-              {
-                "kind": "TypeNameAlias",
-                "name": "Void",
-                "printedName": "Swift.Void",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Void",
-                    "printedName": "()"
-                  }
-                ]
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "Optional",
-                "printedName": "Any?",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "ProtocolComposition",
-                    "printedName": "Any"
-                  }
-                ],
-                "usr": "s:Sq"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "String",
-                "printedName": "Swift.String",
-                "usr": "s:SS"
-              }
-            ],
-            "declKind": "Func",
-            "usr": "c:objc(pl)SentrySpan(im)setExtraValue:forKey:",
-            "moduleName": "Sentry",
-            "genericSig": "<Self where Self : Sentry.Span>",
-            "deprecated": true,
-            "protocolReq": true,
-            "objc_name": "setExtraValue:forKey:",
-            "declAttributes": [
-              "Available",
               "ObjC",
               "Dynamic"
             ],
@@ -40593,150 +40448,6 @@
           "ObjectiveC.NSObject"
         ],
         "conformances": [
-          {
-            "kind": "Conformance",
-            "name": "Copyable",
-            "printedName": "Copyable",
-            "usr": "s:s8CopyableP",
-            "mangledName": "$ss8CopyableP"
-          },
-          {
-            "kind": "Conformance",
-            "name": "Escapable",
-            "printedName": "Escapable",
-            "usr": "s:s9EscapableP",
-            "mangledName": "$ss9EscapableP"
-          },
-          {
-            "kind": "Conformance",
-            "name": "NSObjectProtocol",
-            "printedName": "NSObjectProtocol",
-            "usr": "c:objc(pl)NSObject"
-          },
-          {
-            "kind": "Conformance",
-            "name": "Equatable",
-            "printedName": "Equatable",
-            "usr": "s:SQ",
-            "mangledName": "$sSQ"
-          },
-          {
-            "kind": "Conformance",
-            "name": "Hashable",
-            "printedName": "Hashable",
-            "usr": "s:SH",
-            "mangledName": "$sSH"
-          },
-          {
-            "kind": "Conformance",
-            "name": "CVarArg",
-            "printedName": "CVarArg",
-            "usr": "s:s7CVarArgP",
-            "mangledName": "$ss7CVarArgP"
-          },
-          {
-            "kind": "Conformance",
-            "name": "CustomStringConvertible",
-            "printedName": "CustomStringConvertible",
-            "usr": "s:s23CustomStringConvertibleP",
-            "mangledName": "$ss23CustomStringConvertibleP"
-          },
-          {
-            "kind": "Conformance",
-            "name": "CustomDebugStringConvertible",
-            "printedName": "CustomDebugStringConvertible",
-            "usr": "s:s28CustomDebugStringConvertibleP",
-            "mangledName": "$ss28CustomDebugStringConvertibleP"
-          }
-        ]
-      },
-      {
-        "kind": "TypeDecl",
-        "name": "SentryEventDecodable",
-        "printedName": "SentryEventDecodable",
-        "children": [
-          {
-            "kind": "Constructor",
-            "name": "init",
-            "printedName": "init(from:)",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "SentryEventDecodable",
-                "printedName": "Sentry.SentryEventDecodable",
-                "usr": "c:@M@Sentry@objc(cs)SentryEventDecodable"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "Decoder",
-                "printedName": "any Swift.Decoder",
-                "usr": "s:s7DecoderP"
-              }
-            ],
-            "declKind": "Constructor",
-            "usr": "s:6Sentry0A14EventDecodableC4fromACs7Decoder_p_tKcfc",
-            "mangledName": "$s6Sentry0A14EventDecodableC4fromACs7Decoder_p_tKcfc",
-            "moduleName": "Sentry",
-            "declAttributes": [
-              "Required"
-            ],
-            "throwing": true,
-            "init_kind": "Convenience"
-          },
-          {
-            "kind": "Constructor",
-            "name": "init",
-            "printedName": "init()",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "SentryEventDecodable",
-                "printedName": "Sentry.SentryEventDecodable",
-                "usr": "c:@M@Sentry@objc(cs)SentryEventDecodable"
-              }
-            ],
-            "declKind": "Constructor",
-            "usr": "c:@M@Sentry@objc(cs)SentryEventDecodable(im)init",
-            "mangledName": "$s6Sentry0A14EventDecodableCACycfc",
-            "moduleName": "Sentry",
-            "overriding": true,
-            "objc_name": "init",
-            "declAttributes": [
-              "ObjC",
-              "Dynamic",
-              "Required"
-            ],
-            "init_kind": "Designated"
-          }
-        ],
-        "declKind": "Class",
-        "usr": "c:@M@Sentry@objc(cs)SentryEventDecodable",
-        "mangledName": "$s6Sentry0A14EventDecodableC",
-        "moduleName": "Sentry",
-        "isOpen": true,
-        "objc_name": "SentryEventDecodable",
-        "declAttributes": [
-          "ObjC"
-        ],
-        "superclassUsr": "c:objc(cs)SentryEvent",
-        "superclassNames": [
-          "Sentry.Event",
-          "ObjectiveC.NSObject"
-        ],
-        "conformances": [
-          {
-            "kind": "Conformance",
-            "name": "Decodable",
-            "printedName": "Decodable",
-            "usr": "s:Se",
-            "mangledName": "$sSe"
-          },
-          {
-            "kind": "Conformance",
-            "name": "SentrySerializable",
-            "printedName": "SentrySerializable",
-            "usr": "c:objc(pl)SentrySerializable"
-          },
           {
             "kind": "Conformance",
             "name": "Copyable",
