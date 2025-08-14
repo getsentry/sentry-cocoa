@@ -191,7 +191,7 @@ check-package-diff:
 	@if diff ./Utils/expected_package_diff.patch current_package_diff.patch > /dev/null 2>&1; then \
 		echo "--> Package diff check passed - no changes detected"; \
 	else \
-		echo "--> Package diff check failed - changes detected! Make sure to run `make update-package-diff` to update the expected diff."; \
+		echo "--> Package diff check failed - changes detected! Make sure to run \"make update-package-diff\" to update the expected diff."; \
 		exit 1; \
 	fi
 
