@@ -158,6 +158,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
+      - run: ./scripts/ci-select-xcode.sh 16.4
       - run: ./scripts/sentry-xcodebuild.sh --platform iOS --os 18.5 --device "iPhone 16" --command build --configuration DebugV9
 
       - name: Debug Xcode environment

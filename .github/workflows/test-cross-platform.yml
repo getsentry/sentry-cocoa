@@ -55,6 +55,7 @@ jobs:
           node-version: 18
           cache: "yarn"
           cache-dependency-path: sentry-react-native/yarn.lock
+      - run: ./sentry-cocoa/scripts/ci-select-xcode.sh 16.4
 
       - name: Install SDK JS Dependencies
         working-directory: sentry-react-native
