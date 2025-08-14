@@ -10,7 +10,7 @@ on:
       - "Sources/**"
       - "Sentry.podspec"
       - "SentrySwiftUI.podspec"
-      - "Package.swift"
+      - "Package*.swift"
       - "Makefile" # Make commands used for cross-platform setup
       - "Brewfile*" # Dependency installation affects cross-platform testing
       - "scripts/ci-diagnostics.sh"

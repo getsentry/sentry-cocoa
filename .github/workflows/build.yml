@@ -17,7 +17,7 @@ on:
       - Sentry.xcworkspace/**
       - Sentry.xcodeproj/**
       - Gemfile.lock
-      - "Package.swift"
+      - "Package*.swift"
       - "Makefile" # Make commands used for CI build setup
       - "Brewfile*" # Dependency installation affects build environment
 
