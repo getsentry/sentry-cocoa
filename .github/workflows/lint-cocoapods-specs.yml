@@ -53,9 +53,10 @@ jobs:
         library_type: ["dynamic", "static"]
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Debug Xcode environment
         run: ./scripts/ci-debug-xcode-env.sh
+
       - run: ./scripts/ci-select-xcode.sh 15.4
       # We need to update the spec-repo, because it can happen that it is not up to date and then the lint fails.
       - run: pod repo update
@@ -67,9 +68,10 @@ jobs:
     runs-on: macos-14
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Debug Xcode environment
         run: ./scripts/ci-debug-xcode-env.sh
+
       - run: ./scripts/ci-select-xcode.sh 15.4
       - run: pod repo update
       - name: Validate HybridPod Podspec

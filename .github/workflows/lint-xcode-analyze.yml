@@ -40,8 +40,9 @@ jobs:
     name: Lint
     runs-on: macos-15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Debug Xcode environment
         run: ./scripts/ci-debug-xcode-env.sh
+
       - run: ./scripts/ci-select-xcode.sh 16.4
       - run: make analyze

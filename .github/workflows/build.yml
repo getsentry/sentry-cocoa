@@ -38,9 +38,10 @@ jobs:
     name: Release Build of iOS Swift
     runs-on: macos-15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Debug Xcode environment
         run: ./scripts/ci-debug-xcode-env.sh
+
       - run: ./scripts/ci-select-xcode.sh 16.4
       - uses: ruby/setup-ruby@v1
         with:
@@ -92,9 +93,10 @@ jobs:
             config: DebugV9
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Debug Xcode environment
         run: ./scripts/ci-debug-xcode-env.sh
+
       - run: ./scripts/ci-select-xcode.sh 16.4
       - run: make init-ci-build
       - run: make xcode-ci
@@ -123,7 +125,7 @@ jobs:
     # Don't run this on release branches, cause the SPM Package.swift points to the unreleased versions.
     if: startsWith(github.ref, 'refs/heads/release/') == false
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Debug Xcode environment
         run: ./scripts/ci-debug-xcode-env.sh
 
@@ -146,18 +148,20 @@ jobs:
     name: Build SDK v9
     runs-on: macos-15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Debug Xcode environment
         run: ./scripts/ci-debug-xcode-env.sh
+
       - run: ./scripts/sentry-xcodebuild.sh --platform iOS --os 18.5 --device "iPhone 16" --command build --configuration DebugV9
 
   check-debug-without-UIKit:
     name: Check no UIKit linkage (DebugWithoutUIKit)
     runs-on: macos-14
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Debug Xcode environment
         run: ./scripts/ci-debug-xcode-env.sh
+
       - name: Build for Debug
         run: |
           ./scripts/sentry-xcodebuild.sh \
@@ -175,9 +179,10 @@ jobs:
     name: Check no UIKit linkage (ReleaseWithoutUIKit)
     runs-on: macos-14
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Debug Xcode environment
         run: ./scripts/ci-debug-xcode-env.sh
+
       - name: Build for Release
         run: |
           ./scripts/sentry-xcodebuild.sh \
@@ -195,9 +200,10 @@ jobs:
     name: Check UIKit linkage (Debug)
     runs-on: macos-14
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Debug Xcode environment
         run: ./scripts/ci-debug-xcode-env.sh
+
       - name: Build for Debug
         run: |
           ./scripts/sentry-xcodebuild.sh \
@@ -215,9 +221,10 @@ jobs:
     name: Check UIKit linkage (Release)
     runs-on: macos-14
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Debug Xcode environment
         run: ./scripts/ci-debug-xcode-env.sh
+
       - name: Build for Release
         run: |
           ./scripts/sentry-xcodebuild.sh \
@@ -239,7 +246,7 @@ jobs:
     name: Check compiling Async Safe Logs
     runs-on: macos-15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Debug Xcode environment
         run: ./scripts/ci-debug-xcode-env.sh
 

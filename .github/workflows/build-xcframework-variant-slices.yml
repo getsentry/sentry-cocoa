@@ -65,7 +65,7 @@ jobs:
         sdk: ${{ fromJson(inputs.sdk-list) }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Debug Xcode environment
         run: ./scripts/ci-debug-xcode-env.sh
 

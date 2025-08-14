@@ -127,7 +127,9 @@ jobs:
     runs-on: macos-14
     needs: assemble-xcframework-variant
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
+      - name: Debug Xcode environment
+        run: ./scripts/ci-debug-xcode-env.sh
       - uses: actions/download-artifact@v4
         with:
           pattern: xcframework-${{github.sha}}-sentry-static
@@ -148,7 +150,9 @@ jobs:
     runs-on: macos-14
     needs: assemble-xcframework-variant
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
+      - name: Debug Xcode environment
+        run: ./scripts/ci-debug-xcode-env.sh
       - uses: actions/download-artifact@v4
         with:
           pattern: xcframework-${{github.sha}}-*
@@ -168,7 +172,9 @@ jobs:
     runs-on: macos-14
     needs: assemble-xcframework-variant
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
+      - name: Debug Xcode environment
+        run: ./scripts/ci-debug-xcode-env.sh
       - uses: actions/download-artifact@v4
         with:
           pattern: xcframework-${{github.sha}}-*
@@ -188,7 +194,9 @@ jobs:
     runs-on: macos-14
     needs: assemble-xcframework-variant
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
+      - name: Debug Xcode environment
+        run: ./scripts/ci-debug-xcode-env.sh
       - uses: actions/download-artifact@v4
         with:
           pattern: xcframework-${{github.sha}}-*
@@ -221,7 +229,9 @@ jobs:
     timeout-minutes: 20
     steps:
       - name: Git checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
+      - name: Debug Xcode environment
+        run: ./scripts/ci-debug-xcode-env.sh
       - run: ./scripts/ci-select-xcode.sh 16.4
       - uses: ruby/setup-ruby@v1
         with:
@@ -284,7 +294,7 @@ jobs:
           app-id: ${{ vars.SENTRY_RELEASE_BOT_CLIENT_ID }}
           private-key: ${{ secrets.SENTRY_RELEASE_BOT_PRIVATE_KEY }}
       - name: Check out current commit (${{ github.sha }})
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           token: ${{ steps.token.outputs.token }}
           fetch-depth: 0

@@ -31,7 +31,7 @@ jobs:
     outputs:
       run_unit_tests_for_prs: ${{ steps.changes.outputs.run_unit_tests_for_prs }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Get changed files
         id: changes
         uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
@@ -44,9 +44,10 @@ jobs:
     needs: files-changed
     runs-on: macos-15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Debug Xcode environment
         run: ./scripts/ci-debug-xcode-env.sh
+
       - name: Cache for Test Server
         id: cache_test_server
         uses: actions/cache@v4
@@ -197,7 +198,7 @@ jobs:
             scheme: "Sentry"
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: actions/download-artifact@v4
         with:
           name: test-server
