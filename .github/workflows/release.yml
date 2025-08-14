@@ -128,11 +128,11 @@ jobs:
     needs: assemble-xcframework-variant
     steps:
       - uses: actions/checkout@v5
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v5
         with:
           pattern: xcframework-${{github.sha}}-sentry-static
           path: Carthage/
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v5
         with:
           pattern: xcframework-${{github.sha}}-sentry-swiftui
           path: Carthage/
@@ -149,7 +149,7 @@ jobs:
     needs: assemble-xcframework-variant
     steps:
       - uses: actions/checkout@v5
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v5
         with:
           pattern: xcframework-${{github.sha}}-*
           merge-multiple: true
@@ -169,7 +169,7 @@ jobs:
     needs: assemble-xcframework-variant
     steps:
       - uses: actions/checkout@v5
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v5
         with:
           pattern: xcframework-${{github.sha}}-*
           merge-multiple: true
@@ -189,7 +189,7 @@ jobs:
     needs: assemble-xcframework-variant
     steps:
       - uses: actions/checkout@v5
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v5
         with:
           pattern: xcframework-${{github.sha}}-*
           merge-multiple: true
@@ -242,7 +242,7 @@ jobs:
           MATCH_GIT_PRIVATE_KEY: ${{ secrets.MATCH_GIT_PRIVATE_KEY }}
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v5
         with:
           pattern: xcframework-${{github.sha}}-sentry-dynamic
           path: Carthage/
@@ -289,7 +289,7 @@ jobs:
           token: ${{ steps.token.outputs.token }}
           fetch-depth: 0
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v5
         with:
           pattern: xcframework-${{github.sha}}-*
           merge-multiple: true
