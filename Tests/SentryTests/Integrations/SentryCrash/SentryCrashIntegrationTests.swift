@@ -7,6 +7,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     private static let dsnAsString = TestConstants.dsnAsString(username: "SentryCrashIntegrationTests")
     
     private class Fixture {
+        let dateProvider = TestCurrentDateProvider()
         let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
         let hub: SentryHub
         let client: TestClient!
@@ -24,7 +25,11 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
             options.releaseName = TestData.appState.releaseName
             options.tracesSampleRate = 1.0
             
-            client = TestClient(options: options, fileManager: try! SentryFileManager(options: options, dispatchQueueWrapper: dispatchQueueWrapper), deleteOldEnvelopeItems: false)
+            client = TestClient(options: options, fileManager: try! SentryFileManager(
+                options: options,
+                dateProvider: dateProvider,
+                dispatchQueueWrapper: dispatchQueueWrapper
+            ), deleteOldEnvelopeItems: false)
             hub = TestHub(client: client, andScope: nil)
         }
         
@@ -248,7 +253,11 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     
     func testEndSessionAsAbnormal_AppHangEventDeletedInBetween() throws {
         // Arrange
-        let fileManager = try DeleteAppHangWhenCheckingExistenceFileManager(options: fixture.options)
+        let fileManager = try DeleteAppHangWhenCheckingExistenceFileManager(
+            options: fixture.options,
+            dateProvider: TestCurrentDateProvider(),
+            dispatchQueueWrapper: fixture.dispatchQueueWrapper
+        )
         fixture.client.fileManager = fileManager
         
         SentrySDKInternal.setCurrentHub(fixture.hub)

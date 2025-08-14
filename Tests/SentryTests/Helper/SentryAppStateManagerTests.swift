@@ -17,8 +17,12 @@ class SentryAppStateManagerTests: XCTestCase {
             options = Options()
             options.dsn = SentryAppStateManagerTests.dsnAsString
             options.releaseName = TestData.appState.releaseName
-
-            fileManager = try! SentryFileManager(options: options, dispatchQueueWrapper: dispatchQueue)
+            
+            fileManager = try! SentryFileManager(
+                options: options,
+                dateProvider: currentDate,
+                dispatchQueueWrapper: dispatchQueue
+            )
         }
 
         func getSut() -> SentryAppStateManager {

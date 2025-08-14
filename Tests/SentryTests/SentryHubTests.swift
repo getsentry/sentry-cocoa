@@ -37,8 +37,12 @@ class SentryHubTests: XCTestCase {
             event = Event()
             event.message = SentryMessage(formatted: message)
             
-            fileManager = try! SentryFileManager(options: options, dispatchQueueWrapper: TestSentryDispatchQueueWrapper())
-            
+            fileManager = try! SentryFileManager(
+                options: options,
+                dateProvider: currentDateProvider,
+                dispatchQueueWrapper: TestSentryDispatchQueueWrapper()
+            )
+
             SentryDependencyContainer.sharedInstance().dateProvider = currentDateProvider
             SentryDependencyContainer.sharedInstance().random = random
             

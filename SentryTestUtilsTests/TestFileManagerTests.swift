@@ -5,6 +5,7 @@ class TestFileManagerTests: XCTestCase {
 
     private class Fixture {
         fileprivate var dateProvider = TestCurrentDateProvider()
+        fileprivate var dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
         fileprivate var options: Options!
 
         init(testName: String) {
@@ -21,7 +22,11 @@ class TestFileManagerTests: XCTestCase {
         }
 
         func getActualFileManagerSut() throws -> SentryFileManager {
-            return try SentryFileManager(options: options)
+            return try SentryFileManager(
+                options: options,
+                dateProvider: dateProvider,
+                dispatchQueueWrapper: dispatchQueueWrapper
+            )
         }
     }
 

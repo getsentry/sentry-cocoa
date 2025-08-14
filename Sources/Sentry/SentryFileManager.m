@@ -92,7 +92,9 @@ _non_thread_safe_removeFileAtPath(NSString *path)
 
 @interface SentryFileManager ()
 
+@property (nonatomic, strong) id<SentryCurrentDateProvider> dateProvider;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueue;
+
 @property (nonatomic, copy) NSString *basePath;
 @property (nonatomic, copy) NSString *sentryPath;
 @property (nonatomic, copy) NSString *eventsPath;
@@ -117,18 +119,13 @@ _non_thread_safe_removeFileAtPath(NSString *path)
 
 @implementation SentryFileManager
 
-- (nullable instancetype)initWithOptions:(SentryOptions *)options error:(NSError **)error
-{
-    return [self initWithOptions:options
-            dispatchQueueWrapper:SentryDependencyContainer.sharedInstance.dispatchQueueWrapper
-                           error:error];
-}
-
 - (nullable instancetype)initWithOptions:(SentryOptions *)options
+                            dateProvider:(id<SentryCurrentDateProvider>)dateProvider
                     dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
                                    error:(NSError **)error
 {
     if (self = [super init]) {
+        self.dateProvider = dateProvider;
         self.dispatchQueue = dispatchQueueWrapper;
         [self createPathsWithOptions:options];
 

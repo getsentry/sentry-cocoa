@@ -214,7 +214,10 @@ static BOOL isInitialializingDependencyContainer = NO;
     SENTRY_LAZY_INIT(_fileManager, ({
         NSError *error;
         SentryFileManager *manager =
-            [[SentryFileManager alloc] initWithOptions:SentrySDKInternal.options error:&error];
+            [[SentryFileManager alloc] initWithOptions:SentrySDKInternal.options
+                                          dateProvider:self.dateProvider
+                                  dispatchQueueWrapper:self.dispatchQueueWrapper
+                                                 error:&error];
         if (manager == nil) {
             SENTRY_LOG_DEBUG(@"Could not create file manager - %@", error);
         }

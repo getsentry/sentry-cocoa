@@ -21,7 +21,11 @@ class SentryWatchdogTerminationBreadcrumbProcessorTests: XCTestCase {
 
             options = Options()
             options.dsn = SentryWatchdogTerminationBreadcrumbProcessorTests.dsn
-            fileManager = try! SentryFileManager(options: options, dispatchQueueWrapper: TestSentryDispatchQueueWrapper())
+            fileManager = try! SentryFileManager(
+                options: options,
+                dateProvider: currentDate,
+                dispatchQueueWrapper: TestSentryDispatchQueueWrapper()
+            )
         }
 
         func getSut() -> SentryWatchdogTerminationBreadcrumbProcessor {

@@ -74,17 +74,20 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 - (_Nullable instancetype)initWithOptions:(SentryOptions *)options
 {
     return [self initWithOptions:options
-                   dispatchQueue:[[SentryDispatchQueueWrapper alloc] init]
+                    dateProvider:SentryDependencyContainer.sharedInstance.dateProvider
+                   dispatchQueue:SentryDependencyContainer.sharedInstance.dispatchQueueWrapper
           deleteOldEnvelopeItems:YES];
 }
 
 /** Internal constructor for testing purposes. */
 - (nullable instancetype)initWithOptions:(SentryOptions *)options
+                            dateProvider:(id<SentryCurrentDateProvider>)dateProvider
                            dispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue
                   deleteOldEnvelopeItems:(BOOL)deleteOldEnvelopeItems
 {
     NSError *error;
     SentryFileManager *fileManager = [[SentryFileManager alloc] initWithOptions:options
+                                                                   dateProvider:dateProvider
                                                            dispatchQueueWrapper:dispatchQueue
                                                                           error:&error];
     if (error != nil) {

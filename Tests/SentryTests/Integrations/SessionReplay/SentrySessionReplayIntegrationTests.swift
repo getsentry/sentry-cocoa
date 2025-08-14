@@ -535,8 +535,12 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         
         let dispatchQueue = TestSentryDispatchQueueWrapper()
         SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = dispatchQueue
-        SentryDependencyContainer.sharedInstance().fileManager = try SentryFileManager(options: options)
-        
+        SentryDependencyContainer.sharedInstance().fileManager = try SentryFileManager(
+            options: options,
+            dateProvider: SentryDependencyContainer.sharedInstance().dateProvider,
+            dispatchQueueWrapper: dispatchQueue
+        )
+
         if FileManager.default.fileExists(atPath: replayFolder()) {
             try FileManager.default.removeItem(atPath: replayFolder())
         }

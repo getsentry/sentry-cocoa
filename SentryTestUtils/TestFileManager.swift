@@ -12,7 +12,11 @@ public class TestFileManager: SentryFileManager {
     public var storeEnvelopePathNil: Bool = false
     
     public init(options: Options) throws {
-        try super.init(options: options, dispatchQueueWrapper: TestSentryDispatchQueueWrapper())
+        try super.init(
+            options: options,
+            dateProvider: TestCurrentDateProvider(),
+            dispatchQueueWrapper: TestSentryDispatchQueueWrapper()
+        )
     }
     
     public override func store(_ envelope: SentryEnvelope) -> String? {

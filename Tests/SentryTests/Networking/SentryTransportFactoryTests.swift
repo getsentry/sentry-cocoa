@@ -7,6 +7,7 @@ class SentryTransportFactoryTests: XCTestCase {
     
     func testIntegration_UrlSessionDelegate_PassedToRequestManager() throws {
         // -- Arrange --
+        let dateProvider = TestCurrentDateProvider()
         let urlSessionDelegateSpy = UrlSessionDelegateSpy()
         
         let expect = expectation(description: "UrlSession Delegate of Options called in RequestManager")
@@ -18,12 +19,16 @@ class SentryTransportFactoryTests: XCTestCase {
         options.dsn = SentryTransportFactoryTests.dsnAsString
         options.urlSessionDelegate = urlSessionDelegateSpy
         
-        let fileManager = try! SentryFileManager(options: options, dispatchQueueWrapper: TestSentryDispatchQueueWrapper())
+        let fileManager = try! SentryFileManager(
+            options: options,
+            dateProvider: dateProvider,
+            dispatchQueueWrapper: TestSentryDispatchQueueWrapper()
+        )
 
         // -- Act --
         let transports = TransportInitializer.initTransports(
             options,
-            dateProvider: SentryDependencyContainer.sharedInstance().dateProvider,
+            dateProvider: dateProvider,
             sentryFileManager: fileManager,
             rateLimits: rateLimiting()
         )
@@ -41,6 +46,7 @@ class SentryTransportFactoryTests: XCTestCase {
     
     func testShouldReturnTransports_WhenURLSessionPassed() throws {
         // -- Arrange --
+        let dateProvider = TestCurrentDateProvider()
         let urlSessionDelegateSpy = UrlSessionDelegateSpy()
         let expect = expectation(description: "UrlSession Delegate of Options called in RequestManager")
 
@@ -53,12 +59,16 @@ class SentryTransportFactoryTests: XCTestCase {
         options.dsn = SentryTransportFactoryTests.dsnAsString
         options.urlSession = sessionConfiguration
         
-        let fileManager = try! SentryFileManager(options: options, dispatchQueueWrapper: TestSentryDispatchQueueWrapper())
+        let fileManager = try! SentryFileManager(
+            options: options,
+            dateProvider: dateProvider,
+            dispatchQueueWrapper: TestSentryDispatchQueueWrapper()
+        )
 
         // -- Act --
         let transports = TransportInitializer.initTransports(
             options,
-            dateProvider: SentryDependencyContainer.sharedInstance().dateProvider,
+            dateProvider: dateProvider,
             sentryFileManager: fileManager,
             rateLimits: rateLimiting()
         )
@@ -78,6 +88,8 @@ class SentryTransportFactoryTests: XCTestCase {
     
     func testShouldReturnTwoTransports_WhenSpotlightEnabled() throws {
         // -- Arrange --
+        let dateProvider = TestCurrentDateProvider()
+
         let options = Options()
         options.dsn = SentryTransportFactoryTests.dsnAsString
         options.enableSpotlight = true
@@ -85,8 +97,12 @@ class SentryTransportFactoryTests: XCTestCase {
         // -- Act --
         let transports = TransportInitializer.initTransports(
             options,
-            dateProvider: SentryDependencyContainer.sharedInstance().dateProvider,
-            sentryFileManager: try SentryFileManager(options: options),
+            dateProvider: dateProvider,
+            sentryFileManager: try SentryFileManager(
+                options: options,
+                dateProvider: dateProvider,
+                dispatchQueueWrapper: TestSentryDispatchQueueWrapper()
+            ),
             rateLimits: rateLimiting()
         )
 
@@ -102,6 +118,8 @@ class SentryTransportFactoryTests: XCTestCase {
 
     func testInitTransports_whenOptionsParsedDsnNilAndSpotlightDisabled_shouldReturnEmptyTransports() throws {
         // -- Arrange --
+        let dateProvider = TestCurrentDateProvider()
+
         let options = Options()
         options.dsn = nil
         options.enableSpotlight = false
@@ -109,8 +127,12 @@ class SentryTransportFactoryTests: XCTestCase {
         // -- Act --
         let transports = TransportInitializer.initTransports(
             options,
-            dateProvider: SentryDependencyContainer.sharedInstance().dateProvider,
-            sentryFileManager: try SentryFileManager(options: options),
+            dateProvider: dateProvider,
+            sentryFileManager: try SentryFileManager(
+                options: options,
+                dateProvider: dateProvider,
+                dispatchQueueWrapper: TestSentryDispatchQueueWrapper()
+            ),
             rateLimits: rateLimiting()
         )
 
@@ -120,6 +142,8 @@ class SentryTransportFactoryTests: XCTestCase {
 
     func testInitTransports_whenOptionsParsedDsnNilAndSpotlightEnabled_shouldReturnSpotlightTransport() throws {
         // -- Arrange --
+        let dateProvider = TestCurrentDateProvider()
+
         let options = Options()
         options.dsn = nil
         options.enableSpotlight = true
@@ -128,7 +152,11 @@ class SentryTransportFactoryTests: XCTestCase {
         let transports = TransportInitializer.initTransports(
             options,
             dateProvider: SentryDependencyContainer.sharedInstance().dateProvider,
-            sentryFileManager: try SentryFileManager(options: options),
+            sentryFileManager: try SentryFileManager(
+                options: options,
+                dateProvider: dateProvider,
+                dispatchQueueWrapper: TestSentryDispatchQueueWrapper(),
+            ),
             rateLimits: rateLimiting()
         )
 

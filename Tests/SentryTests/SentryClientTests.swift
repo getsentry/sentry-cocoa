@@ -57,8 +57,14 @@ class SentryClientTest: XCTestCase {
             
             let options = Options()
             options.dsn = SentryClientTest.dsn
-            fileManager = try XCTUnwrap(SentryFileManager(options: options, dispatchQueueWrapper: TestSentryDispatchQueueWrapper()))
-            
+            fileManager = try XCTUnwrap(
+                SentryFileManager(
+                    options: options,
+                    dateProvider: TestCurrentDateProvider(),
+                    dispatchQueueWrapper: TestSentryDispatchQueueWrapper()
+                )
+            )
+
             transaction = Transaction(trace: trace, children: [])
             
             transport = TestTransport()
