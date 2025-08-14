@@ -9,6 +9,7 @@ runs:
   using: "composite"
   steps:
     - name: Remove Sentry-Dynamic-WithARM64e target
+      # We don't build it on PRs, so we need to remove it from the package.swift file.
       if: ${{ inputs.is-pr == 'true' }}
       shell: bash
       run: |
