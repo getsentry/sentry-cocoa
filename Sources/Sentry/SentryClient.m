@@ -834,22 +834,6 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         currentSpanCount = 0;
     }
 
-    event = [self callEventProcessors:event];
-    if (event == nil) {
-        [self recordLost:eventIsNotATransaction reason:kSentryDiscardReasonEventProcessor];
-        if (eventIsATransaction) {
-            // We dropped the whole transaction, the dropped count includes all child spans + 1 root
-            // span
-            [self recordLostSpanWithReason:kSentryDiscardReasonEventProcessor
-                                  quantity:currentSpanCount + 1];
-        }
-    } else {
-        if (eventIsATransactionClass) {
-            [self recordPartiallyDroppedSpans:(SentryTransaction *)event
-                                   withReason:kSentryDiscardReasonEventProcessor
-                         withCurrentSpanCount:&currentSpanCount];
-        }
-    }
     if (event != nil && eventIsATransaction && self.options.beforeSendSpan != nil) {
         SentryTransaction *transaction = (SentryTransaction *)event;
         NSMutableArray<id<SentrySpan>> *processedSpans = [NSMutableArray array];
@@ -882,6 +866,27 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
             if (eventIsATransactionClass) {
                 [self recordPartiallyDroppedSpans:(SentryTransaction *)event
                                        withReason:kSentryDiscardReasonBeforeSend
+                             withCurrentSpanCount:&currentSpanCount];
+            }
+        }
+    }
+
+    if (event != nil) {
+        // if the event is dropped by beforeSend we should not execute event processors as they
+        // might trigger e.g. unnecessary replay capture
+        event = [self callEventProcessors:event];
+        if (event == nil) {
+            [self recordLost:eventIsNotATransaction reason:kSentryDiscardReasonEventProcessor];
+            if (eventIsATransaction) {
+                // We dropped the whole transaction, the dropped count includes all child spans + 1
+                // root span
+                [self recordLostSpanWithReason:kSentryDiscardReasonEventProcessor
+                                      quantity:currentSpanCount + 1];
+            }
+        } else {
+            if (eventIsATransactionClass) {
+                [self recordPartiallyDroppedSpans:(SentryTransaction *)event
+                                       withReason:kSentryDiscardReasonEventProcessor
                              withCurrentSpanCount:&currentSpanCount];
             }
         }

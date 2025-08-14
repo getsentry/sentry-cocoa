@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+### Features
+
+- Structured Logs: Flush logs on SDK flush/close (#5834)
+
+### Fixes
+
+- Don't capture replays for events dropped in `beforeSend` (#5916)
+
+## 8.54.1-alpha.1
+
 ### Fixes
 
 - Add padding to tap area of widget button (#5949)
