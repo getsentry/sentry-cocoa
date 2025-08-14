@@ -2,7 +2,8 @@
 
 set -euo pipefail
 
-# shellcheck source=./ci-utils.sh
+# Disable SC1091 because it won't work with pre-commit
+# shellcheck source=./scripts/ci-utils.sh disable=SC1091
 source "$(cd "$(dirname "$0")" && pwd)/ci-utils.sh"
 
 log_notice "Starting Xcode/macOS environment diagnostics"
