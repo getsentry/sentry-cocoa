@@ -150,6 +150,7 @@ jobs:
     runs-on: macos-14
     needs: assemble-xcframework-variant
     steps:
+      - uses: actions/checkout@v5
       - name: Debug Xcode environment
         run: ./scripts/ci-debug-xcode-env.sh
       - uses: actions/download-artifact@v5
