@@ -1,5 +1,12 @@
 # Changelog
 
+## 8.55.0
+
+### Various fixes & improvements
+
+- ci: Bump iOS and tvOS versions to 18.6 (#5942) by @itaybre
+- fix: Build error on Xcode 14.2 (#5917) by @itaybre
+
 ## 8.54.1-alpha.2
 
 > [!Important]
