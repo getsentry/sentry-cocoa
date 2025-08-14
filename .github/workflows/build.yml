@@ -38,7 +38,7 @@ jobs:
     name: Release Build of iOS Swift
     runs-on: macos-15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - run: ./scripts/ci-select-xcode.sh 16.4
       - uses: ruby/setup-ruby@v1
         with:
@@ -90,7 +90,7 @@ jobs:
             config: DebugV9
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - run: ./scripts/ci-select-xcode.sh 16.4
       - run: make init-ci-build
       - run: make xcode-ci
@@ -119,7 +119,7 @@ jobs:
     # Don't run this on release branches, cause the SPM Package.swift points to the unreleased versions.
     if: startsWith(github.ref, 'refs/heads/release/') == false
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - run: rm -r Sentry.xcodeproj && rm -r Sentry.xcworkspace
       - run: set -o pipefail && NSUnbufferedIO=YES EXPERIMENTAL_SPM_BUILDS=1 xcodebuild build -scheme SentrySPM -sdk watchos -destination 'generic/platform=watchOS' | tee raw-build-output-spm-watchos.log | xcbeautify
@@ -140,14 +140,14 @@ jobs:
     name: Build SDK v9
     runs-on: macos-15
     steps:
-      - uses: actions/checkout@v4
-      - run: ./scripts/sentry-xcodebuild.sh --platform iOS --os latest --device "iPhone 16" --command build --configuration DebugV9
+      - uses: actions/checkout@v5
+      - run: ./scripts/sentry-xcodebuild.sh --platform iOS --os 18.5 --device "iPhone 16" --command build --configuration DebugV9
 
   check-debug-without-UIKit:
     name: Check no UIKit linkage (DebugWithoutUIKit)
     runs-on: macos-14
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Build for Debug
         run: |
           ./scripts/sentry-xcodebuild.sh \
@@ -165,7 +165,7 @@ jobs:
     name: Check no UIKit linkage (ReleaseWithoutUIKit)
     runs-on: macos-14
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Build for Release
         run: |
           ./scripts/sentry-xcodebuild.sh \
@@ -183,7 +183,7 @@ jobs:
     name: Check UIKit linkage (Debug)
     runs-on: macos-14
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Build for Debug
         run: |
           ./scripts/sentry-xcodebuild.sh \
@@ -201,7 +201,7 @@ jobs:
     name: Check UIKit linkage (Release)
     runs-on: macos-14
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Build for Release
         run: |
           ./scripts/sentry-xcodebuild.sh \
@@ -223,7 +223,7 @@ jobs:
     name: Check compiling Async Safe Logs
     runs-on: macos-15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       # If the SentryAsyncSafeLog doesn't contain the SENTRY_ASYNC_SAFE_LOG_LEVEL_ERROR this fails.
       - name: Async Safe Log Level is Error

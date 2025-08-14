@@ -1058,7 +1058,8 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                           }
                       } else {
                           if (scope.currentScreen != nil) {
-                              app[@"view_names"] = @[ scope.currentScreen ];
+                              app[@"view_names"] =
+                                  @[ SENTRY_UNWRAP_NULLABLE(NSString, scope.currentScreen) ];
                           } else {
                               app[@"view_names"] = [SentryDependencyContainer.sharedInstance
                                       .application relevantViewControllersNames];

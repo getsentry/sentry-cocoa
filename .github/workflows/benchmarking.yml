@@ -40,7 +40,7 @@ jobs:
     name: Build App and Test Runner
     runs-on: macos-14
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - run: ./scripts/ci-select-xcode.sh 15.4
       - uses: ruby/setup-ruby@v1
         with:
@@ -107,8 +107,8 @@ jobs:
       matrix:
         suite: ["High-end device", "Mid-range device", "Low-end device"]
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v4
+      - uses: actions/checkout@v5
+      - uses: actions/download-artifact@v5
         with:
           name: DerivedData-Xcode
       - run: npm install -g saucectl@0.186.0

@@ -329,7 +329,10 @@ class SentryClientTest: XCTestCase {
         let viewName = sentEvent.context?["app"]?["view_names"] as? [String]
         XCTAssertEqual(viewName?.first, "TestScreen")
     }
-    
+
+    // We want the DispatchGroup to timeout and block the main thread. Therefore, we can't use a
+    // XCTestExpectation here.
+    // swiftlint:disable avoid_dispatch_groups_in_tests
     func testCaptureEventWithNoCurrentScreenMainIsLocked() throws {
         SentryDependencyContainer.sharedInstance().application = TestSentryUIApplication()
         
@@ -353,6 +356,7 @@ class SentryClientTest: XCTestCase {
         let viewName = sentEvent.context?["app"]?["view_names"] as? [String]
         XCTAssertNil(viewName)
     }
+    // swiftlint:enable avoid_dispatch_groups_in_tests
     
     func testCaptureTransactionWithScreen() throws {
         SentryDependencyContainer.sharedInstance().application = TestSentryUIApplication()
