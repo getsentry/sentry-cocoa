@@ -11,6 +11,7 @@ on:
       - "Samples/**"
       - ".github/workflows/lint-cocoapods-specs.yml"
       - "scripts/ci-select-xcode.sh"
+      - "scripts/ci-diagnostics.sh"
       - "Makefile" # Make commands used for linting setup
       - "Brewfile*" # Tools installation affects linting environment
       - ".swiftlint.yml"
@@ -23,6 +24,7 @@ on:
       - "Samples/**"
       - ".github/workflows/lint-cocoapods-specs.yml"
       - "scripts/ci-select-xcode.sh"
+      - "scripts/ci-diagnostics.sh"
       - "Sentry.xcodeproj/**"
       - "*.podspec"
       - "Gemfile.lock"
@@ -54,14 +56,15 @@ jobs:
 
     steps:
       - uses: actions/checkout@v5
-      - name: Debug Xcode environment
-        run: ./scripts/ci-debug-xcode-env.sh
 
       - run: ./scripts/ci-select-xcode.sh 15.4
       # We need to update the spec-repo, because it can happen that it is not up to date and then the lint fails.
       - run: pod repo update
       - name: Validate Podspec
         run: ./scripts/pod-lib-lint.sh ${{ matrix.platform }} ${{ matrix.podspec}} ${{ matrix.library_type}}
+      - name: Run CI Diagnostics
+        if: failure()
+        run: ./scripts/ci-diagnostics.sh
 
   lint-hybrid-sdk-podspec:
     name: Sentry/HybridSDK
@@ -69,10 +72,11 @@ jobs:
 
     steps:
       - uses: actions/checkout@v5
-      - name: Debug Xcode environment
-        run: ./scripts/ci-debug-xcode-env.sh
 
       - run: ./scripts/ci-select-xcode.sh 15.4
       - run: pod repo update
       - name: Validate HybridPod Podspec
         run: pod lib lint ./Tests/HybridSDKTest/HybridPod.podspec --allow-warnings --verbose --platforms=ios "--include-podspecs={Sentry.podspec}"
+      - name: Run CI Diagnostics
+        if: failure()
+        run: ./scripts/ci-diagnostics.sh

@@ -70,8 +70,6 @@ jobs:
     runs-on: macos-14
     steps:
       - uses: actions/checkout@v5
-      - name: Debug Xcode environment
-        run: ./scripts/ci-debug-xcode-env.sh
 
       - uses: ruby/setup-ruby@v1
         if: ${{ inputs.signed }}
@@ -201,3 +199,6 @@ jobs:
           name: xcframework-${{github.sha}}-${{inputs.override-name || inputs.variant-id}}
           if-no-files-found: error
           path: ${{env.XCFRAMEWORK_NAME}}.xcframework.zip
+      - name: Run CI Diagnostics
+        if: failure()
+        run: ./scripts/ci-diagnostics.sh

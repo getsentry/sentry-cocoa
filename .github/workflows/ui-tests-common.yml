@@ -51,9 +51,6 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      - name: Debug Xcode environment
-        run: ./scripts/ci-debug-xcode-env.sh
-
       - name: Setup Ruby
         uses: ruby/setup-ruby@13e7a03dc3ac6c3798f4570bfead2aed4d96abfb # v1.244.0
         with:
@@ -151,3 +148,6 @@ jobs:
         if: failure()
         with:
           suffix: ${{ inputs.fastlane_command }}${{ inputs.files_suffix }}
+      - name: Run CI Diagnostics
+        if: failure()
+        run: ./scripts/ci-diagnostics.sh

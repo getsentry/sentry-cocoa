@@ -11,6 +11,7 @@ on:
       - "Samples/**"
       - ".github/workflows/lint-swiftlint-formatting.yml"
       - "scripts/ci-select-xcode.sh"
+      - "scripts/ci-diagnostics.sh"
 
   pull_request:
     paths:
@@ -20,6 +21,7 @@ on:
       - "Samples/**"
       - ".github/workflows/lint-swiftlint-formatting.yml"
       - "scripts/ci-select-xcode.sh"
+      - "scripts/ci-diagnostics.sh"
       - "Sentry.xcodeproj/**"
       - "*.podspec"
       - "Gemfile.lock"
@@ -41,11 +43,12 @@ jobs:
     runs-on: macos-14
     steps:
       - uses: actions/checkout@v5
-      - name: Debug Xcode environment
-        run: ./scripts/ci-debug-xcode-env.sh
 
       - name: Install tooling
         run: make init-ci-format
       - run: swiftlint --version
       - name: Run SwiftLint
         run: swiftlint --strict
+      - name: Run CI Diagnostics
+        if: failure()
+        run: ./scripts/ci-diagnostics.sh

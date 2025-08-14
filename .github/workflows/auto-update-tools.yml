@@ -21,6 +21,7 @@ on:
       - ".pre-commit-config.yaml"
       - "scripts/update-tooling-versions.sh"
       - "scripts/check-tooling-versions.sh"
+      - "scripts/ci-diagnostics.sh"
 
 # Permissions configuration:
 # - 'contents: write' is required to allow the workflow to commit changes to the repository
@@ -50,8 +51,9 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v5
-      - name: Debug Xcode environment
-        run: ./scripts/ci-debug-xcode-env.sh
+      - name: Run CI Diagnostics
+        if: failure()
+        run: ./scripts/ci-diagnostics.sh
 
       - name: Update Homebrew
         run: brew update

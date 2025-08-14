@@ -33,8 +33,9 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
-      - name: Debug Xcode environment
-        run: ./scripts/ci-debug-xcode-env.sh
+      - name: Run CI Diagnostics
+        if: failure()
+        run: ./scripts/ci-diagnostics.sh
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3

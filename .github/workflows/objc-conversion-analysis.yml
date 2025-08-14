@@ -8,6 +8,7 @@ on:
     paths:
       - ".github/workflows/objc-conversion-analysis.yml"
       - "SwiftConversion/**"
+      - "scripts/ci-diagnostics.sh"
 
 # Concurrency configuration:
 # - We use workflow-specific concurrency groups to prevent multiple Objective-C conversion analysis runs,
@@ -30,8 +31,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v5
 
-      - name: Debug Xcode environment
-        run: ./scripts/ci-debug-xcode-env.sh
+      - name: Run CI Diagnostics
+        if: failure()
+        run: ./scripts/ci-diagnostics.sh
 
       - name: Setup Ruby
         uses: ruby/setup-ruby@a4effe49ee8ee5b8b5091268c473a4628afb5651 # pin@v5.4.3

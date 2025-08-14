@@ -11,10 +11,12 @@ on:
       - ".github/workflows/testflight.yml"
       - "fastlane/**"
       - "scripts/ci-select-xcode.sh"
+      - "scripts/ci-diagnostics.sh"
 
   pull_request:
     paths:
       - ".github/workflows/testflight.yml"
+      - "scripts/ci-diagnostics.sh"
   workflow_dispatch:
 
 # Concurrency configuration:
@@ -34,8 +36,6 @@ jobs:
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v5
-      - name: Debug Xcode environment
-        run: ./scripts/ci-debug-xcode-env.sh
 
       - run: ./scripts/ci-select-xcode.sh 16.4
       - uses: ruby/setup-ruby@v1
@@ -69,6 +69,10 @@ jobs:
         run: |
           bundle exec fastlane build_ios_swift
           bundle exec fastlane ios_swift_to_testflight
+
+      - name: Run CI Diagnostics
+        if: failure()
+        run: ./scripts/ci-diagnostics.sh
 
       - name: Archiving
         uses: actions/upload-artifact@v4

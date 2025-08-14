@@ -45,8 +45,6 @@ jobs:
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v5
-      - name: Debug Xcode environment
-        run: ./scripts/ci-debug-xcode-env.sh
 
       - name: Cache for Test Server
         id: cache_test_server
@@ -81,6 +79,10 @@ jobs:
           name: test-server
           path: |
             ./test-server/test-server-exec
+
+      - name: Run CI Diagnostics
+        if: failure()
+        run: ./scripts/ci-diagnostics.sh
 
       - name: Archiving Raw Test Logs
         uses: actions/upload-artifact@v4
@@ -202,8 +204,6 @@ jobs:
       - uses: actions/download-artifact@v5
         with:
           name: test-server
-      - name: Debug Xcode environment
-        run: ./scripts/ci-debug-xcode-env.sh
 
       - name: Start Test Server
         run: ./scripts/start-test-server.sh
@@ -313,6 +313,10 @@ jobs:
           verbose: true
           name: sentry-cocoa-unit-tests
           flags: unittests-${{ matrix.platform }}-${{ matrix.xcode }}-${{ matrix.test-destination-os }}, unittests
+
+      - name: Run CI Diagnostics
+        if: failure()
+        run: ./scripts/ci-diagnostics.sh
 
   # This check validates that either all unit tests passed or were skipped, which allows us
   # to make unit tests a required check with only running the unit tests when required.

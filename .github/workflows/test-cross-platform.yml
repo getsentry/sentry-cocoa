@@ -13,6 +13,7 @@ on:
       - "Package.swift"
       - "Makefile" # Make commands used for cross-platform setup
       - "Brewfile*" # Dependency installation affects cross-platform testing
+      - "scripts/ci-diagnostics.sh"
 
 # Concurrency configuration:
 # - We use workflow-specific concurrency groups to prevent multiple cross-platform tests,
@@ -36,7 +37,7 @@ jobs:
           path: sentry-cocoa
       - name: Debug Xcode environment
         working-directory: sentry-cocoa
-        run: ./scripts/ci-debug-xcode-env.sh
+        run: ./scripts/ci-diagnostics.sh
 
       - name: Initialize tools
         run: make init-ci-build
