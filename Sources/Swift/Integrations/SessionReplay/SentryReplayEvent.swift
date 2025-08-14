@@ -36,7 +36,7 @@ import Foundation
         fatalError("init() has not been implemented")
     }
     
-    public override func serialize() -> [String: Any] {
+    @_implementationOnly public override func serialize() -> [String: Any] {
         var result = super.serialize()
         result["urls"] = urls
         result["replay_start_timestamp"] = replayStartTimestamp.timeIntervalSince1970
