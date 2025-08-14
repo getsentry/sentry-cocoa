@@ -12,15 +12,6 @@ on:
     - cron: "0 0 * * *"
   workflow_dispatch:
   pull_request:
-    paths:
-      - ".github/workflows/auto-update-tools.yml"
-      - "Brewfile*"
-      - "Makefile"
-      - "scripts/.clang-format-version"
-      - "scripts/.swiftlint-version"
-      - ".pre-commit-config.yaml"
-      - "scripts/update-tooling-versions.sh"
-      - "scripts/check-tooling-versions.sh"
 
 # Permissions configuration:
 # - 'contents: write' is required to allow the workflow to commit changes to the repository
