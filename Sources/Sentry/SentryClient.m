@@ -872,6 +872,8 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     }
 
     if (event != nil) {
+        // if the event is dropped by beforeSend we should not execute event processors as they
+        // might trigger e.g. unnecessary replay capture
         event = [self callEventProcessors:event];
         if (event == nil) {
             [self recordLost:eventIsNotATransaction reason:kSentryDiscardReasonEventProcessor];
