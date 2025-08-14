@@ -50,12 +50,12 @@ jobs:
 
           # macos-14 iOS 17 not included due to the XCUIServerNotFound errors causing flaky tests
 
-          # As of 25th March 2025, the preinstalled iOS simulator version is 18.2 for macOS 15 and Xcode 16.2; see
+          # As of August 2025, the preinstalled iOS simulator version is 18.6 for macOS 15 and Xcode 16.4; see
           # https://github.com/actions/runner-images/blob/main/images/macos/macos-15-Readme.md#installed-sdks
           - name: iOS 18
             platform:
               runs-on: macos-15
-              xcode: "16.2"
+              xcode: "16.4"
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
