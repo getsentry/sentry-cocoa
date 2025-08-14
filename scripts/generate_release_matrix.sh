@@ -62,7 +62,8 @@ build_json_array() {
     echo "$result"
 }
 
-if [ "$EVENT_NAME" = "pull_request" ]; then
+# Changed to run all variants and slices
+if [ "$EVENT_NAME" = "any_value" ]; then
     SLICES_COMBINATIONS=$(build_json_array BASE_SLICES)
     VARIANTS_COMBINATIONS=$(build_json_array BASE_VARIANTS)
     SDK_LIST=$(build_json_array BASE_SDKS)
