@@ -50,9 +50,9 @@ jobs:
             target: tvos_swift
     with:
       fastlane_command: ui_tests_${{matrix.target}}
-      xcode_version: 16.2
+      xcode_version: 16.4
       build_with_make: true
-      macos_version: macos-14
+      macos_version: macos-15
       codecov_test_analytics: true
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
@@ -66,7 +66,7 @@ jobs:
       xcode_version: 16.4
       build_with_make: true
       macos_version: macos-15
-      fastlane_command_extra_arguments: device:iPhone 16 (18.5)
+      fastlane_command_extra_arguments: device:iPhone 16 (18.6)
       codecov_test_analytics: true
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
@@ -89,7 +89,7 @@ jobs:
           - name: iOS 18
             runs-on: macos-15
             xcode: "16.4"
-            device: iPhone 16 (18.5)
+            device: iPhone 16 (18.6)
     with:
       fastlane_command: ui_tests_ios_swift
       fastlane_command_extra_arguments: device:${{matrix.device}}
@@ -106,7 +106,7 @@ jobs:
     uses: ./.github/workflows/ui-tests-common.yml
     with:
       fastlane_command: ui_tests_ios_swift6
-      xcode_version: 16.2
+      xcode_version: 16.4
       build_with_make: true
       macos_version: macos-15
       codecov_test_analytics: true

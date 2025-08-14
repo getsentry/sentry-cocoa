@@ -124,7 +124,7 @@ jobs:
             runs-on: macos-15
             platform: "iOS"
             xcode: "16.4"
-            test-destination-os: "18.5"
+            test-destination-os: "18.6"
             device: "iPhone 16"
             scheme: "Sentry"
 
@@ -191,7 +191,7 @@ jobs:
             runs-on: macos-15
             platform: "tvOS"
             xcode: "16.4"
-            test-destination-os: "18.5"
+            test-destination-os: "18.6"
             scheme: "Sentry"
 
     steps:
