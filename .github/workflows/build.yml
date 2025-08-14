@@ -131,6 +131,8 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
+      - run: ./scripts/ci-select-xcode.sh 16.4
+        shell: sh
       - run: rm -r Sentry.xcodeproj && rm -r Sentry.xcworkspace
       - run: set -o pipefail && NSUnbufferedIO=YES EXPERIMENTAL_SPM_BUILDS=1 xcodebuild build -scheme SentrySPM -sdk watchos -destination 'generic/platform=watchOS' | tee raw-build-output-spm-watchos.log | xcbeautify
         shell: sh
@@ -156,6 +158,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
+      - run: ./scripts/ci-select-xcode.sh 16.4
       - run: ./scripts/sentry-xcodebuild.sh --platform iOS --os 18.5 --device "iPhone 16" --command build --configuration DebugV9
 
       - name: Debug Xcode environment
