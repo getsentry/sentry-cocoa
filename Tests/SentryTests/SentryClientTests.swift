@@ -1547,7 +1547,7 @@ class SentryClientTest: XCTestCase {
         // span dropped by event processor
         XCTAssertEqual(fixture.transport.recordLostEventsWithCount.get(2)?.category, SentryDataCategory.span)
         XCTAssertEqual(fixture.transport.recordLostEventsWithCount.get(2)?.reason, SentryDiscardReason.eventProcessor)
-        XCTAssertEqual(fixture.transport.recordLostEventsWithCount.get(0)?.quantity, 1)
+        XCTAssertEqual(fixture.transport.recordLostEventsWithCount.get(2)?.quantity, 1)
     }
     @available(*, deprecated, message: "-[SentryClient captureUserFeedback:] is deprecated. -[SentryClient captureFeedback:withScope:] is the new way. This test case can be removed in favor of testNoDsn_FeedbackNotSent when -[SentryClient captureUserFeedback:] is removed.")
     func testNoDsn_UserFeedbackNotSent() {
