@@ -15,6 +15,7 @@
 ### Fixes
 
 - Add padding to tap area of widget button (#5949)
+- Fix linking with SentrySwiftUI on Xcode 26 for visionOS (#5823)
 
 ## 8.55.0
 
@@ -49,7 +50,6 @@
 - Fix memory leak in SessionReplayIntegration (#5770)
 - Fix reporting of energy used while profiling (#5768)
 - Fixed a build error in `SentryFeedback.swift` when building with cocoapods on Xcode 14.2 (#5917)
-- Fix linking with SentrySwiftUI on Xcode 26 for visionOS (#5823)
 
 ### Internal
 
