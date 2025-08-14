@@ -564,10 +564,11 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     if (videoEnvelopeItem == nil) {
         SENTRY_LOG_ERROR(@"The Session Replay segment will not be sent to Sentry because an "
                          @"Envelope Item could not be created.");
-        // Record a lost event in case the preparing of the event (e.g. encoding the event) failed.
+        // Record a counted lost event in case preparing the event (e.g. encoding the event) failed.
         // This is used to determine if replay events are missing due to an error in the SDK.
         [self recordLostEvent:kSentryDataCategoryReplay
-                       reason:kSentryDiscardReasonInsufficientData];
+                       reason:kSentryDiscardReasonInsufficientData
+                     quantity:1];
         return;
     }
 
