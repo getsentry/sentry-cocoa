@@ -163,7 +163,8 @@ static BOOL isInitialializingDependencyContainer = NO;
 
         _notificationCenterWrapper = [NSNotificationCenter defaultCenter];
 #if SENTRY_HAS_UIKIT
-        _uiDeviceWrapper = [[DefaultSentryUIDeviceWrapper alloc] init];
+        _uiDeviceWrapper =
+            [[SentryDefaultUIDeviceWrapper alloc] initWithQueueWrapper:_dispatchQueueWrapper];
         _application = [[SentryUIApplication alloc]
             initWithNotificationCenterWrapper:_notificationCenterWrapper
                          dispatchQueueWrapper:_dispatchQueueWrapper];

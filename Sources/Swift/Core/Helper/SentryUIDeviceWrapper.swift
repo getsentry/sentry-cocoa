@@ -14,20 +14,27 @@ import UIKit
 #endif
 }
 
-@_spi(Private) @objc public final class DefaultSentryUIDeviceWrapper: NSObject, SentryUIDeviceWrapper {
+@_spi(Private) @objc public final class SentryDefaultUIDeviceWrapper: NSObject, SentryUIDeviceWrapper {
     
-    let queueWrapper: SentryDispatchQueueWrapper
+    private let queueWrapper: SentryDispatchQueueWrapper
+    private var systemVersion = ""
+    private var cleanupBatteryMonitoring = false
+    private var cleanupDeviceOrientationNotifications = false
     
+    // This one shouldn't be used because it acceccess `Dependencies` directly rather than being
+    // initialized with dependencies, but since we need to sublcass NSObject it has to be here.
+    @available(*, unavailable)
     override convenience init() {
         self.init(queueWrapper: Dependencies.dispatchQueueWrapper)
     }
-    
-    init(queueWrapper: SentryDispatchQueueWrapper) {
+
+    @objc public init(queueWrapper: SentryDispatchQueueWrapper) {
         self.queueWrapper = queueWrapper
     }
-    
+
     @objc public func start() {
-        queueWrapper.dispatchAsyncOnMainQueue {
+        queueWrapper.dispatchAsyncOnMainQueue { [weak self] in
+            guard let self else { return }
 #if os(iOS)
             if !UIDevice.current.isGeneratingDeviceOrientationNotifications {
                 self.cleanupDeviceOrientationNotifications = true
@@ -61,7 +68,7 @@ import UIKit
         #endif
     }
     
-    func dealloc() {
+    deinit {
         stop()
     }
     
@@ -87,10 +94,6 @@ import UIKit
     @objc public func getSystemVersion() -> String {
         systemVersion
     }
-    
-    private var systemVersion = ""
-    private var cleanupBatteryMonitoring = false
-    private var cleanupDeviceOrientationNotifications = false
     
 }
 #endif
