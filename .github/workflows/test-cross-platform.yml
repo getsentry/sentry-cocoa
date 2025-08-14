@@ -35,9 +35,6 @@ jobs:
         with:
           repository: getsentry/sentry-cocoa
           path: sentry-cocoa
-      - name: Debug Xcode environment
-        working-directory: sentry-cocoa
-        run: ./scripts/ci-diagnostics.sh
 
       - name: Initialize tools
         run: make init-ci-build
@@ -86,3 +83,7 @@ jobs:
             -scheme $SCHEME -configuration $CONFIGURATION \
             -destination "$DESTINATION" \
             test SWIFT_ACTIVE_COMPILATION_CONDITIONS=CROSS_PLATFORM_TEST GCC_PREPROCESSOR_DEFINITIONS"=CROSS_PLATFORM_TEST=1" | xcbeautify
+
+      - name: Run CI Diagnostics
+        if: failure()
+        run: ./scripts/ci-diagnostics.sh

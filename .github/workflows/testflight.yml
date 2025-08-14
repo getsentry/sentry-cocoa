@@ -36,7 +36,6 @@ jobs:
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v5
-
       - run: ./scripts/ci-select-xcode.sh 16.4
       - uses: ruby/setup-ruby@v1
         with:
@@ -70,10 +69,6 @@ jobs:
           bundle exec fastlane build_ios_swift
           bundle exec fastlane ios_swift_to_testflight
 
-      - name: Run CI Diagnostics
-        if: failure()
-        run: ./scripts/ci-diagnostics.sh
-
       - name: Archiving
         uses: actions/upload-artifact@v4
         with:
@@ -82,3 +77,7 @@ jobs:
             ${{ github.workspace }}/iOS-Swift.*
             ${{ github.workspace }}/*.dSYM.zip
             ${{ github.workspace }}/dSYMs/
+
+      - name: Run CI Diagnostics
+        if: failure()
+        run: ./scripts/ci-diagnostics.sh

@@ -46,8 +46,6 @@ jobs:
         uses: actions/checkout@v5
         with:
           fetch-depth: 0
-      - name: Debug Xcode environment
-        run: ./scripts/ci-diagnostics.sh
       - run: ./scripts/ci-select-xcode.sh 16.4
 
       - name: Generate HEAD SDK
@@ -78,6 +76,9 @@ jobs:
             cat result.json
             exit 1
           fi
+      - name: Run CI Diagnostics
+        if: failure()
+        run: ./scripts/ci-diagnostics.sh
 
   # This check validates that either all API stability checks passed or were skipped, which allows us
   # to make API stability checks a required check with only running the API stability checks when required.

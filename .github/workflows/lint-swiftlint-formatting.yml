@@ -43,7 +43,6 @@ jobs:
     runs-on: macos-14
     steps:
       - uses: actions/checkout@v5
-
       - name: Install tooling
         run: make init-ci-format
       - run: swiftlint --version

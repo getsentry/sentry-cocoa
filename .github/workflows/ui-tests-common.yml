@@ -148,6 +148,7 @@ jobs:
         if: failure()
         with:
           suffix: ${{ inputs.fastlane_command }}${{ inputs.files_suffix }}
+
       - name: Run CI Diagnostics
         if: failure()
         run: ./scripts/ci-diagnostics.sh

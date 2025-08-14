@@ -45,7 +45,6 @@ jobs:
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v5
-
       - name: Cache for Test Server
         id: cache_test_server
         uses: actions/cache@v4
@@ -80,10 +79,6 @@ jobs:
           path: |
             ./test-server/test-server-exec
 
-      - name: Run CI Diagnostics
-        if: failure()
-        run: ./scripts/ci-diagnostics.sh
-
       - name: Archiving Raw Test Logs
         uses: actions/upload-artifact@v4
         if: ${{ failure() || cancelled() }}
@@ -92,6 +87,10 @@ jobs:
           path: |
             test-server-build-intel.log
             test-server-build-arm64.log
+
+      - name: Run CI Diagnostics
+        if: failure()
+        run: ./scripts/ci-diagnostics.sh
 
   unit-tests:
     name: Unit ${{matrix.name}}

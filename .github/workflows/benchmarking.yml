@@ -42,7 +42,6 @@ jobs:
     runs-on: macos-14
     steps:
       - uses: actions/checkout@v5
-
       - run: ./scripts/ci-select-xcode.sh 15.4
       - uses: ruby/setup-ruby@v1
         with:
@@ -192,3 +191,7 @@ jobs:
             --config .sauce/benchmarking-config.yml \
             --tags benchmark \
             --verbose
+
+      - name: Run CI Diagnostics
+        if: failure()
+        run: ./scripts/ci-diagnostics.sh

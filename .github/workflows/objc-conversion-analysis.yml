@@ -31,10 +31,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v5
 
-      - name: Run CI Diagnostics
-        if: failure()
-        run: ./scripts/ci-diagnostics.sh
-
       - name: Setup Ruby
         uses: ruby/setup-ruby@a4effe49ee8ee5b8b5091268c473a4628afb5651 # pin@v5.4.3
         with:
@@ -68,3 +64,7 @@ jobs:
             SwiftConversion/objc_dependencies_topo.dot
             SwiftConversion/objc_dependencies_topo.svg
           retention-days: 30
+
+      - name: Run CI Diagnostics
+        if: failure()
+        run: ./scripts/ci-diagnostics.sh

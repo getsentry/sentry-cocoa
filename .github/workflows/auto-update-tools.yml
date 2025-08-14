@@ -51,9 +51,6 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v5
-      - name: Run CI Diagnostics
-        if: failure()
-        run: ./scripts/ci-diagnostics.sh
 
       - name: Update Homebrew
         run: brew update
@@ -95,3 +92,7 @@ jobs:
           title: "chore(deps): Update swiftlint version"
           sign-commits: true
           base: main
+
+      - name: Run CI Diagnostics
+        if: failure()
+        run: ./scripts/ci-diagnostics.sh
