@@ -41,6 +41,10 @@
 
 - Fixed a build error in `SentryFeedback.swift` when building with cocoapods on Xcode 14.2 (#5917)
 
+### Fixes
+
+- Add masking for AVPlayerView (#5910)
+
 ## 8.54.1-alpha.1
 
 - No documented changes.

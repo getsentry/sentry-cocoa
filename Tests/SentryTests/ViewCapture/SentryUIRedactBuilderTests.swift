@@ -1,4 +1,5 @@
 #if os(iOS)
+import AVKit
 import Foundation
 import PDFKit
 import SafariServices
@@ -461,16 +462,43 @@ class SentryUIRedactBuilderTests: XCTestCase {
         XCTAssertEqual(result.count, 0)
     }
     
-    func testRedactList() {
-        let expectedList = ["_TtCOCV7SwiftUI11DisplayList11ViewUpdater8Platform13CGDrawingView",
+    func testDefaultRedactList_shouldContainAllPlatformSpecificClasses() {
+        // -- Arrange --
+        let expectedListClassNames = [
+            // SwiftUI Views
+            "_TtCOCV7SwiftUI11DisplayList11ViewUpdater8Platform13CGDrawingView",
             "_TtC7SwiftUIP33_A34643117F00277B93DEBAB70EC0697122_UIShapeHitTestingView",
-            "SwiftUI._UIGraphicsView", "SwiftUI.ImageLayer", "UIWebView", "SFSafariView", "UILabel", "UITextView", "UITextField", "WKWebView", "PDFView"
-        ].compactMap { NSClassFromString($0) }
-        
-        let sut = getSut()
-        expectedList.forEach { element in
-            XCTAssertTrue(sut.containsRedactClass(element), "\(element) not found")
+            "SwiftUI._UIGraphicsView", "SwiftUI.ImageLayer",
+            // Web Views
+            "UIWebView", "SFSafariView", "WKWebView",
+            // Text Views
+            "UILabel", "UITextView", "UITextField", "RCTParagraphComponentView",
+            // Document Views
+            "PDFView",
+            // Image Views
+            "UIImageView", "RCTImageView",
+            // Audio / Video Views
+            "AVPlayerView"
+        ]
+        let expectedList = expectedListClassNames.compactMap { className -> (String, ObjectIdentifier?) in
+            guard let classType = NSClassFromString(className) else {
+                print("Class \(className) not found, skipping test")
+                return (className, nil)
+            }
+            return (className, ObjectIdentifier(classType))
         }
+
+        // -- Act --
+        let sut = getSut()
+
+        // -- Assert --
+        for (expectedClassName, expectedNullableIdentifier) in expectedList {
+            // If mapping a class name to an identifier fails, we expect it not to be in the list of redacted class identifiers as well
+            if let expectedIdentifier = expectedNullableIdentifier {
+                XCTAssertTrue(sut.redactClassesIdentifiers.contains(where: { $0 == expectedIdentifier }), "Expected class \(expectedClassName) not found in redact list")
+            }
+        }
+        XCTAssertEqual(sut.redactClassesIdentifiers.count, expectedList.count, "Expected \(expectedList.count) classes but got \(sut.redactClassesIdentifiers.count) instead")
     }
     
     func testIgnoreList() {
@@ -637,6 +665,67 @@ class SentryUIRedactBuilderTests: XCTestCase {
         
         // -- Act & Assert --
         XCTAssertTrue(sut.containsRedactClass(PDFView.self), "PDFView should be in the redact class list")
+    }
+
+    func testRedactAVPlayerViewController() throws {
+        // -- Arrange --
+        let sut = getSut()
+        let avPlayerViewController = AVPlayerViewController()
+        let avPlayerView = try XCTUnwrap(avPlayerViewController.view)
+        avPlayerView.frame = CGRect(x: 20, y: 20, width: 40, height: 40)
+        rootView.addSubview(avPlayerView)
+        
+        // -- Act --
+        let result = sut.redactRegionsFor(view: rootView)
+        
+        // -- Assert --
+        // Root View
+        // └ AVPlayerViewController.view    (Public API)
+        //   └ AVPlayerView                 (Private API)
+        XCTAssertGreaterThanOrEqual(result.count, 1)
+        let avPlayerRegion = try XCTUnwrap(result.first)
+        XCTAssertEqual(avPlayerRegion.size, CGSize(width: 40, height: 40))
+        XCTAssertEqual(avPlayerRegion.type, .redact)
+        XCTAssertEqual(avPlayerRegion.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 20, ty: 20))
+        XCTAssertNil(avPlayerRegion.color)
+    }
+
+    func testRedactAVPlayerViewControllerEvenWithMaskingDisabled() throws {
+        // -- Arrange --
+        // AVPlayerViewController should always be redacted for security reasons,
+        // regardless of maskAllText and maskAllImages settings
+        let sut = getSut(TestRedactOptions(maskAllText: false, maskAllImages: false))
+        let avPlayerViewController = AVPlayerViewController()
+        let avPlayerView = try XCTUnwrap(avPlayerViewController.view)
+        avPlayerView.frame = CGRect(x: 20, y: 20, width: 40, height: 40)
+        rootView.addSubview(avPlayerView)
+        
+        // -- Act --
+        let result = sut.redactRegionsFor(view: rootView)
+        
+        // -- Assert --
+        // Root View
+        // └ AVPlayerViewController.view    (Public API)
+        //   └ AVPlayerView                 (Private API)
+        XCTAssertGreaterThanOrEqual(result.count, 1)
+        let avPlayerRegion = try XCTUnwrap(result.first)
+        XCTAssertEqual(avPlayerRegion.size, CGSize(width: 40, height: 40))
+        XCTAssertEqual(avPlayerRegion.type, .redact)
+        XCTAssertEqual(avPlayerRegion.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 20, ty: 20))
+        XCTAssertNil(avPlayerRegion.color)
+    }
+
+    func testAVPlayerViewInRedactList() throws {
+        // -- Arrange --
+        let sut = getSut()
+        
+        // -- Act & Assert --
+        // Note: The redaction system uses "AVPlayerView" as the class name string
+        // which should resolve to the internal view hierarchy of AVPlayerViewController
+        guard let avPlayerViewClass = NSClassFromString("AVPlayerView") else {
+            throw XCTSkip("AVPlayerView class not found, skipping test")
+        }
+        XCTAssertTrue(sut.containsRedactClass(avPlayerViewClass), "AVPlayerView should be in the redact class list")
     }
 }
 
