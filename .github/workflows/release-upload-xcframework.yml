@@ -29,7 +29,7 @@ jobs:
       - name: Get Release workflow run ID
         run: echo "FRAMEWORK_RUN_ID=$(./scripts/xcframework-generated-run.sh)" >> $GITHUB_ENV
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v5
         with:
           name: xcframeworks.zip
           path: Carthage/

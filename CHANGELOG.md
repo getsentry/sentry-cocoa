@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Add padding to tap area of widget button (#5949)
+
 ## 8.55.0
 
 ### Various fixes & improvements
