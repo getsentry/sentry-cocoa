@@ -52,7 +52,7 @@ run_api_stability_for_prs: &run_api_stability_for_prs # API-related code
   # Project files
   - "Sentry.xcworkspace/**"
   - "Sentry.xcodeproj/**"
-  - "Package.swift"
+  - "Package*.swift"
 
   # Scripts
   - "scripts/build-xcframework-local.sh"
