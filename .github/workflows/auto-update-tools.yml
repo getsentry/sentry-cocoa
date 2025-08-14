@@ -57,7 +57,7 @@ jobs:
           filters: .github/file-filters.yml
 
   auto-update-tools:
-    if: needs.files-changed.outputs.run_auto_update_tools_for_prs == 'true'
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_auto_update_tools_for_prs == 'true'
     needs: files-changed
     runs-on: macos-15
     steps:
