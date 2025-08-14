@@ -41,6 +41,8 @@ jobs:
     runs-on: macos-14
     steps:
       - uses: actions/checkout@v4
+      - name: Debug Xcode environment
+        run: ./scripts/ci-debug-xcode-env.sh
       - run: ./scripts/ci-select-xcode.sh 15.4
       - uses: ruby/setup-ruby@v1
         with:

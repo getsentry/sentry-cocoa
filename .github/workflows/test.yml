@@ -45,6 +45,8 @@ jobs:
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
+      - name: Debug Xcode environment
+        run: ./scripts/ci-debug-xcode-env.sh
       - name: Cache for Test Server
         id: cache_test_server
         uses: actions/cache@v4
@@ -199,9 +201,8 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: test-server
-
-      - name: Print hardware info
-        run: system_profiler SPHardwareDataType
+      - name: Debug Xcode environment
+        run: ./scripts/ci-debug-xcode-env.sh
 
       - name: Start Test Server
         run: ./scripts/start-test-server.sh

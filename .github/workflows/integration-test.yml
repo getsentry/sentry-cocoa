@@ -35,6 +35,8 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+      - name: Debug Xcode environment
+        run: ./scripts/ci-debug-xcode-env.sh
 
       - name: Select Xcode
         run: ./scripts/ci-select-xcode.sh 16.4

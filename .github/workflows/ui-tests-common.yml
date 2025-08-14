@@ -49,15 +49,11 @@ jobs:
     name: UI Tests Common
     runs-on: ${{ inputs.macos_version }}
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      - name: Print hardware info
-        shell: bash
-        run: system_profiler SPHardwareDataType
-
-      - name: Print available disk space
-        shell: bash
-        run: df -h
+      - name: Debug Xcode environment
+        run: ./scripts/ci-debug-xcode-env.sh
 
       - name: Setup Ruby
         uses: ruby/setup-ruby@13e7a03dc3ac6c3798f4570bfead2aed4d96abfb # v1.244.0

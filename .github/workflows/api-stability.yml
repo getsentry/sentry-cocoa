@@ -46,6 +46,8 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+      - name: Debug Xcode environment
+        run: ./scripts/ci-debug-xcode-env.sh
       - run: ./scripts/ci-select-xcode.sh 16.4
 
       - name: Generate HEAD SDK

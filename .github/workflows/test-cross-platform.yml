@@ -34,6 +34,9 @@ jobs:
         with:
           repository: getsentry/sentry-cocoa
           path: sentry-cocoa
+      - name: Debug Xcode environment
+        working-directory: sentry-cocoa
+        run: ./scripts/ci-debug-xcode-env.sh
 
       - name: Initialize tools
         run: make init-ci-build

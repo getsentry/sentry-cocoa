@@ -33,11 +33,16 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+      - name: Debug Xcode environment
+        run: ./scripts/ci-debug-xcode-env.sh
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
         with:
           languages: ${{ matrix.language }}
+
+      - name: Select Xcode version
+        run: ./scripts/ci-select-xcode.sh 16.4
 
       - run: |
           set -o pipefail && NSUnbufferedIO=YES xcodebuild \
