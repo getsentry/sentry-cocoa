@@ -38,7 +38,7 @@ jobs:
     # We intentionally run this on ubuntu because the release workflow also runs on ubuntu, which uses the version bump util.
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Generate Version Number
         id: generate-version-number
         run: |
@@ -53,7 +53,7 @@ jobs:
     name: Run Version Bump (Shell Script)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Generate Version Number
         id: generate-version-number
         run: |
