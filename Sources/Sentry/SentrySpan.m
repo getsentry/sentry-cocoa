@@ -201,10 +201,12 @@ NS_ASSUME_NONNULL_BEGIN
     }
 }
 
+#if !SDK_V9
 - (void)setExtraValue:(nullable id)value forKey:(NSString *)key
 {
     [self setDataValue:value forKey:key];
 }
+#endif // !SDK_V9
 
 - (void)removeDataForKey:(NSString *)key
 {

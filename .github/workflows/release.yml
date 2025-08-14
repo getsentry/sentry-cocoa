@@ -114,18 +114,25 @@ jobs:
             suffix: "-WithoutUIKitOrAppKit"
             configuration-suffix: WithoutUIKit
             id: sentry-withoutuikit-dynamic
+            excluded-archs: arm64e
+          - scheme: Sentry
+            macho-type: mh_dylib
+            suffix: "-WithoutUIKitOrAppKit"
+            configuration-suffix: WithoutUIKit
+            id: sentry-withoutuikit-dynamic
+            override-name: Sentry-WithoutUIKitOrAppKit-WithARM64e
 
   validate-xcframework:
     name: Validate XCFramework
     runs-on: macos-14
     needs: assemble-xcframework-variant
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v4
+      - uses: actions/checkout@v5
+      - uses: actions/download-artifact@v5
         with:
           pattern: xcframework-${{github.sha}}-sentry-static
           path: Carthage/
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v5
         with:
           pattern: xcframework-${{github.sha}}-sentry-swiftui
           path: Carthage/
@@ -141,8 +148,8 @@ jobs:
     runs-on: macos-14
     needs: assemble-xcframework-variant
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v4
+      - uses: actions/checkout@v5
+      - uses: actions/download-artifact@v5
         with:
           pattern: xcframework-${{github.sha}}-*
           merge-multiple: true
@@ -161,8 +168,8 @@ jobs:
     runs-on: macos-14
     needs: assemble-xcframework-variant
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v4
+      - uses: actions/checkout@v5
+      - uses: actions/download-artifact@v5
         with:
           pattern: xcframework-${{github.sha}}-*
           merge-multiple: true
@@ -181,8 +188,8 @@ jobs:
     runs-on: macos-14
     needs: assemble-xcframework-variant
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v4
+      - uses: actions/checkout@v5
+      - uses: actions/download-artifact@v5
         with:
           pattern: xcframework-${{github.sha}}-*
           merge-multiple: true
@@ -214,7 +221,7 @@ jobs:
     timeout-minutes: 20
     steps:
       - name: Git checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - run: ./scripts/ci-select-xcode.sh 16.4
       - uses: ruby/setup-ruby@v1
         with:
@@ -235,7 +242,7 @@ jobs:
           MATCH_GIT_PRIVATE_KEY: ${{ secrets.MATCH_GIT_PRIVATE_KEY }}
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v5
         with:
           pattern: xcframework-${{github.sha}}-sentry-dynamic
           path: Carthage/
@@ -277,12 +284,12 @@ jobs:
           app-id: ${{ vars.SENTRY_RELEASE_BOT_CLIENT_ID }}
           private-key: ${{ secrets.SENTRY_RELEASE_BOT_PRIVATE_KEY }}
       - name: Check out current commit (${{ github.sha }})
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           token: ${{ steps.token.outputs.token }}
           fetch-depth: 0
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v5
         with:
           pattern: xcframework-${{github.sha}}-*
           merge-multiple: true

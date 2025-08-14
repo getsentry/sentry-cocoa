@@ -56,11 +56,12 @@ sentry_isLaunchProfileCorrelatedToTraces(void)
         return NO;
     }
 
-    SentryProfileOptions *options = sentry_profileConfiguration.profileOptions;
-
-    if (nil == options) {
+    SentryProfileOptions *_Nullable nullableOptions = sentry_profileConfiguration.profileOptions;
+    if (nil == nullableOptions) {
         return !sentry_profileConfiguration.isContinuousV1;
     }
+    SentryProfileOptions *_Nonnull options
+        = SENTRY_UNWRAP_NULLABLE(SentryProfileOptions, nullableOptions);
 
     return sentry_profileAppStarts(options) && sentry_isTraceLifecycle(options);
 }

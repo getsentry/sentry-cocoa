@@ -27,6 +27,10 @@ extension FrameDecodable: Decodable {
         // https://github.com/getsentry/sentry-cocoa/issues/4738
         case lineNumber = "lineno"
         case columnNumber = "colno"
+        case contextLine = "context_line"
+        case preContext = "pre_context"
+        case postContext = "post_context"
+        case vars
         case inApp = "in_app"
         case stackStart = "stack_start"
     }
@@ -51,6 +55,12 @@ extension FrameDecodable: Decodable {
         self.instructionAddress = try container.decodeIfPresent(String.self, forKey: .instructionAddress)
         self.lineNumber = (try container.decodeIfPresent(NSNumberDecodableWrapper.self, forKey: .lineNumber))?.value
         self.columnNumber = (try container.decodeIfPresent(NSNumberDecodableWrapper.self, forKey: .columnNumber))?.value
+        self.contextLine = try container.decodeIfPresent(String.self, forKey: .contextLine)
+        self.preContext = try container.decodeIfPresent([String].self, forKey: .preContext)
+        self.postContext = try container.decodeIfPresent([String].self, forKey: .postContext)
+        self.vars = decodeArbitraryData {
+            try container.decodeIfPresent([String: ArbitraryData].self, forKey: .vars)
+        }
         self.inApp = (try container.decodeIfPresent(NSNumberDecodableWrapper.self, forKey: .inApp))?.value
         self.stackStart = (try container.decodeIfPresent(NSNumberDecodableWrapper.self, forKey: .stackStart))?.value
     }
