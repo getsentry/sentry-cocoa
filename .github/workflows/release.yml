@@ -10,6 +10,7 @@ on:
     paths:
       - "Sources/**"
       - "scripts/ci-select-xcode.sh"
+      - "scripts/ci-diagnostics.sh"
       - Sentry.xcworkspace/**
       - Sentry.xcodeproj/**
       - "Package.swift"
@@ -139,6 +140,9 @@ jobs:
       - run: find Carthage -name "*.zip" -print0 | xargs -t0I @ mv @ Carthage
       - run: ./scripts/ci-select-xcode.sh 15.4
       - run: make build-xcframework-sample
+      - name: Run CI Diagnostics
+        if: failure()
+        run: ./scripts/ci-diagnostics.sh
 
   # Use github.event.pull_request.head.sha instead of github.sha when available as
   # the github.sha is be the pre merge commit id for PRs.
@@ -162,6 +166,9 @@ jobs:
         shell: bash
       - run: swift build
         working-directory: Samples/macOS-SPM-CommandLine
+      - name: Run CI Diagnostics
+        if: failure()
+        run: ./scripts/ci-diagnostics.sh
 
   validate-spm-dynamic:
     name: Validate SPM Dynamic
@@ -182,6 +189,9 @@ jobs:
         shell: bash
       - run: swift build
         working-directory: Samples/SPM-Dynamic
+      - name: Run CI Diagnostics
+        if: failure()
+        run: ./scripts/ci-diagnostics.sh
 
   swift-build:
     name: Build Swift Static
@@ -201,6 +211,9 @@ jobs:
           sed -i '' 's/checksum: ".*" \/\/Sentry-Dynamic/path: "Sentry-Dynamic.xcframework.zip"/g' Package.swift
         shell: bash
       - run: swift build
+      - name: Run CI Diagnostics
+        if: failure()
+        run: ./scripts/ci-diagnostics.sh
 
   duplication-tests:
     name: Test Sentry Duplication V4 # Up the version with every change to keep track of flaky tests
@@ -263,6 +276,9 @@ jobs:
           config: Tests/Perf/metrics-test.yml
           sauce-user: ${{ secrets.SAUCE_USERNAME }}
           sauce-key: ${{ secrets.SAUCE_ACCESS_KEY }}
+      - name: Debug Xcode environment
+        if: ${{ failure() || cancelled() }}
+        run: ./scripts/ci-diagnostics.sh
 
   job_release:
     runs-on: ubuntu-latest
@@ -318,3 +334,7 @@ jobs:
           version: ${{ github.event.inputs.version }}
           force: ${{ github.event.inputs.force }}
           merge_target: ${{ github.event.inputs.merge_target }}
+
+      - name: Run CI Diagnostics
+        if: failure()
+        run: ./scripts/ci-diagnostics.sh

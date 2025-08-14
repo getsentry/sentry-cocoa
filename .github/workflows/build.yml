@@ -13,6 +13,7 @@ on:
       - ".github/workflows/build.yml"
       - "fastlane/**"
       - "scripts/ci-select-xcode.sh"
+      - "scripts/ci-diagnostics.sh"
       - Sentry.xcworkspace/**
       - Sentry.xcodeproj/**
       - Gemfile.lock
@@ -55,6 +56,10 @@ jobs:
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
         run: bundle exec fastlane build_ios_swift
+
+      - name: Debug Xcode environment
+        if: ${{ failure() || cancelled() }}
+        run: ./scripts/ci-diagnostics.sh
 
   build-sample:
     name: Sample ${{ matrix.scheme }} ${{ matrix.config }}
@@ -113,6 +118,11 @@ jobs:
           name: raw-build-output-scheme-${{matrix.scheme}}
           path: |
             raw-build-output.log
+
+      - name: Debug Xcode environment
+        if: ${{ failure() || cancelled() }}
+        run: ./scripts/ci-diagnostics.sh
+
   build-spm:
     name: Build with SPM
     runs-on: macos-15
@@ -136,18 +146,28 @@ jobs:
             raw-build-output-spm-watchos.log
             raw-build-output-spm-iphoneos.log
 
+      - name: Debug Xcode environment
+        if: ${{ failure() || cancelled() }}
+        run: ./scripts/ci-diagnostics.sh
+
   build-v9:
     name: Build SDK v9
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v5
+
       - run: ./scripts/sentry-xcodebuild.sh --platform iOS --os 18.5 --device "iPhone 16" --command build --configuration DebugV9
+
+      - name: Debug Xcode environment
+        if: ${{ failure() || cancelled() }}
+        run: ./scripts/ci-diagnostics.sh
 
   check-debug-without-UIKit:
     name: Check no UIKit linkage (DebugWithoutUIKit)
     runs-on: macos-14
     steps:
       - uses: actions/checkout@v5
+
       - name: Build for Debug
         run: |
           ./scripts/sentry-xcodebuild.sh \
@@ -161,11 +181,16 @@ jobs:
       - name: Ensure UIKit is not linked
         run: ./scripts/check-uikit-linkage.sh DebugWithoutUIKit uikit-check-build unlinked SentryWithoutUIKit
 
+      - name: Debug Xcode environment
+        if: ${{ failure() || cancelled() }}
+        run: ./scripts/ci-diagnostics.sh
+
   check-release-without-UIKit:
     name: Check no UIKit linkage (ReleaseWithoutUIKit)
     runs-on: macos-14
     steps:
       - uses: actions/checkout@v5
+
       - name: Build for Release
         run: |
           ./scripts/sentry-xcodebuild.sh \
@@ -179,11 +204,16 @@ jobs:
       - name: Ensure UIKit is not linked
         run: ./scripts/check-uikit-linkage.sh ReleaseWithoutUIKit uikit-check-build unlinked SentryWithoutUIKit
 
+      - name: Debug Xcode environment
+        if: ${{ failure() || cancelled() }}
+        run: ./scripts/ci-diagnostics.sh
+
   check-debug-with-UIKit:
     name: Check UIKit linkage (Debug)
     runs-on: macos-14
     steps:
       - uses: actions/checkout@v5
+
       - name: Build for Debug
         run: |
           ./scripts/sentry-xcodebuild.sh \
@@ -197,11 +227,16 @@ jobs:
       - name: Ensure UIKit is linked
         run: ./scripts/check-uikit-linkage.sh Debug uikit-check-build linked Sentry
 
+      - name: Debug Xcode environment
+        if: ${{ failure() || cancelled() }}
+        run: ./scripts/ci-diagnostics.sh
+
   check-release-with-UIKit:
     name: Check UIKit linkage (Release)
     runs-on: macos-14
     steps:
       - uses: actions/checkout@v5
+
       - name: Build for Release
         run: |
           ./scripts/sentry-xcodebuild.sh \
@@ -214,6 +249,10 @@ jobs:
             --derived-data uikit-check-build
       - name: Ensure UIKit is linked
         run: ./scripts/check-uikit-linkage.sh Release uikit-check-build linked Sentry
+
+      - name: Debug Xcode environment
+        if: ${{ failure() || cancelled() }}
+        run: ./scripts/ci-diagnostics.sh
 
     # The compiler only evaluates SentryAsyncSafeLogs that get printed based on the SENTRY_ASYNC_SAFE_LOG_LEVEL.
     # So if the level is set to error, which is the default, and a SENTRY_ASYNC_SAFE_LOG_DEBUG has a compiler error,
@@ -245,3 +284,7 @@ jobs:
             --command build \
             --device "iPhone 16" \
             --configuration Debug
+
+      - name: Debug Xcode environment
+        if: ${{ failure() || cancelled() }}
+        run: ./scripts/ci-diagnostics.sh

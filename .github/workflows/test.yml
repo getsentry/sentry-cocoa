@@ -88,6 +88,10 @@ jobs:
             test-server-build-intel.log
             test-server-build-arm64.log
 
+      - name: Run CI Diagnostics
+        if: failure()
+        run: ./scripts/ci-diagnostics.sh
+
   unit-tests:
     name: Unit ${{matrix.name}}
     runs-on: ${{matrix.runs-on}}
@@ -200,9 +204,6 @@ jobs:
         with:
           name: test-server
 
-      - name: Print hardware info
-        run: system_profiler SPHardwareDataType
-
       - name: Start Test Server
         run: ./scripts/start-test-server.sh
 
@@ -311,6 +312,10 @@ jobs:
           verbose: true
           name: sentry-cocoa-unit-tests
           flags: unittests-${{ matrix.platform }}-${{ matrix.xcode }}-${{ matrix.test-destination-os }}, unittests
+
+      - name: Run CI Diagnostics
+        if: failure()
+        run: ./scripts/ci-diagnostics.sh
 
   # This check validates that either all unit tests passed or were skipped, which allows us
   # to make unit tests a required check with only running the unit tests when required.

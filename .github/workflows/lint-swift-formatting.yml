@@ -10,6 +10,7 @@ on:
       - ".swiftlint.yml"
       - "Makefile" # Make commands used for formatting setup
       - "Brewfile*" # Tools installation affects formatting environment
+      - "scripts/ci-diagnostics.sh"
 
   pull_request:
     paths:
@@ -18,6 +19,7 @@ on:
       - ".swiftlint.yml"
       - "Makefile" # Make commands used for formatting setup
       - "Brewfile*" # Tools installation affects formatting environment
+      - "scripts/ci-diagnostics.sh"
 
 # Concurrency configuration:
 # - We use workflow-specific concurrency groups to prevent multiple lint runs on the same code,
@@ -53,3 +55,6 @@ jobs:
           else
             echo "✅ All code is formatted correctly."
           fi
+      - name: Run CI Diagnostics
+        if: failure()
+        run: ./scripts/ci-diagnostics.sh

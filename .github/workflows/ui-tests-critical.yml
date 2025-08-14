@@ -15,6 +15,7 @@ on:
       # Explicitly list used scripts to avoid unnecessary runs
       - "scripts/ci-boot-simulator.sh"
       - "scripts/ci-select-xcode.sh"
+      - "scripts/ci-diagnostics.sh"
 
 # Concurrency configuration:
 # - We use workflow-specific concurrency groups to prevent multiple critical UI test runs,
@@ -99,3 +100,7 @@ jobs:
         with:
           name: swiftui-crash-test-log.logarchive
           path: swiftui-crash-test-log.logarchive
+
+      - name: Run CI Diagnostics
+        if: failure()
+        run: ./scripts/ci-diagnostics.sh
