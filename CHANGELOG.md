@@ -21,6 +21,10 @@
 > If your app does not need arm64e, you don't need to make any changes.
 > But if your app _needs arm64e_ please use `Sentry-Dynamic-WithARM64e` or `Sentry-WithoutUIKitOrAppKit-WithARM64e` from 8.55.0 so you don't have issues uploading to the App Store.
 
+### Fixes
+
+- Add null-handling for parsed DSN in SentryHTTPTransport (#5800)
+
 ### Features
 
 - Structured Logs: Flush logs on SDK flush/close (#5834)
