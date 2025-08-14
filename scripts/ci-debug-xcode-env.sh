@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-# shellcheck source=scripts/ci-utils.sh
+# shellcheck source=./ci-utils.sh
 source "$(cd "$(dirname "$0")" && pwd)/ci-utils.sh"
 
 log_notice "Starting Xcode/macOS environment diagnostics"
@@ -81,7 +81,7 @@ end_group
 
 begin_group "Hardware summary"
 if command -v system_profiler >/dev/null 2>&1; then
-  system_profiler SPHardwareDataType | sed -e 's/^\s\{0,\}//' || true
+  system_profiler SPHardwareDataType | sed -e 's/^[[:space:]]*//' || true
 fi
 end_group
 
