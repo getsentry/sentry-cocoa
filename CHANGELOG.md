@@ -1,6 +1,6 @@
 # Changelog
 
-## 8.54.1-alpha.2
+## 8.55.0
 
 > [!Important]
 > Xcode 26 no longer allows individual frameworks to contain arm64e slices anymore if the main binary doesn't contain them.
@@ -16,34 +16,11 @@
 
 ### Features
 
+- Add a new prebuilt framework with arm64e and remove it from the regular one (#5788)
+- Add `beforeSendLog` callback to `SentryOptions` (#5678)
 - Structured Logs: Flush logs on SDK flush/close (#5834)
 - Add a new prebuilt framework with ARM64e for WithoutUIKitOrAppKit (#5897)
 - Add source context and vars fields to SentryFrame (#5853)
-
-### Fixes
-
-- Fixed a build error in `SentryFeedback.swift` when building with cocoapods on Xcode 14.2 (#5917)
-
-## 8.54.1-alpha.1
-
-- No documented changes.
-
-## 8.54.1-alpha.0
-
-> [!Important]
-> Xcode 26 no longer allows individual frameworks to contain arm64e slices anymore if the main binary doesn't contain them.
-> We have decided to split the Dynamic variant of Sentry into two variants:
->
-> - `Sentry-Dynamic`: Without arm64e
-> - `Sentry-Dynamic-WithARM64e`: _With_ ARM64e slice
->
-> If your app does not need arm64e, you don't need to make any changes.
-> But if your app _needs arm64e_ please use `Sentry-Dynamic-WithARM64e` from 8.55.0 so you don't have issues uploading to the App Store.
-
-### Features
-
-- Add a new prebuilt framework with arm64e and remove it from the regular one (#5788)
-- Add `beforeSendLog` callback to `SentryOptions` (#5678)
 
 ### Fixes
 
@@ -51,6 +28,7 @@
 - Fix Infinite Session Replay Processing Loop (#5765)
 - Fix memory leak in SessionReplayIntegration (#5770)
 - Fix reporting of energy used while profiling (#5768)
+- Fixed a build error in `SentryFeedback.swift` when building with cocoapods on Xcode 14.2 (#5917)
 
 ### Internal
 
