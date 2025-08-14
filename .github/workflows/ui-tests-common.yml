@@ -49,8 +49,7 @@ jobs:
     name: UI Tests Common
     runs-on: ${{ inputs.macos_version }}
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Debug Xcode environment
         run: ./scripts/ci-debug-xcode-env.sh
