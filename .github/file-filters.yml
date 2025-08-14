@@ -62,3 +62,13 @@ run_api_stability_for_prs: &run_api_stability_for_prs # API-related code
   - "Makefile" # Make commands used for API generation
   - "sdk_api.json"
   - "sdk_api_v9.json"
+
+run_auto_update_tools_for_prs: &run_auto_update_tools_for_prs # Auto-update tools workflow
+  - ".github/workflows/auto-update-tools.yml"
+  - "Brewfile*"
+  - "Makefile"
+  - "scripts/.clang-format-version"
+  - "scripts/.swiftlint-version"
+  - ".pre-commit-config.yaml"
+  - "scripts/update-tooling-versions.sh"
+  - "scripts/check-tooling-versions.sh"
