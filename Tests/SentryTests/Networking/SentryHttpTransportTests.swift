@@ -212,14 +212,15 @@ class SentryHttpTransportTests: XCTestCase {
         assertEnvelopesStored(envelopeCount: 0)
     }
 
-    func testSendEventWithSession_SentInOneEnvelope() {
+    @available(iOS 16.0, *)
+    func testSendEventWithSession_SentInOneEnvelope() throws {
         sut.send(envelope: fixture.eventWithSessionEnvelope)
         waitForAllRequests()
 
         assertRequestsSent(requestCount: 1)
         assertEnvelopesStored(envelopeCount: 0)
 
-        assertEventAndSessionAreSentInOneEnvelope()
+        try assertEventAndSessionAreSentInOneEnvelope()
     }
     
     func testSendEventWithFaultyNSUrlRequest() {
@@ -1025,9 +1026,43 @@ class SentryHttpTransportTests: XCTestCase {
         XCTAssertEqual(fixture.eventWithAttachmentRequest.httpBody, actualEventRequest?.httpBody, "Event was not sent as envelope.")
     }
 
-    private func assertEventAndSessionAreSentInOneEnvelope() {
+    @available(iOS 16.0, *)
+    private func assertEventAndSessionAreSentInOneEnvelope() throws {
         let actualEventRequest = fixture.requestManager.requests.last
-        XCTAssertEqual(fixture.eventWithSessionRequest.httpBody, actualEventRequest?.httpBody, "Request for event with session is faulty.")
+//        let eventBody = sentry_unzippedData(fixture.eventWithSessionRequest.httpBody!)!
+//        let actualBody = sentry_unzippedData(actualEventRequest!.httpBody!)!
+        try compareEnvelopes(fixture.eventWithAttachmentRequest.httpBody, actualEventRequest?.httpBody, message: "Request for event with session is faulty.")
+        // XCTAssertEqual(fixture.eventWithSessionRequest.httpBody, actualEventRequest?.httpBody, "Request for event with session is faulty.")
+    }
+    
+    @available(iOS 16.0, *)
+    private func compareEnvelopes(_ expectedEnvelope: Data?, _ actualEnvelope: Data?, message: String) throws {
+        guard let expectedEnvelope, let actualEnvelope else {
+            XCTAssertEqual(expectedEnvelope, actualEnvelope, message)
+            return
+        }
+        
+        guard let unzippedExpected = sentry_unzippedData(expectedEnvelope), let unzippedActual = sentry_unzippedData(actualEnvelope) else {
+            XCTFail(message)
+            return
+        }
+        
+        let newline = "\n".data(using: .utf8)!
+        let expectedElements = unzippedExpected.split(separator: newline)
+        let actualElements = unzippedActual.split(separator: newline)
+        XCTAssertEqual(expectedElements.count, actualElements.count, message)
+        zip(expectedElements, actualElements).map { expected, actual
+            let expected = try? JSONSerialization.jsonObject(with: data) as? NSDictionary, 
+        }
+        let expectedData = unzippedExpected.split(separator: newline).map { data -> Any in
+            let json = try? JSONSerialization.jsonObject(with: data) as? NSDictionary
+            return json ?? String(data: data, encoding: .utf8)!
+        }
+        let actualData = unzippedActual.split(separator: newline).map { data -> Any in
+            let json = try? JSONSerialization.jsonObject(with: data) as? NSDictionary
+            return json ?? String(data: data, encoding: .utf8)!
+        }
+        XCTAssertEqual(expectedData, actualData, message)
     }
 
     private func assertEnvelopesStored(envelopeCount: Int) {

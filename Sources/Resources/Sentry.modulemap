@@ -26,7 +26,6 @@ framework module Sentry {
         header "SentrySessionReplayIntegration.h"
         header "SentrySessionReplayIntegration-Hybrid.h"
         
-        header "SentrySdkInfo.h"
         header "SentrySDKSettings.h"
         header "SentryInternalSerializable.h"
         
