@@ -17,6 +17,8 @@ struct SwiftUICrashTestApp: App {
         WindowGroup {
             ContentView()
                 .onAppear {
+                    // Moved the crash from init to onAppear to ensure the app is fully loaded before crashing.
+                    // This prevents test flakiness on CI that occurred when the crash happened during the app launch.
                     let userDefaultsKey = "crash-on-launch"
                     if UserDefaults.standard.bool(forKey: userDefaultsKey) {
                         NSLog("SwiftUICrashTestApp - will crash")
