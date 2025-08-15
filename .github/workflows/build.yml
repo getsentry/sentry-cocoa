@@ -157,10 +157,21 @@ jobs:
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v5
-
       - run: ./scripts/ci-select-xcode.sh 16.4
-      - run: ./scripts/sentry-xcodebuild.sh --platform iOS --os 18.5 --device "iPhone 16" --command build --configuration DebugV9
-
+      - run: |
+          ./scripts/sentry-xcodebuild.sh \
+            --platform iOS \
+            --os 18.5 \
+            --command build \
+            --device "iPhone 16"  \
+            --configuration DebugV9
+      - name: Archiving Raw Build Logs
+        uses: actions/upload-artifact@v4
+        if: ${{ failure() || cancelled() }}
+        with:
+          name: raw-build-output-v9
+          path: |
+            raw-build-output.log
       - name: Debug Xcode environment
         if: ${{ failure() || cancelled() }}
         run: ./scripts/ci-diagnostics.sh
