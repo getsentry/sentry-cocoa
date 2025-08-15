@@ -28,7 +28,6 @@
 #import "SentryTracer+Private.h"
 #import "SentryTransaction.h"
 #import "SentryTransactionContext.h"
-#import "SentryUIApplication.h"
 #import <NSMutableDictionary+Sentry.h>
 #import <SentryMeasurementValue.h>
 
