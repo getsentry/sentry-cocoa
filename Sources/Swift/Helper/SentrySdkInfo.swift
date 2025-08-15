@@ -8,8 +8,9 @@ import Foundation
  */
 @_spi(Private) @objc public final class SentrySdkInfo: NSObject, SentrySerializable {
     
+    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     @objc public static func global() -> Self {
-        Self(withOptions: SentrySDK.currentHub().getClient()?.options)
+        Self(withOptions: SentrySDKInternal.currentHub().getClient()?.options)
     }
     
     /**
@@ -30,7 +31,7 @@ import Foundation
      * integrations are included because different SDK releases may contain different
      * default integrations.
      */
-    @objc let integrations: NSArray
+    @objc let integrations: [String]
     
     /**
      * A list of feature names identifying enabled SDK features. This list
@@ -45,30 +46,31 @@ import Foundation
      * activated integrations. Each package consists of a name in the format
      * source:identifier and version.
      */
-    @objc let packages: NSArray
+    @objc let packages: [[String: String]]
     
+    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     @objc public convenience init(withOptions options: Options?) {
         let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
-        let integrations = SentrySDK.currentHub().trimmedInstalledIntegrationNames()
-        #if SENTRY_HAS_UIKIT
-            if options.enablePreWarmedAppStartTracing {
-                integrations.add("PreWarmedAppStartTracing")
+        var integrations = SentrySDKInternal.currentHub().trimmedInstalledIntegrationNames()
+        #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
+            if options?.enablePreWarmedAppStartTracing ?? false {
+                integrations.append("PreWarmedAppStartTracing")
             }
         #endif
-        let packages = SentryExtraPackages.getPackages()
+        var packages = SentryExtraPackages.getPackages()
         let sdkPackage = SentrySdkPackage.global()
         if let sdkPackage {
-            packages.add(sdkPackage)
+            packages.insert(sdkPackage)
         }
         self.init(
             name: SentryMeta.sdkName,
             version: SentryMeta.versionString,
             integrations: integrations,
             features: features,
-            packages: packages.allObjects as NSArray)
+            packages: Array(packages))
     }
     
-    @objc init(name: String?, version: String?, integrations: NSArray?, features: [String]?, packages: NSArray?) {
+    @objc init(name: String?, version: String?, integrations: [String]?, features: [String]?, packages: [[String: String]]?) {
         self.name = name ?? ""
         self.version = version ?? ""
         self.integrations = integrations ?? []
@@ -122,21 +124,20 @@ import Foundation
         self.init(
             name: name,
             version: version,
-            integrations: Array(integrations) as NSArray,
+            integrations: Array(integrations),
             features: Array(features),
-            packages: Array(packages) as NSArray
+            packages: Array(packages)
         )
     }
     // swiftlint:enable cyclomatic_complexity
     
     @objc public func serialize() -> [String: Any] {
-//        let dictionary: [String: Any] = [
-//            "name": self.name,
-//            "version": self.version,
-//            "integrations": self.integrations,
-//            "features": self.features,
-//            "packages": self.packages
-//        ]
-        return SentrySwiftDictionaryHelper.convert(from: self.name, version: self.version, integrations: self.integrations, features: self.features, packages: self.packages)
+        [
+            "name": self.name,
+            "version": self.version,
+            "integrations": self.integrations,
+            "features": self.features,
+            "packages": self.packages
+        ]
     }
 }

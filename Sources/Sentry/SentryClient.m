@@ -559,8 +559,11 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
     // Hybrid SDKs may override the sdk info for a replay Event,
     // the same SDK should be used for the envelope header.
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     SentrySdkInfo *sdkInfo = replayEvent.sdk ? [[SentrySdkInfo alloc] initWithDict:replayEvent.sdk]
                                              : [SentrySdkInfo global];
+#pragma clang diagnotsic pop
     SentryEnvelopeHeader *envelopeHeader =
         [[SentryEnvelopeHeader alloc] initWithId:replayEvent.eventId
                                          sdkInfo:sdkInfo
