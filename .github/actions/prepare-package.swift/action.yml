@@ -5,6 +5,10 @@ inputs:
     description: "Whether the build is a PR"
     required: true
     default: "false"
+  package-file:
+    description: "The package file to prepare"
+    required: true
+    default: "Package.swift"
 runs:
   using: "composite"
   steps:
@@ -12,13 +16,17 @@ runs:
       # We don't build it on PRs, so we need to remove it from the package.swift file.
       if: ${{ inputs.is-pr == 'true' }}
       shell: bash
+      env:
+        PACKAGE_FILE: ${{ inputs.package-file }}
       run: |
-        sed -i '' '/Sentry-Dynamic-WithARM64e/d' Package.swift
-        sed -i '' '/^[[:space:]]*\.binaryTarget($/{N;/\n[[:space:]]*),$/d;}' Package.swift
+        sed -i '' '/Sentry-Dynamic-WithARM64e/d' $PACKAGE_FILE
+        sed -i '' '/^[[:space:]]*\.binaryTarget($/{N;/\n[[:space:]]*),$/d;}' $PACKAGE_FILE
     - name: Change path of the framework
       shell: bash
+      env:
+        PACKAGE_FILE: ${{ inputs.package-file }}
       run: |
-        sed -i '' 's/url.*//g' Package.swift
-        sed -i '' 's/checksum: ".*" \/\/Sentry-Static/path: "Sentry.xcframework.zip"/g' Package.swift
-        sed -i '' 's/checksum: ".*" \/\/Sentry-Dynamic-WithARM64e/path: "Sentry-Dynamic-WithARM64e.xcframework.zip"/g' Package.swift
-        sed -i '' 's/checksum: ".*" \/\/Sentry-Dynamic/path: "Sentry-Dynamic.xcframework.zip"/g' Package.swift
+        sed -i '' 's/url.*//g' $PACKAGE_FILE
+        sed -i '' 's/checksum: ".*" \/\/Sentry-Static/path: "Sentry.xcframework.zip"/g' $PACKAGE_FILE
+        sed -i '' 's/checksum: ".*" \/\/Sentry-Dynamic-WithARM64e/path: "Sentry-Dynamic-WithARM64e.xcframework.zip"/g' $PACKAGE_FILE
+        sed -i '' 's/checksum: ".*" \/\/Sentry-Dynamic/path: "Sentry-Dynamic.xcframework.zip"/g' $PACKAGE_FILE

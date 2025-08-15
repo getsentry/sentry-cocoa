@@ -140,6 +140,7 @@ jobs:
         uses: ./.github/actions/prepare-package.swift
         with:
           is-pr: ${{ github.event_name == 'pull_request' }}
+          package-file: ${{matrix.package-file.name}}
       - run: swift build
         working-directory: Samples/macOS-SPM-CommandLine
       - name: Run CI Diagnostics
@@ -165,6 +166,7 @@ jobs:
         uses: ./.github/actions/prepare-package.swift
         with:
           is-pr: ${{ github.event_name == 'pull_request' }}
+          package-file: ${{matrix.package-file.name}}
       - run: swift build
         working-directory: Samples/SPM-Dynamic
       - name: Run CI Diagnostics
@@ -190,6 +192,7 @@ jobs:
         uses: ./.github/actions/prepare-package.swift
         with:
           is-pr: ${{ github.event_name == 'pull_request' }}
+          package-file: ${{matrix.package-file.name}}
       - run: swift build
       - name: Run CI Diagnostics
         if: failure()
