@@ -14,6 +14,7 @@ BASE_VARIANTS=(
     '{"scheme": "Sentry", "macho-type": "mh_dylib", "suffix": "-Dynamic", "id": "sentry-dynamic", "excluded-archs": "arm64e"}'
     '{"scheme": "Sentry", "macho-type": "staticlib", "id": "sentry-static"}'
     '{"scheme": "SentrySwiftUI", "macho-type": "mh_dylib", "id": "sentry-swiftui"}'
+    '{"scheme": "Sentry", "macho-type": "mh_dylib", "suffix": "-WithoutUIKitOrAppKit", "configuration-suffix": "WithoutUIKit", "id": "sentry-withoutuikit-dynamic", "excluded-archs": "arm64e"}'
 )
 BASE_SDKS=(
     '"iphoneos"'
@@ -31,7 +32,6 @@ ADDITIONAL_SLICES=(
 )
 ADDITIONAL_VARIANTS=(
     '{"scheme": "Sentry", "macho-type": "mh_dylib", "suffix": "-Dynamic", "id": "sentry-dynamic", "override-name": "Sentry-Dynamic-WithARM64e"}'
-    '{"scheme": "Sentry", "macho-type": "mh_dylib", "suffix": "-WithoutUIKitOrAppKit", "configuration-suffix": "WithoutUIKit", "id": "sentry-withoutuikit-dynamic", "excluded-archs": "arm64e"}'
     '{"scheme": "Sentry", "macho-type": "mh_dylib", "suffix": "-WithoutUIKitOrAppKit", "configuration-suffix": "WithoutUIKit", "id": "sentry-withoutuikit-dynamic", "override-name": "Sentry-WithoutUIKitOrAppKit-WithARM64e"}'
 )
 ADDITIONAL_SDKS=(
