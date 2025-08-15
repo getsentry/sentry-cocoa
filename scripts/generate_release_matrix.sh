@@ -19,6 +19,10 @@ BASE_SDKS=(
     '"iphoneos"'
     '"iphonesimulator"'
     '"macosx"'
+    '"maccatalyst"'
+    '"appletvos"'
+    '"watchos"'
+    '"xros"'
 )
 
 # Slices and Variants only needed on main or release
@@ -31,12 +35,8 @@ ADDITIONAL_VARIANTS=(
     '{"scheme": "Sentry", "macho-type": "mh_dylib", "suffix": "-WithoutUIKitOrAppKit", "configuration-suffix": "WithoutUIKit", "id": "sentry-withoutuikit-dynamic", "override-name": "Sentry-WithoutUIKitOrAppKit-WithARM64e"}'
 )
 ADDITIONAL_SDKS=(
-    '"maccatalyst"'
-    '"appletvos"'
     '"appletvsimulator"'
-    '"watchos"'
     '"watchsimulator"'
-    '"xros"'
     '"xrsimulator"'
 )
 
