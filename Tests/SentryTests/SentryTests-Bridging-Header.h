@@ -53,7 +53,6 @@
 #import "SentryAppStartMeasurement.h"
 #import "SentryAppStartTracker.h"
 #import "SentryAppStartTrackingIntegration.h"
-#import "SentryAppState.h"
 #import "SentryAppStateManager.h"
 #import "SentryArray.h"
 #import "SentryAttachment+Private.h"
