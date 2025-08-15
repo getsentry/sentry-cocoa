@@ -1,0 +1,24 @@
+# We want to ensure that the Package.swift and Package@swift-5.9.swift are in sync.
+
+name: Check Package.swift Diff
+
+on:
+  push:
+    branches:
+      - main
+
+  pull_request:
+    paths:
+      - ".github/workflows/check-package-diff.yml"
+      - "Package*.swift"
+      - "Makefile"
+      - "Utils/expected_package_diff.patch"
+
+jobs:
+  check:
+    name: Check Package.swift Diff
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check Package.swift Diff
+        run: make check-package-diff
