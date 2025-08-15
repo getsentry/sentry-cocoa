@@ -5,10 +5,10 @@
 #import "SentryCrashStackEntryMapper.h"
 #include "SentryCrashSymbolicator.h"
 #import "SentryFrame.h"
-#import "SentryInAppLogic.h"
 #import "SentryOptions.h"
 #import "SentryStacktrace.h"
 #import "SentryStacktraceBuilder.h"
+#import "SentrySwift.h"
 #import "SentryThread.h"
 #include <pthread.h>
 

@@ -16,7 +16,6 @@
 #    import "SentryTraceOrigin.h"
 #    import "SentryTracer.h"
 #    import "SentryWeakMap.h"
-#    import <SentryInAppLogic.h>
 #    import <UIKit/UIKit.h>
 #    import <objc/runtime.h>
 
