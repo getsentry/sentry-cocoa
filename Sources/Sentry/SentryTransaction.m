@@ -2,7 +2,6 @@
 #import "SentryEnvelopeItemType.h"
 #import "SentryEvent+Serialize.h"
 #import "SentryInternalDefines.h"
-#import "SentryMeasurementValue.h"
 #import "SentryNSDictionarySanitize.h"
 #import "SentryProfilingConditionals.h"
 #import "SentrySpan+Private.h"
