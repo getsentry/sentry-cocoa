@@ -57,7 +57,7 @@
     NSArray *result = original(request, error);
 
     if (fetchSpan) {
-        [self addExtraInfoToSpan:fetchSpan withContext:context];
+        [self addExtraInfoToSpan:(SentrySpan *)fetchSpan withContext:context];
 
         [fetchSpan setDataValue:[NSNumber numberWithInteger:result.count] forKey:@"read_count"];
         [fetchSpan
@@ -104,7 +104,7 @@
     BOOL result = original(error);
 
     if (saveSpan) {
-        [self addExtraInfoToSpan:saveSpan withContext:context];
+        [self addExtraInfoToSpan:(SentrySpan *)saveSpan withContext:context];
         [saveSpan finishWithStatus:result ? kSentrySpanStatusOk : kSentrySpanStatusInternalError];
 
         SENTRY_LOG_DEBUG(@"SentryCoreDataTracker automatically finished span with status: %@",

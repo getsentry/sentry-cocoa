@@ -162,15 +162,16 @@
                             spanCount:(NSUInteger)spanCount
                                 block:(void (^)(void))block
 {
-    SentryTracer *parentTransaction = [SentrySDK startTransactionWithName:@"Transaction"
-                                                                operation:@"Test"
-                                                              bindToScope:YES];
+    SentryTracer *parentTransaction
+        = (SentryTracer *)[SentrySDK startTransactionWithName:@"Transaction"
+                                                    operation:@"Test"
+                                                  bindToScope:YES];
 
     block();
 
     XCTAssertEqual(parentTransaction.children.count, spanCount);
 
-    SentrySpan *ioSpan = parentTransaction.children.firstObject;
+    SentrySpan *ioSpan = (SentrySpan *)parentTransaction.children.firstObject;
     if (spanCount > 0) {
         XCTAssertEqual([ioSpan.data[@"file.size"] unsignedIntValue], someData.length);
         XCTAssertEqualObjects(ioSpan.data[@"file.path"], filePath);
