@@ -15,6 +15,7 @@ Removes enableTracing property from SentryOptions (#5694)
 Removes deprecated `setExtraValue` from SentrySpan (#5864)
 Removes `integrations` property from `SentryOptions` (#5749)
 Makes `SentryEventDecodable` internal (#5808)
+Removes `SentryRedactviewHelper` from API (#5860)
 The `span` property on `SentryScope` is now readonly (#5866)
 
 ### Fixes
