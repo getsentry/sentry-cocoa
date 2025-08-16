@@ -14,6 +14,7 @@
 ### Improvements
 
 - Lazily CharacterSet only once in SentryBaggageSerialization (#5871)
+- Moves `SentryRedactViewHelper` methods to an extension (#5860)
 
 ## 8.54.1-alpha.1
 
