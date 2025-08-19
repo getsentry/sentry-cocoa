@@ -54,6 +54,7 @@
 - Fix memory leak in SessionReplayIntegration (#5770)
 - Fix reporting of energy used while profiling (#5768)
 - Fixed a build error in `SentryFeedback.swift` when building with cocoapods on Xcode 14.2 (#5917)
+- Fix linking against Sentry on an app extension (#5813)
 
 ### Internal
 
