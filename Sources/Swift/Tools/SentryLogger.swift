@@ -192,7 +192,7 @@ public final class SentryLogger: NSObject {
     private func captureLog(level: SentryLog.Level, logMessage: SentryLogMessage, attributes: [String: Any]) {
         guard let batcher else {
             if logsEnabled == nil || logsEnabled == true {
-                SentrySDKLog.error("Logs called called before SentrySDK.start() will be dropped.")
+                SentrySDKLog.error("Logs called before SentrySDK.start() will be dropped.")
             }
             return
         }
