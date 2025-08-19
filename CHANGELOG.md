@@ -10,7 +10,7 @@
 
 - Don't capture replays for events dropped in `beforeSend` (#5916)
 - Fix linking with SentrySwiftUI on Xcode 26 for visionOS (#5823)
-- Structured Logging: Logger called before `SentrySDK.start` becomes unusable  #5984
+- Structured Logging: Logger called before `SentrySDK.start` becomes unusable (#5984)
 
 ### Improvements
 
