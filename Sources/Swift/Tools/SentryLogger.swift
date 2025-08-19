@@ -33,12 +33,25 @@ public final class SentryLogger: NSObject {
     private let dateProvider: SentryCurrentDateProvider
     // Nil in the case where the Hub's client is nil or logs are disabled through options.
     private let batcher: SentryLogBatcher?
+    private let logsEnabled: Bool?
     
-    @_spi(Private) public init(hub: SentryHub, dateProvider: SentryCurrentDateProvider, batcher: SentryLogBatcher?) {
+    @_spi(Private) public init(hub: SentryHub, dateProvider: SentryCurrentDateProvider, batcher: SentryLogBatcher?, logsEnabled: Bool?) {
         self.hub = hub
         self.dateProvider = dateProvider
         self.batcher = batcher
+        self.logsEnabled = logsEnabled
         super.init()
+    }
+    
+    /// Indicates whether the logger is properly configured and can capture logs.
+    /// Returns `false` if the logger was created before the SDK was started .
+    var isConfigured: Bool {
+        // If logs are disabled, this is a valid configured state
+        if let logsEnabled, !logsEnabled {
+            return true
+        }
+        // If logs are enabled, we need a valid batcher to be configured
+        return batcher != nil
     }
     
     // MARK: - Trace Level
@@ -178,6 +191,9 @@ public final class SentryLogger: NSObject {
     
     private func captureLog(level: SentryLog.Level, logMessage: SentryLogMessage, attributes: [String: Any]) {
         guard let batcher else {
+            if logsEnabled == nil || logsEnabled == true {
+                SentrySDKLog.error("Logs called called before SentrySDK.start() will be dropped.")
+            }
             return
         }
         

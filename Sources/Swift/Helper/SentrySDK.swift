@@ -28,15 +28,22 @@ import Foundation
     /// API to access Sentry logs
     @objc public static var logger: SentryLogger {
         return _loggerLock.synchronized {
-            if let _logger {
+            if let _logger, _logger.isConfigured {
                 return _logger
             }
             let hub = SentryDependencyContainerSwiftHelper.currentHub()
+            let client = hub.getClient()
+            let logsEnabled = client?.options.experimental.enableLogs
             var batcher: SentryLogBatcher?
-            if let client = hub.getClient(), client.options.experimental.enableLogs {
+            if let client = hub.getClient(), logsEnabled == true {
                 batcher = SentryLogBatcher(client: client, dispatchQueue: Dependencies.dispatchQueueWrapper)
             }
-            let logger = SentryLogger(hub: hub, dateProvider: Dependencies.dateProvider, batcher: batcher)
+            let logger = SentryLogger(
+                hub: hub,
+                dateProvider: Dependencies.dateProvider,
+                batcher: batcher,
+                logsEnabled: logsEnabled
+            )
             _logger = logger
             return logger
         }
