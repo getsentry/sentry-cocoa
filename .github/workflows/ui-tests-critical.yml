@@ -83,6 +83,13 @@ jobs:
         run: |
           ./TestSamples/SwiftUICrashTest/test-crash-and-relaunch.sh --screenshots-dir "swiftui-crash-test-screenshots"
 
+      - name: Upload Sample
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sample.txt
+          path: sample.txt
+
       - name: Upload SwiftUI Crash Test Screenshots
         uses: actions/upload-artifact@v4
         if: always()

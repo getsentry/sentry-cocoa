@@ -18,6 +18,7 @@ BUNDLE_ID="io.sentry.tests.SwiftUICrashTest"
 USER_DEFAULT_KEY="crash-on-launch"
 DEVICE_ID="booted"
 SCREENSHOTS_DIR="test-crash-and-relaunch-simulator-screenshots"
+SAMPLE_FILE="sample.txt"
 
 usage() {
     echo "Usage: $0"
@@ -160,6 +161,15 @@ while true; do
     
     if [ $elapsed -ge 20 ]; then
         log "❌ App is still running after 20 seconds but it should have crashed instead."
+
+        PID=$(xcrun simctl spawn booted launchctl list | grep "$BUNDLE_ID" | awk '{print $1}')
+        if [ -z "$PID" ]; then
+            echo "Could not find PID for $BUNDLE_ID"
+            exit 1
+        fi
+        echo "Sampling process $PID ($BUNDLE_ID) for 5 seconds..."
+        sample "$PID" 5 -file "$SAMPLE_FILE"
+
         take_simulator_screenshot "app-did-not-crash"
         exit 1
     fi
