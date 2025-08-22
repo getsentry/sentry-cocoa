@@ -36,7 +36,7 @@ nameForSentrySessionStatus(SentrySessionStatus status)
     if (self = [super init]) {
         _sessionId = [NSUUID UUID];
         _started = [SentryDependencyContainer.sharedInstance.dateProvider date];
-        _status = SentrySessionStatusOk;
+        _status = kSentrySessionStatusOk;
         _sequence = 1;
         _errors = 0;
         _distinctId = distinctId;
@@ -79,13 +79,13 @@ nameForSentrySessionStatus(SentrySessionStatus status)
         if (status == nil || ![status isKindOfClass:[NSString class]])
             return nil;
         if ([@"ok" isEqualToString:status]) {
-            _status = SentrySessionStatusOk;
+            _status = kSentrySessionStatusOk;
         } else if ([@"exited" isEqualToString:status]) {
-            _status = SentrySessionStatusExited;
+            _status = kSentrySessionStatusExited;
         } else if ([@"crashed" isEqualToString:status]) {
-            _status = SentrySessionStatusCrashed;
+            _status = kSentrySessionStatusCrashed;
         } else if ([@"abnormal" isEqualToString:status]) {
-            _status = SentrySessionStatusAbnormal;
+            _status = kSentrySessionStatusAbnormal;
         } else {
             return nil;
         }
@@ -151,7 +151,7 @@ nameForSentrySessionStatus(SentrySessionStatus status)
 {
     @synchronized(self) {
         [self changed];
-        _status = SentrySessionStatusExited;
+        _status = kSentrySessionStatusExited;
         [self endSessionWithTimestamp:timestamp];
     }
 }
@@ -160,7 +160,7 @@ nameForSentrySessionStatus(SentrySessionStatus status)
 {
     @synchronized(self) {
         [self changed];
-        _status = SentrySessionStatusCrashed;
+        _status = kSentrySessionStatusCrashed;
         [self endSessionWithTimestamp:timestamp];
     }
 }
@@ -169,7 +169,7 @@ nameForSentrySessionStatus(SentrySessionStatus status)
 {
     @synchronized(self) {
         [self changed];
-        _status = SentrySessionStatusAbnormal;
+        _status = kSentrySessionStatusAbnormal;
         [self endSessionWithTimestamp:timestamp];
     }
 }
@@ -251,7 +251,7 @@ nameForSentrySessionStatus(SentrySessionStatus status)
     }
 }
 
-- (id)copyWithZone:(nullable NSZone *)zone
+- (SentrySessionInternal *)safeCopyWithZone:(nullable NSZone *)zone
 {
     SentrySessionInternal *copy = [[[self class] allocWithZone:zone] init];
 

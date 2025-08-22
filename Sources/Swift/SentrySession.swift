@@ -2,6 +2,21 @@
 import Foundation
 
 @objc @_spi(Private) public enum SentrySessionStatus: UInt {
+    init(internalStatus: InternalSentrySessionStatus) {
+        switch internalStatus {
+        case .sentrySessionStatusOk:
+            self = .ok
+        case .sentrySessionStatusExited:
+            self = .exited
+        case .sentrySessionStatusCrashed:
+            self = .crashed
+        case .sentrySessionStatusAbnormal:
+            fallthrough
+        @unknown default:
+            self = .abnormal
+        }
+    }
+
     case ok       = 0
     case exited   = 1
     case crashed  = 2
@@ -69,7 +84,7 @@ import Foundation
         session.started
     }
     @objc public var status: SentrySessionStatus {
-        SentrySessionStatus(rawValue: session.status) ?? .abnormal
+        SentrySessionStatus(internalStatus: session.status)
     }
     @objc public var errors: UInt {
         get { session.errors }
@@ -118,10 +133,7 @@ import Foundation
     }
 
     public func copy(with zone: NSZone? = nil) -> Any {
-        let copy = session.copy(with: zone)
-        guard let newSession = copy as? SentrySessionInternal else {
-            return copy
-        }
-        return SentrySession(session: newSession)
+        let copy = session.safeCopy(with: zone)
+        return SentrySession(session: copy)
     }
 }

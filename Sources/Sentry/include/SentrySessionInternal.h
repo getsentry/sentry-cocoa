@@ -6,10 +6,17 @@ NS_ASSUME_NONNULL_BEGIN
 
 NSString *nameForSentrySessionStatus(NSUInteger status);
 
+typedef NS_ENUM(NSUInteger, InternalSentrySessionStatus) {
+    kSentrySessionStatusOk = 0,
+    kSentrySessionStatusExited = 1,
+    kSentrySessionStatusCrashed = 2,
+    kSentrySessionStatusAbnormal = 3,
+};
+
 /**
  * The SDK uses SentrySession to inform Sentry about release and project associated project health.
  */
-@interface SentrySessionInternal : NSObject <NSCopying>
+@interface SentrySessionInternal : NSObject
 SENTRY_NO_INIT
 
 - (instancetype)initWithReleaseName:(NSString *)releaseName distinctId:(NSString *)distinctId;
@@ -31,7 +38,7 @@ SENTRY_NO_INIT
 
 @property (nonatomic, readonly, strong) NSUUID *sessionId;
 @property (nonatomic, readonly, strong) NSDate *started;
-@property (nonatomic, readonly) NSUInteger status;
+@property (nonatomic, readonly) InternalSentrySessionStatus status;
 @property (nonatomic) NSUInteger errors;
 @property (nonatomic, readonly) NSUInteger sequence;
 @property (nonatomic, readonly, strong) NSString *distinctId;
@@ -52,6 +59,8 @@ SENTRY_NO_INIT
 @property (nonatomic, copy) NSString *_Nullable abnormalMechanism;
 
 - (NSDictionary<NSString *, id> *)serialize;
+
+- (SentrySessionInternal *)safeCopyWithZone:(nullable NSZone *)zone;
 
 @end
 
