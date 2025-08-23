@@ -199,27 +199,28 @@ class SentryHttpTransportTests: XCTestCase {
         sendEvent()
 
         assertRequestsSent(requestCount: 1)
-        assertEventIsSentAsEnvelope()
+        try assertEventIsSentAsEnvelope()
         assertEnvelopesStored(envelopeCount: 0)
     }
 
-    func testSendEventWhenSessionRateLimitActive() {
+    func testSendEventWhenSessionRateLimitActive() throws {
         fixture.rateLimits.update(TestResponseFactory.createRateLimitResponse(headerValue: "1:\(SentryEnvelopeItemTypeSession):key"))
 
         sendEvent()
 
-        assertEventIsSentAsEnvelope()
+        try assertEventIsSentAsEnvelope()
         assertEnvelopesStored(envelopeCount: 0)
     }
 
-    func testSendEventWithSession_SentInOneEnvelope() {
+    @available(iOS 16.0, *)
+    func testSendEventWithSession_SentInOneEnvelope() throws {
         sut.send(envelope: fixture.eventWithSessionEnvelope)
         waitForAllRequests()
 
         assertRequestsSent(requestCount: 1)
         assertEnvelopesStored(envelopeCount: 0)
 
-        assertEventAndSessionAreSentInOneEnvelope()
+        try assertEventAndSessionAreSentInOneEnvelope()
     }
     
     func testSendEventWithFaultyNSUrlRequest() {
@@ -538,35 +539,35 @@ class SentryHttpTransportTests: XCTestCase {
 
         fixture.requestManager.waitForAllRequests()
         XCTAssertEqual(3, fixture.requestManager.requests.count)
-        XCTAssertEqual(fixture.eventWithAttachmentRequest.httpBody, try XCTUnwrap(fixture.requestManager.requests.invocations.element(at: 1)).httpBody, "Cached envelope was not sent first.")
+        try compareEnvelopes(fixture.eventWithAttachmentRequest.httpBody, try XCTUnwrap(fixture.requestManager.requests.invocations.element(at: 1)).httpBody, message: "Cached envelope was not sent first.")
 
         if fixture.requestManager.requests.invocations.count > 2 {
-            XCTAssertEqual(fixture.sessionRequest.httpBody, try XCTUnwrap(fixture.requestManager.requests.invocations.element(at: 2)).httpBody, "Cached envelope was not sent first.")
+            try compareEnvelopes(fixture.sessionRequest.httpBody, try XCTUnwrap(fixture.requestManager.requests.invocations.element(at: 2)).httpBody, message: "Cached envelope was not sent first.")
         } else {
             XCTFail("Expected a third invocation")
         }
     }
     
-    func testRecordLostEvent_SendingEvent_AttachesClientReport() {
+    func testRecordLostEvent_SendingEvent_AttachesClientReport() throws {
         givenRecordedLostEvents()
         
         sendEvent()
         
         let actualEventRequest = fixture.requestManager.requests.last
-        XCTAssertEqual(fixture.clientReportRequest.httpBody, actualEventRequest?.httpBody, "Client report not sent.")
+        try compareEnvelopes(fixture.clientReportRequest.httpBody, actualEventRequest?.httpBody, message: "Client report not sent.")
     }
     
-    func testRecordLostEvent_SendingEvent_ClearsLostEvents() {
+    func testRecordLostEvent_SendingEvent_ClearsLostEvents() throws {
         givenRecordedLostEvents()
         
         sendEvent()
         
         // Second envelope item doesn't contain client reports
         sendEvent()
-        assertEventIsSentAsEnvelope()
+        try assertEventIsSentAsEnvelope()
     }
     
-    func testRecordLostEvent_NoInternet_StoredWithEnvelope() {
+    func testRecordLostEvent_NoInternet_StoredWithEnvelope() throws {
         givenNoInternetConnection()
         givenRecordedLostEvents()
         
@@ -575,10 +576,10 @@ class SentryHttpTransportTests: XCTestCase {
         sendEvent()
         
         let actualEventRequest = fixture.requestManager.requests.first
-        XCTAssertEqual(fixture.clientReportRequest.httpBody, actualEventRequest?.httpBody, "Client report not sent.")
+        try compareEnvelopes(fixture.clientReportRequest.httpBody, actualEventRequest?.httpBody, message: "Client report not sent.")
     }
     
-    func testEventRateLimited_RecordsLostEvent() {
+    func testEventRateLimited_RecordsLostEvent() throws {
         let rateLimitBackoffError = SentryDiscardedEvent(reason: .rateLimitBackoff, category: .error, quantity: 1)
         let clientReport = SentryClientReport(discardedEvents: [rateLimitBackoffError])
         
@@ -595,10 +596,10 @@ class SentryHttpTransportTests: XCTestCase {
         sendEvent()
         
         let actualEventRequest = fixture.requestManager.requests.last
-        XCTAssertEqual(clientReportRequest.httpBody, actualEventRequest?.httpBody, "Client report not sent.")
+        try compareEnvelopes(clientReportRequest.httpBody, actualEventRequest?.httpBody, message: "Client report not sent.")
     }
     
-    func testTransactionRateLimited_RecordsLostSpans() {
+    func testTransactionRateLimited_RecordsLostSpans() throws {
         let clientReport = SentryClientReport(
             discardedEvents: [
                 SentryDiscardedEvent(reason: .rateLimitBackoff, category: .transaction, quantity: 1),
@@ -626,7 +627,7 @@ class SentryHttpTransportTests: XCTestCase {
         waitForAllRequests()
         
         let actualEventRequest = fixture.requestManager.requests.last
-        XCTAssertEqual(clientReportRequest.httpBody, actualEventRequest?.httpBody, "Client report not sent.")
+        try compareEnvelopes(clientReportRequest.httpBody, actualEventRequest?.httpBody, message: "Client report not sent.")
     }
     
     func testCacheFull_RecordsLostEvent() {
@@ -861,7 +862,7 @@ class SentryHttpTransportTests: XCTestCase {
         sut = try fixture.getSut()
         sendEvent()
         
-        assertEventIsSentAsEnvelope()
+        try assertEventIsSentAsEnvelope()
     }
     
     func testFlush_BlocksCallingThread_TimesOut() {
@@ -1020,14 +1021,15 @@ class SentryHttpTransportTests: XCTestCase {
         XCTAssertEqual(requestCount, fixture.requestManager.requests.count)
     }
 
-    private func assertEventIsSentAsEnvelope() {
+    private func assertEventIsSentAsEnvelope() throws {
         let actualEventRequest = fixture.requestManager.requests.last
-        XCTAssertEqual(fixture.eventWithAttachmentRequest.httpBody, actualEventRequest?.httpBody, "Event was not sent as envelope.")
+        try compareEnvelopes(fixture.eventWithAttachmentRequest.httpBody, actualEventRequest?.httpBody, message: "Event was not sent as envelope.")
     }
 
-    private func assertEventAndSessionAreSentInOneEnvelope() {
+    @available(iOS 16.0, *)
+    private func assertEventAndSessionAreSentInOneEnvelope() throws {
         let actualEventRequest = fixture.requestManager.requests.last
-        XCTAssertEqual(fixture.eventWithSessionRequest.httpBody, actualEventRequest?.httpBody, "Request for event with session is faulty.")
+        try compareEnvelopes(fixture.eventWithSessionRequest.httpBody, actualEventRequest?.httpBody, message: "Request for event with session is faulty.")
     }
 
     private func assertEnvelopesStored(envelopeCount: Int) {

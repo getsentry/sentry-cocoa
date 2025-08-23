@@ -1,4 +1,4 @@
-#import "SentrySdkInfo.h"
+#import "SentrySwift.h"
 #import <Sentry/Sentry-Swift.h>
 #import <XCTest/XCTest.h>
 
