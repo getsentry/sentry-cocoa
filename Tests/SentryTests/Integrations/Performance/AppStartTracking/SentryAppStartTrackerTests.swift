@@ -34,7 +34,11 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
 
             SentryDependencyContainer.sharedInstance().dateProvider = currentDate
             
-            fileManager = try! SentryFileManager(options: options, dispatchQueueWrapper: dispatchQueue)
+            fileManager = try! SentryFileManager(
+                options: options,
+                dateProvider: currentDate,
+                dispatchQueueWrapper: dispatchQueue
+            )
 
             SentryDependencyContainer.sharedInstance().sysctlWrapper = sysctl
             

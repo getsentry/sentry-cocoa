@@ -202,7 +202,11 @@ class SentryFeedbackTests: XCTestCase {
         let client = SentryClient(
             options: options,
             transportAdapter: transportAdapter,
-            fileManager: try XCTUnwrap(SentryFileManager(options: options, dispatchQueueWrapper: TestSentryDispatchQueueWrapper())),
+            fileManager: try XCTUnwrap(SentryFileManager(
+                options: options,
+                dateProvider: TestCurrentDateProvider(),
+                dispatchQueueWrapper: TestSentryDispatchQueueWrapper(),
+            )),
             deleteOldEnvelopeItems: false,
             threadInspector: TestThreadInspector.instance,
             debugImageProvider: TestDebugImageProvider(),
@@ -241,7 +245,11 @@ class SentryFeedbackTests: XCTestCase {
         let client = SentryClient(
             options: options,
             transportAdapter: transportAdapter,
-            fileManager: try XCTUnwrap(SentryFileManager(options: options, dispatchQueueWrapper: TestSentryDispatchQueueWrapper())),
+            fileManager: try XCTUnwrap(SentryFileManager(
+                options: options,
+                dateProvider: TestCurrentDateProvider(),
+                dispatchQueueWrapper: TestSentryDispatchQueueWrapper()
+            )),
             deleteOldEnvelopeItems: false,
             threadInspector: TestThreadInspector.instance,
             debugImageProvider: TestDebugImageProvider(),
@@ -280,7 +288,11 @@ class SentryFeedbackTests: XCTestCase {
         let client = SentryClient(
             options: options,
             transportAdapter: transportAdapter,
-            fileManager: try XCTUnwrap(SentryFileManager(options: options, dispatchQueueWrapper: TestSentryDispatchQueueWrapper())),
+            fileManager: try XCTUnwrap(SentryFileManager(
+                options: options,
+                dateProvider: TestCurrentDateProvider(),
+                dispatchQueueWrapper: TestSentryDispatchQueueWrapper()
+            )),
             deleteOldEnvelopeItems: false,
             threadInspector: TestThreadInspector.instance,
             debugImageProvider: TestDebugImageProvider(),
