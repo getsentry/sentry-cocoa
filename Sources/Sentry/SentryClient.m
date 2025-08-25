@@ -1134,7 +1134,9 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     NSArray<SentryAttachment *> *processedAttachments = attachments;
 
     for (id<SentryClientAttachmentProcessor> attachmentProcessor in self.attachmentProcessors) {
-        processedAttachments = [attachmentProcessor processAttachments:attachments forEvent:event];
+        // Keep chaining the processed attachments so each processor works on the output of the
+        // previous one. This is necessary so each processor can add and remove attachments.
+        processedAttachments = [attachmentProcessor processAttachments:processedAttachments forEvent:event];
     }
 
     return processedAttachments;
