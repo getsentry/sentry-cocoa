@@ -2,7 +2,6 @@
 #import "SentryEvent+Private.h"
 #import "SentryFileManager.h"
 #import "SentrySwift.h"
-#import <SentryAppState.h>
 #import <SentryAppStateManager.h>
 #import <SentryClient+Private.h>
 #import <SentryException.h>

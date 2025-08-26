@@ -1,5 +1,4 @@
 #import "SentryFileManager.h"
-#import "SentryAppState.h"
 #import "SentryDataCategoryMapper.h"
 #import "SentryDateUtils.h"
 #import "SentryDependencyContainer.h"

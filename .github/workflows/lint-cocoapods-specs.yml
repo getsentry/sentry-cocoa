@@ -11,6 +11,7 @@ on:
       - "Samples/**"
       - ".github/workflows/lint-cocoapods-specs.yml"
       - "scripts/ci-select-xcode.sh"
+      - "scripts/ci-diagnostics.sh"
       - "Makefile" # Make commands used for linting setup
       - "Brewfile*" # Tools installation affects linting environment
       - ".swiftlint.yml"
@@ -23,6 +24,7 @@ on:
       - "Samples/**"
       - ".github/workflows/lint-cocoapods-specs.yml"
       - "scripts/ci-select-xcode.sh"
+      - "scripts/ci-diagnostics.sh"
       - "Sentry.xcodeproj/**"
       - "*.podspec"
       - "Gemfile.lock"
@@ -59,6 +61,9 @@ jobs:
       - run: pod repo update
       - name: Validate Podspec
         run: ./scripts/pod-lib-lint.sh ${{ matrix.platform }} ${{ matrix.podspec}} ${{ matrix.library_type}}
+      - name: Run CI Diagnostics
+        if: failure()
+        run: ./scripts/ci-diagnostics.sh
 
   lint-hybrid-sdk-podspec:
     name: Sentry/HybridSDK
@@ -70,3 +75,6 @@ jobs:
       - run: pod repo update
       - name: Validate HybridPod Podspec
         run: pod lib lint ./Tests/HybridSDKTest/HybridPod.podspec --allow-warnings --verbose --platforms=ios "--include-podspecs={Sentry.podspec}"
+      - name: Run CI Diagnostics
+        if: failure()
+        run: ./scripts/ci-diagnostics.sh

@@ -1367,7 +1367,7 @@ class SentryClientTest: XCTestCase {
     func testEventDroppedByEventProcessor_RecordsLostEvent() {
         SentryDependencyContainer.sharedInstance().globalEventProcessor.add { _ in return nil }
         
-        beforeSendReturnsNil { $0.capture(message: fixture.messageAsString) }
+        fixture.getSut().capture(message: fixture.messageAsString)
         
         assertLostEventRecorded(category: .error, reason: .eventProcessor)
     }
@@ -1375,7 +1375,7 @@ class SentryClientTest: XCTestCase {
     func testTransactionDroppedByEventProcessor_RecordsLostEvent() {
         SentryDependencyContainer.sharedInstance().globalEventProcessor.add { _ in return nil }
 
-        beforeSendReturnsNil { $0.capture(event: fixture.transaction) }
+        fixture.getSut().capture(event: fixture.transaction)
         
         assertLostEventRecorded(category: .transaction, reason: .eventProcessor)
     }
@@ -1538,19 +1538,19 @@ class SentryClientTest: XCTestCase {
         
         XCTAssertEqual(3, fixture.transport.recordLostEventsWithCount.count)
         
-        // span dropped by event processor
+        // span dropped by beforeSendSpan
         XCTAssertEqual(fixture.transport.recordLostEventsWithCount.get(0)?.category, SentryDataCategory.span)
-        XCTAssertEqual(fixture.transport.recordLostEventsWithCount.get(0)?.reason, SentryDiscardReason.eventProcessor)
+        XCTAssertEqual(fixture.transport.recordLostEventsWithCount.get(0)?.reason, SentryDiscardReason.beforeSend)
         XCTAssertEqual(fixture.transport.recordLostEventsWithCount.get(0)?.quantity, 1)
         
-        // span dropped by beforeSendSpan
+        // span dropped by beforeSend
         XCTAssertEqual(fixture.transport.recordLostEventsWithCount.get(1)?.category, SentryDataCategory.span)
         XCTAssertEqual(fixture.transport.recordLostEventsWithCount.get(1)?.reason, SentryDiscardReason.beforeSend)
         XCTAssertEqual(fixture.transport.recordLostEventsWithCount.get(1)?.quantity, 1)
         
-        // span dropped by beforeSend
+        // span dropped by event processor
         XCTAssertEqual(fixture.transport.recordLostEventsWithCount.get(2)?.category, SentryDataCategory.span)
-        XCTAssertEqual(fixture.transport.recordLostEventsWithCount.get(2)?.reason, SentryDiscardReason.beforeSend)
+        XCTAssertEqual(fixture.transport.recordLostEventsWithCount.get(2)?.reason, SentryDiscardReason.eventProcessor)
         XCTAssertEqual(fixture.transport.recordLostEventsWithCount.get(2)?.quantity, 1)
     }
     @available(*, deprecated, message: "-[SentryClient captureUserFeedback:] is deprecated. -[SentryClient captureFeedback:withScope:] is the new way. This test case can be removed in favor of testNoDsn_FeedbackNotSent when -[SentryClient captureUserFeedback:] is removed.")
@@ -1774,13 +1774,17 @@ class SentryClientTest: XCTestCase {
         XCTAssertEqual(fixture.user.email, actual.user?.email)
     }
     
-    func testSendDefaultPiiEnabled_GivenNoIP_AutoIsSet() throws {
+    func testSendDefaultPiiEnabled_GivenNoIP_sdkIPIsAuto() throws {
         fixture.getSut(configureOptions: { options in
             options.sendDefaultPii = true
         }).capture(message: "any")
         
         let actual = try lastSentEvent()
-        XCTAssertEqual("{{auto}}", actual.user?.ipAddress)
+        XCTAssertNotNil(actual.sdk)
+        let sdk = try XCTUnwrap(actual.sdk)
+        XCTAssertNotNil(sdk["settings"])
+        let settings = try XCTUnwrap(sdk["settings"] as? [String: Any])
+        XCTAssertEqual(settings["infer_ip"] as? String, "auto")
     }
     
     func testSendDefaultPiiEnabled_GivenIP_IPAddressNotChanged() throws {

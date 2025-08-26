@@ -144,3 +144,7 @@ jobs:
           name: raw-build-output-build-xcframework-${{inputs.variant-id}}-${{matrix.sdk}}
           path: |
             *.log
+
+      - name: Run CI Diagnostics
+        if: failure()
+        run: ./scripts/ci-diagnostics.sh
