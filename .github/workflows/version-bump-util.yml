@@ -10,7 +10,7 @@ on:
       - "Utils/VersionBump/**"
       - ".github/workflows/version-bump-util.yml"
       - "./Sentry.podspec"
-      - "./Package.swift"
+      - "./Package*.swift"
       - "./SentryPrivate.podspec"
       - "./SentrySwiftUI.podspec"
       - "./Sources/Sentry/SentryMeta.m"
@@ -20,6 +20,17 @@ on:
       - "./Sources/Configuration/SentrySwiftUI.xcconfig"
       - "./scripts/bump.sh"
 
+# Concurrency configuration:
+# - We use workflow-specific concurrency groups to prevent multiple version bump utility tests,
+#   as these test critical release infrastructure and version management tools.
+# - For pull requests, we cancel in-progress runs when new commits are pushed since only the
+#   latest version utility behavior matters for validating release process changes.
+# - For main branch pushes, we never cancel version utility tests to ensure our release
+#   infrastructure remains reliable and our version bumping tools work correctly.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   run-version-bump:
     # The release workflow uses the Makefile to bump the version so it needs to be tested.
@@ -27,7 +38,7 @@ jobs:
     # We intentionally run this on ubuntu because the release workflow also runs on ubuntu, which uses the version bump util.
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Generate Version Number
         id: generate-version-number
         run: |
@@ -42,7 +53,7 @@ jobs:
     name: Run Version Bump (Shell Script)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Generate Version Number
         id: generate-version-number
         run: |

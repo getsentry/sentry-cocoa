@@ -359,14 +359,21 @@ import Foundation
     /// timeout in seconds. If there is no internet connection, the function returns immediately. The SDK
     /// doesn't dispose the client or the hub.
     /// - parameter timeout: The time to wait for the SDK to complete the flush.
+    /// - note: This might take slightly longer than the specified timeout if there are many batched logs to capture.
     @objc(flush:)
     public static func flush(timeout: TimeInterval) {
-        SentrySDKInternal.flush(timeout: timeout)
+        let captureLogsDuration = captureLogs()
+        // Capturing batched logs should never take long, but we need to fall back to a sane value.
+        // This is a workaround for experimental logs, until we'll write batched logs to disk, 
+        // to avoid data loss due to crashes. This is a trade-off until then.
+        SentrySDKInternal.flush(timeout: max(timeout / 2, timeout - captureLogsDuration))
     }
     
     /// Closes the SDK, uninstalls all the integrations, and calls `flush` with
     /// `SentryOptions.shutdownTimeInterval`.
     @objc public static func close() {
+        // Capturing batched logs should never take long, ignore the duration here.
+        _ = captureLogs()
         SentrySDKInternal.close()
     }
     
@@ -422,6 +429,15 @@ import Foundation
     
     private static var _loggerLock = NSLock()
     private static var _logger: SentryLogger?
+
+    @discardableResult
+    private static func captureLogs() -> TimeInterval {
+        var duration: TimeInterval = 0.0
+        _loggerLock.synchronized {
+            duration = _logger?.captureLogs() ?? 0.0
+        }
+        return duration
+    }
 }
 
 extension SentryIdWrapper {

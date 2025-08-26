@@ -13,17 +13,24 @@ on:
       - ".github/workflows/build.yml"
       - "fastlane/**"
       - "scripts/ci-select-xcode.sh"
+      - "scripts/ci-diagnostics.sh"
       - Sentry.xcworkspace/**
       - Sentry.xcodeproj/**
       - Gemfile.lock
-      - "Package.swift"
+      - "Package*.swift"
       - "Makefile" # Make commands used for CI build setup
       - "Brewfile*" # Dependency installation affects build environment
 
-# https://docs.github.com/en/actions/using-jobs/using-concurrency#example-using-a-fallback-value
+# Concurrency configuration:
+# - We use workflow-specific concurrency groups to prevent multiple build runs of the same code,
+#   which would waste CI resources without providing additional value.
+# - For pull requests, we cancel in-progress builds when new commits are pushed since only the
+#   latest commit's build results matter for merge decisions.
+# - For main branch pushes, we never cancel builds to ensure all release and sample builds complete,
+#   as broken builds on main could block releases and affect downstream consumers.
 concurrency:
-  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
-  cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   # We had issues that the release build was broken on main.
@@ -32,7 +39,7 @@ jobs:
     name: Release Build of iOS Swift
     runs-on: macos-15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - run: ./scripts/ci-select-xcode.sh 16.4
       - uses: ruby/setup-ruby@v1
         with:
@@ -49,6 +56,10 @@ jobs:
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
         run: bundle exec fastlane build_ios_swift
+
+      - name: Debug Xcode environment
+        if: ${{ failure() || cancelled() }}
+        run: ./scripts/ci-diagnostics.sh
 
   build-sample:
     name: Sample ${{ matrix.scheme }} ${{ matrix.config }}
@@ -84,7 +95,7 @@ jobs:
             config: DebugV9
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - run: ./scripts/ci-select-xcode.sh 16.4
       - run: make init-ci-build
       - run: make xcode-ci
@@ -107,14 +118,21 @@ jobs:
           name: raw-build-output-scheme-${{matrix.scheme}}
           path: |
             raw-build-output.log
+
+      - name: Debug Xcode environment
+        if: ${{ failure() || cancelled() }}
+        run: ./scripts/ci-diagnostics.sh
+
   build-spm:
     name: Build with SPM
     runs-on: macos-15
     # Don't run this on release branches, cause the SPM Package.swift points to the unreleased versions.
     if: startsWith(github.ref, 'refs/heads/release/') == false
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
+      - run: ./scripts/ci-select-xcode.sh 16.4
+        shell: sh
       - run: rm -r Sentry.xcodeproj && rm -r Sentry.xcworkspace
       - run: set -o pipefail && NSUnbufferedIO=YES EXPERIMENTAL_SPM_BUILDS=1 xcodebuild build -scheme SentrySPM -sdk watchos -destination 'generic/platform=watchOS' | tee raw-build-output-spm-watchos.log | xcbeautify
         shell: sh
@@ -130,18 +148,40 @@ jobs:
             raw-build-output-spm-watchos.log
             raw-build-output-spm-iphoneos.log
 
+      - name: Debug Xcode environment
+        if: ${{ failure() || cancelled() }}
+        run: ./scripts/ci-diagnostics.sh
+
   build-v9:
     name: Build SDK v9
     runs-on: macos-15
     steps:
-      - uses: actions/checkout@v4
-      - run: ./scripts/sentry-xcodebuild.sh --platform iOS --os latest --device "iPhone 16" --command build --configuration DebugV9
+      - uses: actions/checkout@v5
+      - run: ./scripts/ci-select-xcode.sh 16.4
+      - run: |
+          ./scripts/sentry-xcodebuild.sh \
+            --platform iOS \
+            --os 18.5 \
+            --command build \
+            --device "iPhone 16"  \
+            --configuration DebugV9
+      - name: Archiving Raw Build Logs
+        uses: actions/upload-artifact@v4
+        if: ${{ failure() || cancelled() }}
+        with:
+          name: raw-build-output-v9
+          path: |
+            raw-build-output.log
+      - name: Debug Xcode environment
+        if: ${{ failure() || cancelled() }}
+        run: ./scripts/ci-diagnostics.sh
 
   check-debug-without-UIKit:
     name: Check no UIKit linkage (DebugWithoutUIKit)
     runs-on: macos-14
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
+
       - name: Build for Debug
         run: |
           ./scripts/sentry-xcodebuild.sh \
@@ -155,11 +195,16 @@ jobs:
       - name: Ensure UIKit is not linked
         run: ./scripts/check-uikit-linkage.sh DebugWithoutUIKit uikit-check-build unlinked SentryWithoutUIKit
 
+      - name: Debug Xcode environment
+        if: ${{ failure() || cancelled() }}
+        run: ./scripts/ci-diagnostics.sh
+
   check-release-without-UIKit:
     name: Check no UIKit linkage (ReleaseWithoutUIKit)
     runs-on: macos-14
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
+
       - name: Build for Release
         run: |
           ./scripts/sentry-xcodebuild.sh \
@@ -173,11 +218,16 @@ jobs:
       - name: Ensure UIKit is not linked
         run: ./scripts/check-uikit-linkage.sh ReleaseWithoutUIKit uikit-check-build unlinked SentryWithoutUIKit
 
+      - name: Debug Xcode environment
+        if: ${{ failure() || cancelled() }}
+        run: ./scripts/ci-diagnostics.sh
+
   check-debug-with-UIKit:
     name: Check UIKit linkage (Debug)
     runs-on: macos-14
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
+
       - name: Build for Debug
         run: |
           ./scripts/sentry-xcodebuild.sh \
@@ -191,11 +241,16 @@ jobs:
       - name: Ensure UIKit is linked
         run: ./scripts/check-uikit-linkage.sh Debug uikit-check-build linked Sentry
 
+      - name: Debug Xcode environment
+        if: ${{ failure() || cancelled() }}
+        run: ./scripts/ci-diagnostics.sh
+
   check-release-with-UIKit:
     name: Check UIKit linkage (Release)
     runs-on: macos-14
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
+
       - name: Build for Release
         run: |
           ./scripts/sentry-xcodebuild.sh \
@@ -209,6 +264,10 @@ jobs:
       - name: Ensure UIKit is linked
         run: ./scripts/check-uikit-linkage.sh Release uikit-check-build linked Sentry
 
+      - name: Debug Xcode environment
+        if: ${{ failure() || cancelled() }}
+        run: ./scripts/ci-diagnostics.sh
+
     # The compiler only evaluates SentryAsyncSafeLogs that get printed based on the SENTRY_ASYNC_SAFE_LOG_LEVEL.
     # So if the level is set to error, which is the default, and a SENTRY_ASYNC_SAFE_LOG_DEBUG has a compiler error,
     # you only get the compiler error when setting the SENTRY_ASYNC_SAFE_LOG_LEVEL to SENTRY_ASYNC_SAFE_LOG_LEVEL_DEBUG or lower.
@@ -217,7 +276,7 @@ jobs:
     name: Check compiling Async Safe Logs
     runs-on: macos-15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       # If the SentryAsyncSafeLog doesn't contain the SENTRY_ASYNC_SAFE_LOG_LEVEL_ERROR this fails.
       - name: Async Safe Log Level is Error
@@ -239,3 +298,7 @@ jobs:
             --command build \
             --device "iPhone 16" \
             --configuration Debug
+
+      - name: Debug Xcode environment
+        if: ${{ failure() || cancelled() }}
+        run: ./scripts/ci-diagnostics.sh

@@ -15,11 +15,18 @@ on:
       # Explicitly list used scripts to avoid unnecessary runs
       - "scripts/ci-boot-simulator.sh"
       - "scripts/ci-select-xcode.sh"
+      - "scripts/ci-diagnostics.sh"
 
-# https://docs.github.com/en/actions/using-jobs/using-concurrency#example-using-a-fallback-value
+# Concurrency configuration:
+# - We use workflow-specific concurrency groups to prevent multiple critical UI test runs,
+#   as these test the most essential user interface functionality and are resource-intensive.
+# - For pull requests, we cancel in-progress runs when new commits are pushed to provide
+#   faster feedback on critical functionality and avoid wasting expensive testing resources.
+# - For main branch pushes, we never cancel critical UI tests to ensure the most important
+#   user interface features are always validated before code reaches production.
 concurrency:
-  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
-  cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   run-tests:
@@ -44,12 +51,12 @@ jobs:
 
           # macos-14 iOS 17 not included due to the XCUIServerNotFound errors causing flaky tests
 
-          # As of 25th March 2025, the preinstalled iOS simulator version is 18.2 for macOS 15 and Xcode 16.2; see
+          # As of 14th August 2025, the preinstalled iOS simulator version is 18.5 for macOS 15 and Xcode 16.4; see
           # https://github.com/actions/runner-images/blob/main/images/macos/macos-15-Readme.md#installed-sdks
           - name: iOS 18
             platform:
               runs-on: macos-15
-              xcode: "16.2"
+              xcode: "16.4"
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
@@ -58,7 +65,7 @@ jobs:
     runs-on: macos-15
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - run: ./scripts/ci-select-xcode.sh 16.4
 
@@ -93,3 +100,7 @@ jobs:
         with:
           name: swiftui-crash-test-log.logarchive
           path: swiftui-crash-test-log.logarchive
+
+      - name: Run CI Diagnostics
+        if: failure()
+        run: ./scripts/ci-diagnostics.sh

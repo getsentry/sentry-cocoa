@@ -1,6 +1,10 @@
 import Foundation
 import SentryTestUtils
 
+// We should replace the use of DispatchGroup in tests with XCTestExpectation.
+// This is a workaround to enable the swiftlint rule to avoid adding new occurrences
+// of DispatchGroup in tests.
+// swiftlint:disable avoid_dispatch_groups_in_tests
 public class TestRequestManager: NSObject, RequestManager {
     
     private var nextResponse: () -> HTTPURLResponse? = { return nil }
@@ -53,3 +57,5 @@ public class TestRequestManager: NSObject, RequestManager {
     }
     
 }
+
+// swiftlint:enable avoid_dispatch_groups_in_tests

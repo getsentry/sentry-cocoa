@@ -166,6 +166,13 @@ public final class SentryLogger: NSObject {
         let message = SentryLogMessage(stringLiteral: body)
         captureLog(level: .fatal, logMessage: message, attributes: attributes)
     }
+
+    // MARK: - Internal
+    
+    // Captures batched logs sync and return the duration.
+    func captureLogs() -> TimeInterval {
+        return batcher?.captureLogs() ?? 0.0
+    }
     
     // MARK: - Private
     

@@ -10,16 +10,30 @@ on:
       - "Sources/**"
       - "Sentry.podspec"
       - "SentrySwiftUI.podspec"
-      - "Package.swift"
+      - "Package*.swift"
       - "Makefile" # Make commands used for cross-platform setup
       - "Brewfile*" # Dependency installation affects cross-platform testing
+      - "scripts/ci-diagnostics.sh"
+
+# Concurrency configuration:
+# - We use workflow-specific concurrency groups to prevent multiple cross-platform tests,
+#   as these involve complex React Native and cross-platform integration setups.
+# - For pull requests, we cancel in-progress runs when new commits are pushed since only the
+#   latest cross-platform compatibility results matter for validating multi-platform support.
+# - For main branch pushes, we never cancel cross-platform tests to ensure our SDK remains
+#   compatible with React Native and other cross-platform frameworks that depend on us.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   test-react-native:
     name: React Native Installation
     runs-on: macos-15
+    # This job can take a while to run, so we set a timeout.
+    timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           repository: getsentry/sentry-cocoa
           path: sentry-cocoa
@@ -29,7 +43,7 @@ jobs:
         working-directory: sentry-cocoa
 
       - name: Clone Sentry React Native Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           repository: getsentry/sentry-react-native
           path: sentry-react-native
@@ -43,6 +57,7 @@ jobs:
           node-version: 18
           cache: "yarn"
           cache-dependency-path: sentry-react-native/yarn.lock
+      - run: ./sentry-cocoa/scripts/ci-select-xcode.sh 16.4
 
       - name: Install SDK JS Dependencies
         working-directory: sentry-react-native
@@ -53,6 +68,10 @@ jobs:
 
       - name: Add Sentry/HybridSDK Dependency to RNSentryCocoaTester/Podfile
         run: sed -i '' -e "s/RNSentry.podspec'/RNSentry.podspec'\\n  pod 'Sentry\/HybridSDK', :path => '..\/..\/..\/..\/sentry-cocoa'/" sentry-react-native/packages/core/RNSentryCocoaTester/Podfile
+
+      - name: Disable test parallelization
+        working-directory: sentry-react-native/packages/core/RNSentryCocoaTester
+        run: sed -i '' "s/parallelizable = \"YES\"/parallelizable = \"NO\"/" RNSentryCocoaTester.xcodeproj/xcshareddata/xcschemes/RNSentryCocoaTester.xcscheme
 
       - name: Install App Pods
         working-directory: sentry-react-native/packages/core/RNSentryCocoaTester
@@ -71,3 +90,7 @@ jobs:
             -scheme $SCHEME -configuration $CONFIGURATION \
             -destination "$DESTINATION" \
             test SWIFT_ACTIVE_COMPILATION_CONDITIONS=CROSS_PLATFORM_TEST GCC_PREPROCESSOR_DEFINITIONS"=CROSS_PLATFORM_TEST=1" | xcbeautify
+
+      - name: Run CI Diagnostics
+        if: failure()
+        run: ./scripts/ci-diagnostics.sh

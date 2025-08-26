@@ -62,7 +62,13 @@ class SentryEnvelopeTests: XCTestCase {
         clearTestState()
     }
 
-    private let defaultSdkInfo = SentrySdkInfo(name: SentryMeta.sdkName, version: SentryMeta.versionString, integrations: [], features: [], packages: [])
+    private let defaultSdkSettings = SentrySDKSettings(dict: [:])
+    private lazy var defaultSdkInfo = SentrySdkInfo(name: SentryMeta.sdkName,
+                                               version: SentryMeta.versionString,
+                                               integrations: [],
+                                               features: [],
+                                               packages: [],
+                                               settings: defaultSdkSettings)
 
     func testSentryEnvelopeFromEvent() throws {
         let event = Event()
@@ -143,7 +149,7 @@ class SentryEnvelopeTests: XCTestCase {
     
     func testInitSentryEnvelopeHeader_SetIdAndSdkInfo() {
         let eventId = SentryId()
-        let sdkInfo = SentrySdkInfo(name: "sdk", version: "1.2.3-alpha.0", integrations: [], features: [], packages: [])
+        let sdkInfo = SentrySdkInfo(name: "sdk", version: "1.2.3-alpha.0", integrations: [], features: [], packages: [], settings: SentrySDKSettings(dict: [:]))
         
         let envelopeHeader = SentryEnvelopeHeader(id: eventId, sdkInfo: sdkInfo, traceContext: nil)
         XCTAssertEqual(eventId, envelopeHeader.eventId)
