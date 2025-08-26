@@ -484,9 +484,6 @@ class SentrySDKTests: XCTestCase {
         // Access logger before SDK is started
         let loggerBeforeStart = SentrySDK.logger
         
-        // Verify logger is not configured (no batcher)
-        XCTAssertFalse(loggerBeforeStart.isConfigured)
-        
         // Now properly start the SDK using internal APIs  
         fixture.client.options.experimental.enableLogs = true
         SentrySDKInternal.setCurrentHub(fixture.hub)
@@ -494,9 +491,6 @@ class SentrySDKTests: XCTestCase {
         
         // Access logger again after SDK is started
         let loggerAfterStart = SentrySDK.logger
-        
-        // Verify logger is now properly configured
-        XCTAssertTrue(loggerAfterStart.isConfigured)
         
         // Verify it's a different instance (recreated)
         XCTAssertNotIdentical(loggerBeforeStart, loggerAfterStart)
@@ -511,7 +505,7 @@ class SentrySDKTests: XCTestCase {
         XCTAssertEqual(fixture.client.captureLogsDataInvocations.count, 1)
     }
     
-    func testLogger_ConfiguredWhenLogsDisabled() {
+    func testLogger_WhenLogsDisabled() {
         // Start SDK with logs disabled
         fixture.client.options.experimental.enableLogs = false
         SentrySDKInternal.setCurrentHub(fixture.hub)
@@ -519,10 +513,6 @@ class SentrySDKTests: XCTestCase {
         
         // Access logger
         let logger = SentrySDK.logger
-        
-        // Logger should be considered configured even when logs are disabled
-        // (this is a valid state, not an error condition)
-        XCTAssertTrue(logger.isConfigured)
         
         // Verify that logs are not captured when disabled
         logger.info("Test log message")
