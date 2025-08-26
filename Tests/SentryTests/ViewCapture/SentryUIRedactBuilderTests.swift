@@ -464,22 +464,23 @@ class SentryUIRedactBuilderTests: XCTestCase {
     
     func testDefaultRedactList_shouldContainAllPlatformSpecificClasses() {
         // -- Arrange --
-        let expectedListClassNames = [
+        var expectedListClassNames = [
             // SwiftUI Views
             "_TtCOCV7SwiftUI11DisplayList11ViewUpdater8Platform13CGDrawingView",
             "_TtC7SwiftUIP33_A34643117F00277B93DEBAB70EC0697122_UIShapeHitTestingView",
             "SwiftUI._UIGraphicsView", "SwiftUI.ImageLayer",
             // Web Views
             "UIWebView", "SFSafariView", "WKWebView",
-            // Text Views
-            "UILabel", "UITextView", "UITextField", "RCTParagraphComponentView",
+            // Text Views (incl. HybridSDK)
+            "UILabel", "UITextView", "UITextField", "RCTTextView", "RCTParagraphComponentView",
             // Document Views
             "PDFView",
-            // Image Views
+            // Image Views (incl. HybridSDK)
             "UIImageView", "RCTImageView",
             // Audio / Video Views
             "AVPlayerView"
         ]
+
         let expectedList = expectedListClassNames.map { className -> (String, ObjectIdentifier?) in
             guard let classType = NSClassFromString(className) else {
                 print("Class \(className) not found, skipping test")
@@ -492,13 +493,53 @@ class SentryUIRedactBuilderTests: XCTestCase {
         let sut = getSut()
 
         // -- Assert --
+        // Build sets of expected and actual identifiers for comparison
+        let expectedIdentifiers = Set(expectedList.compactMap { $0.1 })
+        let actualIdentifiers = Set(sut.redactClassesIdentifiers)
+
+        // Check for identifiers that are expected but missing in the actual result
+        let missingIdentifiers = expectedIdentifiers.subtracting(actualIdentifiers)
+        // Check for identifiers that are present in the actual result but not expected
+        let unexpectedIdentifiers = actualIdentifiers.subtracting(expectedIdentifiers)
+
+        // For each expected class, check that if we expect the class identifier to be nil, it is nil
         for (expectedClassName, expectedNullableIdentifier) in expectedList {
-            // If mapping a class name to an identifier fails, we expect it not to be in the list of redacted class identifiers as well
-            if let expectedIdentifier = expectedNullableIdentifier {
-                XCTAssertTrue(sut.redactClassesIdentifiers.contains(where: { $0 == expectedIdentifier }), "Expected class \(expectedClassName) not found in redact list")
+            if expectedNullableIdentifier == nil {
+                // If we expect nil, assert that no identifier in the actual list matches the class name
+                let found = sut.redactClassesIdentifiers.contains { $0.debugDescription.contains(expectedClassName) }
+                XCTAssertFalse(found, "Class \(expectedClassName) not found in runtime, but it is present in the redact list")
+            } else {
+                // If we expect a non-nil identifier, assert that it is present in the actual list
+                XCTAssertTrue(sut.redactClassesIdentifiers.contains(where: { $0 == expectedNullableIdentifier }), "Expected class \(expectedClassName) not found in redact list")
             }
         }
-        XCTAssertEqual(sut.redactClassesIdentifiers.count, expectedList.count, "Expected \(expectedList.count) classes but got \(sut.redactClassesIdentifiers.count) instead")
+
+        // Assert that there are no missing identifiers
+        XCTAssertTrue(missingIdentifiers.isEmpty, "Missing expected class identifiers: \(missingIdentifiers)")
+
+        // Assert that there are no unexpected identifiers
+        for identifier in unexpectedIdentifiers {
+            // Try to get the class name from the identifier
+            let classCount = objc_getClassList(nil, 0)
+            var className = "<unknown>"
+            if classCount > 0 {
+                let classes = UnsafeMutablePointer<AnyClass?>.allocate(capacity: Int(classCount))
+                defer { classes.deallocate() }
+                let autoreleasingClasses = AutoreleasingUnsafeMutablePointer<AnyClass>(classes)
+                let count = objc_getClassList(autoreleasingClasses, classCount)
+                for i in 0..<Int(count) {
+                    if let cls = classes[i], ObjectIdentifier(cls) == identifier {
+                        className = NSStringFromClass(cls)
+                        break
+                    }
+                }
+            }
+            XCTFail("Unexpected class identifier found: \(identifier) (\(className))")
+        }
+        XCTAssertTrue(unexpectedIdentifiers.isEmpty, "Unexpected class identifiers found: \(unexpectedIdentifiers)")
+
+        // Assert that the sets are equal (final check)
+        XCTAssertEqual(actualIdentifiers, expectedIdentifiers, "Mismatch between expected and actual class identifiers")
     }
     
     func testIgnoreList() {
