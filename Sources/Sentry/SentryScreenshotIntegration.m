@@ -87,7 +87,6 @@ saveScreenShot(const char *path)
         return attachments;
     }
 
-
     NSMutableArray *result = [NSMutableArray arrayWithArray:attachments];
 
     NSArray<NSData *> *screenshot =

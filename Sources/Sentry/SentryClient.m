@@ -1137,10 +1137,11 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         // Keep chaining the processed attachments so each processor works on the output of the
         // previous one. This is necessary so each processor can add and remove attachments.
         //
-        // Important: This means the order of adding processors matters and relies on the initialization order of
-        // the integrations. At this point in time the attachment processors are only adding attachments, therefore
-        // we can ignore this restriction for now.
-        processedAttachments = [attachmentProcessor processAttachments:processedAttachments forEvent:event];
+        // Important: This means the order of adding processors matters and relies on the
+        // initialization order of the integrations. At this point in time the attachment processors
+        // are only adding attachments, therefore we can ignore this restriction for now.
+        processedAttachments = [attachmentProcessor processAttachments:processedAttachments
+                                                              forEvent:event];
     }
 
     return processedAttachments;

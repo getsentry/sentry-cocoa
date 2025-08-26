@@ -6,7 +6,7 @@ import XCTest
 // We are aware that the client has a lot of logic and we should maybe
 // move some of it to other classes.
 @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
-class SentryClientTest: XCTestCase {
+class SentryClientTests: XCTestCase {
     
     private static let dsn = TestConstants.dsnAsString(username: "SentryClientTest")
 
@@ -56,7 +56,7 @@ class SentryClientTest: XCTestCase {
             user.ipAddress = "127.0.0.1"
             
             let options = Options()
-            options.dsn = SentryClientTest.dsn
+            options.dsn = SentryClientTests.dsn
             fileManager = try XCTUnwrap(SentryFileManager(options: options, dispatchQueueWrapper: TestSentryDispatchQueueWrapper()))
             
             transaction = Transaction(trace: trace, children: [])
@@ -81,7 +81,7 @@ class SentryClientTest: XCTestCase {
             var client: SentryClient!
             do {
                 let options = try SentryOptionsInternal.initWithDict([
-                    "dsn": SentryClientTest.dsn
+                    "dsn": SentryClientTests.dsn
                 ])
                 options.removeAllIntegrations()
                 configureOptions(options)
@@ -167,7 +167,7 @@ class SentryClientTest: XCTestCase {
         SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = fixture.dispatchQueue
         
         let options = Options()
-        options.dsn = SentryClientTest.dsn
+        options.dsn = SentryClientTests.dsn
         // We have to put our cache into a subfolder of the default path, because on macOS we can't delete the default cache folder
         options.cacheDirectoryPath = "\(options.cacheDirectoryPath)/cache"
         _ = SentryClient(options: options)
@@ -475,6 +475,74 @@ class SentryClientTest: XCTestCase {
         XCTAssertEqual(sentAttachments.count, 1)
         XCTAssertEqual(extraAttachment, sentAttachments.first)
     }
+
+    func test_AttachmentProcessors_Chained_Additive() {
+        // -- Arrange --
+        let sut = fixture.getSut()
+        let event = Event()
+        let att1 = Attachment(data: Data("one".utf8), filename: "AttachmentOne")
+        let att2 = Attachment(data: Data("two".utf8), filename: "AttachmentTwo")
+
+        let p1 = TestAttachmentProcessor { atts, _ in
+            var out = atts
+            out.append(att1)
+            return out
+        }
+
+        let p2 = TestAttachmentProcessor { atts, _ in
+            var out = atts
+            out.append(att2)
+            return out
+        }
+
+        // Order matters; second sees the output of the first.
+        sut.add(p1)
+        sut.add(p2)
+
+        // -- Act --
+        sut.capture(event: event)
+
+        // -- Assert --
+        let sentAttachments = fixture.transportAdapter.sendEventWithTraceStateInvocations.first?.attachments ?? []
+        XCTAssertEqual(sentAttachments.count, 2)
+        XCTAssertEqual(sentAttachments.element(at: 0), att1)
+        XCTAssertEqual(sentAttachments.element(at: 1), att2)
+    }
+
+    func test_AttachmentProcessors_Chained_RemovalThenAdd() {
+        // -- Arrange --
+        let sut = fixture.getSut()
+        let event = Event()
+
+        // Start with one attachment from the scope so the removal has an effect.
+        let initial = Attachment(data: Data("init".utf8), filename: "Initial")
+        let scope = Scope()
+        scope.addAttachment(initial)
+
+        // First processor removes everything.
+        let remover = TestAttachmentProcessor { _, _ in
+            return []
+        }
+
+        // Second processor appends a new one; should not see the removed initial.
+        let added = Attachment(data: Data("new".utf8), filename: "AddedAfterRemoval")
+        let adder = TestAttachmentProcessor { atts, _ in
+            var out = atts
+            out.append(added)
+            return out
+        }
+
+        sut.add(remover)
+        sut.add(adder)
+
+        // -- Act --
+        sut.capture(event: event, scope: scope)
+
+        // -- Assert --
+        let sentAttachments = fixture.transportAdapter.sendEventWithTraceStateInvocations.first?.attachments ?? []
+        XCTAssertEqual(sentAttachments.count, 1)
+        XCTAssertEqual(sentAttachments.first, added)
+    }
     
     func testCaptureEventWithDsnSetAfterwards() {
         let event = Event()
@@ -483,7 +551,7 @@ class SentryClientTest: XCTestCase {
             options.dsn = nil
         })
         
-        sut.options.dsn = SentryClientTest.dsn
+        sut.options.dsn = SentryClientTests.dsn
         
         let eventId = sut.capture(event: event)
         eventId.assertIsNotEmpty()
@@ -1737,7 +1805,7 @@ class SentryClientTest: XCTestCase {
         SentryFileManager.prepareInitError()
 
         let options = Options()
-        options.dsn = SentryClientTest.dsn
+        options.dsn = SentryClientTests.dsn
         let client = SentryClient(options: options, dispatchQueue: TestSentryDispatchQueueWrapper(), deleteOldEnvelopeItems: false)
 
         XCTAssertNil(client)
@@ -2177,7 +2245,7 @@ class SentryClientTest: XCTestCase {
 }
 
 @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
-private extension SentryClientTest {
+private extension SentryClientTests {
     private func givenEventWithDebugMeta() -> Event {
         let event = Event(level: SentryLevel.fatal)
         let debugMeta = DebugMeta()
