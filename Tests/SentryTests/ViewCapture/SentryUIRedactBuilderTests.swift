@@ -480,7 +480,7 @@ class SentryUIRedactBuilderTests: XCTestCase {
             // Audio / Video Views
             "AVPlayerView"
         ]
-        let expectedList = expectedListClassNames.compactMap { className -> (String, ObjectIdentifier?) in
+        let expectedList = expectedListClassNames.map { className -> (String, ObjectIdentifier?) in
             guard let classType = NSClassFromString(className) else {
                 print("Class \(className) not found, skipping test")
                 return (className, nil)
