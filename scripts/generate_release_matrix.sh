@@ -9,6 +9,7 @@ BASE_SLICES=(
     '{"name": "Sentry", "macho-type": "mh_dylib", "suffix": "-Dynamic", "id": "sentry-dynamic"}'
     '{"name": "Sentry", "macho-type": "staticlib", "id": "sentry-static"}'
     '{"name": "SentrySwiftUI", "macho-type": "mh_dylib", "id": "sentry-swiftui"}'
+    '{"name": "Sentry", "macho-type": "mh_dylib", "suffix": "-WithoutUIKitOrAppKit", "configuration-suffix": "WithoutUIKit", "id": "sentry-withoutuikit-dynamic"}'
 )
 BASE_VARIANTS=(
     '{"scheme": "Sentry", "macho-type": "mh_dylib", "suffix": "-Dynamic", "id": "sentry-dynamic", "excluded-archs": "arm64e"}'
@@ -27,9 +28,6 @@ BASE_SDKS=(
 )
 
 # Slices and Variants only needed on main or release
-ADDITIONAL_SLICES=(
-    '{"name": "Sentry", "macho-type": "mh_dylib", "suffix": "-WithoutUIKitOrAppKit", "configuration-suffix": "WithoutUIKit", "id": "sentry-withoutuikit-dynamic"}'
-)
 ADDITIONAL_VARIANTS=(
     '{"scheme": "Sentry", "macho-type": "mh_dylib", "suffix": "-Dynamic", "id": "sentry-dynamic", "override-name": "Sentry-Dynamic-WithARM64e"}'
     '{"scheme": "Sentry", "macho-type": "mh_dylib", "suffix": "-WithoutUIKitOrAppKit", "configuration-suffix": "WithoutUIKit", "id": "sentry-withoutuikit-dynamic", "override-name": "Sentry-WithoutUIKitOrAppKit-WithARM64e"}'
@@ -68,7 +66,7 @@ if [ "$EVENT_NAME" = "pull_request" ]; then
     SDK_LIST=$(build_json_array BASE_SDKS)
 else
     # shellcheck disable=SC2034
-    ALL_SLICES=("${BASE_SLICES[@]}" "${ADDITIONAL_SLICES[@]}")
+    ALL_SLICES=("${BASE_SLICES[@]}")
     # shellcheck disable=SC2034
     ALL_VARIANTS=("${BASE_VARIANTS[@]}" "${ADDITIONAL_VARIANTS[@]}")
     # shellcheck disable=SC2034
