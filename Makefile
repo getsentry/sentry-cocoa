@@ -183,3 +183,18 @@ xcode-ci:
 	xcodegen --spec Samples/watchOS-Swift/watchOS-Swift.yml
 	xcodegen --spec TestSamples/SwiftUITestSample/SwiftUITestSample.yml
 	xcodegen --spec TestSamples/SwiftUICrashTest/SwiftUICrashTest.yml
+
+.PHONY: check-package-diff update-package-diff
+# Diff will return an error if the files are different, so we need to ignore it with `|| true`.
+check-package-diff:
+	diff Package.swift Package@swift-5.9.swift > current_package_diff.patch || true
+	@if diff ./Utils/expected_package_diff.patch current_package_diff.patch > /dev/null 2>&1; then \
+		echo "--> Package diff check passed - no changes detected"; \
+	else \
+		echo "--> Package diff check failed - changes detected! Make sure to run \"make update-package-diff\" to update the expected diff."; \
+		exit 1; \
+	fi
+
+# Diff will return an error if the files are different, so we need to ignore it with `|| true`.
+update-package-diff:
+	diff Package.swift Package@swift-5.9.swift > ./Utils/expected_package_diff.patch || true

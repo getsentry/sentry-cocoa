@@ -95,15 +95,19 @@
         && ![self.category isEqualToString:breadcrumb.category])
         return NO;
     if (self.timestamp != breadcrumb.timestamp
-        && ![self.timestamp isEqualToDate:breadcrumb.timestamp])
+        && ![self.timestamp isEqualToDate:SENTRY_UNWRAP_NULLABLE(NSDate, breadcrumb.timestamp)])
         return NO;
-    if (self.type != breadcrumb.type && ![self.type isEqualToString:breadcrumb.type])
+    if (self.type != breadcrumb.type
+        && ![self.type isEqualToString:SENTRY_UNWRAP_NULLABLE(NSString, breadcrumb.type)])
         return NO;
-    if (self.origin != breadcrumb.origin && ![self.origin isEqualToString:breadcrumb.origin])
+    if (self.origin != breadcrumb.origin
+        && ![self.origin isEqualToString:SENTRY_UNWRAP_NULLABLE(NSString, breadcrumb.origin)])
         return NO;
-    if (self.message != breadcrumb.message && ![self.message isEqualToString:breadcrumb.message])
+    if (self.message != breadcrumb.message
+        && ![self.message isEqualToString:SENTRY_UNWRAP_NULLABLE(NSString, breadcrumb.message)])
         return NO;
-    if (self.data != breadcrumb.data && ![self.data isEqualToDictionary:breadcrumb.data])
+    if (self.data != breadcrumb.data
+        && ![self.data isEqualToDictionary:SENTRY_UNWRAP_NULLABLE(NSDictionary, breadcrumb.data)])
         return NO;
     return YES;
 }

@@ -65,7 +65,7 @@ jobs:
         sdk: ${{ fromJson(inputs.sdk-list) }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       # We have to compile on Xcode 15.2 because compiling on Xcode 15.4 fails with
       # Data+SentryTracing.swift:21:62: error: 'ReadingOptions' aliases 'Foundation.ReadingOptions'
@@ -144,3 +144,7 @@ jobs:
           name: raw-build-output-build-xcframework-${{inputs.variant-id}}-${{matrix.sdk}}
           path: |
             *.log
+
+      - name: Run CI Diagnostics
+        if: failure()
+        run: ./scripts/ci-diagnostics.sh

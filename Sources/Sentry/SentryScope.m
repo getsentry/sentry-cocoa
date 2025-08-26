@@ -155,11 +155,13 @@ NS_ASSUME_NONNULL_BEGIN
     }
 }
 
+#if !SDK_V9
 - (void)useSpan:(SentrySpanCallback)callback
 {
     id<SentrySpan> localSpan = [self span];
     callback(localSpan);
 }
+#endif // !SDK_V9
 
 - (void)clear
 {

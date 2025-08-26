@@ -919,7 +919,7 @@ static BOOL appStartMeasurementRead;
     }
 }
 
-+ (nullable SentryTracer *)getTracer:(id<SentrySpan>)span
++ (nullable SentryTracer *)getTracer:(id<SentrySpan> _Nullable)span
 {
     if (span == nil) {
         return nil;

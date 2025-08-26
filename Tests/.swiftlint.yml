@@ -10,6 +10,12 @@ custom_rules:
     message: "Avoid background QoS for dispatch queues in tests, as in CI, work on dispatch queues with background QoS can take a long time to run and lead to flaky tests."
     severity: error
 
+  avoid_dispatch_groups_in_tests:
+    name: "Avoid DispatchGroups in tests"
+    regex: 'DispatchGroup\(\)'
+    message: "Avoid dispatch groups in tests as waiting on them doesn't fail the test. Consider to use a XCTestExpectation instead, which will fail the test if the expectation is not fulfilled and also have the possibility for asserting for overfulfilled expectations."
+    severity: error
+
 disabled_rules:
   - force_cast
   - force_try

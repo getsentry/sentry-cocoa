@@ -15,6 +15,7 @@ on:
       - ".sauce/benchmarking-config.yml"
       - "fastlane/**"
       - "scripts/ci-select-xcode.sh"
+      - "scripts/ci-diagnostics.sh"
       - "Samples/iOS-Swift/iOS-Swift.yml"
       - "Samples/iOS-Swift/iOS-Swift.xcconfig"
       - "Samples/iOS-Swift/iOS-SwiftClip.xcconfig"
@@ -24,17 +25,23 @@ on:
       - ".github/workflows/build-xcframework-variant-slices.yml"
       - ".github/workflows/assemble-xcframework-variant.yml"
 
-# https://docs.github.com/en/actions/using-jobs/using-concurrency#example-using-a-fallback-value
+# Concurrency configuration:
+# - We use workflow-specific concurrency groups to prevent multiple benchmark runs on the same code,
+#   as benchmarks are extremely resource-intensive and require dedicated device time on SauceLabs.
+# - For pull requests, we cancel in-progress runs when new commits are pushed to avoid wasting
+#   expensive external testing resources and provide timely performance feedback.
+# - For main branch pushes, we never cancel benchmarks to ensure we have complete performance
+#   baselines for every main branch commit, which are critical for performance regression detection.
 concurrency:
-  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
-  cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   build-benchmark-test-target:
     name: Build App and Test Runner
     runs-on: macos-14
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - run: ./scripts/ci-select-xcode.sh 15.4
       - uses: ruby/setup-ruby@v1
         with:
@@ -91,6 +98,9 @@ jobs:
           path: |
             **/Debug-iphoneos/iOS-Swift.app
             **/Debug-iphoneos/iOS-Benchmarking-Runner.app
+      - name: Run CI Diagnostics
+        if: failure()
+        run: ./scripts/ci-diagnostics.sh
 
   run-ui-tests-with-sauce:
     name: Run Benchmarks ${{matrix.suite}}
@@ -101,8 +111,8 @@ jobs:
       matrix:
         suite: ["High-end device", "Mid-range device", "Low-end device"]
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v4
+      - uses: actions/checkout@v5
+      - uses: actions/download-artifact@v5
         with:
           name: DerivedData-Xcode
       - run: npm install -g saucectl@0.186.0
@@ -129,6 +139,11 @@ jobs:
           SAUCE_USERNAME: ${{ secrets.SAUCE_USERNAME }}
           SAUCE_ACCESS_KEY: ${{ secrets.SAUCE_ACCESS_KEY }}
         with:
+          # Retry Logic: This step only runs when the benchmark test has failed.
+          # We determine if the failure was due to SauceLabs infrastructure issues
+          # (which can be fixed by retrying) or legitimate test failures (which cannot).
+          # SauceLabs internal errors frequently cause CI failures that can be resolved
+          # by re-running the test. See scripts/saucelabs-helpers.js for detailed logic.
           script: |
             const fs = require('fs');
             const { execSync } = require('child_process');
@@ -176,3 +191,7 @@ jobs:
             --config .sauce/benchmarking-config.yml \
             --tags benchmark \
             --verbose
+
+      - name: Run CI Diagnostics
+        if: failure()
+        run: ./scripts/ci-diagnostics.sh

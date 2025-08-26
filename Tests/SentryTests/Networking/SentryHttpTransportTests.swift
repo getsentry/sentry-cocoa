@@ -136,9 +136,10 @@ class SentryHttpTransportTests: XCTestCase {
         func getSut(
             fileManager: SentryFileManager? = nil,
             dispatchQueueWrapper: SentryDispatchQueueWrapper? = nil
-        ) -> SentryHttpTransport {
+        ) throws -> SentryHttpTransport {
             return SentryHttpTransport(
-                options: options,
+                dsn: try XCTUnwrap(options.parsedDsn),
+                sendClientReports: options.sendClientReports,
                 cachedEnvelopeSendDelay: 0.0,
                 dateProvider: currentDateProvider,
                 fileManager: fileManager ?? self.fileManager,
@@ -163,13 +164,13 @@ class SentryHttpTransportTests: XCTestCase {
     private var fixture: Fixture!
     private var sut: SentryHttpTransport!
 
-    override func setUp() {
+    override func setUpWithError() throws {
         super.setUp()
         fixture = Fixture()
         fixture.fileManager.deleteAllEnvelopes()
         fixture.requestManager.returnResponse(response: HTTPURLResponse())
 
-        sut = fixture.getSut()
+        sut = try fixture.getSut()
     }
 
     override func tearDown() {
@@ -179,14 +180,14 @@ class SentryHttpTransportTests: XCTestCase {
         clearTestState()
     }
 
-    func testInitSendsCachedEnvelopes() {
+    func testInitSendsCachedEnvelopes() throws {
         givenNoInternetConnection()
         sendEventAsync()
         assertEnvelopesStored(envelopeCount: 1)
 
         waitForAllRequests()
         givenOkResponse()
-        let sut = fixture.getSut()
+        let sut = try fixture.getSut()
         XCTAssertNotNil(sut)
         waitForAllRequests()
 
@@ -520,8 +521,8 @@ class SentryHttpTransportTests: XCTestCase {
     func testFailureToStoreEvenlopeEventStillSendsRequest() throws {
         let fileManger = try TestFileManager(options: fixture.options)
         fileManger.storeEnvelopePathNil = true // Failure to store envelope returns nil path
-        let sut = fixture.getSut(fileManager: fileManger)
-                                              
+        let sut = try fixture.getSut(fileManager: fileManger)
+
         sut.send(envelope: fixture.eventEnvelope)
         
         XCTAssertEqual(fileManger.storeEnvelopeInvocations.count, 1)
@@ -750,13 +751,13 @@ class SentryHttpTransportTests: XCTestCase {
         fixture.dispatchQueueWrapper.dispatchAfterExecutesBlock = false
         
         // Interact with sut in extra function so ARC deallocates it
-        func getSut() {
-            let sut = fixture.getSut()
+        func getSut() throws {
+            let sut = try fixture.getSut()
             sut.send(envelope: fixture.eventEnvelope)
             waitForAllRequests()
         }
-        getSut()
-        
+        try getSut()
+
         for dispatchAfterBlock in fixture.dispatchQueueWrapper.dispatchAfterInvocations.invocations {
             dispatchAfterBlock.block()
         }
@@ -841,8 +842,9 @@ class SentryHttpTransportTests: XCTestCase {
         assertClientReportStoredInMemory()
     }
     
-    func testSendClientReportsDisabled_DoesNotRecordLostEvents() {
+    func testSendClientReportsDisabled_DoesNotRecordLostEvents() throws {
         fixture.options.sendClientReports = false
+        sut = try fixture.getSut()
         givenErrorResponse()
         
         sendEvent()
@@ -850,12 +852,13 @@ class SentryHttpTransportTests: XCTestCase {
         assertClientReportNotStoredInMemory()
     }
     
-    func testSendClientReportsDisabled_DoesSendClientReport() {
+    func testSendClientReportsDisabled_DoesSendClientReport() throws {
         givenErrorResponse()
         sendEvent()
         
         givenOkResponse()
         fixture.options.sendClientReports = false
+        sut = try fixture.getSut()
         sendEvent()
         
         assertEventIsSentAsEnvelope()
@@ -917,18 +920,18 @@ class SentryHttpTransportTests: XCTestCase {
         XCTAssertEqual(2, fixture.requestManager.requests.count)
     }
     
-    func testDealloc_StopsReachabilityMonitoring() {
-        func deallocSut() {
-            _ = fixture.getSut()
+    func testDealloc_StopsReachabilityMonitoring() throws {
+        func deallocSut() throws {
+            _ = try fixture.getSut()
         }
-        deallocSut()
+        try deallocSut()
 
         XCTAssertEqual(1, fixture.reachability.stopMonitoringInvocations.count)
     }
     
-    func testDealloc_TriggerNetworkReachable_NoCrash() {
-        _ = fixture.getSut()
-        
+    func testDealloc_TriggerNetworkReachable_NoCrash() throws {
+        _ = try fixture.getSut()
+
         fixture.reachability.triggerNetworkReachable()
     }
 #endif // !os(watchOS)

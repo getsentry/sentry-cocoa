@@ -1,5 +1,6 @@
 import _SentryPrivate
 import Foundation
+@_spi(Private) import Sentry
 
 public class TestFileManager: SentryFileManager {
     var timestampLastInForeground: Date?
@@ -45,14 +46,14 @@ public class TestFileManager: SentryFileManager {
     }
     
     var readAppStateInvocations = Invocations<Void>()
-    public override func readAppState() -> SentryAppState? {
+    @_spi(Private) public override func readAppState() -> SentryAppState? {
         readAppStateInvocations.record(Void())
         return nil
     }
 
     var appState: SentryAppState?
     public var readPreviousAppStateInvocations = Invocations<Void>()
-    public override func readPreviousAppState() -> SentryAppState? {
+    @_spi(Private) public override func readPreviousAppState() -> SentryAppState? {
         readPreviousAppStateInvocations.record(Void())
         return appState
     }

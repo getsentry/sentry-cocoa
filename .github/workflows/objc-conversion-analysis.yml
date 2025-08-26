@@ -8,10 +8,18 @@ on:
     paths:
       - ".github/workflows/objc-conversion-analysis.yml"
       - "SwiftConversion/**"
+      - "scripts/ci-diagnostics.sh"
 
+# Concurrency configuration:
+# - We use workflow-specific concurrency groups to prevent multiple Objective-C conversion analysis runs,
+#   as these analyze code conversion progress and generate tracking reports.
+# - For pull requests, we cancel in-progress runs when new commits are pushed since only the
+#   latest conversion analysis matters for tracking progress on SwiftConversion changes.
+# - For main branch pushes, we never cancel conversion analysis to ensure we maintain accurate
+#   tracking of our Objective-C to Swift conversion progress across the entire project.
 concurrency:
-  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
-  cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   analyze-objc-conversion:
@@ -21,7 +29,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup Ruby
         uses: ruby/setup-ruby@a4effe49ee8ee5b8b5091268c473a4628afb5651 # pin@v5.4.3
@@ -56,3 +64,7 @@ jobs:
             SwiftConversion/objc_dependencies_topo.dot
             SwiftConversion/objc_dependencies_topo.svg
           retention-days: 30
+
+      - name: Run CI Diagnostics
+        if: failure()
+        run: ./scripts/ci-diagnostics.sh

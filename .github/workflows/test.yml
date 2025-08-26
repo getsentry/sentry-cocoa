@@ -6,34 +6,45 @@ on:
       - release/**
 
   pull_request:
-    paths:
-      - "Sources/**"
-      - "Tests/**"
-      - "SentryTestUtils/**"
-      - "SentryTestUtilsDynamic/**" # Dynamic test utilities used by tests
-      - "test-server/**"
-      - ".github/workflows/test.yml"
-      - "fastlane/**"
-      - "scripts/tests-with-thread-sanitizer.sh"
-      - "scripts/ci-select-xcode.sh"
-      - "scripts/sentry-xcodebuild.sh"
-      - ".codecov.yml"
-      - "Sentry.xcodeproj"
-      - "**/*.xctestplan"
-      - "Makefile" # Make commands used for CI build setup
-      - "Brewfile*" # Dependency installation affects test environment
 
-# https://docs.github.com/en/actions/using-jobs/using-concurrency#example-using-a-fallback-value
+# Concurrency configuration:
+# - We use workflow-specific concurrency groups to allow independent test runs across different workflows
+#   while preventing multiple runs of the same test suite on the same branch/commit.
+# - For pull requests, we cancel in-progress runs when new commits are pushed to save CI resources
+#   and provide faster feedback on the latest changes.
+# - For main branch pushes and scheduled runs, we never cancel in-progress runs to ensure the complete
+#   test suite always finishes, maintaining the integrity of our main branch quality gates.
 concurrency:
-  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
-  cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
+  # This job detects if the PR contains changes that require running unit tests.
+  # If yes, the job will output a flag that will be used by the next job to run the unit tests.
+  # If no, the job will output a flag that will be used by the next job to skip running the unit tests.
+  # At the end of this workflow, we run a check that validates that either all unit tests passed or were
+  # called unit-tests-required-check.
+  files-changed:
+    name: Detect File Changes
+    runs-on: ubuntu-latest
+    # Map a step output to a job output
+    outputs:
+      run_unit_tests_for_prs: ${{ steps.changes.outputs.run_unit_tests_for_prs }}
+    steps:
+      - uses: actions/checkout@v5
+      - name: Get changed files
+        id: changes
+        uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
+        with:
+          token: ${{ github.token }}
+          filters: .github/file-filters.yml
   build-test-server:
     name: Build test server
+    if: needs.files-changed.outputs.run_unit_tests_for_prs == 'true'
+    needs: files-changed
     runs-on: macos-15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Cache for Test Server
         id: cache_test_server
         uses: actions/cache@v4
@@ -77,6 +88,10 @@ jobs:
             test-server-build-intel.log
             test-server-build-arm64.log
 
+      - name: Run CI Diagnostics
+        if: failure()
+        run: ./scripts/ci-diagnostics.sh
+
   unit-tests:
     name: Unit ${{matrix.name}}
     runs-on: ${{matrix.runs-on}}
@@ -113,7 +128,7 @@ jobs:
             runs-on: macos-15
             platform: "iOS"
             xcode: "16.4"
-            test-destination-os: "18.2"
+            test-destination-os: "18.5"
             device: "iPhone 16"
             scheme: "Sentry"
 
@@ -180,17 +195,14 @@ jobs:
             runs-on: macos-15
             platform: "tvOS"
             xcode: "16.4"
-            test-destination-os: "18.1"
+            test-destination-os: "18.5"
             scheme: "Sentry"
 
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v4
+      - uses: actions/checkout@v5
+      - uses: actions/download-artifact@v5
         with:
           name: test-server
-
-      - name: Print hardware info
-        run: system_profiler SPHardwareDataType
 
       - name: Start Test Server
         run: ./scripts/start-test-server.sh
@@ -300,3 +312,30 @@ jobs:
           verbose: true
           name: sentry-cocoa-unit-tests
           flags: unittests-${{ matrix.platform }}-${{ matrix.xcode }}-${{ matrix.test-destination-os }}, unittests
+
+      - name: Run CI Diagnostics
+        if: failure()
+        run: ./scripts/ci-diagnostics.sh
+
+  # This check validates that either all unit tests passed or were skipped, which allows us
+  # to make unit tests a required check with only running the unit tests when required.
+  # So, we don't have to run unit tests, for example, for Changelog or ReadMe changes.
+
+  unit-tests-required-check:
+    needs:
+      [
+        files-changed,
+        build-test-server,
+        unit-tests,
+      ]
+    name: Unit Tests
+    # This is necessary since a failed/skipped dependent job would cause this job to be skipped
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      # If any jobs we depend on fails gets cancelled or times out, this job will fail.
+      # Skipped jobs are not considered failures.
+      - name: Check for failures
+        if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
+        run: |
+          echo "One of the unit test jobs has failed." && exit 1

@@ -3,7 +3,6 @@
 #include "SentryCrashUUIDConversion.h"
 #import "SentryDefaultObjCRuntimeWrapper.h"
 #import "SentryDependencyContainer.h"
-#import "SentryInAppLogic.h"
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"
 #import "SentrySDK+Private.h"
@@ -67,7 +66,7 @@ static void binaryImageWasRemoved(const SentryCrashBinaryImage *image);
     }
 
     SentryBinaryImageInfo *newImage = [[SentryBinaryImageInfo alloc] init];
-    newImage.name = imageName;
+    newImage.name = SENTRY_UNWRAP_NULLABLE(NSString, imageName);
     newImage.UUID = [SentryBinaryImageCache convertUUID:image->uuid];
     newImage.address = image->address;
     newImage.vmAddress = image->vmAddress;

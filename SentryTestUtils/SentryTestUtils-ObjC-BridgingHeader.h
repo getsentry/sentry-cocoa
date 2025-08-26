@@ -26,7 +26,6 @@
 
 #import "PrivateSentrySDKOnly.h"
 #import "SentryAppStartMeasurement.h"
-#import "SentryAppState.h"
 #import "SentryBinaryImageCache.h"
 #import "SentryClient+Private.h"
 #import "SentryClient+TestInit.h"
