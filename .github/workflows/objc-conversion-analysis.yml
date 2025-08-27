@@ -34,7 +34,8 @@ jobs:
 
   analyze-objc-conversion:
     name: Analyze Objective-C to Swift Conversion
-    if: needs.files-changed.outputs.run_objc_conversion_analysis_for_prs == 'true'
+    # Run the job only for PRs with related changes or non-PR events.
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_objc_conversion_analysis_for_prs == 'true'
     needs: files-changed
     runs-on: macos-15
     timeout-minutes: 10
