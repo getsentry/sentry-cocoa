@@ -17,7 +17,6 @@
 #import "SentryGlobalEventProcessor.h"
 #import "SentryHub+Private.h"
 #import "SentryHub.h"
-#import "SentryInAppLogic.h"
 #import "SentryInstallation.h"
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"
@@ -825,15 +824,6 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     // Need to do this after the scope is applied cause this sets the user if there is any
     [self setUserIdIfNoUserSet:event];
 
-    // User can't be nil as setUserIdIfNoUserSet sets it.
-    if (self.options.sendDefaultPii && nil == event.user.ipAddress) {
-        // Let Sentry infer the IP address from the connection.
-        // Due to backward compatibility concerns, Sentry servers set the IP address to {{auto}} out
-        // of the box for only Cocoa and JavaScript, which makes this toggle currently somewhat
-        // useless. Still, we keep it for future compatibility reasons.
-        event.user.ipAddress = @"{{auto}}";
-    }
-
     BOOL eventIsATransaction
         = event.type != nil && [event.type isEqualToString:SentryEnvelopeItemTypeTransaction];
     BOOL eventIsATransactionClass
@@ -847,22 +837,6 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         currentSpanCount = 0;
     }
 
-    event = [self callEventProcessors:event];
-    if (event == nil) {
-        [self recordLost:eventIsNotATransaction reason:kSentryDiscardReasonEventProcessor];
-        if (eventIsATransaction) {
-            // We dropped the whole transaction, the dropped count includes all child spans + 1 root
-            // span
-            [self recordLostSpanWithReason:kSentryDiscardReasonEventProcessor
-                                  quantity:currentSpanCount + 1];
-        }
-    } else {
-        if (eventIsATransactionClass) {
-            [self recordPartiallyDroppedSpans:(SentryTransaction *)event
-                                   withReason:kSentryDiscardReasonEventProcessor
-                         withCurrentSpanCount:&currentSpanCount];
-        }
-    }
     if (event != nil && eventIsATransaction && self.options.beforeSendSpan != nil) {
         SentryTransaction *transaction = (SentryTransaction *)event;
         NSMutableArray<id<SentrySpan>> *processedSpans = [NSMutableArray array];
@@ -895,6 +869,27 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
             if (eventIsATransactionClass) {
                 [self recordPartiallyDroppedSpans:(SentryTransaction *)event
                                        withReason:kSentryDiscardReasonBeforeSend
+                             withCurrentSpanCount:&currentSpanCount];
+            }
+        }
+    }
+
+    if (event != nil) {
+        // if the event is dropped by beforeSend we should not execute event processors as they
+        // might trigger e.g. unnecessary replay capture
+        event = [self callEventProcessors:event];
+        if (event == nil) {
+            [self recordLost:eventIsNotATransaction reason:kSentryDiscardReasonEventProcessor];
+            if (eventIsATransaction) {
+                // We dropped the whole transaction, the dropped count includes all child spans + 1
+                // root span
+                [self recordLostSpanWithReason:kSentryDiscardReasonEventProcessor
+                                      quantity:currentSpanCount + 1];
+            }
+        } else {
+            if (eventIsATransactionClass) {
+                [self recordPartiallyDroppedSpans:(SentryTransaction *)event
+                                       withReason:kSentryDiscardReasonEventProcessor
                              withCurrentSpanCount:&currentSpanCount];
             }
         }

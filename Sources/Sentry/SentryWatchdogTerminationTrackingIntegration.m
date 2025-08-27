@@ -3,7 +3,6 @@
 #if SENTRY_HAS_UIKIT
 #    import "SentryScope+Private.h"
 #    import <SentryANRTrackerV1.h>
-#    import <SentryAppState.h>
 #    import <SentryAppStateManager.h>
 #    import <SentryClient+Private.h>
 #    import <SentryCrashWrapper.h>

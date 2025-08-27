@@ -1,5 +1,4 @@
 #import "SentrySerialization.h"
-#import "SentryAppState.h"
 #import "SentryDateUtils.h"
 #import "SentryEnvelope+Private.h"
 #import "SentryEnvelopeAttachmentHeader.h"

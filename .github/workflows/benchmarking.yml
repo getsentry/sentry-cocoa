@@ -15,6 +15,7 @@ on:
       - ".sauce/benchmarking-config.yml"
       - "fastlane/**"
       - "scripts/ci-select-xcode.sh"
+      - "scripts/ci-diagnostics.sh"
       - "Samples/iOS-Swift/iOS-Swift.yml"
       - "Samples/iOS-Swift/iOS-Swift.xcconfig"
       - "Samples/iOS-Swift/iOS-SwiftClip.xcconfig"
@@ -97,6 +98,9 @@ jobs:
           path: |
             **/Debug-iphoneos/iOS-Swift.app
             **/Debug-iphoneos/iOS-Benchmarking-Runner.app
+      - name: Run CI Diagnostics
+        if: failure()
+        run: ./scripts/ci-diagnostics.sh
 
   run-ui-tests-with-sauce:
     name: Run Benchmarks ${{matrix.suite}}
@@ -108,7 +112,7 @@ jobs:
         suite: ["High-end device", "Mid-range device", "Low-end device"]
     steps:
       - uses: actions/checkout@v5
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v5
         with:
           name: DerivedData-Xcode
       - run: npm install -g saucectl@0.186.0
@@ -187,3 +191,7 @@ jobs:
             --config .sauce/benchmarking-config.yml \
             --tags benchmark \
             --verbose
+
+      - name: Run CI Diagnostics
+        if: failure()
+        run: ./scripts/ci-diagnostics.sh

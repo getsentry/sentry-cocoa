@@ -14,7 +14,6 @@
 #    import <SentryException.h>
 #    import <SentryFormatter.h>
 #    import <SentryFrame.h>
-#    import <SentryInAppLogic.h>
 #    import <SentryLogC.h>
 #    import <SentryMechanism.h>
 #    import <SentrySDK+Private.h>

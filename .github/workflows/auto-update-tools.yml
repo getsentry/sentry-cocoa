@@ -21,6 +21,7 @@ on:
       - ".pre-commit-config.yaml"
       - "scripts/update-tooling-versions.sh"
       - "scripts/check-tooling-versions.sh"
+      - "scripts/ci-diagnostics.sh"
 
 # Permissions configuration:
 # - 'contents: write' is required to allow the workflow to commit changes to the repository
@@ -91,3 +92,7 @@ jobs:
           title: "chore(deps): Update swiftlint version"
           sign-commits: true
           base: main
+
+      - name: Run CI Diagnostics
+        if: failure()
+        run: ./scripts/ci-diagnostics.sh

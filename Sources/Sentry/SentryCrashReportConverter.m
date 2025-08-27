@@ -8,7 +8,6 @@
 #import "SentryException.h"
 #import "SentryFormatter.h"
 #import "SentryFrame.h"
-#import "SentryInAppLogic.h"
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"
 #import "SentryMechanism.h"

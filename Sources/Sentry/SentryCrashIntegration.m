@@ -8,7 +8,6 @@
 #import "SentryCrashWrapper.h"
 #import "SentryEvent.h"
 #import "SentryHub.h"
-#import "SentryInAppLogic.h"
 #import "SentryModels+Serializable.h"
 #import "SentryOptions.h"
 #import "SentrySDK+Private.h"

@@ -1,13 +1,28 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Structured Logs: Flush logs on SDK flush/close (#5834)
+
+### Fixes
+
+- Don't capture replays for events dropped in `beforeSend` (#5916)
+- Fix linking with SentrySwiftUI on Xcode 26 for visionOS (#5823)
+
+### Improvements
+
+- Lazily CharacterSet only once in SentryBaggageSerialization (#5871)
+- Structured Logging: Log `SentrySDK.logger` calls to `SentrySDKLog` (#5991)
+
+## 8.54.1-alpha.1
+
+### Fixes
+
+- Add padding to tap area of widget button (#5949)
+
 ## 8.55.0
-
-### Various fixes & improvements
-
-- ci: Bump iOS and tvOS versions to 18.6 (#5942) by @itaybre
-- fix: Build error on Xcode 14.2 (#5917) by @itaybre
-
-## 8.54.1-alpha.2
 
 > [!Important]
 > Xcode 26 no longer allows individual frameworks to contain arm64e slices anymore if the main binary doesn't contain them.
@@ -27,34 +42,11 @@
 
 ### Features
 
+- Add a new prebuilt framework with arm64e and remove it from the regular one (#5788)
+- Add `beforeSendLog` callback to `SentryOptions` (#5678)
 - Structured Logs: Flush logs on SDK flush/close (#5834)
 - Add a new prebuilt framework with ARM64e for WithoutUIKitOrAppKit (#5897)
 - Add source context and vars fields to SentryFrame (#5853)
-
-### Fixes
-
-- Fixed a build error in `SentryFeedback.swift` when building with cocoapods on Xcode 14.2 (#5917)
-
-## 8.54.1-alpha.1
-
-- No documented changes.
-
-## 8.54.1-alpha.0
-
-> [!Important]
-> Xcode 26 no longer allows individual frameworks to contain arm64e slices anymore if the main binary doesn't contain them.
-> We have decided to split the Dynamic variant of Sentry into two variants:
->
-> - `Sentry-Dynamic`: Without arm64e
-> - `Sentry-Dynamic-WithARM64e`: _With_ ARM64e slice
->
-> If your app does not need arm64e, you don't need to make any changes.
-> But if your app _needs arm64e_ please use `Sentry-Dynamic-WithARM64e` from 8.55.0 so you don't have issues uploading to the App Store.
-
-### Features
-
-- Add a new prebuilt framework with arm64e and remove it from the regular one (#5788)
-- Add `beforeSendLog` callback to `SentryOptions` (#5678)
 
 ### Fixes
 
@@ -62,6 +54,8 @@
 - Fix Infinite Session Replay Processing Loop (#5765)
 - Fix memory leak in SessionReplayIntegration (#5770)
 - Fix reporting of energy used while profiling (#5768)
+- Fixed a build error in `SentryFeedback.swift` when building with cocoapods on Xcode 14.2 (#5917)
+- Fix linking against Sentry on an app extension (#5813)
 
 ### Internal
 
