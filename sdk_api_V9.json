@@ -54251,31 +54251,6 @@
             ]
           },
           {
-            "kind": "Constructor",
-            "name": "init",
-            "printedName": "init()",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "SentryBinaryImageCache",
-                "printedName": "Sentry.SentryBinaryImageCache",
-                "usr": "c:@M@Sentry@objc(cs)SentryBinaryImageCache"
-              }
-            ],
-            "declKind": "Constructor",
-            "usr": "c:@M@Sentry@objc(cs)SentryBinaryImageCache(im)init",
-            "mangledName": "$s6Sentry0A16BinaryImageCacheCACycfc",
-            "moduleName": "Sentry",
-            "overriding": true,
-            "objc_name": "init",
-            "declAttributes": [
-              "ObjC",
-              "Dynamic",
-              "Override"
-            ],
-            "init_kind": "Designated"
-          },
-          {
             "kind": "Function",
             "name": "stop",
             "printedName": "stop()",
@@ -54563,6 +54538,31 @@
               "ObjC"
             ],
             "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init()",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "SentryBinaryImageCache",
+                "printedName": "Sentry.SentryBinaryImageCache",
+                "usr": "c:@M@Sentry@objc(cs)SentryBinaryImageCache"
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "c:@M@Sentry@objc(cs)SentryBinaryImageCache(im)init",
+            "mangledName": "$s6Sentry0A16BinaryImageCacheCACycfc",
+            "moduleName": "Sentry",
+            "overriding": true,
+            "objc_name": "init",
+            "declAttributes": [
+              "ObjC",
+              "Dynamic",
+              "Override"
+            ],
+            "init_kind": "Designated"
           }
         ],
         "declKind": "Class",
