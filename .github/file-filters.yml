@@ -64,3 +64,22 @@ run_api_stability_for_prs: &run_api_stability_for_prs # API-related code
   - "Makefile" # Make commands used for API generation
   - "sdk_api.json"
   - "sdk_api_v9.json"
+
+run_lint_xcode_analyze_for_prs: &run_lint_xcode_analyze_for_prs # Xcode linting
+  - "Sources/**"
+  - "Tests/**"
+  - "test-server/**"
+  - "Samples/**"
+
+  # GH Actions
+  - ".github/workflows/lint-xcode-analyze.yml"
+  - ".github/file-filters.yml"
+
+  # Scripts
+  - "scripts/ci-select-xcode.sh"
+  - "scripts/ci-diagnostics.sh"
+
+  # Project files
+  - "Sentry.xcodeproj/**"
+  - "*.podspec"
+  - "Gemfile.lock"
