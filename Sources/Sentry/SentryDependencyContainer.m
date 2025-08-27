@@ -291,7 +291,7 @@ static BOOL isInitialializingDependencyContainer = NO;
 
 #if SENTRY_TARGET_REPLAY_SUPPORTED
 - (nonnull SentryViewScreenshotProvider *)getScreenshotProviderForOptions:
-    (nonnull SentryScreenshotOptions *)options SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
+    (nonnull SentryViewScreenshotOptions *)options SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
     @synchronized(sentryDependencyContainerDependenciesLock) {
         SCREENSHOTS_PROVIDER_KEY key = [self getScreenshotProviderKey:options];
@@ -320,7 +320,7 @@ static BOOL isInitialializingDependencyContainer = NO;
 }
 
 - (void)setScreenshotProvider:(SentryViewScreenshotProvider *)provider
-                   forOptions:(SentryScreenshotOptions *)options
+                   forOptions:(SentryViewScreenshotOptions *)options
 {
     @synchronized(sentryDependencyContainerDependenciesLock) {
         SCREENSHOTS_PROVIDER_KEY key = [self getScreenshotProviderKey:options];
@@ -332,7 +332,7 @@ static BOOL isInitialializingDependencyContainer = NO;
     }
 }
 
-- (SCREENSHOTS_PROVIDER_KEY)getScreenshotProviderKey:(nonnull SentryScreenshotOptions *)options
+- (SCREENSHOTS_PROVIDER_KEY)getScreenshotProviderKey:(nonnull SentryViewScreenshotOptions *)options
 {
     return @(options.hash);
 }

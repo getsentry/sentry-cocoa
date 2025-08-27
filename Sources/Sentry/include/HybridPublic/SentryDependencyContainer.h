@@ -42,7 +42,7 @@
 #if SENTRY_UIKIT_AVAILABLE
 @class SentryFramesTracker;
 @class SentryViewScreenshotProvider;
-@class SentryScreenshotOptions;
+@class SentryViewScreenshotOptions;
 @class SentryUIApplication;
 @class SentryViewHierarchyProvider;
 @class SentryUIViewControllerPerformanceTracker;
@@ -136,10 +136,10 @@ SENTRY_NO_INIT
 
 #if SENTRY_TARGET_REPLAY_SUPPORTED
 - (nonnull SentryViewScreenshotProvider *)getScreenshotProviderForOptions:
-    (nonnull SentryScreenshotOptions *)options;
+    (nonnull SentryViewScreenshotOptions *)options;
 /// Used only for testing purposes.
 - (void)setScreenshotProvider:(nullable SentryViewScreenshotProvider *)provider
-                   forOptions:(nonnull SentryScreenshotOptions *)options;
+                   forOptions:(nonnull SentryViewScreenshotOptions *)options;
 #endif // SENTRY_TARGET_REPLAY_SUPPORTED
 
 #if SENTRY_HAS_METRIC_KIT

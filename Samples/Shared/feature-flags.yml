@@ -97,14 +97,17 @@ schemeTemplates:
           value:
           isEnabled: false
 
-        # session replay
-        - variable: "--io.sentry.session-replay.sessionReplaySampleRate"
+        # screenshot
+        - variable: "--io.sentry.screenshot.disable-view-renderer-v2"
           value:
           isEnabled: false
-        - variable: "--io.sentry.session-replay.sessionReplayOnErrorSampleRate"
+        - variable: "--io.sentry.screenshot.enable-fast-view-rendering"
           value:
           isEnabled: false
-        - variable: "--io.sentry.session-replay.sessionReplayQuality"
+        - variable: "--io.sentry.screenshot.disable-mask-all-images"
+          value:
+          isEnabled: false
+        - variable: "--io.sentry.screenshot.disable-mask-all-text"
           value:
           isEnabled: false
 

@@ -16,6 +16,7 @@
 
 - Lazily CharacterSet only once in SentryBaggageSerialization (#5871)
 - Structured Logging: Log `SentrySDK.logger` calls to `SentrySDKLog` (#5991)
+- Add masking options for screenshots (#5401)
 
 ## 8.54.1-alpha.1
 
@@ -140,7 +141,6 @@
 - Crashes for uncaught NSExceptions will now report the stracktrace recorded within the exception (#5306)
 - Move SentryExperimentalOptions to a property defined in Swift (#5329)
 - Add redaction in session replay for `SFSafariView` used by `SFSafariViewController` and `ASWebAuthenticationSession` (#5408)
-- Add masking options for screenshots (#5401)
 - Convert SentryNSURLRequest to Swift (#5457)
 
 ## 8.53.0-alpha.0

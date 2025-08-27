@@ -99,6 +99,7 @@ public struct SentrySDKWrapper {
         options.enablePreWarmedAppStartTracing = !isBenchmarking && !SentrySDKOverrides.Performance.disablePrewarmedAppStartTracing.boolValue
         options.enableUIViewControllerTracing = !SentrySDKOverrides.Performance.disableUIVCTracing.boolValue
 
+        // -- Screenshot Options --
         options.attachScreenshot = !SentrySDKOverrides.Other.disableAttachScreenshot.boolValue
         options.screenshot.enableViewRendererV2 = !SentrySDKOverrides.Screenshot.disableViewRendererV2.boolValue
         // The fast view renderer is opt-in, therefore it is assumed to be disabled by default.

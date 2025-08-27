@@ -11,7 +11,6 @@
 #    import "SentryOptions.h"
 #    import "SentrySDK+Private.h"
 #    import "SentrySwift.h"
-#    import "SentryViewScreenshotProvider.h"
 
 #    if SENTRY_HAS_METRIC_KIT
 #        import "SentryMetricKitIntegration.h"
@@ -21,7 +20,7 @@ void
 saveScreenShot(const char *path)
 {
     NSString *reportPath = [NSString stringWithUTF8String:path];
-    SentryScreenshotOptions *options = SentrySDK.options.screenshot;
+    SentryViewScreenshotOptions *options = SentrySDKInternal.options.screenshot;
     SentryViewScreenshotProvider *screenshotProvider =
         [SentryDependencyContainer.sharedInstance getScreenshotProviderForOptions:options];
     [screenshotProvider saveScreenShots:reportPath];

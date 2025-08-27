@@ -121,6 +121,13 @@ public enum SentrySDKOverrides: String, CaseIterable {
     }
     case screenshot = "Screenshot"
 
+    public enum Networking: String, SentrySDKOverride {
+        case disableBreadcrumbs            = "--io.sentry.networking.disable-breadcrumbs"
+        case disablePerformanceTracking    = "--io.sentry.networking.disable-tracking"
+        case disableFailedRequestTracking  = "--io.sentry.networking.disable-failed-request-tracking"
+    }
+    case networking = "Networking"
+
     public enum Other: String, SentrySDKOverride {
         case disableAttachScreenshot        = "--io.sentry.other.disable-attach-screenshot"
         case disableAttachViewHierarchy     = "--io.sentry.other.disable-attach-view-hierarchy"

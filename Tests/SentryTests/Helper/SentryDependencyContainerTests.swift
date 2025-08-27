@@ -296,8 +296,8 @@ final class SentryDependencyContainerTests: XCTestCase {
 
         let sut = SentryDependencyContainer.sharedInstance()
 
-        let options1 = SentryScreenshotOptions()
-        let options2 = SentryScreenshotOptions()
+        let options1 = SentryViewScreenshotOptions()
+        let options2 = SentryViewScreenshotOptions()
 
         // Pre-condition check
         XCTAssertEqual(options1.hashValue, options2.hashValue, "Both options should have the same hash value.")
@@ -322,10 +322,10 @@ final class SentryDependencyContainerTests: XCTestCase {
 
         let sut = SentryDependencyContainer.sharedInstance()
 
-        let options1 = SentryScreenshotOptions(
+        let options1 = SentryViewScreenshotOptions(
             enableViewRendererV2: true
         )
-        let options2 = SentryScreenshotOptions(
+        let options2 = SentryViewScreenshotOptions(
             enableViewRendererV2: false
         )
 

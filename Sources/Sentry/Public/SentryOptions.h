@@ -17,7 +17,7 @@ NS_ASSUME_NONNULL_BEGIN
 @class SentryProfileOptions;
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 @class SentryScope;
-@class SentryScreenshotOptions;
+@class SentryViewScreenshotOptions;
 
 NS_SWIFT_NAME(Options)
 @interface SentryOptions : NSObject
@@ -336,7 +336,7 @@ NS_SWIFT_NAME(Options)
 /**
  * Settings to configure screenshot attachments.
  */
-@property (nonatomic, nonnull, strong) SentryScreenshotOptions *screenshot;
+@property (nonatomic, nonnull, strong) SentryViewScreenshotOptions *screenshot;
 
 /**
  * @warning This is an experimental feature and may still have bugs.
