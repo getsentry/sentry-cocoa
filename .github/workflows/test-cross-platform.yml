@@ -34,7 +34,8 @@ jobs:
 
   test-react-native:
     name: React Native Installation
-    if: needs.files-changed.outputs.run_test_cross_platform_for_prs == 'true'
+    # Run the job only for PRs with related changes or non-PR events.
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_test_cross_platform_for_prs == 'true'
     needs: files-changed
     runs-on: macos-15
     # This job can take a while to run, so we set a timeout.
@@ -101,10 +102,6 @@ jobs:
       - name: Run CI Diagnostics
         if: failure()
         run: ./scripts/ci-diagnostics.sh
-
-  # This check validates that either all cross-platform tests passed or were skipped, which allows us
-  # to make cross-platform tests a required check with only running the cross-platform tests when required.
-  # So, we don't have to run cross-platform tests, for example, for Changelog or ReadMe changes.
 
   test_cross_platform-required-check:
     needs:
