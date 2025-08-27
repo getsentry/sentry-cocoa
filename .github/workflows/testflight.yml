@@ -11,10 +11,12 @@ on:
       - ".github/workflows/testflight.yml"
       - "fastlane/**"
       - "scripts/ci-select-xcode.sh"
+      - "scripts/ci-diagnostics.sh"
 
   pull_request:
     paths:
       - ".github/workflows/testflight.yml"
+      - "scripts/ci-diagnostics.sh"
   workflow_dispatch:
 
 # Concurrency configuration:
@@ -75,3 +77,7 @@ jobs:
             ${{ github.workspace }}/iOS-Swift.*
             ${{ github.workspace }}/*.dSYM.zip
             ${{ github.workspace }}/dSYMs/
+
+      - name: Run CI Diagnostics
+        if: failure()
+        run: ./scripts/ci-diagnostics.sh

@@ -13,6 +13,7 @@
 #import <Foundation/Foundation.h>
 
 @class SentryOptions;
+@class SentrySDKSettings;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -61,6 +62,11 @@ SENTRY_NO_INIT
  */
 @property (nonatomic, readonly, copy) NSArray<NSDictionary<NSString *, NSString *> *> *packages;
 
+/**
+ * A set of settings as part of this SDK.
+ */
+@property (nonatomic, readonly, copy) SentrySDKSettings *settings;
+
 - (instancetype)initWithOptions:(SentryOptions *_Nullable)options;
 
 - (instancetype)initWithName:(NSString *)name
@@ -68,7 +74,7 @@ SENTRY_NO_INIT
                 integrations:(NSArray<NSString *> *)integrations
                     features:(NSArray<NSString *> *)features
                     packages:(NSArray<NSDictionary<NSString *, NSString *> *> *)packages
-    NS_DESIGNATED_INITIALIZER;
+                    settings:(SentrySDKSettings *)settings NS_DESIGNATED_INITIALIZER;
 
 - (instancetype)initWithDict:(NSDictionary *)dict;
 

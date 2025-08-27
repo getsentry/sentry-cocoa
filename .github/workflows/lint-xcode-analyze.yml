@@ -11,6 +11,7 @@ on:
       - "Samples/**"
       - ".github/workflows/lint-xcode-analyze.yml"
       - "scripts/ci-select-xcode.sh"
+      - "scripts/ci-diagnostics.sh"
 
   pull_request:
     paths:
@@ -20,6 +21,7 @@ on:
       - "Samples/**"
       - ".github/workflows/lint-xcode-analyze.yml"
       - "scripts/ci-select-xcode.sh"
+      - "scripts/ci-diagnostics.sh"
       - "Sentry.xcodeproj/**"
       - "*.podspec"
       - "Gemfile.lock"
@@ -43,3 +45,6 @@ jobs:
       - uses: actions/checkout@v5
       - run: ./scripts/ci-select-xcode.sh 16.4
       - run: make analyze
+      - name: Run CI Diagnostics
+        if: failure()
+        run: ./scripts/ci-diagnostics.sh

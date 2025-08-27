@@ -70,8 +70,8 @@ final class SentryUserFeedbackWidgetButtonView: UIView {
             }
             constraints.append(contentsOf: [
                 label.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -config.padding),
-                label.topAnchor.constraint(equalTo: topAnchor),
-                label.bottomAnchor.constraint(equalTo: bottomAnchor)
+                label.topAnchor.constraint(equalTo: topAnchor, constant: config.padding),
+                label.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -config.padding)
             ])
         } else if config.widgetConfig.showIcon {
             addSubview(megaphone)
@@ -140,6 +140,8 @@ final class SentryUserFeedbackWidgetButtonView: UIView {
     }()
     
     lazy var lozengeLayer: CAShapeLayer = {
+        let isFontFamilyDamascus: Bool = config.theme.font.familyName == "Damascus"
+
         var finalSize = label?.intrinsicContentSize ?? sizeWithoutLabel
         
         let hasText = config.widgetConfig.labelText != nil
@@ -150,7 +152,7 @@ final class SentryUserFeedbackWidgetButtonView: UIView {
             let iconWidthAdditions = config.widgetConfig.showIcon ? scaledLeftPadding + scaledIconSize + scaledSpacing : config.padding
             finalSize.width += iconWidthAdditions + config.padding
             
-            let lozengeHeight = config.theme.font.familyName == "Damascus" ? config.theme.font.lineHeight : (2 * (config.theme.font.ascender - config.textEffectiveHeightCenter))
+            let lozengeHeight = isFontFamilyDamascus ? config.theme.font.lineHeight : (2 * (config.theme.font.ascender - config.textEffectiveHeightCenter))
             finalSize.height = lozengeHeight + 2 * config.padding * config.paddingScaleFactor
         }
         
@@ -180,7 +182,7 @@ final class SentryUserFeedbackWidgetButtonView: UIView {
             let paddingDifference = (scaledLeftPadding - config.padding) / 2
             let spacingDifference = scaledSpacing - config.spacing
             let increasedIconLeftPadAmountDueToScaling: CGFloat = config.widgetConfig.showIcon ? SentryLocale.isRightToLeftLanguage() ? paddingDifference : paddingDifference + iconSizeDifference + spacingDifference : 0
-            let yTranslation = config.theme.font.familyName == "Damascus" ? -(config.padding * config.paddingScaleFactor + (config.theme.font.capHeight - config.theme.font.ascender) * config.paddingScaleFactor) : (-config.padding * config.paddingScaleFactor)
+            let yTranslation = isFontFamilyDamascus ? -(config.theme.font.capHeight - config.theme.font.ascender) * config.paddingScaleFactor : 0
             lozengeLayer.transform = CATransform3DTranslate(lozengeLayer.transform, -increasedIconLeftPadAmountDueToScaling, yTranslation, 0)
         } else {
             lozengeLayer.transform = CATransform3DTranslate(lozengeLayer.transform, -iconSizeDifference, -iconSizeDifference, 0)

@@ -28,6 +28,7 @@ run_unit_tests_for_prs: &run_unit_tests_for_prs # Code
 
   # Scripts
   - "scripts/ci-select-xcode.sh"
+  - "scripts/ci-diagnostics.sh"
   - "scripts/sentry-xcodebuild.sh"
   - "scripts/tests-with-thread-sanitizer.sh"
 
@@ -51,12 +52,13 @@ run_api_stability_for_prs: &run_api_stability_for_prs # API-related code
   # Project files
   - "Sentry.xcworkspace/**"
   - "Sentry.xcodeproj/**"
-  - "Package.swift"
+  - "Package*.swift"
 
   # Scripts
   - "scripts/build-xcframework-local.sh"
   - "scripts/update-api.sh"
   - "scripts/ci-select-xcode.sh"
+  - "scripts/ci-diagnostics.sh"
 
   # Other
   - "Makefile" # Make commands used for API generation
@@ -64,11 +66,19 @@ run_api_stability_for_prs: &run_api_stability_for_prs # API-related code
   - "sdk_api_v9.json"
 
 run_auto_update_tools_for_prs: &run_auto_update_tools_for_prs # Auto-update tools workflow
+  # Formatting
+  - ".pre-commit-config.yaml"
+
+  # GH Actions
   - ".github/workflows/auto-update-tools.yml"
-  - "Brewfile*"
-  - "Makefile"
+
+  # Scripts
   - "scripts/.clang-format-version"
   - "scripts/.swiftlint-version"
-  - ".pre-commit-config.yaml"
-  - "scripts/update-tooling-versions.sh"
   - "scripts/check-tooling-versions.sh"
+  - "scripts/ci-diagnostics.sh"
+  - "scripts/update-tooling-versions.sh"
+
+  # Other
+  - "Brewfile*"
+  - "Makefile"

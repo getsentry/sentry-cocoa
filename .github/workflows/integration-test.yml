@@ -11,6 +11,7 @@ on:
       - "*.xcworkspace"
       - "Samples/iOS-Cocoapods-*/**"
       - "scripts/ci-select-xcode.sh"
+      - "scripts/ci-diagnostics.sh"
       - "Sources/**"
       - "*.podspec"
       - "fastlane/**"
@@ -54,3 +55,7 @@ jobs:
         with:
           name: integration-test-iOS-Cocoapods-Swift6.xcresult
           path: Samples/iOS-Cocoapods-Swift6/fastlane/test_results/results.xcresult
+
+      - name: Run CI Diagnostics
+        if: failure()
+        run: ./scripts/ci-diagnostics.sh

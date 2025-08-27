@@ -4,13 +4,16 @@ import Foundation
 @_spi(Private) public class SentryBaggageSerialization: NSObject {
     
     private static let SENTRY_BAGGAGE_MAX_SIZE = 8_192
+    private static let allowedSet = {
+        var allowedSet = CharacterSet.alphanumerics
+        allowedSet.insert(charactersIn: "-_.")
+        return allowedSet
+    }()
     
     public static func encodeDictionary(_ dictionary: [String: String]) -> String {
         var items: [String] = []
         items.reserveCapacity(dictionary.count)
         
-        var allowedSet = CharacterSet.alphanumerics
-        allowedSet.insert(charactersIn: "-_.")
         var currentSize = 0
         
         for (key, value) in dictionary {

@@ -105,6 +105,10 @@ jobs:
           sign-commits: true
           base: main
 
+      - name: Run CI Diagnostics
+        if: failure()
+        run: ./scripts/ci-diagnostics.sh
+
   # This check validates that either auto-update-tools passed or was skipped, which allows us
   # to make auto-update-tools a required check with only running the auto-update-tools when required.
   # So, we don't have to run auto-update-tools, for example, for unrelated changes.

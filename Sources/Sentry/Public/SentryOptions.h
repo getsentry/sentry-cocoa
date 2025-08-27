@@ -270,9 +270,9 @@ NS_SWIFT_NAME(Options)
  * When enabled, the SDK sends personal identifiable along with events.
  * @note The default is @c NO .
  * @discussion When the user of an event doesn't contain an IP address, and this flag is
- * @c YES, the SDK sets it to @c {{auto}} to instruct the server to use the
- * connection IP address as the user address. Due to backward compatibility concerns, Sentry set the
- * IP address to @c {{auto}} out of the box for Cocoa. If you want to stop Sentry from
+ * @c YES, the SDK sets sdk.settings.infer_ip to @c auto to instruct the server to use the
+ * connection IP address as the user address. Due to backward compatibility concerns, Sentry sets
+ * sdk.settings.infer_ip  to @c auto out of the box for Cocoa. If you want to stop Sentry from
  * using the connections IP address, you have to enable Prevent Storing of IP Addresses in your
  * project settings in Sentry.
  */

@@ -3,7 +3,7 @@
 #import "SentryDependencyContainer.h"
 #import "SentryFormatter.h"
 #import "SentryFrame.h"
-#import "SentryInAppLogic.h"
+#import "SentrySwift.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

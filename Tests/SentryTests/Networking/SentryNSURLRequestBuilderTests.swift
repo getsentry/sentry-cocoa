@@ -69,7 +69,8 @@ class SentryNSURLRequestBuilderTests: XCTestCase {
             version: "8.0.0",
             integrations: [],
             features: [],
-            packages: []
+            packages: [],
+            settings: SentrySDKSettings(dict: [:])
         )
         let headerWithInvalidJSON = SentryEnvelopeHeader(
             id: nil,
