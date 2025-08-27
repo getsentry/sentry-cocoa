@@ -32,15 +32,9 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  # This job detects if the PR contains changes that require running release checks.
-  # If yes, the job will output a flag that will be used by the next job to run the release checks.
-  # If no, the job will output a flag that will be used by the next job to skip running the release checks.
-  # At the end of this workflow, we run a check that validates that either all release checks passed or were
-  # skipped, called release-required-check.
   files-changed:
     name: Detect File Changes
     runs-on: ubuntu-latest
-    # Map a step output to a job output
     outputs:
       run_release_for_prs: ${{ steps.changes.outputs.run_release_for_prs }}
     steps:
@@ -85,7 +79,7 @@ jobs:
 
   assemble-xcframework-variant:
     needs: [files-changed, build-xcframework-variant-slices]
-    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
+    if: needs.files-changed.outputs.run_release_for_prs == 'true'
     name: Assemble XCFramework Variant
     uses: ./.github/workflows/assemble-xcframework-variant.yml
     secrets: inherit
@@ -134,7 +128,7 @@ jobs:
     name: Validate XCFramework
     runs-on: macos-14
     needs: [files-changed, assemble-xcframework-variant]
-    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
+    if: needs.files-changed.outputs.run_release_for_prs == 'true'
     steps:
       - uses: actions/checkout@v5
       - uses: actions/download-artifact@v5
@@ -158,7 +152,7 @@ jobs:
     name: Validate SPM Static ${{matrix.package-file.name}}
     runs-on: macos-14
     needs: [files-changed, assemble-xcframework-variant]
-    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
+    if: needs.files-changed.outputs.run_release_for_prs == 'true'
     steps:
       - uses: actions/checkout@v5
       - uses: actions/download-artifact@v5
@@ -190,7 +184,7 @@ jobs:
     name: Validate SPM Dynamic ${{matrix.package-file.name}}
     runs-on: macos-14
     needs: [files-changed, assemble-xcframework-variant]
-    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
+    if: needs.files-changed.outputs.run_release_for_prs == 'true'
     steps:
       - uses: actions/checkout@v5
       - uses: actions/download-artifact@v5
@@ -222,7 +216,7 @@ jobs:
     name: Build Swift Static ${{matrix.package-file.name}}
     runs-on: macos-14
     needs: [files-changed, assemble-xcframework-variant]
-    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
+    if: needs.files-changed.outputs.run_release_for_prs == 'true'
     steps:
       - uses: actions/checkout@v5
       - uses: actions/download-artifact@v5
@@ -253,7 +247,7 @@ jobs:
     name: Test Sentry Duplication V4 # Up the version with every change to keep track of flaky tests
     uses: ./.github/workflows/ui-tests-common.yml
     needs: [files-changed, assemble-xcframework-variant]
-    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
+    if: needs.files-changed.outputs.run_release_for_prs == 'true'
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     with:
@@ -266,7 +260,7 @@ jobs:
     name: Collect App Metrics
     runs-on: macos-15
     needs: [files-changed, assemble-xcframework-variant]
-    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
+    if: needs.files-changed.outputs.run_release_for_prs == 'true'
     timeout-minutes: 20
     steps:
       - name: Git checkout
