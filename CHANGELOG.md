@@ -14,6 +14,7 @@
 ### Improvements
 
 - Lazily CharacterSet only once in SentryBaggageSerialization (#5871)
+- Structured Logging: Log `SentrySDK.logger` calls to `SentrySDKLog` (#5991)
 
 ## 8.54.1-alpha.1
 
