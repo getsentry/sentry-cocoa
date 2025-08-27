@@ -87,3 +87,21 @@ extension SentryLog {
         try container.encode(value)
     }
 }
+
+@_spi(Private) extension SentryLog.Level {
+    /// Converts the structured log level to the legacy SentryLevel for compatibility with SentrySDKLog
+    @_spi(Private) public func toSentryLevel() -> SentryLevel {
+        switch self {
+        case .trace, .debug:
+            return .debug
+        case .info:
+            return .info
+        case .warn:
+            return .warning
+        case .error:
+            return .error
+        case .fatal:
+            return .fatal
+        }
+    }
+}
