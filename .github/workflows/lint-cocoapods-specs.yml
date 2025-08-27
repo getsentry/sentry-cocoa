@@ -30,15 +30,9 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  # This job detects if the PR contains changes that require running CocoaPods specs linting.
-  # If yes, the job will output a flag that will be used by the next jobs to run the linting.
-  # If no, the job will output a flag that will be used by the next jobs to skip running the linting.
-  # At the end of this workflow, we run a check that validates that either all linting jobs passed or were
-  # skipped, called lint_cocoapods_Specs-required-check.
   files-changed:
     name: Detect File Changes
     runs-on: ubuntu-latest
-    # Map a step output to a job output
     outputs:
       run_lint_cocoapods_Specs_for_prs: ${{ steps.changes.outputs.run_lint_cocoapods_Specs_for_prs }}
     steps:
@@ -52,6 +46,7 @@ jobs:
 
   lint-podspec:
     name: ${{ matrix.podspec}} ${{ matrix.library_type }} ${{ matrix.platform}}
+    # Run the job only for PRs with related changes or non-PR events.
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_lint_cocoapods_Specs_for_prs == 'true'
     needs: files-changed
     runs-on: macos-14
@@ -75,6 +70,7 @@ jobs:
 
   lint-hybrid-sdk-podspec:
     name: Sentry/HybridSDK
+    # Run the job only for PRs with related changes or non-PR events.
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_lint_cocoapods_Specs_for_prs == 'true'
     needs: files-changed
     runs-on: macos-14
@@ -88,10 +84,6 @@ jobs:
       - name: Run CI Diagnostics
         if: failure()
         run: ./scripts/ci-diagnostics.sh
-
-  # This check validates that either all linting jobs passed or were skipped, which allows us
-  # to make linting a required check with only running the linting when required.
-  # So, we don't have to run linting, for example, for Changelog or ReadMe changes.
 
   lint_cocoapods_Specs-required-check:
     needs:
