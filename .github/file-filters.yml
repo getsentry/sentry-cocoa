@@ -65,13 +65,15 @@ run_api_stability_for_prs: &run_api_stability_for_prs # API-related code
   - "sdk_api.json"
   - "sdk_api_v9.json"
 
-run_lint_dprint_for_prs: &run_lint_dprint_for_prs # dprint-related files
+run_lint_dprint_for_prs: &run_lint_dprint_for_prs
   - "**/*.yml"
   - "**/*.yaml"
   - "**/*.json"
   - "**/*.md"
-  - ".github/workflows/lint-dprint-formatting.yml"
+
+  # Formatting
   - "dprint.json"
 
   # GH Actions
+  - ".github/workflows/lint-dprint-formatting.yml"
   - ".github/file-filters.yml"
