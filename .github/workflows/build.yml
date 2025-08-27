@@ -37,7 +37,8 @@ jobs:
   # With this we catch potential issues already in the PR.
   ios-swift-release:
     name: Release Build of iOS Swift
-    if: needs.files-changed.outputs.run_build_for_prs == 'true'
+    # Run the job only for PRs with related changes or non-PR events.
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_build_for_prs == 'true'
     needs: files-changed
     runs-on: macos-15
     steps:
@@ -65,7 +66,7 @@ jobs:
 
   build-sample:
     name: Sample ${{ matrix.scheme }} ${{ matrix.config }}
-    if: needs.files-changed.outputs.run_build_for_prs == 'true'
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_build_for_prs == 'true'
     needs: files-changed
     runs-on: macos-15
     strategy:
@@ -131,7 +132,7 @@ jobs:
     name: Build with SPM
     runs-on: macos-15
     # Don't run this on release branches, cause the SPM Package.swift points to the unreleased versions.
-    if: startsWith(github.ref, 'refs/heads/release/') == false && needs.files-changed.outputs.run_build_for_prs == 'true'
+    if: startsWith(github.ref, 'refs/heads/release/') == false && (github.event_name != 'pull_request' || needs.files-changed.outputs.run_build_for_prs == 'true')
     needs: files-changed
     steps:
       - uses: actions/checkout@v5
@@ -159,7 +160,7 @@ jobs:
 
   build-v9:
     name: Build SDK v9
-    if: needs.files-changed.outputs.run_build_for_prs == 'true'
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_build_for_prs == 'true'
     needs: files-changed
     runs-on: macos-15
     steps:
@@ -185,7 +186,7 @@ jobs:
 
   check-debug-without-UIKit:
     name: Check no UIKit linkage (DebugWithoutUIKit)
-    if: needs.files-changed.outputs.run_build_for_prs == 'true'
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_build_for_prs == 'true'
     needs: files-changed
     runs-on: macos-14
     steps:
@@ -210,7 +211,7 @@ jobs:
 
   check-release-without-UIKit:
     name: Check no UIKit linkage (ReleaseWithoutUIKit)
-    if: needs.files-changed.outputs.run_build_for_prs == 'true'
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_build_for_prs == 'true'
     needs: files-changed
     runs-on: macos-14
     steps:
@@ -235,7 +236,7 @@ jobs:
 
   check-debug-with-UIKit:
     name: Check UIKit linkage (Debug)
-    if: needs.files-changed.outputs.run_build_for_prs == 'true'
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_build_for_prs == 'true'
     needs: files-changed
     runs-on: macos-14
     steps:
@@ -260,7 +261,7 @@ jobs:
 
   check-release-with-UIKit:
     name: Check UIKit linkage (Release)
-    if: needs.files-changed.outputs.run_build_for_prs == 'true'
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_build_for_prs == 'true'
     needs: files-changed
     runs-on: macos-14
     steps:
@@ -289,7 +290,7 @@ jobs:
 
   check-compiling-async-safe-logs:
     name: Check compiling Async Safe Logs
-    if: needs.files-changed.outputs.run_build_for_prs == 'true'
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_build_for_prs == 'true'
     needs: files-changed
     runs-on: macos-15
     steps:
@@ -319,10 +320,6 @@ jobs:
       - name: Debug Xcode environment
         if: ${{ failure() || cancelled() }}
         run: ./scripts/ci-diagnostics.sh
-
-  # This check validates that either all build checks passed or were skipped, which allows us
-  # to make build checks a required check with only running the build checks when required.
-  # So, we don't have to run build checks, for example, for Changelog or ReadMe changes.
 
   build-required-check:
     needs:
