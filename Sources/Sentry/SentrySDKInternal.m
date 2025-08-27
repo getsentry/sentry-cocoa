@@ -3,7 +3,6 @@
 #import "SentryANRTrackingIntegration.h"
 #import "SentryAppStartMeasurement.h"
 #import "SentryAppStateManager.h"
-#import "SentryBinaryImageCache.h"
 #import "SentryBreadcrumb.h"
 #import "SentryClient+Private.h"
 #import "SentryCrash.h"
@@ -287,7 +286,9 @@ static NSDate *_Nullable startTimestamp = nil;
         [SentrySDKInternal setCurrentHub:hub];
 
         [SentryCrashWrapper.sharedInstance startBinaryImageCache];
-        [SentryDependencyContainer.sharedInstance.binaryImageCache start:options.debug];
+        [SentryDependencyContainer.sharedInstance.binaryImageCache
+                           start:options.debug
+            dispatchQueueWrapper:SentryDependencyContainer.sharedInstance.dispatchQueueWrapper];
 
         [SentrySDKInternal installIntegrations];
 

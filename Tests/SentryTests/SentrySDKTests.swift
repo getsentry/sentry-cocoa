@@ -153,14 +153,15 @@ class SentrySDKTests: XCTestCase {
     }
 
     @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
-    func testStartStopBinaryImageCache() {
+    func testStartStopBinaryImageCache() throws {
         SentrySDK.start { options in
             options.debug = true
             options.removeAllIntegrations()
         }
 
         XCTAssertNotNil(SentryDependencyContainer.sharedInstance().binaryImageCache.cache)
-        XCTAssertGreaterThan(SentryDependencyContainer.sharedInstance().binaryImageCache.cache.count, 0)
+        let cache = try XCTUnwrap(SentryDependencyContainer.sharedInstance().binaryImageCache.cache)
+        XCTAssertGreaterThan(cache.count, 0)
 
         SentrySDK.close()
 

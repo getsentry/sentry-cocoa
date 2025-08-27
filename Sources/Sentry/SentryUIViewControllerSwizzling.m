@@ -2,7 +2,6 @@
 
 #if SENTRY_HAS_UIKIT
 
-#    import "SentryBinaryImageCache.h"
 #    import "SentryDefaultObjCRuntimeWrapper.h"
 #    import "SentryDefines.h"
 #    import "SentryDependencyContainer.h"

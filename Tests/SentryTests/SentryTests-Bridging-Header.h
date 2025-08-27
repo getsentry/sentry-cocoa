@@ -188,7 +188,6 @@
 
 #import "NSData+Unzip.h"
 #import "Sentry/Sentry-Swift.h"
-#import "SentryBinaryImageCache+Private.h"
 #import "SentryCrashBinaryImageCache.h"
 #import "SentryDispatchFactory.h"
 #import "SentryDispatchSourceWrapper.h"

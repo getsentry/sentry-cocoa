@@ -1,4 +1,3 @@
-#import "SentryBinaryImageCache+Private.h"
 #import "SentryCrashBinaryImageCache.h"
 #import "SentryCrashDynamicLinker+Test.h"
 #import "SentryCrashWrapper.h"
@@ -277,31 +276,6 @@ delayAddBinaryImage(void)
     dispatch_semaphore_signal(delaySemaphore);
     [self assertBinaryImageCacheLength:0];
     XCTAssertEqual(result, 0);
-}
-
-// Adding a SentryBinaryImageCache test inside
-// SentryCrashBinaryImageCache to test integration between both
-// because is easier to control SentryCrashBinaryImageCache in an objc test
-- (void)testSentryBinaryImageCacheIntegration
-{
-    sentrycrashbic_startCache();
-
-    SentryBinaryImageCache *imageCache = SentryDependencyContainer.sharedInstance.binaryImageCache;
-    [imageCache start:false];
-    // by calling start, SentryBinaryImageCache will register a callback with
-    // `SentryCrashBinaryImageCache` that should be called for every image already cached.
-    XCTAssertEqual(5, imageCache.cache.count);
-
-    addBinaryImage([mach_headers_test_cache[5] pointerValue], 0);
-    XCTAssertEqual(6, imageCache.cache.count);
-
-    removeBinaryImage([mach_headers_expect_array[1] pointerValue], 0);
-    removeBinaryImage([mach_headers_expect_array[2] pointerValue], 0);
-    XCTAssertEqual(4, imageCache.cache.count);
-    [imageCache stop];
-
-    addBinaryImage([mach_headers_test_cache[6] pointerValue], 0);
-    XCTAssertNil(imageCache.cache);
 }
 
 - (void)assertBinaryImageCacheLength:(int)expected

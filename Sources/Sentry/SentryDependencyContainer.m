@@ -1,7 +1,6 @@
 #import "SentryANRTrackerV1.h"
 
 #import "SentryApplication.h"
-#import "SentryBinaryImageCache.h"
 #import "SentryDefaultObjCRuntimeWrapper.h"
 #import "SentryDispatchFactory.h"
 #import "SentryDisplayLinkWrapper.h"

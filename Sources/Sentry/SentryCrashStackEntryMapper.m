@@ -1,5 +1,4 @@
 #import "SentryCrashStackEntryMapper.h"
-#import "SentryBinaryImageCache.h"
 #import "SentryDependencyContainer.h"
 #import "SentryFormatter.h"
 #import "SentryFrame.h"
@@ -42,7 +41,7 @@ NS_ASSUME_NONNULL_BEGIN
     // we get image from the cache.
     if (stackEntry.imageAddress == 0 && stackEntry.imageName == NULL) {
         SentryBinaryImageInfo *info = [SentryDependencyContainer.sharedInstance.binaryImageCache
-            imageByAddress:stackEntry.address];
+            imageByAddress:(uint64_t)stackEntry.address];
 
         frame.imageAddress = sentry_formatHexAddressUInt64(info.address);
         frame.package = info.name;

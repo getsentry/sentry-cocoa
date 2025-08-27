@@ -1,5 +1,5 @@
 @_spi(Private) @testable import Sentry
-import SentryTestUtils
+@_spi(Private) import SentryTestUtils
 import XCTest
 
 /** Some of the test parameters are copied during debbuging a working implementation.
@@ -86,9 +86,14 @@ class SentryCrashStackEntryMapperTests: XCTestCase {
     }
 
     func testImageFromCache() {
-        var image = createCrashBinaryImage(2_488_998_912)
-        SentryDependencyContainer.sharedInstance().binaryImageCache.start(false)
-        SentryDependencyContainer.sharedInstance().binaryImageCache.binaryImageAdded(&image)
+        let image = createCrashBinaryImage(2_488_998_912)
+        let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
+        SentryDependencyContainer.sharedInstance().binaryImageCache.start(false, dispatchQueueWrapper: dispatchQueueWrapper)
+        SentryDependencyContainer.sharedInstance().binaryImageCache.binaryImageAdded(imageName: image.name,
+                                                                                     vmAddress: image.vmAddress,
+                                                                                     address: image.address,
+                                                                                     size: image.size,
+                                                                                     uuid: image.uuid)
 
         var cursor = SentryCrashStackCursor()
         cursor.stackEntry.address = 2_488_998_950

@@ -1,7 +1,11 @@
 // Sentry internal headers that are needed for swift code; you cannot import headers that depend on
 // public interfaces here
 #import "NSLocale+Sentry.h"
+#import "SentryBinaryImageCacheCallbacks.h"
+#import "SentryCrashBinaryImageCache.h"
+#import "SentryCrashDynamicLinker.h"
 #import "SentryCrashExceptionApplicationHelper.h"
+#import "SentryCrashUUIDConversion.h"
 #import "SentryEventSwiftHelper.h"
 #import "SentryNSDataUtils.h"
 #import "SentryObjCRuntimeWrapper.h"
