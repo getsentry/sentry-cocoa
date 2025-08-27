@@ -18,15 +18,9 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  # This job detects if the PR contains changes that require running Objective-C conversion analysis.
-  # If yes, the job will output a flag that will be used by the next job to run the analysis.
-  # If no, the job will output a flag that will be used by the next job to skip running the analysis.
-  # At the end of this workflow, we run a check that validates that either all analysis passed or was
-  # skipped, called objc_conversion_analysis-required-check.
   files-changed:
     name: Detect File Changes
     runs-on: ubuntu-latest
-    # Map a step output to a job output
     outputs:
       run_objc_conversion_analysis_for_prs: ${{ steps.changes.outputs.run_objc_conversion_analysis_for_prs }}
     steps:
@@ -40,7 +34,7 @@ jobs:
 
   analyze-objc-conversion:
     name: Analyze Objective-C to Swift Conversion
-    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_objc_conversion_analysis_for_prs == 'true'
+    if: needs.files-changed.outputs.run_objc_conversion_analysis_for_prs == 'true'
     needs: files-changed
     runs-on: macos-15
     timeout-minutes: 10
