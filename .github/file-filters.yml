@@ -64,3 +64,14 @@ run_api_stability_for_prs: &run_api_stability_for_prs # API-related code
   - "Makefile" # Make commands used for API generation
   - "sdk_api.json"
   - "sdk_api_v9.json"
+
+run_lint_dprint_for_prs: &run_lint_dprint_for_prs # dprint-related files
+  - "**/*.yml"
+  - "**/*.yaml"
+  - "**/*.json"
+  - "**/*.md"
+  - ".github/workflows/lint-dprint-formatting.yml"
+  - "dprint.json"
+
+  # GH Actions
+  - ".github/file-filters.yml"
