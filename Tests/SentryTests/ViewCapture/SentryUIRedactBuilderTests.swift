@@ -464,7 +464,7 @@ class SentryUIRedactBuilderTests: XCTestCase {
     
     func testDefaultRedactList_shouldContainAllPlatformSpecificClasses() {
         // -- Arrange --
-        var expectedListClassNames = [
+        let expectedListClassNames = [
             // SwiftUI Views
             "_TtCOCV7SwiftUI11DisplayList11ViewUpdater8Platform13CGDrawingView",
             "_TtC7SwiftUIP33_A34643117F00277B93DEBAB70EC0697122_UIShapeHitTestingView",
