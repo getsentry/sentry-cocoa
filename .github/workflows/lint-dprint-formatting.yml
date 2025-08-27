@@ -39,18 +39,13 @@ jobs:
 
   lint:
     name: Lint
-    if: needs.files-changed.outputs.run_lint_dprint_for_prs == 'true'
+    # Run the job only for PRs with related changes or non-PR events.
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_lint_dprint_for_prs == 'true'
     needs: files-changed
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
       - uses: dprint/check@v2.3
-
-  # Combined check that will be used as the required check in the branch protection rule.
-  # This job will pass if any jobs it depends on were either successful or skipped,
-  # and fail if any jobs it depends on failed or were cancelled.
-  # to make lint dprint a required check with only running the lint dprint when required.
-  # So, we don't have to run lint dprint, for example, for changes that don't affect the files dprint checks.
 
   lint-dprint-required-check:
     needs:
