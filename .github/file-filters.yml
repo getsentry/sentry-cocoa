@@ -66,21 +66,26 @@ run_api_stability_for_prs: &run_api_stability_for_prs # API-related code
   - "sdk_api_v9.json"
 
 run_benchmarking_for_prs: &run_benchmarking_for_prs
-  # Sentry SDK sources
   - "Sources/**"
 
   # Benchmarking implementation
   - "Samples/iOS-Swift/**"
-  - ".github/workflows/benchmarking.yml"
   - ".sauce/benchmarking-config.yml"
   - "fastlane/**"
-  - "scripts/ci-select-xcode.sh"
-  - "scripts/ci-diagnostics.sh"
+
+  # GH Actions
+  - ".github/workflows/benchmarking.yml"
+  - ".github/workflows/build-xcframework-variant-slices.yml"
+  - ".github/workflows/assemble-xcframework-variant.yml"
+
+  # Project files
   - "Samples/iOS-Swift/iOS-Swift.yml"
   - "Samples/iOS-Swift/iOS-Swift.xcconfig"
   - "Samples/iOS-Swift/iOS-SwiftClip.xcconfig"
   - "Samples/iOS-Swift/iOS-Benchmarking.xcconfig"
+
+  # Scripts
+  - "scripts/ci-select-xcode.sh"
+  - "scripts/ci-diagnostics.sh"
   - "scripts/build-xcframework-slice.sh"
   - "scripts/assemble-xcframework.sh"
-  - ".github/workflows/build-xcframework-variant-slices.yml"
-  - ".github/workflows/assemble-xcframework-variant.yml"
