@@ -49,7 +49,8 @@ jobs:
     # While ubuntu runners have clang-format preinstalled, they use an older version. We want to use the most recent one,
     # that we can easily install locally via brew.
     name: Lint
-    if: needs.files-changed.outputs.run_lint_clang_formatting_for_prs == 'true'
+    # Run the job only for PRs with related changes or non-PR events.
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_lint_clang_formatting_for_prs == 'true'
     needs: files-changed
     runs-on: macos-15
     steps:
@@ -74,10 +75,6 @@ jobs:
       - name: Run CI Diagnostics
         if: failure()
         run: ./scripts/ci-diagnostics.sh
-
-  # This check validates that either all clang formatting checks passed or were skipped, which allows us
-  # to make clang formatting checks a required check with only running the clang formatting checks when required.
-  # So, we don't have to run clang formatting checks, for example, for Changelog or ReadMe changes.
 
   lint_clang_formatting-required-check:
     needs:
