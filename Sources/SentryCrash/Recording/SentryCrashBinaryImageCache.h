@@ -4,6 +4,10 @@
 #include "SentryCrashDynamicLinker.h"
 #include <stdio.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef void (*sentrycrashbic_imageIteratorCallback)(SentryCrashBinaryImage *, void *context);
 
 typedef void (*sentrycrashbic_cacheChangeCallback)(const SentryCrashBinaryImage *binaryImage);
@@ -32,5 +36,9 @@ void sentrycrashbic_registerAddedCallback(sentrycrashbic_cacheChangeCallback cal
  * Register a callback to be called every time a binary image is remove from the cache.
  */
 void sentrycrashbic_registerRemovedCallback(sentrycrashbic_cacheChangeCallback callback);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* SentryCrashBinaryImageCache_h */

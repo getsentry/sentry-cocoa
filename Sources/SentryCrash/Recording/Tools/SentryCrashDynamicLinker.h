@@ -28,13 +28,13 @@
 #ifndef HDR_SentryCrashDynamicLinker_h
 #define HDR_SentryCrashDynamicLinker_h
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <dlfcn.h>
 #include <stdbool.h>
 #include <stdint.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #define SENTRY_DYLD_INDEX UINT_MAX - 1
 
