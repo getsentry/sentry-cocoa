@@ -156,7 +156,11 @@ class SentrySDKInternalTests: XCTestCase {
     @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func testStartSDK_WithCorruptedEnvelope() throws {
 
-        let fileManager = try SentryFileManager(options: fixture.options)
+        let fileManager = try SentryFileManager(
+            options: fixture.options,
+            dateProvider: fixture.currentDate,
+            dispatchQueueWrapper: fixture.dispatchQueueWrapper
+        )
 
         let corruptedEnvelopeData = Data("""
                        {"event_id":"1990b5bc31904b7395fd07feb72daf1c","sdk":{"name":"sentry.cocoa","version":"8.33.0"}}
