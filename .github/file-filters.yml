@@ -64,3 +64,20 @@ run_api_stability_for_prs: &run_api_stability_for_prs # API-related code
   - "Makefile" # Make commands used for API generation
   - "sdk_api.json"
   - "sdk_api_v9.json"
+
+run_release_for_prs: &run_release_for_prs # Release-related code
+  - "Sources/**"
+  - "scripts/ci-select-xcode.sh"
+  - "scripts/ci-diagnostics.sh"
+  - "Sentry.xcworkspace/**"
+  - "Sentry.xcodeproj/**"
+  - "Package*.swift"
+  - ".github/workflows/build-xcframework.yml"
+  - "scripts/build-xcframework-slice.sh"
+  - "scripts/assemble-xcframework.sh"
+  - ".github/workflows/release.yml"
+  - ".github/workflows/build-xcframework-variant-slices.yml"
+  - ".github/workflows/assemble-xcframework-variant.yml"
+  - ".github/workflows/ui-tests-common.yml"
+  - "Samples/macOS-SPM-CommandLine/**"
+  - "Samples/SPM-Dynamic/**"
