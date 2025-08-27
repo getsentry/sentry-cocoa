@@ -30,4 +30,14 @@
     return SentrySDKInternal.currentHub;
 }
 
++ (SentryDispatchQueueWrapper *)dispatchQueueWrapper
+{
+    return SentryDependencyContainer.sharedInstance.dispatchQueueWrapper;
+}
+
++ (SentryBinaryImageCache *)binaryImageCache
+{
+    return SentryDependencyContainer.sharedInstance.binaryImageCache;
+}
+
 @end

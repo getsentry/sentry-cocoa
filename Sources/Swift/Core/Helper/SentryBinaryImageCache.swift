@@ -30,17 +30,11 @@ public class SentryBinaryImageCache: NSObject {
     private var isDebug: Bool = false
     // Use a recursive lock to allow the same thread to enter again
     private let lock = NSRecursiveLock()
-    private var dispatchQueueWrapper: SentryDispatchQueueWrapper!
     
-    @objc public override init() {
-        self.isDebug = false
-    }
-    
-    @_spi(Private) @objc public func start(_ isDebug: Bool, dispatchQueueWrapper: SentryDispatchQueueWrapper) {
+    @_spi(Private) @objc public func start(_ isDebug: Bool) {
         lock.synchronized {
             self.isDebug = isDebug
             self.cache = []
-            self.dispatchQueueWrapper = dispatchQueueWrapper
             sentrycrashbic_registerAddedCallback(binaryImageWasAdded)
             sentrycrashbic_registerRemovedCallback(binaryImageWasRemoved)
         }
@@ -104,7 +98,7 @@ public class SentryBinaryImageCache: NSObject {
             LoadValidator.checkForDuplicatedSDK(imageName: nameString,
                                                 imageAddress: NSNumber(value: newImage.address),
                                                 imageSize: NSNumber(value: newImage.size),
-                                                dispatchQueueWrapper: dispatchQueueWrapper)
+                                                dispatchQueueWrapper: SentryDependencyContainerSwiftHelper.dispatchQueueWrapper())
         }
     }
     
@@ -178,5 +172,31 @@ public class SentryBinaryImageCache: NSObject {
         lock.synchronized {
             return cache ?? []
         }
+    }   
+}
+
+// MARK: - C Callback Functions
+    
+private func binaryImageWasAdded(_ image: UnsafePointer<SentryCrashBinaryImage>?) {
+    guard let image = image else {
+        SentrySDKLog.warning("The image is NULL. Can't add NULL to cache.")
+        return
     }
+    
+    SentryDependencyContainerSwiftHelper.binaryImageCache().binaryImageAdded(
+        imageName: image.pointee.name,
+        vmAddress: image.pointee.vmAddress,
+        address: image.pointee.address,
+        size: image.pointee.size,
+        uuid: image.pointee.uuid
+    )
+}
+
+private func binaryImageWasRemoved(_ image: UnsafePointer<SentryCrashBinaryImage>?) {
+    guard let image = image else {
+        SentrySDKLog.warning("The image is NULL. Can't remove it from the cache.")
+        return
+    }
+    
+    SentryDependencyContainerSwiftHelper.binaryImageCache().binaryImageRemoved(image.pointee.address)
 }

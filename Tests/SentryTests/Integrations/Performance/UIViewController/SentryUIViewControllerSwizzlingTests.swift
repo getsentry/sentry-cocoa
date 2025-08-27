@@ -205,8 +205,7 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
         let debugDylib = "\(imageName).debug.dylib"
         
         let image = createCrashBinaryImage(0, name: debugDylib)
-        let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
-        SentryDependencyContainer.sharedInstance().binaryImageCache.start(false, dispatchQueueWrapper: dispatchQueueWrapper)
+        SentryDependencyContainer.sharedInstance().binaryImageCache.start(false)
         SentryDependencyContainer.sharedInstance().binaryImageCache.binaryImageAdded(imageName: image.name,
                                                                                      vmAddress: image.vmAddress,
                                                                                      address: image.address,

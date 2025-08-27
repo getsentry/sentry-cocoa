@@ -7,6 +7,8 @@
 
 @protocol SentryObjCRuntimeWrapper;
 @class SentryHub;
+@class SentryDispatchQueueWrapper;
+@class SentryBinaryImageCache;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -25,6 +27,8 @@ NS_ASSUME_NONNULL_BEGIN
 + (void)dispatchSyncOnMainQueue:(void (^)(void))block;
 + (id<SentryObjCRuntimeWrapper>)objcRuntimeWrapper;
 + (SentryHub *)currentHub;
++ (SentryDispatchQueueWrapper *)dispatchQueueWrapper;
++ (SentryBinaryImageCache *)binaryImageCache;
 
 @end
 
