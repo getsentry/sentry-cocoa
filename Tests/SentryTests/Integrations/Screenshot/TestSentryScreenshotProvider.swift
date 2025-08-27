@@ -2,8 +2,8 @@
 
 @_spi(Private) @testable import Sentry
 
-class TestSentryScreenshot: SentryViewScreenshotProvider {
-    
+class TestSentryScreenshotSource: SentryScreenshotSource {
+
     var result: [Data] = []
     var images: [UIImage] = []
     var processScreenshotsCallback: (() -> Void)?

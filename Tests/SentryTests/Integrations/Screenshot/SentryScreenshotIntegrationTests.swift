@@ -1,22 +1,22 @@
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 
-@testable import Sentry
-import SentryTestUtils
+@_spi(Private) @testable import Sentry
+@_spi(Private) @testable import SentryTestUtils
 import XCTest
 
 class SentryScreenshotIntegrationTests: XCTestCase {
     
     private class Fixture {
-        let screenshotProvider: TestSentryViewScreenshotProvider
+        let screenshotProvider: TestSentryScreenshotSource
 
         init() {
             let redactOptions = SentryViewScreenshotOptions()
             let photographer = TestSentryViewPhotographer(redactOptions: redactOptions)
-            let provider = TestSentryViewScreenshotProvider(photographer: photographer)
+            let provider = TestSentryScreenshotSource(photographer: photographer)
             provider.result = [Data(count: 10)]
             screenshotProvider = provider
 
-            SentryDependencyContainer.sharedInstance().setScreenshotProvider(provider, for: redactOptions)
+            SentryDependencyContainer.sharedInstance().setScreenshotSource(provider, for: redactOptions)
         }
         
         func getSut(options: Options = Options()) -> SentryScreenshotIntegration {

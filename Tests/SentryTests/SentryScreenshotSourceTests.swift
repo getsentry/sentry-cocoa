@@ -3,14 +3,14 @@
 import XCTest
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-class SentryViewScreenshotProviderTests: XCTestCase {
+class SentryScreenshotSourceTests: XCTestCase {
     private class Fixture {
         
         let uiApplication = TestSentryUIApplication(notificationCenterWrapper: TestNSNotificationCenterWrapper(), dispatchQueueWrapper: TestSentryDispatchQueueWrapper())
         let photographer = TestSentryViewPhotographer(redactOptions: SentryRedactDefaultOptions())
 
-        var sut: SentryViewScreenshotProvider {
-            return SentryViewScreenshotProvider(photographer: photographer)
+        var sut: SentryScreenshotSource {
+            return SentryScreenshotSource(photographer: photographer)
         }
     }
     

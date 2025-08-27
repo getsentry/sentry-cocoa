@@ -4,7 +4,7 @@
 @_spi(Private) @testable import Sentry
 import UIKit
 
-public class TestSentryViewRenderer: NSObject, SentryViewRenderer {
+@_spi(Private) public class TestSentryViewRenderer: NSObject, SentryViewRenderer {
     let renderInvocations: Invocations<WeakReference<UIView>> = Invocations()
     var mockedReturnValue: UIImage?
 

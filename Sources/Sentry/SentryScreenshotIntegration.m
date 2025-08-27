@@ -45,6 +45,7 @@ saveScreenShot(const char *path)
     SentryClient *client = [SentrySDKInternal.currentHub getClient];
     [client addAttachmentProcessor:self];
 
+    // TODO: Use the options to currify the saveScreenshot function.
     sentrycrash_setSaveScreenshots(&saveScreenShot);
 
     return YES;

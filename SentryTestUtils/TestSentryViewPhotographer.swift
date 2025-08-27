@@ -2,7 +2,7 @@
 
 @_spi(Private) @testable import Sentry
 
-public class TestSentryViewPhotographer: SentryViewPhotographer {
+@_spi(Private) public class TestSentryViewPhotographer: SentryViewPhotographer {
     public override init(
         renderer: SentryViewRenderer = TestSentryViewRenderer(),
         redactOptions: any SentryRedactOptions,
