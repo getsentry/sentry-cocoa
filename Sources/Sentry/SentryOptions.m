@@ -88,7 +88,9 @@ NSString *const kSentryDefaultEnvironment = @"production";
         self.maxAttachmentSize = 20 * 1024 * 1024;
         self.sendDefaultPii = NO;
         self.enableAutoPerformanceTracing = YES;
+#if !SDK_V9
         self.enablePerformanceV2 = NO;
+#endif // !SDK_V9
         self.enablePersistingTracesWhenCrashing = NO;
         self.enableCaptureFailedRequests = YES;
         self.environment = kSentryDefaultEnvironment;
