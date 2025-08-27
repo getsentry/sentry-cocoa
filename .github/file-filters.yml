@@ -65,7 +65,7 @@ run_api_stability_for_prs: &run_api_stability_for_prs # API-related code
   - "sdk_api.json"
   - "sdk_api_v9.json"
 
-run_build_for_prs: &run_build_for_prs # Build-related code
+run_build_for_prs: &run_build_for_prs
   - "Sources/**"
   - "test-server/**"
   - "Samples/**"

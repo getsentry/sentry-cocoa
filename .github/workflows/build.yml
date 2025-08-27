@@ -19,15 +19,9 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  # This job detects if the PR contains changes that require running build checks.
-  # If yes, the job will output a flag that will be used by the next job to run the build checks.
-  # If no, the job will output a flag that will be used by the next job to skip running the build checks.
-  # At the end of this workflow, we run a check that validates that either all build checks passed or were
-  # skipped, called build-required-check.
   files-changed:
     name: Detect File Changes
     runs-on: ubuntu-latest
-    # Map a step output to a job output
     outputs:
       run_build_for_prs: ${{ steps.changes.outputs.run_build_for_prs }}
     steps:
@@ -43,7 +37,7 @@ jobs:
   # With this we catch potential issues already in the PR.
   ios-swift-release:
     name: Release Build of iOS Swift
-    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_build_for_prs == 'true'
+    if: needs.files-changed.outputs.run_build_for_prs == 'true'
     needs: files-changed
     runs-on: macos-15
     steps:
@@ -71,7 +65,7 @@ jobs:
 
   build-sample:
     name: Sample ${{ matrix.scheme }} ${{ matrix.config }}
-    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_build_for_prs == 'true'
+    if: needs.files-changed.outputs.run_build_for_prs == 'true'
     needs: files-changed
     runs-on: macos-15
     strategy:
@@ -137,7 +131,7 @@ jobs:
     name: Build with SPM
     runs-on: macos-15
     # Don't run this on release branches, cause the SPM Package.swift points to the unreleased versions.
-    if: startsWith(github.ref, 'refs/heads/release/') == false && (github.event_name != 'pull_request' || needs.files-changed.outputs.run_build_for_prs == 'true')
+    if: startsWith(github.ref, 'refs/heads/release/') == false && needs.files-changed.outputs.run_build_for_prs == 'true'
     needs: files-changed
     steps:
       - uses: actions/checkout@v5
@@ -165,7 +159,7 @@ jobs:
 
   build-v9:
     name: Build SDK v9
-    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_build_for_prs == 'true'
+    if: needs.files-changed.outputs.run_build_for_prs == 'true'
     needs: files-changed
     runs-on: macos-15
     steps:
@@ -191,7 +185,7 @@ jobs:
 
   check-debug-without-UIKit:
     name: Check no UIKit linkage (DebugWithoutUIKit)
-    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_build_for_prs == 'true'
+    if: needs.files-changed.outputs.run_build_for_prs == 'true'
     needs: files-changed
     runs-on: macos-14
     steps:
@@ -216,7 +210,7 @@ jobs:
 
   check-release-without-UIKit:
     name: Check no UIKit linkage (ReleaseWithoutUIKit)
-    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_build_for_prs == 'true'
+    if: needs.files-changed.outputs.run_build_for_prs == 'true'
     needs: files-changed
     runs-on: macos-14
     steps:
@@ -241,7 +235,7 @@ jobs:
 
   check-debug-with-UIKit:
     name: Check UIKit linkage (Debug)
-    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_build_for_prs == 'true'
+    if: needs.files-changed.outputs.run_build_for_prs == 'true'
     needs: files-changed
     runs-on: macos-14
     steps:
@@ -266,7 +260,7 @@ jobs:
 
   check-release-with-UIKit:
     name: Check UIKit linkage (Release)
-    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_build_for_prs == 'true'
+    if: needs.files-changed.outputs.run_build_for_prs == 'true'
     needs: files-changed
     runs-on: macos-14
     steps:
@@ -295,7 +289,7 @@ jobs:
 
   check-compiling-async-safe-logs:
     name: Check compiling Async Safe Logs
-    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_build_for_prs == 'true'
+    if: needs.files-changed.outputs.run_build_for_prs == 'true'
     needs: files-changed
     runs-on: macos-15
     steps:
