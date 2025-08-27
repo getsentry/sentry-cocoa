@@ -64,3 +64,13 @@ run_api_stability_for_prs: &run_api_stability_for_prs # API-related code
   - "Makefile" # Make commands used for API generation
   - "sdk_api.json"
   - "sdk_api_v9.json"
+
+run_test_cross_platform_for_prs: &run_test_cross_platform_for_prs # Cross-platform testing code
+  - ".github/workflows/test-cross-platform.yml"
+  - "Sources/**"
+  - "Sentry.podspec"
+  - "SentrySwiftUI.podspec"
+  - "Package*.swift"
+  - "Makefile" # Make commands used for cross-platform setup
+  - "Brewfile*" # Dependency installation affects cross-platform testing
+  - "scripts/ci-diagnostics.sh"
