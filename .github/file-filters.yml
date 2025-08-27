@@ -64,3 +64,16 @@ run_api_stability_for_prs: &run_api_stability_for_prs # API-related code
   - "Makefile" # Make commands used for API generation
   - "sdk_api.json"
   - "sdk_api_v9.json"
+
+run_integration_test_for_prs: &run_integration_test_for_prs # CocoaPods integration test
+  - ".github/workflows/integration-test.yml"
+  - "*.xcodeproj"
+  - "*.xcworkspace"
+  - "Samples/iOS-Cocoapods-*/**"
+  - "scripts/ci-select-xcode.sh"
+  - "scripts/ci-diagnostics.sh"
+  - "Sources/**"
+  - "*.podspec"
+  - "fastlane/**"
+  - "Gemfile.lock"
+  - "Plans/iOS-Cocoapods-Swift6_Base.xctestplan"
