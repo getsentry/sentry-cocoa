@@ -18,18 +18,6 @@ on:
       - "scripts/ci-diagnostics.sh"
 
   pull_request:
-    paths:
-      - "**/*.h"
-      - "**/*.hpp"
-      - "**/*.c"
-      - "**/*.cpp"
-      - "**/*.m"
-      - "**/*.mm"
-      - ".github/workflows/lint-clang-formatting.yml"
-      - ".clang-format"
-      - "Makefile" # Make commands used for formatting setup
-      - "Brewfile*" # Tools installation affects formatting environment
-      - "scripts/ci-diagnostics.sh"
 
 # Concurrency configuration:
 # - We use workflow-specific concurrency groups to prevent multiple lint runs on the same code,
@@ -43,10 +31,32 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
+  # This job detects if the PR contains changes that require running clang formatting checks.
+  # If yes, the job will output a flag that will be used by the next job to run the clang formatting checks.
+  # If no, the job will output a flag that will be used by the next job to skip running the clang formatting checks.
+  # At the end of this workflow, we run a check that validates that either all clang formatting checks passed or were
+  # skipped, called lint_clang_formatting-required-check.
+  files-changed:
+    name: Detect File Changes
+    runs-on: ubuntu-latest
+    # Map a step output to a job output
+    outputs:
+      run_lint_clang_formatting_for_prs: ${{ steps.changes.outputs.run_lint_clang_formatting_for_prs }}
+    steps:
+      - uses: actions/checkout@v5
+      - name: Get changed files
+        id: changes
+        uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
+        with:
+          token: ${{ github.token }}
+          filters: .github/file-filters.yml
+
   lint:
     # While ubuntu runners have clang-format preinstalled, they use an older version. We want to use the most recent one,
     # that we can easily install locally via brew.
     name: Lint
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_lint_clang_formatting_for_prs == 'true'
+    needs: files-changed
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v5
@@ -70,3 +80,25 @@ jobs:
       - name: Run CI Diagnostics
         if: failure()
         run: ./scripts/ci-diagnostics.sh
+
+  # This check validates that either all clang formatting checks passed or were skipped, which allows us
+  # to make clang formatting checks a required check with only running the clang formatting checks when required.
+  # So, we don't have to run clang formatting checks, for example, for Changelog or ReadMe changes.
+
+  lint_clang_formatting-required-check:
+    needs:
+      [
+        files-changed,
+        lint,
+      ]
+    name: Lint Clang
+    # This is necessary since a failed/skipped dependent job would cause this job to be skipped
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      # If any jobs we depend on fails gets cancelled or times out, this job will fail.
+      # Skipped jobs are not considered failures.
+      - name: Check for failures
+        if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
+        run: |
+          echo "One of the clang formatting check jobs has failed." && exit 1

@@ -64,3 +64,16 @@ run_api_stability_for_prs: &run_api_stability_for_prs # API-related code
   - "Makefile" # Make commands used for API generation
   - "sdk_api.json"
   - "sdk_api_v9.json"
+
+run_lint_clang_formatting_for_prs: &run_lint_clang_formatting_for_prs
+  - "**/*.h"
+  - "**/*.hpp"
+  - "**/*.c"
+  - "**/*.cpp"
+  - "**/*.m"
+  - "**/*.mm"
+  - ".github/workflows/lint-clang-formatting.yml"
+  - ".clang-format"
+  - "Makefile" # Make commands used for formatting setup
+  - "Brewfile*" # Tools installation affects formatting environment
+  - "scripts/ci-diagnostics.sh"
