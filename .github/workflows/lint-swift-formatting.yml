@@ -42,7 +42,8 @@ jobs:
 
   lint:
     name: Lint
-    if: needs.files-changed.outputs.run_lint_swift_formatting_for_prs == 'true'
+    # Run the job only for PRs with related changes or non-PR events.
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_lint_swift_formatting_for_prs == 'true'
     needs: files-changed
     runs-on: macos-15
     steps:
@@ -67,10 +68,6 @@ jobs:
       - name: Run CI Diagnostics
         if: failure()
         run: ./scripts/ci-diagnostics.sh
-
-  # This check validates that either all Swift formatting checks passed or were skipped, which allows us
-  # to make Swift formatting checks a required check with only running the Swift formatting checks when required.
-  # So, we don't have to run Swift formatting checks, for example, for Changelog or ReadMe changes.
 
   lint_swift_formatting-required-check:
     needs:
