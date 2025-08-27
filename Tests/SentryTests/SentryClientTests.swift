@@ -2210,8 +2210,8 @@ class SentryClientTests: XCTestCase {
         XCTAssertEqual(0, fixture.transport.sentEnvelopes.count)
     }
     
-#if os(macOS)
     func testCaptureSentryWrappedException() throws {
+#if os(macOS)
         let exception = NSException(name: NSExceptionName("exception"), reason: "reason", userInfo: nil)
         // If we don't raise the exception, it won't have the callStack data
         let raisedException = ExceptionCatcher.try {
@@ -2232,7 +2232,7 @@ class SentryClientTests: XCTestCase {
         // Make sure the stacktrace is not empty
         XCTAssertGreaterThan(actual.threads?[0].stacktrace?.frames.count ?? 0, 1)
         // We will need to update it if the test class / module changes
-        let testMangledName = "$s11SentryTests0A10ClientTestC011testCaptureA16WrappedExceptionyyKF"
+        let testMangledName = "$s11SentryTests0a6ClientB0C011testCaptureA16WrappedExceptionyyKF"
         let frameWithTestFunction = actual.threads?[0].stacktrace?.frames.first { frame in
             frame.function == testMangledName
         }
@@ -2240,8 +2240,10 @@ class SentryClientTests: XCTestCase {
         
         // Last frame should always be `__exceptionPreprocess`
         XCTAssertEqual(actual.threads?[0].stacktrace?.frames.last?.function, "__exceptionPreprocess")
+        #else
+        throw XCTSkip("Test is disabled for this OS version")
+        #endif // os(macOS)
     }
-#endif // os(macOS)
 }
 
 @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
