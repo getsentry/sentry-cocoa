@@ -114,3 +114,17 @@ run_release_for_prs: &run_release_for_prs # Release-related code
   # Samples
   - "Samples/macOS-SPM-CommandLine/**"
   - "Samples/SPM-Dynamic/**"
+
+run_lint_swift_formatting_for_prs: &run_lint_swift_formatting_for_prs # Swift formatting
+  - "**/*.swift"
+
+  # GH Actions
+  - ".github/workflows/lint-swift-formatting.yml"
+  - ".github/file-filters.yml"
+
+  # Formatting
+  - ".swiftlint.yml"
+
+  # Other
+  - "Makefile" # Make commands used for formatting setup
+  - "Brewfile*" # Tools installation affects formatting environment
