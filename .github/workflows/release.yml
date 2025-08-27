@@ -48,6 +48,7 @@ jobs:
 
   build-xcframework-variant-slices:
     name: Build XCFramework Slices
+    # Run the job only for PRs with related changes or non-PR events.
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
     needs: files-changed
     uses: ./.github/workflows/build-xcframework-variant-slices.yml
@@ -79,7 +80,8 @@ jobs:
 
   assemble-xcframework-variant:
     needs: [files-changed, build-xcframework-variant-slices]
-    if: needs.files-changed.outputs.run_release_for_prs == 'true'
+    # Run the job only for PRs with related changes or non-PR events.
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
     name: Assemble XCFramework Variant
     uses: ./.github/workflows/assemble-xcframework-variant.yml
     secrets: inherit
@@ -128,7 +130,8 @@ jobs:
     name: Validate XCFramework
     runs-on: macos-14
     needs: [files-changed, assemble-xcframework-variant]
-    if: needs.files-changed.outputs.run_release_for_prs == 'true'
+    # Run the job only for PRs with related changes or non-PR events.
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
     steps:
       - uses: actions/checkout@v5
       - uses: actions/download-artifact@v5
@@ -152,7 +155,8 @@ jobs:
     name: Validate SPM Static ${{matrix.package-file.name}}
     runs-on: macos-14
     needs: [files-changed, assemble-xcframework-variant]
-    if: needs.files-changed.outputs.run_release_for_prs == 'true'
+    # Run the job only for PRs with related changes or non-PR events.
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
     steps:
       - uses: actions/checkout@v5
       - uses: actions/download-artifact@v5
@@ -184,7 +188,8 @@ jobs:
     name: Validate SPM Dynamic ${{matrix.package-file.name}}
     runs-on: macos-14
     needs: [files-changed, assemble-xcframework-variant]
-    if: needs.files-changed.outputs.run_release_for_prs == 'true'
+    # Run the job only for PRs with related changes or non-PR events.
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
     steps:
       - uses: actions/checkout@v5
       - uses: actions/download-artifact@v5
@@ -216,7 +221,8 @@ jobs:
     name: Build Swift Static ${{matrix.package-file.name}}
     runs-on: macos-14
     needs: [files-changed, assemble-xcframework-variant]
-    if: needs.files-changed.outputs.run_release_for_prs == 'true'
+    # Run the job only for PRs with related changes or non-PR events.
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
     steps:
       - uses: actions/checkout@v5
       - uses: actions/download-artifact@v5
@@ -247,7 +253,8 @@ jobs:
     name: Test Sentry Duplication V4 # Up the version with every change to keep track of flaky tests
     uses: ./.github/workflows/ui-tests-common.yml
     needs: [files-changed, assemble-xcframework-variant]
-    if: needs.files-changed.outputs.run_release_for_prs == 'true'
+    # Run the job only for PRs with related changes or non-PR events.
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     with:
@@ -260,7 +267,8 @@ jobs:
     name: Collect App Metrics
     runs-on: macos-15
     needs: [files-changed, assemble-xcframework-variant]
-    if: needs.files-changed.outputs.run_release_for_prs == 'true'
+    # Run the job only for PRs with related changes or non-PR events.
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
     timeout-minutes: 20
     steps:
       - name: Git checkout
@@ -369,10 +377,6 @@ jobs:
       - name: Run CI Diagnostics
         if: failure()
         run: ./scripts/ci-diagnostics.sh
-
-  # This check validates that either all release checks passed or were skipped, which allows us
-  # to make release checks a required check with only running the release checks when required.
-  # So, we don't have to run release checks, for example, for Changelog or ReadMe changes.
 
   release-required-check:
     needs:
