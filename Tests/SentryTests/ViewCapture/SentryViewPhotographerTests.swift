@@ -1,6 +1,6 @@
 #if os(iOS) && !targetEnvironment(macCatalyst)
 import Foundation
-@testable import Sentry
+@_spi(Private) @testable import Sentry
 import SentryTestUtils
 import UIKit
 import XCTest

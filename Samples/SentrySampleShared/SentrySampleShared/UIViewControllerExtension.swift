@@ -6,7 +6,12 @@ import UIKit
 
 public extension UIViewController {
     func createTransactionObserver(forCallback: @escaping (Span) -> Void) -> SpanObserver? {
-        let result = SpanObserver(callback: forCallback)
+        let result = SpanObserver { span in
+          // This callback may not be on the main queue, but `forCallback` is always called on the main queue.
+          DispatchQueue.main.async {
+            forCallback(span)
+          }
+        }
         if result == nil {
             UIAssert.fail("Transaction was not created")
         }

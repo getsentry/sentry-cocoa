@@ -1,6 +1,6 @@
 import ObjectiveC
-@testable import Sentry
-import SentryTestUtils
+@_spi(Private) @testable import Sentry
+@_spi(Private) import SentryTestUtils
 import XCTest
 
 // swiftlint:disable file_length
@@ -61,8 +61,8 @@ class SentryNetworkTrackerTests: XCTestCase {
         super.setUp()
         fixture = Fixture()
 
-        SentrySDK.setCurrentHub(fixture.hub)
-        SentrySDK.setStart(fixture.options)
+        SentrySDKInternal.setCurrentHub(fixture.hub)
+        SentrySDKInternal.setStart(with: fixture.options)
         SentryDependencyContainer.sharedInstance().dateProvider = fixture.dateProvider
     }
 
@@ -148,7 +148,7 @@ class SentryNetworkTrackerTests: XCTestCase {
     }
 
     func testSDKOptionsNil() {
-        SentrySDK.setCurrentHub(nil)
+        SentrySDKInternal.setCurrentHub(nil)
 
         let task = fixture.sentryTask
         let span = spanForTask(task: task)
@@ -806,19 +806,25 @@ class SentryNetworkTrackerTests: XCTestCase {
         let transaction = startTransaction()
 
         let queue = DispatchQueue(label: "SentryNetworkTrackerTests", qos: .userInteractive, attributes: [.concurrent, .initiallyInactive])
-        let group = DispatchGroup()
 
-        for _ in 0...100_000 {
-            group.enter()
+        let loopCount = 1_000
+
+        let expectation = XCTestExpectation(description: "Resume called multiple times concurrently")
+        expectation.expectedFulfillmentCount = loopCount
+        expectation.assertForOverFulfill = true
+
+        for _ in 0..<loopCount {
+
             queue.async {
                 sut.urlSessionTaskResume(task)
                 task.state = .completed
-                group.leave()
+
+                expectation.fulfill()
             }
         }
 
         queue.activate()
-        group.waitWithTimeout(timeout: 100)
+        wait(for: [expectation], timeout: 10)
 
         assertOneSpanCreated(transaction)
     }
@@ -830,22 +836,29 @@ class SentryNetworkTrackerTests: XCTestCase {
         sut.urlSessionTaskResume(task)
 
         let queue = DispatchQueue(label: "SentryNetworkTrackerTests", qos: .userInteractive, attributes: [.concurrent, .initiallyInactive])
-        let group = DispatchGroup()
 
-        for _ in 0...100_000 {
-            group.enter()
+        let loopCount = 1_000
+
+        let expectation = XCTestExpectation(description: "Change state multiple times concurrently")
+        expectation.expectedFulfillmentCount = loopCount
+        expectation.assertForOverFulfill = true
+
+        for _ in 0..<loopCount {
+
             queue.async {
                 do {
                     try self.setTaskState(task, state: .completed)
                 } catch {
                     XCTFail("Failed to set task state: \(error)")
                 }
-                group.leave()
+
+                expectation.fulfill()
             }
         }
 
         queue.activate()
-        group.waitWithTimeout(timeout: 100)
+
+        wait(for: [expectation], timeout: 10)
 
         let spans = Dynamic(transaction).children as [Span]?
         XCTAssertEqual(1, spans?.count)
@@ -911,8 +924,8 @@ class SentryNetworkTrackerTests: XCTestCase {
         _ = try XCTUnwrap(startTransaction() as? SentryTracer)
         sut.urlSessionTaskResume(task)
 
-        let expectedTraceHeader = SentrySDK.currentHub().scope.propagationContext.traceHeader.value()
-        let traceContext = TraceContext(trace: SentrySDK.currentHub().scope.propagationContext.traceId, options: self.fixture.options, userSegment: self.fixture.scope.userObject?.segment, replayId: nil)
+        let expectedTraceHeader = SentrySDKInternal.currentHub().scope.propagationContext.traceHeader.value()
+        let traceContext = TraceContext(trace: SentrySDKInternal.currentHub().scope.propagationContext.traceId, options: self.fixture.options, userSegment: self.fixture.scope.userObject?.segment, replayId: nil)
         let expectedBaggageHeader = traceContext.toBaggage().toHTTPHeader(withOriginalBaggage: nil)
         XCTAssertEqual(task.currentRequest?.allHTTPHeaderFields?["baggage"] ?? "", expectedBaggageHeader)
         XCTAssertEqual(task.currentRequest?.allHTTPHeaderFields?["sentry-trace"] ?? "", expectedTraceHeader)
@@ -924,8 +937,8 @@ class SentryNetworkTrackerTests: XCTestCase {
         let task = createDataTask()
         sut.urlSessionTaskResume(task)
 
-        let expectedTraceHeader = SentrySDK.currentHub().scope.propagationContext.traceHeader.value()
-        let traceContext = TraceContext(trace: SentrySDK.currentHub().scope.propagationContext.traceId, options: self.fixture.options, userSegment: self.fixture.scope.userObject?.segment, replayId: nil)
+        let expectedTraceHeader = SentrySDKInternal.currentHub().scope.propagationContext.traceHeader.value()
+        let traceContext = TraceContext(trace: SentrySDKInternal.currentHub().scope.propagationContext.traceId, options: self.fixture.options, userSegment: self.fixture.scope.userObject?.segment, replayId: nil)
         let expectedBaggageHeader = traceContext.toBaggage().toHTTPHeader(withOriginalBaggage: nil)
         XCTAssertEqual(task.currentRequest?.allHTTPHeaderFields?["baggage"] ?? "", expectedBaggageHeader)
         XCTAssertEqual(task.currentRequest?.allHTTPHeaderFields?["sentry-trace"] ?? "", expectedTraceHeader)

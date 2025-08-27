@@ -157,12 +157,15 @@ class SentryUserTests: XCTestCase {
     
     func testModifyingFromMultipleThreads() throws {
         let queue = DispatchQueue(label: "SentryUserTests", qos: .userInteractive, attributes: [.concurrent, .initiallyInactive])
-        let group = DispatchGroup()
+        
+        let loopCount = 20
+        let expectation = XCTestExpectation(description: "ModifyingFromMultipleThreads")
+        expectation.expectedFulfillmentCount = loopCount
+        expectation.assertForOverFulfill = true
         
         let user = try XCTUnwrap(TestData.user.copy() as? User)
         
-        for i in 0...20 {
-            group.enter()
+        for i in 0..<loopCount {
             queue.async {
                 
                 // The number is kept small for the CI to not take to long.
@@ -195,11 +198,11 @@ class SentryUserTests: XCTestCase {
                     XCTAssertNotNil([user: user])
                 }
                 
-                group.leave()
+                expectation.fulfill()
             }
         }
         
         queue.activate()
-        group.waitWithTimeout()
+        wait(for: [expectation], timeout: 10.0)
     }
 }

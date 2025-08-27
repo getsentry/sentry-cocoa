@@ -1,0 +1,50 @@
+name: Lint Xcode
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "Sources/**"
+      - "Tests/**"
+      - "test-server/**"
+      - "Samples/**"
+      - ".github/workflows/lint-xcode-analyze.yml"
+      - "scripts/ci-select-xcode.sh"
+      - "scripts/ci-diagnostics.sh"
+
+  pull_request:
+    paths:
+      - "Sources/**"
+      - "Tests/**"
+      - "test-server/**"
+      - "Samples/**"
+      - ".github/workflows/lint-xcode-analyze.yml"
+      - "scripts/ci-select-xcode.sh"
+      - "scripts/ci-diagnostics.sh"
+      - "Sentry.xcodeproj/**"
+      - "*.podspec"
+      - "Gemfile.lock"
+
+# Concurrency configuration:
+# - We use workflow-specific concurrency groups to prevent multiple lint runs on the same code,
+#   as linting checks are deterministic and don't require parallel validation.
+# - For pull requests, we cancel in-progress runs when new commits are pushed since only the latest
+#   linting matters for merge decisions.
+# - For main branch pushes, we never cancel formatting checks to ensure our code maintains consistent
+#   style standards across the entire project.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v5
+      - run: ./scripts/ci-select-xcode.sh 16.4
+      - run: make analyze
+      - name: Run CI Diagnostics
+        if: failure()
+        run: ./scripts/ci-diagnostics.sh

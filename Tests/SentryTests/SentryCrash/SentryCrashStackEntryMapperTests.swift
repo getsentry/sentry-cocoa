@@ -1,4 +1,4 @@
-@testable import Sentry
+@_spi(Private) @testable import Sentry
 import SentryTestUtils
 import XCTest
 
@@ -87,7 +87,7 @@ class SentryCrashStackEntryMapperTests: XCTestCase {
 
     func testImageFromCache() {
         var image = createCrashBinaryImage(2_488_998_912)
-        SentryDependencyContainer.sharedInstance().binaryImageCache.start()
+        SentryDependencyContainer.sharedInstance().binaryImageCache.start(false)
         SentryDependencyContainer.sharedInstance().binaryImageCache.binaryImageAdded(&image)
 
         var cursor = SentryCrashStackCursor()

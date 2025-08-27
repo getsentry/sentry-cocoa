@@ -1,8 +1,9 @@
 // swiftlint:disable file_length
 @testable import Sentry
-import SentryTestUtils
+@_spi(Private) import SentryTestUtils
 import XCTest
 
+@available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
 class FileManagerSentryTracingIntegrationTests: XCTestCase {
     private class Fixture {
         let mockDateProvider: TestCurrentDateProvider = {
@@ -53,7 +54,7 @@ class FileManagerSentryTracingIntegrationTests: XCTestCase {
             }
 
             // Get the working directory of the SDK, as the path is using the DSN hash to avoid conflicts
-            let sentryBasePath = try XCTUnwrap(SentrySDK.currentHub().getClient()?.fileManager.basePath, "Sentry base path is nil, but should be configured for test cases.")
+            let sentryBasePath = try XCTUnwrap(SentrySDKInternal.currentHub().getClient()?.fileManager.basePath, "Sentry base path is nil, but should be configured for test cases.")
             let sentryBasePathUrl = URL(fileURLWithPath: sentryBasePath)
 
             // The base path is not unique for the DSN, therefore we need to make it unique
@@ -66,7 +67,7 @@ class FileManagerSentryTracingIntegrationTests: XCTestCase {
             }
 
             // Get the working directory of the SDK, as these files are ignored by default
-            let sentryPath = try XCTUnwrap(SentrySDK.currentHub().getClient()?.fileManager.sentryPath, "Sentry path is nil, but should be configured for test cases.")
+            let sentryPath = try XCTUnwrap(SentrySDKInternal.currentHub().getClient()?.fileManager.sentryPath, "Sentry path is nil, but should be configured for test cases.")
             let sentryPathUrl = URL(fileURLWithPath: sentryPath)
 
             ignoredFileToCreateUrl = sentryPathUrl.appendingPathComponent("test--ignored-file-to-create")
@@ -120,8 +121,10 @@ class FileManagerSentryTracingIntegrationTests: XCTestCase {
         var invalidPathToCreate: String { invalidDestPath }
 
         var nonFileUrl: URL {
-            // URL to a file that is not a file but should exist at all times
-            URL(string: "https://raw.githubusercontent.com/getsentry/sentry-cocoa/refs/heads/main/.gitignore")!
+            // Use a non-file scheme that doesn't hit the network.
+            // We use a data: URL to reliably return bytes without external dependencies,
+            // ensuring this test verifies "non-file URL should not trace" deterministically.
+            URL(string: "data:text/plain;base64,SGVsbG8=")!
         }
 
         var ignoredFileToCreatePath: String {

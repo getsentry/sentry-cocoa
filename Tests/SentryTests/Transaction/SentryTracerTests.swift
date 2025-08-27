@@ -53,7 +53,7 @@ class SentryTracerTests: XCTestCase {
         init() {
             SentryDependencyContainer.sharedInstance().dateProvider = currentDateProvider
             SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = dispatchQueue
-            
+
             debugImageProvider.debugImages = [TestData.debugImage]
             SentryDependencyContainer.sharedInstance().debugImageProvider = debugImageProvider
             appStart = currentDateProvider.date()
@@ -62,8 +62,11 @@ class SentryTracerTests: XCTestCase {
             transactionContext = TransactionContext(name: transactionName, operation: transactionOperation)
             
             scope = Scope()
-            client = TestClient(options: Options())
-            client.options.tracesSampleRate = 1
+            let options = Options()
+            options.dsn = TestConstants.dsnAsString(username: "SentryTracerTests")
+            options.tracesSampleRate = 1
+
+            client = TestClient(options: options)
             hub = TestHub(client: client, andScope: scope)
             
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
@@ -275,7 +278,7 @@ class SentryTracerTests: XCTestCase {
         
         XCTAssertNil(weakSut, "sut was not deallocated")
 
-        XCTAssertEqual(1, fixture.dispatchQueue.dispatchCancelInvocations.count, "Expected one cancel invocation for the deadline timeout.")
+        XCTAssertEqual(1, fixture.dispatchQueue.dispatchCancelInvocations, "Expected one cancel invocation for the deadline timeout.")
     }
     
     func testDeadlineTimeout_FiresAfterTracerDeallocated() throws {
@@ -351,7 +354,7 @@ class SentryTracerTests: XCTestCase {
         let sut = fixture.getSut()
         sut.finish()
         
-        XCTAssertEqual(1, fixture.dispatchQueue.dispatchCancelInvocations.count, "Excpected one cancel invocation for the deadline timeout.")
+        XCTAssertEqual(1, fixture.dispatchQueue.dispatchCancelInvocations, "Excpected one cancel invocation for the deadline timeout.")
     }
     
     func testDeadlineTimer_MultipleSpansFinishedInParallel() {
@@ -464,7 +467,7 @@ class SentryTracerTests: XCTestCase {
     #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     func testFinish_WaitForAllChildren_StartTimeModified_NoTransactionCaptured() {
         let appStartMeasurement = fixture.getAppStartMeasurement(type: .cold)
-        SentrySDK.setAppStartMeasurement(appStartMeasurement)
+        SentrySDKInternal.setAppStartMeasurement(appStartMeasurement)
         advanceTime(bySeconds: 1)
         
         let sut = fixture.getSut()
@@ -518,7 +521,7 @@ class SentryTracerTests: XCTestCase {
         sut.startChild(operation: fixture.transactionOperation)
         
         XCTAssertEqual(2, fixture.dispatchQueue.dispatchAfterInvocations.count, "Expected two dispatchAfter invocations one for the idle timeout and one for the deadline timer.")
-        XCTAssertEqual(1, fixture.dispatchQueue.dispatchCancelInvocations.count, "Expected one cancel invocation for the idle timeout.")
+        XCTAssertEqual(1, fixture.dispatchQueue.dispatchCancelInvocations, "Expected one cancel invocation for the idle timeout.")
     }
     
     func testIdleTimeoutWithRealDispatchQueue_SpanAdded_IdleTimeoutCancelled() {
@@ -559,18 +562,18 @@ class SentryTracerTests: XCTestCase {
         XCTAssertEqual(2, fixture.dispatchQueue.dispatchAfterInvocations.count)
         
         let child = sut.startChild(operation: fixture.transactionOperation)
-        XCTAssertEqual(1, fixture.dispatchQueue.dispatchCancelInvocations.count)
+        XCTAssertEqual(1, fixture.dispatchQueue.dispatchCancelInvocations)
         
         child.finish()
         XCTAssertEqual(3, fixture.dispatchQueue.dispatchAfterInvocations.count)
 
         // The grandchild is a NoOp span
         let grandChild = child.startChild(operation: fixture.transactionOperation)
-        XCTAssertEqual(3, fixture.dispatchQueue.dispatchCancelInvocations.count)
+        XCTAssertEqual(3, fixture.dispatchQueue.dispatchCancelInvocations)
         
         grandChild.finish()
         XCTAssertEqual(4, fixture.dispatchQueue.dispatchAfterInvocations.count)
-        XCTAssertEqual(4, fixture.dispatchQueue.dispatchCancelInvocations.count)
+        XCTAssertEqual(4, fixture.dispatchQueue.dispatchCancelInvocations)
         
         fixture.dispatchQueue.invokeLastDispatchAfter()
         
@@ -675,7 +678,7 @@ class SentryTracerTests: XCTestCase {
         XCTAssertEqual(2, fixture.dispatchQueue.dispatchAfterInvocations.count)
         
         sut.finish()
-        XCTAssertEqual(1, fixture.dispatchQueue.dispatchCancelInvocations.count)
+        XCTAssertEqual(1, fixture.dispatchQueue.dispatchCancelInvocations)
         XCTAssertEqual(2, fixture.dispatchQueue.dispatchAfterInvocations.count)
         
         XCTAssertFalse(sut.isFinished)
@@ -690,7 +693,7 @@ class SentryTracerTests: XCTestCase {
     #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     func testAddColdAppStartMeasurement_PutOnNextAutoUITransaction() throws {
         let appStartMeasurement = fixture.getAppStartMeasurement(type: .cold)
-        SentrySDK.setAppStartMeasurement(appStartMeasurement)
+        SentrySDKInternal.setAppStartMeasurement(appStartMeasurement)
         
         whenFinishingAutoUITransaction(startTimestamp: 5)
 
@@ -752,7 +755,7 @@ class SentryTracerTests: XCTestCase {
 
     func testAddPreWarmedAppStartMeasurement_PutOnNextAutoUITransaction() throws {
         let appStartMeasurement = fixture.getAppStartMeasurement(type: .cold, preWarmed: true)
-        SentrySDK.setAppStartMeasurement(appStartMeasurement)
+        SentrySDKInternal.setAppStartMeasurement(appStartMeasurement)
 
         whenFinishingAutoUITransaction(startTimestamp: 5)
 
@@ -764,7 +767,7 @@ class SentryTracerTests: XCTestCase {
 
     func testAddWarmAppStartMeasurement_PutOnNextAutoUITransaction() throws {
         let appStartMeasurement = fixture.getAppStartMeasurement(type: .warm)
-        SentrySDK.setAppStartMeasurement(appStartMeasurement)
+        SentrySDKInternal.setAppStartMeasurement(appStartMeasurement)
         
         advanceTime(bySeconds: -(fixture.appStartDuration + 4))
 
@@ -784,7 +787,7 @@ class SentryTracerTests: XCTestCase {
 
         let sut = fixture.getSut()
         advanceTime(bySeconds: 1)
-        SentrySDK.setAppStartMeasurement(appStartMeasurement)
+        SentrySDKInternal.setAppStartMeasurement(appStartMeasurement)
         sut.finish()
         
         XCTAssertEqual(self.fixture.hub.capturedEventsWithScopes.count, 1)
@@ -794,7 +797,7 @@ class SentryTracerTests: XCTestCase {
     
     func testAddAppStartMeasurement_PutOnFirstFinishedAutoUITransaction() throws {
         let appStartMeasurement = fixture.getAppStartMeasurement(type: .warm)
-        SentrySDK.setAppStartMeasurement(appStartMeasurement)
+        SentrySDKInternal.setAppStartMeasurement(appStartMeasurement)
 
         advanceTime(bySeconds: 0.5)
 
@@ -827,7 +830,7 @@ class SentryTracerTests: XCTestCase {
     }
     
     func testAddUnknownAppStartMeasurement_NotPutOnNextTransaction() throws {
-        SentrySDK.setAppStartMeasurement(SentryAppStartMeasurement(
+        SentrySDKInternal.setAppStartMeasurement(SentryAppStartMeasurement(
             type: SentryAppStartType.unknown,
             isPreWarmed: false,
             appStartTimestamp: fixture.currentDateProvider.date(),
@@ -846,7 +849,7 @@ class SentryTracerTests: XCTestCase {
     
     func testPreWarmedColdAppStart_AddsStartTypeToContext() throws {
         let appStartMeasurement = fixture.getAppStartMeasurement(type: .cold, preWarmed: true)
-        SentrySDK.setAppStartMeasurement(appStartMeasurement)
+        SentrySDKInternal.setAppStartMeasurement(appStartMeasurement)
 
         whenFinishingAutoUITransaction(startTimestamp: 5)
 
@@ -855,7 +858,7 @@ class SentryTracerTests: XCTestCase {
 
     func testColdAppStart_AddsStartTypeToContext() throws {
         let appStartMeasurement = fixture.getAppStartMeasurement(type: .cold, preWarmed: false)
-        SentrySDK.setAppStartMeasurement(appStartMeasurement)
+        SentrySDKInternal.setAppStartMeasurement(appStartMeasurement)
 
         whenFinishingAutoUITransaction(startTimestamp: 5)
 
@@ -864,7 +867,7 @@ class SentryTracerTests: XCTestCase {
 
     func testPreWarmedWarmAppStart_AddsStartTypeToContext() throws {
         let appStartMeasurement = fixture.getAppStartMeasurement(type: .warm, preWarmed: true)
-        SentrySDK.setAppStartMeasurement(appStartMeasurement)
+        SentrySDKInternal.setAppStartMeasurement(appStartMeasurement)
 
         whenFinishingAutoUITransaction(startTimestamp: 5)
 
@@ -873,7 +876,7 @@ class SentryTracerTests: XCTestCase {
 
     func testPreWarmedWarmAppStart_DoesntAddStartTypeToContext() throws {
         let appStartMeasurement = fixture.getAppStartMeasurement(type: .unknown, preWarmed: true)
-        SentrySDK.setAppStartMeasurement(appStartMeasurement)
+        SentrySDKInternal.setAppStartMeasurement(appStartMeasurement)
 
         whenFinishingAutoUITransaction(startTimestamp: 5)
 
@@ -882,12 +885,12 @@ class SentryTracerTests: XCTestCase {
 
     func testAddWarmAppStartMeasurement_NotPutOnNonAutoUITransaction() throws {
         let appStartMeasurement = fixture.getAppStartMeasurement(type: .warm)
-        SentrySDK.setAppStartMeasurement(appStartMeasurement)
+        SentrySDKInternal.setAppStartMeasurement(appStartMeasurement)
         
         let sut = try XCTUnwrap(fixture.hub.startTransaction(transactionContext: TransactionContext(name: "custom", operation: "custom")) as? SentryTracer)
         sut.finish()
         
-        XCTAssertNotNil(SentrySDK.getAppStartMeasurement())
+        XCTAssertNotNil(SentrySDKInternal.getAppStartMeasurement())
         
         XCTAssertEqual(1, fixture.hub.capturedEventsWithScopes.count)
         let serializedTransaction = try XCTUnwrap(fixture.hub.capturedEventsWithScopes.first).event.serialize()
@@ -902,7 +905,7 @@ class SentryTracerTests: XCTestCase {
     
     func testAddWarmAppStartMeasurement_TooOldTransaction_NotPutOnTransaction() throws {
         let appStartMeasurement = fixture.getAppStartMeasurement(type: .warm)
-        SentrySDK.setAppStartMeasurement(appStartMeasurement)
+        SentrySDKInternal.setAppStartMeasurement(appStartMeasurement)
         
         advanceTime(bySeconds: fixture.appStartDuration + 5.01)
 
@@ -915,7 +918,7 @@ class SentryTracerTests: XCTestCase {
     
     func testAddWarmAppStartMeasurement_TooYoungTransaction_NotPutOnTransaction() throws {
         let appStartMeasurement = fixture.getAppStartMeasurement(type: .warm)
-        SentrySDK.setAppStartMeasurement(appStartMeasurement)
+        SentrySDKInternal.setAppStartMeasurement(appStartMeasurement)
         
         advanceTime(bySeconds: -(fixture.appStartDuration + 4.01))
 
@@ -928,7 +931,7 @@ class SentryTracerTests: XCTestCase {
     
     func testAppStartMeasurementHybridSDKModeEnabled_NotPutOnTransaction() throws {
         let appStartMeasurement = fixture.getAppStartMeasurement(type: .warm)
-        SentrySDK.setAppStartMeasurement(appStartMeasurement)
+        SentrySDKInternal.setAppStartMeasurement(appStartMeasurement)
         PrivateSentrySDKOnly.appStartMeasurementHybridSDKMode = true
         
         let sut = fixture.getSut()
@@ -939,7 +942,7 @@ class SentryTracerTests: XCTestCase {
     
     func testAppStartTransaction_AddsDebugMeta() {
         let appStartMeasurement = fixture.getAppStartMeasurement(type: .cold)
-        SentrySDK.setAppStartMeasurement(appStartMeasurement)
+        SentrySDKInternal.setAppStartMeasurement(appStartMeasurement)
 
         whenFinishingAutoUITransaction(startTimestamp: 5)
         
@@ -1143,13 +1146,16 @@ class SentryTracerTests: XCTestCase {
         let child = sut.startChild(operation: fixture.transactionOperation)
         sut.finish()
 
-        let queue = DispatchQueue(label: "SentryTracerTests", attributes: [.concurrent, .initiallyInactive])
-        let group = DispatchGroup()
-
         let children = 5
         let grandchildren = 10
+
+        let queue = DispatchQueue(label: "SentryTracerTests", attributes: [.concurrent, .initiallyInactive])
+        let expectation = XCTestExpectation(description: "Finish Children Async")
+        expectation.expectedFulfillmentCount = children
+        expectation.assertForOverFulfill = true
+
         for _ in 0 ..< children {
-            group.enter()
+
             queue.async {
                 let grandChild = child.startChild(operation: self.fixture.transactionOperation)
                 for _ in 0 ..< grandchildren {
@@ -1159,12 +1165,14 @@ class SentryTracerTests: XCTestCase {
 
                 grandChild.finish()
                 self.assertTransactionNotCaptured(sut)
-                group.leave()
+
+                expectation.fulfill()
             }
         }
 
         queue.activate()
-        group.wait()
+
+        wait(for: [expectation], timeout: 10.0)
 
         child.finish()
 
@@ -1177,32 +1185,37 @@ class SentryTracerTests: XCTestCase {
     #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 
     func testConcurrentTransactions_OnlyOneGetsMeasurement() {
-        SentrySDK.setAppStartMeasurement(fixture.getAppStartMeasurement(type: .warm))
+        SentrySDKInternal.setAppStartMeasurement(fixture.getAppStartMeasurement(type: .warm))
         
-        let queue = DispatchQueue(label: "", qos: .background, attributes: [.concurrent, .initiallyInactive] )
-        let group = DispatchGroup()
-        
+        let queue = DispatchQueue(label: "testConcurrentTransactions_OnlyOneGetsMeasurement", attributes: [.concurrent, .initiallyInactive] )
+
         let transactions = 5
+        let finishTransactionExpectation = XCTestExpectation(description: "Finish transactions")
+        finishTransactionExpectation.expectedFulfillmentCount = transactions
+
         for _ in 0..<transactions {
-            group.enter()
             queue.async {
-                self.fixture.getSut().finish()
-                group.leave()
+                let tracer = self.fixture.getSut()
+
+                tracer.finish()
+                finishTransactionExpectation.fulfill()
             }
         }
         
         queue.activate()
-        group.wait()
-        
-        XCTAssertEqual(transactions, fixture.hub.capturedEventsWithScopes.count)
-        
+
+        wait(for: [finishTransactionExpectation], timeout: 10.0)
+
+        XCTAssertEqual(fixture.hub.capturedEventsWithScopes.count, transactions, "Expected \(transactions) transactions to be captured, but got \(fixture.hub.capturedEventsWithScopes.count)")
+
         let transactionsWithAppStartMeasurement = fixture.hub.capturedEventsWithScopes.invocations.filter { pair in
             let serializedTransaction = pair.event.serialize()
             let measurements = serializedTransaction["measurements"] as? [String: [String: Int]]
             return measurements == ["app_start_warm": ["value": 500]]
         }
         
-        XCTAssertEqual(1, transactionsWithAppStartMeasurement.count)
+        XCTAssertEqual(transactionsWithAppStartMeasurement.count, 1, "Only one transaction should have the app start measurement, but got \(transactionsWithAppStartMeasurement.count)")
+
     }
 
     #endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
@@ -1217,32 +1230,40 @@ class SentryTracerTests: XCTestCase {
         }
 
         let queue = DispatchQueue(label: "SentryTracerTests", attributes: [.concurrent, .initiallyInactive])
-        let group = DispatchGroup()
 
-        func addChildrenAsync() {
-            for _ in 0 ..< 100 {
-                group.enter()
-                queue.async {
-                    let child = sut.startChild(operation: self.fixture.transactionOperation)
-                    Dynamic(child).frames = [] as [Frame]
-                    child.finish()
-                    group.leave()
-                }
+        let addChildrenCount = 100
+        let expectation = XCTestExpectation(description: "Add spans while finishing")
+        expectation.expectedFulfillmentCount = addChildrenCount * 2 + 1
+        expectation.assertForOverFulfill = true
+
+        for _ in 0 ..< 100 {
+            queue.async {
+                let child = sut.startChild(operation: self.fixture.transactionOperation)
+                Dynamic(child).frames = [] as [Frame]
+                child.finish()
+
+                expectation.fulfill()
             }
         }
 
-        addChildrenAsync()
-
-        group.enter()
         queue.async {
             sut.finish()
-            group.leave()
+            expectation.fulfill()
         }
 
-        addChildrenAsync()
+        for _ in 0 ..< 100 {
+            queue.async {
+                let child = sut.startChild(operation: self.fixture.transactionOperation)
+                Dynamic(child).frames = [] as [Frame]
+                child.finish()
+
+                expectation.fulfill()
+            }
+        }
 
         queue.activate()
-        group.wait()
+
+        wait(for: [expectation], timeout: 10.0)
 
         let spans = try XCTUnwrap(try getSerializedTransaction()["spans"]! as? [[String: Any]])
         XCTAssertGreaterThanOrEqual(spans.count, children)
@@ -1296,7 +1317,7 @@ class SentryTracerTests: XCTestCase {
         let expectedDelay = displayLink.slowestSlowFrameDuration + displayLink.fastestFrozenFrameDuration - expectedFrameDuration * 2 as NSNumber
         
         XCTAssertEqual(framesDelay.doubleValue, expectedDelay.doubleValue, accuracy: 0.0001)
-        XCTAssertNil(SentrySDK.getAppStartMeasurement())
+        XCTAssertNil(SentrySDKInternal.getAppStartMeasurement())
     }
     
     func testFramesDelay_WhenBeingZero() throws {
@@ -1382,7 +1403,7 @@ class SentryTracerTests: XCTestCase {
         
         sut.finishForCrash()
         
-        XCTAssertEqual(0, fixture.dispatchQueue.dispatchCancelInvocations.count, "Expected no cancel invocation for the deadline timeout.")
+        XCTAssertEqual(0, fixture.dispatchQueue.dispatchCancelInvocations, "Expected no cancel invocation for the deadline timeout.")
     }
 
     func testFinishForCrash_DoesNotCallFinishCallback() throws {

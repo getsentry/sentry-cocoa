@@ -9,11 +9,13 @@
 #import "SentryLevelMapper.h"
 #import "SentryMessage.h"
 #import "SentryMeta.h"
+#import "SentryModels+Serializable.h"
 #import "SentryNSDictionarySanitize.h"
 #import "SentryRequest.h"
 #import "SentryStacktrace.h"
 #import "SentrySwift.h"
 #import "SentryThread.h"
+#import "SentryUser+Serialize.h"
 #import "SentryUser.h"
 
 #if SENTRY_HAS_METRIC_KIT
@@ -201,7 +203,8 @@ NS_ASSUME_NONNULL_BEGIN
 
     SentryException *exception = self.exceptions[0];
     if (exception.mechanism != nil &&
-        [metricKitMechanisms containsObject:exception.mechanism.type]) {
+        [metricKitMechanisms
+            containsObject:SENTRY_UNWRAP_NULLABLE(NSString, exception.mechanism).type]) {
         return YES;
     } else {
         return NO;
@@ -214,7 +217,9 @@ NS_ASSUME_NONNULL_BEGIN
 {
     return self.exceptions.count == 1 &&
         [SentryAppHangTypeMapper
-            isExceptionTypeAppHangWithExceptionType:self.exceptions.firstObject.type];
+            isExceptionTypeAppHangWithExceptionType:SENTRY_UNWRAP_NULLABLE(
+                                                        NSString, self.exceptions.firstObject)
+                                                        .type];
 }
 
 @end

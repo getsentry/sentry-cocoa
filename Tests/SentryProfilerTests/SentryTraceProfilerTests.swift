@@ -1,16 +1,17 @@
 import _SentryPrivate
 @_spi(Private) @testable import Sentry
-import SentryTestUtils
+@_spi(Private) import SentryTestUtils
 import XCTest
 
 #if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
+@available(*, deprecated, message: "This is only marked deprecated because SentryProfileTestFixture is marked as deprecated.")
 class SentryTraceProfilerTests: XCTestCase {
 
     private var fixture: SentryProfileTestFixture!
 
     override class func setUp() {
         super.setUp()
-        SentryLogSwiftSupport.configure(true, diagnosticLevel: .debug)
+        SentrySDKLogSupport.configure(true, diagnosticLevel: .debug)
     }
 
     override func setUp() {
@@ -335,7 +336,7 @@ class SentryTraceProfilerTests: XCTestCase {
     func testProfilerCleanedUpAfterTransactionDiscarded_WaitForAllChildren_StartTimeModified() throws {
         XCTAssertEqual(SentryTraceProfiler.currentProfiledTracers(), UInt(0))
         let appStartMeasurement = fixture.getAppStartMeasurement(type: .cold)
-        SentrySDK.setAppStartMeasurement(appStartMeasurement)
+        SentrySDKInternal.setAppStartMeasurement(appStartMeasurement)
         fixture.currentDateProvider.advance(by: 1)
         func performTransaction() throws {
             let sut = try fixture.newTransaction(testingAppLaunchSpans: true, automaticTransaction: true)
@@ -360,6 +361,7 @@ class SentryTraceProfilerTests: XCTestCase {
 #endif // !os(macOS)
 }
 
+@available(*, deprecated, message: "This is only marked deprecated because SentryProfileTestFixture is marked as deprecated.")
 private extension SentryTraceProfilerTests {
     func getLatestProfileData() throws -> Data {
         let envelope = try XCTUnwrap(self.fixture.client?.captureEventWithScopeInvocations.last)
@@ -400,7 +402,7 @@ private extension SentryTraceProfilerTests {
         if let uikitParameters = uikitParameters {
             testingAppLaunchSpans = true
             let appStartMeasurement = fixture.getAppStartMeasurement(type: uikitParameters.launchType, preWarmed: uikitParameters.prewarmed)
-            SentrySDK.setAppStartMeasurement(appStartMeasurement)
+            SentrySDKInternal.setAppStartMeasurement(appStartMeasurement)
         }
 #endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 
@@ -434,9 +436,11 @@ private extension SentryTraceProfilerTests {
 
         try assertMetricValue(measurements: measurements, key: kSentryMetricProfilerSerializationKeyMemoryFootprint, numberOfReadings: expectedUsageReadings, expectedValue: fixture.mockMetrics.memoryFootprint, transaction: transaction, expectedUnits: kSentryMetricProfilerSerializationUnitBytes)
 
+        #if arch(arm) || arch(arm64)
         // we wind up with one less energy reading for the first concurrent span's metric sample. since we must use the difference between readings to get actual values, the first one is only the baseline reading.
         let expectedEnergyReadings = oneLessEnergyReading ? expectedUsageReadings - 1 : expectedUsageReadings
         try assertMetricValue(measurements: measurements, key: kSentryMetricProfilerSerializationKeyCPUEnergyUsage, numberOfReadings: expectedEnergyReadings, expectedValue: fixture.mockMetrics.cpuEnergyUsage, transaction: transaction, expectedUnits: kSentryMetricProfilerSerializationUnitNanoJoules)
+        #endif // arch(arm) || arch(arm64)
 
 #if !os(macOS)
         try assertMetricEntries(measurements: measurements, key: kSentryProfilerSerializationKeySlowFrameRenders, expectedEntries: fixture.expectedTraceProfileSlowFrames, transaction: transaction)
@@ -606,7 +610,7 @@ private extension SentryTraceProfilerTests {
         var startTimestampString = sentry_toIso8601String(latestTransactionTimestamp)
         #if !os(macOS)
         if appStartProfile {
-            let runtimeInitTimestamp = try XCTUnwrap(SentrySDK.getAppStartMeasurement()?.runtimeInitTimestamp)
+            let runtimeInitTimestamp = try XCTUnwrap(SentrySDKInternal.getAppStartMeasurement()?.runtimeInitTimestamp)
             startTimestampString = sentry_toIso8601String(runtimeInitTimestamp)
         }
         #endif // !os(macOS)

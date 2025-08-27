@@ -18,95 +18,98 @@ on:
       - "Samples/iOS-Swift/**"
       - "Samples/iOS-Swift6/**"
       - "Samples/SentrySampleShared/**"
+      - "Samples/Shared/**"
       - "scripts/build-xcframework-slice.sh"
       - "scripts/assemble-xcframework.sh"
       - ".github/workflows/build-xcframework-variant-slices.yml"
       - ".github/workflows/assemble-xcframework-variant.yml"
+      - "Makefile" # Make commands used for UI test environment setup
+      - "Brewfile*" # Dependency installation affects UI test environment
 
-# https://docs.github.com/en/actions/using-jobs/using-concurrency#example-using-a-fallback-value
+# Concurrency configuration:
+# - We use workflow-specific concurrency groups to prevent multiple UI test runs on the same code,
+#   as UI tests are resource-intensive and long-running operations.
+# - For pull requests, we cancel in-progress runs when new commits are pushed to provide faster
+#   feedback and avoid wasting expensive UI testing resources on outdated code.
+# - For main branch pushes, we never cancel UI tests to ensure complete validation of the user
+#   interface before the code reaches production, maintaining our quality standards.
 concurrency:
-  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
-  cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   ui-tests:
-    name: UI Tests for ${{matrix.target}} - V3 # Up the version with every change to keep track of flaky tests
+    name: Test ${{matrix.name}} V3 # Up the version with every change to keep track of flaky tests
     uses: ./.github/workflows/ui-tests-common.yml
     strategy:
       matrix:
-        target: ["ios_objc", "tvos_swift"]
+        include:
+          - name: iOS Objective-C
+            target: ios_objc
+          - name: tvOS Swift
+            target: tvos_swift
     with:
       fastlane_command: ui_tests_${{matrix.target}}
       xcode_version: 16.2
       build_with_make: true
       macos_version: macos-14
+      codecov_test_analytics: true
+    secrets:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   # SwiftUI only supports iOS 14+ so we run it in a separate matrix here
   ui-tests-swift-ui:
-    name: UI Tests for SwiftUI - V4 # Up the version with every change to keep track of flaky tests
+    name: Test SwiftUI V4 # Up the version with every change to keep track of flaky tests
     uses: ./.github/workflows/ui-tests-common.yml
     with:
       fastlane_command: ui_tests_ios_swiftui
-      xcode_version: 16.2
+      xcode_version: 16.4
       build_with_make: true
       macos_version: macos-15
+      fastlane_command_extra_arguments: device:iPhone 16 (18.5)
+      codecov_test_analytics: true
+    secrets:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   ui-tests-swift:
-    name: UI Tests for iOS-Swift Xcode ${{matrix.xcode}} - V5 # Up the version with every change to keep track of flaky tests
+    name: Test Swift ${{matrix.name}} V5 # Up the version with every change to keep track of flaky tests
     uses: ./.github/workflows/ui-tests-common.yml
     strategy:
       fail-fast: false
       matrix:
         include:
-          - runs-on: macos-13
+          - name: iOS 16
+            runs-on: macos-13
             xcode: "14.3.1"
-            device: "iPhone 14 (16.4)"
-          - runs-on: macos-14
+            device: iPhone 14 (16.4)
+          - name: iOS 17
+            runs-on: macos-14
             xcode: "15.4"
-            device: "iPhone 15 (17.5)"
-          - runs-on: macos-15
+            device: iPhone 15 (17.5)
+          - name: iOS 18
+            runs-on: macos-15
             xcode: "16.4"
-            device: "iPhone 16 (18.5)"
+            device: iPhone 16 (18.5)
     with:
       fastlane_command: ui_tests_ios_swift
-      fastlane_command_extra_arguments: device:"${{matrix.device}}"
+      fastlane_command_extra_arguments: device:${{matrix.device}}
       files_suffix: _xcode_${{matrix.xcode}}-${{matrix.device}}
       xcode_version: ${{matrix.xcode}}
       build_with_make: true
       macos_version: ${{matrix.runs-on}}
+      codecov_test_analytics: true
+    secrets:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   ui-tests-swift6:
-    name: UI Tests for iOS-Swift6 - V3 # Up the version with every change to keep track of flaky tests
+    name: Test iOS Swift6 V3 # Up the version with every change to keep track of flaky tests
     uses: ./.github/workflows/ui-tests-common.yml
     with:
       fastlane_command: ui_tests_ios_swift6
-      xcode_version: 16.2
+      fastlane_command_extra_arguments: device:iPhone 16 (18.5)
+      xcode_version: 16.4
       build_with_make: true
       macos_version: macos-15
-
-  build-xcframework-variant-slices:
-    uses: ./.github/workflows/build-xcframework-variant-slices.yml
-    with:
-      name: Sentry
-      macho-type: staticlib
-      variant-id: sentry-static-uitests
-      sdk-list: '["iphoneos", "iphonesimulator"]'
-
-  assemble-xcframework-variant:
-    needs: build-xcframework-variant-slices
-    uses: ./.github/workflows/assemble-xcframework-variant.yml
-    secrets: inherit
-    with:
-      name: Sentry
-      variant-id: sentry-static-uitests
-      sdks: "iphoneos,iphonesimulator"
-
-  duplication-tests:
-    name: UI Tests for project with Sentry duplicated - V4 # Up the version with every change to keep track of flaky tests
-    uses: ./.github/workflows/ui-tests-common.yml
-    needs: assemble-xcframework-variant
-    with:
-      fastlane_command: duplication_test
-      xcode_version: 16.4
-      macos_version: macos-15
-      needs_xcframework: true
+      codecov_test_analytics: true
+    secrets:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}

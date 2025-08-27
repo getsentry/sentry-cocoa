@@ -69,7 +69,7 @@ class SentryCrashInstallationTests: XCTestCase {
                           crashHandlerDataAfterInstall: crashHandlerDataAfterInstall)
 
         #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-        XCTAssertEqual(55, notificationCenter.removeObserverWithNameInvocations.invocations.count)
+        XCTAssertEqual(55, notificationCenter.removeObserverWithNameAndObjectInvocations.invocations.count)
         #endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     }
 

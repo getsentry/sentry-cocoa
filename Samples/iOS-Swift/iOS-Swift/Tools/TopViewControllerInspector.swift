@@ -51,7 +51,7 @@ class TopViewControllerInspector: UIView {
     
     @objc
     private func getTopVC() {
-        let names = SentrySDK.relevantViewControllersNames()
+        let names = SentrySDKInternal.relevantViewControllersNames()
         lbl.text = names?.joined(separator: ", ")
     }
     
@@ -62,7 +62,7 @@ class TopViewControllerInspector: UIView {
     override func layoutSubviews() {
         let screenBounds = UIScreen.main.bounds
         
-        btn.frame = CGRect(x: screenBounds.width - 160, y: screenBounds.height - 160, width: 140, height: 44)
+        btn.frame = CGRect(x: screenBounds.width - 160, y: screenBounds.height - 200, width: 140, height: 44)
         lbl.frame = CGRect(x: 20, y: btn.frame.origin.y, width: screenBounds.width - 200, height: 44)
     }
     

@@ -88,6 +88,7 @@ format-yaml:
 
 generate-public-api:
 	./scripts/update-api.sh
+	./scripts/update-api.sh V9
 
 ## Current git reference name
 GIT-REF := $(shell git rev-parse --abbrev-ref HEAD)
@@ -95,7 +96,6 @@ GIT-REF := $(shell git rev-parse --abbrev-ref HEAD)
 test:
 	@echo "--> Running all tests"
 	./scripts/sentry-xcodebuild.sh --platform iOS --os latest --ref $(GIT-REF) --command test --configuration Test
-	./scripts/xcode-slowest-tests.sh
 .PHONY: test
 
 run-test-server:
@@ -107,12 +107,6 @@ run-test-server-sync:
 	cd ./test-server && swift run
 
 .PHONY: run-test-server run-test-server-sync
-
-test-alamofire:
-	./scripts/test-alamofire.sh
-
-test-homekit:
-	./scripts/test-homekit.sh
 
 test-ui-critical:
 	./scripts/test-ui-critical.sh
@@ -188,3 +182,19 @@ xcode-ci:
 	xcodegen --spec Samples/visionOS-Swift/visionOS-Swift.yml
 	xcodegen --spec Samples/watchOS-Swift/watchOS-Swift.yml
 	xcodegen --spec TestSamples/SwiftUITestSample/SwiftUITestSample.yml
+	xcodegen --spec TestSamples/SwiftUICrashTest/SwiftUICrashTest.yml
+
+.PHONY: check-package-diff update-package-diff
+# Diff will return an error if the files are different, so we need to ignore it with `|| true`.
+check-package-diff:
+	diff Package.swift Package@swift-5.9.swift > current_package_diff.patch || true
+	@if diff ./Utils/expected_package_diff.patch current_package_diff.patch > /dev/null 2>&1; then \
+		echo "--> Package diff check passed - no changes detected"; \
+	else \
+		echo "--> Package diff check failed - changes detected! Make sure to run \"make update-package-diff\" to update the expected diff."; \
+		exit 1; \
+	fi
+
+# Diff will return an error if the files are different, so we need to ignore it with `|| true`.
+update-package-diff:
+	diff Package.swift Package@swift-5.9.swift > ./Utils/expected_package_diff.patch || true

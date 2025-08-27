@@ -1,7 +1,9 @@
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 
-class TestSentryScreenshotProvider: SentryScreenshotProvider {
+@_spi(Private) @testable import Sentry
 
+class TestSentryScreenshot: SentryScreenshot {
+    
     var result: [Data] = []
     var images: [UIImage] = []
     var processScreenshotsCallback: (() -> Void)?

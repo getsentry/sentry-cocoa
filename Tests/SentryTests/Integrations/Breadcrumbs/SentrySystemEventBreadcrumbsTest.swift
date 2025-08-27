@@ -1,5 +1,5 @@
-@testable import Sentry
-import SentryTestUtils
+@_spi(Private) @testable import Sentry
+@_spi(Private) import SentryTestUtils
 import XCTest
 
 class SentrySystemEventBreadcrumbsTest: XCTestCase {
@@ -327,7 +327,7 @@ class SentrySystemEventBreadcrumbsTest: XCTestCase {
     func testStopCallsSpecificRemoveObserverMethods() {
         sut = fixture.getSut(currentDevice: nil)
         sut.stop()
-        XCTAssertEqual(fixture.notificationCenterWrapper.removeObserverWithNameInvocations.count, 7)
+        XCTAssertEqual(fixture.notificationCenterWrapper.removeObserverWithNameAndObjectInvocations.count, 6)
     }
     
     private func postBatteryLevelNotification(uiDevice: UIDevice?) {

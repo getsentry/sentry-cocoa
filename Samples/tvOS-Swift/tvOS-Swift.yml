@@ -5,6 +5,7 @@ createIntermediateGroups: true
 generateEmptyDirectories: true
 configs:
   Debug: debug
+  DebugV9: debug
   Test: debug
   TestCI: debug
   Release: release
@@ -17,6 +18,7 @@ fileGroups:
   - ../Shared/Config
   - tvOS-Swift.yml
   - ../../Plans/tvOS-Swift_Base.xctestplan
+  - ../../Plans/tvOS-SBSwift_Base.xctestplan
 options:
   bundleIdPrefix: io.sentry
 targets:
@@ -32,6 +34,7 @@ targets:
       - target: SentrySampleShared/SentrySampleShared
     configFiles:
       Debug: tvOS-Swift.xcconfig
+      DebugV9: tvOS-Swift.xcconfig
       Release: tvOS-Swift.xcconfig
       Test: tvOS-Swift.xcconfig
       TestCI: tvOS-Swift.xcconfig

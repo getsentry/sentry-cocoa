@@ -1,5 +1,5 @@
 @testable import Sentry
-import SentryTestUtils
+@_spi(Private) import SentryTestUtils
 import XCTest
 
 class SentryHttpDateParserTests: XCTestCase {
@@ -22,29 +22,36 @@ class SentryHttpDateParserTests: XCTestCase {
     }
 
     func testWithMultipleWorkItemsInParallel() {
-        let queue1 = DispatchQueue(label: "SentryHttpDateParserTests1", qos: .utility, attributes: [.concurrent, .initiallyInactive])
-        let queue2 = DispatchQueue(label: "SentryHttpDateParserTests2", qos: .utility, attributes: [.concurrent, .initiallyInactive])
+        let queue1 = DispatchQueue(label: "SentryHttpDateParserTests1", attributes: [.concurrent, .initiallyInactive])
+        let queue2 = DispatchQueue(label: "SentryHttpDateParserTests2", attributes: [.concurrent, .initiallyInactive])
         
-        let group = DispatchGroup()
-        for i in 0...1_000 {
-            startWorkItemTest(i: i, queue: queue1, group: group)
-            startWorkItemTest(i: i, queue: queue2, group: group)
+        let loopCount = 1_000
+        let expectation = XCTestExpectation(description: "WithMultipleWorkItemsInParallel")
+        expectation.expectedFulfillmentCount = loopCount * 2
+        expectation.assertForOverFulfill = true
+
+        for i in 0..<loopCount {
+            queue1.async {
+                let expected = self.currentDateProvider.date().addingTimeInterval(TimeInterval(i))
+                let httpDateAsString = HttpDateFormatter.string(from: expected)
+                let actual = self.sut.date(from: httpDateAsString)
+                
+                XCTAssertEqual(expected, actual)
+                expectation.fulfill()
+            }
+            queue2.async {
+                let expected = self.currentDateProvider.date().addingTimeInterval(TimeInterval(i))
+                let httpDateAsString = HttpDateFormatter.string(from: expected)
+                let actual = self.sut.date(from: httpDateAsString)
+                
+                XCTAssertEqual(expected, actual)
+                expectation.fulfill()
+            }
         }
         
         queue1.activate()
         queue2.activate()
-        group.waitWithTimeout()
-    }
-    
-    private func startWorkItemTest(i: Int, queue: DispatchQueue, group: DispatchGroup) {
-        group.enter()
-        queue.async {
-            let expected = self.currentDateProvider.date().addingTimeInterval(TimeInterval(i))
-            let httpDateAsString = HttpDateFormatter.string(from: expected)
-            let actual = self.sut.date(from: httpDateAsString)
-            
-            XCTAssertEqual(expected, actual)
-            group.leave()
-        }
+
+        wait(for: [expectation], timeout: 10.0)
     }
 }

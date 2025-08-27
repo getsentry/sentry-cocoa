@@ -72,11 +72,21 @@
           captureError:error
         withScopeBlock:^(SentryScope *_Nonnull scope) { [scope setLevel:kSentryLevelFatal]; }];
 
+#if SDK_V9
+    NSLog(@"SDK V9 does not support user feedback.");
+#else
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
     SentryUserFeedback *userFeedback = [[SentryUserFeedback alloc] initWithEventId:eventId];
+#    pragma clang diagnostic pop
     userFeedback.comments = @"It broke on iOS-ObjectiveC. I don't know why, but this happens.";
     userFeedback.email = @"john@me.com";
     userFeedback.name = @"John Me";
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
     [SentrySDK captureUserFeedback:userFeedback];
+#    pragma clang diagnostic pop
+#endif // SDK_V9
 }
 
 - (IBAction)captureUserFeedbackV2:(id)sender

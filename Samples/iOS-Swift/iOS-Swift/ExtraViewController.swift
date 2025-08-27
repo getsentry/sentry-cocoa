@@ -18,6 +18,7 @@ class ExtraViewController: UIViewController {
     @IBOutlet weak var dataMarshalingErrorLabel: UILabel!
     
     private let dispatchQueue = DispatchQueue(label: "ExtraViewControllers", attributes: .concurrent)
+    private var batteryConsumer: BatteryConsumer?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -51,6 +52,27 @@ class ExtraViewController: UIViewController {
         
         SentrySDK.reportFullyDisplayed()
     }
+  
+  @IBAction func highEnergyCPU(_ sender: UIButton) {
+    highlightButton(sender)
+    if #available(iOS 15.0, *) {
+      batteryConsumer = BatteryConsumer(qos: .userInitiated)
+      batteryConsumer?.start()
+    }
+  }
+  
+  @IBAction func lowEnergyCPU(_ sender: UIButton) {
+    highlightButton(sender)
+    if #available(iOS 15.0, *) {
+      batteryConsumer = BatteryConsumer(qos: .background)
+      batteryConsumer?.start()
+    }
+  }
+  
+  @IBAction func stopUsingEnergy(_ sender: UIButton) {
+    highlightButton(sender)
+    batteryConsumer?.stop()
+  }
     
     @IBAction func anrDeadlock(_ sender: UIButton) {
         highlightButton(sender)
@@ -185,11 +207,15 @@ class ExtraViewController: UIViewController {
             scope.setLevel(.fatal)
         }
 
+      #if SDK_V9
+        print("SDK V9 does not support user feedback.")
+      #else
         let userFeedback = UserFeedback(eventId: eventId)
         userFeedback.comments = "It broke on iOS-Swift. I don't know why, but this happens."
         userFeedback.email = "john@me.com"
         userFeedback.name = "John Me"
         SentrySDK.capture(userFeedback: userFeedback)
+      #endif // SDK_V9
     }
 
     @IBAction func permissions(_ sender: UIButton) {

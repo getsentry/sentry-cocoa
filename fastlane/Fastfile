@@ -200,14 +200,6 @@ platform :ios do
     )
   end
 
-  lane :ui_critical_tests_ios_swiftui_crash do
-    run_ui_tests(
-      scheme: "SwiftUITestSampleCrash",
-      result_bundle_name: "ui_critical_tests_ios_swiftui_crash",
-      device: "iPhone 16 (18.5)"
-    )
-  end
-
   lane :ui_critical_tests_ios_swiftui_envelope do
     run_ui_tests(
       scheme: "SwiftUITestSampleEnvelope",
@@ -236,10 +228,11 @@ platform :ios do
     )
   end
 
-  lane :ui_tests_ios_swiftui do
+  lane :ui_tests_ios_swiftui do |options|
     run_ui_tests(
       scheme: "iOS-SwiftUI",
-      result_bundle_name: "ui_tests_ios_swiftui"
+      result_bundle_name: "ui_tests_ios_swiftui",
+      device: options[:device]
     )
   end
   

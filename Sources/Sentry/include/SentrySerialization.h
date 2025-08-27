@@ -17,7 +17,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (NSData *_Nullable)dataWithEnvelope:(SentryEnvelope *)envelope;
 
-+ (NSData *)dataWithReplayRecording:(SentryReplayRecording *)replayRecording;
++ (NSData *_Nullable)dataWithReplayRecording:(SentryReplayRecording *)replayRecording;
 
 + (SentryEnvelope *_Nullable)envelopeWithData:(NSData *)data;
 
@@ -33,6 +33,11 @@ NS_ASSUME_NONNULL_BEGIN
  * level, see https://develop.sentry.dev/sdk/event-payloads/#optional-attributes
  */
 + (SentryLevel)levelFromData:(NSData *)eventEnvelopeItemData;
+
+/**
+ * Retrieves the json object from an event envelope item data.
+ */
++ (NSArray *_Nullable)deserializeArrayFromJsonData:(NSData *)data;
 
 @end
 

@@ -1,5 +1,5 @@
-@testable import Sentry
-import SentryTestUtils
+@_spi(Private) @testable import Sentry
+@_spi(Private) import SentryTestUtils
 import XCTest
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
@@ -43,7 +43,7 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
                 crashWrapper: crashWrapper,
                 fileManager: fileManager,
                 dispatchQueueWrapper: dispatchQueue,
-                notificationCenterWrapper: SentryNSNotificationCenterWrapper()
+                notificationCenterWrapper: NotificationCenter.default
             )
             
             framesTracker = SentryFramesTracker(displayLinkWrapper: displayLinkWrapper, dateProvider: currentDate, dispatchQueueWrapper: TestSentryDispatchQueueWrapper(),
@@ -53,7 +53,7 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
             runtimeInitTimestamp = SentryDependencyContainer.sharedInstance().dateProvider.date().addingTimeInterval(0.2)
             moduleInitializationTimestamp = SentryDependencyContainer.sharedInstance().dateProvider.date().addingTimeInterval(0.1)
             sdkStartTimestamp = SentryDependencyContainer.sharedInstance().dateProvider.date().addingTimeInterval(0.1)
-            SentrySDK.startTimestamp = sdkStartTimestamp
+            SentrySDKInternal.startTimestamp = sdkStartTimestamp
             
             didFinishLaunchingTimestamp = SentryDependencyContainer.sharedInstance().dateProvider.date().addingTimeInterval(0.2)
         }
@@ -424,11 +424,11 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
      * We assume a class reads the app measurement, sends it with a transaction to Sentry and sets it to nil.
      */
     private func sendAppMeasurement() {
-        SentrySDK.setAppStartMeasurement(nil)
+        SentrySDKInternal.setAppStartMeasurement(nil)
     }
     
     private func assertValidStart(type: SentryAppStartType, expectedDuration: TimeInterval? = nil, preWarmed: Bool = false) {
-        guard let appStartMeasurement = SentrySDK.getAppStartMeasurement() else {
+        guard let appStartMeasurement = SentrySDKInternal.getAppStartMeasurement() else {
             XCTFail("AppStartMeasurement must not be nil")
             return
         }
@@ -454,7 +454,7 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
     }
     
     private func assertValidHybridStart(type: SentryAppStartType) {
-        guard let appStartMeasurement = SentrySDK.getAppStartMeasurement() else {
+        guard let appStartMeasurement = SentrySDKInternal.getAppStartMeasurement() else {
             XCTFail("AppStartMeasurement must not be nil")
             return
         }
@@ -470,7 +470,7 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
     }
     
     private func assertNoAppStartUp() {
-        XCTAssertNil(SentrySDK.getAppStartMeasurement())
+        XCTAssertNil(SentrySDKInternal.getAppStartMeasurement())
     }
     
     private func advanceTime(bySeconds: TimeInterval) {

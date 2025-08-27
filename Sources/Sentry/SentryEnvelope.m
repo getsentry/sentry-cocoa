@@ -5,8 +5,10 @@
 #import "SentryEnvelopeAttachmentHeader.h"
 #import "SentryEnvelopeItemHeader.h"
 #import "SentryEnvelopeItemType.h"
+#import "SentryEvent+Serialize.h"
 #import "SentryEvent.h"
-#import "SentryLog.h"
+#import "SentryInternalDefines.h"
+#import "SentryLogC.h"
 #import "SentryMessage.h"
 #import "SentryMsgPackSerializer.h"
 #import "SentrySdkInfo.h"
@@ -111,6 +113,7 @@ NS_ASSUME_NONNULL_BEGIN
                   data:json];
 }
 
+#if !SDK_V9
 - (instancetype)initWithUserFeedback:(SentryUserFeedback *)userFeedback
 {
     NSError *error = nil;
@@ -128,6 +131,7 @@ NS_ASSUME_NONNULL_BEGIN
                                           length:json.length]
                            data:json];
 }
+#endif // !SDK_V9
 
 - (instancetype)initWithClientReport:(SentryClientReport *)clientReport
 {
@@ -163,7 +167,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 #if DEBUG || SENTRY_TEST || SENTRY_TEST_CI
         if ([NSProcessInfo.processInfo.arguments
-                containsObject:@"--io.sentry.base64-attachment-data"]) {
+                containsObject:@"--io.sentry.other.base64-attachment-data"]) {
             data = [[attachment.data base64EncodedStringWithOptions:0]
                 dataUsingEncoding:NSUTF8StringEncoding];
         } else {
@@ -173,11 +177,12 @@ NS_ASSUME_NONNULL_BEGIN
         data = attachment.data;
 #endif // DEBUG || SENTRY_TEST || SENTRY_TEST_CI
     } else if (nil != attachment.path) {
+        NSString *_Nonnull attachmentPath = SENTRY_UNWRAP_NULLABLE(NSString, attachment.path);
 
         NSError *error = nil;
         NSFileManager *fileManager = [NSFileManager defaultManager];
         NSDictionary<NSFileAttributeKey, id> *attr =
-            [fileManager attributesOfItemAtPath:attachment.path error:&error];
+            [fileManager attributesOfItemAtPath:attachmentPath error:&error];
 
         if (nil != error) {
             SENTRY_LOG_ERROR(@"Couldn't check file size of attachment with path: %@. Error: %@",
@@ -198,14 +203,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 #if DEBUG || SENTRY_TEST || SENTRY_TEST_CI
         if ([NSProcessInfo.processInfo.arguments
-                containsObject:@"--io.sentry.base64-attachment-data"]) {
-            data = [[[[NSFileManager defaultManager] contentsAtPath:attachment.path]
+                containsObject:@"--io.sentry.other.base64-attachment-data"]) {
+            data = [[[[NSFileManager defaultManager] contentsAtPath:attachmentPath]
                 base64EncodedStringWithOptions:0] dataUsingEncoding:NSUTF8StringEncoding];
         } else {
-            data = [[NSFileManager defaultManager] contentsAtPath:attachment.path];
+            data = [[NSFileManager defaultManager] contentsAtPath:attachmentPath];
         }
 #else
-        data = [[NSFileManager defaultManager] contentsAtPath:attachment.path];
+        data = [[NSFileManager defaultManager] contentsAtPath:attachmentPath];
 #endif // DEBUG || SENTRY_TEST || SENTRY_TEST_CI
     }
 
@@ -228,8 +233,24 @@ NS_ASSUME_NONNULL_BEGIN
                              replayRecording:(SentryReplayRecording *)replayRecording
                                        video:(NSURL *)videoURL
 {
-    NSData *replayEventData = [SentrySerialization dataWithJSONObject:[replayEvent serialize]];
-    NSData *recording = [SentrySerialization dataWithReplayRecording:replayRecording];
+    NSData *_Nullable nullableReplayEventData =
+        [SentrySerialization dataWithJSONObject:[replayEvent serialize]];
+    if (nil == nullableReplayEventData) {
+        SENTRY_LOG_ERROR(
+            @"Could not serialize replay event data for envelope item. Event will be nil.");
+        return nil;
+    }
+    NSData *_Nonnull replayEventData = SENTRY_UNWRAP_NULLABLE(NSData, nullableReplayEventData);
+
+    NSData *_Nullable nullableRecording =
+        [SentrySerialization dataWithReplayRecording:replayRecording];
+    if (nil == nullableRecording) {
+        SENTRY_LOG_ERROR(
+            @"Could not serialize replay recording data for envelope item. Recording will be nil.");
+        return nil;
+    }
+    NSData *_Nonnull recording = SENTRY_UNWRAP_NULLABLE(NSData, nullableRecording);
+
     NSURL *envelopeContentUrl =
         [[videoURL URLByDeletingPathExtension] URLByAppendingPathExtension:@"dat"];
 
@@ -284,6 +305,7 @@ NS_ASSUME_NONNULL_BEGIN
                      singleItem:item];
 }
 
+#if !SDK_V9
 - (instancetype)initWithUserFeedback:(SentryUserFeedback *)userFeedback
 {
     SentryEnvelopeItem *item = [[SentryEnvelopeItem alloc] initWithUserFeedback:userFeedback];
@@ -291,6 +313,7 @@ NS_ASSUME_NONNULL_BEGIN
     return [self initWithHeader:[[SentryEnvelopeHeader alloc] initWithId:userFeedback.eventId]
                      singleItem:item];
 }
+#endif // !SDK_V9
 
 - (instancetype)initWithId:(SentryId *_Nullable)id singleItem:(SentryEnvelopeItem *)item
 {

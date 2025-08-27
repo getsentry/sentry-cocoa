@@ -1,6 +1,6 @@
 import Foundation
-@testable import Sentry
-import SentryTestUtils
+@_spi(Private) @testable import Sentry
+@_spi(Private) import SentryTestUtils
 import XCTest
 
 // swiftlint:disable test_case_accessibility
@@ -30,12 +30,12 @@ class SentrySDKIntegrationTestsBase: XCTestCase {
         let client = TestClient(options: options ?? self.options)
         let hub = SentryHub(client: client, andScope: scope, andCrashWrapper: TestSentryCrashWrapper.sharedInstance(), andDispatchQueue: SentryDispatchQueueWrapper())
         
-        SentrySDK.setStart(self.options)
-        SentrySDK.setCurrentHub(hub)
+        SentrySDKInternal.setStart(with: self.options)
+        SentrySDKInternal.setCurrentHub(hub)
     }
     
     func assertNoEventCaptured() {
-        guard let client = SentrySDK.currentHub().getClient() as? TestClient else {
+        guard let client = SentrySDKInternal.currentHub().getClient() as? TestClient else {
             XCTFail("Hub Client is not a `TestClient`")
             return
         }
@@ -43,7 +43,7 @@ class SentrySDKIntegrationTestsBase: XCTestCase {
     }
     
     func assertEventWithScopeCaptured(_ callback: (Event?, Scope?, [SentryEnvelopeItem]?) throws -> Void) throws {
-        guard let client = SentrySDK.currentHub().getClient() as? TestClient else {
+        guard let client = SentrySDKInternal.currentHub().getClient() as? TestClient else {
             XCTFail("Hub Client is not a `TestClient`")
             return
         }
@@ -54,7 +54,7 @@ class SentrySDKIntegrationTestsBase: XCTestCase {
     }
     
     func assertFatalEventWithScope(_ callback: (Event?, Scope?) throws -> Void) rethrows {
-        guard let client = SentrySDK.currentHub().getClient() as? TestClient else {
+        guard let client = SentrySDKInternal.currentHub().getClient() as? TestClient else {
             XCTFail("Hub Client is not a `TestClient`")
             return
         }

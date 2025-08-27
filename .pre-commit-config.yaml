@@ -23,7 +23,7 @@ repos:
         args: [--allow-multiple-documents]
       - id: detect-private-key
       - id: end-of-file-fixer
-        exclude: ^sdk_api.json$
+        exclude: ^sdk_api.*\.json$
 
   - repo: https://github.com/python-jsonschema/check-jsonschema
     rev: 0.27.3
@@ -72,14 +72,14 @@ repos:
         types_or: [json]
         entry: dprint
         language: system
-        exclude: ^sdk_api.json$
+        exclude: ^sdk_api.*\.json$
         args:
           - "fmt"
 
       - id: format-yaml
         name: Format YAML
         description: "Format YAML"
-        files: ^.*\.{yaml,yml}$
+        files: ^.*\.(yaml|yml)$
         types_or: [yaml]
         entry: dprint
         language: system

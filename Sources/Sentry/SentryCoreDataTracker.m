@@ -3,7 +3,7 @@
 #import "SentryFrame.h"
 #import "SentryHub+Private.h"
 #import "SentryInternalDefines.h"
-#import "SentryLog.h"
+#import "SentryLogC.h"
 #import "SentryNSProcessInfoWrapper.h"
 #import "SentryPredicateDescriptor.h"
 #import "SentrySDK+Private.h"
@@ -38,7 +38,7 @@
                             error:(NSError **)error
                       originalImp:(NSArray *(NS_NOESCAPE ^)(NSFetchRequest *, NSError **))original
 {
-    id<SentrySpan> _Nullable currentSpan = [SentrySDK.currentHub.scope span];
+    id<SentrySpan> _Nullable currentSpan = [SentrySDKInternal.currentHub.scope span];
     id<SentrySpan> _Nullable fetchSpan;
     if (currentSpan) {
         NSString *spanDescription = [self descriptionFromRequest:request];
@@ -80,7 +80,7 @@
         __block NSDictionary<NSString *, NSDictionary *> *operations =
             [self groupEntitiesOperations:context];
 
-        id<SentrySpan> _Nullable currentSpan = [SentrySDK.currentHub.scope span];
+        id<SentrySpan> _Nullable currentSpan = [SentrySDKInternal.currentHub.scope span];
         if (currentSpan) {
             NSString *spanDescription = [self descriptionForOperations:operations
                                                              inContext:context];
@@ -125,7 +125,7 @@
         __kindof NSPersistentStore *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
         [systems addObject:obj.type];
         if (obj.URL != nil) {
-            [names addObject:obj.URL.path];
+            [names addObject:SENTRY_UNWRAP_NULLABLE(NSString, obj.URL.path)];
         } else {
             [names addObject:@"(null)"];
         }
@@ -204,7 +204,8 @@
 
     if (request.predicate) {
         [result appendFormat:@" WHERE %@",
-            [predicateDescriptor predicateDescription:request.predicate]];
+            [predicateDescriptor
+                predicateDescription:SENTRY_UNWRAP_NULLABLE(NSPredicate, request.predicate)]];
     }
 
     if (request.sortDescriptors.count > 0) {

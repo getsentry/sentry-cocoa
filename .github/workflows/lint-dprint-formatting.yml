@@ -1,0 +1,45 @@
+# We want to run dprint for only the files it checks without running the other linters, which are
+# expensive. For example, dprint should run for markdown changes, but pod lib lint doesn't need to
+# run for markdown changes. Therefore, we run it in an extra workflow.
+
+name: Lint dprint
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "**/*.yml"
+      - "**/*.yaml"
+      - "**/*.json"
+      - "**/*.md"
+      - ".github/workflows/lint-dprint-formatting.yml"
+      - "dprint.json"
+
+  pull_request:
+    paths:
+      - "**/*.yml"
+      - "**/*.yaml"
+      - "**/*.json"
+      - "**/*.md"
+      - ".github/workflows/lint-dprint-formatting.yml"
+      - "dprint.json"
+
+# Concurrency configuration:
+# - We use workflow-specific concurrency groups to prevent multiple lint runs on the same code,
+#   as linting checks are deterministic and don't require parallel validation.
+# - For pull requests, we cancel in-progress runs when new commits are pushed since only the latest
+#   linting matters for merge decisions.
+# - For main branch pushes, we never cancel formatting checks to ensure our code maintains consistent
+#   style standards across the entire project.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: dprint/check@v2.3

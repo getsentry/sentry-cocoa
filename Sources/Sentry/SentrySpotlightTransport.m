@@ -1,10 +1,9 @@
 #import "SentrySpotlightTransport.h"
-#import "SentryDispatchQueueWrapper.h"
 #import "SentryEnvelope.h"
 #import "SentryEnvelopeItemHeader.h"
 #import "SentryEnvelopeItemType.h"
-#import "SentryLog.h"
-#import "SentryNSURLRequest.h"
+#import "SentryInternalDefines.h"
+#import "SentryLogC.h"
 #import "SentryNSURLRequestBuilder.h"
 #import "SentryOptions.h"
 #import "SentrySerialization.h"
@@ -66,9 +65,10 @@ NS_ASSUME_NONNULL_BEGIN
                                                                       items:allowedEnvelopeItems];
 
     NSError *requestError = nil;
-    NSURLRequest *request = [self.requestBuilder createEnvelopeRequest:envelopeToSend
-                                                                   url:self.apiURL
-                                                      didFailWithError:&requestError];
+    NSURLRequest *request =
+        [self.requestBuilder createEnvelopeRequest:envelopeToSend
+                                               url:SENTRY_UNWRAP_NULLABLE(NSURL, self.apiURL)
+                                  didFailWithError:&requestError];
 
     if (nil == request || nil != requestError) {
         if (nil != requestError) {

@@ -1,7 +1,6 @@
 #import "SentryUIApplication.h"
-#import "SentryDispatchQueueWrapper.h"
-#import "SentryLog.h"
-#import "SentryNSNotificationCenterWrapper.h"
+#import "SentryInternalDefines.h"
+#import "SentryLogC.h"
 #import "SentrySwift.h"
 
 #if SENTRY_HAS_UIKIT
@@ -11,7 +10,7 @@
 @interface SentryUIApplication ()
 
 @property (nonatomic, assign) UIApplicationState appState;
-@property (nonatomic, strong) SentryNSNotificationCenterWrapper *notificationCenterWrapper;
+@property (nonatomic, strong) id<SentryNSNotificationCenterWrapper> notificationCenterWrapper;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueueWrapper;
 
 @end
@@ -19,7 +18,7 @@
 @implementation SentryUIApplication
 
 - (instancetype)initWithNotificationCenterWrapper:
-                    (SentryNSNotificationCenterWrapper *)notificationCenterWrapper
+                    (id<SentryNSNotificationCenterWrapper>)notificationCenterWrapper
                              dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
 {
     if (self = [super init]) {
@@ -28,11 +27,13 @@
 
         [self.notificationCenterWrapper addObserver:self
                                            selector:@selector(didEnterBackground)
-                                               name:UIApplicationDidEnterBackgroundNotification];
+                                               name:UIApplicationDidEnterBackgroundNotification
+                                             object:nil];
 
         [self.notificationCenterWrapper addObserver:self
                                            selector:@selector(didBecomeActive)
-                                               name:UIApplicationDidBecomeActiveNotification];
+                                               name:UIApplicationDidBecomeActiveNotification
+                                             object:nil];
 
         // We store the application state when the app is initialized
         // and we keep track of its changes by the notifications
@@ -45,7 +46,7 @@
 
 - (void)dealloc
 {
-    [self.notificationCenterWrapper removeObserver:self];
+    [self.notificationCenterWrapper removeObserver:self name:nil object:nil];
 }
 
 - (UIApplication *)sharedApplication
@@ -96,7 +97,7 @@
             id<UIApplicationDelegate> appDelegate = [self getApplicationDelegate:app];
 
             if ([appDelegate respondsToSelector:@selector(window)] && appDelegate.window != nil) {
-                [result addObject:appDelegate.window];
+                [result addObject:SENTRY_UNWRAP_NULLABLE(UIWindow, appDelegate.window)];
             }
 
             windows = [result allObjects];
@@ -164,15 +165,16 @@
         UIViewController *topVC = result[index];
         // If the view controller is presenting another one, usually in a modal form.
         if (topVC.presentedViewController != nil) {
-
-            if ([topVC.presentationController isKindOfClass:UIAlertController.class]) {
+            UIViewController *_Nonnull topPresentationVC
+                = SENTRY_UNWRAP_NULLABLE(UIViewController, topVC.presentedViewController);
+            if ([topPresentationVC isKindOfClass:UIAlertController.class]) {
                 // If the view controller being presented is an Alert, we know that
                 // we reached the end of the view controller stack and the presenter is
                 // the top view controller.
                 break;
             }
 
-            [result replaceObjectAtIndex:index withObject:topVC.presentedViewController];
+            [result replaceObjectAtIndex:index withObject:topPresentationVC];
 
             continue;
         }
@@ -225,18 +227,18 @@
     (UIViewController *)containerVC
 {
     if ([containerVC isKindOfClass:UINavigationController.class]) {
-        if ([(UINavigationController *)containerVC topViewController]) {
-            return @[ [(UINavigationController *)containerVC topViewController] ];
+        UIViewController *_Nullable containerTopVC =
+            [(UINavigationController *)containerVC topViewController];
+        if (containerTopVC) {
+            return @[ SENTRY_UNWRAP_NULLABLE(UIViewController, containerTopVC) ];
         }
-        return nil;
     }
     if ([containerVC isKindOfClass:UITabBarController.class]) {
         UITabBarController *tbController = (UITabBarController *)containerVC;
         NSInteger selectedIndex = tbController.selectedIndex;
         if (tbController.viewControllers.count > selectedIndex) {
-            return @[ [tbController.viewControllers objectAtIndex:selectedIndex] ];
-        } else {
-            return nil;
+            return @[ SENTRY_UNWRAP_NULLABLE(
+                UIViewController, [tbController.viewControllers objectAtIndex:selectedIndex]) ];
         }
     }
     if ([containerVC isKindOfClass:UISplitViewController.class]) {
@@ -248,7 +250,8 @@
     if ([containerVC isKindOfClass:UIPageViewController.class]) {
         UIPageViewController *pageVC = (UIPageViewController *)containerVC;
         if (pageVC.viewControllers.count > 0) {
-            return @[ [[pageVC viewControllers] objectAtIndex:0] ];
+            return @[ SENTRY_UNWRAP_NULLABLE(
+                UIViewController, [pageVC.viewControllers objectAtIndex:0]) ];
         }
     }
     return nil;

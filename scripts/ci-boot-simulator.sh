@@ -29,29 +29,43 @@ while [[ $# -gt 0 ]]; do
 done
 
 SIMULATOR="iPhone 16"
+IOS_VERSION="18.5"
 
 # Select simulator based on Xcode version
 case "$XCODE_VERSION" in
     "14.3.1")
         SIMULATOR="iPhone 14"
+        IOS_VERSION="16.4"
         ;;
     "15.4")
         SIMULATOR="iPhone 15"
+        IOS_VERSION="17.5"
         ;;
     "16.2")
         SIMULATOR="iPhone 16"
+        IOS_VERSION="18.5"
         ;;
     *)
         SIMULATOR="iPhone 16" # Default fallback
+        IOS_VERSION="18.5"
         ;;
 esac
 
-echo "Booting simulator $SIMULATOR"
-xcrun simctl boot "$SIMULATOR"
+UDID=$(xcrun simctl list devices available | \
+grep -A 5 "^-- iOS $IOS_VERSION --" | \
+grep "$SIMULATOR (" | \
+sed -n 's/.*(\([0-9A-F-]\{36\}\)).*/\1/p' | \
+head -n1)
+
+echo "Booting simulator $SIMULATOR - iOS $IOS_VERSION: $UDID"
+xcrun simctl boot "$UDID"
+
+# We use `open -a Simulator` because there's no lower-level CLI like `simctl` to display the simulator UI available.
+open -a Simulator
 
 # Wait for the simulator to boot
 # We need to wait for the simulator to boot to avoid the test to fail due to timeout (because the simulator is not booted yet)
-xcrun simctl bootstatus "$SIMULATOR"
+xcrun simctl bootstatus "$UDID"
 
 # Print details about the booted simulator, iOS version, etc.
 xcrun simctl list devices --json | jq '.devices | to_entries[] | select(.value[] | .state == "Booted")'

@@ -1,13 +1,13 @@
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 
-@testable import Sentry
-import SentryTestUtils
+@_spi(Private) @testable import Sentry
+@_spi(Private) import SentryTestUtils
 import XCTest
 
 class SentryWatchdogTerminationScopeObserverTests: XCTestCase {
     private class Fixture {
         let breadcrumbProcessor: TestSentryWatchdogTerminationBreadcrumbProcessor
-        let contextProcessor: TestSentryWatchdogTerminationContextProcessor
+        let attributesProcessor: TestSentryWatchdogTerminationAttributesProcessor
 
         let breadcrumb: [String: Any] = [
             "type": "default",
@@ -23,6 +23,16 @@ class SentryWatchdogTerminationScopeObserverTests: XCTestCase {
                 "app.name": "ExampleApp"
             ]
         ]
+        let user: User = User(userId: "123")
+        let dist = "1.0.0"
+        let env = "prod"
+        let tags = ["tag1": "value1"]
+        let extras: [String: Any] = [
+            "extra_key": "extra_value",
+            "numeric_key": 42,
+            "bool_key": true
+        ]
+        let fingerprint: [String] = ["fingerprint1", "fingerprint2", "fingerprint3"]
 
         init() throws {
             let fileManager = try TestFileManager(options: Options())
@@ -30,16 +40,16 @@ class SentryWatchdogTerminationScopeObserverTests: XCTestCase {
                 maxBreadcrumbs: 10,
                 fileManager: fileManager
             )
-            contextProcessor = TestSentryWatchdogTerminationContextProcessor(
+            attributesProcessor = try TestSentryWatchdogTerminationAttributesProcessor(
                 withDispatchQueueWrapper: TestSentryDispatchQueueWrapper(),
-                scopeContextStore: SentryScopeContextPersistentStore(fileManager: fileManager)
+                scopePersistentStore: XCTUnwrap(SentryScopePersistentStore(fileManager: fileManager))
             )
         }
 
         func getSut() -> SentryWatchdogTerminationScopeObserver {
             return SentryWatchdogTerminationScopeObserver(
                 breadcrumbProcessor: breadcrumbProcessor,
-                contextProcessor: contextProcessor
+                attributesProcessor: attributesProcessor
             )
         }
     }
@@ -65,18 +75,18 @@ class SentryWatchdogTerminationScopeObserverTests: XCTestCase {
 
         // The context process is calling clear in the initializer on purpose.
         // Therefore we compare the later count with the current count.
-        let contextProcessorClearInvocations = fixture.contextProcessor.clearInvocations.count
-        XCTAssertEqual(fixture.contextProcessor.clearInvocations.count, contextProcessorClearInvocations)
+        let attributesProcessorClearInvocations = fixture.attributesProcessor.clearInvocations.count
+        XCTAssertEqual(fixture.attributesProcessor.clearInvocations.count, attributesProcessorClearInvocations)
 
         // -- Act --
         sut.clear()
 
         // -- Assert --
         XCTAssertEqual(fixture.breadcrumbProcessor.clearInvocations.count, 1)
-        XCTAssertEqual(fixture.contextProcessor.clearInvocations.count, contextProcessorClearInvocations + 1)
+        XCTAssertEqual(fixture.attributesProcessor.clearInvocations.count, attributesProcessorClearInvocations + 1)
     }
 
-    func testClear_shouldInvokeClearForContextProcessor() {
+    func testClear_shouldInvokeClearForAttributesProcessor() {
         // -- Act --
         sut.clear()
 
@@ -110,17 +120,17 @@ class SentryWatchdogTerminationScopeObserverTests: XCTestCase {
         XCTAssertEqual(fixture.breadcrumbProcessor.clearBreadcrumbsInvocations.count, 1)
     }
 
-    func testSetContext_whenContextIsNil_shouldCallContextProcessorSetContext() throws {
+    func testSetContext_whenContextIsNil_shouldCallAttributesProcessorSetContext() throws {
         // -- Act --
         sut.setContext(nil)
 
         // -- Assert --
-        XCTAssertEqual(fixture.contextProcessor.setContextInvocations.count, 1)
-        let invocation = try XCTUnwrap(fixture.contextProcessor.setContextInvocations.first)
+        XCTAssertEqual(fixture.attributesProcessor.setContextInvocations.count, 1)
+        let invocation = try XCTUnwrap(fixture.attributesProcessor.setContextInvocations.first)
         XCTAssertNil(invocation)
     }
 
-    func testSetContext_whenContextIsDefined_shouldCallContextProcessorSetContext() throws {
+    func testSetContext_whenContextIsDefined_shouldCallAttributesProcessorSetContext() throws {
         // -- Arrange --
         let context = fixture.context
 
@@ -128,11 +138,156 @@ class SentryWatchdogTerminationScopeObserverTests: XCTestCase {
         sut.setContext(context)
 
         // -- Assert --
-        XCTAssertEqual(fixture.contextProcessor.setContextInvocations.count, 1)
-        let invocation = try XCTUnwrap(fixture.contextProcessor.setContextInvocations.first)
+        XCTAssertEqual(fixture.attributesProcessor.setContextInvocations.count, 1)
+        let invocation = try XCTUnwrap(fixture.attributesProcessor.setContextInvocations.first)
         let invocationContext = try XCTUnwrap(invocation)
         // Use NSDictionary to erase the type information and compare the dictionaries
         XCTAssertEqual(NSDictionary(dictionary: invocationContext), NSDictionary(dictionary: context))
+    }
+    
+    func testSetUser_whenUserIsNil_shouldCallAttributesProcessorSetUser() throws {
+        // -- Act --
+        sut.setUser(nil)
+
+        // -- Assert --
+        XCTAssertEqual(fixture.attributesProcessor.setUserInvocations.count, 1)
+        let invocation = try XCTUnwrap(fixture.attributesProcessor.setUserInvocations.first)
+        XCTAssertNil(invocation)
+    }
+
+    func testSetUser_whenUserIsDefined_shouldCallAttributesProcessorSetUser() throws {
+        // -- Arrange --
+        let user = fixture.user
+
+        // -- Act --
+        sut.setUser(user)
+
+        // -- Assert --
+        XCTAssertEqual(fixture.attributesProcessor.setUserInvocations.count, 1)
+        let invocation = try XCTUnwrap(fixture.attributesProcessor.setUserInvocations.first)
+        let invocationContext = try XCTUnwrap(invocation)
+        XCTAssertEqual(invocationContext, user)
+    }
+    
+    func testSetDist_whenDistIsNil_shouldCallAttributesProcessorSetDist() throws {
+        // -- Act --
+        sut.setDist(nil)
+
+        // -- Assert --
+        XCTAssertEqual(fixture.attributesProcessor.setDistInvocations.count, 1)
+        let invocation = try XCTUnwrap(fixture.attributesProcessor.setDistInvocations.first)
+        XCTAssertNil(invocation)
+    }
+
+    func testSetDist_whenDistIsDefined_shouldCallAttributesProcessorSetDist() throws {
+        // -- Arrange --
+        let dist = fixture.dist
+
+        // -- Act --
+        sut.setDist(dist)
+
+        // -- Assert --
+        XCTAssertEqual(fixture.attributesProcessor.setDistInvocations.count, 1)
+        let invocation = try XCTUnwrap(fixture.attributesProcessor.setDistInvocations.first)
+        let invocationContext = try XCTUnwrap(invocation)
+        XCTAssertEqual(invocationContext, dist)
+    }
+    
+    func testSetEnvironment_whenEnvironmentIsNil_shouldCallAttributesProcessorSetEnvironment() throws {
+        // -- Act --
+        sut.setEnvironment(nil)
+
+        // -- Assert --
+        XCTAssertEqual(fixture.attributesProcessor.setEnvironmentInvocations.count, 1)
+        let invocation = try XCTUnwrap(fixture.attributesProcessor.setEnvironmentInvocations.first)
+        XCTAssertNil(invocation)
+    }
+
+    func testSetEnvironment_whenEnvironmentIsDefined_shouldCallAttributesProcessorSetEnvironment() throws {
+        // -- Arrange --
+        let env = fixture.env
+
+        // -- Act --
+        sut.setEnvironment(env)
+
+        // -- Assert --
+        XCTAssertEqual(fixture.attributesProcessor.setEnvironmentInvocations.count, 1)
+        let invocation = try XCTUnwrap(fixture.attributesProcessor.setEnvironmentInvocations.first)
+        let invocationContext = try XCTUnwrap(invocation)
+        XCTAssertEqual(invocationContext, env)
+    }
+
+    func testSetTags_whenTagsIsNil_shouldCallAttributesProcessorSetTags() throws {
+        // -- Act --
+        sut.setTags(nil)
+
+        // -- Assert --
+        XCTAssertEqual(fixture.attributesProcessor.setTagsInvocations.count, 1)
+        let invocation = try XCTUnwrap(fixture.attributesProcessor.setTagsInvocations.first)
+        XCTAssertNil(invocation)
+    }
+
+    func testSetTags_whenTagsIsDefined_shouldCallAttributesProcessorSetTags() throws {
+        // -- Arrange --
+        let tags = fixture.tags
+
+        // -- Act --
+        sut.setTags(tags)
+
+        // -- Assert --
+        XCTAssertEqual(fixture.attributesProcessor.setTagsInvocations.count, 1)
+        let invocation = try XCTUnwrap(fixture.attributesProcessor.setTagsInvocations.first)
+        let invocationContext = try XCTUnwrap(invocation)
+        XCTAssertEqual(invocationContext, tags)
+    }
+    
+    func testSetExtras_whenExtrasIsNil_shouldCallAttributesProcessorSetExtras() throws {
+        // -- Act --
+        sut.setExtras(nil)
+
+        // -- Assert --
+        XCTAssertEqual(fixture.attributesProcessor.setExtrasInvocations.count, 1)
+        let invocation = try XCTUnwrap(fixture.attributesProcessor.setExtrasInvocations.first)
+        XCTAssertNil(invocation)
+    }
+
+    func testSetExtras_whenExtrasIsDefined_shouldCallAttributesProcessorSetExtras() throws {
+        // -- Arrange --
+        let extras = fixture.extras
+
+        // -- Act --
+        sut.setExtras(extras)
+
+        // -- Assert --
+        XCTAssertEqual(fixture.attributesProcessor.setExtrasInvocations.count, 1)
+        let invocation = try XCTUnwrap(fixture.attributesProcessor.setExtrasInvocations.first)
+        let invocationExtras = try XCTUnwrap(invocation)
+        // Use NSDictionary to erase the type information and compare the dictionaries
+        XCTAssertEqual(NSDictionary(dictionary: invocationExtras), NSDictionary(dictionary: extras))
+    }
+    
+    func testSetFingerprint_whenFingerprintIsNil_shouldCallAttributesProcessorSetFingerprint() throws {
+        // -- Act --
+        sut.setFingerprint(nil)
+
+        // -- Assert --
+        XCTAssertEqual(fixture.attributesProcessor.setFingerprintInvocations.count, 1)
+        let invocation = try XCTUnwrap(fixture.attributesProcessor.setFingerprintInvocations.first)
+        XCTAssertNil(invocation)
+    }
+
+    func testSetFingerprint_whenFingerprintIsDefined_shouldCallAttributesProcessorSetFingerprint() throws {
+        // -- Arrange --
+        let fingerprint = fixture.fingerprint
+
+        // -- Act --
+        sut.setFingerprint(fingerprint)
+
+        // -- Assert --
+        XCTAssertEqual(fixture.attributesProcessor.setFingerprintInvocations.count, 1)
+        let invocation = try XCTUnwrap(fixture.attributesProcessor.setFingerprintInvocations.first)
+        let invocationFingerprint = try XCTUnwrap(invocation)
+        XCTAssertEqual(invocationFingerprint, fingerprint)
     }
 }
 

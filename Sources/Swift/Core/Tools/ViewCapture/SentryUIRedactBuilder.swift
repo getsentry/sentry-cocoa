@@ -4,6 +4,7 @@ import Foundation
 import ObjectiveC.NSObjCRuntime
 import UIKit
 #if os(iOS)
+import PDFKit
 import WebKit
 #endif
 
@@ -57,7 +58,7 @@ final class SentryUIRedactBuilder {
         }
         
 #if os(iOS)
-        redactClasses += [ WKWebView.self ]
+        redactClasses += [ PDFView.self, WKWebView.self ]
 
         redactClasses += [
             // If we try to use 'UIWebView.self' it will not compile for macCatalyst, but the class does exists.

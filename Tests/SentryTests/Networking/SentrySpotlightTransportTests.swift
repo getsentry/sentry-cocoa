@@ -1,11 +1,11 @@
 @_spi(Private) @testable import Sentry
-import SentryTestUtils
+@_spi(Private) import SentryTestUtils
 import XCTest
 
 final class SentrySpotlightTransportTests: XCTestCase {
     
     private var options: Options!
-    private var requestManager: TestRequestManager!
+    private var requestManager: SyncTestRequestManager!
     private var requestBuilder: TestNSURLRequestBuilder!
     
     override func setUp() {
@@ -14,8 +14,8 @@ final class SentrySpotlightTransportTests: XCTestCase {
         options = Options()
         options.enableSpotlight = true
         
-        requestManager = TestRequestManager(session: URLSession(configuration: URLSessionConfiguration.ephemeral))
-        
+        requestManager = SyncTestRequestManager(session: URLSession(configuration: URLSessionConfiguration.ephemeral))
+
         requestBuilder = TestNSURLRequestBuilder()
     }
     
@@ -105,8 +105,7 @@ final class SentrySpotlightTransportTests: XCTestCase {
         let sut = givenSut(spotlightUrl: TestData.malformedURLString)
         
         sut.send(envelope: eventEnvelope)
-        
-        requestManager.waitForAllRequests()
+
         XCTAssertEqual(self.requestManager.requests.count, 0)
     }
     
@@ -116,8 +115,7 @@ final class SentrySpotlightTransportTests: XCTestCase {
         let sut = givenSut()
         
         sut.send(envelope: eventEnvelope)
-        
-        requestManager.waitForAllRequests()
+
         XCTAssertEqual(self.requestManager.requests.count, 0)
     }
     
@@ -127,23 +125,20 @@ final class SentrySpotlightTransportTests: XCTestCase {
         let sut = givenSut()
         
         sut.send(envelope: eventEnvelope)
-        
-        requestManager.waitForAllRequests()
+
         XCTAssertEqual(self.requestManager.requests.count, 0)
     }
     
     func testShouldLogError_WhenRequestManagerCompletesWithError() throws {
         let logOutput = TestLogOutput()
-        SentryLog.setLogOutput(logOutput)
-        SentryLog.configureLog(true, diagnosticLevel: .debug)
+        SentrySDKLog.setLogOutput(logOutput)
+        SentrySDKLog.configureLog(true, diagnosticLevel: .debug)
         
         let eventEnvelope = try givenEventEnvelope()
         requestManager.nextError = NSError(domain: "error", code: 47)
         let sut = givenSut()
         
         sut.send(envelope: eventEnvelope)
-        
-        requestManager.waitForAllRequests()
         
         let logMessages = logOutput.loggedMessages.filter {
             $0.contains("[Sentry] [error]") &&
@@ -155,7 +150,28 @@ final class SentrySpotlightTransportTests: XCTestCase {
     
     private func getSerializedGzippedData(envelope: SentryEnvelope) throws -> Data {
         let expectedData = try XCTUnwrap(SentrySerialization.data(with: envelope)) as NSData
-        return sentry_gzippedWithCompressionLevel(expectedData as Data, -1, nil) ?? Data()
+        return try SentryNSDataUtils.sentry_gzipped(with: expectedData as Data, compressionLevel: -1)
+    }
+}
+
+/// The SentrySpotlightTransport has simple logic and doesn't require the TestRequestManager using dispatch queues to validate its logic.
+/// This simplifies the tests by removing DispatchQueues and makes them more deterministic.
+private class SyncTestRequestManager: NSObject, RequestManager {
+
+    var nextError: NSError?
+    public var isReady: Bool
+
+    var requests = Invocations<URLRequest>()
+
+    public required init(session: URLSession) {
+        self.isReady = true
     }
 
+    public func add( _ request: URLRequest, completionHandler: SentryRequestOperationFinished? = nil) {
+        requests.record(request)
+
+        if let handler = completionHandler {
+            handler(nil, self.nextError)
+        }
+    }
 }

@@ -1,6 +1,6 @@
 // swiftlint:disable file_length
 @testable import Sentry
-import SentryTestUtils
+@_spi(Private) import SentryTestUtils
 import XCTest
 
 class SentryFileIOTrackerSwiftHelpersTests: XCTestCase {
@@ -20,12 +20,13 @@ class SentryFileIOTrackerSwiftHelpersTests: XCTestCase {
     private let destPath = "/path/to/dest"
     private let testError = NSError(domain: "Test", code: 1, userInfo: nil)
 
+    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     override func setUp() {
         mockedDateProvider = TestCurrentDateProvider()
         SentryDependencyContainer.sharedInstance().dateProvider = mockedDateProvider
 
         hub = SentryHub(client: nil, andScope: nil)
-        SentrySDK.setCurrentHub(hub)
+        SentrySDKInternal.setCurrentHub(hub)
 
         tracker = SentryFileIOTracker(
             threadInspector: TestThreadInspector(options: .noIntegrations()),

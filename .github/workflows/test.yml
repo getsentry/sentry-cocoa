@@ -6,50 +6,71 @@ on:
       - release/**
 
   pull_request:
-    paths:
-      - "Sources/**"
-      - "Tests/**"
-      - "SentryTestUtils/**"
-      - "test-server/**"
-      - ".github/workflows/test.yml"
-      - "fastlane/**"
-      - "scripts/tests-with-thread-sanitizer.sh"
-      - "scripts/ci-select-xcode.sh"
-      - "scripts/sentry-xcodebuild.sh"
-      - ".codecov.yml"
-      - "Sentry.xcodeproj"
-      - "**/*.xctestplan"
 
-# https://docs.github.com/en/actions/using-jobs/using-concurrency#example-using-a-fallback-value
+# Concurrency configuration:
+# - We use workflow-specific concurrency groups to allow independent test runs across different workflows
+#   while preventing multiple runs of the same test suite on the same branch/commit.
+# - For pull requests, we cancel in-progress runs when new commits are pushed to save CI resources
+#   and provide faster feedback on the latest changes.
+# - For main branch pushes and scheduled runs, we never cancel in-progress runs to ensure the complete
+#   test suite always finishes, maintaining the integrity of our main branch quality gates.
 concurrency:
-  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
-  cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
+  # This job detects if the PR contains changes that require running unit tests.
+  # If yes, the job will output a flag that will be used by the next job to run the unit tests.
+  # If no, the job will output a flag that will be used by the next job to skip running the unit tests.
+  # At the end of this workflow, we run a check that validates that either all unit tests passed or were
+  # called unit-tests-required-check.
+  files-changed:
+    name: Detect File Changes
+    runs-on: ubuntu-latest
+    # Map a step output to a job output
+    outputs:
+      run_unit_tests_for_prs: ${{ steps.changes.outputs.run_unit_tests_for_prs }}
+    steps:
+      - uses: actions/checkout@v5
+      - name: Get changed files
+        id: changes
+        uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
+        with:
+          token: ${{ github.token }}
+          filters: .github/file-filters.yml
   build-test-server:
     name: Build test server
-    runs-on: macos-13
+    if: needs.files-changed.outputs.run_unit_tests_for_prs == 'true'
+    needs: files-changed
+    runs-on: macos-15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Cache for Test Server
         id: cache_test_server
         uses: actions/cache@v4
         with:
           path: ./test-server/.build
-          key: test-server-${{ hashFiles('./test-server') }}
+          key: test-server-${{ hashFiles('./test-server') }}-universal
           restore-keys: |
-            test-server-${{ hashFiles('./test-server') }}
+            test-server-${{ hashFiles('./test-server') }}-universal
             test-server-
 
-      - name: Build Test Server
+      - name: Build Test Server for Intel CPU
         if: steps.cache_test_server.outputs.cache-hit != 'true'
         working-directory: test-server
         run: >-
-          swift build -c release 2>&1 | tee test-server-build.log
+          swift build -c release --triple x86_64-apple-macosx 2>&1 | tee test-server-build-intel.log
 
-      - name: Copy exec
+      - name: Build Test Server for M1 CPU
+        if: steps.cache_test_server.outputs.cache-hit != 'true'
         working-directory: test-server
-        run: cp $(swift build --show-bin-path -c release)/Run test-server-exec
+        run: >-
+          swift build -c release --arch arm64 2>&1 | tee test-server-build-arm64.log
+
+      - name: Combine Test Server
+        working-directory: test-server
+        run: >-
+          lipo -create -output test-server-exec $(swift build --show-bin-path -c release --triple arm64-apple-macosx)/Run $(swift build --show-bin-path -c release --triple x86_64-apple-macosx)/Run
 
       - name: Archiving DerivedData
         uses: actions/upload-artifact@v4
@@ -62,12 +83,17 @@ jobs:
         uses: actions/upload-artifact@v4
         if: ${{ failure() || cancelled() }}
         with:
-          name: test-server-build-log-${{matrix.platform}}-xcode-${{matrix.xcode}}-os-${{matrix.test-destination-os}}
+          name: test-server-build-log
           path: |
-            raw-test-output.log
+            test-server-build-intel.log
+            test-server-build-arm64.log
+
+      - name: Run CI Diagnostics
+        if: failure()
+        run: ./scripts/ci-diagnostics.sh
 
   unit-tests:
-    name: Unit ${{matrix.platform}} - Xcode ${{matrix.xcode}} - OS ${{matrix.test-destination-os}} ${{matrix.scheme}}
+    name: Unit ${{matrix.name}}
     runs-on: ${{matrix.runs-on}}
     timeout-minutes: 20
     needs: build-test-server
@@ -80,7 +106,8 @@ jobs:
           # We are running tests on iOS 17 and later, as there were OS-internal changes introduced in succeeding versions.
 
           # iOS 16
-          - runs-on: macos-13
+          - name: iOS 16 Sentry
+            runs-on: macos-13
             platform: "iOS"
             xcode: "14.3.1"
             test-destination-os: "16.4"
@@ -88,7 +115,8 @@ jobs:
             scheme: "Sentry"
 
           # iOS 17
-          - runs-on: macos-14
+          - name: iOS 17 Sentry
+            runs-on: macos-14
             platform: "iOS"
             xcode: "15.4"
             test-destination-os: "17.2"
@@ -96,10 +124,11 @@ jobs:
             scheme: "Sentry"
 
           # iOS 18
-          - runs-on: macos-15
+          - name: iOS 18 Sentry
+            runs-on: macos-15
             platform: "iOS"
-            xcode: "16.2"
-            test-destination-os: "18.2"
+            xcode: "16.4"
+            test-destination-os: "18.5"
             device: "iPhone 16"
             scheme: "Sentry"
 
@@ -108,31 +137,35 @@ jobs:
           # We are running tests on macOS 14 and later, as there were OS-internal changes introduced in succeeding versions.
 
           # macOS 14
-          - runs-on: macos-14
+          - name: macOS 14 Sentry
+            runs-on: macos-14
             platform: "macOS"
             xcode: "15.4"
             test-destination-os: "latest"
             scheme: "Sentry"
 
           # macOS 15
-          - runs-on: macos-15
+          - name: macOS 15 Sentry
+            runs-on: macos-15
             platform: "macOS"
-            xcode: "16.2"
+            xcode: "16.4"
             test-destination-os: "latest"
             scheme: "Sentry"
 
           # Catalyst. We test the latest version, as the risk something breaking on Catalyst and not
           # on an older iOS or macOS version is low.
           # In addition we are running tests on macOS 14, as there were OS-internal changes introduced in succeeding versions.
-          - runs-on: macos-14
+          - name: Catalyst 14 Sentry
+            runs-on: macos-14
             platform: "Catalyst"
             xcode: "15.4"
             test-destination-os: "latest"
             scheme: "Sentry"
 
-          - runs-on: macos-15
+          - name: Catalyst 15 Sentry
+            runs-on: macos-15
             platform: "Catalyst"
-            xcode: "16.2"
+            xcode: "16.4"
             test-destination-os: "latest"
             scheme: "Sentry"
 
@@ -141,14 +174,16 @@ jobs:
           # We are running tests on tvOS 17 and latest, as there were OS-internal changes introduced in succeeding versions.
 
           # tvOS 17
-          - runs-on: macos-14
+          - name: tvOS 17 Sentry
+            runs-on: macos-14
             platform: "tvOS"
             xcode: "15.4"
             test-destination-os: "17.5"
             scheme: "Sentry"
 
           # iOS 17
-          - runs-on: macos-14
+          - name: iOS 17 SentrySwiftUI
+            runs-on: macos-14
             platform: "iOS"
             xcode: "15.4"
             test-destination-os: "17.2"
@@ -156,27 +191,21 @@ jobs:
             scheme: "SentrySwiftUI"
 
           # tvOS 18
-          - runs-on: macos-15
+          - name: tvOS 18 Sentry
+            runs-on: macos-15
             platform: "tvOS"
-            xcode: "16.2"
-            test-destination-os: "18.1"
+            xcode: "16.4"
+            test-destination-os: "18.5"
             scheme: "Sentry"
 
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v4
+      - uses: actions/checkout@v5
+      - uses: actions/download-artifact@v5
         with:
           name: test-server
 
-      - name: Print hardware info
-        run: system_profiler SPHardwareDataType
-
-      - name: Allow test-server to run
-        run: chmod +x ./test-server-exec
-      - run: ./test-server-exec &
-
-      - name: Check test-server runs
-        run: curl http://localhost:8080/echo-baggage-header
+      - name: Start Test Server
+        run: ./scripts/start-test-server.sh
 
       - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
 
@@ -212,17 +241,13 @@ jobs:
             --scheme ${{matrix.scheme}}
 
       - name: Publish Test Report
-        uses: mikepenz/action-junit-report@a83fd2b5d58d4fc702e690c1ea688d702d28d281 # v5.6.1
+        uses: mikepenz/action-junit-report@3585e9575db828022551b4231f165eb59a0e74e3 # v5.6.2
         if: always()
         with:
           report_paths: "build/reports/junit.xml"
           fail_on_failure: true
           fail_on_parse_error: true
           detailed_summary: true
-
-      - name: Slowest Tests
-        if: ${{ always() }}
-        run: ./scripts/xcode-slowest-tests.sh
 
       - name: Archiving DerivedData Logs
         uses: actions/upload-artifact@v4
@@ -250,6 +275,9 @@ jobs:
           path: |
             ~/Library/Logs/DiagnosticReports/**
 
+      - name: Gather code coverage information via slather
+        run: slather coverage --configuration TestCI --scheme Sentry
+
       # We can upload all coverage reports, because codecov merges them.
       # See https://docs.codecov.io/docs/merging-reports
       # Checkout .codecov.yml to see the config of Codecov
@@ -257,7 +285,7 @@ jobs:
       # We don't upload codecov for scheduled runs as CodeCov only accepts a limited amount of uploads per commit.
       - name: Push code coverage to codecov
         id: codecov_1
-        uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24 # pin@v5.4.3
+        uses: codecov/codecov-action@fdcc8476540edceab3de004e990f80d881c6cc00 # pin@v5.5.0
         if: ${{ contains(matrix.platform, 'iOS') && !contains(github.ref, 'release') && github.event.schedule == '' }}
         with:
           # Although public repos should not have to specify a token there seems to be a bug with the Codecov GH action, which can
@@ -269,9 +297,45 @@ jobs:
       # Sometimes codecov uploads etc can fail. Retry one time to rule out e.g. intermittent network failures.
       - name: Push code coverage to codecov
         id: codecov_2
-        uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24 # pin@v5.4.3
+        uses: codecov/codecov-action@fdcc8476540edceab3de004e990f80d881c6cc00 # pin@v5.5.0
         if: ${{ steps.codecov_1.outcome == 'failure' && contains(matrix.platform, 'iOS') && !contains(github.ref, 'release') && github.event.schedule == '' }}
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: true
           verbose: true
+
+      - name: Codecov test analytics
+        if: ${{ !cancelled() && !contains(github.ref, 'release') && github.event.schedule == '' }}
+        uses: codecov/test-results-action@47f89e9acb64b76debcd5ea40642d25a4adced9f # pin@v1.1.1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          verbose: true
+          name: sentry-cocoa-unit-tests
+          flags: unittests-${{ matrix.platform }}-${{ matrix.xcode }}-${{ matrix.test-destination-os }}, unittests
+
+      - name: Run CI Diagnostics
+        if: failure()
+        run: ./scripts/ci-diagnostics.sh
+
+  # This check validates that either all unit tests passed or were skipped, which allows us
+  # to make unit tests a required check with only running the unit tests when required.
+  # So, we don't have to run unit tests, for example, for Changelog or ReadMe changes.
+
+  unit-tests-required-check:
+    needs:
+      [
+        files-changed,
+        build-test-server,
+        unit-tests,
+      ]
+    name: Unit Tests
+    # This is necessary since a failed/skipped dependent job would cause this job to be skipped
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      # If any jobs we depend on fails gets cancelled or times out, this job will fail.
+      # Skipped jobs are not considered failures.
+      - name: Check for failures
+        if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
+        run: |
+          echo "One of the unit test jobs has failed." && exit 1

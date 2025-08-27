@@ -4,8 +4,7 @@
 
 #    import "SentryCrashFileUtils.h"
 #    import "SentryCrashJSONCodec.h"
-#    import "SentryDispatchQueueWrapper.h"
-#    import "SentryLog.h"
+#    import "SentryLogC.h"
 #    import "SentrySwift.h"
 #    import "SentryUIApplication.h"
 #    import <UIKit/UIKit.h>
@@ -29,14 +28,14 @@ writeJSONDataToMemory(const char *const data, const int length, void *const user
 @interface SentryViewHierarchyProvider ()
 
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueueWrapper;
-@property (nonatomic, strong) SentryUIApplication *sentryUIApplication;
+@property (nonatomic, strong) id<SentryApplication> sentryUIApplication;
 
 @end
 
 @implementation SentryViewHierarchyProvider
 
 - (instancetype)initWithDispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
-                         sentryUIApplication:(SentryUIApplication *)sentryUIApplication
+                         sentryUIApplication:(id<SentryApplication>)sentryUIApplication
 {
     if (self = [super init]) {
         self.reportAccessibilityIdentifier = YES;

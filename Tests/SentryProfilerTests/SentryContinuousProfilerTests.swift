@@ -1,16 +1,17 @@
 import _SentryPrivate
 @_spi(Private) @testable import Sentry
-import SentryTestUtils
+@_spi(Private) import SentryTestUtils
 import XCTest
 
 #if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
 
+@available(*, deprecated, message: "This is only marked as deprecated because profilesSampleRate is marked as deprecated. Once that is removed this can be removed.")
 final class SentryContinuousProfilerTests: XCTestCase {
     private var fixture: SentryProfileTestFixture!
     
     override class func setUp() {
         super.setUp()
-        SentryLogSwiftSupport.configure(true, diagnosticLevel: .debug)
+        SentrySDKLogSupport.configure(true, diagnosticLevel: .debug)
     }
     
     override func setUp() {
@@ -156,23 +157,40 @@ final class SentryContinuousProfilerTests: XCTestCase {
         XCTAssertEqual(2, self.fixture.client?.captureEnvelopeInvocations.count)
     }
     
-    func testChunkSerializationAfterBufferInterval() throws {
+    func testChunkSerializationExecutesOnBackgroundThread() throws {
         SentryContinuousProfiler.start()
         XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
         
-        // Advance time by the buffer interval to trigger chunk serialization
+        // Prevent background serialization from executing automatically
+        fixture.dispatchQueueWrapper.dispatchAsyncExecutesBlock = false
+
+        // Memoize how many dispatch asyncs were called during system setup; we'll expect one more for the serialization after simulating the timer elapse below where the serialization should take place
+        let currentAsyncDispatches = fixture.dispatchQueueWrapper.dispatchAsyncCalled
+
+        // Trigger chunk creation by advancing time and firing timer
         fixture.currentDateProvider.advanceBy(interval: 60)
         try fixture.timeoutTimerFactory.check()
         
-        // Check that a chunk was serialized and sent
-        let envelope = try XCTUnwrap(self.fixture.client?.captureEnvelopeInvocations.last)
+        // Validate that no envelope was captured yet (serialization hasn't completed)
+        XCTAssertTrue(fixture.client?.captureEnvelopeInvocations.isEmpty ?? true)
+        
+        // Validate that background work was queued (serialization will be performed on background thread)
+        XCTAssertEqual(fixture.dispatchQueueWrapper.dispatchAsyncCalled, currentAsyncDispatches + 1)
+
+        // Execute the background serialization work
+        fixture.dispatchQueueWrapper.dispatchAsyncExecutesBlock = true
+        fixture.dispatchQueueWrapper.invokeLastDispatchAsync()
+        
+        // Validate that background work completed:
+        // - Envelope was captured with profile chunk
+        let envelope = try XCTUnwrap(fixture.client?.captureEnvelopeInvocations.last)
         let profileItem = try XCTUnwrap(envelope.items.first)
         XCTAssertEqual("profile_chunk", profileItem.header.type)
         
-        // Ensure the profiler is still running
+        // Profiler should still be running after chunk serialization
         XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
         
-        // Stop the profiler
+        // Clean up
         SentryContinuousProfiler.stop()
         try assertContinuousProfileStoppage()
     }
@@ -206,6 +224,7 @@ final class SentryContinuousProfilerTests: XCTestCase {
     }
 }
 
+@available(*, deprecated, message: "This is only marked as deprecated because profilesSampleRate is marked as deprecated. Once that is removed this can be removed.")
 private extension SentryContinuousProfilerTests {
     func addMockSamples(mockAddresses: [NSNumber]) throws {
         let mockThreadMetadata = SentryProfileTestFixture.ThreadMetadata(id: 1, priority: 2, name: "main")
@@ -337,8 +356,10 @@ private extension SentryContinuousProfilerTests {
 
         try assertMetricValue(measurements: measurements, key: kSentryMetricProfilerSerializationKeyMemoryFootprint, expectedValue: fixture.mockMetrics.memoryFootprint, expectedUnits: kSentryMetricProfilerSerializationUnitBytes, chunkStartTime: chunkStartTime, chunkEndTime: chunkEndTime, readingsPerBatch: expectedReadingsPerBatch)
 
+        #if arch(arm) || arch(arm64)
         // we wind up with one less energy reading for the first chunk's metric sample. since we must use the difference between readings to get actual values, the first one is only the baseline reading.
         try assertMetricValue(measurements: measurements, key: kSentryMetricProfilerSerializationKeyCPUEnergyUsage, expectedValue: fixture.mockMetrics.cpuEnergyUsage, expectedUnits: kSentryMetricProfilerSerializationUnitNanoJoules, chunkStartTime: chunkStartTime, chunkEndTime: chunkEndTime, readingsPerBatch: expectedReadingsPerBatch, expectOneLessEnergyReading: countMetricsReadingAtProfileStart)
+        #endif // arch(arm) || arch(arm64)
 
 #if !os(macOS)
         try assertMetricEntries(measurements: measurements, key: kSentryProfilerSerializationKeySlowFrameRenders, expectedEntries: fixture.expectedContinuousProfileSlowFrames, chunkStartTime: chunkStartTime, chunkEndTime: chunkEndTime)

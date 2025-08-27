@@ -10,7 +10,8 @@
 #    import "SentryHub+Private.h"
 #    import "SentryOptions.h"
 #    import "SentrySDK+Private.h"
-#    import "SentryScreenshotProvider.h"
+#    import "SentrySwift.h"
+#    import "SentryViewScreenshotProvider.h"
 
 #    if SENTRY_HAS_METRIC_KIT
 #        import "SentryMetricKitIntegration.h"
@@ -21,7 +22,7 @@ saveScreenShot(const char *path)
 {
     NSString *reportPath = [NSString stringWithUTF8String:path];
     SentryScreenshotOptions *options = SentrySDK.options.screenshot;
-    SentryScreenshotProvider *screenshotProvider =
+    SentryViewScreenshotProvider *screenshotProvider =
         [SentryDependencyContainer.sharedInstance getScreenshotProviderForOptions:options];
     [screenshotProvider saveScreenShots:reportPath];
 }
@@ -42,7 +43,7 @@ saveScreenShot(const char *path)
         return NO;
     }
 
-    SentryClient *client = [SentrySDK.currentHub getClient];
+    SentryClient *client = [SentrySDKInternal.currentHub getClient];
     [client addAttachmentProcessor:self];
 
     sentrycrash_setSaveScreenshots(&saveScreenShot);
@@ -59,7 +60,7 @@ saveScreenShot(const char *path)
 {
     sentrycrash_setSaveScreenshots(NULL);
 
-    SentryClient *client = [SentrySDK.currentHub getClient];
+    SentryClient *client = [SentrySDKInternal.currentHub getClient];
     [client removeAttachmentProcessor:self];
 }
 
@@ -90,7 +91,7 @@ saveScreenShot(const char *path)
         return attachments;
     }
 
-    SentryScreenshotProvider *screenshotProvider = [SentryDependencyContainer.sharedInstance
+    SentryViewScreenshotProvider *screenshotProvider = [SentryDependencyContainer.sharedInstance
         getScreenshotProviderForOptions:self.options.screenshot];
     NSArray<NSData *> *screenshot = [screenshotProvider appScreenshotDatasFromMainThread];
 

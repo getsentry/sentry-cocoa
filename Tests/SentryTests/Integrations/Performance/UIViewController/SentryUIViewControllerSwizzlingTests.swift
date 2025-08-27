@@ -1,7 +1,7 @@
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 
 @_spi(Private) @testable import Sentry
-import SentryTestUtils
+@_spi(Private) import SentryTestUtils
 import SentryTestUtilsDynamic
 import XCTest
 
@@ -15,6 +15,7 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
         let binaryImageCache: SentryBinaryImageCache
         var options: Options
         
+        @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
         init() {
             subClassFinder = TestSubClassFinder(dispatchQueue: dispatchQueue, objcRuntimeWrapper: objcRuntimeWrapper, swizzleClassNameExcludes: [])
             binaryImageCache = SentryDependencyContainer.sharedInstance().binaryImageCache
@@ -32,7 +33,7 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
         }
         
         var sutWithDefaultObjCRuntimeWrapper: SentryUIViewControllerSwizzling {
-            return SentryUIViewControllerSwizzling(options: options, dispatchQueue: dispatchQueue, objcRuntimeWrapper: SentryDefaultObjCRuntimeWrapper.sharedInstance(), subClassFinder: subClassFinder, processInfoWrapper: processInfoWrapper, binaryImageCache: binaryImageCache)
+            return SentryUIViewControllerSwizzling(options: options, dispatchQueue: dispatchQueue, objcRuntimeWrapper: SentryDependencyContainerSwiftHelper.objcRuntimeWrapper(), subClassFinder: subClassFinder, processInfoWrapper: processInfoWrapper, binaryImageCache: binaryImageCache)
         }
         
         var testableSut: TestSentryUIViewControllerSwizzling {
@@ -48,6 +49,7 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
     
     private var fixture: Fixture!
 
+    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     override func setUp() {
         super.setUp()
         fixture = Fixture()
@@ -203,7 +205,7 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
         let debugDylib = "\(imageName).debug.dylib"
         
         var image = createCrashBinaryImage(0, name: debugDylib)
-        SentryDependencyContainer.sharedInstance().binaryImageCache.start()
+        SentryDependencyContainer.sharedInstance().binaryImageCache.start(false)
         SentryDependencyContainer.sharedInstance().binaryImageCache.binaryImageAdded(&image)
         
         let sut = fixture.sut

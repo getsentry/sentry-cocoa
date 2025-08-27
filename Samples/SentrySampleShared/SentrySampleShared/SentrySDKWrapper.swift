@@ -33,8 +33,11 @@ public struct SentrySDKWrapper {
 
     func configureSentryOptions(options: Options) {
         options.dsn = dsn
+        if let sampleRate = SentrySDKOverrides.Events.sampleRate.floatValue {
+            options.sampleRate = NSNumber(value: sampleRate)
+        }
         options.beforeSend = {
-            guard !SentrySDKOverrides.Other.rejectAllEvents.boolValue else { return nil }
+            guard !SentrySDKOverrides.Events.rejectAll.boolValue else { return nil }
             return $0
         }
         options.beforeSendSpan = {
@@ -104,7 +107,9 @@ public struct SentrySDKWrapper {
         options.screenshot.maskAllText = !SentrySDKOverrides.Screenshot.disableMaskAllText.boolValue
 
         options.attachViewHierarchy = !SentrySDKOverrides.Other.disableAttachViewHierarchy.boolValue
+      #if !SDK_V9
         options.enableAppHangTrackingV2 = !SentrySDKOverrides.Performance.disableAppHangTrackingV2.boolValue
+      #endif // SDK_V9
 #endif // !os(macOS) && !os(watchOS)
 
         // disable during benchmarks because we run CPU for 15 seconds at full throttle which can trigger ANRs
@@ -114,13 +119,17 @@ public struct SentrySDKWrapper {
         options.enableWatchdogTerminationTracking = !isUITest && !isBenchmarking && !SentrySDKOverrides.Performance.disableWatchdogTracking.boolValue
 
         options.enableAutoPerformanceTracing = !isBenchmarking && !SentrySDKOverrides.Performance.disablePerformanceTracing.boolValue
+      #if !SDK_V9
         options.enableTracing = !isBenchmarking && !SentrySDKOverrides.Tracing.disableTracing.boolValue
+      #endif // !SDK_V9
+
+        options.enableNetworkTracking = !SentrySDKOverrides.Networking.disablePerformanceTracking.boolValue
+        options.enableCaptureFailedRequests = !SentrySDKOverrides.Networking.disableFailedRequestTracking.boolValue
+        options.enableNetworkBreadcrumbs = !SentrySDKOverrides.Networking.disableBreadcrumbs.boolValue
 
         options.enableFileIOTracing = !SentrySDKOverrides.Performance.disableFileIOTracing.boolValue
         options.enableAutoBreadcrumbTracking = !SentrySDKOverrides.Other.disableBreadcrumbs.boolValue
-        options.enableNetworkTracking = !SentrySDKOverrides.Performance.disableNetworkTracing.boolValue
         options.enableCoreDataTracing = !SentrySDKOverrides.Performance.disableCoreDataTracing.boolValue
-        options.enableNetworkBreadcrumbs = !SentrySDKOverrides.Other.disableNetworkBreadcrumbs.boolValue
         options.enableSwizzling = !SentrySDKOverrides.Other.disableSwizzling.boolValue
         options.enableCrashHandler = !SentrySDKOverrides.Other.disableCrashHandling.boolValue
         options.enablePersistingTracesWhenCrashing = true
@@ -141,7 +150,9 @@ public struct SentrySDKWrapper {
             return breadcrumb
         }
 
-        options.initialScope = configureInitialScope(scope:)
+        options.initialScope = { scope in
+            configureInitialScope(scope: scope, options: options)
+        }
 
 #if !os(macOS) && !os(tvOS) && !os(watchOS) && !os(visionOS)
         if #available(iOS 13.0, *) {
@@ -154,7 +165,7 @@ public struct SentrySDKWrapper {
         options.experimental.enableUnhandledCPPExceptionsV2 = true
     }
 
-    func configureInitialScope(scope: Scope) -> Scope {
+    func configureInitialScope(scope: Scope, options: Options) -> Scope {
         if let environmentOverride = SentrySDKOverrides.Other.environment.stringValue {
             scope.setEnvironment(environmentOverride)
         } else if isBenchmarking {
@@ -173,6 +184,7 @@ public struct SentrySDKWrapper {
             scope.setTag(value: uiTestName, key: "ui-test-name")
         }
 
+        setTagsForConfiguredOverrides(scope: scope)
         injectGitInformation(scope: scope)
 
         let user = User(userId: SentrySDKOverrides.Other.userID.stringValue ?? "1")
@@ -186,6 +198,7 @@ public struct SentrySDKWrapper {
         }
         let data = Data("hello".utf8)
         scope.addAttachment(Attachment(data: data, filename: "log.txt"))
+
         return scope
     }
 
@@ -204,6 +217,35 @@ public struct SentrySDKWrapper {
                 .lastPathComponent ?? "cocoadev"
         }
         return username
+    }
+
+    private func setTagsForConfiguredOverrides(scope: Scope) {
+        for overrideCategory in SentrySDKOverrides.allCases {
+            for flag in overrideCategory.featureFlags {
+                let tagKey = cleanTagKey(from: flag.rawValue)
+                
+                switch flag.overrideType {
+                case .boolean:
+                    if flag.boolValue {
+                        scope.setTag(value: "true", key: tagKey)
+                    }
+                case .string:
+                    if let stringValue = flag.stringValue, !stringValue.isEmpty {
+                        scope.setTag(value: stringValue, key: tagKey)
+                    }
+                case .float:
+                    if let floatValue = flag.floatValue {
+                        scope.setTag(value: String(format: "%.2f", floatValue), key: tagKey)
+                    }
+                }
+            }
+        }
+    }
+    
+    private func cleanTagKey(from rawValue: String) -> String {
+        return rawValue
+            .replacingOccurrences(of: "--io.sentry.", with: "")
+            .replacingOccurrences(of: ".", with: "_")
     }
 }
 
@@ -275,7 +317,7 @@ extension SentrySDKWrapper {
     }
 
     func configureFeedback(config: SentryUserFeedbackConfiguration) {
-        guard !args.contains("--io.sentry.feedback.all-defaults") else {
+        guard !args.contains(SentrySDKOverrides.Feedback.allDefaults.rawValue) else {
             config.configureWidget = { widget in
                 widget.layoutUIOffset = self.layoutOffset
             }
@@ -408,7 +450,7 @@ extension SentrySDKWrapper {
     /// For testing purposes, we want to be able to change the DSN and store it to disk. In a real app, you shouldn't need this behavior.
     var dsn: String? {
         do {
-            if let dsn = env["--io.sentry.dsn"] {
+            if let dsn = env[SentrySDKOverrides.Special.dsn.rawValue] {
                 try DSNStorage.shared.saveDSN(dsn: dsn)
             }
             return try DSNStorage.shared.getDSN() ?? SentrySDKWrapper.defaultDSN
@@ -420,13 +462,14 @@ extension SentrySDKWrapper {
     
     /// Whether or not profiling benchmarks are being run; this requires disabling certain other features for proper functionality.
     var isBenchmarking: Bool { args.contains("--io.sentry.test.benchmarking") }
-    var isUITest: Bool { env["--io.sentry.sdk-environment"] == "ui-tests" }
+    var isUITest: Bool { env[SentrySDKOverrides.Other.environment.rawValue] == "ui-tests" }
 }
 
 // MARK: Profiling configuration
 #if !os(tvOS) && !os(watchOS) && !os(visionOS)
 extension SentrySDKWrapper {
     func configureProfiling(_ options: Options) {
+      #if !SDK_V9
         if let sampleRate = SentrySDKOverrides.Profiling.sampleRate.floatValue {
             options.profilesSampleRate = NSNumber(value: sampleRate)
         }
@@ -436,6 +479,7 @@ extension SentrySDKWrapper {
             }
         }
         options.enableAppLaunchProfiling = !SentrySDKOverrides.Profiling.disableAppStartProfiling.boolValue
+      #endif // !SDK_V9
 
         if !SentrySDKOverrides.Profiling.disableUIProfiling.boolValue {
             options.configureProfiling = {

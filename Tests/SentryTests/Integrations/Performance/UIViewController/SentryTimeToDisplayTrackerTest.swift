@@ -1,6 +1,6 @@
 import Foundation
 @testable import Sentry
-import SentryTestUtils
+@_spi(Private) import SentryTestUtils
 import XCTest
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
@@ -345,7 +345,7 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
     
     func testTracerWithAppStartData_notWaitingForFullDisplay() throws {
         let appStartMeasurement = TestData.getAppStartMeasurement(type: .cold, appStartTimestamp: Date(timeIntervalSince1970: 6), runtimeInitSystemTimestamp: 6_000_000_000)
-        SentrySDK.setAppStartMeasurement(appStartMeasurement)
+        SentrySDKInternal.setAppStartMeasurement(appStartMeasurement)
         
         fixture.dateProvider.setDate(date: Date(timeIntervalSince1970: 7))
 
@@ -378,7 +378,7 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
     
     func testTracerWithAppStartData_waitingForFullDisplay() throws {
         let appStartMeasurement = TestData.getAppStartMeasurement(type: .cold, appStartTimestamp: Date(timeIntervalSince1970: 6), runtimeInitSystemTimestamp: 6_000_000_000)
-        SentrySDK.setAppStartMeasurement(appStartMeasurement)
+        SentrySDKInternal.setAppStartMeasurement(appStartMeasurement)
         
         fixture.dateProvider.setDate(date: Date(timeIntervalSince1970: 7))
 

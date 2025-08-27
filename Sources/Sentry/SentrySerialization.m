@@ -1,12 +1,13 @@
 #import "SentrySerialization.h"
-#import "SentryAppState.h"
 #import "SentryDateUtils.h"
 #import "SentryEnvelope+Private.h"
 #import "SentryEnvelopeAttachmentHeader.h"
 #import "SentryEnvelopeItemType.h"
 #import "SentryError.h"
+#import "SentryInternalDefines.h"
 #import "SentryLevelMapper.h"
-#import "SentryLog.h"
+#import "SentryLogC.h"
+#import "SentryModels+Serializable.h"
 #import "SentrySdkInfo.h"
 #import "SentrySession.h"
 #import "SentrySwift.h"
@@ -61,8 +62,9 @@ NS_ASSUME_NONNULL_BEGIN
     }
     [envelopeData appendData:header];
 
+    NSData *_Nonnull const newLineData = [NSData dataWithBytes:"\n" length:1];
     for (int i = 0; i < envelope.items.count; ++i) {
-        [envelopeData appendData:[@"\n" dataUsingEncoding:NSUTF8StringEncoding]];
+        [envelopeData appendData:newLineData];
         NSDictionary *serializedItemHeaderData = [envelope.items[i].header serialize];
 
         NSData *itemHeader = [SentrySerialization dataWithJSONObject:serializedItemHeaderData];
@@ -71,7 +73,7 @@ NS_ASSUME_NONNULL_BEGIN
             return nil;
         }
         [envelopeData appendData:itemHeader];
-        [envelopeData appendData:[@"\n" dataUsingEncoding:NSUTF8StringEncoding]];
+        [envelopeData appendData:newLineData];
         [envelopeData appendData:envelope.items[i].data];
     }
 
@@ -110,21 +112,27 @@ NS_ASSUME_NONNULL_BEGIN
             }
 
             SentrySdkInfo *sdkInfo = nil;
-            if (nil != headerDictionary[@"sdk"]) {
-                sdkInfo = [[SentrySdkInfo alloc] initWithDict:headerDictionary[@"sdk"]];
+            if (nil != headerDictionary[@"sdk"] &&
+                [headerDictionary[@"sdk"] isKindOfClass:[NSDictionary class]]) {
+                sdkInfo = [[SentrySdkInfo alloc]
+                    initWithDict:SENTRY_UNWRAP_NULLABLE(NSDictionary, headerDictionary[@"sdk"])];
             }
 
             SentryTraceContext *traceContext = nil;
-            if (nil != headerDictionary[@"trace"]) {
-                traceContext = [[SentryTraceContext alloc] initWithDict:headerDictionary[@"trace"]];
+            if (nil != headerDictionary[@"trace"] &&
+                [headerDictionary[@"trace"] isKindOfClass:[NSDictionary class]]) {
+                traceContext = [[SentryTraceContext alloc]
+                    initWithDict:SENTRY_UNWRAP_NULLABLE(NSDictionary, headerDictionary[@"trace"])];
             }
 
             envelopeHeader = [[SentryEnvelopeHeader alloc] initWithId:eventId
                                                               sdkInfo:sdkInfo
                                                          traceContext:traceContext];
 
-            if (headerDictionary[@"sent_at"] != nil) {
-                envelopeHeader.sentAt = sentry_fromIso8601String(headerDictionary[@"sent_at"]);
+            if (headerDictionary[@"sent_at"] != nil &&
+                [headerDictionary[@"sent_at"] isKindOfClass:[NSString class]]) {
+                envelopeHeader.sentAt = sentry_fromIso8601String(
+                    SENTRY_UNWRAP_NULLABLE(NSString, headerDictionary[@"sent_at"]));
             }
 
             break;
@@ -165,11 +173,13 @@ NS_ASSUME_NONNULL_BEGIN
                 SENTRY_LOG_ERROR(@"Failed to parse envelope item header %@", error);
                 return nil;
             }
-            NSString *_Nullable type = [headerDictionary valueForKey:@"type"];
-            if (nil == type) {
+            NSString *_Nullable nullableType = [headerDictionary valueForKey:@"type"];
+            if (nil == nullableType) {
                 SENTRY_LOG_ERROR(@"Envelope item type is required.");
                 break;
             }
+            NSString *_Nonnull type = SENTRY_UNWRAP_NULLABLE(NSString, nullableType);
+
             NSNumber *bodyLengthNumber = [headerDictionary valueForKey:@"length"];
             NSUInteger bodyLength = [bodyLengthNumber unsignedIntegerValue];
             if (endOfEnvelope == i && bodyLength != 0) {
@@ -259,13 +269,28 @@ NS_ASSUME_NONNULL_BEGIN
     return session;
 }
 
-+ (NSData *)dataWithReplayRecording:(SentryReplayRecording *)replayRecording
++ (NSData *_Nullable)dataWithReplayRecording:(SentryReplayRecording *)replayRecording
 {
     NSMutableData *recording = [NSMutableData data];
-    [recording appendData:[SentrySerialization
-                              dataWithJSONObject:[replayRecording headerForReplayRecording]]];
-    [recording appendData:[@"\n" dataUsingEncoding:NSUTF8StringEncoding]];
-    [recording appendData:[SentrySerialization dataWithJSONObject:[replayRecording serialize]]];
+
+    NSData *_Nullable headerData =
+        [SentrySerialization dataWithJSONObject:[replayRecording headerForReplayRecording]];
+    if (headerData == nil) {
+        SENTRY_LOG_ERROR(@"Failed to serialize replay recording header.");
+        return nil;
+    }
+    [recording appendData:SENTRY_UNWRAP_NULLABLE(NSData, headerData)];
+
+    NSData *_Nonnull const newLineData = [NSData dataWithBytes:"\n" length:1];
+    [recording appendData:newLineData];
+
+    NSData *_Nullable replayData =
+        [SentrySerialization dataWithJSONObject:[replayRecording serialize]];
+    if (replayData == nil) {
+        SENTRY_LOG_ERROR(@"Failed to serialize replay recording data.");
+        return nil;
+    }
+    [recording appendData:SENTRY_UNWRAP_NULLABLE(NSData, replayData)];
     return recording;
 }
 
@@ -308,6 +333,22 @@ NS_ASSUME_NONNULL_BEGIN
     }
 
     return sentryLevelForString(eventDictionary[@"level"]);
+}
+
++ (NSArray *_Nullable)deserializeArrayFromJsonData:(NSData *)data
+{
+    NSError *error = nil;
+    id json = [NSJSONSerialization JSONObjectWithData:data options:0 error:&error];
+    if (nil != error) {
+        SENTRY_LOG_ERROR(@"Failed to deserialize json item array: %@", error);
+        return nil;
+    }
+    if (![json isKindOfClass:[NSArray class]]) {
+        SENTRY_LOG_ERROR(
+            @"Deserialized json is not an NSArray, found %@", NSStringFromClass([json class]));
+        return nil;
+    }
+    return (NSArray *)json;
 }
 
 @end

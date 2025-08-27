@@ -23,15 +23,15 @@ class TestCleanup: NSObject {
         assert(Thread.isMainThread, "You must call clearTestState on the main thread.")
         
         SentrySDK.close()
-        SentrySDK.setCurrentHub(nil)
-        SentrySDK.crashedLastRunCalled = false
-        SentrySDK.startInvocations = 0
-        SentrySDK.setDetectedStartUpCrash(false)
-        SentrySDK.setStart(nil)
+        SentrySDKInternal.setCurrentHub(nil)
+        SentrySDKInternal.crashedLastRunCalled = false
+        SentrySDKInternal.startInvocations = 0
+        SentrySDKInternal.setDetectedStartUpCrash(false)
+        SentrySDKInternal.setStart(with: nil)
         PrivateSentrySDKOnly.appStartMeasurementHybridSDKMode = false
         SentryNetworkTracker.sharedInstance.disable()
 
-        SentryLog.setDefaultTestLogConfiguration()
+        SentrySDKLog.setDefaultTestLogConfiguration()
 
         #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 
@@ -39,7 +39,7 @@ class TestCleanup: NSObject {
         SentryAppStartTracker.load()
         SentryDependencyContainer.sharedInstance().uiViewControllerPerformanceTracker.alwaysWaitForFullDisplay = false
         SentryDependencyContainer.sharedInstance().swizzleWrapper.removeAllCallbacks()
-        SentryDependencyContainer.sharedInstance().fileManager.clearDiskState()
+        SentryDependencyContainer.sharedInstance().fileManager?.clearDiskState()
         
         #endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
         
@@ -53,8 +53,8 @@ class TestCleanup: NSObject {
         SentryTraceProfiler.getCurrentProfiler()?.stop(for: SentryProfilerTruncationReason.normal)
         SentryTraceProfiler.resetConcurrencyTracking()
         removeAppLaunchProfilingConfigFile()
-        sentry_stopAndDiscardLaunchProfileTracer()
-        
+        sentry_stopAndDiscardLaunchProfileTracer(nil)
+
         if SentryContinuousProfiler.isCurrentlyProfiling() {
             SentryContinuousProfiler.stopTimerAndCleanup()
         }
@@ -62,7 +62,7 @@ class TestCleanup: NSObject {
 
         #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
         PrivateSentrySDKOnly.onAppStartMeasurementAvailable = nil
-        SentrySDK.setAppStartMeasurement(nil)
+        SentrySDKInternal.setAppStartMeasurement(nil)
         #endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 
         sentrycrash_scopesync_reset()

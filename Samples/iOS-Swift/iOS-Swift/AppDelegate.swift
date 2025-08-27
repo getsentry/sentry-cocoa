@@ -7,13 +7,18 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
     
     var args: [String] {
-        let args = ProcessInfo.processInfo.arguments
-        print("[iOS-Swift] [debug] launch arguments: \(args)")
-        return args
+        ProcessInfo.processInfo.arguments
+    }
+    
+    var env: [String: String] {
+        ProcessInfo.processInfo.environment
     }
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        if args.contains("--io.sentry.wipe-data") {
+        print("[iOS-Swift] [debug] launch arguments: \(args)")
+        print("[iOS-Swift] [debug] launch environment: \(env)")
+
+        if args.contains(SentrySDKOverrides.Special.wipeDataOnLaunch.rawValue) {
             removeAppData()
         }
 

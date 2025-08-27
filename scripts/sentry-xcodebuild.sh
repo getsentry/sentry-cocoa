@@ -167,6 +167,5 @@ if [ $RUN_TEST_WITHOUT_BUILDING == true ]; then
         -destination "$DESTINATION" \
         test-without-building 2>&1 |
         tee raw-test-output.log |
-        xcbeautify --report junit &&
-        slather coverage --configuration "$CONFIGURATION" --scheme "$TEST_SCHEME"
+        xcbeautify --report junit
 fi

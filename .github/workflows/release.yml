@@ -10,14 +10,17 @@ on:
     paths:
       - "Sources/**"
       - "scripts/ci-select-xcode.sh"
+      - "scripts/ci-diagnostics.sh"
       - Sentry.xcworkspace/**
       - Sentry.xcodeproj/**
-      - "Package.swift"
+      - "Package*.swift"
       - ".github/workflows/build-xcframework.yml"
       - "scripts/build-xcframework-slice.sh"
       - "scripts/assemble-xcframework.sh"
+      - ".github/workflows/release.yml"
       - ".github/workflows/build-xcframework-variant-slices.yml"
       - ".github/workflows/assemble-xcframework-variant.yml"
+      - ".github/workflows/ui-tests-common.yml"
       - Samples/macOS-SPM-CommandLine/**
       - Samples/SPM-Dynamic/**
 
@@ -33,12 +36,20 @@ on:
         description: Target branch to merge into. Uses the default branch as a fallback (optional)
         required: false
 
+# Concurrency configuration:
+# - We use workflow-specific concurrency groups to prevent multiple release builds from running
+#   simultaneously, which could lead to race conditions in artifact generation and storage.
+# - For pull requests, we cancel in-progress runs when testing release workflow changes since
+#   only the latest version needs validation before merging.
+# - For main branch pushes (actual releases), we never cancel runs to ensure every release
+#   process completes fully, as partial releases could corrupt our distribution pipeline.
 concurrency:
-  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
-  cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   build-xcframework-variant-slices:
+    name: Build XCFramework Slices
     uses: ./.github/workflows/build-xcframework-variant-slices.yml
     with:
       name: ${{matrix.variant.name}}
@@ -68,142 +79,275 @@ jobs:
 
   assemble-xcframework-variant:
     needs: build-xcframework-variant-slices
+    name: Assemble XCFramework Variant
     uses: ./.github/workflows/assemble-xcframework-variant.yml
     secrets: inherit
     with:
-      name: ${{matrix.variant.name}}
+      scheme: ${{matrix.variant.scheme}}
       suffix: ${{matrix.variant.suffix}}
       configuration-suffix: ${{matrix.variant.configuration-suffix}}
       variant-id: ${{matrix.variant.id}}
       signed: true
+      release-version: ${{ github.event.inputs.version }}
+      excluded-archs: ${{matrix.variant.excluded-archs}}
+      override-name: ${{matrix.variant.override-name}}
     strategy:
       matrix:
         variant:
-          - name: Sentry
+          - scheme: Sentry
             macho-type: mh_dylib
             suffix: "-Dynamic"
             id: sentry-dynamic
-          - name: Sentry
+            excluded-archs: arm64e
+          - scheme: Sentry
+            macho-type: mh_dylib
+            suffix: "-Dynamic"
+            id: sentry-dynamic
+            override-name: Sentry-Dynamic-WithARM64e
+          - scheme: Sentry
             macho-type: staticlib
             id: sentry-static
-          - name: SentrySwiftUI
+          - scheme: SentrySwiftUI
             macho-type: mh_dylib
             id: sentry-swiftui
-          - name: Sentry
+          - scheme: Sentry
             macho-type: mh_dylib
             suffix: "-WithoutUIKitOrAppKit"
             configuration-suffix: WithoutUIKit
             id: sentry-withoutuikit-dynamic
+            excluded-archs: arm64e
+          - scheme: Sentry
+            macho-type: mh_dylib
+            suffix: "-WithoutUIKitOrAppKit"
+            configuration-suffix: WithoutUIKit
+            id: sentry-withoutuikit-dynamic
+            override-name: Sentry-WithoutUIKitOrAppKit-WithARM64e
 
   validate-xcframework:
     name: Validate XCFramework
-    runs-on: macos-13
+    runs-on: macos-14
     needs: assemble-xcframework-variant
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v4
+      - uses: actions/checkout@v5
+      - uses: actions/download-artifact@v5
         with:
           pattern: xcframework-${{github.sha}}-sentry-static
           path: Carthage/
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v5
         with:
           pattern: xcframework-${{github.sha}}-sentry-swiftui
           path: Carthage/
-      - run: find Carthage -name "*.zip" -print0 | xargs -t0I @ mv @ Carthage
-      - run: ./scripts/ci-select-xcode.sh 15.2
+      - run: ./scripts/ci-select-xcode.sh 15.4
       - run: make build-xcframework-sample
+      - name: Run CI Diagnostics
+        if: failure()
+        run: ./scripts/ci-diagnostics.sh
 
   # Use github.event.pull_request.head.sha instead of github.sha when available as
   # the github.sha is be the pre merge commit id for PRs.
   # See https://github.community/t/github-sha-isnt-the-value-expected/17903/17906.
   validate-spm:
-    name: Validate Swift Package Manager
-    runs-on: macos-13
+    name: Validate SPM Static ${{matrix.package-file.name}}
+    runs-on: macos-14
     needs: assemble-xcframework-variant
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v4
+      - uses: actions/checkout@v5
+      - uses: actions/download-artifact@v5
         with:
           pattern: xcframework-${{github.sha}}-*
           merge-multiple: true
+      - name: Remove newer package files
+        if: ${{ matrix.package-file.name == 'Package.swift' }}
+        run: rm -rf Package@swift*
       - name: Change path of the framework
         run: |
-          sed -i '' 's/url.*//g' Package.swift
-          sed -i '' 's/checksum: ".*" \/\/Sentry-Static/path: "Sentry.xcframework.zip"/g' Package.swift
-          sed -i '' 's/checksum: ".*" \/\/Sentry-Dynamic/path: "Sentry-Dynamic.xcframework.zip"/g' Package.swift
+          sed -i '' 's/url.*//g' ${{matrix.package-file.name}}
+          sed -i '' 's/checksum: ".*" \/\/Sentry-Static/path: "Sentry.xcframework.zip"/g' ${{matrix.package-file.name}}
+          sed -i '' 's/checksum: ".*" \/\/Sentry-Dynamic-WithARM64e/path: "Sentry-Dynamic-WithARM64e.xcframework.zip"/g' ${{matrix.package-file.name}}
+          sed -i '' 's/checksum: ".*" \/\/Sentry-Dynamic/path: "Sentry-Dynamic.xcframework.zip"/g' ${{matrix.package-file.name}}
         shell: bash
       - run: swift build
         working-directory: Samples/macOS-SPM-CommandLine
+      - name: Run CI Diagnostics
+        if: failure()
+        run: ./scripts/ci-diagnostics.sh
+    strategy:
+      matrix:
+        package-file:
+          - name: Package.swift
+          - name: Package@swift-5.9.swift
 
   validate-spm-dynamic:
-    name: Validate Swift Package Manager Dynamic
-    runs-on: macos-13
+    name: Validate SPM Dynamic ${{matrix.package-file.name}}
+    runs-on: macos-14
     needs: assemble-xcframework-variant
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v4
+      - uses: actions/checkout@v5
+      - uses: actions/download-artifact@v5
         with:
           pattern: xcframework-${{github.sha}}-*
           merge-multiple: true
+      - name: Remove newer package files
+        if: ${{ matrix.package-file.name == 'Package.swift' }}
+        run: rm -rf Package@swift*
       - name: Change path of the framework
         run: |
-          sed -i '' 's/url.*//g' Package.swift
-          sed -i '' 's/checksum: ".*" \/\/Sentry-Static/path: "Sentry.xcframework.zip"/g' Package.swift
-          sed -i '' 's/checksum: ".*" \/\/Sentry-Dynamic/path: "Sentry-Dynamic.xcframework.zip"/g' Package.swift
+          sed -i '' 's/url.*//g' ${{matrix.package-file.name}}
+          sed -i '' 's/checksum: ".*" \/\/Sentry-Static/path: "Sentry.xcframework.zip"/g' ${{matrix.package-file.name}}
+          sed -i '' 's/checksum: ".*" \/\/Sentry-Dynamic-WithARM64e/path: "Sentry-Dynamic-WithARM64e.xcframework.zip"/g' ${{matrix.package-file.name}}
+          sed -i '' 's/checksum: ".*" \/\/Sentry-Dynamic/path: "Sentry-Dynamic.xcframework.zip"/g' ${{matrix.package-file.name}}
         shell: bash
       - run: swift build
         working-directory: Samples/SPM-Dynamic
+      - name: Run CI Diagnostics
+        if: failure()
+        run: ./scripts/ci-diagnostics.sh
+    strategy:
+      matrix:
+        package-file:
+          - name: Package.swift
+          - name: Package@swift-5.9.swift
 
   swift-build:
-    name: Build with Swift
-    runs-on: macos-13
+    name: Build Swift Static ${{matrix.package-file.name}}
+    runs-on: macos-14
     needs: assemble-xcframework-variant
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v4
+      - uses: actions/checkout@v5
+      - uses: actions/download-artifact@v5
         with:
           pattern: xcframework-${{github.sha}}-*
           merge-multiple: true
+      - name: Remove newer package files
+        if: ${{ matrix.package-file.name == 'Package.swift' }}
+        run: rm -rf Package@swift*
       - name: Change path of the framework
         run: |
-          sed -i '' 's/url.*//g' Package.swift
-          sed -i '' 's/checksum: ".*" \/\/Sentry-Static/path: "Sentry.xcframework.zip"/g' Package.swift
-          sed -i '' 's/checksum: ".*" \/\/Sentry-Dynamic/path: "Sentry-Dynamic.xcframework.zip"/g' Package.swift
+          sed -i '' 's/url.*//g' ${{matrix.package-file.name}}
+          sed -i '' 's/checksum: ".*" \/\/Sentry-Static/path: "Sentry.xcframework.zip"/g' ${{matrix.package-file.name}}
+          sed -i '' 's/checksum: ".*" \/\/Sentry-Dynamic-WithARM64e/path: "Sentry-Dynamic-WithARM64e.xcframework.zip"/g' ${{matrix.package-file.name}}
+          sed -i '' 's/checksum: ".*" \/\/Sentry-Dynamic/path: "Sentry-Dynamic.xcframework.zip"/g' ${{matrix.package-file.name}}
         shell: bash
       - run: swift build
+      - name: Run CI Diagnostics
+        if: failure()
+        run: ./scripts/ci-diagnostics.sh
+    strategy:
+      matrix:
+        package-file:
+          - name: Package.swift
+          - name: Package@swift-5.9.swift
+
+  duplication-tests:
+    name: Test Sentry Duplication V4 # Up the version with every change to keep track of flaky tests
+    uses: ./.github/workflows/ui-tests-common.yml
+    needs: assemble-xcframework-variant
+    secrets:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+    with:
+      fastlane_command: duplication_test
+      xcode_version: 16.4
+      macos_version: macos-15
+      needs_xcframework: true
+
+  app-metrics:
+    name: Collect App Metrics
+    runs-on: macos-15
+    needs: assemble-xcframework-variant
+    timeout-minutes: 20
+    steps:
+      - name: Git checkout
+        uses: actions/checkout@v5
+      - run: ./scripts/ci-select-xcode.sh 16.4
+      - uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+      - uses: actions/cache@v4
+        id: app-plain-cache
+        with:
+          path: Tests/Perf/test-app-plain.ipa
+          key: ${{ github.workflow }}-${{ github.job }}-appplain-${{ hashFiles('fastlane/Fastfile', 'Tests/Perf/test-app-plain/**') }}
+      - name: Build test app plain
+        if: steps.app-plain-cache.outputs['cache-hit'] != 'true'
+        run: bundle exec fastlane build_perf_test_app_plain
+        env:
+          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          APP_STORE_CONNECT_KEY: ${{ secrets.APP_STORE_CONNECT_KEY }}
+          FASTLANE_KEYCHAIN_PASSWORD: ${{ secrets.FASTLANE_KEYCHAIN_PASSWORD }}
+          MATCH_GIT_PRIVATE_KEY: ${{ secrets.MATCH_GIT_PRIVATE_KEY }}
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+          MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
+      - uses: actions/download-artifact@v5
+        with:
+          pattern: xcframework-${{github.sha}}-sentry-dynamic
+          path: Carthage/
+      - run: find Carthage -name "Sentry-Dynamic.xcframework.zip" -print0 | xargs -t0I @ unzip @ -d Carthage
+      - name: Build test app with sentry
+        run: bundle exec fastlane build_perf_test_app_sentry
+        env:
+          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          APP_STORE_CONNECT_KEY: ${{ secrets.APP_STORE_CONNECT_KEY }}
+          FASTLANE_KEYCHAIN_PASSWORD: ${{ secrets.FASTLANE_KEYCHAIN_PASSWORD }}
+          MATCH_GIT_PRIVATE_KEY: ${{ secrets.MATCH_GIT_PRIVATE_KEY }}
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+          MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
+      - name: Collect app metrics
+        uses: getsentry/action-app-sdk-overhead-metrics@c9eca50e02d180ee07a02952c062b2f3f545f735
+        with:
+          config: Tests/Perf/metrics-test.yml
+          sauce-user: ${{ secrets.SAUCE_USERNAME }}
+          sauce-key: ${{ secrets.SAUCE_ACCESS_KEY }}
+      - name: Debug Xcode environment
+        if: ${{ failure() || cancelled() }}
+        run: ./scripts/ci-diagnostics.sh
 
   job_release:
     runs-on: ubuntu-latest
-    name: "Release a new version"
+    name: "Release New Version"
     needs: [
       validate-xcframework,
       validate-spm,
       validate-spm-dynamic,
       swift-build,
+      duplication-tests,
+      app-metrics,
     ]
     if: ${{ github.event_name == 'workflow_dispatch' }}
     steps:
       - name: Get auth token
         id: token
-        uses: actions/create-github-app-token@df432ceedc7162793a195dd1713ff69aefc7379e # v2.0.6
+        uses: actions/create-github-app-token@a8d616148505b5069dccd32f177bb87d7f39123b # v2.1.1
         with:
           app-id: ${{ vars.SENTRY_RELEASE_BOT_CLIENT_ID }}
           private-key: ${{ secrets.SENTRY_RELEASE_BOT_PRIVATE_KEY }}
       - name: Check out current commit (${{ github.sha }})
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           token: ${{ steps.token.outputs.token }}
           fetch-depth: 0
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v5
         with:
           pattern: xcframework-${{github.sha}}-*
           merge-multiple: true
           path: Carthage/
 
+      - name: Archive XCFrameworks for Craft
+        uses: actions/upload-artifact@v4
+        with:
+          name: xcframeworks.zip
+          if-no-files-found: error
+          overwrite: true
+          path: |
+            ${{github.workspace}}/Carthage/*.zip
+
       # update-package-sha.sh uses this env variable to update Package.swift.
       # During release Craft calls bump.sh that uses update-package-sha.sh.
-      - run: export GITHUB_RUN_ID=${{ github.run_id }}
+      - run: export GITHUB_RUN_ID="$GITHUB_RUN_ID"
+        env:
+          GITHUB_RUN_ID: ${{ github.run_id }}
 
       - name: Prepare release
         uses: getsentry/action-prepare-release@v1
@@ -213,3 +357,7 @@ jobs:
           version: ${{ github.event.inputs.version }}
           force: ${{ github.event.inputs.force }}
           merge_target: ${{ github.event.inputs.merge_target }}
+
+      - name: Run CI Diagnostics
+        if: failure()
+        run: ./scripts/ci-diagnostics.sh

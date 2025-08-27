@@ -1,8 +1,6 @@
 #import "SentryDefines.h"
 #import <Foundation/Foundation.h>
 
-@protocol SentryApplication;
-
 #if SENTRY_HAS_UIKIT
 @class UIApplication;
 @class UIScene;
