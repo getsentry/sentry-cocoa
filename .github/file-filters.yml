@@ -64,3 +64,7 @@ run_api_stability_for_prs: &run_api_stability_for_prs # API-related code
   - "Makefile" # Make commands used for API generation
   - "sdk_api.json"
   - "sdk_api_v9.json"
+
+run_lint_shellcheck_for_prs: &run_lint_shellcheck_for_prs # Shell scripts
+  - ".github/workflows/lint-shellcheck-formatting.yml"
+  - "**/*.sh"
