@@ -64,3 +64,8 @@ run_api_stability_for_prs: &run_api_stability_for_prs # API-related code
   - "Makefile" # Make commands used for API generation
   - "sdk_api.json"
   - "sdk_api_v9.json"
+
+run_objc_conversion_analysis_for_prs: &run_objc_conversion_analysis_for_prs # Objective-C conversion analysis
+  - ".github/workflows/objc-conversion-analysis.yml"
+  - "SwiftConversion/**"
+  - "scripts/ci-diagnostics.sh"

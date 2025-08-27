@@ -5,10 +5,6 @@ on:
     branches:
       - main
   pull_request:
-    paths:
-      - ".github/workflows/objc-conversion-analysis.yml"
-      - "SwiftConversion/**"
-      - "scripts/ci-diagnostics.sh"
 
 # Concurrency configuration:
 # - We use workflow-specific concurrency groups to prevent multiple Objective-C conversion analysis runs,
@@ -22,8 +18,30 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
+  # This job detects if the PR contains changes that require running Objective-C conversion analysis.
+  # If yes, the job will output a flag that will be used by the next job to run the analysis.
+  # If no, the job will output a flag that will be used by the next job to skip running the analysis.
+  # At the end of this workflow, we run a check that validates that either all analysis passed or was
+  # skipped, called objc_conversion_analysis-required-check.
+  files-changed:
+    name: Detect File Changes
+    runs-on: ubuntu-latest
+    # Map a step output to a job output
+    outputs:
+      run_objc_conversion_analysis_for_prs: ${{ steps.changes.outputs.run_objc_conversion_analysis_for_prs }}
+    steps:
+      - uses: actions/checkout@v5
+      - name: Get changed files
+        id: changes
+        uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
+        with:
+          token: ${{ github.token }}
+          filters: .github/file-filters.yml
+
   analyze-objc-conversion:
     name: Analyze Objective-C to Swift Conversion
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_objc_conversion_analysis_for_prs == 'true'
+    needs: files-changed
     runs-on: macos-15
     timeout-minutes: 10
 
@@ -68,3 +86,25 @@ jobs:
       - name: Run CI Diagnostics
         if: failure()
         run: ./scripts/ci-diagnostics.sh
+
+  # This check validates that either all Objective-C conversion analysis passed or was skipped, which allows us
+  # to make the analysis a required check with only running the analysis when required.
+  # So, we don't have to run analysis, for example, for Changelog or ReadMe changes.
+
+  objc_conversion_analysis-required-check:
+    needs:
+      [
+        files-changed,
+        analyze-objc-conversion,
+      ]
+    name: Objective-C Conversion Analysis
+    # This is necessary since a failed/skipped dependent job would cause this job to be skipped
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      # If any jobs we depend on fails gets cancelled or times out, this job will fail.
+      # Skipped jobs are not considered failures.
+      - name: Check for failures
+        if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
+        run: |
+          echo "One of the Objective-C conversion analysis jobs has failed." && exit 1
