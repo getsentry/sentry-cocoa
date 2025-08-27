@@ -183,7 +183,7 @@
         [self.tracker getSpan:SENTRY_UNWRAP_NULLABLE(SentrySpanId, spanId)];
 
     if (![vcSpan isKindOfClass:[SentryTracer self]]) {
-        // Since TTID and TTFD are meant to the whole screen
+        // Since TTID and TTFD are meant for the whole screen
         // we will not track child view controllers
         return;
     }
@@ -416,7 +416,7 @@
         // (https://developer.apple.com/documentation/uikit/uiviewcontroller/1621510-viewwillappear),
         // viewWillAppear should be called for before the UIViewController is added to the view
         // hierarchy. There are some edge cases, though, when this doesn't happen, and we saw
-        // customers' transactions also proofing this. Therefore, we must also report the
+        // customers' transactions also proving this. Therefore, we must also report the
         // initial display here, as the customers' transactions had spans for
         // `viewWillLayoutSubviews`.
         [self reportInitialDisplayForController:controller];

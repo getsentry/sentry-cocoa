@@ -188,7 +188,7 @@
     self.lastInForeground = [[[hub getClient] fileManager] readTimestampLastInForeground];
 
     if (nil == self.lastInForeground) {
-        // Cause we don't want to track sessions if the app is in the background we need to wait
+        // Because we don't want to track sessions if the app is in the background we need to wait
         // until the app is in the foreground to start a session.
         SENTRY_LOG_DEBUG(@"App was in the foreground for the first time. Starting a new session.");
         [hub startSession];

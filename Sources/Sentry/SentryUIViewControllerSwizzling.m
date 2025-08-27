@@ -188,7 +188,7 @@
 
     [self.imagesActedOnSubclassesOfUIViewControllers addObject:imageName];
 
-    // Swizzle all custom UIViewControllers. Cause loading all classes can take a few milliseconds,
+    // Swizzle all custom UIViewControllers. Because loading all classes can take a few milliseconds,
     // the SubClassFinder does this on a background thread, which should be fine because the SDK
     // swizzles the root view controller and its children above. After finding all subclasses of the
     // UIViewController, we swizzles them on the main thread. Swizzling the UIViewControllers on a
@@ -336,7 +336,7 @@
         return;
     }
 
-    // This are the five main functions related to UI creation in a view controller.
+    // These are the five main functions related to UI creation in a view controller.
     // We are swizzling it to track anything that happens inside one of this functions.
     [self swizzleViewLayoutSubViews:class];
     [self swizzleLoadView:class];
