@@ -6,20 +6,6 @@ on:
       - release/**
 
   pull_request:
-    paths:
-      - "Sources/**"
-      - "test-server/**"
-      - "Samples/**"
-      - ".github/workflows/build.yml"
-      - "fastlane/**"
-      - "scripts/ci-select-xcode.sh"
-      - "scripts/ci-diagnostics.sh"
-      - Sentry.xcworkspace/**
-      - Sentry.xcodeproj/**
-      - Gemfile.lock
-      - "Package*.swift"
-      - "Makefile" # Make commands used for CI build setup
-      - "Brewfile*" # Dependency installation affects build environment
 
 # Concurrency configuration:
 # - We use workflow-specific concurrency groups to prevent multiple build runs of the same code,
@@ -33,10 +19,32 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
+  # This job detects if the PR contains changes that require running build checks.
+  # If yes, the job will output a flag that will be used by the next job to run the build checks.
+  # If no, the job will output a flag that will be used by the next job to skip running the build checks.
+  # At the end of this workflow, we run a check that validates that either all build checks passed or were
+  # skipped, called build-required-check.
+  files-changed:
+    name: Detect File Changes
+    runs-on: ubuntu-latest
+    # Map a step output to a job output
+    outputs:
+      run_build_for_prs: ${{ steps.changes.outputs.run_build_for_prs }}
+    steps:
+      - uses: actions/checkout@v5
+      - name: Get changed files
+        id: changes
+        uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
+        with:
+          token: ${{ github.token }}
+          filters: .github/file-filters.yml
+
   # We had issues that the release build was broken on main.
   # With this we catch potential issues already in the PR.
   ios-swift-release:
     name: Release Build of iOS Swift
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_build_for_prs == 'true'
+    needs: files-changed
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v5
@@ -63,6 +71,8 @@ jobs:
 
   build-sample:
     name: Sample ${{ matrix.scheme }} ${{ matrix.config }}
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_build_for_prs == 'true'
+    needs: files-changed
     runs-on: macos-15
     strategy:
       fail-fast: false
@@ -127,7 +137,8 @@ jobs:
     name: Build with SPM
     runs-on: macos-15
     # Don't run this on release branches, cause the SPM Package.swift points to the unreleased versions.
-    if: startsWith(github.ref, 'refs/heads/release/') == false
+    if: startsWith(github.ref, 'refs/heads/release/') == false && (github.event_name != 'pull_request' || needs.files-changed.outputs.run_build_for_prs == 'true')
+    needs: files-changed
     steps:
       - uses: actions/checkout@v5
 
@@ -154,6 +165,8 @@ jobs:
 
   build-v9:
     name: Build SDK v9
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_build_for_prs == 'true'
+    needs: files-changed
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v5
@@ -178,6 +191,8 @@ jobs:
 
   check-debug-without-UIKit:
     name: Check no UIKit linkage (DebugWithoutUIKit)
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_build_for_prs == 'true'
+    needs: files-changed
     runs-on: macos-14
     steps:
       - uses: actions/checkout@v5
@@ -201,6 +216,8 @@ jobs:
 
   check-release-without-UIKit:
     name: Check no UIKit linkage (ReleaseWithoutUIKit)
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_build_for_prs == 'true'
+    needs: files-changed
     runs-on: macos-14
     steps:
       - uses: actions/checkout@v5
@@ -224,6 +241,8 @@ jobs:
 
   check-debug-with-UIKit:
     name: Check UIKit linkage (Debug)
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_build_for_prs == 'true'
+    needs: files-changed
     runs-on: macos-14
     steps:
       - uses: actions/checkout@v5
@@ -247,6 +266,8 @@ jobs:
 
   check-release-with-UIKit:
     name: Check UIKit linkage (Release)
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_build_for_prs == 'true'
+    needs: files-changed
     runs-on: macos-14
     steps:
       - uses: actions/checkout@v5
@@ -274,6 +295,8 @@ jobs:
 
   check-compiling-async-safe-logs:
     name: Check compiling Async Safe Logs
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_build_for_prs == 'true'
+    needs: files-changed
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v5
@@ -302,3 +325,33 @@ jobs:
       - name: Debug Xcode environment
         if: ${{ failure() || cancelled() }}
         run: ./scripts/ci-diagnostics.sh
+
+  # This check validates that either all build checks passed or were skipped, which allows us
+  # to make build checks a required check with only running the build checks when required.
+  # So, we don't have to run build checks, for example, for Changelog or ReadMe changes.
+
+  build-required-check:
+    needs:
+      [
+        files-changed,
+        ios-swift-release,
+        build-sample,
+        build-spm,
+        build-v9,
+        check-debug-without-UIKit,
+        check-release-without-UIKit,
+        check-debug-with-UIKit,
+        check-release-with-UIKit,
+        check-compiling-async-safe-logs,
+      ]
+    name: Build
+    # This is necessary since a failed/skipped dependent job would cause this job to be skipped
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      # If any jobs we depend on fails gets cancelled or times out, this job will fail.
+      # Skipped jobs are not considered failures.
+      - name: Check for failures
+        if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
+        run: |
+          echo "One of the build jobs has failed." && exit 1

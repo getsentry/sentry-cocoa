@@ -64,3 +64,27 @@ run_api_stability_for_prs: &run_api_stability_for_prs # API-related code
   - "Makefile" # Make commands used for API generation
   - "sdk_api.json"
   - "sdk_api_v9.json"
+
+run_build_for_prs: &run_build_for_prs # Build-related code
+  - "Sources/**"
+  - "test-server/**"
+  - "Samples/**"
+
+  # GH Actions
+  - ".github/workflows/build.yml"
+  - ".github/file-filters.yml"
+
+  # Project files
+  - "Sentry.xcworkspace/**"
+  - "Sentry.xcodeproj/**"
+  - "Package*.swift"
+
+  # Scripts
+  - "scripts/ci-select-xcode.sh"
+  - "scripts/ci-diagnostics.sh"
+
+  # Other
+  - "fastlane/**"
+  - "Gemfile.lock"
+  - "Makefile" # Make commands used for CI build setup
+  - "Brewfile*" # Dependency installation affects build environment
