@@ -26,15 +26,9 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  # This job detects if the PR contains changes that require running Swift formatting checks.
-  # If yes, the job will output a flag that will be used by the next job to run the Swift formatting checks.
-  # If no, the job will output a flag that will be used by the next job to skip running the Swift formatting checks.
-  # At the end of this workflow, we run a check that validates that either all Swift formatting checks passed or were
-  # skipped, called lint_swift_formatting-required-check.
   files-changed:
     name: Detect File Changes
     runs-on: ubuntu-latest
-    # Map a step output to a job output
     outputs:
       run_lint_swift_formatting_for_prs: ${{ steps.changes.outputs.run_lint_swift_formatting_for_prs }}
     steps:
@@ -48,7 +42,7 @@ jobs:
 
   lint:
     name: Lint
-    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_lint_swift_formatting_for_prs == 'true'
+    if: needs.files-changed.outputs.run_lint_swift_formatting_for_prs == 'true'
     needs: files-changed
     runs-on: macos-15
     steps:

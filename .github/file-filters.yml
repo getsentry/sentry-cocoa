@@ -128,3 +128,6 @@ run_lint_swift_formatting_for_prs: &run_lint_swift_formatting_for_prs # Swift fo
   # Other
   - "Makefile" # Make commands used for formatting setup
   - "Brewfile*" # Tools installation affects formatting environment
+
+  # Scripts
+  - "scripts/ci-diagnostics.sh"
