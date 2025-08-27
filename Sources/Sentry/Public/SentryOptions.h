@@ -288,6 +288,7 @@ NS_SWIFT_NAME(Options)
  */
 @property (nonatomic, assign) BOOL enableAutoPerformanceTracing;
 
+#if !SDK_V9
 /**
  * We're working to update our Performance product offering in order to be able to provide better
  * insights and highlight specific actions you can take to improve your mobile app's overall
@@ -296,6 +297,7 @@ NS_SWIFT_NAME(Options)
  * UIWindowDidBecomeVisibleNotification. This change will be the default in the next major version.
  */
 @property (nonatomic, assign) BOOL enablePerformanceV2;
+#endif // !SDK_V9
 
 /**
  * @warning This is an experimental feature and may still have bugs.
