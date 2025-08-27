@@ -64,3 +64,22 @@ run_api_stability_for_prs: &run_api_stability_for_prs # API-related code
   - "Makefile" # Make commands used for API generation
   - "sdk_api.json"
   - "sdk_api_v9.json"
+
+run_lint_swiftlint_formatting_for_prs: &run_lint_swiftlint_formatting_for_prs # SwiftLint formatting
+  - "Sources/**"
+  - "Tests/**"
+  - "test-server/**"
+  - "Samples/**"
+
+  # GH Actions
+  - ".github/workflows/lint-swiftlint-formatting.yml"
+  - ".github/file-filters.yml"
+
+  # Scripts
+  - "scripts/ci-select-xcode.sh"
+  - "scripts/ci-diagnostics.sh"
+
+  # Other
+  - "Sentry.xcodeproj/**"
+  - "*.podspec"
+  - "Gemfile.lock"

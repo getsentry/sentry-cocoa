@@ -14,17 +14,6 @@ on:
       - "scripts/ci-diagnostics.sh"
 
   pull_request:
-    paths:
-      - "Sources/**"
-      - "Tests/**"
-      - "test-server/**"
-      - "Samples/**"
-      - ".github/workflows/lint-swiftlint-formatting.yml"
-      - "scripts/ci-select-xcode.sh"
-      - "scripts/ci-diagnostics.sh"
-      - "Sentry.xcodeproj/**"
-      - "*.podspec"
-      - "Gemfile.lock"
 
 # Concurrency configuration:
 # - We use workflow-specific concurrency groups to prevent multiple lint runs on the same code,
@@ -38,8 +27,30 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
+  # This job detects if the PR contains changes that require running SwiftLint formatting checks.
+  # If yes, the job will output a flag that will be used by the next job to run the SwiftLint checks.
+  # If no, the job will output a flag that will be used by the next job to skip running the SwiftLint checks.
+  # At the end of this workflow, we run a check that validates that either all SwiftLint checks passed or were
+  # skipped, called lint_swiftlint_formatting-required-check.
+  files-changed:
+    name: Detect File Changes
+    runs-on: ubuntu-latest
+    # Map a step output to a job output
+    outputs:
+      run_lint_swiftlint_formatting_for_prs: ${{ steps.changes.outputs.run_lint_swiftlint_formatting_for_prs }}
+    steps:
+      - uses: actions/checkout@v5
+      - name: Get changed files
+        id: changes
+        uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
+        with:
+          token: ${{ github.token }}
+          filters: .github/file-filters.yml
+
   lint:
     name: Lint
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_lint_swiftlint_formatting_for_prs == 'true'
+    needs: files-changed
     runs-on: macos-14
     steps:
       - uses: actions/checkout@v5
@@ -51,3 +62,25 @@ jobs:
       - name: Run CI Diagnostics
         if: failure()
         run: ./scripts/ci-diagnostics.sh
+
+  # This check validates that either all SwiftLint formatting checks passed or were skipped, which allows us
+  # to make SwiftLint formatting checks a required check with only running the SwiftLint checks when required.
+  # So, we don't have to run SwiftLint checks, for example, for Changelog or ReadMe changes.
+
+  lint_swiftlint_formatting-required-check:
+    needs:
+      [
+        files-changed,
+        lint,
+      ]
+    name: Lint SwiftLint
+    # This is necessary since a failed/skipped dependent job would cause this job to be skipped
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      # If any jobs we depend on fails gets cancelled or times out, this job will fail.
+      # Skipped jobs are not considered failures.
+      - name: Check for failures
+        if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
+        run: |
+          echo "One of the SwiftLint formatting check jobs has failed." && exit 1
