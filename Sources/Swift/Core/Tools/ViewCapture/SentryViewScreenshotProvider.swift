@@ -8,7 +8,6 @@ import UIKit
 @objc
 @_spi(Private) public protocol SentryViewScreenshotProvider: NSObjectProtocol {
     func image(view: UIView, onComplete: @escaping ScreenshotCallback)
-    func appScreenshots() -> [UIImage]
 }
 #endif
 #endif

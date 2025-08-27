@@ -19,13 +19,13 @@ import UIKit
     let configuration: SentryUserFeedbackConfiguration
     private var widget: SentryUserFeedbackWidget?
     weak var delegate: (any SentryUserFeedbackIntegrationDriverDelegate)?
-    let screenshotProvider: SentryViewScreenshotProvider
+    let screenshotSource: SentryScreenshotSource
     weak var customButton: UIButton?
 
-    @_spi(Private) public init(configuration: SentryUserFeedbackConfiguration, delegate: any SentryUserFeedbackIntegrationDriverDelegate, screenshotProvider: SentryViewScreenshotProvider) {
+    @_spi(Private) public init(configuration: SentryUserFeedbackConfiguration, delegate: any SentryUserFeedbackIntegrationDriverDelegate, screenshotSource: SentryScreenshotSource) {
         self.configuration = configuration
         self.delegate = delegate
-        self.screenshotProvider = screenshotProvider
+        self.screenshotSource = screenshotSource
         super.init()
 
         if let uiFormConfigBuilder = configuration.configureForm {
@@ -161,7 +161,7 @@ private extension SentryUserFeedbackIntegrationDriver {
 
     @objc func userCapturedScreenshot() {
         stopObservingScreenshots()
-        showForm(screenshot: screenshotProvider.appScreenshots().first)
+        showForm(screenshot: screenshotSource.appScreenshots().first)
     }
 
     func stopObservingScreenshots() {

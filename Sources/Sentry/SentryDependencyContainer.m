@@ -90,7 +90,7 @@ typedef NSNumber *SCREENSHOTS_PROVIDER_KEY;
 @property (nonatomic, strong) id<SentryANRTracker> anrTracker;
 #if SENTRY_TARGET_REPLAY_SUPPORTED
 @property (nonatomic, strong)
-    NSMapTable<SCREENSHOTS_PROVIDER_KEY, SentryViewScreenshotProvider *> *screenshotProviderMap;
+    NSMapTable<SCREENSHOTS_PROVIDER_KEY, SentryScreenshotSource *> *screenshotSourceStorage;
 #endif
 
 @end
@@ -212,7 +212,7 @@ static BOOL isInitialializingDependencyContainer = NO;
 #endif // !SENTRY_HAS_REACHABILITY
 
 #if SENTRY_TARGET_REPLAY_SUPPORTED
-        _screenshotProviderMap = [NSMapTable strongToWeakObjectsMapTable];
+        _screenshotSourceStorage = [NSMapTable strongToWeakObjectsMapTable];
 #endif // SENTRY_TARGET_REPLAY_SUPPORTED
 
         isInitialializingDependencyContainer = NO;
@@ -290,13 +290,12 @@ static BOOL isInitialializingDependencyContainer = NO;
 #endif // SENTRY_HAS_UIKIT
 
 #if SENTRY_TARGET_REPLAY_SUPPORTED
-- (nonnull SentryViewScreenshotProvider *)getScreenshotProviderForOptions:
+- (nonnull SentryScreenshotSource *)getScreenshotSourceForOptions:
     (nonnull SentryViewScreenshotOptions *)options SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
     @synchronized(sentryDependencyContainerDependenciesLock) {
         SCREENSHOTS_PROVIDER_KEY key = [self getScreenshotProviderKey:options];
-        SentryViewScreenshotProvider *_Nullable provider =
-            [_screenshotProviderMap objectForKey:key];
+        SentryScreenshotSource *_Nullable provider = [_screenshotSourceStorage objectForKey:key];
 
         if (provider == nil) {
             id<SentryViewRenderer> viewRenderer;
@@ -311,23 +310,23 @@ static BOOL isInitialializingDependencyContainer = NO;
                 [[SentryViewPhotographer alloc] initWithRenderer:viewRenderer
                                                    redactOptions:options
                                             enableMaskRendererV2:options.enableViewRendererV2];
-            provider = [[SentryViewScreenshotProvider alloc] initWithPhotographer:photographer];
-            [_screenshotProviderMap setObject:provider forKey:key];
+            provider = [[SentryScreenshotSource alloc] initWithPhotographer:photographer];
+            [_screenshotSourceStorage setObject:provider forKey:key];
         }
 
-        return provider;
+        return SENTRY_UNWRAP_NULLABLE(SentryScreenshotSource, provider);
     }
 }
 
-- (void)setScreenshotProvider:(SentryViewScreenshotProvider *)provider
-                   forOptions:(SentryViewScreenshotOptions *)options
+- (void)setScreenshotSource:(SentryScreenshotSource *)provider
+                 forOptions:(SentryViewScreenshotOptions *)options
 {
     @synchronized(sentryDependencyContainerDependenciesLock) {
         SCREENSHOTS_PROVIDER_KEY key = [self getScreenshotProviderKey:options];
         if (provider == nil) {
-            [_screenshotProviderMap removeObjectForKey:key];
+            [_screenshotSourceStorage removeObjectForKey:key];
         } else {
-            [_screenshotProviderMap setObject:provider forKey:key];
+            [_screenshotSourceStorage setObject:provider forKey:key];
         }
     }
 }

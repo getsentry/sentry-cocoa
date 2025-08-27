@@ -284,10 +284,10 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 #if SENTRY_TARGET_REPLAY_SUPPORTED
     // As the options are not passed in by the hybrid SDK, we need to use the options from the
     // current hub.
-    SentryViewScreenshotOptions *_Nonnull options = SentrySDK.options.screenshot;
-    SentryViewScreenshotProvider *_Nonnull screenshotProvider =
-        [SentryDependencyContainer.sharedInstance getScreenshotProviderForOptions:options];
-    return [screenshotProvider appScreenshotsData];
+    SentryViewScreenshotOptions *_Nonnull options = PrivateSentrySDKOnly.options.screenshot;
+    SentryScreenshotSource *_Nonnull screenshotSource =
+        [SentryDependencyContainer.sharedInstance getScreenshotSourceForOptions:options];
+    return [screenshotSource appScreenshotsData];
 #else
     SENTRY_LOG_DEBUG(
         @"PrivateSentrySDKOnly.captureScreenshots only works with UIKit enabled. Ensure you're "

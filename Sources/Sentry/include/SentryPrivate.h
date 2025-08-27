@@ -29,7 +29,6 @@
 #import "SentryRandom.h"
 #import "SentrySDKInternal.h"
 #import "SentryScope+PrivateSwift.h"
-#import "SentrySdkInfo.h"
 #import "SentrySerialization.h"
 #import "SentrySession.h"
 #import "SentrySpanDataKey.h"

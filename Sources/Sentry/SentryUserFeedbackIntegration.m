@@ -20,13 +20,13 @@
         return NO;
     }
 
-    SentryViewScreenshotProvider *screenshotProvider = [SentryDependencyContainer.sharedInstance
-        getScreenshotProviderForOptions:options.screenshot];
+    SentryScreenshotSource *screenshotSource =
+        [SentryDependencyContainer.sharedInstance getScreenshotSourceForOptions:options.screenshot];
     _driver = [[SentryUserFeedbackIntegrationDriver alloc]
         initWithConfiguration:SENTRY_UNWRAP_NULLABLE(SentryUserFeedbackConfiguration,
                                   options.userFeedbackConfiguration)
                      delegate:self
-           screenshotProvider:screenshotProvider];
+             screenshotSource:screenshotSource];
     return YES;
 }
 
