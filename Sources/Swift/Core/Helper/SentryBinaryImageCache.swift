@@ -98,7 +98,7 @@ public class SentryBinaryImageCache: NSObject {
             LoadValidator.checkForDuplicatedSDK(imageName: nameString,
                                                 imageAddress: NSNumber(value: newImage.address),
                                                 imageSize: NSNumber(value: newImage.size),
-                                                dispatchQueueWrapper: SentryDependencyContainerSwiftHelper.dispatchQueueWrapper())
+                                                dispatchQueueWrapper: Dependencies.dispatchQueueWrapper)
         }
     }
     
@@ -173,30 +173,4 @@ public class SentryBinaryImageCache: NSObject {
             return cache ?? []
         }
     }   
-}
-
-// MARK: - C Callback Functions
-    
-private func binaryImageWasAdded(_ image: UnsafePointer<SentryCrashBinaryImage>?) {
-    guard let image = image else {
-        SentrySDKLog.warning("The image is NULL. Can't add NULL to cache.")
-        return
-    }
-    
-    SentryDependencyContainerSwiftHelper.binaryImageCache().binaryImageAdded(
-        imageName: image.pointee.name,
-        vmAddress: image.pointee.vmAddress,
-        address: image.pointee.address,
-        size: image.pointee.size,
-        uuid: image.pointee.uuid
-    )
-}
-
-private func binaryImageWasRemoved(_ image: UnsafePointer<SentryCrashBinaryImage>?) {
-    guard let image = image else {
-        SentrySDKLog.warning("The image is NULL. Can't remove it from the cache.")
-        return
-    }
-    
-    SentryDependencyContainerSwiftHelper.binaryImageCache().binaryImageRemoved(image.pointee.address)
 }
