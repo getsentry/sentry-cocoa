@@ -104,7 +104,7 @@ public class SentryViewScreenshotOptions: NSObject, SentryRedactOptions {
     public convenience override init() {
         // Setting all properties to nil will fallback to the default values in the init method.
         self.init(
-            enableViewRendererV2: DefaultValues.maskAllText,
+            enableViewRendererV2: DefaultValues.enableViewRendererV2,
             enableFastViewRendering: DefaultValues.enableFastViewRendering,
             maskAllText: DefaultValues.maskAllText,
             maskAllImages: DefaultValues.maskAllImages,
