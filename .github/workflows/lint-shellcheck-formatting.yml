@@ -39,16 +39,13 @@ jobs:
 
   lint:
     name: Lint
-    if: needs.files-changed.outputs.run_lint_shellcheck_for_prs == 'true'
+    # Run the job only for PRs with related changes or non-PR events.
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_lint_shellcheck_for_prs == 'true'
     needs: files-changed
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
       - run: shellcheck **/*.sh
-
-  # This check validates that either all shellcheck checks passed or were skipped, which allows us
-  # to make shellcheck a required check with only running shellcheck when required.
-  # So, we don't have to run shellcheck, for example, for Changelog or ReadMe changes.
 
   lint-shellcheck-required-check:
     needs:
