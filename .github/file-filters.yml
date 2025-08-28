@@ -84,6 +84,16 @@ run_lint_clang_formatting_for_prs: &run_lint_clang_formatting_for_prs
   - "Brewfile*" # Tools installation affects formatting environment
   - "scripts/ci-diagnostics.sh" # CI diagnostics may affect formatting checks
 
+run_objc_conversion_analysis_for_prs: &run_objc_conversion_analysis_for_prs
+  - "SwiftConversion/**"
+
+  # GH Actions
+  - ".github/workflows/objc-conversion-analysis.yml"
+  - ".github/file-filters.yml"
+
+  # Scripts
+  - "scripts/ci-diagnostics.sh"
+
 run_auto_update_tools_for_prs: &run_auto_update_tools_for_prs # Auto-update tools workflow
   # Formatting
   - ".pre-commit-config.yaml"
@@ -134,6 +144,7 @@ run_release_for_prs: &run_release_for_prs # Release-related code
   - "scripts/ci-diagnostics.sh"
   - "scripts/build-xcframework-slice.sh"
   - "scripts/assemble-xcframework.sh"
+  - "scripts/generate_release_matrix.sh"
 
   # Project files
   - "Sentry.xcworkspace/**"
@@ -181,3 +192,46 @@ run_lint_dprint_for_prs: &run_lint_dprint_for_prs # dprint formatting
   # GH Actions
   - ".github/workflows/lint-dprint-formatting.yml"
   - ".github/file-filters.yml"
+
+run_lint_xcode_analyze_for_prs: &run_lint_xcode_analyze_for_prs # Xcode linting
+  - "Sources/**"
+  - "Tests/**"
+  - "test-server/**"
+  - "Samples/**"
+
+  # GH Actions
+  - ".github/workflows/lint-xcode-analyze.yml"
+  - ".github/file-filters.yml"
+
+  # Scripts
+  - "scripts/ci-select-xcode.sh"
+  - "scripts/ci-diagnostics.sh"
+
+  # Project files
+  - "Sentry.xcodeproj/**"
+  - "*.podspec"
+  - "Gemfile.lock"
+
+run_build_for_prs: &run_build_for_prs # Build-related code
+  - "Sources/**"
+  - "test-server/**"
+  - "Samples/**"
+
+  # GH Actions
+  - ".github/workflows/build.yml"
+  - ".github/file-filters.yml"
+
+  # Project files
+  - "Sentry.xcworkspace/**"
+  - "Sentry.xcodeproj/**"
+  - "Package*.swift"
+
+  # Scripts
+  - "scripts/ci-select-xcode.sh"
+  - "scripts/ci-diagnostics.sh"
+
+  # Other
+  - "fastlane/**"
+  - "Gemfile.lock"
+  - "Makefile" # Make commands used for CI build setup
+  - "Brewfile*" # Dependency installation affects build environment
