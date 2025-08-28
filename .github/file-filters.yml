@@ -65,6 +65,25 @@ run_api_stability_for_prs: &run_api_stability_for_prs # API-related code
   - "sdk_api.json"
   - "sdk_api_v9.json"
 
+run_lint_clang_formatting_for_prs: &run_lint_clang_formatting_for_prs
+  - "**/*.h"
+  - "**/*.hpp"
+  - "**/*.c"
+  - "**/*.cpp"
+  - "**/*.m"
+  - "**/*.mm"
+
+  # GH Actions
+  - ".github/workflows/lint-clang-formatting.yml"
+  - ".github/file-filters.yml"
+
+  # Formatting
+  - ".clang-format"
+  # Other
+  - "Makefile" # Make commands used for formatting setup
+  - "Brewfile*" # Tools installation affects formatting environment
+  - "scripts/ci-diagnostics.sh" # CI diagnostics may affect formatting checks
+
 run_objc_conversion_analysis_for_prs: &run_objc_conversion_analysis_for_prs
   - "SwiftConversion/**"
 
