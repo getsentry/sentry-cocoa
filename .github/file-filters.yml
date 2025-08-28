@@ -115,6 +115,7 @@ run_release_for_prs: &run_release_for_prs # Release-related code
   - "scripts/ci-diagnostics.sh"
   - "scripts/build-xcframework-slice.sh"
   - "scripts/assemble-xcframework.sh"
+  - "scripts/generate_release_matrix.sh"
 
   # Project files
   - "Sentry.xcworkspace/**"
