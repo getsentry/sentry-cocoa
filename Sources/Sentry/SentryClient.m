@@ -541,8 +541,16 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                                                 withScope:scope
                                    alwaysAttachStacktrace:NO];
 
+    if (replayEvent == nil) {
+        SENTRY_LOG_DEBUG(@"The replay event was filtered out in prepare event. "
+                         @"The replay was discarded.");
+        return;
+    }
+
+    // Only check the type of the returned event, as the instance could be changed in the event
+    // preprocessor and before-send handlers.
     if (![replayEvent isKindOfClass:SentryReplayEvent.class]) {
-        SENTRY_LOG_DEBUG(@"The event preprocessor didn't update the replay event in place. The "
+        SENTRY_LOG_ERROR(@"The event preprocessor didn't update the replay event in place. The "
                          @"replay was discarded.");
         return;
     }
@@ -553,8 +561,13 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                                                   video:videoURL];
 
     if (videoEnvelopeItem == nil) {
-        SENTRY_LOG_DEBUG(@"The Session Replay segment will not be sent to Sentry because an "
+        SENTRY_LOG_ERROR(@"The Session Replay segment will not be sent to Sentry because an "
                          @"Envelope Item could not be created.");
+        // Record a counted lost event in case preparing the event (e.g. encoding the event) failed.
+        // This is used to determine if replay events are missing due to an error in the SDK.
+        [self recordLostEvent:kSentryDataCategoryReplay
+                       reason:kSentryDiscardReasonInsufficientData
+                     quantity:1];
         return;
     }
 
