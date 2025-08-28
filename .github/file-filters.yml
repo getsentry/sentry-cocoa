@@ -65,7 +65,7 @@ run_api_stability_for_prs: &run_api_stability_for_prs # API-related code
   - "sdk_api.json"
   - "sdk_api_v9.json"
 
-run_lint_cocoapods_Specs_for_prs: &run_lint_cocoapods_Specs_for_prs # CocoaPods specs linting
+run_lint_cocoapods_specs_for_prs: &run_lint_cocoapods_specs_for_prs # CocoaPods specs linting
   - "Sources/**"
   - "Tests/**"
   - "test-server/**"
