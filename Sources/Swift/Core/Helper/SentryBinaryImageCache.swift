@@ -89,7 +89,7 @@ import Foundation
                 }
             }
             
-            cache.insert(newImage, at: left)
+            self.cache?.insert(newImage, at: left)
         }
         
         if isDebug {
