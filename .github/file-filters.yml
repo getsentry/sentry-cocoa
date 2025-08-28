@@ -172,3 +172,22 @@ run_lint_dprint_for_prs: &run_lint_dprint_for_prs # dprint formatting
   # GH Actions
   - ".github/workflows/lint-dprint-formatting.yml"
   - ".github/file-filters.yml"
+
+run_lint_xcode_analyze_for_prs: &run_lint_xcode_analyze_for_prs # Xcode linting
+  - "Sources/**"
+  - "Tests/**"
+  - "test-server/**"
+  - "Samples/**"
+
+  # GH Actions
+  - ".github/workflows/lint-xcode-analyze.yml"
+  - ".github/file-filters.yml"
+
+  # Scripts
+  - "scripts/ci-select-xcode.sh"
+  - "scripts/ci-diagnostics.sh"
+
+  # Project files
+  - "Sentry.xcodeproj/**"
+  - "*.podspec"
+  - "Gemfile.lock"
