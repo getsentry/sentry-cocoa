@@ -34,7 +34,8 @@ jobs:
 
   build-benchmark-test-target:
     name: Build App and Test Runner
-    if: needs.files-changed.outputs.run_benchmarking_for_prs == 'true'
+    # Run the job only for PRs with related changes or non-PR events.
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_benchmarking_for_prs == 'true'
     needs: files-changed
     runs-on: macos-14
     steps:
