@@ -16,7 +16,6 @@
 #    import "SentrySessionReplayIntegration+Test.h"
 #    import "SentryUIApplication+Private.h"
 #    import "SentryUIApplication.h"
-#    import "SentryUIDeviceWrapper.h"
 #    import "SentryUIEventTracker.h"
 #    import "SentryUIEventTrackerTransactionMode.h"
 #    import "SentryUIEventTrackingIntegration.h"
