@@ -51,7 +51,7 @@
 #endif // SENTRY_UIKIT_AVAILABLE
 
 #if SENTRY_HAS_UIKIT
-@class SentryUIDeviceWrapper;
+@protocol SentryUIDeviceWrapper;
 #endif // TARGET_OS_IOS
 
 #if !TARGET_OS_WATCH
@@ -100,7 +100,7 @@ SENTRY_NO_INIT
 #endif // !TARGET_OS_WATCH
 
 #if SENTRY_HAS_UIKIT
-@property (nonatomic, strong) SentryUIDeviceWrapper *uiDeviceWrapper;
+@property (nonatomic, strong) id<SentryUIDeviceWrapper> uiDeviceWrapper;
 #endif // TARGET_OS_IOS
 
 #pragma mark - Lazy Dependencies
