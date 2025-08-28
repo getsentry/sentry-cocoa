@@ -4,18 +4,6 @@ on:
   push:
     branches:
       - main
-    paths:
-      - "**/*.h"
-      - "**/*.hpp"
-      - "**/*.c"
-      - "**/*.cpp"
-      - "**/*.m"
-      - "**/*.mm"
-      - ".github/workflows/lint-clang-formatting.yml"
-      - ".clang-format"
-      - "Makefile" # Make commands used for formatting setup
-      - "Brewfile*" # Tools installation affects formatting environment
-      - "scripts/ci-diagnostics.sh"
 
   pull_request:
 
