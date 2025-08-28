@@ -5,7 +5,6 @@
 #import "SentryMeta.h"
 #import "SentryOptions.h"
 #import "SentrySDK+Private.h"
-#import "SentrySDKSettings.h"
 #import "SentrySwift.h"
 
 NS_ASSUME_NONNULL_BEGIN
