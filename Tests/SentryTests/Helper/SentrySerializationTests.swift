@@ -539,7 +539,7 @@ class SentrySerializationTests: XCTestCase {
         XCTAssertNil(SentrySerialization.session(with: data))
     }
     
-    func testSerializeReplayRecording() {
+    func testSerializeReplayRecording() throws {
         class MockReplayRecording: SentryReplayRecording {
             override func serialize() -> [[String: Any]] {
                 return [["KEY": "VALUE"]]
@@ -548,13 +548,49 @@ class SentrySerializationTests: XCTestCase {
         
         let date = Date(timeIntervalSince1970: 2)
         let recording = MockReplayRecording(segmentId: 5, size: 5_000, start: date, duration: 5_000, frameCount: 5, frameRate: 1, height: 320, width: 950, extraEvents: [])
-        let data = SentrySerialization.data(with: recording)
-        
+        let data = try XCTUnwrap(SentrySerialization.data(with: recording))
+
         let serialized = String(data: data, encoding: .utf8)
         
         XCTAssertEqual(serialized, "{\"segment_id\":5}\n[{\"KEY\":\"VALUE\"}]")
     }
-    
+
+    func testDataWithReplayRecording_whenHeaderCanNotBeSerialized_shouldReturnNil() throws {
+        // -- Arrange --
+        class MockReplayRecording: SentryReplayRecording {
+            override func headerForReplayRecording() -> [String: Any] {
+                // This will cause serialization to fail, because NSObject cannot be serialized to JSON
+                return ["KEY": NSObject()]
+            }
+        }
+
+        let recording = MockReplayRecording(segmentId: 5, size: 5_000, start: Date(timeIntervalSince1970: 2), duration: 5_000, frameCount: 5, frameRate: 1, height: 320, width: 950, extraEvents: [])
+
+        // -- Act --
+        let result = SentrySerialization.data(with: recording)
+
+        // -- Assert --
+        XCTAssertNil(result, "Data serialization should return nil when the header cannot be serialized.")
+    }
+
+    func testDataWithReplayRecording_whenRecordingCanNotBeSerialized_shouldReturnNil() throws {
+        // -- Arrange --
+        class MockReplayRecording: SentryReplayRecording {
+            override func serialize() -> [[String: Any]] {
+                // This will cause serialization to fail, because NSObject cannot be serialized to JSON
+                return [["KEY": NSObject()]]
+            }
+        }
+
+        let recording = MockReplayRecording(segmentId: 5, size: 5_000, start: Date(timeIntervalSince1970: 2), duration: 5_000, frameCount: 5, frameRate: 1, height: 320, width: 950, extraEvents: [])
+
+        // -- Act --
+        let result = SentrySerialization.data(with: recording)
+
+        // -- Assert --
+        XCTAssertNil(result, "Data serialization should return nil when the header cannot be serialized.")
+    }
+
     func testLevelFromEventData() {
         let envelopeItem = SentryEnvelopeItem(event: TestData.event)
         
