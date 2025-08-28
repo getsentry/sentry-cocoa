@@ -7,22 +7,6 @@ on:
       - main
 
   pull_request:
-    paths:
-      - "Sources/**"
-      - "scripts/ci-select-xcode.sh"
-      - "scripts/ci-diagnostics.sh"
-      - Sentry.xcworkspace/**
-      - Sentry.xcodeproj/**
-      - "Package*.swift"
-      - ".github/workflows/build-xcframework.yml"
-      - "scripts/build-xcframework-slice.sh"
-      - "scripts/assemble-xcframework.sh"
-      - ".github/workflows/release.yml"
-      - ".github/workflows/build-xcframework-variant-slices.yml"
-      - ".github/workflows/assemble-xcframework-variant.yml"
-      - ".github/workflows/ui-tests-common.yml"
-      - Samples/macOS-SPM-CommandLine/**
-      - Samples/SPM-Dynamic/**
 
   workflow_dispatch:
     inputs:
@@ -48,8 +32,25 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
+  files-changed:
+    name: Detect File Changes
+    runs-on: ubuntu-latest
+    outputs:
+      run_release_for_prs: ${{ steps.changes.outputs.run_release_for_prs }}
+    steps:
+      - uses: actions/checkout@v5
+      - name: Get changed files
+        id: changes
+        uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
+        with:
+          token: ${{ github.token }}
+          filters: .github/file-filters.yml
+
   build-xcframework-variant-slices:
     name: Build XCFramework Slices
+    # Run the job only for PRs with related changes or non-PR events.
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
+    needs: files-changed
     uses: ./.github/workflows/build-xcframework-variant-slices.yml
     with:
       name: ${{matrix.variant.name}}
@@ -78,7 +79,9 @@ jobs:
             id: sentry-withoutuikit-dynamic
 
   assemble-xcframework-variant:
-    needs: build-xcframework-variant-slices
+    needs: [files-changed, build-xcframework-variant-slices]
+    # Run the job only for PRs with related changes or non-PR events.
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
     name: Assemble XCFramework Variant
     uses: ./.github/workflows/assemble-xcframework-variant.yml
     secrets: inherit
@@ -126,7 +129,9 @@ jobs:
   validate-xcframework:
     name: Validate XCFramework
     runs-on: macos-14
-    needs: assemble-xcframework-variant
+    needs: [files-changed, assemble-xcframework-variant]
+    # Run the job only for PRs with related changes or non-PR events.
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
     steps:
       - uses: actions/checkout@v5
       - uses: actions/download-artifact@v5
@@ -149,7 +154,9 @@ jobs:
   validate-spm:
     name: Validate SPM Static ${{matrix.package-file.name}}
     runs-on: macos-14
-    needs: assemble-xcframework-variant
+    needs: [files-changed, assemble-xcframework-variant]
+    # Run the job only for PRs with related changes or non-PR events.
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
     steps:
       - uses: actions/checkout@v5
       - uses: actions/download-artifact@v5
@@ -180,7 +187,9 @@ jobs:
   validate-spm-dynamic:
     name: Validate SPM Dynamic ${{matrix.package-file.name}}
     runs-on: macos-14
-    needs: assemble-xcframework-variant
+    needs: [files-changed, assemble-xcframework-variant]
+    # Run the job only for PRs with related changes or non-PR events.
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
     steps:
       - uses: actions/checkout@v5
       - uses: actions/download-artifact@v5
@@ -211,7 +220,9 @@ jobs:
   swift-build:
     name: Build Swift Static ${{matrix.package-file.name}}
     runs-on: macos-14
-    needs: assemble-xcframework-variant
+    needs: [files-changed, assemble-xcframework-variant]
+    # Run the job only for PRs with related changes or non-PR events.
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
     steps:
       - uses: actions/checkout@v5
       - uses: actions/download-artifact@v5
@@ -241,7 +252,9 @@ jobs:
   duplication-tests:
     name: Test Sentry Duplication V4 # Up the version with every change to keep track of flaky tests
     uses: ./.github/workflows/ui-tests-common.yml
-    needs: assemble-xcframework-variant
+    needs: [files-changed, assemble-xcframework-variant]
+    # Run the job only for PRs with related changes or non-PR events.
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     with:
@@ -253,7 +266,9 @@ jobs:
   app-metrics:
     name: Collect App Metrics
     runs-on: macos-15
-    needs: assemble-xcframework-variant
+    needs: [files-changed, assemble-xcframework-variant]
+    # Run the job only for PRs with related changes or non-PR events.
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
     timeout-minutes: 20
     steps:
       - name: Git checkout
@@ -307,6 +322,7 @@ jobs:
     runs-on: ubuntu-latest
     name: "Release New Version"
     needs: [
+      files-changed,
       validate-xcframework,
       validate-spm,
       validate-spm-dynamic,
@@ -361,3 +377,28 @@ jobs:
       - name: Run CI Diagnostics
         if: failure()
         run: ./scripts/ci-diagnostics.sh
+
+  release-required-check:
+    needs:
+      [
+        files-changed,
+        build-xcframework-variant-slices,
+        assemble-xcframework-variant,
+        validate-xcframework,
+        validate-spm,
+        validate-spm-dynamic,
+        swift-build,
+        duplication-tests,
+        app-metrics,
+      ]
+    name: Release
+    # This is necessary since a failed/skipped dependent job would cause this job to be skipped
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      # If any jobs we depend on fails gets cancelled or times out, this job will fail.
+      # Skipped jobs are not considered failures.
+      - name: Check for failures
+        if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
+        run: |
+          echo "One of the release check jobs has failed." && exit 1

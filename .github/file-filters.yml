@@ -83,3 +83,83 @@ run_test_cross_platform_for_prs: &run_test_cross_platform_for_prs
   # Other
   - "Makefile" # Make commands used for cross-platform setup
   - "Brewfile*" # Dependency installation affects cross-platform testing
+
+run_lint_cocoapods_specs_for_prs: &run_lint_cocoapods_specs_for_prs # CocoaPods specs linting
+  - "Sources/**"
+  - "Tests/**"
+  - "test-server/**"
+  - "Samples/**"
+
+  # GH Actions
+  - ".github/workflows/lint-cocoapods-specs.yml"
+  - ".github/file-filters.yml"
+
+  # Scripts
+  - "scripts/ci-select-xcode.sh"
+  - "scripts/ci-diagnostics.sh"
+
+  # Project files
+  - "Sentry.xcodeproj/**"
+  - "*.podspec"
+  - "Gemfile.lock"
+
+  # Other
+  - "Makefile" # Make commands used for linting setup
+  - "Brewfile*" # Tools installation affects linting environment
+  - ".swiftlint.yml"
+
+run_release_for_prs: &run_release_for_prs # Release-related code
+  - "Sources/**"
+
+  # Scripts
+  - "scripts/ci-select-xcode.sh"
+  - "scripts/ci-diagnostics.sh"
+  - "scripts/build-xcframework-slice.sh"
+  - "scripts/assemble-xcframework.sh"
+
+  # Project files
+  - "Sentry.xcworkspace/**"
+  - "Sentry.xcodeproj/**"
+  - "Package*.swift"
+
+  # GH Actions
+  - ".github/workflows/build-xcframework.yml"
+  - ".github/workflows/release.yml"
+  - ".github/workflows/build-xcframework-variant-slices.yml"
+  - ".github/workflows/assemble-xcframework-variant.yml"
+  - ".github/workflows/ui-tests-common.yml"
+  - ".github/file-filters.yml"
+
+  # Samples
+  - "Samples/macOS-SPM-CommandLine/**"
+  - "Samples/SPM-Dynamic/**"
+
+run_lint_swift_formatting_for_prs: &run_lint_swift_formatting_for_prs # Swift formatting
+  - "**/*.swift"
+
+  # GH Actions
+  - ".github/workflows/lint-swift-formatting.yml"
+  - ".github/file-filters.yml"
+
+  # Formatting
+  - ".swiftlint.yml"
+
+  # Other
+  - "Makefile" # Make commands used for formatting setup
+  - "Brewfile*" # Tools installation affects formatting environment
+
+  # Scripts
+  - "scripts/ci-diagnostics.sh"
+
+run_lint_dprint_for_prs: &run_lint_dprint_for_prs # dprint formatting
+  - "**/*.yml"
+  - "**/*.yaml"
+  - "**/*.json"
+  - "**/*.md"
+
+  # Formatting
+  - "dprint.json"
+
+  # GH Actions
+  - ".github/workflows/lint-dprint-formatting.yml"
+  - ".github/file-filters.yml"
