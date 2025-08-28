@@ -31,7 +31,7 @@ import Foundation
     // Use a recursive lock to allow the same thread to enter again
     private let lock = NSRecursiveLock()
     
-    @_spi(Private) @objc public func start(_ isDebug: Bool) {
+    @objc public func start(_ isDebug: Bool) {
         lock.synchronized {
             self.isDebug = isDebug
             self.cache = []
@@ -73,7 +73,7 @@ import Foundation
         )
         
         lock.synchronized {
-            guard let cache = self.cache else { return }
+            guard var cache = self.cache else { return }
             
             // Binary search insertion to maintain sorted order by address
             var left = 0
@@ -89,7 +89,7 @@ import Foundation
                 }
             }
             
-            self.cache?.insert(newImage, at: left)
+            cache.insert(newImage, at: left)
         }
         
         if isDebug {
@@ -108,13 +108,13 @@ import Foundation
         
         var uuidBuffer = [CChar](repeating: 0, count: 37)
         sentrycrashdl_convertBinaryImageUUID(value, &uuidBuffer)
-        return String(cString: uuidBuffer)
+        return String(cString: uuidBuffer, encoding: .ascii)
     }
     
     @objc
     public func binaryImageRemoved(_ imageAddress: UInt64) {
         lock.synchronized {
-            guard let index = indexOfImage(address: imageAddress), index >= 0 else { return }
+            guard let index = indexOfImage(address: imageAddress) else { return }
             self.cache?.remove(at: index)
         }
     }
@@ -151,9 +151,9 @@ import Foundation
     
     @objc(imagePathsForInAppInclude:)
     public func imagePathsFor(inAppInclude: String) -> Set<String> {
-        var imagePaths = Set<String>()
-        
-        imagePaths = lock.synchronized {
+        lock.synchronized {
+            var imagePaths = Set<String>()
+            
             guard let cache = self.cache else { return imagePaths }
             
             for info in cache {
@@ -163,8 +163,6 @@ import Foundation
             }
             return imagePaths
         }
-        
-        return imagePaths
     }
     
     @objc
