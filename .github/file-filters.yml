@@ -191,3 +191,27 @@ run_lint_xcode_analyze_for_prs: &run_lint_xcode_analyze_for_prs # Xcode linting
   - "Sentry.xcodeproj/**"
   - "*.podspec"
   - "Gemfile.lock"
+
+run_build_for_prs: &run_build_for_prs # Build-related code
+  - "Sources/**"
+  - "test-server/**"
+  - "Samples/**"
+
+  # GH Actions
+  - ".github/workflows/build.yml"
+  - ".github/file-filters.yml"
+
+  # Project files
+  - "Sentry.xcworkspace/**"
+  - "Sentry.xcodeproj/**"
+  - "Package*.swift"
+
+  # Scripts
+  - "scripts/ci-select-xcode.sh"
+  - "scripts/ci-diagnostics.sh"
+
+  # Other
+  - "fastlane/**"
+  - "Gemfile.lock"
+  - "Makefile" # Make commands used for CI build setup
+  - "Brewfile*" # Dependency installation affects build environment
