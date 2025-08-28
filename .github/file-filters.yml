@@ -79,6 +79,10 @@ run_lint_clang_formatting_for_prs: &run_lint_clang_formatting_for_prs
 
   # Formatting
   - ".clang-format"
+  # Other
+  - "Makefile" # Make commands used for formatting setup
+  - "Brewfile*" # Tools installation affects formatting environment
+  - "scripts/ci-diagnostics.sh" # CI diagnostics may affect formatting checks
 
 run_lint_cocoapods_specs_for_prs: &run_lint_cocoapods_specs_for_prs # CocoaPods specs linting
   - "Sources/**"
