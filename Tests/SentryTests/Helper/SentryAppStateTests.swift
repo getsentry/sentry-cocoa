@@ -1,3 +1,4 @@
+@_spi(Private) import Sentry
 import XCTest
 
 class SentryAppStateTests: XCTestCase {

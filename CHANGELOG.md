@@ -10,6 +10,13 @@
 
 - Don't capture replays for events dropped in `beforeSend` (#5916)
 - Fix linking with SentrySwiftUI on Xcode 26 for visionOS (#5823)
+- Structured Logging: Logger called before `SentrySDK.start` becomes unusable (#5984)
+- Fix missing view hierachy when enabling `attachScreenshot` too (#5989)
+
+### Improvements
+
+- Lazily CharacterSet only once in SentryBaggageSerialization (#5871)
+- Structured Logging: Log `SentrySDK.logger` calls to `SentrySDKLog` (#5991)
 
 ## 8.54.1-alpha.1
 
@@ -50,6 +57,7 @@
 - Fix memory leak in SessionReplayIntegration (#5770)
 - Fix reporting of energy used while profiling (#5768)
 - Fixed a build error in `SentryFeedback.swift` when building with cocoapods on Xcode 14.2 (#5917)
+- Fix linking against Sentry on an app extension (#5813)
 
 ### Internal
 

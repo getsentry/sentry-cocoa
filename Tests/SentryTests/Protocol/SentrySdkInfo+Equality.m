@@ -1,4 +1,5 @@
 #import "SentrySdkInfo+Equality.h"
+#import <Sentry/Sentry-Swift.h>
 
 @implementation SentrySdkInfo (Equality)
 
@@ -34,6 +35,10 @@
         return NO;
     }
 
+    if (![self.settings isEqual:otherSdkInfo.settings]) {
+        return NO;
+    }
+
     return YES;
 }
 
@@ -46,6 +51,7 @@
     hash = hash * 23 + [self.integrations hash];
     hash = hash * 23 + [self.features hash];
     hash = hash * 23 + [self.packages hash];
+    hash = hash * 23 + [self.settings hash];
 
     return hash;
 }

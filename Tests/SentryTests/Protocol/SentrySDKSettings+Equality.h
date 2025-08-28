@@ -1,8 +1,8 @@
-#import "SentrySwift.h"
+#import <Sentry/Sentry-Swift.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryAppState (Equality)
+@interface SentrySDKSettings (Equality)
 
 - (BOOL)isEqual:(id _Nullable)object;
 
