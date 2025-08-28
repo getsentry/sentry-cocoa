@@ -2,7 +2,7 @@
 import Foundation
 
 @objc(SentryBinaryImageInfo)
-public class SentryBinaryImageInfo: NSObject {
+@_spi(Private) public final class SentryBinaryImageInfo: NSObject {
     @objc public var name: String
     @objc public var uuid: String?
     @objc public var vmAddress: UInt64
@@ -25,7 +25,7 @@ public class SentryBinaryImageInfo: NSObject {
  * performance.
  */
 @objc(SentryBinaryImageCache)
-public class SentryBinaryImageCache: NSObject {
+@_spi(Private) public final class SentryBinaryImageCache: NSObject {
     @objc public internal(set) var cache: [SentryBinaryImageInfo]?
     private var isDebug: Bool = false
     // Use a recursive lock to allow the same thread to enter again
