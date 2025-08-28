@@ -77,6 +77,13 @@ run_benchmarking_for_prs: &run_benchmarking_for_prs
   - ".github/workflows/benchmarking.yml"
   - ".github/workflows/build-xcframework-variant-slices.yml"
   - ".github/workflows/assemble-xcframework-variant.yml"
+  - ".github/file-filters.yml"
+
+  # Scripts
+  - "scripts/ci-select-xcode.sh"
+  - "scripts/ci-diagnostics.sh"
+  - "scripts/build-xcframework-slice.sh"
+  - "scripts/assemble-xcframework.sh"
 
   # Project files
   - "Samples/iOS-Swift/iOS-Swift.yml"
