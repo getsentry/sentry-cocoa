@@ -274,12 +274,16 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
     func testBufferReplayIgnoredBecauseSampleRateForCrash() throws {
         // -- Arrange --
         // Use deterministic random number to avoid flaky test behavior.
-        // The sample rate check uses: random >= errorSampleRate
-        // With errorSampleRate=0 and random=0.5: 0.5 >= 0 = true → replay dropped
-        SentryDependencyContainer.sharedInstance().random = TestRandom(value: 0.5)
+        // CRITICAL: Set random value to 1.0 to ensure shouldReplayFullSession(sessionSampleRate) returns false,
+        // preventing the session from starting as a full session. Buffer replay sample rate checks
+        // only apply to non-full sessions. The sample rate check uses: random >= errorSampleRate
+        // With errorSampleRate=0 and random=1.0: 1.0 >= 0 = true → replay dropped
+        SentryDependencyContainer.sharedInstance().random = TestRandom(value: 1.0)
 
-        // Start current session with 100% error sample rate (would normally capture all error replays)
-        startSDK(sessionSampleRate: 1, errorSampleRate: 1)
+        // Start current session with 0% session sample rate to ensure it's NOT a full session
+        // (shouldReplayFullSession: 1.0 < 0 = false), but 100% error sample rate would normally 
+        // capture all error replays if this were not a buffer replay from previous session
+        startSDK(sessionSampleRate: 0, errorSampleRate: 1)
         
         let client = SentryClient(options: try XCTUnwrap(SentrySDKInternal.options))
         let scope = Scope()
@@ -306,7 +310,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         // -- Assert --
         // The replay should be dropped because:
         // 1. Previous session had errorSampleRate = 0 (no error replays wanted)
-        // 2. Sample rate check: 0.5 >= 0 = true → drop replay
+        // 2. Sample rate check: 1.0 >= 0 = true → drop replay
         // 3. Current session's errorSampleRate = 1 is irrelevant for previous session data
         wait(for: [expectation], timeout: 1)
         XCTAssertEqual(hub.capturedReplayRecordingVideo.count, 0)
