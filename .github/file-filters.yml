@@ -65,6 +65,24 @@ run_api_stability_for_prs: &run_api_stability_for_prs # API-related code
   - "sdk_api.json"
   - "sdk_api_v9.json"
 
+run_auto_update_tools_for_prs: &run_auto_update_tools_for_prs # Auto-update tools workflow
+  # Formatting
+  - ".pre-commit-config.yaml"
+
+  # GH Actions
+  - ".github/workflows/auto-update-tools.yml"
+
+  # Scripts
+  - "scripts/.clang-format-version"
+  - "scripts/.swiftlint-version"
+  - "scripts/check-tooling-versions.sh"
+  - "scripts/ci-diagnostics.sh"
+  - "scripts/update-tooling-versions.sh"
+
+  # Other
+  - "Brewfile*"
+  - "Makefile"
+
 run_lint_cocoapods_specs_for_prs: &run_lint_cocoapods_specs_for_prs # CocoaPods specs linting
   - "Sources/**"
   - "Tests/**"
