@@ -10,6 +10,7 @@
 #    import "SentryProfiler+Private.h"
 #    import "SentryProfilingSwiftHelpers.h"
 #    import "SentrySwift.h"
+#    import "SentryTraceProfilerHelper.h"
 #    include <mutex>
 
 #    pragma mark - Private
@@ -88,13 +89,10 @@ SentryProfiler *_Nullable _threadUnsafe_gTraceProfiler;
             return;
         }
 
-        _sentry_threadUnsafe_traceProfileTimeoutTimer =
-            [SentryDependencyContainer.sharedInstance.timerFactory
-                scheduledTimerWithTimeInterval:kSentryProfilerTimeoutInterval
-                                       repeats:NO
-                                         block:^(NSTimer *_Nonnull timer) {
-                                             [self timeoutTimerExpired];
-                                         }];
+        _sentry_threadUnsafe_traceProfileTimeoutTimer = [SentryTraceProfilerHelper
+            timerWithTimeInterval:kSentryProfilerTimeoutInterval
+                          repeats:NO
+                            block:^(NSTimer *_Nonnull timer) { [self timeoutTimerExpired]; }];
     });
 }
 
