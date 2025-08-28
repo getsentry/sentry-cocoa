@@ -137,3 +137,17 @@ run_lint_shellcheck_for_prs: &run_lint_shellcheck_for_prs # Shell scripts
 
   # GH Actions
   - ".github/workflows/lint-shellcheck-formatting.yml"
+  - ".github/file-filters.yml"
+
+run_lint_dprint_for_prs: &run_lint_dprint_for_prs # dprint formatting
+  - "**/*.yml"
+  - "**/*.yaml"
+  - "**/*.json"
+  - "**/*.md"
+
+  # Formatting
+  - "dprint.json"
+
+  # GH Actions
+  - ".github/workflows/lint-dprint-formatting.yml"
+  - ".github/file-filters.yml"
