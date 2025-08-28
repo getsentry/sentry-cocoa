@@ -34,7 +34,7 @@ jobs:
     name: Detect File Changes
     runs-on: ubuntu-latest
     outputs:
-      run_lint_cocoapods_Specs_for_prs: ${{ steps.changes.outputs.run_lint_cocoapods_Specs_for_prs }}
+      run_lint_cocoapods_specs_for_prs: ${{ steps.changes.outputs.run_lint_cocoapods_specs_for_prs }}
     steps:
       - uses: actions/checkout@v5
       - name: Get changed files
@@ -47,7 +47,7 @@ jobs:
   lint-podspec:
     name: ${{ matrix.podspec}} ${{ matrix.library_type }} ${{ matrix.platform}}
     # Run the job only for PRs with related changes or non-PR events.
-    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_lint_cocoapods_Specs_for_prs == 'true'
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_lint_cocoapods_specs_for_prs == 'true'
     needs: files-changed
     runs-on: macos-14
     strategy:
@@ -71,7 +71,7 @@ jobs:
   lint-hybrid-sdk-podspec:
     name: Sentry/HybridSDK
     # Run the job only for PRs with related changes or non-PR events.
-    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_lint_cocoapods_Specs_for_prs == 'true'
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_lint_cocoapods_specs_for_prs == 'true'
     needs: files-changed
     runs-on: macos-14
 

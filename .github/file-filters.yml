@@ -65,7 +65,7 @@ run_api_stability_for_prs: &run_api_stability_for_prs # API-related code
   - "sdk_api.json"
   - "sdk_api_v9.json"
 
-run_lint_cocoapods_Specs_for_prs: &run_lint_cocoapods_Specs_for_prs # CocoaPods specs linting
+run_lint_cocoapods_specs_for_prs: &run_lint_cocoapods_specs_for_prs # CocoaPods specs linting
   - "Sources/**"
   - "Tests/**"
   - "test-server/**"
@@ -88,3 +88,29 @@ run_lint_cocoapods_Specs_for_prs: &run_lint_cocoapods_Specs_for_prs # CocoaPods 
   - "Makefile" # Make commands used for linting setup
   - "Brewfile*" # Tools installation affects linting environment
   - ".swiftlint.yml"
+
+run_release_for_prs: &run_release_for_prs # Release-related code
+  - "Sources/**"
+
+  # Scripts
+  - "scripts/ci-select-xcode.sh"
+  - "scripts/ci-diagnostics.sh"
+  - "scripts/build-xcframework-slice.sh"
+  - "scripts/assemble-xcframework.sh"
+
+  # Project files
+  - "Sentry.xcworkspace/**"
+  - "Sentry.xcodeproj/**"
+  - "Package*.swift"
+
+  # GH Actions
+  - ".github/workflows/build-xcframework.yml"
+  - ".github/workflows/release.yml"
+  - ".github/workflows/build-xcframework-variant-slices.yml"
+  - ".github/workflows/assemble-xcframework-variant.yml"
+  - ".github/workflows/ui-tests-common.yml"
+  - ".github/file-filters.yml"
+
+  # Samples
+  - "Samples/macOS-SPM-CommandLine/**"
+  - "Samples/SPM-Dynamic/**"
