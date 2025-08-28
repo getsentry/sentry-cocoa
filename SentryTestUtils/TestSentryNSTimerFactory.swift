@@ -3,7 +3,7 @@ import Foundation
 
 // We must not subclass NSTimer, see https://developer.apple.com/documentation/foundation/nstimer#1770465.
 // Therefore we return a NSTimer instance here with TimeInterval.infinity.
-public class TestSentryNSTimerFactory: SentryNSTimerFactory {
+@_spi(Private) public class TestSentryNSTimerFactory: SentryNSTimerFactory {
     public struct Overrides {
         private var _interval: TimeInterval?
         
@@ -44,17 +44,16 @@ public class TestSentryNSTimerFactory: SentryNSTimerFactory {
         self.currentDateProvider = currentDateProvider
         super.init()
     }
-}
 
-// MARK: Superclass overrides
-public extension TestSentryNSTimerFactory {
-    override func scheduledTimer(withTimeInterval interval: TimeInterval, repeats: Bool, block: @escaping (Timer) -> Void) -> Timer {
+    @objc
+    public override func scheduledTimer(withTimeInterval interval: TimeInterval, repeats: Bool, block: @escaping (Timer) -> Void) -> Timer {
         let timer = Timer.scheduledTimer(withTimeInterval: TimeInterval.infinity, repeats: repeats, block: block)
         overrides = Overrides(timer: timer, interval: interval, block: block, lastFireDate: currentDateProvider.date())
         return timer
     }
     
-    override func scheduledTimer(withTimeInterval ti: TimeInterval, target aTarget: Any, selector aSelector: Selector, userInfo: Any?, repeats yesOrNo: Bool) -> Timer {
+    @objc
+    public override func scheduledTimer(withTimeInterval ti: TimeInterval, target aTarget: Any, selector aSelector: Selector, userInfo: Any?, repeats yesOrNo: Bool) -> Timer {
         let timer = Timer.scheduledTimer(timeInterval: ti, target: aTarget, selector: aSelector, userInfo: userInfo, repeats: yesOrNo)
         //swiftlint:disable force_cast
         let invocationInfo = Overrides.InvocationInfo(target: aTarget as! NSObject, selector: aSelector)

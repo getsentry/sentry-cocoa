@@ -6,10 +6,10 @@
 
 #    import "SentryLogC.h"
 #    import "SentryMetricProfiler.h"
-#    import "SentryNSTimerFactory.h"
 #    import "SentryProfiledTracerConcurrency.h"
 #    import "SentryProfiler+Private.h"
 #    import "SentryProfilingSwiftHelpers.h"
+#    import "SentrySwift.h"
 #    include <mutex>
 
 #    pragma mark - Private

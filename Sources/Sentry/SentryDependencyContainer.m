@@ -12,7 +12,6 @@
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"
 #import "SentryNSProcessInfoWrapper.h"
-#import "SentryNSTimerFactory.h"
 #import "SentryOptions+Private.h"
 #import "SentryRandom.h"
 #import "SentrySDK+Private.h"
