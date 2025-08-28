@@ -131,3 +131,16 @@ run_lint_swift_formatting_for_prs: &run_lint_swift_formatting_for_prs # Swift fo
 
   # Scripts
   - "scripts/ci-diagnostics.sh"
+
+run_lint_dprint_for_prs: &run_lint_dprint_for_prs # dprint formatting
+  - "**/*.yml"
+  - "**/*.yaml"
+  - "**/*.json"
+  - "**/*.md"
+
+  # Formatting
+  - "dprint.json"
+
+  # GH Actions
+  - ".github/workflows/lint-dprint-formatting.yml"
+  - ".github/file-filters.yml"

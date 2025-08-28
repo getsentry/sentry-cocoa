@@ -8,22 +8,8 @@ on:
   push:
     branches:
       - main
-    paths:
-      - "**/*.yml"
-      - "**/*.yaml"
-      - "**/*.json"
-      - "**/*.md"
-      - ".github/workflows/lint-dprint-formatting.yml"
-      - "dprint.json"
 
   pull_request:
-    paths:
-      - "**/*.yml"
-      - "**/*.yaml"
-      - "**/*.json"
-      - "**/*.md"
-      - ".github/workflows/lint-dprint-formatting.yml"
-      - "dprint.json"
 
 # Concurrency configuration:
 # - We use workflow-specific concurrency groups to prevent multiple lint runs on the same code,
@@ -37,9 +23,44 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
+  files-changed:
+    name: Detect File Changes
+    runs-on: ubuntu-latest
+    outputs:
+      run_lint_dprint_for_prs: ${{ steps.changes.outputs.run_lint_dprint_for_prs }}
+    steps:
+      - uses: actions/checkout@v5
+      - name: Get changed files
+        id: changes
+        uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
+        with:
+          token: ${{ github.token }}
+          filters: .github/file-filters.yml
+
   lint:
     name: Lint
+    # Run the job only for PRs with related changes or non-PR events.
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_lint_dprint_for_prs == 'true'
+    needs: files-changed
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
       - uses: dprint/check@v2.3
+
+  lint-dprint-required-check:
+    needs:
+      [
+        files-changed,
+        lint,
+      ]
+    name: Lint dprint
+    # This is necessary since a failed/skipped dependent job would cause this job to be skipped
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      # If any jobs we depend on fails gets cancelled or times out, this job will fail.
+      # Skipped jobs are not considered failures.
+      - name: Check for failures
+        if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
+        run: |
+          echo "One of the lint dprint jobs has failed." && exit 1
