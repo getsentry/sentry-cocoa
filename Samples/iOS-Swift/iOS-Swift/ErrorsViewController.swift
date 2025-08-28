@@ -27,6 +27,14 @@ class ErrorsViewController: UIViewController {
         if SentrySDKOverrides.Feedback.injectScreenshot.boolValue {
             NotificationCenter.default.post(name: UIApplication.userDidTakeScreenshotNotification, object: nil)
         }
+
+        DispatchQueue.main.async {
+            let imagePicker = UIImagePickerController()
+            imagePicker.sourceType = .camera
+            imagePicker.allowsEditing = false
+            imagePicker.cameraCaptureMode = .photo
+            self.present(imagePicker, animated: true, completion: nil)
+        }
     }
 
     @IBAction func useAfterFree(_ sender: UIButton) {
