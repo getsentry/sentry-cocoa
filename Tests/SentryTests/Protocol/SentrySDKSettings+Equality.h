@@ -1,4 +1,4 @@
-#import "SentrySDKSettings.h"
+#import <Sentry/Sentry-Swift.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
