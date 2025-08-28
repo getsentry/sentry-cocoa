@@ -122,7 +122,7 @@ import Foundation
     @objc
     public func imageByAddress(_ address: UInt64) -> SentryBinaryImageInfo? {
         lock.synchronized {
-            guard let index = indexOfImage(address: address), index >= 0 else { return nil }
+            guard let index = indexOfImage(address: address) else { return nil }
             return cache?[index]
         }
     }
@@ -146,7 +146,7 @@ import Foundation
             }
         }
         
-        return -1 // Address not found
+        return nil
     }
     
     @objc(imagePathsForInAppInclude:)
