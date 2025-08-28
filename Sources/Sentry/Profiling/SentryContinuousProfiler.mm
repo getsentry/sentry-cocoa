@@ -11,7 +11,6 @@
 #    import "SentryProfilingSwiftHelpers.h"
 #    import "SentrySDK+Private.h"
 #    import "SentrySample.h"
-#    import "SentrySwift.h"
 #    include <mutex>
 
 #    if SENTRY_HAS_UIKIT
@@ -193,12 +192,8 @@ _sentry_unsafe_stopTimerAndCleanup()
             return;
         }
 
-        _chunkTimer = [SentryDependencyContainer.sharedInstance.timerFactory
-            scheduledTimerWithTimeInterval:kSentryProfilerChunkExpirationInterval
-                                    target:self
-                                  selector:@selector(timerExpired)
-                                  userInfo:nil
-                                   repeats:YES];
+        _chunkTimer = sentry_scheduledTimerWithTarget(
+            kSentryProfilerChunkExpirationInterval, self, @selector(timerExpired), nil, YES);
     });
 }
 
