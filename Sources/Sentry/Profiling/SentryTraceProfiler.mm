@@ -9,7 +9,6 @@
 #    import "SentryProfiledTracerConcurrency.h"
 #    import "SentryProfiler+Private.h"
 #    import "SentryProfilingSwiftHelpers.h"
-#    import "SentrySwift.h"
 #    import "SentryTraceProfilerHelper.h"
 #    include <mutex>
 
