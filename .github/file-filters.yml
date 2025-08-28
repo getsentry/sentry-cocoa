@@ -65,6 +65,34 @@ run_api_stability_for_prs: &run_api_stability_for_prs # API-related code
   - "sdk_api.json"
   - "sdk_api_v9.json"
 
+run_objc_conversion_analysis_for_prs: &run_objc_conversion_analysis_for_prs
+  - "SwiftConversion/**"
+
+  # GH Actions
+  - ".github/workflows/objc-conversion-analysis.yml"
+  - ".github/file-filters.yml"
+
+  # Scripts
+  - "scripts/ci-diagnostics.sh"
+
+run_auto_update_tools_for_prs: &run_auto_update_tools_for_prs # Auto-update tools workflow
+  # Formatting
+  - ".pre-commit-config.yaml"
+
+  # GH Actions
+  - ".github/workflows/auto-update-tools.yml"
+
+  # Scripts
+  - "scripts/.clang-format-version"
+  - "scripts/.swiftlint-version"
+  - "scripts/check-tooling-versions.sh"
+  - "scripts/ci-diagnostics.sh"
+  - "scripts/update-tooling-versions.sh"
+
+  # Other
+  - "Brewfile*"
+  - "Makefile"
+
 run_lint_cocoapods_specs_for_prs: &run_lint_cocoapods_specs_for_prs # CocoaPods specs linting
   - "Sources/**"
   - "Tests/**"
@@ -144,6 +172,25 @@ run_lint_dprint_for_prs: &run_lint_dprint_for_prs # dprint formatting
   # GH Actions
   - ".github/workflows/lint-dprint-formatting.yml"
   - ".github/file-filters.yml"
+
+run_lint_xcode_analyze_for_prs: &run_lint_xcode_analyze_for_prs # Xcode linting
+  - "Sources/**"
+  - "Tests/**"
+  - "test-server/**"
+  - "Samples/**"
+
+  # GH Actions
+  - ".github/workflows/lint-xcode-analyze.yml"
+  - ".github/file-filters.yml"
+
+  # Scripts
+  - "scripts/ci-select-xcode.sh"
+  - "scripts/ci-diagnostics.sh"
+
+  # Project files
+  - "Sentry.xcodeproj/**"
+  - "*.podspec"
+  - "Gemfile.lock"
 
 run_build_for_prs: &run_build_for_prs # Build-related code
   - "Sources/**"
