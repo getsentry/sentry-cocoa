@@ -12,6 +12,7 @@
 - Fix linking with SentrySwiftUI on Xcode 26 for visionOS (#5823)
 - Structured Logging: Logger called before `SentrySDK.start` becomes unusable (#5984)
 - Add masking for AVPlayerView (#5910)
+- Fix missing view hierachy when enabling `attachScreenshot` too (#5989)
 
 ### Improvements
 
