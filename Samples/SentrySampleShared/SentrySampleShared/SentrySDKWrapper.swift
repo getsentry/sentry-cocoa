@@ -46,25 +46,25 @@ public struct SentrySDKWrapper {
         }
         options.beforeCaptureScreenshot = { _ in !SentrySDKOverrides.Other.rejectScreenshots.boolValue }
         options.beforeCaptureViewHierarchy = { _ in !SentrySDKOverrides.Other.rejectViewHierarchy.boolValue }
-        options.debug = !SentrySDKOverrides.Special.disableDebugMode.boolValue
+        options.debug = true // !SentrySDKOverrides.Special.disableDebugMode.boolValue
 
 #if !os(macOS) && !os(watchOS) && !os(visionOS)
-        if #available(iOS 16.0, *), !SentrySDKOverrides.SessionReplay.disableSessionReplay.boolValue {
-            options.sessionReplay = SentryReplayOptions(
-                sessionSampleRate: SentrySDKOverrides.SessionReplay.sampleRate.floatValue ?? 0,
-                onErrorSampleRate: SentrySDKOverrides.SessionReplay.onErrorSampleRate.floatValue ?? 1,
-                maskAllText: !SentrySDKOverrides.SessionReplay.disableMaskAllText.boolValue,
-                maskAllImages: !SentrySDKOverrides.SessionReplay.disableMaskAllImages.boolValue
-            )
-
-            let defaultReplayQuality = SentryReplayOptions.SentryReplayQuality.high
-            options.sessionReplay.quality = SentryReplayOptions.SentryReplayQuality(rawValue: (SentrySDKOverrides.SessionReplay.quality.stringValue as? NSString)?.integerValue ?? defaultReplayQuality.rawValue) ?? defaultReplayQuality
-
-            options.sessionReplay.enableViewRendererV2 = !SentrySDKOverrides.SessionReplay.disableViewRendererV2.boolValue
-
-            // Disable the fast view rendering, because we noticed parts (like the tab bar) are not rendered correctly
-            options.sessionReplay.enableFastViewRendering = SentrySDKOverrides.SessionReplay.enableFastViewRendering.boolValue
-        }
+//        if #available(iOS 16.0, *), !SentrySDKOverrides.SessionReplay.disableSessionReplay.boolValue {
+//            options.sessionReplay = SentryReplayOptions(
+//                sessionSampleRate: SentrySDKOverrides.SessionReplay.sampleRate.floatValue ?? 0,
+//                onErrorSampleRate: SentrySDKOverrides.SessionReplay.onErrorSampleRate.floatValue ?? 1,
+//                maskAllText: !SentrySDKOverrides.SessionReplay.disableMaskAllText.boolValue,
+//                maskAllImages: !SentrySDKOverrides.SessionReplay.disableMaskAllImages.boolValue
+//            )
+//
+//            let defaultReplayQuality = SentryReplayOptions.SentryReplayQuality.high
+//            options.sessionReplay.quality = SentryReplayOptions.SentryReplayQuality(rawValue: (SentrySDKOverrides.SessionReplay.quality.stringValue as? NSString)?.integerValue ?? defaultReplayQuality.rawValue) ?? defaultReplayQuality
+//
+//            options.sessionReplay.enableViewRendererV2 = !SentrySDKOverrides.SessionReplay.disableViewRendererV2.boolValue
+//
+//            // Disable the fast view rendering, because we noticed parts (like the tab bar) are not rendered correctly
+//            options.sessionReplay.enableFastViewRendering = SentrySDKOverrides.SessionReplay.enableFastViewRendering.boolValue
+//        }
 
 #if !os(tvOS)
         if #available(iOS 15.0, *), !SentrySDKOverrides.Other.disableMetricKit.boolValue {
@@ -104,12 +104,12 @@ public struct SentrySDKWrapper {
         options.attachScreenshot = !SentrySDKOverrides.Other.disableAttachScreenshot.boolValue
         options.attachViewHierarchy = !SentrySDKOverrides.Other.disableAttachViewHierarchy.boolValue
       #if !SDK_V9
-        options.enableAppHangTrackingV2 = !SentrySDKOverrides.Performance.disableAppHangTrackingV2.boolValue
+        options.enableAppHangTrackingV2 = false // !SentrySDKOverrides.Performance.disableAppHangTrackingV2.boolValue
       #endif // SDK_V9
 #endif // !os(macOS) && !os(watchOS)
 
         // disable during benchmarks because we run CPU for 15 seconds at full throttle which can trigger ANRs
-        options.enableAppHangTracking = !isBenchmarking && !SentrySDKOverrides.Performance.disableANRTracking.boolValue
+        options.enableAppHangTracking = false // !isBenchmarking && !SentrySDKOverrides.Performance.disableANRTracking.boolValue
 
         // UI tests generate false OOMs
         options.enableWatchdogTerminationTracking = !isUITest && !isBenchmarking && !SentrySDKOverrides.Performance.disableWatchdogTracking.boolValue
@@ -130,7 +130,7 @@ public struct SentrySDKWrapper {
         options.enableCrashHandler = !SentrySDKOverrides.Other.disableCrashHandling.boolValue
         options.enablePersistingTracesWhenCrashing = true
         options.enableTimeToFullDisplayTracing = !SentrySDKOverrides.Performance.disableTimeToFullDisplayTracing.boolValue
-        options.enablePerformanceV2 = !SentrySDKOverrides.Performance.disablePerformanceV2.boolValue
+        options.enablePerformanceV2 = false // !SentrySDKOverrides.Performance.disablePerformanceV2.boolValue
         options.failedRequestStatusCodes = [ HttpStatusCodeRange(min: 400, max: 599) ]
 
     #if targetEnvironment(simulator)
@@ -151,9 +151,9 @@ public struct SentrySDKWrapper {
         }
 
 #if !os(macOS) && !os(tvOS) && !os(watchOS) && !os(visionOS)
-        if #available(iOS 13.0, *) {
-            options.configureUserFeedback = configureFeedback(config:)
-        }
+//        if #available(iOS 13.0, *) {
+//            options.configureUserFeedback = configureFeedback(config:)
+//        }
 #endif // !os(macOS) && !os(tvOS) && !os(watchOS) && !os(visionOS)
 
         // Experimental features

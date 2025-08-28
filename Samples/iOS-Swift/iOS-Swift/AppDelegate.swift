@@ -5,6 +5,8 @@ import UIKit
 class AppDelegate: UIResponder, UIApplicationDelegate {
     private var randomDistributionTimer: Timer?
     var window: UIWindow?
+  
+  var backgroundCompletionHandler: (() -> Void)?
     
     var args: [String] {
         ProcessInfo.processInfo.arguments
@@ -74,5 +76,45 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
 
         SentrySDKOverrides.resetDefaults()
+    }
+}
+
+
+final class BgNet {
+    static let shared = BgNet()
+    private let session: URLSession
+
+    private init() {
+        let config = URLSessionConfiguration.background(withIdentifier: "com.example.bg.repro")
+        config.sessionSendsLaunchEvents = true
+        config.isDiscretionary = false
+        session = URLSession(configuration: config, delegate: Delegate.shared, delegateQueue: nil)
+    }
+
+    func startDownload() {
+        // Use any HTTP(S) file that’s ~10–50 MB so you have time to kill the app
+        let url = URL(string: "https://download.thinkbroadband.com/20MB.zip")!
+        let task = session.downloadTask(with: url)
+        task.resume()
+        print("[TEST] Started background download \(task.taskIdentifier)")
+    }
+}
+
+final class Delegate: NSObject, URLSessionDownloadDelegate {
+    static let shared = Delegate()
+
+    func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask,
+                    didFinishDownloadingTo location: URL) {
+        print("[TEST] Download finished at \(location)")
+    }
+
+    func urlSessionDidFinishEvents(forBackgroundURLSession session: URLSession) {
+        print("urlSessionDidFinishEvents")
+        DispatchQueue.main.async {
+            (UIApplication.shared.delegate as? AppDelegate)?
+                .backgroundCompletionHandler?()
+          (UIApplication.shared.delegate as? AppDelegate)?
+                .backgroundCompletionHandler = nil
+        }
     }
 }

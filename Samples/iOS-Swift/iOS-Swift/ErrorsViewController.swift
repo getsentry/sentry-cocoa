@@ -35,10 +35,12 @@ class ErrorsViewController: UIViewController {
 
     @IBAction func diskWriteException(_ sender: UIButton) {
         highlightButton(sender)
-        diskWriteException.continuouslyWriteToDisk()
-
-        // As we are writing to disk continuously we would keep adding spans to this UIEventTransaction.
-        SentrySDK.span?.finish()
+//        diskWriteException.continuouslyWriteToDisk()
+//
+//        // As we are writing to disk continuously we would keep adding spans to this UIEventTransaction.
+//        SentrySDK.span?.finish()
+      
+      BgNet.shared.startDownload()
     }
 
     @IBAction func crash(_ sender: UIButton) {

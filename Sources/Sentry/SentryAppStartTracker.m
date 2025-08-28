@@ -205,6 +205,8 @@ static const NSTimeInterval SENTRY_APP_START_MAX_DURATION = 180.0;
 
             appStartDuration = 0;
         }
+        
+        NSLog(@"[TEST] App Start Measurement %f", appStartDuration);
 
         SentryAppStartMeasurement *appStartMeasurement =
             [[SentryAppStartMeasurement alloc] initWithType:appStartType

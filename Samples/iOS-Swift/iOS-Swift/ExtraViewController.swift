@@ -71,7 +71,9 @@ class ExtraViewController: UIViewController {
   
   @IBAction func stopUsingEnergy(_ sender: UIButton) {
     highlightButton(sender)
-    batteryConsumer?.stop()
+    // batteryConsumer?.stop()
+    
+    BgNet.shared.startDownload()
   }
     
     @IBAction func anrDeadlock(_ sender: UIButton) {
