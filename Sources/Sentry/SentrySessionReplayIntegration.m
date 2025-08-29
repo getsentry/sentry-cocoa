@@ -16,7 +16,6 @@
 #    import "SentryOptions.h"
 #    import "SentryRandom.h"
 #    import "SentryRateLimits.h"
-#    import "SentryReachability.h"
 #    import "SentrySDK+Private.h"
 #    import "SentryScope+Private.h"
 #    import "SentrySerialization.h"

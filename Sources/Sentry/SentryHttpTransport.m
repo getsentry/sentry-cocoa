@@ -20,14 +20,10 @@
 #import "SentrySerialization.h"
 #import "SentrySwift.h"
 
-#if !TARGET_OS_WATCH
-#    import "SentryReachability.h"
-#endif // !TARGET_OS_WATCH
-
 @interface SentryHttpTransport ()
 #if SENTRY_HAS_REACHABILITY
     <SentryReachabilityObserver>
-#endif // !TARGET_OS_WATCH
+#endif // SENTRY_HAS_REACHABILITY
 
 @property (nonatomic, readonly) NSTimeInterval cachedEnvelopeSendDelay;
 @property (nonatomic, strong) SentryFileManager *fileManager;
@@ -102,7 +98,7 @@
 
 #if SENTRY_HAS_REACHABILITY
         [SentryDependencyContainer.sharedInstance.reachability addObserver:self];
-#endif // !TARGET_OS_WATCH
+#endif // SENTRY_HAS_REACHABILITY
     }
     return self;
 }
@@ -122,7 +118,7 @@
 {
     [SentryDependencyContainer.sharedInstance.reachability removeObserver:self];
 }
-#endif // !TARGET_OS_WATCH
+#endif // SENTRY_HAS_REACHABILITY
 
 - (void)sendEnvelope:(SentryEnvelope *)envelope
 {

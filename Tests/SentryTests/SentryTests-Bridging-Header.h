@@ -1,6 +1,3 @@
-#if !TARGET_OS_WATCH
-#    import "SentryReachability.h"
-#endif // !TARGET_OS_WATCH
 
 #import "SentryDefines.h"
 #import "SentryProfilingConditionals.h"
@@ -168,7 +165,6 @@
 #import "SentryQueueableRequestManager.h"
 #import "SentryRateLimitParser.h"
 #import "SentryRateLimits.h"
-#import "SentryReachability.h"
 #import "SentryRetryAfterHeaderParser.h"
 #import "SentrySDK+Private.h"
 #import "SentrySDKInternal+Tests.h"

@@ -1,6 +1,7 @@
 #import "SentryLogC.h"
-#import "SentryReachability.h"
+#import "SentrySwift.h"
 #import <XCTest/XCTest.h>
+@import SystemConfiguration;
 
 @interface TestSentryReachabilityObserver : NSObject <SentryReachabilityObserver>
 
@@ -38,7 +39,7 @@
     // Ignore the actual reachability callbacks, cause we call the callbacks manually.
     // Otherwise, the actual reachability callbacks are called during later unrelated tests causing
     // flakes.
-    SentrySetReachabilityIgnoreActualCallback(YES);
+    [SentryReachabilityTestHelper setReachabilityIgnoreActualCallback:YES];
 
     self.reachability = [[SentryReachability alloc] init];
     self.reachability.skipRegisteringActualCallbacks = YES;
@@ -48,27 +49,39 @@
 {
     [self.reachability removeAllObservers];
     self.reachability = nil;
-    SentrySetReachabilityIgnoreActualCallback(NO);
+    [SentryReachabilityTestHelper setReachabilityIgnoreActualCallback:NO];
 }
 
 - (void)testConnectivityRepresentations
 {
-    XCTAssertEqualObjects(SentryConnectivityNone, SentryConnectivityFlagRepresentation(0));
-    XCTAssertEqualObjects(SentryConnectivityNone,
-        SentryConnectivityFlagRepresentation(kSCNetworkReachabilityFlagsIsDirect));
+    XCTAssertEqualObjects(
+        [SentryReachabilityTestHelper stringForSentryConnectivity:SentryConnectivityNone],
+        [SentryReachabilityTestHelper connectivityFlagRepresentation:0]);
+    XCTAssertEqualObjects(
+        [SentryReachabilityTestHelper stringForSentryConnectivity:SentryConnectivityNone],
+        [SentryReachabilityTestHelper
+            connectivityFlagRepresentation:kSCNetworkReachabilityFlagsIsDirect]);
 #    if SENTRY_HAS_UIKIT
     // kSCNetworkReachabilityFlagsIsWWAN does not exist on macOS
-    XCTAssertEqualObjects(SentryConnectivityNone,
-        SentryConnectivityFlagRepresentation(kSCNetworkReachabilityFlagsIsWWAN));
-    XCTAssertEqualObjects(SentryConnectivityCellular,
-        SentryConnectivityFlagRepresentation(
-            kSCNetworkReachabilityFlagsIsWWAN | kSCNetworkReachabilityFlagsReachable));
+    XCTAssertEqualObjects(
+        [SentryReachabilityTestHelper stringForSentryConnectivity:SentryConnectivityNone],
+        [SentryReachabilityTestHelper
+            connectivityFlagRepresentation:kSCNetworkReachabilityFlagsIsWWAN]);
+    XCTAssertEqualObjects(
+        [SentryReachabilityTestHelper stringForSentryConnectivity:SentryConnectivityCellular],
+        [SentryReachabilityTestHelper
+            connectivityFlagRepresentation:kSCNetworkReachabilityFlagsIsWWAN |
+            kSCNetworkReachabilityFlagsReachable]);
 #    endif // SENTRY_HAS_UIKIT
-    XCTAssertEqualObjects(SentryConnectivityWiFi,
-        SentryConnectivityFlagRepresentation(kSCNetworkReachabilityFlagsReachable));
-    XCTAssertEqualObjects(SentryConnectivityWiFi,
-        SentryConnectivityFlagRepresentation(
-            kSCNetworkReachabilityFlagsReachable | kSCNetworkReachabilityFlagsIsDirect));
+    XCTAssertEqualObjects(
+        [SentryReachabilityTestHelper stringForSentryConnectivity:SentryConnectivityWiFi],
+        [SentryReachabilityTestHelper
+            connectivityFlagRepresentation:kSCNetworkReachabilityFlagsReachable]);
+    XCTAssertEqualObjects(
+        [SentryReachabilityTestHelper stringForSentryConnectivity:SentryConnectivityWiFi],
+        [SentryReachabilityTestHelper
+            connectivityFlagRepresentation:kSCNetworkReachabilityFlagsReachable |
+            kSCNetworkReachabilityFlagsIsDirect]);
 }
 
 - (void)testMultipleReachabilityObservers
@@ -79,10 +92,11 @@
     [self.reachability addObserver:observerA];
 
     NSLog(@"[Sentry] [TEST] throwaway reachability callback, setting to reachable");
-    SentryConnectivityCallback(
-        kSCNetworkReachabilityFlagsReachable); // ignored, as it's the first callback
+    [SentryReachabilityTestHelper
+        connectivityCallback:kSCNetworkReachabilityFlagsReachable]; // ignored, as it's the
+                                                                    // first callback
     NSLog(@"[Sentry] [TEST] reachability callback set to unreachable");
-    SentryConnectivityCallback(0);
+    [SentryReachabilityTestHelper connectivityCallback:0];
 
     NSLog(@"[Sentry] [TEST] creating observer B");
     TestSentryReachabilityObserver *observerB = [[TestSentryReachabilityObserver alloc] init];
@@ -90,15 +104,15 @@
     [self.reachability addObserver:observerB];
 
     NSLog(@"[Sentry] [TEST] reachability callback set back to reachable");
-    SentryConnectivityCallback(kSCNetworkReachabilityFlagsReachable);
+    [SentryReachabilityTestHelper connectivityCallback:kSCNetworkReachabilityFlagsReachable];
     NSLog(@"[Sentry] [TEST] reachability callback set back to unreachable");
-    SentryConnectivityCallback(0);
+    [SentryReachabilityTestHelper connectivityCallback:0];
 
     NSLog(@"[Sentry] [TEST] removing observer B as reachability observer");
     [self.reachability removeObserver:observerB];
 
     NSLog(@"[Sentry] [TEST] reachability callback set back to reachable");
-    SentryConnectivityCallback(kSCNetworkReachabilityFlagsReachable);
+    [SentryReachabilityTestHelper connectivityCallback:kSCNetworkReachabilityFlagsReachable];
 
     XCTAssertEqual(5, observerA.connectivityChangedInvocations);
     XCTAssertEqual(2, observerB.connectivityChangedInvocations);
@@ -113,7 +127,7 @@
     [self.reachability addObserver:observer];
     [self.reachability removeObserver:observer];
 
-    SentryConnectivityCallback(kSCNetworkReachabilityFlagsReachable);
+    [SentryReachabilityTestHelper connectivityCallback:kSCNetworkReachabilityFlagsReachable];
 
     XCTAssertEqual(0, observer.connectivityChangedInvocations);
 
@@ -126,7 +140,7 @@
     [self.reachability addObserver:observer];
     [self.reachability addObserver:observer];
 
-    SentryConnectivityCallback(kSCNetworkReachabilityFlagsReachable);
+    [SentryReachabilityTestHelper connectivityCallback:kSCNetworkReachabilityFlagsReachable];
 
     XCTAssertEqual(1, observer.connectivityChangedInvocations);
 
@@ -138,9 +152,9 @@
     TestSentryReachabilityObserver *observer = [[TestSentryReachabilityObserver alloc] init];
     [self.reachability addObserver:observer];
 
-    SentryConnectivityCallback(kSCNetworkReachabilityFlagsReachable);
-    SentryConnectivityCallback(kSCNetworkReachabilityFlagsReachable);
-    SentryConnectivityCallback(kSCNetworkReachabilityFlagsReachable);
+    [SentryReachabilityTestHelper connectivityCallback:kSCNetworkReachabilityFlagsReachable];
+    [SentryReachabilityTestHelper connectivityCallback:kSCNetworkReachabilityFlagsReachable];
+    [SentryReachabilityTestHelper connectivityCallback:kSCNetworkReachabilityFlagsReachable];
 
     XCTAssertEqual(1, observer.connectivityChangedInvocations);
 
