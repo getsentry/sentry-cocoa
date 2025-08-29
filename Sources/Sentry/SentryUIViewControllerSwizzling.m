@@ -2,7 +2,6 @@
 
 #if SENTRY_HAS_UIKIT
 
-#    import "SentryDefaultObjCRuntimeWrapper.h"
 #    import "SentryDefines.h"
 #    import "SentryDependencyContainer.h"
 #    import "SentryLogC.h"

@@ -8,7 +8,6 @@
 #import "SentryCrashUUIDConversion.h"
 #import "SentryEventSwiftHelper.h"
 #import "SentryNSDataUtils.h"
-#import "SentryObjCRuntimeWrapper.h"
 #import "SentryRandom.h"
 #import "SentryTime.h"
 #import "SentryUserAccess.h"

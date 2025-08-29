@@ -40085,6 +40085,13 @@
         "moduleName": "Sentry"
       },
       {
+        "kind": "Import",
+        "name": "ObjectiveC.runtime",
+        "printedName": "ObjectiveC.runtime",
+        "declKind": "Import",
+        "moduleName": "Sentry"
+      },
+      {
         "kind": "TypeDecl",
         "name": "SentryFeedback",
         "printedName": "SentryFeedback",

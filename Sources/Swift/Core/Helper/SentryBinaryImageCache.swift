@@ -98,6 +98,7 @@ import Foundation
             LoadValidator.checkForDuplicatedSDK(imageName: nameString,
                                                 imageAddress: NSNumber(value: newImage.address),
                                                 imageSize: NSNumber(value: newImage.size),
+                                                objcRuntimeWrapper: Dependencies.objcRuntimeWrapper,
                                                 dispatchQueueWrapper: Dependencies.dispatchQueueWrapper)
         }
     }
