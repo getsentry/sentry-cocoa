@@ -86,7 +86,7 @@
             }
             if (![entry conformsToProtocol:@protocol(SentryCrashReportFilter)]) {
                 SENTRY_LOG_ERROR(@"Not a filter: %@", entry);
-                // Cause next key entry to fail as well.
+                // Causes next key entry to fail as well.
                 return;
             } else {
                 [filters addObject:entry];
