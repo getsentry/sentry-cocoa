@@ -1,8 +1,8 @@
+#import "SentrySessionInternal.h"
 #import "NSMutableDictionary+Sentry.h"
 #import "SentryDateUtils.h"
 #import "SentryDependencyContainer.h"
 #import "SentryLogC.h"
-#import "SentrySession+Private.h"
 #import "SentrySwift.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -11,19 +11,19 @@ NSString *
 nameForSentrySessionStatus(SentrySessionStatus status)
 {
     switch (status) {
-    case kSentrySessionStatusOk:
+    case SentrySessionStatusOk:
         return @"ok";
-    case kSentrySessionStatusExited:
+    case SentrySessionStatusExited:
         return @"exited";
-    case kSentrySessionStatusCrashed:
+    case SentrySessionStatusCrashed:
         return @"crashed";
         break;
-    case kSentrySessionStatusAbnormal:
+    case SentrySessionStatusAbnormal:
         return @"abnormal";
     }
 }
 
-@implementation SentrySession
+@implementation SentrySessionInternal
 
 @synthesize flagInit = _init;
 
@@ -251,9 +251,9 @@ nameForSentrySessionStatus(SentrySessionStatus status)
     }
 }
 
-- (id)copyWithZone:(nullable NSZone *)zone
+- (SentrySessionInternal *)safeCopyWithZone:(nullable NSZone *)zone
 {
-    SentrySession *copy = [[[self class] allocWithZone:zone] init];
+    SentrySessionInternal *copy = [[[self class] allocWithZone:zone] init];
 
     if (copy != nil) {
         copy->_sessionId = _sessionId;

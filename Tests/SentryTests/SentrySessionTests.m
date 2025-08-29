@@ -1,4 +1,4 @@
-#import "SentrySession.h"
+@import Sentry;
 #import <XCTest/XCTest.h>
 
 @interface SentrySessionTests : XCTestCase
@@ -16,7 +16,7 @@
     XCTAssertEqual(0, session.errors);
     XCTAssertTrue(session.flagInit);
     XCTAssertNotNil(session.started);
-    XCTAssertEqual(kSentrySessionStatusOk, session.status);
+    XCTAssertEqual(SentrySessionStatusOk, session.status);
     XCTAssertNotNil(session.distinctId);
 
     XCTAssertNil(session.timestamp);
@@ -105,15 +105,15 @@
 {
     SentrySession *expected = [[SentrySession alloc] initWithReleaseName:@"" distinctId:@"some-id"];
     XCTAssertEqual(0, expected.errors);
-    XCTAssertEqual(kSentrySessionStatusOk, expected.status);
+    XCTAssertEqual(SentrySessionStatusOk, expected.status);
     XCTAssertEqual(1, expected.sequence);
     [expected incrementErrors];
     XCTAssertEqual(1, expected.errors);
-    XCTAssertEqual(kSentrySessionStatusOk, expected.status);
+    XCTAssertEqual(SentrySessionStatusOk, expected.status);
     XCTAssertEqual(2, expected.sequence);
     [expected endSessionAbnormalWithTimestamp:[NSDate date]];
     XCTAssertEqual(1, expected.errors);
-    XCTAssertEqual(kSentrySessionStatusAbnormal, expected.status);
+    XCTAssertEqual(SentrySessionStatusAbnormal, expected.status);
     XCTAssertEqual(3, expected.sequence);
 }
 
@@ -121,9 +121,9 @@
 {
     SentrySession *expected = [[SentrySession alloc] initWithReleaseName:@"" distinctId:@"some-id"];
     XCTAssertEqual(1, expected.sequence);
-    XCTAssertEqual(kSentrySessionStatusOk, expected.status);
+    XCTAssertEqual(SentrySessionStatusOk, expected.status);
     [expected endSessionCrashedWithTimestamp:[NSDate date]];
-    XCTAssertEqual(kSentrySessionStatusCrashed, expected.status);
+    XCTAssertEqual(SentrySessionStatusCrashed, expected.status);
     XCTAssertEqual(2, expected.sequence);
 }
 
@@ -131,11 +131,11 @@
 {
     SentrySession *expected = [[SentrySession alloc] initWithReleaseName:@"" distinctId:@"some-id"];
     XCTAssertEqual(0, expected.errors);
-    XCTAssertEqual(kSentrySessionStatusOk, expected.status);
+    XCTAssertEqual(SentrySessionStatusOk, expected.status);
     XCTAssertEqual(1, expected.sequence);
     [expected endSessionExitedWithTimestamp:[NSDate date]];
     XCTAssertEqual(0, expected.errors);
-    XCTAssertEqual(kSentrySessionStatusExited, expected.status);
+    XCTAssertEqual(SentrySessionStatusExited, expected.status);
     XCTAssertEqual(2, expected.sequence);
 }
 
