@@ -18,15 +18,9 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  # This job detects if the PR contains changes that require running integration tests.
-  # If yes, the job will output a flag that will be used by the next job to run the integration tests.
-  # If no, the job will output a flag that will be used by the next job to skip running the integration tests.
-  # At the end of this workflow, we run a check that validates that either all integration tests passed or were
-  # skipped, called integration_test-required-check.
   files-changed:
     name: Detect File Changes
     runs-on: ubuntu-latest
-    # Map a step output to a job output
     outputs:
       run_integration_test_for_prs: ${{ steps.changes.outputs.run_integration_test_for_prs }}
     steps:
