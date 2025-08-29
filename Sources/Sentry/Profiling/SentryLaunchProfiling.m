@@ -11,7 +11,6 @@
 #    import "SentryOptions+Private.h"
 #    import "SentryProfileConfiguration.h"
 #    import "SentryProfiler+Private.h"
-#    import "SentryRandom.h"
 #    import "SentrySamplerDecision.h"
 #    import "SentrySampling.h"
 #    import "SentrySamplingContext.h"
