@@ -88,6 +88,32 @@ run_integration_test_for_prs: &run_integration_test_for_prs # CocoaPods integrat
   - "fastlane/**"
   - "Gemfile.lock"
 
+run_benchmarking_for_prs: &run_benchmarking_for_prs
+  - "Sources/**"
+
+  # Benchmarking implementation
+  - "Samples/iOS-Swift/**"
+  - ".sauce/benchmarking-config.yml"
+  - "fastlane/**"
+
+  # GH Actions
+  - ".github/workflows/benchmarking.yml"
+  - ".github/workflows/build-xcframework-variant-slices.yml"
+  - ".github/workflows/assemble-xcframework-variant.yml"
+  - ".github/file-filters.yml"
+
+  # Scripts
+  - "scripts/ci-select-xcode.sh"
+  - "scripts/ci-diagnostics.sh"
+  - "scripts/build-xcframework-slice.sh"
+  - "scripts/assemble-xcframework.sh"
+
+  # Project files
+  - "Samples/iOS-Swift/iOS-Swift.yml"
+  - "Samples/iOS-Swift/iOS-Swift.xcconfig"
+  - "Samples/iOS-Swift/iOS-SwiftClip.xcconfig"
+  - "Samples/iOS-Swift/iOS-Benchmarking.xcconfig"
+
 run_test_cross_platform_for_prs: &run_test_cross_platform_for_prs
   - "Sources/**"
 
