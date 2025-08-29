@@ -65,6 +65,25 @@ run_api_stability_for_prs: &run_api_stability_for_prs # API-related code
   - "sdk_api.json"
   - "sdk_api_v9.json"
 
+run_test_cross_platform_for_prs: &run_test_cross_platform_for_prs
+  - "Sources/**"
+
+  # GH Actions
+  - ".github/workflows/test-cross-platform.yml"
+  - ".github/file-filters.yml"
+
+  # Project files
+  - "Sentry.podspec"
+  - "SentrySwiftUI.podspec"
+  - "Package*.swift"
+
+  # Scripts
+  - "scripts/ci-diagnostics.sh"
+
+  # Other
+  - "Makefile" # Make commands used for cross-platform setup
+  - "Brewfile*" # Dependency installation affects cross-platform testing
+
 run_lint_clang_formatting_for_prs: &run_lint_clang_formatting_for_prs
   - "**/*.h"
   - "**/*.hpp"
