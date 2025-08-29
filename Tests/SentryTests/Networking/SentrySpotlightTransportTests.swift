@@ -61,7 +61,7 @@ final class SentrySpotlightTransportTests: XCTestCase {
         XCTAssertEqual(request.url?.absoluteString, options.spotlightUrl)
         
         let expectedData = try getSerializedGzippedData(envelope: eventEnvelope)
-        XCTAssertEqual(request.httpBody, expectedData)
+        try compareEnvelopes(request.httpBody, expectedData, message: "Envelopes should be equal")
     }
     
     func testShouldSendTransactionEnvelope() throws {
@@ -76,7 +76,7 @@ final class SentrySpotlightTransportTests: XCTestCase {
         XCTAssertEqual(request.url?.absoluteString, options.spotlightUrl)
         
         let expectedData = try getSerializedGzippedData(envelope: transactionEnvelope)
-        XCTAssertEqual(request.httpBody, expectedData)
+        try compareEnvelopes(request.httpBody, expectedData, message: "Envelopes should be equal")
     }
     
     func testShouldRemoveAttachmentsFromEventEnvelope() throws {
