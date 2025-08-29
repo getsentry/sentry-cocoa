@@ -1,4 +1,5 @@
 #import "SentrySdkInfo+Equality.h"
+#import <Sentry/Sentry-Swift.h>
 
 @implementation SentrySdkInfo (Equality)
 

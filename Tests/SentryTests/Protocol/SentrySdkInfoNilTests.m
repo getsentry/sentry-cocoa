@@ -1,5 +1,5 @@
-#import "SentrySDKSettings.h"
 #import "SentrySdkInfo.h"
+#import <Sentry/Sentry-Swift.h>
 #import <XCTest/XCTest.h>
 
 @interface SentrySdkInfoNilTests : XCTestCase

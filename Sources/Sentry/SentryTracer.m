@@ -30,7 +30,6 @@
 #import "SentryTransactionContext.h"
 #import "SentryUIApplication.h"
 #import <NSMutableDictionary+Sentry.h>
-#import <SentryMeasurementValue.h>
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 #    import "SentryProfiledTracerConcurrency.h"
@@ -926,7 +925,7 @@ static BOOL appStartMeasurementRead;
     }
 
     if ([span isKindOfClass:[SentryTracer class]]) {
-        return span;
+        return (SentryTracer *)span;
     } else if ([span isKindOfClass:[SentrySpan class]]) {
         return [(SentrySpan *)span tracer];
     }

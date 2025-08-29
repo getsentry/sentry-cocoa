@@ -7,22 +7,6 @@ on:
       - main
 
   pull_request:
-    paths:
-      - "Sources/**"
-      - "scripts/ci-select-xcode.sh"
-      - "scripts/ci-diagnostics.sh"
-      - Sentry.xcworkspace/**
-      - Sentry.xcodeproj/**
-      - "Package*.swift"
-      - ".github/workflows/build-xcframework.yml"
-      - "scripts/build-xcframework-slice.sh"
-      - "scripts/assemble-xcframework.sh"
-      - ".github/workflows/release.yml"
-      - ".github/workflows/build-xcframework-variant-slices.yml"
-      - ".github/workflows/assemble-xcframework-variant.yml"
-      - ".github/workflows/ui-tests-common.yml"
-      - Samples/macOS-SPM-CommandLine/**
-      - Samples/SPM-Dynamic/**
 
   workflow_dispatch:
     inputs:
@@ -48,8 +32,43 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
+  files-changed:
+    name: Detect File Changes
+    runs-on: ubuntu-latest
+    outputs:
+      run_release_for_prs: ${{ steps.changes.outputs.run_release_for_prs }}
+    steps:
+      - uses: actions/checkout@v5
+      - name: Get changed files
+        id: changes
+        uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
+        with:
+          token: ${{ github.token }}
+          filters: .github/file-filters.yml
+
+  setup-matrix:
+    runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
+    needs: files-changed
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup matrix combinations
+        id: setup-matrix-combinations
+        run: |
+          ./scripts/generate_release_matrix.sh
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+    outputs:
+      slices: ${{ steps.setup-matrix-combinations.outputs.slices }}
+      variants: ${{ steps.setup-matrix-combinations.outputs.variants }}
+      sdk-list-array: ${{ steps.setup-matrix-combinations.outputs.sdk-list-array }}
+      sdk-list-string: ${{ steps.setup-matrix-combinations.outputs.sdk-list-string }}
+
   build-xcframework-variant-slices:
     name: Build XCFramework Slices
+    # Run the job only for PRs with related changes or non-PR events.
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
+    needs: [files-changed, setup-matrix]
     uses: ./.github/workflows/build-xcframework-variant-slices.yml
     with:
       name: ${{matrix.variant.name}}
@@ -58,27 +77,15 @@ jobs:
       configuration-suffix: ${{matrix.variant.configuration-suffix}}
       variant-id: ${{matrix.variant.id}}
       release-version: ${{ github.event.inputs.version }}
+      sdk-list: ${{ needs.setup-matrix.outputs.sdk-list-array }}
     strategy:
       matrix:
-        variant:
-          - name: Sentry
-            macho-type: mh_dylib
-            suffix: "-Dynamic"
-            id: sentry-dynamic
-          - name: Sentry
-            macho-type: staticlib
-            id: sentry-static
-          - name: SentrySwiftUI
-            macho-type: mh_dylib
-            id: sentry-swiftui
-          - name: Sentry
-            macho-type: mh_dylib
-            suffix: "-WithoutUIKitOrAppKit"
-            configuration-suffix: WithoutUIKit
-            id: sentry-withoutuikit-dynamic
+        variant: ${{ fromJson(needs.setup-matrix.outputs.slices) }}
 
   assemble-xcframework-variant:
-    needs: build-xcframework-variant-slices
+    needs: [files-changed, build-xcframework-variant-slices, setup-matrix]
+    # Run the job only for PRs with related changes or non-PR events.
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
     name: Assemble XCFramework Variant
     uses: ./.github/workflows/assemble-xcframework-variant.yml
     secrets: inherit
@@ -91,42 +98,17 @@ jobs:
       release-version: ${{ github.event.inputs.version }}
       excluded-archs: ${{matrix.variant.excluded-archs}}
       override-name: ${{matrix.variant.override-name}}
+      sdks: ${{ needs.setup-matrix.outputs.sdk-list-string }}
     strategy:
       matrix:
-        variant:
-          - scheme: Sentry
-            macho-type: mh_dylib
-            suffix: "-Dynamic"
-            id: sentry-dynamic
-            excluded-archs: arm64e
-          - scheme: Sentry
-            macho-type: mh_dylib
-            suffix: "-Dynamic"
-            id: sentry-dynamic
-            override-name: Sentry-Dynamic-WithARM64e
-          - scheme: Sentry
-            macho-type: staticlib
-            id: sentry-static
-          - scheme: SentrySwiftUI
-            macho-type: mh_dylib
-            id: sentry-swiftui
-          - scheme: Sentry
-            macho-type: mh_dylib
-            suffix: "-WithoutUIKitOrAppKit"
-            configuration-suffix: WithoutUIKit
-            id: sentry-withoutuikit-dynamic
-            excluded-archs: arm64e
-          - scheme: Sentry
-            macho-type: mh_dylib
-            suffix: "-WithoutUIKitOrAppKit"
-            configuration-suffix: WithoutUIKit
-            id: sentry-withoutuikit-dynamic
-            override-name: Sentry-WithoutUIKitOrAppKit-WithARM64e
+        variant: ${{ fromJson(needs.setup-matrix.outputs.variants) }}
 
   validate-xcframework:
     name: Validate XCFramework
     runs-on: macos-14
-    needs: assemble-xcframework-variant
+    needs: [files-changed, assemble-xcframework-variant]
+    # Run the job only for PRs with related changes or non-PR events.
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
     steps:
       - uses: actions/checkout@v5
       - uses: actions/download-artifact@v5
@@ -149,23 +131,20 @@ jobs:
   validate-spm:
     name: Validate SPM Static ${{matrix.package-file.name}}
     runs-on: macos-14
-    needs: assemble-xcframework-variant
+    needs: [files-changed, assemble-xcframework-variant]
+    # Run the job only for PRs with related changes or non-PR events.
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
     steps:
       - uses: actions/checkout@v5
       - uses: actions/download-artifact@v5
         with:
           pattern: xcframework-${{github.sha}}-*
           merge-multiple: true
-      - name: Remove newer package files
-        if: ${{ matrix.package-file.name == 'Package.swift' }}
-        run: rm -rf Package@swift*
-      - name: Change path of the framework
-        run: |
-          sed -i '' 's/url.*//g' ${{matrix.package-file.name}}
-          sed -i '' 's/checksum: ".*" \/\/Sentry-Static/path: "Sentry.xcframework.zip"/g' ${{matrix.package-file.name}}
-          sed -i '' 's/checksum: ".*" \/\/Sentry-Dynamic-WithARM64e/path: "Sentry-Dynamic-WithARM64e.xcframework.zip"/g' ${{matrix.package-file.name}}
-          sed -i '' 's/checksum: ".*" \/\/Sentry-Dynamic/path: "Sentry-Dynamic.xcframework.zip"/g' ${{matrix.package-file.name}}
-        shell: bash
+      - name: Prepare Package.swift
+        uses: ./.github/actions/prepare-package.swift
+        with:
+          is-pr: ${{ github.event_name == 'pull_request' }}
+          package-file: ${{matrix.package-file.name}}
       - run: swift build
         working-directory: Samples/macOS-SPM-CommandLine
       - name: Run CI Diagnostics
@@ -180,23 +159,20 @@ jobs:
   validate-spm-dynamic:
     name: Validate SPM Dynamic ${{matrix.package-file.name}}
     runs-on: macos-14
-    needs: assemble-xcframework-variant
+    needs: [files-changed, assemble-xcframework-variant]
+    # Run the job only for PRs with related changes or non-PR events.
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
     steps:
       - uses: actions/checkout@v5
       - uses: actions/download-artifact@v5
         with:
           pattern: xcframework-${{github.sha}}-*
           merge-multiple: true
-      - name: Remove newer package files
-        if: ${{ matrix.package-file.name == 'Package.swift' }}
-        run: rm -rf Package@swift*
-      - name: Change path of the framework
-        run: |
-          sed -i '' 's/url.*//g' ${{matrix.package-file.name}}
-          sed -i '' 's/checksum: ".*" \/\/Sentry-Static/path: "Sentry.xcframework.zip"/g' ${{matrix.package-file.name}}
-          sed -i '' 's/checksum: ".*" \/\/Sentry-Dynamic-WithARM64e/path: "Sentry-Dynamic-WithARM64e.xcframework.zip"/g' ${{matrix.package-file.name}}
-          sed -i '' 's/checksum: ".*" \/\/Sentry-Dynamic/path: "Sentry-Dynamic.xcframework.zip"/g' ${{matrix.package-file.name}}
-        shell: bash
+      - name: Prepare Package.swift
+        uses: ./.github/actions/prepare-package.swift
+        with:
+          is-pr: ${{ github.event_name == 'pull_request' }}
+          package-file: ${{matrix.package-file.name}}
       - run: swift build
         working-directory: Samples/SPM-Dynamic
       - name: Run CI Diagnostics
@@ -211,23 +187,20 @@ jobs:
   swift-build:
     name: Build Swift Static ${{matrix.package-file.name}}
     runs-on: macos-14
-    needs: assemble-xcframework-variant
+    needs: [files-changed, assemble-xcframework-variant]
+    # Run the job only for PRs with related changes or non-PR events.
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
     steps:
       - uses: actions/checkout@v5
       - uses: actions/download-artifact@v5
         with:
           pattern: xcframework-${{github.sha}}-*
           merge-multiple: true
-      - name: Remove newer package files
-        if: ${{ matrix.package-file.name == 'Package.swift' }}
-        run: rm -rf Package@swift*
-      - name: Change path of the framework
-        run: |
-          sed -i '' 's/url.*//g' ${{matrix.package-file.name}}
-          sed -i '' 's/checksum: ".*" \/\/Sentry-Static/path: "Sentry.xcframework.zip"/g' ${{matrix.package-file.name}}
-          sed -i '' 's/checksum: ".*" \/\/Sentry-Dynamic-WithARM64e/path: "Sentry-Dynamic-WithARM64e.xcframework.zip"/g' ${{matrix.package-file.name}}
-          sed -i '' 's/checksum: ".*" \/\/Sentry-Dynamic/path: "Sentry-Dynamic.xcframework.zip"/g' ${{matrix.package-file.name}}
-        shell: bash
+      - name: Prepare Package.swift
+        uses: ./.github/actions/prepare-package.swift
+        with:
+          is-pr: ${{ github.event_name == 'pull_request' }}
+          package-file: ${{matrix.package-file.name}}
       - run: swift build
       - name: Run CI Diagnostics
         if: failure()
@@ -241,7 +214,9 @@ jobs:
   duplication-tests:
     name: Test Sentry Duplication V4 # Up the version with every change to keep track of flaky tests
     uses: ./.github/workflows/ui-tests-common.yml
-    needs: assemble-xcframework-variant
+    needs: [files-changed, assemble-xcframework-variant]
+    # Run the job only for PRs with related changes or non-PR events.
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     with:
@@ -253,7 +228,9 @@ jobs:
   app-metrics:
     name: Collect App Metrics
     runs-on: macos-15
-    needs: assemble-xcframework-variant
+    needs: [files-changed, assemble-xcframework-variant]
+    # Run the job only for PRs with related changes or non-PR events.
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
     timeout-minutes: 20
     steps:
       - name: Git checkout
@@ -307,6 +284,7 @@ jobs:
     runs-on: ubuntu-latest
     name: "Release New Version"
     needs: [
+      files-changed,
       validate-xcframework,
       validate-spm,
       validate-spm-dynamic,
@@ -361,3 +339,28 @@ jobs:
       - name: Run CI Diagnostics
         if: failure()
         run: ./scripts/ci-diagnostics.sh
+
+  release-required-check:
+    needs:
+      [
+        files-changed,
+        build-xcframework-variant-slices,
+        assemble-xcframework-variant,
+        validate-xcframework,
+        validate-spm,
+        validate-spm-dynamic,
+        swift-build,
+        duplication-tests,
+        app-metrics,
+      ]
+    name: Release
+    # This is necessary since a failed/skipped dependent job would cause this job to be skipped
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      # If any jobs we depend on fails gets cancelled or times out, this job will fail.
+      # Skipped jobs are not considered failures.
+      - name: Check for failures
+        if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
+        run: |
+          echo "One of the release check jobs has failed." && exit 1
