@@ -8,7 +8,7 @@ import Foundation
         if !Thread.isMainThread {
             let warningText = "Timers must be scheduled from the main thread, or they may never fire. See the attribute on the declaration in NSTimer.h. See https://stackoverflow.com/questions/8304702/how-do-i-create-a-nstimer-on-a-background-thread for more info."
             SentrySDKLog.warning(warningText)
-            assert(false, warningText)
+            assertionFailure(warningText)
         }
         return Timer.scheduledTimer(withTimeInterval: interval, repeats: repeats, block: block)
     }
@@ -18,7 +18,7 @@ import Foundation
         if !Thread.isMainThread {
             let warningText = "Timers must be scheduled from the main thread, or they may never fire. See the attribute on the declaration in NSTimer.h. See https://stackoverflow.com/questions/8304702/how-do-i-create-a-nstimer-on-a-background-thread for more info."
             SentrySDKLog.warning(warningText)
-            assert(false, warningText)
+            assertionFailure(warningText)
         }
         return Timer.scheduledTimer(timeInterval: ti, target: aTarget, selector: aSelector, userInfo: userInfo, repeats: yesOrNo)
     }
