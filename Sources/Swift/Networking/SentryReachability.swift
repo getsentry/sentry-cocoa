@@ -232,15 +232,7 @@ private func sentryConnectivityActualCallback(
         
         SentrySDKLog.debug("registering callback for reachability ref \(reachabilityRef)")
         
-        var context = SCNetworkReachabilityContext(
-            version: 0,
-            info: nil,
-            retain: nil,
-            release: nil,
-            copyDescription: nil
-        )
-        
-        SCNetworkReachabilitySetCallback(reachabilityRef, connectivityCallbackWrapper, &context)
+        SCNetworkReachabilitySetCallback(reachabilityRef, connectivityCallbackWrapper, nil)
         SCNetworkReachabilitySetDispatchQueue(reachabilityRef, sentryReachabilityQueue)
     }
     
