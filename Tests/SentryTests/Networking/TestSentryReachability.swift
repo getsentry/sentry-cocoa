@@ -1,4 +1,4 @@
-#if !os(watchOS) && !(os(visionOS) && !canImport(UIKit))
+#if !os(watchOS) && !((swift(>=5.9) && os(visionOS)) && !canImport(UIKit))
 
 @_spi(Private) @testable import Sentry
 import SentryTestUtils
@@ -30,4 +30,4 @@ import SentryTestUtils
     }
 }
 
-#endif // !os(watchOS) && !(os(visionOS) && !canImport(UIKit))
+#endif // !os(watchOS) && !((swift(>=5.9) && os(visionOS)) && !canImport(UIKit))

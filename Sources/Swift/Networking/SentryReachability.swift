@@ -26,7 +26,7 @@
 
 import Foundation
 
-#if !os(watchOS) && !(os(visionOS) && SENTRY_NO_UIKIT)
+#if !os(watchOS) && !((swift(>=5.9) && os(visionOS)) && SENTRY_NO_UIKIT)
 import SystemConfiguration
 
 @objc
@@ -295,4 +295,4 @@ private func sentryConnectivityActualCallback(
     }
 }
 
-#endif // !os(watchOS) && !(os(visionOS) && !canImport(UIKit))
+#endif // !os(watchOS) && !((swift(>=5.9) && os(visionOS)) && SENTRY_NO_UIKIT)
