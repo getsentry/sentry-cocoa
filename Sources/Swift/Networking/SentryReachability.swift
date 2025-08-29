@@ -77,7 +77,7 @@ private var sentryReachabilityIgnoreActualCallback = false
 }
 #endif // DEBUG || SENTRY_TEST || SENTRY_TEST_CI
 
-@_spi(Private) public func sentryConnectivityCallback(_ flags: SCNetworkReachabilityFlags) {
+func sentryConnectivityCallback(_ flags: SCNetworkReachabilityFlags) {
     objc_sync_enter(sentryReachabilityObservers)
     defer { objc_sync_exit(sentryReachabilityObservers) }
     
@@ -107,7 +107,7 @@ private var sentryReachabilityIgnoreActualCallback = false
  * Check whether the connectivity change should be noted or ignored.
  * @return @c true if the connectivity change should be reported
  */
-@_spi(Private) public func sentryConnectivityShouldReportChange(_ flags: SCNetworkReachabilityFlags) -> Bool {
+func sentryConnectivityShouldReportChange(_ flags: SCNetworkReachabilityFlags) -> Bool {
 #if canImport(UIKit)
     let importantFlags: SCNetworkReachabilityFlags = [.isWWAN, .reachable]
 #else
@@ -127,7 +127,7 @@ private var sentryReachabilityIgnoreActualCallback = false
 /**
  * Textual representation of a connection type
  */
-@_spi(Private) public func sentryConnectivityFlagRepresentation(_ flags: SCNetworkReachabilityFlags) -> String {
+func sentryConnectivityFlagRepresentation(_ flags: SCNetworkReachabilityFlags) -> String {
     let connected = flags.contains(.reachable)
 #if canImport(UIKit)
     if connected {
