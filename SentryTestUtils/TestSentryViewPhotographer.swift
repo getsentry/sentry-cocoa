@@ -4,7 +4,7 @@
 
 @_spi(Private) public class TestSentryViewPhotographer: SentryViewPhotographer {
     public override init(
-        renderer: SentryViewRenderer = TestSentryViewRenderer(),
+        renderer: SentryViewRenderer,
         redactOptions: any SentryRedactOptions,
         enableMaskRendererV2: Bool = false
     ) {

@@ -11,7 +11,11 @@ class SentryScreenshotIntegrationTests: XCTestCase {
 
         init() {
             let redactOptions = SentryViewScreenshotOptions()
-            let photographer = TestSentryViewPhotographer(redactOptions: redactOptions)
+            let renderer = TestSentryViewRenderer()
+            let photographer = TestSentryViewPhotographer(
+                renderer: renderer,
+                redactOptions: redactOptions
+            )
             let provider = TestSentryScreenshotSource(photographer: photographer)
             provider.result = [Data(count: 10)]
             screenshotProvider = provider
