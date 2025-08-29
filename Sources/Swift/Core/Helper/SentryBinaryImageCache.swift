@@ -73,7 +73,7 @@ import Foundation
         )
         
         lock.synchronized {
-            guard var cache = self.cache else { return }
+            guard let cache = self.cache else { return }
             
             // Binary search insertion to maintain sorted order by address
             var left = 0
