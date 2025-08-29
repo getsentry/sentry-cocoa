@@ -11,6 +11,6 @@ import Foundation
 @_spi(Private) public class SentryRandom: NSObject, SentryRandomProtocol {
     /// Returns a random number uniformly distributed over the interval [0.0 , 1.0].
     @objc public func nextNumber() -> Double {
-        Double.random(in: 0..<1)
+        Double.random(in: 0...1)
     }
 }
