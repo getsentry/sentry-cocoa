@@ -51,10 +51,6 @@
 #    import "SentryNSApplication.h"
 #endif
 
-#if !TARGET_OS_WATCH
-#    import "SentryReachability.h"
-#endif // !TARGET_OS_WATCH
-
 /**
  * Macro for implementing lazy initialization with a double-checked lock. The double-checked lock
  * speeds up the dependency retrieval by around 5%, so it's worth having it. Measured with
@@ -128,7 +124,7 @@ static BOOL isInitialializingDependencyContainer = NO;
     @synchronized(sentryDependencyContainerInstanceLock) {
 #if SENTRY_HAS_REACHABILITY
         [instance->_reachability removeAllObservers];
-#endif // !TARGET_OS_WATCH
+#endif // SENTRY_HAS_REACHABILITY
 
 #if SENTRY_HAS_UIKIT
         [instance->_framesTracker stop];
@@ -197,7 +193,7 @@ static BOOL isInitialializingDependencyContainer = NO;
 
 #if SENTRY_HAS_REACHABILITY
         _reachability = [[SentryReachability alloc] init];
-#endif // !SENTRY_HAS_REACHABILITY
+#endif // SENTRY_HAS_REACHABILITY
 
         isInitialializingDependencyContainer = NO;
     }

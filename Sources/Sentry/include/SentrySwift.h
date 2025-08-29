@@ -7,6 +7,13 @@
 #    endif
 #endif
 
+// Needed or we can't expose reachability functions from Swift
+#ifdef __cplusplus
+#    if __has_include(<SystemConfiguration/SystemConfiguration.h>)
+#        import <SystemConfiguration/SystemConfiguration.h>
+#    endif
+#endif
+
 #if __has_include(<SentryWithoutUIKit/Sentry.h>)
 #    if __has_include("SentryWithoutUIKit-Swift.h")
 #        import "SentryWithoutUIKit-Swift.h"

@@ -7,7 +7,6 @@
 #import "SentryHub.h"
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"
-#import "SentryReachability.h"
 #import "SentryScope.h"
 #import "SentrySwift.h"
 #import "SentrySwizzle.h"
@@ -83,7 +82,7 @@ static NSString *const SentryBreadcrumbTrackerSwizzleSendAction
     _delegate = nil;
 #if SENTRY_HAS_REACHABILITY
     [self stopTrackNetworkConnectivityChanges];
-#endif // !TARGET_OS_WATCH
+#endif // SENTRY_HAS_REACHABILITY
 }
 
 - (void)trackApplicationNotifications
@@ -163,7 +162,7 @@ static NSString *const SentryBreadcrumbTrackerSwizzleSendAction
     [self.delegate addBreadcrumb:crumb];
 }
 
-#endif // !TARGET_OS_WATCH
+#endif // SENTRY_HAS_REACHABILITY
 
 - (void)addBreadcrumbWithType:(NSString *)type
                  withCategory:(NSString *)category
