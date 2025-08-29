@@ -41,14 +41,12 @@ import MachO
 
             var classCount: UInt32 = 0
             imageName.withCString { cImageName in
-                if let classNames = objcRuntimeWrapper.copyClassNames(forImage: cImageName, amount: &classCount) {
+                if let classNames = objcRuntimeWrapper.copyClassNamesForImage(cImageName, &classCount) {
                     defer {
                         free(classNames)
                     }
                     for j in 0..<Int(classCount) {
-                        guard let className = classNames[j] else {
-                            continue
-                        }
+                        let className = classNames[j]
                         // Since we are iterating over all classes in the image, we need to be extra careful not to do unnecesarry work
                         // or calling `NSClassFromString` since that can lead to issues (see `SentrySubClassFinder` for more details).
                         let name = String(cString: UnsafeRawPointer(className).assumingMemoryBound(to: UInt8.self))
