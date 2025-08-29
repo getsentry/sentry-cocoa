@@ -3,7 +3,6 @@
 #import "SentryANRTrackingIntegration.h"
 #import "SentryAppStartMeasurement.h"
 #import "SentryAppStateManager.h"
-#import "SentryBinaryImageCache.h"
 #import "SentryBreadcrumb.h"
 #import "SentryClient+Private.h"
 #import "SentryCrash.h"
