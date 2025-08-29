@@ -65,6 +65,70 @@ run_api_stability_for_prs: &run_api_stability_for_prs # API-related code
   - "sdk_api.json"
   - "sdk_api_v9.json"
 
+run_benchmarking_for_prs: &run_benchmarking_for_prs
+  - "Sources/**"
+
+  # Benchmarking implementation
+  - "Samples/iOS-Swift/**"
+  - ".sauce/benchmarking-config.yml"
+  - "fastlane/**"
+
+  # GH Actions
+  - ".github/workflows/benchmarking.yml"
+  - ".github/workflows/build-xcframework-variant-slices.yml"
+  - ".github/workflows/assemble-xcframework-variant.yml"
+  - ".github/file-filters.yml"
+
+  # Scripts
+  - "scripts/ci-select-xcode.sh"
+  - "scripts/ci-diagnostics.sh"
+  - "scripts/build-xcframework-slice.sh"
+  - "scripts/assemble-xcframework.sh"
+
+  # Project files
+  - "Samples/iOS-Swift/iOS-Swift.yml"
+  - "Samples/iOS-Swift/iOS-Swift.xcconfig"
+  - "Samples/iOS-Swift/iOS-SwiftClip.xcconfig"
+  - "Samples/iOS-Swift/iOS-Benchmarking.xcconfig"
+
+run_test_cross_platform_for_prs: &run_test_cross_platform_for_prs
+  - "Sources/**"
+
+  # GH Actions
+  - ".github/workflows/test-cross-platform.yml"
+  - ".github/file-filters.yml"
+
+  # Project files
+  - "Sentry.podspec"
+  - "SentrySwiftUI.podspec"
+  - "Package*.swift"
+
+  # Scripts
+  - "scripts/ci-diagnostics.sh"
+
+  # Other
+  - "Makefile" # Make commands used for cross-platform setup
+  - "Brewfile*" # Dependency installation affects cross-platform testing
+
+run_lint_clang_formatting_for_prs: &run_lint_clang_formatting_for_prs
+  - "**/*.h"
+  - "**/*.hpp"
+  - "**/*.c"
+  - "**/*.cpp"
+  - "**/*.m"
+  - "**/*.mm"
+
+  # GH Actions
+  - ".github/workflows/lint-clang-formatting.yml"
+  - ".github/file-filters.yml"
+
+  # Formatting
+  - ".clang-format"
+  # Other
+  - "Makefile" # Make commands used for formatting setup
+  - "Brewfile*" # Tools installation affects formatting environment
+  - "scripts/ci-diagnostics.sh" # CI diagnostics may affect formatting checks
+
 run_objc_conversion_analysis_for_prs: &run_objc_conversion_analysis_for_prs
   - "SwiftConversion/**"
 
@@ -160,6 +224,13 @@ run_lint_swift_formatting_for_prs: &run_lint_swift_formatting_for_prs # Swift fo
 
   # Scripts
   - "scripts/ci-diagnostics.sh"
+
+run_lint_shellcheck_for_prs: &run_lint_shellcheck_for_prs # Shell scripts
+  - "**/*.sh"
+
+  # GH Actions
+  - ".github/workflows/lint-shellcheck-formatting.yml"
+  - ".github/file-filters.yml"
 
 run_lint_dprint_for_prs: &run_lint_dprint_for_prs # dprint formatting
   - "**/*.yml"
