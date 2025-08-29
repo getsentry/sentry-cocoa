@@ -20,7 +20,10 @@ void
 saveScreenShot(const char *path)
 {
     NSString *reportPath = [NSString stringWithUTF8String:path];
-    [SentryDependencyContainer.sharedInstance.screenshot saveScreenShots:reportPath];
+    SentryViewScreenshotOptions *options = SentrySDKInternal.options.screenshot;
+    SentryScreenshotSource *screenshotSource =
+        [SentryDependencyContainer.sharedInstance getScreenshotSourceForOptions:options];
+    [screenshotSource saveScreenShots:reportPath];
 }
 
 @interface SentryScreenshotIntegration ()
@@ -42,6 +45,7 @@ saveScreenShot(const char *path)
     SentryClient *client = [SentrySDKInternal.currentHub getClient];
     [client addAttachmentProcessor:self];
 
+    // TODO: Use the options to currify the saveScreenshot function.
     sentrycrash_setSaveScreenshots(&saveScreenShot);
 
     return YES;
@@ -89,8 +93,9 @@ saveScreenShot(const char *path)
 
     NSMutableArray *result = [NSMutableArray arrayWithArray:attachments];
 
-    NSArray<NSData *> *screenshot =
-        [SentryDependencyContainer.sharedInstance.screenshot appScreenshotDatasFromMainThread];
+    SentryScreenshotSource *screenshotSource = [SentryDependencyContainer.sharedInstance
+        getScreenshotSourceForOptions:self.options.screenshot];
+    NSArray<NSData *> *screenshot = [screenshotSource appScreenshotDatasFromMainThread];
 
     for (int i = 0; i < screenshot.count; i++) {
         NSString *name

@@ -103,6 +103,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
 #if SENTRY_HAS_UIKIT
         self.enableUIViewControllerTracing = YES;
         self.attachScreenshot = NO;
+        self.screenshot = [[SentryViewScreenshotOptions alloc] init];
         self.attachViewHierarchy = NO;
         self.reportAccessibilityIdentifier = YES;
         self.enableUserInteractionTracing = YES;

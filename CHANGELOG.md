@@ -18,6 +18,7 @@
 
 - Lazily CharacterSet only once in SentryBaggageSerialization (#5871)
 - Structured Logging: Log `SentrySDK.logger` calls to `SentrySDKLog` (#5991)
+- Add masking options for screenshots (#5401)
 
 ## 8.54.1-alpha.1
 

@@ -2,12 +2,12 @@
 
 @_spi(Private) @testable import Sentry
 
-class TestSentryScreenshot: SentryScreenshot {
-    
+class TestSentryScreenshotSource: SentryScreenshotSource {
+
     var result: [Data] = []
     var images: [UIImage] = []
     var processScreenshotsCallback: (() -> Void)?
-        
+
     override func appScreenshotsData() -> [Data] {
         processScreenshotsCallback?()
         return result

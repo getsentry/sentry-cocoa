@@ -193,7 +193,7 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
     public var enableViewRendererV2: Bool
 
     /**
-     * Enables up to 5x faster but incommpelte view rendering used by the Session Replay integration.
+     * Enables up to 5x faster but incomplete view rendering used by the Session Replay integration.
      *
      * Enabling this flag will reduce the amount of time it takes to render each frame of the session replay on the main thread, therefore reducing
      * interruptions and visual lag. [Our benchmarks](https://github.com/getsentry/sentry-cocoa/pull/4940) have shown a significant improvement of

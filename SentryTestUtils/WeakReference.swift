@@ -5,8 +5,9 @@ import Foundation
 /// keeps track of method invocation arguments. You can use this class if
 /// you don't want the invocations class to retain objects.
 public class WeakReference<T: AnyObject> {
-  weak var value: T?
-  init (value: T) {
-    self.value = value
-  }
+    public weak var value: T?
+    
+    public init (value: T) {
+        self.value = value
+    }
 }
