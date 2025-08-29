@@ -62,6 +62,7 @@ jobs:
 
       - name: Run CI Diagnostics
         if: failure()
+        shell: bash
         run: ./scripts/ci-diagnostics.sh
 
   # This check validates that either all integration tests passed or were skipped, which allows us

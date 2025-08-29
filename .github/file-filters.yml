@@ -66,17 +66,26 @@ run_api_stability_for_prs: &run_api_stability_for_prs # API-related code
   - "sdk_api_v9.json"
 
 run_integration_test_for_prs: &run_integration_test_for_prs # CocoaPods integration test
+  # GH Actions
   - ".github/workflows/integration-test.yml"
+
+  # Project files
   - "*.xcodeproj"
   - "*.xcworkspace"
+  - "*.podspec"
+  - "Plans/iOS-Cocoapods-Swift6_Base.xctestplan"
+
+  # Sources
+  - "Sources/**"
   - "Samples/iOS-Cocoapods-*/**"
+
+  # Scripts
   - "scripts/ci-select-xcode.sh"
   - "scripts/ci-diagnostics.sh"
-  - "Sources/**"
-  - "*.podspec"
+
+  # Other
   - "fastlane/**"
   - "Gemfile.lock"
-  - "Plans/iOS-Cocoapods-Swift6_Base.xctestplan"
 
 run_test_cross_platform_for_prs: &run_test_cross_platform_for_prs
   - "Sources/**"
