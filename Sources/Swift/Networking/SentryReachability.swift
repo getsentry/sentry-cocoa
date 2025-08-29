@@ -26,7 +26,7 @@
 
 import Foundation
 
-#if !os(watchOS) && !(os(visionOS) && !canImport(UIKit))
+#if !os(watchOS) && !(os(visionOS) && SENTRY_NO_UIKIT)
 import SystemConfiguration
 
 @objc
@@ -49,6 +49,7 @@ public enum SentryConnectivity: Int {
 
 private let kSCNetworkReachabilityFlagsUninitialized: SCNetworkReachabilityFlags = SCNetworkReachabilityFlags(rawValue: UInt32.max)
 
+// Global variables are lazy by default
 private var sentryReachabilityObservers = NSHashTable<SentryReachabilityObserver>.weakObjects()
 private var sentryCurrentReachabilityState: SCNetworkReachabilityFlags = kSCNetworkReachabilityFlagsUninitialized
 private var sentryReachabilityQueue: DispatchQueue?
@@ -56,7 +57,7 @@ private var sentryReachabilityQueue: DispatchQueue?
 #if DEBUG || SENTRY_TEST || SENTRY_TEST_CI
 private var sentryReachabilityIgnoreActualCallback = false
 
-@objc public class SentryReachabilityTestHelper: NSObject {
+@_spi(Private) @objc public class SentryReachabilityTestHelper: NSObject {
     @objc static public func setReachabilityIgnoreActualCallback(_ value: Bool) {
         SentrySDKLog.debug("Setting ignore actual callback to \(value)")
         sentryReachabilityIgnoreActualCallback = value
@@ -76,7 +77,7 @@ private var sentryReachabilityIgnoreActualCallback = false
 }
 #endif // DEBUG || SENTRY_TEST || SENTRY_TEST_CI
 
-public func sentryConnectivityCallback(_ flags: SCNetworkReachabilityFlags) {
+@_spi(Private) public func sentryConnectivityCallback(_ flags: SCNetworkReachabilityFlags) {
     objc_sync_enter(sentryReachabilityObservers)
     defer { objc_sync_exit(sentryReachabilityObservers) }
     
@@ -102,7 +103,11 @@ public func sentryConnectivityCallback(_ flags: SCNetworkReachabilityFlags) {
     SentrySDKLog.debug("Finished notifying observers.")
 }
 
-public func sentryConnectivityShouldReportChange(_ flags: SCNetworkReachabilityFlags) -> Bool {
+/**
+ * Check whether the connectivity change should be noted or ignored.
+ * @return @c true if the connectivity change should be reported
+ */
+@_spi(Private) public func sentryConnectivityShouldReportChange(_ flags: SCNetworkReachabilityFlags) -> Bool {
 #if canImport(UIKit)
     let importantFlags: SCNetworkReachabilityFlags = [.isWWAN, .reachable]
 #else
@@ -119,7 +124,10 @@ public func sentryConnectivityShouldReportChange(_ flags: SCNetworkReachabilityF
     return true
 }
 
-public func sentryConnectivityFlagRepresentation(_ flags: SCNetworkReachabilityFlags) -> String {
+/**
+ * Textual representation of a connection type
+ */
+@_spi(Private) public func sentryConnectivityFlagRepresentation(_ flags: SCNetworkReachabilityFlags) -> String {
     let connected = flags.contains(.reachable)
 #if canImport(UIKit)
     if connected {
@@ -132,6 +140,29 @@ public func sentryConnectivityFlagRepresentation(_ flags: SCNetworkReachabilityF
 #endif // canImport(UIKit)
 }
 
+// 
+#if os(visionOS)
+/**
+ * visionOS-specific callback wrapper that handles the different parameter type
+ * for SCNetworkReachabilityFlags. visionOS uses UInt32 for flags instead of
+ * the SCNetworkReachabilityFlags type used on other platforms.
+ */
+private func connectivityCallbackWrapper(_ target: SCNetworkReachability,
+                                         _ flags: UInt32,
+                                         _ info: UnsafeMutableRawPointer?) {
+    sentryConnectivityActualCallback(target, SCNetworkReachabilityFlags(rawValue: flags), info)
+}
+#else
+private func connectivityCallbackWrapper(_ target: SCNetworkReachability,
+                                         _ flags: SCNetworkReachabilityFlags,
+                                         _ info: UnsafeMutableRawPointer?) {
+    sentryConnectivityActualCallback(target, flags, info)
+}
+#endif
+
+/**
+ * Callback invoked by @c SCNetworkReachability, handles the connection change.
+ */
 private func sentryConnectivityActualCallback(
     _ target: SCNetworkReachability,
     _ flags: SCNetworkReachabilityFlags,
@@ -189,6 +220,10 @@ private func sentryConnectivityActualCallback(
         
         sentryReachabilityQueue = DispatchQueue(label: "io.sentry.cocoa.connectivity")
         
+        // Ensure to call CFRelease for the return value of SCNetworkReachabilityCreateWithName, see
+        // https://developer.apple.com/documentation/systemconfiguration/1514904-scnetworkreachabilitycreatewithn?language=objc
+        // and
+        // https://developer.apple.com/documentation/systemconfiguration/scnetworkreachability?language=objc
         guard let reachabilityRef = SCNetworkReachabilityCreateWithName(nil, "sentry.io") else {
             return
         }
@@ -205,7 +240,7 @@ private func sentryConnectivityActualCallback(
             copyDescription: nil
         )
         
-        SCNetworkReachabilitySetCallback(reachabilityRef, sentryConnectivityActualCallback, &context)
+        SCNetworkReachabilitySetCallback(reachabilityRef, connectivityCallbackWrapper, &context)
         SCNetworkReachabilitySetDispatchQueue(reachabilityRef, sentryReachabilityQueue)
     }
     
