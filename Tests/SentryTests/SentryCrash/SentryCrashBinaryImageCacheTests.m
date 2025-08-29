@@ -1,8 +1,8 @@
-#import "SentryBinaryImageCache+Private.h"
 #import "SentryCrashBinaryImageCache.h"
 #import "SentryCrashDynamicLinker+Test.h"
 #import "SentryCrashWrapper.h"
 #import "SentryDependencyContainer.h"
+#import "SentrySwift.h"
 #import <XCTest/XCTest.h>
 
 #include <mach-o/dyld.h>
