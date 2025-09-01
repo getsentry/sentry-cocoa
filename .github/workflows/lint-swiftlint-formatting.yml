@@ -4,14 +4,6 @@ on:
   push:
     branches:
       - main
-    paths:
-      - "Sources/**"
-      - "Tests/**"
-      - "test-server/**"
-      - "Samples/**"
-      - ".github/workflows/lint-swiftlint-formatting.yml"
-      - "scripts/ci-select-xcode.sh"
-      - "scripts/ci-diagnostics.sh"
 
   pull_request:
 
