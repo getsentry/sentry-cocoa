@@ -1036,9 +1036,9 @@
 		F48F74F32E5F9959009D4E7D /* SentryCrashBinaryImageCacheTests.m in Sources */ = {isa = PBXBuildFile; fileRef = F48F74F22E5F9959009D4E7D /* SentryCrashBinaryImageCacheTests.m */; };
 		F48F75712E5FA630009D4E7D /* SentryBinaryImageCacheCallbacks.m in Sources */ = {isa = PBXBuildFile; fileRef = F48F75702E5FA630009D4E7D /* SentryBinaryImageCacheCallbacks.m */; };
 		F48F75732E5FA649009D4E7D /* SentryBinaryImageCacheCallbacks.h in Headers */ = {isa = PBXBuildFile; fileRef = F48F75722E5FA649009D4E7D /* SentryBinaryImageCacheCallbacks.h */; };
-		F49236EB2E5E4B2F00663673 /* SentryBinaryImageCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = F49236EA2E5E4B2F00663673 /* SentryBinaryImageCache.swift */; };
 		F48F767C2E60B555009D4E7D /* SentryNSTimerFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = F48F767B2E60B555009D4E7D /* SentryNSTimerFactory.swift */; };
 		F48F78692E61DE28009D4E7D /* SentryReachability.swift in Sources */ = {isa = PBXBuildFile; fileRef = F48F78682E61DE28009D4E7D /* SentryReachability.swift */; };
+		F49236EB2E5E4B2F00663673 /* SentryBinaryImageCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = F49236EA2E5E4B2F00663673 /* SentryBinaryImageCache.swift */; };
 		F49D41982DEA27AF00D9244E /* SentryUseNSExceptionCallstackWrapperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F49D41972DEA27AF00D9244E /* SentryUseNSExceptionCallstackWrapperTests.swift */; };
 		F49D419A2DEA2FB000D9244E /* SentryCrashExceptionApplicationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F49D41992DEA2FB000D9244E /* SentryCrashExceptionApplicationTests.swift */; };
 		F49D419C2DEA30C300D9244E /* SentryCrashExceptionApplicationHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = F49D419B2DEA30B800D9244E /* SentryCrashExceptionApplicationHelper.h */; };
@@ -2380,9 +2380,9 @@
 		F48F74F22E5F9959009D4E7D /* SentryCrashBinaryImageCacheTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryCrashBinaryImageCacheTests.m; sourceTree = "<group>"; };
 		F48F75702E5FA630009D4E7D /* SentryBinaryImageCacheCallbacks.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryBinaryImageCacheCallbacks.m; sourceTree = "<group>"; };
 		F48F75722E5FA649009D4E7D /* SentryBinaryImageCacheCallbacks.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryBinaryImageCacheCallbacks.h; path = ../../Sentry/include/SentryBinaryImageCacheCallbacks.h; sourceTree = "<group>"; };
-		F49236EA2E5E4B2F00663673 /* SentryBinaryImageCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryBinaryImageCache.swift; sourceTree = "<group>"; };
 		F48F767B2E60B555009D4E7D /* SentryNSTimerFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryNSTimerFactory.swift; sourceTree = "<group>"; };
 		F48F78682E61DE28009D4E7D /* SentryReachability.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryReachability.swift; sourceTree = "<group>"; };
+		F49236EA2E5E4B2F00663673 /* SentryBinaryImageCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryBinaryImageCache.swift; sourceTree = "<group>"; };
 		F49D41972DEA27AF00D9244E /* SentryUseNSExceptionCallstackWrapperTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryUseNSExceptionCallstackWrapperTests.swift; sourceTree = "<group>"; };
 		F49D41992DEA2FB000D9244E /* SentryCrashExceptionApplicationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryCrashExceptionApplicationTests.swift; sourceTree = "<group>"; };
 		F49D419B2DEA30B800D9244E /* SentryCrashExceptionApplicationHelper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryCrashExceptionApplicationHelper.h; path = include/SentryCrashExceptionApplicationHelper.h; sourceTree = "<group>"; };

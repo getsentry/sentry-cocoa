@@ -140,8 +140,7 @@ func sentryConnectivityFlagRepresentation(_ flags: SCNetworkReachabilityFlags) -
 #endif // canImport(UIKit)
 }
 
-// 
-#if os(visionOS)
+#if swift(>=5.9) && os(visionOS)
 /**
  * visionOS-specific callback wrapper that handles the different parameter type
  * for SCNetworkReachabilityFlags. visionOS uses UInt32 for flags instead of
@@ -158,7 +157,7 @@ private func connectivityCallbackWrapper(_ target: SCNetworkReachability,
                                          _ info: UnsafeMutableRawPointer?) {
     sentryConnectivityActualCallback(target, flags, info)
 }
-#endif
+#endif // swift(>=5.9) && os(visionOS)
 
 /**
  * Callback invoked by @c SCNetworkReachability, handles the connection change.
