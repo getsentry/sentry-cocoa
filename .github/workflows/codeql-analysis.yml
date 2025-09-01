@@ -21,15 +21,9 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  # This job detects if the PR contains changes that require running CodeQL analysis.
-  # If yes, the job will output a flag that will be used by the next job to run the analysis.
-  # If no, the job will output a flag that will be used by the next job to skip running the analysis.
-  # At the end of this workflow, we run a check that validates that either analyze passed or was
-  # skipped, which is called codeql_analysis-required-check.
   files-changed:
     name: Detect File Changes
     runs-on: ubuntu-latest
-    # Map a step output to a job output
     outputs:
       run_codeql_analysis_for_prs: ${{ steps.changes.outputs.run_codeql_analysis_for_prs }}
     steps:
