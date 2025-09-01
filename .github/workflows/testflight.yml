@@ -20,15 +20,9 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  # This job detects if the PR contains changes that require running testflight.
-  # If yes, the job will output a flag that will be used by the next job to run the testflight.
-  # If no, the job will output a flag that will be used by the next job to skip running the testflight.
-  # At the end of this workflow, we run a check that validates that either upload_to_testflight passed or was
-  # skipped, which is called testflight-required-check.
   files-changed:
     name: Detect File Changes
     runs-on: ubuntu-latest
-    # Map a step output to a job output
     outputs:
       run_testflight_for_prs: ${{ steps.changes.outputs.run_testflight_for_prs }}
     steps:
