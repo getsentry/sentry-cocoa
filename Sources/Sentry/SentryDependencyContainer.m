@@ -11,7 +11,6 @@
 #import "SentryLogC.h"
 #import "SentryNSProcessInfoWrapper.h"
 #import "SentryOptions+Private.h"
-#import "SentryRandom.h"
 #import "SentrySDK+Private.h"
 #import "SentrySessionTracker.h"
 #import "SentrySwift.h"
