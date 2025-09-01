@@ -46,8 +46,9 @@ jobs:
           bundler-cache: true
       - name: Install old xcodegen
         # Install xcodegen 2.43.0 for since newer versions don't work with Xcode older than Xcode 16
+        # We need to set HOMEBREW_DEVELOPER=1 to allow installing from a local formula
         run: |
-          brew install --formula ./scripts/xcodegen.rb
+          HOMEBREW_DEVELOPER=1 brew install --formula ./scripts/xcodegen.rb
           brew pin xcodegen
       - run: make init-ci-build
       - run: make xcode-ci
