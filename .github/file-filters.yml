@@ -287,3 +287,18 @@ run_build_for_prs: &run_build_for_prs # Build-related code
   - "Gemfile.lock"
   - "Makefile" # Make commands used for CI build setup
   - "Brewfile*" # Dependency installation affects build environment
+
+run_testflight_for_prs: &run_testflight_for_prs # Testflight-related code
+  - "Sources/**"
+  - "Samples/iOS-Swift/**"
+
+  # GH Actions
+  - ".github/workflows/testflight.yml"
+  - ".github/file-filters.yml"
+
+  # Scripts
+  - "scripts/ci-select-xcode.sh"
+  - "scripts/ci-diagnostics.sh"
+
+  # Other
+  - "fastlane/**"
