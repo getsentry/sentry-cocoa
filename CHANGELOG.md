@@ -18,6 +18,7 @@
 
 - Lazily CharacterSet only once in SentryBaggageSerialization (#5871)
 - Structured Logging: Log `SentrySDK.logger` calls to `SentrySDKLog` (#5991)
+- Build type metadata now makes difference between `enterprise` and `adhoc` (#6044)
 
 ## 8.54.1-alpha.1
 
