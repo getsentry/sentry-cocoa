@@ -289,15 +289,24 @@ run_build_for_prs: &run_build_for_prs # Build-related code
   - "Brewfile*" # Dependency installation affects build environment
 
 run_version_bump_util_for_prs: &run_version_bump_util_for_prs # Version bump utility
+  # Version bump utilities
   - "Utils/VersionBump/**"
+
+  # GH Actions
   - ".github/workflows/version-bump-util.yml"
+
+  # Scripts
+  - "scripts/bump.sh"
+
+  # Sources
+  - "Sources/Sentry/SentryMeta.m"
+
+  # Project files
   - "Sentry.podspec"
-  - "Package*.swift"
   - "SentryPrivate.podspec"
   - "SentrySwiftUI.podspec"
-  - "Sources/Sentry/SentryMeta.m"
+  - "Package*.swift"
   - "Tests/HybridSDKTest/HybridPod.podspec"
   - "Sources/Configuration/SDK.xcconfig"
   - "Sources/Configuration/Versioning.xcconfig"
   - "Sources/Configuration/SentrySwiftUI.xcconfig"
-  - "scripts/bump.sh"
