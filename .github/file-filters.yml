@@ -287,3 +287,35 @@ run_build_for_prs: &run_build_for_prs # Build-related code
   - "Gemfile.lock"
   - "Makefile" # Make commands used for CI build setup
   - "Brewfile*" # Dependency installation affects build environment
+
+run_ui_tests_for_prs: &run_ui_tests_for_prs # UI Tests
+  - "Sources/**"
+  - "Tests/**"
+
+  # GH Actions
+  - ".github/workflows/ui-tests.yml"
+  - ".github/workflows/ui-tests-common.yml"
+  - ".github/file-filters.yml"
+
+  # Scripts
+  - "scripts/ci-select-xcode.sh"
+  - "scripts/build-xcframework-slice.sh"
+  - "scripts/assemble-xcframework.sh"
+
+  # Project files
+  - "**/*.xctestplan"
+
+  # Samples
+  - "Samples/iOS-SwiftUI/**"
+  - "Samples/iOS-Swift/**"
+  - "Samples/iOS-Swift6/**"
+  - "Samples/SentrySampleShared/**"
+  - "Samples/Shared/**"
+
+  # Other
+  - "fastlane/**"
+  - ".sauce/config.yml"
+  - ".github/workflows/build-xcframework-variant-slices.yml"
+  - ".github/workflows/assemble-xcframework-variant.yml"
+  - "Makefile" # Make commands used for UI test environment setup
+  - "Brewfile*" # Dependency installation affects UI test environment
