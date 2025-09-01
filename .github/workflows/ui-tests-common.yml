@@ -45,6 +45,16 @@ on:
         required: false
         default: ""
         type: string
+      destination_os:
+        description: "Destination OS version"
+        required: false
+        default: ""
+        type: string
+      device_name:
+        description: "Device name"
+        required: false
+        default: ""
+        type: string
     secrets:
       CODECOV_TOKEN:
         required: true
@@ -77,6 +87,10 @@ jobs:
       - name: Install required platforms for Xcode 26
         if: ${{ inputs.install_platforms != '' }}
         run: ./scripts/ci-install-platforms.sh --platforms ${{ inputs.install_platforms }}
+
+      - name: Create simulator device for Xcode 26
+        if: ${{ inputs.xcode_version == '26.0' && inputs.install_platforms != '' && inputs.destination_os != '' && inputs.device_name != '' }}
+        run: ./scripts/ci-create-simulator.sh --platform "${{ inputs.install_platforms }}" --os-version "${{ inputs.destination_os }}" --device-name "${{ inputs.device_name }}"
 
       - run: make init-ci-build
         if: ${{ inputs.build_with_make }}

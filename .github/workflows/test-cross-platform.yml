@@ -40,6 +40,18 @@ jobs:
     runs-on: macos-15
     # This job can take a while to run, so we set a timeout.
     timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: iOS
+            device: "iPhone 16"
+            destination-os: "18.5"
+            xcode: "16.4"
+          - platform: iOS
+            device: "iPhone 16e"
+            destination-os: "26.0"
+            xcode: "26.0"
     steps:
       - uses: actions/checkout@v5
         with:
@@ -65,7 +77,16 @@ jobs:
           node-version: 18
           cache: "yarn"
           cache-dependency-path: sentry-react-native/yarn.lock
-      - run: ./sentry-cocoa/scripts/ci-select-xcode.sh 16.4
+      - name: Select Xcode version
+        run: ./sentry-cocoa/scripts/ci-select-xcode.sh ${{matrix.xcode}}
+
+      - name: Install required platforms for Xcode 26
+        if: matrix.xcode == '26.0' && matrix.platform != ''
+        run: ./sentry-cocoa/scripts/ci-install-platforms.sh --platforms ${{matrix.platform}}
+
+      - name: Create simulator device for Xcode 26
+        if: matrix.xcode == '26.0' && matrix.platform != '' && matrix.destination-os != '' && matrix.device != ''
+        run: ./sentry-cocoa/scripts/ci-create-simulator.sh --platform ${{matrix.platform}} --os-version ${{matrix.destination-os}} --device-name ${{matrix.device}}
 
       - name: Install SDK JS Dependencies
         working-directory: sentry-react-native
@@ -105,12 +126,12 @@ jobs:
         uses: actions/upload-artifact@v4
         if: ${{ failure() || cancelled() }}
         with:
-          name: raw-test-output-RNSentryCocoaTester
+          name: raw-test-output-RNSentryCocoaTester-${{matrix.xcode}}-${{matrix.platform}}-${{matrix.destination-os}}-${{matrix.device}}
           path: raw-test-output.log
 
       - name: Run CI Diagnostics
         if: failure()
-        run: ./scripts/ci-diagnostics.sh
+        run: ./sentry-cocoa/scripts/ci-diagnostics.sh
 
   test_cross_platform-required-check:
     needs:

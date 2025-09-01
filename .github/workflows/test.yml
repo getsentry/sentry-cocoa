@@ -253,6 +253,15 @@ jobs:
 
           # ==== visionOS ======
 
+          # visionOS 18
+          - name: visionOS 18 Sentry
+            runs-on: macos-15
+            platform: "visionOS"
+            xcode: "16.4"
+            destination-os: "18.5"
+            device: "Apple Vision Pro"
+            scheme: "Sentry"
+
           # visionOS 26
           - name: visionOS 26 Sentry
             runs-on: macos-15
@@ -274,18 +283,12 @@ jobs:
       - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
 
       - name: Install required platforms for Xcode 26
-        if: matrix.platform
-        run: |
-          ./scripts/ci-install-platforms.sh \
-            --platforms ${{matrix.platform}}
+        if: matrix.xcode == '26.0' && matrix.platform != ''
+        run: ./scripts/ci-install-platforms.sh --platforms ${{matrix.platform}}
 
       - name: Create simulator device for Xcode 26
-        if: matrix.xcode == '26.0' && matrix.device != ''
-        run: |
-          ./scripts/ci-create-simulator.sh \
-            --platform ${{matrix.platform}} \
-            --os-version ${{matrix.destination-os}} \
-            --device-name ${{matrix.device}}
+        if: matrix.xcode == '26.0' && matrix.platform != '' && matrix.destination-os != '' && matrix.device != ''
+        run: ./scripts/ci-create-simulator.sh --platform ${{matrix.platform}} --os-version ${{matrix.destination-os}} --device-name ${{matrix.device}}
 
       - name: Install Slather
         run: gem install slather
