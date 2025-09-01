@@ -301,6 +301,7 @@ run_ui_tests_for_prs: &run_ui_tests_for_prs # UI Tests
   - "scripts/ci-select-xcode.sh"
   - "scripts/build-xcframework-slice.sh"
   - "scripts/assemble-xcframework.sh"
+  - "scripts/ci-diagnostics.sh"
 
   # Project files
   - "**/*.xctestplan"
