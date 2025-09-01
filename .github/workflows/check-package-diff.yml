@@ -10,15 +10,9 @@ on:
   pull_request:
 
 jobs:
-  # This job detects if the PR contains changes that require running check-package-diff.
-  # If yes, the job will output a flag that will be used by the next job to run the check-package-diff.
-  # If no, the job will output a flag that will be used by the next job to skip running the check-package-diff.
-  # At the end of this workflow, we run a check that validates that either check-package-diff passed or were
-  # skipped, which is called check_package_diff-required-check.
   files-changed:
     name: Detect File Changes
     runs-on: ubuntu-latest
-    # Map a step output to a job output
     outputs:
       run_check_package_diff_for_prs: ${{ steps.changes.outputs.run_check_package_diff_for_prs }}
     steps:
