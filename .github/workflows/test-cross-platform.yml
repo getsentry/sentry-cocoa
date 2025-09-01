@@ -111,7 +111,7 @@ jobs:
         env:
           SCHEME: RNSentryCocoaTester
           CONFIGURATION: Release
-          DESTINATION: "platform=iOS Simulator,OS=latest,name=iPhone 16"
+          DESTINATION: "platform=iOS Simulator,OS=${{matrix.destination-os}},name=${{matrix.device}}"
         run: >-
           set -o pipefail && NSUnbufferedIO=YES xcodebuild \
             -workspace *.xcworkspace \

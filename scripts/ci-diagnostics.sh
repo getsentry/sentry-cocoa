@@ -1,10 +1,12 @@
 #!/usr/bin/env bash
-
 set -euo pipefail
+
+# Source CI utility functions for logging and grouping
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Disable SC1091 because it won't work with pre-commit
 # shellcheck source=./scripts/ci-utils.sh disable=SC1091
-source "$(cd "$(dirname "$0")" && pwd)/ci-utils.sh"
+source "${SCRIPT_DIR}/ci-utils.sh"
 
 log_notice "Starting Xcode/macOS environment diagnostics"
 

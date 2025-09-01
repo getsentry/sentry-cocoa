@@ -39,6 +39,8 @@ jobs:
       macos_version: ${{matrix.platform.runs-on}}
       files_suffix: _${{matrix.platform.xcode}}
       install_platforms: ${{ matrix.platform.xcode == '26.0' && 'iOS' || '' }}
+      destination_os: ${{ matrix.platform.xcode == '26.0' && '26.0' || '' }}
+      device_name: ${{ matrix.platform.xcode == '26.0' && 'iPhone 16e' || '' }}
     strategy:
       fail-fast: false
       matrix:
