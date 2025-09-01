@@ -8,17 +8,55 @@ on:
       - main
 
   pull_request:
-    paths:
-      - ".github/workflows/check-package-diff.yml"
-      - "Package*.swift"
-      - "Makefile"
-      - "Utils/expected_package_diff.patch"
 
 jobs:
+  # This job detects if the PR contains changes that require running check-package-diff.
+  # If yes, the job will output a flag that will be used by the next job to run the check-package-diff.
+  # If no, the job will output a flag that will be used by the next job to skip running the check-package-diff.
+  # At the end of this workflow, we run a check that validates that either check-package-diff passed or were
+  # skipped, which is called check_package_diff-required-check.
+  files-changed:
+    name: Detect File Changes
+    runs-on: ubuntu-latest
+    # Map a step output to a job output
+    outputs:
+      run_check_package_diff_for_prs: ${{ steps.changes.outputs.run_check_package_diff_for_prs }}
+    steps:
+      - uses: actions/checkout@v5
+      - name: Get changed files
+        id: changes
+        uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
+        with:
+          token: ${{ github.token }}
+          filters: .github/file-filters.yml
+
   check:
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_check_package_diff_for_prs == 'true'
+    needs: files-changed
     name: Check Package.swift Diff
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
       - name: Check Package.swift Diff
         run: make check-package-diff
+
+  # This check validates that either check-package-diff passed or was skipped, which allows us
+  # to make check-package-diff a required check with only running the check-package-diff when required.
+  # So, we don't have to run check-package-diff, for example, for unrelated changes.
+  check_package_diff-required-check:
+    needs:
+      [
+        files-changed,
+        check,
+      ]
+    name: Check Package.swift Diff
+    # This is necessary since a failed/skipped dependent job would cause this job to be skipped
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      # If any jobs we depend on fails gets cancelled or times out, this job will fail.
+      # Skipped jobs are not considered failures.
+      - name: Check for failures
+        if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
+        run: |
+          echo "One of the check-package-diff jobs has failed." && exit 1

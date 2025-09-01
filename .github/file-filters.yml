@@ -287,3 +287,15 @@ run_build_for_prs: &run_build_for_prs # Build-related code
   - "Gemfile.lock"
   - "Makefile" # Make commands used for CI build setup
   - "Brewfile*" # Dependency installation affects build environment
+
+run_check_package_diff_for_prs: &run_check_package_diff_for_prs # Package.swift diff checking
+  # GH Actions
+  - ".github/workflows/check-package-diff.yml"
+  - ".github/file-filters.yml"
+
+  # Package files
+  - "Package*.swift"
+
+  # Other
+  - "Makefile" # Make commands used for package diff checking
+  - "Utils/expected_package_diff.patch"
