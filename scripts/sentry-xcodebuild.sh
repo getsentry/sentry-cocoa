@@ -20,7 +20,7 @@ TEST_SCHEME="Sentry"
 
 usage() {
     echo "Usage: $0"
-    echo "  -p|--platform <platform>        Platform (macOS/Catalyst/iOS/tvOS)"
+    echo "  -p|--platform <platform>        Platform (macOS/Catalyst/iOS/tvOS/visionOS/watchOS)"
     echo "  -o|--os <os>                    OS version (default: latest)"
     echo "  -r|--ref <ref>                  Reference name (default: HEAD)"
     echo "  -c|--command <command>          Command (build/build-for-testing/test-without-building/test)"
@@ -89,6 +89,14 @@ case $PLATFORM in
 
 "tvOS")
     DESTINATION="platform=tvOS Simulator,OS=$OS,name=Apple TV"
+    ;;
+
+"visionOS")
+    DESTINATION="platform=visionOS Simulator,OS=$OS,name=Apple Vision Pro"
+    ;;
+
+"watchOS")
+    DESTINATION="platform=watchOS Simulator,OS=$OS,name=Apple Watch Series 10 (46mm)"
     ;;
 
 *)

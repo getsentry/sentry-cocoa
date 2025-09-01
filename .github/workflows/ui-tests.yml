@@ -102,6 +102,7 @@ jobs:
       build_with_make: true
       macos_version: ${{matrix.runs-on}}
       codecov_test_analytics: true
+      install_platforms: ${{ matrix.xcode == '26.0' && 'iOS' || '' }}
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
@@ -128,6 +129,7 @@ jobs:
       build_with_make: true
       macos_version: macos-15
       codecov_test_analytics: true
+      install_platforms: "iOS"
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
@@ -141,5 +143,6 @@ jobs:
       build_with_make: true
       macos_version: macos-15
       codecov_test_analytics: true
+      install_platforms: "iOS"
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}

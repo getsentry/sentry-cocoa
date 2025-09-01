@@ -45,6 +45,14 @@ case "$XCODE_VERSION" in
         SIMULATOR="iPhone 16"
         IOS_VERSION="18.5"
         ;;
+    "16.4")
+        SIMULATOR="iPhone 16"
+        IOS_VERSION="18.5"
+        ;;
+    "26.0")
+        SIMULATOR="iPhone 16e"
+        IOS_VERSION="26.0"
+        ;;
     *)
         SIMULATOR="iPhone 16" # Default fallback
         IOS_VERSION="18.5"
