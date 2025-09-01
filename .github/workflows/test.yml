@@ -253,12 +253,12 @@ jobs:
 
           # ==== visionOS ======
 
-          # visionOS 18
-          - name: visionOS 18 Sentry
+          # visionOS 2.5
+          - name: visionOS 2.5 Sentry
             runs-on: macos-15
             platform: "visionOS"
             xcode: "16.4"
-            destination-os: "18.5"
+            destination-os: "2.5"
             device: "Apple Vision Pro"
             scheme: "Sentry"
 
