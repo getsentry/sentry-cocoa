@@ -208,7 +208,7 @@
 #import "SentrySubClassFinder.h"
 #import "SentrySwift.h"
 #import "SentrySwiftAsyncIntegration.h"
-#import "SentrySwizzleWrapper.h"
+#import "SentrySwizzle.h"
 #import "SentrySysctl.h"
 #import "SentrySystemEventBreadcrumbs.h"
 #import "SentrySystemWrapper.h"
