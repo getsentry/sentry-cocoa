@@ -91,13 +91,22 @@ jobs:
           SCHEME: RNSentryCocoaTester
           CONFIGURATION: Release
           DESTINATION: "platform=iOS Simulator,OS=latest,name=iPhone 16"
-        run: |
-          set -o pipefail
-          env NSUnbufferedIO=YES \
-            xcodebuild -workspace *.xcworkspace \
-            -scheme $SCHEME -configuration $CONFIGURATION \
+        run: >-
+          set -o pipefail && NSUnbufferedIO=YES xcodebuild \
+            -workspace *.xcworkspace \
+            -scheme $SCHEME \
+            -configuration $CONFIGURATION \
             -destination "$DESTINATION" \
-            test SWIFT_ACTIVE_COMPILATION_CONDITIONS=CROSS_PLATFORM_TEST GCC_PREPROCESSOR_DEFINITIONS"=CROSS_PLATFORM_TEST=1" | xcbeautify
+            SWIFT_ACTIVE_COMPILATION_CONDITIONS=CROSS_PLATFORM_TEST \
+            GCC_PREPROCESSOR_DEFINITIONS"=CROSS_PLATFORM_TEST=1" \
+            test | tee raw-test-output.log | xcbeautify
+
+      - name: Archiving Raw Test Logs
+        uses: actions/upload-artifact@v4
+        if: ${{ failure() || cancelled() }}
+        with:
+          name: raw-test-output-RNSentryCocoaTester
+          path: raw-test-output.log
 
       - name: Run CI Diagnostics
         if: failure()
