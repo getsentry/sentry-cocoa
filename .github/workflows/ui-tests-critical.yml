@@ -5,17 +5,6 @@ on:
       - main
 
   pull_request:
-    paths:
-      - "Sources/**"
-      - ".github/workflows/ui-tests-critical.yml"
-      - ".github/workflows/ui-tests-common.yml"
-      - "fastlane/**"
-      - "TestSamples/**"
-      - "**/*.xctestplan"
-      # Explicitly list used scripts to avoid unnecessary runs
-      - "scripts/ci-boot-simulator.sh"
-      - "scripts/ci-select-xcode.sh"
-      - "scripts/ci-diagnostics.sh"
 
 # Concurrency configuration:
 # - We use workflow-specific concurrency groups to prevent multiple critical UI test runs,
@@ -29,7 +18,29 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
+  # This job detects if the PR contains changes that require running UI tests critical.
+  # If yes, the job will output a flag that will be used by the next job to run the UI tests critical.
+  # If no, the job will output a flag that will be used by the next job to skip running the UI tests critical.
+  # At the end of this workflow, we run a check that validates that either UI tests critical passed or were
+  # skipped, which is called ui_tests_critical-required-check.
+  files-changed:
+    name: Detect File Changes
+    runs-on: ubuntu-latest
+    # Map a step output to a job output
+    outputs:
+      run_ui_tests_critical_for_prs: ${{ steps.changes.outputs.run_ui_tests_critical_for_prs }}
+    steps:
+      - uses: actions/checkout@v5
+      - name: Get changed files
+        id: changes
+        uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
+        with:
+          token: ${{ github.token }}
+          filters: .github/file-filters.yml
+
   run-tests:
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_ui_tests_critical_for_prs == 'true'
+    needs: files-changed
     name: Test ${{matrix.name}} V4 # Up the version with every change to keep track of flaky tests
     uses: ./.github/workflows/ui-tests-common.yml
     with:
@@ -61,6 +72,8 @@ jobs:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   run-swiftui-crash-test:
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_ui_tests_critical_for_prs == 'true'
+    needs: files-changed
     name: Run SwiftUI Crash Test
     runs-on: macos-15
     timeout-minutes: 15
@@ -104,3 +117,25 @@ jobs:
       - name: Run CI Diagnostics
         if: failure()
         run: ./scripts/ci-diagnostics.sh
+
+  # This check validates that either all UI tests critical passed or were skipped, which allows us
+  # to make UI tests critical a required check with only running the UI tests critical when required.
+  # So, we don't have to run UI tests critical, for example, for unrelated changes.
+  ui_tests_critical-required-check:
+    needs:
+      [
+        files-changed,
+        run-tests,
+        run-swiftui-crash-test,
+      ]
+    name: UI Tests Critical
+    # This is necessary since a failed/skipped dependent job would cause this job to be skipped
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      # If any jobs we depend on fails gets cancelled or times out, this job will fail.
+      # Skipped jobs are not considered failures.
+      - name: Check for failures
+        if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
+        run: |
+          echo "One of the UI tests critical jobs has failed." && exit 1
