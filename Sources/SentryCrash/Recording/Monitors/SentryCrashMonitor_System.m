@@ -37,6 +37,7 @@
 #import "SentryLogC.h"
 
 #import "SentryDefines.h"
+#import "SentrySwift.h"
 
 #import <CommonCrypto/CommonDigest.h>
 #include <mach-o/dyld.h>
@@ -469,6 +470,19 @@ hasEmbeddedMobileProvision(void)
     return [[NSBundle mainBundle] pathForResource:@"embedded" ofType:@"mobileprovision"] != nil;
 }
 
+/**
+ * Check if the embdded.mobileprovision provisions all devices
+ * If true the profile is for `enterprise`, if not it is `adhoc`
+ */
+static bool
+mobileProvisionProfileProvisionsAllDevices(void)
+{
+    NSString *path = [[NSBundle mainBundle] pathForResource:@"embedded" ofType:@"mobileprovision"];
+    SentryMobileProvisionParser *parser = [[SentryMobileProvisionParser alloc] initWithPath:path];
+
+    return [parser provisionsAllDevices];
+}
+
 static const char *
 getBuildType(void)
 {
@@ -479,7 +493,7 @@ getBuildType(void)
         return "debug";
     }
     if (hasEmbeddedMobileProvision()) {
-        return "enterprise";
+        return mobileProvisionProfileProvisionsAllDevices() ? "enterprise" : "adhoc";
     }
     if (isTestBuild()) {
         return "test";
