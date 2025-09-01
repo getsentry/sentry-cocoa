@@ -287,3 +287,22 @@ run_build_for_prs: &run_build_for_prs # Build-related code
   - "Gemfile.lock"
   - "Makefile" # Make commands used for CI build setup
   - "Brewfile*" # Dependency installation affects build environment
+
+run_lint_swiftlint_for_prs: &run_lint_swiftlint_for_prs # SwiftLint linting
+  - "Sources/**"
+  - "Tests/**"
+  - "test-server/**"
+  - "Samples/**"
+
+  # GH Actions
+  - ".github/workflows/lint-swiftlint-formatting.yml"
+  - ".github/file-filters.yml"
+
+  # Scripts
+  - "scripts/ci-select-xcode.sh"
+  - "scripts/ci-diagnostics.sh"
+
+  # Project files
+  - "Sentry.xcodeproj/**"
+  - "*.podspec"
+  - "Gemfile.lock"
