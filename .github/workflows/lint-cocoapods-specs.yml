@@ -63,7 +63,7 @@ jobs:
       # We need to update the spec-repo, because it can happen that it is not up to date and then the lint fails.
       - run: pod repo update
       - name: Validate Podspec
-        run: ./scripts/pod-lib-lint.sh ${{ matrix.platform }} ${{ matrix.podspec}} ${{ matrix.library_type}}
+        run: ./scripts/pod-lib-lint.sh "${{ matrix.platform }}" "${{ matrix.podspec}}" "${{ matrix.library_type}}"
       - name: Run CI Diagnostics
         if: failure()
         run: ./scripts/ci-diagnostics.sh

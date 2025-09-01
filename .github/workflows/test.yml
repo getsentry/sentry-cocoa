@@ -280,15 +280,15 @@ jobs:
       - name: Start Test Server
         run: ./scripts/start-test-server.sh
 
-      - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
+      - run: ./scripts/ci-select-xcode.sh "${{matrix.xcode}}"
 
       - name: Install required platforms for Xcode 26
         if: matrix.xcode == '26.0' && matrix.platform != ''
-        run: ./scripts/ci-install-platforms.sh --platforms ${{matrix.platform}}
+        run: ./scripts/ci-install-platforms.sh --platforms "${{matrix.platform}}"
 
       - name: Create simulator device for Xcode 26
         if: matrix.xcode == '26.0' && matrix.platform != '' && matrix.destination-os != '' && matrix.device != ''
-        run: ./scripts/ci-create-simulator.sh --platform ${{matrix.platform}} --os-version ${{matrix.destination-os}} --device-name ${{matrix.device}}
+        run: ./scripts/ci-create-simulator.sh --platform "${{matrix.platform}}" --os-version "${{matrix.destination-os}}" --device-name "${{matrix.device}}"
 
       - name: Install Slather
         run: gem install slather
@@ -298,13 +298,13 @@ jobs:
         id: build_tests
         run: |
           ./scripts/sentry-xcodebuild.sh \
-            --platform ${{matrix.platform}} \
-            --os ${{matrix.destination-os}} \
-            --ref ${{ github.ref_name }} \
+            --platform "${{matrix.platform}}" \
+            --os "${{matrix.destination-os}}" \
+            --ref "${{ github.ref_name }}" \
             --command build-for-testing \
             --device "${{matrix.device}}" \
             --configuration TestCI \
-            --scheme ${{matrix.scheme}}
+            --scheme "${{matrix.scheme}}"
 
       - name: Run tests
         # We call a script with the platform so the destination
@@ -313,13 +313,13 @@ jobs:
         # manipulating string in expressions.
         run: |
           ./scripts/sentry-xcodebuild.sh \
-            --platform ${{matrix.platform}} \
-            --os ${{matrix.destination-os}} \
-            --ref ${{ github.ref_name }} \
+            --platform "${{matrix.platform}}" \
+            --os "${{matrix.destination-os}}" \
+            --ref "${{ github.ref_name }}" \
             --command test-without-building \
             --device "${{matrix.device}}" \
             --configuration TestCI \
-            --scheme ${{matrix.scheme}}
+            --scheme "${{matrix.scheme}}"
 
       - name: Publish Test Report
         uses: mikepenz/action-junit-report@3585e9575db828022551b4231f165eb59a0e74e3 # v5.6.2

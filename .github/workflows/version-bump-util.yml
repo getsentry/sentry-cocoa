@@ -45,8 +45,8 @@ jobs:
           TIMESTAMP=$(date +%Y%m%d%H%M%S)
           echo "VERSION=100.0.$TIMESTAMP" >> $GITHUB_OUTPUT
       # We don't care which version we bump to, as long as it's a valid semver
-      - run: make bump-version TO=${{ steps.generate-version-number.outputs.VERSION }}
-      - run: make verify-version TO=${{ steps.generate-version-number.outputs.VERSION }}
+      - run: make bump-version TO="${{ steps.generate-version-number.outputs.VERSION }}"
+      - run: make verify-version TO="${{ steps.generate-version-number.outputs.VERSION }}"
 
   run-version-bump-script:
     # Craft uses the shell script to bump the version so it needs to be tested.
@@ -79,10 +79,10 @@ jobs:
           echo "<FAKE DYNAMIC WITH ARM64E ZIP>" > Carthage/Sentry-Dynamic-WithARM64e.xcframework.zip
 
       - name: Bump version
-        run: ./scripts/bump.sh ${{ steps.generate-version-number.outputs.OLD_VERSION }} ${{ steps.generate-version-number.outputs.NEW_VERSION }}
+        run: ./scripts/bump.sh "${{ steps.generate-version-number.outputs.OLD_VERSION }}" "${{ steps.generate-version-number.outputs.NEW_VERSION }}"
 
       - name: Verify outputs of bump.sh
-        run: make verify-version TO=${{ steps.generate-version-number.outputs.NEW_VERSION }}
+        run: make verify-version TO="${{ steps.generate-version-number.outputs.NEW_VERSION }}"
 
       - name: Verify outputs of update-package-sha.sh
         run: |
