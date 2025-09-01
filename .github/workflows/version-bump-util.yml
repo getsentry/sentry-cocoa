@@ -19,15 +19,9 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  # This job detects if the PR contains changes that require running version-bump-util.
-  # If yes, the job will output a flag that will be used by the next job to run the version-bump-util.
-  # If no, the job will output a flag that will be used by the next job to skip running the version-bump-util.
-  # At the end of this workflow, we run a check that validates that either version_bump_util-required-check passed or were
-  # skipped, which is called version_bump_util-required-check.
   files-changed:
     name: Detect File Changes
     runs-on: ubuntu-latest
-    # Map a step output to a job output
     outputs:
       run_version_bump_util_for_prs: ${{ steps.changes.outputs.run_version_bump_util_for_prs }}
     steps:
