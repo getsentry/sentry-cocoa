@@ -45,8 +45,15 @@ public class SentryMobileProvisionParser: NSObject {
         guard let plistData = plistString.data(using: .utf8) else { return }
 
         var format = PropertyListSerialization.PropertyListFormat.xml
+        
+#if swift(>=5.9) && os(visionOS)
+        let options = 0
+#else
+        let options: PropertyListSerialization.ReadOptions = []
+#endif
+        
         guard let obj = try? PropertyListSerialization.propertyList(from: plistData,
-                                                                    options: [],
+                                                                    options: options,
                                                                     format: &format),
               let dict = obj as? [String: Any] else {
             return
