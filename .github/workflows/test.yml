@@ -103,6 +103,8 @@ jobs:
       matrix:
         # Can't run tests on watchOS because XCTest is not available
         include:
+          # ==== iOS ======
+
           # We are running tests on iOS 17 and later, as there were OS-internal changes introduced in succeeding versions.
 
           # iOS 16
@@ -110,7 +112,7 @@ jobs:
             runs-on: macos-13
             platform: "iOS"
             xcode: "14.3.1"
-            test-destination-os: "16.4"
+            destination-os: "16.4"
             device: "iPhone 14"
             scheme: "Sentry"
 
@@ -119,7 +121,7 @@ jobs:
             runs-on: macos-14
             platform: "iOS"
             xcode: "15.4"
-            test-destination-os: "17.2"
+            destination-os: "17.2"
             device: "iPhone 15"
             scheme: "Sentry"
 
@@ -128,9 +130,20 @@ jobs:
             runs-on: macos-15
             platform: "iOS"
             xcode: "16.4"
-            test-destination-os: "18.5"
+            destination-os: "18.5"
             device: "iPhone 16"
             scheme: "Sentry"
+
+          # iOS 26
+          - name: iOS 26 Sentry
+            runs-on: macos-15
+            platform: "iOS"
+            xcode: "26.0"
+            destination-os: "26.0"
+            device: "iPhone 16e"
+            scheme: "Sentry"
+
+          # ==== macOS ======
 
           # We don't run the unit tests on macOS 13 cause we run them on all on GH actions available iOS versions.
           # The chance of missing a bug solely on tvOS 16 that doesn't occur on iOS, macOS 12 or macOS 14 is minimal.
@@ -141,7 +154,7 @@ jobs:
             runs-on: macos-14
             platform: "macOS"
             xcode: "15.4"
-            test-destination-os: "latest"
+            destination-os: "latest"
             scheme: "Sentry"
 
           # macOS 15
@@ -149,8 +162,18 @@ jobs:
             runs-on: macos-15
             platform: "macOS"
             xcode: "16.4"
-            test-destination-os: "latest"
+            destination-os: "latest"
             scheme: "Sentry"
+
+          # macOS 26
+          - name: macOS 26 Sentry
+            runs-on: macos-15
+            platform: "macOS"
+            xcode: "26.0"
+            destination-os: "latest"
+            scheme: "Sentry"
+
+          # ==== Catalyst ======
 
           # Catalyst. We test the latest version, as the risk something breaking on Catalyst and not
           # on an older iOS or macOS version is low.
@@ -159,15 +182,24 @@ jobs:
             runs-on: macos-14
             platform: "Catalyst"
             xcode: "15.4"
-            test-destination-os: "latest"
+            destination-os: "latest"
             scheme: "Sentry"
 
           - name: Catalyst 15 Sentry
             runs-on: macos-15
             platform: "Catalyst"
             xcode: "16.4"
-            test-destination-os: "latest"
+            destination-os: "latest"
             scheme: "Sentry"
+
+          - name: Catalyst 26 Sentry
+            runs-on: macos-15
+            platform: "Catalyst"
+            xcode: "26.0"
+            destination-os: "latest"
+            scheme: "Sentry"
+
+          # ==== tvOS ======
 
           # We don't run the unit tests on tvOS 16 cause we run them on all on GH actions available iOS versions.
           # The chance of missing a bug solely on tvOS 16 that doesn't occur on iOS, tvOS 15 or tvOS 16 is minimal.
@@ -178,52 +210,37 @@ jobs:
             runs-on: macos-14
             platform: "tvOS"
             xcode: "15.4"
-            test-destination-os: "17.5"
+            destination-os: "17.5"
             scheme: "Sentry"
+
+          # ==== iOS - SwiftUI ======
 
           # iOS 17
           - name: iOS 17 SentrySwiftUI
             runs-on: macos-14
             platform: "iOS"
             xcode: "15.4"
-            test-destination-os: "17.2"
+            destination-os: "17.2"
             device: "iPhone 15"
             scheme: "SentrySwiftUI"
 
-          # iOS 26 SentrySwiftUI
+          # iOS 26
           - name: iOS 26 SentrySwiftUI
             runs-on: macos-15
             platform: "iOS"
             xcode: "26.0"
-            test-destination-os: "26.0"
+            destination-os: "26.0"
             device: "iPhone 16e"
             scheme: "SentrySwiftUI"
-            install_platforms: "iOS"
+
+          # ==== tvOS ======
 
           # tvOS 18
           - name: tvOS 18 Sentry
             runs-on: macos-15
             platform: "tvOS"
             xcode: "16.4"
-            test-destination-os: "18.5"
-            scheme: "Sentry"
-
-          # iOS 26
-          - name: iOS 26 Sentry
-            runs-on: macos-15
-            platform: "iOS"
-            xcode: "26.0"
-            test-destination-os: "26.0"
-            device: "iPhone 16e"
-            scheme: "Sentry"
-            install_platforms: "iOS"
-
-          # macOS 26
-          - name: macOS 26 Sentry
-            runs-on: macos-15
-            platform: "macOS"
-            xcode: "26.0"
-            test-destination-os: "latest"
+            destination-os: "18.5"
             scheme: "Sentry"
 
           # tvOS 26
@@ -231,18 +248,19 @@ jobs:
             runs-on: macos-15
             platform: "tvOS"
             xcode: "26.0"
-            test-destination-os: "26.0"
+            destination-os: "26.0"
             scheme: "Sentry"
-            install_platforms: "tvOS"
+
+          # ==== visionOS ======
 
           # visionOS 26
           - name: visionOS 26 Sentry
             runs-on: macos-15
             platform: "visionOS"
             xcode: "26.0"
-            test-destination-os: "26.0"
+            destination-os: "26.0"
+            device: "Apple Vision Pro"
             scheme: "Sentry"
-            install_platforms: "visionOS"
 
     steps:
       - uses: actions/checkout@v5
@@ -256,8 +274,18 @@ jobs:
       - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
 
       - name: Install required platforms for Xcode 26
-        if: matrix.install_platforms
-        run: ./scripts/ci-install-platforms.sh --platforms ${{matrix.install_platforms}}
+        if: matrix.platform
+        run: |
+          ./scripts/ci-install-platforms.sh \
+            --platforms ${{matrix.platform}}
+
+      - name: Create simulator device for Xcode 26
+        if: matrix.xcode == '26.0' && matrix.device != ''
+        run: |
+          ./scripts/ci-create-simulator.sh \
+            --platform ${{matrix.platform}} \
+            --os-version ${{matrix.destination-os}} \
+            --device-name ${{matrix.device}}
 
       - name: Install Slather
         run: gem install slather
@@ -268,7 +296,7 @@ jobs:
         run: |
           ./scripts/sentry-xcodebuild.sh \
             --platform ${{matrix.platform}} \
-            --os ${{matrix.test-destination-os}} \
+            --os ${{matrix.destination-os}} \
             --ref ${{ github.ref_name }} \
             --command build-for-testing \
             --device "${{matrix.device}}" \
@@ -283,7 +311,7 @@ jobs:
         run: |
           ./scripts/sentry-xcodebuild.sh \
             --platform ${{matrix.platform}} \
-            --os ${{matrix.test-destination-os}} \
+            --os ${{matrix.destination-os}} \
             --ref ${{ github.ref_name }} \
             --command test-without-building \
             --device "${{matrix.device}}" \
@@ -303,7 +331,7 @@ jobs:
         uses: actions/upload-artifact@v4
         if: steps.build_tests.outcome == 'failure'
         with:
-          name: derived-data-${{matrix.platform}}-xcode-${{matrix.xcode}}-os-${{matrix.test-destination-os}}
+          name: derived-data-${{matrix.platform}}-xcode-${{matrix.xcode}}-os-${{matrix.destination-os}}
           path: |
             /Users/runner/Library/Developer/Xcode/DerivedData/**/Logs/**
 
@@ -311,7 +339,7 @@ jobs:
         uses: actions/upload-artifact@v4
         if: ${{ failure() || cancelled() }}
         with:
-          name: raw-output-${{matrix.platform}}-xcode-${{matrix.xcode}}-os-${{matrix.test-destination-os}}
+          name: raw-output-${{ matrix.scheme}}-${{matrix.platform}}-xcode-${{matrix.xcode}}-os-${{matrix.destination-os}}
           path: |
             raw-build-output.log
             raw-build-for-testing-output.log
@@ -321,7 +349,7 @@ jobs:
         uses: actions/upload-artifact@v4
         if: ${{ failure() || cancelled() }}
         with:
-          name: crash-logs-${{matrix.platform}}-xcode-${{matrix.xcode}}-os-${{matrix.test-destination-os}}
+          name: crash-logs-${{matrix.platform}}-xcode-${{matrix.xcode}}-os-${{matrix.destination-os}}
           path: |
             ~/Library/Logs/DiagnosticReports/**
 
@@ -361,7 +389,7 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           verbose: true
           name: sentry-cocoa-unit-tests
-          flags: unittests-${{ matrix.platform }}-${{ matrix.xcode }}-${{ matrix.test-destination-os }}, unittests
+          flags: unittests-${{ matrix.platform }}-${{ matrix.xcode }}-${{ matrix.destination-os }}, unittests
 
       - name: Run CI Diagnostics
         if: failure()

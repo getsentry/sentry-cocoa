@@ -98,33 +98,52 @@ jobs:
             config: DebugV9
           - scheme: iOS-ObjectiveC
             config: DebugV9
+
           # Xcode 26 configurations for testing new OS versions
-          - scheme: iOS-Swift
-            config: Debug
-            xcode: "26.0"
-            install_platforms: "iOS"
           - scheme: macOS-Swift
             config: Debug
             xcode: "26.0"
+            destination-os: "26.0"
+          - scheme: iOS-Swift
+            config: Debug
+            xcode: "26.0"
+            platform: "iOS"
+            destination-os: "26.0"
+            device: "iPhone 16e"
           - scheme: tvOS-Swift
             config: Debug
             xcode: "26.0"
-            install_platforms: "tvOS"
+            platform: "tvOS"
+            destination-os: "26.0"
+            device: "Apple TV"
           - scheme: visionOS-Swift
             config: Debug
             xcode: "26.0"
-            install_platforms: "visionOS"
+            platform: "visionOS"
+            destination-os: "26.0"
+            device: "Apple Vision Pro"
           - scheme: watchOS-Swift WatchKit App
             config: Debug
             xcode: "26.0"
-            install_platforms: "watchOS"
+            platform: "watchOS"
+            destination-os: "26.0"
+            device: "Apple Watch Series 10 (46mm)"
 
     steps:
       - uses: actions/checkout@v5
       - run: ./scripts/ci-select-xcode.sh ${{ matrix.xcode || '16.4' }}
       - name: Install required platforms for Xcode 26
-        if: matrix.install_platforms
-        run: ./scripts/ci-install-platforms.sh --platforms ${{matrix.install_platforms}}
+        if: matrix.platform
+        run: |
+          ./scripts/ci-install-platforms.sh \
+            --platforms ${{matrix.platform}}
+      - name: Create simulator device for Xcode 26
+        if: matrix.xcode == '26.0' && matrix.device != ''
+        run: |
+          ./scripts/ci-create-simulator.sh \
+            --platform ${{matrix.platform}} \
+            --os-version ${{matrix.destination-os}} \
+            --device-name ${{matrix.device}}
       - run: make init-ci-build
       - run: make xcode-ci
 
