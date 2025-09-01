@@ -190,12 +190,54 @@ jobs:
             device: "iPhone 15"
             scheme: "SentrySwiftUI"
 
+          # iOS 26 SentrySwiftUI
+          - name: iOS 26 SentrySwiftUI
+            runs-on: macos-15
+            platform: "iOS"
+            xcode: "26.0"
+            test-destination-os: "26.0"
+            device: "iPhone 16e"
+            scheme: "SentrySwiftUI"
+
           # tvOS 18
           - name: tvOS 18 Sentry
             runs-on: macos-15
             platform: "tvOS"
             xcode: "16.4"
             test-destination-os: "18.5"
+            scheme: "Sentry"
+
+          # iOS 26
+          - name: iOS 26 Sentry
+            runs-on: macos-15
+            platform: "iOS"
+            xcode: "26.0"
+            test-destination-os: "26.0"
+            device: "iPhone 16e"
+            scheme: "Sentry"
+
+          # macOS 26
+          - name: macOS 26 Sentry
+            runs-on: macos-15
+            platform: "macOS"
+            xcode: "26.0"
+            test-destination-os: "latest"
+            scheme: "Sentry"
+
+          # tvOS 26
+          - name: tvOS 26 Sentry
+            runs-on: macos-15
+            platform: "tvOS"
+            xcode: "26.0"
+            test-destination-os: "26.0"
+            scheme: "Sentry"
+
+          # visionOS 26
+          - name: visionOS 26 Sentry
+            runs-on: macos-15
+            platform: "visionOS"
+            xcode: "26.0"
+            test-destination-os: "26.0"
             scheme: "Sentry"
 
     steps:

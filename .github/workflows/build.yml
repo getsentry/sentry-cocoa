@@ -98,10 +98,26 @@ jobs:
             config: DebugV9
           - scheme: iOS-ObjectiveC
             config: DebugV9
+          # Xcode 26 configurations for testing new OS versions
+          - scheme: iOS-Swift
+            config: Debug
+            xcode: "26.0"
+          - scheme: macOS-Swift
+            config: Debug
+            xcode: "26.0"
+          - scheme: tvOS-Swift
+            config: Debug
+            xcode: "26.0"
+          - scheme: visionOS-Swift
+            config: Debug
+            xcode: "26.0"
+          - scheme: watchOS-Swift WatchKit App
+            config: Debug
+            xcode: "26.0"
 
     steps:
       - uses: actions/checkout@v5
-      - run: ./scripts/ci-select-xcode.sh 16.4
+      - run: ./scripts/ci-select-xcode.sh ${{ matrix.xcode || '16.4' }}
       - run: make init-ci-build
       - run: make xcode-ci
 
@@ -173,11 +189,27 @@ jobs:
             --command build \
             --device "iPhone 16"  \
             --configuration DebugV9
+
+  build-v9-xcode26:
+    name: Build SDK v9 with Xcode 26
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_build_for_prs == 'true'
+    needs: files-changed
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v5
+      - run: ./scripts/ci-select-xcode.sh 26.0
+      - run: |
+          ./scripts/sentry-xcodebuild.sh \
+            --platform iOS \
+            --os 26.0 \
+            --command build \
+            --device "iPhone 16e"  \
+            --configuration DebugV9
       - name: Archiving Raw Build Logs
         uses: actions/upload-artifact@v4
         if: ${{ failure() || cancelled() }}
         with:
-          name: raw-build-output-v9
+          name: raw-build-output-v9-xcode26
           path: |
             raw-build-output.log
       - name: Debug Xcode environment
@@ -321,6 +353,39 @@ jobs:
         if: ${{ failure() || cancelled() }}
         run: ./scripts/ci-diagnostics.sh
 
+  check-compiling-async-safe-logs-xcode26:
+    name: Check compiling Async Safe Logs with Xcode 26
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_build_for_prs == 'true'
+    needs: files-changed
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v5
+
+      # If the SentryAsyncSafeLog doesn't contain the SENTRY_ASYNC_SAFE_LOG_LEVEL_ERROR this fails.
+      - name: Async Safe Log Level is Error
+        run: grep -c "SENTRY_ASYNC_SAFE_LOG_LEVEL SENTRY_ASYNC_SAFE_LOG_LEVEL_ERROR" Sources/Sentry/SentryAsyncSafeLog.h
+
+      - name: Set Async Safe Log Level to Debug
+        run: |
+          sed -i '' 's/#define SENTRY_ASYNC_SAFE_LOG_LEVEL SENTRY_ASYNC_SAFE_LOG_LEVEL_ERROR/#define SENTRY_ASYNC_SAFE_LOG_LEVEL SENTRY_ASYNC_SAFE_LOG_LEVEL_TRACE/' Sources/Sentry/SentryAsyncSafeLog.h
+        shell: bash
+
+      - run: ./scripts/ci-select-xcode.sh 26.0
+
+      - name: Build for Debug
+        run: |
+          ./scripts/sentry-xcodebuild.sh \
+            --platform iOS \
+            --os 26.0 \
+            --ref ${{ github.ref }} \
+            --command build \
+            --device "iPhone 16e" \
+            --configuration Debug
+
+      - name: Debug Xcode environment
+        if: ${{ failure() || cancelled() }}
+        run: ./scripts/ci-diagnostics.sh
+
   build-required-check:
     needs:
       [
@@ -329,11 +394,13 @@ jobs:
         build-sample,
         build-spm,
         build-v9,
+        build-v9-xcode26,
         check-debug-without-UIKit,
         check-release-without-UIKit,
         check-debug-with-UIKit,
         check-release-with-UIKit,
         check-compiling-async-safe-logs,
+        check-compiling-async-safe-logs-xcode26,
       ]
     name: Build
     # This is necessary since a failed/skipped dependent job would cause this job to be skipped

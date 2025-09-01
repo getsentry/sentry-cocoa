@@ -57,6 +57,13 @@ jobs:
             platform:
               runs-on: macos-15
               xcode: "16.4"
+
+          # As of 25th August 2025, iOS 26.0 is available on macos-15 with Xcode 26.0 beta; see
+          # https://github.com/actions/runner-images/blob/main/images/macos/macos-15-Readme.md#installed-sdks
+          - name: iOS 26
+            platform:
+              runs-on: macos-15
+              xcode: "26.0"
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 

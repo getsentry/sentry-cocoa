@@ -90,6 +90,10 @@ jobs:
             runs-on: macos-15
             xcode: "16.4"
             device: iPhone 16 (18.5)
+          - name: iOS 26
+            runs-on: macos-15
+            xcode: "26.0"
+            device: iPhone 16e (26.0)
     with:
       fastlane_command: ui_tests_ios_swift
       fastlane_command_extra_arguments: device:${{matrix.device}}
@@ -108,6 +112,32 @@ jobs:
       fastlane_command: ui_tests_ios_swift6
       fastlane_command_extra_arguments: device:iPhone 16 (18.5)
       xcode_version: 16.4
+      build_with_make: true
+      macos_version: macos-15
+      codecov_test_analytics: true
+    secrets:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+  ui-tests-ios26-swift6:
+    name: Test iOS 26 Swift6 V1 # Up the version with every change to keep track of flaky tests
+    uses: ./.github/workflows/ui-tests-common.yml
+    with:
+      fastlane_command: ui_tests_ios_swift6
+      fastlane_command_extra_arguments: device:iPhone 16e (26.0)
+      xcode_version: 26.0
+      build_with_make: true
+      macos_version: macos-15
+      codecov_test_analytics: true
+    secrets:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+  ui-tests-ios26-swiftui:
+    name: Test iOS 26 SwiftUI V1 # Up the version with every change to keep track of flaky tests
+    uses: ./.github/workflows/ui-tests-common.yml
+    with:
+      fastlane_command: ui_tests_ios_swiftui
+      fastlane_command_extra_arguments: device:iPhone 16e (26.0)
+      xcode_version: 26.0
       build_with_make: true
       macos_version: macos-15
       codecov_test_analytics: true
