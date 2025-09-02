@@ -18,7 +18,20 @@ final class SentryUIRedactBuilder {
     private var ignoreClassesIdentifiers: Set<ObjectIdentifier>
     ///This is a list of UIView subclasses that need to be redacted from screenshot
     private var redactClassesIdentifiers: Set<ObjectIdentifier>
-        
+
+
+    // MARK: - Constants
+
+    /// Class object identifier for ``CameraUI.ChromeSwiftUIView``, if it exists.
+    ///
+    /// This object identifier is used to identify views of this class type during the redaction process.
+    private static let cameraSwiftUIViewClassObjectId: ObjectIdentifier? = {
+        guard let classType = NSClassFromString("CameraUI.ChromeSwiftUIView") else {
+            return nil
+        }
+        return ObjectIdentifier(classType)
+    }()
+
     /**
      Initializes a new instance of the redaction process with the specified options.
 
@@ -86,7 +99,7 @@ final class SentryUIRedactBuilder {
     }
     
     func containsIgnoreClass(_ ignoreClass: AnyClass) -> Bool {
-        return  ignoreClassesIdentifiers.contains(ObjectIdentifier(ignoreClass))
+        return ignoreClassesIdentifiers.contains(ObjectIdentifier(ignoreClass))
     }
     
     func containsRedactClass(_ redactClass: AnyClass) -> Bool {
@@ -179,7 +192,7 @@ final class SentryUIRedactBuilder {
     }
     
     private func shouldIgnore(view: UIView) -> Bool {
-        return  SentryRedactViewHelper.shouldUnmask(view) || containsIgnoreClass(type(of: view)) || shouldIgnoreParentContainer(view)
+        return SentryRedactViewHelper.shouldUnmask(view) || containsIgnoreClass(type(of: view)) || shouldIgnoreParentContainer(view)
     }
 
     private func shouldIgnoreParentContainer(_ view: UIView) -> Bool {
@@ -232,7 +245,7 @@ final class SentryUIRedactBuilder {
                 transform: newTransform,
                 type: swiftUI ? .redactSwiftUI : .redact,
                 color: self.color(for: view),
-                name: layer.name ?? layer.debugDescription
+                name: view.debugDescription
             ))
 
             guard !view.clipsToBounds else {
@@ -249,11 +262,14 @@ final class SentryUIRedactBuilder {
                     size: layer.bounds.size,
                     transform: newTransform,
                     type: .clipOut,
-                    name: layer.name ?? layer.debugDescription
+                    name: view.debugDescription
                 ))
             }
         }
-        
+
+        if !isViewSubtreeIgnored(view) {
+            return
+        }
         guard let subLayers = layer.sublayers, subLayers.count > 0 else {
             return
         }
@@ -265,7 +281,7 @@ final class SentryUIRedactBuilder {
                 size: layer.bounds.size,
                 transform: newTransform,
                 type: .clipEnd,
-                name: layer.name ?? layer.debugDescription
+                name: view.debugDescription
             ))
         }
         for subLayer in subLayers.sorted(by: { $0.zPosition < $1.zPosition }) {
@@ -276,9 +292,21 @@ final class SentryUIRedactBuilder {
                 size: layer.bounds.size,
                 transform: newTransform,
                 type: .clipBegin,
-                name: layer.name ?? layer.debugDescription
+                name: view.debugDescription
             ))
         }
+    }
+
+    private func isViewSubtreeIgnored(_ view: UIView) -> Bool {
+        let viewTypeObjectId = ObjectIdentifier(type(of: view))
+        guard viewTypeObjectId != Self.cameraSwiftUIViewClassObjectId else {
+            // CameraUI.ChromeSwiftUIView is a special case because it contains layers which can not be iterated due to this error:
+            //
+            // Fatal error: Use of unimplemented initializer 'init(layer:)' for class 'CameraUI.ModeLoupeLayer'
+            return true
+        }
+
+        return false
     }
 
     /**
