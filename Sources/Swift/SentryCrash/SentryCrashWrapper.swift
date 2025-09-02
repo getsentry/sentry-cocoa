@@ -2,9 +2,9 @@
 import Darwin
 import Foundation
 
-#if canImport(UIKit) && !SENTRY_NO_UIKIT
+#if (os(iOS) || os(tvOS) || (swift(>=5.9) && os(visionOS))) && !SENTRY_NO_UIKIT
 import UIKit
-#endif // canImport(UIKit) && !SENTRY_NO_UIKIT && !targetEnvironment(macCatalyst)
+#endif // (os(iOS) || os(tvOS) || (swift(>=5.9) && os(visionOS))) && !SENTRY_NO_UIKIT
 
 /**
  * A wrapper around SentryCrash for testability.
@@ -208,12 +208,12 @@ import UIKit
     private func getOSVersion() -> String {
         // For MacCatalyst the UIDevice returns the current version of MacCatalyst and not the
         // macOSVersion. Therefore we have to use NSProcessInfo.
-#if canImport(UIKit) && !SENTRY_NO_UIKIT && !targetEnvironment(macCatalyst)
+#if (os(iOS) || os(tvOS) || (swift(>=5.9) && os(visionOS))) && !SENTRY_NO_UIKIT && !targetEnvironment(macCatalyst)
         return SentryDependencyContainerSwiftHelper.uiDeviceWrapper().getSystemVersion()
 #else
         let version = ProcessInfo.processInfo.operatingSystemVersion
         return "\(version.majorVersion).\(version.minorVersion).\(version.patchVersion)"
-#endif // canImport(UIKit) && !SENTRY_NO_UIKIT && !targetEnvironment(macCatalyst)
+#endif // (os(iOS) || os(tvOS) || (swift(>=5.9) && os(visionOS))) && !SENTRY_NO_UIKIT && !targetEnvironment(macCatalyst)
     }
     
     private func isSimulator() -> Bool {
@@ -236,13 +236,13 @@ import UIKit
     
     private func setScreenDimensions(_ deviceData: inout [String: Any]) {
         // The UIWindowScene is unavailable on visionOS
-#if canImport(UIKit) && !SENTRY_NO_UIKIT && !(swift(>=5.9) && os(visionOS))
+#if (os(iOS) || os(tvOS) || (swift(>=5.9) && os(visionOS))) && !SENTRY_NO_UIKIT && !(swift(>=5.9) && os(visionOS))
         if let appWindows = SentryDependencyContainerSwiftHelper.windows(),
            let appScreen = appWindows.first?.screen {
             deviceData["screen_height_pixels"] = appScreen.bounds.size.height
             deviceData["screen_width_pixels"] = appScreen.bounds.size.width
         }
-#endif // canImport(UIKit) && !SENTRY_NO_UIKIT && !(swift(>=5.9) && os(visionOS))
+#endif // (os(iOS) || os(tvOS) || (swift(>=5.9) && os(visionOS))) && !SENTRY_NO_UIKIT && !(swift(>=5.9) && os(visionOS))
     }
     
     // MARK: - Private Methods
