@@ -367,3 +367,24 @@ run_ui_tests_for_prs: &run_ui_tests_for_prs # UI Tests
   - ".github/workflows/assemble-xcframework-variant.yml"
   - "Makefile" # Make commands used for UI test environment setup
   - "Brewfile*" # Dependency installation affects UI test environment
+
+run_ui_tests_critical_for_prs: &run_ui_tests_critical_for_prs # UI Tests Critical
+  - "Sources/**"
+  - "TestSamples/**"
+  - "**/*.xctestplan"
+
+  # GH Actions
+  - ".github/workflows/ui-tests-critical.yml"
+  - ".github/workflows/ui-tests-common.yml"
+  - ".github/file-filters.yml"
+
+  # Scripts
+  - "scripts/ci-boot-simulator.sh"
+  - "scripts/ci-select-xcode.sh"
+  - "scripts/ci-diagnostics.sh"
+
+  # Other
+  - "fastlane/**"
+  - "Gemfile.lock"
+  - "Makefile" # Make commands used for CI build setup
+  - "Brewfile*" # Dependency installation affects build environment
