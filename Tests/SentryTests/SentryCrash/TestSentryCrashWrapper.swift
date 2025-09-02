@@ -4,7 +4,6 @@ import Foundation
 /**
  * This is a test wrapper around SentryCrashWrapper for testing purposes.
  */
-@objc
 class TestSentryCrashWrapper: SentryCrashWrapper {
     
     // MARK: - Test Properties

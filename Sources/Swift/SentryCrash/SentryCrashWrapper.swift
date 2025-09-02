@@ -190,7 +190,7 @@ import UIKit
     }
     
     private func getOSName() -> String {
-#if os(macOS)
+#if os(macOS) || targetEnvironment(macCatalyst)
         return "macOS"
 #elseif os(iOS)
         return "iOS"
@@ -198,7 +198,7 @@ import UIKit
         return "tvOS"
 #elseif os(watchOS)
         return "watchOS"
-#elseif os(visionOS)
+#elseif (swift(>=5.9) && os(visionOS))
         return "visionOS"
 #else
         return "Unknown"
@@ -209,7 +209,7 @@ import UIKit
         // For MacCatalyst the UIDevice returns the current version of MacCatalyst and not the
         // macOSVersion. Therefore we have to use NSProcessInfo.
 #if (os(iOS) || os(tvOS) || (swift(>=5.9) && os(visionOS))) && !SENTRY_NO_UIKIT && !targetEnvironment(macCatalyst)
-        return SentryDependencyContainerSwiftHelper.uiDeviceWrapper().getSystemVersion()
+        return Dependencies.uiDeviceWrapper.getSystemVersion()
 #else
         let version = ProcessInfo.processInfo.operatingSystemVersion
         return "\(version.majorVersion).\(version.minorVersion).\(version.patchVersion)"

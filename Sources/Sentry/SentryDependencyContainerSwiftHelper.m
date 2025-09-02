@@ -40,11 +40,4 @@
     return SentryDependencyContainer.sharedInstance.processInfoWrapper;
 }
 
-#if SENTRY_HAS_UIKIT
-+ (id<SentryUIDeviceWrapper>)uiDeviceWrapper
-{
-    return SentryDependencyContainer.sharedInstance.uiDeviceWrapper;
-}
-#endif // TARGET_OS_IOS
-
 @end

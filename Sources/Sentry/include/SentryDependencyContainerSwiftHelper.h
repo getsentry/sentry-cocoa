@@ -30,9 +30,6 @@ NS_ASSUME_NONNULL_BEGIN
 + (SentryHub *)currentHub;
 + (SentryCrash *)crashReporter;
 + (SentryNSProcessInfoWrapper *)processInfoWrapper;
-#if SENTRY_HAS_UIKIT
-+ (id<SentryUIDeviceWrapper>)uiDeviceWrapper;
-#endif // TARGET_OS_IOS
 
 @end
 
