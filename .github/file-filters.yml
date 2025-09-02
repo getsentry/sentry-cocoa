@@ -323,6 +323,23 @@ run_check_package_diff_for_prs: &run_check_package_diff_for_prs # Package.swift 
   - "Makefile" # Make commands used for package diff checking
   - "Utils/expected_package_diff.patch"
 
+run_codeql_analysis_for_prs: &run_codeql_analysis_for_prs # CodeQL security analysis
+  - "Sources/**"
+
+  # GH Actions
+  - ".github/workflows/codeql-analysis.yml"
+  - ".github/file-filters.yml"
+
+  # Project files
+  - "Sentry.xcworkspace/**"
+  - "Sentry.xcodeproj/**"
+
+  # Scripts
+  - "scripts/ci-diagnostics.sh"
+
+  # Other
+  - "Makefile" # Make commands used for CI build setup
+
 run_version_bump_util_for_prs: &run_version_bump_util_for_prs # Version bump utility
   # Version bump utilities
   - "Utils/VersionBump/**"
