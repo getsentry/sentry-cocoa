@@ -16,7 +16,6 @@
 #    import "SentrySessionReplayIntegration+Test.h"
 #    import "SentryUIApplication+Private.h"
 #    import "SentryUIApplication.h"
-#    import "SentryUIDeviceWrapper.h"
 #    import "SentryUIEventTracker.h"
 #    import "SentryUIEventTrackerTransactionMode.h"
 #    import "SentryUIEventTrackingIntegration.h"
@@ -153,7 +152,6 @@
 #import "SentryNSDictionarySanitize.h"
 #import "SentryNSError.h"
 #import "SentryNSProcessInfoWrapper.h"
-#import "SentryNSTimerFactory.h"
 #import "SentryNSURLRequestBuilder.h"
 #import "SentryNSURLSessionTaskSearch.h"
 #import "SentryNetworkTracker.h"
@@ -188,7 +186,6 @@
 
 #import "NSData+Unzip.h"
 #import "Sentry/Sentry-Swift.h"
-#import "SentryBinaryImageCache+Private.h"
 #import "SentryCrashBinaryImageCache.h"
 #import "SentryDispatchFactory.h"
 #import "SentryDispatchSourceWrapper.h"

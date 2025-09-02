@@ -27,7 +27,7 @@
 @class SentryGlobalEventProcessor;
 
 @protocol SentryANRTracker;
-@protocol SentryRandom;
+@protocol SentryRandomProtocol;
 @protocol SentryCurrentDateProvider;
 @protocol SentryRateLimits;
 @protocol SentryApplication;
@@ -51,7 +51,7 @@
 #endif // SENTRY_UIKIT_AVAILABLE
 
 #if SENTRY_HAS_UIKIT
-@class SentryUIDeviceWrapper;
+@protocol SentryUIDeviceWrapper;
 #endif // TARGET_OS_IOS
 
 #if !TARGET_OS_WATCH
@@ -83,7 +83,7 @@ SENTRY_NO_INIT
 #pragma mark - Init Dependencies
 
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueueWrapper;
-@property (nonatomic, strong) id<SentryRandom> random;
+@property (nonatomic, strong) id<SentryRandomProtocol> random;
 @property (nonatomic, strong) SentryThreadWrapper *threadWrapper;
 @property (nonatomic, strong) SentryBinaryImageCache *binaryImageCache;
 @property (nonatomic, strong) id<SentryCurrentDateProvider> dateProvider;
@@ -100,7 +100,7 @@ SENTRY_NO_INIT
 #endif // !TARGET_OS_WATCH
 
 #if SENTRY_HAS_UIKIT
-@property (nonatomic, strong) SentryUIDeviceWrapper *uiDeviceWrapper;
+@property (nonatomic, strong) id<SentryUIDeviceWrapper> uiDeviceWrapper;
 #endif // TARGET_OS_IOS
 
 #pragma mark - Lazy Dependencies

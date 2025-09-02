@@ -65,6 +65,93 @@ run_api_stability_for_prs: &run_api_stability_for_prs # API-related code
   - "sdk_api.json"
   - "sdk_api_v9.json"
 
+run_integration_test_for_prs: &run_integration_test_for_prs # CocoaPods integration test
+  # GH Actions
+  - ".github/workflows/integration-test.yml"
+  - ".github/file-filters.yml"
+
+  # Project files
+  - "*.xcodeproj"
+  - "*.xcworkspace"
+  - "*.podspec"
+  - "Plans/iOS-Cocoapods-Swift6_Base.xctestplan"
+
+  # Sources
+  - "Sources/**"
+  - "Samples/iOS-Cocoapods-*/**"
+
+  # Scripts
+  - "scripts/ci-select-xcode.sh"
+  - "scripts/ci-diagnostics.sh"
+
+  # Other
+  - "fastlane/**"
+  - "Gemfile.lock"
+
+run_benchmarking_for_prs: &run_benchmarking_for_prs
+  - "Sources/**"
+
+  # Benchmarking implementation
+  - "Samples/iOS-Swift/**"
+  - ".sauce/benchmarking-config.yml"
+  - "fastlane/**"
+
+  # GH Actions
+  - ".github/workflows/benchmarking.yml"
+  - ".github/workflows/build-xcframework-variant-slices.yml"
+  - ".github/workflows/assemble-xcframework-variant.yml"
+  - ".github/file-filters.yml"
+
+  # Scripts
+  - "scripts/ci-select-xcode.sh"
+  - "scripts/ci-diagnostics.sh"
+  - "scripts/build-xcframework-slice.sh"
+  - "scripts/assemble-xcframework.sh"
+
+  # Project files
+  - "Samples/iOS-Swift/iOS-Swift.yml"
+  - "Samples/iOS-Swift/iOS-Swift.xcconfig"
+  - "Samples/iOS-Swift/iOS-SwiftClip.xcconfig"
+  - "Samples/iOS-Swift/iOS-Benchmarking.xcconfig"
+
+run_test_cross_platform_for_prs: &run_test_cross_platform_for_prs
+  - "Sources/**"
+
+  # GH Actions
+  - ".github/workflows/test-cross-platform.yml"
+  - ".github/file-filters.yml"
+
+  # Project files
+  - "Sentry.podspec"
+  - "SentrySwiftUI.podspec"
+  - "Package*.swift"
+
+  # Scripts
+  - "scripts/ci-diagnostics.sh"
+
+  # Other
+  - "Makefile" # Make commands used for cross-platform setup
+  - "Brewfile*" # Dependency installation affects cross-platform testing
+
+run_lint_clang_formatting_for_prs: &run_lint_clang_formatting_for_prs
+  - "**/*.h"
+  - "**/*.hpp"
+  - "**/*.c"
+  - "**/*.cpp"
+  - "**/*.m"
+  - "**/*.mm"
+
+  # GH Actions
+  - ".github/workflows/lint-clang-formatting.yml"
+  - ".github/file-filters.yml"
+
+  # Formatting
+  - ".clang-format"
+  # Other
+  - "Makefile" # Make commands used for formatting setup
+  - "Brewfile*" # Tools installation affects formatting environment
+  - "scripts/ci-diagnostics.sh" # CI diagnostics may affect formatting checks
+
 run_objc_conversion_analysis_for_prs: &run_objc_conversion_analysis_for_prs
   - "SwiftConversion/**"
 
@@ -125,6 +212,7 @@ run_release_for_prs: &run_release_for_prs # Release-related code
   - "scripts/ci-diagnostics.sh"
   - "scripts/build-xcframework-slice.sh"
   - "scripts/assemble-xcframework.sh"
+  - "scripts/generate_release_matrix.sh"
 
   # Project files
   - "Sentry.xcworkspace/**"
@@ -160,6 +248,13 @@ run_lint_swift_formatting_for_prs: &run_lint_swift_formatting_for_prs # Swift fo
   # Scripts
   - "scripts/ci-diagnostics.sh"
 
+run_lint_shellcheck_for_prs: &run_lint_shellcheck_for_prs # Shell scripts
+  - "**/*.sh"
+
+  # GH Actions
+  - ".github/workflows/lint-shellcheck-formatting.yml"
+  - ".github/file-filters.yml"
+
 run_lint_dprint_for_prs: &run_lint_dprint_for_prs # dprint formatting
   - "**/*.yml"
   - "**/*.yaml"
@@ -172,3 +267,141 @@ run_lint_dprint_for_prs: &run_lint_dprint_for_prs # dprint formatting
   # GH Actions
   - ".github/workflows/lint-dprint-formatting.yml"
   - ".github/file-filters.yml"
+
+run_lint_xcode_analyze_for_prs: &run_lint_xcode_analyze_for_prs # Xcode linting
+  - "Sources/**"
+  - "Tests/**"
+  - "test-server/**"
+  - "Samples/**"
+
+  # GH Actions
+  - ".github/workflows/lint-xcode-analyze.yml"
+  - ".github/file-filters.yml"
+
+  # Scripts
+  - "scripts/ci-select-xcode.sh"
+  - "scripts/ci-diagnostics.sh"
+
+  # Project files
+  - "Sentry.xcodeproj/**"
+  - "*.podspec"
+  - "Gemfile.lock"
+
+run_build_for_prs: &run_build_for_prs # Build-related code
+  - "Sources/**"
+  - "test-server/**"
+  - "Samples/**"
+
+  # GH Actions
+  - ".github/workflows/build.yml"
+  - ".github/file-filters.yml"
+
+  # Project files
+  - "Sentry.xcworkspace/**"
+  - "Sentry.xcodeproj/**"
+  - "Package*.swift"
+
+  # Scripts
+  - "scripts/ci-select-xcode.sh"
+  - "scripts/ci-diagnostics.sh"
+
+  # Other
+  - "fastlane/**"
+  - "Gemfile.lock"
+  - "Makefile" # Make commands used for CI build setup
+  - "Brewfile*" # Dependency installation affects build environment
+
+run_codeql_analysis_for_prs: &run_codeql_analysis_for_prs # CodeQL security analysis
+  - "Sources/**"
+
+  # GH Actions
+  - ".github/workflows/codeql-analysis.yml"
+  - ".github/file-filters.yml"
+
+  # Project files
+  - "Sentry.xcworkspace/**"
+  - "Sentry.xcodeproj/**"
+
+  # Scripts
+  - "scripts/ci-diagnostics.sh"
+
+  # Other
+  - "Makefile" # Make commands used for CI build setup
+
+run_version_bump_util_for_prs: &run_version_bump_util_for_prs # Version bump utility
+  # Version bump utilities
+  - "Utils/VersionBump/**"
+
+  # GH Actions
+  - ".github/workflows/version-bump-util.yml"
+  - ".github/file-filters.yml"
+
+  # Scripts
+  - "scripts/bump.sh"
+
+  # Sources
+  - "Sources/Sentry/SentryMeta.m"
+
+  # Project files
+  - "Sentry.podspec"
+  - "SentryPrivate.podspec"
+  - "SentrySwiftUI.podspec"
+  - "Package*.swift"
+  - "Tests/HybridSDKTest/HybridPod.podspec"
+  - "Sources/Configuration/SDK.xcconfig"
+  - "Sources/Configuration/Versioning.xcconfig"
+  - "Sources/Configuration/SentrySwiftUI.xcconfig"
+
+run_ui_tests_for_prs: &run_ui_tests_for_prs # UI Tests
+  - "Sources/**"
+  - "Tests/**"
+
+  # GH Actions
+  - ".github/workflows/ui-tests.yml"
+  - ".github/workflows/ui-tests-common.yml"
+  - ".github/file-filters.yml"
+
+  # Scripts
+  - "scripts/ci-select-xcode.sh"
+  - "scripts/build-xcframework-slice.sh"
+  - "scripts/assemble-xcframework.sh"
+  - "scripts/ci-diagnostics.sh"
+
+  # Project files
+  - "**/*.xctestplan"
+
+  # Samples
+  - "Samples/iOS-SwiftUI/**"
+  - "Samples/iOS-Swift/**"
+  - "Samples/iOS-Swift6/**"
+  - "Samples/SentrySampleShared/**"
+  - "Samples/Shared/**"
+
+  # Other
+  - "fastlane/**"
+  - ".sauce/config.yml"
+  - ".github/workflows/build-xcframework-variant-slices.yml"
+  - ".github/workflows/assemble-xcframework-variant.yml"
+  - "Makefile" # Make commands used for UI test environment setup
+  - "Brewfile*" # Dependency installation affects UI test environment
+
+run_ui_tests_critical_for_prs: &run_ui_tests_critical_for_prs # UI Tests Critical
+  - "Sources/**"
+  - "TestSamples/**"
+  - "**/*.xctestplan"
+
+  # GH Actions
+  - ".github/workflows/ui-tests-critical.yml"
+  - ".github/workflows/ui-tests-common.yml"
+  - ".github/file-filters.yml"
+
+  # Scripts
+  - "scripts/ci-boot-simulator.sh"
+  - "scripts/ci-select-xcode.sh"
+  - "scripts/ci-diagnostics.sh"
+
+  # Other
+  - "fastlane/**"
+  - "Gemfile.lock"
+  - "Makefile" # Make commands used for CI build setup
+  - "Brewfile*" # Dependency installation affects build environment

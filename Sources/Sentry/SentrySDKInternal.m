@@ -3,7 +3,6 @@
 #import "SentryANRTrackingIntegration.h"
 #import "SentryAppStartMeasurement.h"
 #import "SentryAppStateManager.h"
-#import "SentryBinaryImageCache.h"
 #import "SentryBreadcrumb.h"
 #import "SentryClient+Private.h"
 #import "SentryCrash.h"
@@ -34,7 +33,6 @@
 #endif // TARGET_OS_MAC
 
 #if SENTRY_HAS_UIKIT
-#    import "SentryUIDeviceWrapper.h"
 #    import "SentryUIViewControllerPerformanceTracker.h"
 #    if TARGET_OS_IOS
 #        import "SentryFeedbackAPI.h"

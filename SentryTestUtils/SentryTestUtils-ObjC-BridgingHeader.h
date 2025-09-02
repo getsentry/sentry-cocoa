@@ -10,7 +10,6 @@
 #    import "SentryAppStartTracker.h"
 #    import "SentryDisplayLinkWrapper.h"
 #    import "SentryFramesTracker+TestInit.h"
-#    import "SentryUIDeviceWrapper.h"
 #    import "SentryUIViewControllerPerformanceTracker.h"
 #endif // SENTRY_HAS_UIKIT
 
@@ -26,7 +25,6 @@
 
 #import "PrivateSentrySDKOnly.h"
 #import "SentryAppStartMeasurement.h"
-#import "SentryBinaryImageCache.h"
 #import "SentryClient+Private.h"
 #import "SentryClient+TestInit.h"
 #import "SentryCrash+Test.h"
@@ -45,7 +43,6 @@
 #import "SentryHub+Test.h"
 #import "SentryLogC.h"
 #import "SentryNSProcessInfoWrapper.h"
-#import "SentryNSTimerFactory.h"
 #import "SentryNetworkTracker.h"
 #import "SentryPerformanceTracker+Testing.h"
 #import "SentryReachability.h"

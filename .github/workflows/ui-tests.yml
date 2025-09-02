@@ -5,26 +5,6 @@ on:
       - main
 
   pull_request:
-    paths:
-      - "Sources/**"
-      - "Tests/**"
-      - ".github/workflows/ui-tests.yml"
-      - ".github/workflows/ui-tests-common.yml"
-      - "fastlane/**"
-      - ".sauce/config.yml"
-      - "scripts/ci-select-xcode.sh"
-      - "**/*.xctestplan"
-      - "Samples/iOS-SwiftUI/**"
-      - "Samples/iOS-Swift/**"
-      - "Samples/iOS-Swift6/**"
-      - "Samples/SentrySampleShared/**"
-      - "Samples/Shared/**"
-      - "scripts/build-xcframework-slice.sh"
-      - "scripts/assemble-xcframework.sh"
-      - ".github/workflows/build-xcframework-variant-slices.yml"
-      - ".github/workflows/assemble-xcframework-variant.yml"
-      - "Makefile" # Make commands used for UI test environment setup
-      - "Brewfile*" # Dependency installation affects UI test environment
 
 # Concurrency configuration:
 # - We use workflow-specific concurrency groups to prevent multiple UI test runs on the same code,
@@ -38,7 +18,23 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
+  files-changed:
+    name: Detect File Changes
+    runs-on: ubuntu-latest
+    outputs:
+      run_ui_tests_for_prs: ${{ steps.changes.outputs.run_ui_tests_for_prs }}
+    steps:
+      - uses: actions/checkout@v5
+      - name: Get changed files
+        id: changes
+        uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
+        with:
+          token: ${{ github.token }}
+          filters: .github/file-filters.yml
+
   ui-tests:
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_ui_tests_for_prs == 'true'
+    needs: files-changed
     name: Test ${{matrix.name}} V3 # Up the version with every change to keep track of flaky tests
     uses: ./.github/workflows/ui-tests-common.yml
     strategy:
@@ -59,6 +55,8 @@ jobs:
 
   # SwiftUI only supports iOS 14+ so we run it in a separate matrix here
   ui-tests-swift-ui:
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_ui_tests_for_prs == 'true'
+    needs: files-changed
     name: Test SwiftUI V4 # Up the version with every change to keep track of flaky tests
     uses: ./.github/workflows/ui-tests-common.yml
     with:
@@ -72,6 +70,8 @@ jobs:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   ui-tests-swift:
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_ui_tests_for_prs == 'true'
+    needs: files-changed
     name: Test Swift ${{matrix.name}} V5 # Up the version with every change to keep track of flaky tests
     uses: ./.github/workflows/ui-tests-common.yml
     strategy:
@@ -102,6 +102,8 @@ jobs:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   ui-tests-swift6:
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_ui_tests_for_prs == 'true'
+    needs: files-changed
     name: Test iOS Swift6 V3 # Up the version with every change to keep track of flaky tests
     uses: ./.github/workflows/ui-tests-common.yml
     with:
@@ -113,3 +115,27 @@ jobs:
       codecov_test_analytics: true
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+  # This check validates that either UI tests passed or were skipped, which allows us
+  # to make UI tests a required check with only running the UI tests when required.
+  # So, we don't have to run UI tests, for example, for unrelated changes.
+  ui_tests-required-check:
+    needs:
+      [
+        files-changed,
+        ui-tests,
+        ui-tests-swift-ui,
+        ui-tests-swift,
+        ui-tests-swift6,
+      ]
+    name: UI Tests
+    # This is necessary since a failed/skipped dependent job would cause this job to be skipped
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      # If any jobs we depend on fails gets cancelled or times out, this job will fail.
+      # Skipped jobs are not considered failures.
+      - name: Check for failures
+        if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
+        run: |
+          echo "One of the UI test jobs has failed." && exit 1

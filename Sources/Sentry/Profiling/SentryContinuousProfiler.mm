@@ -5,7 +5,6 @@
 #    import "SentryDependencyContainer.h"
 #    import "SentryLogC.h"
 #    import "SentryMetricProfiler.h"
-#    import "SentryNSTimerFactory.h"
 #    import "SentryProfiler+Private.h"
 #    import "SentryProfilerSerialization.h"
 #    import "SentryProfilerState.h"
@@ -193,12 +192,8 @@ _sentry_unsafe_stopTimerAndCleanup()
             return;
         }
 
-        _chunkTimer = [SentryDependencyContainer.sharedInstance.timerFactory
-            scheduledTimerWithTimeInterval:kSentryProfilerChunkExpirationInterval
-                                    target:self
-                                  selector:@selector(timerExpired)
-                                  userInfo:nil
-                                   repeats:YES];
+        _chunkTimer = sentry_scheduledTimerWithTarget(
+            kSentryProfilerChunkExpirationInterval, self, @selector(timerExpired), nil, YES);
     });
 }
 

@@ -1,4 +1,5 @@
 #if os(iOS)
+import AVKit
 import Foundation
 import PDFKit
 import SafariServices
@@ -26,6 +27,12 @@ class RCTParagraphComponentView: UIView {
  */
 @objc(RCTImageView)
 class RCTImageView: UIView {
+}
+
+/*
+ * Test class to simulate camera view behavior for testing the subtree skipping functionality.
+ */
+class TestCameraView: UIView {
 }
 
 class SentryUIRedactBuilderTests: XCTestCase {
@@ -461,16 +468,84 @@ class SentryUIRedactBuilderTests: XCTestCase {
         XCTAssertEqual(result.count, 0)
     }
     
-    func testRedactList() {
-        let expectedList = ["_TtCOCV7SwiftUI11DisplayList11ViewUpdater8Platform13CGDrawingView",
+    func testDefaultRedactList_shouldContainAllPlatformSpecificClasses() {
+        // -- Arrange --
+        let expectedListClassNames = [
+            // SwiftUI Views
+            "_TtCOCV7SwiftUI11DisplayList11ViewUpdater8Platform13CGDrawingView",
             "_TtC7SwiftUIP33_A34643117F00277B93DEBAB70EC0697122_UIShapeHitTestingView",
-            "SwiftUI._UIGraphicsView", "SwiftUI.ImageLayer", "UIWebView", "SFSafariView", "UILabel", "UITextView", "UITextField", "WKWebView", "PDFView"
-        ].compactMap { NSClassFromString($0) }
-        
-        let sut = getSut()
-        expectedList.forEach { element in
-            XCTAssertTrue(sut.containsRedactClass(element), "\(element) not found")
+            "SwiftUI._UIGraphicsView", "SwiftUI.ImageLayer",
+            // Web Views
+            "UIWebView", "SFSafariView", "WKWebView",
+            // Text Views (incl. HybridSDK)
+            "UILabel", "UITextView", "UITextField", "RCTTextView", "RCTParagraphComponentView",
+            // Document Views
+            "PDFView",
+            // Image Views (incl. HybridSDK)
+            "UIImageView", "RCTImageView",
+            // Audio / Video Views
+            "AVPlayerView"
+        ]
+
+        let expectedList = expectedListClassNames.map { className -> (String, ObjectIdentifier?) in
+            guard let classType = NSClassFromString(className) else {
+                print("Class \(className) not found, skipping test")
+                return (className, nil)
+            }
+            return (className, ObjectIdentifier(classType))
         }
+
+        // -- Act --
+        let sut = getSut()
+
+        // -- Assert --
+        // Build sets of expected and actual identifiers for comparison
+        let expectedIdentifiers = Set(expectedList.compactMap { $0.1 })
+        let actualIdentifiers = Set(sut.redactClassesIdentifiers)
+
+        // Check for identifiers that are expected but missing in the actual result
+        let missingIdentifiers = expectedIdentifiers.subtracting(actualIdentifiers)
+        // Check for identifiers that are present in the actual result but not expected
+        let unexpectedIdentifiers = actualIdentifiers.subtracting(expectedIdentifiers)
+
+        // For each expected class, check that if we expect the class identifier to be nil, it is nil
+        for (expectedClassName, expectedNullableIdentifier) in expectedList {
+            if expectedNullableIdentifier == nil {
+                // If we expect nil, assert that no identifier in the actual list matches the class name
+                let found = sut.redactClassesIdentifiers.contains { $0.debugDescription.contains(expectedClassName) }
+                XCTAssertFalse(found, "Class \(expectedClassName) not found in runtime, but it is present in the redact list")
+            } else {
+                // If we expect a non-nil identifier, assert that it is present in the actual list
+                XCTAssertTrue(sut.redactClassesIdentifiers.contains(where: { $0 == expectedNullableIdentifier }), "Expected class \(expectedClassName) not found in redact list")
+            }
+        }
+
+        // Assert that there are no missing identifiers
+        XCTAssertTrue(missingIdentifiers.isEmpty, "Missing expected class identifiers: \(missingIdentifiers)")
+
+        // Assert that there are no unexpected identifiers
+        for identifier in unexpectedIdentifiers {
+            // Try to get the class name from the identifier
+            let classCount = objc_getClassList(nil, 0)
+            var className = "<unknown>"
+            if classCount > 0 {
+                let classes = UnsafeMutablePointer<AnyClass?>.allocate(capacity: Int(classCount))
+                defer { classes.deallocate() }
+                let autoreleasingClasses = AutoreleasingUnsafeMutablePointer<AnyClass>(classes)
+                let count = objc_getClassList(autoreleasingClasses, classCount)
+                for i in 0..<Int(count) {
+                    if let cls = classes[i], ObjectIdentifier(cls) == identifier {
+                        className = NSStringFromClass(cls)
+                        break
+                    }
+                }
+            }
+            XCTFail("Unexpected class identifier found: \(identifier) (\(className))")
+        }
+        XCTAssertTrue(unexpectedIdentifiers.isEmpty, "Unexpected class identifiers found: \(unexpectedIdentifiers)")
+
+        // Assert that the sets are equal (final check)
+        XCTAssertEqual(actualIdentifiers, expectedIdentifiers, "Mismatch between expected and actual class identifiers")
     }
     
     func testIgnoreList() {
@@ -637,6 +712,205 @@ class SentryUIRedactBuilderTests: XCTestCase {
         
         // -- Act & Assert --
         XCTAssertTrue(sut.containsRedactClass(PDFView.self), "PDFView should be in the redact class list")
+    }
+
+    func testRedactAVPlayerViewController() throws {
+        // -- Arrange --
+        let sut = getSut()
+        let avPlayerViewController = AVPlayerViewController()
+        let avPlayerView = try XCTUnwrap(avPlayerViewController.view)
+        avPlayerView.frame = CGRect(x: 20, y: 20, width: 40, height: 40)
+        rootView.addSubview(avPlayerView)
+        
+        // -- Act --
+        let result = sut.redactRegionsFor(view: rootView)
+        
+        // -- Assert --
+        // Root View
+        // └ AVPlayerViewController.view    (Public API)
+        //   └ AVPlayerView                 (Private API)
+        XCTAssertGreaterThanOrEqual(result.count, 1)
+        let avPlayerRegion = try XCTUnwrap(result.first)
+        XCTAssertEqual(avPlayerRegion.size, CGSize(width: 40, height: 40))
+        XCTAssertEqual(avPlayerRegion.type, .redact)
+        XCTAssertEqual(avPlayerRegion.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 20, ty: 20))
+        XCTAssertNil(avPlayerRegion.color)
+    }
+
+    func testRedactAVPlayerViewControllerEvenWithMaskingDisabled() throws {
+        // -- Arrange --
+        // AVPlayerViewController should always be redacted for security reasons,
+        // regardless of maskAllText and maskAllImages settings
+        let sut = getSut(TestRedactOptions(maskAllText: false, maskAllImages: false))
+        let avPlayerViewController = AVPlayerViewController()
+        let avPlayerView = try XCTUnwrap(avPlayerViewController.view)
+        avPlayerView.frame = CGRect(x: 20, y: 20, width: 40, height: 40)
+        rootView.addSubview(avPlayerView)
+        
+        // -- Act --
+        let result = sut.redactRegionsFor(view: rootView)
+        
+        // -- Assert --
+        // Root View
+        // └ AVPlayerViewController.view    (Public API)
+        //   └ AVPlayerView                 (Private API)
+        XCTAssertGreaterThanOrEqual(result.count, 1)
+        let avPlayerRegion = try XCTUnwrap(result.first)
+        XCTAssertEqual(avPlayerRegion.size, CGSize(width: 40, height: 40))
+        XCTAssertEqual(avPlayerRegion.type, .redact)
+        XCTAssertEqual(avPlayerRegion.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 20, ty: 20))
+        XCTAssertNil(avPlayerRegion.color)
+    }
+
+    func testAVPlayerViewInRedactList() throws {
+        // -- Arrange --
+        let sut = getSut()
+        
+        // -- Act & Assert --
+        // Note: The redaction system uses "AVPlayerView" as the class name string
+        // which should resolve to the internal view hierarchy of AVPlayerViewController
+        guard let avPlayerViewClass = NSClassFromString("AVPlayerView") else {
+            throw XCTSkip("AVPlayerView class not found, skipping test")
+        }
+        XCTAssertTrue(sut.containsRedactClass(avPlayerViewClass), "AVPlayerView should be in the redact class list")
+    }
+
+    func testViewSubtreeIgnoredFunctionExists() {
+        // -- Arrange --
+        let sut = getSut()
+        
+        // -- Act & Assert --
+        // This test verifies that the isViewSubtreeIgnored functionality exists
+        // We test with a regular view that should NOT be ignored
+        let regularView = TestCameraView(frame: CGRect(x: 10, y: 10, width: 60, height: 60))
+        let labelInside = UILabel(frame: CGRect(x: 5, y: 5, width: 20, height: 20))
+        regularView.addSubview(labelInside)
+        rootView.addSubview(regularView)
+
+        let result = sut.redactRegionsFor(view: rootView)
+        // Regular views should still be processed normally - the label should be redacted
+        XCTAssertEqual(result.count, 1, "Regular view subtrees should be processed normally")
+    }
+
+    func testCameraViewSpecialCaseHandling() {
+        // -- Arrange --
+        let sut = getSut()
+        
+        // -- Act & Assert --
+        // This test verifies that the camera view handling doesn't break existing functionality
+        // We test that normal redaction still works for other views
+        let normalLabel = UILabel(frame: CGRect(x: 10, y: 10, width: 40, height: 40))
+        let normalImageView = UIImageView(frame: CGRect(x: 60, y: 60, width: 30, height: 30))
+        
+        // Create a test image for the image view
+        let testImage = UIGraphicsImageRenderer(size: CGSize(width: 30, height: 30)).image { context in
+            context.fill(CGRect(x: 0, y: 0, width: 30, height: 30))
+        }
+        normalImageView.image = testImage
+        
+        rootView.addSubview(normalLabel)
+        rootView.addSubview(normalImageView)
+
+        let result = sut.redactRegionsFor(view: rootView)
+        
+        // Both the label and image should be redacted
+        XCTAssertEqual(result.count, 2, "Normal views should still be redacted")
+        
+        // Verify that both redact regions are present
+        let labelRegion = result.first { $0.transform.tx == 10 && $0.transform.ty == 10 }
+        let imageRegion = result.first { $0.transform.tx == 60 && $0.transform.ty == 60 }
+        
+        XCTAssertNotNil(labelRegion, "Label should be redacted")
+        XCTAssertNotNil(imageRegion, "Image view should be redacted")
+    }
+
+    func testViewSubtreeProcessingWithNestedViews() {
+        // -- Arrange --
+        let sut = getSut()
+        let containerView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+        let testView = TestCameraView(frame: CGRect(x: 10, y: 10, width: 60, height: 60))
+        let labelInsideTest = UILabel(frame: CGRect(x: 5, y: 5, width: 20, height: 20))
+        let labelOutsideTest = UILabel(frame: CGRect(x: 80, y: 80, width: 15, height: 15))
+        
+        testView.addSubview(labelInsideTest)
+        containerView.addSubview(testView)
+        containerView.addSubview(labelOutsideTest)
+        rootView.addSubview(containerView)
+
+        // -- Act --
+        let result = sut.redactRegionsFor(view: rootView)
+
+        // -- Assert --
+        // Both labels should be redacted since TestCameraView is not the special camera class
+        XCTAssertEqual(result.count, 2, "All labels should be processed normally")
+        
+        // Verify both regions exist
+        let regions = result.sorted { $0.size.width < $1.size.width }
+        XCTAssertEqual(regions[0].size, CGSize(width: 15, height: 15), "Outside label should be redacted")
+        XCTAssertEqual(regions[1].size, CGSize(width: 20, height: 20), "Inside label should be redacted")
+    }
+
+    func testCameraClassDetectionWhenClassDoesNotExist() {
+        // -- Arrange --
+        let sut = getSut()
+        
+        // -- Act & Assert --
+        // This test verifies that the system handles gracefully when CameraUI.ChromeSwiftUIView doesn't exist
+        // or when the workaround is not active (e.g., on older iOS versions or different compiler versions)
+        // In our test environment, this class likely doesn't exist or the workaround is not active,
+        // so normal processing should continue
+        let testLabel = UILabel(frame: CGRect(x: 10, y: 10, width: 40, height: 40))
+        rootView.addSubview(testLabel)
+
+        let result = sut.redactRegionsFor(view: rootView)
+        
+        // Label should be redacted normally since the camera class doesn't exist or workaround is inactive
+        XCTAssertEqual(result.count, 1, "Normal redaction should work when camera class doesn't exist or workaround is inactive")
+        XCTAssertEqual(result.first?.size, CGSize(width: 40, height: 40))
+    }
+
+    func testViewSubtreeIgnoreLogicDoesNotAffectOtherIgnoreClasses() {
+        // -- Arrange --
+        let sut = getSut()
+        let testView = TestCameraView(frame: CGRect(x: 10, y: 10, width: 30, height: 30))
+        let sliderView = UISlider(frame: CGRect(x: 50, y: 50, width: 40, height: 20))
+        let labelView = UILabel(frame: CGRect(x: 80, y: 80, width: 15, height: 15))
+        
+        rootView.addSubview(testView)
+        rootView.addSubview(sliderView)
+        rootView.addSubview(labelView)
+
+        // -- Act --
+        let result = sut.redactRegionsFor(view: rootView)
+
+        // -- Assert --
+        // Slider should be ignored (default ignore class)
+        // TestCameraView is not the special camera class, so it should be processed normally
+        // Label should be redacted
+        XCTAssertEqual(result.count, 1, "Only label should be redacted, slider should be ignored by default ignore logic")
+        XCTAssertEqual(result.first?.size, CGSize(width: 15, height: 15))
+    }
+
+    func testCameraWorkaroundOnlyActiveForSpecificConfiguration() {
+        // -- Arrange --
+        let sut = getSut()
+        
+        // -- Act & Assert --
+        // This test documents that the camera view workaround is only active when:
+        // 1. Built with Swift 6.0+ compiler (Xcode 16+) - compiler(>=6.0) 
+        // 2. Running on iOS 26+ - #available(iOS 26.0, *)
+        // 3. CameraUI.ChromeSwiftUIView class exists
+        //
+        // In this test environment, the class likely doesn't exist or we're not on iOS 26,
+        // so normal processing should occur
+        let testLabel = UILabel(frame: CGRect(x: 10, y: 10, width: 40, height: 40))
+        rootView.addSubview(testLabel)
+
+        let result = sut.redactRegionsFor(view: rootView)
+        
+        // Label should be redacted normally when workaround conditions are not met
+        XCTAssertEqual(result.count, 1, "Normal redaction should work when workaround conditions are not met")
+        XCTAssertEqual(result.first?.size, CGSize(width: 40, height: 40))
     }
 }
 

@@ -1,7 +1,6 @@
 #import "SentryANRTrackerV1.h"
 
 #import "SentryApplication.h"
-#import "SentryBinaryImageCache.h"
 #import "SentryDefaultObjCRuntimeWrapper.h"
 #import "SentryDispatchFactory.h"
 #import "SentryDisplayLinkWrapper.h"
@@ -12,15 +11,12 @@
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"
 #import "SentryNSProcessInfoWrapper.h"
-#import "SentryNSTimerFactory.h"
 #import "SentryOptions+Private.h"
-#import "SentryRandom.h"
 #import "SentrySDK+Private.h"
 #import "SentrySessionTracker.h"
 #import "SentrySwift.h"
 #import "SentrySystemWrapper.h"
 #import "SentryThreadInspector.h"
-#import "SentryUIDeviceWrapper.h"
 #import <SentryAppStateManager.h>
 #import <SentryCrash.h>
 #import <SentryCrashWrapper.h>
@@ -48,10 +44,6 @@
 #    import <SentryViewHierarchyProvider.h>
 #    import <SentryWatchdogTerminationBreadcrumbProcessor.h>
 #endif // SENTRY_HAS_UIKIT
-
-#if TARGET_OS_IOS
-#    import "SentryUIDeviceWrapper.h"
-#endif // TARGET_OS_IOS
 
 #if TARGET_OS_OSX
 #    import "SentryNSApplication.h"
@@ -168,7 +160,8 @@ static BOOL isInitialializingDependencyContainer = NO;
 
         _notificationCenterWrapper = [NSNotificationCenter defaultCenter];
 #if SENTRY_HAS_UIKIT
-        _uiDeviceWrapper = [[SentryUIDeviceWrapper alloc] init];
+        _uiDeviceWrapper =
+            [[SentryDefaultUIDeviceWrapper alloc] initWithQueueWrapper:_dispatchQueueWrapper];
         _application = [[SentryUIApplication alloc]
             initWithNotificationCenterWrapper:_notificationCenterWrapper
                          dispatchQueueWrapper:_dispatchQueueWrapper];

@@ -9,28 +9,38 @@ import WebKit
 #endif
 
 final class SentryUIRedactBuilder {
-    ///This is a wrapper which marks it's direct children to be ignored
-    private var ignoreContainerClassIdentifier: ObjectIdentifier?
-    ///This is a wrapper which marks it's direct children to be redacted
-    private var redactContainerClassIdentifier: ObjectIdentifier?
-
-    ///This is a list of UIView subclasses that will be ignored during redact process
-    private var ignoreClassesIdentifiers: Set<ObjectIdentifier>
-    ///This is a list of UIView subclasses that need to be redacted from screenshot
-    private var redactClassesIdentifiers: Set<ObjectIdentifier>
-
-
     // MARK: - Constants
 
     /// Class object identifier for ``CameraUI.ChromeSwiftUIView``, if it exists.
     ///
     /// This object identifier is used to identify views of this class type during the redaction process.
+    /// This workaround is specifically for Xcode 16 building for iOS 26 where accessing CameraUI.ModeLoupeLayer
+    /// causes a crash due to unimplemented init(layer:) initializer.
     private static let cameraSwiftUIViewClassObjectId: ObjectIdentifier? = {
+#if compiler(>=6.0) // Xcode 16+ uses Swift 6.0 compiler
         guard let classType = NSClassFromString("CameraUI.ChromeSwiftUIView") else {
             return nil
         }
         return ObjectIdentifier(classType)
+#else
+        return nil
+#endif
     }()
+
+    ///This is a wrapper which marks it's direct children to be ignored
+    private var ignoreContainerClassIdentifier: ObjectIdentifier?
+    
+    ///This is a wrapper which marks it's direct children to be redacted
+    private var redactContainerClassIdentifier: ObjectIdentifier?
+
+    ///This is a list of UIView subclasses that will be ignored during redact process
+    private var ignoreClassesIdentifiers: Set<ObjectIdentifier>
+
+    /// This is a list of UIView subclasses that need to be redacted from screenshot
+    ///
+    /// This set is configured as `private(set)` to allow modification only from within this class,
+    /// while still allowing read access from tests.
+    private(set) var redactClassesIdentifiers: Set<ObjectIdentifier>
 
     /**
      Initializes a new instance of the redaction process with the specified options.
@@ -79,7 +89,10 @@ final class SentryUIRedactBuilder {
             // Used by:
             // - https://developer.apple.com/documentation/SafariServices/SFSafariViewController
             // - https://developer.apple.com/documentation/AuthenticationServices/ASWebAuthenticationSession
-            "SFSafariView"
+            "SFSafariView",
+            // Used by:
+            // - https://developer.apple.com/documentation/avkit/avplayerviewcontroller
+            "AVPlayerView"
         ].compactMap(NSClassFromString(_:))
 
         ignoreClassesIdentifiers = [ ObjectIdentifier(UISlider.self), ObjectIdentifier(UISwitch.self) ]
@@ -267,7 +280,7 @@ final class SentryUIRedactBuilder {
             }
         }
 
-        if !isViewSubtreeIgnored(view) {
+        if isViewSubtreeIgnored(view) {
             return
         }
         guard let subLayers = layer.sublayers, subLayers.count > 0 else {
@@ -303,7 +316,13 @@ final class SentryUIRedactBuilder {
             // CameraUI.ChromeSwiftUIView is a special case because it contains layers which can not be iterated due to this error:
             //
             // Fatal error: Use of unimplemented initializer 'init(layer:)' for class 'CameraUI.ModeLoupeLayer'
-            return true
+            //
+            // This crash only occurs when building with Xcode 16 for iOS 26, so we add a runtime check
+            if #available(iOS 26.0, *) {
+                return true
+            } else {
+                return false
+            }
         }
 
         return false
