@@ -154,7 +154,7 @@ class SentryFileManagerTests: XCTestCase {
         XCTAssertEqual(1, envelopes.count)
         
         let actualData = try XCTUnwrap(envelopes.first).contents
-        XCTAssertEqual(expectedData, actualData as Data)
+        try compareEnvelopes(expectedData, actualData as Data, message: "Envelopes are not equal")
     }
     
     func testStoreInvalidEnvelope_ReturnsNil() {
