@@ -57,7 +57,7 @@ class TestSentryCrashWrapper: SentryCrashWrapper {
         return internalIsApplicationInForeground
     }
     
-    override var systemInfo: [AnyHashable: Any] {
+    override var systemInfo: [String: Any] {
         return [:]
     }
     

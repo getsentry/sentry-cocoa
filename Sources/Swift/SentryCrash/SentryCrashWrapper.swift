@@ -66,7 +66,7 @@ import UIKit
         return sentrycrashstate_currentState()?.pointee.applicationIsInForeground ?? false
     }
     
-    @objc public var systemInfo: [AnyHashable: Any] {
+    @objc public var systemInfo: [String: Any] {
         return Self.getSystemInfo()
     }
     
@@ -247,11 +247,14 @@ import UIKit
     
     // MARK: - Private Methods
     
-    private static func getSystemInfo() -> [AnyHashable: Any] {
+    private static func getSystemInfo() -> [String: Any] {
         // Static singleton pattern for systemInfo
         struct Holder {
-            static let sharedInfo: [AnyHashable: Any] = {
-                return SentryDependencyContainerSwiftHelper.crashReporter().systemInfo ?? [:]
+            static let sharedInfo: [String: Any] = {
+                guard let systemInfo = SentryDependencyContainerSwiftHelper.crashReporter().systemInfo as? [String: Any] else {
+                    return [:]
+                }
+                return systemInfo
             }()
         }
         return Holder.sharedInfo
