@@ -14,7 +14,6 @@
 #    import "SentryHub+Private.h"
 #    import "SentryLogC.h"
 #    import "SentryOptions.h"
-#    import "SentryRandom.h"
 #    import "SentryRateLimits.h"
 #    import "SentryReachability.h"
 #    import "SentrySDK+Private.h"
@@ -714,7 +713,7 @@ static SentryTouchTracker *_touchTracker;
 
 - (BOOL)sessionReplayShouldCaptureReplayForError
 {
-    return SentryDependencyContainer.sharedInstance.random.nextNumber
+    return [SentryDependencyContainer.sharedInstance.random nextNumber]
         <= _replayOptions.onErrorSampleRate;
 }
 
