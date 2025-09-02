@@ -37,7 +37,7 @@ jobs:
     # Run the job only for PRs with related changes or non-PR events.
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_test_cross_platform_for_prs == 'true'
     needs: files-changed
-    runs-on: macos-15
+    runs-on: macos-14
     # This job can take a while to run, so we set a timeout.
     timeout-minutes: 30
     steps:
@@ -65,7 +65,7 @@ jobs:
           node-version: 18
           cache: "yarn"
           cache-dependency-path: sentry-react-native/yarn.lock
-      - run: ./sentry-cocoa/scripts/ci-select-xcode.sh 16.4
+      - run: ./sentry-cocoa/scripts/ci-select-xcode.sh 16.2
 
       - name: Install SDK JS Dependencies
         working-directory: sentry-react-native

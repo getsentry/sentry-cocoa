@@ -1,7 +1,6 @@
 #import "SentryANRTrackerV1.h"
 
 #import "SentryApplication.h"
-#import "SentryBinaryImageCache.h"
 #import "SentryDefaultObjCRuntimeWrapper.h"
 #import "SentryDispatchFactory.h"
 #import "SentryDisplayLinkWrapper.h"
@@ -12,9 +11,7 @@
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"
 #import "SentryNSProcessInfoWrapper.h"
-#import "SentryNSTimerFactory.h"
 #import "SentryOptions+Private.h"
-#import "SentryRandom.h"
 #import "SentrySDK+Private.h"
 #import "SentrySessionTracker.h"
 #import "SentrySwift.h"
