@@ -311,6 +311,23 @@ run_build_for_prs: &run_build_for_prs # Build-related code
   - "Makefile" # Make commands used for CI build setup
   - "Brewfile*" # Dependency installation affects build environment
 
+run_codeql_analysis_for_prs: &run_codeql_analysis_for_prs # CodeQL security analysis
+  - "Sources/**"
+
+  # GH Actions
+  - ".github/workflows/codeql-analysis.yml"
+  - ".github/file-filters.yml"
+
+  # Project files
+  - "Sentry.xcworkspace/**"
+  - "Sentry.xcodeproj/**"
+
+  # Scripts
+  - "scripts/ci-diagnostics.sh"
+
+  # Other
+  - "Makefile" # Make commands used for CI build setup
+
 run_version_bump_util_for_prs: &run_version_bump_util_for_prs # Version bump utility
   # Version bump utilities
   - "Utils/VersionBump/**"
