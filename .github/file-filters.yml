@@ -65,6 +65,29 @@ run_api_stability_for_prs: &run_api_stability_for_prs # API-related code
   - "sdk_api.json"
   - "sdk_api_v9.json"
 
+run_integration_test_for_prs: &run_integration_test_for_prs # CocoaPods integration test
+  # GH Actions
+  - ".github/workflows/integration-test.yml"
+  - ".github/file-filters.yml"
+
+  # Project files
+  - "*.xcodeproj"
+  - "*.xcworkspace"
+  - "*.podspec"
+  - "Plans/iOS-Cocoapods-Swift6_Base.xctestplan"
+
+  # Sources
+  - "Sources/**"
+  - "Samples/iOS-Cocoapods-*/**"
+
+  # Scripts
+  - "scripts/ci-select-xcode.sh"
+  - "scripts/ci-diagnostics.sh"
+
+  # Other
+  - "fastlane/**"
+  - "Gemfile.lock"
+
 run_benchmarking_for_prs: &run_benchmarking_for_prs
   - "Sources/**"
 
@@ -299,3 +322,81 @@ run_check_package_diff_for_prs: &run_check_package_diff_for_prs # Package.swift 
   # Other
   - "Makefile" # Make commands used for package diff checking
   - "Utils/expected_package_diff.patch"
+
+run_version_bump_util_for_prs: &run_version_bump_util_for_prs # Version bump utility
+  # Version bump utilities
+  - "Utils/VersionBump/**"
+
+  # GH Actions
+  - ".github/workflows/version-bump-util.yml"
+  - ".github/file-filters.yml"
+
+  # Scripts
+  - "scripts/bump.sh"
+
+  # Sources
+  - "Sources/Sentry/SentryMeta.m"
+
+  # Project files
+  - "Sentry.podspec"
+  - "SentryPrivate.podspec"
+  - "SentrySwiftUI.podspec"
+  - "Package*.swift"
+  - "Tests/HybridSDKTest/HybridPod.podspec"
+  - "Sources/Configuration/SDK.xcconfig"
+  - "Sources/Configuration/Versioning.xcconfig"
+  - "Sources/Configuration/SentrySwiftUI.xcconfig"
+
+run_ui_tests_for_prs: &run_ui_tests_for_prs # UI Tests
+  - "Sources/**"
+  - "Tests/**"
+
+  # GH Actions
+  - ".github/workflows/ui-tests.yml"
+  - ".github/workflows/ui-tests-common.yml"
+  - ".github/file-filters.yml"
+
+  # Scripts
+  - "scripts/ci-select-xcode.sh"
+  - "scripts/build-xcframework-slice.sh"
+  - "scripts/assemble-xcframework.sh"
+  - "scripts/ci-diagnostics.sh"
+
+  # Project files
+  - "**/*.xctestplan"
+
+  # Samples
+  - "Samples/iOS-SwiftUI/**"
+  - "Samples/iOS-Swift/**"
+  - "Samples/iOS-Swift6/**"
+  - "Samples/SentrySampleShared/**"
+  - "Samples/Shared/**"
+
+  # Other
+  - "fastlane/**"
+  - ".sauce/config.yml"
+  - ".github/workflows/build-xcframework-variant-slices.yml"
+  - ".github/workflows/assemble-xcframework-variant.yml"
+  - "Makefile" # Make commands used for UI test environment setup
+  - "Brewfile*" # Dependency installation affects UI test environment
+
+run_ui_tests_critical_for_prs: &run_ui_tests_critical_for_prs # UI Tests Critical
+  - "Sources/**"
+  - "TestSamples/**"
+  - "**/*.xctestplan"
+
+  # GH Actions
+  - ".github/workflows/ui-tests-critical.yml"
+  - ".github/workflows/ui-tests-common.yml"
+  - ".github/file-filters.yml"
+
+  # Scripts
+  - "scripts/ci-boot-simulator.sh"
+  - "scripts/ci-select-xcode.sh"
+  - "scripts/ci-diagnostics.sh"
+
+  # Other
+  - "fastlane/**"
+  - "Gemfile.lock"
+  - "Makefile" # Make commands used for CI build setup
+  - "Brewfile*" # Dependency installation affects build environment
