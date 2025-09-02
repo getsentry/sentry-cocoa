@@ -311,6 +311,30 @@ run_build_for_prs: &run_build_for_prs # Build-related code
   - "Makefile" # Make commands used for CI build setup
   - "Brewfile*" # Dependency installation affects build environment
 
+run_version_bump_util_for_prs: &run_version_bump_util_for_prs # Version bump utility
+  # Version bump utilities
+  - "Utils/VersionBump/**"
+
+  # GH Actions
+  - ".github/workflows/version-bump-util.yml"
+  - ".github/file-filters.yml"
+
+  # Scripts
+  - "scripts/bump.sh"
+
+  # Sources
+  - "Sources/Sentry/SentryMeta.m"
+
+  # Project files
+  - "Sentry.podspec"
+  - "SentryPrivate.podspec"
+  - "SentrySwiftUI.podspec"
+  - "Package*.swift"
+  - "Tests/HybridSDKTest/HybridPod.podspec"
+  - "Sources/Configuration/SDK.xcconfig"
+  - "Sources/Configuration/Versioning.xcconfig"
+  - "Sources/Configuration/SentrySwiftUI.xcconfig"
+
 run_ui_tests_for_prs: &run_ui_tests_for_prs # UI Tests
   - "Sources/**"
   - "Tests/**"
