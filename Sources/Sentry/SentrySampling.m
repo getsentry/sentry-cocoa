@@ -2,10 +2,10 @@
 #import "SentryDependencyContainer.h"
 #import "SentryInternalDefines.h"
 #import "SentryOptions.h"
-#import "SentryRandom.h"
 #import "SentrySampleDecision.h"
 #import "SentrySamplerDecision.h"
 #import "SentrySamplingContext.h"
+#import "SentrySwift.h"
 #import "SentryTransactionContext.h"
 #import <SentryOptions+Private.h>
 
