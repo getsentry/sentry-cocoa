@@ -24,7 +24,7 @@ jobs:
     name: Detect File Changes
     runs-on: ubuntu-latest
     outputs:
-      run_testflight_for_changes: ${{ github.event_name != 'pull_request' && steps.changes.outputs.run_testflight_for_prs || steps.changes_pushes.outputs.run_testflight_for_pushes }}
+      run_testflight_for_changes: ${{ github.event_name == 'pull_request' && steps.changes.outputs.run_testflight_for_prs || steps.changes.outputs.run_testflight_for_pushes }}
     steps:
       - uses: actions/checkout@v5
       - name: Get changed files
