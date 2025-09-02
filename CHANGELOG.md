@@ -13,6 +13,7 @@
 - Structured Logging: Logger called before `SentrySDK.start` becomes unusable (#5984)
 - Add masking for AVPlayerView (#5910)
 - Fix missing view hierachy when enabling `attachScreenshot` too (#5989)
+- Fix macOS's frameworks not following the versioned framework structure (#6049)
 
 ### Improvements
 
