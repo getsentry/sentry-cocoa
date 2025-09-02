@@ -4,18 +4,6 @@ on:
   push:
     branches:
       - main
-    paths:
-      - "Sources/**"
-      - "Tests/**"
-      - "test-server/**"
-      - "Samples/**"
-      - ".github/workflows/lint-cocoapods-specs.yml"
-      - "scripts/ci-select-xcode.sh"
-      - "scripts/ci-diagnostics.sh"
-      - "Makefile" # Make commands used for linting setup
-      - "Brewfile*" # Tools installation affects linting environment
-      - ".swiftlint.yml"
-
   pull_request:
 
 # Concurrency configuration:
