@@ -322,6 +322,10 @@ run_testflight_for_pushes: &run_testflight_for_pushes # Testflight-related code
   - ".github/workflows/testflight.yml"
   - ".github/file-filters.yml"
 
+  # Scripts
+  - "scripts/ci-select-xcode.sh"
+  - "scripts/ci-diagnostics.sh"
+
 run_check_package_diff_for_prs: &run_check_package_diff_for_prs # Package.swift diff checking
   # GH Actions
   - ".github/workflows/check-package-diff.yml"
