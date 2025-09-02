@@ -173,10 +173,10 @@ jobs:
         shell: bash
 
       - name: Validate XCFramework structure
-        run: ./scripts/validate-xcframework-format.sh "${{env.OVERRIDE_NAME}}.xcframework"
+        run: ./scripts/validate-xcframework-format.sh "${{env.XCFRAMEWORK_NAME}}.xcframework"
         shell: bash
         env:
-          OVERRIDE_NAME: ${{ inputs.override-name }}
+          XCFRAMEWORK_NAME: ${{ env.XCFRAMEWORK_NAME }}
 
       - name: Zip XCFramework
         if: steps.cache-xcframework.outputs.cache-hit != 'true'
