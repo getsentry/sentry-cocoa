@@ -34,6 +34,10 @@ echo "Excluded architectures: $EXCLUDED_ARCH"
 # Find all framework directories and process their binaries
 find "$XCARCHIVE_PATH" -name "*.framework" -type d | while read -r framework_path; do
     binary_path="$framework_path/$(basename "$framework_path" .framework)"
+    if [ -L "$binary_path" ]; then
+        echo "Resolving symlink at path: $binary_path"
+        binary_path=$(readlink -f "$binary_path")
+    fi
     if [ -f "$binary_path" ]; then
         echo "Processing binary: $binary_path"
         
