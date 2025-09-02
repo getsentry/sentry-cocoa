@@ -31,7 +31,7 @@ class SentrySessionTrackerTests: XCTestCase {
             
             client = TestClient(options: options)
             
-            sentryCrash = TestSentryCrashWrapper.sharedInstance()
+            sentryCrash = TestSentryCrashWrapper()
 
             #if os(iOS) || targetEnvironment(macCatalyst) || os(tvOS)
             application = TestSentryUIApplication()

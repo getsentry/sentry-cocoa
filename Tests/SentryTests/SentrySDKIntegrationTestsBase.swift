@@ -16,7 +16,7 @@ class SentrySDKIntegrationTestsBase: XCTestCase {
     
     override func setUp() {
         super.setUp()
-        crashWrapper = TestSentryCrashWrapper.sharedInstance()
+        crashWrapper = TestSentryCrashWrapper()
         SentryDependencyContainer.sharedInstance().crashWrapper = crashWrapper
         currentDate = TestCurrentDateProvider()
     }
@@ -28,7 +28,7 @@ class SentrySDKIntegrationTestsBase: XCTestCase {
     
     func givenSdkWithHub(_ options: Options? = nil, scope: Scope = Scope()) {
         let client = TestClient(options: options ?? self.options)
-        let hub = SentryHub(client: client, andScope: scope, andCrashWrapper: TestSentryCrashWrapper.sharedInstance(), andDispatchQueue: SentryDispatchQueueWrapper())
+        let hub = SentryHub(client: client, andScope: scope, andCrashWrapper: TestSentryCrashWrapper(), andDispatchQueue: SentryDispatchQueueWrapper())
         
         SentrySDKInternal.setStart(with: self.options)
         SentrySDKInternal.setCurrentHub(hub)

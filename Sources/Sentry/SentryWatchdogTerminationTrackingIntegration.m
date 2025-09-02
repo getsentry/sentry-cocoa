@@ -5,7 +5,6 @@
 #    import <SentryANRTrackerV1.h>
 #    import <SentryAppStateManager.h>
 #    import <SentryClient+Private.h>
-#    import <SentryCrashWrapper.h>
 #    import <SentryDependencyContainer.h>
 #    import <SentryHub.h>
 #    import <SentryNSProcessInfoWrapper.h>

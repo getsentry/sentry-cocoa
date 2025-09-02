@@ -19,7 +19,6 @@
 #import "SentryThreadInspector.h"
 #import <SentryAppStateManager.h>
 #import <SentryCrash.h>
-#import <SentryCrashWrapper.h>
 #import <SentryDebugImageProvider+HybridSDKs.h>
 #import <SentryDefaultRateLimits.h>
 #import <SentryDependencyContainer.h>

@@ -93,7 +93,7 @@ class SentryCrashInstallationReporterTests: XCTestCase {
         let hub = SentryHub(client: testClient, andScope: nil)
         SentrySDKInternal.setCurrentHub(hub)
         
-        sut = SentryCrashInstallationReporter(inAppLogic: SentryInAppLogic(inAppIncludes: [], inAppExcludes: []), crashWrapper: TestSentryCrashWrapper.sharedInstance(), dispatchQueue: TestSentryDispatchQueueWrapper())
+        sut = SentryCrashInstallationReporter(inAppLogic: SentryInAppLogic(inAppIncludes: [], inAppExcludes: []), crashWrapper: TestSentryCrashWrapper(), dispatchQueue: TestSentryDispatchQueueWrapper())
         sut.install(options.cacheDirectoryPath)
         // Works only if SentryCrash is installed
         sentrycrash_deleteAllReports()

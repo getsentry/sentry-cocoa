@@ -20,7 +20,7 @@ class SentryANRTrackerV1Tests: XCTestCase, SentryANRTrackerDelegate {
         let threadWrapper = SentryTestThreadWrapper()
         
         init() {
-            crashWrapper = TestSentryCrashWrapper.sharedInstance()
+            crashWrapper = TestSentryCrashWrapper()
             SentryDependencyContainer.sharedInstance().dateProvider = currentDate
         }
     }

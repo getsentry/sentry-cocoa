@@ -5,7 +5,6 @@
 #import "SentryCrashIntegrationSessionHandler.h"
 #import "SentryCrashMonitor_CPPException.h"
 #include "SentryCrashMonitor_Signal.h"
-#import "SentryCrashWrapper.h"
 #import "SentryEvent.h"
 #import "SentryHub.h"
 #import "SentryModels+Serializable.h"

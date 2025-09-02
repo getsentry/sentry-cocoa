@@ -59,7 +59,7 @@ class SentrySDKInternalTests: XCTestCase {
             scope.setTag(value: "value", key: "key")
 
             client = TestClient(options: options)!
-            hub = SentryHub(client: client, andScope: scope, andCrashWrapper: TestSentryCrashWrapper.sharedInstance(), andDispatchQueue: SentryDispatchQueueWrapper())
+            hub = SentryHub(client: client, andScope: scope, andCrashWrapper: TestSentryCrashWrapper(), andDispatchQueue: SentryDispatchQueueWrapper())
 
             userFeedback = UserFeedback(eventId: SentryId())
             userFeedback.comments = "Again really?"
@@ -573,7 +573,7 @@ class SentrySDKInternalTests: XCTestCase {
         SentrySDK.resumeAppHangTracking()
         Dynamic(anrTrackingIntegration).anrDetectedWithType(SentryANRType.unknown)
 
-        if SentryDependencyContainer.sharedInstance().crashWrapper.isBeingTraced() {
+        if SentryDependencyContainer.sharedInstance().crashWrapper.isBeingTraced {
             XCTAssertEqual(0, client.captureEventWithScopeInvocations.count)
         } else {
             XCTAssertEqual(1, client.captureEventWithScopeInvocations.count)

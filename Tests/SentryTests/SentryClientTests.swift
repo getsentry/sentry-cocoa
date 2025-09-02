@@ -29,7 +29,7 @@ class SentryClientTests: XCTestCase {
         
         let trace = SentryTracer(transactionContext: TransactionContext(name: "SomeTransaction", operation: "SomeOperation"), hub: nil)
         let transaction: Transaction
-        let crashWrapper = TestSentryCrashWrapper.sharedInstance()
+        let crashWrapper = TestSentryCrashWrapper()
         #if os(iOS) || targetEnvironment(macCatalyst)
         let deviceWrapper = TestSentryUIDeviceWrapper()
         #endif // os(iOS) || targetEnvironment(macCatalyst)
@@ -1721,7 +1721,7 @@ class SentryClientTests: XCTestCase {
         eventId.assertIsNotEmpty()
         
         var expectedIntegrations = ["AutoBreadcrumbTracking", "AutoSessionTracking", "Crash", "NetworkTracking"]
-        if !SentryDependencyContainer.sharedInstance().crashWrapper.isBeingTraced() {
+        if !SentryDependencyContainer.sharedInstance().crashWrapper.isBeingTraced {
             expectedIntegrations = ["ANRTracking"] + expectedIntegrations
         }
         
@@ -1763,7 +1763,7 @@ class SentryClientTests: XCTestCase {
         eventId.assertIsNotEmpty()
         let actual = try lastSentEvent()
         var expectedIntegrations = ["AutoBreadcrumbTracking", "AutoSessionTracking", "Crash", "NetworkTracking", integrationName]
-        if !SentryDependencyContainer.sharedInstance().crashWrapper.isBeingTraced() {
+        if !SentryDependencyContainer.sharedInstance().crashWrapper.isBeingTraced {
             expectedIntegrations = ["ANRTracking"] + expectedIntegrations
         }
         

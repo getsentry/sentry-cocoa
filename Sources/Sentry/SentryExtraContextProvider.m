@@ -1,6 +1,5 @@
 #import "SentryExtraContextProvider.h"
 #import "SentryCrashIntegration.h"
-#import "SentryCrashWrapper.h"
 #import "SentryLogC.h"
 #import "SentryNSProcessInfoWrapper.h"
 #import "SentrySwift.h"

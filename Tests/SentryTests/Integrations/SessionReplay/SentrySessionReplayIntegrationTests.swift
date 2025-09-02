@@ -34,7 +34,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
             // not calling super.init() here as we don't actually want to install crash reporter machinery
         }
         
-        override func isBeingTraced() -> Bool {
+        override public var isBeingTraced: Bool {
             traced
         }
     }

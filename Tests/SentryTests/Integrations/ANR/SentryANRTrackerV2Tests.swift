@@ -12,7 +12,7 @@ class SentryANRTrackerV2Tests: XCTestCase {
         
         let currentDate = TestCurrentDateProvider()
         
-        let crashWrapper = TestSentryCrashWrapper.sharedInstance()
+        let crashWrapper = TestSentryCrashWrapper()
         let dispatchQueue = TestSentryDispatchQueueWrapper()
         let threadWrapper = SentryTestThreadWrapper()
         

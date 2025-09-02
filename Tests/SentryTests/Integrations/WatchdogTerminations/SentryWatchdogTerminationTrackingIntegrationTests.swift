@@ -37,7 +37,7 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
             processInfoWrapper = TestSentryNSProcessInfoWrapper()
             container.processInfoWrapper = processInfoWrapper
 
-            crashWrapper = TestSentryCrashWrapper.sharedInstance()
+            crashWrapper = TestSentryCrashWrapper()
             container.crashWrapper = crashWrapper
 
             fileManager = try SentryFileManager(options: options)
