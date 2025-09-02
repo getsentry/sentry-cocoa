@@ -311,6 +311,21 @@ run_build_for_prs: &run_build_for_prs # Build-related code
   - "Makefile" # Make commands used for CI build setup
   - "Brewfile*" # Dependency installation affects build environment
 
+run_testflight_for_prs: &run_testflight_for_prs # Testflight-related code
+  - ".github/workflows/testflight.yml"
+
+run_testflight_for_pushes: &run_testflight_for_pushes # Testflight-related code
+  - "Sources/**"
+  - "Samples/iOS-Swift/**"
+
+  # GH Actions
+  - ".github/workflows/testflight.yml"
+  - ".github/file-filters.yml"
+
+  # Scripts
+  - "scripts/ci-select-xcode.sh"
+  - "scripts/ci-diagnostics.sh"
+
 run_check_package_diff_for_prs: &run_check_package_diff_for_prs # Package.swift diff checking
   # GH Actions
   - ".github/workflows/check-package-diff.yml"
