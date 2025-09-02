@@ -17,14 +17,10 @@ final class SentryUIRedactBuilder {
     /// This workaround is specifically for Xcode 16 building for iOS 26 where accessing CameraUI.ModeLoupeLayer
     /// causes a crash due to unimplemented init(layer:) initializer.
     private static let cameraSwiftUIViewClassObjectId: ObjectIdentifier? = {
-#if compiler(>=6.0) // Xcode 16+ uses Swift 6.0 compiler
         guard let classType = NSClassFromString("CameraUI.ChromeSwiftUIView") else {
             return nil
         }
         return ObjectIdentifier(classType)
-#else
-        return nil
-#endif
     }()
 
     ///This is a wrapper which marks it's direct children to be ignored
