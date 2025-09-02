@@ -317,6 +317,7 @@ run_version_bump_util_for_prs: &run_version_bump_util_for_prs # Version bump uti
 
   # GH Actions
   - ".github/workflows/version-bump-util.yml"
+  - ".github/file-filters.yml"
 
   # Scripts
   - "scripts/bump.sh"
