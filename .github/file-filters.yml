@@ -289,6 +289,9 @@ run_build_for_prs: &run_build_for_prs # Build-related code
   - "Brewfile*" # Dependency installation affects build environment
 
 run_testflight_for_prs: &run_testflight_for_prs # Testflight-related code
+  - ".github/workflows/testflight.yml"
+
+run_testflight_for_pushes: &run_testflight_for_pushes # Testflight-related code
   - "Sources/**"
   - "Samples/iOS-Swift/**"
 
