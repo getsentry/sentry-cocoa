@@ -19,7 +19,8 @@
 
 - Lazily CharacterSet only once in SentryBaggageSerialization (#5871)
 - Structured Logging: Log `SentrySDK.logger` calls to `SentrySDKLog` (#5991)
-- Ensure IP address is only inferred by Relay if sendDefaultPii is true (#5877)
+- The build type in the app context now differentiates between `enterprise` and `adhoc` (#6044)
+- - Ensure IP address is only inferred by Relay if sendDefaultPii is true (#5877)
 
 ## 8.54.1-alpha.1
 
