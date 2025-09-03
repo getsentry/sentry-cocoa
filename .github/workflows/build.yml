@@ -196,7 +196,7 @@ jobs:
         run: |
           ./scripts/sentry-xcodebuild.sh \
             --platform iOS \
-            --os 18.4 \
+            --os 18.2 \
             --ref ${{ github.ref }} \
             --command build \
             --device "iPhone 16 Pro" \
@@ -222,7 +222,7 @@ jobs:
         run: |
           ./scripts/sentry-xcodebuild.sh \
             --platform iOS \
-            --os 18.4 \
+            --os 18.2 \
             --ref ${{ github.ref }} \
             --command build \
             --device "iPhone 16 Pro" \
@@ -248,7 +248,7 @@ jobs:
         run: |
           ./scripts/sentry-xcodebuild.sh \
             --platform iOS \
-            --os 18.4 \
+            --os 18.2 \
             --ref ${{ github.ref }} \
             --command build \
             --device "iPhone 16 Pro" \
@@ -274,7 +274,7 @@ jobs:
         run: |
           ./scripts/sentry-xcodebuild.sh \
             --platform iOS \
-            --os 18.4 \
+            --os 18.2 \
             --ref ${{ github.ref }} \
             --command build \
             --device "iPhone 16 Pro" \
@@ -315,7 +315,7 @@ jobs:
         run: |
           ./scripts/sentry-xcodebuild.sh \
             --platform iOS \
-            --os 18.4 \
+            --os 18.2 \
             --ref ${{ github.ref }} \
             --command build \
             --device "iPhone 16 Pro" \
