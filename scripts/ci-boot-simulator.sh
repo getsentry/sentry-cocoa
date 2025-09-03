@@ -28,26 +28,26 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-SIMULATOR="iPhone 16"
-IOS_VERSION="18.5"
+SIMULATOR="iPhone 16 Pro"
+IOS_VERSION="18.4"
 
 # Select simulator based on Xcode version
 case "$XCODE_VERSION" in
     "14.3.1")
-        SIMULATOR="iPhone 14"
+        SIMULATOR="iPhone 14 Pro"
         IOS_VERSION="16.4"
         ;;
     "15.4")
-        SIMULATOR="iPhone 15"
+        SIMULATOR="iPhone 15 Pro"
         IOS_VERSION="17.5"
         ;;
     "16.2")
-        SIMULATOR="iPhone 16"
-        IOS_VERSION="18.5"
+        SIMULATOR="iPhone 16 Pro"
+        IOS_VERSION="18.4"
         ;;
     *)
-        SIMULATOR="iPhone 16" # Default fallback
-        IOS_VERSION="18.5"
+        SIMULATOR="iPhone 16 Pro" # Default fallback
+        IOS_VERSION="18.4"
         ;;
 esac
 

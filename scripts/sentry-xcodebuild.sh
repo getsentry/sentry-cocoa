@@ -13,7 +13,7 @@ PLATFORM=""
 OS="latest"
 REF_NAME="HEAD"
 COMMAND="test"
-DEVICE="iPhone 14"
+DEVICE="iPhone 14 Pro"
 CONFIGURATION_OVERRIDE=""
 DERIVED_DATA_PATH=""
 TEST_SCHEME="Sentry"
@@ -24,7 +24,7 @@ usage() {
     echo "  -o|--os <os>                    OS version (default: latest)"
     echo "  -r|--ref <ref>                  Reference name (default: HEAD)"
     echo "  -c|--command <command>          Command (build/build-for-testing/test-without-building/test)"
-    echo "  -d|--device <device>            Device name (default: iPhone 14)"
+    echo "  -d|--device <device>            Device name (default: iPhone 14 Pro)"
     echo "  -C|--configuration <config>     Configuration override"
     echo "  -D|--derived-data <path>        Derived data path"
     echo "  -s|--scheme <scheme>            Test scheme (default: Sentry)"
@@ -141,7 +141,6 @@ if [ $RUN_BUILD == true ]; then
         -configuration "$CONFIGURATION" \
         -destination "$DESTINATION" \
         -derivedDataPath "$DERIVED_DATA_PATH" \
-        -quiet \
         build 2>&1 |
         tee raw-build-output.log |
         xcbeautify
@@ -153,7 +152,6 @@ if [ $RUN_BUILD_FOR_TESTING == true ]; then
         -scheme "$TEST_SCHEME" \
         -configuration "$CONFIGURATION" \
         -destination "$DESTINATION" \
-        -quiet \
         build-for-testing 2>&1 |
         tee raw-build-for-testing-output.log |
         xcbeautify

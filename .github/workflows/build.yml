@@ -169,9 +169,9 @@ jobs:
       - run: |
           ./scripts/sentry-xcodebuild.sh \
             --platform iOS \
-            --os 18.5 \
+            --os 18.4 \
             --command build \
-            --device "iPhone 16"  \
+            --device "iPhone 16 Pro"  \
             --configuration DebugV9
       - name: Archiving Raw Build Logs
         uses: actions/upload-artifact@v4
@@ -196,12 +196,13 @@ jobs:
         run: |
           ./scripts/sentry-xcodebuild.sh \
             --platform iOS \
-            --os latest \
+            --os 18.4 \
             --ref ${{ github.ref }} \
             --command build \
-            --device "iPhone 15" \
+            --device "iPhone 16 Pro" \
             --configuration DebugWithoutUIKit \
             --derived-data uikit-check-build
+
       - name: Ensure UIKit is not linked
         run: ./scripts/check-uikit-linkage.sh DebugWithoutUIKit uikit-check-build unlinked SentryWithoutUIKit
 
@@ -221,12 +222,13 @@ jobs:
         run: |
           ./scripts/sentry-xcodebuild.sh \
             --platform iOS \
-            --os latest \
+            --os 18.4 \
             --ref ${{ github.ref }} \
             --command build \
-            --device "iPhone 15" \
+            --device "iPhone 16 Pro" \
             --configuration ReleaseWithoutUIKit \
             --derived-data uikit-check-build
+
       - name: Ensure UIKit is not linked
         run: ./scripts/check-uikit-linkage.sh ReleaseWithoutUIKit uikit-check-build unlinked SentryWithoutUIKit
 
@@ -246,12 +248,23 @@ jobs:
         run: |
           ./scripts/sentry-xcodebuild.sh \
             --platform iOS \
-            --os latest \
+            --os 18.4 \
             --ref ${{ github.ref }} \
             --command build \
-            --device "iPhone 15" \
+            --device "iPhone 16 Pro" \
             --configuration Debug \
             --derived-data uikit-check-build
+
+      - name: List build products
+        run: |
+          echo "Listing build products"
+          set -x
+          ls -la uikit-check-build/
+          ls -la uikit-check-build/Build/
+          ls -la uikit-check-build/Build/Products/
+          ls -la uikit-check-build/Build/Products/Debug
+          ls -la uikit-check-build/Build/Products/Debug/Sentry.framework
+
       - name: Ensure UIKit is linked
         run: ./scripts/check-uikit-linkage.sh Debug uikit-check-build linked Sentry
 
@@ -271,14 +284,25 @@ jobs:
         run: |
           ./scripts/sentry-xcodebuild.sh \
             --platform iOS \
-            --os latest \
+            --os 18.4 \
             --ref ${{ github.ref }} \
             --command build \
-            --device "iPhone 15" \
+            --device "iPhone 16 Pro" \
             --configuration Release \
             --derived-data uikit-check-build
+
+      - name: List build products
+        run: |
+          echo "Listing build products"
+          set -x
+          ls -la uikit-check-build
+          ls -la uikit-check-build/Build/
+          ls -la uikit-check-build/Build/Products/
+          ls -la uikit-check-build/Build/Products/Release-iphonesimulator
+          ls -la uikit-check-build/Build/Products/Release-iphonesimulator/Sentry.framework
+
       - name: Ensure UIKit is linked
-        run: ./scripts/check-uikit-linkage.sh Release uikit-check-build linked Sentry
+        run: ./scripts/check-uikit-linkage.sh Release-iphonesimulator uikit-check-build linked Sentry
 
       - name: Debug Xcode environment
         if: ${{ failure() || cancelled() }}
@@ -311,10 +335,10 @@ jobs:
         run: |
           ./scripts/sentry-xcodebuild.sh \
             --platform iOS \
-            --os latest \
+            --os 18.4 \
             --ref ${{ github.ref }} \
             --command build \
-            --device "iPhone 16" \
+            --device "iPhone 16 Pro" \
             --configuration Debug
 
       - name: Debug Xcode environment
