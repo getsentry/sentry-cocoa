@@ -64,7 +64,7 @@ jobs:
       xcode_version: 16.4
       build_with_make: true
       macos_version: macos-15
-      fastlane_command_extra_arguments: device:iPhone 16 (18.5)
+      fastlane_command_extra_arguments: device:iPhone 16 (18.4)
       codecov_test_analytics: true
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
@@ -81,15 +81,15 @@ jobs:
           - name: iOS 16
             runs-on: macos-13
             xcode: "14.3.1"
-            device: iPhone 14 (16.4)
+            device: iPhone 14 Pro (16.4)
           - name: iOS 17
             runs-on: macos-14
             xcode: "15.4"
-            device: iPhone 15 (17.5)
+            device: iPhone 15 Pro (17.5)
           - name: iOS 18
             runs-on: macos-15
             xcode: "16.4"
-            device: iPhone 16 (18.5)
+            device: iPhone 16 Pro (18.4)
     with:
       fastlane_command: ui_tests_ios_swift
       fastlane_command_extra_arguments: device:${{matrix.device}}
@@ -108,7 +108,7 @@ jobs:
     uses: ./.github/workflows/ui-tests-common.yml
     with:
       fastlane_command: ui_tests_ios_swift6
-      fastlane_command_extra_arguments: device:iPhone 16 (18.5)
+      fastlane_command_extra_arguments: device:iPhone 16 Pro (18.4)
       xcode_version: 16.4
       build_with_make: true
       macos_version: macos-15

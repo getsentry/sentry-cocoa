@@ -95,7 +95,13 @@ GIT-REF := $(shell git rev-parse --abbrev-ref HEAD)
 
 test:
 	@echo "--> Running all tests"
-	./scripts/sentry-xcodebuild.sh --platform iOS --os latest --ref $(GIT-REF) --command test --configuration Test
+	./scripts/sentry-xcodebuild.sh \
+		--platform iOS \
+		--os 18.4 \
+		--device "iPhone 16 Pro" \
+		--ref $(GIT-REF) \
+		--command test \
+		--configuration Test
 .PHONY: test
 
 run-test-server:
