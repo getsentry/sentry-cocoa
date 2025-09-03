@@ -9,16 +9,20 @@ public class SentryMobileProvisionParser: NSObject {
         return provisionsAllDevices
     }
     
+    // This convenience initializer exists so we can use it from ObjC.
+    // Functions with Optional parameters (used for testing) are not available to ObjC
     @objc
     convenience override public init() {
         self.init(nil)
     }
     
-    @objc
     public init(_ path: String?) {
         super.init()
         embeddedProfilePath = path ?? Bundle.main.path(forResource: "embedded", ofType: "mobileprovision")
-        guard let embeddedProfilePath else { return }
+        guard let embeddedProfilePath else {
+            SentrySDKLog.debug("Couldn't find a embedded mobileprovision profile")
+            return
+        }
         parseProfileFromPath(embeddedProfilePath)
     }
     
@@ -29,6 +33,7 @@ public class SentryMobileProvisionParser: NSObject {
     
     private func parseProfileFromPath(_ path: String) {
         guard let fileData = try? Data(contentsOf: URL(fileURLWithPath: path)) else {
+            SentrySDKLog.debug("Failed to read embedded mobileprovision profile at path \(path)")
             return
         }
         
@@ -37,6 +42,7 @@ public class SentryMobileProvisionParser: NSObject {
         guard let payload = String(data: fileData, encoding: .isoLatin1),
               let startRange = payload.range(of: "<plist"),
               let endRange = payload.range(of: "</plist>") else {
+            SentrySDKLog.debug("Failed to parse embedded mobileprovision profile")
             return
         }
         

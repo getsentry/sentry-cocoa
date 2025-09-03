@@ -3,16 +3,6 @@
 import XCTest
 
 class SentryMobileProvisionParserTests: XCTestCase {
-    private func createFileAndAssert(_ content: String, at fileName: String = #function, assertBlock: ((String) throws -> Void)) throws {
-        let tmpPath = FileManager.default.temporaryDirectory.path
-        let path = "\(tmpPath)\(fileName).tmp"
-        try content.write(toFile: path, atomically: true, encoding: .utf8)
-        
-        try assertBlock(path)
-        
-        try FileManager.default.removeItem(atPath: path)
-    }
-    
     // MARK: - Valid Content Tests
     
     func testInitWithValidEnterpriseContent() throws {
@@ -199,5 +189,16 @@ class SentryMobileProvisionParserTests: XCTestCase {
             // Should default to false when Latin-1 conversion fails and plist cannot be extracted
             XCTAssertTrue(parser.mobileProvisionProfileProvisionsAllDevices)
         }
+    }
+    
+    // MARK: - Utils
+    private func createFileAndAssert(_ content: String, at fileName: String = #function, assertBlock: ((String) throws -> Void)) throws {
+        let tmpPath = FileManager.default.temporaryDirectory.path
+        let path = "\(tmpPath)\(fileName).tmp"
+        try content.write(toFile: path, atomically: true, encoding: .utf8)
+        
+        try assertBlock(path)
+        
+        try FileManager.default.removeItem(atPath: path)
     }
 }
