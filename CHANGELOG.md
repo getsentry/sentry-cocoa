@@ -17,9 +17,9 @@
 
 ### Improvements
 
+- Add support for iOS 26, macOS 26, visionOS 26, watchOS 26, and tvOS 26 in device tests
 - Lazily CharacterSet only once in SentryBaggageSerialization (#5871)
 - Structured Logging: Log `SentrySDK.logger` calls to `SentrySDKLog` (#5991)
-- Add support for iOS 26, macOS 26, visionOS 26, watchOS 26, and tvOS 26 in device tests
 
 ## 8.54.1-alpha.1
 
