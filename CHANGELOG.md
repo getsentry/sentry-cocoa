@@ -19,6 +19,7 @@
 
 - Lazily CharacterSet only once in SentryBaggageSerialization (#5871)
 - Structured Logging: Log `SentrySDK.logger` calls to `SentrySDKLog` (#5991)
+- Ensure IP address is only inferred by Relay if sendDefaultPii is true (#5877)
 
 ## 8.54.1-alpha.1
 
