@@ -461,28 +461,6 @@ hasAppStoreReceipt(void)
     return isAppStoreReceipt && receiptExists;
 }
 
-/**
- * Check if the app has an embdded.mobileprovision file in the bundle.
- */
-static bool
-hasEmbeddedMobileProvision(void)
-{
-    return [[NSBundle mainBundle] pathForResource:@"embedded" ofType:@"mobileprovision"] != nil;
-}
-
-/**
- * Check if the embdded.mobileprovision provisions all devices
- * If true the profile is for `enterprise`, if not it is `adhoc`
- */
-static bool
-mobileProvisionProfileProvisionsAllDevices(void)
-{
-    NSString *path = [[NSBundle mainBundle] pathForResource:@"embedded" ofType:@"mobileprovision"];
-    SentryMobileProvisionParser *parser = [[SentryMobileProvisionParser alloc] initWithPath:path];
-
-    return [parser provisionsAllDevices];
-}
-
 static const char *
 getBuildType(void)
 {
@@ -492,8 +470,9 @@ getBuildType(void)
     if (isDebugBuild()) {
         return "debug";
     }
-    if (hasEmbeddedMobileProvision()) {
-        return mobileProvisionProfileProvisionsAllDevices() ? "enterprise" : "adhoc";
+    SentryMobileProvisionParser *parser = [[SentryMobileProvisionParser alloc] init];
+    if ([parser hasEmbeddedMobileProvisionProfile]) {
+        return [parser mobileProvisionProfileProvisionsAllDevices] ? "enterprise" : "adhoc";
     }
     if (isTestBuild()) {
         return "test";

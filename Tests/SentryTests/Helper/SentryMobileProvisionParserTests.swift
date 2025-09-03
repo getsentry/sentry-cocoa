@@ -3,10 +3,19 @@
 import XCTest
 
 class SentryMobileProvisionParserTests: XCTestCase {
+    private func createFileAndAssert(_ content: String, at fileName: String = #function, assertBlock: ((String) throws -> Void)) throws {
+        let tmpPath = FileManager.default.temporaryDirectory.path
+        let path = "\(tmpPath)\(fileName).tmp"
+        try content.write(toFile: path, atomically: true, encoding: .utf8)
+        
+        try assertBlock(path)
+        
+        try FileManager.default.removeItem(atPath: path)
+    }
     
     // MARK: - Valid Content Tests
     
-    func testInitWithValidEnterpriseContent() {
+    func testInitWithValidEnterpriseContent() throws {
         let content = """
         <?xml version="1.0" encoding="UTF-8"?>
         <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -19,12 +28,13 @@ class SentryMobileProvisionParserTests: XCTestCase {
         </dict>
         </plist>
         """
-        
-        let parser = SentryMobileProvisionParser(mobileProvisionContent: content)
-        XCTAssertTrue(parser.provisionsAllDevices)
+        try createFileAndAssert(content) { path in
+            let parser = SentryMobileProvisionParser(path)
+            XCTAssertTrue(parser.mobileProvisionProfileProvisionsAllDevices)
+        }
     }
     
-    func testInitWithValidAdhocContent() {
+    func testInitWithValidAdhocContent() throws {
         let content = """
         <?xml version="1.0" encoding="UTF-8"?>
         <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -40,11 +50,13 @@ class SentryMobileProvisionParserTests: XCTestCase {
         </plist>
         """
         
-        let parser = SentryMobileProvisionParser(mobileProvisionContent: content)
-        XCTAssertFalse(parser.provisionsAllDevices)
+        try createFileAndAssert(content) { path in
+            let parser = SentryMobileProvisionParser(path)
+            XCTAssertFalse(parser.mobileProvisionProfileProvisionsAllDevices)
+        }
     }
     
-    func testInitWithContentWithoutProvisionsAllDevicesKey() {
+    func testInitWithContentWithoutProvisionsAllDevicesKey() throws {
         let content = """
         <?xml version="1.0" encoding="UTF-8"?>
         <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -58,11 +70,13 @@ class SentryMobileProvisionParserTests: XCTestCase {
         </plist>
         """
         
-        let parser = SentryMobileProvisionParser(mobileProvisionContent: content)
-        XCTAssertFalse(parser.provisionsAllDevices) // Should default to false
+        try createFileAndAssert(content) { path in
+            let parser = SentryMobileProvisionParser(path)
+            XCTAssertFalse(parser.mobileProvisionProfileProvisionsAllDevices)
+        }
     }
     
-    func testInitWithExtraDataInMobileprovisionfile() {
+    func testInitWithExtraDataInMobileprovisionfile() throws {
         let content = """
         This is not a valid plist content
         <plist>
@@ -75,18 +89,22 @@ class SentryMobileProvisionParserTests: XCTestCase {
         """
         
         // The parser scans for the plist inside the profile, so it should find it
-        let parser = SentryMobileProvisionParser(mobileProvisionContent: content)
-        XCTAssertTrue(parser.provisionsAllDevices)
+        try createFileAndAssert(content) { path in
+            let parser = SentryMobileProvisionParser(path)
+            XCTAssertTrue(parser.mobileProvisionProfileProvisionsAllDevices)
+        }
     }
     
     // MARK: - Invalid Content Tests
     
-    func testInitWithEmptyContent() {
-        let parser = SentryMobileProvisionParser(mobileProvisionContent: "")
-        XCTAssertFalse(parser.provisionsAllDevices) // Should default to false when parsing fails
+    func testInitWithEmptyContent() throws {
+        try createFileAndAssert("") { path in
+            let parser = SentryMobileProvisionParser(path)
+            XCTAssertFalse(parser.mobileProvisionProfileProvisionsAllDevices) // Should default to false when parsing fails
+        }
     }
     
-    func testInitWithMalformedPlistContent() {
+    func testInitWithMalformedPlistContent() throws {
         let content = """
         <plist>
         <dict>
@@ -95,11 +113,13 @@ class SentryMobileProvisionParserTests: XCTestCase {
         </dict>
         """
         
-        let parser = SentryMobileProvisionParser(mobileProvisionContent: content)
-        XCTAssertFalse(parser.provisionsAllDevices) // Should default to false when parsing fails
+        try createFileAndAssert(content) { path in
+            let parser = SentryMobileProvisionParser(path)
+            XCTAssertFalse(parser.mobileProvisionProfileProvisionsAllDevices) // Should default to false when parsing fails
+        }
     }
     
-    func testInitWithMissingPlistTags() {
+    func testInitWithMissingPlistTags() throws {
         let content = """
         <dict>
             <key>ProvisionsAllDevices</key>
@@ -107,13 +127,15 @@ class SentryMobileProvisionParserTests: XCTestCase {
         </dict>
         """
         
-        let parser = SentryMobileProvisionParser(mobileProvisionContent: content)
-        XCTAssertFalse(parser.provisionsAllDevices) // Should default to false when parsing fails
+        try createFileAndAssert(content) { path in
+            let parser = SentryMobileProvisionParser(path)
+            XCTAssertFalse(parser.mobileProvisionProfileProvisionsAllDevices) // Should default to false when parsing fails
+        }
     }
     
     // MARK: - Edge Cases
     
-    func testProvisionsAllDevicesWithNonBooleanValue() {
+    func testProvisionsAllDevicesWithNonBooleanValue() throws {
         let content = """
         <?xml version="1.0" encoding="UTF-8"?>
         <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -125,11 +147,13 @@ class SentryMobileProvisionParserTests: XCTestCase {
         </plist>
         """
         
-        let parser = SentryMobileProvisionParser(mobileProvisionContent: content)
-        XCTAssertFalse(parser.provisionsAllDevices) // Should default to false when value is not boolean
+        try createFileAndAssert(content) { path in
+            let parser = SentryMobileProvisionParser(path)
+            XCTAssertFalse(parser.mobileProvisionProfileProvisionsAllDevices) // Should default to false when value is not boolean
+        }
     }
     
-    func testProvisionsAllDevicesWithArrayValue() {
+    func testProvisionsAllDevicesWithArrayValue() throws {
         let content = """
         <?xml version="1.0" encoding="UTF-8"?>
         <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -143,7 +167,37 @@ class SentryMobileProvisionParserTests: XCTestCase {
         </plist>
         """
         
-        let parser = SentryMobileProvisionParser(mobileProvisionContent: content)
-        XCTAssertFalse(parser.provisionsAllDevices) // Should default to false when value is not boolean
+        try createFileAndAssert(content) { path in
+            let parser = SentryMobileProvisionParser(path)
+            XCTAssertFalse(parser.mobileProvisionProfileProvisionsAllDevices) // Should default to false when value is not boolean
+        }
+    }
+    
+    func testPathDoesNotExist() throws {
+        let parser = SentryMobileProvisionParser("/randomPath.xml")
+        XCTAssertFalse(parser.mobileProvisionProfileProvisionsAllDevices)
+    }
+    
+    func testContentWithEmojiAndJapaneseCharacters() throws {
+        // Create content with UTF-8 characters that cannot be represented in Latin-1
+        // These include emojis, Chinese characters, and other Unicode characters
+        let content = """
+        <?xml version="1.0" encoding="UTF-8"?>
+        <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+        <plist version="1.0">
+        <dict>
+            <key>ProvisionsAllDevices</key>
+            <true/>
+            <key>AppIDName</key>
+            <string>Test App with 中文 characters and 🚀 emojis</string>
+        </dict>
+        </plist>
+        """
+        
+        try createFileAndAssert(content) { path in
+            let parser = SentryMobileProvisionParser(path)
+            // Should default to false when Latin-1 conversion fails and plist cannot be extracted
+            XCTAssertTrue(parser.mobileProvisionProfileProvisionsAllDevices)
+        }
     }
 }
