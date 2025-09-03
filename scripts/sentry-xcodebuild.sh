@@ -154,7 +154,7 @@ if [ $RUN_BUILD_FOR_TESTING == true ]; then
         -destination "$DESTINATION" \
         build-for-testing 2>&1 |
         tee raw-build-for-testing-output.log |
-        xcbeautify
+        xcbeautify --preserve-unbeautified
 fi
 
 if [ $RUN_TEST_WITHOUT_BUILDING == true ]; then

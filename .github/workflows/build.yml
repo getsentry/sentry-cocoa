@@ -282,7 +282,7 @@ jobs:
             --derived-data uikit-check-build
 
       - name: Ensure UIKit is linked
-        run: ./scripts/check-uikit-linkage.sh Release-iphonesimulator uikit-check-build linked Sentry
+        run: ./scripts/check-uikit-linkage.sh Release uikit-check-build linked Sentry
 
       - name: Debug Xcode environment
         if: ${{ failure() || cancelled() }}
