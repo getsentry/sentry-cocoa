@@ -1,34 +1,9 @@
-// Adapted from
-// https://github.com/bugsnag/bugsnag-cocoa/blob/2f373f21b965f1b13d7070662e2d35f46c17d975/Bugsnag/Delivery/BSGConnectivity.m
-//
-//  Created by Jamie Lynch on 2017-09-04.
-//
-//  Copyright (c) 2017 Bugsnag, Inc. All rights reserved.
-//
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to deal
-// in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-// copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
-//
-// The above copyright notice and this permission notice shall remain in place
-// in this source code.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
-//
-
 import Foundation
 
 #if !os(watchOS) && !((swift(>=5.9) && os(visionOS)) && SENTRY_NO_UIKIT)
-import SystemConfiguration
+import Network
 
+// MARK: - SentryConectivity
 @objc
 public enum SentryConnectivity: Int {
     case cellular
@@ -47,166 +22,41 @@ public enum SentryConnectivity: Int {
     }
 }
 
-private let kSCNetworkReachabilityFlagsUninitialized: SCNetworkReachabilityFlags = SCNetworkReachabilityFlags(rawValue: UInt32.max)
-
-// Global variables are lazy by default
-private var sentryReachabilityObservers = NSHashTable<SentryReachabilityObserver>.weakObjects()
-private var sentryCurrentReachabilityState: SCNetworkReachabilityFlags = kSCNetworkReachabilityFlagsUninitialized
-private var sentryReachabilityQueue: DispatchQueue?
-
-#if DEBUG || SENTRY_TEST || SENTRY_TEST_CI
-private var sentryReachabilityIgnoreActualCallback = false
-
-@_spi(Private) @objc public class SentryReachabilityTestHelper: NSObject {
-    @objc static public func setReachabilityIgnoreActualCallback(_ value: Bool) {
-        SentrySDKLog.debug("Setting ignore actual callback to \(value)")
-        sentryReachabilityIgnoreActualCallback = value
-    }
-    
-    @objc static public func connectivityCallback(_ flags: SCNetworkReachabilityFlags) {
-        sentryConnectivityCallback(flags)
-    }
-    
-    @objc static public func connectivityFlagRepresentation(_ flags: SCNetworkReachabilityFlags) -> String {
-        sentryConnectivityFlagRepresentation(flags)
-    }
-    
-    @objc static public func stringForSentryConnectivity(_ type: SentryConnectivity) -> String {
-        type.toString()
-    }
-}
-#endif // DEBUG || SENTRY_TEST || SENTRY_TEST_CI
-
-func sentryConnectivityCallback(_ flags: SCNetworkReachabilityFlags) {
-    objc_sync_enter(sentryReachabilityObservers)
-    defer { objc_sync_exit(sentryReachabilityObservers) }
-    
-    SentrySDKLog.debug("Entered synchronized region of SentryConnectivityCallback with flags: \(flags.rawValue)")
-    
-    guard sentryReachabilityObservers.count > 0 else {
-        SentrySDKLog.debug("No reachability observers registered. Nothing to do.")
-        return
-    }
-    
-    guard sentryConnectivityShouldReportChange(flags) else {
-        SentrySDKLog.debug("SentryConnectivityShouldReportChange returned false for flags \(flags.rawValue), will not report change to observers.")
-        return
-    }
-    
-    let connected = flags.contains(.reachable)
-    
-    SentrySDKLog.debug("Notifying observers...")
-    for observer in sentryReachabilityObservers.allObjects {
-        SentrySDKLog.debug("Notifying \(observer)")
-        observer.connectivityChanged(connected, typeDescription: sentryConnectivityFlagRepresentation(flags))
-    }
-    SentrySDKLog.debug("Finished notifying observers.")
-}
-
-/**
- * Check whether the connectivity change should be noted or ignored.
- * @return @c true if the connectivity change should be reported
- */
-func sentryConnectivityShouldReportChange(_ flags: SCNetworkReachabilityFlags) -> Bool {
-#if canImport(UIKit)
-    let importantFlags: SCNetworkReachabilityFlags = [.isWWAN, .reachable]
-#else
-    let importantFlags: SCNetworkReachabilityFlags = .reachable
-#endif // canImport(UIKit)
-    
-    let newFlags = SCNetworkReachabilityFlags(rawValue: flags.rawValue & importantFlags.rawValue)
-    if newFlags == sentryCurrentReachabilityState {
-        SentrySDKLog.debug("No change in reachability state. SentryConnectivityShouldReportChange will return false for flags \(flags.rawValue), sentryCurrentReachabilityState \(sentryCurrentReachabilityState.rawValue)")
-        return false
-    }
-    
-    sentryCurrentReachabilityState = newFlags
-    return true
-}
-
-/**
- * Textual representation of a connection type
- */
-func sentryConnectivityFlagRepresentation(_ flags: SCNetworkReachabilityFlags) -> String {
-    let connected = flags.contains(.reachable)
-#if canImport(UIKit)
-    if connected {
-        return flags.contains(.isWWAN) ? SentryConnectivity.cellular.toString() : SentryConnectivity.wiFi.toString()
-    } else {
-        return SentryConnectivity.none.toString()
-    }
-#else
-    return connected ? SentryConnectivity.wiFi.toString() : SentryConnectivity.none.toString()
-#endif // canImport(UIKit)
-}
-
-#if swift(>=5.9) && os(visionOS)
-/**
- * visionOS-specific callback wrapper that handles the different parameter type
- * for SCNetworkReachabilityFlags. visionOS uses UInt32 for flags instead of
- * the SCNetworkReachabilityFlags type used on other platforms.
- */
-private func connectivityCallbackWrapper(_ target: SCNetworkReachability,
-                                         _ flags: UInt32,
-                                         _ info: UnsafeMutableRawPointer?) {
-    sentryConnectivityActualCallback(target, SCNetworkReachabilityFlags(rawValue: flags), info)
-}
-#else
-private func connectivityCallbackWrapper(_ target: SCNetworkReachability,
-                                         _ flags: SCNetworkReachabilityFlags,
-                                         _ info: UnsafeMutableRawPointer?) {
-    sentryConnectivityActualCallback(target, flags, info)
-}
-#endif // swift(>=5.9) && os(visionOS)
-
-/**
- * Callback invoked by @c SCNetworkReachability, handles the connection change.
- */
-private func sentryConnectivityActualCallback(
-    _ target: SCNetworkReachability,
-    _ flags: SCNetworkReachabilityFlags,
-    _ info: UnsafeMutableRawPointer?
-) {
-    SentrySDKLog.debug("SentryConnectivityCallback called with target: \(target); flags: \(flags.rawValue)")
-    
-#if DEBUG || SENTRY_TEST || SENTRY_TEST_CI
-    if sentryReachabilityIgnoreActualCallback {
-        SentrySDKLog.debug("Ignoring actual callback.")
-        return
-    }
-#endif // DEBUG || SENTRY_TEST || SENTRY_TEST_CI
-    
-    sentryConnectivityCallback(flags)
-}
-
-@_spi(Private) @objc public protocol SentryReachabilityObserver: NSObjectProtocol {
+@_spi(Private) @objc
+public protocol SentryReachabilityObserver: NSObjectProtocol {
     @objc func connectivityChanged(_ connected: Bool, typeDescription: String)
 }
 
-@_spi(Private) @objc public class SentryReachability: NSObject {
-    private var sentryReachabilityRef: SCNetworkReachability?
+// MARK: - SentryReachability
+@_spi(Private) @objc
+public class SentryReachability: NSObject {
+    private var reachabilityObservers = NSHashTable<SentryReachabilityObserver>.weakObjects()
+    private var currentConnectivity: SentryConnectivity = .none
+    private var pathMonitor: Any? // NWPathMonitor for iOS 12+
+    private var reachabilityQueue: DispatchQueue?
     
 #if DEBUG || SENTRY_TEST || SENTRY_TEST_CI
     @objc public var skipRegisteringActualCallbacks = false
+    private var ignoreActualCallback = false
 #endif // DEBUG || SENTRY_TEST || SENTRY_TEST_CI
     
     @objc(addObserver:)
     public func add(_ observer: SentryReachabilityObserver) {
         SentrySDKLog.debug("Adding observer: \(observer)")
         
-        objc_sync_enter(sentryReachabilityObservers)
-        defer { objc_sync_exit(sentryReachabilityObservers) }
+        objc_sync_enter(reachabilityObservers)
+        defer { objc_sync_exit(reachabilityObservers) }
         
         SentrySDKLog.debug("Synchronized to add observer: \(observer)")
         
-        if sentryReachabilityObservers.contains(observer) {
+        if reachabilityObservers.contains(observer) {
             SentrySDKLog.debug("Observer already added. Doing nothing.")
             return
         }
         
-        sentryReachabilityObservers.add(observer)
+        reachabilityObservers.add(observer)
         
-        if sentryReachabilityObservers.count > 1 {
+        if reachabilityObservers.count > 1 {
             return
         }
         
@@ -217,73 +67,166 @@ private func sentryConnectivityActualCallback(
         }
 #endif // DEBUG || SENTRY_TEST || SENTRY_TEST_CI
         
-        sentryReachabilityQueue = DispatchQueue(label: "io.sentry.cocoa.connectivity")
+        let reachabilityQueue = DispatchQueue(label: "io.sentry.cocoa.connectivity")
+        self.reachabilityQueue = reachabilityQueue
         
-        // Ensure to call CFRelease for the return value of SCNetworkReachabilityCreateWithName, see
-        // https://developer.apple.com/documentation/systemconfiguration/1514904-scnetworkreachabilitycreatewithn?language=objc
-        // and
-        // https://developer.apple.com/documentation/systemconfiguration/scnetworkreachability?language=objc
-        guard let reachabilityRef = SCNetworkReachabilityCreateWithName(nil, "sentry.io") else {
-            return
+        if #available(iOS 12.0, macOS 10.14, tvOS 12.0, visionOS 1.0, *) {
+            let monitor = NWPathMonitor()
+            pathMonitor = monitor
+            monitor.pathUpdateHandler = pathUpdateHandler
+            monitor.start(queue: reachabilityQueue)
+            
+            SentrySDKLog.debug("Started NWPathMonitor")
+        } else {
+            // For iOS 11 and earlier, simulate always being connected via WiFi
+            SentrySDKLog.debug("NWPathMonitor not available. Using fallback: always connected via WiFi")
+            reachabilityQueue.async { [weak self] in
+                self?.connectivityCallback(.wiFi)
+            }
         }
-        
-        sentryReachabilityRef = reachabilityRef
-        
-        SentrySDKLog.debug("registering callback for reachability ref \(reachabilityRef)")
-        
-        SCNetworkReachabilitySetCallback(reachabilityRef, connectivityCallbackWrapper, nil)
-        SCNetworkReachabilitySetDispatchQueue(reachabilityRef, sentryReachabilityQueue)
     }
     
     @objc(removeObserver:)
     public func remove(_ observer: SentryReachabilityObserver) {
         SentrySDKLog.debug("Removing observer: \(observer)")
         
-        objc_sync_enter(sentryReachabilityObservers)
-        defer { objc_sync_exit(sentryReachabilityObservers) }
+        objc_sync_enter(reachabilityObservers)
+        defer { objc_sync_exit(reachabilityObservers) }
         
         SentrySDKLog.debug("Synchronized to remove observer: \(observer)")
-        sentryReachabilityObservers.remove(observer)
+        reachabilityObservers.remove(observer)
         
-        if sentryReachabilityObservers.count == 0 {
-            unsetReachabilityCallback()
+        if reachabilityObservers.count == 0 {
+            stopMonitoring()
         }
     }
     
-    @objc public func removeAllObservers() {
+    @objc
+    public func removeAllObservers() {
         SentrySDKLog.debug("Removing all observers.")
         
-        objc_sync_enter(sentryReachabilityObservers)
-        defer { objc_sync_exit(sentryReachabilityObservers) }
+        objc_sync_enter(reachabilityObservers)
+        defer { objc_sync_exit(reachabilityObservers) }
         
         SentrySDKLog.debug("Synchronized to remove all observers.")
-        sentryReachabilityObservers.removeAllObjects()
-        unsetReachabilityCallback()
+        reachabilityObservers.removeAllObjects()
+        stopMonitoring()
     }
     
-    private func unsetReachabilityCallback() {
+    private func stopMonitoring() {
 #if DEBUG || SENTRY_TEST || SENTRY_TEST_CI
         if skipRegisteringActualCallbacks {
-            SentrySDKLog.debug("Skip unsetting actual callbacks")
+            SentrySDKLog.debug("Skip stopping actual monitoring")
         }
 #endif // DEBUG || SENTRY_TEST || SENTRY_TEST_CI
         
-        sentryCurrentReachabilityState = kSCNetworkReachabilityFlagsUninitialized
+        currentConnectivity = .none
         
-        if let reachabilityRef = sentryReachabilityRef {
-            SentrySDKLog.debug("removing callback for reachability ref \(reachabilityRef)")
-            SCNetworkReachabilitySetCallback(reachabilityRef, nil, nil)
-            SCNetworkReachabilitySetDispatchQueue(reachabilityRef, nil)
-            sentryReachabilityRef = nil
+        // Clean up NWPathMonitor
+        if #available(iOS 12.0, macOS 10.14, tvOS 12.0, visionOS 1.0, *) {
+            if let monitor = pathMonitor as? NWPathMonitor {
+                SentrySDKLog.debug("Stopping NWPathMonitor")
+                monitor.cancel()
+                pathMonitor = nil
+            }
         }
         
         SentrySDKLog.debug("Cleaning up reachability queue.")
-        sentryReachabilityQueue = nil
+        reachabilityQueue = nil
+    }
+    
+    @available(iOS 12.0, macOS 10.14, tvOS 12.0, visionOS 1.0, *)
+    private func pathUpdateHandler(_ path: NWPath) {
+        SentrySDKLog.debug("SentryPathUpdateHandler called with path status: \(path.status)")
+        
+#if DEBUG || SENTRY_TEST || SENTRY_TEST_CI
+        if ignoreActualCallback {
+            SentrySDKLog.debug("Ignoring actual callback.")
+            return
+        }
+#endif // DEBUG || SENTRY_TEST || SENTRY_TEST_CI
+        
+        let connectivity = connectivityFromPath(path)
+        connectivityCallback(connectivity)
+    }
+    
+    @available(iOS 12.0, macOS 10.14, tvOS 12.0, visionOS 1.0, *)
+    private func connectivityFromPath(_ path: NWPath) -> SentryConnectivity {
+        guard path.status == .satisfied else {
+            return .none
+        }
+        
+#if canImport(UIKit)
+        if path.usesInterfaceType(.cellular) {
+            return .cellular
+        } else {
+            return .wiFi
+        }
+#else
+        return .wiFi
+#endif // canImport(UIKit)
+    }
+    
+    private func connectivityShouldReportChange(_ connectivity: SentryConnectivity) -> Bool {
+        if connectivity == currentConnectivity {
+            SentrySDKLog.debug("No change in reachability state. ConnectivityShouldReportChange will return false for connectivity \(connectivity.toString()), currentConnectivity \(currentConnectivity.toString())")
+            return false
+        }
+        
+        currentConnectivity = connectivity
+        return true
+    }
+    
+    fileprivate func connectivityCallback(_ connectivity: SentryConnectivity) {
+        objc_sync_enter(reachabilityObservers)
+        defer { objc_sync_exit(reachabilityObservers) }
+        
+        SentrySDKLog.debug("Entered synchronized region of SentryConnectivityCallback with connectivity: \(connectivity.toString())")
+        
+        guard reachabilityObservers.count > 0 else {
+            SentrySDKLog.debug("No reachability observers registered. Nothing to do.")
+            return
+        }
+        
+        guard connectivityShouldReportChange(connectivity) else {
+            SentrySDKLog.debug("ConnectivityShouldReportChange returned false for connectivity \(connectivity.toString()), will not report change to observers.")
+            return
+        }
+        
+        let connected = connectivity != .none
+        
+        SentrySDKLog.debug("Notifying observers...")
+        for observer in reachabilityObservers.allObjects {
+            SentrySDKLog.debug("Notifying \(observer)")
+            observer.connectivityChanged(connected, typeDescription: connectivity.toString())
+        }
+        SentrySDKLog.debug("Finished notifying observers.")
     }
     
     deinit {
         removeAllObservers()
     }
 }
+
+// MARK: - Test utils
+#if DEBUG || SENTRY_TEST || SENTRY_TEST_CI
+@available(iOS 12.0, macOS 10.14, tvOS 12.0, visionOS 1.0, *)
+extension SentryReachability {
+    @objc public func setReachabilityIgnoreActualCallback(_ value: Bool) {
+        SentrySDKLog.debug("Setting ignore actual callback to \(value)")
+        ignoreActualCallback = value
+    }
+    
+    @objc public func triggerConnectivityCallback(_ connectivity: SentryConnectivity) {
+        connectivityCallback(connectivity)
+    }
+}
+
+@_spi(Private) @objc public class SentryReachabilityTestHelper: NSObject {
+    @objc static public func stringForSentryConnectivity(_ type: SentryConnectivity) -> String {
+        type.toString()
+    }
+}
+#endif // DEBUG || SENTRY_TEST || SENTRY_TEST_CI
 
 #endif // !os(watchOS) && !((swift(>=5.9) && os(visionOS)) && SENTRY_NO_UIKIT)
