@@ -1,4 +1,5 @@
 import Foundation
+@_spi(Private) import Sentry
 @_spi(Private) @testable import SentryTestUtils
 import XCTest
 
