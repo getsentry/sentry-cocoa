@@ -42,12 +42,17 @@ fi
 
 # Check if the binary is linked to UIKit.
 log_notice "Checking if Sentry build product is linked to UIKit."
-MATCHES=$(otool -L "$SENTRY_BUILD_PRODUCT_PATH" | grep -c -e "UIKit.framework/UIKit" -e "libswiftUIKit.dylib" ||:)
+OTOOL_OUTPUT=$(otool -L "$SENTRY_BUILD_PRODUCT_PATH")
+begin_group "OTool output"
+echo "$OTOOL_OUTPUT"
+end_group
+
+MATCHES=$(echo "$OTOOL_OUTPUT" | grep -c -e "UIKit.framework/UIKit" -e "libswiftUIKit.dylib" ||:)
+log_notice "Matches: $MATCHES"
 
 # Check the linkage.
 case "$LINKAGE_TEST" in
 "linked")
-    log_notice "Checking if Sentry build product is linked to UIKit."
     if [ "$MATCHES" == 0 ]; then
         log_error "UIKit.framework linkage not found, but expected linkage."
         exit 1

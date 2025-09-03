@@ -143,7 +143,7 @@ if [ $RUN_BUILD == true ]; then
         -derivedDataPath "$DERIVED_DATA_PATH" \
         build 2>&1 |
         tee raw-build-output.log |
-        xcbeautify
+        xcbeautify --preserve-unbeautified
 fi
 
 if [ $RUN_BUILD_FOR_TESTING == true ]; then

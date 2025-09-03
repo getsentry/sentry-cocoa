@@ -255,16 +255,6 @@ jobs:
             --configuration Debug \
             --derived-data uikit-check-build
 
-      - name: List build products
-        run: |
-          echo "Listing build products"
-          set -x
-          ls -la uikit-check-build/
-          ls -la uikit-check-build/Build/
-          ls -la uikit-check-build/Build/Products/
-          ls -la uikit-check-build/Build/Products/Debug
-          ls -la uikit-check-build/Build/Products/Debug/Sentry.framework
-
       - name: Ensure UIKit is linked
         run: ./scripts/check-uikit-linkage.sh Debug uikit-check-build linked Sentry
 
@@ -290,16 +280,6 @@ jobs:
             --device "iPhone 16 Pro" \
             --configuration Release \
             --derived-data uikit-check-build
-
-      - name: List build products
-        run: |
-          echo "Listing build products"
-          set -x
-          ls -la uikit-check-build
-          ls -la uikit-check-build/Build/
-          ls -la uikit-check-build/Build/Products/
-          ls -la uikit-check-build/Build/Products/Release-iphonesimulator
-          ls -la uikit-check-build/Build/Products/Release-iphonesimulator/Sentry.framework
 
       - name: Ensure UIKit is linked
         run: ./scripts/check-uikit-linkage.sh Release-iphonesimulator uikit-check-build linked Sentry
