@@ -1,10 +1,6 @@
 # This is used by the action https://github.com/dorny/paths-filter
 
-high_risk_code: &high_risk_code # GH Actions
-  - ".github/workflows/changes-in-high-risk-code.yml"
-  - ".github/file-filters.yml"
-
-  # High-risk source files
+high_risk_code: &high_risk_code
   - "Sources/Sentry/SentryNSURLSessionTaskSearch.m"
   - "Sources/Sentry/SentryNetworkTracker.m"
   - "Sources/Sentry/SentryUIViewControllerSwizzling.m"
@@ -19,7 +15,11 @@ high_risk_code: &high_risk_code # GH Actions
   - "Sources/Sentry/SentrySerialization.m"
   - "Sources/Sentry/SentrySerialization.h"
 
-run_unit_tests_for_prs: &run_unit_tests_for_prs # Source code
+  # GH Actions
+  - ".github/workflows/changes-in-high-risk-code.yml"
+  - ".github/file-filters.yml"
+
+run_unit_tests_for_prs: &run_unit_tests_for_prs
   - "Sources/**"
   - "Tests/**"
   - "SentryTestUtils/**"
@@ -52,7 +52,7 @@ run_unit_tests_for_prs: &run_unit_tests_for_prs # Source code
   - "Brewfile*"
   - ".codecov.yml"
 
-run_api_stability_for_prs: &run_api_stability_for_prs # Source code
+run_api_stability_for_prs: &run_api_stability_for_prs
   - "Sources/**"
 
   # GH Actions
@@ -79,13 +79,13 @@ run_api_stability_for_prs: &run_api_stability_for_prs # Source code
   # Build configuration
   - "Makefile"
 
-run_integration_test_for_prs: &run_integration_test_for_prs # GH Actions
-  - ".github/workflows/integration-test.yml"
-  - ".github/file-filters.yml"
-
-  # Source code
+run_integration_test_for_prs: &run_integration_test_for_prs
   - "Sources/**"
   - "Samples/iOS-Cocoapods-*/**"
+
+  # GH Actions
+  - ".github/workflows/integration-test.yml"
+  - ".github/file-filters.yml"
 
   # Project files
   - "*.xcodeproj/**"
@@ -101,7 +101,7 @@ run_integration_test_for_prs: &run_integration_test_for_prs # GH Actions
   - "fastlane/**"
   - "Gemfile.lock"
 
-run_benchmarking_for_prs: &run_benchmarking_for_prs # Source code
+run_benchmarking_for_prs: &run_benchmarking_for_prs
   - "Sources/**"
 
   # GH Actions
@@ -130,7 +130,7 @@ run_benchmarking_for_prs: &run_benchmarking_for_prs # Source code
   # Build configuration
   - "fastlane/**"
 
-run_test_cross_platform_for_prs: &run_test_cross_platform_for_prs # Source code
+run_test_cross_platform_for_prs: &run_test_cross_platform_for_prs
   - "Sources/**"
 
   # GH Actions
@@ -151,7 +151,7 @@ run_test_cross_platform_for_prs: &run_test_cross_platform_for_prs # Source code
   - "Makefile"
   - "Brewfile*"
 
-run_lint_clang_formatting_for_prs: &run_lint_clang_formatting_for_prs # Source files
+run_lint_clang_formatting_for_prs: &run_lint_clang_formatting_for_prs
   - "**/*.h"
   - "**/*.hpp"
   - "**/*.c"
@@ -175,7 +175,7 @@ run_lint_clang_formatting_for_prs: &run_lint_clang_formatting_for_prs # Source f
   - "Makefile"
   - "Brewfile*"
 
-run_objc_conversion_analysis_for_prs: &run_objc_conversion_analysis_for_prs # Source code
+run_objc_conversion_analysis_for_prs: &run_objc_conversion_analysis_for_prs
   - "SwiftConversion/**"
 
   # GH Actions
@@ -188,7 +188,7 @@ run_objc_conversion_analysis_for_prs: &run_objc_conversion_analysis_for_prs # So
   # Build configuration
   - "Brewfile*"
 
-run_auto_update_tools_for_prs: &run_auto_update_tools_for_prs # GH Actions
+run_auto_update_tools_for_prs: &run_auto_update_tools_for_prs
   - ".github/workflows/auto-update-tools.yml"
   - ".github/file-filters.yml"
 
@@ -206,7 +206,7 @@ run_auto_update_tools_for_prs: &run_auto_update_tools_for_prs # GH Actions
   - "Brewfile*"
   - "Makefile"
 
-run_lint_cocoapods_specs_for_prs: &run_lint_cocoapods_specs_for_prs # Source code
+run_lint_cocoapods_specs_for_prs: &run_lint_cocoapods_specs_for_prs
   - "Sources/**"
   - "Tests/**"
   - "Samples/**"
@@ -231,7 +231,7 @@ run_lint_cocoapods_specs_for_prs: &run_lint_cocoapods_specs_for_prs # Source cod
   - "Gemfile.lock"
   - ".swiftlint.yml"
 
-run_release_for_prs: &run_release_for_prs # Source code
+run_release_for_prs: &run_release_for_prs
   - "Sources/**"
 
   # GH Actions
@@ -264,14 +264,14 @@ run_release_for_prs: &run_release_for_prs # Source code
   - "fastlane/**"
   - "Makefile"
 
-run_lint_swift_formatting_for_prs: &run_lint_swift_formatting_for_prs # Source files
+run_lint_swift_formatting_for_prs: &run_lint_swift_formatting_for_prs
   - "**/*.swift"
 
   # GH Actions
   - ".github/workflows/lint-swift-formatting.yml"
   - ".github/file-filters.yml"
 
-  # Formatting configuration
+  # Formatting
   - ".swiftlint.yml"
   - "scripts/.swiftlint-version"
 
@@ -282,14 +282,14 @@ run_lint_swift_formatting_for_prs: &run_lint_swift_formatting_for_prs # Source f
   - "Makefile"
   - "Brewfile*"
 
-run_lint_shellcheck_for_prs: &run_lint_shellcheck_for_prs # Shell scripts
+run_lint_shellcheck_for_prs: &run_lint_shellcheck_for_prs
   - "**/*.sh"
 
   # GH Actions
   - ".github/workflows/lint-shellcheck-formatting.yml"
   - ".github/file-filters.yml"
 
-run_lint_dprint_for_prs: &run_lint_dprint_for_prs # Formatted files
+run_lint_dprint_for_prs: &run_lint_dprint_for_prs
   - "**/*.yml"
   - "**/*.yaml"
   - "**/*.json"
@@ -299,10 +299,10 @@ run_lint_dprint_for_prs: &run_lint_dprint_for_prs # Formatted files
   - ".github/workflows/lint-dprint-formatting.yml"
   - ".github/file-filters.yml"
 
-  # Formatting configuration
+  # Formatting
   - "dprint.json"
 
-run_lint_xcode_analyze_for_prs: &run_lint_xcode_analyze_for_prs # Source code
+run_lint_xcode_analyze_for_prs: &run_lint_xcode_analyze_for_prs
   - "Sources/**"
   - "Tests/**"
   - "Samples/**"
@@ -323,7 +323,7 @@ run_lint_xcode_analyze_for_prs: &run_lint_xcode_analyze_for_prs # Source code
   # Build configuration
   - "Makefile"
 
-run_build_for_prs: &run_build_for_prs # Source code
+run_build_for_prs: &run_build_for_prs
   - "Sources/**"
   - "Samples/**"
 
@@ -348,11 +348,11 @@ run_build_for_prs: &run_build_for_prs # Source code
   - "Makefile"
   - "Brewfile*"
 
-run_testflight_for_prs: &run_testflight_for_prs # GH Actions
+run_testflight_for_prs: &run_testflight_for_prs
   - ".github/workflows/testflight.yml"
   - ".github/file-filters.yml"
 
-run_testflight_for_pushes: &run_testflight_for_pushes # Source code
+run_testflight_for_pushes: &run_testflight_for_pushes
   - "Sources/**"
   - "Samples/iOS-Swift/**"
 
@@ -368,7 +368,7 @@ run_testflight_for_pushes: &run_testflight_for_pushes # Source code
   - "fastlane/**"
   - "Makefile"
 
-run_check_package_diff_for_prs: &run_check_package_diff_for_prs # GH Actions
+run_check_package_diff_for_prs: &run_check_package_diff_for_prs
   - ".github/workflows/check-package-diff.yml"
   - ".github/file-filters.yml"
 
@@ -379,7 +379,7 @@ run_check_package_diff_for_prs: &run_check_package_diff_for_prs # GH Actions
   - "Makefile"
   - "Utils/expected_package_diff.patch"
 
-run_codeql_analysis_for_prs: &run_codeql_analysis_for_prs # Source code
+run_codeql_analysis_for_prs: &run_codeql_analysis_for_prs
   - "Sources/**"
 
   # GH Actions
@@ -396,7 +396,7 @@ run_codeql_analysis_for_prs: &run_codeql_analysis_for_prs # Source code
   # Build configuration
   - "Makefile"
 
-run_version_bump_util_for_prs: &run_version_bump_util_for_prs # GH Actions
+run_version_bump_util_for_prs: &run_version_bump_util_for_prs
   - ".github/workflows/version-bump-util.yml"
   - ".github/file-filters.yml"
 
@@ -421,7 +421,7 @@ run_version_bump_util_for_prs: &run_version_bump_util_for_prs # GH Actions
   - "Sources/Configuration/Versioning.xcconfig"
   - "Sources/Configuration/SentrySwiftUI.xcconfig"
 
-run_ui_tests_for_prs: &run_ui_tests_for_prs # Source code
+run_ui_tests_for_prs: &run_ui_tests_for_prs
   - "Sources/**"
   - "Tests/**"
 
@@ -454,7 +454,7 @@ run_ui_tests_for_prs: &run_ui_tests_for_prs # Source code
   - "Makefile"
   - "Brewfile*"
 
-run_ui_tests_critical_for_prs: &run_ui_tests_critical_for_prs # Source code
+run_ui_tests_critical_for_prs: &run_ui_tests_critical_for_prs
   - "Sources/**"
   - "TestSamples/**"
 
@@ -478,7 +478,7 @@ run_ui_tests_critical_for_prs: &run_ui_tests_critical_for_prs # Source code
   - "Makefile"
   - "Brewfile*"
 
-run_lint_swiftlint_for_prs: &run_lint_swiftlint_for_prs # Source code
+run_lint_swiftlint_for_prs: &run_lint_swiftlint_for_prs
   - "Sources/**"
   - "Tests/**"
   - "Samples/**"
