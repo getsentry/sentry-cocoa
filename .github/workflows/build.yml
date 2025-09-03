@@ -188,7 +188,7 @@ jobs:
     name: Check no UIKit linkage (DebugWithoutUIKit)
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_build_for_prs == 'true'
     needs: files-changed
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
       - uses: actions/checkout@v5
 
@@ -196,7 +196,7 @@ jobs:
         run: |
           ./scripts/sentry-xcodebuild.sh \
             --platform iOS \
-            --os 18.2 \
+            --os 18.4 \
             --ref ${{ github.ref }} \
             --command build \
             --device "iPhone 16 Pro" \
@@ -214,7 +214,7 @@ jobs:
     name: Check no UIKit linkage (ReleaseWithoutUIKit)
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_build_for_prs == 'true'
     needs: files-changed
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
       - uses: actions/checkout@v5
 
@@ -222,7 +222,7 @@ jobs:
         run: |
           ./scripts/sentry-xcodebuild.sh \
             --platform iOS \
-            --os 18.2 \
+            --os 18.4 \
             --ref ${{ github.ref }} \
             --command build \
             --device "iPhone 16 Pro" \
@@ -240,7 +240,7 @@ jobs:
     name: Check UIKit linkage (Debug)
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_build_for_prs == 'true'
     needs: files-changed
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
       - uses: actions/checkout@v5
 
@@ -248,7 +248,7 @@ jobs:
         run: |
           ./scripts/sentry-xcodebuild.sh \
             --platform iOS \
-            --os 18.2 \
+            --os 18.4 \
             --ref ${{ github.ref }} \
             --command build \
             --device "iPhone 16 Pro" \
@@ -266,7 +266,7 @@ jobs:
     name: Check UIKit linkage (Release)
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_build_for_prs == 'true'
     needs: files-changed
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
       - uses: actions/checkout@v5
 
@@ -274,7 +274,7 @@ jobs:
         run: |
           ./scripts/sentry-xcodebuild.sh \
             --platform iOS \
-            --os 18.2 \
+            --os 18.4 \
             --ref ${{ github.ref }} \
             --command build \
             --device "iPhone 16 Pro" \
@@ -315,7 +315,7 @@ jobs:
         run: |
           ./scripts/sentry-xcodebuild.sh \
             --platform iOS \
-            --os 18.2 \
+            --os 18.4 \
             --ref ${{ github.ref }} \
             --command build \
             --device "iPhone 16 Pro" \
