@@ -106,3 +106,5 @@ Sentry-WithoutUIKitOrAppKit.xcframework*
 Sentry-WithoutUIKitOrAppKit-WithARM64e.xcframework*
 
 current_package_diff.patch
+
+uikit-check-build

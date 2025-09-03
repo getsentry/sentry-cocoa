@@ -60,7 +60,7 @@ jobs:
             -workspace Sentry.xcworkspace \
             -scheme Sentry \
             -configuration Release \
-            -destination platform="iOS Simulator,OS=latest,name=iPhone 14 Pro" \
+            -destination platform="iOS Simulator,OS=16.4,name=iPhone 14 Pro" \
             build 2>&1 |
             tee raw-analyze-output.log |
             xcbeautify
