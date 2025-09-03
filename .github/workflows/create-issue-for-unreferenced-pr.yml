@@ -47,7 +47,7 @@ jobs:
               console.log(`PR #${pr.number} is already approved, skipping issue creation.`);
               return;
             }
-            
+
             const prBody = pr.body || '';
             const prTitle = pr.title || '';
             const prAuthor = pr.user.login;
@@ -56,7 +56,7 @@ jobs:
 
             // Regex for GitHub issue references (e.g., #123, fixes #456)
             const issueRegexGitHub = /(?:(?:close|closes|closed|fix|fixes|fixed|resolve|resolves|resolved)\s*)?#\d+/i;
-            
+
             // Regex for Linear issue references (e.g., ENG-123, resolves ENG-456)
             const issueRegexLinear = /(?:(?:close|closes|closed|fix|fixes|fixed|resolve|resolves|resolved)\s*)?[A-Z]+-\d+/i;
 
@@ -74,7 +74,7 @@ jobs:
             const issueTitle = `${prTitle}`;
             const issueBody = `> [!NOTE]
             > The pull request "[${prTitle}](${prUrl})" was created by @${prAuthor} but did not reference an issue. Therefore this issue was created for better visibility in external tools like Linear.
-            
+
             ${prBody}
             `;
 
@@ -101,4 +101,3 @@ jobs:
             });
 
             console.log(`Updated PR #${prNumber} to reference newly created issue #${issueID}.`);
-
