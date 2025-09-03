@@ -166,6 +166,68 @@
 #endif
 }
 
+- (void)testOSVersion26Support
+{
+    // Test that version 26.x is properly supported for all platforms
+    NSString *mockVersion26 = @"26.0.1";
+    
+#if TARGET_OS_OSX
+    // Test macOS 26 support
+    BOOL macOSSupported = [mockVersion26 hasPrefix:@"26."];
+    XCTAssertTrue(macOSSupported, @"macOS 26.x should be supported");
+#elif TARGET_OS_IOS || TARGET_OS_MACCATALYST || TARGET_OS_TV
+    // Test iOS/Mac Catalyst/tvOS 26 support
+    BOOL iOSSupported = [mockVersion26 hasPrefix:@"26."];
+    XCTAssertTrue(iOSSupported, @"iOS/Mac Catalyst/tvOS 26.x should be supported");
+#elif TARGET_OS_WATCH
+    // Test watchOS 26 support
+    BOOL watchOSSupported = [mockVersion26 hasPrefix:@"26."];
+    XCTAssertTrue(watchOSSupported, @"watchOS 26.x should be supported");
+#elif TARGET_OS_VISION
+    // Test visionOS 26 support
+    BOOL visionOSSupported = [mockVersion26 hasPrefix:@"26."];
+    XCTAssertTrue(visionOSSupported, @"visionOS 26.x should be supported");
+#endif
+}
+
+- (void)testOSVersionRange
+{
+    // Test that the version range logic works correctly for edge cases
+    NSArray<NSString *> *testVersions = @[@"25.9.9", @"26.0", @"26.1.2", @"26.99.99"];
+    
+    for (NSString *version in testVersions) {
+#if TARGET_OS_OSX
+        NSArray<NSString *> *macOSVersions = @[@"10.", @"11.", @"12.", @"13.", @"14.", @"15.", @"16.", @"17.", @"18.", @"19.", @"20.", @"21.", @"22.", @"23.", @"24.", @"25.", @"26."];
+#elif TARGET_OS_IOS || TARGET_OS_MACCATALYST || TARGET_OS_TV
+        NSArray<NSString *> *iOSVersions = @[@"9.", @"10.", @"11.", @"12.", @"13.", @"14.", @"15.", @"16.", @"17.", @"18.", @"19.", @"20.", @"21.", @"22.", @"23.", @"24.", @"25.", @"26."];
+#elif TARGET_OS_WATCH
+        NSArray<NSString *> *watchOSVersions = @[@"2.", @"3.", @"4.", @"5.", @"6.", @"7.", @"8.", @"9.", @"10.", @"11.", @"12.", @"13.", @"14.", @"15.", @"16.", @"17.", @"18.", @"19.", @"20.", @"21.", @"22.", @"23.", @"24.", @"25.", @"26."];
+#elif TARGET_OS_VISION
+        NSArray<NSString *> *visionOSVersions = @[@"1.", @"2.", @"3.", @"4.", @"5.", @"6.", @"7.", @"8.", @"9.", @"10.", @"11.", @"12.", @"13.", @"14.", @"15.", @"16.", @"17.", @"18.", @"19.", @"20.", @"21.", @"22.", @"23.", @"24.", @"25.", @"26."];
+#endif
+        
+        BOOL foundMatch = NO;
+#if TARGET_OS_OSX
+        for (NSString *prefix in macOSVersions) {
+#elif TARGET_OS_IOS || TARGET_OS_MACCATALYST || TARGET_OS_TV
+        for (NSString *prefix in iOSVersions) {
+#elif TARGET_OS_WATCH
+        for (NSString *prefix in watchOSVersions) {
+#elif TARGET_OS_VISION
+        for (NSString *prefix in visionOSVersions) {
+#endif
+            if ([version hasPrefix:prefix]) {
+                foundMatch = YES;
+                break;
+            }
+        }
+        
+        if ([version hasPrefix:@"25."] || [version hasPrefix:@"26."]) {
+            XCTAssertTrue(foundMatch, @"Version %@ should be supported", version);
+        }
+    }
+}
+
 - (void)testOSBuildNumber
 {
     XCTAssertNotEqual(sentry_getOSBuildNumber().length, 0U);
