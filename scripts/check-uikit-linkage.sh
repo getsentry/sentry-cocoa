@@ -20,7 +20,7 @@ log_notice " - Linkage Test:      $LINKAGE_TEST"
 log_notice " - Module Name:       $MODULE_NAME"
 
 # Define the path to the Sentry build product.
-SENTRY_BUILD_PRODUCT_PATH="$DERIVED_DATA_PATH/Build/Products/$CONFIGURATION/$MODULE_NAME.framework/$MODULE_NAME"
+SENTRY_BUILD_PRODUCT_PATH="$DERIVED_DATA_PATH/Build/Products/$CONFIGURATION-iphonesimulator/$MODULE_NAME.framework/$MODULE_NAME"
 log_notice "Checking build product path: $SENTRY_BUILD_PRODUCT_PATH"
 
 if [ ! -f "$SENTRY_BUILD_PRODUCT_PATH" ]; then
