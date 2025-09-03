@@ -89,15 +89,15 @@
     NSString *osVersion = sentry_getOSVersion();
     XCTAssertNotEqual(osVersion.length, 0U);
 #if TARGET_OS_OSX
-    SENTRY_ASSERT_PREFIX(osVersion, @"10.", @"11.", @"12.", @"13.", @"14.", @"15.", @"16.", @"17.", @"18.", @"19.", @"20.", @"21.", @"22.", @"23.", @"24.", @"25.", @"26.");
+    SENTRY_ASSERT_PREFIX(osVersion, @"10.", @"11.", @"12.", @"13.", @"14.", @"15.", @"26.");
 #elif TARGET_OS_IOS || TARGET_OS_MACCATALYST || TARGET_OS_TV
     SENTRY_ASSERT_PREFIX(
-        osVersion, @"9.", @"10.", @"11.", @"12.", @"13.", @"14.", @"15.", @"16.", @"17.", @"18.", @"19.", @"20.", @"21.", @"22.", @"23.", @"24.", @"25.", @"26.");
+        osVersion, @"9.", @"10.", @"11.", @"12.", @"13.", @"14.", @"15.", @"16.", @"17.", @"18.", @"26.");
 #elif TARGET_OS_WATCH
     // TODO: create a watch UI test target to test this branch
-    SENTRY_ASSERT_PREFIX(osVersion, @"2.", @"3.", @"4.", @"5.", @"6.", @"7.", @"8.", @"9.", @"10.", @"11.", @"12.", @"13.", @"14.", @"15.", @"16.", @"17.", @"18.", @"19.", @"20.", @"21.", @"22.", @"23.", @"24.", @"25.", @"26.");
+    SENTRY_ASSERT_PREFIX(osVersion, @"2.", @"3.", @"4.", @"5.", @"6.", @"7.", @"8.", @"9.", @"10.", @"26.");
 #elif TARGET_OS_VISION
-    SENTRY_ASSERT_PREFIX(osVersion, @"1.", @"2.", @"3.", @"4.", @"5.", @"6.", @"7.", @"8.", @"9.", @"10.", @"11.", @"12.", @"13.", @"14.", @"15.", @"16.", @"17.", @"18.", @"19.", @"20.", @"21.", @"22.", @"23.", @"24.", @"25.", @"26.");
+    SENTRY_ASSERT_PREFIX(osVersion, @"1.", @"2.", @"26.");
 #else
     XCTFail(@"Unexpected OS.");
 #endif
@@ -193,17 +193,17 @@
 - (void)testOSVersionRange
 {
     // Test that the version range logic works correctly for edge cases
-    NSArray<NSString *> *testVersions = @[@"25.9.9", @"26.0", @"26.1.2", @"26.99.99"];
+    NSArray<NSString *> *testVersions = @[@"18.9.9", @"26.0", @"26.1.2", @"26.99.99"];
     
     for (NSString *version in testVersions) {
 #if TARGET_OS_OSX
-        NSArray<NSString *> *macOSVersions = @[@"10.", @"11.", @"12.", @"13.", @"14.", @"15.", @"16.", @"17.", @"18.", @"19.", @"20.", @"21.", @"22.", @"23.", @"24.", @"25.", @"26."];
+        NSArray<NSString *> *macOSVersions = @[@"10.", @"11.", @"12.", @"13.", @"14.", @"15.", @"26."];
 #elif TARGET_OS_IOS || TARGET_OS_MACCATALYST || TARGET_OS_TV
-        NSArray<NSString *> *iOSVersions = @[@"9.", @"10.", @"11.", @"12.", @"13.", @"14.", @"15.", @"16.", @"17.", @"18.", @"19.", @"20.", @"21.", @"22.", @"23.", @"24.", @"25.", @"26."];
+        NSArray<NSString *> *iOSVersions = @[@"9.", @"10.", @"11.", @"12.", @"13.", @"14.", @"15.", @"16.", @"17.", @"18.", @"26."];
 #elif TARGET_OS_WATCH
-        NSArray<NSString *> *watchOSVersions = @[@"2.", @"3.", @"4.", @"5.", @"6.", @"7.", @"8.", @"9.", @"10.", @"11.", @"12.", @"13.", @"14.", @"15.", @"16.", @"17.", @"18.", @"19.", @"20.", @"21.", @"22.", @"23.", @"24.", @"25.", @"26."];
+        NSArray<NSString *> *watchOSVersions = @[@"2.", @"3.", @"4.", @"5.", @"6.", @"7.", @"8.", @"9.", @"10.", @"26."];
 #elif TARGET_OS_VISION
-        NSArray<NSString *> *visionOSVersions = @[@"1.", @"2.", @"3.", @"4.", @"5.", @"6.", @"7.", @"8.", @"9.", @"10.", @"11.", @"12.", @"13.", @"14.", @"15.", @"16.", @"17.", @"18.", @"19.", @"20.", @"21.", @"22.", @"23.", @"24.", @"25.", @"26."];
+        NSArray<NSString *> *visionOSVersions = @[@"1.", @"2.", @"26."];
 #endif
         
         BOOL foundMatch = NO;
@@ -222,9 +222,37 @@
             }
         }
         
-        if ([version hasPrefix:@"25."] || [version hasPrefix:@"26."]) {
+        if ([version hasPrefix:@"18."] || [version hasPrefix:@"26."]) {
             XCTAssertTrue(foundMatch, @"Version %@ should be supported", version);
         }
+    }
+}
+
+- (void)testUnsupportedOSVersionsAreRejected
+{
+    // Test that non-existent OS versions (19-25) would be rejected
+    NSArray<NSString *> *unsupportedVersions = @[@"19.0", @"20.1", @"21.2", @"22.3", @"23.4", @"24.5", @"25.6"];
+    
+    for (NSString *version in unsupportedVersions) {
+#if TARGET_OS_OSX
+        NSArray<NSString *> *supportedVersions = @[@"10.", @"11.", @"12.", @"13.", @"14.", @"15.", @"26."];
+#elif TARGET_OS_IOS || TARGET_OS_MACCATALYST || TARGET_OS_TV
+        NSArray<NSString *> *supportedVersions = @[@"9.", @"10.", @"11.", @"12.", @"13.", @"14.", @"15.", @"16.", @"17.", @"18.", @"26."];
+#elif TARGET_OS_WATCH
+        NSArray<NSString *> *supportedVersions = @[@"2.", @"3.", @"4.", @"5.", @"6.", @"7.", @"8.", @"9.", @"10.", @"26."];
+#elif TARGET_OS_VISION
+        NSArray<NSString *> *supportedVersions = @[@"1.", @"2.", @"26."];
+#endif
+        
+        BOOL foundMatch = NO;
+        for (NSString *prefix in supportedVersions) {
+            if ([version hasPrefix:prefix]) {
+                foundMatch = YES;
+                break;
+            }
+        }
+        
+        XCTAssertFalse(foundMatch, @"Unsupported version %@ should be rejected", version);
     }
 }
 
