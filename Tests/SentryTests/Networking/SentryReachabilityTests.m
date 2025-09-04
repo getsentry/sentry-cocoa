@@ -47,8 +47,8 @@
 - (void)tearDown
 {
     [self.reachability removeAllObservers];
-    self.reachability = nil;
     [self.reachability setReachabilityIgnoreActualCallback:NO];
+    self.reachability = nil;
 }
 
 - (void)testConnectivityRepresentations

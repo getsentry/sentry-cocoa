@@ -34,6 +34,7 @@ public class SentryReachability: NSObject {
     private var currentConnectivity: SentryConnectivity = .none
     private var pathMonitor: Any? // NWPathMonitor for iOS 12+
     private var reachabilityQueue: DispatchQueue?
+    private let observersLock = NSLock()
     
 #if DEBUG || SENTRY_TEST || SENTRY_TEST_CI
     @objc public var skipRegisteringActualCallbacks = false
@@ -44,8 +45,8 @@ public class SentryReachability: NSObject {
     public func add(_ observer: SentryReachabilityObserver) {
         SentrySDKLog.debug("Adding observer: \(observer)")
         
-        objc_sync_enter(reachabilityObservers)
-        defer { objc_sync_exit(reachabilityObservers) }
+        observersLock.lock()
+        defer { observersLock.unlock() }
         
         SentrySDKLog.debug("Synchronized to add observer: \(observer)")
         
@@ -79,7 +80,7 @@ public class SentryReachability: NSObject {
             SentrySDKLog.debug("Started NWPathMonitor")
         } else {
             // For iOS 11 and earlier, simulate always being connected via WiFi
-            SentrySDKLog.debug("NWPathMonitor not available. Using fallback: always connected via WiFi")
+            SentrySDKLog.warning("NWPathMonitor not available. Using fallback: always connected via WiFi")
             reachabilityQueue.async { [weak self] in
                 self?.connectivityCallback(.wiFi)
             }
@@ -90,8 +91,8 @@ public class SentryReachability: NSObject {
     public func remove(_ observer: SentryReachabilityObserver) {
         SentrySDKLog.debug("Removing observer: \(observer)")
         
-        objc_sync_enter(reachabilityObservers)
-        defer { objc_sync_exit(reachabilityObservers) }
+        observersLock.lock()
+        defer { observersLock.unlock() }
         
         SentrySDKLog.debug("Synchronized to remove observer: \(observer)")
         reachabilityObservers.remove(observer)
@@ -105,8 +106,8 @@ public class SentryReachability: NSObject {
     public func removeAllObservers() {
         SentrySDKLog.debug("Removing all observers.")
         
-        objc_sync_enter(reachabilityObservers)
-        defer { objc_sync_exit(reachabilityObservers) }
+        observersLock.lock()
+        defer { observersLock.unlock() }
         
         SentrySDKLog.debug("Synchronized to remove all observers.")
         reachabilityObservers.removeAllObjects()
@@ -178,8 +179,8 @@ public class SentryReachability: NSObject {
     }
     
     fileprivate func connectivityCallback(_ connectivity: SentryConnectivity) {
-        objc_sync_enter(reachabilityObservers)
-        defer { objc_sync_exit(reachabilityObservers) }
+        observersLock.lock()
+        defer { observersLock.unlock() }
         
         SentrySDKLog.debug("Entered synchronized region of SentryConnectivityCallback with connectivity: \(connectivity.toString())")
         
