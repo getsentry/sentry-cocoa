@@ -33,26 +33,6 @@ log_error() {
     echo "[error] ${1}"     
   fi                        
 }   
-
-measure_duration_in_seconds() {
-  local command="$1"
-  local duration_var="$2"
-  
-  local start_time end_time duration
-  start_time=$(date +%s)
-  
-  eval "$command"
-  local exit_code=$?
-  
-  end_time=$(date +%s)
-  duration=$((end_time - start_time))
-  
-  # Set the duration in the specified variable
-  declare -g "$duration_var"="$duration"
-  
-  return $exit_code
-}
-
                             
 begin_group() {             
   local title="$1"          
