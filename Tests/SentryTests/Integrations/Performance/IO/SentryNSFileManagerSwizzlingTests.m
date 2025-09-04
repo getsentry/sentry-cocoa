@@ -57,7 +57,7 @@
 
     SentryThreadInspector *threadInspector =
         [[SentryThreadInspector alloc] initWithOptions:options];
-    SentryNSProcessInfoWrapper *processInfoWrapper =
+    id<SentryProcessInfo> processInfoWrapper =
         [SentryDependencyContainer.sharedInstance processInfoWrapper];
     self->tracker = [[SentryFileIOTracker alloc] initWithThreadInspector:threadInspector
                                                       processInfoWrapper:processInfoWrapper];

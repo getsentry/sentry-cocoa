@@ -7,7 +7,6 @@
 #import "SentryHub+Private.h"
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"
-#import "SentryNSProcessInfoWrapper.h"
 #import "SentryOptions.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
@@ -26,7 +25,7 @@
 @property (nonatomic, assign) BOOL isEnabled;
 @property (nonatomic, strong) NSMutableSet<NSData *> *processingData;
 @property (nonatomic, strong) SentryThreadInspector *threadInspector;
-@property (nonatomic, strong) SentryNSProcessInfoWrapper *processInfoWrapper;
+@property (nonatomic, strong) id<SentryProcessInfo> processInfoWrapper;
 
 @end
 
@@ -46,7 +45,7 @@ NSString *const SENTRY_TRACKING_COUNTER_KEY = @"SENTRY_TRACKING_COUNTER_KEY";
 }
 
 - (instancetype)initWithThreadInspector:(SentryThreadInspector *)threadInspector
-                     processInfoWrapper:(SentryNSProcessInfoWrapper *)processInfoWrapper
+                     processInfoWrapper:(id<SentryProcessInfo>)processInfoWrapper
 {
     if (self = [super init]) {
         _processInfoWrapper = processInfoWrapper;

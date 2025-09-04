@@ -5,7 +5,6 @@
 #    import "SentryDefines.h"
 #    import "SentryDependencyContainer.h"
 #    import "SentryLogC.h"
-#    import "SentryNSProcessInfoWrapper.h"
 #    import "SentrySubClassFinder.h"
 #    import "SentrySwift.h"
 #    import "SentrySwizzle.h"
@@ -39,7 +38,7 @@
 @property (nonatomic, strong) id<SentryObjCRuntimeWrapper> objcRuntimeWrapper;
 @property (nonatomic, strong) SentrySubClassFinder *subClassFinder;
 @property (nonatomic, strong) NSMutableSet<NSString *> *imagesActedOnSubclassesOfUIViewControllers;
-@property (nonatomic, strong) SentryNSProcessInfoWrapper *processInfoWrapper;
+@property (nonatomic, strong) id<SentryProcessInfo> processInfoWrapper;
 @property (nonatomic, strong) SentryBinaryImageCache *binaryImageCache;
 
 @end
@@ -50,7 +49,7 @@
                   dispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue
              objcRuntimeWrapper:(id<SentryObjCRuntimeWrapper>)objcRuntimeWrapper
                  subClassFinder:(SentrySubClassFinder *)subClassFinder
-             processInfoWrapper:(SentryNSProcessInfoWrapper *)processInfoWrapper
+             processInfoWrapper:(id<SentryProcessInfo>)processInfoWrapper
                binaryImageCache:(SentryBinaryImageCache *)binaryImageCache
 {
     if (self = [super init]) {
