@@ -160,66 +160,6 @@
     [self recordLostEvent:category reason:reason quantity:1];
 }
 
-SentryDiscardReasonSwift
-discardReasonToSwift(SentryDiscardReason reason)
-{
-    switch (reason) {
-    case kSentryDiscardReasonBeforeSend:
-        return SentryDiscardReasonSwiftBeforeSend;
-    case kSentryDiscardReasonEventProcessor:
-        return SentryDiscardReasonSwiftEventProcessor;
-    case kSentryDiscardReasonSampleRate:
-        return SentryDiscardReasonSwiftSampleRate;
-    case kSentryDiscardReasonNetworkError:
-        return SentryDiscardReasonSwiftNetworkError;
-    case kSentryDiscardReasonQueueOverflow:
-        return SentryDiscardReasonSwiftQueueOverflow;
-    case kSentryDiscardReasonCacheOverflow:
-        return SentryDiscardReasonSwiftCacheOverflow;
-    case kSentryDiscardReasonRateLimitBackoff:
-        return SentryDiscardReasonSwiftRateLimitBackoff;
-    case kSentryDiscardReasonInsufficientData:
-        return SentryDiscardReasonSwiftInsufficientData;
-    }
-}
-
-SentryDataCategorySwift
-dataCategoryToSwift(SentryDataCategory dataCategory)
-{
-    switch (dataCategory) {
-    case kSentryDataCategoryAll:
-        return SentryDataCategorySwiftAll;
-    case kSentryDataCategoryDefault:
-        return SentryDataCategorySwiftDefault;
-    case kSentryDataCategoryError:
-        return SentryDataCategorySwiftError;
-    case kSentryDataCategorySession:
-        return SentryDataCategorySwiftSession;
-    case kSentryDataCategoryTransaction:
-        return SentryDataCategorySwiftTransaction;
-    case kSentryDataCategoryAttachment:
-        return SentryDataCategorySwiftAttachment;
-    case kSentryDataCategoryUserFeedback:
-        return SentryDataCategorySwiftUserFeedback;
-    case kSentryDataCategoryProfile:
-        return SentryDataCategorySwiftProfile;
-    case kSentryDataCategoryMetricBucket:
-        return SentryDataCategorySwiftMetricBucket;
-    case kSentryDataCategoryReplay:
-        return SentryDataCategorySwiftReplay;
-    case kSentryDataCategoryProfileChunk:
-        return SentryDataCategorySwiftProfileChunk;
-    case kSentryDataCategorySpan:
-        return SentryDataCategorySwiftSpan;
-    case kSentryDataCategoryFeedback:
-        return SentryDataCategorySwiftFeedback;
-    case kSentryDataCategoryLogItem:
-        return SentryDataCategorySwiftLogItem;
-    case kSentryDataCategoryUnknown:
-        return SentryDataCategorySwiftUnknown;
-    }
-}
-
 - (void)recordLostEvent:(SentryDataCategory)category
                  reason:(SentryDiscardReason)reason
                quantity:(NSUInteger)quantity
@@ -237,8 +177,8 @@ dataCategoryToSwift(SentryDataCategory dataCategory)
             quantity = event.quantity + 1;
         }
 
-        event = [[SentryDiscardedEvent alloc] initWithReason:discardReasonToSwift(reason)
-                                                    category:dataCategoryToSwift(category)
+        event = [[SentryDiscardedEvent alloc] initWithReason:nameForSentryDiscardReason(reason)
+                                                    category:nameForSentryDataCategory(category)
                                                     quantity:quantity];
 
         self.discardedEvents[key] = event;
