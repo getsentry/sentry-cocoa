@@ -9,8 +9,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * Reserved for hybrid SDKs that the debug image list for symbolication.
- * @todo This class should be renamed to @c SentryDebugImage in a future version.
+ * Reserved for hybrid SDKs that need the debug images for symbolication.
  */
 @interface SentryDebugImageProvider : NSObject
 
