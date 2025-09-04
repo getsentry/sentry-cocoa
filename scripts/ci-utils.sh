@@ -36,19 +36,19 @@ log_error() {
 
 measure_duration_in_seconds() {
   local command="$1"
+  local duration_var="$2"
   
   local start_time end_time duration
   start_time=$(date +%s)
   
-  # Execute the command
   eval "$command"
   local exit_code=$?
   
   end_time=$(date +%s)
   duration=$((end_time - start_time))
   
-  # Return only the duration in seconds
-  echo "$duration"
+  # Set the duration in the specified variable
+  declare -g "$duration_var"="$duration"
   
   return $exit_code
 }

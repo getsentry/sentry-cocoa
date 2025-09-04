@@ -26,7 +26,7 @@ begin_group "List Available Simulators"
 # The command is fast and should avoids problems we had with GH actions not having specific simulators installed 
 # see https://github.com/getsentry/sentry-cocoa/pull/6053.
 
-DURATION_IN_SECONDS=$(measure_duration_in_seconds "xcrun simctl list")
+measure_duration_in_seconds "xcrun simctl list" DURATION_IN_SECONDS
 
 end_group
 
