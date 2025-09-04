@@ -10,71 +10,97 @@ import UIKit
  * A wrapper around SentryCrash for testability.
  */
 #if DEBUG || SENTRY_TEST || SENTRY_TEST_CI
-@objc
-@_spi(Private) public class SentryCrashWrapper: NSObject {
+@objc @_spi(Private)
+public class SentryCrashWrapper: NSObject {
     @objc(sharedInstance)
     public static let shared: SentryCrashWrapper = SentryCrashWrapper()
     
+    @objc
     public override init() {
         super.init()
         sentrycrashcm_system_getAPI()?.pointee.setEnabled(true)
     }
+
+#if SENTRY_TEST || SENTRY_TEST_CI
+    // This var and initializer are used to inject system info during tests
+    var testSystemInfo: [String: Any]?
+    public init(systemInfo: [String: Any]) {
+        testSystemInfo = systemInfo
+    }
+#endif // SENTRY_TEST && SENTRY_TEST_CI
 }
 #else
-@objc
-@_spi(Private) public final class SentryCrashWrapper: NSObject {
+@objc @_spi(Private)
+public final class SentryCrashWrapper: NSObject {
     @objc(sharedInstance)
     public static let shared: SentryCrashWrapper = SentryCrashWrapper()
     
     public override init() {
         super.init()
+        // Always enable crash monitoring on release builds
         sentrycrashcm_system_getAPI()?.pointee.setEnabled(true)
     }
 }
 #endif
 
 @_spi(Private) extension SentryCrashWrapper {
-    @objc public func startBinaryImageCache() {
+    @objc
+    public func startBinaryImageCache() {
         sentrycrashbic_startCache()
     }
     
-    @objc public func stopBinaryImageCache() {
+    @objc
+    public func stopBinaryImageCache() {
         sentrycrashbic_stopCache()
     }
     
-    @objc public var crashedLastLaunch: Bool {
+    @objc
+    public var crashedLastLaunch: Bool {
         return SentryDependencyContainerSwiftHelper.crashReporter().crashedLastLaunch
     }
     
-    @objc public var durationFromCrashStateInitToLastCrash: TimeInterval {
+    @objc
+    public var durationFromCrashStateInitToLastCrash: TimeInterval {
         return sentrycrashstate_currentState()?.pointee.durationFromCrashStateInitToLastCrash ?? 0
     }
     
-    @objc public var activeDurationSinceLastCrash: TimeInterval {
+    @objc
+    public var activeDurationSinceLastCrash: TimeInterval {
         return SentryDependencyContainerSwiftHelper.crashReporter().activeDurationSinceLastCrash
     }
     
-    @objc public var isBeingTraced: Bool {
+    @objc
+    public var isBeingTraced: Bool {
         return sentrycrashdebug_isBeingTraced()
     }
     
-    @objc public var isSimulatorBuild: Bool {
+    @objc
+    public var isSimulatorBuild: Bool {
         return sentrycrash_isSimulatorBuild()
     }
     
-    @objc public var isApplicationInForeground: Bool {
+    @objc
+    public var isApplicationInForeground: Bool {
         return sentrycrashstate_currentState()?.pointee.applicationIsInForeground ?? false
     }
     
-    @objc public var systemInfo: [String: Any] {
+    @objc
+    public var systemInfo: [String: Any] {
+#if SENTRY_TEST || SENTRY_TEST_CI
+        if let testSystemInfo = self.testSystemInfo {
+            return testSystemInfo
+        }
+#endif // SENTRY_TEST || SENTRY_TEST_CI
         return Self.getSystemInfo()
     }
     
-    @objc public var freeMemorySize: UInt64 {
+    @objc
+    public var freeMemorySize: UInt64 {
         return sentrycrashcm_system_freememory_size()
     }
     
-    @objc public var appMemorySize: UInt64 {
+    @objc
+    public var appMemorySize: UInt64 {
         var info = task_vm_info_data_t()
         var size = mach_msg_type_number_t(MemoryLayout<task_vm_info_data_t>.stride / MemoryLayout<natural_t>.stride)
         let kerr = withUnsafeMutablePointer(to: &info) { infoPtr in
@@ -89,7 +115,8 @@ import UIKit
         return 0
     }
     
-    @objc public func enrichScope(_ scope: Scope) {
+    @objc
+    public func enrichScope(_ scope: Scope) {
         let systemInfo = self.systemInfo
         
         enrichScopeWithOSData(scope, systemInfo: systemInfo)
@@ -236,13 +263,13 @@ import UIKit
     
     private func setScreenDimensions(_ deviceData: inout [String: Any]) {
         // The UIWindowScene is unavailable on visionOS
-#if (os(iOS) || os(tvOS) || (swift(>=5.9) && os(visionOS))) && !SENTRY_NO_UIKIT && !(swift(>=5.9) && os(visionOS))
+#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT
         if let appWindows = SentryDependencyContainerSwiftHelper.windows(),
            let appScreen = appWindows.first?.screen {
             deviceData["screen_height_pixels"] = appScreen.bounds.size.height
             deviceData["screen_width_pixels"] = appScreen.bounds.size.width
         }
-#endif // (os(iOS) || os(tvOS) || (swift(>=5.9) && os(visionOS))) && !SENTRY_NO_UIKIT && !(swift(>=5.9) && os(visionOS))
+#endif // (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT
     }
     
     // MARK: - Private Methods
