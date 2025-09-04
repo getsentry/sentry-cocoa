@@ -41,6 +41,9 @@ void sentry_addObserver(id observer, SEL selector, NSNotificationName name, _Nul
 void sentry_removeObserver(id observer);
 void sentry_postNotification(NSNotification *notification);
 id sentry_addObserverForName(NSNotificationName name, dispatch_block_t block);
+NSTimer *sentry_scheduledTimer(NSTimeInterval interval, BOOL repeats, dispatch_block_t block);
+NSTimer *sentry_scheduledTimerWithTarget(
+    NSTimeInterval interval, id target, SEL selector, _Nullable id userInfo, BOOL repeats);
 
 #ifdef __cplusplus
 }

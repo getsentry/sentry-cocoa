@@ -12,7 +12,6 @@
 #import "SentryInternalDefines.h"
 #import "SentryLevelMapper.h"
 #import "SentryLogC.h"
-#import "SentryNSTimerFactory.h"
 #import "SentryOptions+Private.h"
 #import "SentryPerformanceTracker.h"
 #import "SentryProfilingConditionals.h"
@@ -22,7 +21,6 @@
 #import "SentrySamplingContext.h"
 #import "SentryScope+Private.h"
 #import "SentrySerialization.h"
-#import "SentrySession+Private.h"
 #import "SentrySwift.h"
 #import "SentryTraceOrigin.h"
 #import "SentryTracer.h"
@@ -855,7 +853,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - Protected
 
-- (NSMutableArray<NSString *> *)trimmedInstalledIntegrationNames
+- (NSArray<NSString *> *)trimmedInstalledIntegrationNames
 {
     NSMutableArray<NSString *> *integrations = [NSMutableArray<NSString *> array];
     for (NSString *integration in SentrySDKInternal.currentHub.installedIntegrationNames) {

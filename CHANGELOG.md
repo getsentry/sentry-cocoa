@@ -11,13 +11,16 @@
 - Don't capture replays for events dropped in `beforeSend` (#5916)
 - Fix linking with SentrySwiftUI on Xcode 26 for visionOS (#5823)
 - Structured Logging: Logger called before `SentrySDK.start` becomes unusable (#5984)
+- Add masking for AVPlayerView (#5910)
 - Fix missing view hierachy when enabling `attachScreenshot` too (#5989)
+- Fix macOS's frameworks not following the versioned framework structure (#6049)
 
 ### Improvements
 
 - Lazily CharacterSet only once in SentryBaggageSerialization (#5871)
 - Structured Logging: Log `SentrySDK.logger` calls to `SentrySDKLog` (#5991)
 - Add masking options for screenshots (#5401)
+- The build type in the app context now differentiates between `enterprise` and `adhoc` (#6044)
 
 ## 8.54.1-alpha.1
 

@@ -6,19 +6,6 @@ on:
       - main
 
   pull_request:
-    paths:
-      - "Utils/VersionBump/**"
-      - ".github/workflows/version-bump-util.yml"
-      - "./Sentry.podspec"
-      - "./Package*.swift"
-      - "./SentryPrivate.podspec"
-      - "./SentrySwiftUI.podspec"
-      - "./Sources/Sentry/SentryMeta.m"
-      - "./Tests/HybridSDKTest/HybridPod.podspec"
-      - "./Sources/Configuration/SDK.xcconfig"
-      - "./Sources/Configuration/Versioning.xcconfig"
-      - "./Sources/Configuration/SentrySwiftUI.xcconfig"
-      - "./scripts/bump.sh"
 
 # Concurrency configuration:
 # - We use workflow-specific concurrency groups to prevent multiple version bump utility tests,
@@ -32,7 +19,23 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
+  files-changed:
+    name: Detect File Changes
+    runs-on: ubuntu-latest
+    outputs:
+      run_version_bump_util_for_prs: ${{ steps.changes.outputs.run_version_bump_util_for_prs }}
+    steps:
+      - uses: actions/checkout@v5
+      - name: Get changed files
+        id: changes
+        uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
+        with:
+          token: ${{ github.token }}
+          filters: .github/file-filters.yml
+
   run-version-bump:
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_version_bump_util_for_prs == 'true'
+    needs: files-changed
     # The release workflow uses the Makefile to bump the version so it needs to be tested.
     name: Run Version Bump (Makefile)
     # We intentionally run this on ubuntu because the release workflow also runs on ubuntu, which uses the version bump util.
@@ -49,6 +52,8 @@ jobs:
       - run: make verify-version TO=${{ steps.generate-version-number.outputs.VERSION }}
 
   run-version-bump-script:
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_version_bump_util_for_prs == 'true'
+    needs: files-changed
     # Craft uses the shell script to bump the version so it needs to be tested.
     name: Run Version Bump (Shell Script)
     runs-on: ubuntu-latest
@@ -91,3 +96,25 @@ jobs:
             --dynamic-checksum "f6325cd8f05523d60222451fa61b3cd3d58148e5a21236f82abfd3f92750c87c" \
             --dynamic-with-arm64e-checksum "bbb84b054e5792aa705b95541aa4585f793e566a6b95638f8fef8e308d9782c3" \
             --last-release-runid "${{ github.run_id }}"
+
+  # This check validates that either version-bump-util passed or was skipped, which allows us
+  # to make version-bump-util a required check with only running the version-bump-util when required.
+  # So, we don't have to run version-bump-util, for example, for unrelated changes.
+  version_bump_util-required-check:
+    needs:
+      [
+        files-changed,
+        run-version-bump,
+        run-version-bump-script,
+      ]
+    name: Test Version Bump Util
+    # This is necessary since a failed/skipped dependent job would cause this job to be skipped
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      # If any jobs we depend on fails gets cancelled or times out, this job will fail.
+      # Skipped jobs are not considered failures.
+      - name: Check for failures
+        if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
+        run: |
+          echo "One of the version-bump-util jobs has failed." && exit 1

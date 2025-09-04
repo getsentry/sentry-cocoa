@@ -27,7 +27,7 @@
 @class SentryGlobalEventProcessor;
 
 @protocol SentryANRTracker;
-@protocol SentryRandom;
+@protocol SentryRandomProtocol;
 @protocol SentryCurrentDateProvider;
 @protocol SentryRateLimits;
 @protocol SentryApplication;
@@ -84,7 +84,7 @@ SENTRY_NO_INIT
 #pragma mark - Init Dependencies
 
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueueWrapper;
-@property (nonatomic, strong) id<SentryRandom> random;
+@property (nonatomic, strong) id<SentryRandomProtocol> random;
 @property (nonatomic, strong) SentryThreadWrapper *threadWrapper;
 @property (nonatomic, strong) SentryBinaryImageCache *binaryImageCache;
 @property (nonatomic, strong) id<SentryCurrentDateProvider> dateProvider;
