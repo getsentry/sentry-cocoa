@@ -5,6 +5,7 @@
 ### Features
 
 - Structured Logs: Flush logs on SDK flush/close (#5834)
+- Add masking options for screenshots (#5401)
 
 ### Fixes
 
@@ -19,7 +20,6 @@
 
 - Lazily CharacterSet only once in SentryBaggageSerialization (#5871)
 - Structured Logging: Log `SentrySDK.logger` calls to `SentrySDKLog` (#5991)
-- Add masking options for screenshots (#5401)
 - The build type in the app context now differentiates between `enterprise` and `adhoc` (#6044)
 
 ## 8.54.1-alpha.1

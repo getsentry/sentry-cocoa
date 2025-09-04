@@ -8,7 +8,7 @@ import UIKit
     /// Records invocations of `render(view:)`.
     public let renderInvocations: Invocations<WeakReference<UIView>> = Invocations()
 
-    /// The value to be returned by `render(view:)`. If `nil`, `render(view:)` will
+    /// The value to be returned by `render(view:)`. If `nil`, `render(view:)` will fail with a precondition failure.
     public var mockedReturnValue: UIImage?
 
     /// An optional closure that gets called when `render(view:)` is invoked.

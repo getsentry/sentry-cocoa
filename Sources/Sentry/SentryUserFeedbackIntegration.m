@@ -20,8 +20,10 @@
         return NO;
     }
 
-    SentryScreenshotSource *screenshotSource =
-        [SentryDependencyContainer.sharedInstance getScreenshotSourceForOptions:options.screenshot];
+    // The screenshot source is coupled to the options, but due to the dependency container being
+    // tightly to the options anwyas, it was decided to not pass it to the container.
+    SentryScreenshotSource *screenshotSource
+        = SentryDependencyContainer.sharedInstance.screenshotSource;
     _driver = [[SentryUserFeedbackIntegrationDriver alloc]
         initWithConfiguration:SENTRY_UNWRAP_NULLABLE(SentryUserFeedbackConfiguration,
                                   options.userFeedbackConfiguration)

@@ -20,9 +20,8 @@ void
 saveScreenShot(const char *path)
 {
     NSString *reportPath = [NSString stringWithUTF8String:path];
-    SentryViewScreenshotOptions *options = SentrySDKInternal.options.screenshot;
-    SentryScreenshotSource *screenshotSource =
-        [SentryDependencyContainer.sharedInstance getScreenshotSourceForOptions:options];
+    SentryScreenshotSource *screenshotSource
+        = SentryDependencyContainer.sharedInstance.screenshotSource;
     [screenshotSource saveScreenShots:reportPath];
 }
 
@@ -93,8 +92,8 @@ saveScreenShot(const char *path)
 
     NSMutableArray *result = [NSMutableArray arrayWithArray:attachments];
 
-    SentryScreenshotSource *screenshotSource = [SentryDependencyContainer.sharedInstance
-        getScreenshotSourceForOptions:self.options.screenshot];
+    SentryScreenshotSource *screenshotSource
+        = SentryDependencyContainer.sharedInstance.screenshotSource;
     NSArray<NSData *> *screenshot = [screenshotSource appScreenshotDatasFromMainThread];
 
     for (int i = 0; i < screenshot.count; i++) {

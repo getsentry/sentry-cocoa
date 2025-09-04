@@ -70,19 +70,12 @@
 #define SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK                                                \
     SENTRY_DISABLE_THREAD_SANITIZER("Double-checked locks produce false alarms.")
 
-// MARK: - Convenience Types
-
-typedef NSNumber *SCREENSHOTS_PROVIDER_KEY;
 @interface SentryFileManager () <SentryFileManagerProtocol>
 @end
 
 @interface SentryDependencyContainer ()
 
 @property (nonatomic, strong) id<SentryANRTracker> anrTracker;
-#if SENTRY_TARGET_REPLAY_SUPPORTED
-@property (nonatomic, strong)
-    NSMapTable<SCREENSHOTS_PROVIDER_KEY, SentryScreenshotSource *> *screenshotSourceStorage;
-#endif
 
 @end
 
@@ -203,10 +196,6 @@ static BOOL isInitialializingDependencyContainer = NO;
         _reachability = [[SentryReachability alloc] init];
 #endif // !SENTRY_HAS_REACHABILITY
 
-#if SENTRY_TARGET_REPLAY_SUPPORTED
-        _screenshotSourceStorage = [NSMapTable strongToWeakObjectsMapTable];
-#endif // SENTRY_TARGET_REPLAY_SUPPORTED
-
         isInitialializingDependencyContainer = NO;
     }
     return self;
@@ -282,14 +271,15 @@ static BOOL isInitialializingDependencyContainer = NO;
 #endif // SENTRY_HAS_UIKIT
 
 #if SENTRY_TARGET_REPLAY_SUPPORTED
-- (nonnull SentryScreenshotSource *)getScreenshotSourceForOptions:
-    (nonnull SentryViewScreenshotOptions *)options SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
+- (nonnull SentryScreenshotSource *)screenshotSource SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
     @synchronized(sentryDependencyContainerDependenciesLock) {
-        SCREENSHOTS_PROVIDER_KEY key = [self getScreenshotProviderKey:options];
-        SentryScreenshotSource *_Nullable provider = [_screenshotSourceStorage objectForKey:key];
+        if (_screenshotSource == nil) {
+            // The options could be null here, but this is a general issue in the dependency
+            // container and will be fixed in a future refactoring.
+            SentryViewScreenshotOptions *_Nonnull options = SENTRY_UNWRAP_NULLABLE(
+                SentryViewScreenshotOptions, SentrySDKInternal.options.screenshot);
 
-        if (provider == nil) {
             id<SentryViewRenderer> viewRenderer;
             if (options.enableViewRendererV2) {
                 viewRenderer = [[SentryViewRendererV2 alloc]
@@ -302,32 +292,12 @@ static BOOL isInitialializingDependencyContainer = NO;
                 [[SentryViewPhotographer alloc] initWithRenderer:viewRenderer
                                                    redactOptions:options
                                             enableMaskRendererV2:options.enableViewRendererV2];
-            provider = [[SentryScreenshotSource alloc] initWithPhotographer:photographer];
-            [_screenshotSourceStorage setObject:provider forKey:key];
+            _screenshotSource = [[SentryScreenshotSource alloc] initWithPhotographer:photographer];
         }
 
-        return SENTRY_UNWRAP_NULLABLE(SentryScreenshotSource, provider);
+        return _screenshotSource;
     }
 }
-
-- (void)setScreenshotSource:(SentryScreenshotSource *)provider
-                 forOptions:(SentryViewScreenshotOptions *)options
-{
-    @synchronized(sentryDependencyContainerDependenciesLock) {
-        SCREENSHOTS_PROVIDER_KEY key = [self getScreenshotProviderKey:options];
-        if (provider == nil) {
-            [_screenshotSourceStorage removeObjectForKey:key];
-        } else {
-            [_screenshotSourceStorage setObject:provider forKey:key];
-        }
-    }
-}
-
-- (SCREENSHOTS_PROVIDER_KEY)getScreenshotProviderKey:(nonnull SentryViewScreenshotOptions *)options
-{
-    return @(options.hash);
-}
-
 #endif // SENTRY_HAS_UIKIT
 
 #if SENTRY_UIKIT_AVAILABLE
