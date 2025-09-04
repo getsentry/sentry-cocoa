@@ -33,7 +33,6 @@
 #import "SentryScope+Private.h"
 #import "SentryScope+PrivateSwift.h"
 #import "SentrySerialization.h"
-#import "SentrySession.h"
 #import "SentryStacktraceBuilder.h"
 #import "SentrySwift.h"
 #import "SentryThreadInspector.h"

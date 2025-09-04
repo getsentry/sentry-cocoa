@@ -8,7 +8,6 @@
 #import "SentryLevelMapper.h"
 #import "SentryLogC.h"
 #import "SentryModels+Serializable.h"
-#import "SentrySession.h"
 #import "SentrySwift.h"
 #import "SentryTraceContext.h"
 

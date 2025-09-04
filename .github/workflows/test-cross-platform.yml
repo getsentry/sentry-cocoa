@@ -90,7 +90,7 @@ jobs:
         env:
           SCHEME: RNSentryCocoaTester
           CONFIGURATION: Release
-          DESTINATION: "platform=iOS Simulator,OS=latest,name=iPhone 16"
+          DESTINATION: "platform=iOS Simulator,OS=17.5,name=iPhone 15 Pro"
         run: |
           set -o pipefail
           env NSUnbufferedIO=YES \
@@ -101,7 +101,7 @@ jobs:
 
       - name: Run CI Diagnostics
         if: failure()
-        run: ./scripts/ci-diagnostics.sh
+        run: ./sentry-cocoa/scripts/ci-diagnostics.sh
 
   test_cross_platform-required-check:
     needs:

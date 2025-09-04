@@ -111,7 +111,7 @@ jobs:
             platform: "iOS"
             xcode: "14.3.1"
             test-destination-os: "16.4"
-            device: "iPhone 14"
+            device: "iPhone 14 Pro"
             scheme: "Sentry"
 
           # iOS 17
@@ -119,8 +119,8 @@ jobs:
             runs-on: macos-14
             platform: "iOS"
             xcode: "15.4"
-            test-destination-os: "17.2"
-            device: "iPhone 15"
+            test-destination-os: "17.5"
+            device: "iPhone 15 Pro"
             scheme: "Sentry"
 
           # iOS 18
@@ -128,8 +128,8 @@ jobs:
             runs-on: macos-15
             platform: "iOS"
             xcode: "16.4"
-            test-destination-os: "18.5"
-            device: "iPhone 16"
+            test-destination-os: "18.4"
+            device: "iPhone 16 Pro"
             scheme: "Sentry"
 
           # We don't run the unit tests on macOS 13 cause we run them on all on GH actions available iOS versions.
@@ -186,8 +186,8 @@ jobs:
             runs-on: macos-14
             platform: "iOS"
             xcode: "15.4"
-            test-destination-os: "17.2"
-            device: "iPhone 15"
+            test-destination-os: "17.5"
+            device: "iPhone 15 Pro"
             scheme: "SentrySwiftUI"
 
           # tvOS 18
@@ -195,7 +195,7 @@ jobs:
             runs-on: macos-15
             platform: "tvOS"
             xcode: "16.4"
-            test-destination-os: "18.5"
+            test-destination-os: "18.4"
             scheme: "Sentry"
 
     steps:
