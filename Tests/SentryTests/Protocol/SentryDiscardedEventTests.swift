@@ -1,9 +1,10 @@
+@_spi(Private) import Sentry
 import XCTest
 
 class SentryDiscardedEventTests: XCTestCase {
 
     func testSerialize() {
-        let discardedEvent = SentryDiscardedEvent(reason: SentryDiscardReason.sampleRate, category: SentryDataCategory.transaction, quantity: 2)
+        let discardedEvent = SentryDiscardedEvent(reason: .sampleRate, category: .transaction, quantity: 2)
         
         let actual = discardedEvent.serialize()
         

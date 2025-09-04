@@ -108,7 +108,6 @@
 #import "SentryDependencyContainer.h"
 #import "SentryDiscardReason.h"
 #import "SentryDiscardReasonMapper.h"
-#import "SentryDiscardedEvent.h"
 #import "SentryDispatchFactory.h"
 #import "SentryDispatchSourceWrapper.h"
 #import "SentryDisplayLinkWrapper.h"
