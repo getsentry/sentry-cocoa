@@ -1,6 +1,6 @@
 @_spi(Private) import Sentry
 
-@_spi(Private) public final class MockSentryProcessInfo: SentryProcessInfo {
+@_spi(Private) public final class MockSentryProcessInfo: SentryProcessInfoSource {
 
     public init() { }
     

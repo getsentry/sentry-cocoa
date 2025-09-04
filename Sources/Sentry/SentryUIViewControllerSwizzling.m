@@ -38,7 +38,7 @@
 @property (nonatomic, strong) id<SentryObjCRuntimeWrapper> objcRuntimeWrapper;
 @property (nonatomic, strong) SentrySubClassFinder *subClassFinder;
 @property (nonatomic, strong) NSMutableSet<NSString *> *imagesActedOnSubclassesOfUIViewControllers;
-@property (nonatomic, strong) id<SentryProcessInfo> processInfoWrapper;
+@property (nonatomic, strong) id<SentryProcessInfoSource> processInfoWrapper;
 @property (nonatomic, strong) SentryBinaryImageCache *binaryImageCache;
 
 @end
@@ -49,7 +49,7 @@
                   dispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue
              objcRuntimeWrapper:(id<SentryObjCRuntimeWrapper>)objcRuntimeWrapper
                  subClassFinder:(SentrySubClassFinder *)subClassFinder
-             processInfoWrapper:(id<SentryProcessInfo>)processInfoWrapper
+             processInfoWrapper:(id<SentryProcessInfoSource>)processInfoWrapper
                binaryImageCache:(SentryBinaryImageCache *)binaryImageCache
 {
     if (self = [super init]) {

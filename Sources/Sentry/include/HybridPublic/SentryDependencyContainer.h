@@ -30,7 +30,7 @@
 @protocol SentryCurrentDateProvider;
 @protocol SentryRateLimits;
 @protocol SentryApplication;
-@protocol SentryProcessInfo;
+@protocol SentryProcessInfoSource;
 @protocol SentryDispatchQueueProviderProtocol;
 @protocol SentryNSNotificationCenterWrapper;
 @protocol SentryObjCRuntimeWrapper;
@@ -90,7 +90,7 @@ SENTRY_NO_INIT
 @property (nonatomic, strong) SentryExtraContextProvider *extraContextProvider;
 @property (nonatomic, strong) id<SentryNSNotificationCenterWrapper> notificationCenterWrapper;
 @property (nonatomic, strong) SentryCrashWrapper *crashWrapper;
-@property (nonatomic, strong) id<SentryProcessInfo> processInfoWrapper;
+@property (nonatomic, strong) id<SentryProcessInfoSource> processInfoWrapper;
 @property (nonatomic, strong) SentrySysctl *sysctlWrapper;
 @property (nonatomic, strong) id<SentryRateLimits> rateLimits;
 @property (nonatomic, strong) id<SentryApplication> application;

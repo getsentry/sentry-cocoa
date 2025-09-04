@@ -18,11 +18,11 @@
 @implementation SentryCoreDataTracker {
     SentryPredicateDescriptor *predicateDescriptor;
     SentryThreadInspector *_threadInspector;
-    id<SentryProcessInfo> _processInfoWrapper;
+    id<SentryProcessInfoSource> _processInfoWrapper;
 }
 
 - (instancetype)initWithThreadInspector:(SentryThreadInspector *)threadInspector
-                     processInfoWrapper:(id<SentryProcessInfo>)processInfoWrapper;
+                     processInfoWrapper:(id<SentryProcessInfoSource>)processInfoWrapper;
 {
     if (self = [super init]) {
         predicateDescriptor = [[SentryPredicateDescriptor alloc] init];

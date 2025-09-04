@@ -25,7 +25,7 @@
 @property (nonatomic, assign) BOOL isEnabled;
 @property (nonatomic, strong) NSMutableSet<NSData *> *processingData;
 @property (nonatomic, strong) SentryThreadInspector *threadInspector;
-@property (nonatomic, strong) id<SentryProcessInfo> processInfoWrapper;
+@property (nonatomic, strong) id<SentryProcessInfoSource> processInfoWrapper;
 
 @end
 
@@ -45,7 +45,7 @@ NSString *const SENTRY_TRACKING_COUNTER_KEY = @"SENTRY_TRACKING_COUNTER_KEY";
 }
 
 - (instancetype)initWithThreadInspector:(SentryThreadInspector *)threadInspector
-                     processInfoWrapper:(id<SentryProcessInfo>)processInfoWrapper
+                     processInfoWrapper:(id<SentryProcessInfoSource>)processInfoWrapper
 {
     if (self = [super init]) {
         _processInfoWrapper = processInfoWrapper;

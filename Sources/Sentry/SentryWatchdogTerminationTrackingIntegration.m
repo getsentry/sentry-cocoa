@@ -33,7 +33,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)init
 {
     if (self = [super init]) {
-        id<SentryProcessInfo> processInfoWrapper
+        id<SentryProcessInfoSource> processInfoWrapper
             = SentryDependencyContainer.sharedInstance.processInfoWrapper;
         self.testConfigurationFilePath
             = processInfoWrapper.environment[@"XCTestConfigurationFilePath"];

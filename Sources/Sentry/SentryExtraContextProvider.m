@@ -12,7 +12,7 @@ NSString *const kSentryProcessInfoThermalStateCritical = @"critical";
 @interface SentryExtraContextProvider ()
 
 @property (nonatomic, strong) SentryCrashWrapper *crashWrapper;
-@property (nonatomic, strong) id<SentryProcessInfo> processInfoWrapper;
+@property (nonatomic, strong) id<SentryProcessInfoSource> processInfoWrapper;
 
 #if TARGET_OS_IOS && SENTRY_HAS_UIKIT
 @property (nonatomic, strong) id<SentryUIDeviceWrapper> deviceWrapper;

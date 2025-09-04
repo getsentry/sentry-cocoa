@@ -1,4 +1,4 @@
-@_spi(Private) @objc public protocol SentryProcessInfo {
+@_spi(Private) @objc public protocol SentryProcessInfoSource {
     var processDirectoryPath: String { get }
     var processPath: String? { get }
     var processorCount: Int { get }
@@ -12,7 +12,7 @@
     var isMacCatalystApp: Bool { get }
 }
 
-@_spi(Private) extension ProcessInfo: SentryProcessInfo {
+@_spi(Private) extension ProcessInfo: SentryProcessInfoSource {
     public var processDirectoryPath: String {
         Bundle.main.bundlePath
     }
