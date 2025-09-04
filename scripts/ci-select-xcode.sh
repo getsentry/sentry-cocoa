@@ -26,6 +26,9 @@ begin_group "List Available Simulators"
 # The command is fast and should avoids problems we had with GH actions not having specific simulators installed 
 # see https://github.com/getsentry/sentry-cocoa/pull/6053.
 
-log_duration "xcrun simctl list"
+DURATION_IN_SECONDS=$(measure_duration_in_seconds "xcrun simctl list")
 
 end_group
+
+# We want to log the duration after the group, because otherwise it's hidden at the end of the group.
+log_notice "xcrun simctl list completed in ${DURATION_IN_SECONDS} seconds"

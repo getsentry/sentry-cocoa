@@ -47,7 +47,8 @@ log_duration() {
   end_time=$(date +%s)
   duration=$((end_time - start_time))
   
-  log_notice "${command} completed in ${duration} seconds"
+  # Return only the duration in seconds
+  echo "$duration"
   
   return $exit_code
 }
