@@ -308,8 +308,6 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      - run: ./scripts/ci-select-xcode.sh 16.4
-
       # If the SentryAsyncSafeLog doesn't contain the SENTRY_ASYNC_SAFE_LOG_LEVEL_ERROR this fails.
       - name: Async Safe Log Level is Error
         run: grep -c "SENTRY_ASYNC_SAFE_LOG_LEVEL SENTRY_ASYNC_SAFE_LOG_LEVEL_ERROR" Sources/Sentry/SentryAsyncSafeLog.h
