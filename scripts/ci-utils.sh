@@ -32,7 +32,7 @@ log_error() {
   else                      
     echo "[error] ${1}"     
   fi                        
-}   
+}                           
                             
 begin_group() {             
   local title="$1"          
