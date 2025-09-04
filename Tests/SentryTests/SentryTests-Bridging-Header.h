@@ -14,8 +14,6 @@
 #    import "SentryFramesTracker+TestInit.h"
 #    import "SentrySessionReplayIntegration+Private.h"
 #    import "SentrySessionReplayIntegration+Test.h"
-#    import "SentryUIApplication+Private.h"
-#    import "SentryUIApplication.h"
 #    import "SentryUIEventTracker.h"
 #    import "SentryUIEventTrackerTransactionMode.h"
 #    import "SentryUIEventTrackingIntegration.h"
@@ -39,8 +37,6 @@
 #    import "SentryProfilerTestHelpers.h"
 #    import "SentryTraceProfiler+Test.h"
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
-
-#import "SentryNSApplication.h"
 
 #import "NSLocale+Sentry.h"
 #import "NSMutableDictionary+Sentry.h"

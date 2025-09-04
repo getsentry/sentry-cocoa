@@ -16,6 +16,7 @@
 @class SentryNSTimerFactory;
 @class SentrySwizzleWrapper;
 @class SentrySysctl;
+@class SentryThreadsafeApplication;
 @class SentrySystemWrapper;
 @class SentryThreadWrapper;
 @class SentryThreadInspector;
@@ -42,7 +43,6 @@
 #if SENTRY_UIKIT_AVAILABLE
 @class SentryFramesTracker;
 @class SentryScreenshot;
-@class SentryUIApplication;
 @class SentryViewHierarchyProvider;
 @class SentryUIViewControllerPerformanceTracker;
 @class SentryWatchdogTerminationScopeObserver;
@@ -94,6 +94,7 @@ SENTRY_NO_INIT
 @property (nonatomic, strong) SentrySysctl *sysctlWrapper;
 @property (nonatomic, strong) id<SentryRateLimits> rateLimits;
 @property (nonatomic, strong) id<SentryApplication> application;
+@property (nonatomic, strong) SentryThreadsafeApplication *threadsafeApplication;
 
 #if SENTRY_HAS_REACHABILITY
 @property (nonatomic, strong) SentryReachability *reachability;
