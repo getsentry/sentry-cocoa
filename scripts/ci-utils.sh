@@ -32,7 +32,26 @@ log_error() {
   else                      
     echo "[error] ${1}"     
   fi                        
-}                           
+}   
+
+log_duration() {
+  local command="$1"
+  
+  local start_time end_time duration
+  start_time=$(date +%s)
+  
+  # Execute the command
+  eval "$command"
+  local exit_code=$?
+  
+  end_time=$(date +%s)
+  duration=$((end_time - start_time))
+  
+  log_notice "${command} completed in ${duration} seconds"
+  
+  return $exit_code
+}
+
                             
 begin_group() {             
   local title="$1"          
