@@ -11,9 +11,7 @@
 #import "SentryLogC.h"
 #import "SentryMessage.h"
 #import "SentryMsgPackSerializer.h"
-#import "SentrySdkInfo.h"
 #import "SentrySerialization.h"
-#import "SentrySession.h"
 #import "SentrySwift.h"
 #import "SentryTransaction.h"
 
@@ -31,7 +29,10 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithId:(nullable SentryId *)eventId
               traceContext:(nullable SentryTraceContext *)traceContext
 {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     SentrySdkInfo *sdkInfo = [SentrySdkInfo global];
+#pragma clang diagnostic pop
     self = [self initWithId:eventId sdkInfo:sdkInfo traceContext:traceContext];
     return self;
 }

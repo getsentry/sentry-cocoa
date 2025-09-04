@@ -172,6 +172,14 @@ jobs:
           mv "${{env.SCHEME}}${{env.SUFFIX}}.xcframework" "${{env.OVERRIDE_NAME}}.xcframework"
         shell: bash
 
+      - name: Validate XCFramework structure
+        # only validate if the xcframework was not cached
+        if: steps.cache-xcframework.outputs.cache-hit != 'true'
+        run: ./scripts/validate-xcframework-format.sh "${{env.XCFRAMEWORK_NAME}}.xcframework"
+        shell: bash
+        env:
+          XCFRAMEWORK_NAME: ${{ env.XCFRAMEWORK_NAME }}
+
       - name: Zip XCFramework
         if: steps.cache-xcframework.outputs.cache-hit != 'true'
         env:

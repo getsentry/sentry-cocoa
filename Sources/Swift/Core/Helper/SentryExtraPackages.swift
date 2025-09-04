@@ -17,10 +17,9 @@ import Foundation
         }
     }
 
-    @objc
-    public static func getPackages() -> NSMutableSet {
+    static func getPackages() -> Set<[String: String]> {
         lock.synchronized {
-            NSMutableSet(set: extraPackages as NSSet)
+            Set(extraPackages)
         }
     }
 
