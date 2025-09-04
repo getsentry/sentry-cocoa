@@ -18,8 +18,6 @@ schemeTemplates:
 
         # session replay
         "--io.sentry.session-replay.disable": false
-        "--io.sentry.session-replay.on-error-sample-rate": true
-        "--io.sentry.session-replay.session-sample-rate": false
         "--io.sentry.session-replay.disable-view-renderer-v2": false
         "--io.sentry.session-replay.enable-fast-view-rendering": false
         "--io.sentry.session-replay.disable-mask-all-images": false
