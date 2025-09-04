@@ -9,17 +9,13 @@
 > #if canImport(Darwin)
 15d17
 <     .library(name: "Sentry-Dynamic-WithARM64e", targets: ["Sentry-Dynamic-WithARM64e"]),
-39a42,44
->         swiftSettings: [
->             .interoperabilityMode(.Cxx, .when(platforms: [.visionOS]))
->         ],
-53c58
+53c55
 < if let env = env, String(cString: env, encoding: .utf8) == "1" {
 ---
 > if let env = env, String(cString: env) == "1" {
-84a90
+84a87
 >             publicHeadersPath: "",
-100c106
+100c103
 <     platforms: [.iOS(.v11), .macOS(.v10_13), .tvOS(.v11), .watchOS(.v4)],
 ---
 >     platforms: [.iOS(.v11), .macOS(.v10_13), .tvOS(.v11), .watchOS(.v4), .visionOS(.v1)],
