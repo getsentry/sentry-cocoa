@@ -190,7 +190,7 @@ class SentryHubTests: XCTestCase {
 
     func testScopeEnriched_WithNoRuntime() throws {
         // Arrange
-        let processInfoWrapper = TestSentryNSProcessInfoWrapper()
+        let processInfoWrapper = MockSentryProcessInfo()
         SentryDependencyContainer.sharedInstance().processInfoWrapper = processInfoWrapper
 
         processInfoWrapper.overrides.isiOSAppOnMac = false
@@ -205,7 +205,7 @@ class SentryHubTests: XCTestCase {
 
     func testScopeEnriched_WithRuntime_isiOSAppOnMac() throws {
         // Arrange
-        let processInfoWrapper = TestSentryNSProcessInfoWrapper()
+        let processInfoWrapper = MockSentryProcessInfo()
         processInfoWrapper.overrides.isiOSAppOnMac = true
         processInfoWrapper.overrides.isMacCatalystApp = false
         SentryDependencyContainer.sharedInstance().processInfoWrapper = processInfoWrapper
@@ -222,7 +222,7 @@ class SentryHubTests: XCTestCase {
 
     func testScopeEnriched_WithRuntime_isMacCatalystApp() throws {
         // Arrange
-        let processInfoWrapper = TestSentryNSProcessInfoWrapper()
+        let processInfoWrapper = MockSentryProcessInfo()
         processInfoWrapper.overrides.isiOSAppOnMac = false
         processInfoWrapper.overrides.isMacCatalystApp = true
         SentryDependencyContainer.sharedInstance().processInfoWrapper = processInfoWrapper

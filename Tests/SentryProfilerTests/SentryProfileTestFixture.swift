@@ -25,7 +25,7 @@ class SentryProfileTestFixture {
     let fixedRandomValue = 0.5
 
     let systemWrapper = TestSentrySystemWrapper()
-    let processInfoWrapper = TestSentryNSProcessInfoWrapper()
+    let processInfoWrapper = MockSentryProcessInfo()
     let dispatchFactory = TestDispatchFactory()
     var metricTimerFactory: TestDispatchSourceWrapper?
     var timeoutTimerFactory: TestSentryNSTimerFactory

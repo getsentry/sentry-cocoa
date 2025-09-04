@@ -33,7 +33,7 @@ class SentryClientTests: XCTestCase {
         #if os(iOS) || targetEnvironment(macCatalyst)
         let deviceWrapper = TestSentryUIDeviceWrapper()
         #endif // os(iOS) || targetEnvironment(macCatalyst)
-        let processWrapper = TestSentryNSProcessInfoWrapper()
+        let processWrapper = MockSentryProcessInfo()
         let extraContentProvider: SentryExtraContextProvider
         let locale = Locale(identifier: "en_US")
         let timezone = TimeZone(identifier: "Europe/Vienna")!
@@ -982,7 +982,7 @@ class SentryClientTests: XCTestCase {
         let eventAppMemory = actual.context?["app"]?["app_memory"] as? Int
         XCTAssertEqual(eventAppMemory, 234_567)
 
-        let cpuCoreCount = actual.context?["device"]?["processor_count"] as? UInt
+        let cpuCoreCount = actual.context?["device"]?["processor_count"] as? Int
         XCTAssertEqual(fixture.processWrapper.processorCount, cpuCoreCount)
     }
     

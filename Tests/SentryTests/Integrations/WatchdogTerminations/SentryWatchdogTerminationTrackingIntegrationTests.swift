@@ -12,7 +12,7 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
 
         let crashWrapper: TestSentryCrashWrapper
         let fileManager: SentryFileManager
-        let processInfoWrapper: TestSentryNSProcessInfoWrapper
+        let processInfoWrapper: MockSentryProcessInfo
         let watchdogTerminationAttributesProcessor: TestSentryWatchdogTerminationAttributesProcessor
         let hub: SentryHub
         let scope: Scope
@@ -34,7 +34,7 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
 
             let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
 
-            processInfoWrapper = TestSentryNSProcessInfoWrapper()
+            processInfoWrapper = MockSentryProcessInfo()
             container.processInfoWrapper = processInfoWrapper
 
             crashWrapper = TestSentryCrashWrapper.sharedInstance()
