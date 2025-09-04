@@ -34,7 +34,7 @@ log_error() {
   fi                        
 }   
 
-log_duration() {
+measure_duration_in_seconds() {
   local command="$1"
   
   local start_time end_time duration
