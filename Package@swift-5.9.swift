@@ -39,9 +39,6 @@ var targets: [Target] = [
         dependencies: ["Sentry", "SentryInternal"],
         path: "Sources/SentrySwiftUI",
         exclude: ["SentryInternal/", "module.modulemap"],
-        swiftSettings: [
-            .interoperabilityMode(.Cxx, .when(platforms: [.visionOS]))
-        ],
         linkerSettings: [
             .linkedFramework("Sentry")
         ]),
