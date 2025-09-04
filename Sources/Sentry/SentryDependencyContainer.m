@@ -9,7 +9,6 @@
 #import "SentryInternalCDefines.h"
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"
-#import "SentryNSProcessInfoWrapper.h"
 #import "SentryOptions+Private.h"
 #import "SentrySDK+Private.h"
 #import "SentrySessionTracker.h"
@@ -168,7 +167,7 @@ static BOOL isInitialializingDependencyContainer = NO;
         _application = [[SentryNSApplication alloc] init];
 #endif // SENTRY_HAS_UIKIT
 
-        _processInfoWrapper = [[SentryNSProcessInfoWrapper alloc] init];
+        _processInfoWrapper = NSProcessInfo.processInfo;
         _extraContextProvider = [[SentryExtraContextProvider alloc]
             initWithCrashWrapper:[SentryCrashWrapper sharedInstance]
               processInfoWrapper:_processInfoWrapper
@@ -351,7 +350,9 @@ static BOOL isInitialializingDependencyContainer = NO;
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 - (SentrySystemWrapper *)systemWrapper SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
-    SENTRY_LAZY_INIT(_systemWrapper, [[SentrySystemWrapper alloc] init]);
+    SENTRY_LAZY_INIT(_systemWrapper,
+        [[SentrySystemWrapper alloc]
+            initWithProcessorCount:self.processInfoWrapper.processorCount]);
 }
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 

@@ -4,7 +4,6 @@
 #import "SentryHub+Private.h"
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"
-#import "SentryNSProcessInfoWrapper.h"
 #import "SentryPredicateDescriptor.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
@@ -19,11 +18,11 @@
 @implementation SentryCoreDataTracker {
     SentryPredicateDescriptor *predicateDescriptor;
     SentryThreadInspector *_threadInspector;
-    SentryNSProcessInfoWrapper *_processInfoWrapper;
+    id<SentryProcessInfoSource> _processInfoWrapper;
 }
 
 - (instancetype)initWithThreadInspector:(SentryThreadInspector *)threadInspector
-                     processInfoWrapper:(SentryNSProcessInfoWrapper *)processInfoWrapper;
+                     processInfoWrapper:(id<SentryProcessInfoSource>)processInfoWrapper;
 {
     if (self = [super init]) {
         predicateDescriptor = [[SentryPredicateDescriptor alloc] init];

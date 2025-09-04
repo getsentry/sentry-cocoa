@@ -4,7 +4,6 @@
 #import "SentryCrashIntegration.h"
 #import "SentryCrashMonitor_AppState.h"
 #import "SentryCrashMonitor_System.h"
-#import "SentryNSProcessInfoWrapper.h"
 #import "SentryScope+PrivateSwift.h"
 #import "SentryScope.h"
 #import "SentrySwift.h"
