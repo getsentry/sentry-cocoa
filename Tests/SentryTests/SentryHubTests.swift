@@ -1080,6 +1080,7 @@ class SentryHubTests: XCTestCase {
         try assertSessionWithIncrementedErrorCountedAdded()
     }
     
+    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testCaptureEnvelope_WithEventWithNoLevel() throws {
         sut.startSession()
         
@@ -1091,6 +1092,7 @@ class SentryHubTests: XCTestCase {
         try assertSessionWithIncrementedErrorCountedAdded()
     }
     
+    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testCaptureEnvelope_WithEventWithGarbageLevel() throws {
         sut.startSession()
         
@@ -1414,6 +1416,7 @@ class SentryHubTests: XCTestCase {
         sut = fixture.getSut(options)
     }
     
+    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     private func givenEnvelopeWithModifiedEvent(modifyEventDict: (inout [String: Any]) -> Void) throws -> SentryEnvelope {
         let event = TestData.event
         let envelopeItem = SentryEnvelopeItem(event: event)
