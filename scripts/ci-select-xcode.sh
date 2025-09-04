@@ -36,4 +36,4 @@ xcrun_simctl_list_duration=$((end_time - start_time))
 end_group
 
 # We want to log the duration after the group, because otherwise it's hidden at the end of the group.
-log_notice "xcrun simctl list completed in ${xcrun_simctl_list_duration} seconds"
+echo "List Available Simulators completed in ${xcrun_simctl_list_duration} seconds"
