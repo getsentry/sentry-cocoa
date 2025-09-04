@@ -22,6 +22,14 @@
 - The build type in the app context now differentiates between `enterprise` and `adhoc` (#6044)
 - visionOS no longer needs swift's interoperability mode (#6077)
 
+## 8.55.1
+
+### Features
+
+### Fixes
+
+- Fix macOS's frameworks not following the versioned framework structure (#6049)
+
 ## 8.54.1-alpha.1
 
 ### Fixes
