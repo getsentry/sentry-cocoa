@@ -4,7 +4,6 @@
 #    import "PrivatesHeader.h"
 #endif
 
-@class SentrySdkInfo;
 @class SentryAttachment;
 @class SentryEnvelopeItemHeader;
 @class SentryEvent;
@@ -13,101 +12,10 @@
 @class SentrySession;
 @class SentryTraceContext;
 @class SentryUserFeedback;
+@class SentryEnvelopeHeader;
+@class SentryEnvelopeItem;
 
 NS_ASSUME_NONNULL_BEGIN
-
-@interface SentryEnvelopeHeader : NSObject
-SENTRY_NO_INIT
-
-/**
- * Initializes an @c SentryEnvelopeHeader object with the specified eventId.
- * @note Sets the @c sdkInfo from @c SentryMeta.
- * @param eventId The identifier of the event. Can be nil if no event in the envelope or attachment
- * related to event.
- */
-- (instancetype)initWithId:(SentryId *_Nullable)eventId;
-
-/**
- * Initializes a @c SentryEnvelopeHeader object with the specified @c eventId and @c traceContext.
- * @param eventId The identifier of the event. Can be @c nil if no event in the envelope or
- * attachment related to event.
- * @param traceContext Current trace state.
- */
-- (instancetype)initWithId:(nullable SentryId *)eventId
-              traceContext:(nullable SentryTraceContext *)traceContext;
-
-/**
- * Initializes a @c SentryEnvelopeHeader object with the specified @c eventId, @c skdInfo and
- * @c traceContext. It is recommended to use @c initWithId:traceContext: because it sets the
- * @c sdkInfo for you.
- * @param eventId The identifier of the event. Can be @c nil if no event in the envelope or
- * attachment related to event.
- * @param sdkInfo Describes the Sentry SDK. Can be @c nil for backwards compatibility. New
- * instances should always provide a version.
- * @param traceContext Current trace state.
- */
-- (instancetype)initWithId:(nullable SentryId *)eventId
-                   sdkInfo:(nullable SentrySdkInfo *)sdkInfo
-              traceContext:(nullable SentryTraceContext *)traceContext NS_DESIGNATED_INITIALIZER;
-
-/**
- * The event identifier, if available.
- * An event id exist if the envelope contains an event of items within it are related. i.e
- * Attachments
- */
-@property (nullable, nonatomic, readonly, copy) SentryId *eventId;
-
-@property (nullable, nonatomic, readonly, copy) SentrySdkInfo *sdkInfo;
-
-@property (nullable, nonatomic, readonly, copy) SentryTraceContext *traceContext;
-
-/**
- * The timestamp when the event was sent from the SDK as string in RFC 3339 format. Used
- * for clock drift correction of the event timestamp. The time zone must be UTC.
- *
- * The timestamp should be generated as close as possible to the transmision of the event,
- * so that the delay between sending the envelope and receiving it on the server-side is
- * minimized.
- */
-@property (nullable, nonatomic, copy) NSDate *sentAt;
-
-+ (instancetype)empty;
-
-@end
-
-@interface SentryEnvelopeItem : NSObject
-SENTRY_NO_INIT
-
-- (instancetype)initWithEvent:(SentryEvent *)event;
-- (instancetype)initWithSession:(SentrySession *)session;
-
-#if !SDK_V9
-/**
- * @deprecated Building the envelopes for the new @c SentryFeedback type is done directly in @c
- * -[SentryClient @c captureFeedback:withScope:]
- */
-- (instancetype)initWithUserFeedback:(SentryUserFeedback *)userFeedback
-    DEPRECATED_MSG_ATTRIBUTE(
-        "Building the envelopes for the new SentryFeedback type is done directly in -[SentryClient "
-        "captureFeedback:withScope:] so there will be no analog to this initializer for "
-        "SentryFeedback at this time..");
-#endif // !SDK_V9
-- (_Nullable instancetype)initWithAttachment:(SentryAttachment *)attachment
-                           maxAttachmentSize:(NSUInteger)maxAttachmentSize;
-- (instancetype)initWithHeader:(SentryEnvelopeItemHeader *)header
-                          data:(NSData *)data NS_DESIGNATED_INITIALIZER;
-
-/**
- * The envelope item header.
- */
-@property (nonatomic, readonly, strong) SentryEnvelopeItemHeader *header;
-
-/**
- * The envelope payload.
- */
-@property (nonatomic, readonly, strong) NSData *data;
-
-@end
 
 @interface SentryEnvelope : NSObject
 SENTRY_NO_INIT
