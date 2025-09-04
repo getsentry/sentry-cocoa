@@ -177,39 +177,4 @@ public class SentryViewScreenshotOptions: NSObject, SentryRedactOptions {
     public override var description: String {
         return "SentryViewScreenshotOptions(enableViewRendererV2: \(enableViewRendererV2), enableFastViewRendering: \(enableFastViewRendering), maskAllText: \(maskAllText), maskAllImages: \(maskAllImages), maskedViewClasses: \(maskedViewClasses), unmaskedViewClasses: \(unmaskedViewClasses))"
     }
-    
-    // MARK: - Equatable & Hashable
-    
-    public override var hash: Int {
-        var hasher = Hasher()
-        hasher.combine(enableViewRendererV2)
-        hasher.combine(enableFastViewRendering)
-        hasher.combine(maskAllText)
-        hasher.combine(maskAllImages)
-        
-        // Hash the class names for maskedViewClasses
-        for viewClass in maskedViewClasses {
-            hasher.combine(NSStringFromClass(viewClass))
-        }
-        
-        // Hash the class names for unmaskedViewClasses
-        for viewClass in unmaskedViewClasses {
-            hasher.combine(NSStringFromClass(viewClass))
-        }
-        return hasher.finalize()
-    }
-    
-    public override func isEqual(_ object: Any?) -> Bool {
-        guard let other = object as? SentryViewScreenshotOptions else {
-            return false
-        }
-        return self.enableViewRendererV2 == other.enableViewRendererV2 &&
-        self.enableFastViewRendering == other.enableFastViewRendering &&
-        self.maskAllText == other.maskAllText &&
-        self.maskAllImages == other.maskAllImages &&
-        self.maskedViewClasses.count == other.maskedViewClasses.count &&
-        self.unmaskedViewClasses.count == other.unmaskedViewClasses.count &&
-        self.maskedViewClasses.map { NSStringFromClass($0) } == other.maskedViewClasses.map { NSStringFromClass($0) } &&
-        self.unmaskedViewClasses.map { NSStringFromClass($0) } == other.unmaskedViewClasses.map { NSStringFromClass($0) }
-    }
 }
