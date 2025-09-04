@@ -132,12 +132,13 @@ jobs:
             device: "iPhone 16 Pro"
             scheme: "Sentry"
 
-          # iOS 26
-          - name: iOS 26 Sentry
+          # iOS 18 with Xcode 26
+          - name: iOS 18 Sentry with Xcode 26
             runs-on: macos-15
             platform: "iOS"
             xcode: "26.0"
-            test-destination-os: "26.0"
+            # As of Sep 4th 2025, the macos-15 runner has no simulators with iOS 26, so we use iOS 18.
+            test-destination-os: "18.4"
             device: "iPhone 16 Pro"
             scheme: "Sentry"
 
