@@ -191,13 +191,12 @@ class SentryHubTests: XCTestCase {
     func testScopeEnriched_WithNoRuntime() throws {
         // Arrange
         let processInfoWrapper = MockSentryProcessInfo()
-        SentryDependencyContainer.sharedInstance().processInfoWrapper = processInfoWrapper
-
         processInfoWrapper.overrides.isiOSAppOnMac = false
         processInfoWrapper.overrides.isMacCatalystApp = false
-
+        let crashWrapper = SentryCrashWrapper(processInfoWrapper: processInfoWrapper)
+        
         // Act
-        let hub = SentryHub(client: nil, andScope: Scope())
+        let hub = SentryHub(client: nil, andScope: Scope(), andCrashWrapper: crashWrapper, andDispatchQueue: TestSentryDispatchQueueWrapper())
 
         // Assert
         XCTAssertNil(hub.scope.contextDictionary["runtime"])
