@@ -26,13 +26,16 @@
 >         path: "Sources/SentryVisionHelper",
 >         linkerSettings: [
 >          .linkedLibrary("c++", .when(platforms: [.visionOS]))
->         ],
+>         ]
 >     )
 53c63
 < if let env = env, String(cString: env, encoding: .utf8) == "1" {
 ---
 > if let env = env, String(cString: env) == "1" {
-84a95
+84c94,95
+<             exclude: ["Sentry/SentryDummyPublicEmptyClass.m", "Sentry/SentryDummyPrivateEmptyClass.m", "Swift", "SentrySwiftUI", "Resources", "Configuration"],
+---
+>             exclude: ["Sentry/SentryDummyPublicEmptyClass.m", "Sentry/SentryDummyPrivateEmptyClass.m", "Swift", "SentrySwiftUI", "Resources", "Configuration", "SentryVisionHelper"],
 >             publicHeadersPath: "",
 100c111
 <     platforms: [.iOS(.v11), .macOS(.v10_13), .tvOS(.v11), .watchOS(.v4)],
