@@ -175,10 +175,15 @@ class SentryCrashReportTests: XCTestCase {
 #if os(iOS) && !targetEnvironment(macCatalyst)
     // We can't really test writing the crash_info_message unless there is an actual crash.
     // We noticed that the libsystem_sim_platform.dylib is a simulator library that has a crash info message even when there is no crash.
-    // This is simply a smoke test to ensure we can write the crash_info_message key to the report.
+    // This only works before iOS 26.0. We still need to figure out if there is another lib that now contains the crash_info_message on iOS 26.0 and later.
+    // This is simply a smoke test to ensure we can write the crash_info_message key to the report with http://github.com/getsentry/sentry-cocoa/issues/6084.
     // This only works on iOS and also not macCatalyst.
     // Actual testing must be done manually with a fatalError in Swift.
     func testWriteCrashReport_ContainsCrashInfoMessage() throws {
+        if #available(iOS 26.0, *) {
+            throw XCTSkip("This test is only works on iOS versions before 26.0")
+        }
+
         writeCrashReport()
 
         let crashReportContents = FileManager.default.contents(atPath: fixture.reportPath) ?? Data()

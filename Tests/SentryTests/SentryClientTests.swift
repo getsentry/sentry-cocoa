@@ -1787,8 +1787,8 @@ class SentryClientTests: XCTestCase {
         assertArrayEquals(expected: expected, actual: actual.sdk?["integrations"] as? [String])
     }
 
-    func testFileManagerCantBeInit() {
-        SentryFileManager.prepareInitError()
+    func testFileManagerCantBeInit() throws {
+        try SentryFileManager.prepareInitError()
 
         let options = Options()
         options.dsn = SentryClientTests.dsn
@@ -1796,7 +1796,7 @@ class SentryClientTests: XCTestCase {
 
         XCTAssertNil(client)
 
-        SentryFileManager.tearDownInitError()
+        try SentryFileManager.tearDownInitError()
     }
     
     func testInstallationIdSetWhenNoUserId() throws {
