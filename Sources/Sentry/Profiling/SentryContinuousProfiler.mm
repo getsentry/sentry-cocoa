@@ -8,6 +8,7 @@
 #    import "SentryProfiler+Private.h"
 #    import "SentryProfilerSerialization.h"
 #    import "SentryProfilerState.h"
+#    import "SentryProfilingScreenFramesHelper.h"
 #    import "SentryProfilingSwiftHelpers.h"
 #    import "SentrySDK+Private.h"
 #    import "SentrySample.h"
@@ -15,7 +16,6 @@
 
 #    if SENTRY_HAS_UIKIT
 #        import "SentryFramesTracker.h"
-#        import "SentryScreenFrames.h"
 #        import <UIKit/UIKit.h>
 #    endif // SENTRY_HAS_UIKIT
 
@@ -65,7 +65,8 @@ _sentry_threadUnsafe_transmitChunkEnvelope(void)
 
 #    if SENTRY_HAS_UIKIT
     const auto framesTracker = SentryDependencyContainer.sharedInstance.framesTracker;
-    SentryScreenFrames *screenFrameData = [framesTracker.currentFrames copy];
+    SentryScreenFrames *screenFrameData =
+        [SentryProfilingScreenFramesHelper copyScreenFrames:framesTracker.currentFrames];
     [framesTracker resetProfilingTimestamps];
 #    endif // SENTRY_HAS_UIKIT
 

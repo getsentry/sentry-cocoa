@@ -168,7 +168,6 @@
 #import "SentryScope+Private.h"
 #import "SentryScopeObserver.h"
 #import "SentryScopeSyncC.h"
-#import "SentryScreenFrames.h"
 #import "SentryScreenshotIntegration.h"
 #import "SentrySwift.h"
 #import "SentrySwiftAsyncIntegration.h"
