@@ -261,15 +261,14 @@ class SentrySDKInternalTests: XCTestCase {
 
     func testSetUserBeforeStartingSDK_LogsFatalMessage() throws {
         // Arrange
-        let log = SentrySDKLog()
-        let oldOutput = log.getLogOutput()
+        let oldOutput = SentrySDKLog.getLogOutput()
 
         defer {
-            log.setOutput(oldOutput)
+            SentrySDKLog.setOutput(oldOutput)
         }
 
         let logOutput = TestLogOutput()
-        log.setLogOutput(logOutput)
+        SentrySDKLog.setLogOutput(logOutput)
 
         // Act
         SentrySDK.setUser(nil)
@@ -284,15 +283,14 @@ class SentrySDKInternalTests: XCTestCase {
     @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func testSetUserAFterStartingSDK_DoesNotLogFatalMessage() {
         // Arrange
-        let log = SentrySDKLog()
-        let oldOutput = log.getLogOutput()
+        let oldOutput = SentrySDKLog.getLogOutput()
 
         defer {
-            log.setOutput(oldOutput)
+            SentrySDKLog.setOutput(oldOutput)
         }
 
         let logOutput = TestLogOutput()
-        log.setLogOutput(logOutput)
+        SentrySDKLog.setLogOutput(logOutput)
 
         givenSdkWithHub()
 
@@ -307,15 +305,14 @@ class SentrySDKInternalTests: XCTestCase {
 
     func testAddBreadcrumbBeforeStartingSDK_LogsFatalMessage() throws {
         // Arrange
-        let log = SentrySDKLog()
-        let oldOutput = log.getLogOutput()
+        let oldOutput = SentrySDKLog.getLogOutput()
 
         defer {
-            log.setOutput(oldOutput)
+            SentrySDKLog.setOutput(oldOutput)
         }
 
         let logOutput = TestLogOutput()
-        log.setLogOutput(logOutput)
+        SentrySDKLog.setLogOutput(logOutput)
 
         // Act
         SentrySDK.addBreadcrumb(Breadcrumb(level: .info, category: "test"))
@@ -330,14 +327,13 @@ class SentrySDKInternalTests: XCTestCase {
     @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func testAddBreadcrumbAfterStartingSDK_DoesNotLogFatalMessage() {
         // Arrange
-        let log = SentrySDKLog()
-        let oldOutput = log.getLogOutput()
+        let oldOutput = SentrySDKLog.getLogOutput()
 
         defer {
-            log.setOutput(oldOutput)
+            SentrySDKLog.setOutput(oldOutput)
         }
         let logOutput = TestLogOutput()
-        log.setLogOutput(logOutput)
+        SentrySDKLog.setLogOutput(logOutput)
 
         givenSdkWithHub()
 
