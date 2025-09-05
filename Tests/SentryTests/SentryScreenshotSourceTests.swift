@@ -5,8 +5,7 @@ import XCTest
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 class SentryScreenshotSourceTests: XCTestCase {
     private class Fixture {
-        
-        let uiApplication = TestSentryUIApplication(notificationCenterWrapper: TestNSNotificationCenterWrapper(), dispatchQueueWrapper: TestSentryDispatchQueueWrapper())
+        let uiApplication = TestSentryUIApplication()
         let renderer = TestSentryViewRenderer()
         let photographer: TestSentryViewPhotographer
 
@@ -121,19 +120,6 @@ class SentryScreenshotSourceTests: XCTestCase {
         let data = self.fixture.sut.appScreenshotsData()
 
         XCTAssertEqual(0, data.count, "No screenshot should be taken, cause the image has zero height.")
-    }
-    
-    private class TestSentryUIApplication: SentryUIApplication {
-        private var _windows: [UIWindow]?
-        
-        override var windows: [UIWindow]? {
-            get {
-                return _windows
-            }
-            set {
-                _windows = newValue
-            }
-        }
     }
 
     private class TestWindow: UIWindow {

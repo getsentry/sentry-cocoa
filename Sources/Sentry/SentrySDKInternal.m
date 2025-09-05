@@ -13,7 +13,6 @@
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"
 #import "SentryMeta.h"
-#import "SentryNSProcessInfoWrapper.h"
 #import "SentryOptions+Private.h"
 #import "SentryOptionsInternal.h"
 #import "SentryProfilingConditionals.h"
@@ -24,7 +23,6 @@
 #import "SentrySerialization.h"
 #import "SentrySwift.h"
 #import "SentryTransactionContext.h"
-#import "SentryUIApplication.h"
 #import "SentryUseNSExceptionCallstackWrapper.h"
 #import "SentryUserFeedbackIntegration.h"
 

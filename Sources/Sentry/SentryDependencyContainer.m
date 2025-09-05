@@ -1,6 +1,5 @@
 #import "SentryANRTrackerV1.h"
 
-#import "SentryApplication.h"
 #import "SentryDispatchFactory.h"
 #import "SentryDisplayLinkWrapper.h"
 #import "SentryExtraContextProvider.h"
@@ -9,7 +8,6 @@
 #import "SentryInternalCDefines.h"
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"
-#import "SentryNSProcessInfoWrapper.h"
 #import "SentryOptions+Private.h"
 #import "SentrySDK+Private.h"
 #import "SentrySessionTracker.h"
@@ -39,14 +37,9 @@
 #if SENTRY_HAS_UIKIT
 #    import "SentryANRTrackerV2.h"
 #    import "SentryFramesTracker.h"
-#    import "SentryUIApplication.h"
 #    import <SentryViewHierarchyProvider.h>
 #    import <SentryWatchdogTerminationBreadcrumbProcessor.h>
 #endif // SENTRY_HAS_UIKIT
-
-#if TARGET_OS_OSX
-#    import "SentryNSApplication.h"
-#endif
 
 #if !TARGET_OS_WATCH
 #    import "SentryReachability.h"
@@ -157,18 +150,19 @@ static BOOL isInitialializingDependencyContainer = NO;
         _binaryImageCache = [[SentryBinaryImageCache alloc] init];
         _dateProvider = SentryDependencies.dateProvider;
 
-        _notificationCenterWrapper = [NSNotificationCenter defaultCenter];
+        _notificationCenterWrapper = NSNotificationCenter.defaultCenter;
 #if SENTRY_HAS_UIKIT
         _uiDeviceWrapper =
             [[SentryDefaultUIDeviceWrapper alloc] initWithQueueWrapper:_dispatchQueueWrapper];
-        _application = [[SentryUIApplication alloc]
-            initWithNotificationCenterWrapper:_notificationCenterWrapper
-                         dispatchQueueWrapper:_dispatchQueueWrapper];
+        _application = UIApplication.sharedApplication;
+        _threadsafeApplication = [[SentryThreadsafeApplication alloc]
+            initWithInitialState:_application.unsafeApplicationState
+              notificationCenter:_notificationCenterWrapper];
 #elif TARGET_OS_OSX
-        _application = [[SentryNSApplication alloc] init];
+        _application = NSApplication.sharedApplication;
 #endif // SENTRY_HAS_UIKIT
 
-        _processInfoWrapper = [[SentryNSProcessInfoWrapper alloc] init];
+        _processInfoWrapper = NSProcessInfo.processInfo;
         _extraContextProvider = [[SentryExtraContextProvider alloc]
             initWithCrashWrapper:[SentryCrashWrapper sharedInstance]
               processInfoWrapper:_processInfoWrapper
@@ -367,7 +361,9 @@ static BOOL isInitialializingDependencyContainer = NO;
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 - (SentrySystemWrapper *)systemWrapper SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
-    SENTRY_LAZY_INIT(_systemWrapper, [[SentrySystemWrapper alloc] init]);
+    SENTRY_LAZY_INIT(_systemWrapper,
+        [[SentrySystemWrapper alloc]
+            initWithProcessorCount:self.processInfoWrapper.processorCount]);
 }
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 

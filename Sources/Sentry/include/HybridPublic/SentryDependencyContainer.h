@@ -13,10 +13,10 @@
 @class SentryDispatchQueueWrapper;
 @class SentryExtraContextProvider;
 @class SentryFileManager;
-@class SentryNSProcessInfoWrapper;
 @class SentryNSTimerFactory;
 @class SentrySwizzleWrapper;
 @class SentrySysctl;
+@class SentryThreadsafeApplication;
 @class SentrySystemWrapper;
 @class SentryThreadWrapper;
 @class SentryThreadInspector;
@@ -31,6 +31,7 @@
 @protocol SentryCurrentDateProvider;
 @protocol SentryRateLimits;
 @protocol SentryApplication;
+@protocol SentryProcessInfoSource;
 @protocol SentryDispatchQueueProviderProtocol;
 @protocol SentryNSNotificationCenterWrapper;
 @protocol SentryObjCRuntimeWrapper;
@@ -42,7 +43,6 @@
 #if SENTRY_UIKIT_AVAILABLE
 @class SentryFramesTracker;
 @class SentryScreenshotSource;
-@class SentryUIApplication;
 @class SentryViewHierarchyProvider;
 @class SentryUIViewControllerPerformanceTracker;
 @class SentryWatchdogTerminationScopeObserver;
@@ -90,10 +90,11 @@ SENTRY_NO_INIT
 @property (nonatomic, strong) SentryExtraContextProvider *extraContextProvider;
 @property (nonatomic, strong) id<SentryNSNotificationCenterWrapper> notificationCenterWrapper;
 @property (nonatomic, strong) SentryCrashWrapper *crashWrapper;
-@property (nonatomic, strong) SentryNSProcessInfoWrapper *processInfoWrapper;
+@property (nonatomic, strong) id<SentryProcessInfoSource> processInfoWrapper;
 @property (nonatomic, strong) SentrySysctl *sysctlWrapper;
 @property (nonatomic, strong) id<SentryRateLimits> rateLimits;
 @property (nonatomic, strong) id<SentryApplication> application;
+@property (nonatomic, strong) SentryThreadsafeApplication *threadsafeApplication;
 
 #if SENTRY_HAS_REACHABILITY
 @property (nonatomic, strong) SentryReachability *reachability;

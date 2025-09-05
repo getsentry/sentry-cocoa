@@ -6,7 +6,6 @@
 #    import "SentryCrashJSONCodec.h"
 #    import "SentryLogC.h"
 #    import "SentrySwift.h"
-#    import "SentryUIApplication.h"
 #    import <UIKit/UIKit.h>
 
 static int
@@ -47,7 +46,7 @@ writeJSONDataToMemory(const char *const data, const int length, void *const user
 
 - (BOOL)saveViewHierarchy:(NSString *)filePath
 {
-    NSArray<UIWindow *> *windows = [self.sentryUIApplication windows];
+    NSArray<UIWindow *> *windows = [self.sentryUIApplication getWindows];
 
     const char *path = [filePath UTF8String];
     int fd = open(path, O_RDWR | O_CREAT | O_TRUNC, 0644);
@@ -80,7 +79,7 @@ writeJSONDataToMemory(const char *const data, const int length, void *const user
 - (NSData *)appViewHierarchy
 {
     NSMutableData *result = [[NSMutableData alloc] init];
-    NSArray<UIWindow *> *windows = [self.sentryUIApplication windows];
+    NSArray<UIWindow *> *windows = [self.sentryUIApplication getWindows];
 
     if (![self processViewHierarchy:windows
                         addFunction:writeJSONDataToMemory

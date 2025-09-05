@@ -42,7 +42,6 @@
 #import "SentryTransport.h"
 #import "SentryTransportAdapter.h"
 #import "SentryTransportFactory.h"
-#import "SentryUIApplication.h"
 #import "SentryUseNSExceptionCallstackWrapper.h"
 #import "SentryUser.h"
 #import "SentryWatchdogTerminationTracker.h"
@@ -524,8 +523,11 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     }
 
     SentryEnvelopeItem *item = [[SentryEnvelopeItem alloc] initWithSession:session];
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     SentryEnvelope *envelope = [[SentryEnvelope alloc] initWithHeader:[SentryEnvelopeHeader empty]
                                                            singleItem:item];
+#pragma clang diagnostic pop
     [self captureEnvelope:envelope];
 }
 
@@ -782,7 +784,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
             context[@"app"] = app;
 
             UIApplicationState appState =
-                [SentryDependencyContainer sharedInstance].application.applicationState;
+                [SentryDependencyContainer sharedInstance].threadsafeApplication.applicationState;
             BOOL inForeground = appState == UIApplicationStateActive;
             app[@"in_foreground"] = @(inForeground);
             event.context = context;

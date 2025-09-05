@@ -11,7 +11,7 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
         let dispatchQueue = TestSentryDispatchQueueWrapper()
         let objcRuntimeWrapper = SentryTestObjCRuntimeWrapper()
         let subClassFinder: TestSubClassFinder
-        let processInfoWrapper = SentryNSProcessInfoWrapper()
+        let processInfoWrapper = MockSentryProcessInfo()
         let binaryImageCache: SentryBinaryImageCache
         var options: Options
         
@@ -130,7 +130,7 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
     
     func testViewControllerWithLoadView_TransactionBoundToScope() {
         let d = class_getImageName(type(of: self))!
-        fixture.processInfoWrapper.setProcessPath(String(cString: d))
+        fixture.processInfoWrapper.overrides.processPath = String(cString: d)
 
         fixture.sut.start()
         let controller = ViewWithLoadViewController()
@@ -326,7 +326,7 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
     }
 }
 
-class MockApplication: NSObject, SentryUIApplicationProtocol {
+class MockApplication: NSObject, SentryUIApplication {
     class MockApplicationDelegate: NSObject, UIApplicationDelegate {
         var window: UIWindow?
         
