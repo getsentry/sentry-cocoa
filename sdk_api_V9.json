@@ -31225,6 +31225,337 @@
         ]
       },
       {
+        "kind": "TypeDecl",
+        "name": "SentrySessionStatus",
+        "printedName": "SentrySessionStatus",
+        "children": [
+          {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init(rawValue:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Sentry.SentrySessionStatus?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SentrySessionStatus",
+                    "printedName": "Sentry.SentrySessionStatus",
+                    "usr": "c:@M@Sentry@E@SentrySessionStatus"
+                  }
+                ],
+                "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "UInt",
+                "printedName": "Swift.UInt",
+                "usr": "s:Su"
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "s:So19SentrySessionStatusV8rawValueABSgSu_tcfc",
+            "mangledName": "$sSo19SentrySessionStatusV8rawValueABSgSu_tcfc",
+            "moduleName": "Sentry",
+            "implicit": true,
+            "init_kind": "Designated"
+          },
+          {
+            "kind": "Var",
+            "name": "rawValue",
+            "printedName": "rawValue",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "UInt",
+                "printedName": "Swift.UInt",
+                "usr": "s:Su"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:So19SentrySessionStatusV8rawValueSuvp",
+            "mangledName": "$sSo19SentrySessionStatusV8rawValueSuvp",
+            "moduleName": "Sentry",
+            "implicit": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "UInt",
+                    "printedName": "Swift.UInt",
+                    "usr": "s:Su"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:So19SentrySessionStatusV8rawValueSuvg",
+                "mangledName": "$sSo19SentrySessionStatusV8rawValueSuvg",
+                "moduleName": "Sentry",
+                "implicit": true,
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "TypeAlias",
+            "name": "RawValue",
+            "printedName": "RawValue",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "UInt",
+                "printedName": "Swift.UInt",
+                "usr": "s:Su"
+              }
+            ],
+            "declKind": "TypeAlias",
+            "usr": "s:So19SentrySessionStatusV8RawValuea",
+            "mangledName": "$sSo19SentrySessionStatusV8RawValuea",
+            "moduleName": "Sentry",
+            "implicit": true
+          },
+          {
+            "kind": "Var",
+            "name": "ok",
+            "printedName": "ok",
+            "children": [
+              {
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(Sentry.SentrySessionStatus.Type) -> Sentry.SentrySessionStatus",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SentrySessionStatus",
+                    "printedName": "Sentry.SentrySessionStatus",
+                    "usr": "c:@M@Sentry@E@SentrySessionStatus"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Metatype",
+                    "printedName": "Sentry.SentrySessionStatus.Type",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SentrySessionStatus",
+                        "printedName": "Sentry.SentrySessionStatus",
+                        "usr": "c:@M@Sentry@E@SentrySessionStatus"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "declKind": "EnumElement",
+            "usr": "c:@M@Sentry@E@SentrySessionStatus@SentrySessionStatusOk",
+            "moduleName": "Sentry",
+            "declAttributes": [
+              "ObjC"
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "exited",
+            "printedName": "exited",
+            "children": [
+              {
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(Sentry.SentrySessionStatus.Type) -> Sentry.SentrySessionStatus",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SentrySessionStatus",
+                    "printedName": "Sentry.SentrySessionStatus",
+                    "usr": "c:@M@Sentry@E@SentrySessionStatus"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Metatype",
+                    "printedName": "Sentry.SentrySessionStatus.Type",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SentrySessionStatus",
+                        "printedName": "Sentry.SentrySessionStatus",
+                        "usr": "c:@M@Sentry@E@SentrySessionStatus"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "declKind": "EnumElement",
+            "usr": "c:@M@Sentry@E@SentrySessionStatus@SentrySessionStatusExited",
+            "moduleName": "Sentry",
+            "declAttributes": [
+              "ObjC"
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "crashed",
+            "printedName": "crashed",
+            "children": [
+              {
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(Sentry.SentrySessionStatus.Type) -> Sentry.SentrySessionStatus",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SentrySessionStatus",
+                    "printedName": "Sentry.SentrySessionStatus",
+                    "usr": "c:@M@Sentry@E@SentrySessionStatus"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Metatype",
+                    "printedName": "Sentry.SentrySessionStatus.Type",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SentrySessionStatus",
+                        "printedName": "Sentry.SentrySessionStatus",
+                        "usr": "c:@M@Sentry@E@SentrySessionStatus"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "declKind": "EnumElement",
+            "usr": "c:@M@Sentry@E@SentrySessionStatus@SentrySessionStatusCrashed",
+            "moduleName": "Sentry",
+            "declAttributes": [
+              "ObjC"
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "abnormal",
+            "printedName": "abnormal",
+            "children": [
+              {
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(Sentry.SentrySessionStatus.Type) -> Sentry.SentrySessionStatus",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SentrySessionStatus",
+                    "printedName": "Sentry.SentrySessionStatus",
+                    "usr": "c:@M@Sentry@E@SentrySessionStatus"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Metatype",
+                    "printedName": "Sentry.SentrySessionStatus.Type",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SentrySessionStatus",
+                        "printedName": "Sentry.SentrySessionStatus",
+                        "usr": "c:@M@Sentry@E@SentrySessionStatus"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "declKind": "EnumElement",
+            "usr": "c:@M@Sentry@E@SentrySessionStatus@SentrySessionStatusAbnormal",
+            "moduleName": "Sentry",
+            "declAttributes": [
+              "ObjC"
+            ]
+          }
+        ],
+        "declKind": "Enum",
+        "usr": "c:@M@Sentry@E@SentrySessionStatus",
+        "moduleName": "Sentry",
+        "objc_name": "SentrySessionStatus",
+        "declAttributes": [
+          "SynthesizedProtocol",
+          "ObjC",
+          "SynthesizedProtocol",
+          "Sendable",
+          "Dynamic"
+        ],
+        "enumRawTypeName": "UInt",
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "RawRepresentable",
+            "printedName": "RawRepresentable",
+            "children": [
+              {
+                "kind": "TypeWitness",
+                "name": "RawValue",
+                "printedName": "RawValue",
+                "children": [
+                  {
+                    "kind": "TypeNameAlias",
+                    "name": "RawValue",
+                    "printedName": "Sentry.SentrySessionStatus.RawValue",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "UInt",
+                        "printedName": "Swift.UInt",
+                        "usr": "s:Su"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "usr": "s:SY",
+            "mangledName": "$sSY"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Sendable",
+            "printedName": "Sendable",
+            "usr": "s:s8SendableP",
+            "mangledName": "$ss8SendableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Equatable",
+            "printedName": "Equatable",
+            "usr": "s:SQ",
+            "mangledName": "$sSQ"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Hashable",
+            "printedName": "Hashable",
+            "usr": "s:SH",
+            "mangledName": "$sSH"
+          }
+        ]
+      },
+      {
         "kind": "TypeAlias",
         "name": "SentryShouldQueueEvent",
         "printedName": "SentryShouldQueueEvent",
@@ -34479,12 +34810,51 @@
             ],
             "reqNewWitnessTableEntry": true,
             "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "serialize",
+            "printedName": "serialize()",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Dictionary",
+                "printedName": "[Swift.String : Any]",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "ProtocolComposition",
+                    "printedName": "Any"
+                  }
+                ],
+                "usr": "s:SD"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "c:objc(pl)SentrySpan(im)serialize",
+            "moduleName": "Sentry",
+            "genericSig": "<Self where Self : Sentry.Span>",
+            "protocolReq": true,
+            "objc_name": "serialize",
+            "declAttributes": [
+              "DiscardableResult",
+              "ObjC",
+              "Dynamic"
+            ],
+            "reqNewWitnessTableEntry": true,
+            "funcSelfKind": "NonMutating"
           }
         ],
         "declKind": "Protocol",
         "usr": "c:objc(pl)SentrySpan",
         "moduleName": "Sentry",
-        "genericSig": "<Self : Sentry.SentrySerializable>",
+        "genericSig": "<Self : ObjectiveC.NSObjectProtocol>",
         "objc_name": "SentrySpan",
         "declAttributes": [
           "ObjC",
@@ -34504,12 +34874,6 @@
             "printedName": "Copyable",
             "usr": "s:s8CopyableP",
             "mangledName": "$ss8CopyableP"
-          },
-          {
-            "kind": "Conformance",
-            "name": "SentrySerializable",
-            "printedName": "SentrySerializable",
-            "usr": "c:objc(pl)SentrySerializable"
           },
           {
             "kind": "Conformance",
@@ -40048,6 +40412,13 @@
         "kind": "Import",
         "name": "_SwiftConcurrencyShims",
         "printedName": "_SwiftConcurrencyShims",
+        "declKind": "Import",
+        "moduleName": "Sentry"
+      },
+      {
+        "kind": "Import",
+        "name": "ObjectiveC.runtime",
+        "printedName": "ObjectiveC.runtime",
         "declKind": "Import",
         "moduleName": "Sentry"
       },

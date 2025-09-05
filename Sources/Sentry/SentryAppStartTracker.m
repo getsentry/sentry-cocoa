@@ -9,7 +9,6 @@
 #    import "SentryLogC.h"
 #    import "SentrySysctl.h"
 #    import <PrivateSentrySDKOnly.h>
-#    import <SentryAppState.h>
 #    import <SentryDependencyContainer.h>
 #    import <SentryInternalDefines.h>
 #    import <SentryInternalNotificationNames.h>

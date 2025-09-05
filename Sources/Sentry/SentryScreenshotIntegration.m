@@ -87,12 +87,10 @@ saveScreenShot(const char *path)
         return attachments;
     }
 
+    NSMutableArray *result = [NSMutableArray arrayWithArray:attachments];
+
     NSArray<NSData *> *screenshot =
         [SentryDependencyContainer.sharedInstance.screenshot appScreenshotDatasFromMainThread];
-
-    NSMutableArray *result =
-        [NSMutableArray arrayWithCapacity:attachments.count + screenshot.count];
-    [result addObjectsFromArray:attachments];
 
     for (int i = 0; i < screenshot.count; i++) {
         NSString *name

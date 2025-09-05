@@ -4,7 +4,6 @@
 #import "SentryEnvelopeItemType.h"
 #import "SentryLogC.h"
 #import "SentrySerialization.h"
-#import "SentrySession+Private.h"
 #import "SentrySwift.h"
 
 NS_ASSUME_NONNULL_BEGIN

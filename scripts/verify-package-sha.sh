@@ -57,26 +57,43 @@ if [ -z "$EXPECTED_LAST_RELEASE_RUNID" ]; then
     exit 1
 fi
 
-echo "Verify checksum of static xcframework in Package.swift"
-UPDATED_PACKAGE_SHA=$(grep "checksum.*Sentry-Static" Package.swift | cut -d '"' -f 2)
-if [ "$UPDATED_PACKAGE_SHA" != "$EXPECTED_STATIC_CHECKSUM" ]; then
-    echo "::error::Expected checksum to be $EXPECTED_STATIC_CHECKSUM but got $UPDATED_PACKAGE_SHA"
+# Find all Package.swift and Package@swift-*.swift files
+PACKAGE_FILES=$(find . -maxdepth 1 -name "Package.swift" -o -name "Package@swift-*.swift" | sort)
+
+if [ -z "$PACKAGE_FILES" ]; then
+    echo "::error::No Package.swift or Package@swift-*.swift files found"
     exit 1
 fi
 
-echo "Verify checksum of dynamic xcframework in Package.swift"
-UPDATED_PACKAGE_SHA=$(grep "checksum.*Sentry-Dynamic" Package.swift | cut -d '"' -f 2 | head -n 1)
-if [ "$UPDATED_PACKAGE_SHA" != "$EXPECTED_DYNAMIC_CHECKSUM" ]; then
-    echo "::error::Expected checksum to be $EXPECTED_DYNAMIC_CHECKSUM but got $UPDATED_PACKAGE_SHA"
-    exit 1
-fi
+# Verify checksums in each Package file
+for package_file in $PACKAGE_FILES; do
+    echo "Verifying checksums in $package_file"
+    
+    # Verify static checksum
+    UPDATED_PACKAGE_SHA=$(grep "checksum.*Sentry-Static" "$package_file" | cut -d '"' -f 2)
+    if [ "$UPDATED_PACKAGE_SHA" != "$EXPECTED_STATIC_CHECKSUM" ]; then
+        echo "::error::Expected static checksum to be $EXPECTED_STATIC_CHECKSUM but got $UPDATED_PACKAGE_SHA in $package_file"
+        exit 1
+    fi
+    
+    # Verify dynamic checksum
+    UPDATED_PACKAGE_SHA=$(grep "checksum.*Sentry-Dynamic" "$package_file" | cut -d '"' -f 2 | head -n 1)
+    if [ "$UPDATED_PACKAGE_SHA" != "$EXPECTED_DYNAMIC_CHECKSUM" ]; then
+        echo "::error::Expected dynamic checksum to be $EXPECTED_DYNAMIC_CHECKSUM but got $UPDATED_PACKAGE_SHA in $package_file"
+        exit 1
+    fi
 
-echo "Verify checksum of dynamic with arm64e xcframework in Package.swift"
-UPDATED_PACKAGE_SHA=$(grep "checksum.*Sentry-Dynamic-WithARM64e" Package.swift | cut -d '"' -f 2)
-if [ "$UPDATED_PACKAGE_SHA" != "$EXPECTED_DYNAMIC_WITH_ARM64E_CHECKSUM" ]; then
-    echo "::error::Expected checksum to be $EXPECTED_DYNAMIC_WITH_ARM64E_CHECKSUM but got $UPDATED_PACKAGE_SHA"
-    exit 1
-fi
+    # Verify dynamic with arm64e checksum
+    UPDATED_PACKAGE_SHA=$(grep "checksum.*Sentry-Dynamic-WithARM64e" "$package_file" | cut -d '"' -f 2)
+    if [ "$UPDATED_PACKAGE_SHA" != "$EXPECTED_DYNAMIC_WITH_ARM64E_CHECKSUM" ]; then
+        echo "::error::Expected checksum to be $EXPECTED_DYNAMIC_WITH_ARM64E_CHECKSUM but got $UPDATED_PACKAGE_SHA in $package_file"
+        exit 1
+    fi
+    
+    echo "✓ All checksums verified in $package_file"
+done
+
+
 
 echo "Verify last-release-runid"
 LAST_RELEASE_RUNID=$(cat .github/last-release-runid)

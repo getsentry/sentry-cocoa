@@ -1,4 +1,5 @@
 import Foundation
+@_spi(Private) import Sentry
 
 class TestThreadInspector: SentryThreadInspector {
     

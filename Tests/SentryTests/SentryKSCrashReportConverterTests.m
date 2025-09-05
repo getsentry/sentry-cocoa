@@ -5,10 +5,10 @@
 #import "SentryEvent.h"
 #import "SentryException.h"
 #import "SentryFrame.h"
-#import "SentryInAppLogic.h"
 #import "SentryMechanism.h"
 #import "SentryMechanismMeta.h"
 #import "SentryStacktrace.h"
+#import "SentrySwift.h"
 #import "SentryThread.h"
 #import "SentryUser.h"
 #import <XCTest/XCTest.h>

@@ -174,11 +174,11 @@ class SentryFileManagerTests: XCTestCase {
         XCTAssertEqual(1, envelopes.count)
         
         let actualData = try XCTUnwrap(envelopes.first).contents
-        XCTAssertEqual(expectedData, actualData as Data)
+        try compareEnvelopes(expectedData, actualData as Data, message: "Envelopes are not equal")
     }
     
     func testStoreInvalidEnvelope_ReturnsNil() {
-        let sdkInfoWithInvalidJSON = SentrySdkInfo(name: SentryInvalidJSONString() as String, version: "8.0.0", integrations: [], features: [], packages: [])
+        let sdkInfoWithInvalidJSON = SentrySdkInfo(name: SentryInvalidJSONString() as String, version: "8.0.0", integrations: [], features: [], packages: [], settings: SentrySDKSettings(dict: [:]))
         let headerWithInvalidJSON = SentryEnvelopeHeader(id: nil, sdkInfo: sdkInfoWithInvalidJSON, traceContext: nil)
         
         let envelope = SentryEnvelope(header: headerWithInvalidJSON, items: [])

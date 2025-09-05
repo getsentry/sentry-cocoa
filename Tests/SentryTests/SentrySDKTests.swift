@@ -153,14 +153,15 @@ class SentrySDKTests: XCTestCase {
     }
 
     @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
-    func testStartStopBinaryImageCache() {
+    func testStartStopBinaryImageCache() throws {
         SentrySDK.start { options in
             options.debug = true
             options.removeAllIntegrations()
         }
 
         XCTAssertNotNil(SentryDependencyContainer.sharedInstance().binaryImageCache.cache)
-        XCTAssertGreaterThan(SentryDependencyContainer.sharedInstance().binaryImageCache.cache.count, 0)
+        let cache = try XCTUnwrap(SentryDependencyContainer.sharedInstance().binaryImageCache.cache)
+        XCTAssertGreaterThan(cache.count, 0)
 
         SentrySDK.close()
 
@@ -479,6 +480,54 @@ class SentrySDKTests: XCTestCase {
         // Now logs should be sent
         XCTAssertEqual(fixture.client.captureLogsDataInvocations.count, 1)
     }
+    
+    func testLogger_RecreatedWhenSDKStartedAfterAccess() {
+        // Access logger before SDK is started
+        let loggerBeforeStart = SentrySDK.logger
+        
+        // Now properly start the SDK using internal APIs  
+        fixture.client.options.experimental.enableLogs = true
+        SentrySDKInternal.setCurrentHub(fixture.hub)
+        SentrySDKInternal.setStart(with: fixture.client.options)
+        
+        // Access logger again after SDK is started
+        let loggerAfterStart = SentrySDK.logger
+        
+        // Verify it's a different instance (recreated)
+        XCTAssertNotIdentical(loggerBeforeStart, loggerAfterStart)
+        
+        // Verify the new logger can actually capture logs
+        loggerAfterStart.info("Test log message")
+        
+        // Force flush by closing the SDK
+        SentrySDK.close()
+        
+        // Verify log was captured
+        XCTAssertEqual(fixture.client.captureLogsDataInvocations.count, 1)
+    }
+    
+    func testLogger_WhenLogsDisabled() {
+        // Start SDK with logs disabled
+        fixture.client.options.experimental.enableLogs = false
+        SentrySDKInternal.setCurrentHub(fixture.hub)
+        SentrySDKInternal.setStart(with: fixture.client.options)
+        
+        // Access logger
+        let logger = SentrySDK.logger
+        
+        // Verify that logs are not captured when disabled
+        logger.info("Test log message")
+        
+        // Wait a bit for async processing
+        let expectation = self.expectation(description: "Wait for log capture")
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            expectation.fulfill()
+        }
+        waitForExpectations(timeout: 5.0)
+        
+        // Verify no logs were captured
+        XCTAssertEqual(fixture.client.captureLogsDataInvocations.count, 0)
+    }
 }
 
 extension SentrySDKTests {
@@ -516,7 +565,7 @@ extension SentrySDKTests {
     }
     
     private func startprocessInfoWrapperForPreview() {
-        let testProcessInfoWrapper = TestSentryNSProcessInfoWrapper()
+        let testProcessInfoWrapper = MockSentryProcessInfo()
         testProcessInfoWrapper.overrides.environment = ["XCODE_RUNNING_FOR_PREVIEWS": "1"]
         SentryDependencyContainer.sharedInstance().processInfoWrapper = testProcessInfoWrapper
     }

@@ -3,7 +3,6 @@
 #import "SentryANRTrackingIntegration.h"
 #import "SentryAppStartMeasurement.h"
 #import "SentryAppStateManager.h"
-#import "SentryBinaryImageCache.h"
 #import "SentryBreadcrumb.h"
 #import "SentryClient+Private.h"
 #import "SentryCrash.h"
@@ -14,7 +13,6 @@
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"
 #import "SentryMeta.h"
-#import "SentryNSProcessInfoWrapper.h"
 #import "SentryOptions+Private.h"
 #import "SentryOptionsInternal.h"
 #import "SentryProfilingConditionals.h"
@@ -25,7 +23,6 @@
 #import "SentrySerialization.h"
 #import "SentrySwift.h"
 #import "SentryTransactionContext.h"
-#import "SentryUIApplication.h"
 #import "SentryUseNSExceptionCallstackWrapper.h"
 #import "SentryUserFeedbackIntegration.h"
 
@@ -34,7 +31,6 @@
 #endif // TARGET_OS_MAC
 
 #if SENTRY_HAS_UIKIT
-#    import "SentryUIDeviceWrapper.h"
 #    import "SentryUIViewControllerPerformanceTracker.h"
 #    if TARGET_OS_IOS
 #        import "SentryFeedbackAPI.h"

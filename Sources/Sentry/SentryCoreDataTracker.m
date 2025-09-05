@@ -4,7 +4,6 @@
 #import "SentryHub+Private.h"
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"
-#import "SentryNSProcessInfoWrapper.h"
 #import "SentryPredicateDescriptor.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
@@ -19,11 +18,11 @@
 @implementation SentryCoreDataTracker {
     SentryPredicateDescriptor *predicateDescriptor;
     SentryThreadInspector *_threadInspector;
-    SentryNSProcessInfoWrapper *_processInfoWrapper;
+    id<SentryProcessInfoSource> _processInfoWrapper;
 }
 
 - (instancetype)initWithThreadInspector:(SentryThreadInspector *)threadInspector
-                     processInfoWrapper:(SentryNSProcessInfoWrapper *)processInfoWrapper;
+                     processInfoWrapper:(id<SentryProcessInfoSource>)processInfoWrapper;
 {
     if (self = [super init]) {
         predicateDescriptor = [[SentryPredicateDescriptor alloc] init];
@@ -57,7 +56,7 @@
     NSArray *result = original(request, error);
 
     if (fetchSpan) {
-        [self addExtraInfoToSpan:fetchSpan withContext:context];
+        [self addExtraInfoToSpan:(SentrySpan *)fetchSpan withContext:context];
 
         [fetchSpan setDataValue:[NSNumber numberWithInteger:result.count] forKey:@"read_count"];
         [fetchSpan
@@ -104,7 +103,7 @@
     BOOL result = original(error);
 
     if (saveSpan) {
-        [self addExtraInfoToSpan:saveSpan withContext:context];
+        [self addExtraInfoToSpan:(SentrySpan *)saveSpan withContext:context];
         [saveSpan finishWithStatus:result ? kSentrySpanStatusOk : kSentrySpanStatusInternalError];
 
         SENTRY_LOG_DEBUG(@"SentryCoreDataTracker automatically finished span with status: %@",

@@ -11,7 +11,7 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
         let dispatchQueue = TestSentryDispatchQueueWrapper()
         let objcRuntimeWrapper = SentryTestObjCRuntimeWrapper()
         let subClassFinder: TestSubClassFinder
-        let processInfoWrapper = SentryNSProcessInfoWrapper()
+        let processInfoWrapper = MockSentryProcessInfo()
         let binaryImageCache: SentryBinaryImageCache
         var options: Options
         
@@ -130,7 +130,7 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
     
     func testViewControllerWithLoadView_TransactionBoundToScope() {
         let d = class_getImageName(type(of: self))!
-        fixture.processInfoWrapper.setProcessPath(String(cString: d))
+        fixture.processInfoWrapper.overrides.processPath = String(cString: d)
 
         fixture.sut.start()
         let controller = ViewWithLoadViewController()
@@ -204,9 +204,13 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
         
         let debugDylib = "\(imageName).debug.dylib"
         
-        var image = createCrashBinaryImage(0, name: debugDylib)
+        let image = createCrashBinaryImage(0, name: debugDylib)
         SentryDependencyContainer.sharedInstance().binaryImageCache.start(false)
-        SentryDependencyContainer.sharedInstance().binaryImageCache.binaryImageAdded(&image)
+        SentryDependencyContainer.sharedInstance().binaryImageCache.binaryImageAdded(imageName: image.name,
+                                                                                     vmAddress: image.vmAddress,
+                                                                                     address: image.address,
+                                                                                     size: image.size,
+                                                                                     uuid: image.uuid)
         
         let sut = fixture.sut
         sut.start()
@@ -322,7 +326,7 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
     }
 }
 
-class MockApplication: NSObject, SentryUIApplicationProtocol {
+class MockApplication: NSObject, SentryUIApplication {
     class MockApplicationDelegate: NSObject, UIApplicationDelegate {
         var window: UIWindow?
         

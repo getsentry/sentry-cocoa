@@ -216,6 +216,10 @@ public final class SentryLogger: NSObject {
         }
         
         if let processedLog {
+            SentrySDKLog.log(
+                message: "[SentryLogger] \(processedLog.body)",
+                andLevel: processedLog.level.toSentryLevel()
+            )
             batcher.add(processedLog)
         }
     }

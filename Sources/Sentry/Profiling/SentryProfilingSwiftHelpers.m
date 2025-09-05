@@ -146,4 +146,25 @@ sentry_addObserverForName(NSNotificationName name, dispatch_block_t block)
                 usingBlock:^(NSNotification *_Nonnull notification) { block(); }];
 }
 
+NSTimer *
+sentry_scheduledTimer(NSTimeInterval interval, BOOL repeats, dispatch_block_t block)
+{
+    return [SentryDependencyContainer.sharedInstance.timerFactory
+        scheduledTimerWithTimeInterval:interval
+                               repeats:repeats
+                                 block:^(NSTimer *_Nonnull timer) { block(); }];
+}
+
+NSTimer *
+sentry_scheduledTimerWithTarget(
+    NSTimeInterval interval, id target, SEL selector, _Nullable id userInfo, BOOL repeats)
+{
+    return [SentryDependencyContainer.sharedInstance.timerFactory
+        scheduledTimerWithTimeInterval:interval
+                                target:target
+                              selector:selector
+                              userInfo:userInfo
+                               repeats:repeats];
+}
+
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED

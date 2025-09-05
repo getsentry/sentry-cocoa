@@ -5,12 +5,8 @@
 #endif
 
 @class SentryCrashWrapper;
-@class SentryNSProcessInfoWrapper;
-@class SentryUIDeviceWrapper;
-
-#if TARGET_OS_IOS && SENTRY_HAS_UIKIT
-@class SentryUIDeviceWrapper;
-#endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
+@protocol SentryUIDeviceWrapper;
+@protocol SentryProcessInfoSource;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -21,9 +17,9 @@ NS_ASSUME_NONNULL_BEGIN
 SENTRY_NO_INIT
 
 - (instancetype)initWithCrashWrapper:(SentryCrashWrapper *)crashWrapper
-                  processInfoWrapper:(SentryNSProcessInfoWrapper *)processInfoWrapper
+                  processInfoWrapper:(id<SentryProcessInfoSource>)processInfoWrapper
 #if TARGET_OS_IOS && SENTRY_HAS_UIKIT
-                       deviceWrapper:(SentryUIDeviceWrapper *)deviceWrapper
+                       deviceWrapper:(id<SentryUIDeviceWrapper>)deviceWrapper
 #endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
     ;
 

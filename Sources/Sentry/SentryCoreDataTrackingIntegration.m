@@ -4,7 +4,6 @@
 #import "SentryDependencyContainer.h"
 #import "SentryLogC.h"
 #import "SentryNSDataSwizzling.h"
-#import "SentryNSProcessInfoWrapper.h"
 #import "SentryOptions.h"
 #import "SentryThreadInspector.h"
 

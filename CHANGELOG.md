@@ -9,6 +9,26 @@
 ### Fixes
 
 - Don't capture replays for events dropped in `beforeSend` (#5916)
+- Fix linking with SentrySwiftUI on Xcode 26 for visionOS (#5823)
+- Structured Logging: Logger called before `SentrySDK.start` becomes unusable (#5984)
+- Add masking for AVPlayerView (#5910)
+- Fix missing view hierachy when enabling `attachScreenshot` too (#5989)
+- Fix macOS's frameworks not following the versioned framework structure (#6049)
+
+### Improvements
+
+- Lazily CharacterSet only once in SentryBaggageSerialization (#5871)
+- Structured Logging: Log `SentrySDK.logger` calls to `SentrySDKLog` (#5991)
+- The build type in the app context now differentiates between `enterprise` and `adhoc` (#6044)
+- Ensure IP address is only inferred by Relay if sendDefaultPii is true (#5877)
+
+## 8.55.1
+
+### Features
+
+### Fixes
+
+- Fix macOS's frameworks not following the versioned framework structure (#6049)
 
 ## 8.54.1-alpha.1
 
@@ -49,6 +69,7 @@
 - Fix memory leak in SessionReplayIntegration (#5770)
 - Fix reporting of energy used while profiling (#5768)
 - Fixed a build error in `SentryFeedback.swift` when building with cocoapods on Xcode 14.2 (#5917)
+- Fix linking against Sentry on an app extension (#5813)
 
 ### Internal
 

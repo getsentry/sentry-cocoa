@@ -1,10 +1,10 @@
 #import "SentryUseNSExceptionCallstackWrapper.h"
 #import "SentryCrashStackEntryMapper.h"
 #import "SentryCrashSymbolicator.h"
-#import "SentryInAppLogic.h"
 #import "SentryOptions+Private.h"
 #import "SentrySDK+Private.h"
 #import "SentryStacktraceBuilder.h"
+#import "SentrySwift.h"
 #import "SentryThread.h"
 
 #if TARGET_OS_OSX

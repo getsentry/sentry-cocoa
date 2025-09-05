@@ -28,7 +28,11 @@ import Foundation
     /// API to access Sentry logs
     @objc public static var logger: SentryLogger {
         return _loggerLock.synchronized {
-            if let _logger {
+            let sdkEnabled = SentrySDKInternal.isEnabled
+            if !sdkEnabled {
+                SentrySDKLog.fatal("Logs called before SentrySDK.start() will be dropped.")
+            }
+            if let _logger, _loggerConfigured {
                 return _logger
             }
             let hub = SentryDependencyContainerSwiftHelper.currentHub()
@@ -36,8 +40,13 @@ import Foundation
             if let client = hub.getClient(), client.options.experimental.enableLogs {
                 batcher = SentryLogBatcher(client: client, dispatchQueue: Dependencies.dispatchQueueWrapper)
             }
-            let logger = SentryLogger(hub: hub, dateProvider: Dependencies.dateProvider, batcher: batcher)
+            let logger = SentryLogger(
+                hub: hub,
+                dateProvider: Dependencies.dateProvider,
+                batcher: batcher
+            )
             _logger = logger
+            _loggerConfigured = sdkEnabled
             return logger
         }
     }
@@ -422,6 +431,7 @@ import Foundation
     @objc @_spi(Private) public static func clearLogger() {
         _loggerLock.synchronized {
             _logger = nil
+            _loggerConfigured = false
         }
     }
 
@@ -429,6 +439,8 @@ import Foundation
     
     private static var _loggerLock = NSLock()
     private static var _logger: SentryLogger?
+    // Flag to re-create instance if accessed before SDK init.
+    private static var _loggerConfigured = false
 
     @discardableResult
     private static func captureLogs() -> TimeInterval {

@@ -16,9 +16,13 @@ final class SentryUIRedactBuilder {
 
     ///This is a list of UIView subclasses that will be ignored during redact process
     private var ignoreClassesIdentifiers: Set<ObjectIdentifier>
-    ///This is a list of UIView subclasses that need to be redacted from screenshot
-    private var redactClassesIdentifiers: Set<ObjectIdentifier>
-        
+
+    /// This is a list of UIView subclasses that need to be redacted from screenshot
+    ///
+    /// This set is configured as `private(set)` to allow modification only from within this class,
+    /// while still allowing read access from tests.
+    private(set) var redactClassesIdentifiers: Set<ObjectIdentifier>
+
     /**
      Initializes a new instance of the redaction process with the specified options.
 
@@ -66,7 +70,10 @@ final class SentryUIRedactBuilder {
             // Used by:
             // - https://developer.apple.com/documentation/SafariServices/SFSafariViewController
             // - https://developer.apple.com/documentation/AuthenticationServices/ASWebAuthenticationSession
-            "SFSafariView"
+            "SFSafariView",
+            // Used by:
+            // - https://developer.apple.com/documentation/avkit/avplayerviewcontroller
+            "AVPlayerView"
         ].compactMap(NSClassFromString(_:))
 
         ignoreClassesIdentifiers = [ ObjectIdentifier(UISlider.self), ObjectIdentifier(UISwitch.self) ]
@@ -86,7 +93,7 @@ final class SentryUIRedactBuilder {
     }
     
     func containsIgnoreClass(_ ignoreClass: AnyClass) -> Bool {
-        return  ignoreClassesIdentifiers.contains(ObjectIdentifier(ignoreClass))
+        return ignoreClassesIdentifiers.contains(ObjectIdentifier(ignoreClass))
     }
     
     func containsRedactClass(_ redactClass: AnyClass) -> Bool {

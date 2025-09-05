@@ -13,10 +13,10 @@
 @class SentryDispatchQueueWrapper;
 @class SentryExtraContextProvider;
 @class SentryFileManager;
-@class SentryNSProcessInfoWrapper;
 @class SentryNSTimerFactory;
 @class SentrySwizzleWrapper;
 @class SentrySysctl;
+@class SentryThreadsafeApplication;
 @class SentrySystemWrapper;
 @class SentryThreadWrapper;
 @class SentryThreadInspector;
@@ -27,10 +27,11 @@
 @class SentryGlobalEventProcessor;
 
 @protocol SentryANRTracker;
-@protocol SentryRandom;
+@protocol SentryRandomProtocol;
 @protocol SentryCurrentDateProvider;
 @protocol SentryRateLimits;
 @protocol SentryApplication;
+@protocol SentryProcessInfoSource;
 @protocol SentryDispatchQueueProviderProtocol;
 @protocol SentryNSNotificationCenterWrapper;
 @protocol SentryObjCRuntimeWrapper;
@@ -42,7 +43,6 @@
 #if SENTRY_UIKIT_AVAILABLE
 @class SentryFramesTracker;
 @class SentryScreenshot;
-@class SentryUIApplication;
 @class SentryViewHierarchyProvider;
 @class SentryUIViewControllerPerformanceTracker;
 @class SentryWatchdogTerminationScopeObserver;
@@ -51,7 +51,7 @@
 #endif // SENTRY_UIKIT_AVAILABLE
 
 #if SENTRY_HAS_UIKIT
-@class SentryUIDeviceWrapper;
+@protocol SentryUIDeviceWrapper;
 #endif // TARGET_OS_IOS
 
 #if !TARGET_OS_WATCH
@@ -83,24 +83,25 @@ SENTRY_NO_INIT
 #pragma mark - Init Dependencies
 
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueueWrapper;
-@property (nonatomic, strong) id<SentryRandom> random;
+@property (nonatomic, strong) id<SentryRandomProtocol> random;
 @property (nonatomic, strong) SentryThreadWrapper *threadWrapper;
 @property (nonatomic, strong) SentryBinaryImageCache *binaryImageCache;
 @property (nonatomic, strong) id<SentryCurrentDateProvider> dateProvider;
 @property (nonatomic, strong) SentryExtraContextProvider *extraContextProvider;
 @property (nonatomic, strong) id<SentryNSNotificationCenterWrapper> notificationCenterWrapper;
 @property (nonatomic, strong) SentryCrashWrapper *crashWrapper;
-@property (nonatomic, strong) SentryNSProcessInfoWrapper *processInfoWrapper;
+@property (nonatomic, strong) id<SentryProcessInfoSource> processInfoWrapper;
 @property (nonatomic, strong) SentrySysctl *sysctlWrapper;
 @property (nonatomic, strong) id<SentryRateLimits> rateLimits;
 @property (nonatomic, strong) id<SentryApplication> application;
+@property (nonatomic, strong) SentryThreadsafeApplication *threadsafeApplication;
 
 #if SENTRY_HAS_REACHABILITY
 @property (nonatomic, strong) SentryReachability *reachability;
 #endif // !TARGET_OS_WATCH
 
 #if SENTRY_HAS_UIKIT
-@property (nonatomic, strong) SentryUIDeviceWrapper *uiDeviceWrapper;
+@property (nonatomic, strong) id<SentryUIDeviceWrapper> uiDeviceWrapper;
 #endif // TARGET_OS_IOS
 
 #pragma mark - Lazy Dependencies

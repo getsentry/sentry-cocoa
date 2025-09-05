@@ -111,7 +111,7 @@ jobs:
             platform: "iOS"
             xcode: "14.3.1"
             test-destination-os: "16.4"
-            device: "iPhone 14"
+            device: "iPhone 14 Pro"
             scheme: "Sentry"
 
           # iOS 17
@@ -119,8 +119,8 @@ jobs:
             runs-on: macos-14
             platform: "iOS"
             xcode: "15.4"
-            test-destination-os: "17.2"
-            device: "iPhone 15"
+            test-destination-os: "17.5"
+            device: "iPhone 15 Pro"
             scheme: "Sentry"
 
           # iOS 18
@@ -128,8 +128,8 @@ jobs:
             runs-on: macos-15
             platform: "iOS"
             xcode: "16.4"
-            test-destination-os: "18.5"
-            device: "iPhone 16"
+            test-destination-os: "18.4"
+            device: "iPhone 16 Pro"
             scheme: "Sentry"
 
           # We don't run the unit tests on macOS 13 cause we run them on all on GH actions available iOS versions.
@@ -186,8 +186,8 @@ jobs:
             runs-on: macos-14
             platform: "iOS"
             xcode: "15.4"
-            test-destination-os: "17.2"
-            device: "iPhone 15"
+            test-destination-os: "17.5"
+            device: "iPhone 15 Pro"
             scheme: "SentrySwiftUI"
 
           # tvOS 18
@@ -195,7 +195,7 @@ jobs:
             runs-on: macos-15
             platform: "tvOS"
             xcode: "16.4"
-            test-destination-os: "18.5"
+            test-destination-os: "18.4"
             scheme: "Sentry"
 
     steps:
@@ -285,7 +285,7 @@ jobs:
       # We don't upload codecov for scheduled runs as CodeCov only accepts a limited amount of uploads per commit.
       - name: Push code coverage to codecov
         id: codecov_1
-        uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24 # pin@v5.4.3
+        uses: codecov/codecov-action@fdcc8476540edceab3de004e990f80d881c6cc00 # pin@v5.5.0
         if: ${{ contains(matrix.platform, 'iOS') && !contains(github.ref, 'release') && github.event.schedule == '' }}
         with:
           # Although public repos should not have to specify a token there seems to be a bug with the Codecov GH action, which can
@@ -297,7 +297,7 @@ jobs:
       # Sometimes codecov uploads etc can fail. Retry one time to rule out e.g. intermittent network failures.
       - name: Push code coverage to codecov
         id: codecov_2
-        uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24 # pin@v5.4.3
+        uses: codecov/codecov-action@fdcc8476540edceab3de004e990f80d881c6cc00 # pin@v5.5.0
         if: ${{ steps.codecov_1.outcome == 'failure' && contains(matrix.platform, 'iOS') && !contains(github.ref, 'release') && github.event.schedule == '' }}
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
