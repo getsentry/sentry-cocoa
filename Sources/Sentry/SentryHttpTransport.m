@@ -1,5 +1,4 @@
 #import "SentryHttpTransport.h"
-#import "SentryClientReport.h"
 #import "SentryDataCategory.h"
 #import "SentryDataCategoryMapper.h"
 #import "SentryDependencyContainer.h"

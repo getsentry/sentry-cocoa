@@ -63,7 +63,6 @@
 #import "SentryClassRegistrator.h"
 #import "SentryClient+Private.h"
 #import "SentryClient+TestInit.h"
-#import "SentryClientReport.h"
 #import "SentryConcurrentRateLimitsDictionary.h"
 #import "SentryCoreDataSwizzling.h"
 #import "SentryCoreDataTracker+Test.h"
