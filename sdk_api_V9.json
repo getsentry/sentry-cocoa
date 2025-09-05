@@ -40441,6 +40441,13 @@
       },
       {
         "kind": "Import",
+        "name": "Network",
+        "printedName": "Network",
+        "declKind": "Import",
+        "moduleName": "Sentry"
+      },
+      {
+        "kind": "Import",
         "name": "ObjectiveC",
         "printedName": "ObjectiveC",
         "declKind": "Import",
@@ -40462,13 +40469,6 @@
         "declAttributes": [
           "Exported"
         ]
-      },
-      {
-        "kind": "Import",
-        "name": "SystemConfiguration",
-        "printedName": "SystemConfiguration",
-        "declKind": "Import",
-        "moduleName": "Sentry"
       },
       {
         "kind": "Import",
@@ -40511,6 +40511,286 @@
         "printedName": "ObjectiveC.runtime",
         "declKind": "Import",
         "moduleName": "Sentry"
+      },
+      {
+        "kind": "TypeDecl",
+        "name": "SentryConnectivity",
+        "printedName": "SentryConnectivity",
+        "children": [
+          {
+            "kind": "Var",
+            "name": "cellular",
+            "printedName": "cellular",
+            "children": [
+              {
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(Sentry.SentryConnectivity.Type) -> Sentry.SentryConnectivity",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SentryConnectivity",
+                    "printedName": "Sentry.SentryConnectivity",
+                    "usr": "c:@M@Sentry@E@SentryConnectivity"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Metatype",
+                    "printedName": "Sentry.SentryConnectivity.Type",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SentryConnectivity",
+                        "printedName": "Sentry.SentryConnectivity",
+                        "usr": "c:@M@Sentry@E@SentryConnectivity"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "declKind": "EnumElement",
+            "usr": "c:@M@Sentry@E@SentryConnectivity@SentryConnectivityCellular",
+            "mangledName": "$s6Sentry0A12ConnectivityO8cellularyA2CmF",
+            "moduleName": "Sentry",
+            "declAttributes": [
+              "ObjC"
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "wiFi",
+            "printedName": "wiFi",
+            "children": [
+              {
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(Sentry.SentryConnectivity.Type) -> Sentry.SentryConnectivity",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SentryConnectivity",
+                    "printedName": "Sentry.SentryConnectivity",
+                    "usr": "c:@M@Sentry@E@SentryConnectivity"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Metatype",
+                    "printedName": "Sentry.SentryConnectivity.Type",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SentryConnectivity",
+                        "printedName": "Sentry.SentryConnectivity",
+                        "usr": "c:@M@Sentry@E@SentryConnectivity"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "declKind": "EnumElement",
+            "usr": "c:@M@Sentry@E@SentryConnectivity@SentryConnectivityWiFi",
+            "mangledName": "$s6Sentry0A12ConnectivityO4wiFiyA2CmF",
+            "moduleName": "Sentry",
+            "declAttributes": [
+              "ObjC"
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "none",
+            "printedName": "none",
+            "children": [
+              {
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(Sentry.SentryConnectivity.Type) -> Sentry.SentryConnectivity",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SentryConnectivity",
+                    "printedName": "Sentry.SentryConnectivity",
+                    "usr": "c:@M@Sentry@E@SentryConnectivity"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Metatype",
+                    "printedName": "Sentry.SentryConnectivity.Type",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SentryConnectivity",
+                        "printedName": "Sentry.SentryConnectivity",
+                        "usr": "c:@M@Sentry@E@SentryConnectivity"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "declKind": "EnumElement",
+            "usr": "c:@M@Sentry@E@SentryConnectivity@SentryConnectivityNone",
+            "mangledName": "$s6Sentry0A12ConnectivityO4noneyA2CmF",
+            "moduleName": "Sentry",
+            "declAttributes": [
+              "ObjC"
+            ]
+          },
+          {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init(rawValue:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Sentry.SentryConnectivity?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SentryConnectivity",
+                    "printedName": "Sentry.SentryConnectivity",
+                    "usr": "c:@M@Sentry@E@SentryConnectivity"
+                  }
+                ],
+                "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Int",
+                "printedName": "Swift.Int",
+                "usr": "s:Si"
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "s:6Sentry0A12ConnectivityO8rawValueACSgSi_tcfc",
+            "mangledName": "$s6Sentry0A12ConnectivityO8rawValueACSgSi_tcfc",
+            "moduleName": "Sentry",
+            "init_kind": "Designated"
+          },
+          {
+            "kind": "TypeAlias",
+            "name": "RawValue",
+            "printedName": "RawValue",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Int",
+                "printedName": "Swift.Int",
+                "usr": "s:Si"
+              }
+            ],
+            "declKind": "TypeAlias",
+            "usr": "s:6Sentry0A12ConnectivityO8RawValuea",
+            "mangledName": "$s6Sentry0A12ConnectivityO8RawValuea",
+            "moduleName": "Sentry"
+          },
+          {
+            "kind": "Var",
+            "name": "rawValue",
+            "printedName": "rawValue",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Int",
+                "printedName": "Swift.Int",
+                "usr": "s:Si"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:6Sentry0A12ConnectivityO8rawValueSivp",
+            "mangledName": "$s6Sentry0A12ConnectivityO8rawValueSivp",
+            "moduleName": "Sentry",
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Int",
+                    "printedName": "Swift.Int",
+                    "usr": "s:Si"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:6Sentry0A12ConnectivityO8rawValueSivg",
+                "mangledName": "$s6Sentry0A12ConnectivityO8rawValueSivg",
+                "moduleName": "Sentry",
+                "accessorKind": "get"
+              }
+            ]
+          }
+        ],
+        "declKind": "Enum",
+        "usr": "c:@M@Sentry@E@SentryConnectivity",
+        "mangledName": "$s6Sentry0A12ConnectivityO",
+        "moduleName": "Sentry",
+        "declAttributes": [
+          "ObjC"
+        ],
+        "enumRawTypeName": "Int",
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Equatable",
+            "printedName": "Equatable",
+            "usr": "s:SQ",
+            "mangledName": "$sSQ"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Hashable",
+            "printedName": "Hashable",
+            "usr": "s:SH",
+            "mangledName": "$sSH"
+          },
+          {
+            "kind": "Conformance",
+            "name": "RawRepresentable",
+            "printedName": "RawRepresentable",
+            "children": [
+              {
+                "kind": "TypeWitness",
+                "name": "RawValue",
+                "printedName": "RawValue",
+                "children": [
+                  {
+                    "kind": "TypeNameAlias",
+                    "name": "RawValue",
+                    "printedName": "Sentry.SentryConnectivity.RawValue",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Int",
+                        "printedName": "Swift.Int",
+                        "usr": "s:Si"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "usr": "s:SY",
+            "mangledName": "$sSY"
+          }
+        ]
       },
       {
         "kind": "TypeDecl",
@@ -41921,286 +42201,6 @@
             "printedName": "CustomDebugStringConvertible",
             "usr": "s:s28CustomDebugStringConvertibleP",
             "mangledName": "$ss28CustomDebugStringConvertibleP"
-          }
-        ]
-      },
-      {
-        "kind": "TypeDecl",
-        "name": "SentryConnectivity",
-        "printedName": "SentryConnectivity",
-        "children": [
-          {
-            "kind": "Var",
-            "name": "cellular",
-            "printedName": "cellular",
-            "children": [
-              {
-                "kind": "TypeFunc",
-                "name": "Function",
-                "printedName": "(Sentry.SentryConnectivity.Type) -> Sentry.SentryConnectivity",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "SentryConnectivity",
-                    "printedName": "Sentry.SentryConnectivity",
-                    "usr": "c:@M@Sentry@E@SentryConnectivity"
-                  },
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Metatype",
-                    "printedName": "Sentry.SentryConnectivity.Type",
-                    "children": [
-                      {
-                        "kind": "TypeNominal",
-                        "name": "SentryConnectivity",
-                        "printedName": "Sentry.SentryConnectivity",
-                        "usr": "c:@M@Sentry@E@SentryConnectivity"
-                      }
-                    ]
-                  }
-                ]
-              }
-            ],
-            "declKind": "EnumElement",
-            "usr": "c:@M@Sentry@E@SentryConnectivity@SentryConnectivityCellular",
-            "mangledName": "$s6Sentry0A12ConnectivityO8cellularyA2CmF",
-            "moduleName": "Sentry",
-            "declAttributes": [
-              "ObjC"
-            ]
-          },
-          {
-            "kind": "Var",
-            "name": "wiFi",
-            "printedName": "wiFi",
-            "children": [
-              {
-                "kind": "TypeFunc",
-                "name": "Function",
-                "printedName": "(Sentry.SentryConnectivity.Type) -> Sentry.SentryConnectivity",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "SentryConnectivity",
-                    "printedName": "Sentry.SentryConnectivity",
-                    "usr": "c:@M@Sentry@E@SentryConnectivity"
-                  },
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Metatype",
-                    "printedName": "Sentry.SentryConnectivity.Type",
-                    "children": [
-                      {
-                        "kind": "TypeNominal",
-                        "name": "SentryConnectivity",
-                        "printedName": "Sentry.SentryConnectivity",
-                        "usr": "c:@M@Sentry@E@SentryConnectivity"
-                      }
-                    ]
-                  }
-                ]
-              }
-            ],
-            "declKind": "EnumElement",
-            "usr": "c:@M@Sentry@E@SentryConnectivity@SentryConnectivityWiFi",
-            "mangledName": "$s6Sentry0A12ConnectivityO4wiFiyA2CmF",
-            "moduleName": "Sentry",
-            "declAttributes": [
-              "ObjC"
-            ]
-          },
-          {
-            "kind": "Var",
-            "name": "none",
-            "printedName": "none",
-            "children": [
-              {
-                "kind": "TypeFunc",
-                "name": "Function",
-                "printedName": "(Sentry.SentryConnectivity.Type) -> Sentry.SentryConnectivity",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "SentryConnectivity",
-                    "printedName": "Sentry.SentryConnectivity",
-                    "usr": "c:@M@Sentry@E@SentryConnectivity"
-                  },
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Metatype",
-                    "printedName": "Sentry.SentryConnectivity.Type",
-                    "children": [
-                      {
-                        "kind": "TypeNominal",
-                        "name": "SentryConnectivity",
-                        "printedName": "Sentry.SentryConnectivity",
-                        "usr": "c:@M@Sentry@E@SentryConnectivity"
-                      }
-                    ]
-                  }
-                ]
-              }
-            ],
-            "declKind": "EnumElement",
-            "usr": "c:@M@Sentry@E@SentryConnectivity@SentryConnectivityNone",
-            "mangledName": "$s6Sentry0A12ConnectivityO4noneyA2CmF",
-            "moduleName": "Sentry",
-            "declAttributes": [
-              "ObjC"
-            ]
-          },
-          {
-            "kind": "Constructor",
-            "name": "init",
-            "printedName": "init(rawValue:)",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Optional",
-                "printedName": "Sentry.SentryConnectivity?",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "SentryConnectivity",
-                    "printedName": "Sentry.SentryConnectivity",
-                    "usr": "c:@M@Sentry@E@SentryConnectivity"
-                  }
-                ],
-                "usr": "s:Sq"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "Int",
-                "printedName": "Swift.Int",
-                "usr": "s:Si"
-              }
-            ],
-            "declKind": "Constructor",
-            "usr": "s:6Sentry0A12ConnectivityO8rawValueACSgSi_tcfc",
-            "mangledName": "$s6Sentry0A12ConnectivityO8rawValueACSgSi_tcfc",
-            "moduleName": "Sentry",
-            "init_kind": "Designated"
-          },
-          {
-            "kind": "TypeAlias",
-            "name": "RawValue",
-            "printedName": "RawValue",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Int",
-                "printedName": "Swift.Int",
-                "usr": "s:Si"
-              }
-            ],
-            "declKind": "TypeAlias",
-            "usr": "s:6Sentry0A12ConnectivityO8RawValuea",
-            "mangledName": "$s6Sentry0A12ConnectivityO8RawValuea",
-            "moduleName": "Sentry"
-          },
-          {
-            "kind": "Var",
-            "name": "rawValue",
-            "printedName": "rawValue",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Int",
-                "printedName": "Swift.Int",
-                "usr": "s:Si"
-              }
-            ],
-            "declKind": "Var",
-            "usr": "s:6Sentry0A12ConnectivityO8rawValueSivp",
-            "mangledName": "$s6Sentry0A12ConnectivityO8rawValueSivp",
-            "moduleName": "Sentry",
-            "accessors": [
-              {
-                "kind": "Accessor",
-                "name": "Get",
-                "printedName": "Get()",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Int",
-                    "printedName": "Swift.Int",
-                    "usr": "s:Si"
-                  }
-                ],
-                "declKind": "Accessor",
-                "usr": "s:6Sentry0A12ConnectivityO8rawValueSivg",
-                "mangledName": "$s6Sentry0A12ConnectivityO8rawValueSivg",
-                "moduleName": "Sentry",
-                "accessorKind": "get"
-              }
-            ]
-          }
-        ],
-        "declKind": "Enum",
-        "usr": "c:@M@Sentry@E@SentryConnectivity",
-        "mangledName": "$s6Sentry0A12ConnectivityO",
-        "moduleName": "Sentry",
-        "declAttributes": [
-          "ObjC"
-        ],
-        "enumRawTypeName": "Int",
-        "conformances": [
-          {
-            "kind": "Conformance",
-            "name": "Copyable",
-            "printedName": "Copyable",
-            "usr": "s:s8CopyableP",
-            "mangledName": "$ss8CopyableP"
-          },
-          {
-            "kind": "Conformance",
-            "name": "Escapable",
-            "printedName": "Escapable",
-            "usr": "s:s9EscapableP",
-            "mangledName": "$ss9EscapableP"
-          },
-          {
-            "kind": "Conformance",
-            "name": "Equatable",
-            "printedName": "Equatable",
-            "usr": "s:SQ",
-            "mangledName": "$sSQ"
-          },
-          {
-            "kind": "Conformance",
-            "name": "Hashable",
-            "printedName": "Hashable",
-            "usr": "s:SH",
-            "mangledName": "$sSH"
-          },
-          {
-            "kind": "Conformance",
-            "name": "RawRepresentable",
-            "printedName": "RawRepresentable",
-            "children": [
-              {
-                "kind": "TypeWitness",
-                "name": "RawValue",
-                "printedName": "RawValue",
-                "children": [
-                  {
-                    "kind": "TypeNameAlias",
-                    "name": "RawValue",
-                    "printedName": "Sentry.SentryConnectivity.RawValue",
-                    "children": [
-                      {
-                        "kind": "TypeNominal",
-                        "name": "Int",
-                        "printedName": "Swift.Int",
-                        "usr": "s:Si"
-                      }
-                    ]
-                  }
-                ]
-              }
-            ],
-            "usr": "s:SY",
-            "mangledName": "$sSY"
           }
         ]
       },
