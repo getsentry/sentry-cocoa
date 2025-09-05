@@ -28,6 +28,8 @@
 	<false/>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>Testing camera permissions</string>
 	<key>NSFaceIDUsageDescription</key>
 	<string>$(PRODUCT_NAME) Authentication with TouchId or FaceID for testing purposes of the Sentry Cocoa SDK.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
