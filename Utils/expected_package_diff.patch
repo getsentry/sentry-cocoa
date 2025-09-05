@@ -32,10 +32,7 @@
 < if let env = env, String(cString: env, encoding: .utf8) == "1" {
 ---
 > if let env = env, String(cString: env) == "1" {
-84c94,95
-<             exclude: ["Sentry/SentryDummyPublicEmptyClass.m", "Sentry/SentryDummyPrivateEmptyClass.m", "Swift", "SentrySwiftUI", "Resources", "Configuration"],
----
->             exclude: ["Sentry/SentryDummyPublicEmptyClass.m", "Sentry/SentryDummyPrivateEmptyClass.m", "Swift", "SentrySwiftUI", "Resources", "Configuration", "SentryVisionHelper"],
+84a95
 >             publicHeadersPath: "",
 100c111
 <     platforms: [.iOS(.v11), .macOS(.v10_13), .tvOS(.v11), .watchOS(.v4)],
