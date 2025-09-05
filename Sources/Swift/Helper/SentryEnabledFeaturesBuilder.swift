@@ -15,9 +15,11 @@ import Foundation
             features.append("captureFailedRequests")
         }
         
+        #if !SDK_V9
         if options.enablePerformanceV2 {
             features.append("performanceV2")
         }
+        #endif // !SDK_V9
         
         if options.enableTimeToFullDisplayTracing {
             features.append("timeToFullDisplayTracing")
