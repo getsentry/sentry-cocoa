@@ -8,7 +8,8 @@ final class SentryCrashWrapperTests: XCTestCase {
     
     override func setUp() {
         super.setUp()
-        crashWrapper = SentryCrashWrapper(systemInfo: [
+        crashWrapper = SentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo,
+            systemInfo: [
             "osVersion": "23A344",
             "kernelVersion": "23.0.0",
             "isJailbroken": false,

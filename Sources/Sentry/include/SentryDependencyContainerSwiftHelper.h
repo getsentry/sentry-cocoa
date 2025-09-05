@@ -29,7 +29,6 @@ NS_ASSUME_NONNULL_BEGIN
 + (id<SentryObjCRuntimeWrapper>)objcRuntimeWrapper;
 + (SentryHub *)currentHub;
 + (SentryCrash *)crashReporter;
-+ (SentryNSProcessInfoWrapper *)processInfoWrapper;
 
 @end
 

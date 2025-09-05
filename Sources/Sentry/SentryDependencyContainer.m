@@ -150,6 +150,9 @@ static BOOL isInitialializingDependencyContainer = NO;
         _dateProvider = SentryDependencies.dateProvider;
 
         _notificationCenterWrapper = NSNotificationCenter.defaultCenter;
+
+        _processInfoWrapper = NSProcessInfo.processInfo;
+        _crashWrapper = [[SentryCrashWrapper alloc] initWithProcessInfoWrapper:_processInfoWrapper];
 #if SENTRY_HAS_UIKIT
         _uiDeviceWrapper = SentryDependencies.uiDeviceWrapper;
         _application = UIApplication.sharedApplication;
@@ -160,16 +163,13 @@ static BOOL isInitialializingDependencyContainer = NO;
         _application = NSApplication.sharedApplication;
 #endif // SENTRY_HAS_UIKIT
 
-        _processInfoWrapper = NSProcessInfo.processInfo;
-        _extraContextProvider = [[SentryExtraContextProvider alloc]
-            initWithCrashWrapper:[SentryCrashWrapper sharedInstance]
-              processInfoWrapper:_processInfoWrapper
+        _extraContextProvider =
+            [[SentryExtraContextProvider alloc] initWithCrashWrapper:_crashWrapper
+                                                  processInfoWrapper:_processInfoWrapper
 #if TARGET_OS_IOS && SENTRY_HAS_UIKIT
-                   deviceWrapper:_uiDeviceWrapper
+                                                       deviceWrapper:_uiDeviceWrapper
 #endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
         ];
-
-        _crashWrapper = [[SentryCrashWrapper alloc] init];
 
         _sysctlWrapper = [[SentrySysctl alloc] init];
 

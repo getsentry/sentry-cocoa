@@ -12,11 +12,11 @@ import UIKit
 #if DEBUG || SENTRY_TEST || SENTRY_TEST_CI
 @objc @_spi(Private)
 public class SentryCrashWrapper: NSObject {
-    @objc(sharedInstance)
-    public static let shared: SentryCrashWrapper = SentryCrashWrapper()
+    let processInfoWrapper: SentryProcessInfoSource
     
     @objc
-    public override init() {
+    public init(processInfoWrapper: SentryProcessInfoSource) {
+        self.processInfoWrapper = processInfoWrapper
         super.init()
         sentrycrashcm_system_getAPI()?.pointee.setEnabled(true)
     }
@@ -24,7 +24,8 @@ public class SentryCrashWrapper: NSObject {
 #if SENTRY_TEST || SENTRY_TEST_CI
     // This var and initializer are used to inject system info during tests
     var testSystemInfo: [String: Any]?
-    public init(systemInfo: [String: Any]) {
+    public init(processInfoWrapper: SentryProcessInfoSource, systemInfo: [String: Any]) {
+        self.processInfoWrapper = processInfoWrapper
         testSystemInfo = systemInfo
     }
 #endif // SENTRY_TEST && SENTRY_TEST_CI
@@ -32,10 +33,11 @@ public class SentryCrashWrapper: NSObject {
 #else
 @objc @_spi(Private)
 public final class SentryCrashWrapper: NSObject {
-    @objc(sharedInstance)
-    public static let shared: SentryCrashWrapper = SentryCrashWrapper()
+    let processInfoWrapper: SentryProcessInfoSource
     
-    public override init() {
+    @objc
+    public init(processInfoWrapper: SentryProcessInfoSource) {
+        self.processInfoWrapper = processInfoWrapper
         super.init()
         // Always enable crash monitoring on release builds
         sentrycrashcm_system_getAPI()?.pointee.setEnabled(true)
@@ -198,14 +200,14 @@ public final class SentryCrashWrapper: NSObject {
         // field of the runtime context as a pragmatic and semantically acceptable solution.
         // isiOSAppOnMac and isMacCatalystApp are mutually exclusive, so we only set one of them.
         if #available(iOS 14.0, macOS 11.0, watchOS 7.0, tvOS 14.0, *) {
-            if SentryDependencyContainerSwiftHelper.processInfoWrapper().isiOSAppOnMac {
+            if self.processInfoWrapper.isiOSAppOnMac {
                 runtimeContext["name"] = "iOS App on Mac"
                 runtimeContext["raw_description"] = "ios-app-on-mac"
             }
         }
         
         if #available(iOS 13.0, macOS 10.15, watchOS 6.0, tvOS 13.0, *) {
-            if SentryDependencyContainerSwiftHelper.processInfoWrapper().isMacCatalystApp {
+            if self.processInfoWrapper.isMacCatalystApp {
                 runtimeContext["name"] = "Mac Catalyst App"
                 runtimeContext["raw_description"] = "raw_description"
             }

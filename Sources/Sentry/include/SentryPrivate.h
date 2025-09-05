@@ -34,7 +34,6 @@
 #import "SentryLevelHelper.h"
 #import "SentryMeta.h"
 #import "SentryNSDictionarySanitize.h"
-#import "SentryNSProcessInfoWrapper.h"
 #import "SentryOptions+Private.h"
 #import "SentryProfiler+Private.h"
 #import "SentrySDKInternal.h"

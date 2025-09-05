@@ -14,7 +14,7 @@ final class SentryANRTrackerV1IntegrationTests: XCTestCase {
 
         let anrTracker: SentryANRTracker = SentryANRTrackerV1(
             timeoutInterval: 0.01,
-            crashWrapper: TestSentryCrashWrapper(),
+            crashWrapper: TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo),
             dispatchQueueWrapper: SentryDispatchQueueWrapper(),
             threadWrapper: SentryThreadWrapper()) as! SentryANRTracker
 

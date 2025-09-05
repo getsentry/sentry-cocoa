@@ -112,7 +112,7 @@ delayAddBinaryImage(void)
 
 - (void)testStartCache
 {
-    [[SentryCrashWrapper sharedInstance] startBinaryImageCache];
+    [SentryDependencyContainer.sharedInstance.crashWrapper startBinaryImageCache];
     [self assertBinaryImageCacheLength:5];
 }
 

@@ -37,7 +37,7 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
             processInfoWrapper = MockSentryProcessInfo()
             container.processInfoWrapper = processInfoWrapper
 
-            crashWrapper = TestSentryCrashWrapper()
+            crashWrapper = TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo)
             container.crashWrapper = crashWrapper
 
             fileManager = try SentryFileManager(options: options)

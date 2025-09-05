@@ -13,7 +13,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         
         init(traced: Bool = true) {
             self.traced = traced
-            super.init(systemInfo: [:]) // Call the test designated initializer
+            super.init(processInfoWrapper: ProcessInfo.processInfo, systemInfo: [:]) // Call the test designated initializer
         }
         
         override public var isBeingTraced: Bool {

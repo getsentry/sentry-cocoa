@@ -34,9 +34,4 @@
     return SentryDependencyContainer.sharedInstance.crashReporter;
 }
 
-+ (SentryNSProcessInfoWrapper *)processInfoWrapper
-{
-    return SentryDependencyContainer.sharedInstance.processInfoWrapper;
-}
-
 @end

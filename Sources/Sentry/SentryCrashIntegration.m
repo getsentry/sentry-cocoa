@@ -61,7 +61,7 @@ sentry_finishAndSaveTransaction(void)
 
 - (instancetype)init
 {
-    self = [self initWithCrashAdapter:[SentryCrashWrapper sharedInstance]
+    self = [self initWithCrashAdapter:SentryDependencyContainer.sharedInstance.crashWrapper
               andDispatchQueueWrapper:[[SentryDispatchQueueWrapper alloc] init]];
 
     return self;
