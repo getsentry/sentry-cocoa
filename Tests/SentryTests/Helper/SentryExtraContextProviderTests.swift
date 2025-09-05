@@ -1,4 +1,4 @@
-import SentryTestUtils
+@_spi(Private) import SentryTestUtils
 import XCTest
 
 final class SentryExtraContextProviderTests: XCTestCase {
@@ -8,7 +8,7 @@ final class SentryExtraContextProviderTests: XCTestCase {
 #if os(iOS) || targetEnvironment(macCatalyst)
         let deviceWrapper = TestSentryUIDeviceWrapper()
 #endif // os(iOS) || targetEnvironment(macCatalyst)
-        let processWrapper = TestSentryNSProcessInfoWrapper()
+        let processWrapper = MockSentryProcessInfo()
         
         func getSut() -> SentryExtraContextProvider {
             #if os(iOS) || targetEnvironment(macCatalyst)
@@ -74,7 +74,7 @@ final class SentryExtraContextProviderTests: XCTestCase {
         let actualContext = sut.getExtraContext()
         let device = try XCTUnwrap(actualContext["device"] as? [String: Any])
 
-        XCTAssertEqual(try XCTUnwrap(device["processor_count"] as? UInt), fixture.processWrapper.overrides.processorCount)
+        XCTAssertEqual(try XCTUnwrap(device["processor_count"] as? Int), fixture.processWrapper.overrides.processorCount)
         XCTAssertEqual(try XCTUnwrap(device["thermal_state"] as? String), "critical")
     }
 

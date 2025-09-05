@@ -169,9 +169,9 @@ jobs:
       - run: |
           ./scripts/sentry-xcodebuild.sh \
             --platform iOS \
-            --os 18.5 \
+            --os 18.4 \
             --command build \
-            --device "iPhone 16"  \
+            --device "iPhone 16 Pro"  \
             --configuration DebugV9
       - name: Archiving Raw Build Logs
         uses: actions/upload-artifact@v4
@@ -188,20 +188,23 @@ jobs:
     name: Check no UIKit linkage (DebugWithoutUIKit)
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_build_for_prs == 'true'
     needs: files-changed
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
       - uses: actions/checkout@v5
+
+      - run: ./scripts/ci-select-xcode.sh 16.4
 
       - name: Build for Debug
         run: |
           ./scripts/sentry-xcodebuild.sh \
             --platform iOS \
-            --os latest \
+            --os 18.4 \
             --ref ${{ github.ref }} \
             --command build \
-            --device "iPhone 15" \
+            --device "iPhone 16 Pro" \
             --configuration DebugWithoutUIKit \
             --derived-data uikit-check-build
+
       - name: Ensure UIKit is not linked
         run: ./scripts/check-uikit-linkage.sh DebugWithoutUIKit uikit-check-build unlinked SentryWithoutUIKit
 
@@ -213,20 +216,23 @@ jobs:
     name: Check no UIKit linkage (ReleaseWithoutUIKit)
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_build_for_prs == 'true'
     needs: files-changed
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
       - uses: actions/checkout@v5
+
+      - run: ./scripts/ci-select-xcode.sh 16.4
 
       - name: Build for Release
         run: |
           ./scripts/sentry-xcodebuild.sh \
             --platform iOS \
-            --os latest \
+            --os 18.4 \
             --ref ${{ github.ref }} \
             --command build \
-            --device "iPhone 15" \
+            --device "iPhone 16 Pro" \
             --configuration ReleaseWithoutUIKit \
             --derived-data uikit-check-build
+
       - name: Ensure UIKit is not linked
         run: ./scripts/check-uikit-linkage.sh ReleaseWithoutUIKit uikit-check-build unlinked SentryWithoutUIKit
 
@@ -238,20 +244,23 @@ jobs:
     name: Check UIKit linkage (Debug)
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_build_for_prs == 'true'
     needs: files-changed
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
       - uses: actions/checkout@v5
+
+      - run: ./scripts/ci-select-xcode.sh 16.4
 
       - name: Build for Debug
         run: |
           ./scripts/sentry-xcodebuild.sh \
             --platform iOS \
-            --os latest \
+            --os 18.4 \
             --ref ${{ github.ref }} \
             --command build \
-            --device "iPhone 15" \
+            --device "iPhone 16 Pro" \
             --configuration Debug \
             --derived-data uikit-check-build
+
       - name: Ensure UIKit is linked
         run: ./scripts/check-uikit-linkage.sh Debug uikit-check-build linked Sentry
 
@@ -263,20 +272,23 @@ jobs:
     name: Check UIKit linkage (Release)
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_build_for_prs == 'true'
     needs: files-changed
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
       - uses: actions/checkout@v5
+
+      - run: ./scripts/ci-select-xcode.sh 16.4
 
       - name: Build for Release
         run: |
           ./scripts/sentry-xcodebuild.sh \
             --platform iOS \
-            --os latest \
+            --os 18.4 \
             --ref ${{ github.ref }} \
             --command build \
-            --device "iPhone 15" \
+            --device "iPhone 16 Pro" \
             --configuration Release \
             --derived-data uikit-check-build
+
       - name: Ensure UIKit is linked
         run: ./scripts/check-uikit-linkage.sh Release uikit-check-build linked Sentry
 
@@ -311,10 +323,10 @@ jobs:
         run: |
           ./scripts/sentry-xcodebuild.sh \
             --platform iOS \
-            --os latest \
+            --os 18.4 \
             --ref ${{ github.ref }} \
             --command build \
-            --device "iPhone 16" \
+            --device "iPhone 16 Pro" \
             --configuration Debug
 
       - name: Debug Xcode environment

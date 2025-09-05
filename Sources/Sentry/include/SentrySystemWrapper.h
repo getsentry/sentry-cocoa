@@ -20,6 +20,8 @@ typedef mach_vm_size_t SentryRAMBytes;
  */
 @interface SentrySystemWrapper : NSObject
 
+- (instancetype)initWithProcessorCount:(long)processorCount;
+
 - (SentryRAMBytes)memoryFootprintBytes:(NSError **)error;
 
 /**

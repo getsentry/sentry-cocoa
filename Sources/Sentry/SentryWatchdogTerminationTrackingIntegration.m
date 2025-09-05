@@ -7,7 +7,6 @@
 #    import <SentryClient+Private.h>
 #    import <SentryDependencyContainer.h>
 #    import <SentryHub.h>
-#    import <SentryNSProcessInfoWrapper.h>
 #    import <SentryOptions+Private.h>
 #    import <SentryPropagationContext.h>
 #    import <SentrySDK+Private.h>
@@ -33,7 +32,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)init
 {
     if (self = [super init]) {
-        SentryNSProcessInfoWrapper *processInfoWrapper
+        id<SentryProcessInfoSource> processInfoWrapper
             = SentryDependencyContainer.sharedInstance.processInfoWrapper;
         self.testConfigurationFilePath
             = processInfoWrapper.environment[@"XCTestConfigurationFilePath"];

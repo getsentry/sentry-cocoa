@@ -12,7 +12,6 @@
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"
 #import "SentryMeta.h"
-#import "SentryNSProcessInfoWrapper.h"
 #import "SentryOptions+Private.h"
 #import "SentryOptionsInternal.h"
 #import "SentryProfilingConditionals.h"
@@ -23,7 +22,6 @@
 #import "SentrySerialization.h"
 #import "SentrySwift.h"
 #import "SentryTransactionContext.h"
-#import "SentryUIApplication.h"
 #import "SentryUseNSExceptionCallstackWrapper.h"
 #import "SentryUserFeedbackIntegration.h"
 
@@ -499,6 +497,17 @@ static NSDate *_Nullable startTimestamp = nil;
 
 + (void)addBreadcrumb:(SentryBreadcrumb *)crumb
 {
+    if (![SentrySDKInternal isEnabled]) {
+        // We must log with level fatal because only fatal messages get logged even when the SDK
+        // isn't started. We've seen multiple times that users try to add a breadcrumb before
+        // starting the SDK, and it confuses them. Ideally, we would do something to store the user
+        // and set it once we start the SDK, but this is a breaking change, so we live with the
+        // workaround for now.
+        SENTRY_LOG_FATAL(
+            @"The SDK is disabled, so addBreadcrumb doesn't work. Please ensure to start "
+            @"the SDK before adding breadcrumbs.");
+    }
+
     [SentrySDKInternal.currentHub addBreadcrumb:crumb];
 }
 

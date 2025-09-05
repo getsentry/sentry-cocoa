@@ -33,7 +33,7 @@ class SentryClientTests: XCTestCase {
         #if os(iOS) || targetEnvironment(macCatalyst)
         let deviceWrapper = TestSentryUIDeviceWrapper()
         #endif // os(iOS) || targetEnvironment(macCatalyst)
-        let processWrapper = TestSentryNSProcessInfoWrapper()
+        let processWrapper = MockSentryProcessInfo()
         let extraContentProvider: SentryExtraContextProvider
         let locale = Locale(identifier: "en_US")
         let timezone = TimeZone(identifier: "Europe/Vienna")!
@@ -302,7 +302,9 @@ class SentryClientTests: XCTestCase {
     
 #if os(iOS) || targetEnvironment(macCatalyst) || os(tvOS)
     func testCaptureEventWithCurrentScreen() throws {
-        SentryDependencyContainer.sharedInstance().application = TestSentryUIApplication()
+        let testApplication = TestSentryUIApplication()
+        SentryDependencyContainer.sharedInstance().application = testApplication
+        testApplication._relevantViewControllerNames = ["ClientTestViewController"]
         
         let event = Event()
         event.exceptions = [ Exception(value: "", type: "")]
@@ -315,7 +317,9 @@ class SentryClientTests: XCTestCase {
     }
 
     func testCaptureEventWithCurrentScreenInTheScope() throws {
-        SentryDependencyContainer.sharedInstance().application = TestSentryUIApplication()
+        let testApplication = TestSentryUIApplication()
+        SentryDependencyContainer.sharedInstance().application = testApplication
+        testApplication._relevantViewControllerNames = ["ClientTestViewController"]
         
         let event = Event()
         event.exceptions = [ Exception(value: "", type: "")]
@@ -359,7 +363,9 @@ class SentryClientTests: XCTestCase {
     // swiftlint:enable avoid_dispatch_groups_in_tests
     
     func testCaptureTransactionWithScreen() throws {
-        SentryDependencyContainer.sharedInstance().application = TestSentryUIApplication()
+        let testApplication = TestSentryUIApplication()
+        SentryDependencyContainer.sharedInstance().application = testApplication
+        testApplication._relevantViewControllerNames = ["ClientTestViewController"]
         let tracer = SentryTracer(transactionContext: TransactionContext(operation: "Operation"), hub: nil)
         let event = try XCTUnwrap(Dynamic(tracer).toTransaction() as Transaction?)
         fixture.getSut().capture(event: event, scope: fixture.scope)
@@ -397,7 +403,9 @@ class SentryClientTests: XCTestCase {
     }
     
     func testCaptureTransactionWithoutScreen() throws {
-        SentryDependencyContainer.sharedInstance().application = TestSentryUIApplication()
+        let testApplication = TestSentryUIApplication()
+        SentryDependencyContainer.sharedInstance().application = testApplication
+        testApplication._relevantViewControllerNames = ["ClientTestViewController"]
         
         let event = Transaction(trace: SentryTracer(context: SpanContext(operation: "test"), framesTracker: nil), children: [])
         fixture.getSut().capture(event: event, scope: fixture.scope)
@@ -982,7 +990,7 @@ class SentryClientTests: XCTestCase {
         let eventAppMemory = actual.context?["app"]?["app_memory"] as? Int
         XCTAssertEqual(eventAppMemory, 234_567)
 
-        let cpuCoreCount = actual.context?["device"]?["processor_count"] as? UInt
+        let cpuCoreCount = actual.context?["device"]?["processor_count"] as? Int
         XCTAssertEqual(fixture.processWrapper.processorCount, cpuCoreCount)
     }
     
@@ -1052,7 +1060,7 @@ class SentryClientTests: XCTestCase {
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     func testCaptureExceptionWithAppStateInForegroudWhenAppIsInForeground() throws {
         let app = TestSentryUIApplication()
-        app.applicationState = .active
+        app.unsafeApplicationState = .active
         SentryDependencyContainer.sharedInstance().application = app
         
         let event = TestData.event
@@ -1064,7 +1072,7 @@ class SentryClientTests: XCTestCase {
     
     func testCaptureTransaction_WithAppStateInForegroudWhenAppIsInForeground() throws {
         let app = TestSentryUIApplication()
-        app.applicationState = .active
+        app.unsafeApplicationState = .active
         SentryDependencyContainer.sharedInstance().application = app
         
         let event = fixture.transaction
@@ -1075,9 +1083,7 @@ class SentryClientTests: XCTestCase {
     }
 
     func testCaptureExceptionWithAppStateInForegroudWhenAppIsInBackground() throws {
-        let app = TestSentryUIApplication()
-        app.applicationState = .background
-        SentryDependencyContainer.sharedInstance().application = app
+        SentryDependencyContainer.sharedInstance().threadsafeApplication = SentryThreadsafeApplication(initialState: .background, notificationCenter: NotificationCenter.default)
         
         let event = TestData.event
         fixture.getSut().capture(event: event)
@@ -1087,9 +1093,7 @@ class SentryClientTests: XCTestCase {
     }
     
     func testCaptureExceptionWithAppStateInForegroudWhenAppIsInactive() throws {
-        let app = TestSentryUIApplication()
-        app.applicationState = .inactive
-        SentryDependencyContainer.sharedInstance().application = app
+        SentryDependencyContainer.sharedInstance().threadsafeApplication = SentryThreadsafeApplication(initialState: .inactive, notificationCenter: NotificationCenter.default)
         
         let event = TestData.event
         fixture.getSut().capture(event: event)
@@ -1099,9 +1103,7 @@ class SentryClientTests: XCTestCase {
     }
     
     func testCaptureExceptionWithAppStateInForegroundDoNotOverwriteExistingValue() throws {
-        let app = TestSentryUIApplication()
-        app.applicationState = .active
-        SentryDependencyContainer.sharedInstance().application = app
+        SentryDependencyContainer.sharedInstance().threadsafeApplication = SentryThreadsafeApplication(initialState: .active, notificationCenter: NotificationCenter.default)
         
         let event = TestData.event
         event.context?["app"] = ["in_foreground": "keep-value"]
@@ -2421,28 +2423,6 @@ private extension SentryClientTests {
         }
     }
     
-#if os(iOS) || targetEnvironment(macCatalyst) || os(tvOS)
-    class TestSentryUIApplication: SentryUIApplication {
-        init() {
-            super.init(notificationCenterWrapper: TestNSNotificationCenterWrapper(), dispatchQueueWrapper: TestSentryDispatchQueueWrapper())
-        }
-
-        override func relevantViewControllers() -> [UIViewController] {
-            return [ClientTestViewController()]
-        }
-        
-        private var _underlyingAppState: UIApplication.State = .active
-        override var applicationState: UIApplication.State {
-            get { _underlyingAppState }
-            set { _underlyingAppState = newValue }
-        }
-    }
-    
-    class ClientTestViewController: UIViewController {
-        
-    }
-#endif
-
     func assertSampleRate( sampleRate: NSNumber?, randomValue: Double, isSampled: Bool) throws {
         fixture.random.value = randomValue
         

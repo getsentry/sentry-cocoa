@@ -565,7 +565,7 @@ extension SentrySDKTests {
     }
     
     private func startprocessInfoWrapperForPreview() {
-        let testProcessInfoWrapper = TestSentryNSProcessInfoWrapper()
+        let testProcessInfoWrapper = MockSentryProcessInfo()
         testProcessInfoWrapper.overrides.environment = ["XCODE_RUNNING_FOR_PREVIEWS": "1"]
         SentryDependencyContainer.sharedInstance().processInfoWrapper = testProcessInfoWrapper
     }

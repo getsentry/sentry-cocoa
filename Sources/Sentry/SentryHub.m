@@ -20,7 +20,6 @@
 #import "SentrySamplingContext.h"
 #import "SentryScope+Private.h"
 #import "SentrySerialization.h"
-#import "SentrySession+Private.h"
 #import "SentrySwift.h"
 #import "SentryTraceOrigin.h"
 #import "SentryTracer.h"
@@ -78,7 +77,7 @@ NS_ASSUME_NONNULL_BEGIN
         _errorsBeforeSession = 0;
 
         if (_scope) {
-            [_crashWrapper enrichScope:_scope];
+            [_crashWrapper enrichScope:SENTRY_UNWRAP_NULLABLE(SentryScope, _scope)];
         }
     }
 
@@ -576,15 +575,16 @@ NS_ASSUME_NONNULL_BEGIN
     if (options.maxBreadcrumbs < 1) {
         return;
     }
+    SentryBreadcrumb *_Nullable nullableCrumb = crumb;
     SentryBeforeBreadcrumbCallback callback = [options beforeBreadcrumb];
     if (callback != nil) {
-        crumb = callback(crumb);
+        nullableCrumb = callback(crumb);
     }
-    if (crumb == nil) {
+    if (nullableCrumb == nil) {
         SENTRY_LOG_DEBUG(@"Discarded Breadcrumb in `beforeBreadcrumb`");
         return;
     }
-    [self.scope addBreadcrumb:crumb];
+    [self.scope addBreadcrumb:SENTRY_UNWRAP_NULLABLE(SentryBreadcrumb, nullableCrumb)];
 }
 
 - (nullable SentryClient *)getClient
@@ -608,9 +608,9 @@ NS_ASSUME_NONNULL_BEGIN
                 _scope = [[SentryScope alloc] init];
             }
 
-            [_crashWrapper enrichScope:_scope];
+            [_crashWrapper enrichScope:SENTRY_UNWRAP_NULLABLE(SentryScope, _scope)];
         }
-        return _scope;
+        return SENTRY_UNWRAP_NULLABLE(SentryScope, _scope);
     }
 }
 

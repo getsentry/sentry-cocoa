@@ -24,7 +24,6 @@
 #import <SentrySDK+Private.h>
 
 #if SENTRY_HAS_UIKIT
-#    import "SentryUIApplication.h"
 #    import <UIKit/UIKit.h>
 #endif
 
