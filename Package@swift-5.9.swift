@@ -13,9 +13,9 @@ import MSVCRT
 import PackageDescription
 
 var products: [Product] = [
-    .library(name: "Sentry", targets: ["Sentry"]),
+    .library(name: "Sentry", targets: ["Sentry", "SentryVisionHelper"]),
     .library(name: "Sentry-Dynamic", targets: ["Sentry-Dynamic"]),
-    .library(name: "SentrySwiftUI", targets: ["Sentry", "SentrySwiftUI"])
+    .library(name: "SentrySwiftUI", targets: ["Sentry", "SentrySwiftUI", "SentryVisionHelper"])
 ]
 
 var targets: [Target] = [
@@ -48,7 +48,15 @@ var targets: [Target] = [
         sources: [
             "SentryInternal/"
         ],
-        publicHeadersPath: "SentryInternal/")
+        publicHeadersPath: "SentryInternal/"),
+    .target(
+        name: "SentryVisionHelper",
+        dependencies: ["Sentry"],
+        path: "Sources/SentryVisionHelper",
+        linkerSettings: [
+         .linkedLibrary("c++", .when(platforms: [.visionOS]))
+        ],
+    )
 ]
 
 let env = getenv("EXPERIMENTAL_SPM_BUILDS")
