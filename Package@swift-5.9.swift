@@ -13,9 +13,9 @@ import MSVCRT
 import PackageDescription
 
 var products: [Product] = [
-    .library(name: "Sentry", targets: ["Sentry"]),
+    .library(name: "Sentry", targets: ["Sentry", "SentryVisionHelper"]),
     .library(name: "Sentry-Dynamic", targets: ["Sentry-Dynamic"]),
-    .library(name: "SentrySwiftUI", targets: ["Sentry", "SentrySwiftUI"])
+    .library(name: "SentrySwiftUI", targets: ["Sentry", "SentrySwiftUI", "SentryVisionHelper"])
 ]
 
 var targets: [Target] = [
@@ -39,9 +39,6 @@ var targets: [Target] = [
         dependencies: ["Sentry", "SentryInternal"],
         path: "Sources/SentrySwiftUI",
         exclude: ["SentryInternal/", "module.modulemap"],
-        swiftSettings: [
-            .interoperabilityMode(.Cxx, .when(platforms: [.visionOS]))
-        ],
         linkerSettings: [
             .linkedFramework("Sentry")
         ]),
@@ -51,7 +48,15 @@ var targets: [Target] = [
         sources: [
             "SentryInternal/"
         ],
-        publicHeadersPath: "SentryInternal/")
+        publicHeadersPath: "SentryInternal/"),
+    .target(
+        name: "SentryVisionHelper",
+        dependencies: ["Sentry"],
+        path: "Sources/SentryVisionHelper",
+        linkerSettings: [
+         .linkedLibrary("c++", .when(platforms: [.visionOS]))
+        ]
+    )
 ]
 
 let env = getenv("EXPERIMENTAL_SPM_BUILDS")
@@ -86,7 +91,7 @@ if let env = env, String(cString: env) == "1" {
             name: "SentryObjc",
             dependencies: ["SentrySwift"],
             path: "Sources",
-            exclude: ["Sentry/SentryDummyPublicEmptyClass.m", "Sentry/SentryDummyPrivateEmptyClass.m", "Swift", "SentrySwiftUI", "Resources", "Configuration"],
+            exclude: ["Sentry/SentryDummyPublicEmptyClass.m", "Sentry/SentryDummyPrivateEmptyClass.m", "Swift", "SentrySwiftUI", "Resources", "Configuration", "SentryVisionHelper"],
             publicHeadersPath: "",
             cSettings: [
                 .headerSearchPath("Sentry/include/HybridPublic"),
