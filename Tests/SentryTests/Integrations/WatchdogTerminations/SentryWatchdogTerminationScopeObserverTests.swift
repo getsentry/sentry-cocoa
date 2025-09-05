@@ -6,6 +6,9 @@ import XCTest
 
 class SentryWatchdogTerminationScopeObserverTests: XCTestCase {
     private class Fixture {
+        private let dateProvider = TestCurrentDateProvider()
+        private let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
+        
         let breadcrumbProcessor: TestSentryWatchdogTerminationBreadcrumbProcessor
         let attributesProcessor: TestSentryWatchdogTerminationAttributesProcessor
 
@@ -35,14 +38,21 @@ class SentryWatchdogTerminationScopeObserverTests: XCTestCase {
         let fingerprint: [String] = ["fingerprint1", "fingerprint2", "fingerprint3"]
 
         init() throws {
-            let fileManager = try TestFileManager(options: Options())
+            let options = Options()
+            options.dsn = TestConstants.dsnForTestCase(type: SentryWatchdogTerminationScopeObserverTests.self)
+            let fileManager = try TestFileManager(
+                options: options,
+                dateProvider: dateProvider,
+                dispatchQueueWrapper: dispatchQueueWrapper
+            )
+            let persistendStore = try XCTUnwrap(SentryScopePersistentStore(fileManager: fileManager))
             breadcrumbProcessor = TestSentryWatchdogTerminationBreadcrumbProcessor(
                 maxBreadcrumbs: 10,
                 fileManager: fileManager
             )
-            attributesProcessor = try TestSentryWatchdogTerminationAttributesProcessor(
-                withDispatchQueueWrapper: TestSentryDispatchQueueWrapper(),
-                scopePersistentStore: XCTUnwrap(SentryScopePersistentStore(fileManager: fileManager))
+            attributesProcessor = TestSentryWatchdogTerminationAttributesProcessor(
+                withDispatchQueueWrapper: dispatchQueueWrapper,
+                scopePersistentStore: persistendStore
             )
         }
 

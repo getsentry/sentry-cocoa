@@ -161,17 +161,20 @@ final class SentryHttpTransportFlushIntegrationTests: XCTestCase {
         options.debug = true
         options.dsn = TestConstants.dsnAsString(username: "SentryHttpTransportFlushIntegrationTests.\(testName)")
 
-        let fileManager = try SentryFileManager(options: options)
+        let currentDate = SentryDefaultCurrentDateProvider()
+        let dispatchQueueWrapper = SentryDispatchQueueWrapper()
+
+        let fileManager = try SentryFileManager(
+            options: options,
+            dateProvider: currentDate,
+            dispatchQueueWrapper: dispatchQueueWrapper
+        )
         fileManager.deleteAllEnvelopes()
 
         let requestManager = TestRequestManager(session: URLSession(configuration: URLSessionConfiguration.ephemeral))
         requestManager.returnResponse(response: HTTPURLResponse())
 
-        let currentDate = SentryDefaultCurrentDateProvider()
-
         let rateLimits = DefaultRateLimits(retryAfterHeaderParser: RetryAfterHeaderParser(httpDateParser: HttpDateParser(), currentDateProvider: currentDate), andRateLimitParser: RateLimitParser(currentDateProvider: currentDate), currentDateProvider: currentDate)
-        
-        let dispatchQueueWrapper = SentryDispatchQueueWrapper()
 
         return (SentryHttpTransport(
             dsn: try XCTUnwrap(options.parsedDsn),

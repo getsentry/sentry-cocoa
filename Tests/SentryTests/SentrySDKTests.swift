@@ -25,10 +25,11 @@ class SentrySDKTests: XCTestCase {
         @available(*, deprecated, message: "SentryUserFeedback is deprecated in favor of SentryFeedback.")
         let userFeedback: UserFeedback
         let feedback: SentryFeedback
+
         let currentDate = TestCurrentDateProvider()
-        
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
         let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
+
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
         let observer: SentryWatchdogTerminationScopeObserver
         let scopePersistentStore: TestSentryScopePersistentStore
 #endif //  os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
@@ -70,7 +71,11 @@ class SentrySDKTests: XCTestCase {
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
             options.dsn = SentrySDKTests.dsnAsString
 
-            let fileManager = try! TestFileManager(options: options)
+            let fileManager = try! TestFileManager(
+                options: options,
+                dateProvider: currentDate,
+                dispatchQueueWrapper: dispatchQueueWrapper
+            )
             let breadcrumbProcessor = SentryWatchdogTerminationBreadcrumbProcessor(maxBreadcrumbs: 10, fileManager: fileManager)
             scopePersistentStore = try! XCTUnwrap(TestSentryScopePersistentStore(fileManager: fileManager))
             let attributesProcessor = SentryWatchdogTerminationAttributesProcessor(

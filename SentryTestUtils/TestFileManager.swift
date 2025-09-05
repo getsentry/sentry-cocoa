@@ -12,10 +12,6 @@ public class TestFileManager: SentryFileManager {
     public var storeEnvelopePath: String?
     public var storeEnvelopePathNil: Bool = false
     
-    public init(options: Options) throws {
-        try super.init(options: options, dispatchQueueWrapper: TestSentryDispatchQueueWrapper())
-    }
-    
     public override func store(_ envelope: SentryEnvelope) -> String? {
         storeEnvelopeInvocations.record(envelope)
         if storeEnvelopePathNil {

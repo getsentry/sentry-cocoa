@@ -3,7 +3,16 @@ import Foundation
 
 public class TestClient: SentryClient {
     public override init?(options: Options) {
-        super.init(options: options, fileManager: try! TestFileManager(options: options), deleteOldEnvelopeItems: false, transportAdapter: TestTransportAdapter(transports: [TestTransport()], options: options))
+        super.init(
+            options: options,
+            fileManager: try! TestFileManager(
+                options: options,
+                dateProvider: TestCurrentDateProvider(),
+                dispatchQueueWrapper: TestSentryDispatchQueueWrapper()
+            ),
+            deleteOldEnvelopeItems: false,
+            transportAdapter: TestTransportAdapter(transports: [TestTransport()], options: options)
+        )
     }
 
     public override init?(options: Options, fileManager: SentryFileManager, deleteOldEnvelopeItems: Bool) {

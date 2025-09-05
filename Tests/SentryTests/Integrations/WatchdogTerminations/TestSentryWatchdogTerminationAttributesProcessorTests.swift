@@ -15,16 +15,20 @@ class TestSentryWatchdogTerminationAttributesProcessorTests: XCTestCase {
 
     private class Fixture {
 
-        let dispatchQueueWrapper: SentryDispatchQueueWrapper
+        private let dateProvider = TestCurrentDateProvider()
+        let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
         let fileManager: SentryFileManager
         let scopePersistentStore: SentryScopePersistentStore
 
         init() throws {
             let options = Options()
             options.dsn = TestSentryWatchdogTerminationAttributesProcessorTests.dsn
-            fileManager = try TestFileManager(options: options)
+            fileManager = try TestFileManager(
+                options: options,
+                dateProvider: dateProvider,
+                dispatchQueueWrapper: dispatchQueueWrapper
+            )
 
-            dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
             scopePersistentStore = try XCTUnwrap(SentryScopePersistentStore(fileManager: fileManager))
         }
 
