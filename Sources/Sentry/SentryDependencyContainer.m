@@ -265,18 +265,34 @@ static BOOL isInitialializingDependencyContainer = NO;
 #endif // SENTRY_HAS_UIKIT
 
 #if SENTRY_TARGET_REPLAY_SUPPORTED
-- (SentryScreenshot *)screenshot SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
+- (nonnull SentryScreenshotSource *)screenshotSource SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
-#    if SENTRY_HAS_UIKIT
-    SENTRY_LAZY_INIT(_screenshot, [[SentryScreenshot alloc] init]);
-#    else
-    SENTRY_LOG_DEBUG(
-        @"SentryDependencyContainer.screenshot only works with UIKit enabled. Ensure you're "
-        @"using the right configuration of Sentry that links UIKit.");
-    return nil;
-#    endif // SENTRY_HAS_UIKIT
+    @synchronized(sentryDependencyContainerDependenciesLock) {
+        if (_screenshotSource == nil) {
+            // The options could be null here, but this is a general issue in the dependency
+            // container and will be fixed in a future refactoring.
+            SentryViewScreenshotOptions *_Nonnull options = SENTRY_UNWRAP_NULLABLE(
+                SentryViewScreenshotOptions, SentrySDKInternal.options.screenshot);
+
+            id<SentryViewRenderer> viewRenderer;
+            if (options.enableViewRendererV2) {
+                viewRenderer = [[SentryViewRendererV2 alloc]
+                    initWithEnableFastViewRendering:options.enableFastViewRendering];
+            } else {
+                viewRenderer = [[SentryDefaultViewRenderer alloc] init];
+            }
+
+            SentryViewPhotographer *photographer =
+                [[SentryViewPhotographer alloc] initWithRenderer:viewRenderer
+                                                   redactOptions:options
+                                            enableMaskRendererV2:options.enableViewRendererV2];
+            _screenshotSource = [[SentryScreenshotSource alloc] initWithPhotographer:photographer];
+        }
+
+        return _screenshotSource;
+    }
 }
-#endif
+#endif // SENTRY_HAS_UIKIT
 
 #if SENTRY_UIKIT_AVAILABLE
 - (SentryViewHierarchyProvider *)viewHierarchyProvider SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK

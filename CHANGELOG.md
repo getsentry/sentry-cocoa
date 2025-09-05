@@ -5,6 +5,7 @@
 ### Features
 
 - Structured Logs: Flush logs on SDK flush/close (#5834)
+- Add masking options for screenshots (#5401)
 
 ### Fixes
 
