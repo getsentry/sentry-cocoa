@@ -16,7 +16,6 @@ NS_ASSUME_NONNULL_BEGIN
 @class SentrySession;
 
 @protocol SentryCurrentDateProvider;
-
 @protocol SentryFileManagerDelegate <NSObject>
 
 - (void)envelopeItemDeleted:(SentryEnvelopeItem *)envelopeItem

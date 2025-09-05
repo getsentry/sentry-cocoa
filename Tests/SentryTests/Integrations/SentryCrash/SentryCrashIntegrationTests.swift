@@ -13,8 +13,9 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         let client: TestClient!
         let options: Options
         let sentryCrash: TestSentryCrashWrapper
-        
-        init() {
+        let fileManager: TestFileManager
+
+        init() throws {
             SentryDependencyContainer.sharedInstance().sysctlWrapper = TestSysctl()
             sentryCrash = TestSentryCrashWrapper.sharedInstance()
             sentryCrash.internalActiveDurationSinceLastCrash = 5.0
@@ -31,6 +32,14 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
                 dispatchQueueWrapper: dispatchQueueWrapper
             ), deleteOldEnvelopeItems: false)
             hub = TestHub(client: client, andScope: nil)
+
+            fileManager = try TestFileManager(
+                options: options,
+                dateProvider: dateProvider,
+                dispatchQueueWrapper: dispatchQueueWrapper
+            )
+
+            SentryDependencyContainer.sharedInstance().dateProvider = dateProvider
         }
         
         var session: SentrySession {
@@ -54,12 +63,12 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
             return SentryCrashIntegration(crashAdapter: crash, andDispatchQueueWrapper: dispatchQueueWrapper)
         }
     }
+
+    private var fixture: Fixture!
     
-    private lazy var fixture = Fixture()
-    
-    override func setUp() {
-        super.setUp()
-        SentryDependencyContainer.sharedInstance().dateProvider = TestCurrentDateProvider()
+    override func setUpWithError() throws {
+        try super.setUpWithError()
+        fixture = try Fixture()
         
         fixture.client.fileManager.deleteCurrentSession()
         fixture.client.fileManager.deleteCrashedSession()
@@ -389,7 +398,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         api?.pointee.setEnabled(true)
         
         let transport = TestTransport()
-        let client = SentryClient(options: fixture.options, fileManager: try TestFileManager(options: fixture.options), deleteOldEnvelopeItems: false)
+        let client = SentryClient(options: fixture.options, fileManager: fixture.fileManager, deleteOldEnvelopeItems: false)
         Dynamic(client).transportAdapter = TestTransportAdapter(transports: [transport], options: fixture.options)
         hub.bindClient(client)
         

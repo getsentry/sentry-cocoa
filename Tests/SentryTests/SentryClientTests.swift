@@ -13,7 +13,8 @@ class SentryClientTests: XCTestCase {
     private class Fixture {
         let transport: TestTransport
         let transportAdapter: TestTransportAdapter
-        
+
+        let dateProvider = TestCurrentDateProvider()
         let debugImageProvider = TestDebugImageProvider()
         let threadInspector = TestThreadInspector.instance
         
@@ -24,7 +25,7 @@ class SentryClientTests: XCTestCase {
         let message: SentryMessage
         
         let user: User
-        let fileManager: SentryFileManager
+        let fileManager: TestFileManager
         let random = TestRandom(value: 1.0)
         
         let trace = SentryTracer(transactionContext: TransactionContext(name: "SomeTransaction", operation: "SomeOperation"), hub: nil)
@@ -56,12 +57,12 @@ class SentryClientTests: XCTestCase {
             user.ipAddress = "127.0.0.1"
             
             let options = Options()
-            options.dsn = SentryClientTest.dsn
+            options.dsn = SentryClientTests.dsn
             fileManager = try XCTUnwrap(
-                SentryFileManager(
+                TestFileManager(
                     options: options,
-                    dateProvider: TestCurrentDateProvider(),
-                    dispatchQueueWrapper: TestSentryDispatchQueueWrapper()
+                    dateProvider: self.dateProvider,
+                    dispatchQueueWrapper: self.dispatchQueue
                 )
             )
 
@@ -161,25 +162,26 @@ class SentryClientTests: XCTestCase {
     }
     
     func testInit_CallsDeleteOldEnvelopeItemsInvocations() throws {
-        let fileManager = try TestFileManager(options: Options())
-        
-        _ = SentryClient(options: Options(), fileManager: fileManager, deleteOldEnvelopeItems: true)
-        
-        XCTAssertEqual(1, fileManager.deleteOldEnvelopeItemsInvocations.count)
+        _ = SentryClient(options: Options(), fileManager: fixture.fileManager, deleteOldEnvelopeItems: true)
+
+        XCTAssertEqual(1, fixture.fileManager.deleteOldEnvelopeItemsInvocations.count)
     }
     
     func testInitCachesInstallationIDAsync() throws {
         let dispatchQueue = fixture.dispatchQueue
         SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = fixture.dispatchQueue
-        
+
         let options = Options()
         options.dsn = SentryClientTests.dsn
         // We have to put our cache into a subfolder of the default path, because on macOS we can't delete the default cache folder
         options.cacheDirectoryPath = "\(options.cacheDirectoryPath)/cache"
         _ = SentryClient(options: options)
-        
-        XCTAssertEqual(dispatchQueue.dispatchAsyncInvocations.count, 1)
-        
+
+        // The invocations count must be two:
+        // - SentryFileManager.deleteOldEnvelopeItems()
+        // - SentryInstallation.cacheIDAsyncWithCacheDirectoryPath(cacheDirectoryPath:)
+        XCTAssertEqual(dispatchQueue.dispatchAsyncInvocations.count, 2)
+
         let nonCachedID = SentryInstallation.id(withCacheDirectoryPathNonCached: options.cacheDirectoryPath)
         
         // We remove the file containing the installation ID, but the cached ID is still in memory
@@ -1795,14 +1797,18 @@ class SentryClientTests: XCTestCase {
 
     func testFileManagerCantBeInit() {
         SentryFileManager.prepareInitError()
+        defer { SentryFileManager.tearDownInitError() }
 
         let options = Options()
         options.dsn = SentryClientTests.dsn
-        let client = SentryClient(options: options, dispatchQueue: TestSentryDispatchQueueWrapper(), deleteOldEnvelopeItems: false)
+        let client = SentryClient(
+            options: options,
+            dateProvider: fixture.dateProvider,
+            dispatchQueue: fixture.dispatchQueue,
+            deleteOldEnvelopeItems: false
+        )
 
         XCTAssertNil(client)
-
-        SentryFileManager.tearDownInitError()
     }
     
     func testInstallationIdSetWhenNoUserId() throws {

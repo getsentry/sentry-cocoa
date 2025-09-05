@@ -74,7 +74,6 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
           deleteOldEnvelopeItems:YES];
 }
 
-/** Internal constructor for testing purposes. */
 - (nullable instancetype)initWithOptions:(SentryOptions *)options
                             dateProvider:(id<SentryCurrentDateProvider>)dateProvider
                            dispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue

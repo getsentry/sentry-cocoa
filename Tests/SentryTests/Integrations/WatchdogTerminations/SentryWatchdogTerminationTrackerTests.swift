@@ -414,7 +414,7 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
     }
     
     func testStop_StopsObserving_NoMoreFileManagerInvocations() throws {
-        let fileManager = try! TestFileManager(options: Options())
+        let fileManager = try! TestFileManager(options: Options(), dateProvider: fixture.currentDate, dispatchQueueWrapper: fixture.dispatchQueue)
         sut = try fixture.getSut(fileManager: fileManager)
 
         sut.start()

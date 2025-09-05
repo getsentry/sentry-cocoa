@@ -7,15 +7,22 @@ import XCTest
 class SentryAppStartTrackingIntegrationTests: NotificationCenterTestCase {
     
     private class Fixture {
+        private let dateProvider = TestCurrentDateProvider()
+        private let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
+
         let options = Options()
         let fileManager: SentryFileManager
         
-        init() {
+        init() throws {
             options.tracesSampleRate = 0.1
             options.tracesSampler = { _ in return 0 } 
             options.dsn = TestConstants.dsnAsString(username: "SentryAppStartTrackingIntegrationTests")
             
-            fileManager = try! TestFileManager(options: options)
+            fileManager = try TestFileManager(
+                options: options,
+                dateProvider: dateProvider,
+                dispatchQueueWrapper: dispatchQueueWrapper
+            )
         }
     }
     
@@ -28,9 +35,9 @@ class SentryAppStartTrackingIntegrationTests: NotificationCenterTestCase {
         clearTestState()
     }
     
-    override func setUp() {
-        super.setUp()
-        fixture = Fixture()
+    override func setUpWithError() throws {
+        try super.setUpWithError()
+        fixture = try Fixture()
         SentrySDKInternal.setAppStartMeasurement(nil)
         sut = SentryAppStartTrackingIntegration()
     }
