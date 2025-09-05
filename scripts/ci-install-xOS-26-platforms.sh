@@ -83,7 +83,6 @@ done
 
 log_notice "Platform installation completed"
 
-# List available runtimes after installation
-begin_group "Available simulator runtimes after installation"
-xcrun simctl list runtimes || true
+begin_group "List Available Simulators"
+xcrun simctl list || true
 end_group
