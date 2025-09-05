@@ -211,7 +211,7 @@ public class SentryReachability: NSObject {
 
 // MARK: - Test utils
 #if DEBUG || SENTRY_TEST || SENTRY_TEST_CI
-@available(iOS 12.0, macOS 10.14, tvOS 12.0, visionOS 1.0, *)
+@available(iOS 12.0, macOS 10.14, tvOS 12.0, *)
 extension SentryReachability {
     @objc public func setReachabilityIgnoreActualCallback(_ value: Bool) {
         SentrySDKLog.debug("Setting ignore actual callback to \(value)")
