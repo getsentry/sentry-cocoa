@@ -71,7 +71,7 @@ public class SentryReachability: NSObject {
         let reachabilityQueue = DispatchQueue(label: "io.sentry.cocoa.connectivity")
         self.reachabilityQueue = reachabilityQueue
         
-        if #available(iOS 12.0, macOS 10.14, tvOS 12.0, visionOS 1.0, *) {
+        if #available(iOS 12.0, macOS 10.14, tvOS 12.0, *) {
             let monitor = NWPathMonitor()
             pathMonitor = monitor
             monitor.pathUpdateHandler = pathUpdateHandler
