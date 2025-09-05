@@ -20,6 +20,10 @@
 // otherwise it wont compile
 #import "SentryAsyncLog.h"
 #import "SentryClient+Logs.h"
+#import "SentryCrash.h"
+#import "SentryCrashDebug.h"
+#import "SentryCrashMonitor_AppState.h"
+#import "SentryCrashMonitor_System.h"
 #import "SentryDateUtil.h"
 #import "SentryDateUtils.h"
 #import "SentryDependencyContainerSwiftHelper.h"
@@ -34,6 +38,7 @@
 #import "SentryProfiler+Private.h"
 #import "SentrySDKInternal.h"
 #import "SentryScope+PrivateSwift.h"
+#import "SentryScope.h"
 #import "SentrySerialization.h"
 #import "SentrySessionInternal.h"
 #import "SentrySpanDataKey.h"

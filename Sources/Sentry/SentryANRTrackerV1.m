@@ -1,5 +1,4 @@
 #import "SentryANRTrackerV1.h"
-#import "SentryCrashWrapper.h"
 #import "SentryDependencyContainer.h"
 #import "SentryLogC.h"
 #import "SentrySwift.h"

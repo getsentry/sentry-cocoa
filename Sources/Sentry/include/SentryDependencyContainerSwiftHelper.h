@@ -6,7 +6,10 @@
 #endif // SENTRY_HAS_UIKIT
 
 @protocol SentryObjCRuntimeWrapper;
+@protocol SentryUIDeviceWrapper;
 @class SentryHub;
+@class SentryCrash;
+@class SentryNSProcessInfoWrapper;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -25,6 +28,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (void)dispatchSyncOnMainQueue:(void (^)(void))block;
 + (id<SentryObjCRuntimeWrapper>)objcRuntimeWrapper;
 + (SentryHub *)currentHub;
++ (SentryCrash *)crashReporter;
 
 @end
 

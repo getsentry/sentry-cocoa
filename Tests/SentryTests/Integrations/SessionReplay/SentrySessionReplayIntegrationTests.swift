@@ -13,10 +13,10 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         
         init(traced: Bool = true) {
             self.traced = traced
-            // not calling super.init() here as we don't actually want to install crash reporter machinery
+            super.init(processInfoWrapper: ProcessInfo.processInfo, systemInfo: [:]) // Call the test designated initializer
         }
         
-        override func isBeingTraced() -> Bool {
+        override public var isBeingTraced: Bool {
             traced
         }
     }

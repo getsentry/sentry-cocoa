@@ -17,7 +17,7 @@ class SentryHubTests: XCTestCase {
         let message = "some message"
         let event: Event
         let currentDateProvider = TestCurrentDateProvider()
-        let sentryCrashWrapper = TestSentryCrashWrapper.sharedInstance()
+        let sentryCrashWrapper = TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo)
         let fileManager: SentryFileManager
         let crashedSession: SentrySession
         let abnormalSession: SentrySession
@@ -191,13 +191,12 @@ class SentryHubTests: XCTestCase {
     func testScopeEnriched_WithNoRuntime() throws {
         // Arrange
         let processInfoWrapper = MockSentryProcessInfo()
-        SentryDependencyContainer.sharedInstance().processInfoWrapper = processInfoWrapper
-
         processInfoWrapper.overrides.isiOSAppOnMac = false
         processInfoWrapper.overrides.isMacCatalystApp = false
-
+        let crashWrapper = SentryCrashWrapper(processInfoWrapper: processInfoWrapper)
+        
         // Act
-        let hub = SentryHub(client: nil, andScope: Scope())
+        let hub = SentryHub(client: nil, andScope: Scope(), andCrashWrapper: crashWrapper, andDispatchQueue: TestSentryDispatchQueueWrapper())
 
         // Assert
         XCTAssertNil(hub.scope.contextDictionary["runtime"])
@@ -209,9 +208,10 @@ class SentryHubTests: XCTestCase {
         processInfoWrapper.overrides.isiOSAppOnMac = true
         processInfoWrapper.overrides.isMacCatalystApp = false
         SentryDependencyContainer.sharedInstance().processInfoWrapper = processInfoWrapper
+        let crashWrapper = SentryCrashWrapper(processInfoWrapper: processInfoWrapper)
         
         // Act
-        let hub = SentryHub(client: nil, andScope: Scope())
+        let hub = SentryHub(client: nil, andScope: Scope(), andCrashWrapper: crashWrapper, andDispatchQueue: TestSentryDispatchQueueWrapper())
         
         // Assert
         let runtimeContext = try XCTUnwrap (hub.scope.contextDictionary["runtime"] as? [String: String])
@@ -226,9 +226,10 @@ class SentryHubTests: XCTestCase {
         processInfoWrapper.overrides.isiOSAppOnMac = false
         processInfoWrapper.overrides.isMacCatalystApp = true
         SentryDependencyContainer.sharedInstance().processInfoWrapper = processInfoWrapper
-
+        let crashWrapper = SentryCrashWrapper(processInfoWrapper: processInfoWrapper)
+        
         // Act
-        let hub = SentryHub(client: nil, andScope: Scope())
+        let hub = SentryHub(client: nil, andScope: Scope(), andCrashWrapper: crashWrapper, andDispatchQueue: TestSentryDispatchQueueWrapper())
 
         // Assert
         let runtimeContext = try XCTUnwrap (hub.scope.contextDictionary["runtime"] as? [String: String])

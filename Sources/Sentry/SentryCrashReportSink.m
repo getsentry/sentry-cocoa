@@ -4,7 +4,6 @@
 #import "SentryCrash.h"
 #include "SentryCrashMonitor_AppState.h"
 #import "SentryCrashReportConverter.h"
-#import "SentryCrashWrapper.h"
 #import "SentryDefines.h"
 #import "SentryEvent.h"
 #import "SentryException.h"

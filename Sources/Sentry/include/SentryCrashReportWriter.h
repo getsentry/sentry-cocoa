@@ -32,12 +32,12 @@
 #ifndef HDR_SentryCrashReportWriter_h
 #define HDR_SentryCrashReportWriter_h
 
+#include <stdbool.h>
+#include <stdint.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#include <stdbool.h>
-#include <stdint.h>
 
 /**
  * Encapsulates report writing functionality.
