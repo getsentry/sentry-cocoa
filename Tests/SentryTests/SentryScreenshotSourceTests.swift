@@ -3,13 +3,24 @@
 import XCTest
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-class SentryScreenShotTests: XCTestCase {
+class SentryScreenshotSourceTests: XCTestCase {
     private class Fixture {
-        
         let uiApplication = TestSentryUIApplication()
-        
-        var sut: SentryScreenshot {
-            return SentryScreenshot()
+        let renderer = TestSentryViewRenderer()
+        let photographer: TestSentryViewPhotographer
+
+        let mockImage = UIImage()
+
+        init() {
+            renderer.mockedReturnValue = mockImage
+            photographer = TestSentryViewPhotographer(
+                renderer: renderer,
+                redactOptions: SentryRedactDefaultOptions()
+            )
+        }
+
+        var sut: SentryScreenshotSource {
+            return SentryScreenshotSource(photographer: photographer)
         }
     }
     
@@ -26,16 +37,17 @@ class SentryScreenShotTests: XCTestCase {
         clearTestState()
     }
     
-    func test_IsMainThread() {
+    func testappScreenshotsFromMainThread_IsMainThread() throws {
         // -- Arrange --
         let testWindow = TestWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
         var isMainThread = false
-        
-        testWindow.onDrawHierarchy = {
+        let onRenderCalledExpectation = self.expectation(description: "onDrawHierarchy called")
+
+        fixture.uiApplication.windows = [testWindow]
+        fixture.renderer.onRender = { _ in
+            onRenderCalledExpectation.fulfill()
             isMainThread = Thread.isMainThread
         }
-        
-        fixture.uiApplication.windows = [testWindow]
         
         // -- Act --
         let expect = expectation(description: "Screenshot")
@@ -47,28 +59,29 @@ class SentryScreenShotTests: XCTestCase {
         wait(for: [expect], timeout: 1)
 
         // -- Assert --
+        wait(for: [onRenderCalledExpectation], timeout: 1)
         XCTAssertTrue(isMainThread)
+
+        let invocation = try XCTUnwrap(fixture.renderer.renderInvocations.first)
+        XCTAssertIdentical(invocation.value, testWindow)
     }
     
-    func test_Draw_Each_Window() {
+    func test_Draw_Each_Window() throws {
+        // -- Arrange --
         let firstWindow = TestWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
         let secondWindow = TestWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
-        var drawFirstWindow = false
-        var drawSecondWindow = false
-        
-        firstWindow.onDrawHierarchy = {
-            drawFirstWindow = true
-        }
-        secondWindow.onDrawHierarchy = {
-            drawSecondWindow = true
-        }
-        
+
         fixture.uiApplication.windows = [firstWindow, secondWindow]
-        
+
+        // -- Act --
         _ = self.fixture.sut.appScreenshotsData()
-        
-        XCTAssertTrue(drawFirstWindow)
-        XCTAssertTrue(drawSecondWindow)
+
+        // -- Assert --
+        XCTAssertEqual(fixture.renderer.renderInvocations.count, 2)
+        let firstInvocation = try XCTUnwrap(fixture.renderer.renderInvocations.first)
+        XCTAssertIdentical(firstInvocation.value, firstWindow)
+        let secondInvocation = try XCTUnwrap(fixture.renderer.renderInvocations.last)
+        XCTAssertIdentical(secondInvocation.value, secondWindow)
     }
     
     func test_image_size() throws {
