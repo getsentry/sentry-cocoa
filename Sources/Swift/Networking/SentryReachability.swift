@@ -124,7 +124,7 @@ public class SentryReachability: NSObject {
         currentConnectivity = .none
         
         // Clean up NWPathMonitor
-        if #available(iOS 12.0, macOS 10.14, tvOS 12.0, visionOS 1.0, *) {
+        if #available(iOS 12.0, macOS 10.14, tvOS 12.0, *) {
             if let monitor = pathMonitor as? NWPathMonitor {
                 SentrySDKLog.debug("Stopping NWPathMonitor")
                 monitor.cancel()
@@ -136,7 +136,7 @@ public class SentryReachability: NSObject {
         reachabilityQueue = nil
     }
     
-    @available(iOS 12.0, macOS 10.14, tvOS 12.0, visionOS 1.0, *)
+    @available(iOS 12.0, macOS 10.14, tvOS 12.0, *)
     private func pathUpdateHandler(_ path: NWPath) {
         SentrySDKLog.debug("SentryPathUpdateHandler called with path status: \(path.status)")
         
@@ -151,7 +151,7 @@ public class SentryReachability: NSObject {
         connectivityCallback(connectivity)
     }
     
-    @available(iOS 12.0, macOS 10.14, tvOS 12.0, visionOS 1.0, *)
+    @available(iOS 12.0, macOS 10.14, tvOS 12.0, *)
     private func connectivityFromPath(_ path: NWPath) -> SentryConnectivity {
         guard path.status == .satisfied else {
             return .none
