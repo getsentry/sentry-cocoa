@@ -9,12 +9,19 @@ schemeTemplates:
         "--io.sentry.special.wipe-data": false
         "--io.sentry.special.disable-debug-mode": false
 
+        # screenshot
+        "--io.sentry.screenshot.disable": false
+        "--io.sentry.screenshot.disable-view-renderer-v2": false
+        "--io.sentry.screenshot.disable-fast-view-rendering": false
+        "--io.sentry.screenshot.disable-mask-all-images": false
+        "--io.sentry.screenshot.disable-mask-all-text": false
+
         # session replay
-        "--io.sentry.session-replay.disable-session-replay": false
-        "--io.sentry.session-replay.disableViewRendereV2": false
-        "--io.sentry.session-replay.enableFastViewRendering": false
-        "--io.sentry.session-replay.disable-mask-all-text": false
+        "--io.sentry.session-replay.disable": false
+        "--io.sentry.session-replay.disable-view-renderer-v2": false
+        "--io.sentry.session-replay.enable-fast-view-rendering": false
         "--io.sentry.session-replay.disable-mask-all-images": false
+        "--io.sentry.session-replay.disable-mask-all-text": false
 
         # user feedback
         "--io.sentry.feedback.use-custom-feedback-button": false
@@ -81,13 +88,13 @@ schemeTemplates:
           isEnabled: false
 
         # session replay
-        - variable: "--io.sentry.session-replay.sessionReplaySampleRate"
+        - variable: "--io.sentry.session-replay.on-error-sample-rate"
           value:
           isEnabled: false
-        - variable: "--io.sentry.session-replay.sessionReplayOnErrorSampleRate"
+        - variable: "--io.sentry.session-replay.session-sample-rate"
           value:
           isEnabled: false
-        - variable: "--io.sentry.session-replay.sessionReplayQuality"
+        - variable: "--io.sentry.session-replay.quality"
           value:
           isEnabled: false
 

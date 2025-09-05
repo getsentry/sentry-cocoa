@@ -10,7 +10,6 @@
 #    import "SentrySwizzle.h"
 #    import "SentryUIViewControllerPerformanceTracker.h"
 #    import <SentryOptions.h>
-#    import <SentryUIApplication.h>
 #    import <UIKit/UIKit.h>
 #    import <UIViewController+Sentry.h>
 #    import <objc/runtime.h>

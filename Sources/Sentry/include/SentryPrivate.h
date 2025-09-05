@@ -6,6 +6,8 @@
 #import "SentryCrashDynamicLinker.h"
 #import "SentryCrashExceptionApplicationHelper.h"
 #import "SentryCrashUUIDConversion.h"
+#import "SentryDataCategoryMapper.h"
+#import "SentryDiscardReasonMapper.h"
 #import "SentryEventSwiftHelper.h"
 #import "SentryHub+Private.h"
 #import "SentryNSDataUtils.h"

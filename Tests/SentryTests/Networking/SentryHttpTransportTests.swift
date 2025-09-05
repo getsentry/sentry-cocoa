@@ -88,9 +88,9 @@ class SentryHttpTransportTests: XCTestCase {
             let currentDate = TestCurrentDateProvider()
             rateLimits = DefaultRateLimits(retryAfterHeaderParser: RetryAfterHeaderParser(httpDateParser: HttpDateParser(), currentDateProvider: currentDate), andRateLimitParser: RateLimitParser(currentDateProvider: currentDate), currentDateProvider: currentDate)
             
-            let beforeSendTransaction = SentryDiscardedEvent(reason: .beforeSend, category: .transaction, quantity: 2)
-            let sampleRateTransaction = SentryDiscardedEvent(reason: .sampleRate, category: .transaction, quantity: 1)
-            let rateLimitBackoffError = SentryDiscardedEvent(reason: .rateLimitBackoff, category: .error, quantity: 1)
+            let beforeSendTransaction = SentryDiscardedEvent(reason: nameForSentryDiscardReason(.beforeSend), category: nameForSentryDataCategory(.transaction), quantity: 2)
+            let sampleRateTransaction = SentryDiscardedEvent(reason: nameForSentryDiscardReason(.sampleRate), category: nameForSentryDataCategory(.transaction), quantity: 1)
+            let rateLimitBackoffError = SentryDiscardedEvent(reason: nameForSentryDiscardReason(.rateLimitBackoff), category: nameForSentryDataCategory(.error), quantity: 1)
             
             clientReport = SentryClientReport(discardedEvents: [
                 beforeSendTransaction,
@@ -258,7 +258,7 @@ class SentryHttpTransportTests: XCTestCase {
         assertEnvelopesStored(envelopeCount: 0)
 
         // Envelope with only session and client report is sent
-        let discardedError = SentryDiscardedEvent(reason: .rateLimitBackoff, category: .error, quantity: 1)
+        let discardedError = SentryDiscardedEvent(reason: nameForSentryDiscardReason(.rateLimitBackoff), category: nameForSentryDataCategory(.error), quantity: 1)
         let clientReport = SentryClientReport(discardedEvents: [discardedError])
         let envelopeItems = [
             SentryEnvelopeItem(session: fixture.session),
@@ -580,7 +580,7 @@ class SentryHttpTransportTests: XCTestCase {
     }
     
     func testEventRateLimited_RecordsLostEvent() throws {
-        let rateLimitBackoffError = SentryDiscardedEvent(reason: .rateLimitBackoff, category: .error, quantity: 1)
+        let rateLimitBackoffError = SentryDiscardedEvent(reason: nameForSentryDiscardReason(.rateLimitBackoff), category: nameForSentryDataCategory(.error), quantity: 1)
         let clientReport = SentryClientReport(discardedEvents: [rateLimitBackoffError])
         
         let clientReportEnvelopeItems = [
@@ -602,8 +602,8 @@ class SentryHttpTransportTests: XCTestCase {
     func testTransactionRateLimited_RecordsLostSpans() throws {
         let clientReport = SentryClientReport(
             discardedEvents: [
-                SentryDiscardedEvent(reason: .rateLimitBackoff, category: .transaction, quantity: 1),
-                SentryDiscardedEvent(reason: .rateLimitBackoff, category: .span, quantity: 4)
+                SentryDiscardedEvent(reason: nameForSentryDiscardReason(.rateLimitBackoff), category: nameForSentryDataCategory(.transaction), quantity: 1),
+                SentryDiscardedEvent(reason: nameForSentryDiscardReason(.rateLimitBackoff), category: nameForSentryDataCategory(.span), quantity: 4)
             ]
         )
         
@@ -975,8 +975,31 @@ class SentryHttpTransportTests: XCTestCase {
     private func givenRecordedLostEvents() {
         fixture.clientReport.discardedEvents.forEach { event in
             for _ in 0..<event.quantity {
-                sut.recordLostEvent(event.category, reason: event.reason)
+                sut.recordLostEvent(sentryDataCategoryForString(event.category), reason: sentryDiscardReasonForString(event.reason))
             }
+        }
+    }
+
+    private func sentryDiscardReasonForString(_ reason: String) -> SentryDiscardReason {
+        switch reason {
+        case kSentryDiscardReasonNameBeforeSend:
+            return .beforeSend
+        case kSentryDiscardReasonNameEventProcessor:
+            return .eventProcessor
+        case kSentryDiscardReasonNameSampleRate:
+            return .sampleRate
+        case kSentryDiscardReasonNameNetworkError:
+            return .networkError
+        case kSentryDiscardReasonNameQueueOverflow:
+            return .queueOverflow
+        case kSentryDiscardReasonNameCacheOverflow:
+            return .cacheOverflow
+        case kSentryDiscardReasonNameRateLimitBackoff:
+            return .rateLimitBackoff
+        case kSentryDiscardReasonNameInsufficientData:
+            return .insufficientData
+        default:
+            fatalError("Unsupported reason: \(reason)")
         }
     }
 
