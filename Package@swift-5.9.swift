@@ -55,7 +55,7 @@ var targets: [Target] = [
         path: "Sources/SentryVisionHelper",
         linkerSettings: [
          .linkedLibrary("c++", .when(platforms: [.visionOS]))
-        ],
+        ]
     )
 ]
 
