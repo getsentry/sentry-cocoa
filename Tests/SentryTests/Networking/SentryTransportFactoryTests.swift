@@ -155,7 +155,7 @@ class SentryTransportFactoryTests: XCTestCase {
             sentryFileManager: try SentryFileManager(
                 options: options,
                 dateProvider: dateProvider,
-                dispatchQueueWrapper: TestSentryDispatchQueueWrapper(),
+                dispatchQueueWrapper: TestSentryDispatchQueueWrapper()
             ),
             rateLimits: rateLimiting()
         )

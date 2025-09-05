@@ -205,7 +205,7 @@ class SentryFeedbackTests: XCTestCase {
             fileManager: try XCTUnwrap(SentryFileManager(
                 options: options,
                 dateProvider: TestCurrentDateProvider(),
-                dispatchQueueWrapper: TestSentryDispatchQueueWrapper(),
+                dispatchQueueWrapper: TestSentryDispatchQueueWrapper()
             )),
             deleteOldEnvelopeItems: false,
             threadInspector: TestThreadInspector.instance,

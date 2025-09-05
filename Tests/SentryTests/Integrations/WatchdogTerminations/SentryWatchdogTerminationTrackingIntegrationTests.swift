@@ -44,7 +44,7 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
             fileManager = try SentryFileManager(
                 options: options,
                 dateProvider: dateProvider,
-                dispatchQueueWrapper: dispatchQueueWrapper,
+                dispatchQueueWrapper: dispatchQueueWrapper
             )
             container.fileManager = fileManager
 
