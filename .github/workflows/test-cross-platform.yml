@@ -37,7 +37,7 @@ jobs:
     # Run the job only for PRs with related changes or non-PR events.
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_test_cross_platform_for_prs == 'true'
     needs: files-changed
-    runs-on: macos-15
+    runs-on: macos-14
     # This job can take a while to run, so we set a timeout.
     timeout-minutes: 30
     steps:
@@ -65,7 +65,7 @@ jobs:
           node-version: 18
           cache: "yarn"
           cache-dependency-path: sentry-react-native/yarn.lock
-      - run: ./sentry-cocoa/scripts/ci-select-xcode.sh 16.4
+      - run: ./sentry-cocoa/scripts/ci-select-xcode.sh 16.2
 
       - name: Install SDK JS Dependencies
         working-directory: sentry-react-native
@@ -90,7 +90,7 @@ jobs:
         env:
           SCHEME: RNSentryCocoaTester
           CONFIGURATION: Release
-          DESTINATION: "platform=iOS Simulator,OS=latest,name=iPhone 16"
+          DESTINATION: "platform=iOS Simulator,OS=17.5,name=iPhone 15 Pro"
         run: |
           set -o pipefail
           env NSUnbufferedIO=YES \
@@ -101,7 +101,7 @@ jobs:
 
       - name: Run CI Diagnostics
         if: failure()
-        run: ./scripts/ci-diagnostics.sh
+        run: ./sentry-cocoa/scripts/ci-diagnostics.sh
 
   test_cross_platform-required-check:
     needs:

@@ -34,7 +34,7 @@ NS_ASSUME_NONNULL_BEGIN
  * Every integration starts with "Sentry" and ends with "Integration". To keep the payload of the
  * event small we remove both.
  */
-- (NSMutableArray<NSString *> *)trimmedInstalledIntegrationNames;
+- (NSArray<NSString *> *)trimmedInstalledIntegrationNames;
 
 - (void)addInstalledIntegration:(id<SentryIntegrationProtocol>)integration name:(NSString *)name;
 - (void)removeAllIntegrations;

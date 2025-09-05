@@ -4,7 +4,6 @@
 
 #    import "SentryDependencyContainer.h"
 #    import "SentryError.h"
-#    import "SentryNSProcessInfoWrapper.h"
 #    import <mach/mach.h>
 #    include <thread>
 
@@ -12,11 +11,10 @@
     float processorCount;
 }
 
-- (instancetype)init
+- (instancetype)initWithProcessorCount:(long)count
 {
     if ((self = [super init])) {
-        processorCount
-            = (float)SentryDependencyContainer.sharedInstance.processInfoWrapper.processorCount;
+        processorCount = count;
     }
     return self;
 }

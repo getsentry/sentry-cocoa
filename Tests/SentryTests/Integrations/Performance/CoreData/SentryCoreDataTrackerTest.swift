@@ -1,6 +1,6 @@
 import CoreData
 @testable import Sentry
-import SentryTestUtils
+@_spi(Private) import SentryTestUtils
 import XCTest
 
 class SentryCoreDataTrackerTests: XCTestCase {
@@ -24,7 +24,7 @@ class SentryCoreDataTrackerTests: XCTestCase {
             SentryDependencyContainer.sharedInstance().debugImageProvider = imageProvider
 
             threadInspector.allThreads = [TestData.thread2]
-            let processInfoWrapper = TestSentryNSProcessInfoWrapper()
+            let processInfoWrapper = MockSentryProcessInfo()
             processInfoWrapper.overrides.processDirectoryPath = "sentrytest"
 
             return SentryCoreDataTracker(threadInspector: threadInspector, processInfoWrapper: processInfoWrapper)

@@ -2,7 +2,6 @@
 #import "SentryDependencyContainer.h"
 #import "SentrySDK+Private.h"
 #import "SentrySwift.h"
-#import "SentryUIApplication.h"
 
 @implementation SentryDependencyContainerSwiftHelper
 
@@ -10,7 +9,7 @@
 
 + (NSArray<UIWindow *> *)windows
 {
-    return SentryDependencyContainer.sharedInstance.application.windows;
+    return [SentryDependencyContainer.sharedInstance.application getWindows];
 }
 
 #endif // SENTRY_HAS_UIKIT
