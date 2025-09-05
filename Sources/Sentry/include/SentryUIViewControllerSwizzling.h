@@ -7,10 +7,10 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @protocol SentryObjCRuntimeWrapper;
+@protocol SentryProcessInfoSource;
 
 @class SentryBinaryImageCache;
 @class SentryDispatchQueueWrapper;
-@class SentryNSProcessInfoWrapper;
 @class SentryOptions;
 @class SentrySubClassFinder;
 
@@ -35,7 +35,7 @@ SENTRY_NO_INIT
                   dispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue
              objcRuntimeWrapper:(id<SentryObjCRuntimeWrapper>)objcRuntimeWrapper
                  subClassFinder:(SentrySubClassFinder *)subClassFinder
-             processInfoWrapper:(SentryNSProcessInfoWrapper *)processInfoWrapper
+             processInfoWrapper:(id<SentryProcessInfoSource>)processInfoWrapper
                binaryImageCache:(SentryBinaryImageCache *)binaryImageCache;
 
 - (void)start;

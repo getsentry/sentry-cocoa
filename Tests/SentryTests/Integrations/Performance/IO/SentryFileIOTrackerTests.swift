@@ -21,7 +21,7 @@ class SentryFileIOTrackerTests: XCTestCase {
 
             threadInspector.allThreads = [TestData.thread2]
 
-            let processInfoWrapper = TestSentryNSProcessInfoWrapper()
+            let processInfoWrapper = MockSentryProcessInfo()
             processInfoWrapper.overrides.processDirectoryPath = "sentrytest"
 
             let result = SentryFileIOTracker(threadInspector: threadInspector, processInfoWrapper: processInfoWrapper)

@@ -54,6 +54,7 @@ class SentrySerializationTests: XCTestCase {
         XCTAssertNil(SentrySerialization.data(with: envelope))
     }
     
+    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testEnvelopeWithData_InvalidEnvelopeItemHeaderJSON_ReturnsNil() throws {
         let envelopeItemHeader = SentryEnvelopeItemHeader(type: SentryInvalidJSONString() as String, length: 0)
         let envelopeItem = SentryEnvelopeItem(header: envelopeItemHeader, data: Data())
@@ -155,6 +156,7 @@ class SentrySerializationTests: XCTestCase {
         XCTAssertEqual(sdkInfo, deserializedEnvelope.header.sdkInfo)
     }
     
+    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testEnvelopeWithData_WithTraceContext_ReturnsTraceContext() throws {
         let envelopeHeader = SentryEnvelopeHeader(id: nil, traceContext: Fixture.traceContext)
         let envelope = SentryEnvelope(header: envelopeHeader, singleItem: createItemWithEmptyAttachment())
@@ -166,6 +168,7 @@ class SentrySerializationTests: XCTestCase {
         assertTraceState(firstTrace: Fixture.traceContext, secondTrace: traceContext)
     }
     
+    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testEnvelopeWithData_TraceContextWithoutUser_ReturnsTraceContext() throws {
         let trace = TraceContext(trace: SentryId(), publicKey: "PUBLIC_KEY", releaseName: "RELEASE_NAME", environment: "TEST", transaction: "transaction", userSegment: nil, sampleRate: nil, sampled: nil, replayId: nil)
         
@@ -179,6 +182,7 @@ class SentrySerializationTests: XCTestCase {
         assertTraceState(firstTrace: trace, secondTrace: traceContext)
     }
 
+    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testEnvelopeWithDataWithSampleRand_TraceContextWithoutUser_ReturnsTraceContext() throws {
         // -- Arrange --
         let trace = TraceContext(

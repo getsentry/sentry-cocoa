@@ -14,8 +14,6 @@
 #    import "SentryFramesTracker+TestInit.h"
 #    import "SentrySessionReplayIntegration+Private.h"
 #    import "SentrySessionReplayIntegration+Test.h"
-#    import "SentryUIApplication+Private.h"
-#    import "SentryUIApplication.h"
 #    import "SentryUIEventTracker.h"
 #    import "SentryUIEventTrackerTransactionMode.h"
 #    import "SentryUIEventTrackingIntegration.h"
@@ -39,8 +37,6 @@
 #    import "SentryProfilerTestHelpers.h"
 #    import "SentryTraceProfiler+Test.h"
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
-
-#import "SentryNSApplication.h"
 
 #import "NSLocale+Sentry.h"
 #import "NSMutableDictionary+Sentry.h"
@@ -150,7 +146,6 @@
 #import "SentryNSDictionarySanitize+Tests.h"
 #import "SentryNSDictionarySanitize.h"
 #import "SentryNSError.h"
-#import "SentryNSProcessInfoWrapper.h"
 #import "SentryNSURLRequestBuilder.h"
 #import "SentryNSURLSessionTaskSearch.h"
 #import "SentryNetworkTracker.h"
@@ -189,7 +184,6 @@
 #import "SentryDispatchSourceWrapper.h"
 #import "SentryEnvelopeAttachmentHeader.h"
 #import "SentryExtraContextProvider.h"
-#import "SentryNSProcessInfoWrapper.h"
 #import "SentryPerformanceTracker+Testing.h"
 #import "SentryPropagationContext.h"
 #import "SentrySampleDecision+Private.h"

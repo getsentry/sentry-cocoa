@@ -1,9 +1,13 @@
-import Sentry
+@_spi(Private) import Sentry
 
-public class TestSentryNSProcessInfoWrapper: SentryNSProcessInfoWrapper {
+@_spi(Private) public final class MockSentryProcessInfo: SentryProcessInfoSource {
+
+    public init() { }
+    
     public struct Override {
-        public var processorCount: UInt?
+        public var processorCount: Int?
         public var processDirectoryPath: String?
+        public var processPath: String?
         public var thermalState: ProcessInfo.ThermalState?
         public var environment: [String: String]?
         public var isiOSAppOnMac: Bool?
@@ -12,29 +16,33 @@ public class TestSentryNSProcessInfoWrapper: SentryNSProcessInfoWrapper {
 
     public var overrides = Override()
 
-    public override var processorCount: UInt {
-        overrides.processorCount ?? super.processorCount
+    public var processorCount: Int {
+        overrides.processorCount ?? ProcessInfo.processInfo.processorCount
     }
 
-    public override var processDirectoryPath: String {
-        overrides.processDirectoryPath ?? super.processDirectoryPath
-    }
-
-    public override var thermalState: ProcessInfo.ThermalState {
-        overrides.thermalState ?? super.thermalState
+    public var processDirectoryPath: String {
+        overrides.processDirectoryPath ?? ProcessInfo.processInfo.processDirectoryPath
     }
     
-    public override var environment: [String: String] {
-        overrides.environment ?? super.environment
+    public var processPath: String? {
+        overrides.processPath ?? ProcessInfo.processInfo.processPath
+    }
+
+    public var thermalState: ProcessInfo.ThermalState {
+        overrides.thermalState ?? ProcessInfo.processInfo.thermalState
+    }
+    
+    public var environment: [String: String] {
+        overrides.environment ?? ProcessInfo.processInfo.environment
     }
 
     @available(iOS 14.0, macOS 11.0, tvOS 14.0, *)
-    public override var isiOSAppOnMac: Bool {
-        return overrides.isiOSAppOnMac ?? super.isiOSAppOnMac
+    public var isiOSAppOnMac: Bool {
+        return overrides.isiOSAppOnMac ?? ProcessInfo.processInfo.isiOSAppOnMac
     }
 
     @available(iOS 13.0, macOS 10.15, tvOS 13.0, *)
-    public override var isMacCatalystApp: Bool {
-        return overrides.isMacCatalystApp ?? super.isMacCatalystApp
+    public var isMacCatalystApp: Bool {
+        return overrides.isMacCatalystApp ?? ProcessInfo.processInfo.isMacCatalystApp
     }
 }
