@@ -29,6 +29,7 @@
 ### Fixes
 
 - Fix macOS's frameworks not following the versioned framework structure (#6049)
+- Add support for iOS 26, macOS 26, visionOS 26, watchOS 26, and tvOS 26 in device tests (#6063)
 
 ## 8.54.1-alpha.1
 
