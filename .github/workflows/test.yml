@@ -216,8 +216,6 @@ jobs:
       - name: Start Test Server
         run: ./scripts/start-test-server.sh
 
-      - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
-
       - name: Install required platforms for Xcode 26
         if: matrix.xcode == '26.0' && matrix.platform != ''
         run: ./scripts/ci-install-xOS-26-platforms.sh --platforms "${{matrix.platform}}"
@@ -226,6 +224,9 @@ jobs:
         if: matrix.xcode == '26.0' && matrix.platform != ''
         run: ./scripts/ci-create-simulator.sh --platform "${{matrix.platform}}" --os-version "${{matrix.test-destination-os}}" --device-name "${{matrix.device}}"
 
+      # We MUST call select Xcode after creating the simulators.
+      # Otherwise, we often have the problem that GH actions can't find the created simulators.
+      - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
       - name: Install Slather
         run: gem install slather
 
