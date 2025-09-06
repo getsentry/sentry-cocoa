@@ -1,6 +1,5 @@
 #import "SentryAttachment.h"
 #import "SentryBreadcrumb.h"
-#import "SentryClientReport.h"
 #import "SentryEnvelope+Private.h"
 #import "SentryEnvelopeAttachmentHeader.h"
 #import "SentryEnvelopeItemHeader.h"
