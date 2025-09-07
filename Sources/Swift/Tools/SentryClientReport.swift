@@ -1,9 +1,9 @@
 @objc
 @_spi(Private) public final class SentryClientReport: NSObject, SentrySerializable {
     
-    @objc(initWithDiscardedEvents:)
-    public init(discardedEvents: [SentryDiscardedEvent]) {
-        timestamp = Dependencies.dateProvider.date()
+    @objc(initWithDiscardedEvents:dateProvider:)
+    public init(discardedEvents: [SentryDiscardedEvent], dateProvider: SentryCurrentDateProvider) {
+        timestamp = dateProvider.date()
         self.discardedEvents = discardedEvents
     }
     
