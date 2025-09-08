@@ -7,6 +7,7 @@ platform :ios do
 
   ios_swift_infoplist_path = "./Samples/iOS-Swift/iOS-Swift/Info.plist"
   ios_swift_clip_infoplist_path = "./Samples/iOS-Swift/iOS-SwiftClip/Info.plist"
+  ios_swift_share_extension_infoplist_path = "./Samples/iOS-Swift/iOS-Swift-ShareExtension/Info.plist"
 
   # Helper method to run tests with common configuration
   def run_ui_tests(scheme:, result_bundle_name:, device: nil, address_sanitizer: false)
@@ -66,6 +67,11 @@ platform :ios do
       key: "CFBundleShortVersionString",
       value: new_version
     )
+    set_info_plist_value(
+      path: ios_swift_share_extension_infoplist_path,
+      key: "CFBundleShortVersionString",
+      value: new_version
+    )
 
     sentryInfoPlistPath = "./Sources/Resources/Info.plist"
     set_info_plist_value(
@@ -90,9 +96,9 @@ platform :ios do
         "io.sentry.cocoa.perf-test-app-sentry",
         "io.sentry.iOS-Benchmarking.xctrunner",
         "io.sentry.iOS-Swift-UITests.xctrunner",
+        "io.sentry.sample.iOS-Swift",
         "io.sentry.sample.iOS-Swift.Clip",
-        "io.sentry.sample.iOS-Swift.ShareExtension",
-        "io.sentry.sample.iOS-Swift"
+        "io.sentry.sample.iOS-Swift.ShareExtension"
       ],
       readonly: true
     )
@@ -104,9 +110,9 @@ platform :ios do
         "io.sentry.cocoa.perf-test-app-sentry",
         "io.sentry.iOS-Benchmarking.xctrunner",
         "io.sentry.iOS-Swift-UITests.xctrunner",
-        "io.sentry.sample.iOS-Swift.Clip",
-        "io.sentry.sample.iOS-Swift.ShareExtension",
         "io.sentry.sample.iOS-Swift",
+        "io.sentry.sample.iOS-Swift.Clip",
+        "io.sentry.sample.iOS-Swift.ShareExtension"
       ],
       readonly: true
     )
