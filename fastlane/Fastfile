@@ -27,7 +27,7 @@ platform :ios do
   end
 
   lane :prepare_xcframework_signing do
-    setup_ci
+    setup_ci if is_ci
 
     sync_code_signing(
       type: "appstore",
@@ -114,8 +114,7 @@ platform :ios do
 
   desc "Build iOS-Swift with Release"
   lane :build_ios_swift do
-
-    setup_ci
+    setup_ci if is_ci
 
     sync_code_signing(
       type: "appstore",
@@ -142,10 +141,9 @@ platform :ios do
   end
 
   lane :build_ios_swift_for_tests do
-
     setup_ci(
       force: true
-    )
+    ) if is_ci
 
     sync_code_signing(
       type: "development",
@@ -168,10 +166,9 @@ platform :ios do
   end
 
   lane :build_ios_swift_ui_test do
-
     setup_ci(
       force: true
-    )
+    ) if is_ci
 
     sync_code_signing(
       type: "development",
@@ -190,10 +187,9 @@ platform :ios do
   end
 
   lane :build_ios_benchmark_test do
-
     setup_ci(
       force: true
-    )
+    ) if is_ci
 
     sync_code_signing(
       type: "development",
@@ -310,7 +306,7 @@ platform :ios do
   lane :build_perf_test_app_plain do
     setup_ci(
       force: true
-    )
+    ) if is_ci
 
     sync_code_signing(
       type: "development",
@@ -337,7 +333,7 @@ platform :ios do
   lane :build_perf_test_app_sentry do
     setup_ci(
       force: true
-    )
+    ) if is_ci
 
     sync_code_signing(
       type: "development",
