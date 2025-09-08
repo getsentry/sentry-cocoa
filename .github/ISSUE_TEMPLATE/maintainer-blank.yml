@@ -1,6 +1,6 @@
 name: Blank Issue
 description: Blank Issue. Reserved for maintainers.
-labels: ["Platform: Cocoa"]
+labels: ["Cocoa"]
 body:
   - type: textarea
     id: description

@@ -25,4 +25,3 @@ git cherry-pick "$commit_hash"
 git push origin "$hotfix_branch"
 
 echo "Hotfix branch $hotfix_branch created and pushed successfully."
-

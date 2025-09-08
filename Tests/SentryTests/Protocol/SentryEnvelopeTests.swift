@@ -62,7 +62,13 @@ class SentryEnvelopeTests: XCTestCase {
         clearTestState()
     }
 
-    private let defaultSdkInfo = SentrySdkInfo(name: SentryMeta.sdkName, version: SentryMeta.versionString, integrations: [], features: [], packages: [])
+    private let defaultSdkSettings = SentrySDKSettings(dict: [:])
+    private lazy var defaultSdkInfo = SentrySdkInfo(name: SentryMeta.sdkName,
+                                               version: SentryMeta.versionString,
+                                               integrations: [],
+                                               features: [],
+                                               packages: [],
+                                               settings: defaultSdkSettings)
 
     func testSentryEnvelopeFromEvent() throws {
         let event = Event()
@@ -79,6 +85,7 @@ class SentryEnvelopeTests: XCTestCase {
         assertJsonIsEqual(actual: json, expected: try XCTUnwrap(envelope.items.first).data)
     }
     
+    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testSentryEnvelopeWithExplicitInitMessages() {
         let attachment = "{}"
         let data = attachment.data(using: .utf8)!
@@ -123,6 +130,7 @@ class SentryEnvelopeTests: XCTestCase {
         }
     }
     
+    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testInitSentryEnvelopeHeader_DefaultSdkInfoIsSet() {
         XCTAssertEqual(defaultSdkInfo, SentryEnvelopeHeader(id: nil).sdkInfo)
     }
@@ -134,6 +142,7 @@ class SentryEnvelopeTests: XCTestCase {
         XCTAssertNil(allNil.traceContext)
     }
     
+    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testInitSentryEnvelopeHeader_IdAndTraceStateNil() {
         let allNil = SentryEnvelopeHeader(id: nil, traceContext: nil)
         XCTAssertNil(allNil.eventId)
@@ -143,13 +152,14 @@ class SentryEnvelopeTests: XCTestCase {
     
     func testInitSentryEnvelopeHeader_SetIdAndSdkInfo() {
         let eventId = SentryId()
-        let sdkInfo = SentrySdkInfo(name: "sdk", version: "1.2.3-alpha.0", integrations: [], features: [], packages: [])
+        let sdkInfo = SentrySdkInfo(name: "sdk", version: "1.2.3-alpha.0", integrations: [], features: [], packages: [], settings: SentrySDKSettings(dict: [:]))
         
         let envelopeHeader = SentryEnvelopeHeader(id: eventId, sdkInfo: sdkInfo, traceContext: nil)
         XCTAssertEqual(eventId, envelopeHeader.eventId)
         XCTAssertEqual(sdkInfo, envelopeHeader.sdkInfo)
     }
     
+    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testInitSentryEnvelopeHeader_SetIdAndTraceState() {
         let eventId = SentryId()
         let traceContext = TraceContext(trace: SentryId(), publicKey: "publicKey", releaseName: "releaseName", environment: "environment", transaction: "transaction", userSegment: nil, sampleRate: nil, sampled: nil, replayId: nil)
@@ -233,6 +243,7 @@ class SentryEnvelopeTests: XCTestCase {
         XCTAssertEqual(attachment.contentType, envelopeItem.header.contentType)
     }
     
+    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testEmptyHeader() {
         let sut = SentryEnvelopeHeader.empty()
         XCTAssertNil(sut.eventId)
@@ -319,7 +330,32 @@ class SentryEnvelopeTests: XCTestCase {
         XCTAssertNotNil(
             SentryEnvelopeItem(attachment: attachment, maxAttachmentSize: fixture.maxAttachmentSize))
     }
-    
+
+    func testInitWithReplayEvent_replayRecordingFailsToSerialize_shouldReturnNil() {
+        // -- Arrange --
+        class MockReplayRecording: SentryReplayRecording {
+            override func serialize() -> [[String: Any]] {
+                // This will cause serialization to fail, because NSObject cannot be serialized to JSON
+                return [["KEY": NSObject()]]
+            }
+        }
+
+        let event = SentryReplayEvent(
+            eventId: SentryId(),
+            replayStartTimestamp: Date(timeIntervalSince1970: 1_000),
+            replayType: SentryReplayType.buffer,
+            segmentId: 5
+        )
+        let recording = MockReplayRecording(segmentId: 5, size: 5_000, start: Date(timeIntervalSince1970: 2), duration: 5_000, frameCount: 5, frameRate: 1, height: 320, width: 950, extraEvents: [])
+        let videoUrl = URL(fileURLWithPath: fixture.path)
+
+        // -- Act --
+        let result = SentryEnvelopeItem(replayEvent: event, replayRecording: recording, video: videoUrl)
+
+        // -- Assert --
+        XCTAssertNil(result, "Expected nil result when replay recording serialization fails.")
+    }
+
     private func writeDataToFile(data: Data) {
         do {
             try data.write(to: URL(fileURLWithPath: fixture.path))

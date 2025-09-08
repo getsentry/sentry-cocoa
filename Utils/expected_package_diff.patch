@@ -1,0 +1,25 @@
+1,2c1,5
+< // swift-tools-version:5.3
+< #if canImport(Darwin)   
+---
+> // swift-tools-version:5.9
+> // This Package.swift for Swift 5.9 (and newer) fixes an issue on Xcode 26 when linking `SentrySwiftUI`.
+> // Don't remove this comment.
+> 
+> #if canImport(Darwin)
+15d17
+<     .library(name: "Sentry-Dynamic-WithARM64e", targets: ["Sentry-Dynamic-WithARM64e"]),
+39a42,44
+>         swiftSettings: [
+>             .interoperabilityMode(.Cxx, .when(platforms: [.visionOS]))
+>         ],
+53c58
+< if let env = env, String(cString: env, encoding: .utf8) == "1" {
+---
+> if let env = env, String(cString: env) == "1" {
+84a90
+>             publicHeadersPath: "",
+100c106
+<     platforms: [.iOS(.v11), .macOS(.v10_13), .tvOS(.v11), .watchOS(.v4)],
+---
+>     platforms: [.iOS(.v11), .macOS(.v10_13), .tvOS(.v11), .watchOS(.v4), .visionOS(.v1)],

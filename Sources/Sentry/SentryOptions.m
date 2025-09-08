@@ -27,7 +27,25 @@ NSString *const kSentryDefaultEnvironment = @"production";
 #if !SDK_V9
     BOOL _enableTracingManual;
 #endif // !SDK_V9
+#if SWIFT_PACKAGE || SENTRY_TEST
+    id _beforeSendLogDynamic;
+#endif // SWIFT_PACKAGE || SENTRY_TEST
 }
+
+#if SWIFT_PACKAGE || SENTRY_TEST
+// Provide explicit implementation for SPM builds where the property is excluded from header
+// Use id to avoid typedef dependency, Swift extension provides type safety
+- (id)beforeSendLogDynamic
+{
+    return _beforeSendLogDynamic;
+}
+
+- (void)setBeforeSendLogDynamic:(id)beforeSendLogDynamic
+{
+    _beforeSendLogDynamic = beforeSendLogDynamic;
+}
+
+#endif // SWIFT_PACKAGE || SENTRY_TEST
 
 + (NSArray<NSString *> *)defaultIntegrations
 {
@@ -85,6 +103,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
 #if SENTRY_HAS_UIKIT
         self.enableUIViewControllerTracing = YES;
         self.attachScreenshot = NO;
+        self.screenshot = [[SentryViewScreenshotOptions alloc] init];
         self.attachViewHierarchy = NO;
         self.reportAccessibilityIdentifier = YES;
         self.enableUserInteractionTracing = YES;

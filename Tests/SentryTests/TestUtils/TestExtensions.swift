@@ -7,3 +7,20 @@ extension XCTest {
         return try Data(contentsOf: URL(fileURLWithPath: path ?? ""))
     }
 }
+
+extension XCTestCase {
+
+    func delayNonBlocking(timeout: Double = 0.2) {
+        let expectation = XCTestExpectation(description: "Finish Delay")
+        expectation.assertForOverFulfill = true
+
+        let queue = DispatchQueue(label: "delay")
+
+        queue.asyncAfter(deadline: .now() + timeout) {
+            expectation.fulfill()
+        }
+
+        let timeoutWithBuffer = timeout * 1.3
+        self.wait(for: [expectation], timeout: timeoutWithBuffer)
+    }
+}

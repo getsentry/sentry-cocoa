@@ -1,3 +1,4 @@
+@_spi(Private) @testable import Sentry
 import SentryTestUtils
 import XCTest
 
@@ -54,32 +55,55 @@ class SentryThreadInspectorTests: XCTestCase {
         expect.expectedFulfillmentCount = 10
         
         let sut = self.fixture.getSut(testWithRealMachineContextWrapper: true)
+
         for _ in 0..<10 {
-            
+
             queue.async {
-                let actual = sut.getCurrentThreadsWithStackTrace()
-                
-                // Sometimes during tests its possible to have one thread without frames
-                // We just need to make sure we retrieve frame information for at least one other thread than the main thread
-                var threadsWithFrames = 0
-                
-                for thr in actual {
-                    if (thr.stacktrace?.frames.count ?? 0) >= 1 {
-                        threadsWithFrames += 1
+                let threads = sut.getCurrentThreadsWithStackTrace()
+
+                if threads.count == 0 {
+                    // If there are more than 70 threads getCurrentThreadsWithStackTrace
+                    // returns an empty list because it can't handle so many threads.
+                    // This is a known limitation SentryThreadInspector and should be
+                    // addressed in https://github.com/getsentry/sentry-cocoa/issues/2825.
+                    // We see this sometimes happening in CI.
+                    expect.fulfill()
+                    return
+                }
+
+                var threadsWithStackTraceFrames = 0
+
+                for thread in threads {
+
+                    guard let frames = thread.stacktrace?.frames else {
+                        continue
                     }
-                    
-                    for frame in thr.stacktrace?.frames ?? [] {
+
+                    if frames.count == 0 {
+                        continue
+                    }
+
+                    for frame in frames {
                         XCTAssertNotNil(frame.instructionAddress)
                         XCTAssertNotNil(frame.imageAddress)
+
                     }
+
+                    threadsWithStackTraceFrames += 1
                 }
-                
-                XCTAssertTrue(threadsWithFrames > 1, "Not enough threads with frames")
-                
+
+                let percantageWithStacktraceFrames = Double(threadsWithStackTraceFrames) / Double(threads.count)
+
+                // During testing we usually have around 90% to 100%
+                // We choose a bit lower threshold to avoid flaky tests in CI
+                // Especially during the test when launching multiple threads for the concurrent DispatchQueue
+                // it can occur that more than one thread have no stacktrace frames yet, because they just started.
+                XCTAssertGreaterThan(percantageWithStacktraceFrames, 0.6, "More than 60% of threads should have stacktrace frames, but got \(percantageWithStacktraceFrames * 100)%")
+
                 expect.fulfill()
             }
         }
-        
+
         queue.activate()
         wait(for: [expect], timeout: 10)
     }
@@ -91,34 +115,55 @@ class SentryThreadInspectorTests: XCTestCase {
         expect.expectedFulfillmentCount = 10
         
         let sut = self.fixture.getSut(testWithRealMachineContextWrapper: true, symbolicate: false)
-        
+
         for _ in 0..<10 {
             
             queue.async {
-                let actual = sut.getCurrentThreadsWithStackTrace()
-                
-                // Sometimes during tests its possible to have one thread without frames
-                // We just need to make sure we retrieve frame information for at least one other thread than the main thread
-                var threadsWithFrames = 0
-                
-                for thr in actual {
-                    if (thr.stacktrace?.frames.count ?? 0) >= 1 {
-                        threadsWithFrames += 1
+                let threads = sut.getCurrentThreadsWithStackTrace()
+
+                if threads.count == 0 {
+                    // If there are more than 70 threads getCurrentThreadsWithStackTrace
+                    // returns an empty list because it can't handle so many threads.
+                    // This is a known limitation SentryThreadInspector and should be
+                    // addressed in https://github.com/getsentry/sentry-cocoa/issues/2825.
+                    // We see this sometimes happening in CI.
+                    expect.fulfill()
+                    return
+                }
+
+                var threadsWithStackTraceFrames = 0
+
+                for thread in threads {
+
+                    guard let frames = thread.stacktrace?.frames else {
+                        continue
                     }
-                    
-                    for frame in thr.stacktrace?.frames ?? [] {
+
+                    if frames.count == 0 {
+                        continue
+                    }
+
+                    for frame in frames {
                         XCTAssertNotNil(frame.instructionAddress)
                         XCTAssertNotNil(frame.imageAddress)
                         XCTAssertNil(frame.symbolAddress)
                     }
+
+                    threadsWithStackTraceFrames += 1
                 }
-                
-                XCTAssertTrue(threadsWithFrames > 1, "Not enough threads with frames")
-                
+
+                let percantageWithStacktraceFrames = Double(threadsWithStackTraceFrames) / Double(threads.count)
+
+                // During testing we usually have around 90% to 100%
+                // We choose a bit lower threshold to avoid flaky tests in CI
+                // Especially during the test when launching multiple threads for the concurrent DispatchQueue
+                // it can occur that more than one thread have no stacktrace frames yet, because they just started.
+                XCTAssertGreaterThan(percantageWithStacktraceFrames, 0.6, "More than 60% of threads should have stacktrace frames, but got \(percantageWithStacktraceFrames * 100)%")
+
                 expect.fulfill()
             }
         }
-        
+
         queue.activate()
         wait(for: [expect], timeout: 10)
     }

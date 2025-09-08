@@ -187,7 +187,7 @@ final class SentryLogLevelTests: XCTestCase {
         for level in levels {
             let data = try JSONEncoder().encode(level)
             let jsonString = String(data: data, encoding: .utf8)
-            let expectedString = "\"\(level.rawValue)\""
+            let expectedString = "\"\(level.value)\""
             
             XCTAssertEqual(jsonString, expectedString, "Failed for level: \(level)")
         }

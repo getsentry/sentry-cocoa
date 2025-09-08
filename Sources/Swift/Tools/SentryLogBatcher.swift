@@ -64,11 +64,15 @@ import Foundation
         }
     }
     
-    @objc
-    @_spi(Private) func flush() {
-        dispatchQueue.dispatchAsync { [weak self] in
-            self?.performFlush()
+    // Captures batched logs sync and returns the duration.
+    @discardableResult
+    @_spi(Private) func captureLogs() -> TimeInterval {
+        let startTimeNs = SentryDefaultCurrentDateProvider.getAbsoluteTime()
+        dispatchQueue.dispatchSync { [weak self] in
+            self?.performCaptureLogs()
         }
+        let endTimeNs = SentryDefaultCurrentDateProvider.getAbsoluteTime()
+        return TimeInterval(endTimeNs - startTimeNs) / 1_000_000_000.0 // Convert nanoseconds to seconds
     }
 
     // Helper
@@ -84,7 +88,7 @@ import Foundation
             encodedLogsSize += encodedLog.count
             
             if encodedLogsSize >= maxBufferSizeBytes {
-                performFlush()
+                performCaptureLogs()
             } else if encodedLogsWereEmpty && timerWorkItem == nil {
                 startTimer()
             }
@@ -97,14 +101,14 @@ import Foundation
     private func startTimer() {
         let timerWorkItem = DispatchWorkItem { [weak self] in
             SentrySDKLog.debug("SentryLogBatcher: Timer fired, calling performFlush().")
-            self?.performFlush()
+            self?.performCaptureLogs()
         }
         self.timerWorkItem = timerWorkItem
         dispatchQueue.dispatch(after: flushTimeout, workItem: timerWorkItem)
     }
 
     // Only ever call this from the serial dispatch queue.
-    private func performFlush() {
+    private func performCaptureLogs() {
         // Reset logs on function exit
         defer {
             encodedLogs.removeAll()

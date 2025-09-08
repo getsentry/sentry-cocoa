@@ -75,6 +75,7 @@
 @class SentryEvent;
 @class SentrySamplingContext;
 @class SentryUserFeedbackConfiguration;
+@class SentryLog;
 @protocol SentrySpan;
 
 /**
@@ -106,6 +107,14 @@ typedef SentryEvent *_Nullable (^SentryBeforeSendEventCallback)(SentryEvent *_No
  * the span.
  */
 typedef id<SentrySpan> _Nullable (^SentryBeforeSendSpanCallback)(id<SentrySpan> _Nonnull span);
+
+#if !SWIFT_PACKAGE
+/**
+ * Use this block to drop or modify a log before the SDK sends it to Sentry. Return @c nil to drop
+ * the log.
+ */
+typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull log);
+#endif // !SWIFT_PACKAGE
 
 /**
  * Block can be used to decide if the SDK should capture a screenshot or not. Return @c true if the
@@ -143,6 +152,7 @@ typedef BOOL (^SentryShouldQueueEvent)(
 typedef NSNumber *_Nullable (^SentryTracesSamplerCallback)(
     SentrySamplingContext *_Nonnull samplingContext);
 
+#if !SDK_V9
 /**
  * Function pointer for span manipulation.
  * @param span The span to be used.
@@ -150,7 +160,6 @@ typedef NSNumber *_Nullable (^SentryTracesSamplerCallback)(
 typedef void (^SentrySpanCallback)(id<SentrySpan> _Nullable span DEPRECATED_MSG_ATTRIBUTE(
     "See `SentryScope.useSpan` for reasoning of deprecation."));
 
-#if !SDK_V9
 /**
  * Log level.
  */

@@ -13,7 +13,7 @@ import Foundation
 /// // Results in:
 /// // - message: "User 123 with name john_doe authenticated"
 /// // - template: "User {0} with name {1} authenticated"
-/// // - attributes: [.integer(123), .string("john_doe")]
+/// // - attributes: [.init(integer: 123), .init(string: "john_doe")]
 /// ```
 public struct SentryLogMessage: ExpressibleByStringInterpolation {
     /// The final formatted message with all interpolations resolved
@@ -58,32 +58,32 @@ public struct SentryLogMessage: ExpressibleByStringInterpolation {
         
         public mutating func appendInterpolation(_ value: @autoclosure @escaping () -> String) {
             let actualValue = value()
-            appendInterpolationValue(stringValue: actualValue, attributeFactory: .string(actualValue))
+            appendInterpolationValue(stringValue: actualValue, attributeFactory: .init(string: actualValue))
         }
         
         public mutating func appendInterpolation(_ value: @autoclosure @escaping () -> Bool) {
             let actualValue = value()
-            appendInterpolationValue(stringValue: String(actualValue), attributeFactory: .boolean(actualValue))
+            appendInterpolationValue(stringValue: String(actualValue), attributeFactory: .init(boolean: actualValue))
         }
         
         public mutating func appendInterpolation(_ value: @autoclosure @escaping () -> Int) {
             let actualValue = value()
-            appendInterpolationValue(stringValue: String(actualValue), attributeFactory: .integer(actualValue))
+            appendInterpolationValue(stringValue: String(actualValue), attributeFactory: .init(integer: actualValue))
         }
         
         public mutating func appendInterpolation(_ value: @autoclosure @escaping () -> Double) {
             let actualValue = value()
-            appendInterpolationValue(stringValue: String(actualValue), attributeFactory: .double(actualValue))
+            appendInterpolationValue(stringValue: String(actualValue), attributeFactory: .init(double: actualValue))
         }
         
         public mutating func appendInterpolation(_ value: @autoclosure @escaping () -> Float) {
             let actualValue = value()
-            appendInterpolationValue(stringValue: String(actualValue), attributeFactory: .double(Double(actualValue)))
+            appendInterpolationValue(stringValue: String(actualValue), attributeFactory: .init(double: Double(actualValue)))
         }
         
         public mutating func appendInterpolation<T: CustomStringConvertible>(_ value: @autoclosure @escaping () -> T) {
             let actualValue = value()
-            appendInterpolationValue(stringValue: actualValue.description, attributeFactory: .string(actualValue.description))
+            appendInterpolationValue(stringValue: actualValue.description, attributeFactory: .init(string: actualValue.description))
         }
         
         // Helper

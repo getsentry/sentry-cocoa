@@ -1,7 +1,6 @@
 name: Flaky Test
 description: For reporting a flaky test.
-labels: ["Platform: Cocoa", "Type: Flaky Test"]
-type: Task
+labels: ["Cocoa", "Task", "Type: Flaky Test"]
 body:
   - type: input
     id: GitHubActionRunLink

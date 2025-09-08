@@ -5,6 +5,7 @@
 #    import "SentryClient+Private.h"
 #    import "SentryCrashWrapper.h"
 #    import "SentryDependencyContainer.h"
+#    import "SentryDispatchFactory.h"
 #    import "SentryDispatchQueueProviderProtocol.h"
 #    import "SentryDisplayLinkWrapper.h"
 #    import "SentryEvent+Private.h"
@@ -13,7 +14,6 @@
 #    import "SentryHub+Private.h"
 #    import "SentryLogC.h"
 #    import "SentryOptions.h"
-#    import "SentryRandom.h"
 #    import "SentryRateLimits.h"
 #    import "SentryReachability.h"
 #    import "SentrySDK+Private.h"
@@ -22,7 +22,6 @@
 #    import "SentrySessionReplaySyncC.h"
 #    import "SentrySwift.h"
 #    import "SentrySwizzle.h"
-#    import "SentryUIApplication.h"
 #    import <UIKit/UIKit.h>
 
 NS_ASSUME_NONNULL_BEGIN
@@ -139,7 +138,7 @@ static SentryTouchTracker *_touchTracker;
     // We use the dispatch queue provider as a factory to create the queues, but store the queues
     // directly in this instance, so they get deallocated when the integration is deallocated.
     id<SentryDispatchQueueProviderProtocol> dispatchQueueProvider
-        = SentryDependencyContainer.sharedInstance.dispatchQueueProvider;
+        = SentryDependencyContainer.sharedInstance.dispatchFactory;
 
     // The asset worker queue is used to work on video and frames data.
     // Use a relative priority of -1 to make it lower than the default background priority.
@@ -331,7 +330,7 @@ static SentryTouchTracker *_touchTracker;
 
 - (void)runReplayForAvailableWindow
 {
-    if (SentryDependencyContainer.sharedInstance.application.windows.count > 0) {
+    if ([SentryDependencyContainer.sharedInstance.application getWindows].count > 0) {
         SENTRY_LOG_DEBUG(@"[Session Replay] Running replay for available window");
         // If a window its already available start replay right away
         [self startWithOptions:_replayOptions fullSession:_startedAsFullSession];
@@ -414,7 +413,8 @@ static SentryTouchTracker *_touchTracker;
                                                          displayLinkWrapper:displayLinkWrapper];
 
     [self.sessionReplay
-        startWithRootView:SentryDependencyContainer.sharedInstance.application.windows.firstObject
+        startWithRootView:[SentryDependencyContainer.sharedInstance.application getWindows]
+                              .firstObject
               fullSession:shouldReplayFullSession];
 
     [_notificationCenter addObserver:self
@@ -713,7 +713,7 @@ static SentryTouchTracker *_touchTracker;
 
 - (BOOL)sessionReplayShouldCaptureReplayForError
 {
-    return SentryDependencyContainer.sharedInstance.random.nextNumber
+    return [SentryDependencyContainer.sharedInstance.random nextNumber]
         <= _replayOptions.onErrorSampleRate;
 }
 
@@ -770,7 +770,8 @@ static SentryTouchTracker *_touchTracker;
         return;
     }
 
-    UIWindow *window = SentryDependencyContainer.sharedInstance.application.windows.firstObject;
+    UIWindow *window =
+        [SentryDependencyContainer.sharedInstance.application getWindows].firstObject;
     if (window == nil) {
         SENTRY_LOG_WARN(@"[Session Replay] No UIWindow available to display preview");
         return;

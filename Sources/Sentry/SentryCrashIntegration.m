@@ -8,7 +8,6 @@
 #import "SentryCrashWrapper.h"
 #import "SentryEvent.h"
 #import "SentryHub.h"
-#import "SentryInAppLogic.h"
 #import "SentryModels+Serializable.h"
 #import "SentryOptions.h"
 #import "SentrySDK+Private.h"
@@ -26,7 +25,6 @@
 #import <SentrySDK+Private.h>
 
 #if SENTRY_HAS_UIKIT
-#    import "SentryUIApplication.h"
 #    import <UIKit/UIKit.h>
 #endif
 
@@ -42,7 +40,7 @@ static NSString *const LOCALE_KEY = @"locale";
 void
 sentry_finishAndSaveTransaction(void)
 {
-    SentrySpan *span = SentrySDKInternal.currentHub.scope.span;
+    SentrySpan *span = (SentrySpan *)SentrySDKInternal.currentHub.scope.span;
 
     if (span != nil) {
         SentryTracer *tracer = [span tracer];

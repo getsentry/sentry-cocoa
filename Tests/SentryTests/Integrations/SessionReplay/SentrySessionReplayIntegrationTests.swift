@@ -8,24 +8,6 @@ import XCTest
 @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
 class SentrySessionReplayIntegrationTests: XCTestCase {
     
-    private class TestSentryUIApplication: SentryUIApplication {
-        init() {
-            super.init(notificationCenterWrapper: TestNSNotificationCenterWrapper(), dispatchQueueWrapper: TestSentryDispatchQueueWrapper())
-        }
-
-        var windowsMock: [UIWindow]? = [UIWindow()]
-        var screenName: String?
-        
-        override var windows: [UIWindow]? {
-            windowsMock
-        }
-        
-        override func relevantViewControllersNames() -> [String]? {
-            guard let screenName = screenName else { return nil }
-            return [screenName]
-        }
-    }
-    
     private class TestCrashWrapper: SentryCrashWrapper {
         let traced: Bool
         
@@ -49,6 +31,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
     private var globalEventProcessor = SentryGlobalEventProcessor()
 
     override func setUp() {
+        uiApplication.windows = [UIWindow()]
         SentryDependencyContainer.sharedInstance().application = uiApplication
         SentryDependencyContainer.sharedInstance().reachability = TestSentryReachability()
         SentryDependencyContainer.sharedInstance().globalEventProcessor = globalEventProcessor
@@ -133,13 +116,13 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
     }
     
     func testWaitForNotificationWithNoWindow() throws {
-        uiApplication.windowsMock = nil
+        uiApplication.windows = nil
         startSDK(sessionSampleRate: 1, errorSampleRate: 0)
         
         let sut = try getSut()
         
         XCTAssertNil(sut.sessionReplay)
-        uiApplication.windowsMock = [UIWindow()]
+        uiApplication.windows = [UIWindow()]
         NotificationCenter.default.post(name: UIScene.didActivateNotification, object: nil)
         XCTAssertNotNil(sut.sessionReplay)
     }
@@ -199,7 +182,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
     func testScreenNameFromSentryUIApplication() throws {
         startSDK(sessionSampleRate: 1, errorSampleRate: 1)
         let sut: SentrySessionReplayDelegate = try getSut() as! SentrySessionReplayDelegate
-        uiApplication.screenName = "Test Screen"
+        uiApplication._relevantViewControllerNames = ["Test Screen"]
         XCTAssertEqual(sut.currentScreenNameForSessionReplay(), "Test Screen")
     }
     
@@ -211,7 +194,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         }
         
         let sut: SentrySessionReplayDelegate = try getSut() as! SentrySessionReplayDelegate
-        uiApplication.screenName = "Test Screen"
+        uiApplication._relevantViewControllerNames = ["Test Screen"]
         XCTAssertEqual(sut.currentScreenNameForSessionReplay(), "Scope Screen")
     }
     
@@ -224,7 +207,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         let scope = Scope()
         let hub = TestHub(client: client, andScope: scope)
         SentrySDKInternal.setCurrentHub(hub)
-        let expectation = expectation(description: "Replay to be capture")
+        let expectation = expectation(description: "Replay to be captured")
         hub.onReplayCapture = {
             expectation.fulfill()
         }
@@ -252,7 +235,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         let scope = Scope()
         let hub = TestHub(client: client, andScope: scope)
         SentrySDKInternal.setCurrentHub(hub)
-        let expectation = expectation(description: "Replay to be capture")
+        let expectation = expectation(description: "Replay to be captured")
         hub.onReplayCapture = {
             expectation.fulfill()
         }
@@ -272,23 +255,73 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
     }
     
     func testBufferReplayIgnoredBecauseSampleRateForCrash() throws {
-        startSDK(sessionSampleRate: 1, errorSampleRate: 1)
+        // -- Arrange --
+        // Use deterministic random number to avoid flaky test behavior.
+        // CRITICAL: Set random value to 1.0 to ensure shouldReplayFullSession(sessionSampleRate) returns false,
+        // preventing the session from starting as a full session. Buffer replay sample rate checks
+        // only apply to non-full sessions. The sample rate check uses: random >= errorSampleRate
+        // With errorSampleRate=0 and random=1.0: 1.0 >= 0 = true → replay dropped
+        SentryDependencyContainer.sharedInstance().random = TestRandom(value: 1.0)
+
+        // Start current session with 0% session sample rate to ensure it's NOT a full session
+        // (shouldReplayFullSession: 1.0 < 0 = false), but 100% error sample rate would normally 
+        // capture all error replays if this were not a buffer replay from previous session
+        startSDK(sessionSampleRate: 0, errorSampleRate: 1)
         
         let client = SentryClient(options: try XCTUnwrap(SentrySDKInternal.options))
         let scope = Scope()
         let hub = TestHub(client: client, andScope: scope)
         SentrySDKInternal.setCurrentHub(hub)
-        let expectation = expectation(description: "Replay to be capture")
+        let expectation = expectation(description: "Replay to be captured")
+        expectation.isInverted = true // We expect NO replay to be captured
+        hub.onReplayCapture = { 
+            expectation.fulfill()
+        }
+
+        // -- Act --
+        // Create a previous session replay file with 0% error sample rate.
+        // This simulates a previous session that crashed and had error replay disabled.
+        // The key insight: replay capture decision uses the PREVIOUS session's sample rate,
+        // not the current session's sample rate, because the replay frames were recorded
+        // during the previous session with its own sampling configuration.
+        try createLastSessionReplay(writeSessionInfo: false, errorSampleRate: 0)
+        let crash = Event(error: NSError(domain: "Error", code: 1))
+        crash.context = [:]
+        crash.isFatalEvent = true
+        globalEventProcessor.reportAll(crash) // This triggers resumePreviousSessionReplay
+
+        // -- Assert --
+        // The replay should be dropped because:
+        // 1. Previous session had errorSampleRate = 0 (no error replays wanted)
+        // 2. Sample rate check: 1.0 >= 0 = true → drop replay
+        // 3. Current session's errorSampleRate = 1 is irrelevant for previous session data
+        wait(for: [expectation], timeout: 1)
+        XCTAssertEqual(hub.capturedReplayRecordingVideo.count, 0)
+    }
+    
+    func testBufferReplayIgnoredBecauseEventDroppedInBeforeSend() throws {
+        try createLastSessionReplay(writeSessionInfo: false)
+        
+        startSDK(sessionSampleRate: 1, errorSampleRate: 1, configure: { options in
+            options.beforeSend = { _ in
+                return nil
+            }
+        })
+        
+        let client = SentryClient(options: try XCTUnwrap(SentrySDKInternal.options))
+        let scope = Scope()
+        let hub = TestHub(client: client, andScope: scope)
+        SentrySDKInternal.setCurrentHub(hub)
+        let expectation = expectation(description: "Replay to be captured")
         expectation.isInverted = true
         hub.onReplayCapture = {
             expectation.fulfill()
         }
         
-        try createLastSessionReplay(writeSessionInfo: false, errorSampleRate: 0)
         let crash = Event(error: NSError(domain: "Error", code: 1))
         crash.context = [:]
         crash.isFatalEvent = true
-        globalEventProcessor.reportAll(crash)
+        try XCTUnwrap(client).capture(event: crash)
         
         wait(for: [expectation], timeout: 1)
         XCTAssertEqual(hub.capturedReplayRecordingVideo.count, 0)
@@ -562,7 +595,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
     func testShowMaskPreviewForDebug() throws {
         SentryDependencyContainer.sharedInstance().crashWrapper = TestCrashWrapper(traced: true)
         let window = UIWindow()
-        uiApplication.windowsMock = [window]
+        uiApplication.windows = [window]
         
         startSDK(sessionSampleRate: 0, errorSampleRate: 1)
         let sut = try getSut()
@@ -575,7 +608,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
     func testDontShowMaskPreviewForRelese() throws {
         SentryDependencyContainer.sharedInstance().crashWrapper = TestCrashWrapper(traced: false)
         let window = UIWindow()
-        uiApplication.windowsMock = [window]
+        uiApplication.windows = [window]
         
         startSDK(sessionSampleRate: 0, errorSampleRate: 1)
         let sut = try getSut()

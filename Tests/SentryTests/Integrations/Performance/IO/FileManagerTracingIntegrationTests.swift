@@ -121,8 +121,10 @@ class FileManagerSentryTracingIntegrationTests: XCTestCase {
         var invalidPathToCreate: String { invalidDestPath }
 
         var nonFileUrl: URL {
-            // URL to a file that is not a file but should exist at all times
-            URL(string: "https://raw.githubusercontent.com/getsentry/sentry-cocoa/refs/heads/main/.gitignore")!
+            // Use a non-file scheme that doesn't hit the network.
+            // We use a data: URL to reliably return bytes without external dependencies,
+            // ensuring this test verifies "non-file URL should not trace" deterministically.
+            URL(string: "data:text/plain;base64,SGVsbG8=")!
         }
 
         var ignoredFileToCreatePath: String {

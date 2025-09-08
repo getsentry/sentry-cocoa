@@ -1,7 +1,6 @@
 name: 💡 Feature Request
 description: Tell us about a problem our SDK could solve but doesn't.
-labels: ["Platform: Cocoa", "Type: Feature Request"]
-type: Feature
+labels: ["Cocoa", "Feature"]
 body:
   - type: textarea
     id: problem

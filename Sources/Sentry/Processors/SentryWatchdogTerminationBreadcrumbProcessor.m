@@ -1,5 +1,6 @@
 #import "SentryWatchdogTerminationBreadcrumbProcessor.h"
 #import "SentryFileManager.h"
+#import "SentryInternalDefines.h"
 #import "SentryLogC.h"
 #import "SentrySerialization.h"
 
@@ -44,7 +45,7 @@
         SENTRY_LOG_ERROR(@"Error serializing breadcrumb to JSON");
         return;
     }
-    [self storeBreadcrumb:jsonData];
+    [self storeBreadcrumb:SENTRY_UNWRAP_NULLABLE(NSData, jsonData)];
 }
 
 - (void)clear

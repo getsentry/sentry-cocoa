@@ -1,5 +1,5 @@
 #import "SentryDefines.h"
-#import "SentryObjCRuntimeWrapper.h"
+@import Sentry;
 
 /**
  * Written in ObjC, because dealing with the pointers in Swift is super complicated.

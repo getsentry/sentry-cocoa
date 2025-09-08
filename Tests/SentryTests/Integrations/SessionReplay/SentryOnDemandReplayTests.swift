@@ -122,20 +122,28 @@ class SentryOnDemandReplayTests: XCTestCase {
             processingQueue: processingQueue,
             assetWorkerQueue: workerQueue
         )
-        let group = DispatchGroup()
+
+        let loopCount = 10
+        let expectation = XCTestExpectation(description: "AddFrameIsThreadSafe")
+        expectation.expectedFulfillmentCount = loopCount
+        expectation.assertForOverFulfill = true
 
         let start = Date(timeIntervalSinceReferenceDate: 0)
-        for i in 0..<10 {
-            group.enter()
+        for i in 0..<loopCount {
             DispatchQueue.global().async {
                 sut.addFrameAsync(timestamp: start.addingTimeInterval(TimeInterval(i)), maskedViewImage: UIImage.add)
-                group.leave()
+                expectation.fulfill()
             }
         }
 
-        group.wait()
+        wait(for: [expectation], timeout: 10.0)
         processingQueue.queue.sync {} // Wait for all enqueued operation to finish
-        XCTAssertEqual(sut.frames.map({ ($0.imagePath as NSString).lastPathComponent }), (0..<10).map { "\($0).0.png" })
+
+        // We need to sort the frames because we add them asynchronously and the order is not guaranteed.
+        let actualFrames = sut.frames.map { ($0.imagePath as NSString).lastPathComponent }.sorted()
+        let expectedFrames = (0..<loopCount).map { "\($0).0.png" }
+
+        XCTAssertEqual(actualFrames, expectedFrames)
     }
     
     func testReleaseIsThreadSafe() {
@@ -149,17 +157,19 @@ class SentryOnDemandReplayTests: XCTestCase {
 
         sut.frames = (0..<100).map { SentryReplayFrame(imagePath: outputPath.path + "/\($0).png", time: Date(timeIntervalSinceReferenceDate: Double($0)), screenName: nil) }
 
-        let group = DispatchGroup()
+        let expectation = XCTestExpectation(description: "ReleaseIsThreadSafe")
+        expectation.expectedFulfillmentCount = 10
+        expectation.assertForOverFulfill = true
 
         for i in 1...10 {
-            group.enter()
+
             DispatchQueue.global().async {
                 sut.releaseFramesUntil(Date(timeIntervalSinceReferenceDate: Double(i) * 10.0))
-                group.leave()
+                expectation.fulfill()
             }
         }
 
-        group.wait()
+        wait(for: [expectation], timeout: 10.0)
 
         processingQueue.queue.sync {} //Wait for all enqueued operation to finish
         XCTAssertEqual(sut.frames.count, 0)

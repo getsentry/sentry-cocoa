@@ -88,54 +88,68 @@ final class SentryHttpTransportFlushIntegrationTests: XCTestCase {
     func testFlush_CalledMultipleTimes_ImmediatelyReturnsFalse() throws {
         let (sut, requestManager, _, dispatchQueueWrapper) = try getSut()
 
+        // This must be long enough that all the threads we start below get to run
+        // while the first call to flush is still blocking
+        let flushTimeout = 10.0
+        requestManager.waitForResponseDispatchGroup = true
+        requestManager.responseDispatchGroup.enter()
+        
         requestManager.returnResponse(response: nil)
         for _ in 0..<30 {
             sut.send(envelope: SentryEnvelope(event: Event()))
         }
-        // Wait until the dispath queue drains to confirm the envelope is stored
+        // Wait until the dispatch queue drains to confirm the envelope is stored
         waitForEnvelopeToBeStored(dispatchQueueWrapper)
         requestManager.returnResponse(response: HTTPURLResponse())
 
-        let flushTimeout = 0.1
-        requestManager.waitForResponseDispatchGroup = true
-        requestManager.responseDispatchGroup.enter()
+        let initialFlushCallExpectation = XCTestExpectation(description: "Initial flush call should succeed")
+        initialFlushCallExpectation.assertForOverFulfill = true
 
-        let allFlushCallsGroup = DispatchGroup()
-        let ensureFlushingGroup = DispatchGroup()
+        let ensureFlushingExpectation = XCTestExpectation(description: "Ensure flushing is called")
+        ensureFlushingExpectation.assertForOverFulfill = true
+
         let ensureFlushingQueue = DispatchQueue(label: "First flushing")
 
         sut.setStartFlushCallback {
-            ensureFlushingGroup.leave()
+            ensureFlushingExpectation.fulfill()
         }
 
-        allFlushCallsGroup.enter()
-        ensureFlushingGroup.enter()
         ensureFlushingQueue.async {
-            XCTAssertEqual(.timedOut, sut.flush(flushTimeout))
-            requestManager.responseDispatchGroup.leave()
-            allFlushCallsGroup.leave()
+            XCTAssertEqual(.success, sut.flush(flushTimeout), "Initial call to flush should succeed")
+            initialFlushCallExpectation.fulfill()
         }
 
         // Ensure transport is flushing.
-        ensureFlushingGroup.waitWithTimeout()
+        wait(for: [ensureFlushingExpectation], timeout: 10.0)
 
         // Now the transport should also have left the synchronized block, and the
         // flush should return immediately.
 
+        let loopCount = 2
+        let parallelFlushCallsExpectation = XCTestExpectation(description: "Parallel flush calls should return immediately")
+        parallelFlushCallsExpectation.expectedFulfillmentCount = loopCount
+        parallelFlushCallsExpectation.assertForOverFulfill = true
+
         let initiallyInactiveQueue = DispatchQueue(label: "testFlush_CalledMultipleTimes_ImmediatelyReturnsFalse", qos: .userInitiated, attributes: [.concurrent, .initiallyInactive])
-        for _ in 0..<2 {
-            allFlushCallsGroup.enter()
+        for _ in 0..<loopCount {
+
             initiallyInactiveQueue.async {
                 for _ in 0..<10 {
                     XCTAssertEqual(.alreadyFlushing, sut.flush(flushTimeout), "Flush should have returned immediately")
                 }
 
-                allFlushCallsGroup.leave()
+                parallelFlushCallsExpectation.fulfill()
             }
         }
 
         initiallyInactiveQueue.activate()
-        allFlushCallsGroup.waitWithTimeout()
+        wait(for: [parallelFlushCallsExpectation], timeout: 10.0)
+
+        requestManager.responseDispatchGroup.leave()
+
+        // The initial call to flush is blocking and will take some time to finish.
+        // Therefore, we wait at the end of the test.
+        wait(for: [initialFlushCallExpectation], timeout: 10.0)
     }
 
     // We use the test name as part of the DSN to ensure that each test runs in isolation.
@@ -160,7 +174,8 @@ final class SentryHttpTransportFlushIntegrationTests: XCTestCase {
         let dispatchQueueWrapper = SentryDispatchQueueWrapper()
 
         return (SentryHttpTransport(
-            options: options,
+            dsn: try XCTUnwrap(options.parsedDsn),
+            sendClientReports: options.sendClientReports,
             cachedEnvelopeSendDelay: 0.0,
             dateProvider: SentryDefaultCurrentDateProvider(),
             fileManager: fileManager,

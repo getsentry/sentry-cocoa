@@ -190,7 +190,7 @@ class SentryHubTests: XCTestCase {
 
     func testScopeEnriched_WithNoRuntime() throws {
         // Arrange
-        let processInfoWrapper = TestSentryNSProcessInfoWrapper()
+        let processInfoWrapper = MockSentryProcessInfo()
         SentryDependencyContainer.sharedInstance().processInfoWrapper = processInfoWrapper
 
         processInfoWrapper.overrides.isiOSAppOnMac = false
@@ -205,7 +205,7 @@ class SentryHubTests: XCTestCase {
 
     func testScopeEnriched_WithRuntime_isiOSAppOnMac() throws {
         // Arrange
-        let processInfoWrapper = TestSentryNSProcessInfoWrapper()
+        let processInfoWrapper = MockSentryProcessInfo()
         processInfoWrapper.overrides.isiOSAppOnMac = true
         processInfoWrapper.overrides.isMacCatalystApp = false
         SentryDependencyContainer.sharedInstance().processInfoWrapper = processInfoWrapper
@@ -222,7 +222,7 @@ class SentryHubTests: XCTestCase {
 
     func testScopeEnriched_WithRuntime_isMacCatalystApp() throws {
         // Arrange
-        let processInfoWrapper = TestSentryNSProcessInfoWrapper()
+        let processInfoWrapper = MockSentryProcessInfo()
         processInfoWrapper.overrides.isiOSAppOnMac = false
         processInfoWrapper.overrides.isMacCatalystApp = true
         SentryDependencyContainer.sharedInstance().processInfoWrapper = processInfoWrapper
@@ -1080,6 +1080,7 @@ class SentryHubTests: XCTestCase {
         try assertSessionWithIncrementedErrorCountedAdded()
     }
     
+    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testCaptureEnvelope_WithEventWithNoLevel() throws {
         sut.startSession()
         
@@ -1091,6 +1092,7 @@ class SentryHubTests: XCTestCase {
         try assertSessionWithIncrementedErrorCountedAdded()
     }
     
+    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testCaptureEnvelope_WithEventWithGarbageLevel() throws {
         sut.startSession()
         
@@ -1254,16 +1256,19 @@ class SentryHubTests: XCTestCase {
         sut.startSession()
         
         let queue = fixture.queue
-        let group = DispatchGroup()
+
+        let expectation = XCTestExpectation(description: "Capture should be called \(count) times")
+        expectation.expectedFulfillmentCount = count
+
         for _ in 0..<count {
-            group.enter()
+
             queue.async {
                 capture(sut)
-                group.leave()
+                expectation.fulfill()
             }
         }
-        
-        group.waitWithTimeout()
+
+        wait(for: [expectation], timeout: 5.0)
     }
     
     func testModifyIntegrationsConcurrently() {
@@ -1274,10 +1279,11 @@ class SentryHubTests: XCTestCase {
         let innerLoopAmount = 100
         
         let queue = fixture.queue
-        let group = DispatchGroup()
-        
+
+        let expectation = XCTestExpectation(description: "Installing integrations concurrently")
+        expectation.expectedFulfillmentCount = outerLoopAmount
+
         for i in 0..<outerLoopAmount {
-            group.enter()
             queue.async {
                 for j in 0..<innerLoopAmount {
                     let integrationName = "Integration\(i)\(j)"
@@ -1285,12 +1291,12 @@ class SentryHubTests: XCTestCase {
                     XCTAssertTrue(sut.hasIntegration(integrationName))
                     XCTAssertNotNil(sut.getInstalledIntegration(EmptyIntegration.self))
                 }
-                group.leave()
+                expectation.fulfill()
             }
         }
-        
-        group.waitWithTimeout()
-        
+
+        wait(for: [expectation], timeout: 5.0)
+
         XCTAssertEqual(innerLoopAmount * outerLoopAmount, sut.installedIntegrations().count)
         XCTAssertEqual(innerLoopAmount * outerLoopAmount, sut.installedIntegrationNames().count)
         
@@ -1303,10 +1309,13 @@ class SentryHubTests: XCTestCase {
         let sut = fixture.getSut()
         
         let queue = fixture.queue
-        let group = DispatchGroup()
-        
-        for i in 0..<1_000 {
-            group.enter()
+
+        let loopCount = 1_000
+        let expectation = XCTestExpectation(description: "Installing integrations concurrently")
+        expectation.expectedFulfillmentCount = loopCount
+
+        for i in 0..<loopCount {
+
             queue.async {
                 for j in 0..<10 {
                     let integrationName = "Integration\(i)\(j)"
@@ -1322,11 +1331,11 @@ class SentryHubTests: XCTestCase {
                 sut.installedIntegrationNames().forEach { XCTAssertNotNil($0) }
                 sut.removeAllIntegrations()
                 
-                group.leave()
+                expectation.fulfill()
             }
         }
         
-        group.wait()
+        wait(for: [expectation], timeout: 5.0)
     }
     
     func testGetInstalledIntegration() {
@@ -1407,6 +1416,7 @@ class SentryHubTests: XCTestCase {
         sut = fixture.getSut(options)
     }
     
+    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     private func givenEnvelopeWithModifiedEvent(modifyEventDict: (inout [String: Any]) -> Void) throws -> SentryEnvelope {
         let event = TestData.event
         let envelopeItem = SentryEnvelopeItem(event: event)

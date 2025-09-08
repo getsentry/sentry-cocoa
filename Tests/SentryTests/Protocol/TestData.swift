@@ -1,4 +1,5 @@
 import Sentry
+@_spi(Private) import Sentry
 @_spi(Private) import SentryTestUtils
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
@@ -201,6 +202,26 @@ class TestData {
         frame.platform = "iOS"
         frame.symbolAddress = "0x000000008e902b97"
         frame.stackStart = false
+        return frame
+    }
+
+    static var godotFrame: Frame {
+        let frame = Frame()
+        frame.fileName = "player/player.gd"
+        frame.function = "take_damage"
+        frame.lineNumber = 42
+        frame.columnNumber = 15
+        frame.platform = "gdscript"
+        frame.inApp = true
+        frame.contextLine = "    health -= damage"
+        frame.preContext = [
+        	"func take_damage(damage):",
+         	"    if damage <= 0:",
+          	"        return"]
+        frame.postContext = [
+        	"    if health <= 0:",
+         	"        die()"]
+        frame.vars = ["damage": 25, "health": 75, "player_name": "Hero"]
         return frame
     }
 

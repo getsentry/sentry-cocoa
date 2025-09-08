@@ -9,9 +9,9 @@
 #import "SentryHub+Private.h"
 #import "SentryInstallation.h"
 #import "SentryIntegrationProtocol.h"
+#import "SentryInternalDefines.h"
 #import "SentryLevelMapper.h"
 #import "SentryLogC.h"
-#import "SentryNSTimerFactory.h"
 #import "SentryOptions+Private.h"
 #import "SentryPerformanceTracker.h"
 #import "SentryProfilingConditionals.h"
@@ -21,7 +21,6 @@
 #import "SentrySamplingContext.h"
 #import "SentryScope+Private.h"
 #import "SentrySerialization.h"
-#import "SentrySession+Private.h"
 #import "SentrySwift.h"
 #import "SentryTraceOrigin.h"
 #import "SentryTracer.h"
@@ -79,7 +78,7 @@ NS_ASSUME_NONNULL_BEGIN
         _errorsBeforeSession = 0;
 
         if (_scope) {
-            [_crashWrapper enrichScope:_scope];
+            [_crashWrapper enrichScope:SENTRY_UNWRAP_NULLABLE(SentryScope, _scope)];
         }
     }
 
@@ -194,7 +193,7 @@ NS_ASSUME_NONNULL_BEGIN
             [session endSessionAbnormalWithTimestamp:timestamp];
         } else {
             SENTRY_LOG_DEBUG(@"Closing cached session as exited.");
-            [session endSessionExitedWithTimestamp:timestamp];
+            [session endSessionExitedWithTimestamp:SENTRY_UNWRAP_NULLABLE(NSDate, timestamp)];
         }
         [self deleteCurrentSession];
         [client captureSession:session];
@@ -577,15 +576,16 @@ NS_ASSUME_NONNULL_BEGIN
     if (options.maxBreadcrumbs < 1) {
         return;
     }
+    SentryBreadcrumb *_Nullable nullableCrumb = crumb;
     SentryBeforeBreadcrumbCallback callback = [options beforeBreadcrumb];
     if (callback != nil) {
-        crumb = callback(crumb);
+        nullableCrumb = callback(crumb);
     }
-    if (crumb == nil) {
+    if (nullableCrumb == nil) {
         SENTRY_LOG_DEBUG(@"Discarded Breadcrumb in `beforeBreadcrumb`");
         return;
     }
-    [self.scope addBreadcrumb:crumb];
+    [self.scope addBreadcrumb:SENTRY_UNWRAP_NULLABLE(SentryBreadcrumb, nullableCrumb)];
 }
 
 - (nullable SentryClient *)getClient
@@ -609,9 +609,9 @@ NS_ASSUME_NONNULL_BEGIN
                 _scope = [[SentryScope alloc] init];
             }
 
-            [_crashWrapper enrichScope:_scope];
+            [_crashWrapper enrichScope:SENTRY_UNWRAP_NULLABLE(SentryScope, _scope)];
         }
-        return _scope;
+        return SENTRY_UNWRAP_NULLABLE(SentryScope, _scope);
     }
 }
 
@@ -774,11 +774,13 @@ NS_ASSUME_NONNULL_BEGIN
     for (SentryEnvelopeItem *item in items) {
         if ([item.header.type isEqualToString:SentryEnvelopeItemTypeEvent]) {
             // If there is no level the default is error
-            NSDictionary *_Nullable eventJson =
+            NSDictionary *_Nullable nullableEventJson =
                 [SentrySerialization deserializeDictionaryFromJsonData:item.data];
-            if (eventJson == nil) {
+            if (nullableEventJson == nil) {
                 return NO;
             }
+            NSDictionary *_Nonnull eventJson
+                = SENTRY_UNWRAP_NULLABLE(NSDictionary, nullableEventJson);
 
             SentryLevel level = sentryLevelForString(eventJson[@"level"]);
             if (level >= kSentryLevelError) {
@@ -852,7 +854,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - Protected
 
-- (NSMutableArray<NSString *> *)trimmedInstalledIntegrationNames
+- (NSArray<NSString *> *)trimmedInstalledIntegrationNames
 {
     NSMutableArray<NSString *> *integrations = [NSMutableArray<NSString *> array];
     for (NSString *integration in SentrySDKInternal.currentHub.installedIntegrationNames) {

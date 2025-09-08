@@ -52,7 +52,7 @@ final class SentryLogBatcherTests: XCTestCase {
         XCTAssertEqual(testClient.captureLogsDataInvocations.count, 0)
         
         // Trigger flush manually
-        sut.flush()
+        sut.captureLogs()
         
         // Verify both logs are batched together
         XCTAssertEqual(testClient.captureLogsDataInvocations.count, 1)
@@ -140,9 +140,9 @@ final class SentryLogBatcherTests: XCTestCase {
         XCTAssertEqual(2, items.count)
     }
      
-     // MARK: - Manual Flush Tests
+     // MARK: - Manual Capture Logs Tests
     
-    func testManualFlush_FlushesImmediately() throws {
+    func testManualCaptureLogs_CapturesImmediately() throws {
         // Given
         let log1 = createTestLog(body: "Log 1")
         let log2 = createTestLog(body: "Log 2")
@@ -152,7 +152,7 @@ final class SentryLogBatcherTests: XCTestCase {
         sut.add(log2)
         XCTAssertEqual(testClient.captureLogsDataInvocations.count, 0)
         
-        sut.flush()
+        sut.captureLogs()
         
         // Then
         XCTAssertEqual(testClient.captureLogsDataInvocations.count, 1)
@@ -163,7 +163,7 @@ final class SentryLogBatcherTests: XCTestCase {
         XCTAssertEqual(2, items.count)
     }
     
-    func testManualFlush_CancelsScheduledFlush() throws {
+    func testManualCaptureLogs_CancelsScheduledCapture() throws {
         // Given
         let log = createTestLog()
         
@@ -175,7 +175,7 @@ final class SentryLogBatcherTests: XCTestCase {
         let timerWorkItem = try XCTUnwrap(testDispatchQueue.dispatchAfterWorkItemInvocations.first?.workItem)
         
         // Manual flush immediately
-        sut.flush()
+        sut.captureLogs()
         XCTAssertEqual(testClient.captureLogsDataInvocations.count, 1, "Manual flush should work")
         
         // Try to trigger the timer work item (should not flush again since timer was cancelled)
@@ -185,14 +185,14 @@ final class SentryLogBatcherTests: XCTestCase {
         XCTAssertEqual(testClient.captureLogsDataInvocations.count, 1, "Timer should be cancelled")
     }
     
-    func testFlushEmptyBuffer_DoesNothing() {
+    func testManualCaptureLogs_WithEmptyBuffer_DoesNothing() {
         // When
-        sut.flush()
+        sut.captureLogs()
         
         // Then
         XCTAssertEqual(testClient.captureLogsDataInvocations.count, 0)
     }
-
+    
     // MARK: - Edge Cases Tests
     
     func testScheduledFlushAfterBufferAlreadyFlushed_DoesNothing() throws {
@@ -225,12 +225,12 @@ final class SentryLogBatcherTests: XCTestCase {
         
         // When
         sut.add(log1)
-        sut.flush()
+        sut.captureLogs()
         
         XCTAssertEqual(testClient.captureLogsDataInvocations.count, 1)
         
         sut.add(log2)
-        sut.flush()
+        sut.captureLogs()
         
         // Then - should have two separate flush calls
         XCTAssertEqual(testClient.captureLogsDataInvocations.count, 2)
@@ -268,14 +268,7 @@ final class SentryLogBatcherTests: XCTestCase {
         }
         wait(for: [expectation], timeout: 1.0)
                 
-        sutWithRealQueue.flush()
-        
-        // Need to wait a bit for flush to complete since this uses a real queue
-        let flushExpectation = self.expectation(description: "Wait for flush")
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            flushExpectation.fulfill()
-        }
-        waitForExpectations(timeout: 0.5)
+        sutWithRealQueue.captureLogs()
         
         // Verify all 10 logs were included in the single batch
         let sentData = try XCTUnwrap(testClient.captureLogsDataInvocations.first).data

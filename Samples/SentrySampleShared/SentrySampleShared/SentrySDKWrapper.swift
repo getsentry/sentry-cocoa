@@ -49,21 +49,18 @@ public struct SentrySDKWrapper {
         options.debug = !SentrySDKOverrides.Special.disableDebugMode.boolValue
 
 #if !os(macOS) && !os(watchOS) && !os(visionOS)
-        if #available(iOS 16.0, *), !SentrySDKOverrides.SessionReplay.disableSessionReplay.boolValue {
+        if #available(iOS 16.0, *), !SentrySDKOverrides.SessionReplay.disable.boolValue {
             options.sessionReplay = SentryReplayOptions(
-                sessionSampleRate: SentrySDKOverrides.SessionReplay.sampleRate.floatValue ?? 0,
+                sessionSampleRate: SentrySDKOverrides.SessionReplay.sessionSampleRate.floatValue ?? 0,
                 onErrorSampleRate: SentrySDKOverrides.SessionReplay.onErrorSampleRate.floatValue ?? 1,
                 maskAllText: !SentrySDKOverrides.SessionReplay.disableMaskAllText.boolValue,
-                maskAllImages: !SentrySDKOverrides.SessionReplay.disableMaskAllImages.boolValue
+                maskAllImages: !SentrySDKOverrides.SessionReplay.disableMaskAllImages.boolValue,
+                enableViewRendererV2: !SentrySDKOverrides.SessionReplay.disableViewRendererV2.boolValue,
+                // Disable the fast view rendering, because we noticed parts (like the tab bar) are not rendered correctly
+                enableFastViewRendering: SentrySDKOverrides.SessionReplay.enableFastViewRendering.boolValue
             )
-
-            let defaultReplayQuality = SentryReplayOptions.SentryReplayQuality.high
+            let defaultReplayQuality = options.sessionReplay.quality
             options.sessionReplay.quality = SentryReplayOptions.SentryReplayQuality(rawValue: (SentrySDKOverrides.SessionReplay.quality.stringValue as? NSString)?.integerValue ?? defaultReplayQuality.rawValue) ?? defaultReplayQuality
-
-            options.sessionReplay.enableViewRendererV2 = !SentrySDKOverrides.SessionReplay.disableViewRendererV2.boolValue
-
-            // Disable the fast view rendering, because we noticed parts (like the tab bar) are not rendered correctly
-            options.sessionReplay.enableFastViewRendering = SentrySDKOverrides.SessionReplay.enableFastViewRendering.boolValue
         }
 
 #if !os(tvOS)
@@ -101,7 +98,15 @@ public struct SentrySDKWrapper {
 
         options.enablePreWarmedAppStartTracing = !isBenchmarking && !SentrySDKOverrides.Performance.disablePrewarmedAppStartTracing.boolValue
         options.enableUIViewControllerTracing = !SentrySDKOverrides.Performance.disableUIVCTracing.boolValue
+
+        // -- Screenshot Options --
         options.attachScreenshot = !SentrySDKOverrides.Other.disableAttachScreenshot.boolValue
+        options.screenshot.enableViewRendererV2 = !SentrySDKOverrides.Screenshot.disableViewRendererV2.boolValue
+        // The fast view renderer is opt-in, therefore it is assumed to be disabled by default.
+        options.screenshot.enableFastViewRendering = SentrySDKOverrides.Screenshot.enableFastViewRendering.boolValue
+        options.screenshot.maskAllImages = !SentrySDKOverrides.Screenshot.disableMaskAllImages.boolValue
+        options.screenshot.maskAllText = !SentrySDKOverrides.Screenshot.disableMaskAllText.boolValue
+
         options.attachViewHierarchy = !SentrySDKOverrides.Other.disableAttachViewHierarchy.boolValue
       #if !SDK_V9
         options.enableAppHangTrackingV2 = !SentrySDKOverrides.Performance.disableAppHangTrackingV2.boolValue
@@ -180,6 +185,7 @@ public struct SentrySDKWrapper {
             scope.setTag(value: uiTestName, key: "ui-test-name")
         }
 
+        setTagsForConfiguredOverrides(scope: scope)
         injectGitInformation(scope: scope)
 
         let user = User(userId: SentrySDKOverrides.Other.userID.stringValue ?? "1")
@@ -193,9 +199,6 @@ public struct SentrySDKWrapper {
         }
         let data = Data("hello".utf8)
         scope.addAttachment(Attachment(data: data, filename: "log.txt"))
-
-        scope.setTag(value: options.sampleRate?.stringValue ?? "0", key: "sample-rate")
-        scope.setTag(value: SentrySDKOverrides.Events.rejectAll.boolValue ? "true" : "false", key: "beforeSend-reject-all")
 
         return scope
     }
@@ -215,6 +218,35 @@ public struct SentrySDKWrapper {
                 .lastPathComponent ?? "cocoadev"
         }
         return username
+    }
+
+    private func setTagsForConfiguredOverrides(scope: Scope) {
+        for overrideCategory in SentrySDKOverrides.allCases {
+            for flag in overrideCategory.featureFlags {
+                let tagKey = cleanTagKey(from: flag.rawValue)
+                
+                switch flag.overrideType {
+                case .boolean:
+                    if flag.boolValue {
+                        scope.setTag(value: "true", key: tagKey)
+                    }
+                case .string:
+                    if let stringValue = flag.stringValue, !stringValue.isEmpty {
+                        scope.setTag(value: stringValue, key: tagKey)
+                    }
+                case .float:
+                    if let floatValue = flag.floatValue {
+                        scope.setTag(value: String(format: "%.2f", floatValue), key: tagKey)
+                    }
+                }
+            }
+        }
+    }
+    
+    private func cleanTagKey(from rawValue: String) -> String {
+        return rawValue
+            .replacingOccurrences(of: "--io.sentry.", with: "")
+            .replacingOccurrences(of: ".", with: "_")
     }
 }
 
@@ -419,7 +451,7 @@ extension SentrySDKWrapper {
     /// For testing purposes, we want to be able to change the DSN and store it to disk. In a real app, you shouldn't need this behavior.
     var dsn: String? {
         do {
-            if let dsn = env["--io.sentry.dsn"] {
+            if let dsn = env[SentrySDKOverrides.Special.dsn.rawValue] {
                 try DSNStorage.shared.saveDSN(dsn: dsn)
             }
             return try DSNStorage.shared.getDSN() ?? SentrySDKWrapper.defaultDSN
@@ -431,7 +463,7 @@ extension SentrySDKWrapper {
     
     /// Whether or not profiling benchmarks are being run; this requires disabling certain other features for proper functionality.
     var isBenchmarking: Bool { args.contains("--io.sentry.test.benchmarking") }
-    var isUITest: Bool { env["--io.sentry.scope.sdk-environment"] == "ui-tests" }
+    var isUITest: Bool { env[SentrySDKOverrides.Other.environment.rawValue] == "ui-tests" }
 }
 
 // MARK: Profiling configuration

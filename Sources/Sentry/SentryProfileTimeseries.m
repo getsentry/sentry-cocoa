@@ -1,4 +1,5 @@
 #import "SentryProfileTimeseries.h"
+#import "SentryInternalDefines.h"
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
@@ -93,7 +94,7 @@ sentry_sliceTraceProfileGPUData(SentryFrameInfoTimeSeries *frameInfo, uint64_t s
 {
     NSMutableArray<SentrySerializedMetricEntry *> *slicedGPUEntries =
         [NSMutableArray<SentrySerializedMetricEntry *> array];
-    __block NSNumber *nearestPredecessorValue;
+    __block NSNumber *_Nullable nearestPredecessorValue;
     [frameInfo enumerateObjectsUsingBlock:^(
         NSDictionary<NSString *, NSNumber *> *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
         unsigned long long timestamp = obj[@"timestamp"].unsignedLongLongValue;
@@ -112,15 +113,20 @@ sentry_sliceTraceProfileGPUData(SentryFrameInfoTimeSeries *frameInfo, uint64_t s
         }
         uint64_t relativeTimestamp = getDurationNs(startSystemTime, timestamp);
 
-        [slicedGPUEntries addObject:@ {
-            @"elapsed_since_start_ns" : sentry_stringForUInt64(relativeTimestamp),
-            @"value" : obj[@"value"],
-        }];
+        NSMutableDictionary *entry =
+            [@ { @"elapsed_since_start_ns" : sentry_stringForUInt64(relativeTimestamp) }
+                mutableCopy];
+        NSNumber *value = obj[@"value"];
+        if (value != nil && ![value isKindOfClass:[NSNull class]]) {
+            entry[@"value"] = value;
+        }
+        [slicedGPUEntries addObject:entry];
     }];
-    if (useMostRecentRecording && slicedGPUEntries.count == 0 && nearestPredecessorValue != nil) {
+    if (useMostRecentRecording && slicedGPUEntries.count == 0 && nearestPredecessorValue != nil
+        && ![nearestPredecessorValue isKindOfClass:[NSNull class]]) {
         [slicedGPUEntries addObject:@ {
             @"elapsed_since_start_ns" : @"0",
-            @"value" : nearestPredecessorValue,
+            @"value" : SENTRY_UNWRAP_NULLABLE(NSNumber, nearestPredecessorValue),
         }];
     }
     return slicedGPUEntries;

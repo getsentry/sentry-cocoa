@@ -2,6 +2,7 @@
 #import "SentryAsyncSafeLog.h"
 #import "SentryFileManager.h"
 #import "SentryInternalCDefines.h"
+#import "SentryInternalDefines.h"
 #import "SentryLogC.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -10,11 +11,18 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (void)initializeAsyncLogFile
 {
-    const char *asyncLogPath =
-        [[sentryStaticCachesPath() stringByAppendingPathComponent:@"async.log"] UTF8String];
+    NSString *_Nullable nullableStaticCachesPath = sentryStaticCachesPath();
+    if (nullableStaticCachesPath == nil) {
+        SENTRY_LOG_ERROR(@"Failed to get static caches path for async log file.");
+        return;
+    }
+    NSString *_Nonnull cachesPath = SENTRY_UNWRAP_NULLABLE(NSString, nullableStaticCachesPath);
 
-    NSError *error;
-    if (!createDirectoryIfNotExists(sentryStaticCachesPath(), &error)) {
+    const char *asyncLogPath =
+        [[cachesPath stringByAppendingPathComponent:@"async.log"] UTF8String];
+
+    NSError *_Nullable error;
+    if (!createDirectoryIfNotExists(cachesPath, &error)) {
         SENTRY_LOG_ERROR(@"Failed to initialize directory for async log file: %@", error);
         return;
     }

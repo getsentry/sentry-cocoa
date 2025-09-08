@@ -1,7 +1,6 @@
 name: 🐞 Bug Report
 description: Tell us about something that's not working the way we (probably) intend.
-labels: ["Platform: Cocoa", "Type: Bug"]
-type: Bug
+labels: ["Cocoa", "Bug"]
 body:
   - type: dropdown
     id: platform

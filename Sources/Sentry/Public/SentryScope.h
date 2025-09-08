@@ -33,7 +33,11 @@ NS_SWIFT_NAME(Scope)
  * Returns current Span or Transaction.
  * @return current Span or Transaction or null if transaction has not been set.
  */
+#if SDK_V9
+@property (nullable, nonatomic, readonly, strong) id<SentrySpan> span;
+#else
 @property (nullable, nonatomic, strong) id<SentrySpan> span;
+#endif // SDK_V9
 
 /**
  * The id of current session replay.
@@ -172,11 +176,6 @@ NS_SWIFT_NAME(Scope)
         "span. It is not atomic anymore and due to issues with memory safety in `NSBlock` it is "
         "now considered unsafe and deprecated. Use `span` instead.");
 #endif // !SDK_V9
-
-/**
- * Returns the current span.
- */
-- (id<SentrySpan> _Nullable)span;
 
 @end
 

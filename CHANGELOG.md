@@ -2,12 +2,73 @@
 
 ## Unreleased
 
+### Features
+
+- Structured Logs: Flush logs on SDK flush/close (#5834)
+- Add masking options for screenshots (#5401)
+
+### Fixes
+
+- Don't capture replays for events dropped in `beforeSend` (#5916)
+- Fix linking with SentrySwiftUI on Xcode 26 for visionOS (#5823)
+- Structured Logging: Logger called before `SentrySDK.start` becomes unusable (#5984)
+- Add masking for AVPlayerView (#5910)
+- Fix missing view hierachy when enabling `attachScreenshot` too (#5989)
+- Fix macOS's frameworks not following the versioned framework structure (#6049)
+- Add warning to addBreadcrumb when used before SDK init (#6083)
+- Add null-handling for parsed DSN in SentryHTTPTransport (#5800)
+
+### Improvements
+
+- Lazily CharacterSet only once in SentryBaggageSerialization (#5871)
+- Structured Logging: Log `SentrySDK.logger` calls to `SentrySDKLog` (#5991)
+- The build type in the app context now differentiates between `enterprise` and `adhoc` (#6044)
+- Ensure IP address is only inferred by Relay if sendDefaultPii is true (#5877)
+
+## 8.55.1
+
+### Features
+
+### Fixes
+
+- Fix macOS's frameworks not following the versioned framework structure (#6049)
+
+## 8.54.1-alpha.1
+
+### Fixes
+
+- Add padding to tap area of widget button (#5949)
+
+## 8.55.0
+
+> [!Important]
+> Xcode 26 no longer allows individual frameworks to contain arm64e slices anymore if the main binary doesn't contain them.
+> We have decided to split the Dynamic variant and Sentry-WithoutUIKitOrAppKit of Sentry into two variants:
+>
+> - `Sentry-Dynamic`: Without ARM64e
+> - `Sentry-Dynamic-WithARM64e`: _With_ ARM64e slice
+> - `Sentry-WithoutUIKitOrAppKit`: Without ARM64e
+> - `Sentry-WithoutUIKitOrAppKit-WithARM64e`: _With_ ARM64e slice
+>
+> If your app does not need arm64e, you don't need to make any changes.
+> But if your app _needs arm64e_ please use `Sentry-Dynamic-WithARM64e` or `Sentry-WithoutUIKitOrAppKit-WithARM64e` from 8.55.0 so you don't have issues uploading to the App Store.
+
+### Features
+
+- Add a new prebuilt framework with arm64e and remove it from the regular one (#5788)
+- Add `beforeSendLog` callback to `SentryOptions` (#5678)
+- Structured Logs: Flush logs on SDK flush/close (#5834)
+- Add a new prebuilt framework with ARM64e for WithoutUIKitOrAppKit (#5897)
+- Add source context and vars fields to SentryFrame (#5853)
+
 ### Fixes
 
 - Add support for PDFKit views in session replay (#5750)
 - Fix Infinite Session Replay Processing Loop (#5765)
 - Fix memory leak in SessionReplayIntegration (#5770)
 - Fix reporting of energy used while profiling (#5768)
+- Fixed a build error in `SentryFeedback.swift` when building with cocoapods on Xcode 14.2 (#5917)
+- Fix linking against Sentry on an app extension (#5813)
 
 ### Internal
 

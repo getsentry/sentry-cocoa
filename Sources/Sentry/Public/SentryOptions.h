@@ -17,6 +17,7 @@ NS_ASSUME_NONNULL_BEGIN
 @class SentryProfileOptions;
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 @class SentryScope;
+@class SentryViewScreenshotOptions;
 
 NS_SWIFT_NAME(Options)
 @interface SentryOptions : NSObject
@@ -156,6 +157,14 @@ NS_SWIFT_NAME(Options)
  */
 @property (nullable, nonatomic, copy) SentryBeforeSendSpanCallback beforeSendSpan NS_SWIFT_SENDABLE;
 
+#if !SWIFT_PACKAGE
+/**
+ * Use this callback to drop or modify a log before the SDK sends it to Sentry. Return @c nil to
+ * drop the log.
+ */
+@property (nullable, nonatomic, copy) SentryBeforeSendLogCallback beforeSendLog NS_SWIFT_SENDABLE;
+#endif // !SWIFT_PACKAGE
+
 /**
  * This block can be used to modify the event before it will be serialized and sent.
  */
@@ -262,9 +271,9 @@ NS_SWIFT_NAME(Options)
  * When enabled, the SDK sends personal identifiable along with events.
  * @note The default is @c NO .
  * @discussion When the user of an event doesn't contain an IP address, and this flag is
- * @c YES, the SDK sets it to @c {{auto}} to instruct the server to use the
- * connection IP address as the user address. Due to backward compatibility concerns, Sentry set the
- * IP address to @c {{auto}} out of the box for Cocoa. If you want to stop Sentry from
+ * @c YES, the SDK sets sdk.settings.infer_ip to @c auto to instruct the server to use the
+ * connection IP address as the user address. Due to backward compatibility concerns, Sentry sets
+ * sdk.settings.infer_ip  to @c auto out of the box for Cocoa. If you want to stop Sentry from
  * using the connections IP address, you have to enable Prevent Storing of IP Addresses in your
  * project settings in Sentry.
  */
@@ -323,6 +332,11 @@ NS_SWIFT_NAME(Options)
  * @note Default value is @c NO .
  */
 @property (nonatomic, assign) BOOL attachScreenshot;
+
+/**
+ * Settings to configure screenshot attachments.
+ */
+@property (nonatomic, nonnull, strong) SentryViewScreenshotOptions *screenshot;
 
 /**
  * @warning This is an experimental feature and may still have bugs.

@@ -5,23 +5,44 @@ on:
     branches:
       - main
   pull_request:
-    paths:
-      - ".github/workflows/objc-conversion-analysis.yml"
-      - "SwiftConversion/**"
 
+# Concurrency configuration:
+# - We use workflow-specific concurrency groups to prevent multiple Objective-C conversion analysis runs,
+#   as these analyze code conversion progress and generate tracking reports.
+# - For pull requests, we cancel in-progress runs when new commits are pushed since only the
+#   latest conversion analysis matters for tracking progress on SwiftConversion changes.
+# - For main branch pushes, we never cancel conversion analysis to ensure we maintain accurate
+#   tracking of our Objective-C to Swift conversion progress across the entire project.
 concurrency:
-  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
-  cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
+  files-changed:
+    name: Detect File Changes
+    runs-on: ubuntu-latest
+    outputs:
+      run_objc_conversion_analysis_for_prs: ${{ steps.changes.outputs.run_objc_conversion_analysis_for_prs }}
+    steps:
+      - uses: actions/checkout@v5
+      - name: Get changed files
+        id: changes
+        uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
+        with:
+          token: ${{ github.token }}
+          filters: .github/file-filters.yml
+
   analyze-objc-conversion:
     name: Analyze Objective-C to Swift Conversion
+    # Run the job only for PRs with related changes or non-PR events.
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_objc_conversion_analysis_for_prs == 'true'
+    needs: files-changed
     runs-on: macos-15
     timeout-minutes: 10
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup Ruby
         uses: ruby/setup-ruby@a4effe49ee8ee5b8b5091268c473a4628afb5651 # pin@v5.4.3
@@ -56,3 +77,29 @@ jobs:
             SwiftConversion/objc_dependencies_topo.dot
             SwiftConversion/objc_dependencies_topo.svg
           retention-days: 30
+
+      - name: Run CI Diagnostics
+        if: failure()
+        run: ./scripts/ci-diagnostics.sh
+
+  # This check validates that either all Objective-C conversion analysis passed or was skipped, which allows us
+  # to make the analysis a required check with only running the analysis when required.
+  # So, we don't have to run analysis, for example, for Changelog or ReadMe changes.
+
+  objc_conversion_analysis-required-check:
+    needs:
+      [
+        files-changed,
+        analyze-objc-conversion,
+      ]
+    name: Objective-C Conversion Analysis
+    # This is necessary since a failed/skipped dependent job would cause this job to be skipped
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      # If any jobs we depend on fails gets cancelled or times out, this job will fail.
+      # Skipped jobs are not considered failures.
+      - name: Check for failures
+        if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
+        run: |
+          echo "One of the Objective-C conversion analysis jobs has failed." && exit 1

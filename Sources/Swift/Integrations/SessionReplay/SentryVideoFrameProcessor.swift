@@ -105,9 +105,9 @@ class SentryVideoFrameProcessor {
                 let videoResult = SentryRenderVideoResult(info: nil, finalFrameIndex: frameIndex)
                 return completion(.success(videoResult))
             }
-            SentrySDKLog.debug("[Session Replay] Finished video writing, status: \(videoWriter.status)")
+            SentrySDKLog.debug("[Session Replay] Finished video writing, status: \(self.videoWriter.status)")
 
-            switch videoWriter.status {
+            switch self.videoWriter.status {
             case .writing:
                 SentrySDKLog.error("[Session Replay] Finish writing video was called with status writing, this is unexpected! Completing with no video info")
                 let videoResult = SentryRenderVideoResult(info: nil, finalFrameIndex: frameIndex)
@@ -120,10 +120,10 @@ class SentryVideoFrameProcessor {
                 SentrySDKLog.debug("[Session Replay] Finish writing video was completed, creating video info from file attributes.")
                 do {
                     let videoInfo = try self.getVideoInfo(
-                        from: outputFileURL,
-                        usedFrames: usedFrames,
-                        videoWidth: Int(videoWidth),
-                        videoHeight: Int(videoHeight)
+                        from: self.outputFileURL,
+                        usedFrames: self.usedFrames,
+                        videoWidth: Int(self.videoWidth),
+                        videoHeight: Int(self.videoHeight)
                     )
                     let videoResult = SentryRenderVideoResult(info: videoInfo, finalFrameIndex: frameIndex)
                     completion(.success(videoResult))
@@ -132,13 +132,13 @@ class SentryVideoFrameProcessor {
                     completion(.failure(error))
                 }
             case .failed:
-                SentrySDKLog.warning("[Session Replay] Finish writing video failed, reason: \(String(describing: videoWriter.error))")
-                completion(.failure(videoWriter.error ?? SentryOnDemandReplayError.errorRenderingVideo))
+                SentrySDKLog.warning("[Session Replay] Finish writing video failed, reason: \(String(describing: self.videoWriter.error))")
+                completion(.failure(self.videoWriter.error ?? SentryOnDemandReplayError.errorRenderingVideo))
             case .unknown:
-                SentrySDKLog.warning("[Session Replay] Finish writing video with unknown status, reason: \(String(describing: videoWriter.error))")
-                completion(.failure(videoWriter.error ?? SentryOnDemandReplayError.errorRenderingVideo))
+                SentrySDKLog.warning("[Session Replay] Finish writing video with unknown status, reason: \(String(describing: self.videoWriter.error))")
+                completion(.failure(self.videoWriter.error ?? SentryOnDemandReplayError.errorRenderingVideo))
             @unknown default:
-                SentrySDKLog.warning("[Session Replay] Finish writing video in unknown state, reason: \(String(describing: videoWriter.error))")
+                SentrySDKLog.warning("[Session Replay] Finish writing video in unknown state, reason: \(String(describing: self.videoWriter.error))")
                 completion(.failure(SentryOnDemandReplayError.errorRenderingVideo))
             }
         }
@@ -175,4 +175,4 @@ class SentryVideoFrameProcessor {
 }
 
 #endif // os(iOS) || os(tvOS)
-#endif // canImport(UIKit)
+#endif // canImport(UIKit) && !SENTRY_NO_UIKIT

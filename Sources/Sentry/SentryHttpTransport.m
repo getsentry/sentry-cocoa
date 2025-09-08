@@ -4,7 +4,6 @@
 #import "SentryDataCategoryMapper.h"
 #import "SentryDependencyContainer.h"
 #import "SentryDiscardReasonMapper.h"
-#import "SentryDiscardedEvent.h"
 #import "SentryDsn.h"
 #import "SentryEnvelope+Private.h"
 #import "SentryEnvelope.h"
@@ -13,6 +12,7 @@
 #import "SentryEnvelopeRateLimit.h"
 #import "SentryEvent.h"
 #import "SentryFileManager.h"
+#import "SentryInternalDefines.h"
 #import "SentryLogC.h"
 #import "SentryNSURLRequestBuilder.h"
 #import "SentryOptions.h"
@@ -32,7 +32,8 @@
 @property (nonatomic, strong) SentryFileManager *fileManager;
 @property (nonatomic, strong) id<SentryRequestManager> requestManager;
 @property (nonatomic, strong) SentryNSURLRequestBuilder *requestBuilder;
-@property (nonatomic, strong) SentryOptions *options;
+@property (nonatomic, strong) SentryDsn *dsn;
+@property (nonatomic) BOOL sendClientReports;
 @property (nonatomic, strong) id<SentryRateLimits> rateLimits;
 @property (nonatomic, strong) SentryEnvelopeRateLimit *envelopeRateLimit;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueue;
@@ -66,7 +67,8 @@
 
 @implementation SentryHttpTransport
 
-- (id)initWithOptions:(SentryOptions *)options
+- (id)initWithDsn:(SentryDsn *)dsn
+          sendClientReports:(BOOL)sendClientReports
     cachedEnvelopeSendDelay:(NSTimeInterval)cachedEnvelopeSendDelay
                dateProvider:(id<SentryCurrentDateProvider>)dateProvider
                 fileManager:(SentryFileManager *)fileManager
@@ -77,7 +79,8 @@
        dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
 {
     if (self = [super init]) {
-        self.options = options;
+        self.dsn = dsn;
+        self.sendClientReports = sendClientReports;
         _cachedEnvelopeSendDelay = cachedEnvelopeSendDelay;
         self.requestManager = requestManager;
         self.requestBuilder = requestBuilder;
@@ -161,7 +164,7 @@
                  reason:(SentryDiscardReason)reason
                quantity:(NSUInteger)quantity
 {
-    if (!self.options.sendClientReports) {
+    if (!self.sendClientReports) {
         return;
     }
 
@@ -174,8 +177,8 @@
             quantity = event.quantity + 1;
         }
 
-        event = [[SentryDiscardedEvent alloc] initWithReason:reason
-                                                    category:category
+        event = [[SentryDiscardedEvent alloc] initWithReason:nameForSentryDiscardReason(reason)
+                                                    category:nameForSentryDataCategory(category)
                                                     quantity:quantity];
 
         self.discardedEvents[key] = event;
@@ -275,7 +278,7 @@
 
 - (SentryEnvelope *)addClientReportTo:(SentryEnvelope *)envelope
 {
-    if (!self.options.sendClientReports) {
+    if (!self.sendClientReports) {
         return envelope;
     }
 
@@ -356,14 +359,14 @@
     // We must set sentAt as close as possible to the transmission of the envelope to Sentry.
     rateLimitedEnvelope.header.sentAt = [self.dateProvider date];
 
-    NSError *requestError = nil;
+    NSError *_Nullable requestError = nil;
     NSURLRequest *request = [self.requestBuilder createEnvelopeRequest:rateLimitedEnvelope
-                                                                   dsn:self.options.parsedDsn
+                                                                   dsn:self.dsn
                                                       didFailWithError:&requestError];
 
     if (nil == request || nil != requestError) {
         if (nil != requestError) {
-            SENTRY_LOG_DEBUG(@"Failed to build request: %@.", requestError);
+            SENTRY_LOG_FATAL(@"Failed to build request to send envelope: %@.", requestError);
         }
         [self recordLostEventFor:rateLimitedEnvelope.items];
         [self deleteEnvelopeAndSendNext:envelopeFilePath];
@@ -377,7 +380,7 @@
 {
     SENTRY_LOG_DEBUG(@"Deleting envelope and sending next.");
     if (envelopePath != nil) {
-        [self.fileManager removeFileAtPath:envelopePath];
+        [self.fileManager removeFileAtPath:SENTRY_UNWRAP_NULLABLE(NSString, envelopePath)];
     }
     @synchronized(self) {
         self.isSending = NO;
@@ -417,7 +420,7 @@
                 return;
             }
 
-            [weakSelf.rateLimits update:response];
+            [weakSelf.rateLimits update:SENTRY_UNWRAP_NULLABLE(NSHTTPURLResponse, response)];
 
             if (response.statusCode == 200) {
                 SENTRY_LOG_DEBUG(@"Envelope sent successfully!");

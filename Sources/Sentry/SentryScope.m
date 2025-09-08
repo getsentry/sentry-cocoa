@@ -1,8 +1,10 @@
 #import "NSMutableDictionary+Sentry.h"
 #import "SentryAttachment+Private.h"
 #import "SentryBreadcrumb.h"
+#import "SentryDefines.h"
 #import "SentryEnvelopeItemType.h"
 #import "SentryEvent+Private.h"
+#import "SentryInternalDefines.h"
 #import "SentryLevelMapper.h"
 #import "SentryLogC.h"
 #import "SentryModels+Serializable.h"
@@ -10,7 +12,6 @@
 #import "SentryScope+Private.h"
 #import "SentryScope+PrivateSwift.h"
 #import "SentryScopeObserver.h"
-#import "SentrySession.h"
 #import "SentrySpan.h"
 #import "SentrySwift.h"
 #import "SentryTracer.h"
@@ -153,11 +154,13 @@ NS_ASSUME_NONNULL_BEGIN
     }
 }
 
+#if !SDK_V9
 - (void)useSpan:(SentrySpanCallback)callback
 {
     id<SentrySpan> localSpan = [self span];
     callback(localSpan);
 }
+#endif // !SDK_V9
 
 - (void)clear
 {
@@ -287,7 +290,8 @@ NS_ASSUME_NONNULL_BEGIN
         return;
     }
     @synchronized(_extraDictionary) {
-        [_extraDictionary addEntriesFromDictionary:extras];
+        [_extraDictionary
+            addEntriesFromDictionary:SENTRY_UNWRAP_NULLABLE_DICT(NSString *, id, extras)];
 
         for (id<SentryScopeObserver> observer in self.observers) {
             [observer setExtras:_extraDictionary];
@@ -330,7 +334,8 @@ NS_ASSUME_NONNULL_BEGIN
         return;
     }
     @synchronized(_tagDictionary) {
-        [_tagDictionary addEntriesFromDictionary:tags];
+        [_tagDictionary
+            addEntriesFromDictionary:SENTRY_UNWRAP_NULLABLE_DICT(NSString *, NSString *, tags)];
 
         for (id<SentryScopeObserver> observer in self.observers) {
             [observer setTags:_tagDictionary];
@@ -379,7 +384,8 @@ NS_ASSUME_NONNULL_BEGIN
     @synchronized(_fingerprintArray) {
         [_fingerprintArray removeAllObjects];
         if (fingerprint != nil) {
-            [_fingerprintArray addObjectsFromArray:fingerprint];
+            [_fingerprintArray
+                addObjectsFromArray:SENTRY_UNWRAP_NULLABLE(NSArray<NSString *>, fingerprint)];
         }
 
         for (id<SentryScopeObserver> observer in self.observers) {
@@ -542,7 +548,8 @@ NS_ASSUME_NONNULL_BEGIN
     } else {
         NSMutableDictionary *newTags = [NSMutableDictionary new];
         [newTags addEntriesFromDictionary:[self tags]];
-        [newTags addEntriesFromDictionary:event.tags];
+        [newTags addEntriesFromDictionary:SENTRY_UNWRAP_NULLABLE_DICT(
+                                              NSString *, NSString *, event.tags)];
         event.tags = newTags;
     }
 
@@ -551,7 +558,8 @@ NS_ASSUME_NONNULL_BEGIN
     } else {
         NSMutableDictionary *newExtra = [NSMutableDictionary new];
         [newExtra addEntriesFromDictionary:[self extras]];
-        [newExtra addEntriesFromDictionary:event.extra];
+        [newExtra
+            addEntriesFromDictionary:SENTRY_UNWRAP_NULLABLE_DICT(NSString *, id, event.extra)];
         event.extra = newExtra;
     }
 
@@ -609,7 +617,9 @@ NS_ASSUME_NONNULL_BEGIN
 
     NSMutableDictionary *newContext = [self context].mutableCopy;
     if (event.context != nil) {
-        [SentryDictionary mergeEntriesFromDictionary:event.context intoDictionary:newContext];
+        [SentryDictionary mergeEntriesFromDictionary:SENTRY_UNWRAP_NULLABLE_DICT(
+                                                         NSString *, NSDictionary *, event.context)
+                                      intoDictionary:newContext];
     }
 
     newContext[@"trace"] = [self buildTraceContext:span];
@@ -626,7 +636,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSDictionary *)buildTraceContext:(nullable id<SentrySpan>)span
 {
     if (span != nil) {
-        return [span serialize];
+        return [SENTRY_UNWRAP_NULLABLE_VALUE(id<SentrySpan>, span) serialize];
     } else {
         return [self.propagationContext traceContextForEvent];
     }

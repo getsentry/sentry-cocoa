@@ -108,7 +108,6 @@ final class SentryDependencyContainerTests: XCTestCase {
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().uiDeviceWrapper)
-                    XCTAssertNotNil(SentryDependencyContainer.sharedInstance().application)
 #endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 
                     // Lazy Dependencies
@@ -129,13 +128,12 @@ final class SentryDependencyContainerTests: XCTestCase {
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().systemWrapper)
 #endif // os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().dispatchFactory)
-                    XCTAssertNotNil(SentryDependencyContainer.sharedInstance().dispatchQueueProvider)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().timerFactory)
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().swizzleWrapper)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().framesTracker)
-                    XCTAssertNotNil(SentryDependencyContainer.sharedInstance().screenshot)
+                    XCTAssertNotNil(SentryDependencyContainer.sharedInstance().screenshotSource)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().viewHierarchyProvider)
 
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().uiViewControllerPerformanceTracker)
@@ -327,12 +325,18 @@ final class SentryDependencyContainerTests: XCTestCase {
         SentrySDKInternal.setStart(with: options)
         
         let container = SentryDependencyContainer.sharedInstance()
+        #if canImport(UIKit)
+        container.application = TestSentryUIApplication()
+        #else
+        container.application = TestSentryNSApplication()
+        #endif
 
         // -- Act --
         let tracker = container.getSessionTracker(with: options)
 
         // -- Assert --
         // Verify that the tracker uses the dependencies from the container
+
         XCTAssertIdentical(Dynamic(tracker).application.asAnyObject, container.application)
         XCTAssertIdentical(Dynamic(tracker).dateProvider.asAnyObject, container.dateProvider)
         XCTAssertIdentical(Dynamic(tracker).notificationCenter.asAnyObject, container.notificationCenterWrapper)
