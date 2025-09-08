@@ -12,7 +12,7 @@ public typealias SentryFrameInfoTimeSeries = [[String: NSNumber]]
 /// - Warning: This feature is not available in `DebugWithoutUIKit` and `ReleaseWithoutUIKit`
 /// configurations even when targeting iOS or tvOS platforms.
 @objc @_spi(Private)
-public final class SentryScreenFrames: NSObject {
+public final class SentryScreenFrames: NSObject, NSCopying {
     
     // MARK: - Properties
     
@@ -154,12 +154,9 @@ public final class SentryScreenFrames: NSObject {
         
         return hasher.finalize()
     }
-}
 
-// MARK: - NSCopying
-extension SentryScreenFrames: NSCopying {
     public func copy(with zone: NSZone? = nil) -> Any {
-#if !SENTRY_NO_UIKIT
+#if !SENTRY_NO_UIKIT && os(iOS)
         return SentryScreenFrames(
             total: total,
             frozen: frozen,
