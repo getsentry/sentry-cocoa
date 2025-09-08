@@ -1056,6 +1056,7 @@ class SentryHubTests: XCTestCase {
     }
 #endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     
+    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testCaptureEnvelope_WithEventWithError() throws {
         sut.startSession()
         
@@ -1064,6 +1065,7 @@ class SentryHubTests: XCTestCase {
         try assertSessionWithIncrementedErrorCountedAdded()
     }
     
+    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testCaptureEnvelope_WithEventWithoutExceptionMechanism() throws {
         sut.startSession()
         
@@ -1072,6 +1074,7 @@ class SentryHubTests: XCTestCase {
         try assertSessionWithIncrementedErrorCountedAdded()
     }
     
+    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testCaptureEnvelope_WithEventWithFatal() throws {
         sut.startSession()
         
@@ -1104,12 +1107,14 @@ class SentryHubTests: XCTestCase {
         try assertSessionWithIncrementedErrorCountedAdded()
     }
     
+    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testCaptureEnvelope_WithEventWithFatal_SessionNotStarted() {
         captureEventEnvelope(level: SentryLevel.fatal)
         
         assertNoSessionAddedToCapturedEnvelope()
     }
     
+    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testCaptureEnvelope_WithEventWithWarning() {
         sut.startSession()
         
@@ -1118,6 +1123,7 @@ class SentryHubTests: XCTestCase {
         assertNoSessionAddedToCapturedEnvelope()
     }
     
+    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testCaptureEnvelope_WithClientNil() {
         sut.bindClient(nil)
         captureEventEnvelope(level: SentryLevel.warning)
@@ -1153,6 +1159,7 @@ class SentryHubTests: XCTestCase {
         XCTAssertEqual(mockClient?.scope, sut.scope)
     }
     
+    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testCaptureEnvelope_WithSession() {
         let envelope = SentryEnvelope(session: SentrySession(releaseName: "", distinctId: ""))
         sut.capture(envelope)
@@ -1161,6 +1168,7 @@ class SentryHubTests: XCTestCase {
         XCTAssertEqual(envelope, fixture.client.captureEnvelopeInvocations.first)
     }
     
+    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testCaptureEnvelope_WithUnhandledException() throws {
         sut.startSession()
         
@@ -1176,12 +1184,13 @@ class SentryHubTests: XCTestCase {
         let envelope = fixture.client.captureEnvelopeInvocations.first
         let sessionEnvelopeItem = envelope?.items.first(where: { $0.header.type == "session" })
         
-        let json = try XCTUnwrap((try! JSONSerialization.jsonObject(with: sessionEnvelopeItem!.data)) as? [String: Any])
+        let json = try XCTUnwrap((try! JSONSerialization.jsonObject(with: XCTUnwrap(sessionEnvelopeItem?.data))) as? [String: Any])
         
         XCTAssertEqual(json["timestamp"] as? String, "1970-01-01T00:00:02.000Z")
         XCTAssertEqual(json["status"] as? String, "crashed")
     }
     
+    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testCaptureEnvelope_WithHandledException() {
         sut.startSession()
         
@@ -1384,12 +1393,14 @@ class SentryHubTests: XCTestCase {
                                                          ]))
     }
     
+    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     private func captureEventEnvelope(level: SentryLevel) {
         let event = TestData.event
         event.level = level
         sut.capture(SentryEnvelope(event: event))
     }
     
+    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     private func captureFatalEventWithoutExceptionMechanism() throws {
         let event = TestData.event
         event.level = SentryLevel.fatal
@@ -1420,7 +1431,7 @@ class SentryHubTests: XCTestCase {
     private func givenEnvelopeWithModifiedEvent(modifyEventDict: (inout [String: Any]) -> Void) throws -> SentryEnvelope {
         let event = TestData.event
         let envelopeItem = SentryEnvelopeItem(event: event)
-        var eventDict = try XCTUnwrap(JSONSerialization.jsonObject(with: envelopeItem.data) as? [String: Any])
+        var eventDict = try XCTUnwrap(JSONSerialization.jsonObject(with: XCTUnwrap(envelopeItem.data)) as? [String: Any])
         
         modifyEventDict(&eventDict)
         
@@ -1492,7 +1503,7 @@ class SentryHubTests: XCTestCase {
         XCTAssertEqual(1, fixture.client.captureEnvelopeInvocations.count)
         let envelope = fixture.client.captureEnvelopeInvocations.first!
         XCTAssertEqual(2, envelope.items.count)
-        let session = SentrySerialization.session(with: try XCTUnwrap(envelope.items.element(at: 1)).data)
+        let session = SentrySerialization.session(with: try XCTUnwrap(XCTUnwrap(envelope.items.element(at: 1)).data))
         XCTAssertEqual(1, session?.errors)
     }
     

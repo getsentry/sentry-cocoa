@@ -8,7 +8,7 @@
 #import "SentryDebugImageProvider+HybridSDKs.h"
 #import "SentryDependencyContainer.h"
 #import "SentryDsn.h"
-#import "SentryEnvelope+Private.h"
+#import "SentryEnvelope.h"
 #import "SentryEvent+Private.h"
 #import "SentryException.h"
 #import "SentryExtraContextProvider.h"

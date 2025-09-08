@@ -1,6 +1,6 @@
 #import "SentrySerialization.h"
 #import "SentryDateUtils.h"
-#import "SentryEnvelope+Private.h"
+#import "SentryEnvelope.h"
 #import "SentryEnvelopeAttachmentHeader.h"
 #import "SentryError.h"
 #import "SentryInternalDefines.h"

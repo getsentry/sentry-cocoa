@@ -36,6 +36,7 @@ class TestFileManagerTests: XCTestCase {
         sut = try fixture.getSut()
     }
 
+    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testStore_whenStoreEnvelopePathNilIsTrue_shouldRecordInvocationAndReturnNil() {
         // -- Arrange --
         let envelope = TestConstants.envelope
@@ -53,6 +54,7 @@ class TestFileManagerTests: XCTestCase {
         XCTAssertEqual(sut.storeEnvelopeInvocations.invocations.element(at: 1), envelope)
     }
 
+    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testStore_whenStoreEnvelopePathNilIsFalse_whenMockPathIsDefined_shouldRecordInvocationAndReturnMockPath() {
         // -- Arrange --
         let envelope = TestConstants.envelope
@@ -71,6 +73,7 @@ class TestFileManagerTests: XCTestCase {
         XCTAssertEqual(sut.storeEnvelopeInvocations.invocations.element(at: 1), envelope)
     }
 
+    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testStore_whenStoreEnvelopePathNilIsFalse_whenMockPathIsNotDefined_shouldRecordInvocationAndReturnActualPath() throws {
         // -- Arrange --
         let envelope = TestConstants.envelope

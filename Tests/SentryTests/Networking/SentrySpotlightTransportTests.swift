@@ -27,6 +27,7 @@ final class SentrySpotlightTransportTests: XCTestCase {
         return SentrySpotlightTransport(options: options, requestManager: requestManager, requestBuilder: requestBuilder, dispatchQueueWrapper: TestSentryDispatchQueueWrapper())
     }
     
+    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     private func givenEventEnvelope(withAttachment: Bool = false) throws -> SentryEnvelope {
         let event = TestData.event
         
@@ -42,6 +43,7 @@ final class SentrySpotlightTransportTests: XCTestCase {
         return SentryEnvelope(id: event.eventId, items: envelopeItems)
     }
     
+    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     private func givenTransactionEnvelope() throws -> SentryEnvelope {
         let transaction = Transaction(level: .debug)
         transaction.type = SentryEnvelopeItemTypes.transaction
@@ -49,6 +51,7 @@ final class SentrySpotlightTransportTests: XCTestCase {
         return SentryEnvelope(id: transaction.eventId, items: [SentryEnvelopeItem(event: transaction)])
     }
 
+    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testShouldSendEventEnvelope() throws {
         let eventEnvelope = try givenEventEnvelope()
         let sut = givenSut()
@@ -64,6 +67,7 @@ final class SentrySpotlightTransportTests: XCTestCase {
         try compareEnvelopes(request.httpBody, expectedData, message: "Envelopes should be equal")
     }
     
+    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testShouldSendTransactionEnvelope() throws {
         let transactionEnvelope = try givenTransactionEnvelope()
         let sut = givenSut()
@@ -79,6 +83,7 @@ final class SentrySpotlightTransportTests: XCTestCase {
         try compareEnvelopes(request.httpBody, expectedData, message: "Envelopes should be equal")
     }
     
+    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testShouldRemoveAttachmentsFromEventEnvelope() throws {
         let eventEnvelope = try givenEventEnvelope(withAttachment: true)
         let sut = givenSut()
@@ -99,6 +104,7 @@ final class SentrySpotlightTransportTests: XCTestCase {
         XCTAssert((expectedDataCountLower...expectedDataCountUpper).contains(try XCTUnwrap(request.httpBody?.count)))
     }
     
+    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testShouldNotSendEnvelope_WhenMalformedURL() throws {
         let eventEnvelope = try givenEventEnvelope()
         requestBuilder.shouldFailWithError = true
@@ -109,6 +115,7 @@ final class SentrySpotlightTransportTests: XCTestCase {
         XCTAssertEqual(self.requestManager.requests.count, 0)
     }
     
+    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testShouldNotSendEnvelope_WhenRequestError() throws {
         let eventEnvelope = try givenEventEnvelope()
         requestBuilder.shouldFailWithError = true
@@ -119,6 +126,7 @@ final class SentrySpotlightTransportTests: XCTestCase {
         XCTAssertEqual(self.requestManager.requests.count, 0)
     }
     
+    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testShouldNotSendEnvelope_WhenRequestNil() throws {
         let eventEnvelope = try givenEventEnvelope()
         requestBuilder.shouldFailReturningNil = true
@@ -129,6 +137,7 @@ final class SentrySpotlightTransportTests: XCTestCase {
         XCTAssertEqual(self.requestManager.requests.count, 0)
     }
     
+    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testShouldLogError_WhenRequestManagerCompletesWithError() throws {
         let logOutput = TestLogOutput()
         SentrySDKLog.setLogOutput(logOutput)
