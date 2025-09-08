@@ -1,7 +1,7 @@
 @_spi(Private) @testable import Sentry
 import XCTest
 
-#if (os(iOS) || os(tvOS) || os(swift(>=5.9) && os(visionOS)))
+#if (os(iOS) || os(tvOS) || (swift(>=5.9) && os(visionOS)))
 
 class SentryScreenFramesTests: XCTestCase {
     
