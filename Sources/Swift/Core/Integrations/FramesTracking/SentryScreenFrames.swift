@@ -4,7 +4,7 @@ import Foundation
 
 /// An array of dictionaries that each contain a start and end timestamp for a rendered frame.
 #if os(iOS)
-public typealias SentryFrameInfoTimeSeries = [[String: NSNumber]]
+@_spi(Private) public typealias SentryFrameInfoTimeSeries = [[String: NSNumber]]
 #endif // os(iOS)
 
 /// Represents screen frame metrics including total, slow, and frozen frames.
