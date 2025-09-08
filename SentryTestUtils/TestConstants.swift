@@ -31,8 +31,7 @@ public struct TestConstants {
         return event
     }
     
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
-    @_spi(Private) public static var envelope: SentryEnvelope {
+    public static var envelope: SentryEnvelope {
         let event = Event()
         let envelopeItem = SentryEnvelopeItem(event: event)
         return SentryEnvelope(id: event.eventId, singleItem: envelopeItem)

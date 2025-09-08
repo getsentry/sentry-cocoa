@@ -36,7 +36,7 @@
             
             // Add some context to the event. We can only set simple properties otherwise we
             // risk that the conversion fails again.
-            let message = "JSON conversion error for event with message: '\(event.message?.formatted ?? "")'"
+            let message = "JSON conversion error for event with message: '\(event.message?.description ?? "")'"
             errorEvent.message = SentryMessage(formatted: message)
             errorEvent.releaseName = event.releaseName
             errorEvent.environment = event.environment
@@ -60,14 +60,8 @@
      * Initializes an envelope item with a session.
      */
     @objc public convenience init(session: SentrySession) {
-        guard let json = try? JSONSerialization.data(withJSONObject: session.serialize(), options: []) else {
-            // Fallback to empty data if serialization fails
-            let itemHeader = SentryEnvelopeItemHeader(type: SentryEnvelopeItemTypes.session, length: 0)
-            self.init(header: itemHeader, data: Data())
-            return
-        }
-        
-        let itemHeader = SentryEnvelopeItemHeader(type: SentryEnvelopeItemTypes.session, length: UInt(json.count))
+        let json = try? JSONSerialization.data(withJSONObject: session.serialize(), options: [])
+        let itemHeader = SentryEnvelopeItemHeader(type: SentryEnvelopeItemTypes.session, length: UInt(json?.count ?? 0))
         self.init(header: itemHeader, data: json)
     }
     
@@ -126,13 +120,13 @@
                 
                 #if DEBUG || SENTRY_TEST || SENTRY_TEST_CI
                 if ProcessInfo.processInfo.arguments.contains("--io.sentry.other.base64-attachment-data") {
-                    let fileData = try Data(contentsOf: URL(fileURLWithPath: attachmentPath))
-                    data = fileData.base64EncodedString().data(using: .utf8)
+                    let fileData = fileManager.contents(atPath: attachmentPath)
+                    data = fileData?.base64EncodedString().data(using: .utf8)
                 } else {
-                    data = try Data(contentsOf: URL(fileURLWithPath: attachmentPath))
+                    data = fileManager.contents(atPath: attachmentPath)
                 }
                 #else
-                data = try Data(contentsOf: URL(fileURLWithPath: attachmentPath))
+                data = fileManager.contents(atPath: attachmentPath)
                 #endif // DEBUG || SENTRY_TEST || SENTRY_TEST_CI
             } catch {
                 SentrySDKLog.error("Couldn't check file size of attachment with path: \(attachmentPath). Error: \(error.localizedDescription)")
@@ -204,19 +198,14 @@
             return nil
         }
         
-        guard let envelopeItemContent = try? Data(contentsOf: envelopeContentUrl) else {
-            SentrySDKLog.error("Could not read envelope item content from file.")
-            return nil
-        }
-        
-        // Clean up temporary file
+        let envelopeItemContent = try? Data(contentsOf: envelopeContentUrl)
         do {
             try FileManager.default.removeItem(at: envelopeContentUrl)
         } catch {
             SentrySDKLog.error("Could not delete temporary replay content from disk: \(error)")
         }
         
-        let itemHeader = SentryEnvelopeItemHeader(type: SentryEnvelopeItemTypes.replayVideo, length: UInt(envelopeItemContent.count))
+        let itemHeader = SentryEnvelopeItemHeader(type: SentryEnvelopeItemTypes.replayVideo, length: UInt(envelopeItemContent?.count ?? 0))
         self.init(header: itemHeader, data: envelopeItemContent)
     }
 }

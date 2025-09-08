@@ -70,7 +70,6 @@ class SentryEnvelopeTests: XCTestCase {
                                                packages: [],
                                                settings: defaultSdkSettings)
 
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testSentryEnvelopeFromEvent() throws {
         let event = Event()
         
@@ -106,7 +105,6 @@ class SentryEnvelopeTests: XCTestCase {
         XCTAssertEqual(data, try XCTUnwrap(envelope.items.first).data)
     }
     
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testSentryEnvelopeWithExplicitInitMessagesMultipleItems() {
         var items: [SentryEnvelopeItem] = []
         let itemCount = 3
@@ -171,14 +169,12 @@ class SentryEnvelopeTests: XCTestCase {
         XCTAssertEqual(traceContext, envelopeHeader.traceContext)
     }
     
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testInitSentryEnvelopeWithSession_DefaultSdkInfoIsSet() {
         let envelope = SentryEnvelope(session: SentrySession(releaseName: "1.1.1", distinctId: "some-id"))
         
         XCTAssertEqual(defaultSdkInfo, envelope.header.sdkInfo)
     }
 
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testInitWithEvent() throws {
         let event = fixture.event
         let envelope = SentryEnvelope(event: event)
@@ -192,7 +188,6 @@ class SentryEnvelopeTests: XCTestCase {
         XCTAssertEqual(expected, actual)
     }
 
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testInitWithEvent_SerializationFails_SendsEventWithSerializationFailure() {
         let event = fixture.eventWithContinousSerializationFailure
         let envelope = SentryEnvelope(event: event)
