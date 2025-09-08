@@ -7,7 +7,6 @@
 #    import "SentryDebugImageProvider+HybridSDKs.h"
 #    import "SentryDependencyContainer.h"
 #    import "SentryDevice.h"
-#    import "SentryEnvelope.h"
 #    import "SentryEnvelopeItemHeader.h"
 #    import "SentryEvent+Private.h"
 #    import "SentryFormatter.h"
@@ -351,7 +350,10 @@ SentryEnvelope *_Nullable sentry_continuousProfileChunkEnvelope(
     SentryEnvelopeItem *envelopeItem = [[SentryEnvelopeItem alloc] initWithHeader:header
                                                                              data:JSONData];
 
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
     return [[SentryEnvelope alloc] initWithId:chunkID singleItem:envelopeItem];
+#    pragma clang diagnostic pop
 }
 
 SentryEnvelopeItem *_Nullable sentry_traceProfileEnvelopeItem(SentryHub *hub,

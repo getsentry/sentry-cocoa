@@ -1,5 +1,4 @@
 #import "SentrySpotlightTransport.h"
-#import "SentryEnvelope.h"
 #import "SentryEnvelopeItemHeader.h"
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"

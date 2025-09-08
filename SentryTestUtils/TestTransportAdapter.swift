@@ -2,7 +2,7 @@ import _SentryPrivate
 import Foundation
 @_spi(Private) import Sentry
 
-public class TestTransportAdapter: SentryTransportAdapter {
+@_spi(Private) public class TestTransportAdapter: SentryTransportAdapter {
     @_spi(Private)
     public var sentEventsWithSessionTraceState = Invocations<(event: Event, session: SentrySession, traceContext: TraceContext?, attachments: [Attachment])>()
     @_spi(Private)

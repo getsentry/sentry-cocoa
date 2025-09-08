@@ -25,6 +25,7 @@ final class SentryHttpTransportFlushIntegrationTests: XCTestCase {
         XCTAssertLessThan(blockingDurationAverage, 0.1)
     }
 
+    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testFlush_WhenNoInternet_BlocksAndFinishes() throws {
         let (sut, requestManager, _, dispatchQueueWrapper) = try getSut()
 
@@ -50,6 +51,7 @@ final class SentryHttpTransportFlushIntegrationTests: XCTestCase {
         XCTAssertLessThan(blockingDurationAverage, 0.1)
     }
 
+    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testFlush_CallingFlushDirectlyAfterCapture_Flushes() throws {
         let (sut, _, fileManager, dispatchQueueWrapper) = try getSut()
 
@@ -66,6 +68,7 @@ final class SentryHttpTransportFlushIntegrationTests: XCTestCase {
         }
     }
 
+    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testFlushTimesOut_RequestManagerNeverFinishes_FlushingWorksNextTime() throws {
         let (sut, requestManager, _, dispatchQueueWrapper) = try getSut()
 
@@ -85,6 +88,7 @@ final class SentryHttpTransportFlushIntegrationTests: XCTestCase {
         XCTAssertEqual(sut.flush(self.flushTimeout), .success, "Flush should not time out.")
     }
 
+    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testFlush_CalledMultipleTimes_ImmediatelyReturnsFalse() throws {
         let (sut, requestManager, _, dispatchQueueWrapper) = try getSut()
 
