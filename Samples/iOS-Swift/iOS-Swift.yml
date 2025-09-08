@@ -101,6 +101,9 @@ targets:
     platform: auto
     sources:
       - iOS-Swift-ShareExtension
+    dependencies:
+      - target: Sentry/Sentry
+      - target: SentrySampleShared/SentrySampleShared
     configFiles:
       Debug: iOS-Swift-ShareExtension.xcconfig
       Release: iOS-Swift-ShareExtension.xcconfig
