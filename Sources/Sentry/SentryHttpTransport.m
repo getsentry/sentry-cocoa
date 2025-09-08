@@ -292,9 +292,8 @@
         [self.discardedEvents removeAllObjects];
     }
 
-    SentryClientReport *clientReport = [[SentryClientReport alloc]
-        initWithDiscardedEvents:events
-                   dateProvider:self.dateProvider];
+    SentryClientReport *clientReport =
+        [[SentryClientReport alloc] initWithDiscardedEvents:events dateProvider:self.dateProvider];
 
     SentryEnvelopeItem *clientReportEnvelopeItem =
         [[SentryEnvelopeItem alloc] initWithClientReport:clientReport];
