@@ -44,7 +44,7 @@ final class SentrySpotlightTransportTests: XCTestCase {
     
     private func givenTransactionEnvelope() throws -> SentryEnvelope {
         let transaction = Transaction(level: .debug)
-        transaction.type = SentryEnvelopeItemTypeTransaction
+        transaction.type = SentryEnvelopeItemTypes.transaction
         
         return SentryEnvelope(id: transaction.eventId, items: [SentryEnvelopeItem(event: transaction)])
     }
