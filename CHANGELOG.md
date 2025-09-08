@@ -16,6 +16,7 @@
 - Fix missing view hierachy when enabling `attachScreenshot` too (#5989)
 - Fix macOS's frameworks not following the versioned framework structure (#6049)
 - Add warning to addBreadcrumb when used before SDK init (#6083)
+- Add null-handling for parsed DSN in SentryHTTPTransport (#5800)
 
 ### Improvements
 
@@ -51,10 +52,6 @@
 >
 > If your app does not need arm64e, you don't need to make any changes.
 > But if your app _needs arm64e_ please use `Sentry-Dynamic-WithARM64e` or `Sentry-WithoutUIKitOrAppKit-WithARM64e` from 8.55.0 so you don't have issues uploading to the App Store.
-
-### Fixes
-
-- Add null-handling for parsed DSN in SentryHTTPTransport (#5800)
 
 ### Features
 
