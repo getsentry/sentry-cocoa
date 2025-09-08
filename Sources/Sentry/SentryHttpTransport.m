@@ -1,5 +1,4 @@
 #import "SentryHttpTransport.h"
-#import "SentryClientReport.h"
 #import "SentryDataCategory.h"
 #import "SentryDataCategoryMapper.h"
 #import "SentryDependencyContainer.h"
@@ -293,7 +292,8 @@
         [self.discardedEvents removeAllObjects];
     }
 
-    SentryClientReport *clientReport = [[SentryClientReport alloc] initWithDiscardedEvents:events];
+    SentryClientReport *clientReport =
+        [[SentryClientReport alloc] initWithDiscardedEvents:events dateProvider:self.dateProvider];
 
     SentryEnvelopeItem *clientReportEnvelopeItem =
         [[SentryEnvelopeItem alloc] initWithClientReport:clientReport];
