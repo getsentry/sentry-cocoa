@@ -168,7 +168,7 @@ jobs:
       - uses: actions/checkout@v5
       - run: ./scripts/ci-select-xcode.sh 16.4
       - run: |
-          set -o pipefail && NSUnbufferedIO=YES xcodebuild \
+          ./scripts/sentry-xcodebuild.sh \
             --platform iOS \
             --os 18.4 \
             --command build \
