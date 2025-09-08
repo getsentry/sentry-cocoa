@@ -29,7 +29,7 @@ platform :ios do
   lane :prepare_xcframework_signing do
     setup_ci
 
-    match(
+    sync_code_signing(
       type: "appstore",
       readonly: true,
       app_identifier: ["io.sentry.sample.iOS-Swift"], # Any app identifier will do
@@ -81,29 +81,35 @@ platform :ios do
   end
 
   desc "Run match for local development"
-    lane :match_local do
-     match(
-       type: "development",
-       app_identifier: ["io.sentry.sample.iOS-Swift",
-         "io.sentry.sample.iOS-Swift.Clip",
-         "io.sentry.iOS-Swift-UITests.xctrunner",
-         "io.sentry.cocoa.perf-test-app-plain",
-         "io.sentry.*",
-         "io.sentry.iOS-Benchmarking.xctrunner",
-         "io.sentry.cocoa.perf-test-app-sentry"],
-        readonly: true
-     )
-     match(
-       type: "appstore",
-       app_identifier: ["io.sentry.sample.iOS-Swift",
-         "io.sentry.sample.iOS-Swift.Clip",
-         "io.sentry.iOS-Swift-UITests.xctrunner",
-         "io.sentry.cocoa.perf-test-app-plain",
-         "io.sentry.*",
-         "io.sentry.iOS-Benchmarking.xctrunner",
-         "io.sentry.cocoa.perf-test-app-sentry"],
-        readonly: true
-     )
+  lane :match_local do
+    sync_code_signing(
+      type: "development",
+      app_identifier: [
+        "io.sentry.*",
+        "io.sentry.cocoa.perf-test-app-plain",
+        "io.sentry.cocoa.perf-test-app-sentry",
+        "io.sentry.iOS-Benchmarking.xctrunner",
+        "io.sentry.iOS-Swift-UITests.xctrunner",
+        "io.sentry.sample.iOS-Swift.Clip",
+        "io.sentry.sample.iOS-Swift.ShareExtension",
+        "io.sentry.sample.iOS-Swift"
+      ],
+      readonly: true
+    )
+    sync_code_signing(
+      type: "appstore",
+      app_identifier: [
+        "io.sentry.*",
+        "io.sentry.cocoa.perf-test-app-plain",
+        "io.sentry.cocoa.perf-test-app-sentry",
+        "io.sentry.iOS-Benchmarking.xctrunner",
+        "io.sentry.iOS-Swift-UITests.xctrunner",
+        "io.sentry.sample.iOS-Swift.Clip",
+        "io.sentry.sample.iOS-Swift.ShareExtension",
+        "io.sentry.sample.iOS-Swift",
+      ],
+      readonly: true
+    )
   end
 
   desc "Build iOS-Swift with Release"
@@ -113,7 +119,11 @@ platform :ios do
 
     sync_code_signing(
       type: "appstore",
-      app_identifier: ["io.sentry.sample.iOS-Swift",  "io.sentry.sample.iOS-Swift.Clip"],
+      app_identifier: [
+        "io.sentry.sample.iOS-Swift",
+        "io.sentry.sample.iOS-Swift.Clip",
+        "io.sentry.sample.iOS-Swift.ShareExtension"
+      ],
     )
 
     # We must use build_ios_app because otherwise the build will succeed but it will not create the .ipa file. 
@@ -139,7 +149,11 @@ platform :ios do
 
     sync_code_signing(
       type: "development",
-      app_identifier: ["io.sentry.sample.iOS-Swift", "io.sentry.sample.iOS-Swift.Clip"],
+      app_identifier: [
+        "io.sentry.sample.iOS-Swift",
+        "io.sentry.sample.iOS-Swift.Clip",
+        "io.sentry.sample.iOS-Swift.ShareExtension"
+      ]
     )
 
     build_app(
@@ -161,7 +175,12 @@ platform :ios do
 
     sync_code_signing(
       type: "development",
-      app_identifier: ["io.sentry.sample.iOS-Swift", "io.sentry.sample.iOS-Swift.Clip", "io.sentry.iOS-Swift-UITests.xctrunner"],
+      app_identifier: [
+        "io.sentry.sample.iOS-Swift",
+        "io.sentry.sample.iOS-Swift.Clip", 
+        "io.sentry.sample.iOS-Swift.ShareExtension", 
+        "io.sentry.iOS-Swift-UITests.xctrunner"
+      ],
     )
 
     # don't use gym here because it always appends a "build" command which fails, since this is a test target not configured for running
@@ -178,7 +197,12 @@ platform :ios do
 
     sync_code_signing(
       type: "development",
-      app_identifier: ["io.sentry.sample.iOS-Swift", "io.sentry.sample.iOS-Swift.Clip", "io.sentry.iOS-Benchmarking.xctrunner"],
+      app_identifier: [
+        "io.sentry.sample.iOS-Swift", 
+        "io.sentry.sample.iOS-Swift.Clip", 
+        "io.sentry.sample.iOS-Swift.ShareExtension", 
+        "io.sentry.iOS-Benchmarking.xctrunner"
+      ],
     )
 
     build_app(
@@ -290,7 +314,9 @@ platform :ios do
 
     sync_code_signing(
       type: "development",
-      app_identifier: ["io.sentry.cocoa.perf-test-app-plain"]
+      app_identifier: [
+        "io.sentry.cocoa.perf-test-app-plain"
+      ]
     )
 
     build_app(
@@ -315,7 +341,9 @@ platform :ios do
 
     sync_code_signing(
       type: "development",
-      app_identifier: ["io.sentry.cocoa.perf-test-app-sentry"],
+      app_identifier: [
+        "io.sentry.cocoa.perf-test-app-sentry"
+      ],
     )
 
     build_app(
@@ -332,4 +360,25 @@ platform :ios do
     delete_keychain(name: "fastlane_tmp_keychain") unless is_ci
   end
 
+  desc "Generate all provisioning profiles for development"
+  lane :setup_code_signing do
+    sync_code_signing(
+      type: "development",
+      app_identifier: [
+        "io.sentry.sample.iOS-Swift",
+        "io.sentry.sample.iOS-Swift.Clip",
+        "io.sentry.sample.iOS-Swift.ShareExtension"
+      ],
+      readonly: false
+    )
+    sync_code_signing(
+      type: "appstore",
+      app_identifier: [
+        "io.sentry.sample.iOS-Swift",
+        "io.sentry.sample.iOS-Swift.Clip",
+        "io.sentry.sample.iOS-Swift.ShareExtension"
+      ],
+      readonly: false
+    )
+  end
 end
