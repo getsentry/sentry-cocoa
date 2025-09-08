@@ -423,7 +423,7 @@ class SentrySDKTests: XCTestCase {
         let eventEnvelopeItems = try fileManager.getAllEnvelopes().map { fileContent in
             return try XCTUnwrap(SentrySerialization.envelope(with: fileContent.contents))
         }.flatMap { envelope in
-            return envelope.items.filter { $0.header.type == SentryEnvelopeItemTypeEvent }
+            return envelope.items.filter { $0.header.type == SentryEnvelopeItemTypes.event }
         }
 
         XCTAssertEqual(eventEnvelopeItems.count, 1, "Expected exactly one event envelope item, but got \(eventEnvelopeItems.count)")

@@ -9,7 +9,6 @@
 #import "SentryDependencyContainer.h"
 #import "SentryDsn.h"
 #import "SentryEnvelope+Private.h"
-#import "SentryEnvelopeItemType.h"
 #import "SentryEvent+Private.h"
 #import "SentryException.h"
 #import "SentryExtraContextProvider.h"
@@ -634,7 +633,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
     SentryEvent *feedbackEvent = [[SentryEvent alloc] init];
     feedbackEvent.eventId = [[SentryId alloc] initWithUUIDString:feedbackEventId];
-    feedbackEvent.type = SentryEnvelopeItemTypeFeedback;
+    feedbackEvent.type = SentryEnvelopeItemTypes.feedback;
 
     NSUInteger optionalItems = (scope.span == nil ? 0 : 1) + (scope.replayId == nil ? 0 : 1);
     NSMutableDictionary *context = [NSMutableDictionary dictionaryWithCapacity:1 + optionalItems];
@@ -717,11 +716,11 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     }
 
     BOOL eventIsNotATransaction
-        = event.type == nil || ![event.type isEqualToString:SentryEnvelopeItemTypeTransaction];
+        = event.type == nil || ![event.type isEqualToString:SentryEnvelopeItemTypes.transaction];
     BOOL eventIsNotReplay
-        = event.type == nil || ![event.type isEqualToString:SentryEnvelopeItemTypeReplayVideo];
+        = event.type == nil || ![event.type isEqualToString:SentryEnvelopeItemTypes.replayVideo];
     BOOL eventIsNotUserFeedback
-        = event.type == nil || ![event.type isEqualToString:SentryEnvelopeItemTypeFeedback];
+        = event.type == nil || ![event.type isEqualToString:SentryEnvelopeItemTypes.feedback];
 
     // Transactions and replays have their own sampleRate
     if (eventIsNotATransaction && eventIsNotReplay && eventIsNotUserFeedback &&
@@ -827,7 +826,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     [self setUserIdIfNoUserSet:event];
 
     BOOL eventIsATransaction
-        = event.type != nil && [event.type isEqualToString:SentryEnvelopeItemTypeTransaction];
+        = event.type != nil && [event.type isEqualToString:SentryEnvelopeItemTypes.transaction];
     BOOL eventIsATransactionClass
         = eventIsATransaction && [event isKindOfClass:[SentryTransaction class]];
 
@@ -1165,7 +1164,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 - (void)captureLogsData:(NSData *)data with:(NSNumber *)itemCount;
 {
     SentryEnvelopeItemHeader *header =
-        [[SentryEnvelopeItemHeader alloc] initWithType:SentryEnvelopeItemTypeLog
+        [[SentryEnvelopeItemHeader alloc] initWithType:SentryEnvelopeItemTypes.log
                                                 length:data.length
                                            contentType:@"application/vnd.sentry.items.log+json"
                                              itemCount:itemCount];

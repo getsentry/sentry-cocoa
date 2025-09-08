@@ -309,7 +309,7 @@ class SentrySpanTests: XCTestCase {
         XCTAssertEqual(lastEvent.transaction, fixture.someTransaction)
         XCTAssertEqual(lastEvent.timestamp, TestData.timestamp)
         XCTAssertEqual(lastEvent.startTimestamp, TestData.timestamp)
-        XCTAssertEqual(lastEvent.type, SentryEnvelopeItemTypeTransaction)
+        XCTAssertEqual(lastEvent.type, SentryEnvelopeItemTypes.transaction)
     }
     
     func testFinish_Custom_Timestamp() throws {
@@ -331,7 +331,7 @@ class SentrySpanTests: XCTestCase {
         XCTAssertEqual(lastEvent.transaction, fixture.someTransaction)
         XCTAssertEqual(lastEvent.timestamp, finishDate)
         XCTAssertEqual(lastEvent.startTimestamp, TestData.timestamp)
-        XCTAssertEqual(lastEvent.type, SentryEnvelopeItemTypeTransaction)
+        XCTAssertEqual(lastEvent.type, SentryEnvelopeItemTypes.transaction)
     }
     
     func testFinishSpanWithDefaultTimestamp() {

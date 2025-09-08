@@ -561,7 +561,7 @@ class SentryFileManagerTests: XCTestCase {
         sut.deleteAbnormalSession()
     }
     
-    func testReadAbnormalSession_NoSessionStored () throws {
+    func testReadAbnormalSession_NoSessionStored() throws {
         XCTAssertNil(sut.readAbnormalSession())
     }
     
@@ -1503,7 +1503,7 @@ private extension SentryFileManagerTests {
     func assertSessionEnvelopesStored(count: Int) {
         let fileContentsWithSession = sut.getAllEnvelopes().filter { envelopeFileContents in
             let envelope = SentrySerialization.envelope(with: envelopeFileContents.contents)
-            return !(envelope?.items.filter { item in item.header.type == SentryEnvelopeItemTypeSession }.isEmpty ?? false)
+            return !(envelope?.items.filter { item in item.header.type == SentryEnvelopeItemTypes.session }.isEmpty ?? false)
         }
 
         XCTAssertEqual(count, fileContentsWithSession.count)

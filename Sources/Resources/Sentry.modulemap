@@ -13,7 +13,6 @@ framework module Sentry {
         header "SentryDebugImageProvider+HybridSDKs.h"
         header "SentryDependencyContainer.h"
         header "SentryEnvelope.h"
-        header "SentryEnvelopeItemType.h"
         header "SentryFormatter.h"
         header "SentryFramesTracker.h"
         header "SentryOptionsInternal.h"
