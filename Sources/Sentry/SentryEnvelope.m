@@ -202,8 +202,7 @@ NS_ASSUME_NONNULL_BEGIN
     }
     NSData *_Nonnull replayEventData = SENTRY_UNWRAP_NULLABLE(NSData, nullableReplayEventData);
 
-    NSData *_Nullable nullableRecording =
-        [SentrySerialization dataWithReplayRecording:replayRecording];
+    NSData *_Nullable nullableRecording = [replayRecording data];
     if (nil == nullableRecording) {
         SENTRY_LOG_ERROR(
             @"Could not serialize replay recording data for envelope item. Recording will be nil.");
