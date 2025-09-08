@@ -13,9 +13,9 @@ import MSVCRT
 import PackageDescription
 
 var products: [Product] = [
-    .library(name: "Sentry", targets: ["Sentry", "SentryVisionHelper"]),
+    .library(name: "Sentry", targets: ["Sentry", "SentryCppHelper"]),
     .library(name: "Sentry-Dynamic", targets: ["Sentry-Dynamic"]),
-    .library(name: "SentrySwiftUI", targets: ["Sentry", "SentrySwiftUI", "SentryVisionHelper"])
+    .library(name: "SentrySwiftUI", targets: ["Sentry", "SentrySwiftUI", "SentryCppHelper"])
 ]
 
 var targets: [Target] = [
@@ -50,11 +50,11 @@ var targets: [Target] = [
         ],
         publicHeadersPath: "SentryInternal/"),
     .target(
-        name: "SentryVisionHelper",
+        name: "SentryCppHelper",
         dependencies: ["Sentry"],
-        path: "Sources/SentryVisionHelper",
+        path: "Sources/SentryCppHelper",
         linkerSettings: [
-         .linkedLibrary("c++", .when(platforms: [.visionOS]))
+         .linkedLibrary("c++")
         ]
     )
 ]
