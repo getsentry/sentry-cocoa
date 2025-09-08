@@ -294,7 +294,7 @@
 
     SentryClientReport *clientReport = [[SentryClientReport alloc]
         initWithDiscardedEvents:events
-                   dateProvider:SentryDependencyContainer.sharedInstance.dateProvider];
+                   dateProvider:self.dateProvider];
 
     SentryEnvelopeItem *clientReportEnvelopeItem =
         [[SentryEnvelopeItem alloc] initWithClientReport:clientReport];
