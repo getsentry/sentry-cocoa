@@ -108,13 +108,14 @@ jobs:
       # Note: Due to complexity in implementing the CODE_SIGNING_ALLOWED flag in the sentry-xcodebuild.sh script,
       #       we did not yet migrate this step to use the script yet.
       - run: >-
-          env NSUnbufferedIO=YES
-          xcodebuild
+          set -o pipefail && NSUnbufferedIO=YES xcodebuild
           -workspace Sentry.xcworkspace
           -scheme '${{matrix.scheme}}'
-          -configuration ${{matrix.config}}
+          -configuration '${{matrix.config}}'
           CODE_SIGNING_ALLOWED="NO"
-          build
+          build 2>&1
+          | tee raw-build-output.log
+          | xcbeautify --preserve-unbeautified
 
       - name: Archiving Raw Build Logs
         uses: actions/upload-artifact@v4
@@ -167,7 +168,7 @@ jobs:
       - uses: actions/checkout@v5
       - run: ./scripts/ci-select-xcode.sh 16.4
       - run: |
-          ./scripts/sentry-xcodebuild.sh \
+          set -o pipefail && NSUnbufferedIO=YES xcodebuild \
             --platform iOS \
             --os 18.4 \
             --command build \
