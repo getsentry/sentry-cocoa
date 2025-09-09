@@ -331,15 +331,14 @@ class SentrySystemEventBreadcrumbsTest: XCTestCase {
 
         XCTAssertEqual(1, fixture.delegate.addCrumbInvocations.count)
 
-        if let crumb = fixture.delegate.addCrumbInvocations.first {
+        let crumb = try XCTUnwrap(fixture.delegate.addCrumbInvocations.first)
 
-            XCTAssertEqual("device.event", crumb.category)
-            XCTAssertEqual("system", crumb.type)
-            XCTAssertEqual(SentryLevel.info, crumb.level)
+        XCTAssertEqual("device.event", crumb.category)
+        XCTAssertEqual("system", crumb.type)
+        XCTAssertEqual(SentryLevel.info, crumb.level)
 
-            let data = try XCTUnwrap(crumb.data, "no breadcrumb.data")
-            XCTAssertEqual("SIGNIFICANT_TIME_CHANGE", data["action"] as? String)
-        }
+        let data = try XCTUnwrap(crumb.data, "no breadcrumb.data")
+        XCTAssertEqual("SIGNIFICANT_TIME_CHANGE", data["action"] as? String)
     }
 
     func testSignificantTimeChangeNotificationBreadcrumb_UnsubscribeOnStop() {
