@@ -2,7 +2,7 @@
 
 # This script installs required platform simulators for Xcode 26
 
-# GH actions doesn't include the beta similators because according to them they cause too many problems: https://github.com/actions/runner-images/issues/12904#issuecomment-3242706088
+# GH actions doesn't include the beta simulators because according to them they cause too many problems: https://github.com/actions/runner-images/issues/12904#issuecomment-3242706088
 # Therefore we have manually downloaded them and now install them here as suggested in the comment.
 # Once GH actions includes the beta simulators, we can should remove this script.
 
