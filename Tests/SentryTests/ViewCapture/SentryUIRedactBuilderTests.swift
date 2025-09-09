@@ -29,12 +29,6 @@ class RCTParagraphComponentView: UIView {
 class RCTImageView: UIView {
 }
 
-/*
- * Test class to simulate camera view behavior for testing the subtree skipping functionality.
- */
-class TestCameraView: UIView {
-}
-
 class SentryUIRedactBuilderTests: XCTestCase {
     private class CustomVisibilityView: UIView {
         class CustomLayer: CALayer {
@@ -775,142 +769,128 @@ class SentryUIRedactBuilderTests: XCTestCase {
         XCTAssertTrue(sut.containsRedactClass(avPlayerViewClass), "AVPlayerView should be in the redact class list")
     }
 
-    func testViewSubtreeIgnoredFunctionExists() {
+    func testViewSubtreeIgnored_noIgnoredViewsInTree_shouldIncludeEntireTree() {
         // -- Arrange --
         let sut = getSut()
-        
-        // -- Act & Assert --
-        // This test verifies that the isViewSubtreeIgnored functionality exists
-        // We test with a regular view that should NOT be ignored
-        let regularView = TestCameraView(frame: CGRect(x: 10, y: 10, width: 60, height: 60))
-        let labelInside = UILabel(frame: CGRect(x: 5, y: 5, width: 20, height: 20))
-        regularView.addSubview(labelInside)
-        rootView.addSubview(regularView)
+        let view = UIView(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
+        rootView.addSubview(view)
 
+        let subview = UILabel(frame: CGRect(x: 10, y: 10, width: 20, height: 20))
+        view.addSubview(subview)
+
+        let subSubview = UIView(frame: CGRect(x: 5, y: 5, width: 10, height: 10))
+        subview.addSubview(subSubview)
+
+        // -- Act --
         let result = sut.redactRegionsFor(view: rootView)
-        // Regular views should still be processed normally - the label should be redacted
-        XCTAssertEqual(result.count, 1, "Regular view subtrees should be processed normally")
+
+        // -- Assert --
+        XCTAssertEqual(result.count, 2)
+
+        XCTAssertEqual(result.element(at: 0)?.size, CGSize(width: 10, height: 10))
+        XCTAssertEqual(result.element(at: 0)?.type, .redact)
+        XCTAssertEqual(result.element(at: 0)?.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 35, ty: 35))
+        XCTAssertNil(result.element(at: 0)?.color)
+
+        XCTAssertEqual(result.element(at: 1)?.size, CGSize(width: 20, height: 20))
+        XCTAssertEqual(result.element(at: 1)?.type, .redact)
+        XCTAssertEqual(result.element(at: 1)?.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 30, ty: 30))
+        XCTAssertNotNil(result.element(at: 1)?.color)
     }
 
-    func testCameraViewSpecialCaseHandling() {
+    func testViewSubtreeIgnored_ignoredViewsInTree_shouldIncludeEntireTree() throws {
         // -- Arrange --
+        let rootViewController = UIViewController()
+        rootViewController.view.frame = CGRect(x: 0, y: 0, width: 400, height: 800)
+
+        let view = UIView(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
+        rootViewController.view.addSubview(view)
+
+        view.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            view.leadingAnchor.constraint(equalTo: rootViewController.view.leadingAnchor, constant: 20),
+            view.topAnchor.constraint(equalTo: rootViewController.view.topAnchor, constant: 20),
+            view.trailingAnchor.constraint(equalTo: rootViewController.view.trailingAnchor, constant: -20),
+            view.bottomAnchor.constraint(equalTo: rootViewController.view.bottomAnchor, constant: -20)
+        ])
+
+        let label = UILabel(frame: CGRect(x: 10, y: 10, width: 20, height: 20))
+        rootViewController.view.addSubview(label)
+
+        label.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            label.leadingAnchor.constraint(equalTo: rootViewController.view.leadingAnchor, constant: 15),
+            label.topAnchor.constraint(equalTo: rootViewController.view.topAnchor, constant: 15),
+            label.topAnchor.constraint(equalTo: rootViewController.view.topAnchor, constant: 15),
+            label.widthAnchor.constraint(equalToConstant: 30),
+            label.heightAnchor.constraint(equalToConstant: 30)
+        ])
+
+        // At this point we only ignore the subtree of the `CameraUI.ChromeSwiftUIView` class,
+        // which is an internal class and can only be instantiated using the UIImagePickerController.
+        let imagePicker = UIImagePickerController()
+        imagePicker.sourceType = .camera
+        imagePicker.cameraCaptureMode = .photo
+
+        rootViewController.view.addSubview(imagePicker.view)
+        rootViewController.addChild(imagePicker)
+
+        imagePicker.view.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            imagePicker.view.leadingAnchor.constraint(equalTo: rootViewController.view.leadingAnchor, constant: 10),
+            imagePicker.view.topAnchor.constraint(equalTo: rootViewController.view.topAnchor, constant: 10),
+            imagePicker.view.trailingAnchor.constraint(equalTo: rootViewController.view.trailingAnchor, constant: -10),
+            imagePicker.view.bottomAnchor.constraint(equalTo: rootViewController.view.bottomAnchor, constant: -10)
+        ])
+
+        // Trigger a auto layout calculation to ensure the frames are deterministic
+        rootViewController.view.setNeedsLayout()
+        rootViewController.view.layoutIfNeeded()
+
+        // -- Act --
         let sut = getSut()
-        
-        // -- Act & Assert --
-        // This test verifies that the camera view handling doesn't break existing functionality
-        // We test that normal redaction still works for other views
-        let normalLabel = UILabel(frame: CGRect(x: 10, y: 10, width: 40, height: 40))
-        let normalImageView = UIImageView(frame: CGRect(x: 60, y: 60, width: 30, height: 30))
-        
-        // Create a test image for the image view
-        let testImage = UIGraphicsImageRenderer(size: CGSize(width: 30, height: 30)).image { context in
-            context.fill(CGRect(x: 0, y: 0, width: 30, height: 30))
+        let result = sut.redactRegionsFor(view: rootViewController.view)
+
+        // -- Assert --
+        XCTAssertEqual(result.count, 3)
+        XCTAssertEqual(result.element(at: 0)?.size, CGSize(width: 380, height: 780))
+        XCTAssertEqual(result.element(at: 0)?.type, SentryRedactRegionType.clipBegin)
+        XCTAssertEqual(result.element(at: 0)?.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 10, ty: 10))
+        XCTAssertTrue(result.element(at: 0)?.name.contains("UILayoutContainerView") == true)
+        XCTAssertNil(result.element(at: 0)?.color)
+
+        XCTAssertEqual(result.element(at: 1)?.size, CGSize(width: 380, height: 780))
+        XCTAssertEqual(result.element(at: 1)?.type, SentryRedactRegionType.clipEnd)
+        XCTAssertEqual(result.element(at: 1)?.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 10, ty: 10))
+        XCTAssertTrue(result.element(at: 1)?.name.contains("UILayoutContainerView") == true)
+        XCTAssertNil(result.element(at: 1)?.color)
+
+        XCTAssertEqual(result.element(at: 2)?.size, CGSize(width: 30, height: 30))
+        XCTAssertEqual(result.element(at: 2)?.type, .redact)
+        XCTAssertEqual(result.element(at: 2)?.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 15, ty: 15))
+        XCTAssertTrue(result.element(at: 2)?.name.contains("UILabel") == true)
+        XCTAssertNotNil(result.element(at: 2)?.color)
+    }
+
+    func testMapRedactRegion_viewHasCustomDebugDescription_shouldUseDebugDescriptionAsName() {
+        // -- Arrange --
+        // We use a subclass of UILabel, so that the view is redacted by default
+        class CustomDebugDescriptionLabel: UILabel {
+            override var debugDescription: String {
+                return "CustomDebugDescription"
+            }
         }
-        normalImageView.image = testImage
         
-        rootView.addSubview(normalLabel)
-        rootView.addSubview(normalImageView)
-
-        let result = sut.redactRegionsFor(view: rootView)
-        
-        // Both the label and image should be redacted
-        XCTAssertEqual(result.count, 2, "Normal views should still be redacted")
-        
-        // Verify that both redact regions are present
-        let labelRegion = result.first { $0.transform.tx == 10 && $0.transform.ty == 10 }
-        let imageRegion = result.first { $0.transform.tx == 60 && $0.transform.ty == 60 }
-        
-        XCTAssertNotNil(labelRegion, "Label should be redacted")
-        XCTAssertNotNil(imageRegion, "Image view should be redacted")
-    }
-
-    func testViewSubtreeProcessingWithNestedViews() {
-        // -- Arrange --
         let sut = getSut()
-        let containerView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
-        let testView = TestCameraView(frame: CGRect(x: 10, y: 10, width: 60, height: 60))
-        let labelInsideTest = UILabel(frame: CGRect(x: 5, y: 5, width: 20, height: 20))
-        let labelOutsideTest = UILabel(frame: CGRect(x: 80, y: 80, width: 15, height: 15))
-        
-        testView.addSubview(labelInsideTest)
-        containerView.addSubview(testView)
-        containerView.addSubview(labelOutsideTest)
-        rootView.addSubview(containerView)
+        let view = CustomDebugDescriptionLabel(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
+        rootView.addSubview(view)
 
         // -- Act --
         let result = sut.redactRegionsFor(view: rootView)
 
         // -- Assert --
-        // Both labels should be redacted since TestCameraView is not the special camera class
-        XCTAssertEqual(result.count, 2, "All labels should be processed normally")
-        
-        // Verify both regions exist
-        let regions = result.sorted { $0.size.width < $1.size.width }
-        XCTAssertEqual(regions[0].size, CGSize(width: 15, height: 15), "Outside label should be redacted")
-        XCTAssertEqual(regions[1].size, CGSize(width: 20, height: 20), "Inside label should be redacted")
-    }
-
-    func testCameraClassDetectionWhenClassDoesNotExist() {
-        // -- Arrange --
-        let sut = getSut()
-        
-        // -- Act & Assert --
-        // This test verifies that the system handles gracefully when CameraUI.ChromeSwiftUIView doesn't exist
-        // or when the workaround is not active (e.g., on older iOS versions or different compiler versions)
-        // In our test environment, this class likely doesn't exist or the workaround is not active,
-        // so normal processing should continue
-        let testLabel = UILabel(frame: CGRect(x: 10, y: 10, width: 40, height: 40))
-        rootView.addSubview(testLabel)
-
-        let result = sut.redactRegionsFor(view: rootView)
-        
-        // Label should be redacted normally since the camera class doesn't exist or workaround is inactive
-        XCTAssertEqual(result.count, 1, "Normal redaction should work when camera class doesn't exist or workaround is inactive")
-        XCTAssertEqual(result.first?.size, CGSize(width: 40, height: 40))
-    }
-
-    func testViewSubtreeIgnoreLogicDoesNotAffectOtherIgnoreClasses() {
-        // -- Arrange --
-        let sut = getSut()
-        let testView = TestCameraView(frame: CGRect(x: 10, y: 10, width: 30, height: 30))
-        let sliderView = UISlider(frame: CGRect(x: 50, y: 50, width: 40, height: 20))
-        let labelView = UILabel(frame: CGRect(x: 80, y: 80, width: 15, height: 15))
-        
-        rootView.addSubview(testView)
-        rootView.addSubview(sliderView)
-        rootView.addSubview(labelView)
-
-        // -- Act --
-        let result = sut.redactRegionsFor(view: rootView)
-
-        // -- Assert --
-        // Slider should be ignored (default ignore class)
-        // TestCameraView is not the special camera class, so it should be processed normally
-        // Label should be redacted
-        XCTAssertEqual(result.count, 1, "Only label should be redacted, slider should be ignored by default ignore logic")
-        XCTAssertEqual(result.first?.size, CGSize(width: 15, height: 15))
-    }
-
-    func testCameraWorkaroundOnlyActiveForSpecificConfiguration() {
-        // -- Arrange --
-        let sut = getSut()
-        
-        // -- Act & Assert --
-        // This test documents that the camera view workaround is only active when:
-        // 1. Built with Swift 6.0+ compiler (Xcode 16+) - compiler(>=6.0) 
-        // 2. Running on iOS 26+ - #available(iOS 26.0, *)
-        // 3. CameraUI.ChromeSwiftUIView class exists
-        //
-        // In this test environment, the class likely doesn't exist or we're not on iOS 26,
-        // so normal processing should occur
-        let testLabel = UILabel(frame: CGRect(x: 10, y: 10, width: 40, height: 40))
-        rootView.addSubview(testLabel)
-
-        let result = sut.redactRegionsFor(view: rootView)
-        
-        // Label should be redacted normally when workaround conditions are not met
-        XCTAssertEqual(result.count, 1, "Normal redaction should work when workaround conditions are not met")
-        XCTAssertEqual(result.first?.size, CGSize(width: 40, height: 40))
+        XCTAssertEqual(result.count, 1)
+        XCTAssertEqual(result.first?.name, "CustomDebugDescription")
     }
 }
 
