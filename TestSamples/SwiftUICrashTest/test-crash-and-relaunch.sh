@@ -119,13 +119,13 @@ log "🔨 Building SwiftUI Crash Test app for simulator 🔨"
 
 xcodebuild -workspace Sentry.xcworkspace \
     -scheme SwiftUICrashTest \
-    -destination "platform=iOS Simulator,name=iPhone 16" \
+    -destination "platform=iOS Simulator,name=iPhone 16 Pro" \
     -derivedDataPath DerivedData \
     -configuration Debug \
     CODE_SIGNING_REQUIRED=NO \
     build 2>&1 | tee raw-build.log | xcbeautify
 
-xcrun simctl runtime dyld_shared_cache update iOS18.5
+xcrun simctl runtime dyld_shared_cache update iOS18.4
 
 log "Installing app on simulator."
 xcrun simctl install $DEVICE_ID DerivedData/Build/Products/Debug-iphonesimulator/SwiftUICrashTest.app

@@ -214,30 +214,5 @@ class SentryViewHierarchyProviderTests: XCTestCase {
         wait(for: [ex], timeout: 5)
         XCTAssertTrue(fixture.uiApplication.calledOnMainThread, "appViewHierarchy is not using the main thread to get UI windows")
     }
-
-    private class TestSentryUIApplication: SentryUIApplication {
-
-        init() {
-            super.init(notificationCenterWrapper: TestNSNotificationCenterWrapper(), dispatchQueueWrapper: TestSentryDispatchQueueWrapper())
-        }
-
-        private var _windows: [UIWindow]?
-        private var _calledOnMainThread = true
-
-        var calledOnMainThread: Bool {
-            return _calledOnMainThread
-        }
-
-        override var windows: [UIWindow]? {
-            get {
-                _calledOnMainThread = Thread.isMainThread
-                return _windows
-            }
-            set {
-                _calledOnMainThread = Thread.isMainThread
-                _windows = newValue
-            }
-        }
-    }
 }
 #endif

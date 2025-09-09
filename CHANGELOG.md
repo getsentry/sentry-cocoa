@@ -5,6 +5,7 @@
 ### Features
 
 - Structured Logs: Flush logs on SDK flush/close (#5834)
+- Add masking options for screenshots (#5401)
 
 ### Fixes
 
@@ -13,11 +14,24 @@
 - Structured Logging: Logger called before `SentrySDK.start` becomes unusable (#5984)
 - Add masking for AVPlayerView (#5910)
 - Fix missing view hierachy when enabling `attachScreenshot` too (#5989)
+- Fix macOS's frameworks not following the versioned framework structure (#6049)
+- Add warning to addBreadcrumb when used before SDK init (#6083)
+- Add null-handling for parsed DSN in SentryHTTPTransport (#5800)
 
 ### Improvements
 
 - Lazily CharacterSet only once in SentryBaggageSerialization (#5871)
 - Structured Logging: Log `SentrySDK.logger` calls to `SentrySDKLog` (#5991)
+- The build type in the app context now differentiates between `enterprise` and `adhoc` (#6044)
+- Ensure IP address is only inferred by Relay if sendDefaultPii is true (#5877)
+
+## 8.55.1
+
+### Features
+
+### Fixes
+
+- Fix macOS's frameworks not following the versioned framework structure (#6049)
 
 ## 8.54.1-alpha.1
 
@@ -38,10 +52,6 @@
 >
 > If your app does not need arm64e, you don't need to make any changes.
 > But if your app _needs arm64e_ please use `Sentry-Dynamic-WithARM64e` or `Sentry-WithoutUIKitOrAppKit-WithARM64e` from 8.55.0 so you don't have issues uploading to the App Store.
-
-### Fixes
-
-- Add null-handling for parsed DSN in SentryHTTPTransport (#5800)
 
 ### Features
 

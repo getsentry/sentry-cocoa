@@ -1,6 +1,5 @@
 #import "SentryAttachment.h"
 #import "SentryBreadcrumb.h"
-#import "SentryClientReport.h"
 #import "SentryEnvelope+Private.h"
 #import "SentryEnvelopeAttachmentHeader.h"
 #import "SentryEnvelopeItemHeader.h"
@@ -11,50 +10,11 @@
 #import "SentryLogC.h"
 #import "SentryMessage.h"
 #import "SentryMsgPackSerializer.h"
-#import "SentrySdkInfo.h"
 #import "SentrySerialization.h"
-#import "SentrySession.h"
 #import "SentrySwift.h"
 #import "SentryTransaction.h"
 
 NS_ASSUME_NONNULL_BEGIN
-
-@implementation SentryEnvelopeHeader
-
-// id can be null if no event in the envelope or attachment related to event
-- (instancetype)initWithId:(SentryId *_Nullable)eventId
-{
-    self = [self initWithId:eventId traceContext:nil];
-    return self;
-}
-
-- (instancetype)initWithId:(nullable SentryId *)eventId
-              traceContext:(nullable SentryTraceContext *)traceContext
-{
-    SentrySdkInfo *sdkInfo = [SentrySdkInfo global];
-    self = [self initWithId:eventId sdkInfo:sdkInfo traceContext:traceContext];
-    return self;
-}
-
-- (instancetype)initWithId:(nullable SentryId *)eventId
-                   sdkInfo:(nullable SentrySdkInfo *)sdkInfo
-              traceContext:(nullable SentryTraceContext *)traceContext
-{
-    if (self = [super init]) {
-        _eventId = eventId;
-        _sdkInfo = sdkInfo;
-        _traceContext = traceContext;
-    }
-
-    return self;
-}
-
-+ (instancetype)empty
-{
-    return [[SentryEnvelopeHeader alloc] initWithId:nil traceContext:nil];
-}
-
-@end
 
 @implementation SentryEnvelopeItem
 
@@ -284,7 +244,10 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithSession:(SentrySession *)session
 {
     SentryEnvelopeItem *item = [[SentryEnvelopeItem alloc] initWithSession:session];
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     return [self initWithHeader:[[SentryEnvelopeHeader alloc] initWithId:nil] singleItem:item];
+#pragma clang diagnostic pop
 }
 
 - (instancetype)initWithSessions:(NSArray<SentrySession *> *)sessions
@@ -295,14 +258,20 @@ NS_ASSUME_NONNULL_BEGIN
             [[SentryEnvelopeItem alloc] initWithSession:[sessions objectAtIndex:i]];
         [envelopeItems addObject:item];
     }
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     return [self initWithHeader:[[SentryEnvelopeHeader alloc] initWithId:nil] items:envelopeItems];
+#pragma clang diagnostic pop
 }
 
 - (instancetype)initWithEvent:(SentryEvent *)event
 {
     SentryEnvelopeItem *item = [[SentryEnvelopeItem alloc] initWithEvent:event];
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     return [self initWithHeader:[[SentryEnvelopeHeader alloc] initWithId:event.eventId]
                      singleItem:item];
+#pragma clang diagnostic pop
 }
 
 #if !SDK_V9
@@ -317,12 +286,18 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithId:(SentryId *_Nullable)id singleItem:(SentryEnvelopeItem *)item
 {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     return [self initWithHeader:[[SentryEnvelopeHeader alloc] initWithId:id] singleItem:item];
+#pragma clang diagnostic pop
 }
 
 - (instancetype)initWithId:(SentryId *_Nullable)id items:(NSArray<SentryEnvelopeItem *> *)items
 {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     return [self initWithHeader:[[SentryEnvelopeHeader alloc] initWithId:id] items:items];
+#pragma clang diagnostic pop
 }
 
 - (instancetype)initWithHeader:(SentryEnvelopeHeader *)header singleItem:(SentryEnvelopeItem *)item

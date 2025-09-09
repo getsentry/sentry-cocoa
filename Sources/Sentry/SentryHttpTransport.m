@@ -1,10 +1,8 @@
 #import "SentryHttpTransport.h"
-#import "SentryClientReport.h"
 #import "SentryDataCategory.h"
 #import "SentryDataCategoryMapper.h"
 #import "SentryDependencyContainer.h"
 #import "SentryDiscardReasonMapper.h"
-#import "SentryDiscardedEvent.h"
 #import "SentryDsn.h"
 #import "SentryEnvelope+Private.h"
 #import "SentryEnvelope.h"
@@ -178,8 +176,8 @@
             quantity = event.quantity + 1;
         }
 
-        event = [[SentryDiscardedEvent alloc] initWithReason:reason
-                                                    category:category
+        event = [[SentryDiscardedEvent alloc] initWithReason:nameForSentryDiscardReason(reason)
+                                                    category:nameForSentryDataCategory(category)
                                                     quantity:quantity];
 
         self.discardedEvents[key] = event;
@@ -294,7 +292,8 @@
         [self.discardedEvents removeAllObjects];
     }
 
-    SentryClientReport *clientReport = [[SentryClientReport alloc] initWithDiscardedEvents:events];
+    SentryClientReport *clientReport =
+        [[SentryClientReport alloc] initWithDiscardedEvents:events dateProvider:self.dateProvider];
 
     SentryEnvelopeItem *clientReportEnvelopeItem =
         [[SentryEnvelopeItem alloc] initWithClientReport:clientReport];

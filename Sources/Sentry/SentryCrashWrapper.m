@@ -4,7 +4,6 @@
 #import "SentryCrashIntegration.h"
 #import "SentryCrashMonitor_AppState.h"
 #import "SentryCrashMonitor_System.h"
-#import "SentryNSProcessInfoWrapper.h"
 #import "SentryScope+PrivateSwift.h"
 #import "SentryScope.h"
 #import "SentrySwift.h"
@@ -15,7 +14,6 @@
 #include <mach/mach.h>
 
 #if SENTRY_HAS_UIKIT
-#    import "SentryUIApplication.h"
 #    import <UIKit/UIKit.h>
 #endif
 
@@ -185,7 +183,8 @@ NS_ASSUME_NONNULL_BEGIN
 // The UIWindowScene is unavailable on visionOS
 #if SENTRY_TARGET_REPLAY_SUPPORTED
 
-    NSArray<UIWindow *> *appWindows = SentryDependencyContainer.sharedInstance.application.windows;
+    NSArray<UIWindow *> *appWindows =
+        [SentryDependencyContainer.sharedInstance.application getWindows];
     if ([appWindows count] > 0) {
         UIScreen *appScreen = appWindows.firstObject.screen;
         if (appScreen != nil) {

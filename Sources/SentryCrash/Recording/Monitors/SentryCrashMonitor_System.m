@@ -37,6 +37,7 @@
 #import "SentryLogC.h"
 
 #import "SentryDefines.h"
+#import "SentrySwift.h"
 
 #import <CommonCrypto/CommonDigest.h>
 #include <mach-o/dyld.h>
@@ -460,15 +461,6 @@ hasAppStoreReceipt(void)
     return isAppStoreReceipt && receiptExists;
 }
 
-/**
- * Check if the app has an embdded.mobileprovision file in the bundle.
- */
-static bool
-hasEmbeddedMobileProvision(void)
-{
-    return [[NSBundle mainBundle] pathForResource:@"embedded" ofType:@"mobileprovision"] != nil;
-}
-
 static const char *
 getBuildType(void)
 {
@@ -478,8 +470,9 @@ getBuildType(void)
     if (isDebugBuild()) {
         return "debug";
     }
-    if (hasEmbeddedMobileProvision()) {
-        return "enterprise";
+    SentryMobileProvisionParser *parser = [[SentryMobileProvisionParser alloc] init];
+    if ([parser hasEmbeddedMobileProvisionProfile]) {
+        return [parser mobileProvisionProfileProvisionsAllDevices] ? "enterprise" : "adhoc";
     }
     if (isTestBuild()) {
         return "test";
