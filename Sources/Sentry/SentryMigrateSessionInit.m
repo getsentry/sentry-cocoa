@@ -1,7 +1,6 @@
 #import "SentryMigrateSessionInit.h"
 #import "SentryEnvelope.h"
 #import "SentryEnvelopeItemHeader.h"
-#import "SentryEnvelopeItemType.h"
 #import "SentryLogC.h"
 #import "SentrySerialization.h"
 #import "SentrySwift.h"
@@ -19,7 +18,7 @@ NS_ASSUME_NONNULL_BEGIN
     }
 
     for (SentryEnvelopeItem *item in envelope.items) {
-        if ([item.header.type isEqualToString:SentryEnvelopeItemTypeSession]) {
+        if ([item.header.type isEqualToString:SentryEnvelopeItemTypes.session]) {
             SentrySession *session = [SentrySerialization sessionWithData:item.data];
             if (nil != session && [session.flagInit boolValue]) {
                 BOOL didSetInitFlag =
@@ -73,7 +72,7 @@ NS_ASSUME_NONNULL_BEGIN
                           envelopeFilePath:(NSString *)envelopeFilePath
 {
     for (SentryEnvelopeItem *item in envelope.items) {
-        if ([item.header.type isEqualToString:SentryEnvelopeItemTypeSession]) {
+        if ([item.header.type isEqualToString:SentryEnvelopeItemTypes.session]) {
             SentrySession *localSession = [SentrySerialization sessionWithData:item.data];
 
             if (nil != localSession && [localSession.sessionId isEqual:sessionId]) {
@@ -119,7 +118,7 @@ NS_ASSUME_NONNULL_BEGIN
     NSPredicate *noSessionEnvelopeItems =
         [NSPredicate predicateWithBlock:^BOOL(id object, NSDictionary *bindings) {
             SentryEnvelopeItem *item = object;
-            return ![item.header.type isEqualToString:SentryEnvelopeItemTypeSession];
+            return ![item.header.type isEqualToString:SentryEnvelopeItemTypes.session];
         }];
     NSMutableArray<SentryEnvelopeItem *> *itemsWithoutSession
         = (NSMutableArray<SentryEnvelopeItem *> *)[[envelope.items

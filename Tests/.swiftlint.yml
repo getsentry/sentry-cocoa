@@ -1,6 +1,6 @@
 parent_config: ../.swiftlint.yml
 
-enabled_rules:
+opt_in_rules:
   - test_case_accessibility
 
 custom_rules:

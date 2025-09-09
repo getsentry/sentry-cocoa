@@ -231,7 +231,7 @@ class SentryFeedbackTests: XCTestCase {
         let lastSentEventArguments = try XCTUnwrap(transportAdapter.sendEventWithTraceStateInvocations.last)
         let capturedFeedback = try XCTUnwrap(lastSentEventArguments.event)
 
-        XCTAssertEqual(capturedFeedback.type, SentryEnvelopeItemTypeFeedback)
+        XCTAssertEqual(capturedFeedback.type, SentryEnvelopeItemTypes.feedback)
     }
     
     func testFeedbackNotSubjectToBeforeSendFiltering() throws {
@@ -273,7 +273,7 @@ class SentryFeedbackTests: XCTestCase {
         let lastSentEventArguments = try XCTUnwrap(transportAdapter.sendEventWithTraceStateInvocations.last)
         let capturedFeedback = try XCTUnwrap(lastSentEventArguments.event)
 
-        XCTAssertEqual(capturedFeedback.type, SentryEnvelopeItemTypeFeedback)
+        XCTAssertEqual(capturedFeedback.type, SentryEnvelopeItemTypes.feedback)
     }
     
     func testFeedbackWithSamplingAndBeforeSendFilteringCombined() throws {
@@ -323,7 +323,7 @@ class SentryFeedbackTests: XCTestCase {
         let lastSentEventArguments = try XCTUnwrap(transportAdapter.sendEventWithTraceStateInvocations.last)
         let capturedFeedback = try XCTUnwrap(lastSentEventArguments.event)
 
-        XCTAssertEqual(capturedFeedback.type, SentryEnvelopeItemTypeFeedback)
+        XCTAssertEqual(capturedFeedback.type, SentryEnvelopeItemTypes.feedback)
     }
 }
 

@@ -1,10 +1,8 @@
 #import "SentryAttachment.h"
 #import "SentryBreadcrumb.h"
-#import "SentryClientReport.h"
 #import "SentryEnvelope+Private.h"
 #import "SentryEnvelopeAttachmentHeader.h"
 #import "SentryEnvelopeItemHeader.h"
-#import "SentryEnvelopeItemType.h"
 #import "SentryEvent+Serialize.h"
 #import "SentryEvent.h"
 #import "SentryInternalDefines.h"
@@ -54,11 +52,11 @@ NS_ASSUME_NONNULL_BEGIN
 
     // event.type can be nil and the server infers error if there's a stack trace, otherwise
     // default. In any case in the envelope type it should be event. Except for transactions
-    NSString *envelopeType = [event.type isEqualToString:SentryEnvelopeItemTypeTransaction]
-        ? SentryEnvelopeItemTypeTransaction
-        : [event.type isEqualToString:SentryEnvelopeItemTypeFeedback]
-        ? SentryEnvelopeItemTypeFeedback
-        : SentryEnvelopeItemTypeEvent;
+    NSString *envelopeType = [event.type isEqualToString:SentryEnvelopeItemTypes.transaction]
+        ? SentryEnvelopeItemTypes.transaction
+        : [event.type isEqualToString:SentryEnvelopeItemTypes.feedback]
+        ? SentryEnvelopeItemTypes.feedback
+        : SentryEnvelopeItemTypes.event;
 
     return [self initWithHeader:[[SentryEnvelopeItemHeader alloc] initWithType:envelopeType
                                                                         length:json.length]
@@ -68,10 +66,10 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithSession:(SentrySession *)session
 {
     NSData *json = [NSJSONSerialization dataWithJSONObject:[session serialize] options:0 error:nil];
-    return [self
-        initWithHeader:[[SentryEnvelopeItemHeader alloc] initWithType:SentryEnvelopeItemTypeSession
-                                                               length:json.length]
-                  data:json];
+    return [self initWithHeader:[[SentryEnvelopeItemHeader alloc]
+                                    initWithType:SentryEnvelopeItemTypes.session
+                                          length:json.length]
+                           data:json];
 }
 
 #if !SDK_V9
@@ -88,7 +86,7 @@ NS_ASSUME_NONNULL_BEGIN
     }
 
     return [self initWithHeader:[[SentryEnvelopeItemHeader alloc]
-                                    initWithType:SentryEnvelopeItemTypeUserFeedback
+                                    initWithType:SentryEnvelopeItemTypes.userFeedback
                                           length:json.length]
                            data:json];
 }
@@ -107,7 +105,7 @@ NS_ASSUME_NONNULL_BEGIN
     }
 
     return [self initWithHeader:[[SentryEnvelopeItemHeader alloc]
-                                    initWithType:SentryEnvelopeItemTypeClientReport
+                                    initWithType:SentryEnvelopeItemTypes.clientReport
                                           length:json.length]
                            data:json];
 }
@@ -181,7 +179,7 @@ NS_ASSUME_NONNULL_BEGIN
     }
 
     SentryEnvelopeItemHeader *itemHeader =
-        [[SentryEnvelopeAttachmentHeader alloc] initWithType:SentryEnvelopeItemTypeAttachment
+        [[SentryEnvelopeAttachmentHeader alloc] initWithType:SentryEnvelopeItemTypes.attachment
                                                       length:data.length
                                                     filename:attachment.filename
                                                  contentType:attachment.contentType
@@ -203,8 +201,7 @@ NS_ASSUME_NONNULL_BEGIN
     }
     NSData *_Nonnull replayEventData = SENTRY_UNWRAP_NULLABLE(NSData, nullableReplayEventData);
 
-    NSData *_Nullable nullableRecording =
-        [SentrySerialization dataWithReplayRecording:replayRecording];
+    NSData *_Nullable nullableRecording = [replayRecording data];
     if (nil == nullableRecording) {
         SENTRY_LOG_ERROR(
             @"Could not serialize replay recording data for envelope item. Recording will be nil.");
@@ -233,7 +230,7 @@ NS_ASSUME_NONNULL_BEGIN
         SENTRY_LOG_ERROR(@"Cound not delete temporary replay content from disk: %@", error);
     }
     return [self initWithHeader:[[SentryEnvelopeItemHeader alloc]
-                                    initWithType:SentryEnvelopeItemTypeReplayVideo
+                                    initWithType:SentryEnvelopeItemTypes.replayVideo
                                           length:envelopeItemContent.length]
                            data:envelopeItemContent];
 }

@@ -552,7 +552,7 @@ class SentrySerializationTests: XCTestCase {
         
         let date = Date(timeIntervalSince1970: 2)
         let recording = MockReplayRecording(segmentId: 5, size: 5_000, start: date, duration: 5_000, frameCount: 5, frameRate: 1, height: 320, width: 950, extraEvents: [])
-        let data = try XCTUnwrap(SentrySerialization.data(with: recording))
+        let data = try XCTUnwrap(recording.data())
 
         let serialized = String(data: data, encoding: .utf8)
         
@@ -571,7 +571,7 @@ class SentrySerializationTests: XCTestCase {
         let recording = MockReplayRecording(segmentId: 5, size: 5_000, start: Date(timeIntervalSince1970: 2), duration: 5_000, frameCount: 5, frameRate: 1, height: 320, width: 950, extraEvents: [])
 
         // -- Act --
-        let result = SentrySerialization.data(with: recording)
+        let result = recording.data()
 
         // -- Assert --
         XCTAssertNil(result, "Data serialization should return nil when the header cannot be serialized.")
@@ -589,7 +589,7 @@ class SentrySerializationTests: XCTestCase {
         let recording = MockReplayRecording(segmentId: 5, size: 5_000, start: Date(timeIntervalSince1970: 2), duration: 5_000, frameCount: 5, frameRate: 1, height: 320, width: 950, extraEvents: [])
 
         // -- Act --
-        let result = SentrySerialization.data(with: recording)
+        let result = recording.data()
 
         // -- Assert --
         XCTAssertNil(result, "Data serialization should return nil when the header cannot be serialized.")
