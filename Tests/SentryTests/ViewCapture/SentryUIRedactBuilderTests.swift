@@ -877,6 +877,106 @@ class SentryUIRedactBuilderTests: XCTestCase {
         XCTAssertEqual(result.count, 1)
         XCTAssertEqual(result.first?.name, "CustomDebugDescription")
     }
+
+    func testViewSubtreeIgnored_noDuplicateRedactionRegions_whenViewMeetsBothConditions() throws {
+        // -- Arrange --
+        // This test verifies that views meeting both general redaction criteria AND isViewSubtreeIgnored 
+        // condition don't create duplicate redaction regions. The ordering of checks is important -
+        // isViewSubtreeIgnored must be checked first to prevent processing duplicates.
+        
+        let rootView = UIView(frame: .init(origin: .zero, size: .init(width: 200, height: 200)))
+
+        // Create a CameraUI view that would trigger isViewSubtreeIgnored
+        // The key is that this CameraUI view should only generate ONE redaction region, not two
+        let cameraView = try createCameraUIView(frame: CGRect(x: 10, y: 10, width: 100, height: 100))
+        rootView.addSubview(cameraView)
+
+        // -- Act --
+        let sut = getSut()
+        let result = sut.redactRegionsFor(view: rootView)
+
+        // -- Assert --
+        // Verify that exactly ONE redaction region is created for the CameraUI view,
+        // proving that the deduplication fix works and we don't get duplicate regions
+        XCTAssertEqual(result.count, 1, "Should have exactly one redaction region, not duplicates")
+        XCTAssertEqual(result.first?.size, CGSize(width: 100, height: 100))
+        XCTAssertEqual(result.first?.type, SentryRedactRegionType.redact)
+        XCTAssertEqual(result.first?.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 10, ty: 10))
+        XCTAssertTrue(result.first?.name.contains("CameraUI.ChromeSwiftUIView") == true)
+    }
+
+    func testViewSubtreeIgnored_noDuplicatesWithCustomRedactedView() throws {
+        // -- Arrange --
+        // This test more explicitly demonstrates the duplicate region scenario that could occur:
+        // A view hierarchy where a CameraUI view contains a UILabel that would normally be redacted.
+        // The ordering of checks is important - isViewSubtreeIgnored must be checked first to prevent
+        // duplicate redaction regions when views meet both conditions.
+        
+        let rootView = UIView(frame: .init(origin: .zero, size: .init(width: 200, height: 200)))
+
+        // Create a CameraUI view that triggers isViewSubtreeIgnored
+        let cameraView = try createCameraUIView(frame: CGRect(x: 10, y: 10, width: 100, height: 100))
+        rootView.addSubview(cameraView)
+        
+        // Create a view hierarchy: root -> cameraView -> label
+        // The label would normally be redacted, but since it's inside a CameraUI view that triggers
+        // isViewSubtreeIgnored, the entire subtree should be redacted as one region
+        let label = UILabel(frame: CGRect(x: 20, y: 20, width: 60, height: 30))
+        label.text = "Test Label"
+        cameraView.addSubview(label)
+
+        // -- Act --
+        let sut = getSut()
+        let result = sut.redactRegionsFor(view: rootView)
+
+        // -- Assert --
+        // With the fix, we should get exactly ONE redaction region for the CameraUI view
+        // The label inside should NOT create a separate redaction region because the
+        // CameraUI view is handled with early return in isViewSubtreeIgnored
+        XCTAssertEqual(result.count, 1, "Should have exactly one redaction region for the CameraUI view, no duplicates or separate regions for nested views")
+        XCTAssertEqual(result.first?.size, CGSize(width: 100, height: 100), "Should redact the entire CameraUI view")
+        XCTAssertEqual(result.first?.type, SentryRedactRegionType.redact)
+        XCTAssertEqual(result.first?.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 10, ty: 10))
+        XCTAssertTrue(result.first?.name.contains("CameraUI.ChromeSwiftUIView") == true)
+    }
+
+    // MARK: - Helper Methods
+
+    /// Creates a CameraUI.ChromeSwiftUIView instance for testing isViewSubtreeIgnored functionality.
+    /// - Parameters:
+    ///   - frame: The frame to set for the created view
+    /// - Returns: The created CameraUI view
+    /// - Throws: XCTSkip if CameraUI is not available, or other errors if creation fails
+    private func createCameraUIView(frame: CGRect) throws -> UIView {
+        // Load the private framework indirectly by creating an instance of UIImagePickerController
+        let _ = UIImagePickerController()
+
+        // Get the CameraUI.ChromeSwiftUIView class
+        let cameraViewClass: AnyClass
+        if #available(iOS 26.0, *) {
+            cameraViewClass = try XCTUnwrap(
+                NSClassFromString("CameraUI.ChromeSwiftUIView"), 
+                "Test case expects the CameraUI.ChromeSwiftUIView class to exist"
+            )
+        } else {
+            throw XCTSkip("Type CameraUI.ChromeSwiftUIView is not available on this platform")
+        }
+
+        // Create an instance of the CameraUI view
+        let cameraView = try XCTUnwrap(class_createInstance(cameraViewClass, 0) as? UIView)
+
+        // Reinitialize storage using UIView.initWithFrame(_:)
+        typealias InitWithFrame = @convention(c) (AnyObject, Selector, CGRect) -> AnyObject
+        let sel = NSSelectorFromString("initWithFrame:")
+        let m = try XCTUnwrap(class_getInstanceMethod(UIView.self, sel))
+        let f = unsafeBitCast(method_getImplementation(m), to: InitWithFrame.self)
+        _ = f(cameraView, sel, .zero)
+
+        // Configure the view frame
+        cameraView.frame = frame
+
+        return cameraView
+    }
 }
 
 #endif // os(iOS)

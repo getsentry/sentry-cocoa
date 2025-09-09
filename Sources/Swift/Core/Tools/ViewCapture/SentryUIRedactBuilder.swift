@@ -238,6 +238,19 @@ final class SentryUIRedactBuilder {
         }
         let newTransform = concatenateTranform(transform, from: layer, withParent: parentLayer)
         
+        // Check if the subtree should be ignored to avoid crashes with some special views.
+        // If a subtree is ignored, it will be fully redacted and we return early to prevent duplicates.
+        if isViewSubtreeIgnored(view) {
+            redacting.append(SentryRedactRegion(
+                size: layer.bounds.size,
+                transform: newTransform,
+                type: .redact,
+                color: self.color(for: view),
+                name: view.debugDescription
+            ))
+            return
+        }
+        
         let ignore = !forceRedact && shouldIgnore(view: view)
         let swiftUI = SentryRedactViewHelper.shouldRedactSwiftUI(view)
         let redact = forceRedact || shouldRedact(view: view) || swiftUI
@@ -269,19 +282,6 @@ final class SentryUIRedactBuilder {
                     name: view.debugDescription
                 ))
             }
-        }
-
-        // Check if the subtree should be ignored to avoid crashes with some special views.
-        // If a subtree is ignored, it will be fully redacted.
-        if isViewSubtreeIgnored(view) {
-            redacting.append(SentryRedactRegion(
-                size: layer.bounds.size,
-                transform: newTransform,
-                type: .redact,
-                color: self.color(for: view),
-                name: view.debugDescription
-            ))
-            return
         }
 
         // Traverse the sublayers to redact them if necessary
