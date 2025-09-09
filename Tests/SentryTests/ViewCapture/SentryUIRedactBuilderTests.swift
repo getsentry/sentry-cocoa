@@ -800,76 +800,61 @@ class SentryUIRedactBuilderTests: XCTestCase {
 
     func testViewSubtreeIgnored_ignoredViewsInTree_shouldIncludeEntireTree() throws {
         // -- Arrange --
-        let rootViewController = UIViewController()
-        rootViewController.view.frame = CGRect(x: 0, y: 0, width: 400, height: 800)
+        let rootView = UIView(frame: .init(origin: .zero, size: .init(width: 200, height: 200)))
 
-        let view = UIView(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
-        rootViewController.view.addSubview(view)
+        let subview = UIView(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
+        rootView.addSubview(subview)
 
-        view.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            view.leadingAnchor.constraint(equalTo: rootViewController.view.leadingAnchor, constant: 20),
-            view.topAnchor.constraint(equalTo: rootViewController.view.topAnchor, constant: 20),
-            view.trailingAnchor.constraint(equalTo: rootViewController.view.trailingAnchor, constant: -20),
-            view.bottomAnchor.constraint(equalTo: rootViewController.view.bottomAnchor, constant: -20)
-        ])
+        // We need to ignore the subtree of the `CameraUI.ChromeSwiftUIView` class, which is an internal class of the
+        // private framework `CameraUI`.
+        //
+        // See https://github.com/getsentry/sentry-cocoa/pull/6045 for more context.
 
-        let label = UILabel(frame: CGRect(x: 10, y: 10, width: 20, height: 20))
-        rootViewController.view.addSubview(label)
+        // Load the private framework indirectly by creating an instance of `UIImagePickerController`
+        let _ = UIImagePickerController()
 
-        label.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            label.leadingAnchor.constraint(equalTo: rootViewController.view.leadingAnchor, constant: 15),
-            label.topAnchor.constraint(equalTo: rootViewController.view.topAnchor, constant: 15),
-            label.topAnchor.constraint(equalTo: rootViewController.view.topAnchor, constant: 15),
-            label.widthAnchor.constraint(equalToConstant: 30),
-            label.heightAnchor.constraint(equalToConstant: 30)
-        ])
+        // Allocate object memory without calling subclass init, because the Objective-C initializers are unavailable
+        // and trapped with fatal error.
+        let cameraViewClass: AnyClass
+        if #available(iOS 26.0, *) {
+            cameraViewClass = try XCTUnwrap(NSClassFromString("CameraUI.ChromeSwiftUIView"), "Test case expects the CameraUI.ChromeSwiftUIView class to exist")
+        } else {
+            throw XCTSkip("Type CameraUI.ChromeSwiftUIView is not available on this platform")
+        }
+        let cameraView = try XCTUnwrap(class_createInstance(cameraViewClass, 0) as? UIView)
 
-        // At this point we only ignore the subtree of the `CameraUI.ChromeSwiftUIView` class,
-        // which is an internal class and can only be instantiated using the UIImagePickerController.
-        let imagePicker = UIImagePickerController()
-        imagePicker.sourceType = .camera
-        imagePicker.cameraCaptureMode = .photo
+        // Reinitialize storage using UIView.initWithFrame(_:) which can be considered instance swizzling
+        //
+        // This works, because we don't actually use any of the logic of the `CameraUI.ChromeSwiftUIView` and only need
+        // an instance with the expected type.
+        typealias InitWithFrame = @convention(c) (AnyObject, Selector, CGRect) -> AnyObject
+        let sel = NSSelectorFromString("initWithFrame:")
+        let m = try XCTUnwrap(class_getInstanceMethod(UIView.self, sel))
+        let f = unsafeBitCast(method_getImplementation(m), to: InitWithFrame.self)
+        _ = f(cameraView, sel, .zero)
 
-        rootViewController.view.addSubview(imagePicker.view)
-        rootViewController.addChild(imagePicker)
+        // Assert that the initialization worked but the type is still the expected one
+        XCTAssertEqual(type(of: cameraView).description(), "CameraUI.ChromeSwiftUIView")
 
-        imagePicker.view.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            imagePicker.view.leadingAnchor.constraint(equalTo: rootViewController.view.leadingAnchor, constant: 10),
-            imagePicker.view.topAnchor.constraint(equalTo: rootViewController.view.topAnchor, constant: 10),
-            imagePicker.view.trailingAnchor.constraint(equalTo: rootViewController.view.trailingAnchor, constant: -10),
-            imagePicker.view.bottomAnchor.constraint(equalTo: rootViewController.view.bottomAnchor, constant: -10)
-        ])
+        // Add the view to the hierarchy with additional subviews which should not be traversed even though they need
+        // redaction (i.e. an UILabel).
+        cameraView.frame = CGRect(x: 10, y: 10, width: 150, height: 150)
+        subview.addSubview(cameraView)
 
-        // Trigger a auto layout calculation to ensure the frames are deterministic
-        rootViewController.view.setNeedsLayout()
-        rootViewController.view.layoutIfNeeded()
+        let nestedCameraView = UILabel(frame: CGRect(x: 30, y: 30, width: 50, height: 50))
+        cameraView.addSubview(nestedCameraView)
 
         // -- Act --
         let sut = getSut()
-        let result = sut.redactRegionsFor(view: rootViewController.view)
+        let result = sut.redactRegionsFor(view: rootView)
 
         // -- Assert --
-        XCTAssertEqual(result.count, 3)
-        XCTAssertEqual(result.element(at: 0)?.size, CGSize(width: 380, height: 780))
-        XCTAssertEqual(result.element(at: 0)?.type, SentryRedactRegionType.clipBegin)
-        XCTAssertEqual(result.element(at: 0)?.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 10, ty: 10))
-        XCTAssertTrue(result.element(at: 0)?.name.contains("UILayoutContainerView") == true)
+        XCTAssertEqual(result.count, 1)
+        XCTAssertEqual(result.element(at: 0)?.size, CGSize(width: 150, height: 150))
+        XCTAssertEqual(result.element(at: 0)?.type, SentryRedactRegionType.redact)
+        XCTAssertEqual(result.element(at: 0)?.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 30, ty: 30))
+        XCTAssertTrue(result.element(at: 0)?.name.contains("CameraUI.ChromeSwiftUIView") == true)
         XCTAssertNil(result.element(at: 0)?.color)
-
-        XCTAssertEqual(result.element(at: 1)?.size, CGSize(width: 380, height: 780))
-        XCTAssertEqual(result.element(at: 1)?.type, SentryRedactRegionType.clipEnd)
-        XCTAssertEqual(result.element(at: 1)?.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 10, ty: 10))
-        XCTAssertTrue(result.element(at: 1)?.name.contains("UILayoutContainerView") == true)
-        XCTAssertNil(result.element(at: 1)?.color)
-
-        XCTAssertEqual(result.element(at: 2)?.size, CGSize(width: 30, height: 30))
-        XCTAssertEqual(result.element(at: 2)?.type, .redact)
-        XCTAssertEqual(result.element(at: 2)?.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 15, ty: 15))
-        XCTAssertTrue(result.element(at: 2)?.name.contains("UILabel") == true)
-        XCTAssertNotNil(result.element(at: 2)?.color)
     }
 
     func testMapRedactRegion_viewHasCustomDebugDescription_shouldUseDebugDescriptionAsName() {
@@ -894,4 +879,4 @@ class SentryUIRedactBuilderTests: XCTestCase {
     }
 }
 
-#endif
+#endif // os(iOS)
