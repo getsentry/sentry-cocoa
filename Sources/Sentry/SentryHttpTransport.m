@@ -4,7 +4,6 @@
 #import "SentryDependencyContainer.h"
 #import "SentryDiscardReasonMapper.h"
 #import "SentryDsn.h"
-#import "SentryEnvelope.h"
 #import "SentryEnvelopeItemHeader.h"
 #import "SentryEnvelopeRateLimit.h"
 #import "SentryEvent.h"

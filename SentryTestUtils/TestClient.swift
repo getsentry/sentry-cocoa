@@ -139,13 +139,13 @@ public class TestClient: SentryClient {
         captureSerializedFeedbackInvocations.record((feedbackEventId, scope))
     }
     
-    public var captureEnvelopeInvocations = Invocations<SentryEnvelope>()
-    public override func capture(_ envelope: SentryEnvelope) {
+    @_spi(Private) public var captureEnvelopeInvocations = Invocations<SentryEnvelope>()
+    @_spi(Private) public override func capture(_ envelope: SentryEnvelope) {
         captureEnvelopeInvocations.record(envelope)
     }
     
-    public var storedEnvelopeInvocations = Invocations<SentryEnvelope>()
-    public override func store(_ envelope: SentryEnvelope) {
+    @_spi(Private) public var storedEnvelopeInvocations = Invocations<SentryEnvelope>()
+    @_spi(Private) public override func store(_ envelope: SentryEnvelope) {
         storedEnvelopeInvocations.record(envelope)
     }
     

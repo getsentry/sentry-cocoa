@@ -3,13 +3,13 @@ import Foundation
 
 public class TestTransport: NSObject, Transport {
 
-    public var sentEnvelopes = Invocations<SentryEnvelope>()
-    public func send(envelope: SentryEnvelope) {
+    @_spi(Private) public var sentEnvelopes = Invocations<SentryEnvelope>()
+    @_spi(Private) public func send(envelope: SentryEnvelope) {
         sentEnvelopes.record(envelope)
     }
     
-    public var storedEnvelopes = Invocations<SentryEnvelope>()
-    public func store(_ envelope: SentryEnvelope) {
+    @_spi(Private) public var storedEnvelopes = Invocations<SentryEnvelope>()
+    @_spi(Private) public func store(_ envelope: SentryEnvelope) {
         storedEnvelopes.record(envelope)
     }
     
