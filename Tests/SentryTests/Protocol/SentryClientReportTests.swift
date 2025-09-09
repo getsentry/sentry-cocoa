@@ -17,7 +17,7 @@ class SentryClientReportTests: XCTestCase {
         let event2 = SentryDiscardedEvent(reason: nameForSentryDiscardReason(.beforeSend), category: nameForSentryDataCategory(.transaction), quantity: 3)
         let event3 = SentryDiscardedEvent(reason: nameForSentryDiscardReason(.rateLimitBackoff), category: nameForSentryDataCategory(.error), quantity: 1)
         
-        let report = SentryClientReport(discardedEvents: [event1, event2, event3])
+        let report = SentryClientReport(discardedEvents: [event1, event2, event3], dateProvider: SentryDependencyContainer.sharedInstance().dateProvider)
         
         let actual = report.serialize()
         

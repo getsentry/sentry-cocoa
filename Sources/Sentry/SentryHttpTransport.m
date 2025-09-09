@@ -1,14 +1,11 @@
 #import "SentryHttpTransport.h"
-#import "SentryClientReport.h"
 #import "SentryDataCategory.h"
 #import "SentryDataCategoryMapper.h"
 #import "SentryDependencyContainer.h"
 #import "SentryDiscardReasonMapper.h"
 #import "SentryDsn.h"
-#import "SentryEnvelope+Private.h"
 #import "SentryEnvelope.h"
 #import "SentryEnvelopeItemHeader.h"
-#import "SentryEnvelopeItemType.h"
 #import "SentryEnvelopeRateLimit.h"
 #import "SentryEvent.h"
 #import "SentryFileManager.h"
@@ -289,7 +286,8 @@
         [self.discardedEvents removeAllObjects];
     }
 
-    SentryClientReport *clientReport = [[SentryClientReport alloc] initWithDiscardedEvents:events];
+    SentryClientReport *clientReport =
+        [[SentryClientReport alloc] initWithDiscardedEvents:events dateProvider:self.dateProvider];
 
     SentryEnvelopeItem *clientReportEnvelopeItem =
         [[SentryEnvelopeItem alloc] initWithClientReport:clientReport];
@@ -443,7 +441,7 @@
         NSString *itemType = item.header.type;
         // We don't want to record a lost event when it's a client report.
         // It's fine to drop it silently.
-        if ([itemType isEqualToString:SentryEnvelopeItemTypeClientReport]) {
+        if ([itemType isEqualToString:SentryEnvelopeItemTypes.clientReport]) {
             continue;
         }
         SentryDataCategory category = sentryDataCategoryForEnvelopItemType(itemType);
@@ -454,7 +452,7 @@
 
 - (void)recordLostSpans:(SentryEnvelopeItem *)envelopeItem reason:(SentryDiscardReason)reason
 {
-    if ([SentryEnvelopeItemTypeTransaction isEqualToString:envelopeItem.header.type]) {
+    if ([SentryEnvelopeItemTypes.transaction isEqualToString:envelopeItem.header.type]) {
         NSDictionary *_Nullable transactionJson =
             [SentrySerialization deserializeDictionaryFromJsonData:envelopeItem.data];
         if (transactionJson == nil) {

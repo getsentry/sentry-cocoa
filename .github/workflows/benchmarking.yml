@@ -139,7 +139,7 @@ jobs:
         id: should-retry-test
         # Note: We need to use always() here, because the previous run step might be marked as failed.
         if: ${{ always() && steps.run-benchmarks-in-sauce-lab.outcome == 'failure' }}
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         env:
           SAUCE_USERNAME: ${{ secrets.SAUCE_USERNAME }}
           SAUCE_ACCESS_KEY: ${{ secrets.SAUCE_ACCESS_KEY }}

@@ -82,7 +82,7 @@ class SentryEnvelopeTests: XCTestCase {
         
         let json = try! JSONSerialization.data(withJSONObject: event.serialize(), options: JSONSerialization.WritingOptions(rawValue: 0))
         
-        assertJsonIsEqual(actual: json, expected: try XCTUnwrap(envelope.items.first).data)
+        assertJsonIsEqual(actual: json, expected: try XCTUnwrap(XCTUnwrap(envelope.items.first).data))
     }
     
     @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
