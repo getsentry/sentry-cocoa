@@ -1,5 +1,5 @@
 #import "SentryEnvelopeAttachmentHeader.h"
-#import "SentryEnvelope+Private.h"
+#import "SentryEnvelope.h"
 #import "SentryModels+Serializable.h"
 
 @implementation SentryEnvelopeAttachmentHeader

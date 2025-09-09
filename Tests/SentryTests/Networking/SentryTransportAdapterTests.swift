@@ -1,4 +1,4 @@
-@_spi(Private) import Sentry
+@_spi(Private) @testable import Sentry
 @_spi(Private) import SentryTestUtils
 import XCTest
 
@@ -114,11 +114,11 @@ enum EnvelopeUtils {
             
             XCTAssertTrue(containsHeader, "Envelope doesn't contain item with type:\(expectedHeader.type).")
             
-            let jsonExpected = try? JSONSerialization.jsonObject(with: expectedItem.data) as? NSDictionary
+            let jsonExpected = try? JSONSerialization.jsonObject(with: XCTUnwrap(expectedItem.data)) as? NSDictionary
             let containsData = actual.items.contains { actualItem in
                 // JSON cannot compare the raw Data because the keys are not guaranteed to be in the same order.
                 if let jsonExpected {
-                    if let jsonActual = try? JSONSerialization.jsonObject(with: actualItem.data) as? NSDictionary {
+                    if let jsonActual = try? JSONSerialization.jsonObject(with: XCTUnwrap(actualItem.data)) as? NSDictionary {
                         return jsonExpected == jsonActual
                     }
                     return false

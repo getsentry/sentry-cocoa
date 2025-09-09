@@ -36,8 +36,8 @@ public class TestHub: SentryHub {
         sentFatalEventsWithScope.record((event, scope))
     }
     
-    public var capturedEventsWithScopes = Invocations<(event: Event, scope: Scope, additionalEnvelopeItems: [SentryEnvelopeItem])>()
-    public override func capture(event: Event, scope: Scope, additionalEnvelopeItems: [SentryEnvelopeItem]) -> SentryId {
+    @_spi(Private) public var capturedEventsWithScopes = Invocations<(event: Event, scope: Scope, additionalEnvelopeItems: [SentryEnvelopeItem])>()
+    @_spi(Private) public override func capture(event: Event, scope: Scope, additionalEnvelopeItems: [SentryEnvelopeItem]) -> SentryId {
         
         self.capturedEventsWithScopes.record((event, scope, additionalEnvelopeItems))
         

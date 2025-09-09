@@ -1,3 +1,5 @@
+@_spi(Private) import Sentry
+
 public struct TestConstants {
     
     /**
