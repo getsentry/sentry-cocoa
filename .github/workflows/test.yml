@@ -224,8 +224,6 @@ jobs:
       - name: Create simulator device for Xcode 26
         if: matrix.xcode == '26.0' && matrix.platform != ''
         run: ./scripts/ci-create-simulator.sh --platform "${{matrix.platform}}" --os-version "${{matrix.test-destination-os}}" --device-name "${{matrix.device}}"
-
-      - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
       - name: Install Slather
         run: gem install slather
 
