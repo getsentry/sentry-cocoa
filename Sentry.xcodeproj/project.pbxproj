@@ -1124,6 +1124,8 @@
 		FAEC270E2DF3526000878871 /* SentryUserFeedback.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAEC270D2DF3526000878871 /* SentryUserFeedback.swift */; };
 		FAEC273D2DF3933A00878871 /* NSData+Unzip.m in Sources */ = {isa = PBXBuildFile; fileRef = FAEC273C2DF3933200878871 /* NSData+Unzip.m */; };
 		FAEFA12F2E4FAE1900C431D9 /* SentrySDKSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAEFA1292E4FAE1700C431D9 /* SentrySDKSettings.swift */; };
+		FAF120182E70C08F006E1DA3 /* SentryEnvelopeHeaderHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = FAF120122E70C088006E1DA3 /* SentryEnvelopeHeaderHelper.h */; };
+		FAF1201A2E70C0EE006E1DA3 /* SentryEnvelopeHeaderHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = FAF120192E70C0EA006E1DA3 /* SentryEnvelopeHeaderHelper.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -2471,6 +2473,8 @@
 		FAEC273C2DF3933200878871 /* NSData+Unzip.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSData+Unzip.m"; sourceTree = "<group>"; };
 		FAEC273E2DF393E000878871 /* NSData+Unzip.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSData+Unzip.h"; sourceTree = "<group>"; };
 		FAEFA1292E4FAE1700C431D9 /* SentrySDKSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentrySDKSettings.swift; sourceTree = "<group>"; };
+		FAF120122E70C088006E1DA3 /* SentryEnvelopeHeaderHelper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryEnvelopeHeaderHelper.h; path = include/SentryEnvelopeHeaderHelper.h; sourceTree = "<group>"; };
+		FAF120192E70C0EA006E1DA3 /* SentryEnvelopeHeaderHelper.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryEnvelopeHeaderHelper.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -2691,6 +2695,8 @@
 		630436011EBCB8CA00C4D3FA /* Protocol */ = {
 			isa = PBXGroup;
 			children = (
+				FAF120122E70C088006E1DA3 /* SentryEnvelopeHeaderHelper.h */,
+				FAF120192E70C0EA006E1DA3 /* SentryEnvelopeHeaderHelper.m */,
 				D8CB74182947285A00A5F964 /* SentryEnvelopeItemHeader.h */,
 				D8CB741A2947286500A5F964 /* SentryEnvelopeItemHeader.m */,
 				D8CB74142947246600A5F964 /* SentryEnvelopeAttachmentHeader.h */,
@@ -5062,6 +5068,7 @@
 				D456B4382D706BFE007068CB /* SentrySpanDataKey.h in Headers */,
 				7B77BE3527EC8445003C9020 /* SentryDiscardReasonMapper.h in Headers */,
 				7B610D602512390E00B0B5D9 /* SentrySDK+Private.h in Headers */,
+				FAF120182E70C08F006E1DA3 /* SentryEnvelopeHeaderHelper.h in Headers */,
 				62A456E12B03704A003F19A1 /* SentryUIEventTrackerMode.h in Headers */,
 				03F84D2327DD414C008FE43F /* SentryThreadHandle.hpp in Headers */,
 				7B6C5EE0264E8E050010D138 /* SentryFramesTracker.h in Headers */,
@@ -5610,6 +5617,7 @@
 				621AE74D2C626C510012E730 /* SentryANRTrackerV2.m in Sources */,
 				84CFA4CA2C9DF884008DA5F4 /* SentryUserFeedbackWidget.swift in Sources */,
 				FAEC270E2DF3526000878871 /* SentryUserFeedback.swift in Sources */,
+				FAF1201A2E70C0EE006E1DA3 /* SentryEnvelopeHeaderHelper.m in Sources */,
 				F49D419E2DEA3D0600D9244E /* SentryCrashExceptionApplicationHelper.m in Sources */,
 				D8ACE3C82762187200F5A213 /* SentryFileIOTracker.m in Sources */,
 				7BE3C77D2446112C00A38442 /* SentryRateLimitParser.m in Sources */,

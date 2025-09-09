@@ -1,3 +1,5 @@
+@_implementationOnly import _SentryPrivate
+
 @_spi(Private) @objc public final class SentryEnvelope: NSObject {
     
     @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
@@ -30,11 +32,12 @@
         self.header = header
         self.items = items
     }
-    
+
     @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     convenience init(event: Event) {
         let item = SentryEnvelopeItem(event: event)
-        self.init(header: SentryEnvelopeHeader(id: event.eventId), singleItem: item)
+        let headerId = SentryEnvelopeHeaderHelper.headerId(from: event)
+        self.init(header: SentryEnvelopeHeader(id: headerId.sentryId), singleItem: item)
     }
     
     #if !SDK_V9
