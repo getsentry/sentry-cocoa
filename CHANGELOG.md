@@ -17,6 +17,7 @@
 - Fix macOS's frameworks not following the versioned framework structure (#6049)
 - Add warning to addBreadcrumb when used before SDK init (#6083)
 - Add null-handling for parsed DSN in SentryHTTPTransport (#5800)
+- Add exemption for CameraUI traversal for iOS 26.0 (#6045)
 
 ### Improvements
 
