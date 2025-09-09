@@ -56,6 +56,9 @@
     [self.notificationCenterWrapper removeObserver:self
                                               name:UIDeviceOrientationDidChangeNotification
                                             object:nil];
+    [self.notificationCenterWrapper removeObserver:self
+                                              name:UIApplicationSignificantTimeChangeNotification
+                                            object:nil];
 }
 
 - (void)dealloc
@@ -82,6 +85,7 @@
     [self initKeyboardVisibilityObserver];
     [self initScreenshotObserver];
     [self initTimezoneObserver];
+    [self initSignificantTimeChangeObserver];
 }
 
 - (void)initBatteryObserver:(UIDevice *)currentDevice
@@ -276,6 +280,27 @@
 {
     [self.fileManager
         storeTimezoneOffset:SentryDependencyContainer.sharedInstance.dateProvider.timezoneOffset];
+}
+
+- (void)initSignificantTimeChangeObserver
+{
+
+    [self.notificationCenterWrapper addObserver:self
+                                       selector:@selector(significantTimeChangeTriggered:)
+                                           name:UIApplicationSignificantTimeChangeNotification
+                                         object:nil];
+}
+
+- (void)significantTimeChangeTriggered:(NSNotification *)notification
+{
+    SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelInfo
+                                                             category:@"device.event"];
+    crumb.type = @"system";
+
+    // We don't add the timezone here, because we already add it in timezoneEventTriggered.
+    crumb.data = @{ @"action" : @"SIGNIFICANT_TIME_CHANGE" };
+
+    [_delegate addBreadcrumb:crumb];
 }
 
 @end
