@@ -84,5 +84,5 @@ done
 log_notice "Platform installation completed"
 
 begin_group "List Available Simulators"
-xcrun simctl list || true
+xcrun simctl list
 end_group
