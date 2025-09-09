@@ -151,7 +151,7 @@ class SentryTransportFactoryTests: XCTestCase {
         // -- Act --
         let transports = TransportInitializer.initTransports(
             options,
-            dateProvider: SentryDependencyContainer.sharedInstance().dateProvider,
+            dateProvider: dateProvider,
             sentryFileManager: try SentryFileManager(
                 options: options,
                 dateProvider: dateProvider,
