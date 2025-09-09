@@ -129,7 +129,7 @@ jobs:
   # the github.sha is be the pre merge commit id for PRs.
   # See https://github.community/t/github-sha-isnt-the-value-expected/17903/17906.
   validate-spm:
-    name: Validate SPM Static ${{matrix.package-file.name}}
+    name: Validate SPM Static
     runs-on: macos-14
     needs: [files-changed, assemble-xcframework-variant]
     # Run the job only for PRs with related changes or non-PR events.
@@ -144,20 +144,14 @@ jobs:
         uses: ./.github/actions/prepare-package.swift
         with:
           is-pr: ${{ github.event_name == 'pull_request' }}
-          package-file: ${{matrix.package-file.name}}
       - run: swift build
         working-directory: Samples/macOS-SPM-CommandLine
       - name: Run CI Diagnostics
         if: failure()
         run: ./scripts/ci-diagnostics.sh
-    strategy:
-      matrix:
-        package-file:
-          - name: Package.swift
-          - name: Package@swift-5.9.swift
 
   validate-spm-dynamic:
-    name: Validate SPM Dynamic ${{matrix.package-file.name}}
+    name: Validate SPM Dynamic
     runs-on: macos-14
     needs: [files-changed, assemble-xcframework-variant]
     # Run the job only for PRs with related changes or non-PR events.
@@ -172,20 +166,14 @@ jobs:
         uses: ./.github/actions/prepare-package.swift
         with:
           is-pr: ${{ github.event_name == 'pull_request' }}
-          package-file: ${{matrix.package-file.name}}
       - run: swift build
         working-directory: Samples/SPM-Dynamic
       - name: Run CI Diagnostics
         if: failure()
         run: ./scripts/ci-diagnostics.sh
-    strategy:
-      matrix:
-        package-file:
-          - name: Package.swift
-          - name: Package@swift-5.9.swift
 
   swift-build:
-    name: Build Swift Static ${{matrix.package-file.name}}
+    name: Build Swift Static
     runs-on: macos-14
     needs: [files-changed, assemble-xcframework-variant]
     # Run the job only for PRs with related changes or non-PR events.
@@ -200,16 +188,10 @@ jobs:
         uses: ./.github/actions/prepare-package.swift
         with:
           is-pr: ${{ github.event_name == 'pull_request' }}
-          package-file: ${{matrix.package-file.name}}
       - run: swift build
       - name: Run CI Diagnostics
         if: failure()
         run: ./scripts/ci-diagnostics.sh
-    strategy:
-      matrix:
-        package-file:
-          - name: Package.swift
-          - name: Package@swift-5.9.swift
 
   validate-spm-visionos:
     name: Validate SPM Static visionOS
@@ -227,7 +209,6 @@ jobs:
         uses: ./.github/actions/prepare-package.swift
         with:
           is-pr: ${{ github.event_name == 'pull_request' }}
-          package-file: Package@swift-5.9.swift
       - run: set -o pipefail &&xcodebuild build -scheme visionOS-SPM -sdk xros -destination 'generic/platform=xros' | tee raw-build-output-spm-visionOS.log | xcbeautify
         working-directory: Samples/visionOS-SPM
       - name: Run CI Diagnostics
