@@ -41,6 +41,12 @@ public class SentryCrashWrapper: NSObject {
 @objc @_spi(Private)
 public final class SentryCrashWrapper: NSObject {
     let processInfoWrapper: SentryProcessInfoSource
+    private static var systemInfo: [String: Any] = {
+        guard let systemInfo = SentryDependencyContainerSwiftHelper.crashReporter().systemInfo as? [String: Any] else {
+            return [:]
+        }
+        return systemInfo
+    }()
     
     @objc
     public init(processInfoWrapper: SentryProcessInfoSource) {
