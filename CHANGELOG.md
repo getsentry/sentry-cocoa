@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Fix crash in Session Replay when opening the camera UI on iOS 26+ by skipping redaction of internal views.
+  This may result in more of the camera screen being redacted. (#6045)
+
 ## 8.56.0-alpha.1
 
 - No documented changes.
@@ -22,8 +29,6 @@
 - Fix macOS's frameworks not following the versioned framework structure (#6049)
 - Add warning to addBreadcrumb when used before SDK init (#6083)
 - Add null-handling for parsed DSN in SentryHTTPTransport (#5800)
-- Fix crash in Session Replay when opening the camera UI on iOS 26+ by skipping redaction of internal views.
-  This may result in more of the camera screen being redacted. (#6045)
 
 ### Improvements
 
