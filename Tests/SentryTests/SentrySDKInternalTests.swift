@@ -31,8 +31,6 @@ class SentrySDKInternalTests: XCTestCase {
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
         let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
-
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
         let observer: SentryWatchdogTerminationScopeObserver
         let scopePersistentStore: TestSentryScopePersistentStore
 #endif //  os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
@@ -181,6 +179,7 @@ class SentrySDKInternalTests: XCTestCase {
         fileManager.deleteAllEnvelopes()
     }
 
+    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testStoreEnvelope_WhenNoClient_NoCrash() {
         SentrySDKInternal.store(SentryEnvelope(event: TestData.event))
 

@@ -98,7 +98,7 @@ class TestCoreDataStack {
         return obj
     }
     
-    func saveContext () {
+    func saveContext() {
         if managedObjectContext.hasChanges {
             try? managedObjectContext.save()
         }

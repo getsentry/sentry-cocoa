@@ -8,11 +8,11 @@ public class TestFileManager: SentryFileManager {
     var storeTimestampLastInForegroundInvocations: Int = 0
     var deleteTimestampLastInForegroundInvocations: Int = 0
 
-    public var storeEnvelopeInvocations = Invocations<SentryEnvelope>()
+    @_spi(Private) public var storeEnvelopeInvocations = Invocations<SentryEnvelope>()
     public var storeEnvelopePath: String?
     public var storeEnvelopePathNil: Bool = false
-    
-    public override func store(_ envelope: SentryEnvelope) -> String? {
+
+    @_spi(Private) public override func store(_ envelope: SentryEnvelope) -> String? {
         storeEnvelopeInvocations.record(envelope)
         if storeEnvelopePathNil {
             return nil

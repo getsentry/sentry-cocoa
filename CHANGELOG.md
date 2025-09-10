@@ -1,11 +1,16 @@
 # Changelog
 
-## Unreleased
+## 8.56.0-alpha.1
+
+- No documented changes.
+
+## 8.56.0-alpha.0
 
 ### Features
 
 - Structured Logs: Flush logs on SDK flush/close (#5834)
 - Add masking options for screenshots (#5401)
+- Add significant time change breadcrumb (#6112)
 
 ### Fixes
 

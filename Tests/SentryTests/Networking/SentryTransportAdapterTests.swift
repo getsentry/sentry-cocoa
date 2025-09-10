@@ -1,4 +1,4 @@
-@_spi(Private) import Sentry
+@_spi(Private) @testable import Sentry
 @_spi(Private) import SentryTestUtils
 import XCTest
 
@@ -34,6 +34,7 @@ class SentryTransportAdapterTests: XCTestCase {
         clearTestState()
     }
     
+    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testSendEventWithSession_SendsCorrectEnvelope() throws {
         let session = SentrySession(releaseName: "1.0.1", distinctId: "some-id")
         let event = TestData.event
@@ -48,6 +49,7 @@ class SentryTransportAdapterTests: XCTestCase {
         try assertSentEnvelope(expected: expectedEnvelope)
     }
 
+    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testSendFaultyAttachment_FaultyAttachmentGetsDropped() throws {
         let event = TestData.event
         sut.send(event: event, traceContext: nil, attachments: [fixture.faultyAttachment, fixture.attachment])
@@ -70,6 +72,7 @@ class SentryTransportAdapterTests: XCTestCase {
         try assertSentEnvelope(expected: expectedEnvelope)
     }
     
+    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testStoreEvent_StoresCorrectEnvelope() throws {
         let event = TestData.event
         sut.store(event, traceContext: nil)
@@ -114,11 +117,11 @@ enum EnvelopeUtils {
             
             XCTAssertTrue(containsHeader, "Envelope doesn't contain item with type:\(expectedHeader.type).")
             
-            let jsonExpected = try? JSONSerialization.jsonObject(with: expectedItem.data) as? NSDictionary
+            let jsonExpected = try? JSONSerialization.jsonObject(with: XCTUnwrap(expectedItem.data)) as? NSDictionary
             let containsData = actual.items.contains { actualItem in
                 // JSON cannot compare the raw Data because the keys are not guaranteed to be in the same order.
                 if let jsonExpected {
-                    if let jsonActual = try? JSONSerialization.jsonObject(with: actualItem.data) as? NSDictionary {
+                    if let jsonActual = try? JSONSerialization.jsonObject(with: XCTUnwrap(actualItem.data)) as? NSDictionary {
                         return jsonExpected == jsonActual
                     }
                     return false

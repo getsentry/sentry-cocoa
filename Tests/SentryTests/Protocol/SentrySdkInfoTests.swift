@@ -134,7 +134,7 @@ class SentrySdkInfoTests: XCTestCase {
     }
 
     @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
-    func testNoPackageNames () {
+    func testNoPackageNames() {
         SentrySdkPackage.setPackageManager(3)
         let actual = SentrySdkInfo.global()
 

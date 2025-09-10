@@ -434,7 +434,7 @@ class SentrySDKTests: XCTestCase {
         XCTAssertEqual(eventEnvelopeItems.count, 1, "Expected exactly one event envelope item, but got \(eventEnvelopeItems.count)")
         let eventEnvelopeItem = try XCTUnwrap(eventEnvelopeItems.first)
 
-        let event = try XCTUnwrap( SentryEventDecoder.decodeEvent(jsonData: eventEnvelopeItem.data))
+        let event = try XCTUnwrap( SentryEventDecoder.decodeEvent(jsonData: XCTUnwrap(eventEnvelopeItem.data)))
 
         let debugMetas = try XCTUnwrap(event.debugMeta, "Expected event to have debug meta but got nil")
         // During local testing we got 6 debug metas, but to avoid flakiness in CI we only check for 3.
