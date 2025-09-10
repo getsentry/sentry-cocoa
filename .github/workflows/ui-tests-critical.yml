@@ -43,7 +43,7 @@ jobs:
       xcode_version: ${{matrix.platform.xcode}}
       macos_version: ${{matrix.platform.runs-on}}
       files_suffix: _${{matrix.platform.xcode}}
-      platforms: ${{matrix.platform.platforms}}
+      platform: ${{matrix.platform.platform}}
       device: ${{matrix.platform.device}}
       test-destination-os: ${{matrix.platform.test-destination-os}}
     strategy:
