@@ -79,6 +79,7 @@ jobs:
               platforms: "iOS"
               device: "iPhone 16 Pro"
               test-destination-os: "26.0"
+              platform: "iOS"
 
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
