@@ -29,8 +29,8 @@ class SentrySDKInternalTests: XCTestCase {
 
         let currentDate = TestCurrentDateProvider()
 
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
         let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
         let observer: SentryWatchdogTerminationScopeObserver
         let scopePersistentStore: TestSentryScopePersistentStore
 #endif //  os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
