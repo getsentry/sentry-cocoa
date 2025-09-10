@@ -29,8 +29,8 @@ class SentryDispatchQueueWrapperSwiftTests: XCTestCase {
         XCTAssertTrue(thirdWasCalled)
     }
     
-    func testQueueDispatchAsync() {
-        let expectation = XCTestExpectation(description: "Executes")
+    func testDispatchAsyncOnMainQueue() {
+        let expectation = XCTestExpectation()
         
         // This var is modified on the main thread after dispatching the block to verify the order oof execution
         var flag = false
@@ -46,5 +46,45 @@ class SentryDispatchQueueWrapperSwiftTests: XCTestCase {
         flag = true
         
         wait(for: [expectation], timeout: 10)
+    }
+    
+    func testDispatchAsyncOnMainQueueIfNotMainThreadOnMain() {
+        let expectation = XCTestExpectation()
+        
+        var flag = false
+        
+        let sut = SentryDispatchQueueWrapper()
+        sut.dispatchAsyncOnMainQueueIfNotMainThread {
+            XCTAssertTrue(Thread.isMainThread)
+            XCTAssertFalse(flag, "Block did not run synchronously")
+            
+            expectation.fulfill()
+        }
+        flag = true
+        
+        wait(for: [expectation], timeout: 2)
+    }
+    
+    func testDispatchAsyncOnMainQueueIfNotMainThreadFromBackground() {
+        let expectation = XCTestExpectation()
+        
+        DispatchQueue.global().async {
+            let innerExpectation = XCTestExpectation(description: "Expectation on background thread")
+            
+            var flag = false
+            let sut = SentryDispatchQueueWrapper()
+            sut.dispatchAsyncOnMainQueueIfNotMainThread {
+                XCTAssertTrue(Thread.isMainThread)
+                XCTAssertTrue(flag, "Block did not run asynchronously")
+                
+                innerExpectation.fulfill()
+            }
+            flag = true
+            
+            self.wait(for: [innerExpectation], timeout: 2)
+            expectation.fulfill()
+        }
+        
+        wait(for: [expectation], timeout: 2)
     }
 }

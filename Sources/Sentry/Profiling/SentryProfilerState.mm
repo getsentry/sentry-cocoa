@@ -66,7 +66,8 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
     if (self = [super init]) {
         _mutableState = [[SentryProfilerMutableState alloc] init];
         _mainThreadID = 0;
-        sentry_dispatchAsyncOnMain(SentryDependencyContainer.sharedInstance.dispatchQueueWrapper,
+        sentry_dispatchAsyncOnMainIfNotMainThread(
+            SentryDependencyContainer.sharedInstance.dispatchQueueWrapper,
             ^{ [self cacheMainThreadID]; });
     }
     return self;

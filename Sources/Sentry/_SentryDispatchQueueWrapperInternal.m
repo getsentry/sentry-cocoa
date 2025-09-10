@@ -24,6 +24,15 @@ NS_ASSUME_NONNULL_BEGIN
     return self;
 }
 
+- (void)dispatchAsyncOnMainQueueIfNotMainThread:(void (^)(void))block
+{
+    if ([NSThread isMainThread]) {
+        block();
+    } else {
+        [self dispatchAsyncOnMainQueue:block];
+    }
+}
+
 - (void)dispatchAsyncWithBlock:(void (^)(void))block
 {
     dispatch_async(_queue, ^{

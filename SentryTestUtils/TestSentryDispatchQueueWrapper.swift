@@ -34,6 +34,13 @@ import Foundation
     public var blockOnMainInvocations = Invocations<() -> Void>()
     public var blockBeforeMainBlock: () -> Bool = { true }
 
+    public override func dispatchAsyncOnMainQueueIfNotMainThread(block: @escaping () -> Void) {
+        blockOnMainInvocations.record(block)
+        if blockBeforeMainBlock() {
+            block()
+        }
+    }
+
     public override func dispatchAsyncOnMainQueue(block: @escaping () -> Void) {
         blockOnMainInvocations.record(block)
         if blockBeforeMainBlock() {

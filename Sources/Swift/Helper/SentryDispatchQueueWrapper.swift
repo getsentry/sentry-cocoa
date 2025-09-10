@@ -28,7 +28,11 @@
         internalWrapper.dispatchSync(block)
     }
     
-    @objc(dispatchAsyncOnMainQueue:)
+    @objc(dispatchAsyncOnMainQueueIfNotMainThread:)
+    public func dispatchAsyncOnMainQueueIfNotMainThread(block: @escaping () -> Void) {
+        internalWrapper.dispatchAsyncOnMainQueueIfNotMainThread(block: block)
+    }
+    
     public func dispatchAsyncOnMainQueue(block: @escaping () -> Void) {
         internalWrapper.dispatchAsyncOnMainQueue(block: block)
     }

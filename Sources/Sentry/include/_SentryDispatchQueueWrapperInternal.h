@@ -31,6 +31,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)dispatchOnce:(dispatch_once_t *)predicate block:(void (^)(void))block;
 
+- (void)dispatchAsyncOnMainQueueIfNotMainThread:(void (^)(void))block
+    NS_SWIFT_NAME(dispatchAsyncOnMainQueueIfNotMainThread(block:));
+
 @end
 
 NS_ASSUME_NONNULL_END
