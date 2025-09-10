@@ -22,13 +22,6 @@
 #        import "SentryDefines.h"
 #    endif // __has_include(<Sentry/SentryDefines.h>)
 
-// Needed or we can't expose reachability functions from Swift
-#    ifdef __cplusplus
-#        if SENTRY_HAS_REACHABILITY && __has_include(<SystemConfiguration/SystemConfiguration.h>)
-#            import <SystemConfiguration/SystemConfiguration.h>
-#        endif
-#    endif
-
 #    if SENTRY_HAS_UIKIT
 // this is needed to fix a build issue when building iOS-ObjectiveC where the definitions of some
 // UIKIt enums used from SentryUserFeedbackWidgetConfiguration.swift aren't visible from the

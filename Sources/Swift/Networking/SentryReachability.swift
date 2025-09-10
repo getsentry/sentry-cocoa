@@ -1,7 +1,7 @@
 import Foundation
+import Network
 
 #if !os(watchOS) && !((swift(>=5.9) && os(visionOS)) && SENTRY_NO_UIKIT)
-import Network
 
 // MARK: - SentryConectivity
 @objc
@@ -33,7 +33,7 @@ public class SentryReachability: NSObject {
     private var reachabilityObservers = NSHashTable<SentryReachabilityObserver>.weakObjects()
     private var currentConnectivity: SentryConnectivity = .none
     private var pathMonitor: Any? // NWPathMonitor for iOS 12+
-    private var reachabilityQueue: DispatchQueue?
+    private let reachabilityQueue: DispatchQueue = DispatchQueue(label: "io.sentry.cocoa.connectivity", qos: .background, attributes: [])
     private let observersLock = NSLock()
     
 #if DEBUG || SENTRY_TEST || SENTRY_TEST_CI
@@ -68,16 +68,17 @@ public class SentryReachability: NSObject {
         }
 #endif // DEBUG || SENTRY_TEST || SENTRY_TEST_CI
         
-        let reachabilityQueue = DispatchQueue(label: "io.sentry.cocoa.connectivity")
-        self.reachabilityQueue = reachabilityQueue
-        
         if #available(iOS 12.0, macOS 10.14, tvOS 12.0, *) {
-            let monitor = NWPathMonitor()
-            pathMonitor = monitor
-            monitor.pathUpdateHandler = pathUpdateHandler
-            monitor.start(queue: reachabilityQueue)
-            
-            SentrySDKLog.debug("Started NWPathMonitor")
+            // If we don't use the main queue to start the monitor, the app seems to freeze on iOS 14.8 (SauceLabs)
+            // Also do it async to avoid blocking the main thread
+            // Right now `SentryDispatchQueueWrapper.dispatchAsyncOnMainQueue` is not used because the SDK starts on the main thread,
+            // thus the block is executed in the main thread, not async.
+            DispatchQueue.main.async { [weak self] in
+                let monitor = NWPathMonitor()
+                self?.pathMonitor = monitor
+                monitor.pathUpdateHandler = self?.pathUpdateHandler
+                monitor.start(queue: self?.reachabilityQueue ?? DispatchQueue.global(qos: .background))
+            }
         } else {
             // For iOS 11 and earlier, simulate always being connected via WiFi
             SentrySDKLog.warning("NWPathMonitor not available. Using fallback: always connected via WiFi")
@@ -133,7 +134,6 @@ public class SentryReachability: NSObject {
         }
         
         SentrySDKLog.debug("Cleaning up reachability queue.")
-        reachabilityQueue = nil
     }
     
     @available(iOS 12.0, macOS 10.14, tvOS 12.0, *)
