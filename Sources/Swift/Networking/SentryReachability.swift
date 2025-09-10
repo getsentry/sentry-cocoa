@@ -1,15 +1,24 @@
 import Foundation
 import Network
 
-#if !os(watchOS) && !((swift(>=5.9) && os(visionOS)) && SENTRY_NO_UIKIT)
-
 // MARK: - SentryConectivity
-@objc
+#if DEBUG || SENTRY_TEST || SENTRY_TEST_CI
+@objc @_spi(Private)
 public enum SentryConnectivity: Int {
     case cellular
     case wiFi
     case none
-    
+}
+#else
+@objc
+enum SentryConnectivity: Int {
+    case cellular
+    case wiFi
+    case none
+}
+#endif // DEBUG || SENTRY_TEST || SENTRY_TEST_CI
+
+extension SentryConnectivity {
     func toString() -> String {
         switch self {
         case .cellular:
@@ -68,7 +77,7 @@ public class SentryReachability: NSObject {
         }
 #endif // DEBUG || SENTRY_TEST || SENTRY_TEST_CI
         
-        if #available(iOS 12.0, macOS 10.14, tvOS 12.0, *) {
+        if #available(iOS 12.0, macOS 10.14, tvOS 12.0, visionOS 1.0, watchOS 5.0, *) {
             // If we don't use the main queue to start the monitor, the app seems to freeze on iOS 14.8 (SauceLabs)
             // Also do it async to avoid blocking the main thread
             // Right now `SentryDispatchQueueWrapper.dispatchAsyncOnMainQueue` is not used because the SDK starts on the main thread,
@@ -125,7 +134,7 @@ public class SentryReachability: NSObject {
         currentConnectivity = .none
         
         // Clean up NWPathMonitor
-        if #available(iOS 12.0, macOS 10.14, tvOS 12.0, *) {
+        if #available(iOS 12.0, macOS 10.14, tvOS 12.0, visionOS 1.0, watchOS 5.0, *) {
             if let monitor = pathMonitor as? NWPathMonitor {
                 SentrySDKLog.debug("Stopping NWPathMonitor")
                 monitor.cancel()
@@ -136,7 +145,7 @@ public class SentryReachability: NSObject {
         SentrySDKLog.debug("Cleaning up reachability queue.")
     }
     
-    @available(iOS 12.0, macOS 10.14, tvOS 12.0, *)
+    @available(iOS 12.0, macOS 10.14, tvOS 12.0, visionOS 1.0, watchOS 5.0, *)
     private func pathUpdateHandler(_ path: NWPath) {
         SentrySDKLog.debug("SentryPathUpdateHandler called with path status: \(path.status)")
         
@@ -151,7 +160,7 @@ public class SentryReachability: NSObject {
         connectivityCallback(connectivity)
     }
     
-    @available(iOS 12.0, macOS 10.14, tvOS 12.0, *)
+    @available(iOS 12.0, macOS 10.14, tvOS 12.0, visionOS 1.0, watchOS 5.0, *)
     private func connectivityFromPath(_ path: NWPath) -> SentryConnectivity {
         guard path.status == .satisfied else {
             return .none
@@ -211,7 +220,7 @@ public class SentryReachability: NSObject {
 
 // MARK: - Test utils
 #if DEBUG || SENTRY_TEST || SENTRY_TEST_CI
-@available(iOS 12.0, macOS 10.14, tvOS 12.0, *)
+@available(iOS 12.0, macOS 10.14, tvOS 12.0, visionOS 1.0, watchOS 5.0, *)
 extension SentryReachability {
     @objc public func setReachabilityIgnoreActualCallback(_ value: Bool) {
         SentrySDKLog.debug("Setting ignore actual callback to \(value)")
@@ -229,5 +238,3 @@ extension SentryReachability {
     }
 }
 #endif // DEBUG || SENTRY_TEST || SENTRY_TEST_CI
-
-#endif // !os(watchOS) && !((swift(>=5.9) && os(visionOS)) && SENTRY_NO_UIKIT)

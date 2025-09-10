@@ -112,9 +112,7 @@ static BOOL isInitialializingDependencyContainer = NO;
 + (void)reset
 {
     @synchronized(sentryDependencyContainerInstanceLock) {
-#if SENTRY_HAS_REACHABILITY
         [instance->_reachability removeAllObservers];
-#endif // SENTRY_HAS_REACHABILITY
 
 #if SENTRY_HAS_UIKIT
         [instance->_framesTracker stop];
@@ -182,9 +180,7 @@ static BOOL isInitialializingDependencyContainer = NO;
                                                          andRateLimitParser:rateLimitParser
                                                         currentDateProvider:_dateProvider];
 
-#if SENTRY_HAS_REACHABILITY
         _reachability = [[SentryReachability alloc] init];
-#endif // SENTRY_HAS_REACHABILITY
 
         isInitialializingDependencyContainer = NO;
     }
