@@ -132,7 +132,7 @@ jobs:
             device: "iPhone 16 Pro"
             scheme: "Sentry"
 
-          # iOS 18 with Xcode 26
+          # iOS 26 with Xcode 26
           - name: iOS 26 Sentry
             runs-on: macos-15
             platform: "iOS"
