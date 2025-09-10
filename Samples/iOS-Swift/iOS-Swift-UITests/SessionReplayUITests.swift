@@ -17,9 +17,11 @@ class SessionReplayUITests: BaseUITest {
         let cameraUIElement = app.buttons["PhotoCapture"]
         XCTAssertTrue(cameraUIElement.waitForExistence(timeout: 5))
 
-        // After the Camera UI is shown, we keep it open for 10 seconds to trigger at least one full
+        // After the Camera UI is shown, we keep it open for 6 seconds to trigger at least one full
         // video segment captured (segments are 5 seconds long).
-        wait(10)
+        wait(6)
+
+        // We know the test succeeded if we reach this point without the app crashing.
     }
 
     private func wait(_ seconds: TimeInterval) {

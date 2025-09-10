@@ -313,10 +313,23 @@ final class SentryUIRedactBuilder {
     }
 
     private func isViewSubtreeIgnored(_ view: UIView) -> Bool {
-        // We are using the string description of the type instead of converting it to ObjectIdentifier, because
-        // the conversion would require an to use `NSClassFromString` which can lead to crashes in some cases, as it
-        // calls the `+initialize` methods of the class.
+        // We intentionally avoid using `NSClassFromString` or directly referencing class objects here,
+        // because both approaches can trigger the Objective-C `+initialize` method on the class.
+        // This has side effects and can cause crashes, especially when performed off the main thread
+        // or with UIKit classes that expect to be initialized on the main thread.
+        //
+        // Instead, we use the string description of the type (i.e., `type(of: view).description()`)
+        // for comparison. This is a safer, more "Swifty" approach that avoids the pitfalls of
+        // class initialization side effects.
+        //
+        // We have previously encountered related issues:
+        // - In EmergeTools' snapshotting code where using `NSClassFromString` led to crashes [1]
+        // - In Sentry's own SubClassFinder where storing or accessing class objects on a background thread caused crashes due to `+initialize` being called on UIKit classes [2]
+        //
+        // [1] https://github.com/EmergeTools/SnapshotPreviews/blob/main/Sources/SnapshotPreviewsCore/View%2BSnapshot.swift#L248
+        // [2] https://github.com/getsentry/sentry-cocoa/blob/00d97404946a37e983eabb21cc64bd3d5d2cb474/Sources/Sentry/SentrySubClassFinder.m#L58-L84   
         let viewTypeId = type(of: view).description()
+        
         if #available(iOS 26.0, *), viewTypeId == Self.cameraSwiftUIViewClassId {
             // CameraUI.ChromeSwiftUIView is a special case because it contains layers which can not be iterated due to this error:
             //
