@@ -13,6 +13,13 @@ import UIKit
 @objc @_spi(Private)
 public class SentryCrashWrapper: NSObject {
     let processInfoWrapper: SentryProcessInfoSource
+    // This is already lazy
+    private static var systemInfo: [String: Any] = {
+        guard let systemInfo = SentryDependencyContainerSwiftHelper.crashReporter().systemInfo as? [String: Any] else {
+            return [:]
+        }
+        return systemInfo
+    }()
     
     @objc
     public init(processInfoWrapper: SentryProcessInfoSource) {
@@ -93,7 +100,7 @@ public final class SentryCrashWrapper: NSObject {
             return testSystemInfo
         }
 #endif // SENTRY_TEST || SENTRY_TEST_CI
-        return Self.getSystemInfo()
+        return Self.systemInfo
     }
     
     @objc
@@ -220,7 +227,7 @@ public final class SentryCrashWrapper: NSObject {
         }
     }
     
-    private func getOSName() -> String {
+    private func getOSName() -> String? {
 #if os(macOS) || targetEnvironment(macCatalyst)
         return "macOS"
 #elseif os(iOS)
@@ -231,8 +238,6 @@ public final class SentryCrashWrapper: NSObject {
         return "watchOS"
 #elseif (swift(>=5.9) && os(visionOS))
         return "visionOS"
-#else
-        return "Unknown"
 #endif
     }
     
@@ -274,18 +279,5 @@ public final class SentryCrashWrapper: NSObject {
             deviceData["screen_width_pixels"] = appScreen.bounds.size.width
         }
 #endif // (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT
-    }
-    
-    private static func getSystemInfo() -> [String: Any] {
-        // Static singleton pattern for systemInfo
-        struct Holder {
-            static let sharedInfo: [String: Any] = {
-                guard let systemInfo = SentryDependencyContainerSwiftHelper.crashReporter().systemInfo as? [String: Any] else {
-                    return [:]
-                }
-                return systemInfo
-            }()
-        }
-        return Holder.sharedInfo
     }
 }
