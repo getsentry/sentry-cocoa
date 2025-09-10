@@ -19,7 +19,7 @@ class SessionReplayUITests: BaseUITest {
 
         // After the Camera UI is shown, we keep it open for 6 seconds to trigger at least one full
         // video segment captured (segments are 5 seconds long).
-        wait(6)
+        wait(10)
 
         // We know the test succeeded if we reach this point without the app crashing.
     }
