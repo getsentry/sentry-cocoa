@@ -1797,7 +1797,14 @@ class SentryClientTests: XCTestCase {
 
     func testFileManagerCantBeInit() throws {
         try SentryFileManager.prepareInitError()
-        defer { SentryFileManager.tearDownInitError() }
+        defer {
+            // We can not directly throw in a defer-block, so we catch the error and fail the test manually
+            do {
+                try SentryFileManager.tearDownInitError()
+            } catch {
+                XCTFail("Failed to tear down SentryFileManager error: \(error)")
+            }
+        }
 
         let options = Options()
         options.dsn = SentryClientTests.dsn
