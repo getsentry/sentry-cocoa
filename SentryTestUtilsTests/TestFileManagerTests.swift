@@ -6,6 +6,7 @@ class TestFileManagerTests: XCTestCase {
 
     private class Fixture {
         fileprivate var dateProvider = TestCurrentDateProvider()
+        fileprivate var dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
         fileprivate var options: Options!
 
         init(testName: String) {
@@ -18,11 +19,19 @@ class TestFileManagerTests: XCTestCase {
         }
 
         func getSut() throws -> TestFileManager {
-            return try TestFileManager(options: options)
+            return try TestFileManager(
+                options: options,
+                dateProvider: dateProvider,
+                dispatchQueueWrapper: dispatchQueueWrapper
+            )
         }
 
         func getActualFileManagerSut() throws -> SentryFileManager {
-            return try SentryFileManager(options: options)
+            return try SentryFileManager(
+                options: options,
+                dateProvider: dateProvider,
+                dispatchQueueWrapper: dispatchQueueWrapper
+            )
         }
     }
 
@@ -92,8 +101,8 @@ class TestFileManagerTests: XCTestCase {
 
         // -- Assert --
         // The paths are ending in a unique UUID, so we can only compare the prefix excluding the last 32 random characters and the `.json` extension
-        XCTAssertTrue(result1.hasPrefix(trimmedActualPath1) == true)
-        XCTAssertTrue(result2.hasPrefix(trimmedActualPath2) == true)
+        XCTAssertTrue(result1.hasPrefix(trimmedActualPath1) == true, "'\(result1)' does not have prefix '\(trimmedActualPath1)'")
+        XCTAssertTrue(result2.hasPrefix(trimmedActualPath2) == true, "'\(result2)' does not have prefix '\(trimmedActualPath2)'")
         XCTAssertEqual(sut.storeEnvelopeInvocations.count, 2)
         XCTAssertEqual(sut.storeEnvelopeInvocations.invocations.element(at: 0), envelope)
         XCTAssertEqual(sut.storeEnvelopeInvocations.invocations.element(at: 1), envelope)
