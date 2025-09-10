@@ -1,5 +1,6 @@
 import _SentryPrivate
 import Foundation
+@_spi(Private) import Sentry
 
 public class TestClient: SentryClient {
     public override init?(options: Options) {
@@ -43,8 +44,8 @@ public class TestClient: SentryClient {
         return event.eventId
     }
     
-    public var captureEventWithScopeInvocations = Invocations<(event: Event, scope: Scope, additionalEnvelopeItems: [SentryEnvelopeItem])>()
-    public override func capture(event: Event, scope: Scope, additionalEnvelopeItems: [SentryEnvelopeItem]) -> SentryId {
+    @_spi(Private) public var captureEventWithScopeInvocations = Invocations<(event: Event, scope: Scope, additionalEnvelopeItems: [SentryEnvelopeItem])>()
+    @_spi(Private) public override func capture(event: Event, scope: Scope, additionalEnvelopeItems: [SentryEnvelopeItem]) -> SentryId {
         captureEventWithScopeInvocations.record((event, scope, additionalEnvelopeItems))
         return event.eventId
     }

@@ -96,7 +96,7 @@ class SentryHttpTransportTests: XCTestCase {
                 beforeSendTransaction,
                 sampleRateTransaction,
                 rateLimitBackoffError
-            ])
+            ], dateProvider: SentryDependencyContainer.sharedInstance().dateProvider)
             
             let clientReportEnvelopeItems = [
                 SentryEnvelopeItem(event: event),
@@ -204,7 +204,7 @@ class SentryHttpTransportTests: XCTestCase {
     }
 
     func testSendEventWhenSessionRateLimitActive() throws {
-        fixture.rateLimits.update(TestResponseFactory.createRateLimitResponse(headerValue: "1:\(SentryEnvelopeItemTypeSession):key"))
+        fixture.rateLimits.update(TestResponseFactory.createRateLimitResponse(headerValue: "1:\(SentryEnvelopeItemTypes.session):key"))
 
         sendEvent()
 
@@ -259,7 +259,7 @@ class SentryHttpTransportTests: XCTestCase {
 
         // Envelope with only session and client report is sent
         let discardedError = SentryDiscardedEvent(reason: nameForSentryDiscardReason(.rateLimitBackoff), category: nameForSentryDataCategory(.error), quantity: 1)
-        let clientReport = SentryClientReport(discardedEvents: [discardedError])
+        let clientReport = SentryClientReport(discardedEvents: [discardedError], dateProvider: SentryDependencyContainer.sharedInstance().dateProvider)
         let envelopeItems = [
             SentryEnvelopeItem(session: fixture.session),
             SentryEnvelopeItem(clientReport: clientReport)
@@ -382,7 +382,7 @@ class SentryHttpTransportTests: XCTestCase {
     func testSendEventWithRateLimitResponse() {
         fixture.requestManager.nextError = NSError(domain: "something", code: 12)
 
-        let response = givenRateLimitResponse(forCategory: SentryEnvelopeItemTypeSession)
+        let response = givenRateLimitResponse(forCategory: SentryEnvelopeItemTypes.session)
 
         sendEvent()
 
@@ -393,7 +393,7 @@ class SentryHttpTransportTests: XCTestCase {
     func testSendEventWithMetricBucketRateLimitResponse() {
         fixture.requestManager.nextError = NSError(domain: "something", code: 12)
 
-        let response = givenRateLimitResponse(forCategory: SentryEnvelopeItemTypeSession)
+        let response = givenRateLimitResponse(forCategory: SentryEnvelopeItemTypes.session)
 
         sendEvent()
 
@@ -410,7 +410,7 @@ class SentryHttpTransportTests: XCTestCase {
     }
 
     func testSendEnvelopeWithRateLimitResponse() {
-        let response = givenRateLimitResponse(forCategory: SentryEnvelopeItemTypeSession)
+        let response = givenRateLimitResponse(forCategory: SentryEnvelopeItemTypes.session)
 
         sendEnvelope()
 
@@ -581,7 +581,7 @@ class SentryHttpTransportTests: XCTestCase {
     
     func testEventRateLimited_RecordsLostEvent() throws {
         let rateLimitBackoffError = SentryDiscardedEvent(reason: nameForSentryDiscardReason(.rateLimitBackoff), category: nameForSentryDataCategory(.error), quantity: 1)
-        let clientReport = SentryClientReport(discardedEvents: [rateLimitBackoffError])
+        let clientReport = SentryClientReport(discardedEvents: [rateLimitBackoffError], dateProvider: SentryDependencyContainer.sharedInstance().dateProvider)
         
         let clientReportEnvelopeItems = [
             fixture.attachmentEnvelopeItem,
@@ -604,7 +604,8 @@ class SentryHttpTransportTests: XCTestCase {
             discardedEvents: [
                 SentryDiscardedEvent(reason: nameForSentryDiscardReason(.rateLimitBackoff), category: nameForSentryDataCategory(.transaction), quantity: 1),
                 SentryDiscardedEvent(reason: nameForSentryDiscardReason(.rateLimitBackoff), category: nameForSentryDataCategory(.span), quantity: 4)
-            ]
+            ],
+            dateProvider: SentryDependencyContainer.sharedInstance().dateProvider
         )
         
         let clientReportEnvelopeItems = [

@@ -1,5 +1,6 @@
 import _SentryPrivate
 import Foundation
+@_spi(Private) import Sentry
 
 public class TestTransportAdapter: SentryTransportAdapter {
     @_spi(Private)
@@ -9,12 +10,12 @@ public class TestTransportAdapter: SentryTransportAdapter {
         sentEventsWithSessionTraceState.record((event, session, traceContext, attachments))
     }
     
-    public var sendEventWithTraceStateInvocations = Invocations<(event: Event, traceContext: TraceContext?, attachments: [Attachment], additionalEnvelopeItems: [SentryEnvelopeItem])>()
+    @_spi(Private) public var sendEventWithTraceStateInvocations = Invocations<(event: Event, traceContext: TraceContext?, attachments: [Attachment], additionalEnvelopeItems: [SentryEnvelopeItem])>()
     public override func send(event: Event, traceContext: TraceContext?, attachments: [Attachment]) {
         sendEventWithTraceStateInvocations.record((event, traceContext, attachments, []))
     }
     
-    public override func send(event: Event, traceContext: TraceContext?, attachments: [Attachment], additionalEnvelopeItems: [SentryEnvelopeItem]) {
+    @_spi(Private) public override func send(event: Event, traceContext: TraceContext?, attachments: [Attachment], additionalEnvelopeItems: [SentryEnvelopeItem]) {
         sendEventWithTraceStateInvocations.record((event, traceContext, attachments, additionalEnvelopeItems))
     }
     

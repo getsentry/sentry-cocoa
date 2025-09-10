@@ -35,7 +35,7 @@ class SentryEnvelopeRateLimitTests: XCTestCase {
         
         XCTAssertEqual(3, actual.items.count)
         for item in actual.items {
-            XCTAssertEqual(SentryEnvelopeItemTypeSession, item.header.type)
+            XCTAssertEqual(SentryEnvelopeItemTypes.session, item.header.type)
         }
         XCTAssertEqual(envelope.header, actual.header)
         
@@ -52,7 +52,7 @@ class SentryEnvelopeRateLimitTests: XCTestCase {
         
         XCTAssertEqual(3, actual.items.count)
         for item in actual.items {
-            XCTAssertEqual(SentryEnvelopeItemTypeEvent, item.header.type)
+            XCTAssertEqual(SentryEnvelopeItemTypes.event, item.header.type)
         }
         XCTAssertEqual(envelope.header, actual.header)
         
@@ -75,7 +75,7 @@ class SentryEnvelopeRateLimitTests: XCTestCase {
         let actual = sut.removeRateLimitedItems(envelope)
         
         XCTAssertEqual(1, actual.items.count)
-        XCTAssertEqual(SentryEnvelopeItemTypeEvent, try XCTUnwrap(actual.items.first).header.type)
+        XCTAssertEqual(SentryEnvelopeItemTypes.event, try XCTUnwrap(actual.items.first).header.type)
     }
     
     private func getEnvelope() -> SentryEnvelope {

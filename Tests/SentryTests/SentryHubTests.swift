@@ -1176,7 +1176,7 @@ class SentryHubTests: XCTestCase {
         let envelope = fixture.client.captureEnvelopeInvocations.first
         let sessionEnvelopeItem = envelope?.items.first(where: { $0.header.type == "session" })
         
-        let json = try XCTUnwrap((try! JSONSerialization.jsonObject(with: sessionEnvelopeItem!.data)) as? [String: Any])
+        let json = try XCTUnwrap((try! JSONSerialization.jsonObject(with: XCTUnwrap(sessionEnvelopeItem?.data))) as? [String: Any])
         
         XCTAssertEqual(json["timestamp"] as? String, "1970-01-01T00:00:02.000Z")
         XCTAssertEqual(json["status"] as? String, "crashed")
@@ -1420,7 +1420,7 @@ class SentryHubTests: XCTestCase {
     private func givenEnvelopeWithModifiedEvent(modifyEventDict: (inout [String: Any]) -> Void) throws -> SentryEnvelope {
         let event = TestData.event
         let envelopeItem = SentryEnvelopeItem(event: event)
-        var eventDict = try XCTUnwrap(JSONSerialization.jsonObject(with: envelopeItem.data) as? [String: Any])
+        var eventDict = try XCTUnwrap(JSONSerialization.jsonObject(with: XCTUnwrap(envelopeItem.data)) as? [String: Any])
         
         modifyEventDict(&eventDict)
         
@@ -1492,7 +1492,7 @@ class SentryHubTests: XCTestCase {
         XCTAssertEqual(1, fixture.client.captureEnvelopeInvocations.count)
         let envelope = fixture.client.captureEnvelopeInvocations.first!
         XCTAssertEqual(2, envelope.items.count)
-        let session = SentrySerialization.session(with: try XCTUnwrap(envelope.items.element(at: 1)).data)
+        let session = SentrySerialization.session(with: try XCTUnwrap(XCTUnwrap(envelope.items.element(at: 1)).data))
         XCTAssertEqual(1, session?.errors)
     }
     

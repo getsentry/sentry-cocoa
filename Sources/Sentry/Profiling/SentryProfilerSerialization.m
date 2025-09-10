@@ -9,7 +9,6 @@
 #    import "SentryDevice.h"
 #    import "SentryEnvelope.h"
 #    import "SentryEnvelopeItemHeader.h"
-#    import "SentryEnvelopeItemType.h"
 #    import "SentryEvent+Private.h"
 #    import "SentryFormatter.h"
 #    import "SentryInternalDefines.h"
@@ -346,7 +345,7 @@ SentryEnvelope *_Nullable sentry_continuousProfileChunkEnvelope(
 #    endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
 
     SentryEnvelopeItemHeader *header =
-        [[SentryEnvelopeItemHeader alloc] initWithType:SentryEnvelopeItemTypeProfileChunk
+        [[SentryEnvelopeItemHeader alloc] initWithType:SentryEnvelopeItemTypes.profileChunk
                                                 length:JSONData.length];
     header.platform = @"cocoa";
     SentryEnvelopeItem *envelopeItem = [[SentryEnvelopeItem alloc] initWithHeader:header
@@ -398,7 +397,7 @@ SentryEnvelopeItem *_Nullable sentry_traceProfileEnvelopeItem(SentryHub *hub,
 #    endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
 
     SentryEnvelopeItemHeader *header =
-        [[SentryEnvelopeItemHeader alloc] initWithType:SentryEnvelopeItemTypeProfile
+        [[SentryEnvelopeItemHeader alloc] initWithType:SentryEnvelopeItemTypes.profile
                                                 length:JSONData.length];
     return [[SentryEnvelopeItem alloc] initWithHeader:header data:JSONData];
 }
