@@ -103,6 +103,9 @@ jobs:
       xcode_version: ${{matrix.xcode}}
       build_with_make: true
       macos_version: ${{matrix.runs-on}}
+      platform: ${{matrix.platform}}
+      test-destination-os: ${{matrix.test-destination-os}}
+      device: ${{matrix.device}}
       codecov_test_analytics: true
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
