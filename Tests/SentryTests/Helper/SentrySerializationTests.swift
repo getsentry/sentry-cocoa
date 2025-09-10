@@ -674,6 +674,36 @@ class SentrySerializationTests: XCTestCase {
         XCTAssertNil(result)
     }
     
+    func testDataWithEnvelope_WithNilEnvelopeItemData_ReturnsNil() {
+        // Arrange
+        let itemHeader = SentryEnvelopeItemHeader(type: "attachment", length: 0)
+        let envelopeItem = SentryEnvelopeItem(header: itemHeader, data: nil)
+        let envelope = SentryEnvelope(header: SentryEnvelopeHeader(id: nil), singleItem: envelopeItem)
+        
+        // Act
+        let result = SentrySerialization.data(with: envelope)
+        
+        // Assert
+        XCTAssertNil(result, "Envelope serialization should return nil when an item has nil data")
+    }
+    
+    func testDataWithEnvelope_WithMixedNilAndValidData_ReturnsNil() {
+        // Arrange
+        let validItemHeader = SentryEnvelopeItemHeader(type: "attachment", length: 5)
+        let validItem = SentryEnvelopeItem(header: validItemHeader, data: Data("hello".utf8))
+        
+        let nilItemHeader = SentryEnvelopeItemHeader(type: "attachment", length: 0)
+        let nilItem = SentryEnvelopeItem(header: nilItemHeader, data: nil)
+        
+        let envelope = SentryEnvelope(header: SentryEnvelopeHeader(id: nil), items: [validItem, nilItem])
+        
+        // Act
+        let result = SentrySerialization.data(with: envelope)
+        
+        // Assert
+        XCTAssertNil(result, "Envelope serialization should return nil when any item has nil data")
+    }
+    
     private func serializeEnvelope(envelope: SentryEnvelope) -> Data {
         var serializedEnvelope: Data = Data()
         do {

@@ -68,9 +68,13 @@ NS_ASSUME_NONNULL_BEGIN
             SENTRY_LOG_ERROR(@"Envelope item header cannot be converted to JSON.");
             return nil;
         }
+        if (nil == envelope.items[i].data) {
+            SENTRY_LOG_ERROR(@"Envelope item has no data.");
+            return nil;
+        }
         [envelopeData appendData:itemHeader];
         [envelopeData appendData:newLineData];
-        [envelopeData appendData:envelope.items[i].data];
+        [envelopeData appendData:SENTRY_UNWRAP_NULLABLE(NSData, envelope.items[i].data)];
     }
 
     return envelopeData;

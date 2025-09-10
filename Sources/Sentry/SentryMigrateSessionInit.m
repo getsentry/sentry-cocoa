@@ -1,5 +1,6 @@
 #import "SentryMigrateSessionInit.h"
 #import "SentryEnvelopeItemHeader.h"
+#import "SentryInternalDefines.h"
 #import "SentryLogC.h"
 #import "SentrySerialization.h"
 #import "SentrySwift.h"
@@ -18,7 +19,13 @@ NS_ASSUME_NONNULL_BEGIN
 
     for (SentryEnvelopeItem *item in envelope.items) {
         if ([item.header.type isEqualToString:SentryEnvelopeItemTypes.session]) {
-            SentrySession *session = [SentrySerialization sessionWithData:item.data];
+            if (nil == item.data) {
+                SENTRY_LOG_WARN(
+                    @"Could not migrate session init, because the envelope item has no data.");
+                continue;
+            }
+            SentrySession *session =
+                [SentrySerialization sessionWithData:SENTRY_UNWRAP_NULLABLE(NSData, item.data)];
             if (nil != session && [session.flagInit boolValue]) {
                 BOOL didSetInitFlag =
                     [self setInitFlagOnNextEnvelopeWithSameSessionId:session
@@ -72,7 +79,13 @@ NS_ASSUME_NONNULL_BEGIN
 {
     for (SentryEnvelopeItem *item in envelope.items) {
         if ([item.header.type isEqualToString:SentryEnvelopeItemTypes.session]) {
-            SentrySession *localSession = [SentrySerialization sessionWithData:item.data];
+            if (nil == item.data) {
+                SENTRY_LOG_WARN(
+                    @"Could not migrate session init, because the envelope item has no data.");
+                continue;
+            }
+            SentrySession *localSession =
+                [SentrySerialization sessionWithData:SENTRY_UNWRAP_NULLABLE(NSData, item.data)];
 
             if (nil != localSession && [localSession.sessionId isEqual:sessionId]) {
                 [localSession setFlagInit];
