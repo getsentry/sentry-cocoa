@@ -82,7 +82,7 @@ class SentryHttpTransportTests: XCTestCase {
 
             options = Options()
             options.dsn = SentryHttpTransportTests.dsnAsString
-            fileManager = try! TestFileManager(options: options)
+            fileManager = try! TestFileManager(options: options, dateProvider: currentDateProvider, dispatchQueueWrapper: dispatchQueueWrapper)
 
             requestManager = TestRequestManager(session: URLSession(configuration: URLSessionConfiguration.ephemeral))
             
@@ -535,7 +535,7 @@ class SentryHttpTransportTests: XCTestCase {
     }
     
     func testFailureToStoreEvenlopeEventStillSendsRequest() throws {
-        let fileManger = try TestFileManager(options: fixture.options)
+        let fileManger = try TestFileManager(options: fixture.options, dateProvider: fixture.currentDateProvider, dispatchQueueWrapper: fixture.dispatchQueueWrapper)
         fileManger.storeEnvelopePathNil = true // Failure to store envelope returns nil path
         let sut = try fixture.getSut(fileManager: fileManger)
 

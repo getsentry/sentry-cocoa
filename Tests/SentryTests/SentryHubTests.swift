@@ -37,11 +37,15 @@ class SentryHubTests: XCTestCase {
             event = Event()
             event.message = SentryMessage(formatted: message)
             
-            fileManager = try! SentryFileManager(options: options, dispatchQueueWrapper: TestSentryDispatchQueueWrapper())
-            
+            fileManager = try! TestFileManager(
+                options: options,
+                dateProvider: currentDateProvider,
+                dispatchQueueWrapper: TestSentryDispatchQueueWrapper()
+            )
+
             SentryDependencyContainer.sharedInstance().dateProvider = currentDateProvider
             SentryDependencyContainer.sharedInstance().random = random
-            
+
             crashedSession = SentrySession(releaseName: "1.0.0", distinctId: "")
             crashedSession.endCrashed(withTimestamp: currentDateProvider.date())
             crashedSession.environment = options.environment
@@ -270,7 +274,11 @@ class SentryHubTests: XCTestCase {
     }
     
     func testAddUserToTheScope() throws {
-        let client = SentryClient(options: fixture.options, fileManager: try TestFileManager(options: fixture.options), deleteOldEnvelopeItems: false)
+        let client = SentryClient(
+            options: fixture.options,
+            fileManager: fixture.fileManager,
+            deleteOldEnvelopeItems: false
+        )
         let hub = SentryHub(client: client, andScope: Scope())
         
         let user = User()

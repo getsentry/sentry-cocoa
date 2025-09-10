@@ -26,10 +26,11 @@ class SentrySDKInternalTests: XCTestCase {
         @available(*, deprecated, message: "SentryUserFeedback is deprecated in favor of SentryFeedback.")
         let userFeedback: UserFeedback
         let feedback: SentryFeedback
+
         let currentDate = TestCurrentDateProvider()
 
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
         let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
         let observer: SentryWatchdogTerminationScopeObserver
         let scopePersistentStore: TestSentryScopePersistentStore
 #endif //  os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
@@ -71,7 +72,11 @@ class SentrySDKInternalTests: XCTestCase {
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
             options.dsn = SentrySDKInternalTests.dsnAsString
 
-            let fileManager = try! TestFileManager(options: options)
+            let fileManager = try! TestFileManager(
+                options: options,
+                dateProvider: currentDate,
+                dispatchQueueWrapper: dispatchQueueWrapper
+            )
             let breadcrumbProcessor = SentryWatchdogTerminationBreadcrumbProcessor(maxBreadcrumbs: 10, fileManager: fileManager)
             scopePersistentStore = try! XCTUnwrap(TestSentryScopePersistentStore(fileManager: fileManager))
             let attributesProcessor = SentryWatchdogTerminationAttributesProcessor(
@@ -156,7 +161,11 @@ class SentrySDKInternalTests: XCTestCase {
     @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func testStartSDK_WithCorruptedEnvelope() throws {
 
-        let fileManager = try SentryFileManager(options: fixture.options)
+        let fileManager = try SentryFileManager(
+            options: fixture.options,
+            dateProvider: fixture.currentDate,
+            dispatchQueueWrapper: fixture.dispatchQueueWrapper
+        )
 
         let corruptedEnvelopeData = Data("""
                        {"event_id":"1990b5bc31904b7395fd07feb72daf1c","sdk":{"name":"sentry.cocoa","version":"8.33.0"}}
@@ -672,7 +681,8 @@ class SentrySDKInternalTests: XCTestCase {
         }
 
         let transport = TestTransport()
-        let client = SentryClient(options: fixture.options, fileManager: try TestFileManager(options: fixture.options), deleteOldEnvelopeItems: false)
+        let fileManager = try TestFileManager(options: fixture.options, dateProvider: fixture.currentDate, dispatchQueueWrapper: fixture.dispatchQueueWrapper)
+        let client = SentryClient(options: fixture.options, fileManager: fileManager, deleteOldEnvelopeItems: false)
         Dynamic(client).transportAdapter = TestTransportAdapter(transports: [transport], options: fixture.options)
         SentrySDKInternal.currentHub().bindClient(client)
         SentrySDK.close()
@@ -761,7 +771,8 @@ class SentrySDKInternalTests: XCTestCase {
         }
 
         let transport = TestTransport()
-        let client = SentryClient(options: fixture.options, fileManager: try TestFileManager(options: fixture.options), deleteOldEnvelopeItems: false)
+        let fileManager = try TestFileManager(options: fixture.options, dateProvider: fixture.currentDate, dispatchQueueWrapper: fixture.dispatchQueueWrapper)
+        let client = SentryClient(options: fixture.options, fileManager: fileManager, deleteOldEnvelopeItems: false)
         Dynamic(client).transportAdapter = TestTransportAdapter(transports: [transport], options: fixture.options)
         SentrySDKInternal.currentHub().bindClient(client)
 
@@ -847,7 +858,7 @@ class SentrySDKInternalTests: XCTestCase {
         let options = Options()
         options.dsn = SentrySDKInternalTests.dsnAsString
 
-        let fileManager = try TestFileManager(options: options)
+        let fileManager = try TestFileManager(options: options, dateProvider: fixture.currentDate, dispatchQueueWrapper: fixture.dispatchQueueWrapper)
         let breadcrumbProcessor = SentryWatchdogTerminationBreadcrumbProcessor(maxBreadcrumbs: 10, fileManager: fileManager)
         let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
         let scopePersistentStore = try XCTUnwrap(TestSentryScopePersistentStore(fileManager: fileManager))

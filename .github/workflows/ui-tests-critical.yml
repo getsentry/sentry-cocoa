@@ -43,6 +43,9 @@ jobs:
       xcode_version: ${{matrix.platform.xcode}}
       macos_version: ${{matrix.platform.runs-on}}
       files_suffix: _${{matrix.platform.xcode}}
+      platform: ${{matrix.platform.platform}}
+      device: ${{matrix.platform.device}}
+      test-destination-os: ${{matrix.platform.test-destination-os}}
     strategy:
       fail-fast: false
       matrix:
@@ -53,6 +56,9 @@ jobs:
             platform:
               runs-on: macos-13
               xcode: "14.3.1"
+              platform: "iOS"
+              device: "iPhone 14 Pro"
+              test-destination-os: "16.4"
 
           # macos-14 iOS 17 not included due to the XCUIServerNotFound errors causing flaky tests
 
@@ -62,6 +68,18 @@ jobs:
             platform:
               runs-on: macos-15
               xcode: "16.4"
+              platform: "iOS"
+              device: "iPhone 16 Pro"
+              test-destination-os: "18.4"
+
+          - name: iOS 26
+            platform:
+              runs-on: macos-15
+              xcode: "26.0"
+              platform: "iOS"
+              device: "iPhone 16 Pro"
+              test-destination-os: "26.0"
+
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
