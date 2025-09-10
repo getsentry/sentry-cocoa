@@ -259,7 +259,7 @@ class SentryClientTests: XCTestCase {
     func testCaptureEventTypeTransactionDoesNotIncludeThreadAndDebugMeta() throws {
         let event = Event(level: SentryLevel.warning)
         event.message = fixture.message
-        event.type = SentryEnvelopeItemTypeTransaction
+        event.type = SentryEnvelopeItemTypes.transaction
         let scope = Scope()
         let expectedTags = ["tagKey": "tagValue"]
         scope.setTags(expectedTags)
@@ -1787,8 +1787,8 @@ class SentryClientTests: XCTestCase {
         assertArrayEquals(expected: expected, actual: actual.sdk?["integrations"] as? [String])
     }
 
-    func testFileManagerCantBeInit() {
-        SentryFileManager.prepareInitError()
+    func testFileManagerCantBeInit() throws {
+        try SentryFileManager.prepareInitError()
 
         let options = Options()
         options.dsn = SentryClientTests.dsn
@@ -1796,7 +1796,7 @@ class SentryClientTests: XCTestCase {
 
         XCTAssertNil(client)
 
-        SentryFileManager.tearDownInitError()
+        try SentryFileManager.tearDownInitError()
     }
     
     func testInstallationIdSetWhenNoUserId() throws {
@@ -2061,7 +2061,7 @@ class SentryClientTests: XCTestCase {
         
         sut.capture(replayEvent, replayRecording: replayRecording, video: movieUrl!, with: Scope())
         let envelope = fixture.transport.sentEnvelopes.first
-        XCTAssertEqual(try XCTUnwrap(envelope?.items.first).header.type, SentryEnvelopeItemTypeReplayVideo)
+        XCTAssertEqual(try XCTUnwrap(envelope?.items.first).header.type, SentryEnvelopeItemTypes.replayVideo)
     }
     
     func testCaptureReplayEvent_WrongEventFromEventProcessor() {

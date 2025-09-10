@@ -1,11 +1,16 @@
 # Changelog
 
-## Unreleased
+## 8.56.0-alpha.1
+
+- No documented changes.
+
+## 8.56.0-alpha.0
 
 ### Features
 
 - Structured Logs: Flush logs on SDK flush/close (#5834)
 - Add masking options for screenshots (#5401)
+- Add significant time change breadcrumb (#6112)
 
 ### Fixes
 
@@ -25,6 +30,7 @@
 - Lazily CharacterSet only once in SentryBaggageSerialization (#5871)
 - Structured Logging: Log `SentrySDK.logger` calls to `SentrySDKLog` (#5991)
 - The build type in the app context now differentiates between `enterprise` and `adhoc` (#6044)
+- visionOS no longer needs swift's interoperability mode (#6077)
 - Ensure IP address is only inferred by Relay if sendDefaultPii is true (#5877)
 
 ## 8.55.1
@@ -34,6 +40,7 @@
 ### Fixes
 
 - Fix macOS's frameworks not following the versioned framework structure (#6049)
+- Add support for iOS 26, macOS 26, visionOS 26, watchOS 26, and tvOS 26 in device tests (#6063)
 
 ## 8.54.1-alpha.1
 

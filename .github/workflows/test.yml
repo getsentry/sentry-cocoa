@@ -132,6 +132,15 @@ jobs:
             device: "iPhone 16 Pro"
             scheme: "Sentry"
 
+          # iOS 26 with Xcode 26
+          - name: iOS 26 Sentry
+            runs-on: macos-15
+            platform: "iOS"
+            xcode: "26.0"
+            test-destination-os: "26.0"
+            device: "iPhone 16 Pro"
+            scheme: "Sentry"
+
           # We don't run the unit tests on macOS 13 cause we run them on all on GH actions available iOS versions.
           # The chance of missing a bug solely on tvOS 16 that doesn't occur on iOS, macOS 12 or macOS 14 is minimal.
           # We are running tests on macOS 14 and later, as there were OS-internal changes introduced in succeeding versions.
@@ -206,9 +215,15 @@ jobs:
 
       - name: Start Test Server
         run: ./scripts/start-test-server.sh
-
       - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
 
+      - name: Install required platforms for Xcode 26
+        if: matrix.xcode == '26.0' && matrix.platform != ''
+        run: ./scripts/ci-install-xOS-26-platforms.sh --platforms "${{matrix.platform}}"
+
+      - name: Create simulator device for Xcode 26
+        if: matrix.xcode == '26.0' && matrix.platform != ''
+        run: ./scripts/ci-create-simulator.sh --platform "${{matrix.platform}}" --os-version "${{matrix.test-destination-os}}" --device-name "${{matrix.device}}"
       - name: Install Slather
         run: gem install slather
 
@@ -285,7 +300,7 @@ jobs:
       # We don't upload codecov for scheduled runs as CodeCov only accepts a limited amount of uploads per commit.
       - name: Push code coverage to codecov
         id: codecov_1
-        uses: codecov/codecov-action@fdcc8476540edceab3de004e990f80d881c6cc00 # pin@v5.5.0
+        uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # pin@v5.5.1
         if: ${{ contains(matrix.platform, 'iOS') && !contains(github.ref, 'release') && github.event.schedule == '' }}
         with:
           # Although public repos should not have to specify a token there seems to be a bug with the Codecov GH action, which can
@@ -297,7 +312,7 @@ jobs:
       # Sometimes codecov uploads etc can fail. Retry one time to rule out e.g. intermittent network failures.
       - name: Push code coverage to codecov
         id: codecov_2
-        uses: codecov/codecov-action@fdcc8476540edceab3de004e990f80d881c6cc00 # pin@v5.5.0
+        uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # pin@v5.5.1
         if: ${{ steps.codecov_1.outcome == 'failure' && contains(matrix.platform, 'iOS') && !contains(github.ref, 'release') && github.event.schedule == '' }}
         with:
           token: ${{ secrets.CODECOV_TOKEN }}

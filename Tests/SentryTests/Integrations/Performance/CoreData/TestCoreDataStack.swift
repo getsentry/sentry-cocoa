@@ -105,7 +105,7 @@ class TestCoreDataStack {
     }
 }
 
-class TestNSManagedObjectContext: NSManagedObjectContext {
+class TestNSManagedObjectContext: NSManagedObjectContext, @unchecked Sendable {
 
     var inserted: Set<NSManagedObject>?
     var updated: Set<NSManagedObject>?

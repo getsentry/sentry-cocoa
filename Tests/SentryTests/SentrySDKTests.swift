@@ -423,13 +423,13 @@ class SentrySDKTests: XCTestCase {
         let eventEnvelopeItems = try fileManager.getAllEnvelopes().map { fileContent in
             return try XCTUnwrap(SentrySerialization.envelope(with: fileContent.contents))
         }.flatMap { envelope in
-            return envelope.items.filter { $0.header.type == SentryEnvelopeItemTypeEvent }
+            return envelope.items.filter { $0.header.type == SentryEnvelopeItemTypes.event }
         }
 
         XCTAssertEqual(eventEnvelopeItems.count, 1, "Expected exactly one event envelope item, but got \(eventEnvelopeItems.count)")
         let eventEnvelopeItem = try XCTUnwrap(eventEnvelopeItems.first)
 
-        let event = try XCTUnwrap( SentryEventDecoder.decodeEvent(jsonData: eventEnvelopeItem.data))
+        let event = try XCTUnwrap( SentryEventDecoder.decodeEvent(jsonData: XCTUnwrap(eventEnvelopeItem.data)))
 
         let debugMetas = try XCTUnwrap(event.debugMeta, "Expected event to have debug meta but got nil")
         // During local testing we got 6 debug metas, but to avoid flakiness in CI we only check for 3.

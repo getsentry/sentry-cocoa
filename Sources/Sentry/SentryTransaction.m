@@ -1,5 +1,4 @@
 #import "SentryTransaction.h"
-#import "SentryEnvelopeItemType.h"
 #import "SentryEvent+Serialize.h"
 #import "SentryInternalDefines.h"
 #import "SentryNSDictionarySanitize.h"
@@ -19,7 +18,7 @@ NS_ASSUME_NONNULL_BEGIN
         self.startTimestamp = trace.startTimestamp;
         self.trace = trace;
         self.spans = children;
-        self.type = SentryEnvelopeItemTypeTransaction;
+        self.type = SentryEnvelopeItemTypes.transaction;
     }
     return self;
 }

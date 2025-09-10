@@ -324,10 +324,37 @@ class SentrySystemEventBreadcrumbsTest: XCTestCase {
         }
     }
 
+    func testSignificantTimeChangeNotificationBreadcrumb() throws {
+        sut = fixture.getSut(currentDevice: nil)
+
+        fixture.notificationCenterWrapper.post(Notification(name: UIApplication.significantTimeChangeNotification, object: nil))
+
+        XCTAssertEqual(1, fixture.delegate.addCrumbInvocations.count)
+
+        let crumb = try XCTUnwrap(fixture.delegate.addCrumbInvocations.first)
+
+        XCTAssertEqual("device.event", crumb.category)
+        XCTAssertEqual("system", crumb.type)
+        XCTAssertEqual(SentryLevel.info, crumb.level)
+
+        let data = try XCTUnwrap(crumb.data, "no breadcrumb.data")
+        XCTAssertEqual("SIGNIFICANT_TIME_CHANGE", data["action"] as? String)
+    }
+
+    func testSignificantTimeChangeNotificationBreadcrumb_UnsubscribeOnStop() {
+        sut = fixture.getSut(currentDevice: nil)
+
+        sut.stop()
+
+        let didCallRemoveObserver = fixture.notificationCenterWrapper.removeObserverWithNameAndObjectInvocations.invocations.filter { $0.name == UIApplication.significantTimeChangeNotification }.count == 1
+
+        XCTAssertTrue(didCallRemoveObserver, "Stop didn't call remove observer for UIApplicationSignificantTimeChangeNotification")
+    }
+
     func testStopCallsSpecificRemoveObserverMethods() {
         sut = fixture.getSut(currentDevice: nil)
         sut.stop()
-        XCTAssertEqual(fixture.notificationCenterWrapper.removeObserverWithNameAndObjectInvocations.count, 6)
+        XCTAssertEqual(fixture.notificationCenterWrapper.removeObserverWithNameAndObjectInvocations.count, 7)
     }
     
     private func postBatteryLevelNotification(uiDevice: UIDevice?) {

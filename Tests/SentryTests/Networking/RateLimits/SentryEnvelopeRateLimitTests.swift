@@ -19,6 +19,7 @@ class SentryEnvelopeRateLimitTests: XCTestCase {
         sut.setDelegate(delegate)
     }
     
+    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testNoLimitsActive() {
         let envelope = getEnvelope()
         
@@ -27,6 +28,7 @@ class SentryEnvelopeRateLimitTests: XCTestCase {
         XCTAssertEqual(envelope, actual)
     }
     
+    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testLimitForErrorActive() {
         rateLimits.rateLimits = [SentryDataCategory.error]
         
@@ -35,7 +37,7 @@ class SentryEnvelopeRateLimitTests: XCTestCase {
         
         XCTAssertEqual(3, actual.items.count)
         for item in actual.items {
-            XCTAssertEqual(SentryEnvelopeItemTypeSession, item.header.type)
+            XCTAssertEqual(SentryEnvelopeItemTypes.session, item.header.type)
         }
         XCTAssertEqual(envelope.header, actual.header)
         
@@ -44,6 +46,7 @@ class SentryEnvelopeRateLimitTests: XCTestCase {
         XCTAssertEqual(expected, delegate.envelopeItemsDropped.invocations)
     }
     
+    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testLimitForSessionActive() {
         rateLimits.rateLimits = [SentryDataCategory.session]
         
@@ -52,7 +55,7 @@ class SentryEnvelopeRateLimitTests: XCTestCase {
         
         XCTAssertEqual(3, actual.items.count)
         for item in actual.items {
-            XCTAssertEqual(SentryEnvelopeItemTypeEvent, item.header.type)
+            XCTAssertEqual(SentryEnvelopeItemTypes.event, item.header.type)
         }
         XCTAssertEqual(envelope.header, actual.header)
         
@@ -61,6 +64,7 @@ class SentryEnvelopeRateLimitTests: XCTestCase {
         XCTAssertEqual(expected, delegate.envelopeItemsDropped.invocations)
     }
     
+    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testLimitForCustomType() {
         rateLimits.rateLimits = [SentryDataCategory.default]
         var envelopeItems = [SentryEnvelopeItem]()
@@ -75,9 +79,10 @@ class SentryEnvelopeRateLimitTests: XCTestCase {
         let actual = sut.removeRateLimitedItems(envelope)
         
         XCTAssertEqual(1, actual.items.count)
-        XCTAssertEqual(SentryEnvelopeItemTypeEvent, try XCTUnwrap(actual.items.first).header.type)
+        XCTAssertEqual(SentryEnvelopeItemTypes.event, try XCTUnwrap(actual.items.first).header.type)
     }
     
+    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     private func getEnvelope() -> SentryEnvelope {
         var envelopeItems = [SentryEnvelopeItem]()
         for _ in 0...2 {
