@@ -53,7 +53,7 @@ only_rules:
   - private_unit_test
   - prohibited_super_call
   - redundant_nil_coalescing
-  - redundant_optional_initialization
+  - implicit_optional_initialization
   - redundant_string_enum_value
   - redundant_void_return
   - return_arrow_whitespace

@@ -412,6 +412,14 @@ class ExtraViewController: UIViewController {
             showToast(in: self, type: .warning, message: "Feedback widget only available in iOS 13 or later.")
         }
     }
+
+    @IBAction func showCameraUIAction(_ sender: Any) {
+        let imagePicker = UIImagePickerController()
+        imagePicker.sourceType = .camera
+        imagePicker.allowsEditing = false
+        imagePicker.cameraCaptureMode = .photo
+        self.present(imagePicker, animated: true, completion: nil)
+    }
 }
 
 @available(iOS 13.0, *)

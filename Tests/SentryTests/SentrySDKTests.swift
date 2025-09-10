@@ -25,10 +25,11 @@ class SentrySDKTests: XCTestCase {
         @available(*, deprecated, message: "SentryUserFeedback is deprecated in favor of SentryFeedback.")
         let userFeedback: UserFeedback
         let feedback: SentryFeedback
+
         let currentDate = TestCurrentDateProvider()
-        
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
         let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
+
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
         let observer: SentryWatchdogTerminationScopeObserver
         let scopePersistentStore: TestSentryScopePersistentStore
 #endif //  os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
@@ -70,7 +71,11 @@ class SentrySDKTests: XCTestCase {
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
             options.dsn = SentrySDKTests.dsnAsString
 
-            let fileManager = try! TestFileManager(options: options)
+            let fileManager = try! TestFileManager(
+                options: options,
+                dateProvider: currentDate,
+                dispatchQueueWrapper: dispatchQueueWrapper
+            )
             let breadcrumbProcessor = SentryWatchdogTerminationBreadcrumbProcessor(maxBreadcrumbs: 10, fileManager: fileManager)
             scopePersistentStore = try! XCTUnwrap(TestSentryScopePersistentStore(fileManager: fileManager))
             let attributesProcessor = SentryWatchdogTerminationAttributesProcessor(
@@ -423,13 +428,13 @@ class SentrySDKTests: XCTestCase {
         let eventEnvelopeItems = try fileManager.getAllEnvelopes().map { fileContent in
             return try XCTUnwrap(SentrySerialization.envelope(with: fileContent.contents))
         }.flatMap { envelope in
-            return envelope.items.filter { $0.header.type == SentryEnvelopeItemTypeEvent }
+            return envelope.items.filter { $0.header.type == SentryEnvelopeItemTypes.event }
         }
 
         XCTAssertEqual(eventEnvelopeItems.count, 1, "Expected exactly one event envelope item, but got \(eventEnvelopeItems.count)")
         let eventEnvelopeItem = try XCTUnwrap(eventEnvelopeItems.first)
 
-        let event = try XCTUnwrap( SentryEventDecoder.decodeEvent(jsonData: eventEnvelopeItem.data))
+        let event = try XCTUnwrap( SentryEventDecoder.decodeEvent(jsonData: XCTUnwrap(eventEnvelopeItem.data)))
 
         let debugMetas = try XCTUnwrap(event.debugMeta, "Expected event to have debug meta but got nil")
         // During local testing we got 6 debug metas, but to avoid flakiness in CI we only check for 3.

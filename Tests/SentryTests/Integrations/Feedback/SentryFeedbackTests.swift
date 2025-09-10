@@ -202,7 +202,11 @@ class SentryFeedbackTests: XCTestCase {
         let client = SentryClient(
             options: options,
             transportAdapter: transportAdapter,
-            fileManager: try XCTUnwrap(SentryFileManager(options: options, dispatchQueueWrapper: TestSentryDispatchQueueWrapper())),
+            fileManager: try XCTUnwrap(SentryFileManager(
+                options: options,
+                dateProvider: TestCurrentDateProvider(),
+                dispatchQueueWrapper: TestSentryDispatchQueueWrapper()
+            )),
             deleteOldEnvelopeItems: false,
             threadInspector: TestThreadInspector.instance,
             debugImageProvider: TestDebugImageProvider(),
@@ -227,7 +231,7 @@ class SentryFeedbackTests: XCTestCase {
         let lastSentEventArguments = try XCTUnwrap(transportAdapter.sendEventWithTraceStateInvocations.last)
         let capturedFeedback = try XCTUnwrap(lastSentEventArguments.event)
 
-        XCTAssertEqual(capturedFeedback.type, SentryEnvelopeItemTypeFeedback)
+        XCTAssertEqual(capturedFeedback.type, SentryEnvelopeItemTypes.feedback)
     }
     
     func testFeedbackNotSubjectToBeforeSendFiltering() throws {
@@ -241,7 +245,11 @@ class SentryFeedbackTests: XCTestCase {
         let client = SentryClient(
             options: options,
             transportAdapter: transportAdapter,
-            fileManager: try XCTUnwrap(SentryFileManager(options: options, dispatchQueueWrapper: TestSentryDispatchQueueWrapper())),
+            fileManager: try XCTUnwrap(SentryFileManager(
+                options: options,
+                dateProvider: TestCurrentDateProvider(),
+                dispatchQueueWrapper: TestSentryDispatchQueueWrapper()
+            )),
             deleteOldEnvelopeItems: false,
             threadInspector: TestThreadInspector.instance,
             debugImageProvider: TestDebugImageProvider(),
@@ -265,7 +273,7 @@ class SentryFeedbackTests: XCTestCase {
         let lastSentEventArguments = try XCTUnwrap(transportAdapter.sendEventWithTraceStateInvocations.last)
         let capturedFeedback = try XCTUnwrap(lastSentEventArguments.event)
 
-        XCTAssertEqual(capturedFeedback.type, SentryEnvelopeItemTypeFeedback)
+        XCTAssertEqual(capturedFeedback.type, SentryEnvelopeItemTypes.feedback)
     }
     
     func testFeedbackWithSamplingAndBeforeSendFilteringCombined() throws {
@@ -280,7 +288,11 @@ class SentryFeedbackTests: XCTestCase {
         let client = SentryClient(
             options: options,
             transportAdapter: transportAdapter,
-            fileManager: try XCTUnwrap(SentryFileManager(options: options, dispatchQueueWrapper: TestSentryDispatchQueueWrapper())),
+            fileManager: try XCTUnwrap(SentryFileManager(
+                options: options,
+                dateProvider: TestCurrentDateProvider(),
+                dispatchQueueWrapper: TestSentryDispatchQueueWrapper()
+            )),
             deleteOldEnvelopeItems: false,
             threadInspector: TestThreadInspector.instance,
             debugImageProvider: TestDebugImageProvider(),
@@ -311,7 +323,7 @@ class SentryFeedbackTests: XCTestCase {
         let lastSentEventArguments = try XCTUnwrap(transportAdapter.sendEventWithTraceStateInvocations.last)
         let capturedFeedback = try XCTUnwrap(lastSentEventArguments.event)
 
-        XCTAssertEqual(capturedFeedback.type, SentryEnvelopeItemTypeFeedback)
+        XCTAssertEqual(capturedFeedback.type, SentryEnvelopeItemTypes.feedback)
     }
 }
 

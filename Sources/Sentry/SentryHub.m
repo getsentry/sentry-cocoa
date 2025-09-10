@@ -1,8 +1,6 @@
 #import "SentryClient+Private.h"
 #import "SentryDependencyContainer.h"
-#import "SentryEnvelope.h"
 #import "SentryEnvelopeItemHeader.h"
-#import "SentryEnvelopeItemType.h"
 #import "SentryEvent+Private.h"
 #import "SentryFileManager.h"
 #import "SentryHub+Private.h"
@@ -771,7 +769,7 @@ NS_ASSUME_NONNULL_BEGIN
                                     wasHandled:(BOOL *)handled;
 {
     for (SentryEnvelopeItem *item in items) {
-        if ([item.header.type isEqualToString:SentryEnvelopeItemTypeEvent]) {
+        if ([item.header.type isEqualToString:SentryEnvelopeItemTypes.event]) {
             // If there is no level the default is error
             NSDictionary *_Nullable nullableEventJson =
                 [SentrySerialization deserializeDictionaryFromJsonData:item.data];

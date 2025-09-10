@@ -6,12 +6,15 @@ class SentryScopePersistentStoreTests: XCTestCase {
     private static let dsn = TestConstants.dsnForTestCase(type: SentryScopePersistentStore.self)
 
     private class Fixture {
+        private let dateProvider = TestCurrentDateProvider()
+        private let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
+
         let fileManager: TestFileManager
 
         init() throws {
             let options = Options()
             options.dsn = SentryScopePersistentStoreTests.dsn
-            fileManager = try TestFileManager(options: options)
+            fileManager = try TestFileManager(options: options, dateProvider: dateProvider, dispatchQueueWrapper: dispatchQueueWrapper)
         }
 
         func getSut() throws -> SentryScopePersistentStore {

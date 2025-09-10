@@ -1,9 +1,19 @@
 import _SentryPrivate
 import Foundation
+@_spi(Private) import Sentry
 
 public class TestClient: SentryClient {
     public override init?(options: Options) {
-        super.init(options: options, fileManager: try! TestFileManager(options: options), deleteOldEnvelopeItems: false, transportAdapter: TestTransportAdapter(transports: [TestTransport()], options: options))
+        super.init(
+            options: options,
+            fileManager: try! TestFileManager(
+                options: options,
+                dateProvider: TestCurrentDateProvider(),
+                dispatchQueueWrapper: TestSentryDispatchQueueWrapper()
+            ),
+            deleteOldEnvelopeItems: false,
+            transportAdapter: TestTransportAdapter(transports: [TestTransport()], options: options)
+        )
     }
 
     public override init?(options: Options, fileManager: SentryFileManager, deleteOldEnvelopeItems: Bool) {
@@ -43,8 +53,8 @@ public class TestClient: SentryClient {
         return event.eventId
     }
     
-    public var captureEventWithScopeInvocations = Invocations<(event: Event, scope: Scope, additionalEnvelopeItems: [SentryEnvelopeItem])>()
-    public override func capture(event: Event, scope: Scope, additionalEnvelopeItems: [SentryEnvelopeItem]) -> SentryId {
+    @_spi(Private) public var captureEventWithScopeInvocations = Invocations<(event: Event, scope: Scope, additionalEnvelopeItems: [SentryEnvelopeItem])>()
+    @_spi(Private) public override func capture(event: Event, scope: Scope, additionalEnvelopeItems: [SentryEnvelopeItem]) -> SentryId {
         captureEventWithScopeInvocations.record((event, scope, additionalEnvelopeItems))
         return event.eventId
     }
@@ -138,13 +148,13 @@ public class TestClient: SentryClient {
         captureSerializedFeedbackInvocations.record((feedbackEventId, scope))
     }
     
-    public var captureEnvelopeInvocations = Invocations<SentryEnvelope>()
-    public override func capture(_ envelope: SentryEnvelope) {
+    @_spi(Private) public var captureEnvelopeInvocations = Invocations<SentryEnvelope>()
+    @_spi(Private) public override func capture(_ envelope: SentryEnvelope) {
         captureEnvelopeInvocations.record(envelope)
     }
     
-    public var storedEnvelopeInvocations = Invocations<SentryEnvelope>()
-    public override func store(_ envelope: SentryEnvelope) {
+    @_spi(Private) public var storedEnvelopeInvocations = Invocations<SentryEnvelope>()
+    @_spi(Private) public override func store(_ envelope: SentryEnvelope) {
         storedEnvelopeInvocations.record(envelope)
     }
     

@@ -7,13 +7,15 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     private static let dsnAsString = TestConstants.dsnAsString(username: "SentryCrashIntegrationTests")
     
     private class Fixture {
+        let dateProvider = TestCurrentDateProvider()
         let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
         let hub: SentryHub
         let client: TestClient!
         let options: Options
         let sentryCrash: TestSentryCrashWrapper
-        
-        init() {
+        let fileManager: TestFileManager
+
+        init() throws {
             SentryDependencyContainer.sharedInstance().sysctlWrapper = TestSysctl()
             sentryCrash = TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo)
             sentryCrash.internalActiveDurationSinceLastCrash = 5.0
@@ -24,8 +26,20 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
             options.releaseName = TestData.appState.releaseName
             options.tracesSampleRate = 1.0
             
-            client = TestClient(options: options, fileManager: try! SentryFileManager(options: options, dispatchQueueWrapper: dispatchQueueWrapper), deleteOldEnvelopeItems: false)
+            client = TestClient(options: options, fileManager: try! SentryFileManager(
+                options: options,
+                dateProvider: dateProvider,
+                dispatchQueueWrapper: dispatchQueueWrapper
+            ), deleteOldEnvelopeItems: false)
             hub = TestHub(client: client, andScope: nil)
+
+            fileManager = try TestFileManager(
+                options: options,
+                dateProvider: dateProvider,
+                dispatchQueueWrapper: dispatchQueueWrapper
+            )
+
+            SentryDependencyContainer.sharedInstance().dateProvider = dateProvider
         }
         
         var session: SentrySession {
@@ -49,12 +63,12 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
             return SentryCrashIntegration(crashAdapter: crash, andDispatchQueueWrapper: dispatchQueueWrapper)
         }
     }
+
+    private var fixture: Fixture!
     
-    private lazy var fixture = Fixture()
-    
-    override func setUp() {
-        super.setUp()
-        SentryDependencyContainer.sharedInstance().dateProvider = TestCurrentDateProvider()
+    override func setUpWithError() throws {
+        try super.setUpWithError()
+        fixture = try Fixture()
         
         fixture.client.fileManager.deleteCurrentSession()
         fixture.client.fileManager.deleteCrashedSession()
@@ -248,7 +262,11 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     
     func testEndSessionAsAbnormal_AppHangEventDeletedInBetween() throws {
         // Arrange
-        let fileManager = try DeleteAppHangWhenCheckingExistenceFileManager(options: fixture.options)
+        let fileManager = try DeleteAppHangWhenCheckingExistenceFileManager(
+            options: fixture.options,
+            dateProvider: TestCurrentDateProvider(),
+            dispatchQueueWrapper: fixture.dispatchQueueWrapper
+        )
         fixture.client.fileManager = fileManager
         
         SentrySDKInternal.setCurrentHub(fixture.hub)
@@ -380,7 +398,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         api?.pointee.setEnabled(true)
         
         let transport = TestTransport()
-        let client = SentryClient(options: fixture.options, fileManager: try TestFileManager(options: fixture.options), deleteOldEnvelopeItems: false)
+        let client = SentryClient(options: fixture.options, fileManager: fixture.fileManager, deleteOldEnvelopeItems: false)
         Dynamic(client).transportAdapter = TestTransportAdapter(transports: [transport], options: fixture.options)
         hub.bindClient(client)
         
