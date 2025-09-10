@@ -6,6 +6,7 @@
 
 - Fix crash in Session Replay when opening the camera UI on iOS 26+ by skipping redaction of internal views.
   This may result in more of the camera screen being redacted. (#6045)
+- Fix crash when using the SDK as a static framework (#6125)
 
 ## 8.56.0-alpha.1
 

@@ -144,6 +144,10 @@ static BOOL isInitialializingDependencyContainer = NO;
     if (self = [super init]) {
         isInitialializingDependencyContainer = YES;
 
+        // These classes must be referenced somewhere for their files to not be stripped.
+        id _ = [[PlaceholderSentryApplication alloc] init];
+        _ = [[PlaceholderProcessInfoClass alloc] init];
+
         _dispatchQueueWrapper = SentryDependencies.dispatchQueueWrapper;
         _random = [[SentryRandom alloc] init];
         _threadWrapper = [[SentryThreadWrapper alloc] init];
