@@ -133,6 +133,8 @@ public final class SentryCrashWrapper: NSObject {
         enrichScopeWithRuntimeData(scope)
     }
     
+    // MARK: - Private Methods
+    
     private func enrichScopeWithOSData(_ scope: Scope, systemInfo: [String: Any]) {
         var osData: [String: Any] = [:]
         
@@ -273,8 +275,6 @@ public final class SentryCrashWrapper: NSObject {
         }
 #endif // (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT
     }
-    
-    // MARK: - Private Methods
     
     private static func getSystemInfo() -> [String: Any] {
         // Static singleton pattern for systemInfo
