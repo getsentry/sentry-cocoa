@@ -10,6 +10,7 @@
 
 - Structured Logs: Flush logs on SDK flush/close (#5834)
 - Add masking options for screenshots (#5401)
+- Add significant time change breadcrumb (#6112)
 
 ### Fixes
 
