@@ -62,6 +62,12 @@ jobs:
             platform:
               runs-on: macos-15
               xcode: "16.4"
+
+          - name: iOS 26
+            platform:
+              runs-on: macos-15
+              xcode: "26.0"
+
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
