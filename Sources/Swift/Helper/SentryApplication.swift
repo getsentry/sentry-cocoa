@@ -35,11 +35,3 @@ import UIKit
     func relevantViewControllersNames() -> [String]?
     #endif // canImport(UIKit) && !SENTRY_NO_UIKIT
 }
-
-#if canImport(AppKit) && !targetEnvironment(macCatalyst)
-@objc @_spi(Private) extension NSApplication: SentryApplication {
-    public var mainThread_isActive: Bool {
-        isActive
-    }
-}
-#endif
