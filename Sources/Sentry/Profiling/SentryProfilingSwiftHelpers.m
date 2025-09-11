@@ -107,9 +107,10 @@ sentry_dispatchAsync(SentryDispatchQueueWrapper *wrapper, dispatch_block_t block
 }
 
 void
-sentry_dispatchAsyncOnMain(SentryDispatchQueueWrapper *wrapper, dispatch_block_t block)
+sentry_dispatchAsyncOnMainIfNotMainThread(
+    SentryDispatchQueueWrapper *wrapper, dispatch_block_t block)
 {
-    [wrapper dispatchAsyncOnMainQueue:block];
+    [wrapper dispatchAsyncOnMainQueueIfNotMainThread:block];
 }
 
 void

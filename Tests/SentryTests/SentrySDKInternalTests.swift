@@ -796,7 +796,7 @@ class SentrySDKInternalTests: XCTestCase {
             }
 
             // Since the SDK uses the dispatchqueue on the main queue, wait until it clears to fulfill the expectation
-            SentryDependencyContainer.sharedInstance().dispatchQueueWrapper.dispatchAsyncOnMainQueue {
+            SentryDependencyContainer.sharedInstance().dispatchQueueWrapper.dispatchAsyncOnMainQueueIfNotMainThread {
                 expectation.fulfill()
             }
         }

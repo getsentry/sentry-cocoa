@@ -88,7 +88,7 @@
         }
 
         free(classes);
-        [self.dispatchQueue dispatchAsyncOnMainQueue:^{
+        [self.dispatchQueue dispatchAsyncOnMainQueueIfNotMainThread:^{
             for (NSString *className in classesToSwizzle) {
                 block(NSClassFromString(className));
             }

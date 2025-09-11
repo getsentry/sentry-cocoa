@@ -81,15 +81,16 @@ SentryProfiler *_Nullable _threadUnsafe_gTraceProfiler;
  */
 + (void)scheduleTimeoutTimer
 {
-    sentry_dispatchAsyncOnMain(SentryDependencyContainer.sharedInstance.dispatchQueueWrapper, ^{
-        std::lock_guard<std::mutex> l(_threadUnsafe_gTraceProfilerLock);
-        if (_sentry_threadUnsafe_traceProfileTimeoutTimer != nil) {
-            return;
-        }
+    sentry_dispatchAsyncOnMainIfNotMainThread(
+        SentryDependencyContainer.sharedInstance.dispatchQueueWrapper, ^{
+            std::lock_guard<std::mutex> l(_threadUnsafe_gTraceProfilerLock);
+            if (_sentry_threadUnsafe_traceProfileTimeoutTimer != nil) {
+                return;
+            }
 
-        _sentry_threadUnsafe_traceProfileTimeoutTimer = sentry_scheduledTimer(
-            kSentryProfilerTimeoutInterval, NO, ^{ [self timeoutTimerExpired]; });
-    });
+            _sentry_threadUnsafe_traceProfileTimeoutTimer = sentry_scheduledTimer(
+                kSentryProfilerTimeoutInterval, NO, ^{ [self timeoutTimerExpired]; });
+        });
 }
 
 + (void)timeoutTimerExpired
