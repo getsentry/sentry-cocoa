@@ -8,6 +8,8 @@ class SessionReplayUITests: BaseUITest {
         // of the camera UI. This test is used to verify that no regression occurs.
         // See https://github.com/getsentry/sentry-cocoa/issues/5647
         app.buttons["Extra"].tap()
+
+        // -- Act --
         app.buttons["Show Camera UI"].tap()
         
         // We need to verify the camera UI is shown by checking for the existence of a UI element.
@@ -17,18 +19,12 @@ class SessionReplayUITests: BaseUITest {
         let cameraUIElement = app.buttons["PhotoCapture"]
         XCTAssertTrue(cameraUIElement.waitForExistence(timeout: 5))
 
-        // After the Camera UI is shown, we keep it open for 6 seconds to trigger at least one full
+        // After the Camera UI is shown, we keep it open for 10 seconds to trigger at least one full
         // video segment captured (segments are 5 seconds long).
-        wait(10)
+        delay(seconds: 10)
 
+        // -- Assert --
         // We know the test succeeded if we reach this point without the app crashing.
-    }
-
-    private func wait(_ seconds: TimeInterval) {
-        let exp = expectation(description: "Waiting for \(seconds) seconds")
-        DispatchQueue.main.asyncAfter(deadline: .now() + seconds) {
-            exp.fulfill()
-        }
-        wait(for: [exp], timeout: seconds + 1)
+        XCTAssertTrue(cameraUIElement.waitForExistence(timeout: 5))
     }
 }
