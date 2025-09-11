@@ -50,7 +50,7 @@ final class SentryCrashWrapperTests: XCTestCase {
         let osContext = try XCTUnwrap(scope.contextDictionary["os"] as? [String: Any])
         XCTAssertNotNil(osContext["name"])
         
-#if os(macOS)
+#if os(macOS) || targetEnvironment(macCatalyst)
         let version = ProcessInfo.processInfo.operatingSystemVersion
         let expectedVersion = "\(version.majorVersion).\(version.minorVersion).\(version.patchVersion)"
         XCTAssertEqual(osContext["version"] as? String, expectedVersion)
