@@ -2,6 +2,10 @@
 
 ## 8.56.2
 
+### Features
+
+- Add SentryDistribution as Swift Package Manager target (#6149)
+
 ### Fixes
 
 - Fix crash from null UIApplication in SwiftUI apps (#6264)
