@@ -255,8 +255,8 @@ static NSDate *_Nullable startTimestamp = nil;
     [SentryCrashExceptionApplication class];
 #endif
     // These classes must be referenced somewhere for their files to not be stripped.
-    id _ = [[PlaceholderSentryApplication alloc] init];
-    _ = [[PlaceholderProcessInfoClass alloc] init];
+    [PlaceholderSentryApplication class];
+    [PlaceholderProcessInfoClass class];
 
     startInvocations++;
     startTimestamp = [SentryDependencyContainer.sharedInstance.dateProvider date];
