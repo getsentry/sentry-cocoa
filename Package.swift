@@ -13,7 +13,8 @@ var products: [Product] = [
     .library(name: "Sentry", targets: ["Sentry", "SentryCppHelper"]),
     .library(name: "Sentry-Dynamic", targets: ["Sentry-Dynamic"]),
     .library(name: "Sentry-Dynamic-WithARM64e", targets: ["Sentry-Dynamic-WithARM64e"]),
-    .library(name: "SentrySwiftUI", targets: ["Sentry", "SentrySwiftUI", "SentryCppHelper"])
+    .library(name: "SentrySwiftUI", targets: ["Sentry", "SentrySwiftUI", "SentryCppHelper"]),
+    .library(name: "SentryDistribution", targets: ["SentryDistribution"])
 ]
 
 var targets: [Target] = [
@@ -54,7 +55,9 @@ var targets: [Target] = [
         linkerSettings: [
          .linkedLibrary("c++")
         ]
-    )
+    ),
+    .target(name: "SentryDistribution", path: "Sources/SentryDistribution"),
+    .testTarget(name: "SentryDistributionTests", path: "Sources/SentryDistributionTests")
 ]
 
 let env = getenv("EXPERIMENTAL_SPM_BUILDS")
