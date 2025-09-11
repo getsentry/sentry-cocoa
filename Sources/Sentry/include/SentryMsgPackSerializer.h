@@ -4,7 +4,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @protocol SentryStreamable
 
-- (NSInputStream *)asInputStream;
+- (nullable NSInputStream *)asInputStream;
 
 - (NSInteger)streamSize;
 
