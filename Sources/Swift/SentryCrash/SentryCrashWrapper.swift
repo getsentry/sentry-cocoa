@@ -13,13 +13,10 @@ import UIKit
 @objc @_spi(Private)
 public class SentryCrashWrapper: NSObject {
     let processInfoWrapper: SentryProcessInfoSource
-    // This is already lazy
-    private static var systemInfo: [String: Any] = {
-        guard let systemInfo = SentryDependencyContainerSwiftHelper.crashReporter().systemInfo as? [String: Any] else {
-            return [:]
-        }
-        return systemInfo
-    }()
+    
+    // Using lazy so we wait until SentryDependencyContainer is initialized
+    @objc
+    public private(set) lazy var systemInfo = SentryDependencyContainerSwiftHelper.crashReporter().systemInfo as? [String: Any] ?? [:]
     
     @objc
     public init(processInfoWrapper: SentryProcessInfoSource) {
@@ -30,10 +27,13 @@ public class SentryCrashWrapper: NSObject {
 
 #if SENTRY_TEST || SENTRY_TEST_CI
     // This var and initializer are used to inject system info during tests
-    var testSystemInfo: [String: Any]?
     public init(processInfoWrapper: SentryProcessInfoSource, systemInfo: [String: Any]) {
         self.processInfoWrapper = processInfoWrapper
-        testSystemInfo = systemInfo
+        // Call super.init before overriding `self.systemInfo` (cannot access self before initialization)
+        super.init()
+        
+        self.systemInfo = systemInfo
+        
     }
 #endif // SENTRY_TEST && SENTRY_TEST_CI
 }
@@ -41,12 +41,10 @@ public class SentryCrashWrapper: NSObject {
 @objc @_spi(Private)
 public final class SentryCrashWrapper: NSObject {
     let processInfoWrapper: SentryProcessInfoSource
-    private static var systemInfo: [String: Any] = {
-        guard let systemInfo = SentryDependencyContainerSwiftHelper.crashReporter().systemInfo as? [String: Any] else {
-            return [:]
-        }
-        return systemInfo
-    }()
+    
+    // Using lazy so we wait until SentryDependencyContainer is initialized
+    @objc
+    public private(set) lazy var systemInfo = SentryDependencyContainerSwiftHelper.crashReporter().systemInfo as? [String: Any] ?? [:]
     
     @objc
     public init(processInfoWrapper: SentryProcessInfoSource) {
@@ -97,16 +95,6 @@ public final class SentryCrashWrapper: NSObject {
     @objc
     public var isApplicationInForeground: Bool {
         return sentrycrashstate_currentState()?.pointee.applicationIsInForeground ?? false
-    }
-    
-    @objc
-    public var systemInfo: [String: Any] {
-#if SENTRY_TEST || SENTRY_TEST_CI
-        if let testSystemInfo = self.testSystemInfo {
-            return testSystemInfo
-        }
-#endif // SENTRY_TEST || SENTRY_TEST_CI
-        return Self.systemInfo
     }
     
     @objc
