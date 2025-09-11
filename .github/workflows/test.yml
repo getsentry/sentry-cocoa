@@ -228,6 +228,7 @@ jobs:
             platform: "tvOS"
             xcode: "26.0"
             test-destination-os: "26.0"
+            device: "Apple TV"
             scheme: "Sentry"
 
     steps:
