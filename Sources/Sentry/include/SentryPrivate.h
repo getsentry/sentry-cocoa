@@ -5,6 +5,8 @@
 #import "SentryCrashBinaryImageCache.h"
 #import "SentryCrashDynamicLinker.h"
 #import "SentryCrashExceptionApplicationHelper.h"
+#import "SentryCrashFileUtils.h"
+#import "SentryCrashJSONCodec.h"
 #import "SentryCrashUUIDConversion.h"
 #import "SentryDataCategoryMapper.h"
 #import "SentryDiscardReasonMapper.h"
