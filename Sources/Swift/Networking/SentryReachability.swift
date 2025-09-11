@@ -2,23 +2,11 @@ import Foundation
 import Network
 
 // MARK: - SentryConectivity
-#if DEBUG || SENTRY_TEST || SENTRY_TEST_CI
-@objc @_spi(Private)
-public enum SentryConnectivity: Int {
-    case cellular
-    case wiFi
-    case none
-}
-#else
-@objc
 enum SentryConnectivity: Int {
     case cellular
     case wiFi
     case none
-}
-#endif // DEBUG || SENTRY_TEST || SENTRY_TEST_CI
 
-extension SentryConnectivity {
     func toString() -> String {
         switch self {
         case .cellular:
@@ -41,9 +29,9 @@ public protocol SentryReachabilityObserver: NSObjectProtocol {
 public class SentryReachability: NSObject {
     private var reachabilityObservers = NSHashTable<SentryReachabilityObserver>.weakObjects()
     private var currentConnectivity: SentryConnectivity = .none
-    private var pathMonitor: Any? // NWPathMonitor for iOS 12+
+    private var pathMonitor: NWPathMonitor?
     private let reachabilityQueue: DispatchQueue = DispatchQueue(label: "io.sentry.cocoa.connectivity", qos: .background, attributes: [])
-    private let observersLock = NSLock()
+    private let observersLock = NSRecursiveLock()
     
 #if DEBUG || SENTRY_TEST || SENTRY_TEST_CI
     @objc public var skipRegisteringActualCallbacks = false
@@ -77,24 +65,10 @@ public class SentryReachability: NSObject {
         }
 #endif // DEBUG || SENTRY_TEST || SENTRY_TEST_CI
         
-        if #available(iOS 12.0, macOS 10.14, tvOS 12.0, visionOS 1.0, watchOS 5.0, *) {
-            // If we don't use the main queue to start the monitor, the app seems to freeze on iOS 14.8 (SauceLabs)
-            // Also do it async to avoid blocking the main thread
-            // Right now `SentryDispatchQueueWrapper.dispatchAsyncOnMainQueue` is not used because the SDK starts on the main thread,
-            // thus the block is executed in the main thread, not async.
-            DispatchQueue.main.async { [weak self] in
-                let monitor = NWPathMonitor()
-                self?.pathMonitor = monitor
-                monitor.pathUpdateHandler = self?.pathUpdateHandler
-                monitor.start(queue: self?.reachabilityQueue ?? DispatchQueue.global(qos: .background))
-            }
-        } else {
-            // For iOS 11 and earlier, simulate always being connected via WiFi
-            SentrySDKLog.warning("NWPathMonitor not available. Using fallback: always connected via WiFi")
-            reachabilityQueue.async { [weak self] in
-                self?.connectivityCallback(.wiFi)
-            }
-        }
+        let monitor = NWPathMonitor()
+        self.pathMonitor = monitor
+        monitor.pathUpdateHandler = self.pathUpdateHandler
+        monitor.start(queue: self.reachabilityQueue)
     }
     
     @objc(removeObserver:)
@@ -134,18 +108,15 @@ public class SentryReachability: NSObject {
         currentConnectivity = .none
         
         // Clean up NWPathMonitor
-        if #available(iOS 12.0, macOS 10.14, tvOS 12.0, visionOS 1.0, watchOS 5.0, *) {
-            if let monitor = pathMonitor as? NWPathMonitor {
-                SentrySDKLog.debug("Stopping NWPathMonitor")
-                monitor.cancel()
-                pathMonitor = nil
-            }
+        if let monitor = pathMonitor {
+            SentrySDKLog.debug("Stopping NWPathMonitor")
+            monitor.cancel()
+            pathMonitor = nil
         }
         
         SentrySDKLog.debug("Cleaning up reachability queue.")
     }
     
-    @available(iOS 12.0, macOS 10.14, tvOS 12.0, visionOS 1.0, watchOS 5.0, *)
     private func pathUpdateHandler(_ path: NWPath) {
         SentrySDKLog.debug("SentryPathUpdateHandler called with path status: \(path.status)")
         
@@ -160,7 +131,6 @@ public class SentryReachability: NSObject {
         connectivityCallback(connectivity)
     }
     
-    @available(iOS 12.0, macOS 10.14, tvOS 12.0, visionOS 1.0, watchOS 5.0, *)
     private func connectivityFromPath(_ path: NWPath) -> SentryConnectivity {
         guard path.status == .satisfied else {
             return .none
@@ -220,20 +190,19 @@ public class SentryReachability: NSObject {
 
 // MARK: - Test utils
 #if DEBUG || SENTRY_TEST || SENTRY_TEST_CI
-@available(iOS 12.0, macOS 10.14, tvOS 12.0, visionOS 1.0, watchOS 5.0, *)
 extension SentryReachability {
-    @objc public func setReachabilityIgnoreActualCallback(_ value: Bool) {
+    func setReachabilityIgnoreActualCallback(_ value: Bool) {
         SentrySDKLog.debug("Setting ignore actual callback to \(value)")
         ignoreActualCallback = value
     }
     
-    @objc public func triggerConnectivityCallback(_ connectivity: SentryConnectivity) {
+    func triggerConnectivityCallback(_ connectivity: SentryConnectivity) {
         connectivityCallback(connectivity)
     }
 }
 
-@_spi(Private) @objc public class SentryReachabilityTestHelper: NSObject {
-    @objc static public func stringForSentryConnectivity(_ type: SentryConnectivity) -> String {
+class SentryReachabilityTestHelper: NSObject {
+    static func stringForSentryConnectivity(_ type: SentryConnectivity) -> String {
         type.toString()
     }
 }
