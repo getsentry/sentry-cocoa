@@ -1,6 +1,6 @@
 @_implementationOnly import _SentryPrivate
 
-// This is the Swift verion of `_SentryDispatchQueueWrapperInternal`
+// This is the Swift version of `_SentryDispatchQueueWrapperInternal`
 // It exists to allow the implementation of `_SentryDispatchQueueWrapperInternal`
 // to be accessible to Swift without making that header file public
 @objcMembers @_spi(Private) public class SentryDispatchQueueWrapper: NSObject {
