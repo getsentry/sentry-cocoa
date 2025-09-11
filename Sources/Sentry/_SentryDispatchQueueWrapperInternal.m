@@ -29,22 +29,17 @@ NS_ASSUME_NONNULL_BEGIN
     if ([NSThread isMainThread]) {
         block();
     } else {
-        [self dispatchAsyncOnMainQueue:block];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            @autoreleasepool {
+                block();
+            }
+        });
     }
 }
 
 - (void)dispatchAsyncWithBlock:(void (^)(void))block
 {
     dispatch_async(_queue, ^{
-        @autoreleasepool {
-            block();
-        }
-    });
-}
-
-- (void)dispatchAsyncOnMainQueue:(void (^)(void))block
-{
-    dispatch_async(dispatch_get_main_queue(), ^{
         @autoreleasepool {
             block();
         }

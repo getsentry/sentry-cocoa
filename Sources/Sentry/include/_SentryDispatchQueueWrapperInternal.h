@@ -19,9 +19,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)dispatchSync:(void (^)(void))block;
 
-- (void)dispatchAsyncOnMainQueue:(void (^)(void))block
-    NS_SWIFT_NAME(dispatchAsyncOnMainQueue(block:));
-
 - (void)dispatchSyncOnMainQueue:(void (^)(void))block
     NS_SWIFT_NAME(dispatchSyncOnMainQueue(block:));
 

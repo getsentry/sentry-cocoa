@@ -41,13 +41,6 @@ import Foundation
         }
     }
 
-    public override func dispatchAsyncOnMainQueue(block: @escaping () -> Void) {
-        blockOnMainInvocations.record(block)
-        if blockBeforeMainBlock() {
-            block()
-        }
-    }
-
     public override func dispatchSyncOnMainQueue(block: @escaping () -> Void) {
         blockOnMainInvocations.record(block)
         if blockBeforeMainBlock() {
