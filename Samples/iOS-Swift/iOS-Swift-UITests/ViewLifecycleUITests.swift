@@ -30,9 +30,6 @@ class ViewLifecycleUITests: BaseUITest {
         app.buttons["view-lifecycle-test"].tap()
         app.buttons["dismiss-with-load-view"].tap()
 
-        // Wait a bit to ensure that any asynchronous operations have time to complete.
-        delay(seconds: 5)
-
         // -- Assert --
         // Assert that the app is still running and no crash occurred.
         let isNotCrashed = app.buttons["view-lifecycle-test"].waitForExistence(timeout: 5)
@@ -47,9 +44,6 @@ class ViewLifecycleUITests: BaseUITest {
         app.tabBars.buttons["Extra"].tap()
         app.buttons["view-lifecycle-test"].tap()
         app.buttons["dismiss-with-view-did-load"].tap()
-
-        // Wait a bit to ensure that any asynchronous operations have time to complete.
-        delay(seconds: 5)
 
         // -- Assert --
         // Assert that the app is still running and no crash occurred.
@@ -66,9 +60,6 @@ class ViewLifecycleUITests: BaseUITest {
         app.buttons["view-lifecycle-test"].tap()
         app.buttons["dismiss-with-view-will-appear"].tap()
 
-        // Wait a bit to ensure that any asynchronous operations have time to complete.
-        delay(seconds: 5)
-
         // -- Assert --
         // Assert that the app is still running and no crash occurred.
         let isNotCrashed = app.buttons["view-lifecycle-test"].waitForExistence(timeout: 5)
@@ -83,9 +74,6 @@ class ViewLifecycleUITests: BaseUITest {
         app.tabBars.buttons["Extra"].tap()
         app.buttons["view-lifecycle-test"].tap()
         app.buttons["dismiss-with-view-did-appear"].tap()
-
-        // Wait a bit to ensure that any asynchronous operations have time to complete.
-        delay(seconds: 5)
 
         // -- Assert --
         // Assert that the app is still running and no crash occurred.
@@ -102,9 +90,6 @@ class ViewLifecycleUITests: BaseUITest {
         app.buttons["view-lifecycle-test"].tap()
         app.buttons["dismiss-with-view-will-disappear"].tap()
 
-        // Wait a bit to ensure that any asynchronous operations have time to complete.
-        delay(seconds: 5)
-
         // -- Assert --
         // Assert that the app is still running and no crash occurred.
         let isNotCrashed = app.buttons["view-lifecycle-test"].waitForExistence(timeout: 5)
@@ -119,9 +104,6 @@ class ViewLifecycleUITests: BaseUITest {
         app.tabBars.buttons["Extra"].tap()
         app.buttons["view-lifecycle-test"].tap()
         app.buttons["dismiss-with-view-did-disappear"].tap()
-
-        // Wait a bit to ensure that any asynchronous operations have time to complete.
-        delay(seconds: 5)
 
         // -- Assert --
         // Assert that the app is still running and no crash occurred.
@@ -138,9 +120,6 @@ class ViewLifecycleUITests: BaseUITest {
         app.buttons["view-lifecycle-test"].tap()
         app.buttons["dismiss-with-view-will-layout-subviews"].tap()
 
-        // Wait a bit to ensure that any asynchronous operations have time to complete.
-        delay(seconds: 5)
-
         // -- Assert --
         // Assert that the app is still running and no crash occurred.
         let isNotCrashed = app.buttons["view-lifecycle-test"].waitForExistence(timeout: 5)
@@ -155,9 +134,6 @@ class ViewLifecycleUITests: BaseUITest {
         app.tabBars.buttons["Extra"].tap()
         app.buttons["view-lifecycle-test"].tap()
         app.buttons["dismiss-with-view-did-layout-subviews"].tap()
-
-        // Wait a bit to ensure that any asynchronous operations have time to complete.
-        delay(seconds: 5)
 
         // -- Assert --
         // Assert that the app is still running and no crash occurred.
