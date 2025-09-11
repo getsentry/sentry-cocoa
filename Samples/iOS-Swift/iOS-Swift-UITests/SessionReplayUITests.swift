@@ -2,7 +2,10 @@ import XCTest
 
 class SessionReplayUITests: BaseUITest {
 
-    func testCameraUI_shouldNotCrashOnIOS26() {
+    func testCameraUI_shouldNotCrashOnIOS26() throws {
+        guard UIImagePickerController.isSourceTypeAvailable(.camera) else {
+            throw XCTSkip("Camera UI is not available on this device.")
+        }
         // -- Arrange --
         // During the beta phase of iOS 26.0 we noticed crashes when traversing the view hierarchy
         // of the camera UI. This test is used to verify that no regression occurs.
