@@ -156,7 +156,8 @@ public final class SentryScreenFrames: NSObject, NSCopying {
     }
 
     public func copy(with zone: NSZone? = nil) -> Any {
-#if !SENTRY_NO_UIKIT && os(iOS)
+#if !SENTRY_NO_UIKIT
+        #if os(iOS)
         return SentryScreenFrames(
             total: total,
             frozen: frozen,
@@ -165,6 +166,13 @@ public final class SentryScreenFrames: NSObject, NSCopying {
             frozenFrameTimestamps: frozenFrameTimestamps,
             frameRateTimestamps: frameRateTimestamps
         )
+        #else
+        return SentryScreenFrames(
+            total: total,
+            frozen: frozen,
+            slow: slow
+        )
+        #endif // os(iOS
 #else
         fatalError("SentryScreenFrames only works with UIKit enabled. Ensure you're using the right configuration of Sentry that links UIKit.")
 #endif // SENTRY_HAS_UIKIT
