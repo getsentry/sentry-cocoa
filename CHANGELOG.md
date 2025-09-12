@@ -1,11 +1,17 @@
 # Changelog
 
-## Unreleased
+## 8.56.0-alpha.2
+
+### Features
+
+- Add significant time change breadcrumb (#6112)
+- Add support for iOS 26, macOS 26, visionOS 26, watchOS 26, and tvOS 26 in device tests (#6063)
 
 ### Fixes
 
 - Fix crash in Session Replay when opening the camera UI on iOS 26+ by skipping redaction of internal views.
   This may result in more of the camera screen being redacted. (#6045)
+- Fix crash in SentryDependencyContainer init when using the SDK as a static framework (#6125)
 
 ## 8.56.0-alpha.1
 
@@ -17,7 +23,6 @@
 
 - Structured Logs: Flush logs on SDK flush/close (#5834)
 - Add masking options for screenshots (#5401)
-- Add significant time change breadcrumb (#6112)
 
 ### Fixes
 
@@ -45,7 +50,6 @@
 ### Fixes
 
 - Fix macOS's frameworks not following the versioned framework structure (#6049)
-- Add support for iOS 26, macOS 26, visionOS 26, watchOS 26, and tvOS 26 in device tests (#6063)
 
 ## 8.54.1-alpha.1
 
