@@ -25,6 +25,7 @@ runs:
         PACKAGE_FILE: ${{ inputs.package-file }}
       run: |
         sed -i '' '/Sentry-Dynamic-WithARM64e/d' $PACKAGE_FILE
+        sed -i '' '/Sentry-WithoutUIKitOrAppKit-WithARM64e/d' $PACKAGE_FILE
         sed -i '' '/^[[:space:]]*\.binaryTarget($/{N;/\n[[:space:]]*),$/d;}' $PACKAGE_FILE
     - name: Change path of the framework
       shell: bash
