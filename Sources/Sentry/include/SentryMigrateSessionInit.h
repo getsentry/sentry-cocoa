@@ -21,13 +21,13 @@ SENTRY_NO_INIT
  * it does it iterates over all envelopes and looks for a session with the same session id. If such
  * a session is found the init flag is set to @c YES, the envelope is updated with keeping other
  * envelope items and headers, and the updated envelope is stored to the disk keeping its path.
- * @param envelope The envelope to delete
+ * @param sessionItemData The data in the envelope's sesion items
  * @param envelopesDirPath The path of the directory where the envelopes are stored.
  * @param envelopeFilePaths An array containing the file paths of envelopes to check if they contain
  * a session init.
  * @return @c YES if the function migrated the session init. @c NO if not.
  */
-+ (BOOL)migrateSessionInit:(nullable SentryEnvelope *)envelope
++ (BOOL)migrateSessionInit:(NSArray<NSData *> *)sessionItemData
           envelopesDirPath:(NSString *)envelopesDirPath
          envelopeFilePaths:(NSArray<NSString *> *)envelopeFilePaths;
 

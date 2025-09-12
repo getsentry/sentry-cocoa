@@ -3,7 +3,6 @@
 #if SENTRY_HAS_UIKIT
 
 #    import <SentryBreadcrumb.h>
-#    import <SentryFileManager.h>
 #    import <SentryLogC.h>
 #    import <SentrySwift.h>
 #    import <SentryWatchdogTerminationBreadcrumbProcessor.h>
