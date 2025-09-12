@@ -160,7 +160,7 @@ class SentryViewHierarchyIntegrationTests: XCTestCase {
         
         let ex = expectation(description: "Attachment Added")
         
-        testVH.processViewHierarchyCallback = {
+        testVH.appViewHeirarchyCallback = {
             XCTFail("Should not add view hierarchy to app hanging events")
         }
         
