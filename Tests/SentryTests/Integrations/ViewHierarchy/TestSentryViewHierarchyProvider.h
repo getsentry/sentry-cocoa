@@ -3,7 +3,6 @@
 #if SENTRY_HAS_UIKIT
 
 #    import "SentryCrashJSONCodec.h"
-#    import "SentryViewHierarchyProvider.h"
 
 void saveViewHierarchy(const char *path);
 

@@ -1,3 +1,5 @@
+@_spi(Private) @testable import Sentry
+
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 
 class TestSentryViewHierarchyProvider: SentryViewHierarchyProvider {

@@ -10,7 +10,6 @@
 #    import "SentryOptions.h"
 #    import "SentrySDK+Private.h"
 #    import "SentrySwift.h"
-#    import "SentryViewHierarchyProvider.h"
 #    if SENTRY_HAS_METRIC_KIT
 #        import "SentryMetricKitIntegration.h"
 #    endif // SENTRY_HAS_METRIC_KIT

@@ -5,8 +5,6 @@
 #import "SentryCrashBinaryImageCache.h"
 #import "SentryCrashDynamicLinker.h"
 #import "SentryCrashExceptionApplicationHelper.h"
-#import "SentryCrashFileUtils.h"
-#import "SentryCrashJSONCodec.h"
 #import "SentryCrashUUIDConversion.h"
 #import "SentryDataCategoryMapper.h"
 #import "SentryDiscardReasonMapper.h"
@@ -18,6 +16,7 @@
 #import "SentrySDK+Private.h"
 #import "SentryTime.h"
 #import "SentryUserAccess.h"
+#import "SentryViewHierarchyProviderHelper.h"
 #import "_SentryDispatchQueueWrapperInternal.h"
 
 // Headers that also import SentryDefines should be at the end of this list
