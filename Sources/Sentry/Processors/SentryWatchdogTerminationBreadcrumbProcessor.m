@@ -1,8 +1,8 @@
 #import "SentryWatchdogTerminationBreadcrumbProcessor.h"
-#import "SentryFileManager.h"
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"
 #import "SentrySerialization.h"
+#import "SentrySwift.h"
 
 @interface SentryWatchdogTerminationBreadcrumbProcessor ()
 

@@ -11,7 +11,6 @@
 #import "SentryEvent+Private.h"
 #import "SentryException.h"
 #import "SentryExtraContextProvider.h"
-#import "SentryFileManager.h"
 #import "SentryGlobalEventProcessor.h"
 #import "SentryHub+Private.h"
 #import "SentryHub.h"

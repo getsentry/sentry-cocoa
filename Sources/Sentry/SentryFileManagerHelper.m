@@ -1,4 +1,4 @@
-#import "SentryFileManager.h"
+#import "SentryFileManagerHelper.h"
 #import "SentryDataCategoryMapper.h"
 #import "SentryDateUtils.h"
 #import "SentryDependencyContainer.h"
@@ -88,7 +88,7 @@ _non_thread_safe_removeFileAtPath(NSString *path)
 
 #pragma mark - SentryFileManager
 
-@interface SentryFileManager ()
+@interface SentryFileManagerHelper ()
 
 @property (nonatomic, strong) id<SentryCurrentDateProvider> dateProvider;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueue;
@@ -111,11 +111,11 @@ _non_thread_safe_removeFileAtPath(NSString *path)
 @property (nonatomic, copy) NSString *appHangEventFilePath;
 @property (nonatomic, assign) NSUInteger currentFileCounter;
 @property (nonatomic, assign) NSUInteger maxEnvelopes;
-@property (nonatomic, weak) id<SentryFileManagerDelegate> delegate;
+@property (nonatomic, weak) id<SentryFileManagerHelperDelegate> delegate;
 
 @end
 
-@implementation SentryFileManager
+@implementation SentryFileManagerHelper
 
 - (nullable instancetype)initWithOptions:(SentryOptions *)options
                             dateProvider:(id<SentryCurrentDateProvider>)dateProvider
@@ -200,7 +200,7 @@ _non_thread_safe_removeFileAtPath(NSString *path)
     self.envelopesPath = [self.sentryPath stringByAppendingPathComponent:EnvelopesPathComponent];
 }
 
-- (void)setDelegate:(id<SentryFileManagerDelegate>)delegate
+- (void)setDelegate:(id<SentryFileManagerHelperDelegate>)delegate
 {
     _delegate = delegate;
 }
@@ -297,7 +297,7 @@ _non_thread_safe_removeFileAtPath(NSString *path)
 
 - (void)deleteOldEnvelopeItems
 {
-    __weak SentryFileManager *weakSelf = self;
+    __weak SentryFileManagerHelper *weakSelf = self;
     [self.dispatchQueue dispatchAsyncWithBlock:^{
         if (weakSelf == nil) {
             return;

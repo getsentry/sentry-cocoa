@@ -1,4 +1,4 @@
-#import "SentryFileManager.h"
+#import "SentryDefines.h"
 
 #if TARGET_OS_IOS && SENTRY_HAS_UIKIT
 
@@ -6,6 +6,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+@class SentryFileManager;
 @protocol SentryNSNotificationCenterWrapper;
 @protocol SentryBreadcrumbDelegate;
 

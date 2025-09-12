@@ -7,7 +7,6 @@
 #import "SentryEnvelopeItemHeader.h"
 #import "SentryEnvelopeRateLimit.h"
 #import "SentryEvent.h"
-#import "SentryFileManager.h"
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"
 #import "SentryNSURLRequestBuilder.h"
@@ -19,10 +18,12 @@
 #    import "SentryReachability.h"
 #endif // !TARGET_OS_WATCH
 
-@interface SentryHttpTransport ()
+@interface SentryHttpTransport () <SentryFileManagerDelegate
 #if SENTRY_HAS_REACHABILITY
-    <SentryReachabilityObserver>
+    ,
+    SentryReachabilityObserver
 #endif // !TARGET_OS_WATCH
+    >
 
 @property (nonatomic, readonly) NSTimeInterval cachedEnvelopeSendDelay;
 @property (nonatomic, strong) SentryFileManager *fileManager;
@@ -264,9 +265,10 @@
  * SentryFileManagerDelegate.
  */
 - (void)envelopeItemDeleted:(SentryEnvelopeItem *)envelopeItem
-               withCategory:(SentryDataCategory)dataCategory
+               withCategory:(SentryDataCategorySwift)dataCategory
 {
-    [self recordLostEvent:dataCategory reason:kSentryDiscardReasonCacheOverflow];
+    [self recordLostEvent:sentryDataCategoryForNSUInteger(dataCategory)
+                   reason:kSentryDiscardReasonCacheOverflow];
     [self recordLostSpans:envelopeItem reason:kSentryDiscardReasonCacheOverflow];
 }
 
