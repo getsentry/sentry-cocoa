@@ -134,10 +134,10 @@ jobs:
 
           # iOS 26 with Xcode 26
           - name: iOS 26 Sentry
-            runs-on: macos-15
+            runs-on: macos-26
             platform: "iOS"
             xcode: "26.0"
-            test-destination-os: "26.0"
+            test-destination-os: "latest"
             device: "iPhone 16 Pro"
             scheme: "Sentry"
 
@@ -163,10 +163,10 @@ jobs:
 
           # macOS 26
           - name: macOS 26 Sentry
-            runs-on: macos-15
+            runs-on: macos-26
             platform: "macOS"
             xcode: "26.0"
-            test-destination-os: "26.0"
+            test-destination-os: "latest"
             scheme: "Sentry"
 
           # Catalyst. We test the latest version, as the risk something breaking on Catalyst and not
@@ -187,10 +187,10 @@ jobs:
             scheme: "Sentry"
 
           - name: Catalyst 26 Sentry
-            runs-on: macos-15
+            runs-on: macos-26
             platform: "Catalyst"
             xcode: "26.0"
-            test-destination-os: "26.0"
+            test-destination-os: "latest"
             scheme: "Sentry"
 
           # We don't run the unit tests on tvOS 16 cause we run them on all on GH actions available iOS versions.
@@ -224,10 +224,10 @@ jobs:
 
           # tvOS 26
           - name: tvOS 26 Sentry
-            runs-on: macos-15
+            runs-on: macos-26
             platform: "tvOS"
             xcode: "26.0"
-            test-destination-os: "26.0"
+            test-destination-os: "latest"
             device: "Apple TV"
             scheme: "Sentry"
 
@@ -241,13 +241,6 @@ jobs:
         run: ./scripts/start-test-server.sh
       - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
 
-      - name: Install required platforms for Xcode 26
-        if: matrix.xcode == '26.0' && matrix.platform != ''  && matrix.platform != 'Catalyst' && matrix.platform != 'macOS'
-        run: ./scripts/ci-install-xOS-26-platforms.sh --platforms "${{matrix.platform}}"
-
-      - name: Create simulator device for Xcode 26
-        if: matrix.xcode == '26.0' && matrix.platform != '' && matrix.platform != 'Catalyst' && matrix.platform != 'macOS'
-        run: ./scripts/ci-create-simulator.sh --platform "${{matrix.platform}}" --os-version "${{matrix.test-destination-os}}" --device-name "${{matrix.device}}"
       - name: Install Slather
         run: gem install slather
 
