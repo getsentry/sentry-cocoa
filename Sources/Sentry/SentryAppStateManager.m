@@ -3,7 +3,6 @@
 #import "SentryNotificationNames.h"
 #import "SentrySysctl.h"
 #import <SentryAppStateManager.h>
-#import <SentryCrashWrapper.h>
 #import <SentryFileManager.h>
 #import <SentryOptions.h>
 #import <SentrySwift.h>

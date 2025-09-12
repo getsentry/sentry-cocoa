@@ -2,7 +2,6 @@
 
 #if SENTRY_HAS_UIKIT
 
-#    import "SentryCrashWrapper.h"
 #    import "SentryDependencyContainer.h"
 #    import "SentryFramesTracker.h"
 #    import "SentryLogC.h"
