@@ -1053,7 +1053,7 @@
 		FA6555142E30181B009917BC /* SentrySDKInternal.h in Headers */ = {isa = PBXBuildFile; fileRef = FA6555132E30181B009917BC /* SentrySDKInternal.h */; };
 		FA6555162E30182B009917BC /* SentrySDKInternal.m in Sources */ = {isa = PBXBuildFile; fileRef = FA6555152E30182B009917BC /* SentrySDKInternal.m */; };
 		FA65551A2E3018A3009917BC /* SentrySDKTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA6555192E30189E009917BC /* SentrySDKTests.swift */; };
-		FA66143A2E4B593900657755 /* SentryApplication+UIKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA6614392E4B593000657755 /* SentryApplication+UIKit.swift */; };
+		FA66143A2E4B593900657755 /* SentryApplicationExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA6614392E4B593000657755 /* SentryApplicationExtensions.swift */; };
 		FA6614FC2E4B8E1A00657755 /* TestSentryUIApplication.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA6614FB2E4B8E1500657755 /* TestSentryUIApplication.swift */; };
 		FA6615052E4BA4D700657755 /* ThreadSafeApplication.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA6615042E4BA4D200657755 /* ThreadSafeApplication.swift */; };
 		FA67DCC12DDBD4C800896B02 /* SentrySDKLog+Configure.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA67DCC02DDBD4C800896B02 /* SentrySDKLog+Configure.swift */; };
@@ -2401,7 +2401,7 @@
 		FA6555132E30181B009917BC /* SentrySDKInternal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentrySDKInternal.h; path = include/SentrySDKInternal.h; sourceTree = "<group>"; };
 		FA6555152E30182B009917BC /* SentrySDKInternal.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentrySDKInternal.m; sourceTree = "<group>"; };
 		FA6555192E30189E009917BC /* SentrySDKTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentrySDKTests.swift; sourceTree = "<group>"; };
-		FA6614392E4B593000657755 /* SentryApplication+UIKit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SentryApplication+UIKit.swift"; sourceTree = "<group>"; };
+		FA6614392E4B593000657755 /* SentryApplicationExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryApplicationExtensions.swift; sourceTree = "<group>"; };
 		FA6614FB2E4B8E1500657755 /* TestSentryUIApplication.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestSentryUIApplication.swift; sourceTree = "<group>"; };
 		FA6615042E4BA4D200657755 /* ThreadSafeApplication.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreadSafeApplication.swift; sourceTree = "<group>"; };
 		FA67DCC02DDBD4C800896B02 /* SentrySDKLog+Configure.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SentrySDKLog+Configure.swift"; sourceTree = "<group>"; };
@@ -2615,7 +2615,7 @@
 				FABE8E162E307A7C0040809A /* Dependencies.swift */,
 				FA6FC0A92E0B6B0E00ED2669 /* SentrySdkInfo.swift */,
 				FA18417D2E4B457B005DEDC7 /* SentryApplication.swift */,
-				FA6614392E4B593000657755 /* SentryApplication+UIKit.swift */,
+				FA6614392E4B593000657755 /* SentryApplicationExtensions.swift */,
 				FA6615042E4BA4D200657755 /* ThreadSafeApplication.swift */,
 				FABE8E142E307A5C0040809A /* SentrySDK.swift */,
 				FA3A42712E1C5F9B00A08C39 /* SentryNSNotificationCenterWrapper.swift */,
@@ -5773,7 +5773,7 @@
 				FABE8E152E307A5E0040809A /* SentrySDK.swift in Sources */,
 				FA67DCFF2DDBD4EA00896B02 /* SentryMXManager.swift in Sources */,
 				D41415A72DEEE532003B14D5 /* SentryRedactViewHelper.swift in Sources */,
-				FA66143A2E4B593900657755 /* SentryApplication+UIKit.swift in Sources */,
+				FA66143A2E4B593900657755 /* SentryApplicationExtensions.swift in Sources */,
 				FA67DD002DDBD4EA00896B02 /* SentryMaskRenderer.swift in Sources */,
 				FA67DD012DDBD4EA00896B02 /* SentryMXCallStackTree.swift in Sources */,
 				FAAB29F12E3D252300ACD577 /* SentrySession.swift in Sources */,
