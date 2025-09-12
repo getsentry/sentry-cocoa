@@ -101,7 +101,9 @@ final class SentrySpotlightTransportTests: XCTestCase {
         
         // Compressing with GZip doesn't always produce the same results
         // We only want to know if the attachment got removed. Therefore, a comparison with a range is acceptable.
-        XCTAssert((expectedDataCountLower...expectedDataCountUpper).contains(try XCTUnwrap(request.httpBody?.count)))
+        let expectedBodyCountRange = (expectedDataCountLower...expectedDataCountUpper)
+        let actualBodyCount = try XCTUnwrap(request.httpBody?.count)
+        XCTAssertTrue(expectedBodyCountRange.contains(actualBodyCount), "Expected body size to be in range of \(expectedBodyCountRange), but was \(actualBodyCount)")
     }
     
     @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
