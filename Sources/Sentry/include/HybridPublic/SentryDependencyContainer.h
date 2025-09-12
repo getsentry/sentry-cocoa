@@ -25,6 +25,7 @@
 @class SentryOptions;
 @class SentrySessionTracker;
 @class SentryGlobalEventProcessor;
+@class SentryReachability;
 
 @protocol SentryANRTracker;
 @protocol SentryRandomProtocol;
@@ -53,10 +54,6 @@
 #if SENTRY_HAS_UIKIT
 @protocol SentryUIDeviceWrapper;
 #endif // TARGET_OS_IOS
-
-#if !TARGET_OS_WATCH
-@class SentryReachability;
-#endif // !TARGET_OS_WATCH
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -95,10 +92,7 @@ SENTRY_NO_INIT
 @property (nonatomic, strong) id<SentryRateLimits> rateLimits;
 @property (nonatomic, strong) id<SentryApplication> application;
 @property (nonatomic, strong) SentryThreadsafeApplication *threadsafeApplication;
-
-#if SENTRY_HAS_REACHABILITY
 @property (nonatomic, strong) SentryReachability *reachability;
-#endif // !TARGET_OS_WATCH
 
 #if SENTRY_HAS_UIKIT
 @property (nonatomic, strong) id<SentryUIDeviceWrapper> uiDeviceWrapper;
