@@ -1,6 +1,7 @@
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 
-import Sentry
+@_spi(Private) import Sentry
+@_spi(Private) import SentryTestUtils
 import SentryTestUtils
 import XCTest
 
@@ -10,7 +11,7 @@ class SentryViewHierarchyIntegrationTests: XCTestCase {
         let viewHierarchyProvider: TestSentryViewHierarchyProvider
 
         init() {
-            let testViewHierarchy = TestSentryViewHierarchyProvider()
+            let testViewHierarchy = TestSentryViewHierarchyProvider(dispatchQueueWrapper: TestSentryDispatchQueueWrapper(), sentryUIApplication: TestSentryUIApplication())
             testViewHierarchy.result = Data("view hierarchy".utf8)
             viewHierarchyProvider = testViewHierarchy
         }
@@ -151,7 +152,7 @@ class SentryViewHierarchyIntegrationTests: XCTestCase {
     
     func test_backgroundForAppHangs() {
         let sut = fixture.getSut()
-        let testVH = TestSentryViewHierarchyProvider()
+        let testVH = TestSentryViewHierarchyProvider(dispatchQueueWrapper: TestSentryDispatchQueueWrapper(), sentryUIApplication: TestSentryUIApplication())
         SentryDependencyContainer.sharedInstance().viewHierarchyProvider = testVH
 
         let event = Event()
