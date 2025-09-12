@@ -138,7 +138,7 @@ jobs:
             platform: "iOS"
             xcode: "26.0"
             test-destination-os: "latest"
-            device: "iPhone 16 Pro"
+            device: "iPhone 17 Pro"
             scheme: "Sentry"
 
           # We don't run the unit tests on macOS 13 cause we run them on all on GH actions available iOS versions.
