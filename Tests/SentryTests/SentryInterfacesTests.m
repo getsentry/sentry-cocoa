@@ -5,7 +5,6 @@
 #import "SentryDateUtils.h"
 #import "SentryEvent.h"
 #import "SentryException.h"
-#import "SentryFileManager.h"
 #import "SentryFrame.h"
 #import "SentryMechanism.h"
 #import "SentryMeta.h"

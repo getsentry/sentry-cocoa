@@ -32,7 +32,7 @@
 #import "SentryDependencyContainerSwiftHelper.h"
 #import "SentryEvent+Serialize.h"
 #import "SentryFileIOTracker.h"
-#import "SentryFileManager.h"
+#import "SentryFileManagerHelper.h"
 #import "SentryLevelHelper.h"
 #import "SentryMeta.h"
 #import "SentryModels+Serializable.h"
