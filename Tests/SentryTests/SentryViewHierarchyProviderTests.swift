@@ -170,13 +170,11 @@ class SentryViewHierarchyProviderTests: XCTestCase {
     }
 
     func test_invalidSerialization() {
-        let sut = TestSentryViewHierarchyProvider(dispatchQueueWrapper: SentryDispatchQueueWrapper(), sentryUIApplication: fixture.uiApplication)
-        sut.viewHierarchyResult = -1
+        TestSentryViewHierarchyProviderHelper.viewHierarchyResult = -1
         let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
         window.accessibilityIdentifier = "WindowId"
 
-        fixture.uiApplication.windows = [window]
-        let result = sut.appViewHierarchy()
+        let result = TestSentryViewHierarchyProviderHelper.appViewHierarchy(from: [window], reportAccessibilityIdentifier: false)
         XCTAssertNil(result)
     }
 
@@ -186,7 +184,7 @@ class SentryViewHierarchyProviderTests: XCTestCase {
         fixture.uiApplication.windows = [window]
 
         let ex = expectation(description: "Running on Main Thread")
-        sut.processViewHierarchyCallback = {
+        sut.appViewHeirarchyCallback = {
             ex.fulfill()
             XCTAssertTrue(Thread.isMainThread)
         }
