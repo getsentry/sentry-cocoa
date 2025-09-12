@@ -9,6 +9,8 @@ set -euo pipefail
 EXPECTED_STATIC_CHECKSUM=""
 EXPECTED_DYNAMIC_CHECKSUM=""
 EXPECTED_DYNAMIC_WITH_ARM64E_CHECKSUM=""
+EXPECTED_WITHOUT_UIKIT_OR_APPKIT_CHECKSUM=""
+EXPECTED_WITHOUT_UIKIT_OR_APPKIT_WITH_ARM64E_CHECKSUM=""
 EXPECTED_LAST_RELEASE_RUNID=""
 
 while [[ $# -gt 0 ]]; do
@@ -23,6 +25,14 @@ while [[ $# -gt 0 ]]; do
         ;;
     --dynamic-with-arm64e-checksum)
         EXPECTED_DYNAMIC_WITH_ARM64E_CHECKSUM="$2"
+        shift 2
+        ;;
+    --without-uikit-or-appkit-checksum)
+        EXPECTED_WITHOUT_UIKIT_OR_APPKIT_CHECKSUM="$2"
+        shift 2
+        ;;
+    --without-uikit-or-appkit-with-arm64e-checksum)
+        EXPECTED_WITHOUT_UIKIT_OR_APPKIT_WITH_ARM64E_CHECKSUM="$2"
         shift 2
         ;;
     --last-release-runid)
@@ -49,6 +59,16 @@ fi
 
 if [ -z "$EXPECTED_DYNAMIC_WITH_ARM64E_CHECKSUM" ]; then
     echo "Error: --dynamic-with-arm64e-checksum is required"
+    exit 1
+fi
+
+if [ -z "$EXPECTED_WITHOUT_UIKIT_OR_APPKIT_CHECKSUM" ]; then
+    echo "Error: --without-uikit-or-appkit-checksum is required"
+    exit 1
+fi
+
+if [ -z "$EXPECTED_WITHOUT_UIKIT_OR_APPKIT_WITH_ARM64E_CHECKSUM" ]; then
+    echo "Error: --without-uikit-or-appkit-with-arm64e-checksum is required"
     exit 1
 fi
 
@@ -87,6 +107,20 @@ for package_file in $PACKAGE_FILES; do
     UPDATED_PACKAGE_SHA=$(grep "checksum.*Sentry-Dynamic-WithARM64e" "$package_file" | cut -d '"' -f 2)
     if [ "$UPDATED_PACKAGE_SHA" != "$EXPECTED_DYNAMIC_WITH_ARM64E_CHECKSUM" ]; then
         echo "::error::Expected checksum to be $EXPECTED_DYNAMIC_WITH_ARM64E_CHECKSUM but got $UPDATED_PACKAGE_SHA in $package_file"
+        exit 1
+    fi
+
+    # Verify without uikit or appkit checksum
+    UPDATED_PACKAGE_SHA=$(grep "checksum.*Sentry-WithoutUIKitOrAppKit" "$package_file" | cut -d '"' -f 2 | head -n 1)
+    if [ "$UPDATED_PACKAGE_SHA" != "$EXPECTED_WITHOUT_UIKIT_OR_APPKIT_CHECKSUM" ]; then
+        echo "::error::Expected checksum to be $EXPECTED_WITHOUT_UIKIT_OR_APPKIT_CHECKSUM but got $UPDATED_PACKAGE_SHA in $package_file"
+        exit 1
+    fi
+
+    # Verify without uikit or appkit with arm64e checksum
+    UPDATED_PACKAGE_SHA=$(grep "checksum.*Sentry-WithoutUIKitOrAppKit-WithARM64e" "$package_file" | cut -d '"' -f 2)
+    if [ "$UPDATED_PACKAGE_SHA" != "$EXPECTED_WITHOUT_UIKIT_OR_APPKIT_WITH_ARM64E_CHECKSUM" ]; then
+        echo "::error::Expected checksum to be $EXPECTED_WITHOUT_UIKIT_OR_APPKIT_WITH_ARM64E_CHECKSUM but got $UPDATED_PACKAGE_SHA in $package_file"
         exit 1
     fi
     
