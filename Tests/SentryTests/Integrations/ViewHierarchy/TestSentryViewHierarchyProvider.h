@@ -3,12 +3,13 @@
 #if SENTRY_HAS_UIKIT
 
 #    import "SentryCrashJSONCodec.h"
-#    import "SentryViewHierarchyProvider.h"
 
 void saveViewHierarchy(const char *path);
 
-@interface SentryViewHierarchyProvider (Test)
-- (int)viewHierarchyFromView:(UIView *)view intoContext:(SentryCrashJSONEncodeContext *)context;
+@interface SentryViewHierarchyProviderHelper (Test)
++ (int)viewHierarchyFromView:(UIView *)view
+                      intoContext:(SentryCrashJSONEncodeContext *)context
+    reportAccessibilityIdentifier:(BOOL)reportAccessibilityIdentifier;
 - (BOOL)processViewHierarchy:(NSArray<UIView *> *)windows
                  addFunction:(SentryCrashJSONAddDataFunc)addJSONDataFunc
                     userData:(void *const)userData;
