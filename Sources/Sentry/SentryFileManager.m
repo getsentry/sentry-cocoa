@@ -2,6 +2,7 @@
 #import "SentryDataCategoryMapper.h"
 #import "SentryDateUtils.h"
 #import "SentryDependencyContainer.h"
+#import "SentryDsn+Private.h"
 #import "SentryDsn.h"
 #import "SentryEnvelopeItemHeader.h"
 #import "SentryError.h"

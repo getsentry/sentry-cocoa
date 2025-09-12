@@ -9,9 +9,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (_Nullable instancetype)initWithString:(NSString *)dsnString
                         didFailWithError:(NSError *_Nullable *_Nullable)error;
 
-- (NSString *)getHash;
-
 #if !SDK_V9
+- (NSString *)getHash;
 - (NSURL *)getStoreEndpoint DEPRECATED_MSG_ATTRIBUTE("This endpoint is no longer used");
 #endif // !SDK_V9
 - (NSURL *)getEnvelopeEndpoint;
