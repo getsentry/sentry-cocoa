@@ -1,8 +1,6 @@
 #import "SentrySerialization.h"
 #import "SentryDateUtils.h"
-#import "SentryEnvelope+Private.h"
 #import "SentryEnvelopeAttachmentHeader.h"
-#import "SentryEnvelopeItemType.h"
 #import "SentryError.h"
 #import "SentryInternalDefines.h"
 #import "SentryLevelMapper.h"
@@ -265,31 +263,6 @@ NS_ASSUME_NONNULL_BEGIN
     }
 
     return session;
-}
-
-+ (NSData *_Nullable)dataWithReplayRecording:(SentryReplayRecording *)replayRecording
-{
-    NSMutableData *recording = [NSMutableData data];
-
-    NSData *_Nullable headerData =
-        [SentrySerialization dataWithJSONObject:[replayRecording headerForReplayRecording]];
-    if (headerData == nil) {
-        SENTRY_LOG_ERROR(@"Failed to serialize replay recording header.");
-        return nil;
-    }
-    [recording appendData:SENTRY_UNWRAP_NULLABLE(NSData, headerData)];
-
-    NSData *_Nonnull const newLineData = [NSData dataWithBytes:"\n" length:1];
-    [recording appendData:newLineData];
-
-    NSData *_Nullable replayData =
-        [SentrySerialization dataWithJSONObject:[replayRecording serialize]];
-    if (replayData == nil) {
-        SENTRY_LOG_ERROR(@"Failed to serialize replay recording data.");
-        return nil;
-    }
-    [recording appendData:SENTRY_UNWRAP_NULLABLE(NSData, replayData)];
-    return recording;
 }
 
 + (SentryAppState *_Nullable)appStateWithData:(NSData *)data

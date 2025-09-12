@@ -412,6 +412,21 @@ class ExtraViewController: UIViewController {
             showToast(in: self, type: .warning, message: "Feedback widget only available in iOS 13 or later.")
         }
     }
+
+    @IBAction func showCameraUIAction(_ sender: Any) {
+        // We need to check if the camera is available, otherwise simulators running on a Mac Mini (device without any
+        // built-in camera) would crash with this error:
+        //
+        // *** Terminating app due to uncaught exception 'NSInvalidArgumentException', reason: 'Source type 1 not available'
+        guard UIImagePickerController.isSourceTypeAvailable(.camera) else {
+            preconditionFailure("Can not display the camera UI because the source type is not available.")
+        }
+        let imagePicker = UIImagePickerController()
+        imagePicker.sourceType = .camera
+        imagePicker.allowsEditing = false
+        imagePicker.cameraCaptureMode = .photo
+        self.present(imagePicker, animated: true, completion: nil)
+    }
 }
 
 @available(iOS 13.0, *)

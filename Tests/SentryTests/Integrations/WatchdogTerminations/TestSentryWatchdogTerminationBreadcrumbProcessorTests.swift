@@ -1,5 +1,5 @@
 @testable import Sentry
-import SentryTestUtils
+@_spi(Private) import SentryTestUtils
 import XCTest
 
 // This test is used to verify the functionality of the mock of TestSentryWatchdogTerminationBreadcrumbProcessor.
@@ -19,7 +19,11 @@ class TestSentryWatchdogTerminationBreadcrumbProcessorTests: XCTestCase {
         init() throws {
             let options = Options()
             options.dsn = TestSentryWatchdogTerminationBreadcrumbProcessorTests.dsn
-            fileManager = try TestFileManager(options: options)
+            fileManager = try TestFileManager(
+                options: options,
+                dateProvider: TestCurrentDateProvider(),
+                dispatchQueueWrapper: TestSentryDispatchQueueWrapper()
+            )
         }
 
         func getSut() -> TestSentryWatchdogTerminationBreadcrumbProcessor {

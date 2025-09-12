@@ -77,7 +77,7 @@ class SentryThreadTests: XCTestCase {
         XCTAssertNil(decoded.isMain)
     }
 
-    func testDecode_WithWrongThreadId_ReturnsNil () throws {
+    func testDecode_WithWrongThreadId_ReturnsNil() throws {
         // Arrange
         let thread = SentryThread(threadId: 10)
         var actual = thread.serialize()

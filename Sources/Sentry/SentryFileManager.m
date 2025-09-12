@@ -3,7 +3,6 @@
 #import "SentryDateUtils.h"
 #import "SentryDependencyContainer.h"
 #import "SentryDsn.h"
-#import "SentryEnvelope.h"
 #import "SentryEnvelopeItemHeader.h"
 #import "SentryError.h"
 #import "SentryEvent+Serialize.h"
@@ -91,7 +90,9 @@ _non_thread_safe_removeFileAtPath(NSString *path)
 
 @interface SentryFileManager ()
 
+@property (nonatomic, strong) id<SentryCurrentDateProvider> dateProvider;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueue;
+
 @property (nonatomic, copy) NSString *basePath;
 @property (nonatomic, copy) NSString *sentryPath;
 @property (nonatomic, copy) NSString *eventsPath;
@@ -116,19 +117,15 @@ _non_thread_safe_removeFileAtPath(NSString *path)
 
 @implementation SentryFileManager
 
-- (nullable instancetype)initWithOptions:(SentryOptions *)options error:(NSError **)error
-{
-    return [self initWithOptions:options
-            dispatchQueueWrapper:SentryDependencyContainer.sharedInstance.dispatchQueueWrapper
-                           error:error];
-}
-
 - (nullable instancetype)initWithOptions:(SentryOptions *)options
+                            dateProvider:(id<SentryCurrentDateProvider>)dateProvider
                     dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
                                    error:(NSError **)error
 {
     if (self = [super init]) {
+        self.dateProvider = dateProvider;
         self.dispatchQueue = dispatchQueueWrapper;
+
         [self createPathsWithOptions:options];
 
         // Remove old cached events for versions before 6.0.0
@@ -160,9 +157,12 @@ _non_thread_safe_removeFileAtPath(NSString *path)
     self.basePath = [cachePath stringByAppendingPathComponent:@"io.sentry"];
 
     NSString *_Nullable nullableDsnHash = [options.parsedDsn getHash];
+#if !SENTRY_TEST && !SENTRY_TEST_CI
     if (nullableDsnHash == nil) {
         SENTRY_LOG_FATAL(@"No DSN provided, using base path for envelopes: %@", self.basePath);
     }
+#endif // !SENTRY_TEST && !SENTRY_TEST_CI
+
     // We decided against changing the `sentryPath` and use a null fallback instead, because this
     // has been broken for a long time and the impact of changing the base path can result in
     // critical issues.
@@ -1033,8 +1033,7 @@ removeAppLaunchProfilingConfigFile(void)
 
 - (void)deleteOldEnvelopesFromPath:(NSString *)envelopesPath
 {
-    NSTimeInterval now =
-        [[SentryDependencyContainer.sharedInstance.dateProvider date] timeIntervalSince1970];
+    NSTimeInterval now = [[self.dateProvider date] timeIntervalSince1970];
 
     for (NSString *path in [self allFilesInFolder:envelopesPath]) {
         NSString *fullPath = [envelopesPath stringByAppendingPathComponent:path];
@@ -1110,8 +1109,8 @@ removeAppLaunchProfilingConfigFile(void)
     // %@ = NSString
     // For example 978307200.000000-00001-3FE8C3AE-EB9C-4BEB-868C-14B8D47C33DD.json
     return [NSString stringWithFormat:@"%f-%05lu-%@.json",
-        [[SentryDependencyContainer.sharedInstance.dateProvider date] timeIntervalSince1970],
-        (unsigned long)self.currentFileCounter++, [NSUUID UUID].UUIDString];
+        [[self.dateProvider date] timeIntervalSince1970], (unsigned long)self.currentFileCounter++,
+        [NSUUID UUID].UUIDString];
 }
 
 - (SentryFileContents *_Nullable)getFileContents:(NSString *)folderPath

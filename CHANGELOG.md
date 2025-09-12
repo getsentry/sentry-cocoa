@@ -1,6 +1,29 @@
 # Changelog
 
-## Unreleased
+## 8.56.0-alpha.3
+
+### Fixes
+
+- Fixes a React Native legacy build failure by adding the missing self references for explicit capture semantics (#6156)
+
+## 8.56.0-alpha.2
+
+### Features
+
+- Add significant time change breadcrumb (#6112)
+- Add support for iOS 26, macOS 26, visionOS 26, watchOS 26, and tvOS 26 in device tests (#6063)
+
+### Fixes
+
+- Fix crash in Session Replay when opening the camera UI on iOS 26+ by skipping redaction of internal views.
+  This may result in more of the camera screen being redacted. (#6045)
+- Fix crash in SentryDependencyContainer init when using the SDK as a static framework (#6125)
+
+## 8.56.0-alpha.1
+
+- No documented changes.
+
+## 8.56.0-alpha.0
 
 ### Features
 
@@ -16,12 +39,14 @@
 - Fix missing view hierachy when enabling `attachScreenshot` too (#5989)
 - Fix macOS's frameworks not following the versioned framework structure (#6049)
 - Add warning to addBreadcrumb when used before SDK init (#6083)
+- Add null-handling for parsed DSN in SentryHTTPTransport (#5800)
 
 ### Improvements
 
 - Lazily CharacterSet only once in SentryBaggageSerialization (#5871)
 - Structured Logging: Log `SentrySDK.logger` calls to `SentrySDKLog` (#5991)
 - The build type in the app context now differentiates between `enterprise` and `adhoc` (#6044)
+- visionOS no longer needs swift's interoperability mode (#6077)
 - Ensure IP address is only inferred by Relay if sendDefaultPii is true (#5877)
 
 ## 8.55.1
@@ -51,10 +76,6 @@
 >
 > If your app does not need arm64e, you don't need to make any changes.
 > But if your app _needs arm64e_ please use `Sentry-Dynamic-WithARM64e` or `Sentry-WithoutUIKitOrAppKit-WithARM64e` from 8.55.0 so you don't have issues uploading to the App Store.
-
-### Fixes
-
-- Add null-handling for parsed DSN in SentryHTTPTransport (#5800)
 
 ### Features
 

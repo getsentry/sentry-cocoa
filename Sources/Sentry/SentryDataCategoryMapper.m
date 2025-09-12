@@ -1,6 +1,6 @@
 #import "SentryDataCategoryMapper.h"
 #import "SentryDataCategory.h"
-#import "SentryEnvelopeItemType.h"
+#import "SentrySwift.h"
 
 // While these data categories names might look similar to the envelope item types, they are not
 // identical, and have slight differences. Just open them side by side and you'll see the
@@ -28,36 +28,36 @@ NS_ASSUME_NONNULL_BEGIN
 SentryDataCategory
 sentryDataCategoryForEnvelopItemType(NSString *itemType)
 {
-    if ([itemType isEqualToString:SentryEnvelopeItemTypeEvent]) {
+    if ([itemType isEqualToString:SentryEnvelopeItemTypes.event]) {
         return kSentryDataCategoryError;
     }
-    if ([itemType isEqualToString:SentryEnvelopeItemTypeSession]) {
+    if ([itemType isEqualToString:SentryEnvelopeItemTypes.session]) {
         return kSentryDataCategorySession;
     }
-    if ([itemType isEqualToString:SentryEnvelopeItemTypeTransaction]) {
+    if ([itemType isEqualToString:SentryEnvelopeItemTypes.transaction]) {
         return kSentryDataCategoryTransaction;
     }
-    if ([itemType isEqualToString:SentryEnvelopeItemTypeAttachment]) {
+    if ([itemType isEqualToString:SentryEnvelopeItemTypes.attachment]) {
         return kSentryDataCategoryAttachment;
     }
-    if ([itemType isEqualToString:SentryEnvelopeItemTypeProfile]) {
+    if ([itemType isEqualToString:SentryEnvelopeItemTypes.profile]) {
         return kSentryDataCategoryProfile;
     }
-    if ([itemType isEqualToString:SentryEnvelopeItemTypeProfileChunk]) {
+    if ([itemType isEqualToString:SentryEnvelopeItemTypes.profileChunk]) {
         return kSentryDataCategoryProfileChunk;
     }
-    if ([itemType isEqualToString:SentryEnvelopeItemTypeReplayVideo]) {
+    if ([itemType isEqualToString:SentryEnvelopeItemTypes.replayVideo]) {
         return kSentryDataCategoryReplay;
     }
-    if ([itemType isEqualToString:SentryEnvelopeItemTypeFeedback]) {
+    if ([itemType isEqualToString:SentryEnvelopeItemTypes.feedback]) {
         return kSentryDataCategoryFeedback;
     }
     // The envelope item type used for metrics is statsd whereas the client report category for
     // discarded events is metric_bucket.
-    if ([itemType isEqualToString:SentryEnvelopeItemTypeStatsd]) {
+    if ([itemType isEqualToString:SentryEnvelopeItemTypes.statsd]) {
         return kSentryDataCategoryMetricBucket;
     }
-    if ([itemType isEqualToString:SentryEnvelopeItemTypeLog]) {
+    if ([itemType isEqualToString:SentryEnvelopeItemTypes.log]) {
         return kSentryDataCategoryLogItem;
     }
 

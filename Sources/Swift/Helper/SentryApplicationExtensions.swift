@@ -1,3 +1,9 @@
+// This is needed because a file that only contains an @objc extension will get automatically stripped out
+// in static builds. We need to either use the -all_load linker flag (which has downsides of app size increases)
+// or make sure that every file containing objc categories/extensions also have a concrete type that
+// is referenced. Once `SentryAppliction` is not using `@objc` this can be removed.
+@_spi(Private) @objc public final class PlaceholderSentryApplication: NSObject { }
+
 #if !os(macOS) && !os(watchOS) && !SENTRY_NO_UIKIT
 import UIKit
 
@@ -28,7 +34,7 @@ extension SentryApplication {
         Dependencies.dispatchQueueWrapper.dispatchSyncOnMainQueue({ [weak self] in
             guard let self else { return }
             if #available(iOS 13.0, tvOS 13.0, *) {
-                let scenes = connectedScenes
+                let scenes = self.connectedScenes
                 for scene in scenes {
                     if scene.activationState == .foregroundActive {
                         if
@@ -42,7 +48,7 @@ extension SentryApplication {
                 }
             }
 
-            if let window = delegate?.window {
+            if let window = self.delegate?.window {
                 if let window {
                     windows.insert(window)
                 }
@@ -147,6 +153,14 @@ extension SentryApplication {
     
     func isContainerViewController(_ vc: UIViewController) -> Bool {
         return vc is UINavigationController || vc is UITabBarController || vc is UISplitViewController || vc is UIPageViewController
+    }
+}
+#endif
+
+#if canImport(AppKit) && !targetEnvironment(macCatalyst)
+@objc @_spi(Private) extension NSApplication: SentryApplication {
+    public var mainThread_isActive: Bool {
+        isActive
     }
 }
 #endif
