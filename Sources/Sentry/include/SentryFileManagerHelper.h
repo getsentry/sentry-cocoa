@@ -16,15 +16,14 @@ NS_ASSUME_NONNULL_BEGIN
 @class SentrySession;
 
 @protocol SentryCurrentDateProvider;
-@protocol SentryFileManagerDelegate <NSObject>
+@protocol SentryFileManagerHelperDelegate <NSObject>
 
 - (void)envelopeItemDeleted:(SentryEnvelopeItem *)envelopeItem
                withCategory:(SentryDataCategory)dataCategory;
 
 @end
 
-NS_SWIFT_NAME(SentryFileManager)
-@interface SentryFileManager : NSObject
+@interface SentryFileManagerHelper : NSObject
 SENTRY_NO_INIT
 
 @property (nonatomic, readonly) NSString *basePath;
@@ -40,7 +39,7 @@ SENTRY_NO_INIT
                     dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
                                    error:(NSError **)error NS_DESIGNATED_INITIALIZER;
 
-- (void)setDelegate:(id<SentryFileManagerDelegate>)delegate;
+- (void)setDelegate:(id<SentryFileManagerHelperDelegate>)delegate;
 
 #pragma mark - Envelope
 

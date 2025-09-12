@@ -6,7 +6,6 @@
 #import "SentryDependencyContainer.h"
 #import "SentryEvent.h"
 #import "SentryException.h"
-#import "SentryFileManager.h"
 #import "SentryHub+Private.h"
 #import "SentryLogC.h"
 #import "SentryMechanism.h"

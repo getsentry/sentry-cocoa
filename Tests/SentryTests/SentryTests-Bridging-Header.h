@@ -114,7 +114,6 @@
 #import "SentryFileIOTracker.h"
 #import "SentryFileIOTrackingIntegration.h"
 #import "SentryFileManager+Test.h"
-#import "SentryFileManager.h"
 #import "SentryFormatter.h"
 #import "SentryFrame.h"
 #import "SentryFrameRemover.h"

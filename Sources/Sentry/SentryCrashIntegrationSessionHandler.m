@@ -2,7 +2,6 @@
 #import "SentryClient+Private.h"
 #import "SentryCrashWrapper.h"
 #import "SentryDependencyContainer.h"
-#import "SentryFileManager.h"
 #import "SentryHub.h"
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"

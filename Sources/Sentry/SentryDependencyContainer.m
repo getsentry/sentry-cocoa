@@ -4,7 +4,6 @@
 #import "SentryDisplayLinkWrapper.h"
 #import "SentryExtraContextProvider.h"
 #import "SentryFileIOTracker.h"
-#import "SentryFileManager.h"
 #import "SentryInternalCDefines.h"
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"
