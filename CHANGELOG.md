@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Improvements
+
+- Sentry without UIKit / AppKit is available to install with SPM (#6160)
+
 ## 8.56.0-alpha.3
 
 ### Fixes
