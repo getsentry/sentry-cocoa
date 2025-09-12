@@ -1,6 +1,5 @@
+#import "SentrySwift.h"
 #import <Foundation/Foundation.h>
-
-@class SentryDispatchSourceWrapper;
 
 NS_ASSUME_NONNULL_BEGIN
 
