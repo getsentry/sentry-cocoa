@@ -1,7 +1,7 @@
 import Foundation
-import Sentry
+@_spi(Private) @testable import Sentry
 
-public class TestDispatchSourceWrapper: SentryDispatchSourceWrapper {
+@_spi(Private) public class TestDispatchSourceWrapper: SentryDispatchSourceWrapper {
     public struct Override {
         public var eventHandler: (() -> Void)?
     }
@@ -9,7 +9,7 @@ public class TestDispatchSourceWrapper: SentryDispatchSourceWrapper {
 
     public init(eventHandler: @escaping () -> Void) {
         self.overrides.eventHandler = eventHandler
-        super.init()
+        super.init(interval: 0, leeway: 0, queue: SentryDispatchQueueWrapper(), eventHandler: {})
         eventHandler() // SentryDispatchSourceWrapper constructs a timer so that it fires with no initial delay
     }
 

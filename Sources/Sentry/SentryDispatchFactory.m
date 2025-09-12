@@ -1,7 +1,5 @@
 #import "SentryDispatchFactory.h"
-#import "SentryDispatchSourceWrapper.h"
 #import "SentryInternalDefines.h"
-#import "SentrySwift.h"
 
 @implementation SentryDispatchFactory
 
@@ -27,11 +25,11 @@
                                          attributes:(dispatch_queue_attr_t)attributes
                                        eventHandler:(void (^)(void))eventHandler
 {
-    return [[SentryDispatchSourceWrapper alloc]
-        initTimerWithInterval:interval
-                       leeway:leeway
-                        queue:[self queueWithName:queueName attributes:attributes]
-                 eventHandler:eventHandler];
+    return [[SentryDispatchSourceWrapper alloc] initWithInterval:interval
+                                                          leeway:leeway
+                                                           queue:[self queueWithName:queueName
+                                                                          attributes:attributes]
+                                                    eventHandler:eventHandler];
 }
 
 @end
