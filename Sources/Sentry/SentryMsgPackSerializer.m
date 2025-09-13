@@ -1,4 +1,5 @@
 #import "SentryMsgPackSerializer.h"
+#import "SentryInternalDefines.h"
 #import "SentryLogC.h"
 
 @implementation SentryMsgPackSerializer
@@ -30,7 +31,7 @@
             // An item with a length of 0 will not be useful.
             // If we plan to use MsgPack for something else,
             // this needs to be re-evaluated.
-            SENTRY_LOG_DEBUG(@"Data for MessagePack dictionary has no content - Input: %@", value);
+            SENTRY_LOG_ERROR(@"Data for MessagePack dictionary has no content - Input: %@", value);
             return NO;
         }
 
@@ -42,7 +43,14 @@
         valueLength = NSSwapHostIntToBig(valueLength);
         [outputStream write:(uint8_t *)&valueLength maxLength:sizeof(uint32_t)];
 
-        NSInputStream *inputStream = [value asInputStream];
+        NSInputStream *_Nullable nullableInputStream = [value asInputStream];
+        if (nullableInputStream == nil) {
+            SENTRY_LOG_ERROR(@"Could not get input stream - Input: %@", value);
+            [outputStream close];
+            return NO;
+        }
+        NSInputStream *_Nonnull inputStream
+            = SENTRY_UNWRAP_NULLABLE(NSInputStream, nullableInputStream);
         [inputStream open];
 
         uint8_t buffer[1024];
@@ -53,7 +61,7 @@
             if (bytesRead > 0) {
                 [outputStream write:buffer maxLength:bytesRead];
             } else if (bytesRead < 0) {
-                SENTRY_LOG_DEBUG(@"Error reading bytes from input stream - Input: %@ - %li", value,
+                SENTRY_LOG_ERROR(@"Error reading bytes from input stream - Input: %@ - %li", value,
                     (long)bytesRead);
 
                 [inputStream close];
@@ -73,7 +81,7 @@
 
 @implementation NSURL (SentryStreameble)
 
-- (NSInputStream *)asInputStream
+- (nullable NSInputStream *)asInputStream
 {
     return [[NSInputStream alloc] initWithURL:self];
 }
@@ -82,7 +90,14 @@
 {
     NSFileManager *fileManager = [NSFileManager defaultManager];
     NSError *error;
-    NSDictionary *attributes = [fileManager attributesOfItemAtPath:self.path error:&error];
+    NSString *_Nullable nullablePath = self.path;
+    if (nullablePath == nil) {
+        SENTRY_LOG_DEBUG(@"File URL has no path - File: %@", self);
+        return -1;
+    }
+    NSDictionary *attributes =
+        [fileManager attributesOfItemAtPath:SENTRY_UNWRAP_NULLABLE(NSString, nullablePath)
+                                      error:&error];
     if (attributes == nil) {
         SENTRY_LOG_DEBUG(@"Could not read file attributes - File: %@ - %@", self, error);
         return -1;
@@ -95,7 +110,7 @@
 
 @implementation NSData (SentryStreameble)
 
-- (NSInputStream *)asInputStream
+- (nullable NSInputStream *)asInputStream
 {
     return [[NSInputStream alloc] initWithData:self];
 }
