@@ -240,45 +240,6 @@ NS_ASSUME_NONNULL_BEGIN
     return [self dataWithJSONObject:[session serialize]];
 }
 
-+ (SentrySession *_Nullable)sessionWithData:(NSData *)sessionData
-{
-    NSError *error = nil;
-    NSDictionary *sessionDictionary = [NSJSONSerialization JSONObjectWithData:sessionData
-                                                                      options:0
-                                                                        error:&error];
-    if (nil != error) {
-        SENTRY_LOG_ERROR(@"Failed to deserialize session data %@", error);
-        return nil;
-    }
-    SentrySession *session = [[SentrySession alloc] initWithJSONObject:sessionDictionary];
-
-    if (nil == session) {
-        SENTRY_LOG_ERROR(@"Failed to initialize session from dictionary. Dropping it.");
-        return nil;
-    }
-
-    if (nil == session.releaseName || [session.releaseName isEqualToString:@""]) {
-        SENTRY_LOG_ERROR(@"Deserialized session doesn't contain a release name. Dropping it.");
-        return nil;
-    }
-
-    return session;
-}
-
-+ (SentryAppState *_Nullable)appStateWithData:(NSData *)data
-{
-    NSError *error = nil;
-    NSDictionary *appSateDictionary = [NSJSONSerialization JSONObjectWithData:data
-                                                                      options:0
-                                                                        error:&error];
-    if (nil != error) {
-        SENTRY_LOG_ERROR(@"Failed to deserialize app state data %@", error);
-        return nil;
-    }
-
-    return [[SentryAppState alloc] initWithJSONObject:appSateDictionary];
-}
-
 + (NSDictionary *_Nullable)deserializeDictionaryFromJsonData:(NSData *)data
 {
     NSError *error = nil;

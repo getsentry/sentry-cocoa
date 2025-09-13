@@ -1529,7 +1529,7 @@ private extension SentryFileManagerTests {
         let actualSessionEnvelope = SentrySerialization.envelope(with: actualSessionFileContents.contents)
         XCTAssertEqual(2, actualSessionEnvelope?.items.count)
 
-        let actualSession = SentrySerialization.session(with: try XCTUnwrap(XCTUnwrap(actualSessionEnvelope?.items.element(at: 1)).data))
+        let actualSession = DataDeserialization.session(with: try XCTUnwrap(XCTUnwrap(actualSessionEnvelope?.items.element(at: 1)).data))
         XCTAssertNotNil(actualSession)
 
         XCTAssertEqual(fixture.expectedSessionUpdate, actualSession)
@@ -1539,7 +1539,7 @@ private extension SentryFileManagerTests {
         let actualSessionEnvelope = SentrySerialization.envelope(with: actualSessionFileContents.contents)
         XCTAssertEqual(2, actualSessionEnvelope?.items.count)
 
-        let actualSession = SentrySerialization.session(with: try XCTUnwrap(XCTUnwrap(actualSessionEnvelope?.items.first).data))
+        let actualSession = DataDeserialization.session(with: try XCTUnwrap(XCTUnwrap(actualSessionEnvelope?.items.first).data))
         XCTAssertNotNil(actualSession)
 
         XCTAssertEqual(fixture.sessionUpdate, actualSession)

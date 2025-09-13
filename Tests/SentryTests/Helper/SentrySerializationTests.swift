@@ -510,7 +510,7 @@ class SentrySerializationTests: XCTestCase {
 
         let data = try XCTUnwrap(SentrySerialization.data(with: session))
 
-        XCTAssertNotNil(SentrySerialization.session(with: data))
+        XCTAssertNotNil(DataDeserialization.session(with: data))
     }
     
     func testSerializeSessionWithNoReleaseName() throws {
@@ -520,7 +520,7 @@ class SentrySerializationTests: XCTestCase {
 
         let data = try XCTUnwrap(SentrySerialization.data(with: session))
 
-        XCTAssertNil(SentrySerialization.session(with: data))
+        XCTAssertNil(DataDeserialization.session(with: data))
     }
     
     func testSerializeSessionWithEmptyReleaseName() throws {
@@ -529,7 +529,7 @@ class SentrySerializationTests: XCTestCase {
 
         let data = try XCTUnwrap(SentrySerialization.data(with: session))
 
-        XCTAssertNil(SentrySerialization.session(with: data))
+        XCTAssertNil(DataDeserialization.session(with: data))
     }
     
     func testSerializeSessionWithGarbageInDict() throws {
@@ -537,13 +537,13 @@ class SentrySerializationTests: XCTestCase {
         dict["started"] = "20"
         let data = try XCTUnwrap( SentrySerialization.data(withJSONObject: dict))
 
-        XCTAssertNil(SentrySerialization.session(with: data))
+        XCTAssertNil(DataDeserialization.session(with: data))
     }
     
     func testSerializeSessionWithGarbage() throws {
         let data = try XCTUnwrap("started".data(using: .ascii))
         
-        XCTAssertNil(SentrySerialization.session(with: data))
+        XCTAssertNil(DataDeserialization.session(with: data))
     }
     
     func testSerializeReplayRecording() throws {
@@ -614,13 +614,13 @@ class SentrySerializationTests: XCTestCase {
         let appState = TestData.appState
         let appStateData = try XCTUnwrap(SentrySerialization.data(withJSONObject: appState.serialize()))
 
-        let actual = SentrySerialization.appState(with: appStateData)
+        let actual = DataDeserialization.appState(with: appStateData)
         
         XCTAssertEqual(appState, actual)
     }
     
     func testAppStateWithInvalidData_ReturnsNil() throws {
-        let actual = SentrySerialization.appState(with: Fixture.invalidData)
+        let actual = DataDeserialization.appState(with: Fixture.invalidData)
         
         XCTAssertNil(actual)
     }

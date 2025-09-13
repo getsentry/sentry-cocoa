@@ -1,10 +1,10 @@
 #import "SentryDefines.h"
 #import "SentryEnvelopeRateLimit.h"
-#import "SentryFileManager.h"
 #import "SentryRateLimits.h"
 #import "SentryRequestManager.h"
 #import "SentryTransport.h"
 
+@class SentryFileManager;
 @class SentryDispatchQueueWrapper;
 @class SentryNSURLRequestBuilder;
 @class SentryDsn;
