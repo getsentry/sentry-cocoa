@@ -46,17 +46,19 @@ jobs:
         uses: actions/checkout@v5
         with:
           fetch-depth: 0
-      - run: ./scripts/ci-select-xcode.sh 16.4
+      - run: ./scripts/ci-select-xcode.sh 26.0
+      - run: ./scripts/ci-install-xOS-26-platforms.sh --platforms "iOS"
+      - run: ./scripts/ci-create-simulator.sh --platform iOS --os-version 26.0 --device-name "iPhone 16 Pro"
 
       - name: Generate HEAD SDK
         run: |
           if [ "${{ matrix.version }}" = "v9" ]; then
             mv sdk_api_v9.json sdk_api_base.json
-            make generate-public-api CONFIG=V9
+            ./scripts/update-api.sh V9
             mv sdk_api_v9.json sdk_api.json
           else
             mv sdk_api.json sdk_api_base.json
-            make generate-public-api
+            ./scripts/update-api.sh
           fi
 
       - name: Diagnose breaking changes

@@ -17,7 +17,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
 
         init() throws {
             SentryDependencyContainer.sharedInstance().sysctlWrapper = TestSysctl()
-            sentryCrash = TestSentryCrashWrapper.sharedInstance()
+            sentryCrash = TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo)
             sentryCrash.internalActiveDurationSinceLastCrash = 5.0
             sentryCrash.internalCrashedLastLaunch = true
             
@@ -562,7 +562,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         let hub = SentryHub(client: client, andScope: nil)
         SentrySDKInternal.setCurrentHub(hub)
         
-        let sut = fixture.getSut(crashWrapper: SentryCrashWrapper.sharedInstance())
+        let sut = fixture.getSut(crashWrapper: SentryDependencyContainer.sharedInstance().crashWrapper)
         sut.install(with: options)
         
         let transaction = SentrySDK.startTransaction(name: "Crashing", operation: "Operation", bindToScope: true)
@@ -587,7 +587,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         let hub = SentryHub(client: client, andScope: nil)
         SentrySDKInternal.setCurrentHub(hub)
         
-        let sut = fixture.getSut(crashWrapper: SentryCrashWrapper.sharedInstance())
+        let sut = fixture.getSut(crashWrapper: SentryDependencyContainer.sharedInstance().crashWrapper)
         sut.install(with: options)
         
         let transaction = SentrySDK.startTransaction(name: "name", operation: "operation", bindToScope: true)
@@ -608,7 +608,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         let hub = SentryHub(client: client, andScope: nil)
         SentrySDKInternal.setCurrentHub(hub)
         
-        let sut = fixture.getSut(crashWrapper: SentryCrashWrapper.sharedInstance())
+        let sut = fixture.getSut(crashWrapper: SentryDependencyContainer.sharedInstance().crashWrapper)
         sut.install(with: options)
         
         let transaction = SentrySDK.startTransaction(name: "name", operation: "operation", bindToScope: true)
@@ -659,7 +659,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
         SentryDependencyContainer.sharedInstance().uiDeviceWrapper.start()
 #endif
-        let sut = fixture.getSut(crashWrapper: SentryCrashWrapper.sharedInstance())
+        let sut = fixture.getSut(crashWrapper: SentryDependencyContainer.sharedInstance().crashWrapper)
         let hub = fixture.hub
         SentrySDKInternal.setCurrentHub(hub)
 

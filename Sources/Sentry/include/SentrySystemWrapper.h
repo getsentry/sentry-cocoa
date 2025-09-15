@@ -6,8 +6,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-typedef void (^SentryMemoryPressureNotification)(uintptr_t);
-
 /**
  * @c mach_vm_size_t Is a type defined in mach headers as an unsigned 64-bit type used to express
  * the amount of working memory the process currently has allocated.

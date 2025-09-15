@@ -6,7 +6,6 @@
 #import "SentryBreadcrumb.h"
 #import "SentryClient+Private.h"
 #import "SentryCrash.h"
-#import "SentryCrashWrapper.h"
 #import "SentryDependencyContainer.h"
 #import "SentryFileManager.h"
 #import "SentryHub+Private.h"
@@ -286,7 +285,7 @@ static NSDate *_Nullable startTimestamp = nil;
             SentryHub *hub = [[SentryHub alloc] initWithClient:newClient andScope:scope];
             [SentrySDKInternal setCurrentHub:hub];
 
-            [SentryCrashWrapper.sharedInstance startBinaryImageCache];
+            [SentryDependencyContainer.sharedInstance.crashWrapper startBinaryImageCache];
             [SentryDependencyContainer.sharedInstance.binaryImageCache start:options.debug];
 
             [SentrySDKInternal installIntegrations];
@@ -684,7 +683,7 @@ static NSDate *_Nullable startTimestamp = nil;
 
     [SentrySDK clearLogger];
 
-    [SentryCrashWrapper.sharedInstance stopBinaryImageCache];
+    [SentryDependencyContainer.sharedInstance.crashWrapper stopBinaryImageCache];
     [SentryDependencyContainer.sharedInstance.binaryImageCache stop];
 
 #if TARGET_OS_IOS && SENTRY_HAS_UIKIT

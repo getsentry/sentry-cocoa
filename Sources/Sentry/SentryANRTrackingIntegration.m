@@ -1,7 +1,6 @@
 #import "SentryANRTrackingIntegration.h"
 #import "SentryClient+Private.h"
 #import "SentryCrashMachineContext.h"
-#import "SentryCrashWrapper.h"
 #import "SentryDebugImageProvider+HybridSDKs.h"
 #import "SentryDependencyContainer.h"
 #import "SentryEvent.h"
@@ -17,7 +16,6 @@
 #import "SentryThread.h"
 #import "SentryThreadInspector.h"
 #import "SentryThreadWrapper.h"
-#import <SentryCrashWrapper.h>
 #import <SentryOptions+Private.h>
 
 #if SENTRY_HAS_UIKIT
