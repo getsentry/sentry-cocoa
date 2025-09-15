@@ -6,12 +6,12 @@ final class SentryDispatchSourceWrapperTests: XCTestCase {
 
     func testDispatchSourceWrapper_Repeats() throws {
 
-        let nanoInterval: Int = 100_000_000 // 0.1 second
-        let leeway: Int = 10_000_000 // 0.01 second
+        let nanoInterval: Int = 1_000_000 // 1 millisecond
+        let leeway: Int = 100 // 100 nanoseconds
 
         let dateProvider = SentryDefaultCurrentDateProvider()
         var eventInvocations = [UInt64]()
-        let expectedEventInvocationCount = 10
+        let expectedEventInvocationCount = 100
 
         let expectation = self.expectation(description: "EventHandler Called")
 
@@ -22,14 +22,14 @@ final class SentryDispatchSourceWrapperTests: XCTestCase {
                 expectation.fulfill()
             }
         })
-        defer { sut.cancel() }
 
         wait(for: [expectation], timeout: 5)
+        sut.cancel()
 
-        // There might be more than 10 invocations, because calling cancel on the DispatchSource only
-        // cancels further invocations, but not the one that's already in progress, but there must not
-        // be more than 11.
-        let expectedMaxEventInvocationCount = expectedEventInvocationCount + 1
+        // There are usually more than 100 invocations, because calling cancel on the DispatchSource only
+        // cancels further invocations, but not the one that's already in progress and it can take a little while until we
+        // cancel it after fulfilling the expectation.
+        let expectedMaxEventInvocationCount = expectedEventInvocationCount + 10
         XCTAssertGreaterThanOrEqual(
             eventInvocations.count,
             expectedEventInvocationCount,
@@ -42,7 +42,7 @@ final class SentryDispatchSourceWrapperTests: XCTestCase {
         )
 
         // We have to be quite lenient with the leeway, because GH actions can be quite slow sometimes.
-        let assertionLeeway = leeway * 5 // 0.05 seconds
+        let assertionLeeway = 10_000_000 // 10 milliseconds
 
         // Verify that the timing between consecutive events respects the interval and leeway
         // We only require 80% of the intervals to be accurate since CI can sometimes pause execution
