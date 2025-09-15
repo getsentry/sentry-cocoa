@@ -1,4 +1,5 @@
 import Foundation
+@testable import Sentry
 import XCTest
 
 // Configurable test object for simulating different SentryStreamable behaviors
@@ -297,7 +298,7 @@ class SentryMsgPackSerializerTests: XCTestCase {
         let tempDirectoryURL = URL(fileURLWithPath: NSTemporaryDirectory())
         let tempFileURL = tempDirectoryURL.appendingPathComponent("test.dat")
         
-        // Create dictionary with 16 elements (beyond the 15 element limit mentioned in comment)
+        // Create dictionary with 16 elements (beyond the 15 element limit)
         var dictionary: [String: SentryStreamable] = [:]
         for i in 0..<16 {
             dictionary["key\(i)"] = Data("data\(i)".utf8) as SentryStreamable
@@ -317,8 +318,7 @@ class SentryMsgPackSerializerTests: XCTestCase {
         let result = SentryMsgPackSerializer.serializeDictionary(toMessagePack: dictionary, intoFile: tempFileURL)
         
         // Assert
-        // The implementation doesn't validate dictionary size, so it should still succeed
-        // but the header will overflow (0x80 | 16 = 0x90)
+        // Maintains Objective-C behavior: allows large dictionaries but header will overflow
         XCTAssertTrue(result)
         let tempFile = try Data(contentsOf: tempFileURL)
         XCTAssertGreaterThan(tempFile.count, 1)
@@ -350,10 +350,39 @@ class SentryMsgPackSerializerTests: XCTestCase {
         let result = SentryMsgPackSerializer.serializeDictionary(toMessagePack: dictionary, intoFile: tempFileURL)
         
         // Assert
-        // Long keys should still work, but the length will be truncated to uint8_t
+        // Maintains Objective-C behavior: allows long keys but length will be truncated to uint8_t
         XCTAssertTrue(result)
         let tempFile = try Data(contentsOf: tempFileURL)
         XCTAssertGreaterThan(tempFile.count, 1)
+    }
+    
+    func testSerializeMaxLengthKey() throws {
+        // Arrange
+        let tempDirectoryURL = URL(fileURLWithPath: NSTemporaryDirectory())
+        let tempFileURL = tempDirectoryURL.appendingPathComponent("test.dat")
+        
+        // Create a key exactly at 255 characters (the maximum allowed)
+        let maxKey = String(repeating: "a", count: 255)
+        let dictionary: [String: SentryStreamable] = [
+            maxKey: Data("test data".utf8) as SentryStreamable
+        ]
+        
+        defer {
+            do {
+                try FileManager.default.removeItem(at: tempFileURL)
+            } catch {
+                XCTFail("Failed to cleanup temp file: \(error)")
+            }
+        }
+        
+        // Act
+        let result = SentryMsgPackSerializer.serializeDictionary(toMessagePack: dictionary, intoFile: tempFileURL)
+        
+        // Assert
+        // Keys exactly at 255 bytes should work fine
+        XCTAssertTrue(result)
+        let tempFile = try Data(contentsOf: tempFileURL)
+        assertMsgPack(tempFile)
     }
     
     func testSerializeToInvalidPath() throws {
@@ -367,10 +396,10 @@ class SentryMsgPackSerializerTests: XCTestCase {
         let result = SentryMsgPackSerializer.serializeDictionary(toMessagePack: dictionary, intoFile: invalidPath)
         
         // Assert
-        // NOTE: Current Objective-C implementation doesn't validate if NSOutputStream opened successfully
-        // This should ideally return false for invalid paths, but currently returns true
-        // This should be fixed in the Swift conversion
-        XCTAssertTrue(result) // Current behavior - should be XCTAssertFalse(result) in ideal implementation
+        // NOTE: Objective-C implementation doesn't validate if NSOutputStream opened successfully
+        // Swift implementation uses data.write(to:) which properly validates paths
+        // This is an improvement over Objective-C behavior
+        XCTAssertFalse(result)
     }
     
     func testSerializeStreamReadError() throws {
