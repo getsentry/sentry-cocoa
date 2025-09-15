@@ -26,6 +26,9 @@ if [ "$configuration_suffix" = "V9" ]; then
   done
 fi
 
+echo "Calling api digester"
+ls ./Sentry-Dynamic.xcframework
+
 xcrun --sdk iphoneos swift-api-digester \
     -dump-sdk \
     -o sdk_api${configuration_suffix:+"_${configuration_suffix}"}.json \
@@ -33,5 +36,5 @@ xcrun --sdk iphoneos swift-api-digester \
     -avoid-tool-args \
     -avoid-location \
     -module Sentry \
-    -target arm64-apple-ios10.0 \
+    -target arm64-apple-ios11.0 \
     -iframework ./Sentry-Dynamic.xcframework/ios-arm64_arm64e
