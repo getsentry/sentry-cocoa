@@ -36,5 +36,5 @@ xcrun --sdk iphoneos swift-api-digester \
     -avoid-tool-args \
     -avoid-location \
     -module Sentry \
-    -target arm64-apple-ios11.0 \
+    -target arm64-apple-ios10.0 \
     -iframework ./Sentry-Dynamic.xcframework/ios-arm64_arm64e
