@@ -6,16 +6,21 @@ class TestStreamableObject: NSObject, SentryStreamable {
     
     private let shouldReturnNilInputStream: Bool
     private let streamSizeValue: Int
+    private let shouldReturnErrorStream: Bool
     
-    init(streamSize: Int, shouldReturnNilInputStream: Bool) {
+    init(streamSize: Int, shouldReturnNilInputStream: Bool, shouldReturnErrorStream: Bool = false) {
         self.streamSizeValue = streamSize
         self.shouldReturnNilInputStream = shouldReturnNilInputStream
+        self.shouldReturnErrorStream = shouldReturnErrorStream
         super.init()
     }
     
     func asInputStream() -> InputStream? {
         if shouldReturnNilInputStream {
             return nil
+        }
+        if shouldReturnErrorStream {
+            return ErrorInputStream()
         }
         return InputStream(data: Data())
     }
@@ -36,6 +41,29 @@ class TestStreamableObject: NSObject, SentryStreamable {
     
     static func objectWithNegativeSize() -> TestStreamableObject {
         return TestStreamableObject(streamSize: -1, shouldReturnNilInputStream: false)
+    }
+    
+    static func objectWithErrorStream() -> TestStreamableObject {
+        return TestStreamableObject(streamSize: 10, shouldReturnNilInputStream: false, shouldReturnErrorStream: true)
+    }
+}
+
+// Custom InputStream that always returns an error when read
+class ErrorInputStream: InputStream {
+    override var hasBytesAvailable: Bool {
+        return true
+    }
+    
+    override func read(_ buffer: UnsafeMutablePointer<UInt8>, maxLength len: Int) -> Int {
+        return -1 // Simulate read error
+    }
+    
+    override func open() {
+        // No-op
+    }
+    
+    override func close() {
+        // No-op
     }
 }
 
@@ -194,6 +222,163 @@ class SentryMsgPackSerializerTests: XCTestCase {
         // Create a URL that has a nil path (e.g., a URL with just a scheme but no path component)
         let nilPathURL = URL(string: "data:")!
         let dictionary: [String: SentryStreamable] = ["key1": nilPathURL as SentryStreamable]
+        
+        defer {
+            do {
+                if FileManager.default.fileExists(atPath: tempFileURL.path) {
+                    try FileManager.default.removeItem(at: tempFileURL)
+                }
+            } catch {
+                XCTFail("Failed to cleanup temp file: \(error)")
+            }
+        }
+        
+        // Act
+        let result = SentryMsgPackSerializer.serializeDictionary(toMessagePack: dictionary, intoFile: tempFileURL)
+        
+        // Assert
+        XCTAssertFalse(result)
+    }
+    
+    func testSerializeEmptyDictionary() throws {
+        // Arrange
+        let tempDirectoryURL = URL(fileURLWithPath: NSTemporaryDirectory())
+        let tempFileURL = tempDirectoryURL.appendingPathComponent("test.dat")
+        let dictionary: [String: SentryStreamable] = [:]
+        
+        defer {
+            do {
+                if FileManager.default.fileExists(atPath: tempFileURL.path) {
+                    try FileManager.default.removeItem(at: tempFileURL)
+                }
+            } catch {
+                XCTFail("Failed to cleanup temp file: \(error)")
+            }
+        }
+        
+        // Act
+        let result = SentryMsgPackSerializer.serializeDictionary(toMessagePack: dictionary, intoFile: tempFileURL)
+        
+        // Assert
+        XCTAssertTrue(result)
+        let tempFile = try Data(contentsOf: tempFileURL)
+        // Verify empty dictionary is serialized as map header with count 0
+        XCTAssertEqual(tempFile.count, 1)
+        XCTAssertEqual(tempFile[0], 0x80) // Map with 0 elements
+    }
+    
+    func testSerializeSingleElement() throws {
+        // Arrange
+        let tempDirectoryURL = URL(fileURLWithPath: NSTemporaryDirectory())
+        let tempFileURL = tempDirectoryURL.appendingPathComponent("test.dat")
+        let dictionary: [String: SentryStreamable] = [
+            "key": Data("test data".utf8) as SentryStreamable
+        ]
+        
+        defer {
+            do {
+                try FileManager.default.removeItem(at: tempFileURL)
+            } catch {
+                XCTFail("Failed to cleanup temp file: \(error)")
+            }
+        }
+        
+        // Act
+        let result = SentryMsgPackSerializer.serializeDictionary(toMessagePack: dictionary, intoFile: tempFileURL)
+        
+        // Assert
+        XCTAssertTrue(result)
+        let tempFile = try Data(contentsOf: tempFileURL)
+        assertMsgPack(tempFile)
+    }
+    
+    func testSerializeLargeDictionary() throws {
+        // Arrange
+        let tempDirectoryURL = URL(fileURLWithPath: NSTemporaryDirectory())
+        let tempFileURL = tempDirectoryURL.appendingPathComponent("test.dat")
+        
+        // Create dictionary with 16 elements (beyond the 15 element limit mentioned in comment)
+        var dictionary: [String: SentryStreamable] = [:]
+        for i in 0..<16 {
+            dictionary["key\(i)"] = Data("data\(i)".utf8) as SentryStreamable
+        }
+        
+        defer {
+            do {
+                if FileManager.default.fileExists(atPath: tempFileURL.path) {
+                    try FileManager.default.removeItem(at: tempFileURL)
+                }
+            } catch {
+                XCTFail("Failed to cleanup temp file: \(error)")
+            }
+        }
+        
+        // Act
+        let result = SentryMsgPackSerializer.serializeDictionary(toMessagePack: dictionary, intoFile: tempFileURL)
+        
+        // Assert
+        // The implementation doesn't validate dictionary size, so it should still succeed
+        // but the header will overflow (0x80 | 16 = 0x90)
+        XCTAssertTrue(result)
+        let tempFile = try Data(contentsOf: tempFileURL)
+        XCTAssertGreaterThan(tempFile.count, 1)
+        XCTAssertEqual(tempFile[0], 0x90) // Map header with overflow: 0x80 | 16 = 0x90
+    }
+    
+    func testSerializeLongKey() throws {
+        // Arrange
+        let tempDirectoryURL = URL(fileURLWithPath: NSTemporaryDirectory())
+        let tempFileURL = tempDirectoryURL.appendingPathComponent("test.dat")
+        
+        // Create a key longer than 255 characters
+        let longKey = String(repeating: "a", count: 300)
+        let dictionary: [String: SentryStreamable] = [
+            longKey: Data("test data".utf8) as SentryStreamable
+        ]
+        
+        defer {
+            do {
+                if FileManager.default.fileExists(atPath: tempFileURL.path) {
+                    try FileManager.default.removeItem(at: tempFileURL)
+                }
+            } catch {
+                XCTFail("Failed to cleanup temp file: \(error)")
+            }
+        }
+        
+        // Act
+        let result = SentryMsgPackSerializer.serializeDictionary(toMessagePack: dictionary, intoFile: tempFileURL)
+        
+        // Assert
+        // Long keys should still work, but the length will be truncated to uint8_t
+        XCTAssertTrue(result)
+        let tempFile = try Data(contentsOf: tempFileURL)
+        XCTAssertGreaterThan(tempFile.count, 1)
+    }
+    
+    func testSerializeToInvalidPath() throws {
+        // Arrange
+        let invalidPath = URL(fileURLWithPath: "/invalid/path/that/does/not/exist/test.dat")
+        let dictionary: [String: SentryStreamable] = [
+            "key": Data("test data".utf8) as SentryStreamable
+        ]
+        
+        // Act
+        let result = SentryMsgPackSerializer.serializeDictionary(toMessagePack: dictionary, intoFile: invalidPath)
+        
+        // Assert
+        // NOTE: Current Objective-C implementation doesn't validate if NSOutputStream opened successfully
+        // This should ideally return false for invalid paths, but currently returns true
+        // This should be fixed in the Swift conversion
+        XCTAssertTrue(result) // Current behavior - should be XCTAssertFalse(result) in ideal implementation
+    }
+    
+    func testSerializeStreamReadError() throws {
+        // Arrange
+        let tempDirectoryURL = URL(fileURLWithPath: NSTemporaryDirectory())
+        let tempFileURL = tempDirectoryURL.appendingPathComponent("test.dat")
+        let errorStreamObject = TestStreamableObject.objectWithErrorStream()
+        let dictionary: [String: SentryStreamable] = ["key1": errorStreamObject as SentryStreamable]
         
         defer {
             do {
