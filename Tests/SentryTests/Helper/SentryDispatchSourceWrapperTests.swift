@@ -6,8 +6,8 @@ final class SentryDispatchSourceWrapperTests: XCTestCase {
 
     func testDispatchSourceWrapper_Repeats() throws {
 
-        let nanoInterval: UInt64 = 100_000_000 // 0.1 second
-        let leeway: UInt64 = 10_000_000 // 0.01 second
+        let nanoInterval: Int = 100_000_000 // 0.1 second
+        let leeway: Int = 10_000_000 // 0.01 second
 
         let dateProvider = SentryDefaultCurrentDateProvider()
         var eventInvocations = [UInt64]()
@@ -66,7 +66,7 @@ final class SentryDispatchSourceWrapperTests: XCTestCase {
             "Only \(accurateIntervals) out of \(totalIntervals) intervals were accurate (expected >= \(requiredAccurateIntervals)). Expected interval: \(nanosToSeconds(minExpectedInterval)) - \(nanosToSeconds(maxExpectedInterval))")
     }
 
-    private func nanosToSeconds(_ nanoseconds: UInt64) -> String {
+    private func nanosToSeconds(_ nanoseconds: Int) -> String {
         return String(format: "%.3f s", Double(nanoseconds) / 1_000_000_000)
     }
 
