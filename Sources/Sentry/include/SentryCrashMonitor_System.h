@@ -28,12 +28,12 @@
 #ifndef SentryCrashMonitor_System_h
 #define SentryCrashMonitor_System_h
 
+#include "SentryCrashMonitor.h"
+#import "SentryInternalCDefines.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#include "SentryCrashMonitor.h"
-#import "SentryInternalCDefines.h"
 
 /** Access the Monitor API.
  */
