@@ -1,5 +1,4 @@
 #import "SentryClient+Private.h"
-#import "SentryCrashWrapper.h"
 #import "SentryDependencyContainer.h"
 #import "SentryEnvelopeItemHeader.h"
 #import "SentryEvent+Private.h"

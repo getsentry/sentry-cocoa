@@ -1,5 +1,11 @@
 # Changelog
 
+## 8.56.0-alpha.3
+
+### Fixes
+
+- Fixes a React Native legacy build failure by adding the missing self references for explicit capture semantics (#6156)
+
 ## 8.56.0-alpha.2
 
 ### Features
