@@ -36,7 +36,7 @@ class SentryMsgPackSerializer {
             _ = outputStream.write([str8Header], maxLength: 1)
             _ = outputStream.write([keyLength], maxLength: 1)
             
-            keyData.withUnsafeBytes { bytes in
+            try keyData.withUnsafeBytes { bytes in
                 guard let bufferAddress = bytes.bindMemory(to: UInt8.self).baseAddress else {
                     throw SentryMsgPackSerializerError.invalidInput("Could not get buffer address for key: \(key)")
                 }
