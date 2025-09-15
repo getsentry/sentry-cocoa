@@ -19,17 +19,20 @@ NS_ASSUME_NONNULL_BEGIN
     for (SentryEnvelopeItem *item in envelope.items) {
         if ([item.header.type isEqualToString:SentryEnvelopeItemTypes.session]) {
             NSData *data = item.data;
-            if (data != nil) {
-                SentrySession *session = [DataDeserialization sessionWithData:data];
-                if (nil != session && [session.flagInit boolValue]) {
-                    BOOL didSetInitFlag =
-                        [self setInitFlagOnNextEnvelopeWithSameSessionId:session
-                                                        envelopesDirPath:envelopesDirPath
-                                                       envelopeFilePaths:envelopeFilePaths];
+            if (data == nil) {
+                SENTRY_LOG_WARN(
+                    @"Could not migrate session init, because the envelope item has no data.");
+                continue;
+            }
+            SentrySession *session = [DataDeserialization sessionWithData:data];
+            if (nil != session && [session.flagInit boolValue]) {
+                BOOL didSetInitFlag =
+                    [self setInitFlagOnNextEnvelopeWithSameSessionId:session
+                                                    envelopesDirPath:envelopesDirPath
+                                                   envelopeFilePaths:envelopeFilePaths];
 
-                    if (didSetInitFlag) {
-                        return YES;
-                    }
+                if (didSetInitFlag) {
+                    return YES;
                 }
             }
         }
@@ -76,15 +79,18 @@ NS_ASSUME_NONNULL_BEGIN
     for (SentryEnvelopeItem *item in envelope.items) {
         if ([item.header.type isEqualToString:SentryEnvelopeItemTypes.session]) {
             NSData *data = item.data;
-            if (data != nil) {
-                SentrySession *localSession = [DataDeserialization sessionWithData:data];
+            if (data == nil) {
+                SENTRY_LOG_WARN(
+                    @"Could not migrate session init, because the envelope item has no data.");
+                continue;
+            }
+            SentrySession *localSession = [DataDeserialization sessionWithData:data];
 
-                if (nil != localSession && [localSession.sessionId isEqual:sessionId]) {
-                    [localSession setFlagInit];
+            if (nil != localSession && [localSession.sessionId isEqual:sessionId]) {
+                [localSession setFlagInit];
 
-                    [self storeSessionInit:envelope session:localSession path:envelopeFilePath];
-                    return YES;
-                }
+                [self storeSessionInit:envelope session:localSession path:envelopeFilePath];
+                return YES;
             }
         }
     }

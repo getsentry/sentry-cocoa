@@ -609,6 +609,10 @@ class SentrySerializationTests: XCTestCase {
         let level = SentrySerialization.level(from: Fixture.invalidData)
         XCTAssertEqual(SentryLevel.error, level)
     }
+
+    func testAppStateWithNonDictionary_ReturnsNil() {
+        XCTAssertNil(DataDeserialization.appState(with: Data("[]".utf8)))
+    }
     
     func testAppStateWithValidData_ReturnsValidAppState() throws {
         let appState = TestData.appState

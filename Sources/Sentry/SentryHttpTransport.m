@@ -19,12 +19,10 @@
 #    import "SentryReachability.h"
 #endif // !TARGET_OS_WATCH
 
-@interface SentryHttpTransport () <SentryFileManagerDelegate
+@interface SentryHttpTransport ()
 #if SENTRY_HAS_REACHABILITY
-    ,
-    SentryReachabilityObserver
+    <SentryReachabilityObserver>
 #endif // !TARGET_OS_WATCH
-    >
 
 @property (nonatomic, readonly) NSTimeInterval cachedEnvelopeSendDelay;
 @property (nonatomic, strong) SentryFileManager *fileManager;
