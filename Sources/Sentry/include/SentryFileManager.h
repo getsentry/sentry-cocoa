@@ -4,8 +4,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@protocol SentryFileManagerDelegate;
-
 @class SentryAppState;
 @class SentryDispatchQueueWrapper;
 @class SentryEvent;
@@ -16,12 +14,6 @@ NS_ASSUME_NONNULL_BEGIN
 @class SentrySession;
 
 @protocol SentryCurrentDateProvider;
-@protocol SentryFileManagerDelegate <NSObject>
-
-- (void)envelopeItemDeleted:(SentryEnvelopeItem *)envelopeItem
-               withCategory:(SentryDataCategory)dataCategory;
-
-@end
 
 NS_SWIFT_NAME(SentryFileManager)
 @interface SentryFileManager : NSObject
@@ -40,7 +32,7 @@ SENTRY_NO_INIT
                     dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
                                    error:(NSError **)error NS_DESIGNATED_INITIALIZER;
 
-- (void)setDelegate:(id<SentryFileManagerDelegate>)delegate;
+- (void)setEnvelopeDeletedCallback:(void (^)(SentryEnvelopeItem *, SentryDataCategory))callback;
 
 #pragma mark - Envelope
 
