@@ -31,7 +31,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         }
     }
     
-    private var uiApplication = TestSentryU IApplication()
+    private var uiApplication = TestSentryUIApplication()
     private var globalEventProcessor = SentryGlobalEventProcessor()
 
     override func setUp() {
