@@ -21,7 +21,7 @@ import Foundation
         return TestSentryDispatchQueueWrapper(name: name, attributes: nil)
     }
 
-    public override func source(withInterval interval: UInt64, leeway: UInt64, queueName: UnsafePointer<CChar>, attributes: __OS_dispatch_queue_attr, eventHandler: @escaping () -> Void) -> SentryDispatchSourceWrapper {
+    public override func source(withInterval interval: Int, leeway: Int, queueName: UnsafePointer<CChar>, attributes: __OS_dispatch_queue_attr, eventHandler: @escaping () -> Void) -> SentryDispatchSourceWrapper {
         let source = TestDispatchSourceWrapper(eventHandler: eventHandler)
         vendedSourceHandler?(source)
         return source
