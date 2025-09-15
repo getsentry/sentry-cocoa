@@ -8,7 +8,7 @@
     private let queueWrapper: SentryDispatchQueueWrapper
     private let source: DispatchSourceTimer
 
-    public init(interval: UInt64, leeway: UInt64, queue queueWrapper: SentryDispatchQueueWrapper, eventHandler: @escaping () -> Void) {
+    public init(interval: Int, leeway: Int, queue queueWrapper: SentryDispatchQueueWrapper, eventHandler: @escaping () -> Void) {
 
         self.queueWrapper = queueWrapper
         self.source = DispatchSource.makeTimerSource(queue: queueWrapper.queue)
@@ -18,8 +18,8 @@
         source.setEventHandler(handler: eventHandler)
         source.schedule(
             deadline: .now(),
-            repeating: .nanoseconds(Int(interval)),
-            leeway: .nanoseconds(Int(leeway))
+            repeating: .nanoseconds(interval),
+            leeway: .nanoseconds(leeway)
         )
         source.resume()
     }
