@@ -186,13 +186,6 @@ jobs:
             test-destination-os: "latest"
             scheme: "Sentry"
 
-          - name: Catalyst 26 Sentry
-            runs-on: macos-26
-            platform: "Catalyst"
-            xcode: "26.0"
-            test-destination-os: "latest"
-            scheme: "Sentry"
-
           # We don't run the unit tests on tvOS 16 cause we run them on all on GH actions available iOS versions.
           # The chance of missing a bug solely on tvOS 16 that doesn't occur on iOS, tvOS 15 or tvOS 16 is minimal.
           # We are running tests on tvOS 17 and latest, as there were OS-internal changes introduced in succeeding versions.
