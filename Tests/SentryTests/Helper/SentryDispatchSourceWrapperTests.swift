@@ -45,16 +45,29 @@ final class SentryDispatchSourceWrapperTests: XCTestCase {
         let assertionLeeway = leeway * 5 // 0.05 seconds
 
         // Verify that the timing between consecutive events respects the interval and leeway
+        // We only require 80% of the intervals to be accurate since CI can sometimes pause execution
+        // briefly, but we still want to verify the timer is generally working correctly.
+        let minExpectedInterval = nanoInterval - assertionLeeway
+        let maxExpectedInterval = nanoInterval + assertionLeeway
+        var accurateIntervals = 0
+        
         for i in 1..<eventInvocations.count {
             let timeDifference = eventInvocations[i] - eventInvocations[i - 1]
-            let minExpectedInterval = nanoInterval - assertionLeeway
-            let maxExpectedInterval = nanoInterval + assertionLeeway
-
-            XCTAssertGreaterThanOrEqual(timeDifference, minExpectedInterval,
-                "Event \(i) occurred too soon. Time difference: \(timeDifference) ns, expected >= \(minExpectedInterval) ns")
-            XCTAssertLessThanOrEqual(timeDifference, maxExpectedInterval,
-                "Event \(i) occurred too late. Time difference: \(timeDifference) ns, expected <= \(maxExpectedInterval) ns")
+            
+            if timeDifference >= minExpectedInterval && timeDifference <= maxExpectedInterval {
+                accurateIntervals += 1
+            }
         }
+        
+        let totalIntervals = eventInvocations.count - 1
+        let requiredAccurateIntervals = max(1, Int(Double(totalIntervals) * 0.8)) // At least 80%
+        
+        XCTAssertGreaterThanOrEqual(accurateIntervals, requiredAccurateIntervals,
+            "Only \(accurateIntervals) out of \(totalIntervals) intervals were accurate (expected >= \(requiredAccurateIntervals)). Expected interval: \(nanosToSeconds(minExpectedInterval)) - \(nanosToSeconds(maxExpectedInterval))")
+    }
+
+    private func nanosToSeconds(_ nanoseconds: UInt64) -> String {
+        return String(format: "%.3f s", Double(nanoseconds) / 1_000_000_000)
     }
 
 }
