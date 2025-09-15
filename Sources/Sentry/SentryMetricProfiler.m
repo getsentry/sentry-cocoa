@@ -36,7 +36,7 @@ NSString *const kSentryMetricProfilerSerializationUnitNanoJoules = @"nanojoule";
 // sampling CPU usage and memory footprint, and we want to minimize the overhead of making the
 // necessary system calls to gather that information. This is currently roughly 10% of the
 // backtrace profiler's resolution.
-static uint64_t frequencyHz = 10;
+static NSInteger frequencyHz = 10;
 
 /**
  * @return a dictionary containing all the metric values recorded during the transaction, or @c nil
