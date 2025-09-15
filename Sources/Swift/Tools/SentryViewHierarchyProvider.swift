@@ -39,7 +39,7 @@ import UIKit
     }
     
     @objc public func appViewHierarchy() -> Data? {
-        let windows = self.sentryUIApplication.getWindows() ?? []
+        let windows = sentryUIApplication.getWindows() ?? []
         return SentryViewHierarchyProviderHelper.appViewHierarchy(from: windows, reportAccessibilityIdentifier: reportAccessibilityIdentifier)
     }
     

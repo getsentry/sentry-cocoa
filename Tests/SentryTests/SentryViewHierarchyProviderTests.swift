@@ -184,7 +184,7 @@ class SentryViewHierarchyProviderTests: XCTestCase {
         fixture.uiApplication.windows = [window]
 
         let ex = expectation(description: "Running on Main Thread")
-        sut.appViewHeirarchyCallback = {
+        sut.appViewHierarchyCallback = {
             ex.fulfill()
             XCTAssertTrue(Thread.isMainThread)
         }

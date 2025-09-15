@@ -9,7 +9,7 @@ class TestSentryViewHierarchyProvider: SentryViewHierarchyProvider {
     var saveFilePathUsed: String?
 
     override func appViewHierarchy() -> Data? {
-        appViewHeirarchyCallback?()
+        appViewHierarchyCallback?()
         guard let result = self.result
         else {
             return super.appViewHierarchy()
