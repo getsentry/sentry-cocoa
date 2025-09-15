@@ -8,7 +8,6 @@
 #    import "SentrySwift.h"
 #    import <PrivateSentrySDKOnly.h>
 #    import <SentryAppStateManager.h>
-#    import <SentryCrashWrapper.h>
 #    import <SentryDependencyContainer.h>
 
 @interface SentryAppStartTrackingIntegration ()

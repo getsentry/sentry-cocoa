@@ -32,13 +32,13 @@
 #ifndef HDR_SentryCrashMonitor_AppState_h
 #define HDR_SentryCrashMonitor_AppState_h
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include "SentryCrashMonitor.h"
 
 #include <stdbool.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 typedef struct {
     // Saved data

@@ -414,6 +414,13 @@ class ExtraViewController: UIViewController {
     }
 
     @IBAction func showCameraUIAction(_ sender: Any) {
+        // We need to check if the camera is available, otherwise simulators running on a Mac Mini (device without any
+        // built-in camera) would crash with this error:
+        //
+        // *** Terminating app due to uncaught exception 'NSInvalidArgumentException', reason: 'Source type 1 not available'
+        guard UIImagePickerController.isSourceTypeAvailable(.camera) else {
+            preconditionFailure("Can not display the camera UI because the source type is not available.")
+        }
         let imagePicker = UIImagePickerController()
         imagePicker.sourceType = .camera
         imagePicker.allowsEditing = false
