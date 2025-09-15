@@ -9,7 +9,8 @@ import Foundation
 
     public init(eventHandler: @escaping () -> Void) {
         self.overrides.eventHandler = eventHandler
-        super.init(interval: 0, leeway: 0, queue: SentryDispatchQueueWrapper(), eventHandler: {})
+        // Create a timer that never fires on its own, so we can control when it fires via `fire()`.
+        super.init(interval: Int.max, leeway: 1_000, queue: SentryDispatchQueueWrapper(), eventHandler: {})
         eventHandler() // SentryDispatchSourceWrapper constructs a timer so that it fires with no initial delay
     }
 
