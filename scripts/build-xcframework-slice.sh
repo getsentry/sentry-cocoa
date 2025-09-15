@@ -77,7 +77,7 @@ else
         MACH_O_TYPE="$MACH_O_TYPE" \
         ENABLE_CODE_COVERAGE=NO \
         GCC_GENERATE_DEBUGGING_SYMBOLS="$GCC_GENERATE_DEBUGGING_SYMBOLS" \
-        OTHER_LDFLAGS="$OTHER_LDFLAGS" 2>&1
+        OTHER_LDFLAGS="$OTHER_LDFLAGS" 2>&1 | tee "${slice_id}.log" | xcbeautify
 fi
 
 if [ "$MACH_O_TYPE" = "staticlib" ]; then
