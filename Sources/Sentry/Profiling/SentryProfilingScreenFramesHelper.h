@@ -8,6 +8,8 @@ NS_ASSUME_NONNULL_BEGIN
 @class SentryScreenFrames;
 
 // Helper to use SentryScreenFrames without importing Swift on ObjC++ files.
+// Right now we don't have Clang modules enabled, so we cannot use `@import Sentry;`
+// and then no Swift class is visible to Objective C++.
 @interface SentryProfilingScreenFramesHelper : NSObject
 + (SentryScreenFrames *)copyScreenFrames:(SentryScreenFrames *)screenFrames;
 @end

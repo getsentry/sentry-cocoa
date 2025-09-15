@@ -27,6 +27,12 @@ class SentryScreenFramesTests: XCTestCase {
         XCTAssertEqual(screenFrames.total, 0)
         XCTAssertEqual(screenFrames.frozen, 0)
         XCTAssertEqual(screenFrames.slow, 0)
+        
+        #if os(iOS)
+        XCTAssertTrue(screenFrames.slowFrameTimestamps.isEmpty)
+        XCTAssertTrue(screenFrames.frozenFrameTimestamps.isEmpty)
+        XCTAssertTrue(screenFrames.frameRateTimestamps.isEmpty)
+        #endif // os(iOS)
     }
     
     // MARK: - Profiling Supported Tests
@@ -34,15 +40,16 @@ class SentryScreenFramesTests: XCTestCase {
     #if os(iOS)
     func testInitWithDetailedMetrics() {
         let slowFrameTimestamps: SentryFrameInfoTimeSeries = [
-            ["start_timestamp": NSNumber(value: 1_000.0), "end_timestamp": NSNumber(value: 1_020.0)],
-            ["start_timestamp": NSNumber(value: 2_000.0), "end_timestamp": NSNumber(value: 2_025.0)]
+            ["timestamp": NSNumber(value: 1_000.0), "value": NSNumber(value: 3)],
+            ["timestamp": NSNumber(value: 2_000.0), "value": NSNumber(value: 2)]
         ]
         let frozenFrameTimestamps: SentryFrameInfoTimeSeries = [
-            ["start_timestamp": NSNumber(value: 3_000.0), "end_timestamp": NSNumber(value: 3_800.0)]
+            ["timestamp": NSNumber(value: 3_000.0), "value": NSNumber(value: 1)]
         ]
         let frameRateTimestamps: SentryFrameInfoTimeSeries = [
-            ["timestamp": NSNumber(value: 1_000.0), "frame_rate": NSNumber(value: 60.0)],
-            ["timestamp": NSNumber(value: 5_000.0), "frame_rate": NSNumber(value: 30.0)]
+            ["timestamp": NSNumber(value: 1_000.0), "value": NSNumber(value: 60.0)],
+            ["timestamp": NSNumber(value: 5_000.0), "value": NSNumber(value: 30.0)],
+            ["timestamp": NSNumber(value: 7_000.0), "value": NSNumber(value: 10.0)]
         ]
         
         let screenFrames = SentryScreenFrames(
@@ -57,9 +64,24 @@ class SentryScreenFramesTests: XCTestCase {
         XCTAssertEqual(screenFrames.total, 300)
         XCTAssertEqual(screenFrames.frozen, 1)
         XCTAssertEqual(screenFrames.slow, 2)
+        
         XCTAssertEqual(screenFrames.slowFrameTimestamps.count, 2)
+        XCTAssertEqual(screenFrames.slowFrameTimestamps[0]["timestamp"], 1_000)
+        XCTAssertEqual(screenFrames.slowFrameTimestamps[0]["value"], 3)
+        XCTAssertEqual(screenFrames.slowFrameTimestamps[1]["timestamp"], 2_000)
+        XCTAssertEqual(screenFrames.slowFrameTimestamps[1]["value"], 2)
+        
         XCTAssertEqual(screenFrames.frozenFrameTimestamps.count, 1)
-        XCTAssertEqual(screenFrames.frameRateTimestamps.count, 2)
+        XCTAssertEqual(screenFrames.frozenFrameTimestamps[0]["timestamp"], 3_000)
+        XCTAssertEqual(screenFrames.frozenFrameTimestamps[0]["value"], 1)
+        
+        XCTAssertEqual(screenFrames.frameRateTimestamps.count, 3)
+        XCTAssertEqual(screenFrames.frameRateTimestamps[0]["timestamp"], 1_000)
+        XCTAssertEqual(screenFrames.frameRateTimestamps[0]["value"], 60)
+        XCTAssertEqual(screenFrames.frameRateTimestamps[1]["timestamp"], 5_000)
+        XCTAssertEqual(screenFrames.frameRateTimestamps[1]["value"], 30)
+        XCTAssertEqual(screenFrames.frameRateTimestamps[2]["timestamp"], 7_000)
+        XCTAssertEqual(screenFrames.frameRateTimestamps[2]["value"], 10)
     }
     
     func testInitWithEmptyTimestamps() {
@@ -99,7 +121,7 @@ class SentryScreenFramesTests: XCTestCase {
     #if os(iOS)
     func testDescriptionWithTimestamps() {
         let slowFrameTimestamps: SentryFrameInfoTimeSeries = [
-            ["start_timestamp": NSNumber(value: 1_000.0), "end_timestamp": NSNumber(value: 1_020.0)]
+            ["timestamp": NSNumber(value: 1_000.0), "value": NSNumber(value: 1_020.0)]
         ]
         
         let screenFrames = SentryScreenFrames(
@@ -112,8 +134,8 @@ class SentryScreenFramesTests: XCTestCase {
         )
         
         let description = screenFrames.description
-        XCTAssertTrue(description.contains("start_timestamp"))
-        XCTAssertTrue(description.contains("end_timestamp"))
+        XCTAssertTrue(description.contains("timestamp"))
+        XCTAssertTrue(description.contains("timestamp"))
         XCTAssertTrue(description.contains("1000"))
         XCTAssertTrue(description.contains("1020"))
     }
@@ -148,13 +170,13 @@ class SentryScreenFramesTests: XCTestCase {
     #if os(iOS)
     func testEqualityWithSameTimestamps() {
         let slowFrameTimestamps: SentryFrameInfoTimeSeries = [
-            ["start_timestamp": NSNumber(value: 1_000.0), "end_timestamp": NSNumber(value: 1_020.0)]
+            ["timestamp": NSNumber(value: 1_000.0), "value": NSNumber(value: 1_020.0)]
         ]
         let frozenFrameTimestamps: SentryFrameInfoTimeSeries = [
-            ["start_timestamp": NSNumber(value: 2_000.0), "end_timestamp": NSNumber(value: 2_800.0)]
+            ["timestamp": NSNumber(value: 2_000.0), "value": NSNumber(value: 2_800.0)]
         ]
         let frameRateTimestamps: SentryFrameInfoTimeSeries = [
-            ["timestamp": NSNumber(value: 1_000.0), "frame_rate": NSNumber(value: 60.0)]
+            ["timestamp": NSNumber(value: 1_000.0), "value": NSNumber(value: 60.0)]
         ]
         
         let screenFrames1 = SentryScreenFrames(
@@ -180,10 +202,10 @@ class SentryScreenFramesTests: XCTestCase {
     
     func testEqualityWithDifferentTimestamps() {
         let slowFrameTimestamps1: SentryFrameInfoTimeSeries = [
-            ["start_timestamp": NSNumber(value: 1_000.0), "end_timestamp": NSNumber(value: 1_020.0)]
+            ["timestamp": NSNumber(value: 1_000.0), "value": NSNumber(value: 1_020.0)]
         ]
         let slowFrameTimestamps2: SentryFrameInfoTimeSeries = [
-            ["start_timestamp": NSNumber(value: 2_000.0), "end_timestamp": NSNumber(value: 2_020.0)]
+            ["timestamp": NSNumber(value: 2_000.0), "value": NSNumber(value: 2_020.0)]
         ]
         
         let screenFrames1 = SentryScreenFrames(
@@ -227,7 +249,7 @@ class SentryScreenFramesTests: XCTestCase {
     #if os(iOS)
     func testHashWithTimestamps() {
         let slowFrameTimestamps: SentryFrameInfoTimeSeries = [
-            ["start_timestamp": NSNumber(value: 1_000.0), "end_timestamp": NSNumber(value: 1_020.0)]
+            ["timestamp": NSNumber(value: 1_000.0), "value": NSNumber(value: 1)]
         ]
         
         let screenFrames1 = SentryScreenFrames(
@@ -270,13 +292,13 @@ class SentryScreenFramesTests: XCTestCase {
     
     func testCopyWithTimestamps() {
         let slowFrameTimestamps: SentryFrameInfoTimeSeries = [
-            ["start_timestamp": NSNumber(value: 1_000.0), "end_timestamp": NSNumber(value: 1_020.0)]
+            ["timestamp": NSNumber(value: 1_000.0), "value": NSNumber(value: 14.0)]
         ]
         let frozenFrameTimestamps: SentryFrameInfoTimeSeries = [
-            ["start_timestamp": NSNumber(value: 2_000.0), "end_timestamp": NSNumber(value: 2_800.0)]
+            ["timestamp": NSNumber(value: 2_000.0), "value": NSNumber(value: 1.0)]
         ]
         let frameRateTimestamps: SentryFrameInfoTimeSeries = [
-            ["timestamp": NSNumber(value: 1_000.0), "frame_rate": NSNumber(value: 60.0)]
+            ["timestamp": NSNumber(value: 1_000.0), "value": NSNumber(value: 60.0)]
         ]
         
         let original = SentryScreenFrames(
@@ -317,8 +339,8 @@ class SentryScreenFramesTests: XCTestCase {
         var largeTimestamps: SentryFrameInfoTimeSeries = []
         for i in 0..<1_000 {
             largeTimestamps.append([
-                "start_timestamp": NSNumber(value: Double(i * 1_000)),
-                "end_timestamp": NSNumber(value: Double(i * 1_000 + 16))
+                "timestamp": NSNumber(value: Double(i * 1_000)),
+                "value": NSNumber(value: Double(i * 1_000 + 17))
             ])
         }
         
@@ -337,7 +359,7 @@ class SentryScreenFramesTests: XCTestCase {
     
     func testTimestampDataIntegrity() {
         let slowFrameTimestamps: SentryFrameInfoTimeSeries = [
-            ["start_timestamp": NSNumber(value: 1_000.5), "end_timestamp": NSNumber(value: 1_016.7)]
+            ["timestamp": NSNumber(value: 1_000.5), "value": NSNumber(value: 1_016.7)]
         ]
         
         let screenFrames = SentryScreenFrames(
@@ -350,8 +372,8 @@ class SentryScreenFramesTests: XCTestCase {
         )
         
         let firstFrame = screenFrames.slowFrameTimestamps[0]
-        XCTAssertEqual(firstFrame["start_timestamp"], NSNumber(value: 1_000.5))
-        XCTAssertEqual(firstFrame["end_timestamp"], NSNumber(value: 1_016.7))
+        XCTAssertEqual(firstFrame["timestamp"], NSNumber(value: 1_000.5))
+        XCTAssertEqual(firstFrame["value"], NSNumber(value: 1_016.7))
     }
     #endif // os(iOS)
 }
