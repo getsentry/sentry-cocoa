@@ -22,12 +22,16 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
     }
     
     override func setUpWithError() throws {
-        guard #available(iOS 16.0, tvOS 16.0, *)  else {
+        guard #available(iOS 16.0, tvOS 16.0, *) else {
             throw XCTSkip("iOS version not supported")
+        }
+
+        if #available(tvOS 26.0, *) {
+            throw XCTSkip("When running the unit tests on tvOS 26 produces we get warning log messages on the console: 'nw_socket_set_connection_idle [C1.1.1.1:3] setsockopt SO_CONNECTION_IDLE failed [42: Protocol not available]'. This leads to test failures in CI. Therefore, we skip these for now. We are going to fix this with https://github.com/getsentry/sentry-cocoa/issues/6165.")
         }
     }
     
-    private var uiApplication = TestSentryUIApplication()
+    private var uiApplication = TestSentryU IApplication()
     private var globalEventProcessor = SentryGlobalEventProcessor()
 
     override func setUp() {
