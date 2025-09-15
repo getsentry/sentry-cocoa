@@ -67,4 +67,9 @@ xcframework_filename="$resolved_xcframework_name.xcframework"
 rm -rf "$xcframework_filename"
 xcodebuild_cmd+=" -output \"$xcframework_filename\""
 
+echo "Calling xcodebuild_cmd"
+echo "$xcodebuild_cmd"
+
 eval "$xcodebuild_cmd"
+
+ls -al "$xcframework_filename"
