@@ -236,8 +236,8 @@ serializeContinuousProfileMetrics(NSDictionary *state)
 - (void)registerSampler
 {
     __weak typeof(self) weakSelf = self;
-    uint64_t intervalNs = (uint64_t)1e9 / frequencyHz;
-    uint64_t leewayNs = intervalNs / 2;
+    NSInteger intervalNs = (NSInteger)1e9 / frequencyHz;
+    NSInteger leewayNs = intervalNs / 2;
     _dispatchSource = [SentryDependencyContainer.sharedInstance.dispatchFactory
         sourceWithInterval:intervalNs
                     leeway:leewayNs
