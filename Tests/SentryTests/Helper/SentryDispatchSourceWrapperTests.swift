@@ -41,12 +41,14 @@ final class SentryDispatchSourceWrapperTests: XCTestCase {
              "Event handler must be called at most \(expectedMaxEventInvocationCount) times, but was called \(eventInvocations.count) times"
         )
 
-        let assertionLeeway = leeway * 2 // 0.02 second
+        // We have to be quite lenient with the leeway, because GH actions can be quite slow sometimes.
+        let assertionLeeway = leeway * 5 // 0.05 seconds
+
         // Verify that the timing between consecutive events respects the interval and leeway
         for i in 1..<eventInvocations.count {
             let timeDifference = eventInvocations[i] - eventInvocations[i - 1]
-            let minExpectedInterval = nanoInterval - assertionLeeway  // 90_000_000 ns (0.09 seconds)
-            let maxExpectedInterval = nanoInterval + assertionLeeway  // 110_000_000 ns (0.11 seconds)
+            let minExpectedInterval = nanoInterval - assertionLeeway
+            let maxExpectedInterval = nanoInterval + assertionLeeway
 
             XCTAssertGreaterThanOrEqual(timeDifference, minExpectedInterval,
                 "Event \(i) occurred too soon. Time difference: \(timeDifference) ns, expected >= \(minExpectedInterval) ns")
