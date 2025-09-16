@@ -1,8 +1,9 @@
 @testable import Sentry
 @_spi(Private) import SentryTestUtils
-import SwiftUI
 import XCTest
 
+/// Tests with a running test server to validate our swizzling doesn't break the HTTP requests are in
+/// the SentryTestServerTests/SentryNetworkTrackerIntegrationTests.swift
 class SentryNetworkTrackerIntegrationTests: XCTestCase {
     
     private static let dsnAsString = TestConstants.dsnAsString(username: "SentryNetworkTrackerIntegrationTests")
@@ -154,36 +155,6 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
         let scope = SentrySDKInternal.currentHub().scope
         let breadcrumbs = Dynamic(scope).breadcrumbArray as [Breadcrumb]?
         XCTAssertEqual(1, breadcrumbs?.count)
-    }
-    
-    func testGetRequest_SpanCreatedAndBaggageHeaderAdded() throws {
-        startSDK()
-        let transaction = try XCTUnwrap(SentrySDK.startTransaction(name: "Test Transaction", operation: "TEST", bindToScope: true) as? SentryTracer)
-        let expect = expectation(description: "Request completed")
-        let session = URLSession(configuration: URLSessionConfiguration.default)
-
-        let dataTask = session.dataTask(with: SentryNetworkTrackerIntegrationTests.testBaggageURL) { (data, _, error) in
-            self.assertNetworkError(error)
-            let response = String(data: data ?? Data(), encoding: .utf8) ?? ""
-            
-            let expectedBaggageHeader = transaction.traceContext?.toBaggage().toHTTPHeader(withOriginalBaggage: nil)
-            XCTAssertEqual(expectedBaggageHeader, response)
-
-            expect.fulfill()
-        }
-        
-        dataTask.resume()
-        wait(for: [expect], timeout: 5)
-        
-        let children = try XCTUnwrap(Dynamic(transaction).children as [Span]?)
-
-        XCTAssertEqual(children.count, 1) //Span was created in task resume swizzle.
-        let networkSpan = try XCTUnwrap(children.first)
-        XCTAssertTrue(networkSpan.isFinished) //Span was finished in task setState swizzle.
-        XCTAssertEqual(SentrySpanOperationNetworkRequestOperation, networkSpan.operation)
-        XCTAssertEqual("GET \(SentryNetworkTrackerIntegrationTests.testBaggageURL)", networkSpan.spanDescription)
-        
-        XCTAssertEqual("200", networkSpan.data["http.response.status_code"] as? String)
     }
 
     func testGetRequest_CompareSentryTraceHeader() throws {
