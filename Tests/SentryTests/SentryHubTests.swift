@@ -1512,7 +1512,7 @@ class SentryHubTests: XCTestCase {
         XCTAssertEqual(1, fixture.client.captureEnvelopeInvocations.count)
         let envelope = fixture.client.captureEnvelopeInvocations.first!
         XCTAssertEqual(2, envelope.items.count)
-        let session = SentrySerialization.session(with: try XCTUnwrap(XCTUnwrap(envelope.items.element(at: 1)).data))
+        let session = DataDeserialization.session(with: try XCTUnwrap(XCTUnwrap(envelope.items.element(at: 1)).data))
         XCTAssertEqual(1, session?.errors)
     }
     
