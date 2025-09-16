@@ -135,7 +135,9 @@ public struct SentrySDKWrapper {
         options.enableCrashHandler = !SentrySDKOverrides.Other.disableCrashHandling.boolValue
         options.enablePersistingTracesWhenCrashing = true
         options.enableTimeToFullDisplayTracing = !SentrySDKOverrides.Performance.disableTimeToFullDisplayTracing.boolValue
+      #if !SDK_V9
         options.enablePerformanceV2 = !SentrySDKOverrides.Performance.disablePerformanceV2.boolValue
+      #endif
         options.failedRequestStatusCodes = [ HttpStatusCodeRange(min: 400, max: 599) ]
 
     #if targetEnvironment(simulator)

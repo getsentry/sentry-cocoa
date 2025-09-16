@@ -19,16 +19,12 @@ class SentryFileManagerTests: XCTestCase {
         let session = SentrySession(releaseName: "1.0.0", distinctId: "some-id")
         let sessionEnvelope: SentryEnvelope
         
+        var envelopeItemsDeleted = Invocations<SentryDataCategory>()
+        
         let sessionUpdate: SentrySession
         let sessionUpdateEnvelope: SentryEnvelope
         
         let expectedSessionUpdate: SentrySession
-        
-        // swiftlint:disable weak_delegate
-        // Swiftlint automatically changes this to a weak reference,
-        // but we need a strong reference to make the test work.
-        var delegate: TestFileManagerDelegate!
-        // swiftlint:enable weak_delegate
         
         @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
         init() throws {
@@ -56,8 +52,6 @@ class SentryFileManagerTests: XCTestCase {
             expectedSessionUpdate = SentrySession(jsonObject: sessionUpdateCopy.serialize())!
             // We can only set the init flag after serialize, because the duration is not set if the init flag is set
             expectedSessionUpdate.setFlagInit()
-            
-            delegate = TestFileManagerDelegate()
         }
         
         func getSut() -> SentryFileManager {
@@ -66,7 +60,9 @@ class SentryFileManagerTests: XCTestCase {
                 dateProvider: currentDateProvider,
                 dispatchQueueWrapper: dispatchQueueWrapper
             )
-            sut.setDelegate(delegate)
+            sut.setEnvelopeDeletedCallback { [weak self] _, category in
+                self?.envelopeItemsDeleted.record(category)
+            }
             return sut
         }
         
@@ -77,7 +73,9 @@ class SentryFileManagerTests: XCTestCase {
                 dateProvider: currentDateProvider,
                 dispatchQueueWrapper: dispatchQueueWrapper
             )
-            sut.setDelegate(delegate)
+            sut.setEnvelopeDeletedCallback { [weak self] _, category in
+                self?.envelopeItemsDeleted.record(category)
+            }
             return sut
         }
 
@@ -359,9 +357,9 @@ class SentryFileManagerTests: XCTestCase {
             sut.store(TestConstants.envelope)
         }
         
-        XCTAssertEqual(4, fixture.delegate.envelopeItemsDeleted.count)
+        XCTAssertEqual(4, fixture.envelopeItemsDeleted.count)
         let expected: [SentryDataCategory] = [.error, .attachment, .session, .error]
-        XCTAssertEqual(expected, fixture.delegate.envelopeItemsDeleted.invocations)
+        XCTAssertEqual(expected, fixture.envelopeItemsDeleted.invocations)
     }
     
     @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
@@ -499,7 +497,7 @@ class SentryFileManagerTests: XCTestCase {
             sut.store(TestConstants.envelope)
         }
         
-        XCTAssertEqual(0, fixture.delegate.envelopeItemsDeleted.count)
+        XCTAssertEqual(0, fixture.envelopeItemsDeleted.count)
     }
     
     @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
