@@ -1,13 +1,15 @@
+@_spi(Private) @testable import Sentry
+
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 
 class TestSentryViewHierarchyProvider: SentryViewHierarchyProvider {
 
     var result: Data?
-    var viewHierarchyResult: Int32 = 0
-    var processViewHierarchyCallback: (() -> Void)?
+    var appViewHierarchyCallback: (() -> Void)?
     var saveFilePathUsed: String?
 
     override func appViewHierarchy() -> Data? {
+        appViewHierarchyCallback?()
         guard let result = self.result
         else {
             return super.appViewHierarchy()
@@ -19,14 +21,14 @@ class TestSentryViewHierarchyProvider: SentryViewHierarchyProvider {
         saveFilePathUsed = filePath
         return true
     }
+}
 
-    override func viewHierarchy(from view: UIView!, into context: UnsafeMutablePointer<SentryCrashJSONEncodeContext>!) -> Int32 {
-        return viewHierarchyResult != 0 ? viewHierarchyResult : super.viewHierarchy(from: view, into: context)
-    }
+class TestSentryViewHierarchyProviderHelper: SentryViewHierarchyProviderHelper {
+    
+    static var viewHierarchyResult: Int32?
 
-    override func processViewHierarchy(_ windows: [UIView]!, add addJSONDataFunc: SentryCrashJSONAddDataFunc!, userData: UnsafeMutableRawPointer!) -> Bool {
-        processViewHierarchyCallback?()
-        return super .processViewHierarchy(windows, add: addJSONDataFunc, userData: userData)
+    override static func viewHierarchy(from view: UIView!, into context: UnsafeMutablePointer<SentryCrashJSONEncodeContext>!, reportAccessibilityIdentifier: Bool) -> Int32 {
+        return viewHierarchyResult ?? super.viewHierarchy(from: view, into: context, reportAccessibilityIdentifier: reportAccessibilityIdentifier)
     }
 }
 #endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)

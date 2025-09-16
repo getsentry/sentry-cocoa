@@ -209,7 +209,6 @@
 #import "SentryUncaughtNSExceptions.h"
 #import "SentryUseNSExceptionCallstackWrapper.h"
 #import "SentryViewHierarchyIntegration.h"
-#import "SentryViewHierarchyProvider.h"
 #import "SentryWatchdogTerminationBreadcrumbProcessor.h"
 #import "SentryWatchdogTerminationLogic.h"
 #import "SentryWatchdogTerminationScopeObserver.h"
