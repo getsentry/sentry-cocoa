@@ -108,8 +108,10 @@ jobs:
         run: ./scripts/start-test-server.sh
       - run: ./scripts/ci-select-xcode.sh 16.4
 
-      - name: Install Slather
-        run: gem install slather
+      # Note: We don't install Slather or gather code coverage for this job because it only runs
+      # the SentryTestServerTests target, which contains minimal tests that don't significantly
+      # contribute to overall code coverage metrics. The main unit-tests job handles comprehensive
+      # code coverage reporting.
 
       # We split building and running tests in two steps so we know how long running the tests takes.
       - name: Build tests
