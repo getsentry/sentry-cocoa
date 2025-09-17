@@ -92,6 +92,11 @@ jobs:
         if: failure()
         run: ./scripts/ci-diagnostics.sh
 
+  # This matrix runs only the unit tests requiring the test server.
+  # We do this to speed up the other unit test jobs and to avoid running the
+  # test server with potential side effects in GH actions for all unit tests.
+  # We don't run this matrix for all different OS versions, because the chances
+  # of a bug solely on a specific OS version is minimal.
   unit-tests-with-test-server:
     name: Unit with Test Server ${{matrix.name}}
     runs-on: ${{matrix.runs-on}}
