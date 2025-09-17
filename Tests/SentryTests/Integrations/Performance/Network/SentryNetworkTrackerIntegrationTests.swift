@@ -8,7 +8,6 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
     
     private static let dsnAsString = TestConstants.dsnAsString(username: "SentryNetworkTrackerIntegrationTests")
     private static let testBaggageURL = URL(string: "http://localhost:8080/echo-baggage-header")!
-    private static let clientErrorTraceURL = URL(string: "http://localhost:8080/http-client-error")!
     private static let transactionName = "TestTransaction"
     private static let transactionOperation = "Test"
     
@@ -188,38 +187,6 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
         startSDK()
 
         XCTAssertFalse(SentryNetworkTracker.sharedInstance.isGraphQLOperationTrackingEnabled)
-    }
-
-    func testGetCaptureFailedRequestsEnabled() {
-        let expect = expectation(description: "Request completed")
-
-        var sentryEvent: Event?
-
-        fixture.options.enableCaptureFailedRequests = true
-        fixture.options.failedRequestStatusCodes = [ HttpStatusCodeRange(statusCode: 400) ]
-        fixture.options.beforeSend = { event in
-            sentryEvent = event
-            expect.fulfill()
-            return event
-        }
-
-        startSDK()
-
-        let session = URLSession(configuration: URLSessionConfiguration.default)
-
-        let dataTask = session.dataTask(with: SentryNetworkTrackerIntegrationTests.clientErrorTraceURL) { (_, _, error) in
-            self.assertNetworkError(error)
-        }
-
-        dataTask.resume()
-        wait(for: [expect], timeout: 5)
-        
-        XCTAssertNotNil(sentryEvent)
-        XCTAssertNotNil(sentryEvent?.request)
-        
-        let sentryResponse = sentryEvent?.context?["response"]
-
-        XCTAssertEqual(sentryResponse?["status_code"] as? NSNumber, 400)
     }
     
     private func assertNetworkTrackerDisabled(configureOptions: (Options) -> Void) throws {

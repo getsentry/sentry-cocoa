@@ -43,7 +43,7 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
     }
 
     func testGetRequest_CompareSentryTraceHeader() throws {
-        let testTraceURL = URL(string: "http://localhost:8080/echo-sentry-trace")!
+        let testTraceURL = try XCTUnwrap(URL(string: "http://localhost:8080/echo-sentry-trace"))
 
         startSDK()
 
@@ -69,16 +69,52 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
         XCTAssertEqual(expectedTraceHeader, response)
     }
 
+    func testGetCaptureFailedRequestsEnabled() throws {
+        let clientErrorTraceURL = try XCTUnwrap(URL(string: "http://localhost:8080/http-client-error"))
+
+        let expect = expectation(description: "Request completed")
+
+        var sentryEvent: Event?
+
+        startSDK {
+            $0.enableCaptureFailedRequests = true
+            $0.failedRequestStatusCodes = [ HttpStatusCodeRange(statusCode: 400) ]
+            $0.beforeSend = { event in
+                sentryEvent = event
+                expect.fulfill()
+                return event
+            }
+        }
+
+        let session = URLSession(configuration: URLSessionConfiguration.default)
+
+        let dataTask = session.dataTask(with: clientErrorTraceURL) { (_, _, error) in
+            self.assertNetworkError(error)
+        }
+
+        dataTask.resume()
+        wait(for: [expect], timeout: 5)
+
+        XCTAssertNotNil(sentryEvent)
+        XCTAssertNotNil(sentryEvent?.request)
+
+        let sentryResponse = sentryEvent?.context?["response"]
+
+        XCTAssertEqual(sentryResponse?["status_code"] as? NSNumber, 400)
+    }
+
     private func assertNetworkError(_ error: Error?) {
         if error != nil {
             XCTFail("Failed to complete request : \(String(describing: error))")
         }
     }
 
-    private func startSDK(function: String = #function) {
+    private func startSDK(function: String = #function, _ configureOptions: ((Options) -> Void)? = nil) {
         let options = Options()
         options.dsn = TestConstants.dsnAsString(username: "SentryNetworkTrackerIntegrationTestServerTests.\(function)")
         options.tracesSampleRate = 1.0
+
+        configureOptions?(options)
 
         SentrySDK.start(options: options)
     }
