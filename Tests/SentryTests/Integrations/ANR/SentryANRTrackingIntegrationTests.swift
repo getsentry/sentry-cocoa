@@ -358,6 +358,7 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     func testV2_ANRDetected_DoesNotCaptureEvent() throws {
         // Arrange
+        setUpThreadInspector()
         givenInitializedTracker(enableV2: true)
         
         // Act
@@ -490,6 +491,7 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
 
     func testV2_ANRStopped_EmptyEventStored_DoesCaptureEvent() throws {
         // Arrange
+        setUpThreadInspector()
         givenInitializedTracker(enableV2: true)
 
         Dynamic(sut).anrDetectedWithType(SentryANRType.fullyBlocking)
