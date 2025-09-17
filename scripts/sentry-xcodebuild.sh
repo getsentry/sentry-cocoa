@@ -156,6 +156,7 @@ if [ $RUN_BUILD_FOR_TESTING == true ]; then
     set -o pipefail && NSUnbufferedIO=YES xcodebuild \
         -workspace Sentry.xcworkspace \
         -scheme "$TEST_SCHEME" \
+        -testPlan "$TEST_PLAN" \
         -configuration "$CONFIGURATION" \
         -destination "$DESTINATION" \
         build-for-testing 2>&1 |
