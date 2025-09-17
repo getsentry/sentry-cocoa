@@ -12,11 +12,6 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Remove newer package files
-      # Remove newer package files when processing Package.swift to prevent interference
-      if: ${{ inputs.package-file == 'Package.swift' }}
-      shell: bash
-      run: rm -rf Package@swift*
     - name: Remove Sentry-Dynamic-WithARM64e target
       # We don't build it on PRs, so we need to remove it from the package.swift file.
       if: ${{ inputs.is-pr == 'true' }}
@@ -26,7 +21,7 @@ runs:
       run: |
         sed -i '' '/Sentry-Dynamic-WithARM64e/d' $PACKAGE_FILE
         sed -i '' '/Sentry-WithoutUIKitOrAppKit-WithARM64e/d' $PACKAGE_FILE
-        sed -i '' '/^[[:space:]]*\.binaryTarget($/{N;/\n[[:space:]]*),$/d;}' $PACKAGE_FILE
+        sed -i '' '/^[[:space:]]*\.binaryTarget($/{N;/\n[[:space:]]*)[,]?$/d;}' $PACKAGE_FILE
     - name: Change path of the framework
       shell: bash
       env:
