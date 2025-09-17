@@ -124,7 +124,7 @@ jobs:
             --command build-for-testing \
             --device "iPhone 16 Pro" \
             --configuration TestCI \
-            --scheme SentryTestServerTests \
+            --scheme Sentry \
             --test-plan Sentry_TestServer
 
       - name: Run tests
@@ -136,7 +136,7 @@ jobs:
             --command test-without-building \
             --device "iPhone 16 Pro" \
             --configuration TestCI \
-            --scheme SentryTestServerTests \
+            --scheme Sentry \
             --test-plan Sentry_TestServer
 
       - name: Publish Test Report
