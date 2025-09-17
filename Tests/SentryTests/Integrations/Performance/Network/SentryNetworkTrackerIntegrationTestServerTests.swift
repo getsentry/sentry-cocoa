@@ -5,6 +5,8 @@ import XCTest
 /// You have to start the test server before running this test. You can do this by calling
 /// `make run-test-server` on your terminal.
 /// Other tests validating the functionality of the SentryNetworkTrackerIntegration are located in SentryNetworkTrackerIntegrationTests.swift
+/// This test is excluded from the SentryBase test plan because it requires the test server to be running. We have an extra test plan SentryTestServer,
+/// so we can run this test in our CI isolated without having to have the test server running for all other tests.
 class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
 
     func testGetRequest_SpanCreatedAndBaggageHeaderAdded() throws {

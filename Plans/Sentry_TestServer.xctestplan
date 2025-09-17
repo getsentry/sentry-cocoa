@@ -1,0 +1,27 @@
+{
+  "configurations" : [
+    {
+      "id" : "BC1600F4-6184-4186-A586-4867F13507AA",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+
+  },
+  "testTargets" : [
+    {
+      "selectedTests" : [
+        "SentryNetworkTrackerIntegrationTestServerTests\/testGetRequest_SpanCreatedAndBaggageHeaderAdded()"
+      ],
+      "target" : {
+        "containerPath" : "container:Sentry.xcodeproj",
+        "identifier" : "63AA76641EB8CB2F00D153DE",
+        "name" : "SentryTests"
+      }
+    }
+  ],
+  "version" : 1
+}
