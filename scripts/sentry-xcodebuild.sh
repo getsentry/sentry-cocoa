@@ -140,6 +140,8 @@ case $COMMAND in
     ;;
 esac
 
+
+
 if [ $RUN_BUILD == true ]; then
     set -o pipefail && NSUnbufferedIO=YES xcodebuild \
         -workspace Sentry.xcworkspace \
@@ -152,48 +154,34 @@ if [ $RUN_BUILD == true ]; then
         xcbeautify --preserve-unbeautified
 fi
 
+TEST_PLAN_ARGS=()
+if [ -n "$TEST_PLAN" ]; then
+    TEST_PLAN_ARGS+=("-testPlan" "$TEST_PLAN")
+fi
+
 if [ $RUN_BUILD_FOR_TESTING == true ]; then
-    if [ -n "$TEST_PLAN" ]; then
-        set -o pipefail && NSUnbufferedIO=YES xcodebuild \
-            -workspace Sentry.xcworkspace \
-            -scheme "$TEST_SCHEME" \
-            -testPlan "$TEST_PLAN" \
-            -configuration "$CONFIGURATION" \
-            -destination "$DESTINATION" \
-            build-for-testing 2>&1 |
-            tee raw-build-for-testing-output.log |
-            xcbeautify --preserve-unbeautified
-    else
-        set -o pipefail && NSUnbufferedIO=YES xcodebuild \
-            -workspace Sentry.xcworkspace \
-            -scheme "$TEST_SCHEME" \
-            -configuration "$CONFIGURATION" \
-            -destination "$DESTINATION" \
-            build-for-testing 2>&1 |
-            tee raw-build-for-testing-output.log |
-            xcbeautify --preserve-unbeautified
-    fi
+    # When no test plan is provided, we skip the -testPlan argument so xcodebuild uses the default test plan
+    set -o pipefail && NSUnbufferedIO=YES xcodebuild \
+        -workspace Sentry.xcworkspace \
+        -scheme "$TEST_SCHEME" \
+        "${TEST_PLAN_ARGS[@]+${TEST_PLAN_ARGS[@]}}" \
+        -configuration "$CONFIGURATION" \
+        -destination "$DESTINATION" \
+        build-for-testing 2>&1 |
+        tee raw-build-for-testing-output.log |
+        xcbeautify --preserve-unbeautified
 fi
 
 if [ $RUN_TEST_WITHOUT_BUILDING == true ]; then
-    if [ -n "$TEST_PLAN" ]; then
-        set -o pipefail && NSUnbufferedIO=YES xcodebuild \
-            -workspace Sentry.xcworkspace \
-            -scheme "$TEST_SCHEME" \
-            -testPlan "$TEST_PLAN" \
-            -configuration "$CONFIGURATION" \
-            -destination "$DESTINATION" \
-            test-without-building 2>&1 |
-            tee raw-test-output.log |
-            xcbeautify --report junit
-    else
-        set -o pipefail && NSUnbufferedIO=YES xcodebuild \
-            -workspace Sentry.xcworkspace \
-            -scheme "$TEST_SCHEME" \
-            -configuration "$CONFIGURATION" \
-            -destination "$DESTINATION" \
-            test-without-building 2>&1 |
-            tee raw-test-output.log |
-            xcbeautify --report junit
-    fi
+    # When no test plan is provided, we skip the -testPlan argument so xcodebuild uses the default test plan
+    
+    set -o pipefail && NSUnbufferedIO=YES xcodebuild \
+        -workspace Sentry.xcworkspace \
+        -scheme "$TEST_SCHEME" \
+        "${TEST_PLAN_ARGS[@]+${TEST_PLAN_ARGS[@]}}" \
+        -configuration "$CONFIGURATION" \
+        -destination "$DESTINATION" \
+        test-without-building 2>&1 |
+        tee raw-test-output.log |
+        xcbeautify --report junit
 fi
