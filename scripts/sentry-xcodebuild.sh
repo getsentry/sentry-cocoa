@@ -153,25 +153,47 @@ if [ $RUN_BUILD == true ]; then
 fi
 
 if [ $RUN_BUILD_FOR_TESTING == true ]; then
-    set -o pipefail && NSUnbufferedIO=YES xcodebuild \
-        -workspace Sentry.xcworkspace \
-        -scheme "$TEST_SCHEME" \
-        -testPlan "$TEST_PLAN" \
-        -configuration "$CONFIGURATION" \
-        -destination "$DESTINATION" \
-        build-for-testing 2>&1 |
-        tee raw-build-for-testing-output.log |
-        xcbeautify --preserve-unbeautified
+    if [ -n "$TEST_PLAN" ]; then
+        set -o pipefail && NSUnbufferedIO=YES xcodebuild \
+            -workspace Sentry.xcworkspace \
+            -scheme "$TEST_SCHEME" \
+            -testPlan "$TEST_PLAN" \
+            -configuration "$CONFIGURATION" \
+            -destination "$DESTINATION" \
+            build-for-testing 2>&1 |
+            tee raw-build-for-testing-output.log |
+            xcbeautify --preserve-unbeautified
+    else
+        set -o pipefail && NSUnbufferedIO=YES xcodebuild \
+            -workspace Sentry.xcworkspace \
+            -scheme "$TEST_SCHEME" \
+            -configuration "$CONFIGURATION" \
+            -destination "$DESTINATION" \
+            build-for-testing 2>&1 |
+            tee raw-build-for-testing-output.log |
+            xcbeautify --preserve-unbeautified
+    fi
 fi
 
 if [ $RUN_TEST_WITHOUT_BUILDING == true ]; then
-    set -o pipefail && NSUnbufferedIO=YES xcodebuild \
-        -workspace Sentry.xcworkspace \
-        -scheme "$TEST_SCHEME" \
-        -testPlan "$TEST_PLAN" \
-        -configuration "$CONFIGURATION" \
-        -destination "$DESTINATION" \
-        test-without-building 2>&1 |
-        tee raw-test-output.log |
-        xcbeautify --report junit
+    if [ -n "$TEST_PLAN" ]; then
+        set -o pipefail && NSUnbufferedIO=YES xcodebuild \
+            -workspace Sentry.xcworkspace \
+            -scheme "$TEST_SCHEME" \
+            -testPlan "$TEST_PLAN" \
+            -configuration "$CONFIGURATION" \
+            -destination "$DESTINATION" \
+            test-without-building 2>&1 |
+            tee raw-test-output.log |
+            xcbeautify --report junit
+    else
+        set -o pipefail && NSUnbufferedIO=YES xcodebuild \
+            -workspace Sentry.xcworkspace \
+            -scheme "$TEST_SCHEME" \
+            -configuration "$CONFIGURATION" \
+            -destination "$DESTINATION" \
+            test-without-building 2>&1 |
+            tee raw-test-output.log |
+            xcbeautify --report junit
+    fi
 fi
