@@ -142,7 +142,7 @@ jobs:
             --os latest \
             --ref ${{ github.ref_name }} \
             --command build-for-testing \
-            --device "${{matrix.device}}"" \
+            --device "${{matrix.device}}" \
             --configuration TestCI \
             --scheme Sentry \
             --test-plan Sentry_TestServer
