@@ -17,7 +17,7 @@ DEVICE="iPhone 16e"
 CONFIGURATION_OVERRIDE=""
 DERIVED_DATA_PATH=""
 TEST_SCHEME="Sentry"
-TEST_PLAN="Sentry_Base"
+TEST_PLAN=""
 
 usage() {
     echo "Usage: $0"
@@ -29,7 +29,7 @@ usage() {
     echo "  -C|--configuration <config>     Configuration override"
     echo "  -D|--derived-data <path>        Derived data path"
     echo "  -s|--scheme <scheme>            Test scheme (default: Sentry)"
-    echo "  -t|--test-plan <plan>           Test plan name (default: Sentry_Base)"
+    echo "  -t|--test-plan <plan>           Test plan name (default: empty)"
     exit 1
 }
 
