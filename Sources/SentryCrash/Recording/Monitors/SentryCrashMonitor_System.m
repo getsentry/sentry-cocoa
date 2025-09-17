@@ -67,8 +67,6 @@ typedef struct {
     const char *cpuArchitecture;
     int cpuType;
     int cpuSubType;
-    int binaryCPUType;
-    int binaryCPUSubType;
     const char *processName;
     int processID;
     int parentProcessID;
@@ -607,8 +605,6 @@ addContextualInfoToEvent(SentryCrash_MonitorContext *eventContext)
         COPY_REFERENCE(cpuArchitecture);
         COPY_REFERENCE(cpuType);
         COPY_REFERENCE(cpuSubType);
-        COPY_REFERENCE(binaryCPUType);
-        COPY_REFERENCE(binaryCPUSubType);
         COPY_REFERENCE(processName);
         COPY_REFERENCE(processID);
         COPY_REFERENCE(parentProcessID);
