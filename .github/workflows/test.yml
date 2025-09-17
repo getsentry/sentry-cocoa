@@ -93,10 +93,25 @@ jobs:
         run: ./scripts/ci-diagnostics.sh
 
   unit-tests-with-test-server:
-    name: Unit Tests with Test Server
-    runs-on: macos-15
-    timeout-minutes: 20
+    name: Unit with Test Server ${{matrix.name}}
+    runs-on: ${{matrix.runs-on}}
+    timeout-minutes: 10
     needs: build-test-server
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: iOS 18
+            runs-on: macos-15
+            platform: "iOS"
+            xcode: "16.4"
+            device: "iPhone 16 Pro"
+
+          - name: macOS 15
+            runs-on: macos-15
+            platform: "macOS"
+            xcode: "16.4"
 
     steps:
       - uses: actions/checkout@v5
@@ -106,7 +121,7 @@ jobs:
 
       - name: Start Test Server
         run: ./scripts/start-test-server.sh
-      - run: ./scripts/ci-select-xcode.sh 16.4
+      - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
 
       # Note: We don't install Slather or gather code coverage for this job because it only runs
       # the SentryTestServerTests target, which contains minimal tests that don't significantly
@@ -118,11 +133,11 @@ jobs:
         id: build_tests
         run: |
           ./scripts/sentry-xcodebuild.sh \
-            --platform iOS \
-            --os 18.4 \
+            --platform ${{matrix.platform}} \
+            --os latest \
             --ref ${{ github.ref_name }} \
             --command build-for-testing \
-            --device "iPhone 16 Pro" \
+            --device ${{matrix.device}} \
             --configuration TestCI \
             --scheme Sentry \
             --test-plan Sentry_TestServer
@@ -130,29 +145,20 @@ jobs:
       - name: Run tests
         run: |
           ./scripts/sentry-xcodebuild.sh \
-            --platform iOS \
-            --os 18.4 \
+            --platform ${{matrix.platform}} \
+            --os latest \
             --ref ${{ github.ref_name }} \
             --command test-without-building \
-            --device "iPhone 16 Pro" \
+            --device ${{matrix.device}} \
             --configuration TestCI \
             --scheme Sentry \
             --test-plan Sentry_TestServer
-
-      - name: Publish Test Report
-        uses: mikepenz/action-junit-report@3585e9575db828022551b4231f165eb59a0e74e3 # v5.6.2
-        if: always()
-        with:
-          report_paths: "build/reports/junit.xml"
-          fail_on_failure: true
-          fail_on_parse_error: true
-          detailed_summary: true
 
       - name: Archiving DerivedData Logs
         uses: actions/upload-artifact@v4
         if: steps.build_tests.outcome == 'failure'
         with:
-          name: derived-data-test-server-iOS-xcode-16.4-os-18.4
+          name: derived-data-test-server-${{matrix.platform}}-xcode-${{matrix.xcode}}
           path: |
             /Users/runner/Library/Developer/Xcode/DerivedData/**/Logs/**
 
@@ -160,7 +166,7 @@ jobs:
         uses: actions/upload-artifact@v4
         if: ${{ failure() || cancelled() }}
         with:
-          name: raw-output-test-server-iOS-xcode-16.4-os-18.4
+          name: raw-output-test-server-${{matrix.platform}}-xcode-${{matrix.xcode}}
           path: |
             raw-build-output.log
             raw-build-for-testing-output.log
