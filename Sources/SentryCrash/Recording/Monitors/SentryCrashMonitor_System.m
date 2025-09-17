@@ -499,7 +499,6 @@ initialize(void)
 
     NSBundle *mainBundle = [NSBundle mainBundle];
     NSDictionary *infoDict = [mainBundle infoDictionary];
-    const struct mach_header *header = _dyld_get_image_header(0);
 
 #if SENTRY_HOST_IOS
     g_systemData.systemName = "iOS";
@@ -559,8 +558,6 @@ initialize(void)
     g_systemData.cpuArchitecture = getCurrentCPUArch();
     g_systemData.cpuType = sentrycrashsysctl_int32ForName("hw.cputype");
     g_systemData.cpuSubType = sentrycrashsysctl_int32ForName("hw.cpusubtype");
-    g_systemData.binaryCPUType = header->cputype;
-    g_systemData.binaryCPUSubType = header->cpusubtype;
     g_systemData.processName = cString([NSProcessInfo processInfo].processName);
     g_systemData.processID = [NSProcessInfo processInfo].processIdentifier;
     g_systemData.parentProcessID = getppid();

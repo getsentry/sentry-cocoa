@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Fix potential app launch hang caused by the SentrySDK (#6181) Fixed by removing the call to `_dyld_get_image_header` on the main thread.
+
 ## 8.56.0
 
 ### Features
