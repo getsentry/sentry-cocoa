@@ -12,11 +12,7 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
     func testGetRequest_SpanCreatedAndBaggageHeaderAdded() throws {
         let testBaggageURL = try XCTUnwrap(URL(string: "http://localhost:8080/echo-baggage-header"))
 
-        let options = Options()
-        options.dsn = TestConstants.dsnAsString(username: "SentryNetworkTrackerIntegrationTestServerTests")
-        options.tracesSampleRate = 1.0
-
-        SentrySDK.start(options: options)
+        startSDK()
 
         let transaction = try XCTUnwrap(SentrySDK.startTransaction(name: "Test Transaction", operation: "TEST", bindToScope: true) as? SentryTracer)
         let expect = expectation(description: "Request completed")
@@ -46,9 +42,44 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
         XCTAssertEqual("200", networkSpan.data["http.response.status_code"] as? String)
     }
 
+    func testGetRequest_CompareSentryTraceHeader() throws {
+        let testTraceURL = URL(string: "http://localhost:8080/echo-sentry-trace")!
+
+        startSDK()
+
+        let transaction = try XCTUnwrap(SentrySDK.startTransaction(name: "Test Transaction", operation: "TEST", bindToScope: true) as? SentryTracer)
+        let expect = expectation(description: "Request completed")
+        let session = URLSession(configuration: URLSessionConfiguration.default)
+        var response: String?
+        let dataTask = session.dataTask(with: testTraceURL) { (data, _, error) in
+            self.assertNetworkError(error)
+            response = String(data: data ?? Data(), encoding: .utf8) ?? ""
+            expect.fulfill()
+        }
+
+        dataTask.resume()
+        wait(for: [expect], timeout: 5)
+
+        let children = Dynamic(transaction).children as [SentrySpan]?
+
+        XCTAssertEqual(children?.count, 1) //Span was created in task resume swizzle.
+        let networkSpan = try XCTUnwrap(children?.first)
+
+        let expectedTraceHeader = networkSpan.toTraceHeader().value()
+        XCTAssertEqual(expectedTraceHeader, response)
+    }
+
     private func assertNetworkError(_ error: Error?) {
         if error != nil {
             XCTFail("Failed to complete request : \(String(describing: error))")
         }
+    }
+
+    private func startSDK(function: String = #function) {
+        let options = Options()
+        options.dsn = TestConstants.dsnAsString(username: "SentryNetworkTrackerIntegrationTestServerTests.\(function)")
+        options.tracesSampleRate = 1.0
+
+        SentrySDK.start(options: options)
     }
 }
