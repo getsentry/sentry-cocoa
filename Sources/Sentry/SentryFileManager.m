@@ -974,7 +974,7 @@ removeAppLaunchProfilingConfigFile(void)
             return nil;
         }
     }
-    SentrySession *currentSession = [SentrySerialization sessionWithData:currentData];
+    SentrySession *currentSession = [DataDeserialization sessionWithData:currentData];
     if (nil == currentSession) {
         SENTRY_LOG_ERROR(
             @"Data stored in session: '%@' was not parsed as session.", sessionFilePath);
@@ -993,7 +993,7 @@ removeAppLaunchProfilingConfigFile(void)
         SENTRY_LOG_WARN(@"No app state data found at %@", path);
         return nil;
     }
-    return [SentrySerialization appStateWithData:currentData];
+    return [DataDeserialization appStateWithData:currentData];
 }
 
 - (void)deleteAppStateFrom:(NSString *)path
