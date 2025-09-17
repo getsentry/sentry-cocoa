@@ -339,7 +339,7 @@
 
         envelopeFilePath = envelopeFileContents.path;
 
-        envelope = [SentrySerialization envelopeWithData:envelopeFileContents.contents];
+        envelope = [DataDeserialization envelopeWithData:envelopeFileContents.contents];
         if (nil == envelope) {
             SENTRY_LOG_DEBUG(@"Envelope contained no deserializable data.");
             [self deleteEnvelopeAndSendNext:envelopeFilePath];

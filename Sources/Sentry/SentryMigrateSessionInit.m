@@ -56,7 +56,7 @@ NS_ASSUME_NONNULL_BEGIN
             continue;
         }
 
-        SentryEnvelope *envelope = [SentrySerialization envelopeWithData:envelopeData];
+        SentryEnvelope *envelope = [DataDeserialization envelopeWithData:envelopeData];
 
         if (nil != envelope) {
             BOOL didSetInitFlag = [self setInitFlagIfContainsSameSessionId:session.sessionId

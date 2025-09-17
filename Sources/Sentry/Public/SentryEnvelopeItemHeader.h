@@ -31,7 +31,7 @@ SENTRY_NO_INIT
 
 - (instancetype)initWithType:(NSString *)type
                       length:(NSUInteger)length
-                 contentType:(NSString *)contentType
+                 contentType:(NSString *_Nullable)contentType
                    itemCount:(NSNumber *)itemCount;
 
 /**

@@ -78,7 +78,7 @@ class SentrySerializationTests: XCTestCase {
         XCTAssertEqual(1, envelope.items.count)
         XCTAssertEqual("event", try XCTUnwrap(envelope.items.first).header.type)
         
-        let deserializedEnvelope = try XCTUnwrap(SentrySerialization.envelope(with: serializeEnvelope(envelope: envelope)))
+        let deserializedEnvelope = try XCTUnwrap(DataDeserialization.envelope(with: serializeEnvelope(envelope: envelope)))
         XCTAssertEqual(envelope.header.eventId, deserializedEnvelope.header.eventId)
         assertDefaultSdkInfoSet(deserializedEnvelope: deserializedEnvelope)
         XCTAssertEqual(1, deserializedEnvelope.items.count)
@@ -114,7 +114,7 @@ class SentrySerializationTests: XCTestCase {
         XCTAssertNil(envelope.header.eventId)
         XCTAssertEqual(itemsCount, Int(envelope.items.count))
         
-        let deserializedEnvelope = try XCTUnwrap(SentrySerialization.envelope(with: serializeEnvelope(envelope: envelope)))
+        let deserializedEnvelope = try XCTUnwrap(DataDeserialization.envelope(with: serializeEnvelope(envelope: envelope)))
         XCTAssertNil(deserializedEnvelope.header.eventId)
         XCTAssertEqual(itemsCount, deserializedEnvelope.items.count)
         assertDefaultSdkInfoSet(deserializedEnvelope: deserializedEnvelope)
@@ -142,7 +142,7 @@ class SentrySerializationTests: XCTestCase {
         XCTAssertEqual("attachment", try XCTUnwrap(envelope.items.first).header.type)
         XCTAssertEqual(0, Int(try XCTUnwrap(envelope.items.first).header.length))
         
-        let deserializedEnvelope = try XCTUnwrap(SentrySerialization.envelope(with: serializeEnvelope(envelope: envelope)))
+        let deserializedEnvelope = try XCTUnwrap(DataDeserialization.envelope(with: serializeEnvelope(envelope: envelope)))
         XCTAssertEqual(1, deserializedEnvelope.items.count)
         XCTAssertEqual("attachment", try XCTUnwrap(deserializedEnvelope.items.first).header.type)
         XCTAssertEqual(0, try XCTUnwrap(deserializedEnvelope.items.first).header.length)
@@ -155,7 +155,7 @@ class SentrySerializationTests: XCTestCase {
         let envelopeHeader = SentryEnvelopeHeader(id: nil, sdkInfo: sdkInfo, traceContext: nil)
         let envelope = SentryEnvelope(header: envelopeHeader, singleItem: createItemWithEmptyAttachment())
         
-        let deserializedEnvelope = try XCTUnwrap(SentrySerialization.envelope(with: serializeEnvelope(envelope: envelope)))
+        let deserializedEnvelope = try XCTUnwrap(DataDeserialization.envelope(with: serializeEnvelope(envelope: envelope)))
         XCTAssertEqual(sdkInfo, deserializedEnvelope.header.sdkInfo)
     }
     
@@ -164,7 +164,7 @@ class SentrySerializationTests: XCTestCase {
         let envelopeHeader = SentryEnvelopeHeader(id: nil, traceContext: Fixture.traceContext)
         let envelope = SentryEnvelope(header: envelopeHeader, singleItem: createItemWithEmptyAttachment())
         
-        let deserializedEnvelope = try XCTUnwrap(SentrySerialization.envelope(with: serializeEnvelope(envelope: envelope)))
+        let deserializedEnvelope = try XCTUnwrap(DataDeserialization.envelope(with: serializeEnvelope(envelope: envelope)))
         XCTAssertNotNil(deserializedEnvelope.header.traceContext)
 
         let traceContext = try XCTUnwrap(deserializedEnvelope.header.traceContext)
@@ -178,7 +178,7 @@ class SentrySerializationTests: XCTestCase {
         let envelopeHeader = SentryEnvelopeHeader(id: nil, traceContext: trace)
         let envelope = SentryEnvelope(header: envelopeHeader, singleItem: createItemWithEmptyAttachment())
         
-        let deserializedEnvelope = try XCTUnwrap(SentrySerialization.envelope(with: serializeEnvelope(envelope: envelope)))
+        let deserializedEnvelope = try XCTUnwrap(DataDeserialization.envelope(with: serializeEnvelope(envelope: envelope)))
         XCTAssertNotNil(deserializedEnvelope.header.traceContext)
 
         let traceContext = try XCTUnwrap(deserializedEnvelope.header.traceContext)
@@ -205,7 +205,7 @@ class SentrySerializationTests: XCTestCase {
         let envelopeHeader = SentryEnvelopeHeader(id: nil, traceContext: trace)
         let envelope = SentryEnvelope(header: envelopeHeader, singleItem: createItemWithEmptyAttachment())
         
-        let deserializedEnvelope = try XCTUnwrap(SentrySerialization.envelope(with: serializeEnvelope(envelope: envelope)))
+        let deserializedEnvelope = try XCTUnwrap(DataDeserialization.envelope(with: serializeEnvelope(envelope: envelope)))
 
         // -- Assert --
         XCTAssertNotNil(deserializedEnvelope.header.traceContext)
@@ -217,13 +217,13 @@ class SentrySerializationTests: XCTestCase {
         let envelopeHeader = SentryEnvelopeHeader(id: nil, sdkInfo: nil, traceContext: nil)
         let envelope = SentryEnvelope(header: envelopeHeader, singleItem: createItemWithEmptyAttachment())
         
-        let deserializedEnvelope = try XCTUnwrap(SentrySerialization.envelope(with: serializeEnvelope(envelope: envelope)))
+        let deserializedEnvelope = try XCTUnwrap(DataDeserialization.envelope(with: serializeEnvelope(envelope: envelope)))
         XCTAssertNil(deserializedEnvelope.header.sdkInfo)
     }
     
     func testEnvelopeWithData_ZeroByteItem_ReturnsEnvelope() throws {
         let itemData = Data("{}\n{\"length\":0,\"type\":\"attachment\"}\n".utf8)
-        XCTAssertNotNil(SentrySerialization.envelope(with: itemData))
+        XCTAssertNotNil(DataDeserialization.envelope(with: itemData))
     }
     
     func testEnvelopeWithData_EnvelopeWithHeaderAndItemWithAttachment() throws {
@@ -236,7 +236,7 @@ class SentrySerializationTests: XCTestCase {
                        \(payloadAsString)
                        """.utf8)
 
-        let envelope = try XCTUnwrap(SentrySerialization.envelope(with: itemData), "Failed to deserialize envelope")
+        let envelope = try XCTUnwrap(DataDeserialization.envelope(with: itemData), "Failed to deserialize envelope")
         XCTAssertEqual(eventId, try XCTUnwrap(envelope.header.eventId))
 
         XCTAssertEqual(1, envelope.items.count)
@@ -257,7 +257,7 @@ class SentrySerializationTests: XCTestCase {
                        helloworld
                        """.utf8)
 
-        XCTAssertNil(SentrySerialization.envelope(with: itemData))
+        XCTAssertNil(DataDeserialization.envelope(with: itemData))
     }
     
     func testEnvelopeWithData_ItemHeaderDefinesLengthButAttachmentIsEmpty_ReturnsNil() throws {
@@ -269,7 +269,7 @@ class SentrySerializationTests: XCTestCase {
                        
                        """.utf8)
 
-        XCTAssertNil(SentrySerialization.envelope(with: itemData))
+        XCTAssertNil(DataDeserialization.envelope(with: itemData))
     }
     
     func testEnvelopeWithData_AttachmentFollowedByEmptyAttachment() throws {
@@ -284,7 +284,7 @@ class SentrySerializationTests: XCTestCase {
                        
                        """.utf8)
 
-        let envelope = try XCTUnwrap(SentrySerialization.envelope(with: itemData))
+        let envelope = try XCTUnwrap(DataDeserialization.envelope(with: itemData))
         XCTAssertEqual(eventId, try XCTUnwrap(envelope.header.eventId))
 
         XCTAssertEqual(2, envelope.items.count)
@@ -312,7 +312,7 @@ class SentrySerializationTests: XCTestCase {
                        \(payloadAsString)
                        """.utf8)
 
-        let envelope = try XCTUnwrap(SentrySerialization.envelope(with: itemData))
+        let envelope = try XCTUnwrap(DataDeserialization.envelope(with: itemData))
         XCTAssertEqual(eventId, try XCTUnwrap(envelope.header.eventId))
 
         XCTAssertEqual(2, envelope.items.count)
@@ -336,7 +336,7 @@ class SentrySerializationTests: XCTestCase {
         itemData.appendString("{\"event_id\":\"\(eventId)\"}\n")
         itemData.appendString("{\"length\":0,\"type\":\"attachment\"}\n")
         
-        let envelope = try XCTUnwrap(SentrySerialization.envelope(with: itemData))
+        let envelope = try XCTUnwrap(DataDeserialization.envelope(with: itemData))
         XCTAssertEqual(eventId, try XCTUnwrap(envelope.header.eventId))
 
         XCTAssertEqual(1, envelope.items.count)
@@ -357,7 +357,7 @@ class SentrySerializationTests: XCTestCase {
                        \(payloadAsString)
                        """.utf8)
 
-        let envelope = try XCTUnwrap(SentrySerialization.envelope(with: itemData), "Failed to deserialize envelope")
+        let envelope = try XCTUnwrap(DataDeserialization.envelope(with: itemData), "Failed to deserialize envelope")
         XCTAssertEqual(eventId, try XCTUnwrap(envelope.header.eventId))
 
         XCTAssertEqual(1, envelope.items.count)
@@ -392,7 +392,7 @@ class SentrySerializationTests: XCTestCase {
         itemData.appendString("{\"length\":\(logs.count),\"type\":\"log\",\"item_count\":1,\"content_type\":\"application/vnd.sentry.items.log+json\"}\n")
         itemData.append(logs)
         
-        let envelope = try XCTUnwrap(SentrySerialization.envelope(with: itemData), "Failed to deserialize envelope")
+        let envelope = try XCTUnwrap(DataDeserialization.envelope(with: itemData), "Failed to deserialize envelope")
         
         XCTAssertEqual(1, envelope.items.count)
         let item = try XCTUnwrap(envelope.items.first)
@@ -406,7 +406,7 @@ class SentrySerializationTests: XCTestCase {
     }
     
     func testEnvelopeWithData_EmptyEnvelope_ReturnsNil() throws {
-        XCTAssertNil(SentrySerialization.envelope(with: Data()))
+        XCTAssertNil(DataDeserialization.envelope(with: Data()))
     }
     
     func testEnvelopeWithData_CorruptHeader_ReturnsNil() throws {
@@ -414,13 +414,13 @@ class SentrySerializationTests: XCTestCase {
         itemData.append(contentsOf: [0xFF, 0xFF, 0xFF]) // Invalid UTF-8 bytes
         itemData.append(Data("\n".utf8))
         
-        XCTAssertNil(SentrySerialization.envelope(with: itemData))
+        XCTAssertNil(DataDeserialization.envelope(with: itemData))
     }
     
     func testEnvelopeWithData_EmptyHeader_ReturnsNil() throws {
         let itemData = Data("\n".utf8)
         
-        XCTAssertNil(SentrySerialization.envelope(with: itemData))
+        XCTAssertNil(DataDeserialization.envelope(with: itemData))
     }
     
     func testEnvelopeWithData_EmptyItemHeader_ReturnsNil() throws {
@@ -431,7 +431,7 @@ class SentrySerializationTests: XCTestCase {
                        
                        """.utf8)
         
-        XCTAssertNil(SentrySerialization.envelope(with: itemData))
+        XCTAssertNil(DataDeserialization.envelope(with: itemData))
     }
     
     func testEnvelopeWithData_EmptyItemHeaderFollowedByNewLine_ReturnsNil() throws {
@@ -443,7 +443,7 @@ class SentrySerializationTests: XCTestCase {
                        
                        """.utf8)
         
-        XCTAssertNil(SentrySerialization.envelope(with: itemData))
+        XCTAssertNil(DataDeserialization.envelope(with: itemData))
     }
     
     func testEnvelopeWithData_ItemHeaderWithSpace_ReturnsNil() throws {
@@ -454,7 +454,7 @@ class SentrySerializationTests: XCTestCase {
                         
                        """.utf8)
         
-        XCTAssertNil(SentrySerialization.envelope(with: itemData))
+        XCTAssertNil(DataDeserialization.envelope(with: itemData))
     }
     
     func testEnvelopeWithData_ItemHeaderWithoutType_ReturnsNil() throws {
@@ -467,7 +467,7 @@ class SentrySerializationTests: XCTestCase {
                        \(payloadAsString)
                        """.utf8)
         
-        XCTAssertNil(SentrySerialization.envelope(with: itemData))
+        XCTAssertNil(DataDeserialization.envelope(with: itemData))
     }
     
     func testEnvelopeWithData_ItemHeaderWithoutNewLine_ReturnsNil() throws {
@@ -477,7 +477,7 @@ class SentrySerializationTests: XCTestCase {
         itemData.appendString("{\"event_id\":\"\(eventId)\"}\n")
         itemData.appendString("{\"length\":0,\"type\":\"attachment\"}")
         
-        XCTAssertNil(SentrySerialization.envelope(with: itemData))
+        XCTAssertNil(DataDeserialization.envelope(with: itemData))
     }
     
     func testEnvelopeWithData_CorruptItemHeader() throws {
@@ -486,22 +486,22 @@ class SentrySerializationTests: XCTestCase {
         itemData.append(contentsOf: [0xFF]) // Invalid UTF-8 byte
         itemData.appendString("\n")
         
-        XCTAssertNil(SentrySerialization.envelope(with: itemData))
+        XCTAssertNil(DataDeserialization.envelope(with: itemData))
     }
     
     func testEnvelopeWithData_ItemWithoutType_ReturnsNil() {
         let itemData = Data("{}\n{\"length\":0}".utf8)
-        XCTAssertNil(SentrySerialization.envelope(with: itemData))
+        XCTAssertNil(DataDeserialization.envelope(with: itemData))
     }
     
     func testEnvelopeWithData_WithoutItem_ReturnsNil() {
         let itemData = Data("{}\n".utf8)
-        XCTAssertNil(SentrySerialization.envelope(with: itemData))
+        XCTAssertNil(DataDeserialization.envelope(with: itemData))
     }
     
     func testEnvelopeWithData_WithoutLineBreak_ReturnsNil() {
         let itemData = Data("{}".utf8)
-        XCTAssertNil(SentrySerialization.envelope(with: itemData))
+        XCTAssertNil(DataDeserialization.envelope(with: itemData))
     }
     
     func testSerializeSession() throws {
@@ -636,7 +636,7 @@ class SentrySerializationTests: XCTestCase {
         
         let corruptedData = data[0..<data.count - 1]
         
-        let unserialized = SentrySerialization.envelope(with: corruptedData)
+        let unserialized = DataDeserialization.envelope(with: corruptedData)
         
         XCTAssertNil(unserialized)
     }
