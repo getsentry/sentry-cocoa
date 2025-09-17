@@ -1,7 +1,7 @@
 {
   "configurations" : [
     {
-      "id" : "BC1600F4-6184-4186-A586-4867F13507AA",
+      "id" : "A451EF21-C702-4095-835C-4F189D10635A",
       "name" : "Configuration 1",
       "options" : {
 
@@ -9,7 +9,7 @@
     }
   ],
   "defaultOptions" : {
-
+    "testTimeoutsEnabled" : true
   },
   "testTargets" : [
     {

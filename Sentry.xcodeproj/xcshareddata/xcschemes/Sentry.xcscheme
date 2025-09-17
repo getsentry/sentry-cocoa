@@ -50,7 +50,7 @@
             default = "YES">
          </TestPlanReference>
          <TestPlanReference
-            reference = "container:Sentry_TestServer.xctestplan">
+            reference = "container:Plans/Sentry_TestServer.xctestplan">
          </TestPlanReference>
       </TestPlans>
       <Testables>
