@@ -26,9 +26,11 @@
 //
 
 #include "SentryCrashMonitor_Signal.h"
+#include "SentryCrashCPU.h"
 #include "SentryCrashID.h"
 #include "SentryCrashMachineContext.h"
 #include "SentryCrashMonitorContext.h"
+#include "SentryCrashMonitor_MachException.h"
 #include "SentryCrashSignalInfo.h"
 #include "SentryCrashStackCursor_MachineContext.h"
 #include "SentryInternalCDefines.h"
@@ -49,6 +51,7 @@
 
 static volatile bool g_isEnabled = false;
 static bool g_isSigtermReportingEnabled = false;
+static bool g_isManagedRuntime = false;
 
 static SentryCrash_MonitorContext g_monitorContext;
 static SentryCrashStackCursor g_stackCursor;
@@ -67,6 +70,29 @@ static char g_eventID[37];
 #    pragma mark - Callbacks -
 // ============================================================================
 
+/**
+ *
+ */
+static void
+invokePreviousSignalHandlers(int sigNum, siginfo_t *signalInfo, void *userContext)
+{
+    const int *fatalSignals = sentrycrashsignal_fatalSignals();
+    int fatalSignalsCount = sentrycrashsignal_numFatalSignals();
+
+    for (int i = 0; i < fatalSignalsCount; ++i) {
+        if (fatalSignals[i] == sigNum) {
+            struct sigaction *handler = &g_previousSignalHandlers[i];
+            if (handler->sa_flags & SA_SIGINFO) {
+                handler->sa_sigaction(sigNum, signalInfo, userContext);
+            } else if (handler->sa_handler != SIG_DFL && handler->sa_handler != SIG_IGN) {
+                // This handler can only handle to signal number (ANSI C)
+                void (*func)(int) = handler->sa_handler;
+                func(sigNum);
+            }
+        }
+    }
+}
+
 /** Our custom signal handler.
  * Restore the default signal handlers, record the signal information, and
  * write a crash report.
@@ -83,6 +109,29 @@ static void
 handleSignal(int sigNum, siginfo_t *signalInfo, void *userContext)
 {
     SENTRY_ASYNC_SAFE_LOG_DEBUG("Trapped signal %d", sigNum);
+
+    // Let managed Mono/CoreCLR runtime handle the signal first,
+    // as they may convert it into a managed exception.
+    if (g_isManagedRuntime) {
+        SENTRY_ASYNC_SAFE_LOG_DEBUG(
+            "Detected managed Mono/CoreCLR runtime. Passing signal to previous handlers.");
+
+        uintptr_t sp = sentrycrashcpu_stackPointerFromUserContext(userContext);
+        uintptr_t ip = sentrycrashcpu_instructionAddressFromUserContext(userContext);
+
+        invokePreviousSignalHandlers(sigNum, signalInfo, userContext);
+
+        // If the stack or instruction pointer changed, the managed runtime
+        // converted the signal into a managed exception and changed the context.
+        // https://github.com/dotnet/runtime/blob/6d96e28597e7da0d790d495ba834cc4908e442cd/src/mono/mono/mini/exceptions-arm64.c#L538
+        if (sp != sentrycrashcpu_stackPointerFromUserContext(userContext)
+            || ip != sentrycrashcpu_instructionAddressFromUserContext(userContext)) {
+            SENTRY_ASYNC_SAFE_LOG_DEBUG(
+                "Signal converted to a managed exception. Aborting signal handling.");
+            return;
+        }
+    }
+
     if (g_isEnabled) {
         thread_act_array_t threads = NULL;
         mach_msg_type_number_t numThreads = 0;
@@ -110,9 +159,13 @@ handleSignal(int sigNum, siginfo_t *signalInfo, void *userContext)
         sentrycrashmc_resumeEnvironment(threads, numThreads);
     }
 
-    SENTRY_ASYNC_SAFE_LOG_DEBUG("Re-raising signal for regular handlers to catch.");
-    // This is technically not allowed, but it works in OSX and iOS.
-    raise(sigNum);
+    // Re-raise the signal to invoke the previous handlers unless already called
+    // above for managed runtimes.
+    if (!g_isManagedRuntime) {
+        SENTRY_ASYNC_SAFE_LOG_DEBUG("Re-raising signal for regular handlers to catch.");
+        // This is technically not allowed, but it works in OSX and iOS.
+        raise(sigNum);
+    }
 }
 
 // ============================================================================
@@ -123,6 +176,8 @@ static bool
 installSignalHandler(void)
 {
     SENTRY_ASYNC_SAFE_LOG_DEBUG("Installing signal handler.");
+
+    g_isManagedRuntime = sentrycrashcm_isManagedRuntime();
 
 #    if SENTRY_HAS_SIGNAL_STACK
 

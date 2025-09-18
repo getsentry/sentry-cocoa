@@ -32,6 +32,7 @@
 #    include "SentryCrashMachineContext.h"
 #    include "SentryCrashMachineContext_Apple.h"
 #    include <stdlib.h>
+#    include <sys/_types/_ucontext64.h>
 
 #    include "SentryAsyncSafeLog.h"
 
@@ -46,34 +47,70 @@ static const char *g_exceptionRegisterNames[] = { "exception", "esr", "far" };
 static const int g_exceptionRegisterNamesCount
     = sizeof(g_exceptionRegisterNames) / sizeof(*g_exceptionRegisterNames);
 
-uintptr_t
-sentrycrashcpu_framePointer(const SentryCrashMachineContext *const context)
+static inline uintptr_t
+getFramePointer(const _STRUCT_MCONTEXT64 *const context)
 {
     // We don't want this from stopping us to enable warnings as errors. This needs to be fixed.
 #    pragma clang diagnostic push
 #    pragma GCC diagnostic ignored "-Wshorten-64-to-32"
-    return arm_thread_state64_get_fp(context->machineContext.__ss);
+    return arm_thread_state64_get_fp(context->__ss);
+#    pragma clang diagnostic pop
+}
+
+uintptr_t
+sentrycrashcpu_framePointer(const SentryCrashMachineContext *const context)
+{
+    return getFramePointer(&context->machineContext);
+}
+
+uintptr_t
+sentrycrashcpu_framePointerFromUserContext(const void *const userContext)
+{
+    return getFramePointer(((const ucontext64_t *)userContext)->uc_mcontext64);
+}
+
+static inline uintptr_t
+getStackPointer(const _STRUCT_MCONTEXT64 *const context)
+{
+    // We don't want this from stopping us to enable warnings as errors. This needs to be fixed.
+#    pragma clang diagnostic push
+#    pragma GCC diagnostic ignored "-Wshorten-64-to-32"
+    return arm_thread_state64_get_sp(context->__ss);
 #    pragma clang diagnostic pop
 }
 
 uintptr_t
 sentrycrashcpu_stackPointer(const SentryCrashMachineContext *const context)
 {
+    return getStackPointer(&context->machineContext);
+}
+
+uintptr_t
+sentrycrashcpu_stackPointerFromUserContext(const void *const userContext)
+{
+    return getStackPointer(((const ucontext64_t *)userContext)->uc_mcontext64);
+}
+
+static inline uintptr_t
+getInstructionAddress(const _STRUCT_MCONTEXT64 *const context)
+{
     // We don't want this from stopping us to enable warnings as errors. This needs to be fixed.
 #    pragma clang diagnostic push
 #    pragma GCC diagnostic ignored "-Wshorten-64-to-32"
-    return arm_thread_state64_get_sp(context->machineContext.__ss);
+    return arm_thread_state64_get_pc(context->__ss);
 #    pragma clang diagnostic pop
 }
 
 uintptr_t
 sentrycrashcpu_instructionAddress(const SentryCrashMachineContext *const context)
 {
-    // We don't want this from stopping us to enable warnings as errors. This needs to be fixed.
-#    pragma clang diagnostic push
-#    pragma GCC diagnostic ignored "-Wshorten-64-to-32"
-    return arm_thread_state64_get_pc(context->machineContext.__ss);
-#    pragma clang diagnostic pop
+    return getInstructionAddress(&context->machineContext);
+}
+
+uintptr_t
+sentrycrashcpu_instructionAddressFromUserContext(const void *const userContext)
+{
+    return getInstructionAddress(((const ucontext64_t *)userContext)->uc_mcontext64);
 }
 
 uintptr_t
