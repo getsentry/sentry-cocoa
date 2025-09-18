@@ -1,4 +1,4 @@
-@testable import Sentry
+@_spi(Private) @testable import Sentry
 @_spi(Private) import SentryTestUtils
 import XCTest
 
@@ -114,7 +114,7 @@ class SentryEventTests: XCTestCase {
         // Start timestamp is only serialized if event type is transaction
         event.type = "transaction"
         let actual = event.serialize()
-        let data = try XCTUnwrap(SentrySerialization.data(withJSONObject: actual))
+        let data = try XCTUnwrap(SentrySerializationSwift.data(withJSONObject: actual))
 
         // Act
         let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as SentryEventDecodable?)
@@ -242,7 +242,7 @@ class SentryEventTests: XCTestCase {
         SentryDependencyContainer.sharedInstance().dateProvider = TestCurrentDateProvider()
         let event = Event()
         let actual = event.serialize()
-        let data = try XCTUnwrap(SentrySerialization.data(withJSONObject: actual))
+        let data = try XCTUnwrap(SentrySerializationSwift.data(withJSONObject: actual))
 
         // Act
         let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as SentryEventDecodable?)

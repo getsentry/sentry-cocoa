@@ -15,7 +15,7 @@ extension SentryScopePersistentStore {
             model = sanitizedModel
         }
         
-        guard let data = SentrySerialization.data(withJSONObject: model) else {
+        guard let data = SentrySerializationSwift.data(withJSONObject: model) else {
             SentrySDKLog.error("Failed to serialize \(name), reason: \(name) is not valid json: \(genericModel)")
             return nil
         }
