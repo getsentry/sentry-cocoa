@@ -50,7 +50,7 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 
 + (nullable SentryEnvelope *)envelopeWithData:(NSData *)data
 {
-    return [SentrySerialization envelopeWithData:data];
+    return [SentrySerializationSwift envelopeWithData:data];
 }
 
 #if !SDK_V9
