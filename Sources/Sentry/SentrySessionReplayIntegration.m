@@ -798,11 +798,17 @@ static SentryTouchTracker *_touchTracker;
 {
     SENTRY_LOG_DEBUG(@"[Session Replay] Connectivity changed to: %@, type: %@",
         connected ? @"connected" : @"disconnected", typeDescription);
-    if (connected) {
-        [_sessionReplay resume];
-    } else {
-        [_sessionReplay pauseSessionMode];
-    }
+    
+    // The connectivity handler is called from a background thread, but session replay operations
+    // need to be performed on the main thread to avoid race conditions with the session tracker
+    // being set up on the main thread.
+    [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchAsyncOnMainQueue:^{
+        if (connected) {
+            [_sessionReplay resume];
+        } else {
+            [_sessionReplay pauseSessionMode];
+        }
+    }];
 }
 
 @end
