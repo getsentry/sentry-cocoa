@@ -11,11 +11,8 @@ import PackageDescription
 
 var products: [Product] = [
     .library(name: "Sentry", targets: ["Sentry", "SentryCppHelper"]),
-    .library(name: "Sentry-Dynamic", targets: ["Sentry-Dynamic"]),
-    .library(name: "Sentry-Dynamic-WithARM64e", targets: ["Sentry-Dynamic-WithARM64e"]),
-    .library(name: "Sentry-WithoutUIKitOrAppKit", targets: ["Sentry-WithoutUIKitOrAppKit", "SentryCppHelper"]),
-    .library(name: "Sentry-WithoutUIKitOrAppKit-WithARM64e", targets: ["Sentry-WithoutUIKitOrAppKit-WithARM64e", "SentryCppHelper"]),
-    .library(name: "SentrySwiftUI", targets: ["Sentry", "SentrySwiftUI", "SentryCppHelper"])
+    .library(name: "SentrySwiftUI", targets: ["Sentry", "SentrySwiftUI", "SentryCppHelper"]),
+    .library(name: "SentryDistribution", targets: ["SentryDistribution"])
 ]
 
 var targets: [Target] = [
@@ -23,26 +20,6 @@ var targets: [Target] = [
         name: "Sentry",
         url: "https://github.com/getsentry/sentry-cocoa/releases/download/8.56.0/Sentry.xcframework.zip",
         checksum: "ecc100b59f2044800650f17786c33f071ea580cb318d82e8ce1d403b643555a4" //Sentry-Static
-    ),
-    .binaryTarget(
-        name: "Sentry-Dynamic",
-        url: "https://github.com/getsentry/sentry-cocoa/releases/download/8.56.0/Sentry-Dynamic.xcframework.zip",
-        checksum: "509cdbc89e4409614f6d584464ef7e1d26c47ad8afe3abc2bd1e1d71c068be1e" //Sentry-Dynamic
-    ),
-    .binaryTarget(
-        name: "Sentry-Dynamic-WithARM64e",
-        url: "https://github.com/getsentry/sentry-cocoa/releases/download/8.56.0/Sentry-Dynamic-WithARM64e.xcframework.zip",
-        checksum: "d62a5ced65465c7c63962ed40d06a9aadd8675b8d0909089f89f65bf233e38c3" //Sentry-Dynamic-WithARM64e
-    ),
-    .binaryTarget(
-        name: "Sentry-WithoutUIKitOrAppKit",
-        url: "https://github.com/getsentry/sentry-cocoa/releases/download/8.56.0/Sentry-WithoutUIKitOrAppKit.xcframework.zip",
-        checksum: "4abfe912bb543eedb7d7dd015df04c93c2b8e49437962046137653d4cf737d38" //Sentry-WithoutUIKitOrAppKit
-    ),
-    .binaryTarget(
-        name: "Sentry-WithoutUIKitOrAppKit-WithARM64e",
-        url: "https://github.com/getsentry/sentry-cocoa/releases/download/8.56.0/Sentry-WithoutUIKitOrAppKit-WithARM64e.xcframework.zip",
-        checksum: "0b6b454b48614f8cd2430cdc75e524ded46308309b95e73fdd9a90da81622e77" //Sentry-WithoutUIKitOrAppKit-WithARM64e
     ),
     .target (
         name: "SentrySwiftUI",
@@ -66,8 +43,43 @@ var targets: [Target] = [
         linkerSettings: [
          .linkedLibrary("c++")
         ]
-    )
+    ),
+    .target(name: "SentryDistribution", path: "Sources/SentryDistribution"),
+    .testTarget(name: "SentryDistributionTests", dependencies: ["SentryDistribution"], path: "Sources/SentryDistributionTests")
 ]
+
+let skipBinaries = getenv("SKIP_BINARIES").map { String(cString: $0, encoding: .utf8) }
+if skipBinaries != "1" {
+  products.append(contentsOf: [
+    .library(name: "Sentry-Dynamic", targets: ["Sentry-Dynamic"]),
+    .library(name: "Sentry-Dynamic-WithARM64e", targets: ["Sentry-Dynamic-WithARM64e"]),
+    .library(name: "Sentry-WithoutUIKitOrAppKit", targets: ["Sentry-WithoutUIKitOrAppKit", "SentryCppHelper"]),
+    .library(name: "Sentry-WithoutUIKitOrAppKit-WithARM64e", targets: ["Sentry-WithoutUIKitOrAppKit-WithARM64e", "SentryCppHelper"])
+  ])
+  
+  targets.append(contentsOf: [
+    .binaryTarget(
+      name: "Sentry-Dynamic",
+      url: "https://github.com/getsentry/sentry-cocoa/releases/download/8.56.0/Sentry-Dynamic.xcframework.zip",
+      checksum: "509cdbc89e4409614f6d584464ef7e1d26c47ad8afe3abc2bd1e1d71c068be1e" //Sentry-Dynamic
+    ),
+    .binaryTarget(
+      name: "Sentry-Dynamic-WithARM64e",
+      url: "https://github.com/getsentry/sentry-cocoa/releases/download/8.56.0/Sentry-Dynamic-WithARM64e.xcframework.zip",
+      checksum: "d62a5ced65465c7c63962ed40d06a9aadd8675b8d0909089f89f65bf233e38c3" //Sentry-Dynamic-WithARM64e
+    ),
+    .binaryTarget(
+      name: "Sentry-WithoutUIKitOrAppKit",
+      url: "https://github.com/getsentry/sentry-cocoa/releases/download/8.56.0/Sentry-WithoutUIKitOrAppKit.xcframework.zip",
+      checksum: "4abfe912bb543eedb7d7dd015df04c93c2b8e49437962046137653d4cf737d38" //Sentry-WithoutUIKitOrAppKit
+    ),
+    .binaryTarget(
+      name: "Sentry-WithoutUIKitOrAppKit-WithARM64e",
+      url: "https://github.com/getsentry/sentry-cocoa/releases/download/8.56.0/Sentry-WithoutUIKitOrAppKit-WithARM64e.xcframework.zip",
+      checksum: "0b6b454b48614f8cd2430cdc75e524ded46308309b95e73fdd9a90da81622e77" //Sentry-WithoutUIKitOrAppKit-WithARM64e
+    )
+  ])
+}
 
 let env = getenv("EXPERIMENTAL_SPM_BUILDS")
 if let env = env, String(cString: env, encoding: .utf8) == "1" {
@@ -101,7 +113,7 @@ if let env = env, String(cString: env, encoding: .utf8) == "1" {
             name: "SentryObjc",
             dependencies: ["SentrySwift"],
             path: "Sources",
-            exclude: ["Sentry/SentryDummyPublicEmptyClass.m", "Sentry/SentryDummyPrivateEmptyClass.m", "Swift", "SentrySwiftUI", "Resources", "Configuration", "SentryCppHelper"],
+            exclude: ["Sentry/SentryDummyPublicEmptyClass.m", "Sentry/SentryDummyPrivateEmptyClass.m", "Swift", "SentrySwiftUI", "Resources", "Configuration", "SentryCppHelper", "SentryDistribution", "SentryDistributionTests"],
             cSettings: [
                 .headerSearchPath("Sentry/include/HybridPublic"),
                 .headerSearchPath("Sentry"),

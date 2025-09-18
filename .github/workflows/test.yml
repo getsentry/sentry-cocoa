@@ -92,6 +92,23 @@ jobs:
         if: failure()
         run: ./scripts/ci-diagnostics.sh
 
+  distribution-tests:
+    name: Distribution Tests
+    runs-on: macos-15
+    needs: files-changed
+    steps:
+      - uses: actions/checkout@v5
+      - run: rm -r Sentry.xcodeproj && rm -r Sentry.xcworkspace
+      - run: set -o pipefail && NSUnbufferedIO=YES SKIP_BINARIES=1 xcodebuild test -scheme Sentry-Package -sdk iphonesimulator -destination 'platform=iOS Simulator,OS=18.4,name=iPhone 16 Pro' | tee raw-test-output-distribution.log | xcbeautify --preserve-unbeautified
+        shell: sh
+      - name: Upload Distribution Test Logs
+        uses: actions/upload-artifact@v4
+        if: ${{ failure() || cancelled() }}
+        with:
+          name: raw-test-output-distribution
+          path: |
+            raw-test-output-distribution.log
+
   unit-tests:
     name: Unit ${{matrix.name}}
     runs-on: ${{matrix.runs-on}}
@@ -353,6 +370,7 @@ jobs:
       [
         files-changed,
         build-test-server,
+        distribution-tests,
         unit-tests,
       ]
     name: Unit Tests

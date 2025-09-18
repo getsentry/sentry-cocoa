@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- Add SentryDistribution Swift package target (#6149)
+
 ### Fixes
 
 - Fix potential app launch hang caused by the SentrySDK (#6181) Fixed by removing the call to `_dyld_get_image_header` on the main thread.
