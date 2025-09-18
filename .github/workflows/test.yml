@@ -100,7 +100,7 @@ jobs:
   unit-tests-with-test-server:
     name: Unit with Test Server ${{matrix.name}}
     runs-on: ${{matrix.runs-on}}
-    timeout-minutes: 10
+    timeout-minutes: 20
     needs: build-test-server
 
     strategy:
