@@ -19,7 +19,7 @@ class SentryFileManagerTests: XCTestCase {
         let session = SentrySession(releaseName: "1.0.0", distinctId: "some-id")
         let sessionEnvelope: SentryEnvelope
         
-        var envelopeItemsDeleted = Invocations<SentryDataCategory>()
+        var envelopeItemsDeleted = Invocations<SentryDataCategorySwift>()
         
         let sessionUpdate: SentrySession
         let sessionUpdateEnvelope: SentryEnvelope
@@ -60,7 +60,7 @@ class SentryFileManagerTests: XCTestCase {
                 dateProvider: currentDateProvider,
                 dispatchQueueWrapper: dispatchQueueWrapper
             )
-            sut.setEnvelopeDeletedCallback { [weak self] _, category in
+            sut.envelopeDeletedCallback = { [weak self] _, category in
                 self?.envelopeItemsDeleted.record(category)
             }
             return sut
@@ -73,7 +73,7 @@ class SentryFileManagerTests: XCTestCase {
                 dateProvider: currentDateProvider,
                 dispatchQueueWrapper: dispatchQueueWrapper
             )
-            sut.setEnvelopeDeletedCallback { [weak self] _, category in
+            sut.envelopeDeletedCallback = { [weak self] _, category in
                 self?.envelopeItemsDeleted.record(category)
             }
             return sut
@@ -358,7 +358,7 @@ class SentryFileManagerTests: XCTestCase {
         }
         
         XCTAssertEqual(4, fixture.envelopeItemsDeleted.count)
-        let expected: [SentryDataCategory] = [.error, .attachment, .session, .error]
+        let expected: [SentryDataCategorySwift] = [.error, .attachment, .session, .error]
         XCTAssertEqual(expected, fixture.envelopeItemsDeleted.invocations)
     }
     
@@ -625,7 +625,7 @@ class SentryFileManagerTests: XCTestCase {
             }
             
             dispatchQueue.async {
-                self.sut.readAbnormalSession()
+                _ = self.sut.readAbnormalSession()
                 expectation.fulfill()
             }
             
@@ -689,7 +689,7 @@ class SentryFileManagerTests: XCTestCase {
         SentrySDKLog.configureLog(true, diagnosticLevel: .debug)
         
         sut.deleteAllFolders()
-        sut.getAllEnvelopes()
+        _ = sut.getAllEnvelopes()
         
         let debugLogMessages = logOutput.loggedMessages.filter { $0.contains("[Sentry] [info]") && $0.contains("Returning empty files list, as folder doesn't exist at path:") }
         XCTAssertEqual(debugLogMessages.count, 1)

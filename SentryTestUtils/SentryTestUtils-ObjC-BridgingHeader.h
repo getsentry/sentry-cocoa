@@ -35,6 +35,7 @@
 #import "SentryDependencyContainer.h"
 #import "SentryDispatchFactory.h"
 #import "SentryFileManager+Test.h"
+#import "SentryFileManagerHelper.h"
 #import "SentryGlobalEventProcessor.h"
 #import "SentryHub+Private.h"
 #import "SentryHub+Test.h"

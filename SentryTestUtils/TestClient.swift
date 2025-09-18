@@ -16,11 +16,11 @@ public class TestClient: SentryClient {
         )
     }
 
-    public override init?(options: Options, fileManager: SentryFileManager, deleteOldEnvelopeItems: Bool) {
+    @_spi(Private) public override init?(options: Options, fileManager: SentryFileManager, deleteOldEnvelopeItems: Bool) {
         super.init(options: options, fileManager: fileManager, deleteOldEnvelopeItems: deleteOldEnvelopeItems, transportAdapter: TestTransportAdapter(transports: [TestTransport()], options: options))
     }
     
-    public override init(options: Options, fileManager: SentryFileManager, deleteOldEnvelopeItems: Bool, transportAdapter: SentryTransportAdapter) {
+    @_spi(Private) public override init(options: Options, fileManager: SentryFileManager, deleteOldEnvelopeItems: Bool, transportAdapter: SentryTransportAdapter) {
         super.init(options: options, fileManager: fileManager, deleteOldEnvelopeItems: deleteOldEnvelopeItems, transportAdapter: transportAdapter)
     }
     
