@@ -486,6 +486,12 @@ installExceptionHandler(void)
         }
     }
 
+    if (sentrycrashcm_isManagedRuntime()) {
+        SENTRY_ASYNC_SAFE_LOG_DEBUG("Detected managed Mono/CoreCLR runtime. Not registering "
+                                    "exception port for EXC_BAD_ACCESS or EXC_MASK_ARITHMETIC.");
+        mask &= ~(EXC_MASK_BAD_ACCESS | EXC_MASK_ARITHMETIC);
+    }
+
     SENTRY_ASYNC_SAFE_LOG_DEBUG("Installing port as exception handler.");
     kr = task_set_exception_ports(thisTask, mask, g_exceptionPort,
         (int)(EXCEPTION_DEFAULT | MACH_EXCEPTION_CODES), THREAD_STATE_NONE);
@@ -561,6 +567,23 @@ addContextualInfoToEvent(struct SentryCrash_MonitorContext *eventContext)
 }
 
 #endif // SENTRY_HAS_MACH
+
+bool
+sentrycrashcm_isManagedRuntime(void)
+{
+#if SENTRY_HAS_MACH
+    for (mach_msg_type_number_t i = 0; i < g_previousExceptionPorts.count; i++) {
+        // https://github.com/dotnet/runtime/blob/6d96e28597e7da0d790d495ba834cc4908e442cd/src/mono/mono/mini/mini-darwin.c#L85-L90
+        // https://github.com/dotnet/runtime/blob/6d96e28597e7da0d790d495ba834cc4908e442cd/src/coreclr/nativeaot/Runtime/unix/HardwareExceptions.cpp#L615-L621
+        if (g_previousExceptionPorts.masks[i] == (EXC_MASK_BAD_ACCESS | EXC_MASK_ARITHMETIC)
+            && g_previousExceptionPorts.behaviors[i] == EXCEPTION_STATE_IDENTITY
+            && g_previousExceptionPorts.flavors[i] == MACHINE_THREAD_STATE) {
+            return true;
+        }
+    }
+#endif // SENTRY_HAS_MACH
+    return false;
+}
 
 SentryCrashMonitorAPI *
 sentrycrashcm_machexception_getAPI(void)

@@ -51,6 +51,7 @@ const char *sentrycrashcpu_currentArch(void);
  * @return The context's frame pointer.
  */
 uintptr_t sentrycrashcpu_framePointer(const struct SentryCrashMachineContext *const context);
+uintptr_t sentrycrashcpu_framePointerFromUserContext(const void *const userContext);
 
 /** Get the current stack pointer for a machine context.
  *
@@ -59,6 +60,7 @@ uintptr_t sentrycrashcpu_framePointer(const struct SentryCrashMachineContext *co
  * @return The context's stack pointer.
  */
 uintptr_t sentrycrashcpu_stackPointer(const struct SentryCrashMachineContext *const context);
+uintptr_t sentrycrashcpu_stackPointerFromUserContext(const void *const userContext);
 
 /** Get the address of the instruction about to be, or being executed by a
  * machine context.
@@ -68,6 +70,7 @@ uintptr_t sentrycrashcpu_stackPointer(const struct SentryCrashMachineContext *co
  * @return The context's next instruction address.
  */
 uintptr_t sentrycrashcpu_instructionAddress(const struct SentryCrashMachineContext *const context);
+uintptr_t sentrycrashcpu_instructionAddressFromUserContext(const void *const userContext);
 
 /** Get the address stored in the link register (arm only). This may
  * contain the first return address of the stack.
