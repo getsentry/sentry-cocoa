@@ -109,7 +109,8 @@ NS_ASSUME_NONNULL_BEGIN
                                          items:envelopeItemsWithUpdatedSession];
 
     NSError *error;
-    NSData *envelopeWithInitFlagData = [SentrySerialization dataWithEnvelope:envelopeWithInitFlag];
+    NSData *envelopeWithInitFlagData =
+        [SentrySerializationSwift dataWithEnvelope:envelopeWithInitFlag];
     [envelopeWithInitFlagData writeToFile:envelopeFilePath
                                   options:NSDataWritingAtomic
                                     error:&error];

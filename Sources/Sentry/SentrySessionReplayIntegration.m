@@ -451,7 +451,7 @@ static SentryTouchTracker *_touchTracker;
         [[NSDictionary alloc] initWithObjectsAndKeys:sessionId.sentryIdString, @"replayId",
             path.lastPathComponent, @"path", @(options.onErrorSampleRate), @"errorSampleRate", nil];
 
-    NSData *data = [SentrySerialization dataWithJSONObject:info];
+    NSData *data = [SentrySerializationSwift dataWithJSONObject:info];
 
     NSString *infoPath = [[path stringByDeletingLastPathComponent]
         stringByAppendingPathComponent:SENTRY_CURRENT_REPLAY];
