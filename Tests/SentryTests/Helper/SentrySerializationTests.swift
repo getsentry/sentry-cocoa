@@ -35,13 +35,13 @@ class SentrySerializationTests: XCTestCase {
             "valid object": "hi, i'm a valid object",
             "invalid object": NSDate()
         ]
-        let data = SentrySerialization.data(withJSONObject: json)
+        let data = SentrySerializationSwift.data(withJSONObject: json)
         XCTAssertNil(data)
     }
     
     func testSerializationFailsWithFirstValidAndThenInvalidJSONObject() {
         let json = [ SentryInvalidJSONString(lengthInvocationsToBeInvalid: 1)]
-        let data = SentrySerialization.data(withJSONObject: json)
+        let data = SentrySerializationSwift.data(withJSONObject: json)
         XCTAssertNil(data)
     }
     
@@ -51,7 +51,7 @@ class SentrySerializationTests: XCTestCase {
         
         let envelope = SentryEnvelope(header: headerWithInvalidJSON, items: [])
         
-        XCTAssertNil(SentrySerialization.data(with: envelope))
+        XCTAssertNil(SentrySerializationSwift.data(with: envelope))
     }
     
     @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
@@ -61,7 +61,7 @@ class SentrySerializationTests: XCTestCase {
         
         let envelope = SentryEnvelope(header: SentryEnvelopeHeader(id: SentryId()), singleItem: envelopeItem)
         
-        XCTAssertNil(SentrySerialization.data(with: envelope))
+        XCTAssertNil(SentrySerializationSwift.data(with: envelope))
     }
     
     @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
@@ -508,7 +508,7 @@ class SentrySerializationTests: XCTestCase {
         let dict = SentrySession(releaseName: "1.0.0", distinctId: "some-id").serialize()
         let session = try XCTUnwrap(SentrySession(jsonObject: dict))
 
-        let data = try XCTUnwrap(SentrySerialization.data(with: session))
+        let data = try XCTUnwrap(SentrySerializationSwift.data(with: session))
 
         XCTAssertNotNil(SentrySerializationSwift.session(with: data))
     }
@@ -518,7 +518,7 @@ class SentrySerializationTests: XCTestCase {
         dict["attrs"] = nil // Remove release name
         let session = try XCTUnwrap(SentrySession(jsonObject: dict))
 
-        let data = try XCTUnwrap(SentrySerialization.data(with: session))
+        let data = try XCTUnwrap(SentrySerializationSwift.data(with: session))
 
         XCTAssertNil(SentrySerializationSwift.session(with: data))
     }
@@ -527,7 +527,7 @@ class SentrySerializationTests: XCTestCase {
         let dict = SentrySession(releaseName: "", distinctId: "some-id").serialize()
         let session = try XCTUnwrap(SentrySession(jsonObject: dict))
 
-        let data = try XCTUnwrap(SentrySerialization.data(with: session))
+        let data = try XCTUnwrap(SentrySerializationSwift.data(with: session))
 
         XCTAssertNil(SentrySerializationSwift.session(with: data))
     }
@@ -535,7 +535,7 @@ class SentrySerializationTests: XCTestCase {
     func testSerializeSessionWithGarbageInDict() throws {
         var dict = SentrySession(releaseName: "", distinctId: "some-id").serialize()
         dict["started"] = "20"
-        let data = try XCTUnwrap( SentrySerialization.data(withJSONObject: dict))
+        let data = try XCTUnwrap( SentrySerializationSwift.data(withJSONObject: dict))
 
         XCTAssertNil(SentrySerializationSwift.session(with: data))
     }
@@ -616,7 +616,7 @@ class SentrySerializationTests: XCTestCase {
     
     func testAppStateWithValidData_ReturnsValidAppState() throws {
         let appState = TestData.appState
-        let appStateData = try XCTUnwrap(SentrySerialization.data(withJSONObject: appState.serialize()))
+        let appStateData = try XCTUnwrap(SentrySerializationSwift.data(withJSONObject: appState.serialize()))
 
         let actual = SentrySerializationSwift.appState(with: appStateData)
         
@@ -632,7 +632,7 @@ class SentrySerializationTests: XCTestCase {
     @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testReturnNilForCorruptedEnvelope() throws {
         let envelope = SentryEnvelope(event: Event(error: NSError(domain: "test", code: -1, userInfo: nil)))
-        let data = try XCTUnwrap(SentrySerialization.data(with: envelope))
+        let data = try XCTUnwrap(SentrySerializationSwift.data(with: envelope))
         
         let corruptedData = data[0..<data.count - 1]
         
@@ -681,7 +681,7 @@ class SentrySerializationTests: XCTestCase {
     private func serializeEnvelope(envelope: SentryEnvelope) -> Data {
         var serializedEnvelope: Data = Data()
         do {
-            serializedEnvelope = try XCTUnwrap(SentrySerialization.data(with: envelope))
+            serializedEnvelope = try XCTUnwrap(SentrySerializationSwift.data(with: envelope))
         } catch {
             XCTFail("Could not serialize envelope.")
         }

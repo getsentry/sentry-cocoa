@@ -1,4 +1,4 @@
-@testable import Sentry
+@_spi(Private) @testable import Sentry
 import SentryTestUtils
 import XCTest
 
@@ -46,7 +46,7 @@ class SentryMechanismMetaTests: XCTestCase {
     func testDecode_WithAllProperties() throws {
         // Arrange
         let sut = TestData.mechanismMeta
-        let data = try XCTUnwrap(SentrySerialization.data(withJSONObject: sut.serialize()))
+        let data = try XCTUnwrap(SentrySerializationSwift.data(withJSONObject: sut.serialize()))
         
         // Act
         let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as MechanismMeta?)
@@ -64,7 +64,7 @@ class SentryMechanismMetaTests: XCTestCase {
         sut.machException = nil
         sut.error = nil
 
-        let data = try XCTUnwrap(SentrySerialization.data(withJSONObject: sut.serialize()))
+        let data = try XCTUnwrap(SentrySerializationSwift.data(withJSONObject: sut.serialize()))
         
         // Act
         let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as MechanismMeta?)   

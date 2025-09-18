@@ -1,4 +1,4 @@
-@testable import Sentry
+@_spi(Private) @testable import Sentry
 import XCTest
 
 class SentryDebugMetaTests: XCTestCase {
@@ -25,7 +25,7 @@ class SentryDebugMetaTests: XCTestCase {
         // Arrange
         let debugMeta = TestData.debugMeta
         let actual = debugMeta.serialize()
-        let data = try XCTUnwrap(SentrySerialization.data(withJSONObject: actual))
+        let data = try XCTUnwrap(SentrySerializationSwift.data(withJSONObject: actual))
         
         // Act
         let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as DebugMeta?)
@@ -45,7 +45,7 @@ class SentryDebugMetaTests: XCTestCase {
         // Arrange
         let debugMeta = DebugMeta()
         let actual = debugMeta.serialize()
-        let data = try XCTUnwrap(SentrySerialization.data(withJSONObject: actual))
+        let data = try XCTUnwrap(SentrySerializationSwift.data(withJSONObject: actual))
         
         // Act
         let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as DebugMeta?)
@@ -66,7 +66,7 @@ class SentryDebugMetaTests: XCTestCase {
         let debugMeta = DebugMeta()
         debugMeta.uuid = "123"
         let actual = debugMeta.serialize()
-        let data = try XCTUnwrap(SentrySerialization.data(withJSONObject: actual))
+        let data = try XCTUnwrap(SentrySerializationSwift.data(withJSONObject: actual))
         
         // Act
         let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as DebugMeta?)

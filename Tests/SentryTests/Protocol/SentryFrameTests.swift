@@ -1,4 +1,4 @@
-@testable import Sentry
+@_spi(Private) @testable import Sentry
 import XCTest
 
 class SentryFrameTests: XCTestCase {
@@ -58,7 +58,7 @@ class SentryFrameTests: XCTestCase {
     func testDecode_WithAllProperties() throws {
         // Arrange
         let frame = TestData.mainFrame
-        let data = try XCTUnwrap(SentrySerialization.data(withJSONObject: frame.serialize()))
+        let data = try XCTUnwrap(SentrySerializationSwift.data(withJSONObject: frame.serialize()))
         
         // Act
         let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as Frame?)
@@ -85,7 +85,7 @@ class SentryFrameTests: XCTestCase {
     func testDecode_WithGodotFrame() throws {
         // Arrange
         let frame = TestData.godotFrame
-        let data = try XCTUnwrap(SentrySerialization.data(withJSONObject: frame.serialize()))
+        let data = try XCTUnwrap(SentrySerializationSwift.data(withJSONObject: frame.serialize()))
         
         // Act
         let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as Frame?)
@@ -112,7 +112,7 @@ class SentryFrameTests: XCTestCase {
     func testDecode_WithAllPropertiesNil() throws {
         // Arrange
         let frame = Frame()
-        let data = try XCTUnwrap(SentrySerialization.data(withJSONObject: frame.serialize()))
+        let data = try XCTUnwrap(SentrySerializationSwift.data(withJSONObject: frame.serialize()))
         
         // Act
         let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as Frame?)
