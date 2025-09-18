@@ -1,0 +1,29 @@
+{
+  "configurations" : [
+    {
+      "id" : "A451EF21-C702-4095-835C-4F189D10635A",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "testTimeoutsEnabled" : true
+  },
+  "testTargets" : [
+    {
+      "selectedTests" : [
+        "SentryNetworkTrackerIntegrationTestServerTests\/testGetCaptureFailedRequestsEnabled()",
+        "SentryNetworkTrackerIntegrationTestServerTests\/testGetRequest_CompareSentryTraceHeader()",
+        "SentryNetworkTrackerIntegrationTestServerTests\/testGetRequest_SpanCreatedAndBaggageHeaderAdded()"
+      ],
+      "target" : {
+        "containerPath" : "container:Sentry.xcodeproj",
+        "identifier" : "63AA76641EB8CB2F00D153DE",
+        "name" : "SentryTests"
+      }
+    }
+  ],
+  "version" : 1
+}

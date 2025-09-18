@@ -1,14 +1,13 @@
 @testable import Sentry
 @_spi(Private) import SentryTestUtils
-import SwiftUI
 import XCTest
 
+/// Tests with a running test server to validate our swizzling doesn't break the HTTP requests are in
+/// the SentryTestServerTests/SentryNetworkTrackerIntegrationTests.swift
 class SentryNetworkTrackerIntegrationTests: XCTestCase {
     
     private static let dsnAsString = TestConstants.dsnAsString(username: "SentryNetworkTrackerIntegrationTests")
     private static let testBaggageURL = URL(string: "http://localhost:8080/echo-baggage-header")!
-    private static let testTraceURL = URL(string: "http://localhost:8080/echo-sentry-trace")!
-    private static let clientErrorTraceURL = URL(string: "http://localhost:8080/http-client-error")!
     private static let transactionName = "TestTransaction"
     private static let transactionOperation = "Test"
     
@@ -155,61 +154,7 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
         let breadcrumbs = Dynamic(scope).breadcrumbArray as [Breadcrumb]?
         XCTAssertEqual(1, breadcrumbs?.count)
     }
-    
-    func testGetRequest_SpanCreatedAndBaggageHeaderAdded() throws {
-        startSDK()
-        let transaction = try XCTUnwrap(SentrySDK.startTransaction(name: "Test Transaction", operation: "TEST", bindToScope: true) as? SentryTracer)
-        let expect = expectation(description: "Request completed")
-        let session = URLSession(configuration: URLSessionConfiguration.default)
 
-        let dataTask = session.dataTask(with: SentryNetworkTrackerIntegrationTests.testBaggageURL) { (data, _, error) in
-            self.assertNetworkError(error)
-            let response = String(data: data ?? Data(), encoding: .utf8) ?? ""
-            
-            let expectedBaggageHeader = transaction.traceContext?.toBaggage().toHTTPHeader(withOriginalBaggage: nil)
-            XCTAssertEqual(expectedBaggageHeader, response)
-
-            expect.fulfill()
-        }
-        
-        dataTask.resume()
-        wait(for: [expect], timeout: 5)
-        
-        let children = try XCTUnwrap(Dynamic(transaction).children as [Span]?)
-
-        XCTAssertEqual(children.count, 1) //Span was created in task resume swizzle.
-        let networkSpan = try XCTUnwrap(children.first)
-        XCTAssertTrue(networkSpan.isFinished) //Span was finished in task setState swizzle.
-        XCTAssertEqual(SentrySpanOperationNetworkRequestOperation, networkSpan.operation)
-        XCTAssertEqual("GET \(SentryNetworkTrackerIntegrationTests.testBaggageURL)", networkSpan.spanDescription)
-        
-        XCTAssertEqual("200", networkSpan.data["http.response.status_code"] as? String)
-    }
-
-    func testGetRequest_CompareSentryTraceHeader() throws {
-        startSDK()
-        let transaction = try XCTUnwrap(SentrySDK.startTransaction(name: "Test Transaction", operation: "TEST", bindToScope: true) as? SentryTracer)
-        let expect = expectation(description: "Request completed")
-        let session = URLSession(configuration: URLSessionConfiguration.default)
-        var response: String?
-        let dataTask = session.dataTask(with: SentryNetworkTrackerIntegrationTests.testTraceURL) { (data, _, error) in
-            self.assertNetworkError(error)
-            response = String(data: data ?? Data(), encoding: .utf8) ?? ""
-            expect.fulfill()
-        }
-
-        dataTask.resume()
-        wait(for: [expect], timeout: 5)
-
-        let children = Dynamic(transaction).children as [SentrySpan]?
-
-        XCTAssertEqual(children?.count, 1) //Span was created in task resume swizzle.
-        let networkSpan = try XCTUnwrap(children?.first)
-
-        let expectedTraceHeader = networkSpan.toTraceHeader().value()
-        XCTAssertEqual(expectedTraceHeader, response)
-    }
-    
     func testCaptureFailedRequestsDisabled_WhenSwizzlingDisabled() {
         fixture.options.enableSwizzling = false
         fixture.options.enableCaptureFailedRequests = true
@@ -242,38 +187,6 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
         startSDK()
 
         XCTAssertFalse(SentryNetworkTracker.sharedInstance.isGraphQLOperationTrackingEnabled)
-    }
-
-    func testGetCaptureFailedRequestsEnabled() {
-        let expect = expectation(description: "Request completed")
-
-        var sentryEvent: Event?
-
-        fixture.options.enableCaptureFailedRequests = true
-        fixture.options.failedRequestStatusCodes = [ HttpStatusCodeRange(statusCode: 400) ]
-        fixture.options.beforeSend = { event in
-            sentryEvent = event
-            expect.fulfill()
-            return event
-        }
-
-        startSDK()
-
-        let session = URLSession(configuration: URLSessionConfiguration.default)
-
-        let dataTask = session.dataTask(with: SentryNetworkTrackerIntegrationTests.clientErrorTraceURL) { (_, _, error) in
-            self.assertNetworkError(error)
-        }
-
-        dataTask.resume()
-        wait(for: [expect], timeout: 5)
-        
-        XCTAssertNotNil(sentryEvent)
-        XCTAssertNotNil(sentryEvent?.request)
-        
-        let sentryResponse = sentryEvent?.context?["response"]
-
-        XCTAssertEqual(sentryResponse?["status_code"] as? NSNumber, 400)
     }
     
     private func assertNetworkTrackerDisabled(configureOptions: (Options) -> Void) throws {

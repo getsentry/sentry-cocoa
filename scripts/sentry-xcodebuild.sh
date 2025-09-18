@@ -17,6 +17,7 @@ DEVICE="iPhone 14 Pro"
 CONFIGURATION_OVERRIDE=""
 DERIVED_DATA_PATH=""
 TEST_SCHEME="Sentry"
+TEST_PLAN=""
 
 usage() {
     echo "Usage: $0"
@@ -28,6 +29,7 @@ usage() {
     echo "  -C|--configuration <config>     Configuration override"
     echo "  -D|--derived-data <path>        Derived data path"
     echo "  -s|--scheme <scheme>            Test scheme (default: Sentry)"
+    echo "  -t|--test-plan <plan>           Test plan name (default: empty)"
     exit 1
 }
 
@@ -64,6 +66,10 @@ while [[ $# -gt 0 ]]; do
             ;;
         -s|--scheme)
             TEST_SCHEME="$2"
+            shift 2
+            ;;
+        -t|--test-plan)
+            TEST_PLAN="$2"
             shift 2
             ;;
         *)
@@ -134,6 +140,8 @@ case $COMMAND in
     ;;
 esac
 
+
+
 if [ $RUN_BUILD == true ]; then
     set -o pipefail && NSUnbufferedIO=YES xcodebuild \
         -workspace Sentry.xcworkspace \
@@ -146,10 +154,17 @@ if [ $RUN_BUILD == true ]; then
         xcbeautify --preserve-unbeautified
 fi
 
+TEST_PLAN_ARGS=()
+if [ -n "$TEST_PLAN" ]; then
+    TEST_PLAN_ARGS+=("-testPlan" "$TEST_PLAN")
+fi
+
 if [ $RUN_BUILD_FOR_TESTING == true ]; then
+    # When no test plan is provided, we skip the -testPlan argument so xcodebuild uses the default test plan
     set -o pipefail && NSUnbufferedIO=YES xcodebuild \
         -workspace Sentry.xcworkspace \
         -scheme "$TEST_SCHEME" \
+        "${TEST_PLAN_ARGS[@]+${TEST_PLAN_ARGS[@]}}" \
         -configuration "$CONFIGURATION" \
         -destination "$DESTINATION" \
         build-for-testing 2>&1 |
@@ -158,9 +173,12 @@ if [ $RUN_BUILD_FOR_TESTING == true ]; then
 fi
 
 if [ $RUN_TEST_WITHOUT_BUILDING == true ]; then
+    # When no test plan is provided, we skip the -testPlan argument so xcodebuild uses the default test plan
+    
     set -o pipefail && NSUnbufferedIO=YES xcodebuild \
         -workspace Sentry.xcworkspace \
         -scheme "$TEST_SCHEME" \
+        "${TEST_PLAN_ARGS[@]+${TEST_PLAN_ARGS[@]}}" \
         -configuration "$CONFIGURATION" \
         -destination "$DESTINATION" \
         test-without-building 2>&1 |
