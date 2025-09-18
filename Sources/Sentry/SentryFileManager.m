@@ -974,7 +974,7 @@ removeAppLaunchProfilingConfigFile(void)
             return nil;
         }
     }
-    SentrySession *currentSession = [DataDeserialization sessionWithData:currentData];
+    SentrySession *currentSession = [SentrySerializationSwift sessionWithData:currentData];
     if (nil == currentSession) {
         SENTRY_LOG_ERROR(
             @"Data stored in session: '%@' was not parsed as session.", sessionFilePath);
@@ -993,7 +993,7 @@ removeAppLaunchProfilingConfigFile(void)
         SENTRY_LOG_WARN(@"No app state data found at %@", path);
         return nil;
     }
-    return [DataDeserialization appStateWithData:currentData];
+    return [SentrySerializationSwift appStateWithData:currentData];
 }
 
 - (void)deleteAppStateFrom:(NSString *)path
@@ -1073,7 +1073,7 @@ removeAppLaunchProfilingConfigFile(void)
         [envelopePathsCopy removeObjectAtIndex:i];
 
         NSData *envelopeData = [[NSFileManager defaultManager] contentsAtPath:envelopeFilePath];
-        SentryEnvelope *envelope = [SentrySerialization envelopeWithData:envelopeData];
+        SentryEnvelope *envelope = [SentrySerializationSwift envelopeWithData:envelopeData];
 
         BOOL didMigrateSessionInit =
             [SentryMigrateSessionInit migrateSessionInit:envelope
