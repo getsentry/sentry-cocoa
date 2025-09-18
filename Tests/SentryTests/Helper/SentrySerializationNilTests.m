@@ -16,7 +16,7 @@
 {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wnonnull"
-    XCTAssertNil([DataDeserialization envelopeWithData:nil]);
+    XCTAssertNil([SentrySerializationSwift envelopeWithData:nil]);
 #pragma clang diagnostic pop
 }
 

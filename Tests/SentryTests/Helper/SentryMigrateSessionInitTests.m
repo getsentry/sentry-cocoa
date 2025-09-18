@@ -14,7 +14,7 @@
 
 - (void)testWithGarbageParametersDoesNotCrash
 {
-    SentryEnvelope *envelope = [DataDeserialization envelopeWithData:[[NSData alloc] init]];
+    SentryEnvelope *envelope = [SentrySerializationSwift envelopeWithData:[[NSData alloc] init]];
     [SentryMigrateSessionInit migrateSessionInit:envelope
                                 envelopesDirPath:@"asdf"
                                envelopeFilePaths:@[]];

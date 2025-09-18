@@ -511,7 +511,7 @@ class SentryFileManagerTests: XCTestCase {
         
         XCTAssertEqual(fixture.maxCacheItems, envelopes.count)
         for i in 0..<fixture.maxCacheItems {
-            let envelope = DataDeserialization.envelope(with: envelopes[i].contents)
+            let envelope = SentrySerializationSwift.envelope(with: envelopes[i].contents)
             let actualEventId = envelope?.header.eventId
             XCTAssertEqual(expectedEventIds[i], actualEventId)
         }
@@ -521,7 +521,7 @@ class SentryFileManagerTests: XCTestCase {
     func testGetOldestEnvelope() {
         givenMaximumEnvelopes()
         
-        let actualEnvelope = DataDeserialization.envelope(with: sut.getOldestEnvelope()?.contents ?? Data())
+        let actualEnvelope = SentrySerializationSwift.envelope(with: sut.getOldestEnvelope()?.contents ?? Data())
         
         XCTAssertEqual(try XCTUnwrap(fixture.eventIds.element(at: 11)), actualEnvelope?.header.eventId)
     }
@@ -533,7 +533,7 @@ class SentryFileManagerTests: XCTestCase {
     func testGetOldestEnvelope_WithGarbageInEnvelopesFolder() {
         givenGarbageInEnvelopesFolder()
         
-        let actualEnvelope = DataDeserialization.envelope(with: sut.getOldestEnvelope()?.contents ?? Data())
+        let actualEnvelope = SentrySerializationSwift.envelope(with: sut.getOldestEnvelope()?.contents ?? Data())
         XCTAssertNil(actualEnvelope)
     }
     
@@ -1526,20 +1526,20 @@ private extension SentryFileManagerTests {
     }
 
     func assertSessionInitMoved(_ actualSessionFileContents: SentryFileContents) throws {
-        let actualSessionEnvelope = DataDeserialization.envelope(with: actualSessionFileContents.contents)
+        let actualSessionEnvelope = SentrySerializationSwift.envelope(with: actualSessionFileContents.contents)
         XCTAssertEqual(2, actualSessionEnvelope?.items.count)
 
-        let actualSession = DataDeserialization.session(with: try XCTUnwrap(XCTUnwrap(actualSessionEnvelope?.items.element(at: 1)).data))
+        let actualSession = SentrySerializationSwift.session(with: try XCTUnwrap(XCTUnwrap(actualSessionEnvelope?.items.element(at: 1)).data))
         XCTAssertNotNil(actualSession)
 
         XCTAssertEqual(fixture.expectedSessionUpdate, actualSession)
     }
     
     func assertSessionInitNotMoved(_ actualSessionFileContents: SentryFileContents) throws {
-        let actualSessionEnvelope = DataDeserialization.envelope(with: actualSessionFileContents.contents)
+        let actualSessionEnvelope = SentrySerializationSwift.envelope(with: actualSessionFileContents.contents)
         XCTAssertEqual(2, actualSessionEnvelope?.items.count)
 
-        let actualSession = DataDeserialization.session(with: try XCTUnwrap(XCTUnwrap(actualSessionEnvelope?.items.first).data))
+        let actualSession = SentrySerializationSwift.session(with: try XCTUnwrap(XCTUnwrap(actualSessionEnvelope?.items.first).data))
         XCTAssertNotNil(actualSession)
 
         XCTAssertEqual(fixture.sessionUpdate, actualSession)
@@ -1547,7 +1547,7 @@ private extension SentryFileManagerTests {
 
     func assertSessionEnvelopesStored(count: Int) {
         let fileContentsWithSession = sut.getAllEnvelopes().filter { envelopeFileContents in
-            let envelope = DataDeserialization.envelope(with: envelopeFileContents.contents)
+            let envelope = SentrySerializationSwift.envelope(with: envelopeFileContents.contents)
             return !(envelope?.items.filter { item in item.header.type == SentryEnvelopeItemTypes.session }.isEmpty ?? false)
         }
 

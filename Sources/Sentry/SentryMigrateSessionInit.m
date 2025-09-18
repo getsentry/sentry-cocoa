@@ -24,7 +24,7 @@ NS_ASSUME_NONNULL_BEGIN
                     @"Could not migrate session init, because the envelope item has no data.");
                 continue;
             }
-            SentrySession *session = [DataDeserialization sessionWithData:data];
+            SentrySession *session = [SentrySerializationSwift sessionWithData:data];
             if (nil != session && [session.flagInit boolValue]) {
                 BOOL didSetInitFlag =
                     [self setInitFlagOnNextEnvelopeWithSameSessionId:session
@@ -56,7 +56,7 @@ NS_ASSUME_NONNULL_BEGIN
             continue;
         }
 
-        SentryEnvelope *envelope = [DataDeserialization envelopeWithData:envelopeData];
+        SentryEnvelope *envelope = [SentrySerializationSwift envelopeWithData:envelopeData];
 
         if (nil != envelope) {
             BOOL didSetInitFlag = [self setInitFlagIfContainsSameSessionId:session.sessionId
@@ -84,7 +84,7 @@ NS_ASSUME_NONNULL_BEGIN
                     @"Could not migrate session init, because the envelope item has no data.");
                 continue;
             }
-            SentrySession *localSession = [DataDeserialization sessionWithData:data];
+            SentrySession *localSession = [SentrySerializationSwift sessionWithData:data];
 
             if (nil != localSession && [localSession.sessionId isEqual:sessionId]) {
                 [localSession setFlagInit];

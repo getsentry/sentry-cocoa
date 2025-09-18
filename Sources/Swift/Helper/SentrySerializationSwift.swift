@@ -1,6 +1,6 @@
 @_implementationOnly import _SentryPrivate
 
-@_spi(Private) @objc public final class DataDeserialization: NSObject {
+@_spi(Private) @objc public final class SentrySerializationSwift: NSObject {
     @objc(sessionWithData:) public static func session(with data: Data) -> SentrySession? {
         do {
             guard let sessionDictionary = try JSONSerialization.jsonObject(with: data) as? [String: Any],
@@ -34,12 +34,13 @@
     
     //swiftlint:disable cyclomatic_complexity function_body_length
     @objc(envelopeWithData:) public static func envelope(with data: Data) -> SentryEnvelope? {
+        let newline = UInt8(ascii: "\n")
         var envelopeHeader: SentryEnvelopeHeader?
         let bytes = [UInt8](data)
         var envelopeHeaderIndex: Int = 0
         
         for i in 0..<data.count {
-            if bytes[i] == UInt8(ascii: "\n") {
+            if bytes[i] == newline {
                 envelopeHeaderIndex = i
                 // Envelope header end
                 let headerData = data.subdata(in: 0..<i)
@@ -100,7 +101,7 @@
             defer {
                 i += 1
             }
-            if bytes[i] == UInt8(ascii: "\n") || i == endOfEnvelope {
+            if bytes[i] == newline || i == endOfEnvelope {
                 let itemHeaderData = (data as NSData).subdata(with: NSRange(location: itemHeaderStart, length: i - itemHeaderStart))
 
 #if DEBUG
