@@ -181,7 +181,7 @@ jobs:
         uses: actions/upload-artifact@v4
         if: ${{ failure() || cancelled() }}
         with:
-          name: crash-logs-test-server-iOS-xcode-16.4-os-18.4
+          name: crash-logs-test-server-${{matrix.platform}}-xcode-${{matrix.xcode}}
           path: |
             ~/Library/Logs/DiagnosticReports/**
 
