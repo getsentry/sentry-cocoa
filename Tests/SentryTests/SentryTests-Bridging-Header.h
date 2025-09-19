@@ -193,7 +193,6 @@
 #import "SentryTestObjCRuntimeWrapper.h"
 #import "SentryThread.h"
 #import "SentryThreadInspector.h"
-#import "SentryThreadWrapper.h"
 #import "SentryTime.h"
 #import "SentryTimeToDisplayTracker.h"
 #import "SentryTraceOrigin.h"
