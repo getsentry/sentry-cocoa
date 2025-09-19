@@ -87,9 +87,15 @@ class ObjCConversionAnalyzer
   def extract_protocols(content)
     protocols = []
     
-    # Look for @protocol declarations
-    content.scan(/@protocol\s+(\w+)/).each do |match|
-      protocols << match[0]
+    # Look for @protocol declarations, but skip forward declarations ending with semicolon
+    content.scan(/@protocol\s+(\w+)(.*)/).each do |match|
+      protocol_name = match[0]
+      remaining_line = match[1]
+      
+      # Skip forward declarations (those that end with semicolon immediately after the name)
+      next if remaining_line.strip == ";"
+      
+      protocols << protocol_name
     end
     
     protocols.uniq
