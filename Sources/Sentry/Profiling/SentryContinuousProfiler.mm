@@ -252,6 +252,12 @@ _sentry_unsafe_stopTimerAndCleanup()
     std::lock_guard<std::mutex> l(_threadUnsafe_gContinuousProfilerLock);
     return _threadUnsafe_gContinuousCurrentProfiler;
 }
+
++ (void)transmitChunkEnvelope
+{
+    std::lock_guard<std::mutex> l(_threadUnsafe_gContinuousProfilerLock);
+    _sentry_threadUnsafe_transmitChunkEnvelope();
+}
 #    endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
 
 @end
