@@ -2,7 +2,6 @@
 #import "SentryDependencyContainer.h"
 #import "SentryLogC.h"
 #import "SentrySwift.h"
-#import "SentryThreadWrapper.h"
 #import <stdatomic.h>
 
 NS_ASSUME_NONNULL_BEGIN
