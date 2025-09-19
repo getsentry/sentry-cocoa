@@ -125,7 +125,6 @@
 #import "SentryFrame.h"
 #import "SentryFrameRemover.h"
 #import "SentryFramesTrackingIntegration.h"
-#import "SentryGlobalEventProcessor.h"
 #import "SentryHttpDateParser.h"
 #import "SentryHttpStatusCodeRange+Private.h"
 #import "SentryHttpTransport.h"
