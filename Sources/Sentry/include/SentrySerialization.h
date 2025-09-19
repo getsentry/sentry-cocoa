@@ -1,8 +1,6 @@
 #import "SentryDefines.h"
 
-@class SentryAppState;
 @class SentryEnvelope;
-@class SentryReplayRecording;
 @class SentrySession;
 
 NS_ASSUME_NONNULL_BEGIN
