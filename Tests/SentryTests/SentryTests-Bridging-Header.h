@@ -123,7 +123,6 @@
 #import "SentryFileManager.h"
 #import "SentryFormatter.h"
 #import "SentryFrame.h"
-#import "SentryFrameRemover.h"
 #import "SentryFramesTrackingIntegration.h"
 #import "SentryGlobalEventProcessor.h"
 #import "SentryHttpDateParser.h"
