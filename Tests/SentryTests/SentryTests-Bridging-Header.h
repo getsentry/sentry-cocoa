@@ -187,7 +187,6 @@
 #import "SentrySwift.h"
 #import "SentrySwiftAsyncIntegration.h"
 #import "SentrySwizzleWrapper.h"
-#import "SentrySysctl.h"
 #import "SentrySystemEventBreadcrumbs.h"
 #import "SentrySystemWrapper.h"
 #import "SentryTestIntegration.h"

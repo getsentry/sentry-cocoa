@@ -1,7 +1,6 @@
 #import "SentryCrashSysCtl.h"
 #import "SentryDependencyContainer.h"
 #import "SentryNotificationNames.h"
-#import "SentrySysctl.h"
 #import <SentryAppStateManager.h>
 #import <SentryFileManager.h>
 #import <SentryOptions.h>
