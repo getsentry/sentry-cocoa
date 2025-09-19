@@ -5,9 +5,9 @@
 #import "SentryCrashStackEntryMapper.h"
 #import "SentryCrashSymbolicator.h"
 #import "SentryFrame.h"
-#import "SentryFrameRemover.h"
 #import "SentryLogC.h"
 #import "SentryStacktrace.h"
+#import "SentrySwift.h"
 #import <dlfcn.h>
 
 NS_ASSUME_NONNULL_BEGIN

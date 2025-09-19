@@ -5,7 +5,6 @@
 #import <Foundation/Foundation.h>
 
 @class SentryCrashStackEntryMapper;
-@class SentryFrameRemover;
 @class SentryStacktrace;
 @class SentryFrame;
 
