@@ -9,7 +9,6 @@
 #import "SentryEvent.h"
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"
-#import "SentryMigrateSessionInit.h"
 #import "SentryOptions.h"
 #import "SentrySerialization.h"
 #import "SentrySwift.h"

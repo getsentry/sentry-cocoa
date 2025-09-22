@@ -141,7 +141,6 @@
 #import "SentryMechanism.h"
 #import "SentryMechanismMeta.h"
 #import "SentryMeta.h"
-#import "SentryMigrateSessionInit.h"
 #import "SentryNSDataUtils.h"
 #import "SentryNSDictionarySanitize+Tests.h"
 #import "SentryNSDictionarySanitize.h"
