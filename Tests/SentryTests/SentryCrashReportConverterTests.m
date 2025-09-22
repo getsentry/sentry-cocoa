@@ -593,13 +593,11 @@
     XCTAssertEqualObjects(event.breadcrumbs.firstObject.message, @"valid message");
 }
 
-- (void)testThreadWithNilIndex_ShouldReturnNil
+- (void)testThreadWithNonNumberIndex_ShouldReturnNil
 {
     // Arrange
-    // Create a thread dictionary where index is not NSNumber type
-    // This tests the type checking: if (![threadDictionary[@"index"] isKindOfClass:[NSNumber
-    // class]]) { return nil; }
-    NSDictionary *mockReport = @{
+    // Test with string index - should be rejected and logged
+    NSDictionary *mockReportStringIndex = @{
         @"crash" : @ {
             @"threads" : @[ @{
                 @"index" : @"invalid_string", // non-NSNumber index should cause thread to be nil
@@ -615,13 +613,87 @@
 
     // Act
     SentryCrashReportConverter *reportConverter =
-        [[SentryCrashReportConverter alloc] initWithReport:mockReport inAppLogic:self.inAppLogic];
+        [[SentryCrashReportConverter alloc] initWithReport:mockReportStringIndex
+                                                inAppLogic:self.inAppLogic];
     SentryEvent *event = [reportConverter convertReportToEvent];
 
     // Assert
-    // Should have no threads since the thread with nil index gets filtered out
-    // The null check prevents crashes when thread index is not NSNumber
+    // Should have no threads since the thread with string index gets filtered out
     XCTAssertEqual(event.threads.count, 0);
+}
+
+- (void)testThreadWithNilIndex_ShouldBeAllowed
+{
+    // Arrange
+    // Test with missing index - should be allowed (for recrash reports)
+    NSDictionary *mockReportNilIndex = @{
+        @"crash" : @ {
+            @"threads" : @[ @{
+                // Missing index key should be allowed
+                @"crashed" : @NO,
+                @"current_thread" : @NO,
+                @"backtrace" : @ {
+                    @"contents" : @[ @{
+                        @"instruction_addr" : @0x1000,
+                        @"symbol_addr" : @0x1000,
+                    } ]
+                }
+            } ],
+            @"error" : @ { @"type" : @"signal" }
+        },
+        @"binary_images" : @[],
+        @"system" : @ { @"application_stats" : @ { @"application_in_foreground" : @YES } }
+    };
+
+    // Act
+    SentryCrashReportConverter *reportConverter =
+        [[SentryCrashReportConverter alloc] initWithReport:mockReportNilIndex
+                                                inAppLogic:self.inAppLogic];
+    SentryEvent *event = [reportConverter convertReportToEvent];
+
+    // Assert
+    // Should have 1 thread since missing index is now allowed (for recrash reports)
+    XCTAssertEqual(event.threads.count, 1);
+    XCTAssertNil(event.threads.firstObject.threadId);
+    XCTAssertEqual(event.threads.firstObject.isMain.boolValue, NO);
+}
+
+- (void)testThreadWithInvalidIndexTypes_ShouldReturnNil
+{
+    // Test various invalid index types
+    NSArray *invalidIndexes = @[
+        @{ @"some" : @"dictionary" }, // Dictionary
+        @[ @"array" ], // Array
+        [NSDate date], // Date
+        [NSNull null] // NSNull
+    ];
+
+    for (id invalidIndex in invalidIndexes) {
+        // Arrange
+        NSDictionary *mockReport = @{
+            @"crash" : @ {
+                @"threads" : @[ @{
+                    @"index" : invalidIndex,
+                    @"crashed" : @NO,
+                    @"current_thread" : @NO,
+                    @"backtrace" : @ { @"contents" : @[] }
+                } ],
+                @"error" : @ { @"type" : @"signal" }
+            },
+            @"binary_images" : @[],
+            @"system" : @ { @"application_stats" : @ { @"application_in_foreground" : @YES } }
+        };
+
+        // Act
+        SentryCrashReportConverter *reportConverter =
+            [[SentryCrashReportConverter alloc] initWithReport:mockReport
+                                                    inAppLogic:self.inAppLogic];
+        SentryEvent *event = [reportConverter convertReportToEvent];
+
+        // Assert
+        XCTAssertEqual(event.threads.count, 0,
+            @"Thread with invalid index type %@ should be filtered out", [invalidIndex class]);
+    }
 }
 
 - (void)testImageAddressNilHandling_ShouldSkipFrame

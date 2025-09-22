@@ -262,6 +262,10 @@
     }
     NSDictionary *threadDictionary = self.threads[threadIndex];
 
+    if (![threadDictionary[@"index"] isKindOfClass:[NSNumber class]]) {
+        SENTRY_LOG_ERROR(@"Thread index is not a number: %@", threadDictionary[@"index"]);
+        return nil;
+    }
     NSNumber *threadId = SENTRY_UNWRAP_NULLABLE(NSNumber, threadDictionary[@"index"]);
     SentryThread *thread = [[SentryThread alloc] initWithThreadId:threadId];
     // We only want to add the stacktrace if this thread hasn't crashed
