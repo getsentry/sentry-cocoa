@@ -22,6 +22,9 @@ class ExtraViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        SentrySDK.logger.info("ExtraViewController.viewDidLoad")
+
         if let uiTestName = ProcessInfo.processInfo.environment["--io.sentry.ui-test.test-name"] {
             uiTestNameLabel.text = uiTestName
             uiTestNameLabel.isHidden = false
@@ -34,6 +37,8 @@ class ExtraViewController: UIViewController {
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
+
+        SentrySDK.logger.info("ExtraViewController.viewDidAppear")
 
         SentrySDK.configureScope { (scope) in
             let dict = scope.serialize()
@@ -75,6 +80,8 @@ class ExtraViewController: UIViewController {
   }
     
     @IBAction func anrDeadlock(_ sender: UIButton) {
+        SentrySDK.logger.info("ExtraViewController.anrDeadlock")
+
         highlightButton(sender)
         let queue1 = DispatchQueue(label: "queue1")
         let queue2 = DispatchQueue(label: "queue2")
@@ -91,6 +98,8 @@ class ExtraViewController: UIViewController {
     }
 
     @IBAction func anrFullyBlocking(_ sender: UIButton) {
+        SentrySDK.logger.info("ExtraViewController.anrFullyBlocking.started")
+
         highlightButton(sender)
         let buttonTitle = self.anrFullyBlockingButton.currentTitle
         var i = 0
@@ -103,6 +112,8 @@ class ExtraViewController: UIViewController {
         }
 
         self.anrFullyBlockingButton.setTitle(buttonTitle, for: .normal)
+
+        SentrySDK.logger.info("ExtraViewController.anrFullyBlocking.finished")
     }
 
     @IBAction func anrFillingRunLoop(_ sender: UIButton) {
@@ -126,6 +137,8 @@ class ExtraViewController: UIViewController {
     }
     
     @IBAction func start100Threads(_ sender: UIButton) {
+        SentrySDK.logger.info("ExtraViewController.start100Threads")
+
         highlightButton(sender)
         for _ in 0..<100 {
             Thread.detachNewThread {
@@ -135,6 +148,8 @@ class ExtraViewController: UIViewController {
     }
 
     @IBAction func highCPULoad(_ sender: UIButton) {
+        SentrySDK.logger.info("ExtraViewController.highCPULoad")
+
         highlightButton(sender)
         dispatchQueue.async {
             while true {

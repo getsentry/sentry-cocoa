@@ -1,5 +1,6 @@
 #import "SentryMigrateSessionInit.h"
 #import "SentrySerialization.h"
+#import "SentrySwift.h"
 #import <XCTest/XCTest.h>
 
 /**
@@ -13,7 +14,7 @@
 
 - (void)testWithGarbageParametersDoesNotCrash
 {
-    SentryEnvelope *envelope = [SentrySerialization envelopeWithData:[[NSData alloc] init]];
+    SentryEnvelope *envelope = [SentrySerializationSwift envelopeWithData:[[NSData alloc] init]];
     [SentryMigrateSessionInit migrateSessionInit:envelope
                                 envelopesDirPath:@"asdf"
                                envelopeFilePaths:@[]];

@@ -362,8 +362,13 @@ SentryId *_Nullable sentry_startProfilerForTrace(SentryTracerConfiguration *conf
             SENTRY_LOG_DEBUG(@"Not a root span, will not start automatically for trace lifecycle.");
             return nil;
         }
-        return _sentry_startContinuousProfilerV2ForTrace(
-            sentry_getProfiling(SENTRY_UNWRAP_NULLABLE(SentryClient, client)), transactionContext);
+        SentryProfileOptions *_Nullable profilingOptions
+            = sentry_getProfiling(SENTRY_UNWRAP_NULLABLE(SentryClient, client));
+        if (profilingOptions == nil) {
+            SENTRY_LOG_DEBUG(@"No profiling options found, will not start profiler.");
+            return nil;
+        }
+        return _sentry_startContinuousProfilerV2ForTrace(profilingOptions, transactionContext);
     }
     BOOL profileShouldBeSampled
         = configuration.profilesSamplerDecision.decision == kSentrySampleDecisionYes;

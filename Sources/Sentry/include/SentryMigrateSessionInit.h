@@ -27,7 +27,7 @@ SENTRY_NO_INIT
  * a session init.
  * @return @c YES if the function migrated the session init. @c NO if not.
  */
-+ (BOOL)migrateSessionInit:(SentryEnvelope *)envelope
++ (BOOL)migrateSessionInit:(nullable SentryEnvelope *)envelope
           envelopesDirPath:(NSString *)envelopesDirPath
          envelopeFilePaths:(NSArray<NSString *> *)envelopeFilePaths;
 
