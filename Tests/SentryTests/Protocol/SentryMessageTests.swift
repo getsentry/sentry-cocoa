@@ -1,4 +1,4 @@
-@testable import Sentry
+@_spi(Private) @testable import Sentry
 import XCTest
 
 class SentryMessageTests: XCTestCase {
@@ -81,7 +81,7 @@ class SentryMessageTests: XCTestCase {
         // Arrange
         let message = fixture.message
         let actual = message.serialize()
-        let data = try XCTUnwrap(SentrySerialization.data(withJSONObject: actual))
+        let data = try XCTUnwrap(SentrySerializationSwift.data(withJSONObject: actual))
         
         // Act
         let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as SentryMessage?)
@@ -98,7 +98,7 @@ class SentryMessageTests: XCTestCase {
         message.message = nil
         message.params = nil
         let actual = message.serialize()
-        let data = try XCTUnwrap(SentrySerialization.data(withJSONObject: actual))
+        let data = try XCTUnwrap(SentrySerializationSwift.data(withJSONObject: actual))
 
         // Act
         let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as SentryMessage?)

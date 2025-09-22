@@ -331,7 +331,7 @@ SentryEnvelope *_Nullable sentry_continuousProfileChunkEnvelope(
         return nil;
     }
 
-    NSData *JSONData = [SentrySerialization dataWithJSONObject:payload];
+    NSData *JSONData = [SentrySerializationSwift dataWithJSONObject:payload];
     if (JSONData == nil) {
         SENTRY_LOG_DEBUG(@"Failed to encode profile to JSON.");
         return nil;
@@ -396,7 +396,7 @@ SentryEnvelopeItem *_Nullable sentry_traceProfileEnvelopeItem(SentryHub *hub,
     payload[@"transaction"] = transactionDict;
     payload[@"timestamp"] = sentry_toIso8601String(startTimestamp);
 
-    NSData *JSONData = [SentrySerialization dataWithJSONObject:payload];
+    NSData *JSONData = [SentrySerializationSwift dataWithJSONObject:payload];
     if (JSONData == nil) {
         SENTRY_LOG_DEBUG(@"Failed to encode profile to JSON.");
         return nil;

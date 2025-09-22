@@ -187,6 +187,8 @@ NS_ASSUME_NONNULL_BEGIN
             = !options.enableAutoPerformanceTracing || !options.isTracingEnabled;
         BOOL appHangsV2Disabled = options.isAppHangTrackingV2Disabled;
 #    if SDK_V9
+        // The V9 watchdog tracker uses the frames tracker, so frame tracking
+        // must be enabled if watchdog tracking is enabled.
         BOOL watchdogDisabled = !options.enableWatchdogTerminationTracking;
 #    else
         // Before V9 this should have no effect so set it to YES

@@ -159,7 +159,7 @@ class SentryHttpTransportTests: XCTestCase {
     }
 
     private class func buildRequest(_ envelope: SentryEnvelope) -> URLRequest {
-        let envelopeData = try! XCTUnwrap(SentrySerialization.data(with: envelope))
+        let envelopeData = try! XCTUnwrap(SentrySerializationSwift.data(with: envelope))
         return try! SentryURLRequestFactory.envelopeRequest(with: dsn(), data: envelopeData)
     }
 
@@ -508,7 +508,7 @@ class SentryHttpTransportTests: XCTestCase {
 
         let sessionEnvelope = SentryEnvelope(id: fixture.event.eventId, singleItem: SentryEnvelopeItem(session: fixture.session))
         sessionEnvelope.header.sentAt = fixture.currentDateProvider.date()
-        let sessionData = try XCTUnwrap(SentrySerialization.data(with: sessionEnvelope))
+        let sessionData = try XCTUnwrap(SentrySerializationSwift.data(with: sessionEnvelope))
         let sessionRequest = try! SentryURLRequestFactory.envelopeRequest(with: SentryHttpTransportTests.dsn(), data: sessionData)
 
         if fixture.requestManager.requests.invocations.count > 3 {
