@@ -262,9 +262,8 @@
     }
     NSDictionary *threadDictionary = self.threads[threadIndex];
 
-    NSNumber *threadId = threadDictionary[@"index"];
-    SentryThread *thread =
-        [[SentryThread alloc] initWithThreadId:SENTRY_UNWRAP_NULLABLE(NSNumber, threadId)];
+    NSNumber *threadId = SENTRY_UNWRAP_NULLABLE(NSNumber, threadDictionary[@"index"]);
+    SentryThread *thread = [[SentryThread alloc] initWithThreadId:threadId];
     // We only want to add the stacktrace if this thread hasn't crashed
     thread.stacktrace = [self stackTraceForThreadIndex:threadIndex];
     if (thread.stacktrace.frames.count == 0) {
