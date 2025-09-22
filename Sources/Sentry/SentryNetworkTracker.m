@@ -475,7 +475,7 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
 
     event.context = context;
 
-    [SentrySDK captureEvent:event];
+    [SentrySDKSwift captureEvent:event];
 }
 
 - (BOOL)containsStatusCode:(NSInteger)statusCode
@@ -544,7 +544,7 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
     }
 
     breadcrumb.data = breadcrumbData;
-    [SentrySDK addBreadcrumb:breadcrumb];
+    [SentrySDKSwift addBreadcrumb:breadcrumb];
 
     objc_setAssociatedObject(sessionTask, &SENTRY_NETWORK_REQUEST_TRACKER_BREADCRUMB,
         [NSNumber numberWithBool:YES], OBJC_ASSOCIATION_RETAIN_NONATOMIC);

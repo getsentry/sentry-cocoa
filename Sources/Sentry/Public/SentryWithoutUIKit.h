@@ -7,6 +7,7 @@ FOUNDATION_EXPORT double SentryVersionNumber;
 //! Project version string for Sentry.
 FOUNDATION_EXPORT const unsigned char SentryVersionString[];
 
+#    import <Sentry/SentrySDK.h>
 #    import <SentryWithoutUIKit/Sentry.h>
 #    import <SentryWithoutUIKit/SentryAttachment.h>
 #    import <SentryWithoutUIKit/SentryBaggage.h>

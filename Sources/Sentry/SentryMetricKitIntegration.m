@@ -408,15 +408,15 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)captureEvent:(SentryEvent *)event withDiagnosticJSON:(NSData *)diagnosticJSON
 {
     if (self.attachDiagnosticAsAttachment) {
-        [SentrySDK captureEvent:event
-                 withScopeBlock:^(SentryScope *_Nonnull scope) {
-                     SentryAttachment *attachment =
-                         [[SentryAttachment alloc] initWithData:diagnosticJSON
-                                                       filename:@"MXDiagnosticPayload.json"];
-                     [scope addAttachment:attachment];
-                 }];
+        [SentrySDKSwift captureEvent:event
+                      withScopeBlock:^(SentryScope *_Nonnull scope) {
+                          SentryAttachment *attachment =
+                              [[SentryAttachment alloc] initWithData:diagnosticJSON
+                                                            filename:@"MXDiagnosticPayload.json"];
+                          [scope addAttachment:attachment];
+                      }];
     } else {
-        [SentrySDK captureEvent:event];
+        [SentrySDKSwift captureEvent:event];
     }
 }
 

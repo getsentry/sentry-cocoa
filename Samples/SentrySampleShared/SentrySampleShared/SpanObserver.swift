@@ -10,7 +10,7 @@ public class SpanObserver: NSObject {
     }
 
     convenience init?(callback: @escaping (Span) -> Void) {
-        guard let span = SentrySDK.span else { return nil }
+        guard let span = SentrySDKSwift.span else { return nil }
         self.init(span: span)
         self.performOnFinish(callback: callback)
     }

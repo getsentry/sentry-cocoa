@@ -46,7 +46,7 @@
 
 - (void)captureWithFeedback:(SentryFeedback *)feedback
 {
-    [SentrySDK captureFeedback:feedback];
+    [SentrySDKSwift captureFeedback:feedback];
 }
 
 @end

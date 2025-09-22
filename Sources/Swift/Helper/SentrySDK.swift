@@ -2,9 +2,13 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
+#if SDK_V9
+typealias SentrySDK = SentrySDKSwift
+#endif // SDK_V9
+
 /// The main entry point for the Sentry SDK.
 /// We recommend using `start(configureOptions:)` to initialize Sentry.
-@objc open class SentrySDK: NSObject {
+@objc open class SentrySDKSwift: NSObject {
     
     // MARK: - Public
     
