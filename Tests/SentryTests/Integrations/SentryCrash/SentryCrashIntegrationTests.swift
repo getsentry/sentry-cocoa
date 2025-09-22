@@ -573,7 +573,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         
         XCTAssertEqual(1, client?.fileManager.getAllEnvelopes().count)
         let transactionEnvelopeFileContents = try XCTUnwrap(client?.fileManager.getOldestEnvelope())
-        let envelope = try XCTUnwrap(SentrySerialization.envelope(with: transactionEnvelopeFileContents.contents))
+        let envelope = try XCTUnwrap(SentrySerializationSwift.envelope(with: transactionEnvelopeFileContents.contents))
         XCTAssertEqual(1, envelope.items.count)
         XCTAssertEqual("transaction", envelope.items.first?.header.type)
     }
@@ -619,7 +619,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         
         XCTAssertEqual(1, client?.fileManager.getAllEnvelopes().count)
         let transactionEnvelopeFileContents = try XCTUnwrap(client?.fileManager.getOldestEnvelope())
-        let envelope = try XCTUnwrap(SentrySerialization.envelope(with: transactionEnvelopeFileContents.contents))
+        let envelope = try XCTUnwrap(SentrySerializationSwift.envelope(with: transactionEnvelopeFileContents.contents))
         XCTAssertEqual(1, envelope.items.count)
         XCTAssertEqual("transaction", envelope.items.first?.header.type)
     }

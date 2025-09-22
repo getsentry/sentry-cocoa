@@ -50,6 +50,15 @@
     XCTAssertEqual(client.options.profiling, sentry_getProfiling(client));
 }
 
+- (void)testGetProfiling_whenProfilingOptionsIsNil_shouldReturnNil
+{
+    SentryOptions *options = [[SentryOptions alloc] init];
+    options.dsn = @"https://username:password@app.getsentry.com/12345";
+    options.profiling = nil;
+    SentryClient *client = [[SentryClient alloc] initWithOptions:options];
+    XCTAssertNil(sentry_getProfiling(client));
+}
+
 - (void)testStringFromSentryID
 {
     SentryId *sentryId = [[SentryId alloc] init];
@@ -112,6 +121,17 @@
                                                 operation:@""
                                                   sampled:kSentrySampleDecisionNo];
     XCTAssertEqual(context.parentSpanId, sentry_getParentSpanID(context));
+}
+
+- (void)testGetParentSpanID_whenParentIdIsNil_shouldReturnNil
+{
+    SentryTransactionContext *context =
+        [[SentryTransactionContext alloc] initWithTraceId:[[SentryId alloc] init]
+                                                   spanId:[[SentrySpanId alloc] init]
+                                                 parentId:nil
+                                                operation:@""
+                                                  sampled:kSentrySampleDecisionNo];
+    XCTAssertNil(sentry_getParentSpanID(context));
 }
 
 - (void)testGetTraceID

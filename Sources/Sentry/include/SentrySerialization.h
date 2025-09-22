@@ -1,8 +1,6 @@
 #import "SentryDefines.h"
 
-@class SentryAppState;
 @class SentryEnvelope;
-@class SentryReplayRecording;
 @class SentrySession;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -14,8 +12,6 @@ NS_ASSUME_NONNULL_BEGIN
 + (NSData *_Nullable)dataWithSession:(SentrySession *)session;
 
 + (NSData *_Nullable)dataWithEnvelope:(SentryEnvelope *)envelope;
-
-+ (SentryEnvelope *_Nullable)envelopeWithData:(NSData *)data;
 
 /**
  * Retrieves the json object from an event envelope item data.
