@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Improvements
+
+- The watchdog termination integration uses a runloop observer instead of fixed interval main thread work to avoid creating a busy runloop (#6237)
+
 ## 8.56.1
 
 ### Fixes

@@ -21,6 +21,7 @@
 
 // Headers that also import SentryDefines should be at the end of this list
 // otherwise it wont compile
+#import "SentryAppStateManager.h"
 #import "SentryAsyncLog.h"
 #import "SentryClient+Logs.h"
 #import "SentryCrash.h"

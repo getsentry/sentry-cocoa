@@ -273,7 +273,7 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         sut.install(with: Options())
 
         // -- Act --
-        Dynamic(sut).anrDetectedWithType(SentryANRType.unknown)
+        Dynamic(sut).hangStarted()
 
         // -- Assert --
         let appState = try XCTUnwrap(fixture.fileManager.readAppState())
@@ -287,7 +287,7 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         sut.install(with: Options())
 
         // -- Act --
-        Dynamic(sut).anrStopped()
+        Dynamic(sut).hangStopped()
 
         // -- Assert --
         let appState = try XCTUnwrap(fixture.fileManager.readAppState())

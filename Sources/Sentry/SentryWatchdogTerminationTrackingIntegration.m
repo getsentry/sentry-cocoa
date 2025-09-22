@@ -18,12 +18,13 @@
 #    import <SentryWatchdogTerminationTracker.h>
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryWatchdogTerminationTrackingIntegration () <SentryANRTrackerDelegate>
+@interface SentryWatchdogTerminationTrackingIntegration ()
 
 @property (nonatomic, strong) SentryWatchdogTerminationTracker *tracker;
-@property (nonatomic, strong) id<SentryANRTracker> anrTracker;
 @property (nullable, nonatomic, copy) NSString *testConfigurationFilePath;
 @property (nonatomic, strong) SentryAppStateManager *appStateManager;
+@property (nonatomic, strong) SentryWatchdogTerminationTrackingIntegrationSwift *swiftImpl;
+@property (nonatomic, strong) SentryDispatchQueueWrapper *queue;
 
 @end
 
@@ -56,6 +57,12 @@ NS_ASSUME_NONNULL_BEGIN
         [[SentryDispatchQueueWrapper alloc] initWithName:"io.sentry.watchdog-termination-tracker"
                                               attributes:attributes];
 
+    self.swiftImpl = [[SentryWatchdogTerminationTrackingIntegrationSwift alloc]
+        initWithHangTrackerBridge:SentryDependencyContainer.sharedInstance.hangTracker
+        timeoutInterval:options.appHangTimeoutInterval
+        hangStarted:^{ [dispatchQueueWrapper dispatchAsyncWithBlock:^{ [self hangStarted]; }]; }
+        hangStopped:^{ [dispatchQueueWrapper dispatchAsyncWithBlock:^{ [self hangStopped]; }]; }];
+
     SentryFileManager *fileManager = [[[SentrySDKInternal currentHub] getClient] fileManager];
     SentryAppStateManager *appStateManager =
         [SentryDependencyContainer sharedInstance].appStateManager;
@@ -75,17 +82,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                         scopePersistentStore:scopeStore];
 
     [self.tracker start];
-
-#    if SDK_V9
-    BOOL isV2Enabled = YES;
-#    else
-    BOOL isV2Enabled = options.enableAppHangTrackingV2;
-#    endif // SDK_V9
-
-    self.anrTracker =
-        [SentryDependencyContainer.sharedInstance getANRTracker:options.appHangTimeoutInterval
-                                                    isV2Enabled:isV2Enabled];
-    [self.anrTracker addListener:self];
+    [self.swiftImpl start];
 
     self.appStateManager = appStateManager;
 
@@ -125,16 +122,16 @@ NS_ASSUME_NONNULL_BEGIN
     if (nil != self.tracker) {
         [self.tracker stop];
     }
-    [self.anrTracker removeListener:self];
+    [self.swiftImpl stop];
 }
 
-- (void)anrDetectedWithType:(enum SentryANRType)type
+- (void)hangStarted
 {
     [self.appStateManager
         updateAppState:^(SentryAppState *appState) { appState.isANROngoing = YES; }];
 }
 
-- (void)anrStoppedWithResult:(SentryANRStoppedResult *_Nullable)result
+- (void)hangStopped
 {
     [self.appStateManager
         updateAppState:^(SentryAppState *appState) { appState.isANROngoing = NO; }];
