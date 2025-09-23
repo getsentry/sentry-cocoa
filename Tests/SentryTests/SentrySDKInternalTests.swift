@@ -610,7 +610,7 @@ class SentrySDKInternalTests: XCTestCase {
     @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func testResumeAndPauseAppHangTracking() throws {
         if SentryDependencyContainer.sharedInstance().crashWrapper.isBeingTraced {
-            throw XCTSkip("This test only works when the debugger is NOR attached, because it requires the SentryANRTrackingIntegration being installed, which the SDK only installs if the debugger is not attached.")
+            throw XCTSkip("This test only works when the debugger is NOT attached, because it requires the SentryANRTrackingIntegration being installed, which the SDK only installs if the debugger is not attached.")
         }
 
         SentrySDK.start { options in
