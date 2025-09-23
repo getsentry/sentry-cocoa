@@ -32,7 +32,6 @@
 @protocol SentryRateLimits;
 @protocol SentryApplication;
 @protocol SentryProcessInfoSource;
-@protocol SentryDispatchQueueProviderProtocol;
 @protocol SentryNSNotificationCenterWrapper;
 @protocol SentryObjCRuntimeWrapper;
 
