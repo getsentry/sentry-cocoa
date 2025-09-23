@@ -187,7 +187,7 @@
     if (nil != self.userContext[@"breadcrumbs"]) {
         NSArray *storedBreadcrumbs = self.userContext[@"breadcrumbs"];
         for (NSDictionary *storedCrumb in storedBreadcrumbs) {
-            if (!storedCrumb[@"category"]) {
+            if (![storedCrumb[@"category"] isKindOfClass:[NSString class]]) {
                 continue;
             }
             SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc]
