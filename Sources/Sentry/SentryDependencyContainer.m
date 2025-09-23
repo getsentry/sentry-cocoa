@@ -19,7 +19,6 @@
 #import <SentryDebugImageProvider+HybridSDKs.h>
 #import <SentryDefaultRateLimits.h>
 #import <SentryDependencyContainer.h>
-#import <SentryGlobalEventProcessor.h>
 #import <SentryHttpDateParser.h>
 #import <SentryPerformanceTracker.h>
 #import <SentryRateLimitParser.h>
@@ -27,8 +26,6 @@
 #import <SentrySDK+Private.h>
 #import <SentrySwift.h>
 #import <SentrySwizzleWrapper.h>
-#import <SentrySysctl.h>
-#import <SentryThreadWrapper.h>
 #import <SentryTracer.h>
 #import <SentryUIViewControllerPerformanceTracker.h>
 #import <SentryWatchdogTerminationScopeObserver.h>
@@ -36,7 +33,6 @@
 #if SENTRY_HAS_UIKIT
 #    import "SentryANRTrackerV2.h"
 #    import "SentryFramesTracker.h"
-#    import <SentryViewHierarchyProvider.h>
 #    import <SentryWatchdogTerminationBreadcrumbProcessor.h>
 #endif // SENTRY_HAS_UIKIT
 

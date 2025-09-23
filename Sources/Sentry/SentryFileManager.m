@@ -9,7 +9,6 @@
 #import "SentryEvent.h"
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"
-#import "SentryMigrateSessionInit.h"
 #import "SentryOptions.h"
 #import "SentrySerialization.h"
 #import "SentrySwift.h"
@@ -218,7 +217,7 @@ _non_thread_safe_removeFileAtPath(NSString *path)
 
 - (nullable NSString *)storeEnvelope:(SentryEnvelope *)envelope
 {
-    NSData *envelopeData = [SentrySerialization dataWithEnvelope:envelope];
+    NSData *envelopeData = [SentrySerializationSwift dataWithEnvelope:envelope];
 
     if (envelopeData == nil) {
         SENTRY_LOG_ERROR(@"Serialization of envelope failed. Can't store envelope.");
@@ -414,7 +413,7 @@ _non_thread_safe_removeFileAtPath(NSString *path)
 
 - (void)storeAppState:(SentryAppState *)appState
 {
-    NSData *data = [SentrySerialization dataWithJSONObject:[appState serialize]];
+    NSData *data = [SentrySerializationSwift dataWithJSONObject:[appState serialize]];
 
     if (data == nil) {
         SENTRY_LOG_ERROR(@"Failed to store app state, because of an error in serialization");
@@ -582,7 +581,7 @@ _non_thread_safe_removeFileAtPath(NSString *path)
 
 - (void)storeAppHangEvent:(SentryEvent *)appHangEvent
 {
-    NSData *jsonData = [SentrySerialization dataWithJSONObject:[appHangEvent serialize]];
+    NSData *jsonData = [SentrySerializationSwift dataWithJSONObject:[appHangEvent serialize]];
     if (jsonData == nil) {
         SENTRY_LOG_ERROR(@"Failed to store app hang event, because of an error in serialization.");
         return;
@@ -943,7 +942,7 @@ removeAppLaunchProfilingConfigFile(void)
 
 - (void)storeSession:(SentrySession *)session sessionFilePath:(NSString *)sessionFilePath
 {
-    NSData *sessionData = [SentrySerialization dataWithSession:session];
+    NSData *sessionData = [SentrySerializationSwift dataWithSession:session];
     SENTRY_LOG_DEBUG(@"Writing session: %@", sessionFilePath);
     @synchronized(self.currentSessionFilePath) {
         if (![self writeData:sessionData toPath:sessionFilePath]) {

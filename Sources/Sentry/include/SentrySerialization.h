@@ -7,12 +7,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SentrySerialization : NSObject
 
-+ (NSData *_Nullable)dataWithJSONObject:(id)jsonObject;
-
-+ (NSData *_Nullable)dataWithSession:(SentrySession *)session;
-
-+ (NSData *_Nullable)dataWithEnvelope:(SentryEnvelope *)envelope;
-
 /**
  * Retrieves the json object from an event envelope item data.
  */

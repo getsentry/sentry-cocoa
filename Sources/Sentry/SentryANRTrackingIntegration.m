@@ -15,7 +15,6 @@
 #import "SentrySwift.h"
 #import "SentryThread.h"
 #import "SentryThreadInspector.h"
-#import "SentryThreadWrapper.h"
 #import <SentryOptions+Private.h>
 
 #if SENTRY_HAS_UIKIT

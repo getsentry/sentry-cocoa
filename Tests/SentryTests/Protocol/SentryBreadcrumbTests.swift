@@ -1,4 +1,4 @@
-@testable import Sentry
+@_spi(Private) @testable import Sentry
 import XCTest
 
 class SentryBreadcrumbTests: XCTestCase {
@@ -137,7 +137,7 @@ class SentryBreadcrumbTests: XCTestCase {
         // Arrange
         let crumb = fixture.breadcrumb
         let actual = crumb.serialize()
-        let data = try XCTUnwrap(SentrySerialization.data(withJSONObject: actual))
+        let data = try XCTUnwrap(SentrySerializationSwift.data(withJSONObject: actual))
         
         // Act
         let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as Breadcrumb?)
@@ -161,7 +161,7 @@ class SentryBreadcrumbTests: XCTestCase {
         let crumb = Breadcrumb()
         crumb.timestamp = fixture.date
         let actual = crumb.serialize()
-        let data = try XCTUnwrap(SentrySerialization.data(withJSONObject: actual))
+        let data = try XCTUnwrap(SentrySerializationSwift.data(withJSONObject: actual))
         
         // Act
         let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as Breadcrumb?)

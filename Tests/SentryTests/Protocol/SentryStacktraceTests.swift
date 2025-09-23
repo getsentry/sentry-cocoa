@@ -1,4 +1,4 @@
-@testable import Sentry
+@_spi(Private) @testable import Sentry
 import XCTest
 
 class SentryStacktraceTests: XCTestCase {
@@ -42,7 +42,7 @@ class SentryStacktraceTests: XCTestCase {
         // Arrange
         let stacktrace = TestData.stacktrace
         let serialized = stacktrace.serialize()
-        let data = try XCTUnwrap(SentrySerialization.data(withJSONObject: serialized))
+        let data = try XCTUnwrap(SentrySerializationSwift.data(withJSONObject: serialized))
         
         // Act
         let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as SentryStacktrace?)
@@ -58,7 +58,7 @@ class SentryStacktraceTests: XCTestCase {
         let stacktrace = TestData.stacktrace
         stacktrace.snapshot = nil
         let serialized = stacktrace.serialize()
-        let data = try XCTUnwrap(SentrySerialization.data(withJSONObject: serialized))
+        let data = try XCTUnwrap(SentrySerializationSwift.data(withJSONObject: serialized))
         
         // Act
         let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as SentryStacktrace?)
@@ -74,7 +74,7 @@ class SentryStacktraceTests: XCTestCase {
         let stacktrace = TestData.stacktrace
         stacktrace.frames = []
         let serialized = stacktrace.serialize()
-        let data = try XCTUnwrap(SentrySerialization.data(withJSONObject: serialized))
+        let data = try XCTUnwrap(SentrySerializationSwift.data(withJSONObject: serialized))
         
         // Act
         let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as SentryStacktrace?)
@@ -90,7 +90,7 @@ class SentryStacktraceTests: XCTestCase {
         let stacktrace = TestData.stacktrace
         stacktrace.registers = [:]
         let serialized = stacktrace.serialize()
-        let data = try XCTUnwrap(SentrySerialization.data(withJSONObject: serialized))
+        let data = try XCTUnwrap(SentrySerializationSwift.data(withJSONObject: serialized))
         
         // Act
         let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as SentryStacktrace?)

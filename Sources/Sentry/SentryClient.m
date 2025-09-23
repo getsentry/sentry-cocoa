@@ -12,7 +12,6 @@
 #import "SentryException.h"
 #import "SentryExtraContextProvider.h"
 #import "SentryFileManager.h"
-#import "SentryGlobalEventProcessor.h"
 #import "SentryHub+Private.h"
 #import "SentryHub.h"
 #import "SentryInstallation.h"
@@ -946,14 +945,10 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     SentryGlobalEventProcessor *globalEventProcessor
         = SentryDependencyContainer.sharedInstance.globalEventProcessor;
 
-    SentryEvent *newEvent = event;
-    for (SentryEventProcessor processor in globalEventProcessor.processors) {
-        newEvent = processor(newEvent);
-        if (newEvent == nil) {
-            SENTRY_LOG_DEBUG(@"SentryScope callEventProcessors: An event processor decided to "
-                             @"remove this event.");
-            break;
-        }
+    SentryEvent *newEvent = [globalEventProcessor reportAll:event];
+    if (newEvent == nil) {
+        SENTRY_LOG_DEBUG(@"SentryScope callEventProcessors: An event processor decided to "
+                         @"remove this event.");
     }
     return newEvent;
 }

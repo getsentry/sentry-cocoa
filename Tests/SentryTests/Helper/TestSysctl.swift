@@ -1,4 +1,5 @@
 import Foundation
+@_spi(Private) @testable import Sentry
 
 class TestSysctl: SentrySysctl {
     
