@@ -9,7 +9,6 @@
 #import "SentryEvent.h"
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"
-#import "SentryMigrateSessionInit.h"
 #import "SentryOptions.h"
 #import "SentrySerialization.h"
 #import "SentrySwift.h"
@@ -111,7 +110,8 @@ _non_thread_safe_removeFileAtPath(NSString *path)
 @property (nonatomic, copy) NSString *appHangEventFilePath;
 @property (nonatomic, assign) NSUInteger currentFileCounter;
 @property (nonatomic, assign) NSUInteger maxEnvelopes;
-@property (nonatomic, weak) id<SentryFileManagerDelegate> delegate;
+@property (nonatomic, copy, nullable) void (^envelopeDeletedCallback)
+    (SentryEnvelopeItem *, SentryDataCategory);
 
 @end
 
@@ -200,9 +200,10 @@ _non_thread_safe_removeFileAtPath(NSString *path)
     self.envelopesPath = [self.sentryPath stringByAppendingPathComponent:EnvelopesPathComponent];
 }
 
-- (void)setDelegate:(id<SentryFileManagerDelegate>)delegate
+- (void)setEnvelopeDeletedCallback:(void (^)(
+                                       SentryEnvelopeItem *_Nonnull, SentryDataCategory))callback
 {
-    _delegate = delegate;
+    _envelopeDeletedCallback = callback;
 }
 
 #pragma mark - Convenience Accessors
@@ -216,7 +217,7 @@ _non_thread_safe_removeFileAtPath(NSString *path)
 
 - (nullable NSString *)storeEnvelope:(SentryEnvelope *)envelope
 {
-    NSData *envelopeData = [SentrySerialization dataWithEnvelope:envelope];
+    NSData *envelopeData = [SentrySerializationSwift dataWithEnvelope:envelope];
 
     if (envelopeData == nil) {
         SENTRY_LOG_ERROR(@"Serialization of envelope failed. Can't store envelope.");
@@ -412,7 +413,7 @@ _non_thread_safe_removeFileAtPath(NSString *path)
 
 - (void)storeAppState:(SentryAppState *)appState
 {
-    NSData *data = [SentrySerialization dataWithJSONObject:[appState serialize]];
+    NSData *data = [SentrySerializationSwift dataWithJSONObject:[appState serialize]];
 
     if (data == nil) {
         SENTRY_LOG_ERROR(@"Failed to store app state, because of an error in serialization");
@@ -580,7 +581,7 @@ _non_thread_safe_removeFileAtPath(NSString *path)
 
 - (void)storeAppHangEvent:(SentryEvent *)appHangEvent
 {
-    NSData *jsonData = [SentrySerialization dataWithJSONObject:[appHangEvent serialize]];
+    NSData *jsonData = [SentrySerializationSwift dataWithJSONObject:[appHangEvent serialize]];
     if (jsonData == nil) {
         SENTRY_LOG_ERROR(@"Failed to store app hang event, because of an error in serialization.");
         return;
@@ -941,7 +942,7 @@ removeAppLaunchProfilingConfigFile(void)
 
 - (void)storeSession:(SentrySession *)session sessionFilePath:(NSString *)sessionFilePath
 {
-    NSData *sessionData = [SentrySerialization dataWithSession:session];
+    NSData *sessionData = [SentrySerializationSwift dataWithSession:session];
     SENTRY_LOG_DEBUG(@"Writing session: %@", sessionFilePath);
     @synchronized(self.currentSessionFilePath) {
         if (![self writeData:sessionData toPath:sessionFilePath]) {
@@ -972,7 +973,7 @@ removeAppLaunchProfilingConfigFile(void)
             return nil;
         }
     }
-    SentrySession *currentSession = [SentrySerialization sessionWithData:currentData];
+    SentrySession *currentSession = [SentrySerializationSwift sessionWithData:currentData];
     if (nil == currentSession) {
         SENTRY_LOG_ERROR(
             @"Data stored in session: '%@' was not parsed as session.", sessionFilePath);
@@ -991,7 +992,7 @@ removeAppLaunchProfilingConfigFile(void)
         SENTRY_LOG_WARN(@"No app state data found at %@", path);
         return nil;
     }
-    return [SentrySerialization appStateWithData:currentData];
+    return [SentrySerializationSwift appStateWithData:currentData];
 }
 
 - (void)deleteAppStateFrom:(NSString *)path
@@ -1071,7 +1072,7 @@ removeAppLaunchProfilingConfigFile(void)
         [envelopePathsCopy removeObjectAtIndex:i];
 
         NSData *envelopeData = [[NSFileManager defaultManager] contentsAtPath:envelopeFilePath];
-        SentryEnvelope *envelope = [SentrySerialization envelopeWithData:envelopeData];
+        SentryEnvelope *envelope = [SentrySerializationSwift envelopeWithData:envelopeData];
 
         BOOL didMigrateSessionInit =
             [SentryMigrateSessionInit migrateSessionInit:envelope
@@ -1089,7 +1090,9 @@ removeAppLaunchProfilingConfigFile(void)
                 continue;
             }
 
-            [_delegate envelopeItemDeleted:item withCategory:rateLimitCategory];
+            if (self.envelopeDeletedCallback) {
+                self.envelopeDeletedCallback(item, rateLimitCategory);
+            }
         }
 
         [self removeFileAtPath:envelopeFilePath];

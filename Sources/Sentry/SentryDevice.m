@@ -193,12 +193,11 @@ sentry_getOSVersion(void)
 #endif // SENTRY_HAS_UIKIT
 }
 
-NSString *
-sentry_getDeviceModel(void)
+NSString *_Nullable sentry_getDeviceModel(void)
 {
 #if TARGET_OS_SIMULATOR
     // iPhone/iPad, Watch and TV simulators
-    NSString *simulatedDeviceModelName = sentry_getSimulatorDeviceModel();
+    NSString *_Nullable simulatedDeviceModelName = sentry_getSimulatorDeviceModel();
     SENTRY_LOG_DEBUG(@"Got simulated device model name %@ (running on %@)",
         simulatedDeviceModelName, getHardwareDescription(HW_MODEL));
     return simulatedDeviceModelName;
@@ -225,8 +224,7 @@ sentry_getDeviceModel(void)
 #endif // TARGET_OS_SIMULATOR
 }
 
-NSString *
-sentry_getSimulatorDeviceModel(void)
+NSString *_Nullable sentry_getSimulatorDeviceModel(void)
 {
     return NSProcessInfo.processInfo.environment[@"SIMULATOR_MODEL_IDENTIFIER"];
 }

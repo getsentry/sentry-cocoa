@@ -1,4 +1,4 @@
-@testable import Sentry
+@_spi(Private) @testable import Sentry
 import XCTest
 
 @available(*, deprecated)
@@ -78,7 +78,7 @@ class SentryUserTests: XCTestCase {
         // Arrange
         let user = TestData.user
         let actual = user.serialize()
-        let data = try XCTUnwrap(SentrySerialization.data(withJSONObject: actual))
+        let data = try XCTUnwrap(SentrySerializationSwift.data(withJSONObject: actual))
         
         // Act
         let decoded = decodeFromJSONData(jsonData: data) as User?
@@ -91,7 +91,7 @@ class SentryUserTests: XCTestCase {
         // Arrange
         let user = User()
         let actual = user.serialize()
-        let data = try XCTUnwrap(SentrySerialization.data(withJSONObject: actual))
+        let data = try XCTUnwrap(SentrySerializationSwift.data(withJSONObject: actual))
         
         // Act
         let decoded = decodeFromJSONData(jsonData: data) as User?

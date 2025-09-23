@@ -17,7 +17,6 @@
 #import "SentrySessionReplayIntegration+Private.h"
 #import "SentrySwift.h"
 #import "SentryUser+Private.h"
-#import "SentryViewHierarchyProvider.h"
 #import <SentryBreadcrumb.h>
 #import <SentryDependencyContainer.h>
 #import <SentryFramesTracker.h>
@@ -50,7 +49,7 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 
 + (nullable SentryEnvelope *)envelopeWithData:(NSData *)data
 {
-    return [SentrySerialization envelopeWithData:data];
+    return [SentrySerializationSwift envelopeWithData:data];
 }
 
 #if !SDK_V9

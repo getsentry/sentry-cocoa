@@ -28,7 +28,7 @@
      * Initializes an envelope item with an event.
      */
     @objc public convenience init(event: Event) {
-        var json = SentrySerialization.data(withJSONObject: event.serialize())
+        var json = SentrySerializationSwift.data(withJSONObject: event.serialize())
         if json == nil {
             // We don't know what caused the serialization to fail.
             let errorEvent = Event()
@@ -45,7 +45,7 @@
             
             // We accept the risk that this simple serialization fails. Therefore we ignore the
             // error on purpose.
-            json = SentrySerialization.data(withJSONObject: errorEvent.serialize())
+            json = SentrySerializationSwift.data(withJSONObject: errorEvent.serialize())
         }
             
             // event.type can be nil and the server infers error if there's a stack trace, otherwise
@@ -171,7 +171,7 @@
      * Initializes an envelope item with replay event and recording data.
      */
     @objc public convenience init?(replayEvent: SentryReplayEvent, replayRecording: SentryReplayRecording, video: URL) {
-        guard let replayEventData = SentrySerialization.data(withJSONObject: replayEvent.serialize()) else {
+        guard let replayEventData = SentrySerializationSwift.data(withJSONObject: replayEvent.serialize()) else {
             SentrySDKLog.error("Could not serialize replay event data for envelope item. Event will be nil.")
             return nil
         }

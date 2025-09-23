@@ -134,11 +134,11 @@ jobs:
 
           # iOS 26 with Xcode 26
           - name: iOS 26 Sentry
-            runs-on: macos-15
+            runs-on: macos-26
             platform: "iOS"
             xcode: "26.0"
-            test-destination-os: "26.0"
-            device: "iPhone 16 Pro"
+            test-destination-os: "latest"
+            device: "iPhone 17 Pro"
             scheme: "Sentry"
 
           # We don't run the unit tests on macOS 13 cause we run them on all on GH actions available iOS versions.
@@ -161,6 +161,14 @@ jobs:
             test-destination-os: "latest"
             scheme: "Sentry"
 
+          # macOS 26
+          - name: macOS 26 Sentry
+            runs-on: macos-26
+            platform: "macOS"
+            xcode: "26.0"
+            test-destination-os: "latest"
+            scheme: "Sentry"
+
           # Catalyst. We test the latest version, as the risk something breaking on Catalyst and not
           # on an older iOS or macOS version is low.
           # In addition we are running tests on macOS 14, as there were OS-internal changes introduced in succeeding versions.
@@ -177,6 +185,8 @@ jobs:
             xcode: "16.4"
             test-destination-os: "latest"
             scheme: "Sentry"
+
+          ## We don't run unit tests on macCatalyst 26 yet because of https://github.com/getsentry/sentry-cocoa/issues/6165.
 
           # We don't run the unit tests on tvOS 16 cause we run them on all on GH actions available iOS versions.
           # The chance of missing a bug solely on tvOS 16 that doesn't occur on iOS, tvOS 15 or tvOS 16 is minimal.
@@ -207,6 +217,15 @@ jobs:
             test-destination-os: "18.4"
             scheme: "Sentry"
 
+          # tvOS 26
+          - name: tvOS 26 Sentry
+            runs-on: macos-26
+            platform: "tvOS"
+            xcode: "26.0"
+            test-destination-os: "latest"
+            device: "Apple TV"
+            scheme: "Sentry"
+
     steps:
       - uses: actions/checkout@v5
       - uses: actions/download-artifact@v5
@@ -217,13 +236,6 @@ jobs:
         run: ./scripts/start-test-server.sh
       - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
 
-      - name: Install required platforms for Xcode 26
-        if: matrix.xcode == '26.0' && matrix.platform != ''
-        run: ./scripts/ci-install-xOS-26-platforms.sh --platforms "${{matrix.platform}}"
-
-      - name: Create simulator device for Xcode 26
-        if: matrix.xcode == '26.0' && matrix.platform != ''
-        run: ./scripts/ci-create-simulator.sh --platform "${{matrix.platform}}" --os-version "${{matrix.test-destination-os}}" --device-name "${{matrix.device}}"
       - name: Install Slather
         run: gem install slather
 

@@ -1,4 +1,5 @@
 #import "SentrySerialization.h"
+#import "SentrySwift.h"
 #import <XCTest/XCTest.h>
 
 @interface SentrySerializationNilTests : XCTestCase
@@ -15,7 +16,7 @@
 {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wnonnull"
-    XCTAssertNil([SentrySerialization envelopeWithData:nil]);
+    XCTAssertNil([SentrySerializationSwift envelopeWithData:nil]);
 #pragma clang diagnostic pop
 }
 

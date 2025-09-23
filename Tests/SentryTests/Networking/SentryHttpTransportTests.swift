@@ -159,7 +159,7 @@ class SentryHttpTransportTests: XCTestCase {
     }
 
     private class func buildRequest(_ envelope: SentryEnvelope) -> URLRequest {
-        let envelopeData = try! XCTUnwrap(SentrySerialization.data(with: envelope))
+        let envelopeData = try! XCTUnwrap(SentrySerializationSwift.data(with: envelope))
         return try! SentryURLRequestFactory.envelopeRequest(with: dsn(), data: envelopeData)
     }
 
@@ -246,8 +246,8 @@ class SentryHttpTransportTests: XCTestCase {
         let expectedData = try XCTUnwrap(fixture.userFeedbackRequest.httpBody)
         let decompressedActualData = try XCTUnwrap(sentry_unzippedData(actualData))
         let decompressedExpectedData = try XCTUnwrap(sentry_unzippedData(expectedData))
-        let actualEnvelope = try XCTUnwrap(SentrySerialization.envelope(with: decompressedActualData))
-        let expectedEnvelope = try XCTUnwrap(SentrySerialization.envelope(with: decompressedExpectedData))
+        let actualEnvelope = try XCTUnwrap(SentrySerializationSwift.envelope(with: decompressedActualData))
+        let expectedEnvelope = try XCTUnwrap(SentrySerializationSwift.envelope(with: decompressedExpectedData))
         try EnvelopeUtils.assertEnvelope(expected: expectedEnvelope, actual: actualEnvelope)
     }
     
@@ -277,8 +277,8 @@ class SentryHttpTransportTests: XCTestCase {
         let expectedData = try XCTUnwrap(fixture.requestManager.requests.last?.httpBody)
         let decompressedActualData = try XCTUnwrap(sentry_unzippedData(actualData))
         let decompressedExpectedData = try XCTUnwrap(sentry_unzippedData(expectedData))
-        let actualEnvelope = try XCTUnwrap(SentrySerialization.envelope(with: decompressedActualData))
-        let expectedEnvelope = try XCTUnwrap(SentrySerialization.envelope(with: decompressedExpectedData))
+        let actualEnvelope = try XCTUnwrap(SentrySerializationSwift.envelope(with: decompressedActualData))
+        let expectedEnvelope = try XCTUnwrap(SentrySerializationSwift.envelope(with: decompressedExpectedData))
         try EnvelopeUtils.assertEnvelope(expected: expectedEnvelope, actual: actualEnvelope)
     }
     
@@ -508,14 +508,14 @@ class SentryHttpTransportTests: XCTestCase {
 
         let sessionEnvelope = SentryEnvelope(id: fixture.event.eventId, singleItem: SentryEnvelopeItem(session: fixture.session))
         sessionEnvelope.header.sentAt = fixture.currentDateProvider.date()
-        let sessionData = try XCTUnwrap(SentrySerialization.data(with: sessionEnvelope))
+        let sessionData = try XCTUnwrap(SentrySerializationSwift.data(with: sessionEnvelope))
         let sessionRequest = try! SentryURLRequestFactory.envelopeRequest(with: SentryHttpTransportTests.dsn(), data: sessionData)
 
         if fixture.requestManager.requests.invocations.count > 3 {
             let unzippedBody = try XCTUnwrap(sentry_unzippedData(XCTUnwrap(sessionRequest.httpBody)))
             let requestUnzippedBody = try XCTUnwrap(sentry_unzippedData(XCTUnwrap(XCTUnwrap(fixture.requestManager.requests.invocations.element(at: 3)).httpBody)))
-            let actualEnvelope = try XCTUnwrap(SentrySerialization.envelope(with: unzippedBody))
-            let expectedEnvelope = try XCTUnwrap(SentrySerialization.envelope(with: requestUnzippedBody))
+            let actualEnvelope = try XCTUnwrap(SentrySerializationSwift.envelope(with: unzippedBody))
+            let expectedEnvelope = try XCTUnwrap(SentrySerializationSwift.envelope(with: requestUnzippedBody))
             try EnvelopeUtils.assertEnvelope(expected: expectedEnvelope, actual: actualEnvelope)
         } else {
             XCTFail("Expected a fourth invocation")

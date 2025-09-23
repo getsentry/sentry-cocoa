@@ -426,7 +426,7 @@ class SentrySDKTests: XCTestCase {
 
         // Assert
         let eventEnvelopeItems = try fileManager.getAllEnvelopes().map { fileContent in
-            return try XCTUnwrap(SentrySerialization.envelope(with: fileContent.contents))
+            return try XCTUnwrap(SentrySerializationSwift.envelope(with: fileContent.contents))
         }.flatMap { envelope in
             return envelope.items.filter { $0.header.type == SentryEnvelopeItemTypes.event }
         }

@@ -163,13 +163,18 @@ sentry_serializedTraceProfileData(
     };
 
     bool isEmulated = sentry_isSimulatorBuild();
-    payload[SENTRY_CONTEXT_DEVICE_KEY] = @{
+    NSMutableDictionary *deviceDict = [[NSMutableDictionary alloc] initWithDictionary:@{
         @"architecture" : sentry_getCPUArchitecture(),
         @"is_emulator" : @(isEmulated),
         @"locale" : NSLocale.currentLocale.localeIdentifier,
         @"manufacturer" : @"Apple",
-        @"model" : isEmulated ? sentry_getSimulatorDeviceModel() : sentry_getDeviceModel()
-    };
+    }];
+    NSString *_Nullable deviceModel
+        = isEmulated ? sentry_getSimulatorDeviceModel() : sentry_getDeviceModel();
+    if (deviceModel != nil) {
+        deviceDict[@"model"] = SENTRY_UNWRAP_NULLABLE(NSString, deviceModel);
+    }
+    payload[SENTRY_CONTEXT_DEVICE_KEY] = deviceDict;
 
     payload[@"profile_id"] = [[[SentryId alloc] init] sentryIdString];
     payload[@"truncation_reason"] = truncationReason;
@@ -326,7 +331,7 @@ SentryEnvelope *_Nullable sentry_continuousProfileChunkEnvelope(
         return nil;
     }
 
-    NSData *JSONData = [SentrySerialization dataWithJSONObject:payload];
+    NSData *JSONData = [SentrySerializationSwift dataWithJSONObject:payload];
     if (JSONData == nil) {
         SENTRY_LOG_DEBUG(@"Failed to encode profile to JSON.");
         return nil;
@@ -380,15 +385,18 @@ SentryEnvelopeItem *_Nullable sentry_traceProfileEnvelopeItem(SentryHub *hub,
     }
 
     payload[@"platform"] = SentryPlatformName;
-    payload[@"transaction"] = @ {
+    NSMutableDictionary *transactionDict = [[NSMutableDictionary alloc] initWithDictionary:@ {
         @"id" : transaction.eventId.sentryIdString,
         @"trace_id" : transaction.trace.traceId.sentryIdString,
-        @"name" : transaction.transaction,
         @"active_thread_id" : [transaction.trace.transactionContext sentry_threadInfo].threadId
-    };
+    }];
+    if (transaction.transaction) {
+        transactionDict[@"name"] = transaction.transaction;
+    }
+    payload[@"transaction"] = transactionDict;
     payload[@"timestamp"] = sentry_toIso8601String(startTimestamp);
 
-    NSData *JSONData = [SentrySerialization dataWithJSONObject:payload];
+    NSData *JSONData = [SentrySerializationSwift dataWithJSONObject:payload];
     if (JSONData == nil) {
         SENTRY_LOG_DEBUG(@"Failed to encode profile to JSON.");
         return nil;

@@ -7,10 +7,13 @@ import XCTest
 
 @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
 class SentrySessionReplayIntegrationTests: XCTestCase {
-    
+
+    private var uiApplication: TestSentryUIApplication!
+    private var globalEventProcessor: SentryGlobalEventProcessor!
+
     private class TestCrashWrapper: SentryCrashWrapper {
         let traced: Bool
-        
+
         init(traced: Bool = true) {
             self.traced = traced
             super.init(processInfoWrapper: ProcessInfo.processInfo, systemInfo: [:]) // Call the test designated initializer
@@ -22,16 +25,18 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
     }
     
     override func setUpWithError() throws {
-        guard #available(iOS 16.0, tvOS 16.0, *)  else {
+        guard #available(iOS 16.0, tvOS 16.0, *) else {
             throw XCTSkip("iOS version not supported")
         }
-    }
-    
-    private var uiApplication = TestSentryUIApplication()
-    private var globalEventProcessor = SentryGlobalEventProcessor()
 
-    override func setUp() {
+        if #available(iOS 26.0, tvOS 26.0, macCatalyst 26.0, *) {
+            throw XCTSkip("When running the unit tests on iOS 26.0, tvOS 26 or macCatalyst 26.0 with Xcode 26.0, we get warning log messages on the console: 'nw_socket_set_connection_idle [C1.1.1.1:3] setsockopt SO_CONNECTION_IDLE failed [42: Protocol not available]'. This leads to test failures in CI. Therefore, we skip these for now. We are going to fix this with https://github.com/getsentry/sentry-cocoa/issues/6165.")
+        }
+
+        uiApplication = TestSentryUIApplication()
+        globalEventProcessor = SentryGlobalEventProcessor()
         uiApplication.windows = [UIWindow()]
+
         SentryDependencyContainer.sharedInstance().application = uiApplication
         SentryDependencyContainer.sharedInstance().reachability = TestSentryReachability()
         SentryDependencyContainer.sharedInstance().globalEventProcessor = globalEventProcessor
@@ -739,7 +744,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         let info: [String: Any] = ["replayId": SentryId().sentryIdString,
                                     "path": sessionFolder,
                                     "errorSampleRate": errorSampleRate]
-        let data = SentrySerialization.data(withJSONObject: info)
+        let data = SentrySerializationSwift.data(withJSONObject: info)
         
         try FileManager.default.createDirectory(atPath: replayFolder, withIntermediateDirectories: true)
         
