@@ -328,31 +328,48 @@ static SentryTouchTracker *_touchTracker;
 
 - (void)runReplayForAvailableWindow
 {
-    if ([SentryDependencyContainer.sharedInstance.application getWindows].count > 0) {
-        SENTRY_LOG_DEBUG(@"[Session Replay] Running replay for available window");
-        // If a window its already available start replay right away
-        [self startWithOptions:_replayOptions fullSession:_startedAsFullSession];
-    } else if (@available(iOS 13.0, tvOS 13.0, *)) {
-        SENTRY_LOG_DEBUG(
-            @"[Session Replay] Waiting for a scene to be available to started the replay");
-        // Wait for a scene to be available to started the replay
-        [_notificationCenter addObserver:self
-                                selector:@selector(newSceneActivate)
-                                    name:UISceneDidActivateNotification
-                                  object:nil];
-    }
+    // UIKit operations must be performed on the main thread
+    __weak typeof(self) weakSelf = self;
+    [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchSyncOnMainQueue:^{
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        if (!strongSelf)
+            return;
+
+        if ([SentryDependencyContainer.sharedInstance.application getWindows].count > 0) {
+            SENTRY_LOG_DEBUG(@"[Session Replay] Running replay for available window");
+            // If a window its already available start replay right away
+            [strongSelf startWithOptions:strongSelf->_replayOptions
+                             fullSession:strongSelf->_startedAsFullSession];
+        } else if (@available(iOS 13.0, tvOS 13.0, *)) {
+            SENTRY_LOG_DEBUG(
+                @"[Session Replay] Waiting for a scene to be available to started the replay");
+            // Wait for a scene to be available to started the replay
+            [strongSelf->_notificationCenter addObserver:strongSelf
+                                                selector:@selector(newSceneActivate)
+                                                    name:UISceneDidActivateNotification
+                                                  object:nil];
+        }
+    }];
 }
 
 - (void)newSceneActivate
 {
-    if (@available(iOS 13.0, tvOS 13.0, *)) {
-        SENTRY_LOG_DEBUG(@"[Session Replay] Scene is available, starting replay");
-        [SentryDependencyContainer.sharedInstance.notificationCenterWrapper
-            removeObserver:self
-                      name:UISceneDidActivateNotification
-                    object:nil];
-        [self startWithOptions:_replayOptions fullSession:_startedAsFullSession];
-    }
+    __weak typeof(self) weakSelf = self;
+    [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchSyncOnMainQueue:^{
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        if (!strongSelf)
+            return;
+
+        if (@available(iOS 13.0, tvOS 13.0, *)) {
+            SENTRY_LOG_DEBUG(@"[Session Replay] Scene is available, starting replay");
+            [SentryDependencyContainer.sharedInstance.notificationCenterWrapper
+                removeObserver:strongSelf
+                          name:UISceneDidActivateNotification
+                        object:nil];
+            [strongSelf startWithOptions:strongSelf->_replayOptions
+                             fullSession:strongSelf->_startedAsFullSession];
+        }
+    }];
 }
 
 - (void)startWithOptions:(SentryReplayOptions *)replayOptions
@@ -797,15 +814,19 @@ static SentryTouchTracker *_touchTracker;
 {
     SENTRY_LOG_DEBUG(@"[Session Replay] Connectivity changed to: %@, type: %@",
         connected ? @"connected" : @"disconnected", typeDescription);
-    
     // The connectivity handler is called from a background thread, but session replay operations
     // need to be performed on the main thread to avoid race conditions with the session tracker
     // being set up on the main thread.
+    __weak typeof(self) weakSelf = self;
     [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchAsyncOnMainQueue:^{
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        if (!strongSelf)
+            return;
+
         if (connected) {
-            [_sessionReplay resume];
+            [strongSelf->_sessionReplay resume];
         } else {
-            [_sessionReplay pauseSessionMode];
+            [strongSelf->_sessionReplay pauseSessionMode];
         }
     }];
 }

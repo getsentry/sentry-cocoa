@@ -1,7 +1,9 @@
 #import "SentryReplayApi.h"
+#import "SentryReplayApi+Private.h"
 
 #if SENTRY_TARGET_REPLAY_SUPPORTED
 
+#    import "SentryDependencyContainer.h"
 #    import "SentryHub+Private.h"
 #    import "SentryInternalCDefines.h"
 #    import "SentryLogC.h"
@@ -9,101 +11,157 @@
 #    import "SentrySDK+Private.h"
 #    import "SentrySessionReplayIntegration+Private.h"
 #    import "SentrySwift.h"
+#    import "_SentryDispatchQueueWrapperInternal.h"
 #    import <UIKit/UIKit.h>
+
+@interface SentryReplayApi ()
+
+@property (nonatomic, strong) _SentryDispatchQueueWrapperInternal *dispatchQueueWrapper;
+
+- (nullable SentrySessionReplayIntegration *)installedIntegration;
+
+@end
 
 @implementation SentryReplayApi
 
+- (instancetype)initPrivateWithDispatchQueueWrapper:
+    (_SentryDispatchQueueWrapperInternal *)dispatchQueueWrapper
+{
+    if (self = [super init]) {
+        _dispatchQueueWrapper = dispatchQueueWrapper;
+    }
+    return self;
+}
+
+#    if SENTRY_TEST || SENTRY_TEST_CI
+- (instancetype)initWithDispatchQueueWrapper:
+    (_SentryDispatchQueueWrapperInternal *)dispatchQueueWrapper
+{
+    return [self initPrivateWithDispatchQueueWrapper:dispatchQueueWrapper];
+}
+#    endif
+
+- (nullable SentrySessionReplayIntegration *)installedIntegration
+{
+    return (SentrySessionReplayIntegration *)[SentrySDKInternal.currentHub
+        getInstalledIntegration:SentrySessionReplayIntegration.class];
+}
+
 - (void)maskView:(UIView *)view
 {
-    [SentryRedactViewHelper maskView:view];
+    // UIView operations must be performed on the main thread
+    [self.dispatchQueueWrapper
+        dispatchSyncOnMainQueue:^{ [SentryRedactViewHelper maskView:view]; }];
 }
 
 - (void)unmaskView:(UIView *)view
 {
-    [SentryRedactViewHelper unmaskView:view];
+    // UIView operations must be performed on the main thread
+    [self.dispatchQueueWrapper
+        dispatchSyncOnMainQueue:^{ [SentryRedactViewHelper unmaskView:view]; }];
 }
 
 - (void)pause
 {
     SENTRY_LOG_INFO(@"[Session Replay] Pausing session");
-    SentrySessionReplayIntegration *replayIntegration
-        = (SentrySessionReplayIntegration *)[SentrySDKInternal.currentHub
-            getInstalledIntegration:SentrySessionReplayIntegration.class];
-    [replayIntegration pause];
+    // Session replay operations may involve UIKit operations that must be performed on the main
+    // thread
+    __weak typeof(self) weakSelf = self;
+    [self.dispatchQueueWrapper
+        dispatchSyncOnMainQueue:^{ [[weakSelf installedIntegration] pause]; }];
 }
 
 - (void)resume
 {
     SENTRY_LOG_INFO(@"[Session Replay] Resuming session");
-    SentrySessionReplayIntegration *replayIntegration
-        = (SentrySessionReplayIntegration *)[SentrySDKInternal.currentHub
-            getInstalledIntegration:SentrySessionReplayIntegration.class];
-    [replayIntegration resume];
+    // Session replay operations may involve UIKit operations that must be performed on the main
+    // thread
+    __weak typeof(self) weakSelf = self;
+    [self.dispatchQueueWrapper
+        dispatchSyncOnMainQueue:^{ [[weakSelf installedIntegration] resume]; }];
 }
 
 - (void)start SENTRY_DISABLE_THREAD_SANITIZER("double-checked lock produce false alarms")
 {
     SENTRY_LOG_INFO(@"[Session Replay] Starting session");
-    SentrySessionReplayIntegration *replayIntegration
-        = (SentrySessionReplayIntegration *)[SentrySDKInternal.currentHub
-            getInstalledIntegration:SentrySessionReplayIntegration.class];
+    // Session replay operations may involve UIKit operations that must be performed on the main
+    // thread
+    __weak typeof(self) weakSelf = self;
+    [self.dispatchQueueWrapper dispatchSyncOnMainQueue:^{
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        if (!strongSelf)
+            return;
 
-    // Start could be misused and called multiple times, causing it to
-    // be initialized more than once before being installed.
-    // Synchronizing it will prevent this problem.
-    if (replayIntegration == nil) {
-        @synchronized(self) {
-            replayIntegration = (SentrySessionReplayIntegration *)[SentrySDKInternal.currentHub
-                getInstalledIntegration:SentrySessionReplayIntegration.class];
-            if (replayIntegration == nil) {
-                SENTRY_LOG_DEBUG(@"[Session Replay] Initializing replay integration");
-                SentryOptions *currentOptions = SentrySDKInternal.currentHub.client.options;
-                replayIntegration =
-                    [[SentrySessionReplayIntegration alloc] initForManualUse:currentOptions];
+        SentrySessionReplayIntegration *replayIntegration = [strongSelf installedIntegration];
 
-                [SentrySDKInternal.currentHub
-                    addInstalledIntegration:replayIntegration
-                                       name:NSStringFromClass(SentrySessionReplay.class)];
+        // Start could be misused and called multiple times, causing it to
+        // be initialized more than once before being installed.
+        // Synchronizing it will prevent this problem.
+        if (replayIntegration == nil) {
+            @synchronized(strongSelf) {
+                replayIntegration = [strongSelf installedIntegration];
+                if (replayIntegration == nil) {
+                    SENTRY_LOG_DEBUG(@"[Session Replay] Initializing replay integration");
+                    SentryOptions *currentOptions = SentrySDKInternal.currentHub.client.options;
+                    replayIntegration =
+                        [[SentrySessionReplayIntegration alloc] initForManualUse:currentOptions];
+
+                    [SentrySDKInternal.currentHub
+                        addInstalledIntegration:replayIntegration
+                                           name:NSStringFromClass(SentrySessionReplay.class)];
+                }
             }
         }
-    }
-    [replayIntegration start];
+        [replayIntegration start];
+    }];
 }
 
 - (void)stop
 {
     SENTRY_LOG_INFO(@"[Session Replay] Stopping session");
-    SentrySessionReplayIntegration *replayIntegration
-        = (SentrySessionReplayIntegration *)[SentrySDKInternal.currentHub
-            getInstalledIntegration:SentrySessionReplayIntegration.class];
-    [replayIntegration stop];
+    // Session replay operations may involve UIKit operations that must be performed on the main
+    // thread
+    __weak typeof(self) weakSelf = self;
+    [self.dispatchQueueWrapper
+        dispatchSyncOnMainQueue:^{ [[weakSelf installedIntegration] stop]; }];
 }
 
 - (void)showMaskPreview
 {
     SENTRY_LOG_DEBUG(@"[Session Replay] Showing mask preview");
-    [self showMaskPreview:1];
+    // Session replay operations may involve UIKit operations that must be performed on the main
+    // thread
+    __weak typeof(self) weakSelf = self;
+    [self.dispatchQueueWrapper dispatchSyncOnMainQueue:^{ [weakSelf showMaskPreview:1]; }];
 }
 
 - (void)showMaskPreview:(CGFloat)opacity
 {
     SENTRY_LOG_DEBUG(@"[Session Replay] Showing mask preview with opacity: %f", opacity);
-    SentrySessionReplayIntegration *replayIntegration
-        = (SentrySessionReplayIntegration *)[SentrySDKInternal.currentHub
-            getInstalledIntegration:SentrySessionReplayIntegration.class];
-
-    [replayIntegration showMaskPreview:opacity];
+    // Session replay operations may involve UIKit operations that must be performed on the main
+    // thread
+    __weak typeof(self) weakSelf = self;
+    [self.dispatchQueueWrapper
+        dispatchSyncOnMainQueue:^{ [[weakSelf installedIntegration] showMaskPreview:opacity]; }];
 }
 
 - (void)hideMaskPreview
 {
     SENTRY_LOG_DEBUG(@"[Session Replay] Hiding mask preview");
-    SentrySessionReplayIntegration *replayIntegration
-        = (SentrySessionReplayIntegration *)[SentrySDKInternal.currentHub
-            getInstalledIntegration:SentrySessionReplayIntegration.class];
-
-    [replayIntegration hideMaskPreview];
+    // Session replay operations may involve UIKit operations that must be performed on the main
+    // thread
+    __weak typeof(self) weakSelf = self;
+    [self.dispatchQueueWrapper
+        dispatchSyncOnMainQueue:^{ [[weakSelf installedIntegration] hideMaskPreview]; }];
 }
+
+#    if SENTRY_TEST || SENTRY_TEST_CI
+// Test-only method to access the dispatch queue wrapper for verification
+- (_SentryDispatchQueueWrapperInternal *)getDispatchQueueWrapper
+{
+    return _dispatchQueueWrapper;
+}
+#    endif
 
 @end
 

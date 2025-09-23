@@ -15,6 +15,7 @@
 #import "SentryOptions+Private.h"
 #import "SentryOptionsInternal.h"
 #import "SentryProfilingConditionals.h"
+#import "SentryReplayApi+Private.h"
 #import "SentryReplayApi.h"
 #import "SentrySamplerDecision.h"
 #import "SentrySamplingContext.h"
@@ -131,7 +132,11 @@ static NSDate *_Nullable startTimestamp = nil;
 {
     static SentryReplayApi *replay;
     static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{ replay = [[SentryReplayApi alloc] init]; });
+    dispatch_once(&onceToken, ^{
+        replay = [[SentryReplayApi alloc]
+            initPrivateWithDispatchQueueWrapper:SentryDependencyContainer.sharedInstance
+                                                    .dispatchQueueWrapper];
+    });
     return replay;
 }
 #endif
