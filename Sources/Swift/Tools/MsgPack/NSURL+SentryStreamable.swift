@@ -20,6 +20,8 @@ extension NSURL: SentryStreamable {
             SentrySDKLog.error("Could not read file size attribute - File: \(self)")
             return -1
         }
-        return fileSize.intValue
+        let unsignedSize = fileSize.uintValue
+        // Handle potential overflow for very large files
+        return unsignedSize > Int.max ? Int.max : Int(unsignedSize)
     }
 }
