@@ -4,7 +4,6 @@
 
 #    import "SentryDependencyContainer.h"
 #    import "SentryDispatchFactory.h"
-#    import "SentryDispatchSourceWrapper.h"
 #    import "SentryEvent+Private.h"
 #    import "SentryFormatter.h"
 #    import "SentryLogC.h"
@@ -37,7 +36,7 @@ NSString *const kSentryMetricProfilerSerializationUnitNanoJoules = @"nanojoule";
 // sampling CPU usage and memory footprint, and we want to minimize the overhead of making the
 // necessary system calls to gather that information. This is currently roughly 10% of the
 // backtrace profiler's resolution.
-static uint64_t frequencyHz = 10;
+static NSInteger frequencyHz = 10;
 
 /**
  * @return a dictionary containing all the metric values recorded during the transaction, or @c nil
@@ -237,8 +236,8 @@ serializeContinuousProfileMetrics(NSDictionary *state)
 - (void)registerSampler
 {
     __weak typeof(self) weakSelf = self;
-    uint64_t intervalNs = (uint64_t)1e9 / frequencyHz;
-    uint64_t leewayNs = intervalNs / 2;
+    NSInteger intervalNs = (NSInteger)1e9 / frequencyHz;
+    NSInteger leewayNs = intervalNs / 2;
     _dispatchSource = [SentryDependencyContainer.sharedInstance.dispatchFactory
         sourceWithInterval:intervalNs
                     leeway:leewayNs

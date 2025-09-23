@@ -1,7 +1,7 @@
+@_implementationOnly import _SentryPrivate
 import Foundation
 
-@objcMembers
-@_spi(Private) public class SentryReplayRecording: NSObject {
+@objc @_spi(Private) public class SentryReplayRecording: NSObject {
     
     static let SentryReplayEncoding = "h264"
     static let SentryReplayContainer = "mp4"
@@ -13,7 +13,7 @@ import Foundation
     let height: Int
     let width: Int
     
-    public convenience init(segmentId: Int, video: SentryVideoInfo, extraEvents: [any SentryRRWebEventProtocol]) {
+    @objc public convenience init(segmentId: Int, video: SentryVideoInfo, extraEvents: [any SentryRRWebEventProtocol]) {
         self.init(segmentId: segmentId, size: video.fileSize, start: video.start, duration: video.duration, frameCount: video.frameCount, frameRate: video.frameRate, height: video.height, width: video.width, extraEvents: extraEvents)
     }
     
@@ -27,11 +27,28 @@ import Foundation
         self.events = [meta, video] + (extraEvents ?? [])
     }
 
-    public func headerForReplayRecording() -> [String: Any] {
+    func headerForReplayRecording() -> [String: Any] {
         return ["segment_id": segmentId]
     }
 
-    public func serialize() -> [[String: Any]] {
+    func serialize() -> [[String: Any]] {
         return events.map { $0.serialize() }
+    }
+    
+    func data() -> Data? {
+        var recording = Data()
+        guard let headerData = SentrySerializationSwift.data(withJSONObject: headerForReplayRecording()) else {
+            SentrySDKLog.error("Failed to serialize replay recording header.")
+            return nil
+        }
+        recording.append(headerData)
+        let newLineData = Data(bytes: "\n", count: 1)
+        recording.append(newLineData)
+        guard let replayData = SentrySerializationSwift.data(withJSONObject: serialize()) else {
+            SentrySDKLog.error("Failed to serialize replay recording data.")
+            return nil
+        }
+        recording.append(replayData)
+        return recording
     }
 }

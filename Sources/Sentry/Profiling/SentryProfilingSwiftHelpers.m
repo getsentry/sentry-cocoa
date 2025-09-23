@@ -28,8 +28,7 @@ sentry_isProfilingCorrelatedToTraces(SentryClient *client)
     return [client.options isProfilingCorrelatedToTraces];
 }
 
-SentryProfileOptions *
-sentry_getProfiling(SentryClient *client)
+SentryProfileOptions *_Nullable sentry_getProfiling(SentryClient *client)
 {
     return client.options.profiling;
 }
@@ -82,8 +81,7 @@ sentry_profileAppStarts(SentryProfileOptions *options)
     return options.profileAppStarts;
 }
 
-SentrySpanId *
-sentry_getParentSpanID(SentryTransactionContext *context)
+SentrySpanId *_Nullable sentry_getParentSpanID(SentryTransactionContext *context)
 {
     return context.parentSpanId;
 }

@@ -16,6 +16,7 @@
 #import "SentrySDK+Private.h"
 #import "SentryTime.h"
 #import "SentryUserAccess.h"
+#import "SentryViewHierarchyProviderHelper.h"
 #import "_SentryDispatchQueueWrapperInternal.h"
 
 // Headers that also import SentryDefines should be at the end of this list
@@ -35,6 +36,7 @@
 #import "SentryFileManager.h"
 #import "SentryLevelHelper.h"
 #import "SentryMeta.h"
+#import "SentryModels+Serializable.h"
 #import "SentryMsgPackSerializer.h"
 #import "SentryNSDictionarySanitize.h"
 #import "SentryOptions+Private.h"
@@ -46,6 +48,7 @@
 #import "SentrySessionInternal.h"
 #import "SentrySpanDataKey.h"
 #import "SentrySpanOperation.h"
+#import "SentrySysctlObjC.h"
 #import "SentryTraceHeader.h"
 #import "SentryTraceOrigin.h"
 #import "SentryUser+Serialize.h"
