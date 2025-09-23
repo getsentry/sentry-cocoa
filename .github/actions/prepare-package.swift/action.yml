@@ -12,11 +12,6 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Remove newer package files
-      # Remove newer package files when processing Package.swift to prevent interference
-      if: ${{ inputs.package-file == 'Package.swift' }}
-      shell: bash
-      run: rm -rf Package@swift*
     - name: Remove Sentry-Dynamic-WithARM64e target
       # We don't build it on PRs, so we need to remove it from the package.swift file.
       if: ${{ inputs.is-pr == 'true' }}
@@ -25,7 +20,8 @@ runs:
         PACKAGE_FILE: ${{ inputs.package-file }}
       run: |
         sed -i '' '/Sentry-Dynamic-WithARM64e/d' $PACKAGE_FILE
-        sed -i '' '/^[[:space:]]*\.binaryTarget($/{N;/\n[[:space:]]*),$/d;}' $PACKAGE_FILE
+        sed -i '' '/Sentry-WithoutUIKitOrAppKit-WithARM64e/d' $PACKAGE_FILE
+        sed -i '' '/^[[:space:]]*\.binaryTarget($/{N;/\n[[:space:]]*),\{0,1\}$/d;}' $PACKAGE_FILE
     - name: Change path of the framework
       shell: bash
       env:
@@ -35,3 +31,5 @@ runs:
         sed -i '' 's/checksum: ".*" \/\/Sentry-Static/path: "Sentry.xcframework.zip"/g' $PACKAGE_FILE
         sed -i '' 's/checksum: ".*" \/\/Sentry-Dynamic-WithARM64e/path: "Sentry-Dynamic-WithARM64e.xcframework.zip"/g' $PACKAGE_FILE
         sed -i '' 's/checksum: ".*" \/\/Sentry-Dynamic/path: "Sentry-Dynamic.xcframework.zip"/g' $PACKAGE_FILE
+        sed -i '' 's/checksum: ".*" \/\/Sentry-WithoutUIKitOrAppKit-WithARM64e/path: "Sentry-WithoutUIKitOrAppKit-WithARM64e.xcframework.zip"/g' $PACKAGE_FILE
+        sed -i '' 's/checksum: ".*" \/\/Sentry-WithoutUIKitOrAppKit/path: "Sentry-WithoutUIKitOrAppKit.xcframework.zip"/g' $PACKAGE_FILE

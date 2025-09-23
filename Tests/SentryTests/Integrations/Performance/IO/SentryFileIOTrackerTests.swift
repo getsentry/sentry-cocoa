@@ -1,4 +1,4 @@
-@testable import Sentry
+@_spi(Private) @testable import Sentry
 @_spi(Private) import SentryTestUtils
 import XCTest
 
@@ -8,25 +8,39 @@ class SentryFileIOTrackerTests: XCTestCase {
 
         let filePath = "Some Path"
         let fileURL = URL(fileURLWithPath: "Some Path")
-        let sentryPath = try! TestFileManager(options: Options()).sentryPath
-        let sentryUrl = URL(fileURLWithPath: try! TestFileManager(options: Options()).sentryPath)
+
+        let sentryPath: String
+        let sentryUrl: URL
+
         let dateProvider = TestCurrentDateProvider()
+        let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
+
         let data = Data("SOME DATA".utf8)
         let threadInspector = TestThreadInspector.instance
         let imageProvider = TestDebugImageProvider()
 
-        func getSut() -> SentryFileIOTracker {
+        init() throws {
+            let options = Options()
+            options.dsn = TestConstants.dsnForTestCase(type: SentryFileIOTrackerTests.self)
+            let fileManager = try TestFileManager(options: options, dateProvider: dateProvider, dispatchQueueWrapper: dispatchQueueWrapper)
+            sentryPath = fileManager.sentryPath
+            sentryUrl = URL(fileURLWithPath: sentryPath)
+
             imageProvider.debugImages = [TestData.debugImage]
             SentryDependencyContainer.sharedInstance().debugImageProvider = imageProvider
+            SentryDependencyContainer.sharedInstance().dateProvider = dateProvider
 
+        }
+
+        func getSut() -> SentryFileIOTracker {
             threadInspector.allThreads = [TestData.thread2]
 
-            let processInfoWrapper = TestSentryNSProcessInfoWrapper()
+            let processInfoWrapper = MockSentryProcessInfo()
             processInfoWrapper.overrides.processDirectoryPath = "sentrytest"
 
             let result = SentryFileIOTracker(threadInspector: threadInspector, processInfoWrapper: processInfoWrapper)
-            SentryDependencyContainer.sharedInstance().dateProvider = dateProvider
             result.enable()
+
             return result
         }
     }
@@ -34,9 +48,9 @@ class SentryFileIOTrackerTests: XCTestCase {
     private var fixture: Fixture!
 
     @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
-    override func setUp() {
-        super.setUp()
-        fixture = Fixture()
+    override func setUpWithError() throws {
+        try super.setUpWithError()
+        fixture = try Fixture()
         fixture.getSut().enable()
         SentrySDK.start {
             $0.removeAllIntegrations()

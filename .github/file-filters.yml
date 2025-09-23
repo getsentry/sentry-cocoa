@@ -264,6 +264,9 @@ run_release_for_prs: &run_release_for_prs
   - "fastlane/**"
   - "Makefile"
 
+  # Test files
+  - "Tests/Perf/metrics-test.yml"
+
 run_lint_swift_formatting_for_prs: &run_lint_swift_formatting_for_prs
   - "**/*.swift"
 
@@ -367,17 +370,6 @@ run_testflight_for_pushes: &run_testflight_for_pushes
   # Build configuration
   - "fastlane/**"
   - "Makefile"
-
-run_check_package_diff_for_prs: &run_check_package_diff_for_prs
-  - ".github/workflows/check-package-diff.yml"
-  - ".github/file-filters.yml"
-
-  # Package files
-  - "Package*.swift"
-
-  # Build configuration
-  - "Makefile"
-  - "Utils/expected_package_diff.patch"
 
 run_codeql_analysis_for_prs: &run_codeql_analysis_for_prs
   - "Sources/**"

@@ -30,7 +30,7 @@ class SentryFileIOTrackerSwiftHelpersTests: XCTestCase {
 
         tracker = SentryFileIOTracker(
             threadInspector: TestThreadInspector(options: .noIntegrations()),
-            processInfoWrapper: TestSentryNSProcessInfoWrapper()
+            processInfoWrapper: MockSentryProcessInfo()
         )
     }
 

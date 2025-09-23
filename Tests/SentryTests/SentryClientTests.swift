@@ -13,7 +13,8 @@ class SentryClientTests: XCTestCase {
     private class Fixture {
         let transport: TestTransport
         let transportAdapter: TestTransportAdapter
-        
+
+        let dateProvider = TestCurrentDateProvider()
         let debugImageProvider = TestDebugImageProvider()
         let threadInspector = TestThreadInspector.instance
         
@@ -24,16 +25,16 @@ class SentryClientTests: XCTestCase {
         let message: SentryMessage
         
         let user: User
-        let fileManager: SentryFileManager
+        let fileManager: TestFileManager
         let random = TestRandom(value: 1.0)
         
         let trace = SentryTracer(transactionContext: TransactionContext(name: "SomeTransaction", operation: "SomeOperation"), hub: nil)
         let transaction: Transaction
-        let crashWrapper = TestSentryCrashWrapper.sharedInstance()
+        let crashWrapper = TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo)
         #if os(iOS) || targetEnvironment(macCatalyst)
         let deviceWrapper = TestSentryUIDeviceWrapper()
         #endif // os(iOS) || targetEnvironment(macCatalyst)
-        let processWrapper = TestSentryNSProcessInfoWrapper()
+        let processWrapper = MockSentryProcessInfo()
         let extraContentProvider: SentryExtraContextProvider
         let locale = Locale(identifier: "en_US")
         let timezone = TimeZone(identifier: "Europe/Vienna")!
@@ -57,8 +58,14 @@ class SentryClientTests: XCTestCase {
             
             let options = Options()
             options.dsn = SentryClientTests.dsn
-            fileManager = try XCTUnwrap(SentryFileManager(options: options, dispatchQueueWrapper: TestSentryDispatchQueueWrapper()))
-            
+            fileManager = try XCTUnwrap(
+                TestFileManager(
+                    options: options,
+                    dateProvider: self.dateProvider,
+                    dispatchQueueWrapper: self.dispatchQueue
+                )
+            )
+
             transaction = Transaction(trace: trace, children: [])
             
             transport = TestTransport()
@@ -155,25 +162,26 @@ class SentryClientTests: XCTestCase {
     }
     
     func testInit_CallsDeleteOldEnvelopeItemsInvocations() throws {
-        let fileManager = try TestFileManager(options: Options())
-        
-        _ = SentryClient(options: Options(), fileManager: fileManager, deleteOldEnvelopeItems: true)
-        
-        XCTAssertEqual(1, fileManager.deleteOldEnvelopeItemsInvocations.count)
+        _ = SentryClient(options: Options(), fileManager: fixture.fileManager, deleteOldEnvelopeItems: true)
+
+        XCTAssertEqual(1, fixture.fileManager.deleteOldEnvelopeItemsInvocations.count)
     }
     
     func testInitCachesInstallationIDAsync() throws {
         let dispatchQueue = fixture.dispatchQueue
         SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = fixture.dispatchQueue
-        
+
         let options = Options()
         options.dsn = SentryClientTests.dsn
         // We have to put our cache into a subfolder of the default path, because on macOS we can't delete the default cache folder
         options.cacheDirectoryPath = "\(options.cacheDirectoryPath)/cache"
         _ = SentryClient(options: options)
-        
-        XCTAssertEqual(dispatchQueue.dispatchAsyncInvocations.count, 1)
-        
+
+        // The invocations count must be two:
+        // - SentryFileManager.deleteOldEnvelopeItems()
+        // - SentryInstallation.cacheIDAsyncWithCacheDirectoryPath(cacheDirectoryPath:)
+        XCTAssertEqual(dispatchQueue.dispatchAsyncInvocations.count, 2)
+
         let nonCachedID = SentryInstallation.id(withCacheDirectoryPathNonCached: options.cacheDirectoryPath)
         
         // We remove the file containing the installation ID, but the cached ID is still in memory
@@ -259,7 +267,7 @@ class SentryClientTests: XCTestCase {
     func testCaptureEventTypeTransactionDoesNotIncludeThreadAndDebugMeta() throws {
         let event = Event(level: SentryLevel.warning)
         event.message = fixture.message
-        event.type = SentryEnvelopeItemTypeTransaction
+        event.type = SentryEnvelopeItemTypes.transaction
         let scope = Scope()
         let expectedTags = ["tagKey": "tagValue"]
         scope.setTags(expectedTags)
@@ -302,7 +310,9 @@ class SentryClientTests: XCTestCase {
     
 #if os(iOS) || targetEnvironment(macCatalyst) || os(tvOS)
     func testCaptureEventWithCurrentScreen() throws {
-        SentryDependencyContainer.sharedInstance().application = TestSentryUIApplication()
+        let testApplication = TestSentryUIApplication()
+        SentryDependencyContainer.sharedInstance().application = testApplication
+        testApplication._relevantViewControllerNames = ["ClientTestViewController"]
         
         let event = Event()
         event.exceptions = [ Exception(value: "", type: "")]
@@ -315,7 +325,9 @@ class SentryClientTests: XCTestCase {
     }
 
     func testCaptureEventWithCurrentScreenInTheScope() throws {
-        SentryDependencyContainer.sharedInstance().application = TestSentryUIApplication()
+        let testApplication = TestSentryUIApplication()
+        SentryDependencyContainer.sharedInstance().application = testApplication
+        testApplication._relevantViewControllerNames = ["ClientTestViewController"]
         
         let event = Event()
         event.exceptions = [ Exception(value: "", type: "")]
@@ -359,7 +371,9 @@ class SentryClientTests: XCTestCase {
     // swiftlint:enable avoid_dispatch_groups_in_tests
     
     func testCaptureTransactionWithScreen() throws {
-        SentryDependencyContainer.sharedInstance().application = TestSentryUIApplication()
+        let testApplication = TestSentryUIApplication()
+        SentryDependencyContainer.sharedInstance().application = testApplication
+        testApplication._relevantViewControllerNames = ["ClientTestViewController"]
         let tracer = SentryTracer(transactionContext: TransactionContext(operation: "Operation"), hub: nil)
         let event = try XCTUnwrap(Dynamic(tracer).toTransaction() as Transaction?)
         fixture.getSut().capture(event: event, scope: fixture.scope)
@@ -397,7 +411,9 @@ class SentryClientTests: XCTestCase {
     }
     
     func testCaptureTransactionWithoutScreen() throws {
-        SentryDependencyContainer.sharedInstance().application = TestSentryUIApplication()
+        let testApplication = TestSentryUIApplication()
+        SentryDependencyContainer.sharedInstance().application = testApplication
+        testApplication._relevantViewControllerNames = ["ClientTestViewController"]
         
         let event = Transaction(trace: SentryTracer(context: SpanContext(operation: "test"), framesTracker: nil), children: [])
         fixture.getSut().capture(event: event, scope: fixture.scope)
@@ -982,7 +998,7 @@ class SentryClientTests: XCTestCase {
         let eventAppMemory = actual.context?["app"]?["app_memory"] as? Int
         XCTAssertEqual(eventAppMemory, 234_567)
 
-        let cpuCoreCount = actual.context?["device"]?["processor_count"] as? UInt
+        let cpuCoreCount = actual.context?["device"]?["processor_count"] as? Int
         XCTAssertEqual(fixture.processWrapper.processorCount, cpuCoreCount)
     }
     
@@ -1052,7 +1068,7 @@ class SentryClientTests: XCTestCase {
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     func testCaptureExceptionWithAppStateInForegroudWhenAppIsInForeground() throws {
         let app = TestSentryUIApplication()
-        app.applicationState = .active
+        app.unsafeApplicationState = .active
         SentryDependencyContainer.sharedInstance().application = app
         
         let event = TestData.event
@@ -1064,7 +1080,7 @@ class SentryClientTests: XCTestCase {
     
     func testCaptureTransaction_WithAppStateInForegroudWhenAppIsInForeground() throws {
         let app = TestSentryUIApplication()
-        app.applicationState = .active
+        app.unsafeApplicationState = .active
         SentryDependencyContainer.sharedInstance().application = app
         
         let event = fixture.transaction
@@ -1075,9 +1091,7 @@ class SentryClientTests: XCTestCase {
     }
 
     func testCaptureExceptionWithAppStateInForegroudWhenAppIsInBackground() throws {
-        let app = TestSentryUIApplication()
-        app.applicationState = .background
-        SentryDependencyContainer.sharedInstance().application = app
+        SentryDependencyContainer.sharedInstance().threadsafeApplication = SentryThreadsafeApplication(initialState: .background, notificationCenter: NotificationCenter.default)
         
         let event = TestData.event
         fixture.getSut().capture(event: event)
@@ -1087,9 +1101,7 @@ class SentryClientTests: XCTestCase {
     }
     
     func testCaptureExceptionWithAppStateInForegroudWhenAppIsInactive() throws {
-        let app = TestSentryUIApplication()
-        app.applicationState = .inactive
-        SentryDependencyContainer.sharedInstance().application = app
+        SentryDependencyContainer.sharedInstance().threadsafeApplication = SentryThreadsafeApplication(initialState: .inactive, notificationCenter: NotificationCenter.default)
         
         let event = TestData.event
         fixture.getSut().capture(event: event)
@@ -1099,9 +1111,7 @@ class SentryClientTests: XCTestCase {
     }
     
     func testCaptureExceptionWithAppStateInForegroundDoNotOverwriteExistingValue() throws {
-        let app = TestSentryUIApplication()
-        app.applicationState = .active
-        SentryDependencyContainer.sharedInstance().application = app
+        SentryDependencyContainer.sharedInstance().threadsafeApplication = SentryThreadsafeApplication(initialState: .active, notificationCenter: NotificationCenter.default)
         
         let event = TestData.event
         event.context?["app"] = ["in_foreground": "keep-value"]
@@ -1721,7 +1731,7 @@ class SentryClientTests: XCTestCase {
         eventId.assertIsNotEmpty()
         
         var expectedIntegrations = ["AutoBreadcrumbTracking", "AutoSessionTracking", "Crash", "NetworkTracking"]
-        if !SentryDependencyContainer.sharedInstance().crashWrapper.isBeingTraced() {
+        if !SentryDependencyContainer.sharedInstance().crashWrapper.isBeingTraced {
             expectedIntegrations = ["ANRTracking"] + expectedIntegrations
         }
         
@@ -1763,7 +1773,7 @@ class SentryClientTests: XCTestCase {
         eventId.assertIsNotEmpty()
         let actual = try lastSentEvent()
         var expectedIntegrations = ["AutoBreadcrumbTracking", "AutoSessionTracking", "Crash", "NetworkTracking", integrationName]
-        if !SentryDependencyContainer.sharedInstance().crashWrapper.isBeingTraced() {
+        if !SentryDependencyContainer.sharedInstance().crashWrapper.isBeingTraced {
             expectedIntegrations = ["ANRTracking"] + expectedIntegrations
         }
         
@@ -1785,16 +1795,27 @@ class SentryClientTests: XCTestCase {
         assertArrayEquals(expected: expected, actual: actual.sdk?["integrations"] as? [String])
     }
 
-    func testFileManagerCantBeInit() {
-        SentryFileManager.prepareInitError()
+    func testFileManagerCantBeInit() throws {
+        try SentryFileManager.prepareInitError()
+        defer {
+            // We can not directly throw in a defer-block, so we catch the error and fail the test manually
+            do {
+                try SentryFileManager.tearDownInitError()
+            } catch {
+                XCTFail("Failed to tear down SentryFileManager error: \(error)")
+            }
+        }
 
         let options = Options()
         options.dsn = SentryClientTests.dsn
-        let client = SentryClient(options: options, dispatchQueue: TestSentryDispatchQueueWrapper(), deleteOldEnvelopeItems: false)
+        let client = SentryClient(
+            options: options,
+            dateProvider: fixture.dateProvider,
+            dispatchQueue: fixture.dispatchQueue,
+            deleteOldEnvelopeItems: false
+        )
 
         XCTAssertNil(client)
-
-        SentryFileManager.tearDownInitError()
     }
     
     func testInstallationIdSetWhenNoUserId() throws {
@@ -2059,7 +2080,7 @@ class SentryClientTests: XCTestCase {
         
         sut.capture(replayEvent, replayRecording: replayRecording, video: movieUrl!, with: Scope())
         let envelope = fixture.transport.sentEnvelopes.first
-        XCTAssertEqual(try XCTUnwrap(envelope?.items.first).header.type, SentryEnvelopeItemTypeReplayVideo)
+        XCTAssertEqual(try XCTUnwrap(envelope?.items.first).header.type, SentryEnvelopeItemTypes.replayVideo)
     }
     
     func testCaptureReplayEvent_WrongEventFromEventProcessor() {
@@ -2421,28 +2442,6 @@ private extension SentryClientTests {
         }
     }
     
-#if os(iOS) || targetEnvironment(macCatalyst) || os(tvOS)
-    class TestSentryUIApplication: SentryUIApplication {
-        init() {
-            super.init(notificationCenterWrapper: TestNSNotificationCenterWrapper(), dispatchQueueWrapper: TestSentryDispatchQueueWrapper())
-        }
-
-        override func relevantViewControllers() -> [UIViewController] {
-            return [ClientTestViewController()]
-        }
-        
-        private var _underlyingAppState: UIApplication.State = .active
-        override var applicationState: UIApplication.State {
-            get { _underlyingAppState }
-            set { _underlyingAppState = newValue }
-        }
-    }
-    
-    class ClientTestViewController: UIViewController {
-        
-    }
-#endif
-
     func assertSampleRate( sampleRate: NSNumber?, randomValue: Double, isSampled: Bool) throws {
         fixture.random.value = randomValue
         

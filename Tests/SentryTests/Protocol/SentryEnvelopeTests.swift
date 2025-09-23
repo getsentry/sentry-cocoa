@@ -70,6 +70,7 @@ class SentryEnvelopeTests: XCTestCase {
                                                packages: [],
                                                settings: defaultSdkSettings)
 
+    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testSentryEnvelopeFromEvent() throws {
         let event = Event()
         
@@ -82,7 +83,7 @@ class SentryEnvelopeTests: XCTestCase {
         
         let json = try! JSONSerialization.data(withJSONObject: event.serialize(), options: JSONSerialization.WritingOptions(rawValue: 0))
         
-        assertJsonIsEqual(actual: json, expected: try XCTUnwrap(envelope.items.first).data)
+        assertJsonIsEqual(actual: json, expected: try XCTUnwrap(XCTUnwrap(envelope.items.first).data))
     }
     
     @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
@@ -105,6 +106,7 @@ class SentryEnvelopeTests: XCTestCase {
         XCTAssertEqual(data, try XCTUnwrap(envelope.items.first).data)
     }
     
+    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testSentryEnvelopeWithExplicitInitMessagesMultipleItems() {
         var items: [SentryEnvelopeItem] = []
         let itemCount = 3
@@ -169,17 +171,19 @@ class SentryEnvelopeTests: XCTestCase {
         XCTAssertEqual(traceContext, envelopeHeader.traceContext)
     }
     
+    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testInitSentryEnvelopeWithSession_DefaultSdkInfoIsSet() {
         let envelope = SentryEnvelope(session: SentrySession(releaseName: "1.1.1", distinctId: "some-id"))
         
         XCTAssertEqual(defaultSdkInfo, envelope.header.sdkInfo)
     }
 
+    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testInitWithEvent() throws {
         let event = fixture.event
         let envelope = SentryEnvelope(event: event)
 
-        let expectedData = SentrySerialization.data(withJSONObject: event.serialize())!
+        let expectedData = SentrySerializationSwift.data(withJSONObject: event.serialize())!
 
         XCTAssertEqual(event.eventId, envelope.header.eventId)
         XCTAssertEqual(1, envelope.items.count)
@@ -188,6 +192,7 @@ class SentryEnvelopeTests: XCTestCase {
         XCTAssertEqual(expected, actual)
     }
 
+    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testInitWithEvent_SerializationFails_SendsEventWithSerializationFailure() {
         let event = fixture.eventWithContinousSerializationFailure
         let envelope = SentryEnvelope(event: event)
@@ -225,7 +230,7 @@ class SentryEnvelopeTests: XCTestCase {
         XCTAssertEqual("user_report", item?.header.type)
         XCTAssertNotNil(item?.data)
         
-        let expectedData = SentrySerialization.data(withJSONObject: userFeedback.serialize())!
+        let expectedData = SentrySerializationSwift.data(withJSONObject: userFeedback.serialize())!
 
         let actual = String(data: item?.data ?? Data(), encoding: .utf8)?.sorted()
         let expected = String(data: expectedData, encoding: .utf8)?.sorted()

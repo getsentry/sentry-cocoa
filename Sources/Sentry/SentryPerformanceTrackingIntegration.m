@@ -4,7 +4,6 @@
 
 #    import "SentryDependencyContainer.h"
 #    import "SentryLogC.h"
-#    import "SentryNSProcessInfoWrapper.h"
 #    import "SentryOptions.h"
 #    import "SentrySubClassFinder.h"
 #    import "SentrySwift.h"

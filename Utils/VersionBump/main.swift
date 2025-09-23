@@ -39,7 +39,6 @@ let fromVersionFile = "./Sentry.podspec"
 let files = [
     "./Sentry.podspec",
     "./Package.swift",
-    "./Package@swift-5.9.swift",
     "./SentryPrivate.podspec",
     "./SentrySwiftUI.podspec",
     "./Sources/Sentry/SentryMeta.m",

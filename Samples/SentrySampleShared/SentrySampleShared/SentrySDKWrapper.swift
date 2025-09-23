@@ -49,21 +49,18 @@ public struct SentrySDKWrapper {
         options.debug = !SentrySDKOverrides.Special.disableDebugMode.boolValue
 
 #if !os(macOS) && !os(watchOS) && !os(visionOS)
-        if #available(iOS 16.0, *), !SentrySDKOverrides.SessionReplay.disableSessionReplay.boolValue {
+        if #available(iOS 16.0, *), !SentrySDKOverrides.SessionReplay.disable.boolValue {
             options.sessionReplay = SentryReplayOptions(
-                sessionSampleRate: SentrySDKOverrides.SessionReplay.sampleRate.floatValue ?? 0,
+                sessionSampleRate: SentrySDKOverrides.SessionReplay.sessionSampleRate.floatValue ?? 0,
                 onErrorSampleRate: SentrySDKOverrides.SessionReplay.onErrorSampleRate.floatValue ?? 1,
                 maskAllText: !SentrySDKOverrides.SessionReplay.disableMaskAllText.boolValue,
-                maskAllImages: !SentrySDKOverrides.SessionReplay.disableMaskAllImages.boolValue
+                maskAllImages: !SentrySDKOverrides.SessionReplay.disableMaskAllImages.boolValue,
+                enableViewRendererV2: !SentrySDKOverrides.SessionReplay.disableViewRendererV2.boolValue,
+                // Disable the fast view rendering, because we noticed parts (like the tab bar) are not rendered correctly
+                enableFastViewRendering: SentrySDKOverrides.SessionReplay.enableFastViewRendering.boolValue
             )
-
-            let defaultReplayQuality = SentryReplayOptions.SentryReplayQuality.high
+            let defaultReplayQuality = options.sessionReplay.quality
             options.sessionReplay.quality = SentryReplayOptions.SentryReplayQuality(rawValue: (SentrySDKOverrides.SessionReplay.quality.stringValue as? NSString)?.integerValue ?? defaultReplayQuality.rawValue) ?? defaultReplayQuality
-
-            options.sessionReplay.enableViewRendererV2 = !SentrySDKOverrides.SessionReplay.disableViewRendererV2.boolValue
-
-            // Disable the fast view rendering, because we noticed parts (like the tab bar) are not rendered correctly
-            options.sessionReplay.enableFastViewRendering = SentrySDKOverrides.SessionReplay.enableFastViewRendering.boolValue
         }
 
 #if !os(tvOS)
@@ -101,7 +98,15 @@ public struct SentrySDKWrapper {
 
         options.enablePreWarmedAppStartTracing = !isBenchmarking && !SentrySDKOverrides.Performance.disablePrewarmedAppStartTracing.boolValue
         options.enableUIViewControllerTracing = !SentrySDKOverrides.Performance.disableUIVCTracing.boolValue
+
+        // -- Screenshot Options --
         options.attachScreenshot = !SentrySDKOverrides.Other.disableAttachScreenshot.boolValue
+        options.screenshot.enableViewRendererV2 = !SentrySDKOverrides.Screenshot.disableViewRendererV2.boolValue
+        // The fast view renderer is opt-in, therefore it is assumed to be disabled by default.
+        options.screenshot.enableFastViewRendering = SentrySDKOverrides.Screenshot.enableFastViewRendering.boolValue
+        options.screenshot.maskAllImages = !SentrySDKOverrides.Screenshot.disableMaskAllImages.boolValue
+        options.screenshot.maskAllText = !SentrySDKOverrides.Screenshot.disableMaskAllText.boolValue
+
         options.attachViewHierarchy = !SentrySDKOverrides.Other.disableAttachViewHierarchy.boolValue
       #if !SDK_V9
         options.enableAppHangTrackingV2 = !SentrySDKOverrides.Performance.disableAppHangTrackingV2.boolValue
@@ -130,7 +135,9 @@ public struct SentrySDKWrapper {
         options.enableCrashHandler = !SentrySDKOverrides.Other.disableCrashHandling.boolValue
         options.enablePersistingTracesWhenCrashing = true
         options.enableTimeToFullDisplayTracing = !SentrySDKOverrides.Performance.disableTimeToFullDisplayTracing.boolValue
+      #if !SDK_V9
         options.enablePerformanceV2 = !SentrySDKOverrides.Performance.disablePerformanceV2.boolValue
+      #endif
         options.failedRequestStatusCodes = [ HttpStatusCodeRange(min: 400, max: 599) ]
 
     #if targetEnvironment(simulator)
@@ -159,6 +166,7 @@ public struct SentrySDKWrapper {
         // Experimental features
         options.experimental.enableFileManagerSwizzling = !SentrySDKOverrides.Other.disableFileManagerSwizzling.boolValue
         options.experimental.enableUnhandledCPPExceptionsV2 = true
+        options.experimental.enableLogs = true
     }
 
     func configureInitialScope(scope: Scope, options: Options) -> Scope {

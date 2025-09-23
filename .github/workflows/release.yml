@@ -51,7 +51,7 @@ jobs:
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
     needs: files-changed
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Setup matrix combinations
         id: setup-matrix-combinations
         run: |
@@ -129,7 +129,7 @@ jobs:
   # the github.sha is be the pre merge commit id for PRs.
   # See https://github.community/t/github-sha-isnt-the-value-expected/17903/17906.
   validate-spm:
-    name: Validate SPM Static ${{matrix.package-file.name}}
+    name: Validate SPM Static
     runs-on: macos-14
     needs: [files-changed, assemble-xcframework-variant]
     # Run the job only for PRs with related changes or non-PR events.
@@ -144,20 +144,14 @@ jobs:
         uses: ./.github/actions/prepare-package.swift
         with:
           is-pr: ${{ github.event_name == 'pull_request' }}
-          package-file: ${{matrix.package-file.name}}
       - run: swift build
         working-directory: Samples/macOS-SPM-CommandLine
       - name: Run CI Diagnostics
         if: failure()
         run: ./scripts/ci-diagnostics.sh
-    strategy:
-      matrix:
-        package-file:
-          - name: Package.swift
-          - name: Package@swift-5.9.swift
 
   validate-spm-dynamic:
-    name: Validate SPM Dynamic ${{matrix.package-file.name}}
+    name: Validate SPM Dynamic
     runs-on: macos-14
     needs: [files-changed, assemble-xcframework-variant]
     # Run the job only for PRs with related changes or non-PR events.
@@ -172,20 +166,14 @@ jobs:
         uses: ./.github/actions/prepare-package.swift
         with:
           is-pr: ${{ github.event_name == 'pull_request' }}
-          package-file: ${{matrix.package-file.name}}
       - run: swift build
         working-directory: Samples/SPM-Dynamic
       - name: Run CI Diagnostics
         if: failure()
         run: ./scripts/ci-diagnostics.sh
-    strategy:
-      matrix:
-        package-file:
-          - name: Package.swift
-          - name: Package@swift-5.9.swift
 
   swift-build:
-    name: Build Swift Static ${{matrix.package-file.name}}
+    name: Build Swift Static
     runs-on: macos-14
     needs: [files-changed, assemble-xcframework-variant]
     # Run the job only for PRs with related changes or non-PR events.
@@ -200,16 +188,32 @@ jobs:
         uses: ./.github/actions/prepare-package.swift
         with:
           is-pr: ${{ github.event_name == 'pull_request' }}
-          package-file: ${{matrix.package-file.name}}
       - run: swift build
       - name: Run CI Diagnostics
         if: failure()
         run: ./scripts/ci-diagnostics.sh
-    strategy:
-      matrix:
-        package-file:
-          - name: Package.swift
-          - name: Package@swift-5.9.swift
+
+  validate-spm-visionos:
+    name: Validate SPM Static visionOS
+    runs-on: macos-14
+    needs: [files-changed, assemble-xcframework-variant]
+    # Run the job only for PRs with related changes or non-PR events.
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/download-artifact@v5
+        with:
+          pattern: xcframework-${{github.sha}}-*
+          merge-multiple: true
+      - name: Prepare Package.swift
+        uses: ./.github/actions/prepare-package.swift
+        with:
+          is-pr: ${{ github.event_name == 'pull_request' }}
+      - run: set -o pipefail &&xcodebuild build -scheme visionOS-SPM -sdk xros -destination 'generic/platform=xros' | tee raw-build-output-spm-visionOS.log | xcbeautify
+        working-directory: Samples/visionOS-SPM
+      - name: Run CI Diagnostics
+        if: failure()
+        run: ./scripts/ci-diagnostics.sh
 
   duplication-tests:
     name: Test Sentry Duplication V4 # Up the version with every change to keep track of flaky tests
@@ -296,7 +300,7 @@ jobs:
     steps:
       - name: Get auth token
         id: token
-        uses: actions/create-github-app-token@a8d616148505b5069dccd32f177bb87d7f39123b # v2.1.1
+        uses: actions/create-github-app-token@67018539274d69449ef7c02e8e71183d1719ab42 # v2.1.4
         with:
           app-id: ${{ vars.SENTRY_RELEASE_BOT_CLIENT_ID }}
           private-key: ${{ secrets.SENTRY_RELEASE_BOT_PRIVATE_KEY }}

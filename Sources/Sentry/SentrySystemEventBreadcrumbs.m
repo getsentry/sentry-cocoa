@@ -3,6 +3,7 @@
 #import "SentryBreadcrumbDelegate.h"
 #import "SentryDefines.h"
 #import "SentryDependencyContainer.h"
+#import "SentryFileManager.h"
 #import "SentryLogC.h"
 #import "SentrySwift.h"
 
@@ -56,6 +57,9 @@
     [self.notificationCenterWrapper removeObserver:self
                                               name:UIDeviceOrientationDidChangeNotification
                                             object:nil];
+    [self.notificationCenterWrapper removeObserver:self
+                                              name:UIApplicationSignificantTimeChangeNotification
+                                            object:nil];
 }
 
 - (void)dealloc
@@ -82,6 +86,7 @@
     [self initKeyboardVisibilityObserver];
     [self initScreenshotObserver];
     [self initTimezoneObserver];
+    [self initSignificantTimeChangeObserver];
 }
 
 - (void)initBatteryObserver:(UIDevice *)currentDevice
@@ -276,6 +281,35 @@
 {
     [self.fileManager
         storeTimezoneOffset:SentryDependencyContainer.sharedInstance.dateProvider.timezoneOffset];
+}
+
+- (void)initSignificantTimeChangeObserver
+{
+
+    [self.notificationCenterWrapper addObserver:self
+                                       selector:@selector(significantTimeChangeTriggered:)
+                                           name:UIApplicationSignificantTimeChangeNotification
+                                         object:nil];
+}
+
+/**
+ * The system posts this notification when, for example, there’s a change to a new day (midnight), a
+ * carrier time update, or a change to, or from, daylight savings time. The notification doesn’t
+ * contain a user info dictionary.
+ *
+ * @see
+ * https://developer.apple.com/documentation/uikit/uiapplication/significanttimechangenotification#Discussion
+ */
+- (void)significantTimeChangeTriggered:(NSNotification *)notification
+{
+    SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelInfo
+                                                             category:@"device.event"];
+    crumb.type = @"system";
+
+    // We don't add the timezone here, because we already add it in timezoneEventTriggered.
+    crumb.data = @{ @"action" : @"SIGNIFICANT_TIME_CHANGE" };
+
+    [_delegate addBreadcrumb:crumb];
 }
 
 @end

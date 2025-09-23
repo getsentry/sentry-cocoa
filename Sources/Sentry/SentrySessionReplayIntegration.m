@@ -3,14 +3,12 @@
 #if SENTRY_TARGET_REPLAY_SUPPORTED
 
 #    import "SentryClient+Private.h"
-#    import "SentryCrashWrapper.h"
 #    import "SentryDependencyContainer.h"
 #    import "SentryDispatchFactory.h"
 #    import "SentryDispatchQueueProviderProtocol.h"
 #    import "SentryDisplayLinkWrapper.h"
 #    import "SentryEvent+Private.h"
 #    import "SentryFileManager.h"
-#    import "SentryGlobalEventProcessor.h"
 #    import "SentryHub+Private.h"
 #    import "SentryLogC.h"
 #    import "SentryOptions.h"
@@ -22,7 +20,6 @@
 #    import "SentrySessionReplaySyncC.h"
 #    import "SentrySwift.h"
 #    import "SentrySwizzle.h"
-#    import "SentryUIApplication.h"
 #    import <UIKit/UIKit.h>
 
 NS_ASSUME_NONNULL_BEGIN
@@ -331,7 +328,7 @@ static SentryTouchTracker *_touchTracker;
 
 - (void)runReplayForAvailableWindow
 {
-    if (SentryDependencyContainer.sharedInstance.application.windows.count > 0) {
+    if ([SentryDependencyContainer.sharedInstance.application getWindows].count > 0) {
         SENTRY_LOG_DEBUG(@"[Session Replay] Running replay for available window");
         // If a window its already available start replay right away
         [self startWithOptions:_replayOptions fullSession:_startedAsFullSession];
@@ -414,7 +411,8 @@ static SentryTouchTracker *_touchTracker;
                                                          displayLinkWrapper:displayLinkWrapper];
 
     [self.sessionReplay
-        startWithRootView:SentryDependencyContainer.sharedInstance.application.windows.firstObject
+        startWithRootView:[SentryDependencyContainer.sharedInstance.application getWindows]
+                              .firstObject
               fullSession:shouldReplayFullSession];
 
     [_notificationCenter addObserver:self
@@ -452,7 +450,7 @@ static SentryTouchTracker *_touchTracker;
         [[NSDictionary alloc] initWithObjectsAndKeys:sessionId.sentryIdString, @"replayId",
             path.lastPathComponent, @"path", @(options.onErrorSampleRate), @"errorSampleRate", nil];
 
-    NSData *data = [SentrySerialization dataWithJSONObject:info];
+    NSData *data = [SentrySerializationSwift dataWithJSONObject:info];
 
     NSString *infoPath = [[path stringByDeletingLastPathComponent]
         stringByAppendingPathComponent:SENTRY_CURRENT_REPLAY];
@@ -770,7 +768,8 @@ static SentryTouchTracker *_touchTracker;
         return;
     }
 
-    UIWindow *window = SentryDependencyContainer.sharedInstance.application.windows.firstObject;
+    UIWindow *window =
+        [SentryDependencyContainer.sharedInstance.application getWindows].firstObject;
     if (window == nil) {
         SENTRY_LOG_WARN(@"[Session Replay] No UIWindow available to display preview");
         return;

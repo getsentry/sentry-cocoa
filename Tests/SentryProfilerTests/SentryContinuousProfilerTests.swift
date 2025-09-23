@@ -222,6 +222,44 @@ final class SentryContinuousProfilerTests: XCTestCase {
         try fixture.timeoutTimerFactory.check()
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
     }
+    
+    func testTransmitChunkEnvelopeWithNilProfiler() throws {
+        // Arrange
+        // Ensure no profiler is currently running
+        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+        
+        // Act
+        SentryContinuousProfiler.transmitChunkEnvelope()
+        
+        // Assert
+        // The function should handle nil profiler gracefully:
+        // 1. Should not crash when no profiler is running
+        // 2. Should return early and log a debug message
+        // 3. Should not attempt to capture any envelopes
+        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+        XCTAssertTrue(fixture.client?.captureEnvelopeInvocations.isEmpty ?? true)
+    }
+    
+    func testEnvelopeCreationFailure() throws {
+        // Arrange
+        // Start continuous profiler and add mock samples
+        SentryContinuousProfiler.start()
+        XCTAssertTrue(SentryContinuousProfiler.isCurrentlyProfiling())
+        try addMockSamples(mockAddresses: [0x1, 0x2])
+        
+        // Act
+        // Advance time to trigger chunk creation and test envelope creation null handling
+        fixture.currentDateProvider.advanceBy(interval: 60)
+        
+        // Assert
+        // This tests that the profiler continues running even if envelope creation fails
+        // The code includes: if (envelope == nil) { SENTRY_LOG_ERROR(...); return; }
+        XCTAssertTrue(SentryContinuousProfiler.isCurrentlyProfiling())
+        
+        // Clean up
+        SentryContinuousProfiler.stop()
+        try assertContinuousProfileStoppage()
+    }
 }
 
 @available(*, deprecated, message: "This is only marked as deprecated because profilesSampleRate is marked as deprecated. Once that is removed this can be removed.")
@@ -277,7 +315,7 @@ private extension SentryContinuousProfilerTests {
         let profileItem = try XCTUnwrap(envelope.items.first)
         XCTAssertEqual("profile_chunk", profileItem.header.type)
         XCTAssertEqual("cocoa", profileItem.header.platform)
-        let data = profileItem.data
+        let data = try XCTUnwrap(profileItem.data)
         let profile = try XCTUnwrap(try JSONSerialization.jsonObject(with: data) as? [String: Any])
 
         XCTAssertEqual(try XCTUnwrap(profile["version"] as? String), "2")

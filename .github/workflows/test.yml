@@ -132,6 +132,15 @@ jobs:
             device: "iPhone 16 Pro"
             scheme: "Sentry"
 
+          # iOS 26 with Xcode 26
+          - name: iOS 26 Sentry
+            runs-on: macos-26
+            platform: "iOS"
+            xcode: "26.0"
+            test-destination-os: "latest"
+            device: "iPhone 17 Pro"
+            scheme: "Sentry"
+
           # We don't run the unit tests on macOS 13 cause we run them on all on GH actions available iOS versions.
           # The chance of missing a bug solely on tvOS 16 that doesn't occur on iOS, macOS 12 or macOS 14 is minimal.
           # We are running tests on macOS 14 and later, as there were OS-internal changes introduced in succeeding versions.
@@ -152,6 +161,14 @@ jobs:
             test-destination-os: "latest"
             scheme: "Sentry"
 
+          # macOS 26
+          - name: macOS 26 Sentry
+            runs-on: macos-26
+            platform: "macOS"
+            xcode: "26.0"
+            test-destination-os: "latest"
+            scheme: "Sentry"
+
           # Catalyst. We test the latest version, as the risk something breaking on Catalyst and not
           # on an older iOS or macOS version is low.
           # In addition we are running tests on macOS 14, as there were OS-internal changes introduced in succeeding versions.
@@ -168,6 +185,8 @@ jobs:
             xcode: "16.4"
             test-destination-os: "latest"
             scheme: "Sentry"
+
+          ## We don't run unit tests on macCatalyst 26 yet because of https://github.com/getsentry/sentry-cocoa/issues/6165.
 
           # We don't run the unit tests on tvOS 16 cause we run them on all on GH actions available iOS versions.
           # The chance of missing a bug solely on tvOS 16 that doesn't occur on iOS, tvOS 15 or tvOS 16 is minimal.
@@ -198,6 +217,15 @@ jobs:
             test-destination-os: "18.4"
             scheme: "Sentry"
 
+          # tvOS 26
+          - name: tvOS 26 Sentry
+            runs-on: macos-26
+            platform: "tvOS"
+            xcode: "26.0"
+            test-destination-os: "latest"
+            device: "Apple TV"
+            scheme: "Sentry"
+
     steps:
       - uses: actions/checkout@v5
       - uses: actions/download-artifact@v5
@@ -206,7 +234,6 @@ jobs:
 
       - name: Start Test Server
         run: ./scripts/start-test-server.sh
-
       - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
 
       - name: Install Slather
@@ -285,7 +312,7 @@ jobs:
       # We don't upload codecov for scheduled runs as CodeCov only accepts a limited amount of uploads per commit.
       - name: Push code coverage to codecov
         id: codecov_1
-        uses: codecov/codecov-action@fdcc8476540edceab3de004e990f80d881c6cc00 # pin@v5.5.0
+        uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # pin@v5.5.1
         if: ${{ contains(matrix.platform, 'iOS') && !contains(github.ref, 'release') && github.event.schedule == '' }}
         with:
           # Although public repos should not have to specify a token there seems to be a bug with the Codecov GH action, which can
@@ -297,7 +324,7 @@ jobs:
       # Sometimes codecov uploads etc can fail. Retry one time to rule out e.g. intermittent network failures.
       - name: Push code coverage to codecov
         id: codecov_2
-        uses: codecov/codecov-action@fdcc8476540edceab3de004e990f80d881c6cc00 # pin@v5.5.0
+        uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # pin@v5.5.1
         if: ${{ steps.codecov_1.outcome == 'failure' && contains(matrix.platform, 'iOS') && !contains(github.ref, 'release') && github.event.schedule == '' }}
         with:
           token: ${{ secrets.CODECOV_TOKEN }}

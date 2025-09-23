@@ -6,12 +6,15 @@ class SentryScopePersistentStoreTests: XCTestCase {
     private static let dsn = TestConstants.dsnForTestCase(type: SentryScopePersistentStore.self)
 
     private class Fixture {
+        private let dateProvider = TestCurrentDateProvider()
+        private let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
+
         let fileManager: TestFileManager
 
         init() throws {
             let options = Options()
             options.dsn = SentryScopePersistentStoreTests.dsn
-            fileManager = try TestFileManager(options: options)
+            fileManager = try TestFileManager(options: options, dateProvider: dateProvider, dispatchQueueWrapper: dispatchQueueWrapper)
         }
 
         func getSut() throws -> SentryScopePersistentStore {
@@ -226,7 +229,7 @@ class SentryScopePersistentStoreTests: XCTestCase {
         user.email = "test@example.com"
         user.username = "testuser"
         
-        let userData = try XCTUnwrap(SentrySerialization.data(withJSONObject: user.serialize()))
+        let userData = try XCTUnwrap(SentrySerializationSwift.data(withJSONObject: user.serialize()))
         let previousUserFileURL = sut.previousFileURLFor(field: .user)
         try userData.write(to: previousUserFileURL)
         XCTAssertTrue(fm.fileExists(atPath: previousUserFileURL.path))
@@ -472,7 +475,7 @@ class SentryScopePersistentStoreTests: XCTestCase {
         // -- Arrange --
         let fm = FileManager.default
         let tags = ["key1": "value1", "key2": "value2"]
-        let tagsData = try XCTUnwrap(SentrySerialization.data(withJSONObject: tags))
+        let tagsData = try XCTUnwrap(SentrySerializationSwift.data(withJSONObject: tags))
         let previousTagsFileURL = sut.previousFileURLFor(field: .tags)
         try tagsData.write(to: previousTagsFileURL)
         XCTAssertTrue(fm.fileExists(atPath: previousTagsFileURL.path))
@@ -527,7 +530,7 @@ class SentryScopePersistentStoreTests: XCTestCase {
         // -- Arrange --
         let fm = FileManager.default
         let extras: [String: Any] = ["key1": "value1", "key2": 42, "key3": true]
-        let extrasData = try XCTUnwrap(SentrySerialization.data(withJSONObject: extras))
+        let extrasData = try XCTUnwrap(SentrySerializationSwift.data(withJSONObject: extras))
         let previousExtrasFileURL = sut.previousFileURLFor(field: .extras)
         try extrasData.write(to: previousExtrasFileURL)
         XCTAssertTrue(fm.fileExists(atPath: previousExtrasFileURL.path))
@@ -704,7 +707,7 @@ class SentryScopePersistentStoreTests: XCTestCase {
         // -- Arrange --
         let fm = FileManager.default
         let fingerprint = ["fp1", "fp2", "fp3"]
-        let fingerprintData = try XCTUnwrap(SentrySerialization.data(withJSONObject: fingerprint))
+        let fingerprintData = try XCTUnwrap(SentrySerializationSwift.data(withJSONObject: fingerprint))
         let previousFingerprintFileURL = sut.previousFileURLFor(field: .fingerprint)
         try fingerprintData.write(to: previousFingerprintFileURL)
         XCTAssertTrue(fm.fileExists(atPath: previousFingerprintFileURL.path))

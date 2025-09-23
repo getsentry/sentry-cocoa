@@ -370,7 +370,7 @@ private extension SentryTraceProfilerTests {
         let profileItem = try XCTUnwrap(envelope.additionalEnvelopeItems.first)
 
         XCTAssertEqual("profile", profileItem.header.type)
-        return profileItem.data
+        return try XCTUnwrap(profileItem.data)
     }
 
     func getLatestTransaction() throws -> Transaction {

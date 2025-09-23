@@ -34,7 +34,7 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
             options.dsn = SentryWatchdogTerminationTrackerTests.dsnAsString
             options.releaseName = TestData.appState.releaseName
             
-            fileManager = try! SentryFileManager(options: options, dispatchQueueWrapper: dispatchQueue)
+            fileManager = try! SentryFileManager(options: options, dateProvider: currentDate, dispatchQueueWrapper: dispatchQueue)
 
             breadcrumbProcessor = SentryWatchdogTerminationBreadcrumbProcessor(maxBreadcrumbs: Int(options.maxBreadcrumbs), fileManager: fileManager)
             let backgroundQueueWrapper = TestSentryDispatchQueueWrapper()
@@ -46,7 +46,7 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
 
             client = TestClient(options: options)
             
-            crashWrapper = TestSentryCrashWrapper.sharedInstance()
+            crashWrapper = TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo)
             
             let hub = SentryHub(client: client, andScope: nil, andCrashWrapper: crashWrapper, andDispatchQueue: SentryDispatchQueueWrapper())
             SentrySDKInternal.setCurrentHub(hub)
@@ -414,7 +414,7 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
     }
     
     func testStop_StopsObserving_NoMoreFileManagerInvocations() throws {
-        let fileManager = try! TestFileManager(options: Options())
+        let fileManager = try! TestFileManager(options: Options(), dateProvider: fixture.currentDate, dispatchQueueWrapper: fixture.dispatchQueue)
         sut = try fixture.getSut(fileManager: fileManager)
 
         sut.start()

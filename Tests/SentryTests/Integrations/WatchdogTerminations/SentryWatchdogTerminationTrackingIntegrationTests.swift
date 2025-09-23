@@ -12,7 +12,7 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
 
         let crashWrapper: TestSentryCrashWrapper
         let fileManager: SentryFileManager
-        let processInfoWrapper: TestSentryNSProcessInfoWrapper
+        let processInfoWrapper: MockSentryProcessInfo
         let watchdogTerminationAttributesProcessor: TestSentryWatchdogTerminationAttributesProcessor
         let hub: SentryHub
         let scope: Scope
@@ -32,15 +32,20 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
 
             let container = SentryDependencyContainer.sharedInstance()
 
+            let dateProvider = TestCurrentDateProvider()
             let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
 
-            processInfoWrapper = TestSentryNSProcessInfoWrapper()
+            processInfoWrapper = MockSentryProcessInfo()
             container.processInfoWrapper = processInfoWrapper
 
-            crashWrapper = TestSentryCrashWrapper.sharedInstance()
+            crashWrapper = TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo)
             container.crashWrapper = crashWrapper
 
-            fileManager = try SentryFileManager(options: options)
+            fileManager = try SentryFileManager(
+                options: options,
+                dateProvider: dateProvider,
+                dispatchQueueWrapper: dispatchQueueWrapper
+            )
             container.fileManager = fileManager
 
             let notificationCenterWrapper = TestNSNotificationCenterWrapper()

@@ -7,11 +7,6 @@ on:
         description: "The fastlane command to run"
         required: true
         type: string
-      fastlane_command_extra_arguments:
-        description: "Extra arguments for the fastlane command"
-        required: false
-        default: ""
-        type: string
       files_suffix:
         description: "Suffix for the files to upload"
         required: false
@@ -40,6 +35,21 @@ on:
         required: false
         default: false
         type: boolean
+      test-destination-os:
+        description: "Test destination OS"
+        required: false
+        default: ""
+        type: string
+      device:
+        description: "Device"
+        required: false
+        default: ""
+        type: string
+      platform:
+        description: "Additional platform to install"
+        required: false
+        default: ""
+        type: string
     secrets:
       CODECOV_TOKEN:
         required: true
@@ -68,7 +78,13 @@ jobs:
         run: ./scripts/ci-select-xcode.sh "$XCODE_VERSION"
         env:
           XCODE_VERSION: ${{ inputs.xcode_version }}
+      - name: Install required platforms for Xcode 26
+        if: ${{ inputs.xcode_version == '26.0' }}
+        run: ./scripts/ci-install-xOS-26-platforms.sh --platforms "${{inputs.platform}}"
 
+      - name: Create simulator device for Xcode 26
+        if: ${{ inputs.xcode_version == '26.0' }}
+        run: ./scripts/ci-create-simulator.sh --platform "${{inputs.platform}}" --os-version "${{inputs.test-destination-os}}" --device-name "${{inputs.device}}"
       - run: make init-ci-build
         if: ${{ inputs.build_with_make }}
 
@@ -93,10 +109,9 @@ jobs:
       - name: Run Fastlane
         env:
           FASTLANE_COMMAND: ${{ inputs.fastlane_command }}
-          FASTLANE_EXTRA_ARGS: ${{ inputs.fastlane_command_extra_arguments }}
         run: |
-          if [ -n "$FASTLANE_EXTRA_ARGS" ]; then
-            bundle exec fastlane "$FASTLANE_COMMAND" "$FASTLANE_EXTRA_ARGS"
+          if [ -n "${{inputs.device}}" ] && [ -n "${{inputs.test-destination-os}}" ]; then
+            bundle exec fastlane "$FASTLANE_COMMAND" device:"${{inputs.device}} (${{inputs.test-destination-os}})"
           else
             bundle exec fastlane "$FASTLANE_COMMAND"
           fi

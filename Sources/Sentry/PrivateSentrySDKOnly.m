@@ -17,7 +17,6 @@
 #import "SentrySessionReplayIntegration+Private.h"
 #import "SentrySwift.h"
 #import "SentryUser+Private.h"
-#import "SentryViewHierarchyProvider.h"
 #import <SentryBreadcrumb.h>
 #import <SentryDependencyContainer.h>
 #import <SentryFramesTracker.h>
@@ -50,7 +49,7 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 
 + (nullable SentryEnvelope *)envelopeWithData:(NSData *)data
 {
-    return [SentrySerialization envelopeWithData:data];
+    return [SentrySerializationSwift envelopeWithData:data];
 }
 
 #if !SDK_V9
@@ -282,7 +281,11 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 + (NSArray<NSData *> *)captureScreenshots
 {
 #if SENTRY_TARGET_REPLAY_SUPPORTED
-    return [SentryDependencyContainer.sharedInstance.screenshot appScreenshotsData];
+    // As the options are not passed in by the hybrid SDK, we need to use the options from the
+    // current hub.
+    SentryScreenshotSource *_Nonnull screenshotSource
+        = SentryDependencyContainer.sharedInstance.screenshotSource;
+    return [screenshotSource appScreenshotsData];
 #else
     SENTRY_LOG_DEBUG(
         @"PrivateSentrySDKOnly.captureScreenshots only works with UIKit enabled. Ensure you're "

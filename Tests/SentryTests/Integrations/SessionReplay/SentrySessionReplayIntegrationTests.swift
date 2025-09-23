@@ -7,48 +7,36 @@ import XCTest
 
 @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
 class SentrySessionReplayIntegrationTests: XCTestCase {
-    
-    private class TestSentryUIApplication: SentryUIApplication {
-        init() {
-            super.init(notificationCenterWrapper: TestNSNotificationCenterWrapper(), dispatchQueueWrapper: TestSentryDispatchQueueWrapper())
-        }
 
-        var windowsMock: [UIWindow]? = [UIWindow()]
-        var screenName: String?
-        
-        override var windows: [UIWindow]? {
-            windowsMock
-        }
-        
-        override func relevantViewControllersNames() -> [String]? {
-            guard let screenName = screenName else { return nil }
-            return [screenName]
-        }
-    }
-    
+    private var uiApplication: TestSentryUIApplication!
+    private var globalEventProcessor: SentryGlobalEventProcessor!
+
     private class TestCrashWrapper: SentryCrashWrapper {
         let traced: Bool
-        
+
         init(traced: Bool = true) {
             self.traced = traced
-            // not calling super.init() here as we don't actually want to install crash reporter machinery
+            super.init(processInfoWrapper: ProcessInfo.processInfo, systemInfo: [:]) // Call the test designated initializer
         }
         
-        override func isBeingTraced() -> Bool {
+        override public var isBeingTraced: Bool {
             traced
         }
     }
     
     override func setUpWithError() throws {
-        guard #available(iOS 16.0, tvOS 16.0, *)  else {
+        guard #available(iOS 16.0, tvOS 16.0, *) else {
             throw XCTSkip("iOS version not supported")
         }
-    }
-    
-    private var uiApplication = TestSentryUIApplication()
-    private var globalEventProcessor = SentryGlobalEventProcessor()
 
-    override func setUp() {
+        if #available(iOS 26.0, tvOS 26.0, macCatalyst 26.0, *) {
+            throw XCTSkip("When running the unit tests on iOS 26.0, tvOS 26 or macCatalyst 26.0 with Xcode 26.0, we get warning log messages on the console: 'nw_socket_set_connection_idle [C1.1.1.1:3] setsockopt SO_CONNECTION_IDLE failed [42: Protocol not available]'. This leads to test failures in CI. Therefore, we skip these for now. We are going to fix this with https://github.com/getsentry/sentry-cocoa/issues/6165.")
+        }
+
+        uiApplication = TestSentryUIApplication()
+        globalEventProcessor = SentryGlobalEventProcessor()
+        uiApplication.windows = [UIWindow()]
+
         SentryDependencyContainer.sharedInstance().application = uiApplication
         SentryDependencyContainer.sharedInstance().reachability = TestSentryReachability()
         SentryDependencyContainer.sharedInstance().globalEventProcessor = globalEventProcessor
@@ -133,13 +121,13 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
     }
     
     func testWaitForNotificationWithNoWindow() throws {
-        uiApplication.windowsMock = nil
+        uiApplication.windows = nil
         startSDK(sessionSampleRate: 1, errorSampleRate: 0)
         
         let sut = try getSut()
         
         XCTAssertNil(sut.sessionReplay)
-        uiApplication.windowsMock = [UIWindow()]
+        uiApplication.windows = [UIWindow()]
         NotificationCenter.default.post(name: UIScene.didActivateNotification, object: nil)
         XCTAssertNotNil(sut.sessionReplay)
     }
@@ -199,7 +187,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
     func testScreenNameFromSentryUIApplication() throws {
         startSDK(sessionSampleRate: 1, errorSampleRate: 1)
         let sut: SentrySessionReplayDelegate = try getSut() as! SentrySessionReplayDelegate
-        uiApplication.screenName = "Test Screen"
+        uiApplication._relevantViewControllerNames = ["Test Screen"]
         XCTAssertEqual(sut.currentScreenNameForSessionReplay(), "Test Screen")
     }
     
@@ -211,7 +199,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         }
         
         let sut: SentrySessionReplayDelegate = try getSut() as! SentrySessionReplayDelegate
-        uiApplication.screenName = "Test Screen"
+        uiApplication._relevantViewControllerNames = ["Test Screen"]
         XCTAssertEqual(sut.currentScreenNameForSessionReplay(), "Scope Screen")
     }
     
@@ -557,8 +545,12 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         
         let dispatchQueue = TestSentryDispatchQueueWrapper()
         SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = dispatchQueue
-        SentryDependencyContainer.sharedInstance().fileManager = try SentryFileManager(options: options)
-        
+        SentryDependencyContainer.sharedInstance().fileManager = try SentryFileManager(
+            options: options,
+            dateProvider: SentryDependencyContainer.sharedInstance().dateProvider,
+            dispatchQueueWrapper: dispatchQueue
+        )
+
         if FileManager.default.fileExists(atPath: replayFolder()) {
             try FileManager.default.removeItem(atPath: replayFolder())
         }
@@ -612,7 +604,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
     func testShowMaskPreviewForDebug() throws {
         SentryDependencyContainer.sharedInstance().crashWrapper = TestCrashWrapper(traced: true)
         let window = UIWindow()
-        uiApplication.windowsMock = [window]
+        uiApplication.windows = [window]
         
         startSDK(sessionSampleRate: 0, errorSampleRate: 1)
         let sut = try getSut()
@@ -625,7 +617,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
     func testDontShowMaskPreviewForRelese() throws {
         SentryDependencyContainer.sharedInstance().crashWrapper = TestCrashWrapper(traced: false)
         let window = UIWindow()
-        uiApplication.windowsMock = [window]
+        uiApplication.windows = [window]
         
         startSDK(sessionSampleRate: 0, errorSampleRate: 1)
         let sut = try getSut()
@@ -752,7 +744,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         let info: [String: Any] = ["replayId": SentryId().sentryIdString,
                                     "path": sessionFolder,
                                     "errorSampleRate": errorSampleRate]
-        let data = SentrySerialization.data(withJSONObject: info)
+        let data = SentrySerializationSwift.data(withJSONObject: info)
         
         try FileManager.default.createDirectory(atPath: replayFolder, withIntermediateDirectories: true)
         

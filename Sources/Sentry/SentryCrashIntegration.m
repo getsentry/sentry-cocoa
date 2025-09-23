@@ -5,7 +5,6 @@
 #import "SentryCrashIntegrationSessionHandler.h"
 #import "SentryCrashMonitor_CPPException.h"
 #include "SentryCrashMonitor_Signal.h"
-#import "SentryCrashWrapper.h"
 #import "SentryEvent.h"
 #import "SentryHub.h"
 #import "SentryModels+Serializable.h"
@@ -25,7 +24,6 @@
 #import <SentrySDK+Private.h>
 
 #if SENTRY_HAS_UIKIT
-#    import "SentryUIApplication.h"
 #    import <UIKit/UIKit.h>
 #endif
 
@@ -63,7 +61,7 @@ sentry_finishAndSaveTransaction(void)
 
 - (instancetype)init
 {
-    self = [self initWithCrashAdapter:[SentryCrashWrapper sharedInstance]
+    self = [self initWithCrashAdapter:SentryDependencyContainer.sharedInstance.crashWrapper
               andDispatchQueueWrapper:[[SentryDispatchQueueWrapper alloc] init]];
 
     return self;

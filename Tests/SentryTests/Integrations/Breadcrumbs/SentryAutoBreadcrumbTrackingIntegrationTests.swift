@@ -1,26 +1,42 @@
-import Sentry
-import SentryTestUtils
+@testable import Sentry
+@_spi(Private) import SentryTestUtils
 import XCTest
 
 class SentryAutoBreadcrumbTrackingIntegrationTests: XCTestCase {
     
     private class Fixture {
+        private let dateProvider = TestCurrentDateProvider()
+        private let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
+
+        let fileManager: TestFileManager
+
         let breadcrumbTracker = SentryTestBreadcrumbTracker()
         
 #if os(iOS)
         var systemEventBreadcrumbTracker: SentryTestSystemEventBreadcrumbs?
 #endif // os(iOS)
-        
+
+        init() throws {
+            let options = Options()
+            options.dsn = TestConstants.dsnForTestCase(type: SentryAutoBreadcrumbTrackingIntegrationTests.self)
+
+            fileManager = try TestFileManager(
+                options: options,
+                dateProvider: dateProvider,
+                dispatchQueueWrapper: dispatchQueueWrapper
+            )
+        }
+
         var sut: SentryAutoBreadcrumbTrackingIntegration {
             return SentryAutoBreadcrumbTrackingIntegration()
         }
     }
     
     private var fixture: Fixture!
-    
-    override func setUp() {
-        super.setUp()
-        fixture = Fixture()
+
+    override func setUpWithError() throws {
+        try super.setUpWithError()
+        fixture = try Fixture()
     }
 
     override func tearDown() {
@@ -92,7 +108,7 @@ class SentryAutoBreadcrumbTrackingIntegrationTests: XCTestCase {
     private func install(sut: SentryAutoBreadcrumbTrackingIntegration, options: Options = Options()) throws {
         
 #if os(iOS)
-        fixture.systemEventBreadcrumbTracker = SentryTestSystemEventBreadcrumbs(fileManager: try TestFileManager(options: options), andNotificationCenterWrapper: TestNSNotificationCenterWrapper())
+        fixture.systemEventBreadcrumbTracker = SentryTestSystemEventBreadcrumbs(fileManager: fixture.fileManager, andNotificationCenterWrapper: TestNSNotificationCenterWrapper())
         sut.install(with: options, breadcrumbTracker: fixture.breadcrumbTracker, systemEventBreadcrumbs: fixture.systemEventBreadcrumbTracker!)
 #else
         sut.install(with: options, breadcrumbTracker: fixture.breadcrumbTracker)
