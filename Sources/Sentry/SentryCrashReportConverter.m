@@ -255,6 +255,13 @@
     return result;
 }
 
+/**
+ * Creates a SentryThread from crash report thread data at the specified index.
+ *
+ * This method includes defensive null handling to prevent crashes when processing
+ * malformed crash reports. The original bug was that invalid thread index types
+ * could cause crashes when accessing threadId.intValue for isMain calculation.
+ */
 - (SentryThread *_Nullable)threadAtIndex:(NSInteger)threadIndex
 {
     if (threadIndex >= [self.threads count]) {
@@ -262,12 +269,17 @@
     }
     NSDictionary *threadDictionary = self.threads[threadIndex];
 
-    if (![threadDictionary[@"index"] isKindOfClass:[NSNumber class]]) {
-        SENTRY_LOG_ERROR(@"Thread index is not a number: %@", threadDictionary[@"index"]);
+    // Thread index validation: We must support nil/missing indexes for backward compatibility
+    // with recrash reports (see testRecrashReport_WithThreadIsStringInsteadOfDict), but we
+    // must reject invalid types when present to prevent crashes from calling .intValue on
+    // non-NSNumber objects. This fixes a bug where malformed crash reports could cause
+    // crashes in the converter itself when accessing threadId.intValue for isMain calculation.
+    id threadIndexObj = threadDictionary[@"index"];
+    if (threadIndexObj != nil && ![threadIndexObj isKindOfClass:[NSNumber class]]) {
+        SENTRY_LOG_ERROR(@"Thread index is not a number: %@", threadIndexObj);
         return nil;
     }
-    NSNumber *threadId = SENTRY_UNWRAP_NULLABLE(NSNumber, threadDictionary[@"index"]);
-    SentryThread *thread = [[SentryThread alloc] initWithThreadId:threadId];
+    SentryThread *thread = [[SentryThread alloc] initWithThreadId:threadIndexObj];
     // We only want to add the stacktrace if this thread hasn't crashed
     thread.stacktrace = [self stackTraceForThreadIndex:threadIndex];
     if (thread.stacktrace.frames.count == 0) {
@@ -278,7 +290,10 @@
     thread.current = threadDictionary[@"current_thread"];
     thread.name = threadDictionary[@"name"];
     // We don't have access to the MachineContextWrapper but we know first thread is always the main
-    thread.isMain = [NSNumber numberWithBool:threadId.intValue == 0];
+    // Use null-safe check: threadIndexObj can be nil for recrash reports, and calling intValue on
+    // a nil NSNumber would return 0, incorrectly marking threads without indexes as main threads.
+    thread.isMain =
+        [NSNumber numberWithBool:threadIndexObj != nil && [threadIndexObj intValue] == 0];
     if (nil == thread.name) {
         thread.name = threadDictionary[@"dispatch_queue"];
     }

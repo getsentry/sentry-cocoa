@@ -557,7 +557,7 @@
 
 - (void)testBreadcrumbWithNilCategory_ShouldBeSkipped
 {
-    // Arrange
+    // -- Arrange --
     // Create a crash report with a breadcrumb that has nil category
     // This tests the null handling: if (!storedCrumb[@"category"]) { continue; }
     NSDictionary *mockReport = @{
@@ -580,12 +580,12 @@
         @"system" : @ { @"application_stats" : @ { @"application_in_foreground" : @YES } }
     };
 
-    // Act
+    // -- Act --
     SentryCrashReportConverter *reportConverter =
         [[SentryCrashReportConverter alloc] initWithReport:mockReport inAppLogic:self.inAppLogic];
     SentryEvent *event = [reportConverter convertReportToEvent];
 
-    // Assert
+    // -- Assert --
     // Should only have 1 breadcrumb (the one with valid category)
     // The nil category breadcrumb should be skipped due to null check
     XCTAssertEqual(event.breadcrumbs.count, 1);
@@ -595,7 +595,7 @@
 
 - (void)testThreadWithNonNumberIndex_ShouldReturnNil
 {
-    // Arrange
+    // -- Arrange --
     // Test with string index - should be rejected and logged
     NSDictionary *mockReportStringIndex = @{
         @"crash" : @ {
@@ -611,20 +611,20 @@
         @"system" : @ { @"application_stats" : @ { @"application_in_foreground" : @YES } }
     };
 
-    // Act
+    // -- Act --
     SentryCrashReportConverter *reportConverter =
         [[SentryCrashReportConverter alloc] initWithReport:mockReportStringIndex
                                                 inAppLogic:self.inAppLogic];
     SentryEvent *event = [reportConverter convertReportToEvent];
 
-    // Assert
+    // -- Assert --
     // Should have no threads since the thread with string index gets filtered out
     XCTAssertEqual(event.threads.count, 0);
 }
 
 - (void)testThreadWithNilIndex_ShouldBeAllowed
 {
-    // Arrange
+    // -- Arrange --
     // Test with missing index - should be allowed (for recrash reports)
     NSDictionary *mockReportNilIndex = @{
         @"crash" : @ {
@@ -645,13 +645,13 @@
         @"system" : @ { @"application_stats" : @ { @"application_in_foreground" : @YES } }
     };
 
-    // Act
+    // -- Act --
     SentryCrashReportConverter *reportConverter =
         [[SentryCrashReportConverter alloc] initWithReport:mockReportNilIndex
                                                 inAppLogic:self.inAppLogic];
     SentryEvent *event = [reportConverter convertReportToEvent];
 
-    // Assert
+    // -- Assert --
     // Should have 1 thread since missing index is now allowed (for recrash reports)
     XCTAssertEqual(event.threads.count, 1);
     XCTAssertNil(event.threads.firstObject.threadId);
@@ -669,7 +669,7 @@
     ];
 
     for (id invalidIndex in invalidIndexes) {
-        // Arrange
+        // -- Arrange --
         NSDictionary *mockReport = @{
             @"crash" : @ {
                 @"threads" : @[ @{
@@ -684,39 +684,21 @@
             @"system" : @ { @"application_stats" : @ { @"application_in_foreground" : @YES } }
         };
 
-        // Act
+        // -- Act --
         SentryCrashReportConverter *reportConverter =
             [[SentryCrashReportConverter alloc] initWithReport:mockReport
                                                     inAppLogic:self.inAppLogic];
         SentryEvent *event = [reportConverter convertReportToEvent];
 
-        // Assert
+        // -- Assert --
         XCTAssertEqual(event.threads.count, 0,
             @"Thread with invalid index type %@ should be filtered out", [invalidIndex class]);
     }
 }
 
-- (void)testImageAddressNilHandling_ShouldSkipFrame
-{
-    // Arrange & Act & Assert
-    // This test verifies that the null image address handling code doesn't crash:
-    // The code in debugMetaForThreads includes:
-    //   NSString *_Nullable nullableImageAddress = frame.imageAddress;
-    //   if (nullableImageAddress == nil) {
-    //       continue;
-    //   }
-    //   [imageNames addObject:SENTRY_UNWRAP_NULLABLE(NSString, nullableImageAddress)];
-    //
-    // This ensures that when frame.imageAddress is nil, the frame is skipped gracefully
-    // instead of crashing. The main goal is ensuring the code handles nil gracefully.
-
-    // Simple test to verify the null handling code paths exist and work
-    XCTAssertTrue(YES, @"Null image address handling code exists and compiles without issues");
-}
-
 - (void)testNotableAddressesWithNilValue_ShouldBeSkipped
 {
-    // Arrange
+    // -- Arrange --
     // Create a crash report with notable addresses where some values are nil
     // This tests the null handling: SENTRY_UNWRAP_NULLABLE(NSString, content[@"value"])
     NSDictionary *mockReport = @{
@@ -747,12 +729,12 @@
         @"system" : @ { @"application_stats" : @ { @"application_in_foreground" : @YES } }
     };
 
-    // Act
+    // -- Act --
     SentryCrashReportConverter *reportConverter =
         [[SentryCrashReportConverter alloc] initWithReport:mockReport inAppLogic:self.inAppLogic];
     SentryEvent *event = [reportConverter convertReportToEvent];
 
-    // Assert
+    // -- Assert --
     // Should not crash when notable address values are nil
     // Exception value should only contain the valid notable address value
     XCTAssertNotNil(event);
