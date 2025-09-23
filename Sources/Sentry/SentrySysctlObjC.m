@@ -1,4 +1,4 @@
-#import "SentrySysctl.h"
+#import "SentrySysctlObjC.h"
 #import "SentryCrashSysCtl.h"
 #import "SentrySwift.h"
 #import "SentryTime.h"
@@ -26,7 +26,7 @@ sentryModuleInitializationHook(void)
     moduleInitializationTimestamp = [NSDate date];
 }
 
-@implementation SentrySysctl
+@implementation SentrySysctlObjC
 
 + (void)load
 {

@@ -1,4 +1,3 @@
-#import "SentryMigrateSessionInit.h"
 #import "SentrySerialization.h"
 #import "SentrySwift.h"
 #import <XCTest/XCTest.h>

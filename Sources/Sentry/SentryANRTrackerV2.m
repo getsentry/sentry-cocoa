@@ -6,7 +6,6 @@
 #    import "SentryFramesTracker.h"
 #    import "SentryLogC.h"
 #    import "SentrySwift.h"
-#    import "SentryThreadWrapper.h"
 #    import "SentryTime.h"
 #    import <stdatomic.h>
 

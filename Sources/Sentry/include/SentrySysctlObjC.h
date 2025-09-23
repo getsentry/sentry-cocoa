@@ -3,9 +3,9 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * A wrapper around sysctl for testability.
+ * This needs to be in ObjC because it overrides the +load method
  */
-@interface SentrySysctl : NSObject
+@interface SentrySysctlObjC : NSObject
 
 /**
  * Returns the time the system was booted with a precision of microseconds.
