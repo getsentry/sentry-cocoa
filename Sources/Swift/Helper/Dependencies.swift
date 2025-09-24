@@ -8,7 +8,7 @@
 #if !os(watchOS) && !os(macOS) && !SENTRY_NO_UIKIT
     @objc public static let uiDeviceWrapper = SentryDefaultUIDeviceWrapper(queueWrapper: Dependencies.dispatchQueueWrapper)
 #endif // !os(watchOS) && !os(macOS) && !SENTRY_NO_UIKIT
-
-    @objc public static var threadInspector: SentryThreadInspector = SentryThreadInspector()
+    @objc public static var threadInspector = SentryThreadInspector()
+    @objc public static var fileIOTracker = SentryFileIOTracker(threadInspector: threadInspector, processInfoWrapper: processInfoWrapper)
 
 }
