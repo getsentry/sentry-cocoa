@@ -4,14 +4,14 @@
 import UIKit
 
 @_spi(Private) @objc public class SentryViewHierarchyProvider: NSObject {
-    @objc public init(dispatchQueueWrapper: SentryDispatchQueueWrapper, sentryUIApplication: SentryApplication) {
+    @objc public init(dispatchQueueWrapper: SentryDispatchQueueWrapper, applicationProvider: SentryApplicationProvider) {
         self.reportAccessibilityIdentifier = true
         self.dispatchQueueWrapper = dispatchQueueWrapper
-        self.sentryUIApplication = sentryUIApplication
+        self.applicationProvider = applicationProvider
     }
     
     private let dispatchQueueWrapper: SentryDispatchQueueWrapper
-    private let sentryUIApplication: SentryApplication
+    private let applicationProvider: SentryApplicationProvider
     
     /**
      * Whether we should add `accessibilityIdentifier` to the view hierarchy.
@@ -39,12 +39,12 @@ import UIKit
     }
     
     @objc public func appViewHierarchy() -> Data? {
-        let windows = sentryUIApplication.getWindows() ?? []
+        let windows = applicationProvider.application?.getWindows() ?? []
         return SentryViewHierarchyProviderHelper.appViewHierarchy(from: windows, reportAccessibilityIdentifier: reportAccessibilityIdentifier)
     }
     
     @discardableResult @objc(saveViewHierarchy:) public func saveViewHierarchy(_ filePath: String) -> Bool {
-        let windows = sentryUIApplication.getWindows() ?? []
+        let windows = applicationProvider.application?.getWindows() ?? []
         return SentryViewHierarchyProviderHelper.saveViewHierarchy(filePath, windows: windows, reportAccessibilityIdentifier: reportAccessibilityIdentifier)
     }
 }

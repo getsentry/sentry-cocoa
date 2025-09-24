@@ -5,6 +5,10 @@ import AppKit
 import UIKit
 #endif
 
+@objc @_spi(Private) public protocol SentryApplicationProvider {
+    var application: SentryApplication? { get }
+}
+
 @objc @_spi(Private) public protocol SentryApplication {
     
     // This can only be accessed on the main thread

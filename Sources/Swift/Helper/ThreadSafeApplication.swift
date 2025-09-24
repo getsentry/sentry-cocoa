@@ -4,11 +4,21 @@ import UIKit
 @objc @_spi(Private) public final class SentryThreadsafeApplication: NSObject {
     private let notificationCenter: SentryNSNotificationCenterWrapper
     
-    @objc public init(initialState: UIApplication.State, notificationCenter: SentryNSNotificationCenterWrapper) {
+    @objc public init(applicationProvider: SentryApplicationProvider, notificationCenter: SentryNSNotificationCenterWrapper, dispatchQueue: SentryDispatchQueueWrapper) {
         self.notificationCenter = notificationCenter
-        _internalState = initialState
+        // This matches the ObjC behavior which did not initialize the state so it kept a default value of 0
+        // which happens to be defined to be `active`
+        _internalState = .active
         super.init()
         
+        dispatchQueue.dispatchAsyncOnMainQueue { [weak self] in
+            guard let self else { return }
+
+            lock.lock()
+            _internalState = applicationProvider.application?.unsafeApplicationState ?? _internalState
+            lock.unlock()
+        }
+
         notificationCenter.addObserver(self, selector: #selector(didEnterBackground), name: UIApplication.didEnterBackgroundNotification, object: nil)
         notificationCenter.addObserver(self, selector: #selector(didBecomeActive), name: UIApplication.didBecomeActiveNotification, object: nil)
     }

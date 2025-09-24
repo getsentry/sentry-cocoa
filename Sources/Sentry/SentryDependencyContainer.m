@@ -61,7 +61,7 @@
 @interface SentryFileManager () <SentryFileManagerProtocol>
 @end
 
-@interface SentryDependencyContainer ()
+@interface SentryDependencyContainer () <SentryApplicationProvider>
 
 @property (nonatomic, strong) id<SentryANRTracker> anrTracker;
 
@@ -151,12 +151,10 @@ static BOOL isInitialializingDependencyContainer = NO;
         _crashWrapper = [[SentryCrashWrapper alloc] initWithProcessInfoWrapper:_processInfoWrapper];
 #if SENTRY_HAS_UIKIT
         _uiDeviceWrapper = SentryDependencies.uiDeviceWrapper;
-        _application = UIApplication.sharedApplication;
         _threadsafeApplication = [[SentryThreadsafeApplication alloc]
-            initWithInitialState:_application.unsafeApplicationState
-              notificationCenter:_notificationCenterWrapper];
-#elif TARGET_OS_OSX
-        _application = NSApplication.sharedApplication;
+            initWithApplicationProvider:self
+                     notificationCenter:_notificationCenterWrapper
+                          dispatchQueue:_dispatchQueueWrapper];
 #endif // SENTRY_HAS_UIKIT
 
         _extraContextProvider =
@@ -187,6 +185,15 @@ static BOOL isInitialializingDependencyContainer = NO;
         isInitialializingDependencyContainer = NO;
     }
     return self;
+}
+
+- (nullable id<SentryApplication>)application
+{
+#if SENTRY_HAS_UIKIT
+    return UIApplication.sharedApplication;
+#elif TARGET_OS_OSX
+    return NSApplication.sharedApplication;
+#endif
 }
 
 - (nullable SentryFileManager *)fileManager SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
@@ -298,7 +305,7 @@ static BOOL isInitialializingDependencyContainer = NO;
 
     SENTRY_LAZY_INIT(_viewHierarchyProvider,
         [[SentryViewHierarchyProvider alloc] initWithDispatchQueueWrapper:self.dispatchQueueWrapper
-                                                      sentryUIApplication:self.application]);
+                                                      applicationProvider:self]);
 #    else
     SENTRY_LOG_DEBUG(
         @"SentryDependencyContainer.viewHierarchyProvider only works with UIKit "
@@ -445,7 +452,7 @@ static BOOL isInitialializingDependencyContainer = NO;
 - (SentrySessionTracker *)getSessionTrackerWithOptions:(SentryOptions *)options
 {
     return [[SentrySessionTracker alloc] initWithOptions:options
-                                             application:self.application
+                                     applicationProvider:self
                                             dateProvider:self.dateProvider
                                       notificationCenter:self.notificationCenterWrapper];
 }
