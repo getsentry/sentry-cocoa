@@ -3,8 +3,8 @@
 @class SentryEvent;
 @class SentryOptions;
 
+@protocol SentryApplication;
 @protocol SentryNSNotificationCenterWrapper;
-@protocol SentryApplicationProvider;
 @protocol SentryCurrentDateProvider;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -18,7 +18,7 @@ NS_SWIFT_NAME(SessionTracker)
 SENTRY_NO_INIT
 
 - (instancetype)initWithOptions:(SentryOptions *)options
-            applicationProvider:(id<SentryApplicationProvider>)applicationProvider
+            applicationProvider:(id<SentryApplication> _Nullable (^)(void))applicationProvider
                    dateProvider:(id<SentryCurrentDateProvider>)dateProvider
              notificationCenter:(id<SentryNSNotificationCenterWrapper>)notificationCenter;
 

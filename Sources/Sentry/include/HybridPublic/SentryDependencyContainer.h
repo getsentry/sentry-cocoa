@@ -156,6 +156,12 @@ SENTRY_NO_INIT
 @property (nonatomic, strong) SentryGlobalEventProcessor *globalEventProcessor;
 - (SentrySessionTracker *)getSessionTrackerWithOptions:(SentryOptions *)options;
 
+#if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
+// Some tests rely on this value being grabbed from the global dependency container
+// rather than using dependency injection.
+@property (nonatomic, strong) id<SentryApplication> applicationOverride;
+#endif
+
 @end
 
 NS_ASSUME_NONNULL_END

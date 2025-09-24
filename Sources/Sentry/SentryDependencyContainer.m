@@ -61,7 +61,7 @@
 @interface SentryFileManager () <SentryFileManagerProtocol>
 @end
 
-@interface SentryDependencyContainer () <SentryApplicationProvider>
+@interface SentryDependencyContainer ()
 
 @property (nonatomic, strong) id<SentryANRTracker> anrTracker;
 
@@ -152,9 +152,8 @@ static BOOL isInitialializingDependencyContainer = NO;
 #if SENTRY_HAS_UIKIT
         _uiDeviceWrapper = SentryDependencies.uiDeviceWrapper;
         _threadsafeApplication = [[SentryThreadsafeApplication alloc]
-            initWithApplicationProvider:self
-                     notificationCenter:_notificationCenterWrapper
-                          dispatchQueue:_dispatchQueueWrapper];
+            initWithApplicationProvider:[self applicationProvider]
+                     notificationCenter:_notificationCenterWrapper];
 #endif // SENTRY_HAS_UIKIT
 
         _extraContextProvider =
@@ -187,13 +186,28 @@ static BOOL isInitialializingDependencyContainer = NO;
     return self;
 }
 
+- (id<SentryApplication> _Nullable (^)(void))applicationProvider
+{
+#if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
+    id<SentryApplication> override = self.applicationOverride;
+    if (override) {
+        return ^id<SentryApplication> _Nullable() { return override; };
+    }
+#endif
+    return ^id<SentryApplication> _Nullable()
+    {
+#if SENTRY_HAS_UIKIT
+        return UIApplication.sharedApplication;
+#elif TARGET_OS_OSX
+        return NSApplication.sharedApplication;
+#endif
+        return nil;
+    };
+}
+
 - (nullable id<SentryApplication>)application
 {
-#if SENTRY_HAS_UIKIT
-    return UIApplication.sharedApplication;
-#elif TARGET_OS_OSX
-    return NSApplication.sharedApplication;
-#endif
+    return [self applicationProvider]();
 }
 
 - (nullable SentryFileManager *)fileManager SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
@@ -304,8 +318,9 @@ static BOOL isInitialializingDependencyContainer = NO;
 #    if SENTRY_HAS_UIKIT
 
     SENTRY_LAZY_INIT(_viewHierarchyProvider,
-        [[SentryViewHierarchyProvider alloc] initWithDispatchQueueWrapper:self.dispatchQueueWrapper
-                                                      applicationProvider:self]);
+        [[SentryViewHierarchyProvider alloc]
+            initWithDispatchQueueWrapper:self.dispatchQueueWrapper
+                     applicationProvider:[self applicationProvider]]);
 #    else
     SENTRY_LOG_DEBUG(
         @"SentryDependencyContainer.viewHierarchyProvider only works with UIKit "
@@ -452,7 +467,7 @@ static BOOL isInitialializingDependencyContainer = NO;
 - (SentrySessionTracker *)getSessionTrackerWithOptions:(SentryOptions *)options
 {
     return [[SentrySessionTracker alloc] initWithOptions:options
-                                     applicationProvider:self
+                                     applicationProvider:[self applicationProvider]
                                             dateProvider:self.dateProvider
                                       notificationCenter:self.notificationCenterWrapper];
 }

@@ -26,7 +26,7 @@
 @property (nonatomic, assign) BOOL wasStartSessionCalled;
 @property (nonatomic, assign) BOOL subscribedToNotifications;
 
-@property (nonatomic, strong) id<SentryApplicationProvider> applicationProvider;
+@property (nonatomic, strong) id<SentryApplication> _Nullable (^applicationProvider)(void);
 @property (nonatomic, strong) id<SentryCurrentDateProvider> dateProvider;
 @property (nonatomic, strong) id<SentryNSNotificationCenterWrapper> notificationCenter;
 
@@ -35,7 +35,7 @@
 @implementation SentrySessionTracker
 
 - (instancetype)initWithOptions:(SentryOptions *)options
-            applicationProvider:(id<SentryApplicationProvider>)applicationProvider
+            applicationProvider:(id<SentryApplication> _Nullable (^)(void))applicationProvider
                    dateProvider:(id<SentryCurrentDateProvider>)dateProvider
              notificationCenter:(id<SentryNSNotificationCenterWrapper>)notificationCenter
 {
@@ -93,12 +93,17 @@
     // Edge case: When starting the SDK after the app did become active, we need to call
     //            didBecomeActive manually to start the session. This is the case when
     //            closing the SDK and starting it again.
-    if (self.applicationProvider.application.mainThread_isActive) {
+    if (self.application.mainThread_isActive) {
         [self startSession];
     }
 #else
     SENTRY_LOG_DEBUG(@"NO UIKit -> SentrySessionTracker will not track sessions automatically.");
 #endif
+}
+
+- (id<SentryApplication> _Nullable)application
+{
+    return self.applicationProvider();
 }
 
 - (void)stop
