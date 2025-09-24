@@ -113,7 +113,7 @@ final class SentryDependencyContainerTests: XCTestCase {
                     // Lazy Dependencies
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().fileManager)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().appStateManager)
-                    XCTAssertNotNil(SentryDependencyContainer.sharedInstance().threadInspector)
+                    XCTAssertNotNil(SentryDependencyContainer.sharedInstance().threadInspecting())
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().fileIOTracker)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().crashReporter)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().scopePersistentStore)
