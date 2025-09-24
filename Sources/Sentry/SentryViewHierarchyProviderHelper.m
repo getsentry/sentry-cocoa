@@ -1,4 +1,4 @@
-#import "SentryViewHierarchyProvider.h"
+#import "SentryViewHierarchyProviderHelper.h"
 
 #if SENTRY_HAS_UIKIT
 
@@ -24,30 +24,12 @@ writeJSONDataToMemory(const char *const data, const int length, void *const user
     return SentryCrashJSON_OK;
 }
 
-@interface SentryViewHierarchyProvider ()
+@implementation SentryViewHierarchyProviderHelper
 
-@property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueueWrapper;
-@property (nonatomic, strong) id<SentryApplication> sentryUIApplication;
-
-@end
-
-@implementation SentryViewHierarchyProvider
-
-- (instancetype)initWithDispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
-                         sentryUIApplication:(id<SentryApplication>)sentryUIApplication
++ (BOOL)saveViewHierarchy:(NSString *)filePath
+                          windows:(NSArray<UIWindow *> *)windows
+    reportAccessibilityIdentifier:(BOOL)reportAccessibilityIdentifier
 {
-    if (self = [super init]) {
-        self.reportAccessibilityIdentifier = YES;
-        self.dispatchQueueWrapper = dispatchQueueWrapper;
-        self.sentryUIApplication = sentryUIApplication;
-    }
-    return self;
-}
-
-- (BOOL)saveViewHierarchy:(NSString *)filePath
-{
-    NSArray<UIWindow *> *windows = [self.sentryUIApplication getWindows];
-
     const char *path = [filePath UTF8String];
     int fd = open(path, O_RDWR | O_CREAT | O_TRUNC, 0644);
     if (fd < 0) {
@@ -55,35 +37,24 @@ writeJSONDataToMemory(const char *const data, const int length, void *const user
         return NO;
     }
 
-    BOOL result = [self processViewHierarchy:windows addFunction:writeJSONDataToFile userData:&fd];
+    BOOL result = [self processViewHierarchy:windows
+               reportAccessibilityIdentifier:reportAccessibilityIdentifier
+                                 addFunction:writeJSONDataToFile
+                                    userData:&fd];
 
     close(fd);
     return result;
 }
 
-- (NSData *)appViewHierarchyFromMainThread
-{
-    __block NSData *result;
-
-    void (^fetchViewHierarchy)(void) = ^{ result = [self appViewHierarchy]; };
-
-    SENTRY_LOG_INFO(@"Starting to fetch the view hierarchy from the main thread.");
-
-    [self.dispatchQueueWrapper dispatchSyncOnMainQueue:fetchViewHierarchy];
-
-    SENTRY_LOG_INFO(@"Finished fetching the view hierarchy from the main thread.");
-
-    return result;
-}
-
-- (NSData *)appViewHierarchy
++ (NSData *)appViewHierarchyFrom:(NSArray<UIWindow *> *)windows
+    reportAccessibilityIdentifier:(BOOL)reportAccessibilityIdentifier
 {
     NSMutableData *result = [[NSMutableData alloc] init];
-    NSArray<UIWindow *> *windows = [self.sentryUIApplication getWindows];
 
     if (![self processViewHierarchy:windows
-                        addFunction:writeJSONDataToMemory
-                           userData:(__bridge void *)(result)]) {
+            reportAccessibilityIdentifier:reportAccessibilityIdentifier
+                              addFunction:writeJSONDataToMemory
+                                 userData:(__bridge void *)(result)]) {
 
         result = nil;
     }
@@ -95,9 +66,10 @@ writeJSONDataToMemory(const char *const data, const int length, void *const user
         if ((result = (code)) != SentryCrashJSON_OK)                                               \
             return result;
 
-- (BOOL)processViewHierarchy:(NSArray<UIView *> *)windows
-                 addFunction:(SentryCrashJSONAddDataFunc)addJSONDataFunc
-                    userData:(void *const)userData
++ (BOOL)processViewHierarchy:(NSArray<UIView *> *)windows
+    reportAccessibilityIdentifier:(BOOL)reportAccessibilityIdentifier
+                      addFunction:(SentryCrashJSONAddDataFunc)addJSONDataFunc
+                         userData:(void *const)userData
 {
 
     __block SentryCrashJSONEncodeContext JSONContext;
@@ -113,7 +85,9 @@ writeJSONDataToMemory(const char *const data, const int length, void *const user
         tryJson(sentrycrashjson_beginArray(&JSONContext, "windows"));
 
         for (UIView *window in windows) {
-            tryJson([self viewHierarchyFromView:window intoContext:&JSONContext]);
+            tryJson([self viewHierarchyFromView:window
+                                    intoContext:&JSONContext
+                  reportAccessibilityIdentifier:reportAccessibilityIdentifier]);
         }
 
         tryJson(sentrycrashjson_endContainer(&JSONContext));
@@ -131,7 +105,9 @@ writeJSONDataToMemory(const char *const data, const int length, void *const user
     return YES;
 }
 
-- (int)viewHierarchyFromView:(UIView *)view intoContext:(SentryCrashJSONEncodeContext *)context
++ (int)viewHierarchyFromView:(UIView *)view
+                      intoContext:(SentryCrashJSONEncodeContext *)context
+    reportAccessibilityIdentifier:(BOOL)reportAccessibilityIdentifier
 {
     SENTRY_LOG_DEBUG(@"Processing view hierarchy of view: %@", view);
 
@@ -141,7 +117,7 @@ writeJSONDataToMemory(const char *const data, const int length, void *const user
     tryJson(sentrycrashjson_addStringElement(
         context, "type", viewClassName, SentryCrashJSON_SIZE_AUTOMATIC));
 
-    if (self.reportAccessibilityIdentifier && view.accessibilityIdentifier
+    if (reportAccessibilityIdentifier && view.accessibilityIdentifier
         && view.accessibilityIdentifier.length != 0) {
         tryJson(sentrycrashjson_addStringElement(context, "identifier",
             view.accessibilityIdentifier.UTF8String, SentryCrashJSON_SIZE_AUTOMATIC));
@@ -166,7 +142,9 @@ writeJSONDataToMemory(const char *const data, const int length, void *const user
 
     tryJson(sentrycrashjson_beginArray(context, "children"));
     for (UIView *child in view.subviews) {
-        tryJson([self viewHierarchyFromView:child intoContext:context]);
+        tryJson([self viewHierarchyFromView:child
+                                intoContext:context
+              reportAccessibilityIdentifier:reportAccessibilityIdentifier]);
     }
     tryJson(sentrycrashjson_endContainer(context));
     tryJson(sentrycrashjson_endContainer(context));

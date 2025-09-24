@@ -1,4 +1,4 @@
-@testable import Sentry
+@_spi(Private) @testable import Sentry
 import XCTest
 
 class SentryGeoTests: XCTestCase {
@@ -41,7 +41,7 @@ class SentryGeoTests: XCTestCase {
     func testDecodeWithAllProperties() throws {
         let geo = TestData.geo
         let actual = geo.serialize()
-        let data = try XCTUnwrap(SentrySerialization.data(withJSONObject: actual))
+        let data = try XCTUnwrap(SentrySerializationSwift.data(withJSONObject: actual))
         
         let decoded = decodeFromJSONData(jsonData: data) as Geo?
         
@@ -51,7 +51,7 @@ class SentryGeoTests: XCTestCase {
     func testDecode_WithAllPropertiesNil() throws {
         let geo = Geo()
         let actual = geo.serialize()
-        let data = try XCTUnwrap(SentrySerialization.data(withJSONObject: actual))
+        let data = try XCTUnwrap(SentrySerializationSwift.data(withJSONObject: actual))
         
         let decoded = decodeFromJSONData(jsonData: data) as Geo?
         

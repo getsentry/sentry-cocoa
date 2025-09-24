@@ -18,6 +18,8 @@
 #    import "SentryTraceContext.h"
 #    import "SentryUser.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 @interface SentryScope () <SentryInternalSerializable>
 
 @end
@@ -56,6 +58,8 @@
 
 @interface SentryEnvelopeItemHeader () <SentryInternalSerializable>
 
+- (NSDictionary<NSString *, id> *)serialize;
+
 @end
 
 @interface SentryFrame () <SentryInternalSerializable>
@@ -71,6 +75,8 @@
 @end
 
 @interface SentryTraceContext () <SentryInternalSerializable>
+
+- (NSDictionary<NSString *, id> *)serialize;
 
 @end
 
@@ -89,5 +95,7 @@
 @interface SentryBreadcrumb () <SentryInternalSerializable>
 
 @end
+
+NS_ASSUME_NONNULL_END
 
 #endif // SDK_V9

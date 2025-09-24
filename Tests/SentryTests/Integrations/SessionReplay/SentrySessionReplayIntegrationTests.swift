@@ -744,7 +744,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         let info: [String: Any] = ["replayId": SentryId().sentryIdString,
                                     "path": sessionFolder,
                                     "errorSampleRate": errorSampleRate]
-        let data = SentrySerialization.data(withJSONObject: info)
+        let data = SentrySerializationSwift.data(withJSONObject: info)
         
         try FileManager.default.createDirectory(atPath: replayFolder, withIntermediateDirectories: true)
         

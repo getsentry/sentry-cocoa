@@ -32,6 +32,65 @@
       }
     }
     
+    @objc(dataWithJSONObject:) public static func data(withJSONObject jsonObject: Any) -> Data? {
+        guard JSONSerialization.isValidJSONObject(jsonObject) else {
+            SentrySDKLog.error("Dictionary is not a valid JSON object.")
+            return nil
+        }
+        
+        do {
+            return try JSONSerialization.data(withJSONObject: jsonObject)
+        } catch {
+            SentrySDKLog.error("Internal error while serializing JSON: \(error)")
+        }
+        return nil
+    }
+    
+    @objc(dataWithEnvelope:) public static func data(with envelope: SentryEnvelope) -> Data? {
+        var envelopeData = Data()
+        var serializedData: [String: Any] = [:]
+        if let eventId = envelope.header.eventId {
+            serializedData["event_id"] = eventId.sentryIdString
+        }
+        
+        if let sdkInfo = envelope.header.sdkInfo {
+            serializedData["sdk"] = sdkInfo.serialize()
+        }
+        
+        if let traceContext = envelope.header.traceContext {
+            serializedData["trace"] = traceContext.serialize()
+        }
+        
+        if let sentAt = envelope.header.sentAt {
+            serializedData["sent_at"] = sentry_toIso8601String(sentAt)
+        }
+        guard let header = SentrySerializationSwift.data(withJSONObject: serializedData) else {
+            SentrySDKLog.error("Envelope header cannot be converted to JSON.")
+            return nil
+        }
+        envelopeData.append(header)
+        let newLineData = Data("\n".utf8)
+        for i in 0..<envelope.items.count {
+            envelopeData.append(newLineData)
+            let serializedItemHeaderData = envelope.items[i].header.serialize()
+            guard let itemHeader = SentrySerializationSwift.data(withJSONObject: serializedItemHeaderData) else {
+                SentrySDKLog.error("Envelope item header cannot be converted to JSON.")
+                return nil
+            }
+            envelopeData.append(itemHeader)
+            envelopeData.append(newLineData)
+            if let itemData = envelope.items[i].data {
+                envelopeData.append(itemData)
+            }
+        }
+        
+        return envelopeData
+    }
+    
+    @objc(dataWithSession:) public static func data(with session: SentrySession) -> Data? {
+        data(withJSONObject: session.serialize())
+    }
+    
     //swiftlint:disable cyclomatic_complexity function_body_length
     @objc(envelopeWithData:) public static func envelope(with data: Data) -> SentryEnvelope? {
         let newline = UInt8(ascii: "\n")

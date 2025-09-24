@@ -3,6 +3,7 @@
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"
 #import "SentrySerialization.h"
+#import "SentrySwift.h"
 
 @interface SentryWatchdogTerminationBreadcrumbProcessor ()
 
@@ -40,7 +41,7 @@
 - (void)addSerializedBreadcrumb:(NSDictionary *)crumb
 {
     SENTRY_LOG_DEBUG(@"Adding breadcrumb: %@", crumb);
-    NSData *_Nullable jsonData = [SentrySerialization dataWithJSONObject:crumb];
+    NSData *_Nullable jsonData = [SentrySerializationSwift dataWithJSONObject:crumb];
     if (jsonData == nil) {
         SENTRY_LOG_ERROR(@"Error serializing breadcrumb to JSON");
         return;
