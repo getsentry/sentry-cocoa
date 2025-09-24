@@ -1,7 +1,7 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
-extension SentryFileIOTracker {
+extension SentryFileIOTracking {
     func measureReadingData(
         from url: URL,
         options: Data.ReadingOptions,

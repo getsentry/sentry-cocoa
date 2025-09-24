@@ -3,10 +3,11 @@
 #import "SentryFileIOTracker.h"
 #import "SentryNSDataSwizzling.h"
 #import "SentryNSFileManagerSwizzling.h"
+#import "SentrySwift.h"
 
 @interface SentryFileIOTrackingIntegration ()
 
-@property (nonatomic, strong) SentryFileIOTracker *tracker;
+@property (nonatomic, strong) id<SentryFileIOTracking> tracker;
 
 @end
 

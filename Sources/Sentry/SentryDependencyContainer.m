@@ -63,6 +63,9 @@ SentryApplicationProviderBlock defaultApplicationProvider = ^id<SentryApplicatio
 @interface SentryFileManager () <SentryFileManagerProtocol>
 @end
 
+@interface SentryFileIOTracker () <SentryFileIOTracking>
+@end
+
 @interface SentryDefaultAppStateManager () <SentryAppStateManager>
 @end
 
@@ -229,7 +232,7 @@ static BOOL isInitialializingDependencyContainer = NO;
     return SentryDependencies.threadInspector;
 }
 
-- (SentryFileIOTracker *)fileIOTracker SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
+- (id<SentryFileIOTracking>)fileIOTracker SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
     SENTRY_LAZY_INIT(_fileIOTracker,
         [[SentryFileIOTracker alloc] initWithThreadInspector:[self threadInspector]

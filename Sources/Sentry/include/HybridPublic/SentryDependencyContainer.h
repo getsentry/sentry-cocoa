@@ -18,7 +18,6 @@
 @class SentryThreadsafeApplication;
 @class SentrySystemWrapper;
 @class SentryThreadWrapper;
-@class SentryFileIOTracker;
 @class SentryScopePersistentStore;
 @class SentryOptions;
 @class SentrySessionTracker;
@@ -33,6 +32,7 @@
 @protocol SentryRateLimits;
 @protocol SentryApplication;
 @protocol SentryProcessInfoSource;
+@protocol SentryFileIOTracking;
 @protocol SentryNSNotificationCenterWrapper;
 @protocol SentryObjCRuntimeWrapper;
 
@@ -100,7 +100,7 @@ SENTRY_NO_INIT
 @property (nonatomic, strong, nullable) SentryFileManager *fileManager;
 @property (nonatomic, strong) id<SentryAppStateManager> appStateManager;
 @property (nonatomic, strong, readonly) SentryThreadInspector *threadInspector;
-@property (nonatomic, strong) SentryFileIOTracker *fileIOTracker;
+@property (nonatomic, strong) id<SentryFileIOTracking> fileIOTracker;
 @property (nonatomic, strong) SentryCrash *crashReporter;
 @property (nonatomic, strong) SentryScopePersistentStore *scopePersistentStore;
 @property (nonatomic, strong) SentryDebugImageProvider *debugImageProvider;
