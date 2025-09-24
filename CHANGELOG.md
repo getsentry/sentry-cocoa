@@ -3,7 +3,7 @@
 ## 8.56.1
 
 > [!Warning]
-> This version can cause runtime errors because the `UIApplication.sharedApplication`/`NSApplication.sharedApplication` is not yet available during SDK initialization.
+> This version can cause runtime errors because the `UIApplication.sharedApplication`/`NSApplication.sharedApplication` is not yet available during SDK initialization, due to the changes in [PR #5900](https://github.com/getsentry/sentry-cocoa/pull/5900).
 
 ### Fixes
 
@@ -14,7 +14,7 @@
 ## 8.56.0
 
 > [!Warning]
-> This version can cause runtime errors because the `UIApplication.sharedApplication`/`NSApplication.sharedApplication` is not yet available during SDK initialization.
+> This version can cause runtime errors because the `UIApplication.sharedApplication`/`NSApplication.sharedApplication` is not yet available during SDK initialization, due to the changes in [PR #5900](https://github.com/getsentry/sentry-cocoa/pull/5900).
 
 ### Features
 
