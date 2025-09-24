@@ -7,7 +7,6 @@
 #    import "SentryHub.h"
 #    import "SentryLogC.h"
 #    import "SentryOptions.h"
-#    import "SentryPerformanceTracker.h"
 #    import "SentrySDK+Private.h"
 #    import "SentrySpanId.h"
 #    import "SentrySpanOperation.h"

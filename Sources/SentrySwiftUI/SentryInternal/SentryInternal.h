@@ -32,50 +32,7 @@ extern NSString *const SENTRY_XCODE_PREVIEW_ENVIRONMENT_KEY;
 
 typedef NS_ENUM(NSInteger, SentryTransactionNameSource);
 
-@class SentrySpanId;
 @class SentryDispatchQueueWrapper;
-
-typedef NS_ENUM(NSUInteger, SentrySpanStatus);
-
-@interface SentryPerformanceTracker : NSObject
-
-@property (nonatomic, class, readonly) SentryPerformanceTracker *shared;
-
-- (SentrySpanId *)startSpanWithName:(NSString *)name
-                         nameSource:(SentryTransactionNameSource)source
-                          operation:(NSString *)operation
-                             origin:(NSString *)origin;
-
-- (void)activateSpan:(SentrySpanId *)spanId duringBlock:(void (^)(void))block;
-
-- (void)measureSpanWithDescription:(NSString *)description
-                        nameSource:(SentryTransactionNameSource)source
-                         operation:(NSString *)operation
-                            origin:(NSString *)origin
-                           inBlock:(void (^)(void))block;
-
-- (void)measureSpanWithDescription:(NSString *)description
-                        nameSource:(SentryTransactionNameSource)source
-                         operation:(NSString *)operation
-                            origin:(NSString *)origin
-                      parentSpanId:(SentrySpanId *)parentSpanId
-                           inBlock:(void (^)(void))block;
-
-- (nullable SentrySpanId *)activeSpanId;
-
-- (void)finishSpan:(SentrySpanId *)spanId;
-
-- (void)finishSpan:(SentrySpanId *)spanId withStatus:(SentrySpanStatus)status;
-
-- (BOOL)isSpanAlive:(SentrySpanId *)spanId;
-
-- (nullable id<SentrySpan>)getSpan:(SentrySpanId *)spanId;
-
-- (BOOL)pushActiveSpan:(SentrySpanId *)spanId;
-
-- (void)popActiveSpan;
-
-@end
 
 @interface SentryTimeToDisplayTracker : NSObject
 - (instancetype)init NS_UNAVAILABLE;

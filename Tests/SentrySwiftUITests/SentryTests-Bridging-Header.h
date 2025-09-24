@@ -1,5 +1,4 @@
 #import "SentryHub+Private.h"
-#import "SentryPerformanceTracker.h"
 #import "SentryTracer.h"
 #import "SentryUIViewControllerPerformanceTracker.h"
 
