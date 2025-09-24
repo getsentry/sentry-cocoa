@@ -68,9 +68,13 @@ SentryApplicationProviderBlock defaultApplicationProvider = ^id<SentryApplicatio
 @interface SentryFileManager () <SentryFileManagerProtocol>
 @end
 
+@interface SentryThreadInspector () <SentryThreadInspecting>
+@end
+
 @interface SentryDependencyContainer ()
 
 @property (nonatomic, strong) id<SentryANRTracker> anrTracker;
+@property (nonatomic, strong) SentryThreadInspector *threadInspector;
 
 @end
 
@@ -228,6 +232,11 @@ static BOOL isInitialializingDependencyContainer = NO;
                                            fileManager:self.fileManager
                                   dispatchQueueWrapper:self.dispatchQueueWrapper
                              notificationCenterWrapper:self.notificationCenterWrapper]);
+}
+
+- (id<SentryThreadInspecting>)threadInspecting
+{
+    return [self threadInspector];
 }
 
 - (SentryThreadInspector *)threadInspector SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK

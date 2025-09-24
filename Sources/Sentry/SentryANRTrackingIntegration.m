@@ -31,7 +31,7 @@ static NSString *const SentryANRMechanismDataAppHangDuration = @"app_hang_durati
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueueWrapper;
 @property (nonatomic, strong) SentryCrashWrapper *crashWrapper;
 @property (nonatomic, strong) SentryDebugImageProvider *debugImageProvider;
-@property (nonatomic, strong) SentryThreadInspector *threadInspector;
+@property (nonatomic, strong) id<SentryThreadInspecting> threadInspector;
 @property (atomic, assign) BOOL reportAppHangs;
 @property (atomic, assign) BOOL enableReportNonFullyBlockingAppHangs;
 
@@ -63,7 +63,7 @@ static NSString *const SentryANRMechanismDataAppHangDuration = @"app_hang_durati
     self.dispatchQueueWrapper = SentryDependencyContainer.sharedInstance.dispatchQueueWrapper;
     self.crashWrapper = SentryDependencyContainer.sharedInstance.crashWrapper;
     self.debugImageProvider = SentryDependencyContainer.sharedInstance.debugImageProvider;
-    self.threadInspector = SentryDependencyContainer.sharedInstance.threadInspector;
+    self.threadInspector = SentryDependencyContainer.sharedInstance.threadInspecting;
     [self.tracker addListener:self];
     self.options = options;
     self.reportAppHangs = YES;
