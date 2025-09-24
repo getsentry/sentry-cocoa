@@ -61,9 +61,13 @@
 @interface SentryFileManager () <SentryFileManagerProtocol>
 @end
 
+@interface SentryFileIOTracker () <SentryFileIOTracking>
+@end
+
 @interface SentryDependencyContainer ()
 
 @property (nonatomic, strong) id<SentryANRTracker> anrTracker;
+@property (nonatomic, strong) SentryFileIOTracker *fileIOTracker;
 
 @end
 
@@ -219,6 +223,11 @@ static BOOL isInitialializingDependencyContainer = NO;
 {
     SENTRY_LAZY_INIT(_threadInspector,
         [[SentryThreadInspector alloc] initWithOptions:SentrySDKInternal.options]);
+}
+
+- (id<SentryFileIOTracking>)fileIOTracking
+{
+    return [self fileIOTracker];
 }
 
 - (SentryFileIOTracker *)fileIOTracker SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK

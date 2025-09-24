@@ -7,7 +7,7 @@
 
 @interface SentryNSDataSwizzling ()
 
-@property (nonatomic, strong) SentryFileIOTracker *tracker;
+@property (nonatomic, strong) id<SentryFileIOTracking> tracker;
 
 @end
 
@@ -21,7 +21,7 @@
     return instance;
 }
 
-- (void)startWithOptions:(SentryOptions *)options tracker:(SentryFileIOTracker *)tracker
+- (void)startWithOptions:(SentryOptions *)options tracker:(id<SentryFileIOTracking>)tracker
 {
     self.tracker = tracker;
 
