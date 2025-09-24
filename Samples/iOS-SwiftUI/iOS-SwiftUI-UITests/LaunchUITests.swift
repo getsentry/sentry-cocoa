@@ -48,6 +48,13 @@ class LaunchUITests: XCTestCase {
 
         XCTAssertEqual(app.staticTexts["TTDInfo"].label, "TTID and TTFD found")
     }
+  
+  func testSendsError() {
+    let app = newAppSession()
+    app.safelyLaunch()
+    app.buttons["Capture Error"].tap()
+    XCTAssertFalse(app.staticTexts["errorId"].label.isEmpty)
+  }
 
     func newAppSession() -> XCUIApplication {
         let app = XCUIApplication()
