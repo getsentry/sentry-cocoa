@@ -2,6 +2,9 @@
 
 ## 8.56.1
 
+> [!Warning]
+> This version can cause runtime errors because the `UIApplication.sharedApplication`/`NSApplication.sharedApplication` is not yet available during SDK initialization.
+
 ### Fixes
 
 - Fix potential app launch hang caused by the SentrySDK (#6181)
@@ -9,6 +12,9 @@
 - Fix dynamic selector crash in SentryReplayRecording (#6211)
 
 ## 8.56.0
+
+> [!Warning]
+> This version can cause runtime errors because the `UIApplication.sharedApplication`/`NSApplication.sharedApplication` is not yet available during SDK initialization.
 
 ### Features
 
