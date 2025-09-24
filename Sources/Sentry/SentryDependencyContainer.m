@@ -14,7 +14,6 @@
 #import <SentryDebugImageProvider+HybridSDKs.h>
 #import <SentryDefaultAppStateManager.h>
 #import <SentryDependencyContainer.h>
-#import <SentryPerformanceTracker.h>
 #import <SentrySDK+Private.h>
 #import <SentrySwift.h>
 #import <SentrySwizzleWrapper.h>

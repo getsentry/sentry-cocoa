@@ -38,6 +38,7 @@ typedef NS_ENUM(NSInteger, SentryTransactionNameSource);
 
 typedef NS_ENUM(NSUInteger, SentrySpanStatus);
 
+#if SWIFT_PACKAGE
 @interface SentryPerformanceTracker : NSObject
 
 @property (nonatomic, class, readonly) SentryPerformanceTracker *shared;
@@ -79,6 +80,7 @@ typedef NS_ENUM(NSUInteger, SentrySpanStatus);
 - (void)popActiveSpan;
 
 @end
+#endif
 
 @protocol SentryInitialDisplayReporting
 - (void)reportInitialDisplay;

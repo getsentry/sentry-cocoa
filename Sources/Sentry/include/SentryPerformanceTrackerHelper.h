@@ -9,23 +9,25 @@ NS_ASSUME_NONNULL_BEGIN
  * Tracks performance synchronizing span with its child's.
  * @note A span will be finished only when all its children are finished.
  */
-@interface SentryPerformanceTracker : NSObject
+@interface SentryPerformanceTrackerHelper : NSObject
 
 /**
  * A static instance of performance tracker.
  */
-@property (nonatomic, class, readonly) SentryPerformanceTracker *shared;
+@property (nonatomic, class, readonly) SentryPerformanceTrackerHelper *shared;
+
+@property (nonatomic, strong) NSMutableArray<id<SentrySpan>> *activeSpanStack;
 
 /**
  * Starts a new span if no span is active, then bind it to the scope if no span is bound.
  * @note If there's an active span, starts a child of the active span.
  * @param name Span name.
- * @param source the transaction name source.
+ * @param source the transaction name source, this is expected to be a value of SentryTransactionNameSource.
  * @param operation Span operation.
  * @return The span id.
  */
 - (SentrySpanId *)startSpanWithName:(NSString *)name
-                         nameSource:(SentryTransactionNameSource)source
+                         nameSource:(NSInteger)source
                           operation:(NSString *)operation
                              origin:(NSString *)origin;
 
@@ -40,12 +42,12 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Measure the given @c block execution.
  * @param description The description of the span.
- * @param source the transaction name source.
+ * @param source the transaction name source, this is expected to be a value of SentryTransactionNameSource.
  * @param operation Span operation.
  * @param block Block to be measured.
  */
 - (void)measureSpanWithDescription:(NSString *)description
-                        nameSource:(SentryTransactionNameSource)source
+                        nameSource:(NSInteger)source
                          operation:(NSString *)operation
                             origin:(NSString *)origin
                            inBlock:(void (^)(void))block;
@@ -54,13 +56,13 @@ NS_ASSUME_NONNULL_BEGIN
  * Measure the given @c block execution adding it as a child of given parent span.
  * @note If @c parentSpanId does not exist this measurement is not performed.
  * @param description The description of the span.
- * @param source the transaction name source.
+ * @param source the transaction name source, this is expected to be a value of SentryTransactionNameSource.
  * @param operation Span operation.
  * @param parentSpanId Id of the span to use as parent.
  * @param block Block to be measured.
  */
 - (void)measureSpanWithDescription:(NSString *)description
-                        nameSource:(SentryTransactionNameSource)source
+                        nameSource:(NSInteger)source
                          operation:(NSString *)operation
                             origin:(NSString *)origin
                       parentSpanId:(SentrySpanId *)parentSpanId
@@ -107,6 +109,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)pushActiveSpan:(SentrySpanId *)spanId;
 
 - (void)popActiveSpan;
+
+- (void)clear;
 
 @end
 

@@ -7,7 +7,6 @@
 #    import "SentryHub.h"
 #    import "SentryLogC.h"
 #    import "SentryOptions.h"
-#    import "SentryPerformanceTracker.h"
 #    import "SentrySDK+Private.h"
 #    import "SentrySpanId.h"
 #    import "SentrySpanOperation.h"
@@ -198,7 +197,7 @@
 
     spanId = [self getSpanIdForViewController:controller];
     SentrySpan *_Nullable vcSpan
-        = (SentrySpan *)[self.tracker getSpan:SENTRY_UNWRAP_NULLABLE(SentrySpanId, spanId)];
+        = (SentrySpan *)[self.tracker getSpanForObjc:SENTRY_UNWRAP_NULLABLE(SentrySpanId, spanId)];
 
     if (![vcSpan isKindOfClass:[SentryTracer self]]) {
         // Since TTID and TTFD are meant to the whole screen
@@ -274,7 +273,7 @@
                                              waitForFullDisplay:(BOOL)waitforFullDisplay
                                                   transactionId:(SentrySpanId *)transactionId;
 {
-    id<SentrySpan> span = [SentryPerformanceTracker.shared getSpan:transactionId];
+    id<SentrySpan> span = [SentryPerformanceTracker.shared getSpanForObjc:transactionId];
     if (span != nil && [span isKindOfClass:[SentryTracer class]]) {
         id<SentryInitialDisplayReporting> displayReporting =
             [self startTimeToDisplayTrackerForScreen:screenName
@@ -389,7 +388,7 @@
         };
 
         [self.tracker activateSpan:spanId duringBlock:duringBlock];
-        id<SentrySpan> vcSpan = [self.tracker getSpan:spanId];
+        id<SentrySpan> vcSpan = [self.tracker getSpanForObjc:spanId];
         // If the current controller span has no parent,
         // it means it is the root transaction and need to be pop from the queue.
         if (vcSpan.parentSpanId == nil) {

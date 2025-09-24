@@ -1,4 +1,5 @@
 import Foundation
+@_spi(Private) import Sentry
 import SentrySwiftUI
 import SwiftUI
 

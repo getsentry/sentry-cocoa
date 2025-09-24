@@ -40,6 +40,7 @@
 #import "SentryMsgPackSerializer.h"
 #import "SentryNSDictionarySanitize.h"
 #import "SentryOptions+Private.h"
+#import "SentryPerformanceTrackerHelper.h"
 #import "SentryProfiler+Private.h"
 #import "SentrySDKInternal.h"
 #import "SentryScope+PrivateSwift.h"
