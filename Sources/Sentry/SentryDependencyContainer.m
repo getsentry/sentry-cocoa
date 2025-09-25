@@ -58,6 +58,19 @@
 #define SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK                                                \
     SENTRY_DISABLE_THREAD_SANITIZER("Double-checked locks produce false alarms.")
 
+typedef id<SentryApplication> _Nullable (^SentryApplicationProviderBlock)(void);
+// Declare the application provider block at the top level to prevent capturing 'self'
+// from the dependency container, which would create cyclic dependencies and memory leaks.
+SentryApplicationProviderBlock defaultApplicationProvider = ^id<SentryApplication> _Nullable()
+{
+#if SENTRY_HAS_UIKIT
+    return UIApplication.sharedApplication;
+#elif TARGET_OS_OSX
+    return NSApplication.sharedApplication;
+#endif
+    return nil;
+};
+
 @interface SentryFileManager () <SentryFileManagerProtocol>
 @end
 
@@ -152,7 +165,7 @@ static BOOL isInitialializingDependencyContainer = NO;
 #if SENTRY_HAS_UIKIT
         _uiDeviceWrapper = SentryDependencies.uiDeviceWrapper;
         _threadsafeApplication = [[SentryThreadsafeApplication alloc]
-            initWithApplicationProvider:[self applicationProvider]
+            initWithApplicationProvider:defaultApplicationProvider
                      notificationCenter:_notificationCenterWrapper];
 #endif // SENTRY_HAS_UIKIT
 
@@ -186,28 +199,15 @@ static BOOL isInitialializingDependencyContainer = NO;
     return self;
 }
 
-- (id<SentryApplication> _Nullable (^)(void))applicationProvider
+- (nullable id<SentryApplication>)application
 {
 #if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
     id<SentryApplication> override = self.applicationOverride;
     if (override) {
-        return ^id<SentryApplication> _Nullable() { return override; };
+        return override;
     }
 #endif
-    return ^id<SentryApplication> _Nullable()
-    {
-#if SENTRY_HAS_UIKIT
-        return UIApplication.sharedApplication;
-#elif TARGET_OS_OSX
-        return NSApplication.sharedApplication;
-#endif
-        return nil;
-    };
-}
-
-- (nullable id<SentryApplication>)application
-{
-    return [self applicationProvider]();
+    return defaultApplicationProvider();
 }
 
 - (nullable SentryFileManager *)fileManager SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
@@ -320,7 +320,7 @@ static BOOL isInitialializingDependencyContainer = NO;
     SENTRY_LAZY_INIT(_viewHierarchyProvider,
         [[SentryViewHierarchyProvider alloc]
             initWithDispatchQueueWrapper:self.dispatchQueueWrapper
-                     applicationProvider:[self applicationProvider]]);
+                     applicationProvider:defaultApplicationProvider]);
 #    else
     SENTRY_LOG_DEBUG(
         @"SentryDependencyContainer.viewHierarchyProvider only works with UIKit "
@@ -467,7 +467,7 @@ static BOOL isInitialializingDependencyContainer = NO;
 - (SentrySessionTracker *)getSessionTrackerWithOptions:(SentryOptions *)options
 {
     return [[SentrySessionTracker alloc] initWithOptions:options
-                                     applicationProvider:[self applicationProvider]
+                                     applicationProvider:defaultApplicationProvider
                                             dateProvider:self.dateProvider
                                       notificationCenter:self.notificationCenterWrapper];
 }

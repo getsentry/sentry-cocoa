@@ -11,8 +11,8 @@ import UIKit
         // Acquiring the lock is not necessary here since the instance has not been initialized yet.
         if let application = applicationProvider() {
             _internalState = application.unsafeApplicationState
-            SentrySDKLog.warning("Application is null in SentryThreadsafeApplication")
         } else {
+            SentrySDKLog.warning("Application is null in SentryThreadsafeApplication")
             _internalState = .active
         }
         super.init()
