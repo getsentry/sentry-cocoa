@@ -15,7 +15,8 @@ var products: [Product] = [
     .library(name: "Sentry-Dynamic-WithARM64e", targets: ["Sentry-Dynamic-WithARM64e"]),
     .library(name: "Sentry-WithoutUIKitOrAppKit", targets: ["Sentry-WithoutUIKitOrAppKit", "SentryCppHelper"]),
     .library(name: "Sentry-WithoutUIKitOrAppKit-WithARM64e", targets: ["Sentry-WithoutUIKitOrAppKit-WithARM64e", "SentryCppHelper"]),
-    .library(name: "SentrySwiftUI", targets: ["Sentry", "SentrySwiftUI", "SentryCppHelper"])
+    .library(name: "SentrySwiftUI", targets: ["Sentry", "SentrySwiftUI", "SentryCppHelper"]),
+    .library(name: "swift-log-sentry", targets: ["Sentry", "swift-log-sentry"])
 ]
 
 var targets: [Target] = [
@@ -51,14 +52,24 @@ var targets: [Target] = [
         exclude: ["SentryInternal/", "module.modulemap"],
         linkerSettings: [
             .linkedFramework("Sentry")
-        ]),
+        ]
+    ),
+    .target (
+        name: "swift-log-sentry",
+        dependencies: ["Sentry", .product(name: "Logging", package: "swift-log")],
+        path: "Sources/SwiftLog",
+        linkerSettings: [
+            .linkedFramework("Sentry")
+        ]
+    ),
     .target(
         name: "SentryInternal",
         path: "Sources/SentrySwiftUI",
         sources: [
             "SentryInternal/"
         ],
-        publicHeadersPath: "SentryInternal/"),
+        publicHeadersPath: "SentryInternal/"
+    ),
     .target(
         name: "SentryCppHelper",
         dependencies: ["Sentry"],
@@ -111,7 +122,8 @@ if let env = env, String(cString: env, encoding: .utf8) == "1" {
                 .headerSearchPath("SentryCrash/Installations"),
                 .headerSearchPath("SentryCrash/Reporting/Filters"),
                 .headerSearchPath("SentryCrash/Reporting/Filters/Tools"),
-                .define("SDK_V9")])
+                .define("SDK_V9")]
+        )
     ])
 }
 
@@ -119,6 +131,9 @@ let package = Package(
     name: "Sentry",
     platforms: [.iOS(.v11), .macOS(.v10_13), .tvOS(.v11), .watchOS(.v4)],
     products: products,
+    dependencies: [
+        .package(url: "https://github.com/apple/swift-log", from: "1.6.0") // TODO: This clases with iOS 11 min target version
+    ],
     targets: targets,
     cxxLanguageStandard: .cxx14
 )

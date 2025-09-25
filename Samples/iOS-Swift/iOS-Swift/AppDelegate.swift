@@ -1,6 +1,9 @@
 import SentrySampleShared
 import UIKit
 
+import Logging
+import SwiftLogSentry
+
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
     private var randomDistributionTimer: Timer?
@@ -28,6 +31,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         if #available(iOS 15.0, *) {
             metricKit.receiveReports()
         }
+        
+        LoggingSystem.bootstrap { _ in
+            return SentryLogHandler()
+        }
+        
+        let logger = Logger(label: "io.sentry.iOS-Sentry")
+        logger.error("unfortunate error", metadata: ["request-id": "abc-123"], source: "module-name")
         
         return true
     }
