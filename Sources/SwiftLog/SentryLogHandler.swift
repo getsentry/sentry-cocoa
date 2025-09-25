@@ -32,7 +32,7 @@ import Sentry
 ///     return SentryLogHandler(logLevel: .trace)
 /// }
 ///
-/// // Crea & use the logger
+/// // Create & use the logger
 /// let logger = Logger(label: "com.example.app")
 /// logger.info("User logged in", metadata: ["userId": "12345"])
 /// logger.error("Payment failed", metadata: ["errorCode": 500])
