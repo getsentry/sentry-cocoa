@@ -764,7 +764,6 @@
 		92815FC82E8576AA004576C3 /* SwiftLogSentry.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 92815F702E85467F004576C3 /* SwiftLogSentry.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		92815FCA2E85770E004576C3 /* SentryTestUtilsDynamic.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D84DAD4D2B17428D003CF120 /* SentryTestUtilsDynamic.framework */; };
 		92815FCE2E857776004576C3 /* libSentryTestUtils.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8431F00A29B284F200D8DC56 /* libSentryTestUtils.a */; };
-		92815FD22E857AA8004576C3 /* SentryLogAttribute+Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92815FD12E857A9E004576C3 /* SentryLogAttribute+Tests.swift */; };
 		928207C42E251B8F009285A4 /* SentryScope+PrivateSwift.h in Headers */ = {isa = PBXBuildFile; fileRef = 928207C32E251B8F009285A4 /* SentryScope+PrivateSwift.h */; };
 		9286059529A5096600F96038 /* SentryGeo.h in Headers */ = {isa = PBXBuildFile; fileRef = 9286059429A5096600F96038 /* SentryGeo.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9286059729A5098900F96038 /* SentryGeo.m in Sources */ = {isa = PBXBuildFile; fileRef = 9286059629A5098900F96038 /* SentryGeo.m */; };
@@ -2132,7 +2131,6 @@
 		92815F702E85467F004576C3 /* SwiftLogSentry.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SwiftLogSentry.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		92815FB42E857492004576C3 /* SwiftLogSentryTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SwiftLogSentryTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		92815FC42E8574D5004576C3 /* SentryLogHandlerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryLogHandlerTests.swift; sourceTree = "<group>"; };
-		92815FD12E857A9E004576C3 /* SentryLogAttribute+Tests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SentryLogAttribute+Tests.swift"; sourceTree = "<group>"; };
 		928207C32E251B8F009285A4 /* SentryScope+PrivateSwift.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "SentryScope+PrivateSwift.h"; path = "include/SentryScope+PrivateSwift.h"; sourceTree = "<group>"; };
 		9286059429A5096600F96038 /* SentryGeo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryGeo.h; path = Public/SentryGeo.h; sourceTree = "<group>"; };
 		9286059629A5098900F96038 /* SentryGeo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentryGeo.m; sourceTree = "<group>"; };
@@ -4076,7 +4074,6 @@
 		8431F00B29B284F200D8DC56 /* SentryTestUtils */ = {
 			isa = PBXGroup;
 			children = (
-				92815FD12E857A9E004576C3 /* SentryLogAttribute+Tests.swift */,
 				84AEB4682C2F9673007E46E1 /* ArrayAccesses.swift */,
 				D8FC98AA2CD0DAAC0009824C /* BreadcrumbExtension.swift */,
 				841325DE2BFED0510029228F /* TestFramesTracker.swift */,
@@ -6520,7 +6517,6 @@
 				84B7FA4429B2924000AD93B1 /* TestRandom.swift in Sources */,
 				8431F01B29B2852D00D8DC56 /* Logger.swift in Sources */,
 				8431F01829B2852D00D8DC56 /* TypeMapping.swift in Sources */,
-				92815FD22E857AA8004576C3 /* SentryLogAttribute+Tests.swift in Sources */,
 				84B7FA4529B2926900AD93B1 /* TestDisplayLinkWrapper.swift in Sources */,
 				84AC61DB29F7654A009EEF61 /* TestDispatchSourceWrapper.swift in Sources */,
 				D452FE6F2DDC890A00AFF56F /* TestFileManager.swift in Sources */,
