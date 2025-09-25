@@ -33,11 +33,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
         
         LoggingSystem.bootstrap { _ in
-            return SentryLogHandler()
+            return SentryLogHandler(logLevel: .trace)
         }
         
         let logger = Logger(label: "io.sentry.iOS-Sentry")
-        logger.error("unfortunate error", metadata: ["request-id": "abc-123"], source: "module-name")
+        logger.trace("unfortunate error", metadata: ["request-id": "abc-123"], source: "module-name")
         
         return true
     }
