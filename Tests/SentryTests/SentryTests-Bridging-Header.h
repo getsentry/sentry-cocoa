@@ -160,7 +160,6 @@
 #import "SentryRateLimitParser.h"
 #import "SentryRateLimits.h"
 #import "SentryReachability.h"
-#import "SentryRetryAfterHeaderParser.h"
 #import "SentrySDK+Private.h"
 #import "SentrySDKInternal+Tests.h"
 #import "SentrySampleDecision+Private.h"
