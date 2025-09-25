@@ -191,6 +191,12 @@ jobs:
         if: ${{ failure() || cancelled() }}
         run: ./scripts/ci-diagnostics.sh
 
+      - name: Store screenshot
+        uses: ./.github/actions/capture-screenshot
+        if: ${{ failure() || cancelled() }}
+        with:
+          suffix: ${{ matrix.platform }}-xcode-${{ matrix.xcode }}
+
   unit-tests:
     name: Unit ${{matrix.name}}
     runs-on: ${{matrix.runs-on}}
