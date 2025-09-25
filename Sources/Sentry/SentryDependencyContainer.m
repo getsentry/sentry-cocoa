@@ -139,6 +139,9 @@ static BOOL isInitialializingDependencyContainer = NO;
     if (self = [super init]) {
         isInitialializingDependencyContainer = YES;
 
+        _hangTracker = [[SentryHangTrackerObjcBridge alloc]
+            initWithDateProvider:SentryDependencies.dateProvider];
+
         _dispatchQueueWrapper = SentryDependencies.dispatchQueueWrapper;
         _random = [[SentryRandom alloc] init];
         _threadWrapper = [[SentryThreadWrapper alloc] init];

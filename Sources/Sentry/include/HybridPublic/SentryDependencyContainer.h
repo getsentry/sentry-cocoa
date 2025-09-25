@@ -25,6 +25,7 @@
 @class SentryOptions;
 @class SentrySessionTracker;
 @class SentryGlobalEventProcessor;
+@class SentryHangTrackerObjcBridge;
 
 @protocol SentryANRTracker;
 @protocol SentryRandomProtocol;
@@ -95,6 +96,7 @@ SENTRY_NO_INIT
 @property (nonatomic, strong) id<SentryRateLimits> rateLimits;
 @property (nonatomic, strong) id<SentryApplication> application;
 @property (nonatomic, strong) SentryThreadsafeApplication *threadsafeApplication;
+@property (nonatomic, strong) SentryHangTrackerObjcBridge *hangTracker;
 
 #if SENTRY_HAS_REACHABILITY
 @property (nonatomic, strong) SentryReachability *reachability;
