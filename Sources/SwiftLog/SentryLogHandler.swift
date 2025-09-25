@@ -95,20 +95,22 @@ public struct SentryLogHandler: LogHandler {
         
         // Call the appropriate SentryLog method based on level
         let messageString = String(describing: message)
-        switch mapLogLevel(level) {
+        
+        switch level {
         case .trace:
             sentryLogger.trace(messageString, attributes: attributes)
         case .debug:
             sentryLogger.debug(messageString, attributes: attributes)
         case .info:
             sentryLogger.info(messageString, attributes: attributes)
-        case .warn:
+        case .notice:
+            // Map notice to info as SentryLog doesn't have notice
+            sentryLogger.info(messageString, attributes: attributes)
+        case .warning:
             sentryLogger.warn(messageString, attributes: attributes)
         case .error:
             sentryLogger.error(messageString, attributes: attributes)
-        case .fatal:
-            sentryLogger.fatal(messageString, attributes: attributes)
-        @unknown default:
+        case .critical:
             sentryLogger.fatal(messageString, attributes: attributes)
         }
     }
@@ -119,27 +121,6 @@ public struct SentryLogHandler: LogHandler {
         }
         set(newValue) {
             metadata[metadataKey] = newValue
-        }
-    }
-    
-    // MARK: - Private Helper Methods
-    
-    private func mapLogLevel(_ level: Logger.Level) -> SentryLog.Level {
-        switch level {
-        case .trace:
-            return .trace
-        case .debug:
-            return .debug
-        case .info:
-            return .info
-        case .notice:
-            return .info  // Map notice to info as SentryLog doesn't have notice
-        case .warning:
-            return .warn
-        case .error:
-            return .error
-        case .critical:
-            return .fatal
         }
     }
 }
