@@ -1,3 +1,4 @@
+import Sentry
 import SentrySampleShared
 import SentrySampleUITestShared
 import XCTest
@@ -49,11 +50,13 @@ class LaunchUITests: XCTestCase {
         XCTAssertEqual(app.staticTexts["TTDInfo"].label, "TTID and TTFD found")
     }
   
-  func testSendsError() {
+  func testCaptureErrorReturnsValidId() {
     let app = newAppSession()
     app.safelyLaunch()
     app.buttons["Capture Error"].tap()
-    XCTAssertFalse(app.staticTexts["errorId"].label.isEmpty)
+    let errorId = app.staticTexts["errorId"].label
+    let sentryErrorId = SentryId(uuidString: errorId)
+    XCTAssertNotEqual(sentryErrorId.sentryIdString, SentryId.empty.sentryIdString)
   }
 
     func newAppSession() -> XCUIApplication {
