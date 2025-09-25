@@ -1,23 +1,90 @@
 import Logging
 import Sentry
 
+/// A `swift-log` handler that forwards log entries to Sentry's structured logging system.
+///
+/// `SentryLogHandler` implements the `swift-log` `LogHandler` protocol, allowing you to integrate
+/// Sentry's structured logging capabilities with Swift's standard logging framework. This enables
+/// you to capture application logs and send them to Sentry for analysis and monitoring.
+///
+/// ## Level Mapping
+/// `swift-log` levels are mapped to Sentry log levels:
+/// - `.trace` → `.trace`
+/// - `.debug` → `.debug`
+/// - `.info` → `.info`
+/// - `.notice` → `.info` (notice maps to info as SentryLog doesn't have notice)
+/// - `.warning` → `.warn`
+/// - `.error` → `.error`
+/// - `.critical` → `.fatal`
+///
+/// ## Usage
+/// ```swift
+/// import Logging
+/// import Sentry
+///
+/// // Initialize Sentry SDK
+/// SentrySDK.start { options in
+///     options.dsn = "YOUR_DSN"
+/// }
+///
+/// // Register SentryLogHandler
+/// LoggingSystem.bootstrap { _ in
+///     return SentryLogHandler(logLevel: .trace)
+/// }
+///
+/// // Crea & use the logger
+/// let logger = Logger(label: "com.example.app")
+/// logger.info("User logged in", metadata: ["userId": "12345"])
+/// logger.error("Payment failed", metadata: ["errorCode": 500])
+/// ```
+///
+/// - Note: Sentry Logs is currently in Beta. See the [Sentry Logs Documentation](https://docs.sentry.io/platforms/apple/logs/).
+/// - Warning: This handler requires Sentry SDK to be initialized before use.
 public struct SentryLogHandler: LogHandler {
     
+    /// Logger metadata that will be included with all log entries.
+    ///
+    /// This metadata is merged with any metadata provided at the call site,
+    /// with call-site metadata taking precedence over handler metadata.
     public var metadata = Logger.Metadata()
     
+    /// The minimum log level for messages to be sent to Sentry.
+    ///
+    /// Messages below this level will be filtered out and not sent to Sentry.
+    /// Defaults to `.info`.
     public var logLevel: Logger.Level
     
     private let sentryLogger: SentryLogger
     
+    /// Creates a new SentryLogHandler with the specified log level.
+    ///
+    /// - Parameter logLevel: The minimum log level for messages to be sent to Sentry.
+    ///   Defaults to `.info`.
     public init(logLevel: Logger.Level = .info) {
         self.init(logLevel: logLevel, sentryLogger: SentrySDK.logger)
     }
     
     init(logLevel: Logger.Level, sentryLogger: SentryLogger) {
         self.logLevel = logLevel
-        self.sentryLogger = SentrySDK.logger
+        self.sentryLogger = sentryLogger
     }
     
+    /// Logs a message to Sentry with the specified level and context.
+    ///
+    /// This method implements the Swift Log `LogHandler` protocol. It automatically:
+    /// - Maps Swift Log levels to Sentry log levels
+    /// - Includes source context (file, function, line) as structured attributes
+    /// - Merges handler metadata with call-site metadata
+    /// - Prefixes metadata keys with "swift-log." to avoid conflicts
+    ///
+    /// - Parameters:
+    ///   - level: The log level of the message
+    ///   - message: The log message to send
+    ///   - metadata: Optional metadata to include with the message
+    ///   - source: The source of the log message (typically the module name)
+    ///   - file: The file where the log was called
+    ///   - function: The function where the log was called
+    ///   - line: The line number where the log was called
     public func log(
         level: Logger.Level,
         message: Logger.Message,
@@ -28,14 +95,18 @@ public struct SentryLogHandler: LogHandler {
         line: UInt
     ) {
         var attributes: [String: Any] = [:]
+        attributes["sentry.origin"] = "auto.logging.swift-log"
+        attributes["swift-log.level"] = level.rawValue
         attributes["swift-log.source"] = source
         attributes["swift-log.file"] = file
         attributes["swift-log.function"] = function
         attributes["swift-log.line"] = line
         
-        let allMetadata = mergeMetadata(self.metadata, metadata)
+        let allMetadata = self.metadata.merging(metadata ?? [:]) { _, new in
+            new
+        }
         for (key, value) in allMetadata {
-            attributes["swift-log.metadata.\(key)"] = convertMetadataValue(value)
+            attributes["swift-log.\(key)"] = "\(value)"
         }
         
         // Call the appropriate SentryLog method based on level
@@ -58,6 +129,13 @@ public struct SentryLogHandler: LogHandler {
         }
     }
     
+    /// Provides access to logger metadata by key.
+    ///
+    /// This subscript allows you to get and set metadata values that will be included
+    /// with all log entries from this handler.
+    ///
+    /// - Parameter metadataKey: The key for the metadata value
+    /// - Returns: The metadata value for the given key, or `nil` if not set
     public subscript(metadataKey metadataKey: String) -> Logger.Metadata.Value? {
         get {
             metadata[metadataKey]
@@ -69,7 +147,6 @@ public struct SentryLogHandler: LogHandler {
     
     // MARK: - Private Helper Methods
     
-    /// Maps Swift Log levels to SentryLog levels
     private func mapLogLevel(_ level: Logger.Level) -> SentryLog.Level {
         switch level {
         case .trace:
@@ -86,31 +163,6 @@ public struct SentryLogHandler: LogHandler {
             return .error
         case .critical:
             return .fatal
-        }
-    }
-    
-    /// Merges handler metadata with provided metadata
-    private func mergeMetadata(_ handlerMetadata: Logger.Metadata, _ providedMetadata: Logger.Metadata?) -> Logger.Metadata {
-        var merged = handlerMetadata
-        if let provided = providedMetadata {
-            for (key, value) in provided {
-                merged[key] = value
-            }
-        }
-        return merged
-    }
-    
-    /// Converts Swift Log metadata values to Any for SentryLog attributes
-    private func convertMetadataValue(_ value: Logger.Metadata.Value) -> Any {
-        switch value {
-        case .string(let string):
-            return string
-        case .stringConvertible(let convertible):
-            return String(describing: convertible)
-        case .dictionary(let dict):
-            return dict.mapValues { convertMetadataValue($0) }
-        case .array(let array):
-            return array.map { convertMetadataValue($0) }
         }
     }
 }
