@@ -18,7 +18,7 @@ class ExtraViewController: UIViewController {
     @IBOutlet weak var dataMarshalingErrorLabel: UILabel!
     
     private let dispatchQueue = DispatchQueue(label: "ExtraViewControllers", attributes: .concurrent)
-//    private var batteryConsumer: BatteryConsumer?
+    private var batteryConsumer: BatteryConsumer?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -61,22 +61,22 @@ class ExtraViewController: UIViewController {
   @IBAction func highEnergyCPU(_ sender: UIButton) {
     highlightButton(sender)
     if #available(iOS 15.0, *) {
-//      batteryConsumer = BatteryConsumer(qos: .userInitiated)
-//      batteryConsumer?.start()
+      batteryConsumer = BatteryConsumer(qos: .userInitiated)
+      batteryConsumer?.start()
     }
   }
   
   @IBAction func lowEnergyCPU(_ sender: UIButton) {
     highlightButton(sender)
     if #available(iOS 15.0, *) {
-//      batteryConsumer = BatteryConsumer(qos: .background)
-//      batteryConsumer?.start()
+      batteryConsumer = BatteryConsumer(qos: .background)
+      batteryConsumer?.start()
     }
   }
   
   @IBAction func stopUsingEnergy(_ sender: UIButton) {
     highlightButton(sender)
-//    batteryConsumer?.stop()
+    batteryConsumer?.stop()
   }
     
     @IBAction func anrDeadlock(_ sender: UIButton) {
