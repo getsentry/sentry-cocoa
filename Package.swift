@@ -45,7 +45,7 @@ var targets: [Target] = [
         url: "https://github.com/getsentry/sentry-cocoa/releases/download/8.56.1/Sentry-WithoutUIKitOrAppKit-WithARM64e.xcframework.zip",
         checksum: "185c204812ae7bed62cff92adb0cbd1641c2ae9183dc000a8c72b7fcc5a0c0c5" //Sentry-WithoutUIKitOrAppKit-WithARM64e
     ),
-    .target (
+    .target(
         name: "SentrySwiftUI",
         dependencies: ["Sentry", "SentryInternal"],
         path: "Sources/SentrySwiftUI",
@@ -54,7 +54,7 @@ var targets: [Target] = [
             .linkedFramework("Sentry")
         ]
     ),
-    .target (
+    .target(
         name: "swift-log-sentry",
         dependencies: ["Sentry", .product(name: "Logging", package: "swift-log")],
         path: "Sources/SwiftLog",
@@ -122,7 +122,8 @@ if let env = env, String(cString: env, encoding: .utf8) == "1" {
                 .headerSearchPath("SentryCrash/Installations"),
                 .headerSearchPath("SentryCrash/Reporting/Filters"),
                 .headerSearchPath("SentryCrash/Reporting/Filters/Tools"),
-                .define("SDK_V9")]
+                .define("SDK_V9")
+            ]
         )
     ])
 }
