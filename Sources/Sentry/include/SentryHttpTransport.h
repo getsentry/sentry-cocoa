@@ -1,6 +1,5 @@
 #import "SentryDefines.h"
 #import "SentryEnvelopeRateLimit.h"
-#import "SentryRateLimits.h"
 #import "SentryRequestManager.h"
 #import "SentryTransport.h"
 
@@ -9,6 +8,7 @@
 @class SentryNSURLRequestBuilder;
 @class SentryDsn;
 @protocol SentryCurrentDateProvider;
+@protocol SentryRateLimits;
 
 NS_ASSUME_NONNULL_BEGIN
 
