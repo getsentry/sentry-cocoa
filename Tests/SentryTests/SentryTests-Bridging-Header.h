@@ -158,7 +158,6 @@
 #import "SentryProfilingConditionals.h"
 #import "SentryPropagationContext.h"
 #import "SentryQueueableRequestManager.h"
-#import "SentryRateLimitParser.h"
 #import "SentryRateLimits.h"
 #import "SentryReachability.h"
 #import "SentryRetryAfterHeaderParser.h"
