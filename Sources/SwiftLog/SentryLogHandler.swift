@@ -69,22 +69,6 @@ public struct SentryLogHandler: LogHandler {
         self.sentryLogger = sentryLogger
     }
     
-    /// Logs a message to Sentry with the specified level and context.
-    ///
-    /// This method implements the Swift Log `LogHandler` protocol. It automatically:
-    /// - Maps Swift Log levels to Sentry log levels
-    /// - Includes source context (file, function, line) as structured attributes
-    /// - Merges handler metadata with call-site metadata
-    /// - Prefixes metadata keys with "swift-log." to avoid conflicts
-    ///
-    /// - Parameters:
-    ///   - level: The log level of the message
-    ///   - message: The log message to send
-    ///   - metadata: Optional metadata to include with the message
-    ///   - source: The source of the log message (typically the module name)
-    ///   - file: The file where the log was called
-    ///   - function: The function where the log was called
-    ///   - line: The line number where the log was called
     public func log(
         level: Logger.Level,
         message: Logger.Message,
@@ -129,13 +113,6 @@ public struct SentryLogHandler: LogHandler {
         }
     }
     
-    /// Provides access to logger metadata by key.
-    ///
-    /// This subscript allows you to get and set metadata values that will be included
-    /// with all log entries from this handler.
-    ///
-    /// - Parameter metadataKey: The key for the metadata value
-    /// - Returns: The metadata value for the given key, or `nil` if not set
     public subscript(metadataKey metadataKey: String) -> Logger.Metadata.Value? {
         get {
             metadata[metadataKey]
