@@ -69,8 +69,9 @@ NS_ASSUME_NONNULL_BEGIN
         if ([NSThread isMainThread]) {
             _data[SPAN_DATA_THREAD_NAME] = @"main";
         } else {
-            _data[SPAN_DATA_THREAD_NAME] = [SentryDependencyContainer.sharedInstance.threadInspector
-                getThreadName:currentThread];
+            _data[SPAN_DATA_THREAD_NAME] =
+                [SentryDependencyContainer.sharedInstance.threadInspecting
+                    getThreadName:currentThread];
         }
 
 #if SENTRY_HAS_UIKIT
