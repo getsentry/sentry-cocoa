@@ -187,12 +187,11 @@
     if (nil != self.userContext[@"breadcrumbs"]) {
         NSArray *storedBreadcrumbs = self.userContext[@"breadcrumbs"];
         for (NSDictionary *storedCrumb in storedBreadcrumbs) {
-            if (![storedCrumb[@"category"] isKindOfClass:[NSString class]]) {
-                continue;
-            }
             SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc]
                 initWithLevel:[self sentryLevelFromString:storedCrumb[@"level"]]
-                     category:SENTRY_UNWRAP_NULLABLE(NSString, storedCrumb[@"category"])];
+                     category:storedCrumb[@"category"]
+                    ?: @"default"]; // The default value is the same as the one in
+                                    // SentryBreadcrumb.init
             crumb.message = storedCrumb[@"message"];
             crumb.type = storedCrumb[@"type"];
             crumb.origin = storedCrumb[@"origin"];
