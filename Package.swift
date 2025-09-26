@@ -21,28 +21,28 @@ var products: [Product] = [
 var targets: [Target] = [
     .binaryTarget(
         name: "Sentry",
-        url: "https://github.com/getsentry/sentry-cocoa/releases/download/8.56.1/Sentry.xcframework.zip",
-        checksum: "f63ffb0855794a2e03115e5f4890ef69f861871b480d3caa1bef11fe765c7405" //Sentry-Static
+        url: "https://github.com/getsentry/sentry-cocoa/releases/download/8.56.2/Sentry.xcframework.zip",
+        checksum: "f0b8530fc902f56cccf157b5548e83f4b866812b40828bd8e3dca59e6b3171b0" //Sentry-Static
     ),
     .binaryTarget(
         name: "Sentry-Dynamic",
-        url: "https://github.com/getsentry/sentry-cocoa/releases/download/8.56.1/Sentry-Dynamic.xcframework.zip",
-        checksum: "bcce4f2be93a91c4e3ebbf41b6632be4de308e810f810e016d7b96c62febfb5c" //Sentry-Dynamic
+        url: "https://github.com/getsentry/sentry-cocoa/releases/download/8.56.2/Sentry-Dynamic.xcframework.zip",
+        checksum: "33be119ee7bb364836bfa686fd0ddb7021b16d765f3498cad1a7f8b1faeed765" //Sentry-Dynamic
     ),
     .binaryTarget(
         name: "Sentry-Dynamic-WithARM64e",
-        url: "https://github.com/getsentry/sentry-cocoa/releases/download/8.56.1/Sentry-Dynamic-WithARM64e.xcframework.zip",
-        checksum: "eb1a71f0c0bb438b82bd6dee301af3c0d9ecc99eafde790910774faded34d824" //Sentry-Dynamic-WithARM64e
+        url: "https://github.com/getsentry/sentry-cocoa/releases/download/8.56.2/Sentry-Dynamic-WithARM64e.xcframework.zip",
+        checksum: "75443ea3455cdbc05548115f64ed06dd70030a736a6248d5ab19c7f3c433ef5b" //Sentry-Dynamic-WithARM64e
     ),
     .binaryTarget(
         name: "Sentry-WithoutUIKitOrAppKit",
-        url: "https://github.com/getsentry/sentry-cocoa/releases/download/8.56.1/Sentry-WithoutUIKitOrAppKit.xcframework.zip",
-        checksum: "87f793087bff4507840fcee58936637d0b804c963124b7b4e094950fc5a38351" //Sentry-WithoutUIKitOrAppKit
+        url: "https://github.com/getsentry/sentry-cocoa/releases/download/8.56.2/Sentry-WithoutUIKitOrAppKit.xcframework.zip",
+        checksum: "d88ffb2aaa266d237206a82d0f72f19fd575229b5a01156768b4d9ed4bfac475" //Sentry-WithoutUIKitOrAppKit
     ),
     .binaryTarget(
         name: "Sentry-WithoutUIKitOrAppKit-WithARM64e",
-        url: "https://github.com/getsentry/sentry-cocoa/releases/download/8.56.1/Sentry-WithoutUIKitOrAppKit-WithARM64e.xcframework.zip",
-        checksum: "185c204812ae7bed62cff92adb0cbd1641c2ae9183dc000a8c72b7fcc5a0c0c5" //Sentry-WithoutUIKitOrAppKit-WithARM64e
+        url: "https://github.com/getsentry/sentry-cocoa/releases/download/8.56.2/Sentry-WithoutUIKitOrAppKit-WithARM64e.xcframework.zip",
+        checksum: "0c716f6a6475d8fd6e78b9204c74adffef5c0989f057c5d795989a667ae58047" //Sentry-WithoutUIKitOrAppKit-WithARM64e
     ),
     .target (
         name: "SentrySwiftUI",
