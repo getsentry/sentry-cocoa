@@ -7,6 +7,7 @@
 #import "SentrySpanId.h"
 #import "SentrySpanProtocol.h"
 #import "SentryTracer.h"
+#import "SentryTracerConfiguration.h"
 #import "SentryTransactionContext+Private.h"
 
 #import "SentryProfilingConditionals.h"

@@ -24,6 +24,7 @@
 #    import "SentrySamplerDecision.h"
 #    import "SentryTraceProfiler.h"
 #    import "SentryTracer+Private.h"
+#    import "SentryTracerConfiguration.h"
 #    import "SentryTransaction.h"
 
 #    if SENTRY_HAS_UIKIT
