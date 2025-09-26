@@ -29,7 +29,7 @@ class SentryScreenshotSourceTests: XCTestCase {
     override func setUp() {
         super.setUp()
         fixture = Fixture()
-        SentryDependencyContainer.sharedInstance().application = fixture.uiApplication
+        SentryDependencyContainer.sharedInstance().applicationOverride = fixture.uiApplication
     }
     
     override func tearDown() {
