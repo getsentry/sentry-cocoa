@@ -1,5 +1,4 @@
 #import "SentryRetryAfterHeaderParser.h"
-#import "SentryHttpDateParser.h"
 #import "SentryInternalDefines.h"
 #import "SentrySwift.h"
 
