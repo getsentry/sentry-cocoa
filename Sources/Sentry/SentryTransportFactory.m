@@ -1,7 +1,6 @@
 #import "SentryTransportFactory.h"
 #import "SentryDefaultRateLimits.h"
 #import "SentryEnvelopeRateLimit.h"
-#import "SentryHttpDateParser.h"
 #import "SentryHttpTransport.h"
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"
