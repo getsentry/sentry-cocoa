@@ -26,7 +26,7 @@
 @property (nonatomic, assign) BOOL wasStartSessionCalled;
 @property (nonatomic, assign) BOOL subscribedToNotifications;
 
-@property (nonatomic, strong) id<SentryApplication> application;
+@property (nonatomic, strong) id<SentryApplication> _Nullable (^applicationProvider)(void);
 @property (nonatomic, strong) id<SentryCurrentDateProvider> dateProvider;
 @property (nonatomic, strong) id<SentryNSNotificationCenterWrapper> notificationCenter;
 
@@ -35,14 +35,14 @@
 @implementation SentrySessionTracker
 
 - (instancetype)initWithOptions:(SentryOptions *)options
-                    application:(id<SentryApplication>)application
+            applicationProvider:(id<SentryApplication> _Nullable (^)(void))applicationProvider
                    dateProvider:(id<SentryCurrentDateProvider>)dateProvider
              notificationCenter:(id<SentryNSNotificationCenterWrapper>)notificationCenter
 {
     if (self = [super init]) {
         self.options = options;
         self.wasStartSessionCalled = NO;
-        self.application = application;
+        self.applicationProvider = applicationProvider;
         self.dateProvider = dateProvider;
         self.notificationCenter = notificationCenter;
     }
@@ -99,6 +99,11 @@
 #else
     SENTRY_LOG_DEBUG(@"NO UIKit -> SentrySessionTracker will not track sessions automatically.");
 #endif
+}
+
+- (id<SentryApplication> _Nullable)application
+{
+    return self.applicationProvider();
 }
 
 - (void)stop
