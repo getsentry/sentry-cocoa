@@ -7,7 +7,6 @@
 #import "SentryNSURLRequestBuilder.h"
 #import "SentryOptions.h"
 #import "SentryQueueableRequestManager.h"
-#import "SentryRateLimitParser.h"
 #import "SentryRateLimits.h"
 #import "SentrySwift.h"
 

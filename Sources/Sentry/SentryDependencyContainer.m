@@ -20,7 +20,6 @@
 #import <SentryDefaultRateLimits.h>
 #import <SentryDependencyContainer.h>
 #import <SentryPerformanceTracker.h>
-#import <SentryRateLimitParser.h>
 #import <SentryRetryAfterHeaderParser.h>
 #import <SentrySDK+Private.h>
 #import <SentrySwift.h>
