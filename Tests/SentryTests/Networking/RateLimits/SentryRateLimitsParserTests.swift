@@ -146,6 +146,7 @@ class SentryRateLimitsParserTests: XCTestCase {
         XCTAssertEqual([:], sut.parse(";;;!,  ;"))
         XCTAssertEqual([:], sut.parse("  \n\n  "))
         XCTAssertEqual([:], sut.parse("\n\n"))
+        XCTAssertEqual([:], sut.parse("50"))
     }
     
     func testValidHeaderAndGarbage() {

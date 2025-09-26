@@ -36,7 +36,8 @@ public final class RateLimitParser: NSObject {
         for quota in headerNoWhitespaces.components(separatedBy: ",") {
             let parameters = quota.components(separatedBy: ":")
 
-            guard let rateLimitInSeconds = parseRateLimitSeconds(parameters[0]),
+            guard parameters.count >= 2,
+                let rateLimitInSeconds = parseRateLimitSeconds(parameters[0]),
                   rateLimitInSeconds.intValue > 0 else {
                 continue
             }
