@@ -111,7 +111,6 @@
 #import "SentryDiscardReason.h"
 #import "SentryDiscardReasonMapper.h"
 #import "SentryDispatchFactory.h"
-#import "SentryDisplayLinkWrapper.h"
 #import "SentryDsn.h"
 #import "SentryEnvelopeAttachmentHeader.h"
 #import "SentryEnvelopeRateLimit.h"

@@ -30,7 +30,6 @@
 #import "SentryDateUtil.h"
 #import "SentryDateUtils.h"
 #import "SentryDependencyContainerSwiftHelper.h"
-#import "SentryDisplayLinkWrapper.h"
 #import "SentryEvent+Serialize.h"
 #import "SentryFileIOTracker.h"
 #import "SentryFileManager.h"
