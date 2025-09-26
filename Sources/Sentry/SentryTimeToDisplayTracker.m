@@ -25,8 +25,8 @@
 
 @interface SentryTimeToDisplayTracker () <SentryFramesTrackerListener>
 
-@property (nonatomic, weak) SentrySpan *initialDisplaySpan;
-@property (nonatomic, weak) SentrySpan *fullDisplaySpan;
+@property (nonatomic, weak) id<SentrySpan> initialDisplaySpan;
+@property (nonatomic, weak) id<SentrySpan> fullDisplaySpan;
 @property (nonatomic, strong, readonly) SentryDispatchQueueWrapper *dispatchQueueWrapper;
 
 @end
