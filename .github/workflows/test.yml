@@ -243,7 +243,7 @@ jobs:
             runs-on: macos-26
             platform: "iOS"
             xcode: "26.0"
-            test-destination-os: "latest"
+            test-destination-os: "26.0"
             device: "iPhone 17 Pro"
             scheme: "Sentry"
 
@@ -272,7 +272,7 @@ jobs:
             runs-on: macos-26
             platform: "macOS"
             xcode: "26.0"
-            test-destination-os: "latest"
+            test-destination-os: "26.0"
             scheme: "Sentry"
 
           # Catalyst. We test the latest version, as the risk something breaking on Catalyst and not
@@ -328,7 +328,7 @@ jobs:
             runs-on: macos-26
             platform: "tvOS"
             xcode: "26.0"
-            test-destination-os: "latest"
+            test-destination-os: "26.0"
             device: "Apple TV"
             scheme: "Sentry"
 
