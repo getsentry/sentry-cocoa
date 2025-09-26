@@ -555,7 +555,7 @@
     XCTAssertEqual(event.breadcrumbs.firstObject.timestamp, date);
 }
 
-- (void)testBreadcrumbWithNilCategory_ShouldBeSkipped
+- (void)testBreadcrumbWithNilCategory_ShouldFallbackToDefaultCategory
 {
     // -- Arrange --
     // Create a crash report with a breadcrumb that has nil category
@@ -564,7 +564,7 @@
         @"user" : @ {
             @"breadcrumbs" : @[
                 @{
-                    // Missing category key should cause breadcrumb to be skipped
+                    // Missing category key should cause breadcrumb to fallback to default category
                     @"message" : @"test message",
                     @"timestamp" : @"2020-02-06T01:00:32Z"
                 },
@@ -586,11 +586,16 @@
     SentryEvent *event = [reportConverter convertReportToEvent];
 
     // -- Assert --
-    // Should only have 1 breadcrumb (the one with valid category)
-    // The nil category breadcrumb should be skipped due to null check
-    XCTAssertEqual(event.breadcrumbs.count, 1);
-    XCTAssertEqualObjects(event.breadcrumbs.firstObject.category, @"valid_category");
-    XCTAssertEqualObjects(event.breadcrumbs.firstObject.message, @"valid message");
+    XCTAssertEqual(event.breadcrumbs.count, 2);
+    XCTAssertEqualObjects(event.breadcrumbs.firstObject.category, @"default");
+    XCTAssertEqualObjects(event.breadcrumbs.firstObject.message, @"test message");
+    XCTAssertEqualObjects(
+        event.breadcrumbs.firstObject.timestamp, sentry_fromIso8601String(@"2020-02-06T01:00:32Z"));
+
+    XCTAssertEqualObjects(event.breadcrumbs.lastObject.category, @"valid_category");
+    XCTAssertEqualObjects(event.breadcrumbs.lastObject.message, @"valid message");
+    XCTAssertEqualObjects(
+        event.breadcrumbs.lastObject.timestamp, sentry_fromIso8601String(@"2020-02-06T01:00:33Z"));
 }
 
 - (void)testThreadWithNonNumberIndex_ShouldReturnNil
