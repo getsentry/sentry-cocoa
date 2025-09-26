@@ -18,6 +18,13 @@ final class SentryUIRedactBuilder {
     /// causes a crash due to unimplemented init(layer:) initializer.
     private static let cameraSwiftUIViewClassId = "CameraUI.ChromeSwiftUIView"
 
+    /// Class identifier for ``_UICollectionViewListLayoutSectionBackgroundColorDecorationView``, if it exists.
+    ///
+    /// This object identifier is used to identify views of this class type during the redaction process.
+    /// This workaround is required because SwiftUI's List view uses this class to display the background color
+    /// with it expanding way beyond the bounds of the list.
+    private static let collectionViewListLayoutSectionBackgroundColorDecorationViewClassId = "_UICollectionViewListLayoutSectionBackgroundColorDecorationView"
+
     ///This is a wrapper which marks it's direct children to be ignored
     private var ignoreContainerClassIdentifier: ObjectIdentifier?
     
@@ -336,6 +343,10 @@ final class SentryUIRedactBuilder {
             // Fatal error: Use of unimplemented initializer 'init(layer:)' for class 'CameraUI.ModeLoupeLayer'
             //
             // This crash only occurs when building with Xcode 16 for iOS 26, so we add a runtime check
+            return true
+        }
+
+        if viewTypeId == Self.collectionViewListLayoutSectionBackgroundColorDecorationViewClassId {
             return true
         }
         return false
