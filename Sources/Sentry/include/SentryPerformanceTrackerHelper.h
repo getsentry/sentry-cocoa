@@ -9,12 +9,12 @@ NS_ASSUME_NONNULL_BEGIN
  * Tracks performance synchronizing span with its child's.
  * @note A span will be finished only when all its children are finished.
  */
-@interface SentryPerformanceTracker : NSObject
+@interface SentryPerformanceTrackerHelper : NSObject
 
 /**
  * A static instance of performance tracker.
  */
-@property (nonatomic, class, readonly) SentryPerformanceTracker *shared;
+@property (nonatomic, class, readonly) SentryPerformanceTrackerHelper *shared;
 
 /**
  * Starts a new span if no span is active, then bind it to the scope if no span is bound.
@@ -25,7 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @return The span id.
  */
 - (SentrySpanId *)startSpanWithName:(NSString *)name
-                         nameSource:(SentryTransactionNameSource)source
+                         nameSource:(NSInteger)source
                           operation:(NSString *)operation
                              origin:(NSString *)origin;
 
@@ -45,7 +45,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @param block Block to be measured.
  */
 - (void)measureSpanWithDescription:(NSString *)description
-                        nameSource:(SentryTransactionNameSource)source
+                        nameSource:(NSInteger)source
                          operation:(NSString *)operation
                             origin:(NSString *)origin
                            inBlock:(void (^)(void))block;
@@ -60,7 +60,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @param block Block to be measured.
  */
 - (void)measureSpanWithDescription:(NSString *)description
-                        nameSource:(SentryTransactionNameSource)source
+                        nameSource:(NSInteger)source
                          operation:(NSString *)operation
                             origin:(NSString *)origin
                       parentSpanId:(SentrySpanId *)parentSpanId
@@ -105,6 +105,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)pushActiveSpan:(SentrySpanId *)spanId;
 
 - (void)popActiveSpan;
+
+- (void)clear;
 
 @end
 

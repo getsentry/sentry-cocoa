@@ -1,7 +1,7 @@
 #if canImport(SwiftUI)
 
 import Foundation
-import Sentry
+@_spi(Private) import Sentry
 import SwiftUI
 
 #if CARTHAGE || SWIFT_PACKAGE

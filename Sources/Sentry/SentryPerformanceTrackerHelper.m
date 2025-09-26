@@ -1,4 +1,4 @@
-#import "SentryPerformanceTracker.h"
+#import "SentryPerformanceTrackerHelper.h"
 #import "SentryHub+Private.h"
 #import "SentryLogC.h"
 #import "SentrySDK+Private.h"
@@ -20,18 +20,18 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryPerformanceTracker () <SentryTracerDelegate>
+@interface SentryPerformanceTrackerHelper () <SentryTracerDelegate>
 
 @property (nonatomic, strong) NSMutableDictionary<SentrySpanId *, id<SentrySpan>> *spans;
 @property (nonatomic, strong) NSMutableArray<id<SentrySpan>> *activeSpanStack;
 
 @end
 
-@implementation SentryPerformanceTracker
+@implementation SentryPerformanceTrackerHelper
 
-+ (SentryPerformanceTracker *)shared
++ (SentryPerformanceTrackerHelper *)shared
 {
-    static SentryPerformanceTracker *instance = nil;
+    static SentryPerformanceTrackerHelper *instance = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{ instance = [[self alloc] init]; });
     return instance;
@@ -47,7 +47,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (SentrySpanId *)startSpanWithName:(NSString *)name
-                         nameSource:(SentryTransactionNameSource)source
+                         nameSource:(NSInteger)source
                           operation:(NSString *)operation
                              origin:(NSString *)origin
 {
@@ -120,7 +120,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)measureSpanWithDescription:(NSString *)description
-                        nameSource:(SentryTransactionNameSource)source
+                        nameSource:(NSInteger)source
                          operation:(NSString *)operation
                             origin:(NSString *)origin
                            inBlock:(void (^)(void))block
@@ -138,7 +138,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)measureSpanWithDescription:(NSString *)description
-                        nameSource:(SentryTransactionNameSource)source
+                        nameSource:(NSInteger)source
                          operation:(NSString *)operation
                             origin:(NSString *)origin
                       parentSpanId:(SentrySpanId *)parentSpanId
