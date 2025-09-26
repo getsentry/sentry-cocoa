@@ -3,11 +3,12 @@
 #import "SentryFileIOTracker.h"
 #import "SentryNSDataSwizzling.h"
 #import "SentryNSFileManagerSwizzling.h"
+#import "SentrySwift.h"
 #import "SentryThreadInspector.h"
 
 @interface SentryFileIOTrackingIntegration ()
 
-@property (nonatomic, strong) SentryFileIOTracker *tracker;
+@property (nonatomic, strong) id<SentryFileIOTracking> tracker;
 
 @end
 
@@ -19,7 +20,7 @@
         return NO;
     }
 
-    self.tracker = [[SentryDependencyContainer sharedInstance] fileIOTracker];
+    self.tracker = [[SentryDependencyContainer sharedInstance] fileIOTracking];
     [self.tracker enable];
 
     [SentryNSDataSwizzling.shared startWithOptions:options tracker:self.tracker];
