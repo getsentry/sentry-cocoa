@@ -2,10 +2,11 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
-#    import "SentryFileManager.h"
+#    import "SentryFileManagerHelper.h"
 #    import "SentryInternalDefines.h"
 #    import "SentryLaunchProfiling.h"
 #    import "SentrySerialization.h"
+#    import "SentrySwift.h"
 
 BOOL
 sentry_threadSanitizerIsPresent(void)

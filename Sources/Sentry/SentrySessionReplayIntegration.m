@@ -7,7 +7,6 @@
 #    import "SentryDispatchFactory.h"
 #    import "SentryDispatchQueueProviderProtocol.h"
 #    import "SentryEvent+Private.h"
-#    import "SentryFileManager.h"
 #    import "SentryHub+Private.h"
 #    import "SentryLogC.h"
 #    import "SentryOptions.h"
