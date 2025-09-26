@@ -36,7 +36,6 @@
 #    import "SentryBuildAppStartSpans.h"
 #    import "SentryFramesTracker.h"
 #    import "SentryUIViewControllerPerformanceTracker.h"
-#    import <SentryScreenFrames.h>
 #endif // SENTRY_HAS_UIKIT
 
 NS_ASSUME_NONNULL_BEGIN

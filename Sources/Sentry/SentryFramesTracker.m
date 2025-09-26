@@ -12,7 +12,6 @@
 #    import "SentrySwift.h"
 #    import "SentryTime.h"
 #    import "SentryTracer.h"
-#    import <SentryScreenFrames.h>
 #    include <stdatomic.h>
 
 #    if SENTRY_TARGET_PROFILING_SUPPORTED

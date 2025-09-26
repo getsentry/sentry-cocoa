@@ -2,7 +2,7 @@
 import AuthenticationServices
 import Foundation
 import SafariServices
-import Sentry
+@_spi(Private) import Sentry
 import SentrySampleShared
 import UIKit
 
