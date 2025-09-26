@@ -428,20 +428,25 @@
                               self.exceptionContext[@"mach"][@"exception"],
                               self.exceptionContext[@"mach"][@"code"],
                               self.exceptionContext[@"mach"][@"subcode"]]
-                     type:self.exceptionContext[@"mach"][@"exception_name"] ?: @"Mach Exception"];
+                     type:self.exceptionContext[@"mach"][@"exception_name"]
+                ?: @"Mach Exception"]; // The fallback value is best-attempt in case the exception
+                                       // name is not available
     } else if ([exceptionType isEqualToString:@"signal"]) {
-        exception = [[SentryException alloc]
-            initWithValue:[NSString stringWithFormat:@"Signal %@, Code %@",
-                              self.exceptionContext[@"signal"][@"signal"],
-                              self.exceptionContext[@"signal"][@"code"]]
-                     type:self.exceptionContext[@"signal"][@"name"] ?: @"Signal Exception"];
+        exception =
+            [[SentryException alloc] initWithValue:[NSString stringWithFormat:@"Signal %@, Code %@",
+                                                       self.exceptionContext[@"signal"][@"signal"],
+                                                       self.exceptionContext[@"signal"][@"code"]]
+                                              type:self.exceptionContext[@"signal"][@"name"]
+                    ?: @"Signal Exception"]; // The fallback value is best-attempt in case the
+                                             // exception name is not available
     } else if ([exceptionType isEqualToString:@"user"]) {
         NSString *exceptionReason =
             [NSString stringWithFormat:@"%@", self.exceptionContext[@"reason"]];
         exception =
             [[SentryException alloc] initWithValue:exceptionReason
                                               type:self.exceptionContext[@"user_reported"][@"name"]
-                    ?: @"User Reported Exception"];
+                    ?: @"User Reported Exception"]; // The fallback value is best-attempt in case
+                                                    // the exception name is not available
 
         NSRange match = [exceptionReason rangeOfString:@":"];
         if (match.location != NSNotFound) {
@@ -483,9 +488,10 @@
         reason = self.exceptionContext[@"reason"];
     }
 
-    return [[SentryException alloc]
-        initWithValue:[NSString stringWithFormat:@"%@", reason]
-                 type:self.exceptionContext[@"nsexception"][@"name"] ?: @"NSException"];
+    return [[SentryException alloc] initWithValue:[NSString stringWithFormat:@"%@", reason]
+                                             type:self.exceptionContext[@"nsexception"][@"name"]
+            ?: @"NSException"]; // The fallback value is best-attempt in case the exception name is
+                                // not available
 }
 
 - (void)enhanceValueFromNotableAddresses:(SentryException *)exception
