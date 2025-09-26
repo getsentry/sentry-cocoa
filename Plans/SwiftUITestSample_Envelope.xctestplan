@@ -15,7 +15,7 @@
     {
       "target" : {
         "containerPath" : "container:SwiftUITestSample.xcodeproj",
-        "identifier" : "CB685CB9DBE9C3FFCE8BD316",
+        "identifier" : "B797E22AFFBF9A9B1EC4FB09",
         "name" : "SwiftUITestSampleUITestsEnvelopeOnly"
       }
     }

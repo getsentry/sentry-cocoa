@@ -4,11 +4,19 @@ import UIKit
 @objc @_spi(Private) public final class SentryThreadsafeApplication: NSObject {
     private let notificationCenter: SentryNSNotificationCenterWrapper
     
-    @objc public init(initialState: UIApplication.State, notificationCenter: SentryNSNotificationCenterWrapper) {
+    @objc public init(applicationProvider: () -> SentryApplication?, notificationCenter: SentryNSNotificationCenterWrapper) {
         self.notificationCenter = notificationCenter
-        _internalState = initialState
+        // This matches the ObjC behavior which did not initialize the state when the UIApplication was null
+        // so it kept a default value of 0 which happens to be defined to be `active`.
+        // Acquiring the lock is not necessary here since the instance has not been initialized yet.
+        if let application = applicationProvider() {
+            _internalState = application.unsafeApplicationState
+        } else {
+            SentrySDKLog.warning("Application is null in SentryThreadsafeApplication")
+            _internalState = .active
+        }
         super.init()
-        
+
         notificationCenter.addObserver(self, selector: #selector(didEnterBackground), name: UIApplication.didEnterBackgroundNotification, object: nil)
         notificationCenter.addObserver(self, selector: #selector(didBecomeActive), name: UIApplication.didBecomeActiveNotification, object: nil)
     }
