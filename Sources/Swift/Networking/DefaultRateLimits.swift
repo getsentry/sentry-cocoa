@@ -1,12 +1,10 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
-/**
- Parses HTTP responses from the Sentry server for rate limits and stores them
- in memory. The server can communicate a rate limit either through the 429
- status code with a "Retry-After" header or through any response with a custom
- "X-Sentry-Rate-Limits" header. This class is thread safe.
-*/
+/// Parses HTTP responses from the Sentry server for rate limits and stores them
+/// in memory. The server can communicate a rate limit either through the 429
+/// status code with a "Retry-After" header or through any response with a custom
+/// "X-Sentry-Rate-Limits" header. This class is thread safe.
 @objc(SentryDefaultRateLimits) @_spi(Private)
 public final class DefaultRateLimits: NSObject, RateLimits {
 
@@ -30,8 +28,8 @@ public final class DefaultRateLimits: NSObject, RateLimits {
         super.init()
     }
 
-    // `category: UInt` is the unsigned integer representation for SentryDataCategory since we cannot expose
-    // functions written in Swift.
+    /// `category: UInt` is the unsigned integer representation for SentryDataCategory since we cannot expose
+    /// functions written in Swift.
     @objc
     public func isRateLimitActive(_ category: UInt) -> Bool {
         let categoryAsEnum = sentryDataCategoryForNSUInteger(category)
@@ -50,7 +48,7 @@ public final class DefaultRateLimits: NSObject, RateLimits {
             let limits = rateLimitParser.parse(rateLimitsHeader)
 
             for (categoryAsNumber, date) in limits {
-                let category = sentryDataCategoryForNSUInteger(categoryAsNumber.uintValue)
+                let category = sentryDataCategoryForNSUInteger(categoryAsNumber)
                 updateRateLimit(category, withDate: date)
             }
         } else if response.statusCode == 429 {
