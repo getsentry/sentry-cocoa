@@ -639,9 +639,10 @@ extension SentryProfilingPublicAPITests {
         fixture.random = TestRandom(value: 0)
         let container = SentryDependencyContainer.sharedInstance()
         let nc = container.notificationCenterWrapper
+        let application = container.application()
         fixture.sessionTracker = SessionTracker(
             options: fixture.options,
-            application: container.application,
+            applicationProvider: { application },
             dateProvider: fixture.currentDate,
             notificationCenter: nc
         )

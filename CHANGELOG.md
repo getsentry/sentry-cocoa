@@ -1,5 +1,11 @@
 # Changelog
 
+## 8.56.2
+
+### Fixes
+
+- Fix crash from null UIApplication in SwiftUI apps (#6264)
+
 ## 8.56.1
 
 > [!Warning]

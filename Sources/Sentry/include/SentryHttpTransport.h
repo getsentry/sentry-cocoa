@@ -7,6 +7,7 @@
 @class SentryDispatchQueueWrapper;
 @class SentryNSURLRequestBuilder;
 @class SentryDsn;
+@class SentryFileManager;
 @protocol SentryCurrentDateProvider;
 @protocol SentryRateLimits;
 
