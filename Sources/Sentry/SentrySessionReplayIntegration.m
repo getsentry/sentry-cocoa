@@ -10,7 +10,6 @@
 #    import "SentryHub+Private.h"
 #    import "SentryLogC.h"
 #    import "SentryOptions.h"
-#    import "SentryRateLimits.h"
 #    import "SentryReachability.h"
 #    import "SentrySDK+Private.h"
 #    import "SentryScope+Private.h"
