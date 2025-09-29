@@ -1,4 +1,3 @@
-#import "SentryDataCategory.h"
 #import "SentryDefines.h"
 #import "SentryProfilingConditionals.h"
 
@@ -9,14 +8,12 @@ NS_ASSUME_NONNULL_BEGIN
 @class SentryEvent;
 @class SentryEnvelope;
 @class SentryEnvelopeItem;
-@class SentryFileContents;
 @class SentryOptions;
 @class SentrySession;
 
 @protocol SentryCurrentDateProvider;
 
-NS_SWIFT_NAME(SentryFileManager)
-@interface SentryFileManager : NSObject
+@interface SentryFileManagerHelper : NSObject
 SENTRY_NO_INIT
 
 @property (nonatomic, readonly) NSString *basePath;
@@ -27,34 +24,30 @@ SENTRY_NO_INIT
 @property (nonatomic, readonly) NSString *previousBreadcrumbsFilePathOne;
 @property (nonatomic, readonly) NSString *previousBreadcrumbsFilePathTwo;
 
-- (nullable instancetype)initWithOptions:(SentryOptions *)options
-                            dateProvider:(id<SentryCurrentDateProvider>)dateProvider
-                    dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
-                                   error:(NSError **)error NS_DESIGNATED_INITIALIZER;
+@property (nonatomic, copy) NSString *envelopesPath;
+@property (nonatomic, assign) NSUInteger maxEnvelopes;
+@property (nonatomic, copy) NSString *timezoneOffsetFilePath;
+@property (nonatomic, copy) NSString *eventsPath;
+@property (nonatomic, copy) NSString *appStateFilePath;
+@property (nonatomic, copy) NSString *appHangEventFilePath;
 
-- (void)setEnvelopeDeletedCallback:(void (^)(SentryEnvelopeItem *, SentryDataCategory))callback;
+@property (nonatomic, copy, nullable) void (^handleEnvelopesLimit)(void);
+
+- (nullable instancetype)initWithOptions:(SentryOptions *)options
+                                   error:(NSError **)error NS_DESIGNATED_INITIALIZER;
 
 #pragma mark - Envelope
 
-- (nullable NSString *)storeEnvelope:(SentryEnvelope *)envelope;
+- (nullable NSString *)storeEnvelopeData:(NSData *)envelopeData
+                             currentTime:(NSTimeInterval)currentTime;
 /**
  * Only used for testing.
  */
 - (nullable NSString *)getEnvelopesPath:(NSString *)filePath;
 
-/**
- * Get all envelopes sorted ascending by the @c timeIntervalSince1970 the envelope was stored and if
- * two envelopes are stored at the same time sorted by the order they were stored.
- */
-- (NSArray<SentryFileContents *> *)getAllEnvelopes;
+- (NSArray<NSString *> *_Nullable)pathsOfAllEnvelopes;
 
-/**
- * Gets the oldest stored envelope. For the order see @c getAllEnvelopes.
- * @return @c SentryFileContents if there is an envelope and @c nil if there are no envelopes.
- */
-- (SentryFileContents *_Nullable)getOldestEnvelope;
-
-- (void)deleteOldEnvelopeItems;
+- (void)deleteOldEnvelopesFromAllSentryPaths:(NSTimeInterval)now;
 
 /**
  * Only used for teting.
@@ -68,16 +61,16 @@ SENTRY_NO_INIT
 - (void)moveState:(NSString *)stateFilePath toPreviousState:(NSString *)previousStateFilePath;
 
 #pragma mark - Session
-- (void)storeCurrentSession:(SentrySession *)session;
-- (SentrySession *_Nullable)readCurrentSession;
+- (void)storeCurrentSessionData:(nullable NSData *)data;
+- (NSData *_Nullable)readCurrentSession;
 - (void)deleteCurrentSession;
 
-- (void)storeCrashedSession:(SentrySession *)session;
-- (SentrySession *_Nullable)readCrashedSession;
+- (void)storeCrashedSessionData:(nullable NSData *)data;
+- (NSData *_Nullable)readCrashedSession;
 - (void)deleteCrashedSession;
 
-- (void)storeAbnormalSession:(SentrySession *)session;
-- (SentrySession *_Nullable)readAbnormalSession;
+- (void)storeAbnormalSessionData:(nullable NSData *)data;
+- (NSData *_Nullable)readAbnormalSession;
 - (void)deleteAbnormalSession;
 
 #pragma mark - LastInForeground
@@ -86,10 +79,10 @@ SENTRY_NO_INIT
 - (void)deleteTimestampLastInForeground;
 
 #pragma mark - App State
-- (void)storeAppState:(SentryAppState *)appState;
+- (void)storeAppStateData:(NSData *)appState;
 - (void)moveAppStateToPreviousAppState;
-- (SentryAppState *_Nullable)readAppState;
-- (SentryAppState *_Nullable)readPreviousAppState;
+- (NSData *_Nullable)readAppStateData;
+- (NSData *_Nullable)readPreviousAppState;
 - (void)deleteAppState;
 
 #pragma mark - Breadcrumbs
@@ -115,7 +108,7 @@ SENTRY_NO_INIT
 - (BOOL)isDirectory:(NSString *)path;
 - (nullable NSData *)readDataFromPath:(NSString *)path
                                 error:(NSError *__autoreleasing _Nullable *)error;
-- (BOOL)writeData:(NSData *)data toPath:(NSString *)path;
+- (BOOL)writeData:(nullable NSData *)data toPath:(NSString *)path;
 
 BOOL createDirectoryIfNotExists(NSString *path, NSError **error);
 
@@ -171,6 +164,8 @@ SENTRY_EXTERN void removeSentryStaticBasePath(void);
 #    endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
 
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
+
+- (void)clearDiskState;
 
 @end
 

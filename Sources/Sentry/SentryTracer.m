@@ -3,7 +3,6 @@
 #import "SentryDebugImageProvider+HybridSDKs.h"
 #import "SentryDependencyContainer.h"
 #import "SentryEvent+Private.h"
-#import "SentryFileManager.h"
 #import "SentryHub+Private.h"
 #import "SentryInternalCDefines.h"
 #import "SentryInternalDefines.h"
