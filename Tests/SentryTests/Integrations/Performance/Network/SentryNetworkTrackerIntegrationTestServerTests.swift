@@ -10,9 +10,9 @@ import XCTest
 class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
 
     func testGetRequest_SpanCreatedAndBaggageHeaderAdded() throws {
-        let testBaggageURL = try XCTUnwrap(URL(string: "http://localhost:8080/echo-baggage-header"))
+        try ensureTestServerIsRunning()
 
-        ensureTestServerIsRunning(testBaggageURL)
+        let testBaggageURL = try XCTUnwrap(URL(string: "http://localhost:8080/echo-baggage-header"))
 
         startSDK()
 
@@ -45,8 +45,9 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
     }
 
     func testGetRequest_CompareSentryTraceHeader() throws {
+        try ensureTestServerIsRunning()
+
         let testTraceURL = try XCTUnwrap(URL(string: "http://localhost:8080/echo-sentry-trace"))
-        ensureTestServerIsRunning(testTraceURL)
 
         startSDK()
 
@@ -73,9 +74,9 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
     }
 
     func testGetCaptureFailedRequestsEnabled() throws {
-        let clientErrorTraceURL = try XCTUnwrap(URL(string: "http://localhost:8080/http-client-error"))
+        try ensureTestServerIsRunning()
 
-        ensureTestServerIsRunning(clientErrorTraceURL)
+        let clientErrorTraceURL = try XCTUnwrap(URL(string: "http://localhost:8080/http-client-error"))
 
         let expect = expectation(description: "Request completed")
         expect.expectedFulfillmentCount = 2
@@ -117,15 +118,17 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
         }
     }
     
-    private func ensureTestServerIsRunning(_ url: URL) {
+    private func ensureTestServerIsRunning() throws {
+        let testUrl = try XCTUnwrap(URL(string: "http://localhost:8080/"))
+
         let session = URLSession(configuration: URLSessionConfiguration.default)
         let attempts = 20
 
-        for attempt in 1...20 {
+        for attempt in 1..<attempts {
             let expectation = expectation(description: "Test server ready check attempt \(attempt)")
             var isReady = false
             
-            let dataTask = session.dataTask(with: url) { (_, response, error) in
+            let dataTask = session.dataTask(with: testUrl) { (_, response, error) in
                 if error == nil, let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 {
                     isReady = true
                 }
