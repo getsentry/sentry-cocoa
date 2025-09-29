@@ -4,8 +4,6 @@
 
 #    import "SentryClient+Private.h"
 #    import "SentryDependencyContainer.h"
-#    import "SentryDispatchFactory.h"
-#    import "SentryDispatchQueueProviderProtocol.h"
 #    import "SentryEvent+Private.h"
 #    import "SentryHub+Private.h"
 #    import "SentryLogC.h"
@@ -133,7 +131,7 @@ static SentryTouchTracker *_touchTracker;
 
     // We use the dispatch queue provider as a factory to create the queues, but store the queues
     // directly in this instance, so they get deallocated when the integration is deallocated.
-    id<SentryDispatchQueueProviderProtocol> dispatchQueueProvider
+    SentryDispatchFactory *dispatchQueueProvider
         = SentryDependencyContainer.sharedInstance.dispatchFactory;
 
     // The asset worker queue is used to work on video and frames data.

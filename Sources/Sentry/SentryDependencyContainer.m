@@ -1,6 +1,5 @@
 #import "SentryANRTrackerV1.h"
 
-#import "SentryDispatchFactory.h"
 #import "SentryExtraContextProvider.h"
 #import "SentryFileIOTracker.h"
 #import "SentryInternalCDefines.h"

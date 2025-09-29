@@ -32,7 +32,6 @@
 #import "SentryCrashMonitor_MachException.h"
 #import "SentryDebugImageProvider+HybridSDKs.h"
 #import "SentryDependencyContainer.h"
-#import "SentryDispatchFactory.h"
 #import "SentryFileManager+Test.h"
 #import "SentryFileManagerHelper.h"
 #import "SentryHub+Private.h"
