@@ -17,7 +17,11 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
         startSDK()
 
         let transaction = try XCTUnwrap(SentrySDK.startTransaction(name: "Test Transaction", operation: "TEST", bindToScope: true) as? SentryTracer)
+
         let expect = expectation(description: "Request completed")
+        // Cancelling the task in defer can trigger the completion handler again.
+        expect.assertForOverFulfill = false
+
         let session = URLSession(configuration: URLSessionConfiguration.default)
 
         let dataTask = session.dataTask(with: testBaggageURL) { (data, _, error) in
@@ -54,7 +58,11 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
         startSDK()
 
         let transaction = try XCTUnwrap(SentrySDK.startTransaction(name: "Test Transaction", operation: "TEST", bindToScope: true) as? SentryTracer)
+
         let expect = expectation(description: "Request completed")
+        // Cancelling the task in defer can trigger the completion handler again.
+        expect.assertForOverFulfill = false
+
         let session = URLSession(configuration: URLSessionConfiguration.default)
         var response: String?
         let dataTask = session.dataTask(with: testTraceURL) { (data, _, error) in
@@ -84,6 +92,8 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
 
         let expect = expectation(description: "Request completed")
         expect.expectedFulfillmentCount = 2
+        // Cancelling the task in defer can trigger the completion handler again.
+        expect.assertForOverFulfill = false
 
         var sentryEvent: Event?
 
