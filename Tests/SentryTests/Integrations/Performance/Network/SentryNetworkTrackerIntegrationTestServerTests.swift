@@ -30,6 +30,8 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
             expect.fulfill()
         }
 
+        defer { dataTask.cancel() }
+
         dataTask.resume()
         wait(for: [expect], timeout: 10)
 
@@ -60,6 +62,8 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
             response = String(data: data ?? Data(), encoding: .utf8) ?? ""
             expect.fulfill()
         }
+
+        defer { dataTask.cancel() }
 
         dataTask.resume()
         wait(for: [expect], timeout: 10)
@@ -100,6 +104,8 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
             expect.fulfill()
         }
 
+        defer { dataTask.cancel() }
+
         dataTask.resume()
         wait(for: [expect], timeout: 10)
 
@@ -139,7 +145,9 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
                 }
                 group.leave()
             }
-            
+
+            defer { dataTask.cancel() }
+
             dataTask.resume()
 
             // We don't care about the result, we just want to wait up to 2 seconds for the request to complete.
