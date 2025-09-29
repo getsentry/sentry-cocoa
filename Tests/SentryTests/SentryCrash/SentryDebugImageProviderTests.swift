@@ -1,3 +1,4 @@
+#if !SDK_V9
 @_spi(Private) @testable import Sentry
 @_spi(Private) @testable import SentryTestUtils
 import XCTest
@@ -403,3 +404,4 @@ class SentryDebugImageProviderTests: XCTestCase {
     }
     
 }
+#endif

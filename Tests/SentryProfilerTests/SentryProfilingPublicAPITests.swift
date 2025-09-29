@@ -9,7 +9,11 @@ class SentryProfilingPublicAPITests: XCTestCase {
     private class Fixture {
         @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
         let options: Options = {
+            #if SDK_V9
+            let options = Options()
+            #else
             let options = Options.noIntegrations()
+            #endif
             options.dsn = TestConstants.dsnAsString(username: "SentrySDKTests")
             options.releaseName = "1.0.0"
             return options
@@ -77,8 +81,10 @@ extension SentryProfilingPublicAPITests {
     func testSentryOptionsReportsProfilingCorrelatedToTraces_NonnilSampleRate() {
         // Arrange
         let options = Options()
+        #if !SDK_V9
         options.profilesSampleRate = 1
         options.profilesSampler = nil
+        #endif
         options.configureProfiling = {
             $0.lifecycle = .trace
         }
@@ -93,8 +99,10 @@ extension SentryProfilingPublicAPITests {
     func testSentryOptionsReportsProfilingCorrelatedToTraces_NonnilSampler() {
         // Arrange
         let options = Options()
+#if !SDK_V9
         options.profilesSampleRate = nil
         options.profilesSampler = { _ in 1 }
+        #endif
         options.configureProfiling = {
             $0.lifecycle = .trace
         }
@@ -107,6 +115,7 @@ extension SentryProfilingPublicAPITests {
     }
 }
 
+#if !SDK_V9
 // MARK: continuous profiling v1
 @available(*, deprecated, message: "Continuous profiling v1 is deprecated")
 extension SentryProfilingPublicAPITests {
@@ -212,6 +221,7 @@ extension SentryProfilingPublicAPITests {
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
     }
 }
+#endif
 
 // MARK: continuous profiling v2
 @available(*, deprecated, message: "This is only deprecated because profilesSampleRate is deprecated. Once that is removed this attribute can be removed.")
@@ -219,8 +229,10 @@ extension SentryProfilingPublicAPITests {
     func testSentryOptionsReportsContinuousProfilingV2Enabled() {
         // Arrange
         let options = Options()
+        #if !SDK_V9
         options.profilesSampleRate = nil
         options.profilesSampler = nil
+        #endif
         options.configureProfiling = { _ in }
 
         // Act
@@ -233,8 +245,10 @@ extension SentryProfilingPublicAPITests {
     func testSentryOptionsReportsContinuousProfilingV2Disabled_NonnilSampleRate() {
         // Arrange
         let options = Options()
+#if !SDK_V9
         options.profilesSampleRate = 1
         options.profilesSampler = nil
+        #endif
         options.configureProfiling = { _ in }
 
         // Act
@@ -247,8 +261,10 @@ extension SentryProfilingPublicAPITests {
     func testSentryOptionsReportsContinuousProfilingV2Disabled_NonnilSampler() {
         // Arrange
         let options = Options()
+#if !SDK_V9
         options.profilesSampleRate = nil
         options.profilesSampler = { _ in 1 }
+        #endif
         options.configureProfiling = { _ in }
 
         // Act
@@ -261,8 +277,10 @@ extension SentryProfilingPublicAPITests {
     func testSentryOptionsReportsContinuousProfilingV2Disabled_NilConfiguration() {
         // Arrange
         let options = Options()
+#if !SDK_V9
         options.profilesSampleRate = nil
         options.profilesSampler = nil
+        #endif
         options.configureProfiling = nil
 
         // Act
@@ -275,8 +293,10 @@ extension SentryProfilingPublicAPITests {
     func testSentryOptionsReportsProfilingCorrelatedToTraces() {
         // Arrange
         let options = Options()
+#if !SDK_V9
         options.profilesSampleRate = nil
         options.profilesSampler = nil
+        #endif
         options.configureProfiling = {
             $0.lifecycle = .trace
         }
@@ -291,8 +311,10 @@ extension SentryProfilingPublicAPITests {
     func testSentryOptionsReportsProfilingNotCorrelatedToTraces_ManualLifecycle() {
         // Arrange
         let options = Options()
+#if !SDK_V9
         options.profilesSampleRate = nil
         options.profilesSampler = nil
+        #endif
         options.configureProfiling = {
             $0.lifecycle = .manual // this is the default value, but made explicit here for clarity
         }
@@ -307,8 +329,10 @@ extension SentryProfilingPublicAPITests {
     func testSentryOptionsReportsProfilingNotCorrelatedToTraces_NilConfiguration() {
         // Arrange
         let options = Options()
+#if !SDK_V9
         options.profilesSampleRate = nil
         options.profilesSampler = nil
+        #endif
         options.configureProfiling = nil
 
         // Act
@@ -376,7 +400,9 @@ extension SentryProfilingPublicAPITests {
 
     func testStartingContinuousProfilerV2WithoutContinuousProfilingEnabledDoesNotStartProfiler() {
         // Arrange
+#if !SDK_V9
         fixture.options.profilesSampleRate = 1
+        #endif
         givenSdkWithHub()
 
         // Act

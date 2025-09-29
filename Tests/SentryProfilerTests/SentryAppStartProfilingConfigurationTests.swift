@@ -65,7 +65,9 @@ private extension SentryAppStartProfilingConfigurationTests {
     @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     private func performTest(expectedOptions: LaunchProfileOptions, shouldProfileLaunch: Bool) {
         let actualOptions = Options()
+        #if !SDK_V9
         actualOptions.enableAppLaunchProfiling = expectedOptions.enableAppLaunchProfiling
+        #endif
 
         if let tracesSampleRate = expectedOptions.tracesSampleRate {
             actualOptions.tracesSampleRate = NSNumber(value: tracesSampleRate)
@@ -73,11 +75,13 @@ private extension SentryAppStartProfilingConfigurationTests {
             actualOptions.tracesSampleRate = nil
         }
 
+#if !SDK_V9
         if let profilesSampleRate = expectedOptions.profilesSampleRate {
             actualOptions.profilesSampleRate = NSNumber(value: profilesSampleRate)
         } else {
             actualOptions.profilesSampleRate = nil
         }
+        #endif
 
         if let continuousProfileV2Options = expectedOptions.continuousProfileV2Options {
             actualOptions.configureProfiling = {

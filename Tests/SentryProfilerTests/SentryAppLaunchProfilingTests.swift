@@ -23,8 +23,10 @@ extension SentryAppLaunchProfilingTests {
     // test that the launch trace instance is nil after stopping the launch
     // profiler
     func testStopLaunchTraceProfile() {
+        #if !SDK_V9
         fixture.options.enableAppLaunchProfiling = true
         fixture.options.profilesSampleRate = 1
+        #endif
         fixture.options.tracesSampleRate = 1
         sentry_configureLaunchProfilingForNextLaunch(fixture.options)
         _sentry_nondeduplicated_startLaunchProfile()
@@ -42,8 +44,10 @@ extension SentryAppLaunchProfilingTests {
 
         // -- Act --
         let options = Options()
+#if !SDK_V9
         options.enableAppLaunchProfiling = true
         options.profilesSampleRate = expectedProfilesSampleRate
+        #endif
         options.tracesSampleRate = expectedTracesSampleRate
 
         // Smoke test that the file doesn't exist yet
@@ -64,17 +68,23 @@ extension SentryAppLaunchProfilingTests {
     // file
     func testLaunchTraceProfileConfigurationRemoval() {
         let options = Options()
+#if !SDK_V9
         options.enableAppLaunchProfiling = true
         options.profilesSampleRate = 0.567
+        #endif
         options.tracesSampleRate = 0.789
         XCTAssertFalse(appLaunchProfileConfigFileExists())
         sentry_sdkInitProfilerTasks(options, TestHub(client: nil, andScope: nil))
         XCTAssert(appLaunchProfileConfigFileExists())
+#if !SDK_V9
         options.profilesSampleRate = 0.1 // less than the fixture's "random" value of 0.5
+        #endif
         sentry_sdkInitProfilerTasks(options, TestHub(client: nil, andScope: nil))
         XCTAssertFalse(appLaunchProfileConfigFileExists())
         // ensure we get another config written, to test removal again
+#if !SDK_V9
         options.profilesSampleRate = 0.567
+        #endif
         sentry_sdkInitProfilerTasks(options, TestHub(client: nil, andScope: nil))
         XCTAssert(appLaunchProfileConfigFileExists())
         options.tracesSampleRate = 0
@@ -84,8 +94,10 @@ extension SentryAppLaunchProfilingTests {
 
     func testTraceProfilerStartsWhenBothSampleRatesAreSetAboveZero() {
         let options = Options()
+#if !SDK_V9
         options.enableAppLaunchProfiling = true
         options.profilesSampleRate = 0.567
+        #endif
         options.tracesSampleRate = 0.789
         XCTAssertFalse(appLaunchProfileConfigFileExists())
         sentry_sdkInitProfilerTasks(options, TestHub(client: nil, andScope: nil))
@@ -102,8 +114,10 @@ extension SentryAppLaunchProfilingTests {
     // test that if a launch trace profiler is running and SentryTimeToDisplayTracker reports the app had its initial frame drawn and isn't waiting for full drawing, that the profile is stopped
     func testLaunchTraceProfileStoppedOnInitialDisplayWithoutWaitingForFullDisplay() throws {
         // start a launch profile
+#if !SDK_V9
         fixture.options.enableAppLaunchProfiling = true
         fixture.options.profilesSampleRate = 1.0
+        #endif
         sentry_configureLaunchProfilingForNextLaunch(fixture.options)
         _sentry_nondeduplicated_startLaunchProfile()
         XCTAssert(SentryTraceProfiler.isCurrentlyProfiling())
@@ -138,8 +152,10 @@ extension SentryAppLaunchProfilingTests {
     // test that if a launch trace profiler is running and SentryTimeToDisplayTracker reports the app is fully drawn, that the profile is stopped
     func testLaunchTraceProfileStoppedOnFullyDisplayed() throws {
         // start a launch profile
+#if !SDK_V9
         fixture.options.enableAppLaunchProfiling = true
         fixture.options.profilesSampleRate = 1
+        #endif
         fixture.options.tracesSampleRate = 1
         sentry_configureLaunchProfilingForNextLaunch(fixture.options)
         _sentry_nondeduplicated_startLaunchProfile()
@@ -160,8 +176,10 @@ extension SentryAppLaunchProfilingTests {
 extension SentryAppLaunchProfilingTests {
     func testContinuousLaunchProfileV1Configuration() throws {
         let options = Options()
+#if !SDK_V9
         options.enableAppLaunchProfiling = true
         options.profilesSampleRate = nil
+        #endif
 
         // sample rates are not considered for continuous profiling (can't test this with a profilesSampleRate of 0 though, because it must be nil to enable continuous profiling)
         options.tracesSampleRate = 0
@@ -170,8 +188,10 @@ extension SentryAppLaunchProfilingTests {
         sentry_sdkInitProfilerTasks(options, TestHub(client: nil, andScope: nil))
         XCTAssert(appLaunchProfileConfigFileExists())
 
+#if !SDK_V9
         let dict = try XCTUnwrap(sentry_persistedLaunchProfileConfigurationOptions())
         XCTAssertEqual(dict[kSentryLaunchProfileConfigKeyContinuousProfiling], true)
+        #endif
 
         _sentry_nondeduplicated_startLaunchProfile()
         XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
@@ -183,8 +203,10 @@ extension SentryAppLaunchProfilingTests {
     func testSwitchFromTraceBasedToContinuousLaunchProfileV1Configuration() throws {
         // -- Arrange --
         let options = Options()
+#if !SDK_V9
         options.enableAppLaunchProfiling = true
         options.profilesSampleRate = 0.567
+        #endif
         options.tracesSampleRate = 0.789
 
         // Assert:Smoke test that the file doesn't exist
@@ -198,16 +220,22 @@ extension SentryAppLaunchProfilingTests {
         var dict = try XCTUnwrap(sentry_persistedLaunchProfileConfigurationOptions())
         XCTAssertEqual(dict[kSentryLaunchProfileConfigKeyTracesSampleRate], options.tracesSampleRate)
         XCTAssertEqual(dict[kSentryLaunchProfileConfigKeyTracesSampleRand] as? Double, fixture.fixedRandomValue)
+#if !SDK_V9
         XCTAssertEqual(dict[kSentryLaunchProfileConfigKeyProfilesSampleRate], options.profilesSampleRate)
+        #endif
         XCTAssertEqual(dict[kSentryLaunchProfileConfigKeyProfilesSampleRand] as? Double, fixture.fixedRandomValue)
 
         // -- Act --
+#if !SDK_V9
         options.profilesSampleRate = nil
+        #endif
         sentry_sdkInitProfilerTasks(options, TestHub(client: nil, andScope: nil))
 
         // -- Assert --
         dict = try XCTUnwrap(sentry_persistedLaunchProfileConfigurationOptions())
+#if !SDK_V9
         XCTAssertEqual(dict[kSentryLaunchProfileConfigKeyContinuousProfiling], true)
+        #endif
         XCTAssertNil(dict[kSentryLaunchProfileConfigKeyTracesSampleRate])
         XCTAssertNil(dict[kSentryLaunchProfileConfigKeyTracesSampleRand])
         XCTAssertNil(dict[kSentryLaunchProfileConfigKeyProfilesSampleRate])
@@ -222,8 +250,10 @@ extension SentryAppLaunchProfilingTests {
     // test that if a launch continuous profiler is running and SentryTimeToDisplayTracker reports the app is fully drawn, that the profiler continues running
     func testLaunchContinuousProfileV1NotStoppedOnFullyDisplayed() throws {
         // start a launch profile
+#if !SDK_V9
         fixture.options.enableAppLaunchProfiling = true
         fixture.options.profilesSampleRate = nil
+        #endif
         sentry_configureLaunchProfilingForNextLaunch(fixture.options)
         _sentry_nondeduplicated_startLaunchProfile()
         XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
@@ -243,8 +273,10 @@ extension SentryAppLaunchProfilingTests {
     // test that if a launch continuous profiler is running and SentryTimeToDisplayTracker reports the app had its initial frame drawn and isn't waiting for full drawing, that the profiler continues running
     func testLaunchContinuousProfileV1NotStoppedOnInitialDisplayWithoutWaitingForFullDisplay() throws {
         // start a launch profile
+#if !SDK_V9
         fixture.options.enableAppLaunchProfiling = true
         fixture.options.profilesSampleRate = nil
+        #endif
         sentry_configureLaunchProfilingForNextLaunch(fixture.options)
         _sentry_nondeduplicated_startLaunchProfile()
         XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
@@ -268,7 +300,9 @@ extension SentryAppLaunchProfilingTests {
     func testContinuousLaunchProfileV2TraceLifecycleConfiguration() throws {
         // Arrange
         let options = Options()
+#if !SDK_V9
         options.profilesSampleRate = nil
+        #endif
         options.tracesSampleRate = 1
         options.configureProfiling = {
             $0.lifecycle = .trace
@@ -302,7 +336,9 @@ extension SentryAppLaunchProfilingTests {
     func testContinuousLaunchProfileV2ManualLifecycleConfiguration() throws {
         // Arrange
         let options = Options()
+#if !SDK_V9
         options.profilesSampleRate = nil
+        #endif
         options.configureProfiling = {
             $0.lifecycle = .manual
             $0.sessionSampleRate = 1
@@ -336,8 +372,10 @@ extension SentryAppLaunchProfilingTests {
         // -- Arrange --
         let options = Options()
         options.tracesSampleRate = 0.789
+#if !SDK_V9
         options.profilesSampleRate = 0.567
         options.enableAppLaunchProfiling = true
+        #endif
 
         // Smoke test that the file doesn't exist
         XCTAssertFalse(appLaunchProfileConfigFileExists())
@@ -350,11 +388,15 @@ extension SentryAppLaunchProfilingTests {
         var dict = try XCTUnwrap(sentry_persistedLaunchProfileConfigurationOptions())
         XCTAssertEqual(dict[kSentryLaunchProfileConfigKeyTracesSampleRate], options.tracesSampleRate)
         XCTAssertEqual(dict[kSentryLaunchProfileConfigKeyTracesSampleRand] as? Double, fixture.fixedRandomValue)
+#if !SDK_V9
         XCTAssertEqual(dict[kSentryLaunchProfileConfigKeyProfilesSampleRate], options.profilesSampleRate)
+        #endif
         XCTAssertEqual(dict[kSentryLaunchProfileConfigKeyProfilesSampleRand] as? Double, fixture.fixedRandomValue)
 
         // -- Act --
+#if !SDK_V9
         options.profilesSampleRate = nil
+        #endif
         options.configureProfiling = {
             $0.lifecycle = .manual
             $0.sessionSampleRate = 0.987
@@ -364,7 +406,9 @@ extension SentryAppLaunchProfilingTests {
 
         // -- Assert --
         dict = try XCTUnwrap(sentry_persistedLaunchProfileConfigurationOptions())
+#if !SDK_V9
         XCTAssertNil(dict[kSentryLaunchProfileConfigKeyContinuousProfiling])
+        #endif
         XCTAssertEqual(dict[kSentryLaunchProfileConfigKeyContinuousProfilingV2], true)
         XCTAssertNil(dict[kSentryLaunchProfileConfigKeyTracesSampleRate])
         XCTAssertNil(dict[kSentryLaunchProfileConfigKeyTracesSampleRand])
@@ -377,8 +421,10 @@ extension SentryAppLaunchProfilingTests {
         // -- Arrange --
         let options = Options()
         options.tracesSampleRate = 0.789
+#if !SDK_V9
         options.profilesSampleRate = 0.567
         options.enableAppLaunchProfiling = true
+        #endif
 
         // Smoke test that the file doesn't exist
         XCTAssertFalse(appLaunchProfileConfigFileExists())
@@ -391,11 +437,15 @@ extension SentryAppLaunchProfilingTests {
         var dict = try XCTUnwrap(sentry_persistedLaunchProfileConfigurationOptions())
         XCTAssertEqual(dict[kSentryLaunchProfileConfigKeyTracesSampleRate], options.tracesSampleRate)
         XCTAssertEqual(dict[kSentryLaunchProfileConfigKeyTracesSampleRand] as? Double, fixture.fixedRandomValue)
+#if !SDK_V9
         XCTAssertEqual(dict[kSentryLaunchProfileConfigKeyProfilesSampleRate], options.profilesSampleRate)
+        #endif
         XCTAssertEqual(dict[kSentryLaunchProfileConfigKeyProfilesSampleRand] as? Double, fixture.fixedRandomValue)
 
         // -- Act --
+#if !SDK_V9
         options.profilesSampleRate = nil
+        #endif
         options.configureProfiling = {
             $0.lifecycle = .trace
             $0.sessionSampleRate = 0.987
@@ -405,7 +455,9 @@ extension SentryAppLaunchProfilingTests {
 
         // -- Assert --
         dict = try XCTUnwrap(sentry_persistedLaunchProfileConfigurationOptions())
+#if !SDK_V9
         XCTAssertNil(dict[kSentryLaunchProfileConfigKeyContinuousProfiling])
+        #endif
         XCTAssertEqual(dict[kSentryLaunchProfileConfigKeyContinuousProfilingV2], true)
         XCTAssertEqual(try XCTUnwrap(dict[kSentryLaunchProfileConfigKeyTracesSampleRate]), 0.789)
         XCTAssertEqual(try XCTUnwrap(dict[kSentryLaunchProfileConfigKeyTracesSampleRand]), 0.5)
@@ -417,27 +469,35 @@ extension SentryAppLaunchProfilingTests {
     func testSwitchFromContinuousLaunchProfileV1ToContinuousLaunchProfileV2ManualLifecycleConfiguration() throws {
         // -- Arrange --
         let options = Options()
+#if !SDK_V9
         options.enableAppLaunchProfiling = true
         options.profilesSampleRate = 0.567
+        #endif
         options.tracesSampleRate = 0.789
 
         // -- Assert -- Smoke test that the file doesn't exist
         XCTAssertFalse(appLaunchProfileConfigFileExists())
 
         // -- Act --
+#if !SDK_V9
         options.profilesSampleRate = nil
+        #endif
         sentry_sdkInitProfilerTasks(options, TestHub(client: nil, andScope: nil))
 
         // -- Assert --
         var dict = try XCTUnwrap(sentry_persistedLaunchProfileConfigurationOptions())
+#if !SDK_V9
         XCTAssertEqual(dict[kSentryLaunchProfileConfigKeyContinuousProfiling], true)
+        #endif
         XCTAssertNil(dict[kSentryLaunchProfileConfigKeyTracesSampleRate])
         XCTAssertNil(dict[kSentryLaunchProfileConfigKeyTracesSampleRand])
         XCTAssertNil(dict[kSentryLaunchProfileConfigKeyProfilesSampleRate])
         XCTAssertNil(dict[kSentryLaunchProfileConfigKeyProfilesSampleRand])
 
         // -- Act --
+#if !SDK_V9
         options.profilesSampleRate = nil
+        #endif
         options.configureProfiling = {
             $0.lifecycle = .manual
             $0.sessionSampleRate = 0.987
@@ -447,7 +507,9 @@ extension SentryAppLaunchProfilingTests {
 
         // -- Assert --
         dict = try XCTUnwrap(sentry_persistedLaunchProfileConfigurationOptions())
+#if !SDK_V9
         XCTAssertNil(dict[kSentryLaunchProfileConfigKeyContinuousProfiling])
+        #endif
         XCTAssertEqual(dict[kSentryLaunchProfileConfigKeyContinuousProfilingV2], true)
         XCTAssertNil(dict[kSentryLaunchProfileConfigKeyTracesSampleRate])
         XCTAssertNil(dict[kSentryLaunchProfileConfigKeyTracesSampleRand])
@@ -459,27 +521,35 @@ extension SentryAppLaunchProfilingTests {
     func testSwitchFromContinuousLaunchProfileV1ToContinuousLaunchProfileV2TraceLifecycleConfiguration() throws {
         // -- Arrange --
         let options = Options()
+#if !SDK_V9
         options.enableAppLaunchProfiling = true
         options.profilesSampleRate = 0.567
+        #endif
         options.tracesSampleRate = 0.789
 
         // -- Assert -- Smoke test that the file doesn't exist
         XCTAssertFalse(appLaunchProfileConfigFileExists())
 
         // -- Act --
+#if !SDK_V9
         options.profilesSampleRate = nil
+        #endif
         sentry_sdkInitProfilerTasks(options, TestHub(client: nil, andScope: nil))
 
         // -- Assert --
         var dict = try XCTUnwrap(sentry_persistedLaunchProfileConfigurationOptions())
+#if !SDK_V9
         XCTAssertEqual(dict[kSentryLaunchProfileConfigKeyContinuousProfiling], true)
+        #endif
         XCTAssertNil(dict[kSentryLaunchProfileConfigKeyTracesSampleRate])
         XCTAssertNil(dict[kSentryLaunchProfileConfigKeyTracesSampleRand])
         XCTAssertNil(dict[kSentryLaunchProfileConfigKeyProfilesSampleRate])
         XCTAssertNil(dict[kSentryLaunchProfileConfigKeyProfilesSampleRand])
 
         // -- Act --
+#if !SDK_V9
         options.profilesSampleRate = nil
+        #endif
         options.tracesSampleRate = 0.789
         options.configureProfiling = {
             $0.lifecycle = .trace
@@ -490,7 +560,9 @@ extension SentryAppLaunchProfilingTests {
 
         // -- Assert --
         dict = try XCTUnwrap(sentry_persistedLaunchProfileConfigurationOptions())
+#if !SDK_V9
         XCTAssertNil(dict[kSentryLaunchProfileConfigKeyContinuousProfiling])
+        #endif
         XCTAssertEqual(dict[kSentryLaunchProfileConfigKeyContinuousProfilingV2], true)
         XCTAssertEqual(try XCTUnwrap(dict[kSentryLaunchProfileConfigKeyTracesSampleRate]), 0.789)
         XCTAssertEqual(try XCTUnwrap(dict[kSentryLaunchProfileConfigKeyTracesSampleRand]), 0.5)
@@ -507,7 +579,9 @@ extension SentryAppLaunchProfilingTests {
     func testLaunchContinuousProfileV2TraceLifecycleNotStoppedOnFullyDisplayed() throws {
         // Arrange
         fixture.options.tracesSampleRate = 1
+#if !SDK_V9
         fixture.options.profilesSampleRate = nil
+        #endif
         fixture.options.configureProfiling = {
             $0.profileAppStarts = true
             $0.sessionSampleRate = 1
@@ -539,7 +613,9 @@ extension SentryAppLaunchProfilingTests {
 
     func testLaunchContinuousProfileV2ManualLifecycleNotStoppedOnFullyDisplayed() throws {
         // Arrange
+#if !SDK_V9
         fixture.options.profilesSampleRate = nil
+        #endif
         fixture.options.configureProfiling = {
             $0.profileAppStarts = true
             $0.sessionSampleRate = 1
@@ -572,7 +648,9 @@ extension SentryAppLaunchProfilingTests {
     func testLaunchContinuousProfileV2TraceLifecycleNotStoppedOnInitialDisplayWithoutWaitingForFullDisplay() throws {
         // Arrange
         fixture.options.tracesSampleRate = 1
+#if !SDK_V9
         fixture.options.profilesSampleRate = nil
+        #endif
         fixture.options.configureProfiling = {
             $0.profileAppStarts = true
             $0.sessionSampleRate = 1
@@ -603,7 +681,9 @@ extension SentryAppLaunchProfilingTests {
 
     func testLaunchContinuousProfileV2ManualLifecycleNotStoppedOnInitialDisplayWithoutWaitingForFullDisplay() throws {
         // Arrange
+#if !SDK_V9
         fixture.options.profilesSampleRate = nil
+        #endif
         fixture.options.configureProfiling = {
             $0.profileAppStarts = true
             $0.sessionSampleRate = 1

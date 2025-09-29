@@ -17,7 +17,9 @@ class SentryFileIOTrackerTests: XCTestCase {
 
         let data = Data("SOME DATA".utf8)
         let threadInspector = TestThreadInspector.instance
+#if !SDK_V9
         let imageProvider = TestDebugImageProvider()
+        #endif
 
         init() throws {
             let options = Options()
@@ -26,8 +28,10 @@ class SentryFileIOTrackerTests: XCTestCase {
             sentryPath = fileManager.sentryPath
             sentryUrl = URL(fileURLWithPath: sentryPath)
 
+#if !SDK_V9
             imageProvider.debugImages = [TestData.debugImage]
             SentryDependencyContainer.sharedInstance().debugImageProvider = imageProvider
+            #endif
             SentryDependencyContainer.sharedInstance().dateProvider = dateProvider
 
         }
@@ -53,7 +57,9 @@ class SentryFileIOTrackerTests: XCTestCase {
         fixture = try Fixture()
         fixture.getSut().enable()
         SentrySDK.start {
+#if !SDK_V9
             $0.removeAllIntegrations()
+            #endif
         }
     }
 

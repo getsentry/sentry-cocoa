@@ -61,9 +61,11 @@ class SentryProfileTestFixture {
         image.imageSize = 100
         image.type = "macho"
         
+        #if !SDK_V9
         let debugImageProvider = TestDebugImageProvider()
         debugImageProvider.debugImages = [image]
         SentryDependencyContainer.sharedInstance().debugImageProvider = debugImageProvider
+        #endif
         
         mockMetrics = MockMetric()
         systemWrapper.overrides.cpuUsage = mockMetrics.cpuUsage
@@ -81,7 +83,9 @@ class SentryProfileTestFixture {
         hub.bindClient(client)
         SentrySDKInternal.setCurrentHub(hub)
         
+        #if !SDK_V9
         options.profilesSampleRate = 1.0
+        #endif
         options.tracesSampleRate = 1.0
         
         dispatchFactory.vendedSourceHandler = { eventHandler in

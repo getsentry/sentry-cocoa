@@ -86,7 +86,9 @@ class SentryCrashInstallationReporterTests: XCTestCase {
     private func givenSutWithStartedSDK() {
         let options = Options()
         options.dsn = TestConstants.dsnAsString(username: "SentryCrashInstallationReporterTests")
+        #if !SDK_V9
         options.setIntegrations([SentryCrashIntegration.self])
+        #endif
         SentrySDK.start(options: options)
         
         testClient = TestClient(options: options)

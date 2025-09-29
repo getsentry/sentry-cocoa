@@ -11,6 +11,7 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
+#    if !SDK_V9
 - (void)testIsContinuousProfilingEnabled
 {
     SentryOptions *options = [[SentryOptions alloc] init];
@@ -19,6 +20,7 @@
     XCTAssertEqual(
         [client.options isContinuousProfilingEnabled], sentry_isContinuousProfilingEnabled(client));
 }
+#    endif
 
 - (void)testIsContinuousProfilingV2Enabled
 {

@@ -1,3 +1,4 @@
+#if !SDK_V9
 import Foundation
 
 @objc
@@ -17,3 +18,4 @@ public class TestSentryCrashBinaryImageProvider: NSObject, SentryCrashBinaryImag
         imageCount
     }
 }
+#endif

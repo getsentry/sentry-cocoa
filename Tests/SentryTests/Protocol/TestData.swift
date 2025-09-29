@@ -1,5 +1,5 @@
 import Sentry
-@_spi(Private) import Sentry
+@_spi(Private) @testable import Sentry
 @_spi(Private) import SentryTestUtils
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
@@ -72,8 +72,13 @@ class TestData {
         return user
     }
     
-    static var geo: Geo {
-        let geo = Geo()
+    #if SDK_V9
+    typealias SentryGeo = GeoDecodable
+    #else
+    typealias SentryGeo = Geo
+    #endif
+    static var geo: SentryGeo {
+        let geo = SentryGeo()
         geo.city = "Vienna"
         geo.countryCode = "at"
         geo.region = "Vienna"
@@ -94,8 +99,13 @@ class TestData {
         return debugMeta
     }
     
-    static var exception: Exception {
-        let exception = Exception(value: "value", type: "type")
+#if SDK_V9
+typealias SentryException = ExceptionDecodable
+#else
+typealias SentryException = ExceptionDecodable
+#endif
+    static var exception: SentryException {
+        let exception = SentryException(value: "value", type: "type")
         exception.mechanism = mechanism
         exception.module = "module"
         exception.threadId = thread.threadId
@@ -117,8 +127,13 @@ class TestData {
         return mechanism
     }
     
-    static var mechanismMeta: MechanismMeta {
-        let mechanismMeta = MechanismMeta()
+#if SDK_V9
+typealias SentryMechanismMeta = MechanismMetaDecodable
+#else
+typealias SentryMechanismMeta = MechanismMeta
+#endif
+    static var mechanismMeta: SentryMechanismMeta {
+        let mechanismMeta = SentryMechanismMeta()
         mechanismMeta.machException = [
             "name": "EXC_BAD_ACCESS",
             "exception": 1,
@@ -169,9 +184,14 @@ class TestData {
         stacktrace.snapshot = true
         return stacktrace
     }
-    
-    static var mainFrame: Frame {
-        let frame = Frame()
+
+    #if SDK_V9
+    typealias SentryFrame = FrameDecodable
+    #else
+    typealias SentryFrame = Frame
+    #endif
+    static var mainFrame: SentryFrame {
+        let frame = SentryFrame()
         frame.columnNumber = 1
         frame.fileName = "fileName"
         frame.function = "main"
@@ -318,11 +338,14 @@ class TestData {
         crumb2.message = "Crumb 2"
         scope.addBreadcrumb(crumb2)
         
+        #if !SDK_V9
         scope.span = nil
+        #endif
         
         return scope
     }
     
+    #if !SDK_V9
     @available(*, deprecated, message: "SentryUserFeedback is deprecated in favor of SentryFeedback.")
     static var userFeedback: UserFeedback {
         let userFeedback = UserFeedback(eventId: SentryId())
@@ -331,6 +354,7 @@ class TestData {
         userFeedback.name = "John Me"
         return userFeedback
     }
+    #endif
     
     static var feedback = SentryFeedback(message: "It doesn't really", name: "John Me", email: "john@me.com", associatedEventId: SentryId())
     

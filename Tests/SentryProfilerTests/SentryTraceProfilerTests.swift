@@ -211,6 +211,7 @@ class SentryTraceProfilerTests: XCTestCase {
         }
     }
 
+#if !SDK_V9
     func testStartTransaction_NotSamplingProfileUsingSampleRate() throws {
         try assertProfilesSampler(expectedDecision: .no) { options in
             options.profilesSampleRate = 0.49
@@ -247,6 +248,7 @@ class SentryTraceProfilerTests: XCTestCase {
             options.profilesSampler = { _ in return -0.01 }
         }
     }
+    #endif
 
     /// based on ``SentryTracerTests.testFinish_WithoutHub_DoesntCaptureTransaction``
     func testProfilerCleanedUpAfterTransactionDiscarded_NoHub() throws {
@@ -648,6 +650,7 @@ private extension SentryTraceProfilerTests {
     func assertProfilesSampler(expectedDecision: SentrySampleDecision, options: (Options) -> Void) throws {
         let fixtureOptions = fixture.options
         fixtureOptions.tracesSampleRate = 1.0
+#if !SDK_V9
         fixtureOptions.profilesSampleRate = 0
         fixtureOptions.profilesSampler = { _ in
             switch expectedDecision {
@@ -660,6 +663,7 @@ private extension SentryTraceProfilerTests {
                 return NSNumber(value: 0)
             }
         }
+        #endif
         options(fixtureOptions)
         
         let span = try fixture.newTransaction()
