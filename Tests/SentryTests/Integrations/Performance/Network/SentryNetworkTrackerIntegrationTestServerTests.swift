@@ -117,27 +117,35 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
             XCTFail("Failed to complete request : \(String(describing: error))")
         }
     }
-    
+
+    // We can't use a XCTTestExpectation here because we want to retry multiple times.
+    // If a XCTestExpectation times out, the test would fail.
+    // swiftlint:disable avoid_dispatch_groups_in_tests
     private func ensureTestServerIsRunning() throws {
         let testUrl = try XCTUnwrap(URL(string: "http://localhost:8080/"))
 
         let session = URLSession(configuration: URLSessionConfiguration.default)
         let attempts = 20
 
+        //swiftlint:disable:next for_where
         for attempt in 1..<attempts {
-            let expectation = expectation(description: "Test server ready check attempt \(attempt)")
+            let group = DispatchGroup()
             var isReady = false
-            
+
+            group.enter()
             let dataTask = session.dataTask(with: testUrl) { (_, response, error) in
                 if error == nil, let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 {
                     isReady = true
                 }
-                expectation.fulfill()
+                group.leave()
             }
             
             dataTask.resume()
-            wait(for: [expectation], timeout: 2)
-            
+
+            // We don't care about the result, we just want to wait up to 2 seconds for the request to complete.
+            // If it doesn't work we retry.
+            _ = group.wait(timeout: .now() + 2)
+
             if isReady {
                 print("Test server is ready after \(attempt) attempt(s)")
                 return
@@ -151,6 +159,7 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
         
         XCTFail("Test server failed to become ready after \(attempts) attempts")
     }
+    // swiftlint:enable avoid_dispatch_groups_in_tests
 
     private func startSDK(function: String = #function, _ configureOptions: ((Options) -> Void)? = nil) {
         let options = Options()
