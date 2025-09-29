@@ -189,3 +189,4 @@ xcode-ci:
 	xcodegen --spec Samples/watchOS-Swift/watchOS-Swift.yml
 	xcodegen --spec TestSamples/SwiftUITestSample/SwiftUITestSample.yml
 	xcodegen --spec TestSamples/SwiftUICrashTest/SwiftUICrashTest.yml
+	xcodegen --spec Samples/DistributionSample/DistributionSample.yml
