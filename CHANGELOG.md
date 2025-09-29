@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Ignore SwiftUI's list background decoration view in redaction ([#6292](https://github.com/getsentry/sentry-cocoa/pull/6292))
+
 ## 8.56.2
 
 ### Fixes
