@@ -12,6 +12,8 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
     func testGetRequest_SpanCreatedAndBaggageHeaderAdded() throws {
         let testBaggageURL = try XCTUnwrap(URL(string: "http://localhost:8080/echo-baggage-header"))
 
+        ensureTestServerIsRunning(testBaggageURL)
+
         startSDK()
 
         let transaction = try XCTUnwrap(SentrySDK.startTransaction(name: "Test Transaction", operation: "TEST", bindToScope: true) as? SentryTracer)
@@ -29,7 +31,7 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
         }
 
         dataTask.resume()
-        wait(for: [expect], timeout: 5)
+        wait(for: [expect], timeout: 10)
 
         let children = try XCTUnwrap(Dynamic(transaction).children as [Span]?)
 
@@ -44,6 +46,7 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
 
     func testGetRequest_CompareSentryTraceHeader() throws {
         let testTraceURL = try XCTUnwrap(URL(string: "http://localhost:8080/echo-sentry-trace"))
+        ensureTestServerIsRunning(testTraceURL)
 
         startSDK()
 
@@ -58,7 +61,7 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
         }
 
         dataTask.resume()
-        wait(for: [expect], timeout: 5)
+        wait(for: [expect], timeout: 10)
 
         let children = Dynamic(transaction).children as [SentrySpan]?
 
@@ -72,7 +75,10 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
     func testGetCaptureFailedRequestsEnabled() throws {
         let clientErrorTraceURL = try XCTUnwrap(URL(string: "http://localhost:8080/http-client-error"))
 
+        ensureTestServerIsRunning(clientErrorTraceURL)
+
         let expect = expectation(description: "Request completed")
+        expect.expectedFulfillmentCount = 2
 
         var sentryEvent: Event?
 
@@ -90,23 +96,57 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
 
         let dataTask = session.dataTask(with: clientErrorTraceURL) { (_, _, error) in
             self.assertNetworkError(error)
+            expect.fulfill()
         }
 
         dataTask.resume()
-        wait(for: [expect], timeout: 5)
+        wait(for: [expect], timeout: 10)
 
         XCTAssertNotNil(sentryEvent)
         XCTAssertNotNil(sentryEvent?.request)
 
-        let sentryResponse = sentryEvent?.context?["response"]
+        let sentryResponse = try XCTUnwrap(sentryEvent?.context?["response"], "Expected context.response, but was nil")
+        let statusCode = try XCTUnwrap(sentryResponse["status_code"] as? NSNumber, "Expected context.response.status_code, but was nil")
 
-        XCTAssertEqual(sentryResponse?["status_code"] as? NSNumber, 400)
+        XCTAssertEqual(statusCode, 400)
     }
 
     private func assertNetworkError(_ error: Error?) {
         if error != nil {
             XCTFail("Failed to complete request : \(String(describing: error))")
         }
+    }
+    
+    private func ensureTestServerIsRunning(_ url: URL) {
+        let session = URLSession(configuration: URLSessionConfiguration.default)
+        let attempts = 20
+
+        for attempt in 1...20 {
+            let expectation = expectation(description: "Test server ready check attempt \(attempt)")
+            var isReady = false
+            
+            let dataTask = session.dataTask(with: url) { (_, response, error) in
+                if error == nil, let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 {
+                    isReady = true
+                }
+                expectation.fulfill()
+            }
+            
+            dataTask.resume()
+            wait(for: [expectation], timeout: 2)
+            
+            if isReady {
+                print("Test server is ready after \(attempt) attempt(s)")
+                return
+            }
+            
+            if attempt < 10 {
+                print("Test server not ready, retrying in 1 second... (attempt \(attempt)/10)")
+                Thread.sleep(forTimeInterval: 1.0)
+            }
+        }
+        
+        XCTFail("Test server failed to become ready after \(attempts) attempts")
     }
 
     private func startSDK(function: String = #function, _ configureOptions: ((Options) -> Void)? = nil) {
