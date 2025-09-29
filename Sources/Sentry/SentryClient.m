@@ -6,6 +6,7 @@
 #import "SentryCrashIntegration.h"
 #import "SentryCrashStackEntryMapper.h"
 #import "SentryDebugImageProvider+HybridSDKs.h"
+#import "SentryDefaultThreadInspector.h"
 #import "SentryDependencyContainer.h"
 #import "SentryDsn.h"
 #import "SentryEvent+Private.h"
@@ -31,7 +32,6 @@
 #import "SentrySerialization.h"
 #import "SentryStacktraceBuilder.h"
 #import "SentrySwift.h"
-#import "SentryThreadInspector.h"
 #import "SentryTraceContext.h"
 #import "SentryTracer.h"
 #import "SentryTransaction.h"
@@ -116,8 +116,8 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                transportAdapter:(SentryTransportAdapter *)transportAdapter
 
 {
-    SentryThreadInspector *threadInspector =
-        [[SentryThreadInspector alloc] initWithOptions:options];
+    SentryDefaultThreadInspector *threadInspector =
+        [[SentryDefaultThreadInspector alloc] initWithOptions:options];
 
     return [self initWithOptions:options
                 transportAdapter:transportAdapter
@@ -134,7 +134,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                transportAdapter:(SentryTransportAdapter *)transportAdapter
                     fileManager:(SentryFileManager *)fileManager
          deleteOldEnvelopeItems:(BOOL)deleteOldEnvelopeItems
-                threadInspector:(SentryThreadInspector *)threadInspector
+                threadInspector:(SentryDefaultThreadInspector *)threadInspector
              debugImageProvider:(SentryDebugImageProvider *)debugImageProvider
                          random:(id<SentryRandomProtocol>)random
                          locale:(NSLocale *)locale

@@ -1,5 +1,6 @@
 #import "SentryBaggage.h"
 #import "SentryCrashThread.h"
+#import "SentryDefaultThreadInspector.h"
 #import "SentryDependencyContainer.h"
 #import "SentryFrame.h"
 #import "SentryInternalDefines.h"
@@ -12,7 +13,6 @@
 #import "SentrySpanContext.h"
 #import "SentrySpanId.h"
 #import "SentrySwift.h"
-#import "SentryThreadInspector.h"
 #import "SentryTime.h"
 #import "SentryTraceContext.h"
 #import "SentryTraceHeader.h"
@@ -69,9 +69,8 @@ NS_ASSUME_NONNULL_BEGIN
         if ([NSThread isMainThread]) {
             _data[SPAN_DATA_THREAD_NAME] = @"main";
         } else {
-            _data[SPAN_DATA_THREAD_NAME] =
-                [SentryDependencyContainer.sharedInstance.threadInspecting
-                    getThreadName:currentThread];
+            _data[SPAN_DATA_THREAD_NAME] = [SentryDependencyContainer.sharedInstance.threadInspector
+                getThreadName:currentThread];
         }
 
 #if SENTRY_HAS_UIKIT
