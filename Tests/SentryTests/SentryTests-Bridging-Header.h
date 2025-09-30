@@ -100,7 +100,6 @@
 #import "SentryCrashUUIDConversion.h"
 #import "SentryDataCategory.h"
 #import "SentryDataCategoryMapper.h"
-#import "SentryDateUtil.h"
 #import "SentryDateUtils.h"
 #import "SentryDebugImageProvider+HybridSDKs.h"
 #import "SentryDebugImageProvider+TestInit.h"
