@@ -136,7 +136,7 @@ let package = Package(
     platforms: [.iOS(.v11), .macOS(.v10_13), .tvOS(.v11), .watchOS(.v4)],
     products: products,
     dependencies: [
-        .package(url: "https://github.com/apple/swift-log", from: "1.6.0") // TODO: This clashes with iOS 11 min target version
+        .package(url: "https://github.com/apple/swift-log", from: "1.6.0")
     ],
     targets: targets,
     cxxLanguageStandard: .cxx14

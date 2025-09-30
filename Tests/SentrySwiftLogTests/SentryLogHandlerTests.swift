@@ -4,6 +4,8 @@ import Logging
 @_spi(Private) @testable import SwiftLogSentry
 import XCTest
 
+// swiftlint:disable cyclomatic_complexity
+
 final class SentryLogHandlerTests: XCTestCase {
     
     private class Fixture {
