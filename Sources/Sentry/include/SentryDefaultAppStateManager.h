@@ -10,7 +10,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryAppStateManager : NSObject
+@interface SentryDefaultAppStateManager : NSObject
 SENTRY_NO_INIT
 
 @property (nonatomic, readonly) NSInteger startCount;

@@ -4,7 +4,6 @@
 #    import "SentryDefines.h"
 #endif
 
-@class SentryAppStateManager;
 @class SentryBinaryImageCache;
 @class SentryCrash;
 @class SentryCrashWrapper;
@@ -25,6 +24,7 @@
 @class SentrySessionTracker;
 @class SentryGlobalEventProcessor;
 
+@protocol SentryAppStateManager;
 @protocol SentryANRTracker;
 @protocol SentryRandomProtocol;
 @protocol SentryCurrentDateProvider;
@@ -105,7 +105,7 @@ SENTRY_NO_INIT
 #pragma mark - Lazy Dependencies
 
 @property (nonatomic, strong, nullable) SentryFileManager *fileManager;
-@property (nonatomic, strong) SentryAppStateManager *appStateManager;
+@property (nonatomic, strong) id<SentryAppStateManager> appStateManager;
 @property (nonatomic, strong) id<SentryThreadInspector> threadInspector;
 @property (nonatomic, strong) SentryFileIOTracker *fileIOTracker;
 @property (nonatomic, strong) SentryCrash *crashReporter;
