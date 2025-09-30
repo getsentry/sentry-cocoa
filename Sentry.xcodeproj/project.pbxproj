@@ -986,9 +986,9 @@
 		F41362112E1C55AF00B84443 /* SentryScopePersistentStore+Tags.swift in Sources */ = {isa = PBXBuildFile; fileRef = F41362102E1C55AF00B84443 /* SentryScopePersistentStore+Tags.swift */; };
 		F41362132E1C566100B84443 /* SentryScopePersistentStore+User.swift in Sources */ = {isa = PBXBuildFile; fileRef = F41362122E1C566100B84443 /* SentryScopePersistentStore+User.swift */; };
 		F41362152E1C568400B84443 /* SentryScopePersistentStore+Context.swift in Sources */ = {isa = PBXBuildFile; fileRef = F41362142E1C568400B84443 /* SentryScopePersistentStore+Context.swift */; };
-		F429D3AA2E8562EF00DBF387 /* RateLimitParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = F429D3A82E8562EF00DBF387 /* RateLimitParser.swift */; };
 		F429D37F2E8532A300DBF387 /* HttpDateParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = F429D37D2E8532A300DBF387 /* HttpDateParser.swift */; };
 		F429D39A2E85360F00DBF387 /* RetryAfterHeaderParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = F429D3992E85360F00DBF387 /* RetryAfterHeaderParser.swift */; };
+		F429D3AA2E8562EF00DBF387 /* RateLimitParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = F429D3A82E8562EF00DBF387 /* RateLimitParser.swift */; };
 		F443DB272E09BE8C009A9045 /* LoadValidatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F443DB262E09BE8C009A9045 /* LoadValidatorTests.swift */; };
 		F44858132E03579D0013E63B /* SentryCrashDynamicLinker+Test.h in Headers */ = {isa = PBXBuildFile; fileRef = F44858122E0357940013E63B /* SentryCrashDynamicLinker+Test.h */; };
 		F451FAA62E0B304E0050ACF2 /* LoadValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F451FAA52E0B304E0050ACF2 /* LoadValidator.swift */; };
@@ -2329,9 +2329,9 @@
 		F41362102E1C55AF00B84443 /* SentryScopePersistentStore+Tags.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SentryScopePersistentStore+Tags.swift"; sourceTree = "<group>"; };
 		F41362122E1C566100B84443 /* SentryScopePersistentStore+User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SentryScopePersistentStore+User.swift"; sourceTree = "<group>"; };
 		F41362142E1C568400B84443 /* SentryScopePersistentStore+Context.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SentryScopePersistentStore+Context.swift"; sourceTree = "<group>"; };
-		F429D3A82E8562EF00DBF387 /* RateLimitParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RateLimitParser.swift; sourceTree = "<group>"; };
 		F429D37D2E8532A300DBF387 /* HttpDateParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HttpDateParser.swift; sourceTree = "<group>"; };
 		F429D3992E85360F00DBF387 /* RetryAfterHeaderParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RetryAfterHeaderParser.swift; sourceTree = "<group>"; };
+		F429D3A82E8562EF00DBF387 /* RateLimitParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RateLimitParser.swift; sourceTree = "<group>"; };
 		F443DB262E09BE8C009A9045 /* LoadValidatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadValidatorTests.swift; sourceTree = "<group>"; };
 		F44858122E0357940013E63B /* SentryCrashDynamicLinker+Test.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SentryCrashDynamicLinker+Test.h"; sourceTree = "<group>"; };
 		F451FAA52E0B304E0050ACF2 /* LoadValidator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadValidator.swift; sourceTree = "<group>"; };

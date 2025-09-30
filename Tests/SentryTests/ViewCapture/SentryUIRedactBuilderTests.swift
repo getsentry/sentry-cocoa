@@ -878,6 +878,96 @@ class SentryUIRedactBuilderTests: XCTestCase {
         XCTAssertEqual(result.first?.name, "CustomDebugDescription")
     }
 
+    func testCollectionViewListBackgroundDecorationView_isIgnoredSubtree_redactsAndDoesNotClipOut() throws {
+        // -- Arrange --
+        // The SwiftUI List uses an internal decoration view
+        // `_UICollectionViewListLayoutSectionBackgroundColorDecorationView` which may have
+        // an extremely large frame. We ensure our builder treats this as a special case and
+        // redacts it directly instead of producing clip regions that could hide other masks.
+        let decorationView = try createCollectionViewListBackgroundDecorationView(frame: .zero)
+
+        // Configure a very large frame similar to what we see in production
+        decorationView.frame = CGRect(x: -20, y: -1100, width: 440, height: 2300)
+        decorationView.backgroundColor = .systemGroupedBackground
+
+        // Add another redacted view that must remain redacted (no clip-out should hide it)
+        let titleLabel = UILabel(frame: CGRect(x: 16, y: 60, width: 120, height: 40))
+        titleLabel.text = "Flinky"
+
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 402, height: 874))
+        rootView.addSubview(decorationView)
+        rootView.addSubview(titleLabel)
+
+        let sut = getSut()
+
+        // -- Act --
+        let result = sut.redactRegionsFor(view: rootView)
+
+        // -- Assert --
+        // We should have at least two redact regions (label + decoration view)
+        XCTAssertGreaterThanOrEqual(result.count, 2)
+        // There must be no clipOut regions produced by the decoration view special-case
+        XCTAssertFalse(result.contains(where: { $0.type == .clipOut }), "No clipOut regions expected for decoration background view")
+        // Ensure we have at least one redact region that matches the large decoration view size
+        XCTAssertTrue(result.contains(where: { $0.type == .redact && $0.size == decorationView.bounds.size }))
+    }
+
+    func testSwiftUIListDecorationBackground_doesNotUnmaskNavigationBarContent_elaborateHierarchy() throws {
+        // -- Arrange --
+        // Build a simplified but elaborate hierarchy inspired by the attached recursiveDescription.
+        // The key actors are:
+        // - A navigation bar label near the top that should be redacted
+        // - A SwiftUI List area with a very large `_UICollectionViewListLayoutSectionBackgroundColorDecorationView`
+        //   that extends well beyond the list bounds
+        // This test captures the expected behavior (label remains redacted, no clipOut overshadowing),
+        // but is marked as an expected failure to document the current bug.
+
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 402, height: 874))
+
+        // Navigation bar container and title label
+        let navBar = UIView(frame: CGRect(x: 0, y: 56, width: 402, height: 96))
+        navBar.backgroundColor = .clear
+        let titleLabel = UILabel(frame: CGRect(x: 16, y: 8, width: 120, height: 40))
+        titleLabel.text = "Flinky"
+        navBar.addSubview(titleLabel)
+        rootView.addSubview(navBar)
+
+        // List container (mimics SwiftUI.UpdateCoalescingCollectionView)
+        let listContainer = UIView(frame: CGRect(x: 0, y: 306, width: 402, height: 568))
+        listContainer.clipsToBounds = true
+        listContainer.backgroundColor = .systemGroupedBackground
+        rootView.addSubview(listContainer)
+
+        // Oversized decoration background view
+        let decorationView = try createCollectionViewListBackgroundDecorationView(frame: .zero)
+
+        // Large frame similar to the debug output (-1135, 2336)
+        decorationView.frame = CGRect(x: -20, y: -1135.33, width: 442, height: 2336)
+        decorationView.backgroundColor = .systemGroupedBackground
+        listContainer.addSubview(decorationView)
+
+        // A representative list cell area (not strictly necessary for the bug but mirrors structure)
+        let cell = UIView(frame: CGRect(x: 20, y: 0, width: 362, height: 45.33))
+        cell.backgroundColor = .white
+        listContainer.addSubview(cell)
+
+        let sut = getSut()
+
+        // -- Act --
+        let result = sut.redactRegionsFor(view: rootView)
+
+        // -- Assert --
+        XCTExpectFailure("Decoration background may clear previous redactions due to oversized opaque frame covering root")
+
+        // 1) Navigation title label should remain redacted (i.e., a redact region matching its size exists)
+        XCTAssertTrue(result.contains(where: { $0.type == .redact && $0.size == titleLabel.bounds.size }),
+                      "Navigation title label should remain redacted")
+
+        // 2) No clipOut regions should be produced by the decoration background handling
+        XCTAssertFalse(result.contains(where: { $0.type == .clipOut }),
+                       "No clipOut regions expected; decoration view should not suppress unrelated masks")
+    }
+
     func testViewSubtreeIgnored_noDuplicateRedactionRegions_whenViewMeetsBothConditions() throws {
         // -- Arrange --
         // This test verifies that views meeting both general redaction criteria AND isViewSubtreeIgnored 
@@ -976,6 +1066,29 @@ class SentryUIRedactBuilderTests: XCTestCase {
         cameraView.frame = frame
 
         return cameraView
+    }
+
+    /// Creates a `_UICollectionViewListLayoutSectionBackgroundColorDecorationView` instance for tests.
+    /// - Parameter frame: Frame to assign after allocation and storage reinitialization
+    /// - Returns: The created decoration background view
+    /// - Throws: `XCTSkip` if the class is not available on the platform
+    private func createCollectionViewListBackgroundDecorationView(frame: CGRect) throws -> UIView {
+        // Obtain class at runtime – skip if unavailable
+        guard let decorationClass = NSClassFromString("_UICollectionViewListLayoutSectionBackgroundColorDecorationView") else {
+            throw XCTSkip("Decoration view class not available on this platform/runtime")
+        }
+
+        // Allocate instance without calling subclass initializers
+        let decorationView = try XCTUnwrap(class_createInstance(decorationClass, 0) as? UIView)
+
+        // Reinitialize storage using UIView.initWithFrame(_:) similar to other helpers
+        typealias InitWithFrame = @convention(c) (AnyObject, Selector, CGRect) -> AnyObject
+        let sel = NSSelectorFromString("initWithFrame:")
+        let m = try XCTUnwrap(class_getInstanceMethod(UIView.self, sel))
+        let f = unsafeBitCast(method_getImplementation(m), to: InitWithFrame.self)
+        _ = f(decorationView, sel, frame)
+
+        return decorationView
     }
 }
 

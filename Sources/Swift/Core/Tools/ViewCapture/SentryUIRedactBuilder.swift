@@ -60,28 +60,43 @@ final class SentryUIRedactBuilder {
         var redactClasses = [AnyClass]()
         
         if options.maskAllText {
-            redactClasses += [ UILabel.self, UITextView.self, UITextField.self ]
+            redactClasses += [
+                UILabel.self,
+                UITextView.self,
+                UITextField.self
+            ]
             // These classes are used by React Native to display text.
             // We are including them here to avoid leaking text from RN apps with manually initialized sentry-cocoa.
-            redactClasses += ["RCTTextView", "RCTParagraphComponentView"].compactMap(NSClassFromString(_:))
+            redactClasses += [
+                "SwiftUI.CGDrawingView", // Used by SwiftUI to render text without UIKit
+                "RCTTextView", // Used by React Native to render long text
+                "RCTParagraphComponentView" // Used by React Native to render long text
+            ].compactMap(NSClassFromString(_:))
         }
         
         if options.maskAllImages {
             //this classes are used by SwiftUI to display images.
-            redactClasses += ["_TtCOCV7SwiftUI11DisplayList11ViewUpdater8Platform13CGDrawingView",
-             "_TtC7SwiftUIP33_A34643117F00277B93DEBAB70EC0697122_UIShapeHitTestingView",
-             "SwiftUI._UIGraphicsView", "SwiftUI.ImageLayer"
+            redactClasses += [
+                "_TtCOCV7SwiftUI11DisplayList11ViewUpdater8Platform13CGDrawingView",
+                "_TtC7SwiftUIP33_A34643117F00277B93DEBAB70EC0697122_UIShapeHitTestingView",
+//                "SwiftUI._UIGraphicsView", 
+                "SwiftUI.ImageLayer",
             ].compactMap(NSClassFromString(_:))
 
             // These classes are used by React Native to display images/vectors.
             // We are including them here to avoid leaking images from RN apps with manually initialized sentry-cocoa.
-            redactClasses += ["RCTImageView"].compactMap(NSClassFromString(_:))
+            redactClasses += [
+                "RCTImageView" // Used by React Native to display images
+            ].compactMap(NSClassFromString(_:))
             
             redactClasses.append(UIImageView.self)
         }
         
 #if os(iOS)
-        redactClasses += [ PDFView.self, WKWebView.self ]
+        redactClasses += [
+            PDFView.self,
+            WKWebView.self
+        ]
 
         redactClasses += [
             // If we try to use 'UIWebView.self' it will not compile for macCatalyst, but the class does exists.
@@ -92,10 +107,23 @@ final class SentryUIRedactBuilder {
             "SFSafariView",
             // Used by:
             // - https://developer.apple.com/documentation/avkit/avplayerviewcontroller
-            "AVPlayerView"
+            "AVPlayerView",
+
+
+            // _UICollectionViewListLayoutSectionBackgroundColorDecorationView is a special case because it is
+            // used by the SwiftUI.List view to display the background color.
+            //
+            // Its frame can be extremely large and extend well beyond the visible list bounds. Treating it as a
+            // normal opaque background view would generate clip regions that suppress unrelated redaction boxes
+            // (e.g. navigation bar content). To avoid this, we short-circuit traversal and add a single redact
+            // region for the decoration view instead of clip-outs.
+            Self.collectionViewListLayoutSectionBackgroundColorDecorationViewClassId
         ].compactMap(NSClassFromString(_:))
 
-        ignoreClassesIdentifiers = [ ObjectIdentifier(UISlider.self), ObjectIdentifier(UISwitch.self) ]
+        ignoreClassesIdentifiers = [ 
+            ObjectIdentifier(UISlider.self), 
+            ObjectIdentifier(UISwitch.self)
+        ]
 #else
         ignoreClassesIdentifiers = []
 #endif
@@ -308,7 +336,13 @@ final class SentryUIRedactBuilder {
                 name: view.debugDescription
             ))
         }
-        for subLayer in subLayers.sorted(by: { $0.zPosition < $1.zPosition }) {
+        // Preserve Core Animation's sibling order when zPosition ties to mirror real render order.
+        for (_, subLayer) in subLayers.enumerated().sorted(by: { lhs, rhs in
+            if lhs.element.zPosition == rhs.element.zPosition {
+                return lhs.offset < rhs.offset
+            }
+            return lhs.element.zPosition < rhs.element.zPosition
+        }) {
             mapRedactRegion(fromLayer: subLayer, relativeTo: layer, redacting: &redacting, rootFrame: rootFrame, transform: newTransform, forceRedact: enforceRedact)
         }
         if clipToBounds {
@@ -345,13 +379,6 @@ final class SentryUIRedactBuilder {
             // Fatal error: Use of unimplemented initializer 'init(layer:)' for class 'CameraUI.ModeLoupeLayer'
             //
             // This crash only occurs when building with Xcode 16 for iOS 26, so we add a runtime check
-            return true
-        }
-
-        if viewTypeId == Self.collectionViewListLayoutSectionBackgroundColorDecorationViewClassId {
-            // _UICollectionViewListLayoutSectionBackgroundColorDecorationView is a special case because it is used by the SwiftUI.List view to display the background color.
-            // 
-            // We need to ignore it because it causes issues in the redaction clipping process.
             return true
         }
         return false

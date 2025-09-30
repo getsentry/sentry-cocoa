@@ -34,17 +34,36 @@ import UIKit
     }
 
     public func image(view: UIView, onComplete: @escaping ScreenshotCallback) {
+        // Define a helper variable for the size, so the view is not accessed in the async block
         let viewSize = view.bounds.size
+
+        #if DEBUG
+        if let viewDebugHierarchy = view.value(forKey: "recursiveDescription") as? String {
+            let data = viewDebugHierarchy.data(using: .utf8)!
+            try? data.write(to: URL(fileURLWithPath: "/tmp/workdir/0-hierarchy.txt"))
+        }
+        #endif
+
+        // The redact regions are expected to be thread-safe data structures
         let redactRegions = redactBuilder.redactRegionsFor(view: view)
+
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+        let data = try! encoder.encode(redactRegions)
+        try! data.write(to: URL(fileURLWithPath: "/tmp/workdir/1-regions.json"))
+
         // The render method is synchronous and must be called on the main thread.
         // This is because the render method accesses the view hierarchy which is managed from the main thread.
         let renderedScreenshot = renderer.render(view: view)
+
+        try! renderedScreenshot.pngData()!.write(to: URL(fileURLWithPath: "/tmp/workdir/2-render.png"))
 
         dispatchQueue.dispatchAsync { [maskRenderer] in
             // The mask renderer does not need to be on the main thread.
             // Moving it to a background thread to avoid blocking the main thread, therefore reducing the performance
             // impact/lag of the user interface.
             let maskedScreenshot = maskRenderer.maskScreenshot(screenshot: renderedScreenshot, size: viewSize, masking: redactRegions)
+            try! maskedScreenshot.pngData()!.write(to: URL(fileURLWithPath: "/tmp/workdir/3-masked.png"))
 
             onComplete(maskedScreenshot)
         }
