@@ -4,8 +4,8 @@
 #import "SentryDependencyContainer.h"
 #import "SentryEvent.h"
 #import "SentryException.h"
-#import "SentryFileManager.h"
 #import "SentryHub+Private.h"
+#import "SentryInternalDefines.h"
 #import "SentryLogC.h"
 #import "SentryMechanism.h"
 #import "SentrySDK+Private.h"
@@ -155,7 +155,8 @@ static NSString *const SentryANRMechanismDataAppHangDuration = @"app_hang_durati
     // recover the debug images. The client would also attach the debug images when directly
     // capturing the app hang event. Still, we attach them already now to ensure all app hang events
     // have debug images cause it's easy to mess this up in the future.
-    event.debugMeta = [self.debugImageProvider getDebugImagesFromCacheForThreads:event.threads];
+    event.debugMeta = [self.debugImageProvider
+        getDebugImagesFromCacheForThreads:SENTRY_UNWRAP_NULLABLE(NSArray, event.threads)];
 
 #if SENTRY_HAS_UIKIT
 #    if SDK_V9

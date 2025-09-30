@@ -92,6 +92,29 @@ jobs:
         if: failure()
         run: ./scripts/ci-diagnostics.sh
 
+  distribution-tests:
+    name: Distribution Tests
+    runs-on: macos-15
+    needs: files-changed
+    steps:
+      - uses: actions/checkout@v5
+      - name: Prepare Package.swift
+        uses: ./.github/actions/prepare-package.swift
+        with:
+          is-pr: ${{ github.event_name == 'pull_request' }}
+          change-path: false
+          remove-duplicate: true
+      - run: rm -r Sentry.xcodeproj && rm -r Sentry.xcworkspace
+      - run: set -o pipefail && NSUnbufferedIO=YES SKIP_BINARIES=1 xcodebuild test -scheme Sentry-Package -sdk iphonesimulator -destination 'platform=iOS Simulator,OS=18.4,name=iPhone 16 Pro' | tee raw-test-output-distribution.log | xcbeautify --preserve-unbeautified
+        shell: sh
+      - name: Upload Distribution Test Logs
+        uses: actions/upload-artifact@v4
+        if: ${{ failure() || cancelled() }}
+        with:
+          name: raw-test-output-distribution
+          path: |
+            raw-test-output-distribution.log
+
   # This matrix runs only the unit tests requiring the test server.
   # We do this to speed up the other unit test jobs and to avoid running the
   # test server with potential side effects in GH actions for all unit tests.
@@ -112,11 +135,13 @@ jobs:
             platform: "iOS"
             xcode: "16.4"
             device: "iPhone 16 Pro"
+            test-destination-os: "18.5"
 
           - name: macOS 15
             runs-on: macos-15
             platform: "macOS"
             xcode: "16.4"
+            test-destination-os: "15.0"
 
     steps:
       - uses: actions/checkout@v5
@@ -139,7 +164,7 @@ jobs:
         run: |
           ./scripts/sentry-xcodebuild.sh \
             --platform ${{matrix.platform}} \
-            --os latest \
+            --os ${{matrix.test-destination-os}} \
             --ref ${{ github.ref_name }} \
             --command build-for-testing \
             --device "${{matrix.device}}" \
@@ -151,7 +176,7 @@ jobs:
         run: |
           ./scripts/sentry-xcodebuild.sh \
             --platform ${{matrix.platform}} \
-            --os latest \
+            --os ${{matrix.test-destination-os}} \
             --ref ${{ github.ref_name }} \
             --command test-without-building \
             --device "${{matrix.device}}" \
@@ -186,8 +211,14 @@ jobs:
             ~/Library/Logs/DiagnosticReports/**
 
       - name: Run CI Diagnostics
-        if: failure()
+        if: ${{ failure() || cancelled() }}
         run: ./scripts/ci-diagnostics.sh
+
+      - name: Store screenshot
+        uses: ./.github/actions/capture-screenshot
+        if: ${{ failure() || cancelled() }}
+        with:
+          suffix: ${{ matrix.platform }}-xcode-${{ matrix.xcode }}
 
   unit-tests:
     name: Unit ${{matrix.name}}
@@ -235,7 +266,7 @@ jobs:
             runs-on: macos-26
             platform: "iOS"
             xcode: "26.0"
-            test-destination-os: "latest"
+            test-destination-os: "26.0"
             device: "iPhone 17 Pro"
             scheme: "Sentry"
 
@@ -264,7 +295,7 @@ jobs:
             runs-on: macos-26
             platform: "macOS"
             xcode: "26.0"
-            test-destination-os: "latest"
+            test-destination-os: "26.0"
             scheme: "Sentry"
 
           # Catalyst. We test the latest version, as the risk something breaking on Catalyst and not
@@ -320,7 +351,7 @@ jobs:
             runs-on: macos-26
             platform: "tvOS"
             xcode: "26.0"
-            test-destination-os: "latest"
+            test-destination-os: "26.0"
             device: "Apple TV"
             scheme: "Sentry"
 
@@ -445,6 +476,7 @@ jobs:
       [
         files-changed,
         build-test-server,
+        distribution-tests,
         unit-tests,
         unit-tests-with-test-server,
       ]

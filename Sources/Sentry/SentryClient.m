@@ -11,7 +11,6 @@
 #import "SentryEvent+Private.h"
 #import "SentryException.h"
 #import "SentryExtraContextProvider.h"
-#import "SentryFileManager.h"
 #import "SentryHub+Private.h"
 #import "SentryHub.h"
 #import "SentryInstallation.h"
@@ -766,8 +765,9 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         BOOL debugMetaNotAttached = !(nil != event.debugMeta && event.debugMeta.count > 0);
         if (!isFatalEvent && shouldAttachStacktrace && debugMetaNotAttached
             && event.threads != nil) {
-            event.debugMeta =
-                [self.debugImageProvider getDebugImagesFromCacheForThreads:event.threads];
+            event.debugMeta = [self.debugImageProvider
+                getDebugImagesFromCacheForThreads:SENTRY_UNWRAP_NULLABLE(
+                                                      NSArray<SentryThread *>, event.threads)];
         }
     }
 

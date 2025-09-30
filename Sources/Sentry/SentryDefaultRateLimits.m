@@ -4,8 +4,6 @@
 #import "SentryDateUtil.h"
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"
-#import "SentryRateLimitParser.h"
-#import "SentryRetryAfterHeaderParser.h"
 #import "SentrySwift.h"
 
 NS_ASSUME_NONNULL_BEGIN

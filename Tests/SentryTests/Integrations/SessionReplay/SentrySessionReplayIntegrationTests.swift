@@ -37,7 +37,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         globalEventProcessor = SentryGlobalEventProcessor()
         uiApplication.windows = [UIWindow()]
 
-        SentryDependencyContainer.sharedInstance().application = uiApplication
+        SentryDependencyContainer.sharedInstance().applicationOverride = uiApplication
         SentryDependencyContainer.sharedInstance().reachability = TestSentryReachability()
         SentryDependencyContainer.sharedInstance().globalEventProcessor = globalEventProcessor
     }
