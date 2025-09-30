@@ -3,7 +3,7 @@ import SentrySampleShared
 import SwiftUI
 
 import Logging
-import SwiftLogSentry
+import SentrySwiftLog
 
 @main
 struct SwiftUIApp: App {
