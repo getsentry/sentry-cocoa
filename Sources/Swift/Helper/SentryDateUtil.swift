@@ -22,7 +22,7 @@ import Foundation
     }
 
     @objc(getMaximumDate:andOther:)
-    public func getMaximumDate(_ first: Date?, andOther second: Date?) -> Date? {
+    public static func getMaximumDate(_ first: Date?, andOther second: Date?) -> Date? {
         guard let first = first else {
             return second
         }
@@ -34,7 +34,7 @@ import Foundation
     }
 
     @objc
-    public func millisecondsSince1970(_ date: Date) -> Int {
+    public static func millisecondsSince1970(_ date: Date) -> Int {
         return Int(date.timeIntervalSince1970 * 1_000)
     }
 }
