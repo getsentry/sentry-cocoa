@@ -1,4 +1,4 @@
-#import "SentryFileManager.h"
+#import "SentryFileManagerHelper.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -11,11 +11,7 @@ NSString *_Nullable sentryBuildScopedCachesDirectoryPath(NSString *cachesDirecto
 SENTRY_EXTERN NSURL *_Nullable launchProfileConfigFileURL(void);
 SENTRY_EXTERN NSURL *_Nullable sentryLaunchConfigFileURL;
 
-@interface SentryFileManager ()
-
-@property (nonatomic, copy) NSString *eventsPath;
-@property (nonatomic, copy) NSString *envelopesPath;
-@property (nonatomic, copy) NSString *timezoneOffsetFilePath;
+@interface SentryFileManagerHelper ()
 
 - (void)clearDiskState;
 

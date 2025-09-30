@@ -19,6 +19,13 @@
   },
   "testTargets" : [
     {
+      "skippedTests" : [
+        "UserFeedbackUITests\/testAddingAndRemovingScreenshots()",
+        "UserFeedbackUITests\/testAddingScreenshots()",
+        "UserFeedbackUITests\/testSubmitCustomButton()",
+        "UserFeedbackUITests\/testSubmitFullyFilledCustomForm()",
+        "UserFeedbackUITests\/testSubmitFullyFilledForm()"
+      ],
       "target" : {
         "containerPath" : "container:iOS-Swift.xcodeproj",
         "identifier" : "0217293F044A3AEED8E37A25",

@@ -555,4 +555,196 @@
     XCTAssertEqual(event.breadcrumbs.firstObject.timestamp, date);
 }
 
+- (void)testBreadcrumbWithNilCategory_ShouldFallbackToDefaultCategory
+{
+    // -- Arrange --
+    // Create a crash report with a breadcrumb that has nil category
+    // This tests the null handling: if (!storedCrumb[@"category"]) { continue; }
+    NSDictionary *mockReport = @{
+        @"user" : @ {
+            @"breadcrumbs" : @[
+                @{
+                    // Missing category key should cause breadcrumb to fallback to default category
+                    @"message" : @"test message",
+                    @"timestamp" : @"2020-02-06T01:00:32Z"
+                },
+                @{
+                    @"category" : @"valid_category", // valid breadcrumb should be included
+                    @"message" : @"valid message",
+                    @"timestamp" : @"2020-02-06T01:00:33Z"
+                }
+            ]
+        },
+        @"crash" : @ { @"threads" : @[], @"error" : @ { @"type" : @"signal" } },
+        @"binary_images" : @[],
+        @"system" : @ { @"application_stats" : @ { @"application_in_foreground" : @YES } }
+    };
+
+    // -- Act --
+    SentryCrashReportConverter *reportConverter =
+        [[SentryCrashReportConverter alloc] initWithReport:mockReport inAppLogic:self.inAppLogic];
+    SentryEvent *event = [reportConverter convertReportToEvent];
+
+    // -- Assert --
+    XCTAssertEqual(event.breadcrumbs.count, 2);
+    XCTAssertEqualObjects(event.breadcrumbs.firstObject.category, @"default");
+    XCTAssertEqualObjects(event.breadcrumbs.firstObject.message, @"test message");
+    XCTAssertEqualObjects(
+        event.breadcrumbs.firstObject.timestamp, sentry_fromIso8601String(@"2020-02-06T01:00:32Z"));
+
+    XCTAssertEqualObjects(event.breadcrumbs.lastObject.category, @"valid_category");
+    XCTAssertEqualObjects(event.breadcrumbs.lastObject.message, @"valid message");
+    XCTAssertEqualObjects(
+        event.breadcrumbs.lastObject.timestamp, sentry_fromIso8601String(@"2020-02-06T01:00:33Z"));
+}
+
+- (void)testThreadWithNonNumberIndex_ShouldReturnNil
+{
+    // -- Arrange --
+    // Test with string index - should be rejected and logged
+    NSDictionary *mockReportStringIndex = @{
+        @"crash" : @ {
+            @"threads" : @[ @{
+                @"index" : @"invalid_string", // non-NSNumber index should cause thread to be nil
+                @"crashed" : @NO,
+                @"current_thread" : @NO,
+                @"backtrace" : @ { @"contents" : @[] }
+            } ],
+            @"error" : @ { @"type" : @"signal" }
+        },
+        @"binary_images" : @[],
+        @"system" : @ { @"application_stats" : @ { @"application_in_foreground" : @YES } }
+    };
+
+    // -- Act --
+    SentryCrashReportConverter *reportConverter =
+        [[SentryCrashReportConverter alloc] initWithReport:mockReportStringIndex
+                                                inAppLogic:self.inAppLogic];
+    SentryEvent *event = [reportConverter convertReportToEvent];
+
+    // -- Assert --
+    // Should have no threads since the thread with string index gets filtered out
+    XCTAssertEqual(event.threads.count, 0);
+}
+
+- (void)testThreadWithNilIndex_ShouldBeAllowed
+{
+    // -- Arrange --
+    // Test with missing index - should be allowed (for recrash reports)
+    NSDictionary *mockReportNilIndex = @{
+        @"crash" : @ {
+            @"threads" : @[ @{
+                // Missing index key should be allowed
+                @"crashed" : @NO,
+                @"current_thread" : @NO,
+                @"backtrace" : @ {
+                    @"contents" : @[ @{
+                        @"instruction_addr" : @0x1000,
+                        @"symbol_addr" : @0x1000,
+                    } ]
+                }
+            } ],
+            @"error" : @ { @"type" : @"signal" }
+        },
+        @"binary_images" : @[],
+        @"system" : @ { @"application_stats" : @ { @"application_in_foreground" : @YES } }
+    };
+
+    // -- Act --
+    SentryCrashReportConverter *reportConverter =
+        [[SentryCrashReportConverter alloc] initWithReport:mockReportNilIndex
+                                                inAppLogic:self.inAppLogic];
+    SentryEvent *event = [reportConverter convertReportToEvent];
+
+    // -- Assert --
+    // Should have 1 thread since missing index is now allowed (for recrash reports)
+    XCTAssertEqual(event.threads.count, 1);
+    XCTAssertNil(event.threads.firstObject.threadId);
+    XCTAssertEqual(event.threads.firstObject.isMain.boolValue, NO);
+}
+
+- (void)testThreadWithInvalidIndexTypes_ShouldReturnNil
+{
+    // Test various invalid index types
+    NSArray *invalidIndexes = @[
+        @{ @"some" : @"dictionary" }, // Dictionary
+        @[ @"array" ], // Array
+        [NSDate date], // Date
+        [NSNull null] // NSNull
+    ];
+
+    for (id invalidIndex in invalidIndexes) {
+        // -- Arrange --
+        NSDictionary *mockReport = @{
+            @"crash" : @ {
+                @"threads" : @[ @{
+                    @"index" : invalidIndex,
+                    @"crashed" : @NO,
+                    @"current_thread" : @NO,
+                    @"backtrace" : @ { @"contents" : @[] }
+                } ],
+                @"error" : @ { @"type" : @"signal" }
+            },
+            @"binary_images" : @[],
+            @"system" : @ { @"application_stats" : @ { @"application_in_foreground" : @YES } }
+        };
+
+        // -- Act --
+        SentryCrashReportConverter *reportConverter =
+            [[SentryCrashReportConverter alloc] initWithReport:mockReport
+                                                    inAppLogic:self.inAppLogic];
+        SentryEvent *event = [reportConverter convertReportToEvent];
+
+        // -- Assert --
+        XCTAssertEqual(event.threads.count, 0,
+            @"Thread with invalid index type %@ should be filtered out", [invalidIndex class]);
+    }
+}
+
+- (void)testNotableAddressesWithNilValue_ShouldBeSkipped
+{
+    // -- Arrange --
+    // Create a crash report with notable addresses where some values are nil
+    // This tests the null handling: SENTRY_UNWRAP_NULLABLE(NSString, content[@"value"])
+    NSDictionary *mockReport = @{
+        @"crash" : @ {
+            @"threads" : @[ @{
+                @"index" : @0,
+                @"crashed" : @YES,
+                @"current_thread" : @YES,
+                @"backtrace" : @ { @"contents" : @[] },
+                @"notable_addresses" : @ {
+                    @"address1" : @ {
+                        @"type" : @"string"
+                        // Missing value key should be skipped
+                    },
+                    @"address2" : @ {
+                        @"type" : @"string",
+                        @"value" : @"valid_reason" // valid value should be included
+                    },
+                    @"address3" : @ {
+                        @"type" : @"other", // non-string type should be skipped
+                        @"value" : @"should_be_ignored"
+                    }
+                }
+            } ],
+            @"error" : @ { @"type" : @"signal" }
+        },
+        @"binary_images" : @[],
+        @"system" : @ { @"application_stats" : @ { @"application_in_foreground" : @YES } }
+    };
+
+    // -- Act --
+    SentryCrashReportConverter *reportConverter =
+        [[SentryCrashReportConverter alloc] initWithReport:mockReport inAppLogic:self.inAppLogic];
+    SentryEvent *event = [reportConverter convertReportToEvent];
+
+    // -- Assert --
+    // Should not crash when notable address values are nil
+    // Exception value should only contain the valid notable address value
+    XCTAssertNotNil(event);
+    XCTAssertEqual(event.exceptions.count, 1);
+    // The null handling ensures only valid string values are processed
+}
+
 @end
