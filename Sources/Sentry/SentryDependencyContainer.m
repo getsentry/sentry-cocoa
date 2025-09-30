@@ -1,10 +1,7 @@
 #import "SentryANRTrackerV1.h"
 
-#import "SentryDispatchFactory.h"
-#import "SentryDisplayLinkWrapper.h"
 #import "SentryExtraContextProvider.h"
 #import "SentryFileIOTracker.h"
-#import "SentryFileManager.h"
 #import "SentryInternalCDefines.h"
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"
@@ -19,10 +16,7 @@
 #import <SentryDebugImageProvider+HybridSDKs.h>
 #import <SentryDefaultRateLimits.h>
 #import <SentryDependencyContainer.h>
-#import <SentryHttpDateParser.h>
 #import <SentryPerformanceTracker.h>
-#import <SentryRateLimitParser.h>
-#import <SentryRetryAfterHeaderParser.h>
 #import <SentrySDK+Private.h>
 #import <SentrySwift.h>
 #import <SentrySwizzleWrapper.h>

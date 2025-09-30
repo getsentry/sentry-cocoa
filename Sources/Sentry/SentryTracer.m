@@ -3,7 +3,6 @@
 #import "SentryDebugImageProvider+HybridSDKs.h"
 #import "SentryDependencyContainer.h"
 #import "SentryEvent+Private.h"
-#import "SentryFileManager.h"
 #import "SentryHub+Private.h"
 #import "SentryInternalCDefines.h"
 #import "SentryInternalDefines.h"
@@ -24,6 +23,7 @@
 #import "SentryTime.h"
 #import "SentryTraceContext.h"
 #import "SentryTracer+Private.h"
+#import "SentryTracerConfiguration.h"
 #import "SentryTransaction.h"
 #import "SentryTransactionContext.h"
 #import <NSMutableDictionary+Sentry.h>
