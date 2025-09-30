@@ -1,7 +1,6 @@
 #import "SentryDefaultRateLimits.h"
 #import "SentryConcurrentRateLimitsDictionary.h"
 #import "SentryDataCategoryMapper.h"
-#import "SentryDateUtil.h"
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"
 #import "SentrySwift.h"
