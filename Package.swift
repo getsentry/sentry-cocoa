@@ -16,8 +16,8 @@ var products: [Product] = [
     .library(name: "Sentry-WithoutUIKitOrAppKit", targets: ["Sentry-WithoutUIKitOrAppKit", "SentryCppHelper"]),
     .library(name: "Sentry-WithoutUIKitOrAppKit-WithARM64e", targets: ["Sentry-WithoutUIKitOrAppKit-WithARM64e", "SentryCppHelper"]),
     .library(name: "SentrySwiftUI", targets: ["Sentry", "SentrySwiftUI", "SentryCppHelper"]),
-    .library(name: "SentryDistribution", targets: ["SentryDistribution"])
-    .library(name: "swift-log-sentry", targets: ["Sentry", "swift-log-sentry"])
+    .library(name: "SentryDistribution", targets: ["SentryDistribution"]),
+    .library(name: "SentrySwiftLog", targets: ["Sentry", "SentrySwiftLog"])
 ]
 
 var targets: [Target] = [
@@ -56,9 +56,9 @@ var targets: [Target] = [
         ]
     ),
     .target(
-        name: "swift-log-sentry",
+        name: "SentrySwiftLog",
         dependencies: ["Sentry", .product(name: "Logging", package: "swift-log")],
-        path: "Sources/SwiftLog",
+        path: "Sources/SentrySwiftLog",
         linkerSettings: [
             .linkedFramework("Sentry")
         ]
