@@ -278,7 +278,8 @@
         SENTRY_LOG_ERROR(@"Thread index is not a number: %@", threadIndexObj);
         return nil;
     }
-    SentryThread *thread = [[SentryThread alloc] initWithThreadId:threadIndexObj];
+    SentryThread *thread =
+        [[SentryThread alloc] initWithThreadId:SENTRY_UNWRAP_NULLABLE(NSNumber, threadIndexObj)];
     // We only want to add the stacktrace if this thread hasn't crashed
     thread.stacktrace = [self stackTraceForThreadIndex:threadIndex];
     if (thread.stacktrace.frames.count == 0) {
