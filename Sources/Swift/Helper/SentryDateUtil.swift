@@ -34,7 +34,7 @@ import Foundation
     }
 
     @objc
-    public static func millisecondsSince1970(_ date: Date) -> Int {
-        return Int(date.timeIntervalSince1970 * 1_000)
+    public static func millisecondsSince1970(_ date: Date) -> Int64 {
+        return Int64(date.timeIntervalSince1970 * 1_000)
     }
 }
