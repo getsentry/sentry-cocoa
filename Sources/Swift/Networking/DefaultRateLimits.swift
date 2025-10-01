@@ -36,8 +36,8 @@ public final class DefaultRateLimits: NSObject, RateLimits {
         let categoryDate = rateLimits.getRateLimit(for: categoryAsEnum)
         let allCategoriesDate = rateLimits.getRateLimit(for: .all)
 
-        let isActiveForCategory = dateUtil.is(inFuture: categoryDate)
-        let isActiveForAllCategories = dateUtil.is(inFuture: allCategoriesDate)
+        let isActiveForCategory = dateUtil.isInFuture(categoryDate)
+        let isActiveForAllCategories = dateUtil.isInFuture(allCategoriesDate)
 
         return isActiveForCategory || isActiveForAllCategories
     }
