@@ -1,6 +1,7 @@
 import Foundation
 @_spi(Private) import Sentry
 
+@_spi(Private)
 public class TestRateLimits: NSObject, RateLimits {
     
     public var responses: [HTTPURLResponse] = []
