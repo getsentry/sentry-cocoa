@@ -52,18 +52,10 @@ public final class DefaultRateLimits: NSObject, RateLimits {
                 updateRateLimit(category, withDate: date)
             }
         } else if response.statusCode == 429 {
-            var retryAfterHeaderDate = retryAfterHeaderParser.parse(
+            let retryAfterHeaderDate = retryAfterHeaderParser.parse(
                 response.allHeaderFields["Retry-After"] as? String
-            )
+            ) ?? currentDateProvider.date().addingTimeInterval(60)
 
-            if retryAfterHeaderDate == nil {
-                // parsing failed use default value
-                retryAfterHeaderDate = currentDateProvider.date().addingTimeInterval(60)
-            }
-
-            guard let retryAfterHeaderDate = retryAfterHeaderDate else {
-                return
-            }
             updateRateLimit(.all, withDate: retryAfterHeaderDate)
         }
     }
