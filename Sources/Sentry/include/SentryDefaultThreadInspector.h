@@ -9,7 +9,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryThreadInspector : NSObject
+@interface SentryDefaultThreadInspector : NSObject
 SENTRY_NO_INIT
 
 - (id)initWithStacktraceBuilder:(SentryStacktraceBuilder *)stacktraceBuilder
