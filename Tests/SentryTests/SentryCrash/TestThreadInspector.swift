@@ -1,7 +1,9 @@
 import Foundation
 @_spi(Private) import Sentry
 
-class TestThreadInspector: SentryThreadInspector {
+@_spi(Private) extension SentryDefaultThreadInspector: SentryThreadInspector { }
+
+class TestThreadInspector: SentryDefaultThreadInspector {
     
     var allThreads: [SentryThread]?
     

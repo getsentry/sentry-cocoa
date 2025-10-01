@@ -609,6 +609,10 @@ class SentrySDKInternalTests: XCTestCase {
 
     @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func testResumeAndPauseAppHangTracking() throws {
+        if SentryDependencyContainer.sharedInstance().crashWrapper.isBeingTraced {
+            throw XCTSkip("This test only works when the debugger is NOT attached, because it requires the SentryANRTrackingIntegration being installed, which the SDK only installs if the debugger is not attached.")
+        }
+
         SentrySDK.start { options in
             options.dsn = SentrySDKInternalTests.dsnAsString
             options.setIntegrations([SentryANRTrackingIntegration.self])
@@ -626,11 +630,7 @@ class SentrySDKInternalTests: XCTestCase {
         SentrySDK.resumeAppHangTracking()
         Dynamic(anrTrackingIntegration).anrDetectedWithType(SentryANRType.unknown)
 
-        if SentryDependencyContainer.sharedInstance().crashWrapper.isBeingTraced {
-            XCTAssertEqual(0, client.captureEventWithScopeInvocations.count)
-        } else {
-            XCTAssertEqual(1, client.captureEventWithScopeInvocations.count, "The SDK should capture an AppHang after resuming the tracking, but it didn't.")
-        }
+        XCTAssertEqual(1, client.captureEventWithScopeInvocations.count, "The SDK should capture an AppHang after resuming the tracking, but it didn't.")
     }
 
     @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")

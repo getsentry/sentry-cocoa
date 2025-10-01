@@ -1,5 +1,5 @@
 import Foundation
-@_spi(Private) import Sentry
+@_spi(Private) @testable import Sentry
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 

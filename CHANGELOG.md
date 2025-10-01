@@ -2,12 +2,31 @@
 
 ## Unreleased
 
+### Features
+
+- Add SentryDistribution as Swift Package Manager target (#6149)
+
+## 8.56.2
+
 ### Fixes
 
-- Fix potential app launch hang caused by the SentrySDK (#6181) Fixed by removing the call to `_dyld_get_image_header` on the main thread.
-- Fix dyanmic selector crash in SentryReplayRecording (#6211)
+- Fix crash from null UIApplication in SwiftUI apps (#6264)
+
+## 8.56.1
+
+> [!Warning]
+> This version can cause runtime crashes because the `UIApplication.sharedApplication`/`NSApplication.sharedApplication` is not yet available during SDK initialization, due to the changes in [PR #5900](https://github.com/getsentry/sentry-cocoa/pull/5900), released in [8.56.0](https://github.com/getsentry/sentry-cocoa/releases/tag/8.56.0).
+
+### Fixes
+
+- Fix potential app launch hang caused by the SentrySDK (#6181)
+  Fixed by removing the call to `_dyld_get_image_header` on the main thread.
+- Fix dynamic selector crash in SentryReplayRecording (#6211)
 
 ## 8.56.0
+
+> [!Warning]
+> This version can cause runtime crashes because the `UIApplication.sharedApplication`/`NSApplication.sharedApplication` is not yet available during SDK initialization, due to the changes in [PR #5900](https://github.com/getsentry/sentry-cocoa/pull/5900), released in [8.56.0](https://github.com/getsentry/sentry-cocoa/releases/tag/8.56.0).
 
 ### Features
 

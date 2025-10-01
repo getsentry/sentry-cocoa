@@ -6,12 +6,12 @@
 #import "SentryCrashIntegration.h"
 #import "SentryCrashStackEntryMapper.h"
 #import "SentryDebugImageProvider+HybridSDKs.h"
+#import "SentryDefaultThreadInspector.h"
 #import "SentryDependencyContainer.h"
 #import "SentryDsn.h"
 #import "SentryEvent+Private.h"
 #import "SentryException.h"
 #import "SentryExtraContextProvider.h"
-#import "SentryFileManager.h"
 #import "SentryHub+Private.h"
 #import "SentryHub.h"
 #import "SentryInstallation.h"
@@ -32,7 +32,6 @@
 #import "SentrySerialization.h"
 #import "SentryStacktraceBuilder.h"
 #import "SentrySwift.h"
-#import "SentryThreadInspector.h"
 #import "SentryTraceContext.h"
 #import "SentryTracer.h"
 #import "SentryTransaction.h"
@@ -117,8 +116,8 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                transportAdapter:(SentryTransportAdapter *)transportAdapter
 
 {
-    SentryThreadInspector *threadInspector =
-        [[SentryThreadInspector alloc] initWithOptions:options];
+    SentryDefaultThreadInspector *threadInspector =
+        [[SentryDefaultThreadInspector alloc] initWithOptions:options];
 
     return [self initWithOptions:options
                 transportAdapter:transportAdapter
@@ -135,7 +134,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                transportAdapter:(SentryTransportAdapter *)transportAdapter
                     fileManager:(SentryFileManager *)fileManager
          deleteOldEnvelopeItems:(BOOL)deleteOldEnvelopeItems
-                threadInspector:(SentryThreadInspector *)threadInspector
+                threadInspector:(SentryDefaultThreadInspector *)threadInspector
              debugImageProvider:(SentryDebugImageProvider *)debugImageProvider
                          random:(id<SentryRandomProtocol>)random
                          locale:(NSLocale *)locale
@@ -766,8 +765,9 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         BOOL debugMetaNotAttached = !(nil != event.debugMeta && event.debugMeta.count > 0);
         if (!isFatalEvent && shouldAttachStacktrace && debugMetaNotAttached
             && event.threads != nil) {
-            event.debugMeta =
-                [self.debugImageProvider getDebugImagesFromCacheForThreads:event.threads];
+            event.debugMeta = [self.debugImageProvider
+                getDebugImagesFromCacheForThreads:SENTRY_UNWRAP_NULLABLE(
+                                                      NSArray<SentryThread *>, event.threads)];
         }
     }
 

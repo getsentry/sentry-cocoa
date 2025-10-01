@@ -19,7 +19,6 @@
 @class SentryThreadsafeApplication;
 @class SentrySystemWrapper;
 @class SentryThreadWrapper;
-@class SentryThreadInspector;
 @class SentryFileIOTracker;
 @class SentryScopePersistentStore;
 @class SentryOptions;
@@ -32,8 +31,8 @@
 @protocol SentryRateLimits;
 @protocol SentryApplication;
 @protocol SentryProcessInfoSource;
-@protocol SentryDispatchQueueProviderProtocol;
 @protocol SentryNSNotificationCenterWrapper;
+@protocol SentryThreadInspector;
 @protocol SentryObjCRuntimeWrapper;
 
 #if SENTRY_HAS_METRIC_KIT
@@ -93,7 +92,6 @@ SENTRY_NO_INIT
 @property (nonatomic, strong) id<SentryProcessInfoSource> processInfoWrapper;
 @property (nonatomic, strong) SentrySysctl *sysctlWrapper;
 @property (nonatomic, strong) id<SentryRateLimits> rateLimits;
-@property (nonatomic, strong) id<SentryApplication> application;
 @property (nonatomic, strong) SentryThreadsafeApplication *threadsafeApplication;
 
 #if SENTRY_HAS_REACHABILITY
@@ -108,7 +106,7 @@ SENTRY_NO_INIT
 
 @property (nonatomic, strong, nullable) SentryFileManager *fileManager;
 @property (nonatomic, strong) SentryAppStateManager *appStateManager;
-@property (nonatomic, strong) SentryThreadInspector *threadInspector;
+@property (nonatomic, strong) id<SentryThreadInspector> threadInspector;
 @property (nonatomic, strong) SentryFileIOTracker *fileIOTracker;
 @property (nonatomic, strong) SentryCrash *crashReporter;
 @property (nonatomic, strong) SentryScopePersistentStore *scopePersistentStore;
@@ -118,6 +116,8 @@ SENTRY_NO_INIT
 #if SENTRY_HAS_UIKIT
 - (id<SentryANRTracker>)getANRTracker:(NSTimeInterval)timeout isV2Enabled:(BOOL)isV2Enabled;
 #endif // SENTRY_HAS_UIKIT
+
+- (nullable id<SentryApplication>)application;
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 @property (nonatomic, strong) SentrySystemWrapper *systemWrapper;
@@ -154,6 +154,12 @@ SENTRY_NO_INIT
 
 @property (nonatomic, strong) SentryGlobalEventProcessor *globalEventProcessor;
 - (SentrySessionTracker *)getSessionTrackerWithOptions:(SentryOptions *)options;
+
+#if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
+// Some tests rely on this value being grabbed from the global dependency container
+// rather than using dependency injection.
+@property (nonatomic, strong) id<SentryApplication> applicationOverride;
+#endif
 
 @end
 

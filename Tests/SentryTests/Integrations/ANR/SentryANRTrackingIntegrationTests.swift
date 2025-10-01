@@ -328,7 +328,7 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         setUpThreadInspector()
         let backgroundUIApplication = TestSentryUIApplication()
         backgroundUIApplication.unsafeApplicationState = .background
-        SentryDependencyContainer.sharedInstance().application = backgroundUIApplication
+        SentryDependencyContainer.sharedInstance().applicationOverride = backgroundUIApplication
 
         Dynamic(sut).anrDetectedWithType(SentryANRType.unknown)
 
@@ -783,6 +783,6 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
             threadInspector.allThreads = []
         }
 
-        SentryDependencyContainer.sharedInstance().threadInspector = threadInspector
+        Dynamic(SentryDependencyContainer.sharedInstance()).threadInspector = threadInspector
     }
 }
