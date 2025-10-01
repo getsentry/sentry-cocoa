@@ -6,7 +6,7 @@ import Foundation
  * When a rate limit is reached, the SDK should stop data transmission
  * until the rate limit has expired.
  */
-@objc(SentryRateLimits)
+@objc(SentryRateLimits) @_spi(Private)
 public protocol RateLimits: NSObjectProtocol {
 
     /**
