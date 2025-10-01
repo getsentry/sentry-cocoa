@@ -6,6 +6,10 @@
 
 - Add SentryDistribution as Swift Package Manager target (#6149)
 
+### Fixes
+
+Fixes warnings about minimum OS version being lower than Xcode supported version (#5591)
+
 ## 8.56.2
 
 ### Fixes
