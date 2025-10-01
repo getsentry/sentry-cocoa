@@ -1,7 +1,7 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
-@objcMembers @_spi(Private) public class SentryAppState: NSObject, SentrySerializable {
+@objcMembers @_spi(Private) public class SentryAppState: NSObject {
     
     public private(set) var releaseName: String?
     public private(set) var osVersion: String
@@ -129,4 +129,4 @@ import Foundation
         
         return data
     }
-} 
+}
