@@ -14,7 +14,6 @@
 #import <SentryAppStateManager.h>
 #import <SentryCrash.h>
 #import <SentryDebugImageProvider+HybridSDKs.h>
-#import <SentryDefaultRateLimits.h>
 #import <SentryDependencyContainer.h>
 #import <SentryPerformanceTracker.h>
 #import <SentrySDK+Private.h>
