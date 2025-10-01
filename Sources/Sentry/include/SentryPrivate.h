@@ -28,7 +28,6 @@
 #import "SentryCrashDebug.h"
 #import "SentryCrashMonitor_AppState.h"
 #import "SentryCrashMonitor_System.h"
-#import "SentryDateUtil.h"
 #import "SentryDateUtils.h"
 #import "SentryDependencyContainerSwiftHelper.h"
 #import "SentryEvent+Serialize.h"
