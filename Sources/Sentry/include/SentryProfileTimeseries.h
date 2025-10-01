@@ -6,7 +6,7 @@
 #    import <Foundation/Foundation.h>
 
 #    if SENTRY_HAS_UIKIT
-#        import "SentryMetricProfiler.h"
+#        import "SentryProfilerDefines.h"
 #    endif // SENTRY_HAS_UIKIT
 
 @class SentrySample;

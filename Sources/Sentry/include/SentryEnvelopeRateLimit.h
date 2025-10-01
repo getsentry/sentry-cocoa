@@ -1,9 +1,10 @@
-#import "SentryRateLimits.h"
+#import "SentryDataCategory.h"
 
 @protocol SentryEnvelopeRateLimitDelegate;
 
 @class SentryEnvelope;
 @class SentryEnvelopeItem;
+@protocol SentryRateLimits;
 
 NS_ASSUME_NONNULL_BEGIN
 

@@ -1,5 +1,4 @@
 #import "SentryTransportFactory.h"
-#import "SentryDefaultRateLimits.h"
 #import "SentryEnvelopeRateLimit.h"
 #import "SentryHttpTransport.h"
 #import "SentryInternalDefines.h"
@@ -7,7 +6,6 @@
 #import "SentryNSURLRequestBuilder.h"
 #import "SentryOptions.h"
 #import "SentryQueueableRequestManager.h"
-#import "SentryRateLimits.h"
 #import "SentrySpotlightTransport.h"
 #import "SentrySwift.h"
 #import "SentryTransport.h"
