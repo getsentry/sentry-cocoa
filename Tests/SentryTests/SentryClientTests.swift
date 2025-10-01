@@ -1620,24 +1620,6 @@ class SentryClientTests: XCTestCase {
         XCTAssertEqual(fixture.transport.recordLostEventsWithCount.get(2)?.quantity, 1)
     }
 
-    func testNoDsn_UserFeedbackNotSent() {
-        let sut = fixture.getSutWithNoDsn()
-        sut.capture(userFeedback: UserFeedback(eventId: SentryId()))
-        assertNothingSent()
-    }
-
-    func testDisabled_UserFeedbackNotSent() {
-        let sut = fixture.getSutDisabledSdk()
-        sut.capture(userFeedback: UserFeedback(eventId: SentryId()))
-        assertNothingSent()
-    }
-
-    func testCaptureUserFeedback_WithEmptyEventId() {
-        let sut = fixture.getSut()
-        sut.capture(userFeedback: UserFeedback(eventId: SentryId.empty))
-        assertNothingSent()
-    }
-
     func testNoDsn_FeedbackNotSent() {
         let sut = fixture.getSutWithNoDsn()
         sut.capture(feedback: fixture.feedback, scope: fixture.scope)
@@ -2405,7 +2387,6 @@ private extension SentryClientTests {
         XCTAssertTrue(fixture.transport.sentEnvelopes.isEmpty)
         XCTAssertEqual(0, fixture.transportAdapter.sentEventsWithSessionTraceState.count)
         XCTAssertEqual(0, fixture.transportAdapter.sendEventWithTraceStateInvocations.count)
-        XCTAssertEqual(0, fixture.transportAdapter.userFeedbackInvocations.count)
     }
     
     private func assertLostEventRecorded(category: SentryDataCategory, reason: SentryDiscardReason) {

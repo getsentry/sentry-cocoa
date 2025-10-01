@@ -536,16 +536,6 @@ NS_ASSUME_NONNULL_BEGIN
     return SentryId.empty;
 }
 
-#if !SDK_V9
-- (void)captureUserFeedback:(SentryUserFeedback *)userFeedback
-{
-    SentryClient *client = self.client;
-    if (client != nil) {
-        [client captureUserFeedback:userFeedback];
-    }
-}
-#endif // !SDK_V9
-
 - (void)captureFeedback:(SentryFeedback *)feedback
 {
     SentryClient *client = self.client;

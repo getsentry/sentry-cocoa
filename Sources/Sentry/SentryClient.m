@@ -595,23 +595,6 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     [self.transportAdapter sendEnvelope:envelope];
 }
 
-#if !SDK_V9
-- (void)captureUserFeedback:(SentryUserFeedback *)userFeedback
-{
-    if ([self isDisabled]) {
-        [self logDisabledMessage];
-        return;
-    }
-
-    if ([SentryId.empty isEqual:userFeedback.eventId]) {
-        SENTRY_LOG_DEBUG(@"Capturing UserFeedback with an empty event id. Won't send it.");
-        return;
-    }
-
-    [self.transportAdapter sendUserFeedback:userFeedback];
-}
-#endif // !SDK_V9
-
 - (void)captureFeedback:(SentryFeedback *)feedback withScope:(SentryScope *)scope
 {
     [self captureSerializedFeedback:[feedback serialize]

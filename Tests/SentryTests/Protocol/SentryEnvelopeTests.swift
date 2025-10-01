@@ -6,8 +6,6 @@ class SentryEnvelopeTests: XCTestCase {
     
     private class Fixture {
         let sdkVersion = "sdkVersion"
-        @available(*, deprecated, message: "SentryUserFeedback is deprecated in favor of SentryFeedback.")
-        let userFeedback: UserFeedback = TestData.userFeedback
         let path = "test.log"
         let data = Data("hello".utf8)
         
@@ -215,26 +213,6 @@ class SentryEnvelopeTests: XCTestCase {
             
             json.assertContains(String(format: "%.0f", SentryDependencyContainer.sharedInstance().dateProvider.date().timeIntervalSince1970), "timestamp")
         }
-    }
-    
-    @available(*, deprecated, message: "SentryUserFeedback is deprecated in favor of SentryFeedback. This test case can be removed when SentryUserFeedback is removed.")
-    func testInitWithUserFeedback() throws {
-        let userFeedback = fixture.userFeedback
-        
-        let envelope = SentryEnvelope(userFeedback: userFeedback)
-        XCTAssertEqual(userFeedback.eventId, envelope.header.eventId)
-        XCTAssertEqual(defaultSdkInfo, envelope.header.sdkInfo)
-        
-        XCTAssertEqual(1, envelope.items.count)
-        let item = envelope.items.first
-        XCTAssertEqual("user_report", item?.header.type)
-        XCTAssertNotNil(item?.data)
-        
-        let expectedData = SentrySerializationSwift.data(withJSONObject: userFeedback.serialize())!
-
-        let actual = String(data: item?.data ?? Data(), encoding: .utf8)?.sorted()
-        let expected = String(data: expectedData, encoding: .utf8)?.sorted()
-        XCTAssertEqual(expected, actual)
     }
     
     func testInitWithDataAttachment() {
