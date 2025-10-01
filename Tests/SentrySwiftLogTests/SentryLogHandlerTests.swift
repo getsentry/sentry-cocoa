@@ -1,7 +1,7 @@
 import Logging
 @_spi(Private) @testable import Sentry
 @_spi(Private) import SentryTestUtils
-@_spi(Private) @testable import SwiftLogSentry
+@_spi(Private) @testable import SentrySwiftLog
 import XCTest
 
 // swiftlint:disable cyclomatic_complexity
