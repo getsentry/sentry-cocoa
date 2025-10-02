@@ -3,7 +3,7 @@
 #if SENTRY_HAS_UIKIT
 
 @class SentryAppState;
-@class SentryAppStateManager;
+@protocol SentryAppStateManager;
 @class SentryCrashWrapper;
 @class SentryFileManager;
 @class SentryOptions;
@@ -15,7 +15,7 @@ SENTRY_NO_INIT
 
 - (instancetype)initWithOptions:(SentryOptions *)options
                    crashAdapter:(SentryCrashWrapper *)crashAdapter
-                appStateManager:(SentryAppStateManager *)appStateManager;
+                appStateManager:(id<SentryAppStateManager>)appStateManager;
 
 - (BOOL)isWatchdogTermination;
 

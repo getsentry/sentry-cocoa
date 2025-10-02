@@ -3,7 +3,6 @@
 
 #if SENTRY_HAS_UIKIT
 
-#    import <SentryAppStateManager.h>
 #    import <SentryOptions.h>
 #    import <SentrySDK+Private.h>
 #    import <SentrySwift.h>
@@ -12,7 +11,7 @@
 
 @property (nonatomic, strong) SentryOptions *options;
 @property (nonatomic, strong) SentryCrashWrapper *crashAdapter;
-@property (nonatomic, strong) SentryAppStateManager *appStateManager;
+@property (nonatomic, strong) id<SentryAppStateManager> appStateManager;
 
 @end
 
@@ -20,7 +19,7 @@
 
 - (instancetype)initWithOptions:(SentryOptions *)options
                    crashAdapter:(SentryCrashWrapper *)crashAdapter
-                appStateManager:(SentryAppStateManager *)appStateManager
+                appStateManager:(id<SentryAppStateManager>)appStateManager
 {
     if (self = [super init]) {
         self.options = options;
