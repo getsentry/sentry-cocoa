@@ -99,21 +99,6 @@ NS_ASSUME_NONNULL_BEGIN
     }
 }
 
-#if !SDK_V9
-#    pragma clang diagnostic push
-#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
-- (void)sendUserFeedback:(SentryUserFeedback *)userFeedback
-{
-    SentryEnvelopeItem *item = [[SentryEnvelopeItem alloc] initWithUserFeedback:userFeedback];
-    SentryEnvelopeHeader *envelopeHeader =
-        [[SentryEnvelopeHeader alloc] initWithId:userFeedback.eventId traceContext:nil];
-    SentryEnvelope *envelope = [[SentryEnvelope alloc] initWithHeader:envelopeHeader
-                                                           singleItem:item];
-    [self sendEnvelope:envelope];
-}
-#    pragma clang diagnostic pop
-#endif // !SDK_V9
-
 - (void)sendEnvelope:(SentryEnvelope *)envelope
 {
     for (id<SentryTransport> transport in self.transports) {

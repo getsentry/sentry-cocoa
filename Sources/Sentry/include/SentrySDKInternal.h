@@ -19,7 +19,6 @@
 @class SentryScope;
 @class SentryTransactionContext;
 @class SentryUser;
-@class SentryUserFeedback;
 @class SentryAttachment;
 @class SentryLogger;
 @class UIView;
@@ -262,19 +261,6 @@ SENTRY_NO_INIT
 + (SentryIdWrapper *)captureMessage:(NSString *)message
                      withScopeBlock:(void (^)(SentryScope *scope))block
     NS_SWIFT_NAME(capture(message:block:));
-
-#if !SDK_V9
-/**
- * Captures user feedback that was manually gathered and sends it to Sentry.
- * @param userFeedback The user feedback to send to Sentry.
- * @deprecated Use @c SentrySDK.captureFeedback or use or configure our new managed UX with
- * @c SentryOptions.configureUserFeedback .
- */
-+ (void)captureUserFeedback:(SentryUserFeedback *)userFeedback
-    NS_SWIFT_NAME(capture(userFeedback:)) DEPRECATED_MSG_ATTRIBUTE(
-        "Use SentrySDK.captureFeedback or use or configure our new managed UX with "
-        "SentryOptions.configureUserFeedback.");
-#endif // !SDK_V9
 
 + (void)captureSerializedFeedback:(NSDictionary *)serializedFeedback
                       withEventId:(NSString *)feedbackEventId

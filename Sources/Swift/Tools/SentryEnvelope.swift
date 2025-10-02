@@ -40,14 +40,6 @@
         self.init(header: SentryEnvelopeHeader(id: headerId.sentryId), singleItem: item)
     }
     
-    #if !SDK_V9
-    @available(*, deprecated, message: "Building the envelopes for the new SentryFeedback type is done directly in -[SentryClient captureFeedback:withScope:].")
-    convenience init(userFeedback: UserFeedback) {
-        let item = SentryEnvelopeItem(userFeedback: userFeedback)
-        self.init(header: SentryEnvelopeHeader(id: userFeedback.eventId), singleItem: item)
-    }
-    #endif // !SDK_V9
-    
     @objc public let header: SentryEnvelopeHeader
     @objc public let items: [SentryEnvelopeItem]
 }

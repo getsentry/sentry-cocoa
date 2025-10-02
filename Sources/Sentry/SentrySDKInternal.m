@@ -468,13 +468,6 @@ static NSDate *_Nullable startTimestamp = nil;
     [SentrySDKInternal.currentHub storeEnvelope:envelope];
 }
 
-#if !SDK_V9
-+ (void)captureUserFeedback:(SentryUserFeedback *)userFeedback
-{
-    [SentrySDKInternal.currentHub captureUserFeedback:userFeedback];
-}
-#endif // !SDK_V9
-
 + (void)captureSerializedFeedback:(NSDictionary *)serializedFeedback
                       withEventId:(NSString *)feedbackEventId
                       attachments:(NSArray<SentryAttachment *> *)feedbackAttachments
