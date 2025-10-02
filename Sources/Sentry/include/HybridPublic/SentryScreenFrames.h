@@ -4,7 +4,7 @@
 #    import "PrivatesHeader.h"
 #endif
 
-#if SENTRY_UIKIT_AVAILABLE
+#if SENTRY_HAS_UIKIT
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -13,10 +13,6 @@ NS_ASSUME_NONNULL_BEGIN
 typedef NSArray<NSDictionary<NSString *, NSNumber *> *> SentryFrameInfoTimeSeries;
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
-/**
- * @warning This feature is not available in @c DebugWithoutUIKit and @c ReleaseWithoutUIKit
- * configurations even when targeting iOS or tvOS platforms.
- */
 @interface SentryScreenFrames : NSObject
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
                                 <NSCopying>
@@ -63,4 +59,4 @@ SENTRY_NO_INIT
 
 NS_ASSUME_NONNULL_END
 
-#endif // SENTRY_UIKIT_AVAILABLE
+#endif // SENTRY_HAS_UIKIT
