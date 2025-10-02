@@ -834,11 +834,6 @@
     [self testBooleanField:@"enableAutoPerformanceTracing"];
 }
 
-- (void)testEnablePerformanceV2
-{
-    [self testBooleanField:@"enablePerformanceV2" defaultValue:NO];
-}
-
 - (void)testEnablePersistingTracesWhenCrashing
 {
     [self testBooleanField:@"enablePersistingTracesWhenCrashing" defaultValue:NO];

@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+### Breaking Changes
+
+Removes deprecated user feedback API, this is replaced with the new feedback API (#5591)
+Removes `enablePerformanceV2` option and makes this the default. The app start duration will now finish when the first frame is drawn instead of when the OS posts the UIWindowDidBecomeVisibleNotification. (#6008)
+
 ### Features
 
 - Add SentryDistribution as Swift Package Manager target (#6149)
