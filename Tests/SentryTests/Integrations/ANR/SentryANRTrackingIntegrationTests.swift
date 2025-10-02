@@ -81,7 +81,6 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
     func test_enableAppHangTrackingV2_UsesV2Tracker() {
         let options = Options()
         options.enableAppHangTracking = true
-        options.enableAppHangTrackingV2 = true
         
         sut = SentryANRTrackingIntegration()
         let result = sut.install(with: options)
@@ -748,11 +747,6 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         self.crashWrapper.internalIsBeingTraced = isBeingTraced
         self.crashWrapper.internalCrashedLastLaunch = crashedLastLaunch
         sut = SentryANRTrackingIntegration()
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-        if enableV2 {
-            self.options.enableAppHangTrackingV2 = true
-        }
-#endif //  os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
         sut.install(with: self.options)
     }
     

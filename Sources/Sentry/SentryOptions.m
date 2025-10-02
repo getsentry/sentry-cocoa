@@ -111,9 +111,6 @@ NSString *const kSentryDefaultEnvironment = @"production";
         self.enableUserInteractionTracing = YES;
         self.idleTimeout = SentryTracerDefaultTimeout;
         self.enablePreWarmedAppStartTracing = NO;
-#    if !SDK_V9
-        self.enableAppHangTrackingV2 = NO;
-#    endif // !SDK_V9
         self.enableReportNonFullyBlockingAppHangs = YES;
 #endif // SENTRY_HAS_UIKIT
 
@@ -501,12 +498,7 @@ sentry_isValidSampleRate(NSNumber *sampleRate)
 #if SENTRY_HAS_UIKIT
 - (BOOL)isAppHangTrackingV2Disabled
 {
-#    if SDK_V9
-    BOOL isV2Enabled = self.enableAppHangTracking;
-#    else
-    BOOL isV2Enabled = self.enableAppHangTrackingV2;
-#    endif // SDK_V9
-    return !isV2Enabled || self.appHangTimeoutInterval <= 0;
+    return !self.enableAppHangTracking || self.appHangTimeoutInterval <= 0;
 }
 #endif // SENTRY_HAS_UIKIT
 

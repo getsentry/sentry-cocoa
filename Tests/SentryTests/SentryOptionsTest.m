@@ -938,11 +938,6 @@
 
 #if SENTRY_UIKIT_AVAILABLE
 
-- (void)testEnableAppHangTrackingV2
-{
-    [self testBooleanField:@"enableAppHangTrackingV2" defaultValue:NO];
-}
-
 - (void)testEnableReportNonFullyBlockingAppHangs
 {
     [self testBooleanField:@"enableReportNonFullyBlockingAppHangs" defaultValue:YES];
@@ -1531,32 +1526,17 @@
 }
 
 #if SENTRY_HAS_UIKIT
-- (void)testIsAppHangTrackingV2Disabled_WhenBothOptionsDisabled
+- (void)testIsAppHangTrackingV2Disabled_WhenOptionDisabled
 {
-    SentryOptions *options = [self
-        getValidOptions:@{ @"enableAppHangTrackingV2" : @NO, @"appHangTimeoutInterval" : @0 }];
-    XCTAssertTrue(options.isAppHangTrackingV2Disabled);
-}
-
-- (void)testIsAppHangTrackingV2Disabled_WhenOnlyEnableAppHangTrackingV2Disabled
-{
-    SentryOptions *options = [self
-        getValidOptions:@{ @"enableAppHangTrackingV2" : @NO, @"appHangTimeoutInterval" : @2.0 }];
+    SentryOptions *options = [self getValidOptions:@{ @"appHangTimeoutInterval" : @0 }];
     XCTAssertTrue(options.isAppHangTrackingV2Disabled);
 }
 
 - (void)testIsAppHangTrackingV2Disabled_WhenOnlyAppHangTimeoutIntervalZero
 {
-    SentryOptions *options = [self
-        getValidOptions:@{ @"enableAppHangTrackingV2" : @YES, @"appHangTimeoutInterval" : @0 }];
+    SentryOptions *options =
+        [self getValidOptions:@{ @"enableAppHangTracking" : @YES, @"appHangTimeoutInterval" : @0 }];
     XCTAssertTrue(options.isAppHangTrackingV2Disabled);
-}
-
-- (void)testIsAppHangTrackingV2Disabled_WhenBothOptionsEnabled
-{
-    SentryOptions *options = [self
-        getValidOptions:@{ @"enableAppHangTrackingV2" : @YES, @"appHangTimeoutInterval" : @2.0 }];
-    XCTAssertFalse(options.isAppHangTrackingV2Disabled);
 }
 #endif // SENTRY_HAS_UIKIT
 
