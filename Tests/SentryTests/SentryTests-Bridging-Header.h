@@ -185,6 +185,7 @@
 #import "SentryTime.h"
 #import "SentryTimeToDisplayTracker.h"
 #import "SentryTraceOrigin.h"
+#import "SentryTracePropagation.h"
 #import "SentryTracer+Private.h"
 #import "SentryTracer+Test.h"
 #import "SentryTracerConfiguration.h"
