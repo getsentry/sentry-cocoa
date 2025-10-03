@@ -7,6 +7,3 @@ CODE_SIGN_ENTITLEMENTS = watchOS-Swift WatchKit App/watchOS-Swift-App.entitlemen
 SUPPORTED_PLATFORMS = watchos watchsimulator
 SDKROOT = watchos
 TARGETED_DEVICE_FAMILY = 4
-
-// WKWatchOnly in the WatchKit app extension's Info.plist is only valid for apps with a MinimumOSVersion of watchOS 6.0 and later.
-WATCHOS_DEPLOYMENT_TARGET = 6.0

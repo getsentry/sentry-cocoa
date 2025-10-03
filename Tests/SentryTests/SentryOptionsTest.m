@@ -530,7 +530,7 @@
 
     NSNumber *sampleRateTooLow = @-0.01;
     options.sampleRate = sampleRateTooLow;
-    XCTAssertEqual(@1, options.sampleRate);
+    XCTAssertEqual((@1).floatValue, options.sampleRate.floatValue);
 }
 
 - (void)testSampleRateUpperBound
@@ -546,14 +546,14 @@
 
     NSNumber *tooHigh = @1.01;
     options.sampleRate = tooHigh;
-    XCTAssertEqual(@1, options.sampleRate);
+    XCTAssertEqual((@1).floatValue, options.sampleRate.floatValue);
 }
 
 - (void)testSampleRateNotSet
 {
     SentryOptions *options = [self getValidOptions:@{}];
 
-    XCTAssertEqual(@1, options.sampleRate);
+    XCTAssertEqual((@1).floatValue, options.sampleRate.floatValue);
 }
 
 - (void)testEnableAutoSessionTracking
@@ -682,7 +682,7 @@
     XCTAssertTrue([[SentryOptions defaultIntegrations] isEqualToArray:options.integrations],
         @"Default integrations are not set correctly");
 #pragma clang diagnostic pop
-    XCTAssertEqual(@1, options.sampleRate);
+    XCTAssertEqual(1.0, options.sampleRate.floatValue);
     XCTAssertEqual(YES, options.enableAutoSessionTracking);
     XCTAssertEqual(YES, options.enableWatchdogTerminationTracking);
     XCTAssertEqual([@30000 unsignedIntValue], options.sessionTrackingIntervalMillis);

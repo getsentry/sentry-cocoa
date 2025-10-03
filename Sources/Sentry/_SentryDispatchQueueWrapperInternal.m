@@ -36,16 +36,7 @@ NS_ASSUME_NONNULL_BEGIN
     return self;
 }
 
-- (void)dispatchAsyncWithBlock:(void (^)(void))block
-{
-    dispatch_async(_queue, ^{
-        @autoreleasepool {
-            block();
-        }
-    });
-}
-
-- (void)dispatchAsyncOnMainQueue:(void (^)(void))block
+- (void)dispatchAsyncOnMainQueueIfNotMainThread:(void (^)(void))block
 {
     if ([NSThread isMainThread]) {
         block();
@@ -56,6 +47,15 @@ NS_ASSUME_NONNULL_BEGIN
             }
         });
     }
+}
+
+- (void)dispatchAsyncWithBlock:(void (^)(void))block
+{
+    dispatch_async(_queue, ^{
+        @autoreleasepool {
+            block();
+        }
+    });
 }
 
 - (void)dispatchSync:(void (^)(void))block

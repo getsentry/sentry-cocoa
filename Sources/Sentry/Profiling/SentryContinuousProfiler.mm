@@ -9,6 +9,7 @@
 #    import "SentryProfiler+Private.h"
 #    import "SentryProfilerSerialization.h"
 #    import "SentryProfilerState.h"
+#    import "SentryProfilingScreenFramesHelper.h"
 #    import "SentryProfilingSwiftHelpers.h"
 #    import "SentrySDK+Private.h"
 #    import "SentrySample.h"
@@ -16,7 +17,6 @@
 
 #    if SENTRY_HAS_UIKIT
 #        import "SentryFramesTracker.h"
-#        import "SentryScreenFrames.h"
 #        import <UIKit/UIKit.h>
 #    endif // SENTRY_HAS_UIKIT
 
@@ -72,7 +72,8 @@ _sentry_threadUnsafe_transmitChunkEnvelope(void)
 
 #    if SENTRY_HAS_UIKIT
     const auto framesTracker = SentryDependencyContainer.sharedInstance.framesTracker;
-    SentryScreenFrames *screenFrameData = [framesTracker.currentFrames copy];
+    SentryScreenFrames *screenFrameData =
+        [SentryProfilingScreenFramesHelper copyScreenFrames:framesTracker.currentFrames];
     [framesTracker resetProfilingTimestamps];
 #    endif // SENTRY_HAS_UIKIT
 
@@ -196,17 +197,19 @@ _sentry_unsafe_stopTimerAndCleanup()
  */
 + (void)scheduleTimer
 {
-    sentry_dispatchAsyncOnMain(SentryDependencyContainer.sharedInstance.dispatchQueueWrapper, ^{
-        std::lock_guard<std::mutex> l(_threadUnsafe_gContinuousProfilerLock);
-        if (_chunkTimer != nil) {
-            SENTRY_LOG_WARN(@"There was already a timer in flight, but this codepath shouldn't be "
-                            @"taken if there is no profiler running.");
-            return;
-        }
+    sentry_dispatchAsyncOnMainIfNotMainThread(
+        SentryDependencyContainer.sharedInstance.dispatchQueueWrapper, ^{
+            std::lock_guard<std::mutex> l(_threadUnsafe_gContinuousProfilerLock);
+            if (_chunkTimer != nil) {
+                SENTRY_LOG_WARN(
+                    @"There was already a timer in flight, but this codepath shouldn't be "
+                    @"taken if there is no profiler running.");
+                return;
+            }
 
-        _chunkTimer = sentry_scheduledTimerWithTarget(
-            kSentryProfilerChunkExpirationInterval, self, @selector(timerExpired), nil, YES);
-    });
+            _chunkTimer = sentry_scheduledTimerWithTarget(
+                kSentryProfilerChunkExpirationInterval, self, @selector(timerExpired), nil, YES);
+        });
 }
 
 + (void)timerExpired

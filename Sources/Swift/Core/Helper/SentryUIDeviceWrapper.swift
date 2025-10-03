@@ -33,7 +33,7 @@ import UIKit
     }
 
     @objc public func start() {
-        queueWrapper.dispatchAsyncOnMainQueue { [weak self] in
+        queueWrapper.dispatchAsyncOnMainQueueIfNotMainThread { [weak self] in
             guard let self else { return }
 #if os(iOS)
             if !UIDevice.current.isGeneratingDeviceOrientationNotifications {
@@ -57,7 +57,7 @@ import UIKit
         let needsCleanup = self.cleanupDeviceOrientationNotifications
         let needsDisablingBattery = self.cleanupBatteryMonitoring
         let device = UIDevice.current
-        queueWrapper.dispatchAsyncOnMainQueue {
+        queueWrapper.dispatchAsyncOnMainQueueIfNotMainThread {
             if needsCleanup {
                 device.endGeneratingDeviceOrientationNotifications()
             }

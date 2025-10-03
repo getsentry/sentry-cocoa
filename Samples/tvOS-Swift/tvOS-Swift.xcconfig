@@ -6,4 +6,3 @@ CODE_SIGN_ENTITLEMENTS = tvOS-Swift/tvOS-Swift.entitlements
 
 SUPPORTED_PLATFORMS = appletvos appletvsimulator
 TARGETED_DEVICE_FAMILY = 3
-TVOS_DEPLOYMENT_TARGET = 13.0 // UIHostingController is only available on tvOS 13 or later

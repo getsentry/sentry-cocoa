@@ -12,7 +12,6 @@
 #    import "SentrySwift.h"
 #    import "SentryTime.h"
 #    import "SentryTracer.h"
-#    import <SentryScreenFrames.h>
 #    include <stdatomic.h>
 
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
@@ -114,7 +113,7 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
     // The DisplayLink callback always runs on the main thread. We dispatch this to the main thread
     // instead to avoid using locks in the DisplayLink callback.
     [self.dispatchQueueWrapper
-        dispatchAsyncOnMainQueue:^{ [self resetProfilingTimestampsInternal]; }];
+        dispatchAsyncOnMainQueueIfNotMainThread:^{ [self resetProfilingTimestampsInternal]; }];
 }
 
 - (void)resetProfilingTimestampsInternal
@@ -307,14 +306,15 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
 - (void)addListener:(id<SentryFramesTrackerListener>)listener
 {
     // Adding listeners on the main thread to avoid race condition with new frame callback
-    [self.dispatchQueueWrapper dispatchAsyncOnMainQueue:^{ [self.listeners addObject:listener]; }];
+    [self.dispatchQueueWrapper
+        dispatchAsyncOnMainQueueIfNotMainThread:^{ [self.listeners addObject:listener]; }];
 }
 
 - (void)removeListener:(id<SentryFramesTrackerListener>)listener
 {
     // Removing listeners on the main thread to avoid race condition with new frame callback
     [self.dispatchQueueWrapper
-        dispatchAsyncOnMainQueue:^{ [self.listeners removeObject:listener]; }];
+        dispatchAsyncOnMainQueueIfNotMainThread:^{ [self.listeners removeObject:listener]; }];
 }
 
 - (void)pause
