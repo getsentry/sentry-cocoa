@@ -75,15 +75,8 @@ NS_ASSUME_NONNULL_BEGIN
 
     [self.tracker start];
 
-#    if SDK_V9
-    BOOL isV2Enabled = YES;
-#    else
-    BOOL isV2Enabled = options.enableAppHangTrackingV2;
-#    endif // SDK_V9
-
     self.anrTracker =
-        [SentryDependencyContainer.sharedInstance getANRTracker:options.appHangTimeoutInterval
-                                                    isV2Enabled:isV2Enabled];
+        [SentryDependencyContainer.sharedInstance getANRTracker:options.appHangTimeoutInterval];
     [self.anrTracker addListener:self];
 
     self.appStateManager = appStateManager;

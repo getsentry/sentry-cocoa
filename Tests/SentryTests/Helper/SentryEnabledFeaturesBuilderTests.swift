@@ -36,10 +36,6 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
 #endif // canImport(UIKit)
 #endif // os(iOS) || os(tvOS)
 
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-        options.enableAppHangTrackingV2 = true
-#endif //os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-
         // -- Act --
         let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
 

@@ -20,42 +20,13 @@ final class SentryDependencyContainerTests: XCTestCase {
     }
 
     func testGetANRTrackerV2() {
-        let instance = SentryDependencyContainer.sharedInstance().getANRTracker(2.0, isV2Enabled: true)
+        let instance = SentryDependencyContainer.sharedInstance().getANRTracker(2.0)
         XCTAssertTrue(instance is SentryANRTrackerV2)
 
         SentryDependencyContainer.reset()
 
     }
-
-    func testGetANRTrackerV1() {
-        let instance = SentryDependencyContainer.sharedInstance().getANRTracker(2.0, isV2Enabled: false)
-        XCTAssertTrue(instance is SentryANRTrackerV1)
-
-        SentryDependencyContainer.reset()
-    }
-
-    func testGetANRTrackerV2AndThenV1_FirstCalledVersionStaysTheSame() {
-        let instance1 = SentryDependencyContainer.sharedInstance().getANRTracker(2.0, isV2Enabled: true)
-        XCTAssertTrue(instance1 is SentryANRTrackerV2)
-
-        let instance2 = SentryDependencyContainer.sharedInstance().getANRTracker(2.0, isV2Enabled: false)
-        XCTAssertTrue(instance2 is SentryANRTrackerV2)
-
-        SentryDependencyContainer.reset()
-    }
-
-    func testGetANRTrackerV1AndThenV2_FirstCalledVersionStaysTheSame() {
-        let instance1 = SentryDependencyContainer.sharedInstance().getANRTracker(2.0, isV2Enabled: false)
-        XCTAssertTrue(instance1 is SentryANRTrackerV1)
-
-        let instance2 = SentryDependencyContainer.sharedInstance().getANRTracker(2.0, isV2Enabled: true)
-        XCTAssertTrue(instance2 is SentryANRTrackerV1)
-
-        SentryDependencyContainer.reset()
-    }
-
-#endif
-
+#else
     func testGetANRTracker_ReturnsV1() {
 
         let instance = SentryDependencyContainer.sharedInstance().getANRTracker(2.0)
@@ -63,6 +34,7 @@ final class SentryDependencyContainerTests: XCTestCase {
 
         SentryDependencyContainer.reset()
     }
+#endif
 
     /**
      * This test helps to find threading issues. If you run it once it detects obvious threading issues. Some rare edge cases
@@ -121,7 +93,7 @@ final class SentryDependencyContainerTests: XCTestCase {
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().getANRTracker(2.0))
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-                    XCTAssertNotNil(SentryDependencyContainer.sharedInstance().getANRTracker(2.0, isV2Enabled: true))
+                    XCTAssertNotNil(SentryDependencyContainer.sharedInstance().getANRTracker(2.0))
 #endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 
 #if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)

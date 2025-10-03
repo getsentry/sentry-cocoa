@@ -80,15 +80,7 @@ final class SentryContinuousProfilerTests: XCTestCase {
 
 #if !os(macOS)
 
-    func testStopsFramesTracker_WhenAutoPerformanceAndAppHangsV2Disabled() throws {
-        fixture.options.enableAutoPerformanceTracing = false
-        try performContinuousProfilingTest()
-
-        XCTAssertFalse(SentryDependencyContainer.sharedInstance().framesTracker.isRunning)
-    }
-
     func testDoesNotStopFramesTracker_WhenAppHangsV2Enabled() throws {
-        fixture.options.enableAppHangTrackingV2 = true
         try performContinuousProfilingTest()
 
         XCTAssertTrue(SentryDependencyContainer.sharedInstance().framesTracker.isRunning)

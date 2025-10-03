@@ -257,29 +257,21 @@ static BOOL isInitialializingDependencyContainer = NO;
 - (id<SentryANRTracker>)getANRTracker:(NSTimeInterval)timeout
     SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
+#if SENTRY_HAS_UIKIT
+    SENTRY_LAZY_INIT(_anrTracker,
+        [[[SentryANRTrackerV2 alloc] initWithTimeoutInterval:timeout
+                                                crashWrapper:self.crashWrapper
+                                        dispatchQueueWrapper:self.dispatchQueueWrapper
+                                               threadWrapper:self.threadWrapper
+                                               framesTracker:self.framesTracker] asProtocol]);
+#else
     SENTRY_LAZY_INIT(_anrTracker,
         [[[SentryANRTrackerV1 alloc] initWithTimeoutInterval:timeout
                                                 crashWrapper:self.crashWrapper
                                         dispatchQueueWrapper:self.dispatchQueueWrapper
                                                threadWrapper:self.threadWrapper] asProtocol]);
+#endif
 }
-
-#if SENTRY_HAS_UIKIT
-- (id<SentryANRTracker>)getANRTracker:(NSTimeInterval)timeout
-                          isV2Enabled:(BOOL)isV2Enabled SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
-{
-    if (isV2Enabled) {
-        SENTRY_LAZY_INIT(_anrTracker,
-            [[[SentryANRTrackerV2 alloc] initWithTimeoutInterval:timeout
-                                                    crashWrapper:self.crashWrapper
-                                            dispatchQueueWrapper:self.dispatchQueueWrapper
-                                                   threadWrapper:self.threadWrapper
-                                                   framesTracker:self.framesTracker] asProtocol]);
-    } else {
-        return [self getANRTracker:timeout];
-    }
-}
-#endif // SENTRY_HAS_UIKIT
 
 #if SENTRY_TARGET_REPLAY_SUPPORTED
 - (nonnull SentryScreenshotSource *)screenshotSource SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
