@@ -124,6 +124,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
         self.enableAppHangTracking = YES;
         self.appHangTimeoutInterval = 2.0;
         self.enableAutoBreadcrumbTracking = YES;
+        self.enablePropagateTraceparent = NO;
         self.enableNetworkTracking = YES;
         self.enableFileIOTracing = YES;
         self.enableNetworkBreadcrumbs = YES;

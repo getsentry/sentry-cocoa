@@ -5,6 +5,7 @@
 ### Features
 
 - Add SentryDistribution as Swift Package Manager target (#6149)
+- Add option `enablePropagateTraceparent` to support OTel/W3C trace propagation
 
 ## 8.56.2
 
