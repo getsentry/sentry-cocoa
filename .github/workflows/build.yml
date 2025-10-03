@@ -76,8 +76,6 @@ jobs:
         include:
           - scheme: macOS-Swift
             config: Debug
-          - scheme: iOS13-Swift
-            config: Debug
           - scheme: watchOS-Swift WatchKit App
             config: Debug
           - scheme: macOS-SwiftUI

@@ -17,9 +17,3 @@ Removes `integrations` property from `SentryOptions` (#5749)
 Makes `SentryEventDecodable` internal (#5808)
 The `span` property on `SentryScope` is now readonly (#5866)
 Removes `enablePerformanceV2` option and makes this the default (#6008)
-
-### Fixes
-
-Fixes warnings about minimum OS version being lower than Xcode supported version (#5591)
-
-### Improvements

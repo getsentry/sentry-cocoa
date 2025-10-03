@@ -55,7 +55,7 @@ jobs:
         with:
           repository: getsentry/sentry-react-native
           path: sentry-react-native
-          ref: itay/fix_sentreyscreenframes
+          ref: updateVersion
 
       - name: Enable Corepack
         working-directory: sentry-react-native
