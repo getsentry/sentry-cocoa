@@ -256,14 +256,6 @@ private extension SentryAppStartProfilingConfigurationTests {
     ]
 
     static let validConfigurations = [
-        // the only transaction profiling configuration that will profile a launch
-        LaunchProfileOptions(enableAppLaunchProfiling: true, tracesSampleRate: 1, profilesSampleRate: 1),
-
-        // continuous profiling v1 configurations
-        LaunchProfileOptions(enableAppLaunchProfiling: true, tracesSampleRate: 0, profilesSampleRate: nil),
-        LaunchProfileOptions(enableAppLaunchProfiling: true, tracesSampleRate: 1, profilesSampleRate: nil),
-        LaunchProfileOptions(enableAppLaunchProfiling: true, tracesSampleRate: nil, profilesSampleRate: nil),
-
         //
         // configurations with continuous profiling v2 options set that are not short circuited to either transaction profiling or continuous v1
         //
