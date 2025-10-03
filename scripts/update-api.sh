@@ -24,7 +24,7 @@ done
 
 xcrun --sdk iphoneos swift-api-digester \
     -dump-sdk \
-    -o sdk_api_v9.json \
+    -o sdk_api.json \
     -abort-on-module-fail \
     -avoid-tool-args \
     -avoid-location \
