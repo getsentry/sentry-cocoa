@@ -1,7 +1,7 @@
 #import "SentryCrashSysCtl.h"
 #import "SentryDependencyContainer.h"
 #import "SentryNotificationNames.h"
-#import <SentryAppStateManager.h>
+#import <SentryDefaultAppStateManager.h>
 #import <SentryOptions.h>
 #import <SentrySwift.h>
 
@@ -10,7 +10,7 @@
 #    import <UIKit/UIKit.h>
 #endif
 
-@interface SentryAppStateManager ()
+@interface SentryDefaultAppStateManager ()
 
 @property (nonatomic, strong) SentryOptions *options;
 @property (nonatomic, strong) SentryCrashWrapper *crashWrapper;
@@ -21,7 +21,7 @@
 
 @end
 
-@implementation SentryAppStateManager
+@implementation SentryDefaultAppStateManager
 
 - (instancetype)initWithOptions:(SentryOptions *)options
                    crashWrapper:(SentryCrashWrapper *)crashWrapper

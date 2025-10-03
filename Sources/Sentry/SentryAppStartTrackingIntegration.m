@@ -7,7 +7,6 @@
 #    import "SentryOptions.h"
 #    import "SentrySwift.h"
 #    import <PrivateSentrySDKOnly.h>
-#    import <SentryAppStateManager.h>
 #    import <SentryDependencyContainer.h>
 
 @interface SentryAppStartTrackingIntegration ()
@@ -25,7 +24,7 @@
         return NO;
     }
 
-    SentryAppStateManager *appStateManager =
+    id<SentryAppStateManager> appStateManager =
         [SentryDependencyContainer sharedInstance].appStateManager;
 
 #    if SDK_V9

@@ -323,15 +323,6 @@ class TestData {
         return scope
     }
     
-    @available(*, deprecated, message: "SentryUserFeedback is deprecated in favor of SentryFeedback.")
-    static var userFeedback: UserFeedback {
-        let userFeedback = UserFeedback(eventId: SentryId())
-        userFeedback.comments = "It doesn't really"
-        userFeedback.email = "john@me.com"
-        userFeedback.name = "John Me"
-        return userFeedback
-    }
-    
     static var feedback = SentryFeedback(message: "It doesn't really", name: "John Me", email: "john@me.com", associatedEventId: SentryId())
     
     static func setContext(_ scope: Scope) {

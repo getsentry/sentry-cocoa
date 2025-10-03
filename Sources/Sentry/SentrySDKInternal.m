@@ -2,7 +2,6 @@
 #import "PrivateSentrySDKOnly.h"
 #import "SentryANRTrackingIntegration.h"
 #import "SentryAppStartMeasurement.h"
-#import "SentryAppStateManager.h"
 #import "SentryBreadcrumb.h"
 #import "SentryClient+Private.h"
 #import "SentryCrash.h"
@@ -468,13 +467,6 @@ static NSDate *_Nullable startTimestamp = nil;
 {
     [SentrySDKInternal.currentHub storeEnvelope:envelope];
 }
-
-#if !SDK_V9
-+ (void)captureUserFeedback:(SentryUserFeedback *)userFeedback
-{
-    [SentrySDKInternal.currentHub captureUserFeedback:userFeedback];
-}
-#endif // !SDK_V9
 
 + (void)captureSerializedFeedback:(NSDictionary *)serializedFeedback
                       withEventId:(NSString *)feedbackEventId

@@ -1,6 +1,6 @@
 #import "SentryDefines.h"
 
-@class SentryAppStateManager;
+@protocol SentryAppStateManager;
 @class SentryDispatchQueueWrapper;
 @class SentryFileManager;
 @class SentryOptions;
@@ -25,7 +25,7 @@ SENTRY_NO_INIT
 
 - (instancetype)initWithOptions:(SentryOptions *)options
        watchdogTerminationLogic:(SentryWatchdogTerminationLogic *)watchdogTerminationLogic
-                appStateManager:(SentryAppStateManager *)appStateManager
+                appStateManager:(id<SentryAppStateManager>)appStateManager
            dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
                     fileManager:(SentryFileManager *)fileManager
            scopePersistentStore:(SentryScopePersistentStore *)scopeStore;

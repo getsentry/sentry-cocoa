@@ -135,7 +135,7 @@ class SentryAppStartTrackingIntegrationTests: NotificationCenterTestCase {
 
         let appStateManager = Dynamic(tracker).appStateManager.asObject as? SentryAppStateManager
 
-        XCTAssertEqual(appStateManager, SentryDependencyContainer.sharedInstance().appStateManager)
+        XCTAssertIdentical(appStateManager, SentryDependencyContainer.sharedInstance().appStateManager)
 
         XCTAssertTrue(tracker.isRunning, "AppStartTracking should be running")
     }
