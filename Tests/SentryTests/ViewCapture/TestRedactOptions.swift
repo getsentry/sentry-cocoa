@@ -4,10 +4,15 @@ class TestRedactOptions: SentryRedactOptions {
     var maskAllText: Bool
     var maskAllImages: Bool
 
-    init(maskAllText: Bool = true, maskAllImages: Bool = true) {
+    init(
+        maskAllText: Bool = true,
+        maskAllImages: Bool = true,
+        maskedViewClasses: [AnyClass] = [],
+        unmaskedViewClasses: [AnyClass] = []
+    ) {
         self.maskAllText = maskAllText
         self.maskAllImages = maskAllImages
-        maskedViewClasses = []
-        unmaskedViewClasses = []
+        self.maskedViewClasses = maskedViewClasses
+        self.unmaskedViewClasses = maskedViewClasses
     }
 }

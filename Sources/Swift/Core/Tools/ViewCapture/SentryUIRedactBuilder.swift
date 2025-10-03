@@ -110,6 +110,12 @@ final class SentryUIRedactBuilder {
             // The following classes are used by React Native to display text.
             // We are including them here to avoid leaking text from RN apps with manually initialized sentry-cocoa.
 
+            // Used by React Native to render short text
+            redactClasses.insert(ExtendedClassIdentifier(classId: "RCTTextView"))
+
+            // Used by React Native to render long text
+            redactClasses.insert(ExtendedClassIdentifier(classId: "RCTParagraphComponentView"))
+
             // Used by SwiftUI to render text without UIKit, e.g. `Text("Hello World")`.
             // We include the class name without a layer filter because it is specifically
             // used to draw text glyphs in this context.
@@ -118,11 +124,6 @@ final class SentryUIRedactBuilder {
             // Used to render SwiftUI.Text on iOS versions prior to iOS 18
             redactClasses.insert(ExtendedClassIdentifier(classId: "_TtCOCV7SwiftUI11DisplayList11ViewUpdater8Platform13CGDrawingView"))
 
-            // Used by React Native to render short text
-            redactClasses.insert(ExtendedClassIdentifier(classId: "RCTTextView"))
-
-            // Used by React Native to render long text
-            redactClasses.insert(ExtendedClassIdentifier(classId: "RCTParagraphComponentView"))
         }
         
         if options.maskAllImages {
