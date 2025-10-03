@@ -1,6 +1,3 @@
-#if !TARGET_OS_WATCH
-#    import "SentryReachability.h"
-#endif // !TARGET_OS_WATCH
 
 #if SENTRY_HAS_METRIC_KIT
 #    import "SentryMetricKitIntegration.h"
@@ -154,7 +151,6 @@
 #import "SentryProfilingConditionals.h"
 #import "SentryPropagationContext.h"
 #import "SentryQueueableRequestManager.h"
-#import "SentryReachability.h"
 #import "SentrySDK+Private.h"
 #import "SentrySDKInternal+Tests.h"
 #import "SentrySampleDecision+Private.h"
