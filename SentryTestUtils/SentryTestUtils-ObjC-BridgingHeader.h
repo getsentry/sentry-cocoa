@@ -8,7 +8,6 @@
 
 #if SENTRY_HAS_UIKIT
 #    import "SentryAppStartTracker.h"
-#    import "SentryDisplayLinkWrapper.h"
 #    import "SentryFramesTracker+TestInit.h"
 #    import "SentryUIViewControllerPerformanceTracker.h"
 #endif // SENTRY_HAS_UIKIT
@@ -31,14 +30,11 @@
 #import "SentryCrashCachedData.h"
 #import "SentryCrashInstallation+Private.h"
 #import "SentryCrashMonitor_MachException.h"
-#import "SentryCrashWrapper.h"
 #import "SentryDebugImageProvider+HybridSDKs.h"
+#import "SentryDefaultThreadInspector.h"
 #import "SentryDependencyContainer.h"
-#import "SentryDispatchFactory.h"
-#import "SentryDispatchSourceWrapper.h"
-#import "SentryEnvelope.h"
 #import "SentryFileManager+Test.h"
-#import "SentryGlobalEventProcessor.h"
+#import "SentryFileManagerHelper.h"
 #import "SentryHub+Private.h"
 #import "SentryHub+Test.h"
 #import "SentryLogC.h"
@@ -49,7 +45,6 @@
 #import "SentryScopeSyncC.h"
 #import "SentrySwizzleWrapper.h"
 #import "SentrySystemWrapper.h"
-#import "SentryThreadInspector.h"
 #import "SentryTraceContext.h"
 #import "SentryTracer+Test.h"
 #import "SentryTransaction.h"

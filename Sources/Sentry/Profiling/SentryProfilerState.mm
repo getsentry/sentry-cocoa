@@ -4,6 +4,7 @@
 #    import "SentryBacktrace.hpp"
 #    import "SentryDependencyContainer.h"
 #    import "SentryFormatter.h"
+#    import "SentryInternalDefines.h"
 #    import "SentryProfileTimeseries.h"
 #    import "SentryProfilingSwiftHelpers.h"
 #    import "SentrySample.h"
@@ -28,10 +29,15 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
                                  options:0
                                    error:nil];
     });
-    const auto symbolNSStr = [NSString stringWithUTF8String:symbol];
-    const auto match = [regex firstMatchInString:symbolNSStr
-                                         options:0
-                                           range:NSMakeRange(0, [symbolNSStr length])];
+    NSString *_Nullable const symbolNSStr = [NSString stringWithUTF8String:symbol];
+    if (symbolNSStr == nil) {
+        SENTRY_LOG_ERROR(@"Failed to convert backtrace symbol to NSString.");
+        return @"<unknown>";
+    }
+    NSTextCheckingResult *_Nullable match =
+        [regex firstMatchInString:SENTRY_UNWRAP_NULLABLE(NSString, symbolNSStr)
+                          options:0
+                            range:NSMakeRange(0, [symbolNSStr length])];
     if (match == nil) {
         return symbolNSStr;
     }
@@ -144,7 +150,7 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
                 state.frameIndexLookup[instructionAddress] = newFrameIndex;
                 [state.frames addObject:frame];
             } else {
-                [stack addObject:frameIndex];
+                [stack addObject:SENTRY_UNWRAP_NULLABLE(NSNumber, frameIndex)];
             }
         }
 #    if defined(DEBUG)
@@ -157,9 +163,9 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
         sample.threadID = backtrace.threadMetadata.threadID;
 
         const auto stackKey = [stack componentsJoinedByString:@"|"];
-        const auto stackIndex = state.stackIndexLookup[stackKey];
+        NSNumber *_Nullable stackIndex = state.stackIndexLookup[stackKey];
         if (stackIndex) {
-            sample.stackIndex = stackIndex;
+            sample.stackIndex = SENTRY_UNWRAP_NULLABLE(NSNumber, stackIndex);
         } else {
             const auto nextStackIndex = @(state.stacks.count);
             sample.stackIndex = nextStackIndex;

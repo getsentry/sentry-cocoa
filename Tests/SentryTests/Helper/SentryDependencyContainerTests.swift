@@ -325,11 +325,6 @@ final class SentryDependencyContainerTests: XCTestCase {
         SentrySDKInternal.setStart(with: options)
         
         let container = SentryDependencyContainer.sharedInstance()
-        #if canImport(UIKit)
-        container.application = TestSentryUIApplication()
-        #else
-        container.application = TestSentryNSApplication()
-        #endif
 
         // -- Act --
         let tracker = container.getSessionTracker(with: options)
@@ -337,7 +332,7 @@ final class SentryDependencyContainerTests: XCTestCase {
         // -- Assert --
         // Verify that the tracker uses the dependencies from the container
 
-        XCTAssertIdentical(Dynamic(tracker).application.asAnyObject, container.application)
+        XCTAssertIdentical(Dynamic(tracker).application.asAnyObject, container.application())
         XCTAssertIdentical(Dynamic(tracker).dateProvider.asAnyObject, container.dateProvider)
         XCTAssertIdentical(Dynamic(tracker).notificationCenter.asAnyObject, container.notificationCenterWrapper)
     }

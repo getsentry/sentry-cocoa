@@ -7,8 +7,6 @@
 #    import "SentryOptions.h"
 #    import "SentrySwift.h"
 #    import <PrivateSentrySDKOnly.h>
-#    import <SentryAppStateManager.h>
-#    import <SentryCrashWrapper.h>
 #    import <SentryDependencyContainer.h>
 
 @interface SentryAppStartTrackingIntegration ()
@@ -26,15 +24,20 @@
         return NO;
     }
 
-    SentryAppStateManager *appStateManager =
+    id<SentryAppStateManager> appStateManager =
         [SentryDependencyContainer sharedInstance].appStateManager;
 
+#    if SDK_V9
+    BOOL usePerformanceV2 = YES;
+#    else
+    BOOL usePerformanceV2 = options.enablePerformanceV2;
+#    endif // SDK_V9
     self.tracker = [[SentryAppStartTracker alloc]
           initWithDispatchQueueWrapper:[[SentryDispatchQueueWrapper alloc] init]
                        appStateManager:appStateManager
                          framesTracker:SentryDependencyContainer.sharedInstance.framesTracker
         enablePreWarmedAppStartTracing:options.enablePreWarmedAppStartTracing
-                   enablePerformanceV2:options.enablePerformanceV2];
+                   enablePerformanceV2:usePerformanceV2];
     [self.tracker start];
 
     return YES;

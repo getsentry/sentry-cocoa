@@ -3,11 +3,9 @@
 #if SENTRY_HAS_UIKIT
 
 #    import "SentryAppStartMeasurement.h"
-#    import "SentryAppStateManager.h"
 #    import "SentryDefines.h"
 #    import "SentryFramesTracker.h"
 #    import "SentryLogC.h"
-#    import "SentrySysctl.h"
 #    import <PrivateSentrySDKOnly.h>
 #    import <SentryDependencyContainer.h>
 #    import <SentryInternalDefines.h>
@@ -30,7 +28,7 @@ static const NSTimeInterval SENTRY_APP_START_MAX_DURATION = 180.0;
 
 @property (nonatomic, strong, nullable) SentryAppState *previousAppState;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueue;
-@property (nonatomic, strong) SentryAppStateManager *appStateManager;
+@property (nonatomic, strong) id<SentryAppStateManager> appStateManager;
 @property (nonatomic, strong) SentryFramesTracker *framesTracker;
 @property (nonatomic, assign) BOOL wasInBackground;
 @property (nonatomic, strong) NSDate *didFinishLaunchingTimestamp;
@@ -54,7 +52,7 @@ static const NSTimeInterval SENTRY_APP_START_MAX_DURATION = 180.0;
 }
 
 - (instancetype)initWithDispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
-                             appStateManager:(SentryAppStateManager *)appStateManager
+                             appStateManager:(id<SentryAppStateManager>)appStateManager
                                framesTracker:(SentryFramesTracker *)framesTracker
               enablePreWarmedAppStartTracing:(BOOL)enablePreWarmedAppStartTracing
                          enablePerformanceV2:(BOOL)enablePerformanceV2

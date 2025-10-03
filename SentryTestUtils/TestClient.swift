@@ -4,20 +4,29 @@ import Foundation
 
 public class TestClient: SentryClient {
     public override init?(options: Options) {
-        super.init(options: options, fileManager: try! TestFileManager(options: options), deleteOldEnvelopeItems: false, transportAdapter: TestTransportAdapter(transports: [TestTransport()], options: options))
+        super.init(
+            options: options,
+            fileManager: try! TestFileManager(
+                options: options,
+                dateProvider: TestCurrentDateProvider(),
+                dispatchQueueWrapper: TestSentryDispatchQueueWrapper()
+            ),
+            deleteOldEnvelopeItems: false,
+            transportAdapter: TestTransportAdapter(transports: [TestTransport()], options: options)
+        )
     }
 
-    public override init?(options: Options, fileManager: SentryFileManager, deleteOldEnvelopeItems: Bool) {
+    @_spi(Private) public override init?(options: Options, fileManager: SentryFileManager, deleteOldEnvelopeItems: Bool) {
         super.init(options: options, fileManager: fileManager, deleteOldEnvelopeItems: deleteOldEnvelopeItems, transportAdapter: TestTransportAdapter(transports: [TestTransport()], options: options))
     }
     
-    public override init(options: Options, fileManager: SentryFileManager, deleteOldEnvelopeItems: Bool, transportAdapter: SentryTransportAdapter) {
+    @_spi(Private) public override init(options: Options, fileManager: SentryFileManager, deleteOldEnvelopeItems: Bool, transportAdapter: SentryTransportAdapter) {
         super.init(options: options, fileManager: fileManager, deleteOldEnvelopeItems: deleteOldEnvelopeItems, transportAdapter: transportAdapter)
     }
     
     // Without this override we get a fatal error: use of unimplemented initializer
     // see https://stackoverflow.com/questions/28187261/ios-swift-fatal-error-use-of-unimplemented-initializer-init
-    @_spi(Private) public override init(options: Options, transportAdapter: SentryTransportAdapter, fileManager: SentryFileManager, deleteOldEnvelopeItems: Bool, threadInspector: SentryThreadInspector, debugImageProvider: SentryDebugImageProvider, random: SentryRandomProtocol, locale: Locale, timezone: TimeZone) {
+    @_spi(Private) public override init(options: Options, transportAdapter: SentryTransportAdapter, fileManager: SentryFileManager, deleteOldEnvelopeItems: Bool, threadInspector: SentryDefaultThreadInspector, debugImageProvider: SentryDebugImageProvider, random: SentryRandomProtocol, locale: Locale, timezone: TimeZone) {
         super.init(
             options: options,
             transportAdapter: transportAdapter,
@@ -122,13 +131,6 @@ public class TestClient: SentryClient {
         saveCrashTransactionInvocations.record((transaction, scope))
     }
     
-    @available(*, deprecated, message: "-[SentryClient captureUserFeedback:] is deprecated. -[SentryClient captureFeedback:withScope:] is the new way. See captureFeedbackInvocations.")
-    public var captureUserFeedbackInvocations = Invocations<UserFeedback>()
-    @available(*, deprecated, message: "-[SentryClient captureUserFeedback:] is deprecated. -[SentryClient captureFeedback:withScope:] is the new way. See capture(feedback:scope:).")
-    public override func capture(userFeedback: UserFeedback) {
-        captureUserFeedbackInvocations.record(userFeedback)
-    }
-    
     public var captureFeedbackInvocations = Invocations<(SentryFeedback, Scope)>()
     public override func capture(feedback: SentryFeedback, scope: Scope) {
         captureFeedbackInvocations.record((feedback, scope))
@@ -139,13 +141,13 @@ public class TestClient: SentryClient {
         captureSerializedFeedbackInvocations.record((feedbackEventId, scope))
     }
     
-    public var captureEnvelopeInvocations = Invocations<SentryEnvelope>()
-    public override func capture(_ envelope: SentryEnvelope) {
+    @_spi(Private) public var captureEnvelopeInvocations = Invocations<SentryEnvelope>()
+    @_spi(Private) public override func capture(_ envelope: SentryEnvelope) {
         captureEnvelopeInvocations.record(envelope)
     }
     
-    public var storedEnvelopeInvocations = Invocations<SentryEnvelope>()
-    public override func store(_ envelope: SentryEnvelope) {
+    @_spi(Private) public var storedEnvelopeInvocations = Invocations<SentryEnvelope>()
+    @_spi(Private) public override func store(_ envelope: SentryEnvelope) {
         storedEnvelopeInvocations.record(envelope)
     }
     

@@ -1,4 +1,4 @@
-@testable import Sentry
+@_spi(Private) @testable import Sentry
 @_spi(Private) import SentryTestUtils
 import XCTest
 
@@ -44,6 +44,11 @@ class SentryRetryAfterHeaderParserTests: XCTestCase {
         let expected = currentDateProvider.date()
         let httpDateAsString = HttpDateFormatter.string(from: expected)
         testWith(header: httpDateAsString, expected: expected)
+    }
+    
+    func testMalformedWithText() {
+        let date = currentDateProvider.date().addingTimeInterval(10)
+        testWith(header: "10 Seconds", expected: date)
     }
     
     private func testWith(header: String?, expected: Date?) {

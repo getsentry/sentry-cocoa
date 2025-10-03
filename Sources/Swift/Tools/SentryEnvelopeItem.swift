@@ -28,7 +28,7 @@
      * Initializes an envelope item with an event.
      */
     @objc public convenience init(event: Event) {
-        var json = SentrySerialization.data(withJSONObject: event.serialize())
+        var json = SentrySerializationSwift.data(withJSONObject: event.serialize())
         if json == nil {
             // We don't know what caused the serialization to fail.
             let errorEvent = Event()
@@ -45,7 +45,7 @@
             
             // We accept the risk that this simple serialization fails. Therefore we ignore the
             // error on purpose.
-            json = SentrySerialization.data(withJSONObject: errorEvent.serialize())
+            json = SentrySerializationSwift.data(withJSONObject: errorEvent.serialize())
         }
             
             // event.type can be nil and the server infers error if there's a stack trace, otherwise
@@ -64,25 +64,6 @@
         let itemHeader = SentryEnvelopeItemHeader(type: SentryEnvelopeItemTypes.session, length: UInt(json?.count ?? 0))
         self.init(header: itemHeader, data: json)
     }
-    
-    #if !SDK_V9
-    /**
-     * @deprecated Building the envelopes for the new @c SentryFeedback type is done directly in @c
-     * -[SentryClient @c captureFeedback:withScope:]
-     */
-    @available(*, deprecated, message: "Building the envelopes for the new SentryFeedback type is done directly in -[SentryClient captureFeedback:withScope:] so there will be no analog to this initializer for SentryFeedback at this time.")
-    @objc public convenience init(userFeedback: UserFeedback) {
-        do {
-            let json = try JSONSerialization.data(withJSONObject: userFeedback.serialize(), options: [])
-            let itemHeader = SentryEnvelopeItemHeader(type: SentryEnvelopeItemTypes.userFeedback, length: UInt(json.count))
-            self.init(header: itemHeader, data: json)
-        } catch {
-            SentrySDKLog.error("Couldn't serialize user feedback.")
-            let itemHeader = SentryEnvelopeItemHeader(type: SentryEnvelopeItemTypes.userFeedback, length: 0)
-            self.init(header: itemHeader, data: Data())
-        }
-    }
-    #endif // !SDK_V9
     
     /**
      * Initializes an envelope item with an attachment.
@@ -171,7 +152,7 @@
      * Initializes an envelope item with replay event and recording data.
      */
     @objc public convenience init?(replayEvent: SentryReplayEvent, replayRecording: SentryReplayRecording, video: URL) {
-        guard let replayEventData = SentrySerialization.data(withJSONObject: replayEvent.serialize()) else {
+        guard let replayEventData = SentrySerializationSwift.data(withJSONObject: replayEvent.serialize()) else {
             SentrySDKLog.error("Could not serialize replay event data for envelope item. Event will be nil.")
             return nil
         }

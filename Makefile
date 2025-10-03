@@ -88,7 +88,6 @@ format-yaml:
 
 generate-public-api:
 	./scripts/update-api.sh
-	./scripts/update-api.sh V9
 
 ## Current git reference name
 GIT-REF := $(shell git rev-parse --abbrev-ref HEAD)
@@ -119,7 +118,18 @@ test-ui-critical:
 
 analyze:
 	rm -rf analyzer
-	set -o pipefail && NSUnbufferedIO=YES xcodebuild analyze -workspace Sentry.xcworkspace -scheme Sentry -configuration Release CLANG_ANALYZER_OUTPUT=html CLANG_ANALYZER_OUTPUT_DIR=analyzer CODE_SIGNING_ALLOWED="NO" 2>&1 | xcbeautify && [[ -z `find analyzer -name "*.html"` ]]
+	set -o pipefail && NSUnbufferedIO=YES xcodebuild analyze \
+		-workspace Sentry.xcworkspace \
+		-scheme Sentry \
+		-configuration Release \
+		CLANG_ANALYZER_OUTPUT=html \
+		CLANG_ANALYZER_OUTPUT_DIR=analyzer \
+		CODE_SIGNING_ALLOWED="NO" 2>&1 | xcbeautify --preserve-unbeautified
+	@if [[ -n `find analyzer -name "*.html"` ]]; then \
+		echo "Analyzer found issues:"; \
+		find analyzer -name "*.html"; \
+		exit 1; \
+	fi
 
 # Since Carthage 0.38.0 we need to create separate .framework.zip and .xcframework.zip archives.
 # After creating the zips we create a JSON to be able to test Carthage locally.
@@ -189,3 +199,4 @@ xcode-ci:
 	xcodegen --spec Samples/watchOS-Swift/watchOS-Swift.yml
 	xcodegen --spec TestSamples/SwiftUITestSample/SwiftUITestSample.yml
 	xcodegen --spec TestSamples/SwiftUICrashTest/SwiftUICrashTest.yml
+	xcodegen --spec Samples/DistributionSample/DistributionSample.yml

@@ -8,16 +8,19 @@ import XCTest
 class SentryTimeToDisplayTrackerTest: XCTestCase {
 
     private class Fixture {
-        let dateProvider: TestCurrentDateProvider = TestCurrentDateProvider()
+        let dateProvider = TestCurrentDateProvider()
         let dispatchQueue = TestSentryDispatchQueueWrapper()
-        var displayLinkWrapper = TestDisplayLinkWrapper()
-        var framesTracker: SentryFramesTracker
+        let displayLinkWrapper = TestDisplayLinkWrapper()
+        let framesTracker: SentryFramesTracker
 
-        init() {
+        init() throws {
             framesTracker = SentryFramesTracker(displayLinkWrapper: displayLinkWrapper, dateProvider: dateProvider, dispatchQueueWrapper: dispatchQueue,
                                                 notificationCenter: TestNSNotificationCenterWrapper(), keepDelayedFramesDuration: 0)
             SentryDependencyContainer.sharedInstance().framesTracker = framesTracker
             framesTracker.start()
+
+            SentryDependencyContainer.sharedInstance().dateProvider = dateProvider
+            SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = dispatchQueue
         }
 
         func getSut(name: String, waitForFullDisplay: Bool) -> SentryTimeToDisplayTracker {
@@ -26,19 +29,26 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
         
         func getTracer() throws -> SentryTracer {
             let options = Options()
-            let hub = TestHub(client: SentryClient(options: options, fileManager: try TestFileManager(options: options), deleteOldEnvelopeItems: false), andScope: nil)
+            options.dsn = TestConstants.dsnForTestCase(type: SentryTimeToDisplayTrackerTest.self)
+
+            let fileManager = try TestFileManager(
+                options: options,
+                dateProvider: dateProvider,
+                dispatchQueueWrapper: dispatchQueue
+            )
+
+            let hub = TestHub(client: SentryClient(options: options, fileManager: fileManager, deleteOldEnvelopeItems: false), andScope: nil)
             return SentryTracer(transactionContext: TransactionContext(operation: "ui.load"), hub: hub, configuration: SentryTracerConfiguration(block: {
                 $0.waitForChildren = true
             }))
         }
     }
 
-    private lazy var fixture = Fixture()
+    private var fixture: Fixture!
 
-    override func setUp() {
-        super.setUp()
-        SentryDependencyContainer.sharedInstance().dateProvider = fixture.dateProvider
-        SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = fixture.dispatchQueue
+    override func setUpWithError() throws {
+        try super.setUpWithError()
+        fixture = try Fixture()
     }
 
     override func tearDown() {

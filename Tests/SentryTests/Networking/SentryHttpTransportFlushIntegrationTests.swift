@@ -25,6 +25,7 @@ final class SentryHttpTransportFlushIntegrationTests: XCTestCase {
         XCTAssertLessThan(blockingDurationAverage, 0.1)
     }
 
+    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testFlush_WhenNoInternet_BlocksAndFinishes() throws {
         let (sut, requestManager, _, dispatchQueueWrapper) = try getSut()
 
@@ -50,6 +51,7 @@ final class SentryHttpTransportFlushIntegrationTests: XCTestCase {
         XCTAssertLessThan(blockingDurationAverage, 0.1)
     }
 
+    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testFlush_CallingFlushDirectlyAfterCapture_Flushes() throws {
         let (sut, _, fileManager, dispatchQueueWrapper) = try getSut()
 
@@ -66,6 +68,7 @@ final class SentryHttpTransportFlushIntegrationTests: XCTestCase {
         }
     }
 
+    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testFlushTimesOut_RequestManagerNeverFinishes_FlushingWorksNextTime() throws {
         let (sut, requestManager, _, dispatchQueueWrapper) = try getSut()
 
@@ -85,6 +88,7 @@ final class SentryHttpTransportFlushIntegrationTests: XCTestCase {
         XCTAssertEqual(sut.flush(self.flushTimeout), .success, "Flush should not time out.")
     }
 
+    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testFlush_CalledMultipleTimes_ImmediatelyReturnsFalse() throws {
         let (sut, requestManager, _, dispatchQueueWrapper) = try getSut()
 
@@ -161,17 +165,20 @@ final class SentryHttpTransportFlushIntegrationTests: XCTestCase {
         options.debug = true
         options.dsn = TestConstants.dsnAsString(username: "SentryHttpTransportFlushIntegrationTests.\(testName)")
 
-        let fileManager = try SentryFileManager(options: options)
+        let currentDate = SentryDefaultCurrentDateProvider()
+        let dispatchQueueWrapper = SentryDispatchQueueWrapper()
+
+        let fileManager = try SentryFileManager(
+            options: options,
+            dateProvider: currentDate,
+            dispatchQueueWrapper: dispatchQueueWrapper
+        )
         fileManager.deleteAllEnvelopes()
 
         let requestManager = TestRequestManager(session: URLSession(configuration: URLSessionConfiguration.ephemeral))
         requestManager.returnResponse(response: HTTPURLResponse())
 
-        let currentDate = SentryDefaultCurrentDateProvider()
-
         let rateLimits = DefaultRateLimits(retryAfterHeaderParser: RetryAfterHeaderParser(httpDateParser: HttpDateParser(), currentDateProvider: currentDate), andRateLimitParser: RateLimitParser(currentDateProvider: currentDate), currentDateProvider: currentDate)
-        
-        let dispatchQueueWrapper = SentryDispatchQueueWrapper()
 
         return (SentryHttpTransport(
             dsn: try XCTUnwrap(options.parsedDsn),

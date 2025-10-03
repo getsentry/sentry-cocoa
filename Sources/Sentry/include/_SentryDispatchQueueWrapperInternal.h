@@ -4,7 +4,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * A wrapper around DispatchQueue functions for testability.
- * This should not be used directly, instead the  Swift version in
+ * This should not be used directly, instead the Swift version in
  * SentryDispatchQueueWrapper should be used to ensure compatibility
  * with Swift code.
  */
@@ -14,6 +14,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithName:(const char *)name
                   attributes:(nullable dispatch_queue_attr_t)attributes;
+
+- (instancetype)initWithName:(const char *)name relativePriority:(int)relativePriority;
 
 - (void)dispatchAsyncWithBlock:(void (^)(void))block;
 

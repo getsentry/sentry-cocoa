@@ -22,13 +22,12 @@ class SentrySDKTests: XCTestCase {
         let hub: SentryHub
         let error: Error = NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Object does not exist"])
         let exception = NSException(name: NSExceptionName("My Custom exeption"), reason: "User clicked the button", userInfo: nil)
-        @available(*, deprecated, message: "SentryUserFeedback is deprecated in favor of SentryFeedback.")
-        let userFeedback: UserFeedback
         let feedback: SentryFeedback
+
         let currentDate = TestCurrentDateProvider()
-        
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
         let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
+
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
         let observer: SentryWatchdogTerminationScopeObserver
         let scopePersistentStore: TestSentryScopePersistentStore
 #endif //  os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
@@ -58,19 +57,18 @@ class SentrySDKTests: XCTestCase {
             scope.setTag(value: "value", key: "key")
 
             client = TestClient(options: options)!
-            hub = SentryHub(client: client, andScope: scope, andCrashWrapper: TestSentryCrashWrapper.sharedInstance(), andDispatchQueue: SentryDispatchQueueWrapper())
-
-            userFeedback = UserFeedback(eventId: SentryId())
-            userFeedback.comments = "Again really?"
-            userFeedback.email = "tim@apple.com"
-            userFeedback.name = "Tim Apple"
+            hub = SentryHub(client: client, andScope: scope, andCrashWrapper: TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo), andDispatchQueue: SentryDispatchQueueWrapper())
 
             feedback = SentryFeedback(message: "Again really?", name: "Tim Apple", email: "tim@apple.com")
             
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
             options.dsn = SentrySDKTests.dsnAsString
 
-            let fileManager = try! TestFileManager(options: options)
+            let fileManager = try! TestFileManager(
+                options: options,
+                dateProvider: currentDate,
+                dispatchQueueWrapper: dispatchQueueWrapper
+            )
             let breadcrumbProcessor = SentryWatchdogTerminationBreadcrumbProcessor(maxBreadcrumbs: 10, fileManager: fileManager)
             scopePersistentStore = try! XCTUnwrap(TestSentryScopePersistentStore(fileManager: fileManager))
             let attributesProcessor = SentryWatchdogTerminationAttributesProcessor(
@@ -145,7 +143,7 @@ class SentrySDKTests: XCTestCase {
             "SentryAutoSessionTrackingIntegration",
             "SentryNetworkTrackingIntegration"
         ]
-        if !SentryDependencyContainer.sharedInstance().crashWrapper.isBeingTraced() {
+        if !SentryDependencyContainer.sharedInstance().crashWrapper.isBeingTraced {
             expectedIntegrations.append("SentryANRTrackingIntegration")
         }
 
@@ -421,7 +419,7 @@ class SentrySDKTests: XCTestCase {
 
         // Assert
         let eventEnvelopeItems = try fileManager.getAllEnvelopes().map { fileContent in
-            return try XCTUnwrap(SentrySerialization.envelope(with: fileContent.contents))
+            return try XCTUnwrap(SentrySerializationSwift.envelope(with: fileContent.contents))
         }.flatMap { envelope in
             return envelope.items.filter { $0.header.type == SentryEnvelopeItemTypes.event }
         }

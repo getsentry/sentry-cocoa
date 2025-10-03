@@ -9,8 +9,18 @@ import WebKit
 #endif
 
 final class SentryUIRedactBuilder {
+    // MARK: - Constants
+
+    /// Class identifier for ``CameraUI.ChromeSwiftUIView``, if it exists.
+    ///
+    /// This object identifier is used to identify views of this class type during the redaction process.
+    /// This workaround is specifically for Xcode 16 building for iOS 26 where accessing CameraUI.ModeLoupeLayer
+    /// causes a crash due to unimplemented init(layer:) initializer.
+    private static let cameraSwiftUIViewClassId = "CameraUI.ChromeSwiftUIView"
+
     ///This is a wrapper which marks it's direct children to be ignored
     private var ignoreContainerClassIdentifier: ObjectIdentifier?
+    
     ///This is a wrapper which marks it's direct children to be redacted
     private var redactContainerClassIdentifier: ObjectIdentifier?
 
@@ -186,7 +196,7 @@ final class SentryUIRedactBuilder {
     }
     
     private func shouldIgnore(view: UIView) -> Bool {
-        return  SentryRedactViewHelper.shouldUnmask(view) || containsIgnoreClass(type(of: view)) || shouldIgnoreParentContainer(view)
+        return SentryRedactViewHelper.shouldUnmask(view) || containsIgnoreClass(type(of: view)) || shouldIgnoreParentContainer(view)
     }
 
     private func shouldIgnoreParentContainer(_ view: UIView) -> Bool {
@@ -228,6 +238,19 @@ final class SentryUIRedactBuilder {
         }
         let newTransform = concatenateTranform(transform, from: layer, withParent: parentLayer)
         
+        // Check if the subtree should be ignored to avoid crashes with some special views.
+        // If a subtree is ignored, it will be fully redacted and we return early to prevent duplicates.
+        if isViewSubtreeIgnored(view) {
+            redacting.append(SentryRedactRegion(
+                size: layer.bounds.size,
+                transform: newTransform,
+                type: .redact,
+                color: self.color(for: view),
+                name: view.debugDescription
+            ))
+            return
+        }
+        
         let ignore = !forceRedact && shouldIgnore(view: view)
         let swiftUI = SentryRedactViewHelper.shouldRedactSwiftUI(view)
         let redact = forceRedact || shouldRedact(view: view) || swiftUI
@@ -239,7 +262,7 @@ final class SentryUIRedactBuilder {
                 transform: newTransform,
                 type: swiftUI ? .redactSwiftUI : .redact,
                 color: self.color(for: view),
-                name: layer.name ?? layer.debugDescription
+                name: view.debugDescription
             ))
 
             guard !view.clipsToBounds else {
@@ -256,11 +279,12 @@ final class SentryUIRedactBuilder {
                     size: layer.bounds.size,
                     transform: newTransform,
                     type: .clipOut,
-                    name: layer.name ?? layer.debugDescription
+                    name: view.debugDescription
                 ))
             }
         }
-        
+
+        // Traverse the sublayers to redact them if necessary
         guard let subLayers = layer.sublayers, subLayers.count > 0 else {
             return
         }
@@ -272,7 +296,7 @@ final class SentryUIRedactBuilder {
                 size: layer.bounds.size,
                 transform: newTransform,
                 type: .clipEnd,
-                name: layer.name ?? layer.debugDescription
+                name: view.debugDescription
             ))
         }
         for subLayer in subLayers.sorted(by: { $0.zPosition < $1.zPosition }) {
@@ -283,9 +307,38 @@ final class SentryUIRedactBuilder {
                 size: layer.bounds.size,
                 transform: newTransform,
                 type: .clipBegin,
-                name: layer.name ?? layer.debugDescription
+                name: view.debugDescription
             ))
         }
+    }
+
+    private func isViewSubtreeIgnored(_ view: UIView) -> Bool {
+        // We intentionally avoid using `NSClassFromString` or directly referencing class objects here,
+        // because both approaches can trigger the Objective-C `+initialize` method on the class.
+        // This has side effects and can cause crashes, especially when performed off the main thread
+        // or with UIKit classes that expect to be initialized on the main thread.
+        //
+        // Instead, we use the string description of the type (i.e., `type(of: view).description()`)
+        // for comparison. This is a safer, more "Swifty" approach that avoids the pitfalls of
+        // class initialization side effects.
+        //
+        // We have previously encountered related issues:
+        // - In EmergeTools' snapshotting code where using `NSClassFromString` led to crashes [1]
+        // - In Sentry's own SubClassFinder where storing or accessing class objects on a background thread caused crashes due to `+initialize` being called on UIKit classes [2]
+        //
+        // [1] https://github.com/EmergeTools/SnapshotPreviews/blob/main/Sources/SnapshotPreviewsCore/View%2BSnapshot.swift#L248
+        // [2] https://github.com/getsentry/sentry-cocoa/blob/00d97404946a37e983eabb21cc64bd3d5d2cb474/Sources/Sentry/SentrySubClassFinder.m#L58-L84   
+        let viewTypeId = type(of: view).description()
+        
+        if #available(iOS 26.0, *), viewTypeId == Self.cameraSwiftUIViewClassId {
+            // CameraUI.ChromeSwiftUIView is a special case because it contains layers which can not be iterated due to this error:
+            //
+            // Fatal error: Use of unimplemented initializer 'init(layer:)' for class 'CameraUI.ModeLoupeLayer'
+            //
+            // This crash only occurs when building with Xcode 16 for iOS 26, so we add a runtime check
+            return true
+        }
+        return false
     }
 
     /**

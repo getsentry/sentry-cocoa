@@ -2,7 +2,6 @@
 
 #if SENTRY_HAS_UIKIT
 
-@class SentrySpan;
 @class SentryInAppLogic;
 @class SentryTimeToDisplayTracker;
 @class UIViewController;

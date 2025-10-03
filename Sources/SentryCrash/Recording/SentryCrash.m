@@ -199,8 +199,6 @@
     COPY_STRING(cpuArchitecture);
     COPY_PRIMITIVE(cpuType);
     COPY_PRIMITIVE(cpuSubType);
-    COPY_PRIMITIVE(binaryCPUType);
-    COPY_PRIMITIVE(binaryCPUSubType);
     COPY_STRING(processName);
     COPY_PRIMITIVE(processID);
     COPY_PRIMITIVE(parentProcessID);

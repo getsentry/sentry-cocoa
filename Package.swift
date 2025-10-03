@@ -13,24 +13,37 @@ var products: [Product] = [
     .library(name: "Sentry", targets: ["Sentry", "SentryCppHelper"]),
     .library(name: "Sentry-Dynamic", targets: ["Sentry-Dynamic"]),
     .library(name: "Sentry-Dynamic-WithARM64e", targets: ["Sentry-Dynamic-WithARM64e"]),
-    .library(name: "SentrySwiftUI", targets: ["Sentry", "SentrySwiftUI", "SentryCppHelper"])
+    .library(name: "Sentry-WithoutUIKitOrAppKit", targets: ["Sentry-WithoutUIKitOrAppKit", "SentryCppHelper"]),
+    .library(name: "Sentry-WithoutUIKitOrAppKit-WithARM64e", targets: ["Sentry-WithoutUIKitOrAppKit-WithARM64e", "SentryCppHelper"]),
+    .library(name: "SentrySwiftUI", targets: ["Sentry", "SentrySwiftUI", "SentryCppHelper"]),
+    .library(name: "SentryDistribution", targets: ["SentryDistribution"])
 ]
 
 var targets: [Target] = [
     .binaryTarget(
         name: "Sentry",
-        url: "https://github.com/getsentry/sentry-cocoa/releases/download/8.56.0-alpha.1/Sentry.xcframework.zip",
-        checksum: "954102e27c167fb5ca54e39408aaacac8c339b67632e4be0d47e267a0d82b963" //Sentry-Static
+        url: "https://github.com/getsentry/sentry-cocoa/releases/download/8.56.2/Sentry.xcframework.zip",
+        checksum: "f0b8530fc902f56cccf157b5548e83f4b866812b40828bd8e3dca59e6b3171b0" //Sentry-Static
     ),
     .binaryTarget(
         name: "Sentry-Dynamic",
-        url: "https://github.com/getsentry/sentry-cocoa/releases/download/8.56.0-alpha.1/Sentry-Dynamic.xcframework.zip",
-        checksum: "4ea2e94bdbd4aa7c68c1cb8c8f2c966484cc189d1b366ea1f2981c8c7e97eebe" //Sentry-Dynamic
+        url: "https://github.com/getsentry/sentry-cocoa/releases/download/8.56.2/Sentry-Dynamic.xcframework.zip",
+        checksum: "33be119ee7bb364836bfa686fd0ddb7021b16d765f3498cad1a7f8b1faeed765" //Sentry-Dynamic
     ),
     .binaryTarget(
         name: "Sentry-Dynamic-WithARM64e",
-        url: "https://github.com/getsentry/sentry-cocoa/releases/download/8.56.0-alpha.1/Sentry-Dynamic-WithARM64e.xcframework.zip",
-        checksum: "eba419537927c5fc6fd844fb6a348ed128634b741de42001227ceb41c9722eaf" //Sentry-Dynamic-WithARM64e
+        url: "https://github.com/getsentry/sentry-cocoa/releases/download/8.56.2/Sentry-Dynamic-WithARM64e.xcframework.zip",
+        checksum: "75443ea3455cdbc05548115f64ed06dd70030a736a6248d5ab19c7f3c433ef5b" //Sentry-Dynamic-WithARM64e
+    ),
+    .binaryTarget(
+        name: "Sentry-WithoutUIKitOrAppKit",
+        url: "https://github.com/getsentry/sentry-cocoa/releases/download/8.56.2/Sentry-WithoutUIKitOrAppKit.xcframework.zip",
+        checksum: "d88ffb2aaa266d237206a82d0f72f19fd575229b5a01156768b4d9ed4bfac475" //Sentry-WithoutUIKitOrAppKit
+    ),
+    .binaryTarget(
+        name: "Sentry-WithoutUIKitOrAppKit-WithARM64e",
+        url: "https://github.com/getsentry/sentry-cocoa/releases/download/8.56.2/Sentry-WithoutUIKitOrAppKit-WithARM64e.xcframework.zip",
+        checksum: "0c716f6a6475d8fd6e78b9204c74adffef5c0989f057c5d795989a667ae58047" //Sentry-WithoutUIKitOrAppKit-WithARM64e
     ),
     .target (
         name: "SentrySwiftUI",
@@ -54,7 +67,9 @@ var targets: [Target] = [
         linkerSettings: [
          .linkedLibrary("c++")
         ]
-    )
+    ),
+    .target(name: "SentryDistribution", path: "Sources/SentryDistribution"),
+    .testTarget(name: "SentryDistributionTests", dependencies: ["SentryDistribution"], path: "Sources/SentryDistributionTests")
 ]
 
 let env = getenv("EXPERIMENTAL_SPM_BUILDS")
@@ -89,7 +104,7 @@ if let env = env, String(cString: env, encoding: .utf8) == "1" {
             name: "SentryObjc",
             dependencies: ["SentrySwift"],
             path: "Sources",
-            exclude: ["Sentry/SentryDummyPublicEmptyClass.m", "Sentry/SentryDummyPrivateEmptyClass.m", "Swift", "SentrySwiftUI", "Resources", "Configuration", "SentryCppHelper"],
+            exclude: ["Sentry/SentryDummyPublicEmptyClass.m", "Sentry/SentryDummyPrivateEmptyClass.m", "Swift", "SentrySwiftUI", "Resources", "Configuration", "SentryCppHelper", "SentryDistribution", "SentryDistributionTests"],
             cSettings: [
                 .headerSearchPath("Sentry/include/HybridPublic"),
                 .headerSearchPath("Sentry"),

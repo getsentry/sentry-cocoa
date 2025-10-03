@@ -71,7 +71,7 @@ class SentryCrashStackEntryMapperTests: XCTestCase {
         XCTAssertEqual(imageName, frame.package)
     }
     
-    func testImageAddress () {
+    func testImageAddress() {
         var cursor = SentryCrashStackCursor()
         cursor.stackEntry.imageAddress = 2_488_998_912
 

@@ -4,11 +4,9 @@
 #import "SentryDependencyContainer.h"
 #import "SentryDiscardReasonMapper.h"
 #import "SentryDsn.h"
-#import "SentryEnvelope.h"
 #import "SentryEnvelopeItemHeader.h"
 #import "SentryEnvelopeRateLimit.h"
 #import "SentryEvent.h"
-#import "SentryFileManager.h"
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"
 #import "SentryNSURLRequestBuilder.h"
@@ -85,7 +83,12 @@
         self.discardedEvents = [NSMutableDictionary new];
         self.notStoredEnvelopes = [NSMutableArray new];
         [self.envelopeRateLimit setDelegate:self];
-        [self.fileManager setDelegate:self];
+        typeof(self) __weak weakSelf = self;
+        [self.fileManager
+            setEnvelopeDeletedCallback:^(SentryEnvelopeItem *item, NSUInteger category) {
+                [weakSelf envelopeItemDeleted:item
+                                 withCategory:sentryDataCategoryForNSUInteger(category)];
+            }];
 
         [self sendAllCachedEnvelopes];
 
@@ -250,9 +253,6 @@
     [self recordLostSpans:envelopeItem reason:kSentryDiscardReasonRateLimitBackoff];
 }
 
-/**
- * SentryFileManagerDelegate.
- */
 - (void)envelopeItemDeleted:(SentryEnvelopeItem *)envelopeItem
                withCategory:(SentryDataCategory)dataCategory
 {
@@ -328,7 +328,7 @@
 
         envelopeFilePath = envelopeFileContents.path;
 
-        envelope = [SentrySerialization envelopeWithData:envelopeFileContents.contents];
+        envelope = [SentrySerializationSwift envelopeWithData:envelopeFileContents.contents];
         if (nil == envelope) {
             SENTRY_LOG_DEBUG(@"Envelope contained no deserializable data.");
             [self deleteEnvelopeAndSendNext:envelopeFilePath];

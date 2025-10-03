@@ -3,18 +3,11 @@
 #if SENTRY_TARGET_REPLAY_SUPPORTED
 
 #    import "SentryClient+Private.h"
-#    import "SentryCrashWrapper.h"
 #    import "SentryDependencyContainer.h"
-#    import "SentryDispatchFactory.h"
-#    import "SentryDispatchQueueProviderProtocol.h"
-#    import "SentryDisplayLinkWrapper.h"
 #    import "SentryEvent+Private.h"
-#    import "SentryFileManager.h"
-#    import "SentryGlobalEventProcessor.h"
 #    import "SentryHub+Private.h"
 #    import "SentryLogC.h"
 #    import "SentryOptions.h"
-#    import "SentryRateLimits.h"
 #    import "SentrySDK+Private.h"
 #    import "SentryScope+Private.h"
 #    import "SentrySerialization.h"
@@ -136,7 +129,7 @@ static SentryTouchTracker *_touchTracker;
 
     // We use the dispatch queue provider as a factory to create the queues, but store the queues
     // directly in this instance, so they get deallocated when the integration is deallocated.
-    id<SentryDispatchQueueProviderProtocol> dispatchQueueProvider
+    SentryDispatchFactory *dispatchQueueProvider
         = SentryDependencyContainer.sharedInstance.dispatchFactory;
 
     // The asset worker queue is used to work on video and frames data.
@@ -451,7 +444,7 @@ static SentryTouchTracker *_touchTracker;
         [[NSDictionary alloc] initWithObjectsAndKeys:sessionId.sentryIdString, @"replayId",
             path.lastPathComponent, @"path", @(options.onErrorSampleRate), @"errorSampleRate", nil];
 
-    NSData *data = [SentrySerialization dataWithJSONObject:info];
+    NSData *data = [SentrySerializationSwift dataWithJSONObject:info];
 
     NSString *infoPath = [[path stringByDeletingLastPathComponent]
         stringByAppendingPathComponent:SENTRY_CURRENT_REPLAY];

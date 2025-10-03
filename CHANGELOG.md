@@ -1,5 +1,83 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Add SentryDistribution as Swift Package Manager target (#6149)
+
+## 8.56.2
+
+### Fixes
+
+- Fix crash from null UIApplication in SwiftUI apps (#6264)
+
+## 8.56.1
+
+> [!Warning]
+> This version can cause runtime crashes because the `UIApplication.sharedApplication`/`NSApplication.sharedApplication` is not yet available during SDK initialization, due to the changes in [PR #5900](https://github.com/getsentry/sentry-cocoa/pull/5900), released in [8.56.0](https://github.com/getsentry/sentry-cocoa/releases/tag/8.56.0).
+
+### Fixes
+
+- Fix potential app launch hang caused by the SentrySDK (#6181)
+  Fixed by removing the call to `_dyld_get_image_header` on the main thread.
+- Fix dynamic selector crash in SentryReplayRecording (#6211)
+
+## 8.56.0
+
+> [!Warning]
+> This version can cause runtime crashes because the `UIApplication.sharedApplication`/`NSApplication.sharedApplication` is not yet available during SDK initialization, due to the changes in [PR #5900](https://github.com/getsentry/sentry-cocoa/pull/5900), released in [8.56.0](https://github.com/getsentry/sentry-cocoa/releases/tag/8.56.0).
+
+### Features
+
+- Structured Logs: Flush logs on SDK flush/close (#5834)
+- Add masking options for screenshots (#5401)
+- Add significant time change breadcrumb (#6112)
+- Add support for iOS 26, macOS 26, visionOS 26, watchOS 26, and tvOS 26 in device tests (#6063)
+
+### Improvements
+
+- Lazily CharacterSet only once in SentryBaggageSerialization (#5871)
+- Structured Logging: Log `SentrySDK.logger` calls to `SentrySDKLog` (#5991)
+- The build type in the app context now differentiates between `enterprise` and `adhoc` (#6044)
+- visionOS no longer needs swift's interoperability mode (#6077)
+- Ensure IP address is only inferred by Relay if sendDefaultPii is true (#5877)
+- Sentry without UIKit / AppKit is available to install with SPM (#6160)
+
+### Fixes
+
+- Don't capture replays for events dropped in `beforeSend` (#5916)
+- Fix linking with SentrySwiftUI on Xcode 26 for visionOS (#5823)
+- Structured Logging: Logger called before `SentrySDK.start` becomes unusable (#5984)
+- Add masking for AVPlayerView (#5910)
+- Fix missing view hierachy when enabling `attachScreenshot` too (#5989)
+- Fix macOS's frameworks not following the versioned framework structure (#6049)
+- Add warning to addBreadcrumb when used before SDK init (#6083)
+- Add null-handling for parsed DSN in SentryHTTPTransport (#5800)
+- Fix crash in Session Replay when opening the camera UI on iOS 26+ by skipping redaction of internal views.
+  This may result in more of the camera screen being redacted. (#6045)
+- Fix crash in SentryDependencyContainer init when using the SDK as a static framework (#6125)
+- Fixes a React Native legacy build failure by adding the missing self references for explicit capture semantics (#6156)
+
+## 8.56.0-alpha.3
+
+### Fixes
+
+- Fixes a React Native legacy build failure by adding the missing self references for explicit capture semantics (#6156)
+
+## 8.56.0-alpha.2
+
+### Features
+
+- Add significant time change breadcrumb (#6112)
+- Add support for iOS 26, macOS 26, visionOS 26, watchOS 26, and tvOS 26 in device tests (#6063)
+
+### Fixes
+
+- Fix crash in Session Replay when opening the camera UI on iOS 26+ by skipping redaction of internal views.
+  This may result in more of the camera screen being redacted. (#6045)
+- Fix crash in SentryDependencyContainer init when using the SDK as a static framework (#6125)
+
 ## 8.56.0-alpha.1
 
 - No documented changes.

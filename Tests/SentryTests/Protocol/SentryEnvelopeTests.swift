@@ -6,8 +6,6 @@ class SentryEnvelopeTests: XCTestCase {
     
     private class Fixture {
         let sdkVersion = "sdkVersion"
-        @available(*, deprecated, message: "SentryUserFeedback is deprecated in favor of SentryFeedback.")
-        let userFeedback: UserFeedback = TestData.userFeedback
         let path = "test.log"
         let data = Data("hello".utf8)
         
@@ -70,6 +68,7 @@ class SentryEnvelopeTests: XCTestCase {
                                                packages: [],
                                                settings: defaultSdkSettings)
 
+    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testSentryEnvelopeFromEvent() throws {
         let event = Event()
         
@@ -105,6 +104,7 @@ class SentryEnvelopeTests: XCTestCase {
         XCTAssertEqual(data, try XCTUnwrap(envelope.items.first).data)
     }
     
+    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testSentryEnvelopeWithExplicitInitMessagesMultipleItems() {
         var items: [SentryEnvelopeItem] = []
         let itemCount = 3
@@ -169,17 +169,19 @@ class SentryEnvelopeTests: XCTestCase {
         XCTAssertEqual(traceContext, envelopeHeader.traceContext)
     }
     
+    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testInitSentryEnvelopeWithSession_DefaultSdkInfoIsSet() {
         let envelope = SentryEnvelope(session: SentrySession(releaseName: "1.1.1", distinctId: "some-id"))
         
         XCTAssertEqual(defaultSdkInfo, envelope.header.sdkInfo)
     }
 
+    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testInitWithEvent() throws {
         let event = fixture.event
         let envelope = SentryEnvelope(event: event)
 
-        let expectedData = SentrySerialization.data(withJSONObject: event.serialize())!
+        let expectedData = SentrySerializationSwift.data(withJSONObject: event.serialize())!
 
         XCTAssertEqual(event.eventId, envelope.header.eventId)
         XCTAssertEqual(1, envelope.items.count)
@@ -188,6 +190,7 @@ class SentryEnvelopeTests: XCTestCase {
         XCTAssertEqual(expected, actual)
     }
 
+    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testInitWithEvent_SerializationFails_SendsEventWithSerializationFailure() {
         let event = fixture.eventWithContinousSerializationFailure
         let envelope = SentryEnvelope(event: event)
@@ -210,26 +213,6 @@ class SentryEnvelopeTests: XCTestCase {
             
             json.assertContains(String(format: "%.0f", SentryDependencyContainer.sharedInstance().dateProvider.date().timeIntervalSince1970), "timestamp")
         }
-    }
-    
-    @available(*, deprecated, message: "SentryUserFeedback is deprecated in favor of SentryFeedback. This test case can be removed when SentryUserFeedback is removed.")
-    func testInitWithUserFeedback() throws {
-        let userFeedback = fixture.userFeedback
-        
-        let envelope = SentryEnvelope(userFeedback: userFeedback)
-        XCTAssertEqual(userFeedback.eventId, envelope.header.eventId)
-        XCTAssertEqual(defaultSdkInfo, envelope.header.sdkInfo)
-        
-        XCTAssertEqual(1, envelope.items.count)
-        let item = envelope.items.first
-        XCTAssertEqual("user_report", item?.header.type)
-        XCTAssertNotNil(item?.data)
-        
-        let expectedData = SentrySerialization.data(withJSONObject: userFeedback.serialize())!
-
-        let actual = String(data: item?.data ?? Data(), encoding: .utf8)?.sorted()
-        let expected = String(data: expectedData, encoding: .utf8)?.sorted()
-        XCTAssertEqual(expected, actual)
     }
     
     func testInitWithDataAttachment() {

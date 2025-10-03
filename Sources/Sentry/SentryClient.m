@@ -6,14 +6,12 @@
 #import "SentryCrashIntegration.h"
 #import "SentryCrashStackEntryMapper.h"
 #import "SentryDebugImageProvider+HybridSDKs.h"
+#import "SentryDefaultThreadInspector.h"
 #import "SentryDependencyContainer.h"
 #import "SentryDsn.h"
-#import "SentryEnvelope.h"
 #import "SentryEvent+Private.h"
 #import "SentryException.h"
 #import "SentryExtraContextProvider.h"
-#import "SentryFileManager.h"
-#import "SentryGlobalEventProcessor.h"
 #import "SentryHub+Private.h"
 #import "SentryHub.h"
 #import "SentryInstallation.h"
@@ -34,7 +32,6 @@
 #import "SentrySerialization.h"
 #import "SentryStacktraceBuilder.h"
 #import "SentrySwift.h"
-#import "SentryThreadInspector.h"
 #import "SentryTraceContext.h"
 #import "SentryTracer.h"
 #import "SentryTransaction.h"
@@ -68,17 +65,19 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 - (_Nullable instancetype)initWithOptions:(SentryOptions *)options
 {
     return [self initWithOptions:options
-                   dispatchQueue:[[SentryDispatchQueueWrapper alloc] init]
+                    dateProvider:SentryDependencyContainer.sharedInstance.dateProvider
+                   dispatchQueue:SentryDependencyContainer.sharedInstance.dispatchQueueWrapper
           deleteOldEnvelopeItems:YES];
 }
 
-/** Internal constructor for testing purposes. */
 - (nullable instancetype)initWithOptions:(SentryOptions *)options
+                            dateProvider:(id<SentryCurrentDateProvider>)dateProvider
                            dispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue
                   deleteOldEnvelopeItems:(BOOL)deleteOldEnvelopeItems
 {
     NSError *error;
     SentryFileManager *fileManager = [[SentryFileManager alloc] initWithOptions:options
+                                                                   dateProvider:dateProvider
                                                            dispatchQueueWrapper:dispatchQueue
                                                                           error:&error];
     if (error != nil) {
@@ -117,8 +116,8 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                transportAdapter:(SentryTransportAdapter *)transportAdapter
 
 {
-    SentryThreadInspector *threadInspector =
-        [[SentryThreadInspector alloc] initWithOptions:options];
+    SentryDefaultThreadInspector *threadInspector =
+        [[SentryDefaultThreadInspector alloc] initWithOptions:options];
 
     return [self initWithOptions:options
                 transportAdapter:transportAdapter
@@ -135,7 +134,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                transportAdapter:(SentryTransportAdapter *)transportAdapter
                     fileManager:(SentryFileManager *)fileManager
          deleteOldEnvelopeItems:(BOOL)deleteOldEnvelopeItems
-                threadInspector:(SentryThreadInspector *)threadInspector
+                threadInspector:(SentryDefaultThreadInspector *)threadInspector
              debugImageProvider:(SentryDebugImageProvider *)debugImageProvider
                          random:(id<SentryRandomProtocol>)random
                          locale:(NSLocale *)locale
@@ -596,23 +595,6 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     [self.transportAdapter sendEnvelope:envelope];
 }
 
-#if !SDK_V9
-- (void)captureUserFeedback:(SentryUserFeedback *)userFeedback
-{
-    if ([self isDisabled]) {
-        [self logDisabledMessage];
-        return;
-    }
-
-    if ([SentryId.empty isEqual:userFeedback.eventId]) {
-        SENTRY_LOG_DEBUG(@"Capturing UserFeedback with an empty event id. Won't send it.");
-        return;
-    }
-
-    [self.transportAdapter sendUserFeedback:userFeedback];
-}
-#endif // !SDK_V9
-
 - (void)captureFeedback:(SentryFeedback *)feedback withScope:(SentryScope *)scope
 {
     [self captureSerializedFeedback:[feedback serialize]
@@ -766,8 +748,9 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         BOOL debugMetaNotAttached = !(nil != event.debugMeta && event.debugMeta.count > 0);
         if (!isFatalEvent && shouldAttachStacktrace && debugMetaNotAttached
             && event.threads != nil) {
-            event.debugMeta =
-                [self.debugImageProvider getDebugImagesFromCacheForThreads:event.threads];
+            event.debugMeta = [self.debugImageProvider
+                getDebugImagesFromCacheForThreads:SENTRY_UNWRAP_NULLABLE(
+                                                      NSArray<SentryThread *>, event.threads)];
         }
     }
 
@@ -944,14 +927,10 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     SentryGlobalEventProcessor *globalEventProcessor
         = SentryDependencyContainer.sharedInstance.globalEventProcessor;
 
-    SentryEvent *newEvent = event;
-    for (SentryEventProcessor processor in globalEventProcessor.processors) {
-        newEvent = processor(newEvent);
-        if (newEvent == nil) {
-            SENTRY_LOG_DEBUG(@"SentryScope callEventProcessors: An event processor decided to "
-                             @"remove this event.");
-            break;
-        }
+    SentryEvent *newEvent = [globalEventProcessor reportAll:event];
+    if (newEvent == nil) {
+        SENTRY_LOG_DEBUG(@"SentryScope callEventProcessors: An event processor decided to "
+                         @"remove this event.");
     }
     return newEvent;
 }

@@ -2,13 +2,10 @@
 #import "PrivateSentrySDKOnly.h"
 #import "SentryANRTrackingIntegration.h"
 #import "SentryAppStartMeasurement.h"
-#import "SentryAppStateManager.h"
 #import "SentryBreadcrumb.h"
 #import "SentryClient+Private.h"
 #import "SentryCrash.h"
-#import "SentryCrashWrapper.h"
 #import "SentryDependencyContainer.h"
-#import "SentryFileManager.h"
 #import "SentryHub+Private.h"
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"
@@ -254,6 +251,9 @@ static NSDate *_Nullable startTimestamp = nil;
     // Reference to SentryCrashExceptionApplication to prevent compiler from stripping it
     [SentryCrashExceptionApplication class];
 #endif
+    // These classes must be referenced somewhere for their files to not be stripped.
+    [PlaceholderSentryApplication class];
+    [PlaceholderProcessInfoClass class];
 
     startInvocations++;
     startTimestamp = [SentryDependencyContainer.sharedInstance.dateProvider date];
@@ -282,7 +282,7 @@ static NSDate *_Nullable startTimestamp = nil;
         SentryHub *hub = [[SentryHub alloc] initWithClient:newClient andScope:scope];
         [SentrySDKInternal setCurrentHub:hub];
 
-        [SentryCrashWrapper.sharedInstance startBinaryImageCache];
+        [SentryDependencyContainer.sharedInstance.crashWrapper startBinaryImageCache];
         [SentryDependencyContainer.sharedInstance.binaryImageCache start:options.debug];
 
         [SentrySDKInternal installIntegrations];
@@ -467,13 +467,6 @@ static NSDate *_Nullable startTimestamp = nil;
 {
     [SentrySDKInternal.currentHub storeEnvelope:envelope];
 }
-
-#if !SDK_V9
-+ (void)captureUserFeedback:(SentryUserFeedback *)userFeedback
-{
-    [SentrySDKInternal.currentHub captureUserFeedback:userFeedback];
-}
-#endif // !SDK_V9
 
 + (void)captureSerializedFeedback:(NSDictionary *)serializedFeedback
                       withEventId:(NSString *)feedbackEventId
@@ -680,7 +673,7 @@ static NSDate *_Nullable startTimestamp = nil;
 
     [SentrySDK clearLogger];
 
-    [SentryCrashWrapper.sharedInstance stopBinaryImageCache];
+    [SentryDependencyContainer.sharedInstance.crashWrapper stopBinaryImageCache];
     [SentryDependencyContainer.sharedInstance.binaryImageCache stop];
 
 #if TARGET_OS_IOS && SENTRY_HAS_UIKIT

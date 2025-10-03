@@ -1,8 +1,8 @@
 #import "SentryWatchdogTerminationBreadcrumbProcessor.h"
-#import "SentryFileManager.h"
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"
 #import "SentrySerialization.h"
+#import "SentrySwift.h"
 
 @interface SentryWatchdogTerminationBreadcrumbProcessor ()
 
@@ -40,7 +40,7 @@
 - (void)addSerializedBreadcrumb:(NSDictionary *)crumb
 {
     SENTRY_LOG_DEBUG(@"Adding breadcrumb: %@", crumb);
-    NSData *_Nullable jsonData = [SentrySerialization dataWithJSONObject:crumb];
+    NSData *_Nullable jsonData = [SentrySerializationSwift dataWithJSONObject:crumb];
     if (jsonData == nil) {
         SENTRY_LOG_ERROR(@"Error serializing breadcrumb to JSON");
         return;
@@ -104,7 +104,8 @@
         fileSize = [self.fileHandle seekToEndOfFile];
 
         [self.fileHandle writeData:data];
-        [self.fileHandle writeData:[@"\n" dataUsingEncoding:NSASCIIStringEncoding]];
+        NSData *_Nonnull const newLineData = [NSData dataWithBytes:"\n" length:1];
+        [self.fileHandle writeData:newLineData];
 
         self.breadcrumbCounter += 1;
     } @catch (NSException *exception) {

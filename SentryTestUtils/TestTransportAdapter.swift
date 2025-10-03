@@ -2,7 +2,7 @@ import _SentryPrivate
 import Foundation
 @_spi(Private) import Sentry
 
-public class TestTransportAdapter: SentryTransportAdapter {
+@_spi(Private) public class TestTransportAdapter: SentryTransportAdapter {
     @_spi(Private)
     public var sentEventsWithSessionTraceState = Invocations<(event: Event, session: SentrySession, traceContext: TraceContext?, attachments: [Attachment])>()
     @_spi(Private)
@@ -22,12 +22,5 @@ public class TestTransportAdapter: SentryTransportAdapter {
     public var storeEventInvocations = Invocations<(event: Event, traceContext: TraceContext?)>()
     public override func store(_ event: Event, traceContext: TraceContext?) {
         storeEventInvocations.record((event, traceContext))
-    }
-    
-    @available(*, deprecated, message: "SentryUserFeedback is deprecated in favor of SentryFeedback. There is currently no envelope initializer accepting a SentryFeedback; the envelope is currently built directly in -[SentryClient captureFeedback:withScope:] and sent to -[SentryTransportAdapter sendEvent:traceContext:attachments:additionalEnvelopeItems:]. See TestClient.captureFeedbackInvocations, used in SentrySDKTests.testCaptureFeedback.")
-    public var userFeedbackInvocations = Invocations<UserFeedback>()
-    @available(*, deprecated, message: "SentryUserFeedback is deprecated in favor of SentryFeedback. There is currently no envelope initializer accepting a SentryFeedback; the envelope is currently built directly in -[SentryClient captureFeedback:withScope:] and sent to -[SentryTransportAdapter sendEvent:traceContext:attachments:additionalEnvelopeItems:]. See TestClient.capture(feedback:scope:), used in SentrySDKTests.testCaptureFeedback.")
-    public override func send(userFeedback: UserFeedback) {
-        userFeedbackInvocations.record(userFeedback)
     }
 }

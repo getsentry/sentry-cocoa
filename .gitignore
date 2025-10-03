@@ -95,6 +95,7 @@ Samples/tvOS-Swift/tvOS-Swift.xcodeproj
 Samples/visionOS-Swift/visionOS-Swift.xcodeproj
 Samples/watchOS-Swift/watchOS-Swift.xcodeproj
 Samples/SentrySampleShared/SentrySampleShared.xcodeproj
+Samples/DistributionSample/DistributionSample.xcodeproj
 TestSamples/SwiftUITestSample/SwiftUITestSample.xcodeproj
 TestSamples/SwiftUICrashTest/SwiftUICrashTest.xcodeproj
 
@@ -108,3 +109,7 @@ Sentry-WithoutUIKitOrAppKit-WithARM64e.xcframework*
 current_package_diff.patch
 
 uikit-check-build
+*.xcarchive
+
+# Output of `make analyze`
+analyzer

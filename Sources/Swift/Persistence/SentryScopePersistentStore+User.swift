@@ -2,7 +2,7 @@
 
 extension SentryScopePersistentStore {
     func encode(user: User) -> Data? {
-        guard let data = SentrySerialization.data(withJSONObject: user.serialize()) else {
+        guard let data = SentrySerializationSwift.data(withJSONObject: user.serialize()) else {
             SentrySDKLog.error("Failed to serialize user, reason: user is not valid json: \(user)")
             return nil
         }

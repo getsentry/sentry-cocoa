@@ -1,6 +1,6 @@
 #import "SentryAsyncLog.h"
 #import "SentryAsyncSafeLog.h"
-#import "SentryFileManager.h"
+#import "SentryFileManagerHelper.h"
 #import "SentryInternalCDefines.h"
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"
