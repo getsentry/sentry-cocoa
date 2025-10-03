@@ -5,6 +5,7 @@
 ### Features
 
 - Add SentryDistribution as Swift Package Manager target (#6149)
+- Add `SentrySwiftLog` Integration ([#6286](https://github.com/getsentry/sentry-cocoa/pull/6286))
 
 ## 8.56.2
 
