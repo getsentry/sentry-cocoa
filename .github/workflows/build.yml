@@ -74,8 +74,6 @@ jobs:
       matrix:
         # other sample projects are built in ui-tests
         include:
-          - scheme: macOS-Swift
-            config: Debug
           - scheme: iOS13-Swift
             config: Debug
           - scheme: watchOS-Swift WatchKit App
@@ -83,8 +81,6 @@ jobs:
           - scheme: macOS-SwiftUI
             config: Debug
           - scheme: SessionReplay-CameraTest
-            config: Debug
-          - scheme: visionOS-Swift
             config: Debug
           - scheme: iOS-Swift
             config: DebugV9
