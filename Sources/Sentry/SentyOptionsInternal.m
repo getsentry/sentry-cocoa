@@ -313,14 +313,6 @@
     if ([self isBlock:options[@"tracesSampler"]]) {
         sentryOptions.tracesSampler = options[@"tracesSampler"];
     }
-#if !SDK_V9
-#    pragma clang diagnostic push
-#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    if ([options[@"enableTracing"] isKindOfClass:NSNumber.self]) {
-        sentryOptions.enableTracing = [options[@"enableTracing"] boolValue];
-    }
-#    pragma clang diagnostic pop
-#endif // !SDK_V9
 
     if ([options[@"inAppIncludes"] isKindOfClass:[NSArray class]]) {
         NSArray<NSString *> *inAppIncludes =
