@@ -1,15 +1,12 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
-#if SDK_V9
 final class MechanismMetaDecodable: MechanismMeta {
     convenience public init(from decoder: any Decoder) throws {
         try self.init(decodedFrom: decoder)
     }
 }
-#else
-typealias MechanismMetaDecodable = MechanismMeta
-#endif
+
 extension MechanismMetaDecodable: Decodable {
 
     enum CodingKeys: String, CodingKey {
@@ -17,12 +14,6 @@ extension MechanismMetaDecodable: Decodable {
         case machException = "mach_exception"
         case error = "ns_error"
     }
-    
-    #if !SDK_V9
-    required convenience public init(from decoder: any Decoder) throws {
-        try self.init(decodedFrom: decoder)
-    }
-    #endif
 
     private convenience init(decodedFrom decoder: Decoder) throws {
         self.init()

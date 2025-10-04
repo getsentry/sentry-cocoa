@@ -1,15 +1,12 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
-#if SDK_V9
 final class ExceptionDecodable: Exception {
     convenience public init(from decoder: any Decoder) throws {
         try self.init(decodedFrom: decoder)
     }
 }
-#else
-typealias ExceptionDecodable = Exception
-#endif
+
 extension ExceptionDecodable: Decodable {
     
     private enum CodingKeys: String, CodingKey {
@@ -20,12 +17,6 @@ extension ExceptionDecodable: Decodable {
         case threadId = "thread_id"
         case stacktrace   
     }
-
-    #if !SDK_V9
-    required convenience public init(from decoder: any Decoder) throws {
-        try self.init(decodedFrom: decoder)
-    }
-    #endif
 
     private convenience init(decodedFrom decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)

@@ -140,7 +140,7 @@ class SentryBreadcrumbTests: XCTestCase {
         let data = try XCTUnwrap(SentrySerializationSwift.data(withJSONObject: actual))
         
         // Act
-        let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as Breadcrumb?)
+        let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as BreadcrumbDecodable?)
         
         // Assert
         XCTAssertEqual(crumb.level, decoded.level)
@@ -164,7 +164,7 @@ class SentryBreadcrumbTests: XCTestCase {
         let data = try XCTUnwrap(SentrySerializationSwift.data(withJSONObject: actual))
         
         // Act
-        let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as Breadcrumb?)
+        let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as BreadcrumbDecodable?)
         
         // Assert
         XCTAssertEqual(crumb, decoded)

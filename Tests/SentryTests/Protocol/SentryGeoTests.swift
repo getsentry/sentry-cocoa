@@ -43,7 +43,7 @@ class SentryGeoTests: XCTestCase {
         let actual = geo.serialize()
         let data = try XCTUnwrap(SentrySerializationSwift.data(withJSONObject: actual))
         
-        let decoded = decodeFromJSONData(jsonData: data) as Geo?
+        let decoded = decodeFromJSONData(jsonData: data) as GeoDecodable?
         
         XCTAssertEqual(geo, decoded)
     }
@@ -53,7 +53,7 @@ class SentryGeoTests: XCTestCase {
         let actual = geo.serialize()
         let data = try XCTUnwrap(SentrySerializationSwift.data(withJSONObject: actual))
         
-        let decoded = decodeFromJSONData(jsonData: data) as Geo?
+        let decoded = decodeFromJSONData(jsonData: data) as GeoDecodable?
         
         XCTAssertEqual(geo, decoded)
     }

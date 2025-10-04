@@ -28,7 +28,7 @@ class SentryDebugMetaTests: XCTestCase {
         let data = try XCTUnwrap(SentrySerializationSwift.data(withJSONObject: actual))
         
         // Act
-        let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as DebugMeta?)
+        let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as DebugMetaDecodable?)
 
         // Assert
         XCTAssertEqual(debugMeta.uuid, decoded.uuid)
@@ -48,7 +48,7 @@ class SentryDebugMetaTests: XCTestCase {
         let data = try XCTUnwrap(SentrySerializationSwift.data(withJSONObject: actual))
         
         // Act
-        let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as DebugMeta?)
+        let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as DebugMetaDecodable?)
 
         // Assert
         XCTAssertNil(decoded.uuid)
@@ -69,7 +69,7 @@ class SentryDebugMetaTests: XCTestCase {
         let data = try XCTUnwrap(SentrySerializationSwift.data(withJSONObject: actual))
         
         // Act
-        let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as DebugMeta?)
+        let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as DebugMetaDecodable?)
 
         // Assert
         XCTAssertEqual(debugMeta.uuid, decoded.uuid)
