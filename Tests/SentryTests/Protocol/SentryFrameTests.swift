@@ -61,7 +61,7 @@ class SentryFrameTests: XCTestCase {
         let data = try XCTUnwrap(SentrySerializationSwift.data(withJSONObject: frame.serialize()))
         
         // Act
-        let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as Frame?)
+        let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as FrameDecodable?)
         
         // Assert
         XCTAssertEqual(frame.symbolAddress, decoded.symbolAddress)
@@ -88,7 +88,7 @@ class SentryFrameTests: XCTestCase {
         let data = try XCTUnwrap(SentrySerializationSwift.data(withJSONObject: frame.serialize()))
         
         // Act
-        let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as Frame?)
+        let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as FrameDecodable?)
         
         // Assert
         XCTAssertEqual(frame.symbolAddress, decoded.symbolAddress)
@@ -115,7 +115,7 @@ class SentryFrameTests: XCTestCase {
         let data = try XCTUnwrap(SentrySerializationSwift.data(withJSONObject: frame.serialize()))
         
         // Act
-        let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as Frame?)
+        let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as FrameDecodable?)
         
         // Assert
         XCTAssertNil(decoded.symbolAddress)

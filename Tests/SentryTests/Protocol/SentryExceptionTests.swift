@@ -33,7 +33,7 @@ class SentryExceptionTests: XCTestCase {
         let data = try XCTUnwrap(SentrySerializationSwift.data(withJSONObject: actual))
 
         // Act
-        let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as Exception?)
+        let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as ExceptionDecodable?)
 
         // Assert
         XCTAssertEqual(exception.type, decoded.type)
@@ -60,7 +60,7 @@ class SentryExceptionTests: XCTestCase {
         let data = try XCTUnwrap(SentrySerializationSwift.data(withJSONObject: actual))
 
         // Act
-        let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as Exception?)
+        let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as ExceptionDecodable?)
 
         // Assert
         XCTAssertEqual(exception.type, decoded.type)

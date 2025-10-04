@@ -40,16 +40,14 @@ class SentryTransactionContextTests: XCTestCase {
         assertContext(context: context, transactionName: "", sampled: .yes)
     }
 
-    @available(*, deprecated, message: "The test is marked as deprecated to silence the deprecation warning of the initializer")
     func testPublicInit_WithNameOperationSampled() {
-        let context = TransactionContext(name: transactionName, operation: operation, sampled: .yes)
+        let context = TransactionContext(name: transactionName, operation: operation, sampled: .yes, sampleRate: nil, sampleRand: nil)
         
         assertContext(context: context, sampled: .yes)
     }
 
-    @available(*, deprecated, message: "The test is marked as deprecated to silence the deprecation warning of the initializer")
     func testPublicInit_WithAllParams() {
-        let context = TransactionContext(name: transactionName, operation: operation, trace: traceID, spanId: spanID, parentSpanId: parentSpanID, parentSampled: .no)
+        let context = TransactionContext(name: transactionName, operation: operation, trace: traceID, spanId: spanID, parentSpanId: parentSpanID, parentSampled: .no, parentSampleRate: nil, parentSampleRand: nil)
         
         assertContext(context: context, isParentSpanIdNil: false)
         XCTAssertEqual(traceID, context.traceId)
@@ -199,10 +197,9 @@ class SentryTransactionContextTests: XCTestCase {
         )
     }
 
-    @available(*, deprecated, message: "The test is marked as deprecated to silence the deprecation warning of the initializer")
     func testPublicInit_WithNameOperationSampled_shouldMatchExpectedValues() {
         // Act
-        let context = TransactionContext(name: transactionName, operation: operation, sampled: sampled)
+        let context = TransactionContext(name: transactionName, operation: operation, sampled: sampled, sampleRate: nil, sampleRand: nil)
 
         // Assert
         assertFullContext(
@@ -250,7 +247,6 @@ class SentryTransactionContextTests: XCTestCase {
         )
     }
 
-    @available(*, deprecated, message: "The test is marked as deprecated to silence the deprecation warning of the initializer")
     func testPublicInit_WithNameTraceIdSpanIdParentSpanIdParentSampled() {
         // Act
         let context = TransactionContext(
@@ -259,7 +255,9 @@ class SentryTransactionContextTests: XCTestCase {
             trace: traceID,
             spanId: spanID,
             parentSpanId: parentSpanID,
-            parentSampled: parentSampled
+            parentSampled: parentSampled,
+            parentSampleRate: nil,
+            parentSampleRand: nil
         )
 
         // Assert
@@ -289,7 +287,9 @@ class SentryTransactionContextTests: XCTestCase {
             trace: traceID,
             spanId: spanID,
             parentSpanId: nil,
-            parentSampled: parentSampled
+            parentSampled: parentSampled,
+            parentSampleRate: nil,
+            parentSampleRand: nil
         )
 
         // Assert
