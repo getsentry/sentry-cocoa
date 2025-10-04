@@ -5,6 +5,9 @@
 ### Breaking Changes
 
 - Removes Decodable conformances from the public API of model classes (#5691)
+- Removes unused SentryLogLevel (#5591)
+- Removes deprecated getStoreEndpoint (#5591)
+- Removes deprecated useSpan function (#5591)
 - Removes deprecated user feedback API, this is replaced with the new feedback API (#5591)
 - Removes `enablePerformanceV2` option and makes this the default. The app start duration will now finish when the first frame is drawn instead of when the OS posts the UIWindowDidBecomeVisibleNotification. (#6008)
 
