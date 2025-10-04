@@ -2,7 +2,6 @@
 
 ### Breaking Changes
 
-Removes deprecated user feedback API, this is replaced with the new feedback API (#5591)
 Removes unused SentryLogLevel (#5591)
 Removes deprecated getStoreEndpoint (#5591)
 Removes deprecated useSpan function (#5591)
@@ -16,4 +15,3 @@ Removes deprecated `setExtraValue` from SentrySpan (#5864)
 Removes `integrations` property from `SentryOptions` (#5749)
 Makes `SentryEventDecodable` internal (#5808)
 The `span` property on `SentryScope` is now readonly (#5866)
-Removes `enablePerformanceV2` option and makes this the default (#6008)

@@ -240,11 +240,6 @@
     [self setBool:options[@"enableAutoPerformanceTracing"]
             block:^(BOOL value) { sentryOptions.enableAutoPerformanceTracing = value; }];
 
-#if !SDK_V9
-    [self setBool:options[@"enablePerformanceV2"]
-            block:^(BOOL value) { sentryOptions.enablePerformanceV2 = value; }];
-#endif // !SDK_V9
-
     [self setBool:options[@"enablePersistingTracesWhenCrashing"]
             block:^(BOOL value) { sentryOptions.enablePersistingTracesWhenCrashing = value; }];
 

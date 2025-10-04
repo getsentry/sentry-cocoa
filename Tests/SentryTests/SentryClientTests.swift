@@ -1725,15 +1725,12 @@ class SentryClientTests: XCTestCase {
     }
     
     func testSetSDKFeatures() throws {
-        let sut = fixture.getSut {
-            $0.enablePerformanceV2 = true
-        }
+        let sut = fixture.getSut()
         
         sut.capture(message: "message")
         
         let actual = try lastSentEvent()
         let features = try XCTUnwrap(actual.sdk?["features"] as? [String])
-        XCTAssert(features.contains("performanceV2"))
         XCTAssert(features.contains("captureFailedRequests"))
     }
 
