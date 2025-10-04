@@ -51,13 +51,6 @@ NS_SWIFT_NAME(TraceContext)
 @property (nullable, nonatomic, readonly) NSString *transaction;
 
 /**
- * A subset of the scope's user context.
- */
-#if !SDK_V9
-@property (nullable, nonatomic, readonly) NSString *userSegment;
-#endif
-
-/**
  * Serialized sample rate used for this trace.
  */
 @property (nullable, nonatomic, readonly) NSString *sampleRate;
@@ -85,9 +78,6 @@ NS_SWIFT_NAME(TraceContext)
                     releaseName:(nullable NSString *)releaseName
                     environment:(nullable NSString *)environment
                     transaction:(nullable NSString *)transaction
-#if !SDK_V9
-                    userSegment:(nullable NSString *)userSegment
-#endif
                      sampleRate:(nullable NSString *)sampleRate
                         sampled:(nullable NSString *)sampled
                        replayId:(nullable NSString *)replayId;
@@ -100,9 +90,6 @@ NS_SWIFT_NAME(TraceContext)
                     releaseName:(nullable NSString *)releaseName
                     environment:(nullable NSString *)environment
                     transaction:(nullable NSString *)transaction
-#if !SDK_V9
-                    userSegment:(nullable NSString *)userSegment
-#endif
                      sampleRate:(nullable NSString *)sampleRate
                      sampleRand:(nullable NSString *)sampleRand
                         sampled:(nullable NSString *)sampled
@@ -125,7 +112,6 @@ NS_SWIFT_NAME(TraceContext)
                                   scope:(nullable SentryScope *)scope
                                 options:(SentryOptions *)options;
 
-#if SDK_V9
 /**
  * Initializes a SentryTraceContext with data from a traceId, options and replayId.
  *
@@ -133,21 +119,8 @@ NS_SWIFT_NAME(TraceContext)
  *  @param options The current active options.
  *  @param replayId The current session replay.
  */
-#else
-/**
- * Initializes a SentryTraceContext with data from a traceId, options, userSegment and replayId.
- *
- *  @param traceId The current tracer.
- *  @param options The current active options.
- *  @param userSegment You can retrieve this usually from the `scope.userObject.segment`.
- *  @param replayId The current session replay.
- */
-#endif
 - (instancetype)initWithTraceId:(SentryId *)traceId
                         options:(SentryOptions *)options
-#if !SDK_V9
-                    userSegment:(nullable NSString *)userSegment
-#endif
                        replayId:(nullable NSString *)replayId;
 
 /**

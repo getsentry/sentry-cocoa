@@ -32,7 +32,6 @@ class SentryScopeSwiftTests: XCTestCase {
             user.email = "user@sentry.io"
             user.username = "user123"
             user.ipAddress = "127.0.0.1"
-            user.segment = "segmentA"
             user.name = "User"
             user.ipAddress = ipAddress
             
