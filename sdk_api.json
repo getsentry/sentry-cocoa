@@ -38070,48 +38070,6 @@
           {
             "kind": "Constructor",
             "name": "init",
-            "printedName": "init(name:operation:sampled:)",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "TransactionContext",
-                "printedName": "Sentry.TransactionContext",
-                "usr": "c:objc(cs)SentryTransactionContext"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "String",
-                "printedName": "Swift.String",
-                "usr": "s:SS"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "String",
-                "printedName": "Swift.String",
-                "usr": "s:SS"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "SentrySampleDecision",
-                "printedName": "Sentry.SentrySampleDecision",
-                "usr": "c:@E@SentrySampleDecision"
-              }
-            ],
-            "declKind": "Constructor",
-            "usr": "c:objc(cs)SentryTransactionContext(im)initWithName:operation:sampled:",
-            "moduleName": "Sentry",
-            "deprecated": true,
-            "objc_name": "initWithName:operation:sampled:",
-            "declAttributes": [
-              "Available",
-              "ObjC",
-              "Dynamic"
-            ],
-            "init_kind": "Designated"
-          },
-          {
-            "kind": "Constructor",
-            "name": "init",
             "printedName": "init(name:operation:sampled:sampleRate:sampleRand:)",
             "children": [
               {
@@ -38172,74 +38130,6 @@
             "moduleName": "Sentry",
             "objc_name": "initWithName:operation:sampled:sampleRate:sampleRand:",
             "declAttributes": [
-              "ObjC",
-              "Dynamic"
-            ],
-            "init_kind": "Designated"
-          },
-          {
-            "kind": "Constructor",
-            "name": "init",
-            "printedName": "init(name:operation:trace:spanId:parentSpanId:parentSampled:)",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "TransactionContext",
-                "printedName": "Sentry.TransactionContext",
-                "usr": "c:objc(cs)SentryTransactionContext"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "String",
-                "printedName": "Swift.String",
-                "usr": "s:SS"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "String",
-                "printedName": "Swift.String",
-                "usr": "s:SS"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "SentryId",
-                "printedName": "Sentry.SentryId",
-                "usr": "c:@M@Sentry@objc(cs)SentryId"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "SpanId",
-                "printedName": "Sentry.SpanId",
-                "usr": "c:objc(cs)SentrySpanId"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "Optional",
-                "printedName": "Sentry.SpanId?",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "SpanId",
-                    "printedName": "Sentry.SpanId",
-                    "usr": "c:objc(cs)SentrySpanId"
-                  }
-                ],
-                "usr": "s:Sq"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "SentrySampleDecision",
-                "printedName": "Sentry.SentrySampleDecision",
-                "usr": "c:@E@SentrySampleDecision"
-              }
-            ],
-            "declKind": "Constructor",
-            "usr": "c:objc(cs)SentryTransactionContext(im)initWithName:operation:traceId:spanId:parentSpanId:parentSampled:",
-            "moduleName": "Sentry",
-            "deprecated": true,
-            "objc_name": "initWithName:operation:traceId:spanId:parentSpanId:parentSampled:",
-            "declAttributes": [
-              "Available",
               "ObjC",
               "Dynamic"
             ],
