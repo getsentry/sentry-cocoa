@@ -11,9 +11,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (NSString *)getHash;
 
-#if !SDK_V9
-- (NSURL *)getStoreEndpoint DEPRECATED_MSG_ATTRIBUTE("This endpoint is no longer used");
-#endif // !SDK_V9
 - (NSURL *)getEnvelopeEndpoint;
 
 @end

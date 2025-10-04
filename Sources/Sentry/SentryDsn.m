@@ -11,7 +11,6 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 @implementation SentryDsn {
-    NSURL *_storeEndpoint;
     NSURL *_envelopeEndpoint;
 }
 
@@ -40,20 +39,6 @@ NS_ASSUME_NONNULL_BEGIN
     }
     return output;
 }
-
-#if !SDK_V9
-- (NSURL *)getStoreEndpoint
-{
-    if (nil == _storeEndpoint) {
-        @synchronized(self) {
-            if (nil == _storeEndpoint) {
-                _storeEndpoint = [[self getBaseEndpoint] URLByAppendingPathComponent:@"store/"];
-            }
-        }
-    }
-    return _storeEndpoint;
-}
-#endif // !SDK_V9
 
 - (NSURL *)getEnvelopeEndpoint
 {
