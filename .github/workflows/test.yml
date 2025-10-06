@@ -130,9 +130,10 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # Running the tests with simulators is incredibly flaky. As we don't touch that code often, the risk is small
-          # that the unit tests break on iOS but not on macOS, and it's better to have rock-solid unit tests, we only run
-          #these on macOS.
+          # Running the tests with simulators is incredibly flaky. Our assumption is that simulators might have difficulties
+          # with communicating with the test server in CI.
+          # As we don't touch that code often, the risk is small that the unit tests break on iOS but not on macOS, and it's
+          # better to have rock-solid unit tests, we only run these on macOS.
           - name: macOS 15
             runs-on: macos-15
             platform: "macOS"
