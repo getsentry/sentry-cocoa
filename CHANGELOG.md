@@ -13,7 +13,8 @@ Removes `enablePerformanceV2` option and makes this the default. The app start d
 
 ### Fixes
 
-Fixes warnings about minimum OS version being lower than Xcode supported version (#5591)
+- Fixes warnings about minimum OS version being lower than Xcode supported version (#5591)
+- Fix rendering method for fast view rendering (#6360)
 
 ## 8.56.2
 
