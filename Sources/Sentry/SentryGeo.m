@@ -43,7 +43,7 @@ NS_ASSUME_NONNULL_BEGIN
     if (other == self) {
         return YES;
     }
-    if (!other || ![[other class] isEqual:[self class]]) {
+    if (!other || ![other isKindOfClass:[SentryGeo class]]) {
         return NO;
     }
 

@@ -1,15 +1,12 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
-#if SDK_V9
 final class MechanismDecodable: Mechanism {
     convenience public init(from decoder: any Decoder) throws {
         try self.init(decodedFrom: decoder)
     }
 }
-#else
-typealias MechanismDecodable = Mechanism
-#endif
+
 extension MechanismDecodable: Decodable {
 
     enum CodingKeys: String, CodingKey {
@@ -21,12 +18,6 @@ extension MechanismDecodable: Decodable {
         case helpLink = "help_link"
         case meta
     }
-    
-    #if !SDK_V9
-    required convenience public init(from decoder: any Decoder) throws {
-        try self.init(decodedFrom: decoder)
-    }
-    #endif
 
     private convenience init(decodedFrom decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)

@@ -49,7 +49,7 @@ class SentryMechanismMetaTests: XCTestCase {
         let data = try XCTUnwrap(SentrySerializationSwift.data(withJSONObject: sut.serialize()))
         
         // Act
-        let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as MechanismMeta?)
+        let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as MechanismMetaDecodable?)
         
         // Assert
         try assertSignal(actual: decoded.signal, expected: sut.signal)
@@ -67,7 +67,7 @@ class SentryMechanismMetaTests: XCTestCase {
         let data = try XCTUnwrap(SentrySerializationSwift.data(withJSONObject: sut.serialize()))
         
         // Act
-        let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as MechanismMeta?)   
+        let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as MechanismMetaDecodable?)
 
         // Assert
         XCTAssertNil(decoded.signal)
