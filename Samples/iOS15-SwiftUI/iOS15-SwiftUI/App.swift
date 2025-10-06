@@ -2,20 +2,12 @@ import Foundation
 import SentrySampleShared
 import SwiftUI
 
-import Logging
-import SentrySwiftLog
-
 @main
 struct SwiftUIApp: App {
     @UIApplicationDelegateAdaptor private var appDelegate: MyAppDelegate
 
     init() {
         SentrySDKWrapper.shared.startSentry()
-        
-        // Use structured logs with swift-log
-        LoggingSystem.bootstrap { _ in
-            return SentryLogHandler(logLevel: .trace)
-        }
     }
 
     var body: some Scene {
