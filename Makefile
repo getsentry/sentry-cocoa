@@ -88,7 +88,6 @@ format-yaml:
 
 generate-public-api:
 	./scripts/update-api.sh
-	./scripts/update-api.sh V9
 
 ## Current git reference name
 GIT-REF := $(shell git rev-parse --abbrev-ref HEAD)
@@ -190,7 +189,6 @@ xcode-ci:
 	xcodegen --spec Samples/iOS-ObjectiveC/iOS-ObjectiveC.yml
 	xcodegen --spec Samples/iOS-Swift/iOS-Swift.yml
 	xcodegen --spec Samples/iOS-Swift6/iOS-Swift6.yml
-	xcodegen --spec Samples/iOS13-Swift/iOS13-Swift.yml
 	xcodegen --spec Samples/iOS-SwiftUI/iOS-SwiftUI.yml
 	xcodegen --spec Samples/iOS15-SwiftUI/iOS15-SwiftUI.yml
 	xcodegen --spec Samples/macOS-SwiftUI/macOS-SwiftUI.yml

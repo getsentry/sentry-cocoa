@@ -37,24 +37,6 @@ class ViewController: NSViewController {
         SentrySDK.capture(exception: exception, scope: scope)
     }
 
-    @IBAction func captureUserFeedback(_ sender: Any) {
-        let error = NSError(domain: "UserFeedbackErrorDomain", code: 0, userInfo: [NSLocalizedDescriptionKey: "This never happens."])
-
-        let eventId = SentrySDK.capture(error: error) { scope in
-            scope.setLevel(.fatal)
-        }
-
-#if SDK_V9
-  print("SDK V9 does not support user feedback.")
-#else
-        let userFeedback = UserFeedback(eventId: eventId)
-        userFeedback.comments = "It broke on macOS-Swift. I don't know why, but this happens."
-        userFeedback.email = "john@me.com"
-        userFeedback.name = "John Me"
-        SentrySDK.capture(userFeedback: userFeedback)
-      #endif // SDK_V9
-    }
-
     @IBAction func raiseNSException(_ sender: Any) {
         let userInfo: [String: String] = ["user-info-key-1": "user-info-value-1", "user-info-key-2": "user-info-value-2"]
         let exception = NSException(name: NSExceptionName("NSException via NSException raise"), reason: "Raised NSException", userInfo: userInfo)

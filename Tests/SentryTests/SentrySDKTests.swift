@@ -22,8 +22,6 @@ class SentrySDKTests: XCTestCase {
         let hub: SentryHub
         let error: Error = NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Object does not exist"])
         let exception = NSException(name: NSExceptionName("My Custom exeption"), reason: "User clicked the button", userInfo: nil)
-        @available(*, deprecated, message: "SentryUserFeedback is deprecated in favor of SentryFeedback.")
-        let userFeedback: UserFeedback
         let feedback: SentryFeedback
 
         let currentDate = TestCurrentDateProvider()
@@ -60,11 +58,6 @@ class SentrySDKTests: XCTestCase {
 
             client = TestClient(options: options)!
             hub = SentryHub(client: client, andScope: scope, andCrashWrapper: TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo), andDispatchQueue: SentryDispatchQueueWrapper())
-
-            userFeedback = UserFeedback(eventId: SentryId())
-            userFeedback.comments = "Again really?"
-            userFeedback.email = "tim@apple.com"
-            userFeedback.name = "Tim Apple"
 
             feedback = SentryFeedback(message: "Again really?", name: "Tim Apple", email: "tim@apple.com")
             

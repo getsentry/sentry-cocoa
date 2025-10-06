@@ -1,5 +1,6 @@
 #import "SentryANRTrackerV1.h"
 
+#import "SentryDefaultThreadInspector.h"
 #import "SentryExtraContextProvider.h"
 #import "SentryFileIOTracker.h"
 #import "SentryInternalCDefines.h"
@@ -10,11 +11,9 @@
 #import "SentrySessionTracker.h"
 #import "SentrySwift.h"
 #import "SentrySystemWrapper.h"
-#import "SentryThreadInspector.h"
-#import <SentryAppStateManager.h>
 #import <SentryCrash.h>
 #import <SentryDebugImageProvider+HybridSDKs.h>
-#import <SentryDefaultRateLimits.h>
+#import <SentryDefaultAppStateManager.h>
 #import <SentryDependencyContainer.h>
 #import <SentryPerformanceTracker.h>
 #import <SentrySDK+Private.h>
@@ -66,6 +65,12 @@ SentryApplicationProviderBlock defaultApplicationProvider = ^id<SentryApplicatio
 };
 
 @interface SentryFileManager () <SentryFileManagerProtocol>
+@end
+
+@interface SentryDefaultThreadInspector () <SentryThreadInspector>
+@end
+
+@interface SentryDefaultAppStateManager () <SentryAppStateManager>
 @end
 
 @interface SentryDependencyContainer ()
@@ -220,20 +225,20 @@ static BOOL isInitialializingDependencyContainer = NO;
     }));
 }
 
-- (SentryAppStateManager *)appStateManager SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
+- (id<SentryAppStateManager>)appStateManager SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
     SENTRY_LAZY_INIT(_appStateManager,
-        [[SentryAppStateManager alloc] initWithOptions:SentrySDKInternal.options
-                                          crashWrapper:self.crashWrapper
-                                           fileManager:self.fileManager
-                                  dispatchQueueWrapper:self.dispatchQueueWrapper
-                             notificationCenterWrapper:self.notificationCenterWrapper]);
+        [[SentryDefaultAppStateManager alloc] initWithOptions:SentrySDKInternal.options
+                                                 crashWrapper:self.crashWrapper
+                                                  fileManager:self.fileManager
+                                         dispatchQueueWrapper:self.dispatchQueueWrapper
+                                    notificationCenterWrapper:self.notificationCenterWrapper]);
 }
 
-- (SentryThreadInspector *)threadInspector SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
+- (id<SentryThreadInspector>)threadInspector SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
     SENTRY_LAZY_INIT(_threadInspector,
-        [[SentryThreadInspector alloc] initWithOptions:SentrySDKInternal.options]);
+        [[SentryDefaultThreadInspector alloc] initWithOptions:SentrySDKInternal.options]);
 }
 
 - (SentryFileIOTracker *)fileIOTracker SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK

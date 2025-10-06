@@ -87,7 +87,7 @@ typedef NS_ENUM(NSInteger, SentryANRTrackerState) {
 
         atomic_fetch_add_explicit(&ticksSinceUiUpdate, 1, memory_order_relaxed);
 
-        [self.dispatchQueueWrapper dispatchAsyncOnMainQueue:^{
+        [self.dispatchQueueWrapper dispatchAsyncOnMainQueueIfNotMainThread:^{
             atomic_store_explicit(&ticksSinceUiUpdate, 0, memory_order_relaxed);
 
             bool isReported = atomic_load_explicit(&reported, memory_order_relaxed);

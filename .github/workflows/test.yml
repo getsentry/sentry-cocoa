@@ -265,7 +265,7 @@ jobs:
           - name: iOS 26 Sentry
             runs-on: macos-26
             platform: "iOS"
-            xcode: "26.0"
+            xcode: "26.0.1"
             test-destination-os: "26.0"
             device: "iPhone 17 Pro"
             scheme: "Sentry"
@@ -294,7 +294,7 @@ jobs:
           - name: macOS 26 Sentry
             runs-on: macos-26
             platform: "macOS"
-            xcode: "26.0"
+            xcode: "26.0.1"
             test-destination-os: "26.0"
             scheme: "Sentry"
 
@@ -359,7 +359,7 @@ jobs:
           - name: tvOS 26 Sentry
             runs-on: macos-26
             platform: "tvOS"
-            xcode: "26.0"
+            xcode: "26.0.1"
             test-destination-os: "26.0"
             device: "Apple TV"
             scheme: "Sentry"

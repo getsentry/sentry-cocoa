@@ -2,10 +2,19 @@
 
 ## Unreleased
 
+### Breaking Changes
+
+Removes deprecated user feedback API, this is replaced with the new feedback API (#5591)
+Removes `enablePerformanceV2` option and makes this the default. The app start duration will now finish when the first frame is drawn instead of when the OS posts the UIWindowDidBecomeVisibleNotification. (#6008)
+
 ### Features
 
 - Add SentryDistribution as Swift Package Manager target (#6149)
 - Add `SentrySwiftLog` Integration ([#6286](https://github.com/getsentry/sentry-cocoa/pull/6286))
+
+### Fixes
+
+Fixes warnings about minimum OS version being lower than Xcode supported version (#5591)
 
 ## 8.56.2
 

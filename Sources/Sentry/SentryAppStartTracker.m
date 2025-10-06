@@ -3,7 +3,6 @@
 #if SENTRY_HAS_UIKIT
 
 #    import "SentryAppStartMeasurement.h"
-#    import "SentryAppStateManager.h"
 #    import "SentryDefines.h"
 #    import "SentryFramesTracker.h"
 #    import "SentryLogC.h"
@@ -29,12 +28,11 @@ static const NSTimeInterval SENTRY_APP_START_MAX_DURATION = 180.0;
 
 @property (nonatomic, strong, nullable) SentryAppState *previousAppState;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueue;
-@property (nonatomic, strong) SentryAppStateManager *appStateManager;
+@property (nonatomic, strong) id<SentryAppStateManager> appStateManager;
 @property (nonatomic, strong) SentryFramesTracker *framesTracker;
 @property (nonatomic, assign) BOOL wasInBackground;
 @property (nonatomic, strong) NSDate *didFinishLaunchingTimestamp;
 @property (nonatomic, assign) BOOL enablePreWarmedAppStartTracing;
-@property (nonatomic, assign) BOOL enablePerformanceV2;
 
 @end
 
@@ -53,19 +51,15 @@ static const NSTimeInterval SENTRY_APP_START_MAX_DURATION = 180.0;
 }
 
 - (instancetype)initWithDispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
-                             appStateManager:(SentryAppStateManager *)appStateManager
+                             appStateManager:(id<SentryAppStateManager>)appStateManager
                                framesTracker:(SentryFramesTracker *)framesTracker
               enablePreWarmedAppStartTracing:(BOOL)enablePreWarmedAppStartTracing
-                         enablePerformanceV2:(BOOL)enablePerformanceV2
 {
     if (self = [super init]) {
         self.dispatchQueue = dispatchQueueWrapper;
         self.appStateManager = appStateManager;
-        _enablePerformanceV2 = enablePerformanceV2;
-        if (_enablePerformanceV2) {
-            self.framesTracker = framesTracker;
-            [framesTracker addListener:self];
-        }
+        self.framesTracker = framesTracker;
+        [framesTracker addListener:self];
 
         self.previousAppState = [self.appStateManager loadPreviousAppState];
         self.wasInBackground = NO;
@@ -103,11 +97,6 @@ static const NSTimeInterval SENTRY_APP_START_MAX_DURATION = 180.0;
     [NSNotificationCenter.defaultCenter addObserver:self
                                            selector:@selector(didFinishLaunching)
                                                name:UIApplicationDidFinishLaunchingNotification
-                                             object:nil];
-
-    [NSNotificationCenter.defaultCenter addObserver:self
-                                           selector:@selector(didBecomeVisible)
-                                               name:UIWindowDidBecomeVisibleNotification
                                              object:nil];
 
     [NSNotificationCenter.defaultCenter addObserver:self
@@ -231,19 +220,6 @@ static const NSTimeInterval SENTRY_APP_START_MAX_DURATION = 180.0;
 }
 
 /**
- * This is when the window becomes visible, which is not when the first frame of the app is drawn.
- * When this is posted, the app screen is usually white. The correct time when the first frame is
- * drawn is called in framesTrackerHasNewFrame only when `enablePerformanceV2` is enabled.
- */
-- (void)didBecomeVisible
-{
-    if (!_enablePerformanceV2) {
-        [self
-            buildAppStartMeasurement:[SentryDependencyContainer.sharedInstance.dateProvider date]];
-    }
-}
-
-/**
  * This is when the first frame is drawn.
  */
 - (void)framesTrackerHasNewFrame:(NSDate *)newFrameDate
@@ -302,10 +278,6 @@ static const NSTimeInterval SENTRY_APP_START_MAX_DURATION = 180.0;
     // https://developer.apple.com/documentation/foundation/nsnotificationcenter/1413994-removeobserver
     [NSNotificationCenter.defaultCenter removeObserver:self
                                                   name:UIApplicationDidFinishLaunchingNotification
-                                                object:nil];
-
-    [NSNotificationCenter.defaultCenter removeObserver:self
-                                                  name:UIWindowDidBecomeVisibleNotification
                                                 object:nil];
 
     [NSNotificationCenter.defaultCenter removeObserver:self
