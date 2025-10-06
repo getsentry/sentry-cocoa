@@ -1,6 +1,5 @@
 #import <SentryBaggage.h>
 #import <SentryLogC.h>
-#import <SentrySDK+Private.h>
 #import <SentrySwift.h>
 #import <SentryTraceHeader.h>
 #import <SentryTracePropagation.h>
@@ -8,10 +7,12 @@
 @implementation SentryTracePropagation
 
 + (void)addBaggageHeader:(SentryBaggage *)baggage
-             traceHeader:(SentryTraceHeader *)traceHeader
-               toRequest:(NSURLSessionTask *)sessionTask
+                traceHeader:(SentryTraceHeader *)traceHeader
+    tracePropagationTargets:(NSArray *)tracePropagationTargets
+                  toRequest:(NSURLSessionTask *)sessionTask
 {
-    if (![SentryTracePropagation sessionTaskRequiresPropagation:sessionTask]) {
+    if (![SentryTracePropagation sessionTaskRequiresPropagation:sessionTask
+                                        tracePropagationTargets:tracePropagationTargets]) {
         SENTRY_LOG_DEBUG(@"Not adding trace_id and baggage headers for %@",
             sessionTask.currentRequest.URL.absoluteString);
         return;
@@ -65,10 +66,11 @@
 }
 
 + (BOOL)sessionTaskRequiresPropagation:(NSURLSessionTask *)sessionTask
+               tracePropagationTargets:(NSArray *)tracePropagationTargets
 {
     return sessionTask.currentRequest != nil &&
         [SentryTracePropagation isTargetMatch:sessionTask.currentRequest.URL
-                                  withTargets:SentrySDKInternal.options.tracePropagationTargets];
+                                  withTargets:tracePropagationTargets];
 }
 
 + (BOOL)isTargetMatch:(NSURL *)URL withTargets:(NSArray *)targets
