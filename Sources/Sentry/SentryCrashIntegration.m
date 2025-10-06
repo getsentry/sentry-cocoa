@@ -16,7 +16,6 @@
 #import "SentrySwift.h"
 #import "SentryTracer.h"
 #import "SentryWatchdogTerminationLogic.h"
-#import <SentryAppStateManager.h>
 #import <SentryClient+Private.h>
 #import <SentryCrashScopeObserver.h>
 #import <SentryDependencyContainer.h>
@@ -88,7 +87,7 @@ sentry_finishAndSaveTransaction(void)
     self.options = options;
 
 #if SENTRY_HAS_UIKIT
-    SentryAppStateManager *appStateManager =
+    id<SentryAppStateManager> appStateManager =
         [SentryDependencyContainer sharedInstance].appStateManager;
     SentryWatchdogTerminationLogic *logic =
         [[SentryWatchdogTerminationLogic alloc] initWithOptions:options

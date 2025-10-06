@@ -22,7 +22,6 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
     func testEnableAllFeatures() throws {
         // -- Arrange --
         let options = Options()
-        options.enablePerformanceV2 = true
         options.enableTimeToFullDisplayTracing = true
         options.swiftAsyncStacktraces = true
 
@@ -45,7 +44,6 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
 
         // -- Assert --
         XCTAssert(features.contains("captureFailedRequests"))
-        XCTAssert(features.contains("performanceV2"))
         XCTAssert(features.contains("timeToFullDisplayTracing"))
         XCTAssert(features.contains("swiftAsyncStacktraces"))
 

@@ -117,25 +117,13 @@ class SentryAppStartTrackingIntegrationTests: NotificationCenterTestCase {
         
         XCTAssertFalse(result)
     }
-    
-    func test_PerformanceV2Enabled() {
-        let options = fixture.options
-        options.enablePerformanceV2 = true
-        
-        XCTAssertEqual(self.sut.install(with: options), true)
-        
-        let tracker = Dynamic(sut).tracker.asAnyObject as? SentryAppStartTracker
-        XCTAssertEqual(Dynamic(tracker).enablePerformanceV2.asBool, true)
-    }
 
     func assertTrackerSetupAndRunning(_ tracker: SentryAppStartTracker) throws {
         _ = try XCTUnwrap(Dynamic(tracker).dispatchQueue.asAnyObject as? SentryDispatchQueueWrapper, "Tracker does not have a dispatch queue.")
-        
-        XCTAssertFalse(try XCTUnwrap(Dynamic(tracker).enablePerformanceV2.asBool))
 
         let appStateManager = Dynamic(tracker).appStateManager.asObject as? SentryAppStateManager
 
-        XCTAssertEqual(appStateManager, SentryDependencyContainer.sharedInstance().appStateManager)
+        XCTAssertIdentical(appStateManager, SentryDependencyContainer.sharedInstance().appStateManager)
 
         XCTAssertTrue(tracker.isRunning, "AppStartTracking should be running")
     }

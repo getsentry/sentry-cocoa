@@ -34,16 +34,8 @@ class SentryHttpTransportTests: XCTestCase {
 #endif // !os(watchOS)
 
         let flushTimeout: TimeInterval = 2.0
-        
-        @available(*, deprecated, message: "SentryUserFeedback is deprecated in favor of SentryFeedback.")
-        let userFeedback: UserFeedback = TestData.userFeedback
+
         let feedback: SentryFeedback = TestData.feedback
-        @available(*, deprecated, message: "SentryUserFeedback is deprecated in favor of SentryFeedback. There is currently no envelope initializer accepting a SentryFeedback; the envelope is currently built directly in -[SentryClient captureFeedback:withScope:] and sent to -[SentryTransportAdapter sendEvent:traceContext:attachments:additionalEnvelopeItems:].")
-        lazy var userFeedbackRequest: URLRequest = {
-            let userFeedbackEnvelope = SentryEnvelope(userFeedback: userFeedback)
-            userFeedbackEnvelope.header.sentAt = currentDateProvider.date()
-            return buildRequest(userFeedbackEnvelope)
-        }()
         
         let clientReport: SentryClientReport
         let clientReportEnvelope: SentryEnvelope
@@ -232,23 +224,6 @@ class SentryHttpTransportTests: XCTestCase {
         sut.send(envelope: envelope)
 
         assertRequestsSent(requestCount: 1)
-    }
-    
-    @available(*, deprecated, message: "SentryUserFeedback is deprecated in favor of SentryFeedback. There is currently no envelope initializer accepting a SentryFeedback; the envelope is currently built directly in -[SentryClient captureFeedback:withScope:] and sent to -[SentryTransportAdapter sendEvent:traceContext:attachments:additionalEnvelopeItems:]. This test case can be removed in favor of SentryClientTests.testCaptureFeedback")
-    func testSendUserFeedback() throws {
-        let envelope = SentryEnvelope(userFeedback: fixture.userFeedback)
-        sut.send(envelope: envelope)
-        waitForAllRequests()
-
-        XCTAssertEqual(1, fixture.requestManager.requests.count)
-
-        let actualData = try XCTUnwrap(fixture.requestManager.requests.last?.httpBody)
-        let expectedData = try XCTUnwrap(fixture.userFeedbackRequest.httpBody)
-        let decompressedActualData = try XCTUnwrap(sentry_unzippedData(actualData))
-        let decompressedExpectedData = try XCTUnwrap(sentry_unzippedData(expectedData))
-        let actualEnvelope = try XCTUnwrap(SentrySerializationSwift.envelope(with: decompressedActualData))
-        let expectedEnvelope = try XCTUnwrap(SentrySerializationSwift.envelope(with: decompressedExpectedData))
-        try EnvelopeUtils.assertEnvelope(expected: expectedEnvelope, actual: actualEnvelope)
     }
     
     @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
@@ -1060,7 +1035,7 @@ class SentryHttpTransportTests: XCTestCase {
 
     private func assertRateLimitUpdated(response: HTTPURLResponse) {
         XCTAssertEqual(1, fixture.requestManager.requests.count)
-        XCTAssertTrue(fixture.rateLimits.isRateLimitActive(SentryDataCategory.session))
+        XCTAssertTrue(fixture.rateLimits.isRateLimitActive(SentryDataCategory.session.rawValue))
     }
 
     private func assertRequestsSent(requestCount: Int) {

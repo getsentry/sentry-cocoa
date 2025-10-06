@@ -18,7 +18,6 @@
 #    import "SentryProfilingSwiftHelpers.h"
 #    import "SentrySDK+Private.h"
 #    import "SentrySamplingProfiler.hpp"
-#    import "SentryScreenFrames.h"
 #    import "SentryTime.h"
 #    import "SentryTracer+Private.h"
 

@@ -242,16 +242,6 @@ import Foundation
         return SentrySDKInternal.capture(message: message, block: block).sentryId
     }
     
-    #if !SDK_V9
-    /// Captures user feedback that was manually gathered and sends it to Sentry.
-    /// - parameter userFeedback: The user feedback to send to Sentry.
-    @available(*, deprecated, message: "Use SentrySDK.back or use or configure our new managed UX with SentryOptions.configureUserFeedback.")
-    @objc(captureUserFeedback:)
-    public static func capture(userFeedback: UserFeedback) {
-        SentrySDKInternal.capture(userFeedback: userFeedback)
-    }
-    #endif
-    
     /// Captures user feedback that was manually gathered and sends it to Sentry.
     /// - warning: This is an experimental feature and may still have bugs.
     /// - parameter feedback: The feedback to send to Sentry.

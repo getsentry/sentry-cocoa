@@ -5,6 +5,18 @@
 ### Fixes
 
 - Ignore SwiftUI's list background decoration view in redaction ([#6292](https://github.com/getsentry/sentry-cocoa/pull/6292))
+### Breaking Changes
+
+Removes deprecated user feedback API, this is replaced with the new feedback API (#5591)
+Removes `enablePerformanceV2` option and makes this the default. The app start duration will now finish when the first frame is drawn instead of when the OS posts the UIWindowDidBecomeVisibleNotification. (#6008)
+
+### Features
+
+- Add SentryDistribution as Swift Package Manager target (#6149)
+
+### Fixes
+
+Fixes warnings about minimum OS version being lower than Xcode supported version (#5591)
 
 ## 8.56.2
 

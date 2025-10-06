@@ -2,6 +2,7 @@
 // public interfaces here
 #import "NSLocale+Sentry.h"
 #import "SentryBinaryImageCacheCallbacks.h"
+#import "SentryConcurrentRateLimitsDictionary.h"
 #import "SentryCrashBinaryImageCache.h"
 #import "SentryCrashDynamicLinker.h"
 #import "SentryCrashExceptionApplicationHelper.h"
@@ -27,7 +28,6 @@
 #import "SentryCrashDebug.h"
 #import "SentryCrashMonitor_AppState.h"
 #import "SentryCrashMonitor_System.h"
-#import "SentryDateUtil.h"
 #import "SentryDateUtils.h"
 #import "SentryDependencyContainerSwiftHelper.h"
 #import "SentryEvent+Serialize.h"

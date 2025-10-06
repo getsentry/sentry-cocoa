@@ -4,6 +4,8 @@
 @_spi(Private) import SentryTestUtils
 import XCTest
 
+@_spi(Private) extension SentryDefaultAppStateManager: SentryAppStateManager { }
+
 class SentryWatchdogTerminationIntegrationTests: XCTestCase {
     private static let dsn = TestConstants.dsnForTestCase(type: SentryWatchdogTerminationIntegrationTests.self)
 
@@ -16,7 +18,7 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         let watchdogTerminationAttributesProcessor: TestSentryWatchdogTerminationAttributesProcessor
         let hub: SentryHub
         let scope: Scope
-        let appStateManager: SentryAppStateManager
+        let appStateManager: SentryDefaultAppStateManager
 
         convenience init() throws {
             let options = Options()
@@ -49,7 +51,7 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
             container.fileManager = fileManager
 
             let notificationCenterWrapper = TestNSNotificationCenterWrapper()
-            appStateManager = SentryAppStateManager(
+            appStateManager = SentryDefaultAppStateManager(
                 options: options,
                 crashWrapper: crashWrapper,
                 fileManager: fileManager,
