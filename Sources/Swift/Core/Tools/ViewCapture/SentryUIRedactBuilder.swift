@@ -301,13 +301,14 @@ final class SentryUIRedactBuilder {
     /// so clip regions are applied first before drawing a redact mask on lower views.
     func redactRegionsFor(view: UIView) -> [SentryRedactRegion] {
         var redactingRegions = [SentryRedactRegion]()
-        
+
         self.mapRedactRegion(
             fromLayer: view.layer.presentation() ?? view.layer,
-                             relativeTo: nil,
-                             redacting: &redactingRegions,
-                             rootFrame: view.frame,
-                             transform: .identity)
+            relativeTo: nil,
+            redacting: &redactingRegions,
+            rootFrame: view.frame,
+            transform: .identity
+        )
 
         var swiftUIRedact = [SentryRedactRegion]()
         var otherRegions = [SentryRedactRegion]()
@@ -385,54 +386,56 @@ final class SentryUIRedactBuilder {
 
     // swiftlint:disable:next function_body_length
     private func mapRedactRegion(fromLayer layer: CALayer, relativeTo parentLayer: CALayer?, redacting: inout [SentryRedactRegion], rootFrame: CGRect, transform: CGAffineTransform, forceRedact: Bool = false) {
-        guard !redactClassesIdentifiers.isEmpty && !layer.isHidden && layer.opacity != 0, let view = layer.delegate as? UIView else {
+        guard !redactClassesIdentifiers.isEmpty && !layer.isHidden && layer.opacity != 0 else {
             return
         }
         let newTransform = concatenateTranform(transform, from: layer, withParent: parentLayer)
-        
-        // Check if the subtree should be ignored to avoid crashes with some special views.
-        // If a subtree is ignored, it will be fully redacted and we return early to prevent duplicates.
-        if isViewSubtreeIgnored(view) {
-            redacting.append(SentryRedactRegion(
-                size: layer.bounds.size,
-                transform: newTransform,
-                type: .redact,
-                color: self.color(for: view),
-                name: view.debugDescription
-            ))
-            return
-        }
-        
-        let ignore = !forceRedact && shouldIgnore(view: view)
-        let swiftUI = SentryRedactViewHelper.shouldRedactSwiftUI(view)
-        let redact = forceRedact || shouldRedact(view: view) || swiftUI
         var enforceRedact = forceRedact
-        
-        if !ignore && redact {
-            redacting.append(SentryRedactRegion(
-                size: layer.bounds.size,
-                transform: newTransform,
-                type: swiftUI ? .redactSwiftUI : .redact,
-                color: self.color(for: view),
-                name: view.debugDescription
-            ))
 
-            guard !view.clipsToBounds else {
-                return
-            }
-            enforceRedact = true
-        } else if isOpaque(view) {
-            let finalViewFrame = CGRect(origin: .zero, size: layer.bounds.size).applying(newTransform)
-            if isAxisAligned(newTransform) && finalViewFrame == rootFrame {
-                //Because the current view is covering everything we found so far we can clear `redacting` list
-                redacting.removeAll()
-            } else {
+        if let view = layer.delegate as? UIView {
+            // Check if the subtree should be ignored to avoid crashes with some special views.
+            // If a subtree is ignored, it will be fully redacted and we return early to prevent duplicates.
+            if isViewSubtreeIgnored(view) {
                 redacting.append(SentryRedactRegion(
                     size: layer.bounds.size,
                     transform: newTransform,
-                    type: .clipOut,
+                    type: .redact,
+                    color: self.color(for: view),
                     name: view.debugDescription
                 ))
+                return
+            }
+
+            let ignore = !forceRedact && shouldIgnore(view: view)
+            let swiftUI = SentryRedactViewHelper.shouldRedactSwiftUI(view)
+            let redact = forceRedact || shouldRedact(view: view) || swiftUI
+
+            if !ignore && redact {
+                redacting.append(SentryRedactRegion(
+                    size: layer.bounds.size,
+                    transform: newTransform,
+                    type: swiftUI ? .redactSwiftUI : .redact,
+                    color: self.color(for: view),
+                    name: view.debugDescription
+                ))
+
+                guard !view.clipsToBounds else {
+                    return
+                }
+                enforceRedact = true
+            } else if isOpaque(view) {
+                let finalViewFrame = CGRect(origin: .zero, size: layer.bounds.size).applying(newTransform)
+                if isAxisAligned(newTransform) && finalViewFrame == rootFrame {
+                    //Because the current view is covering everything we found so far we can clear `redacting` list
+                    redacting.removeAll()
+                } else {
+                    redacting.append(SentryRedactRegion(
+                        size: layer.bounds.size,
+                        transform: newTransform,
+                        type: .clipOut,
+                        name: layer.debugDescription
+                    ))
+                }
             }
         }
 
@@ -440,7 +443,7 @@ final class SentryUIRedactBuilder {
         guard let subLayers = layer.sublayers, subLayers.count > 0 else {
             return
         }
-        let clipToBounds = view.clipsToBounds
+        let clipToBounds = layer.masksToBounds
         if clipToBounds {
             /// Because the order in which we process the redacted regions is reversed, we add the end of the clip region first.
             /// The beginning will be added after all the subviews have been mapped.
@@ -448,24 +451,32 @@ final class SentryUIRedactBuilder {
                 size: layer.bounds.size,
                 transform: newTransform,
                 type: .clipEnd,
-                name: view.debugDescription
+                name: layer.debugDescription
             ))
         }
         // Preserve Core Animation's sibling order when zPosition ties to mirror real render order.
-        for (_, subLayer) in subLayers.enumerated().sorted(by: { lhs, rhs in
+        let sortedSubLayers = subLayers.enumerated().sorted { lhs, rhs in
             if lhs.element.zPosition == rhs.element.zPosition {
                 return lhs.offset < rhs.offset
             }
             return lhs.element.zPosition < rhs.element.zPosition
-        }) {
-            mapRedactRegion(fromLayer: subLayer, relativeTo: layer, redacting: &redacting, rootFrame: rootFrame, transform: newTransform, forceRedact: enforceRedact)
+        }
+        for (_, subLayer) in sortedSubLayers {
+            mapRedactRegion(
+                fromLayer: subLayer,
+                relativeTo: layer,
+                redacting: &redacting,
+                rootFrame: rootFrame,
+                transform: newTransform,
+                forceRedact: enforceRedact
+            )
         }
         if clipToBounds {
             redacting.append(SentryRedactRegion(
                 size: layer.bounds.size,
                 transform: newTransform,
                 type: .clipBegin,
-                name: view.debugDescription
+                name: layer.debugDescription
             ))
         }
     }

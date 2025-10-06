@@ -3,13 +3,13 @@ import AVKit
 import Foundation
 import PDFKit
 import SafariServices
-@testable import Sentry
+@_spi(Private) @testable import Sentry
 import SentryTestUtils
-import UIKit
+import SnapshotTesting
 import SwiftUI
+import UIKit
 import WebKit
 import XCTest
-import SnapshotTesting
 
 /*
  * Mocked RCTTextView to test the redaction of text from React Native apps.
@@ -79,6 +79,7 @@ class SentryUIRedactBuilderTests: XCTestCase {
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: true)
         let result = sut.redactRegionsFor(view: rootView)
+        let masked = 
 
         // -- Assert --
         XCTAssertEqual(result.count, 0)
@@ -86,23 +87,27 @@ class SentryUIRedactBuilderTests: XCTestCase {
 
     // MARK: - UILabel Redaction
 
-    func testRedact_withUILabel_withMaskAllTextEnabled_shouldRedactView() throws {
-        // -- Arrange --
+    private func setupUILabelFixture(textColor: UIColor? = nil) {
         let label = UILabel(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
-        label.textColor = .purple
+        label.textColor = textColor ?? .purple
         rootView.addSubview(label)
 
         // View Hierarchy:
         // ---------------
         // <UIView: 0x103e44920; frame = (0 0; 100 100); layer = <CALayer: 0x600000ce1560>>
-        // | <UILabel: 0x103e48070; frame = (20 20; 40 40); userInteractionEnabled = NO; backgroundColor = UIExtendedGrayColorSpace 0 0; layer = <_UILabelLayer: 0x600002c0a700>>
+        //   | <UILabel: 0x103e48070; frame = (20 20; 40 40); userInteractionEnabled = NO; backgroundColor = UIExtendedGrayColorSpace 0 0; layer = <_UILabelLayer: 0x600002c0a700>>
+    }
+
+    func testRedact_withUILabel_withMaskAllTextEnabled_shouldRedactView() throws {
+        // -- Arrange --
+        setupUILabelFixture()
 
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: true)
         let result = sut.redactRegionsFor(view: rootView)
 
         // -- Assert --
-        let region = try XCTUnwrap(result.first)
+        let region = try XCTUnwrap(result.element(at: 0))
         // For UILabel we can use the text color directly to render the redaction geometry
         XCTAssertEqual(region.color, .purple)
         XCTAssertEqual(region.size, CGSize(width: 40, height: 40))
@@ -115,21 +120,16 @@ class SentryUIRedactBuilderTests: XCTestCase {
 
     func testRedact_withUILabel_withMaskAllTextEnabled_withTransparentForegroundColor_shouldNotUseTransparentColor() throws {
         // -- Arrange --
-        let label = UILabel(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
-        label.textColor = .purple.withAlphaComponent(0.5) // Any color with an opacity below 1.0 is considered transparent
-        rootView.addSubview(label)
-
-        // View Hierarchy:
-        // ---------------
-        // <UIView: 0x103e44920; frame = (0 0; 100 100); layer = <CALayer: 0x600000ce1560>>
-        // | <UILabel: 0x103e48070; frame = (20 20; 40 40); userInteractionEnabled = NO; backgroundColor = UIExtendedGrayColorSpace 0 0; layer = <_UILabelLayer: 0x600002c0a700>>
+        setupUILabelFixture(
+            textColor: UIColor.purple.withAlphaComponent(0.5) // Any color with an opacity below 1.0 is considered transparent
+        )
 
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: true)
         let result = sut.redactRegionsFor(view: rootView)
 
         // -- Assert --
-        let region = try XCTUnwrap(result.first)
+        let region = try XCTUnwrap(result.element(at: 0))
         // For UILabel we can derive which color should be used to render the redaction geometry
         XCTAssertEqual(region.color, .purple)
         XCTAssertEqual(region.size, CGSize(width: 40, height: 40))
@@ -142,14 +142,7 @@ class SentryUIRedactBuilderTests: XCTestCase {
 
     func testRedact_withUILabel_withMaskAllTextDisabled_shouldNotRedactView() {
         // -- Arrange --
-        let label = UILabel(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
-        label.textColor = .purple
-        rootView.addSubview(label)
-
-        // View Hierarchy:
-        // ---------------
-        // <UIView: 0x103e44920; frame = (0 0; 100 100); layer = <CALayer: 0x600000ce1560>>
-        // | <UILabel: 0x103e48070; frame = (20 20; 40 40); userInteractionEnabled = NO; backgroundColor = UIExtendedGrayColorSpace 0 0; layer = <_UILabelLayer: 0x600002c0a700>>
+        setupUILabelFixture()
 
         // -- Act --
         let sut = getSut(maskAllText: false, maskAllImages: true)
@@ -159,17 +152,10 @@ class SentryUIRedactBuilderTests: XCTestCase {
         XCTAssertEqual(result.count, 0)
     }
 
+    /// This test is to ensure that the option `maskAllImages` does not affect the UILabel redaction
     func testRedact_withUILabel_withMaskAllImagesDisabled_shouldRedactView() throws {
-        // This test is to ensure that the option `maskAllImages` does not affect the UILabel redaction
         // -- Arrange --
-        let label = UILabel(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
-        label.textColor = .purple
-        rootView.addSubview(label)
-
-        // View Hierarchy:
-        // ---------------
-        // <UIView: 0x103e44920; frame = (0 0; 100 100); layer = <CALayer: 0x600000ce1560>>
-        // | <UILabel: 0x103e48070; frame = (20 20; 40 40); userInteractionEnabled = NO; backgroundColor = UIExtendedGrayColorSpace 0 0; layer = <_UILabelLayer: 0x600002c0a700>>
+        setupUILabelFixture()
 
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: false)
@@ -181,27 +167,48 @@ class SentryUIRedactBuilderTests: XCTestCase {
 
     // - MARK: - UITextView Redaction
 
-    func testRedact_withUITextView_withMaskAllTextEnabled_shouldRedactView() throws {
-        // -- Arrange --
+    private func setupUITextViewFixture() {
         let textView = UITextView(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
         textView.textColor = .purple // Set a specific color so it's definitiely set
         rootView.addSubview(textView)
 
         // View Hierarchy:
         // ---------------
+        // == iOS 26 & 18 ==
         // <UIView: 0x12dd09000; frame = (0 0; 100 100); layer = <CALayer: 0x600000ce91d0>>
-        // | <UITextView: 0x10780a400; frame = (20 20; 40 40); text = ''; clipsToBounds = YES; gestureRecognizers = <NSArray: 0x600000cdfd50>; backgroundColor = <UIDynamicSystemColor: 0x600001778100; name = systemBackgroundColor>; layer = <CALayer: 0x600000ceb090>; contentOffset: {0, 0}; contentSize: {40, 32}; adjustedContentInset: {0, 0, 0, 0}>
-        // |    | <_UITextLayoutView: 0x12dd0ba00; frame = (0 0; 0 0); layer = <CALayer: 0x600000cebfc0>>
-        // |    | <<_UITextContainerView: 0x12dd0b440; frame = (0 0; 40 30); backgroundColor = UIExtendedGrayColorSpace 0 0; layer = <CALayer: 0x600000ce9350>> minSize = {0, 0}, maxSize = {1.7976931348623157e+308, 1.7976931348623157e+308}, textContainer = <NSTextContainer: 0x600003518210 size = (40.000000,inf); widthTracksTextView = YES; heightTracksTextView = NO>; exclusionPaths = 0x1e5cbb9d0; lineBreakMode = 0>
-        // |    |    | <_UITextLayoutCanvasView: 0x12dd0b680; frame = (0 0; 0 0); backgroundColor = UIExtendedGrayColorSpace 0 0; layer = <CALayer: 0x600000ce9ad0>>
-        // |    |    |    | <UIView: 0x13250a680; frame = (0 0; 0 0); layer = <CALayer: 0x600000ccf840>>
+        //   | <UITextView: 0x10780a400; frame = (20 20; 40 40); text = ''; clipsToBounds = YES; gestureRecognizers = <NSArray: 0x600000cdfd50>; backgroundColor = <UIDynamicSystemColor: 0x600001778100; name = systemBackgroundColor>; layer = <CALayer: 0x600000ceb090>; contentOffset: {0, 0}; contentSize: {40, 32}; adjustedContentInset: {0, 0, 0, 0}>
+        //   |    | <_UITextLayoutView: 0x12dd0ba00; frame = (0 0; 0 0); layer = <CALayer: 0x600000cebfc0>>
+        //   |    | <<_UITextContainerView: 0x12dd0b440; frame = (0 0; 40 30); backgroundColor = UIExtendedGrayColorSpace 0 0; layer = <CALayer: 0x600000ce9350>> minSize = {0, 0}, maxSize = {1.7976931348623157e+308, 1.7976931348623157e+308}, textContainer = <NSTextContainer: 0x600003518210 size = (40.000000,inf); widthTracksTextView = YES; heightTracksTextView = NO>; exclusionPaths = 0x1e5cbb9d0; lineBreakMode = 0>
+        //   |    |    | <_UITextLayoutCanvasView: 0x12dd0b680; frame = (0 0; 0 0); backgroundColor = UIExtendedGrayColorSpace 0 0; layer = <CALayer: 0x600000ce9ad0>>
+        //   |    |    |    | <UIView: 0x13250a680; frame = (0 0; 0 0); layer = <CALayer: 0x600000ccf840>>
+        //
+        // == iOS 17 ==
+        // <UIView: 0x105c3bd30; frame = (0 0; 100 100); layer = <CALayer: 0x600000272dc0>>
+        //   | <UITextView: 0x107042800; frame = (20 20; 40 40); text = ''; clipsToBounds = YES; gestureRecognizers = <NSArray: 0x600000da6b80>; backgroundColor = <UIDynamicSystemColor: 0x6000017d2600; name = systemBackgroundColor>; layer = <CALayer: 0x60000027a320>; contentOffset: {0, 0}; contentSize: {40, 32}; adjustedContentInset: {0, 0, 0, 0}>
+        //   |    | <_UITextLayoutView: 0x105a04680; frame = (0 0; 0 0); layer = <CALayer: 0x6000002a0d20>>
+        //   |    | <UIView: 0x105a09e60; frame = (0 0; 0 0); layer = <CALayer: 0x6000002a2520>>
+        //   |    | <<_UITextContainerView: 0x105a11ba0; frame = (0 0; 40 30); backgroundColor = UIExtendedGrayColorSpace 0 0; layer = <CALayer: 0x6000002a0400>> minSize = {0, 0}, maxSize = {1.7976931348623157e+308, 1.7976931348623157e+308}, textContainer = <NSTextContainer: 0x600003512310 size = (40.000000,inf); widthTracksTextView = YES; heightTracksTextView = NO>; exclusionPaths = 0x1e4de1c08; lineBreakMode = 0>
+        //   |    |    | <_UITextLayoutCanvasView: 0x105a44770; frame = (0 0; 0 0); backgroundColor = UIExtendedGrayColorSpace 0 0; layer = <CALayer: 0x6000002a0520>>
+        //
+        // == iOS 16 ==
+        // <UIView: 0x11d305d40; frame = (0 0; 100 100); layer = <CALayer: 0x60000142e620>>
+        //   | <UITextView: 0x120008c00; frame = (20 20; 40 40); clipsToBounds = YES; gestureRecognizers = <NSArray: 0x600001b28cf0>; backgroundColor = <UIDynamicSystemColor: 0x6000001f03c0; name = systemBackgroundColor>; layer = <CALayer: 0x600001465040>; contentOffset: {0, 0}; contentSize: {40, 32}; adjustedContentInset: {0, 0, 0, 0}>
+        //   |    | <_UITextLayoutView: 0x11d20b550; frame = (0 0; 0 0); layer = <CALayer: 0x60000142fb60>>
+        //   |    | <<_UITextContainerView: 0x11d307950; frame = (0 0; 40 30); backgroundColor = UIExtendedGrayColorSpace 0 0; layer = <CALayer: 0x60000143d0a0>> minSize = {0, 0}, maxSize = {1.7976931348623157e+308, 1.7976931348623157e+308}, textContainer = <NSTextContainer: 0x600002564a00 size = (40.000000,inf); widthTracksTextView = YES; heightTracksTextView = NO>; exclusionPaths = 0x1bbd8b8a8; lineBreakMode = 0>
+        //   |    |    | <_UITextLayoutCanvasView: 0x11d307d70; frame = (0 0; 0 0); backgroundColor = UIExtendedGrayColorSpace 0 0; layer = <CALayer: 0x6000014ca1c0>>
+        //   |    |    |    | <_UITextLayoutFragmentView: 0x11d20c210; frame = (0 8; 10 14); opaque = NO; layer = <CALayer: 0x600001430900>>
+    }
+
+    func testRedact_withUITextView_withMaskAllTextEnabled_shouldRedactView() throws {
+        // -- Arrange --
+        setupUITextViewFixture()
 
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: true)
         let result = sut.redactRegionsFor(view: rootView)
 
         // -- Assert --
-        let region = try XCTUnwrap(result.first)
+        let region = try XCTUnwrap(result.element(at: 0))
         // The text color of UITextView is not used for redaction
         XCTAssertNil(region.color)
         XCTAssertEqual(region.size, CGSize(width: 40, height: 40))
@@ -214,18 +221,7 @@ class SentryUIRedactBuilderTests: XCTestCase {
 
     func testRedact_withUITextView_withMaskAllTextDisabled_shouldNotRedactView() throws {
         // -- Arrange --
-        let textView = UITextView(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
-        textView.textColor = .purple // Set a specific color so it's definitiely set
-        rootView.addSubview(textView)
-
-        // View Hierarchy:
-        // ---------------
-        // <UIView: 0x1325055a0; frame = (0 0; 100 100); layer = <CALayer: 0x600000c9fea0>>
-        // | <UITextView: 0x134009e00; frame = (20 20; 40 40); text = ''; clipsToBounds = YES; gestureRecognizers = <NSArray: 0x600000ceaaf0>; backgroundColor = <UIDynamicSystemColor: 0x600001778100; name = systemBackgroundColor>; layer = <CALayer: 0x600000c9f630>; contentOffset: {0, 0}; contentSize: {40, 32}; adjustedContentInset: {0, 0, 0, 0}>
-        // |    | <_UITextLayoutView: 0x12c506cb0; frame = (0 0; 0 0); layer = <CALayer: 0x600000cf3570>>
-        // |    | <<_UITextContainerView: 0x1325078b0; frame = (0 0; 40 30); backgroundColor = UIExtendedGrayColorSpace 0 0; layer = <CALayer: 0x600000cde9d0>> minSize = {0, 0}, maxSize = {1.7976931348623157e+308, 1.7976931348623157e+308}, textContainer = <NSTextContainer: 0x60000352c0b0 size = (40.000000,inf); widthTracksTextView = YES; heightTracksTextView = NO>; exclusionPaths = 0x1e5cbb9d0; lineBreakMode = 0>
-        // |    |    | <_UITextLayoutCanvasView: 0x132507af0; frame = (0 0; 0 0); backgroundColor = UIExtendedGrayColorSpace 0 0; layer = <CALayer: 0x600000cde4f0>>
-        // |    |    |    | <UIView: 0x132509bc0; frame = (0 0; 0 0); layer = <CALayer: 0x600000cde010>>
+        setupUITextViewFixture()
 
         // -- Act --
         let sut = getSut(maskAllText: false, maskAllImages: true)
@@ -233,14 +229,12 @@ class SentryUIRedactBuilderTests: XCTestCase {
 
         // -- Assert --
         let region1 = try XCTUnwrap(result.element(at: 0))
-        // The text color of UITextView is not used for redaction
         XCTAssertNil(region1.color)
         XCTAssertEqual(region1.size, CGSize(width: 40, height: 40))
         XCTAssertEqual(region1.type, .clipBegin)
         XCTAssertEqual(region1.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 20, ty: 20))
 
         let region2 = try XCTUnwrap(result.element(at: 1))
-        // The text color of UITextView is not used for redaction
         XCTAssertNil(region2.color)
         XCTAssertEqual(region2.size, CGSize(width: 40, height: 40))
         XCTAssertEqual(region2.type, .clipEnd)
@@ -248,7 +242,6 @@ class SentryUIRedactBuilderTests: XCTestCase {
 
         // The text view is marked as opaque and will therefore cause a clip out of its frame
         let region3 = try XCTUnwrap(result.element(at: 2))
-        // The text color of UITextView is not used for redaction
         XCTAssertNil(region3.color)
         XCTAssertEqual(region3.size, CGSize(width: 40, height: 40))
         XCTAssertEqual(region3.type, .clipOut)
@@ -260,18 +253,7 @@ class SentryUIRedactBuilderTests: XCTestCase {
 
     func testRedact_withUITextView_withMaskAllImagesDisabled_shouldRedactView() throws {
         // -- Arrange --
-        let textView = UITextView(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
-        textView.textColor = .purple // Set a specific color so it's definitiely set
-        rootView.addSubview(textView)
-
-        // View Hierarchy:
-        // ---------------
-        // <UIView: 0x12a1052e0; frame = (0 0; 100 100); layer = <CALayer: 0x600000c1c180>>
-        // | <UITextView: 0x12b00b400; frame = (20 20; 40 40); text = ''; clipsToBounds = YES; gestureRecognizers = <NSArray: 0x6000012bcf00>; backgroundColor = <UIDynamicSystemColor: 0x600001778100; name = systemBackgroundColor>; layer = <CALayer: 0x600000c1c5d0>; contentOffset: {0, 0}; contentSize: {40, 32}; adjustedContentInset: {0, 0, 0, 0}>
-        // |    | <_UITextLayoutView: 0x104547bc0; frame = (0 0; 0 0); layer = <CALayer: 0x600000cddb90>>
-        // |    | <<_UITextContainerView: 0x104547400; frame = (0 0; 40 30); backgroundColor = UIExtendedGrayColorSpace 0 0; layer = <CALayer: 0x600000cddef0>> minSize = {0, 0}, maxSize = {1.7976931348623157e+308, 1.7976931348623157e+308}, textContainer = <NSTextContainer: 0x60000350c160 size = (40.000000,inf); widthTracksTextView = YES; heightTracksTextView = NO>; exclusionPaths = 0x1e5cbb9d0; lineBreakMode = 0>
-        // |    |    | <_UITextLayoutCanvasView: 0x104547840; frame = (0 0; 0 0); backgroundColor = UIExtendedGrayColorSpace 0 0; layer = <CALayer: 0x600000cdf8d0>>
-        // |    |    |    | <UIView: 0x1047053d0; frame = (0 0; 0 0); layer = <CALayer: 0x600000d085d0>>
+        setupUITextViewFixture()
 
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: true)
@@ -283,8 +265,7 @@ class SentryUIRedactBuilderTests: XCTestCase {
 
     // MARK: - UITextField Redaction
 
-    func testRedact_withUITextField_withMaskAllTextEnabled_shouldRedactView() throws {
-        // -- Arrange --
+    private func setupUITextFieldFixture() {
         let textField = UITextField(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
         textField.textColor = .purple // Set a specific color so it's definitiely set
         rootView.addSubview(textField)
@@ -294,6 +275,12 @@ class SentryUIRedactBuilderTests: XCTestCase {
         // <UIView: 0x104151d70; frame = (0 0; 100 100); layer = <CALayer: 0x600000cf0ab0>>
         // | <UITextField: 0x104842200; frame = (20 20; 40 40); text = ''; opaque = NO; borderStyle = None; background = <_UITextFieldNoBackgroundProvider: 0x600000030670: textfield=<UITextField: 0x104842200>>; layer = <CALayer: 0x600000cf21f0>>
         // |    | <_UITextLayoutCanvasView: 0x104241040; frame = (0 0; 0 0); layer = <CALayer: 0x600000cee4f0>>
+        
+    }
+
+    func testRedact_withUITextField_withMaskAllTextEnabled_shouldRedactView() throws {
+        // -- Arrange --
+        setupUITextFieldFixture()
 
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: true)
@@ -301,15 +288,13 @@ class SentryUIRedactBuilderTests: XCTestCase {
 
         // -- Assert --
         let region1 = try XCTUnwrap(result.element(at: 0)) // _UITextLayoutCanvasView
-                                                           // The text color of UITextView is not used for redaction
-        XCTAssertNil(region1.color)
+        XCTAssertNil(region1.color)// The text color of UITextView is not used for redaction
         XCTAssertEqual(region1.size, CGSize(width: 0, height: 0))
         XCTAssertEqual(region1.type, .redact)
         XCTAssertEqual(region1.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 20, ty: 20))
 
         let region2 = try XCTUnwrap(result.element(at: 1)) // UITextField
-                                                           // The text color of UITextView is not used for redaction
-        XCTAssertNil(region2.color)
+        XCTAssertNil(region2.color) // The text color of UITextView is not used for redaction
         XCTAssertEqual(region2.size, CGSize(width: 40, height: 40))
         XCTAssertEqual(region2.type, .redact)
         XCTAssertEqual(region2.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 20, ty: 20))
@@ -320,15 +305,7 @@ class SentryUIRedactBuilderTests: XCTestCase {
 
     func testRedact_withUITextField_withMaskAllTextDisabled_shouldNotRedactView() {
         // -- Arrange --
-        let textField = UITextField(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
-        textField.textColor = .purple // Set a specific color so it's definitiely set
-        rootView.addSubview(textField)
-
-        // View Hierarchy:
-        // ---------------
-        // <UIView: 0x104151d70; frame = (0 0; 100 100); layer = <CALayer: 0x600000cf0ab0>>
-        // | <UITextField: 0x104842200; frame = (20 20; 40 40); text = ''; opaque = NO; borderStyle = None; background = <_UITextFieldNoBackgroundProvider: 0x600000030670: textfield=<UITextField: 0x104842200>>; layer = <CALayer: 0x600000cf21f0>>
-        // |    | <_UITextLayoutCanvasView: 0x104241040; frame = (0 0; 0 0); layer = <CALayer: 0x600000cee4f0>>
+        setupUITextFieldFixture()
 
         // -- Act --
         let sut = getSut(maskAllText: false, maskAllImages: true)
@@ -340,15 +317,7 @@ class SentryUIRedactBuilderTests: XCTestCase {
 
     func testRedact_withUITextField_withMaskAllImagesDisabled_shouldRedactView() {
         // -- Arrange --
-        let textField = UITextField(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
-        textField.textColor = .purple // Set a specific color so it's definitiely set
-        rootView.addSubview(textField)
-
-        // View Hierarchy:
-        // ---------------
-        // <UIView: 0x104151d70; frame = (0 0; 100 100); layer = <CALayer: 0x600000cf0ab0>>
-        // | <UITextField: 0x104842200; frame = (20 20; 40 40); text = ''; opaque = NO; borderStyle = None; background = <_UITextFieldNoBackgroundProvider: 0x600000030670: textfield=<UITextField: 0x104842200>>; layer = <CALayer: 0x600000cf21f0>>
-        // |    | <_UITextLayoutCanvasView: 0x104241040; frame = (0 0; 0 0); layer = <CALayer: 0x600000cee4f0>>
+        setupUITextFieldFixture()
 
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: false)
@@ -360,8 +329,7 @@ class SentryUIRedactBuilderTests: XCTestCase {
 
     // MARK: - RCTTextView Redaction
 
-    func testRedact_withRCTTextView_withMaskAllTextEnabled_shouldRedactView() throws {
-        // -- Arrange --
+    private func setupRCTTextViewFixture() {
         let textView = RCTTextView(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
         rootView.addSubview(textView)
 
@@ -369,13 +337,18 @@ class SentryUIRedactBuilderTests: XCTestCase {
         // ---------------
         // <UIView: 0x10594ea10; frame = (0 0; 100 100); layer = <CALayer: 0x600000ce53b0>>
         //   | <RCTTextView: 0x105951d60; frame = (20 20; 40 40); layer = <CALayer: 0x600000ce6790>>
+    }
+
+    func testRedact_withRCTTextView_withMaskAllTextEnabled_shouldRedactView() throws {
+        // -- Arrange --
+        setupRCTTextViewFixture()
 
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: true)
         let result = sut.redactRegionsFor(view: rootView)
 
         // -- Assert --
-        let region = try XCTUnwrap(result.first)
+        let region = try XCTUnwrap(result.element(at: 0))
         // The text color of UITextView is not used for redaction
         XCTAssertNil(region.color)
         XCTAssertEqual(region.size, CGSize(width: 40, height: 40))
@@ -388,13 +361,7 @@ class SentryUIRedactBuilderTests: XCTestCase {
 
     func testRedact_withRCTTextView_withMaskAllTextDisabled_shouldNotRedactView() {
         // -- Arrange --
-        let textView = RCTTextView(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
-        rootView.addSubview(textView)
-
-        // View Hierarchy:
-        // ---------------
-        // <UIView: 0x10594ea10; frame = (0 0; 100 100); layer = <CALayer: 0x600000ce53b0>>
-        //   | <RCTTextView: 0x105951d60; frame = (20 20; 40 40); layer = <CALayer: 0x600000ce6790>>
+        setupRCTTextViewFixture()
 
         // -- Act --
         let sut = getSut(maskAllText: false, maskAllImages: true)
@@ -406,13 +373,7 @@ class SentryUIRedactBuilderTests: XCTestCase {
 
     func testRedact_withRCTTextView_withMaskAllImagesDisabled_shouldRedactView() {
         // -- Arrange --
-        let textView = RCTTextView(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
-        rootView.addSubview(textView)
-
-        // View Hierarchy:
-        // ---------------
-        // <UIView: 0x10594ea10; frame = (0 0; 100 100); layer = <CALayer: 0x600000ce53b0>>
-        //   | <RCTTextView: 0x105951d60; frame = (20 20; 40 40); layer = <CALayer: 0x600000ce6790>>
+        setupRCTTextViewFixture()
 
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: false)
@@ -424,8 +385,7 @@ class SentryUIRedactBuilderTests: XCTestCase {
 
     // MARK: - RCTParagraphComponentView Redaction
 
-    func testRedact_withRCTParagraphComponent_withMaskAllTextEnabled_shouldRedactView() throws {
-        // -- Arrange --
+    private func setupRCTParagraphComponentFixture() {
         let textView = RCTParagraphComponentView(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
         rootView.addSubview(textView)
 
@@ -433,13 +393,18 @@ class SentryUIRedactBuilderTests: XCTestCase {
         // ---------------
         // <UIView: 0x11a943f30; frame = (0 0; 100 100); layer = <CALayer: 0x600000cda3d0>>
         //   | <RCTParagraphComponentView: 0x106350670; frame = (20 20; 40 40); layer = <CALayer: 0x600000cdaa60>>
+    }
+
+    func testRedact_withRCTParagraphComponent_withMaskAllTextEnabled_shouldRedactView() throws {
+        // -- Arrange --
+        setupRCTParagraphComponentFixture()
 
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: true)
         let result = sut.redactRegionsFor(view: rootView)
 
         // -- Assert --
-        let region = try XCTUnwrap(result.first)
+        let region = try XCTUnwrap(result.element(at: 0))
         // The text color of UITextView is not used for redaction
         XCTAssertNil(region.color)
         XCTAssertEqual(region.size, CGSize(width: 40, height: 40))
@@ -452,13 +417,7 @@ class SentryUIRedactBuilderTests: XCTestCase {
 
     func testRedact_withRCTParagraphComponent_withMaskAllTextDisabled_shouldNotRedactView() {
         // -- Arrange --
-        let textView = RCTParagraphComponentView(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
-        rootView.addSubview(textView)
-
-        // View Hierarchy:
-        // ---------------
-        // <UIView: 0x11a943f30; frame = (0 0; 100 100); layer = <CALayer: 0x600000cda3d0>>
-        //   | <RCTParagraphComponentView: 0x106350670; frame = (20 20; 40 40); layer = <CALayer: 0x600000cdaa60>>
+        setupRCTParagraphComponentFixture()
 
         // -- Act --
         let sut = getSut(maskAllText: false, maskAllImages: true)
@@ -470,13 +429,7 @@ class SentryUIRedactBuilderTests: XCTestCase {
 
     func testRedact_withRCTParagraphComponent_withMaskAllImagesDisabled_shouldRedactView() {
         // -- Arrange --
-        let textView = RCTParagraphComponentView(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
-        rootView.addSubview(textView)
-
-        // View Hierarchy:
-        // ---------------
-        // <UIView: 0x11a943f30; frame = (0 0; 100 100); layer = <CALayer: 0x600000cda3d0>>
-        //   | <RCTParagraphComponentView: 0x106350670; frame = (20 20; 40 40); layer = <CALayer: 0x600000cdaa60>>
+        setupRCTParagraphComponentFixture()
 
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: false)
@@ -488,138 +441,257 @@ class SentryUIRedactBuilderTests: XCTestCase {
 
     // MARK: - SwiftUI.Text Redaction
 
-    func testRedact_withSwiftUIText_withMaskAllTextEnabled_shouldRedactView() throws {
-        // -- Arrange --
+    private func setupSwiftUITextFixture() -> UIWindow {
         let view = VStack {
             VStack {
                 Text("Hello SwiftUI")
                     .padding(20)
             }
             .background(Color.green)
+            .font(.system(size: 20)) // Use a fixed font size as defaults could change frame
         }
-        let window = hostSwiftUIViewInWindow(view, frame: CGRect(x: 20, y: 20, width: 120, height: 60))
+        return hostSwiftUIViewInWindow(view, frame: CGRect(x: 0, y: 0, width: 250, height: 250))
 
         // View Hierarchy:
         // ---------------
-        // <UIWindow: 0x10155f560; frame = (0 0; 0 0); gestureRecognizers = <NSArray: 0x600000cf2370>; layer = <UIWindowLayer: 0x60000174a040>>
-        //   | <UITransitionView: 0x101567a00; frame = (0 0; 0 0); autoresize = W+H; layer = <CALayer: 0x600000cf2850>>
-        //   |    | <UIDropShadowView: 0x101568500; frame = (0 0; 0 0); autoresize = W+H; layer = <CALayer: 0x600000cf2c40>>
-        //   |    |    | <_TtGC7SwiftUI14_UIHostingViewGVS_6VStackVS_4Text__: 0x101560090; frame = (0 0; 0 0); autoresize = W+H; gestureRecognizers = <NSArray: 0x600000019a90>; backgroundColor = <UIDynamicSystemColor: 0x600001749a00; name = systemBackgroundColor>; layer = <CALayer: 0x600000cde130>>
+        // == iOS 26 ==
+        // <UIWindow: 0x10d23d120; frame = (20 20; 120 60); gestureRecognizers = <NSArray: 0x600000ce6760>; layer = <UIWindowLayer: 0x600001729f80>>
+        //   | <UITransitionView: 0x10d419a10; frame = (0 0; 120 60); autoresize = W+H; layer = <CALayer: 0x600000ce6460>>
+        //   |    | <UIDropShadowView: 0x10d32b950; frame = (0 0; 120 60); autoresize = W+H; layer = <CALayer: 0x600000cd62b0>>
+        //   |    |    | <_TtGC7SwiftUI14_UIHostingViewGVS_6VStackGVS_15ModifiedContentGS1_GS2_VS_4TextVS_14_PaddingLayout__GVS_24_BackgroundStyleModifierVS_5Color____: 0x10900bc00; frame = (0 0; 120 60); autoresize = W+H; gestureRecognizers = <NSArray: 0x60000002c850>; backgroundColor = <UIDynamicSystemColor: 0x600001748a80; name = systemBackgroundColor>; layer = <CALayer: 0x600000cb0d50>>
+        //   |    |    |    | <CALayer: 0x600000ceccf0> (layer)
+        //   |    |    |    | <_TtC7SwiftUIP33_863CCF9D49B535DAEB1C7D61BEE53B5914CGDrawingLayer: 0x600002c21e80> (layer)
+        //
+        // == iOS 18 ==
+        // <UIWindow: 0x104f3cce0; frame = (20 20; 120 60); gestureRecognizers = <NSArray: 0x600000286360>; layer = <UIWindowLayer: 0x600000d982d0>>
+        //   | <UITransitionView: 0x107a2c080; frame = (0 0; 120 60); autoresize = W+H; layer = <CALayer: 0x600000259de0>>
+        //   |    | <UIDropShadowView: 0x107a2d500; frame = (0 0; 120 60); autoresize = W+H; layer = <CALayer: 0x60000025bc80>>
+        //   |    |    | <_TtGC7SwiftUI14_UIHostingViewGVS_6VStackGVS_15ModifiedContentGS1_GS2_VS_4TextVS_14_PaddingLayout__GVS_24_BackgroundStyleModifierVS_5Color____: 0x104c27a00; frame = (0 0; 120 60); autoresize = W+H; gestureRecognizers = <NSArray: 0x600000029520>; backgroundColor = <UIDynamicSystemColor: 0x6000017a7f40; name = systemBackgroundColor>; layer = <SwiftUI.UIHostingViewDebugLayer: 0x600000282f00>>
+        //   |    |    |    | <SwiftUI._UIGraphicsView: 0x107a2f4e0; frame = (0 0; 120 81.3333); anchorPoint = (0, 0); autoresizesSubviews = NO; backgroundColor = UIExtendedSRGBColorSpace 0.203922 0.780392 0.34902 1; layer = <CALayer: 0x6000002b7060>>
+        //   |    |    |    | <SwiftUI.CGDrawingView: 0x107a315a0; frame = (20.3333 41; 79.6667 20.3333); anchorPoint = (0, 0); opaque = NO; autoresizesSubviews = NO; layer = <_TtC7SwiftUIP33_65A81BD07F0108B0485D2E15DE104A7514CGDrawingLayer: 0x60000264d920>>
+        //
+        // == iOS 17 & 16 ==
+        // <UIWindow: 0x13291c150; frame = (20 20; 120 60); gestureRecognizers = <NSArray: 0x600000daecd0>; layer = <UIWindowLayer: 0x600000dad260>>
+        //   | <UITransitionView: 0x13291f9e0; frame = (0 0; 120 60); autoresize = W+H; layer = <CALayer: 0x600000282300>>
+        //   |    | <UIDropShadowView: 0x1329204d0; frame = (0 0; 120 60); autoresize = W+H; layer = <CALayer: 0x600000282d60>>
+        //   |    |    | <_TtGC7SwiftUI14_UIHostingViewGVS_6VStackGVS_15ModifiedContentGS1_GS2_VS_4TextVS_14_PaddingLayout__GVS_24_BackgroundStyleModifierVS_5Color____: 0x10701de00; frame = (0 0; 120 60); autoresize = W+H; gestureRecognizers = <NSArray: 0x600000dad890>; backgroundColor = <UIDynamicSystemColor: 0x6000017c9a40; name = systemBackgroundColor>; layer = <SwiftUI.UIHostingViewDebugLayer: 0x60000027bb40>>
+        //   |    |    |    | <SwiftUI._UIGraphicsView: 0x132916fe0; frame = (0 0; 120 79.6667); anchorPoint = (0, 0); autoresizesSubviews = NO; backgroundColor = UIExtendedSRGBColorSpace 0.203922 0.780392 0.34902 1; layer = <CALayer: 0x6000002a2ec0>>
+        //   |    |    |    | <_TtCOCV7SwiftUI11DisplayList11ViewUpdater8Platform13CGDrawingView: 0x1024274c0; frame = (20.3333 39.3333; 79.6667 20.3333); anchorPoint = (0, 0); opaque = NO; autoresizesSubviews = NO; layer = <_TtCOCV7SwiftUI11DisplayList11ViewUpdater8PlatformP33_65A81BD07F0108B0485D2E15DE104A7514CGDrawingLayer: 0x600002640060>>
+    }
+
+    private func createMaskedScreenshot(view: UIView, regions: [SentryRedactRegion]) -> UIImage {
+        let image = SentryViewRendererV2(enableFastViewRendering: true).render(view: view)
+        return SentryMaskRendererV2().maskScreenshot(screenshot: image, size: view.bounds.size, masking: regions)
+    }
+
+    func testRedact_withSwiftUIText_withMaskAllTextEnabled_shouldRedactView() throws {
+        // -- Arrange --
+        let window = setupSwiftUITextFixture()
 
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: true)
         let result = sut.redactRegionsFor(view: window)
+        let masked = createMaskedScreenshot(view: window, regions: result)
 
         // -- Assert --
-        XCTAssertTrue(result.contains(where: { $0.type == .redact || $0.type == .redactSwiftUI }))
+        assertSnapshot(of: masked, as: .image)
+
+        let region = try XCTUnwrap(result.element(at: 0))
+        XCTAssertNil(region.color)
+        XCTAssertEqual(region.type, .redact)
+        XCTAssertEqual(region.size.width, 152)
+        XCTAssertEqual(region.size.height, 64)
+        XCTAssertAffineTransformEqual(
+            region.transform,
+            CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 22, ty: 47.66666),
+            accuracy: 0.1
+        )
+
+        let region2 = try XCTUnwrap(result.element(at: 1))
+        XCTAssertNil(region2.color)
+        XCTAssertEqual(region2.type, .redact)
+        XCTAssertEqual(region2.size.width, 152)
+        XCTAssertEqual(region2.size.height, 64)
+        XCTAssertAffineTransformEqual(
+            region2.transform,
+            CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 22, ty: 47.66666),
+            accuracy: 0.1
+        )
+
+        // Assert that there are no other regions
+        XCTAssertEqual(result.count, 2)
     }
 
     func testRedact_withSwiftUIText_withMaskAllTextDisabled_shouldNotRedactView() {
         // -- Arrange --
-        let view = VStack {
-            Text("Hello SwiftUI")
-        }
-        let window = hostSwiftUIViewInWindow(view, frame: CGRect(x: 20, y: 20, width: 120, height: 60))
+        let window = setupSwiftUITextFixture()
 
         // -- Act --
         let sut = getSut(maskAllText: false, maskAllImages: true)
         let result = sut.redactRegionsFor(view: window)
+        let masked = createMaskedScreenshot(view: window, regions: result)
 
         // -- Assert --
-        XCTAssertFalse(result.contains(where: { $0.type == .redact || $0.type == .redactSwiftUI }))
+        assertSnapshot(of: masked, as: .image)
+        XCTAssertEqual(result.count, 0)
     }
 
     func testRedact_withSwiftUIText_withMaskAllImagesDisabled_shouldRedactView() {
         // -- Arrange --
-        let view = VStack {
-            Text("Hello SwiftUI")
-        }
-        let window = hostSwiftUIViewInWindow(view, frame: CGRect(x: 20, y: 20, width: 120, height: 60))
+        let window = setupSwiftUITextFixture()
 
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: false)
         let result = sut.redactRegionsFor(view: window)
 
         // -- Assert --
-        XCTAssertTrue(result.contains(where: { $0.type == .redact || $0.type == .redactSwiftUI }))
+        XCTAssertEqual(result.count, 1)
     }
 
     // MARK: - SwiftUI.Label Redaction
 
-    @available(iOS 14.5, macOS 11.0, tvOS 14.0, watchOS 7.0, *)
-    func testRedact_withSwiftUILabel_withMaskAllTextEnabled_shouldRedactView() throws {
-        // -- Arrange --
+    private func setupSwiftUILabelFixture() -> UIWindow {
         let view = VStack {
             Label("Hello SwiftUI", systemImage: "house")
                 .labelStyle(.titleAndIcon)
         }
-        let window = hostSwiftUIViewInWindow(view, frame: CGRect(x: 20, y: 20, width: 120, height: 60))
+        return hostSwiftUIViewInWindow(view, frame: CGRect(x: 20, y: 20, width: 120, height: 60))
 
         // View Hierarchy:
         // ---------------
-        // <UIWindow: 0x104f33050; frame = (0 0; 0 0); gestureRecognizers = <NSArray: 0x600000cdb150>; layer = <UIWindowLayer: 0x600001751900>>
-        //   | <UITransitionView: 0x104f386f0; frame = (0 0; 0 0); autoresize = W+H; layer = <CALayer: 0x600000cdadc0>>
-        //   |    | <UIDropShadowView: 0x104f396a0; frame = (0 0; 0 0); autoresize = W+H; layer = <CALayer: 0x600000c73c90>>
-        //   |    |    | <_TtGC7SwiftUI14_UIHostingViewGVS_6VStackGVS_15ModifiedContentGVS_5LabelVS_4TextVS_5Image_GVS_P10$1d976f51025LabelStyleWritingModifierVS_22TitleAndIconLabelStyle____: 0x104f2ee10; frame = (0 0; 0 0); autoresize = W+H; gestureRecognizers = <NSArray: 0x600000025aa0>; backgroundColor = <UIDynamicSystemColor: 0x600001751340; name = systemBackgroundColor>; layer = <CALayer: 0x600000ce9650>>
-        //   |    |    |    | <SwiftUI.ImageLayer: 0x600000cf9620> (layer)
-//
+        // == iOS 26 ==
+        // <UIWindow: 0x1078553c0; frame = (20 20; 120 60); gestureRecognizers = <NSArray: 0x600000ce8270>; layer = <UIWindowLayer: 0x600001752d80>>
+        //   | <UITransitionView: 0x103714e20; frame = (0 0; 120 60); autoresize = W+H; layer = <CALayer: 0x600000c74a20>>
+        //   |    | <UIDropShadowView: 0x103716060; frame = (0 0; 120 60); autoresize = W+H; layer = <CALayer: 0x600000c74c60>>
+        //        |    |    | <_TtGC7SwiftUI14_UIHostingViewGVS_6VStackGVS_15ModifiedContentGVS_5LabelVS_4TextVS_5Image_GVS_P10$1d976f51025LabelStyleWritingModifierVS_22TitleAndIconLabelStyle____: 0x107853850; frame = (0 0; 120 60); autoresize = W+H; gestureRecognizers = <NSArray: 0x6000000219a0>; backgroundColor = <UIDynamicSystemColor: 0x60000174d480; name = systemBackgroundColor>; layer = <CALayer: 0x600000ce1d10>>
+        //   |    |    |    | <SwiftUI.ImageLayer: 0x600000c23cf0> (layer)
+        //   |    |    |    | <_TtC7SwiftUIP33_863CCF9D49B535DAEB1C7D61BEE53B5914CGDrawingLayer: 0x600002c26680> (layer)
+        //
+        // == iOS 18 ==
+        // <UIWindow: 0x104941fa0; frame = (20 20; 120 60); gestureRecognizers = <NSArray: 0x60000026ef60>; layer = <UIWindowLayer: 0x600000d98f60>>
+        //   | <UITransitionView: 0x104857a40; frame = (0 0; 120 60); autoresize = W+H; layer = <CALayer: 0x60000026f9e0>>
+        //   |    | <UIDropShadowView: 0x104858b30; frame = (0 0; 120 60); autoresize = W+H; layer = <CALayer: 0x60000027bc60>>
+        //   |    |    | <_TtGC7SwiftUI14_UIHostingViewGVS_6VStackGVS_15ModifiedContentGVS_5LabelVS_4TextVS_5Image_GVS_P10$1d433610c25LabelStyleWritingModifierVS_22TitleAndIconLabelStyle____: 0x1049414e0; frame = (0 0; 120 60); autoresize = W+H; gestureRecognizers = <NSArray: 0x60000000d9c0>; backgroundColor = <UIDynamicSystemColor: 0x6000017b1bc0; name = systemBackgroundColor>; layer = <SwiftUI.UIHostingViewDebugLayer: 0x6000002812e0>>
+        //   |    |    |    | <SwiftUI._UIGraphicsView: 0x104b3edb0; frame = (4.33333 42.3333; 20 17.6667); anchorPoint = (0, 0); autoresizesSubviews = NO; layer = <SwiftUI.ImageLayer: 0x6000002bcaa0>>
+        //   |    |    |    | <SwiftUI.CGDrawingView: 0x104b3f130; frame = (34.3333 41; 83.3333 20.3333); anchorPoint = (0, 0); opaque = NO; autoresizesSubviews = NO; layer = <_TtC7SwiftUIP33_65A81BD07F0108B0485D2E15DE104A7514CGDrawingLayer: 0x60000264c3c0>>
+        //
+        // == iOS 17 & 16 ==
+        // <UIWindow: 0x105016ea0; frame = (20 20; 120 60); gestureRecognizers = <NSArray: 0x600000db46c0>; layer = <UIWindowLayer: 0x600000db42a0>>
+        //   | <UITransitionView: 0x105019360; frame = (0 0; 120 60); autoresize = W+H; layer = <CALayer: 0x600000282b40>>
+        //   |    | <UIDropShadowView: 0x105019c50; frame = (0 0; 120 60); autoresize = W+H; layer = <CALayer: 0x600000283520>>
+        //   |    |    | <_TtGC7SwiftUI14_UIHostingViewGVS_6VStackGVS_15ModifiedContentGVS_5LabelVS_4TextVS_5Image_GVS_P10$1cd944ccc25LabelStyleWritingModifierVS_22TitleAndIconLabelStyle____: 0x128829000; frame = (0 0; 120 60); autoresize = W+H; gestureRecognizers = <NSArray: 0x600000db37e0>; backgroundColor = <UIDynamicSystemColor: 0x6000017c4e40; name = systemBackgroundColor>; layer = <SwiftUI.UIHostingViewDebugLayer: 0x6000002792e0>>
+        //   |    |    |    | <SwiftUI._UIGraphicsView: 0x105117c90; frame = (4.33333 40.3333; 20 17.6667); anchorPoint = (0, 0); autoresizesSubviews = NO; layer = <SwiftUI.ImageLayer: 0x600000255ac0>>
+        //   |    |    |    | <_TtCOCV7SwiftUI11DisplayList11ViewUpdater8Platform13CGDrawingView: 0x105118520; frame = (34.3333 39.3333; 83.3333 20.3333); anchorPoint = (0, 0); opaque = NO; autoresizesSubviews = NO; layer = <_TtCOCV7SwiftUI11DisplayList11ViewUpdater8PlatformP33_65A81BD07F0108B0485D2E15DE104A7514CGDrawingLayer: 0x60000261f840>>
+    }
+
+    @available(iOS 14.5, macOS 11.0, tvOS 14.0, watchOS 7.0, *)
+    func testRedact_withSwiftUILabel_withMaskAllTextEnabled_shouldRedactView() throws {
+        // -- Arrange --
+        let window = setupSwiftUILabelFixture()
+
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: true)
         let result = sut.redactRegionsFor(view: window)
 
         // -- Assert --
-        XCTAssertTrue(result.contains(where: { $0.type == .redact || $0.type == .redactSwiftUI }))
+        let region = try XCTUnwrap(result.element(at: 0))
+        XCTAssertNil(region.color)
+        XCTAssertEqual(region.size, CGSize(width: 40, height: 40))
+        XCTAssertEqual(region.type, .redact)
+        XCTAssertEqual(region.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 20, ty: 20))
+
+        // Assert that there are no other regions
+        XCTAssertEqual(result.count, 2)
     }
 
     @available(iOS 14.0, macOS 11.0, tvOS 14.0, watchOS 7.0, *)
     func testRedact_withSwiftUILabel_withMaskAllTextDisabled_shouldNotRedactView() {
         // -- Arrange --
-        rootView.frame = CGRect(x: 0, y: 0, width: 240, height: 160)
-        _ = hostSwiftUIViewInWindow(Label { Text("SwiftUI Label") } icon: { EmptyView() }, frame: CGRect(x: 20, y: 20, width: 140, height: 60))
+        let window = setupSwiftUILabelFixture()
 
         // -- Act --
         let sut = getSut(maskAllText: false, maskAllImages: true)
-        let result = sut.redactRegionsFor(view: rootView)
+        let result = sut.redactRegionsFor(view: window)
 
         // -- Assert --
-        XCTAssertFalse(result.contains(where: { $0.type == .redact || $0.type == .redactSwiftUI }))
+        XCTAssertEqual(result.count, 0)
     }
 
     @available(iOS 14.0, macOS 11.0, tvOS 14.0, watchOS 7.0, *)
     func testRedact_withSwiftUILabel_withMaskAllImagesDisabled_shouldRedactView() {
         // -- Arrange --
-        rootView.frame = CGRect(x: 0, y: 0, width: 240, height: 160)
-        _ = hostSwiftUIViewInWindow(Label { Text("SwiftUI Label") } icon: { EmptyView() }, frame: CGRect(x: 20, y: 20, width: 140, height: 60))
+        let window = setupSwiftUILabelFixture()
 
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: false)
-        let result = sut.redactRegionsFor(view: rootView)
+        let result = sut.redactRegionsFor(view: window)
 
         // -- Assert --
-        XCTAssertTrue(result.contains(where: { $0.type == .redact || $0.type == .redactSwiftUI }))
+        XCTAssertEqual(result.count, 1)
     }
 
     // MARK: - SwiftUI.List Redaction
 
+    private func setupSwiftUIListFixture() -> UIWindow {
+        let view = VStack {
+            List {
+                Section("Section 1") {
+                    Text("Item 1")
+                }
+                Section {
+                    Text("Item 2")
+                }
+            }
+        }
+        return hostSwiftUIViewInWindow(view, frame: CGRect(x: 0, y: 0, width: 300, height: 500))
+    }
+
     func testRedact_withSwiftUIList_withMaskAllTextEnabled_shouldRedactView() throws {
-        // Covered by decoration background handling tests below; keep for completeness
-        throw XCTSkip("Redaction for SwiftUI.List is covered by decoration background tests")
+        // -- Arrange --
+        let window = setupSwiftUILabelFixture()
+
+        // -- Act --
+        let sut = getSut(maskAllText: true, maskAllImages: true)
+        let result = sut.redactRegionsFor(view: window)
+
+        // -- Assert --
+        let region = try XCTUnwrap(result.element(at: 0))
+        XCTAssertNil(region.color)
+        XCTAssertEqual(region.size, CGSize(width: 40, height: 40))
+        XCTAssertEqual(region.type, .redact)
+        XCTAssertEqual(region.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 20, ty: 20))
+
+        // Assert that there are no other regions
+        XCTAssertEqual(result.count, 1)
     }
 
     func testRedact_withSwiftUIList_withMaskAllTextDisabled_shouldNotRedactView() throws {
-        // Covered by decoration background handling tests below; keep for completeness
-        throw XCTSkip("Redaction for SwiftUI.List is covered by decoration background tests")
+        // -- Arrange --
+        let window = setupSwiftUILabelFixture()
+
+        // -- Act --
+        let sut = getSut(maskAllText: true, maskAllImages: true)
+        let result = sut.redactRegionsFor(view: window)
+
+        // -- Assert --
+        XCTAssertEqual(result.count, 0)
     }
 
     func testRedact_withSwiftUIList_withMaskAllImagesDisabled_shouldRedactView() throws {
-        // Covered by decoration background handling tests below; keep for completeness
-        throw XCTSkip("Redaction for SwiftUI.List is covered by decoration background tests")
+        // -- Arrange --
+        let window = setupSwiftUILabelFixture()
+
+        // -- Act --
+        let sut = getSut(maskAllText: true, maskAllImages: true)
+        let result = sut.redactRegionsFor(view: window)
+
+        // -- Assert --
+        XCTAssertEqual(result.count, 1)
     }
 
     // MARK: - UIImageView Redaction
 
-    func testRedact_withUIImageView_withMaskAllImagesEnabled_shouldRedactView() throws {
-        // -- Arrange --
+    private func setupUIImageViewFixture() {
         let image = UIGraphicsImageRenderer(size: CGSize(width: 40, height: 40)).image { context in
             context.fill(CGRect(x: 0, y: 0, width: 40, height: 40))
         }
@@ -632,13 +704,18 @@ class SentryUIRedactBuilderTests: XCTestCase {
         // ---------------
         // <UIView: 0x10482a7e0; frame = (0 0; 100 100); layer = <CALayer: 0x600000ce60a0>>
         //   | <UIImageView: 0x11b1632d0; frame = (20 20; 40 40); opaque = NO; userInteractionEnabled = NO; image = <UIImage:0x60000301d290 CGImage anonymous; (40 40)@3>; layer = <CALayer: 0x600000ce6460>>
+    }
+
+    func testRedact_withUIImageView_withMaskAllImagesEnabled_shouldRedactView() throws {
+        // -- Arrange --
+        setupUIImageViewFixture()
 
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: true)
         let result = sut.redactRegionsFor(view: rootView)
 
         // -- Assert --
-        let region = try XCTUnwrap(result.first)
+        let region = try XCTUnwrap(result.element(at: 0))
         // The text color of UITextView is not used for redaction
         XCTAssertNil(region.color)
         XCTAssertEqual(region.size, CGSize(width: 40, height: 40))
@@ -651,18 +728,7 @@ class SentryUIRedactBuilderTests: XCTestCase {
 
     func testRedact_withUIImageView_withMaskAllImagesDisabled_shouldNotRedactView() {
         // -- Arrange --
-        let image = UIGraphicsImageRenderer(size: CGSize(width: 40, height: 40)).image { context in
-            context.fill(CGRect(x: 0, y: 0, width: 40, height: 40))
-        }
-
-        let imageView = UIImageView(image: image)
-        imageView.frame = CGRect(x: 20, y: 20, width: 40, height: 40)
-        rootView.addSubview(imageView)
-
-        // View Hierarchy:
-        // ---------------
-        // <UIView: 0x10482a7e0; frame = (0 0; 100 100); layer = <CALayer: 0x600000ce60a0>>
-        //   | <UIImageView: 0x11b1632d0; frame = (20 20; 40 40); opaque = NO; userInteractionEnabled = NO; image = <UIImage:0x60000301d290 CGImage anonymous; (40 40)@3>; layer = <CALayer: 0x600000ce6460>>
+        setupUIImageViewFixture()
 
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: false)
@@ -674,18 +740,7 @@ class SentryUIRedactBuilderTests: XCTestCase {
 
     func testRedact_withUIImageView_withMaskAllTextDisabled_shouldRedactView() {
         // -- Arrange --
-        let image = UIGraphicsImageRenderer(size: CGSize(width: 40, height: 40)).image { context in
-            context.fill(CGRect(x: 0, y: 0, width: 40, height: 40))
-        }
-
-        let imageView = UIImageView(image: image)
-        imageView.frame = CGRect(x: 20, y: 20, width: 40, height: 40)
-        rootView.addSubview(imageView)
-
-        // View Hierarchy:
-        // ---------------
-        // <UIView: 0x10482a7e0; frame = (0 0; 100 100); layer = <CALayer: 0x600000ce60a0>>
-        //   | <UIImageView: 0x11b1632d0; frame = (20 20; 40 40); opaque = NO; userInteractionEnabled = NO; image = <UIImage:0x60000301d290 CGImage anonymous; (40 40)@3>; layer = <CALayer: 0x600000ce6460>>
+        setupUIImageViewFixture()
 
         // -- Act --
         let sut = getSut(maskAllText: false, maskAllImages: true)
@@ -746,8 +801,7 @@ class SentryUIRedactBuilderTests: XCTestCase {
 
     // - MARK: - RCTImageView Redaction
 
-    func testRedact_withRCTImageView_withMaskAllImagesEnabled_shouldRedactView() throws {
-        // -- Arrange --
+    private func setupRCTImageViewFixture() {
         let imageView = RCTImageView(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
         rootView.addSubview(imageView)
 
@@ -755,13 +809,18 @@ class SentryUIRedactBuilderTests: XCTestCase {
         // ---------------
         // <UIView: 0x10584f470; frame = (0 0; 100 100); layer = <CALayer: 0x600000ce8fc0>>
         //   | <RCTImageView: 0x10585e6a0; frame = (20 20; 40 40); layer = <CALayer: 0x600000cea130>>
+    }
+
+    func testRedact_withRCTImageView_withMaskAllImagesEnabled_shouldRedactView() throws {
+        // -- Arrange --
+        setupRCTImageViewFixture()
 
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: true)
         let result = sut.redactRegionsFor(view: rootView)
 
         // -- Assert --
-        let region = try XCTUnwrap(result.first)
+        let region = try XCTUnwrap(result.element(at: 0))
         // The text color of UITextView is not used for redaction
         XCTAssertNil(region.color)
         XCTAssertEqual(region.size, CGSize(width: 40, height: 40))
@@ -774,13 +833,7 @@ class SentryUIRedactBuilderTests: XCTestCase {
 
     func testRedact_withRCTImageView_withMaskAllImagesDisabled_shouldNotRedactView() {
         // -- Arrange --
-        let imageView = RCTImageView(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
-        rootView.addSubview(imageView)
-
-        // View Hierarchy:
-        // ---------------
-        // <UIView: 0x103667a50; frame = (0 0; 100 100); layer = <CALayer: 0x600000cdacd0>>
-        //   | <RCTImageView: 0x1033537d0; frame = (20 20; 40 40); layer = <CALayer: 0x600000cec0c0>>
+        setupRCTImageViewFixture()
 
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: false)
@@ -792,13 +845,7 @@ class SentryUIRedactBuilderTests: XCTestCase {
 
     func testRedact_withRCTImageView_withMaskAllTextDisabled_shouldRedactView() {
         // -- Arrange --
-        let imageView = RCTImageView(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
-        rootView.addSubview(imageView)
-
-        // View Hierarchy:
-        // ---------------
-        // <UIView: 0x103667a50; frame = (0 0; 100 100); layer = <CALayer: 0x600000cdacd0>>
-        //   | <RCTImageView: 0x1033537d0; frame = (20 20; 40 40); layer = <CALayer: 0x600000cec0c0>>
+        setupRCTImageViewFixture()
 
         // -- Act --
         let sut = getSut(maskAllText: false, maskAllImages: true)
@@ -810,59 +857,76 @@ class SentryUIRedactBuilderTests: XCTestCase {
 
     // - MARK: - SwiftUI.Image Redaction
 
-    func testRedact_withSwiftUIImage_withMaskAllImagesEnabled_shouldRedactView() throws {
-        // -- Arrange --
-        rootView.frame = CGRect(x: 0, y: 0, width: 320, height: 480)
+    private func setupSwiftUIImageFixture() -> UIWindow {
         let view = VStack {
             Image(systemName: "star.fill")
         }
-        let window = hostSwiftUIViewInWindow(view, frame: CGRect(x: 20, y: 20, width: 240, height: 320))
+        return hostSwiftUIViewInWindow(view, frame: CGRect(x: 20, y: 20, width: 240, height: 320))
 
-        // <UIWindow: 0x123c081f0; frame = (0 0; 320 480); gestureRecognizers = <NSArray: 0x600000cef2a0>; layer = <UIWindowLayer: 0x600001777a80>>
-        //   | <UITransitionView: 0x143804080; frame = (0 0; 320 480); autoresize = W+H; layer = <CALayer: 0x600000d0cb10>>
-        //   |    | <UIDropShadowView: 0x123c09860; frame = (0 0; 320 480); autoresize = W+H; layer = <CALayer: 0x600000cf6340>>
-        //   |    |    | <UIView: 0x123c05820; frame = (0 0; 320 480); autoresize = W+H; layer = <CALayer: 0x600000c87570>>
-        //   |    |    |    | <UIView: 0x123d04080; frame = (0 0; 320 480); layer = <CALayer: 0x600000c2c030>>
-        //   |    |    |    |    | <_TtGC7SwiftUI14_UIHostingViewGVS_6VStackGVS_15ModifiedContentVS_5ImageVS_12_FrameLayout___: 0x123c06270; frame = (20 20; 240 320); gestureRecognizers = <NSArray: 0x6000000340a0>; backgroundColor = <UIDynamicSystemColor: 0x60000177c5c0; name = systemBackgroundColor>; layer = <CALayer: 0x600000c86c70>>
-        //   |    |    |    |    |    | <_TtC7SwiftUIP33_E19F490D25D5E0EC8A24903AF958E34115ColorShapeLayer: 0x600000c18780> (layer)
+        // View Hierarchy:
+        // ---------------
+        // == iOS 26 ==
+        // <UIWindow: 0x10731f640; frame = (0 0; 0 0); gestureRecognizers = <NSArray: 0x600000ce1260>; layer = <UIWindowLayer: 0x600001746b40>>
+        //   | <UITransitionView: 0x107626220; frame = (0 0; 0 0); autoresize = W+H; layer = <CALayer: 0x600000ce1d10>>
+        //   |    | <UIDropShadowView: 0x107626d20; frame = (0 0; 0 0); autoresize = W+H; layer = <CALayer: 0x600000ce2550>>
+        //   |    |    | <_TtGC7SwiftUI14_UIHostingViewGVS_6VStackVS_5Image__: 0x107623670; frame = (0 0; 0 0); autoresize = W+H; gestureRecognizers = <NSArray: 0x600000014a80>; backgroundColor = <UIDynamicSystemColor: 0x60000170e4c0; name = systemBackgroundColor>; layer = <CALayer: 0x600000ce83f0>>
+        //   |    |    |    | <SwiftUI.ImageLayer: 0x600000cec390> (layer)
+        //
+        // == iOS 18 & 17 & 16 ==
+        // <UIWindow: 0x12dd45860; frame = (20 20; 240 320); gestureRecognizers = <NSArray: 0x6000029a4c90>; layer = <UIWindowLayer: 0x6000029a4930>>
+        //   | <UITransitionView: 0x13dd2f3d0; frame = (0 0; 240 320); autoresize = W+H; layer = <CALayer: 0x600002658a40>>
+        //   |    | <UIDropShadowView: 0x13dd30920; frame = (0 0; 240 320); autoresize = W+H; layer = <CALayer: 0x6000026590a0>>
+        //   |    |    | <_TtGC7SwiftUI14_UIHostingViewGVS_6VStackVS_5Image__: 0x13dd2fe30; frame = (0 0; 240 320); autoresize = W+H; gestureRecognizers = <NSArray: 0x6000029a4060>; backgroundColor = <UIDynamicSystemColor: 0x60000336c600; name = systemBackgroundColor>; layer = <CALayer: 0x6000026a4c00>>
+        //   |    |    |    | <SwiftUI._UIGraphicsView: 0x13de22060; frame = (110.667 170.667; 18.6667 18); anchorPoint = (0, 0); autoresizesSubviews = NO; layer = <SwiftUI.ImageLayer: 0x60000265e2a0>>
+    }
+
+    func testRedact_withSwiftUIImage_withMaskAllImagesEnabled_shouldRedactView() throws {
+        // -- Arrange --
+        let window = setupSwiftUIImageFixture()
 
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: true)
         let result = sut.redactRegionsFor(view: window)
 
         // -- Assert --
-        XCTAssertTrue(result.contains(where: { $0.type == .redact || $0.type == .redactSwiftUI }))
+        let region = try XCTUnwrap(result.element(at: 0))
+        // The text color of UITextView is not used for redaction
+        XCTAssertNil(region.color)
+        XCTAssertEqual(region.size, CGSize(width: 40, height: 40))
+        XCTAssertEqual(region.type, .redact)
+        XCTAssertEqual(region.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 20, ty: 20))
+
+        // Assert that there are no other regions
+        XCTAssertEqual(result.count, 1)
     }
 
     func testRedact_withSwiftUIImage_withMaskAllImagesDisabled_shouldNotRedactView() {
         // -- Arrange --
-        rootView.frame = CGRect(x: 0, y: 0, width: 240, height: 160)
-        _ = hostSwiftUIViewInWindow(Image(systemName: "star.fill").resizable().frame(width: 24, height: 24), frame: CGRect(x: 20, y: 20, width: 80, height: 80))
+        let window = setupSwiftUIImageFixture()
 
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: false)
-        let result = sut.redactRegionsFor(view: rootView)
+        let result = sut.redactRegionsFor(view: window)
 
         // -- Assert --
-        XCTAssertFalse(result.contains(where: { $0.type == .redact || $0.type == .redactSwiftUI }))
+        XCTAssertEqual(result.count, 0)
     }
 
     func testRedact_withSwiftUIImage_withMaskAllTextDisabled_shouldRedactView() {
         // -- Arrange --
-        _ = hostSwiftUIViewInWindow(Image(systemName: "star.fill").resizable().frame(width: 24, height: 24), frame: CGRect(x: 20, y: 20, width: 80, height: 80))
+        let window = setupSwiftUIImageFixture()
 
         // -- Act --
         let sut = getSut(maskAllText: false, maskAllImages: true)
-        let result = sut.redactRegionsFor(view: rootView)
+        let result = sut.redactRegionsFor(view: window)
 
         // -- Assert --
-        XCTAssertTrue(result.contains(where: { $0.type == .redact || $0.type == .redactSwiftUI }))
+        XCTAssertEqual(result.count, 1)
     }
 
     // MARK: - PDF View
 
-    func testRedact_withPDFView_withMaskingEnabled_shouldBeRedacted() throws {
-        // -- Arrange --
+    private func setupPDFViewFixture() {
         let pdfView = PDFView(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
         rootView.addSubview(pdfView)
 
@@ -871,6 +935,11 @@ class SentryUIRedactBuilderTests: XCTestCase {
         // <UIView: 0x101b98120; frame = (0 0; 100 100); layer = <CALayer: 0x600000c9f390>>
         //   | <PDFView: 0x101d256e0; frame = (20 20; 40 40); gestureRecognizers = <NSArray: 0x600000cea190>; backgroundColor = <UIDynamicSystemColor: 0x60000173f180; name = secondarySystemBackgroundColor>; layer = <CALayer: 0x600000ce80f0>>
         //   |    | <PDFScrollView: 0x104028400; baseClass = UIScrollView; frame = (0 0; 40 40); clipsToBounds = YES; autoresize = W+H; gestureRecognizers = <NSArray: 0x600000ce9d70>; layer = <CALayer: 0x600000ce8a20>; contentOffset: {0, 0}; contentSize: {0, 0}; adjustedContentInset: {0, 0, 0, 0}>
+    }
+
+    func testRedact_withPDFView_withMaskingEnabled_shouldBeRedacted() throws {
+        // -- Arrange --
+        setupPDFViewFixture()
 
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: true)
@@ -895,14 +964,7 @@ class SentryUIRedactBuilderTests: XCTestCase {
 
     func testRedact_withPDFView_withMaskingDisabled_shouldBeRedacted() throws {
         // -- Arrange --
-        let pdfView = PDFView(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
-        rootView.addSubview(pdfView)
-
-        // View Hierarchy:
-        // ---------------
-        // <UIView: 0x101b98120; frame = (0 0; 100 100); layer = <CALayer: 0x600000c9f390>>
-        //   | <PDFView: 0x101d256e0; frame = (20 20; 40 40); gestureRecognizers = <NSArray: 0x600000cea190>; backgroundColor = <UIDynamicSystemColor: 0x60000173f180; name = secondarySystemBackgroundColor>; layer = <CALayer: 0x600000ce80f0>>
-        //   |    | <PDFScrollView: 0x104028400; baseClass = UIScrollView; frame = (0 0; 40 40); clipsToBounds = YES; autoresize = W+H; gestureRecognizers = <NSArray: 0x600000ce9d70>; layer = <CALayer: 0x600000ce8a20>; contentOffset: {0, 0}; contentSize: {0, 0}; adjustedContentInset: {0, 0, 0, 0}>
+        setupPDFViewFixture()
 
         // -- Act --
         let sut = getSut(maskAllText: false, maskAllImages: false)
@@ -925,8 +987,7 @@ class SentryUIRedactBuilderTests: XCTestCase {
 
     // MARK: - WKWebView
 
-    func testRedact_withWKWebView_withMaskingEnabled_shouldRedactView() throws {
-        // -- Arrange --
+    private func setupWKWebViewFixture() {
         let webView = WKWebView(frame: .init(x: 20, y: 20, width: 40, height: 40), configuration: .init())
         rootView.addSubview(webView)
 
@@ -943,19 +1004,24 @@ class SentryUIRedactBuilderTests: XCTestCase {
         //    |    |    |    | <UIView: 0x105c2b5f0; frame = (0 0; 0 0); backgroundColor = UIExtendedGrayColorSpace 0 0.5; layer = <CALayer: 0x600000cf1830>>
         //    |    |    | <_UIScrollViewScrollIndicator: 0x105c3eb90; frame = (30 34; 7 3); alpha = 0; autoresize = TM; layer = <CALayer: 0x600000cf1620>>
         //    |    |    |    | <UIView: 0x105c3cf60; frame = (0 0; 0 0); backgroundColor = UIExtendedGrayColorSpace 0 0.5; layer = <CALayer: 0x600000cf1770>>
+    }
+
+    func testRedact_withWKWebView_withMaskingEnabled_shouldRedactView() throws {
+        // -- Arrange --
+        setupWKWebViewFixture()
 
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: true)
         let result = sut.redactRegionsFor(view: rootView)
 
         // -- Assert --
-        let region = try XCTUnwrap(result.first) // WKWebView
+        let region = try XCTUnwrap(result.element(at: 0)) // WKWebView
         XCTAssertNil(region.color)
         XCTAssertEqual(region.size, CGSize(width: 40, height: 40))
         XCTAssertEqual(region.type, .redact)
         XCTAssertEqual(region.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 20, ty: 20))
 
-        let region2 = try XCTUnwrap(result.first) // WKScrollView
+        let region2 = try XCTUnwrap(result.element(at: 1)) // WKScrollView
         XCTAssertNil(region2.color)
         XCTAssertEqual(region2.size, CGSize(width: 40, height: 40))
         XCTAssertEqual(region2.type, .redact)
@@ -967,35 +1033,20 @@ class SentryUIRedactBuilderTests: XCTestCase {
 
     func testRedact_withWKWebView_withMaskingDisabled_shouldRedactView() throws {
         // -- Arrange --
-        let webView = WKWebView(frame: .init(x: 20, y: 20, width: 40, height: 40), configuration: .init())
-        rootView.addSubview(webView)
-
-        // View Hierarchy:
-        // ---------------
-        // <UIView: 0x105b3ac60; frame = (0 0; 100 100); layer = <CALayer: 0x600000c4fa50>>
-        //    | <WKWebView: 0x121819400; frame = (20 20; 40 40); layer = <CALayer: 0x600000ce8120>>
-        //    |    | <WKScrollView: 0x106883000; baseClass = UIScrollView; frame = (0 0; 40 40); clipsToBounds = YES; gestureRecognizers = <NSArray: 0x600000cf1560>; backgroundColor = kCGColorSpaceModelRGB 1 1 1 1; layer = <CALayer: 0x600000cf0450>; contentOffset: {0, 0}; contentSize: {0, 0}; adjustedContentInset: {0, 0, 0, 0}>
-        //    |    |    | <WKContentView: 0x121822800; frame = (0 0; 40 40); anchorPoint = (0, 0); layer = <CALayer: 0x600000ce8750>>
-        //    |    |    |    | <UIView: 0x121012580; frame = (0 0; 0 0); anchorPoint = (0, 0); clipsToBounds = YES; layer = <CALayer: 0x600000cf8960>>
-        //    |    |    |    |    | <UIView: 0x1210123e0; frame = (0 0; 0 0); autoresize = W+H; layer = <CALayer: 0x600000cf8930>>
-        //    |    |    |    | <WKVisibilityPropagationView: 0x105c21580; frame = (0 0; 0 0); layer = <CALayer: 0x600000cf01b0>>
-        //    |    |    | <_UIScrollViewScrollIndicator: 0x105c33170; frame = (34 30; 3 7); alpha = 0; autoresize = LM; layer = <CALayer: 0x600000cf0c30>>
-        //    |    |    |    | <UIView: 0x105c2b5f0; frame = (0 0; 0 0); backgroundColor = UIExtendedGrayColorSpace 0 0.5; layer = <CALayer: 0x600000cf1830>>
-        //    |    |    | <_UIScrollViewScrollIndicator: 0x105c3eb90; frame = (30 34; 7 3); alpha = 0; autoresize = TM; layer = <CALayer: 0x600000cf1620>>
-        //    |    |    |    | <UIView: 0x105c3cf60; frame = (0 0; 0 0); backgroundColor = UIExtendedGrayColorSpace 0 0.5; layer = <CALayer: 0x600000cf1770>>
+        setupWKWebViewFixture()
 
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: true)
         let result = sut.redactRegionsFor(view: rootView)
 
         // -- Assert --
-        let region = try XCTUnwrap(result.first)
+        let region = try XCTUnwrap(result.element(at: 0))
         XCTAssertNil(region.color)
         XCTAssertEqual(region.size, CGSize(width: 40, height: 40)) // WKWebView
         XCTAssertEqual(region.type, .redact)
         XCTAssertEqual(region.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 20, ty: 20))
 
-        let region2 = try XCTUnwrap(result.first)
+        let region2 = try XCTUnwrap(result.element(at: 1))
         XCTAssertNil(region2.color)
         XCTAssertEqual(region2.size, CGSize(width: 40, height: 40)) // WKScrollView
         XCTAssertEqual(region2.type, .redact)
@@ -1007,8 +1058,8 @@ class SentryUIRedactBuilderTests: XCTestCase {
 
     // MARK: - UIWebView
 
-    func testRedact_withUIWebView_withMaskingEnabled_shouldRedactView() throws {
-        // -- Arrange --
+    private func setupUIWebViewFixture() throws {
+        // The UIWebView initializer are marked as unavailable, therefore we need to create a fake view
         let webView = try XCTUnwrap(createFakeView(
             type: UIView.self,
             name: "UIWebView",
@@ -1020,13 +1071,18 @@ class SentryUIRedactBuilderTests: XCTestCase {
         // ---------------
         // <UIView: 0x106c20400; frame = (0 0; 100 100); layer = <CALayer: 0x600000cf08d0>>
         //    | <UIWebView: 0x103a76a00; frame = (20 20; 40 40); layer = <CALayer: 0x600000cf1b60>>
+    }
+
+    func testRedact_withUIWebView_withMaskingEnabled_shouldRedactView() throws {
+        // -- Arrange --
+        try setupUIWebViewFixture()
 
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: true)
         let result = sut.redactRegionsFor(view: rootView)
 
         // -- Assert --
-        let region = try XCTUnwrap(result.first)
+        let region = try XCTUnwrap(result.element(at: 0))
         XCTAssertNil(region.color)
         XCTAssertEqual(region.size, CGSize(width: 40, height: 40))
         XCTAssertEqual(region.type, .redact)
@@ -1038,24 +1094,14 @@ class SentryUIRedactBuilderTests: XCTestCase {
 
     func testRedact_withUIWebView_withMaskingDisabled_shouldRedactView() throws {
         // -- Arrange --
-        let webView = try XCTUnwrap(createFakeView(
-            type: UIView.self,
-            name: "UIWebView",
-            frame: .init(x: 20, y: 20, width: 40, height: 40)
-        ))
-        rootView.addSubview(webView)
-
-        // View Hierarchy:
-        // ---------------
-        // <UIView: 0x106c20400; frame = (0 0; 100 100); layer = <CALayer: 0x600000cf08d0>>
-        //    | <UIWebView: 0x103a76a00; frame = (20 20; 40 40); layer = <CALayer: 0x600000cf1b60>>
+        try setupUIWebViewFixture()
 
         // -- Act --
         let sut = getSut(maskAllText: false, maskAllImages: false)
         let result = sut.redactRegionsFor(view: rootView)
 
         // -- Assert --
-        let region = try XCTUnwrap(result.first)
+        let region = try XCTUnwrap(result.element(at: 0))
         XCTAssertNil(region.color)
         XCTAssertEqual(region.size, CGSize(width: 40, height: 40))
         XCTAssertEqual(region.type, .redact)
@@ -1067,75 +1113,81 @@ class SentryUIRedactBuilderTests: XCTestCase {
 
     // MARK: - SFSafariView Redaction
 
-    func testRedact_withSFSafariView_withMaskingEnabled_shouldRedactViewHierarchy() throws {
-#if targetEnvironment(macCatalyst)
-        throw XCTSkip("SFSafariViewController opens system browser on macOS, nothing to redact, skipping test")
-#else
-        // -- Arrange --
+    private func setupSFSafariViewControllerFixture() throws {
         let safariViewController = SFSafariViewController(url: URL(string: "https://example.com")!)
         let safariView = try XCTUnwrap(safariViewController.view)
         safariView.frame = CGRect(x: 20, y: 20, width: 40, height: 40)
         rootView.addSubview(safariView)
 
-        // -- Act --
-        let sut = getSut(maskAllText: true, maskAllImages: true)
-        let result = sut.redactRegionsFor(view: rootView)
+        // View Hierarchy:
+        // ---------------
+        // == iOS 26 & 18 & 17 ==
+        // <UIView: 0x10294c8e0; frame = (0 0; 100 100); layer = <CALayer: 0x600000ccab50>>
+        //   | <SFSafariView: 0x102b39d30; frame = (20 20; 40 40); layer = <CALayer: 0x600000cd2490>>
+        //
+        // == iOS 16 & 15 ==
+        // <UIView: 0x12e717620; frame = (0 0; 100 100); layer = <CALayer: 0x600001a31320>>
+        //    | <SFSafariView: 0x12e60ef40; frame = (20 20; 40 40); layer = <CALayer: 0x600001a5b8a0>>
+        //    |    | <SFSafariLaunchPlaceholderView: 0x12e60f600; frame = (0 0; 40 40); autoresize = W+H; backgroundColor = <UIDynamicSystemColor: 0x600000f4d800; name = systemBackgroundColor>; layer = <CALayer: 0x600001a5b960>>
+        //    |    |    | <UINavigationBar: 0x12e60f9a0; frame = (0 0; 0 0); opaque = NO; layer = <CALayer: 0x600001a5bc60>> delegate=0x12e60f600 no-scroll-edge-support
+        //    |    |    | <UIToolbar: 0x12e7199b0; frame = (0 0; 0 0); layer = <CALayer: 0x600001a229e0>>
+    }
 
-        // -- Assert --
-        if #available(iOS 17, *) { // iOS 17+
-
-            // View Hierarchy:
-            // ---------------
-            // <UIView: 0x10294c8e0; frame = (0 0; 100 100); layer = <CALayer: 0x600000ccab50>>
-            //   | <SFSafariView: 0x102b39d30; frame = (20 20; 40 40); layer = <CALayer: 0x600000cd2490>>
-
-            let region = try XCTUnwrap(result.element(at: 0))
+    private func assertSFSafariViewControllerRegions(regions: [SentryRedactRegion]) throws {
+        if #available(iOS 17, *) { // iOS 26  & 18 & 17
+            let region = try XCTUnwrap(regions.element(at: 0))
             XCTAssertNil(region.color)
             XCTAssertEqual(region.size, CGSize(width: 40, height: 40))
             XCTAssertEqual(region.type, .redact)
             XCTAssertEqual(region.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 20, ty: 20))
 
             // Assert that there are no other regions
-            XCTAssertEqual(result.count, 1)
-        } else if #available(iOS 15, *) { // iOS 15 & iOS 16
-
-            // View Hierarchy:
-            // ---------------
-            // <UIView: 0x12e717620; frame = (0 0; 100 100); layer = <CALayer: 0x600001a31320>>
-            //    | <SFSafariView: 0x12e60ef40; frame = (20 20; 40 40); layer = <CALayer: 0x600001a5b8a0>>
-            //    |    | <SFSafariLaunchPlaceholderView: 0x12e60f600; frame = (0 0; 40 40); autoresize = W+H; backgroundColor = <UIDynamicSystemColor: 0x600000f4d800; name = systemBackgroundColor>; layer = <CALayer: 0x600001a5b960>>
-            //    |    |    | <UINavigationBar: 0x12e60f9a0; frame = (0 0; 0 0); opaque = NO; layer = <CALayer: 0x600001a5bc60>> delegate=0x12e60f600 no-scroll-edge-support
-            //    |    |    | <UIToolbar: 0x12e7199b0; frame = (0 0; 0 0); layer = <CALayer: 0x600001a229e0>>
-
-            let toolbarRegion = try XCTUnwrap(result.element(at: 0)) // UIToolbar
+            XCTAssertEqual(regions.count, 1)
+        } else if #available(iOS 15, *) { // iOS 16 & 15
+            let toolbarRegion = try XCTUnwrap(regions.element(at: 0)) // UIToolbar
             XCTAssertNil(toolbarRegion.color)
             XCTAssertEqual(toolbarRegion.size, CGSize(width: 40, height: 40))
             XCTAssertEqual(toolbarRegion.type, .redact)
             XCTAssertEqual(toolbarRegion.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 20, ty: 20))
 
-            let navigationBarRegion = try XCTUnwrap(result.element(at: 1)) // UINavigationBar
+            let navigationBarRegion = try XCTUnwrap(regions.element(at: 1)) // UINavigationBar
             XCTAssertNil(navigationBarRegion.color)
             XCTAssertEqual(navigationBarRegion.size, CGSize(width: 40, height: 40))
             XCTAssertEqual(navigationBarRegion.type, .redact)
             XCTAssertEqual(navigationBarRegion.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 20, ty: 20))
 
-            let placeholderRegion = try XCTUnwrap(result.element(at: 2)) // SFSafariLaunchPlaceholderView
+            let placeholderRegion = try XCTUnwrap(regions.element(at: 2)) // SFSafariLaunchPlaceholderView
             XCTAssertNil(placeholderRegion.color)
             XCTAssertEqual(placeholderRegion.size, CGSize(width: 40, height: 40))
             XCTAssertEqual(placeholderRegion.type, .redact)
             XCTAssertEqual(toolbarRegion.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 20, ty: 20))
 
-            let vcRegion = try XCTUnwrap(result.element(at: 3)) // SFSafariView
+            let vcRegion = try XCTUnwrap(regions.element(at: 3)) // SFSafariView
             XCTAssertNil(vcRegion.color)
             XCTAssertEqual(vcRegion.size, CGSize(width: 40, height: 40))
             XCTAssertEqual(vcRegion.type, .redact)
             XCTAssertEqual(vcRegion.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 20, ty: 20))
 
             // Assert that there are no other regions
-            XCTAssertEqual(result.count, 4)
+            XCTAssertEqual(regions.count, 4)
         } else {
             throw XCTSkip("Redaction of SFSafariViewController is not tested on iOS versions below 15")
         }
+    }
+
+    func testRedact_withSFSafariView_withMaskingEnabled_shouldRedactViewHierarchy() throws {
+#if targetEnvironment(macCatalyst)
+        throw XCTSkip("SFSafariViewController opens system browser on macOS, nothing to redact, skipping test")
+#else
+        // -- Arrange --
+        try setupSFSafariViewControllerFixture()
+
+        // -- Act --
+        let sut = getSut(maskAllText: true, maskAllImages: true)
+        let result = sut.redactRegionsFor(view: rootView)
+
+        // -- Assert --
+        try assertSFSafariViewControllerRegions(regions: result)
 #endif
     }
 
@@ -1144,79 +1196,20 @@ class SentryUIRedactBuilderTests: XCTestCase {
         throw XCTSkip("SFSafariViewController opens system browser on macOS, nothing to redact, skipping test")
 #else
         // -- Arrange --
-        // SFSafariView should always be redacted for security reasons,
-        // regardless of maskAllText and maskAllImages settings
-        let safariViewController = SFSafariViewController(url: URL(string: "https://example.com")!)
-        let safariView = try XCTUnwrap(safariViewController.view)
-        safariView.frame = CGRect(x: 20, y: 20, width: 40, height: 40)
-        rootView.addSubview(safariView)
+        try setupSFSafariViewControllerFixture()
 
         // -- Act --
         let sut = getSut(maskAllText: false, maskAllImages: false)
         let result = sut.redactRegionsFor(view: rootView)
 
         // -- Assert --
-        if #available(iOS 17, *) { // iOS 17+
-
-            // View Hierarchy:
-            // ---------------
-            // <UIView: 0x10294c8e0; frame = (0 0; 100 100); layer = <CALayer: 0x600000ccab50>>
-            //   | <SFSafariView: 0x102b39d30; frame = (20 20; 40 40); layer = <CALayer: 0x600000cd2490>>
-
-            let region = try XCTUnwrap(result.element(at: 0))
-            XCTAssertNil(region.color)
-            XCTAssertEqual(region.size, CGSize(width: 40, height: 40))
-            XCTAssertEqual(region.type, .redact)
-            XCTAssertEqual(region.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 20, ty: 20))
-
-            // Assert that there are no other regions
-            XCTAssertEqual(result.count, 1)
-        } else if #available(iOS 15, *) { // iOS 15 & iOS 16
-
-            // View Hierarchy:
-            // ---------------
-            // <UIView: 0x12e717620; frame = (0 0; 100 100); layer = <CALayer: 0x600001a31320>>
-            //    | <SFSafariView: 0x12e60ef40; frame = (20 20; 40 40); layer = <CALayer: 0x600001a5b8a0>>
-            //    |    | <SFSafariLaunchPlaceholderView: 0x12e60f600; frame = (0 0; 40 40); autoresize = W+H; backgroundColor = <UIDynamicSystemColor: 0x600000f4d800; name = systemBackgroundColor>; layer = <CALayer: 0x600001a5b960>>
-            //    |    |    | <UINavigationBar: 0x12e60f9a0; frame = (0 0; 0 0); opaque = NO; layer = <CALayer: 0x600001a5bc60>> delegate=0x12e60f600 no-scroll-edge-support
-            //    |    |    | <UIToolbar: 0x12e7199b0; frame = (0 0; 0 0); layer = <CALayer: 0x600001a229e0>>
-
-            let toolbarRegion = try XCTUnwrap(result.element(at: 0)) // UIToolbar
-            XCTAssertNil(toolbarRegion.color)
-            XCTAssertEqual(toolbarRegion.size, CGSize(width: 40, height: 40))
-            XCTAssertEqual(toolbarRegion.type, .redact)
-            XCTAssertEqual(toolbarRegion.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 20, ty: 20))
-
-            let navigationBarRegion = try XCTUnwrap(result.element(at: 1)) // UINavigationBar
-            XCTAssertNil(navigationBarRegion.color)
-            XCTAssertEqual(navigationBarRegion.size, CGSize(width: 40, height: 40))
-            XCTAssertEqual(navigationBarRegion.type, .redact)
-            XCTAssertEqual(navigationBarRegion.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 20, ty: 20))
-
-            let placeholderRegion = try XCTUnwrap(result.element(at: 2)) // SFSafariLaunchPlaceholderView
-            XCTAssertNil(placeholderRegion.color)
-            XCTAssertEqual(toolbarRegion.size, CGSize(width: 40, height: 40))
-            XCTAssertEqual(placeholderRegion.type, .redact)
-            XCTAssertEqual(placeholderRegion.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 20, ty: 20))
-
-            let vcRegion = try XCTUnwrap(result.element(at: 3)) // SFSafariView
-            XCTAssertNil(vcRegion.color)
-            XCTAssertEqual(vcRegion.size, CGSize(width: 40, height: 40))
-            XCTAssertEqual(vcRegion.type, .redact)
-            XCTAssertEqual(vcRegion.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 20, ty: 20))
-
-            // Assert that there are no other regions
-            XCTAssertEqual(result.count, 4)
-        } else {
-            throw XCTSkip("Redaction of SFSafariViewController is not tested on iOS versions below 15")
-        }
+        try assertSFSafariViewControllerRegions(regions: result)
 #endif
     }
 
     // MARK: - AVPlayer Redaction
 
-    func testRedact_withAVPlayerViewController_shouldBeRedacted() throws {
-        // -- Arrange --
+    private func setupAVPlayerViewControllerFixture() throws {
         let avPlayerViewController = AVPlayerViewController()
         let avPlayerView = try XCTUnwrap(avPlayerViewController.view)
         avPlayerView.frame = CGRect(x: 20, y: 20, width: 40, height: 40)
@@ -1226,78 +1219,41 @@ class SentryUIRedactBuilderTests: XCTestCase {
         // ---------------
         // <UIView: 0x130d0d4f0; frame = (0 0; 100 100); layer = <CALayer: 0x600003654760>>
         //    | <AVPlayerView: 0x130e27580; frame = (20 20; 40 40); autoresize = W+H; backgroundColor = UIExtendedGrayColorSpace 0 0; layer = <AVPresentationContainerViewLayer: 0x600003912400>>
+    }
+
+    private func assertAVPlayerViewControllerRegions(regions: [SentryRedactRegion]) throws {
+        let region = try XCTUnwrap(regions.element(at: 0))
+        XCTAssertEqual(region.size, CGSize(width: 40, height: 40))
+        XCTAssertEqual(region.type, .redact)
+        XCTAssertEqual(region.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 20, ty: 20))
+        XCTAssertNil(region.color)
+
+        // Assert that there are no other regions
+        XCTAssertEqual(regions.count, 1)
+    }
+
+    func testRedact_withAVPlayerViewController_shouldBeRedacted() throws {
+        // -- Arrange --
+        try setupAVPlayerViewControllerFixture()
 
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: true)
         let result = sut.redactRegionsFor(view: rootView)
 
         // -- Assert --
-        XCTAssertGreaterThanOrEqual(result.count, 1)
-        let avPlayerRegion = try XCTUnwrap(result.first)
-        XCTAssertEqual(avPlayerRegion.size, CGSize(width: 40, height: 40))
-        XCTAssertEqual(avPlayerRegion.type, .redact)
-        XCTAssertEqual(avPlayerRegion.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 20, ty: 20))
-        XCTAssertNil(avPlayerRegion.color)
+        try assertAVPlayerViewControllerRegions(regions: result)
     }
 
     func testRedact_withAVPlayerViewControllerEvenWithMaskingDisabled_shouldBeRedacted() throws {
         // -- Arrange --
-        // AVPlayerViewController should always be redacted for security reasons,
-        // regardless of maskAllText and maskAllImages settings
-        let avPlayerViewController = AVPlayerViewController()
-        let avPlayerView = try XCTUnwrap(avPlayerViewController.view)
-        avPlayerView.frame = CGRect(x: 20, y: 20, width: 40, height: 40)
-        rootView.addSubview(avPlayerView)
-
-        // View Hierarchy:
-        // ---------------
-        // <UIView: 0x130d0d4f0; frame = (0 0; 100 100); layer = <CALayer: 0x600003654760>>
-        //    | <AVPlayerView: 0x130e27580; frame = (20 20; 40 40); autoresize = W+H; backgroundColor = UIExtendedGrayColorSpace 0 0; layer = <AVPresentationContainerViewLayer: 0x600003912400>>
+        try setupAVPlayerViewControllerFixture()
 
         // -- Act --
         let sut = getSut(maskAllText: false, maskAllImages: false)
         let result = sut.redactRegionsFor(view: rootView)
 
         // -- Assert --
-        XCTAssertGreaterThanOrEqual(result.count, 1)
-        let avPlayerRegion = try XCTUnwrap(result.first)
-        XCTAssertEqual(avPlayerRegion.size, CGSize(width: 40, height: 40))
-        XCTAssertEqual(avPlayerRegion.type, .redact)
-        XCTAssertEqual(avPlayerRegion.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 20, ty: 20))
-        XCTAssertNil(avPlayerRegion.color)
-    }
-
-    func testRedact_withAVPlayerViewInViewHierarchy_shouldBeRedacted() throws {
-        // -- Arrange --
-        let view = UIView(frame: CGRect(x: 0, y: 0, width: 400, height: 300))
-        rootView.addSubview(view)
-
-        let videoPlayerView = try XCTUnwrap(createFakeView(
-            type: UIView.self,
-            name: "AVPlayerView",
-            frame: .init(x: 20, y: 20, width: 360, height: 260)
-        ))
-        view.addSubview(videoPlayerView)
-
-        // View Hierarchy:
-        // ---------------
-        // <UIView: 0x138e18e30; frame = (0 0; 100 100); layer = <CALayer: 0x6000027850e0>>
-        //    | <UIView: 0x148e359c0; frame = (0 0; 400 300); layer = <CALayer: 0x6000027d8740>>
-        //    |    | <AVPlayerView: 0x148e36630; frame = (20 20; 360 260); layer = <AVPresentationContainerViewLayer: 0x6000028cd890>>
-
-        // -- Act --
-        let sut = getSut(maskAllText: true, maskAllImages: true)
-        let result = sut.redactRegionsFor(view: rootView)
-
-        // -- Assert --
-        let videoPlayerRegion = try XCTUnwrap(result.first)
-        XCTAssertEqual(videoPlayerRegion.size, CGSize(width: 360, height: 260))
-        XCTAssertEqual(videoPlayerRegion.type, .redact)
-        XCTAssertEqual(videoPlayerRegion.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 20, ty: 20))
-        XCTAssertNil(videoPlayerRegion.color)
-
-        // Assert there are no other regions
-        XCTAssertEqual(result.count, 1)
+        try assertAVPlayerViewControllerRegions(regions: result)
     }
 
     // - MARK: - Sensitive Views
@@ -1328,7 +1284,7 @@ class SentryUIRedactBuilderTests: XCTestCase {
         // -- Assert --
         // Only the redacted label will result in a region
 
-        let region = try XCTUnwrap(result.first)
+        let region = try XCTUnwrap(result.element(at: 0))
         // The text color of UITextView is not used for redaction
         XCTAssertEqual(region.color, UIColor.blue)
         XCTAssertEqual(region.size, CGSize(width: 8, height: 8))
@@ -1403,7 +1359,7 @@ class SentryUIRedactBuilderTests: XCTestCase {
         let result = sut.redactRegionsFor(view: rootView)
 
         // -- Assert --
-        let region = try XCTUnwrap(result.first)
+        let region = try XCTUnwrap(result.element(at: 0))
         XCTAssertEqual(region.type, .clipOut)
         XCTAssertEqual(region.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 10, ty: 10))
 
@@ -1431,7 +1387,7 @@ class SentryUIRedactBuilderTests: XCTestCase {
         let result = sut.redactRegionsFor(view: rootView)
 
         // -- Assert --
-        let region = try XCTUnwrap(result.first)
+        let region = try XCTUnwrap(result.element(at: 0))
         // The text color of UITextView is not used for redaction
         XCTAssertNil(region.color)
         XCTAssertEqual(region.size, CGSize(width: 8, height: 8))
@@ -1513,7 +1469,7 @@ class SentryUIRedactBuilderTests: XCTestCase {
         let result = sut.redactRegionsFor(view: rootView)
 
         // -- Assert --
-        let region = try XCTUnwrap(result.first)
+        let region = try XCTUnwrap(result.element(at: 0))
         // The text color of UILabel subclasses is not used for redaction
         XCTAssertNil(region.color)
         XCTAssertEqual(region.size, CGSize(width: 40, height: 40))
@@ -1981,7 +1937,7 @@ class SentryUIRedactBuilderTests: XCTestCase {
         let result = sut.redactRegionsFor(view: rootView)
 
         // -- Assert --
-        let region = try XCTUnwrap(result.first)
+        let region = try XCTUnwrap(result.element(at: 0))
         XCTAssertNil(region.color)
         XCTAssertEqual(region.size, CGSize(width: 5, height: 5))
         XCTAssertEqual(region.type, .redact)
@@ -2011,8 +1967,8 @@ class SentryUIRedactBuilderTests: XCTestCase {
 
         // -- Assert --
         XCTAssertEqual(result.count, 1)
-        XCTAssertEqual(result.first?.size, CGSize(width: 30, height: 30))
-        XCTAssertEqual(result.first?.type, .redact)
+        XCTAssertEqual(result.element(at: 0)?.size, CGSize(width: 30, height: 30))
+        XCTAssertEqual(result.element(at: 0)?.type, .redact)
     }
 
     func testOptions_unmaskedViewClasses_shouldIgnoreCustomLabel() {
@@ -2087,7 +2043,7 @@ class SentryUIRedactBuilderTests: XCTestCase {
 
         // -- Assert --
         XCTAssertEqual(result.count, 1)
-        XCTAssertEqual(result.first?.name, "CustomDebugDescription")
+        XCTAssertEqual(result.element(at: 0)?.name, "CustomDebugDescription")
     }
 
     // MARK: - Ignore SwiftUI.List background view
@@ -2408,10 +2364,10 @@ class SentryUIRedactBuilderTests: XCTestCase {
         // Verify that exactly ONE redaction region is created for the CameraUI view,
         // proving that the deduplication fix works and we don't get duplicate regions
         XCTAssertEqual(result.count, 1, "Should have exactly one redaction region, not duplicates")
-        XCTAssertEqual(result.first?.size, CGSize(width: 100, height: 100))
-        XCTAssertEqual(result.first?.type, SentryRedactRegionType.redact)
-        XCTAssertEqual(result.first?.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 10, ty: 10))
-        XCTAssertTrue(result.first?.name.contains("CameraUI.ChromeSwiftUIView") == true)
+        XCTAssertEqual(result.element(at: 0)?.size, CGSize(width: 100, height: 100))
+        XCTAssertEqual(result.element(at: 0)?.type, SentryRedactRegionType.redact)
+        XCTAssertEqual(result.element(at: 0)?.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 10, ty: 10))
+        XCTAssertTrue(result.element(at: 0)?.name.contains("CameraUI.ChromeSwiftUIView") == true)
     }
 
     func testViewSubtreeIgnored_noDuplicatesWithCustomRedactedView() throws {
@@ -2451,10 +2407,10 @@ class SentryUIRedactBuilderTests: XCTestCase {
         // The label inside should NOT create a separate redaction region because the
         // CameraUI view is handled with early return in isViewSubtreeIgnored
         XCTAssertEqual(result.count, 1, "Should have exactly one redaction region for the CameraUI view, no duplicates or separate regions for nested views")
-        XCTAssertEqual(result.first?.size, CGSize(width: 100, height: 100), "Should redact the entire CameraUI view")
-        XCTAssertEqual(result.first?.type, SentryRedactRegionType.redact)
-        XCTAssertEqual(result.first?.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 10, ty: 10))
-        XCTAssertTrue(result.first?.name.contains("CameraUI.ChromeSwiftUIView") == true)
+        XCTAssertEqual(result.element(at: 0)?.size, CGSize(width: 100, height: 100), "Should redact the entire CameraUI view")
+        XCTAssertEqual(result.element(at: 0)?.type, SentryRedactRegionType.redact)
+        XCTAssertEqual(result.element(at: 0)?.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 10, ty: 10))
+        XCTAssertTrue(result.element(at: 0)?.name.contains("CameraUI.ChromeSwiftUIView") == true)
     }
 
     // MARK: - Helper Methods
@@ -2515,7 +2471,7 @@ class SentryUIRedactBuilderTests: XCTestCase {
         let hostingVC = UIHostingController(rootView: swiftUIView)
 
         // Create a transient window to drive lifecycle/layout for SwiftUI
-        let window = UIWindow(frame: hostingVC.view.bounds)
+        let window = UIWindow(frame: frame)
         window.rootViewController = hostingVC
         window.makeKeyAndVisible()
         testWindow = window
@@ -2530,3 +2486,12 @@ class SentryUIRedactBuilderTests: XCTestCase {
 }
 
 #endif // os(iOS)
+
+func XCTAssertAffineTransformEqual(_ lhs: CGAffineTransform, _ rhs: CGAffineTransform, accuracy: CGFloat, file: StaticString = #file, line: UInt = #line) {
+    XCTAssertEqual(lhs.a, rhs.a, accuracy: accuracy, "Transformation a-factor should be the same: \(lhs.a) != \(rhs.a) (+- \(accuracy))", file: file, line: line)
+    XCTAssertEqual(lhs.b, rhs.b, accuracy: accuracy, "Transformation b-factor should be the same: \(lhs.b) != \(rhs.b) (+- \(accuracy))", file: file, line: line)
+    XCTAssertEqual(lhs.c, rhs.c, accuracy: accuracy, "Transformation c-factor should be the same: \(lhs.c) != \(rhs.c) (+- \(accuracy))", file: file, line: line)
+    XCTAssertEqual(lhs.d, rhs.d, accuracy: accuracy, "Transformation d-factor should be the same: \(lhs.d) != \(rhs.d) (+- \(accuracy))", file: file, line: line)
+    XCTAssertEqual(lhs.tx, rhs.tx, accuracy: accuracy, "Transformation x-translation should be the same: \(lhs.tx) != \(rhs.tx) (+- \(accuracy))", file: file, line: line)
+    XCTAssertEqual(lhs.ty, rhs.ty, accuracy: accuracy, "Transformation y-translation should be the same: \(lhs.ty) != \(rhs.ty) (+- \(accuracy))", file: file, line: line)
+}
