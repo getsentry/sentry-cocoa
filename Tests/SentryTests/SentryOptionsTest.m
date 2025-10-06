@@ -207,6 +207,11 @@
     [self testBooleanField:@"enableAutoBreadcrumbTracking"];
 }
 
+- (void)testEnablePropagateTraceparent
+{
+    [self testBooleanField:@"enablePropagateTraceparent" defaultValue:NO];
+}
+
 - (void)testEnableCoreDataTracking
 {
     [self testBooleanField:@"enableCoreDataTracing" defaultValue:YES];
