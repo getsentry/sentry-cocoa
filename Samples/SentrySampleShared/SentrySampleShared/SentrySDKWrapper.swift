@@ -160,10 +160,11 @@ public struct SentrySDKWrapper {
         }
 #endif // !os(macOS) && !os(tvOS) && !os(watchOS) && !os(visionOS)
 
+        options.enableLogs = true
+
         // Experimental features
         options.experimental.enableFileManagerSwizzling = !SentrySDKOverrides.Other.disableFileManagerSwizzling.boolValue
         options.experimental.enableUnhandledCPPExceptionsV2 = true
-        options.experimental.enableLogs = true
     }
 
     func configureInitialScope(scope: Scope, options: Options) -> Scope {

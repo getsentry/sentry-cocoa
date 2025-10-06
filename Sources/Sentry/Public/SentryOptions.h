@@ -157,6 +157,13 @@ NS_SWIFT_NAME(Options)
  */
 @property (nullable, nonatomic, copy) SentryBeforeSendSpanCallback beforeSendSpan NS_SWIFT_SENDABLE;
 
+/**
+ * When enabled, the SDK sends logs to Sentry. Logs can be captured using the @c SentrySDK.logger
+ * API, which provides structured logging with attributes.
+ * @note Default value is @c NO .
+ */
+@property (nonatomic, assign) BOOL enableLogs;
+
 #if !SWIFT_PACKAGE
 /**
  * Use this callback to drop or modify a log before the SDK sends it to Sentry. Return @c nil to

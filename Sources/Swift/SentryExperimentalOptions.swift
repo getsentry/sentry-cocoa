@@ -31,11 +31,6 @@ public class SentryExperimentalOptions: NSObject {
      */
     public var enableUnhandledCPPExceptionsV2 = false
     
-    /**
-     * Logs are considered beta.
-     */
-    public var enableLogs = false
-
     @_spi(Private) public func validateOptions(_ options: [String: Any]?) {
     }
 }

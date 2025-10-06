@@ -124,6 +124,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
         self.enableNetworkTracking = YES;
         self.enableFileIOTracing = YES;
         self.enableNetworkBreadcrumbs = YES;
+        self.enableLogs = NO;
         self.tracesSampleRate = nil;
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 #    if !SDK_V9
