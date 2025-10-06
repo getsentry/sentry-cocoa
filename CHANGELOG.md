@@ -2,9 +2,6 @@
 
 ## Unreleased
 
-### Fixes
-
-- Ignore SwiftUI's list background decoration view in redaction ([#6292](https://github.com/getsentry/sentry-cocoa/pull/6292))
 ### Breaking Changes
 
 Removes deprecated user feedback API, this is replaced with the new feedback API (#5591)
@@ -16,7 +13,8 @@ Removes `enablePerformanceV2` option and makes this the default. The app start d
 
 ### Fixes
 
-Fixes warnings about minimum OS version being lower than Xcode supported version (#5591)
+- Fixes warnings about minimum OS version being lower than Xcode supported version (#5591)
+- Add SwiftUI.List's background decoration view to ignored redaction views (#6292)
 
 ## 8.56.2
 
