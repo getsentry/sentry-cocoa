@@ -45,7 +45,7 @@ class SentryStacktraceTests: XCTestCase {
         let data = try XCTUnwrap(SentrySerializationSwift.data(withJSONObject: serialized))
         
         // Act
-        let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as SentryStacktrace?)
+        let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as SentryStacktraceDecodable?)
         
         // Assert
         XCTAssertEqual(stacktrace.frames.count, decoded.frames.count)
@@ -61,7 +61,7 @@ class SentryStacktraceTests: XCTestCase {
         let data = try XCTUnwrap(SentrySerializationSwift.data(withJSONObject: serialized))
         
         // Act
-        let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as SentryStacktrace?)
+        let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as SentryStacktraceDecodable?)
         
         // Assert
         XCTAssertEqual(stacktrace.frames.count, decoded.frames.count)
@@ -77,7 +77,7 @@ class SentryStacktraceTests: XCTestCase {
         let data = try XCTUnwrap(SentrySerializationSwift.data(withJSONObject: serialized))
         
         // Act
-        let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as SentryStacktrace?)
+        let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as SentryStacktraceDecodable?)
         
         // Assert
         XCTAssertEqual(stacktrace.frames.count, decoded.frames.count)
@@ -93,7 +93,7 @@ class SentryStacktraceTests: XCTestCase {
         let data = try XCTUnwrap(SentrySerializationSwift.data(withJSONObject: serialized))
         
         // Act
-        let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as SentryStacktrace?)
+        let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as SentryStacktraceDecodable?)
         
         // Assert
         XCTAssertEqual(stacktrace.frames.count, decoded.frames.count)

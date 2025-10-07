@@ -16,16 +16,6 @@ import Foundation
  * overridden. Therefore, we add the Decodable implementation not on the Event, but to a subclass of
  * the event.
  */
-#if !SDK_V9
-@objc(SentryEventDecodable)
-open class SentryEventDecodable: Event, Decodable {
-    required convenience public init(from decoder: any Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        self.init()
-        try writePropertiesFrom(container: container)
-    }
-}
-#else
 final class SentryEventDecodable: Event, Decodable {
     required convenience public init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -33,7 +23,6 @@ final class SentryEventDecodable: Event, Decodable {
         try writePropertiesFrom(container: container)
     }
 }
-#endif
 
 extension SentryEventDecodable {
     private enum CodingKeys: String, CodingKey {
