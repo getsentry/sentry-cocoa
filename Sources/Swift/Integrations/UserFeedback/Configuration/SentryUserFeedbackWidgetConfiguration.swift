@@ -7,7 +7,7 @@ import UIKit
  */
 @available(iOS 13.0, *)
 @objcMembers
-public class SentryUserFeedbackWidgetConfiguration: NSObject {
+public final class SentryUserFeedbackWidgetConfiguration: NSObject {
     /**
      * Automatically inject the widget button into the application UI.
      * - note: Default: `true`

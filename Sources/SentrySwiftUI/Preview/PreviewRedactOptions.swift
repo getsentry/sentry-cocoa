@@ -6,7 +6,7 @@ import Sentry
  *
  * - Note: See ``SentryReplayOptions.DefaultValues`` for the default values of each parameter.
  */
-public class PreviewRedactOptions: SentryRedactOptions {
+public final class PreviewRedactOptions: SentryRedactOptions {
     /**
      * Flag to redact all text in the app by drawing a rectangle over it.
      *
