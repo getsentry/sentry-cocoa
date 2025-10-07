@@ -3,6 +3,7 @@ import XCTest
 
 class TestSentryReachabilityObserver: NSObject, SentryReachabilityObserver {
     var connectivityChangedInvocations: UInt = 0
+    var onReachabilityChanged: ((Bool, String) -> Void)?
     
     override init() {
         super.init()
@@ -12,6 +13,7 @@ class TestSentryReachabilityObserver: NSObject, SentryReachabilityObserver {
     func connectivityChanged(_ connected: Bool, typeDescription: String) {
         print("Received connectivity notification: \(connected); type: \(typeDescription)")
         connectivityChangedInvocations += 1
+        onReachabilityChanged?(connected, typeDescription)
     }
 }
 
@@ -102,10 +104,7 @@ final class SentryReachabilitySwiftTests: XCTestCase {
         reachability.remove(observer)
     }
     
-    /**
-     * We only want to make sure running the actual registering and unregistering callbacks doesn't
-     * crash.
-     */
+    /// We only want to make sure running the actual registering and unregistering callbacks doesn't crash.
     func testRegisteringActualCallbacks() {
         reachability.skipRegisteringActualCallbacks = false
         
@@ -128,5 +127,22 @@ final class SentryReachabilitySwiftTests: XCTestCase {
         }, readWork: {
             sut.removeAllObservers()
         })
+    }
+
+    /// This tests actually test NWPathMonitor response, if it becomes blaky we can disable it
+    func testRegisteringActualCallbacks_CallbackIsCalled() {
+        reachability.skipRegisteringActualCallbacks = false
+        reachability.setReachabilityIgnoreActualCallback(false)
+        
+        let expectation = XCTestExpectation(description: "Callback should be called")
+        
+        let observer = TestSentryReachabilityObserver()
+        observer.onReachabilityChanged = { _, _ in
+            expectation.fulfill()
+        }
+        
+        reachability.add(observer)
+        
+        wait(for: [expectation], timeout: 5)
     }
 }

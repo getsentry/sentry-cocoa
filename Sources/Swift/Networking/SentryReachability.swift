@@ -55,6 +55,7 @@ public class SentryReachability: NSObject {
         reachabilityObservers.add(observer)
         
         if reachabilityObservers.count > 1 {
+            SentrySDKLog.debug("More than one observer added. Doing nothing.")
             return
         }
         
@@ -65,24 +66,22 @@ public class SentryReachability: NSObject {
         }
 #endif // DEBUG || SENTRY_TEST || SENTRY_TEST_CI
         
-        let monitor = NWPathMonitor()
-        self.pathMonitor = monitor
-        monitor.pathUpdateHandler = self.pathUpdateHandler
-        monitor.start(queue: self.reachabilityQueue)
+        self.pathMonitor = NWPathMonitor()
+        self.pathMonitor?.pathUpdateHandler = self.pathUpdateHandler
+        self.pathMonitor?.start(queue: self.reachabilityQueue)
     }
     
     @objc(removeObserver:)
     public func remove(_ observer: SentryReachabilityObserver) {
         SentrySDKLog.debug("Removing observer: \(observer)")
         
-        observersLock.lock()
-        defer { observersLock.unlock() }
-        
-        SentrySDKLog.debug("Synchronized to remove observer: \(observer)")
-        reachabilityObservers.remove(observer)
-        
-        if reachabilityObservers.count == 0 {
-            stopMonitoring()
+        observersLock.synchronized {
+            SentrySDKLog.debug("Synchronized to remove observer: \(observer)")
+            reachabilityObservers.remove(observer)
+            
+            if reachabilityObservers.count == 0 {
+                stopMonitoring()
+            }
         }
     }
     
@@ -90,12 +89,11 @@ public class SentryReachability: NSObject {
     public func removeAllObservers() {
         SentrySDKLog.debug("Removing all observers.")
         
-        observersLock.lock()
-        defer { observersLock.unlock() }
-        
-        SentrySDKLog.debug("Synchronized to remove all observers.")
-        reachabilityObservers.removeAllObjects()
-        stopMonitoring()
+        observersLock.synchronized {
+            SentrySDKLog.debug("Synchronized to remove all observers.")
+            reachabilityObservers.removeAllObjects()
+            stopMonitoring()
+        }
     }
     
     private func stopMonitoring() {
@@ -113,8 +111,6 @@ public class SentryReachability: NSObject {
             monitor.cancel()
             pathMonitor = nil
         }
-        
-        SentrySDKLog.debug("Cleaning up reachability queue.")
     }
     
     private func pathUpdateHandler(_ path: NWPath) {
@@ -147,16 +143,6 @@ public class SentryReachability: NSObject {
 #endif // canImport(UIKit)
     }
     
-    private func connectivityShouldReportChange(_ connectivity: SentryConnectivity) -> Bool {
-        if connectivity == currentConnectivity {
-            SentrySDKLog.debug("No change in reachability state. ConnectivityShouldReportChange will return false for connectivity \(connectivity.toString()), currentConnectivity \(currentConnectivity.toString())")
-            return false
-        }
-        
-        currentConnectivity = connectivity
-        return true
-    }
-    
     fileprivate func connectivityCallback(_ connectivity: SentryConnectivity) {
         observersLock.lock()
         defer { observersLock.unlock() }
@@ -168,19 +154,29 @@ public class SentryReachability: NSObject {
             return
         }
         
-        guard connectivityShouldReportChange(connectivity) else {
-            SentrySDKLog.debug("ConnectivityShouldReportChange returned false for connectivity \(connectivity.toString()), will not report change to observers.")
+        let previousConnectivity = currentConnectivity
+        currentConnectivity = connectivity
+        guard connectivityShouldReportChange(previousConnectivity, currentConnectivity) else {
             return
         }
         
         let connected = connectivity != .none
         
-        SentrySDKLog.debug("Notifying observers...")
+        SentrySDKLog.debug("Notifying observers with connected: \(connected), connectivity: \(connectivity.toString())")
         for observer in reachabilityObservers.allObjects {
             SentrySDKLog.debug("Notifying \(observer)")
             observer.connectivityChanged(connected, typeDescription: connectivity.toString())
         }
         SentrySDKLog.debug("Finished notifying observers.")
+    }
+
+    private func connectivityShouldReportChange(_ previousConnectivity: SentryConnectivity, _ newConnectivity: SentryConnectivity) -> Bool {
+        if previousConnectivity == newConnectivity {
+            SentrySDKLog.debug("No change in reachability state. ConnectivityShouldReportChange will return false for connectivity \(previousConnectivity.toString()), newConnectivity \(newConnectivity.toString())")
+            return false
+        }
+        
+        return true
     }
     
     deinit {
