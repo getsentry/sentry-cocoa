@@ -14,7 +14,11 @@
 
 ### Fixes
 
-Fixes warnings about minimum OS version being lower than Xcode supported version (#5591)
+- Fixes warnings about minimum OS version being lower than Xcode supported version (#5591)
+
+### Improvements
+
+- Replaces the use of SCNetworkReachabilityFlags with NWPathMonitor (#6019)
 
 ## 8.56.2
 
