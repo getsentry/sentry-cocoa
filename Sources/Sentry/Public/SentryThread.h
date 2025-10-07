@@ -20,19 +20,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 SENTRY_NO_INIT
 
-#if SDK_V9
 /**
  * Number of the thread.
  *
  * Can be nil for threads in recrash reports where the thread index information is not available.
  */
 @property (nullable, nonatomic, copy) NSNumber *threadId;
-#else
-/**
- * Number of the thread
- */
-@property (nonatomic, copy) NSNumber *threadId;
-#endif // SDK_V9
 
 /**
  * Name (if available) of the thread
@@ -59,21 +52,12 @@ SENTRY_NO_INIT
  */
 @property (nullable, nonatomic, copy) NSNumber *isMain;
 
-#if SDK_V9
 /**
  * Initializes a SentryThread with its id
  * @param threadId NSNumber or nil if thread index is not available (e.g., recrash reports)
  * @return SentryThread
  */
 - (instancetype)initWithThreadId:(nullable NSNumber *)threadId;
-#else
-/**
- * Initializes a SentryThread with its id
- * @param threadId NSNumber
- * @return SentryThread
- */
-- (instancetype)initWithThreadId:(NSNumber *)threadId;
-#endif // SDK_V9
 
 @end
 

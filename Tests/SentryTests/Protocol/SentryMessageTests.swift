@@ -84,7 +84,7 @@ class SentryMessageTests: XCTestCase {
         let data = try XCTUnwrap(SentrySerializationSwift.data(withJSONObject: actual))
         
         // Act
-        let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as SentryMessage?)
+        let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as SentryMessageDecodable?)
         
         // Assert
         XCTAssertEqual(message.formatted, decoded.formatted)
@@ -101,7 +101,7 @@ class SentryMessageTests: XCTestCase {
         let data = try XCTUnwrap(SentrySerializationSwift.data(withJSONObject: actual))
 
         // Act
-        let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as SentryMessage?)
+        let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as SentryMessageDecodable?)
 
         // Assert
         XCTAssertEqual(message.formatted, decoded.formatted)
