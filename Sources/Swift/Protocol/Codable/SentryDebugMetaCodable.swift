@@ -1,16 +1,14 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
-#if SDK_V9
-final class DebugMetaDecodable: DebugMeta {
-    convenience public init(from decoder: any Decoder) throws {
-        try self.init(decodedFrom: decoder)
-    }
-}
-#else
+#if COCOAPODS
+extension DebugMeta: Decodable { }
 typealias DebugMetaDecodable = DebugMeta
+#else
+final class DebugMetaDecodable: DebugMeta, Codable { }
 #endif
-extension DebugMetaDecodable: Decodable {
+
+extension DebugMeta {
     
     private enum CodingKeys: String, CodingKey {
         case uuid
@@ -22,12 +20,10 @@ extension DebugMetaDecodable: Decodable {
         case imageVmAddress = "image_vmaddr"
         case codeFile = "code_file"
     }
-    
-    #if !SDK_V9
+
     required convenience public init(from decoder: any Decoder) throws {
         try self.init(decodedFrom: decoder)
     }
-    #endif
 
     private convenience init(decodedFrom decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
