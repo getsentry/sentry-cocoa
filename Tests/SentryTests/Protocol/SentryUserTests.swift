@@ -81,7 +81,7 @@ class SentryUserTests: XCTestCase {
         let data = try XCTUnwrap(SentrySerializationSwift.data(withJSONObject: actual))
         
         // Act
-        let decoded = decodeFromJSONData(jsonData: data) as User?
+        let decoded = decodeFromJSONData(jsonData: data) as UserDecodable?
         
         // Assert
         XCTAssertEqual(user, decoded)
@@ -94,7 +94,7 @@ class SentryUserTests: XCTestCase {
         let data = try XCTUnwrap(SentrySerializationSwift.data(withJSONObject: actual))
         
         // Act
-        let decoded = decodeFromJSONData(jsonData: data) as User?
+        let decoded = decodeFromJSONData(jsonData: data) as UserDecodable?
         
         // Assert
         XCTAssertEqual(user, decoded)

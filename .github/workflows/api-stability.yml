@@ -46,9 +46,8 @@ jobs:
 
       - name: Generate HEAD SDK
         run: |
-          mv sdk_api_V9.json sdk_api_base.json
-          ./scripts/update-api.sh V9
-          mv sdk_api_V9.json sdk_api.json
+          mv sdk_api.json sdk_api_base.json
+          ./scripts/update-api.sh
 
       - name: Diagnose breaking changes
         run: |

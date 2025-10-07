@@ -36,7 +36,8 @@ SentrySpanId *_Nullable sentry_getParentSpanID(SentryTransactionContext *context
 SentryId *sentry_getTraceID(SentryTransactionContext *context);
 BOOL sentry_isNotSampled(SentryTransactionContext *context);
 void sentry_dispatchAsync(SentryDispatchQueueWrapper *wrapper, dispatch_block_t block);
-void sentry_dispatchAsyncOnMain(SentryDispatchQueueWrapper *wrapper, dispatch_block_t block);
+void sentry_dispatchAsyncOnMainIfNotMainThread(
+    SentryDispatchQueueWrapper *wrapper, dispatch_block_t block);
 void sentry_addObserver(id observer, SEL selector, NSNotificationName name, _Nullable id object);
 void sentry_removeObserver(id observer);
 void sentry_postNotification(NSNotification *notification);
