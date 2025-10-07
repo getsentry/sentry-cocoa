@@ -1,3 +1,4 @@
+#import "SentryDefines.h"
 
 #if SENTRY_HAS_METRIC_KIT
 #    import "SentryMetricKitIntegration.h"
@@ -102,7 +103,6 @@
 #import "SentryDebugMeta.h"
 #import "SentryDefaultAppStateManager.h"
 #import "SentryDefaultThreadInspector.h"
-#import "SentryDefines.h"
 #import "SentryDependencyContainer.h"
 #import "SentryDiscardReason.h"
 #import "SentryDiscardReasonMapper.h"
