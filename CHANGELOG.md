@@ -37,6 +37,8 @@
   - Detects missing or disabled `UIDesignRequiresCompatibility`
   - Uses defensive approach: assumes unsafe unless proven safe
 - Add `options.experimental.enableSessionReplayInUnreliableEnvironment` to allow overriding the automatic disabling (#6389)
+- Fixes warnings about minimum OS version being lower than Xcode supported version (#5591)
+- Fix rendering method for fast view rendering (#6360)
 
 ## 8.56.2
 
