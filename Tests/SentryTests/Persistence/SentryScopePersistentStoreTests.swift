@@ -262,7 +262,7 @@ class SentryScopePersistentStoreTests: XCTestCase {
         XCTAssertTrue(fm.fileExists(atPath: userFileURL.path))
         
         let writtenData = try Data(contentsOf: userFileURL)
-        let decodedUser = try JSONDecoder().decode(User.self, from: writtenData)
+        let decodedUser = try JSONDecoder().decode(UserDecodable.self, from: writtenData)
         
         XCTAssertEqual(decodedUser.userId, "test-user")
         XCTAssertEqual(decodedUser.email, "test@example.com")
