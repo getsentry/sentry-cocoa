@@ -70,7 +70,7 @@ getThreadList(SentryCrashMachineContext *context)
         SENTRY_ASYNC_SAFE_LOG_ERROR("task_threads: %s", mach_error_string(kr));
         return false;
     }
-    SENTRY_ASYNC_SAFE_LOG_TRACE("Got %d threads", actualThreadCount);
+    SENTRY_ASYNC_SAFE_LOG_TRACE("Got %d threads", context->threadCount);
     int threadCount = (int)actualThreadCount;
     int maxThreadCount = sizeof(context->allThreads) / sizeof(context->allThreads[0]);
     if (threadCount > maxThreadCount) {
@@ -97,7 +97,7 @@ getThreadList(SentryCrashMachineContext *context)
 
     // Deallocate ALL mach ports and memory
     for (mach_msg_type_number_t i = 0; i < actualThreadCount; i++) {
-        mach_port_deallocate(thisTask, threads[i]);
+        mach_port_deallocate(thisTask, context->allThreads[i]);
     }
     vm_deallocate(thisTask, (vm_address_t)threads, sizeof(thread_t) * actualThreadCount);
 
