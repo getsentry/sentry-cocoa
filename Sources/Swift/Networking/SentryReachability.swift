@@ -1,7 +1,7 @@
 import Foundation
 import Network
 
-// MARK: - SentryConectivity
+// MARK: - SentryConnectivity
 enum SentryConnectivity: Int {
     case cellular
     case wiFi
