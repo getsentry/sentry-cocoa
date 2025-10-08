@@ -36,6 +36,8 @@ class SentryDispatchQueueWrapperSwiftTests: XCTestCase {
         
         let sut = SentryDispatchQueueWrapper()
         sut.dispatchAsyncOnMainQueueIfNotMainThread {
+            // Add a sleep to ensure this executes before the flag is set even if delayed
+            sleep(1)
             XCTAssertTrue(Thread.isMainThread)
             XCTAssertFalse(flag, "Block did not run synchronously")
             
@@ -55,6 +57,8 @@ class SentryDispatchQueueWrapperSwiftTests: XCTestCase {
             var flag = false
             let sut = SentryDispatchQueueWrapper()
             sut.dispatchAsyncOnMainQueueIfNotMainThread {
+                // Add a sleep to ensure this executes after the flag is set
+                sleep(1)
                 XCTAssertTrue(Thread.isMainThread)
                 XCTAssertTrue(flag, "Block did not run asynchronously")
                 
