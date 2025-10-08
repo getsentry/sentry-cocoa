@@ -31,11 +31,12 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests {
 
     private var rootView: UIView!
 
-    private func getSut(maskAllText: Bool, maskAllImages: Bool, maskedViewClasses: [AnyClass] = []) -> SentryUIRedactBuilder {
+    private func getSut(maskAllText: Bool, maskAllImages: Bool, maskedViewClasses: [AnyClass] = [], unmaskedViewClasses: [AnyClass] = []) -> SentryUIRedactBuilder {
         return SentryUIRedactBuilder(options: TestRedactOptions(
             maskAllText: maskAllText,
             maskAllImages: maskAllImages,
-            maskedViewClasses: maskedViewClasses
+            maskedViewClasses: maskedViewClasses,
+            unmaskedViewClasses: unmaskedViewClasses
         ))
     }
 
@@ -824,7 +825,6 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests {
         class MyCustomView: UIView {}
 
         let view = MyCustomView(frame: CGRect(x: 10, y: 10, width: 30, height: 30))
-        view.backgroundColor = .red
         rootView.addSubview(view)
 
         // View Hierarchy:
@@ -846,7 +846,7 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests {
         XCTAssertEqual(baseResult.count, 0)
 
         assertSnapshot(of: masked, as: .image)
-
+        
         let region = try XCTUnwrap(result.element(at: 0))
         XCTAssertNil(region.color)
         XCTAssertEqual(region.size, CGSize(width: 30, height: 30))
@@ -872,11 +872,11 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests {
         //   | <_TtCFC11SentryTests26SentryUIRedactBuilderTests55testOptions_unmaskedViewClasses_shouldIgnoreCustomLabelFT_T_L_7MyLabel: 0x10562edf0; baseClass = UILabel; frame = (10 10; 30 30); userInteractionEnabled = NO; backgroundColor = UIExtendedGrayColorSpace 0 0; layer = <_UILabelLayer: 0x600002c58880>>
 
         // -- Act --
-        let baseSut = getSut(maskAllText: true, maskAllImages: true, maskedViewClasses: [])
+        let baseSut = getSut(maskAllText: true, maskAllImages: true, unmaskedViewClasses: [])
         let baseResult = baseSut.redactRegionsFor(view: rootView)
         let baseMasked = createMaskedScreenshot(view: rootView, regions: baseResult)
 
-        let sut = getSut(maskAllText: true, maskAllImages: true, maskedViewClasses: [MyLabel.self])
+        let sut = getSut(maskAllText: true, maskAllImages: true, unmaskedViewClasses: [MyLabel.self])
         let result = sut.redactRegionsFor(view: rootView)
         let masked = createMaskedScreenshot(view: rootView, regions: result)
 
@@ -1084,24 +1084,23 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests {
 
     func testDefaultIgnoredControls_shouldNotRedactUISwitch() {
         // -- Arrange --
-        let toggle = UISwitch(frame: CGRect(x: 10, y: 40, width: 50, height: 30))
+        let toggle = UISwitch(frame: CGRect(x: 10, y: 40, width: 80, height: 30))
+        toggle.title = "Off/On" // Setting a title for sanity check, it is not displayed on iOS
         rootView.addSubview(toggle)
 
         // View Hierarchy:
         // ---------------
         // === iOS 26 & 18 & 17 & 16 ===
-        // <UIView: 0x10792c560; frame = (0 0; 100 100); layer = <CALayer: 0x600000cf3630>>
-        //   | <UISwitch: 0x10792d7d0; frame = (10 40; 63 28); gestureRecognizers = <NSArray: 0x6000000254b0>; layer = <CALayer: 0x600000cf1290>>
-        //   |    | <UISwitchModernVisualElement: 0x10792d140; frame = (0 0; 63 28); gestureRecognizers = <NSArray: 0x6000002b94a0>; layer = <CALayer: 0x600000d0edf0>>
-        //   |    |    | <UIView: 0x107e1acc0; frame = (0 0; 63 28); backgroundColor = <UIDynamicCatalogSystemColor: 0x600001717a80; name = tertiaryLabelColor>; layer = <CALayer: 0x600000d13660>>
-        //   |    |    | <UIView: 0x107e1ab20; frame = (0 0; 63 28); layer = <CALayer: 0x600000d11e30>>
-        //   |    |    |    | <UIImageView: 0x107e19190; frame = (-567 0; 630 31); hidden = YES; opaque = NO; userInteractionEnabled = NO; image = <UIImage:0x600003024870 CGImage anonymous; (630 1)@3>; layer = <CALayer: 0x600000d125e0>>
-        //   |    |    |    | <UIView: 0x107931230; frame = (0 0; 63 28); layer = <CALayer: 0x600000cf3930>>
-        //   |    |    |    |    | <UIImageView: 0x10791abd0; frame = (48 14; 0 0); userInteractionEnabled = NO; tintColor = <UIDynamicSystemColor: 0x60000172bf40; name = _switchOffImageColor>; image = <(null):0x0 (null) anonymous; (0 0)@0>; layer = <CALayer: 0x600000cf0e40>>
-        //   |    |    |    |    | <UIImageView: 0x107931030; frame = (15 14; 0 0); alpha = 0; userInteractionEnabled = NO; tintColor = UIExtendedGrayColorSpace 1 1; image = <(null):0x0 (null) anonymous; (0 0)@0>; layer = <CALayer: 0x600000cf2670>>
-        //   |    |    | <_UILiquidLensView: 0x10792bee0; frame = (2 2; 37 24); tintColor = <UIDynamicCatalogSystemColor: 0x600001717a80; name = tertiaryLabelColor>; layer = <CALayer: 0x600000c320a0>>
-        //   |    |    |    | <UIView: 0x10792ef50; frame = (0 0; 37 24); autoresize = W+H; userInteractionEnabled = NO; layer = <CALayer: 0x600000cf1dd0>>
-        //   |    |    |    |    | <UIView: 0x107817f10; frame = (0 0; 37 24); autoresize = W+H; userInteractionEnabled = NO; backgroundColor = <UIDynamicSystemColor: 0x600001749500; name = _controlForegroundColor>; layer = <CALayer: 0x600001030180>>
+        // <UIView: 0x11a5421b0; frame = (0 0; 100 100); layer = <CALayer: 0x600002407360>>
+        //   | <UISwitch: 0x11a70f9e0; frame = (10 40; 51 31); gestureRecognizers = <NSArray: 0x600002b53e70>; layer = <CALayer: 0x600002444020>>
+        //   |    | <UISwitchModernVisualElement: 0x11a710060; frame = (0 0; 51 31); gestureRecognizers = <NSArray: 0x600002b53a50>; layer = <CALayer: 0x6000024440c0>>
+        //   |    |    | <UIView: 0x11a639760; frame = (0 0; 51 31); backgroundColor = UIExtendedSRGBColorSpace 0.470588 0.470588 0.501961 0.16; layer = <CALayer: 0x600002457000>>
+        //   |    |    | <UIView: 0x11a638e20; frame = (0 0; 51 31); layer = <CALayer: 0x600002456f40>>
+        //   |    |    |    | <UIImageView: 0x11a638c30; frame = (-459 0; 510 31); hidden = YES; opaque = NO; userInteractionEnabled = NO; layer = <CALayer: 0x600002455cc0>>
+        //   |    |    |    | <UIView: 0x11a635710; frame = (0 0; 51 31); layer = <CALayer: 0x6000024b8480>>
+        //   |    |    |    |    | <UIImageView: 0x11a639bf0; frame = (38.6667 16; 0 0); userInteractionEnabled = NO; tintColor = <UIDynamicSystemColor: 0x600003192a80; name = _switchOffImageColor>; layer = <CALayer: 0x6000024b8440>>
+        //   |    |    |    | <UIImageView: 0x11a636ee0; frame = (12 16; 0 0); alpha = 0; userInteractionEnabled = NO; tintColor = UIExtendedGrayColorSpace 1 1; layer = <CALayer: 0x6000024b8460>>
+        //   |    |    |    | <UIImageView: 0x11a63b980; frame = (-6 -3; 43 43); opaque = NO; userInteractionEnabled = NO; layer = <CALayer: 0x6000024572e0>>
 
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: true)

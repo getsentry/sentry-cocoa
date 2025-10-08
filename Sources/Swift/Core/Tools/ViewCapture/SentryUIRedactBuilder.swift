@@ -55,6 +55,18 @@ final class SentryUIRedactBuilder {
             self.classId = `class`.description()
             self.layerId = layerId
         }
+
+        func matches(viewClass: AnyClass, layerClass: AnyClass) -> Bool {
+            guard viewClass.description() == classId else {
+                return false
+            }
+            // If the redaction should only affect views with a specific layer, we need to check it.
+            // If no `layerId` is defined, we redact all instances of the view
+            guard let filterLayerClass = layerId else {
+                return true
+            }
+            return layerClass.description() == filterLayerClass
+        }
     }
 
     // MARK: - Constants
@@ -216,23 +228,11 @@ final class SentryUIRedactBuilder {
     /// - `UIImageView` will match the class rule; the final decision is refined by `shouldRedact(imageView:)`.
     private func containsRedactClass(viewClass: AnyClass, layerClass: AnyClass) -> Bool {
         var currentClass: AnyClass? = viewClass
-        while currentClass != nil && currentClass != UIView.self {
-            if let currentClass = currentClass {
-                if redactClassesIdentifiers.contains(where: {
-                    guard $0.classId == currentClass.description() else {
-                        return false
-                    }
-                    // If the redaction should only affect views with a specific layer, we need to check it.
-                    // If no `layerId` is defined, we redact all instances of the view
-                    if let filterLayerClass = $0.layerId {
-                        return layerClass.description() == filterLayerClass
-                    }
-                    return true
-                }) {
-                    return true
-                }
+        while let iteratorClass = currentClass {
+            if redactClassesIdentifiers.contains(where: { $0.matches(viewClass: iteratorClass, layerClass: layerClass) }) {
+                return true
             }
-            currentClass = currentClass?.superclass()
+            currentClass = iteratorClass.superclass()
         }
         return false
     }
@@ -394,15 +394,17 @@ final class SentryUIRedactBuilder {
 
         if let view = layer.delegate as? UIView {
             // Check if the subtree should be ignored to avoid crashes with some special views.
-            // If a subtree is ignored, it will be fully redacted and we return early to prevent duplicates.
             if isViewSubtreeIgnored(view) {
-                redacting.append(SentryRedactRegion(
-                    size: layer.bounds.size,
-                    transform: newTransform,
-                    type: .redact,
-                    color: self.color(for: view),
-                    name: view.debugDescription
-                ))
+                // If a subtree is ignored, it should be fully redacted and we return early to prevent duplicates, unless the view was marked explicitly to be ignored (e.g. UISwitch).
+                if !shouldIgnore(view: view) {
+                    redacting.append(SentryRedactRegion(
+                        size: layer.bounds.size,
+                        transform: newTransform,
+                        type: .redact,
+                        color: self.color(for: view),
+                        name: view.debugDescription
+                    ))
+                }
                 return
             }
 
@@ -505,6 +507,16 @@ final class SentryUIRedactBuilder {
             // Fatal error: Use of unimplemented initializer 'init(layer:)' for class 'CameraUI.ModeLoupeLayer'
             //
             // This crash only occurs when building with Xcode 16 for iOS 26, so we add a runtime check
+            return true
+        }
+
+        // UISwitch uses UIImageView internally, which can be in the list of redacted views.
+        // But UISwitch is in the list of ignored class identifiers by default, because it uses
+        // non-sensitive images. Therefore we want to ignore the subtree of UISwitch, unless
+        // it was removed from the list of ignored classes
+        if viewTypeId == UISwitch.self.description(), ignoreClassesIdentifiers.contains(
+            where: { $0.classId == UISwitch.self.description()
+            }) {
             return true
         }
         return false
