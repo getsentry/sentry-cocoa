@@ -8,7 +8,7 @@ import UIKit
  */
 @available(iOS 13.0, *)
 @objcMembers
-public class SentryUserFeedbackConfiguration: NSObject {
+public final class SentryUserFeedbackConfiguration: NSObject {
     /**
      * Whether or not to show animations, like for presenting and dismissing the form.
      * - note: Default: `true`.

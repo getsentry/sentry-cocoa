@@ -7,7 +7,7 @@ import UIKit
  */
 @available(iOS 13.0, *)
 @objcMembers
-public class SentryUserFeedbackFormConfiguration: NSObject {
+public final class SentryUserFeedbackFormConfiguration: NSObject {
     // MARK: General settings
     
     /**

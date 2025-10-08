@@ -1,7 +1,7 @@
 import Foundation
 
 @objcMembers
-public class SentryExperimentalOptions: NSObject {
+public final class SentryExperimentalOptions: NSObject {
     /**
      * Enables swizzling of`NSData` to automatically track file operations.
      *

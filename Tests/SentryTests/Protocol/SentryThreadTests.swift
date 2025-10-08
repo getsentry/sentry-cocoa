@@ -43,7 +43,7 @@ class SentryThreadTests: XCTestCase {
         let data = try XCTUnwrap(SentrySerializationSwift.data(withJSONObject: actual))
         
         // Act
-        let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as SentryThread?)
+        let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as SentryThreadDecodable?)
         
         // Assert
         XCTAssertEqual(thread.threadId, decoded.threadId)
@@ -66,7 +66,7 @@ class SentryThreadTests: XCTestCase {
         let data = try XCTUnwrap(SentrySerializationSwift.data(withJSONObject: actual))
         
         // Act
-        let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as SentryThread?)
+        let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as SentryThreadDecodable?)
         
         // Assert
         XCTAssertEqual(thread.threadId, decoded.threadId)
@@ -85,7 +85,7 @@ class SentryThreadTests: XCTestCase {
         let data = try XCTUnwrap(SentrySerializationSwift.data(withJSONObject: actual))
         
         // Act & Assert
-        XCTAssertNil(decodeFromJSONData(jsonData: data) as SentryThread?)
+        XCTAssertNil(decodeFromJSONData(jsonData: data) as SentryThreadDecodable?)
     }
     
 }
