@@ -312,7 +312,7 @@ class SentryUIRedactBuilderTests_SpecialViews: SentryUIRedactBuilderTests {
         let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: masked, as: .image)
+        assertSnapshot(of: masked, as: .image, named: createTestDeviceOSBoundSnapshotName())
         try assertSFSafariViewControllerRegions(regions: result)
 #endif
     }
@@ -330,7 +330,7 @@ class SentryUIRedactBuilderTests_SpecialViews: SentryUIRedactBuilderTests {
         let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: masked, as: .image)
+        assertSnapshot(of: masked, as: .image, named: createTestDeviceOSBoundSnapshotName())
         try assertSFSafariViewControllerRegions(regions: result)
 #endif
     }

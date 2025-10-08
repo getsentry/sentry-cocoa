@@ -476,25 +476,6 @@ class SentryUIRedactBuilderTests_UIKit: SentryUIRedactBuilderTests {
         // Assert no additional regions
         XCTAssertEqual(result.count, 1)
     }
-
-    // MARK: - Default ignored controls
-
-    func testDefaultIgnoredControls_shouldNotRedactUISliderAndUISwitch() {
-        // -- Arrange --
-        let slider = UISlider(frame: CGRect(x: 10, y: 10, width: 80, height: 20))
-        let toggle = UISwitch(frame: CGRect(x: 10, y: 40, width: 50, height: 30))
-        rootView.addSubview(slider)
-        rootView.addSubview(toggle)
-
-        // -- Act --
-        let sut = getSut(maskAllText: true, maskAllImages: true)
-        let result = sut.redactRegionsFor(view: rootView)
-        let masked = createMaskedScreenshot(view: rootView, regions: result)
-
-        // -- Assert --
-        assertSnapshot(of: masked, as: .image)
-        XCTAssertEqual(result.count, 0)
-    }
 }
 
 #endif // os(iOS)

@@ -633,8 +633,8 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests {
         let postUnmasked = createMaskedScreenshot(view: rootView, regions: postUnmaskResult)
 
         // -- Assert --
-        assertSnapshot(of: preUnmasked, as: .image)
-        assertSnapshot(of: postUnmasked, as: .image)
+        assertSnapshot(of: preUnmasked, as: .image, named: createTestDeviceOSBoundSnapshotName(index: 0))
+        assertSnapshot(of: postUnmasked, as: .image, named: createTestDeviceOSBoundSnapshotName(index: 1))
 
         XCTAssertEqual(preUnmaskResult.count, 1)
         XCTAssertEqual(postUnmaskResult.count, 0)
@@ -721,8 +721,8 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests {
         let postUnmasked = createMaskedScreenshot(view: rootView, regions: postUnmaskResult)
 
         // -- Assert --
-        assertSnapshot(of: preUnmasked, as: .image)
-        assertSnapshot(of: postUnmasked, as: .image)
+        assertSnapshot(of: preUnmasked, as: .image, named: createTestDeviceOSBoundSnapshotName(index: 1))
+        assertSnapshot(of: postUnmasked, as: .image, named: createTestDeviceOSBoundSnapshotName(index: 2))
 
         XCTAssertEqual(preUnmaskResult.count, 1)
         XCTAssertEqual(postUnmaskResult.count, 0)
@@ -884,7 +884,7 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests {
         assertSnapshot(of: baseMasked, as: .image)
         XCTAssertEqual(baseResult.count, 1)
 
-        assertSnapshot(of: masked, as: .image)
+        assertSnapshot(of: masked, as: .image, named: createTestDeviceOSBoundSnapshotName())
         XCTAssertEqual(result.count, 0)
     }
 
@@ -1006,7 +1006,7 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests {
         let masked = createMaskedScreenshot(view: rootView, regions: post)
 
         // -- Assert --
-        assertSnapshot(of: masked, as: .image)
+        assertSnapshot(of: masked, as: .image, named: createTestDeviceOSBoundSnapshotName())
         XCTAssertEqual(post.count, 0)
     }
 
@@ -1061,13 +1061,25 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests {
 
     // MARK: - Default ignored controls
 
-    func testDefaultIgnoredControls_shouldNotRedactUISlider() {
+    func testDefaultIgnoredControls_shouldNotRedactUISlider() throws {
         // -- Arrange --
         let slider = UISlider(frame: CGRect(x: 10, y: 10, width: 80, height: 20))
         rootView.addSubview(slider)
 
         // View Hierarchy:
         // ---------------
+        // == iOS 26 ==
+        // <UIView: 0x11b209710; frame = (0 0; 100 100); layer = <CALayer: 0x600000cd1440>>
+        //   | <UISlider: 0x11b23e2e0; frame = (10 10; 80 20); opaque = NO; gestureRecognizers = <NSArray: 0x600000276be0>; layer = <CALayer: 0x600000ce80c0>; value: 0.000000>
+        //   |    | <UIKit._UISliderGlassVisualElement: 0x11b25bdd0; frame = (0 0; 80 20); autoresize = W+H; layer = <CALayer: 0x600000cde0a0>>
+        //   |    |    | <UIView: 0x11b439cb0; frame = (0 7; 80 6); clipsToBounds = YES; userInteractionEnabled = NO; layer = <CALayer: 0x600000cddc80>>
+        //   |    |    |    | <UIView: 0x11b439ff0; frame = (0 0; 80 6); userInteractionEnabled = NO; backgroundColor = <UIDynamicProviderColor: 0x600000276c80; provider = <__NSMallocBlock__: 0x600000cdee20>>; layer = <CALayer: 0x600000cddef0>>
+        //   |    |    |    | <UIView: 0x11b439e50; frame = (0 0; 0 6); userInteractionEnabled = NO; backgroundColor = <UITintColor: 0x600000276da0>; layer = <CALayer: 0x600000cdde60>>
+        //   |    |    | <_UILiquidLensView: 0x11b25c050; frame = (0 -2; 37 24); layer = <CALayer: 0x600000cde2b0>>
+        //   |    |    |    | <UIView: 0x11b22bf60; frame = (0 0; 37 24); autoresize = W+H; userInteractionEnabled = NO; layer = <CALayer: 0x600000ce9410>>
+        //   |    |    |    |    | <UIView: 0x11b434710; frame = (0 0; 37 24); autoresize = W+H; userInteractionEnabled = NO; backgroundColor = <UIDynamicSystemColor: 0x600001749000; name = _controlForegroundColor>; layer = <CALayer: 0x600000cdd740>>
+        //
+        // == iOS 18 & 17 & 16 ==
         // <UIView: 0x12ed12bc0; frame = (0 0; 100 100); layer = <CALayer: 0x600001de3540>>
         //   | <UISlider: 0x13ed0f7e0; frame = (10 10; 80 20); opaque = NO; layer = <CALayer: 0x600001df0020>; value: 0.000000>
         //   |    | <_UISlideriOSVisualElement: 0x13ed0fbd0; frame = (0 0; 80 20); opaque = NO; autoresize = W+H; layer = <CALayer: 0x600001da7f80>>
@@ -1078,8 +1090,38 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests {
         let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: masked, as: .image)
-        XCTAssertEqual(result.count, 0)
+        assertSnapshot(of: masked, as: .image, named: createTestDeviceOSBoundSnapshotName())
+
+        if #available(iOS 26.0, *) {
+            let region0 = try XCTUnwrap(result.element(at: 0))
+            XCTAssertNil(region0.color)
+            XCTAssertEqual(region0.size, CGSize(width: 37, height: 24))
+            XCTAssertEqual(region0.type, .clipOut)
+            XCTAssertEqual(region0.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 10, ty: 8))
+
+            let region1 = try XCTUnwrap(result.element(at: 1))
+            XCTAssertNil(region1.color)
+            XCTAssertEqual(region1.size, CGSize(width: 80, height: 6))
+            XCTAssertEqual(region1.type, .clipBegin)
+            XCTAssertEqual(region1.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 10, ty: 17))
+
+            let region2 = try XCTUnwrap(result.element(at: 2))
+            XCTAssertNil(region2.color)
+            XCTAssertEqual(region2.size, CGSize(width: 0, height: 6))
+            XCTAssertEqual(region2.type, .clipOut)
+            XCTAssertEqual(region2.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 10, ty: 17))
+
+            let region3 = try XCTUnwrap(result.element(at: 3))
+            XCTAssertNil(region3.color)
+            XCTAssertEqual(region3.size, CGSize(width: 80, height: 6))
+            XCTAssertEqual(region3.type, .clipEnd)
+            XCTAssertEqual(region3.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 10, ty: 17))
+
+            // Assert that no other regions
+            XCTAssertEqual(result.count, 4)
+        } else {
+            XCTAssertEqual(result.count, 0)
+        }
     }
 
     func testDefaultIgnoredControls_shouldNotRedactUISwitch() {
@@ -1108,7 +1150,7 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests {
         let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: masked, as: .image)
+        assertSnapshot(of: masked, as: .image, named: createTestDeviceOSBoundSnapshotName())
         XCTAssertEqual(result.count, 0)
     }
 

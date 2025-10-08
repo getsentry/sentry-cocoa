@@ -51,6 +51,15 @@ class SentryUIRedactBuilderTests: XCTestCase {
 
         return window
     }
+
+    /// Creates a snapshot test identifier for the the n-th snapshot in the test, defined by `index`
+    ///
+    /// - Parameter index: Index of the snapshot in the current test, must be set if asserting multiple snapshots
+    /// - Returns Snapshot identifier bound to the current device OS
+    func createTestDeviceOSBoundSnapshotName(index: Int = 0) -> String {
+        let device = UIDevice.current
+        return "\(device.systemName)-\(device.systemVersion).\(index)"
+    }
 }
 
 func XCTAssertAffineTransformEqual(_ lhs: CGAffineTransform, _ rhs: CGAffineTransform, accuracy: CGFloat, file: StaticString = #file, line: UInt = #line) {

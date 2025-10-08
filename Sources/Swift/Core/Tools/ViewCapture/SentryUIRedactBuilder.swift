@@ -519,6 +519,7 @@ final class SentryUIRedactBuilder {
             }) {
             return true
         }
+        
         return false
     }
 
