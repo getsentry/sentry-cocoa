@@ -7,13 +7,13 @@ class SentryBaggageTests: XCTestCase {
     // MARK: - Tests without sampleRand
 
     func test_baggageToHeader_AppendToOriginal() {
-        let header = Baggage(trace: SentryId.empty, publicKey: "publicKey", releaseName: "release name", environment: "teste", transaction: "transaction", userSegment: "test user", sampleRate: "0.49", sampled: "true", replayId: "some_replay_id").toHTTPHeader(withOriginalBaggage: ["a": "a", "sentry-trace_id": "to-be-overwritten"])
+        let header = Baggage(trace: SentryId.empty, publicKey: "publicKey", releaseName: "release name", environment: "teste", transaction: "transaction", sampleRate: "0.49", sampled: "true", replayId: "some_replay_id").toHTTPHeader(withOriginalBaggage: ["a": "a", "sentry-trace_id": "to-be-overwritten"])
 
-        XCTAssertEqual(header, "a=a,sentry-environment=teste,sentry-public_key=publicKey,sentry-release=release%20name,sentry-replay_id=some_replay_id,sentry-sample_rate=0.49,sentry-sampled=true,sentry-trace_id=00000000000000000000000000000000,sentry-transaction=transaction,sentry-user_segment=test%20user")
+        XCTAssertEqual(header, "a=a,sentry-environment=teste,sentry-public_key=publicKey,sentry-release=release%20name,sentry-replay_id=some_replay_id,sentry-sample_rate=0.49,sentry-sampled=true,sentry-trace_id=00000000000000000000000000000000,sentry-transaction=transaction")
     }
     
     func test_baggageToHeader_onlyTrace_ignoreNils() {
-        let header = Baggage(trace: SentryId.empty, publicKey: "publicKey", releaseName: nil, environment: nil, transaction: nil, userSegment: nil, sampleRate: nil, sampled: nil, replayId: nil).toHTTPHeader(withOriginalBaggage: nil)
+        let header = Baggage(trace: SentryId.empty, publicKey: "publicKey", releaseName: nil, environment: nil, transaction: nil, sampleRate: nil, sampled: nil, replayId: nil).toHTTPHeader(withOriginalBaggage: nil)
         
         XCTAssertEqual(header, "sentry-public_key=publicKey,sentry-trace_id=00000000000000000000000000000000")
     }
@@ -24,7 +24,7 @@ class SentryBaggageTests: XCTestCase {
         // -- Arrange --
         let baggage = Baggage(
             trace: SentryId.empty, publicKey: "publicKey", releaseName: "release name", environment: "teste",
-            transaction: "transaction", userSegment: "test user",
+            transaction: "transaction",
             sampleRate: "0.49", sampleRand: "0.6543", sampled: "true",
             replayId: "some_replay_id"
         )
@@ -33,14 +33,14 @@ class SentryBaggageTests: XCTestCase {
         let header = baggage.toHTTPHeader(withOriginalBaggage: ["a": "a", "sentry-trace_id": "to-be-overwritten"])
 
         // -- Assert --
-        XCTAssertEqual(header, "a=a,sentry-environment=teste,sentry-public_key=publicKey,sentry-release=release%20name,sentry-replay_id=some_replay_id,sentry-sample_rand=0.6543,sentry-sample_rate=0.49,sentry-sampled=true,sentry-trace_id=00000000000000000000000000000000,sentry-transaction=transaction,sentry-user_segment=test%20user")
+        XCTAssertEqual(header, "a=a,sentry-environment=teste,sentry-public_key=publicKey,sentry-release=release%20name,sentry-replay_id=some_replay_id,sentry-sample_rand=0.6543,sentry-sample_rate=0.49,sentry-sampled=true,sentry-trace_id=00000000000000000000000000000000,sentry-transaction=transaction")
     }
 
     func testWithSampleRand_baggageToHeader_onlyTrace_ignoreNils() {
         // -- Arrange --
         let baggage = Baggage(
             trace: SentryId.empty, publicKey: "publicKey", releaseName: nil, environment: nil,
-            transaction: nil, userSegment: nil,
+            transaction: nil,
             sampleRate: nil, sampleRand: nil, sampled: nil, replayId: nil
         )
 
@@ -55,7 +55,7 @@ class SentryBaggageTests: XCTestCase {
         // -- Arrange --
         let baggage = Baggage(
             trace: SentryId.empty, publicKey: "publicKey", releaseName: "release name", environment: nil,
-            transaction: nil, userSegment: nil,
+            transaction: nil,
             sampleRate: nil, sampleRand: nil, sampled: nil, replayId: nil
         )
 
@@ -70,7 +70,7 @@ class SentryBaggageTests: XCTestCase {
         // -- Arrange --
         let baggage = Baggage(
             trace: SentryId.empty, publicKey: "publicKey", releaseName: nil, environment: "environment",
-            transaction: nil, userSegment: nil,
+            transaction: nil,
             sampleRate: nil, sampleRand: nil, sampled: nil, replayId: nil
         )
 
@@ -85,7 +85,7 @@ class SentryBaggageTests: XCTestCase {
         // -- Arrange --
         let baggage = Baggage(
             trace: SentryId.empty, publicKey: "publicKey", releaseName: nil, environment: nil,
-            transaction: "transaction", userSegment: nil,
+            transaction: "transaction",
             sampleRate: nil, sampleRand: nil, sampled: nil, replayId: nil
         )
 
@@ -96,26 +96,11 @@ class SentryBaggageTests: XCTestCase {
         XCTAssertEqual(header, "sentry-public_key=publicKey,sentry-trace_id=00000000000000000000000000000000,sentry-transaction=transaction")
     }
 
-    func testToHTTPHeader_userSegmentInOriginalBaggage_shouldBeOverwritten() {
-        // -- Arrange --
-        let baggage = Baggage(
-            trace: SentryId.empty, publicKey: "publicKey", releaseName: nil, environment: nil,
-            transaction: nil, userSegment: "segment", 
-            sampleRate: nil, sampleRand: nil, sampled: nil, replayId: nil
-        )
-
-        // -- Act --
-        let header = baggage.toHTTPHeader(withOriginalBaggage: ["sentry-user_segment": "original segment"])
-
-        // -- Assert --
-        XCTAssertEqual(header, "sentry-public_key=publicKey,sentry-trace_id=00000000000000000000000000000000,sentry-user_segment=segment")
-    }
-
     func testToHTTPHeader_sampleRateInOriginalBaggage_shouldBeOverwritten() {
         // -- Arrange --
         let baggage = Baggage(
             trace: SentryId.empty, publicKey: "publicKey", releaseName: nil, environment: nil,
-            transaction: nil, userSegment: nil,
+            transaction: nil,
             sampleRate: "1.0", sampleRand: nil, sampled: nil, replayId: nil
         )
 
@@ -130,7 +115,7 @@ class SentryBaggageTests: XCTestCase {
         // -- Arrange --
         let baggage = Baggage(
             trace: SentryId.empty, publicKey: "publicKey", releaseName: nil, environment: nil,
-            transaction: nil, userSegment: nil,
+            transaction: nil,
             sampleRate: nil, sampleRand: "0.5", sampled: nil, replayId: nil
         )
 
@@ -145,7 +130,7 @@ class SentryBaggageTests: XCTestCase {
         // -- Arrange --
         let baggage = Baggage(
             trace: SentryId.empty, publicKey: "publicKey", releaseName: nil, environment: nil,
-            transaction: nil, userSegment: nil,
+            transaction: nil,
             sampleRate: nil, sampleRand: nil, sampled: "true", replayId: nil
         )
 
@@ -160,7 +145,7 @@ class SentryBaggageTests: XCTestCase {
         // -- Arrange --
         let baggage = Baggage(
             trace: SentryId.empty, publicKey: "publicKey", releaseName: nil, environment: nil,
-            transaction: nil, userSegment: nil,
+            transaction: nil,
             sampleRate: nil, sampleRand: nil, sampled: nil, replayId: "replay-id"
         )
 

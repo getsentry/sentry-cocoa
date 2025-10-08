@@ -23,9 +23,6 @@ NS_ASSUME_NONNULL_BEGIN
                     releaseName:(nullable NSString *)releaseName
                     environment:(nullable NSString *)environment
                     transaction:(nullable NSString *)transaction
-#if !SDK_V9
-                    userSegment:(nullable NSString *)userSegment
-#endif
                      sampleRate:(nullable NSString *)sampleRate
                         sampled:(nullable NSString *)sampled
                        replayId:(nullable NSString *)replayId
@@ -35,9 +32,6 @@ NS_ASSUME_NONNULL_BEGIN
                      releaseName:releaseName
                      environment:environment
                      transaction:transaction
-#if !SDK_V9
-                     userSegment:userSegment
-#endif
                       sampleRate:sampleRate
                       sampleRand:nil
                          sampled:sampled
@@ -49,9 +43,6 @@ NS_ASSUME_NONNULL_BEGIN
                     releaseName:(nullable NSString *)releaseName
                     environment:(nullable NSString *)environment
                     transaction:(nullable NSString *)transaction
-#if !SDK_V9
-                    userSegment:(nullable NSString *)userSegment
-#endif
                      sampleRate:(nullable NSString *)sampleRate
                      sampleRand:(nullable NSString *)sampleRand
                         sampled:(nullable NSString *)sampled
@@ -63,9 +54,6 @@ NS_ASSUME_NONNULL_BEGIN
         _environment = environment;
         _releaseName = releaseName;
         _transaction = transaction;
-#if !SDK_V9
-        _userSegment = userSegment;
-#endif
         _sampleRand = sampleRand;
         _sampleRate = sampleRate;
         _sampled = sampled;
@@ -91,16 +79,6 @@ NS_ASSUME_NONNULL_BEGIN
         return nil;
     }
 
-#if !SDK_V9
-    NSString *userSegment = nil;
-#    pragma clang diagnostic push
-#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    if (scope.userObject.segment) {
-        userSegment = scope.userObject.segment;
-    }
-#    pragma clang diagnostic pop
-#endif // !SDK_V9
-
     NSString *serializedSampleRand = nil;
     NSNumber *sampleRand = [tracer.transactionContext sampleRand];
     if (sampleRand != nil) {
@@ -123,9 +101,6 @@ NS_ASSUME_NONNULL_BEGIN
                      releaseName:options.releaseName
                      environment:options.environment
                      transaction:tracer.transactionContext.name
-#if !SDK_V9
-                     userSegment:userSegment
-#endif
                       sampleRate:serializedSampleRate
                       sampleRand:serializedSampleRand
                          sampled:sampled
@@ -134,9 +109,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithTraceId:(SentryId *)traceId
                         options:(SentryOptions *)options
-#if !SDK_V9
-                    userSegment:(nullable NSString *)userSegment
-#endif
                        replayId:(nullable NSString *)replayId;
 {
     return [[SentryTraceContext alloc] initWithTraceId:traceId
@@ -144,9 +116,6 @@ NS_ASSUME_NONNULL_BEGIN
                                            releaseName:options.releaseName
                                            environment:options.environment
                                            transaction:nil
-#if !SDK_V9
-                                           userSegment:userSegment
-#endif
                                             sampleRate:nil
                                             sampleRand:nil
                                                sampled:nil
@@ -167,25 +136,11 @@ NS_ASSUME_NONNULL_BEGIN
     if (traceId == nil || publicKey == nil)
         return nil;
 
-#if !SDK_V9
-    NSString *userSegment;
-    if (dictionary[@"user"] != nil) {
-        NSDictionary *userInfo = dictionary[@"user"];
-        if ([userInfo[@"segment"] isKindOfClass:[NSString class]])
-            userSegment = userInfo[@"segment"];
-    } else {
-        userSegment = dictionary[@"user_segment"];
-    }
-#endif
-
     return [self initWithTraceId:traceId
                        publicKey:publicKey
                      releaseName:dictionary[@"release"]
                      environment:dictionary[@"environment"]
                      transaction:dictionary[@"transaction"]
-#if !SDK_V9
-                     userSegment:userSegment
-#endif
                       sampleRate:dictionary[@"sample_rate"]
                       sampleRand:dictionary[@"sample_rand"]
                          sampled:dictionary[@"sampled"]
@@ -199,9 +154,6 @@ NS_ASSUME_NONNULL_BEGIN
                                                        releaseName:_releaseName
                                                        environment:_environment
                                                        transaction:_transaction
-#if !SDK_V9
-                                                       userSegment:_userSegment
-#endif
                                                         sampleRate:_sampleRate
                                                         sampleRand:_sampleRand
                                                            sampled:_sampled
@@ -225,12 +177,6 @@ NS_ASSUME_NONNULL_BEGIN
     if (_transaction != nil) {
         [result setValue:_transaction forKey:@"transaction"];
     }
-
-#if !SDK_V9
-    if (_userSegment != nil) {
-        [result setValue:_userSegment forKey:@"user_segment"];
-    }
-#endif
 
     if (_sampleRand != nil) {
         [result setValue:_sampleRand forKey:@"sample_rand"];
