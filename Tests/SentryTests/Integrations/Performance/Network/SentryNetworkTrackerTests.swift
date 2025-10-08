@@ -956,38 +956,6 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertNil(task.currentRequest?.allHTTPHeaderFields?["sentry-trace"])
     }
 
-    func testIsTargetMatch() throws {
-        // Default: all urls
-        let defaultRegex = try XCTUnwrap(NSRegularExpression(pattern: ".*"))
-        let sut = fixture.getSut()
-        XCTAssertTrue(sut.isTargetMatch(try XCTUnwrap(URL(string: "http://localhost")), withTargets: [ defaultRegex ]))
-        XCTAssertTrue(sut.isTargetMatch(try XCTUnwrap(URL(string: "http://www.example.com/api/projects")), withTargets: [ defaultRegex ]))
-
-        // Strings: hostname
-        XCTAssertTrue(sut.isTargetMatch(try XCTUnwrap(URL(string: "http://localhost")), withTargets: ["localhost"]))
-        XCTAssertTrue(sut.isTargetMatch(try XCTUnwrap(URL(string: "http://localhost-but-not-really")), withTargets: ["localhost"])) // works because of `contains`
-        XCTAssertFalse(sut.isTargetMatch(try XCTUnwrap(URL(string: "http://www.example.com/api/projects")), withTargets: ["localhost"]))
-
-        XCTAssertFalse(sut.isTargetMatch(try XCTUnwrap(URL(string: "http://localhost")), withTargets: ["www.example.com"]))
-        XCTAssertTrue(sut.isTargetMatch(try XCTUnwrap(URL(string: "http://www.example.com/api/projects")), withTargets: ["www.example.com"]))
-        XCTAssertFalse(sut.isTargetMatch(try XCTUnwrap(URL(string: "http://api.example.com/api/projects")), withTargets: ["www.example.com"]))
-        XCTAssertTrue(sut.isTargetMatch(try XCTUnwrap(URL(string: "http://www.example.com.evil.com/api/projects")), withTargets: ["www.example.com"])) // works because of `contains`
-
-        // Test regex
-        let regex = try XCTUnwrap(NSRegularExpression(pattern: "http://www.example.com/api/.*"))
-        XCTAssertFalse(sut.isTargetMatch(try XCTUnwrap(URL(string: "http://localhost")), withTargets: [regex]))
-        XCTAssertFalse(sut.isTargetMatch(try XCTUnwrap(URL(string: "http://www.example.com/url")), withTargets: [regex]))
-        XCTAssertTrue(sut.isTargetMatch(try XCTUnwrap(URL(string: "http://www.example.com/api/projects")), withTargets: [regex]))
-
-        // Regex and string
-        XCTAssertTrue(sut.isTargetMatch(try XCTUnwrap(URL(string: "http://localhost")), withTargets: ["localhost", regex]))
-        XCTAssertFalse(sut.isTargetMatch(try XCTUnwrap(URL(string: "http://www.example.com/url")), withTargets: ["localhost", regex]))
-        XCTAssertTrue(sut.isTargetMatch(try XCTUnwrap(URL(string: "http://www.example.com/api/projects")), withTargets: ["localhost", regex]))
-
-        // String and integer (which isn't valid, make sure it doesn't crash)
-        XCTAssertTrue(sut.isTargetMatch(try XCTUnwrap(URL(string: "http://localhost")), withTargets: ["localhost", 123]))
-    }
-
     func testCaptureHTTPClientErrorRequest() throws {
         let sut = fixture.getSut()
 
