@@ -7,7 +7,7 @@ import UIKit
  */
 @available(iOS 13.0, *)
 @objcMembers
-public class SentryUserFeedbackThemeConfiguration: NSObject {
+public final class SentryUserFeedbackThemeConfiguration: NSObject {
     /**
      * The font family to use for form text elements.
      * - note: Defaults to the system default, if this property is `nil`.
@@ -93,7 +93,7 @@ public class SentryUserFeedbackThemeConfiguration: NSObject {
      */
     public var errorColor = UIScreen.main.traitCollection.userInterfaceStyle == .dark ? UIColor(red: 245 / 255, green: 84 / 255, blue: 89 / 255, alpha: 1) : UIColor(red: 223 / 255, green: 51 / 255, blue: 56 / 255, alpha: 1)
     
-    @objc public class SentryFormElementOutlineStyle: NSObject {
+    @objc public final class SentryFormElementOutlineStyle: NSObject {
         /**
          * Outline color for form inputs.
          * - note: Default: The system default of a UITextField outline with borderStyle of .roundedRect.
