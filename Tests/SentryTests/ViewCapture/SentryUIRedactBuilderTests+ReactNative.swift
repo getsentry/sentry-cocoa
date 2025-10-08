@@ -40,11 +40,10 @@ private class RCTImageView: UIView {
 class SentryUIRedactBuilderTests_ReactNative: SentryUIRedactBuilderTests {
     private var rootView: UIView!
 
-    private func getSut(maskAllText: Bool, maskAllImages: Bool, maskedViewClasses: [AnyClass] = []) -> SentryUIRedactBuilder {
+    private func getSut(maskAllText: Bool, maskAllImages: Bool) -> SentryUIRedactBuilder {
         return SentryUIRedactBuilder(options: TestRedactOptions(
             maskAllText: maskAllText,
-            maskAllImages: maskAllImages,
-            maskedViewClasses: maskedViewClasses
+            maskAllImages: maskAllImages
         ))
     }
 

@@ -19,11 +19,10 @@ import XCTest
 class SentryUIRedactBuilderTests_SpecialViews: SentryUIRedactBuilderTests {
     private var rootView: UIView!
 
-    private func getSut(maskAllText: Bool, maskAllImages: Bool, maskedViewClasses: [AnyClass] = []) -> SentryUIRedactBuilder {
+    private func getSut(maskAllText: Bool, maskAllImages: Bool) -> SentryUIRedactBuilder {
         return SentryUIRedactBuilder(options: TestRedactOptions(
             maskAllText: maskAllText,
-            maskAllImages: maskAllImages,
-            maskedViewClasses: maskedViewClasses
+            maskAllImages: maskAllImages
         ))
     }
 
@@ -271,13 +270,13 @@ class SentryUIRedactBuilderTests_SpecialViews: SentryUIRedactBuilderTests {
         } else if #available(iOS 15, *) { // iOS 16 & 15
             let toolbarRegion = try XCTUnwrap(regions.element(at: 0)) // UIToolbar
             XCTAssertNil(toolbarRegion.color)
-            XCTAssertEqual(toolbarRegion.size, CGSize(width: 40, height: 40))
+            XCTAssertEqual(toolbarRegion.size, CGSize(width: 0, height: 0))
             XCTAssertEqual(toolbarRegion.type, .redact)
             XCTAssertEqual(toolbarRegion.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 20, ty: 20))
 
             let navigationBarRegion = try XCTUnwrap(regions.element(at: 1)) // UINavigationBar
             XCTAssertNil(navigationBarRegion.color)
-            XCTAssertEqual(navigationBarRegion.size, CGSize(width: 40, height: 40))
+            XCTAssertEqual(navigationBarRegion.size, CGSize(width: 0, height: 0))
             XCTAssertEqual(navigationBarRegion.type, .redact)
             XCTAssertEqual(navigationBarRegion.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 20, ty: 20))
 
@@ -287,11 +286,11 @@ class SentryUIRedactBuilderTests_SpecialViews: SentryUIRedactBuilderTests {
             XCTAssertEqual(placeholderRegion.type, .redact)
             XCTAssertEqual(toolbarRegion.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 20, ty: 20))
 
-            let vcRegion = try XCTUnwrap(regions.element(at: 3)) // SFSafariView
-            XCTAssertNil(vcRegion.color)
-            XCTAssertEqual(vcRegion.size, CGSize(width: 40, height: 40))
-            XCTAssertEqual(vcRegion.type, .redact)
-            XCTAssertEqual(vcRegion.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 20, ty: 20))
+            let safariViewRegion = try XCTUnwrap(regions.element(at: 3)) // SFSafariView
+            XCTAssertNil(safariViewRegion.color)
+            XCTAssertEqual(safariViewRegion.size, CGSize(width: 40, height: 40))
+            XCTAssertEqual(safariViewRegion.type, .redact)
+            XCTAssertEqual(safariViewRegion.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 20, ty: 20))
 
             // Assert that there are no other regions
             XCTAssertEqual(regions.count, 4)
