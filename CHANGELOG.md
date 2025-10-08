@@ -21,7 +21,7 @@
 
 ### Improvements
 
-- Replaces the use of SCNetworkReachabilityFlags with NWPathMonitor (#6019)
+- Replace deprecated SCNetworkReachability with NWPathMonitor (#6019)
 
 ## 8.56.2
 
