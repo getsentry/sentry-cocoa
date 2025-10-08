@@ -138,8 +138,7 @@ SENTRY_NO_INIT
 #endif // SENTRY_TARGET_REPLAY_SUPPORTED
 
 #if SENTRY_HAS_METRIC_KIT
-@property (nonatomic, strong) SentryMXManager *metricKitManager API_AVAILABLE(
-    ios(15.0), macos(12.0), macCatalyst(15.0)) API_UNAVAILABLE(tvos, watchos);
+@property (nonatomic, strong) SentryMXManager *metricKitManager API_UNAVAILABLE(tvos, watchos);
 #endif // SENTRY_HAS_METRIC_KIT
 @property (nonatomic, strong) id<SentryObjCRuntimeWrapper> objcRuntimeWrapper;
 
