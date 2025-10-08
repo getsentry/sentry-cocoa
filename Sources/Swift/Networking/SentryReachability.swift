@@ -36,6 +36,10 @@ public class SentryReachability: NSObject {
 #if DEBUG || SENTRY_TEST || SENTRY_TEST_CI
     @objc public var skipRegisteringActualCallbacks = false
     private var ignoreActualCallback = false
+    
+    public var pathMonitorIsNil: Bool {
+        return pathMonitor == nil
+    }
 #endif // DEBUG || SENTRY_TEST || SENTRY_TEST_CI
     
     @objc(addObserver:)

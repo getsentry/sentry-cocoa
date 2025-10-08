@@ -116,11 +116,8 @@ final class SentryReachabilitySwiftTests: XCTestCase {
     
     func testAddRemoveFromMultipleThreads() throws {
         let sut = SentryReachability()
-        // Calling the methods of SCNetworkReachability in a tight loop from
-        // multiple threads is not an actual use case, and it leads to flaky test
-        // results. With this test, we want to test if the adding and removing
-        // observers are adequately synchronized and not if we call
-        // SCNetworkReachability correctly.
+        // With this test, we want to test if the adding and removing
+        // observers are adequately synchronized.
         sut.skipRegisteringActualCallbacks = true
         testConcurrentModifications(writeWork: { _ in
             sut.add(TestSentryReachabilityObserver())
@@ -129,20 +126,27 @@ final class SentryReachabilitySwiftTests: XCTestCase {
         })
     }
 
-    /// This tests actually test NWPathMonitor response, if it becomes blaky we can disable it
-    func testRegisteringActualCallbacks_CallbackIsCalled() {
+    func testAddingAndRemovingObserversCleanTheMonitor() {
         reachability.skipRegisteringActualCallbacks = false
         reachability.setReachabilityIgnoreActualCallback(false)
-        
-        let expectation = XCTestExpectation(description: "Callback should be called")
-        
         let observer = TestSentryReachabilityObserver()
-        observer.onReachabilityChanged = { _, _ in
-            expectation.fulfill()
-        }
         
+        // Ensure starting scenario
+        XCTAssertTrue(reachability.pathMonitorIsNil)
+        
+        // Do
         reachability.add(observer)
         
-        wait(for: [expectation], timeout: 5)
+        // Verify
+        // Monitor should not be nil when at least one observer is added
+        XCTAssertFalse(reachability.pathMonitorIsNil)
+        
+        // Do again
+        sleep(1)
+        reachability.remove(observer)
+        
+        // Verify
+        // Ensure when all observers are removed, the monitor is set to nil
+        XCTAssertTrue(reachability.pathMonitorIsNil)
     }
 }
