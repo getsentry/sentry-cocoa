@@ -61,3 +61,8 @@ func XCTAssertAffineTransformEqual(_ lhs: CGAffineTransform, _ rhs: CGAffineTran
     XCTAssertEqual(lhs.tx, rhs.tx, accuracy: accuracy, "Transformation x-translation should be the same: \(lhs.tx) != \(rhs.tx) (+- \(accuracy))", file: file, line: line)
     XCTAssertEqual(lhs.ty, rhs.ty, accuracy: accuracy, "Transformation y-translation should be the same: \(lhs.ty) != \(rhs.ty) (+- \(accuracy))", file: file, line: line)
 }
+
+func XCTAssertCGSizeEqual(_ lhs: CGSize, _ rhs: CGSize, accuracy: CGFloat, file: StaticString = #file, line: UInt = #line) {
+    XCTAssertEqual(lhs.width, rhs.width, accuracy: accuracy, "Width should be the same: \(lhs.width) != \(rhs.width) (+- \(accuracy))", file: file, line: line)
+    XCTAssertEqual(lhs.height, rhs.height, accuracy: accuracy, "Height should be the same: \(lhs.height) != \(rhs.height) (+- \(accuracy))", file: file, line: line)
+}
