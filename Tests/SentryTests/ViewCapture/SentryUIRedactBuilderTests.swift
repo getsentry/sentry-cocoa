@@ -1,7 +1,9 @@
-import UIKit
-import SwiftUI
-import XCTest
+// swiftlint:disable test_case_accessibility
+
 @_spi(Private) @testable import Sentry
+import SwiftUI
+import UIKit
+import XCTest
 
 class SentryUIRedactBuilderTests: XCTestCase {
 
@@ -75,3 +77,4 @@ func XCTAssertCGSizeEqual(_ lhs: CGSize, _ rhs: CGSize, accuracy: CGFloat, file:
     XCTAssertEqual(lhs.width, rhs.width, accuracy: accuracy, "Width should be the same: \(lhs.width) != \(rhs.width) (+- \(accuracy))", file: file, line: line)
     XCTAssertEqual(lhs.height, rhs.height, accuracy: accuracy, "Height should be the same: \(lhs.height) != \(rhs.height) (+- \(accuracy))", file: file, line: line)
 }
+// swiftlint:enable test_case_accessibility

@@ -16,7 +16,7 @@ import XCTest
 // ```
 // (lldb) po rootView.value(forKey: "recursiveDescription")!
 // ```
-class SentryUIRedactBuilderTests_SwiftUI: SentryUIRedactBuilderTests {
+class SentryUIRedactBuilderTests_SwiftUI: SentryUIRedactBuilderTests { // swiftlint:disable:this type_name
     private func getSut(maskAllText: Bool, maskAllImages: Bool, maskedViewClasses: [AnyClass] = []) -> SentryUIRedactBuilder {
         return SentryUIRedactBuilder(options: TestRedactOptions(
             maskAllText: maskAllText,
@@ -455,7 +455,7 @@ class SentryUIRedactBuilderTests_SwiftUI: SentryUIRedactBuilderTests {
 
         let region10 = try XCTUnwrap(regions.element(at: offset + 7)) // redact for section background (bottom)
         XCTAssertNil(region10.color)
-        XCTAssertCGSizeEqual(region10.size, CGSize(width: 332, height: 1081.6667), accuracy: 0.01)
+        XCTAssertCGSizeEqual(region10.size, CGSize(width: 332, height: 1_081.6667), accuracy: 0.01)
         XCTAssertEqual(region10.type, .redact)
         XCTAssertAffineTransformEqual(
             region10.transform,
@@ -465,7 +465,7 @@ class SentryUIRedactBuilderTests_SwiftUI: SentryUIRedactBuilderTests {
 
         let region11 = try XCTUnwrap(regions.element(at: offset + 8)) // redact for section background (top)
         XCTAssertNil(region11.color)
-        XCTAssertCGSizeEqual(region11.size, CGSize(width: 332, height: 1100.3333), accuracy: 0.01)
+        XCTAssertCGSizeEqual(region11.size, CGSize(width: 332, height: 1_100.3333), accuracy: 0.01)
         XCTAssertEqual(region11.type, .redact)
         XCTAssertAffineTransformEqual(
             region11.transform,

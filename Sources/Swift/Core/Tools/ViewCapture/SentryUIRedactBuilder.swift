@@ -1,3 +1,4 @@
+// swiftlint:disable file_length type_body_length
 #if canImport(UIKit) && !SENTRY_NO_UIKIT
 #if os(iOS) || os(tvOS)
 import Foundation
@@ -384,7 +385,7 @@ final class SentryUIRedactBuilder {
         return image.imageAsset?.value(forKey: "_containingBundle") == nil
     }
 
-    // swiftlint:disable:next function_body_length
+    // swiftlint:disable:next function_body_length cyclomatic_complexity
     private func mapRedactRegion(fromLayer layer: CALayer, relativeTo parentLayer: CALayer?, redacting: inout [SentryRedactRegion], rootFrame: CGRect, transform: CGAffineTransform, forceRedact: Bool = false) {
         guard !redactClassesIdentifiers.isEmpty && !layer.isHidden && layer.opacity != 0 else {
             return
@@ -560,3 +561,4 @@ final class SentryUIRedactBuilder {
 
 #endif
 #endif
+// swiftlint:enable file_length type_body_length

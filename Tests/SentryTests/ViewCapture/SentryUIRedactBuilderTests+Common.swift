@@ -1,3 +1,4 @@
+// swiftlint:disable file_length
 #if os(iOS)
 import AVKit
 import Foundation
@@ -16,7 +17,7 @@ import XCTest
 // ```
 // (lldb) po rootView.value(forKey: "recursiveDescription")!
 // ```
-class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests {
+class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftlint:disable:this type_name
     private class CustomVisibilityView: UIView {
         class CustomLayer: CALayer {
             override var opacity: Float {
@@ -1246,3 +1247,4 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests {
 }
 
 #endif // os(iOS)
+// swiftlint:enable file_length

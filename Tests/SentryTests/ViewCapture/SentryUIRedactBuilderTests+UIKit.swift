@@ -16,7 +16,7 @@ import XCTest
 // ```
 // (lldb) po rootView.value(forKey: "recursiveDescription")!
 // ```
-class SentryUIRedactBuilderTests_UIKit: SentryUIRedactBuilderTests {
+class SentryUIRedactBuilderTests_UIKit: SentryUIRedactBuilderTests { // swiftlint:disable:this type_name
     private var rootView: UIView!
 
     private func getSut(maskAllText: Bool, maskAllImages: Bool) -> SentryUIRedactBuilder {

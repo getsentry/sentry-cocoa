@@ -37,7 +37,7 @@ private class RCTImageView: UIView {
 // ```
 // (lldb) po rootView.value(forKey: "recursiveDescription")!
 // ```
-class SentryUIRedactBuilderTests_ReactNative: SentryUIRedactBuilderTests {
+class SentryUIRedactBuilderTests_ReactNative: SentryUIRedactBuilderTests { // swiftlint:disable:this type_name
     private var rootView: UIView!
 
     private func getSut(maskAllText: Bool, maskAllImages: Bool) -> SentryUIRedactBuilder {
