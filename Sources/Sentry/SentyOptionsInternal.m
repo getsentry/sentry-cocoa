@@ -159,6 +159,8 @@
         sentryOptions.maxBreadcrumbs = [options[@"maxBreadcrumbs"] unsignedIntValue];
     }
 
+    [self setBool:options[@"enableLogs"] block:^(BOOL value) { sentryOptions.enableLogs = value; }];
+
     [self setBool:options[@"enableNetworkBreadcrumbs"]
             block:^(BOOL value) { sentryOptions.enableNetworkBreadcrumbs = value; }];
 
@@ -175,6 +177,12 @@
     if ([self isBlock:options[@"beforeSend"]]) {
         sentryOptions.beforeSend = options[@"beforeSend"];
     }
+
+#if !SWIFT_PACKAGE
+    if ([self isBlock:options[@"beforeSendLog"]]) {
+        sentryOptions.beforeSendLog = options[@"beforeSendLog"];
+    }
+#endif // !SWIFT_PACKAGE
 
     if ([self isBlock:options[@"beforeSendSpan"]]) {
         sentryOptions.beforeSendSpan = options[@"beforeSendSpan"];

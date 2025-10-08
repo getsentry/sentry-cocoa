@@ -14,7 +14,7 @@ final class SentryLogBatcherTests: XCTestCase {
         super.setUp()
         
         options = Options()
-        options.experimental.enableLogs = true
+        options.enableLogs = true
         
         testClient = TestClient(options: options)
         testDispatchQueue = TestSentryDispatchQueueWrapper()

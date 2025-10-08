@@ -311,7 +311,7 @@ final class SentryLoggerTests: XCTestCase {
     }
 
     func testCaptureLog_SetsTraceIdFromPropagationContext() {
-        fixture.options.experimental.enableLogs = true
+        fixture.options.enableLogs = true
         
         let expectedTraceId = SentryId()
         let propagationContext = SentryPropagationContext(trace: expectedTraceId, spanId: SpanId())
