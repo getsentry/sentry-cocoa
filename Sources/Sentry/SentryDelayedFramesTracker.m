@@ -28,9 +28,20 @@ NS_ASSUME_NONNULL_BEGIN
     if (self = [super init]) {
         _keepDelayedFramesDuration = keepDelayedFramesDuration;
         _dateProvider = dateProvider;
-        [self resetDelayedFramesTimeStamps];
+        [self reset];
     }
     return self;
+}
+
+- (void)reset
+{
+    _delayedFrames = [NSMutableArray array];
+    _previousFrameSystemTimestamp = 0;
+    SentryDelayedFrame *initialFrame =
+        [[SentryDelayedFrame alloc] initWithStartTimestamp:[self.dateProvider systemTime]
+                                          expectedDuration:0
+                                            actualDuration:0];
+    [_delayedFrames addObject:initialFrame];
 }
 
 - (void)setPreviousFrameSystemTimestamp:(uint64_t)previousFrameSystemTimestamp
@@ -45,16 +56,6 @@ NS_ASSUME_NONNULL_BEGIN
     "thread.")
 {
     return _previousFrameSystemTimestamp;
-}
-
-- (void)resetDelayedFramesTimeStamps
-{
-    _delayedFrames = [NSMutableArray array];
-    SentryDelayedFrame *initialFrame =
-        [[SentryDelayedFrame alloc] initWithStartTimestamp:[self.dateProvider systemTime]
-                                          expectedDuration:0
-                                            actualDuration:0];
-    [_delayedFrames addObject:initialFrame];
 }
 
 - (void)recordDelayedFrame:(uint64_t)startSystemTimestamp
