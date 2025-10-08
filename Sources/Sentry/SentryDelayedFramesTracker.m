@@ -28,6 +28,7 @@ NS_ASSUME_NONNULL_BEGIN
     if (self = [super init]) {
         _keepDelayedFramesDuration = keepDelayedFramesDuration;
         _dateProvider = dateProvider;
+        _delayedFrames = [NSMutableArray new];
         [self reset];
     }
     return self;
@@ -35,13 +36,16 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)reset
 {
-    _delayedFrames = [NSMutableArray array];
-    _previousFrameSystemTimestamp = 0;
-    SentryDelayedFrame *initialFrame =
-        [[SentryDelayedFrame alloc] initWithStartTimestamp:[self.dateProvider systemTime]
-                                          expectedDuration:0
-                                            actualDuration:0];
-    [_delayedFrames addObject:initialFrame];
+    @synchronized(self.delayedFrames) {
+        _previousFrameSystemTimestamp = 0;
+        SentryDelayedFrame *initialFrame =
+            [[SentryDelayedFrame alloc] initWithStartTimestamp:[self.dateProvider systemTime]
+                                              expectedDuration:0
+                                                actualDuration:0];
+
+        [_delayedFrames removeAllObjects];
+        [_delayedFrames addObject:initialFrame];
+    }
 }
 
 - (void)setPreviousFrameSystemTimestamp:(uint64_t)previousFrameSystemTimestamp
