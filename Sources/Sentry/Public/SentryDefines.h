@@ -65,12 +65,6 @@
     -(instancetype)init NS_UNAVAILABLE;                                                            \
     +(instancetype) new NS_UNAVAILABLE;
 
-#if !TARGET_OS_WATCH && !(TARGET_OS_VISION && SENTRY_NO_UIKIT == 1)
-#    define SENTRY_HAS_REACHABILITY 1
-#else
-#    define SENTRY_HAS_REACHABILITY 0
-#endif
-
 @class SentryBreadcrumb;
 @class SentryEvent;
 @class SentrySamplingContext;

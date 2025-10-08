@@ -19,6 +19,10 @@
 - Fixes warnings about minimum OS version being lower than Xcode supported version (#5591)
 - Fix rendering method for fast view rendering (#6360)
 
+### Improvements
+
+- Replace deprecated SCNetworkReachability with NWPathMonitor (#6019)
+
 ## 8.56.2
 
 ### Fixes
