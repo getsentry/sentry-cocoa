@@ -52,6 +52,11 @@
 
     thread_resume(thread.thread);
     [thread cancel];
+
+    // Wait for thread to finish
+    while (![thread isFinished]) {
+        [NSThread sleepForTimeInterval:0.01];
+    }
 }
 
 - (void)testGetContextForThread_WithManyThreads
@@ -116,6 +121,13 @@
     thread_resume(firstThread.thread);
     for (TestThread *thread in threads) {
         [thread cancel];
+    }
+
+    // Wait for all threads to finish
+    for (TestThread *thread in threads) {
+        while (![thread isFinished]) {
+            [NSThread sleepForTimeInterval:0.01];
+        }
     }
 }
 
