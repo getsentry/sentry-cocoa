@@ -71,7 +71,7 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests {
         rootView.addSubview(ignoredLabel)
 
         let redactedLabel = UILabel(frame: CGRect(x: 20, y: 20, width: 8, height: 8))
-        ignoredLabel.textColor = UIColor.blue
+        redactedLabel.textColor = UIColor.blue
         redactedLabel.isHidden = false
         rootView.addSubview(redactedLabel)
 
@@ -110,11 +110,12 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests {
         rootView.addSubview(fullyTransparentLabel)
 
         let transparentLabel = UILabel(frame: CGRect(x: 20, y: 15, width: 3, height: 3))
-        transparentLabel.textColor = UIColor.red
+        transparentLabel.textColor = UIColor.green
         transparentLabel.alpha = 0.5
         rootView.addSubview(transparentLabel)
 
         let nonTransparentLabel = UILabel(frame: CGRect(x: 20, y: 20, width: 8, height: 8))
+        nonTransparentLabel.textColor = UIColor.purple
         nonTransparentLabel.alpha = 1
         rootView.addSubview(nonTransparentLabel)
 
@@ -134,17 +135,17 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests {
         assertSnapshot(of: masked, as: .image)
         
         // Only the transparent and opaque label will result in regions, not the fully transparent one.
-        let transparentLabelRegion = try XCTUnwrap(result.element(at: 0))
-        XCTAssertEqual(transparentLabelRegion.color, UIColor.red)
-        XCTAssertEqual(transparentLabelRegion.size, CGSize(width: 3, height: 3))
-        XCTAssertEqual(transparentLabelRegion.type, .redact)
-        XCTAssertEqual(transparentLabelRegion.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 20, ty: 15))
-
-        let nonTransparentLabelRegion = try XCTUnwrap(result.element(at: 1))
-        XCTAssertEqual(nonTransparentLabelRegion.color, UIColor.blue)
+        let nonTransparentLabelRegion = try XCTUnwrap(result.element(at: 0))
+        XCTAssertEqual(nonTransparentLabelRegion.color, UIColor.purple)
         XCTAssertEqual(nonTransparentLabelRegion.size, CGSize(width: 8, height: 8))
         XCTAssertEqual(nonTransparentLabelRegion.type, .redact)
         XCTAssertEqual(nonTransparentLabelRegion.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 20, ty: 20))
+
+        let transparentLabelRegion = try XCTUnwrap(result.element(at: 1))
+        XCTAssertEqual(transparentLabelRegion.color, UIColor.green)
+        XCTAssertEqual(transparentLabelRegion.size, CGSize(width: 3, height: 3))
+        XCTAssertEqual(transparentLabelRegion.type, .redact)
+        XCTAssertEqual(transparentLabelRegion.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 20, ty: 15))
 
         // Assert that there are no other regions
         XCTAssertEqual(result.count, 2)
@@ -204,8 +205,8 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests {
 
         let region = try XCTUnwrap(result.element(at: 0))
         // The text color of UITextView is not used for redaction
-        XCTAssertNil(region.color)
-        XCTAssertEqual(region.size, CGSize(width: 8, height: 8))
+        XCTAssertEqual(region.color, label.textColor.withAlphaComponent(1.0))
+        XCTAssertEqual(region.size, CGSize(width: 40, height: 40))
         XCTAssertEqual(region.type, .redact)
         XCTAssertEqual(region.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 20, ty: 20))
 
@@ -237,6 +238,7 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests {
 
         // -- Assert --
         assertSnapshot(of: masked, as: .image)
+
         XCTAssertEqual(preIgnoreResult.count, 1)
         XCTAssertEqual(result.count, 0)
     }
@@ -267,6 +269,7 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests {
 
         // -- Assert --
         assertSnapshot(of: masked, as: .image)
+
         XCTAssertEqual(preIgnoreResult.count, 0)
         XCTAssertEqual(result.count, 1)
     }
@@ -293,7 +296,7 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests {
 
         let region = try XCTUnwrap(result.element(at: 0))
         // The text color of UILabel subclasses is not used for redaction
-        XCTAssertNil(region.color)
+        XCTAssertEqual(region.color, UIColor.label.withAlphaComponent(1.0))
         XCTAssertEqual(region.size, CGSize(width: 40, height: 40))
         XCTAssertEqual(region.type, .redact)
         XCTAssertEqual(region.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 20, ty: 20))
@@ -331,6 +334,7 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests {
 
         // -- Assert --
         assertSnapshot(of: masked, as: .image)
+
         XCTAssertEqual(preIgnoreResult.count, 1)
         XCTAssertEqual(result.count, 0)
     }
@@ -359,22 +363,22 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests {
         let preIgnoreResult = sut.redactRegionsFor(view: rootView)
 
         sut.setIgnoreContainerClass(IgnoreContainer.self)
-        let result = sut.redactRegionsFor(view: rootView)
-        let masked = createMaskedScreenshot(view: rootView, regions: result)
+        let postIgnoreResult = sut.redactRegionsFor(view: rootView)
+        let masked = createMaskedScreenshot(view: rootView, regions: postIgnoreResult)
 
         // -- Assert --
         assertSnapshot(of: masked, as: .image)
-        XCTAssertEqual(preIgnoreResult.count, 0)
+        XCTAssertEqual(preIgnoreResult.count, 2)
 
         // Assert that the ignore container is redacted
-        let region = try XCTUnwrap(result.element(at: 0))
-        XCTAssertNil(region.color)
-        XCTAssertEqual(region.size, CGSize(width: 60, height: 60))
+        let region = try XCTUnwrap(postIgnoreResult.element(at: 0))
+        XCTAssertEqual(region.color, redactedLabel.textColor.withAlphaComponent(1.0))
+        XCTAssertEqual(region.size, CGSize(width: 10, height: 10))
         XCTAssertEqual(region.type, .redact)
-        XCTAssertEqual(region.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 0, ty: 0))
+        XCTAssertEqual(region.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 30, ty: 30))
 
         // Assert that there are no other regions
-        XCTAssertEqual(result.count, 1)
+        XCTAssertEqual(postIgnoreResult.count, 1)
     }
 
     func testIgnoreContainer_withIgnoreContainerAsChildOfMaskedView_shouldRedactAllViews() throws {
@@ -405,28 +409,28 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests {
 
         // -- Assert --
         assertSnapshot(of: masked, as: .image)
-        XCTAssertEqual(preIgnoreResult.count, 0)
+        XCTAssertEqual(preIgnoreResult.count, 3)
 
         // Assert that the ignore container is redacted
         let region = try XCTUnwrap(result.element(at: 0))
-        XCTAssertNil(region.color)
-        XCTAssertEqual(region.size, CGSize(width: 60, height: 60))
+        XCTAssertEqual(region.color, redactedChildLabel.textColor.withAlphaComponent(1.0))
+        XCTAssertEqual(region.size, CGSize(width: 10, height: 10))
         XCTAssertEqual(region.type, .redact)
-        XCTAssertEqual(region.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 0, ty: 0))
+        XCTAssertEqual(region.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 30, ty: 30))
 
         // Assert that the redacted label is redacted
         let region2 = try XCTUnwrap(result.element(at: 1))
         XCTAssertNil(region2.color)
-        XCTAssertEqual(region2.size, CGSize(width: 60, height: 60))
+        XCTAssertEqual(region2.size, CGSize(width: 40, height: 40))
         XCTAssertEqual(region2.type, .redact)
-        XCTAssertEqual(region2.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 0, ty: 0))
+        XCTAssertEqual(region2.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 20, ty: 20))
 
         // Assert that the redacted child label is redacted
         let region3 = try XCTUnwrap(result.element(at: 2))
-        XCTAssertNil(region3.color)
-        XCTAssertEqual(region3.size, CGSize(width: 10, height: 10))
+        XCTAssertEqual(region.color, redactedLabel.textColor.withAlphaComponent(1.0))
+        XCTAssertEqual(region3.size, CGSize(width: 60, height: 60))
         XCTAssertEqual(region3.type, .redact)
-        XCTAssertEqual(region3.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 10, ty: 10))
+        XCTAssertEqual(region3.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 0, ty: 0))
 
         // Assert that there are no other regions
         XCTAssertEqual(result.count, 3)
@@ -468,9 +472,9 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests {
         // Assert that the redact container is redacted
         let region = try XCTUnwrap(result.element(at: 0))
         XCTAssertNil(region.color)
-        XCTAssertEqual(region.size, CGSize(width: 60, height: 60))
+        XCTAssertEqual(region.size, CGSize(width: 10, height: 10))
         XCTAssertEqual(region.type, .redact)
-        XCTAssertEqual(region.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 0, ty: 0))
+        XCTAssertEqual(region.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 30, ty: 30))
 
         // Assert that the redacted view is redacted
         let region2 = try XCTUnwrap(result.element(at: 1))
@@ -482,9 +486,9 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests {
         // Assert that the redacted view2 is redacted
         let region3 = try XCTUnwrap(result.element(at: 2))
         XCTAssertNil(region3.color)
-        XCTAssertEqual(region3.size, CGSize(width: 10, height: 10))
+        XCTAssertEqual(region3.size, CGSize(width: 60, height: 60))
         XCTAssertEqual(region3.type, .redact)
-        XCTAssertEqual(region3.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 10, ty: 10))
+        XCTAssertEqual(region3.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 0, ty: 0))
 
         // Assert that there are no other regions
         XCTAssertEqual(result.count, 3)
@@ -516,22 +520,21 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests {
 
         // -- Assert --
         assertSnapshot(of: masked, as: .image)
-
-        XCTAssertEqual(preRedactResult.count, 0)
+        XCTAssertEqual(preRedactResult.count, 2)
 
         // Assert that the redact container is redacted
         let region = try XCTUnwrap(result.element(at: 0))
         XCTAssertNil(region.color)
-        XCTAssertEqual(region.size, CGSize(width: 60, height: 60))
+        XCTAssertEqual(region.size, CGSize(width: 40, height: 40))
         XCTAssertEqual(region.type, .redact)
-        XCTAssertEqual(region.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 0, ty: 0))
+        XCTAssertEqual(region.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 20, ty: 20))
 
         // Assert that the redacted view is redacted
         let region2 = try XCTUnwrap(result.element(at: 1))
-        XCTAssertNil(region2.color)
-        XCTAssertEqual(region2.size, CGSize(width: 40, height: 40))
+        XCTAssertEqual(region2.color, redactedLabel.textColor.withAlphaComponent(1.0))
+        XCTAssertEqual(region2.size, CGSize(width: 60, height: 60))
         XCTAssertEqual(region2.type, .redact)
-        XCTAssertEqual(region2.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 20, ty: 20))
+        XCTAssertEqual(region2.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 0, ty: 0))
 
         // Assert that there are no other regions
         XCTAssertEqual(result.count, 2)
@@ -575,30 +578,30 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests {
         // Assert that the redact container is redacted
         let region = try XCTUnwrap(result.element(at: 0))
         XCTAssertNil(region.color)
-        XCTAssertEqual(region.size, CGSize(width: 60, height: 60))
+        XCTAssertEqual(region.size, CGSize(width: 5, height: 5))
         XCTAssertEqual(region.type, .redact)
-        XCTAssertEqual(region.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 0, ty: 0))
+        XCTAssertEqual(region.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 45, ty: 45))
 
         // Assert that the redacted view is redacted
         let region2 = try XCTUnwrap(result.element(at: 1))
         XCTAssertNil(region2.color)
-        XCTAssertEqual(region2.size, CGSize(width: 40, height: 40))
+        XCTAssertEqual(region2.size, CGSize(width: 10, height: 10))
         XCTAssertEqual(region2.type, .redact)
-        XCTAssertEqual(region2.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 20, ty: 20))
+        XCTAssertEqual(region2.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 30, ty: 30))
 
         // Assert that the redacted view2 is redacted
         let region3 = try XCTUnwrap(result.element(at: 2))
         XCTAssertNil(region3.color)
-        XCTAssertEqual(region3.size, CGSize(width: 5, height: 5))
+        XCTAssertEqual(region3.size, CGSize(width: 40, height: 40))
         XCTAssertEqual(region3.type, .redact)
-        XCTAssertEqual(region3.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 15, ty: 15))
+        XCTAssertEqual(region3.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 20, ty: 20))
 
         // Assert that the redacted view2 is redacted
         let region4 = try XCTUnwrap(result.element(at: 2))
         XCTAssertNil(region4.color)
-        XCTAssertEqual(region4.size, CGSize(width: 5, height: 5))
+        XCTAssertEqual(region4.size, CGSize(width: 40, height: 40))
         XCTAssertEqual(region4.type, .redact)
-        XCTAssertEqual(region4.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 15, ty: 15))
+        XCTAssertEqual(region4.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 20, ty: 20))
 
         // Assert that there are no other regions
         XCTAssertEqual(result.count, 4)
@@ -610,13 +613,14 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests {
         // -- Arrange --
         class AnotherLabel: UILabel {}
 
-        let label = AnotherLabel(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
+        let label = AnotherLabel(frame: CGRect(x: 20, y: 20, width: 80, height: 40))
+        label.text = "Hello World"
         rootView.addSubview(label)
 
         // View Hierarchy:
         // ---------------
-        // <UIView: 0x134633d90; frame = (0 0; 100 100); layer = <CALayer: 0x600002548a40>>
-        //   | <_TtCFC11SentryTests26SentryUIRedactBuilderTests52testUnmaskView_withSensitiveView_shouldNotRedactViewFT_T_L_12AnotherLabel: 0x13460c190; baseClass = UILabel; frame = (20 20; 40 40); userInteractionEnabled = NO; backgroundColor = UIExtendedGrayColorSpace 0 0; layer = <_UILabelLayer: 0x600000666300>>
+        // <UIView: 0x15c50ff70; frame = (0 0; 100 100); layer = <CALayer: 0x6000005c54e0>>
+        //   | <_TtCFC11SentryTests33SentryUIRedactBuilderTests_Common52testUnmaskView_withSensitiveView_shouldNotRedactViewFT_T_L_12AnotherLabel: 0x14c7321a0; baseClass = UILabel; frame = (20 20; 80 40); text = 'Hello World'; userInteractionEnabled = NO; backgroundColor = UIExtendedGrayColorSpace 0 0; layer = <_UILabelLayer: 0x6000026ea170>>
 
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: true)
@@ -698,6 +702,7 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests {
         class AnotherLabel: UILabel {}
 
         let label = AnotherLabel(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
+        label.text = "Hello World"
         rootView.addSubview(label)
 
         // View Hierarchy:
@@ -725,6 +730,7 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests {
     func testRedact_withIgnoredViewsBeforeRootSizedView_shouldNotRedactView() {
         // -- Arrange --
         let label = UILabel(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
+        label.text = "Hello World"
         label.textColor = .purple
         rootView.addSubview(label)
 
@@ -769,11 +775,11 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests {
         // -- Assert --
         assertSnapshot(of: masked, as: .image)
 
-        let region = try XCTUnwrap(result.element(at: 2))
+        let region = try XCTUnwrap(result.element(at: 0))
         XCTAssertNil(region.color)
-        XCTAssertEqual(region.size, CGSize(width: 5, height: 5))
+        XCTAssertEqual(region.size, CGSize(width: 40, height: 40))
         XCTAssertEqual(region.type, .redact)
-        XCTAssertEqual(region.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 15, ty: 15))
+        XCTAssertEqual(region.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 20, ty: 20))
 
         // Assert that there no additional regions
         XCTAssertEqual(result.count, 1)
@@ -802,10 +808,10 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests {
         assertSnapshot(of: masked, as: .image)
         
         let region = try XCTUnwrap(result.element(at: 0))
-        XCTAssertNil(region.color)
-        XCTAssertEqual(region.size, CGSize(width: 5, height: 5))
+        XCTAssertEqual(region.color, label.textColor.withAlphaComponent(1.0))
+        XCTAssertEqual(region.size, CGSize(width: 40, height: 40))
         XCTAssertEqual(region.type, .redact)
-        XCTAssertEqual(region.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 15, ty: 15))
+        XCTAssertEqual(region.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 20, ty: 20))
 
         // Assert that there no additional regions
         XCTAssertEqual(result.count, 1)
@@ -813,12 +819,13 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests {
 
     // MARK: - Custom View
 
-    func testOptions_maskedViewClasses_shouldRedactCustomView() {
+    func testOptions_maskedViewClasses_shouldRedactCustomView() throws {
         // -- Arrange --
         class MyCustomView: UIView {}
 
-        let v = MyCustomView(frame: CGRect(x: 10, y: 10, width: 30, height: 30))
-        rootView.addSubview(v)
+        let view = MyCustomView(frame: CGRect(x: 10, y: 10, width: 30, height: 30))
+        view.backgroundColor = .red
+        rootView.addSubview(view)
 
         // View Hierarchy:
         // ---------------
@@ -826,24 +833,38 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests {
         //   | <_TtCFC11SentryTests26SentryUIRedactBuilderTests52testOptions_maskedViewClasses_shouldRedactCustomViewFT_T_L_12MyCustomView: 0x105631880; frame = (10 10; 30 30); layer = <CALayer: 0x6000010a40c0>>
 
         // -- Act --
+        let baseSut = getSut(maskAllText: true, maskAllImages: true, maskedViewClasses: [])
+        let baseResult = baseSut.redactRegionsFor(view: rootView)
+        let baseMasked = createMaskedScreenshot(view: rootView, regions: baseResult)
+
         let sut = getSut(maskAllText: true, maskAllImages: true, maskedViewClasses: [MyCustomView.self])
         let result = sut.redactRegionsFor(view: rootView)
         let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
+        assertSnapshot(of: baseMasked, as: .image)
+        XCTAssertEqual(baseResult.count, 0)
+
         assertSnapshot(of: masked, as: .image)
+
+        let region = try XCTUnwrap(result.element(at: 0))
+        XCTAssertNil(region.color)
+        XCTAssertEqual(region.size, CGSize(width: 30, height: 30))
+        XCTAssertEqual(region.type, .redact)
+        XCTAssertEqual(region.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 10, ty: 10))
+
+        // Assert that no other regions
         XCTAssertEqual(result.count, 1)
-        XCTAssertEqual(result.element(at: 0)?.size, CGSize(width: 30, height: 30))
-        XCTAssertEqual(result.element(at: 0)?.type, .redact)
     }
 
     func testOptions_unmaskedViewClasses_shouldIgnoreCustomLabel() {
         // -- Arrange --
         class MyLabel: UILabel {}
 
-        let v = MyLabel(frame: CGRect(x: 10, y: 10, width: 30, height: 30))
-        v.textColor = .purple
-        rootView.addSubview(v)
+        let label = MyLabel(frame: CGRect(x: 10, y: 10, width: 80, height: 30))
+        label.text = "Hello World"
+        label.textColor = .purple
+        rootView.addSubview(label)
 
         // View Hierarchy:
         // ---------------
@@ -851,19 +872,27 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests {
         //   | <_TtCFC11SentryTests26SentryUIRedactBuilderTests55testOptions_unmaskedViewClasses_shouldIgnoreCustomLabelFT_T_L_7MyLabel: 0x10562edf0; baseClass = UILabel; frame = (10 10; 30 30); userInteractionEnabled = NO; backgroundColor = UIExtendedGrayColorSpace 0 0; layer = <_UILabelLayer: 0x600002c58880>>
 
         // -- Act --
+        let baseSut = getSut(maskAllText: true, maskAllImages: true, maskedViewClasses: [])
+        let baseResult = baseSut.redactRegionsFor(view: rootView)
+        let baseMasked = createMaskedScreenshot(view: rootView, regions: baseResult)
+
         let sut = getSut(maskAllText: true, maskAllImages: true, maskedViewClasses: [MyLabel.self])
         let result = sut.redactRegionsFor(view: rootView)
         let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
+        assertSnapshot(of: baseMasked, as: .image)
+        XCTAssertEqual(baseResult.count, 1)
+
         assertSnapshot(of: masked, as: .image)
         XCTAssertEqual(result.count, 0)
     }
 
-    func testOpaqueRotatedView_coveringRoot_doesNotClearPreviousRedactions() {
+    func testOpaqueRotatedView_coveringRoot_doesNotClearPreviousRedactions() throws {
         // -- Arrange --
         // Add a label that should be redacted
         let label = UILabel(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
+        label.text = "Hello World"
         label.textColor = .purple
         rootView.addSubview(label)
 
@@ -886,11 +915,36 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests {
 
         // -- Assert --
         assertSnapshot(of: masked, as: .image)
+
         // We still expect at least one redact (for the label); the rotated cover shouldn't clear all regions
-        XCTAssertTrue(result.contains(where: { $0.type == .redact && $0.size == CGSize(width: 40, height: 40) }))
+        let region = try XCTUnwrap(result.element(at: 0))
+        XCTAssertNil(region.color)
+        XCTAssertEqual(region.size, CGSize(width: 100, height: 100))
+        XCTAssertEqual(region.type, .clipOut)
+        XCTAssertAffineTransformEqual(
+            region.transform,
+            CGAffineTransform(
+                a: 0.9238795325112867,
+                b: 0.3826834323650898,
+                c: -0.3826834323650898,
+                d: 0.9238795325112867,
+                tx: 22.940194992690152,
+                ty: -15.328148243818825
+            ),
+            accuracy: 0.001
+        )
+
+        let region2 = try XCTUnwrap(result.element(at: 1))
+        XCTAssertEqual(region2.color, UIColor.purple)
+        XCTAssertEqual(region2.size, CGSize(width: 40, height: 40))
+        XCTAssertEqual(region2.type, .redact)
+        XCTAssertEqual(region2.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 20, ty: 20))
+
+        // Assert that no other regions
+        XCTAssertEqual(result.count, 2)
     }
 
-    func testMapRedactRegion_viewHasCustomDebugDescription_shouldUseDebugDescriptionAsName() {
+    func testMapRedactRegion_viewHasCustomDebugDescription_shouldUseDebugDescriptionAsName() throws {
         // -- Arrange --
         // We use a subclass of UILabel, so that the view is redacted by default
         class CustomDebugDescriptionLabel: UILabel {
@@ -910,13 +964,14 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests {
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: true)
         let result = sut.redactRegionsFor(view: rootView)
-        let masked = createMaskedScreenshot(view: rootView, regions: result)
-        
-        // -- Assert --
-        assertSnapshot(of: masked, as: .image)
 
+        // -- Assert --
+        // No snapshot assertion here, because there's no value.
+        let region = try XCTUnwrap(result.element(at: 0))
+        XCTAssertEqual(region.name, "CustomDebugDescription")
+
+        // Assert that no other regions
         XCTAssertEqual(result.count, 1)
-        XCTAssertEqual(result.element(at: 0)?.name, "CustomDebugDescription")
     }
 
     // MARK: - API surface: addIgnoreClasses / addRedactClasses
@@ -924,10 +979,20 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests {
     func testAddIgnoreClasses_arrayAPI_shouldNotRedactViews() {
         // -- Arrange --
         let label = UILabel(frame: CGRect(x: 10, y: 10, width: 30, height: 30))
+        label.text = "Hello World"
         label.textColor = .purple
-        let textField = UITextField(frame: CGRect(x: 50, y: 10, width: 30, height: 30))
         rootView.addSubview(label)
+
+        let textField = UITextField(frame: CGRect(x: 50, y: 10, width: 30, height: 30))
+        textField.placeholder = "Edit Me"
         rootView.addSubview(textField)
+
+        // View Hierarchy:
+        // ---------------
+        // <UIView: 0x13f432470; frame = (0 0; 100 100); layer = <CALayer: 0x600000f8dd80>>
+        //   | <UILabel: 0x13f44fad0; frame = (10 10; 30 30); text = 'Hello World'; userInteractionEnabled = NO; backgroundColor = UIExtendedGrayColorSpace 0 0; layer = <_UILabelLayer: 0x600002cbf700>>
+        //   | <UITextField: 0x14980d200; frame = (50 10; 30 30); opaque = NO; placeholder = Edit Me; borderStyle = None; background = <_UITextFieldNoBackgroundProvider: 0x600000dd3570: textfield=<UITextField 0x14980d200>>; layer = <CALayer: 0x600000f8efc0>>
+        //   |    | <_UITextLayoutCanvasView: 0x13f4502c0; frame = (0 0; 0 0); layer = <CALayer: 0x600000f8fec0>>
 
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: true)
@@ -945,41 +1010,98 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests {
         XCTAssertEqual(post.count, 0)
     }
 
-    func testAddRedactClasses_arrayAPI_shouldRedactCustomViews() {
+    func testAddRedactClasses_arrayAPI_shouldRedactCustomViews() throws {
         // -- Arrange --
         class V1: UIView {}
         class V2: UIView {}
-        let v1 = V1(frame: CGRect(x: 10, y: 10, width: 20, height: 20))
-        let v2 = V2(frame: CGRect(x: 40, y: 10, width: 20, height: 20))
-        rootView.addSubview(v1)
-        rootView.addSubview(v2)
+
+        let view1 = V1(frame: CGRect(x: 10, y: 10, width: 20, height: 20))
+        rootView.addSubview(view1)
+
+        let view2 = V2(frame: CGRect(x: 40, y: 10, width: 20, height: 20))
+        rootView.addSubview(view2)
+
+        // View Hierarchy:
+        // ---------------
+        // <UIView: 0x169032310; frame = (0 0; 100 100); layer = <CALayer: 0x60000128bb00>>
+        //   | <_TtCFC11SentryTests33SentryUIRedactBuilderTests_Common53testAddRedactClasses_arrayAPI_shouldRedactCustomViewsFzT_T_L_2V1: 0x14f5266e0; frame = (10 10; 20 20); layer = <CALayer: 0x6000012c2100>>
+        //   | <_TtCFC11SentryTests33SentryUIRedactBuilderTests_Common53testAddRedactClasses_arrayAPI_shouldRedactCustomViewsFzT_T_L_2V2: 0x14f527130; frame = (40 10; 20 20); layer = <CALayer: 0x6000012c0a80>>
 
         // -- Act --
         let sut = getSut(maskAllText: false, maskAllImages: false)
 
-        let pre = sut.redactRegionsFor(view: rootView)
-        XCTAssertEqual(pre.count, 0)
+        let preResult = sut.redactRegionsFor(view: rootView)
+        let preMasked = createMaskedScreenshot(view: rootView, regions: preResult)
 
         sut.addRedactClasses([V1.self, V2.self])
-        let post = sut.redactRegionsFor(view: rootView)
-        let masked = createMaskedScreenshot(view: rootView, regions: post)
+
+        let result = sut.redactRegionsFor(view: rootView)
+        let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: masked, as: .image)
+        assertSnapshot(of: preMasked, as: .image)
+        XCTAssertEqual(preResult.count, 0)
 
-        XCTAssertEqual(post.count, 2)
-        XCTAssertTrue(post.contains(where: { $0.size == CGSize(width: 20, height: 20) && $0.transform.tx == 10 && $0.transform.ty == 10 }))
-        XCTAssertTrue(post.contains(where: { $0.size == CGSize(width: 20, height: 20) && $0.transform.tx == 40 && $0.transform.ty == 10 }))
+        assertSnapshot(of: masked, as: .image)
+        let region = try XCTUnwrap(result.element(at: 0))
+        XCTAssertNil(region.color)
+        XCTAssertEqual(region.size, CGSize(width: 20, height: 20))
+        XCTAssertEqual(region.type, .redact)
+        XCTAssertEqual(region.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 40, ty: 10))
+
+        let region2 = try XCTUnwrap(result.element(at: 1))
+        XCTAssertNil(region2.color)
+        XCTAssertEqual(region2.size, CGSize(width: 20, height: 20))
+        XCTAssertEqual(region2.type, .redact)
+        XCTAssertEqual(region2.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 10, ty: 10))
+
+        // Assert that no other regions
+        XCTAssertEqual(result.count, 2)
     }
 
     // MARK: - Default ignored controls
 
-    func testDefaultIgnoredControls_shouldNotRedactUISliderAndUISwitch() {
+    func testDefaultIgnoredControls_shouldNotRedactUISlider() {
         // -- Arrange --
         let slider = UISlider(frame: CGRect(x: 10, y: 10, width: 80, height: 20))
-        let toggle = UISwitch(frame: CGRect(x: 10, y: 40, width: 50, height: 30))
         rootView.addSubview(slider)
+
+        // View Hierarchy:
+        // ---------------
+        // <UIView: 0x12ed12bc0; frame = (0 0; 100 100); layer = <CALayer: 0x600001de3540>>
+        //   | <UISlider: 0x13ed0f7e0; frame = (10 10; 80 20); opaque = NO; layer = <CALayer: 0x600001df0020>; value: 0.000000>
+        //   |    | <_UISlideriOSVisualElement: 0x13ed0fbd0; frame = (0 0; 80 20); opaque = NO; autoresize = W+H; layer = <CALayer: 0x600001da7f80>>
+
+        // -- Act --
+        let sut = getSut(maskAllText: true, maskAllImages: true)
+        let result = sut.redactRegionsFor(view: rootView)
+        let masked = createMaskedScreenshot(view: rootView, regions: result)
+
+        // -- Assert --
+        assertSnapshot(of: masked, as: .image)
+        XCTAssertEqual(result.count, 0)
+    }
+
+    func testDefaultIgnoredControls_shouldNotRedactUISwitch() {
+        // -- Arrange --
+        let toggle = UISwitch(frame: CGRect(x: 10, y: 40, width: 50, height: 30))
         rootView.addSubview(toggle)
+
+        // View Hierarchy:
+        // ---------------
+        // === iOS 26 & 18 & 17 & 16 ===
+        // <UIView: 0x10792c560; frame = (0 0; 100 100); layer = <CALayer: 0x600000cf3630>>
+        //   | <UISwitch: 0x10792d7d0; frame = (10 40; 63 28); gestureRecognizers = <NSArray: 0x6000000254b0>; layer = <CALayer: 0x600000cf1290>>
+        //   |    | <UISwitchModernVisualElement: 0x10792d140; frame = (0 0; 63 28); gestureRecognizers = <NSArray: 0x6000002b94a0>; layer = <CALayer: 0x600000d0edf0>>
+        //   |    |    | <UIView: 0x107e1acc0; frame = (0 0; 63 28); backgroundColor = <UIDynamicCatalogSystemColor: 0x600001717a80; name = tertiaryLabelColor>; layer = <CALayer: 0x600000d13660>>
+        //   |    |    | <UIView: 0x107e1ab20; frame = (0 0; 63 28); layer = <CALayer: 0x600000d11e30>>
+        //   |    |    |    | <UIImageView: 0x107e19190; frame = (-567 0; 630 31); hidden = YES; opaque = NO; userInteractionEnabled = NO; image = <UIImage:0x600003024870 CGImage anonymous; (630 1)@3>; layer = <CALayer: 0x600000d125e0>>
+        //   |    |    |    | <UIView: 0x107931230; frame = (0 0; 63 28); layer = <CALayer: 0x600000cf3930>>
+        //   |    |    |    |    | <UIImageView: 0x10791abd0; frame = (48 14; 0 0); userInteractionEnabled = NO; tintColor = <UIDynamicSystemColor: 0x60000172bf40; name = _switchOffImageColor>; image = <(null):0x0 (null) anonymous; (0 0)@0>; layer = <CALayer: 0x600000cf0e40>>
+        //   |    |    |    |    | <UIImageView: 0x107931030; frame = (15 14; 0 0); alpha = 0; userInteractionEnabled = NO; tintColor = UIExtendedGrayColorSpace 1 1; image = <(null):0x0 (null) anonymous; (0 0)@0>; layer = <CALayer: 0x600000cf2670>>
+        //   |    |    | <_UILiquidLensView: 0x10792bee0; frame = (2 2; 37 24); tintColor = <UIDynamicCatalogSystemColor: 0x600001717a80; name = tertiaryLabelColor>; layer = <CALayer: 0x600000c320a0>>
+        //   |    |    |    | <UIView: 0x10792ef50; frame = (0 0; 37 24); autoresize = W+H; userInteractionEnabled = NO; layer = <CALayer: 0x600000cf1dd0>>
+        //   |    |    |    |    | <UIView: 0x107817f10; frame = (0 0; 37 24); autoresize = W+H; userInteractionEnabled = NO; backgroundColor = <UIDynamicSystemColor: 0x600001749500; name = _controlForegroundColor>; layer = <CALayer: 0x600001030180>>
 
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: true)
@@ -993,15 +1115,22 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests {
 
     // MARK: - Force redaction propagation (non-clipping redacted parent)
 
-    func testForceRedact_propagatesToChildren_whenParentMarkedAndNotClipping() {
+    func testForceRedact_propagatesToChildren_whenParentMarkedAndNotClipping() throws {
         // -- Arrange --
         class Container: UIView {}
         class Child: UIView {}
         let container = Container(frame: CGRect(x: 10, y: 10, width: 80, height: 60))
         container.clipsToBounds = false
+        rootView.addSubview(container)
+
         let child = Child(frame: CGRect(x: 5, y: 5, width: 20, height: 20))
         container.addSubview(child)
-        rootView.addSubview(container)
+
+        // View Hierarchy:
+        // ---------------
+        // <UIView: 0x12161bdf0; frame = (0 0; 100 100); layer = <CALayer: 0x600003f18dc0>>
+        //   | <_TtCFC11SentryTests33SentryUIRedactBuilderTests_Common67testForceRedact_propagatesToChildren_whenParentMarkedAndNotClippingFT_T_L_9Container: 0x12161c990; frame = (10 10; 80 60); layer = <CALayer: 0x600003f19ae0>>
+        //   |    | <_TtCFC11SentryTests33SentryUIRedactBuilderTests_Common67testForceRedact_propagatesToChildren_whenParentMarkedAndNotClippingFT_T_L_5Child: 0x12161de50; frame = (5 5; 20 20); layer = <CALayer: 0x600003f19ba0>>
 
         // -- Act --
         let sut = getSut(maskAllText: false, maskAllImages: false)
@@ -1014,14 +1143,25 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests {
         assertSnapshot(of: masked, as: .image)
 
         // Expect two redact regions: one for container, one for child due to enforceRedact
+        let region = try XCTUnwrap(result.element(at: 0))
+        XCTAssertNil(region.color)
+        XCTAssertEqual(region.size, CGSize(width: 20, height: 20))
+        XCTAssertEqual(region.type, .redact)
+        XCTAssertEqual(region.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 15, ty: 15))
+
+        let region2 = try XCTUnwrap(result.element(at: 1))
+        XCTAssertNil(region2.color)
+        XCTAssertEqual(region2.size, CGSize(width: 80, height: 60))
+        XCTAssertEqual(region2.type, .redact)
+        XCTAssertEqual(region2.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 10, ty: 10))
+
+        // Assert that no other regions
         XCTAssertEqual(result.count, 2)
-        XCTAssertTrue(result.contains(where: { $0.size == CGSize(width: 80, height: 60) && $0.transform.tx == 10 && $0.transform.ty == 10 }))
-        XCTAssertTrue(result.contains(where: { $0.size == CGSize(width: 20, height: 20) && $0.transform.tx == 15 && $0.transform.ty == 15 }))
     }
 
     // MARK: - Ignore View Subtree
 
-    func testViewSubtreeIgnored_noIgnoredViewsInTree_shouldIncludeEntireTree() {
+    func testViewSubtreeIgnored_noIgnoredViewsInTree_shouldIncludeEntireTree() throws {
         // -- Arrange --
         let view = UIView(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
         rootView.addSubview(view)
@@ -1047,16 +1187,19 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests {
         // -- Assert --
         assertSnapshot(of: masked, as: .image)
 
-        XCTAssertEqual(result.element(at: 0)?.size, CGSize(width: 10, height: 10))
-        XCTAssertEqual(result.element(at: 0)?.type, .redact)
-        XCTAssertEqual(result.element(at: 0)?.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 35, ty: 35))
-        XCTAssertNil(result.element(at: 0)?.color)
+        let region = try XCTUnwrap(result.element(at: 0))
+        XCTAssertNil(region.color)
+        XCTAssertEqual(region.size, CGSize(width: 10, height: 10))
+        XCTAssertEqual(region.type, .redact)
+        XCTAssertEqual(region.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 35, ty: 35))
 
-        XCTAssertEqual(result.element(at: 1)?.size, CGSize(width: 20, height: 20))
-        XCTAssertEqual(result.element(at: 1)?.type, .redact)
-        XCTAssertEqual(result.element(at: 1)?.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 30, ty: 30))
-        XCTAssertNotNil(result.element(at: 1)?.color)
+        let region2 = try XCTUnwrap(result.element(at: 1))
+        XCTAssertNotNil(region2.color)
+        XCTAssertEqual(region2.size, CGSize(width: 20, height: 20))
+        XCTAssertEqual(region2.type, .redact)
+        XCTAssertEqual(region2.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 30, ty: 30))
 
+        // Assert that no other regions
         XCTAssertEqual(result.count, 2)
     }
 }

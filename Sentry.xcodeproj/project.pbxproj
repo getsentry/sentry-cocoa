@@ -4184,6 +4184,7 @@
 		D4009EA02D77196F0007AF30 /* ViewCapture */ = {
 			isa = PBXGroup;
 			children = (
+				D4AF802E2E965188004F0F59 /* __Snapshots__ */,
 				D82915622C85EF0C00A6CDD4 /* SentryViewPhotographerTests.swift */,
 				D4AF7D292E940492004F0F59 /* SentryUIRedactBuilderTests.swift */,
 				D8F67AF22BE10F7600C9197B /* SentryUIRedactBuilderTests+Common.swift */,
@@ -4293,6 +4294,13 @@
 				D49064892DFAE1F600555785 /* SentryScreenshotOptions.swift */,
 			);
 			path = Screenshot;
+			sourceTree = "<group>";
+		};
+		D4AF802E2E965188004F0F59 /* __Snapshots__ */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = __Snapshots__;
 			sourceTree = "<group>";
 		};
 		D4CBA2522DE06D1600581618 /* SentryTestUtilsTests */ = {
