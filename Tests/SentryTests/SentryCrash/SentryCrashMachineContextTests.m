@@ -51,12 +51,11 @@
         threadCount, 0, @"Thread count should be 0 for non-crashed context, got %d", threadCount);
 
     thread_resume(thread.thread);
+    XCTestExpectation *expectation =
+        [[XCTestExpectation alloc] initWithDescription:@"Wait for thread to cancel"];
+    thread.endExpectation = expectation;
     [thread cancel];
-
-    // Wait for thread to finish
-    while (![thread isFinished]) {
-        [NSThread sleepForTimeInterval:0.01];
-    }
+    [self waitForExpectations:@[ expectation ] timeout:1];
 }
 
 - (void)testGetContextForThread_WithManyThreads
@@ -119,16 +118,17 @@
 
     // Clean up
     thread_resume(firstThread.thread);
+    NSMutableArray<XCTestExpectation *> *finishExpectations =
+        [NSMutableArray arrayWithCapacity:threads.count];
     for (TestThread *thread in threads) {
+        thread.endExpectation =
+            [[XCTestExpectation alloc] initWithDescription:@"Wait for thread to cancel"];
+        [finishExpectations addObject:thread.endExpectation];
         [thread cancel];
     }
 
-    // Wait for all threads to finish
-    for (TestThread *thread in threads) {
-        while (![thread isFinished]) {
-            [NSThread sleepForTimeInterval:0.01];
-        }
-    }
+    // Wait for all threads to finish (up to 10 seconds)
+    [self waitForExpectations:finishExpectations timeout:10];
 }
 
 @end
