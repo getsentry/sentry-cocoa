@@ -62,7 +62,9 @@ public struct SentrySDKWrapper {
             let defaultReplayQuality = options.sessionReplay.quality
             options.sessionReplay.quality = SentryReplayOptions.SentryReplayQuality(rawValue: (SentrySDKOverrides.SessionReplay.quality.stringValue as? NSString)?.integerValue ?? defaultReplayQuality.rawValue) ?? defaultReplayQuality
 
-            options.sessionReplay.disableInDangerousEnvironment = false
+            // Allow configuring dangerous environment protection via SDK override.
+            // Default to false for the sample app to allow testing on iOS 26+ with Liquid Glass.
+            options.sessionReplay.disableInDangerousEnvironment = !SentrySDKOverrides.SessionReplay.disableInDangerousEnvironment.boolValue
         }
 
 #if !os(tvOS)

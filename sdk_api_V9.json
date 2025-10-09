@@ -45424,6 +45424,55 @@
               },
               {
                 "kind": "Var",
+                "name": "disableInDangerousEnvironment",
+                "printedName": "disableInDangerousEnvironment",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  }
+                ],
+                "declKind": "Var",
+                "usr": "s:6Sentry0A13ReplayOptionsC13DefaultValuesC29disableInDangerousEnvironmentSbvpZ",
+                "mangledName": "$s6Sentry0A13ReplayOptionsC13DefaultValuesC29disableInDangerousEnvironmentSbvpZ",
+                "moduleName": "Sentry",
+                "static": true,
+                "declAttributes": [
+                  "Final",
+                  "HasStorage"
+                ],
+                "isLet": true,
+                "hasStorage": true,
+                "accessors": [
+                  {
+                    "kind": "Accessor",
+                    "name": "Get",
+                    "printedName": "Get()",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Bool",
+                        "printedName": "Swift.Bool",
+                        "usr": "s:Sb"
+                      }
+                    ],
+                    "declKind": "Accessor",
+                    "usr": "s:6Sentry0A13ReplayOptionsC13DefaultValuesC29disableInDangerousEnvironmentSbvgZ",
+                    "mangledName": "$s6Sentry0A13ReplayOptionsC13DefaultValuesC29disableInDangerousEnvironmentSbvgZ",
+                    "moduleName": "Sentry",
+                    "static": true,
+                    "implicit": true,
+                    "declAttributes": [
+                      "Final"
+                    ],
+                    "accessorKind": "get"
+                  }
+                ]
+              },
+              {
+                "kind": "Var",
                 "name": "maskedViewClasses",
                 "printedName": "maskedViewClasses",
                 "children": [
@@ -46955,6 +47004,79 @@
             ]
           },
           {
+            "kind": "Var",
+            "name": "disableInDangerousEnvironment",
+            "printedName": "disableInDangerousEnvironment",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "c:@M@Sentry@objc(cs)SentryReplayOptions(py)disableInDangerousEnvironment",
+            "mangledName": "$s6Sentry0A13ReplayOptionsC29disableInDangerousEnvironmentSbvp",
+            "moduleName": "Sentry",
+            "declAttributes": [
+              "ObjC",
+              "HasStorage"
+            ],
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "c:@M@Sentry@objc(cs)SentryReplayOptions(im)disableInDangerousEnvironment",
+                "mangledName": "$s6Sentry0A13ReplayOptionsC29disableInDangerousEnvironmentSbvg",
+                "moduleName": "Sentry",
+                "implicit": true,
+                "declAttributes": [
+                  "ObjC"
+                ],
+                "accessorKind": "get"
+              },
+              {
+                "kind": "Accessor",
+                "name": "Set",
+                "printedName": "Set()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "c:@M@Sentry@objc(cs)SentryReplayOptions(im)setDisableInDangerousEnvironment:",
+                "mangledName": "$s6Sentry0A13ReplayOptionsC29disableInDangerousEnvironmentSbvs",
+                "moduleName": "Sentry",
+                "implicit": true,
+                "declAttributes": [
+                  "ObjC"
+                ],
+                "accessorKind": "set"
+              }
+            ]
+          },
+          {
             "kind": "Constructor",
             "name": "init",
             "printedName": "init()",
@@ -46982,7 +47104,7 @@
           {
             "kind": "Constructor",
             "name": "init",
-            "printedName": "init(sessionSampleRate:onErrorSampleRate:maskAllText:maskAllImages:enableViewRendererV2:enableFastViewRendering:)",
+            "printedName": "init(sessionSampleRate:onErrorSampleRate:maskAllText:maskAllImages:enableViewRendererV2:enableFastViewRendering:disableInDangerousEnvironment:)",
             "children": [
               {
                 "kind": "TypeNominal",
@@ -47031,13 +47153,20 @@
                 "printedName": "Swift.Bool",
                 "hasDefaultArg": true,
                 "usr": "s:Sb"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "hasDefaultArg": true,
+                "usr": "s:Sb"
               }
             ],
             "declKind": "Constructor",
-            "usr": "c:@M@Sentry@objc(cs)SentryReplayOptions(im)initWithSessionSampleRate:onErrorSampleRate:maskAllText:maskAllImages:enableViewRendererV2:enableFastViewRendering:",
-            "mangledName": "$s6Sentry0A13ReplayOptionsC17sessionSampleRate07onErroreF011maskAllText0iJ6Images20enableViewRendererV20m4FastN9RenderingACSf_SfS4btcfc",
+            "usr": "c:@M@Sentry@objc(cs)SentryReplayOptions(im)initWithSessionSampleRate:onErrorSampleRate:maskAllText:maskAllImages:enableViewRendererV2:enableFastViewRendering:disableInDangerousEnvironment:",
+            "mangledName": "$s6Sentry0A13ReplayOptionsC17sessionSampleRate07onErroreF011maskAllText0iJ6Images20enableViewRendererV20m4FastN9Rendering29disableInDangerousEnvironmentACSf_SfS5btcfc",
             "moduleName": "Sentry",
-            "objc_name": "initWithSessionSampleRate:onErrorSampleRate:maskAllText:maskAllImages:enableViewRendererV2:enableFastViewRendering:",
+            "objc_name": "initWithSessionSampleRate:onErrorSampleRate:maskAllText:maskAllImages:enableViewRendererV2:enableFastViewRendering:disableInDangerousEnvironment:",
             "declAttributes": [
               "ObjC"
             ],

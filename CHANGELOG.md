@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- fix(session-replay): Add detection for potential PII leaks disabling session replay (#6389)
+
 ## 8.56.2
 
 ### Fixes

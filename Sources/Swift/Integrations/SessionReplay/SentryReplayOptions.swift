@@ -218,12 +218,12 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
 
     /**
      * Due to internal changes with the release of Liquid Glass on iOS 26.0, the masking of text and images can not be reliably guaranteed.
-     *
-     * Therefore the session replay integration is disabled by default starting with `8.57.0` as a defensive mechanism.
+     
+     * Therefore the session replay integration is disabled by default unless the environment is detected as safe.
      *
      * - Important: This flag allows to re-enable the session replay integration on iOS 26.0 and later, but please be aware that text and images may not be masked as expected.
      *
-     * - Note: See [GitHub issues #1234](https://github.com/getsentry/sentry-cocoa/issue/1234) for more information.
+     * - Note: See [GitHub issues #6389](https://github.com/getsentry/sentry-cocoa/issues/6389) for more information.
      */
     public var disableInDangerousEnvironment: Bool
 
