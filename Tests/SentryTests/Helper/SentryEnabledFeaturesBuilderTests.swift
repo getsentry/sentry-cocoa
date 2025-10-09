@@ -25,10 +25,6 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
         options.enableTimeToFullDisplayTracing = true
         options.swiftAsyncStacktraces = true
 
-#if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
-        options.enableAppLaunchProfiling = true
-#endif // os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
-
 #if os(iOS) || os(tvOS)
 #if canImport(UIKit) && !SENTRY_NO_UIKIT
         options.enablePreWarmedAppStartTracing = true
