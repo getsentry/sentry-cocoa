@@ -14,6 +14,17 @@
 
 #endif // SENTRY_HAS_UIKIT
 
++ (SentryFileIOTracker *_Nullable)fileIOTracker
+{
+    // It is necessary to check if the SDK is enabled because accessing the tracker will otherwise
+    // initialize the depency container without any configured SDK options. This is a known issue
+    // and needs to be fixed in general.
+    if (!SentrySDK.isEnabled) {
+        return nil;
+    }
+    return SentryDependencyContainer.sharedInstance.fileIOTracker;
+}
+
 + (void)dispatchSyncOnMainQueue:(void (^)(void))block
 {
     [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchSyncOnMainQueue:block];

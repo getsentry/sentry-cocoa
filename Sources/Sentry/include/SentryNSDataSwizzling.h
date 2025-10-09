@@ -3,15 +3,14 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @class SentryOptions;
-
-@protocol SentryFileIOTracking;
+@class SentryFileIOTracker;
 
 @interface SentryNSDataSwizzling : NSObject
 SENTRY_NO_INIT
 
 @property (class, readonly) SentryNSDataSwizzling *shared;
 
-- (void)startWithOptions:(SentryOptions *)options tracker:(id<SentryFileIOTracking>)tracker;
+- (void)startWithOptions:(SentryOptions *)options tracker:(SentryFileIOTracker *)tracker;
 
 - (void)stop;
 

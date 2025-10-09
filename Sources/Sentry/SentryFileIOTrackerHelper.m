@@ -1,4 +1,4 @@
-#import "SentryFileIOTracker.h"
+#import "SentryFileIOTrackerHelper.h"
 #import "SentryByteCountFormatter.h"
 #import "SentryClient+Private.h"
 #import "SentryDependencyContainer.h"
@@ -18,7 +18,7 @@
 #import "SentryThread.h"
 #import "SentryTracer.h"
 
-@interface SentryFileIOTracker ()
+@interface SentryFileIOTrackerHelper ()
 
 @property (nonatomic, assign) BOOL isEnabled;
 @property (nonatomic, strong) NSMutableSet<NSData *> *processingData;
@@ -27,20 +27,9 @@
 
 @end
 
-@implementation SentryFileIOTracker
+@implementation SentryFileIOTrackerHelper
 
 NSString *const SENTRY_TRACKING_COUNTER_KEY = @"SENTRY_TRACKING_COUNTER_KEY";
-
-+ (id<SentryFileIOTracking> _Nullable)sharedInstance
-{
-    // It is necessary to check if the SDK is enabled because accessing the tracker will otherwise
-    // initialize the depency container without any configured SDK options. This is a known issue
-    // and needs to be fixed in general.
-    if (!SentrySDK.isEnabled) {
-        return nil;
-    }
-    return SentryDependencyContainer.sharedInstance.fileIOTracker;
-}
 
 - (instancetype)initWithThreadInspector:(SentryThreadInspector *)threadInspector
                      processInfoWrapper:(id<SentryProcessInfoSource>)processInfoWrapper

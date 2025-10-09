@@ -2,7 +2,6 @@
 
 #import "SentryDefaultThreadInspector.h"
 #import "SentryExtraContextProvider.h"
-#import "SentryFileIOTracker.h"
 #import "SentryInternalCDefines.h"
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"
@@ -61,9 +60,6 @@ SentryApplicationProviderBlock defaultApplicationProvider = ^id<SentryApplicatio
 };
 
 @interface SentryFileManager () <SentryFileManagerProtocol>
-@end
-
-@interface SentryFileIOTracker () <SentryFileIOTracking>
 @end
 
 @interface SentryDefaultAppStateManager () <SentryAppStateManager>
@@ -232,7 +228,7 @@ static BOOL isInitialializingDependencyContainer = NO;
     return SentryDependencies.threadInspector;
 }
 
-- (id<SentryFileIOTracking>)fileIOTracker SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
+- (SentryFileIOTracker *)fileIOTracker SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
     SENTRY_LAZY_INIT(_fileIOTracker,
         [[SentryFileIOTracker alloc] initWithThreadInspector:[self threadInspector]

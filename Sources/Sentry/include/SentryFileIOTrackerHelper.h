@@ -4,20 +4,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @protocol SentryProcessInfoSource;
 @class SentryThreadInspector;
-@protocol SentryFileIOTracking;
 
-@interface SentryFileIOTracker : NSObject
+@interface SentryFileIOTrackerHelper : NSObject
 SENTRY_NO_INIT
-
-/**
- * Convenience accessor to the shared instance of the tracker in the dependency container.
- *
- * @note Can be used from Swift without import the entire dependency container.
- * @note If the SentrySDK is not enabled this will return nil.
- *
- * @return The shared instance of the tracker.
- */
-+ (id<SentryFileIOTracking> _Nullable)sharedInstance;
 
 - (instancetype)initWithThreadInspector:(SentryThreadInspector *)threadInspector
                      processInfoWrapper:(id<SentryProcessInfoSource>)processInfoWrapper;
