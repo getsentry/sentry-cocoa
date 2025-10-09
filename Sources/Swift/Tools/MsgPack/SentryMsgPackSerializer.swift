@@ -43,7 +43,7 @@ class SentryMsgPackSerializer {
                 _ = outputStream.write(bufferAddress, maxLength: keyData.count)
             }
 
-            guard let dataLength = value.streamSize() else {
+            guard let dataLength = value.streamSize(), dataLength > 0 else {
                 // MsgPack is being used strictly for session replay.
                 // An item with a length of 0 will not be useful.
                 // If we plan to use MsgPack for something else,

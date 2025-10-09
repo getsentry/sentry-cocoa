@@ -4,7 +4,6 @@ extension URL: SentryStreamable {
     }
 
     func streamSize() -> UInt? {
-        // Ideally this method would return an unsigned integer, however the
         let attributes: [FileAttributeKey: Any]
         do {
             attributes = try FileManager.default.attributesOfItem(atPath: path)
