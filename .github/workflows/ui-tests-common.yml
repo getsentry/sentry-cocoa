@@ -58,6 +58,7 @@ jobs:
   common-ui-tests:
     name: UI Tests Common
     runs-on: ${{ inputs.macos_version }}
+    timeout-minutes: 40
     steps:
       - uses: actions/checkout@v5
 
