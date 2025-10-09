@@ -61,6 +61,8 @@ public struct SentrySDKWrapper {
             )
             let defaultReplayQuality = options.sessionReplay.quality
             options.sessionReplay.quality = SentryReplayOptions.SentryReplayQuality(rawValue: (SentrySDKOverrides.SessionReplay.quality.stringValue as? NSString)?.integerValue ?? defaultReplayQuality.rawValue) ?? defaultReplayQuality
+
+            options.sessionReplay.disableInDangerousEnvironment = false
         }
 
 #if !os(tvOS)

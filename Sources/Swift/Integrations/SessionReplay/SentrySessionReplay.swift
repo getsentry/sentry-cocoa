@@ -1,3 +1,4 @@
+// swiftlint:disable file_length
 import Foundation
 #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT
 @_implementationOnly import _SentryPrivate
@@ -73,6 +74,18 @@ import UIKit
             SentrySDKLog.debug("[Session Replay] Session replay is already running, not starting again")
             return 
         }
+        
+        // Detect if we are running on iOS 26.0 with Liquid Glass and disable session replay.
+        // This needs to be done until masking for session replay is properly supported, as it can lead
+        // to PII leaks otherwise.
+        if isRunningInDangerousEnvironment() {
+            if replayOptions.disableInDangerousEnvironment {
+                SentrySDKLog.fatal("[Session Replay] Detected environment potentially causing PII leaks, disabling Session Replay. To override this mechanism, set `options.disableInDangerousEnvironment` to `false`")
+                return
+            }
+            SentrySDKLog.warning("[Session Replay] Detected environment potentially causing PII leaks, but `options.disableInDangerousEnvironment` is set to `false`, ignoring and enabling Session Replay.")
+        }
+        
         displayLink.link(withTarget: self, selector: #selector(newFrame(_:)))
         self.rootView = rootView
         lastScreenShot = dateProvider.date()
@@ -369,7 +382,51 @@ import UIKit
             replayMaker.addFrameAsync(timestamp: timestamp, maskedViewImage: maskedViewImage, forScreen: screen)
         }
     }
+    
+    private func isRunningInDangerousEnvironment() -> Bool {
+        // Defensive programming: Assume dangerous environment by default on iOS 26.0+
+        // and only mark as safe if we have explicit proof it's not using Liquid Glass.
+        //
+        // Liquid Glass introduces changes to text rendering that breaks masking in Session Replay.
+        // It's used on iOS 26.0+ UNLESS one of these conditions is met:
+        // 1. UIDesignRequiresCompatibility is explicitly set to YES in Info.plist
+        // 2. The app was built with Xcode < 26.0 (DTXcode < 2600)
+        
+        // First check: Are we even on iOS 26.0+?
+        guard #available(iOS 26.0, *) else {
+            // Not on iOS 26.0+ - safe to use Session Replay
+            return false
+        }
+        
+        // We're on iOS 26.0+ - assume dangerous unless proven otherwise
+        guard let infoDictionary = Bundle.main.infoDictionary else {
+            // Can't read Info.plist - stay defensive
+            SentrySDKLog.debug("[Session Replay] Running on iOS 26.0+ but cannot read Info.plist - treating as dangerous")
+            return true
+        }
+        
+        // Safety check 1: Is compatibility mode explicitly enabled?
+        if let requiresCompatibility = infoDictionary["UIDesignRequiresCompatibility"] as? Bool,
+           requiresCompatibility == true {
+            SentrySDKLog.debug("[Session Replay] Running on iOS 26.0+ with UIDesignRequiresCompatibility=YES - safe to use")
+            return false
+        }
+        
+        // Safety check 2: Was the app built with an older Xcode version?
+        // DTXcode format: Xcode 16.4 = "1640", Xcode 26.0 = "2600"
+        if let xcodeVersionString = infoDictionary["DTXcode"] as? String,
+           let xcodeVersion = Int(xcodeVersionString),
+           xcodeVersion < 2_600 {
+            SentrySDKLog.debug("[Session Replay] Running on iOS 26.0+ but built with Xcode \(xcodeVersionString) (< 26.0) - safe to use")
+            return false
+        }
+        
+        // No safety conditions met - treat as dangerous
+        SentrySDKLog.debug("[Session Replay] Running on iOS 26.0+ with Liquid Glass likely active - blocking Session Replay")
+        return true
+    }
 }
 // swiftlint:enable type_body_length
 
 #endif
+// swiftlint:enable file_length

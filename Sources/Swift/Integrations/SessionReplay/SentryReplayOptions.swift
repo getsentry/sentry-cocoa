@@ -16,6 +16,7 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
         public static let enableViewRendererV2: Bool = true
         public static let enableFastViewRendering: Bool = false
         public static let quality: SentryReplayQuality = .medium
+        public static let disableInDangerousEnvironment: Bool = true
 
         // The following properties are public because they are used by SentrySwiftUI.
 
@@ -216,6 +217,17 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
     public var enableFastViewRendering: Bool
 
     /**
+     * Due to internal changes with the release of Liquid Glass on iOS 26.0, the masking of text and images can not be reliably guaranteed.
+     *
+     * Therefore the session replay integration is disabled by default starting with `8.57.0` as a defensive mechanism.
+     *
+     * - Important: This flag allows to re-enable the session replay integration on iOS 26.0 and later, but please be aware that text and images may not be masked as expected.
+     *
+     * - Note: See [GitHub issues #1234](https://github.com/getsentry/sentry-cocoa/issue/1234) for more information.
+     */
+    public var disableInDangerousEnvironment: Bool
+
+    /**
      * Defines the quality of the session replay.
      *
      * Higher bit rates better quality, but also bigger files to transfer.
@@ -290,6 +302,7 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
             maskAllImages: nil,
             enableViewRendererV2: nil,
             enableFastViewRendering: nil,
+            disableInDangerousEnvironment: nil,
             maskedViewClasses: nil,
             unmaskedViewClasses: nil,
             quality: nil,
@@ -319,6 +332,7 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
             enableViewRendererV2: (dictionary["enableViewRendererV2"] as? NSNumber)?.boolValue
             ?? (dictionary["enableExperimentalViewRenderer"] as? NSNumber)?.boolValue,
             enableFastViewRendering: (dictionary["enableFastViewRendering"] as? NSNumber)?.boolValue,
+            disableInDangerousEnvironment: (dictionary["disableInDangerousEnvironment"] as? NSNumber)?.boolValue,
             maskedViewClasses: (dictionary["maskedViewClasses"] as? NSArray)?.compactMap({ element in
                 NSClassFromString((element as? String) ?? "")
             }),
@@ -353,7 +367,8 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
         maskAllText: Bool = DefaultValues.maskAllText,
         maskAllImages: Bool = DefaultValues.maskAllImages,
         enableViewRendererV2: Bool = DefaultValues.enableViewRendererV2,
-        enableFastViewRendering: Bool = DefaultValues.enableFastViewRendering
+        enableFastViewRendering: Bool = DefaultValues.enableFastViewRendering,
+        disableInDangerousEnvironment: Bool = DefaultValues.disableInDangerousEnvironment
     ) {
         // - This initializer is publicly available for Swift, but not for Objective-C, because automatically bridged Swift initializers
         //   with default values result in a single initializer requiring all parameters.
@@ -368,6 +383,7 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
             maskAllImages: maskAllImages,
             enableViewRendererV2: enableViewRendererV2,
             enableFastViewRendering: enableFastViewRendering,
+            disableInDangerousEnvironment: disableInDangerousEnvironment,
             maskedViewClasses: nil,
             unmaskedViewClasses: nil,
             quality: nil,
@@ -387,6 +403,7 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
         maskAllImages: Bool?,
         enableViewRendererV2: Bool?,
         enableFastViewRendering: Bool?,
+        disableInDangerousEnvironment: Bool?,
         maskedViewClasses: [AnyClass]?,
         unmaskedViewClasses: [AnyClass]?,
         quality: SentryReplayQuality?,
@@ -402,6 +419,7 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
         self.maskAllImages = maskAllImages ?? DefaultValues.maskAllImages
         self.enableViewRendererV2 = enableViewRendererV2 ?? DefaultValues.enableViewRendererV2
         self.enableFastViewRendering = enableFastViewRendering ?? DefaultValues.enableFastViewRendering
+        self.disableInDangerousEnvironment = disableInDangerousEnvironment ?? DefaultValues.disableInDangerousEnvironment
         self.maskedViewClasses = maskedViewClasses ?? DefaultValues.maskedViewClasses
         self.unmaskedViewClasses = unmaskedViewClasses ?? DefaultValues.unmaskedViewClasses
         self.quality = quality ?? DefaultValues.quality

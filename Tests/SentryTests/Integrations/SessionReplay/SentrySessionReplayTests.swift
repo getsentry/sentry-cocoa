@@ -551,6 +551,53 @@ class SentrySessionReplayTests: XCTestCase {
     private func assertFullSession(_ sessionReplay: SentrySessionReplay, expected: Bool) {
         XCTAssertEqual(sessionReplay.isFullSession, expected)
     }
+    
+    // MARK: - iOS 26 Liquid Glass Detection Tests
+    
+    @available(iOS 26.0, *)
+    func testBlocksSessionReplayOnIOS26WithLiquidGlass() {
+        // This test will only run on iOS 26.0+
+        // It tests that session replay is blocked when Liquid Glass is detected
+        let fixture = Fixture()
+        let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1))
+        
+        // Attempt to start session replay
+        sut.start(rootView: fixture.rootView, fullSession: true)
+        
+        // Verify that session replay did not actually start
+        // (it should have been blocked by isRunningInDangerousEnvironment)
+        XCTAssertFalse(fixture.displayLink.isRunning())
+    }
+    
+    @available(iOS 26.0, *)
+    func testAllowsSessionReplayOnIOS26WhenDisabledViaOption() {
+        // This test verifies that users can explicitly opt-in to session replay on iOS 26
+        let fixture = Fixture()
+        let options = SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1)
+        options.disableInDangerousEnvironment = false
+        let sut = fixture.getSut(options: options)
+        
+        // Attempt to start session replay
+        sut.start(rootView: fixture.rootView, fullSession: true)
+        
+        // Verify that session replay started despite iOS 26
+        XCTAssertTrue(fixture.displayLink.isRunning())
+    }
+    
+    func testAllowsSessionReplayOnIOS25AndEarlier() throws {
+        // This test runs on iOS < 26 and verifies session replay works normally
+        if #available(iOS 26.0, *) {
+            throw XCTSkip("This test is for iOS < 26.0")
+        }
+        
+        let fixture = Fixture()
+        let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1))
+        
+        // Session replay should start normally on older iOS versions
+        sut.start(rootView: fixture.rootView, fullSession: true)
+        
+        XCTAssertTrue(fixture.displayLink.isRunning())
+    }
 }
 
 #endif
