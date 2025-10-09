@@ -421,20 +421,10 @@ static BOOL isInitialializingDependencyContainer = NO;
     // This method is only a factory, therefore do not keep a reference.
     // The scope observer will be created each time it is needed.
     return [[SentryWatchdogTerminationScopeObserver alloc]
-        initWithBreadcrumbProcessor:
-            [self
-                getWatchdogTerminationBreadcrumbProcessorWithMaxBreadcrumbs:options.maxBreadcrumbs]
+        initWithBreadcrumbProcessor:[[SentryWatchdogTerminationBreadcrumbProcessor alloc]
+                                        initWithMaxBreadcrumbs:options.maxBreadcrumbs
+                                                   fileManager:self.fileManager]
                 attributesProcessor:self.watchdogTerminationAttributesProcessor];
-}
-
-- (SentryWatchdogTerminationBreadcrumbProcessor *)
-    getWatchdogTerminationBreadcrumbProcessorWithMaxBreadcrumbs:(NSInteger)maxBreadcrumbs
-{
-    // This method is only a factory, therefore do not keep a reference.
-    // The processor will be created each time it is needed.
-    return [[SentryWatchdogTerminationBreadcrumbProcessor alloc]
-        initWithMaxBreadcrumbs:maxBreadcrumbs
-                   fileManager:self.fileManager];
 }
 
 - (SentryWatchdogTerminationAttributesProcessor *)
