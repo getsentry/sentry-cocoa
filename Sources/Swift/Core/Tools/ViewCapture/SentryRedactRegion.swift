@@ -23,5 +23,14 @@ final class SentryRedactRegion {
         size == other.size && transform == other.transform && type == other.type
     }
 }
+
+extension SentryRedactRegion: Encodable {}
+
+extension UIColor: @retroactive Encodable {
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+        try container.encode(self.cgColor.components)
+    }
+}
 #endif
 #endif

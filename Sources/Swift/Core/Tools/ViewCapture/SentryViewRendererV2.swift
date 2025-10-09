@@ -17,7 +17,7 @@ import UIKit
             if enableFastViewRendering {
                 view.layer.render(in: context.cgContext)
             } else {
-                view.drawHierarchy(in: view.bounds, afterScreenUpdates: false)
+                view.drawHierarchy(in: view.bounds, afterScreenUpdates: true)
             }
         }
         return image
