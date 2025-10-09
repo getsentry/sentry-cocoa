@@ -21,10 +21,10 @@ private class ErrorInputStream: InputStream {
 public class TestStreamableObject: NSObject, SentryStreamable {
 
     private let shouldReturnNilInputStream: Bool
-    private let streamSizeValue: Int
+    private let streamSizeValue: UInt?
     private let shouldReturnErrorStream: Bool
 
-    public init(streamSize: Int, shouldReturnNilInputStream: Bool, shouldReturnErrorStream: Bool = false) {
+    public init(streamSize: UInt?, shouldReturnNilInputStream: Bool, shouldReturnErrorStream: Bool = false) {
         self.streamSizeValue = streamSize
         self.shouldReturnNilInputStream = shouldReturnNilInputStream
         self.shouldReturnErrorStream = shouldReturnErrorStream
@@ -41,7 +41,7 @@ public class TestStreamableObject: NSObject, SentryStreamable {
         return InputStream(data: Data())
     }
 
-    public func streamSize() -> Int {
+    public func streamSize() -> UInt? {
         return streamSizeValue
     }
 
@@ -56,7 +56,7 @@ public class TestStreamableObject: NSObject, SentryStreamable {
     }
 
     public static func objectWithNegativeSize() -> TestStreamableObject {
-        return TestStreamableObject(streamSize: -1, shouldReturnNilInputStream: false)
+        return TestStreamableObject(streamSize: nil, shouldReturnNilInputStream: false)
     }
 
     public static func objectWithErrorStream() -> TestStreamableObject {
@@ -69,6 +69,10 @@ public class TestStreamableObject: NSObject, SentryStreamable {
 
     public static func objectWithLargeSize() -> TestStreamableObject {
         // Return size larger than UInt32.max to test truncation
-        return TestStreamableObject(streamSize: Int(UInt32.max) + 1_000, shouldReturnNilInputStream: false, shouldReturnErrorStream: false)
+        return TestStreamableObject(
+            streamSize: UInt.max,
+            shouldReturnNilInputStream: false,
+            shouldReturnErrorStream: false
+        )
     }
 }

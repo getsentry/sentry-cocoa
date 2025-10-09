@@ -165,9 +165,9 @@
         let envelopeContentUrl = video.deletingPathExtension().appendingPathExtension("dat")
         
         let pack: [String: SentryStreamable] = [
-            "replay_event": replayEventData as NSData,
-            "replay_recording": recording as NSData,
-            "replay_video": video as NSURL
+            "replay_event": replayEventData,
+            "replay_recording": recording,
+            "replay_video": video
         ]
         let success = SentryMsgPackSerializer.serializeDictionary(toMessagePack:
             pack,

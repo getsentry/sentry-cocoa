@@ -3,7 +3,7 @@ extension Data: SentryStreamable {
         return InputStream(data: self)
     }
 
-    func streamSize() -> Int {
-        return self.count
+    func streamSize() -> UInt? {
+        return UInt(self.count)
     }
 }
