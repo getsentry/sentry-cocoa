@@ -23,6 +23,7 @@
 @class SentryOptions;
 @class SentrySessionTracker;
 @class SentryGlobalEventProcessor;
+@class SentryReachability;
 
 @protocol SentryAppStateManager;
 @protocol SentryANRTracker;
@@ -46,16 +47,11 @@
 @class SentryUIViewControllerPerformanceTracker;
 @class SentryWatchdogTerminationScopeObserver;
 @class SentryWatchdogTerminationAttributesProcessor;
-@class SentryWatchdogTerminationBreadcrumbProcessor;
 #endif // SENTRY_UIKIT_AVAILABLE
 
 #if SENTRY_HAS_UIKIT
 @protocol SentryUIDeviceWrapper;
 #endif // TARGET_OS_IOS
-
-#if !TARGET_OS_WATCH
-@class SentryReachability;
-#endif // !TARGET_OS_WATCH
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -93,10 +89,7 @@ SENTRY_NO_INIT
 @property (nonatomic, strong) SentrySysctl *sysctlWrapper;
 @property (nonatomic, strong) id<SentryRateLimits> rateLimits;
 @property (nonatomic, strong) SentryThreadsafeApplication *threadsafeApplication;
-
-#if SENTRY_HAS_REACHABILITY
 @property (nonatomic, strong) SentryReachability *reachability;
-#endif // !TARGET_OS_WATCH
 
 #if SENTRY_HAS_UIKIT
 @property (nonatomic, strong) id<SentryUIDeviceWrapper> uiDeviceWrapper;
@@ -146,8 +139,6 @@ SENTRY_NO_INIT
 #if SENTRY_HAS_UIKIT
 - (SentryWatchdogTerminationScopeObserver *)getWatchdogTerminationScopeObserverWithOptions:
     (SentryOptions *)options;
-- (SentryWatchdogTerminationBreadcrumbProcessor *)
-    getWatchdogTerminationBreadcrumbProcessorWithMaxBreadcrumbs:(NSInteger)maxBreadcrumbs;
 @property (nonatomic, strong)
     SentryWatchdogTerminationAttributesProcessor *watchdogTerminationAttributesProcessor;
 #endif

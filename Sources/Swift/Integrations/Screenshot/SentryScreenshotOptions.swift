@@ -1,13 +1,13 @@
 import Foundation
 
 @objcMembers
-public class SentryViewScreenshotOptions: NSObject, SentryRedactOptions {
+public final class SentryViewScreenshotOptions: NSObject, SentryRedactOptions {
     /**
      * Default values for the screenshot options.
      *
      * - Note: These values are used to ensure the different initializers use the same default values.
      */
-    public class DefaultValues {
+    public final class DefaultValues {
         public static let enableViewRendererV2: Bool = true
         public static let enableFastViewRendering: Bool = false
         

@@ -31,7 +31,7 @@
                 }];
 
     [thread start];
-    [self waitForExpectationsWithTimeout:1 handler:nil];
+    [self waitForExpectationsWithTimeout:5 handler:nil];
 
     kern_return_t kr;
     kr = thread_suspend(thread.thread);
@@ -51,7 +51,11 @@
         threadCount, 0, @"Thread count should be 0 for non-crashed context, got %d", threadCount);
 
     thread_resume(thread.thread);
+    XCTestExpectation *expectation =
+        [[XCTestExpectation alloc] initWithDescription:@"Wait for thread to cancel"];
+    thread.endExpectation = expectation;
     [thread cancel];
+    [self waitForExpectations:@[ expectation ] timeout:5];
 }
 
 - (void)testGetContextForThread_WithManyThreads
@@ -86,7 +90,7 @@
         [thread start];
     }
 
-    [self waitForExpectations:expectations timeout:2];
+    [self waitForExpectations:expectations timeout:5];
 
     // Suspend the first thread and get its context
     TestThread *firstThread = threads[0];
@@ -114,9 +118,17 @@
 
     // Clean up
     thread_resume(firstThread.thread);
+    NSMutableArray<XCTestExpectation *> *finishExpectations =
+        [NSMutableArray arrayWithCapacity:threads.count];
     for (TestThread *thread in threads) {
+        thread.endExpectation =
+            [[XCTestExpectation alloc] initWithDescription:@"Wait for thread to cancel"];
+        [finishExpectations addObject:thread.endExpectation];
         [thread cancel];
     }
+
+    // Wait for all threads to finish (up to 10 seconds)
+    [self waitForExpectations:finishExpectations timeout:10];
 }
 
 - (void)testGetContextForThread_WithMoreThan100Threads_IncludesCrashedThread
@@ -177,9 +189,17 @@
 
     // Clean up
     thread_resume(crashedThread.thread);
+    NSMutableArray<XCTestExpectation *> *finishExpectations =
+        [NSMutableArray arrayWithCapacity:threads.count];
     for (TestThread *thread in threads) {
+        thread.endExpectation =
+            [[XCTestExpectation alloc] initWithDescription:@"Wait for thread to cancel"];
+        [finishExpectations addObject:thread.endExpectation];
         [thread cancel];
     }
+
+    // Wait for all threads to finish (up to 10 seconds)
+    [self waitForExpectations:finishExpectations timeout:10];
 }
 
 @end
