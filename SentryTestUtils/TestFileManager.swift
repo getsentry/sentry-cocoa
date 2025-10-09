@@ -1,8 +1,8 @@
 import _SentryPrivate
 import Foundation
-@_spi(Private) import Sentry
+@_spi(Private) @testable import Sentry
 
-public class TestFileManager: SentryFileManager {
+@_spi(Private) public class TestFileManager: SentryFileManager {
     var timestampLastInForeground: Date?
     var readTimestampLastInForegroundInvocations: Int = 0
     var storeTimestampLastInForegroundInvocations: Int = 0

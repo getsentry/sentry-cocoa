@@ -9,7 +9,7 @@ import Foundation
 /// will have no effect, nor will `SentrySDK.startProfiler()` or `SentrySDK.stopProfiler()`.
 /// - note: Profiling is automatically disabled if a thread sanitizer is attached.
 @objcMembers
-public class SentryProfileOptions: NSObject {
+public final class SentryProfileOptions: NSObject {
     /// Different modes for starting and stopping the profiler.
     @objc public enum SentryProfileLifecycle: Int {
         /// Profiling is controlled manually, and is independent of transactions & spans. Developers

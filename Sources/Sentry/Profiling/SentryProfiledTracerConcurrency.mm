@@ -24,12 +24,13 @@
 #    import "SentrySamplerDecision.h"
 #    import "SentryTraceProfiler.h"
 #    import "SentryTracer+Private.h"
+#    import "SentryTracerConfiguration.h"
 #    import "SentryTransaction.h"
 
 #    if SENTRY_HAS_UIKIT
 #        import "SentryAppStartMeasurement.h"
 #        import "SentryFramesTracker.h"
-#        import "SentryScreenFrames.h"
+#        import "SentryProfilingScreenFramesHelper.h"
 #    endif // SENTRY_HAS_UIKIT
 
 /**
@@ -236,8 +237,8 @@ SentryProfiler *_Nullable sentry_profilerForFinishedTracer(SentryId *internalTra
     _unsafe_cleanUpTraceProfiler(profiler, tracerKey);
 
 #    if SENTRY_HAS_UIKIT
-    profiler.screenFrameData =
-        [SentryDependencyContainer.sharedInstance.framesTracker.currentFrames copy];
+    profiler.screenFrameData = [SentryProfilingScreenFramesHelper
+        copyScreenFrames:SentryDependencyContainer.sharedInstance.framesTracker.currentFrames];
     SENTRY_LOG_DEBUG(
         @"Grabbing copy of frames tracker screen frames data to attach to profiler: %@.",
         profiler.screenFrameData);

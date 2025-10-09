@@ -120,9 +120,6 @@ public struct SentrySDKWrapper {
         options.enableWatchdogTerminationTracking = !isUITest && !isBenchmarking && !SentrySDKOverrides.Performance.disableWatchdogTracking.boolValue
 
         options.enableAutoPerformanceTracing = !isBenchmarking && !SentrySDKOverrides.Performance.disablePerformanceTracing.boolValue
-      #if !SDK_V9
-        options.enableTracing = !isBenchmarking && !SentrySDKOverrides.Tracing.disableTracing.boolValue
-      #endif // !SDK_V9
 
         options.enableNetworkTracking = !SentrySDKOverrides.Networking.disablePerformanceTracking.boolValue
         options.enableCaptureFailedRequests = !SentrySDKOverrides.Networking.disableFailedRequestTracking.boolValue
@@ -135,9 +132,6 @@ public struct SentrySDKWrapper {
         options.enableCrashHandler = !SentrySDKOverrides.Other.disableCrashHandling.boolValue
         options.enablePersistingTracesWhenCrashing = true
         options.enableTimeToFullDisplayTracing = !SentrySDKOverrides.Performance.disableTimeToFullDisplayTracing.boolValue
-      #if !SDK_V9
-        options.enablePerformanceV2 = !SentrySDKOverrides.Performance.disablePerformanceV2.boolValue
-      #endif
         options.failedRequestStatusCodes = [ HttpStatusCodeRange(min: 400, max: 599) ]
 
     #if targetEnvironment(simulator)

@@ -288,17 +288,6 @@ NS_SWIFT_NAME(Options)
  */
 @property (nonatomic, assign) BOOL enableAutoPerformanceTracing;
 
-#if !SDK_V9
-/**
- * We're working to update our Performance product offering in order to be able to provide better
- * insights and highlight specific actions you can take to improve your mobile app's overall
- * performance. The performanceV2 option changes the following behavior: The app start duration will
- * now finish when the first frame is drawn instead of when the OS posts the
- * UIWindowDidBecomeVisibleNotification. This change will be the default in the next major version.
- */
-@property (nonatomic, assign) BOOL enablePerformanceV2;
-#endif // !SDK_V9
-
 /**
  * @warning This is an experimental feature and may still have bugs.
  *
@@ -417,17 +406,6 @@ NS_SWIFT_NAME(Options)
  * @note The default is @c YES .
  */
 @property (nonatomic, assign) BOOL enableFileIOTracing;
-
-#if !SDK_V9
-/**
- * Indicates whether tracing should be enabled.
- * @discussion Enabling this sets @c tracesSampleRate to @c 1 if both @c tracesSampleRate and
- * @c tracesSampler are @c nil. Changing either @c tracesSampleRate or @c tracesSampler to a value
- * other then @c nil will enable this in case this was never changed before.
- */
-@property (nonatomic)
-    BOOL enableTracing DEPRECATED_MSG_ATTRIBUTE("Use tracesSampleRate or tracesSampler instead");
-#endif // !SDK_V9
 
 /**
  * Indicates the percentage of the tracing data that is collected.
@@ -825,12 +803,6 @@ typedef void (^SentryProfilingConfigurationBlock)(SentryProfileOptions *_Nonnull
 /**
  * A block that can be defined that receives a user feedback configuration object to modify.
  * @warning This is an experimental feature and may still have bugs.
- * @note This is unrelated to @c SentrySDK.captureUserFeedback , which is the deprecated method of
- * submitting user feedback you've already gathered via your own UI (see
- * https://docs.sentry.io/platforms/apple/user-feedback/#user-feedback-api). The new strategy uses
- * either this block to configure a widget and UI form to gather feedback, or directly submits
- * feedback you've gathered using your own UI by calling the method @c SentrySDK.captureFeedback
- * (se https://docs.sentry.io/platforms/apple/user-feedback/configuration/).
  * @note User feedback widget is only available for iOS 13 or later.
  */
 @property (nonatomic, copy, nullable)

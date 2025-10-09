@@ -12,7 +12,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryThread
 
-- (instancetype)initWithThreadId:(NSNumber *)threadId
+- (instancetype)initWithThreadId:(nullable NSNumber *)threadId
 {
     self = [super init];
     if (self) {

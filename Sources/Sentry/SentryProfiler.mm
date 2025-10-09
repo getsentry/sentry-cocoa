@@ -4,7 +4,7 @@
 #    import "SentryClient+Private.h"
 #    import "SentryContinuousProfiler.h"
 #    import "SentryDependencyContainer.h"
-#    import "SentryFileManager.h"
+#    import "SentryFileManagerHelper.h"
 #    import "SentryFramesTracker.h"
 #    import "SentryHub+Private.h"
 #    import "SentryInternalDefines.h"
@@ -18,7 +18,6 @@
 #    import "SentryProfilingSwiftHelpers.h"
 #    import "SentrySDK+Private.h"
 #    import "SentrySamplingProfiler.hpp"
-#    import "SentryScreenFrames.h"
 #    import "SentryTime.h"
 #    import "SentryTracer+Private.h"
 

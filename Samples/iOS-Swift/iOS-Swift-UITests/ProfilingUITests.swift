@@ -6,29 +6,13 @@ import XCTest
 
 class ProfilingUITests: BaseUITest {
     override var automaticallyLaunchAndTerminateApp: Bool { false }
-
-    func testAppLaunchesWithTraceProfiler() throws {
-        guard #available(iOS 16, *) else {
-            throw XCTSkip("Only run for latest iOS version we test; we've had issues with prior versions in SauceLabs")
-        }
-
-        try performTest(profileType: .trace)
-    }
-    
-    func testAppLaunchesWithContinuousProfilerV1() throws {
-        guard #available(iOS 16, *) else {
-            throw XCTSkip("Only run for latest iOS version we test; we've had issues with prior versions in SauceLabs")
-        }
-
-        try performTest(profileType: .continuous)
-    }
     
     func testAppLaunchesWithContinuousProfilerV2TraceLifecycle() throws {
         guard #available(iOS 16, *) else {
             throw XCTSkip("Only run for latest iOS version we test; we've had issues with prior versions in SauceLabs")
         }
 
-        try performTest(profileType: .ui, lifecycle: .trace)
+        try performTest(lifecycle: .trace)
     }
     
     func testAppLaunchesWithContinuousProfilerV2ManualLifeCycle() throws {
@@ -36,7 +20,7 @@ class ProfilingUITests: BaseUITest {
             throw XCTSkip("Only run for latest iOS version we test; we've had issues with prior versions in SauceLabs")
         }
 
-        try performTest(profileType: .ui, lifecycle: .manual)
+        try performTest(lifecycle: .manual)
     }
     
     /**
@@ -131,18 +115,12 @@ extension ProfilingUITests {
         app.buttons["io.sentry.ios-swift.ui-test.button.stop-continuous-profiler"].afterWaitingForExistence("Couldn't find button to stop continuous profiler").tap()
     }
 
-    enum ProfilingType {
-        case trace
-        case continuous // aka "continuous beta"
-        case ui // aka "continuous v2"
+    func performTest(lifecycle: SentryProfileOptions.SentryProfileLifecycle? = nil) throws {
+        try launchAndConfigureSubsequentLaunches(shouldProfileThisLaunch: false, shouldProfileNextLaunch: true, lifecycle: lifecycle)
+        try launchAndConfigureSubsequentLaunches(terminatePriorSession: true, shouldProfileThisLaunch: true, shouldProfileNextLaunch: false, lifecycle: lifecycle)
     }
 
-    func performTest(profileType: ProfilingType, lifecycle: SentryProfileOptions.SentryProfileLifecycle? = nil) throws {
-        try launchAndConfigureSubsequentLaunches(shouldProfileThisLaunch: false, shouldProfileNextLaunch: true, profileType: profileType, lifecycle: lifecycle)
-        try launchAndConfigureSubsequentLaunches(terminatePriorSession: true, shouldProfileThisLaunch: true, shouldProfileNextLaunch: false, profileType: profileType, lifecycle: lifecycle)
-    }
-
-    fileprivate func setAppLaunchParameters(_ profileType: ProfilingUITests.ProfilingType, _ lifecycle: SentryProfileOptions.SentryProfileLifecycle?, _ shouldProfileNextLaunch: Bool) {
+    fileprivate func setAppLaunchParameters(_ lifecycle: SentryProfileOptions.SentryProfileLifecycle?, _ shouldProfileNextLaunch: Bool) {
         app.launchArguments.append(contentsOf: [
             // these help avoid other profiles that'd be taken automatically, that interfere with the checking we do for the assertions later in the tests
             SentrySDKOverrides.Other.disableSwizzling.rawValue,
@@ -156,23 +134,15 @@ extension ProfilingUITests {
             // override full chunk completion before stoppage introduced in https://github.com/getsentry/sentry-cocoa/pull/4214
             SentrySDKOverrides.Profiling.immediateStop.rawValue
         ])
-        
-        switch profileType {
-        case .ui:
-            app.launchEnvironment[SentrySDKOverrides.Profiling.sessionSampleRate.rawValue] = "1"
-            switch lifecycle {
-            case .none:
-                fatalError("Misconfigured test case. Must provide a lifecycle for UI profiling.")
-            case .trace:
-                break
-            case .manual:
-                app.launchArguments.append(SentrySDKOverrides.Profiling.manualLifecycle.rawValue)
-            }
-        case .continuous:
-            app.launchArguments.append(SentrySDKOverrides.Profiling.disableUIProfiling.rawValue)
+
+        app.launchEnvironment[SentrySDKOverrides.Profiling.sessionSampleRate.rawValue] = "1"
+        switch lifecycle {
+        case .none:
+            fatalError("Misconfigured test case. Must provide a lifecycle for UI profiling.")
         case .trace:
-            app.launchArguments.append(SentrySDKOverrides.Profiling.disableUIProfiling.rawValue)
-            app.launchEnvironment[SentrySDKOverrides.Profiling.sampleRate.rawValue] = "1"
+            break
+        case .manual:
+            app.launchArguments.append(SentrySDKOverrides.Profiling.manualLifecycle.rawValue)
         }
         
         if !shouldProfileNextLaunch {
@@ -192,7 +162,6 @@ extension ProfilingUITests {
         terminatePriorSession: Bool = false,
         shouldProfileThisLaunch: Bool,
         shouldProfileNextLaunch: Bool,
-        profileType: ProfilingType,
         lifecycle: SentryProfileOptions.SentryProfileLifecycle?
     ) throws {
         if terminatePriorSession {
@@ -200,7 +169,7 @@ extension ProfilingUITests {
             app = newAppSession()
         }
         
-        setAppLaunchParameters(profileType, lifecycle, shouldProfileNextLaunch)
+        setAppLaunchParameters(lifecycle, shouldProfileNextLaunch)
 
         launchApp(activateBeforeLaunch: false)
         goToProfiling()
@@ -217,14 +186,10 @@ extension ProfilingUITests {
             return
         }
 
-        if profileType == .trace {
-            retrieveLastProfileData()
-        } else {
-            if profileType == .continuous || (profileType == .ui && lifecycle == .manual) {
-                stopContinuousProfiler()
-            }
-            retrieveFirstProfileChunkData()
+        if lifecycle == .manual {
+            stopContinuousProfiler()
         }
+        retrieveFirstProfileChunkData()
 
         try assertProfileContents()
     }

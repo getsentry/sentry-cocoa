@@ -2,6 +2,42 @@
 
 ## Unreleased
 
+### Breaking Changes
+
+- Moves `SentryEventDecoder` to SPI (#6365)
+- Makes `PreviewRedactOptions`, `SentryProfileOptions`, `SentryRedactViewHelper`, `SentryViewScreenshotOptions`, `SentryReplayOptions`, `SentryUserFeedbackConfiguration`, `SentryUserFeedbackFormConfiguration`, `SentryUserFeedbackThemeConfiguration`, `SentryUserFeedbackWidgetConfiguration`, `SentryFeedback`, and `SentryExperimentalOptions` `final` (#6365)
+- Removes Decodable conformances from the public API of model classes (#5691)
+- Removes unused SentryLogLevel (#5591)
+- Removes deprecated getStoreEndpoint (#5591)
+- Removes deprecated useSpan function (#5591)
+- Removes deprecated user feedback API, this is replaced with the new feedback API (#5591)
+- Removes `enablePerformanceV2` option and makes this the default. The app start duration will now finish when the first frame is drawn instead of when the OS posts the UIWindowDidBecomeVisibleNotification. (#6008)
+- Removes enableTracing property from SentryOptions (#5694)
+
+### Features
+
+- Add SentryDistribution as Swift Package Manager target (#6149)
+
+### Fixes
+
+- Fixes warnings about minimum OS version being lower than Xcode supported version (#5591)
+- Fix rendering method for fast view rendering (#6360)
+
+### Improvements
+
+- Replace deprecated SCNetworkReachability with NWPathMonitor (#6019)
+
+## 8.56.2
+
+### Fixes
+
+- Fix crash from null UIApplication in SwiftUI apps (#6264)
+
+## 8.56.1
+
+> [!Warning]
+> This version can cause runtime crashes because the `UIApplication.sharedApplication`/`NSApplication.sharedApplication` is not yet available during SDK initialization, due to the changes in [PR #5900](https://github.com/getsentry/sentry-cocoa/pull/5900), released in [8.56.0](https://github.com/getsentry/sentry-cocoa/releases/tag/8.56.0).
+
 ### Fixes
 
 - Fix potential app launch hang caused by the SentrySDK (#6181)
@@ -9,6 +45,9 @@
 - Fix dynamic selector crash in SentryReplayRecording (#6211)
 
 ## 8.56.0
+
+> [!Warning]
+> This version can cause runtime crashes because the `UIApplication.sharedApplication`/`NSApplication.sharedApplication` is not yet available during SDK initialization, due to the changes in [PR #5900](https://github.com/getsentry/sentry-cocoa/pull/5900), released in [8.56.0](https://github.com/getsentry/sentry-cocoa/releases/tag/8.56.0).
 
 ### Features
 

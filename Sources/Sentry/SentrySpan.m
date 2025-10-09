@@ -1,5 +1,6 @@
 #import "SentryBaggage.h"
 #import "SentryCrashThread.h"
+#import "SentryDefaultThreadInspector.h"
 #import "SentryDependencyContainer.h"
 #import "SentryFrame.h"
 #import "SentryInternalDefines.h"
@@ -12,7 +13,6 @@
 #import "SentrySpanContext.h"
 #import "SentrySpanId.h"
 #import "SentrySwift.h"
-#import "SentryThreadInspector.h"
 #import "SentryTime.h"
 #import "SentryTraceContext.h"
 #import "SentryTraceHeader.h"
@@ -20,7 +20,6 @@
 
 #if SENTRY_HAS_UIKIT
 #    import <SentryFramesTracker.h>
-#    import <SentryScreenFrames.h>
 #endif // SENTRY_HAS_UIKIT
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED

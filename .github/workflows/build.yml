@@ -76,8 +76,6 @@ jobs:
         include:
           - scheme: macOS-Swift
             config: Debug
-          - scheme: iOS13-Swift
-            config: Debug
           - scheme: watchOS-Swift WatchKit App
             config: Debug
           - scheme: macOS-SwiftUI
@@ -98,6 +96,8 @@ jobs:
             config: DebugV9
           - scheme: iOS-ObjectiveC
             config: DebugV9
+          - scheme: DistributionSample
+            config: Debug
 
     steps:
       - uses: actions/checkout@v5
@@ -128,6 +128,26 @@ jobs:
       - name: Debug Xcode environment
         if: ${{ failure() || cancelled() }}
         run: ./scripts/ci-diagnostics.sh
+
+  build-distribution:
+    name: Build the distribution framework
+    runs-on: macos-15
+    needs: files-changed
+    steps:
+      - uses: actions/checkout@v5
+
+      - run: ./scripts/ci-select-xcode.sh 16.4
+        shell: sh
+      - run: rm -r Sentry.xcodeproj && rm -r Sentry.xcworkspace
+      - run: set -o pipefail && NSUnbufferedIO=YES xcodebuild build -scheme SentryDistribution -sdk iphoneos -destination 'generic/platform=iphoneos' | tee raw-build-output-spm.log | xcbeautify
+        shell: sh
+      - name: Upload SPM Build Logs
+        uses: actions/upload-artifact@v4
+        if: ${{ failure() || cancelled() }}
+        with:
+          name: raw-build-output-spm
+          path: |
+            raw-build-output-spm.log
 
   build-spm:
     name: Build with SPM
@@ -340,6 +360,7 @@ jobs:
         files-changed,
         ios-swift-release,
         build-sample,
+        build-distribution,
         build-spm,
         build-v9,
         check-debug-without-UIKit,

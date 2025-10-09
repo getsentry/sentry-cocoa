@@ -2,7 +2,6 @@
 #import "SentryByteCountFormatter.h"
 #import "SentryClient+Private.h"
 #import "SentryDependencyContainer.h"
-#import "SentryFileManager.h"
 #import "SentryFrame.h"
 #import "SentryHub+Private.h"
 #import "SentryInternalDefines.h"
@@ -17,14 +16,13 @@
 #import "SentryStacktrace.h"
 #import "SentrySwift.h"
 #import "SentryThread.h"
-#import "SentryThreadInspector.h"
 #import "SentryTracer.h"
 
 @interface SentryFileIOTracker ()
 
 @property (nonatomic, assign) BOOL isEnabled;
 @property (nonatomic, strong) NSMutableSet<NSData *> *processingData;
-@property (nonatomic, strong) SentryThreadInspector *threadInspector;
+@property (nonatomic, strong) id<SentryThreadInspector> threadInspector;
 @property (nonatomic, strong) id<SentryProcessInfoSource> processInfoWrapper;
 
 @end
@@ -44,7 +42,7 @@ NSString *const SENTRY_TRACKING_COUNTER_KEY = @"SENTRY_TRACKING_COUNTER_KEY";
     return SentryDependencyContainer.sharedInstance.fileIOTracker;
 }
 
-- (instancetype)initWithThreadInspector:(SentryThreadInspector *)threadInspector
+- (instancetype)initWithThreadInspector:(id<SentryThreadInspector>)threadInspector
                      processInfoWrapper:(id<SentryProcessInfoSource>)processInfoWrapper
 {
     if (self = [super init]) {
@@ -247,7 +245,7 @@ NSString *const SENTRY_TRACKING_COUNTER_KEY = @"SENTRY_TRACKING_COUNTER_KEY";
         return;
     }
 
-    SentryThreadInspector *threadInspector = self.threadInspector;
+    id<SentryThreadInspector> threadInspector = self.threadInspector;
     SentryStacktrace *stackTrace = [threadInspector stacktraceForCurrentThreadAsyncUnsafe];
 
     NSArray *frames = [stackTrace.frames

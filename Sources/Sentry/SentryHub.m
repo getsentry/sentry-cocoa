@@ -2,7 +2,6 @@
 #import "SentryDependencyContainer.h"
 #import "SentryEnvelopeItemHeader.h"
 #import "SentryEvent+Private.h"
-#import "SentryFileManager.h"
 #import "SentryHub+Private.h"
 #import "SentryInstallation.h"
 #import "SentryIntegrationProtocol.h"
@@ -21,6 +20,7 @@
 #import "SentrySwift.h"
 #import "SentryTraceOrigin.h"
 #import "SentryTracer.h"
+#import "SentryTracerConfiguration.h"
 #import "SentryTransaction.h"
 #import "SentryTransactionContext+Private.h"
 
@@ -535,16 +535,6 @@ NS_ASSUME_NONNULL_BEGIN
     }
     return SentryId.empty;
 }
-
-#if !SDK_V9
-- (void)captureUserFeedback:(SentryUserFeedback *)userFeedback
-{
-    SentryClient *client = self.client;
-    if (client != nil) {
-        [client captureUserFeedback:userFeedback];
-    }
-}
-#endif // !SDK_V9
 
 - (void)captureFeedback:(SentryFeedback *)feedback
 {

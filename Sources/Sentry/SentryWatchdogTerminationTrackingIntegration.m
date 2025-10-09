@@ -3,7 +3,6 @@
 #if SENTRY_HAS_UIKIT
 #    import "SentryScope+Private.h"
 #    import <SentryANRTrackerV1.h>
-#    import <SentryAppStateManager.h>
 #    import <SentryClient+Private.h>
 #    import <SentryDependencyContainer.h>
 #    import <SentryHub.h>
@@ -23,7 +22,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) SentryWatchdogTerminationTracker *tracker;
 @property (nonatomic, strong) id<SentryANRTracker> anrTracker;
 @property (nullable, nonatomic, copy) NSString *testConfigurationFilePath;
-@property (nonatomic, strong) SentryAppStateManager *appStateManager;
+@property (nonatomic, strong) id<SentryAppStateManager> appStateManager;
 
 @end
 
@@ -57,7 +56,7 @@ NS_ASSUME_NONNULL_BEGIN
                                               attributes:attributes];
 
     SentryFileManager *fileManager = [[[SentrySDKInternal currentHub] getClient] fileManager];
-    SentryAppStateManager *appStateManager =
+    id<SentryAppStateManager> appStateManager =
         [SentryDependencyContainer sharedInstance].appStateManager;
     SentryCrashWrapper *crashWrapper = [SentryDependencyContainer sharedInstance].crashWrapper;
     SentryWatchdogTerminationLogic *logic =

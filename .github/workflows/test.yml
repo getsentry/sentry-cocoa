@@ -92,11 +92,136 @@ jobs:
         if: failure()
         run: ./scripts/ci-diagnostics.sh
 
+  distribution-tests:
+    name: Distribution Tests
+    runs-on: macos-15
+    needs: files-changed
+    steps:
+      - uses: actions/checkout@v5
+      - name: Prepare Package.swift
+        uses: ./.github/actions/prepare-package.swift
+        with:
+          is-pr: ${{ github.event_name == 'pull_request' }}
+          change-path: false
+          remove-duplicate: true
+      - run: rm -r Sentry.xcodeproj && rm -r Sentry.xcworkspace
+      - run: set -o pipefail && NSUnbufferedIO=YES SKIP_BINARIES=1 xcodebuild test -scheme Sentry-Package -sdk iphonesimulator -destination 'platform=iOS Simulator,OS=18.4,name=iPhone 16 Pro' | tee raw-test-output-distribution.log | xcbeautify --preserve-unbeautified
+        shell: sh
+      - name: Upload Distribution Test Logs
+        uses: actions/upload-artifact@v4
+        if: ${{ failure() || cancelled() }}
+        with:
+          name: raw-test-output-distribution
+          path: |
+            raw-test-output-distribution.log
+
+  # This matrix runs only the unit tests requiring the test server.
+  # We do this to speed up the other unit test jobs and to avoid running the
+  # test server with potential side effects in GH actions for all unit tests.
+  # We don't run this matrix for all different OS versions, because the chances
+  # of a bug solely on a specific OS version is minimal.
+  unit-tests-with-test-server:
+    name: Unit with Test Server ${{matrix.name}}
+    runs-on: ${{matrix.runs-on}}
+    timeout-minutes: 20
+    needs: build-test-server
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Running the tests with simulators is incredibly flaky. Our assumption is that simulators might have difficulties
+          # with communicating with the test server in CI.
+          # We are going to add these back in https://github.com/getsentry/sentry-cocoa/issues/6361
+          - name: macOS 15
+            runs-on: macos-15
+            platform: "macOS"
+            xcode: "16.4"
+            test-destination-os: "15.0"
+
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/download-artifact@v5
+        with:
+          name: test-server
+
+      - name: Start Test Server
+        run: ./scripts/start-test-server.sh
+      - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
+
+      # Note: We don't install Slather or gather code coverage for this job because it only runs
+      # the SentryTestServerTests target, which contains minimal tests that don't significantly
+      # contribute to overall code coverage metrics. The main unit-tests job handles comprehensive
+      # code coverage reporting.
+
+      # We split building and running tests in two steps so we know how long running the tests takes.
+      - name: Build tests
+        id: build_tests
+        run: |
+          ./scripts/sentry-xcodebuild.sh \
+            --platform ${{matrix.platform}} \
+            --os ${{matrix.test-destination-os}} \
+            --ref ${{ github.ref_name }} \
+            --command build-for-testing \
+            --device "${{matrix.device}}" \
+            --configuration TestCI \
+            --scheme Sentry \
+            --test-plan Sentry_TestServer
+
+      - name: Run tests
+        run: |
+          ./scripts/sentry-xcodebuild.sh \
+            --platform ${{matrix.platform}} \
+            --os ${{matrix.test-destination-os}} \
+            --ref ${{ github.ref_name }} \
+            --command test-without-building \
+            --device "${{matrix.device}}" \
+            --configuration TestCI \
+            --scheme Sentry \
+            --test-plan Sentry_TestServer
+
+      - name: Archiving DerivedData Logs
+        uses: actions/upload-artifact@v4
+        if: steps.build_tests.outcome == 'failure'
+        with:
+          name: derived-data-test-server-${{matrix.platform}}-xcode-${{matrix.xcode}}
+          path: |
+            /Users/runner/Library/Developer/Xcode/DerivedData/**/Logs/**
+
+      - name: Archiving Raw Logs
+        uses: actions/upload-artifact@v4
+        if: ${{ failure() || cancelled() }}
+        with:
+          name: raw-output-test-server-${{matrix.platform}}-xcode-${{matrix.xcode}}
+          path: |
+            raw-build-output.log
+            raw-build-for-testing-output.log
+            raw-test-output.log
+
+      - name: Archiving Crash Logs
+        uses: actions/upload-artifact@v4
+        if: ${{ failure() || cancelled() }}
+        with:
+          name: crash-logs-test-server-${{matrix.platform}}-xcode-${{matrix.xcode}}
+          path: |
+            ~/Library/Logs/DiagnosticReports/**
+
+      - name: Run CI Diagnostics
+        if: ${{ failure() || cancelled() }}
+        run: ./scripts/ci-diagnostics.sh
+
+      - name: Store screenshot
+        uses: ./.github/actions/capture-screenshot
+        if: ${{ failure() || cancelled() }}
+        with:
+          suffix: ${{ matrix.platform }}-xcode-${{ matrix.xcode }}
+
   unit-tests:
     name: Unit ${{matrix.name}}
     runs-on: ${{matrix.runs-on}}
     timeout-minutes: 20
-    needs: build-test-server
+    needs: files-changed
+    if: needs.files-changed.outputs.run_unit_tests_for_prs == 'true'
 
     strategy:
       fail-fast: false
@@ -136,8 +261,8 @@ jobs:
           - name: iOS 26 Sentry
             runs-on: macos-26
             platform: "iOS"
-            xcode: "26.0"
-            test-destination-os: "latest"
+            xcode: "26.0.1"
+            test-destination-os: "26.0"
             device: "iPhone 17 Pro"
             scheme: "Sentry"
 
@@ -165,8 +290,8 @@ jobs:
           - name: macOS 26 Sentry
             runs-on: macos-26
             platform: "macOS"
-            xcode: "26.0"
-            test-destination-os: "latest"
+            xcode: "26.0.1"
+            test-destination-os: "26.0"
             scheme: "Sentry"
 
           # Catalyst. We test the latest version, as the risk something breaking on Catalyst and not
@@ -221,19 +346,13 @@ jobs:
           - name: tvOS 26 Sentry
             runs-on: macos-26
             platform: "tvOS"
-            xcode: "26.0"
-            test-destination-os: "latest"
+            xcode: "26.0.1"
+            test-destination-os: "26.0"
             device: "Apple TV"
             scheme: "Sentry"
 
     steps:
       - uses: actions/checkout@v5
-      - uses: actions/download-artifact@v5
-        with:
-          name: test-server
-
-      - name: Start Test Server
-        run: ./scripts/start-test-server.sh
       - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
 
       - name: Install Slather
@@ -353,7 +472,9 @@ jobs:
       [
         files-changed,
         build-test-server,
+        distribution-tests,
         unit-tests,
+        unit-tests-with-test-server,
       ]
     name: Unit Tests
     # This is necessary since a failed/skipped dependent job would cause this job to be skipped

@@ -1,16 +1,13 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
-#if SDK_V9
 final class UserDecodable: User {
     @available(*, deprecated)
     convenience public init(from decoder: any Decoder) throws {
         try self.init(decodedFrom: decoder)
     }
 }
-#else
-typealias UserDecodable = User
-#endif
+
 extension UserDecodable: Decodable {
     
     enum CodingKeys: String, CodingKey {
@@ -23,13 +20,6 @@ extension UserDecodable: Decodable {
         case geo
         case data
     }
-    
-    #if !SDK_V9
-    @available(*, deprecated)
-    required convenience public init(from decoder: any Decoder) throws {
-        try self.init(decodedFrom: decoder)
-    }
-    #endif
     
      @available(*, deprecated, message: """
      This method is only deprecated to silence the deprecation warning of the property \

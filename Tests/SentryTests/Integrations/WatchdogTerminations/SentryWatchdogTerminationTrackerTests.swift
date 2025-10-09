@@ -57,7 +57,7 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
         }
         
         func getSut(fileManager: SentryFileManager) throws -> SentryWatchdogTerminationTracker {
-            let appStateManager = SentryAppStateManager(
+            let appStateManager = SentryDefaultAppStateManager(
                 options: options,
                 crashWrapper: crashWrapper,
                 fileManager: fileManager,
