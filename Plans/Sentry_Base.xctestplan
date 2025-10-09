@@ -41,6 +41,7 @@
         "SentryProfilerSwiftTests\/testConcurrentSpansWithTimeout()",
         "SentryReachabilityTest\/testMultipleReachabilityObservers",
         "SentrySDKIntegrationTestsBase",
+        "SentrySDKInternalTests\/testResumeAndPauseAppHangTracking()",
         "SentrySDKTests\/testStartOnTheMainThread()",
         "SentrySessionGeneratorTests\/testSendSessions()",
         "SentrySubClassFinderTests\/testActOnSubclassesOfViewController()",

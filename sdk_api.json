@@ -40398,6 +40398,13 @@
       },
       {
         "kind": "Import",
+        "name": "Network",
+        "printedName": "Network",
+        "declKind": "Import",
+        "moduleName": "Sentry"
+      },
+      {
+        "kind": "Import",
         "name": "ObjectiveC",
         "printedName": "ObjectiveC",
         "declKind": "Import",
@@ -57757,48 +57764,6 @@
             "declKind": "Accessor",
             "usr": "s:SC21SENTRY_HAS_METRIC_KITs5Int32Vvg",
             "mangledName": "$sSC21SENTRY_HAS_METRIC_KITs5Int32Vvg",
-            "moduleName": "Sentry",
-            "declAttributes": [
-              "Transparent"
-            ],
-            "accessorKind": "get"
-          }
-        ]
-      },
-      {
-        "kind": "Var",
-        "name": "SENTRY_HAS_REACHABILITY",
-        "printedName": "SENTRY_HAS_REACHABILITY",
-        "children": [
-          {
-            "kind": "TypeNominal",
-            "name": "Int32",
-            "printedName": "Swift.Int32",
-            "usr": "s:s5Int32V"
-          }
-        ],
-        "declKind": "Var",
-        "usr": "c:@macro@SENTRY_HAS_REACHABILITY",
-        "moduleName": "Sentry",
-        "declAttributes": [
-          "Nonisolated"
-        ],
-        "accessors": [
-          {
-            "kind": "Accessor",
-            "name": "Get",
-            "printedName": "Get()",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Int32",
-                "printedName": "Swift.Int32",
-                "usr": "s:s5Int32V"
-              }
-            ],
-            "declKind": "Accessor",
-            "usr": "s:SC23SENTRY_HAS_REACHABILITYs5Int32Vvg",
-            "mangledName": "$sSC23SENTRY_HAS_REACHABILITYs5Int32Vvg",
             "moduleName": "Sentry",
             "declAttributes": [
               "Transparent"

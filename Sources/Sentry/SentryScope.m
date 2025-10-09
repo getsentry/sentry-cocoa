@@ -153,14 +153,6 @@ NS_ASSUME_NONNULL_BEGIN
     }
 }
 
-#if !SDK_V9
-- (void)useSpan:(SentrySpanCallback)callback
-{
-    id<SentrySpan> localSpan = [self span];
-    callback(localSpan);
-}
-#endif // !SDK_V9
-
 - (void)clear
 {
     // As we need to synchronize the accesses of the arrays and dictionaries and we use the
