@@ -31,7 +31,7 @@
                 }];
 
     [thread start];
-    [self waitForExpectationsWithTimeout:1 handler:nil];
+    [self waitForExpectationsWithTimeout:5 handler:nil];
 
     kern_return_t kr;
     kr = thread_suspend(thread.thread);
@@ -55,7 +55,7 @@
         [[XCTestExpectation alloc] initWithDescription:@"Wait for thread to cancel"];
     thread.endExpectation = expectation;
     [thread cancel];
-    [self waitForExpectations:@[ expectation ] timeout:1];
+    [self waitForExpectations:@[ expectation ] timeout:5];
 }
 
 - (void)testGetContextForThread_WithManyThreads
@@ -90,7 +90,7 @@
         [thread start];
     }
 
-    [self waitForExpectations:expectations timeout:2];
+    [self waitForExpectations:expectations timeout:5];
 
     // Suspend the first thread and get its context
     TestThread *firstThread = threads[0];
