@@ -70,21 +70,37 @@ class SentryUIRedactBuilderTests_SwiftUI: SentryUIRedactBuilderTests { // swiftl
         XCTAssertNil(region.color)
         XCTAssertEqual(region.type, .redact)
         XCTAssertCGSizeEqual(region.size, CGSize(width: 112.666, height: 24), accuracy: 0.01)
-        XCTAssertAffineTransformEqual(
-            region.transform,
-            CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 68.666, ty: 142.666),
-            accuracy: 0.01
-        )
+        if #available(iOS 18, *) {
+            XCTAssertAffineTransformEqual(
+                region.transform,
+                CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 68.666, ty: 144),
+                accuracy: 0.01
+            )
+        } else {
+            XCTAssertAffineTransformEqual(
+                region.transform,
+                CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 68.666, ty: 142.666),
+                accuracy: 0.01
+            )
+        }
 
         let region2 = try XCTUnwrap(regions.element(at: 1))
         XCTAssertNil(region2.color)
         XCTAssertEqual(region2.type, .clipOut)
         XCTAssertCGSizeEqual(region.size, CGSize(width: 112.666, height: 24), accuracy: 0.01)
-        XCTAssertAffineTransformEqual(
-            region2.transform,
-            CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 48.666, ty: 122.666),
-            accuracy: 0.01
-        )
+        if #available(iOS 18, *) {
+            XCTAssertAffineTransformEqual(
+                region2.transform,
+                CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 48.666, ty: 124),
+                accuracy: 0.01
+            )
+        } else {
+            XCTAssertAffineTransformEqual(
+                region2.transform,
+                CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 48.666, ty: 122.666),
+                accuracy: 0.01
+            )
+        }
 
         // Assert that there are no other regions
         XCTAssertEqual(regions.count, 2)
@@ -100,8 +116,8 @@ class SentryUIRedactBuilderTests_SwiftUI: SentryUIRedactBuilderTests { // swiftl
         let masked = createMaskedScreenshot(view: window, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: window, as: .image)
-        assertSnapshot(of: masked, as: .image)
+        assertSnapshot(of: window, as: .image, named: createTestDeviceOSBoundSnapshotName(index: 1))
+        assertSnapshot(of: masked, as: .image, named: createTestDeviceOSBoundSnapshotName(index: 2))
         try assertSwiftUITextRegions(regions: result)
     }
 
@@ -239,8 +255,8 @@ class SentryUIRedactBuilderTests_SwiftUI: SentryUIRedactBuilderTests { // swiftl
         let masked = createMaskedScreenshot(view: window, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: window, as: .image)
-        assertSnapshot(of: masked, as: .image)
+        assertSnapshot(of: window, as: .image, named: createTestDeviceOSBoundSnapshotName(index: 1))
+        assertSnapshot(of: masked, as: .image, named: createTestDeviceOSBoundSnapshotName(index: 2))
         try assertSwiftUILabelRegions(regions: result, expectText: true, expectImage: true)
     }
 
@@ -255,8 +271,8 @@ class SentryUIRedactBuilderTests_SwiftUI: SentryUIRedactBuilderTests { // swiftl
         let masked = createMaskedScreenshot(view: window, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: window, as: .image)
-        assertSnapshot(of: masked, as: .image)
+        assertSnapshot(of: window, as: .image, named: createTestDeviceOSBoundSnapshotName(index: 1))
+        assertSnapshot(of: masked, as: .image, named: createTestDeviceOSBoundSnapshotName(index: 2))
         try assertSwiftUILabelRegions(regions: result, expectText: true, expectImage: false)
     }
 
@@ -271,8 +287,8 @@ class SentryUIRedactBuilderTests_SwiftUI: SentryUIRedactBuilderTests { // swiftl
         let masked = createMaskedScreenshot(view: window, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: window, as: .image)
-        assertSnapshot(of: masked, as: .image)
+        assertSnapshot(of: window, as: .image, named: createTestDeviceOSBoundSnapshotName(index: 1))
+        assertSnapshot(of: masked, as: .image, named: createTestDeviceOSBoundSnapshotName(index: 2))
         try assertSwiftUILabelRegions(regions: result, expectText: false, expectImage: true)
     }
 
@@ -287,8 +303,8 @@ class SentryUIRedactBuilderTests_SwiftUI: SentryUIRedactBuilderTests { // swiftl
         let masked = createMaskedScreenshot(view: window, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: window, as: .image)
-        assertSnapshot(of: masked, as: .image)
+        assertSnapshot(of: window, as: .image, named: createTestDeviceOSBoundSnapshotName(index: 1))
+        assertSnapshot(of: masked, as: .image, named: createTestDeviceOSBoundSnapshotName(index: 2))
         try assertSwiftUILabelRegions(regions: result, expectText: false, expectImage: false)
     }
 
@@ -497,8 +513,8 @@ class SentryUIRedactBuilderTests_SwiftUI: SentryUIRedactBuilderTests { // swiftl
         let masked = createMaskedScreenshot(view: window, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: window, as: .image)
-        assertSnapshot(of: masked, as: .image)
+        assertSnapshot(of: window, as: .image, named: createTestDeviceOSBoundSnapshotName(index: 1))
+        assertSnapshot(of: masked, as: .image, named: createTestDeviceOSBoundSnapshotName(index: 2))
         try assertSwiftUIListRegions(regions: result, expectText: true)
     }
 
@@ -512,8 +528,8 @@ class SentryUIRedactBuilderTests_SwiftUI: SentryUIRedactBuilderTests { // swiftl
         let masked = createMaskedScreenshot(view: window, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: window, as: .image)
-        assertSnapshot(of: masked, as: .image)
+        assertSnapshot(of: window, as: .image, named: createTestDeviceOSBoundSnapshotName(index: 1))
+        assertSnapshot(of: masked, as: .image, named: createTestDeviceOSBoundSnapshotName(index: 2))
         try assertSwiftUIListRegions(regions: result, expectText: false)
     }
 
@@ -527,9 +543,9 @@ class SentryUIRedactBuilderTests_SwiftUI: SentryUIRedactBuilderTests { // swiftl
         let masked = createMaskedScreenshot(view: window, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: window, as: .image)
-        assertSnapshot(of: masked, as: .image)
-        try assertSwiftUIListRegions(regions: result, expectText: false)
+        assertSnapshot(of: window, as: .image, named: createTestDeviceOSBoundSnapshotName(index: 1))
+        assertSnapshot(of: masked, as: .image, named: createTestDeviceOSBoundSnapshotName(index: 2))
+        try assertSwiftUIListRegions(regions: result, expectText: true)
     }
 
     func testRedact_withSwiftUIList_withMaskAllTextDisabled_withMaskAllImagesDisabled_shouldNotRedactView() throws {
@@ -542,8 +558,8 @@ class SentryUIRedactBuilderTests_SwiftUI: SentryUIRedactBuilderTests { // swiftl
         let masked = createMaskedScreenshot(view: window, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: window, as: .image)
-        assertSnapshot(of: masked, as: .image)
+        assertSnapshot(of: window, as: .image, named: createTestDeviceOSBoundSnapshotName(index: 1))
+        assertSnapshot(of: masked, as: .image, named: createTestDeviceOSBoundSnapshotName(index: 2))
         try assertSwiftUIListRegions(regions: result, expectText: false)
     }
 
@@ -583,7 +599,8 @@ class SentryUIRedactBuilderTests_SwiftUI: SentryUIRedactBuilderTests { // swiftl
         let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: masked, as: .image)
+        assertSnapshot(of: rootView, as: .image, named: createTestDeviceOSBoundSnapshotName(index: 1))
+        assertSnapshot(of: masked, as: .image, named: createTestDeviceOSBoundSnapshotName(index: 2))
 
         // We should have at least two redact regions (label + decoration view)
         XCTAssertGreaterThanOrEqual(result.count, 2)
@@ -593,7 +610,7 @@ class SentryUIRedactBuilderTests_SwiftUI: SentryUIRedactBuilderTests { // swiftl
         XCTAssertTrue(result.contains(where: { $0.type == .redact && $0.size == decorationView.bounds.size }))
     }
 
-    // - MARK: - SwiftUI.Image Redaction
+    // - MARK: - SwiftUI.Image Redaction - SFSymbol
 
     private func setupSwiftUIImageFixture() -> UIWindow {
         let view = VStack {
@@ -643,7 +660,8 @@ class SentryUIRedactBuilderTests_SwiftUI: SentryUIRedactBuilderTests { // swiftl
         let masked = createMaskedScreenshot(view: window, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: masked, as: .image)
+        assertSnapshot(of: window, as: .image, named: createTestDeviceOSBoundSnapshotName(index: 1))
+        assertSnapshot(of: masked, as: .image, named: createTestDeviceOSBoundSnapshotName(index: 2))
         try assertSwiftUIImageRegions(regions: result)
     }
 
@@ -657,7 +675,8 @@ class SentryUIRedactBuilderTests_SwiftUI: SentryUIRedactBuilderTests { // swiftl
         let masked = createMaskedScreenshot(view: window, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: masked, as: .image)
+        assertSnapshot(of: window, as: .image, named: createTestDeviceOSBoundSnapshotName(index: 1))
+        assertSnapshot(of: masked, as: .image, named: createTestDeviceOSBoundSnapshotName(index: 2))
         XCTAssertEqual(result.count, 0)
     }
 
@@ -671,8 +690,162 @@ class SentryUIRedactBuilderTests_SwiftUI: SentryUIRedactBuilderTests { // swiftl
         let masked = createMaskedScreenshot(view: window, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: masked, as: .image)
+        assertSnapshot(of: window, as: .image, named: createTestDeviceOSBoundSnapshotName(index: 1))
+        assertSnapshot(of: masked, as: .image, named: createTestDeviceOSBoundSnapshotName(index: 2))
         try assertSwiftUIImageRegions(regions: result)
+    }
+
+    // - MARK: - SwiftUI.Image Redaction - UIImage
+
+    private func setupSwiftUIImageWithUIImageFixture() -> UIWindow {
+        let image = UIGraphicsImageRenderer(size: CGSize(width: 40, height: 40)).image { context in
+            UIColor.green.setFill()
+            context.fill(CGRect(x: 0, y: 0, width: 20, height: 20))
+            UIColor.purple.setFill()
+            context.fill(CGRect(x: 20, y: 0, width: 20, height: 20))
+            UIColor.blue.setFill()
+            context.fill(CGRect(x: 0, y: 20, width: 20, height: 20))
+            UIColor.orange.setFill()
+            context.fill(CGRect(x: 20, y: 20, width: 20, height: 20))
+        }
+
+        let view = VStack {
+            Image(uiImage: image)
+        }
+        return hostSwiftUIViewInWindow(view, frame: CGRect(x: 20, y: 20, width: 240, height: 320))
+
+        // View Hierarchy:
+        // ---------------
+        // == iOS 26 ==
+        // <UIWindow: 0x10731f640; frame = (0 0; 0 0); gestureRecognizers = <NSArray: 0x600000ce1260>; layer = <UIWindowLayer: 0x600001746b40>>
+        //   | <UITransitionView: 0x107626220; frame = (0 0; 0 0); autoresize = W+H; layer = <CALayer: 0x600000ce1d10>>
+        //   |    | <UIDropShadowView: 0x107626d20; frame = (0 0; 0 0); autoresize = W+H; layer = <CALayer: 0x600000ce2550>>
+        //   |    |    | <_TtGC7SwiftUI14_UIHostingViewGVS_6VStackVS_5Image__: 0x107623670; frame = (0 0; 0 0); autoresize = W+H; gestureRecognizers = <NSArray: 0x600000014a80>; backgroundColor = <UIDynamicSystemColor: 0x60000170e4c0; name = systemBackgroundColor>; layer = <CALayer: 0x600000ce83f0>>
+        //   |    |    |    | <SwiftUI.ImageLayer: 0x600000cec390> (layer)
+        //
+        // == iOS 18 & 17 & 16 ==
+        // <UIWindow: 0x12dd45860; frame = (20 20; 240 320); gestureRecognizers = <NSArray: 0x6000029a4c90>; layer = <UIWindowLayer: 0x6000029a4930>>
+        //   | <UITransitionView: 0x13dd2f3d0; frame = (0 0; 240 320); autoresize = W+H; layer = <CALayer: 0x600002658a40>>
+        //   |    | <UIDropShadowView: 0x13dd30920; frame = (0 0; 240 320); autoresize = W+H; layer = <CALayer: 0x6000026590a0>>
+        //   |    |    | <_TtGC7SwiftUI14_UIHostingViewGVS_6VStackVS_5Image__: 0x13dd2fe30; frame = (0 0; 240 320); autoresize = W+H; gestureRecognizers = <NSArray: 0x6000029a4060>; backgroundColor = <UIDynamicSystemColor: 0x60000336c600; name = systemBackgroundColor>; layer = <CALayer: 0x6000026a4c00>>
+        //   |    |    |    | <SwiftUI._UIGraphicsView: 0x13de22060; frame = (110.667 170.667; 18.6667 18); anchorPoint = (0, 0); autoresizesSubviews = NO; layer = <SwiftUI.ImageLayer: 0x60000265e2a0>>
+    }
+
+    private func assertSwiftUIImageWithUIImageRegions(regions: [SentryRedactRegion]) throws {
+        let region = try XCTUnwrap(regions.element(at: 0))
+        XCTAssertNil(region.color)
+        XCTAssertCGSizeEqual(region.size, CGSize(width: 18.666, height: 18), accuracy: 0.01)
+        XCTAssertEqual(region.type, .redact)
+        XCTAssertAffineTransformEqual(
+            region.transform,
+            CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 130.666, ty: 190.666),
+            accuracy: 0.01
+        )
+
+        // Assert that there are no other regions
+        XCTAssertEqual(regions.count, 1)
+    }
+
+    func testRedact_withSwiftUIImage_withUIImage_withMaskAllImagesEnabled_shouldRedactView() throws {
+        // -- Arrange --
+        let window = setupSwiftUIImageWithUIImageFixture()
+
+        // -- Act --
+        let sut = getSut(maskAllText: true, maskAllImages: true)
+        let result = sut.redactRegionsFor(view: window)
+        let masked = createMaskedScreenshot(view: window, regions: result)
+
+        // -- Assert --
+        assertSnapshot(of: window, as: .image, named: createTestDeviceOSBoundSnapshotName(index: 1))
+        assertSnapshot(of: masked, as: .image, named: createTestDeviceOSBoundSnapshotName(index: 2))
+        try assertSwiftUIImageRegions(regions: result)
+    }
+
+    func testRedact_withSwiftUIImage_withUIImage_withMaskAllImagesDisabled_shouldNotRedactView() {
+        // -- Arrange --
+        let window = setupSwiftUIImageWithUIImageFixture()
+
+        // -- Act --
+        let sut = getSut(maskAllText: true, maskAllImages: false)
+        let result = sut.redactRegionsFor(view: window)
+        let masked = createMaskedScreenshot(view: window, regions: result)
+
+        // -- Assert --
+        assertSnapshot(of: window, as: .image, named: createTestDeviceOSBoundSnapshotName(index: 1))
+        assertSnapshot(of: masked, as: .image, named: createTestDeviceOSBoundSnapshotName(index: 2))
+        XCTAssertEqual(result.count, 0)
+    }
+
+    func testRedact_withSwiftUIImage_withUIImage_withMaskAllTextDisabled_shouldRedactView() throws {
+        // -- Arrange --
+        let window = setupSwiftUIImageWithUIImageFixture()
+
+        // -- Act --
+        let sut = getSut(maskAllText: false, maskAllImages: true)
+        let result = sut.redactRegionsFor(view: window)
+        let masked = createMaskedScreenshot(view: window, regions: result)
+
+        // -- Assert --
+        assertSnapshot(of: window, as: .image, named: createTestDeviceOSBoundSnapshotName(index: 1))
+        assertSnapshot(of: masked, as: .image, named: createTestDeviceOSBoundSnapshotName(index: 2))
+        try assertSwiftUIImageRegions(regions: result)
+    }
+
+    // - MARK: - SwiftUI.Button Redaction
+
+    private func setupSwiftUIButtonFixture() -> UIWindow {
+        let view = VStack {
+            Button(action: {}) {
+                Text("Tap Me")
+            }
+        }
+        return hostSwiftUIViewInWindow(view, frame: CGRect(x: 20, y: 20, width: 240, height: 320))
+
+        // View Hierarchy:
+        // ---------------
+        // == iOS 26 ==
+        // <UIWindow: 0x10983dbe0; frame = (20 20; 240 320); gestureRecognizers = <NSArray: 0x600000cea2e0>; layer = <UIWindowLayer: 0x6000017522c0>>
+        //   | <UITransitionView: 0x1071321a0; frame = (0 0; 240 320); autoresize = W+H; layer = <CALayer: 0x600000cded30>>
+        //   |    | <UIDropShadowView: 0x107133410; frame = (0 0; 240 320); autoresize = W+H; layer = <CALayer: 0x600000cdcfc0>>
+        //   |    |    | <_TtGC7SwiftUI14_UIHostingViewGVS_6VStackGVS_6ButtonVS_4Text___: 0x106821600; frame = (0 0; 240 320); autoresize = W+H; gestureRecognizers = <NSArray: 0x6000000095a0>; backgroundColor = <UIDynamicSystemColor: 0x60000174cb00; name = systemBackgroundColor>; layer = <CALayer: 0x600000cec0f0>>
+        //   |    |    |    | <_TtC7SwiftUIP33_863CCF9D49B535DAEB1C7D61BEE53B5914CGDrawingLayer: 0x600002c29700> (layer)
+        //
+        // == iOS 18 & 17 & 16 ==
+        // <UIWindow: 0x101d301b0; frame = (20 20; 240 320); gestureRecognizers = <NSArray: 0x600000280dc0>; layer = <UIWindowLayer: 0x600000d9c690>>
+        //   | <UITransitionView: 0x104217300; frame = (0 0; 240 320); autoresize = W+H; layer = <CALayer: 0x600000281a40>>
+        //   |    | <UIDropShadowView: 0x104227450; frame = (0 0; 240 320); autoresize = W+H; layer = <CALayer: 0x6000002823e0>>
+        //   |    |    | <_TtGC7SwiftUI14_UIHostingViewGVS_6VStackGVS_6ButtonVS_4Text___: 0x103016a00; frame = (0 0; 240 320); autoresize = W+H; gestureRecognizers = <NSArray: 0x600000035080>; backgroundColor = <UIDynamicSystemColor: 0x60000178f540; name = systemBackgroundColor>; layer = <SwiftUI.UIHostingViewDebugLayer: 0x60000027b260>>
+        //   |    |    |    | <SwiftUI.CGDrawingView: 0x101d3a470; frame = (92.3333 171; 55.6667 20.3333); anchorPoint = (0, 0); opaque = NO; autoresizesSubviews = NO; layer = <_TtC7SwiftUIP33_65A81BD07F0108B0485D2E15DE104A7514CGDrawingLayer: 0x600002646fa0>>
+    }
+
+    private func assertSwiftUIButtonRegions(regions: [SentryRedactRegion]) throws {
+        let region = try XCTUnwrap(regions.element(at: 0))
+        XCTAssertNil(region.color)
+        XCTAssertCGSizeEqual(region.size, CGSize(width: 18.666, height: 18), accuracy: 0.01)
+        XCTAssertEqual(region.type, .redact)
+        XCTAssertAffineTransformEqual(
+            region.transform,
+            CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 112.333, ty: 190.666),
+            accuracy: 0.01
+        )
+
+        // Assert that there are no other regions
+        XCTAssertEqual(regions.count, 1)
+    }
+
+    func testRedact_withSwiftUIButton_withMaskAllTextEnabled_withMaskAllImagesEnabled_shouldRedactView() throws {
+        // -- Arrange --
+        let window = setupSwiftUIButtonFixture()
+
+        // -- Act --
+        let sut = getSut(maskAllText: true, maskAllImages: true)
+        let result = sut.redactRegionsFor(view: window)
+        let masked = createMaskedScreenshot(view: window, regions: result)
+
+        // -- Assert --
+        assertSnapshot(of: window, as: .image, named: createTestDeviceOSBoundSnapshotName(index: 1))
+        assertSnapshot(of: masked, as: .image, named: createTestDeviceOSBoundSnapshotName(index: 2))
+        try assertSwiftUIButtonRegions(regions: result)
     }
 
     // MARK: - Helper Methods
