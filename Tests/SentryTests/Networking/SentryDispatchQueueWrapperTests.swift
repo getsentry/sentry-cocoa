@@ -30,46 +30,51 @@ class SentryDispatchQueueWrapperSwiftTests: XCTestCase {
     }
     
     func testDispatchAsyncOnMainQueueIfNotMainThreadOnMain() {
-        let expectation = XCTestExpectation()
+        let blockExpectation = XCTestExpectation(description: "Block Expectation")
         
-        var flag = false
+        let outerExpectation = XCTestExpectation(description: "This exepctation should execute last")
+        outerExpectation.isInverted = true
         
         let sut = SentryDispatchQueueWrapper()
         sut.dispatchAsyncOnMainQueueIfNotMainThread {
-            // Add a sleep to ensure this executes before the flag is set even if delayed
-            sleep(1)
             XCTAssertTrue(Thread.isMainThread)
-            XCTAssertFalse(flag, "Block did not run synchronously")
+            self.wait(for: [outerExpectation], timeout: 1)
             
-            expectation.fulfill()
+            blockExpectation.fulfill()
         }
-        flag = true
+        outerExpectation.fulfill()
         
-        wait(for: [expectation], timeout: 2)
+        wait(for: [blockExpectation], timeout: 2)
     }
     
     func testDispatchAsyncOnMainQueueIfNotMainThreadFromBackground() {
         let expectation = XCTestExpectation()
         
         DispatchQueue.global().async {
-            let innerExpectation = XCTestExpectation(description: "Expectation on background thread")
-            
-            var flag = false
+            let mainThreadExpectation = XCTestExpectation(description: "Main Thread Expectation")
+            let bgThreadExpectation = XCTestExpectation(description: "BG Thread Expectation")
+
             let sut = SentryDispatchQueueWrapper()
+
             sut.dispatchAsyncOnMainQueueIfNotMainThread {
-                // Add a sleep to ensure this executes after the flag is set
-                sleep(1)
-                XCTAssertTrue(Thread.isMainThread)
-                XCTAssertTrue(flag, "Block did not run asynchronously")
-                
-                innerExpectation.fulfill()
+                XCTAssertTrue(Thread.isMainThread, "The block didn't run on the main thread, but it should have")
+
+                // Wait for the background thread to fulfill its expectation
+                // If this code runs on the same thread as the bgThreadExpectation, the expectation times out.
+                self.wait(for: [bgThreadExpectation], timeout: 5.0)
+
+                // Unblock the BG thread
+                mainThreadExpectation.fulfill()
             }
-            flag = true
-            
-            self.wait(for: [innerExpectation], timeout: 2)
+
+            // Unblock the main thread
+            bgThreadExpectation.fulfill()
+
+            self.wait(for: [mainThreadExpectation], timeout: 5.0)
+
             expectation.fulfill()
         }
         
-        wait(for: [expectation], timeout: 2)
+        wait(for: [expectation], timeout: 10.0)
     }
 }
