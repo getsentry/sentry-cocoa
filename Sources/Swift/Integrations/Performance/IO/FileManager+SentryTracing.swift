@@ -29,7 +29,7 @@ public extension FileManager {
             self.createFile(atPath: path, contents: data, attributes: attr)
         }
         // Gets a tracker instance if the SDK is enabled, otherwise uses the original method.
-        guard let tracker = SentryDependencyContainerSwiftHelper.fileIOTracker() else {
+        guard let tracker = SentryFileIOTracker.sharedInstance() else {
             return method(path, data, attr)
         }
         return tracker
@@ -61,7 +61,7 @@ public extension FileManager {
             try self.removeItem(at: url)
         }
         // Gets a tracker instance if the SDK is enabled, otherwise uses the original method.
-        guard let tracker = SentryDependencyContainerSwiftHelper.fileIOTracker() else {
+        guard let tracker = SentryFileIOTracker.sharedInstance() else {
             return try method(url)
         }
         try tracker.measureRemovingItem(at: url, origin: SentryTraceOriginManualFileData, method: method)
@@ -86,7 +86,7 @@ public extension FileManager {
             try self.removeItem(atPath: path)
         }
         // Gets a tracker instance if the SDK is enabled, otherwise uses the original method.
-        guard let tracker = SentryDependencyContainerSwiftHelper.fileIOTracker() else {
+        guard let tracker = SentryFileIOTracker.sharedInstance() else {
             return try method(path)
         }
         try tracker.measureRemovingItem(atPath: path, origin: SentryTraceOriginManualFileData, method: method)
@@ -116,7 +116,7 @@ public extension FileManager {
             try self.copyItem(at: srcURL, to: dstURL)
         }
         // Gets a tracker instance if the SDK is enabled, otherwise uses the original method.
-        guard let tracker = SentryDependencyContainerSwiftHelper.fileIOTracker() else {
+        guard let tracker = SentryFileIOTracker.sharedInstance() else {
             return try method(srcURL, dstURL)
         }
         try tracker.measureCopyingItem(at: srcURL, to: dstURL, origin: SentryTraceOriginManualFileData, method: method)
@@ -143,7 +143,7 @@ public extension FileManager {
             try self.copyItem(atPath: srcPath, toPath: dstPath)
         }
         // Gets a tracker instance if the SDK is enabled, otherwise uses the original method.
-        guard let tracker = SentryDependencyContainerSwiftHelper.fileIOTracker() else {
+        guard let tracker = SentryFileIOTracker.sharedInstance() else {
             return try method(srcPath, dstPath)
         }
         try tracker.measureCopyingItem(atPath: srcPath, toPath: dstPath, origin: SentryTraceOriginManualFileData, method: method)
@@ -171,7 +171,7 @@ public extension FileManager {
             try self.moveItem(at: srcURL, to: dstURL)
         }
         // Gets a tracker instance if the SDK is enabled, otherwise uses the original method.
-        guard let tracker = SentryDependencyContainerSwiftHelper.fileIOTracker() else {
+        guard let tracker = SentryFileIOTracker.sharedInstance() else {
             return try method(srcURL, dstURL)
         }
         try tracker.measureMovingItem(
@@ -203,7 +203,7 @@ public extension FileManager {
             try self.moveItem(atPath: srcPath, toPath: dstPath)
         }
         // Gets a tracker instance if the SDK is enabled, otherwise uses the original method.
-        guard let tracker = SentryDependencyContainerSwiftHelper.fileIOTracker() else {
+        guard let tracker = SentryFileIOTracker.sharedInstance() else {
             return try method(srcPath, dstPath)
         }
         try tracker.measureMovingItem(

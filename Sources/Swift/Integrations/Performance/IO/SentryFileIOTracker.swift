@@ -9,6 +9,16 @@
 @_spi(Private) @objc public class SentryFileIOTracker: NSObject {
 
     private let helper: SentryFileIOTrackerHelper
+    
+    static func sharedInstance() -> SentryFileIOTracker? {
+        // It is necessary to check if the SDK is enabled because accessing the tracker will otherwise
+        // initialize the depency container without any configured SDK options. This is a known issue
+        // and needs to be fixed in general.
+        guard SentrySDK.isEnabled else {
+            return nil
+        }
+        return Dependencies.fileIOTracker
+    }
 
     @objc public init(threadInspector: SentryThreadInspector, processInfoWrapper: SentryProcessInfoSource) {
         helper = SentryFileIOTrackerHelper(threadInspector: threadInspector, processInfoWrapper: processInfoWrapper)

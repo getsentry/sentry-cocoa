@@ -23,7 +23,7 @@ public extension Data {
         let method = { (url: URL, options: Data.ReadingOptions) throws -> Data in
             try Data(contentsOf: url, options: options)
         }
-        guard let tracker = SentryDependencyContainerSwiftHelper.fileIOTracker() else {
+        guard let tracker = SentryFileIOTracker.sharedInstance() else {
             self = try method(url, options)
             return
         }
@@ -54,7 +54,7 @@ public extension Data {
         let method = { (data: Data, url: URL, options: Data.WritingOptions) throws in
             try data.write(to: url, options: options)
         }
-        guard let tracker = SentryDependencyContainerSwiftHelper.fileIOTracker() else {
+        guard let tracker = SentryFileIOTracker.sharedInstance() else {
             return try method(self, url, options)
         }
         try tracker

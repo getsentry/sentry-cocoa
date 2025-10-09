@@ -15,10 +15,6 @@
 
 @end
 
-@interface SentryFileIOTracker () <SentryFileIOTracking>
-
-@end
-
 @implementation SentryNSFileManagerSwizzlingTests {
     NSString *filePath;
     NSURL *fileUrl;
