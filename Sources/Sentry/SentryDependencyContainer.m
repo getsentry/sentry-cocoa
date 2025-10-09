@@ -189,6 +189,7 @@ static BOOL isInitialializingDependencyContainer = NO;
             [[SentryDefaultRateLimits alloc] initWithRetryAfterHeaderParser:retryAfterHeaderParser
                                                          andRateLimitParser:rateLimitParser
                                                         currentDateProvider:_dateProvider];
+        _infoPlistWrapper = [[SentryInfoPlistWrapper alloc] init];
 
 #if SENTRY_HAS_REACHABILITY
         _reachability = [[SentryReachability alloc] init];

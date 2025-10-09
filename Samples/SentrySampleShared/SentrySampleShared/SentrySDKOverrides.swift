@@ -111,7 +111,7 @@ public enum SentrySDKOverrides: String, CaseIterable {
         case disableMaskAllImages = "--io.sentry.session-replay.disable-mask-all-images"
         case disableMaskAllText = "--io.sentry.session-replay.disable-mask-all-text"
         
-        case disableInDangerousEnvironment = "--io.sentry.session-replay.disable-in-dangerous-environment"
+        case enableInUnreliableEnvironment = "--io.sentry.session-replay.enable-in-unreliable-environment"
     }
     case sessionReplay = "Session Replay"
 
@@ -326,7 +326,7 @@ extension SentrySDKOverrides.Performance {
 extension SentrySDKOverrides.SessionReplay {
     public var overrideType: OverrideType {
         switch self {
-        case .disable, .disableViewRendererV2, .enableFastViewRendering, .disableMaskAllText, .disableMaskAllImages, .disableInDangerousEnvironment: return .boolean
+        case .disable, .disableViewRendererV2, .enableFastViewRendering, .disableMaskAllText, .disableMaskAllImages, .enableInUnreliableEnvironment: return .boolean
         case .onErrorSampleRate, .sessionSampleRate: return .float
         case .quality: return .string
         }
@@ -414,7 +414,7 @@ extension SentrySDKOverrides.SessionReplay {
     public var ignoresDisableEverything: Bool {
         switch self {
         case .disable: return false
-        case .disableViewRendererV2, .enableFastViewRendering, .disableMaskAllText, .disableMaskAllImages, .onErrorSampleRate, .sessionSampleRate, .quality, .disableInDangerousEnvironment: return true
+        case .disableViewRendererV2, .enableFastViewRendering, .disableMaskAllText, .disableMaskAllImages, .onErrorSampleRate, .sessionSampleRate, .quality, .enableInUnreliableEnvironment: return true
         }
     }
 }

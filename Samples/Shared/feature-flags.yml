@@ -22,7 +22,7 @@ schemeTemplates:
         "--io.sentry.session-replay.enable-fast-view-rendering": false
         "--io.sentry.session-replay.disable-mask-all-images": false
         "--io.sentry.session-replay.disable-mask-all-text": false
-        "--io.sentry.session-replay.disable-in-dangerous-environment": false
+        "--io.sentry.session-replay.enable-in-unreliable-environment": false
 
         # user feedback
         "--io.sentry.feedback.use-custom-feedback-button": false

@@ -16,7 +16,6 @@ class SentryReplayOptionsTests: XCTestCase {
         XCTAssertTrue(options.maskAllImages)
         XCTAssertTrue(options.enableViewRendererV2)
         XCTAssertFalse(options.enableFastViewRendering)
-        XCTAssertTrue(options.disableInDangerousEnvironment)
 
         XCTAssertEqual(options.maskedViewClasses.count, 0)
         XCTAssertEqual(options.unmaskedViewClasses.count, 0)
@@ -850,59 +849,5 @@ class SentryReplayOptionsTests: XCTestCase {
 
         // -- Assert --
         XCTAssertNil(options.sdkInfo)
-    }
-    
-    // MARK: disableInDangerousEnvironment
-    
-    func testInit_disableInDangerousEnvironment_shouldDefaultToTrue() {
-        // -- Act --
-        let options = SentryReplayOptions()
-        
-        // -- Assert --
-        XCTAssertTrue(options.disableInDangerousEnvironment)
-    }
-    
-    func testInit_disableInDangerousEnvironment_whenSetToFalse_shouldAllowOptIn() {
-        // -- Act --
-        let options = SentryReplayOptions(
-            sessionSampleRate: 1.0,
-            onErrorSampleRate: 1.0,
-            disableInDangerousEnvironment: false
-        )
-        
-        // -- Assert --
-        XCTAssertFalse(options.disableInDangerousEnvironment)
-    }
-    
-    func testInitFromDict_disableInDangerousEnvironment_whenValidValue_shouldSetValue() {
-        // -- Act --
-        let optionsTrue = SentryReplayOptions(dictionary: [
-            "disableInDangerousEnvironment": true
-        ])
-        let optionsFalse = SentryReplayOptions(dictionary: [
-            "disableInDangerousEnvironment": false
-        ])
-        
-        // -- Assert --
-        XCTAssertTrue(optionsTrue.disableInDangerousEnvironment)
-        XCTAssertFalse(optionsFalse.disableInDangerousEnvironment)
-    }
-    
-    func testInitFromDict_disableInDangerousEnvironment_whenInvalidValue_shouldUseDefaultValue() {
-        // -- Act --
-        let options = SentryReplayOptions(dictionary: [
-            "disableInDangerousEnvironment": "invalid_value"
-        ])
-        
-        // -- Assert --
-        XCTAssertTrue(options.disableInDangerousEnvironment)
-    }
-    
-    func testInitFromDict_disableInDangerousEnvironment_whenNotSpecified_shouldUseDefaultValue() {
-        // -- Act --
-        let options = SentryReplayOptions(dictionary: [:])
-        
-        // -- Assert --
-        XCTAssertTrue(options.disableInDangerousEnvironment)
     }
 }

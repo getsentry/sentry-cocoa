@@ -2,9 +2,33 @@
 
 ## Unreleased
 
+> [!Warning]
+> **Session Replay is disabled by default on iOS 26.0+ with Xcode 26.0+ to prevent PII leaks**
+>
+> Due to masking issues introduced by Apple's Liquid Glass rendering changes in iOS 26.0, session replay is now **automatically disabled** on apps running iOS 26.0+ when built with Xcode 26.0 or later. This is a defensive measure to protect user privacy and prevent potential PII leaks until masking is reliably supported.
+>
+> Session replay will work normally if:
+>
+> - Your app runs on iOS versions older than 26.0, OR
+> - Your app is built with Xcode versions older than 26.0, OR
+> - Your app explicitly sets `UIDesignRequiresCompatibility` to `YES` in `Info.plist`
+>
+> **Override (use with caution):** If you understand the PII risks and want to enable session replay anyway, you can set:
+>
+> ```swift
+> options.experimental.enableSessionReplayInUnreliableEnvironment = true
+> ```
+>
+> This experimental override option will be removed in a future minor version once the masking issues are resolved.
+
 ### Fixes
 
 - fix(session-replay): Add detection for potential PII leaks disabling session replay (#6389)
+- Session replay is now automatically disabled in environments with unreliable masking to prevent PII leaks (#6389)
+  - Detects iOS 26.0+ runtime with Xcode 26.0+ builds (DTXcode >= 2600)
+  - Detects missing or disabled `UIDesignRequiresCompatibility`
+  - Uses defensive approach: assumes unsafe unless proven safe
+- Add `options.experimental.enableSessionReplayInUnreliableEnvironment` to allow overriding the automatic disabling (#6389)
 
 ## 8.56.2
 
