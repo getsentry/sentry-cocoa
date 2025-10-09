@@ -363,12 +363,6 @@
         sentryOptions.profilesSampler = options[@"profilesSampler"];
     }
 #        pragma clang diagnostic pop
-
-#        pragma clang diagnostic push
-#        pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    [self setBool:options[@"enableProfiling"]
-            block:^(BOOL value) { sentryOptions.enableProfiling = value; }];
-#        pragma clang diagnostic pop
 #    endif // !SDK_V9
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 

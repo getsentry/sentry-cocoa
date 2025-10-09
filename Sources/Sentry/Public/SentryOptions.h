@@ -598,19 +598,6 @@ typedef void (^SentryProfilingConfigurationBlock)(SentryProfileOptions *_Nonnull
  */
 @property (nonatomic, assign, readonly) BOOL isProfilingEnabled DEPRECATED_MSG_ATTRIBUTE(
     "This property is deprecated and will be removed in a future version of the SDK");
-
-/**
- * @brief Whether to enable the sampling profiler.
- * @note Profiling is not supported on watchOS or tvOS.
- * @deprecated Use @c profilesSampleRate instead. Setting @c enableProfiling to @c YES is the
- * equivalent of setting @c profilesSampleRate to @c 1.0  If @c profilesSampleRate is set, it will
- * take precedence over this setting.
- * @note Default is @c NO.
- * @note Profiling is automatically disabled if a thread sanitizer is attached.
- */
-@property (nonatomic, assign) BOOL enableProfiling DEPRECATED_MSG_ATTRIBUTE(
-    "Use profilesSampleRate or profilesSampler instead. This property will be removed in a future "
-    "version of the SDK");
 #    endif // !SDK_V9
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 

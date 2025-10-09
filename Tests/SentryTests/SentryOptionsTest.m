@@ -777,7 +777,6 @@
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 #    pragma clang diagnostic push
 #    pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    XCTAssertEqual(NO, options.enableProfiling);
     XCTAssertNil(options.profilesSampleRate);
     XCTAssertNil(options.profilesSampler);
 #    pragma clang diagnostic pop
@@ -1114,10 +1113,6 @@
 }
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-- (void)testEnableProfiling
-{
-    [self testBooleanField:@"enableProfiling" defaultValue:NO];
-}
 
 #    pragma clang diagnostic push
 #    pragma clang diagnostic ignored "-Wdeprecated-declarations"
@@ -1238,22 +1233,6 @@
         XCTAssertNotNil(context);
         return @0.0;
     };
-
-    // This property now only refers to trace-based profiling, but renaming it would require a major
-    // rev
-    XCTAssertTrue(options.isProfilingEnabled);
-
-    XCTAssertNil(options.profilesSampleRate);
-    XCTAssertFalse([options isContinuousProfilingEnabled]);
-}
-
-- (void)testIsProfilingEnabled_EnableProfilingSet_IsEnabled
-{
-    SentryOptions *options = [[SentryOptions alloc] init];
-#    pragma clang diagnostic push
-#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    options.enableProfiling = YES;
-#    pragma clang diagnostic pop
 
     // This property now only refers to trace-based profiling, but renaming it would require a major
     // rev

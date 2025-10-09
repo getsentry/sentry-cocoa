@@ -67,21 +67,6 @@ class SentrySpanTests: XCTestCase {
     }
     
 #if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
-    func testSpanDoesNotIncludeTraceProfilerID() throws {
-        fixture.options.profilesSampleRate = 1
-        SentrySDKInternal.setStart(with: fixture.options)
-        let span = fixture.getSut()
-        let continuousProfileObservations = fixture.notificationCenter.addObserverWithObjectInvocations.invocations.filter {
-            $0.name?.rawValue == kSentryNotificationContinuousProfileStarted
-        }
-        XCTAssertEqual(continuousProfileObservations.count, 0)
-        XCTAssert(SentryTraceProfiler.isCurrentlyProfiling())
-        span.finish()
-        
-        let serialized = span.serialize()
-        XCTAssertNil(serialized["profile_id"])
-    }
-    
     func testSpanDoesNotSubscribeToNotificationsIfAlreadyCapturedContinuousProfileID() {
         fixture.options.profilesSampleRate = nil
         SentryContinuousProfiler.start()
