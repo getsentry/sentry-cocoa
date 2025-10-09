@@ -4,7 +4,8 @@ import Foundation
 import ObjectiveC.NSObjCRuntime
 import UIKit
 
-final class SentryRedactRegion {
+@objc
+public final class SentryRedactRegion: NSObject {
     let size: CGSize
     let transform: CGAffineTransform
     let type: SentryRedactRegionType
@@ -21,6 +22,15 @@ final class SentryRedactRegion {
 
     func canReplace(as other: SentryRedactRegion) -> Bool {
         size == other.size && transform == other.transform && type == other.type
+    }
+}
+
+extension SentryRedactRegion: Encodable {}
+
+extension UIColor: @retroactive Encodable {
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+        try container.encode(self.cgColor.components)
     }
 }
 #endif

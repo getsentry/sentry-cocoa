@@ -290,10 +290,11 @@ static BOOL isInitialializingDependencyContainer = NO;
             } else {
                 viewRenderer = [[SentryDefaultViewRenderer alloc] init];
             }
+            id<SentryUIRedactBuilderProtocol> redactBuilder = [[SentryUIRedactBuilder alloc] initWithOptions:options];
 
             SentryViewPhotographer *photographer =
                 [[SentryViewPhotographer alloc] initWithRenderer:viewRenderer
-                                                   redactOptions:options
+                                                   redactBuilder:redactBuilder
                                             enableMaskRendererV2:options.enableViewRendererV2];
             _screenshotSource = [[SentryScreenshotSource alloc] initWithPhotographer:photographer];
         }

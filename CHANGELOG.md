@@ -21,6 +21,7 @@
 ### Fixes
 
 - Fixes warnings about minimum OS version being lower than Xcode supported version (#5591)
+- Add SwiftUI.List's background decoration view to ignored redaction views (#6292)
 - Fix rendering method for fast view rendering (#6360)
 
 ### Improvements
