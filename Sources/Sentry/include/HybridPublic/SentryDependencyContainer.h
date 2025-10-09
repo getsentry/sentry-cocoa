@@ -47,7 +47,6 @@
 @class SentryUIViewControllerPerformanceTracker;
 @class SentryWatchdogTerminationScopeObserver;
 @class SentryWatchdogTerminationAttributesProcessor;
-@class SentryWatchdogTerminationBreadcrumbProcessor;
 #endif // SENTRY_UIKIT_AVAILABLE
 
 #if SENTRY_HAS_UIKIT
@@ -140,8 +139,6 @@ SENTRY_NO_INIT
 #if SENTRY_HAS_UIKIT
 - (SentryWatchdogTerminationScopeObserver *)getWatchdogTerminationScopeObserverWithOptions:
     (SentryOptions *)options;
-- (SentryWatchdogTerminationBreadcrumbProcessor *)
-    getWatchdogTerminationBreadcrumbProcessorWithMaxBreadcrumbs:(NSInteger)maxBreadcrumbs;
 @property (nonatomic, strong)
     SentryWatchdogTerminationAttributesProcessor *watchdogTerminationAttributesProcessor;
 #endif
