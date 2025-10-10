@@ -86,7 +86,7 @@ import UIKit
         // to PII leaks otherwise.
         if isEnvironmentUnreliable() {
             guard experimentalOptions.enableSessionReplayInUnreliableEnvironment else {
-                SentrySDKLog.fatal("[Session Replay] Detected environment potentially causing PII leaks, disabling Session Replay. To override this mechanism, set `options.experimental.enableSessionReplayInUnreliableEnvironment` to `false`")
+                SentrySDKLog.fatal("[Session Replay] Detected environment potentially causing PII leaks, disabling Session Replay. To override this mechanism, set `options.experimental.enableSessionReplayInUnreliableEnvironment` to `true`")
                 return
             }
             SentrySDKLog.warning("[Session Replay] Detected environment potentially causing PII leaks, but `options.enableInUnreliableEnvironment` is set to `true`, ignoring and enabling Session Replay.")
