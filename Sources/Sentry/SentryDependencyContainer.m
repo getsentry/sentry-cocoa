@@ -63,9 +63,6 @@ SentryApplicationProviderBlock defaultApplicationProvider = ^id<SentryApplicatio
 @interface SentryFileManager () <SentryFileManagerProtocol>
 @end
 
-@interface SentryDefaultThreadInspector () <SentryThreadInspector>
-@end
-
 @interface SentryDefaultAppStateManager () <SentryAppStateManager>
 @end
 
@@ -153,7 +150,7 @@ static BOOL isInitialializingDependencyContainer = NO;
 
         _notificationCenterWrapper = NSNotificationCenter.defaultCenter;
 
-        _processInfoWrapper = NSProcessInfo.processInfo;
+        _processInfoWrapper = SentryDependencies.processInfoWrapper;
         _crashWrapper = [[SentryCrashWrapper alloc] initWithProcessInfoWrapper:_processInfoWrapper];
 #if SENTRY_HAS_UIKIT
         _uiDeviceWrapper = SentryDependencies.uiDeviceWrapper;
@@ -227,10 +224,9 @@ static BOOL isInitialializingDependencyContainer = NO;
                                     notificationCenterWrapper:self.notificationCenterWrapper]);
 }
 
-- (id<SentryThreadInspector>)threadInspector SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
+- (SentryThreadInspector *)threadInspector SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
-    SENTRY_LAZY_INIT(_threadInspector,
-        [[SentryDefaultThreadInspector alloc] initWithOptions:SentrySDKInternal.options]);
+    return SentryDependencies.threadInspector;
 }
 
 - (SentryFileIOTracker *)fileIOTracker SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK

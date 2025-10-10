@@ -3,7 +3,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @protocol SentryProcessInfoSource;
-@protocol SentryThreadInspector;
+@class SentryThreadInspector;
 
 @interface SentryFileIOTracker : NSObject
 SENTRY_NO_INIT
@@ -18,7 +18,7 @@ SENTRY_NO_INIT
  */
 + (instancetype _Nullable)sharedInstance;
 
-- (instancetype)initWithThreadInspector:(id<SentryThreadInspector>)threadInspector
+- (instancetype)initWithThreadInspector:(SentryThreadInspector *)threadInspector
                      processInfoWrapper:(id<SentryProcessInfoSource>)processInfoWrapper;
 
 - (void)enable;
