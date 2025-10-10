@@ -3,6 +3,9 @@
 @_spi(Private) import SentryTestUtils
 import XCTest
 
+// swiftlint:disable file_length
+// This test class also includes tests for delayed frames calculation which is quite complex.
+
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 class SentryFramesTrackerTests: XCTestCase {
     
@@ -518,7 +521,167 @@ class SentryFramesTrackerTests: XCTestCase {
         let actualFrameDelay = sut.getFramesDelay(startSystemTime, endSystemTimestamp: endSystemTime)
         XCTAssertEqual(actualFrameDelay.delayDuration, -1.0)
     }
-    
+
+    func testGetFramesDelay_WhenMovingFromBackgroundToForeground_BeforeDisplayLinkCalled() {
+        // Arrange
+        let sut = fixture.sut
+        sut.start()
+
+        let displayLink = fixture.displayLinkWrapper
+        displayLink.call()
+        _ = displayLink.slowestSlowFrame()
+
+        let startSystemTime = fixture.dateProvider.systemTime()
+
+        fixture.notificationCenter.post(Notification(name: CrossPlatformApplication.willResignActiveNotification))
+
+        // Simulate app staying in background for 2 seconds
+        fixture.dateProvider.advance(by: 2.0)
+
+        fixture.notificationCenter.post(Notification(name: CrossPlatformApplication.didBecomeActiveNotification))
+        let endSystemTime = fixture.dateProvider.systemTime()
+
+        // Act
+        let actualFrameDelay = sut.getFramesDelay(startSystemTime, endSystemTimestamp: endSystemTime)
+
+        // Assert
+
+        // The frames tracer starts subscribing to the display link when an app moves to the foreground. Since
+        // display link callbacks only occur when a new frame is drawn, it can take a couple of milliseconds
+        // for the first display link callback to occur. We can only calculate frame statistics when having at
+        // least one display link callback, as this marks the start of a new frame.
+        XCTAssertEqual(actualFrameDelay.delayDuration, -1.0, accuracy: 0.0001)
+    }
+
+    func testGetFramesDelay_WhenMovingFromBackgroundToForeground_FirstFrameIsDrawing() {
+        // Arrange
+        let sut = fixture.sut
+        sut.start()
+
+        // Simulate some frames to establish system timestamps
+        let displayLink = fixture.displayLinkWrapper
+        displayLink.call()
+        _ = displayLink.slowestSlowFrame()
+
+        fixture.notificationCenter.post(Notification(name: CrossPlatformApplication.willResignActiveNotification))
+
+        // Simulate app staying in background for 2 seconds
+        fixture.dateProvider.advance(by: 2.0)
+
+        fixture.notificationCenter.post(Notification(name: CrossPlatformApplication.didBecomeActiveNotification))
+
+        displayLink.call()
+
+        let startSystemTime = fixture.dateProvider.systemTime()
+        fixture.dateProvider.advance(by: 0.01)
+        let endSystemTime = fixture.dateProvider.systemTime()
+
+        // Act
+        let frameDelay = sut.getFramesDelay(startSystemTime, endSystemTimestamp: endSystemTime)
+
+        // The first is currently drawn, but it's not delayed yet. Therefore, 0 frame delay.
+        XCTAssertEqual(frameDelay.delayDuration, 0.0, accuracy: 0.0001)
+    }
+
+    func testGetFramesDelay_WhenMovingFromBackgroundToForeground_FirstNormalFrameDrawn() {
+        // Arrange
+        let sut = fixture.sut
+        sut.start()
+
+        // Simulate some frames to establish system timestamps
+        let displayLink = fixture.displayLinkWrapper
+        displayLink.call()
+        _ = displayLink.slowestSlowFrame()
+
+        fixture.notificationCenter.post(Notification(name: CrossPlatformApplication.willResignActiveNotification))
+
+        // Simulate app staying in background for 2 seconds
+        fixture.dateProvider.advance(by: 2.0)
+
+        fixture.notificationCenter.post(Notification(name: CrossPlatformApplication.didBecomeActiveNotification))
+
+        displayLink.call()
+
+        // The delayed frames tracker should also have its previous frame system timestamp reset
+        // This prevents false delay calculations after unpausing
+        let startSystemTime = fixture.dateProvider.systemTime()
+        displayLink.normalFrame()
+        let endSystemTime = fixture.dateProvider.systemTime()
+
+        // Act
+        let frameDelay = sut.getFramesDelay(startSystemTime, endSystemTimestamp: endSystemTime)
+
+        // Assert
+        // Normal frame is drawn, no delay
+        XCTAssertEqual(frameDelay.delayDuration, 0.0, accuracy: 0.0001)
+    }
+
+    func testGetFramesDelay_WhenMovingFromBackgroundToForeground_FirstFrameIsSlow() {
+        // Arrange
+        let sut = fixture.sut
+        sut.start()
+
+        // Simulate some frames to establish system timestamps
+        let displayLink = fixture.displayLinkWrapper
+        displayLink.call()
+        _ = displayLink.slowestSlowFrame()
+
+        fixture.notificationCenter.post(Notification(name: CrossPlatformApplication.willResignActiveNotification))
+
+        // Simulate app staying in background for 2 seconds
+        fixture.dateProvider.advance(by: 2.0)
+
+        fixture.notificationCenter.post(Notification(name: CrossPlatformApplication.didBecomeActiveNotification))
+
+        displayLink.call()
+
+        // The delayed frames tracker should also have its previous frame system timestamp reset
+        // This prevents false delay calculations after unpausing
+        let startSystemTime = fixture.dateProvider.systemTime()
+        _ = displayLink.slowestSlowFrame()
+        let endSystemTime = fixture.dateProvider.systemTime()
+
+        // Act
+        let frameDelay = sut.getFramesDelay(startSystemTime, endSystemTimestamp: endSystemTime)
+
+        let expectedDelay = fixture.displayLinkWrapper.slowestSlowFrameDuration - slowFrameThreshold(fixture.displayLinkWrapper.currentFrameRate.rawValue)
+
+        // Assert
+        XCTAssertEqual(frameDelay.delayDuration, expectedDelay, accuracy: 0.0001)
+    }
+
+    func testGetFramesDelay_WhenMovingFromBackgroundToForeground_DelayBeforeBackgroundNotIncluded() {
+        // Arrange
+        let sut = fixture.sut
+        sut.start()
+
+        // Simulate some frames to establish system timestamps
+        let displayLink = fixture.displayLinkWrapper
+        displayLink.call()
+
+        let startSystemTime = fixture.dateProvider.systemTime()
+
+        _ = displayLink.slowestSlowFrame()
+
+        fixture.notificationCenter.post(Notification(name: CrossPlatformApplication.willResignActiveNotification))
+
+        // Simulate app staying in background for 2 seconds
+        fixture.dateProvider.advance(by: 2.0)
+
+        fixture.notificationCenter.post(Notification(name: CrossPlatformApplication.didBecomeActiveNotification))
+
+        displayLink.call()
+
+        _ = displayLink.slowestSlowFrame()
+        let endSystemTime = fixture.dateProvider.systemTime()
+
+        // Act
+        let frameDelay = sut.getFramesDelay(startSystemTime, endSystemTimestamp: endSystemTime)
+
+        // Assert
+        XCTAssertEqual(frameDelay.delayDuration, -1.0, accuracy: 0.0001)
+    }
+
     func testFrameDelay_GetInfoFromBackgroundThreadWhileAdding() {
         let sut = fixture.sut
         sut.start()
@@ -580,7 +743,7 @@ class SentryFramesTrackerTests: XCTestCase {
         
         wait(for: [expectation], timeout: 3.0)
     }
-    
+
     func testAddMultipleListeners_AllCalledWithSameDate() {
         let sut = fixture.sut
         let listener1 = FrameTrackerListener()
@@ -804,35 +967,6 @@ class SentryFramesTrackerTests: XCTestCase {
         // Should not detect any slow or frozen frames from the pauses
         try assert(slow: 0, frozen: 0, total: 4)
     }
-    
-    func testUnpause_WithDelayedFramesTracker_ResetsPreviousFrameSystemTimestamp() {
-        let sut = fixture.sut
-        sut.start()
-        
-        // Simulate some frames to establish system timestamps
-        fixture.displayLinkWrapper.call()
-        fixture.displayLinkWrapper.normalFrame()
-        
-        // Pause the tracker
-        fixture.notificationCenter.post(Notification(name: CrossPlatformApplication.willResignActiveNotification))
-        
-        // Advance time significantly
-        fixture.dateProvider.advance(by: 5.0)
-        
-        // Unpause the tracker
-        fixture.notificationCenter.post(Notification(name: CrossPlatformApplication.didBecomeActiveNotification))
-        
-        // The delayed frames tracker should also have its previous frame system timestamp reset
-        // This prevents false delay calculations after unpausing
-        let startSystemTime = fixture.dateProvider.systemTime()
-        fixture.dateProvider.advance(by: 0.001)
-        let endSystemTime = fixture.dateProvider.systemTime()
-        
-        let frameDelay = sut.getFramesDelay(startSystemTime, endSystemTimestamp: endSystemTime)
-        
-        // Should not report any delay from the pause period
-        XCTAssertEqual(frameDelay.delayDuration, 0.001, accuracy: 0.0001)
-    }
 
 #if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
     func testResetProfilingTimestamps_FromBackgroundThread() {
@@ -941,3 +1075,5 @@ private extension SentryFramesTrackerTests {
 }
 
 #endif
+
+// swiftlint:enable file_length
