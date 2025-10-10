@@ -65,7 +65,16 @@ class SentryANRTrackerV1Tests: XCTestCase, SentryANRTrackerDelegate {
     }
     
     func testMultipleListeners() {
+        // Add an expectation to ensure both listeners are adding before the ANR thread starts
+        let testSetupReadyExpectation = expectation(description: "Test setup ready - both listeners added")
+        var setupConfirmed = false
+        
         fixture.dispatchQueue.blockBeforeMainBlock = {
+            if !setupConfirmed {
+                self.wait(for: [testSetupReadyExpectation], timeout: self.waitTimeout)
+                setupConfirmed = true
+            }
+            
             self.advanceTime(bySeconds: self.fixture.timeoutInterval)
             return false
         }
@@ -74,6 +83,7 @@ class SentryANRTrackerV1Tests: XCTestCase, SentryANRTrackerDelegate {
         sut.add(listener: secondListener)
         
         start()
+        testSetupReadyExpectation.fulfill()
         
         wait(for: [anrDetectedExpectation, anrStoppedExpectation, secondListener.anrStoppedExpectation, secondListener.anrDetectedExpectation], timeout: waitTimeout)
     }
