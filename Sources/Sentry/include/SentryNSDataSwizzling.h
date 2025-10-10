@@ -1,9 +1,9 @@
 #import "SentryDefines.h"
-#import "SentryFileIOTracker.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 @class SentryOptions;
+@class SentryFileIOTracker;
 
 @interface SentryNSDataSwizzling : NSObject
 SENTRY_NO_INIT

@@ -10,6 +10,7 @@
 @class SentryHub;
 @class SentryCrash;
 @class SentryNSProcessInfoWrapper;
+@class SentryFileIOTracker;
 
 NS_ASSUME_NONNULL_BEGIN
 
