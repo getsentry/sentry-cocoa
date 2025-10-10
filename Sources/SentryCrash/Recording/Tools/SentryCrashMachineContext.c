@@ -78,11 +78,24 @@ getThreadList(SentryCrashMachineContext *context)
             "Thread count %d is higher than maximum of %d", threadCount, maxThreadCount);
         threadCount = maxThreadCount;
     }
+
+    // Make sure we always include the crashed thread
+    const thread_t callingThread = context->thisThread;
+    bool isCallingThreadInList = false;
     for (int i = 0; i < threadCount; i++) {
-        context->allThreads[i] = threads[i];
+        thread_t thread = threads[i];
+        context->allThreads[i] = thread;
+        if (thread == callingThread) {
+            isCallingThreadInList = true;
+        }
+    }
+    if (threadCount > 0 && !isCallingThreadInList) {
+        // If the calling thread isn't in our list put it in the last entry.
+        context->allThreads[threadCount - 1] = callingThread;
     }
     context->threadCount = threadCount;
 
+    // Deallocate ALL mach ports and memory
     for (mach_msg_type_number_t i = 0; i < actualThreadCount; i++) {
         mach_port_deallocate(thisTask, threads[i]);
     }
