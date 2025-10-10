@@ -11,6 +11,8 @@ class SentryANRTrackerV1Tests: XCTestCase, SentryANRTrackerDelegate {
     private var anrStoppedExpectation: XCTestExpectation!
     private let waitTimeout: TimeInterval = 5.0
     private var lastANRStoppedResult: SentryANRStoppedResult?
+    private var previousIsDebug: Bool = false
+    private var previousDiagnosticLevel: SentryLevel = .info
     
     private class Fixture {
         let timeoutInterval: TimeInterval = 5
@@ -27,6 +29,10 @@ class SentryANRTrackerV1Tests: XCTestCase, SentryANRTrackerDelegate {
 
     override func setUp() {
         super.setUp()
+        
+        self.previousIsDebug = SentrySDKLog.isDebug
+        self.previousDiagnosticLevel = SentrySDKLog.diagnosticLevel
+        SentrySDKLog._configure(true, diagnosticLevel: .debug)
         
         anrDetectedExpectation = expectation(description: "ANR Detection")
         anrStoppedExpectation = expectation(description: "ANR Stopped")
@@ -47,6 +53,7 @@ class SentryANRTrackerV1Tests: XCTestCase, SentryANRTrackerDelegate {
         
         wait(for: [fixture.threadWrapper.threadFinishedExpectation], timeout: 5)
         XCTAssertEqual(0, fixture.threadWrapper.threads.count)
+        SentrySDKLog._configure(self.previousIsDebug, diagnosticLevel: self.previousDiagnosticLevel)
         clearTestState()
     }
     
