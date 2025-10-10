@@ -1,5 +1,6 @@
 
 #import "SentryCoreDataTracker.h"
+#import "SentryDefaultThreadInspector.h"
 #import "SentryFrame.h"
 #import "SentryHub+Private.h"
 #import "SentryInternalDefines.h"
@@ -12,16 +13,15 @@
 #import "SentrySpanProtocol.h"
 #import "SentryStacktrace.h"
 #import "SentrySwift.h"
-#import "SentryThreadInspector.h"
 #import "SentryTraceOrigin.h"
 
 @implementation SentryCoreDataTracker {
     SentryPredicateDescriptor *predicateDescriptor;
-    SentryThreadInspector *_threadInspector;
+    SentryDefaultThreadInspector *_threadInspector;
     id<SentryProcessInfoSource> _processInfoWrapper;
 }
 
-- (instancetype)initWithThreadInspector:(SentryThreadInspector *)threadInspector
+- (instancetype)initWithThreadInspector:(SentryDefaultThreadInspector *)threadInspector
                      processInfoWrapper:(id<SentryProcessInfoSource>)processInfoWrapper;
 {
     if (self = [super init]) {

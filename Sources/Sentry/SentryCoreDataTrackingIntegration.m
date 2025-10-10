@@ -1,11 +1,11 @@
 #import "SentryCoreDataTrackingIntegration.h"
 #import "SentryCoreDataSwizzling.h"
 #import "SentryCoreDataTracker.h"
+#import "SentryDefaultThreadInspector.h"
 #import "SentryDependencyContainer.h"
 #import "SentryLogC.h"
 #import "SentryNSDataSwizzling.h"
 #import "SentryOptions.h"
-#import "SentryThreadInspector.h"
 
 @interface SentryCoreDataTrackingIntegration ()
 
@@ -22,7 +22,7 @@
     }
 
     self.tracker = [[SentryCoreDataTracker alloc]
-        initWithThreadInspector:[[SentryThreadInspector alloc] initWithOptions:options]
+        initWithThreadInspector:[[SentryDefaultThreadInspector alloc] initWithOptions:options]
              processInfoWrapper:[SentryDependencyContainer.sharedInstance processInfoWrapper]];
     [SentryCoreDataSwizzling.sharedInstance startWithTracker:self.tracker];
 

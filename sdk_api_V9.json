@@ -33144,9 +33144,17 @@
             "children": [
               {
                 "kind": "TypeNominal",
-                "name": "NSNumber",
-                "printedName": "Foundation.NSNumber",
-                "usr": "c:objc(cs)NSNumber"
+                "name": "Optional",
+                "printedName": "Foundation.NSNumber?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "NSNumber",
+                    "printedName": "Foundation.NSNumber",
+                    "usr": "c:objc(cs)NSNumber"
+                  }
+                ],
+                "usr": "s:Sq"
               }
             ],
             "declKind": "Var",
@@ -33167,9 +33175,17 @@
                 "children": [
                   {
                     "kind": "TypeNominal",
-                    "name": "NSNumber",
-                    "printedName": "Foundation.NSNumber",
-                    "usr": "c:objc(cs)NSNumber"
+                    "name": "Optional",
+                    "printedName": "Foundation.NSNumber?",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "NSNumber",
+                        "printedName": "Foundation.NSNumber",
+                        "usr": "c:objc(cs)NSNumber"
+                      }
+                    ],
+                    "usr": "s:Sq"
                   }
                 ],
                 "declKind": "Accessor",
@@ -33203,9 +33219,17 @@
                   },
                   {
                     "kind": "TypeNominal",
-                    "name": "NSNumber",
-                    "printedName": "Foundation.NSNumber",
-                    "usr": "c:objc(cs)NSNumber"
+                    "name": "Optional",
+                    "printedName": "Foundation.NSNumber?",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "NSNumber",
+                        "printedName": "Foundation.NSNumber",
+                        "usr": "c:objc(cs)NSNumber"
+                      }
+                    ],
+                    "usr": "s:Sq"
                   }
                 ],
                 "declKind": "Accessor",
@@ -33772,9 +33796,17 @@
               },
               {
                 "kind": "TypeNominal",
-                "name": "NSNumber",
-                "printedName": "Foundation.NSNumber",
-                "usr": "c:objc(cs)NSNumber"
+                "name": "Optional",
+                "printedName": "Foundation.NSNumber?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "NSNumber",
+                    "printedName": "Foundation.NSNumber",
+                    "usr": "c:objc(cs)NSNumber"
+                  }
+                ],
+                "usr": "s:Sq"
               }
             ],
             "declKind": "Constructor",

@@ -4,7 +4,7 @@
 
 #    import "SentryContinuousProfiler.h"
 #    import "SentryDependencyContainer.h"
-#    import "SentryFileManager.h"
+#    import "SentryFileManagerHelper.h"
 #    import "SentryInternalDefines.h"
 #    import "SentryLaunchProfiling.h"
 #    import "SentryLogC.h"

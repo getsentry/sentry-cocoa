@@ -1,4 +1,4 @@
-#import "SentryThreadInspector.h"
+#import "SentryDefaultThreadInspector.h"
 #import "SentryCrashDefaultMachineContextWrapper.h"
 #import "SentryCrashStackCursor.h"
 #include "SentryCrashStackCursor_MachineContext.h"
@@ -12,7 +12,7 @@
 #import "SentryThread.h"
 #include <pthread.h>
 
-@interface SentryThreadInspector ()
+@interface SentryDefaultThreadInspector ()
 
 @property (nonatomic, strong) SentryStacktraceBuilder *stacktraceBuilder;
 @property (nonatomic, strong) id<SentryCrashMachineContextWrapper> machineContextWrapper;
@@ -52,7 +52,7 @@ getStackEntriesFromThread(SentryCrashThread thread, struct SentryCrashMachineCon
     return entries;
 }
 
-@implementation SentryThreadInspector
+@implementation SentryDefaultThreadInspector
 
 - (id)initWithStacktraceBuilder:(SentryStacktraceBuilder *)stacktraceBuilder
        andMachineContextWrapper:(id<SentryCrashMachineContextWrapper>)machineContextWrapper

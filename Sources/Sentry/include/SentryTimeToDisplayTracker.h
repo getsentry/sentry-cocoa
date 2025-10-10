@@ -2,10 +2,11 @@
 
 #if SENTRY_HAS_UIKIT
 
-@class SentrySpan;
 @class SentryTracer;
 @class SentryDispatchQueueWrapper;
 @class UIViewController;
+
+@protocol SentrySpan;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -19,9 +20,9 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SentryTimeToDisplayTracker : NSObject
 SENTRY_NO_INIT
 
-@property (nullable, nonatomic, weak, readonly) SentrySpan *initialDisplaySpan;
+@property (nullable, nonatomic, weak, readonly) id<SentrySpan> initialDisplaySpan;
 
-@property (nullable, nonatomic, weak, readonly) SentrySpan *fullDisplaySpan;
+@property (nullable, nonatomic, weak, readonly) id<SentrySpan> fullDisplaySpan;
 
 @property (nonatomic, readonly) BOOL waitForFullDisplay;
 

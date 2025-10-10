@@ -2,6 +2,7 @@
 #import "SentryBaggage.h"
 #import "SentryBreadcrumb.h"
 #import "SentryClient+Private.h"
+#import "SentryDefaultThreadInspector.h"
 #import "SentryDsn.h"
 #import "SentryEvent.h"
 #import "SentryException.h"
@@ -23,7 +24,6 @@
 #import "SentryStacktrace.h"
 #import "SentrySwift.h"
 #import "SentryThread.h"
-#import "SentryThreadInspector.h"
 #import "SentryTraceContext.h"
 #import "SentryTraceHeader.h"
 #import "SentryTraceOrigin.h"
@@ -413,7 +413,8 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
 
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelError];
 
-    SentryThreadInspector *threadInspector = SentrySDKInternal.currentHub.getClient.threadInspector;
+    SentryDefaultThreadInspector *threadInspector
+        = SentrySDKInternal.currentHub.getClient.threadInspector;
     NSArray<SentryThread *> *threads = [threadInspector getCurrentThreads];
 
     // sessionTask.error isn't used because it's not about network errors but rather

@@ -15,6 +15,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithName:(const char *)name
                   attributes:(nullable dispatch_queue_attr_t)attributes;
 
+- (instancetype)initWithName:(const char *)name relativePriority:(int)relativePriority;
+
 - (void)dispatchAsyncWithBlock:(void (^)(void))block;
 
 - (void)dispatchSync:(void (^)(void))block;

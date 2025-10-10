@@ -109,3 +109,6 @@ current_package_diff.patch
 
 uikit-check-build
 *.xcarchive
+
+# Output of `make analyze`
+analyzer

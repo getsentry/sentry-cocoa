@@ -1,19 +1,15 @@
 #import "SentryTransportFactory.h"
 #import "SentryDefaultRateLimits.h"
 #import "SentryEnvelopeRateLimit.h"
-#import "SentryHttpDateParser.h"
 #import "SentryHttpTransport.h"
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"
 #import "SentryNSURLRequestBuilder.h"
 #import "SentryOptions.h"
 #import "SentryQueueableRequestManager.h"
-#import "SentryRateLimitParser.h"
 #import "SentryRateLimits.h"
-#import "SentrySwift.h"
-
-#import "SentryRetryAfterHeaderParser.h"
 #import "SentrySpotlightTransport.h"
+#import "SentrySwift.h"
 #import "SentryTransport.h"
 
 NS_ASSUME_NONNULL_BEGIN

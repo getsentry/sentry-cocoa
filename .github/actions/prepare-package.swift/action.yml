@@ -5,6 +5,12 @@ inputs:
     description: "Whether the build is a PR"
     required: true
     default: "false"
+  remove-duplicate:
+    description: "Whether to remove targets that produce duplicate files. These targets cause SPM validation errors."
+    default: "false"
+  change-path:
+    description: "Whether to change the path of the framework"
+    default: "true"
   package-file:
     description: "The package file to prepare"
     required: true
@@ -22,7 +28,17 @@ runs:
         sed -i '' '/Sentry-Dynamic-WithARM64e/d' $PACKAGE_FILE
         sed -i '' '/Sentry-WithoutUIKitOrAppKit-WithARM64e/d' $PACKAGE_FILE
         sed -i '' '/^[[:space:]]*\.binaryTarget($/{N;/\n[[:space:]]*),\{0,1\}$/d;}' $PACKAGE_FILE
+    - name: Remove duplicate target
+      if: ${{ inputs.remove-duplicate == 'true' }}
+      shell: bash
+      env:
+        PACKAGE_FILE: ${{ inputs.package-file }}
+      run: |
+        sed -i '' '/Sentry-Dynamic/d' $PACKAGE_FILE
+        sed -i '' '/Sentry-WithoutUIKitOrAppKit/d' $PACKAGE_FILE
+        sed -i '' '/^[[:space:]]*\.binaryTarget($/{N;/\n[[:space:]]*),\{0,1\}$/d;}' $PACKAGE_FILE
     - name: Change path of the framework
+      if: ${{ inputs.change-path == 'true' }}
       shell: bash
       env:
         PACKAGE_FILE: ${{ inputs.package-file }}

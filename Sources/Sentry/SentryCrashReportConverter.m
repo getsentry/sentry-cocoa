@@ -51,7 +51,7 @@
         // here. For more details please check out SentryCrashScopeObserver.
         NSMutableDictionary *userContextMerged =
             [[NSMutableDictionary alloc] initWithDictionary:userContextUnMerged];
-        [userContextMerged addEntriesFromDictionary:report[@"sentry_sdk_scope"]];
+        [userContextMerged addEntriesFromDictionary:report[@"sentry_sdk_scope"] ?: @{}];
         [userContextMerged removeObjectForKey:@"sentry_sdk_scope"];
         self.userContext = userContextMerged;
 
@@ -108,8 +108,9 @@
         if ([self.report[@"report"][@"timestamp"] isKindOfClass:NSNumber.class]) {
             event.timestamp = [NSDate
                 dateWithTimeIntervalSince1970:[self.report[@"report"][@"timestamp"] integerValue]];
-        } else {
-            event.timestamp = sentry_fromIso8601String(self.report[@"report"][@"timestamp"]);
+        } else if ([self.report[@"report"][@"timestamp"] isKindOfClass:NSString.class]) {
+            event.timestamp = sentry_fromIso8601String(
+                SENTRY_UNWRAP_NULLABLE(NSString, self.report[@"report"][@"timestamp"]));
         }
         event.threads = [self convertThreads];
         event.debugMeta = [self debugMetaForThreads:event.threads];
@@ -119,7 +120,7 @@
         event.environment = self.userContext[@"environment"];
 
         NSMutableDictionary *mutableContext =
-            [[NSMutableDictionary alloc] initWithDictionary:self.userContext[@"context"]];
+            [[NSMutableDictionary alloc] initWithDictionary:self.userContext[@"context"] ?: @{}];
         if (self.userContext[@"traceContext"]) {
             mutableContext[@"trace"] = self.userContext[@"traceContext"];
         }
@@ -188,11 +189,16 @@
         for (NSDictionary *storedCrumb in storedBreadcrumbs) {
             SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc]
                 initWithLevel:[self sentryLevelFromString:storedCrumb[@"level"]]
-                     category:storedCrumb[@"category"]];
+                     category:storedCrumb[@"category"]
+                    ?: @"default"]; // The default value is the same as the one in
+                                    // SentryBreadcrumb.init
             crumb.message = storedCrumb[@"message"];
             crumb.type = storedCrumb[@"type"];
             crumb.origin = storedCrumb[@"origin"];
-            crumb.timestamp = sentry_fromIso8601String(storedCrumb[@"timestamp"]);
+            if ([storedCrumb[@"timestamp"] isKindOfClass:NSString.class]) {
+                crumb.timestamp = sentry_fromIso8601String(
+                    SENTRY_UNWRAP_NULLABLE(NSString, storedCrumb[@"timestamp"]));
+            }
             crumb.data = storedCrumb[@"data"];
             [breadcrumbs addObject:crumb];
         }
@@ -248,6 +254,13 @@
     return result;
 }
 
+/**
+ * Creates a SentryThread from crash report thread data at the specified index.
+ *
+ * This method includes defensive null handling to prevent crashes when processing
+ * malformed crash reports. The original bug was that invalid thread index types
+ * could cause crashes when accessing threadId.intValue for isMain calculation.
+ */
 - (SentryThread *_Nullable)threadAtIndex:(NSInteger)threadIndex
 {
     if (threadIndex >= [self.threads count]) {
@@ -255,7 +268,18 @@
     }
     NSDictionary *threadDictionary = self.threads[threadIndex];
 
-    SentryThread *thread = [[SentryThread alloc] initWithThreadId:threadDictionary[@"index"]];
+    // Thread index validation: We must support nil/missing indexes for backward compatibility
+    // with recrash reports (see testRecrashReport_WithThreadIsStringInsteadOfDict), but we
+    // must reject invalid types when present to prevent crashes from calling .intValue on
+    // non-NSNumber objects. This fixes a bug where malformed crash reports could cause
+    // crashes in the converter itself when accessing threadId.intValue for isMain calculation.
+    id threadIndexObj = threadDictionary[@"index"];
+    if (threadIndexObj != nil && ![threadIndexObj isKindOfClass:[NSNumber class]]) {
+        SENTRY_LOG_ERROR(@"Thread index is not a number: %@", threadIndexObj);
+        return nil;
+    }
+    SentryThread *thread =
+        [[SentryThread alloc] initWithThreadId:SENTRY_UNWRAP_NULLABLE(NSNumber, threadIndexObj)];
     // We only want to add the stacktrace if this thread hasn't crashed
     thread.stacktrace = [self stackTraceForThreadIndex:threadIndex];
     if (thread.stacktrace.frames.count == 0) {
@@ -266,7 +290,10 @@
     thread.current = threadDictionary[@"current_thread"];
     thread.name = threadDictionary[@"name"];
     // We don't have access to the MachineContextWrapper but we know first thread is always the main
-    thread.isMain = [NSNumber numberWithBool:thread.threadId.intValue == 0];
+    // Use null-safe check: threadIndexObj can be nil for recrash reports, and calling intValue on
+    // a nil NSNumber would return 0, incorrectly marking threads without indexes as main threads.
+    thread.isMain =
+        [NSNumber numberWithBool:threadIndexObj != nil && [threadIndexObj intValue] == 0];
     if (nil == thread.name) {
         thread.name = threadDictionary[@"dispatch_queue"];
     }
@@ -357,9 +384,11 @@
 
     for (SentryThread *thread in threads) {
         for (SentryFrame *frame in thread.stacktrace.frames) {
-            if (frame.imageAddress && ![imageNames containsObject:frame.imageAddress]) {
-                [imageNames addObject:frame.imageAddress];
+            NSString *_Nullable nullableImageAddress = frame.imageAddress;
+            if (nullableImageAddress == nil) {
+                continue;
             }
+            [imageNames addObject:SENTRY_UNWRAP_NULLABLE(NSString, nullableImageAddress)];
         }
     }
 
@@ -399,19 +428,25 @@
                               self.exceptionContext[@"mach"][@"exception"],
                               self.exceptionContext[@"mach"][@"code"],
                               self.exceptionContext[@"mach"][@"subcode"]]
-                     type:self.exceptionContext[@"mach"][@"exception_name"]];
+                     type:self.exceptionContext[@"mach"][@"exception_name"]
+                ?: @"Mach Exception"]; // The fallback value is best-attempt in case the exception
+                                       // name is not available
     } else if ([exceptionType isEqualToString:@"signal"]) {
         exception =
             [[SentryException alloc] initWithValue:[NSString stringWithFormat:@"Signal %@, Code %@",
                                                        self.exceptionContext[@"signal"][@"signal"],
                                                        self.exceptionContext[@"signal"][@"code"]]
-                                              type:self.exceptionContext[@"signal"][@"name"]];
+                                              type:self.exceptionContext[@"signal"][@"name"]
+                    ?: @"Signal Exception"]; // The fallback value is best-attempt in case the
+                                             // exception name is not available
     } else if ([exceptionType isEqualToString:@"user"]) {
         NSString *exceptionReason =
             [NSString stringWithFormat:@"%@", self.exceptionContext[@"reason"]];
-        exception = [[SentryException alloc]
-            initWithValue:exceptionReason
-                     type:self.exceptionContext[@"user_reported"][@"name"]];
+        exception =
+            [[SentryException alloc] initWithValue:exceptionReason
+                                              type:self.exceptionContext[@"user_reported"][@"name"]
+                    ?: @"User Reported Exception"]; // The fallback value is best-attempt in case
+                                                    // the exception name is not available
 
         NSRange match = [exceptionReason rangeOfString:@":"];
         if (match.location != NSNotFound) {
@@ -454,7 +489,9 @@
     }
 
     return [[SentryException alloc] initWithValue:[NSString stringWithFormat:@"%@", reason]
-                                             type:self.exceptionContext[@"nsexception"][@"name"]];
+                                             type:self.exceptionContext[@"nsexception"][@"name"]
+            ?: @"NSException"]; // The fallback value is best-attempt in case the exception name is
+                                // not available
 }
 
 - (void)enhanceValueFromNotableAddresses:(SentryException *)exception
@@ -464,7 +501,7 @@
         return;
     }
     NSDictionary *crashedThread = self.threads[self.crashedThreadIndex];
-    NSDictionary *notableAddresses = crashedThread[@"notable_addresses"];
+    NSDictionary *_Nullable notableAddresses = crashedThread[@"notable_addresses"];
     NSMutableOrderedSet *reasons = [[NSMutableOrderedSet alloc] init];
     if (nil != notableAddresses) {
         for (id key in notableAddresses) {
@@ -472,7 +509,7 @@
             if ([content[@"type"] isEqualToString:@"string"] && nil != content[@"value"]) {
                 // if there are less than 3 slashes it shouldn't be a filepath
                 if ([[content[@"value"] componentsSeparatedByString:@"/"] count] < 3) {
-                    [reasons addObject:content[@"value"]];
+                    [reasons addObject:SENTRY_UNWRAP_NULLABLE(NSString, content[@"value"])];
                 }
             }
         }
@@ -497,11 +534,13 @@
 
     for (NSDictionary *binaryImage in libSwiftCoreBinaryImages) {
         if (binaryImage[@"crash_info_message"] != nil) {
-            [crashInfoMessages addObject:binaryImage[@"crash_info_message"]];
+            [crashInfoMessages
+                addObject:SENTRY_UNWRAP_NULLABLE(NSString, binaryImage[@"crash_info_message"])];
         }
 
         if (binaryImage[@"crash_info_message2"] != nil) {
-            [crashInfoMessages addObject:binaryImage[@"crash_info_message2"]];
+            [crashInfoMessages
+                addObject:SENTRY_UNWRAP_NULLABLE(NSString, binaryImage[@"crash_info_message2"])];
         }
     }
 

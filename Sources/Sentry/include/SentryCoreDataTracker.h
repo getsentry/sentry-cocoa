@@ -4,12 +4,12 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @protocol SentryProcessInfoSource;
-@class SentryThreadInspector;
+@class SentryDefaultThreadInspector;
 
 @interface SentryCoreDataTracker : NSObject
 SENTRY_NO_INIT
 
-- (instancetype)initWithThreadInspector:(SentryThreadInspector *)threadInspector
+- (instancetype)initWithThreadInspector:(SentryDefaultThreadInspector *)threadInspector
                      processInfoWrapper:(id<SentryProcessInfoSource>)processInfoWrapper;
 
 - (NSArray *)managedObjectContext:(NSManagedObjectContext *)context

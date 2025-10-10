@@ -3,7 +3,6 @@
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
 #    import "SentryDependencyContainer.h"
-#    import "SentryDispatchFactory.h"
 #    import "SentryEvent+Private.h"
 #    import "SentryFormatter.h"
 #    import "SentryLogC.h"

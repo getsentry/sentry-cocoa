@@ -1,4 +1,4 @@
-#import "SentryFileManager.h"
+#import "SentryFileManagerHelper.h"
 #import "SentryDataCategoryMapper.h"
 #import "SentryDateUtils.h"
 #import "SentryDependencyContainer.h"
@@ -87,45 +87,28 @@ _non_thread_safe_removeFileAtPath(NSString *path)
 
 #pragma mark - SentryFileManager
 
-@interface SentryFileManager ()
-
-@property (nonatomic, strong) id<SentryCurrentDateProvider> dateProvider;
-@property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueue;
+@interface SentryFileManagerHelper ()
 
 @property (nonatomic, copy) NSString *basePath;
 @property (nonatomic, copy) NSString *sentryPath;
-@property (nonatomic, copy) NSString *eventsPath;
-@property (nonatomic, copy) NSString *envelopesPath;
 @property (nonatomic, copy) NSString *currentSessionFilePath;
 @property (nonatomic, copy) NSString *crashedSessionFilePath;
 @property (nonatomic, copy) NSString *abnormalSessionFilePath;
 @property (nonatomic, copy) NSString *lastInForegroundFilePath;
 @property (nonatomic, copy) NSString *previousAppStateFilePath;
-@property (nonatomic, copy) NSString *appStateFilePath;
 @property (nonatomic, copy) NSString *previousBreadcrumbsFilePathOne;
 @property (nonatomic, copy) NSString *previousBreadcrumbsFilePathTwo;
 @property (nonatomic, copy) NSString *breadcrumbsFilePathOne;
 @property (nonatomic, copy) NSString *breadcrumbsFilePathTwo;
-@property (nonatomic, copy) NSString *timezoneOffsetFilePath;
-@property (nonatomic, copy) NSString *appHangEventFilePath;
 @property (nonatomic, assign) NSUInteger currentFileCounter;
-@property (nonatomic, assign) NSUInteger maxEnvelopes;
-@property (nonatomic, copy, nullable) void (^envelopeDeletedCallback)
-    (SentryEnvelopeItem *, SentryDataCategory);
 
 @end
 
-@implementation SentryFileManager
+@implementation SentryFileManagerHelper
 
-- (nullable instancetype)initWithOptions:(SentryOptions *)options
-                            dateProvider:(id<SentryCurrentDateProvider>)dateProvider
-                    dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
-                                   error:(NSError **)error
+- (nullable instancetype)initWithOptions:(SentryOptions *)options error:(NSError **)error
 {
     if (self = [super init]) {
-        self.dateProvider = dateProvider;
-        self.dispatchQueue = dispatchQueueWrapper;
-
         [self createPathsWithOptions:options];
 
         // Remove old cached events for versions before 6.0.0
@@ -200,12 +183,6 @@ _non_thread_safe_removeFileAtPath(NSString *path)
     self.envelopesPath = [self.sentryPath stringByAppendingPathComponent:EnvelopesPathComponent];
 }
 
-- (void)setEnvelopeDeletedCallback:(void (^)(
-                                       SentryEnvelopeItem *_Nonnull, SentryDataCategory))callback
-{
-    _envelopeDeletedCallback = callback;
-}
-
 #pragma mark - Convenience Accessors
 
 - (NSURL *)getSentryPathAsURL
@@ -215,18 +192,12 @@ _non_thread_safe_removeFileAtPath(NSString *path)
 
 #pragma mark - Envelope
 
-- (nullable NSString *)storeEnvelope:(SentryEnvelope *)envelope
+- (nullable NSString *)storeEnvelopeData:(NSData *)envelopeData
+                             currentTime:(NSTimeInterval)currentTime
 {
-    NSData *envelopeData = [SentrySerializationSwift dataWithEnvelope:envelope];
-
-    if (envelopeData == nil) {
-        SENTRY_LOG_ERROR(@"Serialization of envelope failed. Can't store envelope.");
-        return nil;
-    }
-
     @synchronized(self) {
-        NSString *path =
-            [self.envelopesPath stringByAppendingPathComponent:[self uniqueAscendingJsonName]];
+        NSString *path = [self.envelopesPath
+            stringByAppendingPathComponent:[self uniqueAscendingJsonName:currentTime]];
         SENTRY_LOG_DEBUG(@"Writing envelope to path: %@", path);
 
         if (![self writeData:envelopeData toPath:path]) {
@@ -234,7 +205,7 @@ _non_thread_safe_removeFileAtPath(NSString *path)
             return nil;
         }
 
-        [self handleEnvelopesLimit];
+        self.handleEnvelopesLimit();
         return path;
     }
 }
@@ -276,36 +247,13 @@ _non_thread_safe_removeFileAtPath(NSString *path)
     return envelopesPath;
 }
 
-- (NSArray<SentryFileContents *> *)getAllEnvelopes
-{
-    return [self allFilesContentInFolder:self.envelopesPath];
-}
-
-- (SentryFileContents *_Nullable)getOldestEnvelope
+- (NSArray<NSString *> *_Nullable)pathsOfAllEnvelopes
 {
     NSArray<NSString *> *pathsOfAllEnvelopes;
     @synchronized(self) {
         pathsOfAllEnvelopes = [self allFilesInFolder:self.envelopesPath];
     }
-
-    if (pathsOfAllEnvelopes.count > 0) {
-        NSString *filePath = pathsOfAllEnvelopes[0];
-        return [self getFileContents:self.envelopesPath filePath:filePath];
-    }
-
-    return nil;
-}
-
-- (void)deleteOldEnvelopeItems
-{
-    __weak SentryFileManager *weakSelf = self;
-    [self.dispatchQueue dispatchAsyncWithBlock:^{
-        if (weakSelf == nil) {
-            return;
-        }
-        SENTRY_LOG_DEBUG(@"Dispatched deletion of old envelopes from %@", weakSelf);
-        [weakSelf deleteOldEnvelopesFromAllSentryPaths];
-    }];
+    return pathsOfAllEnvelopes;
 }
 
 - (void)deleteAllEnvelopes
@@ -319,12 +267,12 @@ _non_thread_safe_removeFileAtPath(NSString *path)
 
 #pragma mark - Session
 
-- (void)storeCurrentSession:(SentrySession *)session
+- (void)storeCurrentSessionData:(nullable NSData *)data
 {
-    [self storeSession:session sessionFilePath:self.currentSessionFilePath];
+    [self storeSessionData:data sessionFilePath:self.currentSessionFilePath];
 }
 
-- (SentrySession *_Nullable)readCurrentSession
+- (NSData *_Nullable)readCurrentSession
 {
     return [self readSession:self.currentSessionFilePath];
 }
@@ -334,12 +282,12 @@ _non_thread_safe_removeFileAtPath(NSString *path)
     [self deleteSession:self.currentSessionFilePath];
 }
 
-- (void)storeCrashedSession:(SentrySession *)session
+- (void)storeCrashedSessionData:(nullable NSData *)data
 {
-    [self storeSession:session sessionFilePath:self.crashedSessionFilePath];
+    [self storeSessionData:data sessionFilePath:self.crashedSessionFilePath];
 }
 
-- (SentrySession *_Nullable)readCrashedSession
+- (NSData *_Nullable)readCrashedSession
 {
     return [self readSession:self.crashedSessionFilePath];
 }
@@ -349,12 +297,12 @@ _non_thread_safe_removeFileAtPath(NSString *path)
     [self deleteSession:self.crashedSessionFilePath];
 }
 
-- (void)storeAbnormalSession:(SentrySession *)session
+- (void)storeAbnormalSessionData:(nullable NSData *)data
 {
-    [self storeSession:session sessionFilePath:self.abnormalSessionFilePath];
+    [self storeSessionData:data sessionFilePath:self.abnormalSessionFilePath];
 }
 
-- (SentrySession *_Nullable)readAbnormalSession
+- (NSData *_Nullable)readAbnormalSession
 {
     return [self readSession:self.abnormalSessionFilePath];
 }
@@ -411,15 +359,8 @@ _non_thread_safe_removeFileAtPath(NSString *path)
 
 #pragma mark - App State
 
-- (void)storeAppState:(SentryAppState *)appState
+- (void)storeAppStateData:(NSData *)data
 {
-    NSData *data = [SentrySerializationSwift dataWithJSONObject:[appState serialize]];
-
-    if (data == nil) {
-        SENTRY_LOG_ERROR(@"Failed to store app state, because of an error in serialization");
-        return;
-    }
-
     @synchronized(self.appStateFilePath) {
         if (![self writeData:data toPath:self.appStateFilePath]) {
             SENTRY_LOG_WARN(@"Failed to store app state.");
@@ -434,14 +375,14 @@ _non_thread_safe_removeFileAtPath(NSString *path)
     }
 }
 
-- (SentryAppState *_Nullable)readAppState
+- (NSData *_Nullable)readAppStateData
 {
     @synchronized(self.appStateFilePath) {
         return [self readAppStateFrom:self.appStateFilePath];
     }
 }
 
-- (SentryAppState *_Nullable)readPreviousAppState
+- (NSData *_Nullable)readPreviousAppState
 {
     @synchronized(self.previousAppStateFilePath) {
         return [self readAppStateFrom:self.previousAppStateFilePath];
@@ -639,7 +580,7 @@ _non_thread_safe_removeFileAtPath(NSString *path)
     return [NSData dataWithContentsOfFile:path options:0 error:error];
 }
 
-- (BOOL)writeData:(NSData *)data toPath:(NSString *)path
+- (BOOL)writeData:(nullable NSData *)data toPath:(NSString *)path
 {
     NSError *_Nullable error;
     if (!createDirectoryIfNotExists(self.sentryPath, &error)) {
@@ -940,12 +881,11 @@ removeAppLaunchProfilingConfigFile(void)
 
 #pragma mark - Private Session
 
-- (void)storeSession:(SentrySession *)session sessionFilePath:(NSString *)sessionFilePath
+- (void)storeSessionData:(nullable NSData *)data sessionFilePath:(NSString *)sessionFilePath
 {
-    NSData *sessionData = [SentrySerializationSwift dataWithSession:session];
     SENTRY_LOG_DEBUG(@"Writing session: %@", sessionFilePath);
     @synchronized(self.currentSessionFilePath) {
-        if (![self writeData:sessionData toPath:sessionFilePath]) {
+        if (![self writeData:data toPath:sessionFilePath]) {
             SENTRY_LOG_WARN(@"Failed to write session data.");
         }
     }
@@ -959,7 +899,7 @@ removeAppLaunchProfilingConfigFile(void)
     }
 }
 
-- (nullable SentrySession *)readSession:(NSString *)sessionFilePath
+- (nullable NSData *)readSession:(NSString *)sessionFilePath
 {
     [SentrySDKLog
         logWithMessage:[NSString stringWithFormat:@"Reading from session: %@", sessionFilePath]
@@ -973,18 +913,12 @@ removeAppLaunchProfilingConfigFile(void)
             return nil;
         }
     }
-    SentrySession *currentSession = [SentrySerializationSwift sessionWithData:currentData];
-    if (nil == currentSession) {
-        SENTRY_LOG_ERROR(
-            @"Data stored in session: '%@' was not parsed as session.", sessionFilePath);
-        return nil;
-    }
-    return currentSession;
+    return currentData;
 }
 
 #pragma mark - Private App State
 
-- (SentryAppState *_Nullable)readAppStateFrom:(NSString *)path
+- (NSData *_Nullable)readAppStateFrom:(NSString *)path
 {
     NSFileManager *fileManager = [NSFileManager defaultManager];
     NSData *currentData = [fileManager contentsAtPath:path];
@@ -992,7 +926,7 @@ removeAppLaunchProfilingConfigFile(void)
         SENTRY_LOG_WARN(@"No app state data found at %@", path);
         return nil;
     }
-    return [SentrySerializationSwift appStateWithData:currentData];
+    return currentData;
 }
 
 - (void)deleteAppStateFrom:(NSString *)path
@@ -1021,21 +955,19 @@ removeAppLaunchProfilingConfigFile(void)
 
 // Delete every envelope in self.basePath older than 90 days,
 // as Sentry only retains data for 90 days.
-- (void)deleteOldEnvelopesFromAllSentryPaths
+- (void)deleteOldEnvelopesFromAllSentryPaths:(NSTimeInterval)now
 {
     // First we find all directories in the base path, these are all the various hashed DSN paths
     for (NSString *filePath in [self allFilesInFolder:self.basePath]) {
         NSString *envelopesPath = [self getEnvelopesPath:filePath];
 
         // Then we will remove all old items from the envelopes subdirectory
-        [self deleteOldEnvelopesFromPath:envelopesPath];
+        [self deleteOldEnvelopesFromPath:envelopesPath currentTime:now];
     }
 }
 
-- (void)deleteOldEnvelopesFromPath:(NSString *)envelopesPath
+- (void)deleteOldEnvelopesFromPath:(NSString *)envelopesPath currentTime:(NSTimeInterval)now
 {
-    NSTimeInterval now = [[self.dateProvider date] timeIntervalSince1970];
-
     for (NSString *path in [self allFilesInFolder:envelopesPath]) {
         NSString *fullPath = [envelopesPath stringByAppendingPathComponent:path];
         NSDictionary *dict = [[NSFileManager defaultManager] attributesOfItemAtPath:fullPath
@@ -1054,95 +986,17 @@ removeAppLaunchProfilingConfigFile(void)
     }
 }
 
-- (void)handleEnvelopesLimit
-{
-    NSArray<NSString *> *envelopeFilePaths = [self allFilesInFolder:self.envelopesPath];
-    NSInteger numberOfEnvelopesToRemove = envelopeFilePaths.count - self.maxEnvelopes;
-    if (numberOfEnvelopesToRemove <= 0) {
-        return;
-    }
-
-    for (NSUInteger i = 0; i < numberOfEnvelopesToRemove; i++) {
-        NSString *envelopeFilePath =
-            [self.envelopesPath stringByAppendingPathComponent:envelopeFilePaths[i]];
-
-        // Remove current envelope path
-        NSMutableArray<NSString *> *envelopePathsCopy =
-            [[NSMutableArray alloc] initWithArray:[envelopeFilePaths copy]];
-        [envelopePathsCopy removeObjectAtIndex:i];
-
-        NSData *envelopeData = [[NSFileManager defaultManager] contentsAtPath:envelopeFilePath];
-        SentryEnvelope *envelope = [SentrySerializationSwift envelopeWithData:envelopeData];
-
-        BOOL didMigrateSessionInit =
-            [SentryMigrateSessionInit migrateSessionInit:envelope
-                                        envelopesDirPath:self.envelopesPath
-                                       envelopeFilePaths:envelopePathsCopy];
-
-        for (SentryEnvelopeItem *item in envelope.items) {
-            SentryDataCategory rateLimitCategory
-                = sentryDataCategoryForEnvelopItemType(item.header.type);
-
-            // When migrating the session init, the envelope to delete still contains the session
-            // migrated to another envelope. Therefore, the envelope item is not deleted but
-            // migrated.
-            if (didMigrateSessionInit && rateLimitCategory == kSentryDataCategorySession) {
-                continue;
-            }
-
-            if (self.envelopeDeletedCallback) {
-                self.envelopeDeletedCallback(item, rateLimitCategory);
-            }
-        }
-
-        [self removeFileAtPath:envelopeFilePath];
-    }
-
-    SENTRY_LOG_DEBUG(@"Removed %ld file(s) from <%@>", (long)numberOfEnvelopesToRemove,
-        [self.envelopesPath lastPathComponent]);
-}
-
 #pragma mark - Private Others
 
-- (NSString *)uniqueAscendingJsonName
+- (NSString *)uniqueAscendingJsonName:(NSTimeInterval)currentTime
 {
     // %f = double
     // %05lu = unsigned with always 5 digits and leading zeros if number is too small. We
     //      need this because otherwise 10 would be sorted before 2 for example.
     // %@ = NSString
     // For example 978307200.000000-00001-3FE8C3AE-EB9C-4BEB-868C-14B8D47C33DD.json
-    return [NSString stringWithFormat:@"%f-%05lu-%@.json",
-        [[self.dateProvider date] timeIntervalSince1970], (unsigned long)self.currentFileCounter++,
-        [NSUUID UUID].UUIDString];
-}
-
-- (SentryFileContents *_Nullable)getFileContents:(NSString *)folderPath
-                                        filePath:(NSString *)filePath
-{
-
-    NSString *finalPath = [folderPath stringByAppendingPathComponent:filePath];
-    NSFileManager *fileManager = [NSFileManager defaultManager];
-    NSData *content = [fileManager contentsAtPath:finalPath];
-    if (nil != content) {
-        return [[SentryFileContents alloc] initWithPath:finalPath contents:content];
-    } else {
-        return nil;
-    }
-}
-
-- (NSArray<SentryFileContents *> *)allFilesContentInFolder:(NSString *)path
-{
-    @synchronized(self) {
-        NSMutableArray<SentryFileContents *> *contents = [NSMutableArray new];
-        for (NSString *filePath in [self allFilesInFolder:path]) {
-            SentryFileContents *fileContents = [self getFileContents:path filePath:filePath];
-
-            if (nil != fileContents) {
-                [contents addObject:fileContents];
-            }
-        }
-        return contents;
-    }
+    return [NSString stringWithFormat:@"%f-%05lu-%@.json", currentTime,
+        (unsigned long)self.currentFileCounter++, [NSUUID UUID].UUIDString];
 }
 
 - (void)clearDiskState

@@ -16,6 +16,7 @@ class DataBag {
 struct ContentView: View {
 
     @State var TTDInfo: String = ""
+    @State var errorId: SentryId?
     
     var addBreadcrumbAction: () -> Void = {
         let crumb = Breadcrumb(level: SentryLevel.info, category: "Debug")
@@ -46,9 +47,9 @@ struct ContentView: View {
       #endif // SDK_V9
     }
     
-    var captureErrorAction: () -> Void = {
+    func captureErrorAction() {
         let error = NSError(domain: "SampleErrorDomain", code: 1, userInfo: [NSLocalizedDescriptionKey: "Object does not exist"])
-        SentrySDK.capture(error: error) { (scope) in
+        errorId = SentrySDK.capture(error: error) { (scope) in
             scope.setTag(value: "value", key: "myTag")
         }
     }
@@ -239,7 +240,10 @@ struct ContentView: View {
                         .background(Color.white)
                     }
                     SecondView()
-
+                  if let errorId {
+                    Text(errorId.sentryIdString)
+                      .accessibilityIdentifier("errorId")
+                  }
                     Text(TTDInfo)
                         .accessibilityIdentifier("TTDInfo")
                 }

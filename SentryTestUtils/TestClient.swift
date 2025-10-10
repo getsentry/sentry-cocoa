@@ -16,17 +16,17 @@ public class TestClient: SentryClient {
         )
     }
 
-    public override init?(options: Options, fileManager: SentryFileManager, deleteOldEnvelopeItems: Bool) {
+    @_spi(Private) public override init?(options: Options, fileManager: SentryFileManager, deleteOldEnvelopeItems: Bool) {
         super.init(options: options, fileManager: fileManager, deleteOldEnvelopeItems: deleteOldEnvelopeItems, transportAdapter: TestTransportAdapter(transports: [TestTransport()], options: options))
     }
     
-    public override init(options: Options, fileManager: SentryFileManager, deleteOldEnvelopeItems: Bool, transportAdapter: SentryTransportAdapter) {
+    @_spi(Private) public override init(options: Options, fileManager: SentryFileManager, deleteOldEnvelopeItems: Bool, transportAdapter: SentryTransportAdapter) {
         super.init(options: options, fileManager: fileManager, deleteOldEnvelopeItems: deleteOldEnvelopeItems, transportAdapter: transportAdapter)
     }
     
     // Without this override we get a fatal error: use of unimplemented initializer
     // see https://stackoverflow.com/questions/28187261/ios-swift-fatal-error-use-of-unimplemented-initializer-init
-    @_spi(Private) public override init(options: Options, transportAdapter: SentryTransportAdapter, fileManager: SentryFileManager, deleteOldEnvelopeItems: Bool, threadInspector: SentryThreadInspector, debugImageProvider: SentryDebugImageProvider, random: SentryRandomProtocol, locale: Locale, timezone: TimeZone) {
+    @_spi(Private) public override init(options: Options, transportAdapter: SentryTransportAdapter, fileManager: SentryFileManager, deleteOldEnvelopeItems: Bool, threadInspector: SentryDefaultThreadInspector, debugImageProvider: SentryDebugImageProvider, random: SentryRandomProtocol, locale: Locale, timezone: TimeZone) {
         super.init(
             options: options,
             transportAdapter: transportAdapter,

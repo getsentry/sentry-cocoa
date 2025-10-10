@@ -7,7 +7,6 @@
 #import "SentryEnvelopeItemHeader.h"
 #import "SentryEnvelopeRateLimit.h"
 #import "SentryEvent.h"
-#import "SentryFileManager.h"
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"
 #import "SentryNSURLRequestBuilder.h"
@@ -93,8 +92,9 @@
         [self.envelopeRateLimit setDelegate:self];
         typeof(self) __weak weakSelf = self;
         [self.fileManager
-            setEnvelopeDeletedCallback:^(SentryEnvelopeItem *item, SentryDataCategory category) {
-                [weakSelf envelopeItemDeleted:item withCategory:category];
+            setEnvelopeDeletedCallback:^(SentryEnvelopeItem *item, NSUInteger category) {
+                [weakSelf envelopeItemDeleted:item
+                                 withCategory:sentryDataCategoryForNSUInteger(category)];
             }];
 
         [self sendAllCachedEnvelopes];

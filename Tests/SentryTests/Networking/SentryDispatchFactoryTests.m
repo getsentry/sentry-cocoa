@@ -1,4 +1,3 @@
-#import "SentryDispatchFactory.h"
 #import "SentrySwift.h"
 #import <XCTest/XCTest.h>
 

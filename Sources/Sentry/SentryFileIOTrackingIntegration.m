@@ -3,7 +3,6 @@
 #import "SentryFileIOTracker.h"
 #import "SentryNSDataSwizzling.h"
 #import "SentryNSFileManagerSwizzling.h"
-#import "SentryThreadInspector.h"
 
 @interface SentryFileIOTrackingIntegration ()
 

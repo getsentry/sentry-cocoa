@@ -783,6 +783,6 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
             threadInspector.allThreads = []
         }
 
-        SentryDependencyContainer.sharedInstance().threadInspector = threadInspector
+        Dynamic(SentryDependencyContainer.sharedInstance()).threadInspector = threadInspector
     }
 }

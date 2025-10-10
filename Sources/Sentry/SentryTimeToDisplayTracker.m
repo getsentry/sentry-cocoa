@@ -25,8 +25,8 @@
 
 @interface SentryTimeToDisplayTracker () <SentryFramesTrackerListener>
 
-@property (nonatomic, weak) SentrySpan *initialDisplaySpan;
-@property (nonatomic, weak) SentrySpan *fullDisplaySpan;
+@property (nonatomic, weak) id<SentrySpan> initialDisplaySpan;
+@property (nonatomic, weak) id<SentrySpan> fullDisplaySpan;
 @property (nonatomic, strong, readonly) SentryDispatchQueueWrapper *dispatchQueueWrapper;
 
 @end
@@ -198,7 +198,7 @@
     }
 }
 
-- (void)addTimeToDisplayMeasurement:(SentrySpan *)span name:(NSString *)name
+- (void)addTimeToDisplayMeasurement:(id<SentrySpan>)span name:(NSString *)name
 {
     NSTimeInterval duration = [span.timestamp timeIntervalSinceDate:span.startTimestamp] * 1000;
     [span setMeasurement:name value:@(duration) unit:SentryMeasurementUnitDuration.millisecond];

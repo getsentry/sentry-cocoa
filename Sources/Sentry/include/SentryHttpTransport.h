@@ -8,6 +8,7 @@
 @class SentryDispatchQueueWrapper;
 @class SentryNSURLRequestBuilder;
 @class SentryDsn;
+@class SentryFileManager;
 @protocol SentryCurrentDateProvider;
 
 NS_ASSUME_NONNULL_BEGIN

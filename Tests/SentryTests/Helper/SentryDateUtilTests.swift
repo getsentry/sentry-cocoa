@@ -1,3 +1,4 @@
+@_spi(Private) import Sentry
 @_spi(Private) import SentryTestUtils
 import XCTest
 
@@ -12,25 +13,25 @@ class SentryDateUtilTests: XCTestCase {
     
     func testIsInFutureWithFutureDte() {
         let sut = SentryDateUtil(currentDateProvider: currentDateProvider)
-        XCTAssertTrue(sut.is(inFuture: currentDateProvider.date().addingTimeInterval(1)))
+        XCTAssertTrue(sut.isInFuture(currentDateProvider.date().addingTimeInterval(1)))
     }
     
     func testIsInFutureWithPresentDate() {
         let sut = SentryDateUtil(currentDateProvider: currentDateProvider)
         
-        XCTAssertFalse(sut.is(inFuture: currentDateProvider.date()))
+        XCTAssertFalse(sut.isInFuture(currentDateProvider.date()))
     }
     
     func testIsInFutureWithPastDate() {
         let sut = SentryDateUtil(currentDateProvider: currentDateProvider)
         
-        XCTAssertFalse(sut.is(inFuture: currentDateProvider.date().addingTimeInterval(-1)))
+        XCTAssertFalse(sut.isInFuture(currentDateProvider.date().addingTimeInterval(-1)))
    }
     
     func testIsInFutureWithNil() {
         let sut = SentryDateUtil(currentDateProvider: currentDateProvider)
         
-        XCTAssertFalse(sut.is(inFuture: nil))
+        XCTAssertFalse(sut.isInFuture(nil))
     }
 
     func testGetMaximumFirstMaximum() {

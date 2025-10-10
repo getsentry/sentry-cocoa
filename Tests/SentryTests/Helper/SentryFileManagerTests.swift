@@ -60,8 +60,8 @@ class SentryFileManagerTests: XCTestCase {
                 dateProvider: currentDateProvider,
                 dispatchQueueWrapper: dispatchQueueWrapper
             )
-            sut.setEnvelopeDeletedCallback { [weak self] _, category in
-                self?.envelopeItemsDeleted.record(category)
+            sut.envelopeDeletedCallback = { [weak self] _, category in
+                self?.envelopeItemsDeleted.record(sentryDataCategoryForNSUInteger(category))
             }
             return sut
         }
@@ -73,8 +73,8 @@ class SentryFileManagerTests: XCTestCase {
                 dateProvider: currentDateProvider,
                 dispatchQueueWrapper: dispatchQueueWrapper
             )
-            sut.setEnvelopeDeletedCallback { [weak self] _, category in
-                self?.envelopeItemsDeleted.record(category)
+            sut.envelopeDeletedCallback = { [weak self] _, category in
+                self?.envelopeItemsDeleted.record(sentryDataCategoryForNSUInteger(category))
             }
             return sut
         }
@@ -625,7 +625,7 @@ class SentryFileManagerTests: XCTestCase {
             }
             
             dispatchQueue.async {
-                self.sut.readAbnormalSession()
+                _ = self.sut.readAbnormalSession()
                 expectation.fulfill()
             }
             
@@ -689,7 +689,7 @@ class SentryFileManagerTests: XCTestCase {
         SentrySDKLog.configureLog(true, diagnosticLevel: .debug)
         
         sut.deleteAllFolders()
-        sut.getAllEnvelopes()
+        _ = sut.getAllEnvelopes()
         
         let debugLogMessages = logOutput.loggedMessages.filter { $0.contains("[Sentry] [info]") && $0.contains("Returning empty files list, as folder doesn't exist at path:") }
         XCTAssertEqual(debugLogMessages.count, 1)
@@ -863,7 +863,7 @@ class SentryFileManagerTests: XCTestCase {
     func testAppHangEventExists_WithGarbage_ReturnsTrue() throws {
         // Arrange
         let fileManager = FileManager.default
-        let appHangEventFilePath = try XCTUnwrap(Dynamic(sut).appHangEventFilePath.asString)
+        let appHangEventFilePath = sut.appHangEventFilePath
         
         fileManager.createFile(atPath: appHangEventFilePath, contents: Data("garbage".utf8), attributes: nil)
 
@@ -1491,7 +1491,7 @@ private extension SentryFileManagerTests {
     }
     
     func setImmutableForAppState(immutable: Bool) {
-        let appStateFilePath = Dynamic(sut).appStateFilePath.asString ?? ""
+        let appStateFilePath = sut.appStateFilePath
         let fileManager = FileManager.default
         
         if !fileManager.fileExists(atPath: appStateFilePath) {
@@ -1506,7 +1506,7 @@ private extension SentryFileManagerTests {
     }
 
     func setImmutableForTimezoneOffset(immutable: Bool) {
-        let timezoneOffsetFilePath = Dynamic(sut).timezoneOffsetFilePath.asString ?? ""
+        let timezoneOffsetFilePath = sut.timezoneOffsetFilePath
         let fileManager = FileManager.default
 
         if !fileManager.fileExists(atPath: timezoneOffsetFilePath) {

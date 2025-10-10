@@ -1,10 +1,8 @@
 #import "SentryANRTrackerV1.h"
 
-#import "SentryDispatchFactory.h"
-#import "SentryDisplayLinkWrapper.h"
+#import "SentryDefaultThreadInspector.h"
 #import "SentryExtraContextProvider.h"
 #import "SentryFileIOTracker.h"
-#import "SentryFileManager.h"
 #import "SentryInternalCDefines.h"
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"
@@ -13,16 +11,12 @@
 #import "SentrySessionTracker.h"
 #import "SentrySwift.h"
 #import "SentrySystemWrapper.h"
-#import "SentryThreadInspector.h"
 #import <SentryAppStateManager.h>
 #import <SentryCrash.h>
 #import <SentryDebugImageProvider+HybridSDKs.h>
 #import <SentryDefaultRateLimits.h>
 #import <SentryDependencyContainer.h>
-#import <SentryHttpDateParser.h>
 #import <SentryPerformanceTracker.h>
-#import <SentryRateLimitParser.h>
-#import <SentryRetryAfterHeaderParser.h>
 #import <SentrySDK+Private.h>
 #import <SentrySwift.h>
 #import <SentrySwizzleWrapper.h>
@@ -72,6 +66,9 @@ SentryApplicationProviderBlock defaultApplicationProvider = ^id<SentryApplicatio
 };
 
 @interface SentryFileManager () <SentryFileManagerProtocol>
+@end
+
+@interface SentryDefaultThreadInspector () <SentryThreadInspector>
 @end
 
 @interface SentryDependencyContainer ()
@@ -236,10 +233,10 @@ static BOOL isInitialializingDependencyContainer = NO;
                              notificationCenterWrapper:self.notificationCenterWrapper]);
 }
 
-- (SentryThreadInspector *)threadInspector SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
+- (id<SentryThreadInspector>)threadInspector SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
     SENTRY_LAZY_INIT(_threadInspector,
-        [[SentryThreadInspector alloc] initWithOptions:SentrySDKInternal.options]);
+        [[SentryDefaultThreadInspector alloc] initWithOptions:SentrySDKInternal.options]);
 }
 
 - (SentryFileIOTracker *)fileIOTracker SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
