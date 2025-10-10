@@ -531,22 +531,6 @@ typedef void (^SentryProfilingConfigurationBlock)(SentryProfileOptions *_Nonnull
 @property (nullable, nonatomic, copy) SentryProfilingConfigurationBlock configureProfiling;
 
 #    if !SDK_V9
-/**
- * @warning This is an experimental feature and may still have bugs.
- * Set to @c YES to run the profiler as early as possible in an app launch, before you would
- * normally have the opportunity to call @c SentrySDK.start . If @c profilesSampleRate is nonnull,
- * the @c tracesSampleRate and @c profilesSampleRate are persisted to disk and read on the next app
- * launch to decide whether to profile that launch.
- * @warning If @c profilesSampleRate is @c nil then a continuous profile will be started on every
- * launch; if you desire sampling profiled launches, you must compute your own sample rate to decide
- * whether to set this property to @c YES or @c NO .
- * @warning This property is deprecated and will be removed in a future version of the SDK. See
- * @c SentryProfileOptions.startOnAppStart and @c SentryProfileOptions.lifecycle .
- * @note Profiling is automatically disabled if a thread sanitizer is attached.
- */
-@property (nonatomic, assign) BOOL enableAppLaunchProfiling DEPRECATED_MSG_ATTRIBUTE(
-    "This property is deprecated and will be removed in a future version of the SDK. See "
-    "SentryProfileOptions.startOnAppStart and SentryProfileOptions.lifecycle");
 
 /**
  * @note Profiling is not supported on watchOS or tvOS.
@@ -607,19 +591,6 @@ typedef void (^SentryProfilingConfigurationBlock)(SentryProfileOptions *_Nonnull
  */
 @property (nonatomic, assign, readonly) BOOL isProfilingEnabled DEPRECATED_MSG_ATTRIBUTE(
     "This property is deprecated and will be removed in a future version of the SDK");
-
-/**
- * @brief Whether to enable the sampling profiler.
- * @note Profiling is not supported on watchOS or tvOS.
- * @deprecated Use @c profilesSampleRate instead. Setting @c enableProfiling to @c YES is the
- * equivalent of setting @c profilesSampleRate to @c 1.0  If @c profilesSampleRate is set, it will
- * take precedence over this setting.
- * @note Default is @c NO.
- * @note Profiling is automatically disabled if a thread sanitizer is attached.
- */
-@property (nonatomic, assign) BOOL enableProfiling DEPRECATED_MSG_ATTRIBUTE(
-    "Use profilesSampleRate or profilesSampler instead. This property will be removed in a future "
-    "version of the SDK");
 #    endif // !SDK_V9
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 

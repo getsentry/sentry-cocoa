@@ -740,7 +740,6 @@
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 #    pragma clang diagnostic push
 #    pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    XCTAssertEqual(NO, options.enableProfiling);
     XCTAssertNil(options.profilesSampleRate);
     XCTAssertNil(options.profilesSampler);
 #    pragma clang diagnostic pop
@@ -1215,22 +1214,6 @@
     XCTAssertFalse([options isContinuousProfilingEnabled]);
 }
 
-- (void)testIsProfilingEnabled_EnableProfilingSet_IsEnabled
-{
-    SentryOptions *options = [[SentryOptions alloc] init];
-#    pragma clang diagnostic push
-#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    options.enableProfiling = YES;
-#    pragma clang diagnostic pop
-
-    // This property now only refers to trace-based profiling, but renaming it would require a major
-    // rev
-    XCTAssertTrue(options.isProfilingEnabled);
-
-    XCTAssertNil(options.profilesSampleRate);
-    XCTAssertFalse([options isContinuousProfilingEnabled]);
-}
-
 - (void)testProfilesSampler
 {
     SentryTracesSamplerCallback sampler = ^(SentrySamplingContext *context) {
@@ -1359,17 +1342,6 @@
     SentryOptions *options = [self getValidOptions:@{ @"initialScope" : initialScope }];
     XCTAssertIdentical(initialScope, options.initialScope);
 }
-
-#if SENTRY_TARGET_PROFILING_SUPPORTED
-#    pragma clang diagnostic push
-#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
-- (void)testEnableAppLaunchProfilingDefaultValue
-{
-    SentryOptions *options = [self getValidOptions:@{}];
-    XCTAssertFalse(options.enableAppLaunchProfiling);
-}
-#    pragma clang diagnostic pop
-#endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 - (SentryOptions *)getValidOptions:(NSDictionary<NSString *, id> *)dict
 {
