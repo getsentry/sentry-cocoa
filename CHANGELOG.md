@@ -22,6 +22,7 @@
 
 - Fixes warnings about minimum OS version being lower than Xcode supported version (#5591)
 - Fix rendering method for fast view rendering (#6360)
+- Fix wrong Frame Delay when becoming active, which lead to false reported app hangs when the app moves to the foreground after being in the background (#6381)
 
 ### Improvements
 
