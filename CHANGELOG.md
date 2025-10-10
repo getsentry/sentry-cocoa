@@ -32,6 +32,9 @@
 
 ## 8.56.2
 
+> [!Warning]
+> Session Replay in this version does not correctly mask views when built with Xcode 26 and running on iOS 26 with Liquid Glass, which may lead to PII leaks. Please upgrade to 8.57.0 or later.
+
 ### Fixes
 
 - Fix crash from null UIApplication in SwiftUI apps (#6264)
@@ -40,6 +43,9 @@
 
 > [!Warning]
 > This version can cause runtime crashes because the `UIApplication.sharedApplication`/`NSApplication.sharedApplication` is not yet available during SDK initialization, due to the changes in [PR #5900](https://github.com/getsentry/sentry-cocoa/pull/5900), released in [8.56.0](https://github.com/getsentry/sentry-cocoa/releases/tag/8.56.0).
+
+> [!Warning]
+> Session Replay in this version does not correctly mask views when built with Xcode 26 and running on iOS 26 with Liquid Glass, which may lead to PII leaks. Please upgrade to 8.57.0 or later.
 
 ### Fixes
 
@@ -51,6 +57,9 @@
 
 > [!Warning]
 > This version can cause runtime crashes because the `UIApplication.sharedApplication`/`NSApplication.sharedApplication` is not yet available during SDK initialization, due to the changes in [PR #5900](https://github.com/getsentry/sentry-cocoa/pull/5900), released in [8.56.0](https://github.com/getsentry/sentry-cocoa/releases/tag/8.56.0).
+
+> [!Warning]
+> Session Replay in this version does not correctly mask views when built with Xcode 26 and running on iOS 26 with Liquid Glass, which may lead to PII leaks. Please upgrade to 8.57.0 or later.
 
 ### Features
 
@@ -134,6 +143,9 @@
 
 ## 8.55.1
 
+> [!Warning]
+> Session Replay in this version does not correctly mask views when built with Xcode 26 and running on iOS 26 with Liquid Glass, which may lead to PII leaks. Please upgrade to 8.57.0 or later.
+
 ### Features
 
 ### Fixes
@@ -160,6 +172,9 @@
 > If your app does not need arm64e, you don't need to make any changes.
 > But if your app _needs arm64e_ please use `Sentry-Dynamic-WithARM64e` or `Sentry-WithoutUIKitOrAppKit-WithARM64e` from 8.55.0 so you don't have issues uploading to the App Store.
 
+> [!Warning]
+> Session Replay in this version does not correctly mask views when built with Xcode 26 and running on iOS 26 with Liquid Glass, which may lead to PII leaks. Please upgrade to 8.57.0 or later.
+
 ### Features
 
 - Add a new prebuilt framework with arm64e and remove it from the regular one (#5788)
@@ -182,6 +197,9 @@
 - Add nullability property for `screenName` (#5782)
 
 ## 8.54.0
+
+> [!Warning]
+> Session Replay in this version does not correctly mask views when built with Xcode 26 and running on iOS 26 with Liquid Glass, which may lead to PII leaks. Please upgrade to 8.57.0 or later.
 
 ### Features
 
