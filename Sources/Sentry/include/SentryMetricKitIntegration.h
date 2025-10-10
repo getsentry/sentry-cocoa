@@ -18,7 +18,6 @@ static NSString *const SentryMetricKitCpuExceptionMechanism = @"mx_cpu_exception
 static NSString *const SentryMetricKitHangDiagnosticType = @"MXHangDiagnostic";
 static NSString *const SentryMetricKitHangDiagnosticMechanism = @"mx_hang_diagnostic";
 
-API_AVAILABLE(ios(15.0), macos(12.0), macCatalyst(15.0))
 API_UNAVAILABLE(tvos, watchos)
 @interface SentryMetricKitIntegration : SentryBaseIntegration
 

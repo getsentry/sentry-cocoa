@@ -4,12 +4,10 @@ import Foundation
 #if os(iOS) && !SENTRY_NO_UIKIT
 import UIKit
 
-@available(iOS 13.0, *)
 protocol SentryUserFeedbackFormDelegate: NSObjectProtocol {
     func finished(with feedback: SentryFeedback?)
 }
 
-@available(iOS 13.0, *)
 final class SentryUserFeedbackFormController: UIViewController {
     let config: SentryUserFeedbackConfiguration
     weak var delegate: SentryUserFeedbackFormDelegate?

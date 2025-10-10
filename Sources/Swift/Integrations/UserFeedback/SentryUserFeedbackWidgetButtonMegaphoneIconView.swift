@@ -3,7 +3,6 @@ import Foundation
 @_implementationOnly import _SentryPrivate
 import UIKit
 
-@available(iOS 13.0, *)
 final class SentryUserFeedbackWidgetButtonMegaphoneIconView: UIView {
     init(config: SentryUserFeedbackConfiguration) {
         super.init(frame: .zero)

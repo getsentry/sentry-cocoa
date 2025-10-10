@@ -33,16 +33,14 @@ extension SentryApplication {
         var windows = Set<UIWindow>()
         Dependencies.dispatchQueueWrapper.dispatchSyncOnMainQueue({ [weak self] in
             guard let self else { return }
-            if #available(iOS 13.0, tvOS 13.0, *) {
-                let scenes = self.connectedScenes
-                for scene in scenes {
-                    if scene.activationState == .foregroundActive {
-                        if
-                            let delegate = scene.delegate as? UIWindowSceneDelegate,
-                            let window = delegate.window {
-                            if let window {
-                                windows.insert(window)
-                            }
+            let scenes = self.connectedScenes
+            for scene in scenes {
+                if scene.activationState == .foregroundActive {
+                    if
+                        let delegate = scene.delegate as? UIWindowSceneDelegate,
+                        let window = delegate.window {
+                        if let window {
+                            windows.insert(window)
                         }
                     }
                 }

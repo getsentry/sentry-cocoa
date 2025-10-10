@@ -512,10 +512,7 @@ initialize(void)
     g_systemData.systemName = "unknown";
 #endif
 
-    NSOperatingSystemVersion version = { 0, 0, 0 };
-    if (@available(macOS 10.10, *)) {
-        version = [NSProcessInfo processInfo].operatingSystemVersion;
-    }
+    NSOperatingSystemVersion version = [NSProcessInfo processInfo].operatingSystemVersion;
     NSString *systemVersion;
     if (version.patchVersion == 0) {
         systemVersion = [NSString

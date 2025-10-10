@@ -57,15 +57,11 @@
         [SentrySwiftAsyncIntegration class], nil];
 
 #if TARGET_OS_IOS && SENTRY_HAS_UIKIT
-    if (@available(iOS 13.0, iOSApplicationExtension 13.0, *)) {
-        [defaultIntegrations addObject:[SentryUserFeedbackIntegration class]];
-    }
+    [defaultIntegrations addObject:[SentryUserFeedbackIntegration class]];
 #endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
 
 #if SENTRY_HAS_METRIC_KIT
-    if (@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, *)) {
-        [defaultIntegrations addObject:[SentryMetricKitIntegration class]];
-    }
+    [defaultIntegrations addObject:[SentryMetricKitIntegration class]];
 #endif // SENTRY_HAS_METRIC_KIT
 
     return defaultIntegrations;
@@ -398,12 +394,10 @@
     }
 
 #if SENTRY_HAS_METRIC_KIT
-    if (@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, *)) {
-        [self setBool:options[@"enableMetricKit"]
-                block:^(BOOL value) { sentryOptions.enableMetricKit = value; }];
-        [self setBool:options[@"enableMetricKitRawPayload"]
-                block:^(BOOL value) { sentryOptions.enableMetricKitRawPayload = value; }];
-    }
+    [self setBool:options[@"enableMetricKit"]
+            block:^(BOOL value) { sentryOptions.enableMetricKit = value; }];
+    [self setBool:options[@"enableMetricKitRawPayload"]
+            block:^(BOOL value) { sentryOptions.enableMetricKitRawPayload = value; }];
 #endif // SENTRY_HAS_METRIC_KIT
 
     [self setBool:options[@"enableSpotlight"]

@@ -5,7 +5,6 @@ import UIKit
 /**
  * Settings for whether to show the widget and how it should appear.
  */
-@available(iOS 13.0, *)
 @objcMembers
 public final class SentryUserFeedbackWidgetConfiguration: NSObject {
     /**

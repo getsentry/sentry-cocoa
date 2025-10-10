@@ -23,7 +23,6 @@ import UIKit
  */
     func getWindows() -> [UIWindow]?
     
-    @available(iOS 13.0, tvOS 13.0, *)
     var connectedScenes: Set<UIScene> { get }
 
     var delegate: UIApplicationDelegate? { get }

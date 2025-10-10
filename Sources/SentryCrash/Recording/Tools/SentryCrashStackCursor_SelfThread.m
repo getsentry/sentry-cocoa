@@ -55,18 +55,12 @@ sentrycrashsc_initSelfThread(SentryCrashStackCursor *cursor, int skipEntries)
 // backtrace_async api is only available from xcode 13
 #if __clang_major__ >= 13
     int backtraceLength;
-    if (@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)) {
-        if (stitchSwiftAsync) {
-            SENTRY_ASYNC_SAFE_LOG_DEBUG("Retrieving backtrace with async swift stitching...");
-            backtraceLength
-                = (int)backtrace_async((void **)context->backtrace, MAX_BACKTRACE_LENGTH, NULL);
-        } else {
-            SENTRY_ASYNC_SAFE_LOG_DEBUG("Retrieving backtrace without async swift stitching...");
-            backtraceLength = backtrace((void **)context->backtrace, MAX_BACKTRACE_LENGTH);
-        }
+    if (stitchSwiftAsync) {
+        SENTRY_ASYNC_SAFE_LOG_DEBUG("Retrieving backtrace with async swift stitching...");
+        backtraceLength
+            = (int)backtrace_async((void **)context->backtrace, MAX_BACKTRACE_LENGTH, NULL);
     } else {
-        SENTRY_ASYNC_SAFE_LOG_DEBUG(
-            "Retrieving backtrace without async swift stitching (old platform versions)...");
+        SENTRY_ASYNC_SAFE_LOG_DEBUG("Retrieving backtrace without async swift stitching...");
         backtraceLength = backtrace((void **)context->backtrace, MAX_BACKTRACE_LENGTH);
     }
 #else

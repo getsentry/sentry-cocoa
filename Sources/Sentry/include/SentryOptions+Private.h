@@ -48,8 +48,7 @@ FOUNDATION_EXPORT NSString *const kSentryDefaultEnvironment;
 
 #endif // # SENTRY_TARGET_REPLAY_SUPPORTED
 
-@property (nonatomic, strong, nullable)
-    SentryUserFeedbackConfiguration *userFeedbackConfiguration API_AVAILABLE(ios(13.0));
+@property (nonatomic, strong, nullable) SentryUserFeedbackConfiguration *userFeedbackConfiguration;
 
 SENTRY_EXTERN BOOL sentry_isValidSampleRate(NSNumber *sampleRate);
 

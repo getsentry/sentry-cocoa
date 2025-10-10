@@ -22,10 +22,7 @@ NSString *const EnvelopesPathComponent = @"envelopes";
 BOOL
 isErrorPathTooLong(NSError *error)
 {
-    NSError *underlyingError = NULL;
-    if (@available(macOS 11.3, iOS 14.5, watchOS 7.4, tvOS 14.5, *)) {
-        underlyingError = error.underlyingErrors.firstObject;
-    }
+    NSError *underlyingError = error.underlyingErrors.firstObject;
     if (underlyingError == NULL) {
         id errorInUserInfo = [error.userInfo valueForKey:NSUnderlyingErrorKey];
         if (errorInUserInfo && [errorInUserInfo isKindOfClass:[NSError class]]) {

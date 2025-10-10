@@ -182,7 +182,6 @@ typedef NS_ENUM(NSInteger, SentryTransactionNameSource); // This is a forward de
 /**
  * Block used to configure the user feedback widget, form, behaviors and submission data.
  */
-API_AVAILABLE(ios(13.0))
 typedef void (^SentryUserFeedbackConfigurationBlock)(
     SentryUserFeedbackConfiguration *_Nonnull configuration);
 

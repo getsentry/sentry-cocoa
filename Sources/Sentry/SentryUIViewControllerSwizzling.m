@@ -102,17 +102,11 @@
             SENTRY_LOG_DEBUG(@"Failed to find root UIViewController from UIApplicationDelegate. "
                              @"Trying to use UISceneWillConnectNotification notification.");
 
-            if (@available(iOS 13.0, tvOS 13.0, *)) {
-                [NSNotificationCenter.defaultCenter
-                    addObserver:self
-                       selector:@selector(swizzleRootViewControllerFromSceneDelegateNotification:)
-                           name:UISceneWillConnectNotification
-                         object:nil];
-            } else {
-                SENTRY_LOG_DEBUG(
-                    @"iOS version older then 13. There is no UISceneWillConnectNotification "
-                    @"notification. Could not find a rootViewController");
-            }
+            [NSNotificationCenter.defaultCenter
+                addObserver:self
+                   selector:@selector(swizzleRootViewControllerFromSceneDelegateNotification:)
+                       name:UISceneWillConnectNotification
+                     object:nil];
         }
     }
 
@@ -210,40 +204,37 @@
  */
 - (void)swizzleRootViewControllerFromSceneDelegateNotification:(NSNotification *)notification
 {
-    if (@available(iOS 13.0, tvOS 13.0, *)) {
-        if (![notification.name isEqualToString:UISceneWillConnectNotification])
-            return;
+    if (![notification.name isEqualToString:UISceneWillConnectNotification])
+        return;
 
-        [NSNotificationCenter.defaultCenter removeObserver:self
-                                                      name:UISceneWillConnectNotification
-                                                    object:nil];
+    [NSNotificationCenter.defaultCenter removeObserver:self
+                                                  name:UISceneWillConnectNotification
+                                                object:nil];
 
-        // The object of a UISceneWillConnectNotification should be a NSWindowScene
-        if (![notification.object respondsToSelector:@selector(windows)]) {
+    // The object of a UISceneWillConnectNotification should be a NSWindowScene
+    if (![notification.object respondsToSelector:@selector(windows)]) {
+        SENTRY_LOG_DEBUG(
+            @"Failed to find root UIViewController from UISceneWillConnectNotification. "
+            @"Notification object has no windows property");
+        return;
+    }
+
+    id windows = [notification.object performSelector:@selector(windows)];
+    if (![windows isKindOfClass:[NSArray class]]) {
+        SENTRY_LOG_DEBUG(@"Failed to find root UIViewController from "
+                         @"UISceneWillConnectNotification. Windows is not an array");
+        return;
+    }
+
+    NSArray *windowList = windows;
+    for (id window in windowList) {
+        if ([window isKindOfClass:[UIWindow class]]
+            && ((UIWindow *)window).rootViewController != nil) {
+            [self swizzleRootViewControllerAndDescendant:((UIWindow *)window).rootViewController];
+        } else {
             SENTRY_LOG_DEBUG(
                 @"Failed to find root UIViewController from UISceneWillConnectNotification. "
-                @"Notification object has no windows property");
-            return;
-        }
-
-        id windows = [notification.object performSelector:@selector(windows)];
-        if (![windows isKindOfClass:[NSArray class]]) {
-            SENTRY_LOG_DEBUG(@"Failed to find root UIViewController from "
-                             @"UISceneWillConnectNotification. Windows is not an array");
-            return;
-        }
-
-        NSArray *windowList = windows;
-        for (id window in windowList) {
-            if ([window isKindOfClass:[UIWindow class]]
-                && ((UIWindow *)window).rootViewController != nil) {
-                [self
-                    swizzleRootViewControllerAndDescendant:((UIWindow *)window).rootViewController];
-            } else {
-                SENTRY_LOG_DEBUG(
-                    @"Failed to find root UIViewController from UISceneWillConnectNotification. "
-                    @"Window is not a UIWindow class or the rootViewController is nil");
-            }
+                @"Window is not a UIWindow class or the rootViewController is nil");
         }
     }
 }
