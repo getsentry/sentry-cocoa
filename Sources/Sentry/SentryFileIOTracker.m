@@ -22,7 +22,7 @@
 
 @property (nonatomic, assign) BOOL isEnabled;
 @property (nonatomic, strong) NSMutableSet<NSData *> *processingData;
-@property (nonatomic, strong) id<SentryThreadInspector> threadInspector;
+@property (nonatomic, strong) SentryThreadInspector *threadInspector;
 @property (nonatomic, strong) id<SentryProcessInfoSource> processInfoWrapper;
 
 @end
@@ -42,7 +42,7 @@ NSString *const SENTRY_TRACKING_COUNTER_KEY = @"SENTRY_TRACKING_COUNTER_KEY";
     return SentryDependencyContainer.sharedInstance.fileIOTracker;
 }
 
-- (instancetype)initWithThreadInspector:(id<SentryThreadInspector>)threadInspector
+- (instancetype)initWithThreadInspector:(SentryThreadInspector *)threadInspector
                      processInfoWrapper:(id<SentryProcessInfoSource>)processInfoWrapper
 {
     if (self = [super init]) {
@@ -245,7 +245,7 @@ NSString *const SENTRY_TRACKING_COUNTER_KEY = @"SENTRY_TRACKING_COUNTER_KEY";
         return;
     }
 
-    id<SentryThreadInspector> threadInspector = self.threadInspector;
+    SentryThreadInspector *threadInspector = self.threadInspector;
     SentryStacktrace *stackTrace = [threadInspector stacktraceForCurrentThreadAsyncUnsafe];
 
     NSArray *frames = [stackTrace.frames

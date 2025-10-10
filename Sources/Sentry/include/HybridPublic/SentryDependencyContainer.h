@@ -23,6 +23,7 @@
 @class SentryOptions;
 @class SentrySessionTracker;
 @class SentryGlobalEventProcessor;
+@class SentryThreadInspector;
 @class SentryReachability;
 
 @protocol SentryAppStateManager;
@@ -33,7 +34,6 @@
 @protocol SentryApplication;
 @protocol SentryProcessInfoSource;
 @protocol SentryNSNotificationCenterWrapper;
-@protocol SentryThreadInspector;
 @protocol SentryObjCRuntimeWrapper;
 
 #if SENTRY_HAS_METRIC_KIT
@@ -99,7 +99,7 @@ SENTRY_NO_INIT
 
 @property (nonatomic, strong, nullable) SentryFileManager *fileManager;
 @property (nonatomic, strong) id<SentryAppStateManager> appStateManager;
-@property (nonatomic, strong) id<SentryThreadInspector> threadInspector;
+@property (nonatomic, strong, readonly) SentryThreadInspector *threadInspector;
 @property (nonatomic, strong) SentryFileIOTracker *fileIOTracker;
 @property (nonatomic, strong) SentryCrash *crashReporter;
 @property (nonatomic, strong) SentryScopePersistentStore *scopePersistentStore;

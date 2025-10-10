@@ -56,8 +56,8 @@
     SentryOptions *options = [[SentryOptions alloc] init];
     options.experimental.enableFileManagerSwizzling = enableFileManagerSwizzling;
 
-    SentryDefaultThreadInspector *threadInspector =
-        [[SentryDefaultThreadInspector alloc] initWithOptions:options];
+    SentryThreadInspector *threadInspector =
+        [[SentryThreadInspector alloc] initWithOptions:options];
     id<SentryProcessInfoSource> processInfoWrapper =
         [SentryDependencyContainer.sharedInstance processInfoWrapper];
     self->tracker = [[SentryFileIOTracker alloc] initWithThreadInspector:threadInspector
