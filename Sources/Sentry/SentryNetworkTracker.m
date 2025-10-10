@@ -191,6 +191,7 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
         SentryBaggage *baggage = [[[SentryTracer getTracer:span] traceContext] toBaggage];
         [SentryTracePropagation addBaggageHeader:baggage
                                      traceHeader:[netSpan toTraceHeader]
+                         tracePropagationTargets:SentrySDKInternal.options.tracePropagationTargets
                                        toRequest:sessionTask];
 
         SENTRY_LOG_DEBUG(
@@ -225,6 +226,7 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
 
     [SentryTracePropagation addBaggageHeader:[traceContext toBaggage]
                                  traceHeader:[propagationContext traceHeader]
+                     tracePropagationTargets:SentrySDKInternal.options.tracePropagationTargets
                                    toRequest:sessionTask];
 }
 

@@ -104,7 +104,7 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
     [self resetProfilingTimestampsInternal];
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
-    [self.delayedFramesTracker resetDelayedFramesTimeStamps];
+    [self.delayedFramesTracker reset];
 }
 
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
@@ -164,6 +164,7 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
     }
 
     _isRunning = YES;
+
     // Reset the previous frame timestamp to avoid wrong metrics being collected
     self.previousFrameTimestamp = SentryPreviousFrameInitialValue;
     [_displayLinkWrapper linkWithTarget:self selector:@selector(displayLinkCallback)];
@@ -320,6 +321,11 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
 - (void)pause
 {
     _isRunning = NO;
+
+    // When the frames tracker is paused, we must reset the delayed frames tracker since accurate
+    // frame delay statistics cannot be provided, as we can't account for events during the pause.
+    [self.delayedFramesTracker reset];
+
     [self.displayLinkWrapper invalidate];
 }
 
@@ -332,7 +338,6 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
     _isStarted = NO;
 
     [self pause];
-    [self.delayedFramesTracker resetDelayedFramesTimeStamps];
 
     // Remove the observers with the most specific detail possible, see
     // https://developer.apple.com/documentation/foundation/nsnotificationcenter/1413994-removeobserver
