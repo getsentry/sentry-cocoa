@@ -22,7 +22,7 @@
 
 - Fixes warnings about minimum OS version being lower than Xcode supported version (#5591)
 - Fix rendering method for fast view rendering (#6360)
-- Fix crashed thread may not be included if there are more than 100 treads (#6377)
+- Fix issue where the thread that generated an event could be missing when more than 100 threads are running (#6377)
 
 ### Improvements
 
