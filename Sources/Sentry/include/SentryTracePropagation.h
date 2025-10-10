@@ -9,6 +9,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (void)addBaggageHeader:(SentryBaggage *)baggage
                 traceHeader:(SentryTraceHeader *)traceHeader
+       propagateTraceparent:(BOOL)propagateTraceparent
     tracePropagationTargets:(NSArray *)tracePropagationTargets
                   toRequest:(NSURLSessionTask *)sessionTask;
 
