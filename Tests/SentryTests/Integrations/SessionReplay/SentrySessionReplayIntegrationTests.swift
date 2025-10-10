@@ -30,7 +30,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         }
 
         if #available(iOS 26.0, tvOS 26.0, macCatalyst 26.0, *) {
-            throw XCTSkip("When running the unit tests on iOS 26.0, tvOS 26 or macCatalyst 26.0 with Xcode 26.0, we get warning log messages on the console: 'nw_socket_set_connection_idle [C1.1.1.1:3] setsockopt SO_CONNECTION_IDLE failed [42: Protocol not available]'. This leads to test failures in CI. Therefore, we skip these for now. We are going to fix this with https://github.com/getsentry/sentry-cocoa/issues/6165.")
+            throw XCTSkip("When running the unit tests on iOS 26.0, tvOS 26 or macCatalyst 26.0 with Xcode 26.0, we get warning log messages on the console: 'nw_socket_set_connection_idle [C1.1.1.1:3] setsockopt SO_CONNECTION_IDLE failed [42: Protocol not available]'. This leads to test failures in CI. Therefore, we skip these for now. We are going to fix this with https://github.com/getsentry/sentry-cocoa/issues/6165. Note: Session Replay is also disabled by default on iOS 26 due to Liquid Glass rendering changes.")
         }
 
         uiApplication = TestSentryUIApplication()

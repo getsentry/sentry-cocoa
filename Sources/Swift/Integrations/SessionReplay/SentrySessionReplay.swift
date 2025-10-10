@@ -1,3 +1,4 @@
+// swiftlint:disable file_length
 import Foundation
 #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT
 @_implementationOnly import _SentryPrivate
@@ -29,13 +30,15 @@ import UIKit
     private(set) var isSessionPaused = false
     
     private let replayOptions: SentryReplayOptions
+    private let experimentalOptions: SentryExperimentalOptions
     private let replayMaker: SentryReplayVideoMaker
     private let displayLink: SentryReplayDisplayLinkWrapper
     private let dateProvider: SentryCurrentDateProvider
     private let touchTracker: SentryTouchTracker?
     private let lock = NSLock()
     public var replayTags: [String: Any]?
-    
+    private let infoPlistWrapper: SentryInfoPlistWrapperProvider
+
     var isRunning: Bool {
         displayLink.isRunning()
     }
@@ -45,6 +48,7 @@ import UIKit
     
     public init(
         replayOptions: SentryReplayOptions,
+        experimentalOptions: SentryExperimentalOptions,
         replayFolderPath: URL,
         screenshotProvider: SentryViewScreenshotProvider,
         replayMaker: SentryReplayVideoMaker,
@@ -52,9 +56,11 @@ import UIKit
         touchTracker: SentryTouchTracker?,
         dateProvider: SentryCurrentDateProvider,
         delegate: SentrySessionReplayDelegate,
-        displayLinkWrapper: SentryReplayDisplayLinkWrapper
+        displayLinkWrapper: SentryReplayDisplayLinkWrapper,
+        infoPlistWrapper: SentryInfoPlistWrapperProvider
     ) {
         self.replayOptions = replayOptions
+        self.experimentalOptions = experimentalOptions
         self.dateProvider = dateProvider
         self.delegate = delegate
         self.screenshotProvider = screenshotProvider
@@ -63,6 +69,7 @@ import UIKit
         self.replayMaker = replayMaker
         self.breadcrumbConverter = breadcrumbConverter
         self.touchTracker = touchTracker
+        self.infoPlistWrapper = infoPlistWrapper
     }
     
     deinit { displayLink.invalidate() }
@@ -73,6 +80,18 @@ import UIKit
             SentrySDKLog.debug("[Session Replay] Session replay is already running, not starting again")
             return 
         }
+        
+        // Detect if we are running on iOS 26.0 with Liquid Glass and disable session replay.
+        // This needs to be done until masking for session replay is properly supported, as it can lead
+        // to PII leaks otherwise.
+        if isEnvironmentUnreliable() {
+            guard experimentalOptions.enableSessionReplayInUnreliableEnvironment else {
+                SentrySDKLog.fatal("[Session Replay] Detected environment potentially causing PII leaks, disabling Session Replay. To override this mechanism, set `options.experimental.enableSessionReplayInUnreliableEnvironment` to `true`")
+                return
+            }
+            SentrySDKLog.warning("[Session Replay] Detected environment potentially causing PII leaks, but `options.enableInUnreliableEnvironment` is set to `true`, ignoring and enabling Session Replay.")
+        }
+        
         displayLink.link(withTarget: self, selector: #selector(newFrame(_:)))
         self.rootView = rootView
         lastScreenShot = dateProvider.date()
@@ -369,7 +388,86 @@ import UIKit
             replayMaker.addFrameAsync(timestamp: timestamp, maskedViewImage: maskedViewImage, forScreen: screen)
         }
     }
+    
+    // swiftlint:disable:next cyclomatic_complexity function_body_length
+    private func isEnvironmentUnreliable() -> Bool {
+        // Defensive programming: Assume unreliable environment by default on iOS 26.0+
+        // and only mark as safe if we have explicit proof it's not using Liquid Glass.
+        //
+        // Liquid Glass introduces changes to text rendering that breaks masking in Session Replay.
+        // It's used on iOS 26.0+ UNLESS one of these conditions is met:
+        // 1. UIDesignRequiresCompatibility is explicitly set to YES in Info.plist
+        // 2. The app was built with Xcode < 26.0 (DTXcode < 2600)
+        
+        // First check: Are we even on iOS 26.0+?
+        guard #available(iOS 26.0, *) else {
+            // Not on iOS 26.0+ - safe to use Session Replay
+            SentrySDKLog.debug("[Session Replay] Running on iOS version prior to 26.0+ - detected reliable environment")
+            return false
+        }
+        SentrySDKLog.debug("[Session Replay] Running on iOS 26.0+")
+
+        // Safety check 1: Is compatibility mode explicitly enabled?
+        do {
+            var error: NSError?
+            let requiresCompatibility = infoPlistWrapper.getAppValueBoolean(
+                for: SentryInfoPlistKey.designRequiresCompatibility.rawValue,
+                errorPtr: &error
+            )
+            if let error = error as Error? {
+                throw error
+            } else if requiresCompatibility {
+                SentrySDKLog.debug("[Session Replay] Running with UIDesignRequiresCompatibility set to YES - detected as reliable")
+                return false
+            } else {
+                SentrySDKLog.debug("[Session Replay] Running with UIDesignRequiresCompatibility is set to NO")
+            }
+        } catch SentryInfoPlistError.mainInfoPlistNotFound {
+            // Can't read Info.plist - stay defensive
+            SentrySDKLog.warning("[Session Replay] Running on iOS 26.0+ but cannot read Info.plist - detected as unreliable")
+            return true
+        } catch SentryInfoPlistError.keyNotFound {
+            // Due to Objective-C using a return value of `nil` as an indicator for an error,
+            // we need to throw an error when the key was not found
+            SentrySDKLog.debug("[Session Replay] No UIDesignRequiresCompatibility found in Info.plist")
+        } catch {
+            SentrySDKLog.error("[Session Replay] Failed to read Info.plist: \(error)")
+        }
+
+        // Safety check 2: Was the app built with an older Xcode version?
+        // DTXcode format: Xcode 16.4 = "1640", Xcode 26.0 = "2600"
+        do {
+            let xcodeVersionString = try infoPlistWrapper.getAppValueString(
+                for: SentryInfoPlistKey.xcodeVersion.rawValue
+            )
+            if let xcodeVersion = Int(xcodeVersionString) {
+                if xcodeVersion < 2_600 {
+                    SentrySDKLog.debug("[Session Replay] Running on iOS 26.0+ but built with Xcode \(xcodeVersionString) (< 26.0) - detected as reliable")
+                    return false
+                } else {
+                    SentrySDKLog.debug("[Session Replay] Detected built with Xcode version: \(xcodeVersionString)")
+                }
+            } else {
+                SentrySDKLog.warning("[Session Replay] Found xcode version key but could not parse as Int: \(xcodeVersionString)")
+            }
+        } catch SentryInfoPlistError.mainInfoPlistNotFound {
+            // Can't read Info.plist - stay defensive
+            SentrySDKLog.warning("[Session Replay] Running on iOS 26.0+ but cannot read Info.plist - detected as unreliable")
+            return true
+        } catch SentryInfoPlistError.keyNotFound {
+            // Due to Objective-C using a return value of `nil` as an indicator for an error,
+            // we need to throw an error when the key was not found.
+            SentrySDKLog.warning("[Session Replay] Could not find xcode version key in Info.plist")
+        } catch {
+            SentrySDKLog.error("[Session Replay] Failed to read Info.plist: \(error)")
+        }
+
+        // No safety conditions met - treat as unreliable
+        SentrySDKLog.warning("[Session Replay] Detected environment as unreliable")
+        return true
+    }
 }
 // swiftlint:enable type_body_length
 
 #endif
+// swiftlint:enable file_length
