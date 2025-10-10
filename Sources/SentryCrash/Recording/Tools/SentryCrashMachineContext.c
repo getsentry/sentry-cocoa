@@ -80,18 +80,18 @@ getThreadList(SentryCrashMachineContext *context)
     }
 
     // Make sure we always include the crashed thread
-    const thread_t crashedThread = context->thisThread;
-    bool isCrashedThreadInList = false;
+    const thread_t callingThread = context->thisThread;
+    bool isCallingThreadInList = false;
     for (int i = 0; i < threadCount; i++) {
         thread_t thread = threads[i];
         context->allThreads[i] = thread;
-        if (thread == crashedThread) {
-            isCrashedThreadInList = true;
+        if (thread == callingThread) {
+            isCallingThreadInList = true;
         }
     }
-    if (threadCount > 0 && !isCrashedThreadInList) {
-        // If the crashed thread isn't in our list put it in the last entry.
-        context->allThreads[threadCount - 1] = crashedThread;
+    if (threadCount > 0 && !isCallingThreadInList) {
+        // If the calling thread isn't in our list put it in the last entry.
+        context->allThreads[threadCount - 1] = callingThread;
     }
     context->threadCount = threadCount;
 
