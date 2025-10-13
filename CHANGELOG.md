@@ -33,7 +33,7 @@
 ## 8.56.2
 
 > [!Warning]
-> Session Replay in this version does not correctly mask views when built with Xcode 26 and running on iOS 26 with Liquid Glass, which may lead to PII leaks. Please upgrade to 8.57.0 or later.
+> Session Replay in this version does not correctly mask views when built with Xcode 26 and running on iOS 26 with Liquid Glass, which may lead to PII leaks. Please upgrade to 8.57.0 or later, which automatically **disables session replay** in such environments.
 
 ### Fixes
 
@@ -45,7 +45,7 @@
 > This version can cause runtime crashes because the `UIApplication.sharedApplication`/`NSApplication.sharedApplication` is not yet available during SDK initialization, due to the changes in [PR #5900](https://github.com/getsentry/sentry-cocoa/pull/5900), released in [8.56.0](https://github.com/getsentry/sentry-cocoa/releases/tag/8.56.0).
 
 > [!Warning]
-> Session Replay in this version does not correctly mask views when built with Xcode 26 and running on iOS 26 with Liquid Glass, which may lead to PII leaks. Please upgrade to 8.57.0 or later.
+> Session Replay in this version does not correctly mask views when built with Xcode 26 and running on iOS 26 with Liquid Glass, which may lead to PII leaks. Please upgrade to 8.57.0 or later, which automatically **disables session replay** in such environments.
 
 ### Fixes
 
@@ -59,7 +59,7 @@
 > This version can cause runtime crashes because the `UIApplication.sharedApplication`/`NSApplication.sharedApplication` is not yet available during SDK initialization, due to the changes in [PR #5900](https://github.com/getsentry/sentry-cocoa/pull/5900), released in [8.56.0](https://github.com/getsentry/sentry-cocoa/releases/tag/8.56.0).
 
 > [!Warning]
-> Session Replay in this version does not correctly mask views when built with Xcode 26 and running on iOS 26 with Liquid Glass, which may lead to PII leaks. Please upgrade to 8.57.0 or later.
+> Session Replay in this version does not correctly mask views when built with Xcode 26 and running on iOS 26 with Liquid Glass, which may lead to PII leaks. Please upgrade to 8.57.0 or later, which automatically **disables session replay** in such environments.
 
 ### Features
 
@@ -144,7 +144,7 @@
 ## 8.55.1
 
 > [!Warning]
-> Session Replay in this version does not correctly mask views when built with Xcode 26 and running on iOS 26 with Liquid Glass, which may lead to PII leaks. Please upgrade to 8.57.0 or later.
+> Session Replay in this version does not correctly mask views when built with Xcode 26 and running on iOS 26 with Liquid Glass, which may lead to PII leaks. Please upgrade to 8.57.0 or later, which automatically **disables session replay** in such environments.
 
 ### Features
 
@@ -173,7 +173,7 @@
 > But if your app _needs arm64e_ please use `Sentry-Dynamic-WithARM64e` or `Sentry-WithoutUIKitOrAppKit-WithARM64e` from 8.55.0 so you don't have issues uploading to the App Store.
 
 > [!Warning]
-> Session Replay in this version does not correctly mask views when built with Xcode 26 and running on iOS 26 with Liquid Glass, which may lead to PII leaks. Please upgrade to 8.57.0 or later.
+> Session Replay in this version does not correctly mask views when built with Xcode 26 and running on iOS 26 with Liquid Glass, which may lead to PII leaks. Please upgrade to 8.57.0 or later, which automatically **disables session replay** in such environments.
 
 ### Features
 
@@ -199,7 +199,7 @@
 ## 8.54.0
 
 > [!Warning]
-> Session Replay in this version does not correctly mask views when built with Xcode 26 and running on iOS 26 with Liquid Glass, which may lead to PII leaks. Please upgrade to 8.57.0 or later.
+> Session Replay in this version does not correctly mask views when built with Xcode 26 and running on iOS 26 with Liquid Glass, which may lead to PII leaks. Please upgrade to 8.57.0 or later, which automatically **disables session replay** in such environments.
 
 ### Features
 

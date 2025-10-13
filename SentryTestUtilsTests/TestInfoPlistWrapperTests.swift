@@ -22,7 +22,7 @@ class TestInfoPlistWrapperTests: XCTestCase {
         }
 
         // -- Assert --
-        XCTAssertNotNil(e)
+        XCTAssertNotNil(e, "Should trigger precondition failure when accessing unmocked key")
     }
 
     func testGetAppValueString_withMockedValue_withSingleInvocations_shouldReturnMockedValue() throws {
@@ -34,7 +34,7 @@ class TestInfoPlistWrapperTests: XCTestCase {
         let result = try sut.getAppValueString(for: "key")
 
         // -- Assert --
-        XCTAssertEqual(result, "value")
+        XCTAssertEqual(result, "value", "Should return the mocked value")
     }
 
     func testGetAppValueString_withMockedValue_withMultipleInvocations_shouldReturnSameValue() throws {
@@ -47,8 +47,8 @@ class TestInfoPlistWrapperTests: XCTestCase {
         let result2 = try sut.getAppValueString(for: "key1")
 
         // -- Assert --
-        XCTAssertEqual(result1, "value1")
-        XCTAssertEqual(result2, "value1")
+        XCTAssertEqual(result1, "value1", "First invocation should return mocked value")
+        XCTAssertEqual(result2, "value1", "Second invocation should return same mocked value")
     }
     
     func testGetAppValueString_shouldRecordInvocations() throws {
@@ -64,10 +64,10 @@ class TestInfoPlistWrapperTests: XCTestCase {
         _ = try sut.getAppValueString(for: "key3")
 
         // -- Assert --
-        XCTAssertEqual(sut.getAppValueStringInvocations.count, 3)
-        XCTAssertEqual(sut.getAppValueStringInvocations.invocations.element(at: 0), "key1")
-        XCTAssertEqual(sut.getAppValueStringInvocations.invocations.element(at: 1), "key2")
-        XCTAssertEqual(sut.getAppValueStringInvocations.invocations.element(at: 2), "key3")
+        XCTAssertEqual(sut.getAppValueStringInvocations.count, 3, "Should record all three invocations")
+        XCTAssertEqual(sut.getAppValueStringInvocations.invocations.element(at: 0), "key1", "First invocation should be for key1")
+        XCTAssertEqual(sut.getAppValueStringInvocations.invocations.element(at: 1), "key2", "Second invocation should be for key2")
+        XCTAssertEqual(sut.getAppValueStringInvocations.invocations.element(at: 2), "key3", "Third invocation should be for key3")
     }
     
     func testGetAppValueString_withDifferentKeys_shouldReturnDifferentValues() throws {
@@ -81,9 +81,9 @@ class TestInfoPlistWrapperTests: XCTestCase {
         let result2 = try sut.getAppValueString(for: "key2")
 
         // -- Assert --
-        XCTAssertEqual(result1, "value1")
-        XCTAssertEqual(result2, "value2")
-        XCTAssertEqual(sut.getAppValueStringInvocations.count, 2)
+        XCTAssertEqual(result1, "value1", "Should return value1 for key1")
+        XCTAssertEqual(result2, "value2", "Should return value2 for key2")
+        XCTAssertEqual(sut.getAppValueStringInvocations.count, 2, "Should record both invocations")
     }
     
     func testGetAppValueString_withFailureResult_shouldThrowError() {
@@ -97,7 +97,7 @@ class TestInfoPlistWrapperTests: XCTestCase {
                 XCTFail("Expected SentryInfoPlistError.keyNotFound, got \(error)")
                 return
             }
-            XCTAssertEqual(key, "testKey")
+            XCTAssertEqual(key, "testKey", "Error should contain the expected key")
         }
     }
     
@@ -121,9 +121,9 @@ class TestInfoPlistWrapperTests: XCTestCase {
                 XCTFail("Expected SentryInfoPlistError.unableToCastValue, got \(error)")
                 return
             }
-            XCTAssertEqual(key, "castKey")
-            XCTAssertEqual(value as? Int, 123)
-            XCTAssertTrue(type == String.self)
+            XCTAssertEqual(key, "castKey", "Error should contain the correct key")
+            XCTAssertEqual(value as? Int, 123, "Error should contain the correct value")
+            XCTAssertTrue(type == String.self, "Error should contain the correct type")
         }
     }
     
@@ -136,8 +136,8 @@ class TestInfoPlistWrapperTests: XCTestCase {
         _ = try? sut.getAppValueString(for: "key1")
 
         // -- Assert --
-        XCTAssertEqual(sut.getAppValueStringInvocations.count, 1)
-        XCTAssertEqual(sut.getAppValueStringInvocations.invocations.element(at: 0), "key1")
+        XCTAssertEqual(sut.getAppValueStringInvocations.count, 1, "Should record invocation even when throwing error")
+        XCTAssertEqual(sut.getAppValueStringInvocations.invocations.element(at: 0), "key1", "Should record the correct key")
     }
 
     // MARK: - getAppValueBoolean(for:errorPtr:)
@@ -154,7 +154,7 @@ class TestInfoPlistWrapperTests: XCTestCase {
         }
 
         // -- Assert --
-        XCTAssertNotNil(e)
+        XCTAssertNotNil(e, "Should trigger precondition failure when accessing unmocked key")
     }
 
     func testGetAppValueBoolean_withMockedValue_withSingleInvocations_shouldReturnMockedValue() throws {
@@ -167,8 +167,8 @@ class TestInfoPlistWrapperTests: XCTestCase {
         let result = sut.getAppValueBoolean(for: "key", errorPtr: &error)
 
         // -- Assert --
-        XCTAssertTrue(result)
-        XCTAssertNil(error)
+        XCTAssertTrue(result, "Should return the mocked boolean value")
+        XCTAssertNil(error, "Should not set error when returning success")
     }
 
     func testGetAppValueBoolean_withMockedValue_withMultipleInvocations_shouldReturnSameValue() {
@@ -184,10 +184,10 @@ class TestInfoPlistWrapperTests: XCTestCase {
         let result2 = sut.getAppValueBoolean(for: "key1", errorPtr: &error2)
 
         // -- Assert --
-        XCTAssertTrue(result1)
-        XCTAssertNil(error1)
-        XCTAssertTrue(result2)
-        XCTAssertNil(error2)
+        XCTAssertTrue(result1, "First invocation should return mocked value")
+        XCTAssertNil(error1, "First invocation should not set error")
+        XCTAssertTrue(result2, "Second invocation should return same mocked value")
+        XCTAssertNil(error2, "Second invocation should not set error")
     }
     
     func testGetAppValueBoolean_withFalseValue_shouldReturnFalse() {
@@ -200,8 +200,8 @@ class TestInfoPlistWrapperTests: XCTestCase {
         let result = sut.getAppValueBoolean(for: "key", errorPtr: &error)
 
         // -- Assert --
-        XCTAssertFalse(result)
-        XCTAssertNil(error)
+        XCTAssertFalse(result, "Should return false when mocked with false")
+        XCTAssertNil(error, "Should not set error when returning success")
     }
     
     func testGetAppValueBoolean_withFailureResult_shouldReturnFalseAndSetError() {
@@ -215,11 +215,11 @@ class TestInfoPlistWrapperTests: XCTestCase {
         let result = sut.getAppValueBoolean(for: "key", errorPtr: &error)
 
         // -- Assert --
-        XCTAssertFalse(result)
-        XCTAssertNotNil(error)
-        XCTAssertEqual(error?.domain, "TestDomain")
-        XCTAssertEqual(error?.code, 123)
-        XCTAssertEqual(error?.localizedDescription, "Test error")
+        XCTAssertFalse(result, "Should return false when mocked to throw error")
+        XCTAssertNotNil(error, "Should set error pointer when returning failure")
+        XCTAssertEqual(error?.domain, "TestDomain", "Error should have correct domain")
+        XCTAssertEqual(error?.code, 123, "Error should have correct code")
+        XCTAssertEqual(error?.localizedDescription, "Test error", "Error should have correct description")
     }
     
     func testGetAppValueBoolean_withFailureResult_withNilErrorPointer_shouldReturnFalse() {
@@ -232,7 +232,7 @@ class TestInfoPlistWrapperTests: XCTestCase {
         let result = sut.getAppValueBoolean(for: "key", errorPtr: nil)
 
         // -- Assert --
-        XCTAssertFalse(result)
+        XCTAssertFalse(result, "Should return false even when error pointer is nil")
         // No crash should occur when error pointer is nil
     }
     
@@ -254,10 +254,10 @@ class TestInfoPlistWrapperTests: XCTestCase {
         _ = sut.getAppValueBoolean(for: "key3", errorPtr: &error3)
 
         // -- Assert --
-        XCTAssertEqual(sut.getAppValueBooleanInvocations.count, 3)
-        XCTAssertEqual(sut.getAppValueBooleanInvocations.invocations.element(at: 0)?.0, "key1")
-        XCTAssertEqual(sut.getAppValueBooleanInvocations.invocations.element(at: 1)?.0, "key2")
-        XCTAssertEqual(sut.getAppValueBooleanInvocations.invocations.element(at: 2)?.0, "key3")
+        XCTAssertEqual(sut.getAppValueBooleanInvocations.count, 3, "Should record all three invocations")
+        XCTAssertEqual(sut.getAppValueBooleanInvocations.invocations.element(at: 0)?.0, "key1", "First invocation should be for key1")
+        XCTAssertEqual(sut.getAppValueBooleanInvocations.invocations.element(at: 1)?.0, "key2", "Second invocation should be for key2")
+        XCTAssertEqual(sut.getAppValueBooleanInvocations.invocations.element(at: 2)?.0, "key3", "Third invocation should be for key3")
     }
     
     func testGetAppValueBoolean_withSuccessResult_withNilErrorPointer_shouldReturnTrue() {
@@ -269,7 +269,7 @@ class TestInfoPlistWrapperTests: XCTestCase {
         let result = sut.getAppValueBoolean(for: "key", errorPtr: nil)
 
         // -- Assert --
-        XCTAssertTrue(result)
+        XCTAssertTrue(result, "Should return true even when error pointer is nil")
         // No crash should occur when error pointer is nil
     }
     
@@ -287,9 +287,9 @@ class TestInfoPlistWrapperTests: XCTestCase {
         let result2 = sut.getAppValueBoolean(for: "key2", errorPtr: &error2)
 
         // -- Assert --
-        XCTAssertTrue(result1)
-        XCTAssertNil(error1)
-        XCTAssertFalse(result2)
-        XCTAssertNil(error2)
+        XCTAssertTrue(result1, "Should return true for key1")
+        XCTAssertNil(error1, "Should not set error for key1")
+        XCTAssertFalse(result2, "Should return false for key2")
+        XCTAssertNil(error2, "Should not set error for key2")
     }
 }
