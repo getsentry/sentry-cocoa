@@ -1,4 +1,4 @@
-public enum SentryInfoPlistKey: String {
+enum SentryInfoPlistKey: String {
     /// Key used to set the Xcode version used to build app
     case xcodeVersion = "DTXcode"
 
