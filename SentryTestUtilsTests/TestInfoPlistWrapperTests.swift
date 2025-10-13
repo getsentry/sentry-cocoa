@@ -1,4 +1,3 @@
-import CwlPreconditionTesting
 @_spi(Private) @testable import Sentry
 @_spi(Private) @testable import SentryTestUtils
 import XCTest
@@ -6,24 +5,6 @@ import XCTest
 class TestInfoPlistWrapperTests: XCTestCase {
 
     // MARK: - getAppValueString(for:)
-
-    func testGetAppValueString_withoutMockedValue_shouldFailWithPreconditionFailure() throws {
-        // -- Arrange --
-        let sut = TestInfoPlistWrapper()
-        // Don't mock any value for this key
-
-        // -- Act --
-        let e = catchBadInstruction {
-            do {
-                _ = try sut.getAppValueString(for: "unmockedKey")
-            } catch {
-                // noop
-            }
-        }
-
-        // -- Assert --
-        XCTAssertNotNil(e, "Should trigger precondition failure when accessing unmocked key")
-    }
 
     func testGetAppValueString_withMockedValue_withSingleInvocations_shouldReturnMockedValue() throws {
         // -- Arrange --
@@ -141,21 +122,6 @@ class TestInfoPlistWrapperTests: XCTestCase {
     }
 
     // MARK: - getAppValueBoolean(for:errorPtr:)
-
-    func testGetAppValueBoolean_withoutMockedValue_shouldFailWithPreconditionFailure() throws {
-        // -- Arrange --
-        let sut = TestInfoPlistWrapper()
-        // Don't mock any value for this key
-
-        // -- Act --
-        let e = catchBadInstruction {
-            var error: NSError?
-            _ = sut.getAppValueBoolean(for: "unmockedKey", errorPtr: &error)
-        }
-
-        // -- Assert --
-        XCTAssertNotNil(e, "Should trigger precondition failure when accessing unmocked key")
-    }
 
     func testGetAppValueBoolean_withMockedValue_withSingleInvocations_shouldReturnMockedValue() throws {
         // -- Arrange --

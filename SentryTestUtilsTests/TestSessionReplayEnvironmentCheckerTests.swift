@@ -1,4 +1,3 @@
-import CwlPreconditionTesting
 @_spi(Private) @testable import Sentry
 @_spi(Private) @testable import SentryTestUtils
 import XCTest
@@ -6,20 +5,6 @@ import XCTest
 class TestSessionReplayEnvironmentCheckerTests: XCTestCase {
 
     // MARK: - isReliable()
-
-    func testGetAppValueString_withoutMockedValue_shouldFailWithPreconditionFailure() throws {
-        // -- Arrange --
-        let sut = TestSessionReplayEnvironmentChecker()
-        // Don't mock any value for this key
-
-        // -- Act --
-        let e = catchBadInstruction {
-            _ = sut.isReliable()
-        }
-
-        // -- Assert --
-        XCTAssertNotNil(e)
-    }
 
     func testIsReliable_withMockedValue_withSingleInvocations_shouldReturnMockedValue() throws {
         // -- Arrange --

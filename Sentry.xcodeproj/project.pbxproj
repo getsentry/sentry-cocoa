@@ -820,7 +820,6 @@
 		D4599F8B2E98FE9F0045BB95 /* SentryInfoPlistWrapperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4599F8A2E98FE970045BB95 /* SentryInfoPlistWrapperTests.swift */; };
 		D4599F8D2E990F960045BB95 /* TestInfoPlistWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4599F8C2E990F920045BB95 /* TestInfoPlistWrapper.swift */; };
 		D4599F8F2E99113E0045BB95 /* TestInfoPlistWrapperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4599F8E2E9911380045BB95 /* TestInfoPlistWrapperTests.swift */; };
-		D4599F922E9913B20045BB95 /* CwlPreconditionTesting in Frameworks */ = {isa = PBXBuildFile; productRef = D4599F912E9913B20045BB95 /* CwlPreconditionTesting */; };
 		D45B4AF52E019E1A00C31DFB /* TestSentryViewRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = D45B4AF42E019E1500C31DFB /* TestSentryViewRenderer.swift */; };
 		D45B4AF72E01A10100C31DFB /* TestSentryViewPhotographer.swift in Sources */ = {isa = PBXBuildFile; fileRef = D45B4AF62E01A0FA00C31DFB /* TestSentryViewPhotographer.swift */; };
 		D45CE9752E5F454E00BFEDB2 /* SentryScreenshotSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = D45CE9742E5F454300BFEDB2 /* SentryScreenshotSource.swift */; };
@@ -832,6 +831,10 @@
 		D473ACD72D8090FC000F1CC6 /* FileManager+SentryTracing.swift in Sources */ = {isa = PBXBuildFile; fileRef = D473ACD62D8090FC000F1CC6 /* FileManager+SentryTracing.swift */; };
 		D480F9D92DE47A50009A0594 /* TestSentryScopePersistentStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = D480F9D82DE47A48009A0594 /* TestSentryScopePersistentStore.swift */; };
 		D480F9DB2DE47AF2009A0594 /* SentryScopePersistentStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D480F9DA2DE47AEB009A0594 /* SentryScopePersistentStoreTests.swift */; };
+		D483AF9A2E9D4E3D00B43C27 /* CwlPosixPreconditionTesting in Frameworks */ = {isa = PBXBuildFile; productRef = D483AF992E9D4E3D00B43C27 /* CwlPosixPreconditionTesting */; };
+		D483AF9C2E9D4E3D00B43C27 /* CwlPreconditionTesting in Frameworks */ = {isa = PBXBuildFile; productRef = D483AF9B2E9D4E3D00B43C27 /* CwlPreconditionTesting */; };
+		D483AF9F2E9D4E5500B43C27 /* CwlPosixPreconditionTesting in Frameworks */ = {isa = PBXBuildFile; productRef = D483AF9E2E9D4E5500B43C27 /* CwlPosixPreconditionTesting */; };
+		D483AFA22E9D4E6600B43C27 /* CwlCatchException in Frameworks */ = {isa = PBXBuildFile; productRef = D483AFA12E9D4E6600B43C27 /* CwlCatchException */; };
 		D48724E02D3549CA005DE483 /* SentrySpanOperationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D48724DF2D3549C6005DE483 /* SentrySpanOperationTests.swift */; };
 		D48724E22D354D16005DE483 /* SentryTraceOriginTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D48724E12D354D16005DE483 /* SentryTraceOriginTests.swift */; };
 		D48891CC2E98F22A00212823 /* SentryInfoPlistWrapperProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = D48891C62E98F21D00212823 /* SentryInfoPlistWrapperProvider.swift */; };
@@ -2544,8 +2547,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D4599F922E9913B20045BB95 /* CwlPreconditionTesting in Frameworks */,
+				D483AFA22E9D4E6600B43C27 /* CwlCatchException in Frameworks */,
+				D483AF9F2E9D4E5500B43C27 /* CwlPosixPreconditionTesting in Frameworks */,
+				D483AF9A2E9D4E3D00B43C27 /* CwlPosixPreconditionTesting in Frameworks */,
 				D4CBA2472DE06D0200581618 /* libSentryTestUtils.a in Frameworks */,
+				D483AF9C2E9D4E3D00B43C27 /* CwlPreconditionTesting in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -5379,7 +5385,10 @@
 			);
 			name = SentryTestUtilsTests;
 			packageProductDependencies = (
-				D4599F912E9913B20045BB95 /* CwlPreconditionTesting */,
+				D483AF992E9D4E3D00B43C27 /* CwlPosixPreconditionTesting */,
+				D483AF9B2E9D4E3D00B43C27 /* CwlPreconditionTesting */,
+				D483AF9E2E9D4E5500B43C27 /* CwlPosixPreconditionTesting */,
+				D483AFA12E9D4E6600B43C27 /* CwlCatchException */,
 			);
 			productName = SentryTestUtilsTests;
 			productReference = D4CBA2432DE06D0200581618 /* SentryTestUtilsTests.xctest */;
@@ -5492,7 +5501,6 @@
 			);
 			mainGroup = 6327C5C91EB8A783004E799B;
 			packageReferences = (
-				D4599F902E9913B20045BB95 /* XCRemoteSwiftPackageReference "CwlPreconditionTesting" */,
 			);
 			productRefGroup = 6327C5D41EB8A783004E799B /* Products */;
 			projectDirPath = "";
@@ -8926,22 +8934,22 @@
 		};
 /* End XCConfigurationList section */
 
-/* Begin XCRemoteSwiftPackageReference section */
-		D4599F902E9913B20045BB95 /* XCRemoteSwiftPackageReference "CwlPreconditionTesting" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/mattgallagher/CwlPreconditionTesting.git";
-			requirement = {
-				kind = exactVersion;
-				version = 2.2.2;
-			};
-		};
-/* End XCRemoteSwiftPackageReference section */
-
 /* Begin XCSwiftPackageProductDependency section */
-		D4599F912E9913B20045BB95 /* CwlPreconditionTesting */ = {
+		D483AF992E9D4E3D00B43C27 /* CwlPosixPreconditionTesting */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = D4599F902E9913B20045BB95 /* XCRemoteSwiftPackageReference "CwlPreconditionTesting" */;
+			productName = CwlPosixPreconditionTesting;
+		};
+		D483AF9B2E9D4E3D00B43C27 /* CwlPreconditionTesting */ = {
+			isa = XCSwiftPackageProductDependency;
 			productName = CwlPreconditionTesting;
+		};
+		D483AF9E2E9D4E5500B43C27 /* CwlPosixPreconditionTesting */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = CwlPosixPreconditionTesting;
+		};
+		D483AFA12E9D4E6600B43C27 /* CwlCatchException */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = CwlCatchException;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
