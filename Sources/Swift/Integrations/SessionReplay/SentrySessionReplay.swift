@@ -84,12 +84,12 @@ import UIKit
         // Detect if we are running on iOS 26.0 with Liquid Glass and disable session replay.
         // This needs to be done until masking for session replay is properly supported, as it can lead
         // to PII leaks otherwise.
-        if environmentChecker.isReliable() {
+        if !environmentChecker.isReliable() {
             guard experimentalOptions.enableSessionReplayInUnreliableEnvironment else {
                 SentrySDKLog.fatal("[Session Replay] Detected environment potentially causing PII leaks, disabling Session Replay. To override this mechanism, set `options.experimental.enableSessionReplayInUnreliableEnvironment` to `true`")
                 return
             }
-            SentrySDKLog.warning("[Session Replay] Detected environment potentially causing PII leaks, but `options.experimental.enableInUnreliableEnvironment` is set to `true`, ignoring and enabling Session Replay.")
+            SentrySDKLog.warning("[Session Replay] Detected environment potentially causing PII leaks, but `options.experimental.enableSessionReplayInUnreliableEnvironment` is set to `true`, ignoring and enabling Session Replay.")
         }
         
         displayLink.link(withTarget: self, selector: #selector(newFrame(_:)))

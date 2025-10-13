@@ -592,7 +592,7 @@ class SentrySessionReplayTests: XCTestCase {
 
         let options = SentryReplayOptions(sessionSampleRate: 1.0, onErrorSampleRate: 1.0)
         let experimentalOptions = SentryExperimentalOptions()
-        experimentalOptions.enableSessionReplayInUnreliableEnvironment = false
+        experimentalOptions.enableSessionReplayInUnreliableEnvironment = true
 
         let sut = fixture.getSut(options: options, experimentalOptions: experimentalOptions)
 
@@ -601,9 +601,9 @@ class SentrySessionReplayTests: XCTestCase {
         sut.start(rootView: fixture.rootView, fullSession: true)
 
         // -- Assert --
-        // Verify that session replay did not actually starti
-        // (it should have been blocked by isInUnreliableEnvironment)
-        XCTAssertTrue(fixture.displayLink.isRunning())
+        // Verify that session replay started despite unreliable environment
+        // (override option is enabled)
+        XCTAssertTrue(fixture.displayLink.isRunning(), "Session replay should start when override option is enabled")
     }
 
     // MARK: - Helpers
