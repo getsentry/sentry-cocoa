@@ -80,7 +80,7 @@ class SentrySessionReplayTests: XCTestCase {
         let rootView = UIView()
         let replayMaker = TestReplayMaker()
         let cacheFolder = FileManager.default.temporaryDirectory
-        let infoPlistWrapper = TestInfoPlistWrapper()
+        let environmentChecker = TestSessionReplayEnvironmentChecker()
 
         var breadcrumbs: [Breadcrumb]?
         var isFullSession = true
@@ -93,9 +93,8 @@ class SentrySessionReplayTests: XCTestCase {
         override init() {
             super.init()
 
-            // Configure the SUT with fields available in real apps
-            infoPlistWrapper.mockGetAppValueStringReturnValue(forKey: SentryInfoPlistKey.xcodeVersion.rawValue, value: "1640")
-            infoPlistWrapper.mockGetAppValueBooleanReturnValue(forKey: SentryInfoPlistKey.designRequiresCompatibility.rawValue, value: false)
+            // By default we are testing a reliable environment so all of the functionality is enabled
+            environmentChecker.mockIsReliableReturnValue(true)
         }
 
         func getSut(
@@ -114,7 +113,7 @@ class SentrySessionReplayTests: XCTestCase {
                 dateProvider: dateProvider,
                 delegate: self,
                 displayLinkWrapper: displayLink,
-                infoPlistWrapper: infoPlistWrapper
+                environmentChecker: environmentChecker
             )
         }
         
@@ -565,25 +564,37 @@ class SentrySessionReplayTests: XCTestCase {
         XCTAssertEqual(fixture.displayLink.invalidateInvocations.count, 1)
     }
 
-    private func assertFullSession(_ sessionReplay: SentrySessionReplay, expected: Bool) {
-        XCTAssertEqual(sessionReplay.isFullSession, expected)
-    }
-    
-    // MARK: - iOS 26 Liquid Glass Detection Tests
-    
-    func testStart_withIOS26WithLiquidGlass_withDefaultConfiguration_shouldNotStartSessionReplay() throws {
-        // This test will only run on iOS 26.0+
-        // It tests that session replay is blocked when Liquid Glass is detected
-        guard #available(iOS 26.0, *) else {
-            throw XCTSkip("Test is disabled for this OS version")
-        }
+    func testStart_withUnreliableEnvironment_withoutOverrideOptionEnabled_shouldNotStart() {
         // -- Arrange --
         let fixture = Fixture()
-        fixture.infoPlistWrapper
-            .mockGetAppValueStringReturnValue(forKey: SentryInfoPlistKey.xcodeVersion.rawValue, value: "2600")
+        fixture.environmentChecker.mockIsReliableReturnValue(false)
 
-        let options = SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1)
-        let sut = fixture.getSut(options: options)
+        let options = SentryReplayOptions(sessionSampleRate: 1.0, onErrorSampleRate: 1.0)
+        let experimentalOptions = SentryExperimentalOptions()
+        experimentalOptions.enableSessionReplayInUnreliableEnvironment = false
+
+        let sut = fixture.getSut(options: options, experimentalOptions: experimentalOptions)
+
+        // -- Act --
+        // Attempt to start session replay
+        sut.start(rootView: fixture.rootView, fullSession: true)
+
+        // -- Assert --
+        // Verify that session replay did not actually start
+        // (it should have been blocked by isInUnreliableEnvironment)
+        XCTAssertFalse(fixture.displayLink.isRunning())
+    }
+
+    func testStart_withUnreliableEnvironment_withOverrideOptionEnabled_shouldStart() {
+        // -- Arrange --
+        let fixture = Fixture()
+        fixture.environmentChecker.mockIsReliableReturnValue(false)
+
+        let options = SentryReplayOptions(sessionSampleRate: 1.0, onErrorSampleRate: 1.0)
+        let experimentalOptions = SentryExperimentalOptions()
+        experimentalOptions.enableSessionReplayInUnreliableEnvironment = false
+
+        let sut = fixture.getSut(options: options, experimentalOptions: experimentalOptions)
 
         // -- Act --
         // Attempt to start session replay
@@ -592,120 +603,13 @@ class SentrySessionReplayTests: XCTestCase {
         // -- Assert --
         // Verify that session replay did not actually starti
         // (it should have been blocked by isInUnreliableEnvironment)
-        XCTAssertFalse(fixture.displayLink.isRunning())
-    }
-    
-    func testStart_withIOS26WithLiquidGlass_withEnableInUnreliableEnvironment_shouldStartSessionReplay() throws {
-        // This test verifies that users can explicitly opt-in to session replay on iOS 26
-        guard #available(iOS 26.0, *) else {
-            throw XCTSkip("Test is disabled for this OS version")
-        }
-
-        // -- Arrange --
-        let fixture = Fixture()
-        fixture.infoPlistWrapper
-            .mockGetAppValueStringReturnValue(forKey: SentryInfoPlistKey.xcodeVersion.rawValue, value: "2600")
-
-        let options = SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1)
-        let experimentalOptions = SentryExperimentalOptions()
-        experimentalOptions.enableSessionReplayInUnreliableEnvironment = true
-        let sut = fixture.getSut(options: options, experimentalOptions: experimentalOptions)
-
-        // -- Act --
-        // Attempt to start session replay
-        sut.start(rootView: fixture.rootView, fullSession: true)
-
-        // -- Assert --
-        // Verify that session replay started despite iOS 26
         XCTAssertTrue(fixture.displayLink.isRunning())
     }
-    
-    func testStart_withIOS18_withDefaultConfiguration_shouldStartSessionReplay() throws {
-        // This test runs on iOS < 26 and verifies session replay works normally
-        guard #unavailable(iOS 26.0) else {
-            throw XCTSkip("Test is disabled for this OS version")
-        }
 
-        // -- Arrange --
-        let fixture = Fixture()
-        fixture.infoPlistWrapper
-            .mockGetAppValueStringReturnValue(forKey: SentryInfoPlistKey.xcodeVersion.rawValue, value: "2600")
+    // MARK: - Helpers
 
-        let options = SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1)
-        let sut = fixture.getSut(options: options)
-
-        // -- Act --
-        // Session replay should start normally on older iOS versions
-        sut.start(rootView: fixture.rootView, fullSession: true)
-
-        // -- Assert --
-        XCTAssertTrue(fixture.displayLink.isRunning())
-    }
-    
-    func testStart_withIOS26BuiltWithOlderXcode_shouldStartSessionReplay() throws {
-        // This test verifies that session replay works on iOS 26 when built with Xcode < 26
-        // (Liquid Glass is not used in this case)
-        guard #available(iOS 26.0, *) else {
-            throw XCTSkip("Test requires iOS 26.0+")
-        }
-        
-        // -- Arrange --
-        let fixture = Fixture()
-        fixture.infoPlistWrapper
-            .mockGetAppValueStringReturnValue(forKey: SentryInfoPlistKey.xcodeVersion.rawValue, value: "1640") // Xcode 16.4
-        
-        let options = SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1)
-        let sut = fixture.getSut(options: options)
-        
-        // -- Act --
-        sut.start(rootView: fixture.rootView, fullSession: true)
-        
-        // -- Assert --
-        XCTAssertTrue(fixture.displayLink.isRunning(), "SR should start when built with Xcode < 26")
-    }
-    
-    func testStart_withIOS26WithCompatibilityMode_shouldStartSessionReplay() throws {
-        // This test verifies that session replay works on iOS 26 when UIDesignRequiresCompatibility is YES
-        guard #available(iOS 26.0, *) else {
-            throw XCTSkip("Test requires iOS 26.0+")
-        }
-        
-        // -- Arrange --
-        let fixture = Fixture()
-        fixture.infoPlistWrapper
-            .mockGetAppValueStringReturnValue(forKey: SentryInfoPlistKey.xcodeVersion.rawValue, value: "2600")
-        fixture.infoPlistWrapper
-            .mockGetAppValueBooleanReturnValue(forKey: SentryInfoPlistKey.designRequiresCompatibility.rawValue, value: true)
-        
-        let options = SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1)
-        let sut = fixture.getSut(options: options)
-        
-        // -- Act --
-        sut.start(rootView: fixture.rootView, fullSession: true)
-        
-        // -- Assert --
-        XCTAssertTrue(fixture.displayLink.isRunning(), "SR should start when UIDesignRequiresCompatibility is YES")
-    }
-    
-    func testStart_withIOS26WithInvalidXcodeVersion_shouldNotStartSessionReplay() throws {
-        // This test verifies defensive behavior when Xcode version cannot be parsed
-        guard #available(iOS 26.0, *) else {
-            throw XCTSkip("Test requires iOS 26.0+")
-        }
-        
-        // -- Arrange --
-        let fixture = Fixture()
-        fixture.infoPlistWrapper
-            .mockGetAppValueStringReturnValue(forKey: SentryInfoPlistKey.xcodeVersion.rawValue, value: "invalid_version")
-        
-        let options = SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1)
-        let sut = fixture.getSut(options: options)
-        
-        // -- Act --
-        sut.start(rootView: fixture.rootView, fullSession: true)
-        
-        // -- Assert --
-        XCTAssertFalse(fixture.displayLink.isRunning(), "SR should be blocked when Xcode version cannot be parsed (defensive approach)")
+    private func assertFullSession(_ sessionReplay: SentrySessionReplay, expected: Bool) {
+        XCTAssertEqual(sessionReplay.isFullSession, expected)
     }
 }
 

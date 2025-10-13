@@ -64,7 +64,7 @@ static SentryTouchTracker *_touchTracker;
     // replay absolutely needs segment 0 to make replay work.
     BOOL _rateLimited;
     id<SentryCurrentDateProvider> _dateProvider;
-    id<SentryInfoPlistWrapperProvider> _infoPlistWrapper;
+    id<SentrySessionReplayEnvironmentCheckerProvider> _environmentChecker;
 }
 
 - (instancetype)init
@@ -140,7 +140,7 @@ static SentryTouchTracker *_touchTracker;
 
     _notificationCenter = SentryDependencyContainer.sharedInstance.notificationCenterWrapper;
     _dateProvider = SentryDependencyContainer.sharedInstance.dateProvider;
-    _infoPlistWrapper = SentryDependencyContainer.sharedInstance.infoPlistWrapper;
+    _environmentChecker = SentryDependencyContainer.sharedInstance.sessionReplayEnvironmentChecker;
 
     // We use the dispatch queue provider as a factory to create the queues, but store the queues
     // directly in this instance, so they get deallocated when the integration is deallocated.
@@ -424,7 +424,7 @@ static SentryTouchTracker *_touchTracker;
                                                                dateProvider:_dateProvider
                                                                    delegate:self
                                                          displayLinkWrapper:displayLinkWrapper
-                                                           infoPlistWrapper:_infoPlistWrapper];
+                                                         environmentChecker:_environmentChecker];
 
     [self.sessionReplay
         startWithRootView:[SentryDependencyContainer.sharedInstance.application getWindows]
