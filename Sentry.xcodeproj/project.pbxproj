@@ -2620,10 +2620,7 @@
 		621D9F2D2B9B030E003D94DE /* Helper */ = {
 			isa = PBXGroup;
 			children = (
-				D4599F832E98F4710045BB95 /* SentryInfoPlistKey.swift */,
-				D48891CF2E98F2E600212823 /* SentryInfoPlistError.swift */,
-				D48891CD2E98F28E00212823 /* SentryInfoPlistWrapper.swift */,
-				D48891C62E98F21D00212823 /* SentryInfoPlistWrapperProvider.swift */,
+				D4F56C3C2E9CEFFB00D57DAB /* InfoPlist */,
 				FAE579872E7D9D4900B710F9 /* SentrySysctl.swift */,
 				FAE579BC2E7DDDE400B710F9 /* SentryThreadWrapper.swift */,
 				FAE5797E2E7CF21300B710F9 /* SentryMigrateSessionInit.swift */,
@@ -4350,6 +4347,18 @@
 				D4F2B5342D0C69D100649E42 /* SentryCrashCTests.swift */,
 			);
 			path = Recording;
+			sourceTree = "<group>";
+		};
+		D4F56C3C2E9CEFFB00D57DAB /* InfoPlist */ = {
+			isa = PBXGroup;
+			children = (
+				D4F56C422E9CF1D900D57DAB /* SentryXcodeVersion.swift */,
+				D4599F832E98F4710045BB95 /* SentryInfoPlistKey.swift */,
+				D48891CF2E98F2E600212823 /* SentryInfoPlistError.swift */,
+				D48891CD2E98F28E00212823 /* SentryInfoPlistWrapper.swift */,
+				D48891C62E98F21D00212823 /* SentryInfoPlistWrapperProvider.swift */,
+			);
+			path = InfoPlist;
 			sourceTree = "<group>";
 		};
 		D800942328F82E8D005D3943 /* Swift */ = {
