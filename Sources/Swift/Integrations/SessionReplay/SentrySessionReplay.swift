@@ -441,7 +441,7 @@ import UIKit
                 for: SentryInfoPlistKey.xcodeVersion.rawValue
             )
             if let xcodeVersion = Int(xcodeVersionString) {
-                if xcodeVersion < 2_600 {
+                if xcodeVersion < SentryXcodeVersion.xcode26.rawValue {
                     SentrySDKLog.debug("[Session Replay] Running on iOS 26.0+ but built with Xcode \(xcodeVersionString) (< 26.0) - detected as reliable")
                     return false
                 } else {
