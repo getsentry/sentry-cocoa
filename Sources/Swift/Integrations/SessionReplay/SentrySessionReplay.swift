@@ -89,7 +89,7 @@ import UIKit
                 SentrySDKLog.fatal("[Session Replay] Detected environment potentially causing PII leaks, disabling Session Replay. To override this mechanism, set `options.experimental.enableSessionReplayInUnreliableEnvironment` to `true`")
                 return
             }
-            SentrySDKLog.warning("[Session Replay] Detected environment potentially causing PII leaks, but `options.enableInUnreliableEnvironment` is set to `true`, ignoring and enabling Session Replay.")
+            SentrySDKLog.warning("[Session Replay] Detected environment potentially causing PII leaks, but `options.experimental.enableInUnreliableEnvironment` is set to `true`, ignoring and enabling Session Replay.")
         }
         
         displayLink.link(withTarget: self, selector: #selector(newFrame(_:)))
