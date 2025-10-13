@@ -23,7 +23,7 @@
 
 ### Fixes
 
-- fix(session-replay): Add detection for potential PII leaks disabling session replay (#6389)
+- Fix wrong Frame Delay when becoming active, which lead to false reported app hangs when the app moves to the foreground after being in the background (#6393)
 - Session replay is now automatically disabled in environments with unreliable masking to prevent PII leaks (#6389)
   - Detects iOS 26.0+ runtime with Xcode 26.0+ builds (DTXcode >= 2600)
   - Detects missing or disabled `UIDesignRequiresCompatibility`

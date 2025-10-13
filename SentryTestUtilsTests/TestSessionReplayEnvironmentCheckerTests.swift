@@ -6,9 +6,24 @@ class TestSessionReplayEnvironmentCheckerTests: XCTestCase {
 
     // MARK: - isReliable()
 
+    func testIsReliable_withoutMockedValue_shouldReturnDefaultValue() throws {
+        // -- Arrange --
+        let sut = TestSessionReplayEnvironmentChecker(
+            mockedIsReliableReturnValue: true
+        )
+
+        // -- Act --
+        let result = sut.isReliable()
+
+        // -- Assert --
+        XCTAssertTrue(result, "isReliable() should return the same value as the one mocked")
+    }
+
     func testIsReliable_withMockedValue_withSingleInvocations_shouldReturnMockedValue() throws {
         // -- Arrange --
-        let sut = TestSessionReplayEnvironmentChecker()
+        let sut = TestSessionReplayEnvironmentChecker(
+            mockedIsReliableReturnValue: false
+        )
         sut.mockIsReliableReturnValue(true)
 
         // -- Act --
@@ -20,7 +35,9 @@ class TestSessionReplayEnvironmentCheckerTests: XCTestCase {
 
     func testIsReliable_withMockedValue_withMultipleInvocations_shouldReturnSameValue() throws {
         // -- Arrange --
-        let sut = TestSessionReplayEnvironmentChecker()
+        let sut = TestSessionReplayEnvironmentChecker(
+            mockedIsReliableReturnValue: false
+        )
         sut.mockIsReliableReturnValue(true)
 
         // -- Act --
@@ -34,7 +51,9 @@ class TestSessionReplayEnvironmentCheckerTests: XCTestCase {
 
     func testIsReliable_shouldRecordInvocations() throws {
         // -- Arrange --
-        let sut = TestSessionReplayEnvironmentChecker()
+        let sut = TestSessionReplayEnvironmentChecker(
+            mockedIsReliableReturnValue: false
+        )
         sut.mockIsReliableReturnValue(true)
 
         // -- Act --

@@ -80,7 +80,9 @@ class SentrySessionReplayTests: XCTestCase {
         let rootView = UIView()
         let replayMaker = TestReplayMaker()
         let cacheFolder = FileManager.default.temporaryDirectory
-        let environmentChecker = TestSessionReplayEnvironmentChecker()
+        let environmentChecker = TestSessionReplayEnvironmentChecker(
+            mockedIsReliableReturnValue: true
+        )
 
         var breadcrumbs: [Breadcrumb]?
         var isFullSession = true

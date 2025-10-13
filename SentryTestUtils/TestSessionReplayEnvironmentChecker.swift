@@ -3,16 +3,17 @@
 @_spi(Private) public class TestSessionReplayEnvironmentChecker: SentrySessionReplayEnvironmentCheckerProvider {
 
     public var isReliableInvocations = Invocations<Void>()
-    private var mockedIsReliableReturnValue: Bool?
+    private var mockedIsReliableReturnValue: Bool
 
-    public init() {}
+    public init(
+        mockedIsReliableReturnValue: Bool
+    ) {
+        self.mockedIsReliableReturnValue = mockedIsReliableReturnValue
+    }
 
     public func isReliable() -> Bool {
         isReliableInvocations.record(())
-        guard let result = mockedIsReliableReturnValue else {
-            preconditionFailure("\(Self.self): No mocked return value set for isReliable()")
-        }
-        return result
+        return mockedIsReliableReturnValue
     }
 
     public func mockIsReliableReturnValue(_ returnValue: Bool) {

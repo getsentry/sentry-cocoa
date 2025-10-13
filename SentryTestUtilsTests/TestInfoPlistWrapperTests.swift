@@ -6,6 +6,16 @@ class TestInfoPlistWrapperTests: XCTestCase {
 
     // MARK: - getAppValueString(for:)
 
+    func testGetAppValueString_withoutMockedValue_shouldFail() throws {
+        // -- Arrange --
+        let sut = TestInfoPlistWrapper()
+        // Don't mock any value for this key
+
+        // -- Act & Assert --
+        XCTExpectFailure("We are expecting a failure when accessing an unmocked key, as it indicates the test setup is incomplete")
+        _ = try sut.getAppValueString(for: "unmockedKey")
+    }
+
     func testGetAppValueString_withMockedValue_withSingleInvocations_shouldReturnMockedValue() throws {
         // -- Arrange --
         let sut = TestInfoPlistWrapper()
@@ -122,6 +132,17 @@ class TestInfoPlistWrapperTests: XCTestCase {
     }
 
     // MARK: - getAppValueBoolean(for:errorPtr:)
+
+    func testGetAppValueBoolean_withoutMockedValue_shouldFail() throws {
+        // -- Arrange --
+        let sut = TestInfoPlistWrapper()
+        // Don't mock any value for this key
+
+        // -- Act & Assert --
+        XCTExpectFailure("We are expecting a failure when accessing an unmocked key, as it indicates the test setup is incomplete")
+        var error: NSError?
+        _ = sut.getAppValueBoolean(for: "unmockedKey", errorPtr: &error)
+    }
 
     func testGetAppValueBoolean_withMockedValue_withSingleInvocations_shouldReturnMockedValue() throws {
         // -- Arrange --
