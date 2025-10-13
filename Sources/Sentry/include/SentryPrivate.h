@@ -32,7 +32,7 @@
 #import "SentryDefaultThreadInspector.h"
 #import "SentryDependencyContainerSwiftHelper.h"
 #import "SentryEvent+Serialize.h"
-#import "SentryFileIOTracker.h"
+#import "SentryFileIOTrackerHelper.h"
 #import "SentryFileManagerHelper.h"
 #import "SentryLevelHelper.h"
 #import "SentryMeta.h"

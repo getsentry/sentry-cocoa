@@ -1,4 +1,4 @@
-#import "SentryFileIOTracker.h"
+#import "SentryFileIOTrackerHelper.h"
 #import "SentryByteCountFormatter.h"
 #import "SentryClient+Private.h"
 #import "SentryDependencyContainer.h"
@@ -18,36 +18,22 @@
 #import "SentryThread.h"
 #import "SentryTracer.h"
 
-@interface SentryFileIOTracker ()
+@interface SentryFileIOTrackerHelper ()
 
 @property (nonatomic, assign) BOOL isEnabled;
 @property (nonatomic, strong) NSMutableSet<NSData *> *processingData;
-@property (nonatomic, strong) SentryThreadInspector *threadInspector;
-@property (nonatomic, strong) id<SentryProcessInfoSource> processInfoWrapper;
+@property (nonatomic, copy) SentryStacktrace *_Nullable (^stacktraceRetrieval)(void);
 
 @end
 
-@implementation SentryFileIOTracker
+@implementation SentryFileIOTrackerHelper
 
 NSString *const SENTRY_TRACKING_COUNTER_KEY = @"SENTRY_TRACKING_COUNTER_KEY";
 
-+ (instancetype _Nullable)sharedInstance
-{
-    // It is necessary to check if the SDK is enabled because accessing the tracker will otherwise
-    // initialize the depency container without any configured SDK options. This is a known issue
-    // and needs to be fixed in general.
-    if (!SentrySDK.isEnabled) {
-        return nil;
-    }
-    return SentryDependencyContainer.sharedInstance.fileIOTracker;
-}
-
-- (instancetype)initWithThreadInspector:(SentryThreadInspector *)threadInspector
-                     processInfoWrapper:(id<SentryProcessInfoSource>)processInfoWrapper
+- (instancetype)initWithThreadInspector:(SentryStacktrace *_Nullable (^)(void))stacktraceRetrieval
 {
     if (self = [super init]) {
-        _processInfoWrapper = processInfoWrapper;
-        _threadInspector = threadInspector;
+        self.stacktraceRetrieval = stacktraceRetrieval;
     }
     return self;
 }
@@ -67,118 +53,113 @@ NSString *const SENTRY_TRACKING_COUNTER_KEY = @"SENTRY_TRACKING_COUNTER_KEY";
 }
 
 - (BOOL)measureNSData:(NSData *)data
-          writeToFile:(NSString *)path
-           atomically:(BOOL)useAuxiliaryFile
-               origin:(NSString *)origin
-               method:(BOOL (^)(NSString *, BOOL))method
+             writeToFile:(NSString *)path
+              atomically:(BOOL)useAuxiliaryFile
+                  origin:(NSString *)origin
+    processDirectoryPath:(NSString *)processDirectoryPath
+                  method:(BOOL (^)(NSString *, BOOL))method
 {
-    id<SentrySpan> span = [self startTrackingWritingNSData:data filePath:path origin:origin];
+    id<SentrySpan> span = [self startTrackingWritingNSData:data
+                                                  filePath:path
+                                                    origin:origin
+                                      processDirectoryPath:processDirectoryPath];
 
     BOOL result = method(path, useAuxiliaryFile);
 
     if (span != nil) {
-        [self finishTrackingNSData:data span:span];
+        [self finishTrackingNSData:@(data.length) span:span];
     }
     return result;
 }
 
 - (BOOL)measureNSData:(NSData *)data
-          writeToFile:(NSString *)path
-              options:(NSDataWritingOptions)writeOptionsMask
-               origin:(NSString *)origin
-                error:(NSError **)error
-               method:(BOOL (^)(NSString *, NSDataWritingOptions, NSError **))method
+             writeToFile:(NSString *)path
+                 options:(NSDataWritingOptions)writeOptionsMask
+                  origin:(NSString *)origin
+    processDirectoryPath:(NSString *)processDirectoryPath
+                   error:(NSError **)error
+                  method:(BOOL (^)(NSString *, NSDataWritingOptions, NSError **))method
 {
-    id<SentrySpan> span = [self startTrackingWritingNSData:data filePath:path origin:origin];
+    id<SentrySpan> span = [self startTrackingWritingNSData:data
+                                                  filePath:path
+                                                    origin:origin
+                                      processDirectoryPath:processDirectoryPath];
 
     BOOL result = method(path, writeOptionsMask, error);
 
     if (span != nil) {
-        [self finishTrackingNSData:data span:span];
+        [self finishTrackingNSData:@(data.length) span:span];
     }
 
     return result;
 }
 
-- (NSData *)measureNSDataFromFile:(NSString *)path
-                           origin:(NSString *)origin
-                           method:(NSData * (^)(NSString *))method
+- (void)measureNSDataFromFile:(NSString *)path
+                       origin:(NSString *)origin
+         processDirectoryPath:(NSString *)processDirectoryPath
+                       method:(NSNumber * (^)(void))method
 {
     id<SentrySpan> span = [self startTrackingReadingFilePath:path
                                                       origin:origin
-                                                   operation:SentrySpanOperationFileRead];
+                                                   operation:SentrySpanOperationFileRead
+                                        processDirectoryPath:processDirectoryPath];
 
-    NSData *result = method(path);
+    NSNumber *length = method();
 
     if (span != nil) {
-        [self finishTrackingNSData:result span:span];
+        [self finishTrackingNSData:length span:span];
     }
 
     [self endTrackingFile];
-    return result;
 }
 
-- (NSData *)measureNSDataFromFile:(NSString *)path
-                          options:(NSDataReadingOptions)readOptionsMask
-                           origin:(NSString *)origin
-                            error:(NSError **)error
-                           method:(NSData * (^)(NSString *, NSDataReadingOptions, NSError **))method
-{
-    id<SentrySpan> span = [self startTrackingReadingFilePath:path
-                                                      origin:origin
-                                                   operation:SentrySpanOperationFileRead];
-
-    NSData *result = method(path, readOptionsMask, error);
-
-    if (span != nil) {
-        [self finishTrackingNSData:result span:span];
-    }
-
-    [self endTrackingFile];
-    return result;
-}
-
-- (NSData *)measureNSDataFromURL:(NSURL *)url
-                         options:(NSDataReadingOptions)readOptionsMask
-                          origin:(NSString *)origin
-                           error:(NSError **)error
-                          method:(NSData * (^)(NSURL *, NSDataReadingOptions, NSError **))method
+- (void)measureNSDataFromURL:(NSURL *)url
+                      origin:(NSString *)origin
+        processDirectoryPath:(NSString *)processDirectoryPath
+                      method:(NSNumber * (^)(void))method
 {
 
     // We dont track reads from a url that is not a file url
     // because these reads are handled by NSURLSession and
     // SentryNetworkTracker will create spans in these cases.
-    if (![url.scheme isEqualToString:NSURLFileScheme])
-        return method(url, readOptionsMask, error);
+    if (![url.scheme isEqualToString:NSURLFileScheme]) {
+        method();
+        return;
+    }
 
     id<SentrySpan> span = [self startTrackingReadingFilePath:url.path
                                                       origin:origin
-                                                   operation:SentrySpanOperationFileRead];
+                                                   operation:SentrySpanOperationFileRead
+                                        processDirectoryPath:processDirectoryPath];
 
-    NSData *result = method(url, readOptionsMask, error);
+    NSNumber *length = method();
 
     if (span != nil) {
-        [self finishTrackingNSData:result span:span];
+        [self finishTrackingNSData:length span:span];
     }
 
     [self endTrackingFile];
-    return result;
+    return;
 }
 
 - (BOOL)measureNSFileManagerCreateFileAtPath:(NSString *)path
                                         data:(NSData *)data
                                   attributes:(NSDictionary<NSFileAttributeKey, id> *)attributes
                                       origin:(NSString *)origin
+                        processDirectoryPath:(NSString *)processDirectoryPath
                                       method:
                                           (BOOL (^)(NSString *_Nonnull, NSData *_Nonnull,
                                               NSDictionary<NSFileAttributeKey, id> *_Nonnull))method
 {
-    id<SentrySpan> span = [self startTrackingWritingNSData:data filePath:path origin:origin];
+    id<SentrySpan> span = [self startTrackingWritingNSData:data
+                                                  filePath:path
+                                                    origin:origin
+                                      processDirectoryPath:processDirectoryPath];
 
     BOOL result = method(path, data, attributes);
 
     if (span != nil) {
-        [self finishTrackingNSData:data span:span];
+        [self finishTrackingNSData:@(data.length) span:span];
     }
     return result;
 }
@@ -186,13 +167,19 @@ NSString *const SENTRY_TRACKING_COUNTER_KEY = @"SENTRY_TRACKING_COUNTER_KEY";
 - (nullable id<SentrySpan>)spanForPath:(NSString *)path
                                 origin:(NSString *)origin
                              operation:(NSString *)operation
+                  processDirectoryPath:(NSString *)processDirectoryPath
 {
-    return [self spanForPath:path origin:origin operation:operation size:0];
+    return [self spanForPath:path
+                      origin:origin
+                   operation:operation
+        processDirectoryPath:processDirectoryPath
+                        size:0];
 }
 
 - (nullable id<SentrySpan>)spanForPath:(NSString *)path
                                 origin:(NSString *)origin
                              operation:(NSString *)operation
+                  processDirectoryPath:(NSString *)processDirectoryPath
                                   size:(NSUInteger)size
 {
     @synchronized(self) {
@@ -230,12 +217,13 @@ NSString *const SENTRY_TRACKING_COUNTER_KEY = @"SENTRY_TRACKING_COUNTER_KEY";
         @"Automatically started a new span with description: %@, operation: %@, origin: %@",
         ioSpan.description, operation, origin);
 
-    [self mainThreadExtraInfo:ioSpan];
+    [self mainThreadExtraInfo:ioSpan processDirectoryPath:processDirectoryPath];
 
     return ioSpan;
 }
 
 - (void)mainThreadExtraInfo:(id<SentrySpan>)span
+       processDirectoryPath:(NSString *)processDirectoryPath
 {
     BOOL isMainThread = [NSThread isMainThread];
 
@@ -245,13 +233,12 @@ NSString *const SENTRY_TRACKING_COUNTER_KEY = @"SENTRY_TRACKING_COUNTER_KEY";
         return;
     }
 
-    SentryThreadInspector *threadInspector = self.threadInspector;
-    SentryStacktrace *stackTrace = [threadInspector stacktraceForCurrentThreadAsyncUnsafe];
+    SentryStacktrace *stackTrace = self.stacktraceRetrieval();
 
     NSArray *frames = [stackTrace.frames
         filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(SentryFrame *frame,
                                         NSDictionary<NSString *, id> *bindings) {
-            return [frame.package hasPrefix:self.processInfoWrapper.processDirectoryPath];
+            return [frame.package hasPrefix:processDirectoryPath];
         }]];
 
     if (frames.count <= 1) {
@@ -268,16 +255,19 @@ NSString *const SENTRY_TRACKING_COUNTER_KEY = @"SENTRY_TRACKING_COUNTER_KEY";
 - (nullable id<SentrySpan>)startTrackingWritingNSData:(NSData *)data
                                              filePath:(NSString *)path
                                                origin:(NSString *)origin
+                                 processDirectoryPath:(NSString *)processDirectoryPath
 {
     return [self spanForPath:path
                       origin:origin
                    operation:SentrySpanOperationFileWrite
+        processDirectoryPath:processDirectoryPath
                         size:data.length];
 }
 
 - (nullable id<SentrySpan>)startTrackingReadingFilePath:(NSString *)path
                                                  origin:(NSString *)origin
                                               operation:(NSString *)operation
+                                   processDirectoryPath:(NSString *)processDirectoryPath
 {
     // Some iOS versions nest constructors calls. This counter help us avoid create more than one
     // span for the same operation.
@@ -289,7 +279,11 @@ NSString *const SENTRY_TRACKING_COUNTER_KEY = @"SENTRY_TRACKING_COUNTER_KEY";
     if (count)
         return nil;
 
-    return [self spanForPath:path origin:origin operation:operation size:0];
+    return [self spanForPath:path
+                      origin:origin
+                   operation:operation
+        processDirectoryPath:processDirectoryPath
+                        size:0];
 }
 
 - (void)endTrackingFile
@@ -308,10 +302,9 @@ NSString *const SENTRY_TRACKING_COUNTER_KEY = @"SENTRY_TRACKING_COUNTER_KEY";
     }
 }
 
-- (void)finishTrackingNSData:(NSData *)data span:(id<SentrySpan>)span
+- (void)finishTrackingNSData:(NSNumber *)length span:(id<SentrySpan>)span
 {
-    [span setDataValue:[NSNumber numberWithUnsignedInteger:data.length]
-                forKey:SentrySpanDataKeyFileSize];
+    [span setDataValue:length forKey:SentrySpanDataKeyFileSize];
     [span finish];
 
     SENTRY_LOG_DEBUG(@"Automatically finished span %@", span.description);
