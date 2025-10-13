@@ -11,8 +11,6 @@ if [[ "$XCODE_MAJOR_VERSION" != "16" ]]; then
     exit 1
 fi
 
-echo "✓ Xcode $XCODE_VERSION is selected (required: Xcode 16.x)"
-
 ./scripts/build-xcframework-slice.sh "iphoneos" "Sentry" "-Dynamic" "mh_dylib" "V9"
 
 ./scripts/assemble-xcframework.sh "Sentry" "-Dynamic" "" "iphoneos" "$(pwd)/Carthage/archive/Sentry-Dynamic/SDK_NAME.xcarchive"
