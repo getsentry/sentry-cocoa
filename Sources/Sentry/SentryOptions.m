@@ -188,10 +188,8 @@ NSString *const kSentryDefaultEnvironment = @"production";
             ?: @"";
 
 #if SENTRY_HAS_METRIC_KIT
-        if (@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, *)) {
-            self.enableMetricKit = NO;
-            self.enableMetricKitRawPayload = NO;
-        }
+        self.enableMetricKit = NO;
+        self.enableMetricKitRawPayload = NO;
 #endif // SENTRY_HAS_METRIC_KIT
     }
     return self;
