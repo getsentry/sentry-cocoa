@@ -16,7 +16,7 @@ class SentryClientTests: XCTestCase {
 
         let dateProvider = TestCurrentDateProvider()
         let debugImageProvider = TestDebugImageProvider()
-        let threadInspector = TestThreadInspector.instance
+        let threadInspector = TestDefaultThreadInspector.instance
         
         let session: SentrySession
         let event: Event
