@@ -448,7 +448,7 @@ import UIKit
                     SentrySDKLog.debug("[Session Replay] Detected built with Xcode version: \(xcodeVersionString)")
                 }
             } else {
-                SentrySDKLog.warning("[Session Replay] Found xcode version key but could not parse as Int: \(xcodeVersionString)")
+                SentrySDKLog.warning("[Session Replay] Found Xcode version key but could not parse as Int: \(xcodeVersionString)")
             }
         } catch SentryInfoPlistError.mainInfoPlistNotFound {
             // Can't read Info.plist - stay defensive
