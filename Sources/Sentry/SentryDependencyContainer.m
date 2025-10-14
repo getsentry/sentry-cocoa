@@ -29,10 +29,6 @@
 #    import <SentryWatchdogTerminationBreadcrumbProcessor.h>
 #endif // SENTRY_HAS_UIKIT
 
-#if !TARGET_OS_WATCH
-#    import "SentryReachability.h"
-#endif // !TARGET_OS_WATCH
-
 /**
  * Macro for implementing lazy initialization with a double-checked lock. The double-checked lock
  * speeds up the dependency retrieval by around 5%, so it's worth having it. Measured with
@@ -65,9 +61,6 @@ SentryApplicationProviderBlock defaultApplicationProvider = ^id<SentryApplicatio
 };
 
 @interface SentryFileManager () <SentryFileManagerProtocol>
-@end
-
-@interface SentryDefaultThreadInspector () <SentryThreadInspector>
 @end
 
 @interface SentryDefaultAppStateManager () <SentryAppStateManager>
@@ -123,9 +116,7 @@ static BOOL isInitialializingDependencyContainer = NO;
 + (void)reset
 {
     @synchronized(sentryDependencyContainerInstanceLock) {
-#if SENTRY_HAS_REACHABILITY
         [instance->_reachability removeAllObservers];
-#endif // !TARGET_OS_WATCH
 
 #if SENTRY_HAS_UIKIT
         [instance->_framesTracker stop];
@@ -159,7 +150,7 @@ static BOOL isInitialializingDependencyContainer = NO;
 
         _notificationCenterWrapper = NSNotificationCenter.defaultCenter;
 
-        _processInfoWrapper = NSProcessInfo.processInfo;
+        _processInfoWrapper = SentryDependencies.processInfoWrapper;
         _crashWrapper = [[SentryCrashWrapper alloc] initWithProcessInfoWrapper:_processInfoWrapper];
 #if SENTRY_HAS_UIKIT
         _uiDeviceWrapper = SentryDependencies.uiDeviceWrapper;
@@ -189,9 +180,7 @@ static BOOL isInitialializingDependencyContainer = NO;
                                                          andRateLimitParser:rateLimitParser
                                                         currentDateProvider:_dateProvider];
 
-#if SENTRY_HAS_REACHABILITY
         _reachability = [[SentryReachability alloc] init];
-#endif // !SENTRY_HAS_REACHABILITY
 
         isInitialializingDependencyContainer = NO;
     }
@@ -235,10 +224,9 @@ static BOOL isInitialializingDependencyContainer = NO;
                                     notificationCenterWrapper:self.notificationCenterWrapper]);
 }
 
-- (id<SentryThreadInspector>)threadInspector SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
+- (SentryThreadInspector *)threadInspector SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
-    SENTRY_LAZY_INIT(_threadInspector,
-        [[SentryDefaultThreadInspector alloc] initWithOptions:SentrySDKInternal.options]);
+    return SentryDependencies.threadInspector;
 }
 
 - (SentryFileIOTracker *)fileIOTracker SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
@@ -429,20 +417,10 @@ static BOOL isInitialializingDependencyContainer = NO;
     // This method is only a factory, therefore do not keep a reference.
     // The scope observer will be created each time it is needed.
     return [[SentryWatchdogTerminationScopeObserver alloc]
-        initWithBreadcrumbProcessor:
-            [self
-                getWatchdogTerminationBreadcrumbProcessorWithMaxBreadcrumbs:options.maxBreadcrumbs]
+        initWithBreadcrumbProcessor:[[SentryWatchdogTerminationBreadcrumbProcessor alloc]
+                                        initWithMaxBreadcrumbs:options.maxBreadcrumbs
+                                                   fileManager:self.fileManager]
                 attributesProcessor:self.watchdogTerminationAttributesProcessor];
-}
-
-- (SentryWatchdogTerminationBreadcrumbProcessor *)
-    getWatchdogTerminationBreadcrumbProcessorWithMaxBreadcrumbs:(NSInteger)maxBreadcrumbs
-{
-    // This method is only a factory, therefore do not keep a reference.
-    // The processor will be created each time it is needed.
-    return [[SentryWatchdogTerminationBreadcrumbProcessor alloc]
-        initWithMaxBreadcrumbs:maxBreadcrumbs
-                   fileManager:self.fileManager];
 }
 
 - (SentryWatchdogTerminationAttributesProcessor *)

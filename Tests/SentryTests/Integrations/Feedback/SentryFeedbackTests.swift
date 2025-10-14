@@ -208,7 +208,7 @@ class SentryFeedbackTests: XCTestCase {
                 dispatchQueueWrapper: TestSentryDispatchQueueWrapper()
             )),
             deleteOldEnvelopeItems: false,
-            threadInspector: TestThreadInspector.instance,
+            threadInspector: TestDefaultThreadInspector.instance,
             debugImageProvider: TestDebugImageProvider(),
             random: TestRandom(value: 1.0),
             locale: Locale(identifier: "en_US"),
@@ -251,7 +251,7 @@ class SentryFeedbackTests: XCTestCase {
                 dispatchQueueWrapper: TestSentryDispatchQueueWrapper()
             )),
             deleteOldEnvelopeItems: false,
-            threadInspector: TestThreadInspector.instance,
+            threadInspector: TestDefaultThreadInspector.instance,
             debugImageProvider: TestDebugImageProvider(),
             random: TestRandom(value: 1.0),
             locale: Locale(identifier: "en_US"),
@@ -294,7 +294,7 @@ class SentryFeedbackTests: XCTestCase {
                 dispatchQueueWrapper: TestSentryDispatchQueueWrapper()
             )),
             deleteOldEnvelopeItems: false,
-            threadInspector: TestThreadInspector.instance,
+            threadInspector: TestDefaultThreadInspector.instance,
             debugImageProvider: TestDebugImageProvider(),
             random: TestRandom(value: 1.0),
             locale: Locale(identifier: "en_US"),

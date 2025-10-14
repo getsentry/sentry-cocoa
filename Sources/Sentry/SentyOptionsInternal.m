@@ -57,15 +57,11 @@
         [SentrySwiftAsyncIntegration class], nil];
 
 #if TARGET_OS_IOS && SENTRY_HAS_UIKIT
-    if (@available(iOS 13.0, iOSApplicationExtension 13.0, *)) {
-        [defaultIntegrations addObject:[SentryUserFeedbackIntegration class]];
-    }
+    [defaultIntegrations addObject:[SentryUserFeedbackIntegration class]];
 #endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
 
 #if SENTRY_HAS_METRIC_KIT
-    if (@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, *)) {
-        [defaultIntegrations addObject:[SentryMetricKitIntegration class]];
-    }
+    [defaultIntegrations addObject:[SentryMetricKitIntegration class]];
 #endif // SENTRY_HAS_METRIC_KIT
 
     return defaultIntegrations;
@@ -321,14 +317,6 @@
     if ([self isBlock:options[@"tracesSampler"]]) {
         sentryOptions.tracesSampler = options[@"tracesSampler"];
     }
-#if !SDK_V9
-#    pragma clang diagnostic push
-#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    if ([options[@"enableTracing"] isKindOfClass:NSNumber.self]) {
-        sentryOptions.enableTracing = [options[@"enableTracing"] boolValue];
-    }
-#    pragma clang diagnostic pop
-#endif // !SDK_V9
 
     if ([options[@"inAppIncludes"] isKindOfClass:[NSArray class]]) {
         NSArray<NSString *> *inAppIncludes =
@@ -414,12 +402,10 @@
     }
 
 #if SENTRY_HAS_METRIC_KIT
-    if (@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, *)) {
-        [self setBool:options[@"enableMetricKit"]
-                block:^(BOOL value) { sentryOptions.enableMetricKit = value; }];
-        [self setBool:options[@"enableMetricKitRawPayload"]
-                block:^(BOOL value) { sentryOptions.enableMetricKitRawPayload = value; }];
-    }
+    [self setBool:options[@"enableMetricKit"]
+            block:^(BOOL value) { sentryOptions.enableMetricKit = value; }];
+    [self setBool:options[@"enableMetricKitRawPayload"]
+            block:^(BOOL value) { sentryOptions.enableMetricKitRawPayload = value; }];
 #endif // SENTRY_HAS_METRIC_KIT
 
     [self setBool:options[@"enableSpotlight"]

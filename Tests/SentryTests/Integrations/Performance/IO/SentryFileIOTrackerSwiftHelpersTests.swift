@@ -1,5 +1,5 @@
 // swiftlint:disable file_length
-@testable import Sentry
+@_spi(Private) @testable import Sentry
 @_spi(Private) import SentryTestUtils
 import XCTest
 
@@ -29,7 +29,7 @@ class SentryFileIOTrackerSwiftHelpersTests: XCTestCase {
         SentrySDKInternal.setCurrentHub(hub)
 
         tracker = SentryFileIOTracker(
-            threadInspector: TestThreadInspector(options: .noIntegrations()),
+            threadInspector: SentryThreadInspector(),
             processInfoWrapper: MockSentryProcessInfo()
         )
     }

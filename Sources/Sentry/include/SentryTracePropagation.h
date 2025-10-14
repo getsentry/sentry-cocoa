@@ -8,8 +8,9 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SentryTracePropagation : NSObject
 
 + (void)addBaggageHeader:(SentryBaggage *)baggage
-             traceHeader:(SentryTraceHeader *)traceHeader
-               toRequest:(NSURLSessionTask *)sessionTask;
+                traceHeader:(SentryTraceHeader *)traceHeader
+    tracePropagationTargets:(NSArray *)tracePropagationTargets
+                  toRequest:(NSURLSessionTask *)sessionTask;
 
 + (BOOL)isTargetMatch:(NSURL *)URL withTargets:(NSArray *)targets;
 

@@ -66,7 +66,7 @@ getStackEntriesFromThread(SentryCrashThread thread, struct SentryCrashMachineCon
     return self;
 }
 
-- (instancetype)initWithOptions:(SentryOptions *)options
+- (instancetype)initWithOptions:(SentryOptions *_Nullable)options
 {
     SentryInAppLogic *inAppLogic =
         [[SentryInAppLogic alloc] initWithInAppIncludes:options.inAppIncludes

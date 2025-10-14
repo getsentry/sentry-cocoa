@@ -7,7 +7,6 @@ import UIKit
 @_implementationOnly import SentryInternal
 #endif
 
-@available(iOS 13, macOS 10.15, tvOS 13, *)
 struct SentryReplayMaskPreview: ViewModifier {
     let redactOptions: SentryRedactOptions
     let opacity: Float
@@ -16,7 +15,6 @@ struct SentryReplayMaskPreview: ViewModifier {
     }
 }
 
-@available(iOS 13, macOS 10.15, tvOS 13, *)
 public extension View {
     func sentryReplayPreviewMask(redactOptions: SentryRedactOptions? = nil, opacity: Float = 1) -> some View {
         let options = redactOptions ?? SentrySDKInternal.options?.sessionReplay ?? PreviewRedactOptions()
@@ -24,7 +22,6 @@ public extension View {
     }
 }
 
-@available(iOS 13, macOS 10.15, tvOS 13, *)
 struct SentryReplayPreviewView: UIViewRepresentable {
     let redactOptions: SentryRedactOptions
     let opacity: Float
