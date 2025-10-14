@@ -21,7 +21,8 @@
 #    import "SentrySpan.h"
 #    import "SentryTracer.h"
 #else
-@class SentrySpan;
+@protocol SentrySpan;
+
 @interface SentryTracer : NSObject <SentrySpan>
 @end
 #endif
@@ -81,9 +82,9 @@ typedef NS_ENUM(NSUInteger, SentrySpanStatus);
 - (instancetype)init NS_UNAVAILABLE;
 + (instancetype)new NS_UNAVAILABLE;
 
-@property (nullable, nonatomic, weak, readonly) SentrySpan *initialDisplaySpan;
+@property (nullable, nonatomic, weak, readonly) id<SentrySpan> initialDisplaySpan;
 
-@property (nullable, nonatomic, weak, readonly) SentrySpan *fullDisplaySpan;
+@property (nullable, nonatomic, weak, readonly) id<SentrySpan> fullDisplaySpan;
 
 @property (nonatomic, readonly) BOOL waitForFullDisplay;
 
