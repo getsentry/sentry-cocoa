@@ -2,8 +2,15 @@
 
     private let bundle: Bundle
 
-    public init(bundle: Bundle = Bundle.main) {
+    public override init() {
+        // We can not use defaults in the initializer because this class is used from Objective-C
+        self.bundle = Bundle.main
+        super.init()
+    }
+
+    public init(bundle: Bundle) {
         self.bundle = bundle
+        super.init()
     }
 
     // MARK: - Bridge to ObjC
