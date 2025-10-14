@@ -2,7 +2,6 @@
 
 #import "SentryDefaultThreadInspector.h"
 #import "SentryExtraContextProvider.h"
-#import "SentryFileIOTracker.h"
 #import "SentryInternalCDefines.h"
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"
@@ -223,17 +222,14 @@ static BOOL isInitialializingDependencyContainer = NO;
                                          dispatchQueueWrapper:self.dispatchQueueWrapper
                                     notificationCenterWrapper:self.notificationCenterWrapper]);
 }
-
-- (SentryThreadInspector *)threadInspector SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
+- (SentryThreadInspector *)threadInspector
 {
     return SentryDependencies.threadInspector;
 }
 
-- (SentryFileIOTracker *)fileIOTracker SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
+- (SentryFileIOTracker *)fileIOTracker
 {
-    SENTRY_LAZY_INIT(_fileIOTracker,
-        [[SentryFileIOTracker alloc] initWithThreadInspector:[self threadInspector]
-                                          processInfoWrapper:[self processInfoWrapper]]);
+    return SentryDependencies.fileIOTracker;
 }
 
 - (SentryCrash *)crashReporter SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
