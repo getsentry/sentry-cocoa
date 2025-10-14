@@ -4,7 +4,7 @@ import Foundation
 import ObjectiveC.NSObjCRuntime
 import UIKit
 
-final class SentryRedactRegion {
+final class SentryRedactRegion: Encodable {
     let size: CGSize
     let transform: CGAffineTransform
     let type: SentryRedactRegionType
@@ -24,13 +24,5 @@ final class SentryRedactRegion {
     }
 }
 
-extension SentryRedactRegion: Encodable {}
-
-extension UIColor: @retroactive Encodable {
-    public func encode(to encoder: Encoder) throws {
-        var container = encoder.singleValueContainer()
-        try container.encode(self.cgColor.components)
-    }
-}
 #endif
 #endif
