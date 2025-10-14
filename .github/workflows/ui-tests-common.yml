@@ -58,6 +58,7 @@ jobs:
   common-ui-tests:
     name: UI Tests Common
     runs-on: ${{ inputs.macos_version }}
+    timeout-minutes: 40
     steps:
       - uses: actions/checkout@v5
 
@@ -80,11 +81,17 @@ jobs:
           XCODE_VERSION: ${{ inputs.xcode_version }}
       - name: Install required platforms for Xcode 26
         if: ${{ inputs.xcode_version == '26.0.1' }}
-        run: ./scripts/ci-install-xOS-26-platforms.sh --platforms "${{inputs.platform}}"
+        env:
+          PLATFORM: ${{ inputs.platform }}
+        run: ./scripts/ci-install-xOS-26-platforms.sh --platforms "$PLATFORM"
 
       - name: Create simulator device for Xcode 26
         if: ${{ inputs.xcode_version == '26.0.1' }}
-        run: ./scripts/ci-create-simulator.sh --platform "${{inputs.platform}}" --os-version "${{inputs.test-destination-os}}" --device-name "${{inputs.device}}"
+        env:
+          PLATFORM: ${{ inputs.platform }}
+          OS_VERSION: ${{ inputs.test-destination-os }}
+          DEVICE_NAME: ${{ inputs.device }}
+        run: ./scripts/ci-create-simulator.sh --platform "$PLATFORM" --os-version "$OS_VERSION" --device-name "$DEVICE_NAME"
       - run: make init-ci-build
         if: ${{ inputs.build_with_make }}
 
@@ -109,9 +116,11 @@ jobs:
       - name: Run Fastlane
         env:
           FASTLANE_COMMAND: ${{ inputs.fastlane_command }}
+          DEVICE: ${{ inputs.device }}
+          TEST_DESTINATION_OS: ${{ inputs.test-destination-os }}
         run: |
-          if [ -n "${{inputs.device}}" ] && [ -n "${{inputs.test-destination-os}}" ]; then
-            bundle exec fastlane "$FASTLANE_COMMAND" device:"${{inputs.device}} (${{inputs.test-destination-os}})"
+          if [ -n "$DEVICE" ] && [ -n "$TEST_DESTINATION_OS" ]; then
+            bundle exec fastlane "$FASTLANE_COMMAND" device:"$DEVICE ($TEST_DESTINATION_OS)"
           else
             bundle exec fastlane "$FASTLANE_COMMAND"
           fi

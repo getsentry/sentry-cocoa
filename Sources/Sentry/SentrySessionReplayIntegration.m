@@ -8,7 +8,6 @@
 #    import "SentryHub+Private.h"
 #    import "SentryLogC.h"
 #    import "SentryOptions.h"
-#    import "SentryReachability.h"
 #    import "SentrySDK+Private.h"
 #    import "SentryScope+Private.h"
 #    import "SentrySerialization.h"
@@ -327,7 +326,7 @@ static SentryTouchTracker *_touchTracker;
         SENTRY_LOG_DEBUG(@"[Session Replay] Running replay for available window");
         // If a window its already available start replay right away
         [self startWithOptions:_replayOptions fullSession:_startedAsFullSession];
-    } else if (@available(iOS 13.0, tvOS 13.0, *)) {
+    } else {
         SENTRY_LOG_DEBUG(
             @"[Session Replay] Waiting for a scene to be available to started the replay");
         // Wait for a scene to be available to started the replay
@@ -340,14 +339,12 @@ static SentryTouchTracker *_touchTracker;
 
 - (void)newSceneActivate
 {
-    if (@available(iOS 13.0, tvOS 13.0, *)) {
-        SENTRY_LOG_DEBUG(@"[Session Replay] Scene is available, starting replay");
-        [SentryDependencyContainer.sharedInstance.notificationCenterWrapper
-            removeObserver:self
-                      name:UISceneDidActivateNotification
-                    object:nil];
-        [self startWithOptions:_replayOptions fullSession:_startedAsFullSession];
-    }
+    SENTRY_LOG_DEBUG(@"[Session Replay] Scene is available, starting replay");
+    [SentryDependencyContainer.sharedInstance.notificationCenterWrapper
+        removeObserver:self
+                  name:UISceneDidActivateNotification
+                object:nil];
+    [self startWithOptions:_replayOptions fullSession:_startedAsFullSession];
 }
 
 - (void)startWithOptions:(SentryReplayOptions *)replayOptions

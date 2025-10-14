@@ -18,19 +18,17 @@ NS_ASSUME_NONNULL_BEGIN
  * Show the feedback widget button.
  * @warning This is an experimental feature and may still have bugs.
  * @seealso See @c SentryOptions.configureUserFeedback to configure the widget.
- * @note User feedback widget is only available for iOS 13 or later.
  */
-- (void)showWidget API_AVAILABLE(ios(13.0))
-    NS_EXTENSION_UNAVAILABLE("Sentry User Feedback UI cannot be used from app extensions.");
+- (void)showWidget NS_EXTENSION_UNAVAILABLE(
+    "Sentry User Feedback UI cannot be used from app extensions.");
 
 /**
  * Hide the feedback widget button.
  * @warning This is an experimental feature and may still have bugs.
  * @seealso See @c SentryOptions.configureUserFeedback to configure the widget.
- * @note User feedback widget is only available for iOS 13 or later.
  */
-- (void)hideWidget API_AVAILABLE(ios(13.0))
-    NS_EXTENSION_UNAVAILABLE("Sentry User Feedback UI cannot be used from app extensions.");
+- (void)hideWidget NS_EXTENSION_UNAVAILABLE(
+    "Sentry User Feedback UI cannot be used from app extensions.");
 
 @end
 

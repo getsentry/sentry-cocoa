@@ -7,8 +7,12 @@
 - Moves `SentryEventDecoder` to SPI (#6365)
 - Makes `PreviewRedactOptions`, `SentryProfileOptions`, `SentryRedactViewHelper`, `SentryViewScreenshotOptions`, `SentryReplayOptions`, `SentryUserFeedbackConfiguration`, `SentryUserFeedbackFormConfiguration`, `SentryUserFeedbackThemeConfiguration`, `SentryUserFeedbackWidgetConfiguration`, `SentryFeedback`, and `SentryExperimentalOptions` `final` (#6365)
 - Removes Decodable conformances from the public API of model classes (#5691)
+- Removes unused SentryLogLevel (#5591)
+- Removes deprecated getStoreEndpoint (#5591)
+- Removes deprecated useSpan function (#5591)
 - Removes deprecated user feedback API, this is replaced with the new feedback API (#5591)
 - Removes `enablePerformanceV2` option and makes this the default. The app start duration will now finish when the first frame is drawn instead of when the OS posts the UIWindowDidBecomeVisibleNotification. (#6008)
+- Removes enableTracing property from SentryOptions (#5694)
 
 ### Features
 
@@ -19,6 +23,12 @@
 - Fixes warnings about minimum OS version being lower than Xcode supported version (#5591)
 - Fix rendering method for fast view rendering (#6360)
 - Add SwiftUI.List's background decoration view to ignored redaction views (#6292)
+- Fix issue where the thread that generated an event could be missing when more than 100 threads are running (#6377)
+- Fix wrong Frame Delay when becoming active, which lead to false reported app hangs when the app moves to the foreground after being in the background (#6381)
+
+### Improvements
+
+- Replace deprecated SCNetworkReachability with NWPathMonitor (#6019)
 
 ## 8.56.2
 

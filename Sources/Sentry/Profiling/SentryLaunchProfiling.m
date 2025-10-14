@@ -162,47 +162,6 @@ _sentry_startTraceProfiler(
                                                              configuration:tracerConfig];
 }
 
-#    if !SDK_V9
-SentryLaunchProfileDecision
-sentry_launchShouldHaveTransactionProfiling(SentryOptions *options)
-{
-#        pragma clang diagnostic push
-#        pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    BOOL shouldProfileNextLaunch = options.enableAppLaunchProfiling && options.enableTracing;
-    if (!shouldProfileNextLaunch) {
-        SENTRY_LOG_DEBUG(@"Specified options configuration doesn't enable launch profiling: "
-                         @"options.enableAppLaunchProfiling: %d; options.enableTracing: %d; won't "
-                         @"profile launch",
-            options.enableAppLaunchProfiling, options.enableTracing);
-        return (SentryLaunchProfileDecision) { NO, nil, nil };
-    }
-#        pragma clang diagnostic pop
-
-    SentryTransactionContext *transactionContext =
-        [[SentryTransactionContext alloc] initWithName:@"app.launch" operation:@"profile"];
-    transactionContext.forNextAppLaunch = YES;
-    SentrySamplingContext *context =
-        [[SentrySamplingContext alloc] initWithTransactionContext:transactionContext];
-    SentrySamplerDecision *tracesSamplerDecision = sentry_sampleTrace(context, options);
-    if (tracesSamplerDecision.decision != kSentrySampleDecisionYes) {
-        SENTRY_LOG_DEBUG(
-            @"Sampling out the launch trace for transaction profiling; won't profile launch.");
-        return (SentryLaunchProfileDecision) { NO, nil, nil };
-    }
-
-    SentrySamplerDecision *profilesSamplerDecision
-        = sentry_sampleTraceProfile(context, tracesSamplerDecision, options);
-    if (profilesSamplerDecision.decision != kSentrySampleDecisionYes) {
-        SENTRY_LOG_DEBUG(
-            @"Sampling out the launch profile for transaction profiling; won't profile launch.");
-        return (SentryLaunchProfileDecision) { NO, nil, nil };
-    }
-
-    SENTRY_LOG_DEBUG(@"Will start transaction profile next launch; will profile launch.");
-    return (SentryLaunchProfileDecision) { YES, tracesSamplerDecision, profilesSamplerDecision };
-}
-#    endif // !SDK_V9
-
 SentryLaunchProfileDecision
 sentry_launchShouldHaveContinuousProfilingV2(SentryOptions *options)
 {
@@ -264,19 +223,7 @@ sentry_shouldProfileNextLaunch(SentryOptions *options)
     if ([options isContinuousProfilingV2Enabled]) {
         return sentry_launchShouldHaveContinuousProfilingV2(options);
     }
-#    if SDK_V9
     return (SentryLaunchProfileDecision) { NO, nil, nil };
-#    else
-
-#        pragma clang diagnostic push
-#        pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    if ([options isContinuousProfilingEnabled]) {
-        return (SentryLaunchProfileDecision) { options.enableAppLaunchProfiling, nil, nil };
-    }
-#        pragma clang diagnostic pop
-
-    return sentry_launchShouldHaveTransactionProfiling(options);
-#    endif // SDK_V9
 }
 
 /**

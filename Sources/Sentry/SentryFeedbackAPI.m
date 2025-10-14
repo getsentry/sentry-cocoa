@@ -18,24 +18,16 @@
 
 - (void)showWidget
 {
-    if (@available(iOS 13.0, *)) {
-        SentryUserFeedbackIntegration *feedback = [[SentrySDKInternal currentHub]
-            getInstalledIntegration:[SentryUserFeedbackIntegration class]];
-        [feedback showWidget];
-    } else {
-        SENTRY_LOG_WARN(@"Sentry User Feedback is only available on iOS 13 or later.");
-    }
+    SentryUserFeedbackIntegration *feedback = [[SentrySDKInternal currentHub]
+        getInstalledIntegration:[SentryUserFeedbackIntegration class]];
+    [feedback showWidget];
 }
 
 - (void)hideWidget
 {
-    if (@available(iOS 13.0, *)) {
-        SentryUserFeedbackIntegration *feedback = [SentrySDKInternal.currentHub
-            getInstalledIntegration:[SentryUserFeedbackIntegration class]];
-        [feedback hideWidget];
-    } else {
-        SENTRY_LOG_WARN(@"Sentry User Feedback is only available on iOS 13 or later.");
-    }
+    SentryUserFeedbackIntegration *feedback = [SentrySDKInternal.currentHub
+        getInstalledIntegration:[SentryUserFeedbackIntegration class]];
+    [feedback hideWidget];
 }
 
 @end
