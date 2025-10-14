@@ -1,6 +1,6 @@
 # Changelog
 
-## 8.57.0
+## Unreleased
 
 ### Breaking Changes
 
@@ -28,6 +28,8 @@
 ### Improvements
 
 - Replace deprecated SCNetworkReachability with NWPathMonitor (#6019)
+
+## 8.57.0
 
 > [!Warning]
 > **Session Replay is disabled by default on iOS 26.0+ with Xcode 26.0+ to prevent PII leaks**
