@@ -80,10 +80,6 @@ typedef NS_ENUM(NSUInteger, SentrySpanStatus);
 
 @end
 
-@protocol SentryInitialDisplayReporting
-- (void)reportInitialDisplay;
-@end
-
 @interface SentryTimeToDisplayTracker : NSObject
 - (instancetype)init NS_UNAVAILABLE;
 + (instancetype)new NS_UNAVAILABLE;
@@ -110,22 +106,22 @@ typedef NS_ENUM(NSUInteger, SentrySpanStatus);
 
 @end
 
-@interface SentrySwiftUISpanHelper : NSObject
+@interface SentryObjCSwiftUISpanHelper : NSObject
 
 @property (nonatomic, readonly) BOOL hasSpan;
 
-@property (nonatomic, strong, readonly, nullable) id<SentryInitialDisplayReporting>
-    initialDisplayReporting;
+@property (nonatomic, strong, readonly, nullable)
+    SentryTimeToDisplayTracker *initialDisplayReporting;
 
 @end
 
-@interface SentryUIViewControllerPerformanceTracker : NSObject
+@interface SentryDefaultUIViewControllerPerformanceTracker : NSObject
 
 - (void)reportFullyDisplayed;
 
-- (SentrySwiftUISpanHelper *)startTimeToDisplayTrackerForScreen:(NSString *)screenName
-                                             waitForFullDisplay:(BOOL)waitforFullDisplay
-                                                  transactionId:(SentrySpanId *)transactionId;
++ (SentryObjCSwiftUISpanHelper *)startTimeToDisplayTrackerForScreen:(NSString *)screenName
+                                                 waitForFullDisplay:(BOOL)waitforFullDisplay
+                                                      transactionId:(SentrySpanId *)transactionId;
 
 @end
 

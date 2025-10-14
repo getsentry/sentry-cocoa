@@ -8,8 +8,8 @@
 
 #if SENTRY_HAS_UIKIT
 #    import "SentryAppStartTracker.h"
+#    import "SentryDefaultUIViewControllerPerformanceTracker.h"
 #    import "SentryFramesTracker+TestInit.h"
-#    import "SentryUIViewControllerPerformanceTracker.h"
 #endif // SENTRY_HAS_UIKIT
 
 #import "SentryProfilingConditionals.h"

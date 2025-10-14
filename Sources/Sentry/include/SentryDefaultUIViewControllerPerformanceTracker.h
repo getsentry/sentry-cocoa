@@ -9,15 +9,11 @@
 @class SentryPerformanceTracker;
 @class SentryDispatchQueueWrapper;
 
+@protocol SentryInitialDisplayReporting;
+
 NS_ASSUME_NONNULL_BEGIN
 
-@protocol SentryInitialDisplayReporting
-
-- (void)reportInitialDisplay;
-
-@end
-
-@interface SentrySwiftUISpanHelper : NSObject
+@interface SentryObjCSwiftUISpanHelper : NSObject
 
 @property (nonatomic, readonly) BOOL hasSpan;
 
@@ -30,7 +26,7 @@ NS_ASSUME_NONNULL_BEGIN
  * Class responsible to track UI performance.
  * This class is intended to be used in a swizzled context.
  */
-@interface SentryUIViewControllerPerformanceTracker : NSObject
+@interface SentryDefaultUIViewControllerPerformanceTracker : NSObject
 
 @property (nonatomic, strong) SentryInAppLogic *inAppLogic;
 
@@ -110,9 +106,9 @@ SENTRY_NO_INIT
 
 - (void)reportFullyDisplayed;
 
-- (SentrySwiftUISpanHelper *)startTimeToDisplayTrackerForScreen:(NSString *)screenName
-                                             waitForFullDisplay:(BOOL)waitforFullDisplay
-                                                  transactionId:(SentrySpanId *)transactionId;
++ (SentryObjCSwiftUISpanHelper *)startTimeToDisplayTrackerForScreen:(NSString *)screenName
+                                                 waitForFullDisplay:(BOOL)waitforFullDisplay
+                                                      transactionId:(SentrySpanId *)transactionId;
 
 @end
 

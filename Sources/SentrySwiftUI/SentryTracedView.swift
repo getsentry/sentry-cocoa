@@ -11,7 +11,7 @@ import SwiftUI
 class SentryTraceViewModel {
     private var transactionId: SpanId?
     private var viewAppeared: Bool = false
-    private var tracker: SentryInitialDisplayReporting?
+    private var tracker: SentryTimeToDisplayTracker?
     
     let name: String
     let nameSource: SentryTransactionNameSource
@@ -44,8 +44,7 @@ class SentryTraceViewModel {
         SentryPerformanceTracker.shared.pushActiveSpan(transactionId)
         self.transactionId = transactionId
 #if canImport(SwiftUI) && canImport(UIKit) && os(iOS) || os(tvOS)
-        let uiViewControllerPerformanceTracker = SentryDependencyContainer.sharedInstance().uiViewControllerPerformanceTracker
-        let swiftUITraceHelper = uiViewControllerPerformanceTracker.startTimeToDisplay(forScreen: name, waitForFullDisplay: waitForFullDisplay, transactionId: transactionId)
+        let swiftUITraceHelper = SentryDefaultUIViewControllerPerformanceTracker.startTimeToDisplay(forScreen: name, waitForFullDisplay: waitForFullDisplay, transactionId: transactionId)
         self.tracker = swiftUITraceHelper.initialDisplayReporting
         return swiftUITraceHelper.hasSpan
 #else
