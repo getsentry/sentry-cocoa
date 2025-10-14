@@ -1,11 +1,5 @@
 @_implementationOnly import _SentryPrivate
 
-@_spi(Private) @objc public protocol SpanProtocol {
-    @objc(setDataValue:forKey:) func setData(value: Any, key: String)
-    func finish()
-    @objc(finishWithStatus:) func finish(status: SentrySpanStatus)
-}
-
 @_spi(Private) @objc public class SentryFileIOTracker: NSObject {
 
     private let helper: SentryFileIOTrackerHelper
