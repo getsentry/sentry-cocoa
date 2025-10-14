@@ -55,7 +55,7 @@ jobs:
         with:
           repository: getsentry/sentry-react-native
           path: sentry-react-native
-          ref: removeEnableTracing
+          ref: chore/sentry-cocoa-v9
 
       - name: Enable Corepack
         working-directory: sentry-react-native
