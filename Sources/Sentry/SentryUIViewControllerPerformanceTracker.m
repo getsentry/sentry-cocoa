@@ -19,6 +19,24 @@
 #    import <UIKit/UIKit.h>
 #    import <objc/runtime.h>
 
+@interface SentryTimeToDisplayTracker () <SentryInitialDisplayReporting>
+
+@end
+
+@implementation SentrySwiftUISpanHelper
+
+- (instancetype)initWithHasSpan:(BOOL)hasSpan
+        initialDisplayReporting:(id<SentryInitialDisplayReporting>)initialDisplayReporting
+{
+    if (self = [super init]) {
+        _hasSpan = hasSpan;
+        _initialDisplayReporting = initialDisplayReporting;
+    }
+    return self;
+}
+
+@end
+
 // In a previous implementation, we used associated objects to store the time to display tracker,
 // spanId, spans in execution, and layout subview spanId. However, this approach was prone to
 // memory leaks and crashes due to accessing associated objects from different threads.
@@ -250,6 +268,22 @@
 
     self.currentTTDTracker = ttdTracker;
     return ttdTracker;
+}
+
+- (SentrySwiftUISpanHelper *)startTimeToDisplayTrackerForScreen:(NSString *)screenName
+                                             waitForFullDisplay:(BOOL)waitforFullDisplay
+                                                  transactionId:(SentrySpanId *)transactionId;
+{
+    id<SentrySpan> span = [SentryPerformanceTracker.shared getSpan:transactionId];
+    if (span != nil && [span isKindOfClass:[SentryTracer class]]) {
+        id<SentryInitialDisplayReporting> displayReporting =
+            [self startTimeToDisplayTrackerForScreen:screenName
+                                  waitForFullDisplay:waitforFullDisplay
+                                              tracer:(SentryTracer *)span];
+        return [[SentrySwiftUISpanHelper alloc] initWithHasSpan:YES
+                                        initialDisplayReporting:displayReporting];
+    }
+    return [[SentrySwiftUISpanHelper alloc] initWithHasSpan:NO initialDisplayReporting:nil];
 }
 
 - (void)viewControllerViewWillAppear:(UIViewController *)controller
