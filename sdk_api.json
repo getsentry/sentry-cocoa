@@ -20997,10 +20997,8 @@
             "usr": "c:objc(cs)SentryOptions(py)enableMetricKit",
             "moduleName": "Sentry",
             "isOpen": true,
-            "intro_iOS": "15.0",
             "objc_name": "enableMetricKit",
             "declAttributes": [
-              "Available",
               "ObjC",
               "Dynamic"
             ],
@@ -21021,11 +21019,9 @@
                 "usr": "c:objc(cs)SentryOptions(im)enableMetricKit",
                 "moduleName": "Sentry",
                 "isOpen": true,
-                "intro_iOS": "15.0",
                 "objc_name": "enableMetricKit",
                 "declAttributes": [
                   "DiscardableResult",
-                  "Available",
                   "ObjC",
                   "Dynamic"
                 ],
@@ -21059,10 +21055,8 @@
                 "usr": "c:objc(cs)SentryOptions(im)setEnableMetricKit:",
                 "moduleName": "Sentry",
                 "isOpen": true,
-                "intro_iOS": "15.0",
                 "objc_name": "setEnableMetricKit:",
                 "declAttributes": [
-                  "Available",
                   "ObjC",
                   "Dynamic"
                 ],
@@ -21086,10 +21080,8 @@
             "usr": "c:objc(cs)SentryOptions(py)enableMetricKitRawPayload",
             "moduleName": "Sentry",
             "isOpen": true,
-            "intro_iOS": "15.0",
             "objc_name": "enableMetricKitRawPayload",
             "declAttributes": [
-              "Available",
               "ObjC",
               "Dynamic"
             ],
@@ -21110,11 +21102,9 @@
                 "usr": "c:objc(cs)SentryOptions(im)enableMetricKitRawPayload",
                 "moduleName": "Sentry",
                 "isOpen": true,
-                "intro_iOS": "15.0",
                 "objc_name": "enableMetricKitRawPayload",
                 "declAttributes": [
                   "DiscardableResult",
-                  "Available",
                   "ObjC",
                   "Dynamic"
                 ],
@@ -21148,10 +21138,8 @@
                 "usr": "c:objc(cs)SentryOptions(im)setEnableMetricKitRawPayload:",
                 "moduleName": "Sentry",
                 "isOpen": true,
-                "intro_iOS": "15.0",
                 "objc_name": "setEnableMetricKitRawPayload:",
                 "declAttributes": [
-                  "Available",
                   "ObjC",
                   "Dynamic"
                 ],
@@ -21672,10 +21660,8 @@
             "usr": "c:objc(cs)SentryOptions(py)configureUserFeedback",
             "moduleName": "Sentry",
             "isOpen": true,
-            "intro_iOS": "13.0",
             "objc_name": "configureUserFeedback",
             "declAttributes": [
-              "Available",
               "ObjC",
               "Dynamic"
             ],
@@ -21730,11 +21716,9 @@
                 "usr": "c:objc(cs)SentryOptions(im)configureUserFeedback",
                 "moduleName": "Sentry",
                 "isOpen": true,
-                "intro_iOS": "13.0",
                 "objc_name": "configureUserFeedback",
                 "declAttributes": [
                   "DiscardableResult",
-                  "Available",
                   "ObjC",
                   "Dynamic"
                 ],
@@ -21802,10 +21786,8 @@
                 "usr": "c:objc(cs)SentryOptions(im)setConfigureUserFeedback:",
                 "moduleName": "Sentry",
                 "isOpen": true,
-                "intro_iOS": "13.0",
                 "objc_name": "setConfigureUserFeedback:",
                 "declAttributes": [
-                  "Available",
                   "ObjC",
                   "Dynamic"
                 ],
@@ -26264,10 +26246,8 @@
             "usr": "c:objc(cs)SentryFeedbackAPI(im)showWidget",
             "moduleName": "Sentry",
             "isOpen": true,
-            "intro_iOS": "13.0",
             "objc_name": "showWidget",
             "declAttributes": [
-              "Available",
               "ObjC",
               "Dynamic"
             ],
@@ -26295,10 +26275,8 @@
             "usr": "c:objc(cs)SentryFeedbackAPI(im)hideWidget",
             "moduleName": "Sentry",
             "isOpen": true,
-            "intro_iOS": "13.0",
             "objc_name": "hideWidget",
             "declAttributes": [
-              "Available",
               "ObjC",
               "Dynamic"
             ],
@@ -34045,11 +34023,7 @@
         ],
         "declKind": "TypeAlias",
         "usr": "c:@T@SentryUserFeedbackConfigurationBlock",
-        "moduleName": "Sentry",
-        "intro_iOS": "13.0",
-        "declAttributes": [
-          "Available"
-        ]
+        "moduleName": "Sentry"
       },
       {
         "kind": "Var",
@@ -49103,12 +49077,9 @@
         "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackConfiguration",
         "mangledName": "$s6Sentry0A25UserFeedbackConfigurationC",
         "moduleName": "Sentry",
-        "intro_iOS": "13.0",
         "declAttributes": [
-          "Available",
           "Final",
           "ObjCMembers",
-          "Available",
           "ObjC"
         ],
         "superclassUsr": "c:objc(cs)NSObject",
@@ -51229,11 +51200,9 @@
             "mangledName": "$s6Sentry0A3SDKC8feedbackSo0A11FeedbackAPICvpZ",
             "moduleName": "Sentry",
             "static": true,
-            "intro_iOS": "13.0",
             "declAttributes": [
               "Final",
               "ObjC",
-              "Available",
               "HasStorage"
             ],
             "isLet": true,
@@ -54870,12 +54839,9 @@
         "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackThemeConfiguration",
         "mangledName": "$s6Sentry0A30UserFeedbackThemeConfigurationC",
         "moduleName": "Sentry",
-        "intro_iOS": "13.0",
         "declAttributes": [
-          "Available",
           "Final",
           "ObjCMembers",
-          "Available",
           "ObjC"
         ],
         "superclassUsr": "c:objc(cs)NSObject",
@@ -55550,12 +55516,9 @@
         "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackWidgetConfiguration",
         "mangledName": "$s6Sentry0A31UserFeedbackWidgetConfigurationC",
         "moduleName": "Sentry",
-        "intro_iOS": "13.0",
         "declAttributes": [
-          "Available",
           "Final",
           "ObjCMembers",
-          "Available",
           "ObjC"
         ],
         "superclassUsr": "c:objc(cs)NSObject",
@@ -57742,12 +57705,9 @@
         "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackFormConfiguration",
         "mangledName": "$s6Sentry0A29UserFeedbackFormConfigurationC",
         "moduleName": "Sentry",
-        "intro_iOS": "13.0",
         "declAttributes": [
-          "Available",
           "Final",
           "ObjCMembers",
-          "Available",
           "ObjC"
         ],
         "superclassUsr": "c:objc(cs)NSObject",

@@ -76,11 +76,7 @@ static const NSTimeInterval SENTRY_APP_START_MAX_DURATION = 180.0;
 #    if TARGET_OS_IOS
     // Customer data suggest that app starts are also prewarmed on iOS 14 although this contradicts
     // with Apple docs.
-    if (@available(iOS 14, *)) {
-        return YES;
-    } else {
-        return NO;
-    }
+    return YES;
 #    else // !TARGET_OS_IOS
     return NO;
 #    endif // TARGET_OS_IOS

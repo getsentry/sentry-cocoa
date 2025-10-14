@@ -13,25 +13,8 @@
 - (void)testGetContextForThread_NonCrashedContext_DoesNotPopulateThreadList
 {
     // Create a test thread
-    NSObject *notificationObject = [[NSObject alloc] init];
-    TestThread *thread = [[TestThread alloc] init];
-    thread.notificationObject = notificationObject;
-
-    XCTestExpectation *exp = [self expectationWithDescription:@"thread started"];
-    [NSNotificationCenter.defaultCenter
-        addObserverForName:@"io.sentry.test.TestThread.main"
-                    object:notificationObject
-                     queue:nil
-                usingBlock:^(NSNotification *_Nonnull __unused notification) {
-                    [NSNotificationCenter.defaultCenter
-                        removeObserver:self
-                                  name:@"io.sentry.test.TestThread.main"
-                                object:notificationObject];
-                    [exp fulfill];
-                }];
-
-    [thread start];
-    [self waitForExpectationsWithTimeout:5 handler:nil];
+    NSArray<TestThread *> *threads = [self createThreads:1];
+    TestThread *thread = threads[0];
 
     kern_return_t kr;
     kr = thread_suspend(thread.thread);
@@ -51,46 +34,13 @@
         threadCount, 0, @"Thread count should be 0 for non-crashed context, got %d", threadCount);
 
     thread_resume(thread.thread);
-    XCTestExpectation *expectation =
-        [[XCTestExpectation alloc] initWithDescription:@"Wait for thread to cancel"];
-    thread.endExpectation = expectation;
-    [thread cancel];
-    [self waitForExpectations:@[ expectation ] timeout:5];
+    [self waitForThreadsToEnd:threads];
 }
 
 - (void)testGetContextForThread_WithManyThreads
 {
     NSInteger numberOfThreads = 10;
-    NSMutableArray<TestThread *> *threads = [NSMutableArray arrayWithCapacity:numberOfThreads];
-    NSMutableArray<XCTestExpectation *> *expectations =
-        [NSMutableArray arrayWithCapacity:numberOfThreads];
-
-    for (int i = 0; i < numberOfThreads; i++) {
-        NSObject *notificationObject = [[NSObject alloc] init];
-        TestThread *thread = [[TestThread alloc] init];
-        thread.notificationObject = notificationObject;
-
-        XCTestExpectation *exp =
-            [self expectationWithDescription:[NSString stringWithFormat:@"thread %d started", i]];
-        [expectations addObject:exp];
-
-        [NSNotificationCenter.defaultCenter
-            addObserverForName:@"io.sentry.test.TestThread.main"
-                        object:notificationObject
-                         queue:nil
-                    usingBlock:^(NSNotification *_Nonnull __unused notification) {
-                        [NSNotificationCenter.defaultCenter
-                            removeObserver:self
-                                      name:@"io.sentry.test.TestThread.main"
-                                    object:notificationObject];
-                        [exp fulfill];
-                    }];
-
-        [threads addObject:thread];
-        [thread start];
-    }
-
-    [self waitForExpectations:expectations timeout:5];
+    NSArray<TestThread *> *threads = [self createThreads:numberOfThreads];
 
     // Suspend the first thread and get its context
     TestThread *firstThread = threads[0];
@@ -105,8 +55,8 @@
 
     // Verify that thread list includes all our test threads
     int threadCount = sentrycrashmc_getThreadCount(machineContext);
-    XCTAssertTrue(
-        threadCount >= 10, @"Thread count should include all test threads, got %d", threadCount);
+    XCTAssertTrue(threadCount >= numberOfThreads,
+        @"Thread count should include all test threads, got %d", threadCount);
     XCTAssertTrue(threadCount <= SENTRY_CRASH_MAX_THREADS,
         @"Thread count should not exceed maximum of SENTRY_CRASH_MAX_THREADS, got %d", threadCount);
 
@@ -118,17 +68,84 @@
 
     // Clean up
     thread_resume(firstThread.thread);
-    NSMutableArray<XCTestExpectation *> *finishExpectations =
-        [NSMutableArray arrayWithCapacity:threads.count];
+    [self waitForThreadsToEnd:threads];
+}
+
+- (void)testGetContextForThread_WithMoreThan100Threads_IncludesCallingThread
+{
+    NSInteger numberOfThreads = SENTRY_CRASH_MAX_THREADS + 1;
+    NSArray<TestThread *> *threads = [self createThreads:numberOfThreads];
+
+    // Suspend the last thread and get its context
+    TestThread *callingThread = threads[SENTRY_CRASH_MAX_THREADS];
+    kern_return_t kr = thread_suspend(callingThread.thread);
+    XCTAssertTrue(kr == KERN_SUCCESS, @"Thread suspension failed");
+
+    // Get context for the crashed thread
+    SentryCrashMC_NEW_CONTEXT(machineContext);
+    bool result = sentrycrashmc_getContextForThread(callingThread.thread, machineContext, YES);
+
+    XCTAssertTrue(result, @"Failed to get context for thread");
+
+    // Verify that thread list includes all our test threads
+    int threadCount = sentrycrashmc_getThreadCount(machineContext);
+    XCTAssertTrue(threadCount >= SENTRY_CRASH_MAX_THREADS,
+        @"Thread count should include all test threads, got %d", threadCount);
+    XCTAssertTrue(threadCount <= SENTRY_CRASH_MAX_THREADS,
+        @"Thread count should not exceed maximum of SENTRY_CRASH_MAX_THREADS, got %d", threadCount);
+
+    // Verify that our crashed thread is in the list
+    int threadIndex = sentrycrashmc_indexOfThread(machineContext, callingThread.thread);
+    XCTAssertTrue(threadIndex >= 0, @"Thread should be found in the list");
+
+    // Clean up
+    thread_resume(callingThread.thread);
+    [self waitForThreadsToEnd:threads];
+}
+
+- (NSArray<TestThread *> *)createThreads:(NSInteger)numberOfThreads
+{
+    NSMutableArray<TestThread *> *threads = [NSMutableArray arrayWithCapacity:numberOfThreads];
+    XCTestExpectation *startThreadsExpectation = [self expectationWithDescription:@"threads start"];
+    startThreadsExpectation.expectedFulfillmentCount = numberOfThreads;
+
+    for (int i = 0; i < numberOfThreads; i++) {
+        NSObject *notificationObject = [[NSObject alloc] init];
+        TestThread *thread = [[TestThread alloc] init];
+        thread.notificationObject = notificationObject;
+
+        [NSNotificationCenter.defaultCenter
+            addObserverForName:@"io.sentry.test.TestThread.main"
+                        object:notificationObject
+                         queue:nil
+                    usingBlock:^(NSNotification *_Nonnull __unused notification) {
+                        [NSNotificationCenter.defaultCenter
+                            removeObserver:self
+                                      name:@"io.sentry.test.TestThread.main"
+                                    object:notificationObject];
+                        [startThreadsExpectation fulfill];
+                    }];
+
+        [threads addObject:thread];
+        [thread start];
+    }
+
+    [self waitForExpectations:@[ startThreadsExpectation ] timeout:5];
+
+    return threads;
+}
+
+- (void)waitForThreadsToEnd:(NSArray<TestThread *> *)threads
+{
+    XCTestExpectation *finishExpectation = [self expectationWithDescription:@"threads finished"];
+    finishExpectation.expectedFulfillmentCount = threads.count;
     for (TestThread *thread in threads) {
-        thread.endExpectation =
-            [[XCTestExpectation alloc] initWithDescription:@"Wait for thread to cancel"];
-        [finishExpectations addObject:thread.endExpectation];
+        thread.endExpectation = finishExpectation;
         [thread cancel];
     }
 
     // Wait for all threads to finish (up to 10 seconds)
-    [self waitForExpectations:finishExpectations timeout:10];
+    [self waitForExpectations:@[ finishExpectation ] timeout:10];
 }
 
 @end

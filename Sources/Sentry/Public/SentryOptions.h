@@ -747,8 +747,7 @@ typedef void (^SentryProfilingConfigurationBlock)(SentryProfileOptions *_Nonnull
  * allows the Sentry SDK to apply the current data from the scope.
  * @note This feature is disabled by default.
  */
-@property (nonatomic, assign) BOOL enableMetricKit API_AVAILABLE(
-    ios(15.0), macos(12.0), macCatalyst(15.0)) API_UNAVAILABLE(tvos, watchos);
+@property (nonatomic, assign) BOOL enableMetricKit API_UNAVAILABLE(tvos, watchos);
 
 /**
  * When enabled, the SDK adds the raw MXDiagnosticPayloads as an attachment to the converted
@@ -756,8 +755,7 @@ typedef void (^SentryProfilingConfigurationBlock)(SentryProfileOptions *_Nonnull
  *
  * @note Default value is @c NO.
  */
-@property (nonatomic, assign) BOOL enableMetricKitRawPayload API_AVAILABLE(
-    ios(15.0), macos(12.0), macCatalyst(15.0)) API_UNAVAILABLE(tvos, watchos);
+@property (nonatomic, assign) BOOL enableMetricKitRawPayload API_UNAVAILABLE(tvos, watchos);
 
 #endif // SENTRY_HAS_METRIC_KIT
 
@@ -815,11 +813,10 @@ typedef void (^SentryProfilingConfigurationBlock)(SentryProfileOptions *_Nonnull
 /**
  * A block that can be defined that receives a user feedback configuration object to modify.
  * @warning This is an experimental feature and may still have bugs.
- * @note User feedback widget is only available for iOS 13 or later.
  */
 @property (nonatomic, copy, nullable)
-    SentryUserFeedbackConfigurationBlock configureUserFeedback API_AVAILABLE(ios(13.0))
-        NS_EXTENSION_UNAVAILABLE("Sentry User Feedback UI cannot be used from app extensions.");
+    SentryUserFeedbackConfigurationBlock configureUserFeedback NS_EXTENSION_UNAVAILABLE(
+        "Sentry User Feedback UI cannot be used from app extensions.");
 
 #endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
 
