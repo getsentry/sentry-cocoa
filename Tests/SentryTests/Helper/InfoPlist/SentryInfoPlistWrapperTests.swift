@@ -1,16 +1,35 @@
 @_spi(Private) @testable import Sentry
 import XCTest
 
+/// Tests for `SentryInfoPlistWrapper`.
+///
+/// This test suite uses a custom test bundle (`TestBundle`) with a predefined Info.plist file
+/// (`TestInfoPlist.plist`) to ensure consistent and predictable testing. This approach eliminates
+/// the need to rely on the environment's Info.plist, which may vary across different test contexts.
+///
+/// ## Test Setup
+///
+/// - `TestInfoPlist.plist`: Contains known key-value pairs for testing (strings, booleans, arrays, etc.)
+/// - `TestBundle.swift`: Helper class that creates a temporary bundle from the test plist
+/// - The bundle is created in `setUp()` and cleaned up in `tearDown()`
 class SentryInfoPlistWrapperTests: XCTestCase {
     
     private var sut: SentryInfoPlistWrapper!
+    private var testBundle: Bundle!
     
     override func setUp() {
         super.setUp()
-        sut = SentryInfoPlistWrapper()
+        
+        // Create a test bundle with our custom Info.plist
+        testBundle = TestBundle.createTestBundle()
+        XCTAssertNotNil(testBundle, "Test bundle should be created successfully")
+        
+        sut = SentryInfoPlistWrapper(bundle: testBundle)
     }
     
     override func tearDown() {
+        TestBundle.cleanup(testBundle)
+        testBundle = nil
         sut = nil
         super.tearDown()
     }
@@ -19,14 +38,13 @@ class SentryInfoPlistWrapperTests: XCTestCase {
     
     func testGetAppValueString_whenKeyExists_shouldReturnValue() throws {
         // Arrange
-        // CFBundleName is a standard key that should exist in any bundle
-        let key = "CFBundleName"
+        let key = "TestStringKey"
         
         // Act
         let value = try sut.getAppValueString(for: key)
         
         // Assert
-        XCTAssertFalse(value.isEmpty, "Bundle name should not be empty")
+        XCTAssertEqual(value, "TestStringValue", "Should return the correct string value")
     }
     
     func testGetAppValueString_whenKeyDoesNotExist_shouldThrowKeyNotFoundError() {
@@ -45,24 +63,17 @@ class SentryInfoPlistWrapperTests: XCTestCase {
     
     func testGetAppValueString_whenValueIsNotString_shouldThrowUnableToCastError() {
         // Arrange
-        // CFBundleVersion is typically a number or can be a mixed type
-        // We'll use a key that we know exists but might not be a string
-        // Note: This test might be skipped if we can't find a suitable non-string key
-        // Let's try with UIDeviceFamily which is typically an array
-        let key = "UIDeviceFamily"
+        // TestArrayKey is an array in our test plist, not a string
+        let key = "TestArrayKey"
         
         // Act & Assert
-        do {
-            _ = try sut.getAppValueString(for: key)
-            // If we get here, the key happened to be a string or doesn't exist in test bundle
-            // This is not a test failure, just means the key wasn't suitable for this test
-        } catch SentryInfoPlistError.unableToCastValue(let errorKey, _, let type) {
+        XCTAssertThrowsError(try sut.getAppValueString(for: key)) { error in
+            guard case SentryInfoPlistError.unableToCastValue(let errorKey, _, let type) = error else {
+                XCTFail("Expected SentryInfoPlistError.unableToCastValue, got \(error)")
+                return
+            }
             XCTAssertEqual(errorKey, key)
             XCTAssertTrue(type == String.self)
-        } catch SentryInfoPlistError.keyNotFound {
-            // Key doesn't exist in test bundle, which is acceptable for this test
-        } catch {
-            XCTFail("Expected SentryInfoPlistError.unableToCastValue or keyNotFound, got \(error)")
         }
     }
     
@@ -70,24 +81,28 @@ class SentryInfoPlistWrapperTests: XCTestCase {
     
     func testGetAppValueBoolean_whenKeyExistsAndIsTrue_shouldReturnTrue() {
         // Arrange
-        // For this test, we'll use a key that might exist and be a boolean
-        // UIApplicationExitsOnSuspend is a boolean key (if it exists)
-        let key = "UIApplicationExitsOnSuspend"
+        let key = "TestBooleanTrue"
         var error: NSError?
         
         // Act
         let value = sut.getAppValueBoolean(for: key, errorPtr: &error)
         
         // Assert
-        // If the key exists and is a boolean, it should work without error
-        // If the key doesn't exist, error should be set
-        if error == nil {
-            // Success case - value is valid
-            XCTAssertTrue(value == true || value == false, "Boolean value should be true or false")
-        } else {
-            // Key not found is acceptable for this test setup
-            XCTAssertTrue(error?.domain == "SentryInfoPlistError" || error != nil)
-        }
+        XCTAssertNil(error, "Should not have an error when reading a valid boolean")
+        XCTAssertTrue(value, "Should return true for TestBooleanTrue key")
+    }
+    
+    func testGetAppValueBoolean_whenKeyExistsAndIsFalse_shouldReturnFalse() {
+        // Arrange
+        let key = "TestBooleanFalse"
+        var error: NSError?
+        
+        // Act
+        let value = sut.getAppValueBoolean(for: key, errorPtr: &error)
+        
+        // Assert
+        XCTAssertNil(error, "Should not have an error when reading a valid boolean")
+        XCTAssertFalse(value, "Should return false for TestBooleanFalse key")
     }
     
     func testGetAppValueBoolean_whenKeyDoesNotExist_shouldReturnFalseAndSetError() {
@@ -105,8 +120,8 @@ class SentryInfoPlistWrapperTests: XCTestCase {
     
     func testGetAppValueBoolean_whenValueIsNotBoolean_shouldReturnFalseAndSetError() {
         // Arrange
-        // CFBundleName is a string, not a boolean
-        let key = "CFBundleName"
+        // TestStringKey is a string, not a boolean
+        let key = "TestStringKey"
         var error: NSError?
         
         // Act
@@ -119,7 +134,7 @@ class SentryInfoPlistWrapperTests: XCTestCase {
     
     func testGetAppValueBoolean_withNullErrorPointer_shouldNotCrash() {
         // Arrange
-        let key = "CFBundleName" // A key that exists but is not a boolean
+        let key = "TestStringKey" // A key that exists but is not a boolean
         
         // Act & Assert
         // This should not crash even with a null error pointer
@@ -145,18 +160,13 @@ class SentryInfoPlistWrapperTests: XCTestCase {
     func testGetAppValueString_withSentryInfoPlistKey_shouldWork() throws {
         // Arrange
         // Test with the actual enum keys used in production
-        // Note: These keys might not exist in the test bundle, which is expected
         let xcodeKey = SentryInfoPlistKey.xcodeVersion.rawValue
         
-        // Act & Assert
-        do {
-            let value = try sut.getAppValueString(for: xcodeKey)
-            // If the key exists, value should not be empty
-            XCTAssertFalse(value.isEmpty, "Xcode version should not be empty if present")
-        } catch SentryInfoPlistError.keyNotFound {
-            // This is expected in test environment - DTXcode might not be set
-            XCTAssertTrue(true, "Key not found is acceptable for test bundle")
-        }
+        // Act
+        let value = try sut.getAppValueString(for: xcodeKey)
+        
+        // Assert
+        XCTAssertEqual(value, "1610", "Should return the DTXcode value from test bundle")
     }
     
     func testGetAppValueBoolean_withSentryInfoPlistKey_shouldWork() {
@@ -168,21 +178,15 @@ class SentryInfoPlistWrapperTests: XCTestCase {
         let value = sut.getAppValueBoolean(for: compatibilityKey, errorPtr: &error)
         
         // Assert
-        // In test environment, this key likely doesn't exist
-        if error == nil {
-            // If no error, we successfully read a boolean value
-            XCTAssertTrue(value == true || value == false)
-        } else {
-            // Expected to not find this key in test bundle
-            XCTAssertNotNil(error)
-        }
+        XCTAssertNil(error, "Should not have an error when reading a valid boolean")
+        XCTAssertFalse(value, "Should return false for UIDesignRequiresCompatibility key")
     }
     
     // MARK: - Multiple Consecutive Calls
     
     func testMultipleConsecutiveCalls_shouldReturnConsistentResults() throws {
         // Arrange
-        let key = "CFBundleName"
+        let key = "TestStringKey"
         
         // Act
         let value1 = try sut.getAppValueString(for: key)
@@ -190,5 +194,6 @@ class SentryInfoPlistWrapperTests: XCTestCase {
         
         // Assert
         XCTAssertEqual(value1, value2, "Multiple calls should return the same value")
+        XCTAssertEqual(value1, "TestStringValue")
     }
 }

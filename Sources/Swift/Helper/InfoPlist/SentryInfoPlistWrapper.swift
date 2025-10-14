@@ -1,4 +1,11 @@
 @objc @_spi(Private) public class SentryInfoPlistWrapper: NSObject, SentryInfoPlistWrapperProvider {
+
+    private let bundle: Bundle
+
+    public init(bundle: Bundle = Bundle.main) {
+        self.bundle = bundle
+    }
+
     // MARK: - Bridge to ObjC
 
     public func getAppValueBoolean(for key: String, errorPtr errPtr: NSErrorPointer) -> Bool {
@@ -26,7 +33,7 @@
         // As soon as this class is not consumed from Objective-C anymore, we can use this method directly to reduce
         // unnecessary duplicate code. In addition this method can be adapted to use `SentryInfoPlistKey` as the type
         // of the parameter `key`
-        guard let infoDictionary = Bundle.main.infoDictionary else {
+        guard let infoDictionary = bundle.infoDictionary else {
             throw SentryInfoPlistError.mainInfoPlistNotFound
         }
         guard let value = infoDictionary[key] else {
