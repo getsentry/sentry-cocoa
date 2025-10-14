@@ -4,7 +4,7 @@ import Foundation
 import ObjectiveC.NSObjCRuntime
 import UIKit
 
-final class SentryRedactRegion: Encodable {
+final class SentryRedactRegion {
     let size: CGSize
     let transform: CGAffineTransform
     let type: SentryRedactRegionType
@@ -23,6 +23,5 @@ final class SentryRedactRegion: Encodable {
         size == other.size && transform == other.transform && type == other.type
     }
 }
-
 #endif
 #endif
