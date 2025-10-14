@@ -38,7 +38,7 @@ class SentryUIRedactBuilderTests: XCTestCase {
     }
 
     func hostSwiftUIViewInWindow<V: View>(_ swiftUIView: V, frame: CGRect) -> UIWindow {
-        // Setup hosting controller containment properly
+        //  Setup hosting controller containment properly
         let hostingVC = UIHostingController(rootView: swiftUIView)
 
         // Create a transient window to drive lifecycle/layout for SwiftUI

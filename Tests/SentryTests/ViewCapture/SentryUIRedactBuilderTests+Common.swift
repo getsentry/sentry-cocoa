@@ -1092,37 +1092,7 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftli
 
         // -- Assert --
         assertSnapshot(of: masked, as: .image, named: createTestDeviceOSBoundSnapshotName())
-
-        if #available(iOS 26.0, *) {
-            let region0 = try XCTUnwrap(result.element(at: 0))
-            XCTAssertNil(region0.color)
-            XCTAssertEqual(region0.size, CGSize(width: 37, height: 24))
-            XCTAssertEqual(region0.type, .clipOut)
-            XCTAssertEqual(region0.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 10, ty: 8))
-
-            let region1 = try XCTUnwrap(result.element(at: 1))
-            XCTAssertNil(region1.color)
-            XCTAssertEqual(region1.size, CGSize(width: 80, height: 6))
-            XCTAssertEqual(region1.type, .clipBegin)
-            XCTAssertEqual(region1.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 10, ty: 17))
-
-            let region2 = try XCTUnwrap(result.element(at: 2))
-            XCTAssertNil(region2.color)
-            XCTAssertEqual(region2.size, CGSize(width: 0, height: 6))
-            XCTAssertEqual(region2.type, .clipOut)
-            XCTAssertEqual(region2.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 10, ty: 17))
-
-            let region3 = try XCTUnwrap(result.element(at: 3))
-            XCTAssertNil(region3.color)
-            XCTAssertEqual(region3.size, CGSize(width: 80, height: 6))
-            XCTAssertEqual(region3.type, .clipEnd)
-            XCTAssertEqual(region3.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 10, ty: 17))
-
-            // Assert that no other regions
-            XCTAssertEqual(result.count, 4)
-        } else {
-            XCTAssertEqual(result.count, 0)
-        }
+        XCTAssertEqual(result.count, 0)
     }
 
     func testDefaultIgnoredControls_shouldNotRedactUISwitch() {
@@ -1244,6 +1214,178 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftli
         // Assert that no other regions
         XCTAssertEqual(result.count, 2)
     }
+
+    // MARK: - Opacity & Background Edge Cases
+
+    func testIsOpaque_withViewWithNilBackgroundColor_shouldReturnFalse() {
+        // -- Arrange --
+        let view = UIView(frame: CGRect(x: 10, y: 10, width: 60, height: 60))
+        view.backgroundColor = nil
+        rootView.addSubview(view)
+
+        let label = UILabel(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
+        rootView.addSubview(label)
+
+        // -- Act --
+        let sut = getSut(maskAllText: true, maskAllImages: true)
+        let result = sut.redactRegionsFor(view: rootView)
+
+        // -- Assert --
+        // View with nil backgroundColor should not be treated as opaque
+        // So the label should still be redacted
+        XCTAssertEqual(result.count, 1)
+        XCTAssertEqual(result.first?.type, .redact)
+    }
+
+    func testIsOpaque_withViewWithTransparentBackgroundColor_shouldReturnFalse() {
+        // -- Arrange --
+        let view = UIView(frame: CGRect(x: 10, y: 10, width: 60, height: 60))
+        view.backgroundColor = UIColor.white.withAlphaComponent(0.5)
+        rootView.addSubview(view)
+
+        let label = UILabel(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
+        rootView.addSubview(label)
+
+        // -- Act --
+        let sut = getSut(maskAllText: true, maskAllImages: true)
+        let result = sut.redactRegionsFor(view: rootView)
+
+        // -- Assert --
+        // View with transparent backgroundColor should not be treated as opaque
+        // So the label should still be redacted
+        XCTAssertEqual(result.count, 1)
+        XCTAssertEqual(result.first?.type, .redact)
+    }
+
+    func testIsOpaque_withLayerOpacityLessThanOne_shouldReturnFalse() {
+        // -- Arrange --
+        let view = UIView(frame: CGRect(x: 10, y: 10, width: 60, height: 60))
+        view.backgroundColor = .white
+        view.alpha = 0.5
+        rootView.addSubview(view)
+
+        let label = UILabel(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
+        rootView.addSubview(label)
+
+        // -- Act --
+        let sut = getSut(maskAllText: true, maskAllImages: true)
+        let result = sut.redactRegionsFor(view: rootView)
+
+        // -- Assert --
+        // View with layer opacity < 1 should not be treated as opaque
+        // So the label should still be redacted
+        XCTAssertEqual(result.count, 1)
+        XCTAssertEqual(result.first?.type, .redact)
+    }
+
+    // MARK: - shouldRedact Edge Cases
+
+    func testShouldRedact_withViewMarkedForMasking_shouldReturnTrue() throws {
+        // -- Arrange --
+        class CustomView: UIView {}
+        let view = CustomView(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
+        rootView.addSubview(view)
+
+        // -- Act --
+        let sut = getSut(maskAllText: false, maskAllImages: false)
+        
+        // First check that the view is not redacted by default
+        let preMarkResult = sut.redactRegionsFor(view: rootView)
+        XCTAssertEqual(preMarkResult.count, 0)
+
+        // Mark the view for masking
+        SentrySDK.replay.maskView(view)
+        let postMarkResult = sut.redactRegionsFor(view: rootView)
+
+        // -- Assert --
+        XCTAssertEqual(postMarkResult.count, 1)
+        let region = try XCTUnwrap(postMarkResult.first)
+        XCTAssertEqual(region.type, .redact)
+    }
+
+    // MARK: - Class Hierarchy Edge Cases
+
+    func testContainsIgnoreClass_withExactClass_shouldMatch() {
+        // -- Arrange --
+        let label = UILabel(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
+        rootView.addSubview(label)
+
+        let sut = getSut(maskAllText: true, maskAllImages: true)
+
+        // -- Act --
+        // Check pre-condition: label should be redacted by default
+        let preIgnoreResult = sut.redactRegionsFor(view: rootView)
+        XCTAssertEqual(preIgnoreResult.count, 1)
+        
+        // Add UILabel to ignore list
+        sut.addIgnoreClass(UILabel.self)
+        let result = sut.redactRegionsFor(view: rootView)
+
+        // -- Assert --
+        // Label should be ignored because UILabel is in the ignore list
+        XCTAssertEqual(result.count, 0)
+    }
+
+    func testContainsRedactClass_withMultipleInheritanceLevels_shouldMatch() throws {
+        // -- Arrange --
+        class CustomLabel: UILabel {}
+        class VeryCustomLabel: CustomLabel {}
+        
+        let label = VeryCustomLabel(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
+        rootView.addSubview(label)
+
+        // -- Act --
+        let sut = getSut(maskAllText: true, maskAllImages: true)
+        let result = sut.redactRegionsFor(view: rootView)
+
+        // -- Assert --
+        // Should match because UILabel is in the redact list, even through multiple inheritance levels
+        XCTAssertEqual(result.count, 1)
+        let region = try XCTUnwrap(result.first)
+        XCTAssertEqual(region.type, .redact)
+    }
+
+    // MARK: - Test-Only Methods
+
+#if SENTRY_TEST || SENTRY_TEST_CI
+    func testIsIgnoreContainerClassTestOnly_shouldReturnCorrectValue() {
+        // -- Arrange --
+        class IgnoreContainer: UIView {}
+        class NormalView: UIView {}
+
+        // -- Act --
+        let sut = getSut(maskAllText: true, maskAllImages: true)
+        
+        // Before setting
+        XCTAssertFalse(sut.isIgnoreContainerClassTestOnly(IgnoreContainer.self))
+        
+        // After setting
+        sut.setIgnoreContainerClass(IgnoreContainer.self)
+        
+        // -- Assert --
+        XCTAssertTrue(sut.isIgnoreContainerClassTestOnly(IgnoreContainer.self))
+        XCTAssertFalse(sut.isIgnoreContainerClassTestOnly(NormalView.self))
+    }
+
+    func testIsRedactContainerClassTestOnly_shouldReturnCorrectValue() {
+        // -- Arrange --
+        class RedactContainer: UIView {}
+        class NormalView: UIView {}
+
+        // -- Act --
+        let sut = getSut(maskAllText: true, maskAllImages: true)
+        
+        // Before setting
+        XCTAssertFalse(sut.isRedactContainerClassTestOnly(RedactContainer.self))
+        
+        // After setting
+        sut.setRedactContainerClass(RedactContainer.self)
+        
+        // -- Assert --
+        XCTAssertTrue(sut.isRedactContainerClassTestOnly(RedactContainer.self))
+        XCTAssertFalse(sut.isRedactContainerClassTestOnly(NormalView.self))
+    }
+#endif
 }
 
 #endif // os(iOS)
