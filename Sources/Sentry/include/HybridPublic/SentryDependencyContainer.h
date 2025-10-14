@@ -35,6 +35,8 @@
 @protocol SentryDispatchQueueProviderProtocol;
 @protocol SentryNSNotificationCenterWrapper;
 @protocol SentryObjCRuntimeWrapper;
+@protocol SentryInfoPlistWrapperProvider;
+@protocol SentrySessionReplayEnvironmentCheckerProvider;
 
 #if SENTRY_HAS_METRIC_KIT
 @class SentryMXManager;
@@ -94,6 +96,9 @@ SENTRY_NO_INIT
 @property (nonatomic, strong) SentrySysctl *sysctlWrapper;
 @property (nonatomic, strong) id<SentryRateLimits> rateLimits;
 @property (nonatomic, strong) SentryThreadsafeApplication *threadsafeApplication;
+@property (nonatomic, strong) id<SentryInfoPlistWrapperProvider> infoPlistWrapper;
+@property (nonatomic, strong) id<SentrySessionReplayEnvironmentCheckerProvider>
+    sessionReplayEnvironmentChecker;
 
 #if SENTRY_HAS_REACHABILITY
 @property (nonatomic, strong) SentryReachability *reachability;
