@@ -358,6 +358,10 @@ jobs:
       - name: Install Slather
         run: gem install slather
 
+      - name: Boot simulator
+        if: ${{matrix.platform == 'iOS' && matrix.test-destination-os == '26.0'}}
+        run: ./scripts/ci-boot-simulator.sh
+
       # We split building and running tests in two steps so we know how long running the tests takes.
       - name: Build tests
         id: build_tests
