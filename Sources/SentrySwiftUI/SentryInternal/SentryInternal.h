@@ -21,7 +21,8 @@
 #    import "SentrySpan.h"
 #    import "SentryTracer.h"
 #else
-@class SentrySpan;
+@protocol SentrySpan;
+
 @interface SentryTracer : NSObject <SentrySpan>
 @end
 #endif
@@ -71,19 +72,25 @@ typedef NS_ENUM(NSUInteger, SentrySpanStatus);
 
 - (nullable id<SentrySpan>)getSpan:(SentrySpanId *)spanId;
 
+- (BOOL)hasSpan:(SentrySpanId *)spanId;
+
 - (BOOL)pushActiveSpan:(SentrySpanId *)spanId;
 
 - (void)popActiveSpan;
 
 @end
 
+@protocol SentryInitialDisplayReporting
+- (void)reportInitialDisplay;
+@end
+
 @interface SentryTimeToDisplayTracker : NSObject
 - (instancetype)init NS_UNAVAILABLE;
 + (instancetype)new NS_UNAVAILABLE;
 
-@property (nullable, nonatomic, weak, readonly) SentrySpan *initialDisplaySpan;
+@property (nullable, nonatomic, weak, readonly) id<SentrySpan> initialDisplaySpan;
 
-@property (nullable, nonatomic, weak, readonly) SentrySpan *fullDisplaySpan;
+@property (nullable, nonatomic, weak, readonly) id<SentrySpan> fullDisplaySpan;
 
 @property (nonatomic, readonly) BOOL waitForFullDisplay;
 
@@ -103,13 +110,22 @@ typedef NS_ENUM(NSUInteger, SentrySpanStatus);
 
 @end
 
+@interface SentrySwiftUISpanHelper : NSObject
+
+@property (nonatomic, readonly) BOOL hasSpan;
+
+@property (nonatomic, strong, readonly, nullable) id<SentryInitialDisplayReporting>
+    initialDisplayReporting;
+
+@end
+
 @interface SentryUIViewControllerPerformanceTracker : NSObject
 
 - (void)reportFullyDisplayed;
 
-- (nullable SentryTimeToDisplayTracker *)startTimeToDisplayTrackerForScreen:(NSString *)screenName
-                                                         waitForFullDisplay:(BOOL)waitForFullDisplay
-                                                                     tracer:(SentryTracer *)tracer;
+- (SentrySwiftUISpanHelper *)startTimeToDisplayTrackerForScreen:(NSString *)screenName
+                                             waitForFullDisplay:(BOOL)waitforFullDisplay
+                                                  transactionId:(SentrySpanId *)transactionId;
 
 @end
 

@@ -31,6 +31,23 @@ public final class SentryExperimentalOptions: NSObject {
      */
     public var enableUnhandledCPPExceptionsV2 = false
     
+    /**
+     * Forces enabling of session replay in unreliable environments.
+     *
+     * Due to internal changes with the release of Liquid Glass on iOS 26.0, the masking of text and images can not be reliably guaranteed.
+     * Therefore the SDK uses a defensive programming approach to disable the session replay integration by default, unless the environment is detected as reliable.
+     *
+     * Indicators for reliable environments include:
+     * - Running on an older version of iOS that doesn't have Liquid Glass (iOS 18 or earlier)
+     * - UIDesignRequiresCompatibility is explicitly set to YES in Info.plist
+     * - The app was built with Xcode < 26.0 (DTXcode < 2600)
+     *
+     * - Important: This flag allows to re-enable the session replay integration on iOS 26.0 and later, but please be aware that text and images may not be masked as expected.
+     *
+     * - Note: See [GitHub issues #6389](https://github.com/getsentry/sentry-cocoa/issues/6389) for more information.
+     */
+    public var enableSessionReplayInUnreliableEnvironment = false
+
     @_spi(Private) public func validateOptions(_ options: [String: Any]?) {
     }
 }
