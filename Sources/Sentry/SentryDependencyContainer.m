@@ -13,13 +13,13 @@
 #import <SentryCrash.h>
 #import <SentryDebugImageProvider+HybridSDKs.h>
 #import <SentryDefaultAppStateManager.h>
+#import <SentryDefaultUIViewControllerPerformanceTracker.h>
 #import <SentryDependencyContainer.h>
 #import <SentryPerformanceTracker.h>
 #import <SentrySDK+Private.h>
 #import <SentrySwift.h>
 #import <SentrySwizzleWrapper.h>
 #import <SentryTracer.h>
-#import <SentryUIViewControllerPerformanceTracker.h>
 #import <SentryWatchdogTerminationScopeObserver.h>
 
 #if SENTRY_HAS_UIKIT
@@ -64,6 +64,12 @@ SentryApplicationProviderBlock defaultApplicationProvider = ^id<SentryApplicatio
 
 @interface SentryDefaultAppStateManager () <SentryAppStateManager>
 @end
+
+#if SENTRY_HAS_UIKIT
+@interface SentryDefaultUIViewControllerPerformanceTracker () <
+    SentryUIViewControllerPerformanceTracker>
+@end
+#endif
 
 @interface SentryDependencyContainer ()
 
@@ -315,12 +321,12 @@ static BOOL isInitialializingDependencyContainer = NO;
 #    endif // SENTRY_HAS_UIKIT
 }
 
-- (SentryUIViewControllerPerformanceTracker *)
+- (id<SentryUIViewControllerPerformanceTracker>)
     uiViewControllerPerformanceTracker SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
 #    if SENTRY_HAS_UIKIT
     SENTRY_LAZY_INIT(_uiViewControllerPerformanceTracker,
-        [[SentryUIViewControllerPerformanceTracker alloc]
+        [[SentryDefaultUIViewControllerPerformanceTracker alloc]
                  initWithTracker:SentryPerformanceTracker.shared
             dispatchQueueWrapper:[self dispatchQueueWrapper]]);
 #    else

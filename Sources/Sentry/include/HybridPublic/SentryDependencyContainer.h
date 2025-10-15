@@ -46,9 +46,10 @@
 @class SentryFramesTracker;
 @class SentryScreenshotSource;
 @class SentryViewHierarchyProvider;
-@class SentryUIViewControllerPerformanceTracker;
 @class SentryWatchdogTerminationAttributesProcessor;
+
 @protocol SentryScopeObserver;
+@protocol SentryUIViewControllerPerformanceTracker;
 #endif // SENTRY_UIKIT_AVAILABLE
 
 #if SENTRY_HAS_UIKIT
@@ -128,8 +129,8 @@ SENTRY_NO_INIT
 #if SENTRY_UIKIT_AVAILABLE
 @property (nonatomic, strong) SentryFramesTracker *framesTracker;
 @property (nonatomic, strong) SentryViewHierarchyProvider *viewHierarchyProvider;
-@property (nonatomic, strong)
-    SentryUIViewControllerPerformanceTracker *uiViewControllerPerformanceTracker;
+@property (nonatomic, strong) id<SentryUIViewControllerPerformanceTracker>
+    uiViewControllerPerformanceTracker;
 #endif // SENTRY_UIKIT_AVAILABLE
 
 #if SENTRY_TARGET_REPLAY_SUPPORTED
