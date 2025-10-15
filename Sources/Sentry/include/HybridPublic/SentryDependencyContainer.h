@@ -47,8 +47,8 @@
 @class SentryScreenshotSource;
 @class SentryViewHierarchyProvider;
 @class SentryUIViewControllerPerformanceTracker;
-@class SentryWatchdogTerminationScopeObserver;
 @class SentryWatchdogTerminationAttributesProcessor;
+@protocol SentryScopeObserver;
 #endif // SENTRY_UIKIT_AVAILABLE
 
 #if SENTRY_HAS_UIKIT
@@ -142,8 +142,7 @@ SENTRY_NO_INIT
 @property (nonatomic, strong) id<SentryObjCRuntimeWrapper> objcRuntimeWrapper;
 
 #if SENTRY_HAS_UIKIT
-- (SentryWatchdogTerminationScopeObserver *)getWatchdogTerminationScopeObserverWithOptions:
-    (SentryOptions *)options;
+- (id<SentryScopeObserver>)getWatchdogTerminationScopeObserverWithOptions:(SentryOptions *)options;
 @property (nonatomic, strong)
     SentryWatchdogTerminationAttributesProcessor *watchdogTerminationAttributesProcessor;
 #endif
