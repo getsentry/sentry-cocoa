@@ -204,7 +204,7 @@ final class SentryUIRedactBuilder {
     /// Returns `true` if the provided class type is contained in the ignore list.
     ///
     /// This compares by string description to avoid touching Objective‑C class objects directly.
-    private func containsIgnoreClass(_ ignoreClass: AnyClass) -> Bool {
+    func containsIgnoreClass(_ ignoreClass: AnyClass) -> Bool {
         return ignoreClassesIdentifiers.contains(where: { $0.classId == ignoreClass.description() })
     }
     
@@ -227,7 +227,7 @@ final class SentryUIRedactBuilder {
     /// - SwiftUI structural background: `viewClass == SwiftUI._UIGraphicsView` with a generic `CALayer`
     ///   will NOT match (no `ImageLayer`), so we don’t redact background fills.
     /// - `UIImageView` will match the class rule; the final decision is refined by `shouldRedact(imageView:)`.
-    private func containsRedactClass(viewClass: AnyClass, layerClass: AnyClass) -> Bool {
+    func containsRedactClass(viewClass: AnyClass, layerClass: AnyClass) -> Bool {
         var currentClass: AnyClass? = viewClass
         while let iteratorClass = currentClass {
             if redactClassesIdentifiers.contains(where: { $0.matches(viewClass: iteratorClass, layerClass: layerClass) }) {
@@ -511,6 +511,7 @@ final class SentryUIRedactBuilder {
             return true
         }
 
+        #if os(iOS)
         // UISwitch uses UIImageView internally, which can be in the list of redacted views.
         // But UISwitch is in the list of ignored class identifiers by default, because it uses
         // non-sensitive images. Therefore we want to ignore the subtree of UISwitch, unless
@@ -520,6 +521,7 @@ final class SentryUIRedactBuilder {
             }) {
             return true
         }
+        #endif
         
         return false
     }
