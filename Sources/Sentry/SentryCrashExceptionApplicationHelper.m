@@ -8,12 +8,13 @@
 #    import "SentryDependencyContainer.h"
 #    import "SentrySDK+Private.h"
 #    import "SentrySDKInternal.h"
+#    import "SentrySwift.h"
 
 @implementation SentryCrashExceptionApplicationHelper
 
 + (void)reportException:(NSException *)exception
 {
-    SentryCrash *crash = SentryDependencyContainer.sharedInstance.crashReporter;
+    SentryCrashSwift *crash = SentryDependencyContainer.sharedInstance.crashReporter;
     if (nil != crash.uncaughtExceptionHandler && nil != exception) {
         crash.uncaughtExceptionHandler(exception);
     }

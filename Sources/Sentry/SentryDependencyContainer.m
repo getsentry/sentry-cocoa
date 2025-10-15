@@ -9,7 +9,6 @@
 #import "SentrySDK+Private.h"
 #import "SentrySwift.h"
 #import "SentrySystemWrapper.h"
-#import <SentryCrash.h>
 #import <SentryDebugImageProvider+HybridSDKs.h>
 #import <SentryDefaultAppStateManager.h>
 #import <SentryDefaultUIViewControllerPerformanceTracker.h>
@@ -242,10 +241,10 @@ static BOOL isInitialializingDependencyContainer = NO;
     return SentryDependencies.fileIOTracker;
 }
 
-- (SentryCrash *)crashReporter SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
+- (SentryCrashSwift *)crashReporter SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
     SENTRY_LAZY_INIT(_crashReporter,
-        [[SentryCrash alloc] initWithBasePath:SentrySDKInternal.options.cacheDirectoryPath]);
+        [[SentryCrashSwift alloc] initWith:SentrySDKInternal.options.cacheDirectoryPath]);
 }
 
 - (id<SentryANRTracker>)getANRTracker:(NSTimeInterval)timeout
