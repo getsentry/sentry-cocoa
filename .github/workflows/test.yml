@@ -425,6 +425,14 @@ jobs:
           path: |
             ~/Library/Logs/DiagnosticReports/**
 
+      - name: Archiving Raw Logs
+        uses: actions/upload-artifact@v4
+        if: ${{ failure() || cancelled() }}
+        with:
+          name: result-bundle-${{matrix.platform}}-xcode-${{matrix.xcode}}-os-${{matrix.test-destination-os}}
+          path: |
+            results.xcresult
+
       - name: Gather code coverage information via slather
         run: slather coverage --configuration TestCI --scheme Sentry
 

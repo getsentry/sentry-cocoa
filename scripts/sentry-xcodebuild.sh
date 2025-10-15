@@ -181,6 +181,7 @@ if [ $RUN_TEST_WITHOUT_BUILDING == true ]; then
         "${TEST_PLAN_ARGS[@]+${TEST_PLAN_ARGS[@]}}" \
         -configuration "$CONFIGURATION" \
         -destination "$DESTINATION" \
+        -resultBundlePath "results.xcresult" \
         test-without-building 2>&1 |
         tee raw-test-output.log |
         xcbeautify --report junit
