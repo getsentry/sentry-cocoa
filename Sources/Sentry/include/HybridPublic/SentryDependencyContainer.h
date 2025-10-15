@@ -16,7 +16,6 @@
 @class SentrySwizzleWrapper;
 @class SentrySysctl;
 @class SentryThreadsafeApplication;
-@class SentrySystemWrapper;
 @class SentryThreadWrapper;
 @class SentryFileIOTracker;
 @class SentryScopePersistentStore;
@@ -118,9 +117,6 @@ SENTRY_NO_INIT
 
 - (nullable id<SentryApplication>)application;
 
-#if SENTRY_TARGET_PROFILING_SUPPORTED
-@property (nonatomic, strong) SentrySystemWrapper *systemWrapper;
-#endif // SENTRY_TARGET_PROFILING_SUPPORTED
 @property (nonatomic, strong) SentryDispatchFactory *dispatchFactory;
 @property (nonatomic, strong) SentryNSTimerFactory *timerFactory;
 
