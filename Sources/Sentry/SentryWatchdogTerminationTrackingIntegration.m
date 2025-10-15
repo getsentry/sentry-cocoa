@@ -88,9 +88,8 @@ NS_ASSUME_NONNULL_BEGIN
 
     self.appStateManager = appStateManager;
 
-    SentryWatchdogTerminationScopeObserver *scopeObserver =
-        [SentryDependencyContainer.sharedInstance
-            getWatchdogTerminationScopeObserverWithOptions:options];
+    id<SentryScopeObserver> scopeObserver = [SentryDependencyContainer.sharedInstance
+        getWatchdogTerminationScopeObserverWithOptions:options];
 
     [SentrySDKInternal.currentHub configureScope:^(SentryScope *_Nonnull outerScope) {
         // Add the observer to the scope so that it can be notified when the scope changes.

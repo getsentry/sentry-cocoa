@@ -407,8 +407,7 @@ static BOOL isInitialializingDependencyContainer = NO;
 }
 
 #if SENTRY_HAS_UIKIT
-- (SentryWatchdogTerminationScopeObserver *)getWatchdogTerminationScopeObserverWithOptions:
-    (SentryOptions *)options
+- (id<SentryScopeObserver>)getWatchdogTerminationScopeObserverWithOptions:(SentryOptions *)options
 {
     // This method is only a factory, therefore do not keep a reference.
     // The scope observer will be created each time it is needed.
