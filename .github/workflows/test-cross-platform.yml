@@ -55,7 +55,7 @@ jobs:
         with:
           repository: getsentry/sentry-react-native
           path: sentry-react-native
-          ref: removeEnableTracing
+          ref: denrase/options-enable-logs
 
       - name: Enable Corepack
         working-directory: sentry-react-native
