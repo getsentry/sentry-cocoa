@@ -7,7 +7,6 @@
 #import "SentryLogC.h"
 #import "SentryOptions+Private.h"
 #import "SentrySDK+Private.h"
-#import "SentrySessionTracker.h"
 #import "SentrySwift.h"
 #import "SentrySystemWrapper.h"
 #import <SentryCrash.h>

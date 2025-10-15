@@ -160,7 +160,6 @@
 #import "SentryScreenshotIntegration.h"
 #import "SentrySerialization.h"
 #import "SentrySessionReplaySyncC.h"
-#import "SentrySessionTracker.h"
 #import "SentrySpan.h"
 #import "SentrySpanDataKey.h"
 #import "SentrySpanId.h"
