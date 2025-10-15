@@ -28,17 +28,15 @@ class SentryUIRedactBuilderTests_SwiftUI: SentryUIRedactBuilderTests { // swiftl
     // MARK: - SwiftUI.Text Redaction
 
     private func setupSwiftUITextFixture() throws -> UIWindow {
-        throw XCTSkip("Skipping due to unstable implementation")
-
-//        let view = VStack {
-//            VStack {
-//                Text("Hello SwiftUI")
-//                    .padding(20)
-//            }
-//            .background(Color.green)
-//            .font(.system(size: 20)) // Use a fixed font size as defaults could change frame
-//        }
-//        return hostSwiftUIViewInWindow(view, frame: CGRect(x: 0, y: 0, width: 250, height: 250))
+        let view = VStack {
+            VStack {
+                Text("Hello SwiftUI")
+                    .padding(20)
+            }
+            .background(Color.green)
+            .font(.system(size: 20)) // Use a fixed font size as defaults could change frame
+        }
+        return hostSwiftUIViewInWindow(view, frame: CGRect(x: 0, y: 0, width: 250, height: 250))
 
         // View Hierarchy:
         // ---------------
@@ -168,13 +166,11 @@ class SentryUIRedactBuilderTests_SwiftUI: SentryUIRedactBuilderTests { // swiftl
     // MARK: - SwiftUI.Label Redaction
 
     private func setupSwiftUILabelFixture() throws -> UIWindow {
-        throw XCTSkip("Skipping due to unstable implementation")
-
-//        let view = VStack {
-//            Label("Hello SwiftUI", systemImage: "house")
-//                .labelStyle(.titleAndIcon)
-//        }
-//        return hostSwiftUIViewInWindow(view, frame: CGRect(x: 0, y: 0, width: 300, height: 300))
+        let view = VStack {
+            Label("Hello SwiftUI", systemImage: "house")
+                .labelStyle(.titleAndIcon)
+        }
+        return hostSwiftUIViewInWindow(view, frame: CGRect(x: 0, y: 0, width: 300, height: 300))
 
         // View Hierarchy:
         // ---------------
@@ -315,19 +311,17 @@ class SentryUIRedactBuilderTests_SwiftUI: SentryUIRedactBuilderTests { // swiftl
     // MARK: - SwiftUI.List Redaction
 
     private func setupSwiftUIListFixture() throws -> UIWindow {
-        throw XCTSkip("Skipping due to unstable implementation")
-
-//        let view = VStack {
-//            List {
-//                Section("Section 1") {
-//                    Text("Item 1")
-//                }
-//                Section {
-//                    Text("Item 2")
-//                }
-//            }
-//        }
-//        return hostSwiftUIViewInWindow(view, frame: CGRect(x: 0, y: 0, width: 300, height: 500))
+        let view = VStack {
+            List {
+                Section("Section 1") {
+                    Text("Item 1")
+                }
+                Section {
+                    Text("Item 2")
+                }
+            }
+        }
+        return hostSwiftUIViewInWindow(view, frame: CGRect(x: 0, y: 0, width: 300, height: 500))
 
         // View Hierarchy:
         // ---------------
@@ -619,12 +613,10 @@ class SentryUIRedactBuilderTests_SwiftUI: SentryUIRedactBuilderTests { // swiftl
     // - MARK: - SwiftUI.Image Redaction - SFSymbol
 
     private func setupSwiftUIImageFixture() throws -> UIWindow {
-        throw XCTSkip("Skipping due to unstable implementation")
-
-//        let view = VStack {
-//            Image(systemName: "star.fill")
-//        }
-//        return hostSwiftUIViewInWindow(view, frame: CGRect(x: 20, y: 20, width: 240, height: 320))
+        let view = VStack {
+            Image(systemName: "star.fill")
+        }
+        return hostSwiftUIViewInWindow(view, frame: CGRect(x: 20, y: 20, width: 240, height: 320))
 
         // View Hierarchy:
         // ---------------
@@ -706,23 +698,21 @@ class SentryUIRedactBuilderTests_SwiftUI: SentryUIRedactBuilderTests { // swiftl
     // - MARK: - SwiftUI.Image Redaction - UIImage
 
     private func setupSwiftUIImageWithUIImageFixture() throws -> UIWindow {
-        throw XCTSkip("Skipping due to unstable implementation")
+        let image = UIGraphicsImageRenderer(size: CGSize(width: 40, height: 40)).image { context in
+            UIColor.green.setFill()
+            context.fill(CGRect(x: 0, y: 0, width: 20, height: 20))
+            UIColor.purple.setFill()
+            context.fill(CGRect(x: 20, y: 0, width: 20, height: 20))
+            UIColor.blue.setFill()
+            context.fill(CGRect(x: 0, y: 20, width: 20, height: 20))
+            UIColor.orange.setFill()
+            context.fill(CGRect(x: 20, y: 20, width: 20, height: 20))
+        }
 
-//        let image = UIGraphicsImageRenderer(size: CGSize(width: 40, height: 40)).image { context in
-//            UIColor.green.setFill()
-//            context.fill(CGRect(x: 0, y: 0, width: 20, height: 20))
-//            UIColor.purple.setFill()
-//            context.fill(CGRect(x: 20, y: 0, width: 20, height: 20))
-//            UIColor.blue.setFill()
-//            context.fill(CGRect(x: 0, y: 20, width: 20, height: 20))
-//            UIColor.orange.setFill()
-//            context.fill(CGRect(x: 20, y: 20, width: 20, height: 20))
-//        }
-//
-//        let view = VStack {
-//            Image(uiImage: image)
-//        }
-//        return hostSwiftUIViewInWindow(view, frame: CGRect(x: 20, y: 20, width: 240, height: 320))
+        let view = VStack {
+            Image(uiImage: image)
+        }
+        return hostSwiftUIViewInWindow(view, frame: CGRect(x: 20, y: 20, width: 240, height: 320))
 
         // View Hierarchy:
         // ---------------
@@ -804,14 +794,12 @@ class SentryUIRedactBuilderTests_SwiftUI: SentryUIRedactBuilderTests { // swiftl
     // - MARK: - SwiftUI.Button Redaction
 
     private func setupSwiftUIButtonFixture() throws -> UIWindow {
-        throw XCTSkip("Skipping due to unstable implementation")
-
-//        let view = VStack {
-//            Button(action: {}) {
-//                Text("Tap Me")
-//            }
-//        }
-//        return hostSwiftUIViewInWindow(view, frame: CGRect(x: 20, y: 20, width: 240, height: 320))
+        let view = VStack {
+            Button(action: {}) {
+                Text("Tap Me")
+            }
+        }
+        return hostSwiftUIViewInWindow(view, frame: CGRect(x: 20, y: 20, width: 240, height: 320))
 
         // View Hierarchy:
         // ---------------
