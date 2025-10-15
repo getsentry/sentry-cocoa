@@ -43,7 +43,6 @@
 #import "SentrySDK+Private.h"
 #import "SentrySDKInternal+Tests.h"
 #import "SentryScopeSyncC.h"
-#import "SentrySwizzleWrapper.h"
 #import "SentrySystemWrapper.h"
 #import "SentryTraceContext.h"
 #import "SentryTracer+Test.h"

@@ -10,7 +10,6 @@
 #import "SentryScope.h"
 #import "SentrySwift.h"
 #import "SentrySwizzle.h"
-#import "SentrySwizzleWrapper.h"
 
 #if SENTRY_TARGET_MACOS_HAS_UI
 #    import <Cocoa/Cocoa.h>

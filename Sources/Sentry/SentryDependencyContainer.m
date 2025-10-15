@@ -18,7 +18,6 @@
 #import <SentryPerformanceTracker.h>
 #import <SentrySDK+Private.h>
 #import <SentrySwift.h>
-#import <SentrySwizzleWrapper.h>
 #import <SentryTracer.h>
 #import <SentryWatchdogTerminationScopeObserver.h>
 

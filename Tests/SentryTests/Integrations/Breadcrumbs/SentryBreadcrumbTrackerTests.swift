@@ -31,9 +31,8 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
         sut.start(with: delegate)
         sut.startSwizzle()
         sut.stop()
-        
-        let dict = Dynamic(SentryDependencyContainer.sharedInstance().swizzleWrapper).swizzleSendActionCallbacks().asDictionary
-        XCTAssertEqual(0, dict?.count)
+
+        XCTAssertEqual(0, SentrySwizzleWrapper.sentrySwizzleSendActionCallbacks.count)
     }
     
     func testNetworkConnectivityChangeBreadcrumbs() throws {
