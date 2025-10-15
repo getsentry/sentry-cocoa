@@ -425,7 +425,7 @@ jobs:
           path: |
             ~/Library/Logs/DiagnosticReports/**
 
-      - name: Archiving Raw Logs
+      - name: Archiving Test Results
         uses: actions/upload-artifact@v4
         if: ${{ failure() || cancelled() }}
         with:
