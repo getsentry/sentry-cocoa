@@ -4,7 +4,7 @@
 #if SENTRY_HAS_UIKIT
 
 #    import "SentrySpanOperation.h"
-#    import "SentrySwizzleWrapper.h"
+#    import "SentrySwift.h"
 #    import <SentryDependencyContainer.h>
 #    import <SentryLogC.h>
 #    import <SentryUIEventTrackerMode.h>

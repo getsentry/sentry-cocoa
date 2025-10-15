@@ -171,7 +171,6 @@
 #import "SentrySubClassFinder.h"
 #import "SentrySwift.h"
 #import "SentrySwiftAsyncIntegration.h"
-#import "SentrySwizzleWrapper.h"
 #import "SentrySystemEventBreadcrumbs.h"
 #import "SentrySystemWrapper.h"
 #import "SentryTestIntegration.h"
