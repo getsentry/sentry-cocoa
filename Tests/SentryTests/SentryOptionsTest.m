@@ -202,6 +202,11 @@
     [self testBooleanField:@"enableNetworkBreadcrumbs"];
 }
 
+- (void)testEnableLogs
+{
+    [self testBooleanField:@"enableLogs" defaultValue:NO];
+}
+
 - (void)testEnableAutoBreadcrumbTracking
 {
     [self testBooleanField:@"enableAutoBreadcrumbTracking"];
@@ -310,6 +315,30 @@
 
     XCTAssertFalse([options.beforeSend isEqual:[NSNull null]]);
 }
+
+#if !SWIFT_PACKAGE
+- (void)testBeforeSendLog
+{
+    SentryBeforeSendLogCallback callback = ^(SentryLog *log) { return log; };
+    SentryOptions *options = [self getValidOptions:@{ @"beforeSendLog" : callback }];
+
+    XCTAssertEqual(callback, options.beforeSendLog);
+}
+
+- (void)testDefaultBeforeSendLog
+{
+    SentryOptions *options = [self getValidOptions:@{}];
+
+    XCTAssertNil(options.beforeSendLog);
+}
+
+- (void)testGarbageBeforeSendLog_ReturnsNil
+{
+    SentryOptions *options = [self getValidOptions:@{ @"beforeSendLog" : @"fault" }];
+
+    XCTAssertNil(options.beforeSendLog);
+}
+#endif // !SWIFT_PACKAGE
 
 - (void)testBeforeSendSpan
 {
@@ -620,6 +649,9 @@
         @"maxCacheItems" : [NSNull null],
         @"cacheDirectoryPath" : [NSNull null],
         @"beforeSend" : [NSNull null],
+#if !SWIFT_PACKAGE
+        @"beforeSendLog" : [NSNull null],
+#endif
         @"beforeBreadcrumb" : [NSNull null],
         @"onCrashedLastRun" : [NSNull null],
         @"integrations" : [NSNull null],
