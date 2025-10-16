@@ -18,6 +18,7 @@
 ### Features
 
 - Add SentryDistribution as Swift Package Manager target (#6149)
+- Add automatic stdout log integration when `enableLogs` is set to true (#XXXX)
 
 ### Fixes
 
