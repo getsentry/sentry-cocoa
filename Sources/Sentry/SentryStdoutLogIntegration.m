@@ -154,15 +154,12 @@ static _Atomic bool _isForwardingLogs = false;
     }
 
     __weak typeof(self) weakSelf = self;
-    __weak NSFileHandle *weakNewFileHandle = newFileHandle;
-    __weak SentryDispatchQueueWrapper *weakQueue = self.dispatchQueueWrapper;
-
     pipe.fileHandleForReading.readabilityHandler = ^(NSFileHandle *handle) {
         NSData *data = handle.availableData;
         if (weakSelf.logHandler) {
             weakSelf.logHandler(data, isStderr);
         }
-        [weakQueue dispatchAsyncWithBlock:^{ [weakNewFileHandle writeData:data]; }];
+        [weakSelf.dispatchQueueWrapper dispatchAsyncWithBlock:^{ [newFileHandle writeData:data]; }];
     };
 
     return pipe;
