@@ -6,7 +6,6 @@
 @class SentryTransaction;
 @class SentryDispatchQueueWrapper;
 @class SentryEnvelope;
-@class SentryNSTimerFactory;
 @class SentrySession;
 @class SentryTracer;
 @class SentryTracerConfiguration;
