@@ -8,7 +8,6 @@
 
 @class SentryEvent;
 @class SentryFeedback;
-@class SentryFileManager;
 @class SentryId;
 @class SentryOptions;
 @class SentryScope;
