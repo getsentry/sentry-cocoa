@@ -27,6 +27,8 @@
 
 #import <Foundation/Foundation.h>
 
+NS_ASSUME_NONNULL_BEGIN
+
 /** Callback for filter operations.
  *
  * @param filteredReports The filtered reports (may be incomplete if "completed"
@@ -37,7 +39,7 @@
  * @param error Non-nil if an error occurred.
  */
 typedef void (^SentryCrashReportFilterCompletion)(
-    NSArray *filteredReports, BOOL completed, NSError *error);
+    NSArray *_Nullable filteredReports, BOOL completed, NSError *_Nullable error);
 
 /**
  * A filter receives a set of reports, possibly transforms them, and then
@@ -63,10 +65,12 @@ typedef void (^SentryCrashReportFilterCompletion)(
  * @param error The parameter to send as "error".
  */
 static inline void
-sentrycrash_callCompletion(SentryCrashReportFilterCompletion onCompletion, NSArray *filteredReports,
-    BOOL completed, NSError *error)
+sentrycrash_callCompletion(SentryCrashReportFilterCompletion onCompletion,
+    NSArray *_Nullable filteredReports, BOOL completed, NSError *_Nullable error)
 {
     if (onCompletion) {
         onCompletion(filteredReports, completed, error);
     }
 }
+
+NS_ASSUME_NONNULL_END
