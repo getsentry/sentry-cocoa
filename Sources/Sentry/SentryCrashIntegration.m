@@ -46,6 +46,9 @@ sentry_finishAndSaveTransaction(void)
     }
 }
 
+@interface SentryCrashScopeObserver () <SentryScopeObserver>
+@end
+
 @interface SentryCrashIntegration ()
 
 @property (nonatomic, weak) SentryOptions *options;

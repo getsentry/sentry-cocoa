@@ -64,6 +64,9 @@ SentryApplicationProviderBlock defaultApplicationProvider = ^id<SentryApplicatio
 @end
 
 #if SENTRY_HAS_UIKIT
+@interface SentryWatchdogTerminationScopeObserver () <SentryScopeObserver>
+@end
+
 @interface SentryDefaultUIViewControllerPerformanceTracker () <
     SentryUIViewControllerPerformanceTracker>
 @end

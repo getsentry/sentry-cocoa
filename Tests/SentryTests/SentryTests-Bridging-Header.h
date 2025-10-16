@@ -155,7 +155,6 @@
 #import "SentrySDKInternal+Tests.h"
 #import "SentrySampleDecision+Private.h"
 #import "SentryScope+Private.h"
-#import "SentryScopeObserver.h"
 #import "SentryScopeSyncC.h"
 #import "SentryScreenshotIntegration.h"
 #import "SentrySerialization.h"
