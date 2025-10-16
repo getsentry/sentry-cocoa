@@ -1,5 +1,8 @@
+@_spi(Private) import Sentry
 import SentryTestUtils
 import XCTest
+
+@_spi(Private) extension SentryCrashScopeObserver: SentryScopeObserver { }
 
 class SentryCrashScopeObserverTests: XCTestCase {
     
