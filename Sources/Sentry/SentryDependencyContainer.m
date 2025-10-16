@@ -149,12 +149,12 @@ static BOOL isInitialializingDependencyContainer = NO;
         isInitialializingDependencyContainer = YES;
 
         _dispatchQueueWrapper = SentryDependencies.dispatchQueueWrapper;
-        _random = [[SentryRandom alloc] init];
-        _threadWrapper = [[SentryThreadWrapper alloc] init];
+        _random = SentryDependencies.random;
+        _threadWrapper = SentryDependencies.threadWrapper;
         _binaryImageCache = [[SentryBinaryImageCache alloc] init];
         _dateProvider = SentryDependencies.dateProvider;
 
-        _notificationCenterWrapper = NSNotificationCenter.defaultCenter;
+        _notificationCenterWrapper = SentryDependencies.notificationCenterWrapper;
 
         _processInfoWrapper = SentryDependencies.processInfoWrapper;
         _crashWrapper = [[SentryCrashWrapper alloc] initWithProcessInfoWrapper:_processInfoWrapper];
@@ -173,7 +173,7 @@ static BOOL isInitialializingDependencyContainer = NO;
 #endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
         ];
 
-        _sysctlWrapper = [[SentrySysctl alloc] init];
+        _sysctlWrapper = SentryDependencies.sysctlWrapper;
 
         SentryRetryAfterHeaderParser *retryAfterHeaderParser = [[SentryRetryAfterHeaderParser alloc]
             initWithHttpDateParser:[[SentryHttpDateParser alloc] init]
@@ -185,9 +185,6 @@ static BOOL isInitialializingDependencyContainer = NO;
             [[SentryDefaultRateLimits alloc] initWithRetryAfterHeaderParser:retryAfterHeaderParser
                                                          andRateLimitParser:rateLimitParser
                                                         currentDateProvider:_dateProvider];
-        _infoPlistWrapper = [[SentryInfoPlistWrapper alloc] init];
-        _sessionReplayEnvironmentChecker = [[SentrySessionReplayEnvironmentChecker alloc]
-            initWithInfoPlistWrapper:_infoPlistWrapper];
 
         _reachability = [[SentryReachability alloc] init];
 
