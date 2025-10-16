@@ -44,10 +44,10 @@ class SentryProfileTestFixture {
         SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = dispatchQueueWrapper
         SentryDependencyContainer.sharedInstance().dateProvider = currentDateProvider
         SentryDependencyContainer.sharedInstance().random = TestRandom(value: fixedRandomValue)
-        SentryDependencyContainer.sharedInstance().systemWrapper = systemWrapper
         SentryDependencyContainer.sharedInstance().processInfoWrapper = processInfoWrapper
         SentryDependencyContainer.sharedInstance().dispatchFactory = dispatchFactory
         SentryDependencyContainer.sharedInstance().notificationCenterWrapper = notificationCenter
+        SentryMetricProfiler.setSystemWrapperOverride(systemWrapper)
 
         timeoutTimerFactory = TestSentryNSTimerFactory(currentDateProvider: self.currentDateProvider)
         SentryDependencyContainer.sharedInstance().timerFactory = timeoutTimerFactory

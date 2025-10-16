@@ -16,7 +16,6 @@
 @class SentrySwizzleWrapper;
 @class SentrySysctl;
 @class SentryThreadsafeApplication;
-@class SentrySystemWrapper;
 @class SentryThreadWrapper;
 @class SentryFileIOTracker;
 @class SentryScopePersistentStore;
@@ -46,9 +45,10 @@
 @class SentryFramesTracker;
 @class SentryScreenshotSource;
 @class SentryViewHierarchyProvider;
-@class SentryUIViewControllerPerformanceTracker;
 @class SentryWatchdogTerminationAttributesProcessor;
+
 @protocol SentryScopeObserver;
+@protocol SentryUIViewControllerPerformanceTracker;
 #endif // SENTRY_UIKIT_AVAILABLE
 
 #if SENTRY_HAS_UIKIT
@@ -118,9 +118,6 @@ SENTRY_NO_INIT
 
 - (nullable id<SentryApplication>)application;
 
-#if SENTRY_TARGET_PROFILING_SUPPORTED
-@property (nonatomic, strong) SentrySystemWrapper *systemWrapper;
-#endif // SENTRY_TARGET_PROFILING_SUPPORTED
 @property (nonatomic, strong) SentryDispatchFactory *dispatchFactory;
 @property (nonatomic, strong) SentryNSTimerFactory *timerFactory;
 
@@ -128,8 +125,8 @@ SENTRY_NO_INIT
 #if SENTRY_UIKIT_AVAILABLE
 @property (nonatomic, strong) SentryFramesTracker *framesTracker;
 @property (nonatomic, strong) SentryViewHierarchyProvider *viewHierarchyProvider;
-@property (nonatomic, strong)
-    SentryUIViewControllerPerformanceTracker *uiViewControllerPerformanceTracker;
+@property (nonatomic, strong) id<SentryUIViewControllerPerformanceTracker>
+    uiViewControllerPerformanceTracker;
 #endif // SENTRY_UIKIT_AVAILABLE
 
 #if SENTRY_TARGET_REPLAY_SUPPORTED

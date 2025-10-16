@@ -19,6 +19,7 @@
 
 - Add SentryDistribution as Swift Package Manager target (#6149)
 - Add automatic stdout log integration when `enableLogs` is set to true (#XXXX)
+- Add option `enablePropagateTraceparent` to support OTel/W3C trace propagation (#6356)
 
 ### Fixes
 

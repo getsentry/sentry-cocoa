@@ -48,6 +48,7 @@
 #import "SentrySessionInternal.h"
 #import "SentrySpanDataKey.h"
 #import "SentrySpanOperation.h"
+#import "SentrySwizzleWrapperHelper.h"
 #import "SentrySysctlObjC.h"
 #import "SentryTraceHeader.h"
 #import "SentryTraceOrigin.h"

@@ -6,13 +6,13 @@
 
 #if SENTRY_HAS_UIKIT
 #    import "MockUIScene.h"
+#    import "SentryDefaultUIViewControllerPerformanceTracker.h"
 #    import "SentryFramesTracker+TestInit.h"
 #    import "SentrySessionReplayIntegration+Private.h"
 #    import "SentrySessionReplayIntegration+Test.h"
 #    import "SentryUIEventTracker.h"
 #    import "SentryUIEventTrackerTransactionMode.h"
 #    import "SentryUIEventTrackingIntegration.h"
-#    import "SentryUIViewControllerPerformanceTracker.h"
 #    import "SentryUIViewControllerSwizzling+Test.h"
 #    import "SentryUIViewControllerSwizzling.h"
 #    import "UIViewController+Sentry.h"
@@ -172,7 +172,6 @@
 #import "SentrySubClassFinder.h"
 #import "SentrySwift.h"
 #import "SentrySwiftAsyncIntegration.h"
-#import "SentrySwizzleWrapper.h"
 #import "SentrySystemEventBreadcrumbs.h"
 #import "SentrySystemWrapper.h"
 #import "SentryTestIntegration.h"
