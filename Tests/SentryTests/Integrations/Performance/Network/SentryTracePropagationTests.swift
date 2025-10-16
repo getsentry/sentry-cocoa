@@ -2,6 +2,76 @@ import XCTest
 
 final class SentryTracePropagationTests: XCTestCase {
 
+    func testAddTraceparent_Sampled() throws {
+        // Arrange
+        let defaultRegex = try XCTUnwrap(NSRegularExpression(pattern: ".*"))
+        let emptyBaggage = Baggage()
+        let sessionTask = try createSessionTask()
+
+        let traceID = SentryId()
+        let spanID = SpanId()
+        let traceHeader = TraceHeader(trace: traceID, spanId: spanID, sampled: SentrySampleDecision.yes)
+
+        // Act
+        SentryTracePropagation.addBaggageHeader(emptyBaggage, traceHeader: traceHeader, propagateTraceparent: true, tracePropagationTargets: [defaultRegex], toRequest: sessionTask)
+
+        // Assert
+        let traceParent = try XCTUnwrap(sessionTask.currentRequest?.allHTTPHeaderFields?["traceparent"])
+        XCTAssertEqual(traceParent, "00-\(traceID.sentryIdString)-\(spanID.sentrySpanIdString)-01")
+    }
+
+    func testAddTraceparent_NotSampled() throws {
+        // Arrange
+        let defaultRegex = try XCTUnwrap(NSRegularExpression(pattern: ".*"))
+        let emptyBaggage = Baggage()
+        let sessionTask = try createSessionTask()
+
+        let traceID = SentryId()
+        let spanID = SpanId()
+        let traceHeader = TraceHeader(trace: traceID, spanId: spanID, sampled: SentrySampleDecision.no)
+
+        // Act
+        SentryTracePropagation.addBaggageHeader(emptyBaggage, traceHeader: traceHeader, propagateTraceparent: true, tracePropagationTargets: [defaultRegex], toRequest: sessionTask)
+
+        // Assert
+        let traceParent = try XCTUnwrap(sessionTask.currentRequest?.allHTTPHeaderFields?["traceparent"])
+        XCTAssertEqual(traceParent, "00-\(traceID.sentryIdString)-\(spanID.sentrySpanIdString)-00")
+    }
+
+    func testAddTraceparent_UndecidedSampled() throws {
+        // Arrange
+        let defaultRegex = try XCTUnwrap(NSRegularExpression(pattern: ".*"))
+        let emptyBaggage = Baggage()
+        let sessionTask = try createSessionTask()
+
+        let traceID = SentryId()
+        let spanID = SpanId()
+        let traceHeader = TraceHeader(trace: traceID, spanId: spanID, sampled: SentrySampleDecision.undecided)
+
+        // Act
+        SentryTracePropagation.addBaggageHeader(emptyBaggage, traceHeader: traceHeader, propagateTraceparent: true, tracePropagationTargets: [defaultRegex], toRequest: sessionTask)
+
+        // Assert
+        let traceParent = try XCTUnwrap(sessionTask.currentRequest?.allHTTPHeaderFields?["traceparent"])
+        XCTAssertEqual(traceParent, "00-\(traceID.sentryIdString)-\(spanID.sentrySpanIdString)-00")
+    }
+
+    func testAddTraceparent_NotAddedWhenTargetDoesntMatch() throws {
+        // Arrange
+        let emptyBaggage = Baggage()
+        let sessionTask = try createSessionTask()
+
+        let traceID = SentryId()
+        let spanID = SpanId()
+        let traceHeader = TraceHeader(trace: traceID, spanId: spanID, sampled: SentrySampleDecision.no)
+
+        // Act
+        SentryTracePropagation.addBaggageHeader(emptyBaggage, traceHeader: traceHeader, propagateTraceparent: true, tracePropagationTargets: ["localhost"], toRequest: sessionTask)
+
+        // Assert
+        XCTAssertNil(sessionTask.currentRequest?.allHTTPHeaderFields?["traceparent"])
+    }
+
     func testIsTargetMatchWithDefaultRegex_MatchesAllURLs() throws {
         // Arrange
         let defaultRegex = try XCTUnwrap(NSRegularExpression(pattern: ".*"))
@@ -75,6 +145,13 @@ final class SentryTracePropagationTests: XCTestCase {
         
         // Act & Assert
         XCTAssertTrue(SentryTracePropagation.isTargetMatch(localhostURL, withTargets: targetsWithInvalidType))
+    }
+
+    private func createSessionTask(method: String = "GET") throws -> URLSessionDownloadTaskMock {
+        let url = try XCTUnwrap(URL(string: "https://www.domain.com/api?query=value&query2=value2#fragment"))
+        var request = URLRequest(url: url)
+        request.httpMethod = method
+        return URLSessionDownloadTaskMock(request: request)
     }
 
 }

@@ -386,6 +386,9 @@
     [self setBool:options[@"enableAutoBreadcrumbTracking"]
             block:^(BOOL value) { sentryOptions.enableAutoBreadcrumbTracking = value; }];
 
+    [self setBool:options[@"enablePropagateTraceparent"]
+            block:^(BOOL value) { sentryOptions.enablePropagateTraceparent = value; }];
+
     if ([options[@"tracePropagationTargets"] isKindOfClass:[NSArray class]]) {
         sentryOptions.tracePropagationTargets
             = SENTRY_UNWRAP_NULLABLE(NSArray, options[@"tracePropagationTargets"]);

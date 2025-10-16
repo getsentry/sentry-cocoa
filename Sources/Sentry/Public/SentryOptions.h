@@ -696,6 +696,18 @@ typedef void (^SentryProfilingConfigurationBlock)(SentryProfileOptions *_Nonnull
 @property (nonatomic, assign) BOOL enableAutoBreadcrumbTracking;
 
 /**
+ * When enabled, the SDK propagates the W3C Trace Context HTTP header traceparent on outgoing HTTP
+ * requests.
+ *
+ * @discussion This is useful when the receiving services only support OTel/W3C propagation. The
+ * traceparent header is only sent when this option is @c YES and the request matches @c
+ * tracePropagationTargets.
+ *
+ * @note Default value is @c NO.
+ */
+@property (nonatomic, assign) BOOL enablePropagateTraceparent;
+
+/**
  * An array of hosts or regexes that determines if outgoing HTTP requests will get
  * extra @c trace_id and @c baggage headers added.
  * @discussion This array can contain instances of @c NSString which should match the URL (using
