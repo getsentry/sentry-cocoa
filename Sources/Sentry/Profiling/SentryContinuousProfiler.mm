@@ -16,7 +16,6 @@
 #    include <mutex>
 
 #    if SENTRY_HAS_UIKIT
-#        import "SentrySwift.h"
 #        import <UIKit/UIKit.h>
 #    endif // SENTRY_HAS_UIKIT
 
@@ -74,10 +73,9 @@ _sentry_threadUnsafe_transmitChunkEnvelope(void)
     [profiler.metricProfiler clear];
 
 #    if SENTRY_HAS_UIKIT
-    const auto framesTracker = SentryDependencyContainer.sharedInstance.framesTracker;
     SentryScreenFrames *screenFrameData =
-        [SentryProfilingScreenFramesHelper copyScreenFrames:framesTracker.currentFrames];
-    [framesTracker resetProfilingTimestamps];
+        [SentryProfilingScreenFramesHelper copyScreenFrames:sentry_framesTrackerGetCurrentFrames()];
+    sentry_framesTrackerResetProfilingTimestamps();
 #    endif // SENTRY_HAS_UIKIT
 
     // Capture profiler ID on main thread since we need it for the background work
