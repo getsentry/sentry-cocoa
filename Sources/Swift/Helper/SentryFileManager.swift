@@ -26,7 +26,7 @@
         helper.previousBreadcrumbsFilePathTwo
     }
 
-    @objc public init(options: Options, dateProvider: SentryCurrentDateProvider, dispatchQueueWrapper: SentryDispatchQueueWrapper) throws {
+    @objc public init(options: Options?, dateProvider: SentryCurrentDateProvider, dispatchQueueWrapper: SentryDispatchQueueWrapper) throws {
         dispatchQueue = dispatchQueueWrapper
         self.dateProvider = dateProvider
         helper = try SentryFileManagerHelper(options: options)
