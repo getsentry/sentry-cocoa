@@ -110,7 +110,7 @@
     }
 
     [self swizzleUIViewController];
-    id<SentryUIViewControllerPerformanceTracker> performanceTracker =
+    SentryUIViewControllerPerformanceTracker *performanceTracker =
         [SentryDependencyContainer.sharedInstance uiViewControllerPerformanceTracker];
     performanceTracker.inAppLogic = self.inAppLogic;
 }

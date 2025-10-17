@@ -524,7 +524,7 @@ class SentrySDKInternalTests: XCTestCase {
         fixture.options.enableTimeToFullDisplayTracing = true
 
         let testTTDTracker = TestTimeToDisplayTracker(waitForFullDisplay: true)
-        let performanceTracker = Dynamic(SentryDependencyContainer.sharedInstance().uiViewControllerPerformanceTracker)
+        let performanceTracker = Dynamic(Dynamic(SentryDependencyContainer.sharedInstance().uiViewControllerPerformanceTracker).helper)
         performanceTracker.currentTTDTracker = testTTDTracker
 
         // Start SDK after setting up the tracker to ensure we're changing the tracker during it's initialization,
