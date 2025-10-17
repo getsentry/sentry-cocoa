@@ -12,7 +12,7 @@ private typealias CrossPlatformApplication = NSApplication
 #if (os(iOS) || os(tvOS) || (swift(>=5.9) && os(visionOS))) && !SENTRY_NO_UIKIT
 
 @_spi(Private) @objc
-public protocol SentryFramesTrackerListener {
+public protocol SentryFramesTrackerListener: NSObjectProtocol {
     func framesTrackerHasNewFrame(_ newFrameDate: Date)
 }
 
