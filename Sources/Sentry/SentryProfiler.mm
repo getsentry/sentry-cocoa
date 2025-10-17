@@ -21,7 +21,6 @@
 #    import "SentryTracer+Private.h"
 
 #    if SENTRY_HAS_UIKIT
-#        import "SentrySwift.h"
 #        import <UIKit/UIKit.h>
 #    endif // SENTRY_HAS_UIKIT
 
@@ -198,7 +197,7 @@ sentry_sdkInitProfilerTasks(SentryOptions *options, SentryHub *hub)
 
 #    if SENTRY_HAS_UIKIT
     // the frame tracker may not be running if SentryOptions.enableAutoPerformanceTracing is NO
-    [SentryDependencyContainer.sharedInstance.framesTracker start];
+    sentry_startFramesTracker();
 #    endif // SENTRY_HAS_UIKIT
 
     [self start];
@@ -252,7 +251,7 @@ sentry_sdkInitProfilerTasks(SentryOptions *options, SentryHub *hub)
         [[[[SentrySDKInternal currentHub] getClient] options] isAppHangTrackingV2Disabled];
 
     if (autoPerformanceTracingDisabled && appHangsV2Disabled) {
-        [SentryDependencyContainer.sharedInstance.framesTracker stop];
+        sentry_stopFramesTracker();
     }
 #    endif // SENTRY_HAS_UIKIT
 

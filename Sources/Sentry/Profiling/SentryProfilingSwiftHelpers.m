@@ -166,4 +166,28 @@ sentry_scheduledTimerWithTarget(
                                repeats:repeats];
 }
 
+void
+sentry_startFramesTracker(void)
+{
+    [SentryDependencyContainer.sharedInstance.framesTracker start];
+}
+
+void
+sentry_stopFramesTracker(void)
+{
+    [SentryDependencyContainer.sharedInstance.framesTracker stop];
+}
+
+void
+sentry_framesTrackerResetProfilingTimestamps(void)
+{
+    [SentryDependencyContainer.sharedInstance.framesTracker resetProfilingTimestamps];
+}
+
+SentryScreenFrames *
+sentry_framesTrackerGetCurrentFrames(void)
+{
+    return [SentryDependencyContainer.sharedInstance.framesTracker currentFrames];
+}
+
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
