@@ -4,7 +4,7 @@
 
 #    import "PrivateSentrySDKOnly.h"
 #    import "SentryDependencyContainer.h"
-#    import "SentryFramesTracker.h"
+#    import "SentrySwift.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

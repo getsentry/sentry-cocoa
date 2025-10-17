@@ -4,7 +4,6 @@
 
 #    import "SentryAppStartMeasurement.h"
 #    import "SentryDefines.h"
-#    import "SentryFramesTracker.h"
 #    import "SentryLogC.h"
 #    import <PrivateSentrySDKOnly.h>
 #    import <SentryDependencyContainer.h>

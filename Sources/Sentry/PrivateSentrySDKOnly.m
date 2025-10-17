@@ -18,7 +18,6 @@
 #import "SentryUser+Private.h"
 #import <SentryBreadcrumb.h>
 #import <SentryDependencyContainer.h>
-#import <SentryFramesTracker.h>
 #import <SentryScope+Private.h>
 #import <SentryUser.h>
 
