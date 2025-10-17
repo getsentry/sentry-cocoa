@@ -77,7 +77,7 @@ jobs:
               runs-on: macos-15
               xcode: "26.0.1"
               platform: "iOS"
-              device: "iPhone 16 Pro"
+              device: "iPhone 17 Pro"
               test-destination-os: "26.0"
 
     secrets:
