@@ -57,12 +57,12 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
         }
         
         func getSut(fileManager: SentryFileManager) throws -> SentryWatchdogTerminationTracker {
-            let appStateManager = SentryDefaultAppStateManager(
+            SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = dispatchQueue
+            let appStateManager = SentryAppStateManager(
                 options: options,
                 crashWrapper: crashWrapper,
                 fileManager: fileManager,
-                dispatchQueueWrapper: self.dispatchQueue,
-                notificationCenterWrapper: NotificationCenter.default
+                sysctlWrapper: sysctl
             )
             let logic = SentryWatchdogTerminationLogic(
                 options: options,

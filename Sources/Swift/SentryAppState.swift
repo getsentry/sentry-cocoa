@@ -5,7 +5,7 @@ import Foundation
     
     public private(set) var releaseName: String?
     public private(set) var osVersion: String
-    public private(set) var vendorId: String
+    public private(set) var vendorId: String?
     public private(set) var isDebugging: Bool
     
     /// The boot time of the system rounded down to seconds. As the precision of the serialization is
@@ -22,7 +22,7 @@ import Foundation
     public var isANROngoing: Bool
     public var isSDKRunning: Bool
     
-    public init(releaseName: String?, osVersion: String, vendorId: String, isDebugging: Bool, systemBootTimestamp: Date) {
+    public init(releaseName: String?, osVersion: String, vendorId: String?, isDebugging: Bool, systemBootTimestamp: Date) {
         self.releaseName = releaseName
         self.osVersion = osVersion
         self.vendorId = vendorId
@@ -119,7 +119,9 @@ import Foundation
             data["release_name"] = releaseName
         }
         data["os_version"] = self.osVersion
-        data["vendor_id"] = self.vendorId
+        if let vendorId = self.vendorId {
+            data["vendor_id"] = vendorId
+        }
         data["is_debugging"] = NSNumber(value: self.isDebugging)
         data["system_boot_timestamp"] = sentry_toIso8601String(self.systemBootTimestamp)
         data["is_active"] = NSNumber(value: self.isActive)

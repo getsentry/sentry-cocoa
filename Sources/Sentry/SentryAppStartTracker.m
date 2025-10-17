@@ -28,7 +28,7 @@ static const NSTimeInterval SENTRY_APP_START_MAX_DURATION = 180.0;
 
 @property (nonatomic, strong, nullable) SentryAppState *previousAppState;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueue;
-@property (nonatomic, strong) id<SentryAppStateManager> appStateManager;
+@property (nonatomic, strong) SentryAppStateManager *appStateManager;
 @property (nonatomic, strong) SentryFramesTracker *framesTracker;
 @property (nonatomic, assign) BOOL wasInBackground;
 @property (nonatomic, strong) NSDate *didFinishLaunchingTimestamp;
@@ -51,7 +51,7 @@ static const NSTimeInterval SENTRY_APP_START_MAX_DURATION = 180.0;
 }
 
 - (instancetype)initWithDispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
-                             appStateManager:(id<SentryAppStateManager>)appStateManager
+                             appStateManager:(SentryAppStateManager *)appStateManager
                                framesTracker:(SentryFramesTracker *)framesTracker
               enablePreWarmedAppStartTracing:(BOOL)enablePreWarmedAppStartTracing
 {

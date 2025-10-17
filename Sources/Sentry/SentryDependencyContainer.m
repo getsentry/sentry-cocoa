@@ -9,7 +9,6 @@
 #import "SentrySwift.h"
 #import "SentrySystemWrapper.h"
 #import <SentryDebugImageProvider+HybridSDKs.h>
-#import <SentryDefaultAppStateManager.h>
 #import <SentryDefaultUIViewControllerPerformanceTracker.h>
 #import <SentryDependencyContainer.h>
 #import <SentryPerformanceTracker.h>
@@ -56,9 +55,6 @@ SentryApplicationProviderBlock defaultApplicationProvider = ^id<SentryApplicatio
 };
 
 @interface SentryFileManager () <SentryFileManagerProtocol>
-@end
-
-@interface SentryDefaultAppStateManager () <SentryAppStateManager>
 @end
 
 #if SENTRY_HAS_UIKIT
@@ -218,14 +214,13 @@ static BOOL isInitialializingDependencyContainer = NO;
     }));
 }
 
-- (id<SentryAppStateManager>)appStateManager SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
+- (SentryAppStateManager *)appStateManager SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
     SENTRY_LAZY_INIT(_appStateManager,
-        [[SentryDefaultAppStateManager alloc] initWithOptions:SentrySDKInternal.options
-                                                 crashWrapper:self.crashWrapper
-                                                  fileManager:self.fileManager
-                                         dispatchQueueWrapper:self.dispatchQueueWrapper
-                                    notificationCenterWrapper:self.notificationCenterWrapper]);
+        [[SentryAppStateManager alloc] initWithOptions:SentrySDKInternal.options
+                                          crashWrapper:self.crashWrapper
+                                           fileManager:self.fileManager
+                                         sysctlWrapper:self.sysctlWrapper]);
 }
 - (SentryThreadInspector *)threadInspector
 {
