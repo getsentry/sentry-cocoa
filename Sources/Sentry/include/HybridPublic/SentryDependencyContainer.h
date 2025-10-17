@@ -103,7 +103,7 @@ SENTRY_NO_INIT
 @property (nonatomic, strong, readonly) SentryThreadInspector *threadInspector;
 @property (nonatomic, strong, readonly) SentryFileIOTracker *fileIOTracker;
 @property (nonatomic, strong) SentryCrashSwift *crashReporter;
-@property (nonatomic, strong) SentryScopePersistentStore *scopePersistentStore;
+@property (nonatomic, strong, nullable) SentryScopePersistentStore *scopePersistentStore;
 @property (nonatomic, strong) SentryDebugImageProvider *debugImageProvider;
 
 - (id<SentryANRTracker>)getANRTracker:(NSTimeInterval)timeout;

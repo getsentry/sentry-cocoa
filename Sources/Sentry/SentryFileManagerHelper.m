@@ -103,7 +103,7 @@ _non_thread_safe_removeFileAtPath(NSString *path)
 
 @implementation SentryFileManagerHelper
 
-- (nullable instancetype)initWithOptions:(SentryOptions *)options error:(NSError **)error
+- (nullable instancetype)initWithOptions:(SentryOptions *_Nullable)options error:(NSError **)error
 {
     if (self = [super init]) {
         [self createPathsWithOptions:options];
@@ -128,7 +128,7 @@ _non_thread_safe_removeFileAtPath(NSString *path)
     return self;
 }
 
-- (void)createPathsWithOptions:(SentryOptions *)options
+- (void)createPathsWithOptions:(SentryOptions *_Nullable)options
 {
     NSString *cachePath = options.cacheDirectoryPath;
 

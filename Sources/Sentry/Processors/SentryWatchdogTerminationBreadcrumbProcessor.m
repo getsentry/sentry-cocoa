@@ -18,7 +18,7 @@
 @implementation SentryWatchdogTerminationBreadcrumbProcessor
 
 - (instancetype)initWithMaxBreadcrumbs:(NSInteger)maxBreadcrumbs
-                           fileManager:(SentryFileManager *)fileManager
+                           fileManager:(SentryFileManager *_Nullable)fileManager
 {
     if (self = [super init]) {
         self.fileManager = fileManager;

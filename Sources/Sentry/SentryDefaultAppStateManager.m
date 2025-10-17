@@ -23,9 +23,9 @@
 
 @implementation SentryDefaultAppStateManager
 
-- (instancetype)initWithOptions:(SentryOptions *)options
+- (instancetype)initWithOptions:(SentryOptions *_Nullable)options
                    crashWrapper:(SentryCrashWrapper *)crashWrapper
-                    fileManager:(SentryFileManager *)fileManager
+                    fileManager:(SentryFileManager *_Nullable)fileManager
            dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
       notificationCenterWrapper:(id<SentryNSNotificationCenterWrapper>)notificationCenterWrapper
 {
