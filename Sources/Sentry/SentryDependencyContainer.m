@@ -65,10 +65,6 @@ SentryApplicationProviderBlock defaultApplicationProvider = ^id<SentryApplicatio
 @interface SentryWatchdogTerminationScopeObserver () <SentryScopeObserver>
 @end
 
-@interface SentryDefaultUIViewControllerPerformanceTracker () <
-    SentryUIViewControllerPerformanceTracker>
-@end
-
 @interface SentryDelayedFramesTracker () <SentryDelayedFramesTrackerWrapper>
 @end
 #endif
@@ -320,14 +316,12 @@ static BOOL isInitialializingDependencyContainer = NO;
 #    endif // SENTRY_HAS_UIKIT
 }
 
-- (id<SentryUIViewControllerPerformanceTracker>)
+- (SentryUIViewControllerPerformanceTracker *)
     uiViewControllerPerformanceTracker SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
 #    if SENTRY_HAS_UIKIT
     SENTRY_LAZY_INIT(_uiViewControllerPerformanceTracker,
-        [[SentryDefaultUIViewControllerPerformanceTracker alloc]
-                 initWithTracker:SentryPerformanceTracker.shared
-            dispatchQueueWrapper:[self dispatchQueueWrapper]]);
+        [[SentryUIViewControllerPerformanceTracker alloc] init]);
 #    else
     SENTRY_LOG_DEBUG(@"SentryDependencyContainer.uiViewControllerPerformanceTracker only works "
                      @"with UIKit enabled. Ensure you're "
