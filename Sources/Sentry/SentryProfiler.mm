@@ -5,7 +5,6 @@
 #    import "SentryContinuousProfiler.h"
 #    import "SentryDependencyContainer.h"
 #    import "SentryFileManagerHelper.h"
-#    import "SentryFramesTracker.h"
 #    import "SentryHub+Private.h"
 #    import "SentryInternalDefines.h"
 #    import "SentryLaunchProfiling.h"
@@ -22,7 +21,7 @@
 #    import "SentryTracer+Private.h"
 
 #    if SENTRY_HAS_UIKIT
-#        import "SentryFramesTracker.h"
+#        import "SentrySwift.h"
 #        import <UIKit/UIKit.h>
 #    endif // SENTRY_HAS_UIKIT
 

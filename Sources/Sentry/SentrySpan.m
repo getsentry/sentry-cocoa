@@ -18,10 +18,6 @@
 #import "SentryTraceHeader.h"
 #import "SentryTracer+Private.h"
 
-#if SENTRY_HAS_UIKIT
-#    import <SentryFramesTracker.h>
-#endif // SENTRY_HAS_UIKIT
-
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 #    import "SentryContinuousProfiler.h"
 #    import "SentryOptions+Private.h"
@@ -295,7 +291,9 @@ NS_ASSUME_NONNULL_BEGIN
         NSInteger slowFrames = currentFrames.slow - initSlowFrames;
         NSInteger frozenFrames = currentFrames.frozen - initFrozenFrames;
 
-        if (sentryShouldAddSlowFrozenFramesData(totalFrames, slowFrames, frozenFrames)) {
+        if ([SentryFramesTracker shouldAddSlowFrozenFramesDataWithTotalFrames:totalFrames
+                                                                   slowFrames:slowFrames
+                                                                 frozenFrames:frozenFrames]) {
             [self setDataValue:@(totalFrames) forKey:@"frames.total"];
             [self setDataValue:@(slowFrames) forKey:@"frames.slow"];
             [self setDataValue:@(frozenFrames) forKey:@"frames.frozen"];

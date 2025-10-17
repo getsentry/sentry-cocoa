@@ -1,6 +1,7 @@
 #import "SentryANRTrackerV1.h"
 
 #import "SentryDefaultThreadInspector.h"
+#import "SentryDelayedFramesTracker.h"
 #import "SentryExtraContextProvider.h"
 #import "SentryInternalCDefines.h"
 #import "SentryInternalDefines.h"
@@ -22,7 +23,6 @@
 
 #if SENTRY_HAS_UIKIT
 #    import "SentryANRTrackerV2.h"
-#    import "SentryFramesTracker.h"
 #    import <SentryWatchdogTerminationBreadcrumbProcessor.h>
 #endif // SENTRY_HAS_UIKIT
 
@@ -69,6 +69,9 @@ SentryApplicationProviderBlock defaultApplicationProvider = ^id<SentryApplicatio
 
 @interface SentryDefaultUIViewControllerPerformanceTracker () <
     SentryUIViewControllerPerformanceTracker>
+@end
+
+@interface SentryDelayedFramesTracker () <SentryDelayedFramesTrackerWrapper>
 @end
 #endif
 
@@ -347,8 +350,10 @@ static BOOL isInitialializingDependencyContainer = NO;
                           dateProvider:self.dateProvider
                   dispatchQueueWrapper:self.dispatchQueueWrapper
                     notificationCenter:self.notificationCenterWrapper
-             keepDelayedFramesDuration:SENTRY_AUTO_TRANSACTION_MAX_DURATION]);
-
+                  delayedFramesTracker:
+                      [[SentryDelayedFramesTracker alloc]
+                          initWithKeepDelayedFramesDuration:SENTRY_AUTO_TRANSACTION_MAX_DURATION
+                                               dateProvider:self.dateProvider]]);
 #    else
     SENTRY_LOG_DEBUG(
         @"SentryDependencyContainer.framesTracker only works with UIKit enabled. Ensure you're "

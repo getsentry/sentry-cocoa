@@ -745,7 +745,7 @@ class SentrySpanTests: XCTestCase {
     
     private func givenFramesTracker() -> (TestDisplayLinkWrapper, SentryFramesTracker) {
         let displayLinkWrapper = TestDisplayLinkWrapper(dateProvider: self.fixture.currentDateProvider)
-        let framesTracker = SentryFramesTracker(displayLinkWrapper: displayLinkWrapper, dateProvider: self.fixture.currentDateProvider, dispatchQueueWrapper: TestSentryDispatchQueueWrapper(), notificationCenter: TestNSNotificationCenterWrapper(), keepDelayedFramesDuration: 10)
+        let framesTracker = SentryFramesTracker(displayLinkWrapper: displayLinkWrapper, dateProvider: self.fixture.currentDateProvider, dispatchQueueWrapper: TestSentryDispatchQueueWrapper(), notificationCenter: TestNSNotificationCenterWrapper(), delayedFramesTracker: TestDelayedWrapper(keepDelayedFramesDuration: 10, dateProvider: self.fixture.currentDateProvider))
         framesTracker.start()
         displayLinkWrapper.call()
         

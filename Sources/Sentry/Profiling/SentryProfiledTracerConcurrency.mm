@@ -29,8 +29,8 @@
 
 #    if SENTRY_HAS_UIKIT
 #        import "SentryAppStartMeasurement.h"
-#        import "SentryFramesTracker.h"
 #        import "SentryProfilingScreenFramesHelper.h"
+#        import "SentrySwift.h"
 #    endif // SENTRY_HAS_UIKIT
 
 /**

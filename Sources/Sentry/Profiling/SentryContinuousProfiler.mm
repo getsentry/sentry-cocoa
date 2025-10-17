@@ -16,11 +16,14 @@
 #    include <mutex>
 
 #    if SENTRY_HAS_UIKIT
-#        import "SentryFramesTracker.h"
+#        import "SentrySwift.h"
 #        import <UIKit/UIKit.h>
 #    endif // SENTRY_HAS_UIKIT
 
 #    pragma mark - Private
+
+NSString *const kSentryNotificationContinuousProfileStarted
+    = @"io.sentry.notification.continuous-profile-started";
 
 NSTimeInterval kSentryProfilerChunkExpirationInterval = 60;
 

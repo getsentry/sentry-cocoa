@@ -24,7 +24,7 @@ class SentryFramesTrackerTests: XCTestCase {
             slowestSlowFrameDelay = (displayLinkWrapper.slowestSlowFrameDuration - slowFrameThreshold(displayLinkWrapper.currentFrameRate.rawValue))
         }
         
-        lazy var sut: SentryFramesTracker = SentryFramesTracker(displayLinkWrapper: displayLinkWrapper, dateProvider: dateProvider, dispatchQueueWrapper: SentryDispatchQueueWrapper(), notificationCenter: notificationCenter, keepDelayedFramesDuration: keepDelayedFramesDuration)
+        lazy var sut: SentryFramesTracker = SentryFramesTracker(displayLinkWrapper: displayLinkWrapper, dateProvider: dateProvider, dispatchQueueWrapper: SentryDispatchQueueWrapper(), notificationCenter: notificationCenter, delayedFramesTracker: TestDelayedWrapper(keepDelayedFramesDuration: keepDelayedFramesDuration, dateProvider: dateProvider))
         
     }
     
@@ -749,8 +749,8 @@ class SentryFramesTrackerTests: XCTestCase {
         let listener1 = FrameTrackerListener()
         let listener2 = FrameTrackerListener()
         sut.start()
-        sut.add(listener1)
-        sut.add(listener2)
+        sut.addListener(listener1)
+        sut.addListener(listener2)
         
         fixture.dateProvider.driftTimeForEveryRead = true
 
@@ -767,10 +767,10 @@ class SentryFramesTrackerTests: XCTestCase {
     
     func testListenerAreAddedInMainThread() {
         let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
-        let sut = SentryFramesTracker(displayLinkWrapper: fixture.displayLinkWrapper, dateProvider: fixture.dateProvider, dispatchQueueWrapper: dispatchQueueWrapper, notificationCenter: fixture.notificationCenter, keepDelayedFramesDuration: fixture.keepDelayedFramesDuration)
+        let sut = SentryFramesTracker(displayLinkWrapper: fixture.displayLinkWrapper, dateProvider: fixture.dateProvider, dispatchQueueWrapper: dispatchQueueWrapper, notificationCenter: fixture.notificationCenter, delayedFramesTracker: TestDelayedWrapper(keepDelayedFramesDuration: fixture.keepDelayedFramesDuration, dateProvider: fixture.dateProvider))
         let listener = FrameTrackerListener()
         
-        sut.add(listener)
+        sut.addListener(listener)
         
         XCTAssertEqual(dispatchQueueWrapper.blockOnMainInvocations.count, 1)
     }
@@ -779,8 +779,8 @@ class SentryFramesTrackerTests: XCTestCase {
         let sut = fixture.sut
         let listener = FrameTrackerListener()
         sut.start()
-        sut.add(listener)
-        sut.remove(listener)
+        sut.addListener(listener)
+        sut.removeListener(listener)
 
         fixture.displayLinkWrapper.normalFrame()
 
@@ -792,10 +792,10 @@ class SentryFramesTrackerTests: XCTestCase {
         let listener1 = FrameTrackerListener()
         let listener2 = FrameTrackerListener()
         sut.start()
-        sut.add(listener1)
+        sut.addListener(listener1)
         sut.stop()
         sut.start()
-        sut.add(listener2)
+        sut.addListener(listener2)
 
         fixture.displayLinkWrapper.normalFrame()
 
@@ -813,7 +813,7 @@ class SentryFramesTrackerTests: XCTestCase {
             listener.callback = {
                 callbackCalls += 1
             }
-            sut.add(listener)
+            sut.addListener(listener)
             fixture.displayLinkWrapper.normalFrame()
         }
 
@@ -831,7 +831,7 @@ class SentryFramesTrackerTests: XCTestCase {
             let displayLinkWrapper = fixture.displayLinkWrapper
             displayLinkWrapper.ignoreLinkInvocations = true
             
-            let sut = SentryFramesTracker(displayLinkWrapper: displayLinkWrapper, dateProvider: fixture.dateProvider, dispatchQueueWrapper: SentryDispatchQueueWrapper(), notificationCenter: notificationCenter, keepDelayedFramesDuration: 0)
+            let sut = SentryFramesTracker(displayLinkWrapper: displayLinkWrapper, dateProvider: fixture.dateProvider, dispatchQueueWrapper: SentryDispatchQueueWrapper(), notificationCenter: notificationCenter, delayedFramesTracker: TestDelayedWrapper(keepDelayedFramesDuration: 0, dateProvider: fixture.dateProvider))
             
             sut.start()
         }
@@ -858,7 +858,7 @@ class SentryFramesTrackerTests: XCTestCase {
         listener.callback = {
             callbackCalls += 1
         }
-        sut.add(listener)
+        sut.addListener(listener)
         
         fixture.notificationCenter.post(Notification(name: CrossPlatformApplication.willResignActiveNotification))
         
