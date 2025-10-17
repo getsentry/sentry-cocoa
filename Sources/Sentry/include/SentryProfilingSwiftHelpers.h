@@ -46,10 +46,13 @@ id sentry_addObserverForName(NSNotificationName name, dispatch_block_t block);
 NSTimer *sentry_scheduledTimer(NSTimeInterval interval, BOOL repeats, dispatch_block_t block);
 NSTimer *sentry_scheduledTimerWithTarget(
     NSTimeInterval interval, id target, SEL selector, _Nullable id userInfo, BOOL repeats);
+
+#if SENTRY_HAS_UIKIT
 void sentry_startFramesTracker(void);
 void sentry_stopFramesTracker(void);
 void sentry_framesTrackerResetProfilingTimestamps(void);
 SentryScreenFrames *sentry_framesTrackerGetCurrentFrames(void);
+#endif // SENTRY_HAS_UIKIT
 
 #ifdef __cplusplus
 }

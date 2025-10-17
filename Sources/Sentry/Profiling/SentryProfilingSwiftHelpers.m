@@ -166,6 +166,7 @@ sentry_scheduledTimerWithTarget(
                                repeats:repeats];
 }
 
+#    if SENTRY_HAS_UIKIT
 void
 sentry_startFramesTracker(void)
 {
@@ -189,5 +190,5 @@ sentry_framesTrackerGetCurrentFrames(void)
 {
     return [SentryDependencyContainer.sharedInstance.framesTracker currentFrames];
 }
-
+#    endif // SENTRY_HAS_UIKIT
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
