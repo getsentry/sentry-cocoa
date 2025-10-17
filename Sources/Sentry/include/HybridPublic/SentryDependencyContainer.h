@@ -5,7 +5,7 @@
 #endif
 
 @class SentryBinaryImageCache;
-@class SentryCrash;
+@class SentryCrashSwift;
 @class SentryCrashWrapper;
 @class SentryDebugImageProvider;
 @class SentryDispatchFactory;
@@ -34,8 +34,6 @@
 @protocol SentryProcessInfoSource;
 @protocol SentryNSNotificationCenterWrapper;
 @protocol SentryObjCRuntimeWrapper;
-@protocol SentryInfoPlistWrapperProvider;
-@protocol SentrySessionReplayEnvironmentCheckerProvider;
 
 #if SENTRY_HAS_METRIC_KIT
 @class SentryMXManager;
@@ -91,9 +89,6 @@ SENTRY_NO_INIT
 @property (nonatomic, strong) SentrySysctl *sysctlWrapper;
 @property (nonatomic, strong) id<SentryRateLimits> rateLimits;
 @property (nonatomic, strong) SentryThreadsafeApplication *threadsafeApplication;
-@property (nonatomic, strong) id<SentryInfoPlistWrapperProvider> infoPlistWrapper;
-@property (nonatomic, strong) id<SentrySessionReplayEnvironmentCheckerProvider>
-    sessionReplayEnvironmentChecker;
 
 @property (nonatomic, strong) SentryReachability *reachability;
 
@@ -107,7 +102,7 @@ SENTRY_NO_INIT
 @property (nonatomic, strong) id<SentryAppStateManager> appStateManager;
 @property (nonatomic, strong, readonly) SentryThreadInspector *threadInspector;
 @property (nonatomic, strong, readonly) SentryFileIOTracker *fileIOTracker;
-@property (nonatomic, strong) SentryCrash *crashReporter;
+@property (nonatomic, strong) SentryCrashSwift *crashReporter;
 @property (nonatomic, strong) SentryScopePersistentStore *scopePersistentStore;
 @property (nonatomic, strong) SentryDebugImageProvider *debugImageProvider;
 

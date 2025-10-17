@@ -32,9 +32,19 @@
     return SentrySDKInternal.currentHub;
 }
 
-+ (SentryCrash *)crashReporter
++ (nullable NSDictionary *)systemInfo
 {
-    return SentryDependencyContainer.sharedInstance.crashReporter;
+    return SentryDependencyContainer.sharedInstance.crashReporter.systemInfo;
+}
+
++ (BOOL)crashedLastLaunch
+{
+    return SentryDependencyContainer.sharedInstance.crashReporter.crashedLastLaunch;
+}
+
++ (NSTimeInterval)activeDurationSinceLastCrash
+{
+    return SentryDependencyContainer.sharedInstance.crashReporter.activeDurationSinceLastCrash;
 }
 
 + (nullable NSDate *)readTimestampLastInForeground

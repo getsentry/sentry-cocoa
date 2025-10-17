@@ -27,6 +27,8 @@
 
 #import "SentryCrashInstallation.h"
 
+@protocol SentryCrashReportFilter;
+
 typedef struct {
     const char *key;
     const char *value;
