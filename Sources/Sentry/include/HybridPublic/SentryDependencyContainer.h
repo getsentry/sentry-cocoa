@@ -20,12 +20,12 @@
 @class SentryFileIOTracker;
 @class SentryScopePersistentStore;
 @class SentryOptions;
+@class SentryAppStateManager;
 @class SentrySessionTracker;
 @class SentryGlobalEventProcessor;
 @class SentryThreadInspector;
 @class SentryReachability;
 
-@protocol SentryAppStateManager;
 @protocol SentryANRTracker;
 @protocol SentryRandomProtocol;
 @protocol SentryCurrentDateProvider;
@@ -99,7 +99,7 @@ SENTRY_NO_INIT
 #pragma mark - Lazy Dependencies
 
 @property (nonatomic, strong, nullable) SentryFileManager *fileManager;
-@property (nonatomic, strong) id<SentryAppStateManager> appStateManager;
+@property (nonatomic, strong) SentryAppStateManager *appStateManager;
 @property (nonatomic, strong, readonly) SentryThreadInspector *threadInspector;
 @property (nonatomic, strong, readonly) SentryFileIOTracker *fileIOTracker;
 @property (nonatomic, strong) SentryCrashSwift *crashReporter;
