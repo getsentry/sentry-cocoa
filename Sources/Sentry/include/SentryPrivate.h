@@ -31,6 +31,7 @@
 #import "SentryDateUtils.h"
 #import "SentryDefaultThreadInspector.h"
 #import "SentryDependencyContainerSwiftHelper.h"
+#import "SentryDeviceContextKeys.h"
 #import "SentryEvent+Serialize.h"
 #import "SentryFileIOTrackerHelper.h"
 #import "SentryFileManagerHelper.h"
