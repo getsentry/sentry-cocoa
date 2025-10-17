@@ -476,6 +476,12 @@ jobs:
         if: failure()
         run: ./scripts/ci-diagnostics.sh
 
+      - name: Store screenshot
+        uses: ./.github/actions/capture-screenshot
+        if: failure()
+        with:
+          suffix: unit-tests-${{ matrix.platform }}-xcode-${{ matrix.xcode }}-os-${{ matrix.test-destination-os }}
+
   # This check validates that either all unit tests passed or were skipped, which allows us
   # to make unit tests a required check with only running the unit tests when required.
   # So, we don't have to run unit tests, for example, for Changelog or ReadMe changes.
