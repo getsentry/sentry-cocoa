@@ -3,18 +3,15 @@
 
 #if (os(iOS) || os(tvOS) || (swift(>=5.9) && os(visionOS))) && !SENTRY_NO_UIKIT
 import UIKit
-public typealias CrossPlatformApplication = UIApplication
+private typealias CrossPlatformApplication = UIApplication
 #elseif (os(macOS) || targetEnvironment(macCatalyst)) && !SENTRY_NO_UIKIT
 import AppKit
-public typealias CrossPlatformApplication = NSApplication
+private typealias CrossPlatformApplication = NSApplication
 #endif
 
 #if (os(iOS) || os(tvOS) || (swift(>=5.9) && os(visionOS))) && !SENTRY_NO_UIKIT
 
-private let sentryFrozenFrameThreshold: CFTimeInterval = 0.7
-private let sentryPreviousFrameInitialValue: CFTimeInterval = -1
-
-@objc
+@_spi(Private) @objc
 public protocol SentryFramesTrackerListener {
     func framesTrackerHasNewFrame(_ newFrameDate: Date)
 }
@@ -27,7 +24,7 @@ public class SentryFramesTracker: NSObject {
     
     // MARK: Private properties
     private var lock = NSLock()
-    private var previousFrameTimestamp: CFTimeInterval = sentryPreviousFrameInitialValue
+    private var previousFrameTimestamp: CFTimeInterval = SentryFramesTracker.previousFrameInitialValue
     private var previousFrameSystemTimestamp: UInt64 = 0
     private var currentFrameRate: UInt64 = 60
     private var listeners: NSHashTable<SentryFramesTrackerListener>
@@ -43,13 +40,14 @@ public class SentryFramesTracker: NSObject {
     private var slowFrames: UInt = 0
     private var frozenFrames: UInt = 0
 
-    // MARK: Internal properties
-
     private var displayLinkWrapper: SentryDisplayLinkWrapper
     private let dateProvider: SentryCurrentDateProvider
     private let dispatchQueueWrapper: SentryDispatchQueueWrapper
     private let notificationCenter: SentryNSNotificationCenterWrapper
     private var delayedFramesTracker: SentryDelayedFramesTrackerWrapper
+    
+    private static let frozenFrameThreshold: CFTimeInterval = 0.7
+    private static let previousFrameInitialValue: CFTimeInterval = -1
 
     @objc
     public init(
@@ -150,7 +148,7 @@ public class SentryFramesTracker: NSObject {
             startSystemTimestamp,
             endSystemTimestamp: endSystemTimestamp,
             isRunning: isRunning,
-            slowFrameThreshold: slowFrameThreshold(currentFrameRate)
+            slowFrameThreshold: Self.slowFrameThreshold(currentFrameRate)
         )
     }
 
@@ -165,6 +163,10 @@ public class SentryFramesTracker: NSObject {
             self.listeners.remove(listener)
         }
     }
+    
+    deinit {
+        stop()
+    }
 
 #if os(iOS)
     @objc public func resetProfilingTimestamps() {
@@ -173,13 +175,6 @@ public class SentryFramesTracker: NSObject {
         dispatchQueueWrapper.dispatchAsyncOnMainQueueIfNotMainThread {
             self.resetProfilingTimestampsInternal()
         }
-    }
-
-    private func resetProfilingTimestampsInternal() {
-        SentrySDKLog.debug("Resetting profiling GPU timeseries data.")
-        frozenFrameTimestamps = []
-        slowFrameTimestamps = []
-        frameRateTimestamps = []
     }
 #endif // os(iOS)
 
@@ -200,7 +195,7 @@ public class SentryFramesTracker: NSObject {
         frozenFrames = 0
         slowFrames = 0
 
-        previousFrameTimestamp = sentryPreviousFrameInitialValue
+        previousFrameTimestamp = Self.previousFrameInitialValue
 
 #if os(iOS)
         resetProfilingTimestampsInternal()
@@ -227,7 +222,7 @@ public class SentryFramesTracker: NSObject {
         isRunning = true
 
         // Reset the previous frame timestamp to avoid wrong metrics being collected
-        previousFrameTimestamp = sentryPreviousFrameInitialValue
+        previousFrameTimestamp = Self.previousFrameInitialValue
         displayLinkWrapper.link(withTarget: self, selector: #selector(displayLinkCallback))
     }
 
@@ -247,7 +242,7 @@ public class SentryFramesTracker: NSObject {
         let thisFrameTimestamp = displayLinkWrapper.timestamp
         let thisFrameSystemTimestamp = dateProvider.systemTime()
 
-        if previousFrameTimestamp == sentryPreviousFrameInitialValue {
+        if previousFrameTimestamp == Self.previousFrameInitialValue {
             previousFrameTimestamp = thisFrameTimestamp
             previousFrameSystemTimestamp = thisFrameSystemTimestamp
             delayedFramesTracker.setPreviousFrameSystemTimestamp(thisFrameSystemTimestamp)
@@ -290,9 +285,9 @@ public class SentryFramesTracker: NSObject {
 #endif // os(iOS)
 
         let frameDuration = thisFrameTimestamp - previousFrameTimestamp
-        let slowThreshold = slowFrameThreshold(currentFrameRate)
+        let slowThreshold = Self.slowFrameThreshold(currentFrameRate)
 
-        if frameDuration > slowThreshold && frameDuration <= sentryFrozenFrameThreshold {
+        if frameDuration > slowThreshold && frameDuration <= Self.frozenFrameThreshold {
             slowFrames += 1
 #if os(iOS)
             SentrySDKLog.debug("Detected slow frame starting at \(profilingTimestamp) (frame tracker: \(self)).")
@@ -302,7 +297,7 @@ public class SentryFramesTracker: NSObject {
                 array: &slowFrameTimestamps
             )
 #endif // os(iOS)
-        } else if frameDuration > sentryFrozenFrameThreshold {
+        } else if frameDuration > Self.frozenFrameThreshold {
             frozenFrames += 1
 #if os(iOS)
             SentrySDKLog.debug("Detected frozen frame starting at \(profilingTimestamp).")
@@ -352,8 +347,16 @@ public class SentryFramesTracker: NSObject {
             array.append(["timestamp": timestamp, "value": value])
         }
     }
+    
+    private func resetProfilingTimestampsInternal() {
+        SentrySDKLog.debug("Resetting profiling GPU timeseries data.")
+        frozenFrameTimestamps = []
+        slowFrameTimestamps = []
+        frameRateTimestamps = []
+    }
 #endif // os(iOS)
     
+    // MARK: - Static Functions
     @objc
     public static func shouldAddSlowFrozenFramesData(
         totalFrames: Int,
@@ -365,17 +368,12 @@ public class SentryFramesTracker: NSObject {
 
         return allBiggerThanOrEqualToZero && oneBiggerThanZero
     }
-
-    deinit {
-        stop()
+    
+    static func slowFrameThreshold(_ actualFramesPerSecond: UInt64) -> CFTimeInterval {
+        // Most frames take just a few microseconds longer than the optimal calculated duration.
+        // Therefore we subtract one, because otherwise almost all frames would be slow.
+        return 1.0 / CFTimeInterval(actualFramesPerSecond - 1)
     }
-}
-
-// MARK: - Helper Functions
-func slowFrameThreshold(_ actualFramesPerSecond: UInt64) -> CFTimeInterval {
-    // Most frames take just a few microseconds longer than the optimal calculated duration.
-    // Therefore we subtract one, because otherwise almost all frames would be slow.
-    return 1.0 / CFTimeInterval(actualFramesPerSecond - 1)
 }
 
 #endif
