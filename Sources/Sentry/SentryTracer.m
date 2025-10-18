@@ -1,6 +1,5 @@
 #import "PrivateSentrySDKOnly.h"
 #import "SentryClient.h"
-#import "SentryDebugImageProvider+HybridSDKs.h"
 #import "SentryDependencyContainer.h"
 #import "SentryEvent+Private.h"
 #import "SentryHub+Private.h"

@@ -5,7 +5,6 @@
 #import "SentryCrashDefaultMachineContextWrapper.h"
 #import "SentryCrashIntegration.h"
 #import "SentryCrashStackEntryMapper.h"
-#import "SentryDebugImageProvider+HybridSDKs.h"
 #import "SentryDefaultThreadInspector.h"
 #import "SentryDependencyContainer.h"
 #import "SentryDeviceContextKeys.h"

@@ -9,7 +9,6 @@
 #import "SentrySDK+Private.h"
 #import "SentrySwift.h"
 #import "SentrySystemWrapper.h"
-#import <SentryDebugImageProvider+HybridSDKs.h>
 #import <SentryDefaultUIViewControllerPerformanceTracker.h>
 #import <SentryDependencyContainer.h>
 #import <SentryPerformanceTracker.h>

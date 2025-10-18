@@ -66,16 +66,6 @@
       },
       {
         "kind": "Import",
-        "name": "Sentry.SentryDebugImageProvider",
-        "printedName": "Sentry.SentryDebugImageProvider",
-        "declKind": "Import",
-        "moduleName": "Sentry",
-        "declAttributes": [
-          "Exported"
-        ]
-      },
-      {
-        "kind": "Import",
         "name": "Sentry.SentryDebugMeta",
         "printedName": "Sentry.SentryDebugMeta",
         "declKind": "Import",
