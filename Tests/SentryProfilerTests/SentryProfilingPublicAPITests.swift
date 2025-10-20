@@ -71,156 +71,12 @@ class SentryProfilingPublicAPITests: XCTestCase {
     }
 }
 
-// MARK: transaction profiling
-@available(*, deprecated, message: "Transaction profiling is deprecated")
-extension SentryProfilingPublicAPITests {
-    func testSentryOptionsReportsProfilingCorrelatedToTraces_NonnilSampleRate() {
-        // Arrange
-        let options = Options()
-        options.profilesSampleRate = 1
-        options.profilesSampler = nil
-        options.configureProfiling = {
-            $0.lifecycle = .trace
-        }
-
-        // Act
-        sentry_configureContinuousProfiling(options)
-
-        // Assert
-        XCTAssertTrue(options.isProfilingCorrelatedToTraces())
-    }
-
-    func testSentryOptionsReportsProfilingCorrelatedToTraces_NonnilSampler() {
-        // Arrange
-        let options = Options()
-        options.profilesSampleRate = nil
-        options.profilesSampler = { _ in 1 }
-        options.configureProfiling = {
-            $0.lifecycle = .trace
-        }
-
-        // Act
-        sentry_configureContinuousProfiling(options)
-
-        // Assert
-        XCTAssertTrue(options.isProfilingCorrelatedToTraces())
-    }
-}
-
-// MARK: continuous profiling v1
-@available(*, deprecated, message: "Continuous profiling v1 is deprecated")
-extension SentryProfilingPublicAPITests {
-    func testSentryOptionsReportsContinuousProfilingEnabled() {
-        // Arrange
-        let options = Options()
-        options.profilesSampleRate = nil
-        options.profilesSampler = nil
-
-        // Act
-        sentry_configureContinuousProfiling(options)
-
-        // Assert
-        XCTAssertTrue(options.isContinuousProfilingEnabled())
-    }
-
-    func testSentryOptionsReportsContinuousProfilingDisabledWithNonnilSampleRate() {
-        // Arrange
-        let options = Options()
-        options.profilesSampleRate = 1
-        options.profilesSampler = nil
-
-        // Act
-        sentry_configureContinuousProfiling(options)
-
-        // Assert
-        XCTAssertFalse(options.isContinuousProfilingEnabled())
-    }
-
-    func testSentryOptionsReportsContinuousProfilingDisabledWithNonnilSampler() {
-        // Arrange
-        let options = Options()
-        options.profilesSampleRate = nil
-        options.profilesSampler = { _ in 1 }
-
-        // Act
-        sentry_configureContinuousProfiling(options)
-
-        // Assert
-        XCTAssertFalse(options.isContinuousProfilingEnabled())
-    }
-
-    func testStartingContinuousProfilerV1WithSampleRateZero() throws {
-        givenSdkWithHub()
-
-        fixture.options.profilesSampleRate = 0
-        XCTAssertEqual(try XCTUnwrap(fixture.options.profilesSampleRate).doubleValue, 0)
-
-        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
-        SentrySDK.startProfiler()
-        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
-    }
-
-    func testStartingContinuousProfilerV1WithSampleRateNil() throws {
-        givenSdkWithHub()
-
-        // nil is the default initial value for profilesSampleRate, so we don't have to explicitly set it on the fixture
-        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
-        SentrySDK.startProfiler()
-        XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
-
-        // clean up
-        try stopProfiler()
-    }
-
-    func testNotStartingContinuousProfilerV1WithSampleRateBlock() throws {
-        givenSdkWithHub()
-
-        fixture.options.profilesSampler = { _ in 0 }
-        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
-        SentrySDK.startProfiler()
-        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
-    }
-
-    func testNotStartingContinuousProfilerV1WithSampleRateNonZero() throws {
-        givenSdkWithHub()
-
-        fixture.options.profilesSampleRate = 1
-        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
-        SentrySDK.startProfiler()
-        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
-    }
-
-    func testStartingAndStoppingContinuousProfilerV1() throws {
-        givenSdkWithHub()
-        SentrySDK.startProfiler()
-        XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
-
-        try stopProfiler()
-
-        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
-    }
-
-    func testStartingContinuousProfilerV1BeforeStartingSDK() {
-        SentrySDK.startProfiler()
-        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
-    }
-
-    func testStartingContinuousProfilerV1AfterStoppingSDK() {
-        givenSdkWithHub()
-        SentrySDK.close()
-        SentrySDK.startProfiler()
-        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
-    }
-}
-
 // MARK: continuous profiling v2
 @available(*, deprecated, message: "This is only deprecated because profilesSampleRate is deprecated. Once that is removed this attribute can be removed.")
 extension SentryProfilingPublicAPITests {
     func testSentryOptionsReportsContinuousProfilingV2Enabled() {
         // Arrange
         let options = Options()
-        options.profilesSampleRate = nil
-        options.profilesSampler = nil
         options.configureProfiling = { _ in }
 
         // Act
@@ -230,39 +86,9 @@ extension SentryProfilingPublicAPITests {
         XCTAssertTrue(options.isContinuousProfilingV2Enabled())
     }
 
-    func testSentryOptionsReportsContinuousProfilingV2Disabled_NonnilSampleRate() {
-        // Arrange
-        let options = Options()
-        options.profilesSampleRate = 1
-        options.profilesSampler = nil
-        options.configureProfiling = { _ in }
-
-        // Act
-        sentry_configureContinuousProfiling(options)
-
-        // Assert
-        XCTAssertFalse(options.isContinuousProfilingV2Enabled())
-    }
-
-    func testSentryOptionsReportsContinuousProfilingV2Disabled_NonnilSampler() {
-        // Arrange
-        let options = Options()
-        options.profilesSampleRate = nil
-        options.profilesSampler = { _ in 1 }
-        options.configureProfiling = { _ in }
-
-        // Act
-        sentry_configureContinuousProfiling(options)
-
-        // Assert
-        XCTAssertFalse(options.isContinuousProfilingV2Enabled())
-    }
-
     func testSentryOptionsReportsContinuousProfilingV2Disabled_NilConfiguration() {
         // Arrange
         let options = Options()
-        options.profilesSampleRate = nil
-        options.profilesSampler = nil
         options.configureProfiling = nil
 
         // Act
@@ -275,8 +101,6 @@ extension SentryProfilingPublicAPITests {
     func testSentryOptionsReportsProfilingCorrelatedToTraces() {
         // Arrange
         let options = Options()
-        options.profilesSampleRate = nil
-        options.profilesSampler = nil
         options.configureProfiling = {
             $0.lifecycle = .trace
         }
@@ -291,8 +115,6 @@ extension SentryProfilingPublicAPITests {
     func testSentryOptionsReportsProfilingNotCorrelatedToTraces_ManualLifecycle() {
         // Arrange
         let options = Options()
-        options.profilesSampleRate = nil
-        options.profilesSampler = nil
         options.configureProfiling = {
             $0.lifecycle = .manual // this is the default value, but made explicit here for clarity
         }
@@ -307,8 +129,6 @@ extension SentryProfilingPublicAPITests {
     func testSentryOptionsReportsProfilingNotCorrelatedToTraces_NilConfiguration() {
         // Arrange
         let options = Options()
-        options.profilesSampleRate = nil
-        options.profilesSampler = nil
         options.configureProfiling = nil
 
         // Act
@@ -368,18 +188,6 @@ extension SentryProfilingPublicAPITests {
 
         // Act
         SentrySDK.close()
-        SentrySDK.startProfiler()
-
-        // Assert
-        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
-    }
-
-    func testStartingContinuousProfilerV2WithoutContinuousProfilingEnabledDoesNotStartProfiler() {
-        // Arrange
-        fixture.options.profilesSampleRate = 1
-        givenSdkWithHub()
-
-        // Act
         SentrySDK.startProfiler()
 
         // Assert

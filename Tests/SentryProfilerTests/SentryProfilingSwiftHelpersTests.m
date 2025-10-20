@@ -11,15 +11,6 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
-- (void)testIsContinuousProfilingEnabled
-{
-    SentryOptions *options = [[SentryOptions alloc] init];
-    options.dsn = @"https://username:password@app.getsentry.com/12345";
-    SentryClient *client = [[SentryClient alloc] initWithOptions:options];
-    XCTAssertEqual(
-        [client.options isContinuousProfilingEnabled], sentry_isContinuousProfilingEnabled(client));
-}
-
 - (void)testIsContinuousProfilingV2Enabled
 {
     SentryOptions *options = [[SentryOptions alloc] init];

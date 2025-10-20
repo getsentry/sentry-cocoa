@@ -176,17 +176,6 @@ sentry_discardProfilerCorrelatedToTrace(SentryId *internalTraceId, SentryHub *hu
             sentry_stringFromSentryID(internalTraceId));
         _unsafe_cleanUpContinuousProfilerV2();
     } else if (internalTraceId != nil) {
-#    if !SDK_V9
-        SentryClient *_Nullable client = hub.getClient;
-        if (client == nil) {
-            SENTRY_LOG_ERROR(@"No client found, skipping cleanup.");
-            return;
-        }
-        if (sentry_isContinuousProfilingEnabled(SENTRY_UNWRAP_NULLABLE(SentryClient, client))) {
-            SENTRY_LOG_ERROR(@"Tracers are not tracked with continuous profiling V1.");
-            return;
-        }
-#    endif // !SDK_V9
 
         if (_gTracersToProfilers == nil) {
             SENTRY_LOG_ERROR(@"Tracer to profiler should have already been initialized by the "
@@ -371,15 +360,8 @@ SentryId *_Nullable sentry_startProfilerForTrace(SentryTracerConfiguration *conf
     }
     BOOL profileShouldBeSampled
         = configuration.profilesSamplerDecision.decision == kSentrySampleDecisionYes;
-#    if !SDK_V9
-    BOOL isContinuousProfiling = client != nil
-        && sentry_isContinuousProfilingEnabled(SENTRY_UNWRAP_NULLABLE(SentryClient, client));
-    BOOL shouldStartNormalTraceProfile = !isContinuousProfiling && profileShouldBeSampled;
-#    else
-    BOOL shouldStartNormalTraceProfile = profileShouldBeSampled;
-#    endif // !SDK_V9
 
-    if (sentry_isTracingAppLaunch || shouldStartNormalTraceProfile) {
+    if (sentry_isTracingAppLaunch || profileShouldBeSampled) {
         SentryId *internalID = sentry_getSentryId();
         if ([SentryTraceProfiler startWithTracer:internalID]) {
             SENTRY_LOG_DEBUG(@"Started profiler for trace %@ with internal id %@",
