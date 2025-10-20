@@ -48,12 +48,16 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         XCTAssertNil(Dynamic(sut).tracker.asAnyObject)
     }
 
-    func testWhenNoDebuggerAttached_TrackerInitialized() {
+    func testWhenNoDebuggerAttached_TrackerInitialized() throws {
         givenInitializedTracker()
         
-        let tracker = Dynamic(sut).tracker.asAnyObject
-        XCTAssertNotNil(tracker)
-        XCTAssertTrue(tracker is SentryANRTrackerV1)
+        let tracker = try XCTUnwrap(Dynamic(sut).tracker.asAnyObject)
+
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+        XCTAssertTrue(tracker is SentryANRTrackerV2, "Expected SentryANRTrackerV2, but got \(type(of: tracker))")
+#else
+        XCTAssertTrue(tracker is SentryANRTrackerV1, "Expected SentryANRTrackerV1 on macOS, but got \(type(of: tracker))")
+#endif
     }
     
     func test_enableAppHangsTracking_Disabled() {
@@ -76,23 +80,9 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         
         XCTAssertFalse(result)
     }
-    
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-    func test_enableAppHangTrackingV2_UsesV2Tracker() {
-        let options = Options()
-        options.enableAppHangTracking = true
-        
-        sut = SentryANRTrackingIntegration()
-        let result = sut.install(with: options)
-        XCTAssertTrue(result)
 
-        let tracker = Dynamic(sut).tracker.asAnyObject
-        XCTAssertNotNil(tracker)
-        XCTAssertTrue(tracker is SentryANRTrackerV2)
-    }
-#endif
-    
-    func testANRDetected_EventCaptured() throws {
+#if os(macOS)
+    func testV1_ANRDetected_EventCaptured() throws {
         setUpThreadInspector()
         givenInitializedTracker()
         
@@ -133,7 +123,7 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         }
     }
     
-    func testANRDetected_FullyBlocking_EventCaptured() throws {
+    func testV1_ANRDetected_FullyBlocking_EventCaptured() throws {
         setUpThreadInspector()
         givenInitializedTracker()
 
@@ -174,7 +164,7 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         }
     }
 
-    func testANRDetected_NonFullyBlocked_EventCaptured() throws {
+    func testV1_ANRDetected_NonFullyBlocked_EventCaptured() throws {
         setUpThreadInspector()
         givenInitializedTracker()
 
@@ -216,7 +206,7 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         }
     }
     
-    func testANRDetectedV1_Unknown_EventCaptured() throws {
+    func testV1_ANRDetected_Unknown_EventCaptured() throws {
         setUpThreadInspector()
         givenInitializedTracker()
 
@@ -257,7 +247,8 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
             XCTAssertEqual(eventDebugImage.uuid, TestData.debugImage.uuid)
         }
     }
-    
+#endif // os(macOS)
+
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     func testANRDetected_NonFullyBlockedDisabled_EventNotCaptured() throws {
         fixture.options.enableReportNonFullyBlockingAppHangs = false
