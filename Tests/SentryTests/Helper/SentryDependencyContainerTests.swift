@@ -21,7 +21,7 @@ final class SentryDependencyContainerTests: XCTestCase {
 
     func testGetANRTrackerV2() {
         let instance = SentryDependencyContainer.sharedInstance().getANRTracker(2.0, isV2Enabled: true)
-        XCTAssertTrue(instance is SentryANRTrackerV2)
+        XCTAssertTrue(instance.helper is SentryANRTrackerV2)
 
         SentryDependencyContainer.reset()
 
@@ -29,27 +29,27 @@ final class SentryDependencyContainerTests: XCTestCase {
 
     func testGetANRTrackerV1() {
         let instance = SentryDependencyContainer.sharedInstance().getANRTracker(2.0, isV2Enabled: false)
-        XCTAssertTrue(instance is SentryANRTrackerV1)
+        XCTAssertTrue(instance.helper is SentryANRTrackerV1)
 
         SentryDependencyContainer.reset()
     }
 
     func testGetANRTrackerV2AndThenV1_FirstCalledVersionStaysTheSame() {
         let instance1 = SentryDependencyContainer.sharedInstance().getANRTracker(2.0, isV2Enabled: true)
-        XCTAssertTrue(instance1 is SentryANRTrackerV2)
+        XCTAssertTrue(instance1.helper is SentryANRTrackerV2)
 
         let instance2 = SentryDependencyContainer.sharedInstance().getANRTracker(2.0, isV2Enabled: false)
-        XCTAssertTrue(instance2 is SentryANRTrackerV2)
+        XCTAssertTrue(instance2.helper is SentryANRTrackerV2)
 
         SentryDependencyContainer.reset()
     }
 
     func testGetANRTrackerV1AndThenV2_FirstCalledVersionStaysTheSame() {
         let instance1 = SentryDependencyContainer.sharedInstance().getANRTracker(2.0, isV2Enabled: false)
-        XCTAssertTrue(instance1 is SentryANRTrackerV1)
+        XCTAssertTrue(instance1.helper is SentryANRTrackerV1)
 
         let instance2 = SentryDependencyContainer.sharedInstance().getANRTracker(2.0, isV2Enabled: true)
-        XCTAssertTrue(instance2 is SentryANRTrackerV1)
+        XCTAssertTrue(instance2.helper is SentryANRTrackerV1)
 
         SentryDependencyContainer.reset()
     }
@@ -59,7 +59,7 @@ final class SentryDependencyContainerTests: XCTestCase {
     func testGetANRTracker_ReturnsV1() {
 
         let instance = SentryDependencyContainer.sharedInstance().getANRTracker(2.0)
-        XCTAssertTrue(instance is SentryANRTrackerV1)
+        XCTAssertTrue(instance.helper is SentryANRTrackerV1)
 
         SentryDependencyContainer.reset()
     }

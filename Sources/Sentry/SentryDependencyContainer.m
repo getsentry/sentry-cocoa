@@ -53,6 +53,9 @@ SentryApplicationProviderBlock defaultApplicationProvider = ^id<SentryApplicatio
     return nil;
 };
 
+@interface SentryANRTrackerV1 () <SentryANRTrackerProtocol>
+@end
+
 @interface SentryFileManager () <SentryFileManagerProtocol>
 @end
 
@@ -62,11 +65,14 @@ SentryApplicationProviderBlock defaultApplicationProvider = ^id<SentryApplicatio
 
 @interface SentryDelayedFramesTracker () <SentryDelayedFramesTrackerWrapper>
 @end
+
+@interface SentryANRTrackerV2 () <SentryANRTrackerProtocol>
+@end
 #endif
 
 @interface SentryDependencyContainer ()
 
-@property (nonatomic, strong) id<SentryANRTracker> anrTracker;
+@property (nonatomic, strong) SentryANRTracker *anrTracker;
 
 @end
 
@@ -236,27 +242,31 @@ static BOOL isInitialializingDependencyContainer = NO;
         [[SentryCrashSwift alloc] initWith:SentrySDKInternal.options.cacheDirectoryPath]);
 }
 
-- (id<SentryANRTracker>)getANRTracker:(NSTimeInterval)timeout
+- (SentryANRTracker *)getANRTracker:(NSTimeInterval)timeout
     SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
     SENTRY_LAZY_INIT(_anrTracker,
-        [[[SentryANRTrackerV1 alloc] initWithTimeoutInterval:timeout
-                                                crashWrapper:self.crashWrapper
-                                        dispatchQueueWrapper:self.dispatchQueueWrapper
-                                               threadWrapper:self.threadWrapper] asProtocol]);
+        [[SentryANRTracker alloc]
+            initWithHelper:[[SentryANRTrackerV1 alloc]
+                               initWithTimeoutInterval:timeout
+                                          crashWrapper:self.crashWrapper
+                                  dispatchQueueWrapper:self.dispatchQueueWrapper
+                                         threadWrapper:self.threadWrapper]]);
 }
 
 #if SENTRY_HAS_UIKIT
-- (id<SentryANRTracker>)getANRTracker:(NSTimeInterval)timeout
-                          isV2Enabled:(BOOL)isV2Enabled SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
+- (SentryANRTracker *)getANRTracker:(NSTimeInterval)timeout
+                        isV2Enabled:(BOOL)isV2Enabled SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
     if (isV2Enabled) {
         SENTRY_LAZY_INIT(_anrTracker,
-            [[[SentryANRTrackerV2 alloc] initWithTimeoutInterval:timeout
-                                                    crashWrapper:self.crashWrapper
-                                            dispatchQueueWrapper:self.dispatchQueueWrapper
-                                                   threadWrapper:self.threadWrapper
-                                                   framesTracker:self.framesTracker] asProtocol]);
+            [[SentryANRTracker alloc]
+                initWithHelper:[[SentryANRTrackerV2 alloc]
+                                   initWithTimeoutInterval:timeout
+                                              crashWrapper:self.crashWrapper
+                                      dispatchQueueWrapper:self.dispatchQueueWrapper
+                                             threadWrapper:self.threadWrapper
+                                             framesTracker:self.framesTracker]]);
     } else {
         return [self getANRTracker:timeout];
     }

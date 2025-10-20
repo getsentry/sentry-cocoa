@@ -52,8 +52,8 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         givenInitializedTracker()
         
         let tracker = Dynamic(sut).tracker.asAnyObject
-        XCTAssertNotNil(tracker)
-        XCTAssertTrue(tracker is SentryANRTrackerV1)
+        XCTAssertNotNil(tracker as? SentryANRTracker)
+        XCTAssertTrue((tracker as? SentryANRTracker)?.helper is SentryANRTrackerV1)
     }
     
     func test_enableAppHangsTracking_Disabled() {
@@ -88,8 +88,8 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         XCTAssertTrue(result)
 
         let tracker = Dynamic(sut).tracker.asAnyObject
-        XCTAssertNotNil(tracker)
-        XCTAssertTrue(tracker is SentryANRTrackerV2)
+        XCTAssertNotNil(tracker as? SentryANRTracker)
+        XCTAssertTrue((tracker as? SentryANRTracker)?.helper is SentryANRTrackerV2)
     }
 #endif
     
@@ -350,7 +350,7 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         
         let tracker = SentryDependencyContainer.sharedInstance().getANRTracker(self.options.appHangTimeoutInterval)
         
-        let listeners = try XCTUnwrap(Dynamic(tracker).listeners.asObject as? NSHashTable<NSObject>)
+        let listeners = try XCTUnwrap(Dynamic(tracker.helper).listeners.asObject as? NSHashTable<NSObject>)
         
         XCTAssertEqual(1, listeners.count)
     }

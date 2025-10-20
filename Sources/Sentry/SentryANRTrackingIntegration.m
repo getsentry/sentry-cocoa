@@ -24,7 +24,7 @@ static NSString *const SentryANRMechanismDataAppHangDuration = @"app_hang_durati
 
 @interface SentryANRTrackingIntegration () <SentryANRTrackerDelegate>
 
-@property (nonatomic, strong) id<SentryANRTracker> tracker;
+@property (nonatomic, strong) SentryANRTracker *tracker;
 @property (nonatomic, strong) SentryOptions *options;
 @property (nonatomic, strong) SentryFileManager *fileManager;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueueWrapper;
