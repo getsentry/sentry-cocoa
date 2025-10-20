@@ -36,6 +36,7 @@ run_unit_tests_for_prs: &run_unit_tests_for_prs
   - "scripts/sentry-xcodebuild.sh"
   - "scripts/start-test-server.sh"
   - "scripts/tests-with-thread-sanitizer.sh"
+  - "scripts/ci-boot-simulator.sh"
 
   # Test infrastructure
   - "test-server/**"
