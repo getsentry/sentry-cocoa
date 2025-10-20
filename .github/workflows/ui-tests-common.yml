@@ -80,13 +80,13 @@ jobs:
         env:
           XCODE_VERSION: ${{ inputs.xcode_version }}
       - name: Install required platforms for Xcode 26
-        if: ${{ inputs.xcode_version == '26.0.1' }}
+        if: ${{ inputs.xcode_version == '26.1' }}
         env:
           PLATFORM: ${{ inputs.platform }}
         run: ./scripts/ci-install-xOS-26-platforms.sh --platforms "$PLATFORM"
 
       - name: Create simulator device for Xcode 26
-        if: ${{ inputs.xcode_version == '26.0.1' }}
+        if: ${{ inputs.xcode_version == '26.1' }}
         env:
           PLATFORM: ${{ inputs.platform }}
           OS_VERSION: ${{ inputs.test-destination-os }}

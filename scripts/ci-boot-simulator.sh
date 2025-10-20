@@ -55,9 +55,9 @@ case "$XCODE_VERSION" in
         IOS_VERSION="18.4"
         log_notice "Selected: $SIMULATOR with iOS $IOS_VERSION for Xcode $XCODE_VERSION"
         ;;
-    "26.0.1")
+    "26.1")
         SIMULATOR="iPhone 17 Pro"
-        IOS_VERSION="26.0"
+        IOS_VERSION="26.1"
         log_notice "Selected: $SIMULATOR with iOS $IOS_VERSION for Xcode $XCODE_VERSION"
         ;;
     *)
