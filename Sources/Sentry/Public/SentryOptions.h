@@ -639,9 +639,23 @@ typedef void (^SentryProfilingConfigurationBlock)(SentryProfileOptions *_Nonnull
 
 /**
  * When enabled, the SDK tracks when the application stops responding for a specific amount of
- * time defined by the @c appHangsTimeoutInterval option.
+ * time defined by the @c appHangTimeoutInterval option.
+ *
+ * On iOS, tvOS and visionOS, the SDK can differentiate between fully-blocking and non-fully
+ blocking app hangs.
+ * A fully-blocking app hang is when the main thread is stuck completely, and the app can't render a
+ * single frame. A non-fully-blocking app hang is when the app appears stuck to the user but can
+ still
+ * render a few frames. Fully-blocking app hangs are more actionable because the stacktrace shows
+ the
+ * exact blocking location on the main thread. As the main thread isn't completely blocked,
+ * non-fully-blocking app hangs can have a stacktrace that doesn't highlight the exact blocking
+ * location.
+ *
+ * You can use @c enableReportNonFullyBlockingAppHangs to ignore non-fully-blocking app hangs.
+ *
  * @note The default is @c YES
- * @note ANR tracking is automatically disabled if a debugger is attached.
+ * @note App Hang tracking is automatically disabled if a debugger is attached.
  */
 @property (nonatomic, assign) BOOL enableAppHangTracking;
 
