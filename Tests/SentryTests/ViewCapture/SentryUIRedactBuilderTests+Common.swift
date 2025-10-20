@@ -1,5 +1,5 @@
 // swiftlint:disable file_length
-#if os(iOS)
+#if os(iOS) && !targetEnvironment(macCatalyst)
 import AVKit
 import Foundation
 import PDFKit
@@ -1426,5 +1426,5 @@ private class TestGridView: UIView {
     }
 }
 
-#endif // os(iOS)
+#endif // os(iOS) && !targetEnvironment(macCatalyst)
 // swiftlint:enable file_length

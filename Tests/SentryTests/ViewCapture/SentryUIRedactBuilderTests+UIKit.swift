@@ -1,4 +1,4 @@
-#if os(iOS)
+#if os(iOS) && !targetEnvironment(macCatalyst)
 import AVKit
 import Foundation
 import PDFKit
@@ -508,4 +508,4 @@ class SentryUIRedactBuilderTests_UIKit: SentryUIRedactBuilderTests { // swiftlin
     }
 }
 
-#endif // os(iOS)
+#endif // os(iOS) && !targetEnvironment(macCatalyst)

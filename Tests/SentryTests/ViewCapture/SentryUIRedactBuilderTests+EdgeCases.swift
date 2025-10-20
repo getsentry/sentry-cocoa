@@ -1,5 +1,5 @@
 // swiftlint:disable file_length type_body_length
-#if os(iOS)
+#if os(iOS) && !targetEnvironment(macCatalyst)
 import Foundation
 @_spi(Private) @testable import Sentry
 import SentryTestUtils
@@ -846,5 +846,5 @@ class SentryUIRedactBuilderTests_EdgeCases: SentryUIRedactBuilderTests { // swif
     }
 }
 
-#endif // os(iOS)
+#endif // os(iOS) && !targetEnvironment(macCatalyst)
 // swiftlint:enable file_length type_body_length
