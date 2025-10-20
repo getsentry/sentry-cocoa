@@ -373,9 +373,6 @@
 #        pragma clang diagnostic ignored "-Wdeprecated-declarations"
     [self setBool:options[@"enableProfiling"]
             block:^(BOOL value) { sentryOptions.enableProfiling = value; }];
-
-    [self setBool:options[NSStringFromSelector(@selector(enableAppLaunchProfiling))]
-            block:^(BOOL value) { sentryOptions.enableAppLaunchProfiling = value; }];
 #        pragma clang diagnostic pop
 #    endif // !SDK_V9
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
