@@ -31,7 +31,7 @@ static NSString *const SentryANRMechanismDataAppHangDuration = @"app_hang_durati
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueueWrapper;
 @property (nonatomic, strong) SentryCrashWrapper *crashWrapper;
 @property (nonatomic, strong) SentryDebugImageProvider *debugImageProvider;
-@property (nonatomic, strong) id<SentryThreadInspector> threadInspector;
+@property (nonatomic, strong) SentryThreadInspector *threadInspector;
 @property (atomic, assign) BOOL reportAppHangs;
 @property (atomic, assign) BOOL enableReportNonFullyBlockingAppHangs;
 

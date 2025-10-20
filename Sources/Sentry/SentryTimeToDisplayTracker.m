@@ -3,7 +3,6 @@
 #if SENTRY_HAS_UIKIT
 
 #    import "SentryDependencyContainer.h"
-#    import "SentryFramesTracker.h"
 #    import "SentryLogC.h"
 #    import "SentryOptions+Private.h"
 #    import "SentryProfilingConditionals.h"
@@ -134,7 +133,8 @@
     SENTRY_LOG_DEBUG(@"Reporting full display for %@", _name);
     // All other accesses to _fullyDisplayedReported run on the main thread.
     // To avoid using locks, we execute this on the main queue instead.
-    [_dispatchQueueWrapper dispatchAsyncOnMainQueue:^{ self->_fullyDisplayedReported = YES; }];
+    [_dispatchQueueWrapper
+        dispatchAsyncOnMainQueueIfNotMainThread:^{ self->_fullyDisplayedReported = YES; }];
 }
 
 - (void)finishSpansIfNotFinished

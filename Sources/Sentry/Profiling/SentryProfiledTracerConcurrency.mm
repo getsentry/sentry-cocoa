@@ -29,8 +29,7 @@
 
 #    if SENTRY_HAS_UIKIT
 #        import "SentryAppStartMeasurement.h"
-#        import "SentryFramesTracker.h"
-#        import "SentryScreenFrames.h"
+#        import "SentryProfilingScreenFramesHelper.h"
 #    endif // SENTRY_HAS_UIKIT
 
 /**
@@ -210,7 +209,7 @@ sentry_discardProfilerCorrelatedToTrace(SentryId *internalTraceId, SentryHub *hu
                              @"initialized by the time they are being queried");
         }
         if (_gProfilersToTracers.count == 0) {
-            [SentryDependencyContainer.sharedInstance.framesTracker resetProfilingTimestamps];
+            sentry_framesTrackerResetProfilingTimestamps();
         }
 #    endif // SENTRY_HAS_UIKIT
     }
@@ -238,12 +237,12 @@ SentryProfiler *_Nullable sentry_profilerForFinishedTracer(SentryId *internalTra
 
 #    if SENTRY_HAS_UIKIT
     profiler.screenFrameData =
-        [SentryDependencyContainer.sharedInstance.framesTracker.currentFrames copy];
+        [SentryProfilingScreenFramesHelper copyScreenFrames:sentry_framesTrackerGetCurrentFrames()];
     SENTRY_LOG_DEBUG(
         @"Grabbing copy of frames tracker screen frames data to attach to profiler: %@.",
         profiler.screenFrameData);
     if (_gProfilersToTracers.count == 0) {
-        [SentryDependencyContainer.sharedInstance.framesTracker resetProfilingTimestamps];
+        sentry_framesTrackerResetProfilingTimestamps();
     }
 #    endif // SENTRY_HAS_UIKIT
 

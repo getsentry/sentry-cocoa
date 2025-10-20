@@ -1,5 +1,8 @@
 #import "SentryDependencyContainerSwiftHelper.h"
+#import "SentryClient+Private.h"
 #import "SentryDependencyContainer.h"
+#import "SentryHub+Private.h"
+#import "SentryOptions+Private.h"
 #import "SentrySDK+Private.h"
 #import "SentrySwift.h"
 
@@ -29,9 +32,44 @@
     return SentrySDKInternal.currentHub;
 }
 
-+ (SentryCrash *)crashReporter
++ (nullable NSDictionary *)systemInfo
 {
-    return SentryDependencyContainer.sharedInstance.crashReporter;
+    return SentryDependencyContainer.sharedInstance.crashReporter.systemInfo;
 }
+
++ (BOOL)crashedLastLaunch
+{
+    return SentryDependencyContainer.sharedInstance.crashReporter.crashedLastLaunch;
+}
+
++ (NSTimeInterval)activeDurationSinceLastCrash
+{
+    return SentryDependencyContainer.sharedInstance.crashReporter.activeDurationSinceLastCrash;
+}
+
++ (nullable NSDate *)readTimestampLastInForeground
+{
+    SentryHub *hub = [SentrySDKInternal currentHub];
+    return [[[hub getClient] fileManager] readTimestampLastInForeground];
+}
+
++ (void)deleteTimestampLastInForeground
+{
+    SentryHub *hub = [SentrySDKInternal currentHub];
+    [[[hub getClient] fileManager] deleteTimestampLastInForeground];
+}
+
++ (void)storeTimestampLastInForeground:(NSDate *)timestamp
+{
+    SentryHub *hub = [SentrySDKInternal currentHub];
+    [[[hub getClient] fileManager] storeTimestampLastInForeground:timestamp];
+}
+
+#if SENTRY_TARGET_PROFILING_SUPPORTED
++ (BOOL)hasProfilingOptions
+{
+    return SentrySDKInternal.currentHub.client.options.profiling != nil;
+}
+#endif
 
 @end

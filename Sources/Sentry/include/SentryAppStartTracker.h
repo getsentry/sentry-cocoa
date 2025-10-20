@@ -3,7 +3,7 @@
 #if SENTRY_HAS_UIKIT
 
 @class SentryDispatchQueueWrapper;
-@protocol SentryAppStateManager;
+@class SentryAppStateManager;
 @class SentryFramesTracker;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -20,10 +20,9 @@ SENTRY_NO_INIT
 @property (nonatomic) BOOL isRunning;
 
 - (instancetype)initWithDispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
-                             appStateManager:(id<SentryAppStateManager>)appStateManager
+                             appStateManager:(SentryAppStateManager *)appStateManager
                                framesTracker:(SentryFramesTracker *)framesTracker
-              enablePreWarmedAppStartTracing:(BOOL)enablePreWarmedAppStartTracing
-                         enablePerformanceV2:(BOOL)enablePerformanceV2;
+              enablePreWarmedAppStartTracing:(BOOL)enablePreWarmedAppStartTracing;
 
 - (void)start;
 - (void)stop;

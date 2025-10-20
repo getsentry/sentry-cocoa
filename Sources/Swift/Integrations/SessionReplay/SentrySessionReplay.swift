@@ -1,3 +1,4 @@
+// swiftlint:disable file_length
 import Foundation
 #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT
 @_implementationOnly import _SentryPrivate
@@ -29,13 +30,15 @@ import UIKit
     private(set) var isSessionPaused = false
     
     private let replayOptions: SentryReplayOptions
+    private let experimentalOptions: SentryExperimentalOptions
     private let replayMaker: SentryReplayVideoMaker
     private let displayLink: SentryReplayDisplayLinkWrapper
     private let dateProvider: SentryCurrentDateProvider
     private let touchTracker: SentryTouchTracker?
     private let lock = NSLock()
     public var replayTags: [String: Any]?
-    
+    private let environmentChecker: SentrySessionReplayEnvironmentCheckerProvider
+
     var isRunning: Bool {
         displayLink.isRunning()
     }
@@ -45,6 +48,7 @@ import UIKit
     
     public init(
         replayOptions: SentryReplayOptions,
+        experimentalOptions: SentryExperimentalOptions,
         replayFolderPath: URL,
         screenshotProvider: SentryViewScreenshotProvider,
         replayMaker: SentryReplayVideoMaker,
@@ -52,9 +56,11 @@ import UIKit
         touchTracker: SentryTouchTracker?,
         dateProvider: SentryCurrentDateProvider,
         delegate: SentrySessionReplayDelegate,
-        displayLinkWrapper: SentryReplayDisplayLinkWrapper
+        displayLinkWrapper: SentryReplayDisplayLinkWrapper,
+        environmentChecker: SentrySessionReplayEnvironmentCheckerProvider
     ) {
         self.replayOptions = replayOptions
+        self.experimentalOptions = experimentalOptions
         self.dateProvider = dateProvider
         self.delegate = delegate
         self.screenshotProvider = screenshotProvider
@@ -63,6 +69,7 @@ import UIKit
         self.replayMaker = replayMaker
         self.breadcrumbConverter = breadcrumbConverter
         self.touchTracker = touchTracker
+        self.environmentChecker = environmentChecker
     }
     
     deinit { displayLink.invalidate() }
@@ -73,6 +80,18 @@ import UIKit
             SentrySDKLog.debug("[Session Replay] Session replay is already running, not starting again")
             return 
         }
+        
+        // Detect if we are running on iOS 26.0 with Liquid Glass and disable session replay.
+        // This needs to be done until masking for session replay is properly supported, as it can lead
+        // to PII leaks otherwise.
+        if !environmentChecker.isReliable() {
+            guard experimentalOptions.enableSessionReplayInUnreliableEnvironment else {
+                SentrySDKLog.fatal("[Session Replay] Detected environment potentially causing PII leaks, disabling Session Replay. To override this mechanism, set `options.experimental.enableSessionReplayInUnreliableEnvironment` to `true`")
+                return
+            }
+            SentrySDKLog.warning("[Session Replay] Detected environment potentially causing PII leaks, but `options.experimental.enableSessionReplayInUnreliableEnvironment` is set to `true`, ignoring and enabling Session Replay.")
+        }
+        
         displayLink.link(withTarget: self, selector: #selector(newFrame(_:)))
         self.rootView = rootView
         lastScreenShot = dateProvider.date()
@@ -373,3 +392,4 @@ import UIKit
 // swiftlint:enable type_body_length
 
 #endif
+// swiftlint:enable file_length

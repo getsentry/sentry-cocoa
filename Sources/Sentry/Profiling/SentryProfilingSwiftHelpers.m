@@ -105,9 +105,10 @@ sentry_dispatchAsync(SentryDispatchQueueWrapper *wrapper, dispatch_block_t block
 }
 
 void
-sentry_dispatchAsyncOnMain(SentryDispatchQueueWrapper *wrapper, dispatch_block_t block)
+sentry_dispatchAsyncOnMainIfNotMainThread(
+    SentryDispatchQueueWrapper *wrapper, dispatch_block_t block)
 {
-    [wrapper dispatchAsyncOnMainQueue:block];
+    [wrapper dispatchAsyncOnMainQueueIfNotMainThread:block];
 }
 
 void
@@ -165,4 +166,29 @@ sentry_scheduledTimerWithTarget(
                                repeats:repeats];
 }
 
+#    if SENTRY_HAS_UIKIT
+void
+sentry_startFramesTracker(void)
+{
+    [SentryDependencyContainer.sharedInstance.framesTracker start];
+}
+
+void
+sentry_stopFramesTracker(void)
+{
+    [SentryDependencyContainer.sharedInstance.framesTracker stop];
+}
+
+void
+sentry_framesTrackerResetProfilingTimestamps(void)
+{
+    [SentryDependencyContainer.sharedInstance.framesTracker resetProfilingTimestamps];
+}
+
+SentryScreenFrames *
+sentry_framesTrackerGetCurrentFrames(void)
+{
+    return [SentryDependencyContainer.sharedInstance.framesTracker currentFrames];
+}
+#    endif // SENTRY_HAS_UIKIT
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED

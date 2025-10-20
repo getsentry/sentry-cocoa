@@ -25,6 +25,7 @@
   },
   "testTargets" : [
     {
+      "parallelizable" : false,
       "skippedTests" : [
         "SentryANRTrackerTests\/testANRButAppInBackground_NoANR()",
         "SentryANRTrackerTests\/testMultipleListeners()",
@@ -41,6 +42,7 @@
         "SentryProfilerSwiftTests\/testConcurrentSpansWithTimeout()",
         "SentryReachabilityTest\/testMultipleReachabilityObservers",
         "SentrySDKIntegrationTestsBase",
+        "SentrySDKInternalTests\/testResumeAndPauseAppHangTracking()",
         "SentrySDKTests\/testStartOnTheMainThread()",
         "SentrySessionGeneratorTests\/testSendSessions()",
         "SentrySubClassFinderTests\/testActOnSubclassesOfViewController()",
@@ -56,6 +58,7 @@
       }
     },
     {
+      "parallelizable" : false,
       "target" : {
         "containerPath" : "container:Sentry.xcodeproj",
         "identifier" : "D4CBA2422DE06D0200581618",
@@ -63,6 +66,7 @@
       }
     },
     {
+      "parallelizable" : false,
       "skippedTests" : [
         "SentryProfilerTests\/testProfilerMutationDuringSlicing"
       ],

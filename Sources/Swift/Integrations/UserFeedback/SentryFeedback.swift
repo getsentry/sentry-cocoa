@@ -2,7 +2,7 @@
 import Foundation
 
 @objcMembers
-public class SentryFeedback: NSObject {
+public final class SentryFeedback: NSObject {
     @objc public enum SentryFeedbackSource: Int {
         public var serialize: String {
             switch self {

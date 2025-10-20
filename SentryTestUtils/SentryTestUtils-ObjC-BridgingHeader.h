@@ -8,8 +8,7 @@
 
 #if SENTRY_HAS_UIKIT
 #    import "SentryAppStartTracker.h"
-#    import "SentryFramesTracker+TestInit.h"
-#    import "SentryUIViewControllerPerformanceTracker.h"
+#    import "SentryDefaultUIViewControllerPerformanceTracker.h"
 #endif // SENTRY_HAS_UIKIT
 
 #import "SentryProfilingConditionals.h"
@@ -40,11 +39,9 @@
 #import "SentryLogC.h"
 #import "SentryNetworkTracker.h"
 #import "SentryPerformanceTracker+Testing.h"
-#import "SentryReachability.h"
 #import "SentrySDK+Private.h"
 #import "SentrySDKInternal+Tests.h"
 #import "SentryScopeSyncC.h"
-#import "SentrySwizzleWrapper.h"
 #import "SentrySystemWrapper.h"
 #import "SentryTraceContext.h"
 #import "SentryTracer+Test.h"

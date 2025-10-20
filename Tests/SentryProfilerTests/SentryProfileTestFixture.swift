@@ -5,6 +5,10 @@ import XCTest
 
 #if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
 
+#if !os(macOS)
+class TestDelayedWrapper: SentryDelayedFramesTracker, SentryDelayedFramesTrackerWrapper {}
+#endif // !os(macOS)
+
 class SentryProfileTestFixture {
     struct ThreadMetadata {
         var id: UInt64
@@ -36,7 +40,7 @@ class SentryProfileTestFixture {
     
 #if !os(macOS)
     lazy var displayLinkWrapper = TestDisplayLinkWrapper(dateProvider: currentDateProvider)
-    lazy var framesTracker = TestFramesTracker(displayLinkWrapper: displayLinkWrapper, dateProvider: currentDateProvider, dispatchQueueWrapper: dispatchQueueWrapper, notificationCenter: notificationCenter, keepDelayedFramesDuration: 0)
+    lazy var framesTracker = TestFramesTracker(displayLinkWrapper: displayLinkWrapper, dateProvider: currentDateProvider, dispatchQueueWrapper: dispatchQueueWrapper, notificationCenter: notificationCenter, delayedFramesTracker: TestDelayedWrapper(keepDelayedFramesDuration: 0, dateProvider: currentDateProvider))
 #endif // !os(macOS)
     
     @available(*, deprecated, message: "This is only marked as deprecated because profilesSampleRate is marked as deprecated. Once that is removed this can be removed.")
@@ -44,10 +48,10 @@ class SentryProfileTestFixture {
         SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = dispatchQueueWrapper
         SentryDependencyContainer.sharedInstance().dateProvider = currentDateProvider
         SentryDependencyContainer.sharedInstance().random = TestRandom(value: fixedRandomValue)
-        SentryDependencyContainer.sharedInstance().systemWrapper = systemWrapper
         SentryDependencyContainer.sharedInstance().processInfoWrapper = processInfoWrapper
         SentryDependencyContainer.sharedInstance().dispatchFactory = dispatchFactory
         SentryDependencyContainer.sharedInstance().notificationCenterWrapper = notificationCenter
+        SentryMetricProfiler.setSystemWrapperOverride(systemWrapper)
 
         timeoutTimerFactory = TestSentryNSTimerFactory(currentDateProvider: self.currentDateProvider)
         SentryDependencyContainer.sharedInstance().timerFactory = timeoutTimerFactory

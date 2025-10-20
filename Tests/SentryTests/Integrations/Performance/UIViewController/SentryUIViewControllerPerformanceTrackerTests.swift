@@ -51,7 +51,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
             options.debug = true
 
             framesTracker = SentryFramesTracker(displayLinkWrapper: displayLinkWrapper, dateProvider: dateProvider, dispatchQueueWrapper: TestSentryDispatchQueueWrapper(),
-                                                notificationCenter: TestNSNotificationCenterWrapper(), keepDelayedFramesDuration: 0)
+                                                notificationCenter: TestNSNotificationCenterWrapper(), delayedFramesTracker: TestDelayedWrapper(keepDelayedFramesDuration: 0, dateProvider: dateProvider))
             SentryDependencyContainer.sharedInstance().framesTracker = framesTracker
             framesTracker.start()
         }
@@ -411,17 +411,17 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
             //Left empty on purpose
         }
 
-        let ttdTracker = Dynamic(sut).currentTTDTracker.asObject as? SentryTimeToDisplayTracker
+        let ttdTracker = Dynamic(Dynamic(sut).helper).currentTTDTracker.asObject as? SentryTimeToDisplayTracker
         XCTAssertNotNil(ttdTracker)
 
         sut.viewControllerLoadView(viewController2) {
             //Left empty on purpose
         }
 
-        let trackers = try XCTUnwrap(Dynamic(sut).ttdTrackers.asObject as? SentryWeakMap<TestViewController, AnyObject>)
+        let trackers = try XCTUnwrap(Dynamic(Dynamic(sut).helper).ttdTrackers.asObject as? SentryWeakMap<TestViewController, AnyObject>)
         let secondTTDTracker = trackers.object(forKey: viewController2)
 
-        XCTAssertEqual(ttdTracker, Dynamic(sut).currentTTDTracker.asObject)
+        XCTAssertEqual(ttdTracker, Dynamic(Dynamic(sut).helper).currentTTDTracker.asObject)
         XCTAssertNil(secondTTDTracker)
     }
     

@@ -4,7 +4,6 @@
 #import "SentryClient.h"
 #import "SentryDebugImageProvider+HybridSDKs.h"
 #import "SentryDebugImageProvider.h"
-#import "SentryExtraContextProvider.h"
 #import "SentryHub+Private.h"
 #import "SentryInstallation.h"
 #import "SentryInternalDefines.h"
@@ -19,7 +18,6 @@
 #import "SentryUser+Private.h"
 #import <SentryBreadcrumb.h>
 #import <SentryDependencyContainer.h>
-#import <SentryFramesTracker.h>
 #import <SentryScope+Private.h>
 #import <SentryUser.h>
 

@@ -21,9 +21,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)dispatchSync:(void (^)(void))block;
 
-- (void)dispatchAsyncOnMainQueue:(void (^)(void))block
-    NS_SWIFT_NAME(dispatchAsyncOnMainQueue(block:));
-
 - (void)dispatchSyncOnMainQueue:(void (^)(void))block
     NS_SWIFT_NAME(dispatchSyncOnMainQueue(block:));
 
@@ -32,6 +29,9 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)dispatchAfter:(NSTimeInterval)interval block:(void (^)(void))block;
 
 - (void)dispatchOnce:(dispatch_once_t *)predicate block:(void (^)(void))block;
+
+- (void)dispatchAsyncOnMainQueueIfNotMainThread:(void (^)(void))block
+    NS_SWIFT_NAME(dispatchAsyncOnMainQueueIfNotMainThread(block:));
 
 @end
 

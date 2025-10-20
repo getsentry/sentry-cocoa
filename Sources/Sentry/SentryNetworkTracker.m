@@ -27,6 +27,7 @@
 #import "SentryTraceContext.h"
 #import "SentryTraceHeader.h"
 #import "SentryTraceOrigin.h"
+#import "SentryTracePropagation.h"
 #import "SentryTracer.h"
 #import "SentryUser.h"
 #import <objc/runtime.h>
@@ -105,35 +106,6 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
     _isNetworkTrackingEnabled = NO;
     _isCaptureFailedRequestsEnabled = NO;
     _isGraphQLOperationTrackingEnabled = NO;
-}
-
-- (BOOL)isTargetMatch:(NSURL *)URL withTargets:(NSArray *)targets
-{
-    for (id targetCheck in targets) {
-        if ([targetCheck isKindOfClass:[NSRegularExpression class]]) {
-            NSString *string = URL.absoluteString;
-            NSUInteger numberOfMatches =
-                [targetCheck numberOfMatchesInString:string
-                                             options:0
-                                               range:NSMakeRange(0, [string length])];
-            if (numberOfMatches > 0) {
-                return YES;
-            }
-        } else if ([targetCheck isKindOfClass:[NSString class]]) {
-            if ([URL.absoluteString containsString:targetCheck]) {
-                return YES;
-            }
-        }
-    }
-
-    return NO;
-}
-
-- (BOOL)sessionTaskRequiresPropagation:(NSURLSessionTask *)sessionTask
-{
-    return sessionTask.currentRequest != nil &&
-        [self isTargetMatch:sessionTask.currentRequest.URL
-                withTargets:SentrySDKInternal.options.tracePropagationTargets];
 }
 
 - (void)urlSessionTaskResume:(NSURLSessionTask *)sessionTask
@@ -217,7 +189,12 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
         }
 
         SentryBaggage *baggage = [[[SentryTracer getTracer:span] traceContext] toBaggage];
-        [self addBaggageHeader:baggage traceHeader:[netSpan toTraceHeader] toRequest:sessionTask];
+        [SentryTracePropagation
+                   addBaggageHeader:baggage
+                        traceHeader:[netSpan toTraceHeader]
+               propagateTraceparent:SentrySDKInternal.options.enablePropagateTraceparent
+            tracePropagationTargets:SentrySDKInternal.options.tracePropagationTargets
+                          toRequest:sessionTask];
 
         SENTRY_LOG_DEBUG(
             @"SentryNetworkTracker automatically started HTTP span for sessionTask: %@",
@@ -249,66 +226,11 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
 #endif
                                            replayId:SentrySDKInternal.currentHub.scope.replayId];
 
-    [self addBaggageHeader:[traceContext toBaggage]
-               traceHeader:[propagationContext traceHeader]
-                 toRequest:sessionTask];
-}
-
-- (void)addBaggageHeader:(SentryBaggage *)baggage
-             traceHeader:(SentryTraceHeader *)traceHeader
-               toRequest:(NSURLSessionTask *)sessionTask
-{
-    if (![self sessionTaskRequiresPropagation:sessionTask]) {
-        SENTRY_LOG_DEBUG(@"Not adding trace_id and baggage headers for %@",
-            sessionTask.currentRequest.URL.absoluteString);
-        return;
-    }
-    NSString *baggageHeader = @"";
-
-    if (baggage != nil) {
-        NSDictionary *originalBaggage = [SentryBaggageSerialization
-            decode:sessionTask.currentRequest.allHTTPHeaderFields[SENTRY_BAGGAGE_HEADER]];
-
-        if (originalBaggage[@"sentry-trace_id"] == nil) {
-            baggageHeader = [baggage toHTTPHeaderWithOriginalBaggage:originalBaggage];
-        }
-    }
-
-    // First we check if the current request is mutable, so we could easily add a new
-    // header. Otherwise we try to change the current request for a new one with the extra
-    // header.
-    if ([sessionTask.currentRequest isKindOfClass:[NSMutableURLRequest class]]) {
-        NSMutableURLRequest *currentRequest = (NSMutableURLRequest *)sessionTask.currentRequest;
-
-        if ([currentRequest valueForHTTPHeaderField:SENTRY_TRACE_HEADER] == nil) {
-            [currentRequest setValue:traceHeader.value forHTTPHeaderField:SENTRY_TRACE_HEADER];
-        }
-
-        if (baggageHeader.length > 0) {
-            [currentRequest setValue:baggageHeader forHTTPHeaderField:SENTRY_BAGGAGE_HEADER];
-        }
-    } else {
-        // Even though NSURLSessionTask doesn't have 'setCurrentRequest', some subclasses
-        // do. For those subclasses we replace the currentRequest with a mutable one with
-        // the additional trace header. Since NSURLSessionTask is a public class and can be
-        // override, we believe this is not considered a private api.
-        SEL setCurrentRequestSelector = NSSelectorFromString(@"setCurrentRequest:");
-        if ([sessionTask respondsToSelector:setCurrentRequestSelector]) {
-            NSMutableURLRequest *newRequest = [sessionTask.currentRequest mutableCopy];
-
-            if ([newRequest valueForHTTPHeaderField:SENTRY_TRACE_HEADER] == nil) {
-                [newRequest setValue:traceHeader.value forHTTPHeaderField:SENTRY_TRACE_HEADER];
-            }
-
-            if (baggageHeader.length > 0) {
-                [newRequest setValue:baggageHeader forHTTPHeaderField:SENTRY_BAGGAGE_HEADER];
-            }
-
-            void (*func)(id, SEL, id param)
-                = (void *)[sessionTask methodForSelector:setCurrentRequestSelector];
-            func(sessionTask, setCurrentRequestSelector, newRequest);
-        }
-    }
+    [SentryTracePropagation addBaggageHeader:[traceContext toBaggage]
+                                 traceHeader:[propagationContext traceHeader]
+                        propagateTraceparent:SentrySDKInternal.options.enablePropagateTraceparent
+                     tracePropagationTargets:SentrySDKInternal.options.tracePropagationTargets
+                                   toRequest:sessionTask];
 }
 
 - (void)urlSessionTask:(NSURLSessionTask *)sessionTask setState:(NSURLSessionTaskState)newState
@@ -401,8 +323,8 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
         return;
     }
 
-    if (![self isTargetMatch:myRequest.URL
-                 withTargets:SentrySDKInternal.options.failedRequestTargets]) {
+    if (![SentryTracePropagation isTargetMatch:myRequest.URL
+                                   withTargets:SentrySDKInternal.options.failedRequestTargets]) {
         SENTRY_LOG_DEBUG(
             @"Request url isn't within the request targets, not capturing HTTP Client errors.");
         return;

@@ -6,9 +6,8 @@ import UIKit
  * The settings to use for how the user feedback form is presented, what data is required and how
  * it's submitted, and some auxiliary hooks to customize the workflow.
  */
-@available(iOS 13.0, *)
 @objcMembers
-public class SentryUserFeedbackConfiguration: NSObject {
+public final class SentryUserFeedbackConfiguration: NSObject {
     /**
      * Whether or not to show animations, like for presenting and dismissing the form.
      * - note: Default: `true`.

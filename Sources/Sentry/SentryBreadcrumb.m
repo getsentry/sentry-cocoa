@@ -77,7 +77,7 @@
 {
     if (other == self)
         return YES;
-    if (!other || ![[other class] isEqual:[self class]])
+    if (!other || ![other isKindOfClass:[SentryBreadcrumb class]])
         return NO;
 
     return [self isEqualToBreadcrumb:SENTRY_UNWRAP_NULLABLE(SentryBreadcrumb, other)];

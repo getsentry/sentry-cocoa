@@ -16,4 +16,6 @@ concurrency:
 jobs:
   danger:
     name: Danger
-    uses: getsentry/github-workflows/.github/workflows/danger.yml@v2
+    runs-on: ubuntu-latest
+    steps:
+      - uses: getsentry/github-workflows/danger@v3

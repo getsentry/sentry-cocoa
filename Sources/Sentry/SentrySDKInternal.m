@@ -28,7 +28,6 @@
 #endif // TARGET_OS_MAC
 
 #if SENTRY_HAS_UIKIT
-#    import "SentryUIViewControllerPerformanceTracker.h"
 #    if TARGET_OS_IOS
 #        import "SentryFeedbackAPI.h"
 #    endif // TARGET_OS_IOS
@@ -268,29 +267,30 @@ static NSDate *_Nullable startTimestamp = nil;
         = options.initialScope([[SentryScope alloc] initWithMaxBreadcrumbs:options.maxBreadcrumbs]);
 
     SENTRY_LOG_DEBUG(@"Dispatching init work required to run on main thread.");
-    [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchAsyncOnMainQueue:^{
-        SENTRY_LOG_DEBUG(@"SDK main thread init started...");
+    [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper
+        dispatchAsyncOnMainQueueIfNotMainThread:^{
+            SENTRY_LOG_DEBUG(@"SDK main thread init started...");
 
         // The UIDeviceWrapper needs to start before the Hub, because the Hub
         // enriches the scope, which calls the UIDeviceWrapper.
 #if SENTRY_HAS_UIKIT
-        [SentryDependencyContainer.sharedInstance.uiDeviceWrapper start];
+            [SentryDependencyContainer.sharedInstance.uiDeviceWrapper start];
 #endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
 
-        // The Hub needs to be initialized with a client so that closing a session
-        // can happen.
-        SentryHub *hub = [[SentryHub alloc] initWithClient:newClient andScope:scope];
-        [SentrySDKInternal setCurrentHub:hub];
+            // The Hub needs to be initialized with a client so that closing a session
+            // can happen.
+            SentryHub *hub = [[SentryHub alloc] initWithClient:newClient andScope:scope];
+            [SentrySDKInternal setCurrentHub:hub];
 
-        [SentryDependencyContainer.sharedInstance.crashWrapper startBinaryImageCache];
-        [SentryDependencyContainer.sharedInstance.binaryImageCache start:options.debug];
+            [SentryDependencyContainer.sharedInstance.crashWrapper startBinaryImageCache];
+            [SentryDependencyContainer.sharedInstance.binaryImageCache start:options.debug];
 
-        [SentrySDKInternal installIntegrations];
+            [SentrySDKInternal installIntegrations];
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-        sentry_sdkInitProfilerTasks(options, hub);
+            sentry_sdkInitProfilerTasks(options, hub);
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
-    }];
+        }];
 
     SENTRY_LOG_DEBUG(@"SDK initialized! Version: %@", SentryMeta.versionString);
 }

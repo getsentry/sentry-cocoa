@@ -10,7 +10,6 @@
 #import "SentryPropagationContext.h"
 #import "SentryScope+Private.h"
 #import "SentryScope+PrivateSwift.h"
-#import "SentryScopeObserver.h"
 #import "SentrySpan.h"
 #import "SentrySwift.h"
 #import "SentryTracer.h"
@@ -152,14 +151,6 @@ NS_ASSUME_NONNULL_BEGIN
         return _span;
     }
 }
-
-#if !SDK_V9
-- (void)useSpan:(SentrySpanCallback)callback
-{
-    id<SentrySpan> localSpan = [self span];
-    callback(localSpan);
-}
-#endif // !SDK_V9
 
 - (void)clear
 {
