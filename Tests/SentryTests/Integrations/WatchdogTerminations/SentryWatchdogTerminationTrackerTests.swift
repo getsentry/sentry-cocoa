@@ -2,12 +2,6 @@
 @_spi(Private) import SentryTestUtils
 import XCTest
 
-#if compiler(>=6.0)
-@_spi(Private) extension SentryFileManager: @retroactive SentryFileManagerProtocol { }
-#else
-@_spi(Private) extension SentryFileManager: SentryFileManagerProtocol { }
-#endif
-
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
     

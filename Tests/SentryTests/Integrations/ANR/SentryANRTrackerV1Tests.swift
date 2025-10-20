@@ -2,8 +2,6 @@
 @_spi(Private) import SentryTestUtils
 import XCTest
 
-@_spi(Private) extension SentryANRTrackerV1: SentryANRTrackerProtocol { }
-
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 class SentryANRTrackerV1Tests: XCTestCase, SentryANRTrackerDelegate {
 
