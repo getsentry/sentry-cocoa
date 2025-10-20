@@ -29,7 +29,6 @@
 #import "SentryCrashCachedData.h"
 #import "SentryCrashInstallation+Private.h"
 #import "SentryCrashMonitor_MachException.h"
-#import "SentryDebugImageProvider+HybridSDKs.h"
 #import "SentryDefaultThreadInspector.h"
 #import "SentryDependencyContainer.h"
 #import "SentryFileManager+Test.h"

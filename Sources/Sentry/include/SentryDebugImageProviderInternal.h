@@ -1,22 +1,13 @@
-#if __has_include(<Sentry/SentryDebugImageProvider.h>)
-#    import <Sentry/SentryDebugImageProvider.h>
-#else
-#    import "SentryDebugImageProvider.h"
-#endif
-
 #import <Foundation/Foundation.h>
 
 @class SentryDebugMeta;
+@class SentryBinaryImageCache;
 @class SentryThread;
 @class SentryFrame;
 
 NS_ASSUME_NONNULL_BEGIN
 
-#if SDK_V9
-@interface SentryDebugImageProvider : NSObject
-#else
-@interface SentryDebugImageProvider ()
-#endif
+@interface SentryDebugImageProviderInternal : NSObject
 
 - (instancetype)init;
 
