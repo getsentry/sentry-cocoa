@@ -4,6 +4,7 @@
 #import "SentryLogC.h"
 #import "SentryOptions.h"
 #import "SentrySDKInternal.h"
+#import "SentrySwift.h"
 #import "SentrySystemEventBreadcrumbs.h"
 
 NS_ASSUME_NONNULL_BEGIN
