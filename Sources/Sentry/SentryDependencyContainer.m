@@ -15,7 +15,6 @@
 #import <SentrySDK+Private.h>
 #import <SentrySwift.h>
 #import <SentryTracer.h>
-#import <SentryWatchdogTerminationScopeObserver.h>
 
 #if SENTRY_HAS_UIKIT
 #    import "SentryANRTrackerV2.h"
@@ -402,10 +401,8 @@ static BOOL isInitialializingDependencyContainer = NO;
     // This method is only a factory, therefore do not keep a reference.
     // The scope observer will be created each time it is needed.
     return [[SentryWatchdogTerminationScopeObserver alloc]
-        initWithBreadcrumbProcessor:[[SentryWatchdogTerminationBreadcrumbProcessor alloc]
-                                        initWithMaxBreadcrumbs:options.maxBreadcrumbs
-                                                   fileManager:self.fileManager]
-                attributesProcessor:self.watchdogTerminationAttributesProcessor];
+        initWithMaxBreadcrumbs:options.maxBreadcrumbs
+           attributesProcessor:self.watchdogTerminationAttributesProcessor];
 }
 
 - (SentryWatchdogTerminationAttributesProcessor *)

@@ -1,4 +1,5 @@
 #import "SentryWatchdogTerminationBreadcrumbProcessor.h"
+#import "SentryDependencyContainer.h"
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"
 #import "SentrySerialization.h"
@@ -16,6 +17,12 @@
 @end
 
 @implementation SentryWatchdogTerminationBreadcrumbProcessor
+
+- (instancetype)initWithMaxBreadcrumbs:(NSInteger)maxBreadcrumbs
+{
+    return [self initWithMaxBreadcrumbs:maxBreadcrumbs
+                            fileManager:SentryDependencyContainer.sharedInstance.fileManager];
+}
 
 - (instancetype)initWithMaxBreadcrumbs:(NSInteger)maxBreadcrumbs
                            fileManager:(SentryFileManager *_Nullable)fileManager

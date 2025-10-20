@@ -61,3 +61,4 @@
 #import "SentryTraceOrigin.h"
 #import "SentryTraceProfiler.h"
 #import "SentryUser+Serialize.h"
+#import "SentryWatchdogTerminationBreadcrumbProcessor.h"

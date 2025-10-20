@@ -13,7 +13,6 @@
 #    import <SentrySwift.h>
 #    import <SentryWatchdogTerminationBreadcrumbProcessor.h>
 #    import <SentryWatchdogTerminationLogic.h>
-#    import <SentryWatchdogTerminationScopeObserver.h>
 #    import <SentryWatchdogTerminationTracker.h>
 NS_ASSUME_NONNULL_BEGIN
 
