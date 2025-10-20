@@ -176,14 +176,15 @@ NS_ASSUME_NONNULL_BEGIN
 #if SENTRY_HAS_UIKIT
         BOOL performanceDisabled
             = !options.enableAutoPerformanceTracing || !options.isTracingEnabled;
-        BOOL appHangsV2Disabled = options.isAppHangTrackingV2Disabled;
-        // The V9 watchdog tracker uses the frames tracker, so frame tracking
+        BOOL appHangsDisabled = options.isAppHangTrackingDisabled;
+
+        // The watchdog tracker uses the frames tracker, so frame tracking
         // must be enabled if watchdog tracking is enabled.
         BOOL watchdogDisabled = !options.enableWatchdogTerminationTracking;
 
-        if (performanceDisabled && appHangsV2Disabled && watchdogDisabled) {
-            if (appHangsV2Disabled) {
-                SENTRY_LOG_DEBUG(@"Not going to enable %@ because enableAppHangTrackingV2 is "
+        if (performanceDisabled && appHangsDisabled && watchdogDisabled) {
+            if (appHangsDisabled) {
+                SENTRY_LOG_DEBUG(@"Not going to enable %@ because enableAppHangTracking is "
                                  @"disabled or the appHangTimeoutInterval is 0.",
                     self.integrationName);
             }
@@ -194,14 +195,12 @@ NS_ASSUME_NONNULL_BEGIN
                     self.integrationName);
             }
 
-#    if SDK_V9
             if (watchdogDisabled) {
                 SENTRY_LOG_DEBUG(
                     @"Not going to enable %@ because enableWatchdogTerminationTracking "
                     @"is disabled.",
                     self.integrationName);
             }
-#    endif // SKD_V9
 
             return NO;
         }

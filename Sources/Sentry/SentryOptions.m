@@ -455,7 +455,7 @@ sentry_isValidSampleRate(NSNumber *sampleRate)
 }
 
 #if SENTRY_HAS_UIKIT
-- (BOOL)isAppHangTrackingV2Disabled
+- (BOOL)isAppHangTrackingDisabled
 {
     return !self.enableAppHangTracking || self.appHangTimeoutInterval <= 0;
 }

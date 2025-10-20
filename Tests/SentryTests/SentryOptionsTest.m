@@ -1486,17 +1486,17 @@
 }
 
 #if SENTRY_HAS_UIKIT
-- (void)testIsAppHangTrackingV2Disabled_WhenOptionDisabled
+- (void)testIsAppHangTrackingDisabled_WhenOptionDisabled
 {
     SentryOptions *options = [self getValidOptions:@{ @"appHangTimeoutInterval" : @0 }];
-    XCTAssertTrue(options.isAppHangTrackingV2Disabled);
+    XCTAssertTrue(options.isAppHangTrackingDisabled);
 }
 
-- (void)testIsAppHangTrackingV2Disabled_WhenOnlyAppHangTimeoutIntervalZero
+- (void)testIsAppHangTrackingDisabled_WhenOnlyAppHangTimeoutIntervalZero
 {
     SentryOptions *options =
         [self getValidOptions:@{ @"enableAppHangTracking" : @YES, @"appHangTimeoutInterval" : @0 }];
-    XCTAssertTrue(options.isAppHangTrackingV2Disabled);
+    XCTAssertTrue(options.isAppHangTrackingDisabled);
 }
 #endif // SENTRY_HAS_UIKIT
 

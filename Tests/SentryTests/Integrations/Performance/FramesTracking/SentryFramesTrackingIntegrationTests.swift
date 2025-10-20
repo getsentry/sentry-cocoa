@@ -48,16 +48,17 @@ class SentryFramesTrackingIntegrationTests: XCTestCase {
         XCTAssertNotNil(Dynamic(sut).tracker.asObject)
     }
 
-    func testAppHangV2Enabled_MeasuresFrames() {
+    func testAppHangEnabled_MeasuresFrames() {
         let options = fixture.options
         sut.install(with: options)
 
         XCTAssertNotNil(Dynamic(sut).tracker.asObject)
     }
 
-    func testAppHangV2Enabled_ButIntervalZero_DoestNotMeasuresFrames() {
+    func testAppHangEnabled_ButIntervalZero_DoestNotMeasuresFrames() {
         let options = fixture.options
         options.appHangTimeoutInterval = 0.0
+        options.enableWatchdogTerminationTracking = false
         sut.install(with: options)
 
         XCTAssertNil(Dynamic(sut).tracker.asObject)
@@ -66,6 +67,8 @@ class SentryFramesTrackingIntegrationTests: XCTestCase {
     func testZeroTracesSampleRate_DoesNotMeasureFrames() {
         let options = fixture.options
         options.tracesSampleRate = 0.0
+        options.appHangTimeoutInterval = 0.0
+        options.enableWatchdogTerminationTracking = false
         sut.install(with: options)
         
         XCTAssertNil(Dynamic(sut).tracker.asObject)
@@ -75,6 +78,8 @@ class SentryFramesTrackingIntegrationTests: XCTestCase {
         let options = fixture.options
         options.tracesSampleRate = 0.1
         options.enableAutoPerformanceTracing = false
+        options.enableAppHangTracking = false
+        options.enableWatchdogTerminationTracking = false
         sut.install(with: options)
         
         XCTAssertNil(Dynamic(sut).tracker.asObject)
@@ -99,15 +104,6 @@ class SentryFramesTrackingIntegrationTests: XCTestCase {
         
         XCTAssertNil(fixture.displayLink.target)
         XCTAssertNil(fixture.displayLink.selector)
-    }
-    
-    func test_FramesTracking_Disabled() {
-        let options = Options()
-        options.enableAutoPerformanceTracing = false
-        
-        let result = fixture.sut.install(with: options)
-        
-        XCTAssertFalse(result)
     }
 }
 #endif
