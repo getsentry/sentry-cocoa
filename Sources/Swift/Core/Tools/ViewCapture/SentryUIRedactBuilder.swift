@@ -205,6 +205,10 @@ final class SentryUIRedactBuilder {
     ///
     /// This compares by string description to avoid touching Objective‑C class objects directly.
     func containsIgnoreClass(_ ignoreClass: AnyClass) -> Bool {
+        /// Edge case: ``UITextField`` uses an internal type of ``UITextFieldLabel`` for the placeholder, which should also be ignored
+        if ignoreClass.description() == "UITextFieldLabel" {
+            return ignoreClassesIdentifiers.contains(where: { $0.classId == "UITextField" })
+        }
         return ignoreClassesIdentifiers.contains(where: { $0.classId == ignoreClass.description() })
     }
     

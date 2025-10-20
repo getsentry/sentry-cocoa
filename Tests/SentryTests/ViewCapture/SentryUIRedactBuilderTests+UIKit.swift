@@ -416,65 +416,95 @@ class SentryUIRedactBuilderTests_UIKit: SentryUIRedactBuilderTests { // swiftlin
         XCTAssertEqual(result.count, 0)
     }
 
-    // MARK: - UIWebView
-
-    private func setupUIWebViewFixture() throws {
-        // The UIWebView initializer are marked as unavailable, therefore we need to create a fake view
-        let webView = try XCTUnwrap(createFakeView(
-            type: UIView.self,
-            name: "UIWebView",
-            frame: .init(x: 20, y: 20, width: 40, height: 40)
-        ))
-        rootView.addSubview(webView)
-
-        // View Hierarchy:
-        // ---------------
-        // <UIView: 0x106c20400; frame = (0 0; 100 100); layer = <CALayer: 0x600000cf08d0>>
-        //    | <UIWebView: 0x103a76a00; frame = (20 20; 40 40); layer = <CALayer: 0x600000cf1b60>>
-    }
-
-    func testRedact_withUIWebView_withMaskingEnabled_shouldRedactView() throws {
+    func testShouldRedact_withImageView_withNilImage_shouldNotRedact() {
         // -- Arrange --
-        try setupUIWebViewFixture()
+        let imageView = UIImageView(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
+        imageView.image = nil
+        rootView.addSubview(imageView)
 
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: true)
         let result = sut.redactRegionsFor(view: rootView)
-        let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: masked, as: .image)
-        
-        let region = try XCTUnwrap(result.element(at: 0))
-        XCTAssertNil(region.color)
-        XCTAssertEqual(region.size, CGSize(width: 40, height: 40))
-        XCTAssertEqual(region.type, .redact)
-        XCTAssertEqual(region.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 20, ty: 20))
-
-        // Assert no additional regions
-        XCTAssertEqual(result.count, 1)
+        XCTAssertEqual(result.count, 0)
     }
 
-    func testRedact_withUIWebView_withMaskingDisabled_shouldRedactView() throws {
+    func testShouldRedact_withImageView_withExactly10x10Image_shouldNotRedact() {
         // -- Arrange --
-        try setupUIWebViewFixture()
+        let image = UIGraphicsImageRenderer(size: CGSize(width: 10, height: 10)).image { ctx in
+            UIColor.black.setFill()
+            ctx.fill(CGRect(x: 0, y: 0, width: 10, height: 10))
+        }
+        let imageView = UIImageView(image: image)
+        imageView.frame = CGRect(x: 20, y: 20, width: 40, height: 40)
+        rootView.addSubview(imageView)
 
         // -- Act --
-        let sut = getSut(maskAllText: false, maskAllImages: false)
+        let sut = getSut(maskAllText: true, maskAllImages: true)
         let result = sut.redactRegionsFor(view: rootView)
-        let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: masked, as: .image)
-        
-        let region = try XCTUnwrap(result.element(at: 0))
-        XCTAssertNil(region.color)
-        XCTAssertEqual(region.size, CGSize(width: 40, height: 40))
-        XCTAssertEqual(region.type, .redact)
-        XCTAssertEqual(region.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 20, ty: 20))
+        XCTAssertEqual(result.count, 0)
+    }
 
-        // Assert no additional regions
+    func testShouldRedact_withImageView_with9x9Image_shouldNotRedact() {
+        // -- Arrange --
+        let image = UIGraphicsImageRenderer(size: CGSize(width: 9, height: 9)).image { ctx in
+            UIColor.black.setFill()
+            ctx.fill(CGRect(x: 0, y: 0, width: 9, height: 9))
+        }
+        let imageView = UIImageView(image: image)
+        imageView.frame = CGRect(x: 20, y: 20, width: 40, height: 40)
+        rootView.addSubview(imageView)
+
+        // -- Act --
+        let sut = getSut(maskAllText: true, maskAllImages: true)
+        let result = sut.redactRegionsFor(view: rootView)
+
+        // -- Assert --
+        XCTAssertEqual(result.count, 0)
+    }
+
+    func testShouldRedact_withImageView_with11x11Image_shouldRedact() throws {
+        // -- Arrange --
+        let image = UIGraphicsImageRenderer(size: CGSize(width: 11, height: 11)).image { ctx in
+            UIColor.black.setFill()
+            ctx.fill(CGRect(x: 0, y: 0, width: 11, height: 11))
+        }
+        let imageView = UIImageView(image: image)
+        imageView.frame = CGRect(x: 20, y: 20, width: 40, height: 40)
+        rootView.addSubview(imageView)
+
+        // -- Act --
+        let sut = getSut(maskAllText: true, maskAllImages: true)
+        let result = sut.redactRegionsFor(view: rootView)
+
+        // -- Assert --
         XCTAssertEqual(result.count, 1)
+        let region = try XCTUnwrap(result.first)
+        XCTAssertEqual(region.type, .redact)
+    }
+
+    func testShouldRedact_withImageView_withNilImageAsset_shouldRedact() throws {
+        // -- Arrange --
+        // Create an image programmatically (no asset bundle)
+        let image = UIGraphicsImageRenderer(size: CGSize(width: 50, height: 50)).image { ctx in
+            UIColor.red.setFill()
+            ctx.fill(CGRect(x: 0, y: 0, width: 50, height: 50))
+        }
+        let imageView = UIImageView(image: image)
+        imageView.frame = CGRect(x: 20, y: 20, width: 40, height: 40)
+        rootView.addSubview(imageView)
+
+        // -- Act --
+        let sut = getSut(maskAllText: true, maskAllImages: true)
+        let result = sut.redactRegionsFor(view: rootView)
+
+        // -- Assert --
+        XCTAssertEqual(result.count, 1)
+        let region = try XCTUnwrap(result.first)
+        XCTAssertEqual(region.type, .redact)
     }
 }
 

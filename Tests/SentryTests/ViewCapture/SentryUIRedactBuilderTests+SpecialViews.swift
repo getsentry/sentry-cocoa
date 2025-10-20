@@ -53,8 +53,9 @@ class SentryUIRedactBuilderTests_SpecialViews: SentryUIRedactBuilderTests { // s
         let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: masked, as: .image)
-        
+        assertSnapshot(of: rootView, as: .image, named: createTestDeviceOSBoundSnapshotName(name: "unmasked"))
+        assertSnapshot(of: masked, as: .image, named: createTestDeviceOSBoundSnapshotName(name: "masked"))
+
         let pdfRegion = try XCTUnwrap(result.element(at: 0))
         XCTAssertEqual(pdfRegion.size, CGSize(width: 40, height: 40))
         XCTAssertEqual(pdfRegion.type, .redact)
@@ -81,9 +82,9 @@ class SentryUIRedactBuilderTests_SpecialViews: SentryUIRedactBuilderTests { // s
         let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: masked, as: .image)
-        
-        XCTAssertEqual(result.count, 2)
+        assertSnapshot(of: rootView, as: .image, named: createTestDeviceOSBoundSnapshotName(name: "unmasked"))
+        assertSnapshot(of: masked, as: .image, named: createTestDeviceOSBoundSnapshotName(name: "masked"))
+
         let pdfRegion = try XCTUnwrap(result.element(at: 0))
         XCTAssertEqual(pdfRegion.size, CGSize(width: 40, height: 40))
         XCTAssertEqual(pdfRegion.type, .redact)
@@ -95,6 +96,9 @@ class SentryUIRedactBuilderTests_SpecialViews: SentryUIRedactBuilderTests { // s
         XCTAssertEqual(pdfScrollViewRegion.type, .redact)
         XCTAssertEqual(pdfScrollViewRegion.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 20, ty: 20))
         XCTAssertNil(pdfScrollViewRegion.color)
+
+        // Assert no additional regions
+        XCTAssertEqual(result.count, 2)
     }
 
     // MARK: - WKWebView
@@ -128,8 +132,9 @@ class SentryUIRedactBuilderTests_SpecialViews: SentryUIRedactBuilderTests { // s
         let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: masked, as: .image)
-        
+        assertSnapshot(of: rootView, as: .image, named: createTestDeviceOSBoundSnapshotName(name: "unmasked"))
+        assertSnapshot(of: masked, as: .image, named: createTestDeviceOSBoundSnapshotName(name: "masked"))
+
         let region = try XCTUnwrap(result.element(at: 0)) // WKWebView
         XCTAssertNil(region.color)
         XCTAssertEqual(region.size, CGSize(width: 40, height: 40))
@@ -156,8 +161,9 @@ class SentryUIRedactBuilderTests_SpecialViews: SentryUIRedactBuilderTests { // s
         let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: masked, as: .image)
-        
+        assertSnapshot(of: rootView, as: .image, named: createTestDeviceOSBoundSnapshotName(name: "unmasked"))
+        assertSnapshot(of: masked, as: .image, named: createTestDeviceOSBoundSnapshotName(name: "masked"))
+
         let region = try XCTUnwrap(result.element(at: 0))
         XCTAssertNil(region.color)
         XCTAssertEqual(region.size, CGSize(width: 40, height: 40)) // WKWebView
@@ -201,8 +207,9 @@ class SentryUIRedactBuilderTests_SpecialViews: SentryUIRedactBuilderTests { // s
         let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: masked, as: .image)
-        
+        assertSnapshot(of: rootView, as: .image, named: createTestDeviceOSBoundSnapshotName(name: "unmasked"))
+        assertSnapshot(of: masked, as: .image, named: createTestDeviceOSBoundSnapshotName(name: "masked"))
+
         let region = try XCTUnwrap(result.element(at: 0))
         XCTAssertNil(region.color)
         XCTAssertEqual(region.size, CGSize(width: 40, height: 40))
@@ -223,8 +230,9 @@ class SentryUIRedactBuilderTests_SpecialViews: SentryUIRedactBuilderTests { // s
         let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: masked, as: .image)
-        
+        assertSnapshot(of: rootView, as: .image, named: createTestDeviceOSBoundSnapshotName(name: "unmasked"))
+        assertSnapshot(of: masked, as: .image, named: createTestDeviceOSBoundSnapshotName(name: "masked"))
+
         let region = try XCTUnwrap(result.element(at: 0))
         XCTAssertNil(region.color)
         XCTAssertEqual(region.size, CGSize(width: 40, height: 40))
@@ -312,7 +320,8 @@ class SentryUIRedactBuilderTests_SpecialViews: SentryUIRedactBuilderTests { // s
         let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: masked, as: .image, named: createTestDeviceOSBoundSnapshotName())
+        assertSnapshot(of: rootView, as: .image, named: createTestDeviceOSBoundSnapshotName(name: "unmasked"))
+        assertSnapshot(of: masked, as: .image, named: createTestDeviceOSBoundSnapshotName(name: "masked"))
         try assertSFSafariViewControllerRegions(regions: result)
 #endif
     }
@@ -330,7 +339,8 @@ class SentryUIRedactBuilderTests_SpecialViews: SentryUIRedactBuilderTests { // s
         let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: masked, as: .image, named: createTestDeviceOSBoundSnapshotName())
+        assertSnapshot(of: rootView, as: .image, named: createTestDeviceOSBoundSnapshotName(name: "unmasked"))
+        assertSnapshot(of: masked, as: .image, named: createTestDeviceOSBoundSnapshotName(name: "masked"))
         try assertSFSafariViewControllerRegions(regions: result)
 #endif
     }
@@ -370,7 +380,8 @@ class SentryUIRedactBuilderTests_SpecialViews: SentryUIRedactBuilderTests { // s
         let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: masked, as: .image)
+        assertSnapshot(of: rootView, as: .image, named: createTestDeviceOSBoundSnapshotName(name: "unmasked"))
+        assertSnapshot(of: masked, as: .image, named: createTestDeviceOSBoundSnapshotName(name: "masked"))
         try assertAVPlayerViewControllerRegions(regions: result)
     }
 
@@ -384,7 +395,8 @@ class SentryUIRedactBuilderTests_SpecialViews: SentryUIRedactBuilderTests { // s
         let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: masked, as: .image)
+        assertSnapshot(of: rootView, as: .image, named: createTestDeviceOSBoundSnapshotName(name: "unmasked"))
+        assertSnapshot(of: masked, as: .image, named: createTestDeviceOSBoundSnapshotName(name: "masked"))
         try assertAVPlayerViewControllerRegions(regions: result)
     }
 }

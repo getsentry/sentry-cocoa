@@ -54,13 +54,13 @@ class SentryUIRedactBuilderTests: XCTestCase {
         return window
     }
 
-    /// Creates a snapshot test identifier for the the n-th snapshot in the test, defined by `index`
+    /// Creates a snapshot test identifier for a named snapshot in the test
     ///
-    /// - Parameter index: Index of the snapshot in the current test, must be set if asserting multiple snapshots
+    /// - Parameter name: Name of the snapshot in the current test, must be unique per test
     /// - Returns Snapshot identifier bound to the current device OS
-    func createTestDeviceOSBoundSnapshotName(index: Int = 0) -> String {
+    func createTestDeviceOSBoundSnapshotName(name: String) -> String {
         let device = UIDevice.current
-        return "\(device.systemName)-\(device.systemVersion).\(index)"
+        return "\(device.name).\(device.systemName)-\(device.systemVersion).\(name)"
     }
 }
 
