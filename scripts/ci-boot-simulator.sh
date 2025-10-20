@@ -11,6 +11,33 @@
 
 set -euo pipefail
 
+# Timeout function that works on macOS without external dependencies
+run_with_timeout() {
+    local timeout=$1
+    shift
+    
+    # Run command in background
+    "$@" &
+    local pid=$!
+    
+    # Wait for command with timeout
+    local count=0
+    while kill -0 $pid 2>/dev/null; do
+        if [ $count -ge "$timeout" ]; then
+            kill -TERM $pid 2>/dev/null || true
+            sleep 1
+            kill -KILL $pid 2>/dev/null || true
+            return 124  # Same exit code as GNU timeout
+        fi
+        sleep 1
+        ((count++))
+    done
+    
+    # Get the exit code of the command
+    wait $pid
+    return $?
+}
+
 # Disable SC1091 because it won't work with pre-commit
 # shellcheck source=./scripts/ci-utils.sh disable=SC1091
 source "$(cd "$(dirname "$0")" && pwd)/ci-utils.sh"
@@ -137,7 +164,7 @@ for attempt in $(seq 1 $MAX_BOOT_ATTEMPTS); do
     
     # Wait for simulator to fully boot with timeout
     log_notice "Waiting for simulator to fully boot (timeout: ${BOOT_TIMEOUT}s)"
-    if timeout $BOOT_TIMEOUT xcrun simctl bootstatus "$UDID"; then
+    if run_with_timeout $BOOT_TIMEOUT xcrun simctl bootstatus "$UDID"; then
         log_notice "Simulator boot process completed successfully"
         break
     else
