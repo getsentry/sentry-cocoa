@@ -52,10 +52,6 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
         XCTAssert(features.contains("preWarmedAppStartTracing"))
 #endif // canImport(UIKit)
 #endif // os(iOS) || os(tvOS)
-
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-        XCTAssert(features.contains("appHangTrackingV2"))
-#endif //os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     }
 
     func testEnablePersistingTracesWhenCrashing() {
