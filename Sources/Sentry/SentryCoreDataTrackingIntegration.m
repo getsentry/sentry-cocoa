@@ -6,6 +6,7 @@
 #import "SentryLogC.h"
 #import "SentryNSDataSwizzling.h"
 #import "SentryOptions.h"
+#import "SentrySwift.h"
 
 @interface SentryCoreDataTrackingIntegration ()
 

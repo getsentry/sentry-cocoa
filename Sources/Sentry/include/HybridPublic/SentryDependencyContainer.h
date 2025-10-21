@@ -24,9 +24,9 @@
 @class SentrySessionTracker;
 @class SentryGlobalEventProcessor;
 @class SentryThreadInspector;
+@class SentryANRTracker;
 @class SentryReachability;
 
-@protocol SentryANRTracker;
 @protocol SentryRandomProtocol;
 @protocol SentryCurrentDateProvider;
 @protocol SentryRateLimits;
@@ -106,7 +106,7 @@ SENTRY_NO_INIT
 @property (nonatomic, strong, nullable) SentryScopePersistentStore *scopePersistentStore;
 @property (nonatomic, strong) SentryDebugImageProvider *debugImageProvider;
 
-- (id<SentryANRTracker>)getANRTracker:(NSTimeInterval)timeout;
+- (SentryANRTracker *)getANRTracker:(NSTimeInterval)timeout;
 
 - (nullable id<SentryApplication>)application;
 

@@ -2,8 +2,6 @@
 import SentryTestUtils
 import XCTest
 
-@_spi(Private) extension SentryCrashScopeObserver: SentryScopeObserver { }
-
 class SentryCrashScopeObserverTests: XCTestCase {
     
     private class Fixture {
@@ -14,8 +12,8 @@ class SentryCrashScopeObserverTests: XCTestCase {
         let fingerprint = ["a", "b", "c"]
         let maxBreadcrumbs = 10
         
-        var sut: SentryCrashScopeObserver {
-            return SentryCrashScopeObserver(maxBreadcrumbs: maxBreadcrumbs)
+        var sut: SentryScopeObserver {
+            return SentryCrashScopeHelper.getScopeObserver(withMaxBreacdrumb: maxBreadcrumbs)
         }
     }
     

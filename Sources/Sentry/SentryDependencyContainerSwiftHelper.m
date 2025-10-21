@@ -17,6 +17,11 @@
 
 #endif // SENTRY_HAS_UIKIT
 
++ (SentryDispatchQueueWrapper *)dispatchQueueWrapper
+{
+    return SentryDependencyContainer.sharedInstance.dispatchQueueWrapper;
+}
+
 + (void)dispatchSyncOnMainQueue:(void (^)(void))block
 {
     [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchSyncOnMainQueue:block];

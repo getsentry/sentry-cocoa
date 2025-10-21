@@ -337,7 +337,7 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         
         let tracker = SentryDependencyContainer.sharedInstance().getANRTracker(self.options.appHangTimeoutInterval)
         
-        let listeners = try XCTUnwrap(Dynamic(tracker).listeners.asObject as? NSHashTable<NSObject>)
+        let listeners = try XCTUnwrap(Dynamic(tracker.helper).listeners.asObject as? NSHashTable<NSObject>)
         
         XCTAssertEqual(1, listeners.count)
     }

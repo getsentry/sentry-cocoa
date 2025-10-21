@@ -21,20 +21,22 @@ final class SentryDependencyContainerTests: XCTestCase {
 
     func testGetANRTrackerV2() {
         let instance = SentryDependencyContainer.sharedInstance().getANRTracker(2.0)
-        XCTAssertTrue(instance is SentryANRTrackerV2)
+        XCTAssertTrue(instance.helper is SentryANRTrackerV2)
 
         SentryDependencyContainer.reset()
 
-    }
-#else
-    func testGetANRTracker_ReturnsV1() {
-
-        let instance = SentryDependencyContainer.sharedInstance().getANRTracker(2.0)
-        XCTAssertTrue(instance is SentryANRTrackerV1)
-
-        SentryDependencyContainer.reset()
     }
 #endif
+
+#if os(macOS)
+    func testGetANRTrackerV1() {
+        let instance = SentryDependencyContainer.sharedInstance().getANRTracker(2.0)
+        XCTAssertTrue(instance.helper is SentryANRTrackerV1)
+
+        SentryDependencyContainer.reset()
+    }
+
+#endif // os(macOS)
 
     /**
      * This test helps to find threading issues. If you run it once it detects obvious threading issues. Some rare edge cases

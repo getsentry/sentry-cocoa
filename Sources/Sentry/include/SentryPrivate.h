@@ -30,6 +30,7 @@
 #import "SentryCrashMonitor_AppState.h"
 #import "SentryCrashMonitor_System.h"
 #import "SentryDateUtils.h"
+#import "SentryDebugImageProviderInternal.h"
 #import "SentryDefaultAppStateManager.h"
 #import "SentryDefaultThreadInspector.h"
 #import "SentryDefaultUIViewControllerPerformanceTracker.h"
@@ -60,3 +61,4 @@
 #import "SentryTraceOrigin.h"
 #import "SentryTraceProfiler.h"
 #import "SentryUser+Serialize.h"
+#import "SentryWatchdogTerminationBreadcrumbProcessor.h"

@@ -2,7 +2,7 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
-#    import "SentryDependencyContainer.h"
+#    import "SentryDependencyContainerSwiftHelper.h"
 #    import "SentryInternalDefines.h"
 #    import "SentryLogC.h"
 #    import "SentryMetricProfiler.h"
@@ -83,7 +83,7 @@ _sentry_threadUnsafe_transmitChunkEnvelope(void)
 
     // Move the serialization work to a background queue to avoid potentially
     // blocking the main thread. The serialization can take several milliseconds.
-    sentry_dispatchAsync(SentryDependencyContainer.sharedInstance.dispatchQueueWrapper, ^{
+    sentry_dispatchAsync(SentryDependencyContainerSwiftHelper.dispatchQueueWrapper, ^{
         NSDictionary *_Nonnull serializedMetrics
             = serializeContinuousProfileMetrics(metricProfilerState);
         SentryEnvelope *_Nullable envelope
@@ -199,7 +199,7 @@ _sentry_unsafe_stopTimerAndCleanup()
 + (void)scheduleTimer
 {
     sentry_dispatchAsyncOnMainIfNotMainThread(
-        SentryDependencyContainer.sharedInstance.dispatchQueueWrapper, ^{
+        SentryDependencyContainerSwiftHelper.dispatchQueueWrapper, ^{
             std::lock_guard<std::mutex> l(_threadUnsafe_gContinuousProfilerLock);
             if (_chunkTimer != nil) {
                 SENTRY_LOG_WARN(

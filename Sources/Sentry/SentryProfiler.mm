@@ -3,7 +3,7 @@
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 #    import "SentryClient+Private.h"
 #    import "SentryContinuousProfiler.h"
-#    import "SentryDependencyContainer.h"
+#    import "SentryDependencyContainerSwiftHelper.h"
 #    import "SentryFileManagerHelper.h"
 #    import "SentryHub+Private.h"
 #    import "SentryInternalDefines.h"
@@ -121,7 +121,7 @@ sentry_sdkInitProfilerTasks(SentryOptions *options, SentryHub *hub)
 
     sentry_configureContinuousProfiling(options);
 
-    sentry_dispatchAsync(SentryDependencyContainer.sharedInstance.dispatchQueueWrapper, ^{
+    sentry_dispatchAsync(SentryDependencyContainerSwiftHelper.dispatchQueueWrapper, ^{
         if (configurationFromLaunch.isProfilingThisLaunch) {
             BOOL shouldStopAndTransmitLaunchProfile = YES;
 

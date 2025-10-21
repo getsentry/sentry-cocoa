@@ -3,6 +3,7 @@
 #if SENTRY_HAS_UIKIT
 
 #    import "SentryDelayedFrame.h"
+#    import "SentryDependencyContainer.h"
 #    import "SentryInternalCDefines.h"
 #    import "SentryLogC.h"
 #    import "SentrySwift.h"
@@ -21,6 +22,13 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 @implementation SentryDelayedFramesTracker
+
+- (instancetype)initWithKeepDelayedFramesDuration:(CFTimeInterval)keepDelayedFramesDuration
+{
+    return [self
+        initWithKeepDelayedFramesDuration:keepDelayedFramesDuration
+                             dateProvider:SentryDependencyContainer.sharedInstance.dateProvider];
+}
 
 - (instancetype)initWithKeepDelayedFramesDuration:(CFTimeInterval)keepDelayedFramesDuration
                                      dateProvider:(id<SentryCurrentDateProvider>)dateProvider

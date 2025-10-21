@@ -9,14 +9,12 @@
 #import "SentrySDK+Private.h"
 #import "SentrySwift.h"
 #import "SentrySystemWrapper.h"
-#import <SentryDebugImageProvider+HybridSDKs.h>
 #import <SentryDefaultUIViewControllerPerformanceTracker.h>
 #import <SentryDependencyContainer.h>
 #import <SentryPerformanceTracker.h>
 #import <SentrySDK+Private.h>
 #import <SentrySwift.h>
 #import <SentryTracer.h>
-#import <SentryWatchdogTerminationScopeObserver.h>
 
 #if SENTRY_HAS_UIKIT
 #    import "SentryANRTrackerV2.h"
@@ -54,6 +52,9 @@ SentryApplicationProviderBlock defaultApplicationProvider = ^id<SentryApplicatio
     return nil;
 };
 
+@interface SentryANRTrackerV1 () <SentryANRTrackerProtocol>
+@end
+
 @interface SentryFileManager () <SentryFileManagerProtocol>
 @end
 
@@ -63,11 +64,14 @@ SentryApplicationProviderBlock defaultApplicationProvider = ^id<SentryApplicatio
 
 @interface SentryDelayedFramesTracker () <SentryDelayedFramesTrackerWrapper>
 @end
+
+@interface SentryANRTrackerV2 () <SentryANRTrackerProtocol>
+@end
 #endif
 
 @interface SentryDependencyContainer ()
 
-@property (nonatomic, strong) id<SentryANRTracker> anrTracker;
+@property (nonatomic, strong) SentryANRTracker *anrTracker;
 
 @end
 
@@ -237,22 +241,27 @@ static BOOL isInitialializingDependencyContainer = NO;
         [[SentryCrashSwift alloc] initWith:SentrySDKInternal.options.cacheDirectoryPath]);
 }
 
-- (id<SentryANRTracker>)getANRTracker:(NSTimeInterval)timeout
+- (SentryANRTracker *)getANRTracker:(NSTimeInterval)timeout
     SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
 #if SENTRY_HAS_UIKIT
     SENTRY_LAZY_INIT(_anrTracker,
-        [[[SentryANRTrackerV2 alloc] initWithTimeoutInterval:timeout
-                                                crashWrapper:self.crashWrapper
-                                        dispatchQueueWrapper:self.dispatchQueueWrapper
-                                               threadWrapper:self.threadWrapper
-                                               framesTracker:self.framesTracker] asProtocol]);
+        [[SentryANRTracker alloc]
+            initWithHelper:[[SentryANRTrackerV2 alloc]
+                               initWithTimeoutInterval:timeout
+                                          crashWrapper:self.crashWrapper
+                                  dispatchQueueWrapper:self.dispatchQueueWrapper
+                                         threadWrapper:self.threadWrapper
+                                         framesTracker:self.framesTracker]]);
 #else
     SENTRY_LAZY_INIT(_anrTracker,
-        [[[SentryANRTrackerV1 alloc] initWithTimeoutInterval:timeout
-                                                crashWrapper:self.crashWrapper
-                                        dispatchQueueWrapper:self.dispatchQueueWrapper
-                                               threadWrapper:self.threadWrapper] asProtocol]);
+        [[SentryANRTracker alloc]
+            initWithHelper:[[SentryANRTrackerV1 alloc]
+                               initWithTimeoutInterval:timeout
+                                          crashWrapper:self.crashWrapper
+                                  dispatchQueueWrapper:self.dispatchQueueWrapper
+                                         threadWrapper:self.threadWrapper]]);
+    ;
 #endif
 }
 
@@ -395,10 +404,8 @@ static BOOL isInitialializingDependencyContainer = NO;
     // This method is only a factory, therefore do not keep a reference.
     // The scope observer will be created each time it is needed.
     return [[SentryWatchdogTerminationScopeObserver alloc]
-        initWithBreadcrumbProcessor:[[SentryWatchdogTerminationBreadcrumbProcessor alloc]
-                                        initWithMaxBreadcrumbs:options.maxBreadcrumbs
-                                                   fileManager:self.fileManager]
-                attributesProcessor:self.watchdogTerminationAttributesProcessor];
+        initWithMaxBreadcrumbs:options.maxBreadcrumbs
+           attributesProcessor:self.watchdogTerminationAttributesProcessor];
 }
 
 - (SentryWatchdogTerminationAttributesProcessor *)

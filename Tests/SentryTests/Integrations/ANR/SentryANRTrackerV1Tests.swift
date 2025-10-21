@@ -2,6 +2,8 @@
 @_spi(Private) import SentryTestUtils
 import XCTest
 
+@_spi(Private) extension SentryANRTrackerV1: SentryANRTrackerProtocol { }
+
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 class SentryANRTrackerV1Tests: XCTestCase, SentryANRTrackerDelegate {
 
@@ -40,11 +42,11 @@ class SentryANRTrackerV1Tests: XCTestCase, SentryANRTrackerDelegate {
         
         fixture = Fixture()
         
-        sut = SentryANRTrackerV1(
+        sut = SentryANRTracker(helper: SentryANRTrackerV1(
             timeoutInterval: fixture.timeoutInterval,
             crashWrapper: fixture.crashWrapper,
             dispatchQueueWrapper: fixture.dispatchQueue,
-            threadWrapper: fixture.threadWrapper) as? SentryANRTracker
+            threadWrapper: fixture.threadWrapper))
     }
     
     override func tearDown() {
@@ -198,7 +200,7 @@ class SentryANRTrackerV1Tests: XCTestCase, SentryANRTrackerDelegate {
         sut.add(listener: self)
         sut.remove(listener: self)
         
-        let listeners = Dynamic(sut).listeners.asObject as? NSHashTable<NSObject>
+        let listeners = Dynamic(sut.helper).listeners.asObject as? NSHashTable<NSObject>
         
         XCTAssertGreaterThan(addListenersCount, listeners?.count ?? addListenersCount)
         

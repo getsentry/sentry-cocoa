@@ -16,6 +16,15 @@ SENTRY_NO_INIT
  * the current time minus the @c keepDelayedFramesDuration.
  *
  * @param keepDelayedFramesDuration The maximum duration to keep delayed frames records in memory.
+ */
+- (instancetype)initWithKeepDelayedFramesDuration:(CFTimeInterval)keepDelayedFramesDuration;
+
+/**
+ * Initializes a @c SentryDelayedFramesTracker. This class keeps track of information on delayed
+ * frames. Whenever a new delayed frame is recorded, it removes recorded delayed frames older than
+ * the current time minus the @c keepDelayedFramesDuration.
+ *
+ * @param keepDelayedFramesDuration The maximum duration to keep delayed frames records in memory.
  * @param dateProvider The instance of a date provider.
  */
 - (instancetype)initWithKeepDelayedFramesDuration:(CFTimeInterval)keepDelayedFramesDuration
