@@ -22,10 +22,7 @@ NSString *const EnvelopesPathComponent = @"envelopes";
 BOOL
 isErrorPathTooLong(NSError *error)
 {
-    NSError *underlyingError = NULL;
-    if (@available(macOS 11.3, iOS 14.5, watchOS 7.4, tvOS 14.5, *)) {
-        underlyingError = error.underlyingErrors.firstObject;
-    }
+    NSError *underlyingError = error.underlyingErrors.firstObject;
     if (underlyingError == NULL) {
         id errorInUserInfo = [error.userInfo valueForKey:NSUnderlyingErrorKey];
         if (errorInUserInfo && [errorInUserInfo isKindOfClass:[NSError class]]) {
@@ -106,7 +103,7 @@ _non_thread_safe_removeFileAtPath(NSString *path)
 
 @implementation SentryFileManagerHelper
 
-- (nullable instancetype)initWithOptions:(SentryOptions *)options error:(NSError **)error
+- (nullable instancetype)initWithOptions:(SentryOptions *_Nullable)options error:(NSError **)error
 {
     if (self = [super init]) {
         [self createPathsWithOptions:options];
@@ -131,7 +128,7 @@ _non_thread_safe_removeFileAtPath(NSString *path)
     return self;
 }
 
-- (void)createPathsWithOptions:(SentryOptions *)options
+- (void)createPathsWithOptions:(SentryOptions *_Nullable)options
 {
     NSString *cachePath = options.cacheDirectoryPath;
 

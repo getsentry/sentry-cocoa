@@ -1,19 +1,8 @@
+@_spi(Private) @testable import Sentry
 import SentryTestUtils
 import XCTest
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-
-extension SentrySwizzleWrapper {
-    
-    static func hasItems() -> Bool {
-        guard let result = Dynamic(self).hasCallbacks as Bool? else {
-            return false
-        }
-        
-        return result
-    }
-    
-}
 
 class SentrySwizzleWrapperTests: XCTestCase {
     
@@ -110,7 +99,7 @@ class SentrySwizzleWrapperTests: XCTestCase {
     }
     
     private func sendActionCalled() {
-        Dynamic(SentrySwizzleWrapper.self).sendActionCalled(#selector(someMethod), target: nil, sender: nil, event: self.fixture.event)
+        SentrySwizzleWrapper.sendActionCalled(#selector(someMethod), target: nil, sender: nil, event: self.fixture.event)
     }
     
 }

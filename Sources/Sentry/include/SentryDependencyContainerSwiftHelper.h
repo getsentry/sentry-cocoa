@@ -1,4 +1,5 @@
 #import "SentryDefines.h"
+#import "SentryProfilingConditionals.h"
 #import <Foundation/Foundation.h>
 
 #if SENTRY_HAS_UIKIT
@@ -10,6 +11,7 @@
 @class SentryHub;
 @class SentryCrash;
 @class SentryNSProcessInfoWrapper;
+@class SentryDispatchQueueWrapper;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -25,10 +27,20 @@ NS_ASSUME_NONNULL_BEGIN
 
 #endif // SENTRY_HAS_UIKIT
 
++ (SentryDispatchQueueWrapper *)dispatchQueueWrapper;
 + (void)dispatchSyncOnMainQueue:(void (^)(void))block;
 + (id<SentryObjCRuntimeWrapper>)objcRuntimeWrapper;
 + (SentryHub *)currentHub;
-+ (SentryCrash *)crashReporter;
++ (nullable NSDictionary *)systemInfo;
++ (BOOL)crashedLastLaunch;
++ (NSTimeInterval)activeDurationSinceLastCrash;
++ (nullable NSDate *)readTimestampLastInForeground;
++ (void)deleteTimestampLastInForeground;
++ (void)storeTimestampLastInForeground:(NSDate *)timestamp;
+
+#if SENTRY_TARGET_PROFILING_SUPPORTED
++ (BOOL)hasProfilingOptions;
+#endif
 
 @end
 

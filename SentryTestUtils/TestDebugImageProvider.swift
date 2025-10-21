@@ -1,19 +1,9 @@
 import _SentryPrivate
 import Foundation
-@testable import Sentry
+@_spi(Private) @testable import Sentry
 
-public class TestDebugImageProvider: SentryDebugImageProvider {
+@_spi(Private) public class TestDebugImageProvider: SentryDebugImageProvider {
     public var debugImages: [DebugMeta]?
-
-    @available(*, deprecated)
-    public override func getDebugImages() -> [DebugMeta] {
-        getDebugImagesCrashed(true)
-    }
-
-    @available(*, deprecated)
-    public override func getDebugImagesCrashed(_ isCrash: Bool) -> [DebugMeta] {
-        debugImages ?? super.getDebugImagesCrashed(isCrash)
-    }
     
     public var getDebugImagesFromCacheForFramesInvocations = Invocations<Void>()
     public override func getDebugImagesFromCacheForFrames(frames: [Frame]) -> [DebugMeta] {

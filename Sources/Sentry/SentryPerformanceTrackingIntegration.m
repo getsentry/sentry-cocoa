@@ -7,7 +7,6 @@
 #    import "SentryOptions.h"
 #    import "SentrySubClassFinder.h"
 #    import "SentrySwift.h"
-#    import "SentryUIViewControllerPerformanceTracker.h"
 #    import "SentryUIViewControllerSwizzling.h"
 
 @interface SentryPerformanceTrackingIntegration ()

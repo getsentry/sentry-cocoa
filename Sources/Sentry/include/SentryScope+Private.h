@@ -1,11 +1,12 @@
 #import <Foundation/Foundation.h>
 
 #import "SentryScope.h"
-#import "SentryScopeObserver.h"
 
 @class SentryAttachment;
 @class SentryPropagationContext;
 @class SentrySession;
+
+@protocol SentryScopeObserver;
 
 NS_ASSUME_NONNULL_BEGIN
 

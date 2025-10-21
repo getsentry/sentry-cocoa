@@ -13,7 +13,6 @@ FOUNDATION_EXPORT const unsigned char SentryVersionString[];
 #    import <SentryWithoutUIKit/SentryBreadcrumb.h>
 #    import <SentryWithoutUIKit/SentryClient.h>
 #    import <SentryWithoutUIKit/SentryCrashExceptionApplication.h>
-#    import <SentryWithoutUIKit/SentryDebugImageProvider.h>
 #    import <SentryWithoutUIKit/SentryDebugMeta.h>
 #    import <SentryWithoutUIKit/SentryDefines.h>
 #    import <SentryWithoutUIKit/SentryDsn.h>

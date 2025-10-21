@@ -87,14 +87,14 @@ public enum FrameRate: UInt64 {
     }
     
     public func fastestSlowFrame() -> CFTimeInterval {
-        let duration: Double = slowFrameThreshold(currentFrameRate.rawValue) + timeEpsilon
+        let duration: Double = SentryFramesTracker.slowFrameThreshold(currentFrameRate.rawValue) + timeEpsilon
         dateProvider.advance(by: duration)
         call()
         return duration
     }
     
     public func middlingSlowFrameDuration() -> CFTimeInterval {
-        (frozenFrameThreshold - (slowFrameThreshold(currentFrameRate.rawValue) + timeEpsilon)) / 2.0
+        (frozenFrameThreshold - (SentryFramesTracker.slowFrameThreshold(currentFrameRate.rawValue) + timeEpsilon)) / 2.0
     }
 
     public func middlingSlowFrame() -> CFTimeInterval {

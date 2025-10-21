@@ -1,6 +1,5 @@
 #import "SentryANRTrackingIntegration.h"
 #import "SentryCrashMachineContext.h"
-#import "SentryDebugImageProvider+HybridSDKs.h"
 #import "SentryDependencyContainer.h"
 #import "SentryEvent.h"
 #import "SentryException.h"
@@ -25,13 +24,13 @@ static NSString *const SentryANRMechanismDataAppHangDuration = @"app_hang_durati
 
 @interface SentryANRTrackingIntegration () <SentryANRTrackerDelegate>
 
-@property (nonatomic, strong) id<SentryANRTracker> tracker;
+@property (nonatomic, strong) SentryANRTracker *tracker;
 @property (nonatomic, strong) SentryOptions *options;
 @property (nonatomic, strong) SentryFileManager *fileManager;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueueWrapper;
 @property (nonatomic, strong) SentryCrashWrapper *crashWrapper;
 @property (nonatomic, strong) SentryDebugImageProvider *debugImageProvider;
-@property (nonatomic, strong) id<SentryThreadInspector> threadInspector;
+@property (nonatomic, strong) SentryThreadInspector *threadInspector;
 @property (atomic, assign) BOOL reportAppHangs;
 @property (atomic, assign) BOOL enableReportNonFullyBlockingAppHangs;
 

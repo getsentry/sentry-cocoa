@@ -3,6 +3,7 @@
 #if SENTRY_HAS_UIKIT
 
 #    import "SentryDelayedFrame.h"
+#    import "SentryDependencyContainer.h"
 #    import "SentryInternalCDefines.h"
 #    import "SentryLogC.h"
 #    import "SentrySwift.h"
@@ -23,14 +24,36 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation SentryDelayedFramesTracker
 
 - (instancetype)initWithKeepDelayedFramesDuration:(CFTimeInterval)keepDelayedFramesDuration
+{
+    return [self
+        initWithKeepDelayedFramesDuration:keepDelayedFramesDuration
+                             dateProvider:SentryDependencyContainer.sharedInstance.dateProvider];
+}
+
+- (instancetype)initWithKeepDelayedFramesDuration:(CFTimeInterval)keepDelayedFramesDuration
                                      dateProvider:(id<SentryCurrentDateProvider>)dateProvider
 {
     if (self = [super init]) {
         _keepDelayedFramesDuration = keepDelayedFramesDuration;
         _dateProvider = dateProvider;
-        [self resetDelayedFramesTimeStamps];
+        _delayedFrames = [NSMutableArray new];
+        [self reset];
     }
     return self;
+}
+
+- (void)reset
+{
+    @synchronized(self.delayedFrames) {
+        _previousFrameSystemTimestamp = 0;
+        SentryDelayedFrame *initialFrame =
+            [[SentryDelayedFrame alloc] initWithStartTimestamp:[self.dateProvider systemTime]
+                                              expectedDuration:0
+                                                actualDuration:0];
+
+        [_delayedFrames removeAllObjects];
+        [_delayedFrames addObject:initialFrame];
+    }
 }
 
 - (void)setPreviousFrameSystemTimestamp:(uint64_t)previousFrameSystemTimestamp
@@ -45,16 +68,6 @@ NS_ASSUME_NONNULL_BEGIN
     "thread.")
 {
     return _previousFrameSystemTimestamp;
-}
-
-- (void)resetDelayedFramesTimeStamps
-{
-    _delayedFrames = [NSMutableArray array];
-    SentryDelayedFrame *initialFrame =
-        [[SentryDelayedFrame alloc] initWithStartTimestamp:[self.dateProvider systemTime]
-                                          expectedDuration:0
-                                            actualDuration:0];
-    [_delayedFrames addObject:initialFrame];
 }
 
 - (void)recordDelayedFrame:(uint64_t)startSystemTimestamp

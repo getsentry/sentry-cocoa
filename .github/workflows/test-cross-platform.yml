@@ -55,13 +55,13 @@ jobs:
         with:
           repository: getsentry/sentry-react-native
           path: sentry-react-native
-          ref: removeEnableTracing
+          ref: itay/frames_tracker_swift
 
       - name: Enable Corepack
         working-directory: sentry-react-native
         run: npm i -g corepack
 
-      - uses: actions/setup-node@v5
+      - uses: actions/setup-node@v6
         with:
           node-version: 18
           cache: "yarn"

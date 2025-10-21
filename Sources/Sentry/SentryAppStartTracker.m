@@ -4,7 +4,6 @@
 
 #    import "SentryAppStartMeasurement.h"
 #    import "SentryDefines.h"
-#    import "SentryFramesTracker.h"
 #    import "SentryLogC.h"
 #    import <PrivateSentrySDKOnly.h>
 #    import <SentryDependencyContainer.h>
@@ -28,7 +27,7 @@ static const NSTimeInterval SENTRY_APP_START_MAX_DURATION = 180.0;
 
 @property (nonatomic, strong, nullable) SentryAppState *previousAppState;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueue;
-@property (nonatomic, strong) id<SentryAppStateManager> appStateManager;
+@property (nonatomic, strong) SentryAppStateManager *appStateManager;
 @property (nonatomic, strong) SentryFramesTracker *framesTracker;
 @property (nonatomic, assign) BOOL wasInBackground;
 @property (nonatomic, strong) NSDate *didFinishLaunchingTimestamp;
@@ -51,7 +50,7 @@ static const NSTimeInterval SENTRY_APP_START_MAX_DURATION = 180.0;
 }
 
 - (instancetype)initWithDispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
-                             appStateManager:(id<SentryAppStateManager>)appStateManager
+                             appStateManager:(SentryAppStateManager *)appStateManager
                                framesTracker:(SentryFramesTracker *)framesTracker
               enablePreWarmedAppStartTracing:(BOOL)enablePreWarmedAppStartTracing
 {
@@ -76,11 +75,7 @@ static const NSTimeInterval SENTRY_APP_START_MAX_DURATION = 180.0;
 #    if TARGET_OS_IOS
     // Customer data suggest that app starts are also prewarmed on iOS 14 although this contradicts
     // with Apple docs.
-    if (@available(iOS 14, *)) {
-        return YES;
-    } else {
-        return NO;
-    }
+    return YES;
 #    else // !TARGET_OS_IOS
     return NO;
 #    endif // TARGET_OS_IOS

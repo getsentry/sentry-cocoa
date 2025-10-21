@@ -66,16 +66,6 @@
       },
       {
         "kind": "Import",
-        "name": "Sentry.SentryDebugImageProvider",
-        "printedName": "Sentry.SentryDebugImageProvider",
-        "declKind": "Import",
-        "moduleName": "Sentry",
-        "declAttributes": [
-          "Exported"
-        ]
-      },
-      {
-        "kind": "Import",
         "name": "Sentry.SentryDebugMeta",
         "printedName": "Sentry.SentryDebugMeta",
         "declKind": "Import",
@@ -16138,6 +16128,89 @@
           },
           {
             "kind": "Var",
+            "name": "enableLogs",
+            "printedName": "enableLogs",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "c:objc(cs)SentryOptions(py)enableLogs",
+            "moduleName": "Sentry",
+            "isOpen": true,
+            "objc_name": "enableLogs",
+            "declAttributes": [
+              "ObjC",
+              "Dynamic"
+            ],
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "c:objc(cs)SentryOptions(im)enableLogs",
+                "moduleName": "Sentry",
+                "isOpen": true,
+                "objc_name": "enableLogs",
+                "declAttributes": [
+                  "DiscardableResult",
+                  "ObjC",
+                  "Dynamic"
+                ],
+                "accessorKind": "get"
+              },
+              {
+                "kind": "Accessor",
+                "name": "Set",
+                "printedName": "Set()",
+                "children": [
+                  {
+                    "kind": "TypeNameAlias",
+                    "name": "Void",
+                    "printedName": "Swift.Void",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Void",
+                        "printedName": "()"
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "c:objc(cs)SentryOptions(im)setEnableLogs:",
+                "moduleName": "Sentry",
+                "isOpen": true,
+                "objc_name": "setEnableLogs:",
+                "declAttributes": [
+                  "ObjC",
+                  "Dynamic"
+                ],
+                "accessorKind": "set"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
             "name": "beforeSendLog",
             "printedName": "beforeSendLog",
             "children": [
@@ -20502,6 +20575,89 @@
           },
           {
             "kind": "Var",
+            "name": "enablePropagateTraceparent",
+            "printedName": "enablePropagateTraceparent",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "c:objc(cs)SentryOptions(py)enablePropagateTraceparent",
+            "moduleName": "Sentry",
+            "isOpen": true,
+            "objc_name": "enablePropagateTraceparent",
+            "declAttributes": [
+              "ObjC",
+              "Dynamic"
+            ],
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "c:objc(cs)SentryOptions(im)enablePropagateTraceparent",
+                "moduleName": "Sentry",
+                "isOpen": true,
+                "objc_name": "enablePropagateTraceparent",
+                "declAttributes": [
+                  "DiscardableResult",
+                  "ObjC",
+                  "Dynamic"
+                ],
+                "accessorKind": "get"
+              },
+              {
+                "kind": "Accessor",
+                "name": "Set",
+                "printedName": "Set()",
+                "children": [
+                  {
+                    "kind": "TypeNameAlias",
+                    "name": "Void",
+                    "printedName": "Swift.Void",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Void",
+                        "printedName": "()"
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "c:objc(cs)SentryOptions(im)setEnablePropagateTraceparent:",
+                "moduleName": "Sentry",
+                "isOpen": true,
+                "objc_name": "setEnablePropagateTraceparent:",
+                "declAttributes": [
+                  "ObjC",
+                  "Dynamic"
+                ],
+                "accessorKind": "set"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
             "name": "tracePropagationTargets",
             "printedName": "tracePropagationTargets",
             "children": [
@@ -20914,10 +21070,8 @@
             "usr": "c:objc(cs)SentryOptions(py)enableMetricKit",
             "moduleName": "Sentry",
             "isOpen": true,
-            "intro_iOS": "15.0",
             "objc_name": "enableMetricKit",
             "declAttributes": [
-              "Available",
               "ObjC",
               "Dynamic"
             ],
@@ -20938,11 +21092,9 @@
                 "usr": "c:objc(cs)SentryOptions(im)enableMetricKit",
                 "moduleName": "Sentry",
                 "isOpen": true,
-                "intro_iOS": "15.0",
                 "objc_name": "enableMetricKit",
                 "declAttributes": [
                   "DiscardableResult",
-                  "Available",
                   "ObjC",
                   "Dynamic"
                 ],
@@ -20976,10 +21128,8 @@
                 "usr": "c:objc(cs)SentryOptions(im)setEnableMetricKit:",
                 "moduleName": "Sentry",
                 "isOpen": true,
-                "intro_iOS": "15.0",
                 "objc_name": "setEnableMetricKit:",
                 "declAttributes": [
-                  "Available",
                   "ObjC",
                   "Dynamic"
                 ],
@@ -21003,10 +21153,8 @@
             "usr": "c:objc(cs)SentryOptions(py)enableMetricKitRawPayload",
             "moduleName": "Sentry",
             "isOpen": true,
-            "intro_iOS": "15.0",
             "objc_name": "enableMetricKitRawPayload",
             "declAttributes": [
-              "Available",
               "ObjC",
               "Dynamic"
             ],
@@ -21027,11 +21175,9 @@
                 "usr": "c:objc(cs)SentryOptions(im)enableMetricKitRawPayload",
                 "moduleName": "Sentry",
                 "isOpen": true,
-                "intro_iOS": "15.0",
                 "objc_name": "enableMetricKitRawPayload",
                 "declAttributes": [
                   "DiscardableResult",
-                  "Available",
                   "ObjC",
                   "Dynamic"
                 ],
@@ -21065,10 +21211,8 @@
                 "usr": "c:objc(cs)SentryOptions(im)setEnableMetricKitRawPayload:",
                 "moduleName": "Sentry",
                 "isOpen": true,
-                "intro_iOS": "15.0",
                 "objc_name": "setEnableMetricKitRawPayload:",
                 "declAttributes": [
-                  "Available",
                   "ObjC",
                   "Dynamic"
                 ],
@@ -21589,10 +21733,8 @@
             "usr": "c:objc(cs)SentryOptions(py)configureUserFeedback",
             "moduleName": "Sentry",
             "isOpen": true,
-            "intro_iOS": "13.0",
             "objc_name": "configureUserFeedback",
             "declAttributes": [
-              "Available",
               "ObjC",
               "Dynamic"
             ],
@@ -21647,11 +21789,9 @@
                 "usr": "c:objc(cs)SentryOptions(im)configureUserFeedback",
                 "moduleName": "Sentry",
                 "isOpen": true,
-                "intro_iOS": "13.0",
                 "objc_name": "configureUserFeedback",
                 "declAttributes": [
                   "DiscardableResult",
-                  "Available",
                   "ObjC",
                   "Dynamic"
                 ],
@@ -21719,10 +21859,8 @@
                 "usr": "c:objc(cs)SentryOptions(im)setConfigureUserFeedback:",
                 "moduleName": "Sentry",
                 "isOpen": true,
-                "intro_iOS": "13.0",
                 "objc_name": "setConfigureUserFeedback:",
                 "declAttributes": [
-                  "Available",
                   "ObjC",
                   "Dynamic"
                 ],
@@ -26181,10 +26319,8 @@
             "usr": "c:objc(cs)SentryFeedbackAPI(im)showWidget",
             "moduleName": "Sentry",
             "isOpen": true,
-            "intro_iOS": "13.0",
             "objc_name": "showWidget",
             "declAttributes": [
-              "Available",
               "ObjC",
               "Dynamic"
             ],
@@ -26212,10 +26348,8 @@
             "usr": "c:objc(cs)SentryFeedbackAPI(im)hideWidget",
             "moduleName": "Sentry",
             "isOpen": true,
-            "intro_iOS": "13.0",
             "objc_name": "hideWidget",
             "declAttributes": [
-              "Available",
               "ObjC",
               "Dynamic"
             ],
@@ -33962,11 +34096,7 @@
         ],
         "declKind": "TypeAlias",
         "usr": "c:@T@SentryUserFeedbackConfigurationBlock",
-        "moduleName": "Sentry",
-        "intro_iOS": "13.0",
-        "declAttributes": [
-          "Available"
-        ]
+        "moduleName": "Sentry"
       },
       {
         "kind": "Var",
@@ -49020,12 +49150,9 @@
         "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackConfiguration",
         "mangledName": "$s6Sentry0A25UserFeedbackConfigurationC",
         "moduleName": "Sentry",
-        "intro_iOS": "13.0",
         "declAttributes": [
-          "Available",
           "Final",
           "ObjCMembers",
-          "Available",
           "ObjC"
         ],
         "superclassUsr": "c:objc(cs)NSObject",
@@ -51146,11 +51273,9 @@
             "mangledName": "$s6Sentry0A3SDKC8feedbackSo0A11FeedbackAPICvpZ",
             "moduleName": "Sentry",
             "static": true,
-            "intro_iOS": "13.0",
             "declAttributes": [
               "Final",
               "ObjC",
-              "Available",
               "HasStorage"
             ],
             "isLet": true,
@@ -53391,8 +53516,8 @@
           },
           {
             "kind": "Var",
-            "name": "enableLogs",
-            "printedName": "enableLogs",
+            "name": "enableSessionReplayInUnreliableEnvironment",
+            "printedName": "enableSessionReplayInUnreliableEnvironment",
             "children": [
               {
                 "kind": "TypeNominal",
@@ -53402,8 +53527,8 @@
               }
             ],
             "declKind": "Var",
-            "usr": "c:@M@Sentry@objc(cs)SentryExperimentalOptions(py)enableLogs",
-            "mangledName": "$s6Sentry0A19ExperimentalOptionsC10enableLogsSbvp",
+            "usr": "c:@M@Sentry@objc(cs)SentryExperimentalOptions(py)enableSessionReplayInUnreliableEnvironment",
+            "mangledName": "$s6Sentry0A19ExperimentalOptionsC42enableSessionReplayInUnreliableEnvironmentSbvp",
             "moduleName": "Sentry",
             "declAttributes": [
               "Final",
@@ -53425,8 +53550,8 @@
                   }
                 ],
                 "declKind": "Accessor",
-                "usr": "c:@M@Sentry@objc(cs)SentryExperimentalOptions(im)enableLogs",
-                "mangledName": "$s6Sentry0A19ExperimentalOptionsC10enableLogsSbvg",
+                "usr": "c:@M@Sentry@objc(cs)SentryExperimentalOptions(im)enableSessionReplayInUnreliableEnvironment",
+                "mangledName": "$s6Sentry0A19ExperimentalOptionsC42enableSessionReplayInUnreliableEnvironmentSbvg",
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
@@ -53453,8 +53578,8 @@
                   }
                 ],
                 "declKind": "Accessor",
-                "usr": "c:@M@Sentry@objc(cs)SentryExperimentalOptions(im)setEnableLogs:",
-                "mangledName": "$s6Sentry0A19ExperimentalOptionsC10enableLogsSbvs",
+                "usr": "c:@M@Sentry@objc(cs)SentryExperimentalOptions(im)setEnableSessionReplayInUnreliableEnvironment:",
+                "mangledName": "$s6Sentry0A19ExperimentalOptionsC42enableSessionReplayInUnreliableEnvironmentSbvs",
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
@@ -54787,12 +54912,9 @@
         "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackThemeConfiguration",
         "mangledName": "$s6Sentry0A30UserFeedbackThemeConfigurationC",
         "moduleName": "Sentry",
-        "intro_iOS": "13.0",
         "declAttributes": [
-          "Available",
           "Final",
           "ObjCMembers",
-          "Available",
           "ObjC"
         ],
         "superclassUsr": "c:objc(cs)NSObject",
@@ -55467,12 +55589,9 @@
         "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackWidgetConfiguration",
         "mangledName": "$s6Sentry0A31UserFeedbackWidgetConfigurationC",
         "moduleName": "Sentry",
-        "intro_iOS": "13.0",
         "declAttributes": [
-          "Available",
           "Final",
           "ObjCMembers",
-          "Available",
           "ObjC"
         ],
         "superclassUsr": "c:objc(cs)NSObject",
@@ -57659,12 +57778,9 @@
         "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackFormConfiguration",
         "mangledName": "$s6Sentry0A29UserFeedbackFormConfigurationC",
         "moduleName": "Sentry",
-        "intro_iOS": "13.0",
         "declAttributes": [
-          "Available",
           "Final",
           "ObjCMembers",
-          "Available",
           "ObjC"
         ],
         "superclassUsr": "c:objc(cs)NSObject",

@@ -696,7 +696,7 @@ class SentryScopeSwiftTests: XCTestCase {
     
     func testModifyScopeFromDifferentThreads() {
         let scope = Scope()
-        scope.add(SentryCrashScopeObserver(maxBreadcrumbs: 100))
+        scope.add(SentryCrashScopeHelper.getScopeObserver(withMaxBreacdrumb: 100))
         
         testConcurrentModifications(asyncWorkItems: 10, writeLoopCount: 1_000, writeWork: { i in
             let user = User()
@@ -806,8 +806,8 @@ class SentryScopeSwiftTests: XCTestCase {
             self.extras = extras
         }
         
-        var context: [String: Any]?
-        func setContext(_ context: [String: Any]?) {
+        var context: [String: [String: Any]]?
+        func setContext(_ context: [String: [String: Any]]?) {
             self.context = context
         }
         

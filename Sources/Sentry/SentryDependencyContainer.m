@@ -1,31 +1,23 @@
 #import "SentryANRTrackerV1.h"
 
 #import "SentryDefaultThreadInspector.h"
-#import "SentryExtraContextProvider.h"
-#import "SentryFileIOTracker.h"
+#import "SentryDelayedFramesTracker.h"
 #import "SentryInternalCDefines.h"
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"
 #import "SentryOptions+Private.h"
 #import "SentrySDK+Private.h"
-#import "SentrySessionTracker.h"
 #import "SentrySwift.h"
 #import "SentrySystemWrapper.h"
-#import <SentryCrash.h>
-#import <SentryDebugImageProvider+HybridSDKs.h>
-#import <SentryDefaultAppStateManager.h>
+#import <SentryDefaultUIViewControllerPerformanceTracker.h>
 #import <SentryDependencyContainer.h>
 #import <SentryPerformanceTracker.h>
 #import <SentrySDK+Private.h>
 #import <SentrySwift.h>
-#import <SentrySwizzleWrapper.h>
 #import <SentryTracer.h>
-#import <SentryUIViewControllerPerformanceTracker.h>
-#import <SentryWatchdogTerminationScopeObserver.h>
 
 #if SENTRY_HAS_UIKIT
 #    import "SentryANRTrackerV2.h"
-#    import "SentryFramesTracker.h"
 #    import <SentryWatchdogTerminationBreadcrumbProcessor.h>
 #endif // SENTRY_HAS_UIKIT
 
@@ -60,18 +52,26 @@ SentryApplicationProviderBlock defaultApplicationProvider = ^id<SentryApplicatio
     return nil;
 };
 
+@interface SentryANRTrackerV1 () <SentryANRTrackerProtocol>
+@end
+
 @interface SentryFileManager () <SentryFileManagerProtocol>
 @end
 
-@interface SentryDefaultThreadInspector () <SentryThreadInspector>
+#if SENTRY_HAS_UIKIT
+@interface SentryWatchdogTerminationScopeObserver () <SentryScopeObserver>
 @end
 
-@interface SentryDefaultAppStateManager () <SentryAppStateManager>
+@interface SentryDelayedFramesTracker () <SentryDelayedFramesTrackerWrapper>
 @end
+
+@interface SentryANRTrackerV2 () <SentryANRTrackerProtocol>
+@end
+#endif
 
 @interface SentryDependencyContainer ()
 
-@property (nonatomic, strong) id<SentryANRTracker> anrTracker;
+@property (nonatomic, strong) SentryANRTracker *anrTracker;
 
 @end
 
@@ -146,14 +146,14 @@ static BOOL isInitialializingDependencyContainer = NO;
         isInitialializingDependencyContainer = YES;
 
         _dispatchQueueWrapper = SentryDependencies.dispatchQueueWrapper;
-        _random = [[SentryRandom alloc] init];
-        _threadWrapper = [[SentryThreadWrapper alloc] init];
+        _random = SentryDependencies.random;
+        _threadWrapper = SentryDependencies.threadWrapper;
         _binaryImageCache = [[SentryBinaryImageCache alloc] init];
         _dateProvider = SentryDependencies.dateProvider;
 
-        _notificationCenterWrapper = NSNotificationCenter.defaultCenter;
+        _notificationCenterWrapper = SentryDependencies.notificationCenterWrapper;
 
-        _processInfoWrapper = NSProcessInfo.processInfo;
+        _processInfoWrapper = SentryDependencies.processInfoWrapper;
         _crashWrapper = [[SentryCrashWrapper alloc] initWithProcessInfoWrapper:_processInfoWrapper];
 #if SENTRY_HAS_UIKIT
         _uiDeviceWrapper = SentryDependencies.uiDeviceWrapper;
@@ -170,7 +170,7 @@ static BOOL isInitialializingDependencyContainer = NO;
 #endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
         ];
 
-        _sysctlWrapper = [[SentrySysctl alloc] init];
+        _sysctlWrapper = SentryDependencies.sysctlWrapper;
 
         SentryRetryAfterHeaderParser *retryAfterHeaderParser = [[SentryRetryAfterHeaderParser alloc]
             initWithHttpDateParser:[[SentryHttpDateParser alloc] init]
@@ -217,56 +217,55 @@ static BOOL isInitialializingDependencyContainer = NO;
     }));
 }
 
-- (id<SentryAppStateManager>)appStateManager SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
+- (SentryAppStateManager *)appStateManager SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
     SENTRY_LAZY_INIT(_appStateManager,
-        [[SentryDefaultAppStateManager alloc] initWithOptions:SentrySDKInternal.options
-                                                 crashWrapper:self.crashWrapper
-                                                  fileManager:self.fileManager
-                                         dispatchQueueWrapper:self.dispatchQueueWrapper
-                                    notificationCenterWrapper:self.notificationCenterWrapper]);
+        [[SentryAppStateManager alloc] initWithOptions:SentrySDKInternal.options
+                                          crashWrapper:self.crashWrapper
+                                           fileManager:self.fileManager
+                                         sysctlWrapper:self.sysctlWrapper]);
 }
-
-- (id<SentryThreadInspector>)threadInspector SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
+- (SentryThreadInspector *)threadInspector
 {
-    SENTRY_LAZY_INIT(_threadInspector,
-        [[SentryDefaultThreadInspector alloc] initWithOptions:SentrySDKInternal.options]);
+    return SentryDependencies.threadInspector;
 }
 
-- (SentryFileIOTracker *)fileIOTracker SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
+- (SentryFileIOTracker *)fileIOTracker
 {
-    SENTRY_LAZY_INIT(_fileIOTracker,
-        [[SentryFileIOTracker alloc] initWithThreadInspector:[self threadInspector]
-                                          processInfoWrapper:[self processInfoWrapper]]);
+    return SentryDependencies.fileIOTracker;
 }
 
-- (SentryCrash *)crashReporter SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
+- (SentryCrashSwift *)crashReporter SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
     SENTRY_LAZY_INIT(_crashReporter,
-        [[SentryCrash alloc] initWithBasePath:SentrySDKInternal.options.cacheDirectoryPath]);
+        [[SentryCrashSwift alloc] initWith:SentrySDKInternal.options.cacheDirectoryPath]);
 }
 
-- (id<SentryANRTracker>)getANRTracker:(NSTimeInterval)timeout
+- (SentryANRTracker *)getANRTracker:(NSTimeInterval)timeout
     SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
     SENTRY_LAZY_INIT(_anrTracker,
-        [[[SentryANRTrackerV1 alloc] initWithTimeoutInterval:timeout
-                                                crashWrapper:self.crashWrapper
-                                        dispatchQueueWrapper:self.dispatchQueueWrapper
-                                               threadWrapper:self.threadWrapper] asProtocol]);
+        [[SentryANRTracker alloc]
+            initWithHelper:[[SentryANRTrackerV1 alloc]
+                               initWithTimeoutInterval:timeout
+                                          crashWrapper:self.crashWrapper
+                                  dispatchQueueWrapper:self.dispatchQueueWrapper
+                                         threadWrapper:self.threadWrapper]]);
 }
 
 #if SENTRY_HAS_UIKIT
-- (id<SentryANRTracker>)getANRTracker:(NSTimeInterval)timeout
-                          isV2Enabled:(BOOL)isV2Enabled SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
+- (SentryANRTracker *)getANRTracker:(NSTimeInterval)timeout
+                        isV2Enabled:(BOOL)isV2Enabled SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
     if (isV2Enabled) {
         SENTRY_LAZY_INIT(_anrTracker,
-            [[[SentryANRTrackerV2 alloc] initWithTimeoutInterval:timeout
-                                                    crashWrapper:self.crashWrapper
-                                            dispatchQueueWrapper:self.dispatchQueueWrapper
-                                                   threadWrapper:self.threadWrapper
-                                                   framesTracker:self.framesTracker] asProtocol]);
+            [[SentryANRTracker alloc]
+                initWithHelper:[[SentryANRTrackerV2 alloc]
+                                   initWithTimeoutInterval:timeout
+                                              crashWrapper:self.crashWrapper
+                                      dispatchQueueWrapper:self.dispatchQueueWrapper
+                                             threadWrapper:self.threadWrapper
+                                             framesTracker:self.framesTracker]]);
     } else {
         return [self getANRTracker:timeout];
     }
@@ -325,9 +324,7 @@ static BOOL isInitialializingDependencyContainer = NO;
 {
 #    if SENTRY_HAS_UIKIT
     SENTRY_LAZY_INIT(_uiViewControllerPerformanceTracker,
-        [[SentryUIViewControllerPerformanceTracker alloc]
-                 initWithTracker:SentryPerformanceTracker.shared
-            dispatchQueueWrapper:[self dispatchQueueWrapper]]);
+        [[SentryUIViewControllerPerformanceTracker alloc] init]);
 #    else
     SENTRY_LOG_DEBUG(@"SentryDependencyContainer.uiViewControllerPerformanceTracker only works "
                      @"with UIKit enabled. Ensure you're "
@@ -345,8 +342,10 @@ static BOOL isInitialializingDependencyContainer = NO;
                           dateProvider:self.dateProvider
                   dispatchQueueWrapper:self.dispatchQueueWrapper
                     notificationCenter:self.notificationCenterWrapper
-             keepDelayedFramesDuration:SENTRY_AUTO_TRANSACTION_MAX_DURATION]);
-
+                  delayedFramesTracker:
+                      [[SentryDelayedFramesTracker alloc]
+                          initWithKeepDelayedFramesDuration:SENTRY_AUTO_TRANSACTION_MAX_DURATION
+                                               dateProvider:self.dateProvider]]);
 #    else
     SENTRY_LOG_DEBUG(
         @"SentryDependencyContainer.framesTracker only works with UIKit enabled. Ensure you're "
@@ -367,15 +366,6 @@ static BOOL isInitialializingDependencyContainer = NO;
 #    endif // SENTRY_HAS_UIKIT
 }
 #endif // SENTRY_UIKIT_AVAILABLE
-
-#if SENTRY_TARGET_PROFILING_SUPPORTED
-- (SentrySystemWrapper *)systemWrapper SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
-{
-    SENTRY_LAZY_INIT(_systemWrapper,
-        [[SentrySystemWrapper alloc]
-            initWithProcessorCount:self.processInfoWrapper.processorCount]);
-}
-#endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 - (SentryDispatchFactory *)dispatchFactory SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
@@ -399,7 +389,8 @@ static BOOL isInitialializingDependencyContainer = NO;
 
 #endif // SENTRY_HAS_METRIC_KIT
 
-- (SentryScopePersistentStore *)scopePersistentStore SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
+- (SentryScopePersistentStore *_Nullable)
+    scopePersistentStore SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
     SENTRY_LAZY_INIT(_scopePersistentStore,
         [[SentryScopePersistentStore alloc] initWithFileManager:self.fileManager]);
@@ -415,26 +406,13 @@ static BOOL isInitialializingDependencyContainer = NO;
 }
 
 #if SENTRY_HAS_UIKIT
-- (SentryWatchdogTerminationScopeObserver *)getWatchdogTerminationScopeObserverWithOptions:
-    (SentryOptions *)options
+- (id<SentryScopeObserver>)getWatchdogTerminationScopeObserverWithOptions:(SentryOptions *)options
 {
     // This method is only a factory, therefore do not keep a reference.
     // The scope observer will be created each time it is needed.
     return [[SentryWatchdogTerminationScopeObserver alloc]
-        initWithBreadcrumbProcessor:
-            [self
-                getWatchdogTerminationBreadcrumbProcessorWithMaxBreadcrumbs:options.maxBreadcrumbs]
-                attributesProcessor:self.watchdogTerminationAttributesProcessor];
-}
-
-- (SentryWatchdogTerminationBreadcrumbProcessor *)
-    getWatchdogTerminationBreadcrumbProcessorWithMaxBreadcrumbs:(NSInteger)maxBreadcrumbs
-{
-    // This method is only a factory, therefore do not keep a reference.
-    // The processor will be created each time it is needed.
-    return [[SentryWatchdogTerminationBreadcrumbProcessor alloc]
-        initWithMaxBreadcrumbs:maxBreadcrumbs
-                   fileManager:self.fileManager];
+        initWithMaxBreadcrumbs:options.maxBreadcrumbs
+           attributesProcessor:self.watchdogTerminationAttributesProcessor];
 }
 
 - (SentryWatchdogTerminationAttributesProcessor *)

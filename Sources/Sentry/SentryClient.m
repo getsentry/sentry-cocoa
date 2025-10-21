@@ -5,13 +5,12 @@
 #import "SentryCrashDefaultMachineContextWrapper.h"
 #import "SentryCrashIntegration.h"
 #import "SentryCrashStackEntryMapper.h"
-#import "SentryDebugImageProvider+HybridSDKs.h"
 #import "SentryDefaultThreadInspector.h"
 #import "SentryDependencyContainer.h"
+#import "SentryDeviceContextKeys.h"
 #import "SentryDsn.h"
 #import "SentryEvent+Private.h"
 #import "SentryException.h"
-#import "SentryExtraContextProvider.h"
 #import "SentryHub+Private.h"
 #import "SentryHub.h"
 #import "SentryInstallation.h"
@@ -989,21 +988,10 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     [self modifyContext:event
                     key:@"culture"
                   block:^(NSMutableDictionary *culture) {
-#if TARGET_OS_MACCATALYST
-                      if (@available(macCatalyst 13, *)) {
-                          culture[@"calendar"] = [self.locale
-                              localizedStringForCalendarIdentifier:self.locale.calendarIdentifier];
-                          culture[@"display_name"] = [self.locale
-                              localizedStringForLocaleIdentifier:self.locale.localeIdentifier];
-                      }
-#else
-            if (@available(iOS 10, macOS 10.12, watchOS 3, tvOS 10, *)) {
-                culture[@"calendar"] = [self.locale
-                    localizedStringForCalendarIdentifier:self.locale.calendarIdentifier];
-                culture[@"display_name"] =
-                    [self.locale localizedStringForLocaleIdentifier:self.locale.localeIdentifier];
-            }
-#endif
+                      culture[@"calendar"] = [self.locale
+                          localizedStringForCalendarIdentifier:self.locale.calendarIdentifier];
+                      culture[@"display_name"] = [self.locale
+                          localizedStringForLocaleIdentifier:self.locale.localeIdentifier];
                       culture[@"locale"] = self.locale.localeIdentifier;
                       culture[@"is_24_hour_format"] = @([SentryLocale timeIs24HourFormat]);
                       culture[@"timezone"] = self.timezone.name;

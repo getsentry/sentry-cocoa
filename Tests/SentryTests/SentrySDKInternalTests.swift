@@ -524,7 +524,7 @@ class SentrySDKInternalTests: XCTestCase {
         fixture.options.enableTimeToFullDisplayTracing = true
 
         let testTTDTracker = TestTimeToDisplayTracker(waitForFullDisplay: true)
-        let performanceTracker = Dynamic(SentryDependencyContainer.sharedInstance().uiViewControllerPerformanceTracker)
+        let performanceTracker = Dynamic(Dynamic(SentryDependencyContainer.sharedInstance().uiViewControllerPerformanceTracker).helper)
         performanceTracker.currentTTDTracker = testTTDTracker
 
         // Start SDK after setting up the tracker to ensure we're changing the tracker during it's initialization,
@@ -701,7 +701,7 @@ class SentrySDKInternalTests: XCTestCase {
 
     @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func testLogger_WithLogsEnabled_CapturesLog() {
-        fixture.client.options.experimental.enableLogs = true
+        fixture.client.options.enableLogs = true
         givenSdkWithHub()
 
         SentrySDK.logger.error(String(repeating: "S", count: 1_024 * 1_024))
@@ -716,7 +716,7 @@ class SentrySDKInternalTests: XCTestCase {
     }
 
     func testLogger_WithNoClient_DoesNotCaptureLog() {
-        fixture.client.options.experimental.enableLogs = true
+        fixture.client.options.enableLogs = true
         let hubWithoutClient = SentryHub(client: nil, andScope: nil)
         SentrySDKInternal.setCurrentHub(hubWithoutClient)
 
@@ -733,7 +733,7 @@ class SentrySDKInternalTests: XCTestCase {
 
     @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func testLogger_WithLogsDisabled_DoesNotCaptureLog() {
-        fixture.client.options.experimental.enableLogs = false
+        fixture.client.options.enableLogs = false
         givenSdkWithHub()
 
         SentrySDK.logger.error("foo")

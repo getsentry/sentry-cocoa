@@ -114,9 +114,11 @@ NSString *const kSentryDefaultEnvironment = @"production";
         self.enableAppHangTracking = YES;
         self.appHangTimeoutInterval = 2.0;
         self.enableAutoBreadcrumbTracking = YES;
+        self.enablePropagateTraceparent = NO;
         self.enableNetworkTracking = YES;
         self.enableFileIOTracing = YES;
         self.enableNetworkBreadcrumbs = YES;
+        self.enableLogs = NO;
         self.tracesSampleRate = nil;
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 #    if !SDK_V9
@@ -188,10 +190,8 @@ NSString *const kSentryDefaultEnvironment = @"production";
             ?: @"";
 
 #if SENTRY_HAS_METRIC_KIT
-        if (@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, *)) {
-            self.enableMetricKit = NO;
-            self.enableMetricKitRawPayload = NO;
-        }
+        self.enableMetricKit = NO;
+        self.enableMetricKitRawPayload = NO;
 #endif // SENTRY_HAS_METRIC_KIT
     }
     return self;

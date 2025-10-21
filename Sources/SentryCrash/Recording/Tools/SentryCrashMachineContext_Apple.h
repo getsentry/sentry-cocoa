@@ -43,9 +43,11 @@ extern "C" {
 #    define STRUCT_MCONTEXT_L _STRUCT_MCONTEXT
 #endif
 
+#define SENTRY_CRASH_MAX_THREADS 100
+
 typedef struct SentryCrashMachineContext {
     thread_t thisThread;
-    thread_t allThreads[100];
+    thread_t allThreads[SENTRY_CRASH_MAX_THREADS];
     int threadCount;
     bool isCrashedContext;
     bool isCurrentThread;

@@ -13,16 +13,15 @@
 #    import <SentrySwift.h>
 #    import <SentryWatchdogTerminationBreadcrumbProcessor.h>
 #    import <SentryWatchdogTerminationLogic.h>
-#    import <SentryWatchdogTerminationScopeObserver.h>
 #    import <SentryWatchdogTerminationTracker.h>
 NS_ASSUME_NONNULL_BEGIN
 
 @interface SentryWatchdogTerminationTrackingIntegration () <SentryANRTrackerDelegate>
 
 @property (nonatomic, strong) SentryWatchdogTerminationTracker *tracker;
-@property (nonatomic, strong) id<SentryANRTracker> anrTracker;
+@property (nonatomic, strong) SentryANRTracker *anrTracker;
 @property (nullable, nonatomic, copy) NSString *testConfigurationFilePath;
-@property (nonatomic, strong) id<SentryAppStateManager> appStateManager;
+@property (nonatomic, strong) SentryAppStateManager *appStateManager;
 
 @end
 
@@ -56,7 +55,7 @@ NS_ASSUME_NONNULL_BEGIN
                                               attributes:attributes];
 
     SentryFileManager *fileManager = [[[SentrySDKInternal currentHub] getClient] fileManager];
-    id<SentryAppStateManager> appStateManager =
+    SentryAppStateManager *appStateManager =
         [SentryDependencyContainer sharedInstance].appStateManager;
     SentryCrashWrapper *crashWrapper = [SentryDependencyContainer sharedInstance].crashWrapper;
     SentryWatchdogTerminationLogic *logic =
@@ -88,9 +87,8 @@ NS_ASSUME_NONNULL_BEGIN
 
     self.appStateManager = appStateManager;
 
-    SentryWatchdogTerminationScopeObserver *scopeObserver =
-        [SentryDependencyContainer.sharedInstance
-            getWatchdogTerminationScopeObserverWithOptions:options];
+    id<SentryScopeObserver> scopeObserver = [SentryDependencyContainer.sharedInstance
+        getWatchdogTerminationScopeObserverWithOptions:options];
 
     [SentrySDKInternal.currentHub configureScope:^(SentryScope *_Nonnull outerScope) {
         // Add the observer to the scope so that it can be notified when the scope changes.

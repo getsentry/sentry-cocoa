@@ -10,7 +10,6 @@ protocol SentryUserFeedbackFormViewModelDelegate: NSObjectProtocol {
     func cancel()
 }
 
-@available(iOS 13.0, *)
 @objcMembers
 @_spi(Private) public class SentryUserFeedbackFormViewModel: NSObject {
     let config: SentryUserFeedbackConfiguration

@@ -1223,7 +1223,7 @@ class SentryHubTests: XCTestCase {
         let testTTDTracker = TestTimeToDisplayTracker(waitForFullDisplay: true)
         
         let performanceTracker = Dynamic(SentryDependencyContainer.sharedInstance().uiViewControllerPerformanceTracker)
-        performanceTracker.currentTTDTracker = testTTDTracker
+        Dynamic(performanceTracker.helper).currentTTDTracker = testTTDTracker
 
         // -- Act --
         sut.reportFullyDisplayed()

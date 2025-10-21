@@ -157,6 +157,13 @@ NS_SWIFT_NAME(Options)
  */
 @property (nullable, nonatomic, copy) SentryBeforeSendSpanCallback beforeSendSpan NS_SWIFT_SENDABLE;
 
+/**
+ * When enabled, the SDK sends logs to Sentry. Logs can be captured using the @c SentrySDK.logger
+ * API, which provides structured logging with attributes.
+ * @note Default value is @c NO .
+ */
+@property (nonatomic, assign) BOOL enableLogs;
+
 #if !SWIFT_PACKAGE
 /**
  * Use this callback to drop or modify a log before the SDK sends it to Sentry. Return @c nil to
@@ -689,6 +696,18 @@ typedef void (^SentryProfilingConfigurationBlock)(SentryProfileOptions *_Nonnull
 @property (nonatomic, assign) BOOL enableAutoBreadcrumbTracking;
 
 /**
+ * When enabled, the SDK propagates the W3C Trace Context HTTP header traceparent on outgoing HTTP
+ * requests.
+ *
+ * @discussion This is useful when the receiving services only support OTel/W3C propagation. The
+ * traceparent header is only sent when this option is @c YES and the request matches @c
+ * tracePropagationTargets.
+ *
+ * @note Default value is @c NO.
+ */
+@property (nonatomic, assign) BOOL enablePropagateTraceparent;
+
+/**
  * An array of hosts or regexes that determines if outgoing HTTP requests will get
  * extra @c trace_id and @c baggage headers added.
  * @discussion This array can contain instances of @c NSString which should match the URL (using
@@ -735,8 +754,7 @@ typedef void (^SentryProfilingConfigurationBlock)(SentryProfileOptions *_Nonnull
  * allows the Sentry SDK to apply the current data from the scope.
  * @note This feature is disabled by default.
  */
-@property (nonatomic, assign) BOOL enableMetricKit API_AVAILABLE(
-    ios(15.0), macos(12.0), macCatalyst(15.0)) API_UNAVAILABLE(tvos, watchos);
+@property (nonatomic, assign) BOOL enableMetricKit API_UNAVAILABLE(tvos, watchos);
 
 /**
  * When enabled, the SDK adds the raw MXDiagnosticPayloads as an attachment to the converted
@@ -744,8 +762,7 @@ typedef void (^SentryProfilingConfigurationBlock)(SentryProfileOptions *_Nonnull
  *
  * @note Default value is @c NO.
  */
-@property (nonatomic, assign) BOOL enableMetricKitRawPayload API_AVAILABLE(
-    ios(15.0), macos(12.0), macCatalyst(15.0)) API_UNAVAILABLE(tvos, watchos);
+@property (nonatomic, assign) BOOL enableMetricKitRawPayload API_UNAVAILABLE(tvos, watchos);
 
 #endif // SENTRY_HAS_METRIC_KIT
 
@@ -803,11 +820,10 @@ typedef void (^SentryProfilingConfigurationBlock)(SentryProfileOptions *_Nonnull
 /**
  * A block that can be defined that receives a user feedback configuration object to modify.
  * @warning This is an experimental feature and may still have bugs.
- * @note User feedback widget is only available for iOS 13 or later.
  */
 @property (nonatomic, copy, nullable)
-    SentryUserFeedbackConfigurationBlock configureUserFeedback API_AVAILABLE(ios(13.0))
-        NS_EXTENSION_UNAVAILABLE("Sentry User Feedback UI cannot be used from app extensions.");
+    SentryUserFeedbackConfigurationBlock configureUserFeedback NS_EXTENSION_UNAVAILABLE(
+        "Sentry User Feedback UI cannot be used from app extensions.");
 
 #endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
 

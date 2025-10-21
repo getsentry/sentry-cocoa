@@ -1,5 +1,5 @@
 import CoreData
-@testable import Sentry
+@_spi(Private) @testable import Sentry
 @_spi(Private) import SentryTestUtils
 import XCTest
 
@@ -10,7 +10,7 @@ class SentryCoreDataTrackerTests: XCTestCase {
         lazy var context: TestNSManagedObjectContext = {
             coreDataStack.managedObjectContext
         }()
-        let threadInspector = TestThreadInspector.instance
+        let threadInspector = TestDefaultThreadInspector.instance
         let imageProvider = TestDebugImageProvider()
 
         init(testName: String) {

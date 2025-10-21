@@ -261,8 +261,8 @@ jobs:
           - name: iOS 26 Sentry
             runs-on: macos-26
             platform: "iOS"
-            xcode: "26.0.1"
-            test-destination-os: "26.0"
+            xcode: "26.1"
+            test-destination-os: "26.1"
             device: "iPhone 17 Pro"
             scheme: "Sentry"
 
@@ -290,8 +290,8 @@ jobs:
           - name: macOS 26 Sentry
             runs-on: macos-26
             platform: "macOS"
-            xcode: "26.0.1"
-            test-destination-os: "26.0"
+            xcode: "26.1"
+            test-destination-os: "26.1"
             scheme: "Sentry"
 
           # Catalyst. We test the latest version, as the risk something breaking on Catalyst and not
@@ -346,8 +346,8 @@ jobs:
           - name: tvOS 26 Sentry
             runs-on: macos-26
             platform: "tvOS"
-            xcode: "26.0.1"
-            test-destination-os: "26.0"
+            xcode: "26.1"
+            test-destination-os: "26.1"
             device: "Apple TV"
             scheme: "Sentry"
 
@@ -357,6 +357,11 @@ jobs:
 
       - name: Install Slather
         run: gem install slather
+
+      # Based on a comment in CircleCI forum, we need to boot the simulator for Xcode 26: https://discuss.circleci.com/t/xcode-26-rc/54066/18
+      - name: Boot simulator
+        if: ${{matrix.platform == 'iOS' && matrix.test-destination-os == '26.1'}}
+        run: ./scripts/ci-boot-simulator.sh --xcode ${{matrix.xcode}}
 
       # We split building and running tests in two steps so we know how long running the tests takes.
       - name: Build tests
@@ -421,6 +426,14 @@ jobs:
           path: |
             ~/Library/Logs/DiagnosticReports/**
 
+      - name: Archiving Test Results
+        uses: actions/upload-artifact@v4
+        if: ${{ failure() || cancelled() }}
+        with:
+          name: result-bundle-${{matrix.platform}}-xcode-${{matrix.xcode}}-os-${{matrix.test-destination-os}}
+          path: |
+            results.xcresult
+
       - name: Gather code coverage information via slather
         run: slather coverage --configuration TestCI --scheme Sentry
 
@@ -462,6 +475,12 @@ jobs:
       - name: Run CI Diagnostics
         if: failure()
         run: ./scripts/ci-diagnostics.sh
+
+      - name: Store screenshot
+        uses: ./.github/actions/capture-screenshot
+        if: failure()
+        with:
+          suffix: unit-tests-${{ matrix.platform }}-xcode-${{ matrix.xcode }}-os-${{ matrix.test-destination-os }}
 
   # This check validates that either all unit tests passed or were skipped, which allows us
   # to make unit tests a required check with only running the unit tests when required.

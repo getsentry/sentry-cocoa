@@ -46,6 +46,9 @@ sentry_finishAndSaveTransaction(void)
     }
 }
 
+@interface SentryCrashScopeObserver () <SentryScopeObserver>
+@end
+
 @interface SentryCrashIntegration ()
 
 @property (nonatomic, weak) SentryOptions *options;
@@ -87,7 +90,7 @@ sentry_finishAndSaveTransaction(void)
     self.options = options;
 
 #if SENTRY_HAS_UIKIT
-    id<SentryAppStateManager> appStateManager =
+    SentryAppStateManager *appStateManager =
         [SentryDependencyContainer sharedInstance].appStateManager;
     SentryWatchdogTerminationLogic *logic =
         [[SentryWatchdogTerminationLogic alloc] initWithOptions:options
