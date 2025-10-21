@@ -247,10 +247,10 @@ sentry_sdkInitProfilerTasks(SentryOptions *options, SentryHub *hub)
 
     BOOL autoPerformanceTracingDisabled
         = ![[[[SentrySDKInternal currentHub] getClient] options] enableAutoPerformanceTracing];
-    BOOL appHangsV2Disabled =
-        [[[[SentrySDKInternal currentHub] getClient] options] isAppHangTrackingV2Disabled];
+    BOOL appHangsDisabled =
+        [[[[SentrySDKInternal currentHub] getClient] options] isAppHangTrackingDisabled];
 
-    if (autoPerformanceTracingDisabled && appHangsV2Disabled) {
+    if (autoPerformanceTracingDisabled && appHangsDisabled) {
         sentry_stopFramesTracker();
     }
 #    endif // SENTRY_HAS_UIKIT

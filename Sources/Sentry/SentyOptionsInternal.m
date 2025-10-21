@@ -280,11 +280,6 @@
     [self setBool:options[@"enablePreWarmedAppStartTracing"]
             block:^(BOOL value) { sentryOptions.enablePreWarmedAppStartTracing = value; }];
 
-#    if !SDK_V9
-    [self setBool:options[@"enableAppHangTrackingV2"]
-            block:^(BOOL value) { sentryOptions.enableAppHangTrackingV2 = value; }];
-#    endif // !SDK_V9
-
     [self setBool:options[@"enableReportNonFullyBlockingAppHangs"]
             block:^(BOOL value) { sentryOptions.enableReportNonFullyBlockingAppHangs = value; }];
 
