@@ -15,11 +15,9 @@ let defaultApplicationProvider: () -> SentryApplication? = {
 #endif
 }
 
-@_spi(Private) extension SentryANRTrackerV1: SentryANRTrackerInternalProtocol { }
-
 let SENTRY_AUTO_TRANSACTION_MAX_DURATION = 500.0
 
-extension SentryFileManager: SentryFileManagerProtocol { }
+// MARK: - RedactWrapper
 
 final class RedactWrapper: SentryRedactOptions {
     var maskAllText: Bool {
@@ -44,6 +42,11 @@ final class RedactWrapper: SentryRedactOptions {
     }
 }
 
+// MARK: - Extensions
+
+extension SentryFileManager: SentryFileManagerProtocol { }
+@_spi(Private) extension SentryANRTrackerV1: SentryANRTrackerInternalProtocol { }
+
 #if (os(iOS) || os(tvOS) || (swift(>=5.9) && os(visionOS))) && !SENTRY_NO_UIKIT
 @_spi(Private) extension SentryANRTrackerV2: SentryANRTrackerInternalProtocol { }
 
@@ -55,51 +58,13 @@ final class RedactWrapper: SentryRedactOptions {
 }
 #endif
 
+// MARK: - SentryDependencyContainer
 @_spi(Private) @objc public final class SentryDependencyContainer: NSObject {
+
+    // MARK: Private
+
     private static let instanceLock = NSRecursiveLock()
     private static var instance = SentryDependencyContainer()
-
-    @objc public static func sharedInstance() -> SentryDependencyContainer {
-        instanceLock.synchronized {
-            return instance
-        }
-    }
-    
-    /**
-     * Resets all dependencies.
-     */
-    @objc public static func reset() {
-        instanceLock.synchronized {
-            instance.reachability.removeAllObservers()
-#if (os(iOS) || os(tvOS) || (swift(>=5.9) && os(visionOS))) && !SENTRY_NO_UIKIT
-            instance.framesTracker.stop()
-#endif
-            instance = SentryDependencyContainer()
-        }
-    }
-    
-    @objc public var dispatchQueueWrapper = Dependencies.dispatchQueueWrapper
-    @objc public var random = Dependencies.random
-    @objc public var threadWrapper = Dependencies.threadWrapper
-    @objc public var binaryImageCache = Dependencies.binaryImageCache
-    @objc public var dateProvider: SentryCurrentDateProvider = Dependencies.dateProvider
-    @objc public var notificationCenterWrapper = Dependencies.notificationCenterWrapper
-    @objc public var processInfoWrapper = Dependencies.processInfoWrapper
-    @objc public var crashWrapper = Dependencies.crashWrapper
-    @objc public var dispatchFactory = SentryDispatchFactory()
-    @objc public var timerFactory = SentryNSTimerFactory()
-    @objc public var fileIOTracker = Dependencies.fileIOTracker
-    @objc public var threadInspector = Dependencies.threadInspector
-    @objc public var rateLimits: RateLimits = DefaultRateLimits(
-        retryAfterHeaderParser: RetryAfterHeaderParser(httpDateParser: HttpDateParser(), currentDateProvider: Dependencies.dateProvider),
-        andRateLimitParser: RateLimitParser(currentDateProvider: Dependencies.dateProvider),
-        currentDateProvider: Dependencies.dateProvider)
-    @objc public var reachability = SentryReachability()
-    @objc public var sysctlWrapper = Dependencies.sysctlWrapper
-    @objc public var sessionReplayEnvironmentChecker = Dependencies.sessionReplayEnvironmentChecker
-    @objc public var debugImageProvider = Dependencies.debugImageProvider
-    @objc public var objcRuntimeWrapper: SentryObjCRuntimeWrapper = SentryDefaultObjCRuntimeWrapper()
-    private var anrTracker: SentryANRTracker?
     private let paramLock = NSRecursiveLock()
     
     private func getLazyVar<T>(_ keyPath: ReferenceWritableKeyPath<SentryDependencyContainer, T?>, builder: () -> T) -> T {
@@ -124,6 +89,66 @@ final class RedactWrapper: SentryRedactOptions {
         }
     }
     
+    // MARK: Public
+
+    @objc public static func sharedInstance() -> SentryDependencyContainer {
+        instanceLock.synchronized {
+            return instance
+        }
+    }
+    
+    /**
+     * Resets all dependencies.
+     */
+    @objc public static func reset() {
+        instanceLock.synchronized {
+            instance.reachability.removeAllObservers()
+#if (os(iOS) || os(tvOS) || (swift(>=5.9) && os(visionOS))) && !SENTRY_NO_UIKIT
+            instance.framesTracker.stop()
+#endif
+            instance = SentryDependencyContainer()
+        }
+    }
+    
+#if SENTRY_TEST || SENTRY_TEST_CI
+    var applicationOverride: SentryApplication?
+#endif
+    @objc public func application() -> SentryApplication? {
+#if SENTRY_TEST || SENTRY_TEST_CI
+    let `override` = self.applicationOverride
+    if let `override` {
+        return `override`
+    }
+#endif
+        return defaultApplicationProvider()
+    }
+    
+    @objc(getSessionTrackerWithOptions:) public func getSessionTracker(with options: Options) -> SessionTracker {
+        return SessionTracker(options: options, applicationProvider: defaultApplicationProvider, dateProvider: dateProvider, notificationCenter: notificationCenterWrapper)
+    }
+    
+    @objc public var dispatchQueueWrapper = Dependencies.dispatchQueueWrapper
+    @objc public var random = Dependencies.random
+    @objc public var threadWrapper = Dependencies.threadWrapper
+    @objc public var binaryImageCache = Dependencies.binaryImageCache
+    @objc public var dateProvider: SentryCurrentDateProvider = Dependencies.dateProvider
+    @objc public var notificationCenterWrapper = Dependencies.notificationCenterWrapper
+    @objc public var processInfoWrapper = Dependencies.processInfoWrapper
+    @objc public var crashWrapper = Dependencies.crashWrapper
+    @objc public var dispatchFactory = SentryDispatchFactory()
+    @objc public var timerFactory = SentryNSTimerFactory()
+    @objc public var fileIOTracker = Dependencies.fileIOTracker
+    @objc public var threadInspector = Dependencies.threadInspector
+    @objc public var rateLimits: RateLimits = DefaultRateLimits(
+        retryAfterHeaderParser: RetryAfterHeaderParser(httpDateParser: HttpDateParser(), currentDateProvider: Dependencies.dateProvider),
+        andRateLimitParser: RateLimitParser(currentDateProvider: Dependencies.dateProvider),
+        currentDateProvider: Dependencies.dateProvider)
+    @objc public var reachability = SentryReachability()
+    @objc public var sysctlWrapper = Dependencies.sysctlWrapper
+    @objc public var sessionReplayEnvironmentChecker = Dependencies.sessionReplayEnvironmentChecker
+    @objc public var debugImageProvider = Dependencies.debugImageProvider
+    @objc public var objcRuntimeWrapper: SentryObjCRuntimeWrapper = SentryDefaultObjCRuntimeWrapper()
+    
 #if os(iOS) && !SENTRY_NO_UIKIT
     @objc public var extraContextProvider = SentryExtraContextProvider(crashWrapper: Dependencies.crashWrapper, processInfoWrapper: Dependencies.processInfoWrapper, deviceWrapper: Dependencies.uiDeviceWrapper)
 #else
@@ -141,6 +166,8 @@ final class RedactWrapper: SentryRedactOptions {
     @objc public var uiDeviceWrapper: SentryUIDeviceWrapper = Dependencies.uiDeviceWrapper
     @objc public var threadsafeApplication = SentryThreadsafeApplication(applicationProvider: defaultApplicationProvider, notificationCenter: Dependencies.notificationCenterWrapper)
     @objc public var swizzleWrapper = SentrySwizzleWrapper()
+    
+    // MARK: Lazy Vars
     
     private var _watchdogTerminationAttributesProcessor: SentryWatchdogTerminationAttributesProcessor?
     @objc public lazy var watchdogTerminationAttributesProcessor =
@@ -227,21 +254,8 @@ final class RedactWrapper: SentryRedactOptions {
     @objc public lazy var crashReporter = getLazyVar(\._crashReporter) {
         SentryCrashSwift(with: SentrySDKInternal.options?.cacheDirectoryPath)
     }
-
-    @objc public func application() -> SentryApplication? {
-#if SENTRY_TEST || SENTRY_TEST_CI
-    let `override` = self.applicationOverride
-    if let `override` {
-        return `override`
-    }
-#endif
-        return defaultApplicationProvider()
-    }
     
-    @objc(getSessionTrackerWithOptions:) public func getSessionTracker(with options: Options) -> SessionTracker {
-        return SessionTracker(options: options, applicationProvider: defaultApplicationProvider, dateProvider: dateProvider, notificationCenter: notificationCenterWrapper)
-    }
-    
+    private var anrTracker: SentryANRTracker?
     @objc public func getANRTracker(_ timeout: TimeInterval) -> SentryANRTracker {
         getLazyVar(\.anrTracker) {
         #if (os(iOS) || os(tvOS) || (swift(>=5.9) && os(visionOS))) && !SENTRY_NO_UIKIT
@@ -251,8 +265,4 @@ final class RedactWrapper: SentryRedactOptions {
         #endif
         }
     }
-    
-#if SENTRY_TEST || SENTRY_TEST_CI
-    var applicationOverride: SentryApplication?
-#endif
 }
