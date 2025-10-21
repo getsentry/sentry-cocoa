@@ -61,12 +61,12 @@ jobs:
     uses: ./.github/workflows/ui-tests-common.yml
     with:
       fastlane_command: ui_tests_ios_swiftui
-      xcode_version: 16.4
       build_with_make: true
-      macos_version: macos-15
       codecov_test_analytics: true
-      device: iPhone 16 Pro
+      xcode_version: 16.4
+      macos_version: macos-15
       test-destination-os: "18.4"
+      device: iPhone 16 Pro
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
@@ -80,36 +80,48 @@ jobs:
       matrix:
         include:
           - name: iOS 16
-            runs-on: macos-14
             xcode: "15.4"
-            device: iPhone 14 Pro
             test-destination-os: "16.4"
-          - name: iOS 17
             runs-on: macos-14
+            install_platforms: true
+            platform: "iOS"
+            create_device: true
+            device: iPhone 14 Pro
+
+          - name: iOS 17
             xcode: "15.4"
-            device: iPhone 15 Pro
             test-destination-os: "17.5"
+            runs-on: macos-14
+            platform: "iOS"
+            create_device: true
+            device: iPhone 15 Pro
+
           - name: iOS 18
             runs-on: macos-15
             xcode: "16.4"
             device: iPhone 16 Pro
             test-destination-os: "18.4"
+
           - name: iOS 26
             runs-on: macos-15
+            install_platforms: true
             platform: "iOS"
+            create_device: true
             xcode: "26.1"
             device: iPhone 17 Pro
             test-destination-os: "26.1"
     with:
       fastlane_command: ui_tests_ios_swift
       files_suffix: _xcode_${{matrix.xcode}}-${{matrix.device}}
-      xcode_version: ${{matrix.xcode}}
       build_with_make: true
       macos_version: ${{matrix.runs-on}}
-      platform: ${{matrix.platform}}
-      test-destination-os: ${{matrix.test-destination-os}}
-      device: ${{matrix.device}}
       codecov_test_analytics: true
+      xcode_version: ${{matrix.xcode}}
+      test-destination-os: ${{matrix.test-destination-os}}
+      install_platforms: ${{matrix.install_platforms}}
+      platform: ${{matrix.platform}}
+      create_device: ${{matrix.create_device}}
+      device: ${{matrix.device}}
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 

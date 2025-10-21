@@ -40,12 +40,14 @@ jobs:
     with:
       fastlane_command: ui_critical_tests_ios_swiftui_envelope
       build_with_make: true
-      xcode_version: ${{matrix.platform.xcode}}
       macos_version: ${{matrix.platform.runs-on}}
       files_suffix: _${{matrix.platform.xcode}}
-      platform: ${{matrix.platform.platform}}
-      device: ${{matrix.platform.device}}
       test-destination-os: ${{matrix.platform.test-destination-os}}
+      xcode_version: ${{matrix.platform.xcode}}
+      install_platforms: ${{matrix.platform.install_platforms}}
+      platform: ${{matrix.platform.platform}}
+      create_device: ${{matrix.platform.create_device}}
+      device: ${{matrix.platform.device}}
     strategy:
       fail-fast: false
       matrix:
@@ -59,9 +61,11 @@ jobs:
             platform:
               runs-on: macos-14
               xcode: "15.4"
-              platform: "iOS"
-              device: "iPhone 14 Pro"
               test-destination-os: "16.4"
+              install_platforms: true
+              platform: "iOS"
+              create_device: true
+              device: "iPhone 14 Pro"
 
           # macos-14 iOS 17 not included due to the XCUIServerNotFound errors causing flaky tests
 
@@ -71,17 +75,19 @@ jobs:
             platform:
               runs-on: macos-15
               xcode: "16.4"
+              test-destination-os: "18.4"
               platform: "iOS"
               device: "iPhone 16 Pro"
-              test-destination-os: "18.4"
 
           - name: iOS 26
             platform:
               runs-on: macos-15
               xcode: "26.1"
-              platform: "iOS"
-              device: "iPhone 17 Pro"
               test-destination-os: "26.1"
+              install_platforms: true
+              platform: "iOS"
+              create_device: true
+              device: "iPhone 17 Pro"
 
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}

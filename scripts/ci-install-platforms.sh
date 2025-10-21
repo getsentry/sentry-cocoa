@@ -16,11 +16,13 @@ log_notice "Installing required platform simulators for Xcode 26"
 
 # Parse named arguments
 PLATFORMS=""
+OS_VERSION=""
 
 usage() {
-    echo "Usage: $0 --platforms <platform1,platform2,...>"
+    echo "Usage: $0 --platforms <platform1,platform2,...> --os-version <os_version>"
     echo "  Available platforms: iOS,tvOS,visionOS,watchOS"
-    echo "  Example: $0 --platforms iOS,tvOS,visionOS,watchOS"
+    echo "  Example: $0 --platforms iOS,tvOS,visionOS,watchOS --os-version 26.1"
+    echo "  Example: $0 --platforms iOS --os-version 26.1"
     exit 1
 }
 
@@ -28,6 +30,10 @@ while [[ $# -gt 0 ]]; do
     case $1 in
         --platforms)
             PLATFORMS="$2"
+            shift 2
+            ;;
+        --os-version)
+            OS_VERSION="$2"
             shift 2
             ;;
         *)
@@ -49,28 +55,28 @@ for platform in "${PLATFORM_ARRAY[@]}"; do
     case "$platform" in
         "iOS")
             begin_group "Installing iOS 26.0 simulator"
-            xcodebuild -downloadPlatform iOS -quiet || {
+            xcodebuild -downloadPlatform iOS -buildVersion "$OS_VERSION" -quiet || {
                 log_warning "Failed to download iOS platform, continuing..."
             }
             end_group
             ;;
         "tvOS")
             begin_group "Installing tvOS 26.0 simulator"
-            xcodebuild -downloadPlatform tvOS -quiet || {
+            xcodebuild -downloadPlatform tvOS -buildVersion "$OS_VERSION" -quiet || {
                 log_warning "Failed to download tvOS platform, continuing..."
             }
             end_group
             ;;
         "visionOS")
             begin_group "Installing visionOS 26.0 simulator"
-            xcodebuild -downloadPlatform visionOS -quiet || {
+            xcodebuild -downloadPlatform visionOS -buildVersion "$OS_VERSION" -quiet || {
                 log_warning "Failed to download visionOS platform, continuing..."
             }
             end_group
             ;;
         "watchOS")
             begin_group "Installing watchOS 26.0 simulator"
-            xcodebuild -downloadPlatform watchOS -quiet || {
+            xcodebuild -downloadPlatform watchOS -buildVersion "$OS_VERSION" -quiet || {
                 log_warning "Failed to download watchOS platform, continuing..."
             }
             end_group
