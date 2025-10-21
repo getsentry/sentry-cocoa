@@ -169,8 +169,6 @@ NS_ASSUME_NONNULL_BEGIN
     }
 #endif
 
-    // The frames tracker runs when tracing is enabled or AppHangsV2. We have to use an extra option
-    // for this.
     if (integrationOptions & kIntegrationOptionStartFramesTracker) {
 
 #if SENTRY_HAS_UIKIT
