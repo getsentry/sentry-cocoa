@@ -390,33 +390,57 @@ class SentryMsgPackSerializerTests: XCTestCase {
     
     func testSerializeDirectToDictionary_WithValidData_ShouldSucceed() throws {
         // Arrange
+        let tempDirectoryURL = URL(fileURLWithPath: NSTemporaryDirectory())
+        let tempFileURL = tempDirectoryURL.appendingPathComponent("test.dat")
         let dictionary: [String: SentryStreamable] = [
             "key1": Data("test data 1".utf8) as SentryStreamable,
             "key2": Data("test data 2".utf8) as SentryStreamable
         ]
         
+        defer {
+            do {
+                if FileManager.default.fileExists(atPath: tempFileURL.path) {
+                    try FileManager.default.removeItem(at: tempFileURL)
+                }
+            } catch {
+                XCTFail("Failed to cleanup temp file: \(error)")
+            }
+        }
+        
         // Act
-        let result = try SentryMsgPackSerializer.serializeDictionaryToMessagePack(dictionary)
+        let result = SentryMsgPackSerializer.serializeDictionary(toMessagePack: dictionary, intoFile: tempFileURL)
         
         // Assert
-        XCTAssertGreaterThan(result.count, 0)
-        assertMsgPack(result)
+        XCTAssertTrue(result)
+        let data = try Data(contentsOf: tempFileURL)
+        XCTAssertGreaterThan(data.count, 0)
+        assertMsgPack(data)
     }
     
     func testSerializeDirectToDictionary_WithNonStreamableValue_ShouldThrow() throws {
         // Arrange
+        let tempDirectoryURL = URL(fileURLWithPath: NSTemporaryDirectory())
+        let tempFileURL = tempDirectoryURL.appendingPathComponent("test.dat")
         let dictionary: [String: Any] = [
             "key1": "Non-streamable string value"
         ]
         
-        // Act & Assert
-        XCTAssertThrowsError(try SentryMsgPackSerializer.serializeDictionaryToMessagePack(dictionary)) { error in
-            if case SentryMsgPackSerializerError.invalidValue(let message) = error {
-                XCTAssertTrue(message.contains("Value does not conform to SentryStreamable"))
-            } else {
-                XCTFail("Expected invalidValue error, got: \(error)")
+        defer {
+            do {
+                if FileManager.default.fileExists(atPath: tempFileURL.path) {
+                    try FileManager.default.removeItem(at: tempFileURL)
+                }
+            } catch {
+                XCTFail("Failed to cleanup temp file: \(error)")
             }
         }
+        
+        // Act
+        let result = SentryMsgPackSerializer.serializeDictionary(toMessagePack: dictionary, intoFile: tempFileURL)
+        
+        // Assert
+        XCTAssertFalse(result)
+        XCTAssertFalse(FileManager.default.fileExists(atPath: tempFileURL.path))
     }
     
     func testSerializeStreamWithZeroBytesRead_ShouldHandleCorrectly() throws {
@@ -531,19 +555,29 @@ class SentryMsgPackSerializerTests: XCTestCase {
     
     func testSerializeMixedValidAndInvalidTypes_ShouldFailForInvalidTypes() throws {
         // Arrange
+        let tempDirectoryURL = URL(fileURLWithPath: NSTemporaryDirectory())
+        let tempFileURL = tempDirectoryURL.appendingPathComponent("test.dat")
         let dictionary: [String: Any] = [
             "validKey": Data("valid data".utf8) as SentryStreamable,
             "invalidKey": NSDate() // Not SentryStreamable
         ]
         
-        // Act & Assert
-        XCTAssertThrowsError(try SentryMsgPackSerializer.serializeDictionaryToMessagePack(dictionary)) { error in
-            if case SentryMsgPackSerializerError.invalidValue(let message) = error {
-                XCTAssertTrue(message.contains("Value does not conform to SentryStreamable"))
-            } else {
-                XCTFail("Expected invalidValue error, got: \(error)")
+        defer {
+            do {
+                if FileManager.default.fileExists(atPath: tempFileURL.path) {
+                    try FileManager.default.removeItem(at: tempFileURL)
+                }
+            } catch {
+                XCTFail("Failed to cleanup temp file: \(error)")
             }
         }
+        
+        // Act
+        let result = SentryMsgPackSerializer.serializeDictionary(toMessagePack: dictionary, intoFile: tempFileURL)
+        
+        // Assert
+        XCTAssertFalse(result)
+        XCTAssertFalse(FileManager.default.fileExists(atPath: tempFileURL.path))
     }
     
     func testSerializeWithLargeDictionary_ShouldTruncateMapHeader() throws {

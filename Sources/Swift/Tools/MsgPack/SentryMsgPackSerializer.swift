@@ -6,21 +6,36 @@ class SentryMsgPackSerializer {
     @objc
     static func serializeDictionary(toMessagePack dictionary: [String: Any], intoFile fileURL: URL) -> Bool {
         do {
-            let data = try serializeDictionaryToMessagePack(dictionary)
-            try data.write(to: fileURL)
+            try serializeToFile(dictionary: dictionary, fileURL: fileURL)
             return true
         } catch {
-            SentrySDKLog.error("Failed to serialize dictionary to MessagePack or write to file - Error: \(error)")
+            SentrySDKLog.error("Failed to serialize dictionary to MessagePack - Error: \(error)")
+            // Clean up partial file on error
+            do {
+                try FileManager.default.removeItem(at: fileURL)
+            } catch {
+                // Ignore cleanup errors - file might not exist
+            }
             return false
         }
     }
-
-    static func serializeDictionaryToMessagePack(_ dictionary: [String: Any]) throws -> Data { // swiftlint:disable:this function_body_length
-        let outputStream = OutputStream.toMemory()
+    
+    // swiftlint:disable:next function_body_length cyclomatic_complexity
+    private static func serializeToFile(dictionary: [String: Any], fileURL: URL) throws {
+        guard let outputStream = OutputStream(url: fileURL, append: false) else {
+            throw SentryMsgPackSerializerError.outputError("Failed to create output stream for file: \(fileURL)")
+        }
         outputStream.open()
-        defer { outputStream.close() }
+        defer { 
+            outputStream.close()
+        }
         
-        let mapHeader = UInt8(0x80 | dictionary.count) // Map up to 15 elements
+        // Check if stream opened successfully
+        if outputStream.streamError != nil {
+            throw SentryMsgPackSerializerError.outputError("Failed to open output stream for file: \(fileURL)")
+        }
+        
+        let mapHeader = UInt8(truncatingIfNeeded: 0x80 | dictionary.count) // Map up to 15 elements
         _ = outputStream.write([mapHeader], maxLength: 1)
 
         for (key, anyValue) in dictionary {
@@ -36,9 +51,9 @@ class SentryMsgPackSerializer {
             _ = outputStream.write([str8Header], maxLength: 1)
             _ = outputStream.write([keyLength], maxLength: 1)
             
-            try keyData.withUnsafeBytes { bytes in
+            keyData.withUnsafeBytes { bytes in
                 guard let bufferAddress = bytes.bindMemory(to: UInt8.self).baseAddress else {
-                    throw SentryMsgPackSerializerError.invalidInput("Could not get buffer address for key: \(key)")
+                    return
                 }
                 _ = outputStream.write(bufferAddress, maxLength: keyData.count)
             }
@@ -48,8 +63,7 @@ class SentryMsgPackSerializer {
                 // An item with a length of 0 will not be useful.
                 // If we plan to use MsgPack for something else,
                 // this needs to be re-evaluated.
-                SentrySDKLog.error("Data for MessagePack dictionary has no content - Input: \(value)")
-                throw SentryMsgPackSerializerError.emptyData("Empty data for MessagePack dictionary")
+                throw SentryMsgPackSerializerError.emptyData("Data for MessagePack dictionary has no content - Input: \(value)")
             }
 
             let valueLength = UInt32(truncatingIfNeeded: dataLength)
@@ -68,8 +82,7 @@ class SentryMsgPackSerializer {
             _ = outputStream.write(lengthBytes, maxLength: 4)
 
             guard let inputStream = value.asInputStream() else {
-                SentrySDKLog.error("Could not get input stream - Input: \(value)")
-                throw SentryMsgPackSerializerError.streamError("Could not get input stream from value")
+                throw SentryMsgPackSerializerError.streamError("Could not get input stream - Input: \(value)")
             }
             
             inputStream.open()
@@ -83,16 +96,9 @@ class SentryMsgPackSerializer {
                 if bytesRead > 0 {
                     _ = outputStream.write(buffer, maxLength: bytesRead)
                 } else if bytesRead < 0 {
-                    SentrySDKLog.error("Error reading bytes from input stream - Input: \(value) - \(bytesRead)")
-                    throw SentryMsgPackSerializerError.streamError("Error reading bytes from input stream")
+                    throw SentryMsgPackSerializerError.streamError("Error reading bytes from input stream - Input: \(value) - Bytes read: \(bytesRead)")
                 }
             }
         }
-
-        guard let data = outputStream.property(forKey: .dataWrittenToMemoryStreamKey) as? Data else {
-            throw SentryMsgPackSerializerError.outputError("Could not retrieve data from memory stream")
-        }
-        
-        return data
     }
 }
