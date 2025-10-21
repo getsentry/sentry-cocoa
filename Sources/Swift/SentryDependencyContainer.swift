@@ -104,7 +104,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
         instanceLock.synchronized {
             instance.reachability.removeAllObservers()
 #if (os(iOS) || os(tvOS) || (swift(>=5.9) && os(visionOS))) && !SENTRY_NO_UIKIT
-            instance.framesTracker.stop()
+            instance._framesTracker?.stop()
 #endif
             instance = SentryDependencyContainer()
         }
