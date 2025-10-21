@@ -1,6 +1,5 @@
 #import "SentryDependencyContainerSwiftHelper.h"
 #import "SentryClient+Private.h"
-#import "SentryDependencyContainer.h"
 #import "SentryHub+Private.h"
 #import "SentryOptions+Private.h"
 #import "SentrySDK+Private.h"
@@ -64,29 +63,9 @@
     [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchSyncOnMainQueue:block];
 }
 
-+ (id<SentryObjCRuntimeWrapper>)objcRuntimeWrapper
-{
-    return SentryDependencyContainer.sharedInstance.objcRuntimeWrapper;
-}
-
 + (SentryHub *)currentHub
 {
     return SentrySDKInternal.currentHub;
-}
-
-+ (nullable NSDictionary *)systemInfo
-{
-    return SentryDependencyContainer.sharedInstance.crashReporter.systemInfo;
-}
-
-+ (BOOL)crashedLastLaunch
-{
-    return SentryDependencyContainer.sharedInstance.crashReporter.crashedLastLaunch;
-}
-
-+ (NSTimeInterval)activeDurationSinceLastCrash
-{
-    return SentryDependencyContainer.sharedInstance.crashReporter.activeDurationSinceLastCrash;
 }
 
 + (nullable NSDate *)readTimestampLastInForeground

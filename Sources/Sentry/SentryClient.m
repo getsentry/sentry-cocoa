@@ -6,7 +6,6 @@
 #import "SentryCrashIntegration.h"
 #import "SentryCrashStackEntryMapper.h"
 #import "SentryDefaultThreadInspector.h"
-#import "SentryDependencyContainer.h"
 #import "SentryDeviceContextKeys.h"
 #import "SentryDsn.h"
 #import "SentryEvent+Private.h"

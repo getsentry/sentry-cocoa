@@ -1,7 +1,6 @@
 #import "SentryHttpTransport.h"
 #import "SentryDataCategory.h"
 #import "SentryDataCategoryMapper.h"
-#import "SentryDependencyContainer.h"
 #import "SentryDiscardReasonMapper.h"
 #import "SentryDsn.h"
 #import "SentryEnvelopeItemHeader.h"

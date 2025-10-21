@@ -4,7 +4,6 @@
 
 #    import "SentryAttachment.h"
 #    import "SentryCrashC.h"
-#    import "SentryDependencyContainer.h"
 #    import "SentryEvent+Private.h"
 #    import "SentryException.h"
 #    import "SentryHub+Private.h"
