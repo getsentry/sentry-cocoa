@@ -108,7 +108,11 @@ jobs:
         run: ./sentry-cocoa/scripts/ci-diagnostics.sh
 
   test_cross_platform-required-check:
-    needs: [files-changed, test-react-native]
+    needs:
+      [
+        files-changed,
+        test-react-native,
+      ]
     name: Test Cross Platform
     # This is necessary since a failed/skipped dependent job would cause this job to be skipped
     if: always()

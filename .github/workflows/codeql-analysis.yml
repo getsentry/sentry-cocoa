@@ -39,7 +39,7 @@ jobs:
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_codeql_analysis_for_prs == 'true'
     needs: files-changed
     name: Analyze (${{ matrix.language }})
-    runs-on: macos-14
+    runs-on: macos-26
 
     strategy:
       fail-fast: false
@@ -55,18 +55,12 @@ jobs:
         with:
           languages: ${{ matrix.language }}
 
-      - name: Select Xcode version
-        run: ./scripts/ci-select-xcode.sh 15.4
-
-      - name: Create simulator device for iOS 16.4
-        run: ./scripts/ci-create-simulator.sh --platform "iOS" --os-version "16.4" --device-name "iPhone 14 Pro"
-
       - run: |
           set -o pipefail && NSUnbufferedIO=YES xcodebuild \
             -workspace Sentry.xcworkspace \
             -scheme Sentry \
             -configuration Release \
-            -destination platform="iOS Simulator,OS=16.4,name=iPhone 14 Pro" \
+            -destination platform="iOS Simulator,OS=26.1,name=iPhone 17 Pro" \
             build 2>&1 |
             tee raw-analyze-output.log |
             xcbeautify

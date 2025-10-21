@@ -70,6 +70,11 @@ case "$PLATFORM" in
 esac
 
 begin_group "Finding runtime for ${SIMCTL_PLATFORM} ${OS_VERSION}"
+log_notice "Listing all available runtimes:"
+xcrun simctl list runtimes
+end_group
+
+begin_group "Finding runtime ID for ${SIMCTL_PLATFORM} ${OS_VERSION}"
 RUNTIME_ID=$(xcrun simctl list runtimes | grep "${SIMCTL_PLATFORM} ${OS_VERSION}" | grep -v unavailable | awk '{print $NF}' | head -n1)
 if [[ -z "$RUNTIME_ID" ]]; then
   log_error "Could not find runtime for ${SIMCTL_PLATFORM} ${OS_VERSION}"
