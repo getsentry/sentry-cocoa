@@ -8,7 +8,6 @@ import Foundation
  */
 @_spi(Private) @objc public final class SentrySdkInfo: NSObject, SentrySerializable {
     
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     @objc public static func global() -> Self {
         Self(withOptions: SentrySDKInternal.currentHub().getClient()?.options)
     }
@@ -53,7 +52,6 @@ import Foundation
      */
     @objc public let settings: SentrySDKSettings
     
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     @objc public convenience init(withOptions options: Options?) {
         let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
         var integrations = SentrySDKInternal.currentHub().trimmedInstalledIntegrationNames()
