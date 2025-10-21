@@ -25,10 +25,6 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
         options.enableTimeToFullDisplayTracing = true
         options.swiftAsyncStacktraces = true
 
-#if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
-        options.enableAppLaunchProfiling = true
-#endif // os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
-
 #if os(iOS) || os(tvOS)
 #if canImport(UIKit) && !SENTRY_NO_UIKIT
         options.enablePreWarmedAppStartTracing = true
@@ -46,10 +42,6 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
         XCTAssert(features.contains("captureFailedRequests"))
         XCTAssert(features.contains("timeToFullDisplayTracing"))
         XCTAssert(features.contains("swiftAsyncStacktraces"))
-
-#if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
-        XCTAssert(features.contains("appLaunchProfiling"))
-#endif // os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
 
 #if os(iOS) || os(tvOS)
 #if canImport(UIKit) && !SENTRY_NO_UIKIT

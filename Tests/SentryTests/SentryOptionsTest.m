@@ -1397,17 +1397,6 @@
     XCTAssertIdentical(initialScope, options.initialScope);
 }
 
-#if SENTRY_TARGET_PROFILING_SUPPORTED
-#    pragma clang diagnostic push
-#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
-- (void)testEnableAppLaunchProfilingDefaultValue
-{
-    SentryOptions *options = [self getValidOptions:@{}];
-    XCTAssertFalse(options.enableAppLaunchProfiling);
-}
-#    pragma clang diagnostic pop
-#endif // SENTRY_TARGET_PROFILING_SUPPORTED
-
 - (SentryOptions *)getValidOptions:(NSDictionary<NSString *, id> *)dict
 {
     NSError *error = nil;

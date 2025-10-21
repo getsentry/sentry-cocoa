@@ -481,7 +481,6 @@ extension SentrySDKWrapper {
                 return NSNumber(value: samplerValue)
             }
         }
-        options.enableAppLaunchProfiling = !SentrySDKOverrides.Profiling.disableAppStartProfiling.boolValue
       #endif // !SDK_V9
 
         if !SentrySDKOverrides.Profiling.disableUIProfiling.boolValue {
