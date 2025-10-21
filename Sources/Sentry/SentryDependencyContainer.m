@@ -2,6 +2,7 @@
 
 #import "SentryDefaultThreadInspector.h"
 #import "SentryDelayedFramesTracker.h"
+#import "SentryDependencyContainerSwiftHelper.h"
 #import "SentryInternalCDefines.h"
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"
@@ -59,6 +60,9 @@ SentryApplicationProviderBlock defaultApplicationProvider = ^id<SentryApplicatio
 @end
 
 #if SENTRY_HAS_UIKIT
+@interface SentryDefaultRedactOptions () <SentryRedactOptions>
+@end
+
 @interface SentryWatchdogTerminationScopeObserver () <SentryScopeObserver>
 @end
 
@@ -272,21 +276,23 @@ static BOOL isInitialializingDependencyContainer = NO;
         if (_screenshotSource == nil) {
             // The options could be null here, but this is a general issue in the dependency
             // container and will be fixed in a future refactoring.
-            SentryViewScreenshotOptions *_Nonnull options = SENTRY_UNWRAP_NULLABLE(
-                SentryViewScreenshotOptions, SentrySDKInternal.options.screenshot);
+            SentryOptions *_Nonnull options
+                = SENTRY_UNWRAP_NULLABLE(SentryOptions, SentrySDKInternal.options);
 
             id<SentryViewRenderer> viewRenderer;
-            if (options.enableViewRendererV2) {
+            if ([SentryDependencyContainerSwiftHelper viewRendererV2Enabled:options]) {
                 viewRenderer = [[SentryViewRendererV2 alloc]
-                    initWithEnableFastViewRendering:options.enableFastViewRendering];
+                    initWithEnableFastViewRendering:[SentryDependencyContainerSwiftHelper
+                                                        fastViewRenderingEnabled:options]];
             } else {
                 viewRenderer = [[SentryDefaultViewRenderer alloc] init];
             }
 
-            SentryViewPhotographer *photographer =
-                [[SentryViewPhotographer alloc] initWithRenderer:viewRenderer
-                                                   redactOptions:options
-                                            enableMaskRendererV2:options.enableViewRendererV2];
+            SentryViewPhotographer *photographer = [[SentryViewPhotographer alloc]
+                    initWithRenderer:viewRenderer
+                       redactOptions:[SentryDependencyContainerSwiftHelper redactOptions:options]
+                enableMaskRendererV2:[SentryDependencyContainerSwiftHelper
+                                         viewRendererV2Enabled:options]];
             _screenshotSource = [[SentryScreenshotSource alloc] initWithPhotographer:photographer];
         }
 
