@@ -5,7 +5,7 @@ import XCTest
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 
-class TestDelayedWrapper: SentryDelayedFramesTracker, SentryDelayedFramesTrackerWrapper {}
+class TestDelayedWrapper: SentryDelayedFramesTracker {}
 
 class SentryTimeToDisplayTrackerTest: XCTestCase {
 

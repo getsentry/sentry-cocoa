@@ -6,7 +6,7 @@ import XCTest
 #if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
 
 #if !os(macOS)
-class TestDelayedWrapper: SentryDelayedFramesTracker, SentryDelayedFramesTrackerWrapper {}
+class TestDelayedWrapper: SentryDelayedFramesTracker {}
 #endif // !os(macOS)
 
 class SentryProfileTestFixture {

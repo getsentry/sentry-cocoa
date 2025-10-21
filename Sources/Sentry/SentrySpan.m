@@ -278,7 +278,7 @@ NS_ASSUME_NONNULL_BEGIN
 #if SENTRY_HAS_UIKIT
     if (_framesTracker.isRunning) {
         CFTimeInterval framesDelay = [_framesTracker
-                getFramesDelay:_startSystemTime
+             getFramesDelaySPI:_startSystemTime
             endSystemTimestamp:SentryDependencyContainer.sharedInstance.dateProvider.systemTime]
                                          .delayDuration;
 

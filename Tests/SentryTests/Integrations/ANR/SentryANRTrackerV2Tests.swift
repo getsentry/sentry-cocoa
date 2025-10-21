@@ -4,8 +4,6 @@ import XCTest
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 
-@_spi(Private) extension SentryANRTrackerV2: SentryANRTrackerProtocol { }
-
 class SentryANRTrackerV2Tests: XCTestCase {
     
     private let waitTimeout: TimeInterval = 10.0

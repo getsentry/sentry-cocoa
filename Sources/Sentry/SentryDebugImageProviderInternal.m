@@ -24,8 +24,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)init
 {
-    self =
-        [self initWithBinaryImageCache:SentryDependencyContainer.sharedInstance.binaryImageCache];
+    self = [self initWithBinaryImageCache:SentryDependencies.binaryImageCache];
 
     return self;
 }
