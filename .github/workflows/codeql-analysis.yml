@@ -55,6 +55,12 @@ jobs:
         with:
           languages: ${{ matrix.language }}
 
+      - name: Select Xcode version
+        run: ./scripts/ci-select-xcode.sh 15.4
+
+      - name: Create simulator device for iOS 16.4
+        run: ./scripts/ci-create-simulator.sh --platform "iOS" --os-version "16.4" --device-name "iPhone 14 Pro"
+
       - run: |
           set -o pipefail && NSUnbufferedIO=YES xcodebuild \
             -workspace Sentry.xcworkspace \
@@ -76,11 +82,7 @@ jobs:
   # to make CodeQL analysis a required check with only running the analysis when required.
   # So, we don't have to run CodeQL analysis, for example, for unrelated changes.
   codeql_analysis-required-check:
-    needs:
-      [
-        files-changed,
-        analyze,
-      ]
+    needs: [files-changed, analyze]
     name: Analyze
     # This is necessary since a failed/skipped dependent job would cause this job to be skipped
     if: always()
