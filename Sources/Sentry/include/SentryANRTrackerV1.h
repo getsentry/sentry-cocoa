@@ -4,7 +4,7 @@
 @class SentryCrashWrapper;
 @class SentryDispatchQueueWrapper;
 @class SentryThreadWrapper;
-@protocol SentryANRTrackerDelegate;
+@protocol SentryANRTrackerInternalDelegate;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -31,8 +31,8 @@ SENTRY_NO_INIT
                    dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
                           threadWrapper:(SentryThreadWrapper *)threadWrapper;
 
-- (void)addListener:(id<SentryANRTrackerDelegate>)listener;
-- (void)removeListener:(id<SentryANRTrackerDelegate>)listener;
+- (void)addListener:(id<SentryANRTrackerInternalDelegate>)listener;
+- (void)removeListener:(id<SentryANRTrackerInternalDelegate>)listener;
 - (void)clear;
 
 @end

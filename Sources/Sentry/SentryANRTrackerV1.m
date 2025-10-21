@@ -1,4 +1,5 @@
 #import "SentryANRTrackerV1.h"
+#import "SentryANRTrackerInternalDelegate.h"
 #import "SentryDependencyContainer.h"
 #import "SentryLogC.h"
 #import "SentrySwift.h"
@@ -18,7 +19,7 @@ typedef NS_ENUM(NSInteger, SentryANRTrackerState) {
 @property (nonatomic, strong) SentryCrashWrapper *crashWrapper;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueueWrapper;
 @property (nonatomic, strong) SentryThreadWrapper *threadWrapper;
-@property (nonatomic, strong) NSHashTable<id<SentryANRTrackerDelegate>> *listeners;
+@property (nonatomic, strong) NSHashTable<id<SentryANRTrackerInternalDelegate>> *listeners;
 @property (nonatomic, assign) NSTimeInterval timeoutInterval;
 
 @end
@@ -172,7 +173,7 @@ typedef NS_ENUM(NSInteger, SentryANRTrackerState) {
     }
 }
 
-- (void)addListener:(id<SentryANRTrackerDelegate>)listener
+- (void)addListener:(id<SentryANRTrackerInternalDelegate>)listener
 {
     @synchronized(self.listeners) {
         [self.listeners addObject:listener];
@@ -190,7 +191,7 @@ typedef NS_ENUM(NSInteger, SentryANRTrackerState) {
     }
 }
 
-- (void)removeListener:(id<SentryANRTrackerDelegate>)listener
+- (void)removeListener:(id<SentryANRTrackerInternalDelegate>)listener
 {
     @synchronized(self.listeners) {
         [self.listeners removeObject:listener];

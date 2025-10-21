@@ -2,6 +2,8 @@
 
 #if SENTRY_HAS_UIKIT
 
+#    import "SentryANRStoppedResultInternal.h"
+#    import "SentryANRTrackerInternalDelegate.h"
 #    import "SentryDependencyContainer.h"
 #    import "SentryLogC.h"
 #    import "SentrySwift.h"
@@ -22,7 +24,7 @@ typedef NS_ENUM(NSInteger, SentryANRTrackerState) {
 @property (nonatomic, strong) SentryCrashWrapper *crashWrapper;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueueWrapper;
 @property (nonatomic, strong) SentryThreadWrapper *threadWrapper;
-@property (nonatomic, strong) NSHashTable<id<SentryANRTrackerDelegate>> *listeners;
+@property (nonatomic, strong) NSHashTable<id<SentryANRTrackerInternalDelegate>> *listeners;
 @property (nonatomic, strong) SentryFramesTracker *framesTracker;
 @property (nonatomic, assign) NSTimeInterval timeoutInterval;
 
@@ -194,7 +196,7 @@ typedef NS_ENUM(NSInteger, SentryANRTrackerState) {
 
             reported = YES;
             lastAppHangStartedSystemTime = dateProvider.systemTime;
-            [self ANRDetected:SentryANRTypeFullyBlocking];
+            [self ANRDetected:kSentryANRTypeFullyBlocking];
         }
 
         NSTimeInterval nonFullyBlockingFramesDelayThreshold = self.timeoutInterval * 0.99;
@@ -205,7 +207,7 @@ typedef NS_ENUM(NSInteger, SentryANRTrackerState) {
 
             reported = YES;
             lastAppHangStartedSystemTime = dateProvider.systemTime;
-            [self ANRDetected:SentryANRTypeNonFullyBlocking];
+            [self ANRDetected:kSentryANRTypeNonFullyBlocking];
         }
     }
 
@@ -215,15 +217,15 @@ typedef NS_ENUM(NSInteger, SentryANRTrackerState) {
     }
 }
 
-- (void)ANRDetected:(enum SentryANRType)type
+- (void)ANRDetected:(SentryANRTypeInternal)type
 {
     NSArray *localListeners;
     @synchronized(self.listeners) {
         localListeners = [self.listeners allObjects];
     }
 
-    for (id<SentryANRTrackerDelegate> target in localListeners) {
-        [target anrDetectedWithType:type];
+    for (id<SentryANRTrackerInternalDelegate> target in localListeners) {
+        [target anrDetected:type];
     }
 }
 
@@ -234,15 +236,15 @@ typedef NS_ENUM(NSInteger, SentryANRTrackerState) {
         targets = [self.listeners allObjects];
     }
 
-    SentryANRStoppedResult *result =
-        [[SentryANRStoppedResult alloc] initWithMinDuration:hangDurationMinimum
+    SentryANRStoppedResultInternal *result =
+        [[SentryANRStoppedResultInternal alloc] initWithMinDuration:hangDurationMinimum
                                                 maxDuration:hangDurationMaximum];
-    for (id<SentryANRTrackerDelegate> target in targets) {
-        [target anrStoppedWithResult:result];
+    for (id<SentryANRTrackerInternalDelegate> target in targets) {
+        [target anrStopped:result];
     }
 }
 
-- (void)addListener:(id<SentryANRTrackerDelegate>)listener
+- (void)addListener:(id<SentryANRTrackerInternalDelegate>)listener
 {
     @synchronized(self.listeners) {
         [self.listeners addObject:listener];
@@ -260,7 +262,7 @@ typedef NS_ENUM(NSInteger, SentryANRTrackerState) {
     }
 }
 
-- (void)removeListener:(id<SentryANRTrackerDelegate>)listener
+- (void)removeListener:(id<SentryANRTrackerInternalDelegate>)listener
 {
     @synchronized(self.listeners) {
         [self.listeners removeObject:listener];
