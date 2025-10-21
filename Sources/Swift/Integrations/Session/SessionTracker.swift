@@ -24,7 +24,7 @@ typealias Application = NSApplication
 
     // MARK: Lifecycle
 
-    @objc public init(options: Options, applicationProvider: @escaping () -> SentryApplication?, dateProvider: SentryCurrentDateProvider, notificationCenter: SentryNSNotificationCenterWrapper) {
+    init(options: Options, applicationProvider: @escaping () -> SentryApplication?, dateProvider: SentryCurrentDateProvider, notificationCenter: SentryNSNotificationCenterWrapper) {
         self.options = options
         self.applicationProvider = applicationProvider
         self.dateProvider = dateProvider
