@@ -15,7 +15,7 @@ import UIKit
     private let helper: SentryDefaultAppStateManager
 #endif
     
-    @objc public init(options: Options?, crashWrapper: SentryCrashWrapper, fileManager: SentryFileManager?, sysctlWrapper: SentrySysctl) {
+    init(options: Options?, crashWrapper: SentryCrashWrapper, fileManager: SentryFileManager?, sysctlWrapper: SentrySysctl) {
         self.options = options
         self.crashWrapper = crashWrapper
         self.fileManager = fileManager

@@ -10,8 +10,7 @@ public final class RetryAfterHeaderParser: NSObject {
     private let httpDateParser: HttpDateParser
     private let currentDateProvider: SentryCurrentDateProvider
 
-    @objc
-    public init(httpDateParser: HttpDateParser, currentDateProvider: SentryCurrentDateProvider) {
+    init(httpDateParser: HttpDateParser, currentDateProvider: SentryCurrentDateProvider) {
         self.httpDateParser = httpDateParser
         self.currentDateProvider = currentDateProvider
         super.init()

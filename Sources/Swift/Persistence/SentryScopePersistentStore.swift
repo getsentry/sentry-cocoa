@@ -34,8 +34,7 @@ enum SentryScopeField: UInt, CaseIterable {
 @_spi(Private) public class SentryScopePersistentStore: NSObject {
     private let fileManager: SentryFileManagerProtocol
     
-    @objc
-    public init?(fileManager: SentryFileManagerProtocol?) {
+    init?(fileManager: SentryFileManagerProtocol?) {
         guard let fileManager else { return nil }
         
         self.fileManager = fileManager
