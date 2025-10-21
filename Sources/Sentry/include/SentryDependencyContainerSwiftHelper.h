@@ -6,11 +6,7 @@
 #    import <UIKit/UIKit.h>
 #endif // SENTRY_HAS_UIKIT
 
-@protocol SentryObjCRuntimeWrapper;
-@protocol SentryUIDeviceWrapper;
 @class SentryHub;
-@class SentryCrash;
-@class SentryNSProcessInfoWrapper;
 @class SentryDispatchQueueWrapper;
 @class SentryOptions;
 
@@ -44,11 +40,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (SentryDispatchQueueWrapper *)dispatchQueueWrapper;
 + (void)dispatchSyncOnMainQueue:(void (^)(void))block;
-+ (id<SentryObjCRuntimeWrapper>)objcRuntimeWrapper;
 + (SentryHub *)currentHub;
-+ (nullable NSDictionary *)systemInfo;
-+ (BOOL)crashedLastLaunch;
-+ (NSTimeInterval)activeDurationSinceLastCrash;
 + (nullable NSDate *)readTimestampLastInForeground;
 + (void)deleteTimestampLastInForeground;
 + (void)storeTimestampLastInForeground:(NSDate *)timestamp;

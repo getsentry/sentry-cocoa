@@ -1,5 +1,4 @@
 #import "SentrySampling.h"
-#import "SentryDependencyContainer.h"
 #import "SentryInternalDefines.h"
 #import "SentryOptions.h"
 #import "SentrySampleDecision.h"

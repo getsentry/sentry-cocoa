@@ -100,7 +100,6 @@
 #import "SentryDebugMeta.h"
 #import "SentryDefaultAppStateManager.h"
 #import "SentryDefaultThreadInspector.h"
-#import "SentryDependencyContainer.h"
 #import "SentryDiscardReason.h"
 #import "SentryDiscardReasonMapper.h"
 #import "SentryDsn.h"

@@ -7,7 +7,6 @@
 #    import "SentryOptions.h"
 #    import "SentrySwift.h"
 #    import <PrivateSentrySDKOnly.h>
-#    import <SentryDependencyContainer.h>
 
 @interface SentryAppStartTrackingIntegration ()
 

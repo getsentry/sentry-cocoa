@@ -4,7 +4,6 @@
 #    import "SentryScope+Private.h"
 #    import <SentryANRTrackerV1.h>
 #    import <SentryClient+Private.h>
-#    import <SentryDependencyContainer.h>
 #    import <SentryHub.h>
 #    import <SentryOptions+Private.h>
 #    import <SentryPropagationContext.h>

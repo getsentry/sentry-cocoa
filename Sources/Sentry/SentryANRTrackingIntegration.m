@@ -1,6 +1,5 @@
 #import "SentryANRTrackingIntegration.h"
 #import "SentryCrashMachineContext.h"
-#import "SentryDependencyContainer.h"
 #import "SentryEvent.h"
 #import "SentryException.h"
 #import "SentryHub+Private.h"

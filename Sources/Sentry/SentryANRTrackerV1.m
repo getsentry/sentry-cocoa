@@ -1,6 +1,5 @@
 #import "SentryANRTrackerV1.h"
 #import "SentryANRTrackerInternalDelegate.h"
-#import "SentryDependencyContainer.h"
 #import "SentryLogC.h"
 #import "SentrySwift.h"
 #import <stdatomic.h>

@@ -2,7 +2,6 @@
 #import "SentryCoreDataSwizzling.h"
 #import "SentryCoreDataTracker.h"
 #import "SentryDefaultThreadInspector.h"
-#import "SentryDependencyContainer.h"
 #import "SentryLogC.h"
 #import "SentryNSDataSwizzling.h"
 #import "SentryOptions.h"
