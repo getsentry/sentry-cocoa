@@ -1737,18 +1737,6 @@ class SentryClientTests: XCTestCase {
         XCTAssert(features.contains("captureFailedRequests"))
     }
     
-    func testSetSDKIntegrations_NoIntegrations() throws {
-        let expected: [String] = []
-        
-        let eventId = fixture.getSut(configureOptions: { options in
-            options.integrations = expected
-        }).capture(message: fixture.messageAsString)
-
-        eventId.assertIsNotEmpty()
-        let actual = try lastSentEvent()
-        assertArrayEquals(expected: expected, actual: actual.sdk?["integrations"] as? [String])
-    }
-
     func testFileManagerCantBeInit() throws {
         try SentryFileManager.prepareInitError()
         defer {

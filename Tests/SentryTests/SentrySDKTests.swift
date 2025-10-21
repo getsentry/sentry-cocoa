@@ -109,7 +109,7 @@ class SentrySDKTests: XCTestCase {
         SentrySDK.start { options in
             options.dsn = SentrySDKTests.dsnAsString
             options.maxBreadcrumbs = 0
-            options.setIntegrations([])
+            options.removeAllIntegrations()
         }
 
         SentrySDK.addBreadcrumb(Breadcrumb(level: SentryLevel.warning, category: "test"))

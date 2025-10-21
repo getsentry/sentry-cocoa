@@ -20,7 +20,8 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
             options = Options()
             options.dsn = SentryNetworkTrackerIntegrationTests.dsnAsString
             options.tracesSampleRate = 1.0
-            options.setIntegrations([SentryNetworkTrackingIntegration.self])
+            options.removeAllIntegrations()
+            options.enableNetworkTracking = true
         }
     }
     
