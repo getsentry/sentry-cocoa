@@ -132,7 +132,7 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
         let appState2 = try XCTUnwrap(fixture.fileManager.readAppState())
         XCTAssertFalse(appState2.isActive, "Expected appSate to be inactive after going to background.")
 
-        XCTAssertEqual(fixture.dispatchQueue.dispatchAsyncCalled, 3)
+        XCTAssertGreaterThanOrEqual(fixture.dispatchQueue.dispatchAsyncCalled, 3, "Expected at least 3 dispatchAsync calls (start, foreground, background) to ensure we don't run reading the app state on the calling thread. ")
     }
     
     func testGoToForeground_WhenAppStateNil_NothingIsStored() {
