@@ -96,9 +96,10 @@ jobs:
       - name: Create simulator device for non-preinstalled iOS versions
         if: ${{ inputs.xcode_version == '15.4' && inputs.device != '' && inputs.test-destination-os != '' }}
         env:
+          PLATFORM: ${{ inputs.platform }}
           OS_VERSION: ${{ inputs.test-destination-os }}
           DEVICE_NAME: ${{ inputs.device }}
-        run: ./scripts/ci-create-simulator.sh --platform "iOS" --os-version "$OS_VERSION" --device-name "$DEVICE_NAME"
+        run: ./scripts/ci-create-simulator.sh --platform "$PLATFORM" --os-version "$OS_VERSION" --device-name "$DEVICE_NAME"
 
       - run: make init-ci-build
         if: ${{ inputs.build_with_make }}
