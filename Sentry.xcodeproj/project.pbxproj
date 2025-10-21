@@ -4378,7 +4378,7 @@
 			);
 			path = MsgPack;
 			sourceTree = "<group>";
-		}
+		};
 		D4F56C3C2E9CEFFB00D57DAB /* InfoPlist */ = {
 			isa = PBXGroup;
 			children = (
