@@ -55,7 +55,6 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         SentrySDK.start {
             $0.dsn = "https://user@test.com/test"
             $0.sessionReplay = SentryReplayOptions(sessionSampleRate: sessionSampleRate, onErrorSampleRate: errorSampleRate)
-            $0.setIntegrations(noIntegrations ? [] : [SentrySessionReplayIntegration.self])
             $0.enableSwizzling = enableSwizzling
             $0.cacheDirectoryPath = FileManager.default.temporaryDirectory.path
             configure?($0)

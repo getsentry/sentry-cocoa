@@ -9,7 +9,7 @@ class SentryProfilingPublicAPITests: XCTestCase {
     private class Fixture {
         @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
         let options: Options = {
-            let options = Options.noIntegrations()
+            let options = Options()
             options.dsn = TestConstants.dsnAsString(username: "SentrySDKTests")
             options.releaseName = "1.0.0"
             return options

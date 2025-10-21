@@ -14,13 +14,13 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
         @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
         func getOptions(enableAutoPerformanceTracing: Bool = true, enableFileIOTracing: Bool = true, enableSwizzling: Bool = true, enableDataSwizzling: Bool = true, enableFileManagerSwizzling: Bool = true, tracesSampleRate: NSNumber = 1) -> Options {
             let result = Options()
+            result.removeAllIntegrations()
             result.enableAutoPerformanceTracing = enableAutoPerformanceTracing
             result.enableFileIOTracing = enableFileIOTracing
             result.enableSwizzling = enableSwizzling
             result.tracesSampleRate = tracesSampleRate
             result.experimental.enableDataSwizzling = enableDataSwizzling
             result.experimental.enableFileManagerSwizzling = enableFileManagerSwizzling
-            result.setIntegrations([SentryFileIOTrackingIntegration.self])
             return result
         }
         

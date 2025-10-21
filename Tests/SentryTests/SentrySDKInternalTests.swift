@@ -364,22 +364,6 @@ class SentrySDKInternalTests: XCTestCase {
         XCTAssert(transaction === newSpan)
     }
 
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
-    func testInstallIntegrations() throws {
-        let options = Options()
-        options.dsn = "mine"
-        options.integrations = ["SentryTestIntegration", "SentryTestIntegration", "IDontExist"]
-
-        SentrySDK.start(options: options)
-
-        assertIntegrationsInstalled(integrations: ["SentryTestIntegration"])
-        let integration = SentrySDKInternal.currentHub().installedIntegrations().first
-        if let testIntegration = integration as? SentryTestIntegration {
-            XCTAssertEqual(options.dsn, testIntegration.options.dsn)
-            XCTAssertEqual(options.integrations, testIntegration.options.integrations)
-        }
-    }
-
 #if SENTRY_HAS_UIKIT
     func testSetAppStartMeasurement_CallsPrivateSDKCallback() {
         let appStartMeasurement = TestData.getAppStartMeasurement(type: .warm)
@@ -479,8 +463,8 @@ class SentrySDKInternalTests: XCTestCase {
     func testClose_ClearsIntegrations() {
         SentrySDK.start { options in
             options.dsn = SentrySDKInternalTests.dsnAsString
+            options.removeAllIntegrations()
             options.swiftAsyncStacktraces = true
-            options.setIntegrations([SentrySwiftAsyncIntegration.self])
         }
 
         let hub = SentrySDKInternal.currentHub()
@@ -561,9 +545,7 @@ class SentrySDKInternalTests: XCTestCase {
         let expectation = XCTestExpectation(description: "SentrySDK start called")
 
         DispatchQueue.global().async {
-            SentrySDK.start { options in
-                options.integrations = [ NSStringFromClass(MainThreadTestIntegration.self) ]
-            }
+            SentrySDK.start { _ in }
 
             // Since the SDK uses the dispatchqueue on the main queue, wait until it clears to fulfill the expectation
             SentryDependencyContainer.sharedInstance().dispatchQueueWrapper.dispatchAsyncOnMainQueueIfNotMainThread {
@@ -572,10 +554,6 @@ class SentrySDKInternalTests: XCTestCase {
         }
 
         wait(for: [expectation], timeout: 5.0)
-
-        let mainThreadIntegration = try XCTUnwrap(SentrySDKInternal.currentHub().installedIntegrations().first as? MainThreadTestIntegration)
-
-        wait(for: [mainThreadIntegration.expectation], timeout: 5.0)
 
         let os = try XCTUnwrap (SentrySDKInternal.currentHub().scope.contextDictionary["os"] as? [String: Any])
 #if !targetEnvironment(macCatalyst)
@@ -592,7 +570,8 @@ class SentrySDKInternalTests: XCTestCase {
 
         SentrySDK.start { options in
             options.dsn = SentrySDKInternalTests.dsnAsString
-            options.setIntegrations([SentryANRTrackingIntegration.self])
+            options.removeAllIntegrations()
+            options.enableAppHangTracking = true
         }
 
         let client = fixture.client
@@ -757,32 +736,6 @@ class SentrySDKInternalTests: XCTestCase {
         SentrySDK.flush(timeout: flushTimeout)
 
         XCTAssertEqual(flushTimeout, transport.flushInvocations.first ?? 0.0, accuracy: 0.001)
-    }
-
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
-    func testStartOnTheMainThread() throws {
-
-        let expectation = XCTestExpectation(description: "SentrySDK start called")
-
-        print("[Sentry] [TEST] [\(#file):\(#line) Dispatching to nonmain queue.")
-        DispatchQueue.global(qos: .utility).async {
-            print("[Sentry] [TEST] [\(#file):\(#line) About to start SDK from nonmain queue.")
-            SentrySDK.start { options in
-                print("[Sentry] [TEST] [\(#file):\(#line) configuring options.")
-                options.integrations = [ NSStringFromClass(MainThreadTestIntegration.self) ]
-            }
-
-            // Since the SDK uses the dispatchqueue on the main queue, wait until it clears to fulfill the expectation
-            SentryDependencyContainer.sharedInstance().dispatchQueueWrapper.dispatchAsyncOnMainQueueIfNotMainThread {
-                expectation.fulfill()
-            }
-        }
-
-        wait(for: [expectation], timeout: 5.0)
-
-        let mainThreadIntegration = try XCTUnwrap(SentrySDKInternal.currentHub().installedIntegrations().first as? MainThreadTestIntegration)
-
-        wait(for: [mainThreadIntegration.expectation], timeout: 5.0)
     }
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
