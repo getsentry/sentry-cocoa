@@ -71,7 +71,6 @@
 #import "SentryCrashCachedData.h"
 #import "SentryCrashCxaThrowSwapper.h"
 #import "SentryCrashDebug.h"
-#import "SentryCrashDefaultBinaryImageProvider.h"
 #import "SentryCrashDefaultMachineContextWrapper.h"
 #import "SentryCrashDoctor.h"
 #import "SentryCrashInstallation+Private.h"
