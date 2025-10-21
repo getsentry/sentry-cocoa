@@ -80,8 +80,8 @@ jobs:
       matrix:
         include:
           - name: iOS 16
-            runs-on: macos-13
-            xcode: "14.3.1"
+            runs-on: macos-14
+            xcode: "15.4"
             device: iPhone 14 Pro
             test-destination-os: "16.4"
           - name: iOS 17

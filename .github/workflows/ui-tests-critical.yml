@@ -52,10 +52,13 @@ jobs:
         include:
           # As of 25th March 2025, the preinstalled iOS simulator version is 16.4 for macOS 13 and Xcode 14.3.1; see
           # https://github.com/actions/runner-images/blob/main/images/macos/macos-13-Readme.md#installed-sdks
+          #
+          # macOS 13 was sunset with November 2025, therefore we must use a newer version of Xcode and macOS and set up the
+          # simulator version manually.
           - name: iOS 16
             platform:
-              runs-on: macos-13
-              xcode: "14.3.1"
+              runs-on: macos-14
+              xcode: "15.4"
               platform: "iOS"
               device: "iPhone 14 Pro"
               test-destination-os: "16.4"
@@ -134,12 +137,7 @@ jobs:
   # to make UI tests critical a required check with only running the UI tests critical when required.
   # So, we don't have to run UI tests critical, for example, for unrelated changes.
   ui_tests_critical-required-check:
-    needs:
-      [
-        files-changed,
-        run-tests,
-        run-swiftui-crash-test,
-      ]
+    needs: [files-changed, run-tests, run-swiftui-crash-test]
     name: UI Tests Critical
     # This is necessary since a failed/skipped dependent job would cause this job to be skipped
     if: always()
