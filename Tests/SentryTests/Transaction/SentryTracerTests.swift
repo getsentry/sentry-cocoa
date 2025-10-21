@@ -1356,15 +1356,6 @@ class SentryTracerTests: XCTestCase {
         assertTransactionNotCaptured(sut)
     }
     
-    @available(*, deprecated)
-    func testSetExtra_ForwardsToSetData() {
-        let sut = fixture.getSut()
-        sut.setExtra(value: 0, key: "key")
-        
-        let data = sut.data as [String: Any]
-        XCTAssertEqual(0, data["key"] as? Int)
-    }
-    
     func testFinishForCrash_WithWaitForChildren_GetsFinished() {
         let sut = fixture.getSut()
         let child = sut.startChild(operation: "ui.load")
