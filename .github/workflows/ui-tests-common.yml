@@ -105,6 +105,16 @@ jobs:
           DEVICE_NAME: ${{ inputs.device }}
         run: ./scripts/ci-create-simulator.sh --platform "$PLATFORM" --os-version "$OS_VERSION" --device-name "$DEVICE_NAME"
 
+      # Boot created simulators to ensure they're ready before tests run
+      # Based on CircleCI forum comment, booting is especially important for Xcode 26: https://discuss.circleci.com/t/xcode-26-rc/54066/18
+      - name: Boot simulator
+        if: ${{ inputs.create_device && inputs.platform == 'iOS' }}
+        env:
+          XCODE_VERSION: ${{ inputs.xcode_version }}
+          DEVICE_NAME: ${{ inputs.device }}
+          OS_VERSION: ${{ inputs.test-destination-os }}
+        run: ./scripts/ci-boot-simulator.sh --xcode "$XCODE_VERSION" --device "$DEVICE_NAME" --os-version "$OS_VERSION"
+
       - run: make init-ci-build
         if: ${{ inputs.build_with_make }}
 

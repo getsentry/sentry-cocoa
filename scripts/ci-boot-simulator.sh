@@ -44,6 +44,8 @@ source "$(cd "$(dirname "$0")" && pwd)/ci-utils.sh"
 
 # Parse named arguments
 XCODE_VERSION="16.2" # Default value
+DEVICE_NAME=""
+OS_VERSION=""
 
 while [[ $# -gt 0 ]]; do
     case $1 in
@@ -51,9 +53,17 @@ while [[ $# -gt 0 ]]; do
             XCODE_VERSION="$2"
             shift 2
             ;;
+        -d|--device)
+            DEVICE_NAME="$2"
+            shift 2
+            ;;
+        -o|--os-version)
+            OS_VERSION="$2"
+            shift 2
+            ;;
         *)
             log_error "Unknown argument: $1"
-            log_error "Usage: $0 [-x|--xcode <version>]"
+            log_error "Usage: $0 [-x|--xcode <version>] [-d|--device <device_name>] [-o|--os-version <os_version>]"
             exit 1
             ;;
     esac
@@ -62,37 +72,46 @@ done
 log_notice "Starting simulator boot process with Xcode version: $XCODE_VERSION"
 
 begin_group "Simulator Selection"
-SIMULATOR="iPhone 16 Pro"
-IOS_VERSION="18.4"
 
-# Select simulator based on Xcode version
-case "$XCODE_VERSION" in
-    "14.3.1")
-        SIMULATOR="iPhone 14 Pro"
-        IOS_VERSION="16.4"
-        log_notice "Selected: $SIMULATOR with iOS $IOS_VERSION for Xcode $XCODE_VERSION"
-        ;;
-    "15.4")
-        SIMULATOR="iPhone 15 Pro"
-        IOS_VERSION="17.5"
-        log_notice "Selected: $SIMULATOR with iOS $IOS_VERSION for Xcode $XCODE_VERSION"
-        ;;
-    "16.2")
-        SIMULATOR="iPhone 16 Pro"
-        IOS_VERSION="18.4"
-        log_notice "Selected: $SIMULATOR with iOS $IOS_VERSION for Xcode $XCODE_VERSION"
-        ;;
-    "26.1")
-        SIMULATOR="iPhone 17 Pro"
-        IOS_VERSION="26.1"
-        log_notice "Selected: $SIMULATOR with iOS $IOS_VERSION for Xcode $XCODE_VERSION"
-        ;;
-    *)
-        SIMULATOR="iPhone 16 Pro" # Default fallback
-        IOS_VERSION="18.4"
-        log_warning "Unknown Xcode version '$XCODE_VERSION', using default: $SIMULATOR with iOS $IOS_VERSION"
-        ;;
-esac
+# If device and OS version are provided, use them directly
+if [ -n "$DEVICE_NAME" ] && [ -n "$OS_VERSION" ]; then
+    SIMULATOR="$DEVICE_NAME"
+    IOS_VERSION="$OS_VERSION"
+    log_notice "Using provided parameters: $SIMULATOR with iOS $IOS_VERSION"
+else
+    # Fallback to Xcode version-based selection for backward compatibility
+    SIMULATOR="iPhone 16 Pro"
+    IOS_VERSION="18.4"
+
+    # Select simulator based on Xcode version
+    case "$XCODE_VERSION" in
+        "14.3.1")
+            SIMULATOR="iPhone 14 Pro"
+            IOS_VERSION="16.4"
+            log_notice "Selected: $SIMULATOR with iOS $IOS_VERSION for Xcode $XCODE_VERSION"
+            ;;
+        "15.4")
+            SIMULATOR="iPhone 15 Pro"
+            IOS_VERSION="17.5"
+            log_notice "Selected: $SIMULATOR with iOS $IOS_VERSION for Xcode $XCODE_VERSION"
+            ;;
+        "16.2")
+            SIMULATOR="iPhone 16 Pro"
+            IOS_VERSION="18.4"
+            log_notice "Selected: $SIMULATOR with iOS $IOS_VERSION for Xcode $XCODE_VERSION"
+            ;;
+        "26.1")
+            SIMULATOR="iPhone 17 Pro"
+            IOS_VERSION="26.1"
+            log_notice "Selected: $SIMULATOR with iOS $IOS_VERSION for Xcode $XCODE_VERSION"
+            ;;
+        *)
+            SIMULATOR="iPhone 16 Pro" # Default fallback
+            IOS_VERSION="18.4"
+            log_warning "Unknown Xcode version '$XCODE_VERSION', using default: $SIMULATOR with iOS $IOS_VERSION"
+            ;;
+    esac
+fi
 end_group
 
 begin_group "Available Devices"
