@@ -239,11 +239,11 @@ jobs:
             install_platforms: true
             create_device: true
 
-          # iOS 17 - Use pre-installed iOS 17.5 runtime on macOS-15
+          # iOS 17 - Use pre-installed iOS 17.5 runtime on macOS-14 with Xcode 15.4
           - name: iOS 17 Sentry
-            runs-on: macos-15
+            runs-on: macos-14
             platform: "iOS"
-            xcode: "16.4"
+            xcode: "15.4"
             test-destination-os: "17.5"
             device: "iPhone 15 Pro"
             scheme: "Sentry"
@@ -328,11 +328,11 @@ jobs:
             test-destination-os: "17.5"
             scheme: "Sentry"
 
-          # iOS 17 - Use pre-installed iOS 17.5 runtime on macOS-15
+          # iOS 17 - Use pre-installed iOS 17.5 runtime on macOS-14 with Xcode 15.4
           - name: iOS 17 SentrySwiftUI
-            runs-on: macos-15
+            runs-on: macos-14
             platform: "iOS"
-            xcode: "16.4"
+            xcode: "15.4"
             test-destination-os: "17.5"
             device: "iPhone 15 Pro"
             scheme: "SentrySwiftUI"
