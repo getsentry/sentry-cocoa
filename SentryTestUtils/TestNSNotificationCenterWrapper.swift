@@ -2,8 +2,10 @@ import Foundation
 @_spi(Private) import Sentry
 
 #if canImport(UIKit)
+import UIKit
 public typealias CrossPlatformApplication = UIApplication
 #else
+import AppKit
 public typealias CrossPlatformApplication = NSApplication
 #endif
 

@@ -24,9 +24,6 @@
 NSString *const kSentryDefaultEnvironment = @"production";
 
 @implementation SentryOptions {
-#if !SDK_V9
-    BOOL _enableTracingManual;
-#endif // !SDK_V9
 #if SWIFT_PACKAGE || SENTRY_TEST
     id _beforeSendLogDynamic;
 #endif // SWIFT_PACKAGE || SENTRY_TEST
@@ -95,10 +92,6 @@ NSString *const kSentryDefaultEnvironment = @"production";
 
         self.initialScope = ^SentryScope *(SentryScope *scope) { return scope; };
         __swiftExperimentalOptions = [[SentryExperimentalOptions alloc] init];
-#if !SDK_V9
-        _enableTracing = NO;
-        _enableTracingManual = NO;
-#endif // !SDK_V9
 #if SENTRY_HAS_UIKIT
         self.enableUIViewControllerTracing = YES;
         self.attachScreenshot = NO;
@@ -121,9 +114,11 @@ NSString *const kSentryDefaultEnvironment = @"production";
         self.enableAppHangTracking = YES;
         self.appHangTimeoutInterval = 2.0;
         self.enableAutoBreadcrumbTracking = YES;
+        self.enablePropagateTraceparent = NO;
         self.enableNetworkTracking = YES;
         self.enableFileIOTracing = YES;
         self.enableNetworkBreadcrumbs = YES;
+        self.enableLogs = NO;
         self.tracesSampleRate = nil;
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 #    if !SDK_V9
@@ -195,10 +190,8 @@ NSString *const kSentryDefaultEnvironment = @"production";
             ?: @"";
 
 #if SENTRY_HAS_METRIC_KIT
-        if (@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, *)) {
-            self.enableMetricKit = NO;
-            self.enableMetricKitRawPayload = NO;
-        }
+        self.enableMetricKit = NO;
+        self.enableMetricKitRawPayload = NO;
 #endif // SENTRY_HAS_METRIC_KIT
     }
     return self;
@@ -277,32 +270,12 @@ sentry_isValidSampleRate(NSNumber *sampleRate)
     return rate >= 0 && rate <= 1.0;
 }
 
-#if !SDK_V9
-- (void)setEnableTracing:(BOOL)enableTracing
-{
-    //`enableTracing` is basically an alias to tracesSampleRate
-    // by enabling it we set tracesSampleRate to maximum
-    // if the user did not configured other ways to enable tracing
-    if ((_enableTracing = enableTracing)) {
-        if (_tracesSampleRate == nil && _tracesSampler == nil && _enableTracing) {
-            _tracesSampleRate = @1;
-        }
-    }
-    _enableTracingManual = YES;
-}
-#endif // !SDK_V9
-
 - (void)setTracesSampleRate:(NSNumber *)tracesSampleRate
 {
     if (tracesSampleRate == nil) {
         _tracesSampleRate = nil;
     } else if (sentry_isValidSampleRate(tracesSampleRate)) {
         _tracesSampleRate = tracesSampleRate;
-#if !SDK_V9
-        if (!_enableTracingManual) {
-            _enableTracing = YES;
-        }
-#endif // !SDK_V9
     } else {
         _tracesSampleRate = SENTRY_DEFAULT_TRACES_SAMPLE_RATE;
     }
@@ -311,23 +284,12 @@ sentry_isValidSampleRate(NSNumber *sampleRate)
 - (void)setTracesSampler:(SentryTracesSamplerCallback)tracesSampler
 {
     _tracesSampler = tracesSampler;
-#if !SDK_V9
-    if (_tracesSampler != nil && !_enableTracingManual) {
-        _enableTracing = YES;
-    }
-#endif // !SDK_V9
 }
 
 - (BOOL)isTracingEnabled
 {
-#if SDK_V9
     return (_tracesSampleRate != nil && [_tracesSampleRate doubleValue] > 0)
         || _tracesSampler != nil;
-#else
-    return _enableTracing
-        && ((_tracesSampleRate != nil && [_tracesSampleRate doubleValue] > 0)
-            || _tracesSampler != nil);
-#endif // !SDK_V9
 }
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED

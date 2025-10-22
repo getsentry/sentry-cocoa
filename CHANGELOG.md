@@ -7,17 +7,68 @@
 Removes deprecated user feedback API, this is replaced with the new feedback API (#5591)
 Removes `enablePerformanceV2` option and makes this the default. The app start duration will now finish when the first frame is drawn instead of when the OS posts the UIWindowDidBecomeVisibleNotification. (#6008)
 Structured Logs: Move options out of experimental (#6359)
+- Moves `SentryEventDecoder` to SPI (#6365)
+- Makes `PreviewRedactOptions`, `SentryProfileOptions`, `SentryRedactViewHelper`, `SentryViewScreenshotOptions`, `SentryReplayOptions`, `SentryUserFeedbackConfiguration`, `SentryUserFeedbackFormConfiguration`, `SentryUserFeedbackThemeConfiguration`, `SentryUserFeedbackWidgetConfiguration`, `SentryFeedback`, and `SentryExperimentalOptions` `final` (#6365)
+- Removes Decodable conformances from the public API of model classes (#5691)
+- Removes unused SentryLogLevel (#5591)
+- Removes deprecated getStoreEndpoint (#5591)
+- Removes deprecated useSpan function (#5591)
+- Removes deprecated user feedback API, this is replaced with the new feedback API (#5591)
+- Removes `enablePerformanceV2` option and makes this the default. The app start duration will now finish when the first frame is drawn instead of when the OS posts the UIWindowDidBecomeVisibleNotification. (#6008)
+- Removes enableTracing property from SentryOptions (#5694)
+- Structured Logs: Move options out of experimental (#6359)
 
 ### Features
 
 - Add SentryDistribution as Swift Package Manager target (#6149)
 - Add `SentrySwiftLog` Integration ([#6286](https://github.com/getsentry/sentry-cocoa/pull/6286))
+- Add option `enablePropagateTraceparent` to support OTel/W3C trace propagation (#6356)
 
 ### Fixes
 
-Fixes warnings about minimum OS version being lower than Xcode supported version (#5591)
+- Fixes warnings about minimum OS version being lower than Xcode supported version (#5591)
+- Fix rendering method for fast view rendering (#6360)
+- Fix issue where the thread that generated an event could be missing when more than 100 threads are running (#6377)
+- Fix wrong Frame Delay when becoming active, which lead to false reported app hangs when the app moves to the foreground after being in the background (#6381)
+
+### Improvements
+
+- Replace deprecated SCNetworkReachability with NWPathMonitor (#6019)
+
+## 8.57.0
+
+> [!Warning]
+> **Session Replay is disabled by default on iOS 26.0+ with Xcode 26.0+ to prevent PII leaks**
+>
+> Due to potential masking issues introduced by Apple's Liquid Glass rendering changes in iOS 26.0, Session Replay is now **automatically disabled** on apps running iOS 26.0+ when built with Xcode 26.0 or later. This is a defensive measure to protect user privacy and prevent potential PII leaks until masking is reliably supported.
+>
+> Session replay will work normally if:
+>
+> - Your app runs on iOS versions older than 26.0, OR
+> - Your app is built with Xcode versions older than 26.0, OR
+> - Your app explicitly sets `UIDesignRequiresCompatibility` to `YES` in `Info.plist`
+>
+> **Override (use with caution):** If you understand the PII risks and want to enable session replay anyway, you can set:
+>
+> ```swift
+> options.experimental.enableSessionReplayInUnreliableEnvironment = true
+> ```
+>
+> This experimental override option will be removed in a future minor version once the masking issues are resolved.
+
+### Fixes
+
+- Fix wrong Frame Delay when becoming active, which lead to false reported app hangs when the app moves to the foreground after being in the background (#6393)
+- Session replay is now automatically disabled in environments with unreliable masking to prevent PII leaks (#6389)
+  - Detects iOS 26.0+ runtime with Xcode 26.0+ builds (DTXcode >= 2600)
+  - Detects missing or disabled `UIDesignRequiresCompatibility`
+  - Uses defensive approach: assumes unsafe unless proven safe
+- Add `options.experimental.enableSessionReplayInUnreliableEnvironment` to allow overriding the automatic disabling (#6389)
 
 ## 8.56.2
+
+> [!Warning]
+> Session Replay in this version does not correctly mask views when built with Xcode 26 and running on iOS 26 with Liquid Glass, which may lead to PII leaks. Please upgrade to 8.57.0 or later, which automatically **disables session replay** in such environments.
 
 ### Fixes
 
@@ -27,6 +78,9 @@ Fixes warnings about minimum OS version being lower than Xcode supported version
 
 > [!Warning]
 > This version can cause runtime crashes because the `UIApplication.sharedApplication`/`NSApplication.sharedApplication` is not yet available during SDK initialization, due to the changes in [PR #5900](https://github.com/getsentry/sentry-cocoa/pull/5900), released in [8.56.0](https://github.com/getsentry/sentry-cocoa/releases/tag/8.56.0).
+
+> [!Warning]
+> Session Replay in this version does not correctly mask views when built with Xcode 26 and running on iOS 26 with Liquid Glass, which may lead to PII leaks. Please upgrade to 8.57.0 or later, which automatically **disables session replay** in such environments.
 
 ### Fixes
 
@@ -38,6 +92,9 @@ Fixes warnings about minimum OS version being lower than Xcode supported version
 
 > [!Warning]
 > This version can cause runtime crashes because the `UIApplication.sharedApplication`/`NSApplication.sharedApplication` is not yet available during SDK initialization, due to the changes in [PR #5900](https://github.com/getsentry/sentry-cocoa/pull/5900), released in [8.56.0](https://github.com/getsentry/sentry-cocoa/releases/tag/8.56.0).
+
+> [!Warning]
+> Session Replay in this version does not correctly mask views when built with Xcode 26 and running on iOS 26 with Liquid Glass, which may lead to PII leaks. Please upgrade to 8.57.0 or later, which automatically **disables session replay** in such environments.
 
 ### Features
 
@@ -121,6 +178,9 @@ Fixes warnings about minimum OS version being lower than Xcode supported version
 
 ## 8.55.1
 
+> [!Warning]
+> Session Replay in this version does not correctly mask views when built with Xcode 26 and running on iOS 26 with Liquid Glass, which may lead to PII leaks. Please upgrade to 8.57.0 or later, which automatically **disables session replay** in such environments.
+
 ### Features
 
 ### Fixes
@@ -147,6 +207,9 @@ Fixes warnings about minimum OS version being lower than Xcode supported version
 > If your app does not need arm64e, you don't need to make any changes.
 > But if your app _needs arm64e_ please use `Sentry-Dynamic-WithARM64e` or `Sentry-WithoutUIKitOrAppKit-WithARM64e` from 8.55.0 so you don't have issues uploading to the App Store.
 
+> [!Warning]
+> Session Replay in this version does not correctly mask views when built with Xcode 26 and running on iOS 26 with Liquid Glass, which may lead to PII leaks. Please upgrade to 8.57.0 or later, which automatically **disables session replay** in such environments.
+
 ### Features
 
 - Add a new prebuilt framework with arm64e and remove it from the regular one (#5788)
@@ -169,6 +232,9 @@ Fixes warnings about minimum OS version being lower than Xcode supported version
 - Add nullability property for `screenName` (#5782)
 
 ## 8.54.0
+
+> [!Warning]
+> Session Replay in this version does not correctly mask views when built with Xcode 26 and running on iOS 26 with Liquid Glass, which may lead to PII leaks. Please upgrade to 8.57.0 or later, which automatically **disables session replay** in such environments.
 
 ### Features
 

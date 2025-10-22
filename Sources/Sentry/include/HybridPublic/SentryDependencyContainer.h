@@ -16,13 +16,14 @@
 @class SentrySwizzleWrapper;
 @class SentrySysctl;
 @class SentryThreadsafeApplication;
-@class SentrySystemWrapper;
 @class SentryThreadWrapper;
 @class SentryFileIOTracker;
 @class SentryScopePersistentStore;
 @class SentryOptions;
 @class SentrySessionTracker;
 @class SentryGlobalEventProcessor;
+@class SentryThreadInspector;
+@class SentryReachability;
 
 @protocol SentryAppStateManager;
 @protocol SentryANRTracker;
@@ -32,8 +33,9 @@
 @protocol SentryApplication;
 @protocol SentryProcessInfoSource;
 @protocol SentryNSNotificationCenterWrapper;
-@protocol SentryThreadInspector;
 @protocol SentryObjCRuntimeWrapper;
+@protocol SentryInfoPlistWrapperProvider;
+@protocol SentrySessionReplayEnvironmentCheckerProvider;
 
 #if SENTRY_HAS_METRIC_KIT
 @class SentryMXManager;
@@ -43,19 +45,15 @@
 @class SentryFramesTracker;
 @class SentryScreenshotSource;
 @class SentryViewHierarchyProvider;
-@class SentryUIViewControllerPerformanceTracker;
-@class SentryWatchdogTerminationScopeObserver;
 @class SentryWatchdogTerminationAttributesProcessor;
-@class SentryWatchdogTerminationBreadcrumbProcessor;
+
+@protocol SentryScopeObserver;
+@protocol SentryUIViewControllerPerformanceTracker;
 #endif // SENTRY_UIKIT_AVAILABLE
 
 #if SENTRY_HAS_UIKIT
 @protocol SentryUIDeviceWrapper;
 #endif // TARGET_OS_IOS
-
-#if !TARGET_OS_WATCH
-@class SentryReachability;
-#endif // !TARGET_OS_WATCH
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -93,10 +91,11 @@ SENTRY_NO_INIT
 @property (nonatomic, strong) SentrySysctl *sysctlWrapper;
 @property (nonatomic, strong) id<SentryRateLimits> rateLimits;
 @property (nonatomic, strong) SentryThreadsafeApplication *threadsafeApplication;
+@property (nonatomic, strong) id<SentryInfoPlistWrapperProvider> infoPlistWrapper;
+@property (nonatomic, strong) id<SentrySessionReplayEnvironmentCheckerProvider>
+    sessionReplayEnvironmentChecker;
 
-#if SENTRY_HAS_REACHABILITY
 @property (nonatomic, strong) SentryReachability *reachability;
-#endif // !TARGET_OS_WATCH
 
 #if SENTRY_HAS_UIKIT
 @property (nonatomic, strong) id<SentryUIDeviceWrapper> uiDeviceWrapper;
@@ -106,8 +105,8 @@ SENTRY_NO_INIT
 
 @property (nonatomic, strong, nullable) SentryFileManager *fileManager;
 @property (nonatomic, strong) id<SentryAppStateManager> appStateManager;
-@property (nonatomic, strong) id<SentryThreadInspector> threadInspector;
-@property (nonatomic, strong) SentryFileIOTracker *fileIOTracker;
+@property (nonatomic, strong, readonly) SentryThreadInspector *threadInspector;
+@property (nonatomic, strong, readonly) SentryFileIOTracker *fileIOTracker;
 @property (nonatomic, strong) SentryCrash *crashReporter;
 @property (nonatomic, strong) SentryScopePersistentStore *scopePersistentStore;
 @property (nonatomic, strong) SentryDebugImageProvider *debugImageProvider;
@@ -119,9 +118,6 @@ SENTRY_NO_INIT
 
 - (nullable id<SentryApplication>)application;
 
-#if SENTRY_TARGET_PROFILING_SUPPORTED
-@property (nonatomic, strong) SentrySystemWrapper *systemWrapper;
-#endif // SENTRY_TARGET_PROFILING_SUPPORTED
 @property (nonatomic, strong) SentryDispatchFactory *dispatchFactory;
 @property (nonatomic, strong) SentryNSTimerFactory *timerFactory;
 
@@ -129,8 +125,8 @@ SENTRY_NO_INIT
 #if SENTRY_UIKIT_AVAILABLE
 @property (nonatomic, strong) SentryFramesTracker *framesTracker;
 @property (nonatomic, strong) SentryViewHierarchyProvider *viewHierarchyProvider;
-@property (nonatomic, strong)
-    SentryUIViewControllerPerformanceTracker *uiViewControllerPerformanceTracker;
+@property (nonatomic, strong) id<SentryUIViewControllerPerformanceTracker>
+    uiViewControllerPerformanceTracker;
 #endif // SENTRY_UIKIT_AVAILABLE
 
 #if SENTRY_TARGET_REPLAY_SUPPORTED
@@ -138,16 +134,12 @@ SENTRY_NO_INIT
 #endif // SENTRY_TARGET_REPLAY_SUPPORTED
 
 #if SENTRY_HAS_METRIC_KIT
-@property (nonatomic, strong) SentryMXManager *metricKitManager API_AVAILABLE(
-    ios(15.0), macos(12.0), macCatalyst(15.0)) API_UNAVAILABLE(tvos, watchos);
+@property (nonatomic, strong) SentryMXManager *metricKitManager API_UNAVAILABLE(tvos, watchos);
 #endif // SENTRY_HAS_METRIC_KIT
 @property (nonatomic, strong) id<SentryObjCRuntimeWrapper> objcRuntimeWrapper;
 
 #if SENTRY_HAS_UIKIT
-- (SentryWatchdogTerminationScopeObserver *)getWatchdogTerminationScopeObserverWithOptions:
-    (SentryOptions *)options;
-- (SentryWatchdogTerminationBreadcrumbProcessor *)
-    getWatchdogTerminationBreadcrumbProcessorWithMaxBreadcrumbs:(NSInteger)maxBreadcrumbs;
+- (id<SentryScopeObserver>)getWatchdogTerminationScopeObserverWithOptions:(SentryOptions *)options;
 @property (nonatomic, strong)
     SentryWatchdogTerminationAttributesProcessor *watchdogTerminationAttributesProcessor;
 #endif

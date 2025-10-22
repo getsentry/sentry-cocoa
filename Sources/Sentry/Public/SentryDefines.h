@@ -65,12 +65,6 @@
     -(instancetype)init NS_UNAVAILABLE;                                                            \
     +(instancetype) new NS_UNAVAILABLE;
 
-#if !TARGET_OS_WATCH && !(TARGET_OS_VISION && SENTRY_NO_UIKIT == 1)
-#    define SENTRY_HAS_REACHABILITY 1
-#else
-#    define SENTRY_HAS_REACHABILITY 0
-#endif
-
 @class SentryBreadcrumb;
 @class SentryEvent;
 @class SentrySamplingContext;
@@ -152,25 +146,6 @@ typedef BOOL (^SentryShouldQueueEvent)(
 typedef NSNumber *_Nullable (^SentryTracesSamplerCallback)(
     SentrySamplingContext *_Nonnull samplingContext);
 
-#if !SDK_V9
-/**
- * Function pointer for span manipulation.
- * @param span The span to be used.
- */
-typedef void (^SentrySpanCallback)(id<SentrySpan> _Nullable span DEPRECATED_MSG_ATTRIBUTE(
-    "See `SentryScope.useSpan` for reasoning of deprecation."));
-
-/**
- * Log level.
- */
-typedef NS_ENUM(NSInteger, SentryLogLevel) {
-    kSentryLogLevelNone = 1,
-    kSentryLogLevelError,
-    kSentryLogLevelDebug,
-    kSentryLogLevelVerbose
-};
-#endif // !SDK_V9
-
 /**
  * Sentry level.
  */
@@ -207,7 +182,6 @@ typedef NS_ENUM(NSInteger, SentryTransactionNameSource); // This is a forward de
 /**
  * Block used to configure the user feedback widget, form, behaviors and submission data.
  */
-API_AVAILABLE(ios(13.0))
 typedef void (^SentryUserFeedbackConfigurationBlock)(
     SentryUserFeedbackConfiguration *_Nonnull configuration);
 

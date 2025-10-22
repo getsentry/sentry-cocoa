@@ -124,9 +124,6 @@ final class SentryDependencyContainerTests: XCTestCase {
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().getANRTracker(2.0, isV2Enabled: true))
 #endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 
-#if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
-                    XCTAssertNotNil(SentryDependencyContainer.sharedInstance().systemWrapper)
-#endif // os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().dispatchFactory)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().timerFactory)
 
@@ -146,7 +143,6 @@ final class SentryDependencyContainerTests: XCTestCase {
 #endif // os(iOS) || os(macOS)
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-                    XCTAssertNotNil(SentryDependencyContainer.sharedInstance().getWatchdogTerminationBreadcrumbProcessor(withMaxBreadcrumbs: 10))
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().watchdogTerminationAttributesProcessor)
 #endif
 
@@ -176,50 +172,6 @@ final class SentryDependencyContainerTests: XCTestCase {
 
         // -- Assert --
         XCTAssertIdentical(scopePersistentStore1, scopePersistentStore2)
-    }
-
-    func testGetWatchdogTerminationBreadcrumbProcessorWithMaxBreadcrumbs_shouldReturnNewInstancePerCall() throws {
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-        // -- Arrange --
-        let options = Options()
-        options.dsn = SentryDependencyContainerTests.dsn
-        SentrySDKInternal.setStart(with: options)
-
-        let container = SentryDependencyContainer.sharedInstance()
-
-        // -- Act --
-        let processor1 = container.getWatchdogTerminationBreadcrumbProcessor(withMaxBreadcrumbs: 10)
-        let processor2 = container.getWatchdogTerminationBreadcrumbProcessor(withMaxBreadcrumbs: 5)
-
-        // -- Assert --
-        XCTAssertNotIdentical(processor1, processor2)
-#else
-        throw XCTSkip("This test is only applicable for iOS, tvOS, and macOS platforms.")
-#endif
-    }
-
-    func testGetWatchdogTerminationBreadcrumbProcessorWithMaxBreadcrumbs_shouldUseParameters() throws {
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-        // -- Arrange --
-        let options = Options()
-        options.dsn = SentryDependencyContainerTests.dsn
-        SentrySDKInternal.setStart(with: options)
-
-        let container = SentryDependencyContainer.sharedInstance()
-
-        // -- Act --
-        let processor1 = container.getWatchdogTerminationBreadcrumbProcessor(withMaxBreadcrumbs: 10)
-        let processor2 = container.getWatchdogTerminationBreadcrumbProcessor(withMaxBreadcrumbs: 5)
-
-        // -- Assert --
-        // This assertion relys on internal implementation details of the processor.
-        // It is best practice not to rely on internal implementation details.
-        // There is no other way to test this, because the max breadcrumbs property is private.
-        XCTAssertEqual(Dynamic(processor1).maxBreadcrumbs, 10)
-        XCTAssertEqual(Dynamic(processor2).maxBreadcrumbs, 5)
-#else
-        throw XCTSkip("This test is only applicable for iOS, tvOS, and macOS platforms.")
-#endif
     }
 
     func testSentryWatchdogTerminationAttributesProcessor_shouldReturnSameInstance() throws {

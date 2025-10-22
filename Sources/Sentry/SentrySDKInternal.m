@@ -28,7 +28,6 @@
 #endif // TARGET_OS_MAC
 
 #if SENTRY_HAS_UIKIT
-#    import "SentryUIViewControllerPerformanceTracker.h"
 #    if TARGET_OS_IOS
 #        import "SentryFeedbackAPI.h"
 #    endif // TARGET_OS_IOS

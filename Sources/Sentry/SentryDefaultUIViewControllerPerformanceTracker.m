@@ -1,4 +1,4 @@
-#import "SentryUIViewControllerPerformanceTracker.h"
+#import "SentryDefaultUIViewControllerPerformanceTracker.h"
 #import "SentryInternalDefines.h"
 
 #if SENTRY_HAS_UIKIT
@@ -18,6 +18,27 @@
 #    import "SentryWeakMap.h"
 #    import <UIKit/UIKit.h>
 #    import <objc/runtime.h>
+
+@interface SentryTimeToDisplayTracker () <SentryInitialDisplayReporting>
+
+@end
+
+@interface SentryObjCSwiftUISpanHelper ()
+@end
+
+@implementation SentryObjCSwiftUISpanHelper
+
+- (instancetype)initWithHasSpan:(BOOL)hasSpan
+        initialDisplayReporting:(id<SentryInitialDisplayReporting>)initialDisplayReporting
+{
+    if (self = [super init]) {
+        _hasSpan = hasSpan;
+        _initialDisplayReporting = initialDisplayReporting;
+    }
+    return self;
+}
+
+@end
 
 // In a previous implementation, we used associated objects to store the time to display tracker,
 // spanId, spans in execution, and layout subview spanId. However, this approach was prone to
@@ -45,7 +66,7 @@
 // remove any entries with weak keys that have been deallocated. This will ensure that we don't
 // keep any references to deallocated objects in the map tables and have a memory leak.
 
-@interface SentryUIViewControllerPerformanceTracker ()
+@interface SentryDefaultUIViewControllerPerformanceTracker ()
 
 @property (nonatomic, strong) SentryPerformanceTracker *tracker;
 @property (nullable, nonatomic, weak) SentryTimeToDisplayTracker *currentTTDTracker;
@@ -61,7 +82,7 @@
 
 @end
 
-@implementation SentryUIViewControllerPerformanceTracker
+@implementation SentryDefaultUIViewControllerPerformanceTracker
 
 - (instancetype)initWithTracker:(SentryPerformanceTracker *)tracker
            dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
@@ -250,6 +271,36 @@
 
     self.currentTTDTracker = ttdTracker;
     return ttdTracker;
+}
+
+- (SentrySwiftUISpanHelper *)startTimeToDisplayTrackerForScreen:(NSString *)screenName
+                                             waitForFullDisplay:(BOOL)waitforFullDisplay
+                                                  transactionId:(SentrySpanId *)transactionId;
+{
+    id<SentrySpan> span = [SentryPerformanceTracker.shared getSpan:transactionId];
+    if (span != nil && [span isKindOfClass:[SentryTracer class]]) {
+        SentryTimeToDisplayTracker *displayReporting =
+            [self startTimeToDisplayTrackerForScreen:screenName
+                                  waitForFullDisplay:waitforFullDisplay
+                                              tracer:(SentryTracer *)span];
+        return [[SentrySwiftUISpanHelper alloc] initWithHasSpan:YES
+                                        initialDisplayReporting:displayReporting];
+    }
+    return [[SentrySwiftUISpanHelper alloc] initWithHasSpan:NO initialDisplayReporting:nil];
+}
+
++ (SentryObjCSwiftUISpanHelper *)startTimeToDisplayTrackerForScreen:(NSString *)screenName
+                                                 waitForFullDisplay:(BOOL)waitforFullDisplay
+                                                      transactionId:(SentrySpanId *)transactionId;
+{
+    id<SentryUIViewControllerPerformanceTracker> vcTracker
+        = SentryDependencyContainer.sharedInstance.uiViewControllerPerformanceTracker;
+    SentrySwiftUISpanHelper *result =
+        [vcTracker startTimeToDisplayTrackerForScreen:screenName
+                                   waitForFullDisplay:waitforFullDisplay
+                                        transactionId:transactionId];
+    return [[SentryObjCSwiftUISpanHelper alloc] initWithHasSpan:result.hasSpan
+                                        initialDisplayReporting:result.initialDisplayReporting];
 }
 
 - (void)viewControllerViewWillAppear:(UIViewController *)controller

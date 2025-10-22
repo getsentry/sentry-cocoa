@@ -130,13 +130,9 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - name: iOS 18
-            runs-on: macos-15
-            platform: "iOS"
-            xcode: "16.4"
-            device: "iPhone 16 Pro"
-            test-destination-os: "18.5"
-
+          # Running the tests with simulators is incredibly flaky. Our assumption is that simulators might have difficulties
+          # with communicating with the test server in CI.
+          # We are going to add these back in https://github.com/getsentry/sentry-cocoa/issues/6361
           - name: macOS 15
             runs-on: macos-15
             platform: "macOS"

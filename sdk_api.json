@@ -16138,6 +16138,89 @@
           },
           {
             "kind": "Var",
+            "name": "enableLogs",
+            "printedName": "enableLogs",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "c:objc(cs)SentryOptions(py)enableLogs",
+            "moduleName": "Sentry",
+            "isOpen": true,
+            "objc_name": "enableLogs",
+            "declAttributes": [
+              "ObjC",
+              "Dynamic"
+            ],
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "c:objc(cs)SentryOptions(im)enableLogs",
+                "moduleName": "Sentry",
+                "isOpen": true,
+                "objc_name": "enableLogs",
+                "declAttributes": [
+                  "DiscardableResult",
+                  "ObjC",
+                  "Dynamic"
+                ],
+                "accessorKind": "get"
+              },
+              {
+                "kind": "Accessor",
+                "name": "Set",
+                "printedName": "Set()",
+                "children": [
+                  {
+                    "kind": "TypeNameAlias",
+                    "name": "Void",
+                    "printedName": "Swift.Void",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Void",
+                        "printedName": "()"
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "c:objc(cs)SentryOptions(im)setEnableLogs:",
+                "moduleName": "Sentry",
+                "isOpen": true,
+                "objc_name": "setEnableLogs:",
+                "declAttributes": [
+                  "ObjC",
+                  "Dynamic"
+                ],
+                "accessorKind": "set"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
             "name": "beforeSendLog",
             "printedName": "beforeSendLog",
             "children": [
@@ -20502,6 +20585,89 @@
           },
           {
             "kind": "Var",
+            "name": "enablePropagateTraceparent",
+            "printedName": "enablePropagateTraceparent",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "c:objc(cs)SentryOptions(py)enablePropagateTraceparent",
+            "moduleName": "Sentry",
+            "isOpen": true,
+            "objc_name": "enablePropagateTraceparent",
+            "declAttributes": [
+              "ObjC",
+              "Dynamic"
+            ],
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "c:objc(cs)SentryOptions(im)enablePropagateTraceparent",
+                "moduleName": "Sentry",
+                "isOpen": true,
+                "objc_name": "enablePropagateTraceparent",
+                "declAttributes": [
+                  "DiscardableResult",
+                  "ObjC",
+                  "Dynamic"
+                ],
+                "accessorKind": "get"
+              },
+              {
+                "kind": "Accessor",
+                "name": "Set",
+                "printedName": "Set()",
+                "children": [
+                  {
+                    "kind": "TypeNameAlias",
+                    "name": "Void",
+                    "printedName": "Swift.Void",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Void",
+                        "printedName": "()"
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "c:objc(cs)SentryOptions(im)setEnablePropagateTraceparent:",
+                "moduleName": "Sentry",
+                "isOpen": true,
+                "objc_name": "setEnablePropagateTraceparent:",
+                "declAttributes": [
+                  "ObjC",
+                  "Dynamic"
+                ],
+                "accessorKind": "set"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
             "name": "tracePropagationTargets",
             "printedName": "tracePropagationTargets",
             "children": [
@@ -20914,10 +21080,8 @@
             "usr": "c:objc(cs)SentryOptions(py)enableMetricKit",
             "moduleName": "Sentry",
             "isOpen": true,
-            "intro_iOS": "15.0",
             "objc_name": "enableMetricKit",
             "declAttributes": [
-              "Available",
               "ObjC",
               "Dynamic"
             ],
@@ -20938,11 +21102,9 @@
                 "usr": "c:objc(cs)SentryOptions(im)enableMetricKit",
                 "moduleName": "Sentry",
                 "isOpen": true,
-                "intro_iOS": "15.0",
                 "objc_name": "enableMetricKit",
                 "declAttributes": [
                   "DiscardableResult",
-                  "Available",
                   "ObjC",
                   "Dynamic"
                 ],
@@ -20976,10 +21138,8 @@
                 "usr": "c:objc(cs)SentryOptions(im)setEnableMetricKit:",
                 "moduleName": "Sentry",
                 "isOpen": true,
-                "intro_iOS": "15.0",
                 "objc_name": "setEnableMetricKit:",
                 "declAttributes": [
-                  "Available",
                   "ObjC",
                   "Dynamic"
                 ],
@@ -21003,10 +21163,8 @@
             "usr": "c:objc(cs)SentryOptions(py)enableMetricKitRawPayload",
             "moduleName": "Sentry",
             "isOpen": true,
-            "intro_iOS": "15.0",
             "objc_name": "enableMetricKitRawPayload",
             "declAttributes": [
-              "Available",
               "ObjC",
               "Dynamic"
             ],
@@ -21027,11 +21185,9 @@
                 "usr": "c:objc(cs)SentryOptions(im)enableMetricKitRawPayload",
                 "moduleName": "Sentry",
                 "isOpen": true,
-                "intro_iOS": "15.0",
                 "objc_name": "enableMetricKitRawPayload",
                 "declAttributes": [
                   "DiscardableResult",
-                  "Available",
                   "ObjC",
                   "Dynamic"
                 ],
@@ -21065,10 +21221,8 @@
                 "usr": "c:objc(cs)SentryOptions(im)setEnableMetricKitRawPayload:",
                 "moduleName": "Sentry",
                 "isOpen": true,
-                "intro_iOS": "15.0",
                 "objc_name": "setEnableMetricKitRawPayload:",
                 "declAttributes": [
-                  "Available",
                   "ObjC",
                   "Dynamic"
                 ],
@@ -21589,10 +21743,8 @@
             "usr": "c:objc(cs)SentryOptions(py)configureUserFeedback",
             "moduleName": "Sentry",
             "isOpen": true,
-            "intro_iOS": "13.0",
             "objc_name": "configureUserFeedback",
             "declAttributes": [
-              "Available",
               "ObjC",
               "Dynamic"
             ],
@@ -21647,11 +21799,9 @@
                 "usr": "c:objc(cs)SentryOptions(im)configureUserFeedback",
                 "moduleName": "Sentry",
                 "isOpen": true,
-                "intro_iOS": "13.0",
                 "objc_name": "configureUserFeedback",
                 "declAttributes": [
                   "DiscardableResult",
-                  "Available",
                   "ObjC",
                   "Dynamic"
                 ],
@@ -21719,10 +21869,8 @@
                 "usr": "c:objc(cs)SentryOptions(im)setConfigureUserFeedback:",
                 "moduleName": "Sentry",
                 "isOpen": true,
-                "intro_iOS": "13.0",
                 "objc_name": "setConfigureUserFeedback:",
                 "declAttributes": [
-                  "Available",
                   "ObjC",
                   "Dynamic"
                 ],
@@ -26181,10 +26329,8 @@
             "usr": "c:objc(cs)SentryFeedbackAPI(im)showWidget",
             "moduleName": "Sentry",
             "isOpen": true,
-            "intro_iOS": "13.0",
             "objc_name": "showWidget",
             "declAttributes": [
-              "Available",
               "ObjC",
               "Dynamic"
             ],
@@ -26212,10 +26358,8 @@
             "usr": "c:objc(cs)SentryFeedbackAPI(im)hideWidget",
             "moduleName": "Sentry",
             "isOpen": true,
-            "intro_iOS": "13.0",
             "objc_name": "hideWidget",
             "declAttributes": [
-              "Available",
               "ObjC",
               "Dynamic"
             ],
@@ -33962,11 +34106,7 @@
         ],
         "declKind": "TypeAlias",
         "usr": "c:@T@SentryUserFeedbackConfigurationBlock",
-        "moduleName": "Sentry",
-        "intro_iOS": "13.0",
-        "declAttributes": [
-          "Available"
-        ]
+        "moduleName": "Sentry"
       },
       {
         "kind": "Var",
@@ -40398,6 +40538,13 @@
       },
       {
         "kind": "Import",
+        "name": "Network",
+        "printedName": "Network",
+        "declKind": "Import",
+        "moduleName": "Sentry"
+      },
+      {
+        "kind": "Import",
         "name": "ObjectiveC",
         "printedName": "ObjectiveC",
         "declKind": "Import",
@@ -40911,6 +41058,9 @@
             "usr": "s:6Sentry0A21ViewScreenshotOptionsC13DefaultValuesC",
             "mangledName": "$s6Sentry0A21ViewScreenshotOptionsC13DefaultValuesC",
             "moduleName": "Sentry",
+            "declAttributes": [
+              "Final"
+            ],
             "hasMissingDesignatedInitializers": true,
             "conformances": [
               {
@@ -40946,6 +41096,7 @@
             "mangledName": "$s6Sentry0A21ViewScreenshotOptionsC06enableB10RendererV2Sbvp",
             "moduleName": "Sentry",
             "declAttributes": [
+              "Final",
               "ObjC",
               "HasStorage"
             ],
@@ -40969,6 +41120,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "get"
@@ -40996,6 +41148,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "set"
@@ -41019,6 +41172,7 @@
             "mangledName": "$s6Sentry0A21ViewScreenshotOptionsC010enableFastB9RenderingSbvp",
             "moduleName": "Sentry",
             "declAttributes": [
+              "Final",
               "ObjC",
               "HasStorage"
             ],
@@ -41042,6 +41196,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "get"
@@ -41069,6 +41224,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "set"
@@ -41094,6 +41250,7 @@
             "objc_name": "maskAllImages",
             "declAttributes": [
               "ObjC",
+              "Final",
               "HasStorage"
             ],
             "hasStorage": true,
@@ -41117,6 +41274,7 @@
                 "implicit": true,
                 "objc_name": "maskAllImages",
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "get"
@@ -41144,6 +41302,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "set"
@@ -41169,6 +41328,7 @@
             "objc_name": "maskAllText",
             "declAttributes": [
               "ObjC",
+              "Final",
               "HasStorage"
             ],
             "hasStorage": true,
@@ -41192,6 +41352,7 @@
                 "implicit": true,
                 "objc_name": "maskAllText",
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "get"
@@ -41219,6 +41380,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "set"
@@ -41279,6 +41441,7 @@
             "objc_name": "maskedViewClasses",
             "declAttributes": [
               "ObjC",
+              "Final",
               "HasStorage"
             ],
             "hasStorage": true,
@@ -41337,6 +41500,7 @@
                 "implicit": true,
                 "objc_name": "maskedViewClasses",
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "get"
@@ -41399,6 +41563,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "set"
@@ -41459,6 +41624,7 @@
             "objc_name": "unmaskedViewClasses",
             "declAttributes": [
               "ObjC",
+              "Final",
               "HasStorage"
             ],
             "hasStorage": true,
@@ -41517,6 +41683,7 @@
                 "implicit": true,
                 "objc_name": "unmaskedViewClasses",
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "get"
@@ -41579,6 +41746,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "set"
@@ -41764,7 +41932,7 @@
             "objc_name": "description",
             "declAttributes": [
               "ObjC",
-              "Dynamic",
+              "Final",
               "Override"
             ],
             "accessors": [
@@ -41787,7 +41955,7 @@
                 "overriding": true,
                 "objc_name": "description",
                 "declAttributes": [
-                  "Dynamic",
+                  "Final",
                   "ObjC",
                   "Override"
                 ],
@@ -41801,6 +41969,7 @@
         "mangledName": "$s6Sentry0A21ViewScreenshotOptionsC",
         "moduleName": "Sentry",
         "declAttributes": [
+          "Final",
           "ObjCMembers",
           "ObjC"
         ],
@@ -42263,6 +42432,7 @@
         "mangledName": "$s6Sentry0A8FeedbackC",
         "moduleName": "Sentry",
         "declAttributes": [
+          "Final",
           "ObjCMembers",
           "ObjC"
         ],
@@ -45697,6 +45867,9 @@
             "usr": "s:6Sentry0A13ReplayOptionsC13DefaultValuesC",
             "mangledName": "$s6Sentry0A13ReplayOptionsC13DefaultValuesC",
             "moduleName": "Sentry",
+            "declAttributes": [
+              "Final"
+            ],
             "hasMissingDesignatedInitializers": true,
             "conformances": [
               {
@@ -46056,6 +46229,7 @@
             "mangledName": "$s6Sentry0A13ReplayOptionsC17sessionSampleRateSfvp",
             "moduleName": "Sentry",
             "declAttributes": [
+              "Final",
               "ObjC",
               "HasStorage"
             ],
@@ -46079,6 +46253,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "get"
@@ -46106,6 +46281,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "set"
@@ -46129,6 +46305,7 @@
             "mangledName": "$s6Sentry0A13ReplayOptionsC17onErrorSampleRateSfvp",
             "moduleName": "Sentry",
             "declAttributes": [
+              "Final",
               "ObjC",
               "HasStorage"
             ],
@@ -46152,6 +46329,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "get"
@@ -46179,6 +46357,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "set"
@@ -46204,6 +46383,7 @@
             "objc_name": "maskAllText",
             "declAttributes": [
               "ObjC",
+              "Final",
               "HasStorage"
             ],
             "hasStorage": true,
@@ -46227,6 +46407,7 @@
                 "implicit": true,
                 "objc_name": "maskAllText",
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "get"
@@ -46254,6 +46435,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "set"
@@ -46279,6 +46461,7 @@
             "objc_name": "maskAllImages",
             "declAttributes": [
               "ObjC",
+              "Final",
               "HasStorage"
             ],
             "hasStorage": true,
@@ -46302,6 +46485,7 @@
                 "implicit": true,
                 "objc_name": "maskAllImages",
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "get"
@@ -46329,6 +46513,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "set"
@@ -46352,6 +46537,7 @@
             "mangledName": "$s6Sentry0A13ReplayOptionsC7qualityAC0aB7QualityOvp",
             "moduleName": "Sentry",
             "declAttributes": [
+              "Final",
               "ObjC",
               "HasStorage"
             ],
@@ -46375,6 +46561,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "get"
@@ -46402,6 +46589,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "set"
@@ -46462,6 +46650,7 @@
             "objc_name": "maskedViewClasses",
             "declAttributes": [
               "ObjC",
+              "Final",
               "HasStorage"
             ],
             "hasStorage": true,
@@ -46520,6 +46709,7 @@
                 "implicit": true,
                 "objc_name": "maskedViewClasses",
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "get"
@@ -46582,6 +46772,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "set"
@@ -46642,6 +46833,7 @@
             "objc_name": "unmaskedViewClasses",
             "declAttributes": [
               "ObjC",
+              "Final",
               "HasStorage"
             ],
             "hasStorage": true,
@@ -46700,6 +46892,7 @@
                 "implicit": true,
                 "objc_name": "unmaskedViewClasses",
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "get"
@@ -46762,6 +46955,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "set"
@@ -46786,6 +46980,7 @@
             "moduleName": "Sentry",
             "deprecated": true,
             "declAttributes": [
+              "Final",
               "Available",
               "ObjC"
             ],
@@ -46807,6 +47002,7 @@
                 "mangledName": "$s6Sentry0A13ReplayOptionsC30enableExperimentalViewRendererSbvg",
                 "moduleName": "Sentry",
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "get"
@@ -46834,6 +47030,7 @@
                 "moduleName": "Sentry",
                 "objc_name": "setEnableExperimentalViewRenderer:",
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "set"
@@ -46857,6 +47054,7 @@
             "mangledName": "$s6Sentry0A13ReplayOptionsC20enableViewRendererV2Sbvp",
             "moduleName": "Sentry",
             "declAttributes": [
+              "Final",
               "ObjC",
               "HasStorage"
             ],
@@ -46880,6 +47078,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "get"
@@ -46907,6 +47106,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "set"
@@ -46930,6 +47130,7 @@
             "mangledName": "$s6Sentry0A13ReplayOptionsC23enableFastViewRenderingSbvp",
             "moduleName": "Sentry",
             "declAttributes": [
+              "Final",
               "ObjC",
               "HasStorage"
             ],
@@ -46953,6 +47154,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "get"
@@ -46980,6 +47182,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "set"
@@ -47081,6 +47284,7 @@
         "mangledName": "$s6Sentry0A13ReplayOptionsC",
         "moduleName": "Sentry",
         "declAttributes": [
+          "Final",
           "ObjCMembers",
           "ObjC"
         ],
@@ -47098,108 +47302,6 @@
             "usr": "c:@M@Sentry@objc(pl)SentryRedactOptions",
             "mangledName": "$s6Sentry0A13RedactOptionsP"
           },
-          {
-            "kind": "Conformance",
-            "name": "Copyable",
-            "printedName": "Copyable",
-            "usr": "s:s8CopyableP",
-            "mangledName": "$ss8CopyableP"
-          },
-          {
-            "kind": "Conformance",
-            "name": "Escapable",
-            "printedName": "Escapable",
-            "usr": "s:s9EscapableP",
-            "mangledName": "$ss9EscapableP"
-          },
-          {
-            "kind": "Conformance",
-            "name": "NSObjectProtocol",
-            "printedName": "NSObjectProtocol",
-            "usr": "c:objc(pl)NSObject"
-          },
-          {
-            "kind": "Conformance",
-            "name": "Equatable",
-            "printedName": "Equatable",
-            "usr": "s:SQ",
-            "mangledName": "$sSQ"
-          },
-          {
-            "kind": "Conformance",
-            "name": "Hashable",
-            "printedName": "Hashable",
-            "usr": "s:SH",
-            "mangledName": "$sSH"
-          },
-          {
-            "kind": "Conformance",
-            "name": "CVarArg",
-            "printedName": "CVarArg",
-            "usr": "s:s7CVarArgP",
-            "mangledName": "$ss7CVarArgP"
-          },
-          {
-            "kind": "Conformance",
-            "name": "CustomStringConvertible",
-            "printedName": "CustomStringConvertible",
-            "usr": "s:s23CustomStringConvertibleP",
-            "mangledName": "$ss23CustomStringConvertibleP"
-          },
-          {
-            "kind": "Conformance",
-            "name": "CustomDebugStringConvertible",
-            "printedName": "CustomDebugStringConvertible",
-            "usr": "s:s28CustomDebugStringConvertibleP",
-            "mangledName": "$ss28CustomDebugStringConvertibleP"
-          }
-        ]
-      },
-      {
-        "kind": "TypeDecl",
-        "name": "SentryEventDecoder",
-        "printedName": "SentryEventDecoder",
-        "children": [
-          {
-            "kind": "Constructor",
-            "name": "init",
-            "printedName": "init()",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "SentryEventDecoder",
-                "printedName": "Sentry.SentryEventDecoder",
-                "usr": "c:@M@Sentry@objc(cs)SentryEventDecoder"
-              }
-            ],
-            "declKind": "Constructor",
-            "usr": "c:@M@Sentry@objc(cs)SentryEventDecoder(im)init",
-            "mangledName": "$s6Sentry0A12EventDecoderCACycfc",
-            "moduleName": "Sentry",
-            "overriding": true,
-            "objc_name": "init",
-            "declAttributes": [
-              "ObjC",
-              "Dynamic",
-              "Override"
-            ],
-            "init_kind": "Designated"
-          }
-        ],
-        "declKind": "Class",
-        "usr": "c:@M@Sentry@objc(cs)SentryEventDecoder",
-        "mangledName": "$s6Sentry0A12EventDecoderC",
-        "moduleName": "Sentry",
-        "declAttributes": [
-          "ObjCMembers",
-          "ObjC"
-        ],
-        "superclassUsr": "c:objc(cs)NSObject",
-        "inheritsConvenienceInitializers": true,
-        "superclassNames": [
-          "ObjectiveC.NSObject"
-        ],
-        "conformances": [
           {
             "kind": "Conformance",
             "name": "Copyable",
@@ -47279,6 +47381,7 @@
             "mangledName": "$s6Sentry0A25UserFeedbackConfigurationC10animationsSbvp",
             "moduleName": "Sentry",
             "declAttributes": [
+              "Final",
               "ObjC",
               "HasStorage"
             ],
@@ -47302,6 +47405,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "get"
@@ -47329,6 +47433,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "set"
@@ -47380,6 +47485,7 @@
             "moduleName": "Sentry",
             "declAttributes": [
               "HasInitialValue",
+              "Final",
               "ObjC",
               "HasStorage"
             ],
@@ -47430,6 +47536,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "get"
@@ -47484,6 +47591,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "set"
@@ -47507,6 +47615,7 @@
             "mangledName": "$s6Sentry0A25UserFeedbackConfigurationC15useShakeGestureSbvp",
             "moduleName": "Sentry",
             "declAttributes": [
+              "Final",
               "ObjC",
               "HasStorage"
             ],
@@ -47530,6 +47639,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "get"
@@ -47557,6 +47667,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "set"
@@ -47580,6 +47691,7 @@
             "mangledName": "$s6Sentry0A25UserFeedbackConfigurationC22showFormForScreenshotsSbvp",
             "moduleName": "Sentry",
             "declAttributes": [
+              "Final",
               "ObjC",
               "HasStorage"
             ],
@@ -47603,6 +47715,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "get"
@@ -47630,6 +47743,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "set"
@@ -47662,6 +47776,7 @@
             "moduleName": "Sentry",
             "declAttributes": [
               "HasInitialValue",
+              "Final",
               "ObjC",
               "HasStorage"
             ],
@@ -47693,6 +47808,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "get"
@@ -47728,6 +47844,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "set"
@@ -47779,6 +47896,7 @@
             "moduleName": "Sentry",
             "declAttributes": [
               "HasInitialValue",
+              "Final",
               "ObjC",
               "HasStorage"
             ],
@@ -47829,6 +47947,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "get"
@@ -47883,6 +48002,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "set"
@@ -47928,6 +48048,7 @@
             "moduleName": "Sentry",
             "declAttributes": [
               "HasInitialValue",
+              "Final",
               "ObjC",
               "HasStorage"
             ],
@@ -47972,6 +48093,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "get"
@@ -48020,6 +48142,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "set"
@@ -48070,6 +48193,7 @@
             "moduleName": "Sentry",
             "declAttributes": [
               "HasInitialValue",
+              "Final",
               "ObjC",
               "HasStorage"
             ],
@@ -48119,6 +48243,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "get"
@@ -48172,6 +48297,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "set"
@@ -48222,6 +48348,7 @@
             "moduleName": "Sentry",
             "declAttributes": [
               "HasInitialValue",
+              "Final",
               "ObjC",
               "HasStorage"
             ],
@@ -48271,6 +48398,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "get"
@@ -48324,6 +48452,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "set"
@@ -48388,6 +48517,7 @@
             "moduleName": "Sentry",
             "declAttributes": [
               "HasInitialValue",
+              "Final",
               "ObjC",
               "HasStorage"
             ],
@@ -48451,6 +48581,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "get"
@@ -48518,6 +48649,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "set"
@@ -48569,6 +48701,7 @@
             "moduleName": "Sentry",
             "declAttributes": [
               "HasInitialValue",
+              "Final",
               "ObjC",
               "HasStorage"
             ],
@@ -48619,6 +48752,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "get"
@@ -48673,6 +48807,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "set"
@@ -48724,6 +48859,7 @@
             "moduleName": "Sentry",
             "declAttributes": [
               "HasInitialValue",
+              "Final",
               "ObjC",
               "HasStorage"
             ],
@@ -48774,6 +48910,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "get"
@@ -48828,6 +48965,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "set"
@@ -48879,6 +49017,7 @@
             "moduleName": "Sentry",
             "declAttributes": [
               "HasInitialValue",
+              "Final",
               "ObjC",
               "HasStorage"
             ],
@@ -48929,6 +49068,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "get"
@@ -48983,6 +49123,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "set"
@@ -49019,11 +49160,9 @@
         "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackConfiguration",
         "mangledName": "$s6Sentry0A25UserFeedbackConfigurationC",
         "moduleName": "Sentry",
-        "intro_iOS": "13.0",
         "declAttributes": [
-          "Available",
+          "Final",
           "ObjCMembers",
-          "Available",
           "ObjC"
         ],
         "superclassUsr": "c:objc(cs)NSObject",
@@ -49351,6 +49490,7 @@
             "mangledName": "$s6Sentry0A14ProfileOptionsC9lifecycleAC0aB9LifecycleOvp",
             "moduleName": "Sentry",
             "declAttributes": [
+              "Final",
               "ObjC",
               "HasStorage"
             ],
@@ -49374,6 +49514,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "get"
@@ -49401,6 +49542,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "set"
@@ -49424,6 +49566,7 @@
             "mangledName": "$s6Sentry0A14ProfileOptionsC17sessionSampleRateSfvp",
             "moduleName": "Sentry",
             "declAttributes": [
+              "Final",
               "ObjC",
               "HasStorage"
             ],
@@ -49447,6 +49590,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "get"
@@ -49474,6 +49618,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "set"
@@ -49497,6 +49642,7 @@
             "mangledName": "$s6Sentry0A14ProfileOptionsC16profileAppStartsSbvp",
             "moduleName": "Sentry",
             "declAttributes": [
+              "Final",
               "ObjC",
               "HasStorage"
             ],
@@ -49520,6 +49666,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "get"
@@ -49547,6 +49694,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "set"
@@ -49584,6 +49732,7 @@
         "mangledName": "$s6Sentry0A14ProfileOptionsC",
         "moduleName": "Sentry",
         "declAttributes": [
+          "Final",
           "ObjCMembers",
           "ObjC"
         ],
@@ -51134,11 +51283,9 @@
             "mangledName": "$s6Sentry0A3SDKC8feedbackSo0A11FeedbackAPICvpZ",
             "moduleName": "Sentry",
             "static": true,
-            "intro_iOS": "13.0",
             "declAttributes": [
               "Final",
               "ObjC",
-              "Available",
               "HasStorage"
             ],
             "isLet": true,
@@ -51775,6 +51922,7 @@
         "mangledName": "$s6Sentry0A16RedactViewHelperC",
         "moduleName": "Sentry",
         "declAttributes": [
+          "Final",
           "ObjCMembers",
           "ObjC"
         ],
@@ -53165,6 +53313,7 @@
             "mangledName": "$s6Sentry0A19ExperimentalOptionsC19enableDataSwizzlingSbvp",
             "moduleName": "Sentry",
             "declAttributes": [
+              "Final",
               "ObjC",
               "HasStorage"
             ],
@@ -53188,6 +53337,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "get"
@@ -53215,6 +53365,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "set"
@@ -53238,6 +53389,7 @@
             "mangledName": "$s6Sentry0A19ExperimentalOptionsC26enableFileManagerSwizzlingSbvp",
             "moduleName": "Sentry",
             "declAttributes": [
+              "Final",
               "ObjC",
               "HasStorage"
             ],
@@ -53261,6 +53413,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "get"
@@ -53288,6 +53441,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "set"
@@ -53311,6 +53465,7 @@
             "mangledName": "$s6Sentry0A19ExperimentalOptionsC30enableUnhandledCPPExceptionsV2Sbvp",
             "moduleName": "Sentry",
             "declAttributes": [
+              "Final",
               "ObjC",
               "HasStorage"
             ],
@@ -53334,6 +53489,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "get"
@@ -53361,6 +53517,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "set"
@@ -53369,8 +53526,8 @@
           },
           {
             "kind": "Var",
-            "name": "enableLogs",
-            "printedName": "enableLogs",
+            "name": "enableSessionReplayInUnreliableEnvironment",
+            "printedName": "enableSessionReplayInUnreliableEnvironment",
             "children": [
               {
                 "kind": "TypeNominal",
@@ -53380,10 +53537,11 @@
               }
             ],
             "declKind": "Var",
-            "usr": "c:@M@Sentry@objc(cs)SentryExperimentalOptions(py)enableLogs",
-            "mangledName": "$s6Sentry0A19ExperimentalOptionsC10enableLogsSbvp",
+            "usr": "c:@M@Sentry@objc(cs)SentryExperimentalOptions(py)enableSessionReplayInUnreliableEnvironment",
+            "mangledName": "$s6Sentry0A19ExperimentalOptionsC42enableSessionReplayInUnreliableEnvironmentSbvp",
             "moduleName": "Sentry",
             "declAttributes": [
+              "Final",
               "ObjC",
               "HasStorage"
             ],
@@ -53402,11 +53560,12 @@
                   }
                 ],
                 "declKind": "Accessor",
-                "usr": "c:@M@Sentry@objc(cs)SentryExperimentalOptions(im)enableLogs",
-                "mangledName": "$s6Sentry0A19ExperimentalOptionsC10enableLogsSbvg",
+                "usr": "c:@M@Sentry@objc(cs)SentryExperimentalOptions(im)enableSessionReplayInUnreliableEnvironment",
+                "mangledName": "$s6Sentry0A19ExperimentalOptionsC42enableSessionReplayInUnreliableEnvironmentSbvg",
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "get"
@@ -53429,11 +53588,12 @@
                   }
                 ],
                 "declKind": "Accessor",
-                "usr": "c:@M@Sentry@objc(cs)SentryExperimentalOptions(im)setEnableLogs:",
-                "mangledName": "$s6Sentry0A19ExperimentalOptionsC10enableLogsSbvs",
+                "usr": "c:@M@Sentry@objc(cs)SentryExperimentalOptions(im)setEnableSessionReplayInUnreliableEnvironment:",
+                "mangledName": "$s6Sentry0A19ExperimentalOptionsC42enableSessionReplayInUnreliableEnvironmentSbvs",
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "set"
@@ -53471,6 +53631,7 @@
         "mangledName": "$s6Sentry0A19ExperimentalOptionsC",
         "moduleName": "Sentry",
         "declAttributes": [
+          "Final",
           "ObjCMembers",
           "ObjC"
         ],
@@ -53567,6 +53728,7 @@
             "mangledName": "$s6Sentry0A30UserFeedbackThemeConfigurationC10fontFamilySSSgvp",
             "moduleName": "Sentry",
             "declAttributes": [
+              "Final",
               "ObjC"
             ],
             "accessors": [
@@ -53595,6 +53757,7 @@
                 "mangledName": "$s6Sentry0A30UserFeedbackThemeConfigurationC10fontFamilySSSgvg",
                 "moduleName": "Sentry",
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "get"
@@ -53630,6 +53793,7 @@
                 "moduleName": "Sentry",
                 "objc_name": "setFontFamily:",
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "set"
@@ -53653,6 +53817,7 @@
             "mangledName": "$s6Sentry0A30UserFeedbackThemeConfigurationC10foregroundSo7UIColorCvp",
             "moduleName": "Sentry",
             "declAttributes": [
+              "Final",
               "ObjC",
               "HasStorage"
             ],
@@ -53676,6 +53841,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "get"
@@ -53703,6 +53869,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "set"
@@ -53726,6 +53893,7 @@
             "mangledName": "$s6Sentry0A30UserFeedbackThemeConfigurationC10backgroundSo7UIColorCvp",
             "moduleName": "Sentry",
             "declAttributes": [
+              "Final",
               "ObjC",
               "HasStorage"
             ],
@@ -53749,6 +53917,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "get"
@@ -53776,6 +53945,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "set"
@@ -53799,6 +53969,7 @@
             "mangledName": "$s6Sentry0A30UserFeedbackThemeConfigurationC16submitForegroundSo7UIColorCvp",
             "moduleName": "Sentry",
             "declAttributes": [
+              "Final",
               "ObjC",
               "HasStorage"
             ],
@@ -53822,6 +53993,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "get"
@@ -53849,6 +54021,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "set"
@@ -53872,6 +54045,7 @@
             "mangledName": "$s6Sentry0A30UserFeedbackThemeConfigurationC16submitBackgroundSo7UIColorCvp",
             "moduleName": "Sentry",
             "declAttributes": [
+              "Final",
               "ObjC",
               "HasStorage"
             ],
@@ -53895,6 +54069,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "get"
@@ -53922,6 +54097,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "set"
@@ -53945,6 +54121,7 @@
             "mangledName": "$s6Sentry0A30UserFeedbackThemeConfigurationC16buttonForegroundSo7UIColorCvp",
             "moduleName": "Sentry",
             "declAttributes": [
+              "Final",
               "ObjC"
             ],
             "accessors": [
@@ -53965,6 +54142,7 @@
                 "mangledName": "$s6Sentry0A30UserFeedbackThemeConfigurationC16buttonForegroundSo7UIColorCvg",
                 "moduleName": "Sentry",
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "get"
@@ -53992,6 +54170,7 @@
                 "moduleName": "Sentry",
                 "objc_name": "setButtonForeground:",
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "set"
@@ -54015,6 +54194,7 @@
             "mangledName": "$s6Sentry0A30UserFeedbackThemeConfigurationC16buttonBackgroundSo7UIColorCvp",
             "moduleName": "Sentry",
             "declAttributes": [
+              "Final",
               "ObjC",
               "HasStorage"
             ],
@@ -54038,6 +54218,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "get"
@@ -54065,6 +54246,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "set"
@@ -54088,6 +54270,7 @@
             "mangledName": "$s6Sentry0A30UserFeedbackThemeConfigurationC10errorColorSo7UIColorCvp",
             "moduleName": "Sentry",
             "declAttributes": [
+              "Final",
               "ObjC",
               "HasStorage"
             ],
@@ -54111,6 +54294,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "get"
@@ -54138,6 +54322,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "set"
@@ -54166,6 +54351,7 @@
                 "mangledName": "$s6Sentry0A30UserFeedbackThemeConfigurationC0A23FormElementOutlineStyleC5colorSo7UIColorCvp",
                 "moduleName": "Sentry",
                 "declAttributes": [
+                  "Final",
                   "HasStorage"
                 ],
                 "hasStorage": true,
@@ -54187,6 +54373,9 @@
                     "mangledName": "$s6Sentry0A30UserFeedbackThemeConfigurationC0A23FormElementOutlineStyleC5colorSo7UIColorCvg",
                     "moduleName": "Sentry",
                     "implicit": true,
+                    "declAttributes": [
+                      "Final"
+                    ],
                     "accessorKind": "get"
                   },
                   {
@@ -54211,6 +54400,9 @@
                     "mangledName": "$s6Sentry0A30UserFeedbackThemeConfigurationC0A23FormElementOutlineStyleC5colorSo7UIColorCvs",
                     "moduleName": "Sentry",
                     "implicit": true,
+                    "declAttributes": [
+                      "Final"
+                    ],
                     "accessorKind": "set"
                   }
                 ]
@@ -54232,6 +54424,7 @@
                 "mangledName": "$s6Sentry0A30UserFeedbackThemeConfigurationC0A23FormElementOutlineStyleC12cornerRadius12CoreGraphics7CGFloatVvp",
                 "moduleName": "Sentry",
                 "declAttributes": [
+                  "Final",
                   "HasStorage"
                 ],
                 "hasStorage": true,
@@ -54253,6 +54446,9 @@
                     "mangledName": "$s6Sentry0A30UserFeedbackThemeConfigurationC0A23FormElementOutlineStyleC12cornerRadius12CoreGraphics7CGFloatVvg",
                     "moduleName": "Sentry",
                     "implicit": true,
+                    "declAttributes": [
+                      "Final"
+                    ],
                     "accessorKind": "get"
                   },
                   {
@@ -54277,6 +54473,9 @@
                     "mangledName": "$s6Sentry0A30UserFeedbackThemeConfigurationC0A23FormElementOutlineStyleC12cornerRadius12CoreGraphics7CGFloatVvs",
                     "moduleName": "Sentry",
                     "implicit": true,
+                    "declAttributes": [
+                      "Final"
+                    ],
                     "accessorKind": "set"
                   }
                 ]
@@ -54298,6 +54497,7 @@
                 "mangledName": "$s6Sentry0A30UserFeedbackThemeConfigurationC0A23FormElementOutlineStyleC12outlineWidth12CoreGraphics7CGFloatVvp",
                 "moduleName": "Sentry",
                 "declAttributes": [
+                  "Final",
                   "HasStorage"
                 ],
                 "hasStorage": true,
@@ -54319,6 +54519,9 @@
                     "mangledName": "$s6Sentry0A30UserFeedbackThemeConfigurationC0A23FormElementOutlineStyleC12outlineWidth12CoreGraphics7CGFloatVvg",
                     "moduleName": "Sentry",
                     "implicit": true,
+                    "declAttributes": [
+                      "Final"
+                    ],
                     "accessorKind": "get"
                   },
                   {
@@ -54343,6 +54546,9 @@
                     "mangledName": "$s6Sentry0A30UserFeedbackThemeConfigurationC0A23FormElementOutlineStyleC12outlineWidth12CoreGraphics7CGFloatVvs",
                     "moduleName": "Sentry",
                     "implicit": true,
+                    "declAttributes": [
+                      "Final"
+                    ],
                     "accessorKind": "set"
                   }
                 ]
@@ -54396,6 +54602,7 @@
             "mangledName": "$s6Sentry0A30UserFeedbackThemeConfigurationC0A23FormElementOutlineStyleC",
             "moduleName": "Sentry",
             "declAttributes": [
+              "Final",
               "ObjC"
             ],
             "superclassUsr": "c:objc(cs)NSObject",
@@ -54477,6 +54684,7 @@
             "mangledName": "$s6Sentry0A30UserFeedbackThemeConfigurationC12outlineStyleAC0a18FormElementOutlineG0Cvp",
             "moduleName": "Sentry",
             "declAttributes": [
+              "Final",
               "ObjC"
             ],
             "accessors": [
@@ -54497,6 +54705,7 @@
                 "mangledName": "$s6Sentry0A30UserFeedbackThemeConfigurationC12outlineStyleAC0a18FormElementOutlineG0Cvg",
                 "moduleName": "Sentry",
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "get"
@@ -54524,6 +54733,7 @@
                 "moduleName": "Sentry",
                 "objc_name": "setOutlineStyle:",
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "set"
@@ -54547,6 +54757,7 @@
             "mangledName": "$s6Sentry0A30UserFeedbackThemeConfigurationC15inputBackgroundSo7UIColorCvp",
             "moduleName": "Sentry",
             "declAttributes": [
+              "Final",
               "ObjC",
               "HasStorage"
             ],
@@ -54570,6 +54781,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "get"
@@ -54597,6 +54809,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "set"
@@ -54620,6 +54833,7 @@
             "mangledName": "$s6Sentry0A30UserFeedbackThemeConfigurationC15inputForegroundSo7UIColorCvp",
             "moduleName": "Sentry",
             "declAttributes": [
+              "Final",
               "ObjC",
               "HasStorage"
             ],
@@ -54643,6 +54857,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "get"
@@ -54670,6 +54885,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "set"
@@ -54706,11 +54922,9 @@
         "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackThemeConfiguration",
         "mangledName": "$s6Sentry0A30UserFeedbackThemeConfigurationC",
         "moduleName": "Sentry",
-        "intro_iOS": "13.0",
         "declAttributes": [
-          "Available",
+          "Final",
           "ObjCMembers",
-          "Available",
           "ObjC"
         ],
         "superclassUsr": "c:objc(cs)NSObject",
@@ -54798,6 +55012,7 @@
             "mangledName": "$s6Sentry0A31UserFeedbackWidgetConfigurationC10autoInjectSbvp",
             "moduleName": "Sentry",
             "declAttributes": [
+              "Final",
               "ObjC",
               "HasStorage"
             ],
@@ -54821,6 +55036,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "get"
@@ -54848,6 +55064,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "set"
@@ -54879,6 +55096,7 @@
             "mangledName": "$s6Sentry0A31UserFeedbackWidgetConfigurationC9labelTextSSSgvp",
             "moduleName": "Sentry",
             "declAttributes": [
+              "Final",
               "ObjC"
             ],
             "accessors": [
@@ -54907,6 +55125,7 @@
                 "mangledName": "$s6Sentry0A31UserFeedbackWidgetConfigurationC9labelTextSSSgvg",
                 "moduleName": "Sentry",
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "get"
@@ -54942,6 +55161,7 @@
                 "moduleName": "Sentry",
                 "objc_name": "setLabelText:",
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "set"
@@ -54965,6 +55185,7 @@
             "mangledName": "$s6Sentry0A31UserFeedbackWidgetConfigurationC8showIconSbvp",
             "moduleName": "Sentry",
             "declAttributes": [
+              "Final",
               "ObjC",
               "HasStorage"
             ],
@@ -54988,6 +55209,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "get"
@@ -55015,6 +55237,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "set"
@@ -55046,6 +55269,7 @@
             "mangledName": "$s6Sentry0A31UserFeedbackWidgetConfigurationC24widgetAccessibilityLabelSSSgvp",
             "moduleName": "Sentry",
             "declAttributes": [
+              "Final",
               "ObjC"
             ],
             "accessors": [
@@ -55074,6 +55298,7 @@
                 "mangledName": "$s6Sentry0A31UserFeedbackWidgetConfigurationC24widgetAccessibilityLabelSSSgvg",
                 "moduleName": "Sentry",
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "get"
@@ -55109,6 +55334,7 @@
                 "moduleName": "Sentry",
                 "objc_name": "setWidgetAccessibilityLabel:",
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "set"
@@ -55132,6 +55358,7 @@
             "mangledName": "$s6Sentry0A31UserFeedbackWidgetConfigurationC11windowLevelSo08UIWindowG0avp",
             "moduleName": "Sentry",
             "declAttributes": [
+              "Final",
               "ObjC",
               "HasStorage"
             ],
@@ -55155,6 +55382,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "get"
@@ -55182,6 +55410,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "set"
@@ -55205,6 +55434,7 @@
             "mangledName": "$s6Sentry0A31UserFeedbackWidgetConfigurationC8locationSo21NSDirectionalRectEdgeVvp",
             "moduleName": "Sentry",
             "declAttributes": [
+              "Final",
               "ObjC",
               "HasStorage"
             ],
@@ -55228,6 +55458,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "get"
@@ -55255,6 +55486,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "set"
@@ -55278,6 +55510,7 @@
             "mangledName": "$s6Sentry0A31UserFeedbackWidgetConfigurationC14layoutUIOffsetSo0G0Vvp",
             "moduleName": "Sentry",
             "declAttributes": [
+              "Final",
               "ObjC",
               "HasStorage"
             ],
@@ -55301,6 +55534,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "get"
@@ -55328,6 +55562,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "set"
@@ -55364,11 +55599,9 @@
         "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackWidgetConfiguration",
         "mangledName": "$s6Sentry0A31UserFeedbackWidgetConfigurationC",
         "moduleName": "Sentry",
-        "intro_iOS": "13.0",
         "declAttributes": [
-          "Available",
+          "Final",
           "ObjCMembers",
-          "Available",
           "ObjC"
         ],
         "superclassUsr": "c:objc(cs)NSObject",
@@ -55812,6 +56045,7 @@
             "mangledName": "$s6Sentry0A29UserFeedbackFormConfigurationC03useaB0Sbvp",
             "moduleName": "Sentry",
             "declAttributes": [
+              "Final",
               "ObjC",
               "HasStorage"
             ],
@@ -55835,6 +56069,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "get"
@@ -55862,6 +56097,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "set"
@@ -55885,6 +56121,7 @@
             "mangledName": "$s6Sentry0A29UserFeedbackFormConfigurationC12showBrandingSbvp",
             "moduleName": "Sentry",
             "declAttributes": [
+              "Final",
               "ObjC",
               "HasStorage"
             ],
@@ -55908,6 +56145,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "get"
@@ -55935,6 +56173,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "set"
@@ -55958,6 +56197,7 @@
             "mangledName": "$s6Sentry0A29UserFeedbackFormConfigurationC9formTitleSSvp",
             "moduleName": "Sentry",
             "declAttributes": [
+              "Final",
               "ObjC",
               "HasStorage"
             ],
@@ -55981,6 +56221,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "get"
@@ -56008,6 +56249,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "set"
@@ -56031,6 +56273,7 @@
             "mangledName": "$s6Sentry0A29UserFeedbackFormConfigurationC12messageLabelSSvp",
             "moduleName": "Sentry",
             "declAttributes": [
+              "Final",
               "ObjC",
               "HasStorage"
             ],
@@ -56054,6 +56297,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "get"
@@ -56081,6 +56325,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "set"
@@ -56104,6 +56349,7 @@
             "mangledName": "$s6Sentry0A29UserFeedbackFormConfigurationC18messagePlaceholderSSvp",
             "moduleName": "Sentry",
             "declAttributes": [
+              "Final",
               "ObjC",
               "HasStorage"
             ],
@@ -56127,6 +56373,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "get"
@@ -56154,6 +56401,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "set"
@@ -56177,6 +56425,7 @@
             "mangledName": "$s6Sentry0A29UserFeedbackFormConfigurationC33messageTextViewAccessibilityLabelSSvp",
             "moduleName": "Sentry",
             "declAttributes": [
+              "Final",
               "ObjC"
             ],
             "accessors": [
@@ -56197,6 +56446,7 @@
                 "mangledName": "$s6Sentry0A29UserFeedbackFormConfigurationC33messageTextViewAccessibilityLabelSSvg",
                 "moduleName": "Sentry",
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "get"
@@ -56224,6 +56474,7 @@
                 "moduleName": "Sentry",
                 "objc_name": "setMessageTextViewAccessibilityLabel:",
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "set"
@@ -56247,6 +56498,7 @@
             "mangledName": "$s6Sentry0A29UserFeedbackFormConfigurationC15isRequiredLabelSSvp",
             "moduleName": "Sentry",
             "declAttributes": [
+              "Final",
               "ObjC",
               "HasStorage"
             ],
@@ -56270,6 +56522,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "get"
@@ -56297,6 +56550,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "set"
@@ -56320,6 +56574,7 @@
             "mangledName": "$s6Sentry0A29UserFeedbackFormConfigurationC27removeScreenshotButtonLabelSSvp",
             "moduleName": "Sentry",
             "declAttributes": [
+              "Final",
               "ObjC",
               "HasStorage"
             ],
@@ -56343,6 +56598,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "get"
@@ -56370,6 +56626,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "set"
@@ -56393,6 +56650,7 @@
             "mangledName": "$s6Sentry0A29UserFeedbackFormConfigurationC40removeScreenshotButtonAccessibilityLabelSSvp",
             "moduleName": "Sentry",
             "declAttributes": [
+              "Final",
               "ObjC"
             ],
             "accessors": [
@@ -56413,6 +56671,7 @@
                 "mangledName": "$s6Sentry0A29UserFeedbackFormConfigurationC40removeScreenshotButtonAccessibilityLabelSSvg",
                 "moduleName": "Sentry",
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "get"
@@ -56440,6 +56699,7 @@
                 "moduleName": "Sentry",
                 "objc_name": "setRemoveScreenshotButtonAccessibilityLabel:",
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "set"
@@ -56463,6 +56723,7 @@
             "mangledName": "$s6Sentry0A29UserFeedbackFormConfigurationC14isNameRequiredSbvp",
             "moduleName": "Sentry",
             "declAttributes": [
+              "Final",
               "ObjC",
               "HasStorage"
             ],
@@ -56486,6 +56747,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "get"
@@ -56513,6 +56775,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "set"
@@ -56536,6 +56799,7 @@
             "mangledName": "$s6Sentry0A29UserFeedbackFormConfigurationC8showNameSbvp",
             "moduleName": "Sentry",
             "declAttributes": [
+              "Final",
               "ObjC",
               "HasStorage"
             ],
@@ -56559,6 +56823,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "get"
@@ -56586,6 +56851,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "set"
@@ -56609,6 +56875,7 @@
             "mangledName": "$s6Sentry0A29UserFeedbackFormConfigurationC9nameLabelSSvp",
             "moduleName": "Sentry",
             "declAttributes": [
+              "Final",
               "ObjC",
               "HasStorage"
             ],
@@ -56632,6 +56899,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "get"
@@ -56659,6 +56927,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "set"
@@ -56682,6 +56951,7 @@
             "mangledName": "$s6Sentry0A29UserFeedbackFormConfigurationC15namePlaceholderSSvp",
             "moduleName": "Sentry",
             "declAttributes": [
+              "Final",
               "ObjC",
               "HasStorage"
             ],
@@ -56705,6 +56975,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "get"
@@ -56732,6 +57003,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "set"
@@ -56755,6 +57027,7 @@
             "mangledName": "$s6Sentry0A29UserFeedbackFormConfigurationC31nameTextFieldAccessibilityLabelSSvp",
             "moduleName": "Sentry",
             "declAttributes": [
+              "Final",
               "ObjC"
             ],
             "accessors": [
@@ -56775,6 +57048,7 @@
                 "mangledName": "$s6Sentry0A29UserFeedbackFormConfigurationC31nameTextFieldAccessibilityLabelSSvg",
                 "moduleName": "Sentry",
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "get"
@@ -56802,6 +57076,7 @@
                 "moduleName": "Sentry",
                 "objc_name": "setNameTextFieldAccessibilityLabel:",
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "set"
@@ -56825,6 +57100,7 @@
             "mangledName": "$s6Sentry0A29UserFeedbackFormConfigurationC15isEmailRequiredSbvp",
             "moduleName": "Sentry",
             "declAttributes": [
+              "Final",
               "ObjC",
               "HasStorage"
             ],
@@ -56848,6 +57124,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "get"
@@ -56875,6 +57152,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "set"
@@ -56898,6 +57176,7 @@
             "mangledName": "$s6Sentry0A29UserFeedbackFormConfigurationC9showEmailSbvp",
             "moduleName": "Sentry",
             "declAttributes": [
+              "Final",
               "ObjC",
               "HasStorage"
             ],
@@ -56921,6 +57200,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "get"
@@ -56948,6 +57228,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "set"
@@ -56971,6 +57252,7 @@
             "mangledName": "$s6Sentry0A29UserFeedbackFormConfigurationC10emailLabelSSvp",
             "moduleName": "Sentry",
             "declAttributes": [
+              "Final",
               "ObjC",
               "HasStorage"
             ],
@@ -56994,6 +57276,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "get"
@@ -57021,6 +57304,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "set"
@@ -57044,6 +57328,7 @@
             "mangledName": "$s6Sentry0A29UserFeedbackFormConfigurationC16emailPlaceholderSSvp",
             "moduleName": "Sentry",
             "declAttributes": [
+              "Final",
               "ObjC",
               "HasStorage"
             ],
@@ -57067,6 +57352,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "get"
@@ -57094,6 +57380,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "set"
@@ -57117,6 +57404,7 @@
             "mangledName": "$s6Sentry0A29UserFeedbackFormConfigurationC32emailTextFieldAccessibilityLabelSSvp",
             "moduleName": "Sentry",
             "declAttributes": [
+              "Final",
               "ObjC"
             ],
             "accessors": [
@@ -57137,6 +57425,7 @@
                 "mangledName": "$s6Sentry0A29UserFeedbackFormConfigurationC32emailTextFieldAccessibilityLabelSSvg",
                 "moduleName": "Sentry",
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "get"
@@ -57164,6 +57453,7 @@
                 "moduleName": "Sentry",
                 "objc_name": "setEmailTextFieldAccessibilityLabel:",
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "set"
@@ -57187,6 +57477,7 @@
             "mangledName": "$s6Sentry0A29UserFeedbackFormConfigurationC17submitButtonLabelSSvp",
             "moduleName": "Sentry",
             "declAttributes": [
+              "Final",
               "ObjC",
               "HasStorage"
             ],
@@ -57210,6 +57501,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "get"
@@ -57237,6 +57529,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "set"
@@ -57260,6 +57553,7 @@
             "mangledName": "$s6Sentry0A29UserFeedbackFormConfigurationC30submitButtonAccessibilityLabelSSvp",
             "moduleName": "Sentry",
             "declAttributes": [
+              "Final",
               "ObjC"
             ],
             "accessors": [
@@ -57280,6 +57574,7 @@
                 "mangledName": "$s6Sentry0A29UserFeedbackFormConfigurationC30submitButtonAccessibilityLabelSSvg",
                 "moduleName": "Sentry",
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "get"
@@ -57307,6 +57602,7 @@
                 "moduleName": "Sentry",
                 "objc_name": "setSubmitButtonAccessibilityLabel:",
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "set"
@@ -57330,6 +57626,7 @@
             "mangledName": "$s6Sentry0A29UserFeedbackFormConfigurationC17cancelButtonLabelSSvp",
             "moduleName": "Sentry",
             "declAttributes": [
+              "Final",
               "ObjC",
               "HasStorage"
             ],
@@ -57353,6 +57650,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "get"
@@ -57380,6 +57678,7 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "set"
@@ -57403,6 +57702,7 @@
             "mangledName": "$s6Sentry0A29UserFeedbackFormConfigurationC30cancelButtonAccessibilityLabelSSvp",
             "moduleName": "Sentry",
             "declAttributes": [
+              "Final",
               "ObjC"
             ],
             "accessors": [
@@ -57423,6 +57723,7 @@
                 "mangledName": "$s6Sentry0A29UserFeedbackFormConfigurationC30cancelButtonAccessibilityLabelSSvg",
                 "moduleName": "Sentry",
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "get"
@@ -57450,6 +57751,7 @@
                 "moduleName": "Sentry",
                 "objc_name": "setCancelButtonAccessibilityLabel:",
                 "declAttributes": [
+                  "Final",
                   "ObjC"
                 ],
                 "accessorKind": "set"
@@ -57486,11 +57788,9 @@
         "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackFormConfiguration",
         "mangledName": "$s6Sentry0A29UserFeedbackFormConfigurationC",
         "moduleName": "Sentry",
-        "intro_iOS": "13.0",
         "declAttributes": [
-          "Available",
+          "Final",
           "ObjCMembers",
-          "Available",
           "ObjC"
         ],
         "superclassUsr": "c:objc(cs)NSObject",
@@ -57590,48 +57890,6 @@
             "declKind": "Accessor",
             "usr": "s:SC21SENTRY_HAS_METRIC_KITs5Int32Vvg",
             "mangledName": "$sSC21SENTRY_HAS_METRIC_KITs5Int32Vvg",
-            "moduleName": "Sentry",
-            "declAttributes": [
-              "Transparent"
-            ],
-            "accessorKind": "get"
-          }
-        ]
-      },
-      {
-        "kind": "Var",
-        "name": "SENTRY_HAS_REACHABILITY",
-        "printedName": "SENTRY_HAS_REACHABILITY",
-        "children": [
-          {
-            "kind": "TypeNominal",
-            "name": "Int32",
-            "printedName": "Swift.Int32",
-            "usr": "s:s5Int32V"
-          }
-        ],
-        "declKind": "Var",
-        "usr": "c:@macro@SENTRY_HAS_REACHABILITY",
-        "moduleName": "Sentry",
-        "declAttributes": [
-          "Nonisolated"
-        ],
-        "accessors": [
-          {
-            "kind": "Accessor",
-            "name": "Get",
-            "printedName": "Get()",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Int32",
-                "printedName": "Swift.Int32",
-                "usr": "s:s5Int32V"
-              }
-            ],
-            "declKind": "Accessor",
-            "usr": "s:SC23SENTRY_HAS_REACHABILITYs5Int32Vvg",
-            "mangledName": "$sSC23SENTRY_HAS_REACHABILITYs5Int32Vvg",
             "moduleName": "Sentry",
             "declAttributes": [
               "Transparent"
