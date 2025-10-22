@@ -24,8 +24,7 @@ OS_VERSION=""
 usage() {
     echo "Usage: $0 --platforms <platform1,platform2,...> --os-version <os_version>"
     echo "  Available platforms: iOS,tvOS,visionOS,watchOS"
-    echo "  OS version is used for logging/informational purposes"
-    echo "  xcodebuild will download the appropriate platform version for the active Xcode"
+    echo "  OS version: Version to download (e.g., 26.1 for beta, 16.4 for older iOS)"
     echo "  Example: $0 --platforms iOS --os-version 26.1"
     echo "  Example: $0 --platforms iOS --os-version 16.4"
     exit 1
@@ -60,31 +59,28 @@ for platform in "${PLATFORM_ARRAY[@]}"; do
     case "$platform" in
         "iOS")
             begin_group "Installing iOS $OS_VERSION platform"
-            # Note: We don't use -buildVersion because it expects a build identifier (e.g., "23A343"),
-            # not an OS version (e.g., "26.1"). xcodebuild will download the appropriate version
-            # for the active Xcode version when -buildVersion is omitted.
-            xcodebuild -downloadPlatform iOS -quiet || {
+            xcodebuild -downloadPlatform iOS -buildVersion "$OS_VERSION" -quiet || {
                 log_warning "Failed to download iOS platform, continuing..."
             }
             end_group
             ;;
         "tvOS")
             begin_group "Installing tvOS $OS_VERSION platform"
-            xcodebuild -downloadPlatform tvOS -quiet || {
+            xcodebuild -downloadPlatform tvOS -buildVersion "$OS_VERSION" -quiet || {
                 log_warning "Failed to download tvOS platform, continuing..."
             }
             end_group
             ;;
         "visionOS")
             begin_group "Installing visionOS $OS_VERSION platform"
-            xcodebuild -downloadPlatform visionOS -quiet || {
+            xcodebuild -downloadPlatform visionOS -buildVersion "$OS_VERSION" -quiet || {
                 log_warning "Failed to download visionOS platform, continuing..."
             }
             end_group
             ;;
         "watchOS")
             begin_group "Installing watchOS $OS_VERSION platform"
-            xcodebuild -downloadPlatform watchOS -quiet || {
+            xcodebuild -downloadPlatform watchOS -buildVersion "$OS_VERSION" -quiet || {
                 log_warning "Failed to download watchOS platform, continuing..."
             }
             end_group
