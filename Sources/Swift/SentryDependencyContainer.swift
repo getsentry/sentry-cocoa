@@ -219,7 +219,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
 
         let photographer = SentryViewPhotographer(
             renderer: viewRenderer,
-            redactOptions: RedactWrapper(SentryDependencyContainerSwiftHelper.redactOptions(options)),
+            redactBuilder: SentryUIRedactBuilder(options: RedactWrapper(SentryDependencyContainerSwiftHelper.redactOptions(options))),
             enableMaskRendererV2: SentryDependencyContainerSwiftHelper.viewRendererV2Enabled(options))
         return SentryScreenshotSource(photographer: photographer)
     }

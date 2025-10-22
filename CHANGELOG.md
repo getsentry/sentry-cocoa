@@ -24,6 +24,7 @@
 ### Fixes
 
 - Fixes warnings about minimum OS version being lower than Xcode supported version (#5591)
+- Add SwiftUI.List's background decoration view to ignored redaction views (#6292)
 - Fix rendering method for fast view rendering (#6360)
 - Fix issue where the thread that generated an event could be missing when more than 100 threads are running (#6377)
 - Fix wrong Frame Delay when becoming active, which lead to false reported app hangs when the app moves to the foreground after being in the background (#6381)
