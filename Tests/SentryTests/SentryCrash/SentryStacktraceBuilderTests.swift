@@ -72,7 +72,7 @@ class SentryStacktraceBuilderTests: XCTestCase {
         let isMainInFirstFrames = actual.frames[...3].contains(where: { $0.function == "main" })
         XCTAssertTrue(
             isMainInFirstFrames,
-            "Expected frames to be ordered from caller to callee (xctest's main expected in first few frames). Found instead:\n\(actual.frames.map({ "   - \($0.function ?? "<empty>")" }).joined(separator:"\n"))"
+            "Expected frames to be ordered from caller to callee (xctest's main expected in first few frames). Found instead:\n\(actual.frames.map({ "   - \($0.function ?? "<empty>")" }).joined(separator: "\n"))"
         )
     }
 
