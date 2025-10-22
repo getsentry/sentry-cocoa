@@ -66,7 +66,6 @@ private extension SentryAppStartProfilingConfigurationTests {
     @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     private func performTest(expectedOptions: LaunchProfileOptions, shouldProfileLaunch: Bool) {
         let actualOptions = Options()
-        actualOptions.enableAppLaunchProfiling = expectedOptions.enableAppLaunchProfiling
 
         if let tracesSampleRate = expectedOptions.tracesSampleRate {
             actualOptions.tracesSampleRate = NSNumber(value: tracesSampleRate)
@@ -105,155 +104,107 @@ private extension SentryAppStartProfilingConfigurationTests {
 // MARK: -
 private extension SentryAppStartProfilingConfigurationTests {
     static let invalidTransactionProfilingConfigurations = [
-        LaunchProfileOptions(enableAppLaunchProfiling: false, tracesSampleRate: 0, profilesSampleRate: 0),
-        LaunchProfileOptions(enableAppLaunchProfiling: false, tracesSampleRate: 0, profilesSampleRate: 1),
-        LaunchProfileOptions(enableAppLaunchProfiling: false, tracesSampleRate: 1, profilesSampleRate: 0),
-        LaunchProfileOptions(enableAppLaunchProfiling: false, tracesSampleRate: 1, profilesSampleRate: 1),
-        LaunchProfileOptions(enableAppLaunchProfiling: false, tracesSampleRate: nil, profilesSampleRate: 0),
-        LaunchProfileOptions(enableAppLaunchProfiling: false, tracesSampleRate: nil, profilesSampleRate: 1),
-        LaunchProfileOptions(enableAppLaunchProfiling: true, tracesSampleRate: 0, profilesSampleRate: 0),
-        LaunchProfileOptions(enableAppLaunchProfiling: true, tracesSampleRate: 0, profilesSampleRate: 1),
-        LaunchProfileOptions(enableAppLaunchProfiling: true, tracesSampleRate: 1, profilesSampleRate: 0),
-        LaunchProfileOptions(enableAppLaunchProfiling: true, tracesSampleRate: nil, profilesSampleRate: 0),
-        LaunchProfileOptions(enableAppLaunchProfiling: true, tracesSampleRate: nil, profilesSampleRate: 1),
-        LaunchProfileOptions(enableAppLaunchProfiling: true, tracesSampleRate: nil, profilesSampleRate: 0)
+        LaunchProfileOptions(tracesSampleRate: 0, profilesSampleRate: 0),
+        LaunchProfileOptions(tracesSampleRate: 0, profilesSampleRate: 1),
+        LaunchProfileOptions(tracesSampleRate: 1, profilesSampleRate: 0),
+        LaunchProfileOptions(tracesSampleRate: 1, profilesSampleRate: 1),
+        LaunchProfileOptions(tracesSampleRate: nil, profilesSampleRate: 0),
+        LaunchProfileOptions(tracesSampleRate: nil, profilesSampleRate: 1)
     ]
 
     static let invalidContinuousProfilingV1Configurations = [
-        LaunchProfileOptions(enableAppLaunchProfiling: false, tracesSampleRate: 1, profilesSampleRate: nil),
-        LaunchProfileOptions(enableAppLaunchProfiling: false, tracesSampleRate: 0, profilesSampleRate: nil),
-        LaunchProfileOptions(enableAppLaunchProfiling: false, tracesSampleRate: nil, profilesSampleRate: nil)
+        LaunchProfileOptions(tracesSampleRate: 1, profilesSampleRate: nil),
+        LaunchProfileOptions(tracesSampleRate: 0, profilesSampleRate: nil),
+        LaunchProfileOptions(tracesSampleRate: nil, profilesSampleRate: nil)
     ]
 
     static let invalidTransactionProfilingWithV2OptionsConfigurations = [
-        LaunchProfileOptions(enableAppLaunchProfiling: false, tracesSampleRate: 0, profilesSampleRate: 0, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 0, profileAppStarts: false)),
-        LaunchProfileOptions(enableAppLaunchProfiling: false, tracesSampleRate: 0, profilesSampleRate: 0, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 0, profileAppStarts: true)),
-        LaunchProfileOptions(enableAppLaunchProfiling: false, tracesSampleRate: 0, profilesSampleRate: 0, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 1, profileAppStarts: false)),
-        LaunchProfileOptions(enableAppLaunchProfiling: false, tracesSampleRate: 0, profilesSampleRate: 0, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 1, profileAppStarts: true)),
-        LaunchProfileOptions(enableAppLaunchProfiling: false, tracesSampleRate: 0, profilesSampleRate: 0, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 0, profileAppStarts: false)),
-        LaunchProfileOptions(enableAppLaunchProfiling: false, tracesSampleRate: 0, profilesSampleRate: 0, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 0, profileAppStarts: true)),
-        LaunchProfileOptions(enableAppLaunchProfiling: false, tracesSampleRate: 0, profilesSampleRate: 0, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 1, profileAppStarts: false)),
-        LaunchProfileOptions(enableAppLaunchProfiling: false, tracesSampleRate: 0, profilesSampleRate: 0, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 1, profileAppStarts: true)),
+        LaunchProfileOptions(tracesSampleRate: 0, profilesSampleRate: 0, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 0, profileAppStarts: false)),
+        LaunchProfileOptions(tracesSampleRate: 0, profilesSampleRate: 0, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 0, profileAppStarts: true)),
+        LaunchProfileOptions(tracesSampleRate: 0, profilesSampleRate: 0, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 1, profileAppStarts: false)),
+        LaunchProfileOptions(tracesSampleRate: 0, profilesSampleRate: 0, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 1, profileAppStarts: true)),
+        LaunchProfileOptions(tracesSampleRate: 0, profilesSampleRate: 0, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 0, profileAppStarts: false)),
+        LaunchProfileOptions(tracesSampleRate: 0, profilesSampleRate: 0, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 0, profileAppStarts: true)),
+        LaunchProfileOptions(tracesSampleRate: 0, profilesSampleRate: 0, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 1, profileAppStarts: false)),
+        LaunchProfileOptions(tracesSampleRate: 0, profilesSampleRate: 0, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 1, profileAppStarts: true)),
 
-        LaunchProfileOptions(enableAppLaunchProfiling: false, tracesSampleRate: 0, profilesSampleRate: 1, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 0, profileAppStarts: false)),
-        LaunchProfileOptions(enableAppLaunchProfiling: false, tracesSampleRate: 0, profilesSampleRate: 1, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 0, profileAppStarts: true)),
-        LaunchProfileOptions(enableAppLaunchProfiling: false, tracesSampleRate: 0, profilesSampleRate: 1, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 1, profileAppStarts: false)),
-        LaunchProfileOptions(enableAppLaunchProfiling: false, tracesSampleRate: 0, profilesSampleRate: 1, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 1, profileAppStarts: true)),
-        LaunchProfileOptions(enableAppLaunchProfiling: false, tracesSampleRate: 0, profilesSampleRate: 1, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 0, profileAppStarts: false)),
-        LaunchProfileOptions(enableAppLaunchProfiling: false, tracesSampleRate: 0, profilesSampleRate: 1, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 0, profileAppStarts: true)),
-        LaunchProfileOptions(enableAppLaunchProfiling: false, tracesSampleRate: 0, profilesSampleRate: 1, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 1, profileAppStarts: false)),
-        LaunchProfileOptions(enableAppLaunchProfiling: false, tracesSampleRate: 0, profilesSampleRate: 1, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 1, profileAppStarts: true)),
+        LaunchProfileOptions(tracesSampleRate: 0, profilesSampleRate: 1, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 0, profileAppStarts: false)),
+        LaunchProfileOptions(tracesSampleRate: 0, profilesSampleRate: 1, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 0, profileAppStarts: true)),
+        LaunchProfileOptions(tracesSampleRate: 0, profilesSampleRate: 1, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 1, profileAppStarts: false)),
+        LaunchProfileOptions(tracesSampleRate: 0, profilesSampleRate: 1, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 1, profileAppStarts: true)),
+        LaunchProfileOptions(tracesSampleRate: 0, profilesSampleRate: 1, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 0, profileAppStarts: false)),
+        LaunchProfileOptions(tracesSampleRate: 0, profilesSampleRate: 1, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 0, profileAppStarts: true)),
+        LaunchProfileOptions(tracesSampleRate: 0, profilesSampleRate: 1, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 1, profileAppStarts: false)),
+        LaunchProfileOptions(tracesSampleRate: 0, profilesSampleRate: 1, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 1, profileAppStarts: true)),
 
-        LaunchProfileOptions(enableAppLaunchProfiling: false, tracesSampleRate: 1, profilesSampleRate: 0, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 0, profileAppStarts: false)),
-        LaunchProfileOptions(enableAppLaunchProfiling: false, tracesSampleRate: 1, profilesSampleRate: 0, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 0, profileAppStarts: true)),
-        LaunchProfileOptions(enableAppLaunchProfiling: false, tracesSampleRate: 1, profilesSampleRate: 0, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 1, profileAppStarts: false)),
-        LaunchProfileOptions(enableAppLaunchProfiling: false, tracesSampleRate: 1, profilesSampleRate: 0, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 1, profileAppStarts: true)),
-        LaunchProfileOptions(enableAppLaunchProfiling: false, tracesSampleRate: 1, profilesSampleRate: 0, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 0, profileAppStarts: false)),
-        LaunchProfileOptions(enableAppLaunchProfiling: false, tracesSampleRate: 1, profilesSampleRate: 0, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 0, profileAppStarts: true)),
-        LaunchProfileOptions(enableAppLaunchProfiling: false, tracesSampleRate: 1, profilesSampleRate: 0, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 1, profileAppStarts: false)),
-        LaunchProfileOptions(enableAppLaunchProfiling: false, tracesSampleRate: 1, profilesSampleRate: 0, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 1, profileAppStarts: true)),
+        LaunchProfileOptions(tracesSampleRate: 1, profilesSampleRate: 0, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 0, profileAppStarts: false)),
+        LaunchProfileOptions(tracesSampleRate: 1, profilesSampleRate: 0, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 0, profileAppStarts: true)),
+        LaunchProfileOptions(tracesSampleRate: 1, profilesSampleRate: 0, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 1, profileAppStarts: false)),
+        LaunchProfileOptions(tracesSampleRate: 1, profilesSampleRate: 0, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 1, profileAppStarts: true)),
+        LaunchProfileOptions(tracesSampleRate: 1, profilesSampleRate: 0, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 0, profileAppStarts: false)),
+        LaunchProfileOptions(tracesSampleRate: 1, profilesSampleRate: 0, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 0, profileAppStarts: true)),
+        LaunchProfileOptions(tracesSampleRate: 1, profilesSampleRate: 0, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 1, profileAppStarts: false)),
+        LaunchProfileOptions(tracesSampleRate: 1, profilesSampleRate: 0, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 1, profileAppStarts: true)),
 
-        LaunchProfileOptions(enableAppLaunchProfiling: false, tracesSampleRate: 1, profilesSampleRate: 1, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 0, profileAppStarts: false)),
-        LaunchProfileOptions(enableAppLaunchProfiling: false, tracesSampleRate: 1, profilesSampleRate: 1, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 0, profileAppStarts: true)),
-        LaunchProfileOptions(enableAppLaunchProfiling: false, tracesSampleRate: 1, profilesSampleRate: 1, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 1, profileAppStarts: false)),
-        LaunchProfileOptions(enableAppLaunchProfiling: false, tracesSampleRate: 1, profilesSampleRate: 1, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 1, profileAppStarts: true)),
-        LaunchProfileOptions(enableAppLaunchProfiling: false, tracesSampleRate: 1, profilesSampleRate: 1, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 0, profileAppStarts: false)),
-        LaunchProfileOptions(enableAppLaunchProfiling: false, tracesSampleRate: 1, profilesSampleRate: 1, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 0, profileAppStarts: true)),
-        LaunchProfileOptions(enableAppLaunchProfiling: false, tracesSampleRate: 1, profilesSampleRate: 1, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 1, profileAppStarts: false)),
-        LaunchProfileOptions(enableAppLaunchProfiling: false, tracesSampleRate: 1, profilesSampleRate: 1, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 1, profileAppStarts: true)),
+        LaunchProfileOptions(tracesSampleRate: 1, profilesSampleRate: 1, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 0, profileAppStarts: false)),
+        LaunchProfileOptions(tracesSampleRate: 1, profilesSampleRate: 1, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 0, profileAppStarts: true)),
+        LaunchProfileOptions(tracesSampleRate: 1, profilesSampleRate: 1, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 1, profileAppStarts: false)),
+        LaunchProfileOptions(tracesSampleRate: 1, profilesSampleRate: 1, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 1, profileAppStarts: true)),
+        LaunchProfileOptions(tracesSampleRate: 1, profilesSampleRate: 1, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 0, profileAppStarts: false)),
+        LaunchProfileOptions(tracesSampleRate: 1, profilesSampleRate: 1, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 0, profileAppStarts: true)),
+        LaunchProfileOptions(tracesSampleRate: 1, profilesSampleRate: 1, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 1, profileAppStarts: false)),
+        LaunchProfileOptions(tracesSampleRate: 1, profilesSampleRate: 1, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 1, profileAppStarts: true)),
 
-        LaunchProfileOptions(enableAppLaunchProfiling: false, tracesSampleRate: nil, profilesSampleRate: 0, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 0, profileAppStarts: false)),
-        LaunchProfileOptions(enableAppLaunchProfiling: false, tracesSampleRate: nil, profilesSampleRate: 0, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 0, profileAppStarts: true)),
-        LaunchProfileOptions(enableAppLaunchProfiling: false, tracesSampleRate: nil, profilesSampleRate: 0, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 1, profileAppStarts: false)),
-        LaunchProfileOptions(enableAppLaunchProfiling: false, tracesSampleRate: nil, profilesSampleRate: 0, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 1, profileAppStarts: true)),
-        LaunchProfileOptions(enableAppLaunchProfiling: false, tracesSampleRate: nil, profilesSampleRate: 0, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 0, profileAppStarts: false)),
-        LaunchProfileOptions(enableAppLaunchProfiling: false, tracesSampleRate: nil, profilesSampleRate: 0, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 0, profileAppStarts: true)),
-        LaunchProfileOptions(enableAppLaunchProfiling: false, tracesSampleRate: nil, profilesSampleRate: 0, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 1, profileAppStarts: false)),
-        LaunchProfileOptions(enableAppLaunchProfiling: false, tracesSampleRate: nil, profilesSampleRate: 0, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 1, profileAppStarts: true)),
+        LaunchProfileOptions(tracesSampleRate: nil, profilesSampleRate: 0, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 0, profileAppStarts: false)),
+        LaunchProfileOptions(tracesSampleRate: nil, profilesSampleRate: 0, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 0, profileAppStarts: true)),
+        LaunchProfileOptions(tracesSampleRate: nil, profilesSampleRate: 0, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 1, profileAppStarts: false)),
+        LaunchProfileOptions(tracesSampleRate: nil, profilesSampleRate: 0, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 1, profileAppStarts: true)),
+        LaunchProfileOptions(tracesSampleRate: nil, profilesSampleRate: 0, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 0, profileAppStarts: false)),
+        LaunchProfileOptions(tracesSampleRate: nil, profilesSampleRate: 0, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 0, profileAppStarts: true)),
+        LaunchProfileOptions(tracesSampleRate: nil, profilesSampleRate: 0, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 1, profileAppStarts: false)),
+        LaunchProfileOptions(tracesSampleRate: nil, profilesSampleRate: 0, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 1, profileAppStarts: true)),
 
-        LaunchProfileOptions(enableAppLaunchProfiling: false, tracesSampleRate: nil, profilesSampleRate: 1, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 0, profileAppStarts: false)),
-        LaunchProfileOptions(enableAppLaunchProfiling: false, tracesSampleRate: nil, profilesSampleRate: 1, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 0, profileAppStarts: true)),
-        LaunchProfileOptions(enableAppLaunchProfiling: false, tracesSampleRate: nil, profilesSampleRate: 1, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 1, profileAppStarts: false)),
-        LaunchProfileOptions(enableAppLaunchProfiling: false, tracesSampleRate: nil, profilesSampleRate: 1, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 1, profileAppStarts: true)),
-        LaunchProfileOptions(enableAppLaunchProfiling: false, tracesSampleRate: nil, profilesSampleRate: 1, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 0, profileAppStarts: false)),
-        LaunchProfileOptions(enableAppLaunchProfiling: false, tracesSampleRate: nil, profilesSampleRate: 1, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 0, profileAppStarts: true)),
-        LaunchProfileOptions(enableAppLaunchProfiling: false, tracesSampleRate: nil, profilesSampleRate: 1, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 1, profileAppStarts: false)),
-        LaunchProfileOptions(enableAppLaunchProfiling: false, tracesSampleRate: nil, profilesSampleRate: 1, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 1, profileAppStarts: true)),
-
-        LaunchProfileOptions(enableAppLaunchProfiling: true, tracesSampleRate: 0, profilesSampleRate: 0, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 0, profileAppStarts: false)),
-        LaunchProfileOptions(enableAppLaunchProfiling: true, tracesSampleRate: 0, profilesSampleRate: 0, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 0, profileAppStarts: true)),
-        LaunchProfileOptions(enableAppLaunchProfiling: true, tracesSampleRate: 0, profilesSampleRate: 0, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 1, profileAppStarts: false)),
-        LaunchProfileOptions(enableAppLaunchProfiling: true, tracesSampleRate: 0, profilesSampleRate: 0, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 1, profileAppStarts: true)),
-        LaunchProfileOptions(enableAppLaunchProfiling: true, tracesSampleRate: 0, profilesSampleRate: 0, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 0, profileAppStarts: false)),
-        LaunchProfileOptions(enableAppLaunchProfiling: true, tracesSampleRate: 0, profilesSampleRate: 0, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 0, profileAppStarts: true)),
-        LaunchProfileOptions(enableAppLaunchProfiling: true, tracesSampleRate: 0, profilesSampleRate: 0, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 1, profileAppStarts: false)),
-        LaunchProfileOptions(enableAppLaunchProfiling: true, tracesSampleRate: 0, profilesSampleRate: 0, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 1, profileAppStarts: true)),
-
-        LaunchProfileOptions(enableAppLaunchProfiling: true, tracesSampleRate: 0, profilesSampleRate: 1, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 0, profileAppStarts: false)),
-        LaunchProfileOptions(enableAppLaunchProfiling: true, tracesSampleRate: 0, profilesSampleRate: 1, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 0, profileAppStarts: true)),
-        LaunchProfileOptions(enableAppLaunchProfiling: true, tracesSampleRate: 0, profilesSampleRate: 1, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 1, profileAppStarts: false)),
-        LaunchProfileOptions(enableAppLaunchProfiling: true, tracesSampleRate: 0, profilesSampleRate: 1, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 1, profileAppStarts: true)),
-        LaunchProfileOptions(enableAppLaunchProfiling: true, tracesSampleRate: 0, profilesSampleRate: 1, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 0, profileAppStarts: false)),
-        LaunchProfileOptions(enableAppLaunchProfiling: true, tracesSampleRate: 0, profilesSampleRate: 1, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 0, profileAppStarts: true)),
-        LaunchProfileOptions(enableAppLaunchProfiling: true, tracesSampleRate: 0, profilesSampleRate: 1, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 1, profileAppStarts: false)),
-        LaunchProfileOptions(enableAppLaunchProfiling: true, tracesSampleRate: 0, profilesSampleRate: 1, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 1, profileAppStarts: true)),
-
-        LaunchProfileOptions(enableAppLaunchProfiling: true, tracesSampleRate: 1, profilesSampleRate: 0, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 0, profileAppStarts: false)),
-        LaunchProfileOptions(enableAppLaunchProfiling: true, tracesSampleRate: 1, profilesSampleRate: 0, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 0, profileAppStarts: true)),
-        LaunchProfileOptions(enableAppLaunchProfiling: true, tracesSampleRate: 1, profilesSampleRate: 0, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 1, profileAppStarts: false)),
-        LaunchProfileOptions(enableAppLaunchProfiling: true, tracesSampleRate: 1, profilesSampleRate: 0, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 1, profileAppStarts: true)),
-        LaunchProfileOptions(enableAppLaunchProfiling: true, tracesSampleRate: 1, profilesSampleRate: 0, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 0, profileAppStarts: false)),
-        LaunchProfileOptions(enableAppLaunchProfiling: true, tracesSampleRate: 1, profilesSampleRate: 0, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 0, profileAppStarts: true)),
-        LaunchProfileOptions(enableAppLaunchProfiling: true, tracesSampleRate: 1, profilesSampleRate: 0, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 1, profileAppStarts: false)),
-        LaunchProfileOptions(enableAppLaunchProfiling: true, tracesSampleRate: 1, profilesSampleRate: 0, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 1, profileAppStarts: true))
+        LaunchProfileOptions(tracesSampleRate: nil, profilesSampleRate: 1, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 0, profileAppStarts: false)),
+        LaunchProfileOptions(tracesSampleRate: nil, profilesSampleRate: 1, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 0, profileAppStarts: true)),
+        LaunchProfileOptions(tracesSampleRate: nil, profilesSampleRate: 1, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 1, profileAppStarts: false)),
+        LaunchProfileOptions(tracesSampleRate: nil, profilesSampleRate: 1, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 1, profileAppStarts: true)),
+        LaunchProfileOptions(tracesSampleRate: nil, profilesSampleRate: 1, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 0, profileAppStarts: false)),
+        LaunchProfileOptions(tracesSampleRate: nil, profilesSampleRate: 1, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 0, profileAppStarts: true)),
+        LaunchProfileOptions(tracesSampleRate: nil, profilesSampleRate: 1, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 1, profileAppStarts: false)),
+        LaunchProfileOptions(tracesSampleRate: nil, profilesSampleRate: 1, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 1, profileAppStarts: true))
     ]
 
     static let invalidContinuousProfilingV2Configurations = [
-        LaunchProfileOptions(enableAppLaunchProfiling: false, tracesSampleRate: 1, profilesSampleRate: nil, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 0, profileAppStarts: false)),
-        LaunchProfileOptions(enableAppLaunchProfiling: false, tracesSampleRate: 1, profilesSampleRate: nil, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 0, profileAppStarts: true)),
-        LaunchProfileOptions(enableAppLaunchProfiling: false, tracesSampleRate: 1, profilesSampleRate: nil, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 1, profileAppStarts: false)),
-        LaunchProfileOptions(enableAppLaunchProfiling: false, tracesSampleRate: 1, profilesSampleRate: nil, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 0, profileAppStarts: false)),
-        LaunchProfileOptions(enableAppLaunchProfiling: false, tracesSampleRate: 1, profilesSampleRate: nil, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 0, profileAppStarts: true)),
-        LaunchProfileOptions(enableAppLaunchProfiling: false, tracesSampleRate: 1, profilesSampleRate: nil, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 1, profileAppStarts: false)),
+        LaunchProfileOptions(tracesSampleRate: 1, profilesSampleRate: nil, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 0, profileAppStarts: false)),
+        LaunchProfileOptions(tracesSampleRate: 1, profilesSampleRate: nil, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 0, profileAppStarts: true)),
+        LaunchProfileOptions(tracesSampleRate: 1, profilesSampleRate: nil, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 1, profileAppStarts: false)),
+        LaunchProfileOptions(tracesSampleRate: 1, profilesSampleRate: nil, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 0, profileAppStarts: false)),
+        LaunchProfileOptions(tracesSampleRate: 1, profilesSampleRate: nil, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 0, profileAppStarts: true)),
+        LaunchProfileOptions(tracesSampleRate: 1, profilesSampleRate: nil, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 1, profileAppStarts: false)),
 
-        LaunchProfileOptions(enableAppLaunchProfiling: false, tracesSampleRate: 0, profilesSampleRate: nil, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 0, profileAppStarts: false)),
-        LaunchProfileOptions(enableAppLaunchProfiling: false, tracesSampleRate: 0, profilesSampleRate: nil, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 0, profileAppStarts: true)),
-        LaunchProfileOptions(enableAppLaunchProfiling: false, tracesSampleRate: 0, profilesSampleRate: nil, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 1, profileAppStarts: false)),
-        LaunchProfileOptions(enableAppLaunchProfiling: false, tracesSampleRate: 0, profilesSampleRate: nil, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 0, profileAppStarts: false)),
-        LaunchProfileOptions(enableAppLaunchProfiling: false, tracesSampleRate: 0, profilesSampleRate: nil, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 0, profileAppStarts: true)),
-        LaunchProfileOptions(enableAppLaunchProfiling: false, tracesSampleRate: 0, profilesSampleRate: nil, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 1, profileAppStarts: false)),
-        LaunchProfileOptions(enableAppLaunchProfiling: false, tracesSampleRate: 0, profilesSampleRate: nil, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 1, profileAppStarts: true)),
+        LaunchProfileOptions(tracesSampleRate: 0, profilesSampleRate: nil, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 0, profileAppStarts: false)),
+        LaunchProfileOptions(tracesSampleRate: 0, profilesSampleRate: nil, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 0, profileAppStarts: true)),
+        LaunchProfileOptions(tracesSampleRate: 0, profilesSampleRate: nil, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 1, profileAppStarts: false)),
+        LaunchProfileOptions(tracesSampleRate: 0, profilesSampleRate: nil, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 0, profileAppStarts: false)),
+        LaunchProfileOptions(tracesSampleRate: 0, profilesSampleRate: nil, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 0, profileAppStarts: true)),
+        LaunchProfileOptions(tracesSampleRate: 0, profilesSampleRate: nil, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 1, profileAppStarts: false)),
+        LaunchProfileOptions(tracesSampleRate: 0, profilesSampleRate: nil, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 1, profileAppStarts: true)),
 
-        LaunchProfileOptions(enableAppLaunchProfiling: false, tracesSampleRate: nil, profilesSampleRate: nil, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 0, profileAppStarts: false)),
-        LaunchProfileOptions(enableAppLaunchProfiling: false, tracesSampleRate: nil, profilesSampleRate: nil, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 0, profileAppStarts: true)),
-        LaunchProfileOptions(enableAppLaunchProfiling: false, tracesSampleRate: nil, profilesSampleRate: nil, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 1, profileAppStarts: false)),
-        LaunchProfileOptions(enableAppLaunchProfiling: false, tracesSampleRate: nil, profilesSampleRate: nil, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 0, profileAppStarts: false)),
-        LaunchProfileOptions(enableAppLaunchProfiling: false, tracesSampleRate: nil, profilesSampleRate: nil, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 0, profileAppStarts: true)),
-        LaunchProfileOptions(enableAppLaunchProfiling: false, tracesSampleRate: nil, profilesSampleRate: nil, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 1, profileAppStarts: false)),
-        LaunchProfileOptions(enableAppLaunchProfiling: false, tracesSampleRate: nil, profilesSampleRate: nil, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 1, profileAppStarts: true)),
+        LaunchProfileOptions(tracesSampleRate: nil, profilesSampleRate: nil, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 0, profileAppStarts: false)),
+        LaunchProfileOptions(tracesSampleRate: nil, profilesSampleRate: nil, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 0, profileAppStarts: true)),
+        LaunchProfileOptions(tracesSampleRate: nil, profilesSampleRate: nil, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 1, profileAppStarts: false)),
+        LaunchProfileOptions(tracesSampleRate: nil, profilesSampleRate: nil, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 0, profileAppStarts: false)),
+        LaunchProfileOptions(tracesSampleRate: nil, profilesSampleRate: nil, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 0, profileAppStarts: true)),
+        LaunchProfileOptions(tracesSampleRate: nil, profilesSampleRate: nil, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 1, profileAppStarts: false)),
+        LaunchProfileOptions(tracesSampleRate: nil, profilesSampleRate: nil, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 1, profileAppStarts: true)),
 
-        LaunchProfileOptions(enableAppLaunchProfiling: true, tracesSampleRate: nil, profilesSampleRate: nil, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 0, profileAppStarts: false)),
-        LaunchProfileOptions(enableAppLaunchProfiling: true, tracesSampleRate: nil, profilesSampleRate: nil, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 0, profileAppStarts: true)),
-        LaunchProfileOptions(enableAppLaunchProfiling: true, tracesSampleRate: nil, profilesSampleRate: nil, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 1, profileAppStarts: false)),
-        LaunchProfileOptions(enableAppLaunchProfiling: true, tracesSampleRate: nil, profilesSampleRate: nil, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 0, profileAppStarts: false)),
-        LaunchProfileOptions(enableAppLaunchProfiling: true, tracesSampleRate: nil, profilesSampleRate: nil, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 0, profileAppStarts: true)),
-        LaunchProfileOptions(enableAppLaunchProfiling: true, tracesSampleRate: nil, profilesSampleRate: nil, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 1, profileAppStarts: false)),
-        LaunchProfileOptions(enableAppLaunchProfiling: true, tracesSampleRate: nil, profilesSampleRate: nil, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 1, profileAppStarts: true)),
-
-        LaunchProfileOptions(enableAppLaunchProfiling: true, tracesSampleRate: 1, profilesSampleRate: nil, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 0, profileAppStarts: false)),
-        LaunchProfileOptions(enableAppLaunchProfiling: true, tracesSampleRate: 1, profilesSampleRate: nil, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 0, profileAppStarts: true)),
-        LaunchProfileOptions(enableAppLaunchProfiling: true, tracesSampleRate: 1, profilesSampleRate: nil, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 1, profileAppStarts: false)),
-        LaunchProfileOptions(enableAppLaunchProfiling: true, tracesSampleRate: 1, profilesSampleRate: nil, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 0, profileAppStarts: false)),
-        LaunchProfileOptions(enableAppLaunchProfiling: true, tracesSampleRate: 1, profilesSampleRate: nil, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 0, profileAppStarts: true)),
-        LaunchProfileOptions(enableAppLaunchProfiling: true, tracesSampleRate: 1, profilesSampleRate: nil, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 1, profileAppStarts: false)),
-
-        LaunchProfileOptions(enableAppLaunchProfiling: true, tracesSampleRate: 0, profilesSampleRate: nil, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 0, profileAppStarts: false)),
-        LaunchProfileOptions(enableAppLaunchProfiling: true, tracesSampleRate: 0, profilesSampleRate: nil, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 0, profileAppStarts: true)),
-        LaunchProfileOptions(enableAppLaunchProfiling: true, tracesSampleRate: 0, profilesSampleRate: nil, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 1, profileAppStarts: false)),
-        LaunchProfileOptions(enableAppLaunchProfiling: true, tracesSampleRate: 0, profilesSampleRate: nil, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 0, profileAppStarts: false)),
-        LaunchProfileOptions(enableAppLaunchProfiling: true, tracesSampleRate: 0, profilesSampleRate: nil, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 0, profileAppStarts: true)),
-        LaunchProfileOptions(enableAppLaunchProfiling: true, tracesSampleRate: 0, profilesSampleRate: nil, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 1, profileAppStarts: false)),
-        LaunchProfileOptions(enableAppLaunchProfiling: true, tracesSampleRate: 0, profilesSampleRate: nil, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 1, profileAppStarts: true))
+        LaunchProfileOptions(tracesSampleRate: nil, profilesSampleRate: nil, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 0, profileAppStarts: false)),
+        LaunchProfileOptions(tracesSampleRate: nil, profilesSampleRate: nil, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 0, profileAppStarts: true)),
+        LaunchProfileOptions(tracesSampleRate: nil, profilesSampleRate: nil, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 1, profileAppStarts: false)),
+        LaunchProfileOptions(tracesSampleRate: nil, profilesSampleRate: nil, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 0, profileAppStarts: false)),
+        LaunchProfileOptions(tracesSampleRate: nil, profilesSampleRate: nil, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 0, profileAppStarts: true)),
+        LaunchProfileOptions(tracesSampleRate: nil, profilesSampleRate: nil, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 1, profileAppStarts: false)),
+        LaunchProfileOptions(tracesSampleRate: nil, profilesSampleRate: nil, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 1, profileAppStarts: true))
     ]
 
     static let validConfigurations = [
@@ -262,16 +213,12 @@ private extension SentryAppStartProfilingConfigurationTests {
         //
 
         // continuous profiling v2 trace lifecycle configurations
-        LaunchProfileOptions(enableAppLaunchProfiling: false, tracesSampleRate: 1, profilesSampleRate: nil, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 1, profileAppStarts: true)),
-        LaunchProfileOptions(enableAppLaunchProfiling: true, tracesSampleRate: 1, profilesSampleRate: nil, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 1, profileAppStarts: true)),
+        LaunchProfileOptions(tracesSampleRate: 1, profilesSampleRate: nil, continuousProfileV2Options: .init(lifecycle: .trace, sessionSampleRate: 1, profileAppStarts: true)),
 
         // continuous profiling v2 manual lifecycle configurations
-        LaunchProfileOptions(enableAppLaunchProfiling: false, tracesSampleRate: 0, profilesSampleRate: nil, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 1, profileAppStarts: true)),
-        LaunchProfileOptions(enableAppLaunchProfiling: false, tracesSampleRate: 1, profilesSampleRate: nil, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 1, profileAppStarts: true)),
-        LaunchProfileOptions(enableAppLaunchProfiling: false, tracesSampleRate: nil, profilesSampleRate: nil, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 1, profileAppStarts: true)),
-        LaunchProfileOptions(enableAppLaunchProfiling: true, tracesSampleRate: 0, profilesSampleRate: nil, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 1, profileAppStarts: true)),
-        LaunchProfileOptions(enableAppLaunchProfiling: true, tracesSampleRate: 1, profilesSampleRate: nil, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 1, profileAppStarts: true)),
-        LaunchProfileOptions(enableAppLaunchProfiling: true, tracesSampleRate: nil, profilesSampleRate: nil, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 1, profileAppStarts: true))
+        LaunchProfileOptions(tracesSampleRate: 0, profilesSampleRate: nil, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 1, profileAppStarts: true)),
+        LaunchProfileOptions(tracesSampleRate: 1, profilesSampleRate: nil, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 1, profileAppStarts: true)),
+        LaunchProfileOptions(tracesSampleRate: nil, profilesSampleRate: nil, continuousProfileV2Options: .init(lifecycle: .manual, sessionSampleRate: 1, profileAppStarts: true))
     ]
 }
 
@@ -279,8 +226,6 @@ private extension SentryAppStartProfilingConfigurationTests {
 // MARK: Data structures
 // MARK: -
 struct LaunchProfileOptions: Equatable {
-    /// transaction profiling and continuous profiling v1
-    let enableAppLaunchProfiling: Bool
 
     /// to test transaction based profiling and continuous v2 trace lifecycle
     let tracesSampleRate: Float?
@@ -303,7 +248,6 @@ struct LaunchProfileOptions: Equatable {
 extension LaunchProfileOptions: CustomStringConvertible {
     var description: String {
         return "LaunchProfileOptions(\n"
-        + "\tenableAppLaunchProfiling: \(enableAppLaunchProfiling),\n"
         + "\ttracesSampleRate: \(String(describing: tracesSampleRate)),\n"
         + "\tprofilesSampleRate: \(String(describing: profilesSampleRate)),\n"
         + "\tcontinuousProfileV2Options: \(String(describing: continuousProfileV2Options))\n"

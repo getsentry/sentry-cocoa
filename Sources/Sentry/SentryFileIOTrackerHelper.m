@@ -1,7 +1,6 @@
 #import "SentryFileIOTrackerHelper.h"
 #import "SentryByteCountFormatter.h"
 #import "SentryClient+Private.h"
-#import "SentryDependencyContainer.h"
 #import "SentryFrame.h"
 #import "SentryHub+Private.h"
 #import "SentryInternalDefines.h"

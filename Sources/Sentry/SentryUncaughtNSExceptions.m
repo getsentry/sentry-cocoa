@@ -3,7 +3,6 @@
 #if TARGET_OS_OSX
 
 #    import "SentryCrash.h"
-#    import "SentryDependencyContainer.h"
 #    import "SentrySwift.h"
 #    import "SentrySwizzle.h"
 #    import "SentryUncaughtNSExceptions.h"

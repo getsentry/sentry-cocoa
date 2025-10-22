@@ -27,7 +27,7 @@ private final class CrashReportFilterBridge: NSObject, SentryCrashReportFilter {
     
     private let sentryCrash: SentryCrash
     
-    @objc public init(with basePath: String?) {
+    init(with basePath: String?) {
         sentryCrash = SentryCrash(basePath: basePath)
     }
     

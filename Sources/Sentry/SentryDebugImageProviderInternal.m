@@ -2,7 +2,6 @@
 #import "SentryCrashDynamicLinker.h"
 #import "SentryCrashUUIDConversion.h"
 #import "SentryDebugMeta.h"
-#import "SentryDependencyContainer.h"
 #import "SentryFormatter.h"
 #import "SentryFrame.h"
 #import "SentryInternalDefines.h"
@@ -24,8 +23,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)init
 {
-    self =
-        [self initWithBinaryImageCache:SentryDependencyContainer.sharedInstance.binaryImageCache];
+    self = [self initWithBinaryImageCache:SentryDependencies.binaryImageCache];
 
     return self;
 }

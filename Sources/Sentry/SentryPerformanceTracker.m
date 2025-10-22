@@ -1,5 +1,4 @@
 #import "SentryPerformanceTracker.h"
-#import "SentryDependencyContainer.h"
 #import "SentryHub+Private.h"
 #import "SentryLogC.h"
 #import "SentrySDK+Private.h"

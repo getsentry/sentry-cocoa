@@ -83,7 +83,6 @@ public enum SentrySDKOverrides: String, CaseIterable {
 
     public enum Performance: String, SentrySDKOverride {
         case disableTimeToFullDisplayTracing    = "--io.sentry.performance.disable-time-to-full-display-tracing"
-        case disableAppHangTrackingV2           = "--io.sentry.performance.disable-app-hang-tracking-v2"
         case disableSessionTracking             = "--io.sentry.performance.disable-automatic-session-tracking"
         case disableFileIOTracing               = "--io.sentry.performance.disable-file-io-tracing"
         case disableUIVCTracing                 = "--io.sentry.performance.disable-uiviewcontroller-tracing"
@@ -316,7 +315,7 @@ extension SentrySDKOverrides.Other {
 extension SentrySDKOverrides.Performance {
     public var overrideType: OverrideType {
         switch self {
-        case .disableTimeToFullDisplayTracing, .disableAppHangTrackingV2, .disableSessionTracking, .disableFileIOTracing, .disableUIVCTracing, .disableCoreDataTracing, .disableANRTracking, .disableWatchdogTracking, .disableUITracing, .disablePrewarmedAppStartTracing, .disablePerformanceTracing: return .boolean
+        case .disableTimeToFullDisplayTracing, .disableSessionTracking, .disableFileIOTracing, .disableUIVCTracing, .disableCoreDataTracing, .disableANRTracking, .disableWatchdogTracking, .disableUITracing, .disablePrewarmedAppStartTracing, .disablePerformanceTracing: return .boolean
         case .sessionTrackingIntervalMillis: return .string
         }
     }
@@ -403,7 +402,7 @@ extension SentrySDKOverrides.Other {
 extension SentrySDKOverrides.Performance {
     public var ignoresDisableEverything: Bool {
         switch self {
-        case .disableTimeToFullDisplayTracing, .disableAppHangTrackingV2, .disableSessionTracking, .disableFileIOTracing, .disableUIVCTracing, .disableCoreDataTracing, .disableANRTracking, .disableWatchdogTracking, .disableUITracing, .disablePrewarmedAppStartTracing, .disablePerformanceTracing: return false
+        case .disableTimeToFullDisplayTracing, .disableSessionTracking, .disableFileIOTracing, .disableUIVCTracing, .disableCoreDataTracing, .disableANRTracking, .disableWatchdogTracking, .disableUITracing, .disablePrewarmedAppStartTracing, .disablePerformanceTracing: return false
         case .sessionTrackingIntervalMillis: return true
         }
     }

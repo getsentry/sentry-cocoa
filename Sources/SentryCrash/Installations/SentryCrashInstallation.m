@@ -32,7 +32,6 @@
 #import "SentryCrashJSONCodecObjC.h"
 #import "SentryCrashNSErrorUtil.h"
 #import "SentryCrashReportFilterBasic.h"
-#import "SentryDependencyContainer.h"
 #import "SentrySwift.h"
 #import <objc/runtime.h>
 
