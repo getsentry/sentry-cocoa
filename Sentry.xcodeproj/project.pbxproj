@@ -1211,6 +1211,13 @@
 			remoteGlobalIDString = 63AA759A1EB8AEF500D153DE;
 			remoteInfo = Sentry;
 		};
+		92024B6E2EA90616009CC844 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6327C5CA1EB8A783004E799B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D84DAD4C2B17428D003CF120;
+			remoteInfo = SentryTestUtilsDynamic;
+		};
 		92815F9E2E85576B004576C3 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 6327C5CA1EB8A783004E799B /* Project object */;
@@ -1225,19 +1232,19 @@
 			remoteGlobalIDString = 92815F6F2E85467F004576C3;
 			remoteInfo = SwiftLogSentry;
 		};
-		D4B339FB2EA7823000359F3A /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 6327C5CA1EB8A783004E799B /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = D84DAD4C2B17428D003CF120;
-			remoteInfo = SentryTestUtilsDynamic;
-		};
 		92815FCF2E857776004576C3 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 6327C5CA1EB8A783004E799B /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = 8431F00929B284F200D8DC56;
 			remoteInfo = SentryTestUtils;
+		};
+		D4B339FB2EA7823000359F3A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6327C5CA1EB8A783004E799B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D84DAD4C2B17428D003CF120;
+			remoteInfo = SentryTestUtilsDynamic;
 		};
 		D4CBA2482DE06D0200581618 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -6751,7 +6758,7 @@
 		92815FCD2E85770E004576C3 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = D84DAD4C2B17428D003CF120 /* SentryTestUtilsDynamic */;
-			targetProxy = 92815FCC2E85770E004576C3 /* PBXContainerItemProxy */;
+			targetProxy = 92024B6E2EA90616009CC844 /* PBXContainerItemProxy */;
 		};
 		92815FD02E857776004576C3 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -8190,11 +8197,11 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_STYLE = Manual;
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = 97JCY7859U;
+				DEVELOPMENT_TEAM = "";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
@@ -8231,6 +8238,7 @@
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.SentrySwiftLog;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = auto;
 				SKIP_INSTALL = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
