@@ -1,4 +1,4 @@
-import Sentry
+@_spi(Private) import Sentry
 
 #if os(iOS) || targetEnvironment(macCatalyst)
 class TestSentryUIDeviceWrapper: SentryUIDeviceWrapper {

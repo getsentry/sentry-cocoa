@@ -7,7 +7,6 @@ NS_ASSUME_NONNULL_BEGIN
 @class SentryDispatchQueueWrapper;
 @class SentryHub;
 @class SentryMeasurementValue;
-@class SentryNSTimerFactory;
 @class SentryTraceContext;
 @class SentryTraceHeader;
 @class SentryTracer;

@@ -7,6 +7,7 @@
 @class SentryEnvelopeItem;
 @class SentryId;
 @class SentryReplayEvent;
+@class SentryFileManager;
 @class SentryReplayRecording;
 @class SentrySession;
 @class SentryDefaultThreadInspector;

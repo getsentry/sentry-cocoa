@@ -4,6 +4,10 @@
 #import "SentryCrashReportSink.h"
 #import "SentryDefines.h"
 #import "SentryLogC.h"
+#import "SentrySwift.h"
+
+@interface SentryCrashReportSink () <SentryCrashReportFilter>
+@end
 
 NS_ASSUME_NONNULL_BEGIN
 

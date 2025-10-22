@@ -11,7 +11,7 @@
 
 @property (nonatomic, strong) SentryOptions *options;
 @property (nonatomic, strong) SentryCrashWrapper *crashAdapter;
-@property (nonatomic, strong) id<SentryAppStateManager> appStateManager;
+@property (nonatomic, strong) SentryAppStateManager *appStateManager;
 
 @end
 
@@ -19,7 +19,7 @@
 
 - (instancetype)initWithOptions:(SentryOptions *)options
                    crashAdapter:(SentryCrashWrapper *)crashAdapter
-                appStateManager:(id<SentryAppStateManager>)appStateManager
+                appStateManager:(SentryAppStateManager *)appStateManager
 {
     if (self = [super init]) {
         self.options = options;

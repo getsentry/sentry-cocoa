@@ -3,7 +3,6 @@
 #if SENTRY_HAS_UIKIT
 
 #    import "SentryDefines.h"
-#    import "SentryDependencyContainer.h"
 #    import "SentryLogC.h"
 #    import "SentrySubClassFinder.h"
 #    import "SentrySwift.h"
@@ -110,7 +109,7 @@
     }
 
     [self swizzleUIViewController];
-    id<SentryUIViewControllerPerformanceTracker> performanceTracker =
+    SentryUIViewControllerPerformanceTracker *performanceTracker =
         [SentryDependencyContainer.sharedInstance uiViewControllerPerformanceTracker];
     performanceTracker.inAppLogic = self.inAppLogic;
 }

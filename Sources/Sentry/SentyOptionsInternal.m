@@ -280,11 +280,6 @@
     [self setBool:options[@"enablePreWarmedAppStartTracing"]
             block:^(BOOL value) { sentryOptions.enablePreWarmedAppStartTracing = value; }];
 
-#    if !SDK_V9
-    [self setBool:options[@"enableAppHangTrackingV2"]
-            block:^(BOOL value) { sentryOptions.enableAppHangTrackingV2 = value; }];
-#    endif // !SDK_V9
-
     [self setBool:options[@"enableReportNonFullyBlockingAppHangs"]
             block:^(BOOL value) { sentryOptions.enableReportNonFullyBlockingAppHangs = value; }];
 
@@ -373,9 +368,6 @@
 #        pragma clang diagnostic ignored "-Wdeprecated-declarations"
     [self setBool:options[@"enableProfiling"]
             block:^(BOOL value) { sentryOptions.enableProfiling = value; }];
-
-    [self setBool:options[NSStringFromSelector(@selector(enableAppLaunchProfiling))]
-            block:^(BOOL value) { sentryOptions.enableAppLaunchProfiling = value; }];
 #        pragma clang diagnostic pop
 #    endif // !SDK_V9
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED

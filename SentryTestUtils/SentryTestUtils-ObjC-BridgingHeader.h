@@ -9,7 +9,6 @@
 #if SENTRY_HAS_UIKIT
 #    import "SentryAppStartTracker.h"
 #    import "SentryDefaultUIViewControllerPerformanceTracker.h"
-#    import "SentryFramesTracker+TestInit.h"
 #endif // SENTRY_HAS_UIKIT
 
 #import "SentryProfilingConditionals.h"
@@ -30,9 +29,7 @@
 #import "SentryCrashCachedData.h"
 #import "SentryCrashInstallation+Private.h"
 #import "SentryCrashMonitor_MachException.h"
-#import "SentryDebugImageProvider+HybridSDKs.h"
 #import "SentryDefaultThreadInspector.h"
-#import "SentryDependencyContainer.h"
 #import "SentryFileManager+Test.h"
 #import "SentryFileManagerHelper.h"
 #import "SentryHub+Private.h"

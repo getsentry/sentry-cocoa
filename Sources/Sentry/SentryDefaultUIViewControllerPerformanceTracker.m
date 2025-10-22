@@ -3,7 +3,6 @@
 
 #if SENTRY_HAS_UIKIT
 
-#    import "SentryDependencyContainer.h"
 #    import "SentryHub.h"
 #    import "SentryLogC.h"
 #    import "SentryOptions.h"
@@ -20,10 +19,15 @@
 #    import <objc/runtime.h>
 
 @interface SentryTimeToDisplayTracker () <SentryInitialDisplayReporting>
+@end
 
+@interface SentrySwiftUISpanHelper () <SentryInitialDisplayReporting>
 @end
 
 @interface SentryObjCSwiftUISpanHelper ()
+
+@property (nonatomic, strong) id<SentryInitialDisplayReporting> initialDisplayReporting;
+
 @end
 
 @implementation SentryObjCSwiftUISpanHelper
@@ -36,6 +40,11 @@
         _initialDisplayReporting = initialDisplayReporting;
     }
     return self;
+}
+
+- (void)reportInitialDisplay
+{
+    [self.initialDisplayReporting reportInitialDisplay];
 }
 
 @end
@@ -85,17 +94,12 @@
 @implementation SentryDefaultUIViewControllerPerformanceTracker
 
 - (instancetype)initWithTracker:(SentryPerformanceTracker *)tracker
-           dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
 {
     if (self = [super init]) {
         self.tracker = tracker;
 
-        SentryOptions *options = [SentrySDKInternal options];
-        self.inAppLogic = [[SentryInAppLogic alloc] initWithInAppIncludes:options.inAppIncludes
-                                                            inAppExcludes:options.inAppExcludes];
-
         _alwaysWaitForFullDisplay = NO;
-        _dispatchQueueWrapper = dispatchQueueWrapper;
+        _dispatchQueueWrapper = SentryDependencyContainer.sharedInstance.dispatchQueueWrapper;
 
         _ttdTrackers = [[SentryWeakMap alloc] init];
         _spanIds = [[SentryWeakMap alloc] init];
@@ -106,9 +110,10 @@
 }
 
 - (void)viewControllerLoadView:(UIViewController *)controller
+                       isInApp:(BOOL (^)(Class))isInApp
               callbackToOrigin:(void (^)(void))callbackToOrigin
 {
-    if (![self.inAppLogic isClassInApp:[controller class]]) {
+    if (!isInApp([controller class])) {
         SENTRY_LOG_DEBUG(
             @"Won't track view controller that is not part of the app bundle: %@.", controller);
         callbackToOrigin();
@@ -273,9 +278,9 @@
     return ttdTracker;
 }
 
-- (SentrySwiftUISpanHelper *)startTimeToDisplayTrackerForScreen:(NSString *)screenName
-                                             waitForFullDisplay:(BOOL)waitforFullDisplay
-                                                  transactionId:(SentrySpanId *)transactionId;
+- (SentryObjCSwiftUISpanHelper *)startTimeToDisplayTrackerForScreen:(NSString *)screenName
+                                                 waitForFullDisplay:(BOOL)waitforFullDisplay
+                                                      transactionId:(SentrySpanId *)transactionId;
 {
     id<SentrySpan> span = [SentryPerformanceTracker.shared getSpan:transactionId];
     if (span != nil && [span isKindOfClass:[SentryTracer class]]) {
@@ -283,24 +288,24 @@
             [self startTimeToDisplayTrackerForScreen:screenName
                                   waitForFullDisplay:waitforFullDisplay
                                               tracer:(SentryTracer *)span];
-        return [[SentrySwiftUISpanHelper alloc] initWithHasSpan:YES
-                                        initialDisplayReporting:displayReporting];
+        return [[SentryObjCSwiftUISpanHelper alloc] initWithHasSpan:YES
+                                            initialDisplayReporting:displayReporting];
     }
-    return [[SentrySwiftUISpanHelper alloc] initWithHasSpan:NO initialDisplayReporting:nil];
+    return [[SentryObjCSwiftUISpanHelper alloc] initWithHasSpan:NO initialDisplayReporting:nil];
 }
 
 + (SentryObjCSwiftUISpanHelper *)startTimeToDisplayTrackerForScreen:(NSString *)screenName
                                                  waitForFullDisplay:(BOOL)waitforFullDisplay
-                                                      transactionId:(SentrySpanId *)transactionId;
+                                                      transactionId:(SentrySpanId *)transactionId
 {
-    id<SentryUIViewControllerPerformanceTracker> vcTracker
+    SentryUIViewControllerPerformanceTracker *vcTracker
         = SentryDependencyContainer.sharedInstance.uiViewControllerPerformanceTracker;
     SentrySwiftUISpanHelper *result =
         [vcTracker startTimeToDisplayTrackerForScreen:screenName
                                    waitForFullDisplay:waitforFullDisplay
                                         transactionId:transactionId];
     return [[SentryObjCSwiftUISpanHelper alloc] initWithHasSpan:result.hasSpan
-                                        initialDisplayReporting:result.initialDisplayReporting];
+                                        initialDisplayReporting:result];
 }
 
 - (void)viewControllerViewWillAppear:(UIViewController *)controller

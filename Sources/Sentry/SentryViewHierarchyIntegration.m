@@ -3,7 +3,6 @@
 #if SENTRY_HAS_UIKIT
 #    import "SentryAttachment+Private.h"
 #    import "SentryCrashC.h"
-#    import "SentryDependencyContainer.h"
 #    import "SentryEvent+Private.h"
 #    import "SentryException.h"
 #    import "SentryHub+Private.h"

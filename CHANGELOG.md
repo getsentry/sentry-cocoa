@@ -8,6 +8,7 @@
 - Makes `PreviewRedactOptions`, `SentryProfileOptions`, `SentryRedactViewHelper`, `SentryViewScreenshotOptions`, `SentryReplayOptions`, `SentryUserFeedbackConfiguration`, `SentryUserFeedbackFormConfiguration`, `SentryUserFeedbackThemeConfiguration`, `SentryUserFeedbackWidgetConfiguration`, `SentryFeedback`, and `SentryExperimentalOptions` `final` (#6365)
 - Removes Decodable conformances from the public API of model classes (#5691)
 - Removes unused SentryLogLevel (#5591)
+- Removes deprecated `setExtraValue` from SentrySpan (#5864)
 - Removes deprecated getStoreEndpoint (#5591)
 - Removes deprecated useSpan function (#5591)
 - Removes deprecated user feedback API, this is replaced with the new feedback API (#5591)

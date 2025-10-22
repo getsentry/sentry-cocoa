@@ -2,7 +2,6 @@
 
 #if SENTRY_HAS_UIKIT
 
-#    import "SentryDependencyContainer.h"
 #    import "SentryLogC.h"
 #    import "SentryOptions.h"
 #    import "SentrySubClassFinder.h"
@@ -43,7 +42,7 @@
           binaryImageCache:[SentryDependencyContainer.sharedInstance binaryImageCache]];
 
     [self.swizzling start];
-    id<SentryUIViewControllerPerformanceTracker> performanceTracker =
+    SentryUIViewControllerPerformanceTracker *performanceTracker =
         [SentryDependencyContainer.sharedInstance uiViewControllerPerformanceTracker];
     performanceTracker.alwaysWaitForFullDisplay = options.enableTimeToFullDisplayTracing;
 

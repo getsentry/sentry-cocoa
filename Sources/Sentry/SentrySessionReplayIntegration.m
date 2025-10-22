@@ -3,7 +3,6 @@
 #if SENTRY_TARGET_REPLAY_SUPPORTED
 
 #    import "SentryClient+Private.h"
-#    import "SentryDependencyContainer.h"
 #    import "SentryEvent+Private.h"
 #    import "SentryHub+Private.h"
 #    import "SentryLogC.h"
@@ -134,7 +133,7 @@ static SentryTouchTracker *_touchTracker;
 
     _notificationCenter = SentryDependencyContainer.sharedInstance.notificationCenterWrapper;
     _dateProvider = SentryDependencyContainer.sharedInstance.dateProvider;
-    _environmentChecker = SentryDependencyContainer.sharedInstance.sessionReplayEnvironmentChecker;
+    _environmentChecker = SentryDependencies.sessionReplayEnvironmentChecker;
 
     // We use the dispatch queue provider as a factory to create the queues, but store the queues
     // directly in this instance, so they get deallocated when the integration is deallocated.
