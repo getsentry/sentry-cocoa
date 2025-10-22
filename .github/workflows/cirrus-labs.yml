@@ -1,0 +1,12 @@
+name: Cirrus Labs
+on:
+  pull_request:
+
+jobs:
+  macos:
+    name: "Test Cirrus Labs"
+    runs-on: ghcr.io/cirruslabs/macos-runner:ventura
+    steps:
+      - uses: actions/checkout@v4
+      - name: List Installed Xcodes
+        run: xcodes installed
