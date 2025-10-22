@@ -15,7 +15,12 @@ NS_ASSUME_NONNULL_BEGIN
 @class SentryFramesTracker;
 #endif // SENTRY_HAS_UIKIT
 
-@interface SentrySpan : NSObject <SentrySpan, SentrySerializable>
+@interface SentrySpan : NSObject
+#if !SDK_V9
+                        <SentrySpan, SentrySerializable>
+#else
+                        <SentrySpan>
+#endif
 SENTRY_NO_INIT
 
 /**
