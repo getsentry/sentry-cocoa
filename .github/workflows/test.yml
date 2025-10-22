@@ -163,7 +163,6 @@ jobs:
             --os ${{matrix.test-destination-os}} \
             --ref ${{ github.ref_name }} \
             --command build-for-testing \
-            --device "${{matrix.device}}" \
             --configuration TestCI \
             --scheme Sentry \
             --test-plan Sentry_TestServer
@@ -175,7 +174,6 @@ jobs:
             --os ${{matrix.test-destination-os}} \
             --ref ${{ github.ref_name }} \
             --command test-without-building \
-            --device "${{matrix.device}}" \
             --configuration TestCI \
             --scheme Sentry \
             --test-plan Sentry_TestServer
@@ -230,25 +228,28 @@ jobs:
         include:
           # We are running tests on iOS 17 and later, as there were OS-internal changes introduced in succeeding versions.
 
-          # iOS 16
+          # iOS 16 - Use macOS-26 with Xcode 26.1 to download iOS 16.4 runtime (latest toolkit)
           - name: iOS 16 Sentry
-            runs-on: macos-14
+            runs-on: macos-26
             platform: "iOS"
-            xcode: "15.4"
+            xcode: "26.1"
             test-destination-os: "16.4"
             device: "iPhone 14 Pro"
             scheme: "Sentry"
+            install_platforms: true
+            create_device: true
 
-          # iOS 17
+          # iOS 17 - Use pre-installed iOS 17.5 runtime on macOS-15
           - name: iOS 17 Sentry
-            runs-on: macos-14
+            runs-on: macos-15
             platform: "iOS"
-            xcode: "15.4"
+            xcode: "16.4"
             test-destination-os: "17.5"
             device: "iPhone 15 Pro"
             scheme: "Sentry"
+            create_device: true
 
-          # iOS 18
+          # iOS 18 - Use pre-installed iOS 18.4 runtime on macOS-15
           - name: iOS 18 Sentry
             runs-on: macos-15
             platform: "iOS"
@@ -257,7 +258,7 @@ jobs:
             device: "iPhone 16 Pro"
             scheme: "Sentry"
 
-          # iOS 26 with Xcode 26
+          # iOS 26 - Download iOS 26.1 beta runtime on macOS-26
           - name: iOS 26 Sentry
             runs-on: macos-26
             platform: "iOS"
@@ -265,6 +266,8 @@ jobs:
             test-destination-os: "26.1"
             device: "iPhone 17 Pro"
             scheme: "Sentry"
+            install_platforms: true
+            create_device: true
 
           # We don't run the unit tests on macOS 13 cause we run them on all on GH actions available iOS versions.
           # The chance of missing a bug solely on tvOS 16 that doesn't occur on iOS, macOS 12 or macOS 14 is minimal.
@@ -325,14 +328,15 @@ jobs:
             test-destination-os: "17.5"
             scheme: "Sentry"
 
-          # iOS 17
+          # iOS 17 - Use pre-installed iOS 17.5 runtime on macOS-15
           - name: iOS 17 SentrySwiftUI
-            runs-on: macos-14
+            runs-on: macos-15
             platform: "iOS"
-            xcode: "15.4"
+            xcode: "16.4"
             test-destination-os: "17.5"
             device: "iPhone 15 Pro"
             scheme: "SentrySwiftUI"
+            create_device: true
 
           # tvOS 18
           - name: tvOS 18 Sentry
@@ -350,6 +354,8 @@ jobs:
             test-destination-os: "26.1"
             device: "Apple TV"
             scheme: "Sentry"
+            install_platforms: true
+            create_device: true
 
     steps:
       - uses: actions/checkout@v5
@@ -358,17 +364,23 @@ jobs:
       - name: Install Slather
         run: gem install slather
 
-      # Create simulator devices for non-preinstalled iOS versions (iOS 16.4 and iOS 17.5 on Xcode 15.4)
-      # These simulators are not preinstalled on macOS-14, so we need to create them manually.
-      # See comments in ui-tests-critical.yml for more details about macOS 13 sunset.
-      - name: Create simulator device for non-preinstalled iOS versions
-        if: ${{matrix.platform == 'iOS' && matrix.xcode == '15.4' && matrix.device != ''}}
-        run: ./scripts/ci-create-simulator.sh --platform "iOS" --os-version "${{matrix.test-destination-os}}" --device-name "${{matrix.device}}"
+      # Install platform runtimes that are not included by default
+      # For iOS 16.4: Not included with Xcode 15.4 on macOS-14 (macOS-13 sunset)
+      # For iOS/tvOS 26.1: Beta platforms not included by default
+      - name: Install required platforms
+        if: ${{ matrix.install_platforms }}
+        run: ./scripts/ci-install-platforms.sh --platforms "${{ matrix.platform }}" --os-version "${{ matrix.test-destination-os }}"
+
+      # Create simulator devices for non-preinstalled simulators
+      # Required for iOS 16.4, iOS 17.5 (on Xcode 15.4), and iOS/tvOS 26.1
+      - name: Create simulator device
+        if: ${{ matrix.create_device }}
+        run: ./scripts/ci-create-simulator.sh --platform "${{ matrix.platform }}" --os-version "${{ matrix.test-destination-os }}" --device-name "${{ matrix.device }}"
 
       # Based on a comment in CircleCI forum, we need to boot the simulator for Xcode 26: https://discuss.circleci.com/t/xcode-26-rc/54066/18
       - name: Boot simulator
-        if: ${{matrix.platform == 'iOS' && matrix.test-destination-os == '26.1'}}
-        run: ./scripts/ci-boot-simulator.sh --xcode ${{matrix.xcode}}
+        if: ${{ matrix.platform == 'iOS' && matrix.test-destination-os == '26.1' }}
+        run: ./scripts/ci-boot-simulator.sh --xcode ${{ matrix.xcode }}
 
       # We split building and running tests in two steps so we know how long running the tests takes.
       - name: Build tests

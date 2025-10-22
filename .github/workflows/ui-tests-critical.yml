@@ -52,15 +52,12 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # As of 25th March 2025, the preinstalled iOS simulator version is 16.4 for macOS 13 and Xcode 14.3.1; see
-          # https://github.com/actions/runner-images/blob/main/images/macos/macos-13-Readme.md#installed-sdks
-          #
-          # macOS 13 was sunset with November 2025, therefore we must use a newer version of Xcode and macOS and set up the
-          # simulator version manually.
+          # iOS 16 - Use macOS-26 with Xcode 26.1 to download iOS 16.4 runtime (latest toolkit)
+          # macOS 13 was sunset in November 2025, so we moved to macOS-26 with latest Xcode for iOS 16 testing
           - name: iOS 16
             platform:
-              runs-on: macos-14
-              xcode: "15.4"
+              runs-on: macos-26
+              xcode: "26.1"
               test-destination-os: "16.4"
               install_platforms: true
               platform: "iOS"
@@ -69,7 +66,8 @@ jobs:
 
           # macos-14 iOS 17 not included due to the XCUIServerNotFound errors causing flaky tests
 
-          # As of 14th August 2025, the preinstalled iOS simulator version is 18.4 for macOS 15 and Xcode 16.4; see
+          # iOS 18 - Use pre-installed iOS 18.4 runtime on macOS-15
+          # As of 14th August 2025, iOS 18.4 is preinstalled for macOS-15 and Xcode 16.4; see
           # https://github.com/actions/runner-images/blob/main/images/macos/macos-15-Readme.md#installed-sdks
           - name: iOS 18
             platform:
@@ -79,9 +77,10 @@ jobs:
               platform: "iOS"
               device: "iPhone 16 Pro"
 
+          # iOS 26 - Download iOS 26.1 beta runtime on macOS-26
           - name: iOS 26
             platform:
-              runs-on: macos-15
+              runs-on: macos-26
               xcode: "26.1"
               test-destination-os: "26.1"
               install_platforms: true
