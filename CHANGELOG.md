@@ -4,9 +4,6 @@
 
 ### Breaking Changes
 
-Removes deprecated user feedback API, this is replaced with the new feedback API (#5591)
-Removes `enablePerformanceV2` option and makes this the default. The app start duration will now finish when the first frame is drawn instead of when the OS posts the UIWindowDidBecomeVisibleNotification. (#6008)
-Structured Logs: Move options out of experimental (#6359)
 - Moves `SentryEventDecoder` to SPI (#6365)
 - Makes `PreviewRedactOptions`, `SentryProfileOptions`, `SentryRedactViewHelper`, `SentryViewScreenshotOptions`, `SentryReplayOptions`, `SentryUserFeedbackConfiguration`, `SentryUserFeedbackFormConfiguration`, `SentryUserFeedbackThemeConfiguration`, `SentryUserFeedbackWidgetConfiguration`, `SentryFeedback`, and `SentryExperimentalOptions` `final` (#6365)
 - Removes Decodable conformances from the public API of model classes (#5691)
@@ -21,8 +18,8 @@ Structured Logs: Move options out of experimental (#6359)
 ### Features
 
 - Add SentryDistribution as Swift Package Manager target (#6149)
-- Add `SentrySwiftLog` Integration ([#6286](https://github.com/getsentry/sentry-cocoa/pull/6286))
 - Add option `enablePropagateTraceparent` to support OTel/W3C trace propagation (#6356)
+- Structured Logs: Add `SentrySwiftLog` Integration (#6286)
 
 ### Fixes
 
