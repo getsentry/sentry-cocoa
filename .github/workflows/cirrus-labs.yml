@@ -3,9 +3,23 @@ on:
   pull_request:
 
 jobs:
-  macos:
-    name: "Test Cirrus Labs"
-    runs-on: ghcr.io/cirruslabs/macos-runner:ventura
+  # macos-ventura:
+  #   name: "Test Cirrus Labs on macOS Ventura"
+  #   runs-on: ghcr.io/cirruslabs/macos-runner:ventura
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - name: List Installed Xcodes
+  #       run: xcodes installed
+  macos-sonoma:
+    name: "Test Cirrus Labs on macOS Sonoma"
+    runs-on: ghcr.io/cirruslabs/macos-runner:sonoma
+    steps:
+      - uses: actions/checkout@v4
+      - name: List Installed Xcodes
+        run: xcodes installed
+  macos-tahoe:
+    name: "Test Cirrus Labs on macOS Tahoe"
+    runs-on: ghcr.io/cirruslabs/macos-runner:tahoe
     steps:
       - uses: actions/checkout@v4
       - name: List Installed Xcodes
