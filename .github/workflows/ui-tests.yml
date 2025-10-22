@@ -81,9 +81,9 @@ jobs:
         include:
           # iOS 16 - Use macOS-26 with Xcode 26.1 to download iOS 16.4 runtime (latest toolkit)
           - name: iOS 16
+            runs-on: macos-26
             xcode: "26.1"
             test-destination-os: "16.4"
-            runs-on: macos-26
             install_platforms: true
             platform: "iOS"
             create_device: true
@@ -91,9 +91,9 @@ jobs:
 
           # iOS 17 - Use pre-installed iOS 17.5 runtime on macOS-14 with Xcode 15.4
           - name: iOS 17
+            runs-on: macos-14
             xcode: "15.4"
             test-destination-os: "17.5"
-            runs-on: macos-14
             platform: "iOS"
             create_device: true
             device: iPhone 15 Pro
@@ -102,18 +102,21 @@ jobs:
           - name: iOS 18
             runs-on: macos-15
             xcode: "16.4"
-            device: iPhone 16 Pro
             test-destination-os: "18.4"
+            platform: "iOS"
+            device: iPhone 16 Pro
+            install_platforms: false
+            create_device: false
 
           # iOS 26 - Download iOS 26.1 beta runtime on macOS-26
           - name: iOS 26
             runs-on: macos-26
+            xcode: "26.1"
+            test-destination-os: "26.1"
             install_platforms: true
             platform: "iOS"
             create_device: true
-            xcode: "26.1"
             device: iPhone 17 Pro
-            test-destination-os: "26.1"
     with:
       fastlane_command: ui_tests_ios_swift
       files_suffix: _xcode_${{matrix.xcode}}-${{matrix.device}}

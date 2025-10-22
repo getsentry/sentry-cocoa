@@ -74,7 +74,9 @@ jobs:
               runs-on: macos-15
               xcode: "16.4"
               test-destination-os: "18.4"
+              install_platforms: false
               platform: "iOS"
+              create_device: false
               device: "iPhone 16 Pro"
 
           # iOS 26 - Download iOS 26.1 beta runtime on macOS-26

@@ -1,10 +1,13 @@
 #!/bin/bash
 
-# This script installs required platform simulators for Xcode 26
-
-# GH actions doesn't include the beta simulators because according to them they cause too many problems: https://github.com/actions/runner-images/issues/12904#issuecomment-3242706088
-# Therefore we have manually downloaded them and now install them here as suggested in the comment.
-# Once GH actions includes the beta simulators, we can should remove this script.
+# This script downloads platform simulators that are not preinstalled with the active Xcode version.
+#
+# Primary use cases:
+# 1. Downloading beta platforms for Xcode 26 (iOS 26.1, tvOS 26.1, etc.)
+# 2. Downloading older iOS versions on newer Xcode (e.g., iOS 16.4 on Xcode 26.1)
+#
+# Note: GitHub Actions doesn't include beta simulators by default because they can cause issues.
+# See: https://github.com/actions/runner-images/issues/12904#issuecomment-3242706088
 
 set -euo pipefail
 
@@ -12,7 +15,7 @@ set -euo pipefail
 # shellcheck source=./scripts/ci-utils.sh disable=SC1091
 source "$(cd "$(dirname "$0")" && pwd)/ci-utils.sh"
 
-log_notice "Installing required platform simulators for Xcode 26"
+log_notice "Downloading required platform simulators for the active Xcode version"
 
 # Parse named arguments
 PLATFORMS=""
@@ -21,8 +24,10 @@ OS_VERSION=""
 usage() {
     echo "Usage: $0 --platforms <platform1,platform2,...> --os-version <os_version>"
     echo "  Available platforms: iOS,tvOS,visionOS,watchOS"
-    echo "  Example: $0 --platforms iOS,tvOS,visionOS,watchOS --os-version 26.1"
+    echo "  OS version is used for logging/informational purposes"
+    echo "  xcodebuild will download the appropriate platform version for the active Xcode"
     echo "  Example: $0 --platforms iOS --os-version 26.1"
+    echo "  Example: $0 --platforms iOS --os-version 16.4"
     exit 1
 }
 
@@ -54,29 +59,32 @@ IFS=',' read -ra PLATFORM_ARRAY <<< "$PLATFORMS"
 for platform in "${PLATFORM_ARRAY[@]}"; do
     case "$platform" in
         "iOS")
-            begin_group "Installing iOS 26.0 simulator"
-            xcodebuild -downloadPlatform iOS -buildVersion "$OS_VERSION" -quiet || {
+            begin_group "Installing iOS $OS_VERSION platform"
+            # Note: We don't use -buildVersion because it expects a build identifier (e.g., "23A343"),
+            # not an OS version (e.g., "26.1"). xcodebuild will download the appropriate version
+            # for the active Xcode version when -buildVersion is omitted.
+            xcodebuild -downloadPlatform iOS -quiet || {
                 log_warning "Failed to download iOS platform, continuing..."
             }
             end_group
             ;;
         "tvOS")
-            begin_group "Installing tvOS 26.0 simulator"
-            xcodebuild -downloadPlatform tvOS -buildVersion "$OS_VERSION" -quiet || {
+            begin_group "Installing tvOS $OS_VERSION platform"
+            xcodebuild -downloadPlatform tvOS -quiet || {
                 log_warning "Failed to download tvOS platform, continuing..."
             }
             end_group
             ;;
         "visionOS")
-            begin_group "Installing visionOS 26.0 simulator"
-            xcodebuild -downloadPlatform visionOS -buildVersion "$OS_VERSION" -quiet || {
+            begin_group "Installing visionOS $OS_VERSION platform"
+            xcodebuild -downloadPlatform visionOS -quiet || {
                 log_warning "Failed to download visionOS platform, continuing..."
             }
             end_group
             ;;
         "watchOS")
-            begin_group "Installing watchOS 26.0 simulator"
-            xcodebuild -downloadPlatform watchOS -buildVersion "$OS_VERSION" -quiet || {
+            begin_group "Installing watchOS $OS_VERSION platform"
+            xcodebuild -downloadPlatform watchOS -quiet || {
                 log_warning "Failed to download watchOS platform, continuing..."
             }
             end_group
