@@ -10,42 +10,47 @@ else
   IS_GITHUB_ACTIONS=false
 fi
 
+# Get current timestamp in format HH:MM:SS.mmm
+get_timestamp() {
+  date +"%T.%3N"
+}
+
 log_notice() {
   if $IS_GITHUB_ACTIONS; then
-    echo "::notice::${1}"
+    echo "[$(get_timestamp)] ::notice::${1}"
   else
-    echo "[notice] ${1}"
+    echo "[$(get_timestamp)] [notice] ${1}"
   fi
 }
 
 log_warning() {
   if $IS_GITHUB_ACTIONS; then
-    echo "::warning::${1}"
+    echo "[$(get_timestamp)] ::warning::${1}"
   else
-    echo "[warning] ${1}"
+    echo "[$(get_timestamp)] [warning] ${1}"
   fi
 }
 
 log_error() {
   if $IS_GITHUB_ACTIONS; then
-    echo "::error::${1}"    
+    echo "[$(get_timestamp)] ::error::${1}"    
   else                      
-    echo "[error] ${1}"     
+    echo "[$(get_timestamp)] [error] ${1}"     
   fi                        
 }                           
                             
 begin_group() {             
   local title="$1"          
   if $IS_GITHUB_ACTIONS; then
-    echo "::group::${title}"
+    echo "[$(get_timestamp)] ::group::${title}"
   else                      
-    echo                    
-    echo "== ${title} =="
+    echo "[$(get_timestamp)]"                    
+    echo "[$(get_timestamp)] == ${title} =="
   fi                        
 }                           
                             
 end_group() {               
   if $IS_GITHUB_ACTIONS; then
-    echo "::endgroup::"     
+    echo "[$(get_timestamp)] ::endgroup::"     
   fi                        
 }
