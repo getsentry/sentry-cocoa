@@ -4,7 +4,7 @@ import Foundation
 import ObjectiveC.NSObjCRuntime
 import UIKit
 
-final class SentryRedactRegion: Equatable {
+struct SentryRedactRegion: Equatable {
     let size: CGSize
     let transform: CGAffineTransform
     let type: SentryRedactRegionType
@@ -21,25 +21,6 @@ final class SentryRedactRegion: Equatable {
 
     func canReplace(as other: SentryRedactRegion) -> Bool {
         size == other.size && transform == other.transform && type == other.type
-    }
-
-    static func == (lhs: SentryRedactRegion, rhs: SentryRedactRegion) -> Bool {
-        guard lhs.size == rhs.size else {
-            return false
-        }
-        guard lhs.transform == rhs.transform else {
-            return false
-        }
-        guard lhs.type == rhs.type else {
-            return false
-        }
-        guard lhs.color == rhs.color else {
-            return false
-        }
-        guard lhs.name == rhs.name else {
-            return false
-        }
-        return true
     }
 }
 #endif
