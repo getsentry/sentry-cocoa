@@ -25,12 +25,6 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
         options.enableTimeToFullDisplayTracing = true
         options.swiftAsyncStacktraces = true
 
-#if os(iOS) || os(tvOS)
-#if canImport(UIKit) && !SENTRY_NO_UIKIT
-        options.enablePreWarmedAppStartTracing = true
-#endif // canImport(UIKit)
-#endif // os(iOS) || os(tvOS)
-
         // -- Act --
         let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
 
@@ -38,12 +32,6 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
         XCTAssert(features.contains("captureFailedRequests"))
         XCTAssert(features.contains("timeToFullDisplayTracing"))
         XCTAssert(features.contains("swiftAsyncStacktraces"))
-
-#if os(iOS) || os(tvOS)
-#if canImport(UIKit) && !SENTRY_NO_UIKIT
-        XCTAssert(features.contains("preWarmedAppStartTracing"))
-#endif // canImport(UIKit)
-#endif // os(iOS) || os(tvOS)
     }
 
     func testEnablePersistingTracesWhenCrashing() {

@@ -381,9 +381,11 @@ NS_SWIFT_NAME(Options)
  * @note You can filter for different app start types in Discover with
  * @c app_start_type:cold.prewarmed ,
  * @c app_start_type:warm.prewarmed , @c app_start_type:cold , and @c app_start_type:warm .
+ *
  * @warning This feature is not available in @c DebugWithoutUIKit and @c ReleaseWithoutUIKit
  * configurations even when targeting iOS or tvOS platforms.
- * @note Default value is @c NO .
+ *
+ * @note Default value is @c YES .
  */
 @property (nonatomic, assign) BOOL enablePreWarmedAppStartTracing;
 

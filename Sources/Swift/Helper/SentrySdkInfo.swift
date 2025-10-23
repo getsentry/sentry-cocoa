@@ -54,12 +54,7 @@ import Foundation
     
     @objc public convenience init(withOptions options: Options?) {
         let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
-        var integrations = SentrySDKInternal.currentHub().trimmedInstalledIntegrationNames()
-        #if (os(iOS) || os(tvOS) || (swift(>=5.9) && os(visionOS))) && !SENTRY_NO_UIKIT
-            if options?.enablePreWarmedAppStartTracing ?? false {
-                integrations.append("PreWarmedAppStartTracing")
-            }
-        #endif
+        let integrations = SentrySDKInternal.currentHub().trimmedInstalledIntegrationNames()
         var packages = SentryExtraPackages.getPackages()
         let sdkPackage = SentrySdkPackage.global()
         if let sdkPackage {
