@@ -32,7 +32,7 @@ import Foundation
             if !sdkEnabled {
                 SentrySDKLog.fatal("Logs called before SentrySDK.start() will be dropped.")
             }
-            if let _logger, !_loggerConfigured {
+            if let _logger, _loggerConfigured {
                 return _logger
             }
             let logger = SentryLogger(
