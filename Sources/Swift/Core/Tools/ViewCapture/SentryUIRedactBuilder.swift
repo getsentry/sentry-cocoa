@@ -436,7 +436,7 @@ final class SentryUIRedactBuilder {
             } else if isOpaque(view) {
                 let finalViewFrame = CGRect(origin: .zero, size: layer.bounds.size).applying(newTransform)
                 if isAxisAligned(newTransform) && finalViewFrame == rootFrame {
-                    //Because the current view is covering everything we found so far we can clear `redacting` list
+                    // Because the current view is covering everything we found so far we can clear `redacting` list
                     redacting.removeAll()
                 } else {
                     redacting.append(SentryRedactRegion(
