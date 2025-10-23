@@ -17,40 +17,40 @@ get_timestamp() {
 
 log_notice() {
   if $IS_GITHUB_ACTIONS; then
-    echo "[$(get_timestamp)] ::notice::${1}"
+    echo "::notice:: [$(get_timestamp)] ${1}"
   else
-    echo "[$(get_timestamp)] [notice] ${1}"
+    echo "[notice] [$(get_timestamp)] ${1}"
   fi
 }
 
 log_warning() {
   if $IS_GITHUB_ACTIONS; then
-    echo "[$(get_timestamp)] ::warning::${1}"
+    echo "::warning:: [$(get_timestamp)] ${1}"
   else
-    echo "[$(get_timestamp)] [warning] ${1}"
+    echo "[warning] [$(get_timestamp)] ${1}"
   fi
 }
 
 log_error() {
   if $IS_GITHUB_ACTIONS; then
-    echo "[$(get_timestamp)] ::error::${1}"    
+    echo "::error:: [$(get_timestamp)] ${1}"    
   else                      
-    echo "[$(get_timestamp)] [error] ${1}"     
+    echo "[error] [$(get_timestamp)] ${1}"     
   fi                        
 }                           
                             
 begin_group() {             
   local title="$1"          
   if $IS_GITHUB_ACTIONS; then
-    echo "[$(get_timestamp)] ::group::${title}"
+    echo "::group::${title}"
   else                      
-    echo "[$(get_timestamp)]"                    
-    echo "[$(get_timestamp)] == ${title} =="
+    echo 
+    echo "== ${title} =="
   fi                        
 }                           
                             
 end_group() {               
   if $IS_GITHUB_ACTIONS; then
-    echo "[$(get_timestamp)] ::endgroup::"     
+    echo "::endgroup::"     
   fi                        
 }
