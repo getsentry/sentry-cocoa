@@ -10,9 +10,9 @@ else
   IS_GITHUB_ACTIONS=false
 fi
 
-# Get current timestamp in format HH:MM:SS.mmm
+# Get current timestamp in format HH:MM:SS
 get_timestamp() {
-  date +"%T.%3N"
+  date +"%T"
 }
 
 log_notice() {
