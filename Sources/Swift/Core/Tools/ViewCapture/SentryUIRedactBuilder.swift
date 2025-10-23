@@ -385,6 +385,7 @@ final class SentryUIRedactBuilder {
     private func shouldRedact(imageView: UIImageView) -> Bool {
         // Checking the size is to avoid redacting gradient backgrounds that are usually
         // implemented as very thin repeating images.
+        // The pixel size of `10` is an undocumented threshold and should be considered a magic number.
         guard let image = imageView.image, image.size.width > 10 && image.size.height > 10  else {
             return false
         }
