@@ -2279,7 +2279,7 @@ private extension SentryClientTests {
     private func givenEventWithDebugMeta() -> Event {
         let event = Event(level: SentryLevel.fatal)
         let debugMeta = DebugMeta()
-        debugMeta.name = "Me"
+        debugMeta.codeFile = "Me"
         let debugMetas = [debugMeta]
         event.debugMeta = debugMetas
         return event
