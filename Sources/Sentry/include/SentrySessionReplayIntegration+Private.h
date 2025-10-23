@@ -5,14 +5,17 @@
 
 @class SentrySessionReplay;
 @class SentryViewPhotographer;
+@class SentryId;
 
 @interface SentrySessionReplayIntegration ()
 
-@property (nonatomic, strong) SentrySessionReplay *sessionReplay;
+@property (nonatomic, strong, nullable) SentrySessionReplay *sessionReplay;
 
-@property (nonatomic, strong) SentryViewPhotographer *viewPhotographer;
+@property (nonatomic, strong) SentryViewPhotographer *_Nonnull viewPhotographer;
 
-- (void)setReplayTags:(NSDictionary<NSString *, id> *)tags;
+@property (nonatomic, readonly, nullable) SentryId *replayId;
+
+- (void)setReplayTags:(NSDictionary<NSString *, id> *_Nonnull)tags;
 
 @end
 

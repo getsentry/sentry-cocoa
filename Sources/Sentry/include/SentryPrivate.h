@@ -57,6 +57,7 @@
 #import "SentryScope.h"
 #import "SentrySerialization.h"
 #import "SentrySessionInternal.h"
+#import "SentrySessionReplayIntegration+Private.h"
 #import "SentrySpanDataKey.h"
 #import "SentrySpanOperation.h"
 #import "SentrySwizzleWrapperHelper.h"

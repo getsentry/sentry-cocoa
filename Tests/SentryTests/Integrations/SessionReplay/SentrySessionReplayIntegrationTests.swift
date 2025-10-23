@@ -336,9 +336,9 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         startSDK(sessionSampleRate: 1, errorSampleRate: 0)
         let sut = try getSut()
         (sut as? SentryReachabilityObserver)?.connectivityChanged(false, typeDescription: "")
-        XCTAssertTrue(sut.sessionReplay.isSessionPaused)
+        XCTAssertTrue(sut.sessionReplay!.isSessionPaused)
         (sut as? SentryReachabilityObserver)?.connectivityChanged(true, typeDescription: "")
-        XCTAssertFalse(sut.sessionReplay.isSessionPaused)
+        XCTAssertFalse(sut.sessionReplay!.isSessionPaused)
     }
   
     func testMaskViewFromSDK() throws {
