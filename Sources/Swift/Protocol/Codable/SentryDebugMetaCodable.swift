@@ -10,6 +10,7 @@ final class DebugMetaDecodable: DebugMeta {
 #else
 typealias DebugMetaDecodable = DebugMeta
 #endif
+
 extension DebugMetaDecodable: Decodable {
     
     private enum CodingKeys: String, CodingKey {
@@ -20,12 +21,12 @@ extension DebugMetaDecodable: Decodable {
         case imageVmAddress = "image_vmaddr"
         case codeFile = "code_file"
     }
-    
-    #if !SDK_V9
-    required convenience public init(from decoder: any Decoder) throws {
-        try self.init(decodedFrom: decoder)
-    }
-    #endif
+
+      #if !SDK_V9
+      required convenience public init(from decoder: any Decoder) throws {
+          try self.init(decodedFrom: decoder)
+      }
+      #endif
 
     private convenience init(decodedFrom decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
