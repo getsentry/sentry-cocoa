@@ -9,7 +9,6 @@ class SentryUserTests: XCTestCase {
             "email": "fixture-email",
             "username": "fixture-username",
             "ip_address": "fixture-ip_address",
-            "segment": "fixture-segment",
             "data": [
                 "fixture-key": "fixture-value"
             ],
