@@ -15,6 +15,7 @@
 - Removes `enablePerformanceV2` option and makes this the default. The app start duration will now finish when the first frame is drawn instead of when the OS posts the UIWindowDidBecomeVisibleNotification. (#6008)
 - Removes enableTracing property from SentryOptions (#5694)
 - Structured Logs: Move options out of experimental (#6359)
+- Remove unused `SentryFrame.instruction` property (#6504)
 
 ### Features
 
