@@ -16,6 +16,7 @@
 - Removes enableTracing property from SentryOptions (#5694)
 - Structured Logs: Move options out of experimental (#6359)
 - Remove unused `SentryFrame.instruction` property (#6504)
+- Enable enablePreWarmedAppStartTracing by default (#6508). With this option enabled, the SDK collects [prewarmed app starts](https://docs.sentry.io/platforms/apple/tracing/instrumentation/automatic-instrumentation/#prewarmed-app-start-tracing).
 
 ### Features
 
