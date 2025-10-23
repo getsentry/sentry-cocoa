@@ -100,7 +100,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
         self.reportAccessibilityIdentifier = YES;
         self.enableUserInteractionTracing = YES;
         self.idleTimeout = SentryTracerDefaultTimeout;
-        self.enablePreWarmedAppStartTracing = NO;
+        self.enablePreWarmedAppStartTracing = YES;
         self.enableReportNonFullyBlockingAppHangs = YES;
 #endif // SENTRY_HAS_UIKIT
 

@@ -23,7 +23,8 @@ platform :ios do
       result_bundle: true,
       result_bundle_path: "fastlane/#{result_bundle_path}",
       device: device,
-      address_sanitizer: address_sanitizer
+      address_sanitizer: address_sanitizer,
+      ensure_devices_found: true
     )
   end
 

@@ -64,18 +64,16 @@ class SentryStacktraceBuilderTests: XCTestCase {
     }
     
     func testFramesOrder() throws {
-        if #available(iOS 18, macOS 15, tvOS 15, *) {
-            throw XCTSkip("Stacktrace frames order testing is disabled for this OS version")
-        }
+        // -- Act --
         let actual = fixture.sut.buildStacktraceForCurrentThread()
-        
+
+        // -- Assert --
         // Make sure the first 4 frames contain main
-        let frames = actual.frames[...3]
-        let filteredFrames = frames.filter { frame in
-            return frame.function?.contains("main") ?? false
-        }
-        
-        XCTAssertTrue(filteredFrames.count == 1, "The frames must be ordered from caller to callee, or oldest to youngest.")
+        let isMainInFirstFrames = actual.frames[...3].contains(where: { $0.function == "main" })
+        XCTAssertTrue(
+            isMainInFirstFrames,
+            "Expected frames to be ordered from caller to callee (xctest's main expected in first few frames). Found instead:\n\(actual.frames.map({ "   - \($0.function ?? "<empty>")" }).joined(separator: "\n"))"
+        )
     }
 
     @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
