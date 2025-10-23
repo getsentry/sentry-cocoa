@@ -13,7 +13,7 @@ final class SentryUIRedactBuilder {
     // MARK: - Types
 
     /// Type used to represented a view that needs to be redacted
-    struct ExtendedClassIdentifier: Hashable {
+    struct ClassIdentifier: Hashable {
         /// String representation of the class
         ///
         /// We deliberately store class identities as strings (e.g. "SwiftUI._UIGraphicsView")
@@ -77,7 +77,7 @@ final class SentryUIRedactBuilder {
     /// This object identifier is used to identify views of this class type during the redaction process.
     /// This workaround is specifically for Xcode 16 building for iOS 26 where accessing CameraUI.ModeLoupeLayer
     /// causes a crash due to unimplemented init(layer:) initializer.
-    private static let cameraSwiftUIViewClassId = ExtendedClassIdentifier(classId: "CameraUI.ChromeSwiftUIView")
+    private static let cameraSwiftUIViewClassId = ClassIdentifier(classId: "CameraUI.ChromeSwiftUIView")
 
     // MARK: - Properties
 
@@ -91,13 +91,13 @@ final class SentryUIRedactBuilder {
     ///
     /// Stored as `ExtendedClassIdentifier` so we can reference classes by their string description
     /// and, if needed, constrain the match to a specific Core Animation layer subtype.
-    private var ignoreClassesIdentifiers: Set<ExtendedClassIdentifier>
+    private var ignoreClassesIdentifiers: Set<ClassIdentifier>
 
     /// This is a list of UIView subclasses that need to be redacted from screenshot
     ///
     /// This set is configured as `private(set)` to allow modification only from within this class,
     /// while still allowing read access from tests. Same semantics as `ignoreClassesIdentifiers`.
-    private var redactClassesIdentifiers: Set<ExtendedClassIdentifier>
+    private var redactClassesIdentifiers: Set<ClassIdentifier>
 
     /// Initializes a new instance of the redaction process with the specified options.
     ///
@@ -113,65 +113,65 @@ final class SentryUIRedactBuilder {
     /// - note: On iOS, views such as `WKWebView` and `UIWebView` are always redacted, and controls like
     ///   `UISlider` and `UISwitch` are ignored by default.
     init(options: SentryRedactOptions) {
-        var redactClasses = Set<ExtendedClassIdentifier>()
+        var redactClasses = Set<ClassIdentifier>()
 
         if options.maskAllText {
-            redactClasses.insert(ExtendedClassIdentifier(objcType: UILabel.self))
-            redactClasses.insert(ExtendedClassIdentifier(objcType: UITextView.self))
-            redactClasses.insert(ExtendedClassIdentifier(objcType: UITextField.self))
+            redactClasses.insert(ClassIdentifier(objcType: UILabel.self))
+            redactClasses.insert(ClassIdentifier(objcType: UITextView.self))
+            redactClasses.insert(ClassIdentifier(objcType: UITextField.self))
 
             // The following classes are used by React Native to display text.
             // We are including them here to avoid leaking text from RN apps with manually initialized sentry-cocoa.
 
             // Used by React Native to render short text
-            redactClasses.insert(ExtendedClassIdentifier(classId: "RCTTextView"))
+            redactClasses.insert(ClassIdentifier(classId: "RCTTextView"))
 
             // Used by React Native to render long text
-            redactClasses.insert(ExtendedClassIdentifier(classId: "RCTParagraphComponentView"))
+            redactClasses.insert(ClassIdentifier(classId: "RCTParagraphComponentView"))
 
             // Used by SwiftUI to render text without UIKit, e.g. `Text("Hello World")`.
             // We include the class name without a layer filter because it is specifically
             // used to draw text glyphs in this context.
-            redactClasses.insert(ExtendedClassIdentifier(classId: "SwiftUI.CGDrawingView"))
+            redactClasses.insert(ClassIdentifier(classId: "SwiftUI.CGDrawingView"))
 
             // Used to render SwiftUI.Text on iOS versions prior to iOS 18
-            redactClasses.insert(ExtendedClassIdentifier(classId: "_TtCOCV7SwiftUI11DisplayList11ViewUpdater8Platform13CGDrawingView"))
+            redactClasses.insert(ClassIdentifier(classId: "_TtCOCV7SwiftUI11DisplayList11ViewUpdater8Platform13CGDrawingView"))
 
         }
         
         if options.maskAllImages {
-            redactClasses.insert(ExtendedClassIdentifier(objcType: UIImageView.self))
+            redactClasses.insert(ClassIdentifier(objcType: UIImageView.self))
 
             // Used by SwiftUI.Image to display SFSymbols, e.g. `Image(systemName: "star.fill")`
-            redactClasses.insert(ExtendedClassIdentifier(classId: "_TtC7SwiftUIP33_A34643117F00277B93DEBAB70EC0697122_UIShapeHitTestingView"))
+            redactClasses.insert(ClassIdentifier(classId: "_TtC7SwiftUIP33_A34643117F00277B93DEBAB70EC0697122_UIShapeHitTestingView"))
 
             // Used by SwiftUI.Image to display images, e.g. `Image("my_image")`.
             // The same view class is also used for structural backgrounds. We differentiate by
             // requiring the backing layer to be `SwiftUI.ImageLayer` so we only redact the image case.
-            redactClasses.insert(ExtendedClassIdentifier(classId: "SwiftUI._UIGraphicsView", layerId: "SwiftUI.ImageLayer"))
+            redactClasses.insert(ClassIdentifier(classId: "SwiftUI._UIGraphicsView", layerId: "SwiftUI.ImageLayer"))
 
             // These classes are used by React Native to display images/vectors.
             // We are including them here to avoid leaking images from RN apps with manually initialized sentry-cocoa.
 
             // Used by React Native to display images
-            redactClasses.insert(ExtendedClassIdentifier(classId: "RCTImageView"))
+            redactClasses.insert(ClassIdentifier(classId: "RCTImageView"))
         }
         
 #if os(iOS)
-        redactClasses.insert(ExtendedClassIdentifier(objcType: PDFView.self))
-        redactClasses.insert(ExtendedClassIdentifier(objcType: WKWebView.self))
+        redactClasses.insert(ClassIdentifier(objcType: PDFView.self))
+        redactClasses.insert(ClassIdentifier(objcType: WKWebView.self))
 
         // If we try to use 'UIWebView.self' it will not compile for macCatalyst, but the class does exists.
-        redactClasses.insert(ExtendedClassIdentifier(classId: "UIWebView"))
+        redactClasses.insert(ClassIdentifier(classId: "UIWebView"))
 
         // Used by:
         // - https://developer.apple.com/documentation/SafariServices/SFSafariViewController
         // - https://developer.apple.com/documentation/AuthenticationServices/ASWebAuthenticationSession
-        redactClasses.insert(ExtendedClassIdentifier(classId: "SFSafariView"))
+        redactClasses.insert(ClassIdentifier(classId: "SFSafariView"))
 
         // Used by:
         // - https://developer.apple.com/documentation/avkit/avplayerviewcontroller
-        redactClasses.insert(ExtendedClassIdentifier(classId: "AVPlayerView"))
+        redactClasses.insert(ClassIdentifier(classId: "AVPlayerView"))
 
         // _UICollectionViewListLayoutSectionBackgroundColorDecorationView is a special case because it is
         // used by the SwiftUI.List view to display the background color.
@@ -180,11 +180,11 @@ final class SentryUIRedactBuilder {
         // normal opaque background view would generate clip regions that suppress unrelated redaction boxes
         // (e.g. navigation bar content). To avoid this, we short-circuit traversal and add a single redact
         // region for the decoration view instead of clip-outs.
-        redactClasses.insert(ExtendedClassIdentifier(classId: "_UICollectionViewListLayoutSectionBackgroundColorDecorationView"))
+        redactClasses.insert(ClassIdentifier(classId: "_UICollectionViewListLayoutSectionBackgroundColorDecorationView"))
 
         ignoreClassesIdentifiers = [
-            ExtendedClassIdentifier(objcType: UISlider.self),
-            ExtendedClassIdentifier(objcType: UISwitch.self)
+            ClassIdentifier(objcType: UISlider.self),
+            ClassIdentifier(objcType: UISwitch.self)
         ]
 #else
         ignoreClassesIdentifiers = []
@@ -193,11 +193,11 @@ final class SentryUIRedactBuilder {
         redactClassesIdentifiers = redactClasses
 
         for type in options.unmaskedViewClasses {
-            self.ignoreClassesIdentifiers.insert(ExtendedClassIdentifier(class: type))
+            self.ignoreClassesIdentifiers.insert(ClassIdentifier(class: type))
         }
         
         for type in options.maskedViewClasses {
-            self.redactClassesIdentifiers.insert(ExtendedClassIdentifier(class: type))
+            self.redactClassesIdentifiers.insert(ClassIdentifier(class: type))
         }
     }
     
@@ -244,12 +244,12 @@ final class SentryUIRedactBuilder {
     
     /// Adds a class to the ignore list.
     func addIgnoreClass(_ ignoreClass: AnyClass) {
-        ignoreClassesIdentifiers.insert(ExtendedClassIdentifier(class: ignoreClass))
+        ignoreClassesIdentifiers.insert(ClassIdentifier(class: ignoreClass))
     }
     
     /// Adds a class to the redact list.
     func addRedactClass(_ redactClass: AnyClass) {
-        redactClassesIdentifiers.insert(ExtendedClassIdentifier(class: redactClass))
+        redactClassesIdentifiers.insert(ClassIdentifier(class: redactClass))
     }
     
     /// Adds multiple classes to the ignore list.
@@ -273,7 +273,7 @@ final class SentryUIRedactBuilder {
     func setRedactContainerClass(_ containerClass: AnyClass) {
         let id = ObjectIdentifier(containerClass)
         redactContainerClassIdentifier = id
-        redactClassesIdentifiers.insert(ExtendedClassIdentifier(class: containerClass))
+        redactClassesIdentifiers.insert(ClassIdentifier(class: containerClass))
     }
 
 #if SENTRY_TEST || SENTRY_TEST_CI

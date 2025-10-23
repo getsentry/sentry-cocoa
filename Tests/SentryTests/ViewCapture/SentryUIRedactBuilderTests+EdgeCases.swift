@@ -37,7 +37,7 @@ class SentryUIRedactBuilderTests_EdgeCases: SentryUIRedactBuilderTests { // swif
         }
 
         let view = CustomView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
-        let identifier = SentryUIRedactBuilder.ExtendedClassIdentifier(
+        let identifier = SentryUIRedactBuilder.ClassIdentifier(
             classId: CustomView.description(),
             layerId: CustomLayer.description()
         )
@@ -55,7 +55,7 @@ class SentryUIRedactBuilderTests_EdgeCases: SentryUIRedactBuilderTests { // swif
         class CustomView: UIView {}
 
         let view = CustomView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
-        let identifier = SentryUIRedactBuilder.ExtendedClassIdentifier(
+        let identifier = SentryUIRedactBuilder.ClassIdentifier(
             classId: CustomView.description(),
             layerId: "SomeOtherLayer"
         )
@@ -77,7 +77,7 @@ class SentryUIRedactBuilderTests_EdgeCases: SentryUIRedactBuilderTests { // swif
         }
 
         let view = CustomView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
-        let identifier = SentryUIRedactBuilder.ExtendedClassIdentifier(
+        let identifier = SentryUIRedactBuilder.ClassIdentifier(
             classId: CustomView.description(),
             layerId: nil
         )
@@ -780,7 +780,7 @@ class SentryUIRedactBuilderTests_EdgeCases: SentryUIRedactBuilderTests { // swif
 
     func testExtendedClassIdentifier_initWithClassId_shouldStoreCorrectly() {
         // -- Arrange & Act --
-        let identifier = SentryUIRedactBuilder.ExtendedClassIdentifier(
+        let identifier = SentryUIRedactBuilder.ClassIdentifier(
             classId: "MyCustomClass",
             layerId: "MyCustomLayer"
         )
@@ -792,7 +792,7 @@ class SentryUIRedactBuilderTests_EdgeCases: SentryUIRedactBuilderTests { // swif
 
     func testExtendedClassIdentifier_initWithObjcType_shouldStoreCorrectDescription() {
         // -- Arrange & Act --
-        let identifier = SentryUIRedactBuilder.ExtendedClassIdentifier(
+        let identifier = SentryUIRedactBuilder.ClassIdentifier(
             objcType: UILabel.self,
             layerId: "CustomLayer"
         )
@@ -807,7 +807,7 @@ class SentryUIRedactBuilderTests_EdgeCases: SentryUIRedactBuilderTests { // swif
         class MyCustomClass: NSObject {}
 
         // -- Act --
-        let identifier = SentryUIRedactBuilder.ExtendedClassIdentifier(
+        let identifier = SentryUIRedactBuilder.ClassIdentifier(
             class: MyCustomClass.self,
             layerId: nil
         )
@@ -819,21 +819,21 @@ class SentryUIRedactBuilderTests_EdgeCases: SentryUIRedactBuilderTests { // swif
 
     func testExtendedClassIdentifier_hashable_shouldWorkInSet() {
         // -- Arrange --
-        let identifier1 = SentryUIRedactBuilder.ExtendedClassIdentifier(
+        let identifier1 = SentryUIRedactBuilder.ClassIdentifier(
             classId: "ClassA",
             layerId: "LayerA"
         )
-        let identifier2 = SentryUIRedactBuilder.ExtendedClassIdentifier(
+        let identifier2 = SentryUIRedactBuilder.ClassIdentifier(
             classId: "ClassA",
             layerId: "LayerA"
         )
-        let identifier3 = SentryUIRedactBuilder.ExtendedClassIdentifier(
+        let identifier3 = SentryUIRedactBuilder.ClassIdentifier(
             classId: "ClassB",
             layerId: "LayerB"
         )
 
         // -- Act --
-        var set = Set<SentryUIRedactBuilder.ExtendedClassIdentifier>()
+        var set = Set<SentryUIRedactBuilder.ClassIdentifier>()
         set.insert(identifier1)
         set.insert(identifier2)
         set.insert(identifier3)
