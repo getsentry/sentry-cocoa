@@ -2,6 +2,9 @@
 
 # Utility functions for CI logging and grouping.
 # This file is intended to be sourced from other scripts.
+#
+# GitHub Actions workflow commands (::notice::, ::warning::, ::error::, ::group::, ::endgroup::)
+# follow the specification at: https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-commands
 
 # Detect if we are running on GitHub Actions
 if [ "${GITHUB_ACTIONS:-}" = "true" ]; then
@@ -17,7 +20,7 @@ get_timestamp() {
 
 log_notice() {
   if $IS_GITHUB_ACTIONS; then
-    echo "::notice:: [$(get_timestamp)] ${1}"
+    echo "::notice::[$(get_timestamp)] ${1}"
   else
     echo "[notice] [$(get_timestamp)] ${1}"
   fi
@@ -25,7 +28,7 @@ log_notice() {
 
 log_warning() {
   if $IS_GITHUB_ACTIONS; then
-    echo "::warning:: [$(get_timestamp)] ${1}"
+    echo "::warning::[$(get_timestamp)] ${1}"
   else
     echo "[warning] [$(get_timestamp)] ${1}"
   fi
@@ -33,7 +36,7 @@ log_warning() {
 
 log_error() {
   if $IS_GITHUB_ACTIONS; then
-    echo "::error:: [$(get_timestamp)] ${1}"    
+    echo "::error::[$(get_timestamp)] ${1}"    
   else                      
     echo "[error] [$(get_timestamp)] ${1}"     
   fi                        
