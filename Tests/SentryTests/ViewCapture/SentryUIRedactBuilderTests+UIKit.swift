@@ -17,8 +17,6 @@ import XCTest
 // (lldb) po rootView.value(forKey: "recursiveDescription")!
 // ```
 class SentryUIRedactBuilderTests_UIKit: SentryUIRedactBuilderTests { // swiftlint:disable:this type_name
-    private var rootView: UIView!
-
     private func getSut(maskAllText: Bool, maskAllImages: Bool) -> SentryUIRedactBuilder {
         return SentryUIRedactBuilder(options: TestRedactOptions(
             maskAllText: maskAllText,
@@ -26,16 +24,16 @@ class SentryUIRedactBuilderTests_UIKit: SentryUIRedactBuilderTests { // swiftlin
         ))
     }
 
-    override func setUp() {
-        rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
-    }
-
     // MARK: - UILabel Redaction
 
-    private func setupUILabelFixture(textColor: UIColor? = nil) {
+    private func setupUILabelFixture(textColor: UIColor? = nil) -> UIView {
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+
         let label = UILabel(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
         label.textColor = textColor ?? .purple
         rootView.addSubview(label)
+
+        return rootView
 
         // View Hierarchy:
         // ---------------
@@ -45,7 +43,7 @@ class SentryUIRedactBuilderTests_UIKit: SentryUIRedactBuilderTests { // swiftlin
 
     func testRedact_withUILabel_withMaskAllTextEnabled_shouldRedactView() throws {
         // -- Arrange --
-        setupUILabelFixture()
+        let rootView = setupUILabelFixture()
 
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: true)
@@ -68,7 +66,7 @@ class SentryUIRedactBuilderTests_UIKit: SentryUIRedactBuilderTests { // swiftlin
 
     func testRedact_withUILabel_withMaskAllTextEnabled_withTransparentForegroundColor_shouldNotUseTransparentColor() throws {
         // -- Arrange --
-        setupUILabelFixture(
+        let rootView = setupUILabelFixture(
             textColor: UIColor.purple.withAlphaComponent(0.5) // Any color with an opacity below 1.0 is considered transparent
         )
 
@@ -93,7 +91,7 @@ class SentryUIRedactBuilderTests_UIKit: SentryUIRedactBuilderTests { // swiftlin
 
     func testRedact_withUILabel_withMaskAllTextDisabled_shouldNotRedactView() {
         // -- Arrange --
-        setupUILabelFixture()
+        let rootView = setupUILabelFixture()
 
         // -- Act --
         let sut = getSut(maskAllText: false, maskAllImages: true)
@@ -108,7 +106,7 @@ class SentryUIRedactBuilderTests_UIKit: SentryUIRedactBuilderTests { // swiftlin
     /// This test is to ensure that the option `maskAllImages` does not affect the UILabel redaction
     func testRedact_withUILabel_withMaskAllImagesDisabled_shouldRedactView() throws {
         // -- Arrange --
-        setupUILabelFixture()
+        let rootView = setupUILabelFixture()
 
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: false)
@@ -122,10 +120,14 @@ class SentryUIRedactBuilderTests_UIKit: SentryUIRedactBuilderTests { // swiftlin
 
     // - MARK: - UITextView Redaction
 
-    private func setupUITextViewFixture() {
+    private func setupUITextViewFixture() -> UIView {
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+
         let textView = UITextView(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
         textView.textColor = .purple // Set a specific color so it's definitiely set
         rootView.addSubview(textView)
+
+        return rootView
 
         // View Hierarchy:
         // ---------------
@@ -156,7 +158,7 @@ class SentryUIRedactBuilderTests_UIKit: SentryUIRedactBuilderTests { // swiftlin
 
     func testRedact_withUITextView_withMaskAllTextEnabled_shouldRedactView() throws {
         // -- Arrange --
-        setupUITextViewFixture()
+        let rootView = setupUITextViewFixture()
 
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: true)
@@ -179,7 +181,7 @@ class SentryUIRedactBuilderTests_UIKit: SentryUIRedactBuilderTests { // swiftlin
 
     func testRedact_withUITextView_withMaskAllTextDisabled_shouldNotRedactView() throws {
         // -- Arrange --
-        setupUITextViewFixture()
+        let rootView = setupUITextViewFixture()
 
         // -- Act --
         let sut = getSut(maskAllText: false, maskAllImages: true)
@@ -214,7 +216,7 @@ class SentryUIRedactBuilderTests_UIKit: SentryUIRedactBuilderTests { // swiftlin
 
     func testRedact_withUITextView_withMaskAllImagesDisabled_shouldRedactView() throws {
         // -- Arrange --
-        setupUITextViewFixture()
+        let rootView = setupUITextViewFixture()
 
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: true)
@@ -228,22 +230,25 @@ class SentryUIRedactBuilderTests_UIKit: SentryUIRedactBuilderTests { // swiftlin
 
     // MARK: - UITextField Redaction
 
-    private func setupUITextFieldFixture() {
+    private func setupUITextFieldFixture() -> UIView {
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+        
         let textField = UITextField(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
         textField.textColor = .purple // Set a specific color so it's definitiely set
         rootView.addSubview(textField)
+
+        return rootView
 
         // View Hierarchy:
         // ---------------
         // <UIView: 0x104151d70; frame = (0 0; 100 100); layer = <CALayer: 0x600000cf0ab0>>
         // | <UITextField: 0x104842200; frame = (20 20; 40 40); text = ''; opaque = NO; borderStyle = None; background = <_UITextFieldNoBackgroundProvider: 0x600000030670: textfield=<UITextField: 0x104842200>>; layer = <CALayer: 0x600000cf21f0>>
         // |    | <_UITextLayoutCanvasView: 0x104241040; frame = (0 0; 0 0); layer = <CALayer: 0x600000cee4f0>>
-        
     }
 
     func testRedact_withUITextField_withMaskAllTextEnabled_shouldRedactView() throws {
         // -- Arrange --
-        setupUITextFieldFixture()
+        let rootView = setupUITextFieldFixture()
 
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: true)
@@ -271,7 +276,7 @@ class SentryUIRedactBuilderTests_UIKit: SentryUIRedactBuilderTests { // swiftlin
 
     func testRedact_withUITextField_withMaskAllTextDisabled_shouldNotRedactView() {
         // -- Arrange --
-        setupUITextFieldFixture()
+        let rootView = setupUITextFieldFixture()
 
         // -- Act --
         let sut = getSut(maskAllText: false, maskAllImages: true)
@@ -285,7 +290,7 @@ class SentryUIRedactBuilderTests_UIKit: SentryUIRedactBuilderTests { // swiftlin
 
     func testRedact_withUITextField_withMaskAllImagesDisabled_shouldRedactView() {
         // -- Arrange --
-        setupUITextFieldFixture()
+        let rootView = setupUITextFieldFixture()
 
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: false)
@@ -299,7 +304,9 @@ class SentryUIRedactBuilderTests_UIKit: SentryUIRedactBuilderTests { // swiftlin
 
     // MARK: - UIImageView Redaction
 
-    private func setupUIImageViewFixture() {
+    private func setupUIImageViewFixture() -> UIView {
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+
         let image = UIGraphicsImageRenderer(size: CGSize(width: 40, height: 40)).image { context in
             context.fill(CGRect(x: 0, y: 0, width: 40, height: 40))
         }
@@ -307,6 +314,8 @@ class SentryUIRedactBuilderTests_UIKit: SentryUIRedactBuilderTests { // swiftlin
         let imageView = UIImageView(image: image)
         imageView.frame = CGRect(x: 20, y: 20, width: 40, height: 40)
         rootView.addSubview(imageView)
+
+        return rootView
 
         // View Hierarchy:
         // ---------------
@@ -316,7 +325,7 @@ class SentryUIRedactBuilderTests_UIKit: SentryUIRedactBuilderTests { // swiftlin
 
     func testRedact_withUIImageView_withMaskAllImagesEnabled_shouldRedactView() throws {
         // -- Arrange --
-        setupUIImageViewFixture()
+        let rootView = setupUIImageViewFixture()
 
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: true)
@@ -339,7 +348,7 @@ class SentryUIRedactBuilderTests_UIKit: SentryUIRedactBuilderTests { // swiftlin
 
     func testRedact_withUIImageView_withMaskAllImagesDisabled_shouldNotRedactView() {
         // -- Arrange --
-        setupUIImageViewFixture()
+        let rootView = setupUIImageViewFixture()
 
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: false)
@@ -353,7 +362,7 @@ class SentryUIRedactBuilderTests_UIKit: SentryUIRedactBuilderTests { // swiftlin
 
     func testRedact_withUIImageView_withMaskAllTextDisabled_shouldRedactView() {
         // -- Arrange --
-        setupUIImageViewFixture()
+        let rootView = setupUIImageViewFixture()
 
         // -- Act --
         let sut = getSut(maskAllText: false, maskAllImages: true)
@@ -373,6 +382,7 @@ class SentryUIRedactBuilderTests_UIKit: SentryUIRedactBuilderTests { // swiftlin
         }
 
         // -- Arrange --
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
         let imageView = UIImageView(image: .add)
         imageView.frame = CGRect(x: 20, y: 20, width: 40, height: 40)
         rootView.addSubview(imageView)
@@ -392,6 +402,7 @@ class SentryUIRedactBuilderTests_UIKit: SentryUIRedactBuilderTests { // swiftlin
 
     func testUIImageViewSmallImage_shouldNotRedact() {
         // -- Arrange --
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
         // Create a tiny image (below 10x10 threshold)
         let tiny = UIGraphicsImageRenderer(size: CGSize(width: 5, height: 5)).image { ctx in
             UIColor.black.setFill()
@@ -418,6 +429,7 @@ class SentryUIRedactBuilderTests_UIKit: SentryUIRedactBuilderTests { // swiftlin
 
     func testShouldRedact_withImageView_withNilImage_shouldNotRedact() {
         // -- Arrange --
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
         let imageView = UIImageView(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
         imageView.image = nil
         rootView.addSubview(imageView)
@@ -432,6 +444,7 @@ class SentryUIRedactBuilderTests_UIKit: SentryUIRedactBuilderTests { // swiftlin
 
     func testShouldRedact_withImageView_withExactly10x10Image_shouldNotRedact() {
         // -- Arrange --
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
         let image = UIGraphicsImageRenderer(size: CGSize(width: 10, height: 10)).image { ctx in
             UIColor.black.setFill()
             ctx.fill(CGRect(x: 0, y: 0, width: 10, height: 10))
@@ -450,6 +463,7 @@ class SentryUIRedactBuilderTests_UIKit: SentryUIRedactBuilderTests { // swiftlin
 
     func testShouldRedact_withImageView_with9x9Image_shouldNotRedact() {
         // -- Arrange --
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
         let image = UIGraphicsImageRenderer(size: CGSize(width: 9, height: 9)).image { ctx in
             UIColor.black.setFill()
             ctx.fill(CGRect(x: 0, y: 0, width: 9, height: 9))
@@ -468,6 +482,7 @@ class SentryUIRedactBuilderTests_UIKit: SentryUIRedactBuilderTests { // swiftlin
 
     func testShouldRedact_withImageView_with11x11Image_shouldRedact() throws {
         // -- Arrange --
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
         let image = UIGraphicsImageRenderer(size: CGSize(width: 11, height: 11)).image { ctx in
             UIColor.black.setFill()
             ctx.fill(CGRect(x: 0, y: 0, width: 11, height: 11))
@@ -488,6 +503,7 @@ class SentryUIRedactBuilderTests_UIKit: SentryUIRedactBuilderTests { // swiftlin
 
     func testShouldRedact_withImageView_withNilImageAsset_shouldRedact() throws {
         // -- Arrange --
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
         // Create an image programmatically (no asset bundle)
         let image = UIGraphicsImageRenderer(size: CGSize(width: 50, height: 50)).image { ctx in
             UIColor.red.setFill()

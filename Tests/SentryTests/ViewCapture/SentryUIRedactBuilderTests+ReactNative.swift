@@ -38,8 +38,6 @@ private class RCTImageView: UIView {
 // (lldb) po rootView.value(forKey: "recursiveDescription")!
 // ```
 class SentryUIRedactBuilderTests_ReactNative: SentryUIRedactBuilderTests { // swiftlint:disable:this type_name
-    private var rootView: UIView!
-
     private func getSut(maskAllText: Bool, maskAllImages: Bool) -> SentryUIRedactBuilder {
         return SentryUIRedactBuilder(options: TestRedactOptions(
             maskAllText: maskAllText,
@@ -47,15 +45,15 @@ class SentryUIRedactBuilderTests_ReactNative: SentryUIRedactBuilderTests { // sw
         ))
     }
 
-    override func setUp() {
-        rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
-    }
-
     // MARK: - RCTTextView Redaction
 
-    private func setupRCTTextViewFixture() {
+    private func setupRCTTextViewFixture() -> UIView {
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+
         let textView = RCTTextView(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
         rootView.addSubview(textView)
+
+        return rootView
 
         // View Hierarchy:
         // ---------------
@@ -65,7 +63,7 @@ class SentryUIRedactBuilderTests_ReactNative: SentryUIRedactBuilderTests { // sw
 
     func testRedact_withRCTTextView_withMaskAllTextEnabled_shouldRedactView() throws {
         // -- Arrange --
-        setupRCTTextViewFixture()
+        let rootView = setupRCTTextViewFixture()
 
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: true)
@@ -88,7 +86,7 @@ class SentryUIRedactBuilderTests_ReactNative: SentryUIRedactBuilderTests { // sw
 
     func testRedact_withRCTTextView_withMaskAllTextDisabled_shouldNotRedactView() {
         // -- Arrange --
-        setupRCTTextViewFixture()
+        let rootView = setupRCTTextViewFixture()
 
         // -- Act --
         let sut = getSut(maskAllText: false, maskAllImages: true)
@@ -102,7 +100,7 @@ class SentryUIRedactBuilderTests_ReactNative: SentryUIRedactBuilderTests { // sw
 
     func testRedact_withRCTTextView_withMaskAllImagesDisabled_shouldRedactView() {
         // -- Arrange --
-        setupRCTTextViewFixture()
+        let rootView = setupRCTTextViewFixture()
 
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: false)
@@ -116,9 +114,13 @@ class SentryUIRedactBuilderTests_ReactNative: SentryUIRedactBuilderTests { // sw
 
     // MARK: - RCTParagraphComponentView Redaction
 
-    private func setupRCTParagraphComponentFixture() {
+    private func setupRCTParagraphComponentFixture() -> UIView {
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+        
         let textView = RCTParagraphComponentView(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
         rootView.addSubview(textView)
+
+        return rootView
 
         // View Hierarchy:
         // ---------------
@@ -128,7 +130,7 @@ class SentryUIRedactBuilderTests_ReactNative: SentryUIRedactBuilderTests { // sw
 
     func testRedact_withRCTParagraphComponent_withMaskAllTextEnabled_shouldRedactView() throws {
         // -- Arrange --
-        setupRCTParagraphComponentFixture()
+        let rootView = setupRCTParagraphComponentFixture()
 
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: true)
@@ -151,7 +153,7 @@ class SentryUIRedactBuilderTests_ReactNative: SentryUIRedactBuilderTests { // sw
 
     func testRedact_withRCTParagraphComponent_withMaskAllTextDisabled_shouldNotRedactView() {
         // -- Arrange --
-        setupRCTParagraphComponentFixture()
+        let rootView = setupRCTParagraphComponentFixture()
 
         // -- Act --
         let sut = getSut(maskAllText: false, maskAllImages: true)
@@ -165,7 +167,7 @@ class SentryUIRedactBuilderTests_ReactNative: SentryUIRedactBuilderTests { // sw
 
     func testRedact_withRCTParagraphComponent_withMaskAllImagesDisabled_shouldRedactView() {
         // -- Arrange --
-        setupRCTParagraphComponentFixture()
+        let rootView = setupRCTParagraphComponentFixture()
 
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: false)
@@ -179,7 +181,8 @@ class SentryUIRedactBuilderTests_ReactNative: SentryUIRedactBuilderTests { // sw
 
     // - MARK: - RCTImageView Redaction
 
-    private func setupRCTImageViewFixture() {
+    private func setupRCTImageViewFixture() -> UIView {
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
         let imageView = RCTImageView(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
         rootView.addSubview(imageView)
 
@@ -187,11 +190,12 @@ class SentryUIRedactBuilderTests_ReactNative: SentryUIRedactBuilderTests { // sw
         // ---------------
         // <UIView: 0x10584f470; frame = (0 0; 100 100); layer = <CALayer: 0x600000ce8fc0>>
         //   | <RCTImageView: 0x10585e6a0; frame = (20 20; 40 40); layer = <CALayer: 0x600000cea130>>
+        return rootView
     }
 
     func testRedact_withRCTImageView_withMaskAllImagesEnabled_shouldRedactView() throws {
         // -- Arrange --
-        setupRCTImageViewFixture()
+        let rootView = setupRCTImageViewFixture()
 
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: true)
@@ -214,7 +218,7 @@ class SentryUIRedactBuilderTests_ReactNative: SentryUIRedactBuilderTests { // sw
 
     func testRedact_withRCTImageView_withMaskAllImagesDisabled_shouldNotRedactView() {
         // -- Arrange --
-        setupRCTImageViewFixture()
+        let rootView = setupRCTImageViewFixture()
 
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: false)
@@ -228,7 +232,7 @@ class SentryUIRedactBuilderTests_ReactNative: SentryUIRedactBuilderTests { // sw
 
     func testRedact_withRCTImageView_withMaskAllTextDisabled_shouldRedactView() {
         // -- Arrange --
-        setupRCTImageViewFixture()
+        let rootView = setupRCTImageViewFixture()
 
         // -- Act --
         let sut = getSut(maskAllText: false, maskAllImages: true)

@@ -9,8 +9,6 @@ import UIKit
 import XCTest
 
 class SentryUIRedactBuilderTests_EdgeCases: SentryUIRedactBuilderTests { // swiftlint:disable:this type_name
-    private var rootView: UIView!
-
     private func getSut(maskAllText: Bool, maskAllImages: Bool, maskedViewClasses: [AnyClass] = [], unmaskedViewClasses: [AnyClass] = []) -> SentryUIRedactBuilder {
         return SentryUIRedactBuilder(options: TestRedactOptions(
             maskAllText: maskAllText,
@@ -18,10 +16,6 @@ class SentryUIRedactBuilderTests_EdgeCases: SentryUIRedactBuilderTests { // swif
             maskedViewClasses: maskedViewClasses,
             unmaskedViewClasses: unmaskedViewClasses
         ))
-    }
-
-    override func setUp() {
-        rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
     }
 
     // MARK: - ExtendedClassIdentifier & Layer Filtering
@@ -93,6 +87,7 @@ class SentryUIRedactBuilderTests_EdgeCases: SentryUIRedactBuilderTests { // swif
 
     func testMapRedactRegion_withEmptyRedactClasses_shouldReturnEarly() {
         // -- Arrange --
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
         let label = UILabel(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
         rootView.addSubview(label)
 
@@ -108,6 +103,7 @@ class SentryUIRedactBuilderTests_EdgeCases: SentryUIRedactBuilderTests { // swif
 
     func testMapRedactRegion_withNoSublayers_shouldNotCrash() {
         // -- Arrange --
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
         // A simple view with no subviews will have no sublayers beyond its own layer
         let view = UIView(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
         rootView.addSubview(view)
@@ -123,6 +119,7 @@ class SentryUIRedactBuilderTests_EdgeCases: SentryUIRedactBuilderTests { // swif
 
     func testMapRedactRegion_withEmptySublayers_shouldNotCrash() {
         // -- Arrange --
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
         let view = UIView(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
         rootView.addSubview(view)
         // Explicitly set sublayers to empty array (though this is unusual)
@@ -140,6 +137,7 @@ class SentryUIRedactBuilderTests_EdgeCases: SentryUIRedactBuilderTests { // swif
 
     func testColor_withUILabel_withNilTextColor_shouldUseDefaultColor() throws {
         // -- Arrange --
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
         let label = UILabel(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
         label.textColor = nil // UIKit will assign default label color
         rootView.addSubview(label)
@@ -159,6 +157,7 @@ class SentryUIRedactBuilderTests_EdgeCases: SentryUIRedactBuilderTests { // swif
 
     func testColor_withNonUILabel_shouldReturnNil() throws {
         // -- Arrange --
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
         let textView = UITextView(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
         rootView.addSubview(textView)
 
@@ -175,6 +174,7 @@ class SentryUIRedactBuilderTests_EdgeCases: SentryUIRedactBuilderTests { // swif
 
     func testColor_withUILabel_withTransparentTextColor_shouldReturnOpaqueVersion() throws {
         // -- Arrange --
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
         let label = UILabel(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
         label.textColor = UIColor.purple.withAlphaComponent(0.5)
         rootView.addSubview(label)
@@ -194,6 +194,7 @@ class SentryUIRedactBuilderTests_EdgeCases: SentryUIRedactBuilderTests { // swif
 
     func testOpaqueRotatedView_coveringRoot_doesNotClearPreviousRedactions() throws {
         // -- Arrange --
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
         // Add a label that should be redacted
         let label = UILabel(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
         label.text = "Hello World"
@@ -250,6 +251,7 @@ class SentryUIRedactBuilderTests_EdgeCases: SentryUIRedactBuilderTests { // swif
 
     func testConcatenateTranform_withCustomAnchorPoint_shouldCalculateCorrectly() throws {
         // -- Arrange --
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
         let label = UILabel(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
         label.layer.anchorPoint = CGPoint(x: 0.25, y: 0.75)
         rootView.addSubview(label)
@@ -273,6 +275,7 @@ class SentryUIRedactBuilderTests_EdgeCases: SentryUIRedactBuilderTests { // swif
 
     func testConcatenateTranform_withZeroAnchorPoint_shouldCalculateCorrectly() throws {
         // -- Arrange --
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
         let label = UILabel(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
         label.layer.anchorPoint = CGPoint(x: 0, y: 0)
         rootView.addSubview(label)
@@ -293,6 +296,7 @@ class SentryUIRedactBuilderTests_EdgeCases: SentryUIRedactBuilderTests { // swif
 
     func testConcatenateTranform_withOneAnchorPoint_shouldCalculateCorrectly() throws {
         // -- Arrange --
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
         let label = UILabel(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
         label.layer.anchorPoint = CGPoint(x: 1, y: 1)
         rootView.addSubview(label)
@@ -314,6 +318,7 @@ class SentryUIRedactBuilderTests_EdgeCases: SentryUIRedactBuilderTests { // swif
 
     func testIsAxisAligned_withRotation_shouldReturnFalse() throws {
         // -- Arrange --
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
         let label = UILabel(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
         label.transform = CGAffineTransform(rotationAngle: .pi / 4)
         label.textColor = .purple
@@ -372,6 +377,7 @@ class SentryUIRedactBuilderTests_EdgeCases: SentryUIRedactBuilderTests { // swif
 
     func testIsAxisAligned_withScaleOnly_shouldReturnTrue() throws {
         // -- Arrange --
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
         let label = UILabel(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
         label.text = "Hello, World!"
         label.textColor = .purple
@@ -430,6 +436,7 @@ class SentryUIRedactBuilderTests_EdgeCases: SentryUIRedactBuilderTests { // swif
 
     func testRedactRegionsFor_shouldReturnReversedOrder() throws {
         // -- Arrange --
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
         let label1 = UILabel(frame: CGRect(x: 10, y: 10, width: 20, height: 20))
         label1.textColor = .red
         rootView.addSubview(label1)
@@ -464,6 +471,7 @@ class SentryUIRedactBuilderTests_EdgeCases: SentryUIRedactBuilderTests { // swif
 
     func testRedactRegionsFor_withSwiftUIRegions_shouldAppearFirst() throws {
         // -- Arrange --
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
         let label = UILabel(frame: CGRect(x: 10, y: 10, width: 20, height: 20))
         label.text = "Hello, World!"
         label.textColor = .red
@@ -498,6 +506,7 @@ class SentryUIRedactBuilderTests_EdgeCases: SentryUIRedactBuilderTests { // swif
 
     func testRedactRegionsFor_withMixedRegionTypes_shouldOrderCorrectly() throws {
         // -- Arrange --
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
         let label = UILabel(frame: CGRect(x: 10, y: 10, width: 20, height: 20))
         label.text = "Hello, World!"
         label.textColor = .red
@@ -532,6 +541,7 @@ class SentryUIRedactBuilderTests_EdgeCases: SentryUIRedactBuilderTests { // swif
 
     func testMapRedactRegion_withDifferentZPositions_shouldSortCorrectly() throws {
         // -- Arrange --
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
         let label1 = UILabel(frame: CGRect(x: 10, y: 10, width: 20, height: 20))
         label1.textColor = .red
         label1.layer.zPosition = 10
@@ -578,6 +588,7 @@ class SentryUIRedactBuilderTests_EdgeCases: SentryUIRedactBuilderTests { // swif
 
     func testMapRedactRegion_withSameZPosition_shouldPreserveInsertionOrder() throws {
         // -- Arrange --
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
         let label1 = UILabel(frame: CGRect(x: 10, y: 10, width: 20, height: 20))
         label1.textColor = .red
         label1.layer.zPosition = 5
@@ -626,6 +637,7 @@ class SentryUIRedactBuilderTests_EdgeCases: SentryUIRedactBuilderTests { // swif
 
     func testMapRedactRegion_withNestedClipToBounds_shouldCreateNestedClipRegions() throws {
         // -- Arrange --
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
         let container1 = UIView(frame: CGRect(x: 10, y: 10, width: 80, height: 80))
         container1.clipsToBounds = true
         rootView.addSubview(container1)
@@ -680,6 +692,7 @@ class SentryUIRedactBuilderTests_EdgeCases: SentryUIRedactBuilderTests { // swif
 
     func testMapRedactRegion_withNestedClipToBounds_shouldHaveCorrectClipBeginEnd() throws {
         // -- Arrange --
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
         let container = UIView(frame: CGRect(x: 10, y: 10, width: 80, height: 80))
         container.clipsToBounds = true
         rootView.addSubview(container)
@@ -720,6 +733,7 @@ class SentryUIRedactBuilderTests_EdgeCases: SentryUIRedactBuilderTests { // swif
 
     func testMapRedactRegion_withPresentationLayer_shouldUsePresentationLayer() throws {
         // -- Arrange --
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
         let label = UILabel(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
         label.text = "Hello, World!"
         label.textColor = UIColor.purple
@@ -749,6 +763,7 @@ class SentryUIRedactBuilderTests_EdgeCases: SentryUIRedactBuilderTests { // swif
 
     func testMapRedactRegion_withoutPresentationLayer_shouldUseModelLayer() throws {
         // -- Arrange --
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
         let label = UILabel(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
         rootView.addSubview(label)
 

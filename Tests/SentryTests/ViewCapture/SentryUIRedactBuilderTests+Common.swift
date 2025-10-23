@@ -18,8 +18,6 @@ import XCTest
 // (lldb) po rootView.value(forKey: "recursiveDescription")!
 // ```
 class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftlint:disable:this type_name
-    private var rootView: UIView!
-
     private func getSut(maskAllText: Bool, maskAllImages: Bool, maskedViewClasses: [AnyClass] = [], unmaskedViewClasses: [AnyClass] = []) -> SentryUIRedactBuilder {
         return SentryUIRedactBuilder(options: TestRedactOptions(
             maskAllText: maskAllText,
@@ -29,14 +27,12 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftli
         ))
     }
 
-    override func setUp() {
-        rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
-    }
-
     // MARK: - Baseline
 
     func testRedact_withNoSensitiveViews_shouldNotRedactAnything() {
         // -- Arrange --
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+        
         let view = UIView(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
         rootView.addSubview(view)
 
@@ -52,6 +48,8 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftli
 
     func testRedact_withHiddenSensitiveView_shouldNotRedactView() throws {
         // -- Arrange --
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+
         // Tests that views with isHidden=true are skipped in mapRedactRegion
         // (early return when layer.isHidden == true)
         let ignoredLabel = UILabel(frame: CGRect(x: 20, y: 10, width: 40, height: 5))
@@ -94,6 +92,8 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftli
 
     func testRedact_withSensitiveView_shouldNotRedactFullyTransparentView() throws {
         // -- Arrange --
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+        
         // Tests that views with layer.opacity=0 are skipped in mapRedactRegion
         // (early return when layer.opacity == 0)
         // Also tests that partially transparent views (0 < opacity < 1) ARE still redacted
@@ -152,6 +152,8 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftli
 
     func testClipping_withOpaqueView_shouldClipOutRegion() throws {
         // -- Arrange --
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+
         let opaqueView = UIView(frame: CGRect(x: 10, y: 10, width: 60, height: 60))
         opaqueView.backgroundColor = .white
         rootView.addSubview(opaqueView)
@@ -179,6 +181,8 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftli
 
     func testRedact_withLabelBehindATransparentView_shouldRedactLabel() throws {
         // -- Arrange --
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+
         let label = UILabel(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
         label.text = "Hello, World!"
         rootView.addSubview(label)
@@ -217,6 +221,8 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftli
 
     func testAddIgnoreClasses_withSensitiveView_shouldNotRedactView() {
         // -- Arrange --
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+
         let label = UILabel(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
         label.text = "Hello, World!"
         rootView.addSubview(label)
@@ -250,6 +256,8 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftli
 
     func testAddRedactClasses_withCustomView_shouldRedactView() {
         // -- Arrange --
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+
         let view = TestGridView(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
         rootView.addSubview(view)
 
@@ -281,6 +289,8 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftli
     func testAddRedactClass_withSubclassOfSensitiveView_shouldRedactView() throws {
         // -- Arrange --
         class AnotherView: UILabel {}
+
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
 
         let view = AnotherView(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
         view.text = "Hello, World!"
@@ -316,6 +326,8 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftli
         class CustomLabel: UILabel {}
         class VeryCustomLabel: CustomLabel {}
 
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+
         let label = VeryCustomLabel(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
         label.text = "Hello"
         label.textColor = UIColor.green
@@ -348,6 +360,8 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftli
         // -- Arrange --
         class IgnoreContainer: UIView {}
         class AnotherLabel: UILabel {}
+
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
 
         let ignoreContainer = IgnoreContainer(frame: CGRect(x: 0, y: 0, width: 60, height: 60))
         let wrappedLabel = AnotherLabel(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
@@ -385,6 +399,7 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftli
         class IgnoreContainer: UIView {}
         class AnotherLabel: UILabel {}
 
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
         let ignoreContainer = IgnoreContainer(frame: CGRect(x: 0, y: 0, width: 60, height: 60))
         let wrappedLabel = AnotherLabel(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
         wrappedLabel.text = "WL"
@@ -431,6 +446,7 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftli
         // -- Arrange --
         class IgnoreContainer: UIView {}
 
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
         let redactedLabel = UILabel(frame: CGRect(x: 0, y: 0, width: 60, height: 60))
         redactedLabel.text = "RL"
         let ignoreContainer = IgnoreContainer(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
@@ -497,6 +513,7 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftli
         class RedactContainer: UIView {}
         class AnotherView: UIView {}
 
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
         let redactContainer = RedactContainer(frame: CGRect(x: 0, y: 0, width: 60, height: 60))
         let redactedView = AnotherView(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
         let redactedView2 = AnotherView(frame: CGRect(x: 10, y: 10, width: 10, height: 10))
@@ -558,6 +575,7 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftli
         class AnotherView: UIView {}
         class RedactContainer: UIView {}
 
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
         let redactedLabel = UILabel(frame: CGRect(x: 0, y: 0, width: 60, height: 60))
         redactedLabel.text = "RL"
         let redactedView = AnotherView(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
@@ -610,6 +628,8 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftli
         class IgnoreContainer: UIView {}
         class RedactContainer: UIView {}
         class AnotherView: UIView {}
+
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
 
         let ignoreContainer = IgnoreContainer(frame: CGRect(x: 0, y: 0, width: 80, height: 80))
         ignoreContainer.backgroundColor = UIColor.red.withAlphaComponent(0.9) // Use a non-opaque color to remove clipping
@@ -698,6 +718,8 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftli
 
     func testMaskView_withInsensitiveView_shouldRedactView() {
         // -- Arrange --
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+
         let view = TestGridView(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
         rootView.addSubview(view)
 
@@ -730,6 +752,8 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftli
 
     func testMaskView_withInsensitiveView_withViewExtension_shouldNotRedactView() {
         // -- Arrange --
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+
         let view = TestGridView(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
         rootView.addSubview(view)
 
@@ -764,6 +788,9 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftli
         // -- Arrange --
         class Container: UIView {}
         class Child: UIView {}
+
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+
         let container = Container(frame: CGRect(x: 10, y: 10, width: 80, height: 60))
         container.clipsToBounds = false
         rootView.addSubview(container)
@@ -817,6 +844,8 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftli
         // -- Arrange --
         class AnotherLabel: UILabel {}
 
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+
         let label = AnotherLabel(frame: CGRect(x: 20, y: 20, width: 80, height: 40))
         label.text = "Hello World"
         rootView.addSubview(label)
@@ -851,6 +880,8 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftli
     func testUnmaskView_withSensitiveView_withViewExtension_shouldNotRedactView() {
         // -- Arrange --
         class AnotherLabel: UILabel {}
+
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
 
         let label = AnotherLabel(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
         label.text = "Hello World"
@@ -887,6 +918,7 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftli
 
     func testRedact_withIgnoredViewsBeforeRootSizedView_shouldNotRedactView() {
         // -- Arrange --
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
         let label = UILabel(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
         label.text = "Hello World"
         label.textColor = .purple
@@ -914,6 +946,7 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftli
 
     func testRedact_withViewLayerOnTopIsNotFullyTransparent_shouldRedactView() throws {
         // -- Arrange --
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
         let view = TestCustomVisibilityView(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
         let label = UILabel(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
         label.text = "Hello World"
@@ -951,6 +984,7 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftli
         // -- Arrange --
         class MyCustomView: UIView {}
 
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
         let view = MyCustomView(frame: CGRect(x: 10, y: 10, width: 30, height: 30))
         rootView.addSubview(view)
 
@@ -987,6 +1021,7 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftli
         // -- Arrange --
         class MyLabel: UILabel {}
 
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
         let label = MyLabel(frame: CGRect(x: 10, y: 10, width: 80, height: 30))
         label.text = "Hello World"
         label.textColor = .purple
@@ -1028,6 +1063,7 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftli
             }
         }
 
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
         let view = CustomDebugDescriptionLabel(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
         rootView.addSubview(view)
 
@@ -1053,6 +1089,7 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftli
 
     func testAddIgnoreClasses_arrayAPI_shouldNotRedactViews() throws {
         // -- Arrange --
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
         let label = UILabel(frame: CGRect(x: 10, y: 10, width: 30, height: 30))
         label.text = "Hello World"
         label.textColor = .purple
@@ -1119,6 +1156,8 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftli
         class V1: TestGridView {}
         class V2: TestGridView {}
 
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+
         let view1 = V1(frame: CGRect(x: 10, y: 10, width: 20, height: 20))
         rootView.addSubview(view1)
 
@@ -1167,6 +1206,7 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftli
 
     func testDefaultIgnoredControls_shouldNotRedactUISlider() throws {
         // -- Arrange --
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
         let slider = UISlider(frame: CGRect(x: 10, y: 10, width: 80, height: 20))
         rootView.addSubview(slider)
 
@@ -1234,6 +1274,7 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftli
 
     func testDefaultIgnoredControls_shouldNotRedactUISwitch() {
         // -- Arrange --
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
         let toggle = UISwitch(frame: CGRect(x: 10, y: 40, width: 80, height: 30))
         toggle.title = "Off/On" // Setting a title for sanity check, it is not displayed on iOS
         rootView.addSubview(toggle)
@@ -1268,6 +1309,8 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftli
 
     func testIsOpaque_withViewWithNilBackgroundColor_shouldReturnFalse() throws {
         // -- Arrange --
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+
         let view = UIView(frame: CGRect(x: 10, y: 10, width: 60, height: 60))
         view.backgroundColor = nil
         rootView.addSubview(view)
@@ -1298,6 +1341,8 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftli
 
     func testIsOpaque_withViewWithTransparentBackgroundColor_shouldReturnFalse() throws {
         // -- Arrange --
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+
         let view = UIView(frame: CGRect(x: 10, y: 10, width: 60, height: 60))
         view.backgroundColor = UIColor.white.withAlphaComponent(0.5)
         rootView.addSubview(view)
@@ -1328,6 +1373,8 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftli
 
     func testIsOpaque_withLayerOpacityLessThanOne_shouldReturnFalse() throws {
         // -- Arrange --
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+
         let view = UIView(frame: CGRect(x: 10, y: 10, width: 60, height: 60))
         view.backgroundColor = .white
         view.alpha = 0.5
@@ -1361,6 +1408,8 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftli
 
     func testContainsIgnoreClass_withExactClass_shouldMatch() {
         // -- Arrange --
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+
         let label = UILabel(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
         rootView.addSubview(label)
 
