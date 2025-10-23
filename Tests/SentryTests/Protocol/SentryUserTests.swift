@@ -1,7 +1,6 @@
 @_spi(Private) @testable import Sentry
 import XCTest
 
-@available(*, deprecated)
 class SentryUserTests: XCTestCase {
 
     func testInitWithDictionary() {
@@ -22,7 +21,6 @@ class SentryUserTests: XCTestCase {
         XCTAssertEqual(user.email, "fixture-email")
         XCTAssertEqual(user.username, "fixture-username")
         XCTAssertEqual(user.ipAddress, "fixture-ip_address")
-        XCTAssertEqual(user.segment, "fixture-segment")
         XCTAssertEqual(user.data?["fixture-key"] as? String, "fixture-value")
         XCTAssertEqual(user.value(forKey: "unknown") as? NSDictionary, ["foo": "bar"])
     }
@@ -38,7 +36,6 @@ class SentryUserTests: XCTestCase {
         user.email = ""
         user.username = ""
         user.ipAddress = ""
-        user.segment = ""
         user.name = ""
         user.geo = Geo()
         user.data?.removeAll()
@@ -48,7 +45,6 @@ class SentryUserTests: XCTestCase {
         XCTAssertEqual(TestData.user.email, actual["email"] as? String)
         XCTAssertEqual(TestData.user.username, actual["username"] as? String)
         XCTAssertEqual(TestData.user.ipAddress, actual["ip_address"] as? String)
-        XCTAssertEqual(TestData.user.segment, actual["segment"] as? String)
         XCTAssertEqual(TestData.user.name, actual["name"] as? String)
         XCTAssertEqual(["some": ["data": "data", "date": TestData.timestampAs8601String]], actual["data"] as? Dictionary)
         XCTAssertEqual("data", actual["some"] as? String)
@@ -126,7 +122,6 @@ class SentryUserTests: XCTestCase {
         try testIsNotEqual { user in user.email = "" }
         try testIsNotEqual { user in user.username = "" }
         try testIsNotEqual { user in user.ipAddress = "" }
-        try testIsNotEqual { user in user.segment = "" }
         try testIsNotEqual { user in user.name = "" }
         try testIsNotEqual { user in user.geo = Geo() }
         try testIsNotEqual { user in user.data?.removeAll() }
@@ -147,7 +142,6 @@ class SentryUserTests: XCTestCase {
         user.email = ""
         user.username = ""
         user.ipAddress = ""
-        user.segment = ""
         user.name = ""
         user.geo = Geo()
         user.data = [:]
@@ -185,7 +179,6 @@ class SentryUserTests: XCTestCase {
                     user.email = "john@example.com"
                     user.username = "\(i)"
                     user.ipAddress = "\(i)"
-                    user.segment = "\(i)"
                     user.name = "\(i)"
                     
                     user.geo?.city = "\(i)"
