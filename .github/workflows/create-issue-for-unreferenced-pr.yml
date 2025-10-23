@@ -71,7 +71,7 @@ jobs:
             // Check if there's already an issue created by this automation for this PR
             // Search for issues that mention this PR and were created by github-actions bot
             const existingIssuesResponse = await github.rest.search.issuesAndPullRequests({
-              q: `repo:${context.repo.owner}/${context.repo.repo} is:issue is:open "${prUrl}" author:app/github-actions in:body`,
+              q: `repo:${context.repo.owner}/${context.repo.repo} is:issue is:open "${prUrl}" in:title in:body`,
             });
 
             if (existingIssuesResponse.data.total_count > 0) {
