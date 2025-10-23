@@ -6,6 +6,23 @@ import SwiftUI
 import UIKit
 import XCTest
 
+/// To print the internal view hierarchy of a view in the test cases, follow these steps:
+///
+/// 1. Set a breakpoint in the test case after creating the view instance.
+/// 2. Run the test case.
+/// 3. In the debugger, print the view hierarchy by evaluating the following expression in `lldb`:
+///
+/// ```
+/// (lldb) po view.value(forKey: "recursiveDescription")!
+/// ```
+///
+/// Example output:
+///
+/// ```
+/// <UIView: 0x12be081f0; frame = (0 0; 100 100); layer = <CALayer: 0x600001161840>>
+///   | <UILabel: 0x14bd5e8b0; frame = (20 10; 40 5); hidden = YES; userInteractionEnabled = NO; backgroundColor = UIExtendedGrayColorSpace 0 0; layer = <_UILabelLayer: 0x600003244eb0>>
+///   | <UILabel: 0x12be0b2b0; frame = (20 20; 50 8); userInteractionEnabled = NO; backgroundColor = UIExtendedGrayColorSpace 0 0; layer = <_UILabelLayer: 0x60000323ceb0>>
+/// ```
 class SentryUIRedactBuilderTests: XCTestCase {
 
     // MARK: - Helper Methods
