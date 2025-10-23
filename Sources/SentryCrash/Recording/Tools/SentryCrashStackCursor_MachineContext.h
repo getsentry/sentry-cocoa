@@ -32,7 +32,7 @@
 extern "C" {
 #endif
 
-#define MAX_STACKTRACE_LENGTH 100
+#define MAX_STACKTRACE_LENGTH 500
 
 /** Initialize a stack cursor for a machine context.
  *

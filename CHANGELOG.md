@@ -33,6 +33,7 @@
 ### Improvements
 
 - Replace deprecated SCNetworkReachability with NWPathMonitor (#6019)
+- Increase number of frames per stacktrace to 500
 
 ## 8.57.0
 
