@@ -1,5 +1,5 @@
 #import "SentryANRTrackerV1.h"
-#import "SentryDependencyContainer.h"
+#import "SentryANRTrackerInternalDelegate.h"
 #import "SentryLogC.h"
 #import "SentrySwift.h"
 #import <stdatomic.h>
@@ -18,7 +18,7 @@ typedef NS_ENUM(NSInteger, SentryANRTrackerState) {
 @property (nonatomic, strong) SentryCrashWrapper *crashWrapper;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueueWrapper;
 @property (nonatomic, strong) SentryThreadWrapper *threadWrapper;
-@property (nonatomic, strong) NSHashTable<id<SentryANRTrackerDelegate>> *listeners;
+@property (nonatomic, strong) NSHashTable<id<SentryANRTrackerInternalDelegate>> *listeners;
 @property (nonatomic, assign) NSTimeInterval timeoutInterval;
 
 @end
@@ -153,8 +153,8 @@ typedef NS_ENUM(NSInteger, SentryANRTrackerState) {
         localListeners = [self.listeners allObjects];
     }
 
-    for (id<SentryANRTrackerDelegate> target in localListeners) {
-        [target anrDetectedWithType:SentryANRTypeUnknown];
+    for (id<SentryANRTrackerInternalDelegate> target in localListeners) {
+        [target anrDetected:kSentryANRTypeUnknown];
     }
 }
 
@@ -165,14 +165,14 @@ typedef NS_ENUM(NSInteger, SentryANRTrackerState) {
         targets = [self.listeners allObjects];
     }
 
-    for (id<SentryANRTrackerDelegate> target in targets) {
+    for (id<SentryANRTrackerInternalDelegate> target in targets) {
         // We intentionally don't measure the ANR duration, because V2 will replace V1, so it's not
         // worth the effort.
-        [target anrStoppedWithResult:nil];
+        [target anrStopped:nil];
     }
 }
 
-- (void)addListener:(id<SentryANRTrackerDelegate>)listener
+- (void)addListener:(id<SentryANRTrackerInternalDelegate>)listener
 {
     @synchronized(self.listeners) {
         [self.listeners addObject:listener];
@@ -190,7 +190,7 @@ typedef NS_ENUM(NSInteger, SentryANRTrackerState) {
     }
 }
 
-- (void)removeListener:(id<SentryANRTrackerDelegate>)listener
+- (void)removeListener:(id<SentryANRTrackerInternalDelegate>)listener
 {
     @synchronized(self.listeners) {
         [self.listeners removeObject:listener];

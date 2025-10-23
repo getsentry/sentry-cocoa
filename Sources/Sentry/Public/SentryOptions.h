@@ -381,9 +381,11 @@ NS_SWIFT_NAME(Options)
  * @note You can filter for different app start types in Discover with
  * @c app_start_type:cold.prewarmed ,
  * @c app_start_type:warm.prewarmed , @c app_start_type:cold , and @c app_start_type:warm .
+ *
  * @warning This feature is not available in @c DebugWithoutUIKit and @c ReleaseWithoutUIKit
  * configurations even when targeting iOS or tvOS platforms.
- * @note Default value is @c NO .
+ *
+ * @note Default value is @c YES .
  */
 @property (nonatomic, assign) BOOL enablePreWarmedAppStartTracing;
 
@@ -538,22 +540,6 @@ typedef void (^SentryProfilingConfigurationBlock)(SentryProfileOptions *_Nonnull
 @property (nullable, nonatomic, copy) SentryProfilingConfigurationBlock configureProfiling;
 
 #    if !SDK_V9
-/**
- * @warning This is an experimental feature and may still have bugs.
- * Set to @c YES to run the profiler as early as possible in an app launch, before you would
- * normally have the opportunity to call @c SentrySDK.start . If @c profilesSampleRate is nonnull,
- * the @c tracesSampleRate and @c profilesSampleRate are persisted to disk and read on the next app
- * launch to decide whether to profile that launch.
- * @warning If @c profilesSampleRate is @c nil then a continuous profile will be started on every
- * launch; if you desire sampling profiled launches, you must compute your own sample rate to decide
- * whether to set this property to @c YES or @c NO .
- * @warning This property is deprecated and will be removed in a future version of the SDK. See
- * @c SentryProfileOptions.startOnAppStart and @c SentryProfileOptions.lifecycle .
- * @note Profiling is automatically disabled if a thread sanitizer is attached.
- */
-@property (nonatomic, assign) BOOL enableAppLaunchProfiling DEPRECATED_MSG_ATTRIBUTE(
-    "This property is deprecated and will be removed in a future version of the SDK. See "
-    "SentryProfileOptions.startOnAppStart and SentryProfileOptions.lifecycle");
 
 /**
  * @note Profiling is not supported on watchOS or tvOS.
@@ -639,18 +625,11 @@ typedef void (^SentryProfilingConfigurationBlock)(SentryProfileOptions *_Nonnull
 
 /**
  * When enabled, the SDK tracks when the application stops responding for a specific amount of
- * time defined by the @c appHangsTimeoutInterval option.
- * @note The default is @c YES
- * @note ANR tracking is automatically disabled if a debugger is attached.
- */
-@property (nonatomic, assign) BOOL enableAppHangTracking;
-
-#if SENTRY_UIKIT_AVAILABLE
-
-#    if !SDK_V9
-/**
- * AppHangTrackingV2 can differentiate between fully-blocking and non-fully blocking app hangs.
- * fully-blocking app hang is when the main thread is stuck completely, and the app can't render a
+ * time defined by the @c appHangTimeoutInterval option.
+ *
+ * On iOS, tvOS and visionOS, the SDK can differentiate between fully-blocking and non-fully
+ blocking app hangs.
+ * A fully-blocking app hang is when the main thread is stuck completely, and the app can't render a
  * single frame. A non-fully-blocking app hang is when the app appears stuck to the user but can
  still
  * render a few frames. Fully-blocking app hangs are more actionable because the stacktrace shows
@@ -661,20 +640,18 @@ typedef void (^SentryProfilingConfigurationBlock)(SentryProfileOptions *_Nonnull
  *
  * You can use @c enableReportNonFullyBlockingAppHangs to ignore non-fully-blocking app hangs.
  *
- * @note This flag wins over enableAppHangTracking. When enabling both enableAppHangTracking and
- enableAppHangTrackingV2, the SDK only enables enableAppHangTrackingV2 and disables
- enableAppHangTracking.
+ * @note The default is @c YES
+ * @note App Hang tracking is automatically disabled if a debugger is attached.
  */
-@property (nonatomic, assign) BOOL enableAppHangTrackingV2;
+@property (nonatomic, assign) BOOL enableAppHangTracking;
 
-#    endif // !SDK_V9
+#if SENTRY_UIKIT_AVAILABLE
 
 /**
  * When enabled the SDK reports non-fully-blocking app hangs. A non-fully-blocking app hang is when
- * the app appears stuck to the user but can still render a few frames. For more information see @c
- * enableAppHangTrackingV2.
+ * the app appears stuck to the user but can still render a few frames.
  *
- * @note The default is @c YES. This feature only works when @c enableAppHangTrackingV2 is enabled.
+ * @note The default is @c YES.
  */
 @property (nonatomic, assign) BOOL enableReportNonFullyBlockingAppHangs;
 

@@ -1711,12 +1711,15 @@ class SentryClientTests: XCTestCase {
         let eventId = fixture.getSut().capture(message: fixture.messageAsString)
 
         eventId.assertIsNotEmpty()
-        
+
         var expectedIntegrations = ["AutoBreadcrumbTracking", "AutoSessionTracking", "Crash", "NetworkTracking"]
         if !SentryDependencyContainer.sharedInstance().crashWrapper.isBeingTraced {
             expectedIntegrations = ["ANRTracking"] + expectedIntegrations
         }
-        
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+        expectedIntegrations.append("FramesTracking")
+#endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+
         let actual = try lastSentEvent()
         assertArrayEquals(
             expected: expectedIntegrations,
@@ -1732,34 +1735,6 @@ class SentryClientTests: XCTestCase {
         let actual = try lastSentEvent()
         let features = try XCTUnwrap(actual.sdk?["features"] as? [String])
         XCTAssert(features.contains("captureFailedRequests"))
-    }
-
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-    func testTrackPreWarmedAppStartTracking() throws {
-        try testFeatureTrackingAsIntegration(integrationName: "PreWarmedAppStartTracing") {
-            $0.enablePreWarmedAppStartTracing = true
-        }
-    }
-#endif
-    
-    private func testFeatureTrackingAsIntegration(integrationName: String, configureOptions: (Options) -> Void) throws {
-        SentrySDK.start(options: Options())
-
-        let eventId = fixture.getSut(configureOptions: { options in
-            configureOptions(options)
-        }).capture(message: fixture.messageAsString)
-
-        eventId.assertIsNotEmpty()
-        let actual = try lastSentEvent()
-        var expectedIntegrations = ["AutoBreadcrumbTracking", "AutoSessionTracking", "Crash", "NetworkTracking", integrationName]
-        if !SentryDependencyContainer.sharedInstance().crashWrapper.isBeingTraced {
-            expectedIntegrations = ["ANRTracking"] + expectedIntegrations
-        }
-        
-        assertArrayEquals(
-            expected: expectedIntegrations,
-            actual: actual.sdk?["integrations"] as? [String]
-        )
     }
     
     func testSetSDKIntegrations_NoIntegrations() throws {

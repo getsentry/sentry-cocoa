@@ -2,7 +2,6 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
-#    import "SentryDependencyContainer.h"
 #    import "SentryError.h"
 #    import <mach/mach.h>
 #    include <thread>

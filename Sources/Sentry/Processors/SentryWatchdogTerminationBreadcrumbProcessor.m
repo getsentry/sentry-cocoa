@@ -1,5 +1,4 @@
 #import "SentryWatchdogTerminationBreadcrumbProcessor.h"
-#import "SentryDependencyContainer.h"
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"
 #import "SentrySerialization.h"

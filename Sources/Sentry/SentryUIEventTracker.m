@@ -5,7 +5,6 @@
 
 #    import "SentrySpanOperation.h"
 #    import "SentrySwift.h"
-#    import <SentryDependencyContainer.h>
 #    import <SentryLogC.h>
 #    import <SentryUIEventTrackerMode.h>
 

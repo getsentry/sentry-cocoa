@@ -6,7 +6,6 @@
 #    import "SentryDefines.h"
 #    import "SentryLogC.h"
 #    import <PrivateSentrySDKOnly.h>
-#    import <SentryDependencyContainer.h>
 #    import <SentryInternalDefines.h>
 #    import <SentryInternalNotificationNames.h>
 #    import <SentryLogC.h>

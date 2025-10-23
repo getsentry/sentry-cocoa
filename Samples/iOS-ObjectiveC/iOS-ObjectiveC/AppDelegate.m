@@ -70,13 +70,6 @@
             };
 #    pragma clang diagnostic pop
         }
-
-        if (![args containsObject:@"--io.sentry.profiling.disable-app-start-profiling"]) {
-#    pragma clang diagnostic push
-#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
-            options.enableAppLaunchProfiling = YES;
-#    pragma clang diagnostic pop
-        }
 #endif // !SDK_V9
 
         SentryHttpStatusCodeRange *httpStatusCodeRange =

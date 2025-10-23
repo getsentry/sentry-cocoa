@@ -570,15 +570,6 @@ class SentrySpanTests: XCTestCase {
         XCTAssertEqual(header.value(), "\(span.traceId)-\(span.spanId)")
     }
     
-    @available(*, deprecated)
-    func testSetExtra_ForwardsToSetData() {
-        let sut = fixture.getSutWithTracer()
-        sut.setExtra(value: 0, key: "key")
-        
-        let data = sut.data as [String: Any]
-        XCTAssertEqual(0, data["key"] as? Int)
-    }
-    
     func testSpanWithoutTracer_StartChild_ReturnsNoOpSpan() {
         // Span has a weak reference to tracer. If we don't keep a reference
         // to the tracer ARC will deallocate the tracer.

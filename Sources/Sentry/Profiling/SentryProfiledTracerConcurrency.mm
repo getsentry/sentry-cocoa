@@ -9,7 +9,6 @@
 #    import "SentryProfiler+Private.h"
 #    include <mutex>
 
-#    import "SentryDependencyContainer.h"
 #    import "SentryEvent+Private.h"
 #    import "SentryHub+Private.h"
 #    import "SentryInternalDefines.h"

@@ -30,7 +30,6 @@
 #import "SentryCrashInstallation+Private.h"
 #import "SentryCrashMonitor_MachException.h"
 #import "SentryDefaultThreadInspector.h"
-#import "SentryDependencyContainer.h"
 #import "SentryFileManager+Test.h"
 #import "SentryFileManagerHelper.h"
 #import "SentryHub+Private.h"

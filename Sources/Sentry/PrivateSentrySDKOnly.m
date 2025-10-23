@@ -15,7 +15,6 @@
 #import "SentrySwift.h"
 #import "SentryUser+Private.h"
 #import <SentryBreadcrumb.h>
-#import <SentryDependencyContainer.h>
 #import <SentryScope+Private.h>
 #import <SentryUser.h>
 

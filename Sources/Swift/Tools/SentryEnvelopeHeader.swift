@@ -7,7 +7,6 @@
      * @param eventId The identifier of the event. Can be nil if no event in the envelope or attachment
      * related to event.
      */
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     @objc public convenience init(id eventId: SentryId?) {
         self.init(id: eventId, traceContext: nil)
     }
@@ -18,7 +17,6 @@
      * attachment related to event.
      * @param traceContext Current trace state.
      */
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     @objc public convenience init(id eventId: SentryId?, traceContext: TraceContext?) {
         self.init(id: eventId, sdkInfo: SentrySdkInfo.global(), traceContext: traceContext)
     }
@@ -40,7 +38,6 @@
         self.traceContext = traceContext
     }
     
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     @objc public static func empty() -> Self {
         Self(id: nil, traceContext: nil)
     }

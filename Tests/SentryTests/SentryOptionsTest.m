@@ -732,7 +732,7 @@
     XCTAssertFalse(options.attachScreenshot);
     XCTAssertEqual(3.0, options.idleTimeout);
     XCTAssertEqual(options.enableUserInteractionTracing, YES);
-    XCTAssertEqual(options.enablePreWarmedAppStartTracing, NO);
+    XCTAssertEqual(options.enablePreWarmedAppStartTracing, YES);
     XCTAssertEqual(options.attachViewHierarchy, NO);
     XCTAssertEqual(options.reportAccessibilityIdentifier, YES);
     XCTAssertEqual(options.sessionReplay.onErrorSampleRate, 0);
@@ -917,7 +917,7 @@
 
 - (void)testEnablePreWarmedAppStartTracking
 {
-    [self testBooleanField:@"enablePreWarmedAppStartTracing" defaultValue:NO];
+    [self testBooleanField:@"enablePreWarmedAppStartTracing" defaultValue:YES];
 }
 
 - (void)testSessionReplaySettingsInit
@@ -965,11 +965,6 @@
 }
 
 #if SENTRY_UIKIT_AVAILABLE
-
-- (void)testEnableAppHangTrackingV2
-{
-    [self testBooleanField:@"enableAppHangTrackingV2" defaultValue:NO];
-}
 
 - (void)testEnableReportNonFullyBlockingAppHangs
 {
@@ -1397,17 +1392,6 @@
     XCTAssertIdentical(initialScope, options.initialScope);
 }
 
-#if SENTRY_TARGET_PROFILING_SUPPORTED
-#    pragma clang diagnostic push
-#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
-- (void)testEnableAppLaunchProfilingDefaultValue
-{
-    SentryOptions *options = [self getValidOptions:@{}];
-    XCTAssertFalse(options.enableAppLaunchProfiling);
-}
-#    pragma clang diagnostic pop
-#endif // SENTRY_TARGET_PROFILING_SUPPORTED
-
 - (SentryOptions *)getValidOptions:(NSDictionary<NSString *, id> *)dict
 {
     NSError *error = nil;
@@ -1491,32 +1475,17 @@
 }
 
 #if SENTRY_HAS_UIKIT
-- (void)testIsAppHangTrackingV2Disabled_WhenBothOptionsDisabled
+- (void)testIsAppHangTrackingDisabled_WhenOptionDisabled
 {
-    SentryOptions *options = [self
-        getValidOptions:@{ @"enableAppHangTrackingV2" : @NO, @"appHangTimeoutInterval" : @0 }];
-    XCTAssertTrue(options.isAppHangTrackingV2Disabled);
+    SentryOptions *options = [self getValidOptions:@{ @"appHangTimeoutInterval" : @0 }];
+    XCTAssertTrue(options.isAppHangTrackingDisabled);
 }
 
-- (void)testIsAppHangTrackingV2Disabled_WhenOnlyEnableAppHangTrackingV2Disabled
+- (void)testIsAppHangTrackingDisabled_WhenOnlyAppHangTimeoutIntervalZero
 {
-    SentryOptions *options = [self
-        getValidOptions:@{ @"enableAppHangTrackingV2" : @NO, @"appHangTimeoutInterval" : @2.0 }];
-    XCTAssertTrue(options.isAppHangTrackingV2Disabled);
-}
-
-- (void)testIsAppHangTrackingV2Disabled_WhenOnlyAppHangTimeoutIntervalZero
-{
-    SentryOptions *options = [self
-        getValidOptions:@{ @"enableAppHangTrackingV2" : @YES, @"appHangTimeoutInterval" : @0 }];
-    XCTAssertTrue(options.isAppHangTrackingV2Disabled);
-}
-
-- (void)testIsAppHangTrackingV2Disabled_WhenBothOptionsEnabled
-{
-    SentryOptions *options = [self
-        getValidOptions:@{ @"enableAppHangTrackingV2" : @YES, @"appHangTimeoutInterval" : @2.0 }];
-    XCTAssertFalse(options.isAppHangTrackingV2Disabled);
+    SentryOptions *options =
+        [self getValidOptions:@{ @"enableAppHangTracking" : @YES, @"appHangTimeoutInterval" : @0 }];
+    XCTAssertTrue(options.isAppHangTrackingDisabled);
 }
 #endif // SENTRY_HAS_UIKIT
 

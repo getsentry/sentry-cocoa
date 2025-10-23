@@ -1,6 +1,8 @@
 // Sentry internal headers that are needed for swift code; you cannot import headers that depend on
 // public interfaces here
 #import "NSLocale+Sentry.h"
+#import "SentryANRStoppedResultInternal.h"
+#import "SentryANRTrackerInternalDelegate.h"
 #import "SentryBinaryImageCacheCallbacks.h"
 #import "SentryConcurrentRateLimitsDictionary.h"
 #import "SentryCrashBinaryImageCache.h"
@@ -22,6 +24,8 @@
 
 // Headers that also import SentryDefines should be at the end of this list
 // otherwise it wont compile
+#import "SentryANRTrackerV1.h"
+#import "SentryANRTrackerV2.h"
 #import "SentryAsyncLog.h"
 #import "SentryClient+Logs.h"
 #import "SentryContinuousProfiler.h"

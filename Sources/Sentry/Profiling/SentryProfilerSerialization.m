@@ -4,7 +4,6 @@
 
 #    import "SentryClient+Private.h"
 #    import "SentryDateUtils.h"
-#    import "SentryDependencyContainer.h"
 #    import "SentryDevice.h"
 #    import "SentryEnvelopeItemHeader.h"
 #    import "SentryEvent+Private.h"

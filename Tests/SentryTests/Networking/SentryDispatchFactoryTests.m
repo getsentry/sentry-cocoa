@@ -72,6 +72,10 @@
 
     // -- Arrange --
     XCTestExpectation *expectation = [self expectationWithDescription:@"Timer fired"];
+    // Allow to overfulfill in case the timer fires multiple times and fulfills the expectation
+    // multiple times.
+    expectation.assertForOverFulfill = NO;
+
     uint64_t interval = 100 * NSEC_PER_MSEC; // 100ms
     uint64_t leeway = 10 * NSEC_PER_MSEC;
     const char *queueName = "sentry-dispatch-factory.timer";
@@ -81,9 +85,7 @@
     __block int fireCount = 0;
     void (^eventHandler)(void) = ^{
         fireCount++;
-        if (fireCount >= 1) {
-            [expectation fulfill];
-        }
+        [expectation fulfill];
     };
 
     // -- Act --
@@ -94,8 +96,9 @@
                                                           eventHandler:eventHandler];
 
     // -- Assert --
-    [self waitForExpectationsWithTimeout:1 handler:nil];
+    [self waitForExpectations:@[ expectation ] timeout:5.0];
     XCTAssertGreaterThanOrEqual(fireCount, 1);
+
     [source cancel];
 }
 
