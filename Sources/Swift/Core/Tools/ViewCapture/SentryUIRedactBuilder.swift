@@ -182,6 +182,8 @@ final class SentryUIRedactBuilder {
         // region for the decoration view instead of clip-outs.
         redactClasses.insert(ClassIdentifier(classId: "_UICollectionViewListLayoutSectionBackgroundColorDecorationView"))
 
+        // These classes are standard UIKit controls that are ignored by default.
+        // The reason why exactly they are ignored is unknown.
         ignoreClassesIdentifiers = [
             ClassIdentifier(objcType: UISlider.self),
             ClassIdentifier(objcType: UISwitch.self)
@@ -193,11 +195,11 @@ final class SentryUIRedactBuilder {
         redactClassesIdentifiers = redactClasses
 
         for type in options.unmaskedViewClasses {
-            self.ignoreClassesIdentifiers.insert(ClassIdentifier(class: type))
+            ignoreClassesIdentifiers.insert(ClassIdentifier(class: type))
         }
         
         for type in options.maskedViewClasses {
-            self.redactClassesIdentifiers.insert(ClassIdentifier(class: type))
+            redactClassesIdentifiers.insert(ClassIdentifier(class: type))
         }
     }
     
