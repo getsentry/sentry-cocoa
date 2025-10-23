@@ -455,11 +455,11 @@ extension SentryUserFeedbackFormViewModel {
     }
     
     func feedbackObject() -> SentryFeedback {
-        var attachmentDatas: [Data]?
+        var attachments: [Attachment]?
         if let image = screenshotImageView.image, let data = image.pngData() {
-            attachmentDatas = [data]
+            attachments = [Attachment(data: data, filename: "screenshot.png", contentType: "image/png")]
         }
-        return SentryFeedback(message: messageTextView.text, name: fullNameTextField.text, email: emailTextField.text, attachments: attachmentDatas)
+        return SentryFeedback(message: messageTextView.text, name: fullNameTextField.text, email: emailTextField.text, attachments: attachments)
     }
 }
 

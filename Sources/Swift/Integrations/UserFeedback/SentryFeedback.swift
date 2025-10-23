@@ -20,17 +20,17 @@ public final class SentryFeedback: NSObject {
     var message: String
     var source: SentryFeedbackSource
     @_spi(Private) public let eventId: SentryId
-    
-    /// Data objects for any attachments. Currently the web UI only supports showing one attached image, like for a screenshot.
-    private var attachments: [Data]?
-    
+
+    /// Attachments for this feedback submission, like a screenshot.
+    private var attachments: [Attachment]?
+
     /// The event id that this feedback is associated with, like a crash report.
     var associatedEventId: SentryId?
-    
+
     /// - parameters:
     ///   - associatedEventId The ID for an event you'd like associated with the feedback.
-    ///   - attachments Data objects for any attachments. Currently the web UI only supports showing one attached image, like for a screenshot.
-    @objc public init(message: String, name: String?, email: String?, source: SentryFeedbackSource = .widget, associatedEventId: SentryId? = nil, attachments: [Data]? = nil) {
+    ///   - attachments Attachment objects for any files to include with the feedback.
+    @objc public init(message: String, name: String?, email: String?, source: SentryFeedbackSource = .widget, associatedEventId: SentryId? = nil, attachments: [Attachment]? = nil) {
         self.eventId = SentryId()
         self.name = name
         self.email = email
@@ -90,19 +90,27 @@ extension SentryFeedback {
             dict["email"] = email
         }
         if let attachments = attachments {
-            dict["attachments"] = attachments
+            dict["attachments"] = attachments.map { attachment -> [String: Any] in
+                var attDict: [String: Any] = ["filename": attachment.filename]
+                if let data = attachment.data {
+                    attDict["data"] = data
+                }
+                if let path = attachment.path {
+                    attDict["path"] = path
+                }
+                if let contentType = attachment.contentType {
+                    attDict["contentType"] = contentType
+                }
+                return attDict
+            }
         }
         return dict
     }
     
     /**
-     * - note: Currently there is only a single attachment possible, for the screenshot, of which there can be only one.
+     * Returns all attachments for inclusion in the feedback envelope.
      */
     @_spi(Private) public func attachmentsForEnvelope() -> [Attachment] {
-        var items = [Attachment]()
-        if let screenshot = attachments?.first {
-            items.append(Attachment(data: screenshot, filename: "screenshot.png", contentType: "application/png"))
-        }
-        return items
+        return attachments ?? []
     }
 }
