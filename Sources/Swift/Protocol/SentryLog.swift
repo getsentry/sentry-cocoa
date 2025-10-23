@@ -17,6 +17,33 @@ public final class SentryLog: NSObject {
     /// Numeric representation of the severity level (Int)
     public var severityNumber: NSNumber?
     
+    @objc public convenience init(
+        level: Level,
+        body: String
+    ) {
+        self.init(
+            timestamp: Date(),
+            traceId: SentryId.empty,
+            level: level,
+            body: body,
+            attributes: [:]
+        )
+    }
+    
+    @objc public convenience init(
+        level: Level,
+        body: String,
+        attributes: [String: Attribute]
+    ) {
+        self.init(
+            timestamp: Date(),
+            traceId: SentryId.empty,
+            level: level,
+            body: body,
+            attributes: attributes
+        )
+    }
+    
     internal init(
         timestamp: Date,
         traceId: SentryId,

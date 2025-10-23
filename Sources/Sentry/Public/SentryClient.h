@@ -12,6 +12,7 @@
 @class SentryOptions;
 @class SentryScope;
 @class SentryTransaction;
+@class SentryLog;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -100,6 +101,9 @@ SENTRY_NO_INIT
  */
 - (void)captureFeedback:(SentryFeedback *)feedback
               withScope:(SentryScope *)scope NS_SWIFT_NAME(capture(feedback:scope:));
+
+- (void)captureLog:(SentryLog *)log
+         withScope:(SentryScope *)scope NS_SWIFT_NAME(capture(log:scope:));
 
 /**
  * Waits synchronously for the SDK to flush out all queued and cached items for up to the specified

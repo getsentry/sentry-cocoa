@@ -31,13 +31,10 @@ import Foundation
 public final class SentryLogger: NSObject {
     private let hub: SentryHub
     private let dateProvider: SentryCurrentDateProvider
-    // Nil in the case where the Hub's client is nil or logs are disabled through options.
-    private let batcher: SentryLogBatcher?
     
-    @_spi(Private) public init(hub: SentryHub, dateProvider: SentryCurrentDateProvider, batcher: SentryLogBatcher?) {
+    @_spi(Private) public init(hub: SentryHub, dateProvider: SentryCurrentDateProvider) {
         self.hub = hub
         self.dateProvider = dateProvider
-        self.batcher = batcher
         super.init()
     }
     
@@ -166,21 +163,10 @@ public final class SentryLogger: NSObject {
         let message = SentryLogMessage(stringLiteral: body)
         captureLog(level: .fatal, logMessage: message, attributes: attributes)
     }
-
-    // MARK: - Internal
-    
-    // Captures batched logs sync and return the duration.
-    func captureLogs() -> TimeInterval {
-        return batcher?.captureLogs() ?? 0.0
-    }
     
     // MARK: - Private
     
-    private func captureLog(level: SentryLog.Level, logMessage: SentryLogMessage, attributes: [String: Any]) {
-        guard let batcher else {
-            return
-        }
-        
+    private func captureLog(level: SentryLog.Level, logMessage: SentryLogMessage, attributes: [String: Any]) {        
         // Convert provided attributes to SentryLog.Attribute format
         var logAttributes = attributes.mapValues { SentryLog.Attribute(value: $0) }
         
@@ -193,117 +179,15 @@ public final class SentryLogger: NSObject {
         for (index, attribute) in logMessage.attributes.enumerated() {
             logAttributes["sentry.message.parameter.\(index)"] = attribute
         }
-        
-        addDefaultAttributes(to: &logAttributes)
-        addOSAttributes(to: &logAttributes)
-        addDeviceAttributes(to: &logAttributes)
-        addUserAttributes(to: &logAttributes)
 
-        let propagationContextTraceIdString = hub.scope.propagationContextTraceIdString
-        let propagationContextTraceId = SentryId(uuidString: propagationContextTraceIdString)
-        
         let log = SentryLog(
             timestamp: dateProvider.date(),
-            traceId: propagationContextTraceId,
+            traceId: SentryId.empty,
             level: level,
             body: logMessage.message,
             attributes: logAttributes
         )
         
-        var processedLog: SentryLog? = log
-        if let beforeSendLog = batcher.options.beforeSendLog {
-            processedLog = beforeSendLog(log)
-        }
-        
-        if let processedLog {
-            SentrySDKLog.log(
-                message: "[SentryLogger] \(processedLog.body)",
-                andLevel: processedLog.level.toSentryLevel()
-            )
-            batcher.add(processedLog)
-        }
-    }
-
-    private func addDefaultAttributes(to attributes: inout [String: SentryLog.Attribute]) {
-        guard let batcher else {
-            return
-        }
-        attributes["sentry.sdk.name"] = .init(string: SentryMeta.sdkName)
-        attributes["sentry.sdk.version"] = .init(string: SentryMeta.versionString)
-        attributes["sentry.environment"] = .init(string: batcher.options.environment)
-        if let releaseName = batcher.options.releaseName {
-            attributes["sentry.release"] = .init(string: releaseName)
-        }
-        if let span = hub.scope.span {
-            attributes["sentry.trace.parent_span_id"] = .init(string: span.spanId.sentrySpanIdString)
-        }
-    }
-
-    private func addOSAttributes(to attributes: inout [String: SentryLog.Attribute]) {
-        guard let osContext = hub.scope.getContextForKey(SENTRY_CONTEXT_OS_KEY) else {
-            return
-        }
-        if let osName = osContext["name"] as? String {
-            attributes["os.name"] = .init(string: osName)
-        }
-        if let osVersion = osContext["version"] as? String {
-            attributes["os.version"] = .init(string: osVersion)
-        }
-    }
-    
-    private func addDeviceAttributes(to attributes: inout [String: SentryLog.Attribute]) {
-        guard let deviceContext = hub.scope.getContextForKey(SENTRY_CONTEXT_DEVICE_KEY) else {
-            return
-        }
-        // For Apple devices, brand is always "Apple"
-        attributes["device.brand"] = .init(string: "Apple")
-        
-        if let deviceModel = deviceContext["model"] as? String {
-            attributes["device.model"] = .init(string: deviceModel)
-        }
-        if let deviceFamily = deviceContext["family"] as? String {
-            attributes["device.family"] = .init(string: deviceFamily)
-        }
-    }
-
-    private func addUserAttributes(to attributes: inout [String: SentryLog.Attribute]) {
-        guard let user = hub.scope.userObject else {
-            return
-        }
-        if let userId = user.userId {
-            attributes["user.id"] = .init(string: userId)
-        }
-        if let userName = user.name {
-            attributes["user.name"] = .init(string: userName)
-        }
-        if let userEmail = user.email {
-            attributes["user.email"] = .init(string: userEmail)
-        }
+        hub.capture(log: log)
     }
 }
-
-#if SWIFT_PACKAGE
-/**
- * Use this callback to drop or modify a log before the SDK sends it to Sentry. Return `nil` to
- * drop the log.
- */
-public typealias SentryBeforeSendLogCallback = (SentryLog) -> SentryLog?
-
-// Makes the `beforeSendLog` property visible as the Swift type `SentryBeforeSendLogCallback`.
-// This works around `SentryLog` being only forward declared in the objc header, resulting in 
-// compile time issues with SPM builds.
-@objc
-public extension Options {
-    /**
-     * Use this callback to drop or modify a log before the SDK sends it to Sentry. Return `nil` to
-     * drop the log.
-     */
-    @objc
-    var beforeSendLog: SentryBeforeSendLogCallback? {
-        // Note: This property provides SentryLog type safety for SPM builds where the native Objective-C 
-        // property cannot be used due to Swift-to-Objective-C bridging limitations.
-        get { return value(forKey: "beforeSendLogDynamic") as? SentryBeforeSendLogCallback }
-        set { setValue(newValue, forKey: "beforeSendLogDynamic") }
-    }
-}
-#endif // SWIFT_PACKAGE

@@ -539,6 +539,20 @@ NS_ASSUME_NONNULL_BEGIN
     }
 }
 
+- (void)captureLog:(SentryLog *)log NS_SWIFT_NAME(capture(log:))
+{
+    [self captureLog:log withScope:self.scope];
+}
+
+- (void)captureLog:(SentryLog *)log
+         withScope:(SentryScope *)scope NS_SWIFT_NAME(capture(log:scope:))
+{
+    SentryClient *client = self.client;
+    if (client != nil) {
+        [client captureLog:log withScope:self.scope];
+    }
+}
+
 - (void)captureSerializedFeedback:(NSDictionary *)serializedFeedback
                       withEventId:(NSString *)feedbackEventId
                       attachments:(NSArray<SentryAttachment *> *)feedbackAttachments
