@@ -5,7 +5,6 @@ import XCTest
 
 #if os(iOS) || os(tvOS)
 
-@available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
 class SentrySessionReplayIntegrationTests: XCTestCase {
 
     private var uiApplication: TestSentryUIApplication!
@@ -54,7 +53,10 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
     private func startSDK(sessionSampleRate: Float, errorSampleRate: Float, enableSwizzling: Bool = true, noIntegrations: Bool = false, configure: ((Options) -> Void)? = nil) {
         SentrySDK.start {
             $0.dsn = "https://user@test.com/test"
-            $0.sessionReplay = SentryReplayOptions(sessionSampleRate: sessionSampleRate, onErrorSampleRate: errorSampleRate)
+            $0.removeAllIntegrations()
+            if !noIntegrations {
+                $0.sessionReplay = SentryReplayOptions(sessionSampleRate: sessionSampleRate, onErrorSampleRate: errorSampleRate)
+            }
             $0.enableSwizzling = enableSwizzling
             $0.cacheDirectoryPath = FileManager.default.temporaryDirectory.path
             configure?($0)
@@ -114,7 +116,6 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
     
     func testInstallErrorReplay() {
         startSDK(sessionSampleRate: 0, errorSampleRate: 0.1)
-        
         XCTAssertEqual(SentrySDKInternal.currentHub().trimmedInstalledIntegrationNames().count, 1)
         XCTAssertEqual(globalEventProcessor.processors.count, 1)
     }

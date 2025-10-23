@@ -10,12 +10,12 @@ public extension Options {
         enableCrashHandler = false
         swiftAsyncStacktraces = false
         enableAppHangTracking = false
-        attachViewHierarchy = false
         enableNetworkTracking = false
         enableNetworkBreadcrumbs = false
         enableCaptureFailedRequests = false
         enableAutoBreadcrumbTracking = false
         #if (os(iOS) || os(tvOS) || (swift(>=5.9) && os(visionOS))) && !SENTRY_NO_UIKIT
+        attachViewHierarchy = false
         enableUIViewControllerTracing = false
         #endif
     }

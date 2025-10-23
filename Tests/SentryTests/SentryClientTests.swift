@@ -5,7 +5,6 @@ import XCTest
 // swiftlint:disable file_length
 // We are aware that the client has a lot of logic and we should maybe
 // move some of it to other classes.
-@available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
 class SentryClientTests: XCTestCase {
     
     private static let dsn = TestConstants.dsnAsString(username: "SentryClientTest")
@@ -1728,7 +1727,9 @@ class SentryClientTests: XCTestCase {
     }
     
     func testSetSDKFeatures() throws {
-        let sut = fixture.getSut()
+        let sut = fixture.getSut { options in
+            options.enableCaptureFailedRequests = true
+        }
         
         sut.capture(message: "message")
         
@@ -2231,7 +2232,6 @@ class SentryClientTests: XCTestCase {
     }
 }
 
-@available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
 private extension SentryClientTests {
     private func givenEventWithDebugMeta() -> Event {
         let event = Event(level: SentryLevel.fatal)

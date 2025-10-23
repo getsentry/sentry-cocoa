@@ -35,7 +35,6 @@ class DataSentryTracingIntegrationTests: XCTestCase {
                     options.dsn = TestConstants.dsnAsString(username: testName)
                     options.removeAllIntegrations()
 
-                    options.removeAllIntegrations()
                     // Configure options required by File I/O tracking integration
                     options.enableAutoPerformanceTracing = true
                     options.enableFileIOTracing = isEnabled

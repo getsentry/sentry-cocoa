@@ -22,6 +22,8 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
             options.tracesSampleRate = 1.0
             options.removeAllIntegrations()
             options.enableNetworkTracking = true
+            options.enableNetworkBreadcrumbs = true
+            options.enableCaptureFailedRequests = true
         }
     }
     

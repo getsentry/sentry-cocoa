@@ -8,7 +8,6 @@ class SentrySDKTests: XCTestCase {
     
     private class Fixture {
     
-        @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
         let options: Options = {
             let options = Options.noIntegrations()
             options.dsn = SentrySDKTests.dsnAsString
@@ -88,7 +87,6 @@ class SentrySDKTests: XCTestCase {
         fixture = Fixture()
     }
     
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     override func tearDown() {
         super.tearDown()
 
@@ -104,7 +102,6 @@ class SentrySDKTests: XCTestCase {
     }
 
     // Repro for: https://github.com/getsentry/sentry-cocoa/issues/1325
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func testStartWithZeroMaxBreadcrumbsOptionsDoesNotCrash() {
         SentrySDK.start { options in
             options.dsn = SentrySDKTests.dsnAsString
@@ -153,7 +150,6 @@ class SentrySDKTests: XCTestCase {
         assertIntegrationsInstalled(integrations: expectedIntegrations)
     }
 
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func testStartStopBinaryImageCache() throws {
         SentrySDK.start { options in
             options.debug = true
@@ -169,7 +165,6 @@ class SentrySDKTests: XCTestCase {
         XCTAssertNil(SentryDependencyContainer.sharedInstance().binaryImageCache.cache)
     }
 
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func testStartWithConfigureOptions_NoDsn() throws {
         SentrySDK.start { options in
             options.debug = true
@@ -183,7 +178,6 @@ class SentrySDKTests: XCTestCase {
         XCTAssertEqual(true, options?.debug)
     }
 
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func testStartWithConfigureOptions_WrongDsn() throws {
         SentrySDK.start { options in
             options.dsn = "wrong"
@@ -196,7 +190,6 @@ class SentrySDKTests: XCTestCase {
         XCTAssertNil(options?.parsedDsn)
     }
 
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func testStartWithConfigureOptions_BeforeSend() {
         var wasBeforeSendCalled = false
         SentrySDK.start { options in
@@ -213,7 +206,6 @@ class SentrySDKTests: XCTestCase {
         XCTAssertTrue(wasBeforeSendCalled, "beforeSend was not called.")
     }
 
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func testStartWithScope() {
         let scope = Scope()
         scope.setUser(User(userId: "me"))
@@ -248,7 +240,6 @@ class SentrySDKTests: XCTestCase {
         XCTAssertFalse(SentrySDK.detectedStartUpCrash)
     }
     
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func testInstallIntegrations_NoIntegrations() {
         SentrySDK.start { options in
             options.removeAllIntegrations()
@@ -257,13 +248,11 @@ class SentrySDKTests: XCTestCase {
         assertIntegrationsInstalled(integrations: [])
     }
 
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func testGlobalOptions() {
         SentrySDK.start(options: fixture.options)
         XCTAssertEqual(SentrySDKInternal.options, fixture.options)
     }
 
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func testGlobalOptionsForPreview() {
         startprocessInfoWrapperForPreview()
 
@@ -271,7 +260,6 @@ class SentrySDKTests: XCTestCase {
         XCTAssertEqual(SentrySDKInternal.options, fixture.options)
     }
 
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func testCaptureEvent() {
         givenSdkWithHub()
 
@@ -280,7 +268,6 @@ class SentrySDKTests: XCTestCase {
         assertEventCaptured(expectedScope: fixture.scope)
     }
 
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func testCaptureEventWithScope() {
         givenSdkWithHub()
 
@@ -290,7 +277,6 @@ class SentrySDKTests: XCTestCase {
         assertEventCaptured(expectedScope: scope)
     }
        
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func testCaptureEventWithScopeBlock_ScopePassedToHub() {
         givenSdkWithHub()
 
@@ -299,7 +285,6 @@ class SentrySDKTests: XCTestCase {
         assertEventCaptured(expectedScope: fixture.scopeWithBlockApplied)
     }
 
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func testCaptureEventWithScopeBlock_CreatesNewScope() {
         givenSdkWithHub()
 
@@ -308,7 +293,6 @@ class SentrySDKTests: XCTestCase {
         assertHubScopeNotChanged()
     }
 
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func testCaptureError() {
         givenSdkWithHub()
 
@@ -317,7 +301,6 @@ class SentrySDKTests: XCTestCase {
         assertErrorCaptured(expectedScope: fixture.scope)
     }
 
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func testCaptureErrorWithScope() {
         givenSdkWithHub()
 
@@ -327,7 +310,6 @@ class SentrySDKTests: XCTestCase {
         assertErrorCaptured(expectedScope: scope)
     }
 
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func testCaptureErrorWithScopeBlock_ScopePassedToHub() {
         givenSdkWithHub()
 
@@ -336,7 +318,6 @@ class SentrySDKTests: XCTestCase {
         assertErrorCaptured(expectedScope: fixture.scopeWithBlockApplied)
     }
 
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func testCaptureErrorWithScopeBlock_CreatesNewScope() {
         givenSdkWithHub()
 
@@ -345,7 +326,6 @@ class SentrySDKTests: XCTestCase {
         assertHubScopeNotChanged()
     }
 
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func testCaptureException() {
         givenSdkWithHub()
 
@@ -354,7 +334,6 @@ class SentrySDKTests: XCTestCase {
         assertExceptionCaptured(expectedScope: fixture.scope)
     }
 
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func testCaptureExceptionWithScope() {
         givenSdkWithHub()
 
@@ -364,7 +343,6 @@ class SentrySDKTests: XCTestCase {
         assertExceptionCaptured(expectedScope: scope)
     }
 
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func testCaptureExceptionWithScopeBlock_ScopePassedToHub() {
         givenSdkWithHub()
 
@@ -373,7 +351,6 @@ class SentrySDKTests: XCTestCase {
         assertExceptionCaptured(expectedScope: fixture.scopeWithBlockApplied)
     }
 
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func testCaptureExceptionWithScopeBlock_CreatesNewScope() {
         givenSdkWithHub()
 
@@ -382,7 +359,6 @@ class SentrySDKTests: XCTestCase {
         assertHubScopeNotChanged()
     }
 
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func testCaptureMessageWithScopeBlock_ScopePassedToHub() {
         givenSdkWithHub()
 
@@ -391,7 +367,6 @@ class SentrySDKTests: XCTestCase {
         assertMessageCaptured(expectedScope: fixture.scopeWithBlockApplied)
     }
 
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func testCaptureMessageWithScopeBlock_CreatesNewScope() {
         givenSdkWithHub()
 
@@ -582,13 +557,11 @@ extension SentrySDKTests {
         }
     }
 
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     private func givenSdkWithHubButNoClient() {
         SentrySDKInternal.setCurrentHub(SentryHub(client: nil, andScope: nil))
         SentrySDKInternal.setStart(with: fixture.options)
     }
 
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     private func givenSdkWithHub() {
         SentrySDKInternal.setCurrentHub(fixture.hub)
         SentrySDKInternal.setStart(with: fixture.options)
