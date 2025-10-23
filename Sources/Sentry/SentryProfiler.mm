@@ -3,9 +3,8 @@
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 #    import "SentryClient+Private.h"
 #    import "SentryContinuousProfiler.h"
-#    import "SentryDependencyContainer.h"
+#    import "SentryDependencyContainerSwiftHelper.h"
 #    import "SentryFileManagerHelper.h"
-#    import "SentryFramesTracker.h"
 #    import "SentryHub+Private.h"
 #    import "SentryInternalDefines.h"
 #    import "SentryLaunchProfiling.h"
@@ -22,7 +21,6 @@
 #    import "SentryTracer+Private.h"
 
 #    if SENTRY_HAS_UIKIT
-#        import "SentryFramesTracker.h"
 #        import <UIKit/UIKit.h>
 #    endif // SENTRY_HAS_UIKIT
 
@@ -123,7 +121,7 @@ sentry_sdkInitProfilerTasks(SentryOptions *options, SentryHub *hub)
 
     sentry_configureContinuousProfiling(options);
 
-    sentry_dispatchAsync(SentryDependencyContainer.sharedInstance.dispatchQueueWrapper, ^{
+    sentry_dispatchAsync(SentryDependencyContainerSwiftHelper.dispatchQueueWrapper, ^{
         if (configurationFromLaunch.isProfilingThisLaunch) {
             BOOL shouldStopAndTransmitLaunchProfile = YES;
 
@@ -199,7 +197,7 @@ sentry_sdkInitProfilerTasks(SentryOptions *options, SentryHub *hub)
 
 #    if SENTRY_HAS_UIKIT
     // the frame tracker may not be running if SentryOptions.enableAutoPerformanceTracing is NO
-    [SentryDependencyContainer.sharedInstance.framesTracker start];
+    sentry_startFramesTracker();
 #    endif // SENTRY_HAS_UIKIT
 
     [self start];
@@ -249,11 +247,11 @@ sentry_sdkInitProfilerTasks(SentryOptions *options, SentryHub *hub)
 
     BOOL autoPerformanceTracingDisabled
         = ![[[[SentrySDKInternal currentHub] getClient] options] enableAutoPerformanceTracing];
-    BOOL appHangsV2Disabled =
-        [[[[SentrySDKInternal currentHub] getClient] options] isAppHangTrackingV2Disabled];
+    BOOL appHangsDisabled =
+        [[[[SentrySDKInternal currentHub] getClient] options] isAppHangTrackingDisabled];
 
-    if (autoPerformanceTracingDisabled && appHangsV2Disabled) {
-        [SentryDependencyContainer.sharedInstance.framesTracker stop];
+    if (autoPerformanceTracingDisabled && appHangsDisabled) {
+        sentry_stopFramesTracker();
     }
 #    endif // SENTRY_HAS_UIKIT
 

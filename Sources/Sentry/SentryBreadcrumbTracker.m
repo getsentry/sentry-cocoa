@@ -3,14 +3,12 @@
 #import "SentryBreadcrumbDelegate.h"
 #import "SentryClient.h"
 #import "SentryDefines.h"
-#import "SentryDependencyContainer.h"
 #import "SentryHub.h"
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"
 #import "SentryScope.h"
 #import "SentrySwift.h"
 #import "SentrySwizzle.h"
-#import "SentrySwizzleWrapper.h"
 
 #if SENTRY_TARGET_MACOS_HAS_UI
 #    import <Cocoa/Cocoa.h>

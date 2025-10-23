@@ -11,18 +11,11 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@protocol SentryInitialDisplayReporting
-
-- (void)reportInitialDisplay;
-
-@end
-
-@interface SentrySwiftUISpanHelper : NSObject
+@interface SentryObjCSwiftUISpanHelper : NSObject
 
 @property (nonatomic, readonly) BOOL hasSpan;
 
-@property (nonatomic, strong, readonly, nullable) id<SentryInitialDisplayReporting>
-    initialDisplayReporting;
+- (void)reportInitialDisplay;
 
 @end
 
@@ -30,16 +23,13 @@ NS_ASSUME_NONNULL_BEGIN
  * Class responsible to track UI performance.
  * This class is intended to be used in a swizzled context.
  */
-@interface SentryUIViewControllerPerformanceTracker : NSObject
-
-@property (nonatomic, strong) SentryInAppLogic *inAppLogic;
+@interface SentryDefaultUIViewControllerPerformanceTracker : NSObject
 
 @property (nonatomic) BOOL alwaysWaitForFullDisplay;
 
 SENTRY_NO_INIT
 
-- (instancetype)initWithTracker:(SentryPerformanceTracker *)tracker
-           dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper;
+- (instancetype)initWithTracker:(SentryPerformanceTracker *)tracker;
 
 /**
  * Measures @c controller's @c loadView method.
@@ -50,6 +40,7 @@ SENTRY_NO_INIT
  * @c loadView method.
  */
 - (void)viewControllerLoadView:(UIViewController *)controller
+                       isInApp:(BOOL (^)(Class))isInApp
               callbackToOrigin:(void (^)(void))callback;
 
 /**
@@ -110,9 +101,13 @@ SENTRY_NO_INIT
 
 - (void)reportFullyDisplayed;
 
-- (SentrySwiftUISpanHelper *)startTimeToDisplayTrackerForScreen:(NSString *)screenName
-                                             waitForFullDisplay:(BOOL)waitforFullDisplay
-                                                  transactionId:(SentrySpanId *)transactionId;
+- (SentryObjCSwiftUISpanHelper *)startTimeToDisplayTrackerForScreen:(NSString *)screenName
+                                                 waitForFullDisplay:(BOOL)waitforFullDisplay
+                                                      transactionId:(SentrySpanId *)transactionId;
+
++ (SentryObjCSwiftUISpanHelper *)startTimeToDisplayTrackerForScreen:(NSString *)screenName
+                                                 waitForFullDisplay:(BOOL)waitforFullDisplay
+                                                      transactionId:(SentrySpanId *)transactionId;
 
 @end
 

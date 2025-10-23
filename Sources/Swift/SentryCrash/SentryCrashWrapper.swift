@@ -16,7 +16,7 @@ public class SentryCrashWrapper: NSObject {
     
     // Using lazy so we wait until SentryDependencyContainer is initialized
     @objc
-    public private(set) lazy var systemInfo = SentryDependencyContainerSwiftHelper.crashReporter().systemInfo as? [String: Any] ?? [:]
+    public private(set) lazy var systemInfo = SentryDependencyContainer.sharedInstance().crashReporter.systemInfo as? [String: Any] ?? [:]
     
     @objc
     public init(processInfoWrapper: SentryProcessInfoSource) {
@@ -44,7 +44,7 @@ public final class SentryCrashWrapper: NSObject {
     
     // Using lazy so we wait until SentryDependencyContainer is initialized
     @objc
-    public private(set) lazy var systemInfo = SentryDependencyContainerSwiftHelper.crashReporter().systemInfo as? [String: Any] ?? [:]
+    public private(set) lazy var systemInfo = SentryDependencyContainer.sharedInstance().crashReporter.systemInfo as? [String: Any] ?? [:]
     
     @objc
     public init(processInfoWrapper: SentryProcessInfoSource) {
@@ -69,7 +69,7 @@ public final class SentryCrashWrapper: NSObject {
     
     @objc
     public var crashedLastLaunch: Bool {
-        return SentryDependencyContainerSwiftHelper.crashReporter().crashedLastLaunch
+        return SentryDependencyContainer.sharedInstance().crashReporter.crashedLastLaunch
     }
     
     @objc
@@ -79,7 +79,7 @@ public final class SentryCrashWrapper: NSObject {
     
     @objc
     public var activeDurationSinceLastCrash: TimeInterval {
-        return SentryDependencyContainerSwiftHelper.crashReporter().activeDurationSinceLastCrash
+        return SentryDependencyContainer.sharedInstance().crashReporter.activeDurationSinceLastCrash
     }
     
     @objc

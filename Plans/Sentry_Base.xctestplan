@@ -25,6 +25,7 @@
   },
   "testTargets" : [
     {
+      "parallelizable" : false,
       "skippedTests" : [
         "SentryANRTrackerTests\/testANRButAppInBackground_NoANR()",
         "SentryANRTrackerTests\/testMultipleListeners()",
@@ -57,6 +58,7 @@
       }
     },
     {
+      "parallelizable" : false,
       "target" : {
         "containerPath" : "container:Sentry.xcodeproj",
         "identifier" : "D4CBA2422DE06D0200581618",
@@ -64,6 +66,7 @@
       }
     },
     {
+      "parallelizable" : false,
       "skippedTests" : [
         "SentryProfilerTests\/testProfilerMutationDuringSlicing"
       ],

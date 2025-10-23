@@ -30,7 +30,7 @@ public final class SentryExperimentalOptions: NSObject {
      * - Experiment: This is an experimental feature and is therefore disabled by default. We'll enable it by default in a future major release.
      */
     public var enableUnhandledCPPExceptionsV2 = false
-
+    
     /**
      * Forces enabling of session replay in unreliable environments.
      *
@@ -47,11 +47,6 @@ public final class SentryExperimentalOptions: NSObject {
      * - Note: See [GitHub issues #6389](https://github.com/getsentry/sentry-cocoa/issues/6389) for more information.
      */
     public var enableSessionReplayInUnreliableEnvironment = false
-
-    /**
-     * Logs are considered beta.
-     */
-    public var enableLogs = false
 
     @_spi(Private) public func validateOptions(_ options: [String: Any]?) {
     }

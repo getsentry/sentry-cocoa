@@ -100,10 +100,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
         self.reportAccessibilityIdentifier = YES;
         self.enableUserInteractionTracing = YES;
         self.idleTimeout = SentryTracerDefaultTimeout;
-        self.enablePreWarmedAppStartTracing = NO;
-#    if !SDK_V9
-        self.enableAppHangTrackingV2 = NO;
-#    endif // !SDK_V9
+        self.enablePreWarmedAppStartTracing = YES;
         self.enableReportNonFullyBlockingAppHangs = YES;
 #endif // SENTRY_HAS_UIKIT
 
@@ -114,9 +111,11 @@ NSString *const kSentryDefaultEnvironment = @"production";
         self.enableAppHangTracking = YES;
         self.appHangTimeoutInterval = 2.0;
         self.enableAutoBreadcrumbTracking = YES;
+        self.enablePropagateTraceparent = NO;
         self.enableNetworkTracking = YES;
         self.enableFileIOTracing = YES;
         self.enableNetworkBreadcrumbs = YES;
+        self.enableLogs = NO;
         self.tracesSampleRate = nil;
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 #    if !SDK_V9
@@ -456,14 +455,9 @@ sentry_isValidSampleRate(NSNumber *sampleRate)
 }
 
 #if SENTRY_HAS_UIKIT
-- (BOOL)isAppHangTrackingV2Disabled
+- (BOOL)isAppHangTrackingDisabled
 {
-#    if SDK_V9
-    BOOL isV2Enabled = self.enableAppHangTracking;
-#    else
-    BOOL isV2Enabled = self.enableAppHangTrackingV2;
-#    endif // SDK_V9
-    return !isV2Enabled || self.appHangTimeoutInterval <= 0;
+    return !self.enableAppHangTracking || self.appHangTimeoutInterval <= 0;
 }
 #endif // SENTRY_HAS_UIKIT
 

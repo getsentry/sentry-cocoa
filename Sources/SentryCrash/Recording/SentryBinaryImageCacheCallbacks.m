@@ -1,5 +1,4 @@
 #import "SentryBinaryImageCacheCallbacks.h"
-#import "SentryDependencyContainer.h"
 #import "SentryInternalDefines.h"
 #import "SentrySwift.h"
 

@@ -7,7 +7,6 @@
 #    import "SentryOptions.h"
 #    import "SentrySwift.h"
 #    import <PrivateSentrySDKOnly.h>
-#    import <SentryDependencyContainer.h>
 
 @interface SentryAppStartTrackingIntegration ()
 
@@ -24,7 +23,7 @@
         return NO;
     }
 
-    id<SentryAppStateManager> appStateManager =
+    SentryAppStateManager *appStateManager =
         [SentryDependencyContainer sharedInstance].appStateManager;
 
     self.tracker = [[SentryAppStartTracker alloc]

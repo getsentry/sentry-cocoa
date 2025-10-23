@@ -10,7 +10,6 @@
 #import "SentryPropagationContext.h"
 #import "SentryScope+Private.h"
 #import "SentryScope+PrivateSwift.h"
-#import "SentryScopeObserver.h"
 #import "SentrySpan.h"
 #import "SentrySwift.h"
 #import "SentryTracer.h"

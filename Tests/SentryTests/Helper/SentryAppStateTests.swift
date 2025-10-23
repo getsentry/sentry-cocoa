@@ -41,7 +41,7 @@ class SentryAppStateTests: XCTestCase {
         let dict = [
             "release_name": releaseName,
             "os_version": appState.osVersion,
-            "vendor_id": appState.vendorId,
+            "vendor_id": appState.vendorId ?? "",
             "is_debugging": appState.isDebugging,
             "system_boot_timestamp": sentry_toIso8601String(appState.systemBootTimestamp),
             "is_active": appState.isActive,

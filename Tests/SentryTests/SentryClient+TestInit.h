@@ -1,5 +1,6 @@
 #import "SentryTransport.h"
 
+@protocol SentryCurrentDateProvider;
 @protocol SentryRandomProtocol;
 
 @class SentryCrashWrapper;
