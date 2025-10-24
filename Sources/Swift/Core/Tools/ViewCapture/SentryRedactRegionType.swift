@@ -1,4 +1,4 @@
-public enum SentryRedactRegionType: String, Codable {
+public enum SentryRedactRegionType: String, Codable, Equatable {
     /// Redacts the region.
     case redact = "redact"
 
