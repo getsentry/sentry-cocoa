@@ -732,7 +732,7 @@
     XCTAssertFalse(options.attachScreenshot);
     XCTAssertEqual(3.0, options.idleTimeout);
     XCTAssertEqual(options.enableUserInteractionTracing, YES);
-    XCTAssertEqual(options.enablePreWarmedAppStartTracing, NO);
+    XCTAssertEqual(options.enablePreWarmedAppStartTracing, YES);
     XCTAssertEqual(options.attachViewHierarchy, NO);
     XCTAssertEqual(options.reportAccessibilityIdentifier, YES);
     XCTAssertEqual(options.sessionReplay.onErrorSampleRate, 0);
@@ -917,7 +917,7 @@
 
 - (void)testEnablePreWarmedAppStartTracking
 {
-    [self testBooleanField:@"enablePreWarmedAppStartTracing" defaultValue:NO];
+    [self testBooleanField:@"enablePreWarmedAppStartTracing" defaultValue:YES];
 }
 
 - (void)testSessionReplaySettingsInit

@@ -17,7 +17,10 @@ isSentryOwnedThreadName(const std::string &name)
     return name.rfind("io.sentry", 0) == 0;
 }
 
-constexpr std::size_t kMaxThreadNameLength = 100;
+// Apple's `libpthread` has a hard limit of 64 characters for thread names.
+// See
+// https://github.com/apple-oss-distributions/libpthread/blob/42d026df5b07825070f60134b980a1ec2552dfee/src/pthread.c#L1178
+constexpr std::size_t kMaxThreadNameLength = 64;
 
 } // namespace
 
