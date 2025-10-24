@@ -198,6 +198,19 @@ typedef void (^SentryOnAppStartMeasurementAvailable)(
 
 + (SentryBreadcrumb *)breadcrumbWithDictionary:(NSDictionary *)dictionary;
 
+/**
+ * Adds an view attachment to the Scope's list of attachments.
+ * File is not read until an event needs to be sent.
+ * The view hierarchy json should follow the representation defined in RFC#33
+ * https://github.com/getsentry/rfcs/blob/main/text/0033-view-hierarchy.md
+ *
+ * This method is intended for downstream SDKs like sentry-godot which havbe a custom view hierarchy
+ * logic.
+ *
+ * @param path The path to the view-hierarchy.json file
+ */
++ (void)addViewHierarchyAttachment:(NSString *)path;
+
 @end
 
 NS_ASSUME_NONNULL_END
