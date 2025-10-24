@@ -228,17 +228,6 @@ jobs:
         include:
           # We are running tests on iOS 17 and later, as there were OS-internal changes introduced in succeeding versions.
 
-          # iOS 16 - Use macOS-26 with Xcode 26.1 to download iOS 16.4 runtime (latest toolkit)
-          - name: iOS 16 Sentry
-            runs-on: macos-26
-            xcode: "26.1"
-            test-destination-os: "16.4"
-            install_platforms: true
-            platform: "iOS"
-            create_device: true
-            device: "iPhone 14 Pro"
-            scheme: "Sentry"
-
           # iOS 17 - Use pre-installed iOS 17.5 runtime on macOS-14 with Xcode 15.4
           - name: iOS 17 Sentry
             runs-on: macos-14
