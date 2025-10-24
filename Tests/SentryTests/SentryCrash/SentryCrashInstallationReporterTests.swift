@@ -14,7 +14,6 @@ class SentryCrashInstallationReporterTests: XCTestCase {
         sut.uninstall()
     }
     
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func testReportIsSentAndDeleted() throws {
         givenSutWithStartedSDK()
         
@@ -31,7 +30,6 @@ class SentryCrashInstallationReporterTests: XCTestCase {
     /**
      * Validates that handling a crash report with the removed fields total_storage and free_storage works.
      */
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func testShouldCaptureCrashReportWithLegacyStorageInfo() throws {
         givenSutWithStartedSDK()
         
@@ -50,7 +48,6 @@ class SentryCrashInstallationReporterTests: XCTestCase {
         XCTAssertEqual(event?.context?["device"]?["storage_size"] as? Int, 994_662_584_320)
     }
     
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func testShouldCaptureCrashReportWithoutDeviceContext() throws {
         givenSutWithStartedSDK()
         
@@ -68,7 +65,6 @@ class SentryCrashInstallationReporterTests: XCTestCase {
         XCTAssertEqual(event?.context?["app"]?["app_name"] as? String, "iOS-Swift")
     }
     
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func testFaultyReportIsNotSentAndDeleted() throws {
         givenSutWithStartedSDK()
         
@@ -82,11 +78,9 @@ class SentryCrashInstallationReporterTests: XCTestCase {
         XCTAssertEqual(sentrycrash_getReportCount(), 0)
     }
     
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     private func givenSutWithStartedSDK() {
         let options = Options()
         options.dsn = TestConstants.dsnAsString(username: "SentryCrashInstallationReporterTests")
-        options.setIntegrations([SentryCrashIntegration.self])
         SentrySDK.start(options: options)
         
         testClient = TestClient(options: options)
