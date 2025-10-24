@@ -398,7 +398,11 @@ jobs:
             --scheme ${{matrix.scheme}}
 
       ## Run Flaky Tests TestPlan which has a retry mechanism on failure.
+      # Use a separate result bundle name to avoid conflicts with the regular test run.
+      # xcodebuild fails if a result bundle already exists at the target path.
       - name: Run Flaky Tests
+        # Only the Sentry Scheme has the Flaky TestPlan.
+        if: ${{ matrix.scheme == 'Sentry' }}
         run: |
           ./scripts/sentry-xcodebuild.sh \
             --platform ${{matrix.platform}} \
