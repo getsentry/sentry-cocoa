@@ -47,7 +47,6 @@
 #import "SentryLevelHelper.h"
 #import "SentryMeta.h"
 #import "SentryModels+Serializable.h"
-#import "SentryMsgPackSerializer.h"
 #import "SentryNSDictionarySanitize.h"
 #import "SentryOptions+Private.h"
 #import "SentryPerformanceTracker.h"
