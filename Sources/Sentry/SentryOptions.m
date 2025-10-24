@@ -282,7 +282,7 @@ sentry_isValidSampleRate(NSNumber *sampleRate)
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
-- (BOOL)isContinuousProfilingV2Enabled
+- (BOOL)isContinuousProfilingEnabled
 {
     return _profiling != nil;
 }

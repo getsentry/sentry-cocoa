@@ -258,7 +258,7 @@ sentry_stopProfilerDueToFinishedTransaction(
 
     SentryClient *_Nullable client = hub.getClient;
     if (isProfiling && client != nil
-        && sentry_isContinuousProfilingV2Enabled(SENTRY_UNWRAP_NULLABLE(SentryClient, client))
+        && sentry_isContinuousProfilingEnabled(SENTRY_UNWRAP_NULLABLE(SentryClient, client))
         && sentry_isProfilingCorrelatedToTraces(SENTRY_UNWRAP_NULLABLE(SentryClient, client))) {
         SENTRY_LOG_DEBUG(@"Stopping tracking root span tracer with profilerReferenceId %@",
             sentry_stringFromSentryID(transaction.trace.profilerReferenceID));
@@ -344,7 +344,7 @@ SentryId *_Nullable sentry_startProfilerForTrace(SentryTracerConfiguration *conf
     }
     SentryClient *_Nullable client = hub.getClient;
     if (client != nil
-        && sentry_isContinuousProfilingV2Enabled(SENTRY_UNWRAP_NULLABLE(SentryClient, client))) {
+        && sentry_isContinuousProfilingEnabled(SENTRY_UNWRAP_NULLABLE(SentryClient, client))) {
         // non launch profile
         if (sentry_getParentSpanID(transactionContext) != nil) {
             SENTRY_LOG_DEBUG(@"Not a root span, will not start automatically for trace lifecycle.");

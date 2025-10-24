@@ -83,7 +83,7 @@ extension SentryProfilingPublicAPITests {
         sentry_configureContinuousProfiling(options)
 
         // Assert
-        XCTAssertTrue(options.isContinuousProfilingV2Enabled())
+        XCTAssertTrue(options.isContinuousProfilingEnabled())
     }
 
     func testSentryOptionsReportsContinuousProfilingV2Disabled_NilConfiguration() {
@@ -95,7 +95,7 @@ extension SentryProfilingPublicAPITests {
         sentry_configureContinuousProfiling(options)
 
         // Assert
-        XCTAssertFalse(options.isContinuousProfilingV2Enabled())
+        XCTAssertFalse(options.isContinuousProfilingEnabled())
     }
 
     func testSentryOptionsReportsProfilingCorrelatedToTraces() {

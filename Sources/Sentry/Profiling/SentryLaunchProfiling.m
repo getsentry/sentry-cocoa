@@ -150,7 +150,7 @@ _sentry_startTraceProfiler(
 }
 
 SentryLaunchProfileDecision
-sentry_launchShouldHaveContinuousProfilingV2(SentryOptions *options)
+sentry_launchShouldHaveContinuousProfiling(SentryOptions *options)
 {
     if (!options.profiling.profileAppStarts) {
         SENTRY_LOG_DEBUG(@"Continuous profiling v2 enabled but disabled app start profiling, "
@@ -207,8 +207,8 @@ sentry_launchShouldHaveContinuousProfilingV2(SentryOptions *options)
 SentryLaunchProfileDecision
 sentry_shouldProfileNextLaunch(SentryOptions *options)
 {
-    if ([options isContinuousProfilingV2Enabled]) {
-        return sentry_launchShouldHaveContinuousProfilingV2(options);
+    if ([options isContinuousProfilingEnabled]) {
+        return sentry_launchShouldHaveContinuousProfiling(options);
     }
     return (SentryLaunchProfileDecision) { NO, nil, nil };
 }
@@ -333,7 +333,7 @@ sentry_configureLaunchProfilingForNextLaunch(SentryOptions *options)
             [NSMutableDictionary<NSString *, NSNumber *> dictionary];
         configDict[kSentryLaunchProfileConfigKeyWaitForFullDisplay] =
             @(options.enableTimeToFullDisplayTracing);
-        if ([options isContinuousProfilingV2Enabled]) {
+        if ([options isContinuousProfilingEnabled]) {
             SENTRY_LOG_DEBUG(@"Configuring continuous launch profile v2.");
             configDict[kSentryLaunchProfileConfigKeyContinuousProfilingV2] = @YES;
             configDict[kSentryLaunchProfileConfigKeyContinuousProfilingV2Lifecycle] =

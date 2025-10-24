@@ -8,9 +8,9 @@
 #    import "SentrySwift.h"
 
 BOOL
-sentry_isContinuousProfilingV2Enabled(SentryClient *client)
+sentry_isContinuousProfilingEnabled(SentryClient *client)
 {
-    return [client.options isContinuousProfilingV2Enabled];
+    return [client.options isContinuousProfilingEnabled];
 }
 
 BOOL

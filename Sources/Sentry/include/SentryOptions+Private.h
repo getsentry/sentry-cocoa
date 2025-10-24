@@ -16,7 +16,7 @@ FOUNDATION_EXPORT NSString *const kSentryDefaultEnvironment;
  * If UI profiling mode ("continuous v2") is enabled.
  * @note Not for use with launch profiles. See functions in @c SentryLaunchProfiling .
  */
-- (BOOL)isContinuousProfilingV2Enabled;
+- (BOOL)isContinuousProfilingEnabled;
 
 /**
  * Whether or not the SDK was configured with a profile mode that automatically starts and tracks
