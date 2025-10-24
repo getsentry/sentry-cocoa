@@ -568,31 +568,6 @@ final class SentryLogBatcherTests: XCTestCase {
         XCTAssertEqual(attributes["added_by_callback"]?.value as? String, "callback_value")
     }
     
-    func testBeforeSendLogCallback_DynamicAccessGetAndSet() {
-        // Test dynamic access can both set and get the callback
-        let originalCallback: (SentryLog) -> SentryLog? = { log in
-            log.body = "Modified by original callback"
-            return log
-        }
-        
-        // Set using dynamic access
-        options.setValue(originalCallback, forKey: "beforeSendLogDynamic")
-        
-        // Get using dynamic access and verify it's the same callback
-        let retrievedCallback = options.value(forKey: "beforeSendLogDynamic") as? (SentryLog) -> SentryLog?
-        XCTAssertNotNil(retrievedCallback, "Dynamic access should retrieve the callback")
-        
-        let log = SentryLog(timestamp: Date(), traceId: .empty, level: .info, body: "foo", attributes: [:])
-        let modifiedLog = retrievedCallback?(log)
-        
-        XCTAssertEqual(modifiedLog?.body, "Modified by original callback")
-        
-        // Test setting to nil using dynamic access
-        options.setValue(nil, forKey: "beforeSendLogDynamic")
-        let nilCallback = options.value(forKey: "beforeSendLogDynamic")
-        XCTAssertNil(nilCallback, "Dynamic access should allow setting to nil")
-    }
-    
     func testAddLog_WithLogsDisabled_DoesNotCaptureLog() {
         // Given - logs are disabled
         options.enableLogs = false

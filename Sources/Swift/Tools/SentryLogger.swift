@@ -188,12 +188,8 @@ public final class SentryLogger: NSObject {
             attributes: logAttributes
         )
         
-        #if SWIFT_PACKAGE
-        // Work around Swift-to-Objective-C bridging limitations in SPM builds.
-        // SentryLog is only forward declared in SentryHub.h, so we use dynamic dispatch.
-        hub.perform(Selector("captureLog:"), with: log)
-        #else
+        // Note: In SPM builds, this uses the extension method defined in SentryHub+SPM.swift
+        // which works around Swift-to-Objective-C bridging limitations.
         hub.capture(log: log)
-        #endif
     }
 }
