@@ -4,6 +4,7 @@ on:
     branches:
       - main
       - release/**
+      - test/flaky-test-plan
 
   pull_request:
 
@@ -384,7 +385,7 @@ jobs:
         run: ./scripts/ci-boot-simulator.sh --xcode ${{ matrix.xcode }} --device "${{ matrix.device }}" --os-version "${{ matrix.test-destination-os }}"
 
       # We split building and running tests in two steps so we know how long running the tests takes.
-      - name: Build tests
+      - name: Build Tests
         id: build_tests
         run: |
           ./scripts/sentry-xcodebuild.sh \
@@ -395,6 +396,19 @@ jobs:
             --device "${{matrix.device}}" \
             --configuration TestCI \
             --scheme ${{matrix.scheme}}
+
+      ## Run Flaky Tests TestPlan which has a retry mechanism on failure.
+      - name: Run Flaky Tests
+        run: |
+          ./scripts/sentry-xcodebuild.sh \
+            --platform ${{matrix.platform}} \
+            --os ${{matrix.test-destination-os}} \
+            --ref ${{ github.ref_name }} \
+            --command test-without-building \
+            --device "${{matrix.device}}" \
+            --configuration TestCI \
+            --scheme ${{matrix.scheme}} \
+            --test-plan Sentry_Flaky
 
       - name: Run tests
         # We call a script with the platform so the destination

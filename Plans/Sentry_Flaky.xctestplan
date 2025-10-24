@@ -1,0 +1,33 @@
+{
+  "configurations" : [
+    {
+      "id" : "A451EF21-C702-4095-835C-4F189D10635A",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "testExecutionOrdering" : "random",
+    "testRepetitionMode" : "retryOnFailure",
+    "testTimeoutsEnabled" : true
+  },
+  "testTargets" : [
+    {
+      "selectedTests" : [
+        "SentryHttpTransportFlushIntegrationTests\/testFlushTimesOut_RequestManagerNeverFinishes_FlushingWorksNextTime()",
+        "SentryHttpTransportFlushIntegrationTests\/testFlush_CalledMultipleTimes_ImmediatelyReturnsFalse()",
+        "SentryHttpTransportFlushIntegrationTests\/testFlush_CallingFlushDirectlyAfterCapture_Flushes()",
+        "SentryHttpTransportFlushIntegrationTests\/testFlush_WhenNoEnvelopes_BlocksAndFinishes()",
+        "SentryHttpTransportFlushIntegrationTests\/testFlush_WhenNoInternet_BlocksAndFinishes()"
+      ],
+      "target" : {
+        "containerPath" : "container:Sentry.xcodeproj",
+        "identifier" : "63AA76641EB8CB2F00D153DE",
+        "name" : "SentryTests"
+      }
+    }
+  ],
+  "version" : 1
+}
