@@ -341,31 +341,35 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         XCTAssertFalse(sut.sessionReplay.isSessionPaused)
     }
   
-//    func testMaskViewFromSDK() throws {
-//        class AnotherLabel: UILabel {
-//        }
-//            
-//        startSDK(sessionSampleRate: 1, errorSampleRate: 1) { options in
-//            options.sessionReplay.maskedViewClasses = [AnotherLabel.self]
-//        }
-//        
-//        let sut = try getSut()
-//        let redactBuilder = sut.viewPhotographer.getRedactBuilder()
-//        XCTAssertTrue(redactBuilder.containsRedactClass(viewClass: AnotherLabel.self, layerClass: nil))
-//    }
-//    
-//    func testIgnoreViewFromSDK() throws {
-//        class AnotherLabel: UILabel {
-//        }
-//            
-//        startSDK(sessionSampleRate: 1, errorSampleRate: 1) { options in
-//            options.sessionReplay.unmaskedViewClasses = [AnotherLabel.self]
-//        }
-//    
-//        let sut = try getSut()
-//        let redactBuilder = sut.viewPhotographer.getRedactBuilder()
-//        XCTAssertTrue(redactBuilder.containsIgnoreClass(AnotherLabel.self))
-//    }
+    func testMaskViewFromSDK() throws {
+        // -- Arrange --
+        class AnotherLabel: UILabel {}
+
+        startSDK(sessionSampleRate: 1, errorSampleRate: 1) { options in
+            options.sessionReplay.maskedViewClasses = [AnotherLabel.self]
+        }
+
+        // -- Act --
+        let redactBuilder = try getSut().viewPhotographer.getRedactBuilder()
+
+        // -- Assert --
+        XCTAssertTrue(redactBuilder.containsRedactClass(viewClass: AnotherLabel.self, layerClass: CALayer.self))
+    }
+    
+    func testIgnoreViewFromSDK() throws {
+        // -- Arrange --
+        class AnotherLabel: UILabel {}
+
+        startSDK(sessionSampleRate: 1, errorSampleRate: 1) { options in
+            options.sessionReplay.unmaskedViewClasses = [AnotherLabel.self]
+        }
+
+        // -- Act --
+        let redactBuilder = try getSut().viewPhotographer.getRedactBuilder()
+
+        // -- Assert --
+        XCTAssertTrue(redactBuilder.containsIgnoreClass(AnotherLabel.self))
+    }
     
     func testStop() throws {
         startSDK(sessionSampleRate: 1, errorSampleRate: 1)

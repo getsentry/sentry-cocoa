@@ -36,6 +36,9 @@ import UIKit
         // Define a helper variable for the size, so the view is not accessed in the async block
         let viewSize = view.bounds.size
 
+        // The redact regions are expected to be thread-safe data structures
+        let redactRegions = redactBuilder.redactRegionsFor(view: view)
+
         // The render method is synchronous and must be called on the main thread.
         // This is because the render method accesses the view hierarchy which is managed from the main thread.
         let renderedScreenshot = renderer.render(view: view)
