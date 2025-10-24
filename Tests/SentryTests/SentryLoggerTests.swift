@@ -775,6 +775,74 @@ final class SentryLoggerTests: XCTestCase {
         XCTAssertNil(nilCallback, "Dynamic access should allow setting to nil")
     }
     
+    // MARK: - Replay Attributes Tests
+    
+#if os(iOS) || os(tvOS)
+    func testReplayAttributes_SessionMode_AddsReplayId() {
+        // Setup replay integration
+        let replayOptions = SentryReplayOptions(sessionSampleRate: 1.0, onErrorSampleRate: 0.0)
+        fixture.options.sessionReplay = replayOptions
+        
+        let replayIntegration = SentrySessionReplayIntegration()
+        fixture.hub.addInstalledIntegration(replayIntegration, name: "SentrySessionReplayIntegration")
+        
+        // Set replayId on scope (session mode)
+        let replayId = "12345678-1234-1234-1234-123456789012"
+        fixture.scope.replayId = replayId
+        
+        sut.info("Test message")
+        
+        let log = getLastCapturedLog()
+        XCTAssertEqual(log.attributes["sentry.replay_id"]?.value as? String, replayId)
+        XCTAssertNil(log.attributes["sentry._internal.replay_is_buffering"])
+    }
+    
+    func testReplayAttributes_BufferMode_AddsReplayIdAndBufferingFlag() {
+        // Setup replay integration with mock
+        let replayIntegration = TestSentrySessionReplayIntegration()
+        let mockReplayId = SentryId()
+        replayIntegration.mockReplayId = mockReplayId
+        fixture.hub.addInstalledIntegration(replayIntegration, name: "SentrySessionReplayIntegration")
+        
+        // Set up buffer mode: sessionReplay has an ID, but scope.replayId is nil
+        fixture.scope.replayId = nil
+        
+        sut.info("Test message")
+        
+        let log = getLastCapturedLog()
+        let replayIdString = log.attributes["sentry.replay_id"]?.value as? String
+        XCTAssertEqual(replayIdString, mockReplayId.sentryIdString)
+        XCTAssertEqual(log.attributes["sentry._internal.replay_is_buffering"]?.value as? Bool, true)
+    }
+    
+    func testReplayAttributes_NoReplay_NoAttributesAdded() {
+        // Don't set up replay integration
+        
+        sut.info("Test message")
+        
+        let log = getLastCapturedLog()
+        XCTAssertNil(log.attributes["sentry.replay_id"])
+        XCTAssertNil(log.attributes["sentry._internal.replay_is_buffering"])
+    }
+    
+    func testReplayAttributes_BothSessionAndScopeReplayId_SessionMode() {
+        // Setup replay integration with mock
+        let replayIntegration = TestSentrySessionReplayIntegration()
+        let replayId = "12345678-1234-1234-1234-123456789012"
+        replayIntegration.mockReplayId = SentryId(uuidString: replayId)
+        fixture.hub.addInstalledIntegration(replayIntegration, name: "SentrySessionReplayIntegration")
+        
+        // Both IDs are set (session mode - scope has the same ID)
+        fixture.scope.replayId = replayId
+        
+        sut.info("Test message")
+        
+        let log = getLastCapturedLog()
+        XCTAssertEqual(log.attributes["sentry.replay_id"]?.value as? String, replayId)
+        XCTAssertNil(log.attributes["sentry._internal.replay_is_buffering"])
+    }
+#endif
+    
     // MARK: - Helper Methods
     
     private func assertLogCaptured(
@@ -863,6 +931,21 @@ final class SentryLoggerTests: XCTestCase {
         return lastLog
     }
 }
+
+#if os(iOS) || os(tvOS)
+final class TestSentrySessionReplayIntegration: SentrySessionReplayIntegration {
+    var mockReplayId: SentryId?
+    
+    override var replayId: SentryId? {
+        return mockReplayId
+    }
+    
+    override func install(with options: Options) -> Bool {
+        // Don't do any real installation
+        return true
+    }
+}
+#endif
 
 final class TestLogBatcher: SentryLogBatcher {
     

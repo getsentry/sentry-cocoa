@@ -1,4 +1,5 @@
 @_implementationOnly import _SentryPrivate
+@_spi(Private) import Sentry._Hybrid
 
 import Foundation
 
@@ -198,6 +199,7 @@ public final class SentryLogger: NSObject {
         addOSAttributes(to: &logAttributes)
         addDeviceAttributes(to: &logAttributes)
         addUserAttributes(to: &logAttributes)
+        addReplayAttributes(to: &logAttributes)
 
         let propagationContextTraceIdString = hub.scope.propagationContextTraceIdString
         let propagationContextTraceId = SentryId(uuidString: propagationContextTraceIdString)
@@ -279,6 +281,27 @@ public final class SentryLogger: NSObject {
         if let userEmail = user.email {
             attributes["user.email"] = .init(string: userEmail)
         }
+    }
+    
+    private func addReplayAttributes(to attributes: inout [String: SentryLog.Attribute]) {
+#if os(iOS) || os(tvOS)
+        let scopeReplayId = hub.scope.replayId
+        
+        // Session mode: use scope replay ID
+        if let scopeReplayId = scopeReplayId {
+            attributes["sentry.replay_id"] = .init(string: scopeReplayId)
+            return
+        }
+        
+        // Detect buffer mode: scope has no ID but integration does
+        guard let integration = hub.getInstalledIntegration(SentrySessionReplayIntegration.self),
+              let replayIntegration = integration as? SentrySessionReplayIntegration,
+              let replayId = replayIntegration.replayId else {
+            return
+        }
+        attributes["sentry.replay_id"] = .init(string: replayId.sentryIdString)
+        attributes["sentry._internal.replay_is_buffering"] = .init(boolean: true)
+#endif
     }
 }
 
