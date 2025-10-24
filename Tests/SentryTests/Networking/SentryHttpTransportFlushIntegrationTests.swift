@@ -156,6 +156,8 @@ final class SentryHttpTransportFlushIntegrationTests: XCTestCase {
         // The initial call to flush is blocking and will take some time to finish.
         // Therefore, we wait at the end of the test.
         wait(for: [initialFlushCallExpectation], timeout: 10.0)
+
+        XCTAssertFalse(true, "fail to see if CI fails")
     }
 
     // We use the test name as part of the DSN to ensure that each test runs in isolation.
