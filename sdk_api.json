@@ -24438,6 +24438,47 @@
           },
           {
             "kind": "Function",
+            "name": "capture",
+            "printedName": "capture(log:scope:)",
+            "children": [
+              {
+                "kind": "TypeNameAlias",
+                "name": "Void",
+                "printedName": "Swift.Void",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ]
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "SentryLog",
+                "printedName": "Sentry.SentryLog",
+                "usr": "c:@M@Sentry@objc(cs)SentryLog"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Scope",
+                "printedName": "Sentry.Scope",
+                "usr": "c:objc(cs)SentryScope"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "c:objc(cs)SentryClient(im)captureLog:withScope:",
+            "moduleName": "Sentry",
+            "isOpen": true,
+            "objc_name": "captureLog:withScope:",
+            "declAttributes": [
+              "ObjC",
+              "Dynamic"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
             "name": "flush",
             "printedName": "flush(timeout:)",
             "children": [
@@ -27181,6 +27222,82 @@
             "moduleName": "Sentry",
             "isOpen": true,
             "objc_name": "captureFeedback:",
+            "declAttributes": [
+              "ObjC",
+              "Dynamic"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "capture",
+            "printedName": "capture(log:)",
+            "children": [
+              {
+                "kind": "TypeNameAlias",
+                "name": "Void",
+                "printedName": "Swift.Void",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ]
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "SentryLog",
+                "printedName": "Sentry.SentryLog",
+                "usr": "c:@M@Sentry@objc(cs)SentryLog"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "c:objc(cs)SentryHub(im)captureLog:",
+            "moduleName": "Sentry",
+            "isOpen": true,
+            "objc_name": "captureLog:",
+            "declAttributes": [
+              "ObjC",
+              "Dynamic"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "capture",
+            "printedName": "capture(log:scope:)",
+            "children": [
+              {
+                "kind": "TypeNameAlias",
+                "name": "Void",
+                "printedName": "Swift.Void",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ]
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "SentryLog",
+                "printedName": "Sentry.SentryLog",
+                "usr": "c:@M@Sentry@objc(cs)SentryLog"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Scope",
+                "printedName": "Sentry.Scope",
+                "usr": "c:objc(cs)SentryScope"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "c:objc(cs)SentryHub(im)captureLog:withScope:",
+            "moduleName": "Sentry",
+            "isOpen": true,
+            "objc_name": "captureLog:withScope:",
             "declAttributes": [
               "ObjC",
               "Dynamic"
@@ -43262,6 +43379,94 @@
                 "accessorKind": "set"
               }
             ]
+          },
+          {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init(level:body:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "SentryLog",
+                "printedName": "Sentry.SentryLog",
+                "usr": "c:@M@Sentry@objc(cs)SentryLog"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Level",
+                "printedName": "Sentry.SentryLog.Level",
+                "usr": "s:6Sentry0A3LogC5LevelO"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "c:@M@Sentry@objc(cs)SentryLog(im)initWithLevel:body:",
+            "mangledName": "$s6Sentry0A3LogC5level4bodyA2C5LevelO_SStcfc",
+            "moduleName": "Sentry",
+            "objc_name": "initWithLevel:body:",
+            "declAttributes": [
+              "ObjC"
+            ],
+            "init_kind": "Convenience"
+          },
+          {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init(level:body:attributes:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "SentryLog",
+                "printedName": "Sentry.SentryLog",
+                "usr": "c:@M@Sentry@objc(cs)SentryLog"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Level",
+                "printedName": "Sentry.SentryLog.Level",
+                "usr": "s:6Sentry0A3LogC5LevelO"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Dictionary",
+                "printedName": "[Swift.String : Sentry.SentryLog.Attribute]",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Attribute",
+                    "printedName": "Sentry.SentryLog.Attribute",
+                    "usr": "s:6Sentry0A3LogC9AttributeC"
+                  }
+                ],
+                "usr": "s:SD"
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "c:@M@Sentry@objc(cs)SentryLog(im)initWithLevel:body:attributes:",
+            "mangledName": "$s6Sentry0A3LogC5level4body10attributesA2C5LevelO_SSSDySSAC9AttributeCGtcfc",
+            "moduleName": "Sentry",
+            "objc_name": "initWithLevel:body:attributes:",
+            "declAttributes": [
+              "ObjC"
+            ],
+            "init_kind": "Convenience"
           },
           {
             "kind": "TypeDecl",

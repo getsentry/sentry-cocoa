@@ -15,6 +15,7 @@ class SentryHubTests: XCTestCase {
         let crumb = Breadcrumb(level: .error, category: "default")
         let scope = Scope()
         let message = "some message"
+        let log = SentryLog(level: .info, body: "Test log message")
         let event: Event
         let currentDateProvider = TestCurrentDateProvider()
         let sentryCrashWrapper = TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo)
@@ -662,6 +663,27 @@ class SentryHubTests: XCTestCase {
         if let messageArguments = fixture.client.captureMessageWithScopeInvocations.first {
             XCTAssertEqual(fixture.message, messageArguments.message)
             XCTAssertEqual(fixture.scope, messageArguments.scope)
+        }
+    }
+    
+    func testCaptureLog() {
+        fixture.getSut(fixture.options, fixture.scope).capture(log: fixture.log)
+        
+        XCTAssertEqual(1, fixture.client.captureLogInvocations.count)
+        if let logArguments = fixture.client.captureLogInvocations.first {
+            XCTAssertEqual(fixture.log, logArguments.log)
+            XCTAssertEqual(fixture.scope, logArguments.scope)
+        }
+    }
+    
+    func testCaptureLogWithScope() {
+        let scope = Scope()
+        fixture.getSut().capture(log: fixture.log, scope: scope)
+        
+        XCTAssertEqual(1, fixture.client.captureLogInvocations.count)
+        if let logArguments = fixture.client.captureLogInvocations.first {
+            XCTAssertEqual(fixture.log, logArguments.log)
+            XCTAssertEqual(scope, logArguments.scope)
         }
     }
     
