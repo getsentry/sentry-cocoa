@@ -1,5 +1,5 @@
 @objc
-@_spi(Private) public final class SentryClientReport: NSObject, SentrySerializable {
+@_spi(Private) public final class SentryClientReport: NSObject {
     
     @objc(initWithDiscardedEvents:dateProvider:)
     public init(discardedEvents: [SentryDiscardedEvent], dateProvider: SentryCurrentDateProvider) {

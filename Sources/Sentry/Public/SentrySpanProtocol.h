@@ -5,9 +5,6 @@
 #else
 #    import <SentryDefines.h>
 #endif
-#if !SDK_V9
-#    import SENTRY_HEADER(SentrySerializable)
-#endif // SDK_V9
 #import SENTRY_HEADER(SentrySpanContext)
 
 NS_ASSUME_NONNULL_BEGIN
@@ -19,11 +16,7 @@ NS_ASSUME_NONNULL_BEGIN
 @class SentryTraceHeader;
 
 NS_SWIFT_NAME(Span)
-#if SDK_V9
 @protocol SentrySpan <NSObject>
-#else
-@protocol SentrySpan <SentrySerializable>
-#endif
 
 /**
  * Determines which trace the Span belongs to.

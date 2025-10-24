@@ -6,9 +6,6 @@
 #else
 #    import <SentryDefines.h>
 #endif
-#if !SDK_V9
-#    import SENTRY_HEADER(SentrySerializable)
-#endif
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -18,9 +15,6 @@ NS_ASSUME_NONNULL_BEGIN
  * @see https://develop.sentry.dev/sdk/event-payloads/message/
  */
 @interface SentryMessage : NSObject
-#if !SDK_V9
-                           <SentrySerializable>
-#endif
 
 SENTRY_NO_INIT
 

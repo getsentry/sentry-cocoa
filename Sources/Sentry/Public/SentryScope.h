@@ -5,9 +5,6 @@
 #else
 #    import <SentryDefines.h>
 #endif
-#if !SDK_V9
-#    import SENTRY_HEADER(SentrySerializable)
-#endif // SDK_V9
 #import SENTRY_HEADER(SentrySpanProtocol)
 
 @class SentryAttachment;
@@ -25,9 +22,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 NS_SWIFT_NAME(Scope)
 @interface SentryScope : NSObject
-#if !SDK_V9
-                         <SentrySerializable>
-#endif // !SDK_V9
 
 /**
  * Returns current Span or Transaction.

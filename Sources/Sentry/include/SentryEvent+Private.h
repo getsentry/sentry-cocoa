@@ -28,8 +28,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (nonatomic, strong) NSArray *serializedBreadcrumbs;
 
-- (NSDictionary<NSString *, id> *)serialize;
-
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 @property (nonatomic) uint64_t startSystemTime;
 @property (nonatomic) uint64_t endSystemTime;
