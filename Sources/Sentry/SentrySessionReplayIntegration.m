@@ -202,7 +202,7 @@ static SentryTouchTracker *_touchTracker;
     NSURL *dir = [self replayDirectory];
     NSDictionary<NSString *, id> *jsonObject = [self lastReplayInfo];
 
-    if (jsonObject == nil) {
+    if (jsonObject == nil || jsonObject[@"path"] == nil) {
         SENTRY_LOG_DEBUG(
             @"[Session Replay] No last replay info found, not resuming previous session replay");
         return;
