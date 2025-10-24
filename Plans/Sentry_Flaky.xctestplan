@@ -16,11 +16,7 @@
   "testTargets" : [
     {
       "selectedTests" : [
-        "SentryHttpTransportFlushIntegrationTests\/testFlushTimesOut_RequestManagerNeverFinishes_FlushingWorksNextTime()",
-        "SentryHttpTransportFlushIntegrationTests\/testFlush_CalledMultipleTimes_ImmediatelyReturnsFalse()",
-        "SentryHttpTransportFlushIntegrationTests\/testFlush_CallingFlushDirectlyAfterCapture_Flushes()",
-        "SentryHttpTransportFlushIntegrationTests\/testFlush_WhenNoEnvelopes_BlocksAndFinishes()",
-        "SentryHttpTransportFlushIntegrationTests\/testFlush_WhenNoInternet_BlocksAndFinishes()"
+        "SentryHttpTransportFlushIntegrationTests"
       ],
       "target" : {
         "containerPath" : "container:Sentry.xcodeproj",
