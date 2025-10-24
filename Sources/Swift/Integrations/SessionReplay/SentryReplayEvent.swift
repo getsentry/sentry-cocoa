@@ -32,7 +32,7 @@ import Foundation
         self.type = "replay_video"
     }
     
-    required convenience init() {
+    required convenience override init() {
         fatalError("init() has not been implemented")
     }
     

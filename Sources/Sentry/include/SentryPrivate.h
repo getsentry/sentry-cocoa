@@ -41,7 +41,7 @@
 #import "SentryDelayedFramesTracker.h"
 #import "SentryDependencyContainerSwiftHelper.h"
 #import "SentryDeviceContextKeys.h"
-#import "SentryEvent+Serialize.h"
+#import "SentryEvent+Private.h"
 #import "SentryFileIOTrackerHelper.h"
 #import "SentryFileManagerHelper.h"
 #import "SentryLevelHelper.h"

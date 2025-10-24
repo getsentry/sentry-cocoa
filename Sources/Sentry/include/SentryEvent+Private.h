@@ -3,6 +3,8 @@
 #import "SentryProfilingConditionals.h"
 #import <Foundation/Foundation.h>
 
+NS_ASSUME_NONNULL_BEGIN
+
 @interface SentryEvent ()
 
 /**
@@ -26,6 +28,8 @@
  */
 @property (nonatomic, strong) NSArray *serializedBreadcrumbs;
 
+- (NSDictionary<NSString *, id> *)serialize;
+
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 @property (nonatomic) uint64_t startSystemTime;
 @property (nonatomic) uint64_t endSystemTime;
@@ -36,3 +40,5 @@
 #endif // SENTRY_HAS_METRIC_KIT
 
 @end
+
+NS_ASSUME_NONNULL_END

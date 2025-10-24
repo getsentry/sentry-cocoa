@@ -1,5 +1,5 @@
 #import "SentryTransaction.h"
-#import "SentryEvent+Serialize.h"
+#import "SentryEvent+Private.h"
 #import "SentryInternalDefines.h"
 #import "SentryNSDictionarySanitize.h"
 #import "SentryProfilingConditionals.h"

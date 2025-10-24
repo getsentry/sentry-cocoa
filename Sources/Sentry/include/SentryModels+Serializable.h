@@ -28,10 +28,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-@interface SentryEvent () <SentryInternalSerializable>
-
-@end
-
 @interface SentryStacktrace () <SentryInternalSerializable>
 
 @end
