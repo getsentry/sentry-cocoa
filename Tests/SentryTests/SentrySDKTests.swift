@@ -146,6 +146,9 @@ class SentrySDKTests: XCTestCase {
         if !SentryDependencyContainer.sharedInstance().crashWrapper.isBeingTraced {
             expectedIntegrations.append("SentryANRTrackingIntegration")
         }
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+        expectedIntegrations.append("SentryFramesTrackingIntegration")
+#endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 
         assertIntegrationsInstalled(integrations: expectedIntegrations)
     }
@@ -444,7 +447,7 @@ class SentrySDKTests: XCTestCase {
     // MARK: - Logger Flush Tests
     
     func testFlush_CallsLoggerCaptureLogs() {
-        fixture.client.options.experimental.enableLogs = true
+        fixture.client.options.enableLogs = true
         SentrySDKInternal.setCurrentHub(fixture.hub)
         SentrySDKInternal.setStart(with: fixture.client.options)
         
@@ -462,7 +465,7 @@ class SentrySDKTests: XCTestCase {
     }
     
     func testClose_CallsLoggerCaptureLogs() {
-        fixture.client.options.experimental.enableLogs = true
+        fixture.client.options.enableLogs = true
         SentrySDKInternal.setCurrentHub(fixture.hub)
         SentrySDKInternal.setStart(with: fixture.client.options)
         
@@ -484,7 +487,7 @@ class SentrySDKTests: XCTestCase {
         let loggerBeforeStart = SentrySDK.logger
         
         // Now properly start the SDK using internal APIs  
-        fixture.client.options.experimental.enableLogs = true
+        fixture.client.options.enableLogs = true
         SentrySDKInternal.setCurrentHub(fixture.hub)
         SentrySDKInternal.setStart(with: fixture.client.options)
         
@@ -506,7 +509,7 @@ class SentrySDKTests: XCTestCase {
     
     func testLogger_WhenLogsDisabled() {
         // Start SDK with logs disabled
-        fixture.client.options.experimental.enableLogs = false
+        fixture.client.options.enableLogs = false
         SentrySDKInternal.setCurrentHub(fixture.hub)
         SentrySDKInternal.setStart(with: fixture.client.options)
         

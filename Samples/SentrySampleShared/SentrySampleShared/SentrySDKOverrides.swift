@@ -83,7 +83,6 @@ public enum SentrySDKOverrides: String, CaseIterable {
 
     public enum Performance: String, SentrySDKOverride {
         case disableTimeToFullDisplayTracing    = "--io.sentry.performance.disable-time-to-full-display-tracing"
-        case disableAppHangTrackingV2           = "--io.sentry.performance.disable-app-hang-tracking-v2"
         case disableSessionTracking             = "--io.sentry.performance.disable-automatic-session-tracking"
         case disableFileIOTracing               = "--io.sentry.performance.disable-file-io-tracing"
         case disableUIVCTracing                 = "--io.sentry.performance.disable-uiviewcontroller-tracing"
@@ -109,6 +108,8 @@ public enum SentrySDKOverrides: String, CaseIterable {
         
         case disableMaskAllImages = "--io.sentry.session-replay.disable-mask-all-images"
         case disableMaskAllText = "--io.sentry.session-replay.disable-mask-all-text"
+        
+        case enableInUnreliableEnvironment = "--io.sentry.session-replay.enable-in-unreliable-environment"
     }
     case sessionReplay = "Session Replay"
 
@@ -314,7 +315,7 @@ extension SentrySDKOverrides.Other {
 extension SentrySDKOverrides.Performance {
     public var overrideType: OverrideType {
         switch self {
-        case .disableTimeToFullDisplayTracing, .disableAppHangTrackingV2, .disableSessionTracking, .disableFileIOTracing, .disableUIVCTracing, .disableCoreDataTracing, .disableANRTracking, .disableWatchdogTracking, .disableUITracing, .disablePrewarmedAppStartTracing, .disablePerformanceTracing: return .boolean
+        case .disableTimeToFullDisplayTracing, .disableSessionTracking, .disableFileIOTracing, .disableUIVCTracing, .disableCoreDataTracing, .disableANRTracking, .disableWatchdogTracking, .disableUITracing, .disablePrewarmedAppStartTracing, .disablePerformanceTracing: return .boolean
         case .sessionTrackingIntervalMillis: return .string
         }
     }
@@ -323,7 +324,7 @@ extension SentrySDKOverrides.Performance {
 extension SentrySDKOverrides.SessionReplay {
     public var overrideType: OverrideType {
         switch self {
-        case .disable, .disableViewRendererV2, .enableFastViewRendering, .disableMaskAllText, .disableMaskAllImages: return .boolean
+        case .disable, .disableViewRendererV2, .enableFastViewRendering, .disableMaskAllText, .disableMaskAllImages, .enableInUnreliableEnvironment: return .boolean
         case .onErrorSampleRate, .sessionSampleRate: return .float
         case .quality: return .string
         }
@@ -401,7 +402,7 @@ extension SentrySDKOverrides.Other {
 extension SentrySDKOverrides.Performance {
     public var ignoresDisableEverything: Bool {
         switch self {
-        case .disableTimeToFullDisplayTracing, .disableAppHangTrackingV2, .disableSessionTracking, .disableFileIOTracing, .disableUIVCTracing, .disableCoreDataTracing, .disableANRTracking, .disableWatchdogTracking, .disableUITracing, .disablePrewarmedAppStartTracing, .disablePerformanceTracing: return false
+        case .disableTimeToFullDisplayTracing, .disableSessionTracking, .disableFileIOTracing, .disableUIVCTracing, .disableCoreDataTracing, .disableANRTracking, .disableWatchdogTracking, .disableUITracing, .disablePrewarmedAppStartTracing, .disablePerformanceTracing: return false
         case .sessionTrackingIntervalMillis: return true
         }
     }
@@ -411,7 +412,7 @@ extension SentrySDKOverrides.SessionReplay {
     public var ignoresDisableEverything: Bool {
         switch self {
         case .disable: return false
-        case .disableViewRendererV2, .enableFastViewRendering, .disableMaskAllText, .disableMaskAllImages, .onErrorSampleRate, .sessionSampleRate, .quality: return true
+        case .disableViewRendererV2, .enableFastViewRendering, .disableMaskAllText, .disableMaskAllImages, .onErrorSampleRate, .sessionSampleRate, .quality, .enableInUnreliableEnvironment: return true
         }
     }
 }

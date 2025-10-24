@@ -16,7 +16,7 @@ public class SentryCrashWrapper: NSObject {
     
     // Using lazy so we wait until SentryDependencyContainer is initialized
     @objc
-    public private(set) lazy var systemInfo = SentryDependencyContainerSwiftHelper.crashReporter().systemInfo as? [String: Any] ?? [:]
+    public private(set) lazy var systemInfo = SentryDependencyContainer.sharedInstance().crashReporter.systemInfo as? [String: Any] ?? [:]
     
     @objc
     public init(processInfoWrapper: SentryProcessInfoSource) {
@@ -44,7 +44,7 @@ public final class SentryCrashWrapper: NSObject {
     
     // Using lazy so we wait until SentryDependencyContainer is initialized
     @objc
-    public private(set) lazy var systemInfo = SentryDependencyContainerSwiftHelper.crashReporter().systemInfo as? [String: Any] ?? [:]
+    public private(set) lazy var systemInfo = SentryDependencyContainer.sharedInstance().crashReporter.systemInfo as? [String: Any] ?? [:]
     
     @objc
     public init(processInfoWrapper: SentryProcessInfoSource) {
@@ -69,7 +69,7 @@ public final class SentryCrashWrapper: NSObject {
     
     @objc
     public var crashedLastLaunch: Bool {
-        return SentryDependencyContainerSwiftHelper.crashReporter().crashedLastLaunch
+        return SentryDependencyContainer.sharedInstance().crashReporter.crashedLastLaunch
     }
     
     @objc
@@ -79,7 +79,7 @@ public final class SentryCrashWrapper: NSObject {
     
     @objc
     public var activeDurationSinceLastCrash: TimeInterval {
-        return SentryDependencyContainerSwiftHelper.crashReporter().activeDurationSinceLastCrash
+        return SentryDependencyContainer.sharedInstance().crashReporter.activeDurationSinceLastCrash
     }
     
     @objc
@@ -202,18 +202,14 @@ public final class SentryCrashWrapper: NSObject {
         // reusable property on the app context proved difficult, so instead we reuse the "name"
         // field of the runtime context as a pragmatic and semantically acceptable solution.
         // isiOSAppOnMac and isMacCatalystApp are mutually exclusive, so we only set one of them.
-        if #available(iOS 14.0, macOS 11.0, watchOS 7.0, tvOS 14.0, *) {
-            if self.processInfoWrapper.isiOSAppOnMac {
-                runtimeContext["name"] = "iOS App on Mac"
-                runtimeContext["raw_description"] = "ios-app-on-mac"
-            }
+        if self.processInfoWrapper.isiOSAppOnMac {
+            runtimeContext["name"] = "iOS App on Mac"
+            runtimeContext["raw_description"] = "ios-app-on-mac"
         }
         
-        if #available(iOS 13.0, macOS 10.15, watchOS 6.0, tvOS 13.0, *) {
-            if self.processInfoWrapper.isMacCatalystApp {
-                runtimeContext["name"] = "Mac Catalyst App"
-                runtimeContext["raw_description"] = "raw_description"
-            }
+        if self.processInfoWrapper.isMacCatalystApp {
+            runtimeContext["name"] = "Mac Catalyst App"
+            runtimeContext["raw_description"] = "raw_description"
         }
         
         if !runtimeContext.isEmpty {

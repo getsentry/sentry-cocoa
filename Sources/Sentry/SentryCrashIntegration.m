@@ -1,7 +1,6 @@
 #import "SentryCrashIntegration.h"
-#import "SentryCrashInstallationReporter.h"
-
 #import "SentryCrashC.h"
+#import "SentryCrashInstallationReporter.h"
 #import "SentryCrashIntegrationSessionHandler.h"
 #import "SentryCrashMonitor_CPPException.h"
 #include "SentryCrashMonitor_Signal.h"
@@ -18,7 +17,7 @@
 #import "SentryWatchdogTerminationLogic.h"
 #import <SentryClient+Private.h>
 #import <SentryCrashScopeObserver.h>
-#import <SentryDependencyContainer.h>
+
 #import <SentryLogC.h>
 #import <SentrySDK+Private.h>
 
@@ -45,6 +44,9 @@ sentry_finishAndSaveTransaction(void)
         [tracer finishForCrash];
     }
 }
+
+@interface SentryCrashScopeObserver () <SentryScopeObserver>
+@end
 
 @interface SentryCrashIntegration ()
 
@@ -87,7 +89,7 @@ sentry_finishAndSaveTransaction(void)
     self.options = options;
 
 #if SENTRY_HAS_UIKIT
-    id<SentryAppStateManager> appStateManager =
+    SentryAppStateManager *appStateManager =
         [SentryDependencyContainer sharedInstance].appStateManager;
     SentryWatchdogTerminationLogic *logic =
         [[SentryWatchdogTerminationLogic alloc] initWithOptions:options

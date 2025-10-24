@@ -57,15 +57,11 @@
         [SentrySwiftAsyncIntegration class], nil];
 
 #if TARGET_OS_IOS && SENTRY_HAS_UIKIT
-    if (@available(iOS 13.0, iOSApplicationExtension 13.0, *)) {
-        [defaultIntegrations addObject:[SentryUserFeedbackIntegration class]];
-    }
+    [defaultIntegrations addObject:[SentryUserFeedbackIntegration class]];
 #endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
 
 #if SENTRY_HAS_METRIC_KIT
-    if (@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, *)) {
-        [defaultIntegrations addObject:[SentryMetricKitIntegration class]];
-    }
+    [defaultIntegrations addObject:[SentryMetricKitIntegration class]];
 #endif // SENTRY_HAS_METRIC_KIT
 
     return defaultIntegrations;
@@ -159,6 +155,8 @@
         sentryOptions.maxBreadcrumbs = [options[@"maxBreadcrumbs"] unsignedIntValue];
     }
 
+    [self setBool:options[@"enableLogs"] block:^(BOOL value) { sentryOptions.enableLogs = value; }];
+
     [self setBool:options[@"enableNetworkBreadcrumbs"]
             block:^(BOOL value) { sentryOptions.enableNetworkBreadcrumbs = value; }];
 
@@ -175,6 +173,12 @@
     if ([self isBlock:options[@"beforeSend"]]) {
         sentryOptions.beforeSend = options[@"beforeSend"];
     }
+
+#if !SWIFT_PACKAGE
+    if ([self isBlock:options[@"beforeSendLog"]]) {
+        sentryOptions.beforeSendLog = options[@"beforeSendLog"];
+    }
+#endif // !SWIFT_PACKAGE
 
     if ([self isBlock:options[@"beforeSendSpan"]]) {
         sentryOptions.beforeSendSpan = options[@"beforeSendSpan"];
@@ -276,11 +280,6 @@
     [self setBool:options[@"enablePreWarmedAppStartTracing"]
             block:^(BOOL value) { sentryOptions.enablePreWarmedAppStartTracing = value; }];
 
-#    if !SDK_V9
-    [self setBool:options[@"enableAppHangTrackingV2"]
-            block:^(BOOL value) { sentryOptions.enableAppHangTrackingV2 = value; }];
-#    endif // !SDK_V9
-
     [self setBool:options[@"enableReportNonFullyBlockingAppHangs"]
             block:^(BOOL value) { sentryOptions.enableReportNonFullyBlockingAppHangs = value; }];
 
@@ -369,9 +368,6 @@
 #        pragma clang diagnostic ignored "-Wdeprecated-declarations"
     [self setBool:options[@"enableProfiling"]
             block:^(BOOL value) { sentryOptions.enableProfiling = value; }];
-
-    [self setBool:options[NSStringFromSelector(@selector(enableAppLaunchProfiling))]
-            block:^(BOOL value) { sentryOptions.enableAppLaunchProfiling = value; }];
 #        pragma clang diagnostic pop
 #    endif // !SDK_V9
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
@@ -381,6 +377,9 @@
 
     [self setBool:options[@"enableAutoBreadcrumbTracking"]
             block:^(BOOL value) { sentryOptions.enableAutoBreadcrumbTracking = value; }];
+
+    [self setBool:options[@"enablePropagateTraceparent"]
+            block:^(BOOL value) { sentryOptions.enablePropagateTraceparent = value; }];
 
     if ([options[@"tracePropagationTargets"] isKindOfClass:[NSArray class]]) {
         sentryOptions.tracePropagationTargets
@@ -398,12 +397,10 @@
     }
 
 #if SENTRY_HAS_METRIC_KIT
-    if (@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, *)) {
-        [self setBool:options[@"enableMetricKit"]
-                block:^(BOOL value) { sentryOptions.enableMetricKit = value; }];
-        [self setBool:options[@"enableMetricKitRawPayload"]
-                block:^(BOOL value) { sentryOptions.enableMetricKitRawPayload = value; }];
-    }
+    [self setBool:options[@"enableMetricKit"]
+            block:^(BOOL value) { sentryOptions.enableMetricKit = value; }];
+    [self setBool:options[@"enableMetricKitRawPayload"]
+            block:^(BOOL value) { sentryOptions.enableMetricKitRawPayload = value; }];
 #endif // SENTRY_HAS_METRIC_KIT
 
     [self setBool:options[@"enableSpotlight"]

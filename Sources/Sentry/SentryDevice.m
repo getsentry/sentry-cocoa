@@ -203,14 +203,12 @@ NSString *_Nullable sentry_getDeviceModel(void)
     return simulatedDeviceModelName;
 #else
 #    if defined(HW_PRODUCT)
-    if (@available(iOS 14, macOS 11, *)) {
-        NSString *model = getHardwareDescription(HW_PRODUCT);
-        if (model.length > 0) {
-            SENTRY_LOG_DEBUG(@"Model name using HW_PRODUCT: %@", model);
-            return model;
-        } else {
-            SENTRY_LOG_DEBUG(@"Model name from HW_PRODUCT was empty.");
-        }
+    NSString *model = getHardwareDescription(HW_PRODUCT);
+    if (model.length > 0) {
+        SENTRY_LOG_DEBUG(@"Model name using HW_PRODUCT: %@", model);
+        return model;
+    } else {
+        SENTRY_LOG_DEBUG(@"Model name from HW_PRODUCT was empty.");
     }
 #    endif // defined(HW_PRODUCT)
 

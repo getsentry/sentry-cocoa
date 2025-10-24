@@ -32,7 +32,7 @@
 #import "SentryCrashJSONCodecObjC.h"
 #import "SentryCrashNSErrorUtil.h"
 #import "SentryCrashReportFilterBasic.h"
-#import "SentryDependencyContainer.h"
+#import "SentrySwift.h"
 #import <objc/runtime.h>
 
 /** Max number of properties that can be defined for writing to the report */
@@ -40,8 +40,8 @@
 
 static CrashHandlerData *g_crashHandlerData;
 
-static void
-crashCallback(const SentryCrashReportWriter *writer)
+void
+sentry_crashCallback(const SentryCrashReportWriter *writer)
 {
     for (int i = 0; i < g_crashHandlerData->reportFieldsCount; i++) {
         ReportField *field = g_crashHandlerData->reportFields[i];
@@ -93,11 +93,11 @@ crashCallback(const SentryCrashReportWriter *writer)
 
 - (void)dealloc
 {
-    SentryCrash *handler = SentryDependencyContainer.sharedInstance.crashReporter;
+    SentryCrashSwift *handler = SentryDependencyContainer.sharedInstance.crashReporter;
     @synchronized(handler) {
         if (g_crashHandlerData == self.crashHandlerData) {
             g_crashHandlerData = NULL;
-            handler.onCrash = NULL;
+            [handler removeOnCrash];
         }
     }
 }
@@ -162,22 +162,22 @@ crashCallback(const SentryCrashReportWriter *writer)
 
 - (void)install:(NSString *)customCacheDirectory
 {
-    SentryCrash *handler = SentryDependencyContainer.sharedInstance.crashReporter;
+    SentryCrashSwift *handler = SentryDependencyContainer.sharedInstance.crashReporter;
     @synchronized(handler) {
         handler.basePath = customCacheDirectory;
         g_crashHandlerData = self.crashHandlerData;
-        handler.onCrash = crashCallback;
+        [handler setupOnCrash];
         [handler install];
     }
 }
 
 - (void)uninstall
 {
-    SentryCrash *handler = SentryDependencyContainer.sharedInstance.crashReporter;
+    SentryCrashSwift *handler = SentryDependencyContainer.sharedInstance.crashReporter;
     @synchronized(handler) {
         if (g_crashHandlerData == self.crashHandlerData) {
             g_crashHandlerData = NULL;
-            handler.onCrash = NULL;
+            [handler removeOnCrash];
         }
         [handler uninstall];
     }
@@ -204,8 +204,12 @@ crashCallback(const SentryCrashReportWriter *writer)
 
     sink = [SentryCrashReportFilterPipeline filterWithFilters:sink, nil];
 
-    SentryCrash *handler = SentryDependencyContainer.sharedInstance.crashReporter;
-    handler.sink = sink;
+    SentryCrashSwift *handler = SentryDependencyContainer.sharedInstance.crashReporter;
+    handler.sink =
+        [[SentryCrashReportFilterSwift alloc] initWithFilterReports:^(NSArray *_Nonnull array,
+            void (^_Nonnull completion)(NSArray *_Nullable, BOOL, NSError *_Nullable)) {
+            [sink filterReports:array onCompletion:completion];
+        }];
     [handler sendAllReportsWithCompletion:onCompletion];
 }
 

@@ -39,6 +39,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         init() {
             options = Options()
             options.dsn = SentryNetworkTrackerTests.dsnAsString
+            options.enablePropagateTraceparent = true
             sentryTask = URLSessionDataTaskMock(request: URLRequest(url: URL(string: options.dsn!)!))
             scope = Scope()
             client = TestClient(options: options)
@@ -915,6 +916,50 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertEqual(task.currentRequest?.allHTTPHeaderFields?["sentry-trace"] ?? "", "test")
     }
 
+    func testPropagateTraceparent() throws {
+        // Arrange
+        let sut = fixture.getSut()
+        let task = createDataTask()
+        let transaction = try XCTUnwrap(startTransaction() as? SentryTracer)
+
+        // Act
+        sut.urlSessionTaskResume(task)
+
+        // Assert
+        let children = try XCTUnwrap(Dynamic(transaction).children.asArray as? [SentrySpan])
+        let networkSpan = try XCTUnwrap(children.first)
+
+        let traceHeader = transaction.toTraceHeader()
+        let expectedTraceHeader = "00-\(traceHeader.traceId.sentryIdString)-\(networkSpan.spanId.sentrySpanIdString)-00"
+        XCTAssertEqual(task.currentRequest?.allHTTPHeaderFields?["traceparent"] ?? "", expectedTraceHeader)
+    }
+
+    func testPropagateTraceparent_WhenDisabled_NotAdded() throws {
+        // Arrange
+        let sut = fixture.getSut()
+        let task = createDataTask()
+        _ = try XCTUnwrap(startTransaction() as? SentryTracer)
+        fixture.options.enablePropagateTraceparent = false
+
+        // Act
+        sut.urlSessionTaskResume(task)
+
+        // Assert
+        XCTAssertNil(task.currentRequest?.allHTTPHeaderFields?["traceparent"])
+    }
+
+    func testDontOverrideTraceparent() {
+        let sut = fixture.getSut()
+        let task = createDataTask {
+            var request = $0
+            request.setValue("test", forHTTPHeaderField: "traceparent")
+            return request
+        }
+        sut.urlSessionTaskResume(task)
+
+        XCTAssertEqual(task.currentRequest?.allHTTPHeaderFields?["traceparent"] ?? "", "test")
+    }
+
     @available(*, deprecated)
     func testDefaultHeadersWhenDisabled() throws {
         let sut = fixture.getSut()
@@ -925,7 +970,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         sut.urlSessionTaskResume(task)
 
         let expectedTraceHeader = SentrySDKInternal.currentHub().scope.propagationContext.traceHeader.value()
-        let traceContext = TraceContext(trace: SentrySDKInternal.currentHub().scope.propagationContext.traceId, options: self.fixture.options, userSegment: self.fixture.scope.userObject?.segment, replayId: nil)
+        let traceContext = TraceContext(trace: SentrySDKInternal.currentHub().scope.propagationContext.traceId, options: self.fixture.options, replayId: nil)
         let expectedBaggageHeader = traceContext.toBaggage().toHTTPHeader(withOriginalBaggage: nil)
         XCTAssertEqual(task.currentRequest?.allHTTPHeaderFields?["baggage"] ?? "", expectedBaggageHeader)
         XCTAssertEqual(task.currentRequest?.allHTTPHeaderFields?["sentry-trace"] ?? "", expectedTraceHeader)
@@ -938,7 +983,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         sut.urlSessionTaskResume(task)
 
         let expectedTraceHeader = SentrySDKInternal.currentHub().scope.propagationContext.traceHeader.value()
-        let traceContext = TraceContext(trace: SentrySDKInternal.currentHub().scope.propagationContext.traceId, options: self.fixture.options, userSegment: self.fixture.scope.userObject?.segment, replayId: nil)
+        let traceContext = TraceContext(trace: SentrySDKInternal.currentHub().scope.propagationContext.traceId, options: self.fixture.options, replayId: nil)
         let expectedBaggageHeader = traceContext.toBaggage().toHTTPHeader(withOriginalBaggage: nil)
         XCTAssertEqual(task.currentRequest?.allHTTPHeaderFields?["baggage"] ?? "", expectedBaggageHeader)
         XCTAssertEqual(task.currentRequest?.allHTTPHeaderFields?["sentry-trace"] ?? "", expectedTraceHeader)

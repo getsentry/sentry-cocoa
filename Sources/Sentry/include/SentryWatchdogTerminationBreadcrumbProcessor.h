@@ -6,8 +6,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SentryWatchdogTerminationBreadcrumbProcessor : NSObject
 
+- (instancetype)initWithMaxBreadcrumbs:(NSInteger)maxBreadcrumbs;
+
 - (instancetype)initWithMaxBreadcrumbs:(NSInteger)maxBreadcrumbs
-                           fileManager:(SentryFileManager *)fileManager;
+                           fileManager:(SentryFileManager *_Nullable)fileManager;
 
 - (void)addSerializedBreadcrumb:(NSDictionary *)crumb;
 

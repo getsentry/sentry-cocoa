@@ -36,15 +36,5 @@ getDurationNs(uint64_t startTimestamp, uint64_t endTimestamp)
         return 0;
     }
 
-    uint64_t duration = endTimestamp - startTimestamp;
-    if (@available(macOS 10.12, iOS 10.0, tvOS 10.0, watchOS 3.0, *)) {
-        return duration;
-    }
-
-    static struct mach_timebase_info info;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{ SENTRY_ASYNC_SAFE_LOG_KERN_RETURN(mach_timebase_info(&info)); });
-    duration *= info.numer;
-    duration /= info.denom;
-    return duration;
+    return endTimestamp - startTimestamp;
 }

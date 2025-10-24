@@ -3,7 +3,6 @@
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
 #    import "SentryContinuousProfiler.h"
-#    import "SentryDependencyContainer.h"
 #    import "SentryFileManagerHelper.h"
 #    import "SentryInternalDefines.h"
 #    import "SentryLaunchProfiling.h"

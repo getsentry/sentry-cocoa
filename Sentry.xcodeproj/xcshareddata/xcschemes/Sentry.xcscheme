@@ -52,6 +52,9 @@
          <TestPlanReference
             reference = "container:Plans/Sentry_TestServer.xctestplan">
          </TestPlanReference>
+         <TestPlanReference
+            reference = "container:Plans/Sentry_Flaky.xctestplan">
+         </TestPlanReference>
       </TestPlans>
       <Testables>
          <TestableReference

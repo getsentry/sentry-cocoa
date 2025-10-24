@@ -61,6 +61,10 @@ public struct SentrySDKWrapper {
             )
             let defaultReplayQuality = options.sessionReplay.quality
             options.sessionReplay.quality = SentryReplayOptions.SentryReplayQuality(rawValue: (SentrySDKOverrides.SessionReplay.quality.stringValue as? NSString)?.integerValue ?? defaultReplayQuality.rawValue) ?? defaultReplayQuality
+
+            // Allow configuring unreliable environment protection via SDK override.
+            // Default to false for the sample app to allow testing on iOS 26+ with Liquid Glass.
+            options.experimental.enableSessionReplayInUnreliableEnvironment = SentrySDKOverrides.SessionReplay.enableInUnreliableEnvironment.boolValue
         }
 
 #if !os(tvOS)
@@ -108,9 +112,6 @@ public struct SentrySDKWrapper {
         options.screenshot.maskAllText = !SentrySDKOverrides.Screenshot.disableMaskAllText.boolValue
 
         options.attachViewHierarchy = !SentrySDKOverrides.Other.disableAttachViewHierarchy.boolValue
-      #if !SDK_V9
-        options.enableAppHangTrackingV2 = !SentrySDKOverrides.Performance.disableAppHangTrackingV2.boolValue
-      #endif // SDK_V9
 #endif // !os(macOS) && !os(watchOS)
 
         // disable during benchmarks because we run CPU for 15 seconds at full throttle which can trigger ANRs
@@ -157,10 +158,11 @@ public struct SentrySDKWrapper {
         }
 #endif // !os(macOS) && !os(tvOS) && !os(watchOS) && !os(visionOS)
 
+        options.enableLogs = true
+
         // Experimental features
         options.experimental.enableFileManagerSwizzling = !SentrySDKOverrides.Other.disableFileManagerSwizzling.boolValue
         options.experimental.enableUnhandledCPPExceptionsV2 = true
-        options.experimental.enableLogs = true
     }
 
     func configureInitialScope(scope: Scope, options: Options) -> Scope {
@@ -476,7 +478,6 @@ extension SentrySDKWrapper {
                 return NSNumber(value: samplerValue)
             }
         }
-        options.enableAppLaunchProfiling = !SentrySDKOverrides.Profiling.disableAppStartProfiling.boolValue
       #endif // !SDK_V9
 
         if !SentrySDKOverrides.Profiling.disableUIProfiling.boolValue {

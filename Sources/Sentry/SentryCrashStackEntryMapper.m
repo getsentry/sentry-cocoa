@@ -1,5 +1,4 @@
 #import "SentryCrashStackEntryMapper.h"
-#import "SentryDependencyContainer.h"
 #import "SentryFormatter.h"
 #import "SentryFrame.h"
 #import "SentrySwift.h"

@@ -189,9 +189,12 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
         }
 
         SentryBaggage *baggage = [[[SentryTracer getTracer:span] traceContext] toBaggage];
-        [SentryTracePropagation addBaggageHeader:baggage
-                                     traceHeader:[netSpan toTraceHeader]
-                                       toRequest:sessionTask];
+        [SentryTracePropagation
+                   addBaggageHeader:baggage
+                        traceHeader:[netSpan toTraceHeader]
+               propagateTraceparent:SentrySDKInternal.options.enablePropagateTraceparent
+            tracePropagationTargets:SentrySDKInternal.options.tracePropagationTargets
+                          toRequest:sessionTask];
 
         SENTRY_LOG_DEBUG(
             @"SentryNetworkTracker automatically started HTTP span for sessionTask: %@",
@@ -207,24 +210,15 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
     SentryPropagationContext *propagationContext
         = SentrySDKInternal.currentHub.scope.propagationContext;
 
-#if !SDK_V9
-    NSString *segment = nil;
-#    pragma clang diagnostic push
-#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    segment = SentrySDKInternal.currentHub.scope.userObject.segment;
-#    pragma clang diagnostic pop
-#endif
-
     SentryTraceContext *traceContext =
         [[SentryTraceContext alloc] initWithTraceId:propagationContext.traceId
                                             options:SentrySDKInternal.currentHub.client.options
-#if !SDK_V9
-                                        userSegment:segment
-#endif
                                            replayId:SentrySDKInternal.currentHub.scope.replayId];
 
     [SentryTracePropagation addBaggageHeader:[traceContext toBaggage]
                                  traceHeader:[propagationContext traceHeader]
+                        propagateTraceparent:SentrySDKInternal.options.enablePropagateTraceparent
+                     tracePropagationTargets:SentrySDKInternal.options.tracePropagationTargets
                                    toRequest:sessionTask];
 }
 

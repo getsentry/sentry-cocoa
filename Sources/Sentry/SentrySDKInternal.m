@@ -5,7 +5,6 @@
 #import "SentryBreadcrumb.h"
 #import "SentryClient+Private.h"
 #import "SentryCrash.h"
-#import "SentryDependencyContainer.h"
 #import "SentryHub+Private.h"
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"
@@ -28,7 +27,6 @@
 #endif // TARGET_OS_MAC
 
 #if SENTRY_HAS_UIKIT
-#    import "SentryUIViewControllerPerformanceTracker.h"
 #    if TARGET_OS_IOS
 #        import "SentryFeedbackAPI.h"
 #    endif // TARGET_OS_IOS
@@ -706,9 +704,12 @@ static NSDate *_Nullable startTimestamp = nil;
             @"properties, so you can also just remove those lines from your configuration "
             @"altogether) before attempting to start a continuous profiling session. This behavior "
             @"relies on deprecated options and will change in a future version.");
+#    else
+    if (options == nil) {
+        SENTRY_LOG_WARN(@"Cannot start profiling when options are nil.");
+#    endif
         return;
     }
-#    endif // !SDK_V9
 
     if (options.profiling != nil) {
         if (options.profiling.lifecycle == SentryProfileLifecycleTrace) {
@@ -774,9 +775,12 @@ static NSDate *_Nullable startTimestamp = nil;
             @"properties, so you can also just remove those lines from your configuration "
             @"altogether) before attempting to stop a continuous profiling session. This behavior "
             @"relies on deprecated options and will change in a future version.");
+#    else
+    if (options == nil) {
+        SENTRY_LOG_WARN(@"Cannot stop profiling when options are nil.");
+#    endif
         return;
     }
-#    endif // !SDK_V9
 
     if (options.profiling != nil && options.profiling.lifecycle == SentryProfileLifecycleTrace) {
         SENTRY_LOG_WARN(

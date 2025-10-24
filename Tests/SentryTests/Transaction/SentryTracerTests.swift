@@ -1313,7 +1313,7 @@ class SentryTracerTests: XCTestCase {
         let extra = serializedTransaction["extra"] as? [String: Any]
         let framesDelay = try XCTUnwrap(extra?["frames.delay"] as? NSNumber)
         
-        let expectedFrameDuration = slowFrameThreshold(displayLink.currentFrameRate.rawValue)
+        let expectedFrameDuration = SentryFramesTracker.slowFrameThreshold(displayLink.currentFrameRate.rawValue)
         let expectedDelay = displayLink.slowestSlowFrameDuration + displayLink.fastestFrozenFrameDuration - expectedFrameDuration * 2 as NSNumber
         
         XCTAssertEqual(framesDelay.doubleValue, expectedDelay.doubleValue, accuracy: 0.0001)
@@ -1354,15 +1354,6 @@ class SentryTracerTests: XCTestCase {
         let sut = fixture.getSut(finishMustBeCalled: true)
         fixture.dispatchQueue.invokeLastDispatchAfter()
         assertTransactionNotCaptured(sut)
-    }
-    
-    @available(*, deprecated)
-    func testSetExtra_ForwardsToSetData() {
-        let sut = fixture.getSut()
-        sut.setExtra(value: 0, key: "key")
-        
-        let data = sut.data as [String: Any]
-        XCTAssertEqual(0, data["key"] as? Int)
     }
     
     func testFinishForCrash_WithWaitForChildren_GetsFinished() {

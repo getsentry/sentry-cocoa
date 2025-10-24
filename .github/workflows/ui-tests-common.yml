@@ -40,11 +40,21 @@ on:
         required: false
         default: ""
         type: string
+      create_device:
+        description: "Whether to create the device for the given platform and OS version"
+        required: false
+        default: false
+        type: boolean
       device:
         description: "Device"
         required: false
         default: ""
         type: string
+      install_platforms:
+        description: "Whether to install the platforms"
+        required: false
+        default: false
+        type: boolean
       platform:
         description: "Additional platform to install"
         required: false
@@ -58,6 +68,7 @@ jobs:
   common-ui-tests:
     name: UI Tests Common
     runs-on: ${{ inputs.macos_version }}
+    timeout-minutes: 40
     steps:
       - uses: actions/checkout@v5
 
@@ -75,16 +86,35 @@ jobs:
           brew pin xcodegen
 
       - name: Select Xcode version
-        run: ./scripts/ci-select-xcode.sh "$XCODE_VERSION"
         env:
           XCODE_VERSION: ${{ inputs.xcode_version }}
-      - name: Install required platforms for Xcode 26
-        if: ${{ inputs.xcode_version == '26.0.1' }}
-        run: ./scripts/ci-install-xOS-26-platforms.sh --platforms "${{inputs.platform}}"
+        run: ./scripts/ci-select-xcode.sh "$XCODE_VERSION"
 
-      - name: Create simulator device for Xcode 26
-        if: ${{ inputs.xcode_version == '26.0.1' }}
-        run: ./scripts/ci-create-simulator.sh --platform "${{inputs.platform}}" --os-version "${{inputs.test-destination-os}}" --device-name "${{inputs.device}}"
+      - name: Install required platforms for Xcode 26
+        if: ${{ inputs.install_platforms }}
+        env:
+          PLATFORM: ${{ inputs.platform }}
+          OS_VERSION: ${{ inputs.test-destination-os }}
+        run: ./scripts/ci-install-platforms.sh --platforms "$PLATFORM" --os-version "$OS_VERSION"
+
+      - name: Create simulator device
+        if: ${{ inputs.create_device }}
+        env:
+          PLATFORM: ${{ inputs.platform }}
+          OS_VERSION: ${{ inputs.test-destination-os }}
+          DEVICE_NAME: ${{ inputs.device }}
+        run: ./scripts/ci-create-simulator.sh --platform "$PLATFORM" --os-version "$OS_VERSION" --device-name "$DEVICE_NAME"
+
+      # Boot created simulators to ensure they're ready before tests run
+      # Based on CircleCI forum comment, booting is especially important for Xcode 26: https://discuss.circleci.com/t/xcode-26-rc/54066/18
+      - name: Boot simulator
+        if: ${{ inputs.create_device && inputs.platform == 'iOS' }}
+        env:
+          XCODE_VERSION: ${{ inputs.xcode_version }}
+          DEVICE_NAME: ${{ inputs.device }}
+          OS_VERSION: ${{ inputs.test-destination-os }}
+        run: ./scripts/ci-boot-simulator.sh --xcode "$XCODE_VERSION" --device "$DEVICE_NAME" --os-version "$OS_VERSION"
+
       - run: make init-ci-build
         if: ${{ inputs.build_with_make }}
 
@@ -109,9 +139,11 @@ jobs:
       - name: Run Fastlane
         env:
           FASTLANE_COMMAND: ${{ inputs.fastlane_command }}
+          DEVICE: ${{ inputs.device }}
+          TEST_DESTINATION_OS: ${{ inputs.test-destination-os }}
         run: |
-          if [ -n "${{inputs.device}}" ] && [ -n "${{inputs.test-destination-os}}" ]; then
-            bundle exec fastlane "$FASTLANE_COMMAND" device:"${{inputs.device}} (${{inputs.test-destination-os}})"
+          if [ -n "$DEVICE" ] && [ -n "$TEST_DESTINATION_OS" ]; then
+            bundle exec fastlane "$FASTLANE_COMMAND" device:"$DEVICE ($TEST_DESTINATION_OS)"
           else
             bundle exec fastlane "$FASTLANE_COMMAND"
           fi

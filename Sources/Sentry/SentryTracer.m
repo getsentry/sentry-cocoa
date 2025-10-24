@@ -1,7 +1,5 @@
 #import "PrivateSentrySDKOnly.h"
 #import "SentryClient.h"
-#import "SentryDebugImageProvider+HybridSDKs.h"
-#import "SentryDependencyContainer.h"
 #import "SentryEvent+Private.h"
 #import "SentryHub+Private.h"
 #import "SentryInternalCDefines.h"
@@ -35,8 +33,6 @@
 #if SENTRY_HAS_UIKIT
 #    import "SentryAppStartMeasurement.h"
 #    import "SentryBuildAppStartSpans.h"
-#    import "SentryFramesTracker.h"
-#    import "SentryUIViewControllerPerformanceTracker.h"
 #endif // SENTRY_HAS_UIKIT
 
 NS_ASSUME_NONNULL_BEGIN
@@ -874,7 +870,7 @@ static BOOL appStartMeasurementRead;
     SentryFramesTracker *framesTracker = SentryDependencyContainer.sharedInstance.framesTracker;
     if (framesTracker.isRunning) {
         CFTimeInterval framesDelay = [framesTracker
-                getFramesDelay:self.startSystemTime
+             getFramesDelaySPI:self.startSystemTime
             endSystemTimestamp:SentryDependencyContainer.sharedInstance.dateProvider.systemTime]
                                          .delayDuration;
 
@@ -889,7 +885,9 @@ static BOOL appStartMeasurementRead;
             NSInteger slowFrames = currentFrames.slow - initSlowFrames;
             NSInteger frozenFrames = currentFrames.frozen - initFrozenFrames;
 
-            if (sentryShouldAddSlowFrozenFramesData(totalFrames, slowFrames, frozenFrames)) {
+            if ([SentryFramesTracker shouldAddSlowFrozenFramesDataWithTotalFrames:totalFrames
+                                                                       slowFrames:slowFrames
+                                                                     frozenFrames:frozenFrames]) {
                 [self setMeasurement:@"frames_total" value:@(totalFrames)];
                 [self setMeasurement:@"frames_slow" value:@(slowFrames)];
                 [self setMeasurement:@"frames_frozen" value:@(frozenFrames)];

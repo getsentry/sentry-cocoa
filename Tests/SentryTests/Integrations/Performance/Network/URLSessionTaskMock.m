@@ -1,5 +1,4 @@
 #import "URLSessionTaskMock.h"
-#import "SentryDependencyContainer.h"
 #import "SentrySwift.h"
 
 @implementation URLSessionDataTaskMock {

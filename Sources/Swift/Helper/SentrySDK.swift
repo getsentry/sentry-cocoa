@@ -37,7 +37,7 @@ import Foundation
             }
             let hub = SentryDependencyContainerSwiftHelper.currentHub()
             var batcher: SentryLogBatcher?
-            if let client = hub.getClient(), client.options.experimental.enableLogs {
+            if let client = hub.getClient(), client.options.enableLogs {
                 batcher = SentryLogBatcher(client: client, dispatchQueue: Dependencies.dispatchQueueWrapper)
             }
             let logger = SentryLogger(
@@ -257,7 +257,6 @@ import Foundation
     }
     
     #if os(iOS) && !SENTRY_NO_UIKIT
-    @available(iOS 13.0, *)
     @objc public static let feedback = {
       return SentryFeedbackAPI()
     }()

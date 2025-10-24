@@ -1,6 +1,6 @@
 #import "SentryByteCountFormatter.h"
 #import "SentryDefaultThreadInspector.h"
-#import "SentryFileIOTracker.h"
+#import "SentryFileIOTrackerHelper.h"
 #import "SentryNSFileManagerSwizzling.h"
 #import "SentryOptions.h"
 #import "SentrySpan.h"
@@ -56,8 +56,8 @@
     SentryOptions *options = [[SentryOptions alloc] init];
     options.experimental.enableFileManagerSwizzling = enableFileManagerSwizzling;
 
-    SentryDefaultThreadInspector *threadInspector =
-        [[SentryDefaultThreadInspector alloc] initWithOptions:options];
+    SentryThreadInspector *threadInspector =
+        [[SentryThreadInspector alloc] initWithOptions:options];
     id<SentryProcessInfoSource> processInfoWrapper =
         [SentryDependencyContainer.sharedInstance processInfoWrapper];
     self->tracker = [[SentryFileIOTracker alloc] initWithThreadInspector:threadInspector

@@ -1,7 +1,6 @@
 #import "SentrySessionInternal.h"
 #import "NSMutableDictionary+Sentry.h"
 #import "SentryDateUtils.h"
-#import "SentryDependencyContainer.h"
 #import "SentryLogC.h"
 #import "SentrySwift.h"
 

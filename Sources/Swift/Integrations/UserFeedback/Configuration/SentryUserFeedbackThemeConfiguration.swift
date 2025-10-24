@@ -5,7 +5,6 @@ import UIKit
 /**
  * Settings for overriding theming components for the User Feedback Widget and Form.
  */
-@available(iOS 13.0, *)
 @objcMembers
 public final class SentryUserFeedbackThemeConfiguration: NSObject {
     /**

@@ -1,17 +1,21 @@
 #import <SentryBaggage.h>
 #import <SentryLogC.h>
-#import <SentrySDK+Private.h>
 #import <SentrySwift.h>
 #import <SentryTraceHeader.h>
 #import <SentryTracePropagation.h>
 
+static NSString *const SENTRY_TRACEPARENT = @"traceparent";
+
 @implementation SentryTracePropagation
 
 + (void)addBaggageHeader:(SentryBaggage *)baggage
-             traceHeader:(SentryTraceHeader *)traceHeader
-               toRequest:(NSURLSessionTask *)sessionTask
+                traceHeader:(SentryTraceHeader *)traceHeader
+       propagateTraceparent:(BOOL)propagateTraceparent
+    tracePropagationTargets:(NSArray *)tracePropagationTargets
+                  toRequest:(NSURLSessionTask *)sessionTask
 {
-    if (![SentryTracePropagation sessionTaskRequiresPropagation:sessionTask]) {
+    if (![SentryTracePropagation sessionTaskRequiresPropagation:sessionTask
+                                        tracePropagationTargets:tracePropagationTargets]) {
         SENTRY_LOG_DEBUG(@"Not adding trace_id and baggage headers for %@",
             sessionTask.currentRequest.URL.absoluteString);
         return;
@@ -32,14 +36,10 @@
     // header.
     if ([sessionTask.currentRequest isKindOfClass:[NSMutableURLRequest class]]) {
         NSMutableURLRequest *currentRequest = (NSMutableURLRequest *)sessionTask.currentRequest;
-
-        if ([currentRequest valueForHTTPHeaderField:SENTRY_TRACE_HEADER] == nil) {
-            [currentRequest setValue:traceHeader.value forHTTPHeaderField:SENTRY_TRACE_HEADER];
-        }
-
-        if (baggageHeader.length > 0) {
-            [currentRequest setValue:baggageHeader forHTTPHeaderField:SENTRY_BAGGAGE_HEADER];
-        }
+        [SentryTracePropagation addHeaderFieldsToRequest:currentRequest
+                                             traceHeader:traceHeader
+                                           baggageHeader:baggageHeader
+                                    propagateTraceparent:propagateTraceparent];
     } else {
         // Even though NSURLSessionTask doesn't have 'setCurrentRequest', some subclasses
         // do. For those subclasses we replace the currentRequest with a mutable one with
@@ -48,14 +48,10 @@
         SEL setCurrentRequestSelector = NSSelectorFromString(@"setCurrentRequest:");
         if ([sessionTask respondsToSelector:setCurrentRequestSelector]) {
             NSMutableURLRequest *newRequest = [sessionTask.currentRequest mutableCopy];
-
-            if ([newRequest valueForHTTPHeaderField:SENTRY_TRACE_HEADER] == nil) {
-                [newRequest setValue:traceHeader.value forHTTPHeaderField:SENTRY_TRACE_HEADER];
-            }
-
-            if (baggageHeader.length > 0) {
-                [newRequest setValue:baggageHeader forHTTPHeaderField:SENTRY_BAGGAGE_HEADER];
-            }
+            [SentryTracePropagation addHeaderFieldsToRequest:newRequest
+                                                 traceHeader:traceHeader
+                                               baggageHeader:baggageHeader
+                                        propagateTraceparent:propagateTraceparent];
 
             void (*func)(id, SEL, id param)
                 = (void *)[sessionTask methodForSelector:setCurrentRequestSelector];
@@ -65,10 +61,34 @@
 }
 
 + (BOOL)sessionTaskRequiresPropagation:(NSURLSessionTask *)sessionTask
+               tracePropagationTargets:(NSArray *)tracePropagationTargets
 {
     return sessionTask.currentRequest != nil &&
         [SentryTracePropagation isTargetMatch:sessionTask.currentRequest.URL
-                                  withTargets:SentrySDKInternal.options.tracePropagationTargets];
+                                  withTargets:tracePropagationTargets];
+}
+
++ (void)addHeaderFieldsToRequest:(NSMutableURLRequest *)request
+                     traceHeader:(SentryTraceHeader *)traceHeader
+                   baggageHeader:(NSString *)baggageHeader
+            propagateTraceparent:(BOOL)propagateTraceparent
+{
+    if ([request valueForHTTPHeaderField:SENTRY_TRACE_HEADER] == nil) {
+        [request setValue:traceHeader.value forHTTPHeaderField:SENTRY_TRACE_HEADER];
+    }
+
+    if (propagateTraceparent && [request valueForHTTPHeaderField:SENTRY_TRACEPARENT] == nil) {
+
+        NSString *traceparent = [NSString stringWithFormat:@"00-%@-%@-%02x",
+            traceHeader.traceId.sentryIdString, traceHeader.spanId.sentrySpanIdString,
+            traceHeader.sampled == kSentrySampleDecisionYes ? 1 : 0];
+
+        [request setValue:traceparent forHTTPHeaderField:SENTRY_TRACEPARENT];
+    }
+
+    if (baggageHeader.length > 0) {
+        [request setValue:baggageHeader forHTTPHeaderField:SENTRY_BAGGAGE_HEADER];
+    }
 }
 
 + (BOOL)isTargetMatch:(NSURL *)URL withTargets:(NSArray *)targets
