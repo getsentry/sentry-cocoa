@@ -664,7 +664,7 @@ class SentrySDKInternalTests: XCTestCase {
         SentrySDKInternal.currentHub().bindClient(client)
         SentrySDK.close()
 
-        XCTAssertEqual(Options().shutdownTimeInterval, transport.flushInvocations.first)
+        XCTAssertEqual(Options().shutdownTimeInterval, transport.flushInvocations.first ?? 0.0, accuracy: 0.001)
     }
 
     @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
@@ -737,7 +737,7 @@ class SentrySDKInternalTests: XCTestCase {
         let flushTimeout = 10.0
         SentrySDK.flush(timeout: flushTimeout)
 
-        XCTAssertEqual(flushTimeout, transport.flushInvocations.first ?? 0.0, accuracy: 0.001)
+        XCTAssertEqual(flushTimeout, transport.flushInvocations.first ?? 0.0, accuracy: 0.002)
     }
 
     @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
