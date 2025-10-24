@@ -162,7 +162,7 @@ class SentryEnvelopeTests: XCTestCase {
     @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testInitSentryEnvelopeHeader_SetIdAndTraceState() {
         let eventId = SentryId()
-        let traceContext = TraceContext(trace: SentryId(), publicKey: "publicKey", releaseName: "releaseName", environment: "environment", transaction: "transaction", userSegment: nil, sampleRate: nil, sampled: nil, replayId: nil)
+        let traceContext = TraceContext(trace: SentryId(), publicKey: "publicKey", releaseName: "releaseName", environment: "environment", transaction: "transaction", sampleRate: nil, sampled: nil, replayId: nil)
         
         let envelopeHeader = SentryEnvelopeHeader(id: eventId, traceContext: traceContext)
         XCTAssertEqual(eventId, envelopeHeader.eventId)
