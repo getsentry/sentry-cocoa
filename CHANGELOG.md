@@ -35,6 +35,7 @@
 ### Improvements
 
 - Replace deprecated SCNetworkReachability with NWPathMonitor (#6019)
+- Increase attachment max size to 100MB
 
 ## 8.57.0
 
