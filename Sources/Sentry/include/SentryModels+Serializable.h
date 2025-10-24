@@ -1,4 +1,3 @@
-#if SDK_V9
 #    import "SentryBreadcrumb.h"
 #    import "SentryDebugMeta.h"
 #    import "SentryEnvelopeItemHeader.h"
@@ -24,11 +23,15 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-@interface SentryUser () <SentryInternalSerializable>
+// Since SentryEvent has Swift classes inherit from it, it needs a base
+// function with a unique name
+@interface SentryEvent ()
+
+- (NSDictionary<NSString *, id> *)serializeBaseEvent;
 
 @end
 
-@interface SentryEvent () <SentryInternalSerializable>
+@interface SentryUser () <SentryInternalSerializable>
 
 @end
 
@@ -58,8 +61,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SentryEnvelopeItemHeader () <SentryInternalSerializable>
 
-- (NSDictionary<NSString *, id> *)serialize;
-
 @end
 
 @interface SentryFrame () <SentryInternalSerializable>
@@ -75,8 +76,6 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 @interface SentryTraceContext () <SentryInternalSerializable>
-
-- (NSDictionary<NSString *, id> *)serialize;
 
 @end
 
@@ -97,5 +96,3 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 NS_ASSUME_NONNULL_END
-
-#endif // SDK_V9

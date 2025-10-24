@@ -32,12 +32,12 @@ import Foundation
         self.type = "replay_video"
     }
     
-    required convenience init() {
+    required convenience override init() {
         fatalError("init() has not been implemented")
     }
     
-    @_implementationOnly public override func serialize() -> [String: Any] {
-        var result = super.serialize()
+    public func serialize() -> [String: Any] {
+        var result = SentryPublicSerializer.serializeEvent(self)
         result["urls"] = urls
         result["replay_start_timestamp"] = replayStartTimestamp.timeIntervalSince1970
         result["replay_id"] = SentryEventSwiftHelper.getEventIdString(self)

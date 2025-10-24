@@ -6,9 +6,6 @@
 #else
 #    import <SentryDefines.h>
 #endif
-#if !SDK_V9
-#    import SENTRY_HEADER(SentrySerializable)
-#endif
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -24,11 +21,7 @@ NS_ASSUME_NONNULL_BEGIN
 /// }
 NS_SWIFT_NAME(Geo)
 @interface SentryGeo : NSObject
-#if !SDK_V9
-                       <SentrySerializable, NSCopying>
-#else
                        <NSCopying>
-#endif
 
 /**
  * Optional: Human readable city name.
