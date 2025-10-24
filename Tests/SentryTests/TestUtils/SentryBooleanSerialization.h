@@ -1,14 +1,14 @@
 #import <Foundation/Foundation.h>
 
-@protocol SentrySerializable;
+@protocol SentryInternalSerializable;
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface SentryBooleanSerialization : NSObject
 
-+ (void)testBooleanSerialization:(id<SentrySerializable>)serializable property:(NSString *)property;
++ (void)testBooleanSerialization:(id<SentryInternalSerializable>)serializable property:(NSString *)property;
 
-+ (void)testBooleanSerialization:(id<SentrySerializable>)serializable
++ (void)testBooleanSerialization:(id<SentryInternalSerializable>)serializable
                         property:(NSString *)property
               serializedProperty:(NSString *)serializedProperty;
 

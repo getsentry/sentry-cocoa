@@ -1,19 +1,19 @@
 #import "SentryBooleanSerialization.h"
-#import "SentrySerializable.h"
+#import "SentryInternalSerializable.h"
 #import <XCTest/XCTest.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryBooleanSerialization
 
-+ (void)testBooleanSerialization:(id<SentrySerializable>)serializable property:(NSString *)property
++ (void)testBooleanSerialization:(id<SentryInternalSerializable>)serializable property:(NSString *)property
 {
     [SentryBooleanSerialization testBooleanSerialization:serializable
                                                 property:property
                                       serializedProperty:property];
 }
 
-+ (void)testBooleanSerialization:(id<SentrySerializable>)serializable
++ (void)testBooleanSerialization:(id<SentryInternalSerializable>)serializable
                         property:(NSString *)property
               serializedProperty:(NSString *)serializedProperty
 {

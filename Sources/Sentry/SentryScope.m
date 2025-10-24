@@ -14,7 +14,7 @@
 #import "SentrySwift.h"
 #import "SentryTracer.h"
 #import "SentryTransactionContext.h"
-#import "SentryUser+Serialize.h"
+#import "SentryPublicSerializer.h"
 #import "SentryUser.h"
 
 NS_ASSUME_NONNULL_BEGIN

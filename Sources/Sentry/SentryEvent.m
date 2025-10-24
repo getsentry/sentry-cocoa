@@ -14,7 +14,7 @@
 #import "SentryStacktrace.h"
 #import "SentrySwift.h"
 #import "SentryThread.h"
-#import "SentryUser+Serialize.h"
+#import "SentryPublicSerializer.h"
 #import "SentryUser.h"
 
 #if SENTRY_HAS_METRIC_KIT
@@ -59,7 +59,7 @@ NS_ASSUME_NONNULL_BEGIN
     return self;
 }
 
-- (NSDictionary<NSString *, id> *)serialize
+- (NSDictionary<NSString *, id> *)serializeBaseEvent
 {
     if (nil == self.timestamp) {
         self.timestamp = [SentryDependencyContainer.sharedInstance.dateProvider date];

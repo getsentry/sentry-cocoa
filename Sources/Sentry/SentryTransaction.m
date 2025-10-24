@@ -5,6 +5,7 @@
 #import "SentryProfilingConditionals.h"
 #import "SentrySpan+Private.h"
 #import "SentrySwift.h"
+#import "SentryPublicSerializer.h"
 #import "SentryTransactionContext.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -26,7 +27,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSDictionary<NSString *, id> *)serialize
 {
     NSMutableDictionary<NSString *, id> *serializedData =
-        [[NSMutableDictionary alloc] initWithDictionary:[super serialize]];
+        [[NSMutableDictionary alloc] initWithDictionary:[SentryPublicSerializer serializeEvent:self]];
 
     NSMutableArray *serializedSpans = [[NSMutableArray alloc] init];
     for (id<SentrySpan> span in self.spans) {

@@ -1,6 +1,6 @@
 #import "SentryLevelMapper.h"
 #import "SentrySwift.h"
-#import "SentryUser+Serialize.h"
+#import "SentryPublicSerializer.h"
 #import <SentryBreadcrumb.h>
 #import <SentryCrashJSONCodec.h>
 #import <SentryCrashJSONCodecObjC.h>
@@ -24,7 +24,14 @@
 - (void)setUser:(nullable SentryUser *)user
 {
     [self syncScope:user
-        serialize:^{ return [user serialize]; }
+          serialize:^{
+        if (user)
+        {
+            return (NSDictionary<NSString *,id> * _Nullable) [SentryPublicSerializer serializeUser:(SentryUser *) user];
+        } else {
+            return (NSDictionary<NSString *,id> * _Nonnull) nil;
+        }
+    }
         syncToSentryCrash:^(const void *bytes) { sentrycrash_scopesync_setUser(bytes); }];
 }
 

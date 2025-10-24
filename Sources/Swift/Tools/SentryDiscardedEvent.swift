@@ -2,7 +2,7 @@ import Foundation
 
 @objcMembers
 @_spi(Private)
-public final class SentryDiscardedEvent: NSObject, SentrySerializable {
+public final class SentryDiscardedEvent: NSObject {
     
     let reason: String
     let category: String

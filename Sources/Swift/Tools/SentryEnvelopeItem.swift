@@ -28,7 +28,7 @@
      * Initializes an envelope item with an event.
      */
     @objc public convenience init(event: Event) {
-        var json = SentrySerializationSwift.data(withJSONObject: event.serialize())
+        var json = SentrySerializationSwift.data(withJSONObject: SentryPublicSerializer.serializeEvent(event))
         if json == nil {
             // We don't know what caused the serialization to fail.
             let errorEvent = Event()
@@ -45,7 +45,7 @@
             
             // We accept the risk that this simple serialization fails. Therefore we ignore the
             // error on purpose.
-            json = SentrySerializationSwift.data(withJSONObject: errorEvent.serialize())
+            json = SentrySerializationSwift.data(withJSONObject: SentryPublicSerializer.serializeEvent(errorEvent))
         }
             
             // event.type can be nil and the server infers error if there's a stack trace, otherwise

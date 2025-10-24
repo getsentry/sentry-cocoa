@@ -16,6 +16,8 @@ SENTRY_NO_INIT
 
 - (instancetype)initWithTrace:(SentryTracer *)trace children:(NSArray<id<SentrySpan>> *)children;
 
+- (NSDictionary<NSString *, id> *)serialize;
+
 @end
 
 NS_ASSUME_NONNULL_END

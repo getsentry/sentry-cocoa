@@ -6,7 +6,7 @@ import Foundation
  * @note Both name and version are required.
  * @see https://develop.sentry.dev/sdk/event-payloads/sdk/
  */
-@_spi(Private) @objc public final class SentrySdkInfo: NSObject, SentrySerializable {
+@_spi(Private) @objc public final class SentrySdkInfo: NSObject {
     
     @objc public static func global() -> Self {
         Self(withOptions: SentrySDKInternal.currentHub().getClient()?.options)

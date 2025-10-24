@@ -58,7 +58,7 @@
         }
         
         if let traceContext = envelope.header.traceContext {
-            serializedData["trace"] = traceContext.serialize()
+            serializedData["trace"] = SentryPublicSerializer.serializeTraceContext(traceContext)
         }
         
         if let sentAt = envelope.header.sentAt {
@@ -72,7 +72,7 @@
         let newLineData = Data("\n".utf8)
         for i in 0..<envelope.items.count {
             envelopeData.append(newLineData)
-            let serializedItemHeaderData = envelope.items[i].header.serialize()
+            let serializedItemHeaderData = SentryPublicSerializer.serializeEnvelopeHeader(envelope.items[i].header)
             guard let itemHeader = SentrySerializationSwift.data(withJSONObject: serializedItemHeaderData) else {
                 SentrySDKLog.error("Envelope item header cannot be converted to JSON.")
                 return nil
