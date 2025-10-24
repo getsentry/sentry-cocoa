@@ -13,6 +13,6 @@ class TestRedactOptions: SentryRedactOptions {
         self.maskAllText = maskAllText
         self.maskAllImages = maskAllImages
         self.maskedViewClasses = maskedViewClasses
-        self.unmaskedViewClasses = maskedViewClasses
+        self.unmaskedViewClasses = unmaskedViewClasses
     }
 }
