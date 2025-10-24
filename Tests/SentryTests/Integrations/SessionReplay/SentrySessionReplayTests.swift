@@ -80,9 +80,6 @@ class SentrySessionReplayTests: XCTestCase {
         let rootView = UIView()
         let replayMaker = TestReplayMaker()
         let cacheFolder = FileManager.default.temporaryDirectory
-        let environmentChecker = TestSessionReplayEnvironmentChecker(
-            mockedIsReliableReturnValue: true
-        )
 
         var breadcrumbs: [Breadcrumb]?
         var isFullSession = true
@@ -94,19 +91,14 @@ class SentrySessionReplayTests: XCTestCase {
 
         override init() {
             super.init()
-
-            // By default we are testing a reliable environment so all of the functionality is enabled
-            environmentChecker.mockIsReliableReturnValue(true)
         }
 
         func getSut(
             options: SentryReplayOptions = .init(sessionSampleRate: 0, onErrorSampleRate: 0),
-            experimentalOptions: SentryExperimentalOptions = .init(),
             touchTracker: SentryTouchTracker? = nil
         ) -> SentrySessionReplay {
             return SentrySessionReplay(
                 replayOptions: options,
-                experimentalOptions: experimentalOptions,
                 replayFolderPath: cacheFolder,
                 screenshotProvider: screenshotProvider,
                 replayMaker: replayMaker,
@@ -114,8 +106,7 @@ class SentrySessionReplayTests: XCTestCase {
                 touchTracker: touchTracker ?? SentryTouchTracker(dateProvider: dateProvider, scale: 0),
                 dateProvider: dateProvider,
                 delegate: self,
-                displayLinkWrapper: displayLink,
-                environmentChecker: environmentChecker
+                displayLinkWrapper: displayLink
             )
         }
         
@@ -564,48 +555,6 @@ class SentrySessionReplayTests: XCTestCase {
         sutIsDeallocatedAfterCallingMe()
         
         XCTAssertEqual(fixture.displayLink.invalidateInvocations.count, 1)
-    }
-
-    func testStart_withUnreliableEnvironment_withoutOverrideOptionEnabled_shouldNotStart() {
-        // -- Arrange --
-        let fixture = Fixture()
-        fixture.environmentChecker.mockIsReliableReturnValue(false)
-
-        let options = SentryReplayOptions(sessionSampleRate: 1.0, onErrorSampleRate: 1.0)
-        let experimentalOptions = SentryExperimentalOptions()
-        experimentalOptions.enableSessionReplayInUnreliableEnvironment = false
-
-        let sut = fixture.getSut(options: options, experimentalOptions: experimentalOptions)
-
-        // -- Act --
-        // Attempt to start session replay
-        sut.start(rootView: fixture.rootView, fullSession: true)
-
-        // -- Assert --
-        // Verify that session replay did not actually start
-        // (it should have been blocked by isInUnreliableEnvironment)
-        XCTAssertFalse(fixture.displayLink.isRunning())
-    }
-
-    func testStart_withUnreliableEnvironment_withOverrideOptionEnabled_shouldStart() {
-        // -- Arrange --
-        let fixture = Fixture()
-        fixture.environmentChecker.mockIsReliableReturnValue(false)
-
-        let options = SentryReplayOptions(sessionSampleRate: 1.0, onErrorSampleRate: 1.0)
-        let experimentalOptions = SentryExperimentalOptions()
-        experimentalOptions.enableSessionReplayInUnreliableEnvironment = true
-
-        let sut = fixture.getSut(options: options, experimentalOptions: experimentalOptions)
-
-        // -- Act --
-        // Attempt to start session replay
-        sut.start(rootView: fixture.rootView, fullSession: true)
-
-        // -- Assert --
-        // Verify that session replay started despite unreliable environment
-        // (override option is enabled)
-        XCTAssertTrue(fixture.displayLink.isRunning(), "Session replay should start when override option is enabled")
     }
 
     // MARK: - Helpers

@@ -5,7 +5,7 @@
     @objc public static let threadWrapper = SentryThreadWrapper()
     @objc public static let processInfoWrapper: SentryProcessInfoSource = ProcessInfo.processInfo
     static let infoPlistWrapper: SentryInfoPlistWrapperProvider = SentryInfoPlistWrapper()
-    @objc public static let sessionReplayEnvironmentChecker: SentrySessionReplayEnvironmentChecker = {
+    @objc public static var sessionReplayEnvironmentChecker: SentrySessionReplayEnvironmentCheckerProvider = {
         SentrySessionReplayEnvironmentChecker(infoPlistWrapper: Dependencies.infoPlistWrapper)
     }()
     @objc public static let dispatchQueueWrapper = SentryDispatchQueueWrapper()
