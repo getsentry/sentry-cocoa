@@ -57,16 +57,13 @@ final class SentryUIRedactBuilder {
             self.layerId = layerId
         }
 
-        func matches(viewClass: AnyClass, layerClass: AnyClass) -> Bool {
-            guard viewClass.description() == classId else {
-                return false
-            }
-            // If the redaction should only affect views with a specific layer, we need to check it.
-            // If no `layerId` is defined, we redact all instances of the view
-            guard let filterLayerClass = layerId else {
-                return true
-            }
-            return layerClass.description() == filterLayerClass
+        /// Initializes a new instance of the extended class identifier using a Swift class.
+        ///
+        /// - parameter class: The class.
+        /// - parameter layerId: The layer.
+        init(class: AnyClass, layer: AnyClass) {
+            self.classId = `class`.description()
+            self.layerId = layer.description()
         }
     }
 
@@ -97,7 +94,17 @@ final class SentryUIRedactBuilder {
     ///
     /// This set is configured as `private(set)` to allow modification only from within this class,
     /// while still allowing read access from tests. Same semantics as `ignoreClassesIdentifiers`.
-    private var redactClassesIdentifiers: Set<ClassIdentifier>
+    private var redactClassesIdentifiers: Set<ClassIdentifier> {
+        didSet {
+            rebuildOptimizedLookups()
+        }
+    }
+
+    /// Optimized lookup: class IDs that should be redacted without layer constraints
+    private var unconstrainedRedactClasses: Set<ClassIdentifier> = []
+    
+    /// Optimized lookup: class IDs with layer constraints (includes both classId and layerId)
+    private var constrainedRedactClasses: Set<ClassIdentifier> = []
 
     /// Initializes a new instance of the redaction process with the specified options.
     ///
@@ -192,14 +199,40 @@ final class SentryUIRedactBuilder {
         ignoreClassesIdentifiers = []
 #endif
         
-        redactClassesIdentifiers = redactClasses
-
         for type in options.unmaskedViewClasses {
             ignoreClassesIdentifiers.insert(ClassIdentifier(class: type))
         }
         
         for type in options.maskedViewClasses {
-            redactClassesIdentifiers.insert(ClassIdentifier(class: type))
+            redactClasses.insert(ClassIdentifier(class: type))
+        }
+        
+        redactClassesIdentifiers = redactClasses
+        
+        // didSet doesn't run during initialization, so we need to manually build the optimization structures
+        rebuildOptimizedLookups()
+    }
+
+    /// Rebuilds the optimized lookup structures from `redactClassesIdentifiers`.
+    ///
+    /// This method splits `redactClassesIdentifiers` into two sets for O(1) lookups:
+    /// - `unconstrainedRedactClasses`: Classes without layer constraints
+    /// - `constrainedRedactClasses`: Classes with specific layer constraints
+    ///
+    /// Called automatically by `didSet` when `redactClassesIdentifiers` is modified,
+    /// and manually during initialization (since `didSet` doesn't run during init).
+    private func rebuildOptimizedLookups() {
+        unconstrainedRedactClasses.removeAll()
+        constrainedRedactClasses.removeAll()
+        
+        for identifier in redactClassesIdentifiers {
+            if identifier.layerId == nil {
+                // No layer constraint - add to unconstrained set
+                unconstrainedRedactClasses.insert(ClassIdentifier(classId: identifier.classId))
+            } else {
+                // Has layer constraint - add full identifier
+                constrainedRedactClasses.insert(identifier)
+            }
         }
     }
 
@@ -216,14 +249,19 @@ final class SentryUIRedactBuilder {
     ///     If we ignore `UILabel` it would also expose `MyLabel` and `SuperSensitiveLabel`, which might not be what the user wants.
     ///
     /// This compares by string description to avoid touching Objective‑C class objects directly.
-    func containsIgnoreClass(_ classId: String) -> Bool {
+    func containsIgnoreClass(_ class: AnyClass) -> Bool {
+        return containsIgnoreClassId(ClassIdentifier(class: `class`))
+    }
+
+    /// Returns `true` if the provided class identifier is contained in the ignore list.
+    private func containsIgnoreClassId(_ id: ClassIdentifier) -> Bool {
         /// Edge case: ``UITextField`` uses an internal type of ``UITextFieldLabel`` for the placeholder, which should also be ignored
-        if classId == "UITextFieldLabel" {
+        if id.classId == "UITextFieldLabel" {
             return ignoreClassesIdentifiers.contains(ClassIdentifier(classId: "UITextField"))
         }
-        return ignoreClassesIdentifiers.contains(ClassIdentifier(classId: classId))
+        return ignoreClassesIdentifiers.contains(id)
     }
-    
+
     /// Returns `true` if the view class (and, when required, the backing layer class) matches
     /// one of the configured redact identifiers.
     ///
@@ -245,10 +283,20 @@ final class SentryUIRedactBuilder {
     /// - `UIImageView` will match the class rule; the final decision is refined by `shouldRedact(imageView:)`.
     func containsRedactClass(viewClass: AnyClass, layerClass: AnyClass) -> Bool {
         var currentClass: AnyClass? = viewClass
+        
         while let iteratorClass = currentClass {
-            if redactClassesIdentifiers.contains(where: { $0.matches(viewClass: iteratorClass, layerClass: layerClass) }) {
+            // Check if this class is in the unconstrained set (O(1) lookup)
+            // This matches any layer type
+            if unconstrainedRedactClasses.contains(ClassIdentifier(class: iteratorClass)) {
                 return true
             }
+            
+            // Check if this class+layer combination is in the constrained set (O(1) lookup)
+            // This only matches specific layer types
+            if constrainedRedactClasses.contains(ClassIdentifier(class: iteratorClass, layer: layerClass)) {
+                return true
+            }
+            
             currentClass = iteratorClass.superclass()
         }
         return false
@@ -343,7 +391,7 @@ final class SentryUIRedactBuilder {
     }
     
     private func shouldIgnore(view: UIView) -> Bool {
-        return SentryRedactViewHelper.shouldUnmask(view) || containsIgnoreClass(type(of: view).description()) || shouldIgnoreParentContainer(view)
+        return SentryRedactViewHelper.shouldUnmask(view) || containsIgnoreClassId(ClassIdentifier(class: type(of: view))) || shouldIgnoreParentContainer(view)
     }
 
     private func shouldIgnoreParentContainer(_ view: UIView) -> Bool {
@@ -533,7 +581,7 @@ final class SentryUIRedactBuilder {
         // But UISwitch is in the list of ignored class identifiers by default, because it uses
         // non-sensitive images. Therefore we want to ignore the subtree of UISwitch, unless
         // it was removed from the list of ignored classes
-        if viewTypeId == "UISwitch" && containsIgnoreClass(viewTypeId) {
+        if viewTypeId == "UISwitch" && containsIgnoreClassId(ClassIdentifier(classId: viewTypeId)) {
             return true
         }
         #endif // os(iOS)
