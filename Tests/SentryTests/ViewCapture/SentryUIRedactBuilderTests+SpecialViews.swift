@@ -299,7 +299,7 @@ class SentryUIRedactBuilderTests_SpecialViews: SentryUIRedactBuilderTests { // s
             XCTAssertNil(placeholderRegion.color)
             XCTAssertEqual(placeholderRegion.size, CGSize(width: 40, height: 40))
             XCTAssertEqual(placeholderRegion.type, .redact)
-            XCTAssertEqual(toolbarRegion.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 20, ty: 20))
+            XCTAssertEqual(placeholderRegion.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 20, ty: 20))
 
             let safariViewRegion = try XCTUnwrap(regions.element(at: 3)) // SFSafariView
             XCTAssertNil(safariViewRegion.color)

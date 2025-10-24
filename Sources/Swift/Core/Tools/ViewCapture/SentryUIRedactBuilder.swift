@@ -202,16 +202,26 @@ final class SentryUIRedactBuilder {
             redactClassesIdentifiers.insert(ClassIdentifier(class: type))
         }
     }
-    
+
     /// Returns `true` if the provided class type is contained in the ignore list.
     ///
+    /// - Note: This method does not check superclasses as we do in `containsRedactClass`, because it could unmask unwanted subclasses.
+    ///         Example:
+    ///
+    ///     ```
+    ///     class MyLabel: UILabel {}
+    ///     class SuperSensitiveLabel: UILabel {}
+    ///     ```
+    ///
+    ///     If we ignore `UILabel` it would also expose `MyLabel` and `SuperSensitiveLabel`, which might not be what the user wants.
+    ///
     /// This compares by string description to avoid touching Objective‑C class objects directly.
-    func containsIgnoreClass(_ ignoreClass: AnyClass) -> Bool {
+    func containsIgnoreClass(_ classId: String) -> Bool {
         /// Edge case: ``UITextField`` uses an internal type of ``UITextFieldLabel`` for the placeholder, which should also be ignored
-        if ignoreClass.description() == "UITextFieldLabel" {
-            return ignoreClassesIdentifiers.contains(where: { $0.classId == "UITextField" })
+        if classId == "UITextFieldLabel" {
+            return ignoreClassesIdentifiers.contains(ClassIdentifier(classId: "UITextField"))
         }
-        return ignoreClassesIdentifiers.contains(where: { $0.classId == ignoreClass.description() })
+        return ignoreClassesIdentifiers.contains(ClassIdentifier(classId: classId))
     }
     
     /// Returns `true` if the view class (and, when required, the backing layer class) matches
@@ -333,7 +343,7 @@ final class SentryUIRedactBuilder {
     }
     
     private func shouldIgnore(view: UIView) -> Bool {
-        return SentryRedactViewHelper.shouldUnmask(view) || containsIgnoreClass(type(of: view)) || shouldIgnoreParentContainer(view)
+        return SentryRedactViewHelper.shouldUnmask(view) || containsIgnoreClass(type(of: view).description()) || shouldIgnoreParentContainer(view)
     }
 
     private func shouldIgnoreParentContainer(_ view: UIView) -> Bool {
@@ -523,12 +533,10 @@ final class SentryUIRedactBuilder {
         // But UISwitch is in the list of ignored class identifiers by default, because it uses
         // non-sensitive images. Therefore we want to ignore the subtree of UISwitch, unless
         // it was removed from the list of ignored classes
-        if viewTypeId == UISwitch.self.description(), ignoreClassesIdentifiers.contains(
-            where: { $0.classId == UISwitch.self.description()
-            }) {
+        if viewTypeId == "UISwitch" && containsIgnoreClass(viewTypeId) {
             return true
         }
-        #endif
+        #endif // os(iOS)
         
         return false
     }

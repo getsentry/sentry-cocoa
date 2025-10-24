@@ -368,7 +368,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         let redactBuilder = try getSut().viewPhotographer.getRedactBuilder()
 
         // -- Assert --
-        XCTAssertTrue(redactBuilder.containsIgnoreClass(AnotherLabel.self))
+        XCTAssertTrue(redactBuilder.containsIgnoreClass("AnotherLabel"))
     }
     
     func testStop() throws {
