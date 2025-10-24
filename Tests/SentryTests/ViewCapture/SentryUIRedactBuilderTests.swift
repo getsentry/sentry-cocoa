@@ -25,6 +25,34 @@ import XCTest
 /// ```
 class SentryUIRedactBuilderTests: XCTestCase {
 
+    // MARK: - Properties
+    
+    /// Holds references to fake views that need manual disposal to avoid crashes in dealloc
+    /// 
+    /// Some deprecated views like UIWebView crash if their dealloc is called without proper
+    /// initialization. We keep strong references here and manually dispose of them in tearDown.
+    private var fakeViewsRequiringManualDisposal: [AnyObject] = []
+
+    // MARK: - Lifecycle
+    
+    override func tearDown() {
+        super.tearDown()
+        
+        // Remove fake views from their superviews to prevent reference cycle issues,
+        // but keep them in the fakeViewsRequiringManualDisposal array.
+        //
+        // We intentionally don't deallocate these views because their dealloc methods
+        // (e.g., UIWebView) expect internal state that was never initialized. Since these
+        // are test objects created only a few times during testing, retaining them is an
+        // acceptable trade-off to prevent crashes.
+        for view in fakeViewsRequiringManualDisposal {
+            if let uiView = view as? UIView {
+                uiView.removeFromSuperview()
+            }
+        }
+        // Note: We intentionally don't clear the array to keep the objects alive
+    }
+
     // MARK: - Helper Methods
 
     func createMaskedScreenshot(view: UIView, regions: [SentryRedactRegion]) -> UIImage {
@@ -34,8 +62,17 @@ class SentryUIRedactBuilderTests: XCTestCase {
 
     /// Creates a fake instance of a view for tests.
     ///
+    /// This function is used for views that cannot be instantiated normally (e.g., unavailable initializers).
+    /// It creates instances using low-level runtime APIs, bypassing proper initialization.
+    ///
+    /// **⚠️ Warning:** All fake views are kept alive to prevent crashes during deallocation.
+    /// Views created this way have incomplete internal state, and their dealloc methods may expect
+    /// state that was never initialized. Retaining them is an acceptable trade-off for test stability.
+    ///
+    /// - Parameter type: The UIView subclass type to cast to
+    /// - Parameter name: The class name to instantiate (e.g., "UIWebView")
     /// - Parameter frame: The frame to set for the created view
-    /// - Returns: The created view or `nil` if the type is absent
+    /// - Returns: The created view or `nil` if the class is unavailable
     func createFakeView<T: UIView>(type: T.Type, name: String, frame: CGRect) throws -> T? {
         // Obtain class at runtime – return nil if unavailable
         guard let viewClass = NSClassFromString(name) else {
@@ -51,6 +88,9 @@ class SentryUIRedactBuilderTests: XCTestCase {
         let m = try XCTUnwrap(class_getInstanceMethod(UIView.self, sel))
         let f = unsafeBitCast(method_getImplementation(m), to: InitWithFrame.self)
         _ = f(instance, sel, frame)
+
+        // Always store reference to prevent unsafe dealloc (see function documentation)
+        fakeViewsRequiringManualDisposal.append(instance)
 
         return instance
     }

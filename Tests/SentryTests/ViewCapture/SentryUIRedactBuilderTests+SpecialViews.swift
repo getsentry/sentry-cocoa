@@ -183,7 +183,8 @@ class SentryUIRedactBuilderTests_SpecialViews: SentryUIRedactBuilderTests { // s
     private func setupUIWebViewFixture() throws -> UIView {
         let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
 
-        // The UIWebView initializer are marked as unavailable, therefore we need to create a fake view
+        // The UIWebView initializers are marked as unavailable, so we use createFakeView.
+        // Note: All fake views are kept alive to prevent dealloc crashes (see createFakeView docs).
         let webView = try XCTUnwrap(createFakeView(
             type: UIView.self,
             name: "UIWebView",
