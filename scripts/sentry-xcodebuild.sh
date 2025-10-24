@@ -22,6 +22,7 @@ CONFIGURATION_OVERRIDE=""
 DERIVED_DATA_PATH=""
 TEST_SCHEME="Sentry"
 TEST_PLAN=""
+RESULT_BUNDLE_PATH="results.xcresult"
 
 usage() {
     echo "Usage: $0"
@@ -34,6 +35,7 @@ usage() {
     echo "  -D|--derived-data <path>        Derived data path"
     echo "  -s|--scheme <scheme>            Test scheme (default: Sentry)"
     echo "  -t|--test-plan <plan>           Test plan name (default: empty)"
+    echo "  -R|--result-bundle <path>       Result bundle path (default: results.xcresult)"
     exit 1
 }
 
@@ -74,6 +76,10 @@ while [[ $# -gt 0 ]]; do
             ;;
         -t|--test-plan)
             TEST_PLAN="$2"
+            shift 2
+            ;;
+        -R|--result-bundle)
+            RESULT_BUNDLE_PATH="$2"
             shift 2
             ;;
         *)
@@ -188,7 +194,7 @@ if [ $RUN_TEST_WITHOUT_BUILDING == true ]; then
         "${TEST_PLAN_ARGS[@]+${TEST_PLAN_ARGS[@]}}" \
         -configuration "$CONFIGURATION" \
         -destination "$DESTINATION" \
-        -resultBundlePath "results.xcresult" \
+        -resultBundlePath "$RESULT_BUNDLE_PATH" \
         test-without-building 2>&1 |
         tee raw-test-output.log |
         xcbeautify --report junit
