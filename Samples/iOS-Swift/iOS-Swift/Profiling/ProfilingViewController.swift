@@ -59,10 +59,6 @@ class ProfilingViewController: UIViewController, UITextFieldDelegate {
     }
 
     @IBAction func sampleRateEdited(_ sender: UITextField) {
-      #if !SDK_V9
-        var sampleRate = SentrySDKOverrides.Profiling.sampleRate
-        sampleRate.floatValue = getSampleRateOverride(field: sender)
-      #endif // !SDK_V9
     }
 
     @IBAction func tracesSampleRateEdited(_ sender: UITextField) {
@@ -77,11 +73,6 @@ class ProfilingViewController: UIViewController, UITextFieldDelegate {
 
     @IBAction func defineProfilesSampleRateToggled(_ sender: UISwitch) {
         sampleRateField.isEnabled = sender.isOn
-
-      #if !SDK_V9
-        var sampleRate = SentrySDKOverrides.Profiling.sampleRate
-        sampleRate.floatValue = getSampleRateOverride(field: sampleRateField)
-      #endif // !SDK_V9
     }
 
     @IBAction func defineTracesSampleRateToggled(_ sender: UISwitch) {
@@ -168,18 +159,6 @@ private extension ProfilingViewController {
 
     func optionsConfiguration() {
         guard let options = SentrySDKInternal.currentHub().getClient()?.options else { return }
-
-      #if !SDK_V9
-        if let sampleRate = options.profilesSampleRate {
-            sampleRateField.text = String(format: "%.2f", sampleRate.floatValue)
-            sampleRateField.isEnabled = true
-            profilesSampleRateSwitch.isOn = true
-        } else {
-            sampleRateField.isEnabled = false
-            sampleRateField.text = "nil"
-            profilesSampleRateSwitch.isOn = false
-        }
-      #endif // !SDK_V9
 
         if let sampleRate = options.tracesSampleRate {
             tracesSampleRateField.text = String(format: "%.2f", sampleRate.floatValue)

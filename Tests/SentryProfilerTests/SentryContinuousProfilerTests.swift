@@ -17,7 +17,6 @@ final class SentryContinuousProfilerTests: XCTestCase {
     override func setUp() {
         super.setUp()
         fixture = SentryProfileTestFixture()
-        fixture.options.profilesSampleRate = nil
     }
     
     override func tearDown() {
@@ -66,16 +65,6 @@ final class SentryContinuousProfilerTests: XCTestCase {
         event.environment = "event-environment"
         fixture.hub.capture(event: event)
         try performContinuousProfilingTest(expectedEnvironment: expectedEnvironment)
-    }
-
-    func testStartingContinuousProfilerWithSampleRateOne() throws {
-        fixture.options.profilesSampleRate = 1
-        try performContinuousProfilingTest()
-    }
-
-    func testStartingContinuousProfilerWithZeroSampleRate() throws {
-        fixture.options.profilesSampleRate = 0
-        try performContinuousProfilingTest()
     }
 
 #if !os(macOS)

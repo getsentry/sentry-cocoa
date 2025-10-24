@@ -84,7 +84,6 @@ class SentryProfileTestFixture {
         hub.bindClient(client)
         SentrySDKInternal.setCurrentHub(hub)
         
-        options.profilesSampleRate = 1.0
         options.tracesSampleRate = 1.0
         
         dispatchFactory.vendedSourceHandler = { eventHandler in

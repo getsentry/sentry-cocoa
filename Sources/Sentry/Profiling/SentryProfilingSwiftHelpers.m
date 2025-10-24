@@ -7,18 +7,10 @@
 #    import "SentrySamplerDecision.h"
 #    import "SentrySwift.h"
 
-#    if !SDK_V9
 BOOL
 sentry_isContinuousProfilingEnabled(SentryClient *client)
 {
     return [client.options isContinuousProfilingEnabled];
-}
-#    endif // !SDK_V9
-
-BOOL
-sentry_isContinuousProfilingV2Enabled(SentryClient *client)
-{
-    return [client.options isContinuousProfilingV2Enabled];
 }
 
 BOOL

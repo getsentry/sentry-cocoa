@@ -19,10 +19,7 @@ NS_ASSUME_NONNULL_BEGIN
 extern "C" {
 #endif
 
-#if !SDK_V9
 BOOL sentry_isContinuousProfilingEnabled(SentryClient *client);
-#endif // !SDK_V9
-BOOL sentry_isContinuousProfilingV2Enabled(SentryClient *client);
 BOOL sentry_isProfilingCorrelatedToTraces(SentryClient *client);
 SentryProfileOptions *_Nullable sentry_getProfiling(SentryClient *client);
 NSString *sentry_stringFromSentryID(SentryId *sentryID);

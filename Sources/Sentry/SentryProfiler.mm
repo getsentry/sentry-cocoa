@@ -55,7 +55,7 @@ sentry_isLaunchProfileCorrelatedToTraces(void)
 
     SentryProfileOptions *_Nullable nullableOptions = sentry_profileConfiguration.profileOptions;
     if (nil == nullableOptions) {
-        return !sentry_profileConfiguration.isContinuousV1;
+        return YES;
     }
     SentryProfileOptions *_Nonnull options
         = SENTRY_UNWRAP_NULLABLE(SentryProfileOptions, nullableOptions);
@@ -66,17 +66,6 @@ sentry_isLaunchProfileCorrelatedToTraces(void)
 void
 sentry_configureContinuousProfiling(SentryOptions *options)
 {
-#    if !SDK_V9
-    if (![options isContinuousProfilingEnabled]) {
-        if (options.configureProfiling != nil) {
-            SENTRY_LOG_WARN(@"In order to configure SentryProfileOptions you must remove "
-                            @"configuration of the older SentryOptions.profilesSampleRate, "
-                            @"SentryOptions.profilesSampler and/or SentryOptions.enableProfiling");
-        }
-        return;
-    }
-#    endif // !SDK_V9
-
     if (options.configureProfiling == nil) {
         SENTRY_LOG_DEBUG(@"Continuous profiling V2 configuration not set by SDK consumer, nothing "
                          @"to do here.");
@@ -143,7 +132,7 @@ sentry_sdkInitProfilerTasks(SentryOptions *options, SentryHub *hub)
             }
 #    endif // SENTRY_HAS_UIKIT
 
-            if (configurationFromLaunch.isContinuousV1 || v2LifecycleIsManual) {
+            if (v2LifecycleIsManual) {
                 SENTRY_LOG_DEBUG(@"Continuous manual launch profiles aren't stopped on calls to "
                                  @"SentrySDK.start, "
                                  @"not stopping profile.");

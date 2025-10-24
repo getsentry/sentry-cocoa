@@ -348,30 +348,6 @@
     [self setBool:options[@"enableCoreDataTracing"]
             block:^(BOOL value) { sentryOptions.enableCoreDataTracing = value; }];
 
-#if SENTRY_TARGET_PROFILING_SUPPORTED
-#    if !SDK_V9
-    if ([options[@"profilesSampleRate"] isKindOfClass:[NSNumber class]]) {
-#        pragma clang diagnostic push
-#        pragma clang diagnostic ignored "-Wdeprecated-declarations"
-        sentryOptions.profilesSampleRate = options[@"profilesSampleRate"];
-#        pragma clang diagnostic pop
-    }
-
-#        pragma clang diagnostic push
-#        pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    if ([self isBlock:options[@"profilesSampler"]]) {
-        sentryOptions.profilesSampler = options[@"profilesSampler"];
-    }
-#        pragma clang diagnostic pop
-
-#        pragma clang diagnostic push
-#        pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    [self setBool:options[@"enableProfiling"]
-            block:^(BOOL value) { sentryOptions.enableProfiling = value; }];
-#        pragma clang diagnostic pop
-#    endif // !SDK_V9
-#endif // SENTRY_TARGET_PROFILING_SUPPORTED
-
     [self setBool:options[@"sendClientReports"]
             block:^(BOOL value) { sentryOptions.sendClientReports = value; }];
 
