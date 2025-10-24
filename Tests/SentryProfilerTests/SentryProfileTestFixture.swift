@@ -57,7 +57,6 @@ class SentryProfileTestFixture {
         SentryDependencyContainer.sharedInstance().timerFactory = timeoutTimerFactory
         
         let image = DebugMeta()
-        image.name = "sentrytest"
         image.imageAddress = "0x0000000105705000"
         image.imageVmAddress = "0x0000000105705000"
         image.codeFile = "codeFile"

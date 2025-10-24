@@ -798,7 +798,7 @@ class SentryClientTests: XCTestCase {
             try assertValidErrorEvent(eventWithSessionArguments.event, error)
             XCTAssertEqual(fixture.session, eventWithSessionArguments.session)
             
-            let expectedTraceContext = TraceContext(trace: scope.propagationContext.traceId, options: Options(), userSegment: "segment", replayId: nil) 
+            let expectedTraceContext = TraceContext(trace: scope.propagationContext.traceId, options: Options(), replayId: nil)
             XCTAssertEqual(eventWithSessionArguments.traceContext?.traceId,
                            expectedTraceContext.traceId)
         }
@@ -2248,7 +2248,7 @@ private extension SentryClientTests {
     private func givenEventWithDebugMeta() -> Event {
         let event = Event(level: SentryLevel.fatal)
         let debugMeta = DebugMeta()
-        debugMeta.name = "Me"
+        debugMeta.codeFile = "Me"
         let debugMetas = [debugMeta]
         event.debugMeta = debugMetas
         return event
