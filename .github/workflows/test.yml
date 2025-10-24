@@ -396,7 +396,8 @@ jobs:
             --configuration TestCI \
             --scheme ${{matrix.scheme}}
 
-      ## Run Flaky Tests TestPlan which has a retry mechanism on failure.
+      # Run Flaky Tests TestPlan which has a retry mechanism on failure.
+      # We intentionally run these before the other test plan to fail early.
       # Use a separate result bundle name to avoid conflicts with the regular test run.
       # xcodebuild fails if a result bundle already exists at the target path.
       - name: Run Flaky Tests
