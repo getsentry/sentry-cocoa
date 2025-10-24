@@ -16,7 +16,8 @@ var products: [Product] = [
     .library(name: "Sentry-WithoutUIKitOrAppKit", targets: ["Sentry-WithoutUIKitOrAppKit", "SentryCppHelper"]),
     .library(name: "Sentry-WithoutUIKitOrAppKit-WithARM64e", targets: ["Sentry-WithoutUIKitOrAppKit-WithARM64e", "SentryCppHelper"]),
     .library(name: "SentrySwiftUI", targets: ["Sentry", "SentrySwiftUI", "SentryCppHelper"]),
-    .library(name: "SentryDistribution", targets: ["SentryDistribution"])
+    .library(name: "SentryDistribution", targets: ["SentryDistribution"]),
+    .library(name: "SentrySwiftLog", targets: ["Sentry", "SentrySwiftLog"])
 ]
 
 var targets: [Target] = [
@@ -45,21 +46,31 @@ var targets: [Target] = [
         url: "https://github.com/getsentry/sentry-cocoa/releases/download/8.57.0/Sentry-WithoutUIKitOrAppKit-WithARM64e.xcframework.zip",
         checksum: "00f0805426b3b3defbb9b3dd1a5ceab316cb43e6909764c0f1c54dd206304d02" //Sentry-WithoutUIKitOrAppKit-WithARM64e
     ),
-    .target (
+    .target(
         name: "SentrySwiftUI",
         dependencies: ["Sentry", "SentryInternal"],
         path: "Sources/SentrySwiftUI",
         exclude: ["SentryInternal/", "module.modulemap"],
         linkerSettings: [
             .linkedFramework("Sentry")
-        ]),
+        ]
+    ),
+    .target(
+        name: "SentrySwiftLog",
+        dependencies: ["Sentry", .product(name: "Logging", package: "swift-log")],
+        path: "Sources/SentrySwiftLog",
+        linkerSettings: [
+            .linkedFramework("Sentry")
+        ]
+    ),
     .target(
         name: "SentryInternal",
         path: "Sources/SentrySwiftUI",
         sources: [
             "SentryInternal/"
         ],
-        publicHeadersPath: "SentryInternal/"),
+        publicHeadersPath: "SentryInternal/"
+    ),
     .target(
         name: "SentryCppHelper",
         dependencies: ["Sentry"],
@@ -104,7 +115,7 @@ if let env = env, String(cString: env, encoding: .utf8) == "1" {
             name: "SentryObjc",
             dependencies: ["SentrySwift"],
             path: "Sources",
-            exclude: ["Sentry/SentryDummyPublicEmptyClass.m", "Sentry/SentryDummyPrivateEmptyClass.m", "Swift", "SentrySwiftUI", "Resources", "Configuration", "SentryCppHelper", "SentryDistribution", "SentryDistributionTests"],
+            exclude: ["Sentry/SentryDummyPublicEmptyClass.m", "Sentry/SentryDummyPrivateEmptyClass.m", "Swift", "SentrySwiftUI", "SentrySwiftLog", "Resources", "Configuration", "SentryCppHelper", "SentryDistribution", "SentryDistributionTests"],
             cSettings: [
                 .headerSearchPath("Sentry/include/HybridPublic"),
                 .headerSearchPath("Sentry"),
@@ -114,7 +125,9 @@ if let env = env, String(cString: env, encoding: .utf8) == "1" {
                 .headerSearchPath("SentryCrash/Installations"),
                 .headerSearchPath("SentryCrash/Reporting/Filters"),
                 .headerSearchPath("SentryCrash/Reporting/Filters/Tools"),
-                .define("SDK_V9")])
+                .define("SDK_V9")
+            ]
+        )
     ])
 }
 
@@ -122,6 +135,9 @@ let package = Package(
     name: "Sentry",
     platforms: [.iOS(.v15), .macOS(.v12), .tvOS(.v15), .watchOS(.v8)],
     products: products,
+    dependencies: [
+        .package(url: "https://github.com/apple/swift-log", from: "1.6.0")
+    ],
     targets: targets,
     cxxLanguageStandard: .cxx14
 )
