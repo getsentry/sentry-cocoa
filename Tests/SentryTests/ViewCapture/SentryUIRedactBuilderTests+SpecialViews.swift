@@ -154,7 +154,7 @@ class SentryUIRedactBuilderTests_SpecialViews: SentryUIRedactBuilderTests { // s
         let rootView = setupWKWebViewFixture()
 
         // -- Act --
-        let sut = getSut(maskAllText: true, maskAllImages: true)
+        let sut = getSut(maskAllText: false, maskAllImages: false)
         let result = sut.redactRegionsFor(view: rootView)
         let masked = createMaskedScreenshot(view: rootView, regions: result)
 
