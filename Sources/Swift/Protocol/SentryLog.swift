@@ -17,6 +17,10 @@ public final class SentryLog: NSObject {
     /// Numeric representation of the severity level (Int)
     public var severityNumber: NSNumber?
     
+    /// Creates a log entry with the specified level and message.
+    /// - Parameters:
+    ///   - level: The severity level of the log entry
+    ///   - body: The main log message content
     @objc public convenience init(
         level: Level,
         body: String
@@ -30,6 +34,11 @@ public final class SentryLog: NSObject {
         )
     }
     
+    /// Creates a log entry with the specified level, message, and attributes.
+    /// - Parameters:
+    ///   - level: The severity level of the log entry
+    ///   - body: The main log message content
+    ///   - attributes: A dictionary of structured attributes to add to the log entry
     @objc public convenience init(
         level: Level,
         body: String,
