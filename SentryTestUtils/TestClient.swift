@@ -166,8 +166,8 @@ public class TestClient: SentryClient {
         flushInvocations.record(timeout)
     }
     
-    public var captureLogsDataInvocations = Invocations<(data: Data, count: NSNumber)>()
-    public override func captureLogsData(_ data: Data, with count: NSNumber) {
-        captureLogsDataInvocations.record((data, count))
+    public var captureLogInvocations = Invocations<(log: SentryLog, scope: Scope)>()
+    public override func capture(log: SentryLog, scope: Scope) {
+        captureLogInvocations.record((log, scope))
     }
 }
