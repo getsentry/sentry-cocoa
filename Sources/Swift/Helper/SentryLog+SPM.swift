@@ -6,6 +6,17 @@ import Foundation
 // causing Swift-to-Objective-C bridging issues. These extensions work around that
 // by providing Swift-native methods and properties that use dynamic dispatch internally.
 
+@objc
+protocol HubSelectors {
+    func captureLog(_ log: SentryLog)
+    func captureLog(_ log: SentryLog, withScope: Scope)
+}
+
+@objc
+protocol ClientSelectors {
+    func captureLog(_ log: SentryLog, withScope: Scope)
+}
+
 #if SWIFT_PACKAGE
 
 /**
@@ -25,12 +36,6 @@ public extension Options {
         get { return value(forKey: "beforeSendLogDynamic") as? SentryBeforeSendLogCallback }
         set { setValue(newValue, forKey: "beforeSendLogDynamic") }
     }
-}
-
-@objc
-@_spi(Private) public protocol HubSelectors {
-    func captureLog(_ log: SentryLog)
-    func captureLog(_ log: SentryLog, withScope: Scope)
 }
 
 @objc
@@ -56,11 +61,6 @@ public extension SentryHub {
         // Use dynamic dispatch to work around bridging limitations
         perform(#selector(HubSelectors.captureLog(_:withScope:)), with: log, with: scope)
     }
-}
-
-@objc
-@_spi(Private) public protocol ClientSelectors {
-    func captureLog(_ log: SentryLog, withScope: Scope)
 }
 
 /// Extension to provide log capture methods for SPM builds.
