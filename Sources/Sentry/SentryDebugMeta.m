@@ -13,12 +13,10 @@ NS_ASSUME_NONNULL_BEGIN
 {
     NSMutableDictionary *serializedData = [NSMutableDictionary new];
 
-    serializedData[@"uuid"] = self.uuid;
     serializedData[@"debug_id"] = self.debugID;
     serializedData[@"type"] = self.type;
     serializedData[@"image_addr"] = self.imageAddress;
     serializedData[@"image_size"] = self.imageSize;
-    serializedData[@"name"] = [self.name lastPathComponent];
     serializedData[@"code_file"] = self.codeFile;
     serializedData[@"image_vmaddr"] = self.imageVmAddress;
 

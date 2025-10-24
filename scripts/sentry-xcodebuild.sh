@@ -1,6 +1,10 @@
 #!/bin/bash
 set -euxo pipefail
 
+# Disable SC1091 because it won't work with pre-commit
+# shellcheck source=./scripts/ci-utils.sh disable=SC1091
+source "$(cd "$(dirname "$0")" && pwd)/ci-utils.sh"
+
 # This is a helper script for GitHub Actions Matrix.
 # If we would specify the destinations in the GitHub Actions
 # Matrix, the name of the job would include the destination, which would
@@ -140,9 +144,9 @@ case $COMMAND in
     ;;
 esac
 
-
-
 if [ $RUN_BUILD == true ]; then
+    log_notice "Running xcodebuild build"
+    
     set -o pipefail && NSUnbufferedIO=YES xcodebuild \
         -workspace Sentry.xcworkspace \
         -scheme "$TEST_SCHEME" \
@@ -161,6 +165,8 @@ fi
 
 if [ $RUN_BUILD_FOR_TESTING == true ]; then
     # When no test plan is provided, we skip the -testPlan argument so xcodebuild uses the default test plan
+    log_notice "Running xcodebuild build-for-testing"
+
     set -o pipefail && NSUnbufferedIO=YES xcodebuild \
         -workspace Sentry.xcworkspace \
         -scheme "$TEST_SCHEME" \
@@ -174,7 +180,8 @@ fi
 
 if [ $RUN_TEST_WITHOUT_BUILDING == true ]; then
     # When no test plan is provided, we skip the -testPlan argument so xcodebuild uses the default test plan
-    
+    log_notice "Running xcodebuild test-without-building"
+
     set -o pipefail && NSUnbufferedIO=YES xcodebuild \
         -workspace Sentry.xcworkspace \
         -scheme "$TEST_SCHEME" \
@@ -186,3 +193,5 @@ if [ $RUN_TEST_WITHOUT_BUILDING == true ]; then
         tee raw-test-output.log |
         xcbeautify --report junit
 fi
+
+log_notice "Finished xcodebuild"
