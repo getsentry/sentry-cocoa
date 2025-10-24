@@ -1,3 +1,5 @@
+@_implementationOnly import _SentryPrivate
+
 @objc
 @_spi(Private) public final class SentryClientReport: NSObject, SentrySerializable {
     

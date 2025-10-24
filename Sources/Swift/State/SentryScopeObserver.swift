@@ -1,3 +1,5 @@
+@_implementationOnly import _SentryPrivate
+
 @_spi(Private) @objc public protocol SentryScopeObserver: NSObjectProtocol {
     func setUser(_ user: User?)
     func setTags(_ tags: [String: String]?)

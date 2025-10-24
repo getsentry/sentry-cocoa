@@ -1,8 +1,10 @@
-#if SDK_V9
-#    import "SentryEvent.h"
-#    import "SentrySerializable.h"
+#import "SentryEvent.h"
+#import "SentrySerializable.h"
+
+NS_ASSUME_NONNULL_BEGIN
 
 @interface SentryEvent () <SentrySerializable>
 
 @end
-#endif // SDK_V9
+
+NS_ASSUME_NONNULL_END

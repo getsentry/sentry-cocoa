@@ -1,8 +1,10 @@
-#if SDK_V9
-#    import "SentrySerializable.h"
-#    import "SentryUser.h"
+#import "SentrySerializable.h"
+#import "SentryUser.h"
+
+NS_ASSUME_NONNULL_BEGIN
 
 @interface SentryUser () <SentrySerializable>
 
 @end
-#endif // SDK_V9
+
+NS_ASSUME_NONNULL_END
