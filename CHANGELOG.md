@@ -11,6 +11,7 @@
 - Removes deprecated `setExtraValue` from SentrySpan (#5864)
 - Removes deprecated getStoreEndpoint (#5591)
 - Removes deprecated useSpan function (#5591)
+- Removes public SentrySerializable conformance from many public models (#5636, #5840, #5982)
 - Removes segment property on SentryUser, SentryBaggage, and SentryTraceContext (#5638)
 - Removes deprecated TraceContext initializers (#6348)
 - Removes deprecated user feedback API, this is replaced with the new feedback API (#5591)

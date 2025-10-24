@@ -1,3 +1,5 @@
+@_implementationOnly import _SentryPrivate
+
 @_spi(Private) public typealias SentryEventProcessor = (Event) -> Event?
 
 @_spi(Private) @objc public final class SentryGlobalEventProcessor: NSObject {

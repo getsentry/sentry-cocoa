@@ -1,22 +1,21 @@
-#if SDK_V9
-#    import "SentryBreadcrumb.h"
-#    import "SentryDebugMeta.h"
-#    import "SentryEnvelopeItemHeader.h"
-#    import "SentryEvent.h"
-#    import "SentryException.h"
-#    import "SentryFrame.h"
-#    import "SentryGeo.h"
-#    import "SentryInternalSerializable.h"
-#    import "SentryMechanism.h"
-#    import "SentryMechanismMeta.h"
-#    import "SentryMessage.h"
-#    import "SentryNSError.h"
-#    import "SentryRequest.h"
-#    import "SentryScope.h"
-#    import "SentryStacktrace.h"
-#    import "SentryThread.h"
-#    import "SentryTraceContext.h"
-#    import "SentryUser.h"
+#import "SentryBreadcrumb.h"
+#import "SentryDebugMeta.h"
+#import "SentryEnvelopeItemHeader.h"
+#import "SentryEvent.h"
+#import "SentryException.h"
+#import "SentryFrame.h"
+#import "SentryGeo.h"
+#import "SentryInternalSerializable.h"
+#import "SentryMechanism.h"
+#import "SentryMechanismMeta.h"
+#import "SentryMessage.h"
+#import "SentryNSError.h"
+#import "SentryRequest.h"
+#import "SentryScope.h"
+#import "SentryStacktrace.h"
+#import "SentryThread.h"
+#import "SentryTraceContext.h"
+#import "SentryUser.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -97,5 +96,3 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 NS_ASSUME_NONNULL_END
-
-#endif // SDK_V9
