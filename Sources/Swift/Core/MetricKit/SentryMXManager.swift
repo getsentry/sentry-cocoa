@@ -23,7 +23,7 @@ import MetricKit
     
     let disableCrashDiagnostics: Bool
     
-    public init(disableCrashDiagnostics: Bool = true) {
+    init(disableCrashDiagnostics: Bool = true) {
         self.disableCrashDiagnostics = disableCrashDiagnostics
     }
 

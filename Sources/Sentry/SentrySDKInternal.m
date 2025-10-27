@@ -5,7 +5,6 @@
 #import "SentryBreadcrumb.h"
 #import "SentryClient+Private.h"
 #import "SentryCrash.h"
-#import "SentryDependencyContainer.h"
 #import "SentryHub+Private.h"
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"
@@ -697,17 +696,10 @@ static NSDate *_Nullable startTimestamp = nil;
 + (void)startProfiler
 {
     SentryOptions *options = currentHub.client.options;
-#    if !SDK_V9
-    if (![options isContinuousProfilingEnabled]) {
-        SENTRY_LOG_WARN(
-            @"You must disable trace profiling by setting SentryOptions.profilesSampleRate and "
-            @"SentryOptions.profilesSampler to nil (which is the default initial value for both "
-            @"properties, so you can also just remove those lines from your configuration "
-            @"altogether) before attempting to start a continuous profiling session. This behavior "
-            @"relies on deprecated options and will change in a future version.");
+    if (options == nil) {
+        SENTRY_LOG_WARN(@"Cannot start profiling when options are nil.");
         return;
     }
-#    endif // !SDK_V9
 
     if (options.profiling != nil) {
         if (options.profiling.lifecycle == SentryProfileLifecycleTrace) {
@@ -738,12 +730,6 @@ static NSDate *_Nullable startTimestamp = nil;
     // check if we'd be stopping a launch profiler, because then we need to check the hydrated
     // configuration options, not the current ones
     if (sentry_profileConfiguration.isProfilingThisLaunch) {
-        if (sentry_profileConfiguration.isContinuousV1) {
-            SENTRY_LOG_DEBUG(@"Stopping continuous v1 launch profile.");
-            [SentryContinuousProfiler stop];
-            return;
-        }
-
         if (sentry_profileConfiguration.profileOptions == nil) {
             SENTRY_LOG_WARN(
                 @"The current profiler was started on app launch and was configured as a "
@@ -765,18 +751,10 @@ static NSDate *_Nullable startTimestamp = nil;
     }
 
     SentryOptions *options = currentHub.client.options;
-#    if !SDK_V9
-    if (![options isContinuousProfilingEnabled]) {
-        SENTRY_LOG_WARN(
-            @"You must disable trace profiling by setting SentryOptions.profilesSampleRate and "
-            @"SentryOptions.profilesSampler to nil (which is the default initial value for both "
-            @"properties, so you can also just remove those lines from your configuration "
-            @"altogether) before attempting to stop a continuous profiling session. This behavior "
-            @"relies on deprecated options and will change in a future version.");
+    if (options == nil) {
+        SENTRY_LOG_WARN(@"Cannot stop profiling when options are nil.");
         return;
     }
-#    endif // !SDK_V9
-
     if (options.profiling != nil && options.profiling.lifecycle == SentryProfileLifecycleTrace) {
         SENTRY_LOG_WARN(
             @"The profiling lifecycle is set to trace, so you cannot stop profile sessions "

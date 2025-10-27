@@ -61,12 +61,15 @@ jobs:
         working-directory: sentry-react-native
         run: npm i -g corepack
 
-      - uses: actions/setup-node@v5
+      - uses: actions/setup-node@v6
         with:
           node-version: 18
           cache: "yarn"
           cache-dependency-path: sentry-react-native/yarn.lock
       - run: ./sentry-cocoa/scripts/ci-select-xcode.sh 16.2
+
+      - name: Create simulator device for iOS 17.5
+        run: ./sentry-cocoa/scripts/ci-create-simulator.sh --platform "iOS" --os-version "17.5" --device-name "iPhone 15 Pro"
 
       - name: Install SDK JS Dependencies
         working-directory: sentry-react-native

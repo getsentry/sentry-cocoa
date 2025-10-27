@@ -100,10 +100,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
         self.reportAccessibilityIdentifier = YES;
         self.enableUserInteractionTracing = YES;
         self.idleTimeout = SentryTracerDefaultTimeout;
-        self.enablePreWarmedAppStartTracing = NO;
-#    if !SDK_V9
-        self.enableAppHangTrackingV2 = NO;
-#    endif // !SDK_V9
+        self.enablePreWarmedAppStartTracing = YES;
         self.enableReportNonFullyBlockingAppHangs = YES;
 #endif // SENTRY_HAS_UIKIT
 
@@ -120,15 +117,6 @@ NSString *const kSentryDefaultEnvironment = @"production";
         self.enableNetworkBreadcrumbs = YES;
         self.enableLogs = NO;
         self.tracesSampleRate = nil;
-#if SENTRY_TARGET_PROFILING_SUPPORTED
-#    if !SDK_V9
-        _enableProfiling = NO;
-#        pragma clang diagnostic push
-#        pragma clang diagnostic ignored "-Wdeprecated-declarations"
-        self.profilesSampleRate = SENTRY_INITIAL_PROFILES_SAMPLE_RATE;
-#        pragma clang diagnostic pop
-#    endif // !SDK_V9
-#endif // SENTRY_TARGET_PROFILING_SUPPORTED
         self.enableCoreDataTracing = YES;
         _enableSwizzling = YES;
         self.swizzleClassNameExcludes = [NSSet new];
@@ -293,73 +281,16 @@ sentry_isValidSampleRate(NSNumber *sampleRate)
 }
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-#    if !SDK_V9
-- (void)setProfilesSampleRate:(NSNumber *)profilesSampleRate
-{
-    if (profilesSampleRate == nil) {
-        _profilesSampleRate = nil;
-    } else if (sentry_isValidSampleRate(profilesSampleRate)) {
-        _profilesSampleRate = profilesSampleRate;
-    } else {
-        _profilesSampleRate = SENTRY_DEFAULT_PROFILES_SAMPLE_RATE;
-    }
-}
-
-- (BOOL)isProfilingEnabled
-{
-    return (_profilesSampleRate != nil && [_profilesSampleRate doubleValue] > 0)
-        || _profilesSampler != nil || _enableProfiling;
-}
 
 - (BOOL)isContinuousProfilingEnabled
 {
-#        pragma clang diagnostic push
-#        pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    // this looks a little weird with the `!self.enableProfiling` but that actually is the
-    // deprecated way to say "enable trace-based profiling", which necessarily disables continuous
-    // profiling as they are mutually exclusive modes
-    return _profilesSampleRate == nil && _profilesSampler == nil && !self.enableProfiling;
-#        pragma clang diagnostic pop
-}
-
-#    endif // !SDK_V9
-
-- (BOOL)isContinuousProfilingV2Enabled
-{
-#    if SDK_V9
     return _profiling != nil;
-#    else
-    return [self isContinuousProfilingEnabled] && _profiling != nil;
-#    endif // SDK_V9
 }
 
 - (BOOL)isProfilingCorrelatedToTraces
 {
-#    if SDK_V9
     return _profiling != nil && _profiling.lifecycle == SentryProfileLifecycleTrace;
-#    else
-    return ![self isContinuousProfilingEnabled]
-        || (_profiling != nil && _profiling.lifecycle == SentryProfileLifecycleTrace);
-#    endif // SDK_V9
 }
-
-#    if !SDK_V9
-- (void)setEnableProfiling_DEPRECATED_TEST_ONLY:(BOOL)enableProfiling_DEPRECATED_TEST_ONLY
-{
-#        pragma clang diagnostic push
-#        pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    self.enableProfiling = enableProfiling_DEPRECATED_TEST_ONLY;
-#        pragma clang diagnostic pop
-}
-
-- (BOOL)enableProfiling_DEPRECATED_TEST_ONLY
-{
-#        pragma clang diagnostic push
-#        pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    return self.enableProfiling;
-#        pragma clang diagnostic pop
-}
-#    endif // !SDK_V9
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 #if SENTRY_UIKIT_AVAILABLE
@@ -458,14 +389,9 @@ sentry_isValidSampleRate(NSNumber *sampleRate)
 }
 
 #if SENTRY_HAS_UIKIT
-- (BOOL)isAppHangTrackingV2Disabled
+- (BOOL)isAppHangTrackingDisabled
 {
-#    if SDK_V9
-    BOOL isV2Enabled = self.enableAppHangTracking;
-#    else
-    BOOL isV2Enabled = self.enableAppHangTrackingV2;
-#    endif // SDK_V9
-    return !isV2Enabled || self.appHangTimeoutInterval <= 0;
+    return !self.enableAppHangTracking || self.appHangTimeoutInterval <= 0;
 }
 #endif // SENTRY_HAS_UIKIT
 

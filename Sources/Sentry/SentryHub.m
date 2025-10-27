@@ -1,5 +1,4 @@
 #import "SentryClient+Private.h"
-#import "SentryDependencyContainer.h"
 #import "SentryEnvelopeItemHeader.h"
 #import "SentryEvent+Private.h"
 #import "SentryHub+Private.h"
@@ -455,14 +454,6 @@ NS_ASSUME_NONNULL_BEGIN
                                       withSampled:tracesSamplerDecision.decision
                                        sampleRate:tracesSamplerDecision.sampleRate
                                        sampleRand:tracesSamplerDecision.sampleRand];
-
-#if SENTRY_TARGET_PROFILING_SUPPORTED && !SDK_V9
-    if (![self.client.options isContinuousProfilingEnabled]) {
-        SentrySamplerDecision *profilesSamplerDecision = sentry_sampleTraceProfile(
-            samplingContext, tracesSamplerDecision, self.client.options);
-        configuration.profilesSamplerDecision = profilesSamplerDecision;
-    }
-#endif // SENTRY_TARGET_PROFILING_SUPPORTED && !SDK_V9
 
     SentryTracer *tracer = [[SentryTracer alloc] initWithTransactionContext:transactionContext
                                                                         hub:self

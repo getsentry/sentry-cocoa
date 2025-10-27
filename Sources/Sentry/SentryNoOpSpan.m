@@ -43,10 +43,6 @@ NS_ASSUME_NONNULL_BEGIN
 {
 }
 
-- (void)setExtraValue:(nullable id)value forKey:(NSString *)key
-{
-}
-
 - (void)removeDataForKey:(NSString *)key
 {
 }

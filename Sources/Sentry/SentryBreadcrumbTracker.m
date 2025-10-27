@@ -3,7 +3,6 @@
 #import "SentryBreadcrumbDelegate.h"
 #import "SentryClient.h"
 #import "SentryDefines.h"
-#import "SentryDependencyContainer.h"
 #import "SentryHub.h"
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"

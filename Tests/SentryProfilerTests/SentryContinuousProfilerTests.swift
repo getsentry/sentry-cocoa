@@ -17,7 +17,6 @@ final class SentryContinuousProfilerTests: XCTestCase {
     override func setUp() {
         super.setUp()
         fixture = SentryProfileTestFixture()
-        fixture.options.profilesSampleRate = nil
     }
     
     override func tearDown() {
@@ -68,27 +67,9 @@ final class SentryContinuousProfilerTests: XCTestCase {
         try performContinuousProfilingTest(expectedEnvironment: expectedEnvironment)
     }
 
-    func testStartingContinuousProfilerWithSampleRateOne() throws {
-        fixture.options.profilesSampleRate = 1
-        try performContinuousProfilingTest()
-    }
-
-    func testStartingContinuousProfilerWithZeroSampleRate() throws {
-        fixture.options.profilesSampleRate = 0
-        try performContinuousProfilingTest()
-    }
-
 #if !os(macOS)
 
-    func testStopsFramesTracker_WhenAutoPerformanceAndAppHangsV2Disabled() throws {
-        fixture.options.enableAutoPerformanceTracing = false
-        try performContinuousProfilingTest()
-
-        XCTAssertFalse(SentryDependencyContainer.sharedInstance().framesTracker.isRunning)
-    }
-
     func testDoesNotStopFramesTracker_WhenAppHangsV2Enabled() throws {
-        fixture.options.enableAppHangTrackingV2 = true
         try performContinuousProfilingTest()
 
         XCTAssertTrue(SentryDependencyContainer.sharedInstance().framesTracker.isRunning)

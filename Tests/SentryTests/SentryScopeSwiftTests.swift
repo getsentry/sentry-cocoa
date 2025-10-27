@@ -32,7 +32,6 @@ class SentryScopeSwiftTests: XCTestCase {
             user.email = "user@sentry.io"
             user.username = "user123"
             user.ipAddress = "127.0.0.1"
-            user.segment = "segmentA"
             user.name = "User"
             user.ipAddress = ipAddress
             
@@ -696,7 +695,7 @@ class SentryScopeSwiftTests: XCTestCase {
     
     func testModifyScopeFromDifferentThreads() {
         let scope = Scope()
-        scope.add(SentryCrashScopeObserver(maxBreadcrumbs: 100))
+        scope.add(SentryCrashScopeHelper.getScopeObserver(withMaxBreacdrumb: 100))
         
         testConcurrentModifications(asyncWorkItems: 10, writeLoopCount: 1_000, writeWork: { i in
             let user = User()
@@ -806,8 +805,8 @@ class SentryScopeSwiftTests: XCTestCase {
             self.extras = extras
         }
         
-        var context: [String: Any]?
-        func setContext(_ context: [String: Any]?) {
+        var context: [String: [String: Any]]?
+        func setContext(_ context: [String: [String: Any]]?) {
             self.context = context
         }
         

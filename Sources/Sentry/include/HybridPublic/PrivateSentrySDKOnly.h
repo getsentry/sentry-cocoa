@@ -50,26 +50,6 @@ typedef void (^SentryOnAppStartMeasurementAvailable)(
  */
 + (nullable SentryEnvelope *)envelopeWithData:(NSData *)data;
 
-#if !SDK_V9
-/**
- * Returns the current list of debug images. Be aware that the @c SentryDebugMeta is actually
- * describing a debug image.
- * @warning This assumes a crash has occurred and attempts to read the crash information from each
- * image's data segment, which may not be present or be invalid if a crash has not actually
- * occurred. To avoid this, use the new @c +[getDebugImagesCrashed:] instead.
- */
-+ (NSArray<SentryDebugMeta *> *)getDebugImages;
-
-/**
- * Returns the current list of debug images. Be aware that the @c SentryDebugMeta is actually
- * describing a debug image.
- * @param isCrash @c YES if we're collecting binary images for a crash report, @c NO if we're
- * gathering them for other backtrace information, like a performance transaction. If this is for a
- * crash, each image's data section crash info is also included.
- */
-+ (NSArray<SentryDebugMeta *> *)getDebugImagesCrashed:(BOOL)isCrash;
-#endif // !SDK_V9
-
 /**
  * Override SDK information.
  */

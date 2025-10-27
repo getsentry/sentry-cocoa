@@ -49,8 +49,7 @@ public class SentryFramesTracker: NSObject {
     private static let frozenFrameThreshold: CFTimeInterval = 0.7
     private static let previousFrameInitialValue: CFTimeInterval = -1
 
-    @objc
-    public init(
+    init(
         displayLinkWrapper: SentryDisplayLinkWrapper,
         dateProvider: SentryCurrentDateProvider,
         dispatchQueueWrapper: SentryDispatchQueueWrapper,
@@ -140,7 +139,7 @@ public class SentryFramesTracker: NSObject {
 #endif
     }
 
-    @objc public func getFramesDelay(
+    func getFramesDelay(
         _ startSystemTimestamp: UInt64,
         endSystemTimestamp: UInt64
     ) -> SentryFramesDelayResult {
@@ -150,6 +149,14 @@ public class SentryFramesTracker: NSObject {
             isRunning: isRunning,
             slowFrameThreshold: Self.slowFrameThreshold(currentFrameRate)
         )
+    }
+    
+    @objc public func getFramesDelaySPI(
+        _ startSystemTimestamp: UInt64,
+        endSystemTimestamp: UInt64
+    ) -> SentryFramesDelayResultSPI {
+        let result = getFramesDelay(startSystemTimestamp, endSystemTimestamp: endSystemTimestamp)
+        return .init(delayDuration: result.delayDuration, framesContributingToDelayCount: result.framesContributingToDelayCount)
     }
 
     @objc public func addListener(_ listener: SentryFramesTrackerListener) {

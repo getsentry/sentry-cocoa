@@ -18,6 +18,12 @@
 @implementation SentryWatchdogTerminationBreadcrumbProcessor
 
 - (instancetype)initWithMaxBreadcrumbs:(NSInteger)maxBreadcrumbs
+{
+    return [self initWithMaxBreadcrumbs:maxBreadcrumbs
+                            fileManager:SentryDependencyContainer.sharedInstance.fileManager];
+}
+
+- (instancetype)initWithMaxBreadcrumbs:(NSInteger)maxBreadcrumbs
                            fileManager:(SentryFileManager *_Nullable)fileManager
 {
     if (self = [super init]) {

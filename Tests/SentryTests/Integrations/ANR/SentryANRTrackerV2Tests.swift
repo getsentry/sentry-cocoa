@@ -3,6 +3,7 @@
 import XCTest
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+
 class SentryANRTrackerV2Tests: XCTestCase {
     
     private let waitTimeout: TimeInterval = 10.0
@@ -30,12 +31,12 @@ class SentryANRTrackerV2Tests: XCTestCase {
             displayLinkWrapper.normalFrame()
         }
         
-        return (SentryANRTrackerV2(
+        return (SentryANRTracker(helper: SentryANRTrackerV2(
             timeoutInterval: timeoutInterval,
             crashWrapper: crashWrapper,
             dispatchQueueWrapper: dispatchQueue,
             threadWrapper: threadWrapper,
-            framesTracker: framesTracker) as! SentryANRTracker, currentDate, displayLinkWrapper, crashWrapper, threadWrapper, framesTracker)
+            framesTracker: framesTracker)), currentDate, displayLinkWrapper, crashWrapper, threadWrapper, framesTracker)
     }
     
     /// When no frame gets rendered its a fully blocking app hang.
@@ -447,7 +448,7 @@ class SentryANRTrackerV2Tests: XCTestCase {
         
         triggerFullyBlockingAppHang(currentDate)
         
-        let listeners = Dynamic(sut).listeners.asObject as? NSHashTable<NSObject>
+        let listeners = Dynamic(sut.helper).listeners.asObject as? NSHashTable<NSObject>
         
         XCTAssertGreaterThan(addListenersCount, listeners?.count ?? addListenersCount)
         

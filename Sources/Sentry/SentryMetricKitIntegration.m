@@ -9,7 +9,6 @@
 #    import <Foundation/Foundation.h>
 #    import <SentryAttachment.h>
 #    import <SentryDebugMeta.h>
-#    import <SentryDependencyContainer.h>
 #    import <SentryEvent.h>
 #    import <SentryException.h>
 #    import <SentryFormatter.h>

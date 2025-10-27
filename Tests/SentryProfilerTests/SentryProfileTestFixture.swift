@@ -1,12 +1,12 @@
 import _SentryPrivate
 @_spi(Private) @testable import Sentry
-@_spi(Private) import SentryTestUtils
+@_spi(Private) @testable import SentryTestUtils
 import XCTest
 
 #if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
 
 #if !os(macOS)
-class TestDelayedWrapper: SentryDelayedFramesTracker, SentryDelayedFramesTrackerWrapper {}
+class TestDelayedWrapper: SentryDelayedFramesTracker {}
 #endif // !os(macOS)
 
 class SentryProfileTestFixture {
@@ -57,7 +57,6 @@ class SentryProfileTestFixture {
         SentryDependencyContainer.sharedInstance().timerFactory = timeoutTimerFactory
         
         let image = DebugMeta()
-        image.name = "sentrytest"
         image.imageAddress = "0x0000000105705000"
         image.imageVmAddress = "0x0000000105705000"
         image.codeFile = "codeFile"
@@ -85,7 +84,6 @@ class SentryProfileTestFixture {
         hub.bindClient(client)
         SentrySDKInternal.setCurrentHub(hub)
         
-        options.profilesSampleRate = 1.0
         options.tracesSampleRate = 1.0
         
         dispatchFactory.vendedSourceHandler = { eventHandler in

@@ -2,7 +2,6 @@
 
 @_spi(Private) @objc public final class SentryEnvelope: NSObject {
     
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     @objc(initWithId:singleItem:) public convenience init(id: SentryId?, singleItem item: SentryEnvelopeItem) {
         self.init(header: SentryEnvelopeHeader(id: id), singleItem: item)
     }
@@ -11,18 +10,15 @@
         self.init(header: header, items: [item])
     }
     
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     @objc(initWithId:items:) public convenience init(id: SentryId?, items: [SentryEnvelopeItem]) {
         self.init(header: SentryEnvelopeHeader(id: id), items: items)
     }
     
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     convenience init(session: SentrySession) {
         let item = SentryEnvelopeItem(session: session)
         self.init(header: SentryEnvelopeHeader(id: nil), singleItem: item)
     }
     
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     convenience init(sessions: [SentrySession]) {
         let items = sessions.map { SentryEnvelopeItem(session: $0) }
         self.init(header: SentryEnvelopeHeader(id: nil), items: items)
@@ -33,7 +29,6 @@
         self.items = items
     }
 
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     convenience init(event: Event) {
         let item = SentryEnvelopeItem(event: event)
         let headerId = SentryEnvelopeHeaderHelper.headerId(from: event)

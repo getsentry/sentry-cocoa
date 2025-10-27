@@ -1,7 +1,6 @@
 #import "SentryBaggage.h"
 #import "SentryCrashThread.h"
 #import "SentryDefaultThreadInspector.h"
-#import "SentryDependencyContainer.h"
 #import "SentryFrame.h"
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"
@@ -43,9 +42,9 @@ NS_ASSUME_NONNULL_BEGIN
     SentryFramesTracker *_framesTracker;
 #endif // SENTRY_HAS_UIKIT
 
-#if SENTRY_TARGET_PROFILING_SUPPORTED && !SDK_V9
+#if SENTRY_TARGET_PROFILING_SUPPORTED
     BOOL _isContinuousProfiling;
-#endif //  SENTRY_TARGET_PROFILING_SUPPORTED && !SDK_V9
+#endif //  SENTRY_TARGET_PROFILING_SUPPORTED
 }
 
 - (instancetype)initWithContext:(SentrySpanContext *)context
@@ -92,10 +91,8 @@ NS_ASSUME_NONNULL_BEGIN
         _origin = context.origin;
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-#    if !SDK_V9
-        _isContinuousProfiling = [SentrySDKInternal.options isContinuousProfilingEnabled];
+        _isContinuousProfiling = SentrySDKInternal.options != nil;
         if (_isContinuousProfiling) {
-#    endif // !SDK_V9
             _profileSessionID = SentryContinuousProfiler.currentProfilerID.sentryIdString;
             if (_profileSessionID == nil) {
                 [SentryDependencyContainer.sharedInstance.notificationCenterWrapper
@@ -104,9 +101,7 @@ NS_ASSUME_NONNULL_BEGIN
                            name:kSentryNotificationContinuousProfileStarted
                          object:nil];
             }
-#    if !SDK_V9
         }
-#    endif // !SDK_V9
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
     }
 
@@ -133,16 +128,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)stopObservingContinuousProfiling
 {
-#    if !SDK_V9
     if (_isContinuousProfiling) {
-#    endif // !SDK_V9
         [SentryDependencyContainer.sharedInstance.notificationCenterWrapper
             removeObserver:self
                       name:kSentryNotificationContinuousProfileStarted
                     object:nil];
-#    if !SDK_V9
     }
-#    endif // !SDK_V9
 }
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
@@ -194,13 +185,6 @@ NS_ASSUME_NONNULL_BEGIN
         [_data setValue:value forKey:key];
     }
 }
-
-#if !SDK_V9
-- (void)setExtraValue:(nullable id)value forKey:(NSString *)key
-{
-    [self setDataValue:value forKey:key];
-}
-#endif // !SDK_V9
 
 - (void)removeDataForKey:(NSString *)key
 {
@@ -278,7 +262,7 @@ NS_ASSUME_NONNULL_BEGIN
 #if SENTRY_HAS_UIKIT
     if (_framesTracker.isRunning) {
         CFTimeInterval framesDelay = [_framesTracker
-                getFramesDelay:_startSystemTime
+             getFramesDelaySPI:_startSystemTime
             endSystemTimestamp:SentryDependencyContainer.sharedInstance.dateProvider.systemTime]
                                          .delayDuration;
 

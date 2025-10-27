@@ -3,7 +3,6 @@
 #if SENTRY_TARGET_REPLAY_SUPPORTED
 
 #    import "SentryClient+Private.h"
-#    import "SentryDependencyContainer.h"
 #    import "SentryEvent+Private.h"
 #    import "SentryHub+Private.h"
 #    import "SentryLogC.h"

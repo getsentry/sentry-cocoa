@@ -2,7 +2,6 @@
 #import "SentryBreadcrumb.h"
 #import "SentryClient.h"
 #import "SentryDebugMeta.h"
-#import "SentryDependencyContainer.h"
 #import "SentryEvent+Private.h"
 #import "SentryException.h"
 #import "SentryInternalDefines.h"

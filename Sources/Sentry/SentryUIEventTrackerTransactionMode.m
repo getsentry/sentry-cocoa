@@ -3,7 +3,6 @@
 #if SENTRY_HAS_UIKIT
 
 #    import "SentrySwift.h"
-#    import <SentryDependencyContainer.h>
 #    import <SentryHub+Private.h>
 #    import <SentryLogC.h>
 #    import <SentrySDK+Private.h>

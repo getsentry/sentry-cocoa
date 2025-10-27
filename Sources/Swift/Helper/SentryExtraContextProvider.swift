@@ -13,13 +13,13 @@
     #if (os(iOS) || targetEnvironment(macCatalyst)) && !SENTRY_NO_UIKIT
     private let deviceWrapper: SentryUIDeviceWrapper
 
-    @objc public init(crashWrapper: SentryCrashWrapper, processInfoWrapper: SentryProcessInfoSource, deviceWrapper: SentryUIDeviceWrapper) {
+    init(crashWrapper: SentryCrashWrapper, processInfoWrapper: SentryProcessInfoSource, deviceWrapper: SentryUIDeviceWrapper) {
         self.crashWrapper = crashWrapper
         self.processInfoWrapper = processInfoWrapper
         self.deviceWrapper = deviceWrapper
     }
     #else
-    @objc public init(crashWrapper: SentryCrashWrapper, processInfoWrapper: SentryProcessInfoSource) {
+    init(crashWrapper: SentryCrashWrapper, processInfoWrapper: SentryProcessInfoSource) {
         self.crashWrapper = crashWrapper
         self.processInfoWrapper = processInfoWrapper
     }

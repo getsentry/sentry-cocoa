@@ -5,9 +5,7 @@
 #import "SentryCrashDefaultMachineContextWrapper.h"
 #import "SentryCrashIntegration.h"
 #import "SentryCrashStackEntryMapper.h"
-#import "SentryDebugImageProvider+HybridSDKs.h"
 #import "SentryDefaultThreadInspector.h"
-#import "SentryDependencyContainer.h"
 #import "SentryDeviceContextKeys.h"
 #import "SentryDsn.h"
 #import "SentryEvent+Private.h"
@@ -421,18 +419,8 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     }
 
     if (event.error || event.exceptions.count > 0) {
-#if !SDK_V9
-        NSString *segment = nil;
-#    pragma clang diagnostic push
-#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
-        segment = scope.userObject.segment;
-#    pragma clang diagnostic pop
-#endif
         return [[SentryTraceContext alloc] initWithTraceId:scope.propagationContext.traceId
                                                    options:self.options
-#if !SDK_V9
-                                               userSegment:segment
-#endif
                                                   replayId:scope.replayId];
     }
 
@@ -521,11 +509,8 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     }
 
     SentryEnvelopeItem *item = [[SentryEnvelopeItem alloc] initWithSession:session];
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     SentryEnvelope *envelope = [[SentryEnvelope alloc] initWithHeader:[SentryEnvelopeHeader empty]
                                                            singleItem:item];
-#pragma clang diagnostic pop
     [self captureEnvelope:envelope];
 }
 
@@ -570,11 +555,8 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
     // Hybrid SDKs may override the sdk info for a replay Event,
     // the same SDK should be used for the envelope header.
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     SentrySdkInfo *sdkInfo = replayEvent.sdk ? [[SentrySdkInfo alloc] initWithDict:replayEvent.sdk]
                                              : [SentrySdkInfo global];
-#pragma clang diagnotsic pop
     SentryEnvelopeHeader *envelopeHeader =
         [[SentryEnvelopeHeader alloc] initWithId:replayEvent.eventId
                                          sdkInfo:sdkInfo
