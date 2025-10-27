@@ -10,6 +10,7 @@
 - Removes unused SentryLogLevel (#5591)
 - Removes deprecated `setExtraValue` from SentrySpan (#5864)
 - Removes deprecated getStoreEndpoint (#5591)
+- Remove legacy profiling, the only supported profiling is now what was known as continuous V2 (#6386)
 - Removes deprecated useSpan function (#5591)
 - The `span` property on `SentryScope` is now readonly (#5866)
 - Removes deprecated SentryDebugImageProvider class (#5598)
