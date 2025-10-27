@@ -631,11 +631,6 @@ static SentryTouchTracker *_touchTracker;
     self.sessionReplay.replayTags = [tags copy];
 }
 
-- (nullable SentryId *)replayId
-{
-    return self.sessionReplay.sessionReplayId;
-}
-
 - (SentryIntegrationOption)integrationOptions
 {
     return kIntegrationOptionEnableReplay;
