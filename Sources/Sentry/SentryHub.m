@@ -16,6 +16,7 @@
 #import "SentrySamplingContext.h"
 #import "SentryScope+Private.h"
 #import "SentrySerialization.h"
+#import "SentrySessionReplayIntegration+Private.h"
 #import "SentrySwift.h"
 #import "SentryTraceOrigin.h"
 #import "SentryTracer.h"
@@ -842,6 +843,18 @@ NS_ASSUME_NONNULL_BEGIN
     }
     return integrations;
 }
+
+#if SENTRY_TARGET_REPLAY_SUPPORTED
+- (NSString *__nullable)getSessionReplayId
+{
+    SentrySessionReplayIntegration *sessionReplay =
+        [self getInstalledIntegration:[SentrySessionReplayIntegration class]];
+    if (sessionReplay == nil) {
+        return nil;
+    }
+    return sessionReplay.replayId.sentryIdString;
+}
+#endif
 
 @end
 

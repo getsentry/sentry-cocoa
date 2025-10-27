@@ -798,13 +798,9 @@ final class SentryLoggerTests: XCTestCase {
     }
     
     func testReplayAttributes_BufferMode_AddsReplayIdAndBufferingFlag() {
-        // Setup replay integration with mock
-        let replayIntegration = TestSentrySessionReplayIntegration()
+        // Set up buffer mode: hub has an ID, but scope.replayId is nil
         let mockReplayId = SentryId()
-        replayIntegration.mockReplayId = mockReplayId
-        fixture.hub.addInstalledIntegration(replayIntegration, name: "SentrySessionReplayIntegration")
-        
-        // Set up buffer mode: sessionReplay has an ID, but scope.replayId is nil
+        fixture.hub.mockReplayId = mockReplayId.sentryIdString
         fixture.scope.replayId = nil
         
         sut.info("Test message")
@@ -826,18 +822,15 @@ final class SentryLoggerTests: XCTestCase {
     }
     
     func testReplayAttributes_BothSessionAndScopeReplayId_SessionMode() {
-        // Setup replay integration with mock
-        let replayIntegration = TestSentrySessionReplayIntegration()
+        // Session mode: scope has the ID, hub also has one
         let replayId = "12345678-1234-1234-1234-123456789012"
-        replayIntegration.mockReplayId = SentryId(uuidString: replayId)
-        fixture.hub.addInstalledIntegration(replayIntegration, name: "SentrySessionReplayIntegration")
-        
-        // Both IDs are set (session mode - scope has the same ID)
+        fixture.hub.mockReplayId = replayId
         fixture.scope.replayId = replayId
         
         sut.info("Test message")
         
         let log = getLastCapturedLog()
+        // Session mode should use scope's ID (takes precedence) and not add buffering flag
         XCTAssertEqual(log.attributes["sentry.replay_id"]?.value as? String, replayId)
         XCTAssertNil(log.attributes["sentry._internal.replay_is_buffering"])
     }
@@ -931,21 +924,6 @@ final class SentryLoggerTests: XCTestCase {
         return lastLog
     }
 }
-
-#if os(iOS) || os(tvOS)
-final class TestSentrySessionReplayIntegration: SentrySessionReplayIntegration {
-    var mockReplayId: SentryId?
-    
-    override var replayId: SentryId? {
-        return mockReplayId
-    }
-    
-    override func install(with options: Options) -> Bool {
-        // Don't do any real installation
-        return true
-    }
-}
-#endif
 
 final class TestLogBatcher: SentryLogBatcher {
     

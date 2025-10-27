@@ -1,5 +1,4 @@
 @_implementationOnly import _SentryPrivate
-@_spi(Private) import Sentry._Hybrid
 
 import Foundation
 
@@ -285,22 +284,14 @@ public final class SentryLogger: NSObject {
     
     private func addReplayAttributes(to attributes: inout [String: SentryLog.Attribute]) {
 #if os(iOS) || os(tvOS)
-        let scopeReplayId = hub.scope.replayId
-        
-        // Session mode: use scope replay ID
-        if let scopeReplayId = scopeReplayId {
+        if let scopeReplayId = hub.scope.replayId {
+            // Session mode: use scope replay ID
             attributes["sentry.replay_id"] = .init(string: scopeReplayId)
-            return
+        } else if let sessionReplayId = hub.getSessionReplayId() {
+            // Buffer mode: scope has no ID but integration does
+            attributes["sentry.replay_id"] = .init(string: sessionReplayId)
+            attributes["sentry._internal.replay_is_buffering"] = .init(boolean: true)
         }
-        
-        // Detect buffer mode: scope has no ID but integration does
-        guard let integration = hub.getInstalledIntegration(SentrySessionReplayIntegration.self),
-              let replayIntegration = integration as? SentrySessionReplayIntegration,
-              let replayId = replayIntegration.replayId else {
-            return
-        }
-        attributes["sentry.replay_id"] = .init(string: replayId.sentryIdString)
-        attributes["sentry._internal.replay_is_buffering"] = .init(boolean: true)
 #endif
     }
 }

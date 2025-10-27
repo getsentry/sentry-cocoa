@@ -56,4 +56,11 @@ public class TestHub: SentryHub {
         capturedReplayRecordingVideo.record((replayEvent, replayRecording, videoURL))
         onReplayCapture?()
     }
+    
+#if os(iOS) || os(tvOS)
+    public var mockReplayId: String?
+    public override func getSessionReplayId() -> String? {
+        return mockReplayId
+    }
+#endif
 }
