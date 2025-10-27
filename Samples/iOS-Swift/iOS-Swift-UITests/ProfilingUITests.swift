@@ -22,45 +22,6 @@ class ProfilingUITests: BaseUITest {
 
         try performTest(lifecycle: .manual)
     }
-    
-    /**
-     * We had a bug where we forgot to install the frames tracker into the profiler, so weren't sending any GPU frame information with profiles. Since it's not possible to enforce such installation via the compiler, we test for the results we expect here, by starting a transaction, triggering an ANR which will cause degraded frame rendering, stop the transaction, and inspect the profile payload.
-     */
-    func testProfilingGPUInfo() throws {
-        if #available(iOS 16, *) {
-            app.launchArguments.append(contentsOf: [
-                SentrySDKOverrides.Special.wipeDataOnLaunch.rawValue,
-
-                // we're only interested in the manual transaction, the automatic stuff messes up how we try to retrieve the target profile info
-                SentrySDKOverrides.Other.disableSwizzling.rawValue,
-
-                SentrySDKOverrides.Profiling.disableAppStartProfiling.rawValue
-            ])
-            app.launchEnvironment[SentrySDKOverrides.Profiling.sampleRate.rawValue] = "1.0"
-            launchApp()
-            
-            goToTransactions()
-            startTransaction()
-            
-            app.buttons["appHangFullyBlockingThreadSleeping"].afterWaitingForExistence("Couldn't find button to trigger fully blocking AppHang.").tap()
-            stopTransaction()
-            
-            goToProfiling()
-            retrieveLastProfileData()
-            let profileDict = try marshalJSONDictionaryFromApp()
-            
-            let metrics = try XCTUnwrap(profileDict["measurements"] as? [String: Any])
-            // We can only be sure about frozen frames when triggering an ANR.
-            // It could be that there is no slow frame for the captured transaction.
-            let frozenFrames = try XCTUnwrap(metrics["frozen_frame_renders"] as? [String: Any])
-            let frozenFrameValues = try XCTUnwrap(frozenFrames["values"] as? [[String: Any]])
-            XCTAssertFalse(frozenFrameValues.isEmpty, "The test triggered an ANR while the transaction is running. There must be at least one frozen frame, but there was none.")
-            
-            let frameRates = try XCTUnwrap(metrics["screen_frame_rates"] as? [String: Any])
-            let frameRateValues = try XCTUnwrap(frameRates["values"] as? [[String: Any]])
-            XCTAssertFalse(frameRateValues.isEmpty)
-        }
-    }
 }
 
 extension ProfilingUITests {

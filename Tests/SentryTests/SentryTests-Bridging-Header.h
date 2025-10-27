@@ -65,7 +65,6 @@
 #import "SentryCoreDataTrackingIntegration.h"
 #import "SentryCrash+Test.h"
 #import "SentryCrashBinaryImageCache.h"
-#import "SentryCrashBinaryImageProvider.h"
 #import "SentryCrashC.h"
 #import "SentryCrashCachedData.h"
 #import "SentryCrashCxaThrowSwapper.h"
