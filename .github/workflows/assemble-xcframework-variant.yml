@@ -201,7 +201,7 @@ jobs:
           path: ${{env.XCFRAMEWORK_NAME}}.xcframework.zip
 
       - name: Upload XCFramework
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           overwrite: true
           name: xcframework-${{github.sha}}-${{inputs.override-name || inputs.variant-id}}
