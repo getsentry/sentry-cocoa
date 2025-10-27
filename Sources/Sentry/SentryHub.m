@@ -849,7 +849,7 @@ NS_ASSUME_NONNULL_BEGIN
 {
     SentrySessionReplayIntegration *integration =
         [self getInstalledIntegration:[SentrySessionReplayIntegration class]];
-    if (integration == nil) {
+    if (integration == nil || integration.sessionReplay == nil) {
         return nil;
     }
     return integration.sessionReplay.sessionReplayId.sentryIdString;
