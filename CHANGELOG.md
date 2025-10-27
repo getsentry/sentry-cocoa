@@ -12,6 +12,7 @@
 - Removes deprecated getStoreEndpoint (#5591)
 - Removes deprecated useSpan function (#5591)
 - The `span` property on `SentryScope` is now readonly (#5866)
+- Removes deprecated SentryDebugImageProvider class (#5598)
 - Removes segment property on SentryUser, SentryBaggage, and SentryTraceContext (#5638)
 - Removes deprecated TraceContext initializers (#6348)
 - Removes deprecated user feedback API, this is replaced with the new feedback API (#5591)
