@@ -133,7 +133,7 @@ jobs:
 
       - name: Download ${{inputs.variant-id}} Slices
         if: steps.cache-xcframework.outputs.cache-hit != 'true'
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           pattern: xcframework-${{inputs.variant-id}}-slice-*
           path: xcframework-slices
