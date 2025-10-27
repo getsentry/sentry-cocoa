@@ -724,7 +724,7 @@
     XCTAssertEqual(YES, options.enableWatchdogTerminationTracking);
     XCTAssertEqual([@30000 unsignedIntValue], options.sessionTrackingIntervalMillis);
     XCTAssertEqual(YES, options.attachStacktrace);
-    XCTAssertEqual(20 * 1024 * 1024, options.maxAttachmentSize);
+    XCTAssertEqual(100 * 1024 * 1024, options.maxAttachmentSize);
     XCTAssertEqual(NO, options.sendDefaultPii);
     XCTAssertTrue(options.enableAutoPerformanceTracing);
 #if SENTRY_HAS_UIKIT
@@ -854,7 +854,7 @@
 {
     SentryOptions *options = [self getValidOptions:@{}];
 
-    XCTAssertEqual(20 * 1024 * 1024, options.maxAttachmentSize);
+    XCTAssertEqual(100 * 1024 * 1024, options.maxAttachmentSize);
 }
 
 - (void)testSendDefaultPii
