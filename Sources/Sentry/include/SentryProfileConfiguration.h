@@ -21,7 +21,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 SENTRY_NO_INIT
 
-@property (assign, nonatomic, readonly) BOOL isContinuousV1;
 @property (assign, nonatomic, readonly) BOOL waitForFullDisplay;
 @property (assign, nonatomic, readonly) BOOL isProfilingThisLaunch;
 
@@ -42,8 +41,7 @@ SENTRY_NO_INIT
 /**
  * Initializer for both trace-based and continuous V1 (aka continuous beta) launch profiles.
  */
-- (instancetype)initWaitingForFullDisplay:(BOOL)shouldWaitForFullDisplay
-                             continuousV1:(BOOL)continuousV1;
+- (instancetype)initWaitingForFullDisplay:(BOOL)shouldWaitForFullDisplay;
 
 /** Initializer for launch UI profiles (aka continuous V2). */
 - (instancetype)initContinuousProfilingV2WaitingForFullDisplay:(BOOL)shouldWaitForFullDisplay

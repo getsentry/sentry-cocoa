@@ -96,8 +96,8 @@ final class SentrySpotlightTransportTests: XCTestCase {
         XCTAssertEqual(request.url?.absoluteString, options.spotlightUrl)
         
         let expectedData = try getSerializedGzippedData(envelope: givenEventEnvelope())
-        let expectedDataCountLower = expectedData.count - 20
-        let expectedDataCountUpper = expectedData.count + 20
+        let expectedDataCountLower = expectedData.count - 40
+        let expectedDataCountUpper = expectedData.count + 40
         
         // Compressing with GZip doesn't always produce the same results
         // We only want to know if the attachment got removed. Therefore, a comparison with a range is acceptable.

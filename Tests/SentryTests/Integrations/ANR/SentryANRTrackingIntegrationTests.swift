@@ -119,7 +119,7 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
 
             XCTAssertEqual(event?.debugMeta?.count, 1)
             let eventDebugImage = try XCTUnwrap(event?.debugMeta?.first)
-            XCTAssertEqual(eventDebugImage.uuid, TestData.debugImage.uuid)
+            XCTAssertEqual(eventDebugImage.debugID, TestData.debugImage.debugID)
         }
     }
     
@@ -160,7 +160,7 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
 
             XCTAssertEqual(event?.debugMeta?.count, 1)
             let eventDebugImage = try XCTUnwrap(event?.debugMeta?.first)
-            XCTAssertEqual(eventDebugImage.uuid, TestData.debugImage.uuid)
+            XCTAssertEqual(eventDebugImage.debugID, TestData.debugImage.debugID)
         }
     }
 
@@ -202,7 +202,7 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
 
             XCTAssertEqual(event?.debugMeta?.count, 1)
             let eventDebugImage = try XCTUnwrap(event?.debugMeta?.first)
-            XCTAssertEqual(eventDebugImage.uuid, TestData.debugImage.uuid)
+            XCTAssertEqual(eventDebugImage.debugID, TestData.debugImage.debugID)
         }
     }
     
@@ -244,7 +244,7 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
 
             XCTAssertEqual(event?.debugMeta?.count, 1)
             let eventDebugImage = try XCTUnwrap(event?.debugMeta?.first)
-            XCTAssertEqual(eventDebugImage.uuid, TestData.debugImage.uuid)
+            XCTAssertEqual(eventDebugImage.debugID, TestData.debugImage.debugID)
         }
     }
 
@@ -401,7 +401,7 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
 
             XCTAssertEqual(event?.debugMeta?.count, 1)
             let eventDebugImage = try XCTUnwrap(event?.debugMeta?.first)
-            XCTAssertEqual(eventDebugImage.uuid, TestData.debugImage.uuid)
+            XCTAssertEqual(eventDebugImage.debugID, TestData.debugImage.debugID)
 
             let tags = try XCTUnwrap(event?.tags)
             XCTAssertEqual(1, tags.count)
@@ -460,7 +460,7 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
 
             XCTAssertEqual(event?.debugMeta?.count, 1)
             let eventDebugImage = try XCTUnwrap(event?.debugMeta?.first)
-            XCTAssertEqual(eventDebugImage.uuid, TestData.debugImage.uuid)
+            XCTAssertEqual(eventDebugImage.debugID, TestData.debugImage.debugID)
 
             let tags = try XCTUnwrap(event?.tags)
             XCTAssertEqual(1, tags.count)
