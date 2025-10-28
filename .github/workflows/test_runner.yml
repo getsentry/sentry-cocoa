@@ -8,22 +8,16 @@ on:
 
 jobs:
   macos:
-    strategy:
-      matrix:
-        group_id:
-          - 13
-          - 14
-          - 15
     name: "Run on the fastest infrastructure"
     runs-on: [
       "ghcr.io/cirruslabs/macos-runner:tahoe",
-      "runner_group_id:${{ matrix.group_id }}",
+      "runner_group_id:10",
     ]
     steps:
       - uses: actions/checkout@v4
       - name: Print macOS version
         run: |
-          echo "group_id: ${{ matrix.group_id }}"
+          echo "group_id: 10"
           echo "OS version:"
           sw_vers
       - name: List Installed Xcodes
