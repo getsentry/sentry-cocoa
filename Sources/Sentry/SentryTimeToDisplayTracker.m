@@ -2,6 +2,7 @@
 
 #if SENTRY_HAS_UIKIT
 
+#    import "SentryInternalDefines.h"
 #    import "SentryLogC.h"
 #    import "SentryOptions+Private.h"
 #    import "SentryProfilingConditionals.h"
@@ -13,7 +14,6 @@
 #    import "SentrySwift.h"
 #    import "SentryTraceOrigin.h"
 #    import "SentryTracer.h"
-#import "SentryInternalDefines.h"
 
 #    import <UIKit/UIKit.h>
 
@@ -203,7 +203,9 @@
     if (!span.startTimestamp) {
         return;
     }
-    NSTimeInterval duration = [span.timestamp timeIntervalSinceDate:SENTRY_UNWRAP_NULLABLE(NSDate, span.startTimestamp)] * 1000;
+    NSTimeInterval duration =
+        [span.timestamp timeIntervalSinceDate:SENTRY_UNWRAP_NULLABLE(NSDate, span.startTimestamp)]
+        * 1000;
     [span setMeasurement:name value:@(duration) unit:SentryMeasurementUnitDuration.millisecond];
 }
 

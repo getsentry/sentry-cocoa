@@ -448,8 +448,8 @@
         if (envelopeItem.data == nil) {
             return;
         }
-        NSDictionary *_Nullable transactionJson =
-            [SentrySerialization deserializeDictionaryFromJsonData:SENTRY_UNWRAP_NULLABLE(NSData, envelopeItem.data)];
+        NSDictionary *_Nullable transactionJson = [SentrySerialization
+            deserializeDictionaryFromJsonData:SENTRY_UNWRAP_NULLABLE(NSData, envelopeItem.data)];
         if (transactionJson == nil) {
             return;
         }

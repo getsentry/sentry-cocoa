@@ -526,7 +526,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (SentryEvent *__nullable)applyToEvent:(SentryEvent *_Nullable)event
                           maxBreadcrumb:(NSUInteger)maxBreadcrumbs
 {
-    // We changed the parameter to be nullable, so this method can be called with a potential null value
+    // We changed the parameter to be nullable, so this method can be called with a potential null
+    // value
     if (!event) {
         return nil;
     }

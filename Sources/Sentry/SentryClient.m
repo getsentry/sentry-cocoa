@@ -39,7 +39,6 @@
 #import "SentryUseNSExceptionCallstackWrapper.h"
 #import "SentryUser.h"
 #import "SentryWatchdogTerminationTracker.h"
-#import "SentryInternalDefines.h"
 
 #if SENTRY_HAS_UIKIT
 #    import <UIKit/UIKit.h>
@@ -203,8 +202,8 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 - (SentryEvent *)buildExceptionEvent:(NSException *)exception
 {
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelError];
-    SentryException *sentryException = [[SentryException alloc] initWithValue:exception.reason ?: @""
-                                                                         type:exception.name ?: @""];
+    SentryException *sentryException =
+        [[SentryException alloc] initWithValue:exception.reason ?: @"" type:exception.name ?: @""];
 
     event.exceptions = @[ sentryException ];
 
@@ -556,8 +555,10 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
     // Hybrid SDKs may override the sdk info for a replay Event,
     // the same SDK should be used for the envelope header.
-    SentrySdkInfo *sdkInfo = replayEvent.sdk ? [[SentrySdkInfo alloc] initWithDict:SENTRY_UNWRAP_NULLABLE_DICT(NSString*, id, replayEvent.sdk)]
-                                             : [SentrySdkInfo global];
+    SentrySdkInfo *sdkInfo = replayEvent.sdk
+        ? [[SentrySdkInfo alloc]
+              initWithDict:SENTRY_UNWRAP_NULLABLE_DICT(NSString *, id, replayEvent.sdk)]
+        : [SentrySdkInfo global];
     SentryEnvelopeHeader *envelopeHeader =
         [[SentryEnvelopeHeader alloc] initWithId:replayEvent.eventId
                                          sdkInfo:sdkInfo
@@ -761,14 +762,16 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     // current data.
     if (!isFatalEvent) {
         // Unwrapping the event because we assume that the event will be returned
-        event = SENTRY_UNWRAP_NULLABLE(SentryEvent, [scope applyToEvent:event maxBreadcrumb:self.options.maxBreadcrumbs]);
+        event = SENTRY_UNWRAP_NULLABLE(
+            SentryEvent, [scope applyToEvent:event maxBreadcrumb:self.options.maxBreadcrumbs]);
     }
 
     if (!eventIsNotReplay) {
         event.breadcrumbs = nil;
     }
 
-    if ([self isWatchdogTermination:SENTRY_UNWRAP_NULLABLE(SentryEvent, event) isFatalEvent:isFatalEvent]) {
+    if ([self isWatchdogTermination:SENTRY_UNWRAP_NULLABLE(SentryEvent, event)
+                       isFatalEvent:isFatalEvent]) {
         // Remove some mutable properties from the device/app contexts which are no longer
         // applicable
         [self removeExtraDeviceContextFromEvent:SENTRY_UNWRAP_NULLABLE(SentryEvent, event)];
@@ -779,7 +782,8 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         [self applyExtraDeviceContextToEvent:SENTRY_UNWRAP_NULLABLE(SentryEvent, event)];
         [self applyCultureContextToEvent:SENTRY_UNWRAP_NULLABLE(SentryEvent, event)];
 #if SENTRY_HAS_UIKIT
-        [self applyCurrentViewNamesToEventContext:SENTRY_UNWRAP_NULLABLE(SentryEvent, event) withScope:scope];
+        [self applyCurrentViewNamesToEventContext:SENTRY_UNWRAP_NULLABLE(SentryEvent, event)
+                                        withScope:scope];
 #endif // SENTRY_HAS_UIKIT
     }
 
@@ -991,18 +995,23 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     [self modifyContext:event
                     key:SENTRY_CONTEXT_DEVICE_KEY
                   block:^(NSMutableDictionary *device) {
-        if (extraContext[SENTRY_CONTEXT_DEVICE_KEY] != nil && [extraContext[SENTRY_CONTEXT_DEVICE_KEY] isKindOfClass:NSDictionary.class]) {
-            [device addEntriesFromDictionary:extraContext[SENTRY_CONTEXT_DEVICE_KEY] ?: @{}];
-        }
+                      if (extraContext[SENTRY_CONTEXT_DEVICE_KEY] != nil &&
+                          [extraContext[SENTRY_CONTEXT_DEVICE_KEY]
+                              isKindOfClass:NSDictionary.class]) {
+                          [device addEntriesFromDictionary:extraContext[SENTRY_CONTEXT_DEVICE_KEY]
+                                  ?: @ {}];
+                      }
                   }];
 
-    [self modifyContext:event
-                    key:SENTRY_CONTEXT_APP_KEY
-                  block:^(NSMutableDictionary *app) {
-        if (extraContext[SENTRY_CONTEXT_APP_KEY] != nil && [extraContext[SENTRY_CONTEXT_APP_KEY] isKindOfClass:NSDictionary.class]) {
-            [app addEntriesFromDictionary:extraContext[SENTRY_CONTEXT_APP_KEY] ?: @{}];
-        }
-                  }];
+    [self
+        modifyContext:event
+                  key:SENTRY_CONTEXT_APP_KEY
+                block:^(NSMutableDictionary *app) {
+                    if (extraContext[SENTRY_CONTEXT_APP_KEY] != nil &&
+                        [extraContext[SENTRY_CONTEXT_APP_KEY] isKindOfClass:NSDictionary.class]) {
+                        [app addEntriesFromDictionary:extraContext[SENTRY_CONTEXT_APP_KEY] ?: @ {}];
+                    }
+                }];
 }
 
 #if SENTRY_HAS_UIKIT

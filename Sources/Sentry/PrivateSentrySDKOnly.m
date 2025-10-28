@@ -266,7 +266,7 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
     if (!screenshotSource) {
         return nil;
     }
-    return [SENTRY_UNWRAP_NULLABLE(SentryScreenshotSource,screenshotSource) appScreenshotsData];
+    return [SENTRY_UNWRAP_NULLABLE(SentryScreenshotSource, screenshotSource) appScreenshotsData];
 #else
     SENTRY_LOG_DEBUG(
         @"PrivateSentrySDKOnly.captureScreenshots only works with UIKit enabled. Ensure you're "
@@ -286,11 +286,13 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 + (NSData *)captureViewHierarchy
 {
 #if SENTRY_HAS_UIKIT
-    SentryViewHierarchyProvider *_Nullable viewHierarchyProvider = SentryDependencyContainer.sharedInstance.viewHierarchyProvider;
+    SentryViewHierarchyProvider *_Nullable viewHierarchyProvider
+        = SentryDependencyContainer.sharedInstance.viewHierarchyProvider;
     if (!viewHierarchyProvider) {
         return nil;
     }
-    return [SENTRY_UNWRAP_NULLABLE(SentryViewHierarchyProvider, viewHierarchyProvider) appViewHierarchy];
+    return [SENTRY_UNWRAP_NULLABLE(SentryViewHierarchyProvider, viewHierarchyProvider)
+        appViewHierarchy];
 #else
     SENTRY_LOG_DEBUG(
         @"PrivateSentrySDKOnly.captureViewHierarchy only works with UIKit enabled. Ensure you're "

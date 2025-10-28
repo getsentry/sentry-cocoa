@@ -5,6 +5,7 @@
 #    import "SentryClient+Private.h"
 #    import "SentryEvent+Private.h"
 #    import "SentryHub+Private.h"
+#    import "SentryInternalDefines.h"
 #    import "SentryLogC.h"
 #    import "SentryOptions.h"
 #    import "SentrySDK+Private.h"
@@ -13,7 +14,6 @@
 #    import "SentrySessionReplaySyncC.h"
 #    import "SentrySwift.h"
 #    import "SentrySwizzle.h"
-#import "SentryInternalDefines.h"
 #    import <UIKit/UIKit.h>
 
 NS_ASSUME_NONNULL_BEGIN
@@ -211,7 +211,8 @@ static SentryTouchTracker *_touchTracker;
 
     SentryId *replayId;
     if (jsonObject[@"replayId"] && [jsonObject[@"replayId"] isKindOfClass:NSString.class]) {
-        replayId = [[SentryId alloc] initWithUUIDString:SENTRY_UNWRAP_NULLABLE(NSString, jsonObject[@"replayId"])];
+        replayId = [[SentryId alloc]
+            initWithUUIDString:SENTRY_UNWRAP_NULLABLE(NSString, jsonObject[@"replayId"])];
     } else {
         replayId = [[SentryId alloc] init];
     }
@@ -219,9 +220,11 @@ static SentryTouchTracker *_touchTracker;
         SENTRY_LOG_ERROR(@"[Session Replay] Failed to read path from last replay");
         return;
     }
-    NSURL *_Nullable nullableUrl = [dir URLByAppendingPathComponent:SENTRY_UNWRAP_NULLABLE(NSString, jsonObject[@"path"])];
+    NSURL *_Nullable nullableUrl =
+        [dir URLByAppendingPathComponent:SENTRY_UNWRAP_NULLABLE(NSString, jsonObject[@"path"])];
     if (!nullableUrl) {
-        SENTRY_LOG_ERROR(@"[Session Replay] Failed to create URL with path: %@", jsonObject[@"path"]);
+        SENTRY_LOG_ERROR(
+            @"[Session Replay] Failed to create URL with path: %@", jsonObject[@"path"]);
         return;
     }
     NSURL *_Nonnull lastReplayURL = SENTRY_UNWRAP_NULLABLE(NSURL, nullableUrl);
@@ -250,10 +253,10 @@ static SentryTouchTracker *_touchTracker;
     if (!lastReplayURL.path) {
         return;
     }
-    SentryOnDemandReplay *resumeReplayMaker =
-        [[SentryOnDemandReplay alloc] initWithContentFrom:SENTRY_UNWRAP_NULLABLE(NSString, lastReplayURL.path)
-                                          processingQueue:_replayProcessingQueue
-                                         assetWorkerQueue:_replayAssetWorkerQueue];
+    SentryOnDemandReplay *resumeReplayMaker = [[SentryOnDemandReplay alloc]
+        initWithContentFrom:SENTRY_UNWRAP_NULLABLE(NSString, lastReplayURL.path)
+            processingQueue:_replayProcessingQueue
+           assetWorkerQueue:_replayAssetWorkerQueue];
     resumeReplayMaker.bitRate = _replayOptions.replayBitRate;
     resumeReplayMaker.videoScale = _replayOptions.sizeScale;
     resumeReplayMaker.frameRate = _replayOptions.frameRate;
@@ -453,9 +456,10 @@ static SentryTouchTracker *_touchTracker;
         SENTRY_LOG_ERROR(@"Failed to save current session info, replay id is nil");
         return;
     }
-    [self saveCurrentSessionInfo:SENTRY_UNWRAP_NULLABLE(SentryId, self.sessionReplay.sessionReplayId)
-                            path:docsPath
-                         options:replayOptions];
+    [self
+        saveCurrentSessionInfo:SENTRY_UNWRAP_NULLABLE(SentryId, self.sessionReplay.sessionReplayId)
+                          path:docsPath
+                       options:replayOptions];
 }
 
 - (nullable NSURL *)replayDirectory
@@ -640,13 +644,14 @@ static SentryTouchTracker *_touchTracker;
     SENTRY_LOG_DEBUG(@"[Session Replay] Configuring replay");
     if (breadcrumbConverter) {
         _currentBreadcrumbConverter = breadcrumbConverter;
-        self.sessionReplay.breadcrumbConverter = SENTRY_UNWRAP_NULLABLE_VALUE(id<SentryReplayBreadcrumbConverter>,
-                                                                              breadcrumbConverter);
+        self.sessionReplay.breadcrumbConverter = SENTRY_UNWRAP_NULLABLE_VALUE(
+            id<SentryReplayBreadcrumbConverter>, breadcrumbConverter);
     }
 
     if (screenshotProvider) {
         _currentScreenshotProvider = screenshotProvider;
-        self.sessionReplay.screenshotProvider = SENTRY_UNWRAP_NULLABLE_VALUE(id<SentryViewScreenshotProvider>, screenshotProvider);
+        self.sessionReplay.screenshotProvider
+            = SENTRY_UNWRAP_NULLABLE_VALUE(id<SentryViewScreenshotProvider>, screenshotProvider);
     }
 }
 

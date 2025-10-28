@@ -387,8 +387,9 @@ SentryEnvelopeItem *_Nullable sentry_traceProfileEnvelopeItem(SentryHub *hub,
         @"id" : transaction.eventId.sentryIdString,
         @"trace_id" : transaction.trace.traceId.sentryIdString,
     }];
-    NSNumber *_Nullable activeThreadId = [transaction.trace.transactionContext sentry_threadInfo].threadId;
-    if (activeThreadId != nil || [activeThreadId  isEqual: @0]) {
+    NSNumber *_Nullable activeThreadId =
+        [transaction.trace.transactionContext sentry_threadInfo].threadId;
+    if (activeThreadId != nil || [activeThreadId isEqual:@0]) {
         transactionDict[@"active_thread_id"] = activeThreadId;
     }
     if (transaction.transaction) {

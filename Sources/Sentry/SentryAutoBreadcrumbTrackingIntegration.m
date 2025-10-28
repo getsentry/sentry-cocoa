@@ -36,10 +36,12 @@ NS_ASSUME_NONNULL_BEGIN
     [self installWithOptions:options
              breadcrumbTracker:[[SentryBreadcrumbTracker alloc] initReportAccessibilityIdentifier:
                                        options.reportAccessibilityIdentifier]
-        systemEventBreadcrumbs:
-            [[SentrySystemEventBreadcrumbs alloc]
-                         initWithFileManager:SENTRY_UNWRAP_NULLABLE(SentryFileManager, fileManager)
-                andNotificationCenterWrapper:SentryDependencyContainer.sharedInstance.notificationCenterWrapper]];
+        systemEventBreadcrumbs:[[SentrySystemEventBreadcrumbs alloc]
+                                            initWithFileManager:SENTRY_UNWRAP_NULLABLE(
+                                                                    SentryFileManager, fileManager)
+                                   andNotificationCenterWrapper:SentryDependencyContainer
+                                                                    .sharedInstance
+                                                                    .notificationCenterWrapper]];
 #else
     [self installWithOptions:options
            breadcrumbTracker:[[SentryBreadcrumbTracker alloc]

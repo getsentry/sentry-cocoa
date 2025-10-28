@@ -44,7 +44,8 @@ https://github.com/AFNetworking/AFNetworking/blob/4eaec5b586ddd897ebeda896e332a6
     // thats why the URL parameter is a empty url that points nowhere.
     // AFNetwork uses nil as parameter, but according to documentation this a nonnull parameter,
     // and when bridged to swift, the nil parameters causes an exception.
-    NSURLSessionDataTask *localDataTask = [session dataTaskWithURL:SENTRY_UNWRAP_NULLABLE(NSURL, [NSURL URLWithString:@""])];
+    NSURLSessionDataTask *localDataTask =
+        [session dataTaskWithURL:SENTRY_UNWRAP_NULLABLE(NSURL, [NSURL URLWithString:@""])];
 
     Class currentClass = [localDataTask class];
     NSMutableArray *result = [[NSMutableArray alloc] init];
@@ -53,10 +54,10 @@ https://github.com/AFNetworking/AFNetworking/blob/4eaec5b586ddd897ebeda896e332a6
 
     while (class_getInstanceMethod(currentClass, setStateSelector)) {
         Class superClass = [currentClass superclass];
-        IMP classResumeIMP
-            = method_getImplementation(SENTRY_UNWRAP_NULLABLE(struct objc_method, class_getInstanceMethod(currentClass, setStateSelector)));
-        IMP superclassResumeIMP
-            = method_getImplementation(SENTRY_UNWRAP_NULLABLE(struct objc_method, class_getInstanceMethod(superClass, setStateSelector)));
+        IMP classResumeIMP = method_getImplementation(SENTRY_UNWRAP_NULLABLE(
+            struct objc_method, class_getInstanceMethod(currentClass, setStateSelector)));
+        IMP superclassResumeIMP = method_getImplementation(SENTRY_UNWRAP_NULLABLE(
+            struct objc_method, class_getInstanceMethod(superClass, setStateSelector)));
         if (classResumeIMP != superclassResumeIMP) {
             [result addObject:currentClass];
         }
