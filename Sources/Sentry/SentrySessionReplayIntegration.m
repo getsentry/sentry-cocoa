@@ -77,14 +77,18 @@ static SentryTouchTracker *_touchTracker;
     return self;
 }
 
++ (BOOL)shouldEnabledForOptions:(SentryOptions *)options
+{
+    return [SentrySessionReplay
+        shouldEnableSessionReplayWithEnvironmentChecker:SentryDependencies
+                                                            .sessionReplayEnvironmentChecker
+                                    experimentalOptions:options.experimental];
+}
+
 - (BOOL)installWithOptions:(nonnull SentryOptions *)options
 {
     if ([super installWithOptions:options] == NO ||
-        [SentrySessionReplay
-            shouldEnableSessionReplayWithEnvironmentChecker:SentryDependencies
-                                                                .sessionReplayEnvironmentChecker
-                                        experimentalOptions:options.experimental]
-            == NO) {
+        [SentrySessionReplayIntegration shouldEnabledForOptions:options] == NO) {
         return NO;
     }
 

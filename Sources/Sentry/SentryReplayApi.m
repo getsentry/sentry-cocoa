@@ -56,8 +56,12 @@
             replayIntegration = (SentrySessionReplayIntegration *)[SentrySDKInternal.currentHub
                 getInstalledIntegration:SentrySessionReplayIntegration.class];
             if (replayIntegration == nil) {
-                SENTRY_LOG_DEBUG(@"[Session Replay] Initializing replay integration");
                 SentryOptions *currentOptions = SentrySDKInternal.currentHub.client.options;
+                if (![SentrySessionReplayIntegration shouldEnabledForOptions:currentOptions]) {
+                    return;
+                }
+                SENTRY_LOG_DEBUG(@"[Session Replay] Initializing replay integration");
+
                 replayIntegration =
                     [[SentrySessionReplayIntegration alloc] initForManualUse:currentOptions];
 

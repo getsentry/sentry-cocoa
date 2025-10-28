@@ -69,5 +69,6 @@ class TestCleanup: NSObject {
 
         SentrySdkPackage.resetPackageManager()
         SentryExtraPackages.clear()
+        Dependencies.reset()
     }
 }

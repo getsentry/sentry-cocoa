@@ -22,4 +22,9 @@
     @objc public static var threadInspector = SentryThreadInspector()
     @objc public static var fileIOTracker = SentryFileIOTracker(threadInspector: threadInspector, processInfoWrapper: processInfoWrapper)
 
+    static func reset() {
+        Self.sessionReplayEnvironmentChecker = SentrySessionReplayEnvironmentChecker(infoPlistWrapper: Dependencies.infoPlistWrapper)
+        Self.threadInspector = SentryThreadInspector()
+        Self.fileIOTracker = SentryFileIOTracker(threadInspector: threadInspector, processInfoWrapper: processInfoWrapper)
+    }
 }
