@@ -43,9 +43,11 @@ jobs:
           - name: iOS Objective-C
             target: ios_objc
             test-destination-os: "18.6"
+            device: iPhone 16 Pro
           - name: tvOS Swift
             target: tvos_swift
             test-destination-os: "18.5"
+            device: "Apple TV"
     with:
       fastlane_command: ui_tests_${{matrix.target}}
       xcode_version: 16.2
@@ -53,6 +55,7 @@ jobs:
       run_on_cirrus_labs: true
       cirrus_labs_macos_version: sequoia
       test-destination-os: ${{matrix.test-destination-os}}
+      device: ${{matrix.device}}
       codecov_test_analytics: true
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
