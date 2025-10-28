@@ -228,12 +228,14 @@ sentrycrashcm_handleException(struct SentryCrash_MonitorContext *context)
     }
 }
 
-bool sentrycrashcm_isManagedRuntime(void)
+bool
+sentrycrashcm_isManagedRuntime(void)
 {
     return g_isManagedRuntime;
 }
 
-void sentrycrashcm_setManagedRuntime(bool isManagedRuntime)
+void
+sentrycrashcm_setManagedRuntime(bool isManagedRuntime)
 {
     g_isManagedRuntime = isManagedRuntime;
 }
