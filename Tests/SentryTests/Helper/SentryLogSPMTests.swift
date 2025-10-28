@@ -13,6 +13,10 @@ final class SentryLogSPMTests: XCTestCase {
         let dateProvider: TestCurrentDateProvider
         let options: Options
         let scope: Scope
+        let logOutput: TestLogOutput
+        var oldDebug: Bool!
+        var oldLevel: SentryLevel!
+        var oldOutput: SentryLogOutput!
         
         init() {
             options = Options()
@@ -25,6 +29,19 @@ final class SentryLogSPMTests: XCTestCase {
             dateProvider = TestCurrentDateProvider()
             
             dateProvider.setDate(date: Date(timeIntervalSince1970: 1_627_846_800.123456))
+            
+            // Set up log capture for testing error messages
+            oldDebug = SentrySDKLog.isDebug
+            oldLevel = SentrySDKLog.diagnosticLevel
+            oldOutput = SentrySDKLog.getOutput()
+            logOutput = TestLogOutput()
+            SentrySDKLog.setLogOutput(logOutput)
+            SentrySDKLogSupport.configure(true, diagnosticLevel: .error)
+        }
+        
+        func tearDown() {
+            SentrySDKLogSupport.configure(oldDebug, diagnosticLevel: oldLevel)
+            SentrySDKLog.setOutput(oldOutput)
         }
     }
     
@@ -37,48 +54,50 @@ final class SentryLogSPMTests: XCTestCase {
     
     override func tearDown() {
         super.tearDown()
+        fixture.tearDown()
         clearTestState()
     }
     
     // MARK: - SentryHub Tests
     
-    func testHub_CaptureLog_ViaPerformSelector() {
-        // This test verifies that dynamic dispatch to captureLog: works correctly.
+    func testHub_CaptureLog_ViaDispatcher() {
+        // This test verifies that the dispatcher works correctly for captureLog.
         // This is what SentryLog+SPM.swift does internally in the capture(log:) extension method.
         
         let log = SentryLog(
             timestamp: fixture.dateProvider.date(),
             traceId: SentryId.empty,
             level: .info,
-            body: "Test message via perform selector",
+            body: "Test message via dispatcher",
             attributes: [
                 "test_key": SentryLog.Attribute(string: "test_value"),
                 "count": SentryLog.Attribute(integer: 42)
             ]
         )
         
-        // Call using dynamic dispatch - mimics SPM extension behavior
-        fixture.hub.perform(#selector(HubSelectors.captureLog(_:)), with: log)
+        // Call using dispatcher - tests the actual implementation
+        let result = CaptureLogDispatcher.captureLog(log, on: fixture.hub)
         
-        // Verify the log was captured
+        // Verify success
+        XCTAssertTrue(result)
         XCTAssertEqual(fixture.client.captureLogInvocations.count, 1)
         
         let capturedLog = fixture.client.captureLogInvocations.invocations.last!.log
         XCTAssertEqual(capturedLog.level, .info)
-        XCTAssertEqual(capturedLog.body, "Test message via perform selector")
+        XCTAssertEqual(capturedLog.body, "Test message via dispatcher")
         XCTAssertEqual(capturedLog.attributes["test_key"]?.value as? String, "test_value")
         XCTAssertEqual(capturedLog.attributes["count"]?.value as? Int, 42)
     }
     
-    func testHub_CaptureLogWithScope_ViaPerformSelector() {
-        // This test verifies that dynamic dispatch to captureLog:withScope: works correctly.
+    func testHub_CaptureLogWithScope_ViaDispatcher() {
+        // This test verifies that the dispatcher works correctly for captureLog:withScope:.
         // This is what SentryLog+SPM.swift does internally in the capture(log:scope:) extension method.
         
         let log = SentryLog(
             timestamp: fixture.dateProvider.date(),
             traceId: SentryId.empty,
             level: .error,
-            body: "Test message with scope via perform selector",
+            body: "Test message with scope via dispatcher",
             attributes: [
                 "severity": SentryLog.Attribute(string: "high")
             ]
@@ -87,43 +106,45 @@ final class SentryLogSPMTests: XCTestCase {
         let customScope = Scope()
         customScope.setTag(value: "test-value", key: "test-tag")
         
-        // Call using dynamic dispatch - mimics SPM extension behavior
-        fixture.hub.perform(#selector(HubSelectors.captureLog(_:withScope:)), with: log, with: fixture.scope)
+        // Call using dispatcher - tests the actual implementation
+        let result = CaptureLogDispatcher.captureLog(log, withScope: fixture.scope, on: fixture.hub)
         
-        // Verify the log was captured
+        // Verify success
+        XCTAssertTrue(result)
         XCTAssertEqual(fixture.client.captureLogInvocations.count, 1)
         
         let capturedLog = fixture.client.captureLogInvocations.invocations.last!.log
         XCTAssertEqual(capturedLog.level, .error)
-        XCTAssertEqual(capturedLog.body, "Test message with scope via perform selector")
+        XCTAssertEqual(capturedLog.body, "Test message with scope via dispatcher")
         XCTAssertEqual(capturedLog.attributes["severity"]?.value as? String, "high")
     }
     
     // MARK: - SentryClient Tests
     
-    func testClient_CaptureLog_ViaPerformSelector() {
-        // This test verifies that dynamic dispatch to captureLog:withScope: works correctly on client.
+    func testClient_CaptureLog_ViaDispatcher() {
+        // This test verifies that the dispatcher works correctly for client.captureLog:withScope:.
         // This is what SentryLog+SPM.swift does internally in the captureLog(_:withScope:) extension method.
         
         let log = SentryLog(
             timestamp: fixture.dateProvider.date(),
             traceId: SentryId.empty,
             level: .warn,
-            body: "Test message via client perform selector",
+            body: "Test message via client dispatcher",
             attributes: [
                 "priority": SentryLog.Attribute(string: "medium")
             ]
         )
         
-        // Call using dynamic dispatch - mimics SPM extension behavior
-        fixture.client.perform(#selector(HubSelectors.captureLog(_:withScope:)), with: log, with: fixture.scope)
+        // Call using dispatcher - tests the actual implementation
+        let result = CaptureLogDispatcher.captureLog(log, withScope: fixture.scope, on: fixture.client)
         
-        // Verify the log was captured
+        // Verify success
+        XCTAssertTrue(result)
         XCTAssertEqual(fixture.client.captureLogInvocations.count, 1)
         
         let capturedLog = fixture.client.captureLogInvocations.invocations.last!.log
         XCTAssertEqual(capturedLog.level, .warn)
-        XCTAssertEqual(capturedLog.body, "Test message via client perform selector")
+        XCTAssertEqual(capturedLog.body, "Test message via client dispatcher")
         XCTAssertEqual(capturedLog.attributes["priority"]?.value as? String, "medium")
     }
         
@@ -222,4 +243,36 @@ final class SentryLogSPMTests: XCTestCase {
         
         XCTAssertNil(fixture.options.value(forKey: "beforeSendLogDynamic"))
     }
+    
+    // MARK: - CaptureLogDispatcher Error Handling Tests
+    
+    func testDispatcher_CaptureLog_FailsWhenSelectorNotAvailable() {
+        // Test with a plain NSObject that doesn't implement captureLog methods
+        let plainObject = NSObject()
+        let log = SentryLog(level: .info, body: "Test message")
+        
+        let result = CaptureLogDispatcher.captureLog(log, on: plainObject)
+        
+        XCTAssertFalse(result)
+        XCTAssertTrue(fixture.logOutput.loggedMessages.contains { message in
+            message.contains("NSObject") &&
+            message.contains("does not respond to captureLog(_:)")
+        })
+    }
+    
+    func testDispatcher_CaptureLogWithScope_FailsWhenSelectorNotAvailable() {
+        // Test with a plain NSObject that doesn't implement captureLog methods
+        let plainObject = NSObject()
+        let log = SentryLog(level: .info, body: "Test message")
+        let scope = Scope()
+        
+        let result = CaptureLogDispatcher.captureLog(log, withScope: scope, on: plainObject)
+        
+        XCTAssertFalse(result)
+        XCTAssertTrue(fixture.logOutput.loggedMessages.contains { message in
+            message.contains("NSObject") &&
+            message.contains("does not respond to captureLog(_:withScope:)")
+        })
+    }
+    
 }

@@ -7,14 +7,48 @@ import Foundation
 // by providing Swift-native methods and properties that use dynamic dispatch internally.
 
 @objc
-protocol HubSelectors {
+protocol CaptureLogSelectors {
     func captureLog(_ log: SentryLog)
     func captureLog(_ log: SentryLog, withScope: Scope)
 }
 
+/// Helper class to handle dynamic dispatch for log capture.
+/// This is used in SPM builds to work around Swift-to-Objective-C bridging issues.
 @objc
-protocol ClientSelectors {
-    func captureLog(_ log: SentryLog, withScope: Scope)
+class CaptureLogDispatcher: NSObject {
+    
+    /// Captures a log using dynamic dispatch on the target object
+    /// - Parameters:
+    ///   - log: The log to capture
+    ///   - target: The object that should handle the log capture (typically SentryHub)
+    /// - Returns: true if the log was captured, false if the selector was not available
+    @discardableResult
+    static func captureLog(_ log: SentryLog, on target: NSObject) -> Bool {
+        let selector = #selector(CaptureLogSelectors.captureLog(_:))
+        guard target.responds(to: selector) else {
+            SentrySDKLog.error("Target \(type(of: target)) does not respond to captureLog(_:). The log will not be captured.")
+            return false
+        }
+        target.perform(selector, with: log)
+        return true
+    }
+    
+    /// Captures a log with a scope using dynamic dispatch on the target object
+    /// - Parameters:
+    ///   - log: The log to capture
+    ///   - scope: The scope containing event metadata
+    ///   - target: The object that should handle the log capture (typically SentryHub or SentryClient)
+    /// - Returns: true if the log was captured, false if the selector was not available
+    @discardableResult
+    static func captureLog(_ log: SentryLog, withScope scope: Scope, on target: NSObject) -> Bool {
+        let selector = #selector(CaptureLogSelectors.captureLog(_:withScope:))
+        guard target.responds(to: selector) else {
+            SentrySDKLog.error("Target \(type(of: target)) does not respond to captureLog(_:withScope:). The log will not be captured.")
+            return false
+        }
+        target.perform(selector, with: log, with: scope)
+        return true
+    }
 }
 
 #if SWIFT_PACKAGE
@@ -46,8 +80,7 @@ public extension SentryHub {
     /// This method is provided for SPM builds where the Objective-C `captureLog:` method
     /// may not be properly bridged due to `SentryLog` being defined in Swift.
     func capture(log: SentryLog) {
-        // Use dynamic dispatch to work around bridging limitations
-        perform(#selector(HubSelectors.captureLog(_:)), with: log)
+        CaptureLogDispatcher.captureLog(log, on: self)
     }
     
     /// Captures a log entry and sends it to Sentry with a specific scope.
@@ -58,8 +91,7 @@ public extension SentryHub {
     /// This method is provided for SPM builds where the Objective-C `captureLog:withScope:` method
     /// may not be properly bridged due to `SentryLog` being defined in Swift.
     func capture(log: SentryLog, scope: Scope) {
-        // Use dynamic dispatch to work around bridging limitations
-        perform(#selector(HubSelectors.captureLog(_:withScope:)), with: log, with: scope)
+        CaptureLogDispatcher.captureLog(log, withScope: scope, on: self)
     }
 }
 
@@ -71,8 +103,7 @@ public extension SentryClient {
     ///   - log: The log entry to send to Sentry.
     ///   - scope: The scope containing event metadata.
     func captureLog(_ log: SentryLog, withScope scope: Scope) {
-        // Use dynamic dispatch to work around bridging limitations
-        perform(#selector(ClientSelectors.captureLog(_:withScope:)), with: log, with: scope)
+        CaptureLogDispatcher.captureLog(log, withScope: scope, on: self)
     }
 }
 
