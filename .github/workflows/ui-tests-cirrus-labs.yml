@@ -50,7 +50,7 @@ jobs:
             device: "Apple TV"
     with:
       fastlane_command: ui_tests_${{matrix.target}}
-      xcode_version: 16.2
+      xcode_version: 16.4
       build_with_make: true
       run_on_cirrus_labs: true
       cirrus_labs_macos_version: sequoia
