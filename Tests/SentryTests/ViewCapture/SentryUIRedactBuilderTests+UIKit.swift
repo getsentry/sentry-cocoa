@@ -219,7 +219,7 @@ class SentryUIRedactBuilderTests_UIKit: SentryUIRedactBuilderTests { // swiftlin
         let rootView = setupUITextViewFixture()
 
         // -- Act --
-        let sut = getSut(maskAllText: true, maskAllImages: true)
+        let sut = getSut(maskAllText: true, maskAllImages: false)
         let result = sut.redactRegionsFor(view: rootView)
         let masked = createMaskedScreenshot(view: rootView, regions: result)
 
