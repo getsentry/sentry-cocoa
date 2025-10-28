@@ -16,7 +16,8 @@
   "testTargets" : [
     {
       "selectedTests" : [
-        "SentryHttpTransportFlushIntegrationTests"
+        "SentryHttpTransportFlushIntegrationTests",
+        "SentryWatchdogTerminationTrackerTests\/testTerminateApp_RunsOnMainThread()"
       ],
       "target" : {
         "containerPath" : "container:Sentry.xcodeproj",
