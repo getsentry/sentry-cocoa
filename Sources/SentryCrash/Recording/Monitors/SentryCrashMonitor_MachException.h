@@ -49,10 +49,6 @@ bool sentrycrashcm_isReservedThread(thread_t thread);
  */
 bool sentrycrashcm_hasReservedThreads(void);
 
-/** Detect managed Mono/CoreCLR runtime's Mach exception port.
- */
-bool sentrycrashcm_isManagedRuntime(void);
-
 #ifdef __cplusplus
 }
 #endif
