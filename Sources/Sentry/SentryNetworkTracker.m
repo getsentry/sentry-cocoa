@@ -1,5 +1,6 @@
 #import "SentryNetworkTracker.h"
 #import "SentryBaggage.h"
+#import "SentryInternalDefines.h"
 #import "SentryBreadcrumb.h"
 #import "SentryClient+Private.h"
 #import "SentryDefaultThreadInspector.h"
@@ -131,8 +132,8 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
     }
 
     // Don't measure requests to Sentry's backend
-    NSURL *apiUrl = SentrySDKInternal.options.parsedDsn.url;
-    if ([url.host isEqualToString:apiUrl.host] && [url.path containsString:apiUrl.path]) {
+    NSURL *_Nullable apiUrl = SentrySDKInternal.options.parsedDsn.url;
+    if ([url.host isEqualToString:SENTRY_UNWRAP_NULLABLE(NSString, apiUrl.host)] && [url.path containsString:SENTRY_UNWRAP_NULLABLE(NSString, apiUrl.path)]) {
         return;
     }
 
@@ -191,7 +192,7 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
         SentryBaggage *baggage = [[[SentryTracer getTracer:span] traceContext] toBaggage];
         [SentryTracePropagation
                    addBaggageHeader:baggage
-                        traceHeader:[netSpan toTraceHeader]
+         traceHeader:SENTRY_UNWRAP_NULLABLE(SentryTraceHeader, [netSpan toTraceHeader])
                propagateTraceparent:SentrySDKInternal.options.enablePropagateTraceparent
             tracePropagationTargets:SentrySDKInternal.options.tracePropagationTargets
                           toRequest:sessionTask];
@@ -212,7 +213,7 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
 
     SentryTraceContext *traceContext =
         [[SentryTraceContext alloc] initWithTraceId:propagationContext.traceId
-                                            options:SentrySDKInternal.currentHub.client.options
+                                            options:SENTRY_UNWRAP_NULLABLE(SentryOptions, SentrySDKInternal.currentHub.client.options)
                                            replayId:SentrySDKInternal.currentHub.scope.replayId];
 
     [SentryTracePropagation addBaggageHeader:[traceContext toBaggage]
@@ -245,7 +246,7 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
 
     // Don't measure requests to Sentry's backend
     NSURL *apiUrl = SentrySDKInternal.options.parsedDsn.url;
-    if ([url.host isEqualToString:apiUrl.host] && [url.path containsString:apiUrl.path]) {
+    if ([url.host isEqualToString:SENTRY_UNWRAP_NULLABLE(NSString, apiUrl.host)] && [url.path containsString:SENTRY_UNWRAP_NULLABLE(NSString, apiUrl.path)]) {
         return;
     }
 
@@ -312,8 +313,8 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
         return;
     }
 
-    if (![SentryTracePropagation isTargetMatch:myRequest.URL
-                                   withTargets:SentrySDKInternal.options.failedRequestTargets]) {
+    if (![SentryTracePropagation isTargetMatch:SENTRY_UNWRAP_NULLABLE(NSURL, myRequest.URL)
+                                   withTargets:SentrySDKInternal.options.failedRequestTargets ?: @[]]) {
         SENTRY_LOG_DEBUG(
             @"Request url isn't within the request targets, not capturing HTTP Client errors.");
         return;
@@ -347,7 +348,7 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
 
     SentryRequest *request = [[SentryRequest alloc] init];
 
-    UrlSanitized *url = [[UrlSanitized alloc] initWithURL:[[sessionTask currentRequest] URL]];
+    UrlSanitized *url = [[UrlSanitized alloc] initWithURL:SENTRY_UNWRAP_NULLABLE(NSURL, [[sessionTask currentRequest] URL])];
 
     request.url = url.sanitizedUrl;
     request.method = myRequest.HTTPMethod;
@@ -423,7 +424,7 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
     SentryBreadcrumb *breadcrumb = [[SentryBreadcrumb alloc] initWithLevel:breadcrumbLevel
                                                                   category:@"http"];
 
-    UrlSanitized *urlComponents = [[UrlSanitized alloc] initWithURL:sessionTask.currentRequest.URL];
+    UrlSanitized *urlComponents = [[UrlSanitized alloc] initWithURL:SENTRY_UNWRAP_NULLABLE(NSURL, sessionTask.currentRequest.URL)];
 
     breadcrumb.type = @"http";
     NSMutableDictionary<NSString *, id> *breadcrumbData = [NSMutableDictionary new];

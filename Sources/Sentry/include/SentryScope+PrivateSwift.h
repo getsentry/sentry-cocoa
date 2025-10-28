@@ -4,6 +4,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 static NSString *const SENTRY_CONTEXT_OS_KEY = @"os";
 static NSString *const SENTRY_CONTEXT_DEVICE_KEY = @"device";
+static NSString *const SENTRY_CONTEXT_APP_KEY = @"app";
 
 // Added to only expose a limited sub-set of internal API needed in the Swift layer.
 @interface SentryScope ()

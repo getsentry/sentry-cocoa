@@ -196,7 +196,8 @@ static const NSTimeInterval SENTRY_APP_START_MAX_DURATION = 180.0;
                                                    duration:appStartDuration
                                        runtimeInitTimestamp:runtimeInit
                               moduleInitializationTimestamp:sysctl.moduleInitializationTimestamp
-                                          sdkStartTimestamp:SentrySDKInternal.startTimestamp
+             // We assume the start timestamp to be set to silence the warning, this is not ideal
+                                          sdkStartTimestamp:SENTRY_UNWRAP_NULLABLE(NSDate, SentrySDKInternal.startTimestamp)
                                 didFinishLaunchingTimestamp:self.didFinishLaunchingTimestamp];
 
         SentrySDKInternal.appStartMeasurement = appStartMeasurement;

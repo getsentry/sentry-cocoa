@@ -69,8 +69,8 @@ getStackEntriesFromThread(SentryCrashThread thread, struct SentryCrashMachineCon
 - (instancetype)initWithOptions:(SentryOptions *_Nullable)options
 {
     SentryInAppLogic *inAppLogic =
-        [[SentryInAppLogic alloc] initWithInAppIncludes:options.inAppIncludes
-                                          inAppExcludes:options.inAppExcludes];
+    [[SentryInAppLogic alloc] initWithInAppIncludes:options.inAppIncludes ?: @[]
+                                      inAppExcludes:options.inAppExcludes ?: @[]];
     SentryCrashStackEntryMapper *crashStackEntryMapper =
         [[SentryCrashStackEntryMapper alloc] initWithInAppLogic:inAppLogic];
     SentryStacktraceBuilder *stacktraceBuilder =

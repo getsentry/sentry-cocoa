@@ -1,4 +1,5 @@
 #import "SentryMsgPackSerializer.h"
+#import "SentryInternalDefines.h"
 #import "SentryLogC.h"
 
 @implementation SentryMsgPackSerializer
@@ -75,14 +76,16 @@
 
 - (NSInputStream *)asInputStream
 {
-    return [[NSInputStream alloc] initWithURL:self];
+    // Silencing the null-handling as this will be refactored in https://github.com/getsentry/sentry-cocoa/pull/6143
+    return SENTRY_UNWRAP_NULLABLE(NSInputStream, [[NSInputStream alloc] initWithURL:self]);
 }
 
 - (NSInteger)streamSize
 {
     NSFileManager *fileManager = [NSFileManager defaultManager];
     NSError *error;
-    NSDictionary *attributes = [fileManager attributesOfItemAtPath:self.path error:&error];
+    // Silencing the null-handling as this will be refactored in https://github.com/getsentry/sentry-cocoa/pull/6143
+    NSDictionary *attributes = [fileManager attributesOfItemAtPath:SENTRY_UNWRAP_NULLABLE(NSString, self.path) error:&error];
     if (attributes == nil) {
         SENTRY_LOG_DEBUG(@"Could not read file attributes - File: %@ - %@", self, error);
         return -1;

@@ -6628,8 +6628,6 @@
 				OTHER_CFLAGS = (
 					"-Wnullable-to-nonnull-conversion",
 					"-Wnullability-completeness",
-					"-Wno-error=nullable-to-nonnull-conversion",
-					"-Wno-error=nullability-completeness",
 				);
 			};
 			name = Debug;
@@ -6642,8 +6640,6 @@
 				OTHER_CFLAGS = (
 					"-Wnullable-to-nonnull-conversion",
 					"-Wnullability-completeness",
-					"-Wno-error=nullable-to-nonnull-conversion",
-					"-Wno-error=nullability-completeness",
 				);
 			};
 			name = Release;
@@ -6739,8 +6735,6 @@
 				OTHER_CFLAGS = (
 					"-Wnullable-to-nonnull-conversion",
 					"-Wnullability-completeness",
-					"-Wno-error=nullable-to-nonnull-conversion",
-					"-Wno-error=nullability-completeness",
 				);
 			};
 			name = TestCI;
@@ -6802,8 +6796,6 @@
 				OTHER_CFLAGS = (
 					"-Wnullable-to-nonnull-conversion",
 					"-Wnullability-completeness",
-					"-Wno-error=nullable-to-nonnull-conversion",
-					"-Wno-error=nullability-completeness",
 				);
 			};
 			name = DebugWithoutUIKit;
@@ -7211,8 +7203,6 @@
 				OTHER_CFLAGS = (
 					"-Wnullable-to-nonnull-conversion",
 					"-Wnullability-completeness",
-					"-Wno-error=nullable-to-nonnull-conversion",
-					"-Wno-error=nullability-completeness",
 				);
 			};
 			name = ReleaseWithoutUIKit;
@@ -7508,8 +7498,6 @@
 				OTHER_CFLAGS = (
 					"-Wnullable-to-nonnull-conversion",
 					"-Wnullability-completeness",
-					"-Wno-error=nullable-to-nonnull-conversion",
-					"-Wno-error=nullability-completeness",
 				);
 			};
 			name = Test;
@@ -8274,8 +8262,6 @@
 				OTHER_CFLAGS = (
 					"-Wnullable-to-nonnull-conversion",
 					"-Wnullability-completeness",
-					"-Wno-error=nullable-to-nonnull-conversion",
-					"-Wno-error=nullability-completeness",
 				);
 			};
 			name = DebugV9;
@@ -8556,8 +8542,6 @@
 				OTHER_CFLAGS = (
 					"-Wnullable-to-nonnull-conversion",
 					"-Wnullability-completeness",
-					"-Wno-error=nullable-to-nonnull-conversion",
-					"-Wno-error=nullability-completeness",
 				);
 			};
 			name = ReleaseV9;

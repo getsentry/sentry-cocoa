@@ -151,13 +151,13 @@ typedef void (^SentryOnAppStartMeasurementAvailable)(
  * @warning This feature is not available in @c DebugWithoutUIKit and @c ReleaseWithoutUIKit
  * configurations even when targeting iOS or tvOS platforms.
  */
-+ (NSArray<NSData *> *)captureScreenshots;
++ (NSArray<NSData *> * _Nullable)captureScreenshots;
 
 /**
  * @warning This feature is not available in @c DebugWithoutUIKit and @c ReleaseWithoutUIKit
  * configurations even when targeting iOS or tvOS platforms.
  */
-+ (NSData *)captureViewHierarchy;
++ (NSData * _Nullable)captureViewHierarchy;
 
 /**
  * Allow Hybrids SDKs to set the current Screen.

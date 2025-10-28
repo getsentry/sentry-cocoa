@@ -67,7 +67,7 @@
 
     // This value can change when installing test builds using Xcode or when installing an app
     // on a device using ad-hoc distribution.
-    if (![currentAppState.vendorId isEqualToString:previousAppState.vendorId]) {
+    if (![currentAppState.vendorId isEqualToString:SENTRY_UNWRAP_NULLABLE(NSString, previousAppState.vendorId)]) {
         return NO;
     }
 

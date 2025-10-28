@@ -3,6 +3,7 @@
 #import <SentrySwift.h>
 #import <SentryTraceHeader.h>
 #import <SentryTracePropagation.h>
+#import <SentryInternalDefines.h>
 
 static NSString *const SENTRY_TRACEPARENT = @"traceparent";
 
@@ -11,7 +12,7 @@ static NSString *const SENTRY_TRACEPARENT = @"traceparent";
 + (void)addBaggageHeader:(SentryBaggage *)baggage
                 traceHeader:(SentryTraceHeader *)traceHeader
        propagateTraceparent:(BOOL)propagateTraceparent
-    tracePropagationTargets:(NSArray *)tracePropagationTargets
+    tracePropagationTargets:(NSArray *_Nullable)tracePropagationTargets
                   toRequest:(NSURLSessionTask *)sessionTask
 {
     if (![SentryTracePropagation sessionTaskRequiresPropagation:sessionTask
@@ -23,11 +24,12 @@ static NSString *const SENTRY_TRACEPARENT = @"traceparent";
     NSString *baggageHeader = @"";
 
     if (baggage != nil) {
-        NSDictionary *originalBaggage = [SentryBaggageSerialization
-            decode:sessionTask.currentRequest.allHTTPHeaderFields[SENTRY_BAGGAGE_HEADER]];
-
-        if (originalBaggage[@"sentry-trace_id"] == nil) {
-            baggageHeader = [baggage toHTTPHeaderWithOriginalBaggage:originalBaggage];
+        NSString *_Nullable rawHeader = sessionTask.currentRequest.allHTTPHeaderFields[SENTRY_BAGGAGE_HEADER];
+        if (rawHeader) {
+            NSDictionary *originalBaggage = [SentryBaggageSerialization decode:SENTRY_UNWRAP_NULLABLE(NSString, rawHeader)];
+            if (originalBaggage[@"sentry-trace_id"] == nil) {
+                baggageHeader = [baggage toHTTPHeaderWithOriginalBaggage:originalBaggage];
+            }
         }
     }
 
@@ -64,7 +66,7 @@ static NSString *const SENTRY_TRACEPARENT = @"traceparent";
                tracePropagationTargets:(NSArray *)tracePropagationTargets
 {
     return sessionTask.currentRequest != nil &&
-        [SentryTracePropagation isTargetMatch:sessionTask.currentRequest.URL
+        [SentryTracePropagation isTargetMatch:SENTRY_UNWRAP_NULLABLE(NSURL, sessionTask.currentRequest.URL)
                                   withTargets:tracePropagationTargets];
 }
 

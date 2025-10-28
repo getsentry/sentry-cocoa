@@ -386,8 +386,11 @@ SentryEnvelopeItem *_Nullable sentry_traceProfileEnvelopeItem(SentryHub *hub,
     NSMutableDictionary *transactionDict = [[NSMutableDictionary alloc] initWithDictionary:@ {
         @"id" : transaction.eventId.sentryIdString,
         @"trace_id" : transaction.trace.traceId.sentryIdString,
-        @"active_thread_id" : [transaction.trace.transactionContext sentry_threadInfo].threadId
     }];
+    NSNumber *_Nullable activeThreadId = [transaction.trace.transactionContext sentry_threadInfo].threadId;
+    if (activeThreadId != nil || [activeThreadId  isEqual: @0]) {
+        transactionDict[@"active_thread_id"] = activeThreadId;
+    }
     if (transaction.transaction) {
         transactionDict[@"name"] = transaction.transaction;
     }

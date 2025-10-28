@@ -74,7 +74,7 @@ import UIKit
     
     deinit { displayLink.invalidate() }
 
-    public func start(rootView: UIView, fullSession: Bool) {
+    public func start(rootView: UIView?, fullSession: Bool) {
         SentrySDKLog.debug("[Session Replay] Starting session replay with full session: \(fullSession)")
         guard !isRunning else { 
             SentrySDKLog.debug("[Session Replay] Session replay is already running, not starting again")

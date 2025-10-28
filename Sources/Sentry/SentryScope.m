@@ -523,9 +523,14 @@ NS_ASSUME_NONNULL_BEGIN
     }
 }
 
-- (SentryEvent *__nullable)applyToEvent:(SentryEvent *)event
+- (SentryEvent *__nullable)applyToEvent:(SentryEvent *_Nullable)event
                           maxBreadcrumb:(NSUInteger)maxBreadcrumbs
 {
+    // We changed the parameter to be nullable, so this method can be called with a potential null value
+    if (!event) {
+        return nil;
+    }
+
     if (event.isFatalEvent) {
         SENTRY_LOG_WARN(@"Won't apply scope to a crash event. This is not allowed as crash "
                         @"events are from a previous run of the app and the current scope might "

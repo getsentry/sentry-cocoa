@@ -445,8 +445,11 @@
 - (void)recordLostSpans:(SentryEnvelopeItem *)envelopeItem reason:(SentryDiscardReason)reason
 {
     if ([SentryEnvelopeItemTypes.transaction isEqualToString:envelopeItem.header.type]) {
+        if (envelopeItem.data == nil) {
+            return;
+        }
         NSDictionary *_Nullable transactionJson =
-            [SentrySerialization deserializeDictionaryFromJsonData:envelopeItem.data];
+            [SentrySerialization deserializeDictionaryFromJsonData:SENTRY_UNWRAP_NULLABLE(NSData, envelopeItem.data)];
         if (transactionJson == nil) {
             return;
         }

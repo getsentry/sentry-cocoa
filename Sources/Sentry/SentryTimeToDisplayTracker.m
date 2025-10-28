@@ -13,6 +13,7 @@
 #    import "SentrySwift.h"
 #    import "SentryTraceOrigin.h"
 #    import "SentryTracer.h"
+#import "SentryInternalDefines.h"
 
 #    import <UIKit/UIKit.h>
 
@@ -199,7 +200,10 @@
 
 - (void)addTimeToDisplayMeasurement:(id<SentrySpan>)span name:(NSString *)name
 {
-    NSTimeInterval duration = [span.timestamp timeIntervalSinceDate:span.startTimestamp] * 1000;
+    if (!span.startTimestamp) {
+        return;
+    }
+    NSTimeInterval duration = [span.timestamp timeIntervalSinceDate:SENTRY_UNWRAP_NULLABLE(NSDate, span.startTimestamp)] * 1000;
     [span setMeasurement:name value:@(duration) unit:SentryMeasurementUnitDuration.millisecond];
 }
 
