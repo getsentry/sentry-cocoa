@@ -776,7 +776,7 @@ final class SentryLoggerTests: XCTestCase {
     }
     
     // MARK: - Replay Attributes Tests
-    
+#if canImport(UIKit) && !SENTRY_NO_UIKIT    
 #if os(iOS) || os(tvOS)
     func testReplayAttributes_SessionMode_AddsReplayId() {
         // Setup replay integration
@@ -835,7 +835,8 @@ final class SentryLoggerTests: XCTestCase {
         XCTAssertNil(log.attributes["sentry._internal.replay_is_buffering"])
     }
 #endif
-    
+#endif
+
     // MARK: - Helper Methods
     
     private func assertLogCaptured(

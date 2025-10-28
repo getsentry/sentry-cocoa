@@ -283,6 +283,7 @@ public final class SentryLogger: NSObject {
     }
     
     private func addReplayAttributes(to attributes: inout [String: SentryLog.Attribute]) {
+#if canImport(UIKit) && !SENTRY_NO_UIKIT
 #if os(iOS) || os(tvOS)
         if let scopeReplayId = hub.scope.replayId {
             // Session mode: use scope replay ID
@@ -292,6 +293,7 @@ public final class SentryLogger: NSObject {
             attributes["sentry.replay_id"] = .init(string: sessionReplayId)
             attributes["sentry._internal.replay_is_buffering"] = .init(boolean: true)
         }
+#endif
 #endif
     }
 }

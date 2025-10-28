@@ -852,7 +852,11 @@ NS_ASSUME_NONNULL_BEGIN
     if (integration == nil || integration.sessionReplay == nil) {
         return nil;
     }
-    return integration.sessionReplay.sessionReplayId.sentryIdString;
+    SentryId *replayId = integration.sessionReplay.sessionReplayId;
+    if (replayId == nil) {
+        return nil;
+    }
+    return replayId.sentryIdString;
 }
 #endif
 
