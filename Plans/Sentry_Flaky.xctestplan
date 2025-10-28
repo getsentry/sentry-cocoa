@@ -16,6 +16,7 @@
   "testTargets" : [
     {
       "selectedTests" : [
+        "PrivateSentrySDKOnlyTests\/testProfilingStartAndCollect()",
         "SentryHttpTransportFlushIntegrationTests"
       ],
       "target" : {
