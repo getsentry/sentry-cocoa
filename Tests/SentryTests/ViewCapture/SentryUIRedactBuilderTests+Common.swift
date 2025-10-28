@@ -489,7 +489,7 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftli
 
         // Assert that the redacted child label is redacted
         let region3 = try XCTUnwrap(preIgnoreResult.element(at: 2))
-        XCTAssertEqual(region.color, redactedLabel.textColor.withAlphaComponent(1.0))
+        XCTAssertEqual(region3.color, redactedLabel.textColor.withAlphaComponent(1.0))
         XCTAssertEqual(region3.size, CGSize(width: 60, height: 60))
         XCTAssertEqual(region3.type, .redact)
         XCTAssertEqual(region3.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 0, ty: 0))
