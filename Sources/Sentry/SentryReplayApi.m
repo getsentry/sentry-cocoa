@@ -58,6 +58,8 @@
             if (replayIntegration == nil) {
                 SentryOptions *currentOptions = SentrySDKInternal.currentHub.client.options;
                 if (![SentrySessionReplayIntegration shouldEnableForOptions:currentOptions]) {
+                    SENTRY_LOG_ERROR(@"[Session Replay] Session replay is disabled due to "
+                                     @"environment potentially causing PII leaks.");
                     return;
                 }
                 SENTRY_LOG_DEBUG(@"[Session Replay] Initializing replay integration");
