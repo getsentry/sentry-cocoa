@@ -23,7 +23,8 @@ on:
         type: boolean
       macos_version:
         description: "macOS version"
-        required: true
+        required: false
+        default: macos-26
         type: string
       needs_xcframework:
         description: "Whether the workflow needs to download the XCFramework."
@@ -60,6 +61,16 @@ on:
         required: false
         default: ""
         type: string
+      run_on_cirrus_labs:
+        description: "Whether to run the tests on Cirrus Labs"
+        required: false
+        default: false
+        type: boolean
+      cirrus_labs_macos_version:
+        description: "Cirrus Labs macOS version"
+        required: false
+        default: tahoe
+        type: string
     secrets:
       CODECOV_TOKEN:
         required: true
@@ -67,7 +78,7 @@ on:
 jobs:
   common-ui-tests:
     name: UI Tests Common
-    runs-on: ${{ inputs.macos_version }}
+    runs-on: ${{ inputs.run_on_cirrus_labs && fromJSON(format('["ghcr.io/cirruslabs/macos-runner:{0}", "runner_group_id:10"]', inputs.cirrus_labs_macos_version)) || inputs.macos_version }}
     timeout-minutes: 40
     steps:
       - uses: actions/checkout@v5
