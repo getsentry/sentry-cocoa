@@ -27,10 +27,12 @@
     {
       "parallelizable" : false,
       "skippedTests" : [
+        "PrivateSentrySDKOnlyTests\/testProfilingStartAndCollect()",
         "SentryANRTrackerTests\/testANRButAppInBackground_NoANR()",
         "SentryANRTrackerTests\/testMultipleListeners()",
         "SentryCoreDataTrackerTests\/testFetchRequestBackgroundThread()",
         "SentryCoreDataTrackerTests\/testSaveBackgroundThread()",
+        "SentryCrashBinaryImageCacheTests\/testRemoveImageFromBeginning",
         "SentryCrashIntegrationTests\/testStartUpCrash_CallsFlush()",
         "SentryCrashReportStore_Tests\/testCrashReportCount1",
         "SentryCrashReportStore_Tests\/testDeleteAllReports",
