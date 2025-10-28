@@ -53,7 +53,7 @@ class SentryReplayApiTests: XCTestCase {
         XCTAssertTrue(mockHub.installedIntegrations().isEmpty)
     }
 
-    func testStart_whenReplayIntegrationNilWithUnreliableEnvironmentAndExperimental_shouldCreateAndInstallIntegration() throws {
+    func testStart_whenReplayIntegrationNilWithUnreliableEnvironmentAndOverrideOptionEnabled_shouldCreateAndInstallIntegration() throws {
         // Arrange
         let options = Options()
         options.sessionReplay = SentryReplayOptions(sessionSampleRate: 1.0, onErrorSampleRate: 1.0)
