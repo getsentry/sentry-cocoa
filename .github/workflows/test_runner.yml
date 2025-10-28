@@ -10,20 +10,35 @@ jobs:
   macos:
     strategy:
       matrix:
-        macos-version:
-          - tahoe
-          - sequoia
-          - sonoma
+        group_id:
+          - 1
+          - 2
+          - 3
+          - 4
+          - 5
+          - 6
+          - 7
+          - 8
+          - 9
+          - 10
+          - 11
+          - 12
+          - 13
+          - 14
+          - 15
+          - 16
+          - 17
+          - 18
     name: "Run on the fastest infrastructure"
     runs-on: [
-      "ghcr.io/cirruslabs/macos-runner:${{ matrix.macos-version }}",
-      "runner_group_id:11",
+      "ghcr.io/cirruslabs/macos-runner:tahoe",
+      "runner_group_id:${{ matrix.group_id }}",
     ]
     steps:
       - uses: actions/checkout@v4
       - name: Print macOS version
         run: |
-          echo "macOS version: ${{ matrix.macos-version }}"
+          echo "group_id: ${{ matrix.group_id }}"
           echo "OS version:"
           sw_vers
       - name: List Installed Xcodes
