@@ -17,6 +17,7 @@
     {
       "selectedTests" : [
         "PrivateSentrySDKOnlyTests\/testProfilingStartAndCollect()",
+        "SentryCrashBinaryImageCacheTests\/testRemoveImageFromBeginning",
         "SentryHttpTransportFlushIntegrationTests"
       ],
       "target" : {
