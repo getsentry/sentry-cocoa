@@ -23,7 +23,6 @@ extension SentryAppLaunchProfilingTests {
     func testContinuousLaunchProfileV2TraceLifecycleConfiguration() throws {
         // Arrange
         let options = Options()
-        options.profilesSampleRate = nil
         options.tracesSampleRate = 1
         options.configureProfiling = {
             $0.lifecycle = .trace
@@ -57,7 +56,6 @@ extension SentryAppLaunchProfilingTests {
     func testContinuousLaunchProfileV2ManualLifecycleConfiguration() throws {
         // Arrange
         let options = Options()
-        options.profilesSampleRate = nil
         options.configureProfiling = {
             $0.lifecycle = .manual
             $0.sessionSampleRate = 1
@@ -95,7 +93,6 @@ extension SentryAppLaunchProfilingTests {
     func testLaunchContinuousProfileV2TraceLifecycleNotStoppedOnFullyDisplayed() throws {
         // Arrange
         fixture.options.tracesSampleRate = 1
-        fixture.options.profilesSampleRate = nil
         fixture.options.configureProfiling = {
             $0.profileAppStarts = true
             $0.sessionSampleRate = 1
@@ -127,7 +124,6 @@ extension SentryAppLaunchProfilingTests {
 
     func testLaunchContinuousProfileV2ManualLifecycleNotStoppedOnFullyDisplayed() throws {
         // Arrange
-        fixture.options.profilesSampleRate = nil
         fixture.options.configureProfiling = {
             $0.profileAppStarts = true
             $0.sessionSampleRate = 1
@@ -160,7 +156,6 @@ extension SentryAppLaunchProfilingTests {
     func testLaunchContinuousProfileV2TraceLifecycleNotStoppedOnInitialDisplayWithoutWaitingForFullDisplay() throws {
         // Arrange
         fixture.options.tracesSampleRate = 1
-        fixture.options.profilesSampleRate = nil
         fixture.options.configureProfiling = {
             $0.profileAppStarts = true
             $0.sessionSampleRate = 1
@@ -191,7 +186,6 @@ extension SentryAppLaunchProfilingTests {
 
     func testLaunchContinuousProfileV2ManualLifecycleNotStoppedOnInitialDisplayWithoutWaitingForFullDisplay() throws {
         // Arrange
-        fixture.options.profilesSampleRate = nil
         fixture.options.configureProfiling = {
             $0.profileAppStarts = true
             $0.sessionSampleRate = 1
