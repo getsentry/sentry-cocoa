@@ -34,7 +34,6 @@ class SentryTransportAdapterTests: XCTestCase {
         clearTestState()
     }
     
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testSendEventWithSession_SendsCorrectEnvelope() throws {
         let session = SentrySession(releaseName: "1.0.1", distinctId: "some-id")
         let event = TestData.event
@@ -49,7 +48,6 @@ class SentryTransportAdapterTests: XCTestCase {
         try assertSentEnvelope(expected: expectedEnvelope)
     }
 
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testSendFaultyAttachment_FaultyAttachmentGetsDropped() throws {
         let event = TestData.event
         sut.send(event: event, traceContext: nil, attachments: [fixture.faultyAttachment, fixture.attachment])
@@ -62,7 +60,6 @@ class SentryTransportAdapterTests: XCTestCase {
         try assertSentEnvelope(expected: expectedEnvelope)
     }
     
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testStoreEvent_StoresCorrectEnvelope() throws {
         let event = TestData.event
         sut.store(event, traceContext: nil)
