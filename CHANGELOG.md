@@ -28,6 +28,7 @@
 - Add SentryDistribution as Swift Package Manager target (#6149)
 - Add option `enablePropagateTraceparent` to support OTel/W3C trace propagation (#6356)
 - Structured Logs: Add `SentrySwiftLog` Integration (#6286)
+- Structured Logs: Add `SentrySwiftyBeaver` Integration (#XXXX)
 
 ### Fixes
 
