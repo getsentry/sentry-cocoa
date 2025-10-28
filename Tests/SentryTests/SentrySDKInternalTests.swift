@@ -172,7 +172,6 @@ class SentrySDKInternalTests: XCTestCase {
         fileManager.deleteAllEnvelopes()
     }
 
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testStoreEnvelope_WhenNoClient_NoCrash() {
         SentrySDKInternal.store(SentryEnvelope(event: TestData.event))
 
