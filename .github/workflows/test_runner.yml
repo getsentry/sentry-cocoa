@@ -11,24 +11,9 @@ jobs:
     strategy:
       matrix:
         group_id:
-          - 1
-          - 2
-          - 3
-          - 4
-          - 5
-          - 6
-          - 7
-          - 8
-          - 9
           - 10
           - 11
           - 12
-          - 13
-          - 14
-          - 15
-          - 16
-          - 17
-          - 18
     name: "Run on the fastest infrastructure"
     runs-on: [
       "ghcr.io/cirruslabs/macos-runner:tahoe",
