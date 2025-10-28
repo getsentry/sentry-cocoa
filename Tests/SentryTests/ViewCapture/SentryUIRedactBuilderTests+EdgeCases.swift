@@ -675,14 +675,14 @@ class SentryUIRedactBuilderTests_EdgeCases: SentryUIRedactBuilderTests { // swif
         label.textColor = UIColor.purple
         rootView.addSubview(label)
 
-        // Start an animation to create a presentation layer
-        UIView.animate(withDuration: 10) {
+        // Start a shorter animation with linear timing to create a predictable presentation layer
+        UIView.animate(withDuration: 1.0, delay: 0, options: .curveLinear) {
             label.frame = CGRect(x: 60, y: 60, width: 40, height: 40)
         }
 
-        // Wait briefly to ensure the animation has started and presentation layer exists
-        let expectation = XCTestExpectation(description: "Wait for animation to start")
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+        // Wait for animation to reach approximately 50% completion (0.5 seconds of 1.0 second animation)
+        let expectation = XCTestExpectation(description: "Wait for animation to reach midpoint")
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             expectation.fulfill()
         }
         wait(for: [expectation], timeout: 1.0)
@@ -693,21 +693,19 @@ class SentryUIRedactBuilderTests_EdgeCases: SentryUIRedactBuilderTests { // swif
 
         // -- Assert --
         // During animation, the presentation layer should be used
-        // The position should be somewhere between start (20, 20) and end (60, 60)
+        // With linear timing at 50% completion, position should be approximately halfway between start (20, 20) and end (60, 60)
+        // Expected midpoint: (40, 40) with some tolerance for timing precision
         let region = try XCTUnwrap(result.element(at: 0))
         XCTAssertEqual(region.color, UIColor.purple)
         XCTAssertEqual(region.type, .redact)
         XCTAssertEqual(region.size, CGSize(width: 40, height: 40))
         
-        // Verify the position is not at the starting position (which would indicate no animation)
-        XCTAssertNotEqual(region.transform.tx, 20.0)
-        XCTAssertNotEqual(region.transform.ty, 20.0)
-        
-        // Verify the position is within the animation range (between start and end)
-        XCTAssertGreaterThanOrEqual(region.transform.tx, 20.0)
-        XCTAssertLessThanOrEqual(region.transform.tx, 60.0)
-        XCTAssertGreaterThanOrEqual(region.transform.ty, 20.0)
-        XCTAssertLessThanOrEqual(region.transform.ty, 60.0)
+        // Verify the position is in the middle third of the animation range (between 30 and 50)
+        // This ensures the presentation layer is being used and represents an intermediate state
+        XCTAssertGreaterThan(region.transform.tx, 30.0, "Position should have progressed beyond 30% of animation")
+        XCTAssertLessThan(region.transform.tx, 50.0, "Position should not have progressed beyond 70% of animation")
+        XCTAssertGreaterThan(region.transform.ty, 30.0, "Position should have progressed beyond 30% of animation")
+        XCTAssertLessThan(region.transform.ty, 50.0, "Position should not have progressed beyond 70% of animation")
 
         // Assert that no other regions
         XCTAssertEqual(result.count, 1)
