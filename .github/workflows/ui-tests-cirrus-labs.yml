@@ -42,14 +42,17 @@ jobs:
         include:
           - name: iOS Objective-C
             target: ios_objc
+            test-destination-os: "18.6"
           - name: tvOS Swift
             target: tvos_swift
+            test-destination-os: "18.5"
     with:
       fastlane_command: ui_tests_${{matrix.target}}
       xcode_version: 16.2
       build_with_make: true
       run_on_cirrus_labs: true
       cirrus_labs_macos_version: sequoia
+      test-destination-os: ${{matrix.test-destination-os}}
       codecov_test_analytics: true
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
@@ -135,10 +138,10 @@ jobs:
       xcode_version: 16.4
       build_with_make: true
       run_on_cirrus_labs: true
-      cirrus_labs_macos_version: sonoma
+      cirrus_labs_macos_version: sequoia
       codecov_test_analytics: true
       device: iPhone 16 Pro
-      test-destination-os: "18.4"
+      test-destination-os: "18.6"
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
