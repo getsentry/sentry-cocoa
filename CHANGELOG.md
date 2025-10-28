@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Disable SessionSentryReplayIntegration if the environment is unsafe [#6573]
+
 ## 8.57.0
 
 > [!Warning]
