@@ -49,7 +49,7 @@ jobs:
       xcode_version: 16.2
       build_with_make: true
       run_on_cirrus_labs: true
-      cirrus_labs_macos_version: sonoma
+      cirrus_labs_macos_version: sequoia
       codecov_test_analytics: true
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
@@ -81,28 +81,18 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # iOS 16 - Use macOS-26 with Xcode 26.1 to download iOS 16.4 runtime (latest toolkit)
-          - name: iOS 16
-            macos_version: tahoe
-            xcode: "26.1"
-            test-destination-os: "16.4"
-            install_platforms: true
-            platform: "iOS"
-            create_device: true
-            device: iPhone 14 Pro
-
-          # iOS 17 - Use pre-installed iOS 17.5 runtime on macOS-14 with Xcode 15.4
+          # iOS 17 - Use pre-installed iOS 17.5 runtime on sequoia with Xcode 16.4
           - name: iOS 17
-            macos_version: tahoe
-            xcode: "15.4"
+            macos_version: sequoia
+            xcode: "16.4"
             test-destination-os: "17.5"
             platform: "iOS"
             create_device: true
             device: iPhone 15 Pro
 
-          # iOS 18 - Use pre-installed iOS 18.4 runtime on macOS-15
+          # iOS 18 - Use pre-installed iOS 18.4 runtime on sequoia with Xcode 16.4
           - name: iOS 18
-            macos_version: tahoe
+            macos_version: sequoia
             xcode: "16.4"
             test-destination-os: "18.4"
             platform: "iOS"
