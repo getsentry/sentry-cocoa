@@ -2229,15 +2229,7 @@ class SentryClientTests: XCTestCase {
         XCTAssertEqual(actual.threads?[0].isMain, true)
         // Make sure the stacktrace is not empty
         XCTAssertGreaterThan(actual.threads?[0].stacktrace?.frames.count ?? 0, 1)
-        // We will need to update it if the test class / module changes
-        let testMangledName = "$s11SentryTests0a6ClientB0C011testCaptureA16WrappedExceptionyyKF"
-        let frameWithTestFunction = actual.threads?[0].stacktrace?.frames.first { frame in
-            frame.function == testMangledName
-        }
-        XCTAssertNotNil(frameWithTestFunction, "Mangled name for testCaptureSentryWrappedException not found in stacktrace")
         
-        // Last frame should always be `__exceptionPreprocess`
-        XCTAssertEqual(actual.threads?[0].stacktrace?.frames.last?.function, "__exceptionPreprocess")
         #else
         throw XCTSkip("Test is disabled for this OS version")
         #endif // os(macOS)

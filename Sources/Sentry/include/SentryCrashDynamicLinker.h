@@ -97,26 +97,6 @@ uint32_t sentrycrashdl_imageNamed(const char *const imageName, bool exactMatch);
  */
 const uint8_t *sentrycrashdl_imageUUID(const char *const imageName, bool exactMatch);
 
-/**
- * ATTENTION: This method isn't async-safe as it accesses @c _dyld_get_image_header, which acquires
- * a lock. We plan on removing this method with
- * https://github.com/getsentry/sentry-cocoa/issues/2996.
- *
- *
- * This method searches the dynamic loader for information about any image
- * containing the specified address. It may not be entirely successful in
- * finding information, in which case any fields it could not find will be set
- * to NULL.
- *
- * Unlike dladdr(), this method does not make use of locks, and does not call
- * async-unsafe functions.
- *
- * @param address The address to search for.
- * @param info Gets filled out by this function.
- * @return true if at least some information was found.
- */
-bool sentrycrashdl_dladdr(const uintptr_t address, Dl_info *const info);
-
 void sentrycrashdl_getCrashInfo(uint64_t address, SentryCrashBinaryImage *buffer);
 
 void sentrycrashdl_initialize(void);

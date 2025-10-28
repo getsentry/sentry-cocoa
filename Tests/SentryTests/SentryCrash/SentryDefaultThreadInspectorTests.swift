@@ -9,16 +9,14 @@ class SentryDefaultThreadInspectorTests: XCTestCase {
         var stacktraceBuilder = TestSentryStacktraceBuilder(crashStackEntryMapper: SentryCrashStackEntryMapper(inAppLogic: SentryInAppLogic(inAppIncludes: [])))
         var keepThreadAlive = true
         
-        func getSut(testWithRealMachineContextWrapper: Bool = false, symbolicate: Bool = true) -> SentryDefaultThreadInspector {
+        func getSut(testWithRealMachineContextWrapper: Bool = false) -> SentryDefaultThreadInspector {
             
             let machineContextWrapper = testWithRealMachineContextWrapper ? SentryCrashDefaultMachineContextWrapper() : testMachineContextWrapper as SentryCrashMachineContextWrapper
             let stacktraceBuilder = testWithRealMachineContextWrapper ? SentryStacktraceBuilder(crashStackEntryMapper: SentryCrashStackEntryMapper(inAppLogic: SentryInAppLogic(inAppIncludes: []))) : self.stacktraceBuilder
 
-            stacktraceBuilder.symbolicate = symbolicate
-
             return SentryDefaultThreadInspector(
                 stacktraceBuilder: stacktraceBuilder,
-                andMachineContextWrapper: machineContextWrapper, symbolicate: symbolicate
+                andMachineContextWrapper: machineContextWrapper
             )
         }
     }
@@ -114,7 +112,7 @@ class SentryDefaultThreadInspectorTests: XCTestCase {
         let expect = expectation(description: "Read every thread")
         expect.expectedFulfillmentCount = 10
         
-        let sut = self.fixture.getSut(testWithRealMachineContextWrapper: true, symbolicate: false)
+        let sut = self.fixture.getSut(testWithRealMachineContextWrapper: true)
 
         for _ in 0..<10 {
             
@@ -209,18 +207,16 @@ class SentryDefaultThreadInspectorTests: XCTestCase {
         XCTAssertNotNil(stackTrace2)
         XCTAssertGreaterThan(stackTrace.frames.count, 0)
         XCTAssertNotEqual(stackTrace.frames.first?.instructionAddress, "0x0000000000000000")
-        XCTAssertNotEqual(stackTrace.frames.first?.function, "<redacted>")
     }
 
     func testStackTrackForCurrentThreadAsyncUnsafe_NoSymbolication() {
-        guard let stackTrace = fixture.getSut(testWithRealMachineContextWrapper: true, symbolicate: false).stacktraceForCurrentThreadAsyncUnsafe() else {
+        guard let stackTrace = fixture.getSut(testWithRealMachineContextWrapper: true).stacktraceForCurrentThreadAsyncUnsafe() else {
             XCTFail("Stack Trace not found")
             return
         }
 
         XCTAssertNotNil(stackTrace)
         XCTAssertGreaterThan(stackTrace.frames.count, 0)
-        XCTAssertNil(stackTrace.frames.first?.function)
     }
 
     func testOnlyCurrentThreadHasStacktrace() throws {

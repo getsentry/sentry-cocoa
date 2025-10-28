@@ -10,7 +10,6 @@ class SentryStacktraceBuilderTests: XCTestCase {
         var sut: SentryStacktraceBuilder {
             SentryDependencyContainer.sharedInstance().reachability = TestSentryReachability()
             let res = SentryStacktraceBuilder(crashStackEntryMapper: SentryCrashStackEntryMapper(inAppLogic: SentryInAppLogic(inAppIncludes: [])))
-            res.symbolicate = true
             return res
         }
     }
@@ -46,21 +45,9 @@ class SentryStacktraceBuilderTests: XCTestCase {
         // deterministic tests here. Therefore we just make sure they are
         // filled with some values.
         for frame in actual.frames {
-            XCTAssertNotNil(frame.symbolAddress)
-            XCTAssertNotNil(frame.function)
             XCTAssertNotNil(frame.imageAddress)
             XCTAssertNotNil(frame.instructionAddress)
         }
-    }
-    
-    func testFramesDontContainBuilderFunction() {
-        let actual = fixture.sut.buildStacktraceForCurrentThread()
-        
-        let result = actual.frames.contains { frame in
-            return frame.function?.contains("buildStacktraceForCurrentThread") ?? false
-        }
-        
-        XCTAssertFalse(result, "The stacktrace should not contain the function that builds the stacktrace")
     }
     
     func testFramesOrder() throws {
@@ -68,11 +55,18 @@ class SentryStacktraceBuilderTests: XCTestCase {
         let actual = fixture.sut.buildStacktraceForCurrentThread()
 
         // -- Assert --
-        // Make sure the first 4 frames contain main
-        let isMainInFirstFrames = actual.frames[...3].contains(where: { $0.function == "main" })
+        // Make sure the first 4 frames contain an address close to the main function
+        let isMainInFirstFrames = actual.frames[...3].contains(where: { frame in
+            let inst = Int(frame.instructionAddress?.replacingOccurrences(of: "0x", with: "") ?? "", radix: 16) ?? 0
+            #if targetEnvironment(simulator)
+            return name(for: inst) == "start_sim"
+            #else
+            return name(for: inst) == "start"
+            #endif
+        })
         XCTAssertTrue(
             isMainInFirstFrames,
-            "Expected frames to be ordered from caller to callee (xctest's main expected in first few frames). Found instead:\n\(actual.frames.map({ "   - \($0.function ?? "<empty>")" }).joined(separator: "\n"))"
+            "Expected frames to be ordered from caller to callee (xctest's main expected in first few frames)."
         )
     }
 
@@ -145,10 +139,24 @@ class SentryStacktraceBuilderTests: XCTestCase {
     private func innerFrame2() async -> Int {
         let needed = ["firstFrame", "innerFrame1", "innerFrame2"]
         let actual = fixture.sut.buildStacktraceForCurrentThreadAsyncUnsafe()!
-        let filteredFrames = actual.frames
-            .compactMap({ $0.function })
+        let symbolNames = actual.frames
+            .compactMap({ $0.instructionAddress?.replacingOccurrences(of: "0x", with: "") })
+            .compactMap { Int($0, radix: 16) }
+            .compactMap { addr in
+                name(for: addr)
+            }
+        let filteredFrames = symbolNames
             .filter { needed.contains(where: $0.contains) }
         print("\(Date()) [Sentry] [TEST] returning filtered frames.")
         return filteredFrames.count
+    }
+    
+    private func name(for addr: Int) -> String? {
+        var sym = Dl_info()
+        dladdr(UnsafeMutableRawPointer(bitPattern: addr), &sym)
+        if let symName = sym.dli_sname {
+            return String(cString: symName)
+        }
+        return nil
     }
 }

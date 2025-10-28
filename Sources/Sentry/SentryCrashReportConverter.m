@@ -307,15 +307,13 @@
         = (uintptr_t)[frameDictionary[@"instruction_addr"] unsignedLongLongValue];
     NSDictionary *binaryImage = [self binaryImageForAddress:instructionAddress];
     SentryFrame *frame = [[SentryFrame alloc] init];
-    frame.symbolAddress = sentry_formatHexAddress(frameDictionary[@"symbol_addr"]);
+    // The symbol address is not known, so it defaults to 0
+    frame.symbolAddress = @"0x0000000000000000";
     frame.instructionAddress = sentry_formatHexAddress(frameDictionary[@"instruction_addr"]);
     frame.imageAddress = sentry_formatHexAddress(binaryImage[@"image_addr"]);
     frame.package = binaryImage[@"name"];
     BOOL isInApp = [self.inAppLogic isInApp:binaryImage[@"name"]];
     frame.inApp = @(isInApp);
-    if (frameDictionary[@"symbol_name"]) {
-        frame.function = frameDictionary[@"symbol_name"];
-    }
     return frame;
 }
 
