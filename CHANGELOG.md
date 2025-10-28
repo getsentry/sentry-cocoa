@@ -34,6 +34,15 @@
 - Fix rendering method for fast view rendering (#6360)
 - Fix issue where the thread that generated an event could be missing when more than 100 threads are running (#6377)
 - Fix wrong Frame Delay when becoming active, which lead to false reported app hangs when the app moves to the foreground after being in the background (#6381)
+- Session Replay masking improvements (#6292)
+  - Fix SwiftUI.List background decoration view causing incorrect clipping of screen content
+  - Fix sublayer rendering order by properly sorting by zPosition with insertion order as tie-breaker
+  - Fix UISwitch internal images being incorrectly redacted
+  - Fix UITextField placeholder text (UITextFieldLabel) not being detected for redaction
+  - Use string-based class comparison to avoid triggering Objective-C +initialize on background threads
+  - Add layer class filtering for views used in multiple contexts (e.g., SwiftUI._UIGraphicsView)
+  - Improve transform calculations for views with custom anchor points
+  - Fix axis-aligned transform detection for optimized opaque view clipping
 
 ### Improvements
 
