@@ -799,20 +799,6 @@ writeBacktrace(const SentryCrashReportWriter *const writer, const char *const ke
             while (stackCursor->advanceCursor(stackCursor)) {
                 writer->beginObject(writer, NULL);
                 {
-                    if (stackCursor->symbolicate(stackCursor)) {
-                        if (stackCursor->stackEntry.imageName != NULL) {
-                            writer->addStringElement(writer, SentryCrashField_ObjectName,
-                                sentrycrashfu_lastPathEntry(stackCursor->stackEntry.imageName));
-                        }
-                        writer->addUIntegerElement(writer, SentryCrashField_ObjectAddr,
-                            stackCursor->stackEntry.imageAddress);
-                        if (stackCursor->stackEntry.symbolName != NULL) {
-                            writer->addStringElement(writer, SentryCrashField_SymbolName,
-                                stackCursor->stackEntry.symbolName);
-                        }
-                        writer->addUIntegerElement(writer, SentryCrashField_SymbolAddr,
-                            stackCursor->stackEntry.symbolAddress);
-                    }
                     writer->addUIntegerElement(
                         writer, SentryCrashField_InstructionAddr, stackCursor->stackEntry.address);
                 }
