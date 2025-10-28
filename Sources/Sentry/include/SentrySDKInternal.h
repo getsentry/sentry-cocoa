@@ -378,8 +378,7 @@ SENTRY_NO_INIT
  * @c SentryOptions.profilesSampleRate or @c SentryOptions.profilesSampler . If either of those
  * options are set, this method does nothing.
  * @note Taking into account the above note, if @c SentryOptions.configureProfiling is not set,
- * calls to this method will always start a profile if one is not already running. This includes app
- * launch profiles configured with @c SentryOptions.enableAppLaunchProfiling .
+ * calls to this method will always start a profile if one is not already running.
  * @note If neither @c SentryOptions.profilesSampleRate nor @c SentryOptions.profilesSampler are
  * set, and @c SentryOptions.configureProfiling is set, this method does nothing if the profiling
  * session is not sampled with respect to @c SentryOptions.profileSessionSampleRate , or if it is

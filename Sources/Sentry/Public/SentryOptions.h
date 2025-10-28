@@ -432,9 +432,6 @@ NS_SWIFT_NAME(Options)
  * @c 0.01 collects 1% of all trace data.
  * @note The value needs to be >= 0.0 and \<= 1.0. When setting a value out of range the SDK sets it
  * to the default of @c 0 .
- * @note If @c enableAppLaunchProfiling is @c YES , this function will be called during SDK start
- * with @c SentrySamplingContext.forNextAppLaunch set to @c YES, and the result will be persisted to
- * disk for use on the next app launch.
  */
 @property (nullable, nonatomic) SentryTracesSamplerCallback tracesSampler NS_SWIFT_SENDABLE;
 
