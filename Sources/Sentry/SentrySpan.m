@@ -91,11 +91,7 @@ NS_ASSUME_NONNULL_BEGIN
         _origin = context.origin;
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-#    if !SDK_V9
-        _isContinuousProfiling = [SentrySDKInternal.options isContinuousProfilingEnabled];
-#    else
         _isContinuousProfiling = SentrySDKInternal.options != nil;
-#    endif
         if (_isContinuousProfiling) {
             _profileSessionID = SentryContinuousProfiler.currentProfilerID.sentryIdString;
             if (_profileSessionID == nil) {
