@@ -1,0 +1,30 @@
+name: Runner
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  macos:
+    strategy:
+      matrix:
+        macos-version:
+          - tahoe
+          - sequoia
+          - sonoma
+    name: "Run on the fastest infrastructure"
+    runs-on: [
+      "ghcr.io/cirruslabs/macos-runner:${{ matrix.macos-version }}",
+      "runner_group_id:3",
+    ]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Print macOS version
+        run: |
+          echo "macOS version: ${{ matrix.macos-version }}"
+          echo "OS version:"
+          sw_vers
+      - name: List Installed Xcodes
+        run: xcodes installed
+      - name: List Installed iOS SDKs
+        run: xcrun simctl list
