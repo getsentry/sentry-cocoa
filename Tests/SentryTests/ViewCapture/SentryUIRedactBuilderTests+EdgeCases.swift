@@ -680,18 +680,34 @@ class SentryUIRedactBuilderTests_EdgeCases: SentryUIRedactBuilderTests { // swif
             label.frame = CGRect(x: 60, y: 60, width: 40, height: 40)
         }
 
+        // Wait briefly to ensure the animation has started and presentation layer exists
+        let expectation = XCTestExpectation(description: "Wait for animation to start")
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            expectation.fulfill()
+        }
+        wait(for: [expectation], timeout: 1.0)
+
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: true)
         let result = sut.redactRegionsFor(view: rootView)
 
         // -- Assert --
         // During animation, the presentation layer should be used
-        // The exact position will be somewhere between start and end
+        // The position should be somewhere between start (20, 20) and end (60, 60)
         let region = try XCTUnwrap(result.element(at: 0))
         XCTAssertEqual(region.color, UIColor.purple)
         XCTAssertEqual(region.type, .redact)
         XCTAssertEqual(region.size, CGSize(width: 40, height: 40))
-        XCTAssertEqual(region.transform, CGAffineTransform(a: 1.0, b: 0.0, c: 0.0, d: 1.0, tx: 60.0, ty: 60.0))
+        
+        // Verify the position is not at the starting position (which would indicate no animation)
+        XCTAssertNotEqual(region.transform.tx, 20.0)
+        XCTAssertNotEqual(region.transform.ty, 20.0)
+        
+        // Verify the position is within the animation range (between start and end)
+        XCTAssertGreaterThanOrEqual(region.transform.tx, 20.0)
+        XCTAssertLessThanOrEqual(region.transform.tx, 60.0)
+        XCTAssertGreaterThanOrEqual(region.transform.ty, 20.0)
+        XCTAssertLessThanOrEqual(region.transform.ty, 60.0)
 
         // Assert that no other regions
         XCTAssertEqual(result.count, 1)
