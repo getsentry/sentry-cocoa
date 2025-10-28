@@ -93,9 +93,7 @@ bool sentrycrashcm_notifyFatalExceptionCaptured(bool isAsyncSafeEnvironment);
  */
 void sentrycrashcm_handleException(struct SentryCrash_MonitorContext *context);
 
-/** Whether to chain Unix signal handlers for managed Mono/CoreCLR runtimes, and
- * whether to register null Mach exception ports for EXC_MASK_BAD_ACCESS and
- * EXC_MASK_ARITHMETIC.
+/** Whether to chain Unix signal handlers for managed Mono/CoreCLR runtimes.
  */
 bool sentrycrashcm_isManagedRuntime(void);
 void sentrycrashcm_setManagedRuntime(bool isManagedRuntime);

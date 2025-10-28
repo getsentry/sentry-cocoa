@@ -30,7 +30,6 @@
 #include "SentryCrashID.h"
 #include "SentryCrashMachineContext.h"
 #include "SentryCrashMonitorContext.h"
-#include "SentryCrashMonitor_MachException.h"
 #include "SentryCrashSignalInfo.h"
 #include "SentryCrashStackCursor_MachineContext.h"
 #include "SentryInternalCDefines.h"
@@ -69,8 +68,8 @@ static char g_eventID[37];
 #    pragma mark - Callbacks -
 // ============================================================================
 
-/**
- *
+/** Invoke previously installed signal handlers, adapted from Sentry Native:
+ * https://github.com/getsentry/sentry-native/blob/9895a5c3ffab4e59e0c8020484cdd5dbc648666d/src/backends/sentry_backend_inproc.c#L59-L76
  */
 static void
 invokePreviousSignalHandlers(int sigNum, siginfo_t *signalInfo, void *userContext)
