@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Fix crash when last replay info is missing some keys [#6577]
+
 ## 8.57.0
 
 > [!Warning]
