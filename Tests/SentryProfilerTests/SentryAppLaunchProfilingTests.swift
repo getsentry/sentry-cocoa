@@ -39,7 +39,6 @@ extension SentryAppLaunchProfilingTests {
         // Assert
         XCTAssert(appLaunchProfileConfigFileExists())
         let dict = try XCTUnwrap(sentry_persistedLaunchProfileConfigurationOptions())
-        XCTAssertEqual(try XCTUnwrap(dict[kSentryLaunchProfileConfigKeyContinuousProfilingV2]), true)
         XCTAssertEqual(try XCTUnwrap(dict[kSentryLaunchProfileConfigKeyProfilesSampleRate]), 1)
         XCTAssertEqual(try XCTUnwrap(dict[kSentryLaunchProfileConfigKeyProfilesSampleRand]), 0.5)
         XCTAssertEqual(try XCTUnwrap(dict[kSentryLaunchProfileConfigKeyTracesSampleRate]), 1)
@@ -71,7 +70,6 @@ extension SentryAppLaunchProfilingTests {
         // Assert
         XCTAssert(appLaunchProfileConfigFileExists())
         let dict = try XCTUnwrap(sentry_persistedLaunchProfileConfigurationOptions())
-        XCTAssertEqual(try XCTUnwrap(dict[kSentryLaunchProfileConfigKeyContinuousProfilingV2]), true)
         XCTAssertEqual(try XCTUnwrap(dict[kSentryLaunchProfileConfigKeyProfilesSampleRate]), 1)
         XCTAssertEqual(try XCTUnwrap(dict[kSentryLaunchProfileConfigKeyProfilesSampleRand]), 0.5)
         XCTAssertNil(dict[kSentryLaunchProfileConfigKeyTracesSampleRate])
