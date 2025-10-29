@@ -17,7 +17,8 @@ var products: [Product] = [
     .library(name: "Sentry-WithoutUIKitOrAppKit-WithARM64e", targets: ["Sentry-WithoutUIKitOrAppKit-WithARM64e", "SentryCppHelper"]),
     .library(name: "SentrySwiftUI", targets: ["Sentry", "SentrySwiftUI", "SentryCppHelper"]),
     .library(name: "SentryDistribution", targets: ["SentryDistribution"]),
-    .library(name: "SentrySwiftLog", targets: ["Sentry", "SentrySwiftLog"])
+    .library(name: "SentrySwiftLog", targets: ["Sentry", "SentrySwiftLog"]),
+    .library(name: "SentrySwiftyBeaver", targets: ["Sentry", "SentrySwiftyBeaver"])
 ]
 
 var targets: [Target] = [
@@ -59,6 +60,14 @@ var targets: [Target] = [
         name: "SentrySwiftLog",
         dependencies: ["Sentry", .product(name: "Logging", package: "swift-log")],
         path: "Sources/SentrySwiftLog",
+        linkerSettings: [
+            .linkedFramework("Sentry")
+        ]
+    ),
+    .target(
+        name: "SentrySwiftyBeaver",
+        dependencies: ["Sentry", .product(name: "SwiftyBeaver", package: "SwiftyBeaver")],
+        path: "Sources/SentrySwiftyBeaver",
         linkerSettings: [
             .linkedFramework("Sentry")
         ]
@@ -136,7 +145,8 @@ let package = Package(
     platforms: [.iOS(.v15), .macOS(.v12), .tvOS(.v15), .watchOS(.v8)],
     products: products,
     dependencies: [
-        .package(url: "https://github.com/apple/swift-log", from: "1.6.0")
+        .package(url: "https://github.com/apple/swift-log", from: "1.6.0"),
+        .package(url: "https://github.com/SwiftyBeaver/SwiftyBeaver.git", from: "2.0.0")
     ],
     targets: targets,
     cxxLanguageStandard: .cxx14

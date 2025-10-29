@@ -329,7 +329,6 @@ jobs:
             device: "iPhone 15 Pro"
             scheme: "SentrySwiftUI"
 
-            # iOS 17
           - name: iOS 17 SentrySwiftLog
             runs-on: macos-14
             platform: "iOS"
@@ -337,6 +336,14 @@ jobs:
             test-destination-os: "17.5"
             device: "iPhone 15 Pro"
             scheme: "SentrySwiftLog"
+
+          - name: iOS 17 SentrySwiftyBeaver
+            runs-on: macos-14
+            platform: "iOS"
+            xcode: "15.4"
+            test-destination-os: "17.5"
+            device: "iPhone 15 Pro"
+            scheme: "SentrySwiftyBeaver"
 
           # tvOS 18
           - name: tvOS 18 Sentry
