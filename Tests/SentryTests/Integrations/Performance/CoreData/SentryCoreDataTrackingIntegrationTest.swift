@@ -13,9 +13,11 @@ class SentryCoreDataTrackingIntegrationTests: XCTestCase {
         init(testName: String) {
             coreDataStack = TestCoreDataStack(databaseFilename: "db-\(testName.hashValue).sqlite")
             options = Options()
+            options.removeAllIntegrations()
+            options.enableAutoPerformanceTracing = true
+            options.enableSwizzling = true
             options.enableCoreDataTracing = true
             options.tracesSampleRate = 1
-            options.setIntegrations([SentryCoreDataTrackingIntegration.self])
         }
         
         func getSut() -> SentryCoreDataTrackingIntegration {
