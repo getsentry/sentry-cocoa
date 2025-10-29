@@ -1560,6 +1560,24 @@ class SentryHubTests: XCTestCase {
     private func createMockSessionReplay() -> MockSentrySessionReplay {
         return MockSentrySessionReplay()
     }
+    
+    private class MockSentrySessionReplay: SentrySessionReplay {
+        init() {
+            super.init(
+                replayOptions: SentryReplayOptions(sessionSampleRate: 0, onErrorSampleRate: 0),
+                experimentalOptions: SentryExperimentalOptions(),
+                replayFolderPath: FileManager.default.temporaryDirectory,
+                screenshotProvider: MockScreenshotProvider(),
+                replayMaker: MockReplayMaker(),
+                breadcrumbConverter: SentrySRDefaultBreadcrumbConverter(),
+                touchTracker: nil,
+                dateProvider: TestCurrentDateProvider(),
+                delegate: MockReplayDelegate(),
+                displayLinkWrapper: TestDisplayLinkWrapper(),
+                environmentChecker: TestSessionReplayEnvironmentChecker(mockedIsReliableReturnValue: true)
+            )
+        }
+    }
 #endif
 #endif
 }
@@ -1577,24 +1595,6 @@ class TestTimeToDisplayTracker: SentryTimeToDisplayTracker {
     }
 }
 #endif
-
-private class MockSentrySessionReplay: SentrySessionReplay {
-    init() {
-        super.init(
-            replayOptions: SentryReplayOptions(sessionSampleRate: 0, onErrorSampleRate: 0),
-            experimentalOptions: SentryExperimentalOptions(),
-            replayFolderPath: FileManager.default.temporaryDirectory,
-            screenshotProvider: MockScreenshotProvider(),
-            replayMaker: MockReplayMaker(),
-            breadcrumbConverter: SentrySRDefaultBreadcrumbConverter(),
-            touchTracker: nil,
-            dateProvider: TestCurrentDateProvider(),
-            delegate: MockReplayDelegate(),
-            displayLinkWrapper: TestDisplayLinkWrapper(),
-            environmentChecker: TestSessionReplayEnvironmentChecker(mockedIsReliableReturnValue: true)
-        )
-    }
-}
 
 #if canImport(UIKit) && !SENTRY_NO_UIKIT
 #if os(iOS) || os(tvOS)
