@@ -2,7 +2,6 @@
 import XCTest
 
 #if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
-@available(*, deprecated, message: "App launch profiling is deprecated in favor of continuous profiling.")
 final class SentryAppLaunchProfilingTests: XCTestCase {
     private var fixture: SentryProfileTestFixture!
 
@@ -18,7 +17,6 @@ final class SentryAppLaunchProfilingTests: XCTestCase {
 }
 
 // MARK: continuous profiling v2
-@available(*, deprecated, message: "This is only deprecated because SentryAppLaunchProfilingTests is deprecated. Once trace based and continuous profiling v1 is removed this deprecation can be removed.")
 extension SentryAppLaunchProfilingTests {
     func testContinuousLaunchProfileV2TraceLifecycleConfiguration() throws {
         // Arrange
@@ -88,7 +86,6 @@ extension SentryAppLaunchProfilingTests {
 
 // MARK: continuous profiling v2 (iOS-only)
 #if !os(macOS)
-@available(*, deprecated, message: "This is only deprecated because SentryAppLaunchProfilingTests is deprecated. Once trace based and continuous profiling v1 is removed this deprecation can be removed.")
 extension SentryAppLaunchProfilingTests {
     func testLaunchContinuousProfileV2TraceLifecycleNotStoppedOnFullyDisplayed() throws {
         // Arrange
