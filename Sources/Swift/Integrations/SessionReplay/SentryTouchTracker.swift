@@ -75,7 +75,15 @@ import UIKit
         
         dispatchQueue.dispatchAsync { [self] in
             for extractedTouch in extractedTouches {
-                let info = trackedTouches[extractedTouch.identifier] ?? TouchInfo(id: touchId++)
+                // Handle ObjectIdentifier collision: if we see .began on an existing identifier,
+                // it means the UITouch memory was reused for a new touch. Create new TouchInfo.
+                let info: TouchInfo
+                if extractedTouch.phase == .began {
+                    info = TouchInfo(id: touchId++)
+                } else {
+                    info = trackedTouches[extractedTouch.identifier] ?? TouchInfo(id: touchId++)
+                }
+                
                 let position = extractedTouch.position
                 let newEvent = TouchEvent(x: position.x, y: position.y, timestamp: timestamp, phase: extractedTouch.phase.toRRWebTouchPhase())
                 
