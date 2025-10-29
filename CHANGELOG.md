@@ -44,13 +44,11 @@
   - Add layer class filtering for views used in multiple contexts (e.g., SwiftUI._UIGraphicsView)
   - Improve transform calculations for views with custom anchor points
   - Fix axis-aligned transform detection for optimized opaque view clipping
+- Fix interop with managed Mono/CoreCLR runtimes (#6193)
 
 ### Improvements
 
 - Replace deprecated SCNetworkReachability with NWPathMonitor (#6019)
-### Fixes
-
-- Fix interop with managed Mono/CoreCLR runtimes (#6193)
 
 ## 8.57.0
 
