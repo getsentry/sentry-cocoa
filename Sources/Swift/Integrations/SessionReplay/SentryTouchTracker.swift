@@ -19,13 +19,15 @@ import UIKit
     
     private final class TouchInfo {
         let id: Int
+        let identifier: ObjectIdentifier
         
         var startEvent: TouchEvent?
         var endEvent: TouchEvent?
         var moveEvents = [TouchEvent]()
         
-        init(id: Int) {
+        init(id: Int, identifier: ObjectIdentifier) {
             self.id = id
+            self.identifier = identifier
         }
     }
     
@@ -36,11 +38,12 @@ import UIKit
     }
     
     /**
-     * Using ObjectIdentifier as a key because the touch is the same across events
-     * for the same touch. ObjectIdentifier provides a stable identifier for UITouch
-     * instances without holding references to UIKit objects.
+     * Tracks all touch gestures. Uses ObjectIdentifier to associate touch events
+     * with the same physical touch gesture. When ObjectIdentifier collision occurs
+     * (UITouch memory reused), we detect it via .began phase and create a new TouchInfo.
      */
-    private var trackedTouches = [ObjectIdentifier: TouchInfo]()
+    private var allTouchInfos = [TouchInfo]()
+    
     private let dispatchQueue: SentryDispatchQueueWrapper
     private var touchId = 1
     private let dateProvider: SentryCurrentDateProvider
@@ -75,13 +78,21 @@ import UIKit
         
         dispatchQueue.dispatchAsync { [self] in
             for extractedTouch in extractedTouches {
-                // Handle ObjectIdentifier collision: if we see .began on an existing identifier,
-                // it means the UITouch memory was reused for a new touch. Create new TouchInfo.
                 let info: TouchInfo
+                
                 if extractedTouch.phase == .began {
-                    info = TouchInfo(id: touchId++)
+                    // Always create new TouchInfo for .began - handles ObjectIdentifier collisions
+                    info = TouchInfo(id: touchId++, identifier: extractedTouch.identifier)
+                    allTouchInfos.append(info)
                 } else {
-                    info = trackedTouches[extractedTouch.identifier] ?? TouchInfo(id: touchId++)
+                    // Find existing TouchInfo with matching identifier (search backwards for most recent)
+                    if let existingInfo = allTouchInfos.last(where: { $0.identifier == extractedTouch.identifier && $0.endEvent == nil }) {
+                        info = existingInfo
+                    } else {
+                        // Create new if not found (shouldn't happen normally, but handle gracefully)
+                        info = TouchInfo(id: touchId++, identifier: extractedTouch.identifier)
+                        allTouchInfos.append(info)
+                    }
                 }
                 
                 let position = extractedTouch.position
@@ -101,7 +112,6 @@ import UIKit
                 default:
                     continue
                 }
-                trackedTouches[extractedTouch.identifier] = info
             }
         }
     }
@@ -143,7 +153,7 @@ import UIKit
     func flushFinishedEvents() {
         SentrySDKLog.debug("[Session Replay] Flushing finished events")
         dispatchQueue.dispatchSync { [self] in
-            trackedTouches = trackedTouches.filter { $0.value.endEvent == nil }
+            allTouchInfos = allTouchInfos.filter { $0.endEvent == nil }
         }
     }
     
@@ -157,7 +167,9 @@ import UIKit
         
         var touches = [TouchInfo]()
         dispatchQueue.dispatchSync { [self] in
-            touches = Array(trackedTouches.values)
+            // Use allTouchInfos instead of trackedTouches.values to include
+            // orphaned touches that were replaced due to ObjectIdentifier collisions
+            touches = allTouchInfos
         }
         
         for info in touches {

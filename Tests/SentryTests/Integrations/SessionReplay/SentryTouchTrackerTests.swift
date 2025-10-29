@@ -432,5 +432,82 @@ class SentryTouchTrackerTests: XCTestCase {
         XCTAssertNotEqual(firstTouchPointerId, secondTouchPointerId,
                          "Memory-reused touch should get a new pointer ID, not inherit the old one")
     }
+    
+    func testObjectIdentifierCollision_WithoutFlush_DoesNotOrphanEvents() {
+        // Arrange
+        // This test covers the case where a collision happens BEFORE flushFinishedEvents()
+        // The old touch's events should still be accessible, not orphaned
+        let sut = getSut()
+        let touch = MockUITouch(phase: .began, location: CGPoint(x: 100, y: 100))
+        
+        // Act - First touch begins but doesn't end
+        let event1 = MockUIEvent(timestamp: 1)
+        event1.addTouch(touch)
+        sut.trackTouchFrom(event: event1)
+        
+        touch.phase = .moved
+        touch.location = CGPoint(x: 150, y: 150)
+        let event2 = MockUIEvent(timestamp: 2)
+        event2.addTouch(touch)
+        sut.trackTouchFrom(event: event2)
+        
+        // Collision happens BEFORE first touch ends and BEFORE flush
+        // Same ObjectIdentifier starts a NEW touch
+        touch.phase = .began
+        touch.location = CGPoint(x: 50, y: 50)
+        let event3 = MockUIEvent(timestamp: 3)
+        event3.addTouch(touch)
+        sut.trackTouchFrom(event: event3)
+        
+        touch.phase = .ended
+        touch.location = CGPoint(x: 75, y: 75)
+        let event4 = MockUIEvent(timestamp: 4)
+        event4.addTouch(touch)
+        sut.trackTouchFrom(event: event4)
+        
+        // Assert
+        let result = sut.replayEvents(from: referenceDate, until: referenceDate.addingTimeInterval(10))
+        
+        // We should have events from BOTH touches, even though the first didn't end:
+        // - Touch 1 start at (100, 100)
+        // - Touch 1 move at (150, 150)
+        // - Touch 2 start at (50, 50)  <- collision without flush
+        // - Touch 2 end at (75, 75)
+        //
+        // The first touch's events should NOT be orphaned/lost
+        
+        XCTAssertEqual(result.count, 4, "Should have 4 events: both touches' events should be preserved")
+        
+        // First touch events (incomplete, no end)
+        let firstTouchStart = result[0].data
+        let firstTouchPointerId = firstTouchStart?["pointerId"] as? Int
+        XCTAssertEqual(firstTouchStart?["x"] as? Float, 100)
+        XCTAssertEqual(firstTouchStart?["y"] as? Float, 100)
+        XCTAssertEqual(firstTouchStart?["type"] as? Int, TouchEventPhase.start.rawValue)
+        
+        let firstTouchMove = result[1].data
+        XCTAssertEqual(firstTouchMove?["pointerId"] as? Int, firstTouchPointerId)
+        let positions = firstTouchMove?["positions"] as? [[String: Any]]
+        XCTAssertEqual(positions?.first?["x"] as? Float, 150)
+        XCTAssertEqual(positions?.first?["y"] as? Float, 150)
+        
+        // Second touch events (after collision)
+        let secondTouchStart = result[2].data
+        let secondTouchPointerId = secondTouchStart?["pointerId"] as? Int
+        XCTAssertEqual(secondTouchStart?["x"] as? Float, 50)
+        XCTAssertEqual(secondTouchStart?["y"] as? Float, 50)
+        XCTAssertEqual(secondTouchStart?["type"] as? Int, TouchEventPhase.start.rawValue)
+        
+        let secondTouchEnd = result[3].data
+        XCTAssertEqual(secondTouchEnd?["x"] as? Float, 75)
+        XCTAssertEqual(secondTouchEnd?["y"] as? Float, 75)
+        XCTAssertEqual(secondTouchEnd?["type"] as? Int, TouchEventPhase.end.rawValue)
+        XCTAssertEqual(secondTouchEnd?["pointerId"] as? Int, secondTouchPointerId)
+        
+        // Critical assertion: Different IDs and NO orphaned events
+        XCTAssertNotEqual(firstTouchPointerId, secondTouchPointerId,
+                         "Touches should have different IDs")
+        XCTAssertNotNil(firstTouchPointerId, "First touch events should not be orphaned")
+    }
 }
 #endif
