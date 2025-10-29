@@ -1,10 +1,9 @@
-name: UI Tests on Cirrus Labs
+name: UI Tests on Cirrus Runners
 on:
   push:
+    # Run on every push to main ONLY
     branches:
       - main
-
-  pull_request:
 
 # Concurrency configuration:
 # - We use workflow-specific concurrency groups to prevent multiple UI test runs on the same code,
@@ -93,8 +92,6 @@ jobs:
             xcode: "16.4"
             test-destination-os: "17.5"
             platform: "iOS"
-            create_device: true
-            install_platforms: false
             device: iPhone 15 Pro
 
           # iOS 18 - Use pre-installed iOS 18.4 runtime on sequoia with Xcode 16.4
@@ -104,17 +101,13 @@ jobs:
             test-destination-os: "18.4"
             platform: "iOS"
             device: iPhone 16 Pro
-            install_platforms: false
-            create_device: false
 
           # iOS 26 - Download iOS 26.1 beta runtime on macOS-26
           - name: iOS 26
             macos_version: tahoe
             xcode: "26.1"
             test-destination-os: "26.1"
-            install_platforms: false
             platform: "iOS"
-            create_device: true
             device: iPhone 17 Pro
     with:
       fastlane_command: ui_tests_ios_swift
@@ -125,9 +118,9 @@ jobs:
       codecov_test_analytics: true
       xcode_version: ${{matrix.xcode}}
       test-destination-os: ${{matrix.test-destination-os}}
-      install_platforms: ${{matrix.install_platforms}}
+      install_platforms: false
       platform: ${{matrix.platform}}
-      create_device: ${{matrix.create_device}}
+      create_device: false
       device: ${{matrix.device}}
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
@@ -171,6 +164,4 @@ jobs:
       - name: Check for failures
         if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
         run: |
-          echo "Failed or cancelled jobs:"
-          echo '${{ toJSON(needs) }}' | jq -r 'to_entries[] | select(.value.result == "failure" or .value.result == "cancelled") | "  - \(.key): \(.value.result)"'
-          exit 1
+          echo "One of the UI test jobs has failed." && exit 1
