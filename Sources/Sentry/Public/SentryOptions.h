@@ -417,6 +417,20 @@ NS_SWIFT_NAME(Options)
 @property (nonatomic, assign) BOOL enableFileIOTracing;
 
 /**
+ * When enabled, the SDK tracks performance for file IO reads and writes with NSData if auto
+ * performance tracking and enableSwizzling are enabled.
+ * @note The default is @c YES .
+ */
+@property (nonatomic, assign) BOOL enableDataSwizzling;
+
+/**
+ * When enabled, the SDK tracks performance for file IO operations with NSFileManager if auto
+ * performance tracking and enableSwizzling are enabled.
+ * @note The default is @c NO .
+ */
+@property (nonatomic, assign) BOOL enableFileManagerSwizzling;
+
+/**
  * Indicates the percentage of the tracing data that is collected.
  * @discussion Specifying @c 0 or @c nil discards all trace data, @c 1.0 collects all trace data,
  * @c 0.01 collects 1% of all trace data.

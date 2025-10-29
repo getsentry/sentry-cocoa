@@ -46,8 +46,8 @@ class DataSentryTracingIntegrationTests: XCTestCase {
                     // NOTE: We are not testing for the case where swizzling is enabled, as it could lead to duplicate spans on older OS versions.
                     // Instead we are recommending to disable swizzling and use manual tracing.
                     options.enableSwizzling = true
-                    options.experimental.enableDataSwizzling = false
-                    options.experimental.enableFileManagerSwizzling = false
+                    options.enableDataSwizzling = false
+                    options.enableFileManagerSwizzling = false
                 }
 
                 // The base path is not unique for the DSN, therefore we need to make it unique

@@ -18,8 +18,8 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
             result.enableFileIOTracing = enableFileIOTracing
             result.enableSwizzling = enableSwizzling
             result.tracesSampleRate = tracesSampleRate
-            result.experimental.enableDataSwizzling = enableDataSwizzling
-            result.experimental.enableFileManagerSwizzling = enableFileManagerSwizzling
+            result.enableDataSwizzling = enableDataSwizzling
+            result.enableFileManagerSwizzling = enableFileManagerSwizzling
             result.setIntegrations([SentryFileIOTrackingIntegration.self])
             return result
         }
