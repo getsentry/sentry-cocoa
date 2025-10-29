@@ -29,12 +29,18 @@ import UIKit
         }
     }
     
+    private struct ExtractedTouchData {
+        let identifier: ObjectIdentifier
+        let position: CGPoint
+        let phase: UITouch.Phase
+    }
+    
     /**
-     * Using UITouch as a key because the touch is the same across events
-     * for the same touch. As long we holding the reference no two UITouches
-     * will ever have the same pointer.
+     * Using ObjectIdentifier as a key because the touch is the same across events
+     * for the same touch. ObjectIdentifier provides a stable identifier for UITouch
+     * instances without holding references to UIKit objects.
      */
-    private var trackedTouches = [UITouch: TouchInfo]()
+    private var trackedTouches = [ObjectIdentifier: TouchInfo]()
     private let dispatchQueue: SentryDispatchQueueWrapper
     private var touchId = 1
     private let dateProvider: SentryCurrentDateProvider
@@ -57,14 +63,23 @@ import UIKit
         guard let touches = event.allTouches else { return }
         let timestamp = event.timestamp
         
+        // Extract touch data on the main thread before dispatching to background queue
+        // to avoid accessing UIKit objects from a background thread
+        let extractedTouches: [ExtractedTouchData] = touches.compactMap { touch in
+            guard touch.phase == .began || touch.phase == .ended || touch.phase == .moved || touch.phase == .cancelled else { return nil }
+            let position = touch.location(in: nil).applying(scale)
+            // There is no way to uniquely identify a touch, so we use the ObjectIdentifier of the UITouch instance.
+            // This is not a perfect solution, but it is the best we can do without holding references to UIKit objects.
+            return ExtractedTouchData(identifier: ObjectIdentifier(touch), position: position, phase: touch.phase)
+        }
+        
         dispatchQueue.dispatchAsync { [self] in
-            for touch in touches {
-                guard touch.phase == .began || touch.phase == .ended || touch.phase == .moved || touch.phase == .cancelled else { continue }
-                let info = trackedTouches[touch] ?? TouchInfo(id: touchId++)
-                let position = touch.location(in: nil).applying(scale)
-                let newEvent = TouchEvent(x: position.x, y: position.y, timestamp: timestamp, phase: touch.phase.toRRWebTouchPhase())
+            for extractedTouch in extractedTouches {
+                let info = trackedTouches[extractedTouch.identifier] ?? TouchInfo(id: touchId++)
+                let position = extractedTouch.position
+                let newEvent = TouchEvent(x: position.x, y: position.y, timestamp: timestamp, phase: extractedTouch.phase.toRRWebTouchPhase())
                 
-                switch touch.phase {
+                switch extractedTouch.phase {
                 case .began:
                     info.startEvent = newEvent
                 case .ended, .cancelled:
@@ -78,7 +93,7 @@ import UIKit
                 default:
                     continue
                 }
-                trackedTouches[touch] = info
+                trackedTouches[extractedTouch.identifier] = info
             }
         }
     }
