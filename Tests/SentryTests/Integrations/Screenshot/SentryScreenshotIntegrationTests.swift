@@ -41,7 +41,6 @@ class SentryScreenshotIntegrationTests: XCTestCase {
         clearTestState()
     }
 
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func test_attachScreenshot_disabled() {
         SentrySDK.start {
             $0.removeAllIntegrations()
@@ -51,7 +50,6 @@ class SentryScreenshotIntegrationTests: XCTestCase {
         XCTAssertFalse(sentrycrash_hasSaveScreenshotCallback())
     }
     
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func test_attachScreenshot_enabled() {
         SentrySDK.start {
             $0.removeAllIntegrations()
@@ -61,7 +59,6 @@ class SentryScreenshotIntegrationTests: XCTestCase {
         XCTAssertTrue(sentrycrash_hasSaveScreenshotCallback())
     }
     
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func test_uninstall() {
         SentrySDK.start {
             $0.removeAllIntegrations()

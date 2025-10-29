@@ -5,7 +5,6 @@ import XCTest
 
 #if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
 /// Validate stopping behavior of launch profiles that run with one set of configured options, where the SDK is started on that launch with a different set of options, to validate that the configured options persisted to disk from the previous launch are the ones used to determine how/when to stop the profiler, and not the new options currently in memory
-@available(*, deprecated, message: "This is only marked as deprecated because it must still test some deprecated profiling APIs, but the deprecation warnings are converted to errors in our test targets. Once the deprecated API are removed, this can also be removed.")
 final class SentryAppStartProfilingConfigurationChangeTests: XCTestCase {
     private var fixture: SentryProfileTestFixture!
 
@@ -22,7 +21,6 @@ final class SentryAppStartProfilingConfigurationChangeTests: XCTestCase {
 
 #if !os(macOS)
 // MARK: configuring launch profiling with TTFD disabled, then launching with it enabled (iOS-only)
-@available(*, deprecated, message: "This is only marked as deprecated because it must still test some deprecated profiling APIs, but the deprecation warnings are converted to errors in our test targets. Once the deprecated API are removed, this can also be removed.")
 extension SentryAppStartProfilingConfigurationChangeTests {
     func test_lastLaunch_continuousV2_manualLifecycle_noTTFD_currentLaunch_continuousV2_traceLifecycle_withTTFD() throws {
         // Arrange
@@ -191,7 +189,6 @@ extension SentryAppStartProfilingConfigurationChangeTests {
 }
 
 // MARK: configuring launch profiling with TTFD enabled, then launching with it disabled (iOS-only)
-@available(*, deprecated, message: "This is only marked as deprecated because it must still test some deprecated profiling APIs, but the deprecation warnings are converted to errors in our test targets. Once the deprecated API are removed, this can also be removed.")
 extension SentryAppStartProfilingConfigurationChangeTests {
     // MARK: starting with continuous v2 manual lifecycle with TTFD
     func test_lastLaunch_continuousV2_manualLifecycle_withTTFD_currentLaunch_continuousV2_traceLifecycle_noTTFD() throws {

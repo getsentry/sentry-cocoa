@@ -46,7 +46,6 @@ class SentrySDKInternalTests: XCTestCase {
         let operation = "ui.load"
         let transactionName = "Load Main Screen"
 
-        @available(*, deprecated, message: "This is marked deprecated as a workaround until we can remove SentryUserFeedback in favor of SentryFeedback. When SentryUserFeedback is removed, this deprecation annotation can be removed.")
         init() {
             SentryDependencyContainer.sharedInstance().dateProvider = currentDate
 
@@ -82,7 +81,6 @@ class SentrySDKInternalTests: XCTestCase {
 
     private var fixture: Fixture!
 
-    @available(*, deprecated, message: "This is marked deprecated as a workaround (for the workaround deprecating the Fixture.init method) until we can remove SentryUserFeedback in favor of SentryFeedback. When SentryUserFeedback is removed, this deprecation annotation can be removed.")
     override func setUp() {
         super.setUp()
         fixture = Fixture()
