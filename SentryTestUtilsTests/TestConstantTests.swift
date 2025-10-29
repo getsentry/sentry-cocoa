@@ -98,7 +98,6 @@ class TestConstantTests: XCTestCase {
         XCTAssertEqual(sdkEvent.timestamp, date)
     }
 
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testEnvelope_shouldReturnValidEnvelopeWithOneItem() throws {
         // -- Act --
         let envelope = TestConstants.envelope
