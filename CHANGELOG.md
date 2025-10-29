@@ -33,7 +33,7 @@
 ### Improvements
 
 - Replace deprecated SCNetworkReachability with NWPathMonitor (#6019)
-- Enable ViewHierarchy attachments for downstream SDKs (like sentry-godot) (#6521)
+- Expose attachment type on `SentryAttachment` for downstream SDKs (like sentry-godot) (#6521)
 
 ## 8.57.0
 
