@@ -126,7 +126,7 @@ jobs:
 
       - name: Download XCFramework
         if: ${{ inputs.needs_xcframework }}
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: xcframework-${{github.sha}}-sentry-static
           path: Carthage/
