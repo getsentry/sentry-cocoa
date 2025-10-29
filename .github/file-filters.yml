@@ -27,6 +27,7 @@ run_unit_tests_for_prs: &run_unit_tests_for_prs
 
   # GH Actions
   - ".github/workflows/test.yml"
+  - ".github/workflows/test_cirrus_labs.yml"
   - ".github/file-filters.yml"
 
   # Scripts
