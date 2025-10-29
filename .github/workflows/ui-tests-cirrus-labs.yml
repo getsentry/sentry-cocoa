@@ -94,6 +94,7 @@ jobs:
             test-destination-os: "17.5"
             platform: "iOS"
             create_device: true
+            install_platforms: false
             device: iPhone 15 Pro
 
           # iOS 18 - Use pre-installed iOS 18.4 runtime on sequoia with Xcode 16.4
@@ -111,7 +112,7 @@ jobs:
             macos_version: tahoe
             xcode: "26.1"
             test-destination-os: "26.1"
-            install_platforms: true
+            install_platforms: false
             platform: "iOS"
             create_device: true
             device: iPhone 17 Pro

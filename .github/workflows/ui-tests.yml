@@ -85,6 +85,7 @@ jobs:
             xcode: "15.4"
             test-destination-os: "17.5"
             platform: "iOS"
+            install_platforms: false
             create_device: true
             device: iPhone 15 Pro
 
