@@ -11,7 +11,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${SCRIPT_DIR}/ci-utils.sh"
 
 # Usage: ./scripts/ci-create-simulator.sh --platform <platform> --os-version <os_version> --device-name <device_name>
-# Example: ./scripts/ci-create-simulator.sh --platform iOS --os-version 26.0 --device-name "iPhone 16e"
+# Example: ./scripts/ci-create-simulator.sh --platform iOS --os-version 26.1 --device-name "iPhone 16e"
 
 PLATFORM=""
 OS_VERSION=""
@@ -19,7 +19,7 @@ DEVICE_NAME=""
 
 usage() {
   log_error "Usage: $0 --platform <platform> --os-version <os_version> --device-name <device_name>"
-  log_error "  Example: $0 --platform iOS --os-version 26.0 --device-name \"iPhone 16e\""
+  log_error "  Example: $0 --platform iOS --os-version 26.1 --device-name \"iPhone 16e\""
   exit 1
 }
 
