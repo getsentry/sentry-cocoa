@@ -170,4 +170,6 @@ jobs:
       - name: Check for failures
         if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
         run: |
-          echo "One of the UI test jobs has failed." && exit 1
+          echo "Failed or cancelled jobs:"
+          echo '${{ toJSON(needs) }}' | jq -r 'to_entries[] | select(.value.result == "failure" or .value.result == "cancelled") | "  - \(.key): \(.value.result)"'
+          exit 1
