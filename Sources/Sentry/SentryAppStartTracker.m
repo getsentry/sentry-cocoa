@@ -188,6 +188,12 @@ static const NSTimeInterval SENTRY_APP_START_MAX_DURATION = 180.0;
             appStartDuration = 0;
         }
 
+        NSDate *sdkStart = SentrySDKInternal.startTimestamp;
+        if (sdkStart == nil) {
+            SENTRY_LOG_DEBUG(@"Skipping app start measurement: missing SDK start timestamp.");
+            return;
+        }
+
         SentryAppStartMeasurement *appStartMeasurement =
             [[SentryAppStartMeasurement alloc] initWithType:appStartType
                                                 isPreWarmed:isPreWarmed
@@ -196,10 +202,7 @@ static const NSTimeInterval SENTRY_APP_START_MAX_DURATION = 180.0;
                                                    duration:appStartDuration
                                        runtimeInitTimestamp:runtimeInit
                               moduleInitializationTimestamp:sysctl.moduleInitializationTimestamp
-                                          // We assume the start timestamp to be set to silence the
-                                          // warning, this is not ideal
-                                          sdkStartTimestamp:SENTRY_UNWRAP_NULLABLE(NSDate,
-                                                                SentrySDKInternal.startTimestamp)
+                                          sdkStartTimestamp:sdkStart
                                 didFinishLaunchingTimestamp:self.didFinishLaunchingTimestamp];
 
         SentrySDKInternal.appStartMeasurement = appStartMeasurement;

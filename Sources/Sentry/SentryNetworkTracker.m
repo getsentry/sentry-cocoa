@@ -133,7 +133,8 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
 
     // Don't measure requests to Sentry's backend
     NSURL *_Nullable apiUrl = SentrySDKInternal.options.parsedDsn.url;
-    if ([url.host isEqualToString:SENTRY_UNWRAP_NULLABLE(NSString, apiUrl.host)] &&
+    if (apiUrl && apiUrl.host && apiUrl.path.length > 0 &&
+        [url.host isEqualToString:SENTRY_UNWRAP_NULLABLE(NSString, apiUrl.host)] &&
         [url.path containsString:SENTRY_UNWRAP_NULLABLE(NSString, apiUrl.path)]) {
         return;
     }
