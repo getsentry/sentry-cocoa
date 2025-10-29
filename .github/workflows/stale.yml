@@ -1,0 +1,41 @@
+name: Close Stale PRs
+
+on:
+  schedule:
+    # Run once per day at 1:30 AM UTC
+    - cron: "30 1 * * *"
+
+# Concurrency configuration:
+# - This workflow only processes PRs and can be safely canceled if triggered multiple times
+# - Using a fixed group name since scheduled runs should be serialized
+concurrency:
+  group: "stale-pr-cleanup"
+  cancel-in-progress: true
+
+permissions:
+  issues: write
+  pull-requests: write
+
+jobs:
+  stale:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/stale@5f858e318fcdbe8c4c39c071605d766f3c5d7b08 # v10.1.0
+        with:
+          # Only process PRs, not issues
+          days-before-issue-stale: -1
+          days-before-issue-close: -1
+
+          # Close PRs after 14 days of inactivity
+          days-before-pr-stale: 14
+          days-before-pr-close: 0
+
+          close-pr-message: |
+            👋 **This PR hasn't been touched in 14 days**
+
+            Like a forgotten sandwich in the fridge, this PR has been here too long and nobody claimed it. We're closing it to keep things fresh around here! 🧹
+
+            Don't worry though—if you still need this, you can always reopen it or create a new PR. We believe in second chances! ❤️
+
+          # Process more PRs per run
+          operations-per-run: 100
