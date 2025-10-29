@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Fix crash from accessing UITouch instances from background thread in SentryTouchTracker (#6584)
+
 ## 8.57.0
 
 > [!Warning]
