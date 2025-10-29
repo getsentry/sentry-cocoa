@@ -17,7 +17,8 @@ var products: [Product] = [
     .library(name: "Sentry-WithoutUIKitOrAppKit-WithARM64e", targets: ["Sentry-WithoutUIKitOrAppKit-WithARM64e", "SentryCppHelper"]),
     .library(name: "SentrySwiftUI", targets: ["Sentry", "SentrySwiftUI", "SentryCppHelper"]),
     .library(name: "SentryDistribution", targets: ["SentryDistribution"]),
-    .library(name: "SentrySwiftLog", targets: ["Sentry", "SentrySwiftLog"])
+    .library(name: "SentrySwiftLog", targets: ["Sentry", "SentrySwiftLog"]),
+    .library(name: "SentryPulse", targets: ["Sentry", "SentryPulse"])
 ]
 
 var targets: [Target] = [
@@ -59,6 +60,14 @@ var targets: [Target] = [
         name: "SentrySwiftLog",
         dependencies: ["Sentry", .product(name: "Logging", package: "swift-log")],
         path: "Sources/SentrySwiftLog",
+        linkerSettings: [
+            .linkedFramework("Sentry")
+        ]
+    ),
+    .target(
+        name: "SentryPulse",
+        dependencies: ["Sentry", .product(name: "Pulse", package: "Pulse")],
+        path: "Sources/SentryPulse",
         linkerSettings: [
             .linkedFramework("Sentry")
         ]
@@ -115,7 +124,7 @@ if let env = env, String(cString: env, encoding: .utf8) == "1" {
             name: "SentryObjc",
             dependencies: ["SentrySwift"],
             path: "Sources",
-            exclude: ["Sentry/SentryDummyPublicEmptyClass.m", "Sentry/SentryDummyPrivateEmptyClass.m", "Swift", "SentrySwiftUI", "SentrySwiftLog", "Resources", "Configuration", "SentryCppHelper", "SentryDistribution", "SentryDistributionTests"],
+            exclude: ["Sentry/SentryDummyPublicEmptyClass.m", "Sentry/SentryDummyPrivateEmptyClass.m", "Swift", "SentrySwiftUI", "SentrySwiftLog", "SentryPulse", "Resources", "Configuration", "SentryCppHelper", "SentryDistribution", "SentryDistributionTests"],
             cSettings: [
                 .headerSearchPath("Sentry/include/HybridPublic"),
                 .headerSearchPath("Sentry"),
@@ -136,7 +145,8 @@ let package = Package(
     platforms: [.iOS(.v15), .macOS(.v12), .tvOS(.v15), .watchOS(.v8)],
     products: products,
     dependencies: [
-        .package(url: "https://github.com/apple/swift-log", from: "1.6.0")
+        .package(url: "https://github.com/apple/swift-log", from: "1.6.0"),
+        .package(url: "https://github.com/kean/Pulse", from: "5.0.0")
     ],
     targets: targets,
     cxxLanguageStandard: .cxx14
