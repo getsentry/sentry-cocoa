@@ -38,11 +38,16 @@ import UIKit
     }
     
     /**
-     * Tracks all touch gestures. Uses ObjectIdentifier to associate touch events
-     * with the same physical touch gesture. When ObjectIdentifier collision occurs
-     * (UITouch memory reused), we detect it via .began phase and create a new TouchInfo.
+     * Active touches tracked by ObjectIdentifier for O(1) lookup performance.
+     * ObjectIdentifier can collide when UITouch memory is reused.
      */
-    private var allTouchInfos = [TouchInfo]()
+    private var trackedTouches = [ObjectIdentifier: TouchInfo]()
+    
+    /**
+     * Touches that were replaced in trackedTouches due to ObjectIdentifier collision.
+     * Preserves events when UITouch memory is reused before flushFinishedEvents().
+     */
+    private var orphanedTouches = [TouchInfo]()
     
     private let dispatchQueue: SentryDispatchQueueWrapper
     private var touchId = 1
@@ -78,41 +83,50 @@ import UIKit
         
         dispatchQueue.dispatchAsync { [self] in
             for extractedTouch in extractedTouches {
-                let info: TouchInfo
-                
-                if extractedTouch.phase == .began {
-                    // Always create new TouchInfo for .began - handles ObjectIdentifier collisions
-                    info = TouchInfo(id: touchId++, identifier: extractedTouch.identifier)
-                    allTouchInfos.append(info)
-                } else {
-                    // Find existing TouchInfo with matching identifier (search backwards for most recent)
-                    if let existingInfo = allTouchInfos.last(where: { $0.identifier == extractedTouch.identifier && $0.endEvent == nil }) {
-                        info = existingInfo
-                    } else {
-                        // Create new if not found (shouldn't happen normally, but handle gracefully)
-                        info = TouchInfo(id: touchId++, identifier: extractedTouch.identifier)
-                        allTouchInfos.append(info)
-                    }
-                }
-                
-                let position = extractedTouch.position
-                let newEvent = TouchEvent(x: position.x, y: position.y, timestamp: timestamp, phase: extractedTouch.phase.toRRWebTouchPhase())
-                
-                switch extractedTouch.phase {
-                case .began:
-                    info.startEvent = newEvent
-                case .ended, .cancelled:
-                    info.endEvent = newEvent
-                case .moved:
-                    // If the distance between two points is smaller than 10 points, we don't record the second movement.
-                    // iOS event polling is fast and will capture any movement; we don't need this granularity for replay.
-                    if let last = info.moveEvents.last, touchesDelta(last.point, position) < 10 { continue }
-                    info.moveEvents.append(newEvent)
-                    self.debounceEvents(in: info)
-                default:
-                    continue
-                }
+                processTouchEvent(extractedTouch, timestamp: timestamp)
             }
+        }
+    }
+    
+    private func processTouchEvent(_ extractedTouch: ExtractedTouchData, timestamp: TimeInterval) {
+        let info: TouchInfo
+        
+        if extractedTouch.phase == .began {
+            // Check for ObjectIdentifier collision - if touch already exists, orphan it
+            if let existingTouch = trackedTouches[extractedTouch.identifier] {
+                orphanedTouches.append(existingTouch)
+            }
+            
+            // Create new TouchInfo for .began
+            info = TouchInfo(id: touchId++, identifier: extractedTouch.identifier)
+            trackedTouches[extractedTouch.identifier] = info
+        } else {
+            // O(1) dictionary lookup for non-.began phases
+            if let existingInfo = trackedTouches[extractedTouch.identifier] {
+                info = existingInfo
+            } else {
+                // Create new if not found (shouldn't happen, but handle gracefully)
+                info = TouchInfo(id: touchId++, identifier: extractedTouch.identifier)
+                trackedTouches[extractedTouch.identifier] = info
+            }
+        }
+        
+        let position = extractedTouch.position
+        let newEvent = TouchEvent(x: position.x, y: position.y, timestamp: timestamp, phase: extractedTouch.phase.toRRWebTouchPhase())
+        
+        switch extractedTouch.phase {
+        case .began:
+            info.startEvent = newEvent
+        case .ended, .cancelled:
+            info.endEvent = newEvent
+        case .moved:
+            // If the distance between two points is smaller than 10 points, we don't record the second movement.
+            // iOS event polling is fast and will capture any movement; we don't need this granularity for replay.
+            if let last = info.moveEvents.last, touchesDelta(last.point, position) < 10 { return }
+            info.moveEvents.append(newEvent)
+            self.debounceEvents(in: info)
+        default:
+            return
         }
     }
     
@@ -153,7 +167,8 @@ import UIKit
     func flushFinishedEvents() {
         SentrySDKLog.debug("[Session Replay] Flushing finished events")
         dispatchQueue.dispatchSync { [self] in
-            allTouchInfos = allTouchInfos.filter { $0.endEvent == nil }
+            trackedTouches = trackedTouches.filter { $0.value.endEvent == nil }
+            orphanedTouches = orphanedTouches.filter { $0.endEvent == nil }
         }
     }
     
@@ -167,9 +182,8 @@ import UIKit
         
         var touches = [TouchInfo]()
         dispatchQueue.dispatchSync { [self] in
-            // Use allTouchInfos instead of trackedTouches.values to include
-            // orphaned touches that were replaced due to ObjectIdentifier collisions
-            touches = allTouchInfos
+            // Include both active and orphaned touches to preserve all events
+            touches = Array(trackedTouches.values) + orphanedTouches
         }
         
         for info in touches {
