@@ -19,7 +19,6 @@ class SentryEnvelopeRateLimitTests: XCTestCase {
         sut.setDelegate(delegate)
     }
     
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testNoLimitsActive() {
         let envelope = getEnvelope()
         
@@ -28,7 +27,6 @@ class SentryEnvelopeRateLimitTests: XCTestCase {
         XCTAssertEqual(envelope, actual)
     }
     
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testLimitForErrorActive() {
         rateLimits.rateLimits = [SentryDataCategory.error]
         
@@ -46,7 +44,6 @@ class SentryEnvelopeRateLimitTests: XCTestCase {
         XCTAssertEqual(expected, delegate.envelopeItemsDropped.invocations)
     }
     
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testLimitForSessionActive() {
         rateLimits.rateLimits = [SentryDataCategory.session]
         
@@ -64,7 +61,6 @@ class SentryEnvelopeRateLimitTests: XCTestCase {
         XCTAssertEqual(expected, delegate.envelopeItemsDropped.invocations)
     }
     
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testLimitForCustomType() {
         rateLimits.rateLimits = [SentryDataCategory.default]
         var envelopeItems = [SentryEnvelopeItem]()
@@ -82,7 +78,6 @@ class SentryEnvelopeRateLimitTests: XCTestCase {
         XCTAssertEqual(SentryEnvelopeItemTypes.event, try XCTUnwrap(actual.items.first).header.type)
     }
     
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     private func getEnvelope() -> SentryEnvelope {
         var envelopeItems = [SentryEnvelopeItem]()
         for _ in 0...2 {

@@ -3,7 +3,6 @@
 #import "SentryFrame.h"
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"
-#import "SentryModels+Serializable.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

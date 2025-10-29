@@ -7,7 +7,6 @@
 #import "SentryEvent.h"
 #import "SentryHub.h"
 #import "SentryInternalDefines.h"
-#import "SentryModels+Serializable.h"
 #import "SentryOptions.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
