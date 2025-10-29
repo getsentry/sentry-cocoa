@@ -167,7 +167,7 @@ jobs:
           flags: ui-tests-${{ inputs.fastlane_command }}-${{ inputs.xcode_version }}, ui-tests
 
       - name: Upload Result Bundle
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         if: ${{ failure() }}
         with:
           name: ${{ inputs.fastlane_command }}${{ inputs.files_suffix }}
@@ -175,7 +175,7 @@ jobs:
             fastlane/test_results/**/*.xcresult
 
       - name: Upload iOS Simulator Crash Logs
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         if: ${{ failure() }}
         with:
           name: ${{ inputs.fastlane_command }}${{ inputs.files_suffix }}_crash_logs
@@ -183,7 +183,7 @@ jobs:
             ~/Library/Logs/DiagnosticReports/**
 
       - name: Archiving Raw Test Logs
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         if: ${{ failure() || cancelled() }}
         with:
           name: ${{ inputs.fastlane_command }}${{ inputs.files_suffix }}_raw_output
