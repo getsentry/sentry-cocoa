@@ -48,28 +48,28 @@ IFS=',' read -ra PLATFORM_ARRAY <<< "$PLATFORMS"
 for platform in "${PLATFORM_ARRAY[@]}"; do
     case "$platform" in
         "iOS")
-            begin_group "Installing iOS 26.0 simulator"
+            begin_group "Installing iOS 26.1 simulator"
             xcodebuild -downloadPlatform iOS -quiet || {
                 log_warning "Failed to download iOS platform, continuing..."
             }
             end_group
             ;;
         "tvOS")
-            begin_group "Installing tvOS 26.0 simulator"
+            begin_group "Installing tvOS 26.1 simulator"
             xcodebuild -downloadPlatform tvOS -quiet || {
                 log_warning "Failed to download tvOS platform, continuing..."
             }
             end_group
             ;;
         "visionOS")
-            begin_group "Installing visionOS 26.0 simulator"
+            begin_group "Installing visionOS 26.1 simulator"
             xcodebuild -downloadPlatform visionOS -quiet || {
                 log_warning "Failed to download visionOS platform, continuing..."
             }
             end_group
             ;;
         "watchOS")
-            begin_group "Installing watchOS 26.0 simulator"
+            begin_group "Installing watchOS 26.1 simulator"
             xcodebuild -downloadPlatform watchOS -quiet || {
                 log_warning "Failed to download watchOS platform, continuing..."
             }
