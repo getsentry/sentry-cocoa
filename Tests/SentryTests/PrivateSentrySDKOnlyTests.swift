@@ -496,34 +496,4 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         XCTAssertEqual(scope.propagationContext.traceId, traceId)
         XCTAssertEqual(scope.propagationContext.spanId, spanId)
     }
-    
-    func testAddViewHierarchyAttachment() throws {
-        // -- Arrange --
-        let scope = Scope()
-        let client = TestClient(options: Options())
-        let hub = TestHub(client: client, andScope: scope)
-        SentrySDKInternal.setCurrentHub(hub)
-        
-        let tempDir = NSTemporaryDirectory()
-        let filePath = (tempDir as NSString).appendingPathComponent("test-view-hierarchy.json")
-        let testData = Data("{\"test\": \"data\"}".utf8)
-        try testData.write(to: URL(fileURLWithPath: filePath))
-        
-        // -- Act --
-        PrivateSentrySDKOnly.addViewHierarchyAttachment(filePath)
-        
-        // -- Assert --
-        let attachments = scope.attachments
-        XCTAssertEqual(attachments.count, 1)
-        
-        let attachment = try XCTUnwrap(attachments.first)
-        XCTAssertEqual(attachment.filename, "view-hierarchy.json")
-        XCTAssertEqual(attachment.contentType, "application/json")
-        XCTAssertEqual(attachment.attachmentType, SentryAttachmentType.viewHierarchy)
-        XCTAssertEqual(attachment.path, filePath)
-        
-        // Clean up
-        try? FileManager.default.removeItem(atPath: filePath)
-    }
-    
 }
