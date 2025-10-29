@@ -392,7 +392,6 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         XCTAssertEqual(PrivateSentrySDKOnly.getReplayId(), VALID_REPLAY_ID)
     }
 
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func testAddReplayIgnoreClassesShouldNotFailWhenReplayIsAvailable() {
         let options = Options.noIntegrations()
         options.sessionReplay = .init()
@@ -401,7 +400,6 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         PrivateSentrySDKOnly.addReplayIgnoreClasses([UILabel.self])
     }
 
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func testAddReplayRedactShouldNotFailWhenReplayIsAvailable() {
         let options = Options()
         options.sessionReplay = .init()
@@ -410,7 +408,6 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         PrivateSentrySDKOnly.addReplayRedactClasses([UILabel.self])
     }
 
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func testAddIgnoreContainer() throws {
         class IgnoreContainer: UIView {}
 
@@ -427,7 +424,6 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         XCTAssertTrue(redactBuilder.isIgnoreContainerClassTestOnly(IgnoreContainer.self))
     }
 
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func testAddRedactContainer() throws {
         class RedactContainer: UIView {}
 
