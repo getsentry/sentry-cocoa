@@ -219,7 +219,7 @@ class SentryUIRedactBuilderTests_UIKit: SentryUIRedactBuilderTests { // swiftlin
         let rootView = setupUITextViewFixture()
 
         // -- Act --
-        let sut = getSut(maskAllText: true, maskAllImages: true)
+        let sut = getSut(maskAllText: true, maskAllImages: false)
         let result = sut.redactRegionsFor(view: rootView)
         let masked = createMaskedScreenshot(view: rootView, regions: result)
 
@@ -259,13 +259,13 @@ class SentryUIRedactBuilderTests_UIKit: SentryUIRedactBuilderTests { // swiftlin
         assertSnapshot(of: masked, as: .image)
         
         let region1 = try XCTUnwrap(result.element(at: 0)) // _UITextLayoutCanvasView
-        XCTAssertNil(region1.color)// The text color of UITextView is not used for redaction
+        XCTAssertNil(region1.color) // The text color of UITextField is not used for redaction
         XCTAssertEqual(region1.size, CGSize(width: 0, height: 0))
         XCTAssertEqual(region1.type, .redact)
         XCTAssertEqual(region1.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 20, ty: 20))
 
         let region2 = try XCTUnwrap(result.element(at: 1)) // UITextField
-        XCTAssertNil(region2.color) // The text color of UITextView is not used for redaction
+        XCTAssertNil(region2.color) // The text color of UITextField is not used for redaction
         XCTAssertEqual(region2.size, CGSize(width: 40, height: 40))
         XCTAssertEqual(region2.type, .redact)
         XCTAssertEqual(region2.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 20, ty: 20))
