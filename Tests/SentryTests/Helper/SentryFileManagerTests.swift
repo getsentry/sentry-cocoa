@@ -1082,13 +1082,19 @@ class SentryFileManagerTests: XCTestCase {
 
         let path = fixture.getTooLongPath()
         var error: NSError?
+
         // -- Act --
         let result = createDirectoryIfNotExists(path, &error)
+
         // -- Assert -
         XCTAssertFalse(result)
         XCTAssertEqual(error?.domain, SentryErrorDomain)
         XCTAssertEqual(error?.code, 108)
-        XCTAssertEqual(logOutput.loggedMessages.count, 1)
+
+        let expectedLogMessage = "Failed to create directory, path is too long: \(path)"
+        let logMessagesContainsExpected = logOutput.loggedMessages.contains { $0.contains("[Sentry] [fatal]") && $0.contains(expectedLogMessage) }
+
+        XCTAssertTrue(logMessagesContainsExpected, "Expected fatal log with message: \(expectedLogMessage)")
     }
 
     func testCreateDirectoryIfNotExists_otherError_shouldNotLogError() throws {

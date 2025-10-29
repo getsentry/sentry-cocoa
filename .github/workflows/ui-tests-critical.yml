@@ -52,18 +52,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # iOS 16 - Use macOS-26 with Xcode 26.1 to download iOS 16.4 runtime (latest toolkit)
-          # macOS 13 was sunset in November 2025, so we moved to macOS-26 with latest Xcode for iOS 16 testing
-          - name: iOS 16
-            platform:
-              runs-on: macos-26
-              xcode: "26.1"
-              test-destination-os: "16.4"
-              install_platforms: true
-              platform: "iOS"
-              create_device: true
-              device: "iPhone 14 Pro"
-
           # macos-14 iOS 17 not included due to the XCUIServerNotFound errors causing flaky tests
 
           # iOS 18 - Use pre-installed iOS 18.4 runtime on macOS-15
@@ -119,7 +107,7 @@ jobs:
           ./TestSamples/SwiftUICrashTest/test-crash-and-relaunch.sh --screenshots-dir "swiftui-crash-test-screenshots"
 
       - name: Upload SwiftUI Crash Test Screenshots
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         if: always()
         with:
           name: swiftui-crash-test-screenshots
@@ -130,7 +118,7 @@ jobs:
         run: xcrun simctl spawn booted log collect --output $(pwd)/swiftui-crash-test-log.logarchive
 
       - name: Upload Logs
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         if: always()
         with:
           name: swiftui-crash-test-log.logarchive

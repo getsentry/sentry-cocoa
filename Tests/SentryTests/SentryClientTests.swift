@@ -5,7 +5,6 @@ import XCTest
 // swiftlint:disable file_length
 // We are aware that the client has a lot of logic and we should maybe
 // move some of it to other classes.
-@available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
 class SentryClientTests: XCTestCase {
     
     private static let dsn = TestConstants.dsnAsString(username: "SentryClientTest")
@@ -798,7 +797,7 @@ class SentryClientTests: XCTestCase {
             try assertValidErrorEvent(eventWithSessionArguments.event, error)
             XCTAssertEqual(fixture.session, eventWithSessionArguments.session)
             
-            let expectedTraceContext = TraceContext(trace: scope.propagationContext.traceId, options: Options(), userSegment: "segment", replayId: nil) 
+            let expectedTraceContext = TraceContext(trace: scope.propagationContext.traceId, options: Options(), replayId: nil)
             XCTAssertEqual(eventWithSessionArguments.traceContext?.traceId,
                            expectedTraceContext.traceId)
         }
@@ -1728,7 +1727,9 @@ class SentryClientTests: XCTestCase {
     }
     
     func testSetSDKFeatures() throws {
-        let sut = fixture.getSut()
+        let sut = fixture.getSut { options in
+            options.enableCaptureFailedRequests = true
+        }
         
         sut.capture(message: "message")
         
@@ -1737,18 +1738,6 @@ class SentryClientTests: XCTestCase {
         XCTAssert(features.contains("captureFailedRequests"))
     }
     
-    func testSetSDKIntegrations_NoIntegrations() throws {
-        let expected: [String] = []
-        
-        let eventId = fixture.getSut(configureOptions: { options in
-            options.integrations = expected
-        }).capture(message: fixture.messageAsString)
-
-        eventId.assertIsNotEmpty()
-        let actual = try lastSentEvent()
-        assertArrayEquals(expected: expected, actual: actual.sdk?["integrations"] as? [String])
-    }
-
     func testFileManagerCantBeInit() throws {
         try SentryFileManager.prepareInitError()
         defer {
@@ -2243,7 +2232,6 @@ class SentryClientTests: XCTestCase {
     }
 }
 
-@available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
 private extension SentryClientTests {
     private func givenEventWithDebugMeta() -> Event {
         let event = Event(level: SentryLevel.fatal)
