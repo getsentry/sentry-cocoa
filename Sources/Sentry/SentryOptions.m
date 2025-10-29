@@ -82,7 +82,9 @@ NSString *const kSentryDefaultEnvironment = @"production";
         self.enableWatchdogTerminationTracking = YES;
         self.sessionTrackingIntervalMillis = [@30000 unsignedIntValue];
         self.attachStacktrace = YES;
-        self.maxAttachmentSize = 20 * 1024 * 1024;
+        // Maximum attachment size is 100 MiB, matches Relay's limit:
+        // https://develop.sentry.dev/sdk/data-model/envelopes/#size-limits
+        self.maxAttachmentSize = 100 * 1024 * 1024;
         self.sendDefaultPii = NO;
         self.enableAutoPerformanceTracing = YES;
         self.enablePersistingTracesWhenCrashing = NO;

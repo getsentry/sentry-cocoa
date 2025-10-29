@@ -267,7 +267,7 @@ NS_SWIFT_NAME(Options)
 
 /**
  * The maximum size for each attachment in bytes.
- * @note Default is 20 MiB (20 ✕ 1024 ✕ 1024 bytes).
+ * @note Default is 100 MiB (100 ✕ 1024 ✕ 1024 bytes).
  * @note Please also check the maximum attachment size of relay to make sure your attachments don't
  * get discarded there:
  *  https://docs.sentry.io/product/relay/options/
