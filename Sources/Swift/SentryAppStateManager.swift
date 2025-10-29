@@ -28,6 +28,7 @@ import UIKit
             let device = UIDevice.current
             let vendorId = device.identifierForVendor?.uuidString
 
+            // swiftlint:disable:next avoid_system_boot_timestamp
             return SentryAppState(releaseName: options?.releaseName, osVersion: device.systemVersion, vendorId: vendorId, isDebugging: isDebugging, systemBootTimestamp: sysctlWrapper.systemBootTimestamp)
         }
         _buildCurrentAppState = buildCurrentAppState

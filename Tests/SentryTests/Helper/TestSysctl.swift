@@ -9,7 +9,7 @@ class TestSysctl: SentrySysctl {
         return internalSystemBootTimestamp
     }
     
-    public func setSystemUpTime(value: Date) {
+    public func setSystemBootTimestamp(value: Date) {
         internalSystemBootTimestamp = value
     }
     

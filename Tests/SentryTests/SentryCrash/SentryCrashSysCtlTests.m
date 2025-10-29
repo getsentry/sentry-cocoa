@@ -29,10 +29,10 @@
 
 #import "SentryCrashSysCtl.h"
 
-@interface SentryCrashSysCtl_Tests : XCTestCase
+@interface SentryCrashSysCtlTests : XCTestCase
 @end
 
-@implementation SentryCrashSysCtl_Tests
+@implementation SentryCrashSysCtlTests
 
 - (void)testSysCtlInt32
 {
@@ -164,6 +164,8 @@
 
 - (void)testSysCtlDate
 {
+    // This test verifies the low-level sysctl wrapper works correctly.
+    // KERN_BOOTTIME should not be used directly in production code.
     struct timeval value = sentrycrashsysctl_timeval(CTL_KERN, KERN_BOOTTIME);
     XCTAssertTrue(value.tv_sec > 0, @"");
 }

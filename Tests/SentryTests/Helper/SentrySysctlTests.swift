@@ -1,4 +1,4 @@
-@_spi(Private) import Sentry
+@_spi(Private) @testable import Sentry
 import XCTest
 
 class SentrySysctlTests: XCTestCase {
@@ -11,6 +11,7 @@ class SentrySysctlTests: XCTestCase {
     }
 
     func testSystemBootTimestamp_IsInThePast() {
+        // swiftlint:disable:next avoid_system_boot_timestamp
         let distance = Date().timeIntervalSince(sut.systemBootTimestamp)
 
         XCTAssertGreaterThan(distance, 0)

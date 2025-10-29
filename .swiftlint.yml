@@ -100,3 +100,10 @@ type_name:
     error: 60
 large_tuple:
   - 3
+
+custom_rules:
+  avoid_system_boot_timestamp:
+    name: "Avoid direct usage of systemBootTimestamp or KERN_BOOTTIME"
+    regex: '\.systemBootTimestamp(?!\s*=)|KERN_BOOTTIME'
+    message: "Do not access systemBootTimestamp or KERN_BOOTTIME directly. This timestamp must not be sent off device per Apple's privacy requirements. Use SentryAppState to track system reboots instead, which only stores the timestamp for local comparison. See https://github.com/getsentry/sentry-cocoa/issues/6233"
+    severity: error

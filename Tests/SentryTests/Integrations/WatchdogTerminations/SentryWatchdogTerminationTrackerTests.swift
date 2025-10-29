@@ -105,6 +105,7 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
         
         let actual = fixture.fileManager.readAppState()
         
+        // swiftlint:disable:next avoid_system_boot_timestamp
         let appState = SentryAppState(releaseName: fixture.options.releaseName ?? "", osVersion: UIDevice.current.systemVersion, vendorId: TestData.someUUID, isDebugging: false, systemBootTimestamp: fixture.sysctl.systemBootTimestamp)
         
         XCTAssertEqual(appState, actual)
@@ -250,7 +251,9 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
     func testDifferentBootTime_NoOOM() throws {
         sut = try fixture.getSut()
         sut.start()
-        let appState = SentryAppState(releaseName: fixture.options.releaseName ?? "", osVersion: UIDevice.current.systemVersion, vendorId: TestData.someUUID, isDebugging: false, systemBootTimestamp: fixture.sysctl.systemBootTimestamp.addingTimeInterval(1))
+        // Create an app state with a different boot time to simulate a system reboot
+        let differentBootTime = SentryDependencyContainer.sharedInstance().dateProvider.date().addingTimeInterval(1)
+        let appState = SentryAppState(releaseName: fixture.options.releaseName ?? "", osVersion: UIDevice.current.systemVersion, vendorId: TestData.someUUID, isDebugging: false, systemBootTimestamp: differentBootTime)
 
         givenPreviousAppState(appState: appState)
         fixture.fileManager.moveAppStateToPreviousAppState()
