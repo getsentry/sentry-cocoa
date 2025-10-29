@@ -501,7 +501,7 @@ final class SentryUIRedactBuilder {
                         size: layer.bounds.size,
                         transform: newTransform,
                         type: .clipOut,
-                        name: layer.debugDescription
+                        name: view.debugDescription
                     ))
                 }
             }
