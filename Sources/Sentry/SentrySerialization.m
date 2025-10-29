@@ -5,7 +5,6 @@
 #import "SentryInternalDefines.h"
 #import "SentryLevelMapper.h"
 #import "SentryLogC.h"
-#import "SentryModels+Serializable.h"
 #import "SentrySwift.h"
 #import "SentryTraceContext.h"
 
