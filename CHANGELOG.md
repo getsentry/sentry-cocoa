@@ -4,7 +4,7 @@
 
 ### Fixes
 
-- Fix crash from accessing UITouch instances from background thread and ObjectIdentifier collision when UITouch memory is reused in SentryTouchTracker (#6584)
+- Fix crash from accessing UITouch instances from background thread in SentryTouchTracker (#6584)
 - Disable SessionSentryReplayIntegration if the environment is unsafe [#6573]
 - Fix crash when last replay info is missing some keys [#6577]
 
