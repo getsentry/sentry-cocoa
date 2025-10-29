@@ -1,6 +1,5 @@
 #import "PrivateSentrySDKOnly.h"
 #import "SentryAppStartMeasurement.h"
-#import "SentryAttachment+Private.h"
 #import "SentryBreadcrumb+Private.h"
 #import "SentryClient.h"
 #import "SentryHub+Private.h"
@@ -301,18 +300,6 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 + (SentryBreadcrumb *)breadcrumbWithDictionary:(NSDictionary *)dictionary
 {
     return [[SentryBreadcrumb alloc] initWithDictionary:dictionary];
-}
-
-+ (void)addViewHierarchyAttachment:(NSString *)path
-{
-    SentryAttachment *attachment =
-        [[SentryAttachment alloc] initWithPath:path
-                                      filename:@"view-hierarchy.json"
-                                   contentType:@"application/json"
-                                attachmentType:kSentryAttachmentTypeViewHierarchy];
-
-    [SentrySDKInternal.currentHub
-        configureScope:^(SentryScope *scope) { [scope addAttachment:attachment]; }];
 }
 
 #if SENTRY_TARGET_REPLAY_SUPPORTED
