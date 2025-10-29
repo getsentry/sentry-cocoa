@@ -10,6 +10,7 @@
 #    import "SentryEvent+Private.h"
 #    import "SentryFileManager.h"
 #    import "SentryHub+Private.h"
+#    import "SentryInternalDefines.h"
 #    import "SentryLogC.h"
 #    import "SentryOptions.h"
 #    import "SentryRateLimits.h"
@@ -215,10 +216,25 @@ static SentryTouchTracker *_touchTracker;
         return;
     }
 
-    SentryId *replayId = jsonObject[@"replayId"]
-        ? [[SentryId alloc] initWithUUIDString:jsonObject[@"replayId"]]
-        : [[SentryId alloc] init];
-    NSURL *lastReplayURL = [dir URLByAppendingPathComponent:jsonObject[@"path"]];
+    SentryId *replayId;
+    if (jsonObject[@"replayId"] && [jsonObject[@"replayId"] isKindOfClass:NSString.class]) {
+        replayId = [[SentryId alloc]
+            initWithUUIDString:SENTRY_UNWRAP_NULLABLE(NSString, jsonObject[@"replayId"])];
+    } else {
+        replayId = [[SentryId alloc] init];
+    }
+    if (!jsonObject[@"path"] || ![jsonObject[@"path"] isKindOfClass:NSString.class]) {
+        SENTRY_LOG_ERROR(@"[Session Replay] Failed to read path from last replay");
+        return;
+    }
+    NSURL *_Nullable nullableUrl =
+        [dir URLByAppendingPathComponent:SENTRY_UNWRAP_NULLABLE(NSString, jsonObject[@"path"])];
+    if (!nullableUrl) {
+        SENTRY_LOG_ERROR(
+            @"[Session Replay] Failed to create URL with path: %@", jsonObject[@"path"]);
+        return;
+    }
+    NSURL *_Nonnull lastReplayURL = SENTRY_UNWRAP_NULLABLE(NSURL, nullableUrl);
 
     SentryCrashReplay crashInfo = { 0 };
     bool hasCrashInfo = sentrySessionReplaySync_readInfo(&crashInfo,
