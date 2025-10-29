@@ -28,7 +28,6 @@ extension SentryAppStartProfilingConfigurationChangeTests {
         // Arrange
         // persisted configuration simulating previous launch
         let configDict: [String: Any] = [
-            kSentryLaunchProfileConfigKeyContinuousProfilingV2: true,
             kSentryLaunchProfileConfigKeyContinuousProfilingV2Lifecycle: SentryProfileLifecycle.manual.rawValue,
             kSentryLaunchProfileConfigKeyProfilesSampleRate: 0.5,
             kSentryLaunchProfileConfigKeyProfilesSampleRand: 0.5,
@@ -70,7 +69,6 @@ extension SentryAppStartProfilingConfigurationChangeTests {
         // Arrange
         // persisted configuration simulating previous launch
         let configDict: [String: Any] = [
-            kSentryLaunchProfileConfigKeyContinuousProfilingV2: true,
             kSentryLaunchProfileConfigKeyContinuousProfilingV2Lifecycle: SentryProfileLifecycle.manual.rawValue,
             kSentryLaunchProfileConfigKeyProfilesSampleRate: 0.5,
             kSentryLaunchProfileConfigKeyProfilesSampleRand: 0.5,
@@ -112,7 +110,6 @@ extension SentryAppStartProfilingConfigurationChangeTests {
         // Arrange
         // persisted configuration simulating previous launch
         let configDict: [String: Any] = [
-            kSentryLaunchProfileConfigKeyContinuousProfilingV2: true,
             kSentryLaunchProfileConfigKeyContinuousProfilingV2Lifecycle: SentryProfileLifecycle.trace.rawValue,
             kSentryLaunchProfileConfigKeyProfilesSampleRate: 0.5,
             kSentryLaunchProfileConfigKeyProfilesSampleRand: 0.5,
@@ -155,7 +152,6 @@ extension SentryAppStartProfilingConfigurationChangeTests {
         // Arrange
         // persisted configuration simulating previous launch
         let configDict: [String: Any] = [
-            kSentryLaunchProfileConfigKeyContinuousProfilingV2: true,
             kSentryLaunchProfileConfigKeyContinuousProfilingV2Lifecycle: SentryProfileLifecycle.trace.rawValue,
             kSentryLaunchProfileConfigKeyProfilesSampleRate: 0.5,
             kSentryLaunchProfileConfigKeyProfilesSampleRand: 0.5,
@@ -202,7 +198,6 @@ extension SentryAppStartProfilingConfigurationChangeTests {
         // Arrange
         // persisted configuration simulating previous launch
         let configDict: [String: Any] = [
-            kSentryLaunchProfileConfigKeyContinuousProfilingV2: true,
             kSentryLaunchProfileConfigKeyContinuousProfilingV2Lifecycle: SentryProfileLifecycle.manual.rawValue,
             kSentryLaunchProfileConfigKeyProfilesSampleRate: 0.5,
             kSentryLaunchProfileConfigKeyProfilesSampleRand: 0.5,
@@ -244,7 +239,6 @@ extension SentryAppStartProfilingConfigurationChangeTests {
         // Arrange
         // persisted configuration simulating previous launch
         let configDict: [String: Any] = [
-            kSentryLaunchProfileConfigKeyContinuousProfilingV2: true,
             kSentryLaunchProfileConfigKeyContinuousProfilingV2Lifecycle: SentryProfileLifecycle.manual.rawValue,
             kSentryLaunchProfileConfigKeyProfilesSampleRate: 0.5,
             kSentryLaunchProfileConfigKeyProfilesSampleRand: 0.5,
@@ -286,7 +280,6 @@ extension SentryAppStartProfilingConfigurationChangeTests {
         // Arrange
         // persisted configuration simulating previous launch
         let configDict: [String: Any] = [
-            kSentryLaunchProfileConfigKeyContinuousProfilingV2: true,
             kSentryLaunchProfileConfigKeyContinuousProfilingV2Lifecycle: SentryProfileLifecycle.trace.rawValue,
             kSentryLaunchProfileConfigKeyProfilesSampleRate: 0.5,
             kSentryLaunchProfileConfigKeyProfilesSampleRand: 0.5,
@@ -335,7 +328,6 @@ extension SentryAppStartProfilingConfigurationChangeTests {
         // Arrange
         // persisted configuration simulating previous launch
         let configDict: [String: Any] = [
-            kSentryLaunchProfileConfigKeyContinuousProfilingV2: true,
             kSentryLaunchProfileConfigKeyContinuousProfilingV2Lifecycle: SentryProfileLifecycle.trace.rawValue,
             kSentryLaunchProfileConfigKeyProfilesSampleRate: 0.5,
             kSentryLaunchProfileConfigKeyProfilesSampleRand: 0.5,
