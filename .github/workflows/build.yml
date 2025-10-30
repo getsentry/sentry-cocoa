@@ -82,17 +82,17 @@ jobs:
           - scheme: SessionReplay-CameraTest
             config: Debug
           - scheme: iOS-Swift
-            config: DebugV9
+            config: Debug
           - scheme: macOS-Swift
-            config: DebugV9
+            config: Debug
           - scheme: tvOS-Swift
-            config: DebugV9
+            config: Debug
           - scheme: visionOS-Swift
-            config: DebugV9
+            config: Debug
           - scheme: iOS-SwiftUI
-            config: DebugV9
+            config: Debug
           - scheme: iOS-ObjectiveC
-            config: DebugV9
+            config: Debug
           - scheme: DistributionSample
             config: Debug
 
@@ -190,7 +190,7 @@ jobs:
             --os 18.4 \
             --command build \
             --device "iPhone 16 Pro"  \
-            --configuration DebugV9
+            --configuration Debug
       - name: Archiving Raw Build Logs
         uses: actions/upload-artifact@v5
         if: ${{ failure() || cancelled() }}

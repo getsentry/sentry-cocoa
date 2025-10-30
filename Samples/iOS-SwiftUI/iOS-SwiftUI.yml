@@ -5,7 +5,6 @@ createIntermediateGroups: true
 generateEmptyDirectories: true
 configs:
   Debug: debug
-  DebugV9: debug
   Test: debug
   TestCI: debug
   Release: release
@@ -37,7 +36,6 @@ targets:
       - target: SentrySampleShared/SentrySampleShared
     configFiles:
       Debug: iOS-SwiftUI.xcconfig
-      DebugV9: iOS-SwiftUI.xcconfig
       Release: iOS-SwiftUI.xcconfig
       Test: iOS-SwiftUI.xcconfig
       TestCI: iOS-SwiftUI.xcconfig
