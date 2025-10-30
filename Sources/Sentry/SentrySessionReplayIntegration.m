@@ -431,7 +431,6 @@ static SentryTouchTracker *_touchTracker;
 
     SentryDisplayLinkWrapper *displayLinkWrapper = [[SentryDisplayLinkWrapper alloc] init];
     self.sessionReplay = [[SentrySessionReplay alloc] initWithReplayOptions:replayOptions
-                                                        experimentalOptions:experimentalOptions
                                                            replayFolderPath:docs
                                                          screenshotProvider:screenshotProvider
                                                                 replayMaker:replayMaker
@@ -439,8 +438,7 @@ static SentryTouchTracker *_touchTracker;
                                                                touchTracker:_touchTracker
                                                                dateProvider:_dateProvider
                                                                    delegate:self
-                                                         displayLinkWrapper:displayLinkWrapper
-                                                         environmentChecker:_environmentChecker];
+                                                         displayLinkWrapper:displayLinkWrapper];
 
     [self.sessionReplay
         startWithRootView:[SentryDependencyContainer.sharedInstance.application getWindows]
