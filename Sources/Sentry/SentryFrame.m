@@ -8,10 +8,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)init
 {
-    if (self = [super init]) {
-        self.function = @"<redacted>";
-    }
-    return self;
+    return [super init];
 }
 
 - (NSDictionary<NSString *, id> *)serialize
