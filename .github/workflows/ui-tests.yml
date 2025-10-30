@@ -110,9 +110,10 @@ jobs:
           # iOS 17 - Use iOS 17.5 runtime on macOS-15 with Xcode 16.4
           - job_id: ios_17
             name: iOS 17
-            runs_on: macos-15
+            runs_on: macos-14
             runs_on_cirrus: sequoia
-            xcode: "16.4"
+            xcode: "15.4"
+            xcode_cirrus: "16.4"
             test_destination_os: "17.5"
             platform: "iOS"
             install_platforms: false
@@ -149,7 +150,7 @@ jobs:
       macos_version: ${{matrix.runner == 'Cirrus Labs' && matrix.runs_on_cirrus || matrix.runs_on}}
       run_on_cirrus_labs: ${{ matrix.runner == 'Cirrus Labs' }}
       codecov_test_analytics: true
-      xcode_version: ${{matrix.xcode}}
+      xcode_version: ${{matrix.xcode_cirrus || matrix.xcode}}
       test-destination-os: ${{matrix.test_destination_os}}
       install_platforms: ${{matrix.install_platforms}}
       platform: ${{matrix.platform}}
