@@ -24,11 +24,15 @@
 - Remove `uuid` and `name` of `SentryDebugMeta` (#6512) Use `debugID` instead of `uuid` and `codeFile` instead of `name`.
 - Enable enablePreWarmedAppStartTracing by default (#6508). With this option enabled, the SDK collects [prewarmed app starts](https://docs.sentry.io/platforms/apple/tracing/instrumentation/automatic-instrumentation/#prewarmed-app-start-tracing).
 - Set `SentryFrame.function` default to `nil` instead of `<redacted>` (#6608)
+- Change `value` and `type` of `SentryException` to be nullable (#6563)
 
 ### Features
 
 - Add SentryDistribution as Swift Package Manager target (#6149)
 - Add option `enablePropagateTraceparent` to support OTel/W3C trace propagation (#6356)
+- Move `enableFileManagerSwizzling` from experimental options to top-level options (#6592).
+  This option is still disabled by default and will be enabled in a future major release.
+- Move `enableDataSwizzling` from experimental options to top-level options (#6592). This option remains enabled by default.
 
 ### Fixes
 

@@ -51,7 +51,12 @@ static NSString *const SentryANRMechanismDataAppHangDuration = @"app_hang_durati
         [SentryDependencyContainer.sharedInstance getANRTracker:options.appHangTimeoutInterval];
 
 #endif // SENTRY_HAS_UIKIT
-    self.fileManager = SentryDependencyContainer.sharedInstance.fileManager;
+    SentryFileManager *fileManager = SentryDependencyContainer.sharedInstance.fileManager;
+    if (!fileManager) {
+        SENTRY_LOG_FATAL(@"File manager is not available");
+        return NO;
+    }
+    self.fileManager = fileManager;
     self.dispatchQueueWrapper = SentryDependencyContainer.sharedInstance.dispatchQueueWrapper;
     self.crashWrapper = SentryDependencyContainer.sharedInstance.crashWrapper;
     self.debugImageProvider = SentryDependencyContainer.sharedInstance.debugImageProvider;

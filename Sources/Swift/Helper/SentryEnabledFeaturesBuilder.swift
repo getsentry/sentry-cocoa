@@ -36,10 +36,10 @@ import Foundation
         }
 #endif // (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT
 
-        if options.experimental.enableDataSwizzling {
+        if options.enableDataSwizzling {
             features.append("dataSwizzling")
         }
-        if options.experimental.enableFileManagerSwizzling {
+        if options.enableFileManagerSwizzling {
             features.append("fileManagerSwizzling")
         }
         if options.experimental.enableUnhandledCPPExceptionsV2 {

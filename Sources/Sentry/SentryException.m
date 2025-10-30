@@ -7,10 +7,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryException
 
-- (instancetype)initWithValue:(NSString *)value type:(NSString *)type
+- (instancetype)initWithValue:(NSString *_Nullable)value type:(NSString *_Nullable)type
 {
     self = [super init];
     if (self) {
+        NSAssert(value != nil || type != nil,
+            @"SentryException requires at least one of value or type to be non-nil");
         self.value = value;
         self.type = type;
     }

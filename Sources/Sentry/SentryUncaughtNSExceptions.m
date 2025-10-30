@@ -3,6 +3,7 @@
 #if TARGET_OS_OSX
 
 #    import "SentryCrash.h"
+#    import "SentryInternalDefines.h"
 #    import "SentrySwift.h"
 #    import "SentrySwizzle.h"
 #    import "SentryUncaughtNSExceptions.h"
@@ -44,7 +45,7 @@ NS_ASSUME_NONNULL_BEGIN
         return;
     }
 
-    crash.uncaughtExceptionHandler(exception);
+    crash.uncaughtExceptionHandler(SENTRY_UNWRAP_NULLABLE(NSException, exception));
 }
 
 @end
