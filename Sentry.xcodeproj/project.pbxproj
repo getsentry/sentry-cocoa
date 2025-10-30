@@ -1091,7 +1091,6 @@
 		FA7206DF2E0B37850072FDD4 /* SentryProfileCollector.h in Headers */ = {isa = PBXBuildFile; fileRef = FA7206DE2E0B37780072FDD4 /* SentryProfileCollector.h */; };
 		FA7206E12E0B37C80072FDD4 /* SentryProfileCollector.mm in Sources */ = {isa = PBXBuildFile; fileRef = FA7206E02E0B37C60072FDD4 /* SentryProfileCollector.mm */; };
 		FA8A36182DEAA1EB0058D883 /* SentryThread+Private.h in Headers */ = {isa = PBXBuildFile; fileRef = FA8A36172DEAA1EB0058D883 /* SentryThread+Private.h */; };
-		FA8AFCED2E8434A8007A0E18 /* SentryThreadInspector.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA8AFCE72E8434A0007A0E18 /* SentryThreadInspector.swift */; };
 		FA8AFCEF2E843903007A0E18 /* SentryFileIOTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA8AFCEE2E8438FF007A0E18 /* SentryFileIOTracker.swift */; };
 		FA8AFCFA2E844AB6007A0E18 /* SentryThreadsafeApplicationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA8AFCF42E844AB1007A0E18 /* SentryThreadsafeApplicationTests.swift */; };
 		FA8AFDAC2E84FAEE007A0E18 /* TestSentryUIApplication.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA6614FB2E4B8E1500657755 /* TestSentryUIApplication.swift */; };
@@ -5678,8 +5677,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				FA8AFCED2E8434A8007A0E18 /* SentryThreadInspector.swift in Sources */,
-				FA8AFCED2E8434A8007A0E18 /* SentryThreadInspector.swift in Sources */,
 				7BFC16A125249A9D00FF6266 /* SentryMessage.m in Sources */,
 				FA90FAFD2E070A3B008CAAE8 /* SentryURLRequestFactory.swift in Sources */,
 				7BCFBD6F2681D0EE00BC27D8 /* SentryCrashScopeObserver.m in Sources */,
@@ -5731,7 +5728,6 @@
 				F49D419E2DEA3D0600D9244E /* SentryCrashExceptionApplicationHelper.m in Sources */,
 				D4F56C5D2E9CF38900D57DAB /* SentryXcodeVersion.swift in Sources */,
 				D8ACE3C82762187200F5A213 /* SentryFileIOTrackerHelper.m in Sources */,
-				7BE3C77D2446112C00A38442 /* SentryRateLimitParser.m in Sources */,
 				D8B088B729C9E3FF00213258 /* SentryTracerConfiguration.m in Sources */,
 				FA7206E12E0B37C80072FDD4 /* SentryProfileCollector.mm in Sources */,
 				9264E1EB2E2E385E00B077CF /* SentryLogMessage.swift in Sources */,

@@ -53,7 +53,7 @@ import UIKit
         touchTracker: SentryTouchTracker?,
         dateProvider: SentryCurrentDateProvider,
         delegate: SentrySessionReplayDelegate,
-        displayLinkWrapper: SentryReplayDisplayLinkWrapper,
+        displayLinkWrapper: SentryReplayDisplayLinkWrapper
     ) {
         self.replayOptions = replayOptions
         self.dateProvider = dateProvider
