@@ -127,7 +127,7 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
         // -- Arrange --
         let options = Options()
 
-        options.experimental.enableDataSwizzling = true
+        options.enableDataSwizzling = true
 
         // -- Act --
         let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
@@ -140,7 +140,7 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
         // -- Arrange --
         let options = Options()
 
-        options.experimental.enableDataSwizzling = false
+        options.enableDataSwizzling = false
 
         // -- Act --
         let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
@@ -153,7 +153,7 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
         // -- Arrange --
         let options = Options()
 
-        options.experimental.enableFileManagerSwizzling = true
+        options.enableFileManagerSwizzling = true
 
         // -- Act --
         let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
@@ -166,7 +166,7 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
         // -- Arrange --
         let options = Options()
 
-        options.experimental.enableFileManagerSwizzling = false
+        options.enableFileManagerSwizzling = false
 
         // -- Act --
         let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)

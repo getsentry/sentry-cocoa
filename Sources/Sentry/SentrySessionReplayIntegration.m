@@ -5,6 +5,7 @@
 #    import "SentryClient+Private.h"
 #    import "SentryEvent+Private.h"
 #    import "SentryHub+Private.h"
+#    import "SentryInternalDefines.h"
 #    import "SentryLogC.h"
 #    import "SentryOptions.h"
 #    import "SentrySDK+Private.h"
@@ -208,10 +209,25 @@ static SentryTouchTracker *_touchTracker;
         return;
     }
 
-    SentryId *replayId = jsonObject[@"replayId"]
-        ? [[SentryId alloc] initWithUUIDString:jsonObject[@"replayId"]]
-        : [[SentryId alloc] init];
-    NSURL *lastReplayURL = [dir URLByAppendingPathComponent:jsonObject[@"path"]];
+    SentryId *replayId;
+    if (jsonObject[@"replayId"] && [jsonObject[@"replayId"] isKindOfClass:NSString.class]) {
+        replayId = [[SentryId alloc]
+            initWithUUIDString:SENTRY_UNWRAP_NULLABLE(NSString, jsonObject[@"replayId"])];
+    } else {
+        replayId = [[SentryId alloc] init];
+    }
+    if (!jsonObject[@"path"] || ![jsonObject[@"path"] isKindOfClass:NSString.class]) {
+        SENTRY_LOG_ERROR(@"[Session Replay] Failed to read path from last replay");
+        return;
+    }
+    NSURL *_Nullable nullableUrl =
+        [dir URLByAppendingPathComponent:SENTRY_UNWRAP_NULLABLE(NSString, jsonObject[@"path"])];
+    if (!nullableUrl) {
+        SENTRY_LOG_ERROR(
+            @"[Session Replay] Failed to create URL with path: %@", jsonObject[@"path"]);
+        return;
+    }
+    NSURL *_Nonnull lastReplayURL = SENTRY_UNWRAP_NULLABLE(NSURL, nullableUrl);
 
     SentryCrashReplay crashInfo = { 0 };
     bool hasCrashInfo = sentrySessionReplaySync_readInfo(&crashInfo,
@@ -234,10 +250,13 @@ static SentryTouchTracker *_touchTracker;
         }
     }
 
-    SentryOnDemandReplay *resumeReplayMaker =
-        [[SentryOnDemandReplay alloc] initWithContentFrom:lastReplayURL.path
-                                          processingQueue:_replayProcessingQueue
-                                         assetWorkerQueue:_replayAssetWorkerQueue];
+    if (!lastReplayURL.path) {
+        return;
+    }
+    SentryOnDemandReplay *resumeReplayMaker = [[SentryOnDemandReplay alloc]
+        initWithContentFrom:SENTRY_UNWRAP_NULLABLE(NSString, lastReplayURL.path)
+            processingQueue:_replayProcessingQueue
+           assetWorkerQueue:_replayAssetWorkerQueue];
     resumeReplayMaker.bitRate = _replayOptions.replayBitRate;
     resumeReplayMaker.videoScale = _replayOptions.sizeScale;
     resumeReplayMaker.frameRate = _replayOptions.frameRate;
@@ -380,8 +399,9 @@ static SentryTouchTracker *_touchTracker;
     NSURL *docs = [self replayDirectory];
     NSString *currentSession = [NSUUID UUID].UUIDString;
     docs = [docs URLByAppendingPathComponent:currentSession];
+    NSString *_Nonnull docsPath = SENTRY_UNWRAP_NULLABLE(NSString, docs.path);
 
-    if (![NSFileManager.defaultManager fileExistsAtPath:docs.path]) {
+    if (![NSFileManager.defaultManager fileExistsAtPath:docsPath]) {
         SENTRY_LOG_DEBUG(@"[Session Replay] Creating directory at path: %@", docs.path);
         [NSFileManager.defaultManager createDirectoryAtURL:docs
                                withIntermediateDirectories:YES
@@ -390,7 +410,7 @@ static SentryTouchTracker *_touchTracker;
     }
 
     SentryOnDemandReplay *replayMaker =
-        [[SentryOnDemandReplay alloc] initWithOutputPath:docs.path
+        [[SentryOnDemandReplay alloc] initWithOutputPath:docsPath
                                          processingQueue:_replayProcessingQueue
                                         assetWorkerQueue:_replayAssetWorkerQueue];
     replayMaker.bitRate = replayOptions.replayBitRate;
@@ -432,9 +452,14 @@ static SentryTouchTracker *_touchTracker;
                                 name:UIApplicationDidBecomeActiveNotification
                               object:nil];
 
-    [self saveCurrentSessionInfo:self.sessionReplay.sessionReplayId
-                            path:docs.path
-                         options:replayOptions];
+    if (!self.sessionReplay.sessionReplayId) {
+        SENTRY_LOG_ERROR(@"Failed to save current session info, replay id is nil");
+        return;
+    }
+    [self
+        saveCurrentSessionInfo:SENTRY_UNWRAP_NULLABLE(SentryId, self.sessionReplay.sessionReplayId)
+                          path:docsPath
+                       options:replayOptions];
 }
 
 - (nullable NSURL *)replayDirectory
@@ -480,10 +505,12 @@ static SentryTouchTracker *_touchTracker;
 
     NSURL *path = [self replayDirectory];
     NSURL *current = [path URLByAppendingPathComponent:SENTRY_CURRENT_REPLAY];
+    NSString *currentPath = SENTRY_UNWRAP_NULLABLE(NSString, current.path);
     NSURL *last = [path URLByAppendingPathComponent:SENTRY_LAST_REPLAY];
+    NSString *lastPath = SENTRY_UNWRAP_NULLABLE(NSString, last.path);
 
     NSError *error;
-    if ([fileManager fileExistsAtPath:last.path]) {
+    if ([fileManager fileExistsAtPath:lastPath]) {
         SENTRY_LOG_DEBUG(@"[Session Replay] Removing last replay file at path: %@", last);
         if ([NSFileManager.defaultManager removeItemAtURL:last error:&error] == NO) {
             SENTRY_LOG_ERROR(
@@ -495,7 +522,7 @@ static SentryTouchTracker *_touchTracker;
         SENTRY_LOG_DEBUG(@"[Session Replay] No last replay file to remove at path: %@", last);
     }
 
-    if ([fileManager fileExistsAtPath:current.path]) {
+    if ([fileManager fileExistsAtPath:currentPath]) {
         SENTRY_LOG_DEBUG(
             @"[Session Replay] Moving current replay file at path: %@ to: %@", current, last);
         if ([fileManager moveItemAtURL:current toURL:last error:&error] == NO) {
@@ -512,13 +539,14 @@ static SentryTouchTracker *_touchTracker;
 {
     SENTRY_LOG_DEBUG(@"[Session Replay] Cleaning up");
     NSURL *replayDir = [self replayDirectory];
+    NSString *replayDirPath = SENTRY_UNWRAP_NULLABLE(NSString, replayDir.path);
     NSDictionary<NSString *, id> *lastReplayInfo = [self lastReplayInfo];
     NSString *lastReplayFolder = lastReplayInfo[@"path"];
 
     SentryFileManager *fileManager = SentryDependencyContainer.sharedInstance.fileManager;
     // Mapping replay folder here and not in dispatched queue to prevent a race condition between
     // listing files and creating a new replay session.
-    NSArray *replayFiles = [fileManager allFilesInFolder:replayDir.path];
+    NSArray *replayFiles = [fileManager allFilesInFolder:replayDirPath];
     if (replayFiles.count == 0) {
         SENTRY_LOG_DEBUG(@"[Session Replay] No replay files to clean up");
         return;
@@ -616,12 +644,14 @@ static SentryTouchTracker *_touchTracker;
     SENTRY_LOG_DEBUG(@"[Session Replay] Configuring replay");
     if (breadcrumbConverter) {
         _currentBreadcrumbConverter = breadcrumbConverter;
-        self.sessionReplay.breadcrumbConverter = breadcrumbConverter;
+        self.sessionReplay.breadcrumbConverter = SENTRY_UNWRAP_NULLABLE_VALUE(
+            id<SentryReplayBreadcrumbConverter>, breadcrumbConverter);
     }
 
     if (screenshotProvider) {
         _currentScreenshotProvider = screenshotProvider;
-        self.sessionReplay.screenshotProvider = screenshotProvider;
+        self.sessionReplay.screenshotProvider
+            = SENTRY_UNWRAP_NULLABLE_VALUE(id<SentryViewScreenshotProvider>, screenshotProvider);
     }
 }
 

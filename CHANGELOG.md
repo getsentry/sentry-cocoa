@@ -23,11 +23,15 @@
 - Remove unused `SentryFrame.instruction` property (#6504)
 - Remove `uuid` and `name` of `SentryDebugMeta` (#6512) Use `debugID` instead of `uuid` and `codeFile` instead of `name`.
 - Enable enablePreWarmedAppStartTracing by default (#6508). With this option enabled, the SDK collects [prewarmed app starts](https://docs.sentry.io/platforms/apple/tracing/instrumentation/automatic-instrumentation/#prewarmed-app-start-tracing).
+- Change `value` and `type` of `SentryException` to be nullable (#6563)
 
 ### Features
 
 - Add SentryDistribution as Swift Package Manager target (#6149)
 - Add option `enablePropagateTraceparent` to support OTel/W3C trace propagation (#6356)
+- Move `enableFileManagerSwizzling` from experimental options to top-level options (#6592).
+  This option is still disabled by default and will be enabled in a future major release.
+- Move `enableDataSwizzling` from experimental options to top-level options (#6592). This option remains enabled by default.
 - Add `sentry.replay_id` attribute to logs ([#6515](https://github.com/getsentry/sentry-cocoa/pull/6515))
 
 ### Fixes
@@ -49,6 +53,7 @@
 ### Improvements
 
 - Replace deprecated SCNetworkReachability with NWPathMonitor (#6019)
+- Increase attachment max size to 100MB (#6537)
 
 ## 8.57.0
 

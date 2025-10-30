@@ -43,7 +43,6 @@ class SentryProfileTestFixture {
     lazy var framesTracker = TestFramesTracker(displayLinkWrapper: displayLinkWrapper, dateProvider: currentDateProvider, dispatchQueueWrapper: dispatchQueueWrapper, notificationCenter: notificationCenter, delayedFramesTracker: TestDelayedWrapper(keepDelayedFramesDuration: 0, dateProvider: currentDateProvider))
 #endif // !os(macOS)
     
-    @available(*, deprecated, message: "This is only marked as deprecated because profilesSampleRate is marked as deprecated. Once that is removed this can be removed.")
     init() {
         SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = dispatchQueueWrapper
         SentryDependencyContainer.sharedInstance().dateProvider = currentDateProvider

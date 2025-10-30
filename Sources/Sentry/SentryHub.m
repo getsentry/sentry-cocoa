@@ -101,8 +101,9 @@ NS_ASSUME_NONNULL_BEGIN
         NSString *distinctId =
             [SentryInstallation idWithCacheDirectoryPath:options.cacheDirectoryPath];
 
-        _session = [[SentrySession alloc] initWithReleaseName:options.releaseName
-                                                   distinctId:distinctId];
+        _session = [[SentrySession alloc]
+            initWithReleaseName:SENTRY_UNWRAP_NULLABLE(NSString, options.releaseName)
+                     distinctId:distinctId];
 
         if (_errorsBeforeSession > 0 && options.enableAutoSessionTracking == YES) {
             _session.errors = _errorsBeforeSession;
@@ -111,16 +112,16 @@ NS_ASSUME_NONNULL_BEGIN
 
         _session.environment = options.environment;
 
-        [scope applyToSession:_session];
+        [scope applyToSession:SENTRY_UNWRAP_NULLABLE(SentrySession, _session)];
 
-        [self storeCurrentSession:_session];
-        [self captureSession:_session];
+        [self storeCurrentSession:SENTRY_UNWRAP_NULLABLE(SentrySession, _session)];
+        [self captureSession:SENTRY_UNWRAP_NULLABLE(SentrySession, _session)];
     }
     [lastSession
         endSessionExitedWithTimestamp:[SentryDependencyContainer.sharedInstance.dateProvider date]];
     [self captureSession:lastSession];
 
-    [_sessionListener sentrySessionStarted:_session];
+    [_sessionListener sentrySessionStarted:SENTRY_UNWRAP_NULLABLE(SentrySession, _session)];
 }
 
 - (void)endSession
@@ -183,7 +184,7 @@ NS_ASSUME_NONNULL_BEGIN
                              @"Using session's start time %@",
                 session.started);
             timestamp = session.started;
-            [session endSessionAbnormalWithTimestamp:timestamp];
+            [session endSessionAbnormalWithTimestamp:SENTRY_UNWRAP_NULLABLE(NSDate, timestamp)];
         } else {
             SENTRY_LOG_DEBUG(@"Closing cached session as exited.");
             [session endSessionExitedWithTimestamp:SENTRY_UNWRAP_NULLABLE(NSDate, timestamp)];
@@ -195,15 +196,16 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)captureSession:(nullable SentrySession *)session
 {
-    if (session != nil) {
-        SentryClient *client = self.client;
-
-        if (client.options.diagnosticLevel == kSentryLevelDebug) {
-            SENTRY_LOG_DEBUG(
-                @"Capturing session with status: %@", [self createSessionDebugString:session]);
-        }
-        [client captureSession:session];
+    if (session == nil) {
+        return;
     }
+
+    SentryClient *client = self.client;
+    if (client.options.diagnosticLevel == kSentryLevelDebug) {
+        SENTRY_LOG_DEBUG(@"Capturing session with status: %@",
+            [self createSessionDebugString:SENTRY_UNWRAP_NULLABLE(SentrySession, session)]);
+    }
+    [client captureSession:SENTRY_UNWRAP_NULLABLE(SentrySession, session)];
 }
 
 - (nullable SentrySession *)incrementSessionErrors
@@ -212,7 +214,7 @@ NS_ASSUME_NONNULL_BEGIN
     @synchronized(_sessionLock) {
         if (_session != nil) {
             [_session incrementErrors];
-            [self storeCurrentSession:_session];
+            [self storeCurrentSession:SENTRY_UNWRAP_NULLABLE(SentrySession, _session)];
             sessionCopy = [_session copy];
         }
     }
@@ -422,8 +424,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (SentryTransactionContext *)transactionContext:(SentryTransactionContext *)context
                                      withSampled:(SentrySampleDecision)sampleDecision
-                                      sampleRate:(NSNumber *)sampleRate
-                                      sampleRand:(NSNumber *)sampleRand
+                                      sampleRate:(NSNumber *_Nullable)sampleRate
+                                      sampleRand:(NSNumber *_Nullable)sampleRand
 {
     return [[SentryTransactionContext alloc] initWithName:context.name
                                                nameSource:context.nameSource
@@ -748,9 +750,12 @@ NS_ASSUME_NONNULL_BEGIN
 {
     for (SentryEnvelopeItem *item in items) {
         if ([item.header.type isEqualToString:SentryEnvelopeItemTypes.event]) {
+            if (!item.data) {
+                return NO;
+            }
             // If there is no level the default is error
-            NSDictionary *_Nullable nullableEventJson =
-                [SentrySerialization deserializeDictionaryFromJsonData:item.data];
+            NSDictionary *_Nullable nullableEventJson = [SentrySerialization
+                deserializeDictionaryFromJsonData:SENTRY_UNWRAP_NULLABLE(NSData, item.data)];
             if (nullableEventJson == nil) {
                 return NO;
             }
@@ -798,7 +803,8 @@ NS_ASSUME_NONNULL_BEGIN
     NSData *sessionData = [NSJSONSerialization dataWithJSONObject:[session serialize]
                                                           options:0
                                                             error:nil];
-    return [[NSString alloc] initWithData:sessionData encoding:NSUTF8StringEncoding];
+    return [[NSString alloc] initWithData:sessionData encoding:NSUTF8StringEncoding]
+        ?: @"Failed to encode session";
 }
 
 - (void)flush:(NSTimeInterval)timeout

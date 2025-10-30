@@ -1,4 +1,5 @@
 #import <SentryBaggage.h>
+#import <SentryInternalDefines.h>
 #import <SentryLogC.h>
 #import <SentrySwift.h>
 #import <SentryTraceHeader.h>
@@ -11,7 +12,7 @@ static NSString *const SENTRY_TRACEPARENT = @"traceparent";
 + (void)addBaggageHeader:(SentryBaggage *)baggage
                 traceHeader:(SentryTraceHeader *)traceHeader
        propagateTraceparent:(BOOL)propagateTraceparent
-    tracePropagationTargets:(NSArray *)tracePropagationTargets
+    tracePropagationTargets:(NSArray *_Nullable)tracePropagationTargets
                   toRequest:(NSURLSessionTask *)sessionTask
 {
     if (![SentryTracePropagation sessionTaskRequiresPropagation:sessionTask
@@ -23,9 +24,9 @@ static NSString *const SENTRY_TRACEPARENT = @"traceparent";
     NSString *baggageHeader = @"";
 
     if (baggage != nil) {
-        NSDictionary *originalBaggage = [SentryBaggageSerialization
-            decode:sessionTask.currentRequest.allHTTPHeaderFields[SENTRY_BAGGAGE_HEADER]];
-
+        NSString *_Nullable rawHeader = SENTRY_UNWRAP_NULLABLE(
+            NSString, sessionTask.currentRequest.allHTTPHeaderFields[SENTRY_BAGGAGE_HEADER]);
+        NSDictionary *originalBaggage = [SentryBaggageSerialization decode:rawHeader ?: @""];
         if (originalBaggage[@"sentry-trace_id"] == nil) {
             baggageHeader = [baggage toHTTPHeaderWithOriginalBaggage:originalBaggage];
         }
@@ -64,8 +65,9 @@ static NSString *const SENTRY_TRACEPARENT = @"traceparent";
                tracePropagationTargets:(NSArray *)tracePropagationTargets
 {
     return sessionTask.currentRequest != nil &&
-        [SentryTracePropagation isTargetMatch:sessionTask.currentRequest.URL
-                                  withTargets:tracePropagationTargets];
+        [SentryTracePropagation
+            isTargetMatch:SENTRY_UNWRAP_NULLABLE(NSURL, sessionTask.currentRequest.URL)
+              withTargets:tracePropagationTargets];
 }
 
 + (void)addHeaderFieldsToRequest:(NSMutableURLRequest *)request

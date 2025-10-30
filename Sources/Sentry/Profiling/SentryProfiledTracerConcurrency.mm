@@ -240,7 +240,7 @@ SentryProfiler *_Nullable sentry_profilerForFinishedTracer(SentryId *internalTra
 void
 sentry_stopProfilerDueToFinishedTransaction(
     SentryHub *hub, SentryDispatchQueueWrapper *dispatchQueue, SentryTransaction *transaction,
-    BOOL isProfiling, NSDate *traceStartTimestamp, uint64_t startSystemTime
+    BOOL isProfiling, NSDate *_Nullable traceStartTimestamp, uint64_t startSystemTime
 #    if SENTRY_HAS_UIKIT
     ,
     SentryAppStartMeasurement *appStartMeasurement
@@ -334,7 +334,7 @@ sentry_stopProfilerDueToFinishedTransaction(
 }
 
 SentryId *_Nullable sentry_startProfilerForTrace(SentryTracerConfiguration *configuration,
-    SentryHub *hub, SentryTransactionContext *transactionContext)
+    SentryHub *_Nullable hub, SentryTransactionContext *transactionContext)
 {
     if (sentry_profileConfiguration.profileOptions != nil) {
         // launch profile; there's no hub to get options from, so they're read from the launch
