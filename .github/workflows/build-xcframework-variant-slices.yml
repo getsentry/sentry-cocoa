@@ -56,9 +56,9 @@ jobs:
   build-xcframework-variant-slices:
     name: ${{matrix.sdk}}
 
-    # We must compile this on an arm64 runner, cause it's required for visionOS. macos-14 uses arm64.
+    # We must compile this on an arm64 runner, cause it's required for visionOS. macos-15 uses arm64.
     # To see the available runners see https://docs.github.com/en/actions/using-github-hosted-runners/using-github-hosted-runners/about-github-hosted-runners#standard-github-hosted-runners-for-public-repositories.
-    runs-on: macos-14
+    runs-on: macos-15
 
     strategy:
       matrix:
@@ -67,9 +67,8 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      # We use Xcode 16.2 for building XCFrameworks as it's the latest version available on macos-14 runners.
-      # Xcode 16.4 is not yet available on macos-14, and Xcode 26.x introduces breaking changes.
-      - run: ./scripts/ci-select-xcode.sh 16.2
+      # We use Xcode 16.4 for building XCFrameworks as it's the standard version available on macos-15 runners.
+      - run: ./scripts/ci-select-xcode.sh 16.4
         shell: bash
 
       - name: Get version
@@ -106,7 +105,7 @@ jobs:
         env:
           VERSION: ${{ env.VERSION }}
         run: |
-          ./scripts/ci-select-xcode.sh 16.2
+          ./scripts/ci-select-xcode.sh 16.4
           make bump-version TO=$VERSION
 
       - name: Build ${{inputs.name}}${{inputs.suffix}} XCFramework slice for ${{matrix.sdk}}
