@@ -417,6 +417,7 @@
             if (error && response.statusCode >= 400 && response.statusCode < 500 && response.statusCode != 429) {
                 SENTRY_LOG_DEBUG(@"Received 4xx response code: %li", (long)response.statusCode);
                 // 4xx means the payload is bad and will not succeed on retry. Drop it on the floor and enable sending the next one.
+                [weakSelf recordLostEventFor:envelope.items];
                 [weakSelf deleteEnvelopeAndSendNext:envelopePath];
                 return;
             }
