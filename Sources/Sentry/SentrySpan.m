@@ -351,7 +351,8 @@ NS_ASSUME_NONNULL_BEGIN
     }
 
     if (self.status != kSentrySpanStatusUndefined) {
-        [mutableDictionary setValue:nameForSentrySpanStatus(self.status) forKey:@"status"];
+        [mutableDictionary setValue:nameForSentrySpanStatus(self.status)
+                             forKey:kSentrySpanStatusSerializationKey];
     }
 
     [mutableDictionary setValue:@(self.timestamp.timeIntervalSince1970) forKey:@"timestamp"];

@@ -9,7 +9,7 @@
 #import "SentryPropagationContext.h"
 #import "SentryScope+Private.h"
 #import "SentryScope+PrivateSwift.h"
-#import "SentrySpan.h"
+#import "SentrySpan+Private.h"
 #import "SentrySwift.h"
 #import "SentryTracer.h"
 #import "SentryTransactionContext.h"
@@ -630,7 +630,21 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSDictionary *)buildTraceContext:(nullable id<SentrySpan>)span
 {
     if (span != nil) {
-        return [SENTRY_UNWRAP_NULLABLE_VALUE(id<SentrySpan>, span) serialize];
+        NSDictionary *dict = [SENTRY_UNWRAP_NULLABLE_VALUE(id<SentrySpan>, span) serialize];
+        if (dict[kSentrySpanStatusSerializationKey] != nil) {
+            return dict;
+        }
+
+        // We set the trace context status to OK by default here if it's not set, because spans on
+        // the scope are usually unfinished and don't have a status set. So the default trace
+        // context status would be undefined otherwise, which would confuse users. We don't want to
+        // set the default status for spans to OK, because when a span finishes, it sets the status
+        // to any state other than undefined. Spans first have a default status of OK, but we don't
+        // want to change this for the trace context status.
+        NSMutableDictionary *mutableDict = [dict mutableCopy];
+        mutableDict[kSentrySpanStatusSerializationKey] = kSentrySpanStatusNameOk;
+        return mutableDict;
+
     } else {
         return [self.propagationContext traceContextForEvent];
     }
