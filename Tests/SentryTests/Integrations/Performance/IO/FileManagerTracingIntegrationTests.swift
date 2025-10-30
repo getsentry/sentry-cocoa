@@ -3,7 +3,6 @@
 @_spi(Private) import SentryTestUtils
 import XCTest
 
-@available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
 class FileManagerSentryTracingIntegrationTests: XCTestCase {
     private class Fixture {
         let mockDateProvider: TestCurrentDateProvider = {
@@ -41,7 +40,6 @@ class FileManagerSentryTracingIntegrationTests: XCTestCase {
                 // Configure options required by File I/O tracking integration
                 options.enableAutoPerformanceTracing = true
                 options.enableFileIOTracing = isEnabled
-                options.setIntegrations(isEnabled ? [SentryFileIOTrackingIntegration.self] : [])
 
                 // Configure the tracing sample rate to record all traces
                 options.tracesSampleRate = 1.0
