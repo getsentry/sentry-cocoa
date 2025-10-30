@@ -152,7 +152,7 @@ jobs:
       macos_version: ${{matrix.runner == 'Cirrus Labs' && matrix.runs_on_cirrus || matrix.runs_on}}
       run_on_cirrus_labs: ${{ matrix.runner == 'Cirrus Labs' }}
       codecov_test_analytics: true
-      xcode_version: ${{matrix.xcode_cirrus || matrix.xcode}}
+      xcode_version: ${{ matrix.runner == 'Cirrus Labs' && matrix.xcode_cirrus || matrix.xcode}}
       test-destination-os: ${{matrix.test_destination_os}}
       install_platforms: ${{matrix.install_platforms}}
       platform: ${{matrix.platform}}
@@ -161,7 +161,6 @@ jobs:
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
-  # Swift6 GitHub Runners (run on PRs and main branch)
   ui-tests-swift6:
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_ui_tests_for_prs == 'true'
     needs: files-changed
