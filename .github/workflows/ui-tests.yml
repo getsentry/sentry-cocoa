@@ -80,20 +80,23 @@ jobs:
       build_with_make: true
       codecov_test_analytics: true
       xcode_version: 16.4
-      macos_version: ${{ matrix.runner == 'Cirrus Labs' && 'sequoia' || 'macos-15' }}
+      macos_version: ${{ matrix.macos }}
       run_on_cirrus_labs: ${{ matrix.runner == 'Cirrus Labs' }}
-      test-destination-os: "18.4"
-      device: iPhone 16 Pro
+      test-destination-os: ${{matrix.test-destination-os}}
+      device: ${{matrix.device}}
       files_suffix: _swiftui_-${{matrix.runner}}
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     strategy:
       fail-fast: false
       matrix:
-        runner:
-          - GitHub
-          - Cirrus Labs
-
+        include:
+          - runner: GitHub
+            macos: macos-15
+            test-destination-os: "18.5"
+          - runner: Cirrus Labs
+            macos: sequoia
+            test-destination-os: "18.6"
   ui-tests-swift:
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_ui_tests_for_prs == 'true'
     needs: files-changed
