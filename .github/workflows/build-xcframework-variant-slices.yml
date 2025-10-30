@@ -77,17 +77,25 @@ jobs:
 
       - name: Get version
         id: get-version
+        env:
+          GITHUB_SHA: ${{ github.sha }}
+          RELEASE_VERSION: ${{ inputs.release-version }}
         run: |
-          if [ -n "${{ inputs.release-version }}" ]; then
-            echo "VERSION=${{ inputs.release-version }}" >> $GITHUB_ENV
+          if [ -n "$RELEASE_VERSION" ]; then
+            echo "VERSION=$RELEASE_VERSION" >> $GITHUB_ENV
           else
-            echo "VERSION=$(grep MARKETING_VERSION Sources/Configuration/Versioning.xcconfig | cut -d ' ' -f 3)+${{ github.sha }}" >> $GITHUB_ENV
+            echo "VERSION=$(grep MARKETING_VERSION Sources/Configuration/Versioning.xcconfig | cut -d ' ' -f 3)+$GITHUB_SHA" >> $GITHUB_ENV
           fi
         shell: sh
 
       - name: Compute cache key
+        env:
+          RUNNER_OS: ${{ runner.os }}
+          VARIANT_ID: ${{ inputs.variant-id }}
+          MATRIX_SDK: ${{ matrix.sdk }}
+          VERSION: ${{ env.VERSION }}
         run: |
-          echo "SENTRY_XCFRAMEWORK_CACHE_KEY=${{ runner.os }}-xcframework-${{inputs.variant-id}}-slice-${{matrix.sdk}}-${{ env.VERSION }}-${{hashFiles('Sources/**')}}-${{hashFiles('Sentry.xcodeproj/**')}}" >> $GITHUB_ENV
+          echo "SENTRY_XCFRAMEWORK_CACHE_KEY=${RUNNER_OS}-xcframework-${VARIANT_ID}-slice-${MATRIX_SDK}-${VERSION}-${{hashFiles('Sources/**')}}-${{hashFiles('Sentry.xcodeproj/**')}}" >> $GITHUB_ENV
 
       - name: Restore xcarchive cache
         id: cache-xcarchive
@@ -98,28 +106,43 @@ jobs:
 
       - name: Bump version
         if: steps.cache-xcarchive.outputs.cache-hit != 'true'
+        env:
+          VERSION: ${{ env.VERSION }}
         run: |
           ./scripts/ci-select-xcode.sh 15.2
-          make bump-version TO=${{ env.VERSION }}
+          make bump-version TO=$VERSION
 
       - name: Build ${{inputs.name}}${{inputs.suffix}} XCFramework slice for ${{matrix.sdk}}
         if: steps.cache-xcarchive.outputs.cache-hit != 'true'
-        run: ./scripts/build-xcframework-slice.sh ${{matrix.sdk}} ${{inputs.name}} "${{inputs.suffix}}" "${{inputs.macho-type}}" "${{inputs.configuration-suffix}}"
+        env:
+          MATRIX_SDK: ${{ matrix.sdk }}
+          INPUT_NAME: ${{ inputs.name }}
+          INPUT_SUFFIX: ${{ inputs.suffix }}
+          INPUT_MACHO_TYPE: ${{ inputs.macho-type }}
+          INPUT_CONFIG_SUFFIX: ${{ inputs.configuration-suffix }}
+        run: ./scripts/build-xcframework-slice.sh "$MATRIX_SDK" "$INPUT_NAME" "$INPUT_SUFFIX" "$INPUT_MACHO_TYPE" "$INPUT_CONFIG_SUFFIX"
         shell: bash
 
       # The SentrySwiftUI archive build also builds Sentry.framework as a byproduct of the dependency. We need to remove that to avoid downstream assembly tasks from tripping on these extra files. In the future we could investigate using this byproduct instead of running a separate task for Sentry.framework, or use the one already built by that other task instead of rebuilding it here.
       - name: Remove Sentry.framework from SentrySwiftUI build
         if: steps.cache-xcarchive.outputs.cache-hit != 'true' && inputs.name == 'SentrySwiftUI'
+        env:
+          GITHUB_WORKSPACE: ${{ github.workspace }}
         run: |
-          find "${{github.workspace}}/Carthage/archive" -name "Sentry.framework" -print0 | xargs -t0 rm -rf
-          find "${{github.workspace}}/Carthage/archive" -name "Sentry.framework.dSYM" -print0 | xargs -t0 rm -rf
+          find "$GITHUB_WORKSPACE/Carthage/archive" -name "Sentry.framework" -print0 | xargs -t0 rm -rf
+          find "$GITHUB_WORKSPACE/Carthage/archive" -name "Sentry.framework.dSYM" -print0 | xargs -t0 rm -rf
         shell: bash
 
       # the upload action broke symlinks in the mac sdk slice's xcarchive
       - name: Zip xcarchive
         if: steps.cache-xcarchive.outputs.cache-hit != 'true'
+        env:
+          GITHUB_WORKSPACE: ${{ github.workspace }}
+          INPUT_NAME: ${{ inputs.name }}
+          INPUT_SUFFIX: ${{ inputs.suffix }}
+          MATRIX_SDK: ${{ matrix.sdk }}
         run: |
-          ditto -c -k -X --rsrc --keepParent ${{github.workspace}}/Carthage/archive/${{inputs.name}}${{inputs.suffix}}/${{matrix.sdk}}.xcarchive ${{inputs.name}}${{inputs.suffix}}.xcarchive.zip
+          ditto -c -k -X --rsrc --keepParent ${GITHUB_WORKSPACE}/Carthage/archive/${INPUT_NAME}${INPUT_SUFFIX}/${MATRIX_SDK}.xcarchive ${INPUT_NAME}${INPUT_SUFFIX}.xcarchive.zip
         shell: bash
 
       - name: Cache xcarchive
@@ -130,7 +153,7 @@ jobs:
           path: ${{inputs.name}}${{inputs.suffix}}.xcarchive.zip
 
       - name: Upload xcarchive
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: xcframework-${{inputs.variant-id}}-slice-${{matrix.sdk}}
           if-no-files-found: error
@@ -138,7 +161,7 @@ jobs:
             ${{inputs.name}}${{inputs.suffix}}.xcarchive.zip
 
       - name: Upload build log if failed
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         if: ${{ failure() || cancelled() }}
         with:
           name: raw-build-output-build-xcframework-${{inputs.variant-id}}-${{matrix.sdk}}

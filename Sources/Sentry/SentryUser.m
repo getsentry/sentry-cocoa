@@ -1,7 +1,6 @@
 #import "SentryUser.h"
 #import "SentryGeo.h"
 #import "SentryInternalDefines.h"
-#import "SentryModels+Serializable.h"
 #import "SentryNSDictionarySanitize.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -32,13 +31,6 @@ NS_ASSUME_NONNULL_BEGIN
                 self.username = value;
             } else if ([key isEqualToString:@"ip_address"] && isString) {
                 self.ipAddress = value;
-            } else if ([key isEqualToString:@"segment"] && isString) {
-#if !SDK_V9
-#    pragma clang diagnostic push
-#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
-                self.segment = value;
-#    pragma clang diagnostic pop
-#endif // !SDK_V9
             } else if ([key isEqualToString:@"data"] && isDictionary) {
                 self.data = value;
             } else {
@@ -75,12 +67,6 @@ NS_ASSUME_NONNULL_BEGIN
         copy.email = self.email;
         copy.username = self.username;
         copy.ipAddress = self.ipAddress;
-#if !SDK_V9
-#    pragma clang diagnostic push
-#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
-        copy.segment = self.segment;
-#    pragma clang diagnostic pop
-#endif // !SDK_V9
         copy.name = self.name;
         copy.geo = self.geo.copy;
         copy.data = self.data.copy;
@@ -98,12 +84,6 @@ NS_ASSUME_NONNULL_BEGIN
     [serializedData setValue:self.email forKey:@"email"];
     [serializedData setValue:self.username forKey:@"username"];
     [serializedData setValue:self.ipAddress forKey:@"ip_address"];
-#if !SDK_V9
-#    pragma clang diagnostic push
-#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    [serializedData setValue:self.segment forKey:@"segment"];
-#    pragma clang diagnostic pop
-#endif // !SDK_V9
     [serializedData setValue:self.name forKey:@"name"];
     [serializedData setValue:[self.geo serialize] forKey:@"geo"];
     [serializedData setValue:sentry_sanitize(self.data) forKey:@"data"];
@@ -122,7 +102,7 @@ NS_ASSUME_NONNULL_BEGIN
     if (other == self) {
         return YES;
     }
-    if (!other || ![[other class] isEqual:[self class]]) {
+    if (!other || ![other isKindOfClass:[SentryUser class]]) {
         return NO;
     }
 
@@ -158,16 +138,6 @@ NS_ASSUME_NONNULL_BEGIN
         return NO;
     }
 
-#if !SDK_V9
-#    pragma clang diagnostic push
-#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    NSString *otherSegment = user.segment;
-    if (self.segment != otherSegment && ![self.segment isEqualToString:otherSegment]) {
-        return NO;
-    }
-#    pragma clang diagnostic pop
-#endif // !SDK_V9
-
     NSString *otherName = user.name;
     if (self.name != otherName && ![self.name isEqualToString:otherName]) {
         return NO;
@@ -199,12 +169,6 @@ NS_ASSUME_NONNULL_BEGIN
     hash = hash * 23 + [self.email hash];
     hash = hash * 23 + [self.username hash];
     hash = hash * 23 + [self.ipAddress hash];
-#if !SDK_V9
-#    pragma clang diagnostic push
-#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    hash = hash * 23 + [self.segment hash];
-#    pragma clang diagnostic pop
-#endif // !SDK_V9
     hash = hash * 23 + [self.name hash];
     hash = hash * 23 + [self.geo hash];
     hash = hash * 23 + [self.data hash];

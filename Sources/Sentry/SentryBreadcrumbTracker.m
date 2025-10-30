@@ -3,15 +3,12 @@
 #import "SentryBreadcrumbDelegate.h"
 #import "SentryClient.h"
 #import "SentryDefines.h"
-#import "SentryDependencyContainer.h"
 #import "SentryHub.h"
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"
-#import "SentryReachability.h"
 #import "SentryScope.h"
 #import "SentrySwift.h"
 #import "SentrySwizzle.h"
-#import "SentrySwizzleWrapper.h"
 
 #if SENTRY_TARGET_MACOS_HAS_UI
 #    import <Cocoa/Cocoa.h>
@@ -26,10 +23,7 @@ NS_ASSUME_NONNULL_BEGIN
 static NSString *const SentryBreadcrumbTrackerSwizzleSendAction
     = @"SentryBreadcrumbTrackerSwizzleSendAction";
 
-@interface SentryBreadcrumbTracker ()
-#if SENTRY_HAS_REACHABILITY
-    <SentryReachabilityObserver>
-#endif // !TARGET_OS_WATCH
+@interface SentryBreadcrumbTracker () <SentryReachabilityObserver>
 
 @property (nonatomic, weak) id<SentryBreadcrumbDelegate> delegate;
 
@@ -39,12 +33,10 @@ static NSString *const SentryBreadcrumbTrackerSwizzleSendAction
     BOOL _reportAccessibilityIdentifier;
 }
 
-#if SENTRY_HAS_REACHABILITY
 - (void)dealloc
 {
     [SentryDependencyContainer.sharedInstance.reachability removeObserver:self];
 }
-#endif // !TARGET_OS_WATCH
 
 - (instancetype)initReportAccessibilityIdentifier:(BOOL)report
 {
@@ -59,9 +51,7 @@ static NSString *const SentryBreadcrumbTrackerSwizzleSendAction
     _delegate = delegate;
     [self addEnabledCrumb];
     [self trackApplicationNotifications];
-#if SENTRY_HAS_REACHABILITY
     [self trackNetworkConnectivityChanges];
-#endif // !TARGET_OS_WATCH
 }
 
 #if SENTRY_HAS_UIKIT
@@ -81,9 +71,7 @@ static NSString *const SentryBreadcrumbTrackerSwizzleSendAction
         removeSwizzleSendActionForKey:SentryBreadcrumbTrackerSwizzleSendAction];
 #endif // SENTRY_HAS_UIKIT
     _delegate = nil;
-#if SENTRY_HAS_REACHABILITY
     [self stopTrackNetworkConnectivityChanges];
-#endif // !TARGET_OS_WATCH
 }
 
 - (void)trackApplicationNotifications
@@ -143,7 +131,6 @@ static NSString *const SentryBreadcrumbTrackerSwizzleSendAction
 #endif // SENTRY_HAS_UIKIT || SENTRY_TARGET_MACOS_HAS_UI
 }
 
-#if SENTRY_HAS_REACHABILITY
 - (void)trackNetworkConnectivityChanges
 {
     [SentryDependencyContainer.sharedInstance.reachability addObserver:self];
@@ -162,8 +149,6 @@ static NSString *const SentryBreadcrumbTrackerSwizzleSendAction
     crumb.data = [NSDictionary dictionaryWithObject:typeDescription forKey:@"connectivity"];
     [self.delegate addBreadcrumb:crumb];
 }
-
-#endif // !TARGET_OS_WATCH
 
 - (void)addBreadcrumbWithType:(NSString *)type
                  withCategory:(NSString *)category

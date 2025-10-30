@@ -5,7 +5,6 @@ import XCTest
 // swiftlint:disable file_length
 // We are aware that the client has a lot of logic and we should maybe
 // move some of it to other classes.
-@available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
 class SentryClientTests: XCTestCase {
     
     private static let dsn = TestConstants.dsnAsString(username: "SentryClientTest")
@@ -16,7 +15,7 @@ class SentryClientTests: XCTestCase {
 
         let dateProvider = TestCurrentDateProvider()
         let debugImageProvider = TestDebugImageProvider()
-        let threadInspector = TestThreadInspector.instance
+        let threadInspector = TestDefaultThreadInspector.instance
         
         let session: SentrySession
         let event: Event
@@ -798,7 +797,7 @@ class SentryClientTests: XCTestCase {
             try assertValidErrorEvent(eventWithSessionArguments.event, error)
             XCTAssertEqual(fixture.session, eventWithSessionArguments.session)
             
-            let expectedTraceContext = TraceContext(trace: scope.propagationContext.traceId, options: Options(), userSegment: "segment", replayId: nil) 
+            let expectedTraceContext = TraceContext(trace: scope.propagationContext.traceId, options: Options(), replayId: nil)
             XCTAssertEqual(eventWithSessionArguments.traceContext?.traceId,
                            expectedTraceContext.traceId)
         }
@@ -1620,24 +1619,6 @@ class SentryClientTests: XCTestCase {
         XCTAssertEqual(fixture.transport.recordLostEventsWithCount.get(2)?.quantity, 1)
     }
 
-    func testNoDsn_UserFeedbackNotSent() {
-        let sut = fixture.getSutWithNoDsn()
-        sut.capture(userFeedback: UserFeedback(eventId: SentryId()))
-        assertNothingSent()
-    }
-
-    func testDisabled_UserFeedbackNotSent() {
-        let sut = fixture.getSutDisabledSdk()
-        sut.capture(userFeedback: UserFeedback(eventId: SentryId()))
-        assertNothingSent()
-    }
-
-    func testCaptureUserFeedback_WithEmptyEventId() {
-        let sut = fixture.getSut()
-        sut.capture(userFeedback: UserFeedback(eventId: SentryId.empty))
-        assertNothingSent()
-    }
-
     func testNoDsn_FeedbackNotSent() {
         let sut = fixture.getSutWithNoDsn()
         sut.capture(feedback: fixture.feedback, scope: fixture.scope)
@@ -1729,12 +1710,15 @@ class SentryClientTests: XCTestCase {
         let eventId = fixture.getSut().capture(message: fixture.messageAsString)
 
         eventId.assertIsNotEmpty()
-        
+
         var expectedIntegrations = ["AutoBreadcrumbTracking", "AutoSessionTracking", "Crash", "NetworkTracking"]
         if !SentryDependencyContainer.sharedInstance().crashWrapper.isBeingTraced {
             expectedIntegrations = ["ANRTracking"] + expectedIntegrations
         }
-        
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+        expectedIntegrations.append("FramesTracking")
+#endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+
         let actual = try lastSentEvent()
         assertArrayEquals(
             expected: expectedIntegrations,
@@ -1743,58 +1727,17 @@ class SentryClientTests: XCTestCase {
     }
     
     func testSetSDKFeatures() throws {
-        let sut = fixture.getSut {
-            $0.enablePerformanceV2 = true
+        let sut = fixture.getSut { options in
+            options.enableCaptureFailedRequests = true
         }
         
         sut.capture(message: "message")
         
         let actual = try lastSentEvent()
         let features = try XCTUnwrap(actual.sdk?["features"] as? [String])
-        XCTAssert(features.contains("performanceV2"))
         XCTAssert(features.contains("captureFailedRequests"))
     }
-
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-    func testTrackPreWarmedAppStartTracking() throws {
-        try testFeatureTrackingAsIntegration(integrationName: "PreWarmedAppStartTracing") {
-            $0.enablePreWarmedAppStartTracing = true
-        }
-    }
-#endif
     
-    private func testFeatureTrackingAsIntegration(integrationName: String, configureOptions: (Options) -> Void) throws {
-        SentrySDK.start(options: Options())
-
-        let eventId = fixture.getSut(configureOptions: { options in
-            configureOptions(options)
-        }).capture(message: fixture.messageAsString)
-
-        eventId.assertIsNotEmpty()
-        let actual = try lastSentEvent()
-        var expectedIntegrations = ["AutoBreadcrumbTracking", "AutoSessionTracking", "Crash", "NetworkTracking", integrationName]
-        if !SentryDependencyContainer.sharedInstance().crashWrapper.isBeingTraced {
-            expectedIntegrations = ["ANRTracking"] + expectedIntegrations
-        }
-        
-        assertArrayEquals(
-            expected: expectedIntegrations,
-            actual: actual.sdk?["integrations"] as? [String]
-        )
-    }
-    
-    func testSetSDKIntegrations_NoIntegrations() throws {
-        let expected: [String] = []
-        
-        let eventId = fixture.getSut(configureOptions: { options in
-            options.integrations = expected
-        }).capture(message: fixture.messageAsString)
-
-        eventId.assertIsNotEmpty()
-        let actual = try lastSentEvent()
-        assertArrayEquals(expected: expected, actual: actual.sdk?["integrations"] as? [String])
-    }
-
     func testFileManagerCantBeInit() throws {
         try SentryFileManager.prepareInitError()
         defer {
@@ -2289,12 +2232,11 @@ class SentryClientTests: XCTestCase {
     }
 }
 
-@available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
 private extension SentryClientTests {
     private func givenEventWithDebugMeta() -> Event {
         let event = Event(level: SentryLevel.fatal)
         let debugMeta = DebugMeta()
-        debugMeta.name = "Me"
+        debugMeta.codeFile = "Me"
         let debugMetas = [debugMeta]
         event.debugMeta = debugMetas
         return event
@@ -2405,7 +2347,6 @@ private extension SentryClientTests {
         XCTAssertTrue(fixture.transport.sentEnvelopes.isEmpty)
         XCTAssertEqual(0, fixture.transportAdapter.sentEventsWithSessionTraceState.count)
         XCTAssertEqual(0, fixture.transportAdapter.sendEventWithTraceStateInvocations.count)
-        XCTAssertEqual(0, fixture.transportAdapter.userFeedbackInvocations.count)
     }
     
     private func assertLostEventRecorded(category: SentryDataCategory, reason: SentryDiscardReason) {

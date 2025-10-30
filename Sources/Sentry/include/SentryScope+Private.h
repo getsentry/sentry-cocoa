@@ -1,17 +1,19 @@
 #import <Foundation/Foundation.h>
 
 #import "SentryScope.h"
-#import "SentryScopeObserver.h"
 
 @class SentryAttachment;
 @class SentryPropagationContext;
 @class SentrySession;
+
+@protocol SentryScopeObserver;
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface SentryScope ()
 
 @property (atomic, copy, nullable) NSString *environmentString;
+@property (nullable, nonatomic, strong) id<SentrySpan> span;
 
 @property (atomic, strong, readonly) NSArray<SentryAttachment *> *attachments;
 

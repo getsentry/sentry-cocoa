@@ -18,7 +18,7 @@ class SentryNSErrorTests: XCTestCase {
         let data = try XCTUnwrap(SentrySerializationSwift.data(withJSONObject: error.serialize()))
         
         // Act
-        let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as SentryNSError?)
+        let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as SentryNSErrorDecodable?)
         
         // Assert
         XCTAssertEqual(error.code, decoded.code)
@@ -33,7 +33,7 @@ class SentryNSErrorTests: XCTestCase {
         let data = try XCTUnwrap(SentrySerializationSwift.data(withJSONObject: serialized))
         
         // Act & Assert
-        XCTAssertNil(decodeFromJSONData(jsonData: data) as SentryNSError?)
+        XCTAssertNil(decodeFromJSONData(jsonData: data) as SentryNSErrorDecodable?)
     }
 
     func testSerializeWithUnderlyingNSError() {

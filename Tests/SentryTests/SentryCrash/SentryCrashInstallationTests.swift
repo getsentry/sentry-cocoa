@@ -1,4 +1,4 @@
-@testable import Sentry
+@_spi(Private) @testable import Sentry
 import SentryTestUtils
 import XCTest
 
@@ -83,13 +83,13 @@ class SentryCrashInstallationTests: XCTestCase {
     }
 
     private func assertReinstalled(_ installation: SentryCrashTestInstallation,
-                                   monitorsAfterInstall: SentryCrashMonitorType,
+                                   monitorsAfterInstall: UInt32,
                                    crashHandlerDataAfterInstall: UnsafeMutablePointer<CrashHandlerData>?) {
         let sentryCrash = SentryDependencyContainer.sharedInstance().crashReporter
         XCTAssertNotNil(installation.g_crashHandlerData())
         XCTAssertEqual(monitorsAfterInstall, sentryCrash.monitoring)
-        XCTAssertEqual(monitorsAfterInstall, sentrycrashcm_getActiveMonitors())
-        XCTAssertNotNil(sentryCrash.onCrash)
+        XCTAssertEqual(monitorsAfterInstall, sentrycrashcm_getActiveMonitors().rawValue)
+        XCTAssertTrue(sentryCrash.hasOnCrash())
         XCTAssertEqual(crashHandlerDataAfterInstall, installation.g_crashHandlerData())
         XCTAssertNotNil(sentrycrashcm_getEventCallback())
         XCTAssertTrue(sentrycrashccd_hasThreadStarted())
@@ -98,20 +98,20 @@ class SentryCrashInstallationTests: XCTestCase {
     }
 
     private func assertUninstalled(_ installation: SentryCrashTestInstallation,
-                                   monitorsAfterInstall: SentryCrashMonitorType) {
+                                   monitorsAfterInstall: UInt32) {
         let sentryCrash = SentryDependencyContainer.sharedInstance().crashReporter
         XCTAssertNil(installation.g_crashHandlerData())
-        XCTAssertEqual(SentryCrashMonitorTypeNone, Int32(sentryCrash.monitoring.rawValue))
+        XCTAssertEqual(SentryCrashMonitorTypeNone, Int32(sentryCrash.monitoring))
         XCTAssertEqual(SentryCrashMonitorTypeNone, Int32(sentrycrashcm_getActiveMonitors().rawValue))
-        XCTAssertNil(sentryCrash.onCrash)
+        XCTAssertFalse(sentryCrash.hasOnCrash())
         XCTAssertNil(sentrycrashcm_getEventCallback())
         XCTAssertFalse(sentrycrashccd_hasThreadStarted())
 
         assertReservedThreads(monitorsAfterInstall)
     }
 
-    private func assertReservedThreads(_ monitorsAfterInstall: SentryCrashMonitorType) {
-        if monitorsAfterInstall.rawValue & SentryCrashMonitorTypeMachException.rawValue == 1 {
+    private func assertReservedThreads(_ monitorsAfterInstall: UInt32) {
+        if monitorsAfterInstall & SentryCrashMonitorTypeMachException.rawValue == 1 {
             XCTAssertTrue(sentrycrashcm_hasReservedThreads())
         } else {
             XCTAssertFalse(sentrycrashcm_hasReservedThreads())

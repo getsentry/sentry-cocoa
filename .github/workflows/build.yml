@@ -75,17 +75,11 @@ jobs:
       matrix:
         # other sample projects are built in ui-tests
         include:
-          - scheme: macOS-Swift
-            config: Debug
-          - scheme: iOS13-Swift
-            config: Debug
           - scheme: watchOS-Swift WatchKit App
             config: Debug
           - scheme: macOS-SwiftUI
             config: Debug
           - scheme: SessionReplay-CameraTest
-            config: Debug
-          - scheme: visionOS-Swift
             config: Debug
           - scheme: iOS-Swift
             config: DebugV9
@@ -99,6 +93,8 @@ jobs:
             config: DebugV9
           - scheme: iOS-ObjectiveC
             config: DebugV9
+          - scheme: DistributionSample
+            config: Debug
 
     steps:
       - uses: actions/checkout@v5
@@ -119,7 +115,7 @@ jobs:
           | xcbeautify --preserve-unbeautified
 
       - name: Archiving Raw Build Logs
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         if: ${{ failure() || cancelled() }}
         with:
           name: raw-build-output-scheme-${{matrix.scheme}}
@@ -129,6 +125,26 @@ jobs:
       - name: Debug Xcode environment
         if: ${{ failure() || cancelled() }}
         run: ./scripts/ci-diagnostics.sh
+
+  build-distribution:
+    name: Build the distribution framework
+    runs-on: macos-15
+    needs: files-changed
+    steps:
+      - uses: actions/checkout@v5
+
+      - run: ./scripts/ci-select-xcode.sh 16.4
+        shell: sh
+      - run: rm -r Sentry.xcodeproj && rm -r Sentry.xcworkspace
+      - run: set -o pipefail && NSUnbufferedIO=YES xcodebuild build -scheme SentryDistribution -sdk iphoneos -destination 'generic/platform=iphoneos' | tee raw-build-output-spm.log | xcbeautify
+        shell: sh
+      - name: Upload SPM Build Logs
+        uses: actions/upload-artifact@v5
+        if: ${{ failure() || cancelled() }}
+        with:
+          name: raw-build-output-spm
+          path: |
+            raw-build-output-spm.log
 
   build-spm:
     name: Build with SPM
@@ -148,7 +164,7 @@ jobs:
         shell: sh
 
       - name: Upload SPM Build Logs
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         if: ${{ failure() || cancelled() }}
         with:
           name: raw-build-output-spm
@@ -176,7 +192,7 @@ jobs:
             --device "iPhone 16 Pro"  \
             --configuration DebugV9
       - name: Archiving Raw Build Logs
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         if: ${{ failure() || cancelled() }}
         with:
           name: raw-build-output-v9
@@ -341,6 +357,7 @@ jobs:
         files-changed,
         ios-swift-release,
         build-sample,
+        build-distribution,
         build-spm,
         build-v9,
         check-debug-without-UIKit,

@@ -37,7 +37,7 @@ import Foundation
             }
             let hub = SentryDependencyContainerSwiftHelper.currentHub()
             var batcher: SentryLogBatcher?
-            if let client = hub.getClient(), client.options.experimental.enableLogs {
+            if let client = hub.getClient(), client.options.enableLogs {
                 batcher = SentryLogBatcher(client: client, dispatchQueue: Dependencies.dispatchQueueWrapper)
             }
             let logger = SentryLogger(
@@ -242,16 +242,6 @@ import Foundation
         return SentrySDKInternal.capture(message: message, block: block).sentryId
     }
     
-    #if !SDK_V9
-    /// Captures user feedback that was manually gathered and sends it to Sentry.
-    /// - parameter userFeedback: The user feedback to send to Sentry.
-    @available(*, deprecated, message: "Use SentrySDK.back or use or configure our new managed UX with SentryOptions.configureUserFeedback.")
-    @objc(captureUserFeedback:)
-    public static func capture(userFeedback: UserFeedback) {
-        SentrySDKInternal.capture(userFeedback: userFeedback)
-    }
-    #endif
-    
     /// Captures user feedback that was manually gathered and sends it to Sentry.
     /// - warning: This is an experimental feature and may still have bugs.
     /// - parameter feedback: The feedback to send to Sentry.
@@ -267,7 +257,6 @@ import Foundation
     }
     
     #if os(iOS) && !SENTRY_NO_UIKIT
-    @available(iOS 13.0, *)
     @objc public static let feedback = {
       return SentryFeedbackAPI()
     }()
@@ -393,8 +382,7 @@ import Foundation
     /// `SentryOptions.profilesSampleRate` or `SentryOptions.profilesSampler`. If either of those
     /// options are set, this method does nothing.
     /// - note: Taking into account the above note, if `SentryOptions.configureProfiling` is not set,
-    /// calls to this method will always start a profile if one is not already running. This includes app
-    /// launch profiles configured with `SentryOptions.enableAppLaunchProfiling`.
+    /// calls to this method will always start a profile if one is not already running.
     /// - note: If neither `SentryOptions.profilesSampleRate` nor `SentryOptions.profilesSampler` are
     /// set, and `SentryOptions.configureProfiling` is set, this method does nothing if the profiling
     /// session is not sampled with respect to `SentryOptions.profileSessionSampleRate`, or if it is

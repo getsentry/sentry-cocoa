@@ -1,26 +1,7 @@
 import Foundation
 
 @objcMembers
-public class SentryExperimentalOptions: NSObject {
-    /**
-     * Enables swizzling of`NSData` to automatically track file operations.
-     *
-     * - Note: Swizzling is enabled by setting ``SentryOptions.enableSwizzling`` to `true`.
-     *         This option allows you to disable swizzling for `NSData` only, while keeping swizzling enabled for other classes.
-     *         This is useful if you want to use manual tracing for file operations.
-     */
-    public var enableDataSwizzling = true
-
-    /**
-     * Enables swizzling of`NSFileManager` to automatically track file operations.
-     *
-     * - Note: Swizzling is enabled by setting ``SentryOptions.enableSwizzling`` to `true`.
-     *         This option allows you to disable swizzling for `NSFileManager` only, while keeping swizzling enabled for other classes.
-     *         This is useful if you want to use manual tracing for file operations.
-     * - Experiment: This is an experimental feature and is therefore disabled by default. We'll enable it by default in a future release.
-     */
-    public var enableFileManagerSwizzling = false
-
+public final class SentryExperimentalOptions: NSObject {
     /**
      * A more reliable way to report unhandled C++ exceptions.
      *
@@ -49,9 +30,21 @@ public class SentryExperimentalOptions: NSObject {
     public var enableSessionReplayInUnreliableEnvironment = false
 
     /**
-     * Logs are considered beta.
+     * Forces enabling of session replay in unreliable environments.
+     *
+     * Due to internal changes with the release of Liquid Glass on iOS 26.0, the masking of text and images can not be reliably guaranteed.
+     * Therefore the SDK uses a defensive programming approach to disable the session replay integration by default, unless the environment is detected as reliable.
+     *
+     * Indicators for reliable environments include:
+     * - Running on an older version of iOS that doesn't have Liquid Glass (iOS 18 or earlier)
+     * - UIDesignRequiresCompatibility is explicitly set to YES in Info.plist
+     * - The app was built with Xcode < 26.0 (DTXcode < 2600)
+     *
+     * - Important: This flag allows to re-enable the session replay integration on iOS 26.0 and later, but please be aware that text and images may not be masked as expected.
+     *
+     * - Note: See [GitHub issues #6389](https://github.com/getsentry/sentry-cocoa/issues/6389) for more information.
      */
-    public var enableLogs = false
+    public var enableSessionReplayInUnreliableEnvironment = false
 
     @_spi(Private) public func validateOptions(_ options: [String: Any]?) {
     }

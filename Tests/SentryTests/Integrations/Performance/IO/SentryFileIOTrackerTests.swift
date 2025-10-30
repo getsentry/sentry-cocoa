@@ -47,7 +47,6 @@ class SentryFileIOTrackerTests: XCTestCase {
 
     private var fixture: Fixture!
 
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     override func setUpWithError() throws {
         try super.setUpWithError()
         fixture = try Fixture()
@@ -240,7 +239,7 @@ class SentryFileIOTrackerTests: XCTestCase {
         let data = sut.measureNSData(fromFile: fixture.filePath, origin: "custom.origin") { path in
             span = self.firstSpan(transaction)
             usedPath = path
-            return self.fixture.data
+            return self.fixture.data as NSData
         }
 
         XCTAssertEqual(usedPath, fixture.filePath)
@@ -255,14 +254,16 @@ class SentryFileIOTrackerTests: XCTestCase {
         var span: Span?
         var usedPath: String?
         var usedOptions: NSData.ReadingOptions?
+        var error: NSError?
 
-        let data = try? sut.measureNSData(fromFile: self.fixture.filePath, options: .uncached, origin: "custom.origin") { path, options, _ -> Data in
+        let data = sut.measureNSData(fromFile: self.fixture.filePath, options: .uncached, origin: "custom.origin", error: &error) { path, options, _ in
             span = self.firstSpan(transaction)
             usedOptions = options
             usedPath = path
-            return self.fixture.data
+            return self.fixture.data as NSData
         }
 
+        XCTAssertNil(error)
         XCTAssertEqual(usedPath, fixture.filePath)
         XCTAssertEqual(data?.count, fixture.data.count)
         XCTAssertEqual(usedOptions, .uncached)
@@ -277,14 +278,16 @@ class SentryFileIOTrackerTests: XCTestCase {
         var usedUrl: URL?
         let url = URL(fileURLWithPath: fixture.filePath)
         var usedOptions: NSData.ReadingOptions?
+        var error: NSError?
 
-        let data = try? sut.measureNSData(from: url, options: .uncached, origin: "custom.origin") { url, options, _ in
+        let data = sut.measureNSData(from: url, options: .uncached, origin: "custom.origin", error: &error) { url, options, _ in
             span = self.firstSpan(transaction)
             usedOptions = options
             usedUrl = url
-            return self.fixture.data
+            return self.fixture.data as NSData
         }
 
+        XCTAssertNil(error)
         XCTAssertEqual(usedUrl, url)
         XCTAssertEqual(data?.count, fixture.data.count)
         XCTAssertEqual(usedOptions, .uncached)

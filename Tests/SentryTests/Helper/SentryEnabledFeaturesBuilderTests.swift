@@ -1,7 +1,6 @@
 @_spi(Private) @testable import Sentry
 import XCTest
 
-@available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
 final class SentryEnabledFeaturesBuilderTests: XCTestCase {
 
     func testDefaultFeatures() throws {
@@ -22,46 +21,16 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
     func testEnableAllFeatures() throws {
         // -- Arrange --
         let options = Options()
-        options.enablePerformanceV2 = true
         options.enableTimeToFullDisplayTracing = true
         options.swiftAsyncStacktraces = true
-
-#if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
-        options.enableAppLaunchProfiling = true
-#endif // os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
-
-#if os(iOS) || os(tvOS)
-#if canImport(UIKit) && !SENTRY_NO_UIKIT
-        options.enablePreWarmedAppStartTracing = true
-#endif // canImport(UIKit)
-#endif // os(iOS) || os(tvOS)
-
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-        options.enableAppHangTrackingV2 = true
-#endif //os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 
         // -- Act --
         let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
 
         // -- Assert --
         XCTAssert(features.contains("captureFailedRequests"))
-        XCTAssert(features.contains("performanceV2"))
         XCTAssert(features.contains("timeToFullDisplayTracing"))
         XCTAssert(features.contains("swiftAsyncStacktraces"))
-
-#if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
-        XCTAssert(features.contains("appLaunchProfiling"))
-#endif // os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
-
-#if os(iOS) || os(tvOS)
-#if canImport(UIKit) && !SENTRY_NO_UIKIT
-        XCTAssert(features.contains("preWarmedAppStartTracing"))
-#endif // canImport(UIKit)
-#endif // os(iOS) || os(tvOS)
-
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-        XCTAssert(features.contains("appHangTrackingV2"))
-#endif //os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     }
 
     func testEnablePersistingTracesWhenCrashing() {
@@ -158,7 +127,7 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
         // -- Arrange --
         let options = Options()
 
-        options.experimental.enableDataSwizzling = true
+        options.enableDataSwizzling = true
 
         // -- Act --
         let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
@@ -171,7 +140,7 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
         // -- Arrange --
         let options = Options()
 
-        options.experimental.enableDataSwizzling = false
+        options.enableDataSwizzling = false
 
         // -- Act --
         let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
@@ -184,7 +153,7 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
         // -- Arrange --
         let options = Options()
 
-        options.experimental.enableFileManagerSwizzling = true
+        options.enableFileManagerSwizzling = true
 
         // -- Act --
         let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
@@ -197,7 +166,7 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
         // -- Arrange --
         let options = Options()
 
-        options.experimental.enableFileManagerSwizzling = false
+        options.enableFileManagerSwizzling = false
 
         // -- Act --
         let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)

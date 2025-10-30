@@ -19,7 +19,6 @@
 @class SentryScope;
 @class SentryTransactionContext;
 @class SentryUser;
-@class SentryUserFeedback;
 @class SentryAttachment;
 @class SentryLogger;
 @class UIView;
@@ -263,19 +262,6 @@ SENTRY_NO_INIT
                      withScopeBlock:(void (^)(SentryScope *scope))block
     NS_SWIFT_NAME(capture(message:block:));
 
-#if !SDK_V9
-/**
- * Captures user feedback that was manually gathered and sends it to Sentry.
- * @param userFeedback The user feedback to send to Sentry.
- * @deprecated Use @c SentrySDK.captureFeedback or use or configure our new managed UX with
- * @c SentryOptions.configureUserFeedback .
- */
-+ (void)captureUserFeedback:(SentryUserFeedback *)userFeedback
-    NS_SWIFT_NAME(capture(userFeedback:)) DEPRECATED_MSG_ATTRIBUTE(
-        "Use SentrySDK.captureFeedback or use or configure our new managed UX with "
-        "SentryOptions.configureUserFeedback.");
-#endif // !SDK_V9
-
 + (void)captureSerializedFeedback:(NSDictionary *)serializedFeedback
                       withEventId:(NSString *)feedbackEventId
                       attachments:(NSArray<SentryAttachment *> *)feedbackAttachments;
@@ -392,8 +378,7 @@ SENTRY_NO_INIT
  * @c SentryOptions.profilesSampleRate or @c SentryOptions.profilesSampler . If either of those
  * options are set, this method does nothing.
  * @note Taking into account the above note, if @c SentryOptions.configureProfiling is not set,
- * calls to this method will always start a profile if one is not already running. This includes app
- * launch profiles configured with @c SentryOptions.enableAppLaunchProfiling .
+ * calls to this method will always start a profile if one is not already running.
  * @note If neither @c SentryOptions.profilesSampleRate nor @c SentryOptions.profilesSampler are
  * set, and @c SentryOptions.configureProfiling is set, this method does nothing if the profiling
  * session is not sampled with respect to @c SentryOptions.profileSessionSampleRate , or if it is

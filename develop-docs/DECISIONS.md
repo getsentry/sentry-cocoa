@@ -393,8 +393,8 @@ Contributors: @armcknight, @philipphofmann, @kahest
 We will support versions of each platform going back 4 major versions, but we support no version which is not debuggable by the current Xcode required to submit apps to stores. There are 3 considerations:
 
 1. The distribution of events we receive from the various versions of iOS etc in the wild.
-1. Xcode support. As of the time of this writing, the oldest version of Xcode that can still submit apps to the app store is Xcode 15, which supports back to iOS 12, while the current is iOS 18.
-1. GitHub Actions support. This dictates which versions we can automatically test. Their oldest [macOS runner image](https://github.com/actions/runner-images/tree/main/images/macos) is `macos-13` with support going back to iOS 16.1
+2. Xcode support. As of the time of this writing, the oldest version of Xcode that can still submit apps to the app store is Xcode 15, which supports back to iOS 12, while the current is iOS 18.
+3. GitHub Actions support. This dictates which versions we can automatically test. Their oldest [macOS runner image](https://github.com/actions/runner-images/tree/main/images/macos) is `macos-13` with support going back to iOS 16.1
 
 Our major-4 standard would place us right in the middle of the earliest Xcode and GitHub Actions supported versions, which seems like a reasonable standard.
 
@@ -442,3 +442,10 @@ Contributors: @philipphofmann, @philprime, @kahest, @noahsmartin, @itaybre
 As of Oct 1st 2025, the [main branch](https://github.com/getsentry/sentry-cocoa/tree/main) is for v9 and the branch [v8.x](https://github.com/getsentry/sentry-cocoa/tree/v8.x) is for v8.
 
 To continue supporting users on version 8, we have created a dedicated v8 branch. This is the first time in the SDK’s history that we’ve maintained a legacy branch. Since v8 was released over two years ago, and with new features like Session Replay shipped this year, we know some important customers still require bugfixes on v8 before moving to v9. Maintaining a separate branch allows us to deliver those fixes without complicating the v9 release process.
+
+## Remove iOS 16 support
+
+Date: October 28, 2025
+Contributors: @philprime, @philipphofmann, @itaybre
+
+While we keep supporting iOS 16 in the v9 SDK, we will remove testing in iOS 16 due to flakiness when running on GitHub Actions simulators as the test runners keep timing out.

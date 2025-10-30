@@ -2,7 +2,7 @@
 import Foundation
 
 @objcMembers
-public class SentryFeedback: NSObject {
+public final class SentryFeedback: NSObject {
     @objc public enum SentryFeedbackSource: Int {
         public var serialize: String {
             switch self {
@@ -42,20 +42,13 @@ public class SentryFeedback: NSObject {
     }
 }
 
-#if !SDK_V9
 extension SentryFeedback: SentrySerializable { }
-#endif
 
 extension SentryFeedback {
-    #if SDK_V9
-    @_spi(Private) public func serialize() -> [String: Any] {
-        return internalSerialize()
-    }
-    #else
+
     public func serialize() -> [String: Any] {
         return internalSerialize()
     }
-    #endif
 
     private func internalSerialize() -> [String: Any] {
         let numberOfOptionalItems = (name == nil ? 0 : 1) + (email == nil ? 0 : 1) + (associatedEventId == nil ? 0 : 1)

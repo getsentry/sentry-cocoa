@@ -83,8 +83,6 @@ public enum SentrySDKOverrides: String, CaseIterable {
 
     public enum Performance: String, SentrySDKOverride {
         case disableTimeToFullDisplayTracing    = "--io.sentry.performance.disable-time-to-full-display-tracing"
-        case disablePerformanceV2               = "--io.sentry.performance.disable-performance-v2"
-        case disableAppHangTrackingV2           = "--io.sentry.performance.disable-app-hang-tracking-v2"
         case disableSessionTracking             = "--io.sentry.performance.disable-automatic-session-tracking"
         case disableFileIOTracing               = "--io.sentry.performance.disable-file-io-tracing"
         case disableUIVCTracing                 = "--io.sentry.performance.disable-uiviewcontroller-tracing"
@@ -161,10 +159,6 @@ public enum SentrySDKOverrides: String, CaseIterable {
     case tracing = "Tracing"
 
     public enum Profiling: String, SentrySDKOverride {
-      #if !SDK_V9
-        case sampleRate                 = "--io.sentry.profiling.profilesSampleRate"
-        case samplerValue               = "--io.sentry.profiling.profilesSamplerValue"
-     #endif // !SDK_V9
         case disableAppStartProfiling   = "--io.sentry.profiling.disable-app-start-profiling"
         case manualLifecycle            = "--io.sentry.profiling.profile-lifecycle-manual"
         case sessionSampleRate          = "--io.sentry.profiling.profile-session-sample-rate"
@@ -268,11 +262,7 @@ private extension SentrySDKOverride {
 extension SentrySDKOverrides.Profiling {
     public var overrideType: OverrideType {
         switch self {
-          #if SDK_V9
         case .sessionSampleRate: return .float
-          #else
-        case .sampleRate, .samplerValue, .sessionSampleRate: return .float
-          #endif // !SDK_V9
         case .disableAppStartProfiling, .manualLifecycle, .disableUIProfiling, .slowLoadMethod, .immediateStop: return .boolean
         }
     }
@@ -317,7 +307,7 @@ extension SentrySDKOverrides.Other {
 extension SentrySDKOverrides.Performance {
     public var overrideType: OverrideType {
         switch self {
-        case .disableTimeToFullDisplayTracing, .disablePerformanceV2, .disableAppHangTrackingV2, .disableSessionTracking, .disableFileIOTracing, .disableUIVCTracing, .disableCoreDataTracing, .disableANRTracking, .disableWatchdogTracking, .disableUITracing, .disablePrewarmedAppStartTracing, .disablePerformanceTracing: return .boolean
+        case .disableTimeToFullDisplayTracing, .disableSessionTracking, .disableFileIOTracing, .disableUIVCTracing, .disableCoreDataTracing, .disableANRTracking, .disableWatchdogTracking, .disableUITracing, .disablePrewarmedAppStartTracing, .disablePerformanceTracing: return .boolean
         case .sessionTrackingIntervalMillis: return .string
         }
     }
@@ -365,11 +355,7 @@ extension SentrySDKOverrides.Special {
 extension SentrySDKOverrides.Profiling {
     public var ignoresDisableEverything: Bool {
         switch self {
-          #if SDK_V9
         case .sessionSampleRate, .manualLifecycle, .slowLoadMethod, .immediateStop: return true
-          #else
-        case .sampleRate, .samplerValue, .sessionSampleRate, .manualLifecycle, .slowLoadMethod, .immediateStop: return true
-          #endif // SDK_V9
         case .disableAppStartProfiling, .disableUIProfiling: return false
         }
     }
@@ -404,7 +390,7 @@ extension SentrySDKOverrides.Other {
 extension SentrySDKOverrides.Performance {
     public var ignoresDisableEverything: Bool {
         switch self {
-        case .disableTimeToFullDisplayTracing, .disablePerformanceV2, .disableAppHangTrackingV2, .disableSessionTracking, .disableFileIOTracing, .disableUIVCTracing, .disableCoreDataTracing, .disableANRTracking, .disableWatchdogTracking, .disableUITracing, .disablePrewarmedAppStartTracing, .disablePerformanceTracing: return false
+        case .disableTimeToFullDisplayTracing, .disableSessionTracking, .disableFileIOTracing, .disableUIVCTracing, .disableCoreDataTracing, .disableANRTracking, .disableWatchdogTracking, .disableUITracing, .disablePrewarmedAppStartTracing, .disablePerformanceTracing: return false
         case .sessionTrackingIntervalMillis: return true
         }
     }

@@ -1,5 +1,58 @@
 # Changelog
 
+## Unreleased
+
+### Breaking Changes
+
+- Moves `SentryEventDecoder` to SPI (#6365)
+- Makes `PreviewRedactOptions`, `SentryProfileOptions`, `SentryRedactViewHelper`, `SentryViewScreenshotOptions`, `SentryReplayOptions`, `SentryUserFeedbackConfiguration`, `SentryUserFeedbackFormConfiguration`, `SentryUserFeedbackThemeConfiguration`, `SentryUserFeedbackWidgetConfiguration`, `SentryFeedback`, and `SentryExperimentalOptions` `final` (#6365)
+- Removes Decodable conformances from the public API of model classes (#5691)
+- Removes unused SentryLogLevel (#5591)
+- Removes deprecated `setExtraValue` from SentrySpan (#5864)
+- Removes deprecated getStoreEndpoint (#5591)
+- Remove legacy profiling, the only supported profiling is now what was known as continuous V2 (#6386)
+- Removes deprecated useSpan function (#5591)
+- The `span` property on `SentryScope` is now readonly (#5866)
+- Removes deprecated SentryDebugImageProvider class (#5598)
+- Removes segment property on SentryUser, SentryBaggage, and SentryTraceContext (#5638)
+- Removes deprecated TraceContext initializers (#6348)
+- Removes deprecated user feedback API, this is replaced with the new feedback API (#5591)
+- Removes `enablePerformanceV2` option and makes this the default. The app start duration will now finish when the first frame is drawn instead of when the OS posts the UIWindowDidBecomeVisibleNotification. (#6008)
+- Removes enableTracing property from SentryOptions (#5694)
+- Structured Logs: Move options out of experimental (#6359)
+- Remove unused `SentryFrame.instruction` property (#6504)
+- Remove `uuid` and `name` of `SentryDebugMeta` (#6512) Use `debugID` instead of `uuid` and `codeFile` instead of `name`.
+- Enable enablePreWarmedAppStartTracing by default (#6508). With this option enabled, the SDK collects [prewarmed app starts](https://docs.sentry.io/platforms/apple/tracing/instrumentation/automatic-instrumentation/#prewarmed-app-start-tracing).
+
+### Features
+
+- Add SentryDistribution as Swift Package Manager target (#6149)
+- Add option `enablePropagateTraceparent` to support OTel/W3C trace propagation (#6356)
+- Move `enableFileManagerSwizzling` from experimental options to top-level options (#6592).
+  This option is still disabled by default and will be enabled in a future major release.
+- Move `enableDataSwizzling` from experimental options to top-level options (#6592). This option remains enabled by default.
+
+### Fixes
+
+- Fixes warnings about minimum OS version being lower than Xcode supported version (#5591)
+- Fix rendering method for fast view rendering (#6360)
+- Fix issue where the thread that generated an event could be missing when more than 100 threads are running (#6377)
+- Fix wrong Frame Delay when becoming active, which lead to false reported app hangs when the app moves to the foreground after being in the background (#6381)
+- Session Replay masking improvements (#6292)
+  - Fix SwiftUI.List background decoration view causing incorrect clipping of screen content
+  - Fix sublayer rendering order by properly sorting by zPosition with insertion order as tie-breaker
+  - Fix UISwitch internal images being incorrectly redacted
+  - Fix UITextField placeholder text (UITextFieldLabel) not being detected for redaction
+  - Use string-based class comparison to avoid triggering Objective-C +initialize on background threads
+  - Add layer class filtering for views used in multiple contexts (e.g., SwiftUI._UIGraphicsView)
+  - Improve transform calculations for views with custom anchor points
+  - Fix axis-aligned transform detection for optimized opaque view clipping
+
+### Improvements
+
+- Replace deprecated SCNetworkReachability with NWPathMonitor (#6019)
+- Increase attachment max size to 100MB (#6537)
+
 ## 8.57.1
 
 ### Fixes

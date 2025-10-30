@@ -9,7 +9,6 @@
 #    import "SentryProfiler+Private.h"
 #    include <mutex>
 
-#    import "SentryDependencyContainer.h"
 #    import "SentryEvent+Private.h"
 #    import "SentryHub+Private.h"
 #    import "SentryInternalDefines.h"
@@ -24,12 +23,12 @@
 #    import "SentrySamplerDecision.h"
 #    import "SentryTraceProfiler.h"
 #    import "SentryTracer+Private.h"
+#    import "SentryTracerConfiguration.h"
 #    import "SentryTransaction.h"
 
 #    if SENTRY_HAS_UIKIT
 #        import "SentryAppStartMeasurement.h"
-#        import "SentryFramesTracker.h"
-#        import "SentryScreenFrames.h"
+#        import "SentryProfilingScreenFramesHelper.h"
 #    endif // SENTRY_HAS_UIKIT
 
 /**
@@ -177,17 +176,6 @@ sentry_discardProfilerCorrelatedToTrace(SentryId *internalTraceId, SentryHub *hu
             sentry_stringFromSentryID(internalTraceId));
         _unsafe_cleanUpContinuousProfilerV2();
     } else if (internalTraceId != nil) {
-#    if !SDK_V9
-        SentryClient *_Nullable client = hub.getClient;
-        if (client == nil) {
-            SENTRY_LOG_ERROR(@"No client found, skipping cleanup.");
-            return;
-        }
-        if (sentry_isContinuousProfilingEnabled(SENTRY_UNWRAP_NULLABLE(SentryClient, client))) {
-            SENTRY_LOG_ERROR(@"Tracers are not tracked with continuous profiling V1.");
-            return;
-        }
-#    endif // !SDK_V9
 
         if (_gTracersToProfilers == nil) {
             SENTRY_LOG_ERROR(@"Tracer to profiler should have already been initialized by the "
@@ -209,7 +197,7 @@ sentry_discardProfilerCorrelatedToTrace(SentryId *internalTraceId, SentryHub *hu
                              @"initialized by the time they are being queried");
         }
         if (_gProfilersToTracers.count == 0) {
-            [SentryDependencyContainer.sharedInstance.framesTracker resetProfilingTimestamps];
+            sentry_framesTrackerResetProfilingTimestamps();
         }
 #    endif // SENTRY_HAS_UIKIT
     }
@@ -237,12 +225,12 @@ SentryProfiler *_Nullable sentry_profilerForFinishedTracer(SentryId *internalTra
 
 #    if SENTRY_HAS_UIKIT
     profiler.screenFrameData =
-        [SentryDependencyContainer.sharedInstance.framesTracker.currentFrames copy];
+        [SentryProfilingScreenFramesHelper copyScreenFrames:sentry_framesTrackerGetCurrentFrames()];
     SENTRY_LOG_DEBUG(
         @"Grabbing copy of frames tracker screen frames data to attach to profiler: %@.",
         profiler.screenFrameData);
     if (_gProfilersToTracers.count == 0) {
-        [SentryDependencyContainer.sharedInstance.framesTracker resetProfilingTimestamps];
+        sentry_framesTrackerResetProfilingTimestamps();
     }
 #    endif // SENTRY_HAS_UIKIT
 
@@ -270,7 +258,7 @@ sentry_stopProfilerDueToFinishedTransaction(
 
     SentryClient *_Nullable client = hub.getClient;
     if (isProfiling && client != nil
-        && sentry_isContinuousProfilingV2Enabled(SENTRY_UNWRAP_NULLABLE(SentryClient, client))
+        && sentry_isContinuousProfilingEnabled(SENTRY_UNWRAP_NULLABLE(SentryClient, client))
         && sentry_isProfilingCorrelatedToTraces(SENTRY_UNWRAP_NULLABLE(SentryClient, client))) {
         SENTRY_LOG_DEBUG(@"Stopping tracking root span tracer with profilerReferenceId %@",
             sentry_stringFromSentryID(transaction.trace.profilerReferenceID));
@@ -356,7 +344,7 @@ SentryId *_Nullable sentry_startProfilerForTrace(SentryTracerConfiguration *conf
     }
     SentryClient *_Nullable client = hub.getClient;
     if (client != nil
-        && sentry_isContinuousProfilingV2Enabled(SENTRY_UNWRAP_NULLABLE(SentryClient, client))) {
+        && sentry_isContinuousProfilingEnabled(SENTRY_UNWRAP_NULLABLE(SentryClient, client))) {
         // non launch profile
         if (sentry_getParentSpanID(transactionContext) != nil) {
             SENTRY_LOG_DEBUG(@"Not a root span, will not start automatically for trace lifecycle.");
@@ -372,15 +360,8 @@ SentryId *_Nullable sentry_startProfilerForTrace(SentryTracerConfiguration *conf
     }
     BOOL profileShouldBeSampled
         = configuration.profilesSamplerDecision.decision == kSentrySampleDecisionYes;
-#    if !SDK_V9
-    BOOL isContinuousProfiling = client != nil
-        && sentry_isContinuousProfilingEnabled(SENTRY_UNWRAP_NULLABLE(SentryClient, client));
-    BOOL shouldStartNormalTraceProfile = !isContinuousProfiling && profileShouldBeSampled;
-#    else
-    BOOL shouldStartNormalTraceProfile = profileShouldBeSampled;
-#    endif // !SDK_V9
 
-    if (sentry_isTracingAppLaunch || shouldStartNormalTraceProfile) {
+    if (sentry_isTracingAppLaunch || profileShouldBeSampled) {
         SentryId *internalID = sentry_getSentryId();
         if ([SentryTraceProfiler startWithTracer:internalID]) {
             SENTRY_LOG_DEBUG(@"Started profiler for trace %@ with internal id %@",

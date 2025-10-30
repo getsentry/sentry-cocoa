@@ -1,11 +1,12 @@
 #import "SentryByteCountFormatter.h"
-#import "SentryFileIOTracker.h"
+#import "SentryDefaultThreadInspector.h"
+#import "SentryFileIOTrackerHelper.h"
 #import "SentryNSFileManagerSwizzling.h"
 #import "SentryOptions.h"
 #import "SentrySpan.h"
 #import "SentrySpanOperation.h"
 #import "SentrySwizzle.h"
-#import "SentryThreadInspector.h"
+#import "SentryTests-Swift.h"
 #import "SentryTracer.h"
 #import <SentrySwift.h>
 #import <XCTest/XCTest.h>
@@ -53,7 +54,7 @@
 - (void)setUpNSFileManagerSwizzlingWithEnabledFlag:(bool)enableFileManagerSwizzling
 {
     SentryOptions *options = [[SentryOptions alloc] init];
-    options.experimental.enableFileManagerSwizzling = enableFileManagerSwizzling;
+    options.enableFileManagerSwizzling = enableFileManagerSwizzling;
 
     SentryThreadInspector *threadInspector =
         [[SentryThreadInspector alloc] initWithOptions:options];

@@ -32,7 +32,6 @@ class SentryScopeSwiftTests: XCTestCase {
             user.email = "user@sentry.io"
             user.username = "user123"
             user.ipAddress = "127.0.0.1"
-            user.segment = "segmentA"
             user.name = "User"
             user.ipAddress = ipAddress
             
@@ -271,73 +270,13 @@ class SentryScopeSwiftTests: XCTestCase {
         XCTAssertNil(actual?.tags)
         XCTAssertNil(actual?.extra)
     }
-
-    @available(*, deprecated, message: "The test is marked as deprecated to silence the deprecation warning of useSpan")
-    func testUseSpan() {
-        fixture.scope.span = fixture.transaction
-        fixture.scope.useSpan { (span) in
-            XCTAssert(span === self.fixture.transaction)
-        }
-    }
     
-    @available(*, deprecated, message: "The test is marked as deprecated to silence the deprecation warning of useSpan")
-    func testUseSpanLock_DoesNotBlock_WithBlockingCallback() {
-        let scope = fixture.scope
-        scope.span = fixture.transaction
-        let queue = DispatchQueue(label: "test-queue", attributes: [.initiallyInactive, .concurrent])
-        let expect = expectation(description: "useSpan callback is non-blocking")
-        
-        let condition = NSCondition()
-        var useSpanCalled = false
-        
-        queue.async {
-            scope.useSpan { _ in
-                condition.lock()
-                while !useSpanCalled {
-                    condition.wait()
-                }
-                condition.unlock()
-            }
-        }
-        
-        queue.async {
-            scope.useSpan { _ in
-                useSpanCalled = true
-                condition.broadcast()
-                expect.fulfill()
-            }
-        }
-        
-        queue.activate()
-        
-        wait(for: [expect], timeout: 0.1)
-    }
-    
-    @available(*, deprecated, message: "The test is marked as deprecated to silence the deprecation warning of useSpan")
-    func testUseSpanLock_IsReentrant() {
-        let expect = expectation(description: "finish on time")
-        let scope = fixture.scope
-        scope.span = fixture.transaction
-        scope.useSpan { _ in
-            scope.useSpan { _ in
-                expect.fulfill()
-            }
-
-        }
-        wait(for: [expect], timeout: 0.1)
-    }
-    
-    @available(*, deprecated, message: "The test is marked as deprecated to silence the deprecation warning of useSpan")
     func testSpan_FromMultipleThreads() {
         let scope = fixture.scope
         
         testConcurrentModifications(asyncWorkItems: 20, writeLoopCount: 10, writeWork: { _ in
             
             scope.span = SentryTracer(transactionContext: TransactionContext(name: self.fixture.transactionName, operation: self.fixture.transactionOperation), hub: nil)
-            
-            scope.useSpan { span in
-                XCTAssertNotNil(span)
-            }
             
         }, readWork: {
             XCTAssertNotNil(scope.span)
@@ -360,15 +299,6 @@ class SentryScopeSwiftTests: XCTestCase {
         
         let serialized = scope.serialize()
         XCTAssertNil(serialized["breadcrumbs"])
-    }
-    
-    @available(*, deprecated, message: "The test is marked as deprecated to silence the deprecation warning of useSpan")
-    func testUseSpanForClear() {
-        fixture.scope.span = fixture.transaction
-        fixture.scope.useSpan { (_) in
-            self.fixture.scope.span = nil
-        }
-        XCTAssertNil(fixture.scope.span)
     }
     
     func testApplyToEvent_EventWithContext() {
@@ -765,7 +695,7 @@ class SentryScopeSwiftTests: XCTestCase {
     
     func testModifyScopeFromDifferentThreads() {
         let scope = Scope()
-        scope.add(SentryCrashScopeObserver(maxBreadcrumbs: 100))
+        scope.add(SentryCrashScopeHelper.getScopeObserver(withMaxBreacdrumb: 100))
         
         testConcurrentModifications(asyncWorkItems: 10, writeLoopCount: 1_000, writeWork: { i in
             let user = User()
@@ -875,8 +805,8 @@ class SentryScopeSwiftTests: XCTestCase {
             self.extras = extras
         }
         
-        var context: [String: Any]?
-        func setContext(_ context: [String: Any]?) {
+        var context: [String: [String: Any]]?
+        func setContext(_ context: [String: [String: Any]]?) {
             self.context = context
         }
         

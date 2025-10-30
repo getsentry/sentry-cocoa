@@ -2,8 +2,6 @@
 #import "SentryBreadcrumb.h"
 #import "SentryBreadcrumbDelegate.h"
 #import "SentryDefines.h"
-#import "SentryDependencyContainer.h"
-#import "SentryFileManager.h"
 #import "SentryLogC.h"
 #import "SentrySwift.h"
 

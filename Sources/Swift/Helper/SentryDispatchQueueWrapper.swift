@@ -11,6 +11,10 @@
         internalWrapper = _SentryDispatchQueueWrapperInternal()
     }
     
+    public init(name: UnsafePointer<CChar>, relativePriority: Int32) {
+        internalWrapper = _SentryDispatchQueueWrapperInternal(name: name, relativePriority: relativePriority)
+    }
+    
     public init(name: UnsafePointer<CChar>, attributes: __OS_dispatch_queue_attr?) {
         internalWrapper = _SentryDispatchQueueWrapperInternal(name: name, attributes: attributes)
     }
@@ -28,9 +32,9 @@
         internalWrapper.dispatchSync(block)
     }
     
-    @objc(dispatchAsyncOnMainQueue:)
-    public func dispatchAsyncOnMainQueue(block: @escaping () -> Void) {
-        internalWrapper.dispatchAsyncOnMainQueue(block: block)
+    @objc(dispatchAsyncOnMainQueueIfNotMainThread:)
+    public func dispatchAsyncOnMainQueueIfNotMainThread(block: @escaping () -> Void) {
+        internalWrapper.dispatchAsyncOnMainQueueIfNotMainThread(block: block)
     }
 
     @objc(dispatchSyncOnMainQueue:)

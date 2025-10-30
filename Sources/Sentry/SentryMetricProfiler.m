@@ -2,8 +2,6 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
-#    import "SentryDependencyContainer.h"
-#    import "SentryDispatchFactory.h"
 #    import "SentryEvent+Private.h"
 #    import "SentryFormatter.h"
 #    import "SentryLogC.h"
@@ -124,6 +122,16 @@ serializeContinuousProfileMetrics(NSDictionary *state)
     return dict;
 }
 
+@interface SentryMetricProfiler ()
+
+@property SentrySystemWrapper *systemWrapper;
+
+@end
+
+#    if SENTRY_TEST || SENTRY_TEST_CI
+static SentrySystemWrapper *_systemWrapperOverride = nil;
+#    endif
+
 @implementation SentryMetricProfiler {
     SentryDispatchSourceWrapper *_dispatchSource;
 
@@ -141,10 +149,28 @@ serializeContinuousProfileMetrics(NSDictionary *state)
     if (self = [super init]) {
         // It doesn't make sense to acquire a lock in the init.
         [self clearNotThreadSafe];
+#    if SENTRY_TEST || SENTRY_TEST_CI
+        self.systemWrapper = _systemWrapperOverride
+            ? _systemWrapperOverride
+            : [[SentrySystemWrapper alloc]
+                  initWithProcessorCount:SentryDependencyContainer.sharedInstance.processInfoWrapper
+                                             .processorCount];
+#    else
+        self.systemWrapper = [[SentrySystemWrapper alloc]
+            initWithProcessorCount:SentryDependencyContainer.sharedInstance.processInfoWrapper
+                                       .processorCount];
+#    endif
         _mode = mode;
     }
     return self;
 }
+
+#    if SENTRY_TEST || SENTRY_TEST_CI
++ (void)setSystemWrapperOverride:(SentrySystemWrapper *)value
+{
+    _systemWrapperOverride = value;
+}
+#    endif
 
 - (void)dealloc
 {
@@ -250,8 +276,7 @@ serializeContinuousProfileMetrics(NSDictionary *state)
 - (void)recordMemoryFootprint
 {
     NSError *error;
-    SentryRAMBytes footprintBytes =
-        [SentryDependencyContainer.sharedInstance.systemWrapper memoryFootprintBytes:&error];
+    SentryRAMBytes footprintBytes = [self.systemWrapper memoryFootprintBytes:&error];
 
     if (error) {
         SENTRY_LOG_ERROR(@"Failed to read memory footprint: %@", error);
@@ -266,8 +291,7 @@ serializeContinuousProfileMetrics(NSDictionary *state)
 - (void)recordCPUsage
 {
     NSError *error;
-    NSNumber *result =
-        [SentryDependencyContainer.sharedInstance.systemWrapper cpuUsageWithError:&error];
+    NSNumber *result = [self.systemWrapper cpuUsageWithError:&error];
 
     if (error) {
         SENTRY_LOG_ERROR(@"Failed to read CPU usages: %@", error);
@@ -288,8 +312,7 @@ serializeContinuousProfileMetrics(NSDictionary *state)
 - (void)recordEnergyUsageEstimate
 {
     NSError *error;
-    NSNumber *reading =
-        [SentryDependencyContainer.sharedInstance.systemWrapper cpuEnergyUsageWithError:&error];
+    NSNumber *reading = [self.systemWrapper cpuEnergyUsageWithError:&error];
     if (error) {
         SENTRY_LOG_ERROR(@"Failed to read CPU energy usage: %@", error);
         return;

@@ -2,12 +2,9 @@
 #import "PrivateSentrySDKOnly.h"
 #import "SentryANRTrackingIntegration.h"
 #import "SentryAppStartMeasurement.h"
-#import "SentryAppStateManager.h"
 #import "SentryBreadcrumb.h"
 #import "SentryClient+Private.h"
 #import "SentryCrash.h"
-#import "SentryDependencyContainer.h"
-#import "SentryFileManager.h"
 #import "SentryHub+Private.h"
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"
@@ -30,7 +27,6 @@
 #endif // TARGET_OS_MAC
 
 #if SENTRY_HAS_UIKIT
-#    import "SentryUIViewControllerPerformanceTracker.h"
 #    if TARGET_OS_IOS
 #        import "SentryFeedbackAPI.h"
 #    endif // TARGET_OS_IOS
@@ -270,29 +266,30 @@ static NSDate *_Nullable startTimestamp = nil;
         = options.initialScope([[SentryScope alloc] initWithMaxBreadcrumbs:options.maxBreadcrumbs]);
 
     SENTRY_LOG_DEBUG(@"Dispatching init work required to run on main thread.");
-    [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchAsyncOnMainQueue:^{
-        SENTRY_LOG_DEBUG(@"SDK main thread init started...");
+    [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper
+        dispatchAsyncOnMainQueueIfNotMainThread:^{
+            SENTRY_LOG_DEBUG(@"SDK main thread init started...");
 
         // The UIDeviceWrapper needs to start before the Hub, because the Hub
         // enriches the scope, which calls the UIDeviceWrapper.
 #if SENTRY_HAS_UIKIT
-        [SentryDependencyContainer.sharedInstance.uiDeviceWrapper start];
+            [SentryDependencyContainer.sharedInstance.uiDeviceWrapper start];
 #endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
 
-        // The Hub needs to be initialized with a client so that closing a session
-        // can happen.
-        SentryHub *hub = [[SentryHub alloc] initWithClient:newClient andScope:scope];
-        [SentrySDKInternal setCurrentHub:hub];
+            // The Hub needs to be initialized with a client so that closing a session
+            // can happen.
+            SentryHub *hub = [[SentryHub alloc] initWithClient:newClient andScope:scope];
+            [SentrySDKInternal setCurrentHub:hub];
 
-        [SentryDependencyContainer.sharedInstance.crashWrapper startBinaryImageCache];
-        [SentryDependencyContainer.sharedInstance.binaryImageCache start:options.debug];
+            [SentryDependencyContainer.sharedInstance.crashWrapper startBinaryImageCache];
+            [SentryDependencyContainer.sharedInstance.binaryImageCache start:options.debug];
 
-        [SentrySDKInternal installIntegrations];
+            [SentrySDKInternal installIntegrations];
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-        sentry_sdkInitProfilerTasks(options, hub);
+            sentry_sdkInitProfilerTasks(options, hub);
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
-    }];
+        }];
 
     SENTRY_LOG_DEBUG(@"SDK initialized! Version: %@", SentryMeta.versionString);
 }
@@ -470,13 +467,6 @@ static NSDate *_Nullable startTimestamp = nil;
     [SentrySDKInternal.currentHub storeEnvelope:envelope];
 }
 
-#if !SDK_V9
-+ (void)captureUserFeedback:(SentryUserFeedback *)userFeedback
-{
-    [SentrySDKInternal.currentHub captureUserFeedback:userFeedback];
-}
-#endif // !SDK_V9
-
 + (void)captureSerializedFeedback:(NSDictionary *)serializedFeedback
                       withEventId:(NSString *)feedbackEventId
                       attachments:(NSArray<SentryAttachment *> *)feedbackAttachments
@@ -569,15 +559,7 @@ static NSDate *_Nullable startTimestamp = nil;
         return;
     }
     SentryOptions *options = [SentrySDKInternal.currentHub getClient].options;
-#if SDK_V9
     NSMutableArray<NSString *> *integrationNames = [SentryOptions defaultIntegrations].mutableCopy;
-#else
-#    pragma clang diagnostic push
-#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    NSMutableArray<NSString *> *integrationNames =
-        [SentrySDKInternal.currentHub getClient].options.integrations.mutableCopy;
-#    pragma clang diagnostic pop
-#endif // SDK_V9
 
     NSArray<Class> *defaultIntegrations = SentryOptionsInternal.defaultIntegrationClasses;
 
@@ -706,17 +688,10 @@ static NSDate *_Nullable startTimestamp = nil;
 + (void)startProfiler
 {
     SentryOptions *options = currentHub.client.options;
-#    if !SDK_V9
-    if (![options isContinuousProfilingEnabled]) {
-        SENTRY_LOG_WARN(
-            @"You must disable trace profiling by setting SentryOptions.profilesSampleRate and "
-            @"SentryOptions.profilesSampler to nil (which is the default initial value for both "
-            @"properties, so you can also just remove those lines from your configuration "
-            @"altogether) before attempting to start a continuous profiling session. This behavior "
-            @"relies on deprecated options and will change in a future version.");
+    if (options == nil) {
+        SENTRY_LOG_WARN(@"Cannot start profiling when options are nil.");
         return;
     }
-#    endif // !SDK_V9
 
     if (options.profiling != nil) {
         if (options.profiling.lifecycle == SentryProfileLifecycleTrace) {
@@ -747,12 +722,6 @@ static NSDate *_Nullable startTimestamp = nil;
     // check if we'd be stopping a launch profiler, because then we need to check the hydrated
     // configuration options, not the current ones
     if (sentry_profileConfiguration.isProfilingThisLaunch) {
-        if (sentry_profileConfiguration.isContinuousV1) {
-            SENTRY_LOG_DEBUG(@"Stopping continuous v1 launch profile.");
-            [SentryContinuousProfiler stop];
-            return;
-        }
-
         if (sentry_profileConfiguration.profileOptions == nil) {
             SENTRY_LOG_WARN(
                 @"The current profiler was started on app launch and was configured as a "
@@ -774,18 +743,10 @@ static NSDate *_Nullable startTimestamp = nil;
     }
 
     SentryOptions *options = currentHub.client.options;
-#    if !SDK_V9
-    if (![options isContinuousProfilingEnabled]) {
-        SENTRY_LOG_WARN(
-            @"You must disable trace profiling by setting SentryOptions.profilesSampleRate and "
-            @"SentryOptions.profilesSampler to nil (which is the default initial value for both "
-            @"properties, so you can also just remove those lines from your configuration "
-            @"altogether) before attempting to stop a continuous profiling session. This behavior "
-            @"relies on deprecated options and will change in a future version.");
+    if (options == nil) {
+        SENTRY_LOG_WARN(@"Cannot stop profiling when options are nil.");
         return;
     }
-#    endif // !SDK_V9
-
     if (options.profiling != nil && options.profiling.lifecycle == SentryProfileLifecycleTrace) {
         SENTRY_LOG_WARN(
             @"The profiling lifecycle is set to trace, so you cannot stop profile sessions "

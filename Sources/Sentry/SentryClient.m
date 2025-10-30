@@ -5,13 +5,11 @@
 #import "SentryCrashDefaultMachineContextWrapper.h"
 #import "SentryCrashIntegration.h"
 #import "SentryCrashStackEntryMapper.h"
-#import "SentryDebugImageProvider+HybridSDKs.h"
-#import "SentryDependencyContainer.h"
+#import "SentryDefaultThreadInspector.h"
+#import "SentryDeviceContextKeys.h"
 #import "SentryDsn.h"
 #import "SentryEvent+Private.h"
 #import "SentryException.h"
-#import "SentryExtraContextProvider.h"
-#import "SentryFileManager.h"
 #import "SentryHub+Private.h"
 #import "SentryHub.h"
 #import "SentryInstallation.h"
@@ -32,7 +30,6 @@
 #import "SentrySerialization.h"
 #import "SentryStacktraceBuilder.h"
 #import "SentrySwift.h"
-#import "SentryThreadInspector.h"
 #import "SentryTraceContext.h"
 #import "SentryTracer.h"
 #import "SentryTransaction.h"
@@ -117,8 +114,8 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                transportAdapter:(SentryTransportAdapter *)transportAdapter
 
 {
-    SentryThreadInspector *threadInspector =
-        [[SentryThreadInspector alloc] initWithOptions:options];
+    SentryDefaultThreadInspector *threadInspector =
+        [[SentryDefaultThreadInspector alloc] initWithOptions:options];
 
     return [self initWithOptions:options
                 transportAdapter:transportAdapter
@@ -135,7 +132,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                transportAdapter:(SentryTransportAdapter *)transportAdapter
                     fileManager:(SentryFileManager *)fileManager
          deleteOldEnvelopeItems:(BOOL)deleteOldEnvelopeItems
-                threadInspector:(SentryThreadInspector *)threadInspector
+                threadInspector:(SentryDefaultThreadInspector *)threadInspector
              debugImageProvider:(SentryDebugImageProvider *)debugImageProvider
                          random:(id<SentryRandomProtocol>)random
                          locale:(NSLocale *)locale
@@ -422,18 +419,8 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     }
 
     if (event.error || event.exceptions.count > 0) {
-#if !SDK_V9
-        NSString *segment = nil;
-#    pragma clang diagnostic push
-#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
-        segment = scope.userObject.segment;
-#    pragma clang diagnostic pop
-#endif
         return [[SentryTraceContext alloc] initWithTraceId:scope.propagationContext.traceId
                                                    options:self.options
-#if !SDK_V9
-                                               userSegment:segment
-#endif
                                                   replayId:scope.replayId];
     }
 
@@ -522,11 +509,8 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     }
 
     SentryEnvelopeItem *item = [[SentryEnvelopeItem alloc] initWithSession:session];
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     SentryEnvelope *envelope = [[SentryEnvelope alloc] initWithHeader:[SentryEnvelopeHeader empty]
                                                            singleItem:item];
-#pragma clang diagnostic pop
     [self captureEnvelope:envelope];
 }
 
@@ -571,11 +555,8 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
     // Hybrid SDKs may override the sdk info for a replay Event,
     // the same SDK should be used for the envelope header.
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     SentrySdkInfo *sdkInfo = replayEvent.sdk ? [[SentrySdkInfo alloc] initWithDict:replayEvent.sdk]
                                              : [SentrySdkInfo global];
-#pragma clang diagnotsic pop
     SentryEnvelopeHeader *envelopeHeader =
         [[SentryEnvelopeHeader alloc] initWithId:replayEvent.eventId
                                          sdkInfo:sdkInfo
@@ -595,23 +576,6 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
     [self.transportAdapter sendEnvelope:envelope];
 }
-
-#if !SDK_V9
-- (void)captureUserFeedback:(SentryUserFeedback *)userFeedback
-{
-    if ([self isDisabled]) {
-        [self logDisabledMessage];
-        return;
-    }
-
-    if ([SentryId.empty isEqual:userFeedback.eventId]) {
-        SENTRY_LOG_DEBUG(@"Capturing UserFeedback with an empty event id. Won't send it.");
-        return;
-    }
-
-    [self.transportAdapter sendUserFeedback:userFeedback];
-}
-#endif // !SDK_V9
 
 - (void)captureFeedback:(SentryFeedback *)feedback withScope:(SentryScope *)scope
 {
@@ -766,8 +730,9 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         BOOL debugMetaNotAttached = !(nil != event.debugMeta && event.debugMeta.count > 0);
         if (!isFatalEvent && shouldAttachStacktrace && debugMetaNotAttached
             && event.threads != nil) {
-            event.debugMeta =
-                [self.debugImageProvider getDebugImagesFromCacheForThreads:event.threads];
+            event.debugMeta = [self.debugImageProvider
+                getDebugImagesFromCacheForThreads:SENTRY_UNWRAP_NULLABLE(
+                                                      NSArray<SentryThread *>, event.threads)];
         }
     }
 
@@ -1007,21 +972,10 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     [self modifyContext:event
                     key:@"culture"
                   block:^(NSMutableDictionary *culture) {
-#if TARGET_OS_MACCATALYST
-                      if (@available(macCatalyst 13, *)) {
-                          culture[@"calendar"] = [self.locale
-                              localizedStringForCalendarIdentifier:self.locale.calendarIdentifier];
-                          culture[@"display_name"] = [self.locale
-                              localizedStringForLocaleIdentifier:self.locale.localeIdentifier];
-                      }
-#else
-            if (@available(iOS 10, macOS 10.12, watchOS 3, tvOS 10, *)) {
-                culture[@"calendar"] = [self.locale
-                    localizedStringForCalendarIdentifier:self.locale.calendarIdentifier];
-                culture[@"display_name"] =
-                    [self.locale localizedStringForLocaleIdentifier:self.locale.localeIdentifier];
-            }
-#endif
+                      culture[@"calendar"] = [self.locale
+                          localizedStringForCalendarIdentifier:self.locale.calendarIdentifier];
+                      culture[@"display_name"] = [self.locale
+                          localizedStringForLocaleIdentifier:self.locale.localeIdentifier];
                       culture[@"locale"] = self.locale.localeIdentifier;
                       culture[@"is_24_hour_format"] = @([SentryLocale timeIs24HourFormat]);
                       culture[@"timezone"] = self.timezone.name;

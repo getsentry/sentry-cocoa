@@ -157,6 +157,13 @@ NS_SWIFT_NAME(Options)
  */
 @property (nullable, nonatomic, copy) SentryBeforeSendSpanCallback beforeSendSpan NS_SWIFT_SENDABLE;
 
+/**
+ * When enabled, the SDK sends logs to Sentry. Logs can be captured using the @c SentrySDK.logger
+ * API, which provides structured logging with attributes.
+ * @note Default value is @c NO .
+ */
+@property (nonatomic, assign) BOOL enableLogs;
+
 #if !SWIFT_PACKAGE
 /**
  * Use this callback to drop or modify a log before the SDK sends it to Sentry. Return @c nil to
@@ -199,15 +206,6 @@ NS_SWIFT_NAME(Options)
  */
 @property (nullable, nonatomic, copy)
     SentryOnCrashedLastRunCallback onCrashedLastRun NS_SWIFT_SENDABLE;
-
-#if !SDK_V9
-/**
- * Array of integrations to install.
- */
-@property (nullable, nonatomic, copy) NSArray<NSString *> *integrations DEPRECATED_MSG_ATTRIBUTE(
-    "Setting `SentryOptions.integrations` is deprecated. Integrations should be enabled or "
-    "disabled using their respective `SentryOptions.enable*` property.");
-#endif // !SDK_V9
 
 /**
  * Array of default integrations. Will be used if @c integrations is @c nil .
@@ -260,7 +258,7 @@ NS_SWIFT_NAME(Options)
 
 /**
  * The maximum size for each attachment in bytes.
- * @note Default is 20 MiB (20 ✕ 1024 ✕ 1024 bytes).
+ * @note Default is 100 MiB (100 ✕ 1024 ✕ 1024 bytes).
  * @note Please also check the maximum attachment size of relay to make sure your attachments don't
  * get discarded there:
  *  https://docs.sentry.io/product/relay/options/
@@ -287,17 +285,6 @@ NS_SWIFT_NAME(Options)
  * https://docs.sentry.io/platforms/apple/performance/
  */
 @property (nonatomic, assign) BOOL enableAutoPerformanceTracing;
-
-#if !SDK_V9
-/**
- * We're working to update our Performance product offering in order to be able to provide better
- * insights and highlight specific actions you can take to improve your mobile app's overall
- * performance. The performanceV2 option changes the following behavior: The app start duration will
- * now finish when the first frame is drawn instead of when the OS posts the
- * UIWindowDidBecomeVisibleNotification. This change will be the default in the next major version.
- */
-@property (nonatomic, assign) BOOL enablePerformanceV2;
-#endif // !SDK_V9
 
 /**
  * @warning This is an experimental feature and may still have bugs.
@@ -385,9 +372,11 @@ NS_SWIFT_NAME(Options)
  * @note You can filter for different app start types in Discover with
  * @c app_start_type:cold.prewarmed ,
  * @c app_start_type:warm.prewarmed , @c app_start_type:cold , and @c app_start_type:warm .
+ *
  * @warning This feature is not available in @c DebugWithoutUIKit and @c ReleaseWithoutUIKit
  * configurations even when targeting iOS or tvOS platforms.
- * @note Default value is @c NO .
+ *
+ * @note Default value is @c YES .
  */
 @property (nonatomic, assign) BOOL enablePreWarmedAppStartTracing;
 
@@ -418,16 +407,19 @@ NS_SWIFT_NAME(Options)
  */
 @property (nonatomic, assign) BOOL enableFileIOTracing;
 
-#if !SDK_V9
 /**
- * Indicates whether tracing should be enabled.
- * @discussion Enabling this sets @c tracesSampleRate to @c 1 if both @c tracesSampleRate and
- * @c tracesSampler are @c nil. Changing either @c tracesSampleRate or @c tracesSampler to a value
- * other then @c nil will enable this in case this was never changed before.
+ * When enabled, the SDK tracks performance for file IO reads and writes with NSData if auto
+ * performance tracking and enableSwizzling are enabled.
+ * @note The default is @c YES .
  */
-@property (nonatomic)
-    BOOL enableTracing DEPRECATED_MSG_ATTRIBUTE("Use tracesSampleRate or tracesSampler instead");
-#endif // !SDK_V9
+@property (nonatomic, assign) BOOL enableDataSwizzling;
+
+/**
+ * When enabled, the SDK tracks performance for file IO operations with NSFileManager if auto
+ * performance tracking and enableSwizzling are enabled.
+ * @note The default is @c NO .
+ */
+@property (nonatomic, assign) BOOL enableFileManagerSwizzling;
 
 /**
  * Indicates the percentage of the tracing data that is collected.
@@ -445,9 +437,6 @@ NS_SWIFT_NAME(Options)
  * @c 0.01 collects 1% of all trace data.
  * @note The value needs to be >= 0.0 and \<= 1.0. When setting a value out of range the SDK sets it
  * to the default of @c 0 .
- * @note If @c enableAppLaunchProfiling is @c YES , this function will be called during SDK start
- * with @c SentrySamplingContext.forNextAppLaunch set to @c YES, and the result will be persisted to
- * disk for use on the next app launch.
  */
 @property (nullable, nonatomic) SentryTracesSamplerCallback tracesSampler NS_SWIFT_SENDABLE;
 
@@ -552,97 +541,6 @@ typedef void (^SentryProfilingConfigurationBlock)(SentryProfileOptions *_Nonnull
  */
 @property (nullable, nonatomic, copy) SentryProfilingConfigurationBlock configureProfiling;
 
-#    if !SDK_V9
-/**
- * @warning This is an experimental feature and may still have bugs.
- * Set to @c YES to run the profiler as early as possible in an app launch, before you would
- * normally have the opportunity to call @c SentrySDK.start . If @c profilesSampleRate is nonnull,
- * the @c tracesSampleRate and @c profilesSampleRate are persisted to disk and read on the next app
- * launch to decide whether to profile that launch.
- * @warning If @c profilesSampleRate is @c nil then a continuous profile will be started on every
- * launch; if you desire sampling profiled launches, you must compute your own sample rate to decide
- * whether to set this property to @c YES or @c NO .
- * @warning This property is deprecated and will be removed in a future version of the SDK. See
- * @c SentryProfileOptions.startOnAppStart and @c SentryProfileOptions.lifecycle .
- * @note Profiling is automatically disabled if a thread sanitizer is attached.
- */
-@property (nonatomic, assign) BOOL enableAppLaunchProfiling DEPRECATED_MSG_ATTRIBUTE(
-    "This property is deprecated and will be removed in a future version of the SDK. See "
-    "SentryProfileOptions.startOnAppStart and SentryProfileOptions.lifecycle");
-
-/**
- * @note Profiling is not supported on watchOS or tvOS.
- * Indicates the percentage profiles being sampled out of the sampled transactions.
- * @note The value needs to be >= @c 0.0 and \<= @c 1.0. When setting a value out of range
- * the SDK sets it to @c 0. When set to a valid nonnull value, this property is dependent on
- * @c tracesSampleRate -- if @c tracesSampleRate is @c 0 (default), no profiles will be collected no
- * matter what this property is set to. This property is used to undersample profiles *relative to*
- * @c tracesSampleRate .
- * @note Setting this value to @c nil enables an experimental new profiling mode, called continuous
- * profiling. This allows you to start and stop a profiler any time with @c SentrySDK.startProfiler
- * and @c SentrySDK.stopProfiler, which can run with no time limit, periodically uploading profiling
- * data. You can also set @c SentryOptions.enableAppLaunchProfiling to have the profiler start on
- * app launch; there is no automatic stop, you must stop it manually at some later time if you
- * choose to do so. Sampling rates do not apply to continuous profiles, including those
- * automatically started for app launches. If you wish to sample them, you must do so at the
- * callsites where you use the API or configure launch profiling. Continuous profiling is not
- * automatically started for performance transactions as was the previous version of profiling.
- * @seealso https://docs.sentry.io/platforms/apple/profiling/ for more information about the
- * different profiling modes.
- * @note The default is @c nil (which implies continuous profiling mode).
- * @warning The new continuous profiling mode is experimental and may still contain bugs.
- * @note Profiling is automatically disabled if a thread sanitizer is attached.
- * @warning This property is deprecated and will be removed in a future version of the SDK. See
- * @c  SentryProfileOptions.sessionSampleRate.
- */
-@property (nullable, nonatomic, strong) NSNumber *profilesSampleRate DEPRECATED_MSG_ATTRIBUTE(
-    "This property is deprecated and will be removed in a future version of the SDK. See "
-    "SentryProfileOptions.sessionSampleRate");
-
-/**
- * @note Profiling is not supported on watchOS or tvOS.
- * A callback to a user defined profiles sampler function. This is similar to setting
- * @c profilesSampleRate  but instead of a static value, the callback function will be called to
- * determine the sample rate.
- * @note If @c enableAppLaunchProfiling is @c YES , this function will be called during SDK start
- * with @c SentrySamplingContext.forNextAppLaunch set to @c YES, and the result will be persisted to
- * disk for use on the next app launch.
- * @note Profiling is automatically disabled if a thread sanitizer is attached.
- * @warning This property is deprecated and will be removed in a future version of the SDK. See
- * @c SentryProfileOptions.sessionSampleRate .
- */
-@property (nullable, nonatomic)
-    SentryTracesSamplerCallback profilesSampler NS_SWIFT_SENDABLE DEPRECATED_MSG_ATTRIBUTE(
-        "This property is deprecated and will be removed in a future version of the SDK. See "
-        "SentryProfileOptions.sessionSampleRate");
-
-/**
- * If profiling should be enabled or not.
- * @note Profiling is not supported on watchOS or tvOS.
- * @note This only returns whether or not trace-based profiling is enabled. If it is not, then
- * continuous profiling is effectively enabled, and calling SentrySDK.startProfiler will
- * successfully start a continuous profile.
- * @returns @c YES if either @c profilesSampleRate > @c 0 and \<= @c 1 , or @c profilesSampler is
- * set, otherwise @c NO.
- * @note Profiling is automatically disabled if a thread sanitizer is attached.
- * @warning This property is deprecated and will be removed in a future version of the SDK.
- */
-@property (nonatomic, assign, readonly) BOOL isProfilingEnabled DEPRECATED_MSG_ATTRIBUTE(
-    "This property is deprecated and will be removed in a future version of the SDK");
-
-/**
- * @brief Whether to enable the sampling profiler.
- * @note Profiling is not supported on watchOS or tvOS.
- * @deprecated Use @c profilesSampleRate instead. Setting @c enableProfiling to @c YES is the
- * equivalent of setting @c profilesSampleRate to @c 1.0  If @c profilesSampleRate is set, it will
- * take precedence over this setting.
- * @note Default is @c NO.
- * @note Profiling is automatically disabled if a thread sanitizer is attached.
- */
-@property (nonatomic, assign) BOOL enableProfiling DEPRECATED_MSG_ATTRIBUTE(
-    "Use profilesSampleRate or profilesSampler instead. This property will be removed in a future "
-    "version of the SDK");
-#    endif // !SDK_V9
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 /**
@@ -654,18 +552,11 @@ typedef void (^SentryProfilingConfigurationBlock)(SentryProfileOptions *_Nonnull
 
 /**
  * When enabled, the SDK tracks when the application stops responding for a specific amount of
- * time defined by the @c appHangsTimeoutInterval option.
- * @note The default is @c YES
- * @note ANR tracking is automatically disabled if a debugger is attached.
- */
-@property (nonatomic, assign) BOOL enableAppHangTracking;
-
-#if SENTRY_UIKIT_AVAILABLE
-
-#    if !SDK_V9
-/**
- * AppHangTrackingV2 can differentiate between fully-blocking and non-fully blocking app hangs.
- * fully-blocking app hang is when the main thread is stuck completely, and the app can't render a
+ * time defined by the @c appHangTimeoutInterval option.
+ *
+ * On iOS, tvOS and visionOS, the SDK can differentiate between fully-blocking and non-fully
+ blocking app hangs.
+ * A fully-blocking app hang is when the main thread is stuck completely, and the app can't render a
  * single frame. A non-fully-blocking app hang is when the app appears stuck to the user but can
  still
  * render a few frames. Fully-blocking app hangs are more actionable because the stacktrace shows
@@ -676,20 +567,18 @@ typedef void (^SentryProfilingConfigurationBlock)(SentryProfileOptions *_Nonnull
  *
  * You can use @c enableReportNonFullyBlockingAppHangs to ignore non-fully-blocking app hangs.
  *
- * @note This flag wins over enableAppHangTracking. When enabling both enableAppHangTracking and
- enableAppHangTrackingV2, the SDK only enables enableAppHangTrackingV2 and disables
- enableAppHangTracking.
+ * @note The default is @c YES
+ * @note App Hang tracking is automatically disabled if a debugger is attached.
  */
-@property (nonatomic, assign) BOOL enableAppHangTrackingV2;
+@property (nonatomic, assign) BOOL enableAppHangTracking;
 
-#    endif // !SDK_V9
+#if SENTRY_UIKIT_AVAILABLE
 
 /**
  * When enabled the SDK reports non-fully-blocking app hangs. A non-fully-blocking app hang is when
- * the app appears stuck to the user but can still render a few frames. For more information see @c
- * enableAppHangTrackingV2.
+ * the app appears stuck to the user but can still render a few frames.
  *
- * @note The default is @c YES. This feature only works when @c enableAppHangTrackingV2 is enabled.
+ * @note The default is @c YES.
  */
 @property (nonatomic, assign) BOOL enableReportNonFullyBlockingAppHangs;
 
@@ -709,6 +598,18 @@ typedef void (^SentryProfilingConfigurationBlock)(SentryProfileOptions *_Nonnull
  * @note Default value is @c YES.
  */
 @property (nonatomic, assign) BOOL enableAutoBreadcrumbTracking;
+
+/**
+ * When enabled, the SDK propagates the W3C Trace Context HTTP header traceparent on outgoing HTTP
+ * requests.
+ *
+ * @discussion This is useful when the receiving services only support OTel/W3C propagation. The
+ * traceparent header is only sent when this option is @c YES and the request matches @c
+ * tracePropagationTargets.
+ *
+ * @note Default value is @c NO.
+ */
+@property (nonatomic, assign) BOOL enablePropagateTraceparent;
 
 /**
  * An array of hosts or regexes that determines if outgoing HTTP requests will get
@@ -757,8 +658,7 @@ typedef void (^SentryProfilingConfigurationBlock)(SentryProfileOptions *_Nonnull
  * allows the Sentry SDK to apply the current data from the scope.
  * @note This feature is disabled by default.
  */
-@property (nonatomic, assign) BOOL enableMetricKit API_AVAILABLE(
-    ios(15.0), macos(12.0), macCatalyst(15.0)) API_UNAVAILABLE(tvos, watchos);
+@property (nonatomic, assign) BOOL enableMetricKit API_UNAVAILABLE(tvos, watchos);
 
 /**
  * When enabled, the SDK adds the raw MXDiagnosticPayloads as an attachment to the converted
@@ -766,8 +666,7 @@ typedef void (^SentryProfilingConfigurationBlock)(SentryProfileOptions *_Nonnull
  *
  * @note Default value is @c NO.
  */
-@property (nonatomic, assign) BOOL enableMetricKitRawPayload API_AVAILABLE(
-    ios(15.0), macos(12.0), macCatalyst(15.0)) API_UNAVAILABLE(tvos, watchos);
+@property (nonatomic, assign) BOOL enableMetricKitRawPayload API_UNAVAILABLE(tvos, watchos);
 
 #endif // SENTRY_HAS_METRIC_KIT
 
@@ -825,17 +724,10 @@ typedef void (^SentryProfilingConfigurationBlock)(SentryProfileOptions *_Nonnull
 /**
  * A block that can be defined that receives a user feedback configuration object to modify.
  * @warning This is an experimental feature and may still have bugs.
- * @note This is unrelated to @c SentrySDK.captureUserFeedback , which is the deprecated method of
- * submitting user feedback you've already gathered via your own UI (see
- * https://docs.sentry.io/platforms/apple/user-feedback/#user-feedback-api). The new strategy uses
- * either this block to configure a widget and UI form to gather feedback, or directly submits
- * feedback you've gathered using your own UI by calling the method @c SentrySDK.captureFeedback
- * (se https://docs.sentry.io/platforms/apple/user-feedback/configuration/).
- * @note User feedback widget is only available for iOS 13 or later.
  */
 @property (nonatomic, copy, nullable)
-    SentryUserFeedbackConfigurationBlock configureUserFeedback API_AVAILABLE(ios(13.0))
-        NS_EXTENSION_UNAVAILABLE("Sentry User Feedback UI cannot be used from app extensions.");
+    SentryUserFeedbackConfigurationBlock configureUserFeedback NS_EXTENSION_UNAVAILABLE(
+        "Sentry User Feedback UI cannot be used from app extensions.");
 
 #endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
 

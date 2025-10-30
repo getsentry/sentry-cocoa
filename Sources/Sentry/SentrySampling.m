@@ -1,5 +1,4 @@
 #import "SentrySampling.h"
-#import "SentryDependencyContainer.h"
 #import "SentryInternalDefines.h"
 #import "SentryOptions.h"
 #import "SentrySampleDecision.h"
@@ -86,43 +85,6 @@ sentry_sampleTrace(SentrySamplingContext *context, SentryOptions *options)
 }
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-
-#    if !SDK_V9
-SentrySamplerDecision *
-sentry_sampleTraceProfile(SentrySamplingContext *context,
-    SentrySamplerDecision *tracesSamplerDecision, SentryOptions *options)
-{
-    // Profiles are always undersampled with respect to traces. If the trace is not sampled,
-    // the profile will not be either. If the trace is sampled, we can proceed to checking
-    // whether the associated profile should be sampled.
-    if (tracesSamplerDecision.decision != kSentrySampleDecisionYes) {
-        return [[SentrySamplerDecision alloc] initWithDecision:kSentrySampleDecisionNo
-                                                 forSampleRate:nil
-                                                withSampleRand:nil];
-    }
-
-    // Backward compatibility for clients that are still using the enableProfiling option.
-#        pragma clang diagnostic push
-#        pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    if (options.enableProfiling) {
-        return [[SentrySamplerDecision alloc] initWithDecision:kSentrySampleDecisionYes
-                                                 forSampleRate:@1.0
-                                                withSampleRand:@1.0];
-    }
-
-    NSNumber *callbackRate = _sentry_samplerCallbackRate(
-        options.profilesSampler, context, SENTRY_DEFAULT_PROFILES_SAMPLE_RATE);
-#        pragma clang diagnostic pop
-    if (callbackRate != nil) {
-        return _sentry_calcSample(callbackRate);
-    }
-
-#        pragma clang diagnostic push
-#        pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    return _sentry_calcSampleFromNumericalRate(options.profilesSampleRate);
-#        pragma clang diagnostic pop
-}
-#    endif // !SDK_V9
 
 SentrySamplerDecision *
 sentry_sampleProfileSession(float sessionSampleRate)

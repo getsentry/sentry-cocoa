@@ -16,24 +16,6 @@ struct ContentView: View {
         SentrySDK.capture(message: "Yeah captured a message")
     }
 
-    var captureUserFeedbackAction: () -> Void = {
-        let error = NSError(domain: "UserFeedbackErrorDomain", code: 0, userInfo: [NSLocalizedDescriptionKey: "This never happens."])
-
-        let eventId = SentrySDK.capture(error: error) { scope in
-            scope.setLevel(.fatal)
-        }
-
-#if SDK_V9
-  print("SDK V9 does not support user feedback.")
-#else
-        let userFeedback = UserFeedback(eventId: eventId)
-        userFeedback.comments = "It broke on visionOS-Swift. I don't know why, but this happens."
-        userFeedback.email = "john@me.com"
-        userFeedback.name = "John Me"
-        SentrySDK.capture(userFeedback: userFeedback)
-#endif // SDK_V9
-    }
-
     var captureErrorAction: () -> Void = {
         let error = NSError(domain: "SampleErrorDomain", code: 1, userInfo: [NSLocalizedDescriptionKey: "Object does not exist"])
         SentrySDK.capture(error: error) { (scope) in
@@ -112,10 +94,6 @@ struct ContentView: View {
                             Text("Capture Message")
                         }
                         .accessibility(identifier: "captureMessageButton")
-                        
-                        Button(action: captureUserFeedbackAction) {
-                            Text("Capture User Feedback")
-                        }
                         
                         Button(action: captureErrorAction) {
                             Text("Capture Error")

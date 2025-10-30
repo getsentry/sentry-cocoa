@@ -2,12 +2,6 @@
 @_spi(Private) import SentryTestUtils
 import XCTest
 
-#if compiler(>=6.0)
-@_spi(Private) extension SentryFileManager: @retroactive SentryFileManagerProtocol { }
-#else
-@_spi(Private) extension SentryFileManager: SentryFileManagerProtocol { }
-#endif
-
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
     
@@ -57,12 +51,12 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
         }
         
         func getSut(fileManager: SentryFileManager) throws -> SentryWatchdogTerminationTracker {
+            SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = dispatchQueue
             let appStateManager = SentryAppStateManager(
                 options: options,
                 crashWrapper: crashWrapper,
                 fileManager: fileManager,
-                dispatchQueueWrapper: self.dispatchQueue,
-                notificationCenterWrapper: NotificationCenter.default
+                sysctlWrapper: sysctl
             )
             let logic = SentryWatchdogTerminationLogic(
                 options: options,
@@ -114,7 +108,8 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
         let appState = SentryAppState(releaseName: fixture.options.releaseName ?? "", osVersion: UIDevice.current.systemVersion, vendorId: TestData.someUUID, isDebugging: false, systemBootTimestamp: fixture.sysctl.systemBootTimestamp)
         
         XCTAssertEqual(appState, actual)
-        XCTAssertEqual(1, fixture.dispatchQueue.dispatchAsyncCalled)
+        
+        XCTAssertGreaterThanOrEqual(fixture.dispatchQueue.dispatchAsyncCalled, 1, "Expected at least 1 dispatchAsync call for start to ensure we don't run reading the app state on the calling thread.")
     }
     
     func testGoToForeground_SetsIsActive() throws {
@@ -123,13 +118,16 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
         sut.start()
         
         goToForeground()
-        
-        XCTAssertTrue(fixture.fileManager.readAppState()?.isActive ?? false)
-        
+
+        let appState1 = try XCTUnwrap(fixture.fileManager.readAppState())
+        XCTAssertTrue(appState1.isActive, "Expected appSate to be active after going to foreground.")
+
         goToBackground()
-        
-        XCTAssertFalse(fixture.fileManager.readAppState()?.isActive ?? true)
-        XCTAssertEqual(3, fixture.dispatchQueue.dispatchAsyncCalled)
+
+        let appState2 = try XCTUnwrap(fixture.fileManager.readAppState())
+        XCTAssertFalse(appState2.isActive, "Expected appSate to be inactive after going to background.")
+
+        XCTAssertGreaterThanOrEqual(fixture.dispatchQueue.dispatchAsyncCalled, 3, "Expected at least 3 dispatchAsync calls (start, foreground, background) to ensure we don't run reading the app state on the calling thread.")
     }
     
     func testGoToForeground_WhenAppStateNil_NothingIsStored() {

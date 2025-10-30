@@ -1,13 +1,11 @@
 #import "SentryCrashIntegration.h"
-#import "SentryCrashInstallationReporter.h"
-
 #import "SentryCrashC.h"
+#import "SentryCrashInstallationReporter.h"
 #import "SentryCrashIntegrationSessionHandler.h"
 #import "SentryCrashMonitor_CPPException.h"
 #include "SentryCrashMonitor_Signal.h"
 #import "SentryEvent.h"
 #import "SentryHub.h"
-#import "SentryModels+Serializable.h"
 #import "SentryOptions.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
@@ -16,10 +14,9 @@
 #import "SentrySwift.h"
 #import "SentryTracer.h"
 #import "SentryWatchdogTerminationLogic.h"
-#import <SentryAppStateManager.h>
 #import <SentryClient+Private.h>
 #import <SentryCrashScopeObserver.h>
-#import <SentryDependencyContainer.h>
+
 #import <SentryLogC.h>
 #import <SentrySDK+Private.h>
 
@@ -46,6 +43,9 @@ sentry_finishAndSaveTransaction(void)
         [tracer finishForCrash];
     }
 }
+
+@interface SentryCrashScopeObserver () <SentryScopeObserver>
+@end
 
 @interface SentryCrashIntegration ()
 

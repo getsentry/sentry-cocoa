@@ -30,6 +30,7 @@ import UIKit
     private(set) var isSessionPaused = false
     
     private let replayOptions: SentryReplayOptions
+    private let experimentalOptions: SentryExperimentalOptions
     private let replayMaker: SentryReplayVideoMaker
     private let displayLink: SentryReplayDisplayLinkWrapper
     private let dateProvider: SentryCurrentDateProvider
@@ -46,6 +47,7 @@ import UIKit
     
     public init(
         replayOptions: SentryReplayOptions,
+        experimentalOptions: SentryExperimentalOptions,
         replayFolderPath: URL,
         screenshotProvider: SentryViewScreenshotProvider,
         replayMaker: SentryReplayVideoMaker,
@@ -53,9 +55,11 @@ import UIKit
         touchTracker: SentryTouchTracker?,
         dateProvider: SentryCurrentDateProvider,
         delegate: SentrySessionReplayDelegate,
-        displayLinkWrapper: SentryReplayDisplayLinkWrapper
+        displayLinkWrapper: SentryReplayDisplayLinkWrapper,
+        environmentChecker: SentrySessionReplayEnvironmentCheckerProvider
     ) {
         self.replayOptions = replayOptions
+        self.experimentalOptions = experimentalOptions
         self.dateProvider = dateProvider
         self.delegate = delegate
         self.screenshotProvider = screenshotProvider
@@ -64,6 +68,7 @@ import UIKit
         self.replayMaker = replayMaker
         self.breadcrumbConverter = breadcrumbConverter
         self.touchTracker = touchTracker
+        self.environmentChecker = environmentChecker
     }
     
     deinit { displayLink.invalidate() }

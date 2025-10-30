@@ -26,7 +26,6 @@ class SentryFileManagerTests: XCTestCase {
         
         let expectedSessionUpdate: SentrySession
         
-        @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
         init() throws {
             currentDateProvider = TestCurrentDateProvider()
             dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
@@ -60,8 +59,8 @@ class SentryFileManagerTests: XCTestCase {
                 dateProvider: currentDateProvider,
                 dispatchQueueWrapper: dispatchQueueWrapper
             )
-            sut.setEnvelopeDeletedCallback { [weak self] _, category in
-                self?.envelopeItemsDeleted.record(category)
+            sut.envelopeDeletedCallback = { [weak self] _, category in
+                self?.envelopeItemsDeleted.record(sentryDataCategoryForNSUInteger(category))
             }
             return sut
         }
@@ -73,8 +72,8 @@ class SentryFileManagerTests: XCTestCase {
                 dateProvider: currentDateProvider,
                 dispatchQueueWrapper: dispatchQueueWrapper
             )
-            sut.setEnvelopeDeletedCallback { [weak self] _, category in
-                self?.envelopeItemsDeleted.record(category)
+            sut.envelopeDeletedCallback = { [weak self] _, category in
+                self?.envelopeItemsDeleted.record(sentryDataCategoryForNSUInteger(category))
             }
             return sut
         }
@@ -104,7 +103,6 @@ class SentryFileManagerTests: XCTestCase {
     private var fixture: Fixture!
     private var sut: SentryFileManager!
     
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     override func setUpWithError() throws {
         try super.setUpWithError()
         fixture = try Fixture()
@@ -127,7 +125,6 @@ class SentryFileManagerTests: XCTestCase {
         sut.deleteAbnormalSession()
     }
     
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testInitDoesNotOverrideDirectories() {
         sut.store(TestConstants.envelope)
         sut.storeCurrentSession(SentrySession(releaseName: "1.0.0", distinctId: "some-id"))
@@ -165,7 +162,6 @@ class SentryFileManagerTests: XCTestCase {
         assertEventFolderDoesntExist()
     }
     
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testStoreEnvelope() throws {
         let envelope = TestConstants.envelope
         sut.store(envelope)
@@ -188,7 +184,6 @@ class SentryFileManagerTests: XCTestCase {
         XCTAssertNil(sut.store(envelope))
     }
     
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testDeleteOldEnvelopes() throws {
         try givenOldEnvelopes()
         
@@ -261,7 +256,6 @@ class SentryFileManagerTests: XCTestCase {
         XCTAssertEqual(logMessages.count, 1)
     }
     
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testDeleteOldEnvelopes_WithEmptyDSN() throws {
         fixture.options.dsn = nil
         sut = fixture.getSut()
@@ -274,7 +268,6 @@ class SentryFileManagerTests: XCTestCase {
         XCTAssertEqual(sut.getAllEnvelopes().count, 0)
     }
     
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testDontDeleteYoungEnvelopes() throws {
         let envelope = TestConstants.envelope
         let path = try XCTUnwrap(sut.store(envelope))
@@ -290,7 +283,6 @@ class SentryFileManagerTests: XCTestCase {
         XCTAssertEqual(sut.getAllEnvelopes().count, 1)
     }
     
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testDontDeleteYoungEnvelopesFromOldEnvelopesFolder() throws {
         let envelope = TestConstants.envelope
         sut.store(envelope)
@@ -306,7 +298,6 @@ class SentryFileManagerTests: XCTestCase {
         XCTAssertEqual(sut.getAllEnvelopes().count, 1)
     }
     
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testFileManagerDeallocated_OldEnvelopesNotDeleted() throws {
         try givenOldEnvelopes()
         
@@ -334,7 +325,6 @@ class SentryFileManagerTests: XCTestCase {
         XCTAssertFalse(logOutput.loggedMessages.contains(where: { $0.contains("[error]") }))
     }
     
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testDefaultMaxEnvelopes() {
         for _ in 0...(fixture.maxCacheItems + 1) {
             sut.store(TestConstants.envelope)
@@ -344,7 +334,6 @@ class SentryFileManagerTests: XCTestCase {
         XCTAssertEqual(fixture.maxCacheItems, events.count)
     }
     
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testDefaultMaxEnvelopes_CallsEnvelopeItemDeleted() {
         let event = Event()
         let envelope = SentryEnvelope(id: event.eventId, items: [
@@ -362,7 +351,6 @@ class SentryFileManagerTests: XCTestCase {
         XCTAssertEqual(expected, fixture.envelopeItemsDeleted.invocations)
     }
     
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testDefaultMaxEnvelopesConcurrent() {
         let maxCacheItems = 1
         let sut = fixture.getSut(maxCacheItems: UInt(maxCacheItems))
@@ -388,7 +376,6 @@ class SentryFileManagerTests: XCTestCase {
         XCTAssertEqual(maxCacheItems, events.count)
     }
     
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testMaxEnvelopesSet() {
         let maxCacheItems: UInt = 15
         sut = fixture.getSut(maxCacheItems: maxCacheItems)
@@ -399,7 +386,6 @@ class SentryFileManagerTests: XCTestCase {
         XCTAssertEqual(maxCacheItems, UInt(events.count))
     }
     
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testMigrateSessionInit_SessionUpdateIsLast() throws {
         sut.store(fixture.sessionEnvelope)
         // just some other session
@@ -413,7 +399,6 @@ class SentryFileManagerTests: XCTestCase {
         assertSessionEnvelopesStored(count: 2)
     }
     
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testMigrateSessionInit_SessionUpdateIsSecond() throws {
         sut.store(fixture.sessionEnvelope)
         sut.store(fixture.sessionUpdateEnvelope)
@@ -425,7 +410,6 @@ class SentryFileManagerTests: XCTestCase {
         assertSessionEnvelopesStored(count: 1)
     }
     
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testMigrateSessionInit_IsInMiddle() throws {
         sut.store(fixture.sessionEnvelope)
         for _ in 0...10 {
@@ -440,7 +424,6 @@ class SentryFileManagerTests: XCTestCase {
         assertSessionEnvelopesStored(count: 1)
     }
     
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testMigrateSessionInit_MovesInitFlagOnlyToFirstSessionUpdate() throws {
         sut.store(fixture.sessionEnvelope)
         for _ in 0...10 {
@@ -459,7 +442,6 @@ class SentryFileManagerTests: XCTestCase {
         assertSessionEnvelopesStored(count: 3)
     }
     
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testMigrateSessionInit_NoOtherSessionUpdate() {
         sut.store(fixture.sessionEnvelope)
         sut.store(fixture.sessionUpdateEnvelope)
@@ -470,7 +452,6 @@ class SentryFileManagerTests: XCTestCase {
         assertSessionEnvelopesStored(count: 0)
     }
     
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testMigrateSessionInit_FailToLoadEnvelope() throws {
         sut.store(fixture.sessionEnvelope)
         
@@ -489,7 +470,6 @@ class SentryFileManagerTests: XCTestCase {
         try assertSessionInitMoved(sut.getAllEnvelopes().last!)
     }
     
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testMigrateSessionInit_DoesNotCallEnvelopeItemDeleted() {
         sut.store(fixture.sessionEnvelope)
         sut.store(fixture.sessionUpdateEnvelope)
@@ -500,7 +480,6 @@ class SentryFileManagerTests: XCTestCase {
         XCTAssertEqual(0, fixture.envelopeItemsDeleted.count)
     }
     
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testGetAllEnvelopesAreSortedByDateAscending() {
         givenMaximumEnvelopes()
         
@@ -517,7 +496,6 @@ class SentryFileManagerTests: XCTestCase {
         }
     }
     
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testGetOldestEnvelope() {
         givenMaximumEnvelopes()
         
@@ -625,7 +603,7 @@ class SentryFileManagerTests: XCTestCase {
             }
             
             dispatchQueue.async {
-                self.sut.readAbnormalSession()
+                _ = self.sut.readAbnormalSession()
                 expectation.fulfill()
             }
             
@@ -653,7 +631,6 @@ class SentryFileManagerTests: XCTestCase {
         XCTAssertNil(actualTimestamp)
     }
     
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testGetAllStoredEventsAndEnvelopes() {
         sut.store(TestConstants.envelope)
         sut.store(TestConstants.envelope)
@@ -661,7 +638,6 @@ class SentryFileManagerTests: XCTestCase {
         XCTAssertEqual(2, sut.getAllEnvelopes().count)
     }
     
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testDeleteAllFolders() {
         storeEvent()
         sut.store(TestConstants.envelope)
@@ -674,7 +650,6 @@ class SentryFileManagerTests: XCTestCase {
         assertEventFolderDoesntExist()
     }
     
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testDeleteAllStoredEnvelopes() {
         sut.store(TestConstants.envelope)
         
@@ -689,7 +664,7 @@ class SentryFileManagerTests: XCTestCase {
         SentrySDKLog.configureLog(true, diagnosticLevel: .debug)
         
         sut.deleteAllFolders()
-        sut.getAllEnvelopes()
+        _ = sut.getAllEnvelopes()
         
         let debugLogMessages = logOutput.loggedMessages.filter { $0.contains("[Sentry] [info]") && $0.contains("Returning empty files list, as folder doesn't exist at path:") }
         XCTAssertEqual(debugLogMessages.count, 1)
@@ -863,7 +838,7 @@ class SentryFileManagerTests: XCTestCase {
     func testAppHangEventExists_WithGarbage_ReturnsTrue() throws {
         // Arrange
         let fileManager = FileManager.default
-        let appHangEventFilePath = try XCTUnwrap(Dynamic(sut).appHangEventFilePath.asString)
+        let appHangEventFilePath = sut.appHangEventFilePath
         
         fileManager.createFile(atPath: appHangEventFilePath, contents: Data("garbage".utf8), attributes: nil)
 
@@ -1107,13 +1082,19 @@ class SentryFileManagerTests: XCTestCase {
 
         let path = fixture.getTooLongPath()
         var error: NSError?
+
         // -- Act --
         let result = createDirectoryIfNotExists(path, &error)
+
         // -- Assert -
         XCTAssertFalse(result)
         XCTAssertEqual(error?.domain, SentryErrorDomain)
         XCTAssertEqual(error?.code, 108)
-        XCTAssertEqual(logOutput.loggedMessages.count, 1)
+
+        let expectedLogMessage = "Failed to create directory, path is too long: \(path)"
+        let logMessagesContainsExpected = logOutput.loggedMessages.contains { $0.contains("[Sentry] [fatal]") && $0.contains(expectedLogMessage) }
+
+        XCTAssertTrue(logMessagesContainsExpected, "Expected fatal log with message: \(expectedLogMessage)")
     }
 
     func testCreateDirectoryIfNotExists_otherError_shouldNotLogError() throws {
@@ -1450,7 +1431,6 @@ private extension SentryFileManagerTests {
 
 // MARK: Private
 private extension SentryFileManagerTests {
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func givenMaximumEnvelopes() {
         fixture.eventIds.forEach { id in
             let envelope = SentryEnvelope(id: id, singleItem: SentryEnvelopeItem(event: Event()))
@@ -1468,7 +1448,6 @@ private extension SentryFileManagerTests {
         }
     }
     
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func givenOldEnvelopes() throws {
         let envelope = TestConstants.envelope
         let path = try XCTUnwrap(sut.store(envelope))
@@ -1491,7 +1470,7 @@ private extension SentryFileManagerTests {
     }
     
     func setImmutableForAppState(immutable: Bool) {
-        let appStateFilePath = Dynamic(sut).appStateFilePath.asString ?? ""
+        let appStateFilePath = sut.appStateFilePath
         let fileManager = FileManager.default
         
         if !fileManager.fileExists(atPath: appStateFilePath) {
@@ -1506,7 +1485,7 @@ private extension SentryFileManagerTests {
     }
 
     func setImmutableForTimezoneOffset(immutable: Bool) {
-        let timezoneOffsetFilePath = Dynamic(sut).timezoneOffsetFilePath.asString ?? ""
+        let timezoneOffsetFilePath = sut.timezoneOffsetFilePath
         let fileManager = FileManager.default
 
         if !fileManager.fileExists(atPath: timezoneOffsetFilePath) {

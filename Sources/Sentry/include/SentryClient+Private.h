@@ -7,9 +7,10 @@
 @class SentryEnvelopeItem;
 @class SentryId;
 @class SentryReplayEvent;
+@class SentryFileManager;
 @class SentryReplayRecording;
 @class SentrySession;
-@class SentryThreadInspector;
+@class SentryDefaultThreadInspector;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -24,7 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, strong)
     NSMutableArray<id<SentryClientAttachmentProcessor>> *attachmentProcessors;
-@property (nonatomic, strong) SentryThreadInspector *threadInspector;
+@property (nonatomic, strong) SentryDefaultThreadInspector *threadInspector;
 @property (nonatomic, strong) SentryFileManager *fileManager;
 
 - (SentryId *)captureError:(NSError *)error

@@ -6,9 +6,8 @@ import UIKit
  * The settings to use for how the user feedback form is presented, what data is required and how
  * it's submitted, and some auxiliary hooks to customize the workflow.
  */
-@available(iOS 13.0, *)
 @objcMembers
-public class SentryUserFeedbackConfiguration: NSObject {
+public final class SentryUserFeedbackConfiguration: NSObject {
     /**
      * Whether or not to show animations, like for presenting and dismissing the form.
      * - note: Default: `true`.
@@ -75,8 +74,6 @@ public class SentryUserFeedbackConfiguration: NSObject {
      * Called when feedback is successfully submitted via the managed feedback form, indicating that the
      * user correctly filled out the form and confirmed submission. The data dictionary contains the feedback details.
      * - note: Default: `nil`
-     * - note: This is unrelated to `SentrySDK.captureUserFeedback` and is not called when using 
-     * that function.
      */
     public var onSubmitSuccess: (([String: Any]) -> Void)?
     
@@ -84,8 +81,6 @@ public class SentryUserFeedbackConfiguration: NSObject {
      * Called when there is an error submitting feedback via the managed feedback form, like missing
      * required inputs. The error object contains details of the error.
      * - note: Default: `nil`
-     * - note: This is unrelated to `SentrySDK.captureUserFeedback` and is not called when using 
-     * that function.
      */
     public var onSubmitError: ((Error) -> Void)?
     

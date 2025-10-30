@@ -1,16 +1,10 @@
-@objc @_spi(Private) public class SentryInfoPlistWrapper: NSObject, SentryInfoPlistWrapperProvider {
+final class SentryInfoPlistWrapper: SentryInfoPlistWrapperProvider {
 
     private let bundle: Bundle
 
-    public override init() {
+    public init(bundle: Bundle = Bundle.main) {
         // We can not use defaults in the initializer because this class is used from Objective-C
-        self.bundle = Bundle.main
-        super.init()
-    }
-
-    public init(bundle: Bundle) {
         self.bundle = bundle
-        super.init()
     }
 
     // MARK: - Bridge to ObjC

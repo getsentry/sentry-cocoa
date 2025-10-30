@@ -1,9 +1,13 @@
 import _SentryPrivate
 @_spi(Private) @testable import Sentry
-@_spi(Private) import SentryTestUtils
+@_spi(Private) @testable import SentryTestUtils
 import XCTest
 
 #if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
+
+#if !os(macOS)
+class TestDelayedWrapper: SentryDelayedFramesTracker {}
+#endif // !os(macOS)
 
 class SentryProfileTestFixture {
     struct ThreadMetadata {
@@ -36,24 +40,22 @@ class SentryProfileTestFixture {
     
 #if !os(macOS)
     lazy var displayLinkWrapper = TestDisplayLinkWrapper(dateProvider: currentDateProvider)
-    lazy var framesTracker = TestFramesTracker(displayLinkWrapper: displayLinkWrapper, dateProvider: currentDateProvider, dispatchQueueWrapper: dispatchQueueWrapper, notificationCenter: notificationCenter, keepDelayedFramesDuration: 0)
+    lazy var framesTracker = TestFramesTracker(displayLinkWrapper: displayLinkWrapper, dateProvider: currentDateProvider, dispatchQueueWrapper: dispatchQueueWrapper, notificationCenter: notificationCenter, delayedFramesTracker: TestDelayedWrapper(keepDelayedFramesDuration: 0, dateProvider: currentDateProvider))
 #endif // !os(macOS)
     
-    @available(*, deprecated, message: "This is only marked as deprecated because profilesSampleRate is marked as deprecated. Once that is removed this can be removed.")
     init() {
         SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = dispatchQueueWrapper
         SentryDependencyContainer.sharedInstance().dateProvider = currentDateProvider
         SentryDependencyContainer.sharedInstance().random = TestRandom(value: fixedRandomValue)
-        SentryDependencyContainer.sharedInstance().systemWrapper = systemWrapper
         SentryDependencyContainer.sharedInstance().processInfoWrapper = processInfoWrapper
         SentryDependencyContainer.sharedInstance().dispatchFactory = dispatchFactory
         SentryDependencyContainer.sharedInstance().notificationCenterWrapper = notificationCenter
+        SentryMetricProfiler.setSystemWrapperOverride(systemWrapper)
 
         timeoutTimerFactory = TestSentryNSTimerFactory(currentDateProvider: self.currentDateProvider)
         SentryDependencyContainer.sharedInstance().timerFactory = timeoutTimerFactory
         
         let image = DebugMeta()
-        image.name = "sentrytest"
         image.imageAddress = "0x0000000105705000"
         image.imageVmAddress = "0x0000000105705000"
         image.codeFile = "codeFile"
@@ -81,7 +83,6 @@ class SentryProfileTestFixture {
         hub.bindClient(client)
         SentrySDKInternal.setCurrentHub(hub)
         
-        options.profilesSampleRate = 1.0
         options.tracesSampleRate = 1.0
         
         dispatchFactory.vendedSourceHandler = { eventHandler in

@@ -48,12 +48,16 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         XCTAssertNil(Dynamic(sut).tracker.asAnyObject)
     }
 
-    func testWhenNoDebuggerAttached_TrackerInitialized() {
+    func testWhenNoDebuggerAttached_TrackerInitialized() throws {
         givenInitializedTracker()
         
-        let tracker = Dynamic(sut).tracker.asAnyObject
-        XCTAssertNotNil(tracker)
-        XCTAssertTrue(tracker is SentryANRTrackerV1)
+        let tracker = try XCTUnwrap(Dynamic(sut).tracker.asAnyObject as? SentryANRTracker)
+
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+        XCTAssertTrue(tracker.helper is SentryANRTrackerV2, "Expected SentryANRTrackerV2, but got \(type(of: tracker))")
+#else
+        XCTAssertTrue(tracker.helper is SentryANRTrackerV1, "Expected SentryANRTrackerV1 on macOS, but got \(type(of: tracker))")
+#endif
     }
     
     func test_enableAppHangsTracking_Disabled() {
@@ -76,24 +80,9 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         
         XCTAssertFalse(result)
     }
-    
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-    func test_enableAppHangTrackingV2_UsesV2Tracker() {
-        let options = Options()
-        options.enableAppHangTracking = true
-        options.enableAppHangTrackingV2 = true
-        
-        sut = SentryANRTrackingIntegration()
-        let result = sut.install(with: options)
-        XCTAssertTrue(result)
 
-        let tracker = Dynamic(sut).tracker.asAnyObject
-        XCTAssertNotNil(tracker)
-        XCTAssertTrue(tracker is SentryANRTrackerV2)
-    }
-#endif
-    
-    func testANRDetected_EventCaptured() throws {
+#if os(macOS)
+    func testV1_ANRDetected_EventCaptured() throws {
         setUpThreadInspector()
         givenInitializedTracker()
         
@@ -130,11 +119,11 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
 
             XCTAssertEqual(event?.debugMeta?.count, 1)
             let eventDebugImage = try XCTUnwrap(event?.debugMeta?.first)
-            XCTAssertEqual(eventDebugImage.uuid, TestData.debugImage.uuid)
+            XCTAssertEqual(eventDebugImage.debugID, TestData.debugImage.debugID)
         }
     }
     
-    func testANRDetected_FullyBlocking_EventCaptured() throws {
+    func testV1_ANRDetected_FullyBlocking_EventCaptured() throws {
         setUpThreadInspector()
         givenInitializedTracker()
 
@@ -171,11 +160,11 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
 
             XCTAssertEqual(event?.debugMeta?.count, 1)
             let eventDebugImage = try XCTUnwrap(event?.debugMeta?.first)
-            XCTAssertEqual(eventDebugImage.uuid, TestData.debugImage.uuid)
+            XCTAssertEqual(eventDebugImage.debugID, TestData.debugImage.debugID)
         }
     }
 
-    func testANRDetected_NonFullyBlocked_EventCaptured() throws {
+    func testV1_ANRDetected_NonFullyBlocked_EventCaptured() throws {
         setUpThreadInspector()
         givenInitializedTracker()
 
@@ -213,11 +202,11 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
 
             XCTAssertEqual(event?.debugMeta?.count, 1)
             let eventDebugImage = try XCTUnwrap(event?.debugMeta?.first)
-            XCTAssertEqual(eventDebugImage.uuid, TestData.debugImage.uuid)
+            XCTAssertEqual(eventDebugImage.debugID, TestData.debugImage.debugID)
         }
     }
     
-    func testANRDetectedV1_Unknown_EventCaptured() throws {
+    func testV1_ANRDetected_Unknown_EventCaptured() throws {
         setUpThreadInspector()
         givenInitializedTracker()
 
@@ -255,10 +244,27 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
 
             XCTAssertEqual(event?.debugMeta?.count, 1)
             let eventDebugImage = try XCTUnwrap(event?.debugMeta?.first)
-            XCTAssertEqual(eventDebugImage.uuid, TestData.debugImage.uuid)
+            XCTAssertEqual(eventDebugImage.debugID, TestData.debugImage.debugID)
         }
     }
-    
+
+    func testANRDetected_DetectingPausedResumed_EventCaptured() throws {
+        givenInitializedTracker()
+        setUpThreadInspector()
+        sut.pauseAppHangTracking()
+        sut.resumeAppHangTracking()
+
+        Dynamic(sut).anrDetectedWithType(SentryANRType.unknown)
+
+        try assertEventWithScopeCaptured { event, _, _ in
+            XCTAssertNotNil(event)
+            let ex = try XCTUnwrap(event?.exceptions?.first, "ANR Exception not found")
+
+            XCTAssertEqual(ex.mechanism?.type, "AppHang")
+        }
+    }
+#endif // os(macOS)
+
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     func testANRDetected_NonFullyBlockedDisabled_EventNotCaptured() throws {
         fixture.options.enableReportNonFullyBlockingAppHangs = false
@@ -280,26 +286,7 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         
         assertNoEventCaptured()
     }
-    
-    func testANRDetected_DetectingPausedResumed_EventCaptured() throws {
-        givenInitializedTracker()
-        setUpThreadInspector()
-        sut.pauseAppHangTracking()
-        sut.resumeAppHangTracking()
-        
-        Dynamic(sut).anrDetectedWithType(SentryANRType.unknown)
-        
-        try assertEventWithScopeCaptured { event, _, _ in
-            XCTAssertNotNil(event)
-            guard let ex = event?.exceptions?.first else {
-                XCTFail("ANR Exception not found")
-                return
-            }
-            
-            XCTAssertEqual(ex.mechanism?.type, "AppHang")
-        }
-    }
-    
+
     func testCallPauseResumeOnMultipleThreads_DoesNotCrash() {
         givenInitializedTracker()
         
@@ -350,7 +337,7 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         
         let tracker = SentryDependencyContainer.sharedInstance().getANRTracker(self.options.appHangTimeoutInterval)
         
-        let listeners = try XCTUnwrap(Dynamic(tracker).listeners.asObject as? NSHashTable<NSObject>)
+        let listeners = try XCTUnwrap(Dynamic(tracker.helper).listeners.asObject as? NSHashTable<NSObject>)
         
         XCTAssertEqual(1, listeners.count)
     }
@@ -359,7 +346,7 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
     func testV2_ANRDetected_DoesNotCaptureEvent() throws {
         // Arrange
         setUpThreadInspector()
-        givenInitializedTracker(enableV2: true)
+        givenInitializedTracker()
         
         // Act
         Dynamic(sut).anrDetectedWithType(SentryANRType.nonFullyBlocking)
@@ -371,7 +358,7 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
     func testV2_ANRStopped_DoesCaptureEvent() throws {
         // Arrange
         setUpThreadInspector()
-        givenInitializedTracker(enableV2: true)
+        givenInitializedTracker()
 
         Dynamic(sut).anrDetectedWithType(SentryANRType.fullyBlocking)
         
@@ -414,7 +401,7 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
 
             XCTAssertEqual(event?.debugMeta?.count, 1)
             let eventDebugImage = try XCTUnwrap(event?.debugMeta?.first)
-            XCTAssertEqual(eventDebugImage.uuid, TestData.debugImage.uuid)
+            XCTAssertEqual(eventDebugImage.debugID, TestData.debugImage.debugID)
 
             let tags = try XCTUnwrap(event?.tags)
             XCTAssertEqual(1, tags.count)
@@ -433,7 +420,7 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
     func testV2Detected_PauseCalled_ANRStopped_DoesCaptureEvent() throws {
         // Arrange
         setUpThreadInspector()
-        givenInitializedTracker(enableV2: true)
+        givenInitializedTracker()
 
         Dynamic(sut).anrDetectedWithType(SentryANRType.fullyBlocking)
 
@@ -473,7 +460,7 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
 
             XCTAssertEqual(event?.debugMeta?.count, 1)
             let eventDebugImage = try XCTUnwrap(event?.debugMeta?.first)
-            XCTAssertEqual(eventDebugImage.uuid, TestData.debugImage.uuid)
+            XCTAssertEqual(eventDebugImage.debugID, TestData.debugImage.debugID)
 
             let tags = try XCTUnwrap(event?.tags)
             XCTAssertEqual(1, tags.count)
@@ -492,7 +479,7 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
     func testV2_ANRStopped_EmptyEventStored_DoesCaptureEvent() throws {
         // Arrange
         setUpThreadInspector()
-        givenInitializedTracker(enableV2: true)
+        givenInitializedTracker()
 
         Dynamic(sut).anrDetectedWithType(SentryANRType.fullyBlocking)
         
@@ -509,7 +496,7 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
     func testV2_ANRDetected_StopNotCalled_SendsFatalANROnNextInstall() throws {
         // Arrange
         setUpThreadInspector()
-        givenInitializedTracker(enableV2: true)
+        givenInitializedTracker()
 
         Dynamic(sut).anrDetectedWithType(SentryANRType.nonFullyBlocking)
         
@@ -519,7 +506,7 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         }
         
         // Act
-        givenInitializedTracker(enableV2: true)
+        givenInitializedTracker()
         
         // Assert
         try assertFatalEventWithScope { event, _ in
@@ -549,13 +536,13 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
     func testV2_ANRDetected_PauseCalledButStopNotCalled_SendsFatalANROnNextInstall() throws {
         // Arrange
         setUpThreadInspector()
-        givenInitializedTracker(enableV2: true)
+        givenInitializedTracker()
 
         Dynamic(sut).anrDetectedWithType(SentryANRType.nonFullyBlocking)
         sut.pauseAppHangTracking()
 
         // Act
-        givenInitializedTracker(enableV2: true)
+        givenInitializedTracker()
         sut.pauseAppHangTracking()
 
         // Assert
@@ -586,7 +573,7 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
     func testV2_ANRDetected_StopNotCalledAndAbnormalSession_SendsFatalAppHangOnNextInstall() throws {
         // Arrange
         setUpThreadInspector()
-        givenInitializedTracker(enableV2: true)
+        givenInitializedTracker()
 
         Dynamic(sut).anrDetectedWithType(SentryANRType.nonFullyBlocking)
         
@@ -600,7 +587,7 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         SentrySDKInternal.currentHub().client()?.fileManager.storeAbnormalSession(abnormalSession)
         
         // Act
-        givenInitializedTracker(enableV2: true)
+        givenInitializedTracker()
         
         // Assert
         let client = try XCTUnwrap(SentrySDKInternal.currentHub().getClient() as? TestClient)
@@ -637,12 +624,12 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
     func testV2_ANRDetected_StopNotCalledAndCrashed_SendsNormalAppHangEvent() throws {
         // Arrange
         setUpThreadInspector()
-        givenInitializedTracker(enableV2: true)
+        givenInitializedTracker()
 
         Dynamic(sut).anrDetectedWithType(SentryANRType.fullyBlocking)
         
         // Act
-        givenInitializedTracker(crashedLastLaunch: true, enableV2: true)
+        givenInitializedTracker(crashedLastLaunch: true)
         
         // Assert
         try assertEventWithScopeCaptured { event, scope, _ in
@@ -659,12 +646,12 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
     
     func testV2_StoredApHangEventWithNoException_NoEventCaptured() throws {
         // Arrange
-        givenInitializedTracker(enableV2: true)
+        givenInitializedTracker()
         let event = Event()
         SentrySDKInternal.currentHub().client()?.fileManager.storeAppHang(event)
         
         // Act
-        givenInitializedTracker(enableV2: true)
+        givenInitializedTracker()
         
         // Assert
         assertNoEventCaptured()
@@ -673,7 +660,7 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
     func testV2_ANRStopped_DoesDeleteTheAppHangEvent() throws {
         // Arrange
         setUpThreadInspector()
-        givenInitializedTracker(enableV2: true)
+        givenInitializedTracker()
 
         Dynamic(sut).anrDetectedWithType(SentryANRType.fullyBlocking)
         let result = SentryANRStoppedResult(minDuration: 1.849, maxDuration: 2.251)
@@ -692,7 +679,7 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
     func testV2_ANRStopped_ButEventDeleted_DoesNotCaptureEvent() throws {
         // Arrange
         setUpThreadInspector()
-        givenInitializedTracker(enableV2: true)
+        givenInitializedTracker()
 
         Dynamic(sut).anrDetectedWithType(SentryANRType.nonFullyBlocking)
         SentrySDKInternal.currentHub().client()?.fileManager.deleteAppHangEvent()
@@ -708,7 +695,7 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
     func testV2_ANRStoppedWithNilResult_DoesNotCaptureEvent() throws {
         // Arrange
         setUpThreadInspector()
-        givenInitializedTracker(enableV2: true)
+        givenInitializedTracker()
 
         // Act
         Dynamic(sut).anrStoppedWithResult(nil)
@@ -735,7 +722,7 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         XCTAssertFalse(Event().isAppHangEvent)
     }
     
-    private func givenInitializedTracker(isBeingTraced: Bool = false, crashedLastLaunch: Bool = false, enableV2: Bool = false) {
+    private func givenInitializedTracker(isBeingTraced: Bool = false, crashedLastLaunch: Bool = false) {
         givenSdkWithHub()
         
         SentrySDK.configureScope { scope in
@@ -748,11 +735,6 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         self.crashWrapper.internalIsBeingTraced = isBeingTraced
         self.crashWrapper.internalCrashedLastLaunch = crashedLastLaunch
         sut = SentryANRTrackingIntegration()
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-        if enableV2 {
-            self.options.enableAppHangTrackingV2 = true
-        }
-#endif //  os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
         sut.install(with: self.options)
     }
     
@@ -783,6 +765,6 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
             threadInspector.allThreads = []
         }
 
-        SentryDependencyContainer.sharedInstance().threadInspector = threadInspector
+        Dependencies.threadInspector = threadInspector
     }
 }

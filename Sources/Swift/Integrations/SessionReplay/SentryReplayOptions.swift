@@ -2,13 +2,13 @@
 import Foundation
 
 @objcMembers
-public class SentryReplayOptions: NSObject, SentryRedactOptions {
+public final class SentryReplayOptions: NSObject, SentryRedactOptions {
     /**
      * Default values for the session replay options.
      *
      * - Note: These values are used to ensure the different initializers use the same default values.
      */
-    public class DefaultValues {
+    public final class DefaultValues {
         public static let sessionSampleRate: Float = 0
         public static let onErrorSampleRate: Float = 0
         public static let maskAllText: Bool = true

@@ -5,11 +5,11 @@ import Foundation
 @_spi(Private) public class SentryWatchdogTerminationAttributesProcessor: NSObject {
 
     private let dispatchQueueWrapper: SentryDispatchQueueWrapper
-    private let scopePersistentStore: SentryScopePersistentStore
+    private let scopePersistentStore: SentryScopePersistentStore?
 
-    public init(
+    init(
         withDispatchQueueWrapper dispatchQueueWrapper: SentryDispatchQueueWrapper,
-        scopePersistentStore: SentryScopePersistentStore
+        scopePersistentStore: SentryScopePersistentStore?
     ) {
         self.dispatchQueueWrapper = dispatchQueueWrapper
         self.scopePersistentStore = scopePersistentStore
@@ -21,48 +21,48 @@ import Foundation
     
     public func clear() {
         SentrySDKLog.debug("Deleting all stored data in in persistent store")
-        scopePersistentStore.deleteAllCurrentState()
+        scopePersistentStore?.deleteAllCurrentState()
     }
 
     public func setContext(_ context: [String: [String: Any]]?) {
         setData(data: context, field: .context) { [weak self] data in
-            self?.scopePersistentStore.writeContextToDisk(context: data)
+            self?.scopePersistentStore?.writeContextToDisk(context: data)
         }
     }
     
     public func setUser(_ user: User?) {
         setData(data: user, field: .user) { [weak self] data in
-            self?.scopePersistentStore.writeUserToDisk(user: data)
+            self?.scopePersistentStore?.writeUserToDisk(user: data)
         }
     }
     
     public func setDist(_ dist: String?) {
         setData(data: dist, field: .dist) { [weak self] data in
-            self?.scopePersistentStore.writeDistToDisk(dist: data)
+            self?.scopePersistentStore?.writeDistToDisk(dist: data)
         }
     }
     
     public func setEnvironment(_ environment: String?) {
         setData(data: environment, field: .environment) { [weak self] data in
-            self?.scopePersistentStore.writeEnvironmentToDisk(environment: data)
+            self?.scopePersistentStore?.writeEnvironmentToDisk(environment: data)
         }
     }
     
     public func setTags(_ tags: [String: String]?) {
         setData(data: tags, field: .tags) { [weak self] data in
-            self?.scopePersistentStore.writeTagsToDisk(tags: data)
+            self?.scopePersistentStore?.writeTagsToDisk(tags: data)
         }
     }
     
     public func setExtras(_ extras: [String: Any]?) {
         setData(data: extras, field: .extras) { [weak self] data in
-            self?.scopePersistentStore.writeExtrasToDisk(extras: data)
+            self?.scopePersistentStore?.writeExtrasToDisk(extras: data)
         }
     }
     
     public func setFingerprint(_ fingerprint: [String]?) {
         setData(data: fingerprint, field: .fingerprint) { [weak self] data in
-            self?.scopePersistentStore.writeFingerprintToDisk(fingerprint: data)
+            self?.scopePersistentStore?.writeFingerprintToDisk(fingerprint: data)
         }
     }
     
@@ -76,7 +76,7 @@ import Foundation
             }
             guard let data = data else {
                 SentrySDKLog.debug("Data for \(field.name) is nil, deleting active file.")
-                strongSelf.scopePersistentStore.deleteCurrentFieldOnDisk(field: field)
+                strongSelf.scopePersistentStore?.deleteCurrentFieldOnDisk(field: field)
                 return
             }
             save(data)

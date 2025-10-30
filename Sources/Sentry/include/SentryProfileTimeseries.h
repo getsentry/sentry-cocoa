@@ -6,8 +6,7 @@
 #    import <Foundation/Foundation.h>
 
 #    if SENTRY_HAS_UIKIT
-#        import "SentryMetricProfiler.h"
-#        import "SentryScreenFrames.h"
+#        import "SentryProfilerDefines.h"
 #    endif // SENTRY_HAS_UIKIT
 
 @class SentrySample;
@@ -18,6 +17,8 @@ NS_ASSUME_NONNULL_BEGIN
 #    if defined(__cplusplus)
 extern "C" {
 #    endif
+
+typedef NSArray<NSDictionary<NSString *, NSNumber *> *> SentryFrameInfoTimeSeries;
 
 NSArray<SentrySample *> *_Nullable sentry_slicedProfileSamples(
     NSArray<SentrySample *> *samples, uint64_t startSystemTime, uint64_t endSystemTime);

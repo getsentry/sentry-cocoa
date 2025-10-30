@@ -3,7 +3,7 @@
 #if TARGET_OS_OSX
 
 #    import "SentryCrash.h"
-#    import "SentryDependencyContainer.h"
+#    import "SentrySwift.h"
 #    import "SentrySwizzle.h"
 #    import "SentryUncaughtNSExceptions.h"
 #    import <AppKit/NSApplication.h>
@@ -34,7 +34,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (void)capture:(nullable NSException *)exception
 {
-    SentryCrash *crash = SentryDependencyContainer.sharedInstance.crashReporter;
+    SentryCrashSwift *crash = SentryDependencyContainer.sharedInstance.crashReporter;
 
     if (crash.uncaughtExceptionHandler == nil) {
         return;

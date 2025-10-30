@@ -224,6 +224,8 @@ typedef struct SentryCrashReportWriter {
 
 typedef void (*SentryCrashReportWriteCallback)(const SentryCrashReportWriter *writer);
 
+void sentry_crashCallback(const SentryCrashReportWriter *writer);
+
 #ifdef __cplusplus
 }
 #endif

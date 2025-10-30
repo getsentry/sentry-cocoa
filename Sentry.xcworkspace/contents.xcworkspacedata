@@ -11,6 +11,9 @@
          location = "group:Samples/README.md">
       </FileRef>
       <FileRef
+         location = "group:Samples/DistributionSample/DistributionSample.xcodeproj">
+      </FileRef>
+      <FileRef
          location = "group:Samples/SentrySampleShared/SentrySampleShared.xcodeproj">
       </FileRef>
       <FileRef
@@ -39,9 +42,6 @@
       </FileRef>
       <FileRef
          location = "group:Samples/iOS-Swift6/iOS-Swift6.xcodeproj">
-      </FileRef>
-      <FileRef
-         location = "group:Samples/iOS13-Swift/iOS13-Swift.xcodeproj">
       </FileRef>
       <FileRef
          location = "group:Samples/SessionReplay-CameraTest/SessionReplay-CameraTest.xcodeproj">

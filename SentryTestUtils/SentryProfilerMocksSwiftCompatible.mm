@@ -2,7 +2,6 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
-#    import "SentryDependencyContainer.h"
 #    import "SentryProfilerMocks.h"
 #    import "SentryProfilerState+ObjCpp.h"
 #    import "SentrySwift.h"

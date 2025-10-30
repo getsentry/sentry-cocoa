@@ -4,8 +4,6 @@
 
 #    import "SentryClient+Private.h"
 #    import "SentryDateUtils.h"
-#    import "SentryDebugImageProvider+HybridSDKs.h"
-#    import "SentryDependencyContainer.h"
 #    import "SentryDevice.h"
 #    import "SentryEnvelopeItemHeader.h"
 #    import "SentryEvent+Private.h"
@@ -14,7 +12,6 @@
 #    import "SentryLogC.h"
 #    import "SentryMeta.h"
 #    import "SentryMetricProfiler.h"
-#    import "SentryModels+Serializable.h"
 #    import "SentryProfileTimeseries.h"
 #    import "SentryProfiledTracerConcurrency.h"
 #    import "SentryProfiler+Private.h"

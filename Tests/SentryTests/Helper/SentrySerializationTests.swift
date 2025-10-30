@@ -12,7 +12,6 @@ class SentrySerializationTests: XCTestCase {
             releaseName: "RELEASE_NAME",
             environment: "TEST",
             transaction: "transaction",
-            userSegment: "some segment",
             sampleRate: "0.25",
             sampleRand: "0.6543",
             sampled: "true",
@@ -54,7 +53,6 @@ class SentrySerializationTests: XCTestCase {
         XCTAssertNil(SentrySerializationSwift.data(with: envelope))
     }
     
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testEnvelopeWithData_InvalidEnvelopeItemHeaderJSON_ReturnsNil() throws {
         let envelopeItemHeader = SentryEnvelopeItemHeader(type: SentryInvalidJSONString() as String, length: 0)
         let envelopeItem = SentryEnvelopeItem(header: envelopeItemHeader, data: Data())
@@ -64,7 +62,6 @@ class SentrySerializationTests: XCTestCase {
         XCTAssertNil(SentrySerializationSwift.data(with: envelope))
     }
     
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testEnvelopeWithData_WithSingleEvent() throws {
         // Arrange
         let event = Event()
@@ -89,7 +86,6 @@ class SentrySerializationTests: XCTestCase {
         XCTAssertEqual(Date(timeIntervalSince1970: 9_001), deserializedEnvelope.header.sentAt)
     }
     
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testEnvelopeWithData_WithManyItems() throws {
         // Arrange
         let itemsCount = 15
@@ -128,7 +124,6 @@ class SentrySerializationTests: XCTestCase {
         }
     }
     
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testEnvelopeWithData_EmptyAttachment_ReturnsEnvelope() throws {
         // Arrange
         let itemData = Data()
@@ -159,7 +154,6 @@ class SentrySerializationTests: XCTestCase {
         XCTAssertEqual(sdkInfo, deserializedEnvelope.header.sdkInfo)
     }
     
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testEnvelopeWithData_WithTraceContext_ReturnsTraceContext() throws {
         let envelopeHeader = SentryEnvelopeHeader(id: nil, traceContext: Fixture.traceContext)
         let envelope = SentryEnvelope(header: envelopeHeader, singleItem: createItemWithEmptyAttachment())
@@ -171,9 +165,8 @@ class SentrySerializationTests: XCTestCase {
         assertTraceState(firstTrace: Fixture.traceContext, secondTrace: traceContext)
     }
     
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testEnvelopeWithData_TraceContextWithoutUser_ReturnsTraceContext() throws {
-        let trace = TraceContext(trace: SentryId(), publicKey: "PUBLIC_KEY", releaseName: "RELEASE_NAME", environment: "TEST", transaction: "transaction", userSegment: nil, sampleRate: nil, sampled: nil, replayId: nil)
+        let trace = TraceContext(trace: SentryId(), publicKey: "PUBLIC_KEY", releaseName: "RELEASE_NAME", environment: "TEST", transaction: "transaction", sampleRate: nil, sampled: nil, replayId: nil)
         
         let envelopeHeader = SentryEnvelopeHeader(id: nil, traceContext: trace)
         let envelope = SentryEnvelope(header: envelopeHeader, singleItem: createItemWithEmptyAttachment())
@@ -185,7 +178,6 @@ class SentrySerializationTests: XCTestCase {
         assertTraceState(firstTrace: trace, secondTrace: traceContext)
     }
 
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testEnvelopeWithDataWithSampleRand_TraceContextWithoutUser_ReturnsTraceContext() throws {
         // -- Arrange --
         let trace = TraceContext(
@@ -194,7 +186,6 @@ class SentrySerializationTests: XCTestCase {
             releaseName: "RELEASE_NAME",
             environment: "TEST",
             transaction: "transaction",
-            userSegment: nil,
             sampleRate: nil,
             sampleRand: nil,
             sampled: nil,
@@ -629,7 +620,6 @@ class SentrySerializationTests: XCTestCase {
         XCTAssertNil(actual)
     }
     
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testReturnNilForCorruptedEnvelope() throws {
         let envelope = SentryEnvelope(event: Event(error: NSError(domain: "test", code: -1, userInfo: nil)))
         let data = try XCTUnwrap(SentrySerializationSwift.data(with: envelope))
@@ -704,7 +694,6 @@ class SentrySerializationTests: XCTestCase {
         XCTAssertEqual(firstTrace.publicKey, secondTrace.publicKey, "Public key is not equal", file: file, line: line)
         XCTAssertEqual(firstTrace.releaseName, secondTrace.releaseName, "Release name is not equal", file: file, line: line)
         XCTAssertEqual(firstTrace.environment, secondTrace.environment, "Environment is not equal", file: file, line: line)
-        XCTAssertEqual(firstTrace.userSegment, secondTrace.userSegment, "User segment is not equal", file: file, line: line)
         XCTAssertEqual(firstTrace.sampleRand, secondTrace.sampleRand, "Sample rand is not equal", file: file, line: line)
         XCTAssertEqual(firstTrace.sampleRate, secondTrace.sampleRate, "Sample rate is not equal", file: file, line: line)
     }

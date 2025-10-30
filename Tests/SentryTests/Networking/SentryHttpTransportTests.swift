@@ -34,16 +34,8 @@ class SentryHttpTransportTests: XCTestCase {
 #endif // !os(watchOS)
 
         let flushTimeout: TimeInterval = 2.0
-        
-        @available(*, deprecated, message: "SentryUserFeedback is deprecated in favor of SentryFeedback.")
-        let userFeedback: UserFeedback = TestData.userFeedback
+
         let feedback: SentryFeedback = TestData.feedback
-        @available(*, deprecated, message: "SentryUserFeedback is deprecated in favor of SentryFeedback. There is currently no envelope initializer accepting a SentryFeedback; the envelope is currently built directly in -[SentryClient captureFeedback:withScope:] and sent to -[SentryTransportAdapter sendEvent:traceContext:attachments:additionalEnvelopeItems:].")
-        lazy var userFeedbackRequest: URLRequest = {
-            let userFeedbackEnvelope = SentryEnvelope(userFeedback: userFeedback)
-            userFeedbackEnvelope.header.sentAt = currentDateProvider.date()
-            return buildRequest(userFeedbackEnvelope)
-        }()
         
         let clientReport: SentryClientReport
         let clientReportEnvelope: SentryEnvelope
@@ -51,7 +43,6 @@ class SentryHttpTransportTests: XCTestCase {
         
         let queue = DispatchQueue(label: "SentryHttpTransportTests", qos: .userInitiated, attributes: [.concurrent, .initiallyInactive])
 
-        @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
         init() {
             SentryDependencyContainer.sharedInstance().reachability = reachability
             
@@ -109,7 +100,6 @@ class SentryHttpTransportTests: XCTestCase {
             clientReportRequest = buildRequest(clientReportEnvelope)
         }
         
-        @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
         func getTransactionEnvelope() -> SentryEnvelope {
             let tracer = SentryTracer(transactionContext: TransactionContext(name: "SomeTransaction", operation: "SomeOperation"), hub: nil)
             
@@ -166,7 +156,6 @@ class SentryHttpTransportTests: XCTestCase {
     private var fixture: Fixture!
     private var sut: SentryHttpTransport!
 
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     override func setUpWithError() throws {
         super.setUp()
         fixture = Fixture()
@@ -226,7 +215,6 @@ class SentryHttpTransportTests: XCTestCase {
         try assertEventAndSessionAreSentInOneEnvelope()
     }
     
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testSendEventWithFaultyNSUrlRequest() {
         let envelope = SentryEnvelope(event: TestConstants.eventWithSerializationError)
         sut.send(envelope: envelope)
@@ -234,24 +222,6 @@ class SentryHttpTransportTests: XCTestCase {
         assertRequestsSent(requestCount: 1)
     }
     
-    @available(*, deprecated, message: "SentryUserFeedback is deprecated in favor of SentryFeedback. There is currently no envelope initializer accepting a SentryFeedback; the envelope is currently built directly in -[SentryClient captureFeedback:withScope:] and sent to -[SentryTransportAdapter sendEvent:traceContext:attachments:additionalEnvelopeItems:]. This test case can be removed in favor of SentryClientTests.testCaptureFeedback")
-    func testSendUserFeedback() throws {
-        let envelope = SentryEnvelope(userFeedback: fixture.userFeedback)
-        sut.send(envelope: envelope)
-        waitForAllRequests()
-
-        XCTAssertEqual(1, fixture.requestManager.requests.count)
-
-        let actualData = try XCTUnwrap(fixture.requestManager.requests.last?.httpBody)
-        let expectedData = try XCTUnwrap(fixture.userFeedbackRequest.httpBody)
-        let decompressedActualData = try XCTUnwrap(sentry_unzippedData(actualData))
-        let decompressedExpectedData = try XCTUnwrap(sentry_unzippedData(expectedData))
-        let actualEnvelope = try XCTUnwrap(SentrySerializationSwift.envelope(with: decompressedActualData))
-        let expectedEnvelope = try XCTUnwrap(SentrySerializationSwift.envelope(with: decompressedExpectedData))
-        try EnvelopeUtils.assertEnvelope(expected: expectedEnvelope, actual: actualEnvelope)
-    }
-    
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testSendEventWithSession_RateLimitForEventIsActive_OnlySessionSent() throws {
         givenRateLimitResponse(forCategory: "error")
         sendEvent()
@@ -282,7 +252,6 @@ class SentryHttpTransportTests: XCTestCase {
         try EnvelopeUtils.assertEnvelope(expected: expectedEnvelope, actual: actualEnvelope)
     }
     
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testSendAllCachedEvents() {
         givenNoInternetConnection()
         sendEvent()
@@ -294,7 +263,6 @@ class SentryHttpTransportTests: XCTestCase {
         assertEnvelopesStored(envelopeCount: 0)
     }
 
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testSendAllCachedEnvelopes() {
         givenNoInternetConnection()
         let envelope = SentryEnvelope(session: SentrySession(releaseName: "1.9.0", distinctId: "some-id"))
@@ -308,7 +276,6 @@ class SentryHttpTransportTests: XCTestCase {
         assertEnvelopesStored(envelopeCount: 0)
     }
 
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testSendCachedButNotReady() {
         givenNoInternetConnection()
         sendEnvelope()
@@ -409,7 +376,6 @@ class SentryHttpTransportTests: XCTestCase {
         assertClientReportStoredInMemory()
     }
 
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testSendEnvelopeWithRetryAfterResponse() {
         let response = givenRetryAfterResponse()
 
@@ -418,7 +384,6 @@ class SentryHttpTransportTests: XCTestCase {
         assertRateLimitUpdated(response: response)
     }
 
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testSendEnvelopeWithRateLimitResponse() {
         let response = givenRateLimitResponse(forCategory: SentryEnvelopeItemTypes.session)
 
@@ -448,14 +413,12 @@ class SentryHttpTransportTests: XCTestCase {
         assertRequestsSent(requestCount: 3)
     }
 
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testSendOneEnvelope() {
         sendEnvelope()
 
         assertRequestsSent(requestCount: 1)
     }
 
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testActiveRateLimitForAllEnvelopeItems() {
         givenRateLimitResponse(forCategory: "error")
         sendEvent()
@@ -476,7 +439,6 @@ class SentryHttpTransportTests: XCTestCase {
         assertEnvelopesStored(envelopeCount: 0)
     }
 
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testActiveRateLimitForAllCachedEnvelopeItems() {
         givenNoInternetConnection()
         sendEnvelope()
@@ -493,7 +455,6 @@ class SentryHttpTransportTests: XCTestCase {
         XCTAssertEqual(fixture.dispatchQueueWrapper.dispatchAfterInvocations.first?.interval, 0.0)
     }
 
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testActiveRateLimitForSomeCachedEnvelopeItems() throws {
         givenNoInternetConnection()
         sendEvent()
@@ -522,7 +483,6 @@ class SentryHttpTransportTests: XCTestCase {
         }
     }
 
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testAllCachedEnvelopesCantDeserializeEnvelope() throws {
         let path = try XCTUnwrap(fixture.fileManager.store(TestConstants.envelope))
         let faultyEnvelope = Data([0x70, 0xa3, 0x10, 0x45])
@@ -594,7 +554,6 @@ class SentryHttpTransportTests: XCTestCase {
         try compareEnvelopes(fixture.clientReportRequest.httpBody, actualEventRequest?.httpBody, message: "Client report not sent.")
     }
     
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testEventRateLimited_RecordsLostEvent() throws {
         let rateLimitBackoffError = SentryDiscardedEvent(reason: nameForSentryDiscardReason(.rateLimitBackoff), category: nameForSentryDataCategory(.error), quantity: 1)
         let clientReport = SentryClientReport(discardedEvents: [rateLimitBackoffError], dateProvider: SentryDependencyContainer.sharedInstance().dateProvider)
@@ -615,7 +574,6 @@ class SentryHttpTransportTests: XCTestCase {
         try compareEnvelopes(clientReportRequest.httpBody, actualEventRequest?.httpBody, message: "Client report not sent.")
     }
     
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testTransactionRateLimited_RecordsLostSpans() throws {
         let clientReport = SentryClientReport(
             discardedEvents: [
@@ -666,7 +624,6 @@ class SentryHttpTransportTests: XCTestCase {
         XCTAssertEqual(1, attachment?.quantity)
     }
     
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testCacheFull_RecordsLostSpans() {
         givenNoInternetConnection()
         for _ in 0...fixture.options.maxCacheItems {
@@ -805,7 +762,6 @@ class SentryHttpTransportTests: XCTestCase {
         assertRequestsSent(requestCount: 1)
     }
     
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testBuildingRequestFails_RecordsLostSpans() {
         sendTransaction()
         
@@ -1036,18 +992,15 @@ class SentryHttpTransportTests: XCTestCase {
         sut.send(envelope: fixture.eventEnvelope)
     }
     
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     private func sendTransaction() {
         sendTransactionAsync()
         waitForAllRequests()
     }
     
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     private func sendTransactionAsync() {
         sut.send(envelope: fixture.getTransactionEnvelope())
     }
 
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     private func sendEnvelope(envelope: SentryEnvelope = TestConstants.envelope) {
         sut.send(envelope: envelope)
         waitForAllRequests()
@@ -1060,7 +1013,7 @@ class SentryHttpTransportTests: XCTestCase {
 
     private func assertRateLimitUpdated(response: HTTPURLResponse) {
         XCTAssertEqual(1, fixture.requestManager.requests.count)
-        XCTAssertTrue(fixture.rateLimits.isRateLimitActive(SentryDataCategory.session))
+        XCTAssertTrue(fixture.rateLimits.isRateLimitActive(SentryDataCategory.session.rawValue))
     }
 
     private func assertRequestsSent(requestCount: Int) {

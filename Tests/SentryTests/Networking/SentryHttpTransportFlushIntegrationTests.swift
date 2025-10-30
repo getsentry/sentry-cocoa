@@ -7,8 +7,8 @@ final class SentryHttpTransportFlushIntegrationTests: XCTestCase {
     private let flushTimeout: TimeInterval = 5.0
 
     func testFlush_WhenNoEnvelopes_BlocksAndFinishes() throws {
-
-        let (sut, _, _, _) = try getSut()
+        let (sut, _, fileManager, _) = try getSut()
+        defer { fileManager.deleteAllFolders() }
 
         var blockingDurationSum: TimeInterval = 0.0
         let flushInvocations = 100
@@ -25,15 +25,15 @@ final class SentryHttpTransportFlushIntegrationTests: XCTestCase {
         XCTAssertLessThan(blockingDurationAverage, 0.1)
     }
 
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testFlush_WhenNoInternet_BlocksAndFinishes() throws {
-        let (sut, requestManager, _, dispatchQueueWrapper) = try getSut()
+        let (sut, requestManager, fileManager, dispatchQueueWrapper) = try getSut()
+        defer { fileManager.deleteAllFolders() }
 
         requestManager.returnResponse(response: nil)
 
         sut.send(envelope: SentryEnvelope(event: Event()))
         sut.send(envelope: SentryEnvelope(event: Event()))
-        // Wait until the dispath queue drains to confirm the envelope is stored
+        // Wait until the dispatch queue drains to confirm the envelope is stored
         waitForEnvelopeToBeStored(dispatchQueueWrapper)
 
         var blockingDurationSum: TimeInterval = 0.0
@@ -51,15 +51,13 @@ final class SentryHttpTransportFlushIntegrationTests: XCTestCase {
         XCTAssertLessThan(blockingDurationAverage, 0.1)
     }
 
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testFlush_CallingFlushDirectlyAfterCapture_Flushes() throws {
         let (sut, _, fileManager, dispatchQueueWrapper) = try getSut()
-
-        defer { fileManager.deleteAllEnvelopes() }
+        defer { fileManager.deleteAllFolders() }
 
         for _ in 0..<10 {
             sut.send(envelope: SentryEnvelope(event: Event()))
-            // Wait until the dispath queue drains to confirm the envelope is stored
+            // Wait until the dispatch queue drains to confirm the envelope is stored
             waitForEnvelopeToBeStored(dispatchQueueWrapper)
 
             XCTAssertEqual(sut.flush(self.flushTimeout), .success, "Flush should not time out.")
@@ -68,16 +66,16 @@ final class SentryHttpTransportFlushIntegrationTests: XCTestCase {
         }
     }
 
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testFlushTimesOut_RequestManagerNeverFinishes_FlushingWorksNextTime() throws {
-        let (sut, requestManager, _, dispatchQueueWrapper) = try getSut()
+        let (sut, requestManager, fileManager, dispatchQueueWrapper) = try getSut()
+        defer { fileManager.deleteAllFolders() }
 
         requestManager.waitForResponseDispatchGroup = true
         requestManager.responseDispatchGroup.enter()
 
         requestManager.returnResponse(response: nil)
         sut.send(envelope: SentryEnvelope(event: Event()))
-        // Wait until the dispath queue drains to confirm the envelope is stored
+        // Wait until the dispatch queue drains to confirm the envelope is stored
         waitForEnvelopeToBeStored(dispatchQueueWrapper)
         requestManager.returnResponse(response: HTTPURLResponse())
 
@@ -88,9 +86,9 @@ final class SentryHttpTransportFlushIntegrationTests: XCTestCase {
         XCTAssertEqual(sut.flush(self.flushTimeout), .success, "Flush should not time out.")
     }
 
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testFlush_CalledMultipleTimes_ImmediatelyReturnsFalse() throws {
-        let (sut, requestManager, _, dispatchQueueWrapper) = try getSut()
+        let (sut, requestManager, fileManager, dispatchQueueWrapper) = try getSut()
+        defer { fileManager.deleteAllFolders() }
 
         // This must be long enough that all the threads we start below get to run
         // while the first call to flush is still blocking
@@ -195,7 +193,7 @@ final class SentryHttpTransportFlushIntegrationTests: XCTestCase {
     }
 
     private func waitForEnvelopeToBeStored(_ dispatchQueueWrapper: SentryDispatchQueueWrapper) {
-        // Wait until the dispath queue drains to confirm the envelope is stored
+        // Wait until the dispatch queue drains to confirm the envelope is stored
         let expectation = XCTestExpectation(description: "Envelope sent")
         dispatchQueueWrapper.dispatchAsync {
             expectation.fulfill()
