@@ -42,22 +42,30 @@ jobs:
         runner:
           - GitHub
           - Cirrus Labs
+        job_id:
+          - ios_objc
+          - tvos_swift
         include:
-          - name: iOS Objective-C
+          - job_id: ios_objc
+            name: iOS Objective-C
             target: ios_objc
             test_destination_os: "18.6"
             device: iPhone 16 Pro
-          - name: tvOS Swift
+          - job_id: tvos_swift
+            name: tvOS Swift
             target: tvos_swift
             test_destination_os: "18.5"
             device: "Apple TV"
     with:
-      fastlane_command: ui_tests_${{matrix.target}}
+      fastlane_command: ui_tests_${{matrix.target}}_${{matrix.runner}}
       xcode_version: 16.4
       build_with_make: true
       macos_version: ${{ matrix.runner == 'Cirrus Labs' && 'sequoia' || 'macos-15' }}
       run_on_cirrus_labs: ${{ matrix.runner == 'Cirrus Labs' }}
       codecov_test_analytics: true
+      test-destination-os: ${{matrix.test_destination_os}}
+      device: ${{matrix.device}}
+      files_suffix: _${{matrix.target}}_${{matrix.runner}}
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
@@ -75,6 +83,7 @@ jobs:
       run_on_cirrus_labs: ${{ matrix.runner == 'Cirrus Labs' }}
       test-destination-os: "18.4"
       device: iPhone 16 Pro
+      files_suffix: _swiftui_-${{matrix.runner}}
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     strategy:
@@ -93,9 +102,14 @@ jobs:
         runner:
           - GitHub
           - Cirrus Labs
+        job_id:
+          - ios_17
+          - ios_18
+          - ios_26
         include:
           # iOS 17 - Use pre-installed iOS 17.5 runtime on macOS-14 with Xcode 15.4
-          - name: iOS 17
+          - job_id: ios_17
+            name: iOS 17
             runs_on: macos-14
             runs_on_cirrus: sequoia
             xcode: "16.4"
@@ -106,7 +120,8 @@ jobs:
             device: iPhone 15 Pro
 
           # iOS 18 - Use pre-installed iOS 18.4 runtime on macOS-15
-          - name: iOS 18
+          - job_id: ios_18
+            name: iOS 18
             runs_on: macos-15
             runs_on_cirrus: sequoia
             xcode: "16.4"
@@ -117,7 +132,8 @@ jobs:
             create_device: false
 
           # iOS 26 - Download iOS 26.1 beta runtime on macOS-26
-          - name: iOS 26
+          - job_id: ios_26
+            name: iOS 26
             runs_on: macos-26
             runs_on_cirrus: tahoe
             xcode: "26.1"
@@ -128,10 +144,10 @@ jobs:
             device: iPhone 17 Pro
     with:
       fastlane_command: ui_tests_ios_swift
-      files_suffix: _xcode_${{matrix.xcode}}-${{matrix.device}}
+      files_suffix: _xcode_${{matrix.xcode}}-${{matrix.device}}-${{matrix.runner}}
       build_with_make: true
       macos_version: ${{matrix.runner == 'Cirrus Labs' && matrix.runs_on_cirrus || matrix.runs_on}}
-      run_on_cirrus_labs: ${{matrix.runner == 'Cirrus Labs'}}
+      run_on_cirrus_labs: ${{ matrix.runner == 'Cirrus Labs' }}
       codecov_test_analytics: true
       xcode_version: ${{matrix.xcode}}
       test-destination-os: ${{matrix.test_destination_os}}
@@ -162,6 +178,7 @@ jobs:
       codecov_test_analytics: true
       device: iPhone 16 Pro
       test-destination-os: "18.4"
+      files_suffix: _swift6_-${{matrix.runner}}
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
