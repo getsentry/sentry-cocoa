@@ -105,7 +105,7 @@ jobs:
 
   validate-xcframework:
     name: Validate XCFramework
-    runs-on: macos-26
+    runs-on: macos-14
     needs: [files-changed, assemble-xcframework-variant]
     # Run the job only for PRs with related changes or non-PR events.
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
@@ -119,7 +119,7 @@ jobs:
         with:
           pattern: xcframework-${{github.sha}}-sentry-swiftui
           path: Carthage/
-      - run: ./scripts/ci-select-xcode.sh 26.0.1
+      - run: ./scripts/ci-select-xcode.sh 16.4
       - run: make build-xcframework-sample
       - name: Run CI Diagnostics
         if: failure()
