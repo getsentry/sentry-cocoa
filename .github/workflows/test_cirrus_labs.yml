@@ -241,7 +241,7 @@ jobs:
           - name: iOS 18 Sentry
             runs-on: sequoia
             xcode: "16.4"
-            test-destination-os: "18.6"
+            test-destination-os: "18.4"
             platform: "iOS"
             device: "iPhone 16 Pro"
             scheme: "Sentry"
