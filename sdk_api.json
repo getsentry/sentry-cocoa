@@ -622,6 +622,114 @@
             "init_kind": "Designated"
           },
           {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init(data:filename:contentType:attachmentType:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Attachment",
+                "printedName": "Sentry.Attachment",
+                "usr": "c:objc(cs)SentryAttachment"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Data",
+                "printedName": "Foundation.Data",
+                "usr": "s:10Foundation4DataV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Swift.String?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "SentryAttachmentType",
+                "printedName": "Sentry.SentryAttachmentType",
+                "usr": "c:@E@SentryAttachmentType"
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "c:objc(cs)SentryAttachment(im)initWithData:filename:contentType:attachmentType:",
+            "moduleName": "Sentry",
+            "objc_name": "initWithData:filename:contentType:attachmentType:",
+            "declAttributes": [
+              "ObjC",
+              "Dynamic"
+            ],
+            "init_kind": "Designated"
+          },
+          {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init(path:filename:contentType:attachmentType:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Attachment",
+                "printedName": "Sentry.Attachment",
+                "usr": "c:objc(cs)SentryAttachment"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Swift.String?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "SentryAttachmentType",
+                "printedName": "Sentry.SentryAttachmentType",
+                "usr": "c:@E@SentryAttachmentType"
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "c:objc(cs)SentryAttachment(im)initWithPath:filename:contentType:attachmentType:",
+            "moduleName": "Sentry",
+            "objc_name": "initWithPath:filename:contentType:attachmentType:",
+            "declAttributes": [
+              "ObjC",
+              "Dynamic"
+            ],
+            "init_kind": "Designated"
+          },
+          {
             "kind": "Var",
             "name": "data",
             "printedName": "data",
@@ -852,6 +960,54 @@
                 "moduleName": "Sentry",
                 "isOpen": true,
                 "objc_name": "contentType",
+                "declAttributes": [
+                  "DiscardableResult",
+                  "ObjC",
+                  "Dynamic"
+                ],
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "attachmentType",
+            "printedName": "attachmentType",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "SentryAttachmentType",
+                "printedName": "Sentry.SentryAttachmentType",
+                "usr": "c:@E@SentryAttachmentType"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "c:objc(cs)SentryAttachment(py)attachmentType",
+            "moduleName": "Sentry",
+            "isOpen": true,
+            "objc_name": "attachmentType",
+            "declAttributes": [
+              "ObjC",
+              "Dynamic"
+            ],
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SentryAttachmentType",
+                    "printedName": "Sentry.SentryAttachmentType",
+                    "usr": "c:@E@SentryAttachmentType"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "c:objc(cs)SentryAttachment(im)attachmentType",
+                "moduleName": "Sentry",
+                "isOpen": true,
+                "objc_name": "attachmentType",
                 "declAttributes": [
                   "DiscardableResult",
                   "ObjC",
@@ -23729,6 +23885,259 @@
                     "kind": "TypeNameAlias",
                     "name": "RawValue",
                     "printedName": "Sentry.SentryANRType.RawValue",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Int",
+                        "printedName": "Swift.Int",
+                        "usr": "s:Si"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "usr": "s:SY",
+            "mangledName": "$sSY"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Sendable",
+            "printedName": "Sendable",
+            "usr": "s:s8SendableP",
+            "mangledName": "$ss8SendableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Equatable",
+            "printedName": "Equatable",
+            "usr": "s:SQ",
+            "mangledName": "$sSQ"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Hashable",
+            "printedName": "Hashable",
+            "usr": "s:SH",
+            "mangledName": "$sSH"
+          }
+        ]
+      },
+      {
+        "kind": "TypeDecl",
+        "name": "SentryAttachmentType",
+        "printedName": "SentryAttachmentType",
+        "children": [
+          {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init(rawValue:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Sentry.SentryAttachmentType?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SentryAttachmentType",
+                    "printedName": "Sentry.SentryAttachmentType",
+                    "usr": "c:@E@SentryAttachmentType"
+                  }
+                ],
+                "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Int",
+                "printedName": "Swift.Int",
+                "usr": "s:Si"
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "s:So20SentryAttachmentTypeV8rawValueABSgSi_tcfc",
+            "mangledName": "$sSo20SentryAttachmentTypeV8rawValueABSgSi_tcfc",
+            "moduleName": "Sentry",
+            "implicit": true,
+            "init_kind": "Designated"
+          },
+          {
+            "kind": "Var",
+            "name": "rawValue",
+            "printedName": "rawValue",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Int",
+                "printedName": "Swift.Int",
+                "usr": "s:Si"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:So20SentryAttachmentTypeV8rawValueSivp",
+            "mangledName": "$sSo20SentryAttachmentTypeV8rawValueSivp",
+            "moduleName": "Sentry",
+            "implicit": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Int",
+                    "printedName": "Swift.Int",
+                    "usr": "s:Si"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:So20SentryAttachmentTypeV8rawValueSivg",
+                "mangledName": "$sSo20SentryAttachmentTypeV8rawValueSivg",
+                "moduleName": "Sentry",
+                "implicit": true,
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "TypeAlias",
+            "name": "RawValue",
+            "printedName": "RawValue",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Int",
+                "printedName": "Swift.Int",
+                "usr": "s:Si"
+              }
+            ],
+            "declKind": "TypeAlias",
+            "usr": "s:So20SentryAttachmentTypeV8RawValuea",
+            "mangledName": "$sSo20SentryAttachmentTypeV8RawValuea",
+            "moduleName": "Sentry",
+            "implicit": true
+          },
+          {
+            "kind": "Var",
+            "name": "eventAttachment",
+            "printedName": "eventAttachment",
+            "children": [
+              {
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(Sentry.SentryAttachmentType.Type) -> Sentry.SentryAttachmentType",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SentryAttachmentType",
+                    "printedName": "Sentry.SentryAttachmentType",
+                    "usr": "c:@E@SentryAttachmentType"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Metatype",
+                    "printedName": "Sentry.SentryAttachmentType.Type",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SentryAttachmentType",
+                        "printedName": "Sentry.SentryAttachmentType",
+                        "usr": "c:@E@SentryAttachmentType"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "declKind": "EnumElement",
+            "usr": "c:@E@SentryAttachmentType@kSentryAttachmentTypeEventAttachment",
+            "moduleName": "Sentry",
+            "declAttributes": [
+              "ObjC"
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "viewHierarchy",
+            "printedName": "viewHierarchy",
+            "children": [
+              {
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(Sentry.SentryAttachmentType.Type) -> Sentry.SentryAttachmentType",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SentryAttachmentType",
+                    "printedName": "Sentry.SentryAttachmentType",
+                    "usr": "c:@E@SentryAttachmentType"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Metatype",
+                    "printedName": "Sentry.SentryAttachmentType.Type",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SentryAttachmentType",
+                        "printedName": "Sentry.SentryAttachmentType",
+                        "usr": "c:@E@SentryAttachmentType"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "declKind": "EnumElement",
+            "usr": "c:@E@SentryAttachmentType@kSentryAttachmentTypeViewHierarchy",
+            "moduleName": "Sentry",
+            "declAttributes": [
+              "ObjC"
+            ]
+          }
+        ],
+        "declKind": "Enum",
+        "usr": "c:@E@SentryAttachmentType",
+        "moduleName": "Sentry",
+        "objc_name": "SentryAttachmentType",
+        "declAttributes": [
+          "SynthesizedProtocol",
+          "ObjC",
+          "SynthesizedProtocol",
+          "Sendable",
+          "Dynamic"
+        ],
+        "enumRawTypeName": "Int",
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "RawRepresentable",
+            "printedName": "RawRepresentable",
+            "children": [
+              {
+                "kind": "TypeWitness",
+                "name": "RawValue",
+                "printedName": "RawValue",
+                "children": [
+                  {
+                    "kind": "TypeNameAlias",
+                    "name": "RawValue",
+                    "printedName": "Sentry.SentryAttachmentType.RawValue",
                     "children": [
                       {
                         "kind": "TypeNominal",
