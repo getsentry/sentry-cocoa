@@ -173,9 +173,10 @@ NS_ASSUME_NONNULL_BEGIN
         return [SentryNoOpSpan shared];
     }
 
-    return [self.tracer startChildWithParentId:self.spanId
-                                     operation:operation
-                                   description:description];
+    return SENTRY_UNWRAP_NULLABLE_VALUE(id<SentrySpan>,
+        [self.tracer startChildWithParentId:self.spanId
+                                  operation:operation
+                                description:description]);
 }
 
 - (void)setDataValue:(nullable id)value forKey:(NSString *)key

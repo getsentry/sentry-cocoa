@@ -30,7 +30,7 @@ SENTRY_EXTERN_C_BEGIN
  * different from the profiler's internal ID.
  */
 SentryId *_Nullable sentry_startProfilerForTrace(SentryTracerConfiguration *configuration,
-    SentryHub *hub, SentryTransactionContext *transactionContext);
+    SentryHub *_Nullable hub, SentryTransactionContext *transactionContext);
 
 /**
  * @note Only called for transaction-based profiling or continuous profiling V2 with trace lifecycle
@@ -38,7 +38,7 @@ SentryId *_Nullable sentry_startProfilerForTrace(SentryTracerConfiguration *conf
  */
 SENTRY_EXTERN void sentry_stopProfilerDueToFinishedTransaction(
     SentryHub *hub, SentryDispatchQueueWrapper *dispatchQueue, SentryTransaction *transaction,
-    BOOL isProfiling, NSDate *traceStartTimestamp, uint64_t startSystemTime
+    BOOL isProfiling, NSDate *_Nullable traceStartTimestamp, uint64_t startSystemTime
 #    if SENTRY_HAS_UIKIT
     ,
     SentryAppStartMeasurement *appStartMeasurement
