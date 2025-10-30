@@ -38,6 +38,7 @@ jobs:
     name: Test ${{matrix.name}} on ${{matrix.runner}} V3 # Up the version with every change to keep track of flaky tests
     uses: ./.github/workflows/ui-tests-common.yml
     strategy:
+      fail-fast: false
       matrix:
         runner:
           - GitHub
@@ -87,6 +88,7 @@ jobs:
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     strategy:
+      fail-fast: false
       matrix:
         runner:
           - GitHub
@@ -98,6 +100,7 @@ jobs:
     name: Test Swift ${{matrix.name}} on ${{matrix.runner}} V5 # Up the version with every change to keep track of flaky tests
     uses: ./.github/workflows/ui-tests-common.yml
     strategy:
+      fail-fast: false
       matrix:
         runner:
           - GitHub
@@ -166,6 +169,7 @@ jobs:
     name: Test iOS Swift6 on ${{matrix.runner}} V3 # Up the version with every change to keep track of flaky tests
     uses: ./.github/workflows/ui-tests-common.yml
     strategy:
+      fail-fast: false
       matrix:
         runner:
           - GitHub
