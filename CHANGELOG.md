@@ -49,6 +49,7 @@
   - Add layer class filtering for views used in multiple contexts (e.g., SwiftUI._UIGraphicsView)
   - Improve transform calculations for views with custom anchor points
   - Fix axis-aligned transform detection for optimized opaque view clipping
+- Fix issue where a too-large breadcrumb would prevent future errors and messages from being uploaded (#6617)
 
 ### Improvements
 
