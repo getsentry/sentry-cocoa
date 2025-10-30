@@ -471,9 +471,10 @@
     exception.threadId = crashedThread.threadId;
     exception.stacktrace = crashedThread.stacktrace;
 
-    if (nil != self.diagnosis && self.diagnosis.length > 0
-        && ![self.diagnosis containsString:exception.value]) {
-        exception.value = [exception.value
+    NSString *exceptionValue = exception.value;
+    if (nil != self.diagnosis && self.diagnosis.length > 0 && exceptionValue != nil
+        && ![self.diagnosis containsString:exceptionValue]) {
+        exception.value = [exceptionValue
             stringByAppendingString:[NSString stringWithFormat:@" >\n%@", self.diagnosis]];
     }
     return @[ exception ];
