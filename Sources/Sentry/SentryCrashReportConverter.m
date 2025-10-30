@@ -11,7 +11,7 @@
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"
 #import "SentryMechanism.h"
-#import "SentryMechanismContext.h"
+#import "SentryMechanismMetaInformation.h"
 #import "SentryStacktrace.h"
 #import "SentrySwift.h"
 #import "SentryThread.h"
@@ -556,7 +556,7 @@
     if (nil != self.exceptionContext[@"mach"]) {
         mechanism.handled = @(NO);
 
-        SentryMechanismContext *meta = [[SentryMechanismContext alloc] init];
+        SentryMechanismMetaInformation *meta = [[SentryMechanismMetaInformation alloc] init];
 
         NSMutableDictionary *machException = [NSMutableDictionary new];
         [machException setValue:self.exceptionContext[@"mach"][@"exception_name"] forKey:@"name"];

@@ -125,7 +125,7 @@
 #import "SentryLogC.h"
 #import "SentryLogTestHelper.h"
 #import "SentryMechanism.h"
-#import "SentryMechanismContext.h"
+#import "SentryMechanismMetaInformation.h"
 #import "SentryMeta.h"
 #import "SentryNSDataUtils.h"
 #import "SentryNSDictionarySanitize+Tests.h"

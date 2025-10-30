@@ -6,7 +6,7 @@
 #import "SentryException.h"
 #import "SentryFrame.h"
 #import "SentryMechanism.h"
-#import "SentryMechanismContext.h"
+#import "SentryMechanismMetaInformation.h"
 #import "SentryStacktrace.h"
 #import "SentrySwift.h"
 #import "SentryThread.h"

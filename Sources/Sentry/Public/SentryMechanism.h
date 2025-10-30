@@ -11,7 +11,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @class SentryNSError;
-@class SentryMechanismContext;
+@class SentryMechanismMetaInformation;
 
 NS_SWIFT_NAME(Mechanism)
 @interface SentryMechanism : NSObject <SentrySerializable>
@@ -58,7 +58,7 @@ SENTRY_NO_INIT
  * Information from the operating system or runtime on the exception
  * mechanism.
  */
-@property (nullable, nonatomic, strong) SentryMechanismContext *meta;
+@property (nullable, nonatomic, strong) SentryMechanismMetaInformation *meta;
 
 /**
  * Initialize an SentryMechanism with a type
