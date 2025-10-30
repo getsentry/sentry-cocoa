@@ -216,8 +216,8 @@
       },
       {
         "kind": "Import",
-        "name": "Sentry.SentryMechanismMeta",
-        "printedName": "Sentry.SentryMechanismMeta",
+        "name": "Sentry.SentryMechanismContext",
+        "printedName": "Sentry.SentryMechanismContext",
         "declKind": "Import",
         "moduleName": "Sentry",
         "declAttributes": [
@@ -13402,7 +13402,7 @@
                     "kind": "TypeNominal",
                     "name": "MechanismMeta",
                     "printedName": "Sentry.MechanismMeta",
-                    "usr": "c:objc(cs)SentryMechanismMeta"
+                    "usr": "c:objc(cs)SentryMechanismContext"
                   }
                 ],
                 "usr": "s:Sq"
@@ -13432,7 +13432,7 @@
                         "kind": "TypeNominal",
                         "name": "MechanismMeta",
                         "printedName": "Sentry.MechanismMeta",
-                        "usr": "c:objc(cs)SentryMechanismMeta"
+                        "usr": "c:objc(cs)SentryMechanismContext"
                       }
                     ],
                     "usr": "s:Sq"
@@ -13476,7 +13476,7 @@
                         "kind": "TypeNominal",
                         "name": "MechanismMeta",
                         "printedName": "Sentry.MechanismMeta",
-                        "usr": "c:objc(cs)SentryMechanismMeta"
+                        "usr": "c:objc(cs)SentryMechanismContext"
                       }
                     ],
                     "usr": "s:Sq"
@@ -13616,11 +13616,11 @@
                 "kind": "TypeNominal",
                 "name": "MechanismMeta",
                 "printedName": "Sentry.MechanismMeta",
-                "usr": "c:objc(cs)SentryMechanismMeta"
+                "usr": "c:objc(cs)SentryMechanismContext"
               }
             ],
             "declKind": "Constructor",
-            "usr": "c:objc(cs)SentryMechanismMeta(im)init",
+            "usr": "c:objc(cs)SentryMechanismContext(im)init",
             "moduleName": "Sentry",
             "overriding": true,
             "objc_name": "init",
@@ -13666,7 +13666,7 @@
               }
             ],
             "declKind": "Var",
-            "usr": "c:objc(cs)SentryMechanismMeta(py)signal",
+            "usr": "c:objc(cs)SentryMechanismContext(py)signal",
             "moduleName": "Sentry",
             "isOpen": true,
             "objc_name": "signal",
@@ -13709,7 +13709,7 @@
                   }
                 ],
                 "declKind": "Accessor",
-                "usr": "c:objc(cs)SentryMechanismMeta(im)signal",
+                "usr": "c:objc(cs)SentryMechanismContext(im)signal",
                 "moduleName": "Sentry",
                 "isOpen": true,
                 "objc_name": "signal",
@@ -13766,7 +13766,7 @@
                   }
                 ],
                 "declKind": "Accessor",
-                "usr": "c:objc(cs)SentryMechanismMeta(im)setSignal:",
+                "usr": "c:objc(cs)SentryMechanismContext(im)setSignal:",
                 "moduleName": "Sentry",
                 "isOpen": true,
                 "objc_name": "setSignal:",
@@ -13812,7 +13812,7 @@
               }
             ],
             "declKind": "Var",
-            "usr": "c:objc(cs)SentryMechanismMeta(py)machException",
+            "usr": "c:objc(cs)SentryMechanismContext(py)machException",
             "moduleName": "Sentry",
             "isOpen": true,
             "objc_name": "machException",
@@ -13855,7 +13855,7 @@
                   }
                 ],
                 "declKind": "Accessor",
-                "usr": "c:objc(cs)SentryMechanismMeta(im)machException",
+                "usr": "c:objc(cs)SentryMechanismContext(im)machException",
                 "moduleName": "Sentry",
                 "isOpen": true,
                 "objc_name": "machException",
@@ -13912,7 +13912,7 @@
                   }
                 ],
                 "declKind": "Accessor",
-                "usr": "c:objc(cs)SentryMechanismMeta(im)setMachException:",
+                "usr": "c:objc(cs)SentryMechanismContext(im)setMachException:",
                 "moduleName": "Sentry",
                 "isOpen": true,
                 "objc_name": "setMachException:",
@@ -13945,7 +13945,7 @@
               }
             ],
             "declKind": "Var",
-            "usr": "c:objc(cs)SentryMechanismMeta(py)error",
+            "usr": "c:objc(cs)SentryMechanismContext(py)error",
             "moduleName": "Sentry",
             "isOpen": true,
             "objc_name": "error",
@@ -13975,7 +13975,7 @@
                   }
                 ],
                 "declKind": "Accessor",
-                "usr": "c:objc(cs)SentryMechanismMeta(im)error",
+                "usr": "c:objc(cs)SentryMechanismContext(im)error",
                 "moduleName": "Sentry",
                 "isOpen": true,
                 "objc_name": "error",
@@ -14019,7 +14019,7 @@
                   }
                 ],
                 "declKind": "Accessor",
-                "usr": "c:objc(cs)SentryMechanismMeta(im)setError:",
+                "usr": "c:objc(cs)SentryMechanismContext(im)setError:",
                 "moduleName": "Sentry",
                 "isOpen": true,
                 "objc_name": "setError:",
@@ -14033,10 +14033,10 @@
           }
         ],
         "declKind": "Class",
-        "usr": "c:objc(cs)SentryMechanismMeta",
+        "usr": "c:objc(cs)SentryMechanismContext",
         "moduleName": "Sentry",
         "isOpen": true,
-        "objc_name": "SentryMechanismMeta",
+        "objc_name": "SentryMechanismContext",
         "declAttributes": [
           "ObjC",
           "Dynamic"

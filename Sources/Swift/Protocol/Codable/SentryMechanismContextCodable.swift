@@ -1,13 +1,13 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
-final class MechanismMetaDecodable: MechanismMeta {
+final class MechanismContextDecodable: MechanismContext {
     convenience public init(from decoder: any Decoder) throws {
         try self.init(decodedFrom: decoder)
     }
 }
 
-extension MechanismMetaDecodable: Decodable {
+extension MechanismContextDecodable: Decodable {
 
     enum CodingKeys: String, CodingKey {
         case signal
