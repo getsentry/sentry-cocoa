@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - main
+      - philprime/debug-flaky-ui-tests
 
   pull_request:
 
@@ -16,6 +17,25 @@ on:
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  FASTLANE_XCODEBUILD_SETTINGS_RETRIES: 5
+  FASTLANE_XCODEBUILD_SETTINGS_TIMEOUT: 60
+  FASTLANE_XCODEBUILD_LOG_LEVEL: "verbose"
+  # Enable maximum xcodebuild logging
+  XCBuildLogLevel: "Verbose"
+  # Enable xcbuild debug logging - generates build.trace files for incremental build debugging
+  EnableBuildDebugging: "YES"
+  # Enable additional xcbuild activity logs
+  EnableDebugActivityLogs: "YES"
+  # Enable verbose xcodebuild output
+  XCODE_XCCONFIG_FILE: ""
+  # Show all build settings
+  VERBOSE_SCRIPT_LOGGING: "YES"
+  # Fastlane scan/test verbose output
+  FASTLANE_VERBOSE: "true"
+  # Disable fastlane xcpretty to get raw xcodebuild output
+  FASTLANE_DISABLE_XCPRETTY: "true"
 
 jobs:
   files-changed:

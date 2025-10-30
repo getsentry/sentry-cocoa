@@ -90,6 +90,23 @@ jobs:
           XCODE_VERSION: ${{ inputs.xcode_version }}
         run: ./scripts/ci-select-xcode.sh "$XCODE_VERSION"
 
+      - name: Enable XCBuild Debug Logging
+        run: |
+          # Enable debug activity logs (minimal overhead, safe to leave on)
+          defaults write com.apple.dt.XCBuild EnableDebugActivityLogs -bool YES
+          # Enable build debugging mode (generates build.trace files in DerivedData)
+          defaults write com.apple.dt.XCBuild EnableBuildDebugging -bool YES
+          echo "✅ XCBuild debug logging enabled"
+          echo "Build trace files will be generated at: ~/Library/Developer/Xcode/DerivedData/*/Build/Intermediates.noindex/XCBuildData/buildDebugging-*/build.trace"
+
+          # Show current XCBuild settings
+          echo "📋 Current XCBuild Debug Settings:"
+          defaults read com.apple.dt.XCBuild 2>/dev/null || echo "No custom XCBuild defaults found"
+
+          # Show environment variables for debugging
+          echo "📋 Debugging-related environment variables:"
+          env | grep -E '(ENABLE|DEBUG|VERBOSE|XCODE|FASTLANE|LOG)' | sort || true
+
       - name: Install required platforms for Xcode 26
         if: ${{ inputs.install_platforms }}
         env:
@@ -114,6 +131,27 @@ jobs:
           DEVICE_NAME: ${{ inputs.device }}
           OS_VERSION: ${{ inputs.test-destination-os }}
         run: ./scripts/ci-boot-simulator.sh --xcode "$XCODE_VERSION" --device "$DEVICE_NAME" --os-version "$OS_VERSION"
+
+      - name: Show Simulator and Xcode Information
+        run: |
+          echo "📱 Available Simulators:"
+          xcrun simctl list devices available
+
+          echo ""
+          echo "📱 Booted Simulators:"
+          xcrun simctl list devices | grep Booted || echo "No booted simulators"
+
+          echo ""
+          echo "🔧 Xcode Version Information:"
+          xcodebuild -version
+
+          echo ""
+          echo "🔧 Available SDK Versions:"
+          xcodebuild -showsdks
+
+          echo ""
+          echo "🔧 Xcode Path:"
+          xcode-select -p
 
       - run: make init-ci-build
         if: ${{ inputs.build_with_make }}
@@ -157,6 +195,25 @@ jobs:
           fail_on_parse_error: true
           detailed_summary: true
 
+      - name: List DerivedData and Build Artifacts
+        if: always()
+        continue-on-error: true
+        run: |
+          echo "📁 DerivedData Directory Structure:"
+          ls -lah ~/Library/Developer/Xcode/DerivedData/ || echo "DerivedData not found"
+
+          echo ""
+          echo "🔍 Looking for XCBuildData directories:"
+          find ~/Library/Developer/Xcode/DerivedData -type d -name "XCBuildData" -print || echo "No XCBuildData directories found"
+
+          echo ""
+          echo "🔍 Looking for build.trace files:"
+          find ~/Library/Developer/Xcode/DerivedData -name "build.trace" -type f -ls || echo "No build.trace files found"
+
+          echo ""
+          echo "📁 Fastlane test_output directory:"
+          ls -lah ./fastlane/test_output/ 2>/dev/null || echo "No test_output directory found"
+
       - name: Codecov test analytics
         if: ${{ !cancelled() && inputs.codecov_test_analytics }}
         uses: codecov/test-results-action@47f89e9acb64b76debcd5ea40642d25a4adced9f # pin@v1.1.1
@@ -190,6 +247,154 @@ jobs:
           path: |
             ~/Library/Logs/scan/*.log
             ./fastlane/test_output/**
+
+      - name: Collect XCBuild Debug Traces
+        if: ${{ failure() || cancelled() }}
+        continue-on-error: true
+        run: |
+          echo "🔍 Searching for build.trace files..."
+          find ~/Library/Developer/Xcode/DerivedData -name "build.trace" -type f -print
+
+          # Create a directory to collect all traces
+          mkdir -p xcbuild-traces
+
+          # Copy all build.trace files to the collection directory
+          find ~/Library/Developer/Xcode/DerivedData -name "build.trace" -type f -exec cp {} xcbuild-traces/ \; || true
+
+          # Rename them with timestamps to avoid conflicts
+          cd xcbuild-traces
+          for file in build.trace*; do
+            if [ -f "$file" ]; then
+              timestamp=$(stat -f %Sm -t "%Y%m%d_%H%M%S" "$file")
+              mv "$file" "build_trace_${timestamp}.txt"
+            fi
+          done
+
+          ls -lh
+          echo "✅ Collected $(ls -1 | wc -l) build trace files"
+
+      - name: Upload XCBuild Debug Traces
+        uses: actions/upload-artifact@v5
+        if: ${{ failure() || cancelled() }}
+        with:
+          name: ${{ inputs.fastlane_command }}${{ inputs.files_suffix }}_xcbuild_traces
+          path: xcbuild-traces/
+
+      - name: Collect Xcode Activity Logs
+        if: ${{ failure() || cancelled() }}
+        continue-on-error: true
+        run: |
+          echo "🔍 Searching for xcactivitylog files..."
+          find ~/Library/Developer/Xcode/DerivedData -name "*.xcactivitylog" -type f -print
+
+          # Create a directory to collect all activity logs
+          mkdir -p xcode-activity-logs
+
+          # Copy all xcactivitylog files
+          find ~/Library/Developer/Xcode/DerivedData -name "*.xcactivitylog" -type f -exec cp {} xcode-activity-logs/ \; || true
+
+          # Also look for scheme-specific logs
+          find ~/Library/Developer/Xcode/DerivedData -path "*/Logs/Build/*.xcactivitylog" -type f -exec cp {} xcode-activity-logs/ \; || true
+
+          echo "✅ Collected $(ls -1 xcode-activity-logs 2>/dev/null | wc -l) activity log files"
+          ls -lh xcode-activity-logs/ 2>/dev/null || echo "No activity logs collected"
+
+      - name: Upload Xcode Activity Logs
+        uses: actions/upload-artifact@v5
+        if: ${{ failure() || cancelled() }}
+        with:
+          name: ${{ inputs.fastlane_command }}${{ inputs.files_suffix }}_xcode_activity_logs
+          path: xcode-activity-logs/
+
+      - name: Collect Full Xcode Build Logs
+        if: ${{ failure() || cancelled() }}
+        continue-on-error: true
+        run: |
+          echo "🔍 Collecting comprehensive build logs from DerivedData..."
+
+          # Create directory for logs
+          mkdir -p comprehensive-build-logs
+
+          # Find the most recent DerivedData folder for this project
+          DERIVED_DATA_PROJECT=$(find ~/Library/Developer/Xcode/DerivedData -maxdepth 1 -type d -name "Sentry-*" | head -1)
+
+          if [ -n "$DERIVED_DATA_PROJECT" ]; then
+            echo "Found DerivedData project at: $DERIVED_DATA_PROJECT"
+
+            # Copy all logs directory
+            if [ -d "$DERIVED_DATA_PROJECT/Logs" ]; then
+              cp -R "$DERIVED_DATA_PROJECT/Logs" comprehensive-build-logs/ || true
+              echo "✅ Copied Logs directory"
+            fi
+
+            # Copy build settings
+            if [ -d "$DERIVED_DATA_PROJECT/Build/Intermediates.noindex" ]; then
+              find "$DERIVED_DATA_PROJECT/Build/Intermediates.noindex" -name "*.hmap" -o -name "all-product-headers.yaml" | head -20 | xargs -I {} cp {} comprehensive-build-logs/ || true
+              echo "✅ Copied build intermediates"
+            fi
+
+            # Get directory structure
+            tree -L 4 "$DERIVED_DATA_PROJECT" > comprehensive-build-logs/derived-data-structure.txt 2>&1 || \
+            find "$DERIVED_DATA_PROJECT" -maxdepth 4 -type d | sed 's|[^/]*/| |g' > comprehensive-build-logs/derived-data-structure.txt
+
+            echo "✅ Collected comprehensive build logs"
+          else
+            echo "⚠️  Could not find DerivedData project directory"
+          fi
+
+          ls -lah comprehensive-build-logs/ 2>/dev/null || echo "No comprehensive logs collected"
+
+      - name: Upload Comprehensive Build Logs
+        uses: actions/upload-artifact@v5
+        if: ${{ failure() || cancelled() }}
+        with:
+          name: ${{ inputs.fastlane_command }}${{ inputs.files_suffix }}_comprehensive_build_logs
+          path: comprehensive-build-logs/
+
+      - name: Collect Simulator System Logs
+        if: ${{ failure() || cancelled() }}
+        continue-on-error: true
+        run: |
+          echo "📱 Collecting simulator system logs..."
+
+          # Get all booted simulators
+          BOOTED_SIMULATORS=$(xcrun simctl list devices | grep "Booted" | grep -oE "[0-9A-F-]{36}" || true)
+
+          if [ -z "$BOOTED_SIMULATORS" ]; then
+            echo "⚠️  No booted simulators found"
+          else
+            mkdir -p simulator-logs
+
+            for UDID in $BOOTED_SIMULATORS; do
+              echo "Collecting logs for simulator: $UDID"
+
+              # Get simulator info
+              xcrun simctl list devices | grep "$UDID" > "simulator-logs/simulator-${UDID}-info.txt" || true
+
+              # Collect system log archive (most comprehensive)
+              echo "Collecting log archive..."
+              xcrun simctl spawn "$UDID" log collect --output "simulator-logs/system-log-${UDID}.logarchive" 2>&1 || true
+
+              # Also get a text export of recent logs
+              echo "Exporting recent logs as text..."
+              xcrun simctl spawn "$UDID" log show --last 30m --info --debug > "simulator-logs/recent-logs-${UDID}.txt" 2>&1 || true
+
+              # Get sysdiagnose if available
+              echo "Attempting to collect sysdiagnose..."
+              xcrun simctl diagnose --data-path "simulator-logs/sysdiagnose-${UDID}" "$UDID" 2>&1 || true
+
+            done
+
+            echo "✅ Simulator logs collected"
+            ls -lh simulator-logs/ 2>/dev/null
+          fi
+
+      - name: Upload Simulator System Logs
+        uses: actions/upload-artifact@v5
+        if: ${{ failure() || cancelled() }}
+        with:
+          name: ${{ inputs.fastlane_command }}${{ inputs.files_suffix }}_simulator_logs
+          path: simulator-logs/
 
       - name: Store screenshot
         uses: ./.github/actions/capture-screenshot

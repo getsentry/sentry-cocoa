@@ -15,6 +15,11 @@ platform :ios do
     result_bundle_path = "test_results/#{result_bundle_name}.xcresult"
     FileUtils.rm_r(result_bundle_path) if File.exist?(result_bundle_path)
     
+    # Build xcargs with debug flags
+    xcargs = []
+    xcargs << "-verbose" if ENV['FASTLANE_VERBOSE'] == 'true'
+    xcargs << "-showBuildSettings" if ENV['VERBOSE_SCRIPT_LOGGING'] == 'YES'
+    
     run_tests(
       workspace: "Sentry.xcworkspace",
       scheme: scheme,
@@ -24,7 +29,11 @@ platform :ios do
       result_bundle_path: "fastlane/#{result_bundle_path}",
       device: device,
       address_sanitizer: address_sanitizer,
-      ensure_devices_found: true
+      ensure_devices_found: true,
+      xcargs: xcargs.join(" "),
+      # Enable verbose test output
+      output_style: ENV['FASTLANE_DISABLE_XCPRETTY'] == 'true' ? 'raw' : nil,
+      buildlog_path: "./fastlane/test_output"
     )
   end
 
