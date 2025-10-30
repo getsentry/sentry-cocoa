@@ -354,6 +354,7 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
 
         let options = Options.noIntegrations()
         options.sessionReplay = .init(sessionSampleRate: 1.0)
+        options.experimental.enableSessionReplayInUnreliableEnvironment = true
         SentrySDKInternal.start(options: options)
 
         var didCallCaptureReplay = false
@@ -371,7 +372,7 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
             didCallCaptureReplay = true
         }
         let newIMP = imp_implementationWithBlock(block)
-        method_setImplementation(originalMethod, newIMP)
+        method_setImplementation(originalMethod, newIMP)      
 
         PrivateSentrySDKOnly.captureReplay()
 
@@ -414,6 +415,7 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         SentrySDKInternal.start {
             $0.removeAllIntegrations()
             $0.sessionReplay = SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1)
+            $0.experimental.enableSessionReplayInUnreliableEnvironment = true
         }
 
         PrivateSentrySDKOnly.setIgnoreContainerClass(IgnoreContainer.self)
@@ -430,6 +432,7 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         SentrySDKInternal.start {
             $0.removeAllIntegrations()
             $0.sessionReplay = SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1)
+            $0.experimental.enableSessionReplayInUnreliableEnvironment = true
         }
 
         PrivateSentrySDKOnly.setRedactContainerClass(RedactContainer.self)
