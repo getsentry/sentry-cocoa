@@ -13396,12 +13396,12 @@
               {
                 "kind": "TypeNominal",
                 "name": "Optional",
-                "printedName": "Sentry.MechanismMeta?",
+                "printedName": "Sentry.MechanismContext?",
                 "children": [
                   {
                     "kind": "TypeNominal",
-                    "name": "MechanismMeta",
-                    "printedName": "Sentry.MechanismMeta",
+                    "name": "MechanismContext",
+                    "printedName": "Sentry.MechanismContext",
                     "usr": "c:objc(cs)SentryMechanismContext"
                   }
                 ],
@@ -13426,12 +13426,12 @@
                   {
                     "kind": "TypeNominal",
                     "name": "Optional",
-                    "printedName": "Sentry.MechanismMeta?",
+                    "printedName": "Sentry.MechanismContext?",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "MechanismMeta",
-                        "printedName": "Sentry.MechanismMeta",
+                        "name": "MechanismContext",
+                        "printedName": "Sentry.MechanismContext",
                         "usr": "c:objc(cs)SentryMechanismContext"
                       }
                     ],
@@ -13470,12 +13470,12 @@
                   {
                     "kind": "TypeNominal",
                     "name": "Optional",
-                    "printedName": "Sentry.MechanismMeta?",
+                    "printedName": "Sentry.MechanismContext?",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "MechanismMeta",
-                        "printedName": "Sentry.MechanismMeta",
+                        "name": "MechanismContext",
+                        "printedName": "Sentry.MechanismContext",
                         "usr": "c:objc(cs)SentryMechanismContext"
                       }
                     ],
@@ -13604,8 +13604,8 @@
       },
       {
         "kind": "TypeDecl",
-        "name": "MechanismMeta",
-        "printedName": "MechanismMeta",
+        "name": "MechanismContext",
+        "printedName": "MechanismContext",
         "children": [
           {
             "kind": "Constructor",
@@ -13614,8 +13614,8 @@
             "children": [
               {
                 "kind": "TypeNominal",
-                "name": "MechanismMeta",
-                "printedName": "Sentry.MechanismMeta",
+                "name": "MechanismContext",
+                "printedName": "Sentry.MechanismContext",
                 "usr": "c:objc(cs)SentryMechanismContext"
               }
             ],
