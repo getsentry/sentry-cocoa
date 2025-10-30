@@ -54,24 +54,6 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
         XCTAssertEqual(result, [])
     }
 
-    @available(*, deprecated, message: "The test is marked as deprecated to silence the deprecation warning of the tested property.")
-    func testEnableExperimentalViewRenderer_isEnabled_shouldAddFeature() throws {
-#if os(iOS)
-        // -- Arrange --
-        let options = Options()
-
-        options.sessionReplay.enableExperimentalViewRenderer = true
-
-        // -- Act --
-        let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
-
-        // -- Assert --
-        XCTAssert(features.contains("experimentalViewRenderer"))
-#else
-        throw XCTSkip("Test not supported on this platform")
-#endif
-    }
-
     func testEnableViewRendererV2_isEnabled_shouldAddFeature() throws {
 #if os(iOS)
         // -- Arrange --
