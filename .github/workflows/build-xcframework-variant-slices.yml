@@ -67,9 +67,9 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      # We use Xcode 16.4 for building XCFrameworks as it's stable and matches other workflows.
-      # Xcode 26.x introduces breaking changes with Swift toolchain libraries that cause linker errors in CI.
-      - run: ./scripts/ci-select-xcode.sh 16.4
+      # We use Xcode 16.2 for building XCFrameworks as it's the latest version available on macos-14 runners.
+      # Xcode 16.4 is not yet available on macos-14, and Xcode 26.x introduces breaking changes.
+      - run: ./scripts/ci-select-xcode.sh 16.2
         shell: bash
 
       - name: Get version
@@ -106,7 +106,7 @@ jobs:
         env:
           VERSION: ${{ env.VERSION }}
         run: |
-          ./scripts/ci-select-xcode.sh 16.4
+          ./scripts/ci-select-xcode.sh 16.2
           make bump-version TO=$VERSION
 
       - name: Build ${{inputs.name}}${{inputs.suffix}} XCFramework slice for ${{matrix.sdk}}

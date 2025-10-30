@@ -119,7 +119,7 @@ jobs:
         with:
           pattern: xcframework-${{github.sha}}-sentry-swiftui
           path: Carthage/
-      - run: ./scripts/ci-select-xcode.sh 16.4
+      - run: ./scripts/ci-select-xcode.sh 16.2
       - run: make build-xcframework-sample
       - name: Run CI Diagnostics
         if: failure()
