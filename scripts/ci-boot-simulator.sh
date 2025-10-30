@@ -55,6 +55,11 @@ case "$XCODE_VERSION" in
         IOS_VERSION="18.4"
         log_notice "Selected: $SIMULATOR with iOS $IOS_VERSION for Xcode $XCODE_VERSION"
         ;;
+    "26.1")
+        SIMULATOR="iPhone 16 Pro"
+        IOS_VERSION="26.1"
+        log_notice "Selected: $SIMULATOR with iOS $IOS_VERSION for Xcode $XCODE_VERSION"
+        ;;
     *)
         SIMULATOR="iPhone 16 Pro" # Default fallback
         IOS_VERSION="18.4"
