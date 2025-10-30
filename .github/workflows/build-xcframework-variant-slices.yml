@@ -58,7 +58,7 @@ jobs:
 
     # We must compile this on an arm64 runner, cause it's required for visionOS. macos-14 uses arm64.
     # To see the available runners see https://docs.github.com/en/actions/using-github-hosted-runners/using-github-hosted-runners/about-github-hosted-runners#standard-github-hosted-runners-for-public-repositories.
-    runs-on: macos-14
+    runs-on: macos-26
 
     strategy:
       matrix:
@@ -67,12 +67,9 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      # We have to compile on Xcode 15.2 because compiling on Xcode 15.4 fails with
-      # Data+SentryTracing.swift:21:62: error: 'ReadingOptions' aliases 'Foundation.ReadingOptions'
-      # and cannot be used here because C++ types from imported module 'Foundation' do not support
-      # library evolution; this is an error in the Swift 6 language mode
-      # We also can't use Xcode 16.x because validating the XCFramework then fails with Xcode 15.x.
-      - run: ./scripts/ci-select-xcode.sh 15.2
+      # We use Xcode 26.0.1 for building XCFrameworks to ensure compatibility with the latest toolchain
+      # and to match the validation step in the release workflow.
+      - run: ./scripts/ci-select-xcode.sh 26.0.1
         shell: bash
 
       - name: Get version
@@ -109,7 +106,7 @@ jobs:
         env:
           VERSION: ${{ env.VERSION }}
         run: |
-          ./scripts/ci-select-xcode.sh 15.2
+          ./scripts/ci-select-xcode.sh 26.0.1
           make bump-version TO=$VERSION
 
       - name: Build ${{inputs.name}}${{inputs.suffix}} XCFramework slice for ${{matrix.sdk}}
