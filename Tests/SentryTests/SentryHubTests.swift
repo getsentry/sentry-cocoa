@@ -1514,6 +1514,72 @@ class SentryHubTests: XCTestCase {
         
         XCTAssertEqual(expected, span.sampled)
     }
+    
+#if canImport(UIKit) && !SENTRY_NO_UIKIT
+#if os(iOS) || os(tvOS)
+    func testGetSessionReplayId_ReturnsNilWhenIntegrationNotInstalled() {
+        let result = sut.getSessionReplayId()
+        XCTAssertNil(result)
+    }
+    
+    func testGetSessionReplayId_ReturnsNilWhenSessionReplayIsNil() {
+        let integration = SentrySessionReplayIntegration()
+        sut.addInstalledIntegration(integration, name: "SentrySessionReplayIntegration")
+        
+        let result = sut.getSessionReplayId()
+        
+        XCTAssertNil(result)
+    }
+    
+    func testGetSessionReplayId_ReturnsNilWhenSessionReplayIdIsNil() {
+        let integration = SentrySessionReplayIntegration()
+        let mockSessionReplay = createMockSessionReplay()
+        Dynamic(integration).sessionReplay = mockSessionReplay
+        sut.addInstalledIntegration(integration, name: "SentrySessionReplayIntegration")
+        
+        let result = sut.getSessionReplayId()
+        
+        XCTAssertNil(result)
+    }
+    
+    func testGetSessionReplayId_ReturnsIdStringWhenSessionReplayIdExists() {
+        let integration = SentrySessionReplayIntegration()
+        let mockSessionReplay = createMockSessionReplay()
+        let rootView = UIView()
+        mockSessionReplay.start(rootView: rootView, fullSession: true)
+        
+        Dynamic(integration).sessionReplay = mockSessionReplay
+        sut.addInstalledIntegration(integration, name: "SentrySessionReplayIntegration")
+        
+        let result = sut.getSessionReplayId()
+        
+        XCTAssertNotNil(result)
+        XCTAssertEqual(result, mockSessionReplay.sessionReplayId?.sentryIdString)
+    }
+    
+    private func createMockSessionReplay() -> MockSentrySessionReplay {
+        return MockSentrySessionReplay()
+    }
+    
+    private class MockSentrySessionReplay: SentrySessionReplay {
+        init() {
+            super.init(
+                replayOptions: SentryReplayOptions(sessionSampleRate: 0, onErrorSampleRate: 0),
+                experimentalOptions: SentryExperimentalOptions(),
+                replayFolderPath: FileManager.default.temporaryDirectory,
+                screenshotProvider: MockScreenshotProvider(),
+                replayMaker: MockReplayMaker(),
+                breadcrumbConverter: SentrySRDefaultBreadcrumbConverter(),
+                touchTracker: nil,
+                dateProvider: TestCurrentDateProvider(),
+                delegate: MockReplayDelegate(),
+                displayLinkWrapper: TestDisplayLinkWrapper(),
+                environmentChecker: TestSessionReplayEnvironmentChecker(mockedIsReliableReturnValue: true)
+            )
+        }
+    }
+#endif
+#endif
 }
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
@@ -1527,6 +1593,30 @@ class TestTimeToDisplayTracker: SentryTimeToDisplayTracker {
     override func reportFullyDisplayed() {
         registerFullDisplayCalled = true
     }
-    
 }
+#endif
+
+#if canImport(UIKit) && !SENTRY_NO_UIKIT
+#if os(iOS) || os(tvOS)
+private class MockScreenshotProvider: NSObject, SentryViewScreenshotProvider {
+    func image(view: UIView, onComplete: @escaping Sentry.ScreenshotCallback) {
+        onComplete(UIImage())
+    }
+}
+
+private class MockReplayDelegate: NSObject, SentrySessionReplayDelegate {
+    func sessionReplayShouldCaptureReplayForError() -> Bool { return true }
+    func sessionReplayNewSegment(replayEvent: SentryReplayEvent, replayRecording: SentryReplayRecording, videoUrl: URL) {}
+    func sessionReplayStarted(replayId: SentryId) {}
+    func breadcrumbsForSessionReplay() -> [Breadcrumb] { return [] }
+    func currentScreenNameForSessionReplay() -> String? { return nil }
+}
+
+private class MockReplayMaker: NSObject, SentryReplayVideoMaker {
+    func createVideoInBackgroundWith(beginning: Date, end: Date, completion: @escaping ([Sentry.SentryVideoInfo]) -> Void) {}
+    func createVideoWith(beginning: Date, end: Date) -> [Sentry.SentryVideoInfo] { return [] }
+    func addFrameAsync(timestamp: Date, maskedViewImage: UIImage, forScreen: String?) {}
+    func releaseFramesUntil(_ date: Date) {}
+}
+#endif
 #endif
