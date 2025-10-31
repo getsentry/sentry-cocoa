@@ -66,12 +66,18 @@ on:
         required: false
         default: false
         type: boolean
+      should_skip:
+        description: "Whether to skip the job"
+        required: false
+        default: false
+        type: boolean
     secrets:
       CODECOV_TOKEN:
         required: true
 
 jobs:
   common-ui-tests:
+    if: ${{ !inputs.should_skip }}
     name: UI Tests Common
     runs-on: ${{ inputs.run_on_cirrus_labs && fromJSON(format('["ghcr.io/cirruslabs/macos-runner:{0}", "runner_group_id:10"]', inputs.macos_version)) || inputs.macos_version }}
     timeout-minutes: 40
