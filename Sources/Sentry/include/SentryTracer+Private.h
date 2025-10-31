@@ -2,7 +2,7 @@
 
 @interface SentryTracer ()
 
-@property (nonatomic, strong) SentryHub *hub;
+@property (nonatomic, strong) SentryHubInternal *hub;
 
 /**
  * We need an immutable identifier to e.g. track concurrent tracers against a static profiler where

@@ -19,6 +19,10 @@
         internalHelper.getCurrentThreadsWithStackTrace()
     }
     
+    @objc public func getCurrentThreads() -> [SentryThread] {
+        internalHelper.getCurrentThreads()
+    }
+    
     @objc public func getThreadName(_ thread: UInt) -> String? {
         internalHelper.getThreadName(thread)
     }

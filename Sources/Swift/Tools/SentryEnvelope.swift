@@ -31,8 +31,7 @@
 
     convenience init(event: Event) {
         let item = SentryEnvelopeItem(event: event)
-        let headerId = SentryEnvelopeHeaderHelper.headerId(from: event)
-        self.init(header: SentryEnvelopeHeader(id: headerId.sentryId), singleItem: item)
+        self.init(header: SentryEnvelopeHeader(id: event.eventId), singleItem: item)
     }
     
     @objc public let header: SentryEnvelopeHeader

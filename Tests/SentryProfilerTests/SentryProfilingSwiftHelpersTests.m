@@ -1,6 +1,7 @@
 @import XCTest;
 @import Sentry;
 @import SentryTestUtilsDynamic;
+#import "SentryClient.h"
 #import "SentryOptions+Private.h"
 #import "SentryProfilingSwiftHelpers.h"
 
@@ -16,7 +17,7 @@
     SentryOptions *options = [[SentryOptions alloc] init];
     options.dsn = @"https://username:password@app.getsentry.com/12345";
     options.profiling = [[SentryProfileOptions alloc] init];
-    SentryClient *client = [[SentryClient alloc] initWithOptions:options];
+    SentryClientInternal *client = [[SentryClientInternal alloc] initWithOptions:options];
     XCTAssertEqual(
         [client.options isContinuousProfilingEnabled], sentry_isContinuousProfilingEnabled(client));
 }
@@ -27,7 +28,7 @@
     options.dsn = @"https://username:password@app.getsentry.com/12345";
     options.profiling = [[SentryProfileOptions alloc] init];
     options.profiling.lifecycle = SentryProfileLifecycleTrace;
-    SentryClient *client = [[SentryClient alloc] initWithOptions:options];
+    SentryClientInternal *client = [[SentryClientInternal alloc] initWithOptions:options];
     XCTAssertEqual([client.options isProfilingCorrelatedToTraces],
         sentry_isProfilingCorrelatedToTraces(client));
 }
@@ -37,7 +38,7 @@
     SentryOptions *options = [[SentryOptions alloc] init];
     options.dsn = @"https://username:password@app.getsentry.com/12345";
     options.profiling = [[SentryProfileOptions alloc] init];
-    SentryClient *client = [[SentryClient alloc] initWithOptions:options];
+    SentryClientInternal *client = [[SentryClientInternal alloc] initWithOptions:options];
     XCTAssertEqual(client.options.profiling, sentry_getProfiling(client));
 }
 
@@ -46,7 +47,7 @@
     SentryOptions *options = [[SentryOptions alloc] init];
     options.dsn = @"https://username:password@app.getsentry.com/12345";
     options.profiling = nil;
-    SentryClient *client = [[SentryClient alloc] initWithOptions:options];
+    SentryClientInternal *client = [[SentryClientInternal alloc] initWithOptions:options];
     XCTAssertNil(sentry_getProfiling(client));
 }
 

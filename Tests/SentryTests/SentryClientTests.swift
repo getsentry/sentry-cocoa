@@ -83,16 +83,16 @@ class SentryClientTests: XCTestCase {
             SentryDependencyContainer.sharedInstance().extraContextProvider = extraContentProvider
         }
 
-        func getSut(configureOptions: (Options) -> Void = { _ in }) -> SentryClient {
-            var client: SentryClient!
+        func getSut(configureOptions: (Options) -> Void = { _ in }) -> SentryClientInternal {
+            var client: SentryClientInternal!
             do {
-                let options = try SentryOptionsInternal.initWithDict([
+                let options = try SentryOptionsHelpers.initWithDict([
                     "dsn": SentryClientTests.dsn
                 ])
                 options.removeAllIntegrations()
                 configureOptions(options)
 
-                client = SentryClient(
+                client = SentryClientInternal(
                     options: options,
                     transportAdapter: transportAdapter,
                     fileManager: fileManager,
@@ -110,13 +110,13 @@ class SentryClientTests: XCTestCase {
             return client
         }
 
-        func getSutWithNoDsn() -> SentryClient {
+        func getSutWithNoDsn() -> SentryClientInternal {
             getSut(configureOptions: { options in
                 options.parsedDsn = nil
             })
         }
         
-        func getSutDisabledSdk() -> SentryClient {
+        func getSutDisabledSdk() -> SentryClientInternal {
             getSut(configureOptions: { options in
                 options.enabled = false
             })
@@ -161,7 +161,7 @@ class SentryClientTests: XCTestCase {
     }
     
     func testInit_CallsDeleteOldEnvelopeItemsInvocations() throws {
-        _ = SentryClient(options: Options(), fileManager: fixture.fileManager, deleteOldEnvelopeItems: true)
+        _ = SentryClientInternal(options: Options(), fileManager: fixture.fileManager, deleteOldEnvelopeItems: true)
 
         XCTAssertEqual(1, fixture.fileManager.deleteOldEnvelopeItemsInvocations.count)
     }
@@ -385,7 +385,7 @@ class SentryClientTests: XCTestCase {
         SentryDependencyContainer.sharedInstance().applicationOverride = TestSentryUIApplication()
         let scope = fixture.scope
         scope.currentScreen = "TransactionScreen"
-        let hub = SentryHub(client: SentryClient(options: Options()), andScope: scope)
+        let hub = SentryHubInternal(client: SentryClientInternal(options: Options()), andScope: scope)
         
         let tracer = SentryTracer(transactionContext: TransactionContext(operation: "Operation"), hub: hub)
         
@@ -437,7 +437,7 @@ class SentryClientTests: XCTestCase {
             return result
         }
         
-        sut.add(processor)
+        sut.addAttachmentProcessor(processor)
         sut.capture(event: event)
         
         let sentAttachments = fixture.transportAdapter.sendEventWithTraceStateInvocations.first?.attachments ?? []
@@ -458,7 +458,7 @@ class SentryClientTests: XCTestCase {
             return result
         }
 
-        sut.add(processor)
+        sut.addAttachmentProcessor(processor)
         sut.captureError(error, with: Scope()) {
             self.fixture.session
         }
@@ -480,7 +480,7 @@ class SentryClientTests: XCTestCase {
             return result
         }
         
-        sut.add(processor)
+        sut.addAttachmentProcessor(processor)
         sut.captureError(error, with: Scope()) {
             return SentrySession(releaseName: "", distinctId: "some-id")
         }
@@ -511,8 +511,8 @@ class SentryClientTests: XCTestCase {
         }
 
         // Order matters; second sees the output of the first.
-        sut.add(p1)
-        sut.add(p2)
+        sut.addAttachmentProcessor(p1)
+        sut.addAttachmentProcessor(p2)
 
         // -- Act --
         sut.capture(event: event)
@@ -547,8 +547,8 @@ class SentryClientTests: XCTestCase {
             return out
         }
 
-        sut.add(remover)
-        sut.add(adder)
+        sut.addAttachmentProcessor(remover)
+        sut.addAttachmentProcessor(adder)
 
         // -- Act --
         sut.capture(event: event, scope: scope)
@@ -1751,7 +1751,7 @@ class SentryClientTests: XCTestCase {
 
         let options = Options()
         options.dsn = SentryClientTests.dsn
-        let client = SentryClient(
+        let client = SentryClientInternal(
             options: options,
             dateProvider: fixture.dateProvider,
             dispatchQueue: fixture.dispatchQueue,
@@ -1983,7 +1983,7 @@ class SentryClientTests: XCTestCase {
     func testConcurrentlyAddingInstalledIntegrations_WhileSendingEvents() {
         let sut = fixture.getSut()
         
-        let hub = SentryHub(client: sut, andScope: nil)
+        let hub = SentryHubInternal(client: sut, andScope: nil)
         SentrySDKInternal.setCurrentHub(hub)
         
         func addIntegrations(amount: Int) {
@@ -2259,7 +2259,7 @@ private extension SentryClientTests {
         #endif
     }
     
-    private func beforeSendReturnsNil(capture: (SentryClient) -> Void) {
+    private func beforeSendReturnsNil(capture: (SentryClientInternal) -> Void) {
         capture(fixture.getSut(configureOptions: { options in
             options.beforeSend = { _ in
                 nil

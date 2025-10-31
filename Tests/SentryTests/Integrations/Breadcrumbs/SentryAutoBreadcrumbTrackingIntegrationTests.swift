@@ -85,7 +85,7 @@ class SentryAutoBreadcrumbTrackingIntegrationTests: XCTestCase {
         try self.install(sut: sut, options: options)
         
         let scope = Scope()
-        let hub = SentryHub(client: TestClient(options: Options()), andScope: scope)
+        let hub = SentryHubInternal(client: TestClient(options: Options()), andScope: scope)
         SentrySDKInternal.setCurrentHub(hub)
         
         let crumb = TestData.crumb

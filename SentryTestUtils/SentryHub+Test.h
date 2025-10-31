@@ -3,13 +3,14 @@
 @class SentryClient;
 @class SentryCrashWrapper;
 @class SentryDispatchQueueWrapper;
+@class SentryClientInternal;
 @protocol SentryIntegrationProtocol;
 NS_ASSUME_NONNULL_BEGIN
 
 /** Expose the internal test init for testing. */
-@interface SentryHub ()
+@interface SentryHubInternal ()
 
-- (instancetype)initWithClient:(SentryClient *_Nullable)client
+- (instancetype)initWithClient:(SentryClientInternal *_Nullable)client
                       andScope:(SentryScope *_Nullable)scope
                andCrashWrapper:(SentryCrashWrapper *)crashAdapter
               andDispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue;

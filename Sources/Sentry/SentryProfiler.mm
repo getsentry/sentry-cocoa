@@ -102,7 +102,7 @@ sentry_configureContinuousProfiling(SentryOptions *options)
 }
 
 void
-sentry_sdkInitProfilerTasks(SentryOptions *options, SentryHub *hub)
+sentry_sdkInitProfilerTasks(SentryOptions *options, SentryHubInternal *hub)
 {
     // get the configuration options from the last time the launch config was written; it may be
     // different than the new options the SDK was just started with

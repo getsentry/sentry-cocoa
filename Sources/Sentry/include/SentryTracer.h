@@ -5,7 +5,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @class SentryDispatchQueueWrapper;
-@class SentryHub;
+@class SentryHubInternal;
 @class SentryMeasurementValue;
 @class SentryTraceContext;
 @class SentryTraceHeader;
@@ -60,7 +60,7 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_MAX_DURATION = 500.0;
  * @param hub A hub to bind this transaction
  */
 - (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext
-                                       hub:(nullable SentryHub *)hub;
+                                       hub:(nullable SentryHubInternal *)hub;
 
 /**
  * Init a SentryTracer with given transaction context and hub and set other fields by default
@@ -72,7 +72,7 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_MAX_DURATION = 500.0;
  * @return SentryTracer
  */
 - (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext
-                                       hub:(nullable SentryHub *)hub
+                                       hub:(nullable SentryHubInternal *)hub
                              configuration:(SentryTracerConfiguration *)configuration;
 
 - (id<SentrySpan>)startChildWithParentId:(SentrySpanId *)parentId

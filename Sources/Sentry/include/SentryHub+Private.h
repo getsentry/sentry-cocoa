@@ -23,7 +23,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-@interface SentryHub ()
+@interface SentryHubInternal ()
 
 @property (nullable, nonatomic, strong) SentrySession *session;
 
@@ -38,7 +38,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)addInstalledIntegration:(id<SentryIntegrationProtocol>)integration name:(NSString *)name;
 - (void)removeAllIntegrations;
 
-- (SentryClient *_Nullable)client;
+- (SentryClientInternal *_Nullable)client;
 
 - (void)captureFatalEvent:(SentryEvent *)event;
 

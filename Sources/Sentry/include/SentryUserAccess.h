@@ -3,7 +3,6 @@
 
 #import <Foundation/Foundation.h>
 
-@class SentryClient;
 @class SentryUser;
 
 NS_ASSUME_NONNULL_BEGIN

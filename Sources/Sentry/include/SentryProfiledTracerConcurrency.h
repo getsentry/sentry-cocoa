@@ -8,7 +8,7 @@
 
 @class SentryEnvelope;
 @class SentryEnvelopeItem;
-@class SentryHub;
+@class SentryHubInternal;
 @class SentryTransaction;
 @class SentryDispatchQueueWrapper;
 @class SentryTracerConfiguration;
@@ -30,15 +30,15 @@ SENTRY_EXTERN_C_BEGIN
  * different from the profiler's internal ID.
  */
 SentryId *_Nullable sentry_startProfilerForTrace(SentryTracerConfiguration *configuration,
-    SentryHub *_Nullable hub, SentryTransactionContext *transactionContext);
+    SentryHubInternal *_Nullable hub, SentryTransactionContext *transactionContext);
 
 /**
  * @note Only called for transaction-based profiling or continuous profiling V2 with trace lifecycle
  * option configured.
  */
-SENTRY_EXTERN void sentry_stopProfilerDueToFinishedTransaction(
-    SentryHub *hub, SentryDispatchQueueWrapper *dispatchQueue, SentryTransaction *transaction,
-    BOOL isProfiling, NSDate *_Nullable traceStartTimestamp, uint64_t startSystemTime
+SENTRY_EXTERN void sentry_stopProfilerDueToFinishedTransaction(SentryHubInternal *hub,
+    SentryDispatchQueueWrapper *dispatchQueue, SentryTransaction *transaction, BOOL isProfiling,
+    NSDate *_Nullable traceStartTimestamp, uint64_t startSystemTime
 #    if SENTRY_HAS_UIKIT
     ,
     SentryAppStartMeasurement *appStartMeasurement
@@ -55,7 +55,7 @@ void sentry_trackTransactionProfilerForTrace(SentryProfiler *profiler, SentryId 
  * For transactions that will be discarded, clean up the bookkeeping state associated with them to
  * reclaim the memory they're using.
  */
-void sentry_discardProfilerCorrelatedToTrace(SentryId *internalTraceId, SentryHub *hub);
+void sentry_discardProfilerCorrelatedToTrace(SentryId *internalTraceId, SentryHubInternal *hub);
 
 /**
  * Return the profiler instance associated with the tracer. If it was the last tracer for the

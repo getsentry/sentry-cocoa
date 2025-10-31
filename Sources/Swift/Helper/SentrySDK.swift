@@ -35,7 +35,7 @@ import Foundation
             if let _logger, _loggerConfigured {
                 return _logger
             }
-            let hub = SentryDependencyContainerSwiftHelper.currentHub()
+            let hub = SentrySDKInternal.currentHub()
             var batcher: SentryLogBatcher?
             if let client = hub.getClient(), client.options.enableLogs {
                 batcher = SentryLogBatcher(client: client, dispatchQueue: Dependencies.dispatchQueueWrapper)
@@ -74,7 +74,7 @@ import Foundation
     /// - returns: The `SentryId` of the event or `SentryId.empty` if the event is not sent.
     @objc(captureEvent:)
     @discardableResult public static func capture(event: Event) -> SentryId {
-        return SentrySDKInternal.capture(event: event).sentryId
+        return SentrySDKInternal.capture(event: event)
     }
     
     /// Captures a manually created event and sends it to Sentry. Only the data in this scope object will
@@ -84,7 +84,7 @@ import Foundation
     /// - returns: The `SentryId` of the event or `SentryId.empty` if the event is not sent.
     @objc(captureEvent:withScope:)
     @discardableResult public static func capture(event: Event, scope: Scope) -> SentryId {
-        return SentrySDKInternal.capture(event: event, scope: scope).sentryId
+        return SentrySDKInternal.capture(event: event, scope: scope)
     }
     
     /// Captures a manually created event and sends it to Sentry. Maintains the global scope but mutates
@@ -94,7 +94,7 @@ import Foundation
     /// - returns: The `SentryId` of the event or `SentryId.empty` if the event is not sent.
     @objc(captureEvent:withScopeBlock:)
     @discardableResult public static func capture(event: Event, block: @escaping (Scope) -> Void) -> SentryId {
-        return SentrySDKInternal.capture(event: event, block: block).sentryId
+        return SentrySDKInternal.capture(event: event, block: block)
     }
     
     // MARK: - Transaction Management
@@ -159,7 +159,7 @@ import Foundation
     /// - returns: The `SentryId` of the event or `SentryId.empty` if the event is not sent.
     @objc(captureError:)
     @discardableResult public static func capture(error: Error) -> SentryId {
-        return SentrySDKInternal.capture(error: error).sentryId
+        return SentrySDKInternal.capture(error: error)
     }
     
     /// Captures an error event and sends it to Sentry. Only the data in this scope object will be added
@@ -169,7 +169,7 @@ import Foundation
     /// - returns: The `SentryId` of the event or `SentryId.empty` if the event is not sent.
     @objc(captureError:withScope:)
     @discardableResult public static func capture(error: Error, scope: Scope) -> SentryId {
-        return SentrySDKInternal.capture(error: error, scope: scope).sentryId
+        return SentrySDKInternal.capture(error: error, scope: scope)
     }
     
     /// Captures an error event and sends it to Sentry. Maintains the global scope but mutates scope data
@@ -179,7 +179,7 @@ import Foundation
     /// - returns: The `SentryId` of the event or `SentryId.empty` if the event is not sent.
     @objc(captureError:withScopeBlock:)
     @discardableResult public static func capture(error: Error, block: @escaping (Scope) -> Void) -> SentryId {
-        return SentrySDKInternal.capture(error: error, block: block).sentryId
+        return SentrySDKInternal.capture(error: error, block: block)
     }
     
     // MARK: - Exception Capture
@@ -189,7 +189,7 @@ import Foundation
     /// - returns: The `SentryId` of the event or `SentryId.empty` if the event is not sent.
     @objc(captureException:)
     @discardableResult public static func capture(exception: NSException) -> SentryId {
-        return SentrySDKInternal.capture(exception: exception).sentryId
+        return SentrySDKInternal.capture(exception: exception)
     }
     
     /// Captures an exception event and sends it to Sentry. Only the data in this scope object will be
@@ -199,7 +199,7 @@ import Foundation
     /// - returns: The `SentryId` of the event or `SentryId.empty` if the event is not sent.
     @objc(captureException:withScope:)
     @discardableResult public static func capture(exception: NSException, scope: Scope) -> SentryId {
-        return SentrySDKInternal.capture(exception: exception, scope: scope).sentryId
+        return SentrySDKInternal.capture(exception: exception, scope: scope)
     }
     
     /// Captures an exception event and sends it to Sentry. Maintains the global scope but mutates scope
@@ -209,7 +209,7 @@ import Foundation
     /// - returns: The `SentryId` of the event or `SentryId.empty` if the event is not sent.
     @objc(captureException:withScopeBlock:)
     @discardableResult public static func capture(exception: NSException, block: @escaping (Scope) -> Void) -> SentryId {
-        return SentrySDKInternal.capture(exception: exception, block: block).sentryId
+        return SentrySDKInternal.capture(exception: exception, block: block)
     }
     
     // MARK: - Message Capture
@@ -219,7 +219,7 @@ import Foundation
     /// - returns: The `SentryId` of the event or `SentryId.empty` if the event is not sent.
     @objc(captureMessage:)
     @discardableResult public static func capture(message: String) -> SentryId {
-        return SentrySDKInternal.capture(message: message).sentryId
+        return SentrySDKInternal.capture(message: message)
     }
     
     /// Captures a message event and sends it to Sentry. Only the data in this scope object will be added
@@ -229,7 +229,7 @@ import Foundation
     /// - returns: The `SentryId` of the event or `SentryId.empty` if the event is not sent.
     @objc(captureMessage:withScope:)
     @discardableResult public static func capture(message: String, scope: Scope) -> SentryId {
-        return SentrySDKInternal.capture(message: message, scope: scope).sentryId
+        return SentrySDKInternal.capture(message: message, scope: scope)
     }
     
     /// Captures a message event and sends it to Sentry. Maintains the global scope but mutates scope
@@ -239,7 +239,7 @@ import Foundation
     /// - returns: The `SentryId` of the event or `SentryId.empty` if the event is not sent.
     @objc(captureMessage:withScopeBlock:)
     @discardableResult public static func capture(message: String, block: @escaping (Scope) -> Void) -> SentryId {
-        return SentrySDKInternal.capture(message: message, block: block).sentryId
+        return SentrySDKInternal.capture(message: message, block: block)
     }
     
     /// Captures user feedback that was manually gathered and sends it to Sentry.
@@ -437,12 +437,6 @@ import Foundation
             duration = _logger?.captureLogs() ?? 0.0
         }
         return duration
-    }
-}
-
-extension SentryIdWrapper {
-    var sentryId: SentryId {
-        SentryId(uuidString: sentryIdString)
     }
 }
 

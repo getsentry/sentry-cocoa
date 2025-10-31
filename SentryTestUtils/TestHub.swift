@@ -2,7 +2,7 @@ import _SentryPrivate
 import Foundation
 @_spi(Private) @testable import Sentry
 
-public class TestHub: SentryHub {
+public class TestHub: SentryHubInternal {
 
     public var startSessionInvocations: Int = 0
     public var closeCachedSessionInvocations: Int = 0
