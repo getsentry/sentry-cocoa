@@ -25,36 +25,15 @@ NS_ASSUME_NONNULL_BEGIN
 {
     SentryFrame *frame = [[SentryFrame alloc] init];
 
-    if (stackEntry.symbolAddress != 0) {
-        frame.symbolAddress = sentry_formatHexAddressUInt64(stackEntry.symbolAddress);
-    }
-
     frame.instructionAddress = sentry_formatHexAddressUInt64(stackEntry.address);
 
-    if (stackEntry.symbolName != NULL) {
-        frame.function = [NSString stringWithCString:stackEntry.symbolName
-                                            encoding:NSUTF8StringEncoding];
-    }
+    // Get image from the cache.
+    SentryBinaryImageInfo *info = [SentryDependencyContainer.sharedInstance.binaryImageCache
+        imageByAddress:(uint64_t)stackEntry.address];
 
-    // If there is no symbolication, because debug was disabled
-    // we get image from the cache.
-    if (stackEntry.imageAddress == 0 && stackEntry.imageName == NULL) {
-        SentryBinaryImageInfo *info = [SentryDependencyContainer.sharedInstance.binaryImageCache
-            imageByAddress:(uint64_t)stackEntry.address];
-
-        frame.imageAddress = sentry_formatHexAddressUInt64(info.address);
-        frame.package = info.name;
-        frame.inApp = @([self.inAppLogic isInApp:info.name]);
-    } else {
-        frame.imageAddress = sentry_formatHexAddressUInt64(stackEntry.imageAddress);
-
-        if (stackEntry.imageName != NULL) {
-            NSString *imageName = [NSString stringWithCString:stackEntry.imageName
-                                                     encoding:NSUTF8StringEncoding];
-            frame.package = imageName;
-            frame.inApp = @([self.inAppLogic isInApp:imageName]);
-        }
-    }
+    frame.imageAddress = sentry_formatHexAddressUInt64(info.address);
+    frame.package = info.name;
+    frame.inApp = @([self.inAppLogic isInApp:info.name]);
 
     return frame;
 }

@@ -46,20 +46,6 @@ extern "C" {
 typedef struct {
     /** Current address in the stack trace. */
     uintptr_t address;
-
-    /** The name (if any) of the binary image the current address falls
-     * inside. */
-    const char *imageName;
-
-    /** The starting address of the binary image the current address falls
-     * inside. */
-    uintptr_t imageAddress;
-
-    /** The name (if any) of the closest symbol to the current address. */
-    const char *symbolName;
-
-    /** The address of the closest symbol to the current address. */
-    uintptr_t symbolAddress;
 } SentryCrashStackEntry;
 
 typedef struct SentryCrashStackCursor {
@@ -78,10 +64,6 @@ typedef struct SentryCrashStackCursor {
 
     /** Advance the cursor to the next stack entry. */
     bool (*advanceCursor)(struct SentryCrashStackCursor *);
-
-    /** Attempt to symbolicate the current address, filling in the fields in
-     * stackEntry. */
-    bool (*symbolicate)(struct SentryCrashStackCursor *);
 
     /** Internal context-specific information. */
     void *context[SentryCrashSC_CONTEXT_SIZE];
