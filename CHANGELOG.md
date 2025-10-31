@@ -50,6 +50,7 @@
   - Add layer class filtering for views used in multiple contexts (e.g., SwiftUI._UIGraphicsView)
   - Improve transform calculations for views with custom anchor points
   - Fix axis-aligned transform detection for optimized opaque view clipping
+- Fix interop with managed Mono/CoreCLR runtimes (#6193)
 
 ### Improvements
 

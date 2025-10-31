@@ -85,6 +85,7 @@ static SentryCrashMonitorType g_activeMonitors = SentryCrashMonitorTypeNone;
 static bool g_handlingFatalException = false;
 static bool g_crashedDuringExceptionHandling = false;
 static bool g_requiresAsyncSafety = false;
+static bool g_isManagedRuntime = false;
 
 static void (*g_onExceptionEvent)(struct SentryCrash_MonitorContext *monitorContext);
 
@@ -225,4 +226,16 @@ sentrycrashcm_handleException(struct SentryCrash_MonitorContext *context)
         SENTRY_ASYNC_SAFE_LOG_DEBUG("Exception is fatal. Restoring original handlers.");
         sentrycrashcm_setActiveMonitors(SentryCrashMonitorTypeNone);
     }
+}
+
+bool
+sentrycrashcm_isManagedRuntime(void)
+{
+    return g_isManagedRuntime;
+}
+
+void
+sentrycrashcm_setManagedRuntime(bool isManagedRuntime)
+{
+    g_isManagedRuntime = isManagedRuntime;
 }

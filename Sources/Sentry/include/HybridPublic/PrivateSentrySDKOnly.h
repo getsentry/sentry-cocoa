@@ -127,6 +127,12 @@ typedef void (^SentryOnAppStartMeasurementAvailable)(
  */
 @property (class, nonatomic, assign) BOOL appStartMeasurementHybridSDKMode;
 
+/**
+ * Whether the SDK is running in a managed Mono/CoreCLR runtime environment and
+ * needs to chain Unix signal handlers.
+ */
+@property (class, nonatomic, assign) BOOL isManagedRuntime;
+
 #if SENTRY_UIKIT_AVAILABLE
 /**
  * Allows hybrid SDKs to enable frame tracking measurements despite other options.

@@ -28,6 +28,7 @@
 
 static SentryOnAppStartMeasurementAvailable _onAppStartMeasurementAvailable;
 static BOOL _appStartMeasurementHybridSDKMode = NO;
+static BOOL _isManagedRuntime = NO;
 #if SENTRY_HAS_UIKIT
 static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 #endif // SENTRY_HAS_UIKIT
@@ -145,6 +146,16 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 + (void)setAppStartMeasurementHybridSDKMode:(BOOL)appStartMeasurementHybridSDKMode
 {
     _appStartMeasurementHybridSDKMode = appStartMeasurementHybridSDKMode;
+}
+
++ (BOOL)isManagedRuntime
+{
+    return _isManagedRuntime;
+}
+
++ (void)setIsManagedRuntime:(BOOL)isManagedRuntime
+{
+    _isManagedRuntime = isManagedRuntime;
 }
 
 + (void)setSdkName:(NSString *)sdkName andVersionString:(NSString *)versionString
