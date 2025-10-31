@@ -56,6 +56,14 @@
 - Replace deprecated SCNetworkReachability with NWPathMonitor (#6019)
 - Increase attachment max size to 100MB (#6537)
 
+## 8.57.1
+
+### Fixes
+
+- Fix crash from accessing UITouch instances from background thread in SentryTouchTracker (#6584)
+- Disable SessionSentryReplayIntegration if the environment is unsafe [#6573]
+- Fix crash when last replay info is missing some keys [#6577]
+
 ## 8.57.0
 
 > [!Warning]
