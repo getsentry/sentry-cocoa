@@ -608,7 +608,7 @@ class SentrySDKInternalTests: XCTestCase {
 
         let transport = TestTransport()
         let fileManager = try TestFileManager(options: fixture.options, dateProvider: fixture.currentDate, dispatchQueueWrapper: fixture.dispatchQueueWrapper)
-        let client = SentryClient(options: fixture.options, fileManager: fileManager, deleteOldEnvelopeItems: false)
+        let client = SentryClient(options: fixture.options, fileManager: fileManager)
         Dynamic(client).transportAdapter = TestTransportAdapter(transports: [transport], options: fixture.options)
         SentrySDKInternal.currentHub().bindClient(client)
         SentrySDK.close()
@@ -693,7 +693,7 @@ class SentrySDKInternalTests: XCTestCase {
 
         let transport = TestTransport()
         let fileManager = try TestFileManager(options: fixture.options, dateProvider: fixture.currentDate, dispatchQueueWrapper: fixture.dispatchQueueWrapper)
-        let client = SentryClient(options: fixture.options, fileManager: fileManager, deleteOldEnvelopeItems: false)
+        let client = SentryClient(options: fixture.options, fileManager: fileManager)
         Dynamic(client).transportAdapter = TestTransportAdapter(transports: [transport], options: fixture.options)
         SentrySDKInternal.currentHub().bindClient(client)
 
