@@ -2,6 +2,24 @@
 @_spi(Private) import SentryTestUtils
 import XCTest
 
+extension SentryClient {
+    convenience init(options: Options, fileManager: SentryFileManager) {
+        let transports = TransportInitializer.initTransports(options, dateProvider: SentryDependencyContainer.sharedInstance().dateProvider, sentryFileManager: fileManager, rateLimits: SentryDependencyContainer.sharedInstance().rateLimits)
+
+        let transportAdapter = SentryTransportAdapter(transports: transports, options: options)
+
+        self.init(
+            options: options,
+            transportAdapter: transportAdapter,
+            fileManager: fileManager,
+            threadInspector: SentryDefaultThreadInspector(options: options),
+            debugImageProvider: SentryDependencyContainer.sharedInstance().debugImageProvider,
+            random: SentryDependencyContainer.sharedInstance().random,
+            locale: Locale.autoupdatingCurrent,
+            timezone: Calendar.autoupdatingCurrent.timeZone)
+    }
+}
+
 // swiftlint:disable file_length
 // We are aware that the client has a lot of logic and we should maybe
 // move some of it to other classes.
@@ -96,7 +114,6 @@ class SentryClientTests: XCTestCase {
                     options: options,
                     transportAdapter: transportAdapter,
                     fileManager: fileManager,
-                    deleteOldEnvelopeItems: false,
                     threadInspector: threadInspector,
                     debugImageProvider: debugImageProvider,
                     random: random,
@@ -161,7 +178,7 @@ class SentryClientTests: XCTestCase {
     }
     
     func testInit_CallsDeleteOldEnvelopeItemsInvocations() throws {
-        _ = SentryClient(options: Options(), fileManager: fixture.fileManager, deleteOldEnvelopeItems: true)
+        _ = SentryClient(options: Options(), fileManager: fixture.fileManager)
 
         XCTAssertEqual(1, fixture.fileManager.deleteOldEnvelopeItemsInvocations.count)
     }
@@ -1751,12 +1768,7 @@ class SentryClientTests: XCTestCase {
 
         let options = Options()
         options.dsn = SentryClientTests.dsn
-        let client = SentryClient(
-            options: options,
-            dateProvider: fixture.dateProvider,
-            dispatchQueue: fixture.dispatchQueue,
-            deleteOldEnvelopeItems: false
-        )
+        let client = SentryClient(options: options)
 
         XCTAssertNil(client)
     }

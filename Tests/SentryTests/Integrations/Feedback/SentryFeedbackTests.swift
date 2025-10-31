@@ -207,7 +207,6 @@ class SentryFeedbackTests: XCTestCase {
                 dateProvider: TestCurrentDateProvider(),
                 dispatchQueueWrapper: TestSentryDispatchQueueWrapper()
             )),
-            deleteOldEnvelopeItems: false,
             threadInspector: TestDefaultThreadInspector.instance,
             debugImageProvider: TestDebugImageProvider(),
             random: TestRandom(value: 1.0),
@@ -250,7 +249,6 @@ class SentryFeedbackTests: XCTestCase {
                 dateProvider: TestCurrentDateProvider(),
                 dispatchQueueWrapper: TestSentryDispatchQueueWrapper()
             )),
-            deleteOldEnvelopeItems: false,
             threadInspector: TestDefaultThreadInspector.instance,
             debugImageProvider: TestDebugImageProvider(),
             random: TestRandom(value: 1.0),
@@ -293,7 +291,6 @@ class SentryFeedbackTests: XCTestCase {
                 dateProvider: TestCurrentDateProvider(),
                 dispatchQueueWrapper: TestSentryDispatchQueueWrapper()
             )),
-            deleteOldEnvelopeItems: false,
             threadInspector: TestDefaultThreadInspector.instance,
             debugImageProvider: TestDebugImageProvider(),
             random: TestRandom(value: 1.0),

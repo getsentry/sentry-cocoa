@@ -30,7 +30,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
                 options: options,
                 dateProvider: dateProvider,
                 dispatchQueueWrapper: dispatchQueueWrapper
-            ), deleteOldEnvelopeItems: false)
+            ))
             hub = TestHub(client: client, andScope: nil)
 
             fileManager = try TestFileManager(
@@ -398,7 +398,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         api?.pointee.setEnabled(true)
         
         let transport = TestTransport()
-        let client = SentryClient(options: fixture.options, fileManager: fixture.fileManager, deleteOldEnvelopeItems: false)
+        let client = SentryClient(options: fixture.options, fileManager: fixture.fileManager)
         Dynamic(client).transportAdapter = TestTransportAdapter(transports: [transport], options: fixture.options)
         hub.bindClient(client)
         
