@@ -8,7 +8,7 @@ class SentryUIEventTrackerTests: XCTestCase {
     private class Fixture {
         let swizzleWrapper = TestSentrySwizzleWrapper()
         let target = FirstViewController()
-        let hub = SentryHub(client: TestClient(options: Options()), andScope: nil)
+        let hub = SentryHubInternal(client: TestClient(options: Options()), andScope: nil)
         let dispatchQueue = TestSentryDispatchQueueWrapper()
         let uiEventTrackerMode: SentryUIEventTrackerMode
         let button = UIButton()

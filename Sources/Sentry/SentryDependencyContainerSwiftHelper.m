@@ -63,26 +63,21 @@
     [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchSyncOnMainQueue:block];
 }
 
-+ (SentryHub *)currentHub
-{
-    return SentrySDKInternal.currentHub;
-}
-
 + (nullable NSDate *)readTimestampLastInForeground
 {
-    SentryHub *hub = [SentrySDKInternal currentHub];
+    SentryHubInternal *hub = [SentrySDKInternal currentHub];
     return [[[hub getClient] fileManager] readTimestampLastInForeground];
 }
 
 + (void)deleteTimestampLastInForeground
 {
-    SentryHub *hub = [SentrySDKInternal currentHub];
+    SentryHubInternal *hub = [SentrySDKInternal currentHub];
     [[[hub getClient] fileManager] deleteTimestampLastInForeground];
 }
 
 + (void)storeTimestampLastInForeground:(NSDate *)timestamp
 {
-    SentryHub *hub = [SentrySDKInternal currentHub];
+    SentryHubInternal *hub = [SentrySDKInternal currentHub];
     [[[hub getClient] fileManager] storeTimestampLastInForeground:timestamp];
 }
 

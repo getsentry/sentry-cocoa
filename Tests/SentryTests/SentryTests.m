@@ -8,7 +8,7 @@
 #import "SentryLevelMapper.h"
 #import "SentryMessage.h"
 #import "SentryMeta.h"
-#import "SentryOptionsInternal.h"
+#import "SentryOptionsHelpers.h"
 #import "SentrySDK+Private.h"
 #import <SentryBreadcrumb+Private.h>
 #import <XCTest/XCTest.h>
@@ -34,11 +34,11 @@
 - (void)testSharedClient
 {
     NSError *error = nil;
-    SentryOptions *options = [SentryOptionsInternal
+    SentryOptions *options = [SentryOptionsHelpers
             initWithDict:@{ @"dsn" : @"https://username:password@app.getsentry.com/12345" }
         didFailWithError:&error];
 
-    SentryClient *client = [[SentryClient alloc] initWithOptions:options];
+    SentryClientInternal *client = [[SentryClientInternal alloc] initWithOptions:options];
     XCTAssertNil(error);
     XCTAssertNil([SentrySDKInternal.currentHub getClient]);
     [SentrySDKInternal.currentHub bindClient:client];

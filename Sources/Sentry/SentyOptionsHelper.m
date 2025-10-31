@@ -10,7 +10,7 @@
 #import "SentryNetworkTrackingIntegration.h"
 #import "SentryOptions+Private.h"
 #import "SentryOptions.h"
-#import "SentryOptionsInternal.h"
+#import "SentryOptionsHelpers.h"
 #import "SentrySessionReplayIntegration.h"
 #import "SentrySwift.h"
 #import "SentrySwiftAsyncIntegration.h"
@@ -30,7 +30,7 @@
 #    import "SentryMetricKitIntegration.h"
 #endif // SENTRY_HAS_METRIC_KIT
 
-@implementation SentryOptionsInternal
+@implementation SentryOptionsHelpers
 
 + (NSArray<Class> *)defaultIntegrationClasses
 {
@@ -71,9 +71,9 @@
                         didFailWithError:(NSError *_Nullable *_Nullable)error
 {
     SentryOptions *sentryOptions = [[SentryOptions alloc] init];
-    if (![SentryOptionsInternal validateOptions:options
-                                  sentryOptions:sentryOptions
-                               didFailWithError:error]) {
+    if (![SentryOptionsHelpers validateOptions:options
+                                 sentryOptions:sentryOptions
+                              didFailWithError:error]) {
         if (error != nil) {
             SENTRY_LOG_ERROR(@"Failed to initialize SentryOptions: %@", *error);
         } else {

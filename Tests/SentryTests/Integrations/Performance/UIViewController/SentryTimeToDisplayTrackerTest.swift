@@ -39,7 +39,7 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
                 dispatchQueueWrapper: dispatchQueue
             )
 
-            let hub = TestHub(client: SentryClient(options: options, fileManager: fileManager), andScope: nil)
+            let hub = TestHub(client: SentryClientInternal(options: options, fileManager: fileManager), andScope: nil)
             return SentryTracer(transactionContext: TransactionContext(operation: "ui.load"), hub: hub, configuration: SentryTracerConfiguration(block: {
                 $0.waitForChildren = true
             }))
