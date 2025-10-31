@@ -1565,7 +1565,6 @@ class SentryHubTests: XCTestCase {
         init() {
             super.init(
                 replayOptions: SentryReplayOptions(sessionSampleRate: 0, onErrorSampleRate: 0),
-                experimentalOptions: SentryExperimentalOptions(),
                 replayFolderPath: FileManager.default.temporaryDirectory,
                 screenshotProvider: MockScreenshotProvider(),
                 replayMaker: MockReplayMaker(),
@@ -1573,8 +1572,7 @@ class SentryHubTests: XCTestCase {
                 touchTracker: nil,
                 dateProvider: TestCurrentDateProvider(),
                 delegate: MockReplayDelegate(),
-                displayLinkWrapper: TestDisplayLinkWrapper(),
-                environmentChecker: TestSessionReplayEnvironmentChecker(mockedIsReliableReturnValue: true)
+                displayLinkWrapper: TestDisplayLinkWrapper()
             )
         }
     }
