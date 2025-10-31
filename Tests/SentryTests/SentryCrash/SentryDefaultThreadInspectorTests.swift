@@ -220,7 +220,7 @@ class SentryDefaultThreadInspectorTests: XCTestCase {
 
         XCTAssertNotNil(stackTrace)
         XCTAssertGreaterThan(stackTrace.frames.count, 0)
-        XCTAssertEqual(stackTrace.frames.first?.function, "<redacted>")
+        XCTAssertNil(stackTrace.frames.first?.function)
     }
 
     func testOnlyCurrentThreadHasStacktrace() throws {

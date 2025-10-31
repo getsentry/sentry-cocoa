@@ -49,7 +49,7 @@ class SentryCrashStackEntryMapperTests: XCTestCase {
     func testSymbolNameIsNull() {
         let frame = sut.mapStackEntry(with: SentryCrashStackCursor())
         
-        XCTAssertEqual("<redacted>", frame.function)
+        XCTAssertNil(frame.function)
     }
 
     func testSymbolName() {
