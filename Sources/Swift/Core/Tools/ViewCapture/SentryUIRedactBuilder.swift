@@ -4,12 +4,14 @@
 import Foundation
 import ObjectiveC.NSObjCRuntime
 import UIKit
+@_implementationOnly import _SentryPrivate
 #if os(iOS)
 import PDFKit
 import WebKit
 #endif
 
-final class SentryUIRedactBuilder {
+@objcMembers
+@_spi(Private) public class SentryUIRedactBuilder: NSObject, SentryUIRedactBuilderProtocol {
     // MARK: - Types
 
     /// Type used to represented a view that needs to be redacted
@@ -119,7 +121,7 @@ final class SentryUIRedactBuilder {
     ///
     /// - note: On iOS, views such as `WKWebView` and `UIWebView` are always redacted, and controls like
     ///   `UISlider` and `UISwitch` are ignored by default.
-    init(options: SentryRedactOptions) {
+    required public init(options: SentryRedactOptions) {
         var redactClasses = Set<ClassIdentifier>()
 
         if options.maskAllText {
@@ -208,7 +210,9 @@ final class SentryUIRedactBuilder {
         }
         
         redactClassesIdentifiers = redactClasses
-        
+
+        super.init()
+
         // didSet doesn't run during initialization, so we need to manually build the optimization structures
         rebuildOptimizedLookups()
     }
@@ -303,34 +307,34 @@ final class SentryUIRedactBuilder {
     }
     
     /// Adds a class to the ignore list.
-    func addIgnoreClass(_ ignoreClass: AnyClass) {
+    public func addIgnoreClass(_ ignoreClass: AnyClass) {
         ignoreClassesIdentifiers.insert(ClassIdentifier(class: ignoreClass))
     }
     
     /// Adds a class to the redact list.
-    func addRedactClass(_ redactClass: AnyClass) {
+    public func addRedactClass(_ redactClass: AnyClass) {
         redactClassesIdentifiers.insert(ClassIdentifier(class: redactClass))
     }
     
     /// Adds multiple classes to the ignore list.
-    func addIgnoreClasses(_ ignoreClasses: [AnyClass]) {
+    public func addIgnoreClasses(_ ignoreClasses: [AnyClass]) {
         ignoreClasses.forEach(addIgnoreClass(_:))
     }
     
     /// Adds multiple classes to the redact list.
-    func addRedactClasses(_ redactClasses: [AnyClass]) {
+    public func addRedactClasses(_ redactClasses: [AnyClass]) {
         redactClasses.forEach(addRedactClass(_:))
     }
 
     /// Marks a container class whose direct children should be ignored (unmasked).
-    func setIgnoreContainerClass(_ containerClass: AnyClass) {
+    public func setIgnoreContainerClass(_ containerClass: AnyClass) {
         ignoreContainerClassIdentifier = ObjectIdentifier(containerClass)
     }
 
     /// Marks a container class whose subtree should be force‑redacted.
     ///
     /// Note: We also add the container class to the redact list so the container itself becomes a region.
-    func setRedactContainerClass(_ containerClass: AnyClass) {
+    public func setRedactContainerClass(_ containerClass: AnyClass) {
         let id = ObjectIdentifier(containerClass)
         redactContainerClassIdentifier = id
         redactClassesIdentifiers.insert(ClassIdentifier(class: containerClass))
@@ -364,7 +368,11 @@ final class SentryUIRedactBuilder {
     ///
     /// The function returns the redaction regions in reverse order from what was found in the hierarchy,
     /// so clip regions are applied first before drawing a redact mask on lower views.
-    func redactRegionsFor(view: UIView) -> [SentryRedactRegion] {
+    public func redactRegionsFor(
+        view: UIView,
+        image: UIImage,
+        callback: @escaping ([SentryRedactRegion]?, (any Error)?) -> Void
+    ) {
         var redactingRegions = [SentryRedactRegion]()
 
         self.mapRedactRegion(
@@ -387,7 +395,7 @@ final class SentryUIRedactBuilder {
         }
         
         //The swiftUI type needs to appear first in the list so it always get masked
-        return (otherRegions + swiftUIRedact).reversed()
+        return callback((otherRegions + swiftUIRedact).reversed(), nil)
     }
     
     private func shouldIgnore(view: UIView) -> Bool {

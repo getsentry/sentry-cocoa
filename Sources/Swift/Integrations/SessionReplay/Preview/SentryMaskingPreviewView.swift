@@ -27,7 +27,7 @@ import UIKit
     public init(redactOptions: SentryRedactOptions) {
         self.photographer = SentryViewPhotographer(
             renderer: PreviewRenderer(),
-            redactOptions: redactOptions,
+            redactBuilder: SentryUIRedactBuilder(options: redactOptions),
             enableMaskRendererV2: false
         )
         super.init(frame: .zero)
