@@ -271,9 +271,10 @@ platform :ios do
     )
   end
 
-  lane :ui_tests_ios_objc do
+  lane :ui_tests_ios_objc do |options|
     run_ui_tests(
       scheme: "iOS-ObjectiveC",
+      device: options[:device],
       result_bundle_name: "ui_tests_ios_objc"
     )
   end
@@ -287,9 +288,10 @@ platform :ios do
     )
   end
 
-  lane :ui_tests_tvos_swift do
+  lane :ui_tests_tvos_swift do |options|
     run_ui_tests(
       scheme: "tvOS-Swift",
+      device: options[:device],
       result_bundle_name: "ui_tests_tvos_swift"
     )
   end
