@@ -61,6 +61,14 @@ static SentryTouchTracker *_touchTracker;
     id<SentrySessionReplayEnvironmentCheckerProvider> _environmentChecker;
 }
 
++ (BOOL)shouldEnableForOptions:(SentryOptions *)options
+{
+    return [SentrySessionReplay
+        shouldEnableSessionReplayWithEnvironmentChecker:SentryDependencyContainer.sharedInstance
+                                                            .sessionReplayEnvironmentChecker
+                                    experimentalOptions:options.experimental];
+}
+
 - (instancetype)init
 {
     self = [super init];
@@ -84,7 +92,8 @@ static SentryTouchTracker *_touchTracker;
 
 - (BOOL)installWithOptions:(nonnull SentryOptions *)options
 {
-    if ([super installWithOptions:options] == NO) {
+    if ([super installWithOptions:options] == NO ||
+        [SentrySessionReplayIntegration shouldEnableForOptions:options] == NO) {
         return NO;
     }
 
@@ -426,7 +435,6 @@ static SentryTouchTracker *_touchTracker;
 
     SentryDisplayLinkWrapper *displayLinkWrapper = [[SentryDisplayLinkWrapper alloc] init];
     self.sessionReplay = [[SentrySessionReplay alloc] initWithReplayOptions:replayOptions
-                                                        experimentalOptions:experimentalOptions
                                                            replayFolderPath:docs
                                                          screenshotProvider:screenshotProvider
                                                                 replayMaker:replayMaker
@@ -434,8 +442,7 @@ static SentryTouchTracker *_touchTracker;
                                                                touchTracker:_touchTracker
                                                                dateProvider:_dateProvider
                                                                    delegate:self
-                                                         displayLinkWrapper:displayLinkWrapper
-                                                         environmentChecker:_environmentChecker];
+                                                         displayLinkWrapper:displayLinkWrapper];
 
     [self.sessionReplay
         startWithRootView:[SentryDependencyContainer.sharedInstance.application getWindows]
@@ -472,15 +479,19 @@ static SentryTouchTracker *_touchTracker;
     return [dir URLByAppendingPathComponent:SENTRY_REPLAY_FOLDER];
 }
 
-- (void)saveCurrentSessionInfo:(SentryId *)sessionId
+- (void)saveCurrentSessionInfo:(SentryId *_Nullable)sessionId
                           path:(NSString *)path
                        options:(SentryReplayOptions *)options
 {
     SENTRY_LOG_DEBUG(@"[Session Replay] Saving current session info for session: %@ to path: %@",
         sessionId, path);
-    NSDictionary *info =
-        [[NSDictionary alloc] initWithObjectsAndKeys:sessionId.sentryIdString, @"replayId",
-            path.lastPathComponent, @"path", @(options.onErrorSampleRate), @"errorSampleRate", nil];
+    NSMutableDictionary *info = [NSMutableDictionary new];
+    if (sessionId != nil) {
+        [info setObject:SENTRY_UNWRAP_NULLABLE(SentryId, sessionId).sentryIdString
+                 forKey:@"replayId"];
+    }
+    [info setObject:path.lastPathComponent forKey:@"path"];
+    [info setObject:@(options.onErrorSampleRate) forKey:@"errorSampleRate"];
 
     NSData *data = [SentrySerializationSwift dataWithJSONObject:info];
 

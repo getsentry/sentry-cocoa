@@ -434,6 +434,15 @@ Future types conforming to Decodable can be written in Swift from the start and 
 
 Work on the v9 SDK is being done behind the compiler flag `SDK_V9`. CI builds the SDK with this flag enabled to ensure it does not break during the course of non-v9 development. This SDK version will focus on quality and be a part of Sentry’s quality quarter initiative. Notably, the minimum supported OS version will be bumped in this release. The changelog for this release is being tracked in [CHANGELOG-v9.md](../CHANGELOG-v9.md).
 
+## v8 Branch
+
+Date: Oct 2nd, 2025
+Contributors: @philipphofmann, @philprime, @kahest, @noahsmartin, @itaybre
+
+As of Oct 1st 2025, the [main branch](https://github.com/getsentry/sentry-cocoa/tree/main) is for v9 and the branch [v8.x](https://github.com/getsentry/sentry-cocoa/tree/v8.x) is for v8.
+
+To continue supporting users on version 8, we have created a dedicated v8 branch. This is the first time in the SDK’s history that we’ve maintained a legacy branch. Since v8 was released over two years ago, and with new features like Session Replay shipped this year, we know some important customers still require bugfixes on v8 before moving to v9. Maintaining a separate branch allows us to deliver those fixes without complicating the v9 release process.
+
 ## Remove iOS 16 support
 
 Date: October 28, 2025
