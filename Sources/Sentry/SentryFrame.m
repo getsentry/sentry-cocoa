@@ -8,7 +8,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)init
 {
-    return [super init];
+     self = [super init];
+    return self;
 }
 
 - (NSDictionary<NSString *, id> *)serialize
