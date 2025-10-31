@@ -11,16 +11,15 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
         let fileURL: URL!
         let fileDirectory: URL!
         
-        @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
         func getOptions(enableAutoPerformanceTracing: Bool = true, enableFileIOTracing: Bool = true, enableSwizzling: Bool = true, enableDataSwizzling: Bool = true, enableFileManagerSwizzling: Bool = true, tracesSampleRate: NSNumber = 1) -> Options {
             let result = Options()
+            result.removeAllIntegrations()
             result.enableAutoPerformanceTracing = enableAutoPerformanceTracing
             result.enableFileIOTracing = enableFileIOTracing
             result.enableSwizzling = enableSwizzling
             result.tracesSampleRate = tracesSampleRate
-            result.experimental.enableDataSwizzling = enableDataSwizzling
-            result.experimental.enableFileManagerSwizzling = enableFileManagerSwizzling
-            result.setIntegrations([SentryFileIOTrackingIntegration.self])
+            result.enableDataSwizzling = enableDataSwizzling
+            result.enableFileManagerSwizzling = enableFileManagerSwizzling
             return result
         }
         
@@ -69,7 +68,6 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
         SentrySDK.close()
     }
     
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func test_WritingTrackingDisabled_forIOOption() {
         // -- Act --
         SentrySDK.start(options: fixture.getOptions(enableFileIOTracing: false))
@@ -78,7 +76,6 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
         assertWriteWithNoSpans()
     }
     
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func test_WritingTrackingDisabled_forSwizzlingOption() {
         // -- Act --
         SentrySDK.start(options: fixture.getOptions(enableSwizzling: false))
@@ -87,7 +84,6 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
         assertWriteWithNoSpans()
     }
     
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func test_WritingTrackingDisabled_forAutoPerformanceTrackingOption() {
         // -- Act --
         SentrySDK.start(options: fixture.getOptions(enableAutoPerformanceTracing: false))
@@ -96,7 +92,6 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
         assertWriteWithNoSpans()
     }
     
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func test_WritingTrackingDisabled_TracingDisabled() {
         // -- Act --
         SentrySDK.start(options: fixture.getOptions(tracesSampleRate: 0))
@@ -105,7 +100,6 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
         assertWriteWithNoSpans()
     }
     
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func testData_Writing_Tracking() {
         // -- Arrange --
         let expectedSpanCount: Int
@@ -127,7 +121,6 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
         }
     }
 
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func testData_WritingWithOption_Tracking() {
         // -- Arrange --
         let expectedSpanCount: Int
@@ -149,7 +142,6 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
         }
     }
 
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func test_ReadingTrackingDisabled_forIOOption() {
         // -- Act --
         SentrySDK.start(options: fixture.getOptions(enableFileIOTracing: false))
@@ -158,7 +150,6 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
         assertWriteWithNoSpans()
     }
     
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func test_ReadingTrackingDisabled_forSwizzlingOption() {
         // -- Act --
         SentrySDK.start(options: fixture.getOptions(enableSwizzling: false))
@@ -167,7 +158,6 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
         assertWriteWithNoSpans()
     }
     
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func test_ReadingTrackingDisabled_forAutoPerformanceTrackingOption() {
         // -- Act --
         SentrySDK.start(options: fixture.getOptions(enableAutoPerformanceTracing: false))
@@ -176,7 +166,6 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
         assertWriteWithNoSpans()
     }
     
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func test_ReadingTrackingDisabled_TracingDisabled() {
         // -- Act --
         SentrySDK.start(options: fixture.getOptions(tracesSampleRate: 0))
@@ -185,7 +174,6 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
         assertWriteWithNoSpans()
     }
     
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func testData_ReadingURL_Tracking() {
         // -- Arrange --
         let expectedSpanCount: Int
@@ -205,7 +193,6 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
         }
     }
 
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func testData_ReadingURLWithOption_Tracking() throws {
         // -- Arrange --
         let expectedSpanCount: Int
@@ -226,7 +213,6 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
         XCTAssertEqual(data?.count, fixture.data.count)
     }
 
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func test_ReadingFile_Tracking() {
         // -- Arrange --
         SentrySDK.start(options: fixture.getOptions())
@@ -238,7 +224,6 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
         XCTAssertEqual(data?.count, fixture.data.count)
     }
     
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func test_ReadingFileWithOptions_Tracking() {
         // -- Arrange --
         SentrySDK.start(options: fixture.getOptions())
@@ -250,7 +235,6 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
         XCTAssertEqual(data?.count, fixture.data.count)
     }
     
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func test_ReadingBigFile() {
         // -- Arrange --
         SentrySDK.start(options: fixture.getOptions())
@@ -265,7 +249,6 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
         XCTAssertEqual(data?.count, 295_760)
     }
     
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func test_WritingBigFile() {
         // -- Arrange --
         guard let jsonFile = getBigFilePath() else {
@@ -295,7 +278,6 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
         ?? bundle.path(forResource: "fatal-error-binary-images-message2", ofType: "json")
     }
     
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func test_DataConsistency_readUrl() {
         SentrySDK.start(options: fixture.getOptions())
         
@@ -310,7 +292,6 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
         XCTAssertEqual(randomValue, readValue)
     }
     
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func test_DataConsistency_readPath() {
         SentrySDK.start(options: fixture.getOptions())
         
@@ -324,7 +305,6 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
         XCTAssertEqual(randomValue, readValue)
     }
 
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func testEnableDataSwizzling_isNotEnabled_shouldNotSwizzleNSDataMethods() {
         // -- Arrange --
         let options = fixture.getOptions(enableDataSwizzling: false)
@@ -334,7 +314,6 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
         assertWriteWithNoSpans()
     }
 
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func testDisableFileManagerSwizzling_isNotEnabledAndDataSwizzlingIsEnabled_shouldTrackWithSpan() throws {
         // -- Arrange --
         if #available(iOS 18, macOS 15, tvOS 18, *) {
@@ -350,7 +329,6 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
         }
     }
 
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func testDisableFileManagerSwizzling_isNotEnabled_shouldNotTrackWithSpan() throws {
         // -- Arrange --
         if #available(iOS 18, macOS 15, tvOS 18, *) {

@@ -30,14 +30,12 @@ import UIKit
     private(set) var isSessionPaused = false
     
     private let replayOptions: SentryReplayOptions
-    private let experimentalOptions: SentryExperimentalOptions
     private let replayMaker: SentryReplayVideoMaker
     private let displayLink: SentryReplayDisplayLinkWrapper
     private let dateProvider: SentryCurrentDateProvider
     private let touchTracker: SentryTouchTracker?
     private let lock = NSLock()
     public var replayTags: [String: Any]?
-    private let environmentChecker: SentrySessionReplayEnvironmentCheckerProvider
 
     var isRunning: Bool {
         displayLink.isRunning()
@@ -48,7 +46,6 @@ import UIKit
     
     public init(
         replayOptions: SentryReplayOptions,
-        experimentalOptions: SentryExperimentalOptions,
         replayFolderPath: URL,
         screenshotProvider: SentryViewScreenshotProvider,
         replayMaker: SentryReplayVideoMaker,
@@ -56,11 +53,9 @@ import UIKit
         touchTracker: SentryTouchTracker?,
         dateProvider: SentryCurrentDateProvider,
         delegate: SentrySessionReplayDelegate,
-        displayLinkWrapper: SentryReplayDisplayLinkWrapper,
-        environmentChecker: SentrySessionReplayEnvironmentCheckerProvider
+        displayLinkWrapper: SentryReplayDisplayLinkWrapper
     ) {
         self.replayOptions = replayOptions
-        self.experimentalOptions = experimentalOptions
         self.dateProvider = dateProvider
         self.delegate = delegate
         self.screenshotProvider = screenshotProvider
@@ -69,27 +64,31 @@ import UIKit
         self.replayMaker = replayMaker
         self.breadcrumbConverter = breadcrumbConverter
         self.touchTracker = touchTracker
-        self.environmentChecker = environmentChecker
     }
     
     deinit { displayLink.invalidate() }
-
-    public func start(rootView: UIView, fullSession: Bool) {
-        SentrySDKLog.debug("[Session Replay] Starting session replay with full session: \(fullSession)")
-        guard !isRunning else { 
-            SentrySDKLog.debug("[Session Replay] Session replay is already running, not starting again")
-            return 
-        }
-        
+    
+    static public func shouldEnableSessionReplay(environmentChecker: SentrySessionReplayEnvironmentCheckerProvider, experimentalOptions: SentryExperimentalOptions) -> Bool {
         // Detect if we are running on iOS 26.0 with Liquid Glass and disable session replay.
         // This needs to be done until masking for session replay is properly supported, as it can lead
         // to PII leaks otherwise.
-        if !environmentChecker.isReliable() {
-            guard experimentalOptions.enableSessionReplayInUnreliableEnvironment else {
-                SentrySDKLog.fatal("[Session Replay] Detected environment potentially causing PII leaks, disabling Session Replay. To override this mechanism, set `options.experimental.enableSessionReplayInUnreliableEnvironment` to `true`")
-                return
-            }
-            SentrySDKLog.warning("[Session Replay] Detected environment potentially causing PII leaks, but `options.experimental.enableSessionReplayInUnreliableEnvironment` is set to `true`, ignoring and enabling Session Replay.")
+        if environmentChecker.isReliable() {
+            return true
+        }
+        guard experimentalOptions.enableSessionReplayInUnreliableEnvironment else {
+            SentrySDKLog.fatal("[Session Replay] Detected environment potentially causing PII leaks, disabling Session Replay. To override this mechanism, set `options.experimental.enableSessionReplayInUnreliableEnvironment` to `true`")
+            return false
+        }
+        SentrySDKLog.warning("[Session Replay] Detected environment potentially causing PII leaks, but `options.experimental.enableSessionReplayInUnreliableEnvironment` is set to `true`, ignoring and enabling Session Replay.")
+
+        return true
+    }
+    
+    public func start(rootView: UIView?, fullSession: Bool) {
+        SentrySDKLog.debug("[Session Replay] Starting session replay with full session: \(fullSession)")
+        guard !isRunning else {
+            SentrySDKLog.debug("[Session Replay] Session replay is already running, not starting again")
+            return
         }
         
         displayLink.link(withTarget: self, selector: #selector(newFrame(_:)))

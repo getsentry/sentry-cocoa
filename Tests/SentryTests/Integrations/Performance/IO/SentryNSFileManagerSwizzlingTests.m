@@ -54,7 +54,7 @@
 - (void)setUpNSFileManagerSwizzlingWithEnabledFlag:(bool)enableFileManagerSwizzling
 {
     SentryOptions *options = [[SentryOptions alloc] init];
-    options.experimental.enableFileManagerSwizzling = enableFileManagerSwizzling;
+    options.enableFileManagerSwizzling = enableFileManagerSwizzling;
 
     SentryThreadInspector *threadInspector =
         [[SentryThreadInspector alloc] initWithOptions:options];

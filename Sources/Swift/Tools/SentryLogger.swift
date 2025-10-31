@@ -198,6 +198,7 @@ public final class SentryLogger: NSObject {
         addOSAttributes(to: &logAttributes)
         addDeviceAttributes(to: &logAttributes)
         addUserAttributes(to: &logAttributes)
+        addReplayAttributes(to: &logAttributes)
 
         let propagationContextTraceIdString = hub.scope.propagationContextTraceIdString
         let propagationContextTraceId = SentryId(uuidString: propagationContextTraceIdString)
@@ -279,6 +280,21 @@ public final class SentryLogger: NSObject {
         if let userEmail = user.email {
             attributes["user.email"] = .init(string: userEmail)
         }
+    }
+    
+    private func addReplayAttributes(to attributes: inout [String: SentryLog.Attribute]) {
+#if canImport(UIKit) && !SENTRY_NO_UIKIT
+#if os(iOS) || os(tvOS)
+        if let scopeReplayId = hub.scope.replayId {
+            // Session mode: use scope replay ID
+            attributes["sentry.replay_id"] = .init(string: scopeReplayId)
+        } else if let sessionReplayId = hub.getSessionReplayId() {
+            // Buffer mode: scope has no ID but integration does
+            attributes["sentry.replay_id"] = .init(string: sessionReplayId)
+            attributes["sentry._internal.replay_is_buffering"] = .init(boolean: true)
+        }
+#endif
+#endif
     }
 }
 
