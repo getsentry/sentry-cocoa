@@ -174,8 +174,9 @@ for attempt in $(seq 1 $MAX_BOOT_ATTEMPTS); do
     # Open Simulator app UI (only on first attempt)
     if [ "$attempt" -eq 1 ]; then
         log_notice "Opening Simulator app UI"
-        if ! open -a Simulator; then
-            log_error "Failed to open Simulator app"
+        SIMULATOR_APP_PATH="$(xcode-select -p)/Applications/Simulator.app"
+        if ! open "$SIMULATOR_APP_PATH"; then
+            log_error "Failed to open Simulator app at $SIMULATOR_APP_PATH"
             exit 1
         fi
         log_notice "Simulator app opened successfully"
