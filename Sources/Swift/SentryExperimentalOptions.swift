@@ -29,6 +29,8 @@ public final class SentryExperimentalOptions: NSObject {
      */
     public var enableSessionReplayInUnreliableEnvironment = false
 
+    public var sessionReplayMaskingStrategy: SessionReplayMaskingStrategy = .viewHierarchy
+
     @_spi(Private) public func validateOptions(_ options: [String: Any]?) {
     }
 }
@@ -49,4 +51,16 @@ extension Options {
         _swiftExperimentalOptions as! SentryExperimentalOptions
       // swiftlint:enable force_cast
     }
+}
+
+@objc
+public enum SessionReplayMaskingStrategy: Int {
+    @objc(kSessionReplayMaskingStrategyViewHierarchy)
+    case viewHierarchy = 0
+
+    @objc(kSessionReplayMaskingStrategyAccessibilty)
+    case accessibility
+
+    @objc(kSessionReplayMaskingStrategyMachineLearning)
+    case machineLearning
 }

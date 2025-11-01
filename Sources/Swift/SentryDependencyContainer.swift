@@ -207,7 +207,8 @@ extension SentryFileManager: SentryFileManagerProtocol { }
         // The options could be null here, but this is a general issue in the dependency
         // container and will be fixed in a future refactoring.
         guard let options = SentrySDKInternal.options else {
-            return nil
+            // return nil
+            preconditionFailure()
         }
         
         let viewRenderer: SentryViewRenderer
@@ -217,9 +218,14 @@ extension SentryFileManager: SentryFileManagerProtocol { }
             viewRenderer = SentryDefaultViewRenderer()
         }
 
+        let redactBuilder: SentryUIRedactBuilderProtocol
+        redactBuilder = SentryUIRedactBuilder(options: RedactWrapper(
+            SentryDependencyContainerSwiftHelper.redactOptions(options))
+        )
+
         let photographer = SentryViewPhotographer(
             renderer: viewRenderer,
-            redactOptions: RedactWrapper(SentryDependencyContainerSwiftHelper.redactOptions(options)),
+            redactBuilder: redactBuilder,
             enableMaskRendererV2: SentryDependencyContainerSwiftHelper.viewRendererV2Enabled(options))
         return SentryScreenshotSource(photographer: photographer)
     }

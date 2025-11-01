@@ -127,10 +127,19 @@ static SentryTouchTracker *_touchTracker;
         viewRenderer = [[SentryDefaultViewRenderer alloc] init];
     }
 
+    id<SentryUIRedactBuilderProtocol> redactBuilder;
+    if (experimentalOptions.sessionReplayMaskingStrategy == kSessionReplayMaskingStrategyAccessibilty) {
+        redactBuilder = [[SentryAccessibilityRedactBuilder alloc] initWithOptions:replayOptions];
+    } else if(experimentalOptions.sessionReplayMaskingStrategy == kSessionReplayMaskingStrategyMachineLearning) {
+        redactBuilder = [[SentryMLRedactBuilder alloc] initWithOptions:replayOptions];
+    } else {
+        redactBuilder = [[SentryUIRedactBuilder alloc] initWithOptions:replayOptions];
+    }
+
     // We are using the flag for the view renderer V2 also for the mask renderer V2, as it would
     // just introduce another option without affecting the SDK user experience.
     _viewPhotographer = [[SentryViewPhotographer alloc] initWithRenderer:viewRenderer
-                                                           redactOptions:replayOptions
+                                                           redactBuilder:redactBuilder
                                                     enableMaskRendererV2:enableViewRendererV2];
 
     if (touchTracker) {
