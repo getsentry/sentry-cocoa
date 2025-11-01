@@ -23,7 +23,7 @@ class SentryTransactionTests: XCTestCase {
             return SentryTracer(transactionContext: getContext(), hub: nil)
         }
         
-        func getHub() -> SentryHub {
+        func getHub() -> SentryHubInternal {
             let scope = Scope()
             let client = TestClient(options: Options())!
             client.options.tracesSampleRate = 1

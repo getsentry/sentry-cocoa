@@ -2,7 +2,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryClient ()
+@interface SentryClientInternal ()
 
 /**
  * Helper to capture encoded logs, as SentryEnvelope can't be used in the Swift SDK.

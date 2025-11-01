@@ -137,7 +137,7 @@
 #import "SentryNetworkTrackingIntegration.h"
 #import "SentryNoOpSpan.h"
 #import "SentryOptions+Private.h"
-#import "SentryOptionsInternal.h"
+#import "SentryOptionsHelpers.h"
 #import "SentryPerformanceTracker+Testing.h"
 #import "SentryPerformanceTracker.h"
 #import "SentryPerformanceTrackingIntegration.h"

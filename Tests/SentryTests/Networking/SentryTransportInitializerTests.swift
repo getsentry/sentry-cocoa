@@ -24,7 +24,7 @@ class SentryTransportInitializerTests: XCTestCase {
     }
 
     func testDefault() throws {
-        let options = try SentryOptionsInternal.initWithDict(["dsn": SentryTransportInitializerTests.dsnAsString])
+        let options = try SentryOptionsHelpers.initWithDict(["dsn": SentryTransportInitializerTests.dsnAsString])
     
         let result = TransportInitializer.initTransports(
             options,

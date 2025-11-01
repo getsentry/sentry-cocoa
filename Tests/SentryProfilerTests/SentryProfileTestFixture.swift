@@ -20,7 +20,7 @@ class SentryProfileTestFixture {
 
     let options: Options
     let client: TestClient?
-    let hub: SentryHub
+    let hub: SentryHubInternal
     let scope = Scope()
     let message = "some message"
     let transactionName = "Some Transaction"
@@ -79,7 +79,7 @@ class SentryProfileTestFixture {
         options.dsn = SentryProfileTestFixture.dsnAsString
         options.debug = true
         client = TestClient(options: options)
-        hub = SentryHub(client: client, andScope: scope)
+        hub = SentryHubInternal(client: client, andScope: scope)
         hub.bindClient(client)
         SentrySDKInternal.setCurrentHub(hub)
         

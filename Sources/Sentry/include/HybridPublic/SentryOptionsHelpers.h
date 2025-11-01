@@ -4,7 +4,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryOptionsInternal : NSObject
+@interface SentryOptionsHelpers : NSObject
 
 @property (nonatomic, readonly, class) NSArray<Class> *defaultIntegrationClasses;
 

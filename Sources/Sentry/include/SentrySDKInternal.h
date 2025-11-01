@@ -25,14 +25,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryIdWrapper : NSObject
-
-@property (nonatomic, strong) NSString *sentryIdString;
-
-- (instancetype)initWithId:(NSString *)sentryIdString;
-
-@end
-
 /**
  * The internal implementation of SentrySDK.
  * This class is used internally by the Swift wrapper.
@@ -82,7 +74,7 @@ SENTRY_NO_INIT
  * @return The @c SentryId of the event or @c SentryId.empty if the event is not sent.
  *
  */
-+ (SentryIdWrapper *)captureEvent:(SentryEvent *)event NS_SWIFT_NAME(capture(event:));
++ (SentryId *)captureEvent:(SentryEvent *)event NS_SWIFT_NAME(capture(event:));
 
 /**
  * Captures a manually created event and sends it to Sentry. Only the data in this scope object will
@@ -92,8 +84,8 @@ SENTRY_NO_INIT
  * @return The @c SentryId of the event or @c SentryId.empty if the event is not sent.
  *
  */
-+ (SentryIdWrapper *)captureEvent:(SentryEvent *)event
-                        withScope:(SentryScope *)scope NS_SWIFT_NAME(capture(event:scope:));
++ (SentryId *)captureEvent:(SentryEvent *)event
+                 withScope:(SentryScope *)scope NS_SWIFT_NAME(capture(event:scope:));
 
 /**
  * Captures a manually created event and sends it to Sentry. Maintains the global scope but mutates
@@ -103,9 +95,8 @@ SENTRY_NO_INIT
  * @return The @c SentryId of the event or @c SentryId.empty if the event is not sent.
  *
  */
-+ (SentryIdWrapper *)captureEvent:(SentryEvent *)event
-                   withScopeBlock:(void (^)(SentryScope *scope))block
-    NS_SWIFT_NAME(capture(event:block:));
++ (SentryId *)captureEvent:(SentryEvent *)event
+            withScopeBlock:(void (^)(SentryScope *scope))block NS_SWIFT_NAME(capture(event:block:));
 
 /**
  * Creates a transaction, binds it to the hub and returns the instance.
@@ -175,7 +166,7 @@ SENTRY_NO_INIT
  * @return The @c SentryId of the event or @c SentryId.empty if the event is not sent.
  *
  */
-+ (SentryIdWrapper *)captureError:(NSError *)error NS_SWIFT_NAME(capture(error:));
++ (SentryId *)captureError:(NSError *)error NS_SWIFT_NAME(capture(error:));
 
 /**
  * Captures an error event and sends it to Sentry. Only the data in this scope object will be added
@@ -185,8 +176,8 @@ SENTRY_NO_INIT
  * @return The @c SentryId of the event or @c SentryId.empty if the event is not sent.
  *
  */
-+ (SentryIdWrapper *)captureError:(NSError *)error
-                        withScope:(SentryScope *)scope NS_SWIFT_NAME(capture(error:scope:));
++ (SentryId *)captureError:(NSError *)error
+                 withScope:(SentryScope *)scope NS_SWIFT_NAME(capture(error:scope:));
 
 /**
  * Captures an error event and sends it to Sentry. Maintains the global scope but mutates scope data
@@ -196,9 +187,8 @@ SENTRY_NO_INIT
  * @return The @c SentryId of the event or @c SentryId.empty if the event is not sent.
  *
  */
-+ (SentryIdWrapper *)captureError:(NSError *)error
-                   withScopeBlock:(void (^)(SentryScope *scope))block
-    NS_SWIFT_NAME(capture(error:block:));
++ (SentryId *)captureError:(NSError *)error
+            withScopeBlock:(void (^)(SentryScope *scope))block NS_SWIFT_NAME(capture(error:block:));
 
 /**
  * Captures an exception event and sends it to Sentry.
@@ -206,7 +196,7 @@ SENTRY_NO_INIT
  * @return The @c SentryId of the event or @c SentryId.empty if the event is not sent.
  *
  */
-+ (SentryIdWrapper *)captureException:(NSException *)exception NS_SWIFT_NAME(capture(exception:));
++ (SentryId *)captureException:(NSException *)exception NS_SWIFT_NAME(capture(exception:));
 
 /**
  * Captures an exception event and sends it to Sentry. Only the data in this scope object will be
@@ -216,8 +206,8 @@ SENTRY_NO_INIT
  * @return The @c SentryId of the event or @c SentryId.empty if the event is not sent.
  *
  */
-+ (SentryIdWrapper *)captureException:(NSException *)exception
-                            withScope:(SentryScope *)scope NS_SWIFT_NAME(capture(exception:scope:));
++ (SentryId *)captureException:(NSException *)exception
+                     withScope:(SentryScope *)scope NS_SWIFT_NAME(capture(exception:scope:));
 
 /**
  * Captures an exception event and sends it to Sentry. Maintains the global scope but mutates scope
@@ -227,8 +217,8 @@ SENTRY_NO_INIT
  * @return The @c SentryId of the event or @c SentryId.empty if the event is not sent.
  *
  */
-+ (SentryIdWrapper *)captureException:(NSException *)exception
-                       withScopeBlock:(void (^)(SentryScope *scope))block
++ (SentryId *)captureException:(NSException *)exception
+                withScopeBlock:(void (^)(SentryScope *scope))block
     NS_SWIFT_NAME(capture(exception:block:));
 
 /**
@@ -237,7 +227,7 @@ SENTRY_NO_INIT
  * @return The @c SentryId of the event or @c SentryId.empty if the event is not sent.
  *
  */
-+ (SentryIdWrapper *)captureMessage:(NSString *)message NS_SWIFT_NAME(capture(message:));
++ (SentryId *)captureMessage:(NSString *)message NS_SWIFT_NAME(capture(message:));
 
 /**
  * Captures a message event and sends it to Sentry. Only the data in this scope object will be added
@@ -247,8 +237,8 @@ SENTRY_NO_INIT
  * @return The @c SentryId of the event or @c SentryId.empty if the event is not sent.
  *
  */
-+ (SentryIdWrapper *)captureMessage:(NSString *)message
-                          withScope:(SentryScope *)scope NS_SWIFT_NAME(capture(message:scope:));
++ (SentryId *)captureMessage:(NSString *)message
+                   withScope:(SentryScope *)scope NS_SWIFT_NAME(capture(message:scope:));
 
 /**
  * Captures a message event and sends it to Sentry. Maintains the global scope but mutates scope
@@ -258,8 +248,8 @@ SENTRY_NO_INIT
  * @return The @c SentryId of the event or @c SentryId.empty if the event is not sent.
  *
  */
-+ (SentryIdWrapper *)captureMessage:(NSString *)message
-                     withScopeBlock:(void (^)(SentryScope *scope))block
++ (SentryId *)captureMessage:(NSString *)message
+              withScopeBlock:(void (^)(SentryScope *scope))block
     NS_SWIFT_NAME(capture(message:block:));
 
 + (void)captureSerializedFeedback:(NSDictionary *)serializedFeedback

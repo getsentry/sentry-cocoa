@@ -13,8 +13,8 @@
 @class SentryAppStartMeasurement;
 @class SentryEnvelope;
 @class SentryFeedback;
-@class SentryHub;
 @class SentryId;
+@class SentryHubInternal;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -42,7 +42,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, class) NSUInteger startInvocations;
 @property (nullable, nonatomic, class) NSDate *startTimestamp;
 
-+ (SentryHub *)currentHub;
++ (SentryHubInternal *)currentHub;
 
 /**
  * The option used to start the SDK

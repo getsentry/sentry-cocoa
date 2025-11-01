@@ -349,7 +349,7 @@ sentry_startLaunchProfile(void)
 }
 
 void
-sentry_stopAndDiscardLaunchProfileTracer(SentryHub *_Nullable hub)
+sentry_stopAndDiscardLaunchProfileTracer(SentryHubInternal *_Nullable hub)
 {
     SENTRY_LOG_DEBUG(@"Finishing launch tracer.");
     sentry_launchTracer.hub = hub;

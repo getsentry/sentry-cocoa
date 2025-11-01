@@ -36,7 +36,7 @@ class SentryProfilingPublicAPITests: XCTestCase {
         let currentDate = TestCurrentDateProvider()
         lazy var timerFactory = TestSentryNSTimerFactory(currentDateProvider: currentDate)
         lazy var client = TestClient(options: options)!
-        lazy var hub = SentryHub(client: client, andScope: scope)
+        lazy var hub = SentryHubInternal(client: client, andScope: scope)
     }
 
     private let fixture = Fixture()
@@ -483,7 +483,7 @@ private extension SentryProfilingPublicAPITests {
     }
 
     func givenSdkWithHubButNoClient() {
-        SentrySDKInternal.setCurrentHub(SentryHub(client: nil, andScope: nil))
+        SentrySDKInternal.setCurrentHub(SentryHubInternal(client: nil, andScope: nil))
         SentrySDKInternal.setStart(with: fixture.options)
     }
 

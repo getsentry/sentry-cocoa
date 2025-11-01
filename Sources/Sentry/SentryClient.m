@@ -10,8 +10,6 @@
 #import "SentryDsn.h"
 #import "SentryEvent+Private.h"
 #import "SentryException.h"
-#import "SentryHub+Private.h"
-#import "SentryHub.h"
 #import "SentryInstallation.h"
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"
@@ -46,7 +44,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryClient ()
+@interface SentryClientInternal ()
 
 @property (nonatomic, strong) SentryTransportAdapter *transportAdapter;
 @property (nonatomic, strong) SentryDebugImageProvider *debugImageProvider;
@@ -58,7 +56,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 NSString *const DropSessionLogMessage = @"Session has no release name. Won't send it.";
 
-@implementation SentryClient
+@implementation SentryClientInternal
 
 - (_Nullable instancetype)initWithOptions:(SentryOptions *)options
 {
@@ -74,10 +72,11 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                   deleteOldEnvelopeItems:(BOOL)deleteOldEnvelopeItems
 {
     NSError *error;
-    SentryFileManager *fileManager = [[SentryFileManager alloc] initWithOptions:options
-                                                                   dateProvider:dateProvider
-                                                           dispatchQueueWrapper:dispatchQueue
-                                                                          error:&error];
+    SentryFileManager *fileManager = [[SentryFileManager alloc]
+             initWithOptions:options
+                dateProvider:SentryDependencyContainer.sharedInstance.dateProvider
+        dispatchQueueWrapper:SentryDependencyContainer.sharedInstance.dispatchQueueWrapper
+                       error:&error];
     if (error != nil) {
         SENTRY_LOG_FATAL(@"Failed to initialize file system: %@", error.localizedDescription);
         return nil;
@@ -114,6 +113,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                transportAdapter:(SentryTransportAdapter *)transportAdapter
 
 {
+
     SentryDefaultThreadInspector *threadInspector =
         [[SentryDefaultThreadInspector alloc] initWithOptions:options];
 

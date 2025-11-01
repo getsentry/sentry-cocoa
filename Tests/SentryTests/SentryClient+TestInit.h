@@ -11,7 +11,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryClient ()
+@interface SentryClientInternal ()
 
 - (_Nullable instancetype)initWithOptions:(SentryOptions *)options
                              dateProvider:(id<SentryCurrentDateProvider>)dateProvider

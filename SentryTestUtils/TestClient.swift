@@ -2,7 +2,7 @@ import _SentryPrivate
 import Foundation
 @_spi(Private) import Sentry
 
-public class TestClient: SentryClient {
+public class TestClient: SentryClientInternal {
     public override init?(options: Options) {
         super.init(
             options: options,

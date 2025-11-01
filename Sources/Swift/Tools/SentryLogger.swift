@@ -29,12 +29,12 @@ import Foundation
 /// ```
 @objc
 public final class SentryLogger: NSObject {
-    private let hub: SentryHub
+    private let hub: SentryHubInternal
     private let dateProvider: SentryCurrentDateProvider
     // Nil in the case where the Hub's client is nil or logs are disabled through options.
     private let batcher: SentryLogBatcher?
     
-    @_spi(Private) public init(hub: SentryHub, dateProvider: SentryCurrentDateProvider, batcher: SentryLogBatcher?) {
+    init(hub: SentryHubInternal, dateProvider: SentryCurrentDateProvider, batcher: SentryLogBatcher?) {
         self.hub = hub
         self.dateProvider = dateProvider
         self.batcher = batcher

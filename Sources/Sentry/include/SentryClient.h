@@ -8,14 +8,14 @@
 
 @class SentryEvent;
 @class SentryFeedback;
-@class SentryId;
 @class SentryOptions;
 @class SentryScope;
+@class SentryId;
 @class SentryTransaction;
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryClient : NSObject
+@interface SentryClientInternal : NSObject
 SENTRY_NO_INIT
 
 @property (nonatomic, assign, readonly) BOOL isEnabled;

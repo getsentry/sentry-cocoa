@@ -74,7 +74,7 @@ typealias Application = NSApplication
     }
     
     @objc public func stop() {
-        SentryDependencyContainerSwiftHelper.currentHub().endSession()
+        SentrySDKInternal.currentHub().endSession()
 
         removeObservers()
 
@@ -113,7 +113,7 @@ typealias Application = NSApplication
             SentryDependencyContainerSwiftHelper.deleteTimestampLastInForeground()
         }
 
-        let hub = SentryDependencyContainerSwiftHelper.currentHub()
+        let hub = SentrySDKInternal.currentHub()
         hub.closeCachedSession(withTimestamp: lastInForeground)
     }
 
@@ -148,7 +148,7 @@ typealias Application = NSApplication
             return
         }
 
-        let hub = SentryDependencyContainerSwiftHelper.currentHub()
+        let hub = SentrySDKInternal.currentHub()
         let lastInForeground = SentryDependencyContainerSwiftHelper.readTimestampLastInForeground()
 
         if let lastInForeground {
@@ -199,7 +199,7 @@ typealias Application = NSApplication
     @objc func willTerminate() {
         let lastInForeground = lastInForegroundLock.synchronized { return self.lastInForeground }
         let sessionEnded = lastInForeground ?? dateProvider.date()
-        SentryDependencyContainerSwiftHelper.currentHub().endSession(withTimestamp: sessionEnded)
+        SentrySDKInternal.currentHub().endSession(withTimestamp: sessionEnded)
         SentryDependencyContainerSwiftHelper.deleteTimestampLastInForeground()
         wasStartSessionCalled = false
     }

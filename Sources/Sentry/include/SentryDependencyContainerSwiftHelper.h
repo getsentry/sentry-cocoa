@@ -6,7 +6,7 @@
 #    import <UIKit/UIKit.h>
 #endif // SENTRY_HAS_UIKIT
 
-@class SentryHub;
+@class SentryHubInternal;
 @class SentryDispatchQueueWrapper;
 @class SentryOptions;
 
@@ -40,7 +40,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (SentryDispatchQueueWrapper *)dispatchQueueWrapper;
 + (void)dispatchSyncOnMainQueue:(void (^)(void))block;
-+ (SentryHub *)currentHub;
 + (nullable NSDate *)readTimestampLastInForeground;
 + (void)deleteTimestampLastInForeground;
 + (void)storeTimestampLastInForeground:(NSDate *)timestamp;

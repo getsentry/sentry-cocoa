@@ -2,6 +2,7 @@
 
 #if SENTRY_TARGET_REPLAY_SUPPORTED
 
+#    import "SentryClient.h"
 #    import "SentryHub+Private.h"
 #    import "SentryInternalCDefines.h"
 #    import "SentryInternalDefines.h"
