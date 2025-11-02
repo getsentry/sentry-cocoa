@@ -2,7 +2,7 @@
 @_spi(Private) import SentryTestUtils
 import XCTest
 
-extension SentryClient {
+extension SentryClientInternal {
     convenience init(options: Options, fileManager: SentryFileManager) {
         let transports = TransportInitializer.initTransports(options, dateProvider: SentryDependencyContainer.sharedInstance().dateProvider, sentryFileManager: fileManager, rateLimits: SentryDependencyContainer.sharedInstance().rateLimits)
 
@@ -104,7 +104,7 @@ class SentryClientTests: XCTestCase {
         func getSut(configureOptions: (Options) -> Void = { _ in }) -> SentryClientInternal {
             var client: SentryClientInternal!
             do {
-                let options = try SentryOptionsHelpers.initWithDict([
+                let options = try SentryOptionsInternal.initWithDict([
                     "dsn": SentryClientTests.dsn
                 ])
                 options.removeAllIntegrations()

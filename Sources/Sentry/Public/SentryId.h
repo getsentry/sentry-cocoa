@@ -1,26 +1,11 @@
 #import <Foundation/Foundation.h>
-#if !defined(SWIFT_CLASS_PROPERTY)
-#    if __has_feature(objc_class_property)
-#        define SWIFT_CLASS_PROPERTY(...) __VA_ARGS__
-#    else
-#        define SWIFT_CLASS_PROPERTY(...)
-#    endif
-#endif
-
-#if !defined(OBJC_DESIGNATED_INITIALIZER)
-#    if __has_attribute(objc_designated_initializer)
-#        define OBJC_DESIGNATED_INITIALIZER __attribute__((objc_designated_initializer))
-#    else
-#        define OBJC_DESIGNATED_INITIALIZER
-#    endif
-#endif
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface SentryId : NSObject
 
 /// A @c SentryId with an empty UUID “00000000000000000000000000000000”.
-SWIFT_CLASS_PROPERTY(@property(nonatomic, class, readonly, strong) SentryId *_Nonnull empty;)
+@property (nonatomic, class, readonly, strong) SentryId *_Nonnull empty;
 + (SentryId *_Nonnull)empty __attribute__((warn_unused_result));
 
 /// Returns a 32 lowercase character hexadecimal string description of the @c SentryId, such as

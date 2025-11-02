@@ -10,7 +10,7 @@
 #import "SentryLogC.h"
 #import "SentryMeta.h"
 #import "SentryOptions+Private.h"
-#import "SentryOptionsHelpers.h"
+#import "SentryOptionsInternal.h"
 #import "SentryProfilingConditionals.h"
 #import "SentryReplayApi.h"
 #import "SentrySamplerDecision.h"
@@ -532,7 +532,7 @@ static NSDate *_Nullable startTimestamp = nil;
     SentryOptions *options = [SentrySDKInternal.currentHub getClient].options;
     NSMutableArray<NSString *> *integrationNames = [SentryOptions defaultIntegrations].mutableCopy;
 
-    NSArray<Class> *defaultIntegrations = SentryOptionsHelpers.defaultIntegrationClasses;
+    NSArray<Class> *defaultIntegrations = SentryOptionsInternal.defaultIntegrationClasses;
 
     // Since 8.22.0, we use a precompiled XCFramework for SPM, which can lead to Sentry's
     // definition getting duplicated in the app with a warning “SentrySDK is defined in both

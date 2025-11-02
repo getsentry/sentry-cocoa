@@ -12,7 +12,7 @@
 #import "SentryMeta.h"
 #import "SentryNetworkTrackingIntegration.h"
 #import "SentryOptions+Private.h"
-#import "SentryOptionsHelpers.h"
+#import "SentryOptionsInternal.h"
 #import "SentrySDKInternal.h"
 #import "SentryScope.h"
 #import "SentrySessionReplayIntegration.h"
@@ -46,7 +46,7 @@ NSString *const kSentryDefaultEnvironment = @"production";
 
 + (NSArray<NSString *> *)defaultIntegrations
 {
-    NSArray<Class> *defaultIntegrationClasses = [SentryOptionsHelpers defaultIntegrationClasses];
+    NSArray<Class> *defaultIntegrationClasses = [SentryOptionsInternal defaultIntegrationClasses];
     NSMutableArray<NSString *> *defaultIntegrationNames =
         [[NSMutableArray alloc] initWithCapacity:defaultIntegrationClasses.count];
 

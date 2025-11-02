@@ -80,7 +80,6 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     SentryTransportAdapter *transportAdapter =
         [[SentryTransportAdapter alloc] initWithTransports:transports options:options];
 
-
     SentryDefaultThreadInspector *threadInspector =
         [[SentryDefaultThreadInspector alloc] initWithOptions:options];
 
