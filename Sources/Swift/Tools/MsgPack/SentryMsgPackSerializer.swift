@@ -2,9 +2,8 @@
  * This is a partial implementation of the MessagePack format.
  * We only need to concatenate a list of NSData into an envelope item.
  */
-class SentryMsgPackSerializer {
-    @objc
-    static func serializeDictionary(toMessagePack dictionary: [String: Any], intoFile fileURL: URL) -> Bool {
+final class SentryMsgPackSerializer {
+    static func serializeDictionary(toMessagePack dictionary: [String: SentryStreamable], intoFile fileURL: URL) -> Bool {
         do {
             try serializeToFile(dictionary: dictionary, fileURL: fileURL)
             return true
@@ -21,7 +20,7 @@ class SentryMsgPackSerializer {
     }
     
     // swiftlint:disable:next function_body_length cyclomatic_complexity
-    private static func serializeToFile(dictionary: [String: Any], fileURL: URL) throws {
+    private static func serializeToFile(dictionary: [String: SentryStreamable], fileURL: URL) throws {
         guard let outputStream = OutputStream(url: fileURL, append: false) else {
             throw SentryMsgPackSerializerError.outputError("Failed to create output stream for file: \(fileURL)")
         }
@@ -38,13 +37,8 @@ class SentryMsgPackSerializer {
         let mapHeader = UInt8(truncatingIfNeeded: 0x80 | dictionary.count) // Map up to 15 elements
         _ = outputStream.write([mapHeader], maxLength: 1)
 
-        for (key, anyValue) in dictionary {
-            guard let value = anyValue as? SentryStreamable else {
-                throw SentryMsgPackSerializerError.invalidValue("Value does not conform to SentryStreamable: \(anyValue)")
-            }
-            guard let keyData = key.data(using: .utf8) else {
-                throw SentryMsgPackSerializerError.invalidInput("Could not encode key as UTF-8: \(key)")
-            }
+        for (key, value) in dictionary {
+            let keyData = Data(key.utf8)
             
             let str8Header: UInt8 = 0xD9 // String up to 255 characters
             let keyLength = UInt8(truncatingIfNeeded: keyData.count) // Truncates if > 255, matching Objective-C behavior
@@ -66,20 +60,20 @@ class SentryMsgPackSerializer {
                 throw SentryMsgPackSerializerError.emptyData("Data for MessagePack dictionary has no content - Input: \(value)")
             }
 
-            let valueLength = UInt32(truncatingIfNeeded: dataLength)
+            var valueLength = UInt32(truncatingIfNeeded: dataLength)
             // We will always use the 4 bytes data length for simplicity.
             // Worst case we're losing 3 bytes.
             let bin32Header: UInt8 = 0xC6
             _ = outputStream.write([bin32Header], maxLength: 1)
             
             // Write UInt32 as big endian bytes
-            let lengthBytes = [
-                UInt8((valueLength >> 24) & 0xFF),
-                UInt8((valueLength >> 16) & 0xFF),
-                UInt8((valueLength >> 8) & 0xFF),
-                UInt8(valueLength & 0xFF)
-            ]
-            _ = outputStream.write(lengthBytes, maxLength: 4)
+            valueLength = NSSwapHostIntToBig(valueLength)
+            withUnsafeBytes(of: valueLength) { bytes in
+                guard let baseAddress = bytes.bindMemory(to: UInt8.self).baseAddress else {
+                    return
+                }
+                _ = outputStream.write(baseAddress, maxLength: 4)
+            }
 
             guard let inputStream = value.asInputStream() else {
                 throw SentryMsgPackSerializerError.streamError("Could not get input stream - Input: \(value)")
