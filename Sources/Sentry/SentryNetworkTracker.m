@@ -395,7 +395,7 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
 
     event.context = context;
 
-    [SentrySDK captureEvent:event];
+    [SentrySDKInternal.currentHub captureErrorEvent:event];
 }
 
 - (BOOL)containsStatusCode:(NSInteger)statusCode

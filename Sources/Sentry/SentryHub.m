@@ -488,19 +488,36 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (SentryId *)captureError:(NSError *)error withScope:(SentryScope *)scope
 {
-    SentrySession *currentSession = _session;
-    SentryClient *client = self.client;
-    if (client != nil) {
-        if (currentSession != nil) {
-            return [client captureError:error
-                              withScope:scope
-                 incrementSessionErrors:^(void) { return [self incrementSessionErrors]; }];
-        } else {
-            _errorsBeforeSession++;
-            return [client captureError:error withScope:scope];
-        }
-    }
-    return SentryId.empty;
+    SentryId * (^captureClientBlock)(SentryClient *) = ^SentryId *(SentryClient *clientParam) {
+        return [clientParam captureError:error
+                               withScope:scope
+                  incrementSessionErrors:^(void) { return [self incrementSessionErrors]; }];
+    };
+
+    SentryId * (^captureClientBlockSessionNil)(SentryClient *) = ^SentryId *(
+        SentryClient *clientParam) { return [clientParam captureError:error withScope:scope]; };
+
+    return [self captureEventIncrementingSessionErrors:scope
+                                    captureClientBlock:captureClientBlock
+                          captureClientSessionNilBlock:captureClientBlockSessionNil];
+}
+
+- (SentryId *)captureErrorEvent:(SentryEvent *)event
+{
+    SentryScope *scope = self.scope;
+
+    SentryId * (^captureClientBlock)(SentryClient *) = ^SentryId *(SentryClient *clientParam) {
+        return [clientParam captureErrorEvent:event
+                                    withScope:scope
+                       incrementSessionErrors:^(void) { return [self incrementSessionErrors]; }];
+    };
+
+    SentryId * (^captureClientBlockSessionNil)(SentryClient *) = ^SentryId *(
+        SentryClient *clientParam) { return [clientParam captureEvent:event withScope:scope]; };
+
+    return [self captureEventIncrementingSessionErrors:scope
+                                    captureClientBlock:captureClientBlock
+                          captureClientSessionNilBlock:captureClientBlockSessionNil];
 }
 
 - (SentryId *)captureException:(NSException *)exception
@@ -510,16 +527,37 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (SentryId *)captureException:(NSException *)exception withScope:(SentryScope *)scope
 {
+    SentryId * (^captureClientBlock)(SentryClient *) = ^SentryId *(SentryClient *clientParam) {
+        return [clientParam captureException:exception
+                                   withScope:scope
+                      incrementSessionErrors:^(void) { return [self incrementSessionErrors]; }];
+    };
+
+    SentryId * (^captureClientBlockSessionNil)(SentryClient *)
+        = ^SentryId *(SentryClient *clientParam) {
+              return [clientParam captureException:exception withScope:scope];
+          };
+
+    return [self captureEventIncrementingSessionErrors:scope
+                                    captureClientBlock:captureClientBlock
+                          captureClientSessionNilBlock:captureClientBlockSessionNil];
+}
+
+- (SentryId *)captureEventIncrementingSessionErrors:(SentryScope *)scope
+                                 captureClientBlock:(SentryId * (^)(
+                                                        SentryClient *))captureClientBlock
+                       captureClientSessionNilBlock:
+                           (SentryId * (^)(SentryClient *))captureClientSessionNilBlock
+{
+
     SentrySession *currentSession = _session;
     SentryClient *client = self.client;
     if (client != nil) {
         if (currentSession != nil) {
-            return [client captureException:exception
-                                  withScope:scope
-                     incrementSessionErrors:^(void) { return [self incrementSessionErrors]; }];
+            return captureClientBlock(client);
         } else {
             _errorsBeforeSession++;
-            return [client captureException:exception withScope:scope];
+            return captureClientSessionNilBlock(client);
         }
     }
     return SentryId.empty;

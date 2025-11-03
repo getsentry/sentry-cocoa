@@ -44,6 +44,13 @@ public class TestHub: SentryHub {
         return event.eventId
     }
 
+    @_spi(Private) public var capturedErrorEvents = Invocations<Event>()
+    public override func captureErrorEvent(event: Event) -> SentryId {
+        self.capturedErrorEvents.record((event))
+
+        return event.eventId
+    }
+
     public var capturedTransactionsWithScope = Invocations<(transaction: [String: Any], scope: Scope)>()
     public override func capture(_ transaction: Transaction, with scope: Scope) {
         capturedTransactionsWithScope.record((transaction.serialize(), scope))

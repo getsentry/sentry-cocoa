@@ -862,7 +862,48 @@ class SentryHubTests: XCTestCase {
             )
         }
     }
-    
+
+    func testCaptureErrorEvent_WithSession() {
+        let sut = fixture.getSut()
+        sut.startSession()
+
+        let event = fixture.event
+        sut.captureErrorEvent(event: event).assertIsNotEmpty()
+
+        XCTAssertEqual(1, fixture.client.captureErrorEventWithSessionInvocations.count)
+        if let eventArguments = fixture.client.captureErrorEventWithSessionInvocations.first {
+            XCTAssertEqual(event, eventArguments.event)
+
+            XCTAssertEqual(1, eventArguments.session?.errors)
+            XCTAssertEqual(SentrySessionStatus.ok, eventArguments.session?.status)
+
+            XCTAssertEqual(sut.scope, eventArguments.scope)
+        }
+
+        // only session init is sent
+        XCTAssertEqual(1, fixture.client.captureSessionInvocations.count)
+    }
+
+    func testCaptureErrorEvent_WithoutIncreasingErrorCount() {
+        let sut = fixture.getSut()
+        sut.startSession()
+
+        fixture.client.callSessionBlockWithIncrementSessionErrors = false
+
+        let event = fixture.event
+        sut.captureErrorEvent(event: event).assertIsNotEmpty()
+
+        XCTAssertEqual(1, fixture.client.captureErrorEventWithSessionInvocations.count)
+        if let eventArguments = fixture.client.captureErrorEventWithSessionInvocations.first {
+            XCTAssertEqual(event, eventArguments.event)
+            XCTAssertNil(eventArguments.session)
+            XCTAssertEqual(sut.scope, eventArguments.scope)
+        }
+
+        // only session init is sent
+        XCTAssertEqual(1, fixture.client.captureSessionInvocations.count)
+    }
+
     func testCaptureClientIsNil_ReturnsEmptySentryId() {
         sut.bindClient(nil)
         

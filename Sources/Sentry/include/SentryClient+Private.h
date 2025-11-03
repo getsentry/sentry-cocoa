@@ -56,6 +56,11 @@ NS_ASSUME_NONNULL_BEGIN
     additionalEnvelopeItems:(NSArray<SentryEnvelopeItem *> *)additionalEnvelopeItems
     NS_SWIFT_NAME(capture(event:scope:additionalEnvelopeItems:));
 
+- (SentryId *)captureErrorEvent:(SentryEvent *)event
+                      withScope:(SentryScope *)scope
+         incrementSessionErrors:(SentrySession * (^)(void))sessionBlock
+    NS_SWIFT_NAME(captureErrorEvent(event:scope:incrementSessionErrors:));
+
 - (void)captureReplayEvent:(SentryReplayEvent *)replayEvent
            replayRecording:(SentryReplayRecording *)replayRecording
                      video:(NSURL *)videoURL

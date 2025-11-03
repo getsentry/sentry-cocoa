@@ -25,6 +25,7 @@
 - Enable enablePreWarmedAppStartTracing by default (#6508). With this option enabled, the SDK collects [prewarmed app starts](https://docs.sentry.io/platforms/apple/tracing/instrumentation/automatic-instrumentation/#prewarmed-app-start-tracing).
 - Change `value` and `type` of `SentryException` to be nullable (#6563)
 - Change the default trace context status to "ok" instead of "undefined" (#6611)
+- [HTTP Client errors](https://docs.sentry.io/platforms/apple/guides/ios/configuration/http-client-errors/) now mark sessions as errored (#6631)
 
 ### Features
 

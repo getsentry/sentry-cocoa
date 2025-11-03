@@ -189,14 +189,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         incrementSessionErrors:(SentrySession * (^)(void))sessionBlock
 {
     SentryEvent *event = [self buildExceptionEvent:exception];
-    event = [self prepareEvent:event withScope:scope alwaysAttachStacktrace:YES];
-
-    if (event != nil) {
-        SentrySession *session = sessionBlock();
-        return [self sendEvent:event withSession:session withScope:scope];
-    }
-
-    return SentryId.empty;
+    return [self captureErrorEvent:event withScope:scope incrementSessionErrors:sessionBlock];
 }
 
 - (SentryEvent *)buildExceptionEvent:(NSException *)exception
@@ -235,14 +228,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     incrementSessionErrors:(SentrySession * (^)(void))sessionBlock
 {
     SentryEvent *event = [self buildErrorEvent:error];
-    event = [self prepareEvent:event withScope:scope alwaysAttachStacktrace:YES];
-
-    if (event != nil) {
-        SentrySession *session = sessionBlock();
-        return [self sendEvent:event withSession:session withScope:scope];
-    }
-
-    return SentryId.empty;
+    return [self captureErrorEvent:event withScope:scope incrementSessionErrors:sessionBlock];
 }
 
 - (SentryEvent *)buildErrorEvent:(NSError *)error
@@ -389,6 +375,22 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
          alwaysAttachStacktrace:NO
                    isFatalEvent:NO
         additionalEnvelopeItems:additionalEnvelopeItems];
+}
+
+- (SentryId *)captureErrorEvent:(SentryEvent *)event
+                      withScope:(SentryScope *)scope
+         incrementSessionErrors:(SentrySession * (^)(void))sessionBlock
+{
+    SentryEvent *preparedEvent = [self prepareEvent:event
+                                          withScope:scope
+                             alwaysAttachStacktrace:YES];
+
+    if (preparedEvent != nil) {
+        SentrySession *session = sessionBlock();
+        return [self sendEvent:preparedEvent withSession:session withScope:scope];
+    }
+
+    return SentryId.empty;
 }
 
 - (SentryId *)sendEvent:(SentryEvent *)event
