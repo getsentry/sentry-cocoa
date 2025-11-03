@@ -63,7 +63,6 @@ class SentryUIRedactBuilderTests_ReactNative: SentryUIRedactBuilderTests { // sw
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: true)
         let result = sut.redactRegionsFor(view: rootView)
-        let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
         let region = try XCTUnwrap(result.element(at: 0))
@@ -84,7 +83,6 @@ class SentryUIRedactBuilderTests_ReactNative: SentryUIRedactBuilderTests { // sw
         // -- Act --
         let sut = getSut(maskAllText: false, maskAllImages: true)
         let result = sut.redactRegionsFor(view: rootView)
-        let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
         XCTAssertEqual(result.count, 0)
@@ -97,7 +95,6 @@ class SentryUIRedactBuilderTests_ReactNative: SentryUIRedactBuilderTests { // sw
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: false)
         let result = sut.redactRegionsFor(view: rootView)
-        let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
         XCTAssertEqual(result.count, 1)
@@ -126,7 +123,6 @@ class SentryUIRedactBuilderTests_ReactNative: SentryUIRedactBuilderTests { // sw
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: true)
         let result = sut.redactRegionsFor(view: rootView)
-        let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
         let region = try XCTUnwrap(result.element(at: 0))
@@ -147,7 +143,6 @@ class SentryUIRedactBuilderTests_ReactNative: SentryUIRedactBuilderTests { // sw
         // -- Act --
         let sut = getSut(maskAllText: false, maskAllImages: true)
         let result = sut.redactRegionsFor(view: rootView)
-        let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
         XCTAssertEqual(result.count, 0)
@@ -160,7 +155,6 @@ class SentryUIRedactBuilderTests_ReactNative: SentryUIRedactBuilderTests { // sw
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: false)
         let result = sut.redactRegionsFor(view: rootView)
-        let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
         XCTAssertEqual(result.count, 1)
@@ -187,7 +181,6 @@ class SentryUIRedactBuilderTests_ReactNative: SentryUIRedactBuilderTests { // sw
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: true)
         let result = sut.redactRegionsFor(view: rootView)
-        let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
         let region = try XCTUnwrap(result.element(at: 0))
@@ -208,7 +201,6 @@ class SentryUIRedactBuilderTests_ReactNative: SentryUIRedactBuilderTests { // sw
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: false)
         let result = sut.redactRegionsFor(view: rootView)
-        let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
         XCTAssertEqual(result.count, 0)
@@ -221,7 +213,6 @@ class SentryUIRedactBuilderTests_ReactNative: SentryUIRedactBuilderTests { // sw
         // -- Act --
         let sut = getSut(maskAllText: false, maskAllImages: true)
         let result = sut.redactRegionsFor(view: rootView)
-        let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
         XCTAssertEqual(result.count, 1)
