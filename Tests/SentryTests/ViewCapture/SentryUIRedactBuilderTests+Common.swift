@@ -882,7 +882,8 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftli
         let result = sut.redactRegionsFor(view: rootView)
         let masked = createMaskedScreenshot(view: rootView, regions: result)
 
-        // -- Assert --        XCTAssertEqual(result.count, 0)
+        // -- Assert --
+        XCTAssertEqual(result.count, 0)
     }
 
     func testRedact_withViewLayerOnTopIsNotFullyTransparent_shouldRedactView() throws {
@@ -906,7 +907,7 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftli
         let result = sut.redactRegionsFor(view: rootView)
         let masked = createMaskedScreenshot(view: rootView, regions: result)
 
-        // -- Assert --        
+        // -- Assert --
         let region = try XCTUnwrap(result.element(at: 0))
         XCTAssertEqual(region.color, label.textColor.withAlphaComponent(1.0))
         XCTAssertEqual(region.size, CGSize(width: 40, height: 40))
@@ -1250,7 +1251,8 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftli
 
         // -- Assert --
         // View with nil backgroundColor should not be treated as opaque
-        // So the label should still be redacted        let region = try XCTUnwrap(result.element(at: 0))
+        // So the label should still be redacted
+        let region = try XCTUnwrap(result.element(at: 0))
         XCTAssertEqual(region.color, UIColor.orange)
         XCTAssertEqual(region.size, CGSize(width: 40, height: 40))
         XCTAssertEqual(region.type, .redact)
@@ -1280,7 +1282,8 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftli
 
         // -- Assert --
         // View with transparent backgroundColor should not be treated as opaque
-        // So the label should still be redacted        let region = try XCTUnwrap(result.element(at: 0))
+        // So the label should still be redacted
+        let region = try XCTUnwrap(result.element(at: 0))
         XCTAssertEqual(region.color, UIColor.orange)
         XCTAssertEqual(region.size, CGSize(width: 40, height: 40))
         XCTAssertEqual(region.type, .redact)
@@ -1311,7 +1314,8 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftli
 
         // -- Assert --
         // View with layer opacity < 1 should not be treated as opaque
-        // So the label should still be redacted        let region = try XCTUnwrap(result.element(at: 0))
+        // So the label should still be redacted
+        let region = try XCTUnwrap(result.element(at: 0))
         XCTAssertEqual(region.color, UIColor.purple)
         XCTAssertEqual(region.size, CGSize(width: 40, height: 40))
         XCTAssertEqual(region.type, .redact)

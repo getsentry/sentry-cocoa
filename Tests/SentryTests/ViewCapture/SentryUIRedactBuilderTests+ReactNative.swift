@@ -86,7 +86,8 @@ class SentryUIRedactBuilderTests_ReactNative: SentryUIRedactBuilderTests { // sw
         let result = sut.redactRegionsFor(view: rootView)
         let masked = createMaskedScreenshot(view: rootView, regions: result)
 
-        // -- Assert --        XCTAssertEqual(result.count, 0)
+        // -- Assert --
+        XCTAssertEqual(result.count, 0)
     }
 
     func testRedact_withRCTTextView_withMaskAllImagesDisabled_shouldRedactView() {
@@ -98,7 +99,8 @@ class SentryUIRedactBuilderTests_ReactNative: SentryUIRedactBuilderTests { // sw
         let result = sut.redactRegionsFor(view: rootView)
         let masked = createMaskedScreenshot(view: rootView, regions: result)
 
-        // -- Assert --        XCTAssertEqual(result.count, 1)
+        // -- Assert --
+        XCTAssertEqual(result.count, 1)
     }
 
     // MARK: - RCTParagraphComponentView Redaction
@@ -126,7 +128,7 @@ class SentryUIRedactBuilderTests_ReactNative: SentryUIRedactBuilderTests { // sw
         let result = sut.redactRegionsFor(view: rootView)
         let masked = createMaskedScreenshot(view: rootView, regions: result)
 
-        // -- Assert --        
+        // -- Assert --
         let region = try XCTUnwrap(result.element(at: 0))
         // The text color of UITextView is not used for redaction
         XCTAssertNil(region.color)
@@ -147,7 +149,8 @@ class SentryUIRedactBuilderTests_ReactNative: SentryUIRedactBuilderTests { // sw
         let result = sut.redactRegionsFor(view: rootView)
         let masked = createMaskedScreenshot(view: rootView, regions: result)
 
-        // -- Assert --        XCTAssertEqual(result.count, 0)
+        // -- Assert --
+        XCTAssertEqual(result.count, 0)
     }
 
     func testRedact_withRCTParagraphComponent_withMaskAllImagesDisabled_shouldRedactView() {
@@ -159,7 +162,8 @@ class SentryUIRedactBuilderTests_ReactNative: SentryUIRedactBuilderTests { // sw
         let result = sut.redactRegionsFor(view: rootView)
         let masked = createMaskedScreenshot(view: rootView, regions: result)
 
-        // -- Assert --        XCTAssertEqual(result.count, 1)
+        // -- Assert --
+        XCTAssertEqual(result.count, 1)
     }
 
     // - MARK: - RCTImageView Redaction
@@ -185,7 +189,7 @@ class SentryUIRedactBuilderTests_ReactNative: SentryUIRedactBuilderTests { // sw
         let result = sut.redactRegionsFor(view: rootView)
         let masked = createMaskedScreenshot(view: rootView, regions: result)
 
-        // -- Assert --        
+        // -- Assert --
         let region = try XCTUnwrap(result.element(at: 0))
         // The text color of UITextView is not used for redaction
         XCTAssertNil(region.color)
@@ -206,7 +210,8 @@ class SentryUIRedactBuilderTests_ReactNative: SentryUIRedactBuilderTests { // sw
         let result = sut.redactRegionsFor(view: rootView)
         let masked = createMaskedScreenshot(view: rootView, regions: result)
 
-        // -- Assert --        XCTAssertEqual(result.count, 0)
+        // -- Assert --
+        XCTAssertEqual(result.count, 0)
     }
 
     func testRedact_withRCTImageView_withMaskAllTextDisabled_shouldRedactView() {
@@ -218,7 +223,8 @@ class SentryUIRedactBuilderTests_ReactNative: SentryUIRedactBuilderTests { // sw
         let result = sut.redactRegionsFor(view: rootView)
         let masked = createMaskedScreenshot(view: rootView, regions: result)
 
-        // -- Assert --        XCTAssertEqual(result.count, 1)
+        // -- Assert --
+        XCTAssertEqual(result.count, 1)
     }
 }
 
