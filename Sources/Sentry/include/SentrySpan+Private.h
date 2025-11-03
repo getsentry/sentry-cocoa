@@ -2,6 +2,8 @@
 
 #import "SentryProfilingConditionals.h"
 
+static NSString *_Nonnull const kSentrySpanStatusSerializationKey = @"status";
+
 @interface SentrySpan ()
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED

@@ -37,7 +37,7 @@ jobs:
           run-id: ${{ env.FRAMEWORK_RUN_ID }}
 
       - name: Archive XCFrameworks for Craft
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           # Craft uses the git commit hash of the release branch to download the release artifacts.
           name: ${{ github.sha }}
