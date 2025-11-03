@@ -8,9 +8,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)init
 {
-    if (self = [super init]) {
-        self.function = @"<redacted>";
-    }
+    self = [super init];
     return self;
 }
 

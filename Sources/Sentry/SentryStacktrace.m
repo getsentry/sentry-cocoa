@@ -1,6 +1,7 @@
 #import "SentryStacktrace.h"
 #import "NSMutableDictionary+Sentry.h"
 #import "SentryFrame.h"
+#import "SentryInternalDefines.h"
 #import "SentryLogC.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -31,8 +32,10 @@ NS_ASSUME_NONNULL_BEGIN
     SentryFrame *lastFrame = self.frames.lastObject;
     SentryFrame *beforeLastFrame = [self.frames objectAtIndex:self.frames.count - 2];
 
-    if ([lastFrame.symbolAddress isEqualToString:beforeLastFrame.symbolAddress] &&
-        [self.registers[@"lr"] isEqualToString:beforeLastFrame.instructionAddress]) {
+    if ([lastFrame.symbolAddress
+            isEqualToString:SENTRY_UNWRAP_NULLABLE(NSString, beforeLastFrame.symbolAddress)]
+        && [self.registers[@"lr"]
+            isEqualToString:SENTRY_UNWRAP_NULLABLE(NSString, beforeLastFrame.instructionAddress)]) {
         NSMutableArray *copyFrames = self.frames.mutableCopy;
         [copyFrames removeObjectAtIndex:self.frames.count - 2];
         self.frames = copyFrames;
