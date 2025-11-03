@@ -60,68 +60,29 @@ final class SentryLogSPMTests: XCTestCase {
     
     // MARK: - SentryHub Tests
     
-    func testHub_CaptureLog_ViaDispatcher() {
-        // This test verifies that the dispatcher works correctly for captureLog.
-        // This is what SentryLog+SPM.swift does internally in the capture(log:) extension method.
+    func testHub_Logger_ViaKVC() {
+        // This test verifies that the logger property can be accessed via KVC.
+        // This is important for SPM builds where there might be Swift-to-Objective-C bridging issues.
         
-        let log = SentryLog(
-            timestamp: fixture.dateProvider.date(),
-            traceId: SentryId.empty,
-            level: .info,
-            body: "Test message via dispatcher",
-            attributes: [
-                "test_key": SentryLog.Attribute(string: "test_value"),
-                "count": SentryLog.Attribute(integer: 42)
-            ]
-        )
+        let hub = fixture.hub
         
-        // Call using dispatcher - tests the actual implementation
-        let result = CaptureLogDispatcher.captureLog(log, on: fixture.hub)
+        // Access logger via KVC - mimics dynamic property access
+        let logger = hub.value(forKey: "logger") as? SentryLogger
         
-        // Verify success
-        XCTAssertTrue(result)
+        XCTAssertNotNil(logger, "Logger should be accessible via KVC")
+        
+        // Use the logger directly (this tests that KVC access works)
+        logger?.info("Test message via KVC logger")
+        
         XCTAssertEqual(fixture.client.captureLogInvocations.count, 1)
-        
         let capturedLog = fixture.client.captureLogInvocations.invocations.last!.log
         XCTAssertEqual(capturedLog.level, .info)
-        XCTAssertEqual(capturedLog.body, "Test message via dispatcher")
-        XCTAssertEqual(capturedLog.attributes["test_key"]?.value as? String, "test_value")
-        XCTAssertEqual(capturedLog.attributes["count"]?.value as? Int, 42)
-    }
-    
-    func testHub_CaptureLogWithScope_ViaDispatcher() {
-        // This test verifies that the dispatcher works correctly for captureLog:withScope:.
-        // This is what SentryLog+SPM.swift does internally in the capture(log:scope:) extension method.
-        
-        let log = SentryLog(
-            timestamp: fixture.dateProvider.date(),
-            traceId: SentryId.empty,
-            level: .error,
-            body: "Test message with scope via dispatcher",
-            attributes: [
-                "severity": SentryLog.Attribute(string: "high")
-            ]
-        )
-        
-        let customScope = Scope()
-        customScope.setTag(value: "test-value", key: "test-tag")
-        
-        // Call using dispatcher - tests the actual implementation
-        let result = CaptureLogDispatcher.captureLog(log, withScope: fixture.scope, on: fixture.hub)
-        
-        // Verify success
-        XCTAssertTrue(result)
-        XCTAssertEqual(fixture.client.captureLogInvocations.count, 1)
-        
-        let capturedLog = fixture.client.captureLogInvocations.invocations.last!.log
-        XCTAssertEqual(capturedLog.level, .error)
-        XCTAssertEqual(capturedLog.body, "Test message with scope via dispatcher")
-        XCTAssertEqual(capturedLog.attributes["severity"]?.value as? String, "high")
+        XCTAssertEqual(capturedLog.body, "Test message via KVC logger")
     }
     
     // MARK: - SentryClient Tests
     
-    func testClient_CaptureLog_ViaDispatcher() {
+    func testClient_CaptureLogWithScope_ViaDispatcher() {
         // This test verifies that the dispatcher works correctly for client.captureLog:withScope:.
         // This is what SentryLog+SPM.swift does internally in the captureLog(_:withScope:) extension method.
         
@@ -245,20 +206,6 @@ final class SentryLogSPMTests: XCTestCase {
     }
     
     // MARK: - CaptureLogDispatcher Error Handling Tests
-    
-    func testDispatcher_CaptureLog_FailsWhenSelectorNotAvailable() {
-        // Test with a plain NSObject that doesn't implement captureLog methods
-        let plainObject = NSObject()
-        let log = SentryLog(level: .info, body: "Test message")
-        
-        let result = CaptureLogDispatcher.captureLog(log, on: plainObject)
-        
-        XCTAssertFalse(result)
-        XCTAssertTrue(fixture.logOutput.loggedMessages.contains { message in
-            message.contains("NSObject") &&
-            message.contains("does not respond to captureLog(_:)")
-        })
-    }
     
     func testDispatcher_CaptureLogWithScope_FailsWhenSelectorNotAvailable() {
         // Test with a plain NSObject that doesn't implement captureLog methods

@@ -666,22 +666,27 @@ class SentryHubTests: XCTestCase {
     }
     
     func testCaptureLog() {
-        fixture.getSut(fixture.options, fixture.scope).capture(log: fixture.log)
+        let hub = fixture.getSut(fixture.options, fixture.scope)
+        hub.logger.info(fixture.log.body)
         
         XCTAssertEqual(1, fixture.client.captureLogInvocations.count)
         if let logArguments = fixture.client.captureLogInvocations.first {
-            XCTAssertEqual(fixture.log, logArguments.log)
+            XCTAssertEqual(fixture.log.body, logArguments.log.body)
+            XCTAssertEqual(fixture.log.level, logArguments.log.level)
             XCTAssertEqual(fixture.scope, logArguments.scope)
         }
     }
     
     func testCaptureLogWithScope() {
         let scope = Scope()
-        fixture.getSut().capture(log: fixture.log, scope: scope)
+        // Note: logger uses hub's scope, so we create a new hub with the specific scope
+        let hubWithScope = fixture.getSut(fixture.options, scope)
+        hubWithScope.logger.info(fixture.log.body)
         
         XCTAssertEqual(1, fixture.client.captureLogInvocations.count)
         if let logArguments = fixture.client.captureLogInvocations.first {
-            XCTAssertEqual(fixture.log, logArguments.log)
+            XCTAssertEqual(fixture.log.body, logArguments.log.body)
+            XCTAssertEqual(fixture.log.level, logArguments.log.level)
             XCTAssertEqual(scope, logArguments.scope)
         }
     }
@@ -703,8 +708,7 @@ class SentryHubTests: XCTestCase {
         fixture.scope.replayId = replayId
         
         let sut = fixture.getSut(fixture.options, fixture.scope)
-        let log = SentryLog(level: .info, body: "Test message")
-        sut.capture(log: log, scope: fixture.scope)
+        sut.logger.info("Test message")
         
         XCTAssertEqual(1, fixture.client.captureLogInvocations.count)
         let capturedLog = fixture.client.captureLogInvocations.first?.log
@@ -719,8 +723,7 @@ class SentryHubTests: XCTestCase {
         testHub.mockReplayId = mockReplayId.sentryIdString
         fixture.scope.replayId = nil
         
-        let log = SentryLog(level: .info, body: "Test message")
-        testHub.capture(log: log, scope: fixture.scope)
+        testHub.logger.info("Test message")
         
         XCTAssertEqual(1, fixture.client.captureLogInvocations.count)
         let capturedLog = fixture.client.captureLogInvocations.first?.log
@@ -733,8 +736,7 @@ class SentryHubTests: XCTestCase {
         // Don't set up replay integration
         let sut = fixture.getSut(fixture.options, fixture.scope)
         
-        let log = SentryLog(level: .info, body: "Test message")
-        sut.capture(log: log, scope: fixture.scope)
+        sut.logger.info("Test message")
         
         XCTAssertEqual(1, fixture.client.captureLogInvocations.count)
         let capturedLog = fixture.client.captureLogInvocations.first?.log
@@ -749,8 +751,7 @@ class SentryHubTests: XCTestCase {
         testHub.mockReplayId = replayId
         fixture.scope.replayId = replayId
         
-        let log = SentryLog(level: .info, body: "Test message")
-        testHub.capture(log: log, scope: fixture.scope)
+        testHub.logger.info("Test message")
         
         XCTAssertEqual(1, fixture.client.captureLogInvocations.count)
         let capturedLog = fixture.client.captureLogInvocations.first?.log

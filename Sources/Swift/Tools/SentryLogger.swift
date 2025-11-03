@@ -2,6 +2,11 @@
 
 import Foundation
 
+@objc @_spi(Private) public protocol SentryLoggerDelegate: AnyObject {
+    @objc(captureLog:)
+    func capture(log: SentryLog)
+}
+
 /// **EXPERIMENTAL** - A structured logging API for Sentry.
 ///
 /// `SentryLogger` provides a structured logging interface that captures log entries
@@ -29,11 +34,12 @@ import Foundation
 /// ```
 @objc
 public final class SentryLogger: NSObject {
-    private let hub: SentryHub
+    private weak var delegate: SentryLoggerDelegate?
     private let dateProvider: SentryCurrentDateProvider
     
-    @_spi(Private) public init(hub: SentryHub, dateProvider: SentryCurrentDateProvider) {
-        self.hub = hub
+    @objc(initWithDelegate:dateProvider:)
+    @_spi(Private) public init(delegate: SentryLoggerDelegate, dateProvider: SentryCurrentDateProvider) {
+        self.delegate = delegate
         self.dateProvider = dateProvider
         super.init()
     }
@@ -166,7 +172,10 @@ public final class SentryLogger: NSObject {
     
     // MARK: - Private
     
-    private func captureLog(level: SentryLog.Level, logMessage: SentryLogMessage, attributes: [String: Any]) {        
+    private func captureLog(level: SentryLog.Level, logMessage: SentryLogMessage, attributes: [String: Any]) {
+        guard let delegate else {
+            return
+        }
         // Convert provided attributes to SentryLog.Attribute format
         var logAttributes = attributes.mapValues { SentryLog.Attribute(value: $0) }
         
@@ -187,9 +196,6 @@ public final class SentryLogger: NSObject {
             body: logMessage.message,
             attributes: logAttributes
         )
-        
-        // Note: In SPM builds, this uses the extension method defined in SentryHub+SPM.swift
-        // which works around Swift-to-Objective-C bridging limitations.
-        hub.capture(log: log)
+        delegate.capture(log: log)
     }
 }

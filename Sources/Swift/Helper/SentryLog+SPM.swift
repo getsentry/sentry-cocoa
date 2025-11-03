@@ -8,7 +8,6 @@ import Foundation
 
 @objc
 protocol CaptureLogSelectors {
-    func captureLog(_ log: SentryLog)
     func captureLog(_ log: SentryLog, withScope: Scope)
 }
 
@@ -16,22 +15,6 @@ protocol CaptureLogSelectors {
 /// This is used in SPM builds to work around Swift-to-Objective-C bridging issues.
 @objc
 class CaptureLogDispatcher: NSObject {
-    
-    /// Captures a log using dynamic dispatch on the target object
-    /// - Parameters:
-    ///   - log: The log to capture
-    ///   - target: The object that should handle the log capture (typically SentryHub)
-    /// - Returns: true if the log was captured, false if the selector was not available
-    @discardableResult
-    static func captureLog(_ log: SentryLog, on target: NSObject) -> Bool {
-        let selector = #selector(CaptureLogSelectors.captureLog(_:))
-        guard target.responds(to: selector) else {
-            SentrySDKLog.error("Target \(type(of: target)) does not respond to captureLog(_:). The log will not be captured.")
-            return false
-        }
-        target.perform(selector, with: log)
-        return true
-    }
     
     /// Captures a log with a scope using dynamic dispatch on the target object
     /// - Parameters:
@@ -74,24 +57,9 @@ public extension Options {
 
 @objc
 public extension SentryHub {
-    /// Captures a log entry and sends it to Sentry.
-    /// - Parameter log: The log entry to send to Sentry.
-    ///
-    /// This method is provided for SPM builds where the Objective-C `captureLog:` method
-    /// may not be properly bridged due to `SentryLog` being defined in Swift.
-    func capture(log: SentryLog) {
-        CaptureLogDispatcher.captureLog(log, on: self)
-    }
-    
-    /// Captures a log entry and sends it to Sentry with a specific scope.
-    /// - Parameters:
-    ///   - log: The log entry to send to Sentry.
-    ///   - scope: The scope containing event metadata.
-    ///
-    /// This method is provided for SPM builds where the Objective-C `captureLog:withScope:` method
-    /// may not be properly bridged due to `SentryLog` being defined in Swift.
-    func capture(log: SentryLog, scope: Scope) {
-        CaptureLogDispatcher.captureLog(log, withScope: scope, on: self)
+    @objc
+    var logger: SentryLogger? {
+        return value(forKey: "logger") as? SentryLogger
     }
 }
 

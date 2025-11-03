@@ -27,22 +27,10 @@ import Foundation
 
     /// API to access Sentry logs
     @objc public static var logger: SentryLogger {
-        return _loggerLock.synchronized {
-            let sdkEnabled = SentrySDKInternal.isEnabled
-            if !sdkEnabled {
-                SentrySDKLog.fatal("Logs called before SentrySDK.start() will be dropped.")
-            }
-            if let _logger, _loggerConfigured {
-                return _logger
-            }
-            let logger = SentryLogger(
-                hub: SentryDependencyContainerSwiftHelper.currentHub(),
-                dateProvider: Dependencies.dateProvider
-            )
-            _logger = logger
-            _loggerConfigured = sdkEnabled
-            return logger
+        if !SentrySDKInternal.isEnabled {
+            SentrySDKLog.fatal("Logs called before SentrySDK.start() will be dropped.")
         }
+        return SentrySDKInternal.currentHub().logger
     }
     
     /// Inits and configures Sentry (`SentryHub`, `SentryClient`) and sets up all integrations. Make sure to
@@ -400,23 +388,6 @@ import Foundation
         SentrySDKInternal.stopProfiler()
     }
     #endif
-
-    // MARK: Internal
-
-    /// - note: Conceptually internal but needs to be marked public with SPI for ObjC visibility
-    @objc @_spi(Private) public static func clearLogger() {
-        _loggerLock.synchronized {
-            _logger = nil
-            _loggerConfigured = false
-        }
-    }
-
-    // MARK: Private
-    
-    private static var _loggerLock = NSLock()
-    private static var _logger: SentryLogger?
-    // Flag to re-create instance if accessed before SDK init.
-    private static var _loggerConfigured = false
 }
 
 extension SentryIdWrapper {

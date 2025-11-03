@@ -6,28 +6,26 @@ import XCTest
 
 final class SentryLoggerTests: XCTestCase {
     
+    private class TestLoggerDelegate: NSObject, SentryLoggerDelegate {
+        let capturedLogs = Invocations<SentryLog>()
+        
+        func capture(log: SentryLog) {
+            capturedLogs.record(log)
+        }
+    }
+    
     private class Fixture {
-        let hub: TestHub
-        let client: TestClient
+        let delegate: TestLoggerDelegate
         let dateProvider: TestCurrentDateProvider
-        let options: Options
-        let scope: Scope
         
         init() {
-            options = Options()
-            options.dsn = TestConstants.dsnAsString(username: "SentryLoggerTests")
-            options.enableLogs = true
-            
-            client = TestClient(options: options)!
-            scope = Scope()
-            hub = TestHub(client: client, andScope: scope)
+            delegate = TestLoggerDelegate()
             dateProvider = TestCurrentDateProvider()
-            
             dateProvider.setDate(date: Date(timeIntervalSince1970: 1_627_846_800.123456))
         }
         
         func getSut() -> SentryLogger {
-            return SentryLogger(hub: hub, dateProvider: dateProvider)
+            return SentryLogger(delegate: delegate, dateProvider: dateProvider)
         }
     }
     
@@ -262,9 +260,9 @@ final class SentryLoggerTests: XCTestCase {
         sut.fatal("Fatal message")
         
         // Verify all 6 logs were captured
-        XCTAssertEqual(fixture.client.captureLogInvocations.count, 6)
+        XCTAssertEqual(fixture.delegate.capturedLogs.count, 6)
         
-        let logs = fixture.client.captureLogInvocations.invocations.map { $0.log }
+        let logs = fixture.delegate.capturedLogs.invocations
         XCTAssertEqual(logs[0].level, .trace)
         XCTAssertEqual(logs[1].level, .debug)
         XCTAssertEqual(logs[2].level, .info)
@@ -490,10 +488,10 @@ final class SentryLoggerTests: XCTestCase {
     }
     
     private func getLastCapturedLog() -> SentryLog {
-        guard let lastInvocation = fixture.client.captureLogInvocations.invocations.last else {
+        guard let lastLog = fixture.delegate.capturedLogs.invocations.last else {
             XCTFail("No logs captured")
             return SentryLog(timestamp: Date(), traceId: .empty, level: .info, body: "", attributes: [:])
         }
-        return lastInvocation.log
+        return lastLog
     }
 }

@@ -178,20 +178,6 @@ SENTRY_NO_INIT
 - (void)captureFeedback:(SentryFeedback *)feedback;
 
 /**
- * Captures a log entry and sends it to Sentry.
- * @param log The log entry to send to Sentry.
- */
-- (void)captureLog:(SentryLog *)log NS_SWIFT_NAME(capture(log:));
-
-/**
- * Captures a log entry and sends it to Sentry.
- * @param log The log entry to send to Sentry.
- * @param scope The scope containing event metadata.
- */
-- (void)captureLog:(SentryLog *)log
-         withScope:(SentryScope *)scope NS_SWIFT_NAME(capture(log:scope:));
-
-/**
  * Use this method to modify the Scope of the Hub. The SDK uses the Scope to attach
  * contextual data to events.
  * @param callback The callback for configuring the Scope of the Hub.
@@ -213,6 +199,11 @@ SENTRY_NO_INIT
  * Returns either the current scope or a new one if it was @c nil .
  */
 @property (nonatomic, readonly, strong) SentryScope *scope;
+
+/**
+ * Returns the logger associated with this Hub.
+ */
+@property (nonatomic, readonly, strong) SentryLogger *logger;
 
 /**
  * Binds a different client to the hub.

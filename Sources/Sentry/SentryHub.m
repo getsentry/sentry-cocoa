@@ -26,7 +26,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryHub ()
+@interface SentryHub () <SentryLoggerDelegate>
 
 @property (nullable, atomic, strong) SentryClient *client;
 @property (nullable, nonatomic, strong) SentryScope *scope;
@@ -35,6 +35,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) NSMutableSet<NSString *> *installedIntegrationNames;
 @property (nonatomic) NSUInteger errorsBeforeSession;
 @property (nonatomic, weak) id<SentrySessionListener> sessionListener;
+@property (nonatomic, strong) SentryLogger *logger;
 
 @end
 
@@ -73,6 +74,10 @@ NS_ASSUME_NONNULL_BEGIN
         if (_scope) {
             [_crashWrapper enrichScope:SENTRY_UNWRAP_NULLABLE(SentryScope, _scope)];
         }
+
+        _logger = [[SentryLogger alloc]
+            initWithDelegate:self
+                dateProvider:SentryDependencyContainer.sharedInstance.dateProvider];
     }
 
     return self;
@@ -534,40 +539,6 @@ NS_ASSUME_NONNULL_BEGIN
     }
 }
 
-- (void)captureLog:(SentryLog *)log
-{
-    [self captureLog:log withScope:self.scope];
-}
-
-- (void)captureLog:(SentryLog *)log withScope:(SentryScope *)scope
-{
-    SentryClient *client = self.client;
-    if (client != nil) {
-#if SENTRY_TARGET_REPLAY_SUPPORTED
-        NSMutableDictionary<NSString *, SentryStructuredLogAttribute *> *mutableAttributes =
-            [log.attributes mutableCopy];
-
-        NSString *scopeReplayId = self.scope.replayId;
-        if (scopeReplayId != nil) {
-            // Session mode: use scope replay ID
-            mutableAttributes[@"sentry.replay_id"] =
-                [[SentryStructuredLogAttribute alloc] initWithString:scopeReplayId];
-        } else {
-            // Buffer mode: check if hub has a session replay ID
-            NSString *sessionReplayId = [self getSessionReplayId];
-            if (sessionReplayId != nil) {
-                mutableAttributes[@"sentry.replay_id"] =
-                    [[SentryStructuredLogAttribute alloc] initWithString:sessionReplayId];
-                mutableAttributes[@"sentry._internal.replay_is_buffering"] =
-                    [[SentryStructuredLogAttribute alloc] initWithBoolean:YES];
-            }
-        }
-        log.attributes = mutableAttributes;
-#endif
-        [client captureLog:log withScope:scope];
-    }
-}
-
 - (void)captureSerializedFeedback:(NSDictionary *)serializedFeedback
                       withEventId:(NSString *)feedbackEventId
                       attachments:(NSArray<SentryAttachment *> *)feedbackAttachments
@@ -864,6 +835,37 @@ NS_ASSUME_NONNULL_BEGIN
 {
     if (_sessionListener == listener) {
         _sessionListener = nil;
+    }
+}
+
+// SentryLoggerDelegate
+
+- (void)captureLog:(SentryLog *)log
+{
+    SentryClient *client = self.client;
+    if (client != nil) {
+#if SENTRY_TARGET_REPLAY_SUPPORTED
+        NSMutableDictionary<NSString *, SentryStructuredLogAttribute *> *mutableAttributes =
+            [log.attributes mutableCopy];
+
+        NSString *scopeReplayId = self.scope.replayId;
+        if (scopeReplayId != nil) {
+            // Session mode: use scope replay ID
+            mutableAttributes[@"sentry.replay_id"] =
+                [[SentryStructuredLogAttribute alloc] initWithString:scopeReplayId];
+        } else {
+            // Buffer mode: check if hub has a session replay ID
+            NSString *sessionReplayId = [self getSessionReplayId];
+            if (sessionReplayId != nil) {
+                mutableAttributes[@"sentry.replay_id"] =
+                    [[SentryStructuredLogAttribute alloc] initWithString:sessionReplayId];
+                mutableAttributes[@"sentry._internal.replay_is_buffering"] =
+                    [[SentryStructuredLogAttribute alloc] initWithBoolean:YES];
+            }
+        }
+        log.attributes = mutableAttributes;
+#endif
+        [client captureLog:log withScope:self.scope];
     }
 }
 
