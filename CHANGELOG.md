@@ -23,6 +23,7 @@
 - Remove unused `SentryFrame.instruction` property (#6504)
 - Remove `uuid` and `name` of `SentryDebugMeta` (#6512) Use `debugID` instead of `uuid` and `codeFile` instead of `name`.
 - Enable enablePreWarmedAppStartTracing by default (#6508). With this option enabled, the SDK collects [prewarmed app starts](https://docs.sentry.io/platforms/apple/tracing/instrumentation/automatic-instrumentation/#prewarmed-app-start-tracing).
+- Set `SentryFrame.function` default to `nil` instead of `<redacted>` (#6608)
 - Change `value` and `type` of `SentryException` to be nullable (#6563)
 - Change the default trace context status to "ok" instead of "undefined" (#6611)
 - Remove `getHash` from SentryDsn (#6605)
