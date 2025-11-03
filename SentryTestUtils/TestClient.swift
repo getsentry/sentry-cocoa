@@ -162,7 +162,7 @@ public class TestClient: SentryClient {
     }
     
     public var captureLogInvocations = Invocations<(log: SentryLog, scope: Scope)>()
-    public override func capture(log: SentryLog, scope: Scope) {
+    public override func capture(_ log: SentryLog, with scope: Scope) {
         captureLogInvocations.record((log, scope))
     }
 }

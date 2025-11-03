@@ -107,8 +107,7 @@ SENTRY_NO_INIT
  * @param log The log entry to send to Sentry.
  * @param scope The current scope from which to gather contextual information.
  */
-- (void)captureLog:(SentryLog *)log
-         withScope:(SentryScope *)scope NS_SWIFT_NAME(capture(log:scope:));
+- (void)captureLog:(SentryLog *)log withScope:(SentryScope *)scope;
 
 /**
  * Waits synchronously for the SDK to flush out all queued and cached items for up to the specified
