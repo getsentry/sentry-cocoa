@@ -207,15 +207,6 @@ NS_SWIFT_NAME(Options)
 @property (nullable, nonatomic, copy)
     SentryOnCrashedLastRunCallback onCrashedLastRun NS_SWIFT_SENDABLE;
 
-#if !SDK_V9
-/**
- * Array of integrations to install.
- */
-@property (nullable, nonatomic, copy) NSArray<NSString *> *integrations DEPRECATED_MSG_ATTRIBUTE(
-    "Setting `SentryOptions.integrations` is deprecated. Integrations should be enabled or "
-    "disabled using their respective `SentryOptions.enable*` property.");
-#endif // !SDK_V9
-
 /**
  * Array of default integrations. Will be used if @c integrations is @c nil .
  */
@@ -267,7 +258,7 @@ NS_SWIFT_NAME(Options)
 
 /**
  * The maximum size for each attachment in bytes.
- * @note Default is 20 MiB (20 ✕ 1024 ✕ 1024 bytes).
+ * @note Default is 100 MiB (100 ✕ 1024 ✕ 1024 bytes).
  * @note Please also check the maximum attachment size of relay to make sure your attachments don't
  * get discarded there:
  *  https://docs.sentry.io/product/relay/options/
@@ -417,6 +408,20 @@ NS_SWIFT_NAME(Options)
 @property (nonatomic, assign) BOOL enableFileIOTracing;
 
 /**
+ * When enabled, the SDK tracks performance for file IO reads and writes with NSData if auto
+ * performance tracking and enableSwizzling are enabled.
+ * @note The default is @c YES .
+ */
+@property (nonatomic, assign) BOOL enableDataSwizzling;
+
+/**
+ * When enabled, the SDK tracks performance for file IO operations with NSFileManager if auto
+ * performance tracking and enableSwizzling are enabled.
+ * @note The default is @c NO .
+ */
+@property (nonatomic, assign) BOOL enableFileManagerSwizzling;
+
+/**
  * Indicates the percentage of the tracing data that is collected.
  * @discussion Specifying @c 0 or @c nil discards all trace data, @c 1.0 collects all trace data,
  * @c 0.01 collects 1% of all trace data.
@@ -432,9 +437,6 @@ NS_SWIFT_NAME(Options)
  * @c 0.01 collects 1% of all trace data.
  * @note The value needs to be >= 0.0 and \<= 1.0. When setting a value out of range the SDK sets it
  * to the default of @c 0 .
- * @note If @c enableAppLaunchProfiling is @c YES , this function will be called during SDK start
- * with @c SentrySamplingContext.forNextAppLaunch set to @c YES, and the result will be persisted to
- * disk for use on the next app launch.
  */
 @property (nullable, nonatomic) SentryTracesSamplerCallback tracesSampler NS_SWIFT_SENDABLE;
 

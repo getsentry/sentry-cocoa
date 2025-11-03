@@ -27,6 +27,7 @@
     {
       "parallelizable" : false,
       "skippedTests" : [
+        "PrivateSentrySDKOnlyTests\/testProfilingStartAndCollect()",
         "SentryANRTrackerTests\/testANRButAppInBackground_NoANR()",
         "SentryANRTrackerTests\/testMultipleListeners()",
         "SentryCoreDataTrackerTests\/testFetchRequestBackgroundThread()",
@@ -51,7 +52,8 @@
         "SentryThreadInspectorTests\/testGetCurrentThreadsWithStacktrace_WithSymbolication()",
         "SentryThreadInspectorTests\/testStacktraceHasFrames_forEveryThread()",
         "SentryThreadWrapperTests\/testOnMainThreadFromNonMainContext()",
-        "SentryTracerTests\/testDeadlineTimer_StartedAndCancelledOnMainThread()"
+        "SentryTracerTests\/testDeadlineTimer_StartedAndCancelledOnMainThread()",
+        "SentryWatchdogTerminationTrackerTests\/testTerminateApp_RunsOnMainThread()"
       ],
       "target" : {
         "containerPath" : "container:Sentry.xcodeproj",

@@ -16,6 +16,8 @@
   "testTargets" : [
     {
       "selectedTests" : [
+        "SentryWatchdogTerminationTrackerTests\/testTerminateApp_RunsOnMainThread()",
+        "PrivateSentrySDKOnlyTests\/testProfilingStartAndCollect()",
         "SentryCrashBinaryImageCacheTests\/testRemoveImageFromBeginning",
         "SentryHttpTransportFlushIntegrationTests"
       ],

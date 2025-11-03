@@ -69,6 +69,7 @@ import Foundation
         addOSAttributes(to: &log.attributes, scope: scope)
         addDeviceAttributes(to: &log.attributes, scope: scope)
         addUserAttributes(to: &log.attributes, scope: scope)
+        addReplayAttributes(to: &log.attributes, scope: scope)
 
         let propagationContextTraceIdString = scope.propagationContextTraceIdString
         log.traceId = SentryId(uuidString: propagationContextTraceIdString)
@@ -154,6 +155,18 @@ import Foundation
         if let userEmail = user.email {
             attributes["user.email"] = .init(string: userEmail)
         }
+    }
+
+    private func addReplayAttributes(to attributes: inout [String: SentryLog.Attribute], scope: Scope) {
+#if canImport(UIKit) && !SENTRY_NO_UIKIT
+#if os(iOS) || os(tvOS)
+        if let scopeReplayId = scope.replayId {
+            // Session mode: use scope replay ID
+            attributes["sentry.replay_id"] = .init(string: scopeReplayId)
+            attributes.removeValue(forKey: "sentry._internal.replay_is_buffering")
+        }
+#endif
+#endif
     }
 
     // Only ever call this from the serial dispatch queue.

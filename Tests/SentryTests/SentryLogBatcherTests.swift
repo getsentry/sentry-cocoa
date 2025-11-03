@@ -8,7 +8,7 @@ final class SentryLogBatcherTests: XCTestCase {
     private var testDelegate: TestLogBatcherDelegate!
     private var testDispatchQueue: TestSentryDispatchQueueWrapper!
     private var sut: SentryLogBatcher!
-    private var scope: Scope!
+    private var scope: Scope!   
     
     override func setUp() {
         super.setUp()

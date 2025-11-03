@@ -5,7 +5,6 @@ import XCTest
 
 #if os(iOS) || os(tvOS)
 
-@available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
 class SentrySessionReplayIntegrationTests: XCTestCase {
 
     private var uiApplication: TestSentryUIApplication!
@@ -54,8 +53,10 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
     private func startSDK(sessionSampleRate: Float, errorSampleRate: Float, enableSwizzling: Bool = true, noIntegrations: Bool = false, configure: ((Options) -> Void)? = nil) {
         SentrySDK.start {
             $0.dsn = "https://user@test.com/test"
-            $0.sessionReplay = SentryReplayOptions(sessionSampleRate: sessionSampleRate, onErrorSampleRate: errorSampleRate)
-            $0.setIntegrations(noIntegrations ? [] : [SentrySessionReplayIntegration.self])
+            $0.removeAllIntegrations()
+            if !noIntegrations {
+                $0.sessionReplay = SentryReplayOptions(sessionSampleRate: sessionSampleRate, onErrorSampleRate: errorSampleRate)
+            }
             $0.enableSwizzling = enableSwizzling
             $0.cacheDirectoryPath = FileManager.default.temporaryDirectory.path
             configure?($0)
@@ -115,7 +116,6 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
     
     func testInstallErrorReplay() {
         startSDK(sessionSampleRate: 0, errorSampleRate: 0.1)
-        
         XCTAssertEqual(SentrySDKInternal.currentHub().trimmedInstalledIntegrationNames().count, 1)
         XCTAssertEqual(globalEventProcessor.processors.count, 1)
     }
@@ -342,28 +342,32 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
     }
   
     func testMaskViewFromSDK() throws {
-        class AnotherLabel: UILabel {
-        }
-            
+        // -- Arrange --
+        class AnotherLabel: UILabel {}
+
         startSDK(sessionSampleRate: 1, errorSampleRate: 1) { options in
             options.sessionReplay.maskedViewClasses = [AnotherLabel.self]
         }
-        
-        let sut = try getSut()
-        let redactBuilder = sut.viewPhotographer.getRedactBuilder()
-        XCTAssertTrue(redactBuilder.containsRedactClass(AnotherLabel.self))
+
+        // -- Act --
+        let redactBuilder = try getSut().viewPhotographer.getRedactBuilder()
+
+        // -- Assert --
+        XCTAssertTrue(redactBuilder.containsRedactClass(viewClass: AnotherLabel.self, layerClass: CALayer.self))
     }
     
     func testIgnoreViewFromSDK() throws {
-        class AnotherLabel: UILabel {
-        }
-            
+        // -- Arrange --
+        class AnotherLabel: UILabel {}
+
         startSDK(sessionSampleRate: 1, errorSampleRate: 1) { options in
             options.sessionReplay.unmaskedViewClasses = [AnotherLabel.self]
         }
-    
-        let sut = try getSut()
-        let redactBuilder = sut.viewPhotographer.getRedactBuilder()
+
+        // -- Act --
+        let redactBuilder = try getSut().viewPhotographer.getRedactBuilder()
+
+        // -- Assert --
         XCTAssertTrue(redactBuilder.containsIgnoreClass(AnotherLabel.self))
     }
     
@@ -735,6 +739,57 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
 
         // -- Assert --
         XCTAssertNil(weakSut, "SentrySessionReplayIntegration should be deallocated")
+    }
+    
+    func testInstallWithOptions_WithUnsafe_withoutOverrideOptionEnabled_shouldReturnFalse() {
+        // -- Arrange --
+        let instance = SentrySessionReplayIntegration()
+
+        let options = Options()
+        options.sessionReplay = SentryReplayOptions(sessionSampleRate: 1.0, onErrorSampleRate: 1.0)
+        options.experimental.enableSessionReplayInUnreliableEnvironment = false
+
+        SentryDependencyContainer.sharedInstance().sessionReplayEnvironmentChecker = TestSessionReplayEnvironmentChecker(mockedIsReliableReturnValue: false)
+
+        // -- Act --
+        let result = instance.install(with: options)
+
+        // -- Assert --
+        XCTAssertFalse(result)
+    }
+
+    func testInstallWithOptions_WithUnsafe_withOverrideOptionEnabled_shouldReturnTrue() {
+        // -- Arrange --
+        let instance = SentrySessionReplayIntegration()
+
+        let options = Options()
+        options.sessionReplay = SentryReplayOptions(sessionSampleRate: 1.0, onErrorSampleRate: 1.0)
+        options.experimental.enableSessionReplayInUnreliableEnvironment = true
+
+        SentryDependencyContainer.sharedInstance().sessionReplayEnvironmentChecker = TestSessionReplayEnvironmentChecker(mockedIsReliableReturnValue: false)
+
+        // -- Act --
+        let result = instance.install(with: options)
+
+        // -- Assert --
+        XCTAssertTrue(result)
+    }
+
+    func testInstallWithOptions_WithoutUnsafe_shouldReturnTrue() {
+        // -- Arrange --
+        let instance = SentrySessionReplayIntegration()
+
+        let options = Options()
+        options.sessionReplay = SentryReplayOptions(sessionSampleRate: 1.0, onErrorSampleRate: 1.0)
+        options.experimental.enableSessionReplayInUnreliableEnvironment = false
+
+        SentryDependencyContainer.sharedInstance().sessionReplayEnvironmentChecker = TestSessionReplayEnvironmentChecker(mockedIsReliableReturnValue: true)
+
+        // -- Act --
+        let result = instance.install(with: options)
+
+        // -- Assert --
+        XCTAssertTrue(result)
     }
 
     private func createLastSessionReplay(writeSessionInfo: Bool = true, errorSampleRate: Double = 1) throws {

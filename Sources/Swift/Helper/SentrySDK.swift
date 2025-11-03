@@ -370,8 +370,7 @@ import Foundation
     /// `SentryOptions.profilesSampleRate` or `SentryOptions.profilesSampler`. If either of those
     /// options are set, this method does nothing.
     /// - note: Taking into account the above note, if `SentryOptions.configureProfiling` is not set,
-    /// calls to this method will always start a profile if one is not already running. This includes app
-    /// launch profiles configured with `SentryOptions.enableAppLaunchProfiling`.
+    /// calls to this method will always start a profile if one is not already running.
     /// - note: If neither `SentryOptions.profilesSampleRate` nor `SentryOptions.profilesSampler` are
     /// set, and `SentryOptions.configureProfiling` is set, this method does nothing if the profiling
     /// session is not sampled with respect to `SentryOptions.profileSessionSampleRate`, or if it is

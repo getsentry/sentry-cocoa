@@ -6,7 +6,7 @@
 #include "SentryCrashMonitor_Signal.h"
 #import "SentryEvent.h"
 #import "SentryHub.h"
-#import "SentryModels+Serializable.h"
+#import "SentryInternalDefines.h"
 #import "SentryOptions.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
@@ -17,7 +17,6 @@
 #import "SentryWatchdogTerminationLogic.h"
 #import <SentryClient+Private.h>
 #import <SentryCrashScopeObserver.h>
-
 #import <SentryLogC.h>
 #import <SentrySDK+Private.h>
 
@@ -260,7 +259,8 @@ sentry_finishAndSaveTransaction(void)
         if (scope.contextDictionary != nil
             && scope.contextDictionary[SENTRY_CONTEXT_DEVICE_KEY] != nil) {
             device = [[NSMutableDictionary alloc]
-                initWithDictionary:scope.contextDictionary[SENTRY_CONTEXT_DEVICE_KEY]];
+                initWithDictionary:SENTRY_UNWRAP_NULLABLE_DICT(NSString *, id,
+                                       scope.contextDictionary[SENTRY_CONTEXT_DEVICE_KEY])];
         } else {
             device = [NSMutableDictionary new];
         }

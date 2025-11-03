@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - main
+      - v8.x
+
   pull_request:
 
 # Concurrency configuration:
@@ -69,7 +71,7 @@ jobs:
           dot -Tsvg objc_dependencies_topo.dot -o objc_dependencies_topo.svg
 
       - name: Upload analysis artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: objc-conversion-analysis
           path: |
