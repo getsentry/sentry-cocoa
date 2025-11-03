@@ -6,17 +6,12 @@
 #else
 #    import <SentryDefines.h>
 #endif
-#if !SDK_V9
-#    import SENTRY_HEADER(SentrySerializable)
-#endif
+#import SENTRY_HEADER(SentrySerializable)
 
 NS_ASSUME_NONNULL_BEGIN
 
 NS_SWIFT_NAME(Frame)
-@interface SentryFrame : NSObject
-#if !SDK_V9
-                         <SentrySerializable>
-#endif
+@interface SentryFrame : NSObject <SentrySerializable>
 
 /**
  * SymbolAddress of the frame
@@ -58,11 +53,6 @@ NS_SWIFT_NAME(Frame)
  * InstructionAddress of the frame hex format
  */
 @property (nonatomic, copy) NSString *_Nullable instructionAddress;
-
-/**
- * InstructionAddress of the frame
- */
-@property (nonatomic) NSUInteger instruction;
 
 /**
  * User for react native, will be ignored for cocoa frames
@@ -109,7 +99,6 @@ NS_SWIFT_NAME(Frame)
 @property (nonatomic, copy) NSDictionary<NSString *, id> *_Nullable vars;
 
 - (instancetype)init;
-+ (instancetype)new NS_UNAVAILABLE;
 
 @end
 

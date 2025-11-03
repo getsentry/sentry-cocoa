@@ -35,7 +35,6 @@ class SentryAppLaunchProfilingMalformedConfigFileTests: XCTestCase {
     func testMalformedConfigFile_ContinuousV2MissingLifecycle_DoesNotStartProfilingAndRemovesFile() throws {
         // Create a config file with continuous profiling v2 enabled but missing lifecycle
         let configDict: [String: Any] = [
-            kSentryLaunchProfileConfigKeyContinuousProfilingV2: true,
             kSentryLaunchProfileConfigKeyProfilesSampleRate: 1.0,
             kSentryLaunchProfileConfigKeyProfilesSampleRand: 0.5
             // Missing: kSentryLaunchProfileConfigKeyContinuousProfilingV2Lifecycle
@@ -59,7 +58,6 @@ class SentryAppLaunchProfilingMalformedConfigFileTests: XCTestCase {
     func testMalformedConfigFile_ContinuousV2ManualMissingSampleRate_DoesNotStartProfilingAndRemovesFile() throws {
         // Create a config file with continuous profiling v2 manual lifecycle but missing sample rate
         let configDict: [String: Any] = [
-            kSentryLaunchProfileConfigKeyContinuousProfilingV2: true,
             kSentryLaunchProfileConfigKeyContinuousProfilingV2Lifecycle: SentryProfileLifecycle.manual.rawValue,
             kSentryLaunchProfileConfigKeyProfilesSampleRand: 0.5
             // Missing: kSentryLaunchProfileConfigKeyProfilesSampleRate
@@ -83,7 +81,6 @@ class SentryAppLaunchProfilingMalformedConfigFileTests: XCTestCase {
     func testMalformedConfigFile_ContinuousV2ManualMissingSampleRand_DoesNotStartProfilingAndRemovesFile() throws {
         // Create a config file with continuous profiling v2 manual lifecycle but missing sample rand
         let configDict: [String: Any] = [
-            kSentryLaunchProfileConfigKeyContinuousProfilingV2: true,
             kSentryLaunchProfileConfigKeyContinuousProfilingV2Lifecycle: SentryProfileLifecycle.manual.rawValue,
             kSentryLaunchProfileConfigKeyProfilesSampleRate: 1.0
             // Missing: kSentryLaunchProfileConfigKeyProfilesSampleRand
@@ -222,7 +219,6 @@ class SentryAppLaunchProfilingMalformedConfigFileTests: XCTestCase {
     func testMalformedConfigFile_ContinuousV2TraceLifecycleMissingTracesRate_DoesNotStartProfilingAndRemovesFile() throws {
         // Create a config file with continuous profiling v2 trace lifecycle but missing traces sample rate
         let configDict: [String: Any] = [
-            kSentryLaunchProfileConfigKeyContinuousProfilingV2: true,
             kSentryLaunchProfileConfigKeyContinuousProfilingV2Lifecycle: SentryProfileLifecycle.trace.rawValue,
             kSentryLaunchProfileConfigKeyProfilesSampleRate: 1.0,
             kSentryLaunchProfileConfigKeyProfilesSampleRand: 0.5,

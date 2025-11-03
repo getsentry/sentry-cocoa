@@ -24,7 +24,6 @@ class SentryScopeSwiftTests: XCTestCase {
         let transactionOperation = "Some Operation"
         let maxBreadcrumbs = 5
 
-        @available(*, deprecated)
         init() {
             date = Date(timeIntervalSince1970: 10)
             
@@ -32,7 +31,6 @@ class SentryScopeSwiftTests: XCTestCase {
             user.email = "user@sentry.io"
             user.username = "user123"
             user.ipAddress = "127.0.0.1"
-            user.segment = "segmentA"
             user.name = "User"
             user.ipAddress = ipAddress
             
@@ -82,7 +80,6 @@ class SentryScopeSwiftTests: XCTestCase {
     
     private var fixture: Fixture!
     
-    @available(*, deprecated)
     override func setUp() {
         super.setUp()
         fixture = Fixture()
@@ -219,17 +216,18 @@ class SentryScopeSwiftTests: XCTestCase {
         XCTAssertEqual(event.dist, actual?.dist)
     }
     
-    func testApplyToEvent_ScopeWithSpan() {
+    func testApplyToEvent_ScopeWithSpan() throws {
         let scope = fixture.scope
         scope.span = fixture.transaction
         
         let actual = scope.applyTo(event: fixture.event, maxBreadcrumbs: 10)
-        let trace = fixture.event.context?["trace"]
-              
+        let trace = try XCTUnwrap(fixture.event.context?["trace"])
+
         XCTAssertEqual(actual?.transaction, fixture.transactionName)
-        XCTAssertEqual(trace?["op"] as? String, fixture.transactionOperation)
-        XCTAssertEqual(trace?["trace_id"] as? String, fixture.transaction.traceId.sentryIdString)
-        XCTAssertEqual(trace?["span_id"] as? String, fixture.transaction.spanId.sentrySpanIdString)
+        XCTAssertEqual(trace["op"] as? String, fixture.transactionOperation)
+        XCTAssertEqual(trace["trace_id"] as? String, fixture.transaction.traceId.sentryIdString)
+        XCTAssertEqual(trace["span_id"] as? String, fixture.transaction.spanId.sentrySpanIdString)
+        XCTAssertEqual(trace["status"] as? String, "ok")
     }
     
     func testApplyToEvent_EventWithDist() {
@@ -604,8 +602,12 @@ class SentryScopeSwiftTests: XCTestCase {
         let traceContext = try XCTUnwrap(observer.traceContext)
         let serializedTransaction = transaction.serialize()
 
-        XCTAssertEqual(Set(serializedTransaction.keys), Set(traceContext.keys))
-        
+        var expectedKeys = Set(serializedTransaction.keys)
+        // The transaction doesn't serialize the status when it's undefined, but the trace context sets it to OK.
+        expectedKeys.insert("status")
+
+        XCTAssertEqual(Set(traceContext.keys), expectedKeys)
+
         XCTAssertEqual(serializedTransaction["trace_id"] as? String, traceContext["trace_id"] as? String)
         XCTAssertEqual(serializedTransaction["span_id"] as? String, traceContext["span_id"] as? String)
         XCTAssertEqual(serializedTransaction["op"] as? String, traceContext["op"] as? String)
@@ -613,6 +615,7 @@ class SentryScopeSwiftTests: XCTestCase {
         XCTAssertEqual(serializedTransaction["type"] as? String, traceContext["type"] as? String)
         XCTAssertEqual(serializedTransaction["start_timestamp"] as? Double, traceContext["start_timestamp"] as? Double)
         XCTAssertEqual(serializedTransaction["timestamp"] as? Double, traceContext["timestamp"] as? Double)
+        XCTAssertEqual(traceContext["status"] as? String, "ok")
     }
 
     func testScopeObserver_setSpanToNil_SetsTraceContextToPropagationContext() throws {

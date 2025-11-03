@@ -161,7 +161,7 @@ public struct SentrySDKWrapper {
         options.enableLogs = true
 
         // Experimental features
-        options.experimental.enableFileManagerSwizzling = !SentrySDKOverrides.Other.disableFileManagerSwizzling.boolValue
+        options.enableFileManagerSwizzling = !SentrySDKOverrides.Other.disableFileManagerSwizzling.boolValue
         options.experimental.enableUnhandledCPPExceptionsV2 = true
     }
 
@@ -469,17 +469,6 @@ extension SentrySDKWrapper {
 #if !os(tvOS) && !os(watchOS) && !os(visionOS)
 extension SentrySDKWrapper {
     func configureProfiling(_ options: Options) {
-      #if !SDK_V9
-        if let sampleRate = SentrySDKOverrides.Profiling.sampleRate.floatValue {
-            options.profilesSampleRate = NSNumber(value: sampleRate)
-        }
-        if let samplerValue = SentrySDKOverrides.Profiling.samplerValue.floatValue {
-            options.profilesSampler = { _ in
-                return NSNumber(value: samplerValue)
-            }
-        }
-      #endif // !SDK_V9
-
         if !SentrySDKOverrides.Profiling.disableUIProfiling.boolValue {
             options.configureProfiling = {
                 $0.lifecycle = SentrySDKOverrides.Profiling.manualLifecycle.boolValue ? .manual : .trace

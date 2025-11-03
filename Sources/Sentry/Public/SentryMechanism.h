@@ -6,20 +6,15 @@
 #else
 #    import <SentryDefines.h>
 #endif
-#if !SDK_V9
-#    import SENTRY_HEADER(SentrySerializable)
-#endif
+#import SENTRY_HEADER(SentrySerializable)
 
 NS_ASSUME_NONNULL_BEGIN
 
 @class SentryNSError;
-@class SentryMechanismMeta;
+@class SentryMechanismContext;
 
 NS_SWIFT_NAME(Mechanism)
-@interface SentryMechanism : NSObject
-#if !SDK_V9
-                             <SentrySerializable>
-#endif
+@interface SentryMechanism : NSObject <SentrySerializable>
 
 SENTRY_NO_INIT
 
@@ -63,7 +58,7 @@ SENTRY_NO_INIT
  * Information from the operating system or runtime on the exception
  * mechanism.
  */
-@property (nullable, nonatomic, strong) SentryMechanismMeta *meta;
+@property (nullable, nonatomic, strong) SentryMechanismContext *meta;
 
 /**
  * Initialize an SentryMechanism with a type

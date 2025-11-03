@@ -13,6 +13,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SentryScope ()
 
 @property (atomic, copy, nullable) NSString *environmentString;
+@property (nullable, nonatomic, strong) id<SentrySpan> span;
 
 @property (atomic, strong, readonly) NSArray<SentryAttachment *> *attachments;
 
@@ -60,7 +61,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)addObserver:(id<SentryScopeObserver>)observer;
 
-- (nullable SentryEvent *)applyToEvent:(SentryEvent *)event
+- (nullable SentryEvent *)applyToEvent:(SentryEvent *_Nullable)event
                          maxBreadcrumb:(NSUInteger)maxBreadcrumbs
     NS_SWIFT_NAME(applyTo(event:maxBreadcrumbs:));
 

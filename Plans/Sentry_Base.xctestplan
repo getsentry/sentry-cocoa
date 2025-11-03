@@ -27,14 +27,17 @@
     {
       "parallelizable" : false,
       "skippedTests" : [
+        "PrivateSentrySDKOnlyTests\/testProfilingStartAndCollect()",
         "SentryANRTrackerTests\/testANRButAppInBackground_NoANR()",
         "SentryANRTrackerTests\/testMultipleListeners()",
         "SentryCoreDataTrackerTests\/testFetchRequestBackgroundThread()",
         "SentryCoreDataTrackerTests\/testSaveBackgroundThread()",
+        "SentryCrashBinaryImageCacheTests\/testRemoveImageFromBeginning",
         "SentryCrashIntegrationTests\/testStartUpCrash_CallsFlush()",
         "SentryCrashReportStore_Tests\/testCrashReportCount1",
         "SentryCrashReportStore_Tests\/testDeleteAllReports",
         "SentryCrashReportStore_Tests\/testStoresLoadsMultipleReports",
+        "SentryHttpTransportFlushIntegrationTests",
         "SentryHttpTransportTests\/testFlush_WhenNoInternet_BlocksAndFinishes()",
         "SentryNetworkTrackerIntegrationTestServerTests",
         "SentryNetworkTrackerIntegrationTestServerTests\/testGetRequest_SpanCreatedAndBaggageHeaderAdded()",
@@ -49,7 +52,8 @@
         "SentryThreadInspectorTests\/testGetCurrentThreadsWithStacktrace_WithSymbolication()",
         "SentryThreadInspectorTests\/testStacktraceHasFrames_forEveryThread()",
         "SentryThreadWrapperTests\/testOnMainThreadFromNonMainContext()",
-        "SentryTracerTests\/testDeadlineTimer_StartedAndCancelledOnMainThread()"
+        "SentryTracerTests\/testDeadlineTimer_StartedAndCancelledOnMainThread()",
+        "SentryWatchdogTerminationTrackerTests\/testTerminateApp_RunsOnMainThread()"
       ],
       "target" : {
         "containerPath" : "container:Sentry.xcodeproj",

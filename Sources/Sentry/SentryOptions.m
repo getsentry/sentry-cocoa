@@ -73,16 +73,15 @@ NSString *const kSentryDefaultEnvironment = @"production";
         self.debug = NO;
         self.maxBreadcrumbs = defaultMaxBreadcrumbs;
         self.maxCacheItems = 30;
-#if !SDK_V9
-        _integrations = [SentryOptions defaultIntegrations];
-#endif // !SDK_V9
         self.sampleRate = SENTRY_DEFAULT_SAMPLE_RATE;
         self.enableAutoSessionTracking = YES;
         self.enableGraphQLOperationTracking = NO;
         self.enableWatchdogTerminationTracking = YES;
         self.sessionTrackingIntervalMillis = [@30000 unsignedIntValue];
         self.attachStacktrace = YES;
-        self.maxAttachmentSize = 20 * 1024 * 1024;
+        // Maximum attachment size is 100 MiB, matches Relay's limit:
+        // https://develop.sentry.dev/sdk/data-model/envelopes/#size-limits
+        self.maxAttachmentSize = 100 * 1024 * 1024;
         self.sendDefaultPii = NO;
         self.enableAutoPerformanceTracing = YES;
         self.enablePersistingTracesWhenCrashing = NO;
@@ -114,18 +113,11 @@ NSString *const kSentryDefaultEnvironment = @"production";
         self.enablePropagateTraceparent = NO;
         self.enableNetworkTracking = YES;
         self.enableFileIOTracing = YES;
+        self.enableFileManagerSwizzling = NO;
+        self.enableDataSwizzling = YES;
         self.enableNetworkBreadcrumbs = YES;
         self.enableLogs = NO;
         self.tracesSampleRate = nil;
-#if SENTRY_TARGET_PROFILING_SUPPORTED
-#    if !SDK_V9
-        _enableProfiling = NO;
-#        pragma clang diagnostic push
-#        pragma clang diagnostic ignored "-Wdeprecated-declarations"
-        self.profilesSampleRate = SENTRY_INITIAL_PROFILES_SAMPLE_RATE;
-#        pragma clang diagnostic pop
-#    endif // !SDK_V9
-#endif // SENTRY_TARGET_PROFILING_SUPPORTED
         self.enableCoreDataTracing = YES;
         _enableSwizzling = YES;
         self.swizzleClassNameExcludes = [NSSet new];
@@ -220,13 +212,6 @@ NSString *const kSentryDefaultEnvironment = @"production";
     _failedRequestTargets = failedRequestTargets;
 }
 
-#if !SDK_V9
-- (void)setIntegrations:(NSArray<NSString *> *)integrations
-{
-    _integrations = integrations.mutableCopy;
-}
-#endif // !SDK_V9
-
 - (void)setDsn:(NSString *)dsn
 {
     NSError *error = nil;
@@ -290,73 +275,16 @@ sentry_isValidSampleRate(NSNumber *sampleRate)
 }
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-#    if !SDK_V9
-- (void)setProfilesSampleRate:(NSNumber *)profilesSampleRate
-{
-    if (profilesSampleRate == nil) {
-        _profilesSampleRate = nil;
-    } else if (sentry_isValidSampleRate(profilesSampleRate)) {
-        _profilesSampleRate = profilesSampleRate;
-    } else {
-        _profilesSampleRate = SENTRY_DEFAULT_PROFILES_SAMPLE_RATE;
-    }
-}
-
-- (BOOL)isProfilingEnabled
-{
-    return (_profilesSampleRate != nil && [_profilesSampleRate doubleValue] > 0)
-        || _profilesSampler != nil || _enableProfiling;
-}
 
 - (BOOL)isContinuousProfilingEnabled
 {
-#        pragma clang diagnostic push
-#        pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    // this looks a little weird with the `!self.enableProfiling` but that actually is the
-    // deprecated way to say "enable trace-based profiling", which necessarily disables continuous
-    // profiling as they are mutually exclusive modes
-    return _profilesSampleRate == nil && _profilesSampler == nil && !self.enableProfiling;
-#        pragma clang diagnostic pop
-}
-
-#    endif // !SDK_V9
-
-- (BOOL)isContinuousProfilingV2Enabled
-{
-#    if SDK_V9
     return _profiling != nil;
-#    else
-    return [self isContinuousProfilingEnabled] && _profiling != nil;
-#    endif // SDK_V9
 }
 
 - (BOOL)isProfilingCorrelatedToTraces
 {
-#    if SDK_V9
     return _profiling != nil && _profiling.lifecycle == SentryProfileLifecycleTrace;
-#    else
-    return ![self isContinuousProfilingEnabled]
-        || (_profiling != nil && _profiling.lifecycle == SentryProfileLifecycleTrace);
-#    endif // SDK_V9
 }
-
-#    if !SDK_V9
-- (void)setEnableProfiling_DEPRECATED_TEST_ONLY:(BOOL)enableProfiling_DEPRECATED_TEST_ONLY
-{
-#        pragma clang diagnostic push
-#        pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    self.enableProfiling = enableProfiling_DEPRECATED_TEST_ONLY;
-#        pragma clang diagnostic pop
-}
-
-- (BOOL)enableProfiling_DEPRECATED_TEST_ONLY
-{
-#        pragma clang diagnostic push
-#        pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    return self.enableProfiling;
-#        pragma clang diagnostic pop
-}
-#    endif // !SDK_V9
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 #if SENTRY_UIKIT_AVAILABLE
