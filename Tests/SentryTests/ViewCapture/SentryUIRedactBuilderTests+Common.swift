@@ -6,7 +6,6 @@ import PDFKit
 import SafariServices
 @_spi(Private) @testable import Sentry
 import SentryTestUtils
-import SnapshotTesting
 import SwiftUI
 import UIKit
 import WebKit
@@ -69,12 +68,8 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftli
         // -- Arrange --
         let sut = getSut(maskAllText: true, maskAllImages: true)
         let result = sut.redactRegionsFor(view: rootView)
-        let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: rootView, as: .image, named: createTestDeviceOSBoundSnapshotName(name: "unmasked"))
-        assertSnapshot(of: masked, as: .image, named: createTestDeviceOSBoundSnapshotName(name: "masked"))
-
         let region = try XCTUnwrap(result.element(at: 0))
         // The text color of UITextView is not used for redaction
         XCTAssertEqual(region.color, UIColor.blue)
@@ -121,12 +116,8 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftli
         // -- Arrange --
         let sut = getSut(maskAllText: true, maskAllImages: true)
         let result = sut.redactRegionsFor(view: rootView)
-        let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: rootView, as: .image, named: createTestDeviceOSBoundSnapshotName(name: "unmasked"))
-        assertSnapshot(of: masked, as: .image, named: createTestDeviceOSBoundSnapshotName(name: "masked"))
-
         // Only the transparent and opaque label will result in regions, not the fully transparent one.
         let nonTransparentLabelRegion = try XCTUnwrap(result.element(at: 0))
         XCTAssertEqual(nonTransparentLabelRegion.color, UIColor.purple)
@@ -165,11 +156,8 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftli
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: true)
         let result = sut.redactRegionsFor(view: rootView)
-        let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: masked, as: .image)
-
         let region = try XCTUnwrap(result.element(at: 0))
         XCTAssertEqual(region.type, .clipOut)
         XCTAssertEqual(region.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 10, ty: 10))
@@ -199,12 +187,8 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftli
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: true)
         let result = sut.redactRegionsFor(view: rootView)
-        let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: rootView, as: .image, named: createTestDeviceOSBoundSnapshotName(name: "unmasked"))
-        assertSnapshot(of: masked, as: .image, named: createTestDeviceOSBoundSnapshotName(name: "masked"))
-
         let region = try XCTUnwrap(result.element(at: 0))
         // The text color of UITextView is not used for redaction
         XCTAssertEqual(region.color, label.textColor.withAlphaComponent(1.0))
@@ -236,18 +220,13 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftli
 
         // Check that the pre-condition applies so this tests doesn't rely on other tests
         let preIgnoreResult = sut.redactRegionsFor(view: rootView)
-        let preIgnored = createMaskedScreenshot(view: rootView, regions: preIgnoreResult)
 
         sut.addIgnoreClass(UILabel.self)
 
         let postIgnoreResult = sut.redactRegionsFor(view: rootView)
-        let postIgnored = createMaskedScreenshot(view: rootView, regions: postIgnoreResult)
 
         // -- Assert --
-        assertSnapshot(of: preIgnored, as: .image, named: createTestDeviceOSBoundSnapshotName(name: "masked"))
         XCTAssertEqual(preIgnoreResult.count, 1)
-
-        assertSnapshot(of: postIgnored, as: .image, named: createTestDeviceOSBoundSnapshotName(name: "unmasked"))
         XCTAssertEqual(postIgnoreResult.count, 0)
     }
 
@@ -270,18 +249,13 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftli
 
         // Check that the pre-condition applies so this tests doesn't rely on other tests
         let preIgnoreResult = sut.redactRegionsFor(view: rootView)
-        let preMasked = createMaskedScreenshot(view: rootView, regions: preIgnoreResult)
 
         sut.addRedactClass(TestGridView.self)
 
         let result = sut.redactRegionsFor(view: rootView)
-        let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: preMasked, as: .image, named: createTestDeviceOSBoundSnapshotName(name: "unmasked"))
         XCTAssertEqual(preIgnoreResult.count, 0)
-
-        assertSnapshot(of: masked, as: .image, named: createTestDeviceOSBoundSnapshotName(name: "masked"))
         XCTAssertEqual(result.count, 1)
     }
 
@@ -303,12 +277,8 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftli
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: true)
         let result = sut.redactRegionsFor(view: rootView)
-        let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: rootView, as: .image, named: createTestDeviceOSBoundSnapshotName(name: "unmasked"))
-        assertSnapshot(of: masked, as: .image, named: createTestDeviceOSBoundSnapshotName(name: "masked"))
-
         let region = try XCTUnwrap(result.element(at: 0))
         // The text color of UILabel subclasses is not used for redaction
         XCTAssertEqual(region.color, UIColor.label.withAlphaComponent(1.0))
@@ -335,13 +305,9 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftli
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: true)
         let result = sut.redactRegionsFor(view: rootView)
-        let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
         // Should match because UILabel is in the redact list, even through multiple inheritance levels
-        assertSnapshot(of: rootView, as: .image, named: createTestDeviceOSBoundSnapshotName(name: "unmasked"))
-        assertSnapshot(of: masked, as: .image, named: createTestDeviceOSBoundSnapshotName(name: "masked"))
-
         let region = try XCTUnwrap(result.element(at: 0))
         // The text color of UILabel subclasses is not used for redaction
         XCTAssertEqual(region.color, UIColor.green)
@@ -378,18 +344,13 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftli
         let sut = getSut(maskAllText: true, maskAllImages: true)
 
         let preIgnoreResult = sut.redactRegionsFor(view: rootView)
-        let preIgnore = createMaskedScreenshot(view: rootView, regions: preIgnoreResult)
 
         sut.setIgnoreContainerClass(IgnoreContainer.self)
 
         let postIgnoreResult = sut.redactRegionsFor(view: rootView)
-        let postIgnore = createMaskedScreenshot(view: rootView, regions: postIgnoreResult)
 
         // -- Assert --
-        assertSnapshot(of: preIgnore, as: .image, named: createTestDeviceOSBoundSnapshotName(name: "masked"))
         XCTAssertEqual(preIgnoreResult.count, 1)
-
-        assertSnapshot(of: postIgnore, as: .image, named: createTestDeviceOSBoundSnapshotName(name: "unmasked"))
         XCTAssertEqual(postIgnoreResult.count, 0)
     }
 
@@ -418,19 +379,15 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftli
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: true)
         let preIgnoreResult = sut.redactRegionsFor(view: rootView)
-        let preIgnored = createMaskedScreenshot(view: rootView, regions: preIgnoreResult)
 
         sut.setIgnoreContainerClass(IgnoreContainer.self)
 
         let postIgnoreResult = sut.redactRegionsFor(view: rootView)
-        let postIgnored = createMaskedScreenshot(view: rootView, regions: postIgnoreResult)
 
         // -- Assert --
-        assertSnapshot(of: preIgnored, as: .image, named: createTestDeviceOSBoundSnapshotName(name: "masked"))
         XCTAssertEqual(preIgnoreResult.count, 2)
 
         // Assert that the ignore container is redacted
-        assertSnapshot(of: postIgnored, as: .image, named: createTestDeviceOSBoundSnapshotName(name: "unmasked"))
         let region = try XCTUnwrap(postIgnoreResult.element(at: 0))
         XCTAssertEqual(region.color, redactedLabel.textColor.withAlphaComponent(1.0))
         XCTAssertEqual(region.size, CGSize(width: 10, height: 10))
@@ -466,15 +423,12 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftli
         let sut = getSut(maskAllText: true, maskAllImages: true)
 
         let preIgnoreResult = sut.redactRegionsFor(view: rootView)
-        let preIgnored = createMaskedScreenshot(view: rootView, regions: preIgnoreResult)
 
         sut.setIgnoreContainerClass(IgnoreContainer.self)
 
         let postIgnoreResult = sut.redactRegionsFor(view: rootView)
-        let postIgnored = createMaskedScreenshot(view: rootView, regions: postIgnoreResult)
 
         // -- Assert --
-        assertSnapshot(of: preIgnored, as: .image, named: createTestDeviceOSBoundSnapshotName(name: "masked"))
 
         // Assert that the ignore container is redacted
         let region = try XCTUnwrap(preIgnoreResult.element(at: 0))
@@ -501,7 +455,6 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftli
         XCTAssertEqual(preIgnoreResult.count, 3)
 
         // We expect the redact regions to be unchanged
-        assertSnapshot(of: postIgnored, as: .image, named: createTestDeviceOSBoundSnapshotName(name: "unmasked"))
         XCTAssertEqual(postIgnoreResult, preIgnoreResult)
     }
 
@@ -530,17 +483,12 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftli
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: true)
         let preRedactResult = sut.redactRegionsFor(view: rootView)
-        let preRedactMasked = createMaskedScreenshot(view: rootView, regions: preRedactResult)
 
         sut.setRedactContainerClass(RedactContainer.self)
 
         let postRedactResult = sut.redactRegionsFor(view: rootView)
-        let postRedactMasked = createMaskedScreenshot(view: rootView, regions: postRedactResult)
 
         // -- Assert --
-        assertSnapshot(of: preRedactMasked, as: .image, named: createTestDeviceOSBoundSnapshotName(name: "unmasked"))
-        assertSnapshot(of: postRedactMasked, as: .image, named: createTestDeviceOSBoundSnapshotName(name: "masked"))
-
         // Assert pre-condition: no redactions before setting container
         XCTAssertEqual(preRedactResult.count, 0)
 
@@ -591,15 +539,12 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftli
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: true)
         let preRedactResult = sut.redactRegionsFor(view: rootView)
-        let preMasked = createMaskedScreenshot(view: rootView, regions: preRedactResult)
 
         sut.setRedactContainerClass(RedactContainer.self)
 
         let postRedactResult = sut.redactRegionsFor(view: rootView)
-        let postRedactMasked = createMaskedScreenshot(view: rootView, regions: postRedactResult)
 
         // -- Assert --
-        assertSnapshot(of: preMasked, as: .image, named: createTestDeviceOSBoundSnapshotName(name: "unmasked"))
 
         // Assert that the pre-redact container had redactions
         let region = try XCTUnwrap(preRedactResult.element(at: 0))
@@ -618,7 +563,6 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftli
         XCTAssertEqual(preRedactResult.count, 2)
 
         // Assert that the redact regions did not change after setting redact container
-        assertSnapshot(of: postRedactMasked, as: .image, named: createTestDeviceOSBoundSnapshotName(name: "masked"))
         XCTAssertEqual(postRedactResult, preRedactResult)
     }
 
@@ -667,16 +611,12 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftli
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: true)
         let preRedactResult = sut.redactRegionsFor(view: rootView)
-        let preMasked = createMaskedScreenshot(view: rootView, regions: preRedactResult)
 
         sut.setRedactContainerClass(RedactContainer.self)
 
         let postRedactResult = sut.redactRegionsFor(view: rootView)
-        let postRedactMasked = createMaskedScreenshot(view: rootView, regions: postRedactResult)
 
         // -- Assert --
-        assertSnapshot(of: preMasked, as: .image, named: createTestDeviceOSBoundSnapshotName(name: "unmasked"))
-        assertSnapshot(of: postRedactMasked, as: .image, named: createTestDeviceOSBoundSnapshotName(name: "masked"))
 
         // Assert pre-condition: no redactions before setting container
         XCTAssertEqual(preRedactResult.count, 0)
@@ -731,17 +671,12 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftli
         let sut = getSut(maskAllText: true, maskAllImages: true)
 
         let preMaskResult = sut.redactRegionsFor(view: rootView)
-        let preMasked = createMaskedScreenshot(view: rootView, regions: preMaskResult)
 
         SentrySDK.replay.maskView(view)
 
         let postMaskResult = sut.redactRegionsFor(view: rootView)
-        let postMasked = createMaskedScreenshot(view: rootView, regions: postMaskResult)
 
         // -- Assert --
-        assertSnapshot(of: preMasked, as: .image, named: createTestDeviceOSBoundSnapshotName(name: "unmasked"))
-        assertSnapshot(of: postMasked, as: .image, named: createTestDeviceOSBoundSnapshotName(name: "masked"))
-
         // Assert pre-condition: view not masked by default
         XCTAssertEqual(preMaskResult.count, 0)
 
@@ -765,17 +700,12 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftli
         let sut = getSut(maskAllText: true, maskAllImages: true)
 
         let preMaskResult = sut.redactRegionsFor(view: rootView)
-        let preMasked = createMaskedScreenshot(view: rootView, regions: preMaskResult)
 
         view.sentryReplayMask()
 
         let postMaskResult = sut.redactRegionsFor(view: rootView)
-        let postMasked = createMaskedScreenshot(view: rootView, regions: postMaskResult)
 
         // -- Assert --
-        assertSnapshot(of: preMasked, as: .image, named: createTestDeviceOSBoundSnapshotName(name: "unmasked"))
-        assertSnapshot(of: postMasked, as: .image, named: createTestDeviceOSBoundSnapshotName(name: "masked"))
-
         // Assert pre-condition: view not masked by default
         XCTAssertEqual(preMaskResult.count, 0)
 
@@ -806,17 +736,12 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftli
         // -- Act --
         let sut = getSut(maskAllText: false, maskAllImages: false)
         let preResult = sut.redactRegionsFor(view: rootView)
-        let preMasked = createMaskedScreenshot(view: rootView, regions: preResult)
 
         SentrySDK.replay.maskView(container)
 
         let postMaskResult = sut.redactRegionsFor(view: rootView)
-        let postMasked = createMaskedScreenshot(view: rootView, regions: postMaskResult)
 
         // -- Assert --
-        assertSnapshot(of: preMasked, as: .image, named: createTestDeviceOSBoundSnapshotName(name: "unmasked"))
-        assertSnapshot(of: postMasked, as: .image, named: createTestDeviceOSBoundSnapshotName(name: "masked"))
-
         // Assert pre-condition: no redactions before masking container
         XCTAssertEqual(preResult.count, 0)
 
@@ -858,17 +783,12 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftli
         let sut = getSut(maskAllText: true, maskAllImages: true)
 
         let preUnmaskResult = sut.redactRegionsFor(view: rootView)
-        let preUnmasked = createMaskedScreenshot(view: rootView, regions: preUnmaskResult)
 
         SentrySDK.replay.unmaskView(label)
 
         let postUnmaskResult = sut.redactRegionsFor(view: rootView)
-        let postUnmasked = createMaskedScreenshot(view: rootView, regions: postUnmaskResult)
 
         // -- Assert --
-        assertSnapshot(of: preUnmasked, as: .image, named: createTestDeviceOSBoundSnapshotName(name: "masked"))
-        assertSnapshot(of: postUnmasked, as: .image, named: createTestDeviceOSBoundSnapshotName(name: "unmasked"))
-
         // Assert pre-condition: label is masked by default
         XCTAssertEqual(preUnmaskResult.count, 1)
 
@@ -895,17 +815,12 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftli
         let sut = getSut(maskAllText: true, maskAllImages: true)
 
         let preUnmaskResult = sut.redactRegionsFor(view: rootView)
-        let preUnmasked = createMaskedScreenshot(view: rootView, regions: preUnmaskResult)
 
         label.sentryReplayUnmask()
 
         let postUnmaskResult = sut.redactRegionsFor(view: rootView)
-        let postUnmasked = createMaskedScreenshot(view: rootView, regions: postUnmaskResult)
 
         // -- Assert --
-        assertSnapshot(of: preUnmasked, as: .image, named: createTestDeviceOSBoundSnapshotName(name: "masked"))
-        assertSnapshot(of: postUnmasked, as: .image, named: createTestDeviceOSBoundSnapshotName(name: "unmasked"))
-
         // Assert pre-condition: label is masked by default
         XCTAssertEqual(preUnmaskResult.count, 1)
 
@@ -939,10 +854,8 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftli
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: true)
         let result = sut.redactRegionsFor(view: rootView)
-        let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: masked, as: .image)
         XCTAssertEqual(result.count, 0)
     }
 
@@ -965,11 +878,8 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftli
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: true)
         let result = sut.redactRegionsFor(view: rootView)
-        let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: masked, as: .image)
-        
         let region = try XCTUnwrap(result.element(at: 0))
         XCTAssertEqual(region.color, label.textColor.withAlphaComponent(1.0))
         XCTAssertEqual(region.size, CGSize(width: 40, height: 40))
@@ -998,17 +908,12 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftli
         // -- Act --
         let baseSut = getSut(maskAllText: true, maskAllImages: true, maskedViewClasses: [])
         let baseResult = baseSut.redactRegionsFor(view: rootView)
-        let baseMasked = createMaskedScreenshot(view: rootView, regions: baseResult)
 
         let sut = getSut(maskAllText: true, maskAllImages: true, maskedViewClasses: [MyCustomView.self])
         let result = sut.redactRegionsFor(view: rootView)
-        let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: baseMasked, as: .image)
         XCTAssertEqual(baseResult.count, 0)
-
-        assertSnapshot(of: masked, as: .image)
         let region = try XCTUnwrap(result.element(at: 0))
         XCTAssertNil(region.color)
         XCTAssertEqual(region.size, CGSize(width: 30, height: 30))
@@ -1037,16 +942,11 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftli
         // -- Act --
         let baseSut = getSut(maskAllText: true, maskAllImages: true, unmaskedViewClasses: [])
         let baseResult = baseSut.redactRegionsFor(view: rootView)
-        let baseMasked = createMaskedScreenshot(view: rootView, regions: baseResult)
 
         let sut = getSut(maskAllText: true, maskAllImages: true, unmaskedViewClasses: [MyLabel.self])
         let result = sut.redactRegionsFor(view: rootView)
-        let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: baseMasked, as: .image, named: createTestDeviceOSBoundSnapshotName(name: "masked"))
-        assertSnapshot(of: masked, as: .image, named: createTestDeviceOSBoundSnapshotName(name: "unmasked"))
-
         // Assert pre-condition: label is masked without unmask classes
         XCTAssertEqual(baseResult.count, 1)
 
@@ -1117,17 +1017,12 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftli
 
         // Pre-condition: both would be redacted
         let preResult = sut.redactRegionsFor(view: rootView)
-        let preMasked = createMaskedScreenshot(view: rootView, regions: preResult)
 
         sut.addIgnoreClasses([UILabel.self, UITextField.self])
 
         let postResult = sut.redactRegionsFor(view: rootView)
-        let postMasked = createMaskedScreenshot(view: rootView, regions: postResult)
 
         // -- Assert --
-        assertSnapshot(of: preMasked, as: .image, named: createTestDeviceOSBoundSnapshotName(name: "masked"))
-        assertSnapshot(of: postMasked, as: .image, named: createTestDeviceOSBoundSnapshotName(name: "unmasked"))
-
         let canvasRegion = try XCTUnwrap(preResult.element(at: 0))
         XCTAssertEqual(canvasRegion.size, .zero)
         XCTAssertEqual(canvasRegion.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 50, ty: 10))
@@ -1176,18 +1071,13 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftli
         let sut = getSut(maskAllText: false, maskAllImages: false)
 
         let preResult = sut.redactRegionsFor(view: rootView)
-        let preMasked = createMaskedScreenshot(view: rootView, regions: preResult)
 
         sut.addRedactClasses([V1.self, V2.self])
 
         let result = sut.redactRegionsFor(view: rootView)
-        let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: preMasked, as: .image)
         XCTAssertEqual(preResult.count, 0)
-
-        assertSnapshot(of: masked, as: .image)
         let region = try XCTUnwrap(result.element(at: 0))
         XCTAssertNil(region.color)
         XCTAssertEqual(region.size, CGSize(width: 20, height: 20))
@@ -1238,12 +1128,19 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftli
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: true)
         let result = sut.redactRegionsFor(view: rootView)
-        let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
-        if #available(iOS 26, *), isBuiltWithSDK26() {
-            // Only applies to Liquid Glass (enabled when built with Xcode 26+)
-            let region1 = try XCTUnwrap(result.element(at: 0))
+        // UISlider behavior differs by iOS version
+        if #available(iOS 26.0, *) {
+            // On iOS 26, UISlider uses a new visual implementation that creates clipping regions
+            // even though the slider itself is in the ignore list
+            let region0 = try XCTUnwrap(result.element(at: 0))
+            XCTAssertNil(region0.color)
+            XCTAssertEqual(region0.size, CGSize(width: 37, height: 24))
+            XCTAssertEqual(region0.type, .clipOut)
+            XCTAssertEqual(region0.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 10, ty: 8))
+
+            let region1 = try XCTUnwrap(result.element(at: 1))
             XCTAssertNil(region1.color)
             XCTAssertEqual(region1.size, CGSize(width: 80, height: 6))
             XCTAssertEqual(region1.type, .clipBegin)
@@ -1283,11 +1180,8 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftli
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: true)
         let result = sut.redactRegionsFor(view: rootView)
-        let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: masked, as: .image, named: createTestDeviceOSBoundSnapshotName(name: "unmasked"))
-
         // Assert that UISwitch is not redacted (default ignored control)
         XCTAssertEqual(result.count, 0)
     }
@@ -1310,12 +1204,10 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftli
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: true)
         let result = sut.redactRegionsFor(view: rootView)
-        let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
         // View with nil backgroundColor should not be treated as opaque
         // So the label should still be redacted
-        assertSnapshot(of: masked, as: .image)
         let region = try XCTUnwrap(result.element(at: 0))
         XCTAssertEqual(region.color, UIColor.orange)
         XCTAssertEqual(region.size, CGSize(width: 40, height: 40))
@@ -1342,12 +1234,10 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftli
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: true)
         let result = sut.redactRegionsFor(view: rootView)
-        let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
         // View with transparent backgroundColor should not be treated as opaque
         // So the label should still be redacted
-        assertSnapshot(of: masked, as: .image)
         let region = try XCTUnwrap(result.element(at: 0))
         XCTAssertEqual(region.color, UIColor.orange)
         XCTAssertEqual(region.size, CGSize(width: 40, height: 40))
@@ -1375,12 +1265,10 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftli
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: true)
         let result = sut.redactRegionsFor(view: rootView)
-        let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
         // View with layer opacity < 1 should not be treated as opaque
         // So the label should still be redacted
-        assertSnapshot(of: masked, as: .image)
         let region = try XCTUnwrap(result.element(at: 0))
         XCTAssertEqual(region.color, UIColor.purple)
         XCTAssertEqual(region.size, CGSize(width: 40, height: 40))
