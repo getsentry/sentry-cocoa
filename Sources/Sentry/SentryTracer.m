@@ -102,7 +102,7 @@ static BOOL appStartMeasurementRead;
 }
 
 - (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext
-                                       hub:(nullable SentryHub *)hub
+                                       hub:(nullable SentryHubInternal *)hub
 {
     return [self initWithTransactionContext:transactionContext
                                         hub:hub
@@ -110,7 +110,7 @@ static BOOL appStartMeasurementRead;
 }
 
 - (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext
-                                       hub:(nullable SentryHub *)hub
+                                       hub:(nullable SentryHubInternal *)hub
                              configuration:(SentryTracerConfiguration *)configuration;
 {
     if (!(self = [super initWithContext:transactionContext

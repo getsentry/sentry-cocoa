@@ -18,7 +18,7 @@ class SentrySDKTests: XCTestCase {
         let event: Event
         let scope: Scope
         let client: TestClient
-        let hub: SentryHub
+        let hub: SentryHubInternal
         let error: Error = NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Object does not exist"])
         let exception = NSException(name: NSExceptionName("My Custom exeption"), reason: "User clicked the button", userInfo: nil)
         let feedback: SentryFeedback
@@ -55,7 +55,7 @@ class SentrySDKTests: XCTestCase {
             scope.setTag(value: "value", key: "key")
 
             client = TestClient(options: options)!
-            hub = SentryHub(client: client, andScope: scope, andCrashWrapper: TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo), andDispatchQueue: SentryDispatchQueueWrapper())
+            hub = SentryHubInternal(client: client, andScope: scope, andCrashWrapper: TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo), andDispatchQueue: SentryDispatchQueueWrapper())
 
             feedback = SentryFeedback(message: "Again really?", name: "Tim Apple", email: "tim@apple.com")
             
@@ -531,7 +531,7 @@ extension SentrySDKTests {
     }
 
     private func givenSdkWithHubButNoClient() {
-        SentrySDKInternal.setCurrentHub(SentryHub(client: nil, andScope: nil))
+        SentrySDKInternal.setCurrentHub(SentryHubInternal(client: nil, andScope: nil))
         SentrySDKInternal.setStart(with: fixture.options)
     }
 

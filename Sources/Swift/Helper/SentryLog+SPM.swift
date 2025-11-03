@@ -55,14 +55,6 @@ public extension Options {
     }
 }
 
-@objc
-public extension SentryHub {
-    @objc
-    var logger: SentryLogger? {
-        return value(forKey: "logger") as? SentryLogger
-    }
-}
-
 /// Extension to provide log capture methods for SPM builds.
 @objc
 public extension SentryClient {

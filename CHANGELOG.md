@@ -12,6 +12,9 @@
 - Removes deprecated getStoreEndpoint (#5591)
 - Remove legacy profiling, the only supported profiling is now what was known as continuous V2 (#6386)
 - Removes deprecated useSpan function (#5591)
+- Makes app hang tracking V2 the default and removes the option to enable/disable it (#5615)
+- Removes `integrations` property from `SentryOptions` (#5749)
+- Makes `SentryEventDecodable` internal (#5808)
 - The `span` property on `SentryScope` is now readonly (#5866)
 - Removes deprecated SentryDebugImageProvider class (#5598)
 - Removes segment property on SentryUser, SentryBaggage, and SentryTraceContext (#5638)
@@ -31,6 +34,7 @@
 ### Features
 
 - Add SentryDistribution as Swift Package Manager target (#6149)
+- Moves SentryClient and SentryHub to be written in Swift (#6627)
 - Add option `enablePropagateTraceparent` to support OTel/W3C trace propagation (#6356)
 - Structured Logs: Add `captureLog` to `Hub` and `Client` (#6518)
 - Move `enableFileManagerSwizzling` from experimental options to top-level options (#6592).

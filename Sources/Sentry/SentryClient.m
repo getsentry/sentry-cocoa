@@ -10,8 +10,6 @@
 #import "SentryDsn.h"
 #import "SentryEvent+Private.h"
 #import "SentryException.h"
-// #import "SentryHub+Private.h"
-// #import "SentryHub.h"
 #import "SentryInstallation.h"
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"
@@ -46,7 +44,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryClient () <SentryLogBatcherDelegate>
+@interface SentryClientInternal () <SentryLogBatcherDelegate>
 
 @property (nonatomic, strong) SentryTransportAdapter *transportAdapter;
 @property (nonatomic, strong) SentryDebugImageProvider *debugImageProvider;
@@ -59,7 +57,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 NSString *const DropSessionLogMessage = @"Session has no release name. Won't send it.";
 
-@implementation SentryClient
+@implementation SentryClientInternal
 
 - (_Nullable instancetype)initWithOptions:(SentryOptions *)options
 {
