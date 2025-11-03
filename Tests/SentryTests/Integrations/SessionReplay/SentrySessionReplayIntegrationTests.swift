@@ -208,7 +208,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         
         startSDK(sessionSampleRate: 1, errorSampleRate: 1)
         
-        let client = SentryClient(options: try XCTUnwrap(SentrySDKInternal.options))
+        let client = SentryClientInternal(options: try XCTUnwrap(SentrySDKInternal.options))
         let scope = Scope()
         let hub = TestHub(client: client, andScope: scope)
         SentrySDKInternal.setCurrentHub(hub)
@@ -236,7 +236,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         
         startSDK(sessionSampleRate: 1, errorSampleRate: 1)
         
-        let client = SentryClient(options: try XCTUnwrap(SentrySDKInternal.options))
+        let client = SentryClientInternal(options: try XCTUnwrap(SentrySDKInternal.options))
         let scope = Scope()
         let hub = TestHub(client: client, andScope: scope)
         SentrySDKInternal.setCurrentHub(hub)
@@ -273,7 +273,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         // capture all error replays if this were not a buffer replay from previous session
         startSDK(sessionSampleRate: 0, errorSampleRate: 1)
         
-        let client = SentryClient(options: try XCTUnwrap(SentrySDKInternal.options))
+        let client = SentryClientInternal(options: try XCTUnwrap(SentrySDKInternal.options))
         let scope = Scope()
         let hub = TestHub(client: client, andScope: scope)
         SentrySDKInternal.setCurrentHub(hub)
@@ -313,7 +313,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
             }
         })
         
-        let client = SentryClient(options: try XCTUnwrap(SentrySDKInternal.options))
+        let client = SentryClientInternal(options: try XCTUnwrap(SentrySDKInternal.options))
         let scope = Scope()
         let hub = TestHub(client: client, andScope: scope)
         SentrySDKInternal.setCurrentHub(hub)
