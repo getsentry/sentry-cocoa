@@ -53,6 +53,7 @@
   - Improve transform calculations for views with custom anchor points
   - Fix axis-aligned transform detection for optimized opaque view clipping
 - Fix conversion of frame rate to time interval for session replay (#6623)
+- Fix full-screen overlay breaking redaction of views below it (#6629)
 
 ### Improvements
 
