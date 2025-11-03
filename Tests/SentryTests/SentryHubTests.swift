@@ -277,8 +277,7 @@ class SentryHubTests: XCTestCase {
     func testAddUserToTheScope() throws {
         let client = SentryClient(
             options: fixture.options,
-            fileManager: fixture.fileManager,
-            deleteOldEnvelopeItems: false
+            fileManager: fixture.fileManager
         )
         let hub = SentryHub(client: client, andScope: Scope())
         
