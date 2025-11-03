@@ -26,12 +26,12 @@
 - Remove unused `SentryFrame.instruction` property (#6504)
 - Remove `uuid` and `name` of `SentryDebugMeta` (#6512) Use `debugID` instead of `uuid` and `codeFile` instead of `name`.
 - Enable enablePreWarmedAppStartTracing by default (#6508). With this option enabled, the SDK collects [prewarmed app starts](https://docs.sentry.io/platforms/apple/tracing/instrumentation/automatic-instrumentation/#prewarmed-app-start-tracing).
-- The precompiled XCFramework is now built with Xcode 16. To submit to the App Store, [Apple now requires Xcode 16](https://developer.apple.com/news/upcoming-requirements/?id=02212025a).
-  If you need a precompiled XCFramework built with Xcode 15, continue using Sentry SDK 8.x.x.
 - Set `SentryFrame.function` default to `nil` instead of `<redacted>` (#6608)
 - Change `value` and `type` of `SentryException` to be nullable (#6563)
 - Change the default trace context status to "ok" instead of "undefined" (#6611)
 - Remove `getHash` from SentryDsn (#6605)
+- The precompiled XCFramework is now built with Xcode 16. To submit to the App Store, [Apple now requires Xcode 16](https://developer.apple.com/news/upcoming-requirements/?id=02212025a).
+  If you need a precompiled XCFramework built with Xcode 15, continue using Sentry SDK 8.x.x.
 
 ### Features
 
