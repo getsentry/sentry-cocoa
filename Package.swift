@@ -95,10 +95,7 @@ if let env = env, String(cString: env, encoding: .utf8) == "1" {
             dependencies: ["_SentryPrivate", "SentryHeaders"],
             path: "Sources/Swift",
             swiftSettings: [
-                .unsafeFlags(["-enable-library-evolution"]),
-                // Some API breaking changes are necessary for the framework to compile with SPM, we’ll ship
-                // those in V9.
-                .define("SDK_V9")
+                .unsafeFlags(["-enable-library-evolution"])
             ]),
         .target(
             name: "SentryObjc",
@@ -113,8 +110,7 @@ if let env = env, String(cString: env, encoding: .utf8) == "1" {
                 .headerSearchPath("SentryCrash/Recording/Tools"),
                 .headerSearchPath("SentryCrash/Installations"),
                 .headerSearchPath("SentryCrash/Reporting/Filters"),
-                .headerSearchPath("SentryCrash/Reporting/Filters/Tools"),
-                .define("SDK_V9")])
+                .headerSearchPath("SentryCrash/Reporting/Filters/Tools")])
     ])
 }
 
