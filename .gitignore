@@ -114,4 +114,4 @@ uikit-check-build
 analyzer
 
 # Output of snapshot testing
-**/__Snapshots_
+**/__Snapshots__
