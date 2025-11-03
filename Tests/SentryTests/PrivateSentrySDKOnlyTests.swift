@@ -349,17 +349,35 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
     #endif
 
     #if canImport(UIKit)
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
-    func testCaptureReplayShouldCallReplayIntegration() {
+    func testCaptureReplayShouldCallReplayIntegration() throws {
         guard #available(iOS 16.0, tvOS 16.0, *) else { return }
 
-        let options = Options()
-        options.setIntegrations([TestSentrySessionReplayIntegration.self])
+        let options = Options.noIntegrations()
+        options.sessionReplay = .init(sessionSampleRate: 1.0)
+        options.experimental.enableSessionReplayInUnreliableEnvironment = true
         SentrySDKInternal.start(options: options)
+
+        var didCallCaptureReplay = false
+        let cls: AnyClass = SentrySessionReplayIntegration.self
+        let originalSelector = #selector(SentrySessionReplayIntegration.captureReplay)
+        guard
+            let originalMethod = class_getInstanceMethod(cls, originalSelector)
+        else {
+            XCTFail("Expected SentrySessionReplayIntegration.captureReplay to exist")
+            return
+        }
+        // Swizzle captureReplay
+        let originalIMP = method_getImplementation(originalMethod)
+        let block: @convention(block) (AnyObject) -> Void = { _ in
+            didCallCaptureReplay = true
+        }
+        let newIMP = imp_implementationWithBlock(block)
+        method_setImplementation(originalMethod, newIMP)      
 
         PrivateSentrySDKOnly.captureReplay()
 
-        XCTAssertTrue(TestSentrySessionReplayIntegration.captureReplayShouldBeCalledAtLeastOnce())
+        XCTAssertTrue(didCallCaptureReplay, "Expected SentrySessionReplayIntegration.captureReplay to be called")
+        method_setImplementation(originalMethod, originalIMP)
     }
 
     func testGetReplayIdShouldBeNil() {
@@ -375,31 +393,29 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         XCTAssertEqual(PrivateSentrySDKOnly.getReplayId(), VALID_REPLAY_ID)
     }
 
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func testAddReplayIgnoreClassesShouldNotFailWhenReplayIsAvailable() {
-        let options = Options()
-        options.setIntegrations([TestSentrySessionReplayIntegration.self])
+        let options = Options.noIntegrations()
+        options.sessionReplay = .init()
         SentrySDKInternal.start(options: options)
 
         PrivateSentrySDKOnly.addReplayIgnoreClasses([UILabel.self])
     }
 
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func testAddReplayRedactShouldNotFailWhenReplayIsAvailable() {
         let options = Options()
-        options.setIntegrations([TestSentrySessionReplayIntegration.self])
+        options.sessionReplay = .init()
         SentrySDKInternal.start(options: options)
 
         PrivateSentrySDKOnly.addReplayRedactClasses([UILabel.self])
     }
 
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func testAddIgnoreContainer() throws {
         class IgnoreContainer: UIView {}
 
         SentrySDKInternal.start {
+            $0.removeAllIntegrations()
             $0.sessionReplay = SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1)
-            $0.setIntegrations([SentrySessionReplayIntegration.self])
+            $0.experimental.enableSessionReplayInUnreliableEnvironment = true
         }
 
         PrivateSentrySDKOnly.setIgnoreContainerClass(IgnoreContainer.self)
@@ -410,13 +426,13 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         XCTAssertTrue(redactBuilder.isIgnoreContainerClassTestOnly(IgnoreContainer.self))
     }
 
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func testAddRedactContainer() throws {
         class RedactContainer: UIView {}
 
         SentrySDKInternal.start {
+            $0.removeAllIntegrations()
             $0.sessionReplay = SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1)
-            $0.setIntegrations([SentrySessionReplayIntegration.self])
+            $0.experimental.enableSessionReplayInUnreliableEnvironment = true
         }
 
         PrivateSentrySDKOnly.setRedactContainerClass(RedactContainer.self)
@@ -451,23 +467,6 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
     }
 
     private let VALID_REPLAY_ID = "0eac7ab503354dd5819b03e263627a29"
-
-    private class TestSentrySessionReplayIntegration: SentrySessionReplayIntegration {
-        static var captureReplayCalledTimes = 0
-
-        override func install(with options: Options) -> Bool {
-            return true
-        }
-
-        override func captureReplay() -> Bool {
-            TestSentrySessionReplayIntegration.captureReplayCalledTimes += 1
-            return true
-        }
-
-        static func captureReplayShouldBeCalledAtLeastOnce() -> Bool {
-            return captureReplayCalledTimes > 0
-        }
-    }
     #endif
     
     private func getUnhandledExceptionEnvelope() -> SentryEnvelope {

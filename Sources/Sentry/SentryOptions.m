@@ -73,16 +73,15 @@ NSString *const kSentryDefaultEnvironment = @"production";
         self.debug = NO;
         self.maxBreadcrumbs = defaultMaxBreadcrumbs;
         self.maxCacheItems = 30;
-#if !SDK_V9
-        _integrations = [SentryOptions defaultIntegrations];
-#endif // !SDK_V9
         self.sampleRate = SENTRY_DEFAULT_SAMPLE_RATE;
         self.enableAutoSessionTracking = YES;
         self.enableGraphQLOperationTracking = NO;
         self.enableWatchdogTerminationTracking = YES;
         self.sessionTrackingIntervalMillis = [@30000 unsignedIntValue];
         self.attachStacktrace = YES;
-        self.maxAttachmentSize = 20 * 1024 * 1024;
+        // Maximum attachment size is 100 MiB, matches Relay's limit:
+        // https://develop.sentry.dev/sdk/data-model/envelopes/#size-limits
+        self.maxAttachmentSize = 100 * 1024 * 1024;
         self.sendDefaultPii = NO;
         self.enableAutoPerformanceTracing = YES;
         self.enablePersistingTracesWhenCrashing = NO;
@@ -114,6 +113,8 @@ NSString *const kSentryDefaultEnvironment = @"production";
         self.enablePropagateTraceparent = NO;
         self.enableNetworkTracking = YES;
         self.enableFileIOTracing = YES;
+        self.enableFileManagerSwizzling = NO;
+        self.enableDataSwizzling = YES;
         self.enableNetworkBreadcrumbs = YES;
         self.enableLogs = NO;
         self.tracesSampleRate = nil;
@@ -210,13 +211,6 @@ NSString *const kSentryDefaultEnvironment = @"production";
 
     _failedRequestTargets = failedRequestTargets;
 }
-
-#if !SDK_V9
-- (void)setIntegrations:(NSArray<NSString *> *)integrations
-{
-    _integrations = integrations.mutableCopy;
-}
-#endif // !SDK_V9
 
 - (void)setDsn:(NSString *)dsn
 {

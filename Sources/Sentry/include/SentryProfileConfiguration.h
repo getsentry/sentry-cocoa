@@ -38,11 +38,6 @@ SENTRY_NO_INIT
 /** Initializer for SDK start if a configuration hasn't already been loaded for a launch profile. */
 - (instancetype)initWithProfileOptions:(SentryProfileOptions *)options;
 
-/**
- * Initializer for both trace-based and continuous V1 (aka continuous beta) launch profiles.
- */
-- (instancetype)initWaitingForFullDisplay:(BOOL)shouldWaitForFullDisplay;
-
 /** Initializer for launch UI profiles (aka continuous V2). */
 - (instancetype)initContinuousProfilingV2WaitingForFullDisplay:(BOOL)shouldWaitForFullDisplay
                                                samplerDecision:(SentrySamplerDecision *)decision
