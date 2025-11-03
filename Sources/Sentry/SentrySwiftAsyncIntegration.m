@@ -1,10 +1,10 @@
 #import "SentrySwiftAsyncIntegration.h"
 #import "SentryCrashStackCursor_SelfThread.h"
-#import "SentryOptions.h"
+#import "SentryOptionsInternal.h"
 
 @implementation SentrySwiftAsyncIntegration
 
-- (BOOL)installWithOptions:(nonnull SentryOptions *)options
+- (BOOL)installWithOptions:(nonnull SentryOptionsInternal *)options
 {
     sentrycrashsc_setSwiftAsyncStitching(options.swiftAsyncStacktraces);
     return options.swiftAsyncStacktraces;

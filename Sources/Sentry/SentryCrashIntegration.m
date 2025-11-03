@@ -7,7 +7,8 @@
 #import "SentryEvent.h"
 #import "SentryHub.h"
 #import "SentryInternalDefines.h"
-#import "SentryOptions.h"
+#import "SentryOptionsConverter.h"
+#import "SentryOptionsInternal.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
 #import "SentryScope+PrivateSwift.h"
@@ -49,7 +50,7 @@ sentry_finishAndSaveTransaction(void)
 
 @interface SentryCrashIntegration ()
 
-@property (nonatomic, weak) SentryOptions *options;
+@property (nonatomic, weak) SentryOptionsInternal *options;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueueWrapper;
 @property (nonatomic, strong) SentryCrashWrapper *crashAdapter;
 @property (nonatomic, strong) SentryCrashIntegrationSessionHandler *sessionHandler;
@@ -79,7 +80,7 @@ sentry_finishAndSaveTransaction(void)
     return self;
 }
 
-- (BOOL)installWithOptions:(nonnull SentryOptions *)options
+- (BOOL)installWithOptions:(nonnull SentryOptionsInternal *)options
 {
     if (![super installWithOptions:options]) {
         return NO;
@@ -120,7 +121,8 @@ sentry_finishAndSaveTransaction(void)
     [self startCrashHandler:options.cacheDirectoryPath
                    enableSigtermReporting:enableSigtermReporting
         enableReportingUncaughtExceptions:enableUncaughtNSExceptionReporting
-                    enableCppExceptionsV2:options.experimental.enableUnhandledCPPExceptionsV2];
+                    enableCppExceptionsV2:[SentryOptionsConverter fromInternal:options]
+                                              .experimental.enableUnhandledCPPExceptionsV2];
 
     [self configureScope];
 

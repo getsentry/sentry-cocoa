@@ -212,7 +212,7 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
     
     private func assertRemovedIntegration(_ options: Options) {
         let sut = SentryNetworkTrackingIntegration()
-        let result = sut.install(with: options)
+        let result = sut.install(with: options.toInternal())
         
         XCTAssertFalse(result)
     }

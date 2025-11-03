@@ -1,5 +1,5 @@
 #import "SentryBreadcrumb.h"
-#import "SentryOptions+Private.h"
+#import "SentryOptionsInternal+Private.h"
 #import "SentryScope+Private.h"
 #import "SentryScope.h"
 #import "SentryUser.h"

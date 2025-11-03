@@ -66,7 +66,7 @@ class SentryTracerTests: XCTestCase {
             options.dsn = TestConstants.dsnAsString(username: "SentryTracerTests")
             options.tracesSampleRate = 1
 
-            client = TestClient(options: options)
+            client = TestClient(options: options.toInternal())
             hub = TestHub(client: client, andScope: scope)
             
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)

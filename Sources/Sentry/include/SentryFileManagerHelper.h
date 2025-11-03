@@ -8,7 +8,7 @@ NS_ASSUME_NONNULL_BEGIN
 @class SentryEvent;
 @class SentryEnvelope;
 @class SentryEnvelopeItem;
-@class SentryOptions;
+@class SentryOptionsInternal;
 @class SentrySession;
 
 @protocol SentryCurrentDateProvider;
@@ -33,7 +33,7 @@ SENTRY_NO_INIT
 
 @property (nonatomic, copy, nullable) void (^handleEnvelopesLimit)(void);
 
-- (nullable instancetype)initWithOptions:(SentryOptions *_Nullable)options
+- (nullable instancetype)initWithOptions:(SentryOptionsInternal *_Nullable)options
                                    error:(NSError **)error NS_DESIGNATED_INITIALIZER;
 
 #pragma mark - Envelope

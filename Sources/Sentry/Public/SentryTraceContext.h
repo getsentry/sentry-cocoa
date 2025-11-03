@@ -11,7 +11,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class SentryBaggage;
 @class SentryId;
-@class SentryOptions;
+@class SentryOptionsInternal;
 @class SentryScope;
 @class SentryTracer;
 @class SentryUser;
@@ -66,6 +66,7 @@ NS_SWIFT_NAME(TraceContext)
 @property (nullable, nonatomic, readonly) NSString *replayId;
 
 /**
+                               options:(SentryOptionsInternal *)options;
  * Create a SentryBaggage with the information of this SentryTraceContext.
  */
 - (SentryBaggage *)toBaggage;

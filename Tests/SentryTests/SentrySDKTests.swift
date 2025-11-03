@@ -54,7 +54,7 @@ class SentrySDKTests: XCTestCase {
             scope = Scope()
             scope.setTag(value: "value", key: "key")
 
-            client = TestClient(options: options)!
+            client = TestClient(options: options.toInternal())!
             hub = SentryHubInternal(client: client, andScope: scope, andCrashWrapper: TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo), andDispatchQueue: SentryDispatchQueueWrapper())
 
             feedback = SentryFeedback(message: "Again really?", name: "Tim Apple", email: "tim@apple.com")
@@ -557,11 +557,11 @@ extension SentrySDKTests {
 
     private func givenSdkWithHubButNoClient() {
         SentrySDKInternal.setCurrentHub(SentryHubInternal(client: nil, andScope: nil))
-        SentrySDKInternal.setStart(with: fixture.options)
+        SentrySDKInternal.setStart(with: fixture.options.toInternal())
     }
 
     private func givenSdkWithHub() {
         SentrySDKInternal.setCurrentHub(fixture.hub)
-        SentrySDKInternal.setStart(with: fixture.options)
+        SentrySDKInternal.setStart(with: fixture.options.toInternal())
     }
 }

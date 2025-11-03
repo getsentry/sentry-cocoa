@@ -3,7 +3,7 @@
 #if SENTRY_HAS_UIKIT
 
 #    import "SentryLogC.h"
-#    import "SentryOptions.h"
+#    import "SentryOptionsInternal.h"
 #    import "SentrySubClassFinder.h"
 #    import "SentrySwift.h"
 #    import "SentryUIViewControllerSwizzling.h"
@@ -16,7 +16,7 @@
 
 @implementation SentryPerformanceTrackingIntegration
 
-- (BOOL)installWithOptions:(SentryOptions *)options
+- (BOOL)installWithOptions:(SentryOptionsInternal *)options
 {
     if (![super installWithOptions:options]) {
         return NO;

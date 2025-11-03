@@ -1,12 +1,12 @@
 #import "SentrySampling.h"
 #import "SentryInternalDefines.h"
-#import "SentryOptions.h"
+#import "SentryOptionsInternal.h"
 #import "SentrySampleDecision.h"
 #import "SentrySamplerDecision.h"
 #import "SentrySamplingContext.h"
 #import "SentrySwift.h"
 #import "SentryTransactionContext.h"
-#import <SentryOptions+Private.h>
+#import <SentryOptionsInternal+Private.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -57,7 +57,7 @@ _sentry_calcSampleFromNumericalRate(NSNumber *_Nullable rate)
 #pragma mark - Public
 
 SentrySamplerDecision *
-sentry_sampleTrace(SentrySamplingContext *context, SentryOptions *_Nullable options)
+sentry_sampleTrace(SentrySamplingContext *context, SentryOptionsInternal *_Nullable options)
 {
     // check this transaction's sampling decision, if already decided
     if (context.transactionContext.sampled != kSentrySampleDecisionUndecided) {

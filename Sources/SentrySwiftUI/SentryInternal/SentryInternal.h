@@ -125,6 +125,15 @@ typedef NS_ENUM(NSUInteger, SentrySpanStatus);
 
 @end
 
+@class SentryReplayOptions;
+
+@interface SentryOptionsInternal : NSObject
+
+@property (nonatomic, strong) SentryReplayOptions *sessionReplay;
+@property (nonatomic) BOOL enableTimeToFullDisplayTracing;
+
+@end
+
 @class SentryHubInternal;
 
 #if __has_include("SentrySDKInternal.h")
@@ -133,9 +142,9 @@ typedef NS_ENUM(NSUInteger, SentrySpanStatus);
 @interface SentrySDKInternal : NSObject
 #endif
 
-@property (nonatomic, nullable, readonly, class) SentryOptions *options;
+@property (nonatomic, nullable, readonly, class) SentryOptionsInternal *options;
 + (void)setCurrentHub:(nullable SentryHubInternal *)hub;
-+ (void)setStartOptions:(nullable SentryOptions *)options NS_SWIFT_NAME(setStart(with:));
++ (void)setStartOptions:(nullable SentryOptionsInternal *)options NS_SWIFT_NAME(setStart(with:));
 
 @end
 

@@ -18,7 +18,7 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 #    import "SentryContinuousProfiler.h"
-#    import "SentryOptions+Private.h"
+#    import "SentryOptionsInternal+Private.h"
 #    import "SentryProfilingConditionals.h"
 #    import "SentrySDK+Private.h"
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED

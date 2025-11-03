@@ -78,7 +78,7 @@ class SentryProfileTestFixture {
         options = Options()
         options.dsn = SentryProfileTestFixture.dsnAsString
         options.debug = true
-        client = TestClient(options: options)
+        client = TestClient(options: options.toInternal())
         hub = SentryHubInternal(client: client, andScope: scope)
         hub.bindClient(client)
         SentrySDKInternal.setCurrentHub(hub)

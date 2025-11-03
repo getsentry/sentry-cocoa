@@ -4,7 +4,7 @@
 @class SentryId;
 @class SentryTracer;
 @class SentryScope;
-@class SentryOptions;
+@class SentryOptionsInternal;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -38,7 +38,8 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Initializes a SentryTraceContext with data from scope and options.
  */
-- (nullable instancetype)initWithScope:(SentryScope *)scope options:(SentryOptions *)options;
+- (nullable instancetype)initWithScope:(SentryScope *)scope
+                               options:(SentryOptionsInternal *)options;
 
 /**
  * Initializes a SentryTraceContext with data from a dictionary.
@@ -50,7 +51,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (nullable instancetype)initWithTracer:(SentryTracer *)tracer
                                   scope:(nullable SentryScope *)scope
-                                options:(SentryOptions *)options;
+                                options:(SentryOptionsInternal *)options;
 
 /**
  * Initializes a SentryTraceContext with data from a traceId, options and replayId.
@@ -60,7 +61,7 @@ NS_ASSUME_NONNULL_BEGIN
  *  @param replayId The current session replay.
  */
 - (instancetype)initWithTraceId:(SentryId *)traceId
-                        options:(SentryOptions *)options
+                        options:(SentryOptionsInternal *)options
                        replayId:(nullable NSString *)replayId;
 
 @end

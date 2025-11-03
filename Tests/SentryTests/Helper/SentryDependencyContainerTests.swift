@@ -48,7 +48,7 @@ final class SentryDependencyContainerTests: XCTestCase {
 
         let options = Options()
         options.dsn = SentryDependencyContainerTests.dsn
-        SentrySDKInternal.setStart(with: options)
+        SentrySDKInternal.setStart(with: options.toInternal())
 
         let iterations = 100
 
@@ -136,7 +136,7 @@ final class SentryDependencyContainerTests: XCTestCase {
         // -- Arrange --
         let options = Options()
         options.dsn = SentryDependencyContainerTests.dsn
-        SentrySDKInternal.setStart(with: options)
+        SentrySDKInternal.setStart(with: options.toInternal())
 
         let container = SentryDependencyContainer.sharedInstance()
 
@@ -153,7 +153,7 @@ final class SentryDependencyContainerTests: XCTestCase {
         // -- Arrange --
         let options = Options()
         options.dsn = SentryDependencyContainerTests.dsn
-        SentrySDKInternal.setStart(with: options)
+        SentrySDKInternal.setStart(with: options.toInternal())
 
         let container = SentryDependencyContainer.sharedInstance()
 
@@ -173,7 +173,7 @@ final class SentryDependencyContainerTests: XCTestCase {
         // -- Arrange --
         let options = Options()
         options.dsn = SentryDependencyContainerTests.dsn
-        SentrySDKInternal.setStart(with: options)
+        SentrySDKInternal.setStart(with: options.toInternal())
 
         let container = SentryDependencyContainer.sharedInstance()
         let dispatchFactory = TestDispatchFactory()
@@ -202,7 +202,7 @@ final class SentryDependencyContainerTests: XCTestCase {
         options2.dsn = SentryDependencyContainerTests.dsn
         options2.sessionTrackingIntervalMillis = 5_000
         
-        SentrySDKInternal.setStart(with: options1)
+        SentrySDKInternal.setStart(with: options1.toInternal())
         
         let container = SentryDependencyContainer.sharedInstance()
 
@@ -226,7 +226,7 @@ final class SentryDependencyContainerTests: XCTestCase {
         options2.sessionTrackingIntervalMillis = 5_000
         options2.environment = "test2"
         
-        SentrySDKInternal.setStart(with: options1)
+        SentrySDKInternal.setStart(with: options1.toInternal())
         
         let container = SentryDependencyContainer.sharedInstance()
 
@@ -248,7 +248,7 @@ final class SentryDependencyContainerTests: XCTestCase {
         // -- Arrange --
         let options = Options()
         options.dsn = SentryDependencyContainerTests.dsn
-        SentrySDKInternal.setStart(with: options)
+        SentrySDKInternal.setStart(with: options.toInternal())
         
         let container = SentryDependencyContainer.sharedInstance()
 

@@ -11,7 +11,7 @@
 
 @implementation SentryFileIOTrackingIntegration
 
-- (BOOL)installWithOptions:(SentryOptions *)options
+- (BOOL)installWithOptions:(SentryOptionsInternal *)options
 {
     if (![super installWithOptions:options]) {
         return NO;

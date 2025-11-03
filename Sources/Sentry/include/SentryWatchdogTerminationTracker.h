@@ -3,7 +3,7 @@
 @class SentryAppStateManager;
 @class SentryDispatchQueueWrapper;
 @class SentryFileManager;
-@class SentryOptions;
+@class SentryOptionsInternal;
 @class SentryWatchdogTerminationLogic;
 @class SentryScopePersistentStore;
 
@@ -23,7 +23,7 @@ static NSString *const SentryWatchdogTerminationMechanismType = @"watchdog_termi
 @interface SentryWatchdogTerminationTracker : NSObject
 SENTRY_NO_INIT
 
-- (instancetype)initWithOptions:(SentryOptions *)options
+- (instancetype)initWithOptions:(SentryOptionsInternal *)options
        watchdogTerminationLogic:(SentryWatchdogTerminationLogic *)watchdogTerminationLogic
                 appStateManager:(SentryAppStateManager *)appStateManager
            dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper

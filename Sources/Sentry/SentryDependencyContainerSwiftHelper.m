@@ -1,7 +1,7 @@
 #import "SentryDependencyContainerSwiftHelper.h"
 #import "SentryClient+Private.h"
 #import "SentryHub+Private.h"
-#import "SentryOptions+Private.h"
+#import "SentryOptionsInternal+Private.h"
 #import "SentrySDK+Private.h"
 #import "SentrySwift.h"
 
@@ -32,17 +32,17 @@
     return [SentryDependencyContainer.sharedInstance.application getWindows];
 }
 
-+ (BOOL)fastViewRenderingEnabled:(SentryOptions *)options
++ (BOOL)fastViewRenderingEnabled:(SentryOptionsInternal *)options
 {
     return options.screenshot.enableFastViewRendering;
 }
 
-+ (BOOL)viewRendererV2Enabled:(SentryOptions *)options
++ (BOOL)viewRendererV2Enabled:(SentryOptionsInternal *)options
 {
     return options.screenshot.enableViewRendererV2;
 }
 
-+ (SentryDefaultRedactOptions *)redactOptions:(SentryOptions *)options
++ (SentryDefaultRedactOptions *)redactOptions:(SentryOptionsInternal *)options
 {
     return [[SentryDefaultRedactOptions alloc]
         initWithMaskAllText:options.screenshot.maskAllText

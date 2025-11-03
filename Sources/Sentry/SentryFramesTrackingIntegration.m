@@ -15,7 +15,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryFramesTrackingIntegration
 
-- (BOOL)installWithOptions:(SentryOptions *)options
+- (BOOL)installWithOptions:(SentryOptionsInternal *)options
 {
     if (!PrivateSentrySDKOnly.framesTrackingMeasurementHybridSDKMode
         && ![super installWithOptions:options]) {

@@ -4,7 +4,7 @@
 
 #    import "SentryInternalDefines.h"
 #    import "SentryLogC.h"
-#    import "SentryOptions+Private.h"
+#    import "SentryOptionsInternal+Private.h"
 #    import "SentryProfilingConditionals.h"
 #    import "SentrySDK+Private.h"
 #    import "SentrySpan.h"

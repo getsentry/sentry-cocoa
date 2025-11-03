@@ -4,8 +4,8 @@
 
 #    import <SentryLogC.h>
 #    import <SentryNSDataSwizzling.h>
-#    import <SentryOptions+Private.h>
-#    import <SentryOptions.h>
+#    import <SentryOptionsInternal+Private.h>
+#    import <SentryOptionsInternal.h>
 #    import <SentryUIEventTracker.h>
 #    import <SentryUIEventTrackerTransactionMode.h>
 
@@ -17,7 +17,7 @@
 
 @implementation SentryUIEventTrackingIntegration
 
-- (BOOL)installWithOptions:(SentryOptions *)options
+- (BOOL)installWithOptions:(SentryOptionsInternal *)options
 {
     if (![super installWithOptions:options]) {
         return NO;

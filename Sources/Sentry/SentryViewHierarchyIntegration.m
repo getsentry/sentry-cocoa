@@ -6,7 +6,7 @@
 #    import "SentryEvent+Private.h"
 #    import "SentryException.h"
 #    import "SentryHub+Private.h"
-#    import "SentryOptions.h"
+#    import "SentryOptionsInternal.h"
 #    import "SentrySDK+Private.h"
 #    import "SentrySwift.h"
 #    if SENTRY_HAS_METRIC_KIT
@@ -29,13 +29,13 @@ saveViewHierarchy(const char *reportDirectoryPath)
 
 @interface SentryViewHierarchyIntegration ()
 
-@property (nonatomic, strong) SentryOptions *options;
+@property (nonatomic, strong) SentryOptionsInternal *options;
 
 @end
 
 @implementation SentryViewHierarchyIntegration
 
-- (BOOL)installWithOptions:(nonnull SentryOptions *)options
+- (BOOL)installWithOptions:(nonnull SentryOptionsInternal *)options
 {
     if (![super installWithOptions:options]) {
         return NO;

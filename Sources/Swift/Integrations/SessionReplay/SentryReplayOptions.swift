@@ -1,4 +1,5 @@
 // swiftlint:disable file_length
+@_implementationOnly import _SentryPrivate
 import Foundation
 
 @objcMembers
@@ -397,4 +398,21 @@ public final class SentryReplayOptions: NSObject, SentryRedactOptions {
         super.init()
     }
 }
+
+// Makes the `sessionReplay` property visible as the Swift type `SentrySessionReplay`.
+// This works around `SentrySessionReplay` being only forward declared in the objc header, resulting in
+// compile time issues with SPM builds.
+extension SentryOptionsInternal {
+
+    /// Settings to configure the session replay.
+    var sessionReplay: SentryReplayOptions {
+        // Note: This property provides SentrySessionReplay type safety for SPM builds where the native Objective-C
+        // property cannot be used due to Swift-to-Objective-C bridging limitations.
+        // swiftlint:disable force_cast
+        get { return value(forKey: "sessionReplayDynamic") as! SentryReplayOptions }
+        // swiftlint:enable force_cast
+        set { setValue(newValue, forKey: "sessionReplayDynamic") }
+    }
+}
+
 // swiftlint:enable file_length

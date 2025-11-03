@@ -76,7 +76,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         fixture.client.fileManager.deleteAppState()
         fixture.client.fileManager.deleteAppHangEvent()
         
-        SentrySDKInternal.setStart(with: fixture.options)
+        SentrySDKInternal.setStart(with: fixture.options.toInternal())
     }
     
     override func tearDown() {
@@ -130,7 +130,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         try advanceTime(bySeconds: 10)
         
         let sut = fixture.getSut()
-        sut.install(with: Options())
+        sut.install(with: Options().toInternal())
         
         assertCrashedSessionStored(expected: expectedCrashedSession)
     }
@@ -146,7 +146,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         try advanceTime(bySeconds: 10)
         
         let sut = fixture.sutWithoutCrash
-        sut.install(with: fixture.options)
+        sut.install(with: fixture.options.toInternal())
         
         assertCrashedSessionStored(expected: expectedCrashedSession)
     }
@@ -159,7 +159,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         let sut = fixture.sutWithoutCrash
         let options = fixture.options
         options.enableWatchdogTerminationTracking = false
-        sut.install(with: options)
+        sut.install(with: options.toInternal())
         
         let fileManager = fixture.client.fileManager
         XCTAssertEqual(session, fileManager.readCurrentSession())
@@ -172,7 +172,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     func testEndSessionAsCrashed_NoClientSet() {
         let (sut, _) = givenSutWithGlobalHub()
         
-        sut.install(with: Options())
+        sut.install(with: Options().toInternal())
         
         let fileManager = fixture.client.fileManager
         XCTAssertNil(fileManager.readCurrentSession())
@@ -186,7 +186,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         let sentryCrash = fixture.sentryCrash
         sentryCrash.internalCrashedLastLaunch = false
         let sut = SentryCrashIntegration(crashAdapter: sentryCrash, andDispatchQueueWrapper: fixture.dispatchQueueWrapper)
-        sut.install(with: Options())
+        sut.install(with: Options().toInternal())
         
         let fileManager = fixture.client.fileManager
         XCTAssertEqual(session, fileManager.readCurrentSession())
@@ -197,7 +197,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     func testEndSessionAsCrashed_NoCurrentSession() {
         let (sut, _) = givenSutWithGlobalHub()
         
-        sut.install(with: Options())
+        sut.install(with: Options().toInternal())
         
         let fileManager = fixture.client.fileManager
         XCTAssertNil(fileManager.readCurrentSession())
@@ -215,7 +215,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         let sut = SentryCrashIntegration(crashAdapter: sentryCrash, andDispatchQueueWrapper: fixture.dispatchQueueWrapper)
         
         // Act
-        sut.install(with: Options())
+        sut.install(with: Options().toInternal())
         
         // Assert
         let fileManager = fixture.client.fileManager
@@ -232,7 +232,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         let sut = SentryCrashIntegration(crashAdapter: sentryCrash, andDispatchQueueWrapper: fixture.dispatchQueueWrapper)
         
         // Act
-        sut.install(with: Options())
+        sut.install(with: Options().toInternal())
         
         // Assert
         let fileManager = fixture.client.fileManager
@@ -251,7 +251,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         let session = givenCurrentSession()
         
         // Act
-        sut.install(with: Options())
+        sut.install(with: Options().toInternal())
         
         // Assert
         let fileManager = fixture.client.fileManager
@@ -279,7 +279,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         fileManager.storeAppHang(appHangEvent)
         
         // Act
-        sut.install(with: Options())
+        sut.install(with: Options().toInternal())
         
         // Assert
         XCTAssertEqual(session, fileManager.readCurrentSession())
@@ -301,7 +301,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         fileManager.storeAppHang(appHangEvent)
         
         // Act
-        sut.install(with: Options())
+        sut.install(with: Options().toInternal())
         
         // Assert
         XCTAssertNil(fileManager.readCurrentSession())
@@ -329,7 +329,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         
         // Act
         let sut = fixture.getSut()
-        sut.install(with: Options())
+        sut.install(with: Options().toInternal())
         
         // Assert
         assertCrashedSessionStored(expected: expectedCrashedSession)
@@ -341,7 +341,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     func testUninstall_DoesNotUpdateLocale_OnLocaleDidChangeNotification() {
         let (sut, hub) = givenSutWithGlobalHubAndCrashWrapper()
 
-        sut.install(with: Options())
+        sut.install(with: Options().toInternal())
 
         let locale = "garbage"
         setLocaleToGlobalScope(locale: locale)
@@ -356,7 +356,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     func testOSCorrectlySetToScopeContext() {
         let (sut, hub) = givenSutWithGlobalHubAndCrashWrapper()
         
-        sut.install(with: Options())
+        sut.install(with: Options().toInternal())
         
         assertContext(context: hub.scope.contextDictionary as? [String: Any] ?? ["": ""])
     }
@@ -364,7 +364,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     func testLocaleChanged_NoDeviceContext_SetsCurrentLocale() {
         let (sut, hub) = givenSutWithGlobalHub()
         
-        sut.install(with: Options())
+        sut.install(with: Options().toInternal())
         
         SentrySDK.configureScope { scope in
             scope.removeContext(key: "device")
@@ -378,7 +378,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     func testLocaleChanged_DifferentLocale_SetsCurrentLocale() {
         let (sut, hub) = givenSutWithGlobalHubAndCrashWrapper()
         
-        sut.install(with: Options())
+        sut.install(with: Options().toInternal())
         
         setLocaleToGlobalScope(locale: "garbage")
         
@@ -389,7 +389,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
 
     func testStartUpCrash_CallsFlush() throws {
         let (sut, hub) = givenSutWithGlobalHubAndCrashWrapper()
-        sut.install(with: Options())
+        sut.install(with: Options().toInternal())
         
         // Manually reset and enable the crash state because tearing down the global state in SentryCrash to achieve the same is complicated and doesn't really work.
         let crashStatePath = String(cString: sentrycrashstate_filePath())
@@ -399,7 +399,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         
         let transport = TestTransport()
         let client = SentryClientInternal(options: fixture.options, fileManager: fixture.fileManager)
-        Dynamic(client).transportAdapter = TestTransportAdapter(transports: [transport], options: fixture.options)
+        Dynamic(client).transportAdapter = TestTransportAdapter(transports: [transport], options: fixture.options.toInternal())
         hub.bindClient(client)
         
         delayNonBlocking(timeout: 0.01)
@@ -430,7 +430,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         let (sut, _) = givenSutWithGlobalHubAndCrashWrapper()
         let options = Options()
         options.enableUncaughtNSExceptionReporting = true
-        sut.install(with: options)
+        sut.install(with: options.toInternal())
         
         XCTAssertTrue(UserDefaults.standard.bool(forKey: "NSApplicationCrashOnExceptions"))
         // We have to set the flat to false, cause otherwise we would crash
@@ -455,7 +455,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         let options = Options()
         options.enableUncaughtNSExceptionReporting = true
         options.enableSwizzling = false
-        sut.install(with: options)
+        sut.install(with: options.toInternal())
         
         XCTAssertFalse(UserDefaults.standard.bool(forKey: "NSApplicationCrashOnExceptions"))
         
@@ -477,7 +477,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         let (sut, _) = givenSutWithGlobalHubAndCrashWrapper()
         let options = Options()
         options.enableUncaughtNSExceptionReporting = false
-        sut.install(with: options)
+        sut.install(with: options.toInternal())
         
         XCTAssertFalse(UserDefaults.standard.bool(forKey: "NSApplicationCrashOnExceptions"))
         
@@ -503,7 +503,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         options.experimental.enableUnhandledCPPExceptionsV2 = true
 
         // Act
-        sut.install(with: options)
+        sut.install(with: options.toInternal())
 
         // Assert
         XCTAssertTrue(sentrycrashct_is_cxa_throw_swapped(), "C++ exception throw handler must be swapped when enableUnhandledCPPExceptionsV2 is true.")
@@ -518,7 +518,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         options.experimental.enableUnhandledCPPExceptionsV2 = false
 
         // Act
-        sut.install(with: options)
+        sut.install(with: options.toInternal())
 
         // Assert
         XCTAssertFalse(sentrycrashct_is_cxa_throw_swapped(), "C++ exception throw handler must NOT be swapped when enableUnhandledCPPExceptionsV2 is false.")
@@ -528,7 +528,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         let (sut, _) = givenSutWithGlobalHubAndCrashWrapper()
         let options = Options()
         options.enablePersistingTracesWhenCrashing = true
-        sut.install(with: options)
+        sut.install(with: options.toInternal())
         
         XCTAssertTrue(sentrycrash_hasSaveTransaction())
     }
@@ -537,7 +537,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         let (sut, _) = givenSutWithGlobalHubAndCrashWrapper()
         let options = Options()
         options.enablePersistingTracesWhenCrashing = true
-        sut.install(with: options)
+        sut.install(with: options.toInternal())
         
         sut.uninstall()
         
@@ -548,7 +548,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         let (sut, _) = givenSutWithGlobalHubAndCrashWrapper()
         let options = Options()
         options.enablePersistingTracesWhenCrashing = false
-        sut.install(with: options)
+        sut.install(with: options.toInternal())
         
         XCTAssertFalse(sentrycrash_hasSaveTransaction())
     }
@@ -557,13 +557,13 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         let options = fixture.options
         options.enablePersistingTracesWhenCrashing = true
         
-        let client = SentryClientInternal(options: options)
+        let client = SentryClientInternal(options: options.toInternal())
         defer { client?.fileManager.deleteAllEnvelopes() }
         let hub = SentryHubInternal(client: client, andScope: nil)
         SentrySDKInternal.setCurrentHub(hub)
         
         let sut = fixture.getSut(crashWrapper: SentryDependencyContainer.sharedInstance().crashWrapper)
-        sut.install(with: options)
+        sut.install(with: options.toInternal())
         
         let transaction = SentrySDK.startTransaction(name: "Crashing", operation: "Operation", bindToScope: true)
         
@@ -582,13 +582,13 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         let options = fixture.options
         options.enablePersistingTracesWhenCrashing = true
         
-        let client = SentryClientInternal(options: options)
+        let client = SentryClientInternal(options: options.toInternal())
         defer { client?.fileManager.deleteAllEnvelopes() }
         let hub = SentryHubInternal(client: client, andScope: nil)
         SentrySDKInternal.setCurrentHub(hub)
         
         let sut = fixture.getSut(crashWrapper: SentryDependencyContainer.sharedInstance().crashWrapper)
-        sut.install(with: options)
+        sut.install(with: options.toInternal())
         
         let transaction = SentrySDK.startTransaction(name: "name", operation: "operation", bindToScope: true)
         SentrySDKInternal.currentHub().scope.span = nil
@@ -603,13 +603,13 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         let options = fixture.options
         options.enablePersistingTracesWhenCrashing = true
         
-        let client = SentryClientInternal(options: options)
+        let client = SentryClientInternal(options: options.toInternal())
         defer { client?.fileManager.deleteAllEnvelopes() }
         let hub = SentryHubInternal(client: client, andScope: nil)
         SentrySDKInternal.setCurrentHub(hub)
         
         let sut = fixture.getSut(crashWrapper: SentryDependencyContainer.sharedInstance().crashWrapper)
-        sut.install(with: options)
+        sut.install(with: options.toInternal())
         
         let transaction = SentrySDK.startTransaction(name: "name", operation: "operation", bindToScope: true)
         let span = transaction.startChild(operation: "child")

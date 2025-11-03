@@ -4,7 +4,7 @@
 #import "SentryDsn.h"
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"
-#import "SentryOptions+Private.h"
+#import "SentryOptionsInternal+Private.h"
 #import "SentrySampleDecision.h"
 #import "SentryScope+Private.h"
 #import "SentryScope+PrivateSwift.h"
@@ -62,7 +62,7 @@ NS_ASSUME_NONNULL_BEGIN
     return self;
 }
 
-- (nullable instancetype)initWithScope:(SentryScope *)scope options:(SentryOptions *)options
+- (nullable instancetype)initWithScope:(SentryScope *)scope options:(SentryOptionsInternal *)options
 {
     SentryTracer *tracer = [SentryTracer getTracer:scope.span];
     if (tracer == nil) {
@@ -73,7 +73,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (nullable instancetype)initWithTracer:(SentryTracer *)tracer
                                   scope:(nullable SentryScope *)scope
-                                options:(SentryOptions *)options
+                                options:(SentryOptionsInternal *)options
 {
     if (tracer.traceId == nil || options.parsedDsn == nil) {
         return nil;
@@ -108,7 +108,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (instancetype)initWithTraceId:(SentryId *)traceId
-                        options:(SentryOptions *)options
+                        options:(SentryOptionsInternal *)options
                        replayId:(nullable NSString *)replayId;
 {
     return [[SentryTraceContext alloc]

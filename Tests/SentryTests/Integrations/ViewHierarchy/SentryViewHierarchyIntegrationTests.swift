@@ -1,6 +1,6 @@
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 
-@_spi(Private) import Sentry
+@_spi(Private) @testable import Sentry
 @_spi(Private) import SentryTestUtils
 import SentryTestUtils
 import XCTest
@@ -125,7 +125,7 @@ class SentryViewHierarchyIntegrationTests: XCTestCase {
             return false
         }
 
-        sut.install(with: options)
+        sut.install(with: options.toInternal())
 
         let newAttachmentList = sut.processAttachments([], for: Event(error: NSError(domain: "", code: -1)))
 

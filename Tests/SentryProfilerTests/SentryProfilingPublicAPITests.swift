@@ -35,7 +35,7 @@ class SentryProfilingPublicAPITests: XCTestCase {
 
         let currentDate = TestCurrentDateProvider()
         lazy var timerFactory = TestSentryNSTimerFactory(currentDateProvider: currentDate)
-        lazy var client = TestClient(options: options)!
+        lazy var client = TestClient(options: options.toInternal())!
         lazy var hub = SentryHubInternal(client: client, andScope: scope)
     }
 
@@ -69,31 +69,31 @@ class SentryProfilingPublicAPITests: XCTestCase {
 
 // MARK: continuous profiling v2
 extension SentryProfilingPublicAPITests {
-    func testSentryOptionsReportsContinuousProfilingV2Enabled() {
+    func testSentryOptionsInternalReportsContinuousProfilingV2Enabled() {
         // Arrange
         let options = Options()
         options.configureProfiling = { _ in }
 
         // Act
-        sentry_configureContinuousProfiling(options)
+        sentry_configureContinuousProfiling(options.toInternal())
 
         // Assert
-        XCTAssertTrue(options.isContinuousProfilingEnabled())
+        XCTAssertTrue(options.toInternal().isContinuousProfilingEnabled())
     }
 
-    func testSentryOptionsReportsContinuousProfilingV2Disabled_NilConfiguration() {
+    func testSentryOptionsInternalReportsContinuousProfilingV2Disabled_NilConfiguration() {
         // Arrange
         let options = Options()
         options.configureProfiling = nil
 
         // Act
-        sentry_configureContinuousProfiling(options)
+        sentry_configureContinuousProfiling(options.toInternal())
 
         // Assert
-        XCTAssertFalse(options.isContinuousProfilingEnabled())
+        XCTAssertFalse(options.toInternal().isContinuousProfilingEnabled())
     }
 
-    func testSentryOptionsReportsProfilingCorrelatedToTraces() {
+    func testSentryOptionsInternalReportsProfilingCorrelatedToTraces() {
         // Arrange
         let options = Options()
         options.configureProfiling = {
@@ -101,13 +101,13 @@ extension SentryProfilingPublicAPITests {
         }
 
         // Act
-        sentry_configureContinuousProfiling(options)
+        sentry_configureContinuousProfiling(options.toInternal())
 
         // Assert
-        XCTAssertTrue(options.isProfilingCorrelatedToTraces())
+        XCTAssertTrue(options.toInternal().isProfilingCorrelatedToTraces())
     }
 
-    func testSentryOptionsReportsProfilingNotCorrelatedToTraces_ManualLifecycle() {
+    func testSentryOptionsInternalReportsProfilingNotCorrelatedToTraces_ManualLifecycle() {
         // Arrange
         let options = Options()
         options.configureProfiling = {
@@ -115,22 +115,22 @@ extension SentryProfilingPublicAPITests {
         }
 
         // Act
-        sentry_configureContinuousProfiling(options)
+        sentry_configureContinuousProfiling(options.toInternal())
 
         // Assert
-        XCTAssertFalse(options.isProfilingCorrelatedToTraces())
+        XCTAssertFalse(options.toInternal().isProfilingCorrelatedToTraces())
     }
 
-    func testSentryOptionsReportsProfilingNotCorrelatedToTraces_NilConfiguration() {
+    func testSentryOptionsInternalReportsProfilingNotCorrelatedToTraces_NilConfiguration() {
         // Arrange
         let options = Options()
         options.configureProfiling = nil
 
         // Act
-        sentry_configureContinuousProfiling(options)
+        sentry_configureContinuousProfiling(options.toInternal())
 
         // Assert
-        XCTAssertFalse(options.isProfilingCorrelatedToTraces())
+        XCTAssertFalse(options.toInternal().isProfilingCorrelatedToTraces())
     }
 
     func testManuallyStartingAndStoppingContinuousProfilerV2Sampled() throws {
@@ -478,13 +478,13 @@ extension SentryProfilingPublicAPITests {
 private extension SentryProfilingPublicAPITests {
     func givenSdkWithHub() {
         SentrySDKInternal.setCurrentHub(fixture.hub)
-        SentrySDKInternal.setStart(with: fixture.options)
-        sentry_sdkInitProfilerTasks(fixture.options, fixture.hub)
+        SentrySDKInternal.setStart(with: fixture.options.toInternal())
+        sentry_sdkInitProfilerTasks(fixture.options.toInternal(), fixture.hub)
     }
 
     func givenSdkWithHubButNoClient() {
         SentrySDKInternal.setCurrentHub(SentryHubInternal(client: nil, andScope: nil))
-        SentrySDKInternal.setStart(with: fixture.options)
+        SentrySDKInternal.setStart(with: fixture.options.toInternal())
     }
 
     func stopProfiler() throws {

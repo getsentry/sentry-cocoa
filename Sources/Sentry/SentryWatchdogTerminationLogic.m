@@ -3,13 +3,13 @@
 
 #if SENTRY_HAS_UIKIT
 
-#    import <SentryOptions.h>
+#    import <SentryOptionsInternal.h>
 #    import <SentrySDK+Private.h>
 #    import <SentrySwift.h>
 
 @interface SentryWatchdogTerminationLogic ()
 
-@property (nonatomic, strong) SentryOptions *options;
+@property (nonatomic, strong) SentryOptionsInternal *options;
 @property (nonatomic, strong) SentryCrashWrapper *crashAdapter;
 @property (nonatomic, strong) SentryAppStateManager *appStateManager;
 
@@ -17,7 +17,7 @@
 
 @implementation SentryWatchdogTerminationLogic
 
-- (instancetype)initWithOptions:(SentryOptions *)options
+- (instancetype)initWithOptions:(SentryOptionsInternal *)options
                    crashAdapter:(SentryCrashWrapper *)crashAdapter
                 appStateManager:(SentryAppStateManager *)appStateManager
 {

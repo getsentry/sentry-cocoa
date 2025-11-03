@@ -1,4 +1,3 @@
-#import "SentryOptions.h"
 #import "SentryError.h"
 #import "SentryOptionsInternal.h"
 #import "SentrySDKInternal.h"
@@ -514,14 +513,14 @@
 
 - (void)testSampleRate_SetToNil
 {
-    SentryOptions *options = [[SentryOptions alloc] init];
+    SentryOptionsInternal *options = [[SentryOptionsInternal alloc] init];
     options.sampleRate = nil;
     XCTAssertEqual(options.sampleRate.doubleValue, 0);
 }
 
 - (void)testSampleRateLowerBound
 {
-    SentryOptions *options = [[SentryOptions alloc] init];
+    SentryOptionsInternal *options = [[SentryOptionsInternal alloc] init];
     options.sampleRate = @0.5;
 
     NSNumber *sampleRateLowerBound = @0;
@@ -537,7 +536,7 @@
 
 - (void)testSampleRateUpperBound
 {
-    SentryOptions *options = [[SentryOptions alloc] init];
+    SentryOptionsInternal *options = [[SentryOptionsInternal alloc] init];
     options.sampleRate = @0.5;
 
     NSNumber *upperBound = @1;
@@ -603,6 +602,7 @@
 
 - (void)testNSNull_SetsDefaultValue
 {
+
     SentryOptions *options = [SentryOptionsInternal initWithDict:@{
         @"urlSession" : [NSNull null],
         @"dsn" : [NSNull null],
@@ -741,7 +741,7 @@
 - (void)testSetValidDsn
 {
     NSString *dsnAsString = @"https://username:password@sentry.io/1";
-    SentryOptions *options = [[SentryOptions alloc] init];
+    SentryOptionsInternal *options = [[SentryOptionsInternal alloc] init];
     options.dsn = dsnAsString;
     options.enabled = NO;
 
@@ -754,7 +754,7 @@
 
 - (void)testSetNilDsn
 {
-    SentryOptions *options = [[SentryOptions alloc] init];
+    SentryOptionsInternal *options = [[SentryOptionsInternal alloc] init];
 
     [options setDsn:nil];
     XCTAssertNil(options.dsn);
@@ -764,7 +764,7 @@
 
 - (void)testSetInvalidValidDsn
 {
-    SentryOptions *options = [[SentryOptions alloc] init];
+    SentryOptionsInternal *options = [[SentryOptionsInternal alloc] init];
 
     [options setDsn:@"https://username:passwordsentry.io/1"];
     XCTAssertNil(options.dsn);
@@ -776,7 +776,7 @@
 - (void)testDsnViaEnvironment
 {
     setenv("SENTRY_DSN", "https://username:password@sentry.io/1", 1);
-    SentryOptions *options = [[SentryOptions alloc] init];
+    SentryOptionsInternal *options = [[SentryOptionsInternal alloc] init];
     XCTAssertEqualObjects(options.dsn, @"https://username:password@sentry.io/1");
     XCTAssertNotNil(options.parsedDsn);
     setenv("SENTRY_DSN", "", 1);
@@ -785,7 +785,7 @@
 - (void)testInvalidDsnViaEnvironment
 {
     setenv("SENTRY_DSN", "foo_bar", 1);
-    SentryOptions *options = [[SentryOptions alloc] init];
+    SentryOptionsInternal *options = [[SentryOptionsInternal alloc] init];
     XCTAssertNil(options.dsn);
     XCTAssertNil(options.parsedDsn);
     XCTAssertEqual(options.enabled, YES);
@@ -966,7 +966,7 @@
 
 - (void)testTracesSampleRate_SetToNil
 {
-    SentryOptions *options = [[SentryOptions alloc] init];
+    SentryOptionsInternal *options = [[SentryOptionsInternal alloc] init];
     options.tracesSampleRate = nil;
     XCTAssertNil(options.tracesSampleRate);
     XCTAssertEqual(options.tracesSampleRate.doubleValue, 0);
@@ -974,7 +974,7 @@
 
 - (void)testTracesSampleRateLowerBound
 {
-    SentryOptions *options = [[SentryOptions alloc] init];
+    SentryOptionsInternal *options = [[SentryOptionsInternal alloc] init];
     options.tracesSampleRate = @0.5;
 
     NSNumber *lowerBound = @0;
@@ -990,7 +990,7 @@
 
 - (void)testTracesSampleRateUpperBound
 {
-    SentryOptions *options = [[SentryOptions alloc] init];
+    SentryOptionsInternal *options = [[SentryOptionsInternal alloc] init];
     options.tracesSampleRate = @0.5;
 
     NSNumber *lowerBound = @1;
@@ -1036,27 +1036,27 @@
 
 - (void)testIsTracingEnabled_NothingSet_IsDisabled
 {
-    SentryOptions *options = [[SentryOptions alloc] init];
+    SentryOptionsInternal *options = [[SentryOptionsInternal alloc] init];
     XCTAssertFalse(options.isTracingEnabled);
 }
 
 - (void)testIsTracingEnabled_TracesSampleRateSetToZero_IsDisabled
 {
-    SentryOptions *options = [[SentryOptions alloc] init];
+    SentryOptionsInternal *options = [[SentryOptionsInternal alloc] init];
     options.tracesSampleRate = @0.00;
     XCTAssertFalse(options.isTracingEnabled);
 }
 
 - (void)testIsTracingEnabled_TracesSampleRateSet_IsEnabled
 {
-    SentryOptions *options = [[SentryOptions alloc] init];
+    SentryOptionsInternal *options = [[SentryOptionsInternal alloc] init];
     options.tracesSampleRate = @0.01;
     XCTAssertTrue(options.isTracingEnabled);
 }
 
 - (void)testIsTracingEnabled_TracesSamplerSet_IsEnabled
 {
-    SentryOptions *options = [[SentryOptions alloc] init];
+    SentryOptionsInternal *options = [[SentryOptionsInternal alloc] init];
     options.tracesSampler = ^(SentrySamplingContext *context) {
         XCTAssertNotNil(context);
         return @0.0;
@@ -1205,14 +1205,14 @@
 - (void)testIsAppHangTrackingDisabled_WhenOptionDisabled
 {
     SentryOptions *options = [self getValidOptions:@{ @"appHangTimeoutInterval" : @0 }];
-    XCTAssertTrue(options.isAppHangTrackingDisabled);
+    XCTAssertTrue([options toInternalOptions].isAppHangTrackingDisabled);
 }
 
 - (void)testIsAppHangTrackingDisabled_WhenOnlyAppHangTimeoutIntervalZero
 {
     SentryOptions *options =
         [self getValidOptions:@{ @"enableAppHangTracking" : @YES, @"appHangTimeoutInterval" : @0 }];
-    XCTAssertTrue(options.isAppHangTrackingDisabled);
+    XCTAssertTrue([options toInternalOptions].isAppHangTrackingDisabled);
 }
 #endif // SENTRY_HAS_UIKIT
 

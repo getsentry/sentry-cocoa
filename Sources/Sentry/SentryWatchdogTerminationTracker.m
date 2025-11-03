@@ -7,14 +7,14 @@
 #import <SentryLogC.h>
 #import <SentryMechanism.h>
 #import <SentryMessage.h>
-#import <SentryOptions.h>
+#import <SentryOptionsInternal.h>
 #import <SentrySDK+Private.h>
 #import <SentryWatchdogTerminationLogic.h>
 #import <SentryWatchdogTerminationTracker.h>
 
 @interface SentryWatchdogTerminationTracker ()
 
-@property (nonatomic, strong) SentryOptions *options;
+@property (nonatomic, strong) SentryOptionsInternal *options;
 @property (nonatomic, strong) SentryWatchdogTerminationLogic *watchdogTerminationLogic;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueue;
 @property (nonatomic, strong) SentryAppStateManager *appStateManager;
@@ -25,7 +25,7 @@
 
 @implementation SentryWatchdogTerminationTracker
 
-- (instancetype)initWithOptions:(SentryOptions *)options
+- (instancetype)initWithOptions:(SentryOptionsInternal *)options
        watchdogTerminationLogic:(SentryWatchdogTerminationLogic *)watchdogTerminationLogic
                 appStateManager:(SentryAppStateManager *)appStateManager
            dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper

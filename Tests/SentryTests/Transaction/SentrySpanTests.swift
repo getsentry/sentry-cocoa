@@ -32,7 +32,7 @@ class SentrySpanTests: XCTestCase {
         }
         
         func getSut() -> Span {
-            return getSut(client: TestClient(options: options)!)
+            return getSut(client: TestClient(options: options.toInternal())!)
         }
         
         func getSut(client: SentryClientInternal) -> Span {
@@ -68,7 +68,7 @@ class SentrySpanTests: XCTestCase {
 #if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
     func testSpanDoesNotSubscribeToNotificationsIfAlreadyCapturedContinuousProfileID() {
         SentryContinuousProfiler.start()
-        SentrySDKInternal.setStart(with: fixture.options)
+        SentrySDKInternal.setStart(with: fixture.options.toInternal())
         let _ = fixture.getSut()
         let continuousProfileObservations = fixture.notificationCenter.addObserverWithObjectInvocations.invocations.filter {
             $0.name?.rawValue == kSentryNotificationContinuousProfileStarted
@@ -77,7 +77,7 @@ class SentrySpanTests: XCTestCase {
     }
     
     func testSpanDoesSubscribeToNotificationsIfNotAlreadyCapturedContinuousProfileID() {
-        SentrySDKInternal.setStart(with: fixture.options)
+        SentrySDKInternal.setStart(with: fixture.options.toInternal())
         let _ = fixture.getSut()
         let continuousProfileObservations = fixture.notificationCenter.addObserverWithObjectInvocations.invocations.filter {
             $0.name?.rawValue == kSentryNotificationContinuousProfileStarted
@@ -92,7 +92,7 @@ class SentrySpanTests: XCTestCase {
     ///     +----profile----+
     /// ```
     func test_spanStart_profileStart_spanEnd_profileEnd_spanIncludesProfileID() throws {
-        SentrySDKInternal.setStart(with: fixture.options)
+        SentrySDKInternal.setStart(with: fixture.options.toInternal())
         let span = fixture.getSut()
         XCTAssertEqual(fixture.notificationCenter.addObserverWithObjectInvocations.invocations.filter {
             $0.name?.rawValue == kSentryNotificationContinuousProfileStarted
@@ -113,7 +113,7 @@ class SentrySpanTests: XCTestCase {
     ///     +----profile----+
     /// ```
     func test_spanStart_profileStart_profileEnd_spanEnd_spanIncludesProfileID() throws {
-        SentrySDKInternal.setStart(with: fixture.options)
+        SentrySDKInternal.setStart(with: fixture.options.toInternal())
         let span = fixture.getSut()
         SentryContinuousProfiler.start()
         let profileId = try XCTUnwrap(SentryContinuousProfiler.profiler()?.profilerId.sentryIdString)
@@ -132,7 +132,7 @@ class SentrySpanTests: XCTestCase {
     ///         +-------span-------+
     /// ```
     func test_profileStart_spanStart_profileEnd_spanEnd_spanIncludesProfileID() throws {
-        SentrySDKInternal.setStart(with: fixture.options)
+        SentrySDKInternal.setStart(with: fixture.options.toInternal())
         SentryContinuousProfiler.start()
         let profileId = try XCTUnwrap(SentryContinuousProfiler.profiler()?.profilerId.sentryIdString)
         let span = fixture.getSut()
@@ -151,7 +151,7 @@ class SentrySpanTests: XCTestCase {
     ///         +-------span-------+
     /// ```
     func test_profileStart_spanStart_spanEnd_profileEnd_spanIncludesProfileID() throws {
-        SentrySDKInternal.setStart(with: fixture.options)
+        SentrySDKInternal.setStart(with: fixture.options.toInternal())
         SentryContinuousProfiler.start()
         let profileId = try XCTUnwrap(SentryContinuousProfiler.profiler()?.profilerId.sentryIdString)
         let span = fixture.getSut()
@@ -169,7 +169,7 @@ class SentrySpanTests: XCTestCase {
     ///     +--profile1--+    +--profile2--+
     /// ```
     func test_spanStart_profileStart_profileEnd_profileStart_profileEnd_spanEnd_spanIncludesSameProfileID() throws {
-        SentrySDKInternal.setStart(with: fixture.options)
+        SentrySDKInternal.setStart(with: fixture.options.toInternal())
         let span = fixture.getSut()
         SentryContinuousProfiler.start()
         let profileId1 = try XCTUnwrap(SentryContinuousProfiler.profiler()?.profilerId.sentryIdString)
@@ -191,7 +191,7 @@ class SentrySpanTests: XCTestCase {
     ///                          +----profile----+
     /// ```
     func test_spanStart_spanEnd_profileStart_profileEnd_spanDoesNotIncludeProfileID() {
-        SentrySDKInternal.setStart(with: fixture.options)
+        SentrySDKInternal.setStart(with: fixture.options.toInternal())
         SentryContinuousProfiler.start()
         SentryContinuousProfiler.stop()
         let span = fixture.getSut()
@@ -261,7 +261,7 @@ class SentrySpanTests: XCTestCase {
     }
     
     func testFinish() throws {
-        let client = TestClient(options: fixture.options)!
+        let client = TestClient(options: fixture.options.toInternal())!
         let span = fixture.getSut(client: client)
         
         span.finish()
@@ -279,7 +279,7 @@ class SentrySpanTests: XCTestCase {
     }
     
     func testFinish_Custom_Timestamp() throws {
-        let client = TestClient(options: fixture.options)!
+        let client = TestClient(options: fixture.options.toInternal())!
         let span = fixture.getSut(client: client)
         
         let finishDate = Date(timeIntervalSinceNow: 6)
@@ -332,7 +332,7 @@ class SentrySpanTests: XCTestCase {
     }
     
     func testFinishWithChild() throws {
-        let client = TestClient(options: fixture.options)!
+        let client = TestClient(options: fixture.options.toInternal())!
         let span = fixture.getSut(client: client)
         let childSpan = span.startChild(operation: fixture.someOperation)
         
@@ -615,7 +615,7 @@ class SentrySpanTests: XCTestCase {
     }
     
     func testTraceContext() {
-        let client = TestClient(options: fixture.options)!
+        let client = TestClient(options: fixture.options.toInternal())!
         let sut = fixture.getSut(client: client) as! SentrySpan
         
         let expectedTraceContext = sut.tracer?.traceContext
@@ -623,7 +623,7 @@ class SentrySpanTests: XCTestCase {
     }
     
     func testBaggageHttpHeader() {
-        let client = TestClient(options: fixture.options)!
+        let client = TestClient(options: fixture.options.toInternal())!
         let sut = fixture.getSut(client: client) as! SentrySpan
         
         let expectedBaggage = sut.tracer?.traceContext?.toBaggage().toHTTPHeader(withOriginalBaggage: nil)

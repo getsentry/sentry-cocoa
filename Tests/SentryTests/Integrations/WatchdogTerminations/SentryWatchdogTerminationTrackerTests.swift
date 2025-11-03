@@ -9,7 +9,7 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
     
     private class Fixture {
         
-        let options: Options
+        let options: SentryOptionsInternal
         let client: TestClient!
         let crashWrapper: TestSentryCrashWrapper
         let fileManager: SentryFileManager
@@ -23,10 +23,11 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
 
         init() throws {
             SentryDependencyContainer.sharedInstance().sysctlWrapper = sysctl
-            options = Options()
+            let options = Options()
             options.maxBreadcrumbs = 2
             options.dsn = SentryWatchdogTerminationTrackerTests.dsnAsString
             options.releaseName = TestData.appState.releaseName
+            self.options = options.toInternal()
             
             fileManager = try! SentryFileManager(options: options, dateProvider: currentDate, dispatchQueueWrapper: dispatchQueue)
 
@@ -38,7 +39,7 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
                 scopePersistentStore: scopePersistentStore
             )
 
-            client = TestClient(options: options)
+            client = TestClient(options: self.options)
             
             crashWrapper = TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo)
             

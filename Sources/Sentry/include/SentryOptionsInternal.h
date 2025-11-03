@@ -12,15 +12,19 @@ NS_ASSUME_NONNULL_BEGIN
 @class SentryDsn;
 @class SentryHttpStatusCodeRange;
 @class SentryMeasurementValue;
+@class SentryExperimentalOptions;
 @class SentryReplayOptions;
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 @class SentryProfileOptions;
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 @class SentryScope;
 @class SentryViewScreenshotOptions;
+@class SentryOptions;
 
-NS_SWIFT_NAME(Options)
-@interface SentryOptions : NSObject
+@interface SentryOptionsInternal : NSObject
+
++ (nullable SentryOptions *)initWithDict:(NSDictionary<NSString *, id> *)options
+                        didFailWithError:(NSError *_Nullable *_Nullable)error;
 
 /**
  * The DSN tells the SDK where to send the events to. If this value is not provided, the SDK will
@@ -163,14 +167,6 @@ NS_SWIFT_NAME(Options)
  * @note Default value is @c NO .
  */
 @property (nonatomic, assign) BOOL enableLogs;
-
-#if !SWIFT_PACKAGE
-/**
- * Use this callback to drop or modify a log before the SDK sends it to Sentry. Return @c nil to
- * drop the log.
- */
-@property (nullable, nonatomic, copy) SentryBeforeSendLogCallback beforeSendLog NS_SWIFT_SENDABLE;
-#endif // !SWIFT_PACKAGE
 
 /**
  * This block can be used to modify the event before it will be serialized and sent.
@@ -385,15 +381,6 @@ NS_SWIFT_NAME(Options)
 
 #endif // SENTRY_HAS_UIKIT
 
-#if SENTRY_TARGET_REPLAY_SUPPORTED
-
-/**
- * Settings to configure the session replay.
- */
-@property (nonatomic, strong) SentryReplayOptions *sessionReplay;
-
-#endif // SENTRY_TARGET_REPLAY_SUPPORTED
-
 /**
  * When enabled, the SDK tracks performance for HTTP requests if auto performance tracking and
  * @c enableSwizzling are enabled.
@@ -454,13 +441,7 @@ NS_SWIFT_NAME(Options)
  * A list of string prefixes of framework names that belong to the app.
  * @note By default, this contains @c CFBundleExecutable to mark it as "in-app".
  */
-@property (nonatomic, readonly, copy) NSArray<NSString *> *inAppIncludes;
-
-/**
- * Adds an item to the list of @c inAppIncludes.
- * @param inAppInclude The prefix of the framework name.
- */
-- (void)addInAppInclude:(NSString *)inAppInclude;
+@property (nonatomic, copy) NSArray<NSString *> *inAppIncludes;
 
 /**
  * Set as delegate on the @c NSURLSession used for all network data-transfer tasks performed by
@@ -514,19 +495,14 @@ NS_SWIFT_NAME(Options)
 @property (nonatomic, assign) BOOL enableCoreDataTracing;
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-/**
- * Block used to configure the continuous profiling options.
- * @warning Continuous profiling is an experimental feature and may contain bugs.
- * @seealso @c SentryProfileOptions, @c SentrySDK.startProfiler and @c SentrySDK.stopProfiler .
- */
-typedef void (^SentryProfilingConfigurationBlock)(SentryProfileOptions *_Nonnull profiling);
 
 /**
  * Configuration for the Sentry profiler.
  * @warning: Continuous profiling is an experimental feature and may still contain bugs.
  * @warning: Profiling is automatically disabled if a thread sanitizer is attached.
  */
-@property (nullable, nonatomic, copy) SentryProfilingConfigurationBlock configureProfiling;
+@property (nullable, nonatomic, copy) SentryProfileOptions * (^configureProfiling)
+    (SentryProfileOptions *);
 
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
@@ -692,19 +668,7 @@ typedef void (^SentryProfilingConfigurationBlock)(SentryProfileOptions *_Nonnull
 
 // Do not use this directly, instead use the non-underscored `experimental` property that is
 // defined through a Swift extension.
-@property (nonatomic, readonly) NSObject *_swiftExperimentalOptions;
-
-#if TARGET_OS_IOS && SENTRY_HAS_UIKIT
-
-/**
- * A block that can be defined that receives a user feedback configuration object to modify.
- * @warning This is an experimental feature and may still have bugs.
- */
-@property (nonatomic, copy, nullable)
-    SentryUserFeedbackConfigurationBlock configureUserFeedback NS_EXTENSION_UNAVAILABLE(
-        "Sentry User Feedback UI cannot be used from app extensions.");
-
-#endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
+@property (nonatomic) NSObject *_swiftExperimentalOptions;
 
 @end
 

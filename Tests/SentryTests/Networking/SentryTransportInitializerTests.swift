@@ -27,7 +27,7 @@ class SentryTransportInitializerTests: XCTestCase {
         let options = try SentryOptionsInternal.initWithDict(["dsn": SentryTransportInitializerTests.dsnAsString])
     
         let result = TransportInitializer.initTransports(
-            options,
+            options.toInternal(),
             dateProvider: dateProvider,
             sentryFileManager: fileManager,
             rateLimits: rateLimits

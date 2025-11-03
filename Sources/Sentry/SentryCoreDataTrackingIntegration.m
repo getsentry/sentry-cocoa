@@ -4,7 +4,7 @@
 #import "SentryDefaultThreadInspector.h"
 #import "SentryLogC.h"
 #import "SentryNSDataSwizzling.h"
-#import "SentryOptions.h"
+#import "SentryOptionsInternal.h"
 #import "SentrySwift.h"
 
 @interface SentryCoreDataTrackingIntegration ()
@@ -15,7 +15,7 @@
 
 @implementation SentryCoreDataTrackingIntegration
 
-- (BOOL)installWithOptions:(SentryOptions *)options
+- (BOOL)installWithOptions:(SentryOptionsInternal *)options
 {
     if (![super installWithOptions:options]) {
         return NO;

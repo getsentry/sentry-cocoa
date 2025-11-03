@@ -7,7 +7,7 @@
 #import "SentryInternalDefines.h"
 #import "SentryLevelMapper.h"
 #import "SentryLogC.h"
-#import "SentryOptions+Private.h"
+#import "SentryOptionsInternal+Private.h"
 #import "SentryPerformanceTracker.h"
 #import "SentryProfilingConditionals.h"
 #import "SentrySDK+Private.h"
@@ -82,7 +82,7 @@ NS_ASSUME_NONNULL_BEGIN
 {
     SentrySession *lastSession = nil;
     SentryScope *scope = self.scope;
-    SentryOptions *options = [self.client options];
+    SentryOptionsInternal *options = [self.client options];
     if (options == nil) {
         SENTRY_LOG_ERROR(@"Options of the client are nil. Not starting a session.");
         return;
@@ -549,7 +549,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)addBreadcrumb:(SentryBreadcrumb *)crumb
 {
-    SentryOptions *options = [[self client] options];
+    SentryOptionsInternal *options = [[self client] options];
     if (options.maxBreadcrumbs < 1) {
         return;
     }

@@ -1,6 +1,7 @@
 #import "SentryAutoSessionTrackingIntegration.h"
 #import "SentryLogC.h"
-#import "SentryOptions.h"
+#import "SentryOptionsConverter.h"
+#import "SentryOptionsInternal.h"
 #import "SentrySDKInternal.h"
 #import "SentrySwift.h"
 
@@ -14,13 +15,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryAutoSessionTrackingIntegration
 
-- (BOOL)installWithOptions:(SentryOptions *)options
+- (BOOL)installWithOptions:(SentryOptionsInternal *)options
 {
     if (![super installWithOptions:options]) {
         return NO;
     }
 
-    self.tracker = [SentryDependencyContainer.sharedInstance getSessionTrackerWithOptions:options];
+    self.tracker = [SentryDependencyContainer.sharedInstance
+        getSessionTrackerWithOptions:[SentryOptionsConverter fromInternal:options]];
     [self.tracker start];
 
     return YES;

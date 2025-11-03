@@ -7,7 +7,8 @@
 #    import "SentryHub+Private.h"
 #    import "SentryInternalDefines.h"
 #    import "SentryLogC.h"
-#    import "SentryOptions.h"
+#    import "SentryOptionsConverter.h"
+#    import "SentryOptionsInternal.h"
 #    import "SentrySDK+Private.h"
 #    import "SentryScope+Private.h"
 #    import "SentrySerialization.h"
@@ -46,7 +47,6 @@ static SentryTouchTracker *_touchTracker;
 @implementation SentrySessionReplayIntegration {
     BOOL _startedAsFullSession;
     SentryReplayOptions *_replayOptions;
-    SentryExperimentalOptions *_experimentalOptions;
     id<SentryNSNotificationCenterWrapper> _notificationCenter;
     id<SentryRateLimits> _rateLimits;
     id<SentryViewScreenshotProvider> _currentScreenshotProvider;
@@ -61,12 +61,14 @@ static SentryTouchTracker *_touchTracker;
     id<SentrySessionReplayEnvironmentCheckerProvider> _environmentChecker;
 }
 
-+ (BOOL)shouldEnableForOptions:(SentryOptions *)options
++ (BOOL)shouldEnableForOptions:(SentryOptionsInternal *)options
 {
     return [SentrySessionReplay
         shouldEnableSessionReplayWithEnvironmentChecker:SentryDependencyContainer.sharedInstance
                                                             .sessionReplayEnvironmentChecker
-                                    experimentalOptions:options.experimental];
+                                    experimentalOptions:[SentryOptionsConverter
+                                                            fromInternal:options]
+                                                            .experimental];
 }
 
 - (instancetype)init
@@ -75,44 +77,42 @@ static SentryTouchTracker *_touchTracker;
     return self;
 }
 
-- (instancetype)initForManualUse:(nonnull SentryOptions *)options
+- (instancetype)initForManualUse:(nonnull SentryOptionsInternal *)options
 {
     if (self = [super init]) {
-        [self setupWith:options.sessionReplay
-                experimentalOptions:options.experimental
+        SentryReplayOptions *replayOptions =
+            [SentryOptionsConverter fromInternal:options].sessionReplay;
+        [self setupWith:replayOptions
                  enableTouchTracker:options.enableSwizzling
-               enableViewRendererV2:options.sessionReplay.enableViewRendererV2
-            enableFastViewRendering:options.sessionReplay.enableFastViewRendering];
-        [self startWithOptions:options.sessionReplay
-            experimentalOptions:options.experimental
-                    fullSession:YES];
+               enableViewRendererV2:replayOptions.enableViewRendererV2
+            enableFastViewRendering:replayOptions.enableFastViewRendering];
+        [self startWithOptions:replayOptions fullSession:YES];
     }
     return self;
 }
 
-- (BOOL)installWithOptions:(nonnull SentryOptions *)options
+- (BOOL)installWithOptions:(nonnull SentryOptionsInternal *)options
 {
     if ([super installWithOptions:options] == NO ||
         [SentrySessionReplayIntegration shouldEnableForOptions:options] == NO) {
         return NO;
     }
+    SentryReplayOptions *replayOptions =
+        [SentryOptionsConverter fromInternal:options].sessionReplay;
 
-    [self setupWith:options.sessionReplay
-            experimentalOptions:options.experimental
+    [self setupWith:replayOptions
              enableTouchTracker:options.enableSwizzling
-           enableViewRendererV2:options.sessionReplay.enableViewRendererV2
-        enableFastViewRendering:options.sessionReplay.enableFastViewRendering];
+           enableViewRendererV2:replayOptions.enableViewRendererV2
+        enableFastViewRendering:replayOptions.enableFastViewRendering];
     return YES;
 }
 
 - (void)setupWith:(SentryReplayOptions *)replayOptions
-        experimentalOptions:(SentryExperimentalOptions *)experimentalOptions
          enableTouchTracker:(BOOL)touchTracker
        enableViewRendererV2:(BOOL)enableViewRendererV2
     enableFastViewRendering:(BOOL)enableFastViewRendering
 {
     _replayOptions = replayOptions;
-    _experimentalOptions = experimentalOptions;
     _rateLimits = SentryDependencyContainer.sharedInstance.rateLimits;
     _dateProvider = SentryDependencyContainer.sharedInstance.dateProvider;
 
@@ -359,9 +359,7 @@ static SentryTouchTracker *_touchTracker;
     if ([SentryDependencyContainer.sharedInstance.application getWindows].count > 0) {
         SENTRY_LOG_DEBUG(@"[Session Replay] Running replay for available window");
         // If a window its already available start replay right away
-        [self startWithOptions:_replayOptions
-            experimentalOptions:_experimentalOptions
-                    fullSession:_startedAsFullSession];
+        [self startWithOptions:_replayOptions fullSession:_startedAsFullSession];
     } else {
         SENTRY_LOG_DEBUG(
             @"[Session Replay] Waiting for a scene to be available to started the replay");
@@ -380,18 +378,14 @@ static SentryTouchTracker *_touchTracker;
         removeObserver:self
                   name:UISceneDidActivateNotification
                 object:nil];
-    [self startWithOptions:_replayOptions
-        experimentalOptions:_experimentalOptions
-                fullSession:_startedAsFullSession];
+    [self startWithOptions:_replayOptions fullSession:_startedAsFullSession];
 }
 
 - (void)startWithOptions:(SentryReplayOptions *)replayOptions
-     experimentalOptions:(SentryExperimentalOptions *)experimentalOptions
              fullSession:(BOOL)shouldReplayFullSession
 {
     SENTRY_LOG_DEBUG(@"[Session Replay] Starting session");
     [self startWithOptions:replayOptions
-        experimentalOptions:experimentalOptions
          screenshotProvider:_currentScreenshotProvider ?: _viewPhotographer
         breadcrumbConverter:_currentBreadcrumbConverter
             ?: [[SentrySRDefaultBreadcrumbConverter alloc] init]
@@ -399,7 +393,6 @@ static SentryTouchTracker *_touchTracker;
 }
 
 - (void)startWithOptions:(SentryReplayOptions *)replayOptions
-     experimentalOptions:(SentryExperimentalOptions *)experimentalOptions
       screenshotProvider:(id<SentryViewScreenshotProvider>)screenshotProvider
      breadcrumbConverter:(id<SentryReplayBreadcrumbConverter>)breadcrumbConverter
              fullSession:(BOOL)shouldReplayFullSession

@@ -9,7 +9,7 @@ import Foundation
 @_spi(Private) @objc public final class SentrySdkInfo: NSObject, SentrySerializable {
     
     @objc public static func global() -> Self {
-        Self(withOptions: SentrySDKInternal.currentHub().getClient()?.options)
+        Self(withOptions: SentrySDKInternal.currentHub().getClient()?.options.toOptions())
     }
     
     /**

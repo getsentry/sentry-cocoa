@@ -5,7 +5,8 @@
 #    import <SentryANRTrackerV1.h>
 #    import <SentryClient+Private.h>
 #    import <SentryHub.h>
-#    import <SentryOptions+Private.h>
+#    import <SentryOptionsConverter.h>
+#    import <SentryOptionsInternal+Private.h>
 #    import <SentryPropagationContext.h>
 #    import <SentrySDK+Private.h>
 #    import <SentryScope+PrivateSwift.h>
@@ -37,7 +38,7 @@ NS_ASSUME_NONNULL_BEGIN
     return self;
 }
 
-- (BOOL)installWithOptions:(SentryOptions *)options
+- (BOOL)installWithOptions:(SentryOptionsInternal *)options
 {
     if (self.testConfigurationFilePath) {
         return NO;
@@ -80,7 +81,8 @@ NS_ASSUME_NONNULL_BEGIN
     self.appStateManager = appStateManager;
 
     id<SentryScopeObserver> scopeObserver = [SentryDependencyContainer.sharedInstance
-        getWatchdogTerminationScopeObserverWithOptions:options];
+        getWatchdogTerminationScopeObserverWithOptions:[SentryOptionsConverter
+                                                           fromInternal:options]];
 
     [SentrySDKInternal.currentHub configureScope:^(SentryScope *_Nonnull outerScope) {
         // Add the observer to the scope so that it can be notified when the scope changes.

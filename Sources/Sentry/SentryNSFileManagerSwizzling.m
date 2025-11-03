@@ -1,5 +1,6 @@
 #import "SentryNSFileManagerSwizzling.h"
 #import "SentryLogC.h"
+#import "SentryOptionsInternal.h"
 #import "SentrySwift.h"
 #import "SentrySwizzle.h"
 #import "SentryTraceOrigin.h"
@@ -21,7 +22,7 @@
     return instance;
 }
 
-- (void)startWithOptions:(SentryOptions *)options tracker:(SentryFileIOTracker *)tracker
+- (void)startWithOptions:(SentryOptionsInternal *)options tracker:(SentryFileIOTracker *)tracker
 {
     self.tracker = tracker;
 

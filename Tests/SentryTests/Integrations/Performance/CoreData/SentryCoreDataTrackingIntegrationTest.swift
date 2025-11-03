@@ -1,4 +1,5 @@
 import CoreData
+@testable import Sentry
 import SentryTestUtils
 import XCTest
 
@@ -41,7 +42,7 @@ class SentryCoreDataTrackingIntegrationTests: XCTestCase {
         let sut = fixture.getSut()
         
         XCTAssertNil(SentryCoreDataSwizzling.sharedInstance.coreDataTracker)
-        sut.install(with: fixture.options)
+        sut.install(with: fixture.options.toInternal())
         XCTAssertNotNil(SentryCoreDataSwizzling.sharedInstance.coreDataTracker)
         sut.uninstall()
         XCTAssertNil(SentryCoreDataSwizzling.sharedInstance.coreDataTracker)
@@ -115,7 +116,7 @@ class SentryCoreDataTrackingIntegrationTests: XCTestCase {
         let sut = fixture.getSut()
         confOptions(fixture.options)
         XCTAssertNil(SentryCoreDataSwizzling.sharedInstance.coreDataTracker, file: file, line: line)
-        sut.install(with: fixture.options)
+        sut.install(with: fixture.options.toInternal())
         XCTAssertNil(SentryCoreDataSwizzling.sharedInstance.coreDataTracker, file: file, line: line)
     }
     

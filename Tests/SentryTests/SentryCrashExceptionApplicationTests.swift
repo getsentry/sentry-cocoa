@@ -16,7 +16,7 @@ class SentryCrashExceptionApplicationHelperTests: XCTestCase {
     
     func testCrashOnException() throws {
         // Arrange
-        let client = TestClient(options: Options())
+        let client = TestClient(options: Options().toInternal())
         let hub = TestHub(client: client, andScope: nil)
         SentrySDKInternal.setCurrentHub(hub)
         let exception = NSException(name: NSExceptionName("TestException"), reason: "Test Reason", userInfo: nil)

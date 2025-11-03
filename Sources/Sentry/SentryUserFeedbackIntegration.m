@@ -1,6 +1,7 @@
 #import "SentryUserFeedbackIntegration.h"
 #import "SentryInternalDefines.h"
-#import "SentryOptions+Private.h"
+#import "SentryOptionsConverter.h"
+#import "SentryOptionsInternal+Private.h"
 #import "SentrySDK+Private.h"
 #import "SentrySwift.h"
 
@@ -13,9 +14,10 @@
     SentryUserFeedbackIntegrationDriver *_driver;
 }
 
-- (BOOL)installWithOptions:(SentryOptions *)options
+- (BOOL)installWithOptions:(SentryOptionsInternal *)options
 {
-    if (options.userFeedbackConfiguration == nil) {
+    SentryOptions *convertedOptions = [SentryOptionsConverter fromInternal:options];
+    if (convertedOptions.userFeedbackConfiguration == nil) {
         return NO;
     }
 
@@ -25,7 +27,7 @@
         = SentryDependencyContainer.sharedInstance.screenshotSource;
     _driver = [[SentryUserFeedbackIntegrationDriver alloc]
         initWithConfiguration:SENTRY_UNWRAP_NULLABLE(SentryUserFeedbackConfiguration,
-                                  options.userFeedbackConfiguration)
+                                  convertedOptions.userFeedbackConfiguration)
                      delegate:self
              screenshotSource:screenshotSource];
     return YES;

@@ -7,7 +7,7 @@
 #    import "SentryInternalDefines.h"
 #    import "SentryLaunchProfiling.h"
 #    import "SentryLogC.h"
-#    import "SentryOptions+Private.h"
+#    import "SentryOptionsInternal+Private.h"
 #    import "SentryProfileConfiguration.h"
 #    import "SentryProfiler+Private.h"
 #    import "SentrySamplerDecision.h"
@@ -148,7 +148,7 @@ _sentry_startTraceProfiler(
 }
 
 SentryLaunchProfileDecision
-sentry_launchShouldHaveContinuousProfiling(SentryOptions *options)
+sentry_launchShouldHaveContinuousProfiling(SentryOptionsInternal *options)
 {
     if (!options.profiling.profileAppStarts) {
         SENTRY_LOG_DEBUG(@"Continuous profiling v2 enabled but disabled app start profiling, "
@@ -203,7 +203,7 @@ sentry_launchShouldHaveContinuousProfiling(SentryOptions *options)
 }
 
 SentryLaunchProfileDecision
-sentry_shouldProfileNextLaunch(SentryOptions *options)
+sentry_shouldProfileNextLaunch(SentryOptionsInternal *options)
 {
     if ([options isContinuousProfilingEnabled]) {
         return sentry_launchShouldHaveContinuousProfiling(options);
@@ -228,7 +228,7 @@ _sentry_cleanUpConfigFile(void)
 
 #    if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
 BOOL
-sentry_willProfileNextLaunch(SentryOptions *options)
+sentry_willProfileNextLaunch(SentryOptionsInternal *options)
 {
     return sentry_shouldProfileNextLaunch(options).shouldProfile;
 }
@@ -307,7 +307,7 @@ _sentry_nondeduplicated_startLaunchProfile(void)
 BOOL sentry_isTracingAppLaunch;
 
 void
-sentry_configureLaunchProfilingForNextLaunch(SentryOptions *options)
+sentry_configureLaunchProfilingForNextLaunch(SentryOptionsInternal *options)
 {
     [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchAsyncWithBlock:^{
         SentryLaunchProfileDecision config = sentry_shouldProfileNextLaunch(options);

@@ -6,7 +6,7 @@ import UIKit
 
 @_spi(Private) @objc public final class SentryAppStateManager: NSObject {
     
-    private let options: Options?
+    private let options: SentryOptionsInternal?
     private let crashWrapper: SentryCrashWrapper
     private let fileManager: SentryFileManager?
 #if (os(iOS) || os(tvOS) || (swift(>=5.9) && os(visionOS))) && !SENTRY_NO_UIKIT
@@ -15,7 +15,7 @@ import UIKit
     private let helper: SentryDefaultAppStateManager
 #endif
     
-    init(options: Options?, crashWrapper: SentryCrashWrapper, fileManager: SentryFileManager?, sysctlWrapper: SentrySysctl) {
+    init(options: SentryOptionsInternal?, crashWrapper: SentryCrashWrapper, fileManager: SentryFileManager?, sysctlWrapper: SentrySysctl) {
         self.options = options
         self.crashWrapper = crashWrapper
         self.fileManager = fileManager

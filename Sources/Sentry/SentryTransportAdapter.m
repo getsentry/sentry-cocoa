@@ -1,6 +1,6 @@
 #import "SentryTransportAdapter.h"
 #import "SentryEvent.h"
-#import "SentryOptions.h"
+#import "SentryOptionsInternal.h"
 #import "SentrySwift.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -8,14 +8,14 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SentryTransportAdapter ()
 
 @property (nonatomic, strong) NSArray<id<SentryTransport>> *transports;
-@property (nonatomic, strong) SentryOptions *options;
+@property (nonatomic, strong) SentryOptionsInternal *options;
 
 @end
 
 @implementation SentryTransportAdapter
 
 - (instancetype)initWithTransports:(NSArray<id<SentryTransport>> *)transports
-                           options:(SentryOptions *)options
+                           options:(SentryOptionsInternal *)options
 {
     if (self = [super init]) {
         self.transports = transports;

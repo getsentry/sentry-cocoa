@@ -228,7 +228,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     private var _fileManager: SentryFileManager?
     @objc public lazy var fileManager: SentryFileManager? = getOptionalLazyVar(\._fileManager) {
         do {
-            return try SentryFileManager(options: SentrySDKInternal.options, dateProvider: Dependencies.dateProvider, dispatchQueueWrapper: Dependencies.dispatchQueueWrapper)
+            return try SentryFileManager(options: SentrySDKInternal.options?.toOptions(), dateProvider: Dependencies.dateProvider, dispatchQueueWrapper: Dependencies.dispatchQueueWrapper)
         } catch {
             SentrySDKLog.debug("Could not create file manager - \(error)")
             return nil

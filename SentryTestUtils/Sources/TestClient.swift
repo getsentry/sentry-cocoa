@@ -1,14 +1,14 @@
 import _SentryPrivate
 import Foundation
-@_spi(Private) import Sentry
+@_spi(Private) @testable import Sentry
 
 public class TestClient: SentryClientInternal {
-    public override init?(options: Options) {
+    public override init?(options: SentryOptionsInternal) {
         super.init(
             options: options,
             transportAdapter: TestTransportAdapter(transports: [TestTransport()], options: options),
             fileManager: try! TestFileManager(
-                options: options,
+                options: options.toOptions(),
                 dateProvider: TestCurrentDateProvider(),
                 dispatchQueueWrapper: TestSentryDispatchQueueWrapper()
             ),
@@ -22,7 +22,7 @@ public class TestClient: SentryClientInternal {
     
     // Without this override we get a fatal error: use of unimplemented initializer
     // see https://stackoverflow.com/questions/28187261/ios-swift-fatal-error-use-of-unimplemented-initializer-init
-    @_spi(Private) public override init(options: Options, transportAdapter: SentryTransportAdapter, fileManager: SentryFileManager, threadInspector: SentryDefaultThreadInspector, debugImageProvider: SentryDebugImageProvider, random: SentryRandomProtocol, locale: Locale, timezone: TimeZone) {
+    @_spi(Private) public override init(options: SentryOptionsInternal, transportAdapter: SentryTransportAdapter, fileManager: SentryFileManager, threadInspector: SentryDefaultThreadInspector, debugImageProvider: SentryDebugImageProvider, random: SentryRandomProtocol, locale: Locale, timezone: TimeZone) {
         super.init(
             options: options,
             transportAdapter: transportAdapter,

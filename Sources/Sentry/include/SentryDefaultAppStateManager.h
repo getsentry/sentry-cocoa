@@ -4,7 +4,7 @@
 @class SentryCrashWrapper;
 @class SentryDispatchQueueWrapper;
 @class SentryFileManager;
-@class SentryOptions;
+@class SentryOptionsInternal;
 
 @protocol SentryNSNotificationCenterWrapper;
 

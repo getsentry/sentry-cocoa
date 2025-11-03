@@ -3,7 +3,7 @@
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"
 #import "SentryNSURLRequestBuilder.h"
-#import "SentryOptions.h"
+#import "SentryOptionsInternal.h"
 #import "SentrySerialization.h"
 #import "SentrySwift.h"
 #import "SentryTransport.h"
@@ -14,7 +14,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, strong) id<SentryRequestManager> requestManager;
 @property (nonatomic, strong) SentryNSURLRequestBuilder *requestBuilder;
-@property (nonatomic, strong) SentryOptions *options;
+@property (nonatomic, strong) SentryOptionsInternal *options;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueue;
 @property (nonatomic, strong, nullable) NSURL *apiURL;
 
@@ -22,7 +22,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentrySpotlightTransport
 
-- (id)initWithOptions:(SentryOptions *)options
+- (id)initWithOptions:(SentryOptionsInternal *)options
           requestManager:(id<SentryRequestManager>)requestManager
           requestBuilder:(SentryNSURLRequestBuilder *)requestBuilder
     dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper

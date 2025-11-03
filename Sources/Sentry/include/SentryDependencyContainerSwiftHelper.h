@@ -8,7 +8,7 @@
 
 @class SentryHubInternal;
 @class SentryDispatchQueueWrapper;
-@class SentryOptions;
+@class SentryOptionsInternal;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -31,10 +31,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (nullable NSArray<UIWindow *> *)windows;
 
-// Since SentryOptions is in ObjC, Swift code can't see the SentryViewScreenshotOptions property
-+ (BOOL)fastViewRenderingEnabled:(SentryOptions *)options;
-+ (BOOL)viewRendererV2Enabled:(SentryOptions *)options;
-+ (SentryDefaultRedactOptions *)redactOptions:(SentryOptions *)options;
+// Since SentryOptionsInternal is in ObjC, Swift code can't see the SentryViewScreenshotOptions
+// property
++ (BOOL)fastViewRenderingEnabled:(SentryOptionsInternal *)options;
++ (BOOL)viewRendererV2Enabled:(SentryOptionsInternal *)options;
++ (SentryDefaultRedactOptions *)redactOptions:(SentryOptionsInternal *)options;
 
 #endif // SENTRY_HAS_UIKIT
 

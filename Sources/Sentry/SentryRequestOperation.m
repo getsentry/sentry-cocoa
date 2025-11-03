@@ -4,7 +4,7 @@
 #import "SentryHub.h"
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"
-#import "SentryOptions.h"
+#import "SentryOptionsInternal.h"
 #import "SentrySDK+Private.h"
 #import "SentrySwift.h"
 

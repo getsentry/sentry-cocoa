@@ -1,7 +1,8 @@
 #import "SentryBaseIntegration.h"
 #import "SentryLogC.h"
+#import "SentryOptionsConverter.h"
 #import "SentrySwift.h"
-#import <SentryOptions+Private.h>
+#import <SentryOptionsInternal+Private.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -12,7 +13,7 @@ NS_ASSUME_NONNULL_BEGIN
     return NSStringFromClass([self classForCoder]);
 }
 
-- (BOOL)installWithOptions:(SentryOptions *)options
+- (BOOL)installWithOptions:(SentryOptionsInternal *)options
 {
     return [self shouldBeEnabledWithOptions:options];
 }
@@ -27,7 +28,7 @@ NS_ASSUME_NONNULL_BEGIN
     SENTRY_LOG_DEBUG(@"Not going to enable %@ %@.", self.integrationName, reason);
 }
 
-- (BOOL)shouldBeEnabledWithOptions:(SentryOptions *)options
+- (BOOL)shouldBeEnabledWithOptions:(SentryOptionsInternal *)options
 {
     SentryIntegrationOption integrationOptions = [self integrationOptions];
 
@@ -148,8 +149,9 @@ NS_ASSUME_NONNULL_BEGIN
 #endif
 #if SENTRY_TARGET_REPLAY_SUPPORTED
     if (integrationOptions & kIntegrationOptionEnableReplay) {
-        if (options.sessionReplay.onErrorSampleRate == 0
-            && options.sessionReplay.sessionSampleRate == 0) {
+        SentryReplayOptions *replayOptions =
+            [SentryOptionsConverter fromInternal:options].sessionReplay;
+        if (replayOptions.onErrorSampleRate == 0 && replayOptions.sessionSampleRate == 0) {
             [self logWithOptionName:@"sessionReplaySettings"];
             return NO;
         }

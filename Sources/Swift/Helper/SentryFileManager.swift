@@ -29,7 +29,7 @@
     @objc public init(options: Options?, dateProvider: SentryCurrentDateProvider, dispatchQueueWrapper: SentryDispatchQueueWrapper) throws {
         dispatchQueue = dispatchQueueWrapper
         self.dateProvider = dateProvider
-        helper = try SentryFileManagerHelper(options: options)
+        helper = try SentryFileManagerHelper(options: options?.toInternal())
         super.init()
 
         helper.handleEnvelopesLimit = { [weak self] in

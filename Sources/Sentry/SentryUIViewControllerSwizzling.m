@@ -7,7 +7,7 @@
 #    import "SentrySubClassFinder.h"
 #    import "SentrySwift.h"
 #    import "SentrySwizzle.h"
-#    import <SentryOptions.h>
+#    import <SentryOptionsInternal.h>
 #    import <UIKit/UIKit.h>
 #    import <UIViewController+Sentry.h>
 #    import <objc/runtime.h>
@@ -29,7 +29,7 @@
 
 @interface SentryUIViewControllerSwizzling ()
 
-@property (nonatomic, strong) SentryOptions *options;
+@property (nonatomic, strong) SentryOptionsInternal *options;
 @property (nonatomic, strong) SentryInAppLogic *inAppLogic;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueue;
 @property (nonatomic, strong) id<SentryObjCRuntimeWrapper> objcRuntimeWrapper;
@@ -42,7 +42,7 @@
 
 @implementation SentryUIViewControllerSwizzling
 
-- (instancetype)initWithOptions:(SentryOptions *)options
+- (instancetype)initWithOptions:(SentryOptionsInternal *)options
                   dispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue
              objcRuntimeWrapper:(id<SentryObjCRuntimeWrapper>)objcRuntimeWrapper
                  subClassFinder:(SentrySubClassFinder *)subClassFinder

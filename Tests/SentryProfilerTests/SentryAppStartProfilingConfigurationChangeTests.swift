@@ -1,5 +1,6 @@
 //swiftlint:disable file_length
 
+@testable import Sentry
 @_spi(Private) import SentryTestUtils
 import XCTest
 
@@ -51,7 +52,7 @@ extension SentryAppStartProfilingConfigurationChangeTests {
         XCTAssertFalse(SentryTraceProfiler.isCurrentlyProfiling())
 
         // Act: simulate SDK start
-        sentry_sdkInitProfilerTasks(fixture.options, TestHub(client: nil, andScope: nil))
+        sentry_sdkInitProfilerTasks(fixture.options.toInternal(), TestHub(client: nil, andScope: nil))
 
         // Act: simulate stopping the continuous profiler
         SentrySDK.stopProfiler()
@@ -91,7 +92,7 @@ extension SentryAppStartProfilingConfigurationChangeTests {
         XCTAssertFalse(SentryTraceProfiler.isCurrentlyProfiling())
 
         // Act: simulate SDK start
-        sentry_sdkInitProfilerTasks(fixture.options, TestHub(client: nil, andScope: nil))
+        sentry_sdkInitProfilerTasks(fixture.options.toInternal(), TestHub(client: nil, andScope: nil))
 
         // Act: simulate stopping the continuous profiler
         SentrySDK.stopProfiler()
@@ -135,7 +136,7 @@ extension SentryAppStartProfilingConfigurationChangeTests {
         XCTAssertFalse(SentryTraceProfiler.isCurrentlyProfiling())
 
         // Act: simulate SDK start
-        sentry_sdkInitProfilerTasks(fixture.options, TestHub(client: nil, andScope: nil))
+        sentry_sdkInitProfilerTasks(fixture.options.toInternal(), TestHub(client: nil, andScope: nil))
 
         // Act: simulate elapsed time to finish UI profile chunk
         fixture.currentDateProvider.advance(by: 60)
@@ -176,7 +177,7 @@ extension SentryAppStartProfilingConfigurationChangeTests {
         XCTAssertFalse(SentryTraceProfiler.isCurrentlyProfiling())
 
         // Act: simulate SDK start
-        sentry_sdkInitProfilerTasks(fixture.options, TestHub(client: nil, andScope: nil))
+        sentry_sdkInitProfilerTasks(fixture.options.toInternal(), TestHub(client: nil, andScope: nil))
 
         // Act: simulate elapsed time to finish UI profile chunk
         fixture.currentDateProvider.advance(by: 60)
@@ -220,7 +221,7 @@ extension SentryAppStartProfilingConfigurationChangeTests {
         XCTAssertFalse(SentryTraceProfiler.isCurrentlyProfiling())
 
         // Act: simulate SDK start
-        sentry_sdkInitProfilerTasks(fixture.options, TestHub(client: nil, andScope: nil))
+        sentry_sdkInitProfilerTasks(fixture.options.toInternal(), TestHub(client: nil, andScope: nil))
 
         // Act: simulate elapsed time to finish UI profile chunk
         SentrySDK.stopProfiler()
@@ -260,7 +261,7 @@ extension SentryAppStartProfilingConfigurationChangeTests {
         XCTAssertFalse(SentryTraceProfiler.isCurrentlyProfiling())
 
         // Act: simulate SDK start
-        sentry_sdkInitProfilerTasks(fixture.options, TestHub(client: nil, andScope: nil))
+        sentry_sdkInitProfilerTasks(fixture.options.toInternal(), TestHub(client: nil, andScope: nil))
 
         // Act: simulate elapsed time to finish UI profile chunk
         SentrySDK.stopProfiler()
@@ -304,7 +305,7 @@ extension SentryAppStartProfilingConfigurationChangeTests {
         XCTAssertFalse(SentryTraceProfiler.isCurrentlyProfiling())
 
         // Act: simulate SDK start
-        sentry_sdkInitProfilerTasks(fixture.options, TestHub(client: nil, andScope: nil))
+        sentry_sdkInitProfilerTasks(fixture.options.toInternal(), TestHub(client: nil, andScope: nil))
         
         // Act: simulate TTFD stoppage
         let launchTracer = try XCTUnwrap(sentry_launchTracer)
@@ -351,7 +352,7 @@ extension SentryAppStartProfilingConfigurationChangeTests {
         XCTAssertFalse(SentryTraceProfiler.isCurrentlyProfiling())
 
         // Act: simulate SDK start
-        sentry_sdkInitProfilerTasks(fixture.options, TestHub(client: nil, andScope: nil))
+        sentry_sdkInitProfilerTasks(fixture.options.toInternal(), TestHub(client: nil, andScope: nil))
 
         // Act: simulate TTFD stoppage
         let launchTracer = try XCTUnwrap(sentry_launchTracer)

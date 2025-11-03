@@ -42,7 +42,7 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
             SentryDependencyContainer.sharedInstance().sysctlWrapper = sysctl
             SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = dispatchQueue
             appStateManager = SentryAppStateManager(
-                options: options,
+                options: options.toInternal(),
                 crashWrapper: crashWrapper,
                 fileManager: fileManager,
                 sysctlWrapper: sysctl

@@ -65,7 +65,7 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         options.enableAppHangTracking = false
         
         sut = SentryANRTrackingIntegration()
-        let result = sut.install(with: options)
+        let result = sut.install(with: options.toInternal())
 
         XCTAssertFalse(result)
     }
@@ -76,7 +76,7 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         options.appHangTimeoutInterval = 0
         
         sut = SentryANRTrackingIntegration()
-        let result = sut.install(with: options)
+        let result = sut.install(with: options.toInternal())
         
         XCTAssertFalse(result)
     }
@@ -330,7 +330,7 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         func initIntegration() {
             self.crashWrapper.internalIsBeingTraced = false
             let sut = SentryANRTrackingIntegration()
-            sut.install(with: self.options)
+            sut.install(with: self.options.toInternal())
         }
         
         initIntegration()
@@ -667,7 +667,7 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         Dynamic(sut).anrStoppedWithResult(result)
 
         // Act
-        sut.install(with: self.options)
+        sut.install(with: self.options.toInternal())
         
         // Assert
         try assertEventWithScopeCaptured { event, _, _ in
@@ -735,7 +735,7 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         self.crashWrapper.internalIsBeingTraced = isBeingTraced
         self.crashWrapper.internalCrashedLastLaunch = crashedLastLaunch
         sut = SentryANRTrackingIntegration()
-        sut.install(with: self.options)
+        sut.install(with: self.options.toInternal())
     }
     
     private func setUpThreadInspector(addThreads: Bool = true) {

@@ -32,7 +32,7 @@ class SentrySessionTrackerTests: XCTestCase {
             options.sessionTrackingIntervalMillis = 10_000
             options.environment = "debug"
             
-            client = TestClient(options: options)
+            client = TestClient(options: options.toInternal())
             
             sentryCrash = TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo)
 

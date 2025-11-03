@@ -8,7 +8,7 @@
 
 @class SentryEvent;
 @class SentryFeedback;
-@class SentryOptions;
+@class SentryOptionsInternal;
 @class SentryScope;
 @class SentryId;
 @class SentryTransaction;
@@ -20,14 +20,14 @@ SENTRY_NO_INIT
 
 @property (nonatomic, assign, readonly) BOOL isEnabled;
 
-@property (nonatomic, strong) SentryOptions *options;
+@property (nonatomic, strong) SentryOptionsInternal *options;
 
 /**
  * Initializes a @c SentryClient. Pass in a dictionary of options.
  * @param options Options dictionary
  * @return An initialized @c SentryClient or @c nil if an error occurred.
  */
-- (_Nullable instancetype)initWithOptions:(SentryOptions *)options;
+- (_Nullable instancetype)initWithOptions:(SentryOptionsInternal *)options;
 
 /**
  * Captures a manually created event and sends it to Sentry.
@@ -110,7 +110,7 @@ SENTRY_NO_INIT
 - (void)flush:(NSTimeInterval)timeout NS_SWIFT_NAME(flush(timeout:));
 
 /**
- * Disables the client and calls flush with @c SentryOptions.shutdownTimeInterval .
+ * Disables the client and calls flush with @c SentryOptionsInternal.shutdownTimeInterval .
  */
 - (void)close;
 

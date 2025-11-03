@@ -5,7 +5,7 @@ final class SentrySDKThreadTests: XCTestCase {
     func testRaceWhenBindingClient() {
 
         let options = Options()
-        let sut = SentryHubInternal(client: SentryClientInternal(options: options), andScope: nil)
+        let sut = SentryHubInternal(client: SentryClientInternal(options: options.toInternal()), andScope: nil)
 
         for _ in 0..<100 {
 
@@ -16,7 +16,7 @@ final class SentrySDKThreadTests: XCTestCase {
 
             for _ in 0..<100 {
                 queue.async {
-                    sut.bindClient(SentryClientInternal(options: options))
+                    sut.bindClient(SentryClientInternal(options: options.toInternal()))
                     sut.capture(message: "Test message")
                     exp.fulfill()
                 }

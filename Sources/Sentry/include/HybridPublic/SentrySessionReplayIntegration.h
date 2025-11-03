@@ -18,7 +18,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SentrySessionReplayIntegration : SentryBaseIntegration
 
-- (instancetype)initForManualUse:(nonnull SentryOptions *)options;
+- (instancetype)initForManualUse:(nonnull SentryOptionsInternal *)options;
 
 /**
  * Captures Replay. Used by the Hybrid SDKs.
@@ -49,7 +49,7 @@ NS_ASSUME_NONNULL_BEGIN
  * Verifies the device environment and options and returns wether it is safe to enable
  *  SessionReplay or not
  */
-+ (BOOL)shouldEnableForOptions:(SentryOptions *)options;
++ (BOOL)shouldEnableForOptions:(SentryOptionsInternal *)options;
 
 @end
 #endif // SENTRY_TARGET_REPLAY_SUPPORTED

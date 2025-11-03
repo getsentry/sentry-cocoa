@@ -2,7 +2,7 @@
 #import "SentryDefines.h"
 #import <Foundation/Foundation.h>
 
-@class SentryOptions;
+@class SentryOptionsInternal;
 @class SentryStacktrace;
 @class SentryStacktraceBuilder;
 @class SentryThread;
@@ -18,7 +18,7 @@ SENTRY_NO_INIT
        andMachineContextWrapper:(id<SentryCrashMachineContextWrapper>)machineContextWrapper
                     symbolicate:(BOOL)symbolicate;
 
-- (instancetype)initWithOptions:(SentryOptions *_Nullable)options;
+- (instancetype)initWithOptions:(SentryOptionsInternal *_Nullable)options;
 
 - (nullable SentryStacktrace *)stacktraceForCurrentThreadAsyncUnsafe;
 

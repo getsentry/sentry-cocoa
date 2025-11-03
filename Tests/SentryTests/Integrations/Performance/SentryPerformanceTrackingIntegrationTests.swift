@@ -10,7 +10,7 @@ class SentryPerformanceTrackingIntegrationTests: XCTestCase {
         
         let options = Options()
         options.tracesSampleRate = 0.1
-        sut.install(with: options)
+        sut.install(with: options.toInternalOptions())
 
         XCTAssertNotNil(Dynamic(sut).swizzling.asObject)
     }
@@ -18,7 +18,7 @@ class SentryPerformanceTrackingIntegrationTests: XCTestCase {
     func testSwizzlingNotInitialized_WhenTracingDisabled() {
         let sut = SentryPerformanceTrackingIntegration()
         
-        sut.install(with: Options())
+        sut.install(with: Options().toInternalOptions())
         
         XCTAssertNil(Dynamic(sut).swizzling.asObject)
     }
@@ -29,7 +29,7 @@ class SentryPerformanceTrackingIntegrationTests: XCTestCase {
         let options = Options()
         options.tracesSampleRate = 0.1
         options.enableAutoPerformanceTracing = false
-        sut.install(with: options)
+        sut.install(with: options.toInternalOptions())
 
         XCTAssertNil(Dynamic(sut).swizzling.asObject)
     }
@@ -40,7 +40,7 @@ class SentryPerformanceTrackingIntegrationTests: XCTestCase {
         let options = Options()
         options.tracesSampleRate = 0.1
         options.enableSwizzling = false
-        sut.install(with: options)
+        sut.install(with: options.toInternalOptions())
 
         XCTAssertNil(Dynamic(sut).swizzling.asObject)
     }
@@ -61,7 +61,7 @@ class SentryPerformanceTrackingIntegrationTests: XCTestCase {
     
     private func disablesIntegration(_ options: Options) {
         let sut = SentryPerformanceTrackingIntegration()
-        let result = sut.install(with: options)
+        let result = sut.install(with: options.toInternalOptions())
         
         XCTAssertFalse(result)
         XCTAssertNil(Dynamic(sut).swizzling.asObject)
@@ -75,7 +75,7 @@ class SentryPerformanceTrackingIntegrationTests: XCTestCase {
         let options = Options()
         options.tracesSampleRate = 0.1
         options.enableTimeToFullDisplayTracing = true
-        sut.install(with: options)
+        sut.install(with: options.toInternalOptions())
 
         // -- Assert -- 
         let performanceTracker = SentryDependencyContainer.sharedInstance().uiViewControllerPerformanceTracker
@@ -90,7 +90,7 @@ class SentryPerformanceTrackingIntegrationTests: XCTestCase {
         let options = Options()
         options.tracesSampleRate = 0.1
         options.enableTimeToFullDisplayTracing = false
-        sut.install(with: options)
+        sut.install(with: options.toInternalOptions())
 
         // -- Assert --
         let performanceTracker = SentryDependencyContainer.sharedInstance().uiViewControllerPerformanceTracker

@@ -20,7 +20,8 @@
 #import "SentryMsgPackSerializer.h"
 #import "SentryNSDictionarySanitize.h"
 #import "SentryNSError.h"
-#import "SentryOptions+Private.h"
+#import "SentryOptionsConverter.h"
+#import "SentryOptionsInternal+Private.h"
 #import "SentryPropagationContext.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
@@ -59,11 +60,11 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
 @implementation SentryClientInternal
 
-- (_Nullable instancetype)initWithOptions:(SentryOptions *)options
+- (_Nullable instancetype)initWithOptions:(SentryOptionsInternal *)options
 {
     NSError *error;
     SentryFileManager *fileManager = [[SentryFileManager alloc]
-             initWithOptions:options
+             initWithOptions:[SentryOptionsConverter fromInternal:options]
                 dateProvider:SentryDependencyContainer.sharedInstance.dateProvider
         dispatchQueueWrapper:SentryDependencyContainer.sharedInstance.dispatchQueueWrapper
                        error:&error];
@@ -94,7 +95,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                         timezone:[NSCalendar autoupdatingCurrentCalendar].timeZone];
 }
 
-- (instancetype)initWithOptions:(SentryOptions *)options
+- (instancetype)initWithOptions:(SentryOptionsInternal *)options
                transportAdapter:(SentryTransportAdapter *)transportAdapter
                     fileManager:(SentryFileManager *)fileManager
                 threadInspector:(SentryDefaultThreadInspector *)threadInspector
@@ -892,7 +893,8 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         return;
     }
 
-    event.sdk = [[[SentrySdkInfo alloc] initWithOptions:self.options] serialize];
+    event.sdk = [[[SentrySdkInfo alloc]
+        initWithOptions:[SentryOptionsConverter fromInternal:self.options]] serialize];
 }
 
 - (void)setUserInfo:(NSDictionary *_Nullable)userInfo withEvent:(SentryEvent *_Nullable)event

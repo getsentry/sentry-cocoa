@@ -15,7 +15,7 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
     }
 
     func testStoreEnvelope() {
-        let client = TestClient(options: Options())
+        let client = TestClient(options: Options().toInternal())
         SentrySDKInternal.setCurrentHub(TestHub(client: client, andScope: nil))
 
         let envelope = TestConstants.envelope
@@ -26,7 +26,7 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
     }
     
     func testStoreEnvelopeWithUndhandled_MarksSessionAsCrashedAndDoesNotStartNewSession() throws {
-        let client = TestClient(options: Options())
+        let client = TestClient(options: Options().toInternal())
         let hub = TestHub(client: client, andScope: nil)
         SentrySDKInternal.setCurrentHub(hub)
         hub.setTestSession()
@@ -46,7 +46,7 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
     }
     
     func testCaptureEnvelope() {
-        let client = TestClient(options: Options())
+        let client = TestClient(options: Options().toInternal())
         SentrySDKInternal.setCurrentHub(TestHub(client: client, andScope: nil))
 
         let envelope = TestConstants.envelope
@@ -57,7 +57,7 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
     }
     
     func testCaptureEnvelopeWithUndhandled_MarksSessionAsCrashedAndStartsNewSession() throws {
-        let client = TestClient(options: Options())
+        let client = TestClient(options: Options().toInternal())
         let hub = TestHub(client: client, andScope: nil)
         SentrySDKInternal.setCurrentHub(hub)
         hub.setTestSession()
@@ -228,7 +228,7 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
     func testOptions() {
         let options = Options()
         options.dsn = TestConstants.dsnAsString(username: "SentryFramesTrackingIntegrationTests")
-        let client = TestClient(options: options)
+        let client = TestClient(options: options.toInternal())
         SentrySDKInternal.setCurrentHub(TestHub(client: client, andScope: nil))
 
         XCTAssertEqual(PrivateSentrySDKOnly.options, options)
@@ -262,7 +262,7 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         }
         let options = Options()
         options.dsn = TestConstants.dsnAsString(username: "SentryFramesTrackingIntegrationTests")
-        let client = TestClient(options: options)
+        let client = TestClient(options: options.toInternal())
         SentrySDKInternal.setCurrentHub(TestHub(client: client, andScope: nil))
 
         let traceIdA = SentryId()
@@ -300,7 +300,7 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
     func testProfilingDiscard() {
         let options = Options()
         options.dsn = TestConstants.dsnAsString(username: "SentryFramesTrackingIntegrationTests")
-        let client = TestClient(options: options)
+        let client = TestClient(options: options.toInternal())
         SentrySDKInternal.setCurrentHub(TestHub(client: client, andScope: nil))
 
         let traceIdA = SentryId()
@@ -355,7 +355,7 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         let options = Options.noIntegrations()
         options.sessionReplay = .init(sessionSampleRate: 1.0)
         options.experimental.enableSessionReplayInUnreliableEnvironment = true
-        SentrySDKInternal.start(options: options)
+        SentrySDKInternal.start(options: options.toInternal())
 
         var didCallCaptureReplay = false
         let cls: AnyClass = SentrySessionReplayIntegration.self
@@ -385,7 +385,7 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
     }
 
     func testGetReplayIdShouldExist() {
-        let client = TestClient(options: Options())
+        let client = TestClient(options: Options().toInternal())
         let scope = Scope()
         scope.replayId = VALID_REPLAY_ID
         SentrySDKInternal.setCurrentHub(TestHub(client: client, andScope: scope))
@@ -396,7 +396,7 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
     func testAddReplayIgnoreClassesShouldNotFailWhenReplayIsAvailable() {
         let options = Options.noIntegrations()
         options.sessionReplay = .init()
-        SentrySDKInternal.start(options: options)
+        SentrySDKInternal.start(options: options.toInternal())
 
         PrivateSentrySDKOnly.addReplayIgnoreClasses([UILabel.self])
     }
@@ -404,7 +404,7 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
     func testAddReplayRedactShouldNotFailWhenReplayIsAvailable() {
         let options = Options()
         options.sessionReplay = .init()
-        SentrySDKInternal.start(options: options)
+        SentrySDKInternal.start(options: options.toInternal())
 
         PrivateSentrySDKOnly.addReplayRedactClasses([UILabel.self])
     }
@@ -412,7 +412,7 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
     func testAddIgnoreContainer() throws {
         class IgnoreContainer: UIView {}
 
-        SentrySDKInternal.start {
+        SentrySDK.start {
             $0.removeAllIntegrations()
             $0.sessionReplay = SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1)
             $0.experimental.enableSessionReplayInUnreliableEnvironment = true
@@ -429,7 +429,7 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
     func testAddRedactContainer() throws {
         class RedactContainer: UIView {}
 
-        SentrySDKInternal.start {
+        SentrySDK.start {
             $0.removeAllIntegrations()
             $0.sessionReplay = SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1)
             $0.experimental.enableSessionReplayInUnreliableEnvironment = true
@@ -484,7 +484,7 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         let spanId = SpanId()
         
         let scope = Scope()
-        let client = TestClient(options: Options())
+        let client = TestClient(options: Options().toInternal())
         let hub = TestHub(client: client, andScope: scope)
         SentrySDKInternal.setCurrentHub(hub)
         

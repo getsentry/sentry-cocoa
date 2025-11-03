@@ -4,15 +4,15 @@ import XCTest
 
 extension SentryClientInternal {
     convenience init(options: Options, fileManager: SentryFileManager) {
-        let transports = TransportInitializer.initTransports(options, dateProvider: SentryDependencyContainer.sharedInstance().dateProvider, sentryFileManager: fileManager, rateLimits: SentryDependencyContainer.sharedInstance().rateLimits)
+        let transports = TransportInitializer.initTransports(options.toInternal(), dateProvider: SentryDependencyContainer.sharedInstance().dateProvider, sentryFileManager: fileManager, rateLimits: SentryDependencyContainer.sharedInstance().rateLimits)
 
-        let transportAdapter = SentryTransportAdapter(transports: transports, options: options)
+        let transportAdapter = SentryTransportAdapter(transports: transports, options: options.toInternal())
 
         self.init(
-            options: options,
+            options: options.toInternal(),
             transportAdapter: transportAdapter,
             fileManager: fileManager,
-            threadInspector: SentryDefaultThreadInspector(options: options),
+            threadInspector: SentryDefaultThreadInspector(options: options.toInternal()),
             debugImageProvider: SentryDependencyContainer.sharedInstance().debugImageProvider,
             random: SentryDependencyContainer.sharedInstance().random,
             locale: Locale.autoupdatingCurrent,
@@ -86,7 +86,7 @@ class SentryClientTests: XCTestCase {
             transaction = Transaction(trace: trace, children: [])
             
             transport = TestTransport()
-            transportAdapter = TestTransportAdapter(transports: [transport], options: options)
+            transportAdapter = TestTransportAdapter(transports: [transport], options: options.toInternal())
             
             crashWrapper.internalFreeMemorySize = 123_456
             crashWrapper.internalAppMemorySize = 234_567
@@ -111,7 +111,7 @@ class SentryClientTests: XCTestCase {
                 configureOptions(options)
 
                 client = SentryClientInternal(
-                    options: options,
+                    options: options.toInternal(),
                     transportAdapter: transportAdapter,
                     fileManager: fileManager,
                     threadInspector: threadInspector,
@@ -402,7 +402,7 @@ class SentryClientTests: XCTestCase {
         SentryDependencyContainer.sharedInstance().applicationOverride = TestSentryUIApplication()
         let scope = fixture.scope
         scope.currentScreen = "TransactionScreen"
-        let hub = SentryHubInternal(client: SentryClientInternal(options: Options()), andScope: scope)
+        let hub = SentryHubInternal(client: SentryClientInternal(options: Options().toInternal()), andScope: scope)
         
         let tracer = SentryTracer(transactionContext: TransactionContext(operation: "Operation"), hub: hub)
         
@@ -814,7 +814,7 @@ class SentryClientTests: XCTestCase {
             try assertValidErrorEvent(eventWithSessionArguments.event, error)
             XCTAssertEqual(fixture.session, eventWithSessionArguments.session)
             
-            let expectedTraceContext = TraceContext(trace: scope.propagationContext.traceId, options: Options(), replayId: nil)
+            let expectedTraceContext = TraceContext(trace: scope.propagationContext.traceId, options: Options().toInternal(), replayId: nil)
             XCTAssertEqual(eventWithSessionArguments.traceContext?.traceId,
                            expectedTraceContext.traceId)
         }
@@ -1768,7 +1768,7 @@ class SentryClientTests: XCTestCase {
 
         let options = Options()
         options.dsn = SentryClientTests.dsn
-        let client = SentryClientInternal(options: options)
+        let client = SentryClientInternal(options: options.toInternal())
 
         XCTAssertNil(client)
     }

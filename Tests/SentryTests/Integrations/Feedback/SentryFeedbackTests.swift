@@ -197,10 +197,10 @@ class SentryFeedbackTests: XCTestCase {
         options.sampleRate = 0.0 // Sample rate that would normally filter out all events
 
         let transport = TestTransport()
-        let transportAdapter = TestTransportAdapter(transports: [transport], options: options)
+        let transportAdapter = TestTransportAdapter(transports: [transport], options: options.toInternal())
 
         let client = SentryClientInternal(
-            options: options,
+            options: options.toInternal(),
             transportAdapter: transportAdapter,
             fileManager: try XCTUnwrap(SentryFileManager(
                 options: options,
@@ -239,10 +239,10 @@ class SentryFeedbackTests: XCTestCase {
         options.beforeSend = { _ in return nil } // beforeSend that filters out all events
 
         let transport = TestTransport()
-        let transportAdapter = TestTransportAdapter(transports: [transport], options: options)
+        let transportAdapter = TestTransportAdapter(transports: [transport], options: options.toInternal())
 
         let client = SentryClientInternal(
-            options: options,
+            options: options.toInternal(),
             transportAdapter: transportAdapter,
             fileManager: try XCTUnwrap(SentryFileManager(
                 options: options,
@@ -281,10 +281,10 @@ class SentryFeedbackTests: XCTestCase {
         options.beforeSend = { _ in return nil } // beforeSend that filters out all events
 
         let transport = TestTransport()
-        let transportAdapter = TestTransportAdapter(transports: [transport], options: options)
+        let transportAdapter = TestTransportAdapter(transports: [transport], options: options.toInternal())
 
         let client = SentryClientInternal(
-            options: options,
+            options: options.toInternal(),
             transportAdapter: transportAdapter,
             fileManager: try XCTUnwrap(SentryFileManager(
                 options: options,

@@ -11,13 +11,13 @@ class SentryUIEventTrackerIntegrationTests: XCTestCase {
             return SentryUIEventTrackingIntegration()
         }
         
-        func optionForUIEventTracking(enableSwizzling: Bool = true, enableAutoPerformanceTracing: Bool = true, enableUserInteractionTracing: Bool = true, tracesSampleRate: Double = 1.0) -> Options {
+        func optionForUIEventTracking(enableSwizzling: Bool = true, enableAutoPerformanceTracing: Bool = true, enableUserInteractionTracing: Bool = true, tracesSampleRate: Double = 1.0) -> SentryOptionsInternal {
             let res = Options()
             res.enableSwizzling = enableSwizzling
             res.enableAutoPerformanceTracing = enableAutoPerformanceTracing
             res.enableUserInteractionTracing = enableUserInteractionTracing
             res.tracesSampleRate = NSNumber(value: tracesSampleRate)
-            return res
+            return res.toInternal()
         }
     }
 

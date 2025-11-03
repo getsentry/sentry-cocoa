@@ -8,7 +8,7 @@ import Foundation
     /// - Parameter options: Options dictionary
     /// - Returns: An initialized `SentryClient` or `nil` if an error occurred.
     @objc public init?(options: Options) {
-        guard let helper = SentryClientInternal(options: options) else {
+        guard let helper = SentryClientInternal(options: options.toInternal()) else {
             return nil
         }
         self.helper = helper
@@ -23,8 +23,8 @@ import Foundation
     }
     
     @objc public var options: Options {
-        get { helper.options }
-        set { helper.options = newValue }
+        get { helper.options.toOptions() }
+        set { helper.options = newValue.toInternal() }
     }
     
     /// Captures a manually created event and sends it to Sentry.

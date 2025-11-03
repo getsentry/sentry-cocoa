@@ -72,7 +72,7 @@ class SentryAutoBreadcrumbTrackingIntegrationTests: XCTestCase {
         options.enableAutoBreadcrumbTracking = false
 
         let sut = SentryAutoBreadcrumbTrackingIntegration()
-        let result = sut.install(with: options)
+        let result = sut.install(with: options.toInternal())
 
         XCTAssertFalse(result)
     }
@@ -85,7 +85,7 @@ class SentryAutoBreadcrumbTrackingIntegrationTests: XCTestCase {
         try self.install(sut: sut, options: options)
         
         let scope = Scope()
-        let hub = SentryHubInternal(client: TestClient(options: Options()), andScope: scope)
+        let hub = SentryHubInternal(client: TestClient(options: Options().toInternal()), andScope: scope)
         SentrySDKInternal.setCurrentHub(hub)
         
         let crumb = TestData.crumb
@@ -109,9 +109,9 @@ class SentryAutoBreadcrumbTrackingIntegrationTests: XCTestCase {
         
 #if os(iOS)
         fixture.systemEventBreadcrumbTracker = SentryTestSystemEventBreadcrumbs(fileManager: fixture.fileManager, andNotificationCenterWrapper: TestNSNotificationCenterWrapper())
-        sut.install(with: options, breadcrumbTracker: fixture.breadcrumbTracker, systemEventBreadcrumbs: fixture.systemEventBreadcrumbTracker!)
+        sut.install(withOptions: options.toInternal(), breadcrumbTracker: fixture.breadcrumbTracker, systemEventBreadcrumbs: fixture.systemEventBreadcrumbTracker!)
 #else
-        sut.install(with: options, breadcrumbTracker: fixture.breadcrumbTracker)
+        sut.install(withOptions: options.toInternal(), breadcrumbTracker: fixture.breadcrumbTracker)
 #endif // os(iOS)
         
     }

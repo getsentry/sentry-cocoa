@@ -5,7 +5,7 @@
 #    import "SentryDefines.h"
 #    import "SentryProfiler+Private.h"
 
-@class SentryOptions;
+@class SentryOptionsInternal;
 @class SentrySamplerDecision;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -15,7 +15,7 @@ NS_ASSUME_NONNULL_BEGIN
  * expressible in Swift. This wraps it and only returns the `BOOL shouldProfile` value in the
  * struct.
  */
-BOOL sentry_willProfileNextLaunch(SentryOptions *options);
+BOOL sentry_willProfileNextLaunch(SentryOptionsInternal *options);
 
 /**
  * Contains the logic to start a launch profile. Exposed separately from @c

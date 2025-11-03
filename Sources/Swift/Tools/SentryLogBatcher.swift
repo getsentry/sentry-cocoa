@@ -10,7 +10,7 @@ import Foundation
     private let maxBufferSizeBytes: Int
     private let dispatchQueue: SentryDispatchQueueWrapper
     
-    internal let options: Options
+    internal let options: SentryOptionsInternal
 
     // All mutable state is accessed from the same serial dispatch queue.
     

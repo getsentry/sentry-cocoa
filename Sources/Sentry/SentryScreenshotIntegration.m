@@ -7,7 +7,7 @@
 #    import "SentryEvent+Private.h"
 #    import "SentryException.h"
 #    import "SentryHub+Private.h"
-#    import "SentryOptions.h"
+#    import "SentryOptionsInternal.h"
 #    import "SentrySDK+Private.h"
 #    import "SentrySwift.h"
 
@@ -26,13 +26,13 @@ saveScreenShot(const char *path)
 
 @interface SentryScreenshotIntegration () <SentryClientAttachmentProcessor>
 
-@property (nonatomic, strong) SentryOptions *options;
+@property (nonatomic, strong) SentryOptionsInternal *options;
 
 @end
 
 @implementation SentryScreenshotIntegration
 
-- (BOOL)installWithOptions:(nonnull SentryOptions *)options
+- (BOOL)installWithOptions:(nonnull SentryOptionsInternal *)options
 {
     self.options = options;
 

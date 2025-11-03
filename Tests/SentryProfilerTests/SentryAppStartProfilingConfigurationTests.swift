@@ -1,4 +1,4 @@
-@_spi(Private) import Sentry
+@_spi(Private) @testable import Sentry
 @_spi(Private) import SentryTestUtils
 import XCTest
 
@@ -51,9 +51,9 @@ private extension SentryAppStartProfilingConfigurationTests {
         }
 
         // this is where SentryOptions.configureProfiling is evaluated
-        sentry_configureContinuousProfiling(actualOptions)
+        sentry_configureContinuousProfiling(actualOptions.toInternal())
 
-        let actualIsValid = sentry_willProfileNextLaunch(actualOptions)
+        let actualIsValid = sentry_willProfileNextLaunch(actualOptions.toInternal())
         if shouldProfileLaunch {
             XCTAssert(actualIsValid, "Expected to enable app launch profiling with options:\n\(expectedOptions.description)")
         } else {

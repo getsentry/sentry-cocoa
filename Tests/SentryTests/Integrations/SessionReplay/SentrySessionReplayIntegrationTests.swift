@@ -562,7 +562,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         // We can't use SentrySDK.start because the dependency container dispatch queue is used for other tasks.
         // Manually starting the integration and initializing it makes the test more controlled.
         let integration = SentrySessionReplayIntegration()
-        integration.install(with: options)
+        integration.install(with: options.toInternal())
         
         XCTAssertEqual(dispatchQueue.dispatchAsyncCalled, 0)
     }
@@ -728,7 +728,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
             options.sessionReplay = SentryReplayOptions(sessionSampleRate: 1.0, onErrorSampleRate: 1.0)
 
             let instance = SentrySessionReplayIntegration()
-            instance.install(with: options)
+            instance.install(with: options.toInternal())
             instance.uninstall()
 
             weakSut = instance
@@ -752,7 +752,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         SentryDependencyContainer.sharedInstance().sessionReplayEnvironmentChecker = TestSessionReplayEnvironmentChecker(mockedIsReliableReturnValue: false)
 
         // -- Act --
-        let result = instance.install(with: options)
+        let result = instance.install(with: options.toInternal())
 
         // -- Assert --
         XCTAssertFalse(result)
@@ -769,7 +769,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         SentryDependencyContainer.sharedInstance().sessionReplayEnvironmentChecker = TestSessionReplayEnvironmentChecker(mockedIsReliableReturnValue: false)
 
         // -- Act --
-        let result = instance.install(with: options)
+        let result = instance.install(with: options.toInternal())
 
         // -- Assert --
         XCTAssertTrue(result)
@@ -786,7 +786,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         SentryDependencyContainer.sharedInstance().sessionReplayEnvironmentChecker = TestSessionReplayEnvironmentChecker(mockedIsReliableReturnValue: true)
 
         // -- Act --
-        let result = instance.install(with: options)
+        let result = instance.install(with: options.toInternal())
 
         // -- Assert --
         XCTAssertTrue(result)
