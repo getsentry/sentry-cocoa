@@ -618,13 +618,68 @@ final class SentryUIRedactBuilder {
     }
     
     /// Indicates whether the view is opaque and will block other views behind it.
+    ///
+    /// A view is considered opaque if it completely covers and hides any content behind it.
+    /// This is used to optimize redaction by clearing out regions that are fully covered.
+    ///
+    /// The method checks multiple properties because UIKit views can become transparent in several ways:
+    /// - `view.alpha` (mapped to `layer.opacity`) can make the entire view semi-transparent
+    /// - `view.backgroundColor` or `layer.backgroundColor` can have alpha components
+    /// - Either the view or layer can explicitly set their `isOpaque` property to false
+    ///
+    /// ## Implementation Notes:
+    /// - We use the presentation layer when available to get the actual rendered state during animations
+    /// - We check EITHER view properties OR layer properties (not both) because:
+    ///   - Most UIKit code sets `view.backgroundColor` without touching `layer.backgroundColor`
+    ///   - Some code (especially with CALayer customization) sets `layer.backgroundColor` directly
+    ///   - Requiring both would be too strict and break existing functionality
+    /// - We use `SentryRedactViewHelper.shouldClipOut(view)` for views explicitly marked as opaque
+    ///
+    /// ## Bug Fix Context:
+    /// This implementation fixes the issue where semi-transparent overlays (e.g., with `alpha = 0.2`)
+    /// were incorrectly treated as opaque, causing text behind them to not be redacted.
+    /// See: https://github.com/getsentry/sentry-cocoa/pull/6629#issuecomment-3479730690
     private func isOpaque(_ view: UIView) -> Bool {
         let layer = view.layer.presentation() ?? view.layer
 
-        let layerIsOpaque = layer.opacity == 1 && layer.isOpaque && layer.backgroundColor != nil && (layer.backgroundColor?.alpha ?? 0) == 1
-        let viewIsOpaque = view.isOpaque && view.backgroundColor != nil && (view.backgroundColor?.cgColor.alpha ?? 0) == 1
-        
-        return SentryRedactViewHelper.shouldClipOut(view) || (layerIsOpaque && viewIsOpaque)
+        // First check: Ensure the layer opacity is 1.0
+        // This catches views with `alpha < 1.0`, which are semi-transparent regardless of background color.
+        // For example, a view with `alpha = 0.2` should never be considered opaque, even if it has
+        // a solid background color, because the entire view (including the background) is semi-transparent.
+        guard layer.opacity == 1 else {
+            return false
+        }
+
+        // Second check: Verify the view has an opaque background color
+        // We check the view's properties first because this is the most common pattern in UIKit.
+        // All three conditions must be true:
+        // - `view.isOpaque` indicates the view declares itself as opaque
+        // - `view.backgroundColor` must exist (not nil)
+        // - The background color's alpha must be 1.0 (fully opaque, not semi-transparent)
+        let hasOpaqueViewBackground = view.isOpaque && 
+                                     view.backgroundColor != nil && 
+                                     (view.backgroundColor?.cgColor.alpha ?? 0) == 1
+
+        // Third check: Verify the layer has an opaque background color
+        // We also check the layer's properties because:
+        // - Some views customize their CALayer directly without setting view.backgroundColor
+        // - Libraries or custom views might override backgroundColor to return different values
+        // - The layer's backgroundColor is the actual rendered property (view.backgroundColor is a convenience)
+        // All three conditions must be true here as well:
+        // - `layer.isOpaque` indicates the layer declares itself as opaque
+        // - `layer.backgroundColor` must exist (not nil)
+        // - The background color's alpha must be 1.0 (fully opaque)
+        let hasOpaqueLayerBackground = layer.isOpaque && 
+                                       layer.backgroundColor != nil && 
+                                       (layer.backgroundColor?.alpha ?? 0) == 1
+
+        // Final decision: A view is opaque if:
+        // 1. It's explicitly marked for clipping by SentryRedactViewHelper, OR
+        // 2. It has an opaque view background, OR
+        // 3. It has an opaque layer background
+        // We use OR logic (not AND) because requiring both view AND layer backgrounds to be set
+        // would be too strict and break most existing code that only sets view.backgroundColor.
+        return SentryRedactViewHelper.shouldClipOut(view) || hasOpaqueViewBackground || hasOpaqueLayerBackground
     }
 }
 
