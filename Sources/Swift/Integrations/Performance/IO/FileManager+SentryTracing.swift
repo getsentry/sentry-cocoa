@@ -14,7 +14,7 @@ public extension FileManager {
     ///
     /// - Important: Using this method with auto-instrumentation for file operations enabled can lead to duplicate spans on older operating system versions.
     ///              It is recommended to use either automatic or manual instrumentation. You can disable automatic instrumentation by setting
-    ///              `options.experimental.enableFileManagerSwizzling` to `false` when initializing Sentry.
+    ///              `options.enableFileManagerSwizzling` to `false` when initializing Sentry.
     /// - Parameters:
     ///   - path: The path for the new file.
     ///   - data: A data object containing the contents of the new file.
@@ -48,7 +48,7 @@ public extension FileManager {
     ///
     /// - Important: Using this method with auto-instrumentation for file operations enabled can lead to duplicate spans on older operating system versions.
     ///              It is recommended to use either automatic or manual instrumentation. You can disable automatic instrumentation by setting
-    ///              `options.experimental.enableFileManagerSwizzling` to `false` when initializing Sentry.
+    ///              `options.enableFileManagerSwizzling` to `false` when initializing Sentry.
     /// - Parameter url: A file URL specifying the file or directory to remove.
     ///                  If the URL specifies a directory, the contents of that directory are recursively removed.
     /// - Note: See ``FileManager.removeItem(at:)`` for more information.
@@ -73,7 +73,7 @@ public extension FileManager {
     ///
     /// - Important: Using this method with auto-instrumentation for file operations enabled can lead to duplicate spans on older operating system versions.
     ///              It is recommended to use either automatic or manual instrumentation. You can disable automatic instrumentation by setting
-    ///              `options.experimental.enableFileManagerSwizzling` to `false` when initializing Sentry.
+    ///              `options.enableFileManagerSwizzling` to `false` when initializing Sentry.
     /// - Parameter path: A path string indicating the file or directory to remove.
     ///                   If the path specifies a directory, the contents of that directory are recursively removed.
     /// - Note: See ``FileManager.removeItem(atPath:)`` for more information.
@@ -100,7 +100,7 @@ public extension FileManager {
     ///
     /// - Important: Using this method with auto-instrumentation for file operations enabled can lead to duplicate spans on older operating system versions.
     ///              It is recommended to use either automatic or manual instrumentation. You can disable automatic instrumentation by setting
-    ///              `options.experimental.enableFileManagerSwizzling` to `false` when initializing Sentry.
+    ///              `options.enableFileManagerSwizzling` to `false` when initializing Sentry.
     /// - Parameters:
     ///   - srcURL: The file URL that identifies the file you want to copy.
     ///             The URL in this parameter must not be a file reference URL.
@@ -128,7 +128,7 @@ public extension FileManager {
     ///
     /// - Important: Using this method with auto-instrumentation for file operations enabled can lead to duplicate spans on older operating system versions.
     ///              It is recommended to use either automatic or manual instrumentation. You can disable automatic instrumentation by setting
-    ///              `options.experimental.enableFileManagerSwizzling` to `false` when initializing Sentry.
+    ///              `options.enableFileManagerSwizzling` to `false` when initializing Sentry.
     /// - Parameters:
     ///   - srcPath: The path to the file or directory you want to move.
     ///   - dstPath: The path at which to place the copy of `srcPath`.
@@ -155,7 +155,7 @@ public extension FileManager {
     ///
     /// - Important: Using this method with auto-instrumentation for file operations enabled can lead to duplicate spans on older operating system versions.
     ///              It is recommended to use either automatic or manual instrumentation. You can disable automatic instrumentation by setting
-    ///              `options.experimental.enableFileManagerSwizzling` to `false` when initializing Sentry.
+    ///              `options.enableFileManagerSwizzling` to `false` when initializing Sentry.
     /// - Parameters:
     ///   - srcURL: The file URL that identifies the file or directory you want to move.
     ///             The URL in this parameter must not be a file reference URL.
@@ -188,7 +188,7 @@ public extension FileManager {
     ///
     /// - Important: Using this method with auto-instrumentation for file operations enabled can lead to duplicate spans on older operating system versions.
     ///              It is recommended to use either automatic or manual instrumentation. You can disable automatic instrumentation by setting
-    ///              `options.experimental.enableFileManagerSwizzling` to `false` when initializing Sentry.
+    ///              `options.enableFileManagerSwizzling` to `false` when initializing Sentry.
     /// - Parameters:
     ///   - srcPath: The path to the file or directory you want to move.
     ///   - dstPath: The new path for the item in `srcPath`.

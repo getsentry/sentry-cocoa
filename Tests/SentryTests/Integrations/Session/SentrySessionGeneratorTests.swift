@@ -22,11 +22,10 @@ class SentrySessionGeneratorTests: NotificationCenterTestCase {
     private var options: Options!
     private var fileManager: SentryFileManager!
     
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     override func setUp() {
         super.setUp()
         
-        options = Options.noIntegrations()
+        options = Options()
         options.dsn = TestConstants.realDSN
         
         options.releaseName = "Release Health"
@@ -35,9 +34,7 @@ class SentrySessionGeneratorTests: NotificationCenterTestCase {
         options.sessionTrackingIntervalMillis = 1
         
         // We want to start and stop the SentryAutoSessionTrackingIntegration ourselves so we can send crashed and abnormal sessions.
-        options.integrations = Options.defaultIntegrations().filter { (name) -> Bool in
-            return name != "SentryAutoSessionTrackingIntegration"
-        }
+        options.enableAutoSessionTracking = false
 
         fileManager = try! SentryFileManager(
             options: options,

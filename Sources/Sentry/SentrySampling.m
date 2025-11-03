@@ -32,7 +32,7 @@ NSNumber *_Nullable _sentry_samplerCallbackRate(SentryTracesSamplerCallback _Nul
 }
 
 SentrySamplerDecision *
-_sentry_calcSample(NSNumber *rate)
+_sentry_calcSample(NSNumber *_Nullable rate)
 {
     double random = [SentryDependencyContainer.sharedInstance.random nextNumber];
     SentrySampleDecision decision
@@ -43,7 +43,7 @@ _sentry_calcSample(NSNumber *rate)
 }
 
 SentrySamplerDecision *
-_sentry_calcSampleFromNumericalRate(NSNumber *rate)
+_sentry_calcSampleFromNumericalRate(NSNumber *_Nullable rate)
 {
     if (rate == nil) {
         return [[SentrySamplerDecision alloc] initWithDecision:kSentrySampleDecisionNo
@@ -57,7 +57,7 @@ _sentry_calcSampleFromNumericalRate(NSNumber *rate)
 #pragma mark - Public
 
 SentrySamplerDecision *
-sentry_sampleTrace(SentrySamplingContext *context, SentryOptions *options)
+sentry_sampleTrace(SentrySamplingContext *context, SentryOptions *_Nullable options)
 {
     // check this transaction's sampling decision, if already decided
     if (context.transactionContext.sampled != kSentrySampleDecisionUndecided) {

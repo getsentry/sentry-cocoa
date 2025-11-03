@@ -7,7 +7,6 @@ import XCTest
 // swiftlint:disable file_length
 class SentryProfilingPublicAPITests: XCTestCase {
     private class Fixture {
-        @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
         let options: Options = {
             let options = Options.noIntegrations()
             options.dsn = TestConstants.dsnAsString(username: "SentrySDKTests")
@@ -36,9 +35,7 @@ class SentryProfilingPublicAPITests: XCTestCase {
 
         let currentDate = TestCurrentDateProvider()
         lazy var timerFactory = TestSentryNSTimerFactory(currentDateProvider: currentDate)
-        @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
         lazy var client = TestClient(options: options)!
-        @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
         lazy var hub = SentryHub(client: client, andScope: scope)
     }
 
@@ -55,7 +52,6 @@ class SentryProfilingPublicAPITests: XCTestCase {
         SentryDependencyContainer.sharedInstance().dateProvider = fixture.currentDate
     }
 
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     override func tearDown() {
         super.tearDown()
 
@@ -72,7 +68,6 @@ class SentryProfilingPublicAPITests: XCTestCase {
 }
 
 // MARK: continuous profiling v2
-@available(*, deprecated, message: "This is only deprecated because profilesSampleRate is deprecated. Once that is removed this attribute can be removed.")
 extension SentryProfilingPublicAPITests {
     func testSentryOptionsReportsContinuousProfilingV2Enabled() {
         // Arrange
@@ -481,14 +476,12 @@ extension SentryProfilingPublicAPITests {
 }
 
 private extension SentryProfilingPublicAPITests {
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func givenSdkWithHub() {
         SentrySDKInternal.setCurrentHub(fixture.hub)
         SentrySDKInternal.setStart(with: fixture.options)
         sentry_sdkInitProfilerTasks(fixture.options, fixture.hub)
     }
 
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func givenSdkWithHubButNoClient() {
         SentrySDKInternal.setCurrentHub(SentryHub(client: nil, andScope: nil))
         SentrySDKInternal.setStart(with: fixture.options)

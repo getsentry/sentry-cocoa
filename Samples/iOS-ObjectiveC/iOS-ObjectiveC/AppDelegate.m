@@ -63,7 +63,7 @@
                  enableViewRendererV2:![args containsObject:@"--disable-view-renderer-v2"]
               enableFastViewRendering:![args containsObject:@"--disable-fast-view-rendering"]];
 
-        options.experimental.enableFileManagerSwizzling
+        options.enableFileManagerSwizzling
             = ![args containsObject:@"--disable-filemanager-swizzling"];
 
         options.initialScope = ^(SentryScope *scope) {
