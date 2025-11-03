@@ -263,11 +263,6 @@ sentry_isValidSampleRate(NSNumber *sampleRate)
     }
 }
 
-- (void)setTracesSampler:(SentryTracesSamplerCallback)tracesSampler
-{
-    _tracesSampler = tracesSampler;
-}
-
 - (BOOL)isTracingEnabled
 {
     return (_tracesSampleRate != nil && [_tracesSampleRate doubleValue] > 0)
@@ -289,39 +284,6 @@ sentry_isValidSampleRate(NSNumber *sampleRate)
 
 #if SENTRY_UIKIT_AVAILABLE
 
-- (void)setEnableUIViewControllerTracing:(BOOL)enableUIViewControllerTracing
-{
-#    if SENTRY_HAS_UIKIT
-    _enableUIViewControllerTracing = enableUIViewControllerTracing;
-#    else
-    SENTRY_GRACEFUL_FATAL(
-        @"enableUIViewControllerTracing only works with UIKit enabled. Ensure you're "
-        @"using the right configuration of Sentry that links UIKit.");
-#    endif // SENTRY_HAS_UIKIT
-}
-
-- (void)setAttachScreenshot:(BOOL)attachScreenshot
-{
-#    if SENTRY_HAS_UIKIT
-    _attachScreenshot = attachScreenshot;
-#    else
-    SENTRY_GRACEFUL_FATAL(
-        @"attachScreenshot only works with UIKit enabled. Ensure you're using the "
-        @"right configuration of Sentry that links UIKit.");
-#    endif // SENTRY_HAS_UIKIT
-}
-
-- (void)setAttachViewHierarchy:(BOOL)attachViewHierarchy
-{
-#    if SENTRY_HAS_UIKIT
-    _attachViewHierarchy = attachViewHierarchy;
-#    else
-    SENTRY_GRACEFUL_FATAL(
-        @"attachViewHierarchy only works with UIKit enabled. Ensure you're using the "
-        @"right configuration of Sentry that links UIKit.");
-#    endif // SENTRY_HAS_UIKIT
-}
-
 #    if SENTRY_TARGET_REPLAY_SUPPORTED
 
 - (BOOL)enableViewRendererV2
@@ -335,39 +297,6 @@ sentry_isValidSampleRate(NSNumber *sampleRate)
 }
 
 #    endif // SENTRY_TARGET_REPLAY_SUPPORTED
-
-- (void)setEnableUserInteractionTracing:(BOOL)enableUserInteractionTracing
-{
-#    if SENTRY_HAS_UIKIT
-    _enableUserInteractionTracing = enableUserInteractionTracing;
-#    else
-    SENTRY_GRACEFUL_FATAL(
-        @"enableUserInteractionTracing only works with UIKit enabled. Ensure you're "
-        @"using the right configuration of Sentry that links UIKit.");
-#    endif // SENTRY_HAS_UIKIT
-}
-
-- (void)setIdleTimeout:(NSTimeInterval)idleTimeout
-{
-#    if SENTRY_HAS_UIKIT
-    _idleTimeout = idleTimeout;
-#    else
-    SENTRY_GRACEFUL_FATAL(
-        @"idleTimeout only works with UIKit enabled. Ensure you're using the right "
-        @"configuration of Sentry that links UIKit.");
-#    endif // SENTRY_HAS_UIKIT
-}
-
-- (void)setEnablePreWarmedAppStartTracing:(BOOL)enablePreWarmedAppStartTracing
-{
-#    if SENTRY_HAS_UIKIT
-    _enablePreWarmedAppStartTracing = enablePreWarmedAppStartTracing;
-#    else
-    SENTRY_GRACEFUL_FATAL(
-        @"enablePreWarmedAppStartTracing only works with UIKit enabled. Ensure you're "
-        @"using the right configuration of Sentry that links UIKit.");
-#    endif // SENTRY_HAS_UIKIT
-}
 
 #endif // SENTRY_UIKIT_AVAILABLE
 
