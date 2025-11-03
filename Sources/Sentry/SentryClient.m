@@ -627,7 +627,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 {
     NSTimeInterval captureLogsDuration = [self.logBatcher captureLogs];
     // Capturing batched logs should never take long, but we need to fall back to a sane value.
-    // This is a workaround for experimental logs, until we'll write batched logs to disk,
+    // This is a workaround for in-memory logs, until we'll write batched logs to disk,
     // to avoid data loss due to crashes. This is a trade-off until then.
     [self.transportAdapter flush:fmax(timeout / 2, timeout - captureLogsDuration)];
 }
