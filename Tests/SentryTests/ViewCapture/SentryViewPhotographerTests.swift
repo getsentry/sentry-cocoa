@@ -52,6 +52,9 @@ class SentryViewPhotographerTests: XCTestCase {
         label.text = "Test"
         let viewOnTop = UIView(frame: CGRect(x: 0, y: 0, width: 50, height: 50))
         viewOnTop.backgroundColor = .green
+        viewOnTop.isOpaque = true
+        viewOnTop.layer.isOpaque = true
+        viewOnTop.layer.backgroundColor = UIColor.green.cgColor
         
         let image = try XCTUnwrap(prepare(views: [label, viewOnTop]))
         let pixel = color(at: CGPoint(x: 10, y: 10), in: image)
@@ -64,9 +67,15 @@ class SentryViewPhotographerTests: XCTestCase {
         label.text = "Test"
         let viewOnTop1 = UIView(frame: CGRect(x: 0, y: 0, width: 50, height: 50))
         viewOnTop1.backgroundColor = .red
+        viewOnTop1.isOpaque = true
+        viewOnTop1.layer.isOpaque = true
+        viewOnTop1.layer.backgroundColor = UIColor.red.cgColor
         
         let viewOnTop2 = UIView(frame: CGRect(x: 0, y: 0, width: 50, height: 50))
         viewOnTop2.backgroundColor = .green
+        viewOnTop2.isOpaque = true
+        viewOnTop2.layer.isOpaque = true
+        viewOnTop2.layer.backgroundColor = UIColor.green.cgColor
         
         let image = try XCTUnwrap(prepare(views: [label, viewOnTop1, viewOnTop2]))
         let pixel = color(at: CGPoint(x: 10, y: 10), in: image)
@@ -118,6 +127,9 @@ class SentryViewPhotographerTests: XCTestCase {
         label.text = "Test"
         let viewOnTop = UIView(frame: CGRect(x: 20, y: 0, width: 20, height: 50))
         viewOnTop.backgroundColor = .green
+        viewOnTop.isOpaque = true
+        viewOnTop.layer.isOpaque = true
+        viewOnTop.layer.backgroundColor = UIColor.green.cgColor
         
         let image = try XCTUnwrap(prepare(views: [label, viewOnTop]))
         let pixel1 = color(at: CGPoint(x: 10, y: 10), in: image)
@@ -134,6 +146,9 @@ class SentryViewPhotographerTests: XCTestCase {
         let viewOnTop = UIView(frame: CGRect(x: 0, y: 15, width: 50, height: 20))
         viewOnTop.backgroundColor = .green
         viewOnTop.transform = CGAffineTransform(rotationAngle: 90 * .pi / 180.0)
+        viewOnTop.isOpaque = true
+        viewOnTop.layer.isOpaque = true
+        viewOnTop.layer.backgroundColor = UIColor.green.cgColor
         
         let image = try XCTUnwrap(prepare(views: [label, viewOnTop]))
         let pixel1 = color(at: CGPoint(x: 10, y: 10), in: image)
@@ -151,6 +166,9 @@ class SentryViewPhotographerTests: XCTestCase {
         let parentView = UIView(frame: CGRect(x: 0, y: 12.5, width: 50, height: 25))
         parentView.backgroundColor = .green
         parentView.transform = CGAffineTransform(rotationAngle: .pi / 2)
+        parentView.isOpaque = true
+        parentView.layer.isOpaque = true
+        parentView.layer.backgroundColor = UIColor.green.cgColor
         parentView.addSubview(label)
         
         let image = try XCTUnwrap(prepare(views: [parentView] ))
@@ -240,6 +258,9 @@ class SentryViewPhotographerTests: XCTestCase {
     func testNotMaskingLabelInsideClippedViewHiddenByAnOpaqueExternalView() throws {
         let topView = UIView(frame: CGRect(x: 25, y: 0, width: 25, height: 25))
         topView.backgroundColor = .green
+        topView.isOpaque = true
+        topView.layer.isOpaque = true
+        topView.layer.backgroundColor = UIColor.green.cgColor
         
         let label1 = UILabel(frame: CGRect(x: 0, y: 0, width: 50, height: 25))
         label1.text = "Test"

@@ -629,10 +629,10 @@ final class SentryUIRedactBuilder {
     ///
     /// ## Implementation Notes:
     /// - We use the presentation layer when available to get the actual rendered state during animations
-    /// - We check EITHER view properties OR layer properties (not both) because:
-    ///   - Most UIKit code sets `view.backgroundColor` without touching `layer.backgroundColor`
-    ///   - Some code (especially with CALayer customization) sets `layer.backgroundColor` directly
-    ///   - Requiring both would be too strict and break existing functionality
+    /// - We require BOTH the view and the layer to appear opaque (alpha == 1 and marked opaque)
+    ///   to classify a view as opaque. This avoids false positives where only one side is configured,
+    ///   which previously caused semi‑transparent overlays or partially configured views to clear
+    ///   redactions behind them.
     /// - We use `SentryRedactViewHelper.shouldClipOut(view)` for views explicitly marked as opaque
     ///
     /// ## Bug Fix Context:
@@ -661,8 +661,9 @@ final class SentryUIRedactBuilder {
         // - The layer's backgroundColor is the actual rendered property (view.backgroundColor is a convenience)
         let isLayerOpaque = layer.isOpaque && layer.backgroundColor != nil && (layer.backgroundColor?.alpha ?? 0) == 1
 
-        // We use OR logic (not AND) because requiring both view AND layer backgrounds to be set
-        // would be too strict and break most existing code that only sets view.backgroundColor.
+        // We REQUIRE BOTH: the view AND the layer must be opaque for the view to be treated as opaque.
+        // This stricter rule prevents semi‑transparent overlays or partially configured backgrounds
+        // (only view or only layer) from clearing previously collected redact regions.
         return SentryRedactViewHelper.shouldClipOut(view) || isViewOpaque && isLayerOpaque
     }
 }

@@ -143,6 +143,9 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftli
 
         let opaqueView = UIView(frame: CGRect(x: 10, y: 10, width: 60, height: 60))
         opaqueView.backgroundColor = .white
+        opaqueView.isOpaque = true
+        opaqueView.layer.isOpaque = true
+        opaqueView.layer.backgroundColor = UIColor.white.cgColor
         rootView.addSubview(opaqueView)
 
         // View Hierarchy:
@@ -837,6 +840,9 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftli
 
         let overView = UIView(frame: rootView.bounds)
         overView.backgroundColor = .black
+        overView.isOpaque = true
+        overView.layer.isOpaque = true
+        overView.layer.backgroundColor = UIColor.black.cgColor
         rootView.addSubview(overView)
 
         // View Hierarchy:
@@ -1119,40 +1125,7 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftli
         let result = sut.redactRegionsFor(view: rootView)
 
         // -- Assert --
-        // UISlider behavior differs by iOS version
-        if #available(iOS 26.0, *) {
-            // On iOS 26, UISlider uses a new visual implementation that creates clipping regions
-            // even though the slider itself is in the ignore list
-            let region0 = try XCTUnwrap(result.element(at: 0))
-            XCTAssertNil(region0.color)
-            XCTAssertEqual(region0.size, CGSize(width: 37, height: 24))
-            XCTAssertEqual(region0.type, .clipOut)
-            XCTAssertEqual(region0.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 10, ty: 8))
-
-            let region1 = try XCTUnwrap(result.element(at: 1))
-            XCTAssertNil(region1.color)
-            XCTAssertEqual(region1.size, CGSize(width: 80, height: 6))
-            XCTAssertEqual(region1.type, .clipBegin)
-            XCTAssertEqual(region1.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 10, ty: 17))
-
-            let region2 = try XCTUnwrap(result.element(at: 2))
-            XCTAssertNil(region2.color)
-            XCTAssertEqual(region2.size, CGSize(width: 0, height: 6))
-            XCTAssertEqual(region2.type, .clipOut)
-            XCTAssertEqual(region2.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 10, ty: 17))
-
-            let region3 = try XCTUnwrap(result.element(at: 3))
-            XCTAssertNil(region3.color)
-            XCTAssertEqual(region3.size, CGSize(width: 80, height: 6))
-            XCTAssertEqual(region3.type, .clipEnd)
-            XCTAssertEqual(region3.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 10, ty: 17))
-
-            // Assert that there are no other regions
-            XCTAssertEqual(result.count, 4)
-        } else {
-            // On iOS < 26, UISlider is completely ignored (no regions)
-            XCTAssertEqual(result.count, 0)
-        }
+        XCTAssertEqual(result.count, 0)
     }
 
     func testDefaultIgnoredControls_shouldNotRedactUISwitch() {
