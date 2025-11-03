@@ -2,7 +2,7 @@
 import SentryTestUtils
 import XCTest
 
-class SentryMechanismMetaInformationTests: XCTestCase {
+class SentryMechanismContextTests: XCTestCase {
 
     func testSerialize() throws {
         let sut = TestData.mechanismMeta
@@ -28,7 +28,7 @@ class SentryMechanismMetaInformationTests: XCTestCase {
     }
     
     func testSerialize_CallsSanitize() {
-        let sut = MechanismMetaInformation()
+        let sut = MechanismContext()
         sut.machException = ["a": self]
         sut.signal = ["a": self]
         
@@ -49,7 +49,7 @@ class SentryMechanismMetaInformationTests: XCTestCase {
         let data = try XCTUnwrap(SentrySerializationSwift.data(withJSONObject: sut.serialize()))
         
         // Act
-        let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as MechanismMetaInformationDecodable?)
+        let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as MechanismContextDecodable?)
         
         // Assert
         try assertSignal(actual: decoded.signal, expected: sut.signal)
@@ -67,7 +67,7 @@ class SentryMechanismMetaInformationTests: XCTestCase {
         let data = try XCTUnwrap(SentrySerializationSwift.data(withJSONObject: sut.serialize()))
         
         // Act
-        let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as MechanismMetaInformationDecodable?)
+        let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as MechanismContextDecodable?)
 
         // Assert
         XCTAssertNil(decoded.signal)

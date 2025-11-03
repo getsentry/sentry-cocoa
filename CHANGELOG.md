@@ -4,7 +4,6 @@
 
 ### Breaking Changes
 
-- Rename `SentryMechanismMeta` to `SentryMechanismMetaInformation` (#2888)
 - Moves `SentryEventDecoder` to SPI (#6365)
 - Makes `PreviewRedactOptions`, `SentryProfileOptions`, `SentryRedactViewHelper`, `SentryViewScreenshotOptions`, `SentryReplayOptions`, `SentryUserFeedbackConfiguration`, `SentryUserFeedbackFormConfiguration`, `SentryUserFeedbackThemeConfiguration`, `SentryUserFeedbackWidgetConfiguration`, `SentryFeedback`, and `SentryExperimentalOptions` `final` (#6365)
 - Removes Decodable conformances from the public API of model classes (#5691)
@@ -45,6 +44,7 @@
   - Add layer class filtering for views used in multiple contexts (e.g., SwiftUI._UIGraphicsView)
   - Improve transform calculations for views with custom anchor points
   - Fix axis-aligned transform detection for optimized opaque view clipping
+- Rename `SentryMechanismMetaInformation` to `SentryMechanismContext` to resolve Kotlin Multi-Platform build errors (#6607)
 
 ### Improvements
 

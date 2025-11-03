@@ -32,6 +32,6 @@ extension MechanismDecodable: Decodable {
         self.handled = try container.decodeIfPresent(NSNumberDecodableWrapper.self, forKey: .handled)?.value
         self.synthetic = try container.decodeIfPresent(NSNumberDecodableWrapper.self, forKey: .synthetic)?.value
         self.helpLink = try container.decodeIfPresent(String.self, forKey: .helpLink)
-        self.meta = try container.decodeIfPresent(MechanismMetaInformationDecodable.self, forKey: .meta)
+        self.meta = try container.decodeIfPresent(MechanismContextDecodable.self, forKey: .meta)
     }
 }
