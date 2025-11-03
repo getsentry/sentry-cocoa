@@ -647,7 +647,6 @@
         @"profilesSampler" : [NSNull null],
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
         @"inAppIncludes" : [NSNull null],
-        @"inAppExcludes" : [NSNull null],
         @"urlSessionDelegate" : [NSNull null],
         @"enableSwizzling" : [NSNull null],
         @"swizzleClassNameExcludes" : [NSNull null],
@@ -707,7 +706,6 @@
     XCTAssertNil(options.tracesSampleRate);
     XCTAssertNil(options.tracesSampler);
     XCTAssertEqualObjects([self getDefaultInAppIncludes], options.inAppIncludes);
-    XCTAssertEqual(@[], options.inAppExcludes);
     XCTAssertNil(options.urlSessionDelegate);
     XCTAssertNil(options.urlSession);
     XCTAssertEqual(YES, options.enableSwizzling);
@@ -1104,29 +1102,6 @@
 {
     SentryOptions *options = [self getValidOptions:@{}];
     XCTAssertEqualObjects([self getDefaultInAppIncludes], options.inAppIncludes);
-}
-
-- (void)testInAppExcludes
-{
-    NSArray<NSString *> *expected = @[ @"Sentry" ];
-    NSArray *inAppExcludes = @[ @"Sentry", @2 ];
-
-    SentryOptions *options = [self getValidOptions:@{ @"inAppExcludes" : inAppExcludes }];
-
-    XCTAssertEqualObjects(expected, options.inAppExcludes);
-}
-
-- (void)testAddInAppExcludes
-{
-    SentryOptions *options = [self getValidOptions:@{}];
-    [options addInAppExclude:@"App"];
-    XCTAssertEqualObjects(@[ @"App" ], options.inAppExcludes);
-}
-
-- (void)testDefaultInAppExcludes
-{
-    SentryOptions *options = [self getValidOptions:@{}];
-    XCTAssertEqualObjects(@[], options.inAppExcludes);
 }
 
 - (void)testDefaultInitialScope

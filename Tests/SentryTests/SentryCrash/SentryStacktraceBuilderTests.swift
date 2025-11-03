@@ -9,7 +9,7 @@ class SentryStacktraceBuilderTests: XCTestCase {
 
         var sut: SentryStacktraceBuilder {
             SentryDependencyContainer.sharedInstance().reachability = TestSentryReachability()
-            let res = SentryStacktraceBuilder(crashStackEntryMapper: SentryCrashStackEntryMapper(inAppLogic: SentryInAppLogic(inAppIncludes: [], inAppExcludes: [])))
+            let res = SentryStacktraceBuilder(crashStackEntryMapper: SentryCrashStackEntryMapper(inAppLogic: SentryInAppLogic(inAppIncludes: [])))
             res.symbolicate = true
             return res
         }
