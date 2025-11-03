@@ -55,13 +55,13 @@ class SentryHubTests: XCTestCase {
             abnormalSession.environment = options.environment
         }
         
-        func getSut(withMaxBreadcrumbs maxBreadcrumbs: UInt = 100) -> SentryHub {
+        func getSut(withMaxBreadcrumbs maxBreadcrumbs: UInt = 100) -> SentryHubInternal {
             options.maxBreadcrumbs = maxBreadcrumbs
             return getSut(options)
         }
         
-        func getSut(_ options: Options, _ scope: Scope? = nil) -> SentryHub {
-            let hub = SentryHub(client: client, andScope: scope, andCrashWrapper: sentryCrashWrapper, andDispatchQueue: dispatchQueueWrapper)
+        func getSut(_ options: Options, _ scope: Scope? = nil) -> SentryHubInternal {
+            let hub = SentryHubInternal(client: client, andScope: scope, andCrashWrapper: sentryCrashWrapper, andDispatchQueue: dispatchQueueWrapper)
             hub.bindClient(client)
             return hub
         }
@@ -97,7 +97,7 @@ class SentryHubTests: XCTestCase {
         sentryOption.dsn = "https://6cc9bae94def43cab8444a99e0031c28@o447951.ingest.sentry.io/5428557"
                 
         let scope = Scope()
-        let sentryHub = SentryHub(client: SentryClient(options: sentryOption), andScope: scope)
+        let sentryHub = SentryHubInternal(client: SentryClientInternal(options: sentryOption), andScope: scope)
 
         let error = NSError(domain: "Test.CaptureErrorWithRealDSN", code: 12)
         sentryHub.capture(error: error)
@@ -185,7 +185,7 @@ class SentryHubTests: XCTestCase {
     }
     
     func testScopeEnriched_WithInitializer() {
-        let hub = SentryHub(client: nil, andScope: Scope())
+        let hub = SentryHubInternal(client: nil, andScope: Scope())
         XCTAssertFalse(hub.scope.contextDictionary.allValues.isEmpty)
         XCTAssertNotNil(hub.scope.contextDictionary["os"])
         XCTAssertNotNil(hub.scope.contextDictionary["device"])
@@ -200,7 +200,7 @@ class SentryHubTests: XCTestCase {
         let crashWrapper = SentryCrashWrapper(processInfoWrapper: processInfoWrapper)
         
         // Act
-        let hub = SentryHub(client: nil, andScope: Scope(), andCrashWrapper: crashWrapper, andDispatchQueue: TestSentryDispatchQueueWrapper())
+        let hub = SentryHubInternal(client: nil, andScope: Scope(), andCrashWrapper: crashWrapper, andDispatchQueue: TestSentryDispatchQueueWrapper())
 
         // Assert
         XCTAssertNil(hub.scope.contextDictionary["runtime"])
@@ -215,7 +215,7 @@ class SentryHubTests: XCTestCase {
         let crashWrapper = SentryCrashWrapper(processInfoWrapper: processInfoWrapper)
         
         // Act
-        let hub = SentryHub(client: nil, andScope: Scope(), andCrashWrapper: crashWrapper, andDispatchQueue: TestSentryDispatchQueueWrapper())
+        let hub = SentryHubInternal(client: nil, andScope: Scope(), andCrashWrapper: crashWrapper, andDispatchQueue: TestSentryDispatchQueueWrapper())
         
         // Assert
         let runtimeContext = try XCTUnwrap (hub.scope.contextDictionary["runtime"] as? [String: String])
@@ -233,7 +233,7 @@ class SentryHubTests: XCTestCase {
         let crashWrapper = SentryCrashWrapper(processInfoWrapper: processInfoWrapper)
         
         // Act
-        let hub = SentryHub(client: nil, andScope: Scope(), andCrashWrapper: crashWrapper, andDispatchQueue: TestSentryDispatchQueueWrapper())
+        let hub = SentryHubInternal(client: nil, andScope: Scope(), andCrashWrapper: crashWrapper, andDispatchQueue: TestSentryDispatchQueueWrapper())
 
         // Assert
         let runtimeContext = try XCTUnwrap (hub.scope.contextDictionary["runtime"] as? [String: String])
@@ -248,7 +248,7 @@ class SentryHubTests: XCTestCase {
     }
     
     func testScopeEnriched_WhenCreatingDefaultScope() {
-        let hub = SentryHub(client: nil, andScope: nil)
+        let hub = SentryHubInternal(client: nil, andScope: nil)
         
         let scope = hub.scope
         XCTAssertFalse(scope.contextDictionary.allValues.isEmpty)
@@ -275,11 +275,11 @@ class SentryHubTests: XCTestCase {
     }
     
     func testAddUserToTheScope() throws {
-        let client = SentryClient(
+        let client = SentryClientInternal(
             options: fixture.options,
             fileManager: fixture.fileManager
         )
-        let hub = SentryHub(client: client, andScope: Scope())
+        let hub = SentryHubInternal(client: client, andScope: Scope())
         
         let user = User()
         user.userId = "123"
@@ -573,7 +573,7 @@ class SentryHubTests: XCTestCase {
     
     func testSaveCrashTransaction_SavesTransaction() throws {
         let scope = fixture.scope
-        let sut = SentryHub(client: fixture.client, andScope: scope)
+        let sut = SentryHubInternal(client: fixture.client, andScope: scope)
         
         let transaction = sut.startTransaction(transactionContext: TransactionContext(name: fixture.transactionName, operation: fixture.transactionOperation, sampled: .yes, sampleRate: nil, sampleRand: nil))
 
@@ -589,7 +589,7 @@ class SentryHubTests: XCTestCase {
     func testSaveCrashTransaction_withSampleRateRand_SavesTransaction() throws {
         // Arrange
         let scope = fixture.scope
-        let sut = SentryHub(client: fixture.client, andScope: scope)
+        let sut = SentryHubInternal(client: fixture.client, andScope: scope)
         
         let transaction = sut.startTransaction(
             transactionContext: TransactionContext(
@@ -614,7 +614,7 @@ class SentryHubTests: XCTestCase {
     
     func testSaveCrashTransaction_NotSampled_DoesNotSaveTransaction() throws {
         let scope = fixture.scope
-        let sut = SentryHub(client: fixture.client, andScope: scope)
+        let sut = SentryHubInternal(client: fixture.client, andScope: scope)
         
         let transaction = sut.startTransaction(transactionContext: TransactionContext(name: fixture.transactionName, operation: fixture.transactionOperation, sampled: .no, sampleRate: nil, sampleRand: nil))
 
@@ -626,7 +626,7 @@ class SentryHubTests: XCTestCase {
 
     func testSaveCrashTransaction_NotSampledWithSampleRateRand_DoesNotSaveTransaction() throws {
         let scope = fixture.scope
-        let sut = SentryHub(client: fixture.client, andScope: scope)
+        let sut = SentryHubInternal(client: fixture.client, andScope: scope)
         
         let transaction = sut.startTransaction(
             transactionContext: TransactionContext(
@@ -951,7 +951,7 @@ class SentryHubTests: XCTestCase {
         sut = fixture.getSut()
         let options = fixture.options
         options.releaseName = nil
-        let client = SentryClient(options: options)
+        let client = SentryClientInternal(options: options)
         sut.bindClient(client)
         
         givenCrashedSession()
@@ -1046,7 +1046,7 @@ class SentryHubTests: XCTestCase {
         sut = fixture.getSut()
         let options = fixture.options
         options.releaseName = nil
-        let client = SentryClient(options: options)
+        let client = SentryClientInternal(options: options)
         sut.bindClient(client)
         
         // Act
@@ -1126,7 +1126,7 @@ class SentryHubTests: XCTestCase {
     }
     
     func testCaptureReplay() {
-        class SentryClientMockReplay: SentryClient {
+        class SentryClientMockReplay: SentryClientInternal {
             var replayEvent: SentryReplayEvent?
             var replayRecording: SentryReplayRecording?
             var videoUrl: URL?
@@ -1245,13 +1245,13 @@ class SentryHubTests: XCTestCase {
         }
     }
     
-    private func addBreadcrumbThroughConfigureScope(_ hub: SentryHub) {
+    private func addBreadcrumbThroughConfigureScope(_ hub: SentryHubInternal) {
         hub.configureScope({ scope in
             scope.addBreadcrumb(self.fixture.crumb)
         })
     }
     
-    private func captureConcurrentWithSession(count: Int, _ capture: @escaping (SentryHub) -> Void) {
+    private func captureConcurrentWithSession(count: Int, _ capture: @escaping (SentryHubInternal) -> Void) {
         let sut = fixture.getSut()
         sut.startSession()
         
@@ -1431,7 +1431,7 @@ class SentryHubTests: XCTestCase {
         fixture.currentDateProvider.setDate(date: fixture.currentDateProvider.date().addingTimeInterval(bySeconds))
     }
     
-    private func assert(withScopeBreadcrumbsCount count: Int, with hub: SentryHub) {
+    private func assert(withScopeBreadcrumbsCount count: Int, with hub: SentryHubInternal) {
         let scopeBreadcrumbs = hub.scope.serialize()["breadcrumbs"] as? [AnyHashable]
         XCTAssertNotNil(scopeBreadcrumbs)
         XCTAssertEqual(scopeBreadcrumbs?.count, count)
