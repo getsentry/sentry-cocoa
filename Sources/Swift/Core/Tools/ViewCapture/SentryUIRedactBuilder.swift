@@ -652,34 +652,18 @@ final class SentryUIRedactBuilder {
 
         // Second check: Verify the view has an opaque background color
         // We check the view's properties first because this is the most common pattern in UIKit.
-        // All three conditions must be true:
-        // - `view.isOpaque` indicates the view declares itself as opaque
-        // - `view.backgroundColor` must exist (not nil)
-        // - The background color's alpha must be 1.0 (fully opaque, not semi-transparent)
-        let hasOpaqueViewBackground = view.isOpaque && 
-                                     view.backgroundColor != nil && 
-                                     (view.backgroundColor?.cgColor.alpha ?? 0) == 1
+        let isViewOpaque = view.isOpaque && view.backgroundColor != nil && (view.backgroundColor?.cgColor.alpha ?? 0) == 1
 
         // Third check: Verify the layer has an opaque background color
         // We also check the layer's properties because:
         // - Some views customize their CALayer directly without setting view.backgroundColor
         // - Libraries or custom views might override backgroundColor to return different values
         // - The layer's backgroundColor is the actual rendered property (view.backgroundColor is a convenience)
-        // All three conditions must be true here as well:
-        // - `layer.isOpaque` indicates the layer declares itself as opaque
-        // - `layer.backgroundColor` must exist (not nil)
-        // - The background color's alpha must be 1.0 (fully opaque)
-        let hasOpaqueLayerBackground = layer.isOpaque && 
-                                       layer.backgroundColor != nil && 
-                                       (layer.backgroundColor?.alpha ?? 0) == 1
+        let isLayerOpaque = layer.isOpaque && layer.backgroundColor != nil && (layer.backgroundColor?.alpha ?? 0) == 1
 
-        // Final decision: A view is opaque if:
-        // 1. It's explicitly marked for clipping by SentryRedactViewHelper, OR
-        // 2. It has an opaque view background, OR
-        // 3. It has an opaque layer background
         // We use OR logic (not AND) because requiring both view AND layer backgrounds to be set
         // would be too strict and break most existing code that only sets view.backgroundColor.
-        return SentryRedactViewHelper.shouldClipOut(view) || hasOpaqueViewBackground || hasOpaqueLayerBackground
+        return SentryRedactViewHelper.shouldClipOut(view) || isViewOpaque && isLayerOpaque
     }
 }
 
