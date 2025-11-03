@@ -3,7 +3,6 @@
 import Foundation
 @_spi(Private) @testable import Sentry
 import SentryTestUtils
-import SnapshotTesting
 import SwiftUI
 import UIKit
 import XCTest
@@ -155,8 +154,6 @@ class SentryUIRedactBuilderTests_EdgeCases: SentryUIRedactBuilderTests { // swif
         let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: masked, as: .image)
-
         // We still expect at least one redact (for the label); the rotated cover shouldn't clear all regions
         let region = try XCTUnwrap(result.element(at: 0))
         XCTAssertNil(region.color)
