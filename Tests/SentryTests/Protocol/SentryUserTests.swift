@@ -1,7 +1,6 @@
 @_spi(Private) @testable import Sentry
 import XCTest
 
-@available(*, deprecated)
 class SentryUserTests: XCTestCase {
 
     func testInitWithDictionary() {

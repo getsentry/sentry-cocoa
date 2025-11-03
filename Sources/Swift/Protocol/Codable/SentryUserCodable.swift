@@ -2,7 +2,6 @@
 import Foundation
 
 final class UserDecodable: User {
-    @available(*, deprecated)
     convenience public init(from decoder: any Decoder) throws {
         try self.init(decodedFrom: decoder)
     }
