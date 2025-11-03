@@ -8,7 +8,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)init
 {
-     self = [super init];
+    self = [super init];
     return self;
 }
 
