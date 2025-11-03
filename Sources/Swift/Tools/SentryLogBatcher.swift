@@ -163,7 +163,6 @@ import Foundation
         if let scopeReplayId = scope.replayId {
             // Session mode: use scope replay ID
             attributes["sentry.replay_id"] = .init(string: scopeReplayId)
-            attributes.removeValue(forKey: "sentry._internal.replay_is_buffering")
         }
 #endif
 #endif

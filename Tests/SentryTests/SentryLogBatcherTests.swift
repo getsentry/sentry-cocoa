@@ -484,6 +484,41 @@ final class SentryLogBatcherTests: XCTestCase {
         XCTAssertNil(attributes["device.family"])
     }
     
+    // MARK: - Replay Attributes Tests
+    
+#if canImport(UIKit) && !SENTRY_NO_UIKIT
+#if os(iOS) || os(tvOS)
+    func testAddLog_ReplayAttributes_SessionMode_AddsReplayId() {
+        // Set replayId on scope (session mode)
+        let replayId = "12345678-1234-1234-1234-123456789012"
+        scope.replayId = replayId
+        
+        let log = createTestLog(body: "Test message")
+        sut.addLog(log, scope: scope)
+        sut.captureLogs()
+        
+        let capturedLogs = testDelegate.getCapturedLogs()
+        let capturedLog = capturedLogs.first!
+        XCTAssertEqual(capturedLog.attributes["sentry.replay_id"]?.value as? String, replayId)
+        XCTAssertNil(capturedLog.attributes["sentry._internal.replay_is_buffering"])
+    }
+    
+    func testAddLog_ReplayAttributes_NoReplayId_NoAttributesAdded() {
+        // Don't set replayId on scope
+        scope.replayId = nil
+        
+        let log = createTestLog(body: "Test message")
+        sut.addLog(log, scope: scope)
+        sut.captureLogs()
+        
+        let capturedLogs = testDelegate.getCapturedLogs()
+        let capturedLog = capturedLogs.first!
+        XCTAssertNil(capturedLog.attributes["sentry.replay_id"])
+        XCTAssertNil(capturedLog.attributes["sentry._internal.replay_is_buffering"])
+    }
+#endif
+#endif
+    
     // MARK: - BeforeSendLog Callback Tests
     
     func testBeforeSendLog_ReturnsModifiedLog() {
