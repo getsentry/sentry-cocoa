@@ -73,7 +73,7 @@ class SentryUIRedactBuilderTests_UIKit: SentryUIRedactBuilderTests { // swiftlin
         // -- Assert --
         let region = try XCTUnwrap(result.element(at: 0))
         // For UILabel we can derive which color should be used to render the redaction geometry
-        XCTAssertEqual(region.color, .purple)
+        XCTAssertEqual(region.color, UIColor.purple.withAlphaComponent(1.0))
         XCTAssertEqual(region.size, CGSize(width: 40, height: 40))
         XCTAssertEqual(region.type, .redact)
         XCTAssertEqual(region.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 20, ty: 20))
