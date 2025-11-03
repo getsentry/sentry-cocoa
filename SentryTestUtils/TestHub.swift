@@ -2,7 +2,7 @@ import _SentryPrivate
 import Foundation
 @_spi(Private) @testable import Sentry
 
-public class TestHub: SentryHub {
+public class TestHub: SentryHubInternal {
 
     public var startSessionInvocations: Int = 0
     public var closeCachedSessionInvocations: Int = 0
@@ -56,4 +56,12 @@ public class TestHub: SentryHub {
         capturedReplayRecordingVideo.record((replayEvent, replayRecording, videoURL))
         onReplayCapture?()
     }
+#if canImport(UIKit) && !SENTRY_NO_UIKIT    
+#if os(iOS) || os(tvOS)
+    public var mockReplayId: String?
+    public override func getSessionReplayId() -> String? {
+        return mockReplayId
+    }
+#endif
+#endif
 }

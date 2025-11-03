@@ -21,12 +21,12 @@ SENTRY_NO_INIT
 /**
  * The name of the exception
  */
-@property (nonatomic, copy) NSString *value;
+@property (nonatomic, copy) NSString *_Nullable value;
 
 /**
  * Type of the exception
  */
-@property (nonatomic, copy) NSString *type;
+@property (nonatomic, copy) NSString *_Nullable type;
 
 /**
  * Additional information about the exception
@@ -49,12 +49,13 @@ SENTRY_NO_INIT
 @property (nonatomic, strong) SentryStacktrace *_Nullable stacktrace;
 
 /**
- * Initialize an SentryException with value and type
- * @param value String
- * @param type String
+ * Initialize an SentryException with value and type.
+ * @param value Nullable string describing the exception
+ * @param type Nullable string with the type of the exception
  * @return SentryException
+ * @note At least one of value or type must be non-nil. This is asserted in debug builds.
  */
-- (instancetype)initWithValue:(NSString *)value type:(NSString *)type;
+- (instancetype)initWithValue:(NSString *_Nullable)value type:(NSString *_Nullable)type;
 
 @end
 

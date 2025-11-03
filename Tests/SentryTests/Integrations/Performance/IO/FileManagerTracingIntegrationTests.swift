@@ -47,8 +47,8 @@ class FileManagerSentryTracingIntegrationTests: XCTestCase {
                 // NOTE: We are not testing for the case where swizzling is enabled, as it could lead to duplicate spans on older OS versions.
                 // Instead we are recommending to disable swizzling and use manual tracing.
                 options.enableSwizzling = true
-                options.experimental.enableDataSwizzling = false
-                options.experimental.enableFileManagerSwizzling = false
+                options.enableDataSwizzling = false
+                options.enableFileManagerSwizzling = false
             }
 
             // Get the working directory of the SDK, as the path is using the DSN hash to avoid conflicts

@@ -96,13 +96,6 @@ typedef NS_ENUM(NSUInteger, SentrySpanStatus) {
     kSentrySpanStatusDataLoss,
 };
 
-static DEPRECATED_MSG_ATTRIBUTE(
-    "Use nameForSentrySpanStatus() instead.") NSString *_Nonnull const SentrySpanStatusNames[]
-    = { @"undefined", @"ok", @"deadline_exceeded", @"unauthenticated", @"permission_denied",
-          @"not_found", @"resource_exhausted", @"invalid_argument", @"unimplemented",
-          @"unavailable", @"internal_error", @"unknown_error", @"cancelled", @"already_exists",
-          @"failed_precondition", @"aborted", @"out_of_range", @"data_loss" };
-
 NS_ASSUME_NONNULL_BEGIN
 
 FOUNDATION_EXPORT NSString *const kSentrySpanStatusNameUndefined;
