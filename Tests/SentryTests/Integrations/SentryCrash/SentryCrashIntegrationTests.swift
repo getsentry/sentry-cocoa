@@ -9,7 +9,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     private class Fixture {
         let dateProvider = TestCurrentDateProvider()
         let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
-        let hub: SentryHub
+        let hub: SentryHubInternal
         let client: TestClient!
         let options: Options
         let sentryCrash: TestSentryCrashWrapper
@@ -398,7 +398,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         api?.pointee.setEnabled(true)
         
         let transport = TestTransport()
-        let client = SentryClient(options: fixture.options, fileManager: fixture.fileManager)
+        let client = SentryClientInternal(options: fixture.options, fileManager: fixture.fileManager)
         Dynamic(client).transportAdapter = TestTransportAdapter(transports: [transport], options: fixture.options)
         hub.bindClient(client)
         
@@ -557,9 +557,9 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         let options = fixture.options
         options.enablePersistingTracesWhenCrashing = true
         
-        let client = SentryClient(options: options)
+        let client = SentryClientInternal(options: options)
         defer { client?.fileManager.deleteAllEnvelopes() }
-        let hub = SentryHub(client: client, andScope: nil)
+        let hub = SentryHubInternal(client: client, andScope: nil)
         SentrySDKInternal.setCurrentHub(hub)
         
         let sut = fixture.getSut(crashWrapper: SentryDependencyContainer.sharedInstance().crashWrapper)
@@ -582,9 +582,9 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         let options = fixture.options
         options.enablePersistingTracesWhenCrashing = true
         
-        let client = SentryClient(options: options)
+        let client = SentryClientInternal(options: options)
         defer { client?.fileManager.deleteAllEnvelopes() }
-        let hub = SentryHub(client: client, andScope: nil)
+        let hub = SentryHubInternal(client: client, andScope: nil)
         SentrySDKInternal.setCurrentHub(hub)
         
         let sut = fixture.getSut(crashWrapper: SentryDependencyContainer.sharedInstance().crashWrapper)
@@ -603,9 +603,9 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         let options = fixture.options
         options.enablePersistingTracesWhenCrashing = true
         
-        let client = SentryClient(options: options)
+        let client = SentryClientInternal(options: options)
         defer { client?.fileManager.deleteAllEnvelopes() }
-        let hub = SentryHub(client: client, andScope: nil)
+        let hub = SentryHubInternal(client: client, andScope: nil)
         SentrySDKInternal.setCurrentHub(hub)
         
         let sut = fixture.getSut(crashWrapper: SentryDependencyContainer.sharedInstance().crashWrapper)
@@ -647,7 +647,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     }
     #endif
     
-    private func givenSutWithGlobalHub() -> (SentryCrashIntegration, SentryHub) {
+    private func givenSutWithGlobalHub() -> (SentryCrashIntegration, SentryHubInternal) {
         let sut = fixture.getSut()
         let hub = fixture.hub
         SentrySDKInternal.setCurrentHub(hub)
@@ -655,7 +655,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         return (sut, hub)
     }
     
-    private func givenSutWithGlobalHubAndCrashWrapper() -> (SentryCrashIntegration, SentryHub) {
+    private func givenSutWithGlobalHubAndCrashWrapper() -> (SentryCrashIntegration, SentryHubInternal) {
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
         SentryDependencyContainer.sharedInstance().uiDeviceWrapper.start()
 #endif
@@ -723,7 +723,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         XCTAssertEqual(Locale.autoupdatingCurrent.identifier, device["locale"] as? String)
     }
     
-    private func assertLocaleOnHub(locale: String, hub: SentryHub) {
+    private func assertLocaleOnHub(locale: String, hub: SentryHubInternal) {
         let context = hub.scope.contextDictionary as? [String: Any] ?? ["": ""]
         
         guard let device = context["device"] as? [String: Any] else {

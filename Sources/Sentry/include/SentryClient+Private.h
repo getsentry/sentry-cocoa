@@ -21,7 +21,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-@interface SentryClient ()
+@interface SentryClientInternal ()
 
 @property (nonatomic, strong)
     NSMutableArray<id<SentryClientAttachmentProcessor>> *attachmentProcessors;

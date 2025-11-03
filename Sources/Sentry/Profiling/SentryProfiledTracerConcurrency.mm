@@ -167,7 +167,7 @@ sentry_trackTransactionProfilerForTrace(SentryProfiler *profiler, SentryId *inte
 }
 
 void
-sentry_discardProfilerCorrelatedToTrace(SentryId *internalTraceId, SentryHub *hub)
+sentry_discardProfilerCorrelatedToTrace(SentryId *internalTraceId, SentryHubInternal *hub)
 {
     std::lock_guard<std::mutex> l(_gStateLock);
 
@@ -238,9 +238,9 @@ SentryProfiler *_Nullable sentry_profilerForFinishedTracer(SentryId *internalTra
 }
 
 void
-sentry_stopProfilerDueToFinishedTransaction(
-    SentryHub *hub, SentryDispatchQueueWrapper *dispatchQueue, SentryTransaction *transaction,
-    BOOL isProfiling, NSDate *_Nullable traceStartTimestamp, uint64_t startSystemTime
+sentry_stopProfilerDueToFinishedTransaction(SentryHubInternal *hub,
+    SentryDispatchQueueWrapper *dispatchQueue, SentryTransaction *transaction, BOOL isProfiling,
+    NSDate *_Nullable traceStartTimestamp, uint64_t startSystemTime
 #    if SENTRY_HAS_UIKIT
     ,
     SentryAppStartMeasurement *appStartMeasurement
@@ -256,10 +256,11 @@ sentry_stopProfilerDueToFinishedTransaction(
         return;
     }
 
-    SentryClient *_Nullable client = hub.getClient;
+    SentryClientInternal *_Nullable client = hub.getClient;
     if (isProfiling && client != nil
-        && sentry_isContinuousProfilingEnabled(SENTRY_UNWRAP_NULLABLE(SentryClient, client))
-        && sentry_isProfilingCorrelatedToTraces(SENTRY_UNWRAP_NULLABLE(SentryClient, client))) {
+        && sentry_isContinuousProfilingEnabled(SENTRY_UNWRAP_NULLABLE(SentryClientInternal, client))
+        && sentry_isProfilingCorrelatedToTraces(
+            SENTRY_UNWRAP_NULLABLE(SentryClientInternal, client))) {
         SENTRY_LOG_DEBUG(@"Stopping tracking root span tracer with profilerReferenceId %@",
             sentry_stringFromSentryID(transaction.trace.profilerReferenceID));
         sentry_stopTrackingRootSpanForContinuousProfilerV2();
@@ -334,7 +335,7 @@ sentry_stopProfilerDueToFinishedTransaction(
 }
 
 SentryId *_Nullable sentry_startProfilerForTrace(SentryTracerConfiguration *configuration,
-    SentryHub *_Nullable hub, SentryTransactionContext *transactionContext)
+    SentryHubInternal *_Nullable hub, SentryTransactionContext *transactionContext)
 {
     if (sentry_profileConfiguration.profileOptions != nil) {
         // launch profile; there's no hub to get options from, so they're read from the launch
@@ -342,16 +343,17 @@ SentryId *_Nullable sentry_startProfilerForTrace(SentryTracerConfiguration *conf
         return _sentry_startContinuousProfilerV2ForTrace(
             sentry_profileConfiguration.profileOptions, transactionContext);
     }
-    SentryClient *_Nullable client = hub.getClient;
+    SentryClientInternal *_Nullable client = hub.getClient;
     if (client != nil
-        && sentry_isContinuousProfilingEnabled(SENTRY_UNWRAP_NULLABLE(SentryClient, client))) {
+        && sentry_isContinuousProfilingEnabled(
+            SENTRY_UNWRAP_NULLABLE(SentryClientInternal, client))) {
         // non launch profile
         if (sentry_getParentSpanID(transactionContext) != nil) {
             SENTRY_LOG_DEBUG(@"Not a root span, will not start automatically for trace lifecycle.");
             return nil;
         }
         SentryProfileOptions *_Nullable profilingOptions
-            = sentry_getProfiling(SENTRY_UNWRAP_NULLABLE(SentryClient, client));
+            = sentry_getProfiling(SENTRY_UNWRAP_NULLABLE(SentryClientInternal, client));
         if (profilingOptions == nil) {
             SENTRY_LOG_DEBUG(@"No profiling options found, will not start profiler.");
             return nil;
