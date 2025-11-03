@@ -16,6 +16,7 @@
 @class SentryTransactionContext;
 @class SentryUser;
 @class SentryLog;
+@class SentryLogger;
 
 NS_ASSUME_NONNULL_BEGIN
 @interface SentryHub : NSObject
@@ -180,14 +181,15 @@ SENTRY_NO_INIT
  * Captures a log entry and sends it to Sentry.
  * @param log The log entry to send to Sentry.
  */
-- (void)captureLog:(SentryLog *)log;
+- (void)captureLog:(SentryLog *)log NS_SWIFT_NAME(capture(log:));
 
 /**
  * Captures a log entry and sends it to Sentry.
  * @param log The log entry to send to Sentry.
  * @param scope The scope containing event metadata.
  */
-- (void)captureLog:(SentryLog *)log withScope:(SentryScope *)scope;
+- (void)captureLog:(SentryLog *)log
+         withScope:(SentryScope *)scope NS_SWIFT_NAME(capture(log:scope:));
 
 /**
  * Use this method to modify the Scope of the Hub. The SDK uses the Scope to attach

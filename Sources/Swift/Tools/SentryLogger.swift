@@ -190,6 +190,6 @@ public final class SentryLogger: NSObject {
         
         // Note: In SPM builds, this uses the extension method defined in SentryHub+SPM.swift
         // which works around Swift-to-Objective-C bridging limitations.
-        hub.capture(log)
+        hub.capture(log: log)
     }
 }
