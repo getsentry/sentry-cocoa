@@ -620,10 +620,11 @@ final class SentryUIRedactBuilder {
     /// Indicates whether the view is opaque and will block other views behind it.
     private func isOpaque(_ view: UIView) -> Bool {
         let layer = view.layer.presentation() ?? view.layer
+
         let layerIsOpaque = layer.opacity == 1 && layer.isOpaque && layer.backgroundColor != nil && (layer.backgroundColor?.alpha ?? 0) == 1
         let viewIsOpaque = view.isOpaque && view.backgroundColor != nil && (view.backgroundColor?.cgColor.alpha ?? 0) == 1
         
-        return SentryRedactViewHelper.shouldClipOut(view) || layerIsOpaque && viewIsOpaque
+        return SentryRedactViewHelper.shouldClipOut(view) || (layerIsOpaque && viewIsOpaque)
     }
 }
 
