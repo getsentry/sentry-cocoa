@@ -1,3 +1,4 @@
+#import "SentryOptionsInternal.h"
 #import "SentryANRTrackingIntegration.h"
 #import "SentryAutoBreadcrumbTrackingIntegration.h"
 #import "SentryAutoSessionTrackingIntegration.h"
@@ -10,7 +11,6 @@
 #import "SentryNetworkTrackingIntegration.h"
 #import "SentryOptions+Private.h"
 #import "SentryOptions.h"
-#import "SentryOptionsInternal.h"
 #import "SentrySessionReplayIntegration.h"
 #import "SentrySwift.h"
 #import "SentrySwiftAsyncIntegration.h"

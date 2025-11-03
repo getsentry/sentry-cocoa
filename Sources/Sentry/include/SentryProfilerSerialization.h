@@ -6,7 +6,7 @@
 
 @class SentryEnvelope;
 @class SentryEnvelopeItem;
-@class SentryHub;
+@class SentryHubInternal;
 @class SentryId;
 @class SentryScreenFrames;
 @class SentryTransaction;
@@ -18,7 +18,7 @@ NS_ASSUME_NONNULL_BEGIN
 extern "C" {
 #    endif
 
-SENTRY_EXTERN SentryEnvelopeItem *_Nullable sentry_traceProfileEnvelopeItem(SentryHub *hub,
+SENTRY_EXTERN SentryEnvelopeItem *_Nullable sentry_traceProfileEnvelopeItem(SentryHubInternal *hub,
     SentryProfiler *profiler, NSDictionary<NSString *, id> *profilingData,
     SentryTransaction *transaction, NSDate *startTimestamp);
 
@@ -32,7 +32,7 @@ SentryEnvelope *_Nullable sentry_continuousProfileChunkEnvelope(
 
 /** Alternative affordance for use by PrivateSentrySDKOnly for hybrid SDKs. */
 NSMutableDictionary<NSString *, id> *_Nullable sentry_collectProfileDataHybridSDK(
-    uint64_t startSystemTime, uint64_t endSystemTime, SentryId *traceId, SentryHub *hub);
+    uint64_t startSystemTime, uint64_t endSystemTime, SentryId *traceId, SentryHubInternal *hub);
 
 #    if defined(__cplusplus)
 }

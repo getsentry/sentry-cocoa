@@ -8,7 +8,7 @@
 #import SENTRY_HEADER(SentrySpanProtocol)
 
 @class SentryBreadcrumb;
-@class SentryClient;
+@class SentryClientInternal;
 @class SentryEvent;
 @class SentryFeedback;
 @class SentryId;
@@ -17,10 +17,10 @@
 @class SentryUser;
 
 NS_ASSUME_NONNULL_BEGIN
-@interface SentryHub : NSObject
+@interface SentryHubInternal : NSObject
 SENTRY_NO_INIT
 
-- (instancetype)initWithClient:(SentryClient *_Nullable)client
+- (instancetype)initWithClient:(SentryClientInternal *_Nullable)client
                       andScope:(SentryScope *_Nullable)scope;
 
 /**
@@ -191,7 +191,7 @@ SENTRY_NO_INIT
 /**
  * Returns a client if there is a bound client on the Hub.
  */
-- (SentryClient *_Nullable)getClient;
+- (SentryClientInternal *_Nullable)getClient;
 
 /**
  * Returns either the current scope or a new one if it was @c nil .
@@ -201,7 +201,7 @@ SENTRY_NO_INIT
 /**
  * Binds a different client to the hub.
  */
-- (void)bindClient:(SentryClient *_Nullable)client;
+- (void)bindClient:(SentryClientInternal *_Nullable)client;
 
 /**
  * Checks if integration is activated.
