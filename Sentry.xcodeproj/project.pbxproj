@@ -5158,7 +5158,6 @@
 				7BDEAA022632A4580001EA25 /* SentryOptions+Private.h in Headers */,
 				A8AFFCCD29069C3E00967CD7 /* SentryHttpStatusCodeRange.h in Headers */,
 				FAAB95DE2EA1EB470030A2DB /* SentryDeviceContextKeys.h in Headers */,
-				D83D079B2B7F9D1C00CC9674 /* SentryMsgPackSerializer.h in Headers */,
 				D84F833D2A1CC401005828E0 /* SentrySwiftAsyncIntegration.h in Headers */,
 				15E0A8EA240F2C9000F044E3 /* SentrySerialization.h in Headers */,
 				63FE70EF20DA4C1000CDBAE8 /* SentryCrashMonitor_AppState.h in Headers */,
