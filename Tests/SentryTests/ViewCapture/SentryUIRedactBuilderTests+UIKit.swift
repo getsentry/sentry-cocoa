@@ -5,7 +5,6 @@ import PDFKit
 import SafariServices
 @_spi(Private) @testable import Sentry
 import SentryTestUtils
-import SnapshotTesting
 import SwiftUI
 import UIKit
 import WebKit
