@@ -31,6 +31,7 @@
 ### Features
 
 - Add SentryDistribution as Swift Package Manager target (#6149)
+- Moves SentryClient and SentryHub to be written in Swift (#6627)
 - Add option `enablePropagateTraceparent` to support OTel/W3C trace propagation (#6356)
 - Move `enableFileManagerSwizzling` from experimental options to top-level options (#6592).
   This option is still disabled by default and will be enabled in a future major release.
