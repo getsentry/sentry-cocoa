@@ -17,8 +17,8 @@ NS_ASSUME_NONNULL_BEGIN
  * along with a platform-dependent interpretation of these codes.
  * @see https://develop.sentry.dev/sdk/event-payloads/exception/#meta-information.
  */
-NS_SWIFT_NAME(MechanismMeta)
-@interface SentryMechanismMeta : NSObject <SentrySerializable>
+NS_SWIFT_NAME(MechanismContext)
+@interface SentryMechanismContext : NSObject <SentrySerializable>
 
 - (instancetype)init;
 
