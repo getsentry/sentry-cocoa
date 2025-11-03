@@ -112,3 +112,6 @@ uikit-check-build
 
 # Output of `make analyze`
 analyzer
+
+# Output of snapshot testing
+**/__Snapshots_
