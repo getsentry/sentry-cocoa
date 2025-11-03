@@ -52,6 +52,7 @@
   - Add layer class filtering for views used in multiple contexts (e.g., SwiftUI._UIGraphicsView)
   - Improve transform calculations for views with custom anchor points
   - Fix axis-aligned transform detection for optimized opaque view clipping
+- Rename `SentryMechanismMeta` to `SentryMechanismContext` to resolve Kotlin Multi-Platform build errors (#6607)
 - Fix conversion of frame rate to time interval for session replay (#6623)
 
 ### Improvements

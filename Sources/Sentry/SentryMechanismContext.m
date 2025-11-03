@@ -1,10 +1,10 @@
-#import "SentryMechanismMeta.h"
+#import "SentryMechanismContext.h"
 #import "SentryNSDictionarySanitize.h"
 #import "SentryNSError.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@implementation SentryMechanismMeta
+@implementation SentryMechanismContext
 
 - (instancetype)init
 {
