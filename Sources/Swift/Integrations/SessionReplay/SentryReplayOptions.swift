@@ -163,22 +163,6 @@ public final class SentryReplayOptions: NSObject, SentryRedactOptions {
     public var unmaskedViewClasses: [AnyClass]
 
     /**
-     * Alias for ``enableViewRendererV2``.
-     *
-     * This flag is deprecated and will be removed in a future version.
-     * Please use ``enableViewRendererV2`` instead.
-     */
-    @available(*, deprecated, renamed: "enableViewRendererV2")
-    public var enableExperimentalViewRenderer: Bool {
-        get {
-            enableViewRendererV2
-        }
-        set {
-            enableViewRendererV2 = newValue
-        }
-    }
-
-    /**
      * Enables the up to 5x faster new view renderer used by the Session Replay integration.
      *
      * Enabling this flag will reduce the amount of time it takes to render each frame of the session replay on the main thread, therefore reducing
@@ -316,8 +300,7 @@ public final class SentryReplayOptions: NSObject, SentryRedactOptions {
             onErrorSampleRate: (dictionary["errorSampleRate"] as? NSNumber)?.floatValue,
             maskAllText: (dictionary["maskAllText"] as? NSNumber)?.boolValue,
             maskAllImages: (dictionary["maskAllImages"] as? NSNumber)?.boolValue,
-            enableViewRendererV2: (dictionary["enableViewRendererV2"] as? NSNumber)?.boolValue
-            ?? (dictionary["enableExperimentalViewRenderer"] as? NSNumber)?.boolValue,
+            enableViewRendererV2: (dictionary["enableViewRendererV2"] as? NSNumber)?.boolValue,
             enableFastViewRendering: (dictionary["enableFastViewRendering"] as? NSNumber)?.boolValue,
             maskedViewClasses: (dictionary["maskedViewClasses"] as? NSArray)?.compactMap({ element in
                 NSClassFromString((element as? String) ?? "")

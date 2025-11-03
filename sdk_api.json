@@ -23265,43 +23265,6 @@
           },
           {
             "kind": "Function",
-            "name": "add",
-            "printedName": "add(_:)",
-            "children": [
-              {
-                "kind": "TypeNameAlias",
-                "name": "Void",
-                "printedName": "Swift.Void",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Void",
-                    "printedName": "()"
-                  }
-                ]
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "Breadcrumb",
-                "printedName": "Sentry.Breadcrumb",
-                "usr": "c:objc(cs)SentryBreadcrumb"
-              }
-            ],
-            "declKind": "Func",
-            "usr": "c:objc(cs)SentryScope(im)add:",
-            "moduleName": "Sentry",
-            "deprecated": true,
-            "isOpen": true,
-            "objc_name": "add:",
-            "declAttributes": [
-              "Available",
-              "ObjC",
-              "Dynamic"
-            ],
-            "funcSelfKind": "NonMutating"
-          },
-          {
-            "kind": "Function",
             "name": "clearBreadcrumbs",
             "printedName": "clearBreadcrumbs()",
             "children": [
@@ -23485,43 +23448,6 @@
             "isOpen": true,
             "objc_name": "addAttachment:",
             "declAttributes": [
-              "ObjC",
-              "Dynamic"
-            ],
-            "funcSelfKind": "NonMutating"
-          },
-          {
-            "kind": "Function",
-            "name": "add",
-            "printedName": "add(_:)",
-            "children": [
-              {
-                "kind": "TypeNameAlias",
-                "name": "Void",
-                "printedName": "Swift.Void",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Void",
-                    "printedName": "()"
-                  }
-                ]
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "Attachment",
-                "printedName": "Sentry.Attachment",
-                "usr": "c:objc(cs)SentryAttachment"
-              }
-            ],
-            "declKind": "Func",
-            "usr": "c:objc(cs)SentryScope(im)includeAttachment:",
-            "moduleName": "Sentry",
-            "deprecated": true,
-            "isOpen": true,
-            "objc_name": "includeAttachment:",
-            "declAttributes": [
-              "Available",
               "ObjC",
               "Dynamic"
             ],
@@ -24942,30 +24868,6 @@
             ],
             "throwing": true,
             "init_kind": "Designated"
-          },
-          {
-            "kind": "Function",
-            "name": "getHash",
-            "printedName": "getHash()",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "String",
-                "printedName": "Swift.String",
-                "usr": "s:SS"
-              }
-            ],
-            "declKind": "Func",
-            "usr": "c:objc(cs)SentryDsn(im)getHash",
-            "moduleName": "Sentry",
-            "isOpen": true,
-            "objc_name": "getHash",
-            "declAttributes": [
-              "DiscardableResult",
-              "ObjC",
-              "Dynamic"
-            ],
-            "funcSelfKind": "NonMutating"
           },
           {
             "kind": "Function",
@@ -28089,65 +27991,6 @@
             "usr": "c:objc(pl)NSObject"
           }
         ]
-      },
-      {
-        "kind": "Var",
-        "name": "SentryLevelNames",
-        "printedName": "SentryLevelNames",
-        "children": [
-          {
-            "kind": "TypeNominal",
-            "name": "Tuple",
-            "printedName": "(Foundation.NSString, Foundation.NSString, Foundation.NSString, Foundation.NSString, Foundation.NSString, Foundation.NSString)",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "NSString",
-                "printedName": "Foundation.NSString",
-                "usr": "c:objc(cs)NSString"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "NSString",
-                "printedName": "Foundation.NSString",
-                "usr": "c:objc(cs)NSString"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "NSString",
-                "printedName": "Foundation.NSString",
-                "usr": "c:objc(cs)NSString"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "NSString",
-                "printedName": "Foundation.NSString",
-                "usr": "c:objc(cs)NSString"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "NSString",
-                "printedName": "Foundation.NSString",
-                "usr": "c:objc(cs)NSString"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "NSString",
-                "printedName": "Foundation.NSString",
-                "usr": "c:objc(cs)NSString"
-              }
-            ]
-          }
-        ],
-        "declKind": "Var",
-        "usr": "c:@SentryLevelNames",
-        "moduleName": "Sentry",
-        "deprecated": true,
-        "declAttributes": [
-          "Available"
-        ],
-        "isLet": true,
-        "hasStorage": true
       },
       {
         "kind": "TypeDecl",
@@ -32723,137 +32566,6 @@
             "mangledName": "$sSH"
           }
         ]
-      },
-      {
-        "kind": "Var",
-        "name": "SentrySpanStatusNames",
-        "printedName": "SentrySpanStatusNames",
-        "children": [
-          {
-            "kind": "TypeNominal",
-            "name": "Tuple",
-            "printedName": "(Foundation.NSString, Foundation.NSString, Foundation.NSString, Foundation.NSString, Foundation.NSString, Foundation.NSString, Foundation.NSString, Foundation.NSString, Foundation.NSString, Foundation.NSString, Foundation.NSString, Foundation.NSString, Foundation.NSString, Foundation.NSString, Foundation.NSString, Foundation.NSString, Foundation.NSString, Foundation.NSString)",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "NSString",
-                "printedName": "Foundation.NSString",
-                "usr": "c:objc(cs)NSString"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "NSString",
-                "printedName": "Foundation.NSString",
-                "usr": "c:objc(cs)NSString"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "NSString",
-                "printedName": "Foundation.NSString",
-                "usr": "c:objc(cs)NSString"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "NSString",
-                "printedName": "Foundation.NSString",
-                "usr": "c:objc(cs)NSString"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "NSString",
-                "printedName": "Foundation.NSString",
-                "usr": "c:objc(cs)NSString"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "NSString",
-                "printedName": "Foundation.NSString",
-                "usr": "c:objc(cs)NSString"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "NSString",
-                "printedName": "Foundation.NSString",
-                "usr": "c:objc(cs)NSString"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "NSString",
-                "printedName": "Foundation.NSString",
-                "usr": "c:objc(cs)NSString"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "NSString",
-                "printedName": "Foundation.NSString",
-                "usr": "c:objc(cs)NSString"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "NSString",
-                "printedName": "Foundation.NSString",
-                "usr": "c:objc(cs)NSString"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "NSString",
-                "printedName": "Foundation.NSString",
-                "usr": "c:objc(cs)NSString"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "NSString",
-                "printedName": "Foundation.NSString",
-                "usr": "c:objc(cs)NSString"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "NSString",
-                "printedName": "Foundation.NSString",
-                "usr": "c:objc(cs)NSString"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "NSString",
-                "printedName": "Foundation.NSString",
-                "usr": "c:objc(cs)NSString"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "NSString",
-                "printedName": "Foundation.NSString",
-                "usr": "c:objc(cs)NSString"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "NSString",
-                "printedName": "Foundation.NSString",
-                "usr": "c:objc(cs)NSString"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "NSString",
-                "printedName": "Foundation.NSString",
-                "usr": "c:objc(cs)NSString"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "NSString",
-                "printedName": "Foundation.NSString",
-                "usr": "c:objc(cs)NSString"
-              }
-            ]
-          }
-        ],
-        "declKind": "Var",
-        "usr": "c:@SentrySpanStatusNames",
-        "moduleName": "Sentry",
-        "deprecated": true,
-        "declAttributes": [
-          "Available"
-        ],
-        "isLet": true,
-        "hasStorage": true
       },
       {
         "kind": "TypeDecl",
@@ -47012,81 +46724,6 @@
                 "mangledName": "$s6Sentry0A13ReplayOptionsC19unmaskedViewClassesSayyXlXpGvs",
                 "moduleName": "Sentry",
                 "implicit": true,
-                "declAttributes": [
-                  "Final",
-                  "ObjC"
-                ],
-                "accessorKind": "set"
-              }
-            ]
-          },
-          {
-            "kind": "Var",
-            "name": "enableExperimentalViewRenderer",
-            "printedName": "enableExperimentalViewRenderer",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Bool",
-                "printedName": "Swift.Bool",
-                "usr": "s:Sb"
-              }
-            ],
-            "declKind": "Var",
-            "usr": "c:@M@Sentry@objc(cs)SentryReplayOptions(py)enableExperimentalViewRenderer",
-            "mangledName": "$s6Sentry0A13ReplayOptionsC30enableExperimentalViewRendererSbvp",
-            "moduleName": "Sentry",
-            "deprecated": true,
-            "declAttributes": [
-              "Final",
-              "Available",
-              "ObjC"
-            ],
-            "accessors": [
-              {
-                "kind": "Accessor",
-                "name": "Get",
-                "printedName": "Get()",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Bool",
-                    "printedName": "Swift.Bool",
-                    "usr": "s:Sb"
-                  }
-                ],
-                "declKind": "Accessor",
-                "usr": "c:@M@Sentry@objc(cs)SentryReplayOptions(im)enableExperimentalViewRenderer",
-                "mangledName": "$s6Sentry0A13ReplayOptionsC30enableExperimentalViewRendererSbvg",
-                "moduleName": "Sentry",
-                "declAttributes": [
-                  "Final",
-                  "ObjC"
-                ],
-                "accessorKind": "get"
-              },
-              {
-                "kind": "Accessor",
-                "name": "Set",
-                "printedName": "Set()",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Void",
-                    "printedName": "()"
-                  },
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Bool",
-                    "printedName": "Swift.Bool",
-                    "usr": "s:Sb"
-                  }
-                ],
-                "declKind": "Accessor",
-                "usr": "c:@M@Sentry@objc(cs)SentryReplayOptions(im)setEnableExperimentalViewRenderer:",
-                "mangledName": "$s6Sentry0A13ReplayOptionsC30enableExperimentalViewRendererSbvs",
-                "moduleName": "Sentry",
-                "objc_name": "setEnableExperimentalViewRenderer:",
                 "declAttributes": [
                   "Final",
                   "ObjC"

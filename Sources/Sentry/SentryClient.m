@@ -62,36 +62,17 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
 - (_Nullable instancetype)initWithOptions:(SentryOptions *)options
 {
-    return [self initWithOptions:options
-                    dateProvider:SentryDependencyContainer.sharedInstance.dateProvider
-                   dispatchQueue:SentryDependencyContainer.sharedInstance.dispatchQueueWrapper
-          deleteOldEnvelopeItems:YES];
-}
-
-- (nullable instancetype)initWithOptions:(SentryOptions *)options
-                            dateProvider:(id<SentryCurrentDateProvider>)dateProvider
-                           dispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue
-                  deleteOldEnvelopeItems:(BOOL)deleteOldEnvelopeItems
-{
     NSError *error;
-    SentryFileManager *fileManager = [[SentryFileManager alloc] initWithOptions:options
-                                                                   dateProvider:dateProvider
-                                                           dispatchQueueWrapper:dispatchQueue
-                                                                          error:&error];
+    SentryFileManager *fileManager = [[SentryFileManager alloc]
+             initWithOptions:options
+                dateProvider:SentryDependencyContainer.sharedInstance.dateProvider
+        dispatchQueueWrapper:SentryDependencyContainer.sharedInstance.dispatchQueueWrapper
+                       error:&error];
     if (error != nil) {
         SENTRY_LOG_FATAL(@"Failed to initialize file system: %@", error.localizedDescription);
         return nil;
     }
-    return [self initWithOptions:options
-                     fileManager:fileManager
-          deleteOldEnvelopeItems:deleteOldEnvelopeItems];
-}
 
-/** Internal constructor for testing purposes. */
-- (instancetype)initWithOptions:(SentryOptions *)options
-                    fileManager:(SentryFileManager *)fileManager
-         deleteOldEnvelopeItems:(BOOL)deleteOldEnvelopeItems
-{
     NSArray<id<SentryTransport>> *transports =
         [SentryTransportFactory initTransports:options
                                   dateProvider:SentryDependencyContainer.sharedInstance.dateProvider
@@ -101,26 +82,12 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     SentryTransportAdapter *transportAdapter =
         [[SentryTransportAdapter alloc] initWithTransports:transports options:options];
 
-    return [self initWithOptions:options
-                     fileManager:fileManager
-          deleteOldEnvelopeItems:deleteOldEnvelopeItems
-                transportAdapter:transportAdapter];
-}
-
-/** Internal constructor for testing purposes. */
-- (instancetype)initWithOptions:(SentryOptions *)options
-                    fileManager:(SentryFileManager *)fileManager
-         deleteOldEnvelopeItems:(BOOL)deleteOldEnvelopeItems
-               transportAdapter:(SentryTransportAdapter *)transportAdapter
-
-{
     SentryDefaultThreadInspector *threadInspector =
         [[SentryDefaultThreadInspector alloc] initWithOptions:options];
 
     return [self initWithOptions:options
                 transportAdapter:transportAdapter
                      fileManager:fileManager
-          deleteOldEnvelopeItems:deleteOldEnvelopeItems
                  threadInspector:threadInspector
               debugImageProvider:[SentryDependencyContainer sharedInstance].debugImageProvider
                           random:[SentryDependencyContainer sharedInstance].random
@@ -131,7 +98,6 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 - (instancetype)initWithOptions:(SentryOptions *)options
                transportAdapter:(SentryTransportAdapter *)transportAdapter
                     fileManager:(SentryFileManager *)fileManager
-         deleteOldEnvelopeItems:(BOOL)deleteOldEnvelopeItems
                 threadInspector:(SentryDefaultThreadInspector *)threadInspector
              debugImageProvider:(SentryDebugImageProvider *)debugImageProvider
                          random:(id<SentryRandomProtocol>)random
@@ -154,9 +120,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         // executing this on the main thread, we cache the installationID async here.
         [SentryInstallation cacheIDAsyncWithCacheDirectoryPath:options.cacheDirectoryPath];
 
-        if (deleteOldEnvelopeItems) {
-            [fileManager deleteOldEnvelopeItems];
-        }
+        [fileManager deleteOldEnvelopeItems];
     }
     return self;
 }

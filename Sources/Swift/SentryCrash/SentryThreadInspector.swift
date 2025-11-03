@@ -7,7 +7,7 @@
         internalHelper = SentryDefaultThreadInspector(options: SentrySDKInternal.options)
     }
 
-    @objc public init(options: Options) {
+    init(options: Options) {
         internalHelper = SentryDefaultThreadInspector(options: options)
     }
 

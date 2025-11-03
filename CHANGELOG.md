@@ -25,6 +25,7 @@
 - Enable enablePreWarmedAppStartTracing by default (#6508). With this option enabled, the SDK collects [prewarmed app starts](https://docs.sentry.io/platforms/apple/tracing/instrumentation/automatic-instrumentation/#prewarmed-app-start-tracing).
 - Change `value` and `type` of `SentryException` to be nullable (#6563)
 - Change the default trace context status to "ok" instead of "undefined" (#6611)
+- Remove `getHash` from SentryDsn (#6605)
 - [HTTP Client errors](https://docs.sentry.io/platforms/apple/guides/ios/configuration/http-client-errors/) now mark sessions as errored (#6631)
 
 ### Features
@@ -34,6 +35,7 @@
 - Move `enableFileManagerSwizzling` from experimental options to top-level options (#6592).
   This option is still disabled by default and will be enabled in a future major release.
 - Move `enableDataSwizzling` from experimental options to top-level options (#6592). This option remains enabled by default.
+- Add `sentry.replay_id` attribute to logs ([#6515](https://github.com/getsentry/sentry-cocoa/pull/6515))
 
 ### Fixes
 
@@ -50,6 +52,7 @@
   - Add layer class filtering for views used in multiple contexts (e.g., SwiftUI._UIGraphicsView)
   - Improve transform calculations for views with custom anchor points
   - Fix axis-aligned transform detection for optimized opaque view clipping
+- Fix conversion of frame rate to time interval for session replay (#6623)
 
 ### Improvements
 
