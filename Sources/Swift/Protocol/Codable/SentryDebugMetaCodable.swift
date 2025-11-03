@@ -1,14 +1,17 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
-#if SDK_V9
 final class DebugMetaDecodable: DebugMeta {
     convenience public init(from decoder: any Decoder) throws {
         try self.init(decodedFrom: decoder)
     }
 }
-#else
-typealias DebugMetaDecodable = DebugMeta
+
+// Here only to satisfy the cocoapods compiler, which throws an
+// error about SentrySerializable not being found if we don't extend
+// an ObjC class here.
+#if COCOAPODS
+extension DebugMeta { }
 #endif
 
 extension DebugMetaDecodable: Decodable {
@@ -21,12 +24,6 @@ extension DebugMetaDecodable: Decodable {
         case imageVmAddress = "image_vmaddr"
         case codeFile = "code_file"
     }
-
-      #if !SDK_V9
-      required convenience public init(from decoder: any Decoder) throws {
-          try self.init(decodedFrom: decoder)
-      }
-      #endif
 
     private convenience init(decodedFrom decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)

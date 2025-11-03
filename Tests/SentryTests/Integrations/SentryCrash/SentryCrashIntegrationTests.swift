@@ -30,7 +30,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
                 options: options,
                 dateProvider: dateProvider,
                 dispatchQueueWrapper: dispatchQueueWrapper
-            ), deleteOldEnvelopeItems: false)
+            ))
             hub = TestHub(client: client, andScope: nil)
 
             fileManager = try TestFileManager(
@@ -91,7 +91,6 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     }
     
     // Test for GH-581
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func testReleaseNamePassedToSentryCrash() throws {
         let releaseName = "1.0.0"
         let dist = "14G60"
@@ -100,7 +99,8 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
             options.dsn = SentryCrashIntegrationTests.dsnAsString
             options.releaseName = releaseName
             options.dist = dist
-            options.setIntegrations([SentryCrashIntegration.self])
+            options.removeAllIntegrations()
+            options.enableCrashHandler = true
         }
         
         // To test this properly we need SentryCrash and SentryCrashIntegration installed and registered on the current hub of the SDK.
@@ -110,11 +110,11 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         assertUserInfoField(userInfo: userInfo, key: "dist", expected: dist)
     }
     
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func testContext_IsPassedToSentryCrash() throws {
         SentrySDK.start { options in
             options.dsn = SentryCrashIntegrationTests.dsnAsString
-            options.setIntegrations([SentryCrashIntegration.self])
+            options.removeAllIntegrations()
+            options.enableCrashHandler = true
         }
         
         let userInfo = try XCTUnwrap(SentryDependencyContainer.sharedInstance().crashReporter.userInfo)
@@ -398,7 +398,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         api?.pointee.setEnabled(true)
         
         let transport = TestTransport()
-        let client = SentryClient(options: fixture.options, fileManager: fixture.fileManager, deleteOldEnvelopeItems: false)
+        let client = SentryClient(options: fixture.options, fileManager: fixture.fileManager)
         Dynamic(client).transportAdapter = TestTransportAdapter(transports: [transport], options: fixture.options)
         hub.bindClient(client)
         

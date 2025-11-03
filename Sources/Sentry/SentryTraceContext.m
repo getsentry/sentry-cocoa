@@ -97,7 +97,7 @@ NS_ASSUME_NONNULL_BEGIN
     }
 
     return [self initWithTraceId:tracer.traceId
-                       publicKey:options.parsedDsn.url.user
+                       publicKey:SENTRY_UNWRAP_NULLABLE(NSString, options.parsedDsn.url.user)
                      releaseName:options.releaseName
                      environment:options.environment
                      transaction:tracer.transactionContext.name
@@ -111,15 +111,16 @@ NS_ASSUME_NONNULL_BEGIN
                         options:(SentryOptions *)options
                        replayId:(nullable NSString *)replayId;
 {
-    return [[SentryTraceContext alloc] initWithTraceId:traceId
-                                             publicKey:options.parsedDsn.url.user
-                                           releaseName:options.releaseName
-                                           environment:options.environment
-                                           transaction:nil
-                                            sampleRate:nil
-                                            sampleRand:nil
-                                               sampled:nil
-                                              replayId:replayId];
+    return [[SentryTraceContext alloc]
+        initWithTraceId:traceId
+              publicKey:SENTRY_UNWRAP_NULLABLE(NSString, options.parsedDsn.url.user)
+            releaseName:options.releaseName
+            environment:options.environment
+            transaction:nil
+             sampleRate:nil
+             sampleRand:nil
+                sampled:nil
+               replayId:replayId];
 }
 
 - (nullable instancetype)initWithDict:(NSDictionary<NSString *, id> *)dictionary

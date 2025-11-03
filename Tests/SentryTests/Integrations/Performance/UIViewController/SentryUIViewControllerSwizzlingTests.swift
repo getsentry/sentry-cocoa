@@ -15,7 +15,6 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
         let binaryImageCache: SentryBinaryImageCache
         var options: Options
         
-        @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
         init() {
             subClassFinder = TestSubClassFinder(dispatchQueue: dispatchQueue, objcRuntimeWrapper: objcRuntimeWrapper, swizzleClassNameExcludes: [])
             binaryImageCache = SentryDependencyContainer.sharedInstance().binaryImageCache
@@ -49,7 +48,6 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
     
     private var fixture: Fixture!
 
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     override func setUp() {
         super.setUp()
         fixture = Fixture()

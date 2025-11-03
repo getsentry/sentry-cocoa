@@ -23,11 +23,18 @@
 - Remove unused `SentryFrame.instruction` property (#6504)
 - Remove `uuid` and `name` of `SentryDebugMeta` (#6512) Use `debugID` instead of `uuid` and `codeFile` instead of `name`.
 - Enable enablePreWarmedAppStartTracing by default (#6508). With this option enabled, the SDK collects [prewarmed app starts](https://docs.sentry.io/platforms/apple/tracing/instrumentation/automatic-instrumentation/#prewarmed-app-start-tracing).
+- Change `value` and `type` of `SentryException` to be nullable (#6563)
+- Change the default trace context status to "ok" instead of "undefined" (#6611)
+- Remove `getHash` from SentryDsn (#6605)
 
 ### Features
 
 - Add SentryDistribution as Swift Package Manager target (#6149)
 - Add option `enablePropagateTraceparent` to support OTel/W3C trace propagation (#6356)
+- Move `enableFileManagerSwizzling` from experimental options to top-level options (#6592).
+  This option is still disabled by default and will be enabled in a future major release.
+- Move `enableDataSwizzling` from experimental options to top-level options (#6592). This option remains enabled by default.
+- Add `sentry.replay_id` attribute to logs ([#6515](https://github.com/getsentry/sentry-cocoa/pull/6515))
 
 ### Fixes
 
@@ -44,10 +51,20 @@
   - Add layer class filtering for views used in multiple contexts (e.g., SwiftUI._UIGraphicsView)
   - Improve transform calculations for views with custom anchor points
   - Fix axis-aligned transform detection for optimized opaque view clipping
+- Fix conversion of frame rate to time interval for session replay (#6623)
 
 ### Improvements
 
 - Replace deprecated SCNetworkReachability with NWPathMonitor (#6019)
+- Increase attachment max size to 100MB (#6537)
+
+## 8.57.1
+
+### Fixes
+
+- Fix crash from accessing UITouch instances from background thread in SentryTouchTracker (#6584)
+- Disable SessionSentryReplayIntegration if the environment is unsafe [#6573]
+- Fix crash when last replay info is missing some keys [#6577]
 
 ## 8.57.0
 
