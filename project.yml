@@ -1,0 +1,77 @@
+name: Sentry2
+options:
+  generateEmptyDirectories: false
+  createIntermediateGroups: true
+
+configs:
+  Debug: debug
+  DebugWithoutUIKit: debug
+  Test: debug
+  TestCI: debug
+  Release: release
+  ReleaseWithoutUIKit: release
+
+configFiles:
+  Debug: Sources/Configuration/SDK.xcconfig
+  DebugWithoutUIKit: Sources/Configuration/SDK.xcconfig
+  Test: Sources/Configuration/SDK.xcconfig
+  TestCI: Sources/Configuration/SDK.xcconfig
+  Release: Sources/Configuration/SDK.xcconfig
+  ReleaseWithoutUIKit: Sources/Configuration/SDK.xcconfig
+
+targets:
+  Sentry:
+    type: framework
+    platform: iOS
+    configFiles:
+      Debug: Sources/Configuration/Sentry.xcconfig
+      DebugWithoutUIKit: Sources/Configuration/Sentry.xcconfig
+      Test: Sources/Configuration/Sentry.xcconfig
+      TestCI: Sources/Configuration/Sentry.xcconfig
+      Release: Sources/Configuration/Sentry.xcconfig
+      ReleaseWithoutUIKit: Sources/Configuration/Sentry.xcconfig
+    sources:
+      - path: Sources/Sentry/Public
+        headerVisibility: public
+      - path: Sources/Sentry/include/HybridPublic
+        headerVisibility: public
+        includes:
+          - "*.h"
+      - path: Sources/Sentry/include
+        headerVisibility: project
+        excludes:
+          - "HybridPublic/**"
+      - path: Sources/Sentry
+        headerVisibility: private
+        excludes:
+          - "Public/**"
+          - "include/**"
+      - path: Sources/Swift
+      - path: Sources/SentryCrash
+        headerVisibility: private
+      - path: Sources/SentryCppHelper
+        headerVisibility: private
+      - path: Sources/SentryDistribution
+    resources:
+      - Sources/Resources/PrivacyInfo.xcprivacy
+    settings:
+      base:
+        MODULEMAP_FILE: Sources/Resources/Sentry.modulemap
+        GCC_PREPROCESSOR_DEFINITIONS: "$(inherited) COCOAPODS=1"
+        SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) COCOAPODS"
+
+schemes:
+  Sentry:
+    build:
+      targets:
+        Sentry: all
+    run:
+      config: Debug
+    test:
+      config: Test
+    profile:
+      config: Release
+    analyze:
+      config: Debug
+    archive:
+      config: Release
