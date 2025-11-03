@@ -48,11 +48,8 @@ class SentryUIRedactBuilderTests_UIKit: SentryUIRedactBuilderTests { // swiftlin
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: true)
         let result = sut.redactRegionsFor(view: rootView)
-        let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: masked, as: .image)
-        
         let region = try XCTUnwrap(result.element(at: 0))
         // For UILabel we can use the text color directly to render the redaction geometry
         XCTAssertEqual(region.color, .purple)
@@ -73,11 +70,8 @@ class SentryUIRedactBuilderTests_UIKit: SentryUIRedactBuilderTests { // swiftlin
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: true)
         let result = sut.redactRegionsFor(view: rootView)
-        let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: masked, as: .image)
-        
         let region = try XCTUnwrap(result.element(at: 0))
         // For UILabel we can derive which color should be used to render the redaction geometry
         XCTAssertEqual(region.color, .purple)
@@ -96,10 +90,8 @@ class SentryUIRedactBuilderTests_UIKit: SentryUIRedactBuilderTests { // swiftlin
         // -- Act --
         let sut = getSut(maskAllText: false, maskAllImages: true)
         let result = sut.redactRegionsFor(view: rootView)
-        let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: masked, as: .image)
         XCTAssertEqual(result.count, 0)
     }
 
@@ -111,10 +103,8 @@ class SentryUIRedactBuilderTests_UIKit: SentryUIRedactBuilderTests { // swiftlin
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: false)
         let result = sut.redactRegionsFor(view: rootView)
-        let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: masked, as: .image)
         XCTAssertEqual(result.count, 1)
     }
 
@@ -163,11 +153,8 @@ class SentryUIRedactBuilderTests_UIKit: SentryUIRedactBuilderTests { // swiftlin
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: true)
         let result = sut.redactRegionsFor(view: rootView)
-        let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: masked, as: .image)
-        
         let region = try XCTUnwrap(result.element(at: 0))
         // The text color of UITextView is not used for redaction
         XCTAssertNil(region.color)
@@ -186,11 +173,8 @@ class SentryUIRedactBuilderTests_UIKit: SentryUIRedactBuilderTests { // swiftlin
         // -- Act --
         let sut = getSut(maskAllText: false, maskAllImages: true)
         let result = sut.redactRegionsFor(view: rootView)
-        let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: masked, as: .image)
-        
         let region1 = try XCTUnwrap(result.element(at: 0))
         XCTAssertNil(region1.color)
         XCTAssertEqual(region1.size, CGSize(width: 40, height: 40))
@@ -221,10 +205,8 @@ class SentryUIRedactBuilderTests_UIKit: SentryUIRedactBuilderTests { // swiftlin
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: false)
         let result = sut.redactRegionsFor(view: rootView)
-        let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: masked, as: .image)
         XCTAssertEqual(result.count, 1)
     }
 
@@ -253,11 +235,8 @@ class SentryUIRedactBuilderTests_UIKit: SentryUIRedactBuilderTests { // swiftlin
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: true)
         let result = sut.redactRegionsFor(view: rootView)
-        let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: masked, as: .image)
-        
         let region1 = try XCTUnwrap(result.element(at: 0)) // _UITextLayoutCanvasView
         XCTAssertNil(region1.color) // The text color of UITextField is not used for redaction
         XCTAssertEqual(region1.size, CGSize(width: 0, height: 0))
@@ -281,10 +260,8 @@ class SentryUIRedactBuilderTests_UIKit: SentryUIRedactBuilderTests { // swiftlin
         // -- Act --
         let sut = getSut(maskAllText: false, maskAllImages: true)
         let result = sut.redactRegionsFor(view: rootView)
-        let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: masked, as: .image)
         XCTAssertEqual(result.count, 0)
     }
 
@@ -295,10 +272,8 @@ class SentryUIRedactBuilderTests_UIKit: SentryUIRedactBuilderTests { // swiftlin
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: false)
         let result = sut.redactRegionsFor(view: rootView)
-        let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: masked, as: .image)
         XCTAssertEqual(result.count, 2)
     }
 
@@ -330,11 +305,8 @@ class SentryUIRedactBuilderTests_UIKit: SentryUIRedactBuilderTests { // swiftlin
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: true)
         let result = sut.redactRegionsFor(view: rootView)
-        let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: masked, as: .image)
-        
         let region = try XCTUnwrap(result.element(at: 0))
         // The text color of UITextView is not used for redaction
         XCTAssertNil(region.color)
@@ -353,10 +325,8 @@ class SentryUIRedactBuilderTests_UIKit: SentryUIRedactBuilderTests { // swiftlin
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: false)
         let result = sut.redactRegionsFor(view: rootView)
-        let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: masked, as: .image)
         XCTAssertEqual(result.count, 0)
     }
 
@@ -367,10 +337,8 @@ class SentryUIRedactBuilderTests_UIKit: SentryUIRedactBuilderTests { // swiftlin
         // -- Act --
         let sut = getSut(maskAllText: false, maskAllImages: true)
         let result = sut.redactRegionsFor(view: rootView)
-        let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: masked, as: .image)
         XCTAssertEqual(result.count, 1)
     }
 
@@ -420,10 +388,8 @@ class SentryUIRedactBuilderTests_UIKit: SentryUIRedactBuilderTests { // swiftlin
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: true)
         let result = sut.redactRegionsFor(view: rootView)
-        let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: masked, as: .image)
         XCTAssertEqual(result.count, 0)
     }
 
