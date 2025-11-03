@@ -395,7 +395,9 @@ sentry_isValidSampleRate(NSNumber *sampleRate)
     SentryUserFeedbackConfiguration *userFeedbackConfiguration =
         [[SentryUserFeedbackConfiguration alloc] init];
     self.userFeedbackConfiguration = userFeedbackConfiguration;
-    configureUserFeedback(userFeedbackConfiguration);
+    if (configureUserFeedback) {
+        configureUserFeedback(userFeedbackConfiguration);
+    }
 }
 #endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
 
