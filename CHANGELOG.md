@@ -12,6 +12,9 @@
 - Removes deprecated getStoreEndpoint (#5591)
 - Remove legacy profiling, the only supported profiling is now what was known as continuous V2 (#6386)
 - Removes deprecated useSpan function (#5591)
+- Makes app hang tracking V2 the default and removes the option to enable/disable it (#5615)
+- Removes `integrations` property from `SentryOptions` (#5749)
+- Makes `SentryEventDecodable` internal (#5808)
 - The `span` property on `SentryScope` is now readonly (#5866)
 - Removes deprecated SentryDebugImageProvider class (#5598)
 - Removes segment property on SentryUser, SentryBaggage, and SentryTraceContext (#5638)
@@ -23,12 +26,23 @@
 - Remove unused `SentryFrame.instruction` property (#6504)
 - Remove `uuid` and `name` of `SentryDebugMeta` (#6512) Use `debugID` instead of `uuid` and `codeFile` instead of `name`.
 - Enable enablePreWarmedAppStartTracing by default (#6508). With this option enabled, the SDK collects [prewarmed app starts](https://docs.sentry.io/platforms/apple/tracing/instrumentation/automatic-instrumentation/#prewarmed-app-start-tracing).
+- Set `SentryFrame.function` default to `nil` instead of `<redacted>` (#6608)
+- Change `value` and `type` of `SentryException` to be nullable (#6563)
+- Change the default trace context status to "ok" instead of "undefined" (#6611)
+- Remove `getHash` from SentryDsn (#6605)
+- The precompiled XCFramework is now built with Xcode 16. To submit to the App Store, [Apple now requires Xcode 16](https://developer.apple.com/news/upcoming-requirements/?id=02212025a).
+  If you need a precompiled XCFramework built with Xcode 15, continue using Sentry SDK 8.x.x.
 
 ### Features
 
 - Add SentryDistribution as Swift Package Manager target (#6149)
+- Moves SentryClient and SentryHub to be written in Swift (#6627)
 - Add option `enablePropagateTraceparent` to support OTel/W3C trace propagation (#6356)
 - Structured Logs: Add `SentrySwiftLog` Integration (#6286)
+- Move `enableFileManagerSwizzling` from experimental options to top-level options (#6592).
+  This option is still disabled by default and will be enabled in a future major release.
+- Move `enableDataSwizzling` from experimental options to top-level options (#6592). This option remains enabled by default.
+- Add `sentry.replay_id` attribute to logs ([#6515](https://github.com/getsentry/sentry-cocoa/pull/6515))
 
 ### Fixes
 
@@ -45,10 +59,21 @@
   - Add layer class filtering for views used in multiple contexts (e.g., SwiftUI._UIGraphicsView)
   - Improve transform calculations for views with custom anchor points
   - Fix axis-aligned transform detection for optimized opaque view clipping
+- Rename `SentryMechanismMeta` to `SentryMechanismContext` to resolve Kotlin Multi-Platform build errors (#6607)
+- Fix conversion of frame rate to time interval for session replay (#6623)
 
 ### Improvements
 
 - Replace deprecated SCNetworkReachability with NWPathMonitor (#6019)
+- Increase attachment max size to 100MB (#6537)
+
+## 8.57.1
+
+### Fixes
+
+- Fix crash from accessing UITouch instances from background thread in SentryTouchTracker (#6584)
+- Disable SessionSentryReplayIntegration if the environment is unsafe [#6573]
+- Fix crash when last replay info is missing some keys [#6577]
 
 ## 8.57.0
 

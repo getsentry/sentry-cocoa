@@ -775,6 +775,68 @@ final class SentryLoggerTests: XCTestCase {
         XCTAssertNil(nilCallback, "Dynamic access should allow setting to nil")
     }
     
+    // MARK: - Replay Attributes Tests
+#if canImport(UIKit) && !SENTRY_NO_UIKIT    
+#if os(iOS) || os(tvOS)
+    func testReplayAttributes_SessionMode_AddsReplayId() {
+        // Setup replay integration
+        let replayOptions = SentryReplayOptions(sessionSampleRate: 1.0, onErrorSampleRate: 0.0)
+        fixture.options.sessionReplay = replayOptions
+        
+        let replayIntegration = SentrySessionReplayIntegration()
+        fixture.hub.addInstalledIntegration(replayIntegration, name: "SentrySessionReplayIntegration")
+        
+        // Set replayId on scope (session mode)
+        let replayId = "12345678-1234-1234-1234-123456789012"
+        fixture.scope.replayId = replayId
+        
+        sut.info("Test message")
+        
+        let log = getLastCapturedLog()
+        XCTAssertEqual(log.attributes["sentry.replay_id"]?.value as? String, replayId)
+        XCTAssertNil(log.attributes["sentry._internal.replay_is_buffering"])
+    }
+    
+    func testReplayAttributes_BufferMode_AddsReplayIdAndBufferingFlag() {
+        // Set up buffer mode: hub has an ID, but scope.replayId is nil
+        let mockReplayId = SentryId()
+        fixture.hub.mockReplayId = mockReplayId.sentryIdString
+        fixture.scope.replayId = nil
+        
+        sut.info("Test message")
+        
+        let log = getLastCapturedLog()
+        let replayIdString = log.attributes["sentry.replay_id"]?.value as? String
+        XCTAssertEqual(replayIdString, mockReplayId.sentryIdString)
+        XCTAssertEqual(log.attributes["sentry._internal.replay_is_buffering"]?.value as? Bool, true)
+    }
+    
+    func testReplayAttributes_NoReplay_NoAttributesAdded() {
+        // Don't set up replay integration
+        
+        sut.info("Test message")
+        
+        let log = getLastCapturedLog()
+        XCTAssertNil(log.attributes["sentry.replay_id"])
+        XCTAssertNil(log.attributes["sentry._internal.replay_is_buffering"])
+    }
+    
+    func testReplayAttributes_BothSessionAndScopeReplayId_SessionMode() {
+        // Session mode: scope has the ID, hub also has one
+        let replayId = "12345678-1234-1234-1234-123456789012"
+        fixture.hub.mockReplayId = replayId
+        fixture.scope.replayId = replayId
+        
+        sut.info("Test message")
+        
+        let log = getLastCapturedLog()
+        // Session mode should use scope's ID (takes precedence) and not add buffering flag
+        XCTAssertEqual(log.attributes["sentry.replay_id"]?.value as? String, replayId)
+        XCTAssertNil(log.attributes["sentry._internal.replay_is_buffering"])
+    }
+#endif
+#endif
+
     // MARK: - Helper Methods
     
     private func assertLogCaptured(

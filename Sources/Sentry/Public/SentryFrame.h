@@ -99,7 +99,6 @@ NS_SWIFT_NAME(Frame)
 @property (nonatomic, copy) NSDictionary<NSString *, id> *_Nullable vars;
 
 - (instancetype)init;
-+ (instancetype)new NS_UNAVAILABLE;
 
 @end
 

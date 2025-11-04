@@ -161,7 +161,7 @@ public struct SentrySDKWrapper {
         options.enableLogs = true
 
         // Experimental features
-        options.experimental.enableFileManagerSwizzling = !SentrySDKOverrides.Other.disableFileManagerSwizzling.boolValue
+        options.enableFileManagerSwizzling = !SentrySDKOverrides.Other.disableFileManagerSwizzling.boolValue
         options.experimental.enableUnhandledCPPExceptionsV2 = true
     }
 

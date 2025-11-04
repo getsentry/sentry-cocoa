@@ -10,7 +10,6 @@ FOUNDATION_EXPORT const unsigned char SentryVersionString[];
 #    import <Sentry/SentryAttachment.h>
 #    import <Sentry/SentryBaggage.h>
 #    import <Sentry/SentryBreadcrumb.h>
-#    import <Sentry/SentryClient.h>
 #    import <Sentry/SentryCrashExceptionApplication.h>
 #    import <Sentry/SentryDebugMeta.h>
 #    import <Sentry/SentryDefines.h>
@@ -23,11 +22,11 @@ FOUNDATION_EXPORT const unsigned char SentryVersionString[];
 #    import <Sentry/SentryFrame.h>
 #    import <Sentry/SentryGeo.h>
 #    import <Sentry/SentryHttpStatusCodeRange.h>
-#    import <Sentry/SentryHub.h>
+#    import <Sentry/SentryId.h>
 #    import <Sentry/SentryIntegrationProtocol.h>
 #    import <Sentry/SentryMeasurementUnit.h>
 #    import <Sentry/SentryMechanism.h>
-#    import <Sentry/SentryMechanismMeta.h>
+#    import <Sentry/SentryMechanismContext.h>
 #    import <Sentry/SentryMessage.h>
 #    import <Sentry/SentryNSError.h>
 #    import <Sentry/SentryOptions.h>

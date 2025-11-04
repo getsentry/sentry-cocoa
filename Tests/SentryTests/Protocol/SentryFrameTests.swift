@@ -120,7 +120,7 @@ class SentryFrameTests: XCTestCase {
         // Assert
         XCTAssertNil(decoded.symbolAddress)
         XCTAssertNil(decoded.fileName)
-        XCTAssertEqual("<redacted>", decoded.function)
+        XCTAssertNil(decoded.function)
         XCTAssertNil(decoded.module)
         XCTAssertNil(decoded.lineNumber)
         XCTAssertNil(decoded.columnNumber)

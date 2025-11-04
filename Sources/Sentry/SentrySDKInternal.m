@@ -38,44 +38,17 @@
 #    import "SentryProfiler+Private.h"
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
-@implementation SentryIdWrapper
-
-- (instancetype)initWithId:(NSString *)sentryIdString
-{
-    if (self = [super init]) {
-        self.sentryIdString = sentryIdString;
-        return self;
-    }
-    return nil;
-}
-
-- (SentryId *)sentryId
-{
-    return [[SentryId alloc] initWithUUIDString:self.sentryIdString];
-}
-
-@end
-
-@implementation SentryId (Wrapper)
-
-- (SentryIdWrapper *)wrapper
-{
-    return [[SentryIdWrapper alloc] initWithId:self.sentryIdString];
-}
-
-@end
-
 NSString *const SENTRY_XCODE_PREVIEW_ENVIRONMENT_KEY = @"XCODE_RUNNING_FOR_PREVIEWS";
 
 @interface SentrySDKInternal ()
 
-@property (class) SentryHub *currentHub;
+@property (class) SentryHubInternal *currentHub;
 
 @end
 
 NS_ASSUME_NONNULL_BEGIN
 @implementation SentrySDKInternal
-static SentryHub *_Nullable currentHub;
+static SentryHubInternal *_Nullable currentHub;
 static NSObject *currentHubLock;
 static BOOL crashedLastRunCalled;
 static SentryAppStartMeasurement *_Nullable sentrySDKappStartMeasurement;
@@ -106,13 +79,13 @@ static NSDate *_Nullable startTimestamp = nil;
     }
 }
 
-+ (SentryHub *)currentHub
++ (SentryHubInternal *)currentHub
 {
     @synchronized(currentHubLock) {
         if (nil == currentHub) {
-            currentHub = [[SentryHub alloc] initWithClient:nil andScope:nil];
+            currentHub = [[SentryHubInternal alloc] initWithClient:nil andScope:nil];
         }
-        return SENTRY_UNWRAP_NULLABLE(SentryHub, currentHub);
+        return SENTRY_UNWRAP_NULLABLE(SentryHubInternal, currentHub);
     }
 }
 
@@ -133,7 +106,7 @@ static NSDate *_Nullable startTimestamp = nil;
 #endif
 
 /** Internal, only needed for testing. */
-+ (void)setCurrentHub:(nullable SentryHub *)hub
++ (void)setCurrentHub:(nullable SentryHubInternal *)hub
 {
     @synchronized(currentHubLock) {
         currentHub = hub;
@@ -256,7 +229,7 @@ static NSDate *_Nullable startTimestamp = nil;
     startInvocations++;
     startTimestamp = [SentryDependencyContainer.sharedInstance.dateProvider date];
 
-    SentryClient *newClient = [[SentryClient alloc] initWithOptions:options];
+    SentryClientInternal *newClient = [[SentryClientInternal alloc] initWithOptions:options];
     [newClient.fileManager moveAppStateToPreviousAppState];
     [newClient.fileManager moveBreadcrumbsToPreviousBreadcrumbs];
     [SentryDependencyContainer.sharedInstance
@@ -278,7 +251,8 @@ static NSDate *_Nullable startTimestamp = nil;
 
             // The Hub needs to be initialized with a client so that closing a session
             // can happen.
-            SentryHub *hub = [[SentryHub alloc] initWithClient:newClient andScope:scope];
+            SentryHubInternal *hub = [[SentryHubInternal alloc] initWithClient:newClient
+                                                                      andScope:scope];
             [SentrySDKInternal setCurrentHub:hub];
 
             [SentryDependencyContainer.sharedInstance.crashWrapper startBinaryImageCache];
@@ -320,21 +294,21 @@ static NSDate *_Nullable startTimestamp = nil;
 
 #endif // SENTRY_HAS_UIKIT
 
-+ (SentryIdWrapper *)captureEvent:(SentryEvent *)event
++ (SentryId *)captureEvent:(SentryEvent *)event
 {
     return [SentrySDKInternal captureEvent:event withScope:SentrySDKInternal.currentHub.scope];
 }
 
-+ (SentryIdWrapper *)captureEvent:(SentryEvent *)event withScopeBlock:(void (^)(SentryScope *))block
++ (SentryId *)captureEvent:(SentryEvent *)event withScopeBlock:(void (^)(SentryScope *))block
 {
     SentryScope *scope = [[SentryScope alloc] initWithScope:SentrySDKInternal.currentHub.scope];
     block(scope);
     return [SentrySDKInternal captureEvent:event withScope:scope];
 }
 
-+ (SentryIdWrapper *)captureEvent:(SentryEvent *)event withScope:(SentryScope *)scope
++ (SentryId *)captureEvent:(SentryEvent *)event withScope:(SentryScope *)scope
 {
-    return [SentrySDKInternal.currentHub captureEvent:event withScope:scope].wrapper;
+    return [SentrySDKInternal.currentHub captureEvent:event withScope:scope];
 }
 
 + (id<SentrySpan>)startTransactionWithName:(NSString *)name operation:(NSString *)operation
@@ -379,41 +353,40 @@ static NSDate *_Nullable startTimestamp = nil;
                                                customSamplingContext:customSamplingContext];
 }
 
-+ (SentryIdWrapper *)captureError:(NSError *)error
++ (SentryId *)captureError:(NSError *)error
 {
     return [SentrySDKInternal captureError:error withScope:SentrySDKInternal.currentHub.scope];
 }
 
-+ (SentryIdWrapper *)captureError:(NSError *)error
-                   withScopeBlock:(void (^)(SentryScope *_Nonnull))block
++ (SentryId *)captureError:(NSError *)error withScopeBlock:(void (^)(SentryScope *_Nonnull))block
 {
     SentryScope *scope = [[SentryScope alloc] initWithScope:SentrySDKInternal.currentHub.scope];
     block(scope);
     return [SentrySDKInternal captureError:error withScope:scope];
 }
 
-+ (SentryIdWrapper *)captureError:(NSError *)error withScope:(SentryScope *)scope
++ (SentryId *)captureError:(NSError *)error withScope:(SentryScope *)scope
 {
-    return [SentrySDKInternal.currentHub captureError:error withScope:scope].wrapper;
+    return [SentrySDKInternal.currentHub captureError:error withScope:scope];
 }
 
-+ (SentryIdWrapper *)captureException:(NSException *)exception
++ (SentryId *)captureException:(NSException *)exception
 {
     return [SentrySDKInternal captureException:exception
                                      withScope:SentrySDKInternal.currentHub.scope];
 }
 
-+ (SentryIdWrapper *)captureException:(NSException *)exception
-                       withScopeBlock:(void (^)(SentryScope *))block
++ (SentryId *)captureException:(NSException *)exception
+                withScopeBlock:(void (^)(SentryScope *))block
 {
     SentryScope *scope = [[SentryScope alloc] initWithScope:SentrySDKInternal.currentHub.scope];
     block(scope);
     return [SentrySDKInternal captureException:exception withScope:scope];
 }
 
-+ (SentryIdWrapper *)captureException:(NSException *)exception withScope:(SentryScope *)scope
++ (SentryId *)captureException:(NSException *)exception withScope:(SentryScope *)scope
 {
-    return [SentrySDKInternal.currentHub captureException:exception withScope:scope].wrapper;
+    return [SentrySDKInternal.currentHub captureException:exception withScope:scope];
 }
 
 #if TARGET_OS_OSX
@@ -427,28 +400,26 @@ static NSDate *_Nullable startTimestamp = nil;
                             userInfo:exception.userInfo
             callStackReturnAddresses:exception.callStackReturnAddresses];
     return [SentrySDKInternal captureException:wrappedException
-                                     withScope:SentrySDKInternal.currentHub.scope]
-        .sentryId;
+                                     withScope:SentrySDKInternal.currentHub.scope];
 }
 
 #endif // TARGET_OS_OSX
 
-+ (SentryIdWrapper *)captureMessage:(NSString *)message
++ (SentryId *)captureMessage:(NSString *)message
 {
     return [SentrySDKInternal captureMessage:message withScope:SentrySDKInternal.currentHub.scope];
 }
 
-+ (SentryIdWrapper *)captureMessage:(NSString *)message
-                     withScopeBlock:(void (^)(SentryScope *))block
++ (SentryId *)captureMessage:(NSString *)message withScopeBlock:(void (^)(SentryScope *))block
 {
     SentryScope *scope = [[SentryScope alloc] initWithScope:SentrySDKInternal.currentHub.scope];
     block(scope);
     return [SentrySDKInternal captureMessage:message withScope:scope];
 }
 
-+ (SentryIdWrapper *)captureMessage:(NSString *)message withScope:(SentryScope *)scope
++ (SentryId *)captureMessage:(NSString *)message withScope:(SentryScope *)scope
 {
-    return [SentrySDKInternal.currentHub captureMessage:message withScope:scope].wrapper;
+    return [SentrySDKInternal.currentHub captureMessage:message withScope:scope];
 }
 
 /**
@@ -559,15 +530,7 @@ static NSDate *_Nullable startTimestamp = nil;
         return;
     }
     SentryOptions *options = [SentrySDKInternal.currentHub getClient].options;
-#if SDK_V9
     NSMutableArray<NSString *> *integrationNames = [SentryOptions defaultIntegrations].mutableCopy;
-#else
-#    pragma clang diagnostic push
-#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    NSMutableArray<NSString *> *integrationNames =
-        [SentrySDKInternal.currentHub getClient].options.integrations.mutableCopy;
-#    pragma clang diagnostic pop
-#endif // SDK_V9
 
     NSArray<Class> *defaultIntegrations = SentryOptionsInternal.defaultIntegrationClasses;
 
@@ -654,7 +617,7 @@ static NSDate *_Nullable startTimestamp = nil;
 
     startTimestamp = nil;
 
-    SentryHub *hub = SentrySDKInternal.currentHub;
+    SentryHubInternal *hub = SentrySDKInternal.currentHub;
     [hub removeAllIntegrations];
 
     SENTRY_LOG_DEBUG(@"Uninstalled all integrations.");

@@ -1,4 +1,5 @@
 #import "SentrySwizzle.h"
+#import "SentryInternalDefines.h"
 #import "SentryLogC.h"
 
 #import <objc/runtime.h>
@@ -160,7 +161,8 @@ swizzle(
             // If the class does not implement the method
             // we need to find an implementation in one of the superclasses.
             Class superclass = class_getSuperclass(classToSwizzle);
-            imp = method_getImplementation(class_getInstanceMethod(superclass, selector));
+            imp = method_getImplementation(SENTRY_UNWRAP_NULLABLE(
+                struct objc_method, class_getInstanceMethod(superclass, selector)));
         }
 
         return imp;

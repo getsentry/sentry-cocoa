@@ -6,7 +6,7 @@
 #import "SentryException.h"
 #import "SentryFrame.h"
 #import "SentryMechanism.h"
-#import "SentryMechanismMeta.h"
+#import "SentryMechanismContext.h"
 #import "SentryStacktrace.h"
 #import "SentrySwift.h"
 #import "SentryThread.h"
@@ -255,7 +255,7 @@
         [[SentryCrashReportConverter alloc] initWithReport:rawCrash inAppLogic:self.inAppLogic];
     SentryEvent *event = [reportConverter convertReportToEvent];
     SentryException *exception = event.exceptions.firstObject;
-    XCTAssertEqualObjects(exception.stacktrace.frames.lastObject.function, @"<redacted>");
+    XCTAssertNil(exception.stacktrace.frames.lastObject.function);
 }
 
 - (void)testReactNative
