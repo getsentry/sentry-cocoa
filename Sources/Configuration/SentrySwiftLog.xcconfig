@@ -1,6 +1,5 @@
-#include "SDK.xcconfig"
-
 PRODUCT_NAME = SentrySwiftLog
+CURRENT_PROJECT_VERSION = 8.57.1
 
 MACOSX_DEPLOYMENT_TARGET = 12
 IPHONEOS_DEPLOYMENT_TARGET = 15.0
@@ -15,7 +14,6 @@ OTHER_LDFLAGS_Test = -framework Sentry
 OTHER_LDFLAGS_TestCI = -framework Sentry
 OTHER_LDFLAGS_Release = -framework Sentry
 OTHER_LDFLAGS = $(OTHER_LDFLAGS_$(CONFIGURATION))
-// Exclude arm64e because the external Logging SPM dependency doesn't support it
 ARCHS = $(ARCHS_STANDARD)
 ARCHS[sdk=*simulator] = $(ARCHS_STANDARD)
 
