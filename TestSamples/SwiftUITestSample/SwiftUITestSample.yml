@@ -22,7 +22,7 @@ targets:
     sources:
       - SwiftUITestSample
     settings:
-      SWIFT_OBJC_BRIDGING_HEADER: TestSamples/SwiftUITestSample/SwiftUITestSample-Bridging-Header.h
+      SWIFT_OBJC_BRIDGING_HEADER: SwiftUITestSample-Bridging-Header.h
     configFiles:
       Debug: SwiftUITestSample.xcconfig
       Release: SwiftUITestSample.xcconfig

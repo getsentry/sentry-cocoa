@@ -1,1 +1,1 @@
-#import "SentryDsn+Private.h"
+#import <Sentry/SentryDsn+Private.h>
