@@ -18,6 +18,7 @@
 - Removes `defaultIntegrations` function from `SentryOptions` (#6664)
 - Makes `SentryEventDecodable` internal (#5808)
 - The `span` property on `SentryScope` is now readonly (#5866)
+- Removes `SentryIntegrationProtocol` from the API. This is not used after the removal of the `integrations` property (#6660)
 - Removes deprecated SentryDebugImageProvider class (#5598)
 - Properties on SentryOptions that had no effect on the WithoutUIKit variant are now removed from the API (#6644)
 - Removes segment property on SentryUser, SentryBaggage, and SentryTraceContext (#5638)

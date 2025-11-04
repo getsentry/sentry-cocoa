@@ -176,16 +176,6 @@
       },
       {
         "kind": "Import",
-        "name": "Sentry.SentryIntegrationProtocol",
-        "printedName": "Sentry.SentryIntegrationProtocol",
-        "declKind": "Import",
-        "moduleName": "Sentry",
-        "declAttributes": [
-          "Exported"
-        ]
-      },
-      {
-        "kind": "Import",
         "name": "Sentry.SentryMeasurementUnit",
         "printedName": "Sentry.SentryMeasurementUnit",
         "declKind": "Import",
@@ -26307,107 +26297,6 @@
             "printedName": "CustomDebugStringConvertible",
             "usr": "s:s28CustomDebugStringConvertibleP",
             "mangledName": "$ss28CustomDebugStringConvertibleP"
-          }
-        ]
-      },
-      {
-        "kind": "TypeDecl",
-        "name": "SentryIntegrationProtocol",
-        "printedName": "SentryIntegrationProtocol",
-        "children": [
-          {
-            "kind": "Function",
-            "name": "install",
-            "printedName": "install(with:)",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Bool",
-                "printedName": "Swift.Bool",
-                "usr": "s:Sb"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "Options",
-                "printedName": "Sentry.Options",
-                "usr": "c:objc(cs)SentryOptions"
-              }
-            ],
-            "declKind": "Func",
-            "usr": "c:objc(pl)SentryIntegrationProtocol(im)installWithOptions:",
-            "moduleName": "Sentry",
-            "genericSig": "<Self where Self : Sentry.SentryIntegrationProtocol>",
-            "protocolReq": true,
-            "objc_name": "installWithOptions:",
-            "declAttributes": [
-              "DiscardableResult",
-              "ObjC",
-              "Dynamic"
-            ],
-            "reqNewWitnessTableEntry": true,
-            "funcSelfKind": "NonMutating"
-          },
-          {
-            "kind": "Function",
-            "name": "uninstall",
-            "printedName": "uninstall()",
-            "children": [
-              {
-                "kind": "TypeNameAlias",
-                "name": "Void",
-                "printedName": "Swift.Void",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Void",
-                    "printedName": "()"
-                  }
-                ]
-              }
-            ],
-            "declKind": "Func",
-            "usr": "c:objc(pl)SentryIntegrationProtocol(im)uninstall",
-            "moduleName": "Sentry",
-            "genericSig": "<Self where Self : Sentry.SentryIntegrationProtocol>",
-            "protocolReq": true,
-            "objc_name": "uninstall",
-            "declAttributes": [
-              "ObjC",
-              "Dynamic"
-            ],
-            "reqNewWitnessTableEntry": true,
-            "funcSelfKind": "NonMutating"
-          }
-        ],
-        "declKind": "Protocol",
-        "usr": "c:objc(pl)SentryIntegrationProtocol",
-        "moduleName": "Sentry",
-        "genericSig": "<Self : ObjectiveC.NSObjectProtocol>",
-        "objc_name": "SentryIntegrationProtocol",
-        "declAttributes": [
-          "ObjC",
-          "Dynamic"
-        ],
-        "conformances": [
-          {
-            "kind": "Conformance",
-            "name": "Escapable",
-            "printedName": "Escapable",
-            "usr": "s:s9EscapableP",
-            "mangledName": "$ss9EscapableP"
-          },
-          {
-            "kind": "Conformance",
-            "name": "Copyable",
-            "printedName": "Copyable",
-            "usr": "s:s8CopyableP",
-            "mangledName": "$ss8CopyableP"
-          },
-          {
-            "kind": "Conformance",
-            "name": "NSObjectProtocol",
-            "printedName": "NSObjectProtocol",
-            "usr": "c:objc(pl)NSObject"
           }
         ]
       },
