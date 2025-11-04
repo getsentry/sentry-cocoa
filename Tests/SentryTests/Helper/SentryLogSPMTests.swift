@@ -2,46 +2,16 @@
 @_spi(Private) import SentryTestUtils
 import XCTest
 
-/// Tests for SPM log capture workarounds using dynamic dispatch.
-/// These tests verify that the Objective-C methods can be called via perform(Selector:with:),
-/// which is what the SPM extensions (SentryLob+SPM.swift) do internally.
+/// Tests for SPM log workarounds using dynamic dispatch.
 final class SentryLogSPMTests: XCTestCase {
     
     private class Fixture {
-        let hub: TestHub
-        let client: TestClient
-        let dateProvider: TestCurrentDateProvider
         let options: Options
-        let scope: Scope
-        let logOutput: TestLogOutput
-        var oldDebug: Bool!
-        var oldLevel: SentryLevel!
-        var oldOutput: SentryLogOutput!
         
         init() {
             options = Options()
             options.dsn = TestConstants.dsnAsString(username: "SentryLogSPMTests")
             options.enableLogs = true
-            
-            client = TestClient(options: options)!
-            scope = Scope()
-            hub = TestHub(client: client, andScope: scope)
-            dateProvider = TestCurrentDateProvider()
-            
-            dateProvider.setDate(date: Date(timeIntervalSince1970: 1_627_846_800.123456))
-            
-            // Set up log capture for testing error messages
-            oldDebug = SentrySDKLog.isDebug
-            oldLevel = SentrySDKLog.diagnosticLevel
-            oldOutput = SentrySDKLog.getOutput()
-            logOutput = TestLogOutput()
-            SentrySDKLog.setLogOutput(logOutput)
-            SentrySDKLogSupport.configure(true, diagnosticLevel: .error)
-        }
-        
-        func tearDown() {
-            SentrySDKLogSupport.configure(oldDebug, diagnosticLevel: oldLevel)
-            SentrySDKLog.setOutput(oldOutput)
         }
     }
     
@@ -54,8 +24,6 @@ final class SentryLogSPMTests: XCTestCase {
     
     override func tearDown() {
         super.tearDown()
-        fixture.tearDown()
-        clearTestState()
     }
         
     // MARK: - SentryOptions Tests
@@ -152,5 +120,36 @@ final class SentryLogSPMTests: XCTestCase {
         fixture.options.setValue(nil, forKey: "beforeSendLogDynamic")
         
         XCTAssertNil(fixture.options.value(forKey: "beforeSendLogDynamic"))
+    }
+    
+    func testOptions_BeforeSendLog_ViaKVC_DirectProperty() {
+        // Test if we can use "beforeSendLog" directly via KVC instead of "beforeSendLogDynamic"
+        // This would work in non-SPM builds but not in SPM builds where the property isn't declared
+        let callback: (SentryLog) -> SentryLog? = { log in
+            let modifiedLog = log
+            modifiedLog.body = "Modified: \(log.body)"
+            return modifiedLog
+        }
+        
+        // Try to set using "beforeSendLog" directly
+        fixture.options.setValue(callback, forKey: "beforeSendLog")
+        
+        // Try to get using "beforeSendLog" directly
+        let retrievedCallback = fixture.options.value(forKey: "beforeSendLog") as? (SentryLog) -> SentryLog?
+        
+        // In SPM builds, this will be nil because the property doesn't exist
+        // In non-SPM builds, this should work because the property is auto-synthesized
+        #if SWIFT_PACKAGE
+        XCTAssertNil(retrievedCallback, "In SPM builds, 'beforeSendLog' property doesn't exist, so KVC should fail")
+        #else
+        XCTAssertNotNil(retrievedCallback, "In non-SPM builds, 'beforeSendLog' property exists and should work via KVC")
+        
+        if let retrievedCallback = retrievedCallback {
+            let originalLog = SentryLog(level: .info, body: "Original message")
+            let modifiedLog = retrievedCallback(originalLog)
+            XCTAssertNotNil(modifiedLog)
+            XCTAssertEqual(modifiedLog?.body, "Modified: Original message")
+        }
+        #endif
     }
 }
