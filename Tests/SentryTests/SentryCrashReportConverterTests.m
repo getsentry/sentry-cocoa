@@ -220,6 +220,16 @@
 - (void)testNSException
 {
     [self isValidReport:@"Resources/NSException"];
+
+    NSDictionary *rawCrash = [self getCrashReport:@"Resources/NSException"];
+    SentryCrashReportConverter *reportConverter =
+        [[SentryCrashReportConverter alloc] initWithReport:rawCrash inAppLogic:self.inAppLogic];
+    SentryEvent *event = [reportConverter convertReportToEvent];
+
+    SentryException *exception = event.exceptions.firstObject;
+    XCTAssertEqualObjects(exception.type, @"NSInvalidArgumentException");
+    XCTAssertEqualObjects(exception.value,
+        @"-[__NSArrayI objectForKey:]: unrecognized selector sent to instance 0x1e59bc50");
 }
 
 - (void)testUnknownTypeException
