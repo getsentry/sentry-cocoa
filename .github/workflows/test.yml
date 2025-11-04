@@ -258,8 +258,8 @@ jobs:
             create_device: true
             device: "iPhone 17 Pro"
             scheme: "Sentry"
-            # This runner seems to be slower than the others, so we give it more time because otherwise it frequently times out. The build step often alone takes 10 minutes and also booting the simulator takes a while.
-            timeout: 30
+            # This runner seems to be slower than the others, so we give it more time because otherwise it frequently times out. The build step often alone takes 20 minutes and also booting the simulator takes a while.
+            timeout: 40
 
           # We don't run the unit tests on macOS 13 cause we run them on all on GH actions available iOS versions.
           # The chance of missing a bug solely on tvOS 16 that doesn't occur on iOS, macOS 12 or macOS 14 is minimal.
