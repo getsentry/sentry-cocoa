@@ -14,6 +14,7 @@
 - Removes deprecated useSpan function (#5591)
 - Makes app hang tracking V2 the default and removes the option to enable/disable it (#5615)
 - Removes `integrations` property from `SentryOptions` (#5749)
+- Removes `defaultIntegrations` function from `SentryOptions` (#6664)
 - Makes `SentryEventDecodable` internal (#5808)
 - The `span` property on `SentryScope` is now readonly (#5866)
 - Removes deprecated SentryDebugImageProvider class (#5598)
