@@ -60,6 +60,7 @@
 #import "SentrySpanOperation.h"
 #import "SentrySwizzleWrapperHelper.h"
 #import "SentrySysctlObjC.h"
+#import "SentryTraceContext+Private.h"
 #import "SentryTraceHeader.h"
 #import "SentryTraceOrigin.h"
 #import "SentryTraceProfiler.h"
