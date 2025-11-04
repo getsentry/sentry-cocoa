@@ -208,11 +208,6 @@ NS_SWIFT_NAME(Options)
     SentryOnCrashedLastRunCallback onCrashedLastRun NS_SWIFT_SENDABLE;
 
 /**
- * Array of default integrations. Will be used if @c integrations is @c nil .
- */
-+ (NSArray<NSString *> *)defaultIntegrations;
-
-/**
  * Indicates the percentage of events being sent to Sentry.
  * @discussion Specifying @c 0 discards all events, @c 1.0 or @c nil sends all events, @c 0.01
  * collects 1% of all events.
