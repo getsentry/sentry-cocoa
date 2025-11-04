@@ -17,6 +17,7 @@
 - Makes `SentryEventDecodable` internal (#5808)
 - The `span` property on `SentryScope` is now readonly (#5866)
 - Removes deprecated SentryDebugImageProvider class (#5598)
+- Properties on SentryOptions that had no effect on the WithoutUIKit variant are now removed from the API (#6644)
 - Removes segment property on SentryUser, SentryBaggage, and SentryTraceContext (#5638)
 - Removes deprecated TraceContext initializers (#6348)
 - Removes deprecated user feedback API, this is replaced with the new feedback API (#5591)
@@ -32,6 +33,7 @@
 - Remove `getHash` from SentryDsn (#6605)
 - The precompiled XCFramework is now built with Xcode 16. To submit to the App Store, [Apple now requires Xcode 16](https://developer.apple.com/news/upcoming-requirements/?id=02212025a).
   If you need a precompiled XCFramework built with Xcode 15, continue using Sentry SDK 8.x.x.
+- Set `SentryException.type` to `nil` when `NSException` has no `reason` (#6653). The backend then can provide a proper message when there is no reason.
 
 ### Features
 
@@ -48,6 +50,7 @@
 
 - Fixes warnings about minimum OS version being lower than Xcode supported version (#5591)
 - Fix rendering method for fast view rendering (#6360)
+- Fixes a crash when setting configureUserFeedback to nil (#6642)
 - Fix issue where the thread that generated an event could be missing when more than 100 threads are running (#6377)
 - Fix wrong Frame Delay when becoming active, which lead to false reported app hangs when the app moves to the foreground after being in the background (#6381)
 - Session Replay masking improvements (#6292)

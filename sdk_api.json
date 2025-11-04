@@ -17947,6 +17947,89 @@
           },
           {
             "kind": "Var",
+            "name": "enableReportNonFullyBlockingAppHangs",
+            "printedName": "enableReportNonFullyBlockingAppHangs",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "c:objc(cs)SentryOptions(py)enableReportNonFullyBlockingAppHangs",
+            "moduleName": "Sentry",
+            "isOpen": true,
+            "objc_name": "enableReportNonFullyBlockingAppHangs",
+            "declAttributes": [
+              "ObjC",
+              "Dynamic"
+            ],
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "c:objc(cs)SentryOptions(im)enableReportNonFullyBlockingAppHangs",
+                "moduleName": "Sentry",
+                "isOpen": true,
+                "objc_name": "enableReportNonFullyBlockingAppHangs",
+                "declAttributes": [
+                  "DiscardableResult",
+                  "ObjC",
+                  "Dynamic"
+                ],
+                "accessorKind": "get"
+              },
+              {
+                "kind": "Accessor",
+                "name": "Set",
+                "printedName": "Set()",
+                "children": [
+                  {
+                    "kind": "TypeNameAlias",
+                    "name": "Void",
+                    "printedName": "Swift.Void",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Void",
+                        "printedName": "()"
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "c:objc(cs)SentryOptions(im)setEnableReportNonFullyBlockingAppHangs:",
+                "moduleName": "Sentry",
+                "isOpen": true,
+                "objc_name": "setEnableReportNonFullyBlockingAppHangs:",
+                "declAttributes": [
+                  "ObjC",
+                  "Dynamic"
+                ],
+                "accessorKind": "set"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
             "name": "attachScreenshot",
             "printedName": "attachScreenshot",
             "children": [
@@ -20308,89 +20391,6 @@
                 "moduleName": "Sentry",
                 "isOpen": true,
                 "objc_name": "setEnableAppHangTracking:",
-                "declAttributes": [
-                  "ObjC",
-                  "Dynamic"
-                ],
-                "accessorKind": "set"
-              }
-            ]
-          },
-          {
-            "kind": "Var",
-            "name": "enableReportNonFullyBlockingAppHangs",
-            "printedName": "enableReportNonFullyBlockingAppHangs",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Bool",
-                "printedName": "Swift.Bool",
-                "usr": "s:Sb"
-              }
-            ],
-            "declKind": "Var",
-            "usr": "c:objc(cs)SentryOptions(py)enableReportNonFullyBlockingAppHangs",
-            "moduleName": "Sentry",
-            "isOpen": true,
-            "objc_name": "enableReportNonFullyBlockingAppHangs",
-            "declAttributes": [
-              "ObjC",
-              "Dynamic"
-            ],
-            "accessors": [
-              {
-                "kind": "Accessor",
-                "name": "Get",
-                "printedName": "Get()",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Bool",
-                    "printedName": "Swift.Bool",
-                    "usr": "s:Sb"
-                  }
-                ],
-                "declKind": "Accessor",
-                "usr": "c:objc(cs)SentryOptions(im)enableReportNonFullyBlockingAppHangs",
-                "moduleName": "Sentry",
-                "isOpen": true,
-                "objc_name": "enableReportNonFullyBlockingAppHangs",
-                "declAttributes": [
-                  "DiscardableResult",
-                  "ObjC",
-                  "Dynamic"
-                ],
-                "accessorKind": "get"
-              },
-              {
-                "kind": "Accessor",
-                "name": "Set",
-                "printedName": "Set()",
-                "children": [
-                  {
-                    "kind": "TypeNameAlias",
-                    "name": "Void",
-                    "printedName": "Swift.Void",
-                    "children": [
-                      {
-                        "kind": "TypeNominal",
-                        "name": "Void",
-                        "printedName": "()"
-                      }
-                    ]
-                  },
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Bool",
-                    "printedName": "Swift.Bool",
-                    "usr": "s:Sb"
-                  }
-                ],
-                "declKind": "Accessor",
-                "usr": "c:objc(cs)SentryOptions(im)setEnableReportNonFullyBlockingAppHangs:",
-                "moduleName": "Sentry",
-                "isOpen": true,
-                "objc_name": "setEnableReportNonFullyBlockingAppHangs:",
                 "declAttributes": [
                   "ObjC",
                   "Dynamic"
