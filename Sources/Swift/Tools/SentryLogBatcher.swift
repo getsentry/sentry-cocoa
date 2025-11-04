@@ -35,7 +35,7 @@ import Foundation
     @_spi(Private) public convenience init(
         options: Options,
         dispatchQueue: SentryDispatchQueueWrapper,
-        delegate: SentryLogBatcherDelegate?
+        delegate: SentryLogBatcherDelegate
     ) {
         self.init(
             options: options,
@@ -61,7 +61,7 @@ import Foundation
         flushTimeout: TimeInterval,
         maxBufferSizeBytes: Int,
         dispatchQueue: SentryDispatchQueueWrapper,
-        delegate: SentryLogBatcherDelegate?
+        delegate: SentryLogBatcherDelegate
     ) {
         self.options = options
         self.flushTimeout = flushTimeout
@@ -240,6 +240,11 @@ import Foundation
         payloadData.append(Data("]}".utf8))
         
         // Send the payload.
-        delegate?.capture(logsData: payloadData as NSData, count: NSNumber(value: encodedLogs.count))
+        
+        if let delegate {
+            delegate.capture(logsData: payloadData as NSData, count: NSNumber(value: encodedLogs.count))
+        } else {
+            SentrySDKLog.debug("SentryLogBatcher: Delegate not set, not capturing logs data.")
+        }
     }
 }

@@ -2176,10 +2176,11 @@ class SentryClientTests: XCTestCase {
         let sut = fixture.getSut()
         
         // Create a test batcher to verify addLog is called
+        let testDelegate = TestLogBatcherDelegateForClient()
         let testBatcher = TestLogBatcherForClient(
             options: sut.options,
             dispatchQueue: TestSentryDispatchQueueWrapper(),
-            delegate: nil
+            delegate: testDelegate
         )
         Dynamic(sut).logBatcher = testBatcher
         
@@ -2204,10 +2205,11 @@ class SentryClientTests: XCTestCase {
         let sut = fixture.getSut()
         
         // Create a test batcher to verify captureLogs is called
+        let testDelegate = TestLogBatcherDelegateForClient()
         let testBatcher = TestLogBatcherForClient(
             options: sut.options,
             dispatchQueue: TestSentryDispatchQueueWrapper(),
-            delegate: nil
+            delegate: testDelegate
         )
         Dynamic(sut).logBatcher = testBatcher
         
@@ -2439,6 +2441,12 @@ final class TestLogBatcherForClient: SentryLogBatcher {
     override func captureLogs() -> TimeInterval {
         captureLogsInvocations.record(())
         return super.captureLogs()
+    }
+}
+
+final class TestLogBatcherDelegateForClient: NSObject, SentryLogBatcherDelegate {
+    func capture(logsData: NSData, count: NSNumber) {
+        // No-op for tests that don't need to verify delegate calls
     }
 }
 
