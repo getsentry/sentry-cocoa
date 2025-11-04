@@ -2178,7 +2178,8 @@ class SentryClientTests: XCTestCase {
         // Create a test batcher to verify addLog is called
         let testBatcher = TestLogBatcherForClient(
             options: sut.options,
-            dispatchQueue: TestSentryDispatchQueueWrapper()
+            dispatchQueue: TestSentryDispatchQueueWrapper(),
+            delegate: nil
         )
         Dynamic(sut).logBatcher = testBatcher
         
@@ -2205,7 +2206,8 @@ class SentryClientTests: XCTestCase {
         // Create a test batcher to verify captureLogs is called
         let testBatcher = TestLogBatcherForClient(
             options: sut.options,
-            dispatchQueue: TestSentryDispatchQueueWrapper()
+            dispatchQueue: TestSentryDispatchQueueWrapper(),
+            delegate: nil
         )
         Dynamic(sut).logBatcher = testBatcher
         

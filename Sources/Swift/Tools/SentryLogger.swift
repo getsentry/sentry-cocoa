@@ -169,6 +169,7 @@ public final class SentryLogger: NSObject {
     
     private func captureLog(level: SentryLog.Level, logMessage: SentryLogMessage, attributes: [String: Any]) {
         guard let delegate else {
+            SentrySDKLog.warning("No delegate set for SentryLogger, skipping log capture.")
             return
         }
         // Convert provided attributes to SentryLog.Attribute format

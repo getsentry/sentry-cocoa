@@ -22,21 +22,27 @@ import Foundation
     private var encodedLogsSize: Int = 0
     private var timerWorkItem: DispatchWorkItem?
 
-    public weak var delegate: SentryLogBatcherDelegate?
+    private weak var delegate: SentryLogBatcherDelegate?
     
     /// Convenience initializer with default flush timeout and buffer size.
     /// - Parameters:
     ///   - options: The Sentry configuration options
     ///   - dispatchQueue: A **serial** dispatch queue wrapper for thread-safe access to mutable state
+    ///   - delegate: The delegate to handle captured log batches
     ///
     /// - Important: The `dispatchQueue` parameter MUST be a serial queue to ensure thread safety.
     ///              Passing a concurrent queue will result in undefined behavior and potential data races.
-    @_spi(Private) public convenience init(options: Options, dispatchQueue: SentryDispatchQueueWrapper) {
+    @_spi(Private) public convenience init(
+        options: Options,
+        dispatchQueue: SentryDispatchQueueWrapper,
+        delegate: SentryLogBatcherDelegate?
+    ) {
         self.init(
             options: options,
             flushTimeout: 5,
             maxBufferSizeBytes: 1_024 * 1_024, // 1MB
-            dispatchQueue: dispatchQueue
+            dispatchQueue: dispatchQueue,
+            delegate: delegate
         )
     }
 
@@ -46,6 +52,7 @@ import Foundation
     ///   - flushTimeout: The timeout interval after which buffered logs will be flushed
     ///   - maxBufferSizeBytes: The maximum buffer size in bytes before triggering an immediate flush
     ///   - dispatchQueue: A **serial** dispatch queue wrapper for thread-safe access to mutable state
+    ///   - delegate: The delegate to handle captured log batches
     ///
     /// - Important: The `dispatchQueue` parameter MUST be a serial queue to ensure thread safety.
     ///              Passing a concurrent queue will result in undefined behavior and potential data races.
@@ -53,12 +60,14 @@ import Foundation
         options: Options,
         flushTimeout: TimeInterval,
         maxBufferSizeBytes: Int,
-        dispatchQueue: SentryDispatchQueueWrapper
+        dispatchQueue: SentryDispatchQueueWrapper,
+        delegate: SentryLogBatcherDelegate?
     ) {
         self.options = options
         self.flushTimeout = flushTimeout
         self.maxBufferSizeBytes = maxBufferSizeBytes
         self.dispatchQueue = dispatchQueue
+        self.delegate = delegate
         super.init()
     }
     

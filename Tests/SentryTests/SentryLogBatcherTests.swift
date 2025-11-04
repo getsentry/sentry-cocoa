@@ -25,9 +25,9 @@ final class SentryLogBatcherTests: XCTestCase {
             options: options,
             flushTimeout: 0.1, // Very small timeout for testing
             maxBufferSizeBytes: 800, // byte limit for testing (log with attributes ~390 bytes)
-            dispatchQueue: testDispatchQueue
+            dispatchQueue: testDispatchQueue,
+            delegate: testDelegate
         )
-        sut.delegate = testDelegate
         scope = Scope()
     }
     
@@ -245,9 +245,9 @@ final class SentryLogBatcherTests: XCTestCase {
             options: options,
             flushTimeout: 5,
             maxBufferSizeBytes: 10_000, // Large buffer to avoid immediate flushes
-            dispatchQueue: SentryDispatchQueueWrapper() // Real dispatch queue
+            dispatchQueue: SentryDispatchQueueWrapper(), // Real dispatch queue
+            delegate: testDelegate
         )
-        sutWithRealQueue.delegate = testDelegate
         
         let expectation = XCTestExpectation(description: "Concurrent adds")
         expectation.expectedFulfillmentCount = 10
@@ -276,9 +276,9 @@ final class SentryLogBatcherTests: XCTestCase {
             options: options,
             flushTimeout: 0.2, // Short but realistic timeout
             maxBufferSizeBytes: 10_000, // Large buffer to avoid size-based flush
-            dispatchQueue: SentryDispatchQueueWrapper() // Real dispatch queue
+            dispatchQueue: SentryDispatchQueueWrapper(), // Real dispatch queue
+            delegate: testDelegate
         )
-        sutWithRealQueue.delegate = testDelegate
         
         let log = createTestLog(body: "Real timeout test log")
         let expectation = XCTestExpectation(description: "Real timeout flush")
