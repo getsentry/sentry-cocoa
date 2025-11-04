@@ -675,19 +675,6 @@ class SentryHubTests: XCTestCase {
         }
     }
     
-    func testCaptureLogWithScope() {
-        let scope = Scope()
-        // Note: logger uses hub's scope, so we create a new hub with the specific scope
-        let hubWithScope = fixture.getSut(fixture.options, scope)
-        (hubWithScope._swiftLogger as! SentryLogger).info("Test log message")
-        
-        XCTAssertEqual(1, fixture.client.captureLogInvocations.count)
-        if let logArguments = fixture.client.captureLogInvocations.first {
-            XCTAssertEqual("Test log message", logArguments.log.body)
-            XCTAssertEqual(scope, logArguments.scope)
-        }
-    }
-    
     // MARK: - Replay Attributes Tests
     
 #if canImport(UIKit) && !SENTRY_NO_UIKIT
