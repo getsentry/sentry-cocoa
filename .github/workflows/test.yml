@@ -40,10 +40,24 @@ jobs:
           token: ${{ github.token }}
           filters: .github/file-filters.yml
   build-test-server:
-    name: Build test server
+    name: Build test server on ${{matrix.runner}}
     if: needs.files-changed.outputs.run_unit_tests_for_prs == 'true'
     needs: files-changed
-    runs-on: macos-15
+    runs-on: ${{matrix.runs-on}}
+    strategy:
+      fail-fast: false
+      matrix:
+        runner:
+          - GitHub
+          - Cirrus Labs
+        include:
+          - runner: GitHub
+            runs-on: macos-15
+          - runner: Cirrus Labs
+            runs-on: [
+              "ghcr.io/cirruslabs/macos-runner:sequoia",
+              "runner_group_id:10",
+            ]
     steps:
       - uses: actions/checkout@v5
       - name: Cache for Test Server
@@ -94,9 +108,20 @@ jobs:
         run: ./scripts/ci-diagnostics.sh
 
   distribution-tests:
-    name: Distribution Tests
-    runs-on: macos-15
+    name: Distribution Tests on ${{matrix.runner}}
+    runs-on: ${{matrix.runs-on}}
     needs: files-changed
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: GitHub
+            runs-on: macos-15
+          - runner: Cirrus Labs
+            runs-on: [
+              "ghcr.io/cirruslabs/macos-runner:sequoia",
+              "runner_group_id:10",
+            ]
     steps:
       - uses: actions/checkout@v5
       - name: Prepare Package.swift
@@ -112,7 +137,7 @@ jobs:
         uses: actions/upload-artifact@v5
         if: ${{ failure() || cancelled() }}
         with:
-          name: raw-test-output-distribution
+          name: raw-test-output-distribution-${{matrix.runner}}
           path: |
             raw-test-output-distribution.log
 
@@ -122,30 +147,40 @@ jobs:
   # We don't run this matrix for all different OS versions, because the chances
   # of a bug solely on a specific OS version is minimal.
   unit-tests-with-test-server:
-    name: Unit with Test Server ${{matrix.name}}
+    name: Unit with Test Server ${{matrix.name}} on ${{matrix.runner}}
     runs-on: ${{matrix.runs-on}}
     timeout-minutes: 20
     needs: build-test-server
-
     strategy:
       fail-fast: false
       matrix:
+        xcode:
+          - "16.4"
+        name:
+          - "macOS 15"
+        test-destination-os:
+          - "15.0"
+        platform:
+          - "macOS"
         include:
           # Running the tests with simulators is incredibly flaky. Our assumption is that simulators might have difficulties
           # with communicating with the test server in CI.
           # We are going to add these back in https://github.com/getsentry/sentry-cocoa/issues/6361
-          - name: macOS 15
+          - runner: GitHub
             runs-on: macos-15
-            platform: "macOS"
-            xcode: "16.4"
-            test-destination-os: "15.0"
+          - runner: Cirrus Labs
+            runs-on: [
+              "ghcr.io/cirruslabs/macos-runner:sequoia",
+              "runner_group_id:10",
+            ]
 
     steps:
       - uses: actions/checkout@v5
       - uses: actions/download-artifact@v6
         with:
-          name: test-server
-
+          name: test-server-${{matrix.runner}}
+      - name: Rename artifact
+        run: mv test-server-${{matrix.runner}} test-server
       - name: Start Test Server
         run: ./scripts/start-test-server.sh
       - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
@@ -183,7 +218,7 @@ jobs:
         uses: actions/upload-artifact@v5
         if: steps.build_tests.outcome == 'failure'
         with:
-          name: derived-data-test-server-${{matrix.platform}}-xcode-${{matrix.xcode}}
+          name: derived-data-test-server-${{matrix.platform}}-xcode-${{matrix.xcode}}-${{matrix.runner}}
           path: |
             /Users/runner/Library/Developer/Xcode/DerivedData/**/Logs/**
 
@@ -191,7 +226,7 @@ jobs:
         uses: actions/upload-artifact@v5
         if: ${{ failure() || cancelled() }}
         with:
-          name: raw-output-test-server-${{matrix.platform}}-xcode-${{matrix.xcode}}
+          name: raw-output-test-server-${{matrix.platform}}-xcode-${{matrix.xcode}}-${{matrix.runner}}
           path: |
             raw-build-output.log
             raw-build-for-testing-output.log
@@ -201,7 +236,7 @@ jobs:
         uses: actions/upload-artifact@v5
         if: ${{ failure() || cancelled() }}
         with:
-          name: crash-logs-test-server-${{matrix.platform}}-xcode-${{matrix.xcode}}
+          name: crash-logs-test-server-${{matrix.platform}}-xcode-${{matrix.xcode}}-${{matrix.runner}}
           path: |
             ~/Library/Logs/DiagnosticReports/**
 
@@ -213,10 +248,10 @@ jobs:
         uses: ./.github/actions/capture-screenshot
         if: ${{ failure() || cancelled() }}
         with:
-          suffix: ${{ matrix.platform }}-xcode-${{ matrix.xcode }}
+          suffix: ${{ matrix.platform }}-xcode-${{ matrix.xcode }}-${{matrix.runner}}
 
   unit-tests:
-    name: Unit ${{matrix.name}}
+    name: Unit ${{matrix.name}} on ${{matrix.runner}}
     runs-on: ${{matrix.runs-on}}
     timeout-minutes: ${{ matrix.timeout || 20 }}
     needs: files-changed
@@ -225,14 +260,16 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        runner:
+          - GitHub
+          - Cirrus Labs
         # Can't run tests on watchOS because XCTest is not available
         include:
           # We are running tests on iOS 17 and later, as there were OS-internal changes introduced in succeeding versions.
 
           # iOS 17 - Use pre-installed iOS 17.5 runtime on macOS-14 with Xcode 15.4
           - name: iOS 17 Sentry
-            runs-on: macos-14
-            xcode: "15.4"
+            os: macos-14
             test-destination-os: "17.5"
             platform: "iOS"
             create_device: true
@@ -241,7 +278,7 @@ jobs:
 
           # iOS 18 - Use pre-installed iOS 18.4 runtime on macOS-15
           - name: iOS 18 Sentry
-            runs-on: macos-15
+            os: macos-15
             xcode: "16.4"
             test-destination-os: "18.4"
             platform: "iOS"
@@ -250,7 +287,7 @@ jobs:
 
           # iOS 26 - Download iOS 26.1 beta runtime on macOS-26
           - name: iOS 26 Sentry
-            runs-on: macos-26
+            os: macos-26
             xcode: "26.1"
             test-destination-os: "26.1"
             install_platforms: true
@@ -267,15 +304,14 @@ jobs:
 
           # macOS 14
           - name: macOS 14 Sentry
-            runs-on: macos-14
-            xcode: "15.4"
+            os: macos-14
             test-destination-os: "latest"
             platform: "macOS"
             scheme: "Sentry"
 
           # macOS 15
           - name: macOS 15 Sentry
-            runs-on: macos-15
+            os: macos-15
             xcode: "16.4"
             test-destination-os: "latest"
             platform: "macOS"
@@ -283,7 +319,7 @@ jobs:
 
           # macOS 26
           - name: macOS 26 Sentry
-            runs-on: macos-26
+            os: macos-26
             xcode: "26.1"
             test-destination-os: "26.1"
             platform: "macOS"
@@ -293,15 +329,13 @@ jobs:
           # on an older iOS or macOS version is low.
           # In addition we are running tests on macOS 14, as there were OS-internal changes introduced in succeeding versions.
           - name: Catalyst 14 Sentry
-            runs-on: macos-14
-            xcode: "15.4"
+            os: macos-14
             test-destination-os: "latest"
             platform: "Catalyst"
             scheme: "Sentry"
 
           - name: Catalyst 15 Sentry
-            runs-on: macos-15
-            xcode: "16.4"
+            os: macos-15
             test-destination-os: "latest"
             platform: "Catalyst"
             scheme: "Sentry"
@@ -315,15 +349,13 @@ jobs:
           # tvOS 17
           - name: tvOS 17 Sentry
             runs-on: macos-14
-            xcode: "15.4"
             test-destination-os: "17.5"
             platform: "tvOS"
             scheme: "Sentry"
 
-          # iOS 17 - Use pre-installed iOS 17.5 runtime on macOS-14 with Xcode 15.4
+          # iOS 17
           - name: iOS 17 SentrySwiftUI
-            runs-on: macos-14
-            xcode: "15.4"
+            os: macos-14
             test-destination-os: "17.5"
             platform: "iOS"
             create_device: true
@@ -332,7 +364,7 @@ jobs:
 
           # tvOS 18
           - name: tvOS 18 Sentry
-            runs-on: macos-15
+            os: macos-15
             xcode: "16.4"
             test-destination-os: "18.4"
             platform: "tvOS"
@@ -340,7 +372,7 @@ jobs:
 
           # tvOS 26
           - name: tvOS 26 Sentry
-            runs-on: macos-26
+            os: macos-26
             xcode: "26.1"
             test-destination-os: "26.1"
             install_platforms: true
@@ -349,9 +381,62 @@ jobs:
             device: "Apple TV"
             scheme: "Sentry"
 
+          # These items allow us to complement the matrix and set the runs-on for the runners.
+          # See https://docs.github.com/en/actions/how-tos/write-workflows/choose-what-workflows-do/run-job-variations#expanding-or-adding-matrix-configurations
+          # for more details
+          - runner: GitHub
+            os: macos-14
+            runs-on: macos-14
+            xcode: "15.4"
+
+          - runner: GitHub
+            os: macos-15
+            runs-on: macos-15
+
+          - runner: GitHub
+            os: macos-26
+            runs-on: macos-26
+
+          # Cirrus Labs's sequoia runner doesn't have Xcode 15.4 installed, so we use Xcode 16.1.
+          - runner: Cirrus Labs
+            os: macos-14
+            test-destination-os: "17.5"
+            runs-on: [
+              "ghcr.io/cirruslabs/macos-runner:sequoia",
+              "runner_group_id:10",
+            ]
+            xcode: "16.1"
+
+          - runner: Cirrus Labs
+            os: macos-14
+            runs-on: [
+              "ghcr.io/cirruslabs/macos-runner:sonoma",
+              "runner_group_id:10",
+            ]
+            xcode: "16.1"
+
+          - runner: Cirrus Labs
+            os: macos-15
+            runs-on: [
+              "ghcr.io/cirruslabs/macos-runner:sequoia",
+              "runner_group_id:10",
+            ]
+
+          - runner: Cirrus Labs
+            os: macos-26
+            runs-on: [
+              "ghcr.io/cirruslabs/macos-runner:tahoe",
+              "runner_group_id:10",
+            ]
+
     steps:
       - uses: actions/checkout@v5
       - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
+
+      # Install Ruby for Cirrus Labs runners
+      - name: Install Ruby 3.3.0
+        if: ${{ matrix.runner == 'Cirrus Labs' }}
+        run: rbenv install 3.3.0
 
       - name: Install Slather
         run: gem install slather
@@ -436,7 +521,7 @@ jobs:
         uses: actions/upload-artifact@v5
         if: steps.build_tests.outcome == 'failure'
         with:
-          name: derived-data-${{matrix.platform}}-xcode-${{matrix.xcode}}-os-${{matrix.test-destination-os}}
+          name: derived-data-${{matrix.platform}}-xcode-${{matrix.xcode}}-os-${{matrix.test-destination-os}}-${{matrix.runner}}
           path: |
             /Users/runner/Library/Developer/Xcode/DerivedData/**/Logs/**
 
@@ -444,7 +529,7 @@ jobs:
         uses: actions/upload-artifact@v5
         if: ${{ failure() || cancelled() }}
         with:
-          name: raw-output-${{matrix.platform}}-xcode-${{matrix.xcode}}-os-${{matrix.test-destination-os}}
+          name: raw-output-${{matrix.platform}}-xcode-${{matrix.xcode}}-os-${{matrix.test-destination-os}}-${{matrix.runner}}
           path: |
             raw-build-output.log
             raw-build-for-testing-output.log
@@ -454,7 +539,7 @@ jobs:
         uses: actions/upload-artifact@v5
         if: ${{ failure() || cancelled() }}
         with:
-          name: crash-logs-${{matrix.platform}}-xcode-${{matrix.xcode}}-os-${{matrix.test-destination-os}}
+          name: crash-logs-${{matrix.platform}}-xcode-${{matrix.xcode}}-os-${{matrix.test-destination-os}}-${{matrix.runner}}
           path: |
             ~/Library/Logs/DiagnosticReports/**
 
@@ -462,7 +547,7 @@ jobs:
         uses: actions/upload-artifact@v5
         if: ${{ failure() || cancelled() }}
         with:
-          name: result-bundle-${{matrix.platform}}-xcode-${{matrix.xcode}}-os-${{matrix.test-destination-os}}
+          name: result-bundle-${{matrix.platform}}-xcode-${{matrix.xcode}}-os-${{matrix.test-destination-os}}-${{matrix.runner}}
           path: |
             results.xcresult
             flaky-results.xcresult
@@ -513,7 +598,7 @@ jobs:
         uses: ./.github/actions/capture-screenshot
         if: failure()
         with:
-          suffix: unit-tests-${{ matrix.platform }}-xcode-${{ matrix.xcode }}-os-${{ matrix.test-destination-os }}
+          suffix: unit-tests-${{ matrix.platform }}-xcode-${{ matrix.xcode }}-os-${{ matrix.test-destination-os }}-${{matrix.runner}}
 
   # This check validates that either all unit tests passed or were skipped, which allows us
   # to make unit tests a required check with only running the unit tests when required.
