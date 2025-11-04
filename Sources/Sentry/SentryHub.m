@@ -864,7 +864,7 @@ NS_ASSUME_NONNULL_BEGIN
         }
         log.attributes = mutableAttributes;
 #endif
-        [client captureLog:log withScope:self.scope];
+        [client _swiftCaptureLog:log withScope:self.scope];
     }
 }
 

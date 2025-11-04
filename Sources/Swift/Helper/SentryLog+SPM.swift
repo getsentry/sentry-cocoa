@@ -3,36 +3,9 @@ import Foundation
 
 // Swift extensions to provide properly typed log-related APIs for SPM builds.
 // In SPM builds, SentryLog is only forward declared in the Objective-C headers,
-// causing Swift-to-Objective-C bridging issues. These extensions work around that
-// by providing Swift-native methods and properties that use dynamic dispatch internally.
-
-@objc
-protocol CaptureLogSelectors {
-    func captureLog(_ log: SentryLog, withScope: Scope)
-}
-
-/// Helper class to handle dynamic dispatch for log capture.
-/// This is used in SPM builds to work around Swift-to-Objective-C bridging issues.
-@objc
-class CaptureLogDispatcher: NSObject {
-    
-    /// Captures a log with a scope using dynamic dispatch on the target object
-    /// - Parameters:
-    ///   - log: The log to capture
-    ///   - scope: The scope containing event metadata
-    ///   - target: The object that should handle the log capture (typically SentryHub or SentryClient)
-    /// - Returns: true if the log was captured, false if the selector was not available
-    @discardableResult
-    static func captureLog(_ log: SentryLog, withScope scope: Scope, on target: NSObject) -> Bool {
-        let selector = #selector(CaptureLogSelectors.captureLog(_:withScope:))
-        guard target.responds(to: selector) else {
-            SentrySDKLog.error("Target \(type(of: target)) does not respond to captureLog(_:withScope:). The log will not be captured.")
-            return false
-        }
-        target.perform(selector, with: log, with: scope)
-        return true
-    }
-}
+// which causes Swift-to-Objective-C bridging issues. These extensions work around
+// that limitation by providing Swift-native methods and properties that use dynamic
+// dispatch internally.
 
 #if SWIFT_PACKAGE
 
@@ -52,18 +25,6 @@ public extension Options {
     var beforeSendLog: SentryBeforeSendLogCallback? {
         get { return value(forKey: "beforeSendLogDynamic") as? SentryBeforeSendLogCallback }
         set { setValue(newValue, forKey: "beforeSendLogDynamic") }
-    }
-}
-
-/// Extension to provide log capture methods for SPM builds.
-@objc
-public extension SentryClient {
-    /// Captures a log entry and sends it to Sentry.
-    /// - Parameters:
-    ///   - log: The log entry to send to Sentry.
-    ///   - scope: The scope containing event metadata.
-    func captureLog(_ log: SentryLog, withScope scope: Scope) {
-        CaptureLogDispatcher.captureLog(log, withScope: scope, on: self)
     }
 }
 

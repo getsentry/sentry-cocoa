@@ -108,7 +108,7 @@ import Foundation
     ///   - log: The log entry to send to Sentry.
     ///   - scope: The scope containing event metadata.
     @objc(captureLog:withScope:) public func capture(log: SentryLog, scope: Scope) {
-        helper.capture(log: log, scope: scope)
+        helper._swiftCaptureLog(log, with: scope)
     }
 
     /// Waits synchronously for the SDK to flush out all queued and cached items for up to the specified timeout in seconds.

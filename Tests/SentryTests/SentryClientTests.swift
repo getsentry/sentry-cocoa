@@ -2191,7 +2191,7 @@ class SentryClientTests: XCTestCase {
         )
         let scope = Scope()
         
-        sut.capture(log: log, scope: scope)
+        sut._swiftCaptureLog(log, with: scope)
         
         // Verify that the log was passed to the batcher
         XCTAssertEqual(testBatcher.addLogInvocations.count, 1)

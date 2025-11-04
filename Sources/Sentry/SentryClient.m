@@ -1097,9 +1097,11 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     return processedAttachments;
 }
 
-- (void)captureLog:(SentryLog *)log withScope:(SentryScope *)scope
+- (void)_swiftCaptureLog:(NSObject *)log withScope:(SentryScope *)scope
 {
-    [self.logBatcher addLog:log scope:scope];
+    if ([log isKindOfClass:[SentryLog class]]) {
+        [self.logBatcher addLog:(SentryLog *)log scope:scope];
+    }
 }
 
 - (void)captureLogsData:(NSData *)data with:(NSNumber *)itemCount

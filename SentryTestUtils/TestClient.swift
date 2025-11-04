@@ -162,7 +162,9 @@ public class TestClient: SentryClientInternal {
     }
     
     public var captureLogInvocations = Invocations<(log: SentryLog, scope: Scope)>()
-    public override func capture(log: SentryLog, scope: Scope) {
-        captureLogInvocations.record((log, scope))
+    public override func _swiftCaptureLog(_ log: NSObject, with scope: Scope) {
+        if let castLog = log as? SentryLog {
+            captureLogInvocations.record((castLog, scope))
+        }
     }
 }
