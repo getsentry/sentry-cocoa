@@ -32,6 +32,11 @@ FOUNDATION_EXPORT NSString *const kSentryDefaultEnvironment;
 @property (nonatomic, nullable, strong) SentryProfileOptions *profiling;
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
+/**
+ * Array of default integrations. Will be used if @c integrations is @c nil .
+ */
++ (NSArray<NSString *> *)defaultIntegrations;
+
 #if SENTRY_TARGET_REPLAY_SUPPORTED
 
 - (BOOL)enableViewRendererV2;

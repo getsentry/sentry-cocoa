@@ -16853,39 +16853,6 @@
             ]
           },
           {
-            "kind": "Function",
-            "name": "defaultIntegrations",
-            "printedName": "defaultIntegrations()",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Array",
-                "printedName": "[Swift.String]",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "String",
-                    "printedName": "Swift.String",
-                    "usr": "s:SS"
-                  }
-                ],
-                "usr": "s:Sa"
-              }
-            ],
-            "declKind": "Func",
-            "usr": "c:objc(cs)SentryOptions(cm)defaultIntegrations",
-            "moduleName": "Sentry",
-            "static": true,
-            "isOpen": true,
-            "objc_name": "defaultIntegrations",
-            "declAttributes": [
-              "DiscardableResult",
-              "ObjC",
-              "Dynamic"
-            ],
-            "funcSelfKind": "NonMutating"
-          },
-          {
             "kind": "Var",
             "name": "sampleRate",
             "printedName": "sampleRate",
