@@ -32,6 +32,7 @@
 - Remove `getHash` from SentryDsn (#6605)
 - The precompiled XCFramework is now built with Xcode 16. To submit to the App Store, [Apple now requires Xcode 16](https://developer.apple.com/news/upcoming-requirements/?id=02212025a).
   If you need a precompiled XCFramework built with Xcode 15, continue using Sentry SDK 8.x.x.
+- Set `SentryException.type` to `nil` when `NSException` has no `reason` (#6653). The backend then can provide a proper message when there is no reason.
 
 ### Features
 

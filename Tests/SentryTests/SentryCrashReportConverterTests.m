@@ -227,6 +227,20 @@
     [self isValidReport:@"Resources/UnknownTypeException"];
 }
 
+- (void)testNSExceptionWithoutReason
+{
+    [self isValidReport:@"Resources/NSExceptionWithoutReason"];
+
+    NSDictionary *rawCrash = [self getCrashReport:@"Resources/NSExceptionWithoutReason"];
+    SentryCrashReportConverter *reportConverter =
+        [[SentryCrashReportConverter alloc] initWithReport:rawCrash inAppLogic:self.inAppLogic];
+    SentryEvent *event = [reportConverter convertReportToEvent];
+
+    SentryException *exception = event.exceptions.firstObject;
+    XCTAssertEqualObjects(exception.type, @"MyCustomException");
+    XCTAssertNil(exception.value);
+}
+
 - (void)testStackoverflow
 {
     [self isValidReport:@"Resources/StackOverflow"];
