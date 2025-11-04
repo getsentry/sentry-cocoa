@@ -26,7 +26,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryHubInternal ()
+@interface SentryHubInternal () <SentrySessionDelegate>
 
 @property (nullable, atomic, strong) SentryClientInternal *client;
 @property (nullable, nonatomic, strong) SentryScope *scope;
@@ -69,6 +69,10 @@ NS_ASSUME_NONNULL_BEGIN
         _installedIntegrations = [[NSMutableArray alloc] init];
         _installedIntegrationNames = [[NSMutableSet alloc] init];
         _errorsBeforeSession = 0;
+
+        if (_client != nil) {
+            _client.sessionDelegate = self;
+        }
 
         if (_scope) {
             [_crashWrapper enrichScope:SENTRY_UNWRAP_NULLABLE(SentryScope, _scope)];
@@ -491,9 +495,7 @@ NS_ASSUME_NONNULL_BEGIN
 {
     SentryId * (^captureClientBlock)(SentryClientInternal *)
         = ^SentryId *(SentryClientInternal *clientParam) {
-              return [clientParam captureError:error
-                                     withScope:scope
-                        incrementSessionErrors:^(void) { return [self incrementSessionErrors]; }];
+              return [clientParam captureErrorIncrementingSessionErrorCount:error withScope:scope];
           };
 
     SentryId * (^captureClientBlockSessionNil)(SentryClientInternal *)
@@ -512,9 +514,7 @@ NS_ASSUME_NONNULL_BEGIN
 
     SentryId * (^captureClientBlock)(SentryClientInternal *) = ^SentryId *(
         SentryClientInternal *clientParam) {
-        return [clientParam captureErrorEvent:event
-                                    withScope:scope
-                       incrementSessionErrors:^(void) { return [self incrementSessionErrors]; }];
+        return [clientParam captureErrorEventIncrementingSessionErrorCount:event withScope:scope];
     };
 
     SentryId * (^captureClientBlockSessionNil)(SentryClientInternal *)
@@ -534,12 +534,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (SentryId *)captureException:(NSException *)exception withScope:(SentryScope *)scope
 {
-    SentryId * (^captureClientBlock)(SentryClientInternal *) = ^SentryId *(
-        SentryClientInternal *clientParam) {
-        return [clientParam captureException:exception
-                                   withScope:scope
-                      incrementSessionErrors:^(void) { return [self incrementSessionErrors]; }];
-    };
+    SentryId * (^captureClientBlock)(SentryClientInternal *)
+        = ^SentryId *(SentryClientInternal *clientParam) {
+              return [clientParam captureExceptionIncrementingSessionErrorCount:exception
+                                                                      withScope:scope];
+          };
 
     SentryId * (^captureClientBlockSessionNil)(SentryClientInternal *)
         = ^SentryId *(SentryClientInternal *clientParam) {
@@ -617,7 +616,16 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)bindClient:(nullable SentryClientInternal *)client
 {
+    SentryClientInternal *currentClient = self.client;
+    if (currentClient != nil) {
+        currentClient.sessionDelegate = nil;
+    }
+
     self.client = client;
+
+    if (client != nil) {
+        client.sessionDelegate = self;
+    }
 }
 
 - (SentryScope *)scope

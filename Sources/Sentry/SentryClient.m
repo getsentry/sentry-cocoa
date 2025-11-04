@@ -146,12 +146,11 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     return [self sendEvent:event withScope:scope alwaysAttachStacktrace:YES];
 }
 
-- (SentryId *)captureException:(NSException *)exception
-                     withScope:(SentryScope *)scope
-        incrementSessionErrors:(SentrySession * (^)(void))sessionBlock
+- (SentryId *)captureExceptionIncrementingSessionErrorCount:(NSException *)exception
+                                                  withScope:(SentryScope *)scope
 {
     SentryEvent *event = [self buildExceptionEvent:exception];
-    return [self captureErrorEvent:event withScope:scope incrementSessionErrors:sessionBlock];
+    return [self captureErrorEventIncrementingSessionErrorCount:event withScope:scope];
 }
 
 - (SentryEvent *)buildExceptionEvent:(NSException *)exception
@@ -185,12 +184,11 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     return [self sendEvent:event withScope:scope alwaysAttachStacktrace:YES];
 }
 
-- (SentryId *)captureError:(NSError *)error
-                 withScope:(SentryScope *)scope
-    incrementSessionErrors:(SentrySession * (^)(void))sessionBlock
+- (SentryId *)captureErrorIncrementingSessionErrorCount:(NSError *)error
+                                              withScope:(SentryScope *)scope
 {
     SentryEvent *event = [self buildErrorEvent:error];
-    return [self captureErrorEvent:event withScope:scope incrementSessionErrors:sessionBlock];
+    return [self captureErrorEventIncrementingSessionErrorCount:event withScope:scope];
 }
 
 - (SentryEvent *)buildErrorEvent:(NSError *)error
@@ -339,16 +337,19 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         additionalEnvelopeItems:additionalEnvelopeItems];
 }
 
-- (SentryId *)captureErrorEvent:(SentryEvent *)event
-                      withScope:(SentryScope *)scope
-         incrementSessionErrors:(SentrySession * (^)(void))sessionBlock
+- (SentryId *)captureErrorEventIncrementingSessionErrorCount:(SentryEvent *)event
+                                                   withScope:(SentryScope *)scope
 {
     SentryEvent *preparedEvent = [self prepareEvent:event
                                           withScope:scope
                              alwaysAttachStacktrace:YES];
 
     if (preparedEvent != nil) {
-        SentrySession *session = sessionBlock();
+        SentrySession *session = nil;
+        id<SentrySessionDelegate> delegate = self.sessionDelegate;
+        if (delegate != nil) {
+            session = [delegate incrementSessionErrors];
+        }
         return [self sendEvent:preparedEvent withSession:session withScope:scope];
     }
 

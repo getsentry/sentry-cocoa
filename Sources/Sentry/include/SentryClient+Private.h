@@ -12,6 +12,12 @@
 @class SentrySession;
 @class SentryDefaultThreadInspector;
 
+@protocol SentrySessionDelegate <NSObject>
+
+- (nullable SentrySession *)incrementSessionErrors;
+
+@end
+
 NS_ASSUME_NONNULL_BEGIN
 
 @protocol SentryClientAttachmentProcessor <NSObject>
@@ -27,14 +33,13 @@ NS_ASSUME_NONNULL_BEGIN
     NSMutableArray<id<SentryClientAttachmentProcessor>> *attachmentProcessors;
 @property (nonatomic, strong) SentryDefaultThreadInspector *threadInspector;
 @property (nonatomic, strong) SentryFileManager *fileManager;
+@property (nonatomic, weak, nullable) id<SentrySessionDelegate> sessionDelegate;
 
-- (SentryId *)captureError:(NSError *)error
-                 withScope:(SentryScope *)scope
-    incrementSessionErrors:(SentrySession * (^)(void))sessionBlock;
+- (SentryId *)captureErrorIncrementingSessionErrorCount:(NSError *)error
+                                              withScope:(SentryScope *)scope;
 
-- (SentryId *)captureException:(NSException *)exception
-                     withScope:(SentryScope *)scope
-        incrementSessionErrors:(SentrySession * (^)(void))sessionBlock;
+- (SentryId *)captureExceptionIncrementingSessionErrorCount:(NSException *)exception
+                                                  withScope:(SentryScope *)scope;
 
 - (SentryId *)captureFatalEvent:(SentryEvent *)event withScope:(SentryScope *)scope;
 
@@ -56,10 +61,8 @@ NS_ASSUME_NONNULL_BEGIN
     additionalEnvelopeItems:(NSArray<SentryEnvelopeItem *> *)additionalEnvelopeItems
     NS_SWIFT_NAME(capture(event:scope:additionalEnvelopeItems:));
 
-- (SentryId *)captureErrorEvent:(SentryEvent *)event
-                      withScope:(SentryScope *)scope
-         incrementSessionErrors:(SentrySession * (^)(void))sessionBlock
-    NS_SWIFT_NAME(captureErrorEvent(event:scope:incrementSessionErrors:));
+- (SentryId *)captureErrorEventIncrementingSessionErrorCount:(SentryEvent *)event
+                                                   withScope:(SentryScope *)scope;
 
 - (void)captureReplayEvent:(SentryReplayEvent *)replayEvent
            replayRecording:(SentryReplayRecording *)replayRecording
