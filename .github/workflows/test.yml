@@ -125,6 +125,7 @@ jobs:
             ]
     steps:
       - uses: actions/checkout@v5
+      - run: ./scripts/ci-select-xcode.sh "16.4"
       - name: Prepare Package.swift
         uses: ./.github/actions/prepare-package.swift
         with:
@@ -181,7 +182,7 @@ jobs:
         with:
           name: test-server-${{matrix.runner}}
       - name: Rename artifact
-        run: mv test-server-${{matrix.runner}} test-server
+        run: mv "test-server-${{matrix.runner}}" "test-server"
       - name: Start Test Server
         run: ./scripts/start-test-server.sh
       - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
