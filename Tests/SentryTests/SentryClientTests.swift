@@ -2186,7 +2186,7 @@ class SentryClientTests: XCTestCase {
         
         let log = SentryLog(
             timestamp: Date(timeIntervalSince1970: 1_627_846_801),
-            traceId: SentryId.empty,
+            traceId: SentryId.empty, // Temporary set to empty until its assigned by the batcher.
             level: .info,
             body: "Test log message",
             attributes: [:]
