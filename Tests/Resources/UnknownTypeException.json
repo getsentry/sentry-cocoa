@@ -57,6 +57,18 @@
         "revision_version": 0
       },
       {
+        "image_addr": 4441198592,
+        "image_vmaddr": 0,
+        "image_size": 380928,
+        "name": "/Applications/SomeBuggyApp.app/Contents/Frameworks/SBClasses.framework/Versions/A/SBClasses",
+        "uuid": "5BF57F26-8B8C-3256-8489-76E5D1DEA8DC",
+        "cpu_type": 16777223,
+        "cpu_subtype": 3,
+        "major_version": 1,
+        "minor_version": 0,
+        "revision_version": 0
+      },
+      {
         "image_addr": 140734045409280,
         "image_vmaddr": 140733984268288,
         "image_size": 3964928,
@@ -81,28 +93,40 @@
         "revision_version": 0
       },
       {
-        "image_addr": 140734930853888,
-        "image_vmaddr": 140734869712896,
-        "image_size": 221184,
-        "name": "/usr/lib/system/libdyld.dylib",
-        "uuid": "98960E27-A08B-36DA-A5CB-8538B2D6757E",
+        "image_addr": 140734910537728,
+        "image_vmaddr": 140734849396736,
+        "image_size": 204800,
+        "name": "/usr/lib/libobjc.A.dylib",
+        "uuid": "722C0959-69B8-3843-B5EA-CDD8FAA91D5E",
         "cpu_type": 16777223,
-        "cpu_subtype": 3,
-        "major_version": 732,
-        "minor_version": 8,
+        "cpu_subtype": 8,
+        "major_version": 228,
+        "minor_version": 0,
         "revision_version": 0
       },
       {
-        "image_addr": 140734931283968,
-        "image_vmaddr": 140734870142976,
-        "image_size": 557056,
-        "name": "/usr/lib/system/libsystem_c.dylib",
-        "uuid": "2A5BFAFE-8214-3B35-AD46-C07A1A8B8941",
+        "image_addr": 140734882287616,
+        "image_vmaddr": 140734821146624,
+        "image_size": 86016,
+        "name": "/usr/lib/libc++abi.dylib",
+        "uuid": "02753D3D-91C6-3670-8B5D-EBE040B516FC",
         "cpu_type": 16777223,
         "cpu_subtype": 3,
-        "major_version": 1353,
-        "minor_version": 11,
-        "revision_version": 2
+        "major_version": 800,
+        "minor_version": 7,
+        "revision_version": 0
+      },
+      {
+        "image_addr": 140734930583552,
+        "image_vmaddr": 140734869442560,
+        "image_size": 270336,
+        "name": "/usr/lib/system/libdispatch.dylib",
+        "uuid": "F4260D89-F67D-30CB-AF61-7ED25CB687DB",
+        "cpu_type": 16777223,
+        "cpu_subtype": 3,
+        "major_version": 1173,
+        "minor_version": 0,
+        "revision_version": 3
       },
       {
         "image_addr": 140734932267008,
@@ -127,6 +151,30 @@
         "major_version": 416,
         "minor_version": 11,
         "revision_version": 1
+      },
+      {
+        "image_addr": 140734931283968,
+        "image_vmaddr": 140734870142976,
+        "image_size": 557056,
+        "name": "/usr/lib/system/libsystem_c.dylib",
+        "uuid": "2A5BFAFE-8214-3B35-AD46-C07A1A8B8941",
+        "cpu_type": 16777223,
+        "cpu_subtype": 3,
+        "major_version": 1353,
+        "minor_version": 11,
+        "revision_version": 2
+      },
+      {
+        "image_addr": 140734930853888,
+        "image_vmaddr": 140734869712896,
+        "image_size": 221184,
+        "name": "/usr/lib/system/libdyld.dylib",
+        "uuid": "98960E27-A08B-36DA-A5CB-8538B2D6757E",
+        "cpu_type": 16777223,
+        "cpu_subtype": 3,
+        "major_version": 732,
+        "minor_version": 8,
+        "revision_version": 0
       }
     ],
     "process": {},
@@ -237,41 +285,6 @@
           {
             "object_name": "CoreFoundation",
             "object_addr": 140734004797440,
-            "symbol_name": "__CFDictionaryApplyFunction_block_invoke",
-            "symbol_addr": 140734005015336,
-            "instruction_addr": 140734005015358
-          },
-          {
-            "object_name": "CoreFoundation",
-            "object_addr": 140734004797440,
-            "symbol_name": "CFBasicHashApply",
-            "symbol_addr": 140734005014664,
-            "instruction_addr": 140734005014788
-          },
-          {
-            "object_name": "CoreFoundation",
-            "object_addr": 140734004797440,
-            "symbol_name": "CFDictionaryApplyFunction",
-            "symbol_addr": 140734005014456,
-            "instruction_addr": 140734005014584
-          },
-          {
-            "object_name": "CoreFoundation",
-            "object_addr": 140734004797440,
-            "symbol_name": "__CFPropertyListIsValidAux",
-            "symbol_addr": 140734005126591,
-            "instruction_addr": 140734005127001
-          },
-          {
-            "object_name": "CoreFoundation",
-            "object_addr": 140734004797440,
-            "symbol_name": "CFPropertyListWrite",
-            "symbol_addr": 140734005126015,
-            "instruction_addr": 140734005126079
-          },
-          {
-            "object_name": "CoreFoundation",
-            "object_addr": 140734004797440,
             "symbol_name": "CFPropertyListCreateData",
             "symbol_addr": 140734005124042,
             "instruction_addr": 140734005124171
@@ -286,37 +299,9 @@
           {
             "object_name": "Sentry",
             "object_addr": 4434939904,
-            "symbol_name": "crashCallback",
-            "symbol_addr": 4435245920,
-            "instruction_addr": 4435246093
-          },
-          {
-            "object_name": "Sentry",
-            "object_addr": 4434939904,
-            "symbol_name": "sentrycrashreport_writeStandardReport",
-            "symbol_addr": 4434947472,
-            "instruction_addr": 4434948202
-          },
-          {
-            "object_name": "Sentry",
-            "object_addr": 4434939904,
-            "symbol_name": "onCrash",
-            "symbol_addr": 4435089232,
-            "instruction_addr": 4435089441
-          },
-          {
-            "object_name": "Sentry",
-            "object_addr": 4434939904,
             "symbol_name": "sentrycrashcm_handleException",
             "symbol_addr": 4435084016,
             "instruction_addr": 4435084175
-          },
-          {
-            "object_name": "Sentry",
-            "object_addr": 4434939904,
-            "symbol_name": "handleException",
-            "symbol_addr": 4435096432,
-            "instruction_addr": 4435097368
           },
           {
             "object_name": "Sentry",
@@ -326,32 +311,11 @@
             "instruction_addr": 4435096319
           },
           {
-            "object_name": "CoreFoundation",
-            "object_addr": 140734004797440,
-            "symbol_name": "__handleUncaughtException",
-            "symbol_addr": 140734006302426,
-            "instruction_addr": 140734006303152
-          },
-          {
             "object_name": "libobjc.A.dylib",
             "object_addr": 140734910537728,
             "symbol_name": "_ZL15_objc_terminatev",
             "symbol_addr": 140734910622282,
             "instruction_addr": 140734910622372
-          },
-          {
-            "object_name": "Sentry",
-            "object_addr": 4434939904,
-            "symbol_name": "_ZL21CPPExceptionTerminatev",
-            "symbol_addr": 4435085424,
-            "instruction_addr": 4435087878
-          },
-          {
-            "object_name": "libc++abi.dylib",
-            "object_addr": 140734882287616,
-            "symbol_name": "_ZSt11__terminatePFvvE",
-            "symbol_addr": 140734882356639,
-            "instruction_addr": 140734882356647
           },
           {
             "object_name": "libc++abi.dylib",
@@ -368,39 +332,11 @@
             "instruction_addr": 140734930597106
           },
           {
-            "object_name": "libdispatch.dylib",
-            "object_addr": 140734930583552,
-            "symbol_name": "_dispatch_lane_serial_drain",
-            "symbol_addr": 140734930618441,
-            "instruction_addr": 140734930619038
-          },
-          {
-            "object_name": "libdispatch.dylib",
-            "object_addr": 140734930583552,
-            "symbol_name": "_dispatch_lane_invoke",
-            "symbol_addr": 140734930621111,
-            "instruction_addr": 140734930621474
-          },
-          {
-            "object_name": "libdispatch.dylib",
-            "object_addr": 140734930583552,
-            "symbol_name": "_dispatch_workloop_worker_thread",
-            "symbol_addr": 140734930659403,
-            "instruction_addr": 140734930660001
-          },
-          {
             "object_name": "libsystem_pthread.dylib",
             "object_addr": 140734933049344,
             "symbol_name": "_pthread_wqthread",
             "symbol_addr": 140734933059137,
             "instruction_addr": 140734933059427
-          },
-          {
-            "object_name": "libsystem_pthread.dylib",
-            "object_addr": 140734933049344,
-            "symbol_name": "start_wqthread",
-            "symbol_addr": 140734933058996,
-            "instruction_addr": 140734933059011
           }
         ],
         "skipped": 0
