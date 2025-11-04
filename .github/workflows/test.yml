@@ -155,25 +155,25 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        xcode:
-          - "16.4"
-        name:
-          - "macOS 15"
-        test-destination-os:
-          - "15.0"
-        platform:
-          - "macOS"
         include:
           # Running the tests with simulators is incredibly flaky. Our assumption is that simulators might have difficulties
           # with communicating with the test server in CI.
           # We are going to add these back in https://github.com/getsentry/sentry-cocoa/issues/6361
-          - runner: GitHub
+          - name: "macOS 15"
             runs-on: macos-15
-          - runner: Cirrus Labs
+            xcode: "16.4"
+            runner: GitHub
+            test-destination-os: "15.0"
+            platform: "macOS"
+          - name: "macOS 15"
+            runner: Cirrus Labs
             runs-on: [
               "ghcr.io/cirruslabs/macos-runner:sequoia",
               "runner_group_id:10",
             ]
+            xcode: "16.4"
+            test-destination-os: "15.0"
+            platform: "macOS"
 
     steps:
       - uses: actions/checkout@v5
@@ -264,12 +264,26 @@ jobs:
         runner:
           - GitHub
           - Cirrus Labs
+        job_id:
+          - ios_17
+          - ios_18
+          - ios_26
+          - macos_14
+          - macos_15
+          - macos_26
+          - catalyst_14
+          - catalyst_15
+          - tvos_17
+          - tvos_18
+          - tvos_26
+          - ios_17_swiftui
         # Can't run tests on watchOS because XCTest is not available
         include:
           # We are running tests on iOS 17 and later, as there were OS-internal changes introduced in succeeding versions.
 
           # iOS 17 - Use pre-installed iOS 17.5 runtime on macOS-14 with Xcode 15.4
-          - name: iOS 17 Sentry
+          - job_id: ios_17
+            name: iOS 17 Sentry
             runs-on: macos-14
             runs-on-cirrus: sequoia
             xcode: "15.4"
@@ -281,7 +295,8 @@ jobs:
             scheme: "Sentry"
 
           # iOS 18 - Use pre-installed iOS 18.4 runtime on macOS-15
-          - name: iOS 18 Sentry
+          - job_id: ios_18
+            name: iOS 18 Sentry
             runs-on: macos-15
             runs-on-cirrus: sequoia
             xcode: "16.4"
@@ -291,7 +306,8 @@ jobs:
             scheme: "Sentry"
 
           # iOS 26 - Download iOS 26.1 beta runtime on macOS-26
-          - name: iOS 26 Sentry
+          - job_id: ios_26
+            name: iOS 26 Sentry
             runs-on: macos-26
             runs-on-cirrus: tahoe
             xcode: "26.1"
@@ -309,7 +325,8 @@ jobs:
           # We are running tests on macOS 14 and later, as there were OS-internal changes introduced in succeeding versions.
 
           # macOS 14
-          - name: macOS 14 Sentry
+          - job_id: macos_14
+            name: macOS 14 Sentry
             runs-on: macos-14
             runs-on-cirrus: sequoia
             xcode: "15.4"
@@ -319,7 +336,8 @@ jobs:
             scheme: "Sentry"
 
           # macOS 15
-          - name: macOS 15 Sentry
+          - job_id: macos_15
+            name: macOS 15 Sentry
             runs-on: macos-15
             runs-on-cirrus: sequoia
             xcode: "16.4"
@@ -328,7 +346,8 @@ jobs:
             scheme: "Sentry"
 
           # macOS 26
-          - name: macOS 26 Sentry
+          - job_id: macos_26
+            name: macOS 26 Sentry
             runs-on: macos-26
             runs-on-cirrus: tahoe
             xcode: "26.1"
@@ -339,7 +358,8 @@ jobs:
           # Catalyst. We test the latest version, as the risk something breaking on Catalyst and not
           # on an older iOS or macOS version is low.
           # In addition we are running tests on macOS 14, as there were OS-internal changes introduced in succeeding versions.
-          - name: Catalyst 14 Sentry
+          - job_id: catalyst_14
+            name: Catalyst 14 Sentry
             runs-on: macos-14
             runs-on-cirrus: sonoma
             xcode: "15.4"
@@ -348,7 +368,8 @@ jobs:
             platform: "Catalyst"
             scheme: "Sentry"
 
-          - name: Catalyst 15 Sentry
+          - job_id: catalyst_15
+            name: Catalyst 15 Sentry
             runs-on: macos-15
             xcode: "16.4"
             test-destination-os: "latest"
@@ -362,7 +383,8 @@ jobs:
           # We are running tests on tvOS 17 and latest, as there were OS-internal changes introduced in succeeding versions.
 
           # tvOS 17
-          - name: tvOS 17 Sentry
+          - job_id: tvos_17
+            name: tvOS 17 Sentry
             runs-on: macos-14
             runs-on-cirrus: sequoia
             xcode: "15.4"
@@ -371,20 +393,9 @@ jobs:
             platform: "tvOS"
             scheme: "Sentry"
 
-          # iOS 17 - Use pre-installed iOS 17.5 runtime on macOS-14 with Xcode 15.4
-          - name: iOS 17 SentrySwiftUI
-            runs-on: macos-14
-            runs-on-cirrus: sequoia
-            xcode: "15.4"
-            xcode-cirrus: "16.1"
-            test-destination-os: "17.5"
-            platform: "iOS"
-            create_device: true
-            device: "iPhone 15 Pro"
-            scheme: "SentrySwiftUI"
-
           # tvOS 18
-          - name: tvOS 18 Sentry
+          - job_id: tvos_18
+            name: tvOS 18 Sentry
             runs-on: macos-15
             runs-on-cirrus: sequoia
             xcode: "16.4"
@@ -393,7 +404,8 @@ jobs:
             scheme: "Sentry"
 
           # tvOS 26
-          - name: tvOS 26 Sentry
+          - job_id: tvos_26
+            name: tvOS 26 Sentry
             runs-on: macos-26
             runs-on-cirrus: tahoe
             xcode: "26.1"
@@ -403,6 +415,19 @@ jobs:
             create_device: true
             device: "Apple TV"
             scheme: "Sentry"
+
+          # iOS 17 - Use pre-installed iOS 17.5 runtime on macOS-14 with Xcode 15.4
+          - job_id: ios_17_swiftui
+            name: iOS 17 SentrySwiftUI
+            runs-on: macos-14
+            runs-on-cirrus: sequoia
+            xcode: "15.4"
+            xcode-cirrus: "16.1"
+            test-destination-os: "17.5"
+            platform: "iOS"
+            create_device: true
+            device: "iPhone 15 Pro"
+            scheme: "SentrySwiftUI"
     env:
       XCODE_VERSION: ${{ matrix.runner == 'Cirrus Labs' && matrix.xcode-cirrus || matrix.xcode }}
     steps:
