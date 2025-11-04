@@ -44,19 +44,6 @@ NSString *const kSentryDefaultEnvironment = @"production";
 
 #endif // SWIFT_PACKAGE || SENTRY_TEST
 
-+ (NSArray<NSString *> *)defaultIntegrations
-{
-    NSArray<Class> *defaultIntegrationClasses = [SentryOptionsInternal defaultIntegrationClasses];
-    NSMutableArray<NSString *> *defaultIntegrationNames =
-        [[NSMutableArray alloc] initWithCapacity:defaultIntegrationClasses.count];
-
-    for (Class class in defaultIntegrationClasses) {
-        [defaultIntegrationNames addObject:NSStringFromClass(class)];
-    }
-
-    return defaultIntegrationNames;
-}
-
 - (instancetype)init
 {
     if (self = [super init]) {
