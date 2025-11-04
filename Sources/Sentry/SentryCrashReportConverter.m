@@ -472,15 +472,10 @@
     exception.stacktrace = crashedThread.stacktrace;
 
     NSString *exceptionValue = exception.value;
-
-    BOOL hasDiagnosis = self.diagnosis != nil && self.diagnosis.length > 0;
-    BOOL hasExceptionValue = exception.value != nil && exception.value.length > 0;
-
-    if (hasDiagnosis && hasExceptionValue && ![self.diagnosis containsString:exceptionValue]) {
-        NSString *exceptionValueWithDiagnosis = [exceptionValue
+    if (nil != self.diagnosis && self.diagnosis.length > 0 && exceptionValue != nil
+        && ![self.diagnosis containsString:exceptionValue]) {
+        exception.value = [exceptionValue
             stringByAppendingString:[NSString stringWithFormat:@" >\n%@", self.diagnosis]];
-
-        exception.value = exceptionValueWithDiagnosis;
     }
     return @[ exception ];
 }
