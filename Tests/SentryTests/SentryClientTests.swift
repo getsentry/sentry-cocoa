@@ -2199,6 +2199,26 @@ class SentryClientTests: XCTestCase {
         XCTAssertEqual(testBatcher.addLogInvocations.first?.log.level, .info)
     }
     
+    func testFlushCallsLogBatcherCaptureLogs() {
+        let sut = fixture.getSut()
+        
+        // Create a test batcher to verify captureLogs is called
+        let testBatcher = TestLogBatcherForClient(
+            options: sut.options,
+            dispatchQueue: TestSentryDispatchQueueWrapper()
+        )
+        Dynamic(sut).logBatcher = testBatcher
+        
+        // Verify initial state
+        XCTAssertEqual(testBatcher.captureLogsInvocations.count, 0)
+        
+        // Call flush - this should trigger the log batcher to capture logs
+        sut.flush(timeout: 1.0)
+        
+        // Verify that captureLogs was called on the log batcher
+        XCTAssertEqual(testBatcher.captureLogsInvocations.count, 1)
+    }
+    
     func testCaptureSentryWrappedException() throws {
 #if os(macOS)
         let exception = NSException(name: NSExceptionName("exception"), reason: "reason", userInfo: nil)
@@ -2407,9 +2427,16 @@ private extension SentryClientTests {
 
 final class TestLogBatcherForClient: SentryLogBatcher {
     var addLogInvocations = Invocations<(log: SentryLog, scope: Scope)>()
+    var captureLogsInvocations = Invocations<Void>()
     
     override func addLog(_ log: SentryLog, scope: Scope) {
         addLogInvocations.record((log, scope))
+    }
+    
+    @discardableResult
+    override func captureLogs() -> TimeInterval {
+        captureLogsInvocations.record(())
+        return super.captureLogs()
     }
 }
 

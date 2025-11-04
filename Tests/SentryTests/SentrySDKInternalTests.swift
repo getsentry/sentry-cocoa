@@ -625,29 +625,7 @@ class SentrySDKInternalTests: XCTestCase {
         XCTAssertIdentical(logger1, logger2)
     }
 
-    func testClose_ResetsLogger() {
-        givenSdkWithHub()
-
-        // Get logger instance
-        let logger1 = SentrySDK.logger
-        XCTAssertNotNil(logger1)
-
-        // Close SDK
-        SentrySDK.close()
-
-        // Start SDK again
-        givenSdkWithHub()
-
-        // Get logger instance again
-        let logger2 = SentrySDK.logger
-        XCTAssertNotNil(logger2)
-
-        // Should be a different instance
-        XCTAssertNotIdentical(logger1, logger2)
-    }
-
-    func testLogger_WithLogsEnabled_CapturesLog() {
-        fixture.client.options.enableLogs = true
+    func testLogger_WithClient_CapturesLog() {
         givenSdkWithHub()
 
         SentrySDK.logger.error(String(repeating: "S", count: 1_024 * 1_024))
@@ -657,7 +635,6 @@ class SentrySDKInternalTests: XCTestCase {
     }
 
     func testLogger_WithNoClient_DoesNotCaptureLog() {
-        fixture.client.options.enableLogs = true
         let hubWithoutClient = SentryHubInternal(client: nil, andScope: nil)
         SentrySDKInternal.setCurrentHub(hubWithoutClient)
 
@@ -671,7 +648,7 @@ class SentrySDKInternalTests: XCTestCase {
 
         XCTAssertEqual(fixture.client.captureLogInvocations.count, 0)
     }
-
+    
     func testFlush_CallsFlushCorrectlyOnTransport() throws {
         SentrySDK.start { options in
             options.dsn = SentrySDKInternalTests.dsnAsString

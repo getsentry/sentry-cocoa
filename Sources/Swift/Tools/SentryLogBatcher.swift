@@ -26,6 +26,7 @@ import Foundation
     
     /// Convenience initializer with default flush timeout and buffer size.
     /// - Parameters:
+    ///   - options: The Sentry configuration options
     ///   - dispatchQueue: A **serial** dispatch queue wrapper for thread-safe access to mutable state
     ///
     /// - Important: The `dispatchQueue` parameter MUST be a serial queue to ensure thread safety.
@@ -41,6 +42,7 @@ import Foundation
 
     /// Initializes a new SentryLogBatcher.
     /// - Parameters:
+    ///   - options: The Sentry configuration options
     ///   - flushTimeout: The timeout interval after which buffered logs will be flushed
     ///   - maxBufferSizeBytes: The maximum buffer size in bytes before triggering an immediate flush
     ///   - dispatchQueue: A **serial** dispatch queue wrapper for thread-safe access to mutable state

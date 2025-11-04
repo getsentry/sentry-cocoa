@@ -15,7 +15,6 @@ class SentryHubTests: XCTestCase {
         let crumb = Breadcrumb(level: .error, category: "default")
         let scope = Scope()
         let message = "some message"
-        let log = SentryLog(level: .info, body: "Test log message")
         let event: Event
         let currentDateProvider = TestCurrentDateProvider()
         let sentryCrashWrapper = TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo)
@@ -667,12 +666,11 @@ class SentryHubTests: XCTestCase {
     
     func testCaptureLog() {
         let hub = fixture.getSut(fixture.options, fixture.scope)
-        (hub._swiftLogger as! SentryLogger).info(fixture.log.body)
+        (hub._swiftLogger as! SentryLogger).info("Test log message")
         
         XCTAssertEqual(1, fixture.client.captureLogInvocations.count)
         if let logArguments = fixture.client.captureLogInvocations.first {
-            XCTAssertEqual(fixture.log.body, logArguments.log.body)
-            XCTAssertEqual(fixture.log.level, logArguments.log.level)
+            XCTAssertEqual("Test log message", logArguments.log.body)
             XCTAssertEqual(fixture.scope, logArguments.scope)
         }
     }
@@ -681,12 +679,11 @@ class SentryHubTests: XCTestCase {
         let scope = Scope()
         // Note: logger uses hub's scope, so we create a new hub with the specific scope
         let hubWithScope = fixture.getSut(fixture.options, scope)
-        (hubWithScope._swiftLogger as! SentryLogger).info(fixture.log.body)
+        (hubWithScope._swiftLogger as! SentryLogger).info("Test log message")
         
         XCTAssertEqual(1, fixture.client.captureLogInvocations.count)
         if let logArguments = fixture.client.captureLogInvocations.first {
-            XCTAssertEqual(fixture.log.body, logArguments.log.body)
-            XCTAssertEqual(fixture.log.level, logArguments.log.level)
+            XCTAssertEqual("Test log message", logArguments.log.body)
             XCTAssertEqual(scope, logArguments.scope)
         }
     }

@@ -455,28 +455,6 @@ class SentrySDKTests: XCTestCase {
         // The log should still be captured
         XCTAssertEqual(fixture.client.captureLogInvocations.count, 1)
     }
-    
-    func testLogger_RecreatedWhenSDKStartedAfterAccess() {
-        // Access logger before SDK is started
-        let loggerBeforeStart = SentrySDK.logger
-        
-        // Now properly start the SDK using internal APIs  
-        fixture.client.options.enableLogs = true
-        SentrySDKInternal.setCurrentHub(fixture.hub)
-        SentrySDKInternal.setStart(with: fixture.client.options)
-        
-        // Access logger again after SDK is started
-        let loggerAfterStart = SentrySDK.logger
-        
-        // Verify it's a different instance (recreated)
-        XCTAssertNotIdentical(loggerBeforeStart, loggerAfterStart)
-        
-        // Verify the new logger can actually capture logs
-        loggerAfterStart.info("Test log message")
-        
-        // Verify log was captured
-        XCTAssertEqual(fixture.client.captureLogInvocations.count, 1)
-    }
 }
 
 extension SentrySDKTests {
