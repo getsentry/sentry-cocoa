@@ -487,7 +487,7 @@
 
 - (SentryException *)parseNSException
 {
-    NSString *reason;
+    NSString *reason = nil;
     if (self.exceptionContext[@"nsexception"][@"reason"] != nil) {
         reason = self.exceptionContext[@"nsexception"][@"reason"];
     } else if (self.exceptionContext[@"reason"] != nil) {
