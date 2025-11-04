@@ -10,9 +10,24 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * Attachment Type
+ *
+ * This enum specifies the type of attachment. The attachment type is primarily used by downstream
+ * SDKs (such as sentry-godot) to distinguish between different attachment categories.
+ * Most applications using the SDK directly do not need to specify this, as the default
+ * @c kSentryAttachmentTypeEventAttachment is used for regular file attachments.
+ *
+ *
+ * See also: https://develop.sentry.dev/sdk/data-model/envelope-items/#attachment
  */
 typedef NS_ENUM(NSInteger, SentryAttachmentType) {
+    /**
+     * Standard event attachment. This is the default type for user-provided attachments.
+     */
     kSentryAttachmentTypeEventAttachment,
+    /**
+     * View hierarchy attachment. Automatically set by the SDK when capturing view hierarchy data.
+     * This type is primarily used by downstream SDKs.
+     */
     kSentryAttachmentTypeViewHierarchy
 };
 
