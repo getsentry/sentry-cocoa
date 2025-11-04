@@ -38,11 +38,11 @@
 - Add SentryDistribution as Swift Package Manager target (#6149)
 - Moves SentryClient and SentryHub to be written in Swift (#6627)
 - Add option `enablePropagateTraceparent` to support OTel/W3C trace propagation (#6356)
-- Structured Logs: Add `SentrySwiftLog` Integration (#6286)
 - Move `enableFileManagerSwizzling` from experimental options to top-level options (#6592).
   This option is still disabled by default and will be enabled in a future major release.
 - Move `enableDataSwizzling` from experimental options to top-level options (#6592). This option remains enabled by default.
 - Add `sentry.replay_id` attribute to logs ([#6515](https://github.com/getsentry/sentry-cocoa/pull/6515))
+- Structured Logs: Add `SentrySwiftLog` Integration (#6286)
 
 ### Fixes
 
