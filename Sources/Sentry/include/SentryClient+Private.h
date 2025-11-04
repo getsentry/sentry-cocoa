@@ -78,6 +78,10 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)addAttachmentProcessor:(id<SentryClientAttachmentProcessor>)attachmentProcessor;
 - (void)removeAttachmentProcessor:(id<SentryClientAttachmentProcessor>)attachmentProcessor;
 
+// Do not use this directly, instead use the non-underscored `captureLog` method that is
+// defined through a SentryClient.swift file.
+- (void)_swiftCaptureLog:(NSObject *)log withScope:(SentryScope *)scope;
+
 @end
 
 NS_ASSUME_NONNULL_END

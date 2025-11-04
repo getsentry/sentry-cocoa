@@ -29,6 +29,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, strong) NSMutableArray<id<SentryIntegrationProtocol>> *installedIntegrations;
 
+// Do not use this directly, instead use the non-underscored `logger` property that is
+// defined through a SentryHub.swift file.
+@property (nonatomic, readonly, strong) NSObject *_swiftLogger;
+
 /**
  * Every integration starts with "Sentry" and ends with "Integration". To keep the payload of the
  * event small we remove both.

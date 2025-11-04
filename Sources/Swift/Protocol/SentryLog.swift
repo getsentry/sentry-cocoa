@@ -69,6 +69,18 @@ public final class SentryLog: NSObject {
         self.severityNumber = severityNumber ?? NSNumber(value: level.toSeverityNumber())
         super.init()
     }
+    
+    /// Adds or updates an attribute in the log entry.
+    /// - Parameters:
+    ///   - attribute: The attribute value to add
+    ///   - key: The key for the attribute
+    @objc public func setAttribute(_ attribute: Attribute?, forKey key: String) {
+        if let attribute = attribute {
+            attributes[key] = attribute
+        } else {
+            attributes.removeValue(forKey: key)
+        }
+    }
 }
 
 // MARK: - Internal Codable Support

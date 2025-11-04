@@ -101,10 +101,6 @@ SENTRY_NO_INIT
 - (void)captureFeedback:(SentryFeedback *)feedback
               withScope:(SentryScope *)scope NS_SWIFT_NAME(capture(feedback:scope:));
 
-// Do not use this directly, instead use the non-underscored `captureLog` method that is
-// defined through a SentryClient.swift file.
-- (void)_swiftCaptureLog:(NSObject *)log withScope:(SentryScope *)scope;
-
 /**
  * Waits synchronously for the SDK to flush out all queued and cached items for up to the specified
  * timeout in seconds. If there is no internet connection, the function returns immediately. The SDK

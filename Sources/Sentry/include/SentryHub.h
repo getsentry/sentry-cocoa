@@ -198,10 +198,6 @@ SENTRY_NO_INIT
  */
 @property (nonatomic, readonly, strong) SentryScope *scope;
 
-// Do not use this directly, instead use the non-underscored `logger` property that is
-// defined through a SentryHub.swift file.
-@property (nonatomic, readonly, strong) NSObject *_swiftLogger;
-
 /**
  * Binds a different client to the hub.
  */

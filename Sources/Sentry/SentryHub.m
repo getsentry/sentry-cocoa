@@ -844,25 +844,22 @@ NS_ASSUME_NONNULL_BEGIN
     SentryClientInternal *client = self.client;
     if (client != nil) {
 #if SENTRY_TARGET_REPLAY_SUPPORTED
-        NSMutableDictionary<NSString *, SentryStructuredLogAttribute *> *mutableAttributes =
-            [log.attributes mutableCopy];
-
         NSString *scopeReplayId = self.scope.replayId;
         if (scopeReplayId != nil) {
             // Session mode: use scope replay ID
-            mutableAttributes[@"sentry.replay_id"] =
-                [[SentryStructuredLogAttribute alloc] initWithString:scopeReplayId];
+            [log setAttribute:[[SentryStructuredLogAttribute alloc] initWithString:scopeReplayId]
+                       forKey:@"sentry.replay_id"];
         } else {
             // Buffer mode: check if hub has a session replay ID
             NSString *sessionReplayId = [self getSessionReplayId];
             if (sessionReplayId != nil) {
-                mutableAttributes[@"sentry.replay_id"] =
-                    [[SentryStructuredLogAttribute alloc] initWithString:sessionReplayId];
-                mutableAttributes[@"sentry._internal.replay_is_buffering"] =
-                    [[SentryStructuredLogAttribute alloc] initWithBoolean:YES];
+                [log setAttribute:[[SentryStructuredLogAttribute alloc]
+                                      initWithString:sessionReplayId]
+                           forKey:@"sentry.replay_id"];
+                [log setAttribute:[[SentryStructuredLogAttribute alloc] initWithBoolean:YES]
+                           forKey:@"sentry._internal.replay_is_buffering"];
             }
         }
-        log.attributes = mutableAttributes;
 #endif
         [client _swiftCaptureLog:log withScope:self.scope];
     }
