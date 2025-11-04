@@ -261,9 +261,12 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 #if SENTRY_TARGET_REPLAY_SUPPORTED
     // As the options are not passed in by the hybrid SDK, we need to use the options from the
     // current hub.
-    SentryScreenshotSource *_Nonnull screenshotSource
+    SentryScreenshotSource *_Nullable screenshotSource
         = SentryDependencyContainer.sharedInstance.screenshotSource;
-    return [screenshotSource appScreenshotsData];
+    if (!screenshotSource) {
+        return nil;
+    }
+    return [SENTRY_UNWRAP_NULLABLE(SentryScreenshotSource, screenshotSource) appScreenshotsData];
 #else
     SENTRY_LOG_DEBUG(
         @"PrivateSentrySDKOnly.captureScreenshots only works with UIKit enabled. Ensure you're "
@@ -283,7 +286,13 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 + (NSData *)captureViewHierarchy
 {
 #if SENTRY_HAS_UIKIT
-    return [SentryDependencyContainer.sharedInstance.viewHierarchyProvider appViewHierarchy];
+    SentryViewHierarchyProvider *_Nullable viewHierarchyProvider
+        = SentryDependencyContainer.sharedInstance.viewHierarchyProvider;
+    if (!viewHierarchyProvider) {
+        return nil;
+    }
+    return [SENTRY_UNWRAP_NULLABLE(SentryViewHierarchyProvider, viewHierarchyProvider)
+        appViewHierarchy];
 #else
     SENTRY_LOG_DEBUG(
         @"PrivateSentrySDKOnly.captureViewHierarchy only works with UIKit enabled. Ensure you're "

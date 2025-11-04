@@ -115,8 +115,8 @@ class TestData {
         return mechanism
     }
     
-    static var mechanismMeta: MechanismMeta {
-        let mechanismMeta = MechanismMeta()
+    static var mechanismMeta: MechanismContext {
+        let mechanismMeta = MechanismContext()
         mechanismMeta.machException = [
             "name": "EXC_BAD_ACCESS",
             "exception": 1,

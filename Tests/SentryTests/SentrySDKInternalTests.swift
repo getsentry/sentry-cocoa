@@ -19,7 +19,7 @@ class SentrySDKInternalTests: XCTestCase {
         let event: Event
         let scope: Scope
         let client: TestClient
-        let hub: SentryHub
+        let hub: SentryHubInternal
         let error: Error = NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Object does not exist"])
         let exception = NSException(name: NSExceptionName("My Custom exeption"), reason: "User clicked the button", userInfo: nil)
         let feedback: SentryFeedback
@@ -46,7 +46,6 @@ class SentrySDKInternalTests: XCTestCase {
         let operation = "ui.load"
         let transactionName = "Load Main Screen"
 
-        @available(*, deprecated, message: "This is marked deprecated as a workaround until we can remove SentryUserFeedback in favor of SentryFeedback. When SentryUserFeedback is removed, this deprecation annotation can be removed.")
         init() {
             SentryDependencyContainer.sharedInstance().dateProvider = currentDate
 
@@ -57,7 +56,7 @@ class SentrySDKInternalTests: XCTestCase {
             scope.setTag(value: "value", key: "key")
 
             client = TestClient(options: options)!
-            hub = SentryHub(client: client, andScope: scope, andCrashWrapper: TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo), andDispatchQueue: SentryDispatchQueueWrapper())
+            hub = SentryHubInternal(client: client, andScope: scope, andCrashWrapper: TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo), andDispatchQueue: SentryDispatchQueueWrapper())
 
             feedback = SentryFeedback(message: "Again really?", name: "Tim Apple", email: "tim@apple.com")
 
@@ -82,7 +81,6 @@ class SentrySDKInternalTests: XCTestCase {
 
     private var fixture: Fixture!
 
-    @available(*, deprecated, message: "This is marked deprecated as a workaround (for the workaround deprecating the Fixture.init method) until we can remove SentryUserFeedback in favor of SentryFeedback. When SentryUserFeedback is removed, this deprecation annotation can be removed.")
     override func setUp() {
         super.setUp()
         fixture = Fixture()
@@ -610,7 +608,7 @@ class SentrySDKInternalTests: XCTestCase {
 
         let transport = TestTransport()
         let fileManager = try TestFileManager(options: fixture.options, dateProvider: fixture.currentDate, dispatchQueueWrapper: fixture.dispatchQueueWrapper)
-        let client = SentryClient(options: fixture.options, fileManager: fileManager, deleteOldEnvelopeItems: false)
+        let client = SentryClientInternal(options: fixture.options, fileManager: fileManager)
         Dynamic(client).transportAdapter = TestTransportAdapter(transports: [transport], options: fixture.options)
         SentrySDKInternal.currentHub().bindClient(client)
         SentrySDK.close()
@@ -665,7 +663,7 @@ class SentrySDKInternalTests: XCTestCase {
 
     func testLogger_WithNoClient_DoesNotCaptureLog() {
         fixture.client.options.enableLogs = true
-        let hubWithoutClient = SentryHub(client: nil, andScope: nil)
+        let hubWithoutClient = SentryHubInternal(client: nil, andScope: nil)
         SentrySDKInternal.setCurrentHub(hubWithoutClient)
 
         SentrySDK.logger.error(String(repeating: "S", count: 1_024 * 1_024))
@@ -695,7 +693,7 @@ class SentrySDKInternalTests: XCTestCase {
 
         let transport = TestTransport()
         let fileManager = try TestFileManager(options: fixture.options, dateProvider: fixture.currentDate, dispatchQueueWrapper: fixture.dispatchQueueWrapper)
-        let client = SentryClient(options: fixture.options, fileManager: fileManager, deleteOldEnvelopeItems: false)
+        let client = SentryClientInternal(options: fixture.options, fileManager: fileManager)
         Dynamic(client).transportAdapter = TestTransportAdapter(transports: [transport], options: fixture.options)
         SentrySDKInternal.currentHub().bindClient(client)
 
@@ -991,7 +989,7 @@ private extension SentrySDKInternalTests {
     }
 
     func givenSdkWithHubButNoClient() {
-        SentrySDKInternal.setCurrentHub(SentryHub(client: nil, andScope: nil))
+        SentrySDKInternal.setCurrentHub(SentryHubInternal(client: nil, andScope: nil))
         SentrySDKInternal.setStart(with: fixture.options)
     }
 
@@ -1032,7 +1030,7 @@ class SentrySDKWithSetupTests: XCTestCase {
             }
 
             concurrentQueue.async {
-                let hub = SentryHub(client: nil, andScope: nil)
+                let hub = SentryHubInternal(client: nil, andScope: nil)
                 XCTAssertNotNil(hub)
 
                 expectation.fulfill()

@@ -13,7 +13,7 @@ class SentryTraceViewModelTestCase: XCTestCase {
     
     func testCreateTransaction() throws {
         let option = Options()
-        SentrySDKInternal.setCurrentHub(SentryHub(client: SentryClient(options: option), andScope: nil))
+        SentrySDKInternal.setCurrentHub(SentryHubInternal(client: SentryClientInternal(options: option), andScope: nil))
         
         let viewModel = SentryTraceViewModel(name: "TestView", nameSource: .component, waitForFullDisplay: false)
         let spanId = viewModel.startSpan()
@@ -27,7 +27,7 @@ class SentryTraceViewModelTestCase: XCTestCase {
     
     func testRootTransactionStarted() throws {
         let option = Options()
-        SentrySDKInternal.setCurrentHub(SentryHub(client: SentryClient(options: option), andScope: nil))
+        SentrySDKInternal.setCurrentHub(SentryHubInternal(client: SentryClientInternal(options: option), andScope: nil))
         
         let viewModel = SentryTraceViewModel(name: "RootTransactionTest", nameSource: .component, waitForFullDisplay: true)
         _ = viewModel.startSpan()
@@ -40,7 +40,7 @@ class SentryTraceViewModelTestCase: XCTestCase {
     
     func testNoRootTransactionForCurrentTransactionRunning() throws {
         let option = Options()
-        SentrySDKInternal.setCurrentHub(SentryHub(client: SentryClient(options: option), andScope: nil))
+        SentrySDKInternal.setCurrentHub(SentryHubInternal(client: SentryClientInternal(options: option), andScope: nil))
         
         let testSpan = SentryPerformanceTracker.shared.startSpan(withName: "Test Root", nameSource: .component, operation: "Testing", origin: "Test")
         SentryPerformanceTracker.shared.pushActiveSpan(testSpan)
@@ -58,7 +58,7 @@ class SentryTraceViewModelTestCase: XCTestCase {
        
     func testNoTransactionWhenViewAppeared() {
         let option = Options()
-        SentrySDKInternal.setCurrentHub(SentryHub(client: SentryClient(options: option), andScope: nil))
+        SentrySDKInternal.setCurrentHub(SentryHubInternal(client: SentryClientInternal(options: option), andScope: nil))
         
         let viewModel = SentryTraceViewModel(name: "TestView", nameSource: .component, waitForFullDisplay: false)
         viewModel.viewDidAppear()
@@ -69,7 +69,7 @@ class SentryTraceViewModelTestCase: XCTestCase {
     
     func testFinishSpan() throws {
         let option = Options()
-        SentrySDKInternal.setCurrentHub(SentryHub(client: SentryClient(options: option), andScope: nil))
+        SentrySDKInternal.setCurrentHub(SentryHubInternal(client: SentryClientInternal(options: option), andScope: nil))
         
         let viewModel = SentryTraceViewModel(name: "FinishSpanTest", nameSource: .component, waitForFullDisplay: false)
         let spanId = try XCTUnwrap(viewModel.startSpan())

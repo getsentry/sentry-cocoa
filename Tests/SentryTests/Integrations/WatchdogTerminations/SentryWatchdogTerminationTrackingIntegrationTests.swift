@@ -14,7 +14,7 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         let fileManager: SentryFileManager
         let processInfoWrapper: MockSentryProcessInfo
         let watchdogTerminationAttributesProcessor: TestSentryWatchdogTerminationAttributesProcessor
-        let hub: SentryHub
+        let hub: SentryHubInternal
         let scope: Scope
         let appStateManager: SentryAppStateManager
 
@@ -69,7 +69,7 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
 
             let client = TestClient(options: options)
             scope = Scope()
-            hub = SentryHub(client: client, andScope: scope, andCrashWrapper: crashWrapper, andDispatchQueue: dispatchQueueWrapper)
+            hub = SentryHubInternal(client: client, andScope: scope, andCrashWrapper: crashWrapper, andDispatchQueue: dispatchQueueWrapper)
             SentrySDKInternal.setCurrentHub(hub)
         }
 

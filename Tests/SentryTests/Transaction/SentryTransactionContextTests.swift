@@ -278,7 +278,6 @@ class SentryTransactionContextTests: XCTestCase {
         )
     }
 
-    @available(*, deprecated, message: "The test is marked as deprecated to silence the deprecation warning of the initializer")
     func testPublicInit_WithNameTraceIdSpanIdParentSpanIdParentSampled_withNilValues() {
         // Act
         let context = TransactionContext(

@@ -22,7 +22,6 @@ class SentrySessionGeneratorTests: NotificationCenterTestCase {
     private var options: Options!
     private var fileManager: SentryFileManager!
     
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     override func setUp() {
         super.setUp()
         
@@ -145,7 +144,7 @@ class SentrySessionGeneratorTests: NotificationCenterTestCase {
         
         sentryCrash = TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo)
         let client = SentrySDKInternal.currentHub().getClient()
-        let hub = SentryHub(client: client, andScope: nil, andCrashWrapper: self.sentryCrash, andDispatchQueue: SentryDispatchQueueWrapper())
+        let hub = SentryHubInternal(client: client, andScope: nil, andCrashWrapper: self.sentryCrash, andDispatchQueue: SentryDispatchQueueWrapper())
         SentrySDKInternal.setCurrentHub(hub)
         
         crashIntegration = SentryCrashIntegration(crashAdapter: sentryCrash, andDispatchQueueWrapper: TestSentryDispatchQueueWrapper())

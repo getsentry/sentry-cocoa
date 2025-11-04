@@ -208,7 +208,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         
         startSDK(sessionSampleRate: 1, errorSampleRate: 1)
         
-        let client = SentryClient(options: try XCTUnwrap(SentrySDKInternal.options))
+        let client = SentryClientInternal(options: try XCTUnwrap(SentrySDKInternal.options))
         let scope = Scope()
         let hub = TestHub(client: client, andScope: scope)
         SentrySDKInternal.setCurrentHub(hub)
@@ -236,7 +236,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         
         startSDK(sessionSampleRate: 1, errorSampleRate: 1)
         
-        let client = SentryClient(options: try XCTUnwrap(SentrySDKInternal.options))
+        let client = SentryClientInternal(options: try XCTUnwrap(SentrySDKInternal.options))
         let scope = Scope()
         let hub = TestHub(client: client, andScope: scope)
         SentrySDKInternal.setCurrentHub(hub)
@@ -273,7 +273,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         // capture all error replays if this were not a buffer replay from previous session
         startSDK(sessionSampleRate: 0, errorSampleRate: 1)
         
-        let client = SentryClient(options: try XCTUnwrap(SentrySDKInternal.options))
+        let client = SentryClientInternal(options: try XCTUnwrap(SentrySDKInternal.options))
         let scope = Scope()
         let hub = TestHub(client: client, andScope: scope)
         SentrySDKInternal.setCurrentHub(hub)
@@ -313,7 +313,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
             }
         })
         
-        let client = SentryClient(options: try XCTUnwrap(SentrySDKInternal.options))
+        let client = SentryClientInternal(options: try XCTUnwrap(SentrySDKInternal.options))
         let scope = Scope()
         let hub = TestHub(client: client, andScope: scope)
         SentrySDKInternal.setCurrentHub(hub)
@@ -739,6 +739,57 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
 
         // -- Assert --
         XCTAssertNil(weakSut, "SentrySessionReplayIntegration should be deallocated")
+    }
+    
+    func testInstallWithOptions_WithUnsafe_withoutOverrideOptionEnabled_shouldReturnFalse() {
+        // -- Arrange --
+        let instance = SentrySessionReplayIntegration()
+
+        let options = Options()
+        options.sessionReplay = SentryReplayOptions(sessionSampleRate: 1.0, onErrorSampleRate: 1.0)
+        options.experimental.enableSessionReplayInUnreliableEnvironment = false
+
+        SentryDependencyContainer.sharedInstance().sessionReplayEnvironmentChecker = TestSessionReplayEnvironmentChecker(mockedIsReliableReturnValue: false)
+
+        // -- Act --
+        let result = instance.install(with: options)
+
+        // -- Assert --
+        XCTAssertFalse(result)
+    }
+
+    func testInstallWithOptions_WithUnsafe_withOverrideOptionEnabled_shouldReturnTrue() {
+        // -- Arrange --
+        let instance = SentrySessionReplayIntegration()
+
+        let options = Options()
+        options.sessionReplay = SentryReplayOptions(sessionSampleRate: 1.0, onErrorSampleRate: 1.0)
+        options.experimental.enableSessionReplayInUnreliableEnvironment = true
+
+        SentryDependencyContainer.sharedInstance().sessionReplayEnvironmentChecker = TestSessionReplayEnvironmentChecker(mockedIsReliableReturnValue: false)
+
+        // -- Act --
+        let result = instance.install(with: options)
+
+        // -- Assert --
+        XCTAssertTrue(result)
+    }
+
+    func testInstallWithOptions_WithoutUnsafe_shouldReturnTrue() {
+        // -- Arrange --
+        let instance = SentrySessionReplayIntegration()
+
+        let options = Options()
+        options.sessionReplay = SentryReplayOptions(sessionSampleRate: 1.0, onErrorSampleRate: 1.0)
+        options.experimental.enableSessionReplayInUnreliableEnvironment = false
+
+        SentryDependencyContainer.sharedInstance().sessionReplayEnvironmentChecker = TestSessionReplayEnvironmentChecker(mockedIsReliableReturnValue: true)
+
+        // -- Act --
+        let result = instance.install(with: options)
+
+        // -- Assert --
+        XCTAssertTrue(result)
     }
 
     private func createLastSessionReplay(writeSessionInfo: Bool = true, errorSampleRate: Double = 1) throws {

@@ -16,3 +16,11 @@ We frequently release a beta version of our SDK and dogfood it with internal app
 4. Trigger the release workflow with use workflow from the `publish/x.x.x` branch and set the target branch to merge into to `publish/x.x.x`, cause per default craft will merge into the main branch and this could lead to merge conflicts in the changelog.
 5. After the successful release, validate that craft merged the changes back into `publish/x.x.x` branch and deleted the release branch.
 6. Manually open a PR from the `publish/x.x.x` branch into the main branch and merge it.
+
+## Releasing V8
+
+As of Oct 1st 2025, the [main branch](https://github.com/getsentry/sentry-cocoa/tree/main) is for v9 and the branch [v8.x](https://github.com/getsentry/sentry-cocoa/tree/v8.x) is for v8.
+
+To continue supporting users on version 8, we have created a dedicated v8 branch. This is the first time in the SDK’s history that we’ve maintained a legacy branch. Since v8 was released over two years ago, and with new features like Session Replay shipped this year, we know some important customers still require bugfixes on v8 before moving to v9. Maintaining a separate branch allows us to deliver those fixes without complicating the v9 release process.
+
+When releasing v8, we must to specify the `Target branch to merge into` for Craft via the GH action, because otherwise Craft merges v8 into main.
