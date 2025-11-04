@@ -305,7 +305,7 @@ NS_SWIFT_NAME(Options)
  */
 @property (nonatomic) SentryScope * (^initialScope)(SentryScope *);
 
-#if SENTRY_UIKIT_AVAILABLE
+#if SENTRY_HAS_UIKIT
 /**
  * When enabled, the SDK tracks performance for UIViewController subclasses.
  * @warning This feature is not available in @c DebugWithoutUIKit and @c ReleaseWithoutUIKit
@@ -313,6 +313,14 @@ NS_SWIFT_NAME(Options)
  * @note The default is @c YES .
  */
 @property (nonatomic, assign) BOOL enableUIViewControllerTracing;
+
+/**
+ * When enabled the SDK reports non-fully-blocking app hangs. A non-fully-blocking app hang is when
+ * the app appears stuck to the user but can still render a few frames.
+ *
+ * @note The default is @c YES.
+ */
+@property (nonatomic, assign) BOOL enableReportNonFullyBlockingAppHangs;
 
 /**
  * Automatically attaches a screenshot when capturing an error or exception.
@@ -380,7 +388,7 @@ NS_SWIFT_NAME(Options)
  */
 @property (nonatomic, assign) BOOL enablePreWarmedAppStartTracing;
 
-#endif // SENTRY_UIKIT_AVAILABLE
+#endif // SENTRY_HAS_UIKIT
 
 #if SENTRY_TARGET_REPLAY_SUPPORTED
 
@@ -571,18 +579,6 @@ typedef void (^SentryProfilingConfigurationBlock)(SentryProfileOptions *_Nonnull
  * @note App Hang tracking is automatically disabled if a debugger is attached.
  */
 @property (nonatomic, assign) BOOL enableAppHangTracking;
-
-#if SENTRY_UIKIT_AVAILABLE
-
-/**
- * When enabled the SDK reports non-fully-blocking app hangs. A non-fully-blocking app hang is when
- * the app appears stuck to the user but can still render a few frames.
- *
- * @note The default is @c YES.
- */
-@property (nonatomic, assign) BOOL enableReportNonFullyBlockingAppHangs;
-
-#endif // SENTRY_UIKIT_AVAILABLE
 
 /**
  * The minimum amount of time an app should be unresponsive to be classified as an App Hanging.
