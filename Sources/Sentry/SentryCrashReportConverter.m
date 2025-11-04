@@ -472,27 +472,32 @@
     exception.stacktrace = crashedThread.stacktrace;
 
     NSString *exceptionValue = exception.value;
-    if (nil != self.diagnosis && self.diagnosis.length > 0 && exceptionValue != nil
-        && ![self.diagnosis containsString:exceptionValue]) {
-        exception.value = [exceptionValue
+
+    BOOL hasDiagnosis = self.diagnosis != nil && self.diagnosis.length > 0;
+    BOOL hasExceptionValue = exception.value != nil && exception.value.length > 0;
+
+    if (hasDiagnosis && hasExceptionValue && ![self.diagnosis containsString:exceptionValue]) {
+        NSString *exceptionValueWithDiagnosis = [exceptionValue
             stringByAppendingString:[NSString stringWithFormat:@" >\n%@", self.diagnosis]];
+
+        exception.value = exceptionValueWithDiagnosis;
     }
     return @[ exception ];
 }
 
 - (SentryException *)parseNSException
 {
-    NSString *reason = @"";
-    if (nil != self.exceptionContext[@"nsexception"][@"reason"]) {
+    NSString *reason;
+    if (self.exceptionContext[@"nsexception"][@"reason"] != nil) {
         reason = self.exceptionContext[@"nsexception"][@"reason"];
-    } else if (nil != self.exceptionContext[@"reason"]) {
+    } else if (self.exceptionContext[@"reason"] != nil) {
         reason = self.exceptionContext[@"reason"];
     }
 
-    return [[SentryException alloc] initWithValue:[NSString stringWithFormat:@"%@", reason]
-                                             type:self.exceptionContext[@"nsexception"][@"name"]
-            ?: @"NSException"]; // The fallback value is best-attempt in case the exception name is
-                                // not available
+    // The fallback value is best-attempt in case the exception name is not available
+    NSString *type = self.exceptionContext[@"nsexception"][@"name"] ?: @"NSException";
+
+    return [[SentryException alloc] initWithValue:reason type:type];
 }
 
 - (void)enhanceValueFromNotableAddresses:(SentryException *)exception
