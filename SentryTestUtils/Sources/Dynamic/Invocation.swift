@@ -48,6 +48,7 @@ class Invocation: Loggable {
         try initialize()
     }
 
+    // swiftlint:disable:next function_body_length
     private func initialize() throws {
         /// `NSMethodSignature *methodSignature = [target methodSignatureForSelector: selector]`
         let methodSignature: NSObject
