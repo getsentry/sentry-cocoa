@@ -70,6 +70,7 @@
 ### Improvements
 
 - Replace deprecated SCNetworkReachability with NWPathMonitor (#6019)
+- Expose attachment type on `SentryAttachment` for downstream SDKs (like sentry-godot) (#6521)
 - Increase attachment max size to 100MB (#6537)
 
 ## 8.57.1
