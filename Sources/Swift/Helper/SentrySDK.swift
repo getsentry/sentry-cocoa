@@ -30,9 +30,9 @@ import Foundation
         if !SentrySDKInternal.isEnabled {
             SentrySDKLog.fatal("Logs called before SentrySDK.start() will be dropped.")
         }
-        // Temp until we figure out how to access the logger from the helper
+        // We know the type so it's fine to force cast.
         // swiftlint:disable force_cast
-        return SentrySDKInternal.currentHub().value(forKey: "logger") as! SentryLogger
+        return SentrySDKInternal.currentHub()._swiftLogger as! SentryLogger
         // swiftlint:enable force_cast
     }
     

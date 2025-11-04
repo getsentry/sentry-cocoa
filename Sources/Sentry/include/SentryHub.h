@@ -15,8 +15,6 @@
 @class SentryScope;
 @class SentryTransactionContext;
 @class SentryUser;
-@class SentryLog;
-@class SentryLogger;
 
 NS_ASSUME_NONNULL_BEGIN
 @interface SentryHubInternal : NSObject
@@ -200,10 +198,9 @@ SENTRY_NO_INIT
  */
 @property (nonatomic, readonly, strong) SentryScope *scope;
 
-/**
- * Returns the logger associated with this Hub.
- */
-@property (nonatomic, readonly, strong) SentryLogger *logger;
+// Do not use this directly, instead use the non-underscored `logger` property that is
+// defined through a SentryHub.swift file.
+@property (nonatomic, readonly, strong) NSObject *_swiftLogger;
 
 /**
  * Binds a different client to the hub.

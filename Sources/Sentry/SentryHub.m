@@ -74,7 +74,7 @@ NS_ASSUME_NONNULL_BEGIN
             [_crashWrapper enrichScope:SENTRY_UNWRAP_NULLABLE(SentryScope, _scope)];
         }
 
-        _logger = [[SentryLogger alloc]
+        __swiftLogger = [[SentryLogger alloc]
             initWithDelegate:self
                 dateProvider:SentryDependencyContainer.sharedInstance.dateProvider];
     }
