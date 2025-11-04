@@ -130,6 +130,9 @@ let package = Package(
     platforms: [.iOS(.v15), .macOS(.v12), .tvOS(.v15), .watchOS(.v8)],
     products: products,
     dependencies: [
+        // SPM doesn't support peer-dependencies, so users are locked into our declared version.
+        // Using `from: "1.6.0"` covers 1.6.0 < 2.0.0, resolving minor versions automatically.
+        // See develop-docs/DECISIONS.md for discussion.
         .package(url: "https://github.com/apple/swift-log", from: "1.6.0")
     ],
     targets: targets,
