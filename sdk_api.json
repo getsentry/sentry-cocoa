@@ -41875,6 +41875,47 @@
             "init_kind": "Convenience"
           },
           {
+            "kind": "Function",
+            "name": "setAttribute",
+            "printedName": "setAttribute(_:forKey:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Sentry.SentryLog.Attribute?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Attribute",
+                    "printedName": "Sentry.SentryLog.Attribute",
+                    "usr": "s:6Sentry0A3LogC9AttributeC"
+                  }
+                ],
+                "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "c:@M@Sentry@objc(cs)SentryLog(im)setAttribute:forKey:",
+            "mangledName": "$s6Sentry0A3LogC12setAttribute_6forKeyyAC0D0CSg_SStF",
+            "moduleName": "Sentry",
+            "declAttributes": [
+              "Final",
+              "ObjC"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
             "kind": "TypeDecl",
             "name": "Level",
             "printedName": "Level",
