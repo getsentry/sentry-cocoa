@@ -184,8 +184,6 @@ jobs:
       - uses: actions/download-artifact@v6
         with:
           name: test-server-${{matrix.runner}}
-      - name: Rename artifact
-        run: mv test-server-${{matrix.runner}} test-server-exec
       - name: Start Test Server
         run: ./scripts/start-test-server.sh
       - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
@@ -387,6 +385,7 @@ jobs:
           # We are running tests on tvOS 17 and latest, as there were OS-internal changes introduced in succeeding versions.
 
           # tvOS 17
+          # Cirrus labs doesn't have a tvOS 17 runner
           - job_id: tvos_17
             name: tvOS 17 Sentry
             runs-on: macos-14
@@ -437,15 +436,12 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - run: ./scripts/ci-select-xcode.sh ${{env.XCODE_VERSION}}
-
-      # Install Ruby for Cirrus Labs runners
-      - name: Install Ruby 3.3.0
-        if: ${{ matrix.runner == 'Cirrus Labs' }}
-        run: rbenv install 3.3.0
-
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@13e7a03dc3ac6c3798f4570bfead2aed4d96abfb # v1.244.0
+        with:
+          bundler-cache: true
       - name: Install Slather
         run: gem install slather
-
       # Install platform runtimes that are not included by default
       # For iOS 16.4: Not included with Xcode 15.4 on macOS-14 (macOS-13 sunset)
       # For iOS/tvOS 26.1: Beta platforms not included by default
