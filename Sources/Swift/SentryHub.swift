@@ -193,9 +193,9 @@ import Foundation
 
     /// Returns the logger associated with this Hub.
     @objc public var logger: SentryLogger {
-        // Temp until we figure out how to access the logger from the helper
+        // We know the type so it's fine to force cast.
         // swiftlint:disable force_cast
-        return self.helper.value(forKey: "logger") as! SentryLogger
+        return self.helper._swiftLogger as! SentryLogger
         // swiftlint:enable force_cast
     }
 
