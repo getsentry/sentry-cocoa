@@ -142,6 +142,9 @@ jobs:
           name: raw-test-output-distribution-${{matrix.runner}}
           path: |
             raw-test-output-distribution.log
+      - name: Run CI Diagnostics
+        if: ${{ failure() || cancelled() }}
+        run: ./scripts/ci-diagnostics.sh
 
   # This matrix runs only the unit tests requiring the test server.
   # We do this to speed up the other unit test jobs and to avoid running the
@@ -182,7 +185,7 @@ jobs:
         with:
           name: test-server-${{matrix.runner}}
       - name: Rename artifact
-        run: mv "test-server-${{matrix.runner}}" "test-server"
+        run: mv test-server-${{matrix.runner}} test-server-exec
       - name: Start Test Server
         run: ./scripts/start-test-server.sh
       - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
