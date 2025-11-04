@@ -7,8 +7,6 @@ import Foundation
     func capture(log: SentryLog)
 }
 
-/// **EXPERIMENTAL** - A structured logging API for Sentry.
-///
 /// `SentryLogger` provides a structured logging interface that captures log entries
 /// and sends them to Sentry. Supports multiple log levels (trace, debug, info, warn, 
 /// error, fatal) and allows attaching arbitrary attributes for enhanced context.
@@ -17,9 +15,6 @@ import Foundation
 /// - `String`, `Bool`, `Int`, `Double`
 /// - `Float` (converted to `Double`)
 /// - Other types (converted to string)
-///
-/// - Note: Sentry Logs is currently in Beta. See the [Sentry Logs Documentation](https://docs.sentry.io/product/explore/logs/).
-/// - Warning: This API is experimental and subject to change without notice.
 ///
 /// ## Usage
 /// ```swift
