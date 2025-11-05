@@ -509,11 +509,15 @@ final class SentryLogHandlerTests: XCTestCase {
         
         sut.metadata["test_key"] = "test_value"
         XCTAssertEqual(sut.metadata["test_key"], .string("test_value"))
-        XCTAssertEqual(sut[metadataKey: "test_key"], .string("test_value"))
+
+        sut[metadataKey: "test_key_2"] = "test_value_2"
+        XCTAssertEqual(sut[metadataKey: "test_key_2"], .string("test_value_2"))
         
         sut.metadata["test_key"] = nil
         XCTAssertNil(sut.metadata["test_key"])
-        XCTAssertNil(sut[metadataKey: "test_key"])
+
+        sut[metadataKey: "test_key_2"] = nil
+        XCTAssertNil(sut[metadataKey: "test_key_2"])
     }
     
     // MARK: - Helper Methods
