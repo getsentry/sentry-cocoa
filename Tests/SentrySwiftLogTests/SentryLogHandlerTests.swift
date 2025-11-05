@@ -1,3 +1,4 @@
+internal import _SentryPrivate
 import Logging
 @_spi(Private) @testable import Sentry
 @_spi(Private) @testable import SentrySwiftLog
@@ -60,6 +61,33 @@ final class SentryLogHandlerTests: XCTestCase {
     
     // MARK: - Basic Logging Tests
     
+    func testDefaultInit_UsesSDKLogger() throws {
+        let options = Options()
+        options.dsn = TestConstants.dsnAsString(username: "SentryLogHandlerTests")
+        options.enableLogs = true
+        let testClient = TestClient(options: options)!
+        let testHub = TestHub(client: testClient, andScope: Scope())
+        
+        SentrySDKInternal.setStart(with: options)
+        SentrySDKInternal.setCurrentHub(testHub)
+        
+        // Create handler with default init (uses SentrySDK.logger)
+        let sut = SentryLogHandler(logLevel: .info)
+        XCTAssertNotNil(sut)
+        
+        sut.log(level: .info, message: "Test message from default init", metadata: nil, source: "test", file: "TestFile.swift", function: "testDefaultInit", line: 1)
+        SentrySDK.flush(timeout: 0.25)
+        
+        let invocation = try XCTUnwrap(testClient.captureLogsDataInvocations.invocations.first)
+        let jsonObject = try XCTUnwrap(JSONSerialization.jsonObject(with: invocation.data) as? [String: Any])
+        let items = try XCTUnwrap(jsonObject["items"] as? [[String: Any]])
+        let item = try XCTUnwrap(items.first)
+        XCTAssertEqual(1, items.count)
+        XCTAssertEqual("Test message from default init", item["body"] as? String)
+        
+        SentrySDKInternal.close()
+    }
+    
     func testLog_WithInfoLevel() {
         sut.log(level: .info, message: "Test info message", metadata: nil, source: "test", file: "TestFile.swift", function: "testFunction", line: 42)
         
@@ -95,6 +123,8 @@ final class SentryLogHandlerTests: XCTestCase {
     }
     
     func testLog_WithTraceLevel() {
+        // Set log level to trace to allow trace messages through
+        sut.logLevel = .trace
         sut.log(level: .trace, message: "Test trace message", metadata: nil, source: "test", file: "TestFile.swift", function: "testFunction", line: 1)
         
         assertLogCaptured(
@@ -112,6 +142,8 @@ final class SentryLogHandlerTests: XCTestCase {
     }
     
     func testLog_WithDebugLevel() {
+        // Set log level to debug to allow debug messages through
+        sut.logLevel = .debug
         sut.log(level: .debug, message: "Test debug message", metadata: nil, source: "test", file: "TestFile.swift", function: "testFunction", line: 50)
         
         assertLogCaptured(
@@ -365,25 +397,138 @@ final class SentryLogHandlerTests: XCTestCase {
     
     func testLogLevelConfiguration() {
         XCTAssertEqual(sut.logLevel, .info)
+    }
+    
+    func testLogLevelFiltering_InfoThreshold_FiltersTraceAndDebug() {
+        sut.logLevel = .info
         
-        sut.logLevel = .debug
-        XCTAssertEqual(sut.logLevel, .debug)
+        sut.log(level: .trace, message: "Trace message", metadata: nil, source: "test", file: "TestFile.swift", function: "testFunction", line: 1)
+        sut.log(level: .debug, message: "Debug message", metadata: nil, source: "test", file: "TestFile.swift", function: "testFunction", line: 2)
         
-        sut.logLevel = .error
-        XCTAssertEqual(sut.logLevel, .error)
+        assertNoLogsCaptured()
+    }
+    
+    func testLogLevelFiltering_InfoThreshold_CapturesInfo() {
+        sut.logLevel = .info
+        
+        sut.log(level: .info, message: "Info message", metadata: nil, source: "test", file: "TestFile.swift", function: "testFunction", line: 3)
+        
+        assertLogCaptured(
+            .info,
+            "Info message",
+            [
+                "sentry.origin": SentryLog.Attribute(string: "auto.logging.swift-log"),
+                "swift-log.level": SentryLog.Attribute(string: "info"),
+                "swift-log.source": SentryLog.Attribute(string: "test"),
+                "swift-log.file": SentryLog.Attribute(string: "TestFile.swift"),
+                "swift-log.function": SentryLog.Attribute(string: "testFunction"),
+                "swift-log.line": SentryLog.Attribute(string: "3")
+            ]
+        )
+    }
+    
+    func testLogLevelFiltering_InfoThreshold_CapturesNotice() {
+        sut.logLevel = .info
+        
+        sut.log(level: .notice, message: "Notice message", metadata: nil, source: "test", file: "TestFile.swift", function: "testFunction", line: 4)
+        
+        assertLogCaptured(
+            .info,
+            "Notice message",
+            [
+                "sentry.origin": SentryLog.Attribute(string: "auto.logging.swift-log"),
+                "swift-log.level": SentryLog.Attribute(string: "notice"),
+                "swift-log.source": SentryLog.Attribute(string: "test"),
+                "swift-log.file": SentryLog.Attribute(string: "TestFile.swift"),
+                "swift-log.function": SentryLog.Attribute(string: "testFunction"),
+                "swift-log.line": SentryLog.Attribute(string: "4")
+            ]
+        )
+    }
+    
+    func testLogLevelFiltering_InfoThreshold_CapturesWarning() {
+        sut.logLevel = .info
+        
+        sut.log(level: .warning, message: "Warning message", metadata: nil, source: "test", file: "TestFile.swift", function: "testFunction", line: 5)
+        
+        assertLogCaptured(
+            .warn,
+            "Warning message",
+            [
+                "sentry.origin": SentryLog.Attribute(string: "auto.logging.swift-log"),
+                "swift-log.level": SentryLog.Attribute(string: "warning"),
+                "swift-log.source": SentryLog.Attribute(string: "test"),
+                "swift-log.file": SentryLog.Attribute(string: "TestFile.swift"),
+                "swift-log.function": SentryLog.Attribute(string: "testFunction"),
+                "swift-log.line": SentryLog.Attribute(string: "5")
+            ]
+        )
+    }
+    
+    func testLogLevelFiltering_InfoThreshold_CapturesError() {
+        sut.logLevel = .info
+        
+        sut.log(level: .error, message: "Error message", metadata: nil, source: "test", file: "TestFile.swift", function: "testFunction", line: 6)
+        
+        assertLogCaptured(
+            .error,
+            "Error message",
+            [
+                "sentry.origin": SentryLog.Attribute(string: "auto.logging.swift-log"),
+                "swift-log.level": SentryLog.Attribute(string: "error"),
+                "swift-log.source": SentryLog.Attribute(string: "test"),
+                "swift-log.file": SentryLog.Attribute(string: "TestFile.swift"),
+                "swift-log.function": SentryLog.Attribute(string: "testFunction"),
+                "swift-log.line": SentryLog.Attribute(string: "6")
+            ]
+        )
+    }
+    
+    func testLogLevelFiltering_InfoThreshold_CapturesCritical() {
+        sut.logLevel = .info
+        
+        sut.log(level: .critical, message: "Critical message", metadata: nil, source: "test", file: "TestFile.swift", function: "testFunction", line: 7)
+        
+        assertLogCaptured(
+            .fatal,
+            "Critical message",
+            [
+                "sentry.origin": SentryLog.Attribute(string: "auto.logging.swift-log"),
+                "swift-log.level": SentryLog.Attribute(string: "critical"),
+                "swift-log.source": SentryLog.Attribute(string: "test"),
+                "swift-log.file": SentryLog.Attribute(string: "TestFile.swift"),
+                "swift-log.function": SentryLog.Attribute(string: "testFunction"),
+                "swift-log.line": SentryLog.Attribute(string: "7")
+            ]
+        )
     }
     
     func testMetadataSubscript() {
         XCTAssertNil(sut.metadata["test_key"])
+        XCTAssertNil(sut[metadataKey: "test_key_2"])
         
         sut.metadata["test_key"] = "test_value"
         XCTAssertEqual(sut.metadata["test_key"], .string("test_value"))
+
+        sut[metadataKey: "test_key_2"] = "test_value_2"
+        XCTAssertEqual(sut[metadataKey: "test_key_2"], .string("test_value_2"))
         
         sut.metadata["test_key"] = nil
         XCTAssertNil(sut.metadata["test_key"])
+
+        sut[metadataKey: "test_key_2"] = nil
+        XCTAssertNil(sut[metadataKey: "test_key_2"])
     }
     
     // MARK: - Helper Methods
+    
+    private func assertNoLogsCaptured(
+        file: StaticString = #file,
+        line: UInt = #line
+    ) {
+        let logs = fixture.batcher.addInvocations.invocations
+        XCTAssertEqual(logs.count, 0, "Expected no logs to be captured", file: file, line: line)
+    }
     
     private func assertLogCaptured(
         _ expectedLevel: SentryLog.Level,

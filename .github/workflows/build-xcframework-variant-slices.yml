@@ -56,9 +56,9 @@ jobs:
   build-xcframework-variant-slices:
     name: ${{matrix.sdk}}
 
-    # We must compile this on an arm64 runner, cause it's required for visionOS. macos-14 uses arm64.
+    # We must compile this on an arm64 runner, cause it's required for visionOS. macos-15 uses arm64.
     # To see the available runners see https://docs.github.com/en/actions/using-github-hosted-runners/using-github-hosted-runners/about-github-hosted-runners#standard-github-hosted-runners-for-public-repositories.
-    runs-on: macos-14
+    runs-on: macos-15
 
     strategy:
       matrix:
@@ -67,12 +67,8 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      # We have to compile on Xcode 15.2 because compiling on Xcode 15.4 fails with
-      # Data+SentryTracing.swift:21:62: error: 'ReadingOptions' aliases 'Foundation.ReadingOptions'
-      # and cannot be used here because C++ types from imported module 'Foundation' do not support
-      # library evolution; this is an error in the Swift 6 language mode
-      # We also can't use Xcode 16.x because validating the XCFramework then fails with Xcode 15.x.
-      - run: ./scripts/ci-select-xcode.sh 15.2
+      # We use Xcode 16.4 for building XCFrameworks as it's the standard version available on macos-15 runners.
+      - run: ./scripts/ci-select-xcode.sh 16.4
         shell: bash
 
       - name: Get version
@@ -109,7 +105,7 @@ jobs:
         env:
           VERSION: ${{ env.VERSION }}
         run: |
-          ./scripts/ci-select-xcode.sh 15.2
+          ./scripts/ci-select-xcode.sh 16.4
           make bump-version TO=$VERSION
 
       - name: Build ${{inputs.name}}${{inputs.suffix}} XCFramework slice for ${{matrix.sdk}}
@@ -153,7 +149,7 @@ jobs:
           path: ${{inputs.name}}${{inputs.suffix}}.xcarchive.zip
 
       - name: Upload xcarchive
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: xcframework-${{inputs.variant-id}}-slice-${{matrix.sdk}}
           if-no-files-found: error
@@ -161,7 +157,7 @@ jobs:
             ${{inputs.name}}${{inputs.suffix}}.xcarchive.zip
 
       - name: Upload build log if failed
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         if: ${{ failure() || cancelled() }}
         with:
           name: raw-build-output-build-xcframework-${{inputs.variant-id}}-${{matrix.sdk}}

@@ -1,6 +1,7 @@
 #import "SentryProfilingSwiftHelpers.h"
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
+#    import "SentryClient.h"
 #    import "SentryLogC.h"
 #    import "SentryOptions+Private.h"
 #    import "SentryProfiler+Private.h"
@@ -8,18 +9,18 @@
 #    import "SentrySwift.h"
 
 BOOL
-sentry_isContinuousProfilingEnabled(SentryClient *client)
+sentry_isContinuousProfilingEnabled(SentryClientInternal *client)
 {
     return [client.options isContinuousProfilingEnabled];
 }
 
 BOOL
-sentry_isProfilingCorrelatedToTraces(SentryClient *client)
+sentry_isProfilingCorrelatedToTraces(SentryClientInternal *client)
 {
     return [client.options isProfilingCorrelatedToTraces];
 }
 
-SentryProfileOptions *_Nullable sentry_getProfiling(SentryClient *client)
+SentryProfileOptions *_Nullable sentry_getProfiling(SentryClientInternal *client)
 {
     return client.options.profiling;
 }

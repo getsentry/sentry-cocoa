@@ -54,24 +54,6 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
         XCTAssertEqual(result, [])
     }
 
-    @available(*, deprecated, message: "The test is marked as deprecated to silence the deprecation warning of the tested property.")
-    func testEnableExperimentalViewRenderer_isEnabled_shouldAddFeature() throws {
-#if os(iOS)
-        // -- Arrange --
-        let options = Options()
-
-        options.sessionReplay.enableExperimentalViewRenderer = true
-
-        // -- Act --
-        let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
-
-        // -- Assert --
-        XCTAssert(features.contains("experimentalViewRenderer"))
-#else
-        throw XCTSkip("Test not supported on this platform")
-#endif
-    }
-
     func testEnableViewRendererV2_isEnabled_shouldAddFeature() throws {
 #if os(iOS)
         // -- Arrange --
@@ -127,7 +109,7 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
         // -- Arrange --
         let options = Options()
 
-        options.experimental.enableDataSwizzling = true
+        options.enableDataSwizzling = true
 
         // -- Act --
         let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
@@ -140,7 +122,7 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
         // -- Arrange --
         let options = Options()
 
-        options.experimental.enableDataSwizzling = false
+        options.enableDataSwizzling = false
 
         // -- Act --
         let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
@@ -153,7 +135,7 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
         // -- Arrange --
         let options = Options()
 
-        options.experimental.enableFileManagerSwizzling = true
+        options.enableFileManagerSwizzling = true
 
         // -- Act --
         let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
@@ -166,7 +148,7 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
         // -- Arrange --
         let options = Options()
 
-        options.experimental.enableFileManagerSwizzling = false
+        options.enableFileManagerSwizzling = false
 
         // -- Act --
         let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)

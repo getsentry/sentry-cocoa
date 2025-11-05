@@ -2,7 +2,6 @@
 @_spi(Private) import SentryTestUtils
 import XCTest
 
-@available(*, deprecated, message: "This is only marked as deprecated because profilesSampleRate is marked as deprecated. Once that is removed this can be removed.")
 class SentrySpanTests: XCTestCase {
     private var logOutput: TestLogOutput!
     private var fixture: Fixture!
@@ -36,8 +35,8 @@ class SentrySpanTests: XCTestCase {
             return getSut(client: TestClient(options: options)!)
         }
         
-        func getSut(client: SentryClient) -> Span {
-            let hub = SentryHub(client: client, andScope: nil, andCrashWrapper: TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo), andDispatchQueue: TestSentryDispatchQueueWrapper())
+        func getSut(client: SentryClientInternal) -> Span {
+            let hub = SentryHubInternal(client: client, andScope: nil, andCrashWrapper: TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo), andDispatchQueue: TestSentryDispatchQueueWrapper())
             return hub.startTransaction(name: someTransaction, operation: someOperation)
         }
         

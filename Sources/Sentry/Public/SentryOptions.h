@@ -207,20 +207,6 @@ NS_SWIFT_NAME(Options)
 @property (nullable, nonatomic, copy)
     SentryOnCrashedLastRunCallback onCrashedLastRun NS_SWIFT_SENDABLE;
 
-#if !SDK_V9
-/**
- * Array of integrations to install.
- */
-@property (nullable, nonatomic, copy) NSArray<NSString *> *integrations DEPRECATED_MSG_ATTRIBUTE(
-    "Setting `SentryOptions.integrations` is deprecated. Integrations should be enabled or "
-    "disabled using their respective `SentryOptions.enable*` property.");
-#endif // !SDK_V9
-
-/**
- * Array of default integrations. Will be used if @c integrations is @c nil .
- */
-+ (NSArray<NSString *> *)defaultIntegrations;
-
 /**
  * Indicates the percentage of events being sent to Sentry.
  * @discussion Specifying @c 0 discards all events, @c 1.0 or @c nil sends all events, @c 0.01
@@ -267,7 +253,7 @@ NS_SWIFT_NAME(Options)
 
 /**
  * The maximum size for each attachment in bytes.
- * @note Default is 20 MiB (20 ✕ 1024 ✕ 1024 bytes).
+ * @note Default is 100 MiB (100 ✕ 1024 ✕ 1024 bytes).
  * @note Please also check the maximum attachment size of relay to make sure your attachments don't
  * get discarded there:
  *  https://docs.sentry.io/product/relay/options/
@@ -314,7 +300,7 @@ NS_SWIFT_NAME(Options)
  */
 @property (nonatomic) SentryScope * (^initialScope)(SentryScope *);
 
-#if SENTRY_UIKIT_AVAILABLE
+#if SENTRY_HAS_UIKIT
 /**
  * When enabled, the SDK tracks performance for UIViewController subclasses.
  * @warning This feature is not available in @c DebugWithoutUIKit and @c ReleaseWithoutUIKit
@@ -322,6 +308,14 @@ NS_SWIFT_NAME(Options)
  * @note The default is @c YES .
  */
 @property (nonatomic, assign) BOOL enableUIViewControllerTracing;
+
+/**
+ * When enabled the SDK reports non-fully-blocking app hangs. A non-fully-blocking app hang is when
+ * the app appears stuck to the user but can still render a few frames.
+ *
+ * @note The default is @c YES.
+ */
+@property (nonatomic, assign) BOOL enableReportNonFullyBlockingAppHangs;
 
 /**
  * Automatically attaches a screenshot when capturing an error or exception.
@@ -389,7 +383,7 @@ NS_SWIFT_NAME(Options)
  */
 @property (nonatomic, assign) BOOL enablePreWarmedAppStartTracing;
 
-#endif // SENTRY_UIKIT_AVAILABLE
+#endif // SENTRY_HAS_UIKIT
 
 #if SENTRY_TARGET_REPLAY_SUPPORTED
 
@@ -415,6 +409,20 @@ NS_SWIFT_NAME(Options)
  * @note The default is @c YES .
  */
 @property (nonatomic, assign) BOOL enableFileIOTracing;
+
+/**
+ * When enabled, the SDK tracks performance for file IO reads and writes with NSData if auto
+ * performance tracking and enableSwizzling are enabled.
+ * @note The default is @c YES .
+ */
+@property (nonatomic, assign) BOOL enableDataSwizzling;
+
+/**
+ * When enabled, the SDK tracks performance for file IO operations with NSFileManager if auto
+ * performance tracking and enableSwizzling are enabled.
+ * @note The default is @c NO .
+ */
+@property (nonatomic, assign) BOOL enableFileManagerSwizzling;
 
 /**
  * Indicates the percentage of the tracing data that is collected.
@@ -566,18 +574,6 @@ typedef void (^SentryProfilingConfigurationBlock)(SentryProfileOptions *_Nonnull
  * @note App Hang tracking is automatically disabled if a debugger is attached.
  */
 @property (nonatomic, assign) BOOL enableAppHangTracking;
-
-#if SENTRY_UIKIT_AVAILABLE
-
-/**
- * When enabled the SDK reports non-fully-blocking app hangs. A non-fully-blocking app hang is when
- * the app appears stuck to the user but can still render a few frames.
- *
- * @note The default is @c YES.
- */
-@property (nonatomic, assign) BOOL enableReportNonFullyBlockingAppHangs;
-
-#endif // SENTRY_UIKIT_AVAILABLE
 
 /**
  * The minimum amount of time an app should be unresponsive to be classified as an App Hanging.

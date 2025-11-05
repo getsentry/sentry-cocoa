@@ -74,7 +74,7 @@ NS_ASSUME_NONNULL_BEGIN
     components.host = url.host;
     components.port = url.port;
     components.path = [NSString stringWithFormat:@"%@/api/%@/", path, projectId];
-    return components.URL;
+    return SENTRY_UNWRAP_NULLABLE(NSURL, components.URL);
 }
 
 - (NSURL *_Nullable)convertDsnString:(NSString *)dsnString

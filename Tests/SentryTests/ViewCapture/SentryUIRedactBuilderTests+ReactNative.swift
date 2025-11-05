@@ -5,7 +5,6 @@ import PDFKit
 import SafariServices
 @_spi(Private) @testable import Sentry
 import SentryTestUtils
-import SnapshotTesting
 import SwiftUI
 import UIKit
 import WebKit
@@ -64,11 +63,8 @@ class SentryUIRedactBuilderTests_ReactNative: SentryUIRedactBuilderTests { // sw
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: true)
         let result = sut.redactRegionsFor(view: rootView)
-        let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: masked, as: .image)
-
         let region = try XCTUnwrap(result.element(at: 0))
         // The text color of UITextView is not used for redaction
         XCTAssertNil(region.color)
@@ -87,10 +83,8 @@ class SentryUIRedactBuilderTests_ReactNative: SentryUIRedactBuilderTests { // sw
         // -- Act --
         let sut = getSut(maskAllText: false, maskAllImages: true)
         let result = sut.redactRegionsFor(view: rootView)
-        let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: masked, as: .image)
         XCTAssertEqual(result.count, 0)
     }
 
@@ -101,10 +95,8 @@ class SentryUIRedactBuilderTests_ReactNative: SentryUIRedactBuilderTests { // sw
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: false)
         let result = sut.redactRegionsFor(view: rootView)
-        let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: masked, as: .image)
         XCTAssertEqual(result.count, 1)
     }
 
@@ -131,11 +123,8 @@ class SentryUIRedactBuilderTests_ReactNative: SentryUIRedactBuilderTests { // sw
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: true)
         let result = sut.redactRegionsFor(view: rootView)
-        let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: masked, as: .image)
-        
         let region = try XCTUnwrap(result.element(at: 0))
         // The text color of UITextView is not used for redaction
         XCTAssertNil(region.color)
@@ -154,10 +143,8 @@ class SentryUIRedactBuilderTests_ReactNative: SentryUIRedactBuilderTests { // sw
         // -- Act --
         let sut = getSut(maskAllText: false, maskAllImages: true)
         let result = sut.redactRegionsFor(view: rootView)
-        let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: masked, as: .image)
         XCTAssertEqual(result.count, 0)
     }
 
@@ -168,10 +155,8 @@ class SentryUIRedactBuilderTests_ReactNative: SentryUIRedactBuilderTests { // sw
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: false)
         let result = sut.redactRegionsFor(view: rootView)
-        let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: masked, as: .image)
         XCTAssertEqual(result.count, 1)
     }
 
@@ -196,11 +181,8 @@ class SentryUIRedactBuilderTests_ReactNative: SentryUIRedactBuilderTests { // sw
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: true)
         let result = sut.redactRegionsFor(view: rootView)
-        let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: masked, as: .image)
-        
         let region = try XCTUnwrap(result.element(at: 0))
         // The text color of UITextView is not used for redaction
         XCTAssertNil(region.color)
@@ -219,10 +201,8 @@ class SentryUIRedactBuilderTests_ReactNative: SentryUIRedactBuilderTests { // sw
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: false)
         let result = sut.redactRegionsFor(view: rootView)
-        let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: masked, as: .image)
         XCTAssertEqual(result.count, 0)
     }
 
@@ -233,10 +213,8 @@ class SentryUIRedactBuilderTests_ReactNative: SentryUIRedactBuilderTests { // sw
         // -- Act --
         let sut = getSut(maskAllText: false, maskAllImages: true)
         let result = sut.redactRegionsFor(view: rootView)
-        let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: masked, as: .image)
         XCTAssertEqual(result.count, 1)
     }
 }

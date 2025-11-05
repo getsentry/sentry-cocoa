@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "2600"
+   LastUpgradeVersion = "2610"
    version = "1.7">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -15,7 +15,7 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "92815F6F2E85467F004576C3"
+               BlueprintIdentifier = "9241AC122EBA38CB00E611ED"
                BuildableName = "SentrySwiftLog.framework"
                BlueprintName = "SentrySwiftLog"
                ReferencedContainer = "container:Sentry.xcodeproj">
@@ -28,14 +28,19 @@
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       shouldUseLaunchSchemeArgsEnv = "YES"
-      shouldAutocreateTestPlan = "YES">
+      codeCoverageEnabled = "YES">
+      <TestPlans>
+         <TestPlanReference
+            reference = "container:Plans/SentrySwiftLog_Base.xctestplan"
+            default = "YES">
+         </TestPlanReference>
+      </TestPlans>
       <Testables>
          <TestableReference
-            skipped = "NO"
-            parallelizable = "YES">
+            skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "92815FB32E857492004576C3"
+               BlueprintIdentifier = "9241AC1A2EBA38CC00E611ED"
                BuildableName = "SentrySwiftLogTests.xctest"
                BlueprintName = "SentrySwiftLogTests"
                ReferencedContainer = "container:Sentry.xcodeproj">
@@ -63,7 +68,7 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "92815F6F2E85467F004576C3"
+            BlueprintIdentifier = "9241AC122EBA38CB00E611ED"
             BuildableName = "SentrySwiftLog.framework"
             BlueprintName = "SentrySwiftLog"
             ReferencedContainer = "container:Sentry.xcodeproj">

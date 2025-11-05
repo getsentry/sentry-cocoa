@@ -28,8 +28,6 @@ NSString *const kSentryLaunchProfileConfigKeyTracesSampleRate = @"traces";
 NSString *const kSentryLaunchProfileConfigKeyTracesSampleRand = @"traces.sample_rand";
 NSString *const kSentryLaunchProfileConfigKeyProfilesSampleRate = @"profiles";
 NSString *const kSentryLaunchProfileConfigKeyProfilesSampleRand = @"profiles.sample_rand";
-NSString *const kSentryLaunchProfileConfigKeyContinuousProfilingV2
-    = @"continuous-profiling-v2-enabled";
 NSString *const kSentryLaunchProfileConfigKeyContinuousProfilingV2Lifecycle
     = @"continuous-profiling-v2-lifecycle";
 NSString *const kSentryLaunchProfileConfigKeyWaitForFullDisplay
@@ -254,10 +252,6 @@ _sentry_nondeduplicated_startLaunchProfile(void)
     NSDictionary<NSString *, NSNumber *> *persistedLaunchConfigOptionsDict
         = sentry_persistedLaunchProfileConfigurationOptions();
 
-    BOOL isContinuousV2 =
-        [persistedLaunchConfigOptionsDict[kSentryLaunchProfileConfigKeyContinuousProfilingV2]
-            boolValue];
-
     SentrySamplerDecision *decision
         = _sentry_profileSampleDecision(persistedLaunchConfigOptionsDict);
     if (nil == decision) {
@@ -279,34 +273,28 @@ _sentry_nondeduplicated_startLaunchProfile(void)
     BOOL shouldWaitForFullDisplay = shouldWaitForFullDisplayValue.boolValue;
 
     SentryProfileOptions *profileOptions = nil;
-    if (isContinuousV2) {
-        SENTRY_LOG_DEBUG(@"Starting continuous launch profile v2.");
-        NSNumber *lifecycleValue = persistedLaunchConfigOptionsDict
-            [kSentryLaunchProfileConfigKeyContinuousProfilingV2Lifecycle];
-        if (lifecycleValue == nil) {
-            SENTRY_LOG_ERROR(
-                @"Missing expected launch profile config parameter for lifecycle. Will "
-                @"not proceed with launch profile.");
-            _sentry_cleanUpConfigFile();
-            return;
-        }
-
-        profileOptions = [[SentryProfileOptions alloc] init];
-
-        SentryProfileLifecycle lifecycle = lifecycleValue.intValue;
-        if (lifecycle == SentryProfileLifecycleManual) {
-            _sentry_continuousProfilingV2_startManualLaunchProfile(persistedLaunchConfigOptionsDict,
-                profileOptions, decision, shouldWaitForFullDisplay);
-            _sentry_cleanUpConfigFile();
-            return;
-        }
-
-        _sentry_hydrateV2Options(persistedLaunchConfigOptionsDict, profileOptions, decision,
-            SentryProfileLifecycleTrace, shouldWaitForFullDisplay);
-    } else {
-        sentry_profileConfiguration =
-            [[SentryProfileConfiguration alloc] initWaitingForFullDisplay:shouldWaitForFullDisplay];
+    SENTRY_LOG_DEBUG(@"Starting continuous launch profile v2.");
+    NSNumber *lifecycleValue = persistedLaunchConfigOptionsDict
+        [kSentryLaunchProfileConfigKeyContinuousProfilingV2Lifecycle];
+    if (lifecycleValue == nil) {
+        SENTRY_LOG_ERROR(@"Missing expected launch profile config parameter for lifecycle. Will "
+                         @"not proceed with launch profile.");
+        _sentry_cleanUpConfigFile();
+        return;
     }
+
+    profileOptions = [[SentryProfileOptions alloc] init];
+
+    SentryProfileLifecycle lifecycle = lifecycleValue.intValue;
+    if (lifecycle == SentryProfileLifecycleManual) {
+        _sentry_continuousProfilingV2_startManualLaunchProfile(
+            persistedLaunchConfigOptionsDict, profileOptions, decision, shouldWaitForFullDisplay);
+        _sentry_cleanUpConfigFile();
+        return;
+    }
+
+    _sentry_hydrateV2Options(persistedLaunchConfigOptionsDict, profileOptions, decision,
+        SentryProfileLifecycleTrace, shouldWaitForFullDisplay);
 
     // trace lifecycle UI profiling (continuous profiling v2) and trace-based profiling both join
     // paths here
@@ -333,22 +321,19 @@ sentry_configureLaunchProfilingForNextLaunch(SentryOptions *options)
             [NSMutableDictionary<NSString *, NSNumber *> dictionary];
         configDict[kSentryLaunchProfileConfigKeyWaitForFullDisplay] =
             @(options.enableTimeToFullDisplayTracing);
-        if ([options isContinuousProfilingEnabled]) {
-            SENTRY_LOG_DEBUG(@"Configuring continuous launch profile v2.");
-            configDict[kSentryLaunchProfileConfigKeyContinuousProfilingV2] = @YES;
-            configDict[kSentryLaunchProfileConfigKeyContinuousProfilingV2Lifecycle] =
-                @(options.profiling.lifecycle);
-            if (options.profiling.lifecycle == SentryProfileLifecycleTrace) {
-                configDict[kSentryLaunchProfileConfigKeyTracesSampleRate]
-                    = config.tracesDecision.sampleRate;
-                configDict[kSentryLaunchProfileConfigKeyTracesSampleRand]
-                    = config.tracesDecision.sampleRand;
-            }
-            configDict[kSentryLaunchProfileConfigKeyProfilesSampleRate]
-                = config.profilesDecision.sampleRate;
-            configDict[kSentryLaunchProfileConfigKeyProfilesSampleRand]
-                = config.profilesDecision.sampleRand;
+        SENTRY_LOG_DEBUG(@"Configuring continuous launch profile v2.");
+        configDict[kSentryLaunchProfileConfigKeyContinuousProfilingV2Lifecycle] =
+            @(options.profiling.lifecycle);
+        if (options.profiling.lifecycle == SentryProfileLifecycleTrace) {
+            configDict[kSentryLaunchProfileConfigKeyTracesSampleRate]
+                = config.tracesDecision.sampleRate;
+            configDict[kSentryLaunchProfileConfigKeyTracesSampleRand]
+                = config.tracesDecision.sampleRand;
         }
+        configDict[kSentryLaunchProfileConfigKeyProfilesSampleRate]
+            = config.profilesDecision.sampleRate;
+        configDict[kSentryLaunchProfileConfigKeyProfilesSampleRand]
+            = config.profilesDecision.sampleRand;
         writeAppLaunchProfilingConfigFile(configDict);
     }];
 }
@@ -364,7 +349,7 @@ sentry_startLaunchProfile(void)
 }
 
 void
-sentry_stopAndDiscardLaunchProfileTracer(SentryHub *_Nullable hub)
+sentry_stopAndDiscardLaunchProfileTracer(SentryHubInternal *_Nullable hub)
 {
     SENTRY_LOG_DEBUG(@"Finishing launch tracer.");
     sentry_launchTracer.hub = hub;
