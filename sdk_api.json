@@ -10751,7 +10751,7 @@
                     "kind": "TypeNominal",
                     "name": "Level",
                     "printedName": "Sentry.Level",
-                    "usr": "c:@M@Sentry@E@SentryStructuredLogLevel"
+                    "usr": "c:@M@Sentry@E@SentryLogLevel"
                   }
                 ],
                 "usr": "s:Sq"
@@ -10764,8 +10764,8 @@
               }
             ],
             "declKind": "Constructor",
-            "usr": "s:So24SentryStructuredLogLevelV8rawValueABSgSi_tcfc",
-            "mangledName": "$sSo24SentryStructuredLogLevelV8rawValueABSgSi_tcfc",
+            "usr": "s:So14SentryLogLevelV8rawValueABSgSi_tcfc",
+            "mangledName": "$sSo14SentryLogLevelV8rawValueABSgSi_tcfc",
             "moduleName": "Sentry",
             "implicit": true,
             "init_kind": "Designated"
@@ -10783,8 +10783,8 @@
               }
             ],
             "declKind": "Var",
-            "usr": "s:So24SentryStructuredLogLevelV8rawValueSivp",
-            "mangledName": "$sSo24SentryStructuredLogLevelV8rawValueSivp",
+            "usr": "s:So14SentryLogLevelV8rawValueSivp",
+            "mangledName": "$sSo14SentryLogLevelV8rawValueSivp",
             "moduleName": "Sentry",
             "implicit": true,
             "accessors": [
@@ -10801,8 +10801,8 @@
                   }
                 ],
                 "declKind": "Accessor",
-                "usr": "s:So24SentryStructuredLogLevelV8rawValueSivg",
-                "mangledName": "$sSo24SentryStructuredLogLevelV8rawValueSivg",
+                "usr": "s:So14SentryLogLevelV8rawValueSivg",
+                "mangledName": "$sSo14SentryLogLevelV8rawValueSivg",
                 "moduleName": "Sentry",
                 "implicit": true,
                 "accessorKind": "get"
@@ -10822,8 +10822,8 @@
               }
             ],
             "declKind": "TypeAlias",
-            "usr": "s:So24SentryStructuredLogLevelV8RawValuea",
-            "mangledName": "$sSo24SentryStructuredLogLevelV8RawValuea",
+            "usr": "s:So14SentryLogLevelV8RawValuea",
+            "mangledName": "$sSo14SentryLogLevelV8RawValuea",
             "moduleName": "Sentry",
             "implicit": true
           },
@@ -10841,7 +10841,7 @@
                     "kind": "TypeNominal",
                     "name": "Level",
                     "printedName": "Sentry.Level",
-                    "usr": "c:@M@Sentry@E@SentryStructuredLogLevel"
+                    "usr": "c:@M@Sentry@E@SentryLogLevel"
                   },
                   {
                     "kind": "TypeNominal",
@@ -10852,7 +10852,7 @@
                         "kind": "TypeNominal",
                         "name": "Level",
                         "printedName": "Sentry.Level",
-                        "usr": "c:@M@Sentry@E@SentryStructuredLogLevel"
+                        "usr": "c:@M@Sentry@E@SentryLogLevel"
                       }
                     ]
                   }
@@ -10860,7 +10860,7 @@
               }
             ],
             "declKind": "EnumElement",
-            "usr": "c:@M@Sentry@E@SentryStructuredLogLevel@SentryStructuredLogLevelTrace",
+            "usr": "c:@M@Sentry@E@SentryLogLevel@SentryLogLevelTrace",
             "moduleName": "Sentry",
             "declAttributes": [
               "ObjC"
@@ -10880,7 +10880,7 @@
                     "kind": "TypeNominal",
                     "name": "Level",
                     "printedName": "Sentry.Level",
-                    "usr": "c:@M@Sentry@E@SentryStructuredLogLevel"
+                    "usr": "c:@M@Sentry@E@SentryLogLevel"
                   },
                   {
                     "kind": "TypeNominal",
@@ -10891,7 +10891,7 @@
                         "kind": "TypeNominal",
                         "name": "Level",
                         "printedName": "Sentry.Level",
-                        "usr": "c:@M@Sentry@E@SentryStructuredLogLevel"
+                        "usr": "c:@M@Sentry@E@SentryLogLevel"
                       }
                     ]
                   }
@@ -10899,7 +10899,7 @@
               }
             ],
             "declKind": "EnumElement",
-            "usr": "c:@M@Sentry@E@SentryStructuredLogLevel@SentryStructuredLogLevelDebug",
+            "usr": "c:@M@Sentry@E@SentryLogLevel@SentryLogLevelDebug",
             "moduleName": "Sentry",
             "declAttributes": [
               "ObjC"
@@ -10919,7 +10919,7 @@
                     "kind": "TypeNominal",
                     "name": "Level",
                     "printedName": "Sentry.Level",
-                    "usr": "c:@M@Sentry@E@SentryStructuredLogLevel"
+                    "usr": "c:@M@Sentry@E@SentryLogLevel"
                   },
                   {
                     "kind": "TypeNominal",
@@ -10930,7 +10930,7 @@
                         "kind": "TypeNominal",
                         "name": "Level",
                         "printedName": "Sentry.Level",
-                        "usr": "c:@M@Sentry@E@SentryStructuredLogLevel"
+                        "usr": "c:@M@Sentry@E@SentryLogLevel"
                       }
                     ]
                   }
@@ -10938,7 +10938,7 @@
               }
             ],
             "declKind": "EnumElement",
-            "usr": "c:@M@Sentry@E@SentryStructuredLogLevel@SentryStructuredLogLevelInfo",
+            "usr": "c:@M@Sentry@E@SentryLogLevel@SentryLogLevelInfo",
             "moduleName": "Sentry",
             "declAttributes": [
               "ObjC"
@@ -10958,7 +10958,7 @@
                     "kind": "TypeNominal",
                     "name": "Level",
                     "printedName": "Sentry.Level",
-                    "usr": "c:@M@Sentry@E@SentryStructuredLogLevel"
+                    "usr": "c:@M@Sentry@E@SentryLogLevel"
                   },
                   {
                     "kind": "TypeNominal",
@@ -10969,7 +10969,7 @@
                         "kind": "TypeNominal",
                         "name": "Level",
                         "printedName": "Sentry.Level",
-                        "usr": "c:@M@Sentry@E@SentryStructuredLogLevel"
+                        "usr": "c:@M@Sentry@E@SentryLogLevel"
                       }
                     ]
                   }
@@ -10977,7 +10977,7 @@
               }
             ],
             "declKind": "EnumElement",
-            "usr": "c:@M@Sentry@E@SentryStructuredLogLevel@SentryStructuredLogLevelWarn",
+            "usr": "c:@M@Sentry@E@SentryLogLevel@SentryLogLevelWarn",
             "moduleName": "Sentry",
             "declAttributes": [
               "ObjC"
@@ -10997,7 +10997,7 @@
                     "kind": "TypeNominal",
                     "name": "Level",
                     "printedName": "Sentry.Level",
-                    "usr": "c:@M@Sentry@E@SentryStructuredLogLevel"
+                    "usr": "c:@M@Sentry@E@SentryLogLevel"
                   },
                   {
                     "kind": "TypeNominal",
@@ -11008,7 +11008,7 @@
                         "kind": "TypeNominal",
                         "name": "Level",
                         "printedName": "Sentry.Level",
-                        "usr": "c:@M@Sentry@E@SentryStructuredLogLevel"
+                        "usr": "c:@M@Sentry@E@SentryLogLevel"
                       }
                     ]
                   }
@@ -11016,7 +11016,7 @@
               }
             ],
             "declKind": "EnumElement",
-            "usr": "c:@M@Sentry@E@SentryStructuredLogLevel@SentryStructuredLogLevelError",
+            "usr": "c:@M@Sentry@E@SentryLogLevel@SentryLogLevelError",
             "moduleName": "Sentry",
             "declAttributes": [
               "ObjC"
@@ -11036,7 +11036,7 @@
                     "kind": "TypeNominal",
                     "name": "Level",
                     "printedName": "Sentry.Level",
-                    "usr": "c:@M@Sentry@E@SentryStructuredLogLevel"
+                    "usr": "c:@M@Sentry@E@SentryLogLevel"
                   },
                   {
                     "kind": "TypeNominal",
@@ -11047,7 +11047,7 @@
                         "kind": "TypeNominal",
                         "name": "Level",
                         "printedName": "Sentry.Level",
-                        "usr": "c:@M@Sentry@E@SentryStructuredLogLevel"
+                        "usr": "c:@M@Sentry@E@SentryLogLevel"
                       }
                     ]
                   }
@@ -11055,7 +11055,7 @@
               }
             ],
             "declKind": "EnumElement",
-            "usr": "c:@M@Sentry@E@SentryStructuredLogLevel@SentryStructuredLogLevelFatal",
+            "usr": "c:@M@Sentry@E@SentryLogLevel@SentryLogLevelFatal",
             "moduleName": "Sentry",
             "declAttributes": [
               "ObjC"
@@ -11063,9 +11063,9 @@
           }
         ],
         "declKind": "Enum",
-        "usr": "c:@M@Sentry@E@SentryStructuredLogLevel",
+        "usr": "c:@M@Sentry@E@SentryLogLevel",
         "moduleName": "Sentry",
-        "objc_name": "SentryStructuredLogLevel",
+        "objc_name": "SentryLogLevel",
         "declAttributes": [
           "SynthesizedProtocol",
           "ObjC",
@@ -42111,7 +42111,7 @@
             "usr": "s:6Sentry0A3LogC5LevelO",
             "mangledName": "$s6Sentry0A3LogC5LevelO",
             "moduleName": "Sentry",
-            "objc_name": "SentryStructuredLogLevel",
+            "objc_name": "SentryLogLevel",
             "declAttributes": [
               "ObjC"
             ],
@@ -42423,7 +42423,7 @@
             "usr": "s:6Sentry0A3LogC9AttributeC",
             "mangledName": "$s6Sentry0A3LogC9AttributeC",
             "moduleName": "Sentry",
-            "objc_name": "SentryStructuredLogAttribute",
+            "objc_name": "SentryLogAttribute",
             "declAttributes": [
               "Final",
               "ObjCMembers",

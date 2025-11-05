@@ -3,7 +3,7 @@ extension SentryLog {
     ///
     /// Log levels are ordered by severity from least (`trace`) to most severe (`fatal`).
     /// Each level corresponds to a numeric severity value following the OpenTelemetry specification.
-    @objc(SentryStructuredLogLevel)
+    @objc(SentryLogLevel)
     public enum Level: Int {
         case trace
         case debug
