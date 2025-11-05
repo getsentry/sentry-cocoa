@@ -1,0 +1,22 @@
+name: Ready to Merge Workflow
+on:
+  workflow_dispatch:
+    inputs:
+      github_event:
+        description: The GitHub event object
+        required: true
+        type: string
+
+jobs:
+  ready:
+    name: Ready-to-merge gate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fail until the 'ready-to-merge' label is present
+        if: ${{ !contains(inputs.github_event, 'ready-to-merge') }}
+        run: |
+          echo "Add the 'ready-to-merge' label to run CI."
+          exit 1
+      - name: Gate passed
+        if: ${{ contains(inputs.github_event, 'ready-to-merge') }}
+        run: echo "Label present. Proceeding with CI."

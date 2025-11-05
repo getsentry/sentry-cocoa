@@ -8,7 +8,6 @@ on:
       - v8.x
 
   pull_request:
-    types: [opened, synchronize, reopened, labeled]
 
   workflow_dispatch:
     inputs:
@@ -34,10 +33,16 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
+  ready:
+    name: Ready-to-merge gate
+    uses: ./.github/workflows/ready-to-merge-workflow.yml
+    with:
+      github_event: ${{ toJson(github.event) }}
+
   files-changed:
     name: Detect File Changes
     runs-on: ubuntu-latest
-    if: github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'ready-to-merge')
+    needs: ready
     outputs:
       run_release_for_prs: ${{ steps.changes.outputs.run_release_for_prs }}
     steps:
