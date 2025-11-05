@@ -24,7 +24,7 @@ jobs:
     name: Ready-to-merge gate
     uses: ./.github/workflows/ready-to-merge-workflow.yml
     with:
-      github_event: ${{ toJson(github.event) }}
+      labels: ${{ toJson(github.event.pull_request.labels) }}
 
   files-changed:
     name: Detect File Changes
