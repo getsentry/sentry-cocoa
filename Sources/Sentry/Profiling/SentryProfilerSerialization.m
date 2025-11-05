@@ -13,7 +13,6 @@
 #    import "SentryLogC.h"
 #    import "SentryMeta.h"
 #    import "SentryMetricProfiler.h"
-#    import "SentryOptionsInternal.h"
 #    import "SentryProfileTimeseries.h"
 #    import "SentryProfiledTracerConcurrency.h"
 #    import "SentryProfiler+Private.h"

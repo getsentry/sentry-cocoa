@@ -29,7 +29,7 @@
 
 @interface SentryUIViewControllerSwizzling ()
 
-@property (nonatomic, strong) SentryOptionsInternal *options;
+@property (nonatomic, strong) SentryOptions *options;
 @property (nonatomic, strong) SentryInAppLogic *inAppLogic;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueue;
 @property (nonatomic, strong) id<SentryObjCRuntimeWrapper> objcRuntimeWrapper;
@@ -42,7 +42,7 @@
 
 @implementation SentryUIViewControllerSwizzling
 
-- (instancetype)initWithOptions:(SentryOptionsInternal *)options
+- (instancetype)initWithOptions:(SentryOptions *)options
                   dispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue
              objcRuntimeWrapper:(id<SentryObjCRuntimeWrapper>)objcRuntimeWrapper
                  subClassFinder:(SentrySubClassFinder *)subClassFinder

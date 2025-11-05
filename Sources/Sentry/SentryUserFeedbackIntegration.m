@@ -14,10 +14,9 @@
     SentryUserFeedbackIntegrationDriver *_driver;
 }
 
-- (BOOL)installWithOptions:(SentryOptionsInternal *)options
+- (BOOL)installWithOptions:(SentryOptions *)options
 {
-    SentryOptions *convertedOptions = [SentryOptionsConverter fromInternal:options];
-    if (convertedOptions.userFeedbackConfiguration == nil) {
+    if (options.userFeedbackConfiguration == nil) {
         return NO;
     }
 
@@ -27,7 +26,7 @@
         = SentryDependencyContainer.sharedInstance.screenshotSource;
     _driver = [[SentryUserFeedbackIntegrationDriver alloc]
         initWithConfiguration:SENTRY_UNWRAP_NULLABLE(SentryUserFeedbackConfiguration,
-                                  convertedOptions.userFeedbackConfiguration)
+                                  options.userFeedbackConfiguration)
                      delegate:self
              screenshotSource:screenshotSource];
     return YES;

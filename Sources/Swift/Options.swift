@@ -263,6 +263,10 @@
     /// @note The default is @c YES.
     @objc public var enableReportNonFullyBlockingAppHangs: Bool = true
     
+    @_spi(Private) @objc public func isAppHangTrackingDisabled() -> Bool {
+        !enableAppHangTracking || appHangTimeoutInterval <= 0
+    }
+    
     #endif
     
     #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT
@@ -377,7 +381,22 @@
     /// Configuration for the Sentry profiler.
     /// @warning: Continuous profiling is an experimental feature and may still contain bugs.
     /// @warning: Profiling is automatically disabled if a thread sanitizer is attached.
-    @objc public var configureProfiling: ((SentryProfileOptions) -> Void)?
+    @objc public var configureProfiling: ((SentryProfileOptions) -> Void)? {
+        didSet {
+            let profiling = SentryProfileOptions()
+            configureProfiling?(profiling)
+            self.profiling = profiling
+        }
+    }
+    @_spi(Private) @objc public var profiling: SentryProfileOptions?
+    
+    @_spi(Private) @objc public func isContinuousProfilingEnabled() -> Bool {
+        profiling != nil
+    }
+
+    @_spi(Private) @objc public func isProfilingCorrelatedToTraces() -> Bool {
+        profiling?.lifecycle == .trace
+    }
 
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
     

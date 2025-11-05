@@ -60,11 +60,12 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
 @implementation SentryClientInternal
 
-- (_Nullable instancetype)initWithOptions:(SentryOptionsInternal *)options
+- (_Nullable instancetype)initWithOptions:(SentryOptionsInternal *)internalOptions
 {
+    SentryOptions *options = [SentryOptionsConverter fromInternal:internalOptions];
     NSError *error;
     SentryFileManager *fileManager = [[SentryFileManager alloc]
-             initWithOptions:[SentryOptionsConverter fromInternal:options]
+             initWithOptions:options
                 dateProvider:SentryDependencyContainer.sharedInstance.dateProvider
         dispatchQueueWrapper:SentryDependencyContainer.sharedInstance.dispatchQueueWrapper
                        error:&error];
@@ -83,9 +84,9 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         [[SentryTransportAdapter alloc] initWithTransports:transports options:options];
 
     SentryDefaultThreadInspector *threadInspector =
-        [[SentryDefaultThreadInspector alloc] initWithOptions:options];
+        [[SentryDefaultThreadInspector alloc] initWithOptions:internalOptions];
 
-    return [self initWithOptions:options
+    return [self initWithOptions:internalOptions
                 transportAdapter:transportAdapter
                      fileManager:fileManager
                  threadInspector:threadInspector
@@ -106,7 +107,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 {
     if (self = [super init]) {
         _isEnabled = YES;
-        self.options = options;
+        self.optionsInternal = options;
         self.transportAdapter = transportAdapter;
         self.fileManager = fileManager;
         self.threadInspector = threadInspector;
@@ -123,6 +124,14 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         [fileManager deleteOldEnvelopeItems];
     }
     return self;
+}
+
+- (SentryOptions *)options
+{
+    if (self.optionsInternal) {
+        return [SentryOptionsConverter fromInternal:self.optionsInternal];
+    }
+    return NULL;
 }
 
 - (SentryId *)captureMessage:(NSString *)message
@@ -379,7 +388,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
     SentryTracer *tracer = [SentryTracer getTracer:span];
     if (tracer != nil) {
-        return [[SentryTraceContext alloc] initWithTracer:tracer scope:scope options:_options];
+        return [[SentryTraceContext alloc] initWithTracer:tracer scope:scope options:self.options];
     }
 
     if (event.error || event.exceptions.count > 0) {
@@ -893,8 +902,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         return;
     }
 
-    event.sdk = [[[SentrySdkInfo alloc]
-        initWithOptions:[SentryOptionsConverter fromInternal:self.options]] serialize];
+    event.sdk = [[[SentrySdkInfo alloc] initWithOptions:self.options] serialize];
 }
 
 - (void)setUserInfo:(NSDictionary *_Nullable)userInfo withEvent:(SentryEvent *_Nullable)event

@@ -11,7 +11,6 @@
 #import "SentryStacktrace.h"
 #import "SentrySwift.h"
 #import "SentryThread.h"
-#import <SentryOptionsInternal+Private.h>
 
 #if SENTRY_HAS_UIKIT
 #    import <UIKit/UIKit.h>
@@ -24,7 +23,7 @@ static NSString *const SentryANRMechanismDataAppHangDuration = @"app_hang_durati
 @interface SentryANRTrackingIntegration () <SentryANRTrackerDelegate>
 
 @property (nonatomic, strong) SentryANRTracker *tracker;
-@property (nonatomic, strong) SentryOptionsInternal *options;
+@property (nonatomic, strong) SentryOptions *options;
 @property (nonatomic, strong) SentryFileManager *fileManager;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueueWrapper;
 @property (nonatomic, strong) SentryCrashWrapper *crashWrapper;
@@ -37,7 +36,7 @@ static NSString *const SentryANRMechanismDataAppHangDuration = @"app_hang_durati
 
 @implementation SentryANRTrackingIntegration
 
-- (BOOL)installWithOptions:(SentryOptionsInternal *)options
+- (BOOL)installWithOptions:(SentryOptions *)options
 {
     if (![super installWithOptions:options]) {
         return NO;
@@ -164,7 +163,7 @@ static NSString *const SentryANRMechanismDataAppHangDuration = @"app_hang_durati
     // we would lose the scope. Furthermore, we want to know in which state the app was when the
     // app hang started.
     SentryScope *scope = [SentrySDKInternal currentHub].scope;
-    SentryOptionsInternal *options = SentrySDKInternal.options;
+    SentryOptions *options = SentrySDKInternal.options;
     if (scope != nil && options != nil) {
         [scope applyToEvent:event maxBreadcrumb:options.maxBreadcrumbs];
     }

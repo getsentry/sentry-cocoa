@@ -38,7 +38,7 @@ NS_ASSUME_NONNULL_BEGIN
     return self;
 }
 
-- (BOOL)installWithOptions:(SentryOptionsInternal *)options
+- (BOOL)installWithOptions:(SentryOptions *)options
 {
     if (self.testConfigurationFilePath) {
         return NO;
@@ -81,8 +81,7 @@ NS_ASSUME_NONNULL_BEGIN
     self.appStateManager = appStateManager;
 
     id<SentryScopeObserver> scopeObserver = [SentryDependencyContainer.sharedInstance
-        getWatchdogTerminationScopeObserverWithOptions:[SentryOptionsConverter
-                                                           fromInternal:options]];
+        getWatchdogTerminationScopeObserverWithOptions:options];
 
     [SentrySDKInternal.currentHub configureScope:^(SentryScope *_Nonnull outerScope) {
         // Add the observer to the scope so that it can be notified when the scope changes.

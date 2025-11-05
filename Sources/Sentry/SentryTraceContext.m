@@ -62,7 +62,7 @@ NS_ASSUME_NONNULL_BEGIN
     return self;
 }
 
-- (nullable instancetype)initWithScope:(SentryScope *)scope options:(SentryOptionsInternal *)options
+- (nullable instancetype)initWithScope:(SentryScope *)scope options:(SentryOptions *)options
 {
     SentryTracer *tracer = [SentryTracer getTracer:scope.span];
     if (tracer == nil) {
@@ -73,7 +73,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (nullable instancetype)initWithTracer:(SentryTracer *)tracer
                                   scope:(nullable SentryScope *)scope
-                                options:(SentryOptionsInternal *)options
+                                options:(SentryOptions *)options
 {
     if (tracer.traceId == nil || options.parsedDsn == nil) {
         return nil;
@@ -108,7 +108,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (instancetype)initWithTraceId:(SentryId *)traceId
-                        options:(SentryOptionsInternal *)options
+                        options:(SentryOptions *)options
                        replayId:(nullable NSString *)replayId;
 {
     return [[SentryTraceContext alloc]

@@ -4,14 +4,14 @@
 
 @class SentryDispatchQueueWrapper;
 @class SentryNSURLRequestBuilder;
-@class SentryOptionsInternal;
+@class SentryOptions;
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface SentrySpotlightTransport : NSObject <SentryTransport>
 SENTRY_NO_INIT
 
-- (id)initWithOptions:(SentryOptionsInternal *)options
+- (id)initWithOptions:(SentryOptions *)options
           requestManager:(id<SentryRequestManager>)requestManager
           requestBuilder:(SentryNSURLRequestBuilder *)requestBuilder
     dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper;

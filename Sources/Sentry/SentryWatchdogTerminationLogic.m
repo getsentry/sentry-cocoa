@@ -9,7 +9,7 @@
 
 @interface SentryWatchdogTerminationLogic ()
 
-@property (nonatomic, strong) SentryOptionsInternal *options;
+@property (nonatomic, strong) SentryOptions *options;
 @property (nonatomic, strong) SentryCrashWrapper *crashAdapter;
 @property (nonatomic, strong) SentryAppStateManager *appStateManager;
 
@@ -17,7 +17,7 @@
 
 @implementation SentryWatchdogTerminationLogic
 
-- (instancetype)initWithOptions:(SentryOptionsInternal *)options
+- (instancetype)initWithOptions:(SentryOptions *)options
                    crashAdapter:(SentryCrashWrapper *)crashAdapter
                 appStateManager:(SentryAppStateManager *)appStateManager
 {

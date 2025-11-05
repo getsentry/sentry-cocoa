@@ -255,25 +255,6 @@ NSString *const kSentryDefaultEnvironment = @"production";
     }
 }
 
-- (BOOL)isTracingEnabled
-{
-    return (_tracesSampleRate != nil && [_tracesSampleRate doubleValue] > 0)
-        || _tracesSampler != nil;
-}
-
-#if SENTRY_TARGET_PROFILING_SUPPORTED
-
-- (BOOL)isContinuousProfilingEnabled
-{
-    return _profiling != nil;
-}
-
-- (BOOL)isProfilingCorrelatedToTraces
-{
-    return _profiling != nil && _profiling.lifecycle == SentryProfileLifecycleTrace;
-}
-#endif // SENTRY_TARGET_PROFILING_SUPPORTED
-
 - (void)setEnableSpotlight:(BOOL)value
 {
     _enableSpotlight = value;
@@ -284,13 +265,6 @@ NSString *const kSentryDefaultEnvironment = @"production";
     }
 #endif // defined(RELEASE)
 }
-
-#if SENTRY_HAS_UIKIT
-- (BOOL)isAppHangTrackingDisabled
-{
-    return !self.enableAppHangTracking || self.appHangTimeoutInterval <= 0;
-}
-#endif // SENTRY_HAS_UIKIT
 
 #if defined(DEBUG) || defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
 - (NSString *)debugDescription

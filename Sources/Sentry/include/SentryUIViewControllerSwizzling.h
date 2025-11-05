@@ -11,7 +11,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class SentryBinaryImageCache;
 @class SentryDispatchQueueWrapper;
-@class SentryOptionsInternal;
+@class SentryOptions;
 @class SentrySubClassFinder;
 
 /**
@@ -31,7 +31,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SentryUIViewControllerSwizzling : NSObject
 SENTRY_NO_INIT
 
-- (instancetype)initWithOptions:(SentryOptionsInternal *)options
+- (instancetype)initWithOptions:(SentryOptions *)options
                   dispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue
              objcRuntimeWrapper:(id<SentryObjCRuntimeWrapper>)objcRuntimeWrapper
                  subClassFinder:(SentrySubClassFinder *)subClassFinder

@@ -7,7 +7,7 @@
 
 @class SentryHubInternal;
 @class SentryId;
-@class SentryOptionsInternal;
+@class SentryOptions;
 @class SentryTracerConfiguration;
 @class SentryTransactionContext;
 @class SentryTracer;
@@ -48,7 +48,7 @@ SENTRY_EXTERN void sentry_stopAndDiscardLaunchProfileTracer(SentryHubInternal *_
  * sampling decisions through to SentryHub later when it needs to start a transaction for the
  * profile to be attached to.
  */
-SENTRY_EXTERN void sentry_configureLaunchProfilingForNextLaunch(SentryOptionsInternal *options);
+SENTRY_EXTERN void sentry_configureLaunchProfilingForNextLaunch(SentryOptions *options);
 
 NS_ASSUME_NONNULL_END
 

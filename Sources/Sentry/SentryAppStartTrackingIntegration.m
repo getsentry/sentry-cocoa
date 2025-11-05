@@ -4,7 +4,6 @@
 
 #    import "SentryAppStartTracker.h"
 #    import "SentryLogC.h"
-#    import "SentryOptionsInternal.h"
 #    import "SentrySwift.h"
 #    import <PrivateSentrySDKOnly.h>
 
@@ -16,7 +15,7 @@
 
 @implementation SentryAppStartTrackingIntegration
 
-- (BOOL)installWithOptions:(SentryOptionsInternal *)options
+- (BOOL)installWithOptions:(SentryOptions *)options
 {
     if (!PrivateSentrySDKOnly.appStartMeasurementHybridSDKMode
         && ![super installWithOptions:options]) {

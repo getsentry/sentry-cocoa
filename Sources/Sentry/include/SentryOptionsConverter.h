@@ -9,6 +9,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (SentryOptions *)fromInternal:(SentryOptionsInternal *)internalOptions;
 
++ (SentryOptionsInternal *)toInternal:(SentryOptions *)internalOptions;
+
 @end
 
 NS_ASSUME_NONNULL_END

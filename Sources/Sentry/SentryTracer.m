@@ -7,6 +7,7 @@
 #import "SentryLogC.h"
 #import "SentryNSDictionarySanitize.h"
 #import "SentryNoOpSpan.h"
+#import "SentryOptionsConverter.h"
 #import "SentryProfilingConditionals.h"
 #import "SentrySDK+Private.h"
 #import "SentrySamplerDecision.h"

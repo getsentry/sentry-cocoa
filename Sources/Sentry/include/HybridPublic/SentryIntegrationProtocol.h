@@ -2,14 +2,14 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class SentryOptionsInternal;
+@class SentryOptions;
 
 @protocol SentryIntegrationProtocol <NSObject>
 
 /**
  * Installs the integration and returns YES if successful.
  */
-- (BOOL)installWithOptions:(SentryOptionsInternal *)options NS_SWIFT_NAME(install(with:));
+- (BOOL)installWithOptions:(SentryOptions *)options NS_SWIFT_NAME(install(with:));
 
 /**
  * Uninstalls the integration.

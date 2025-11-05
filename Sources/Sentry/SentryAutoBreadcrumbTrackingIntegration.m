@@ -1,7 +1,6 @@
 #import "SentryAutoBreadcrumbTrackingIntegration.h"
 #import "SentryBreadcrumbTracker.h"
 #import "SentryLogC.h"
-#import "SentryOptionsInternal.h"
 #import "SentrySDKInternal.h"
 #import "SentrySwift.h"
 #import "SentrySystemEventBreadcrumbs.h"
@@ -20,7 +19,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryAutoBreadcrumbTrackingIntegration
 
-- (BOOL)installWithOptions:(SentryOptionsInternal *)options
+- (BOOL)installWithOptions:(SentryOptions *)options
 {
     if (![super installWithOptions:options]) {
         return NO;
@@ -59,7 +58,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * For testing.
  */
-- (void)installWithOptions:(nonnull SentryOptionsInternal *)options
+- (void)installWithOptions:(nonnull SentryOptions *)options
          breadcrumbTracker:(SentryBreadcrumbTracker *)breadcrumbTracker
 #if TARGET_OS_IOS && SENTRY_HAS_UIKIT
     systemEventBreadcrumbs:(SentrySystemEventBreadcrumbs *)systemEventBreadcrumbs

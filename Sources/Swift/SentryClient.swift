@@ -23,8 +23,8 @@ import Foundation
     }
     
     @objc public var options: Options {
-        get { helper.options.toOptions() }
-        set { helper.options = newValue.toInternal() }
+        get { helper.optionsInternal.toOptions() }
+        set { helper.optionsInternal = newValue.toInternal() }
     }
     
     /// Captures a manually created event and sends it to Sentry.

@@ -9,7 +9,7 @@
 @class SentryHubInternal;
 @class SentryId;
 @class SentryMetricProfiler;
-@class SentryOptionsInternal;
+@class SentryOptions;
 @class SentryProfileConfiguration;
 @class SentryProfileOptions;
 @class SentryProfilerState;
@@ -35,8 +35,7 @@ typedef struct {
  * launch's profiling, stop tracer profiling if no automatic performance transaction is running,
  * start the continuous profiler if enabled and not profiling from launch.
  */
-SENTRY_EXTERN void sentry_sdkInitProfilerTasks(
-    SentryOptionsInternal *options, SentryHubInternal *hub);
+SENTRY_EXTERN void sentry_sdkInitProfilerTasks(SentryOptions *options, SentryHubInternal *hub);
 
 SENTRY_EXTERN SentryProfileConfiguration *_Nullable sentry_profileConfiguration;
 
@@ -44,7 +43,7 @@ SENTRY_EXTERN BOOL sentry_isLaunchProfileCorrelatedToTraces(void);
 
 SENTRY_EXTERN void sentry_reevaluateSessionSampleRate(void);
 
-SENTRY_EXTERN void sentry_configureContinuousProfiling(SentryOptionsInternal *options);
+SENTRY_EXTERN void sentry_configureContinuousProfiling(SentryOptions *options);
 
 /**
  * A wrapper around the low-level components used to gather sampled backtrace profiles.

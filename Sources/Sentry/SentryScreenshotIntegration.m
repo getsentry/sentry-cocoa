@@ -26,13 +26,13 @@ saveScreenShot(const char *path)
 
 @interface SentryScreenshotIntegration () <SentryClientAttachmentProcessor>
 
-@property (nonatomic, strong) SentryOptionsInternal *options;
+@property (nonatomic, strong) SentryOptions *options;
 
 @end
 
 @implementation SentryScreenshotIntegration
 
-- (BOOL)installWithOptions:(nonnull SentryOptionsInternal *)options
+- (BOOL)installWithOptions:(nonnull SentryOptions *)options
 {
     self.options = options;
 

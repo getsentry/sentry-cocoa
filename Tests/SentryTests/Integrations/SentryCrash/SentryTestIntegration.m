@@ -4,7 +4,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryTestIntegration
 
-- (BOOL)installWithOptions:(SentryOptionsInternal *)options
+- (BOOL)installWithOptions:(SentryOptions *)options
 {
     self.options = options;
     return YES;

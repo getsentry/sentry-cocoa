@@ -29,13 +29,13 @@ saveViewHierarchy(const char *reportDirectoryPath)
 
 @interface SentryViewHierarchyIntegration ()
 
-@property (nonatomic, strong) SentryOptionsInternal *options;
+@property (nonatomic, strong) SentryOptions *options;
 
 @end
 
 @implementation SentryViewHierarchyIntegration
 
-- (BOOL)installWithOptions:(nonnull SentryOptionsInternal *)options
+- (BOOL)installWithOptions:(nonnull SentryOptions *)options
 {
     if (![super installWithOptions:options]) {
         return NO;

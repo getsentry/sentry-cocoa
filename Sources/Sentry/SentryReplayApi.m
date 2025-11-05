@@ -7,7 +7,6 @@
 #    import "SentryInternalCDefines.h"
 #    import "SentryInternalDefines.h"
 #    import "SentryLogC.h"
-#    import "SentryOptionsInternal+Private.h"
 #    import "SentrySDK+Private.h"
 #    import "SentrySessionReplayIntegration+Private.h"
 #    import "SentrySwift.h"
@@ -58,8 +57,8 @@
             replayIntegration = (SentrySessionReplayIntegration *)[SentrySDKInternal.currentHub
                 getInstalledIntegration:SentrySessionReplayIntegration.class];
             if (replayIntegration == nil && SentrySDKInternal.currentHub.client.options) {
-                SentryOptionsInternal *currentOptions = SENTRY_UNWRAP_NULLABLE(
-                    SentryOptionsInternal, SentrySDKInternal.currentHub.client.options);
+                SentryOptions *currentOptions = SENTRY_UNWRAP_NULLABLE(
+                    SentryOptions, SentrySDKInternal.currentHub.client.options);
                 if (![SentrySessionReplayIntegration shouldEnableForOptions:currentOptions]) {
                     SENTRY_LOG_ERROR(@"[Session Replay] Session replay is disabled due to "
                                      @"environment potentially causing PII leaks.");

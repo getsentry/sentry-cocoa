@@ -5,7 +5,6 @@
 #    import "SentryContinuousProfiler.h"
 #    import "SentryInternalDefines.h"
 #    import "SentryLogC.h"
-#    import "SentryOptionsInternal+Private.h"
 #    import "SentryProfiler+Private.h"
 #    include <mutex>
 
@@ -13,7 +12,6 @@
 #    import "SentryHub+Private.h"
 #    import "SentryInternalDefines.h"
 #    import "SentryLaunchProfiling.h"
-#    import "SentryOptionsInternal+Private.h"
 #    import "SentryProfileConfiguration.h"
 #    import "SentryProfiledTracerConcurrency.h"
 #    import "SentryProfiler+Private.h"

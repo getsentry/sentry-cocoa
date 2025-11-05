@@ -8,7 +8,7 @@
 @class SentryEnvelopeItem;
 @class SentryEvent;
 @class SentryFeedback;
-@class SentryOptionsInternal;
+@class SentryOptions;
 @class SentrySession;
 @class SentryTraceContext;
 
@@ -23,7 +23,7 @@ NS_ASSUME_NONNULL_BEGIN
 SENTRY_NO_INIT
 
 - (instancetype)initWithTransports:(NSArray<id<SentryTransport>> *)transports
-                           options:(SentryOptionsInternal *)options;
+                           options:(SentryOptions *)options;
 
 - (void)sendEvent:(SentryEvent *)event
           session:(SentrySession *)session

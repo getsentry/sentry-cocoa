@@ -6,7 +6,6 @@
 #import "SentryInstallation.h"
 #import "SentryInternalDefines.h"
 #import "SentryMeta.h"
-#import "SentryOptionsInternal+Private.h"
 #import "SentryProfileCollector.h"
 #import "SentryPropagationContext.h"
 #import "SentrySDK+Private.h"
@@ -117,13 +116,13 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
     return [SentryInstallation idWithCacheDirectoryPath:self.options.cacheDirectoryPath];
 }
 
-+ (SentryOptionsInternal *)options
++ (SentryOptions *)options
 {
-    SentryOptionsInternal *options = [[SentrySDKInternal currentHub] client].options;
+    SentryOptions *options = [[SentrySDKInternal currentHub] client].options;
     if (options != nil) {
         return options;
     }
-    return [[SentryOptionsInternal alloc] init];
+    return [[SentryOptions alloc] init];
 }
 
 + (SentryOnAppStartMeasurementAvailable)onAppStartMeasurementAvailable

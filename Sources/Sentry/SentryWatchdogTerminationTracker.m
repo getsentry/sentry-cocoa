@@ -14,7 +14,7 @@
 
 @interface SentryWatchdogTerminationTracker ()
 
-@property (nonatomic, strong) SentryOptionsInternal *options;
+@property (nonatomic, strong) SentryOptions *options;
 @property (nonatomic, strong) SentryWatchdogTerminationLogic *watchdogTerminationLogic;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueue;
 @property (nonatomic, strong) SentryAppStateManager *appStateManager;
@@ -25,7 +25,7 @@
 
 @implementation SentryWatchdogTerminationTracker
 
-- (instancetype)initWithOptions:(SentryOptionsInternal *)options
+- (instancetype)initWithOptions:(SentryOptions *)options
        watchdogTerminationLogic:(SentryWatchdogTerminationLogic *)watchdogTerminationLogic
                 appStateManager:(SentryAppStateManager *)appStateManager
            dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper

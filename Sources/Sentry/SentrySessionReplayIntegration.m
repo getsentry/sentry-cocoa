@@ -91,14 +91,13 @@ static SentryTouchTracker *_touchTracker;
     return self;
 }
 
-- (BOOL)installWithOptions:(nonnull SentryOptionsInternal *)options
+- (BOOL)installWithOptions:(nonnull SentryOptions *)options
 {
     if ([super installWithOptions:options] == NO ||
         [SentrySessionReplayIntegration shouldEnableForOptions:options] == NO) {
         return NO;
     }
-    SentryReplayOptions *replayOptions =
-        [SentryOptionsConverter fromInternal:options].sessionReplay;
+    SentryReplayOptions *replayOptions = options.sessionReplay;
 
     [self setupWith:replayOptions
              enableTouchTracker:options.enableSwizzling

@@ -3,7 +3,6 @@
 #if SENTRY_HAS_METRIC_KIT
 
 #    import "SentryInternalDefines.h"
-#    import "SentryOptionsInternal.h"
 #    import "SentryScope.h"
 #    import "SentrySwift.h"
 #    import <Foundation/Foundation.h>
@@ -55,7 +54,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryMetricKitIntegration
 
-- (BOOL)installWithOptions:(SentryOptionsInternal *)options
+- (BOOL)installWithOptions:(SentryOptions *)options
 {
     if (![super installWithOptions:options]) {
         return NO;

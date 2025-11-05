@@ -6,14 +6,14 @@
 @class SentryAppStateManager;
 @class SentryCrashWrapper;
 @class SentryFileManager;
-@class SentryOptionsInternal;
+@class SentryOptions;
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface SentryWatchdogTerminationLogic : NSObject
 SENTRY_NO_INIT
 
-- (instancetype)initWithOptions:(SentryOptionsInternal *)options
+- (instancetype)initWithOptions:(SentryOptions *)options
                    crashAdapter:(SentryCrashWrapper *)crashAdapter
                 appStateManager:(SentryAppStateManager *)appStateManager;
 

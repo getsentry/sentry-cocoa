@@ -15,6 +15,7 @@
 #import "SentryLogC.h"
 #import "SentryMeta.h"
 #import "SentryNetworkTrackingIntegration.h"
+#import "SentryOptionsConverter.h"
 #import "SentryOptionsInternal+Private.h"
 #import "SentryProfilingConditionals.h"
 #import "SentryReplayApi.h"
@@ -76,7 +77,7 @@ static BOOL crashedLastRunCalled;
 static SentryAppStartMeasurement *_Nullable sentrySDKappStartMeasurement;
 static NSObject *sentrySDKappStartMeasurementLock;
 static BOOL _detectedStartUpCrash;
-static SentryOptionsInternal *_Nullable startOption;
+static SentryOptions *_Nullable startOption;
 static NSObject *startOptionsLock;
 
 /**
@@ -111,11 +112,19 @@ static NSDate *_Nullable startTimestamp = nil;
     }
 }
 
-+ (nullable SentryOptionsInternal *)options
++ (nullable SentryOptions *)options
 {
     @synchronized(startOptionsLock) {
         return startOption;
     }
+}
++ (nullable SentryOptionsInternal *)optionsInternal
+{
+    SentryOptions *internal = [SentrySDKInternal options];
+    if (internal) {
+        return [SentryOptionsConverter toInternal:internal];
+    }
+    return NULL;
 }
 #if SENTRY_TARGET_REPLAY_SUPPORTED
 + (SentryReplayApi *)replay
@@ -135,7 +144,7 @@ static NSDate *_Nullable startTimestamp = nil;
     }
 }
 /** Internal, only needed for testing. */
-+ (void)setStartOptions:(nullable SentryOptionsInternal *)options
++ (void)setStartOptions:(nullable SentryOptions *)options
 {
     @synchronized(startOptionsLock) {
         startOption = options;
@@ -217,10 +226,11 @@ static NSDate *_Nullable startTimestamp = nil;
     startTimestamp = value;
 }
 
-+ (void)startWithOptions:(SentryOptionsInternal *)options
++ (void)startWithOptions:(SentryOptionsInternal *)internalOptions
 {
     // We save the options before checking for Xcode preview because
     // we will use this options in the preview
+    SentryOptions *options = [SentryOptionsConverter fromInternal:internalOptions];
     startOption = options;
     if ([SentryDependencyContainer.sharedInstance.processInfoWrapper
                 .environment[SENTRY_XCODE_PREVIEW_ENVIRONMENT_KEY] isEqualToString:@"1"]) {
@@ -251,7 +261,8 @@ static NSDate *_Nullable startTimestamp = nil;
     startInvocations++;
     startTimestamp = [SentryDependencyContainer.sharedInstance.dateProvider date];
 
-    SentryClientInternal *newClient = [[SentryClientInternal alloc] initWithOptions:options];
+    SentryClientInternal *newClient =
+        [[SentryClientInternal alloc] initWithOptions:internalOptions];
     [newClient.fileManager moveAppStateToPreviousAppState];
     [newClient.fileManager moveBreadcrumbsToPreviousBreadcrumbs];
     [SentryDependencyContainer.sharedInstance
@@ -579,7 +590,7 @@ static NSDate *_Nullable startTimestamp = nil;
         // Gatekeeper
         return;
     }
-    SentryOptionsInternal *options = [SentrySDKInternal.currentHub getClient].options;
+    SentryOptions *options = [SentrySDKInternal.currentHub getClient].options;
 
     NSArray<Class> *integrationClasses = [SentrySDKInternal defaultIntegrationClasses];
 
@@ -684,7 +695,7 @@ static NSDate *_Nullable startTimestamp = nil;
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 + (void)startProfiler
 {
-    SentryOptionsInternal *options = currentHub.client.options;
+    SentryOptions *options = currentHub.client.options;
     if (options == nil) {
         SENTRY_LOG_WARN(@"Cannot start profiling when options are nil.");
         return;
@@ -739,7 +750,7 @@ static NSDate *_Nullable startTimestamp = nil;
         return;
     }
 
-    SentryOptionsInternal *options = currentHub.client.options;
+    SentryOptions *options = currentHub.client.options;
     if (options == nil) {
         SENTRY_LOG_WARN(@"Cannot stop profiling when options are nil.");
         return;

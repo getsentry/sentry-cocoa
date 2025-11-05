@@ -10,6 +10,7 @@
 #    import "SentryLaunchProfiling.h"
 #    import "SentryLogC.h"
 #    import "SentryMetricProfiler.h"
+#    import "SentryOptionsConverter.h"
 #    import "SentryOptionsInternal+Private.h"
 #    import "SentryProfileConfiguration.h"
 #    import "SentryProfilerState+ObjCpp.h"
@@ -17,6 +18,7 @@
 #    import "SentryProfilingSwiftHelpers.h"
 #    import "SentrySDK+Private.h"
 #    import "SentrySamplingProfiler.hpp"
+#    import "SentrySwift.h"
 #    import "SentryTime.h"
 #    import "SentryTracer+Private.h"
 
@@ -64,7 +66,7 @@ sentry_isLaunchProfileCorrelatedToTraces(void)
 }
 
 void
-sentry_configureContinuousProfiling(SentryOptionsInternal *options)
+sentry_configureContinuousProfiling(SentryOptions *options)
 {
     if (options.configureProfiling == nil) {
         SENTRY_LOG_DEBUG(@"Continuous profiling V2 configuration not set by SDK consumer, nothing "
@@ -102,7 +104,7 @@ sentry_configureContinuousProfiling(SentryOptionsInternal *options)
 }
 
 void
-sentry_sdkInitProfilerTasks(SentryOptionsInternal *options, SentryHubInternal *hub)
+sentry_sdkInitProfilerTasks(SentryOptions *options, SentryHubInternal *hub)
 {
     // get the configuration options from the last time the launch config was written; it may be
     // different than the new options the SDK was just started with

@@ -4,7 +4,6 @@
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"
 #import "SentryNSURLRequestBuilder.h"
-#import "SentryOptionsInternal.h"
 #import "SentryQueueableRequestManager.h"
 #import "SentrySpotlightTransport.h"
 #import "SentrySwift.h"
@@ -18,7 +17,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryTransportFactory
 
-+ (NSArray<id<SentryTransport>> *)initTransports:(SentryOptionsInternal *)options
++ (NSArray<id<SentryTransport>> *)initTransports:(SentryOptions *)options
                                     dateProvider:(id<SentryCurrentDateProvider>)dateProvider
                                sentryFileManager:(SentryFileManager *)sentryFileManager
                                       rateLimits:(id<SentryRateLimits>)rateLimits
@@ -73,7 +72,7 @@ NS_ASSUME_NONNULL_BEGIN
     return transports;
 }
 
-+ (NSURLSession *)getUrlSession:(SentryOptionsInternal *_Nonnull)options
++ (NSURLSession *)getUrlSession:(SentryOptions *_Nonnull)options
 {
     if (options.urlSession) {
         SENTRY_LOG_DEBUG(@"Using URL session provided in SDK options for HTTP transport.");

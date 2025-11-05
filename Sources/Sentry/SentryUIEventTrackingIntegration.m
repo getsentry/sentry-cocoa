@@ -2,6 +2,7 @@
 
 #if SENTRY_HAS_UIKIT
 
+#    import "SentrySwift.h"
 #    import <SentryLogC.h>
 #    import <SentryNSDataSwizzling.h>
 #    import <SentryOptionsInternal+Private.h>
@@ -17,7 +18,7 @@
 
 @implementation SentryUIEventTrackingIntegration
 
-- (BOOL)installWithOptions:(SentryOptionsInternal *)options
+- (BOOL)installWithOptions:(SentryOptions *)options
 {
     if (![super installWithOptions:options]) {
         return NO;

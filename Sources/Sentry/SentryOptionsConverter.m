@@ -11,4 +11,11 @@
     return options;
 }
 
++ (SentryOptionsInternal *)toInternal:(SentryOptions *)options
+{
+    SentryOptionsInternal *internalOptions = [[SentryOptionsInternal alloc] init];
+    internalOptions.dsn = options.dsn;
+    return internalOptions;
+}
+
 @end

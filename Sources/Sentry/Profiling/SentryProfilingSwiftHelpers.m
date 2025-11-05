@@ -3,7 +3,6 @@
 
 #    import "SentryClient.h"
 #    import "SentryLogC.h"
-#    import "SentryOptionsInternal+Private.h"
 #    import "SentryProfiler+Private.h"
 #    import "SentrySamplerDecision.h"
 #    import "SentrySwift.h"

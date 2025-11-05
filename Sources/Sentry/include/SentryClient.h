@@ -9,6 +9,7 @@
 @class SentryEvent;
 @class SentryFeedback;
 @class SentryOptionsInternal;
+@class SentryOptions;
 @class SentryScope;
 @class SentryId;
 @class SentryTransaction;
@@ -20,7 +21,9 @@ SENTRY_NO_INIT
 
 @property (nonatomic, assign, readonly) BOOL isEnabled;
 
-@property (nonatomic, strong) SentryOptionsInternal *options;
+@property (nonatomic, strong) SentryOptionsInternal *optionsInternal;
+
+@property (nonatomic, strong, readonly) SentryOptions *options;
 
 /**
  * Initializes a @c SentryClient. Pass in a dictionary of options.

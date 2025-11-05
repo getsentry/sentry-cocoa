@@ -14,7 +14,6 @@
 #import "SentryLogC.h"
 #import "SentryMechanism.h"
 #import "SentryNoOpSpan.h"
-#import "SentryOptionsInternal.h"
 #import "SentryPropagationContext.h"
 #import "SentryRequest.h"
 #import "SentrySDK+Private.h"
@@ -217,7 +216,7 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
 
     SentryTraceContext *traceContext =
         [[SentryTraceContext alloc] initWithTraceId:propagationContext.traceId
-                                            options:SENTRY_UNWRAP_NULLABLE(SentryOptionsInternal,
+                                            options:SENTRY_UNWRAP_NULLABLE(SentryOptions,
                                                         SentrySDKInternal.currentHub.client.options)
                                            replayId:SentrySDKInternal.currentHub.scope.replayId];
 

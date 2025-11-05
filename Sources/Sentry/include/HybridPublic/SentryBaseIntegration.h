@@ -32,15 +32,15 @@ typedef NS_OPTIONS(NSUInteger, SentryIntegrationOption) {
     kIntegrationOptionStartFramesTracker = 1 << 19,
 };
 
-@class SentryOptionsInternal;
+@class SentryOptions;
 
 @interface SentryBaseIntegration : NSObject <SentryIntegrationProtocol>
 
 - (NSString *)integrationName;
-- (BOOL)installWithOptions:(SentryOptionsInternal *)options;
+- (BOOL)installWithOptions:(SentryOptions *)options;
 - (void)logWithOptionName:(NSString *)optionName;
 - (void)logWithReason:(NSString *)reason;
-- (BOOL)shouldBeEnabledWithOptions:(SentryOptionsInternal *)options;
+- (BOOL)shouldBeEnabledWithOptions:(SentryOptions *)options;
 - (SentryIntegrationOption)integrationOptions;
 - (void)uninstall;
 @end
