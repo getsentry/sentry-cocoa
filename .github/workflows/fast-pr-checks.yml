@@ -1,0 +1,67 @@
+name: Fast PR Checks
+# Description: Runs a subset of checks for PRs to provide faster feedback.
+# Tests run here should run within a couple minutes.
+# Any job here, should reuse a workflow that is already used in the complete workflows, no new jobs should be added here.
+
+on:
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  files-changed:
+    name: Detect File Changes
+    runs-on: ubuntu-latest
+    outputs:
+      # Use the same file filters than the complete workflows
+      run_release_for_prs: ${{ steps.changes.outputs.run_release_for_prs }}
+      run_unit_tests_for_prs: ${{ steps.changes.outputs.run_unit_tests_for_prs }}
+    steps:
+      - uses: actions/checkout@v5
+      - name: Get changed files
+        id: changes
+        uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
+        with:
+          token: ${{ github.token }}
+          filters: .github/file-filters.yml
+
+  fast-xcframework-slices:
+    name: Fast XCFramework Slice (Sentry Dynamic, iOS arm64)
+    if: needs.files-changed.outputs.run_release_for_prs == 'true'
+    needs: files-changed
+    uses: ./.github/workflows/build-xcframework-variant-slices.yml
+    with:
+      name: Sentry
+      suffix: -Dynamic
+      macho-type: mh_dylib
+      variant-id: sentry-dynamic
+      sdk-list: '["iphoneos"]'
+
+  fast-unit-tests:
+    name: Fast Unit Tests (iOS 18)
+    if: needs.files-changed.outputs.run_unit_tests_for_prs == 'true'
+    needs: files-changed
+    uses: ./.github/workflows/build-xcframework-variant-slices.yml
+    with:
+      name: iOS 18 Sentry
+      runs-on: macos-15
+      timeout: 20
+      should_skip: ${{needs.files-changed.outputs.run_unit_tests_for_prs == 'true'}}
+      xcode: "16.4"
+      test-destination-os: "18.4"
+      platform: iOS
+      device: iPhone 16 Pro
+      scheme: Sentry
+
+  fast-checks-required:
+    needs: [files-changed, fast-xcframework-slices, fast-unit-tests]
+    name: Fast PR Checks
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check for failures
+        if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
+        run: |
+          echo "One of the fast check jobs has failed." && exit 1
