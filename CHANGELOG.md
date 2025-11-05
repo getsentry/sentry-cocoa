@@ -7,10 +7,7 @@
 - Fix crash from accessing UITouch instances from background thread in SentryTouchTracker (#6584)
 - Disable SessionSentryReplayIntegration if the environment is unsafe [#6573]
 - Fix crash when last replay info is missing some keys [#6577]
-- Fixes warnings about minimum OS version being lower than Xcode supported version (#5591)
 - Fix rendering method for fast view rendering (#6360)
-- Fix issue where the thread that generated an event could be missing when more than 100 threads are running (#6377)
-- Fix wrong Frame Delay when becoming active, which lead to false reported app hangs when the app moves to the foreground after being in the background (#6381)
 - Session Replay masking improvements (#6292)
   - Fix SwiftUI.List background decoration view causing incorrect clipping of screen content
   - Fix sublayer rendering order by properly sorting by zPosition with insertion order as tie-breaker
@@ -24,10 +21,6 @@
 - Change Session Replay masking to prevent semi‑transparent full‑screen overlays from clearing redactions by making opaque clipping stricter (#6629)
   Views now need to be fully opaque (view and layer backgrounds with alpha == 1) and report opaque to qualify for clip‑out.
   This avoids leaks at the cost of fewer clip‑out optimizations.
-
-### Improvements
-
-- Replace deprecated SCNetworkReachability with NWPathMonitor (#6019)
 
 ## 8.57.0
 
@@ -58,8 +51,6 @@
   - Detects missing or disabled `UIDesignRequiresCompatibility`
   - Uses defensive approach: assumes unsafe unless proven safe
 - Add `options.experimental.enableSessionReplayInUnreliableEnvironment` to allow overriding the automatic disabling (#6389)
-- Fixes warnings about minimum OS version being lower than Xcode supported version (#5591)
-- Fix rendering method for fast view rendering (#6360)
 
 ## 8.56.2
 
