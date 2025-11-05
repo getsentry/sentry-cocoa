@@ -505,7 +505,7 @@ final class SentryLogHandlerTests: XCTestCase {
     
     func testMetadataSubscript() {
         XCTAssertNil(sut.metadata["test_key"])
-        XCTAssertNil(sut[metadataKey: "test_key"])
+        XCTAssertNil(sut[metadataKey: "test_key_2"])
         
         sut.metadata["test_key"] = "test_value"
         XCTAssertEqual(sut.metadata["test_key"], .string("test_value"))
