@@ -15,7 +15,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SentryClientInternal : NSObject
 
-@property (nonatomic) SentryOptionsInternal *options;
+@property (nonatomic) SentryOptions *options;
 
 @end
 

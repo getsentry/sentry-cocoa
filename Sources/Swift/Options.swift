@@ -2,7 +2,25 @@
 @objc(SentryOptions) public final class Options: NSObject {
     /// The DSN tells the SDK where to send the events to. If this value is not provided, the SDK will
     /// not send any events.
-    @objc public var dsn: String?
+    @objc public var dsn: String? = {
+        #if os(macOS)
+        if let dsn = ProcessInfo.processInfo.environment["SENTRY_DSN"] as? String, dsn.count > 0 {
+            return dsn
+        }
+        #else
+       return nil
+        #endif
+    }() {
+        didSet {
+            guard let dsn else { return }
+
+            do {
+                self.parsedDsn = try SentryDsn(string: dsn)
+            } catch {
+                SentrySDKLog.error("Could not parse the DSN: \(error)")
+            }
+        }
+    }
 
     /// The parsed internal DSN.
     @objc public var parsedDsn: SentryDsn?
@@ -17,7 +35,11 @@
     @objc public var diagnosticLevel: SentryLevel = .debug
 
     /// This property will be filled before the event is sent.
-    @objc public var releaseName: String?
+    @objc public var releaseName: String? = {
+        guard let infoDict = Bundle.main.infoDictionary else { return nil }
+
+        return "\(infoDict["CFBundleIdentifier"] ?? "")@\(infoDict["CFBundleShortVersionString"] ?? "")+\(infoDict["CFBundleVersion"] ?? "")"
+    }()
 
     /// The distribution of the application.
     /// @discussion Distributions are used to disambiguate build or deployment variants of the same
@@ -33,7 +55,7 @@
     @objc public var enabled: Bool = true
 
     /// Controls the flush duration when calling SentrySDK/close.
-    @objc public var shutdownTimeInterval: TimeInterval = 0
+    @objc public var shutdownTimeInterval: TimeInterval = 2.0
 
     /// When enabled, the SDK sends crashes to Sentry.
     /// @note Disabling this feature disables the SentryWatchdogTerminationTrackingIntegration,
@@ -133,7 +155,23 @@
     /// @note The value needs to be >= 0.0 and <= 1.0. When setting a value out of range the SDK sets
     /// it to the default of 1.0.
     /// @note The default is 1.
-    @objc public var sampleRate: NSNumber?
+    @objc public var sampleRate: NSNumber? {
+        set {
+            guard let newValue else {
+                _sampleRate = nil
+                return
+            }
+            if newValue.isValidSampleRate() {
+                _sampleRate = newValue
+            } else {
+                _sampleRate = 1
+            }
+        }
+        get {
+            _tracesSampleRate
+        }
+    }
+    var _sampleRate: NSNumber? = 1
 
     /// Whether to enable automatic session tracking or not.
     /// @note Default is YES.
@@ -303,7 +341,23 @@
     /// @note The value needs to be >= 0.0 and \<= 1.0. When setting a value out of range the SDK sets it
     /// to the default.
     /// @note The default is @c 0 .
-    @objc public var tracesSampleRate: NSNumber?
+    @objc public var tracesSampleRate: NSNumber? {
+        set {
+            guard let newValue else {
+                _tracesSampleRate = nil
+                return
+            }
+            if newValue.isValidSampleRate() {
+                _tracesSampleRate = newValue
+            } else {
+                _tracesSampleRate = 0
+            }
+        }
+        get {
+            _tracesSampleRate
+        }
+    }
+    var _tracesSampleRate: NSNumber? = 0
 
     /// A callback to a user defined traces sampler function.
     /// @discussion Specifying @c 0 or @c nil discards all trace data, @c 1.0 collects all trace data,
@@ -323,7 +377,7 @@
     /// @note This option takes precedence over @c inAppExcludes.
     /// @note By default, this contains @c CFBundleExecutable to mark it as "in-app".
     @objc public internal(set) var inAppIncludes: [String] = {
-        if let executable = Bundle.main.object(forInfoDictionaryKey: "CFBundleExecutable") as? String {
+        if let executable = Bundle.main.infoDictionary?["CFBundleExecutable"] as? String {
             return [executable]
         }
         return []
@@ -443,6 +497,8 @@
     ///
     /// @note Default value is @c NO.
     @objc public var enablePropagateTraceparent: Bool = false
+    
+    static let everythingAllowedRegex = try? NSRegularExpression(pattern: ".*", options: .caseInsensitive)
 
     /// An array of hosts or regexes that determines if outgoing HTTP requests will get
     /// extra @c trace_id and @c baggage headers added.
@@ -451,7 +507,15 @@
     /// URL.
     /// @note The default value adds the header to all outgoing requests.
     /// @see https://docs.sentry.io/platforms/apple/configuration/options/#trace-propagation-targets
-    @objc public var tracePropagationTargets: [Any] = []
+    @objc public var tracePropagationTargets: [Any] = [everythingAllowedRegex as Any] {
+        didSet {
+            for value in tracePropagationTargets {
+                if !(value is NSRegularExpression || value is String) {
+                    SentrySDKLog.warning("Only instances of NSString and NSRegularExpression are supported inside tracePropagationTargets.")
+                }
+            }
+        }
+    }
 
     /// When enabled, the SDK captures HTTP Client errors.
     /// @note This feature requires @c enableSwizzling enabled as well.
@@ -461,7 +525,8 @@
     /// The SDK will only capture HTTP Client errors if the HTTP Response status code is within the
     /// defined range.
     /// @note Defaults to 500 - 599.
-    @objc public var failedRequestStatusCodes: [HttpStatusCodeRange] = []
+    ///         SentryHttpStatusCodeRange *defaultHttpStatusCodeRange =
+    @objc public var failedRequestStatusCodes: [HttpStatusCodeRange] = [HttpStatusCodeRange(min: 500, max: 599)]
 
     /// An array of hosts or regexes that determines if HTTP Client errors will be automatically
     /// captured.
@@ -469,7 +534,15 @@
     /// @c contains ), and instances of @c NSRegularExpression, which will be used to check the whole
     /// URL.
     /// @note The default value automatically captures HTTP Client errors of all outgoing requests.
-    @objc public var failedRequestTargets: [Any] = []
+    @objc public var failedRequestTargets: [Any] = [everythingAllowedRegex as Any] {
+        didSet {
+            for value in failedRequestTargets {
+                if !(value is NSRegularExpression || value is String) {
+                    SentrySDKLog.warning("Only instances of NSString and NSRegularExpression are supported inside failedRequestTargets.")
+                }
+            }
+        }
+    }
     
     #if canImport(MetricKit) && !os(tvOS) && !os(visionOS)
     
@@ -520,7 +593,15 @@
     /// https://spotlightjs.com/.
     ///
     /// @note Only set this option to @c YES while developing, not in production!
-    @objc public var enableSpotlight: Bool = false
+    @objc public var enableSpotlight: Bool = false {
+        didSet {
+            #if !DEBUG
+            if enableSpotlight {
+                SentrySDKLog.warning("Enabling Spotlight for a release build. We recommend running Spotlight only for local development.")
+            }
+            #endif
+        }
+    }
 
     /// The Spotlight URL. Defaults to http://localhost:8969/stream. For more information see
     /// https://spotlightjs.com/
@@ -540,5 +621,16 @@
         }
     }
     #endif
+    
+    @_spi(Private) @objc public static func isValidSampleRate(_ rate: NSNumber) -> Bool {
+        rate.isValidSampleRate()
+    }
 }
+
+extension NSNumber {
+    func isValidSampleRate() -> Bool {
+        doubleValue >= 0 && doubleValue <= 1.0
+    }
+}
+
 // swiftlint:enable file_length

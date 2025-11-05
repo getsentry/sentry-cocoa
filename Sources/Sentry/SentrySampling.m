@@ -24,7 +24,7 @@ NSNumber *_Nullable _sentry_samplerCallbackRate(SentryTracesSamplerCallback _Nul
     }
 
     NSNumber *callbackRate = callback(context);
-    if (!sentry_isValidSampleRate(callbackRate)) {
+    if (![SentryOptions isValidSampleRate:callbackRate]) {
         return defaultSampleRate;
     }
 
@@ -67,8 +67,7 @@ sentry_sampleTrace(SentrySamplingContext *context, SentryOptions *_Nullable opti
                                              withSampleRand:context.transactionContext.sampleRand];
     }
 
-    NSNumber *callbackRate = _sentry_samplerCallbackRate(
-        options.tracesSampler, context, SENTRY_DEFAULT_TRACES_SAMPLE_RATE);
+    NSNumber *callbackRate = _sentry_samplerCallbackRate(options.tracesSampler, context, 0);
     if (callbackRate != nil) {
         return _sentry_calcSample(callbackRate);
     }
