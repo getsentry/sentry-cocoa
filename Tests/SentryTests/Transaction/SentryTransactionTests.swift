@@ -25,13 +25,13 @@ class SentryTransactionTests: XCTestCase {
         
         func getHub() -> SentryHubInternal {
             let scope = Scope()
-            let client = TestClient(options: Options().toInternal())!
+            let client = TestClient(options: Options())!
             client.options.tracesSampleRate = 1
             return TestHub(client: client, andScope: scope)
         }
         
         func getTransactionWith(scope: Scope) -> Transaction {
-            let client = TestClient(options: Options().toInternal())!
+            let client = TestClient(options: Options())!
             client.options.tracesSampleRate = 1
             
             let hub = TestHub(client: client, andScope: scope)
@@ -210,7 +210,7 @@ class SentryTransactionTests: XCTestCase {
 #if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
     func testTransactionWithContinuousProfile() throws {
         let options = Options()
-        SentrySDKInternal.setStart(with: options.toInternal())
+        SentrySDKInternal.setStart(with: options)
         let transaction = fixture.getTransaction()
         SentryContinuousProfiler.start()
         let profileId = try XCTUnwrap(SentryContinuousProfiler.profiler()?.profilerId.sentryIdString)

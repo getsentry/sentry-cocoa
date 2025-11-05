@@ -7,7 +7,7 @@
         internalHelper = SentryDefaultThreadInspector(options: SentrySDKInternal.optionsInternal)
     }
 
-    init(options: SentryOptionsInternal) {
+    init(options: Options) {
         internalHelper = SentryDefaultThreadInspector(options: options)
     }
 

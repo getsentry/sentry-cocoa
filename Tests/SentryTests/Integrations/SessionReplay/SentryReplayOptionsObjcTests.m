@@ -1,4 +1,3 @@
-#import "SentryOptionsInternal+Private.h"
 #import <SentrySwift.h>
 #import <XCTest/XCTest.h>
 

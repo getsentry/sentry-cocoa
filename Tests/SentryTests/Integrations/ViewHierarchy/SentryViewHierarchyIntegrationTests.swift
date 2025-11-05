@@ -125,7 +125,7 @@ class SentryViewHierarchyIntegrationTests: XCTestCase {
             return false
         }
 
-        sut.install(with: options.toInternal())
+        sut.install(with: options)
 
         let newAttachmentList = sut.processAttachments([], for: Event(error: NSError(domain: "", code: -1)))
 

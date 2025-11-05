@@ -55,7 +55,7 @@ class SentrySDKInternalTests: XCTestCase {
             scope = Scope()
             scope.setTag(value: "value", key: "key")
 
-            client = TestClient(options: options.toInternal())!
+            client = TestClient(options: options)!
             hub = SentryHubInternal(client: client, andScope: scope, andCrashWrapper: TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo), andDispatchQueue: SentryDispatchQueueWrapper())
 
             feedback = SentryFeedback(message: "Again really?", name: "Tim Apple", email: "tim@apple.com")
@@ -609,7 +609,7 @@ class SentrySDKInternalTests: XCTestCase {
         let transport = TestTransport()
         let fileManager = try TestFileManager(options: fixture.options, dateProvider: fixture.currentDate, dispatchQueueWrapper: fixture.dispatchQueueWrapper)
         let client = SentryClientInternal(options: fixture.options, fileManager: fileManager)
-        Dynamic(client).transportAdapter = TestTransportAdapter(transports: [transport], options: fixture.options.toInternal())
+        Dynamic(client).transportAdapter = TestTransportAdapter(transports: [transport], options: fixture.options)
         SentrySDKInternal.currentHub().bindClient(client)
         SentrySDK.close()
 
@@ -694,7 +694,7 @@ class SentrySDKInternalTests: XCTestCase {
         let transport = TestTransport()
         let fileManager = try TestFileManager(options: fixture.options, dateProvider: fixture.currentDate, dispatchQueueWrapper: fixture.dispatchQueueWrapper)
         let client = SentryClientInternal(options: fixture.options, fileManager: fileManager)
-        Dynamic(client).transportAdapter = TestTransportAdapter(transports: [transport], options: fixture.options.toInternal())
+        Dynamic(client).transportAdapter = TestTransportAdapter(transports: [transport], options: fixture.options)
         SentrySDKInternal.currentHub().bindClient(client)
 
         let flushTimeout = 10.0
@@ -985,12 +985,12 @@ private extension SentrySDKInternalTests {
 
     func givenSdkWithHub() {
         SentrySDKInternal.setCurrentHub(fixture.hub)
-        SentrySDKInternal.setStart(with: fixture.options.toInternal())
+        SentrySDKInternal.setStart(with: fixture.options)
     }
 
     func givenSdkWithHubButNoClient() {
         SentrySDKInternal.setCurrentHub(SentryHubInternal(client: nil, andScope: nil))
-        SentrySDKInternal.setStart(with: fixture.options.toInternal())
+        SentrySDKInternal.setStart(with: fixture.options)
     }
 
     func assertIntegrationsInstalled(integrations: [String]) {
@@ -1019,7 +1019,7 @@ class SentrySDKWithSetupTests: XCTestCase {
         let expectation = expectation(description: "no deadlock")
         expectation.expectedFulfillmentCount = 20
 
-        SentrySDKInternal.setStart(with: Options().toInternal())
+        SentrySDKInternal.setStart(with: Options())
 
         for _ in 0..<10 {
             concurrentQueue.async {
@@ -1045,7 +1045,7 @@ public class MainThreadTestIntegration: NSObject, SentryIntegrationProtocol {
 
     public let expectation = XCTestExpectation(description: "MainThreadTestIntegration installed")
 
-    public func install(with options: SentryOptionsInternal) -> Bool {
+    public func install(with options: Options) -> Bool {
         print("[Sentry] [TEST] [\(#file):\(#line) starting install.")
         dispatchPrecondition(condition: .onQueue(.main))
 

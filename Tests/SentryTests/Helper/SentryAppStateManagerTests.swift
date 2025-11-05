@@ -31,7 +31,7 @@ class SentryAppStateManagerTests: XCTestCase {
             SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
             SentryDependencyContainer.sharedInstance().notificationCenterWrapper = notificationCenterWrapper
             return SentryAppStateManager(
-                options: options.toInternal(),
+                options: options,
                 crashWrapper: TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo),
                 fileManager: fileManager,
                 sysctlWrapper: SentryDependencyContainer.sharedInstance().sysctlWrapper

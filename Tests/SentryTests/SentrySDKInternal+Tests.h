@@ -9,7 +9,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (void)setCurrentHub:(nullable SentryHubInternal *)hub;
 
-+ (void)setStartOptions:(nullable SentryOptionsInternal *)options NS_SWIFT_NAME(setStart(with:));
++ (void)setStartOptions:(nullable SentryOptions *)options NS_SWIFT_NAME(setStart(with:));
 
 + (void)captureEnvelope:(SentryEnvelope *)envelope;
 

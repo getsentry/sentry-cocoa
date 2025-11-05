@@ -2,7 +2,6 @@
 #import "SentryDefaultThreadInspector.h"
 #import "SentryFileIOTrackerHelper.h"
 #import "SentryNSFileManagerSwizzling.h"
-#import "SentryOptionsInternal.h"
 #import "SentrySpan.h"
 #import "SentrySpanOperation.h"
 #import "SentrySwizzle.h"
@@ -59,8 +58,7 @@
     self->tracker = [FileIOTrackerTestHelpers makeTrackerWithOptions:options];
     [tracker enable];
 
-    [[SentryNSFileManagerSwizzling shared] startWithOptions:[options toInternalOptions]
-                                                    tracker:self->tracker];
+    [[SentryNSFileManagerSwizzling shared] startWithOptions:options tracker:self->tracker];
 }
 
 - (void)tearDown

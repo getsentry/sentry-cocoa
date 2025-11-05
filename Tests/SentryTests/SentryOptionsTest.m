@@ -1,5 +1,4 @@
 #import "SentryError.h"
-#import "SentryOptionsInternal.h"
 #import "SentrySDKInternal.h"
 #import "SentrySpan.h"
 #import "SentryTests-Swift.h"
@@ -96,7 +95,7 @@
 - (void)testEnvironment
 {
     SentryOptions *options = [self getValidOptions:@{}];
-    XCTAssertEqual(options.environment, kSentryDefaultEnvironment);
+    XCTAssertEqualObjects(options.environment, @"production");
 
     options = [self getValidOptions:@{ @"environment" : @"xxx" }];
     XCTAssertEqualObjects(options.environment, @"xxx");
@@ -288,10 +287,15 @@
 
 - (void)testBeforeSend
 {
-    SentryBeforeSendEventCallback callback = ^(SentryEvent *event) { return event; };
+    __block BOOL called = false;
+    SentryBeforeSendEventCallback callback = ^(SentryEvent *event) {
+        called = true;
+        return event;
+    };
     SentryOptions *options = [self getValidOptions:@{ @"beforeSend" : callback }];
+    options.beforeSend([[SentryEvent alloc] init]);
 
-    XCTAssertEqual(callback, options.beforeSend);
+    XCTAssertTrue(called);
 }
 
 - (void)testDefaultBeforeSend
@@ -315,13 +319,20 @@
     XCTAssertFalse([options.beforeSend isEqual:[NSNull null]]);
 }
 
-#if !SWIFT_PACKAGE
+typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull log);
 - (void)testBeforeSendLog
 {
-    SentryBeforeSendLogCallback callback = ^(SentryLog *log) { return log; };
+    __block BOOL called = false;
+    SentryBeforeSendLogCallback callback = ^(SentryLog *log) {
+        called = true;
+        return log;
+    };
     SentryOptions *options = [self getValidOptions:@{ @"beforeSendLog" : callback }];
+    // Not calling `init` here because it is not available in ObjC, but it doesn't matter because
+    // the object is not used in the stub callback;
+    options.beforeSendLog([SentryLog alloc]);
 
-    XCTAssertEqual(callback, options.beforeSendLog);
+    XCTAssertTrue(called);
 }
 
 - (void)testDefaultBeforeSendLog
@@ -337,14 +348,23 @@
 
     XCTAssertNil(options.beforeSendLog);
 }
-#endif // !SWIFT_PACKAGE
 
 - (void)testBeforeSendSpan
 {
-    SentryBeforeSendSpanCallback callback = ^(id<SentrySpan> span) { return span; };
+    __block BOOL called = false;
+    SentryBeforeSendSpanCallback callback = ^(id<SentrySpan> span) {
+        called = true;
+        return span;
+    };
     SentryOptions *options = [self getValidOptions:@{ @"beforeSendSpan" : callback }];
+    options.beforeSendSpan(
+        [[SentrySpan alloc] initWithContext:[[SentrySpanContext alloc] initWithOperation:@""]
+#if SENTRY_HAS_UIKIT
+                              framesTracker:NULL
+#endif
+    ]);
 
-    XCTAssertEqual(callback, options.beforeSendSpan);
+    XCTAssertTrue(called);
 }
 
 - (void)testDefaultBeforeSendSpan
@@ -356,11 +376,15 @@
 
 - (void)testBeforeBreadcrumb
 {
-    SentryBeforeBreadcrumbCallback callback
-        = ^(SentryBreadcrumb *breadcrumb) { return breadcrumb; };
+    __block BOOL called = false;
+    SentryBeforeBreadcrumbCallback callback = ^(SentryBreadcrumb *breadcrumb) {
+        called = true;
+        return breadcrumb;
+    };
     SentryOptions *options = [self getValidOptions:@{ @"beforeBreadcrumb" : callback }];
+    options.beforeBreadcrumb([[SentryBreadcrumb alloc] init]);
 
-    XCTAssertEqual(callback, options.beforeBreadcrumb);
+    XCTAssertTrue(called);
 }
 
 - (void)testDefaultBeforeBreadcrumb
@@ -372,16 +396,18 @@
 
 - (void)testBeforeCaptureScreenshot
 {
+    __block BOOL called = false;
     SentryBeforeCaptureScreenshotCallback callback = ^(SentryEvent *event) {
+        called = true;
         if (event.level == kSentryLevelFatal) {
             return NO;
         }
-
-        return YES;
+        return NO;
     };
     SentryOptions *options = [self getValidOptions:@{ @"beforeCaptureScreenshot" : callback }];
+    options.beforeCaptureScreenshot([[SentryEvent alloc] init]);
 
-    XCTAssertEqual(callback, options.beforeCaptureScreenshot);
+    XCTAssertTrue(called);
 }
 
 - (void)testDefaultBeforeCaptureScreenshot
@@ -393,16 +419,18 @@
 
 - (void)testBeforeCaptureViewHierarchy
 {
+    __block BOOL called = false;
     SentryBeforeCaptureScreenshotCallback callback = ^(SentryEvent *event) {
+        called = true;
         if (event.level == kSentryLevelFatal) {
             return NO;
         }
-
-        return YES;
+        return NO;
     };
     SentryOptions *options = [self getValidOptions:@{ @"beforeCaptureViewHierarchy" : callback }];
+    options.beforeCaptureViewHierarchy([[SentryEvent alloc] init]);
 
-    XCTAssertEqual(callback, options.beforeCaptureViewHierarchy);
+    XCTAssertTrue(called);
 }
 
 - (void)testDefaultBeforeCaptureViewHierarchy
@@ -486,7 +514,6 @@
 
     options.onCrashedLastRun([[SentryEvent alloc] init]);
 
-    XCTAssertEqual(callback, options.onCrashedLastRun);
     XCTAssertTrue(onCrashedLastRunCalled);
 }
 
@@ -513,14 +540,14 @@
 
 - (void)testSampleRate_SetToNil
 {
-    SentryOptionsInternal *options = [[SentryOptionsInternal alloc] init];
+    SentryOptions *options = [[SentryOptions alloc] init];
     options.sampleRate = nil;
     XCTAssertEqual(options.sampleRate.doubleValue, 0);
 }
 
 - (void)testSampleRateLowerBound
 {
-    SentryOptionsInternal *options = [[SentryOptionsInternal alloc] init];
+    SentryOptions *options = [[SentryOptions alloc] init];
     options.sampleRate = @0.5;
 
     NSNumber *sampleRateLowerBound = @0;
@@ -536,7 +563,7 @@
 
 - (void)testSampleRateUpperBound
 {
-    SentryOptionsInternal *options = [[SentryOptionsInternal alloc] init];
+    SentryOptions *options = [[SentryOptions alloc] init];
     options.sampleRate = @0.5;
 
     NSNumber *upperBound = @1;
@@ -602,7 +629,6 @@
 
 - (void)testNSNull_SetsDefaultValue
 {
-
     SentryOptions *options = [SentryOptionsInternal initWithDict:@{
         @"urlSession" : [NSNull null],
         @"dsn" : [NSNull null],
@@ -617,9 +643,7 @@
         @"maxCacheItems" : [NSNull null],
         @"cacheDirectoryPath" : [NSNull null],
         @"beforeSend" : [NSNull null],
-#if !SWIFT_PACKAGE
         @"beforeSendLog" : [NSNull null],
-#endif
         @"beforeBreadcrumb" : [NSNull null],
         @"onCrashedLastRun" : [NSNull null],
         @"integrations" : [NSNull null],
@@ -671,7 +695,7 @@
     XCTAssertEqual(2.0, options.shutdownTimeInterval);
     XCTAssertEqual(NO, options.debug);
     XCTAssertEqual(kSentryLevelDebug, options.diagnosticLevel);
-    XCTAssertEqual(options.environment, kSentryDefaultEnvironment);
+    XCTAssertEqualObjects(options.environment, @"production");
     XCTAssertNil(options.dist);
     XCTAssertEqual(defaultMaxBreadcrumbs, options.maxBreadcrumbs);
     XCTAssertTrue(options.enableNetworkBreadcrumbs);
@@ -709,7 +733,7 @@
     XCTAssertNil(options.urlSessionDelegate);
     XCTAssertNil(options.urlSession);
     XCTAssertEqual(YES, options.enableSwizzling);
-    XCTAssertEqual([NSSet new], options.swizzleClassNameExcludes);
+    XCTAssertEqualObjects([NSSet new], options.swizzleClassNameExcludes);
     XCTAssertEqual(YES, options.enableFileIOTracing);
     XCTAssertEqual(YES, options.enableAutoBreadcrumbTracking);
     XCTAssertFalse(options.swiftAsyncStacktraces);
@@ -741,7 +765,7 @@
 - (void)testSetValidDsn
 {
     NSString *dsnAsString = @"https://username:password@sentry.io/1";
-    SentryOptionsInternal *options = [[SentryOptionsInternal alloc] init];
+    SentryOptions *options = [[SentryOptions alloc] init];
     options.dsn = dsnAsString;
     options.enabled = NO;
 
@@ -754,7 +778,7 @@
 
 - (void)testSetNilDsn
 {
-    SentryOptionsInternal *options = [[SentryOptionsInternal alloc] init];
+    SentryOptions *options = [[SentryOptions alloc] init];
 
     [options setDsn:nil];
     XCTAssertNil(options.dsn);
@@ -764,7 +788,7 @@
 
 - (void)testSetInvalidValidDsn
 {
-    SentryOptionsInternal *options = [[SentryOptionsInternal alloc] init];
+    SentryOptions *options = [[SentryOptions alloc] init];
 
     [options setDsn:@"https://username:passwordsentry.io/1"];
     XCTAssertNil(options.dsn);
@@ -776,7 +800,7 @@
 - (void)testDsnViaEnvironment
 {
     setenv("SENTRY_DSN", "https://username:password@sentry.io/1", 1);
-    SentryOptionsInternal *options = [[SentryOptionsInternal alloc] init];
+    SentryOptions *options = [[SentryOptions alloc] init];
     XCTAssertEqualObjects(options.dsn, @"https://username:password@sentry.io/1");
     XCTAssertNotNil(options.parsedDsn);
     setenv("SENTRY_DSN", "", 1);
@@ -785,7 +809,7 @@
 - (void)testInvalidDsnViaEnvironment
 {
     setenv("SENTRY_DSN", "foo_bar", 1);
-    SentryOptionsInternal *options = [[SentryOptionsInternal alloc] init];
+    SentryOptions *options = [[SentryOptions alloc] init];
     XCTAssertNil(options.dsn);
     XCTAssertNil(options.parsedDsn);
     XCTAssertEqual(options.enabled, YES);
@@ -966,7 +990,7 @@
 
 - (void)testTracesSampleRate_SetToNil
 {
-    SentryOptionsInternal *options = [[SentryOptionsInternal alloc] init];
+    SentryOptions *options = [[SentryOptions alloc] init];
     options.tracesSampleRate = nil;
     XCTAssertNil(options.tracesSampleRate);
     XCTAssertEqual(options.tracesSampleRate.doubleValue, 0);
@@ -974,7 +998,7 @@
 
 - (void)testTracesSampleRateLowerBound
 {
-    SentryOptionsInternal *options = [[SentryOptionsInternal alloc] init];
+    SentryOptions *options = [[SentryOptions alloc] init];
     options.tracesSampleRate = @0.5;
 
     NSNumber *lowerBound = @0;
@@ -990,7 +1014,7 @@
 
 - (void)testTracesSampleRateUpperBound
 {
-    SentryOptionsInternal *options = [[SentryOptionsInternal alloc] init];
+    SentryOptions *options = [[SentryOptions alloc] init];
     options.tracesSampleRate = @0.5;
 
     NSNumber *lowerBound = @1;
@@ -1036,27 +1060,27 @@
 
 - (void)testIsTracingEnabled_NothingSet_IsDisabled
 {
-    SentryOptionsInternal *options = [[SentryOptionsInternal alloc] init];
+    SentryOptions *options = [[SentryOptions alloc] init];
     XCTAssertFalse(options.isTracingEnabled);
 }
 
 - (void)testIsTracingEnabled_TracesSampleRateSetToZero_IsDisabled
 {
-    SentryOptionsInternal *options = [[SentryOptionsInternal alloc] init];
+    SentryOptions *options = [[SentryOptions alloc] init];
     options.tracesSampleRate = @0.00;
     XCTAssertFalse(options.isTracingEnabled);
 }
 
 - (void)testIsTracingEnabled_TracesSampleRateSet_IsEnabled
 {
-    SentryOptionsInternal *options = [[SentryOptionsInternal alloc] init];
+    SentryOptions *options = [[SentryOptions alloc] init];
     options.tracesSampleRate = @0.01;
     XCTAssertTrue(options.isTracingEnabled);
 }
 
 - (void)testIsTracingEnabled_TracesSamplerSet_IsEnabled
 {
-    SentryOptionsInternal *options = [[SentryOptionsInternal alloc] init];
+    SentryOptions *options = [[SentryOptions alloc] init];
     options.tracesSampler = ^(SentrySamplingContext *context) {
         XCTAssertNotNil(context);
         return @0.0;
@@ -1113,10 +1137,14 @@
 
 - (void)testInitialScope
 {
-    SentryScope * (^initialScope)(SentryScope *)
-        = ^SentryScope *(SentryScope *scope) { return scope; };
+    __block BOOL called = false;
+    SentryScope * (^initialScope)(SentryScope *) = ^SentryScope *(SentryScope *scope) {
+        called = true;
+        return scope;
+    };
     SentryOptions *options = [self getValidOptions:@{ @"initialScope" : initialScope }];
-    XCTAssertIdentical(initialScope, options.initialScope);
+    options.initialScope([[SentryScope alloc] init]);
+    XCTAssertTrue(called);
 }
 
 - (SentryOptions *)getValidOptions:(NSDictionary<NSString *, id> *)dict
@@ -1171,19 +1199,6 @@
     XCTAssertTrue(options.swiftAsyncStacktraces);
 }
 
-- (void)testOptionsDebugDescription
-{
-    NSNumber *_Nullable (^tracesSampler)(void) = ^NSNumber *_Nullable { return nil; };
-    SentryOptions *options = [self getValidOptions:@{
-        @"tracesSampler" : tracesSampler,
-        @"sampleRate" : @0.123,
-    }];
-    NSString *debugDescription = options.debugDescription;
-    XCTAssertNotNil(debugDescription);
-    XCTAssert([debugDescription containsString:@"sampleRate: 0.123"]);
-    XCTAssert([debugDescription containsString:@"tracesSampler: <__NSGlobalBlock__: "]);
-}
-
 - (void)testEnableSpotlight
 {
     [self testBooleanField:@"enableSpotlight" defaultValue:NO];
@@ -1205,14 +1220,14 @@
 - (void)testIsAppHangTrackingDisabled_WhenOptionDisabled
 {
     SentryOptions *options = [self getValidOptions:@{ @"appHangTimeoutInterval" : @0 }];
-    XCTAssertTrue([options toInternalOptions].isAppHangTrackingDisabled);
+    XCTAssertTrue(options.isAppHangTrackingDisabled);
 }
 
 - (void)testIsAppHangTrackingDisabled_WhenOnlyAppHangTimeoutIntervalZero
 {
     SentryOptions *options =
         [self getValidOptions:@{ @"enableAppHangTracking" : @YES, @"appHangTimeoutInterval" : @0 }];
-    XCTAssertTrue([options toInternalOptions].isAppHangTrackingDisabled);
+    XCTAssertTrue(options.isAppHangTrackingDisabled);
 }
 #endif // SENTRY_HAS_UIKIT
 

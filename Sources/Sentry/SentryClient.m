@@ -20,8 +20,6 @@
 #import "SentryMsgPackSerializer.h"
 #import "SentryNSDictionarySanitize.h"
 #import "SentryNSError.h"
-#import "SentryOptionsConverter.h"
-#import "SentryOptionsInternal+Private.h"
 #import "SentryPropagationContext.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
@@ -60,9 +58,9 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
 @implementation SentryClientInternal
 
-- (_Nullable instancetype)initWithOptions:(SentryOptionsInternal *)internalOptions
+- (_Nullable instancetype)initWithOptions:(SentryOptionsObjC *)internalOptions
 {
-    SentryOptions *options = [SentryOptionsConverter fromInternal:internalOptions];
+    SentryOptions *options = [internalOptions toOptions];
     NSError *error;
     SentryFileManager *fileManager = [[SentryFileManager alloc]
              initWithOptions:options
@@ -96,7 +94,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                         timezone:[NSCalendar autoupdatingCurrentCalendar].timeZone];
 }
 
-- (instancetype)initWithOptions:(SentryOptionsInternal *)options
+- (instancetype)initWithOptions:(SentryOptionsObjC *)options
                transportAdapter:(SentryTransportAdapter *)transportAdapter
                     fileManager:(SentryFileManager *)fileManager
                 threadInspector:(SentryDefaultThreadInspector *)threadInspector
@@ -119,7 +117,8 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
         // The SDK stores the installationID in a file. The first call requires file IO. To avoid
         // executing this on the main thread, we cache the installationID async here.
-        [SentryInstallation cacheIDAsyncWithCacheDirectoryPath:options.cacheDirectoryPath];
+        [SentryInstallation
+            cacheIDAsyncWithCacheDirectoryPath:[options toOptions].cacheDirectoryPath];
 
         [fileManager deleteOldEnvelopeItems];
     }
@@ -128,10 +127,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
 - (SentryOptions *)options
 {
-    if (self.optionsInternal) {
-        return [SentryOptionsConverter fromInternal:self.optionsInternal];
-    }
-    return NULL;
+    return [self.optionsInternal toOptions];
 }
 
 - (SentryId *)captureMessage:(NSString *)message

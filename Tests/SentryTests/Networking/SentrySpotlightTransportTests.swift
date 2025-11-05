@@ -24,7 +24,7 @@ final class SentrySpotlightTransportTests: XCTestCase {
             options.spotlightUrl = spotlightUrl ?? ""
         }
         
-        return SentrySpotlightTransport(options: options.toInternal(), requestManager: requestManager, requestBuilder: requestBuilder, dispatchQueueWrapper: TestSentryDispatchQueueWrapper())
+        return SentrySpotlightTransport(options: options, requestManager: requestManager, requestBuilder: requestBuilder, dispatchQueueWrapper: TestSentryDispatchQueueWrapper())
     }
     
     private func givenEventEnvelope(withAttachment: Bool = false) throws -> SentryEnvelope {

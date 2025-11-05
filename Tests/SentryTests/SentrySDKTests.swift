@@ -557,11 +557,11 @@ extension SentrySDKTests {
 
     private func givenSdkWithHubButNoClient() {
         SentrySDKInternal.setCurrentHub(SentryHubInternal(client: nil, andScope: nil))
-        SentrySDKInternal.setStart(with: fixture.options.toInternal())
+        SentrySDKInternal.setStart(with: fixture.options)
     }
 
     private func givenSdkWithHub() {
         SentrySDKInternal.setCurrentHub(fixture.hub)
-        SentrySDKInternal.setStart(with: fixture.options.toInternal())
+        SentrySDKInternal.setStart(with: fixture.options)
     }
 }

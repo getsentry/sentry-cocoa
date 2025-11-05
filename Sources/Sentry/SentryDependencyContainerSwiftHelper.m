@@ -1,7 +1,6 @@
 #import "SentryDependencyContainerSwiftHelper.h"
 #import "SentryClient+Private.h"
 #import "SentryHub+Private.h"
-#import "SentryOptionsInternal+Private.h"
 #import "SentrySDK+Private.h"
 #import "SentrySwift.h"
 

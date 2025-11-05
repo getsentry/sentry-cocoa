@@ -5,7 +5,6 @@
 #import "SentryCrashStackEntryMapper.h"
 #include "SentryCrashSymbolicator.h"
 #import "SentryFrame.h"
-#import "SentryOptionsInternal.h"
 #import "SentryStacktrace.h"
 #import "SentryStacktraceBuilder.h"
 #import "SentrySwift.h"
@@ -66,7 +65,7 @@ getStackEntriesFromThread(SentryCrashThread thread, struct SentryCrashMachineCon
     return self;
 }
 
-- (instancetype)initWithOptions:(SentryOptionsInternal *_Nullable)options
+- (instancetype)initWithOptions:(SentryOptions *_Nullable)options
 {
     SentryInAppLogic *inAppLogic =
         [[SentryInAppLogic alloc] initWithInAppIncludes:options.inAppIncludes ?: @[]];

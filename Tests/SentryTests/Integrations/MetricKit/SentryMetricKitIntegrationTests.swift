@@ -52,7 +52,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         if #available(iOS 15, macOS 12, macCatalyst 15, *) {
             let sut = SentryMetricKitIntegration()
             
-            sut.install(with: Options().toInternal())
+            sut.install(with: Options())
             
             XCTAssertNil(Dynamic(sut).metricKitManager as SentryMXManager?)
         }
@@ -64,7 +64,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
             
             let options = Options()
             options.enableMetricKit = true
-            sut.install(with: options.toInternal())
+            sut.install(with: options)
             sut.uninstall()
             
             XCTAssertNil(Dynamic(sut).metricKitManager as SentryMXManager?)
@@ -242,7 +242,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         let options = Options()
         options.enableMetricKit = true
         optionsBlock(options)
-        integration.install(with: options.toInternal())
+        integration.install(with: options)
     }
     
     private func givenSDKWithHubWithScope() {

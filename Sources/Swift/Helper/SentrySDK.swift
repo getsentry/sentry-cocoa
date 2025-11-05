@@ -37,7 +37,7 @@ import Foundation
             }
             let hub = SentrySDKInternal.currentHub()
             var batcher: SentryLogBatcher?
-            if let client = hub.getClient(), client.options.enableLogs {
+            if let client = hub.getClient(), client.optionsInternal.toOptions().enableLogs {
                 batcher = SentryLogBatcher(client: client, dispatchQueue: Dependencies.dispatchQueueWrapper)
             }
             let logger = SentryLogger(

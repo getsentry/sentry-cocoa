@@ -1,4 +1,3 @@
-@_implementationOnly import _SentryPrivate
 import Foundation
 #if os(iOS) && !SENTRY_NO_UIKIT
 import UIKit
@@ -143,17 +142,6 @@ public final class SentryUserFeedbackConfiguration: NSObject {
     let padding: CGFloat = 16
     let spacing: CGFloat = 8
     let margin: CGFloat = 32
-}
-
-extension SentryOptionsInternal {
-    var userFeedbackConfiguration: SentryUserFeedbackConfiguration? {
-        // Note: This property provides SentryUserFeedbackConfiguration type safety for SPM builds where the native Objective-C
-        // property cannot be used due to Swift-to-Objective-C bridging limitations.
-        // swiftlint:disable force_cast
-        get { return value(forKey: "userFeedbackDynamic") as! SentryUserFeedbackConfiguration? }
-        // swiftlint:enable force_cast
-        set { setValue(newValue, forKey: "userFeedbackDynamic") }
-    }
 }
 
 #endif // os(iOS) && !SENTRY_NO_UIKIT

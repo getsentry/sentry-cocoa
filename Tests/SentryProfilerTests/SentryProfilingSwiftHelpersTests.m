@@ -2,7 +2,6 @@
 @import Sentry;
 @import SentryTestUtilsDynamic;
 #import "SentryClient.h"
-#import "SentryOptionsInternal+Private.h"
 #import "SentryProfilingSwiftHelpers.h"
 
 @interface SentryProfilingSwiftHelpersTests : XCTestCase
@@ -14,7 +13,7 @@
 
 - (void)testIsContinuousProfilingEnabled
 {
-    SentryOptionsInternal *options = [[SentryOptionsInternal alloc] init];
+    SentryOptions *options = [[SentryOptions alloc] init];
     options.dsn = @"https://username:password@app.getsentry.com/12345";
     options.profiling = [[SentryProfileOptions alloc] init];
     SentryClientInternal *client = [[SentryClientInternal alloc] initWithOptions:options];
@@ -24,7 +23,7 @@
 
 - (void)testIsProfilingCorrelatedToTraces
 {
-    SentryOptionsInternal *options = [[SentryOptionsInternal alloc] init];
+    SentryOptions *options = [[SentryOptions alloc] init];
     options.dsn = @"https://username:password@app.getsentry.com/12345";
     options.profiling = [[SentryProfileOptions alloc] init];
     options.profiling.lifecycle = SentryProfileLifecycleTrace;
@@ -35,7 +34,7 @@
 
 - (void)testGetProfiling
 {
-    SentryOptionsInternal *options = [[SentryOptionsInternal alloc] init];
+    SentryOptions *options = [[SentryOptions alloc] init];
     options.dsn = @"https://username:password@app.getsentry.com/12345";
     options.profiling = [[SentryProfileOptions alloc] init];
     SentryClientInternal *client = [[SentryClientInternal alloc] initWithOptions:options];
@@ -44,7 +43,7 @@
 
 - (void)testGetProfiling_whenProfilingOptionsIsNil_shouldReturnNil
 {
-    SentryOptionsInternal *options = [[SentryOptionsInternal alloc] init];
+    SentryOptions *options = [[SentryOptions alloc] init];
     options.dsn = @"https://username:password@app.getsentry.com/12345";
     options.profiling = nil;
     SentryClientInternal *client = [[SentryClientInternal alloc] initWithOptions:options];

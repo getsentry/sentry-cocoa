@@ -1,4 +1,3 @@
-@_implementationOnly import _SentryPrivate
 import Foundation
 
 @objcMembers
@@ -31,25 +30,5 @@ public final class SentryExperimentalOptions: NSObject {
     public var enableSessionReplayInUnreliableEnvironment = false
 
     @_spi(Private) public func validateOptions(_ options: [String: Any]?) {
-    }
-}
-
-// This works around `SentryExperimentalOptions` being only forward declared in the objc header.
-extension SentryOptionsInternal {
-
-   /**
-    * This aggregates options for experimental features.
-    * Be aware that the options available for experimental can change at any time.
-    */
-    var experimental: SentryExperimentalOptions {
-        get {
-            // We know the type so it's fine to force cast.
-            // swiftlint:disable force_cast
-            _swiftExperimentalOptions as! SentryExperimentalOptions
-            // swiftlint:enable force_cast
-        }
-        set {
-            _swiftExperimentalOptions = newValue
-        }
     }
 }

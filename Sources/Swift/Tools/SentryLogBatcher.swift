@@ -9,8 +9,8 @@ import Foundation
     private let flushTimeout: TimeInterval
     private let maxBufferSizeBytes: Int
     private let dispatchQueue: SentryDispatchQueueWrapper
-    
-    internal let options: SentryOptionsInternal
+
+    internal let options: Options
 
     // All mutable state is accessed from the same serial dispatch queue.
     
@@ -35,7 +35,7 @@ import Foundation
         dispatchQueue: SentryDispatchQueueWrapper
     ) {
         self.client = client
-        self.options = client.options
+        self.options = client.optionsInternal.toOptions()
         self.flushTimeout = flushTimeout
         self.maxBufferSizeBytes = maxBufferSizeBytes
         self.dispatchQueue = dispatchQueue

@@ -35,7 +35,7 @@ class SentryFramesTrackingIntegrationTests: XCTestCase {
     func testTracesSampleRateSet_MeasuresFrames() {
         let options = fixture.options
         options.tracesSampleRate = 0.1
-        sut.install(with: options.toInternal())
+        sut.install(with: options)
         
         XCTAssertNotNil(Dynamic(sut).tracker.asObject)
     }
@@ -43,14 +43,14 @@ class SentryFramesTrackingIntegrationTests: XCTestCase {
     func testTracesSamplerSet_MeasuresFrames() {
         let options = fixture.options
         options.tracesSampler = { _ in return 0 }
-        sut.install(with: options.toInternal())
+        sut.install(with: options)
         
         XCTAssertNotNil(Dynamic(sut).tracker.asObject)
     }
 
     func testAppHangEnabled_MeasuresFrames() {
         let options = fixture.options
-        sut.install(with: options.toInternal())
+        sut.install(with: options)
 
         XCTAssertNotNil(Dynamic(sut).tracker.asObject)
     }
@@ -59,7 +59,7 @@ class SentryFramesTrackingIntegrationTests: XCTestCase {
         let options = fixture.options
         options.appHangTimeoutInterval = 0.0
         options.enableWatchdogTerminationTracking = false
-        sut.install(with: options.toInternal())
+        sut.install(with: options)
 
         XCTAssertNil(Dynamic(sut).tracker.asObject)
     }
@@ -69,7 +69,7 @@ class SentryFramesTrackingIntegrationTests: XCTestCase {
         options.tracesSampleRate = 0.0
         options.appHangTimeoutInterval = 0.0
         options.enableWatchdogTerminationTracking = false
-        sut.install(with: options.toInternal())
+        sut.install(with: options)
         
         XCTAssertNil(Dynamic(sut).tracker.asObject)
     }
@@ -80,7 +80,7 @@ class SentryFramesTrackingIntegrationTests: XCTestCase {
         options.enableAutoPerformanceTracing = false
         options.enableAppHangTracking = false
         options.enableWatchdogTerminationTracking = false
-        sut.install(with: options.toInternal())
+        sut.install(with: options)
         
         XCTAssertNil(Dynamic(sut).tracker.asObject)
     }
@@ -90,13 +90,13 @@ class SentryFramesTrackingIntegrationTests: XCTestCase {
         
         let options = fixture.options
         options.enableAutoPerformanceTracing = false
-        sut.install(with: options.toInternal())
+        sut.install(with: options)
         
         XCTAssertNotNil(Dynamic(sut).tracker.asObject)
     }
     
     func testUninstall() {
-        sut.install(with: fixture.options.toInternal())
+        sut.install(with: fixture.options)
         
         SentryDependencyContainer.sharedInstance().framesTracker.setDisplayLinkWrapper(fixture.displayLink)
         

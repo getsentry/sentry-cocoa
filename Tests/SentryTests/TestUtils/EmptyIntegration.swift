@@ -1,7 +1,7 @@
 import Foundation
 
 class EmptyIntegration: NSObject, SentryIntegrationProtocol {
-    func install(with options: SentryOptionsInternal) -> Bool {
+    func install(with options: Options) -> Bool {
         return true
     }
     

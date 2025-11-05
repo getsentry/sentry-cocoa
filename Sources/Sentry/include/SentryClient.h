@@ -5,10 +5,10 @@
 #else
 #    import <SentryDefines.h>
 #endif
+#import "SentryOptionsObjC.h"
 
 @class SentryEvent;
 @class SentryFeedback;
-@class SentryOptionsInternal;
 @class SentryOptions;
 @class SentryScope;
 @class SentryId;
@@ -21,7 +21,7 @@ SENTRY_NO_INIT
 
 @property (nonatomic, assign, readonly) BOOL isEnabled;
 
-@property (nonatomic, strong) SentryOptionsInternal *optionsInternal;
+@property (nonatomic, strong) SentryOptionsObjC *optionsInternal;
 
 @property (nonatomic, strong, readonly) SentryOptions *options;
 
@@ -30,7 +30,7 @@ SENTRY_NO_INIT
  * @param options Options dictionary
  * @return An initialized @c SentryClient or @c nil if an error occurred.
  */
-- (_Nullable instancetype)initWithOptions:(SentryOptionsInternal *)options;
+- (_Nullable instancetype)initWithOptions:(SentryOptionsObjC *)options;
 
 /**
  * Captures a manually created event and sends it to Sentry.
@@ -113,7 +113,7 @@ SENTRY_NO_INIT
 - (void)flush:(NSTimeInterval)timeout NS_SWIFT_NAME(flush(timeout:));
 
 /**
- * Disables the client and calls flush with @c SentryOptionsInternal.shutdownTimeInterval .
+ * Disables the client and calls flush with @c SentryOptions.shutdownTimeInterval .
  */
 - (void)close;
 

@@ -92,9 +92,9 @@ class SentrySessionGeneratorTests: NotificationCenterTestCase {
         sentryCrash.internalCrashedLastLaunch = true
         for _ in Array(1...amount.crashed) {
             // send crashed session
-            crashIntegration.install(with: options.toInternal())
+            crashIntegration.install(with: options)
             autoSessionTrackingIntegration.stop()
-            autoSessionTrackingIntegration.install(with: options.toInternal())
+            autoSessionTrackingIntegration.install(with: options)
             goToForeground()
             
             // Almost always the AutoSessionTrackingIntegration is faster
@@ -114,10 +114,10 @@ class SentrySessionGeneratorTests: NotificationCenterTestCase {
         
         for _ in Array(1...amount.oom) {
             // send crashed session
-            crashIntegration.install(with: options.toInternal())
+            crashIntegration.install(with: options)
             
             autoSessionTrackingIntegration.stop()
-            autoSessionTrackingIntegration.install(with: options.toInternal())
+            autoSessionTrackingIntegration.install(with: options)
             goToForeground()
             
             SentrySDKInternal.captureFatalEvent(TestData.oomEvent)
@@ -127,7 +127,7 @@ class SentrySessionGeneratorTests: NotificationCenterTestCase {
         
         for _ in Array(1...amount.abnormal) {
             autoSessionTrackingIntegration.stop()
-            autoSessionTrackingIntegration.install(with: options.toInternal())
+            autoSessionTrackingIntegration.install(with: options)
             goToForeground()
         }
         
@@ -148,10 +148,10 @@ class SentrySessionGeneratorTests: NotificationCenterTestCase {
         SentrySDKInternal.setCurrentHub(hub)
         
         crashIntegration = SentryCrashIntegration(crashAdapter: sentryCrash, andDispatchQueueWrapper: TestSentryDispatchQueueWrapper())
-        crashIntegration.install(with: options.toInternal())
+        crashIntegration.install(with: options)
         
         autoSessionTrackingIntegration = SentryAutoSessionTrackingIntegration()
-        autoSessionTrackingIntegration.install(with: options.toInternal())
+        autoSessionTrackingIntegration.install(with: options)
     }
     
     private func goToForeground(forSeconds: TimeInterval = 0.2) {

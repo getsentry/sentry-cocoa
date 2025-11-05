@@ -1,6 +1,5 @@
 #import "SentryBaseIntegration.h"
 #import "SentryLogC.h"
-#import "SentryOptionsConverter.h"
 #import "SentrySwift.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -148,8 +147,8 @@ NS_ASSUME_NONNULL_BEGIN
 #endif
 #if SENTRY_TARGET_REPLAY_SUPPORTED
     if (integrationOptions & kIntegrationOptionEnableReplay) {
-        SentryReplayOptions *replayOptions = options.sessionReplay;
-        if (replayOptions.onErrorSampleRate == 0 && replayOptions.sessionSampleRate == 0) {
+        if (options.sessionReplay.onErrorSampleRate == 0
+            && options.sessionReplay.sessionSampleRate == 0) {
             [self logWithOptionName:@"sessionReplaySettings"];
             return NO;
         }

@@ -1,4 +1,3 @@
-@testable import Sentry
 import SentryTestUtils
 import XCTest
 
@@ -100,7 +99,7 @@ class SentryTraceContextTests: XCTestCase {
     
     func testInitWithScopeOptions() {
         // Act
-        let traceContext = TraceContext(scope: fixture.scope, options: fixture.options.toInternal())!
+        let traceContext = TraceContext(scope: fixture.scope, options: fixture.options)!
         
         // Assert
         assertTraceState(traceContext: traceContext)
@@ -108,7 +107,7 @@ class SentryTraceContextTests: XCTestCase {
     
     func testInitWithTracerScopeOptions() {
         // Act
-        let traceContext = TraceContext(tracer: fixture.tracer, scope: fixture.scope, options: fixture.options.toInternal())
+        let traceContext = TraceContext(tracer: fixture.tracer, scope: fixture.scope, options: fixture.options)
         
         // Assert
         assertTraceState(traceContext: traceContext!)
@@ -120,7 +119,7 @@ class SentryTraceContextTests: XCTestCase {
         tracer.sampled = .no
         
         // Act
-        let traceContext = TraceContext(tracer: tracer, scope: fixture.scope, options: fixture.options.toInternal())
+        let traceContext = TraceContext(tracer: tracer, scope: fixture.scope, options: fixture.options)
         
         // Assert
         XCTAssertEqual(traceContext?.sampled, "false")
@@ -131,7 +130,7 @@ class SentryTraceContextTests: XCTestCase {
         fixture.scope.span = nil
         
         // Act
-        let traceContext = TraceContext(scope: fixture.scope, options: fixture.options.toInternal())
+        let traceContext = TraceContext(scope: fixture.scope, options: fixture.options)
         
         // Assert
         XCTAssertNil(traceContext)
@@ -145,7 +144,7 @@ class SentryTraceContextTests: XCTestCase {
         let traceId = SentryId()
         
         // Act
-        let traceContext = TraceContext(trace: traceId, options: options.toInternal(), replayId: "replayId")
+        let traceContext = TraceContext(trace: traceId, options: options, replayId: "replayId")
         
         // Assert
         XCTAssertEqual(options.parsedDsn?.url.user, traceContext.publicKey)
@@ -167,7 +166,7 @@ class SentryTraceContextTests: XCTestCase {
         let traceId = SentryId()
 
         // Act
-        let traceContext = TraceContext(trace: traceId, options: options.toInternal(), replayId: nil)
+        let traceContext = TraceContext(trace: traceId, options: options, replayId: nil)
         
         // Assert
         XCTAssertEqual(options.parsedDsn?.url.user, traceContext.publicKey)

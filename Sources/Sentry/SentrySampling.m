@@ -1,12 +1,10 @@
 #import "SentrySampling.h"
 #import "SentryInternalDefines.h"
-#import "SentryOptionsInternal.h"
 #import "SentrySampleDecision.h"
 #import "SentrySamplerDecision.h"
 #import "SentrySamplingContext.h"
 #import "SentrySwift.h"
 #import "SentryTransactionContext.h"
-#import <SentryOptionsInternal+Private.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

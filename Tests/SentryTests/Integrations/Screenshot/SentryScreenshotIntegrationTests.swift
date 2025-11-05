@@ -24,7 +24,7 @@ class SentryScreenshotIntegrationTests: XCTestCase {
         
         func getSut(options: Options = Options()) -> SentryScreenshotIntegration {
             let sut = SentryScreenshotIntegration()
-            sut.install(with: options.toInternal())
+            sut.install(with: options)
             return sut
         }
     }

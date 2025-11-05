@@ -252,7 +252,7 @@ private extension SentryContinuousProfilerTests {
         }
     }
     
-    func performContinuousProfilingTest(expectedEnvironment: String = kSentryDefaultEnvironment) throws {
+    func performContinuousProfilingTest(expectedEnvironment: String = "production") throws {
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
         SentryContinuousProfiler.start()
         XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())

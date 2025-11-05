@@ -1,22 +1,30 @@
 // swiftlint:disable file_length
 @objc(SentryOptions) public final class Options: NSObject {
+    
+    @objc public override init() {
+        super.init()
+        #if os(macOS)
+        if let dsn = ProcessInfo.processInfo.environment["SENTRY_DSN"], dsn.count > 0 {
+            do {
+                self.parsedDsn = try SentryDsn(string: dsn)
+                self.dsn = dsn
+            } catch {
+                self.parsedDsn = nil
+                self.dsn = nil
+            }
+        }
+        #endif
+    }
+    
     /// The DSN tells the SDK where to send the events to. If this value is not provided, the SDK will
     /// not send any events.
-    @objc public var dsn: String? = {
-        #if os(macOS)
-        if let dsn = ProcessInfo.processInfo.environment["SENTRY_DSN"] as? String, dsn.count > 0 {
-            return dsn
-        }
-        #else
-       return nil
-        #endif
-    }() {
+    @objc public var dsn: String? {
         didSet {
-            guard let dsn else { return }
-
             do {
                 self.parsedDsn = try SentryDsn(string: dsn)
             } catch {
+                self.parsedDsn = nil
+                self.dsn = nil
                 SentrySDKLog.error("Could not parse the DSN: \(error)")
             }
         }
@@ -52,7 +60,7 @@
 
     /// Specifies whether this SDK should send events to Sentry. If set to NO events will be
     /// dropped in the client and not sent to Sentry. Default is YES.
-    @objc public var enabled: Bool = true
+    @objc public var enabled = true
 
     /// Controls the flush duration when calling SentrySDK/close.
     @objc public var shutdownTimeInterval: TimeInterval = 2.0
@@ -124,7 +132,7 @@
 
     /// Use this callback to drop or modify a log before the SDK sends it to Sentry. Return nil to
     /// drop the log.
-    @objc public var beforeSendLog: SentryBeforeSendLogCallback?
+    @objc public var beforeSendLog: ((SentryLog) -> SentryLog?)?
 
     /// This block can be used to modify the breadcrumb before it will be serialized and sent.
     @objc public var beforeBreadcrumb: SentryBeforeBreadcrumbCallback?
@@ -168,7 +176,7 @@
             }
         }
         get {
-            _tracesSampleRate
+            _sampleRate
         }
     }
     var _sampleRate: NSNumber? = 1
@@ -357,7 +365,7 @@
             _tracesSampleRate
         }
     }
-    var _tracesSampleRate: NSNumber? = 0
+    var _tracesSampleRate: NSNumber?
 
     /// A callback to a user defined traces sampler function.
     /// @discussion Specifying @c 0 or @c nil discards all trace data, @c 1.0 collects all trace data,
@@ -374,9 +382,8 @@
     }
 
     /// A list of string prefixes of framework names that belong to the app.
-    /// @note This option takes precedence over @c inAppExcludes.
     /// @note By default, this contains @c CFBundleExecutable to mark it as "in-app".
-    @objc public internal(set) var inAppIncludes: [String] = {
+    @objc public private(set) var inAppIncludes: [String] = {
         if let executable = Bundle.main.infoDictionary?["CFBundleExecutable"] as? String {
             return [executable]
         }
@@ -387,18 +394,6 @@
     /// - Parameter inAppInclude: The prefix of the framework name.
     @objc public func add(inAppInclude: String) {
         inAppIncludes.append(inAppInclude)
-    }
-
-    /// A list of string prefixes of framework names that do not belong to the app, but rather to
-    /// third-party frameworks.
-    /// By default, frameworks considered not part of the app will be hidden from stack traces.
-    /// This option can be overridden using inAppIncludes.
-    @objc public internal(set) var inAppExcludes: [String] = []
-
-    /// Adds an item to the list of inAppExcludes.
-    /// - Parameter inAppExclude: The prefix of the framework name.
-    @objc public func add(inAppExclude: String) {
-        inAppExcludes.append(inAppExclude)
     }
 
     /// Set as delegate on the URLSession used for all network data-transfer tasks performed by Sentry.
@@ -438,8 +433,12 @@
     @objc public var configureProfiling: ((SentryProfileOptions) -> Void)? {
         didSet {
             let profiling = SentryProfileOptions()
-            configureProfiling?(profiling)
-            self.profiling = profiling
+            if let configureProfiling {
+                configureProfiling(profiling)
+                self.profiling = profiling
+            } else {
+                self.profiling = nil
+            }
         }
     }
     @_spi(Private) @objc public var profiling: SentryProfileOptions?
@@ -605,7 +604,7 @@
 
     /// The Spotlight URL. Defaults to http://localhost:8969/stream. For more information see
     /// https://spotlightjs.com/
-    @objc public var spotlightUrl = "https://spotlightjs.com/"
+    @objc public var spotlightUrl = "http://localhost:8969/stream"
 
     @objc public var experimental = SentryExperimentalOptions()
     
@@ -630,6 +629,24 @@
 extension NSNumber {
     func isValidSampleRate() -> Bool {
         doubleValue >= 0 && doubleValue <= 1.0
+    }
+}
+
+// The following two extensions provide helpers for objc code
+// to work with SentryOptions. Since ObjC headers can't use the
+// Swift type we need to type erase it there, and rely on a runtime
+// cast rather than a compile type check. These extensions implement
+// the runtime casting.
+extension NSObject {
+    @_spi(Private) @objc public func toOptions() -> Options {
+        // swiftlint:disable force_cast
+        return self as! Options
+        // swiftlint:enable force_cast
+    }
+}
+extension Options {
+    @_spi(Private) @objc public func toInternal() -> NSObject {
+        self
     }
 }
 

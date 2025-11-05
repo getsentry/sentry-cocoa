@@ -1,4 +1,4 @@
-#if __has_include(<Sentry/SentryOptionsInternal.h>)
+#if __has_include(<Sentry/SentryProfilingConditionals.h>)
 #    import <Sentry/SentryProfilingConditionals.h>
 #else
 #    import "SentryProfilingConditionals.h"
@@ -14,7 +14,6 @@
 @class SentryEnvelope;
 @class SentryFeedback;
 @class SentryOptions;
-@class SentryOptionsInternal;
 @class SentryId;
 @class SentryHubInternal;
 
@@ -50,7 +49,7 @@ NS_ASSUME_NONNULL_BEGIN
  * The option used to start the SDK
  */
 @property (nonatomic, nullable, readonly, class) SentryOptions *options;
-@property (nonatomic, nullable, readonly, class) SentryOptionsInternal *optionsInternal;
+@property (nonatomic, nullable, readonly, class) SentryOptionsObjC *optionsInternal;
 
 /**
  * Needed by hybrid SDKs as react-native to synchronously store an envelope to disk.

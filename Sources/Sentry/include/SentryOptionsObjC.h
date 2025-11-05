@@ -1,0 +1,1 @@
+@compatibility_alias SentryOptionsObjC NSObject;

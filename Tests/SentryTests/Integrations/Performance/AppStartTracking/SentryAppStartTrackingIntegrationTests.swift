@@ -52,14 +52,14 @@ class SentryAppStartTrackingIntegrationTests: NotificationCenterTestCase {
     }
     
     func testAppStartMeasuringEnabledAndSampleRate_properlySetupTracker() throws {
-        sut.install(with: fixture.options.toInternal())
+        sut.install(with: fixture.options)
 
         let tracker = try XCTUnwrap(Dynamic(sut).tracker.asObject as? SentryAppStartTracker, "SentryAppStartTrackingIntegration should have a tracker")
         try assertTrackerSetupAndRunning(tracker)
     }
 
     func testUnistall_stopsTracker() throws {
-        sut.install(with: fixture.options.toInternal())
+        sut.install(with: fixture.options)
 
         let tracker = try XCTUnwrap(Dynamic(sut).tracker.asObject as? SentryAppStartTracker, "SentryAppStartTrackingIntegration should have a tracker")
         try assertTrackerSetupAndRunning(tracker)
@@ -73,7 +73,7 @@ class SentryAppStartTrackingIntegrationTests: NotificationCenterTestCase {
         let options = fixture.options
         options.tracesSampleRate = 0.0
         options.tracesSampler = nil
-        sut.install(with: options.toInternal())
+        sut.install(with: options)
 
         let tracker = Dynamic(sut).tracker.asAnyObject as? SentryAppStartTracker
         XCTAssertNil(tracker)
@@ -85,7 +85,7 @@ class SentryAppStartTrackingIntegrationTests: NotificationCenterTestCase {
         let options = fixture.options
         options.tracesSampleRate = 0.0
         options.tracesSampler = nil
-        sut.install(with: options.toInternal())
+        sut.install(with: options)
         
         let tracker = try XCTUnwrap(Dynamic(sut).tracker.asObject as? SentryAppStartTracker, "SentryAppStartTrackingIntegration should have a tracker")
         try assertTrackerSetupAndRunning(tracker)
@@ -95,7 +95,7 @@ class SentryAppStartTrackingIntegrationTests: NotificationCenterTestCase {
         let options = fixture.options
         options.tracesSampleRate = 0.0
         options.tracesSampler = nil
-        sut.install(with: options.toInternal())
+        sut.install(with: options)
         
         let tracker = Dynamic(sut).tracker.asAnyObject as? SentryAppStartTracker
         XCTAssertNil(tracker)
@@ -104,7 +104,7 @@ class SentryAppStartTrackingIntegrationTests: NotificationCenterTestCase {
     func testAutoPerformanceTrackingDisabled_noTracker() {
         let options = fixture.options
         options.enableAutoPerformanceTracing = false
-        sut.install(with: options.toInternal())
+        sut.install(with: options)
         
         let tracker = Dynamic(sut).tracker.asAnyObject as? SentryAppStartTracker
         XCTAssertNil(tracker)
@@ -113,7 +113,7 @@ class SentryAppStartTrackingIntegrationTests: NotificationCenterTestCase {
     func test_PerformanceTrackingDisabled() {
         let options = fixture.options
         options.enableAutoPerformanceTracing = false
-        let result = sut.install(with: options.toInternal())
+        let result = sut.install(with: options)
         
         XCTAssertFalse(result)
     }

@@ -4,7 +4,6 @@
 #import "SentryDsn.h"
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"
-#import "SentryOptionsInternal+Private.h"
 #import "SentrySampleDecision.h"
 #import "SentryScope+Private.h"
 #import "SentryScope+PrivateSwift.h"

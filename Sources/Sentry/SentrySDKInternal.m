@@ -15,8 +15,6 @@
 #import "SentryLogC.h"
 #import "SentryMeta.h"
 #import "SentryNetworkTrackingIntegration.h"
-#import "SentryOptionsConverter.h"
-#import "SentryOptionsInternal+Private.h"
 #import "SentryProfilingConditionals.h"
 #import "SentryReplayApi.h"
 #import "SentrySamplerDecision.h"
@@ -118,13 +116,9 @@ static NSDate *_Nullable startTimestamp = nil;
         return startOption;
     }
 }
-+ (nullable SentryOptionsInternal *)optionsInternal
++ (nullable SentryOptionsObjC *)optionsInternal
 {
-    SentryOptions *internal = [SentrySDKInternal options];
-    if (internal) {
-        return [SentryOptionsConverter toInternal:internal];
-    }
-    return NULL;
+    return [SentrySDKInternal options];
 }
 #if SENTRY_TARGET_REPLAY_SUPPORTED
 + (SentryReplayApi *)replay
@@ -226,11 +220,11 @@ static NSDate *_Nullable startTimestamp = nil;
     startTimestamp = value;
 }
 
-+ (void)startWithOptions:(SentryOptionsInternal *)internalOptions
++ (void)startWithOptions:(SentryOptionsObjC *)internalOptions
 {
     // We save the options before checking for Xcode preview because
     // we will use this options in the preview
-    SentryOptions *options = [SentryOptionsConverter fromInternal:internalOptions];
+    SentryOptions *options = [internalOptions toOptions];
     startOption = options;
     if ([SentryDependencyContainer.sharedInstance.processInfoWrapper
                 .environment[SENTRY_XCODE_PREVIEW_ENVIRONMENT_KEY] isEqualToString:@"1"]) {

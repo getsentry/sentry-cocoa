@@ -1,5 +1,6 @@
 #import "SentryDefines.h"
 
+@class SentryOptions;
 @class SentryCrashWrapper;
 @class SentryDispatchQueueWrapper;
 @class SentryThreadWrapper;

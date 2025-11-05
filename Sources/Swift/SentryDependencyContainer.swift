@@ -227,7 +227,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     }
     private var _crashReporter: SentryCrashSwift?
     @objc public lazy var crashReporter = getLazyVar(\._crashReporter) {
-        SentryCrashSwift(with: SentrySDKInternal.options?.cacheDirectoryPath)
+        SentryCrashSwift(with: SentrySDKInternal.optionsInternal?.toOptions().cacheDirectoryPath)
     }
     
     private var anrTracker: SentryANRTracker?

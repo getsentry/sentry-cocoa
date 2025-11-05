@@ -11,6 +11,7 @@ framework module Sentry {
         header "SentryAppStartMeasurement.h"
         header "SentryBreadcrumb+Private.h"
         header "SentryFormatter.h"
+        header "SentryOptionsInternal.h"
         header "SentrySwizzle.h"
         header "SentryUser+Private.h"
 

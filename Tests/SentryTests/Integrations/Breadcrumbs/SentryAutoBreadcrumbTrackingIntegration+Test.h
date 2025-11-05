@@ -3,12 +3,12 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @class SentryBreadcrumbTracker;
-@class SentryOptionsInternal;
+@class SentryOptions;
 @class SentrySystemEventBreadcrumbs;
 
 @interface SentryAutoBreadcrumbTrackingIntegration (Test)
 
-- (void)installWithOptions:(nonnull SentryOptionsInternal *)options
+- (void)installWithOptions:(nonnull SentryOptions *)options
          breadcrumbTracker:(SentryBreadcrumbTracker *)breadcrumbTracker
 #if TARGET_OS_IOS && SENTRY_HAS_UIKIT
     systemEventBreadcrumbs:(SentrySystemEventBreadcrumbs *)systemEventBreadcrumbs

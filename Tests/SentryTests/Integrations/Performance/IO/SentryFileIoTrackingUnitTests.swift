@@ -1,4 +1,4 @@
-@testable import Sentry
+import Sentry
 import XCTest
 
 class SentryFileIoTrackingUnitTests: XCTestCase {
@@ -7,7 +7,7 @@ class SentryFileIoTrackingUnitTests: XCTestCase {
         let options = Options()
         options.enableFileIOTracing = false
         let sut = SentryFileIOTrackingIntegration()
-        let result = sut.install(with: options.toInternal())
+        let result = sut.install(with: options)
         
         XCTAssertFalse(result)
     }

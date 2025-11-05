@@ -8,7 +8,6 @@
 #import "SentryEvent.h"
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"
-#import "SentryOptionsInternal.h"
 #import "SentrySerialization.h"
 #import "SentrySwift.h"
 
@@ -102,10 +101,11 @@ _non_thread_safe_removeFileAtPath(NSString *path)
 
 @implementation SentryFileManagerHelper
 
-- (nullable instancetype)initWithOptions:(SentryOptionsInternal *_Nullable)options
+- (nullable instancetype)initWithOptions:(SentryOptionsObjC *_Nullable)optionsInternal
                                    error:(NSError **)error
 {
     if (self = [super init]) {
+        SentryOptions *options = [optionsInternal toOptions];
         [self createPathsWithOptions:options];
 
         // Remove old cached events for versions before 6.0.0
@@ -128,7 +128,7 @@ _non_thread_safe_removeFileAtPath(NSString *path)
     return self;
 }
 
-- (void)createPathsWithOptions:(SentryOptionsInternal *_Nullable)options
+- (void)createPathsWithOptions:(SentryOptions *_Nullable)options
 {
     NSString *cachePath = options.cacheDirectoryPath;
 

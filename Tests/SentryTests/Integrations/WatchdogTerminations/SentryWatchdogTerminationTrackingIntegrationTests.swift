@@ -52,7 +52,7 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
             SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = dispatchQueueWrapper
             SentryDependencyContainer.sharedInstance().notificationCenterWrapper = notificationCenterWrapper
             appStateManager = SentryAppStateManager(
-                options: options.toInternal(),
+                options: options,
                 crashWrapper: crashWrapper,
                 fileManager: fileManager,
                 sysctlWrapper: SentryDependencyContainer.sharedInstance().sysctlWrapper
@@ -67,7 +67,7 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
             )
             container.watchdogTerminationAttributesProcessor = watchdogTerminationAttributesProcessor
 
-            let client = TestClient(options: options.toInternal())
+            let client = TestClient(options: options)
             scope = Scope()
             hub = SentryHubInternal(client: client, andScope: scope, andCrashWrapper: crashWrapper, andDispatchQueue: dispatchQueueWrapper)
             SentrySDKInternal.setCurrentHub(hub)
@@ -123,7 +123,7 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         let sut = fixture.getSut()
 
         // -- Act --
-        let result = sut.install(with: fixture.options.toInternal())
+        let result = sut.install(with: fixture.options)
 
         // -- Assert --
         XCTAssertFalse(result)
@@ -138,7 +138,7 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         let sut = fixture.getSut()
 
         // -- Act --
-        let result = sut.install(with: fixture.options.toInternal())
+        let result = sut.install(with: fixture.options)
 
         // -- Assert --
         XCTAssertFalse(result)
@@ -153,7 +153,7 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         let sut = fixture.getSut()
 
         // -- Act --
-        let result = sut.install(with: fixture.options.toInternal())
+        let result = sut.install(with: fixture.options)
 
         // -- Assert --
         XCTAssertFalse(result)
@@ -162,7 +162,7 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
     func testInstallWithOptions_whenNoUnitTests_trackerInitialized() {
         let sut = SentryWatchdogTerminationTrackingIntegration()
         Dynamic(sut).setTestConfigurationFilePath(nil)
-        sut.install(with: Options().toInternal())
+        sut.install(with: Options())
 
         XCTAssertNotNil(Dynamic(sut).tracker.asAnyObject)
     }
@@ -181,7 +181,7 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         XCTAssertEqual(fixture.watchdogTerminationAttributesProcessor.setFingerprintInvocations.count, 0)
 
         // -- Act --
-        sut.install(with: fixture.options.toInternal())
+        sut.install(with: fixture.options)
         XCTAssertEqual(fixture.watchdogTerminationAttributesProcessor.setContextInvocations.count, 1)
         XCTAssertEqual(fixture.watchdogTerminationAttributesProcessor.setUserInvocations.count, 1)
         XCTAssertEqual(fixture.watchdogTerminationAttributesProcessor.setDistInvocations.count, 1)
@@ -243,7 +243,7 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         XCTAssertEqual(fixture.watchdogTerminationAttributesProcessor.setFingerprintInvocations.count, 0)
 
         // -- Act --
-        sut.install(with: fixture.options.toInternal())
+        sut.install(with: fixture.options)
 
         // -- Assert --
         // As the instance of the scope observer is dynamically created by the dependency container,
@@ -271,7 +271,7 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         // -- Arrange --
         fixture.crashWrapper.internalIsBeingTraced = false
         let sut = fixture.getSut()
-        sut.install(with: Options().toInternal())
+        sut.install(with: Options())
 
         // -- Act --
         Dynamic(sut).anrDetectedWithType(SentryANRType.unknown)
@@ -285,7 +285,7 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         // -- Arrange --
         fixture.crashWrapper.internalIsBeingTraced = false
         let sut = fixture.getSut()
-        sut.install(with: Options().toInternal())
+        sut.install(with: Options())
 
         // -- Act --
         Dynamic(sut).anrStopped()

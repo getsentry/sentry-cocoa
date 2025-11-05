@@ -3,4 +3,3 @@
 #import "SentryExposure.h"
 #import <Sentry/PrivateSentrySDKOnly.h>
 #import <Sentry/SentryDsn+Private.h>
-#import <Sentry/SentryOptionsInternal+Private.h>

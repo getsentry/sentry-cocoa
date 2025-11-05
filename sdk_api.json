@@ -16804,43 +16804,6 @@
       },
       {
         "kind": "TypeAlias",
-        "name": "SentryBeforeSendLogCallback",
-        "printedName": "SentryBeforeSendLogCallback",
-        "children": [
-          {
-            "kind": "TypeFunc",
-            "name": "Function",
-            "printedName": "(Sentry.SentryLog) -> Sentry.SentryLog?",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Optional",
-                "printedName": "Sentry.SentryLog?",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "SentryLog",
-                    "printedName": "Sentry.SentryLog",
-                    "usr": "c:@M@Sentry@objc(cs)SentryLog"
-                  }
-                ],
-                "usr": "s:Sq"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "SentryLog",
-                "printedName": "Sentry.SentryLog",
-                "usr": "c:@M@Sentry@objc(cs)SentryLog"
-              }
-            ]
-          }
-        ],
-        "declKind": "TypeAlias",
-        "usr": "c:@T@SentryBeforeSendLogCallback",
-        "moduleName": "Sentry"
-      },
-      {
-        "kind": "TypeAlias",
         "name": "SentryBeforeSendSpanCallback",
         "printedName": "SentryBeforeSendSpanCallback",
         "children": [
@@ -16942,9 +16905,17 @@
               },
               {
                 "kind": "TypeNominal",
-                "name": "String",
-                "printedName": "Swift.String",
-                "usr": "s:SS"
+                "name": "Optional",
+                "printedName": "Swift.String?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "usr": "s:Sq"
               }
             ],
             "declKind": "Constructor",
@@ -35690,44 +35661,6 @@
         ]
       },
       {
-        "kind": "TypeAlias",
-        "name": "SentryBeforeSendLogCallback",
-        "printedName": "SentryBeforeSendLogCallback",
-        "children": [
-          {
-            "kind": "TypeFunc",
-            "name": "Function",
-            "printedName": "(Sentry.SentryLog) -> Sentry.SentryLog?",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Optional",
-                "printedName": "Sentry.SentryLog?",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "SentryLog",
-                    "printedName": "Sentry.SentryLog",
-                    "usr": "c:@M@Sentry@objc(cs)SentryLog"
-                  }
-                ],
-                "usr": "s:Sq"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "SentryLog",
-                "printedName": "Sentry.SentryLog",
-                "usr": "c:@M@Sentry@objc(cs)SentryLog"
-              }
-            ]
-          }
-        ],
-        "declKind": "TypeAlias",
-        "usr": "s:6Sentry0A21BeforeSendLogCallbacka",
-        "mangledName": "$s6Sentry0A21BeforeSendLogCallbacka",
-        "moduleName": "Sentry"
-      },
-      {
         "kind": "TypeDecl",
         "name": "SentryReplayOptions",
         "printedName": "SentryReplayOptions",
@@ -44646,6 +44579,31 @@
         "printedName": "Options",
         "children": [
           {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init()",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Options",
+                "printedName": "Sentry.Options",
+                "usr": "c:@M@Sentry@objc(cs)SentryOptions"
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "c:@M@Sentry@objc(cs)SentryOptions(im)init",
+            "mangledName": "$s6Sentry7OptionsCACycfc",
+            "moduleName": "Sentry",
+            "overriding": true,
+            "objc_name": "init",
+            "declAttributes": [
+              "ObjC",
+              "Dynamic",
+              "Override"
+            ],
+            "init_kind": "Designated"
+          },
+          {
             "kind": "Var",
             "name": "dsn",
             "printedName": "dsn",
@@ -44670,12 +44628,9 @@
             "mangledName": "$s6Sentry7OptionsC3dsnSSSgvp",
             "moduleName": "Sentry",
             "declAttributes": [
-              "HasInitialValue",
               "Final",
-              "ObjC",
-              "HasStorage"
+              "ObjC"
             ],
-            "hasStorage": true,
             "accessors": [
               {
                 "kind": "Accessor",
@@ -44701,7 +44656,6 @@
                 "usr": "c:@M@Sentry@objc(cs)SentryOptions(im)dsn",
                 "mangledName": "$s6Sentry7OptionsC3dsnSSSgvg",
                 "moduleName": "Sentry",
-                "implicit": true,
                 "declAttributes": [
                   "Final",
                   "ObjC"
@@ -44737,7 +44691,7 @@
                 "usr": "c:@M@Sentry@objc(cs)SentryOptions(im)setDsn:",
                 "mangledName": "$s6Sentry7OptionsC3dsnSSSgvs",
                 "moduleName": "Sentry",
-                "implicit": true,
+                "objc_name": "setDsn:",
                 "declAttributes": [
                   "Final",
                   "ObjC"
@@ -46263,39 +46217,32 @@
               {
                 "kind": "TypeNominal",
                 "name": "Optional",
-                "printedName": "Sentry.SentryBeforeSendLogCallback?",
+                "printedName": "((Sentry.SentryLog) -> Sentry.SentryLog?)?",
                 "children": [
                   {
-                    "kind": "TypeNameAlias",
-                    "name": "SentryBeforeSendLogCallback",
-                    "printedName": "Sentry.SentryBeforeSendLogCallback",
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(Sentry.SentryLog) -> Sentry.SentryLog?",
                     "children": [
                       {
-                        "kind": "TypeFunc",
-                        "name": "Function",
-                        "printedName": "(Sentry.SentryLog) -> Sentry.SentryLog?",
+                        "kind": "TypeNominal",
+                        "name": "Optional",
+                        "printedName": "Sentry.SentryLog?",
                         "children": [
-                          {
-                            "kind": "TypeNominal",
-                            "name": "Optional",
-                            "printedName": "Sentry.SentryLog?",
-                            "children": [
-                              {
-                                "kind": "TypeNominal",
-                                "name": "SentryLog",
-                                "printedName": "Sentry.SentryLog",
-                                "usr": "c:@M@Sentry@objc(cs)SentryLog"
-                              }
-                            ],
-                            "usr": "s:Sq"
-                          },
                           {
                             "kind": "TypeNominal",
                             "name": "SentryLog",
                             "printedName": "Sentry.SentryLog",
                             "usr": "c:@M@Sentry@objc(cs)SentryLog"
                           }
-                        ]
+                        ],
+                        "usr": "s:Sq"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SentryLog",
+                        "printedName": "Sentry.SentryLog",
+                        "usr": "c:@M@Sentry@objc(cs)SentryLog"
                       }
                     ]
                   }
@@ -46323,39 +46270,32 @@
                   {
                     "kind": "TypeNominal",
                     "name": "Optional",
-                    "printedName": "Sentry.SentryBeforeSendLogCallback?",
+                    "printedName": "((Sentry.SentryLog) -> Sentry.SentryLog?)?",
                     "children": [
                       {
-                        "kind": "TypeNameAlias",
-                        "name": "SentryBeforeSendLogCallback",
-                        "printedName": "Sentry.SentryBeforeSendLogCallback",
+                        "kind": "TypeFunc",
+                        "name": "Function",
+                        "printedName": "(Sentry.SentryLog) -> Sentry.SentryLog?",
                         "children": [
                           {
-                            "kind": "TypeFunc",
-                            "name": "Function",
-                            "printedName": "(Sentry.SentryLog) -> Sentry.SentryLog?",
+                            "kind": "TypeNominal",
+                            "name": "Optional",
+                            "printedName": "Sentry.SentryLog?",
                             "children": [
-                              {
-                                "kind": "TypeNominal",
-                                "name": "Optional",
-                                "printedName": "Sentry.SentryLog?",
-                                "children": [
-                                  {
-                                    "kind": "TypeNominal",
-                                    "name": "SentryLog",
-                                    "printedName": "Sentry.SentryLog",
-                                    "usr": "c:@M@Sentry@objc(cs)SentryLog"
-                                  }
-                                ],
-                                "usr": "s:Sq"
-                              },
                               {
                                 "kind": "TypeNominal",
                                 "name": "SentryLog",
                                 "printedName": "Sentry.SentryLog",
                                 "usr": "c:@M@Sentry@objc(cs)SentryLog"
                               }
-                            ]
+                            ],
+                            "usr": "s:Sq"
+                          },
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SentryLog",
+                            "printedName": "Sentry.SentryLog",
+                            "usr": "c:@M@Sentry@objc(cs)SentryLog"
                           }
                         ]
                       }
@@ -46387,39 +46327,32 @@
                   {
                     "kind": "TypeNominal",
                     "name": "Optional",
-                    "printedName": "Sentry.SentryBeforeSendLogCallback?",
+                    "printedName": "((Sentry.SentryLog) -> Sentry.SentryLog?)?",
                     "children": [
                       {
-                        "kind": "TypeNameAlias",
-                        "name": "SentryBeforeSendLogCallback",
-                        "printedName": "Sentry.SentryBeforeSendLogCallback",
+                        "kind": "TypeFunc",
+                        "name": "Function",
+                        "printedName": "(Sentry.SentryLog) -> Sentry.SentryLog?",
                         "children": [
                           {
-                            "kind": "TypeFunc",
-                            "name": "Function",
-                            "printedName": "(Sentry.SentryLog) -> Sentry.SentryLog?",
+                            "kind": "TypeNominal",
+                            "name": "Optional",
+                            "printedName": "Sentry.SentryLog?",
                             "children": [
-                              {
-                                "kind": "TypeNominal",
-                                "name": "Optional",
-                                "printedName": "Sentry.SentryLog?",
-                                "children": [
-                                  {
-                                    "kind": "TypeNominal",
-                                    "name": "SentryLog",
-                                    "printedName": "Sentry.SentryLog",
-                                    "usr": "c:@M@Sentry@objc(cs)SentryLog"
-                                  }
-                                ],
-                                "usr": "s:Sq"
-                              },
                               {
                                 "kind": "TypeNominal",
                                 "name": "SentryLog",
                                 "printedName": "Sentry.SentryLog",
                                 "usr": "c:@M@Sentry@objc(cs)SentryLog"
                               }
-                            ]
+                            ],
+                            "usr": "s:Sq"
+                          },
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SentryLog",
+                            "printedName": "Sentry.SentryLog",
+                            "usr": "c:@M@Sentry@objc(cs)SentryLog"
                           }
                         ]
                       }
@@ -47151,12 +47084,9 @@
             "mangledName": "$s6Sentry7OptionsC10sampleRateSo8NSNumberCSgvp",
             "moduleName": "Sentry",
             "declAttributes": [
-              "HasInitialValue",
               "Final",
-              "ObjC",
-              "HasStorage"
+              "ObjC"
             ],
-            "hasStorage": true,
             "accessors": [
               {
                 "kind": "Accessor",
@@ -47182,7 +47112,6 @@
                 "usr": "c:@M@Sentry@objc(cs)SentryOptions(im)sampleRate",
                 "mangledName": "$s6Sentry7OptionsC10sampleRateSo8NSNumberCSgvg",
                 "moduleName": "Sentry",
-                "implicit": true,
                 "declAttributes": [
                   "Final",
                   "ObjC"
@@ -47218,7 +47147,7 @@
                 "usr": "c:@M@Sentry@objc(cs)SentryOptions(im)setSampleRate:",
                 "mangledName": "$s6Sentry7OptionsC10sampleRateSo8NSNumberCSgvs",
                 "moduleName": "Sentry",
-                "implicit": true,
+                "objc_name": "setSampleRate:",
                 "declAttributes": [
                   "Final",
                   "ObjC"
@@ -49115,12 +49044,9 @@
             "mangledName": "$s6Sentry7OptionsC16tracesSampleRateSo8NSNumberCSgvp",
             "moduleName": "Sentry",
             "declAttributes": [
-              "HasInitialValue",
               "Final",
-              "ObjC",
-              "HasStorage"
+              "ObjC"
             ],
-            "hasStorage": true,
             "accessors": [
               {
                 "kind": "Accessor",
@@ -49146,7 +49072,6 @@
                 "usr": "c:@M@Sentry@objc(cs)SentryOptions(im)tracesSampleRate",
                 "mangledName": "$s6Sentry7OptionsC16tracesSampleRateSo8NSNumberCSgvg",
                 "moduleName": "Sentry",
-                "implicit": true,
                 "declAttributes": [
                   "Final",
                   "ObjC"
@@ -49182,7 +49107,7 @@
                 "usr": "c:@M@Sentry@objc(cs)SentryOptions(im)setTracesSampleRate:",
                 "mangledName": "$s6Sentry7OptionsC16tracesSampleRateSo8NSNumberCSgvs",
                 "moduleName": "Sentry",
-                "implicit": true,
+                "objc_name": "setTracesSampleRate:",
                 "declAttributes": [
                   "Final",
                   "ObjC"
@@ -49504,95 +49429,6 @@
             "mangledName": "$s6Sentry7OptionsC3add12inAppIncludeySS_tF",
             "moduleName": "Sentry",
             "objc_name": "addInAppInclude:",
-            "declAttributes": [
-              "Final",
-              "ObjC"
-            ],
-            "funcSelfKind": "NonMutating"
-          },
-          {
-            "kind": "Var",
-            "name": "inAppExcludes",
-            "printedName": "inAppExcludes",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Array",
-                "printedName": "[Swift.String]",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "String",
-                    "printedName": "Swift.String",
-                    "usr": "s:SS"
-                  }
-                ],
-                "usr": "s:Sa"
-              }
-            ],
-            "declKind": "Var",
-            "usr": "c:@M@Sentry@objc(cs)SentryOptions(py)inAppExcludes",
-            "mangledName": "$s6Sentry7OptionsC13inAppExcludesSaySSGvp",
-            "moduleName": "Sentry",
-            "declAttributes": [
-              "Final",
-              "ObjC"
-            ],
-            "accessors": [
-              {
-                "kind": "Accessor",
-                "name": "Get",
-                "printedName": "Get()",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Array",
-                    "printedName": "[Swift.String]",
-                    "children": [
-                      {
-                        "kind": "TypeNominal",
-                        "name": "String",
-                        "printedName": "Swift.String",
-                        "usr": "s:SS"
-                      }
-                    ],
-                    "usr": "s:Sa"
-                  }
-                ],
-                "declKind": "Accessor",
-                "usr": "c:@M@Sentry@objc(cs)SentryOptions(im)inAppExcludes",
-                "mangledName": "$s6Sentry7OptionsC13inAppExcludesSaySSGvg",
-                "moduleName": "Sentry",
-                "declAttributes": [
-                  "Final",
-                  "ObjC"
-                ],
-                "accessorKind": "get"
-              }
-            ]
-          },
-          {
-            "kind": "Function",
-            "name": "add",
-            "printedName": "add(inAppExclude:)",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Void",
-                "printedName": "()"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "String",
-                "printedName": "Swift.String",
-                "usr": "s:SS"
-              }
-            ],
-            "declKind": "Func",
-            "usr": "c:@M@Sentry@objc(cs)SentryOptions(im)addInAppExclude:",
-            "mangledName": "$s6Sentry7OptionsC3add12inAppExcludeySS_tF",
-            "moduleName": "Sentry",
-            "objc_name": "addInAppExclude:",
             "declAttributes": [
               "Final",
               "ObjC"
@@ -50090,12 +49926,9 @@
             "mangledName": "$s6Sentry7OptionsC18configureProfilingyAA0a7ProfileB0CcSgvp",
             "moduleName": "Sentry",
             "declAttributes": [
-              "HasInitialValue",
               "Final",
-              "ObjC",
-              "HasStorage"
+              "ObjC"
             ],
-            "hasStorage": true,
             "accessors": [
               {
                 "kind": "Accessor",
@@ -50140,7 +49973,6 @@
                 "usr": "c:@M@Sentry@objc(cs)SentryOptions(im)configureProfiling",
                 "mangledName": "$s6Sentry7OptionsC18configureProfilingyAA0a7ProfileB0CcSgvg",
                 "moduleName": "Sentry",
-                "implicit": true,
                 "declAttributes": [
                   "Final",
                   "ObjC"
@@ -50195,7 +50027,7 @@
                 "usr": "c:@M@Sentry@objc(cs)SentryOptions(im)setConfigureProfiling:",
                 "mangledName": "$s6Sentry7OptionsC18configureProfilingyAA0a7ProfileB0CcSgvs",
                 "moduleName": "Sentry",
-                "implicit": true,
+                "objc_name": "setConfigureProfiling:",
                 "declAttributes": [
                   "Final",
                   "ObjC"
@@ -50609,10 +50441,8 @@
             "moduleName": "Sentry",
             "declAttributes": [
               "Final",
-              "ObjC",
-              "HasStorage"
+              "ObjC"
             ],
-            "hasStorage": true,
             "accessors": [
               {
                 "kind": "Accessor",
@@ -50637,7 +50467,6 @@
                 "usr": "c:@M@Sentry@objc(cs)SentryOptions(im)tracePropagationTargets",
                 "mangledName": "$s6Sentry7OptionsC23tracePropagationTargetsSayypGvg",
                 "moduleName": "Sentry",
-                "implicit": true,
                 "declAttributes": [
                   "Final",
                   "ObjC"
@@ -50672,7 +50501,7 @@
                 "usr": "c:@M@Sentry@objc(cs)SentryOptions(im)setTracePropagationTargets:",
                 "mangledName": "$s6Sentry7OptionsC23tracePropagationTargetsSayypGvs",
                 "moduleName": "Sentry",
-                "implicit": true,
+                "objc_name": "setTracePropagationTargets:",
                 "declAttributes": [
                   "Final",
                   "ObjC"
@@ -50882,10 +50711,8 @@
             "moduleName": "Sentry",
             "declAttributes": [
               "Final",
-              "ObjC",
-              "HasStorage"
+              "ObjC"
             ],
-            "hasStorage": true,
             "accessors": [
               {
                 "kind": "Accessor",
@@ -50910,7 +50737,6 @@
                 "usr": "c:@M@Sentry@objc(cs)SentryOptions(im)failedRequestTargets",
                 "mangledName": "$s6Sentry7OptionsC20failedRequestTargetsSayypGvg",
                 "moduleName": "Sentry",
-                "implicit": true,
                 "declAttributes": [
                   "Final",
                   "ObjC"
@@ -50945,7 +50771,7 @@
                 "usr": "c:@M@Sentry@objc(cs)SentryOptions(im)setFailedRequestTargets:",
                 "mangledName": "$s6Sentry7OptionsC20failedRequestTargetsSayypGvs",
                 "moduleName": "Sentry",
-                "implicit": true,
+                "objc_name": "setFailedRequestTargets:",
                 "declAttributes": [
                   "Final",
                   "ObjC"
@@ -51352,10 +51178,8 @@
             "moduleName": "Sentry",
             "declAttributes": [
               "Final",
-              "ObjC",
-              "HasStorage"
+              "ObjC"
             ],
-            "hasStorage": true,
             "accessors": [
               {
                 "kind": "Accessor",
@@ -51373,7 +51197,6 @@
                 "usr": "c:@M@Sentry@objc(cs)SentryOptions(im)enableSpotlight",
                 "mangledName": "$s6Sentry7OptionsC15enableSpotlightSbvg",
                 "moduleName": "Sentry",
-                "implicit": true,
                 "declAttributes": [
                   "Final",
                   "ObjC"
@@ -51401,7 +51224,7 @@
                 "usr": "c:@M@Sentry@objc(cs)SentryOptions(im)setEnableSpotlight:",
                 "mangledName": "$s6Sentry7OptionsC15enableSpotlightSbvs",
                 "moduleName": "Sentry",
-                "implicit": true,
+                "objc_name": "setEnableSpotlight:",
                 "declAttributes": [
                   "Final",
                   "ObjC"
@@ -51716,31 +51539,6 @@
                 "accessorKind": "set"
               }
             ]
-          },
-          {
-            "kind": "Constructor",
-            "name": "init",
-            "printedName": "init()",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Options",
-                "printedName": "Sentry.Options",
-                "usr": "c:@M@Sentry@objc(cs)SentryOptions"
-              }
-            ],
-            "declKind": "Constructor",
-            "usr": "c:@M@Sentry@objc(cs)SentryOptions(im)init",
-            "mangledName": "$s6Sentry7OptionsCACycfc",
-            "moduleName": "Sentry",
-            "overriding": true,
-            "objc_name": "init",
-            "declAttributes": [
-              "ObjC",
-              "Dynamic",
-              "Override"
-            ],
-            "init_kind": "Designated"
           }
         ],
         "declKind": "Class",

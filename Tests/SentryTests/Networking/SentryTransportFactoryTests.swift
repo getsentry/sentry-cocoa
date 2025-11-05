@@ -27,7 +27,7 @@ class SentryTransportFactoryTests: XCTestCase {
 
         // -- Act --
         let transports = TransportInitializer.initTransports(
-            options.toInternal(),
+            options,
             dateProvider: dateProvider,
             sentryFileManager: fileManager,
             rateLimits: rateLimiting()
@@ -67,7 +67,7 @@ class SentryTransportFactoryTests: XCTestCase {
 
         // -- Act --
         let transports = TransportInitializer.initTransports(
-            options.toInternal(),
+            options,
             dateProvider: dateProvider,
             sentryFileManager: fileManager,
             rateLimits: rateLimiting()
@@ -96,7 +96,7 @@ class SentryTransportFactoryTests: XCTestCase {
 
         // -- Act --
         let transports = TransportInitializer.initTransports(
-            options.toInternal(),
+            options,
             dateProvider: dateProvider,
             sentryFileManager: try SentryFileManager(
                 options: options,
@@ -126,7 +126,7 @@ class SentryTransportFactoryTests: XCTestCase {
 
         // -- Act --
         let transports = TransportInitializer.initTransports(
-            options.toInternal(),
+            options,
             dateProvider: dateProvider,
             sentryFileManager: try SentryFileManager(
                 options: options,
@@ -150,7 +150,7 @@ class SentryTransportFactoryTests: XCTestCase {
 
         // -- Act --
         let transports = TransportInitializer.initTransports(
-            options.toInternal(),
+            options,
             dateProvider: dateProvider,
             sentryFileManager: try SentryFileManager(
                 options: options,

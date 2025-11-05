@@ -1,4 +1,3 @@
-@testable import Sentry
 @_spi(Private) import SentryTestUtils
 import XCTest
 
@@ -33,7 +32,7 @@ extension SentryAppLaunchProfilingTests {
         XCTAssertFalse(appLaunchProfileConfigFileExists())
 
         // Act
-        sentry_sdkInitProfilerTasks(options.toInternal(), TestHub(client: nil, andScope: nil))
+        sentry_sdkInitProfilerTasks(options, TestHub(client: nil, andScope: nil))
 
         // Assert
         XCTAssert(appLaunchProfileConfigFileExists())
@@ -64,7 +63,7 @@ extension SentryAppLaunchProfilingTests {
         XCTAssertFalse(appLaunchProfileConfigFileExists())
 
         // Act
-        sentry_sdkInitProfilerTasks(options.toInternal(), TestHub(client: nil, andScope: nil))
+        sentry_sdkInitProfilerTasks(options, TestHub(client: nil, andScope: nil))
 
         // Assert
         XCTAssert(appLaunchProfileConfigFileExists())
@@ -94,8 +93,8 @@ extension SentryAppLaunchProfilingTests {
             $0.sessionSampleRate = 1
             $0.lifecycle = .trace
         }
-        sentry_configureContinuousProfiling(fixture.options.toInternal())
-        sentry_configureLaunchProfilingForNextLaunch(fixture.options.toInternal())
+        sentry_configureContinuousProfiling(fixture.options)
+        sentry_configureLaunchProfilingForNextLaunch(fixture.options)
 
         // Act
         _sentry_nondeduplicated_startLaunchProfile()
@@ -125,8 +124,8 @@ extension SentryAppLaunchProfilingTests {
             $0.sessionSampleRate = 1
             $0.lifecycle = .manual
         }
-        sentry_configureContinuousProfiling(fixture.options.toInternal())
-        sentry_configureLaunchProfilingForNextLaunch(fixture.options.toInternal())
+        sentry_configureContinuousProfiling(fixture.options)
+        sentry_configureLaunchProfilingForNextLaunch(fixture.options)
 
         // Act
         _sentry_nondeduplicated_startLaunchProfile()
@@ -157,8 +156,8 @@ extension SentryAppLaunchProfilingTests {
             $0.sessionSampleRate = 1
             $0.lifecycle = .trace
         }
-        sentry_configureContinuousProfiling(fixture.options.toInternal())
-        sentry_configureLaunchProfilingForNextLaunch(fixture.options.toInternal())
+        sentry_configureContinuousProfiling(fixture.options)
+        sentry_configureLaunchProfilingForNextLaunch(fixture.options)
 
         // Act
         _sentry_nondeduplicated_startLaunchProfile()
@@ -187,8 +186,8 @@ extension SentryAppLaunchProfilingTests {
             $0.sessionSampleRate = 1
             $0.lifecycle = .manual
         }
-        sentry_configureContinuousProfiling(fixture.options.toInternal())
-        sentry_configureLaunchProfilingForNextLaunch(fixture.options.toInternal())
+        sentry_configureContinuousProfiling(fixture.options)
+        sentry_configureLaunchProfilingForNextLaunch(fixture.options)
 
         // Act
         _sentry_nondeduplicated_startLaunchProfile()

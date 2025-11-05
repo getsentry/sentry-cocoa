@@ -1,7 +1,6 @@
 #import "SentryUseNSExceptionCallstackWrapper.h"
 #import "SentryCrashStackEntryMapper.h"
 #import "SentryCrashSymbolicator.h"
-#import "SentryOptionsInternal+Private.h"
 #import "SentrySDK+Private.h"
 #import "SentryStacktraceBuilder.h"
 #import "SentrySwift.h"
@@ -58,7 +57,7 @@
 
 - (SentryCrashStackEntryMapper *)buildCrashStackToEntryMapper
 {
-    SentryOptionsInternal *options = SentrySDKInternal.options;
+    SentryOptions *options = SentrySDKInternal.options;
 
     SentryInAppLogic *inAppLogic =
         [[SentryInAppLogic alloc] initWithInAppIncludes:options.inAppIncludes];

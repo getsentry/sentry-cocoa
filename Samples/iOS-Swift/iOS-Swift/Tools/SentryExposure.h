@@ -2,7 +2,7 @@
 #import <Sentry/SentryScope.h>
 #import <UIKit/UIKit.h>
 
-@class SentryOptionsInternal;
+@class SentryOptions;
 
 NS_ASSUME_NONNULL_BEGIN
 
