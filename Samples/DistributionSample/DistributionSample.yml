@@ -7,8 +7,11 @@ configs:
 options:
   bundleIdPrefix: io.sentry.sample.
 packages:
+  # Use the local SentryDistribution package instead of the repo root manifest so the sample
+  # depends only on the checked-in sources and does not try to fetch unreleased binary artifacts
+  # during release builds.
   Sentry:
-    path: ../../
+    path: ../../Sources/SentryDistribution
 targets:
   DistributionSample:
     type: application
