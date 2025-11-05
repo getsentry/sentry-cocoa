@@ -43,12 +43,12 @@ jobs:
     name: Fast Unit Tests (iOS 18)
     if: needs.files-changed.outputs.run_unit_tests_for_prs == 'true'
     needs: files-changed
-    uses: ./.github/workflows/build-xcframework-variant-slices.yml
+    uses: ./.github/workflows/unit-test-common.yml
     with:
       name: iOS 18 Sentry
       runs-on: macos-15
       timeout: 20
-      should_skip: ${{needs.files-changed.outputs.run_unit_tests_for_prs == 'true'}}
+      should_skip: ${{needs.files-changed.outputs.run_unit_tests_for_prs != 'true'}}
       xcode: "16.4"
       test-destination-os: "18.4"
       platform: iOS
