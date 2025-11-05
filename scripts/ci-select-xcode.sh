@@ -15,7 +15,7 @@ XCODE_VERSION="${1}"
 
 # We prefer this over calling `sudo xcode-select` because it will fail if the Xcode version
 # is not installed. Also xcodes is preinstalled on the GH runners.
-sudo xcodes select "$XCODE_VERSION"
+xcodes select "$XCODE_VERSION"
 swiftc --version
 
 
@@ -28,7 +28,7 @@ begin_group "List Available Simulators"
 
 start_time=$(date +%s)
 
-sudo xcrun simctl list
+xcrun simctl list
 
 end_time=$(date +%s)
 xcrun_simctl_list_duration=$((end_time - start_time))
