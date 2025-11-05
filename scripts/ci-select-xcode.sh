@@ -28,7 +28,7 @@ begin_group "List Available Simulators"
 
 start_time=$(date +%s)
 
-xcrun simctl list
+sudo xcrun simctl list
 
 end_time=$(date +%s)
 xcrun_simctl_list_duration=$((end_time - start_time))
