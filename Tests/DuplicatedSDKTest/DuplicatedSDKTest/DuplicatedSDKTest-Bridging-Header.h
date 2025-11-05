@@ -4,7 +4,7 @@
 // Added to run integration tests, do not attempt this in your app
 @interface SentryHubInternal : NSObject
 
-@property (nonatomic, strong) NSMutableArray<id<SentryIntegrationProtocol>> *installedIntegrations;
+@property (nonatomic, strong) NSMutableArray<NSObject *> *installedIntegrations;
 
 @end
 
@@ -16,6 +16,6 @@
 
 @interface SentryHub (DuplicatedSDKTest)
 
-@property (nonatomic, strong) NSMutableArray<id<SentryIntegrationProtocol>> *installedIntegrations;
+@property (nonatomic, strong) NSMutableArray<NSObject *> *installedIntegrations;
 
 @end

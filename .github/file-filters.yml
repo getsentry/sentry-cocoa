@@ -24,6 +24,7 @@ run_unit_tests_for_prs: &run_unit_tests_for_prs
   - "Tests/**"
   - "SentryTestUtils/**"
   - "SentryTestUtilsDynamic/**"
+  - "SentryTestUtilsTests/**"
 
   # GH Actions
   - ".github/workflows/test.yml"
