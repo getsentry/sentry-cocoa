@@ -61,6 +61,11 @@ final class SentryLogHandlerTests: XCTestCase {
     
     // MARK: - Basic Logging Tests
     
+    func testDefaultInit() {
+        let sut = SentryLogHandler(logLevel: .info)
+        XCTAssertNotNil(sut) // Init with SDK logger completes error free
+    }
+    
     func testLog_WithInfoLevel() {
         sut.log(level: .info, message: "Test info message", metadata: nil, source: "test", file: "TestFile.swift", function: "testFunction", line: 42)
         
@@ -478,12 +483,15 @@ final class SentryLogHandlerTests: XCTestCase {
     
     func testMetadataSubscript() {
         XCTAssertNil(sut.metadata["test_key"])
+        XCTAssertNil(sut[metadataKey: "test_key"])
         
         sut.metadata["test_key"] = "test_value"
         XCTAssertEqual(sut.metadata["test_key"], .string("test_value"))
+        XCTAssertEqual(sut[metadataKey: "test_key"], .string("test_value"))
         
         sut.metadata["test_key"] = nil
         XCTAssertNil(sut.metadata["test_key"])
+        XCTAssertNil(sut[metadataKey: "test_key"])
     }
     
     // MARK: - Helper Methods
