@@ -217,11 +217,21 @@ jobs:
 
   unit-tests:
     name: Unit ${{matrix.name}}
-    runs-on: ${{matrix.runs-on}}
-    timeout-minutes: ${{ matrix.timeout || 20 }}
     needs: files-changed
-    if: needs.files-changed.outputs.run_unit_tests_for_prs == 'true'
-
+    uses: ./.github/workflows/unit-test-common.yml
+    secrets: inherit
+    with:
+      name: ${{matrix.name}}
+      runs-on: ${{matrix.runs-on}}
+      should_skip: ${{needs.files-changed.outputs.run_unit_tests_for_prs != 'true'}}
+      xcode: ${{matrix.xcode}}
+      platform: ${{matrix.platform}}
+      test-destination-os: ${{matrix.test-destination-os || 'latest'}}
+      timeout: ${{matrix.timeout || 20}}
+      create_device: ${{matrix.create_device || false}}
+      install_platforms: ${{matrix.install_platforms || false}}
+      device: ${{matrix.device || ''}}
+      scheme: ${{matrix.scheme || 'Sentry'}}
     strategy:
       fail-fast: false
       matrix:
@@ -358,172 +368,6 @@ jobs:
             create_device: true
             device: "Apple TV"
             scheme: "Sentry"
-
-    steps:
-      - uses: actions/checkout@v5
-      - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
-
-      - name: Install Slather
-        run: gem install slather
-
-      # Install platform runtimes that are not included by default
-      # For iOS 16.4: Not included with Xcode 15.4 on macOS-14 (macOS-13 sunset)
-      # For iOS/tvOS 26.1: Beta platforms not included by default
-      - name: Install required platforms
-        if: ${{ matrix.install_platforms }}
-        run: ./scripts/ci-install-platforms.sh --platforms "${{ matrix.platform }}" --os-version "${{ matrix.test-destination-os }}"
-
-      # Create simulator devices for non-preinstalled simulators
-      # Required for iOS 16.4, iOS 17.5 (on Xcode 15.4), and iOS/tvOS 26.1
-      - name: Create simulator device
-        if: ${{ matrix.create_device }}
-        run: ./scripts/ci-create-simulator.sh --platform "${{ matrix.platform }}" --os-version "${{ matrix.test-destination-os }}" --device-name "${{ matrix.device }}"
-
-      # Boot created simulators to ensure they're ready before tests run
-      # Based on CircleCI forum comment, booting is especially important for Xcode 26: https://discuss.circleci.com/t/xcode-26-rc/54066/18
-      - name: Boot simulator
-        if: ${{ matrix.create_device && matrix.platform == 'iOS' }}
-        run: ./scripts/ci-boot-simulator.sh --xcode ${{ matrix.xcode }} --device "${{ matrix.device }}" --os-version "${{ matrix.test-destination-os }}"
-
-      # We split building and running tests in two steps so we know how long running the tests takes.
-      - name: Build Tests
-        id: build_tests
-        run: |
-          ./scripts/sentry-xcodebuild.sh \
-            --platform ${{matrix.platform}} \
-            --os ${{matrix.test-destination-os}} \
-            --ref ${{ github.ref_name }} \
-            --command build-for-testing \
-            --device "${{matrix.device}}" \
-            --configuration TestCI \
-            --scheme ${{matrix.scheme}}
-
-      # Run Flaky Tests TestPlan which has a retry mechanism on failure.
-      # We intentionally run these before the other test plan to fail early.
-      # Use a separate result bundle name to avoid conflicts with the regular test run.
-      # xcodebuild fails if a result bundle already exists at the target path.
-      - name: Run Flaky Tests
-        # Only the Sentry Scheme has the Flaky TestPlan.
-        if: ${{ matrix.scheme == 'Sentry' }}
-        run: |
-          ./scripts/sentry-xcodebuild.sh \
-            --platform ${{matrix.platform}} \
-            --os ${{matrix.test-destination-os}} \
-            --ref ${{ github.ref_name }} \
-            --command test-without-building \
-            --device "${{matrix.device}}" \
-            --configuration TestCI \
-            --scheme ${{matrix.scheme}} \
-            --test-plan Sentry_Flaky \
-            --result-bundle flaky-results.xcresult
-
-      - name: Run tests
-        # We call a script with the platform so the destination
-        # passed to xcodebuild doesn't end up in the job name,
-        # because GitHub Actions don't provide an easy way of
-        # manipulating string in expressions.
-        run: |
-          ./scripts/sentry-xcodebuild.sh \
-            --platform ${{matrix.platform}} \
-            --os ${{matrix.test-destination-os}} \
-            --ref ${{ github.ref_name }} \
-            --command test-without-building \
-            --device "${{matrix.device}}" \
-            --configuration TestCI \
-            --scheme ${{matrix.scheme}} \
-            --result-bundle results.xcresult
-
-      - name: Publish Test Report
-        uses: mikepenz/action-junit-report@e08919a3b1fb83a78393dfb775a9c37f17d8eea6 # v6.0.1
-        if: always()
-        with:
-          report_paths: "build/reports/junit.xml"
-          fail_on_failure: true
-          fail_on_parse_error: true
-          detailed_summary: true
-
-      - name: Archiving DerivedData Logs
-        uses: actions/upload-artifact@v5
-        if: steps.build_tests.outcome == 'failure'
-        with:
-          name: derived-data-${{matrix.platform}}-xcode-${{matrix.xcode}}-os-${{matrix.test-destination-os}}
-          path: |
-            /Users/runner/Library/Developer/Xcode/DerivedData/**/Logs/**
-
-      - name: Archiving Raw Logs
-        uses: actions/upload-artifact@v5
-        if: ${{ failure() || cancelled() }}
-        with:
-          name: raw-output-${{matrix.platform}}-xcode-${{matrix.xcode}}-os-${{matrix.test-destination-os}}
-          path: |
-            raw-build-output.log
-            raw-build-for-testing-output.log
-            raw-test-output.log
-
-      - name: Archiving Crash Logs
-        uses: actions/upload-artifact@v5
-        if: ${{ failure() || cancelled() }}
-        with:
-          name: crash-logs-${{matrix.platform}}-xcode-${{matrix.xcode}}-os-${{matrix.test-destination-os}}
-          path: |
-            ~/Library/Logs/DiagnosticReports/**
-
-      - name: Archiving Test Results
-        uses: actions/upload-artifact@v5
-        if: ${{ failure() || cancelled() }}
-        with:
-          name: result-bundle-${{matrix.platform}}-xcode-${{matrix.xcode}}-os-${{matrix.test-destination-os}}
-          path: |
-            results.xcresult
-            flaky-results.xcresult
-
-      - name: Gather code coverage information via slather
-        run: slather coverage --configuration TestCI --scheme Sentry
-
-      # We can upload all coverage reports, because codecov merges them.
-      # See https://docs.codecov.io/docs/merging-reports
-      # Checkout .codecov.yml to see the config of Codecov
-      # We don't upload codecov for release branches, as we don't want a failing coverage check to block a release.
-      # We don't upload codecov for scheduled runs as CodeCov only accepts a limited amount of uploads per commit.
-      - name: Push code coverage to codecov
-        id: codecov_1
-        uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # pin@v5.5.1
-        if: ${{ contains(matrix.platform, 'iOS') && !contains(github.ref, 'release') && github.event.schedule == '' }}
-        with:
-          # Although public repos should not have to specify a token there seems to be a bug with the Codecov GH action, which can
-          # be solved by specifying the token, see https://github.com/codecov/codecov-action/issues/557#issuecomment-1224970469
-          token: ${{ secrets.CODECOV_TOKEN }}
-          fail_ci_if_error: false
-          verbose: true
-
-      # Sometimes codecov uploads etc can fail. Retry one time to rule out e.g. intermittent network failures.
-      - name: Push code coverage to codecov
-        id: codecov_2
-        uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # pin@v5.5.1
-        if: ${{ steps.codecov_1.outcome == 'failure' && contains(matrix.platform, 'iOS') && !contains(github.ref, 'release') && github.event.schedule == '' }}
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          fail_ci_if_error: true
-          verbose: true
-
-      - name: Codecov test analytics
-        if: ${{ !cancelled() && !contains(github.ref, 'release') && github.event.schedule == '' }}
-        uses: codecov/test-results-action@47f89e9acb64b76debcd5ea40642d25a4adced9f # pin@v1.1.1
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          verbose: true
-          name: sentry-cocoa-unit-tests
-          flags: unittests-${{ matrix.platform }}-${{ matrix.xcode }}-${{ matrix.test-destination-os }}, unittests
-
-      - name: Run CI Diagnostics
-        if: failure()
-        run: ./scripts/ci-diagnostics.sh
-
-      - name: Store screenshot
-        uses: ./.github/actions/capture-screenshot
-        if: failure()
-        with:
-          suffix: unit-tests-${{ matrix.platform }}-xcode-${{ matrix.xcode }}-os-${{ matrix.test-destination-os }}
 
   # This check validates that either all unit tests passed or were skipped, which allows us
   # to make unit tests a required check with only running the unit tests when required.
