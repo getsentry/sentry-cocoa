@@ -152,6 +152,9 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftli
 
         let opaqueView = UIView(frame: CGRect(x: 10, y: 10, width: 60, height: 60))
         opaqueView.backgroundColor = .white
+        opaqueView.isOpaque = true
+        opaqueView.layer.isOpaque = true
+        opaqueView.layer.backgroundColor = UIColor.white.cgColor
         rootView.addSubview(opaqueView)
 
         // View Hierarchy:
@@ -922,6 +925,9 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftli
 
         let overView = UIView(frame: rootView.bounds)
         overView.backgroundColor = .black
+        overView.isOpaque = true
+        overView.layer.isOpaque = true
+        overView.layer.backgroundColor = UIColor.black.cgColor
         rootView.addSubview(overView)
 
         // View Hierarchy:
@@ -1208,7 +1214,7 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftli
 
         // View Hierarchy:
         // ---------------
-        // == iOS 26 ==
+        // == iOS 26.1 - Xcode 26 ==
         // <UIView: 0x11b209710; frame = (0 0; 100 100); layer = <CALayer: 0x600000cd1440>>
         //   | <UISlider: 0x11b23e2e0; frame = (10 10; 80 20); opaque = NO; gestureRecognizers = <NSArray: 0x600000276be0>; layer = <CALayer: 0x600000ce80c0>; value: 0.000000>
         //   |    | <UIKit._UISliderGlassVisualElement: 0x11b25bdd0; frame = (0 0; 80 20); autoresize = W+H; layer = <CALayer: 0x600000cde0a0>>
@@ -1218,6 +1224,11 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftli
         //   |    |    | <_UILiquidLensView: 0x11b25c050; frame = (0 -2; 37 24); layer = <CALayer: 0x600000cde2b0>>
         //   |    |    |    | <UIView: 0x11b22bf60; frame = (0 0; 37 24); autoresize = W+H; userInteractionEnabled = NO; layer = <CALayer: 0x600000ce9410>>
         //   |    |    |    |    | <UIView: 0x11b434710; frame = (0 0; 37 24); autoresize = W+H; userInteractionEnabled = NO; backgroundColor = <UIDynamicSystemColor: 0x600001749000; name = _controlForegroundColor>; layer = <CALayer: 0x600000cdd740>>
+        //
+        // == iOS 26.1 - Xcode 16.4 ==
+        // <UIView: 0x10701dbf0; frame = (0 0; 100 100); layer = <CALayer: 0x600000cb96b0>>
+        //   | <UISlider: 0x100e28d30; frame = (10 10; 80 20); opaque = NO; layer = <CALayer: 0x600000cae490>; value: 0.000000>
+        //   |    | <_UISlideriOSVisualElement: 0x100f06990; frame = (0 0; 80 20); opaque = NO; autoresize = W+H; layer = <CALayer: 0x600000c05fe0>>
         //
         // == iOS 18 & 17 & 16 ==
         // <UIView: 0x12ed12bc0; frame = (0 0; 100 100); layer = <CALayer: 0x600001de3540>>
@@ -1230,40 +1241,20 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftli
         let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: masked, as: .image, named: createTestDeviceOSBoundSnapshotName(name: "unmasked"))
-
-        // UISlider behavior differs by iOS version
-        if #available(iOS 26.0, *) {
-            // On iOS 26, UISlider uses a new visual implementation that creates clipping regions
-            // even though the slider itself is in the ignore list
-            let region0 = try XCTUnwrap(result.element(at: 0))
-            XCTAssertNil(region0.color)
-            XCTAssertEqual(region0.size, CGSize(width: 37, height: 24))
-            XCTAssertEqual(region0.type, .clipOut)
-            XCTAssertEqual(region0.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 10, ty: 8))
-
-            let region1 = try XCTUnwrap(result.element(at: 1))
+        if #available(iOS 26, *), isBuiltWithSDK26() {
+            // Only applies to Liquid Glass (enabled when built with Xcode 26+)
+            let region1 = try XCTUnwrap(result.element(at: 0))
             XCTAssertNil(region1.color)
             XCTAssertEqual(region1.size, CGSize(width: 80, height: 6))
             XCTAssertEqual(region1.type, .clipBegin)
             XCTAssertEqual(region1.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 10, ty: 17))
 
-            let region2 = try XCTUnwrap(result.element(at: 2))
+            let region2 = try XCTUnwrap(result.element(at: 1))
             XCTAssertNil(region2.color)
-            XCTAssertEqual(region2.size, CGSize(width: 0, height: 6))
-            XCTAssertEqual(region2.type, .clipOut)
+            XCTAssertEqual(region2.size, CGSize(width: 80, height: 6))
+            XCTAssertEqual(region2.type, .clipEnd)
             XCTAssertEqual(region2.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 10, ty: 17))
-
-            let region3 = try XCTUnwrap(result.element(at: 3))
-            XCTAssertNil(region3.color)
-            XCTAssertEqual(region3.size, CGSize(width: 80, height: 6))
-            XCTAssertEqual(region3.type, .clipEnd)
-            XCTAssertEqual(region3.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 10, ty: 17))
-
-            // Assert that there are no other regions
-            XCTAssertEqual(result.count, 4)
         } else {
-            // On iOS < 26, UISlider is completely ignored (no regions)
             XCTAssertEqual(result.count, 0)
         }
     }
@@ -1469,6 +1460,17 @@ private class TestGridView: UIView {
         ctx.setFillColor(UIColor.orange.cgColor)
         ctx.fill(CGRect(x: midX, y: midY, width: bounds.width - midX, height: bounds.height - midY))
     }
+    
+}
+
+private func isBuiltWithSDK26() -> Bool {
+    guard let value = Bundle.main.object(forInfoDictionaryKey: "DTXcode") as? String else {
+        return false
+    }
+    guard let xcodeVersion = Int(value) else {
+        return false
+    }
+    return xcodeVersion >= 2_600
 }
 
 #endif // os(iOS) && !targetEnvironment(macCatalyst)

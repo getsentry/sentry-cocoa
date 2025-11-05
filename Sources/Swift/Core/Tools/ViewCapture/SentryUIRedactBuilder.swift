@@ -618,9 +618,58 @@ final class SentryUIRedactBuilder {
     }
     
     /// Indicates whether the view is opaque and will block other views behind it.
+    ///
+    /// A view is considered opaque if it completely covers and hides any content behind it.
+    /// This is used to optimize redaction by clearing out regions that are fully covered.
+    ///
+    /// The method checks multiple properties because UIKit views can become transparent in several ways:
+    /// - `view.alpha` (mapped to `layer.opacity`) can make the entire view semi-transparent
+    /// - `view.backgroundColor` or `layer.backgroundColor` can have alpha components
+    /// - Either the view or layer can explicitly set their `isOpaque` property to false
+    ///
+    /// ## Implementation Notes:
+    /// - We use the presentation layer when available to get the actual rendered state during animations
+    /// - We require BOTH the view and the layer to appear opaque (alpha == 1 and marked opaque)
+    ///   to classify a view as opaque. This avoids false positives where only one side is configured,
+    ///   which previously caused semi‑transparent overlays or partially configured views to clear
+    ///   redactions behind them.
+    /// - We use `SentryRedactViewHelper.shouldClipOut(view)` for views explicitly marked as opaque
+    ///
+    /// ## Bug Fix Context:
+    /// This implementation fixes the issue where semi-transparent overlays (e.g., with `alpha = 0.2`)
+    /// were incorrectly treated as opaque, causing text behind them to not be redacted.
+    /// See: https://github.com/getsentry/sentry-cocoa/pull/6629#issuecomment-3479730690
     private func isOpaque(_ view: UIView) -> Bool {
         let layer = view.layer.presentation() ?? view.layer
-        return SentryRedactViewHelper.shouldClipOut(view) || (layer.opacity == 1 && view.backgroundColor != nil && (view.backgroundColor?.cgColor.alpha ?? 0) == 1)
+
+        // Allow explicit override: if a view is marked to clip out, treat it as opaque
+        if SentryRedactViewHelper.shouldClipOut(view) {
+            return true
+        }
+
+        // First check: Ensure the layer opacity is 1.0
+        // This catches views with `alpha < 1.0`, which are semi-transparent regardless of background color.
+        // For example, a view with `alpha = 0.2` should never be considered opaque, even if it has
+        // a solid background color, because the entire view (including the background) is semi-transparent.
+        guard layer.opacity == 1 else {
+            return false
+        }
+
+        // Second check: Verify the view has an opaque background color
+        // We check the view's properties first because this is the most common pattern in UIKit.
+        let isViewOpaque = view.isOpaque && view.backgroundColor != nil && (view.backgroundColor?.cgColor.alpha ?? 0) == 1
+
+        // Third check: Verify the layer has an opaque background color
+        // We also check the layer's properties because:
+        // - Some views customize their CALayer directly without setting view.backgroundColor
+        // - Libraries or custom views might override backgroundColor to return different values
+        // - The layer's backgroundColor is the actual rendered property (view.backgroundColor is a convenience)
+        let isLayerOpaque = layer.isOpaque && layer.backgroundColor != nil && (layer.backgroundColor?.alpha ?? 0) == 1
+
+        // We REQUIRE BOTH: the view AND the layer must be opaque for the view to be treated as opaque.
+        // This stricter rule prevents semi‑transparent overlays or partially configured backgrounds
+        // (only view or only layer) from clearing previously collected redact regions.
+        return isViewOpaque && isLayerOpaque
     }
 }
 
