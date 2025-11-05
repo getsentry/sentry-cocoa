@@ -1351,7 +1351,7 @@ private func isBuiltWithSDK26() -> Bool {
     guard let xcodeVersion = Int(value) else {
         return false
     }
-    return xcodeVersion >= 2600
+    return xcodeVersion >= 2_600
 }
 
 #endif // os(iOS) && !targetEnvironment(macCatalyst)
