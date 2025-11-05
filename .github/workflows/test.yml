@@ -222,15 +222,15 @@ jobs:
     with:
       name: ${{matrix.name}}
       runs-on: ${{matrix.runs-on}}
-      timeout: ${{matrix.timeout}}
       should_skip: ${{needs.files-changed.outputs.run_unit_tests_for_prs != 'true'}}
       xcode: ${{matrix.xcode}}
-      test-destination-os: ${{matrix.test-destination-os}}
       platform: ${{matrix.platform}}
-      create_device: ${{matrix.create_device}}
-      install_platforms: ${{matrix.install_platforms}}
-      device: ${{matrix.device}}
-      scheme: ${{matrix.scheme}}
+      test-destination-os: ${{matrix.test-destination-os || 'latest'}}
+      timeout: ${{matrix.timeout || 20}}
+      create_device: ${{matrix.create_device || false}}
+      install_platforms: ${{matrix.install_platforms || false}}
+      device: ${{matrix.device || ''}}
+      scheme: ${{matrix.scheme || 'Sentry'}}
     strategy:
       fail-fast: false
       matrix:
