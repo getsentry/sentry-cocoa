@@ -1,12 +1,9 @@
 # Changelog
 
-## 8.57.1
+## Unreleased
 
 ### Fixes
 
-- Fix crash from accessing UITouch instances from background thread in SentryTouchTracker (#6584)
-- Disable SessionSentryReplayIntegration if the environment is unsafe [#6573]
-- Fix crash when last replay info is missing some keys [#6577]
 - Fix rendering method for fast view rendering (#6360)
 - Session Replay masking improvements (#6292)
   - Fix SwiftUI.List background decoration view causing incorrect clipping of screen content
@@ -21,6 +18,14 @@
 - Change Session Replay masking to prevent semi‑transparent full‑screen overlays from clearing redactions by making opaque clipping stricter (#6629)
   Views now need to be fully opaque (view and layer backgrounds with alpha == 1) and report opaque to qualify for clip‑out.
   This avoids leaks at the cost of fewer clip‑out optimizations.
+
+## 8.57.1
+
+### Fixes
+
+- Fix crash from accessing UITouch instances from background thread in SentryTouchTracker (#6584)
+- Disable SessionSentryReplayIntegration if the environment is unsafe [#6573]
+- Fix crash when last replay info is missing some keys [#6577]
 
 ## 8.57.0
 
