@@ -13,10 +13,12 @@
 - Remove legacy profiling, the only supported profiling is now what was known as continuous V2 (#6386)
 - Removes deprecated useSpan function (#5591)
 - Makes app hang tracking V2 the default and removes the option to enable/disable it (#5615)
+- Removes initializers for SentryTraceContext from the public API (#6662)
 - Removes `integrations` property from `SentryOptions` (#5749)
 - Removes `defaultIntegrations` function from `SentryOptions` (#6664)
 - Makes `SentryEventDecodable` internal (#5808)
 - The `span` property on `SentryScope` is now readonly (#5866)
+- Removes `SentryIntegrationProtocol` from the API. This is not used after the removal of the `integrations` property (#6660)
 - Removes deprecated SentryDebugImageProvider class (#5598)
 - Properties on SentryOptions that had no effect on the WithoutUIKit variant are now removed from the API (#6644)
 - Removes segment property on SentryUser, SentryBaggage, and SentryTraceContext (#5638)
@@ -35,6 +37,7 @@
 - The precompiled XCFramework is now built with Xcode 16. To submit to the App Store, [Apple now requires Xcode 16](https://developer.apple.com/news/upcoming-requirements/?id=02212025a).
   If you need a precompiled XCFramework built with Xcode 15, continue using Sentry SDK 8.x.x.
 - Set `SentryException.type` to `nil` when `NSException` has no `reason` (#6653). The backend then can provide a proper message when there is no reason.
+- Rename `SentryLog.Level` and `SentryLog.Attribute` for ObjC (#6666)
 
 ### Features
 
@@ -45,6 +48,7 @@
   This option is still disabled by default and will be enabled in a future major release.
 - Move `enableDataSwizzling` from experimental options to top-level options (#6592). This option remains enabled by default.
 - Add `sentry.replay_id` attribute to logs ([#6515](https://github.com/getsentry/sentry-cocoa/pull/6515))
+- Structured Logs: Add `SentrySwiftLog` Integration (#6286)
 
 ### Fixes
 
@@ -64,10 +68,14 @@
   - Fix axis-aligned transform detection for optimized opaque view clipping
 - Rename `SentryMechanismMeta` to `SentryMechanismContext` to resolve Kotlin Multi-Platform build errors (#6607)
 - Fix conversion of frame rate to time interval for session replay (#6623)
+- Change Session Replay masking to prevent semi‑transparent full‑screen overlays from clearing redactions by making opaque clipping stricter (#6629)
+  Views now need to be fully opaque (view and layer backgrounds with alpha == 1) and report opaque to qualify for clip‑out.
+  This avoids leaks at the cost of fewer clip‑out optimizations.
 
 ### Improvements
 
 - Replace deprecated SCNetworkReachability with NWPathMonitor (#6019)
+- Expose attachment type on `SentryAttachment` for downstream SDKs (like sentry-godot) (#6521)
 - Increase attachment max size to 100MB (#6537)
 
 ## 8.57.1
