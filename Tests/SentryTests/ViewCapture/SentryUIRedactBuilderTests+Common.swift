@@ -1126,7 +1126,6 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftli
         //   |    | <_UISlideriOSVisualElement: 0x13ed0fbd0; frame = (0 0; 80 20); opaque = NO; autoresize = W+H; layer = <CALayer: 0x600001da7f80>>
 
         // -- Act --
-        print(rootView.value(forKey: "recursiveDescription")!)
         let sut = getSut(maskAllText: true, maskAllImages: true)
         let result = sut.redactRegionsFor(view: rootView)
 
