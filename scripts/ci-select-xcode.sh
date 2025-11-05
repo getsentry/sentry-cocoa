@@ -15,7 +15,7 @@ XCODE_VERSION="${1}"
 
 # We prefer this over calling `sudo xcode-select` because it will fail if the Xcode version
 # is not installed. Also xcodes is preinstalled on the GH runners.
-xcodes select "$XCODE_VERSION"
+sudo xcodes select "$XCODE_VERSION"
 swiftc --version
 
 
