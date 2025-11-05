@@ -7,6 +7,7 @@ on:
       - release/**
 
   pull_request:
+    types: [opened, synchronize, reopened, labeled]
 
 # Concurrency configuration:
 # - We use workflow-specific concurrency groups to prevent multiple build runs of the same code,
@@ -23,6 +24,7 @@ jobs:
   files-changed:
     name: Detect File Changes
     runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'ready-to-merge')
     outputs:
       run_build_for_prs: ${{ steps.changes.outputs.run_build_for_prs }}
     steps:
