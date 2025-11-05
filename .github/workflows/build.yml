@@ -7,6 +7,7 @@ on:
       - release/**
 
   pull_request:
+    types: [opened, synchronize, reopened, labeled]
 
 # Concurrency configuration:
 # - We use workflow-specific concurrency groups to prevent multiple build runs of the same code,

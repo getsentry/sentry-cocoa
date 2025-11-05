@@ -3,13 +3,13 @@ on:
   workflow_call:
     inputs:
       labels:
-        description: The GitHub event object
+        description: The GitHub event's labels
         required: true
         type: string
 
 jobs:
   ready:
-    name: Ready-to-merge gate
+    name: ${{ !contains(inputs.labels, 'ready-to-merge') && 'Missing "ready-to-merge" label' || 'Missing "ready-to-merge" label' }}
     runs-on: ubuntu-latest
     steps:
       - name: Fail until the 'ready-to-merge' label is present

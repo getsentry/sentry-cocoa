@@ -6,6 +6,7 @@ on:
       - v8.x
 
   pull_request:
+    types: [opened, synchronize, reopened, labeled]
 
 # Concurrency configuration:
 # - We use workflow-specific concurrency groups to prevent multiple critical UI test runs,

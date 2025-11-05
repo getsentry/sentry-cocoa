@@ -21,6 +21,12 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
+  ready:
+    name: Ready-to-merge gate
+    uses: ./.github/workflows/ready-to-merge-workflow.yml
+    with:
+      labels: ${{ toJson(github.event.pull_request.labels) }}
+
   # This job detects if the PR contains changes that require running unit tests.
   # If yes, the job will output a flag that will be used by the next job to run the unit tests.
   # If no, the job will output a flag that will be used by the next job to skip running the unit tests.
@@ -29,7 +35,7 @@ jobs:
   files-changed:
     name: Detect File Changes
     runs-on: ubuntu-latest
-    if: github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'ready-to-merge')
+    needs: ready
     # Map a step output to a job output
     outputs:
       run_unit_tests_for_prs: ${{ steps.changes.outputs.run_unit_tests_for_prs }}
