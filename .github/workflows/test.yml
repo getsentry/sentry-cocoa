@@ -219,6 +219,7 @@ jobs:
     name: Unit ${{matrix.name}}
     needs: files-changed
     uses: ./.github/workflows/unit-test-common.yml
+    secrets: inherit
     with:
       name: ${{matrix.name}}
       runs-on: ${{matrix.runs-on}}
