@@ -1,6 +1,6 @@
 name: Ready to Merge Workflow
 on:
-  workflow_dispatch:
+  workflow_call:
     inputs:
       github_event:
         description: The GitHub event object
