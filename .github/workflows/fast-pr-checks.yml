@@ -44,6 +44,7 @@ jobs:
     if: needs.files-changed.outputs.run_unit_tests_for_prs == 'true'
     needs: files-changed
     uses: ./.github/workflows/unit-test-common.yml
+    secrets: inherit
     with:
       name: iOS 18 Sentry
       runs-on: macos-15
