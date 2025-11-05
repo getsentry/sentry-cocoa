@@ -642,6 +642,11 @@ final class SentryUIRedactBuilder {
     private func isOpaque(_ view: UIView) -> Bool {
         let layer = view.layer.presentation() ?? view.layer
 
+        // Allow explicit override: if a view is marked to clip out, treat it as opaque
+        if SentryRedactViewHelper.shouldClipOut(view) {
+            return true
+        }
+
         // First check: Ensure the layer opacity is 1.0
         // This catches views with `alpha < 1.0`, which are semi-transparent regardless of background color.
         // For example, a view with `alpha = 0.2` should never be considered opaque, even if it has
@@ -664,7 +669,7 @@ final class SentryUIRedactBuilder {
         // We REQUIRE BOTH: the view AND the layer must be opaque for the view to be treated as opaque.
         // This stricter rule prevents semi‑transparent overlays or partially configured backgrounds
         // (only view or only layer) from clearing previously collected redact regions.
-        return SentryRedactViewHelper.shouldClipOut(view) || isViewOpaque && isLayerOpaque
+        return isViewOpaque && isLayerOpaque
     }
 }
 

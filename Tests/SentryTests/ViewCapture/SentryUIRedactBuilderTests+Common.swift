@@ -1104,7 +1104,7 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftli
 
         // View Hierarchy:
         // ---------------
-        // == iOS 26 ==
+        // == iOS 26.1 - Xcode 26 ==
         // <UIView: 0x11b209710; frame = (0 0; 100 100); layer = <CALayer: 0x600000cd1440>>
         //   | <UISlider: 0x11b23e2e0; frame = (10 10; 80 20); opaque = NO; gestureRecognizers = <NSArray: 0x600000276be0>; layer = <CALayer: 0x600000ce80c0>; value: 0.000000>
         //   |    | <UIKit._UISliderGlassVisualElement: 0x11b25bdd0; frame = (0 0; 80 20); autoresize = W+H; layer = <CALayer: 0x600000cde0a0>>
@@ -1115,17 +1115,38 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftli
         //   |    |    |    | <UIView: 0x11b22bf60; frame = (0 0; 37 24); autoresize = W+H; userInteractionEnabled = NO; layer = <CALayer: 0x600000ce9410>>
         //   |    |    |    |    | <UIView: 0x11b434710; frame = (0 0; 37 24); autoresize = W+H; userInteractionEnabled = NO; backgroundColor = <UIDynamicSystemColor: 0x600001749000; name = _controlForegroundColor>; layer = <CALayer: 0x600000cdd740>>
         //
+        // == iOS 26.1 - Xcode 16.4 ==
+        // <UIView: 0x10701dbf0; frame = (0 0; 100 100); layer = <CALayer: 0x600000cb96b0>>
+        //   | <UISlider: 0x100e28d30; frame = (10 10; 80 20); opaque = NO; layer = <CALayer: 0x600000cae490>; value: 0.000000>
+        //   |    | <_UISlideriOSVisualElement: 0x100f06990; frame = (0 0; 80 20); opaque = NO; autoresize = W+H; layer = <CALayer: 0x600000c05fe0>>
+        //
         // == iOS 18 & 17 & 16 ==
         // <UIView: 0x12ed12bc0; frame = (0 0; 100 100); layer = <CALayer: 0x600001de3540>>
         //   | <UISlider: 0x13ed0f7e0; frame = (10 10; 80 20); opaque = NO; layer = <CALayer: 0x600001df0020>; value: 0.000000>
         //   |    | <_UISlideriOSVisualElement: 0x13ed0fbd0; frame = (0 0; 80 20); opaque = NO; autoresize = W+H; layer = <CALayer: 0x600001da7f80>>
 
         // -- Act --
+        print(rootView.value(forKey: "recursiveDescription")!)
         let sut = getSut(maskAllText: true, maskAllImages: true)
         let result = sut.redactRegionsFor(view: rootView)
 
         // -- Assert --
-        XCTAssertEqual(result.count, 0)
+        if #available(iOS 26, *), isBuiltWithSDK26() {
+            // Only applies to Liquid Glass (enabled when built with Xcode 26+)
+            let region1 = try XCTUnwrap(result.element(at: 0))
+            XCTAssertNil(region1.color)
+            XCTAssertEqual(region1.size, CGSize(width: 80, height: 6))
+            XCTAssertEqual(region1.type, .clipBegin)
+            XCTAssertEqual(region1.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 10, ty: 17))
+
+            let region2 = try XCTUnwrap(result.element(at: 1))
+            XCTAssertNil(region2.color)
+            XCTAssertEqual(region2.size, CGSize(width: 80, height: 6))
+            XCTAssertEqual(region2.type, .clipEnd)
+            XCTAssertEqual(region2.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 10, ty: 17))
+        } else {
+            XCTAssertEqual(result.count, 0)
+        }
     }
 
     func testDefaultIgnoredControls_shouldNotRedactUISwitch() {
@@ -1320,6 +1341,17 @@ private class TestGridView: UIView {
         ctx.setFillColor(UIColor.orange.cgColor)
         ctx.fill(CGRect(x: midX, y: midY, width: bounds.width - midX, height: bounds.height - midY))
     }
+    
+}
+
+private func isBuiltWithSDK26() -> Bool {
+    guard let value = Bundle.main.object(forInfoDictionaryKey: "DTXcode") as? String else {
+        return false
+    }
+    guard let xcodeVersion = Int(value) else {
+        return false
+    }
+    return xcodeVersion >= 2600
 }
 
 #endif // os(iOS) && !targetEnvironment(macCatalyst)

@@ -990,6 +990,68 @@ class SentryUIRedactBuilderTests_EdgeCases: SentryUIRedactBuilderTests { // swif
         XCTAssertEqual(labelRegions.count, 0, "Label should be cleared by fully opaque view")
     }
 
+    func testClipOutOverride_withSemiTransparentFullCover_shouldClearRedactions() throws {
+        // -- Arrange --
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+
+        // Add a label that should be redacted
+        let label = UILabel(frame: CGRect(x: 10, y: 10, width: 80, height: 20))
+        label.text = "Secret Text"
+        label.textColor = .purple
+        rootView.addSubview(label)
+
+        // Add a semi-transparent overlay covering the entire root and force clip-out via override
+        let overlay = UIView(frame: rootView.bounds)
+        overlay.backgroundColor = .black
+        overlay.alpha = 0.2 // Semi-transparent; would not be opaque without override
+        SentryRedactViewHelper.clipOutView(overlay)
+        rootView.addSubview(overlay)
+
+        // -- Act --
+        let sut = getSut(maskAllText: true, maskAllImages: true)
+        let result = sut.redactRegionsFor(view: rootView)
+
+        // -- Assert --
+        // Axis-aligned full-cover with clipOut override should clear prior redactions entirely
+        XCTAssertEqual(result.count, 0)
+    }
+
+    func testClipOutOverride_withSemiTransparentSubview_shouldInsertClipOutRegion() throws {
+        // -- Arrange --
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+
+        let label = UILabel(frame: CGRect(x: 10, y: 10, width: 20, height: 20))
+        label.text = "Hello, World!"
+        label.textColor = .red
+        rootView.addSubview(label)
+
+        // Semi-transparent subview; override to clip-out
+        let subview = UIView(frame: CGRect(x: 30, y: 30, width: 20, height: 20))
+        subview.backgroundColor = .black
+        subview.alpha = 0.2 // Not opaque by itself
+        SentryRedactViewHelper.clipOutView(subview)
+        rootView.addSubview(subview)
+
+        // -- Act --
+        let sut = getSut(maskAllText: true, maskAllImages: true)
+        let result = sut.redactRegionsFor(view: rootView)
+
+        // -- Assert --
+        let firstRegion = try XCTUnwrap(result.element(at: 0))
+        XCTAssertNil(firstRegion.color)
+        XCTAssertEqual(firstRegion.type, .clipOut)
+        XCTAssertEqual(firstRegion.size, CGSize(width: 20, height: 20))
+        XCTAssertEqual(firstRegion.transform, CGAffineTransform(a: 1.0, b: 0.0, c: 0.0, d: 1.0, tx: 30.0, ty: 30.0))
+
+        let secondRegion = try XCTUnwrap(result.element(at: 1))
+        XCTAssertEqual(secondRegion.color, UIColor.red)
+        XCTAssertEqual(secondRegion.type, .redact)
+        XCTAssertEqual(secondRegion.size, CGSize(width: 20, height: 20))
+        XCTAssertEqual(secondRegion.transform, CGAffineTransform(a: 1.0, b: 0.0, c: 0.0, d: 1.0, tx: 10.0, ty: 10.0))
+
+        XCTAssertEqual(result.count, 2)
+    }
+
     func testViewWithSemiTransparentBackground_shouldNotBeTreatedAsOpaque() throws {
         // -- Arrange --
         let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
