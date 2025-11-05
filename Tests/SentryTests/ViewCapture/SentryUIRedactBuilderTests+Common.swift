@@ -1130,17 +1130,9 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftli
         let result = sut.redactRegionsFor(view: rootView)
 
         // -- Assert --
-        // UISlider behavior differs by iOS version
-        if #available(iOS 26.0, *) {
-            // On iOS 26, UISlider uses a new visual implementation that creates clipping regions
-            // even though the slider itself is in the ignore list
-            let region0 = try XCTUnwrap(result.element(at: 0))
-            XCTAssertNil(region0.color)
-            XCTAssertEqual(region0.size, CGSize(width: 37, height: 24))
-            XCTAssertEqual(region0.type, .clipOut)
-            XCTAssertEqual(region0.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 10, ty: 8))
-
-            let region1 = try XCTUnwrap(result.element(at: 1))
+        if #available(iOS 26, *), isBuiltWithSDK26() {
+            // Only applies to Liquid Glass (enabled when built with Xcode 26+)
+            let region1 = try XCTUnwrap(result.element(at: 0))
             XCTAssertNil(region1.color)
             XCTAssertEqual(region1.size, CGSize(width: 80, height: 6))
             XCTAssertEqual(region1.type, .clipBegin)
@@ -1160,7 +1152,9 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftli
         // -- Arrange --
         let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
         let toggle = UISwitch(frame: CGRect(x: 10, y: 40, width: 80, height: 30))
-        toggle.title = "Off/On" // Setting a title for sanity check, it is not displayed on iOS
+        if #available(iOS 14.0, *) {
+            toggle.title = "Off/On" // Setting a title for sanity check, it is not displayed on iOS
+        }
         rootView.addSubview(toggle)
 
         // View Hierarchy:
