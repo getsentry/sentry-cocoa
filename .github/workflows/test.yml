@@ -223,7 +223,7 @@ jobs:
       name: ${{matrix.name}}
       runs-on: ${{matrix.runs-on}}
       timeout: ${{matrix.timeout}}
-      should_skip: ${{needs.files-changed.outputs.run_unit_tests_for_prs == 'true'}}
+      should_skip: ${{needs.files-changed.outputs.run_unit_tests_for_prs != 'true'}}
       xcode: ${{matrix.xcode}}
       test-destination-os: ${{matrix.test-destination-os}}
       platform: ${{matrix.platform}}
