@@ -61,9 +61,31 @@ final class SentryLogHandlerTests: XCTestCase {
     
     // MARK: - Basic Logging Tests
     
-    func testDefaultInit() {
+    func testDefaultInit_UsesSDKLogger() throws {
+        let options = Options()
+        options.dsn = TestConstants.dsnAsString(username: "SentryLogHandlerTests")
+        options.enableLogs = true
+        let testClient = TestClient(options: options)!
+        let testHub = TestHub(client: testClient, andScope: Scope())
+        
+        SentrySDKInternal.setStart(with: options)
+        SentrySDKInternal.setCurrentHub(testHub)
+        
+        // Create handler with default init (uses SentrySDK.logger)
         let sut = SentryLogHandler(logLevel: .info)
-        XCTAssertNotNil(sut) // Init with SDK logger completes error free
+        XCTAssertNotNil(sut)
+        
+        sut.log(level: .info, message: "Test message from default init", metadata: nil, source: "test", file: "TestFile.swift", function: "testDefaultInit", line: 1)
+        SentrySDK.flush(timeout: 0.25)
+        
+        let invocation = try XCTUnwrap(testClient.captureLogsDataInvocations.invocations.first)
+        let jsonObject = try XCTUnwrap(JSONSerialization.jsonObject(with: invocation.data) as? [String: Any])
+        let items = try XCTUnwrap(jsonObject["items"] as? [[String: Any]])
+        let item = try XCTUnwrap(items.first)
+        XCTAssertEqual(1, items.count)
+        XCTAssertEqual("Test message from default init", item["body"] as? String)
+        
+        SentrySDKInternal.close()
     }
     
     func testLog_WithInfoLevel() {
