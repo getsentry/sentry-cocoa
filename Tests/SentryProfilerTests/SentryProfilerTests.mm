@@ -204,7 +204,7 @@ using namespace sentry::profiling;
 
     const auto serialization = sentry_serializedTraceProfileData(profileData, 1, 2,
         sentry_profilerTruncationReasonName(SentryProfilerTruncationReasonNormal), @{}, @[],
-        [[SentryHub alloc] initWithClient:nil andScope:nil]
+        [[SentryHubInternal alloc] initWithClient:nil andScope:nil]
 #    if SENTRY_HAS_UIKIT
         ,
         [[SentryScreenFrames alloc] initWithTotal:5

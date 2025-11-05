@@ -2,7 +2,7 @@
 #import <Sentry/SentryScope.h>
 #import <UIKit/UIKit.h>
 
-@class SentryHub;
+@class SentryOptions;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -13,11 +13,23 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
+@interface SentryClientInternal : NSObject
+
+@property (nonatomic) SentryOptions *options;
+
+@end
+
+@interface SentryHubInternal : NSObject
+
+- (nullable SentryClientInternal *)getClient;
+
+@end
+
 @interface SentrySDKInternal : NSObject
 
 + (nullable NSArray<NSString *> *)relevantViewControllersNames;
 
-+ (SentryHub *)currentHub;
++ (SentryHubInternal *)currentHub;
 
 @end
 

@@ -19,6 +19,7 @@
 #import "SentrySpanOperation.h"
 #import "SentrySwift.h"
 #import "SentryTime.h"
+#import "SentryTraceContext+Private.h"
 #import "SentryTraceContext.h"
 #import "SentryTracer+Private.h"
 #import "SentryTracerConfiguration.h"
@@ -102,7 +103,7 @@ static BOOL appStartMeasurementRead;
 }
 
 - (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext
-                                       hub:(nullable SentryHub *)hub
+                                       hub:(nullable SentryHubInternal *)hub
 {
     return [self initWithTransactionContext:transactionContext
                                         hub:hub
@@ -110,7 +111,7 @@ static BOOL appStartMeasurementRead;
 }
 
 - (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext
-                                       hub:(nullable SentryHub *)hub
+                                       hub:(nullable SentryHubInternal *)hub
                              configuration:(SentryTracerConfiguration *)configuration;
 {
     if (!(self = [super initWithContext:transactionContext
