@@ -168,8 +168,6 @@ public final class SentryPulse {
             sentryLogger.error(message, attributes: attributes)
         case .critical:
             sentryLogger.fatal(message, attributes: attributes)
-        @unknown default:
-            sentryLogger.info(message, attributes: attributes)
         }
     }
 }
