@@ -51,7 +51,8 @@ let restrictFiles = [
     "./Sources/Configuration/SDK.xcconfig",
     "./Sources/Configuration/Versioning.xcconfig",
     "./Sources/Configuration/SentrySwiftUI.xcconfig",
-    "./Sources/Configuration/SentrySwiftLog.xcconfig"
+    "./Sources/Configuration/SentrySwiftLog.xcconfig",
+    "./Sources/Configuration/SentryPulse.xcconfig"
 ]
 
 let args = CommandLine.arguments
