@@ -644,7 +644,18 @@
                   "properties": {
                     "destination": {
                       "type": "string",
-                      "enum": ["absolutePath", "productsDirectory", "wrapper", "executables", "resources", "javaResources", "frameworks", "sharedFrameworks", "sharedSupport", "plugins"]
+                      "enum": [
+                        "absolutePath",
+                        "productsDirectory",
+                        "wrapper",
+                        "executables",
+                        "resources",
+                        "javaResources",
+                        "frameworks",
+                        "sharedFrameworks",
+                        "sharedSupport",
+                        "plugins"
+                      ]
                     },
                     "subpath": {
                       "type": "string"
@@ -723,7 +734,18 @@
               "properties": {
                 "destination": {
                   "type": "string",
-                  "enum": ["absolutePath", "productsDirectory", "wrapper", "executables", "resources", "javaResources", "frameworks", "sharedFrameworks", "sharedSupport", "plugins"]
+                  "enum": [
+                    "absolutePath",
+                    "productsDirectory",
+                    "wrapper",
+                    "executables",
+                    "resources",
+                    "javaResources",
+                    "frameworks",
+                    "sharedFrameworks",
+                    "sharedSupport",
+                    "plugins"
+                  ]
                 },
                 "subpath": {
                   "type": "string"
@@ -844,7 +866,18 @@
               "properties": {
                 "destination": {
                   "type": "string",
-                  "enum": ["absolutePath", "productsDirectory", "wrapper", "executables", "resources", "javaResources", "frameworks", "sharedFrameworks", "sharedSupport", "plugins"]
+                  "enum": [
+                    "absolutePath",
+                    "productsDirectory",
+                    "wrapper",
+                    "executables",
+                    "resources",
+                    "javaResources",
+                    "frameworks",
+                    "sharedFrameworks",
+                    "sharedSupport",
+                    "plugins"
+                  ]
                 },
                 "subpath": {
                   "type": "string"
