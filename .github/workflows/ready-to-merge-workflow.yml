@@ -16,6 +16,11 @@ jobs:
     name: 'Missing "ready-to-merge" label'
     runs-on: ubuntu-latest
     steps:
+      - name: debug
+        run: |
+          echo "is-pr: ${{ inputs.is-pr }}"
+          echo "labels: ${{ inputs.labels }}"
+          exit 1
       # Since Github also accepts `skipped` results for Required Workflows, we need
       # to fail the job to ensure that the downstream jobs don't just skip.
       - name: Fail until the 'ready-to-merge' label is present
