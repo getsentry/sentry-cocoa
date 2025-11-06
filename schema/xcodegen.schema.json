@@ -1,0 +1,1387 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://xcodegen.github.io/XcodeGen/schema.json",
+  "title": "XcodeGen Project Spec",
+  "description": "Schema for XcodeGen project specification files",
+  "type": "object",
+  "required": ["name"],
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Name of the generated project"
+    },
+    "include": {
+      "oneOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "array",
+          "items": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "path": {
+                    "type": "string"
+                  },
+                  "relativePaths": {
+                    "type": "boolean"
+                  },
+                  "enable": {
+                    "type": "boolean"
+                  }
+                },
+                "required": ["path"]
+              }
+            ]
+          }
+        }
+      ],
+      "description": "One or more paths to other specs"
+    },
+    "createIntermediateGroups": {
+      "type": "boolean",
+      "description": "If true, intermediate groups will be created for every path component"
+    },
+    "generateEmptyDirectories": {
+      "type": "boolean",
+      "description": "Generate empty directories in the project"
+    },
+    "options": {
+      "type": "object",
+      "properties": {
+        "minimumXcodeGenVersion": {
+          "type": "string"
+        },
+        "carthageBuildPath": {
+          "type": "string"
+        },
+        "carthageExecutablePath": {
+          "type": "string"
+        },
+        "createIntermediateGroups": {
+          "type": "boolean"
+        },
+        "bundleIdPrefix": {
+          "type": "string"
+        },
+        "settingPresets": {
+          "type": "string",
+          "enum": ["all", "none", "project", "targets"]
+        },
+        "developmentLanguage": {
+          "type": "string"
+        },
+        "xcodeVersion": {
+          "type": "string"
+        },
+        "deploymentTarget": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "transitivelyLinkDependencies": {
+          "type": "boolean"
+        },
+        "groupSortPosition": {
+          "type": "string",
+          "enum": ["top", "bottom", "none"]
+        },
+        "generateEmptyDirectories": {
+          "type": "boolean"
+        },
+        "schemePathPrefix": {
+          "type": "string"
+        },
+        "usesTabs": {
+          "type": "boolean"
+        },
+        "indentWidth": {
+          "type": "integer"
+        },
+        "tabWidth": {
+          "type": "integer"
+        }
+      }
+    },
+    "attributes": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "PBXProject attributes"
+    },
+    "breakpoints": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "breakpoints": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean"
+                },
+                "continueAfterRunningActions": {
+                  "type": "boolean"
+                },
+                "actions": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "configs": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string",
+        "enum": ["debug", "release"]
+      },
+      "description": "Project build configurations"
+    },
+    "configFiles": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      },
+      "description": ".xcconfig files per config"
+    },
+    "settings": {
+      "$ref": "#/definitions/Settings",
+      "description": "Project specific settings"
+    },
+    "settingGroups": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": true
+      }
+    },
+    "targets": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/definitions/Target"
+      }
+    },
+    "fileGroups": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "A list of paths to add to the root of the project"
+    },
+    "schemes": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/definitions/Scheme"
+      }
+    },
+    "schemeTemplates": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/definitions/Scheme"
+      }
+    },
+    "targetTemplates": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/definitions/Target"
+      }
+    },
+    "packages": {
+      "type": "object",
+      "additionalProperties": {
+        "oneOf": [
+          {
+            "$ref": "#/definitions/RemotePackage"
+          },
+          {
+            "$ref": "#/definitions/LocalPackage"
+          }
+        ]
+      }
+    },
+    "projectReferences": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/definitions/ProjectReference"
+      }
+    }
+  },
+  "definitions": {
+    "Target": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "application",
+            "application.on-demand-install-capable",
+            "app-extension",
+            "bundle",
+            "bundle.ui-testing",
+            "bundle.unit-test",
+            "command-line-tool",
+            "framework",
+            "framework.static",
+            "instruments-package",
+            "library.dynamic",
+            "library.static",
+            "oc-unit-test-bundle",
+            "sticker-pack-extension",
+            "tv-app-extension",
+            "watch-app",
+            "watchkit-extension",
+            "watchkit2-extension",
+            "xpc-service"
+          ]
+        },
+        "platform": {
+          "oneOf": [
+            {
+              "type": "string",
+              "enum": ["auto", "iOS", "macOS", "tvOS", "watchOS", "visionOS"]
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": ["iOS", "macOS", "tvOS", "watchOS", "visionOS"]
+              }
+            }
+          ]
+        },
+        "supportedDestinations": {
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          ]
+        },
+        "sources": {
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "array",
+              "items": {
+                "oneOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "$ref": "#/definitions/TargetSource"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "dependencies": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Dependency"
+          }
+        },
+        "configFiles": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "plist": {
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "path": {
+                  "type": "string"
+                },
+                "properties": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              },
+              "required": ["path"]
+            }
+          ]
+        },
+        "buildToolPlugins": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "plugin": {
+                "type": "string"
+              },
+              "package": {
+                "type": "string"
+              }
+            },
+            "required": ["plugin"]
+          }
+        },
+        "preBuildScripts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/BuildScript"
+          }
+        },
+        "postBuildScripts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/BuildScript"
+          }
+        },
+        "preCompileScripts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/BuildScript"
+          }
+        },
+        "postCompileScripts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/BuildScript"
+          }
+        },
+        "buildRules": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/BuildRule"
+          }
+        },
+        "scheme": {
+          "$ref": "#/definitions/TargetScheme"
+        },
+        "legacy": {
+          "$ref": "#/definitions/LegacyTarget"
+        },
+        "template": {
+          "type": "string"
+        },
+        "templateAttributes": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "settings": {
+          "$ref": "#/definitions/Settings"
+        }
+      },
+      "additionalProperties": false
+    },
+    "TargetSource": {
+      "type": "object",
+      "properties": {
+        "path": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "createIntermediateGroups": {
+          "type": "boolean"
+        },
+        "excludes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "includes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "compilerFlags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "headerVisibility": {
+          "type": "string",
+          "enum": ["public", "private", "project"]
+        },
+        "type": {
+          "type": "string",
+          "enum": ["file", "folder", "group"]
+        }
+      },
+      "required": ["path"]
+    },
+    "Dependency": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "target": {
+              "type": "string"
+            },
+            "embed": {
+              "type": "boolean"
+            },
+            "codeSign": {
+              "type": "boolean"
+            },
+            "removeHeaders": {
+              "type": "boolean"
+            },
+            "link": {
+              "type": "boolean"
+            },
+            "weak": {
+              "type": "boolean"
+            },
+            "platforms": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": ["target"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "package": {
+              "type": "string"
+            },
+            "product": {
+              "type": "string"
+            },
+            "version": {
+              "type": "string"
+            }
+          },
+          "required": ["package"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "sdk": {
+              "type": "string"
+            }
+          },
+          "required": ["sdk"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "carthage": {
+              "type": "string"
+            },
+            "findFrameworks": {
+              "type": "boolean"
+            },
+            "linkType": {
+              "type": "string",
+              "enum": ["dynamic", "static"]
+            }
+          },
+          "required": ["carthage"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "framework": {
+              "type": "string"
+            },
+            "embed": {
+              "type": "boolean"
+            },
+            "codeSign": {
+              "type": "boolean"
+            },
+            "weak": {
+              "type": "boolean"
+            }
+          },
+          "required": ["framework"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "git": {
+              "type": "string"
+            },
+            "branch": {
+              "type": "string"
+            },
+            "commit": {
+              "type": "string"
+            },
+            "tag": {
+              "type": "string"
+            },
+            "submodules": {
+              "type": "boolean"
+            }
+          },
+          "required": ["git"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "xctest": {
+              "type": "boolean"
+            }
+          },
+          "required": ["xctest"],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "BuildScript": {
+      "type": "object",
+      "properties": {
+        "script": {
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          ]
+        },
+        "name": {
+          "type": "string"
+        },
+        "shell": {
+          "type": "string"
+        },
+        "inputFiles": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "outputFiles": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "inputFileLists": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "outputFileLists": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "showEnvVars": {
+          "type": "boolean"
+        },
+        "basedOnDependencyAnalysis": {
+          "type": "boolean"
+        },
+        "runOnlyWhenInstalling": {
+          "type": "boolean"
+        }
+      },
+      "required": ["script"]
+    },
+    "BuildRule": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "filePattern": {
+          "type": "string"
+        },
+        "fileType": {
+          "type": "string"
+        },
+        "script": {
+          "type": "string"
+        },
+        "outputFiles": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "outputFilesCompilerFlags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "compilerSpec": {
+          "type": "string"
+        }
+      }
+    },
+    "TargetScheme": {
+      "type": "object",
+      "properties": {
+        "commandLineArguments": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "boolean"
+          }
+        },
+        "environmentVariables": {
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            },
+            {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/EnvironmentVariable"
+              }
+            }
+          ]
+        },
+        "gatherCoverageData": {
+          "type": "boolean"
+        },
+        "coverageTargets": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "preActions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ExecutionAction"
+          }
+        },
+        "postActions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ExecutionAction"
+          }
+        },
+        "testTargets": {
+          "type": "array",
+          "items": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/definitions/TestableTargetReference"
+              }
+            ]
+          }
+        },
+        "testPlans": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TestPlan"
+          }
+        }
+      }
+    },
+    "LegacyTarget": {
+      "type": "object",
+      "properties": {
+        "toolPath": {
+          "type": "string"
+        },
+        "passBuildSettingsInEnvironment": {
+          "type": "boolean"
+        },
+        "buildArgumentsString": {
+          "type": "string"
+        },
+        "buildWorkingDirectory": {
+          "type": "string"
+        }
+      },
+      "required": ["toolPath"]
+    },
+    "Scheme": {
+      "type": "object",
+      "properties": {
+        "templates": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "templateAttributes": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "build": {
+          "$ref": "#/definitions/Build"
+        },
+        "run": {
+          "$ref": "#/definitions/RunAction"
+        },
+        "test": {
+          "$ref": "#/definitions/TestAction"
+        },
+        "profile": {
+          "$ref": "#/definitions/ProfileAction"
+        },
+        "analyze": {
+          "$ref": "#/definitions/AnalyzeAction"
+        },
+        "archive": {
+          "$ref": "#/definitions/ArchiveAction"
+        },
+        "shared": {
+          "type": "boolean"
+        },
+        "orderHint": {
+          "type": "integer"
+        },
+        "isShown": {
+          "type": "boolean"
+        }
+      }
+    },
+    "Build": {
+      "type": "object",
+      "properties": {
+        "targets": {
+          "type": "object",
+          "additionalProperties": {
+            "oneOf": [
+              {
+                "type": "string",
+                "enum": ["all", "test", "run", "profile", "analyze", "archive"]
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": ["all", "test", "run", "profile", "analyze", "archive"]
+                }
+              }
+            ]
+          }
+        },
+        "parallelizeBuild": {
+          "type": "boolean"
+        },
+        "buildImplicitDependencies": {
+          "type": "boolean"
+        },
+        "preActions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ExecutionAction"
+          }
+        },
+        "postActions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ExecutionAction"
+          }
+        }
+      }
+    },
+    "ExecutionAction": {
+      "type": "object",
+      "properties": {
+        "script": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "actionType": {
+          "type": "string",
+          "enum": ["shellScriptAction"]
+        },
+        "shell": {
+          "type": "string"
+        },
+        "target": {
+          "type": "string"
+        }
+      },
+      "required": ["script"]
+    },
+    "RunAction": {
+      "type": "object",
+      "allOf": [
+        {
+          "$ref": "#/definitions/CommonBuildAction"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "executable": {
+              "type": "string"
+            },
+            "askForAppToLaunch": {
+              "type": "boolean"
+            },
+            "launchAutomaticallySubstyle": {
+              "type": "integer"
+            },
+            "debugEnabled": {
+              "type": "boolean"
+            },
+            "storeKitConfigurationFileReference": {
+              "type": "string"
+            },
+            "locationScenarioReference": {
+              "type": "string"
+            },
+            "enableGPUFrameCaptureMode": {
+              "type": "integer",
+              "enum": [0, 1, 2]
+            },
+            "enableAddressSanitizer": {
+              "type": "boolean"
+            },
+            "enableThreadSanitizer": {
+              "type": "boolean"
+            },
+            "enableUBSanitizer": {
+              "type": "boolean"
+            },
+            "stopOnEveryMainThreadCheckerIssue": {
+              "type": "boolean"
+            },
+            "stopOnEveryUBSanitizerIssue": {
+              "type": "boolean"
+            },
+            "disableMainThreadChecker": {
+              "type": "boolean"
+            },
+            "commandLineArguments": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "boolean"
+              }
+            },
+            "environmentVariables": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/EnvironmentVariable"
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "TestAction": {
+      "type": "object",
+      "allOf": [
+        {
+          "$ref": "#/definitions/CommonBuildAction"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "targets": {
+              "type": "array",
+              "items": {
+                "oneOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "$ref": "#/definitions/TestableTargetReference"
+                  }
+                ]
+              }
+            },
+            "gatherCoverageData": {
+              "type": "boolean"
+            },
+            "coverageTargets": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "parallelizable": {
+              "type": "boolean"
+            },
+            "randomExecutionOrder": {
+              "type": "boolean"
+            },
+            "location": {
+              "type": "string"
+            },
+            "skipped": {
+              "type": "boolean"
+            },
+            "skippedTests": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "selectedTests": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "testPlans": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/TestPlan"
+              }
+            },
+            "commandLineArguments": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "boolean"
+              }
+            },
+            "environmentVariables": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/EnvironmentVariable"
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "TestableTargetReference": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "target": {
+              "type": "string"
+            },
+            "parallelizable": {
+              "type": "boolean"
+            },
+            "randomExecutionOrder": {
+              "type": "boolean"
+            },
+            "skipped": {
+              "type": "boolean"
+            },
+            "skippedTests": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "selectedTests": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": ["target"]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "package": {
+              "type": "string"
+            },
+            "parallelizable": {
+              "type": "boolean"
+            },
+            "randomExecutionOrder": {
+              "type": "boolean"
+            },
+            "skipped": {
+              "type": "boolean"
+            },
+            "skippedTests": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "selectedTests": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": ["package"]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "local": {
+              "type": "string"
+            },
+            "parallelizable": {
+              "type": "boolean"
+            },
+            "randomExecutionOrder": {
+              "type": "boolean"
+            },
+            "skipped": {
+              "type": "boolean"
+            },
+            "skippedTests": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "selectedTests": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": ["local"]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "project": {
+              "type": "string"
+            },
+            "parallelizable": {
+              "type": "boolean"
+            },
+            "randomExecutionOrder": {
+              "type": "boolean"
+            },
+            "skipped": {
+              "type": "boolean"
+            },
+            "skippedTests": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "selectedTests": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": ["project"]
+        }
+      ]
+    },
+    "TestPlan": {
+      "type": "object",
+      "properties": {
+        "path": {
+          "type": "string"
+        },
+        "defaultPlan": {
+          "type": "boolean"
+        }
+      },
+      "required": ["path"]
+    },
+    "ProfileAction": {
+      "type": "object",
+      "allOf": [
+        {
+          "$ref": "#/definitions/CommonBuildAction"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "executable": {
+              "type": "string"
+            },
+            "askForAppToLaunch": {
+              "type": "boolean"
+            },
+            "commandLineArguments": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "boolean"
+              }
+            },
+            "environmentVariables": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/EnvironmentVariable"
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "AnalyzeAction": {
+      "type": "object",
+      "allOf": [
+        {
+          "$ref": "#/definitions/CommonBuildAction"
+        }
+      ]
+    },
+    "ArchiveAction": {
+      "type": "object",
+      "allOf": [
+        {
+          "$ref": "#/definitions/CommonBuildAction"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "customArchiveName": {
+              "type": "string"
+            },
+            "revealArchiveInOrganizer": {
+              "type": "boolean"
+            }
+          }
+        }
+      ]
+    },
+    "CommonBuildAction": {
+      "type": "object",
+      "properties": {
+        "config": {
+          "type": "string"
+        },
+        "preActions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ExecutionAction"
+          }
+        },
+        "postActions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ExecutionAction"
+          }
+        }
+      }
+    },
+    "EnvironmentVariable": {
+      "type": "object",
+      "properties": {
+        "variable": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string"
+        },
+        "isEnabled": {
+          "type": "boolean"
+        }
+      },
+      "required": ["variable", "value"]
+    },
+    "RemotePackage": {
+      "type": "object",
+      "properties": {
+        "url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "version": {
+          "type": "string"
+        },
+        "majorVersion": {
+          "type": "string"
+        },
+        "minorVersion": {
+          "type": "string"
+        },
+        "exactVersion": {
+          "type": "string"
+        },
+        "from": {
+          "type": "string"
+        },
+        "minVersion": {
+          "type": "string"
+        },
+        "maxVersion": {
+          "type": "string"
+        },
+        "branch": {
+          "type": "string"
+        },
+        "revision": {
+          "type": "string"
+        },
+        "github": {
+          "type": "string"
+        }
+      },
+      "required": ["url"]
+    },
+    "LocalPackage": {
+      "type": "object",
+      "properties": {
+        "path": {
+          "type": "string"
+        },
+        "group": {
+          "type": "string"
+        },
+        "excludeFromProject": {
+          "type": "boolean"
+        }
+      },
+      "required": ["path"]
+    },
+    "ProjectReference": {
+      "type": "object",
+      "properties": {
+        "path": {
+          "type": "string"
+        }
+      },
+      "required": ["path"]
+    },
+    "Settings": {
+      "type": "object",
+      "properties": {
+        "configs": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "number"
+                }
+              ]
+            }
+          },
+          "description": "Per-configuration build settings"
+        },
+        "base": {
+          "type": "object",
+          "additionalProperties": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "number"
+              }
+            ]
+          },
+          "description": "Base build settings applied to all configurations"
+        }
+      },
+      "additionalProperties": {
+        "oneOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          {
+            "type": "boolean"
+          },
+          {
+            "type": "number"
+          }
+        ]
+      },
+      "description": "Build settings that can include base settings and per-configuration settings"
+    }
+  }
+}
