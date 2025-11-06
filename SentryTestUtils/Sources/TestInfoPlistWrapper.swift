@@ -9,6 +9,9 @@ import XCTest
     public var getAppValueBooleanInvocations = Invocations<(String, NSErrorPointer)>()
     private var mockedGetAppValueBooleanReturnValue: [String: Result<Bool, NSError>] = [:]
 
+    public var getAppValueDictionaryInvocations = Invocations<String>()
+    private var mockedGetAppValueDictionaryReturnValue: [String: Result<[String: Any], Error>] = [:]
+
     public init() {}
 
     public func mockGetAppValueStringReturnValue(forKey key: String, value: String) {
@@ -53,6 +56,28 @@ import XCTest
         case .failure(let error):
             errorPtr?.pointee = error
             return false
+        }
+    }
+
+    public func mockGetAppValueDictionaryReturnValue(forKey key: String, value: [String: Any]) {
+        mockedGetAppValueDictionaryReturnValue[key] = .success(value)
+    }
+
+    public func mockGetAppValueDictionaryThrowError(forKey key: String, error: Error) {
+        mockedGetAppValueDictionaryReturnValue[key] = .failure(error)
+    }
+
+    public func getAppValueDictionary(for key: String) throws -> [String: Any] {
+        getAppValueDictionaryInvocations.record(key)
+        guard let result = mockedGetAppValueDictionaryReturnValue[key] else {
+            XCTFail("TestInfoPlistWrapper: No mocked return value set for getAppValueDictionary(for:) for key: \(key)")
+            return [:]
+        }
+        switch result {
+        case .success(let value):
+            return value
+        case .failure(let error):
+            throw error
         }
     }
 }

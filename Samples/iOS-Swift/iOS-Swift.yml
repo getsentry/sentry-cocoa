@@ -1,3 +1,5 @@
+# yaml-language-server: $schema=../../schema/xcodegen.schema.json
+
 name: iOS-Swift
 include:
   - ../Shared/feature-flags.yml
@@ -32,6 +34,7 @@ targets:
       - target: iOS-SwiftClip
       - target: SentrySampleShared/SentrySampleShared
       - target: iOS-Swift-ShareExtension
+      - target: iOS-Swift-WidgetExtension
       - target: Sentry/SentrySwiftLog
     configFiles:
       Debug: iOS-Swift.xcconfig
@@ -107,6 +110,19 @@ targets:
       Release: iOS-Swift-ShareExtension.xcconfig
       Test: iOS-Swift-ShareExtension.xcconfig
       TestCI: iOS-Swift-ShareExtension.xcconfig
+  iOS-Swift-WidgetExtension:
+    type: app-extension
+    platform: auto
+    sources:
+      - iOS-Swift-Widget
+    dependencies:
+      - target: Sentry/Sentry
+      - target: SentrySampleShared/SentrySampleShared
+    configFiles:
+      Debug: iOS-Swift-WidgetExtension.xcconfig
+      Release: iOS-Swift-WidgetExtension.xcconfig
+      Test: iOS-Swift-WidgetExtension.xcconfig
+      TestCI: iOS-Swift-WidgetExtension.xcconfig
 schemes:
   iOS-Swift:
     templates:
@@ -127,3 +143,22 @@ schemes:
       config: Debug
       testPlans:
         - path: ../../Plans/iOS-Benchmarking_Base.xctestplan
+  iOS-Swift-WidgetExtension:
+    build:
+      targets:
+        iOS-Swift: all
+        iOS-Swift-WidgetExtension: all
+    run:
+      config: Debug
+      askForAppToLaunch: true
+      launchAutomaticallySubstyle: 2
+      executable: iOS-Swift
+      debugEnabled: false
+      environmentVariables:
+        _XCWidgetKind: io.sentry.sample.iOS-Swift.iOS-Swift-Widget
+        _XCWidgetDefaultView: timeline
+        _XCWidgetFamily: systemMedium
+    profile:
+      config: Release
+      askForAppToLaunch: true
+      executable: iOS-Swift

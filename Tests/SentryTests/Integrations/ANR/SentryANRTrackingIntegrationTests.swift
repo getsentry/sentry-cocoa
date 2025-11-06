@@ -722,6 +722,131 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         XCTAssertFalse(Event().isAppHangEvent)
     }
     
+    func testInstall_notRunningInExtension_shouldInstall() {
+        // Arrange
+        let mockInfoPlist = TestInfoPlistWrapper()
+        mockInfoPlist.mockGetAppValueDictionaryThrowError(
+            forKey: SentryInfoPlistKey.extension.rawValue,
+            error: SentryInfoPlistError.keyNotFound(key: SentryInfoPlistKey.extension.rawValue)
+        )
+        Dependencies.extensionDetector = SentryExtensionDetector(infoPlistWrapper: mockInfoPlist)
+        
+        let options = Options()
+        options.dsn = SentryANRTrackingIntegrationTests.dsn
+        options.enableAppHangTracking = true
+        options.appHangTimeoutInterval = 2.0
+        
+        crashWrapper.internalIsBeingTraced = false
+        sut = SentryANRTrackingIntegration()
+        
+        // Act
+        let result = sut.install(with: options)
+        
+        // Assert
+        XCTAssertTrue(result, "Should install when not running in an extension")
+        XCTAssertNotNil(Dynamic(sut).tracker.asAnyObject, "Tracker should be initialized")
+    }
+    
+    func testInstall_runningInWidgetExtension_shouldNotInstall() {
+        // Arrange
+        let mockInfoPlist = TestInfoPlistWrapper()
+        mockInfoPlist.mockGetAppValueDictionaryReturnValue(
+            forKey: SentryInfoPlistKey.extension.rawValue,
+            value: ["NSExtensionPointIdentifier": "com.apple.widgetkit-extension"]
+        )
+        Dependencies.extensionDetector = SentryExtensionDetector(infoPlistWrapper: mockInfoPlist)
+        
+        let options = Options()
+        options.dsn = SentryANRTrackingIntegrationTests.dsn
+        options.enableAppHangTracking = true
+        options.appHangTimeoutInterval = 2.0
+        
+        crashWrapper.internalIsBeingTraced = false
+        sut = SentryANRTrackingIntegration()
+        
+        // Act
+        let result = sut.install(with: options)
+        
+        // Assert
+        XCTAssertFalse(result, "Should not install when running in a Widget extension")
+        XCTAssertNil(Dynamic(sut).tracker.asAnyObject, "Tracker should not be initialized")
+    }
+    
+    func testInstall_runningInIntentExtension_shouldNotInstall() {
+        // Arrange
+        let mockInfoPlist = TestInfoPlistWrapper()
+        mockInfoPlist.mockGetAppValueDictionaryReturnValue(
+            forKey: SentryInfoPlistKey.extension.rawValue,
+            value: ["NSExtensionPointIdentifier": "com.apple.intents-service"]
+        )
+        Dependencies.extensionDetector = SentryExtensionDetector(infoPlistWrapper: mockInfoPlist)
+        
+        let options = Options()
+        options.dsn = SentryANRTrackingIntegrationTests.dsn
+        options.enableAppHangTracking = true
+        options.appHangTimeoutInterval = 2.0
+        
+        crashWrapper.internalIsBeingTraced = false
+        sut = SentryANRTrackingIntegration()
+        
+        // Act
+        let result = sut.install(with: options)
+        
+        // Assert
+        XCTAssertFalse(result, "Should not install when running in an Intent extension")
+        XCTAssertNil(Dynamic(sut).tracker.asAnyObject, "Tracker should not be initialized")
+    }
+    
+    func testInstall_runningInActionExtension_shouldNotInstall() {
+        // Arrange
+        let mockInfoPlist = TestInfoPlistWrapper()
+        mockInfoPlist.mockGetAppValueDictionaryReturnValue(
+            forKey: SentryInfoPlistKey.extension.rawValue,
+            value: ["NSExtensionPointIdentifier": "com.apple.ui-services"]
+        )
+        Dependencies.extensionDetector = SentryExtensionDetector(infoPlistWrapper: mockInfoPlist)
+        
+        let options = Options()
+        options.dsn = SentryANRTrackingIntegrationTests.dsn
+        options.enableAppHangTracking = true
+        options.appHangTimeoutInterval = 2.0
+        
+        crashWrapper.internalIsBeingTraced = false
+        sut = SentryANRTrackingIntegration()
+        
+        // Act
+        let result = sut.install(with: options)
+        
+        // Assert
+        XCTAssertFalse(result, "Should not install when running in an Action extension")
+        XCTAssertNil(Dynamic(sut).tracker.asAnyObject, "Tracker should not be initialized")
+    }
+    
+    func testInstall_runningInUnknownExtension_shouldInstall() {
+        // Arrange
+        let mockInfoPlist = TestInfoPlistWrapper()
+        mockInfoPlist.mockGetAppValueDictionaryReturnValue(
+            forKey: SentryInfoPlistKey.extension.rawValue,
+            value: ["NSExtensionPointIdentifier": "com.apple.unknown-extension"]
+        )
+        Dependencies.extensionDetector = SentryExtensionDetector(infoPlistWrapper: mockInfoPlist)
+        
+        let options = Options()
+        options.dsn = SentryANRTrackingIntegrationTests.dsn
+        options.enableAppHangTracking = true
+        options.appHangTimeoutInterval = 2.0
+        
+        crashWrapper.internalIsBeingTraced = false
+        sut = SentryANRTrackingIntegration()
+        
+        // Act
+        let result = sut.install(with: options)
+        
+        // Assert
+        XCTAssertTrue(result, "Should install when running in an unknown extension type")
+        XCTAssertNotNil(Dynamic(sut).tracker.asAnyObject, "Tracker should be initialized")
+    }
+    
     private func givenInitializedTracker(isBeingTraced: Bool = false, crashedLastLaunch: Bool = false) {
         givenSdkWithHub()
         
