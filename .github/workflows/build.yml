@@ -99,11 +99,13 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      # As the DistributionSample project uses local SPM, xcodebuild resolves SPM dependencies for these
-      # sample projects too. Because Package.swift still references binary targets, release commits update
-      # them to non-existent download URLs, creating chicken-egg failures. Since DistributionSample lives
-      # in the workspace, xcodebuild attempts to resolve these dependencies and the build fails.
-      # Therefore, we only keep the distribution lib and target in Package.swift.
+      # As the DistributionSample project uses local SPM, xcodebuild resolves SPM dependencies for all
+      # sample projects. The Package.swift references binary targets, which in release branch commits points
+      # to non-existent download URLs. This creates chicken-egg failures when building these sample apps for
+      # a release commit build. When building these sample apps for a release commit, xcodebuild tries to
+      # resolve all SPM dependencies, including the binary targets pointing to these non-existent URLs.  The
+      # sample projects don't use SPM for including Sentry. Only the DistributionSample uses local SPM.
+      # Therefore, we only keep the local DistributionSample reference in the Package.swift as a workaround.
       - name: Only keep distribution lib and target in Package.swift
         run: ./scripts/prepare-package.sh --only-keep-distribution true
 
