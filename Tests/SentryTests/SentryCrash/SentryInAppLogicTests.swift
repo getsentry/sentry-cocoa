@@ -5,11 +5,10 @@ class SentryInAppLogicTests: XCTestCase {
     
     private class Fixture {
         
-        func getSut(inAppIncludes: [String] = [], inAppExcludes: [String] = [] ) -> SentryInAppLogic {
+        func getSut(inAppIncludes: [String] = [] ) -> SentryInAppLogic {
             
             return SentryInAppLogic(
-                inAppIncludes: inAppIncludes,
-                inAppExcludes: inAppExcludes
+                inAppIncludes: inAppIncludes
             )
         }
     }
@@ -50,28 +49,21 @@ class SentryInAppLogicTests: XCTestCase {
     
     func testInAppExclude_WithSpecifiedFramework() {
         XCTAssertFalse(
-            fixture.getSut(inAppExcludes: ["iOS-Swift"])
-                .is(inApp: "/private/var/containers/Bundle/Application/D987FC7A-629E-41DD-A043-5097EB29E2F4/iOS-Swift.app/iOS-Swift")
-        )
-    }
-    
-    func testInAppExclude_WithLowercasePrefix() {
-        XCTAssertFalse(
-            fixture.getSut(inAppExcludes: ["i"])
+            fixture.getSut()
                 .is(inApp: "/private/var/containers/Bundle/Application/D987FC7A-629E-41DD-A043-5097EB29E2F4/iOS-Swift.app/iOS-Swift")
         )
     }
     
     func testInAppIncludeTakesPrecedence() {
         XCTAssertTrue(
-            fixture.getSut(inAppIncludes: ["libdyld.dylib"], inAppExcludes: ["libdyld.dylib"])
+            fixture.getSut(inAppIncludes: ["libdyld.dylib"])
                 .is(inApp: "/usr/lib/system/libdyld.dylib")
         )
     }
     
     func testInApp_WithNotMatchingIncludeButMatchingExclude() {
         XCTAssertFalse(
-            fixture.getSut(inAppIncludes: ["iOS-Swifta"], inAppExcludes: ["iOS-Swift"])
+            fixture.getSut(inAppIncludes: ["iOS-Swifta"])
                 .is(inApp: "/private/var/containers/Bundle/Application/D987FC7A-629E-41DD-A043-5097EB29E2F4/iOS-Swift.app/iOS-Swift")
         )
     }
@@ -177,8 +169,8 @@ class SentryInAppLogicTests: XCTestCase {
         testWithImages(images: images, inAppIncludes: ["watchOS-Swift WatchKit Extension"])
     }
     
-    private func testWithImages(images: Images, inAppIncludes: [String], inAppExcludes: [String] = []) {
-        let sut = fixture.getSut(inAppIncludes: inAppIncludes, inAppExcludes: inAppExcludes)
+    private func testWithImages(images: Images, inAppIncludes: [String]) {
+        let sut = fixture.getSut(inAppIncludes: inAppIncludes)
         XCTAssertTrue(sut.is(inApp: images.bundleExecutable))
         images.privateFrameworks.forEach {
             XCTAssertTrue(sut.is(inApp: $0))

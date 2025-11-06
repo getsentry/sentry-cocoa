@@ -7,6 +7,7 @@ on:
       - release/**
 
   pull_request:
+    types: [opened, synchronize, reopened, labeled]
 
 # Concurrency configuration:
 # - We use workflow-specific concurrency groups to prevent multiple build runs of the same code,
@@ -20,9 +21,17 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
+  ready-to-merge-gate:
+    name: Ready-to-merge gate
+    uses: ./.github/workflows/ready-to-merge-workflow.yml
+    with:
+      is-pr: ${{ github.event_name == 'pull_request' }}
+      labels: ${{ toJson(github.event.pull_request.labels) }}
+
   files-changed:
     name: Detect File Changes
     runs-on: ubuntu-latest
+    needs: ready-to-merge-gate
     outputs:
       run_build_for_prs: ${{ steps.changes.outputs.run_build_for_prs }}
     steps:
@@ -98,6 +107,17 @@ jobs:
 
     steps:
       - uses: actions/checkout@v5
+
+      # As the DistributionSample project uses local SPM, xcodebuild resolves SPM dependencies for all
+      # sample projects. The Package.swift references binary targets, which in release branch commits points
+      # to non-existent download URLs. This creates chicken-egg failures when building these sample apps for
+      # a release commit build. When building these sample apps for a release commit, xcodebuild tries to
+      # resolve all SPM dependencies, including the binary targets pointing to these non-existent URLs.  The
+      # sample projects don't use SPM for including Sentry. Only the DistributionSample uses local SPM.
+      # Therefore, we only keep the local DistributionSample reference in the Package.swift as a workaround.
+      - name: Only keep distribution lib and target in Package.swift
+        run: ./scripts/prepare-package.sh --only-keep-distribution true
+
       - run: ./scripts/ci-select-xcode.sh 16.4
       - run: make init-ci-build
       - run: make xcode-ci
@@ -129,12 +149,15 @@ jobs:
   build-distribution:
     name: Build the distribution framework
     runs-on: macos-15
+    # Don't run this on release branches, cause the SPM Package.swift points to the unreleased versions.
+    if: startsWith(github.ref, 'refs/heads/release/') == false && (github.event_name != 'pull_request' || needs.files-changed.outputs.run_build_for_prs == 'true')
     needs: files-changed
     steps:
       - uses: actions/checkout@v5
 
       - run: ./scripts/ci-select-xcode.sh 16.4
         shell: sh
+
       - run: rm -r Sentry.xcodeproj && rm -r Sentry.xcworkspace
       - run: set -o pipefail && NSUnbufferedIO=YES xcodebuild build -scheme SentryDistribution -sdk iphoneos -destination 'generic/platform=iphoneos' | tee raw-build-output-spm.log | xcbeautify
         shell: sh

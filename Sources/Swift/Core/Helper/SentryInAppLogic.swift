@@ -28,28 +28,22 @@ import ObjectiveC
 @objc @_spi(Private) public class SentryInAppLogic: NSObject {
     
     @objc public let inAppIncludes: [String]
-    private let inAppExcludes: [String]
     
     /**
-     * Initializes @c SentryInAppLogic with @c inAppIncludes and @c inAppExcludes.
+     * Initializes @c SentryInAppLogic with @c inAppIncludes.
      *
      * To work properly for Apple applications the @c inAppIncludes should contain the
      * @c CFBundleExecutable, which is the name of the bundle's executable file.
      *
-     * @param inAppIncludes A list of string prefixes of framework names that belong to the app. This
-     * option takes precedence over @c inAppExcludes.
-     * @param inAppExcludes A list of string prefixes of framework names that do not belong to the app,
-     * but rather to third-party packages. Modules considered not part of the app will be hidden from
-     * stack traces by default.
+     * @param inAppIncludes A list of string prefixes of framework names that belong to the app.
      */
-    @objc(initWithInAppIncludes:inAppExcludes:) public init(inAppIncludes: [String], inAppExcludes: [String]) {
+    @objc(initWithInAppIncludes:) public init(inAppIncludes: [String]) {
         self.inAppIncludes = inAppIncludes.map { $0.lowercased() }
-        self.inAppExcludes = inAppExcludes.map { $0.lowercased() }
         super.init()
     }
     
     /**
-     * Determines if the framework belongs to the app by using @c inAppIncludes and @c inAppExcludes.
+     * Determines if the framework belongs to the app by using @c inAppIncludes.
      * Before checking this method lowercases the strings and uses only the @c lastPathComponent of the
      * @c imagePath.
      *
@@ -57,7 +51,7 @@ import ObjectiveC
      *
      * @return @c YES if the framework located at the @c imagePath starts with a prefix of
      * @c inAppIncludes. @c NO if the framework located at the @c imagePath doesn't start with a prefix of
-     * @c inAppIncludes or start with a prefix of @c inAppExcludes.
+     * @c inAppIncludes.
      */
     @objc public func `is`(inApp imagePath: String?) -> Bool {
         guard let imagePath else {
@@ -72,12 +66,6 @@ import ObjectiveC
             }
         }
         
-        for inAppExclude in inAppExcludes {
-            if imageNameLastPathComponent.hasPrefix(inAppExclude) {
-                return false
-            }
-        }
-        
         return false
     }
     
@@ -88,8 +76,7 @@ import ObjectiveC
      * @param targetClass the class to check.
      *
      * @return @c YES if the @c targetClass belongs to a framework included in @c inAppIncludes.
-     * @c NO if targetClass does not belong to a framework in @c inAppIncludes or belongs to a framework in
-     * @c inAppExcludes.
+     * @c NO if targetClass does not belong to a framework in @c inAppIncludes.
      */
     @objc public func isClassInApp(_ targetClass: AnyClass) -> Bool {
         guard let imageName = class_getImageName(targetClass) else {

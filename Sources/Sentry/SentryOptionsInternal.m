@@ -252,14 +252,6 @@
         }
     }
 
-    if ([options[@"inAppExcludes"] isKindOfClass:[NSArray class]]) {
-        NSArray<NSString *> *inAppExcludes =
-            [options[@"inAppExcludes"] filteredArrayUsingPredicate:isNSString];
-        for (NSString *exclude in inAppExcludes) {
-            [sentryOptions addInAppExclude:exclude];
-        }
-    }
-
     if ([options[@"urlSession"] isKindOfClass:[NSURLSession class]]) {
         sentryOptions.urlSession = options[@"urlSession"];
     }
