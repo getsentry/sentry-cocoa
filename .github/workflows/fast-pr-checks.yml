@@ -49,7 +49,7 @@ jobs:
       name: iOS 18 Sentry
       runs-on: macos-15
       timeout: 20
-      should_skip: ${{needs.files-changed.outputs.run_unit_tests_for_prs != 'true'}}
+      should_skip: false
       xcode: "16.4"
       test-destination-os: "18.4"
       platform: iOS
