@@ -51,8 +51,7 @@
 {
     if (self = [super init]) {
         self.options = options;
-        self.inAppLogic = [[SentryInAppLogic alloc] initWithInAppIncludes:options.inAppIncludes
-                                                            inAppExcludes:options.inAppExcludes];
+        self.inAppLogic = [[SentryInAppLogic alloc] initWithInAppIncludes:options.inAppIncludes];
         self.dispatchQueue = dispatchQueue;
         self.objcRuntimeWrapper = objcRuntimeWrapper;
         self.subClassFinder = subClassFinder;

@@ -145,8 +145,7 @@ sentry_finishAndSaveTransaction(void)
         BOOL canSendReports = NO;
         if (installation == nil) {
             SentryInAppLogic *inAppLogic =
-                [[SentryInAppLogic alloc] initWithInAppIncludes:self.options.inAppIncludes
-                                                  inAppExcludes:self.options.inAppExcludes];
+                [[SentryInAppLogic alloc] initWithInAppIncludes:self.options.inAppIncludes];
 
             installation = [[SentryCrashInstallationReporter alloc]
                 initWithInAppLogic:inAppLogic
