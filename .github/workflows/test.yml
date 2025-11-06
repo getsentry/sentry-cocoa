@@ -100,11 +100,13 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - name: Prepare Package.swift
-        uses: ./.github/actions/prepare-package.swift
-        with:
-          is-pr: ${{ github.event_name == 'pull_request' }}
-          change-path: false
-          remove-duplicate: true
+        shell: bash
+        run: |
+          ./scripts/prepare-package.sh \
+            --package-file Package.swift \
+            --is-pr "${{ github.event_name == 'pull_request' }}" \
+            --remove-duplicate true \
+            --change-path false
       - run: rm -r Sentry.xcodeproj && rm -r Sentry.xcworkspace
       - run: set -o pipefail && NSUnbufferedIO=YES SKIP_BINARIES=1 xcodebuild test -scheme Sentry-Package -sdk iphonesimulator -destination 'platform=iOS Simulator,OS=18.4,name=iPhone 16 Pro' | tee raw-test-output-distribution.log | xcbeautify --preserve-unbeautified
         shell: sh
