@@ -142,9 +142,12 @@ jobs:
           pattern: xcframework-${{github.sha}}-*
           merge-multiple: true
       - name: Prepare Package.swift
-        uses: ./.github/actions/prepare-package.swift
-        with:
-          is-pr: ${{ github.event_name == 'pull_request' }}
+        shell: bash
+        run: |
+          ./scripts/prepare-package.sh \
+            --package-file Package.swift \
+            --is-pr "${{ github.event_name == 'pull_request' }}" \
+            --change-path true
       - run: ./scripts/ci-select-xcode.sh 16.4
       - run: swift build
         working-directory: Samples/macOS-SPM-CommandLine
@@ -165,9 +168,12 @@ jobs:
           pattern: xcframework-${{github.sha}}-*
           merge-multiple: true
       - name: Prepare Package.swift
-        uses: ./.github/actions/prepare-package.swift
-        with:
-          is-pr: ${{ github.event_name == 'pull_request' }}
+        shell: bash
+        run: |
+          ./scripts/prepare-package.sh \
+            --package-file Package.swift \
+            --is-pr "${{ github.event_name == 'pull_request' }}" \
+            --change-path true
       - run: ./scripts/ci-select-xcode.sh 16.4
       - run: swift build
         working-directory: Samples/SPM-Dynamic
@@ -188,9 +194,12 @@ jobs:
           pattern: xcframework-${{github.sha}}-*
           merge-multiple: true
       - name: Prepare Package.swift
-        uses: ./.github/actions/prepare-package.swift
-        with:
-          is-pr: ${{ github.event_name == 'pull_request' }}
+        shell: bash
+        run: |
+          ./scripts/prepare-package.sh \
+            --package-file Package.swift \
+            --is-pr "${{ github.event_name == 'pull_request' }}" \
+            --change-path true
       - run: ./scripts/ci-select-xcode.sh 16.4
       - run: swift build
       - name: Run CI Diagnostics
@@ -210,9 +219,12 @@ jobs:
           pattern: xcframework-${{github.sha}}-*
           merge-multiple: true
       - name: Prepare Package.swift
-        uses: ./.github/actions/prepare-package.swift
-        with:
-          is-pr: ${{ github.event_name == 'pull_request' }}
+        shell: bash
+        run: |
+          ./scripts/prepare-package.sh \
+            --package-file Package.swift \
+            --is-pr "${{ github.event_name == 'pull_request' }}" \
+            --change-path true
       - run: ./scripts/ci-select-xcode.sh 16.4
       - run: set -o pipefail &&xcodebuild build -scheme visionOS-SPM -sdk xros -destination 'generic/platform=xros' | tee raw-build-output-spm-visionOS.log | xcbeautify
         working-directory: Samples/visionOS-SPM
