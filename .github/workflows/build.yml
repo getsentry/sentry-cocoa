@@ -99,10 +99,12 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      # The binary targets are not needed for the sample builds.
-      # As the build distribution sample uses local SPM, xcodebuild resolves SPM dependencies also for these
-      # sample projects. The binary targets aren't required and cause chicken-egg problems when releasing.
-      - name: Remove binary targets from Package.swift
+      # As the DistributionSample project uses local SPM, xcodebuild resolves SPM dependencies for these
+      # sample projects too. Because Package.swift still references binary targets, release commits update
+      # them to non-existent download URLs, creating chicken-egg failures. Since DistributionSample lives
+      # in the workspace, xcodebuild attempts to resolve these dependencies and the build fails.
+      # Therefore, we only keep the distribution lib and target in Package.swift.
+      - name: Only keep distribution lib and target in Package.swift
         run: ./scripts/prepare-package.sh --only-keep-distribution true
 
       - run: ./scripts/ci-select-xcode.sh 16.4
@@ -140,10 +142,12 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      # The binary targets are not needed for the sample builds.
-      # As the build distribution sample uses local SPM, xcodebuild resolves SPM dependencies also for these
-      # sample projects. The binary targets aren't required and cause chicken-egg problems when releasing.
-      - name: Remove binary targets from Package.swift
+      # As the DistributionSample project uses local SPM, xcodebuild resolves SPM dependencies for these
+      # sample projects too. Because Package.swift still references binary targets, release commits update
+      # them to non-existent download URLs, creating chicken-egg failures. Since DistributionSample lives
+      # in the workspace, xcodebuild attempts to resolve these dependencies and the build fails.
+      # Therefore, we only keep the distribution lib and target in Package.swift.
+      - name: Only keep distribution lib in Package.swift
         run: ./scripts/prepare-package.sh --only-keep-distribution true
 
       - run: ./scripts/ci-select-xcode.sh 16.4
