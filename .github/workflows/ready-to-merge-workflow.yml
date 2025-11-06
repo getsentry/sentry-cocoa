@@ -37,5 +37,5 @@ jobs:
         if: ${{ inputs.is-pr && steps.check-label.outputs.label_found == 'true' }}
         run: echo "Label present. Proceeding with CI."
       - name: Gate passed
-        if: ${{ inputs.is-pr == 'false' }}
+        if: ${{ !inputs.is-pr }}
         run: echo "Not a PR. Proceeding with CI."
