@@ -121,6 +121,11 @@ var targets: [Target] = [\
 ]\
 ' "$PACKAGE_FILE"
 
+  # Replace dependency declarations with an empty list.
+  sed -i '' '/^    dependencies: \[/,/^    ],/c\
+    dependencies: [],\
+' "$PACKAGE_FILE"
+
   # Remove conditional append blocks that reintroduce other targets/products.
   sed -i '' '/^let env = getenv("EXPERIMENTAL_SPM_BUILDS")/,/^}/d' "$PACKAGE_FILE"
 fi

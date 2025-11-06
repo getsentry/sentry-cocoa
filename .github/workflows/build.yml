@@ -138,17 +138,11 @@ jobs:
   build-distribution:
     name: Build the distribution framework
     runs-on: macos-15
+    # Don't run this on release branches, cause the SPM Package.swift points to the unreleased versions.
+    if: startsWith(github.ref, 'refs/heads/release/') == false && (github.event_name != 'pull_request' || needs.files-changed.outputs.run_build_for_prs == 'true')
     needs: files-changed
     steps:
       - uses: actions/checkout@v5
-
-      # As the DistributionSample project uses local SPM, xcodebuild resolves SPM dependencies for these
-      # sample projects too. Because Package.swift still references binary targets, release commits update
-      # them to non-existent download URLs, creating chicken-egg failures. Since DistributionSample lives
-      # in the workspace, xcodebuild attempts to resolve these dependencies and the build fails.
-      # Therefore, we only keep the distribution lib and target in Package.swift.
-      - name: Only keep distribution lib in Package.swift
-        run: ./scripts/prepare-package.sh --only-keep-distribution true
 
       - run: ./scripts/ci-select-xcode.sh 16.4
         shell: sh
