@@ -16,19 +16,25 @@ jobs:
     name: 'Missing "ready-to-merge" label'
     runs-on: ubuntu-latest
     steps:
-      - name: debug
+      - name: Check for exact 'ready-to-merge' label
+        if: ${{ inputs.is-pr == 'true' }}
+        id: check-label
         run: |
-          echo "is-pr: ${{ inputs.is-pr }}"
-          echo "labels: ${{ inputs.labels }}"
+          # Use jq to check for exact label match (avoids substring matching issues with contains())
+          if echo '${{ inputs.labels }}' | jq -e '.[] | select(.name == "ready-to-merge")' > /dev/null; then
+            echo "label_found=true" >> $GITHUB_OUTPUT
+          else
+            echo "label_found=false" >> $GITHUB_OUTPUT
+          fi
       # Since Github also accepts `skipped` results for Required Workflows, we need
       # to fail the job to ensure that the downstream jobs don't just skip.
       - name: Fail until the 'ready-to-merge' label is present
-        if: ${{ inputs.is-pr == 'true' && !contains(inputs.labels, '"name":"ready-to-merge"') }}
+        if: ${{ inputs.is-pr == 'true' && steps.check-label.outputs.label_found == 'false' }}
         run: |
           echo "Add the 'ready-to-merge' label to run CI."
           exit 1
       - name: Gate passed
-        if: ${{ inputs.is-pr == 'true' && contains(inputs.labels, '"name":"ready-to-merge"') }}
+        if: ${{ inputs.is-pr == 'true' && steps.check-label.outputs.label_found == 'true' }}
         run: echo "Label present. Proceeding with CI."
       - name: Gate passed
         if: ${{ inputs.is-pr == 'false' }}
