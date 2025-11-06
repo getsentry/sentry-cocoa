@@ -106,6 +106,83 @@
         },
         "tabWidth": {
           "type": "integer"
+        },
+        "disabledValidations": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "defaultConfig": {
+          "type": "string"
+        },
+        "groupOrdering": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "pattern": {
+                "type": "string"
+              },
+              "order": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "findCarthageFrameworks": {
+          "type": "boolean"
+        },
+        "localPackagesGroup": {
+          "type": "string"
+        },
+        "fileTypes": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "file": {
+                "type": "boolean"
+              },
+              "buildPhase": {
+                "type": "string"
+              },
+              "attributes": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "resourceTags": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "compilerFlags": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "preGenCommand": {
+          "type": "string"
+        },
+        "postGenCommand": {
+          "type": "string"
+        },
+        "useBaseInternationalization": {
+          "type": "boolean"
+        },
+        "defaultSourceDirectoryType": {
+          "type": "string",
+          "enum": ["group", "folder", "syncedFolder"]
         }
       }
     },
@@ -231,11 +308,20 @@
           "enum": [
             "application",
             "application.on-demand-install-capable",
+            "application.messages",
+            "application.watchapp",
+            "application.watchapp2",
+            "application.watchapp2-container",
             "app-extension",
+            "app-extension.intents-service",
+            "app-extension.messages",
+            "app-extension.messages-sticker-pack",
             "bundle",
+            "bundle.ocunit-test",
             "bundle.ui-testing",
             "bundle.unit-test",
             "command-line-tool",
+            "extensionkit-extension",
             "framework",
             "framework.static",
             "instruments-package",
@@ -243,11 +329,16 @@
             "library.static",
             "oc-unit-test-bundle",
             "sticker-pack-extension",
+            "tool",
             "tv-app-extension",
             "watch-app",
             "watchkit-extension",
             "watchkit2-extension",
-            "xpc-service"
+            "xcode-extension",
+            "driver-extension",
+            "system-extension",
+            "xpc-service",
+            ""
           ]
         },
         "platform": {
@@ -273,6 +364,19 @@
             {
               "type": "array",
               "items": {
+                "type": "string"
+              }
+            }
+          ]
+        },
+        "deploymentTarget": {
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "object",
+              "additionalProperties": {
                 "type": "string"
               }
             }
@@ -311,6 +415,46 @@
           }
         },
         "plist": {
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "path": {
+                  "type": "string"
+                },
+                "properties": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              },
+              "required": ["path"]
+            }
+          ]
+        },
+        "info": {
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "path": {
+                  "type": "string"
+                },
+                "properties": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              },
+              "required": ["path"]
+            }
+          ]
+        },
+        "entitlements": {
           "oneOf": [
             {
               "type": "string"
@@ -384,7 +528,32 @@
         "template": {
           "type": "string"
         },
+        "templates": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
         "templateAttributes": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "transitivelyLinkDependencies": {
+          "type": "boolean"
+        },
+        "directlyEmbedCarthageDependencies": {
+          "type": "boolean"
+        },
+        "requiresObjCLinking": {
+          "type": "boolean"
+        },
+        "onlyCopyFilesOnInstall": {
+          "type": "boolean"
+        },
+        "putResourcesBeforeSourcesBuildPhase": {
+          "type": "boolean"
+        },
+        "attributes": {
           "type": "object",
           "additionalProperties": true
         },
@@ -403,6 +572,9 @@
         "name": {
           "type": "string"
         },
+        "group": {
+          "type": "string"
+        },
         "createIntermediateGroups": {
           "type": "boolean"
         },
@@ -419,10 +591,17 @@
           }
         },
         "compilerFlags": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          ]
         },
         "headerVisibility": {
           "type": "string",
@@ -430,7 +609,65 @@
         },
         "type": {
           "type": "string",
-          "enum": ["file", "folder", "group"]
+          "enum": ["file", "folder", "group", "syncedFolder"]
+        },
+        "destinationFilters": {
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          ]
+        },
+        "inferDestinationFiltersByPath": {
+          "type": "boolean"
+        },
+        "optional": {
+          "type": "boolean"
+        },
+        "buildPhase": {
+          "oneOf": [
+            {
+              "type": "string",
+              "enum": ["sources", "resources", "headers", "none"]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "copyFiles": {
+                  "type": "object",
+                  "properties": {
+                    "destination": {
+                      "type": "string",
+                      "enum": ["absolutePath", "productsDirectory", "wrapper", "executables", "resources", "javaResources", "frameworks", "sharedFrameworks", "sharedSupport", "plugins"]
+                    },
+                    "subpath": {
+                      "type": "string"
+                    }
+                  },
+                  "required": ["destination"]
+                }
+              },
+              "required": ["copyFiles"]
+            }
+          ]
+        },
+        "attributes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "resourceTags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         }
       },
       "required": ["path"]
@@ -458,11 +695,41 @@
             "weak": {
               "type": "boolean"
             },
+            "platformFilter": {
+              "type": "string",
+              "enum": ["iOS", "macOS", "all"]
+            },
+            "destinationFilters": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              ]
+            },
             "platforms": {
               "type": "array",
               "items": {
                 "type": "string"
               }
+            },
+            "copy": {
+              "type": "object",
+              "properties": {
+                "destination": {
+                  "type": "string",
+                  "enum": ["absolutePath", "productsDirectory", "wrapper", "executables", "resources", "javaResources", "frameworks", "sharedFrameworks", "sharedSupport", "plugins"]
+                },
+                "subpath": {
+                  "type": "string"
+                }
+              },
+              "required": ["destination"]
             }
           },
           "required": ["target"],
@@ -472,6 +739,9 @@
           "type": "object",
           "properties": {
             "package": {
+              "type": "string"
+            },
+            "product": {
               "type": "string"
             },
             "products": {
@@ -492,6 +762,9 @@
           "properties": {
             "sdk": {
               "type": "string"
+            },
+            "root": {
+              "type": "string"
             }
           },
           "required": ["sdk"],
@@ -509,6 +782,23 @@
             "linkType": {
               "type": "string",
               "enum": ["dynamic", "static"]
+            },
+            "platformFilter": {
+              "type": "string",
+              "enum": ["iOS", "macOS", "all"]
+            },
+            "destinationFilters": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              ]
             }
           },
           "required": ["carthage"],
@@ -528,6 +818,39 @@
             },
             "weak": {
               "type": "boolean"
+            },
+            "implicit": {
+              "type": "boolean"
+            },
+            "platformFilter": {
+              "type": "string",
+              "enum": ["iOS", "macOS", "all"]
+            },
+            "destinationFilters": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              ]
+            },
+            "copy": {
+              "type": "object",
+              "properties": {
+                "destination": {
+                  "type": "string",
+                  "enum": ["absolutePath", "productsDirectory", "wrapper", "executables", "resources", "javaResources", "frameworks", "sharedFrameworks", "sharedSupport", "plugins"]
+                },
+                "subpath": {
+                  "type": "string"
+                }
+              },
+              "required": ["destination"]
             }
           },
           "required": ["framework"],
@@ -564,6 +887,16 @@
           },
           "required": ["xctest"],
           "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "bundle": {
+              "type": "string"
+            }
+          },
+          "required": ["bundle"],
+          "additionalProperties": false
         }
       ]
     },
@@ -582,6 +915,9 @@
               }
             }
           ]
+        },
+        "path": {
+          "type": "string"
         },
         "name": {
           "type": "string"
@@ -621,9 +957,11 @@
         },
         "runOnlyWhenInstalling": {
           "type": "boolean"
+        },
+        "discoveredDependencyFile": {
+          "type": "string"
         }
-      },
-      "required": ["script"]
+      }
     },
     "BuildRule": {
       "type": "object",
@@ -654,6 +992,9 @@
         },
         "compilerSpec": {
           "type": "string"
+        },
+        "runOncePerArchitecture": {
+          "type": "boolean"
         }
       }
     },
