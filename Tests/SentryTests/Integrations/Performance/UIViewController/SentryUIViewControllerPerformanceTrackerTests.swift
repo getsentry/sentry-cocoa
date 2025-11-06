@@ -38,7 +38,7 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         var viewControllerName: String!
 
         var inAppLogic: SentryInAppLogic {
-            return SentryInAppLogic(inAppIncludes: options.inAppIncludes, inAppExcludes: [])
+            return SentryInAppLogic(inAppIncludes: options.inAppIncludes)
         }
         
         init() {

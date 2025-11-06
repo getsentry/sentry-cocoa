@@ -452,7 +452,6 @@ NS_SWIFT_NAME(Options)
 
 /**
  * A list of string prefixes of framework names that belong to the app.
- * @note This option takes precedence over @c inAppExcludes.
  * @note By default, this contains @c CFBundleExecutable to mark it as "in-app".
  */
 @property (nonatomic, readonly, copy) NSArray<NSString *> *inAppIncludes;
@@ -462,21 +461,6 @@ NS_SWIFT_NAME(Options)
  * @param inAppInclude The prefix of the framework name.
  */
 - (void)addInAppInclude:(NSString *)inAppInclude;
-
-/**
- * A list of string prefixes of framework names that do not belong to the app, but rather to
- * third-party frameworks.
- * @note By default, frameworks considered not part of the app will be hidden from stack
- * traces.
- * @note This option can be overridden using @c inAppIncludes.
- */
-@property (nonatomic, readonly, copy) NSArray<NSString *> *inAppExcludes;
-
-/**
- * Adds an item to the list of @c inAppExcludes.
- * @param inAppExclude The prefix of the frameworks name.
- */
-- (void)addInAppExclude:(NSString *)inAppExclude;
 
 /**
  * Set as delegate on the @c NSURLSession used for all network data-transfer tasks performed by
