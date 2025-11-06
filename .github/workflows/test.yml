@@ -125,7 +125,9 @@ jobs:
             ]
     steps:
       - uses: actions/checkout@v5
-      - run: sudo ./scripts/ci-select-xcode.sh "16.4"
+      # Ensure the user has write permissions to the Xcode DerivedData directory
+      - run: sudo chown -R $(whoami) ~/Library/Developer
+      - run: ./scripts/ci-select-xcode.sh "16.4"
       - name: Prepare Package.swift
         uses: ./.github/actions/prepare-package.swift
         with:
@@ -133,7 +135,7 @@ jobs:
           change-path: false
           remove-duplicate: true
       - run: rm -r Sentry.xcodeproj && rm -r Sentry.xcworkspace
-      - run: set -o pipefail && sudo NSUnbufferedIO=YES SKIP_BINARIES=1 xcodebuild test -scheme Sentry-Package -sdk iphonesimulator -destination 'platform=iOS Simulator,OS=18.4,name=iPhone 16 Pro' | tee raw-test-output-distribution.log | xcbeautify --preserve-unbeautified
+      - run: set -o pipefail && NSUnbufferedIO=YES SKIP_BINARIES=1 xcodebuild test -scheme Sentry-Package -sdk iphonesimulator -destination 'platform=iOS Simulator,OS=18.4,name=iPhone 16 Pro' | tee raw-test-output-distribution.log | xcbeautify --preserve-unbeautified
         shell: sh
       - name: Upload Distribution Test Logs
         uses: actions/upload-artifact@v5
@@ -467,19 +469,19 @@ jobs:
       # Required for iOS 16.4, iOS 17.5 (on Xcode 15.4), and iOS/tvOS 26.1
       - name: Create simulator device
         if: ${{ matrix.create_device }}
-        run: sudo ./scripts/ci-create-simulator.sh --platform "${{ matrix.platform }}" --os-version "${{ matrix.test-destination-os }}" --device-name "${{ matrix.device }}"
+        run: ./scripts/ci-create-simulator.sh --platform "${{ matrix.platform }}" --os-version "${{ matrix.test-destination-os }}" --device-name "${{ matrix.device }}"
 
       # Boot created simulators to ensure they're ready before tests run
       # Based on CircleCI forum comment, booting is especially important for Xcode 26: https://discuss.circleci.com/t/xcode-26-rc/54066/18
       - name: Boot simulator
         if: ${{ matrix.create_device && matrix.platform == 'iOS' }}
-        run: sudo ./scripts/ci-boot-simulator.sh --xcode ${{ env.XCODE_VERSION }} --device "${{ matrix.device }}" --os-version "${{ matrix.test-destination-os }}"
+        run: ./scripts/ci-boot-simulator.sh --xcode ${{ env.XCODE_VERSION }} --device "${{ matrix.device }}" --os-version "${{ matrix.test-destination-os }}"
 
       # We split building and running tests in two steps so we know how long running the tests takes.
       - name: Build Tests
         id: build_tests
         run: |
-          sudo ./scripts/sentry-xcodebuild.sh \
+          ./scripts/sentry-xcodebuild.sh \
             --platform ${{matrix.platform}} \
             --os ${{matrix.test-destination-os}} \
             --ref ${{ github.ref_name }} \
@@ -496,7 +498,7 @@ jobs:
         # Only the Sentry Scheme has the Flaky TestPlan.
         if: ${{ matrix.scheme == 'Sentry' }}
         run: |
-          sudo ./scripts/sentry-xcodebuild.sh \
+          ./scripts/sentry-xcodebuild.sh \
             --platform ${{matrix.platform}} \
             --os ${{matrix.test-destination-os}} \
             --ref ${{ github.ref_name }} \
@@ -513,7 +515,7 @@ jobs:
         # because GitHub Actions don't provide an easy way of
         # manipulating string in expressions.
         run: |
-          sudo ./scripts/sentry-xcodebuild.sh \
+          ./scripts/sentry-xcodebuild.sh \
             --platform ${{matrix.platform}} \
             --os ${{matrix.test-destination-os}} \
             --ref ${{ github.ref_name }} \
