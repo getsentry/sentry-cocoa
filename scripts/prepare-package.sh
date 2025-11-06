@@ -129,3 +129,9 @@ var targets: [Target] = [\
   # Remove conditional append blocks that reintroduce other targets/products.
   sed -i '' '/^let env = getenv("EXPERIMENTAL_SPM_BUILDS")/,/^}/d' "$PACKAGE_FILE"
 fi
+
+echo
+echo "===== $PACKAGE_FILE (after prepare-package.sh) ====="
+cat "$PACKAGE_FILE"
+echo "===== end of $PACKAGE_FILE (after prepare-package.sh) ====="
+echo
