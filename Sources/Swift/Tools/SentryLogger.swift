@@ -39,6 +39,11 @@ public final class SentryLogger: NSObject {
         super.init()
     }
     
+    // No-Op Init used as a fallback in SentrySDK
+    init(dateProvider: SentryCurrentDateProvider) {
+        self.dateProvider = dateProvider
+    }
+    
     // MARK: - Trace Level
     
     /// Logs a trace-level message with structured string interpolation and optional attributes.

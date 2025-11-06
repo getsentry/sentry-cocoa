@@ -42,15 +42,15 @@ final class SentryLogBatcherTests: XCTestCase {
     // MARK: - Basic Functionality Tests
     
     func testAddMultipleLogs_BatchesTogether() throws {
-        // Given
+        // Arrange
         let log1 = createTestLog(body: "Log 1")
         let log2 = createTestLog(body: "Log 2")
         
-        // When
+        // Act
         sut.addLog(log1, scope: scope)
         sut.addLog(log2, scope: scope)
         
-        // Then - no immediate flush since buffer not full
+        // Assert
         XCTAssertEqual(testDelegate.captureLogsDataInvocations.count, 0)
         
         // Trigger flush manually
@@ -68,14 +68,14 @@ final class SentryLogBatcherTests: XCTestCase {
     // MARK: - Buffer Size Tests
     
     func testBufferReachesMaxSize_FlushesImmediately() throws {
-        // Given - create a log that will exceed the 500 byte limit
+        // Arrange
         let largeLogBody = String(repeating: "A", count: 600) // Larger than 500 byte limit
         let largeLog = createTestLog(body: largeLogBody)
         
-        // When - add a log that exceeds buffer size
+        // Act
         sut.addLog(largeLog, scope: scope)
         
-        // Then - should trigger immediate flush
+        // Assert
         XCTAssertEqual(testDelegate.captureLogsDataInvocations.count, 1)
         
         // Verify the large log is sent
@@ -87,13 +87,13 @@ final class SentryLogBatcherTests: XCTestCase {
     // MARK: - Timeout Tests
     
     func testTimeout_FlushesAfterDelay() throws {
-        // Given
+        // Arrange
         let log = createTestLog()
         
-        // When
+        // Act
         sut.addLog(log, scope: scope)
         
-        // Then - no immediate flush but timer should be started
+        // Assert
         XCTAssertEqual(testDelegate.captureLogsDataInvocations.count, 0)
         XCTAssertEqual(testDispatchQueue.dispatchAfterWorkItemInvocations.count, 1)
         XCTAssertEqual(testDispatchQueue.dispatchAfterWorkItemInvocations.first?.interval, 0.1)
@@ -108,21 +108,19 @@ final class SentryLogBatcherTests: XCTestCase {
     }
     
     func testAddingLogToEmptyBuffer_StartsTimer() throws {
-        // Given
+        // Arrange
         let log1 = createTestLog(body: "Log 1")
         let log2 = createTestLog(body: "Log 2")
         
-        // When - add first log to empty buffer
+        // Act
         sut.addLog(log1, scope: scope)
         
-        // Then - timer should be started for first log
+        // Assert
         XCTAssertEqual(testDispatchQueue.dispatchAfterWorkItemInvocations.count, 1)
         XCTAssertEqual(testDispatchQueue.dispatchAfterWorkItemInvocations.first?.interval, 0.1)
         
-        // When - add second log to non-empty buffer
         sut.addLog(log2, scope: scope)
         
-        // Then - no additional timer should be started
         XCTAssertEqual(testDispatchQueue.dispatchAfterWorkItemInvocations.count, 1)
         
         // Should not flush immediately
@@ -140,18 +138,18 @@ final class SentryLogBatcherTests: XCTestCase {
      // MARK: - Manual Capture Logs Tests
     
     func testManualCaptureLogs_CapturesImmediately() throws {
-        // Given
+        // Arrange
         let log1 = createTestLog(body: "Log 1")
         let log2 = createTestLog(body: "Log 2")
         
-        // When
+        // Act
         sut.addLog(log1, scope: scope)
         sut.addLog(log2, scope: scope)
         XCTAssertEqual(testDelegate.captureLogsDataInvocations.count, 0)
         
         sut.captureLogs()
         
-        // Then
+        // Assert
         XCTAssertEqual(testDelegate.captureLogsDataInvocations.count, 1)
         
         let capturedLogs = testDelegate.getCapturedLogs()
@@ -159,66 +157,59 @@ final class SentryLogBatcherTests: XCTestCase {
     }
     
     func testManualCaptureLogs_CancelsScheduledCapture() throws {
-        // Given
+        // Arrange
         let log = createTestLog()
-        
-        // When
         sut.addLog(log, scope: scope)
-        
-        // Then - timer should be started
         XCTAssertEqual(testDispatchQueue.dispatchAfterWorkItemInvocations.count, 1)
         let timerWorkItem = try XCTUnwrap(testDispatchQueue.dispatchAfterWorkItemInvocations.first?.workItem)
         
-        // Manual flush immediately
+        // Act
         sut.captureLogs()
+        
+        // Assert
         XCTAssertEqual(testDelegate.captureLogsDataInvocations.count, 1, "Manual flush should work")
         
-        // Try to trigger the timer work item (should not flush again since timer was cancelled)
         timerWorkItem.perform()
-        
-        // Then - no additional flush should occur (timer was cancelled by performFlush)
         XCTAssertEqual(testDelegate.captureLogsDataInvocations.count, 1, "Timer should be cancelled")
     }
     
     func testManualCaptureLogs_WithEmptyBuffer_DoesNothing() {
-        // When
+        // Act
         sut.captureLogs()
         
-        // Then
+        // Assert
         XCTAssertEqual(testDelegate.captureLogsDataInvocations.count, 0)
     }
     
     // MARK: - Edge Cases Tests
     
     func testScheduledFlushAfterBufferAlreadyFlushed_DoesNothing() throws {
-        // Given - create logs that will trigger size-based flush
+        // Arrange
         let largeLogBody = String(repeating: "B", count: 300)
         let log1 = createTestLog(body: largeLogBody)
-        let log2 = createTestLog(body: largeLogBody) // Together > 500 bytes
+        let log2 = createTestLog(body: largeLogBody)
         
-        // When - add first log (starts timer)
+        // Act
         sut.addLog(log1, scope: scope)
         XCTAssertEqual(testDelegate.captureLogsDataInvocations.count, 0)
         XCTAssertEqual(testDispatchQueue.dispatchAfterWorkItemInvocations.count, 1)
         let timerWorkItem = try XCTUnwrap(testDispatchQueue.dispatchAfterWorkItemInvocations.first?.workItem)
         
-        // Add second log that triggers size-based flush
         sut.addLog(log2, scope: scope)
         XCTAssertEqual(testDelegate.captureLogsDataInvocations.count, 1)
         
-        // Try to trigger the original timer work item (should not flush again)
         timerWorkItem.perform()
         
-        // Then - no additional flush should occur
+        // Assert
         XCTAssertEqual(testDelegate.captureLogsDataInvocations.count, 1)
     }
     
     func testAddLogAfterFlush_StartsNewBatch() throws {
-        // Given
+        // Arrange
         let log1 = createTestLog(body: "Log 1")
         let log2 = createTestLog(body: "Log 2")
         
-        // When
+        // Act
         sut.addLog(log1, scope: scope)
         sut.captureLogs()
         
@@ -227,7 +218,7 @@ final class SentryLogBatcherTests: XCTestCase {
         sut.addLog(log2, scope: scope)
         sut.captureLogs()
         
-        // Then - should have two separate flush calls
+        // Assert
         XCTAssertEqual(testDelegate.captureLogsDataInvocations.count, 2)
         
         // Verify each flush contains only one log
@@ -240,19 +231,19 @@ final class SentryLogBatcherTests: XCTestCase {
     // MARK: - Integration Tests
     
     func testConcurrentAdds_ThreadSafe() throws {
-        // Given
+        // Arrange
         let sutWithRealQueue = SentryLogBatcher(
             options: options,
             flushTimeout: 5,
-            maxBufferSizeBytes: 10_000, // Large buffer to avoid immediate flushes
-            dispatchQueue: SentryDispatchQueueWrapper(), // Real dispatch queue
+            maxBufferSizeBytes: 10_000,
+            dispatchQueue: SentryDispatchQueueWrapper(),
             delegate: testDelegate
         )
         
         let expectation = XCTestExpectation(description: "Concurrent adds")
         expectation.expectedFulfillmentCount = 10
         
-        // When - add logs concurrently from multiple threads
+        // Act
         for i in 0..<10 {
             DispatchQueue.global().async {
                 let log = self.createTestLog(body: "Log \(i)")
@@ -261,41 +252,36 @@ final class SentryLogBatcherTests: XCTestCase {
             }
         }
         wait(for: [expectation], timeout: 1.0)
-                
         sutWithRealQueue.captureLogs()
         
-        // Verify all 10 logs were included in the batch
+        // Assert
         let capturedLogs = self.testDelegate.getCapturedLogs()
         XCTAssertEqual(capturedLogs.count, 10, "All 10 concurrently added logs should be in the batch")
-        // Note: We can't verify exact order due to concurrency, but count should be correct
     }
 
     func testDispatchAfterTimeoutWithRealDispatchQueue() throws {
-        // Given - create batcher with real dispatch queue and short timeout
+        // Arrange
         let sutWithRealQueue = SentryLogBatcher(
             options: options,
-            flushTimeout: 0.2, // Short but realistic timeout
-            maxBufferSizeBytes: 10_000, // Large buffer to avoid size-based flush
-            dispatchQueue: SentryDispatchQueueWrapper(), // Real dispatch queue
+            flushTimeout: 0.2,
+            maxBufferSizeBytes: 10_000,
+            dispatchQueue: SentryDispatchQueueWrapper(),
             delegate: testDelegate
         )
         
         let log = createTestLog(body: "Real timeout test log")
         let expectation = XCTestExpectation(description: "Real timeout flush")
         
-        // When - add log and wait for real timeout
+        // Act
         sutWithRealQueue.addLog(log, scope: scope)
-        
-        // Initially no flush should have occurred
         XCTAssertEqual(testDelegate.captureLogsDataInvocations.count, 0)
         
-        // Wait for timeout to trigger flush
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { // Wait longer than timeout
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
             expectation.fulfill()
         }
         wait(for: [expectation], timeout: 1.0)
         
-        // Then - verify flush occurred due to timeout
+        // Assert
         XCTAssertEqual(testDelegate.captureLogsDataInvocations.count, 1, "Timeout should trigger flush")
         
         let capturedLogs = self.testDelegate.getCapturedLogs()
@@ -305,7 +291,7 @@ final class SentryLogBatcherTests: XCTestCase {
     
     // MARK: - Attribute Enrichment Tests
     
-    func testAddLog_AddsDefaultAttributes() {
+    func testAddLog_AddsDefaultAttributes() throws {
         options.environment = "test-environment"
         options.releaseName = "1.0.0"
         
@@ -320,7 +306,7 @@ final class SentryLogBatcherTests: XCTestCase {
         let capturedLogs = testDelegate.getCapturedLogs()
         XCTAssertEqual(capturedLogs.count, 1)
         
-        let capturedLog = capturedLogs.first!
+        let capturedLog = try XCTUnwrap(capturedLogs.first)
         let attributes = capturedLog.attributes
         
         XCTAssertEqual(attributes["sentry.sdk.name"]?.value as? String, SentryMeta.sdkName)
@@ -330,7 +316,7 @@ final class SentryLogBatcherTests: XCTestCase {
         XCTAssertEqual(attributes["sentry.trace.parent_span_id"]?.value as? String, span.spanId.sentrySpanIdString)
     }
     
-    func testAddLog_DoesNotAddNilDefaultAttributes() {
+    func testAddLog_DoesNotAddNilDefaultAttributes() throws {
         options.releaseName = nil
         // No span set on scope
         
@@ -339,7 +325,7 @@ final class SentryLogBatcherTests: XCTestCase {
         sut.captureLogs()
         
         let capturedLogs = testDelegate.getCapturedLogs()
-        let capturedLog = capturedLogs.first!
+        let capturedLog = try XCTUnwrap(capturedLogs.first)
         let attributes = capturedLog.attributes
         
         XCTAssertNil(attributes["sentry.release"])
@@ -351,7 +337,7 @@ final class SentryLogBatcherTests: XCTestCase {
         XCTAssertNotNil(attributes["sentry.environment"])
     }
     
-    func testAddLog_SetsTraceIdFromPropagationContext() {
+    func testAddLog_SetsTraceIdFromPropagationContext() throws {
         let expectedTraceId = SentryId()
         let propagationContext = SentryPropagationContext(trace: expectedTraceId, spanId: SpanId())
         scope.propagationContext = propagationContext
@@ -361,11 +347,11 @@ final class SentryLogBatcherTests: XCTestCase {
         sut.captureLogs()
         
         let capturedLogs = testDelegate.getCapturedLogs()
-        let capturedLog = capturedLogs.first!
+        let capturedLog = try XCTUnwrap(capturedLogs.first)
         XCTAssertEqual(capturedLog.traceId, expectedTraceId)
     }
     
-    func testAddLog_AddsUserAttributes() {
+    func testAddLog_AddsUserAttributes() throws {
         let user = User()
         user.userId = "123"
         user.email = "test@test.com"
@@ -377,7 +363,7 @@ final class SentryLogBatcherTests: XCTestCase {
         sut.captureLogs()
         
         let capturedLogs = testDelegate.getCapturedLogs()
-        let capturedLog = capturedLogs.first!
+        let capturedLog = try XCTUnwrap(capturedLogs.first)
         let attributes = capturedLog.attributes
         
         XCTAssertEqual(attributes["user.id"]?.value as? String, "123")
@@ -385,7 +371,7 @@ final class SentryLogBatcherTests: XCTestCase {
         XCTAssertEqual(attributes["user.email"]?.value as? String, "test@test.com")
     }
     
-    func testAddLog_DoesNotAddNilUserAttributes() {
+    func testAddLog_DoesNotAddNilUserAttributes() throws {
         let user = User()
         user.userId = "123"
         // email and name are nil
@@ -396,7 +382,7 @@ final class SentryLogBatcherTests: XCTestCase {
         sut.captureLogs()
         
         let capturedLogs = testDelegate.getCapturedLogs()
-        let capturedLog = capturedLogs.first!
+        let capturedLog = try XCTUnwrap(capturedLogs.first)
         let attributes = capturedLog.attributes
         
         XCTAssertEqual(attributes["user.id"]?.value as? String, "123")
@@ -404,7 +390,7 @@ final class SentryLogBatcherTests: XCTestCase {
         XCTAssertNil(attributes["user.email"])
     }
     
-    func testAddLog_DoesNotAddUserAttributesWhenNoUser() {
+    func testAddLog_DoesNotAddUserAttributesWhenNoUser() throws {
         // No user set on scope
         
         let log = createTestLog(body: "Test log message without user")
@@ -412,7 +398,7 @@ final class SentryLogBatcherTests: XCTestCase {
         sut.captureLogs()
         
         let capturedLogs = testDelegate.getCapturedLogs()
-        let capturedLog = capturedLogs.first!
+        let capturedLog = try XCTUnwrap(capturedLogs.first)
         let attributes = capturedLog.attributes
         
         XCTAssertNil(attributes["user.id"])
@@ -420,7 +406,7 @@ final class SentryLogBatcherTests: XCTestCase {
         XCTAssertNil(attributes["user.email"])
     }
     
-    func testAddLog_AddsOSAndDeviceAttributes() {
+    func testAddLog_AddsOSAndDeviceAttributes() throws {
         let osContext = ["name": "iOS", "version": "16.0.1"]
         let deviceContext = ["family": "iOS", "model": "iPhone14,4"]
         
@@ -432,7 +418,7 @@ final class SentryLogBatcherTests: XCTestCase {
         sut.captureLogs()
         
         let capturedLogs = testDelegate.getCapturedLogs()
-        let capturedLog = capturedLogs.first!
+        let capturedLog = try XCTUnwrap(capturedLogs.first)
         let attributes = capturedLog.attributes
         
         XCTAssertEqual(attributes["os.name"]?.value as? String, "iOS")
@@ -442,7 +428,7 @@ final class SentryLogBatcherTests: XCTestCase {
         XCTAssertEqual(attributes["device.family"]?.value as? String, "iOS")
     }
     
-    func testAddLog_HandlesPartialOSAndDeviceAttributes() {
+    func testAddLog_HandlesPartialOSAndDeviceAttributes() throws {
         let osContext = ["name": "macOS"] // Missing version
         let deviceContext = ["family": "macOS"] // Missing model
         
@@ -454,7 +440,7 @@ final class SentryLogBatcherTests: XCTestCase {
         sut.captureLogs()
         
         let capturedLogs = testDelegate.getCapturedLogs()
-        let capturedLog = capturedLogs.first!
+        let capturedLog = try XCTUnwrap(capturedLogs.first)
         let attributes = capturedLog.attributes
         
         XCTAssertEqual(attributes["os.name"]?.value as? String, "macOS")
@@ -464,7 +450,7 @@ final class SentryLogBatcherTests: XCTestCase {
         XCTAssertEqual(attributes["device.family"]?.value as? String, "macOS")
     }
     
-    func testAddLog_HandlesMissingOSAndDeviceContext() {
+    func testAddLog_HandlesMissingOSAndDeviceContext() throws {
         // Clear any OS and device context
         scope.removeContext(key: "os")
         scope.removeContext(key: "device")
@@ -474,7 +460,7 @@ final class SentryLogBatcherTests: XCTestCase {
         sut.captureLogs()
         
         let capturedLogs = testDelegate.getCapturedLogs()
-        let capturedLog = capturedLogs.first!
+        let capturedLog = try XCTUnwrap(capturedLogs.first)
         let attributes = capturedLog.attributes
         
         XCTAssertNil(attributes["os.name"])
@@ -488,7 +474,7 @@ final class SentryLogBatcherTests: XCTestCase {
     
 #if canImport(UIKit) && !SENTRY_NO_UIKIT
 #if os(iOS) || os(tvOS)
-    func testAddLog_ReplayAttributes_SessionMode_AddsReplayId() {
+    func testAddLog_ReplayAttributes_SessionMode_AddsReplayId() throws {
         // Set replayId on scope (session mode)
         let replayId = "12345678-1234-1234-1234-123456789012"
         scope.replayId = replayId
@@ -498,12 +484,12 @@ final class SentryLogBatcherTests: XCTestCase {
         sut.captureLogs()
         
         let capturedLogs = testDelegate.getCapturedLogs()
-        let capturedLog = capturedLogs.first!
+        let capturedLog = try XCTUnwrap(capturedLogs.first)
         XCTAssertEqual(capturedLog.attributes["sentry.replay_id"]?.value as? String, replayId)
         XCTAssertNil(capturedLog.attributes["sentry._internal.replay_is_buffering"])
     }
     
-    func testAddLog_ReplayAttributes_NoReplayId_NoAttributesAdded() {
+    func testAddLog_ReplayAttributes_NoReplayId_NoAttributesAdded() throws {
         // Don't set replayId on scope
         scope.replayId = nil
         
@@ -512,7 +498,7 @@ final class SentryLogBatcherTests: XCTestCase {
         sut.captureLogs()
         
         let capturedLogs = testDelegate.getCapturedLogs()
-        let capturedLog = capturedLogs.first!
+        let capturedLog = try XCTUnwrap(capturedLogs.first)
         XCTAssertNil(capturedLog.attributes["sentry.replay_id"])
         XCTAssertNil(capturedLog.attributes["sentry._internal.replay_is_buffering"])
     }
@@ -521,7 +507,7 @@ final class SentryLogBatcherTests: XCTestCase {
     
     // MARK: - BeforeSendLog Callback Tests
     
-    func testBeforeSendLog_ReturnsModifiedLog() {
+    func testBeforeSendLog_ReturnsModifiedLog() throws {
         var beforeSendCalled = false
         options.beforeSendLog = { log in
             beforeSendCalled = true
@@ -543,7 +529,7 @@ final class SentryLogBatcherTests: XCTestCase {
         XCTAssertTrue(beforeSendCalled)
         
         let capturedLogs = testDelegate.getCapturedLogs()
-        let capturedLog = capturedLogs.first!
+        let capturedLog = try XCTUnwrap(capturedLogs.first)
         XCTAssertEqual(capturedLog.level, .warn)
         XCTAssertEqual(capturedLog.body, "Modified by callback")
         XCTAssertEqual(capturedLog.attributes["callback_modified"]?.value as? Bool, true)
@@ -564,7 +550,7 @@ final class SentryLogBatcherTests: XCTestCase {
         XCTAssertEqual(testDelegate.captureLogsDataInvocations.count, 0)
     }
     
-    func testBeforeSendLog_NotSet_LogCapturedUnmodified() {
+    func testBeforeSendLog_NotSet_LogCapturedUnmodified() throws {
         options.beforeSendLog = nil
         
         let log = createTestLog(level: .debug, body: "Debug message")
@@ -574,12 +560,12 @@ final class SentryLogBatcherTests: XCTestCase {
         let capturedLogs = testDelegate.getCapturedLogs()
         XCTAssertEqual(capturedLogs.count, 1)
         
-        let capturedLog = capturedLogs.first!
+        let capturedLog = try XCTUnwrap(capturedLogs.first)
         XCTAssertEqual(capturedLog.level, .debug)
         XCTAssertEqual(capturedLog.body, "Debug message")
     }
     
-    func testBeforeSendLog_PreservesOriginalLogAttributes() {
+    func testBeforeSendLog_PreservesOriginalLogAttributes() throws {
         options.beforeSendLog = { log in
             log.attributes["added_by_callback"] = SentryLog.Attribute(string: "callback_value")
             return log
@@ -595,7 +581,7 @@ final class SentryLogBatcherTests: XCTestCase {
         sut.captureLogs()
         
         let capturedLogs = testDelegate.getCapturedLogs()
-        let capturedLog = capturedLogs.first!
+        let capturedLog = try XCTUnwrap(capturedLogs.first)
         let attributes = capturedLog.attributes
         
         XCTAssertEqual(attributes["original_key"]?.value as? String, "original_value")
@@ -604,16 +590,15 @@ final class SentryLogBatcherTests: XCTestCase {
     }
     
     func testAddLog_WithLogsDisabled_DoesNotCaptureLog() {
-        // Given - logs are disabled
+        // Arrange
         options.enableLogs = false
-        
         let log = createTestLog(body: "This log should be ignored")
         
-        // When
+        // Act
         sut.addLog(log, scope: scope)
         sut.captureLogs()
         
-        // Then - no logs should be captured when logs are disabled
+        // Assert
         XCTAssertEqual(testDelegate.captureLogsDataInvocations.count, 0)
         let capturedLogs = testDelegate.getCapturedLogs()
         XCTAssertEqual(capturedLogs.count, 0)

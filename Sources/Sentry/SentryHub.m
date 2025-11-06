@@ -842,27 +842,27 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)captureLog:(SentryLog *)log
 {
     SentryClientInternal *client = self.client;
-    if (client != nil) {
-#if SENTRY_TARGET_REPLAY_SUPPORTED
-        NSString *scopeReplayId = self.scope.replayId;
-        if (scopeReplayId != nil) {
-            // Session mode: use scope replay ID
-            [log setAttribute:[[SentryStructuredLogAttribute alloc] initWithString:scopeReplayId]
-                       forKey:@"sentry.replay_id"];
-        } else {
-            // Buffer mode: check if hub has a session replay ID
-            NSString *sessionReplayId = [self getSessionReplayId];
-            if (sessionReplayId != nil) {
-                [log setAttribute:[[SentryStructuredLogAttribute alloc]
-                                      initWithString:sessionReplayId]
-                           forKey:@"sentry.replay_id"];
-                [log setAttribute:[[SentryStructuredLogAttribute alloc] initWithBoolean:YES]
-                           forKey:@"sentry._internal.replay_is_buffering"];
-            }
-        }
-#endif
-        [client _swiftCaptureLog:log withScope:self.scope];
+    if (client == nil) {
+        return;
     }
+#if SENTRY_TARGET_REPLAY_SUPPORTED
+    NSString *scopeReplayId = self.scope.replayId;
+    if (scopeReplayId != nil) {
+        // Session mode: use scope replay ID
+        [log setAttribute:[[SentryLogAttribute alloc] initWithString:scopeReplayId]
+                   forKey:@"sentry.replay_id"];
+    } else {
+        // Buffer mode: check if hub has a session replay ID
+        NSString *sessionReplayId = [self getSessionReplayId];
+        if (sessionReplayId != nil) {
+            [log setAttribute:[[SentryLogAttribute alloc] initWithString:sessionReplayId]
+                       forKey:@"sentry.replay_id"];
+            [log setAttribute:[[SentryLogAttribute alloc] initWithBoolean:YES]
+                       forKey:@"sentry._internal.replay_is_buffering"];
+        }
+    }
+#endif
+    [client _swiftCaptureLog:log withScope:self.scope];
 }
 
 #pragma mark - Protected

@@ -28,12 +28,14 @@ import Foundation
     /// API to access Sentry logs
     @objc public static var logger: SentryLogger {
         if !SentrySDKInternal.isEnabled {
-            SentrySDKLog.fatal("Logs called before SentrySDK.start() will be dropped.")
+            SentrySDKLog.fatal("Logs called before SentrySDK.start() will not be sent to Sentry.")
         }
-        // We know the type so it's fine to force cast.
-        // swiftlint:disable force_cast
-        return SentrySDKInternal.currentHub()._swiftLogger as! SentryLogger
-        // swiftlint:enable force_cast
+        if let logger = SentrySDKInternal.currentHub()._swiftLogger as? SentryLogger {
+            return logger
+        } else {
+            SentrySDKLog.fatal("Unable to access configured logger. Logs will not be sent to Sentry.")
+            return SentryLogger(dateProvider: SentryDependencyContainer.sharedInstance().dateProvider)
+        }
     }
     
     /// Inits and configures Sentry (`SentryHub`, `SentryClient`) and sets up all integrations. Make sure to
