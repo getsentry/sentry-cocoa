@@ -23,10 +23,9 @@ concurrency:
 jobs:
   ready:
     name: Ready-to-merge gate
-    # Only validate the ready-to-merge gate for PR events.
-    if: github.event_name == 'pull_request'
     uses: ./.github/workflows/ready-to-merge-workflow.yml
     with:
+      is-pr: ${{ github.event_name == 'pull_request' }}
       labels: ${{ toJson(github.event.pull_request.labels) }}
 
   # This job detects if the PR contains changes that require running unit tests.

@@ -6,17 +6,24 @@ on:
         description: The GitHub event's labels
         required: true
         type: string
+      is-pr:
+        description: Whether the workflow is running on a PR
+        required: true
+        type: boolean
 
 jobs:
   ready:
-    name: ${{ !contains(inputs.labels, 'ready-to-merge') && 'Missing "ready-to-merge" label' || 'Missing "ready-to-merge" label' }}
+    name: 'Missing "ready-to-merge" label'
     runs-on: ubuntu-latest
     steps:
       - name: Fail until the 'ready-to-merge' label is present
-        if: ${{ !contains(inputs.labels, 'ready-to-merge') }}
+        if: ${{ inputs.is-pr == 'true' && !contains(inputs.labels, 'ready-to-merge') }}
         run: |
           echo "Add the 'ready-to-merge' label to run CI."
           exit 1
       - name: Gate passed
-        if: ${{ contains(inputs.labels, 'ready-to-merge') }}
+        if: ${{ inputs.is-pr == 'true' && contains(inputs.labels, 'ready-to-merge') }}
         run: echo "Label present. Proceeding with CI."
+      - name: Gate passed
+        if: ${{ inputs.is-pr == 'false' }}
+        run: echo "Not a PR. Proceeding with CI."
