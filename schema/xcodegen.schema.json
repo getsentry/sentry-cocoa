@@ -278,6 +278,19 @@
             }
           ]
         },
+        "deploymentTarget": {
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          ]
+        },
         "sources": {
           "oneOf": [
             {

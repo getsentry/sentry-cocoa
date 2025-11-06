@@ -1,0 +1,50 @@
+# yaml-language-server: $schema=../../schema/xcodegen.schema.json
+
+name: iOS-SwiftUI-Widgets
+include:
+  - ../Shared/feature-flags.yml
+createIntermediateGroups: true
+generateEmptyDirectories: true
+configs:
+  Debug: debug
+  Release: release
+fileGroups:
+  - ../Shared/Config
+  - iOS-SwiftUI-Widgets.yml
+options:
+  bundleIdPrefix: io.sentry.sentry-cocoa.samples
+targets:
+  iOS-SwiftUI-Widgets:
+    type: application
+    platform: iOS
+    deploymentTarget: "18.0"
+    sources:
+      - iOS-SwiftUI-Widgets
+      - Shared
+    dependencies:
+      - target: iOS-SwiftUI-Widgets-WidgetExtension
+    configFiles:
+      Debug: iOS-SwiftUI-Widgets.xcconfig
+      Release: iOS-SwiftUI-Widgets.xcconfig
+  iOS-SwiftUI-Widgets-WidgetExtension:
+    type: app-extension
+    platform: iOS
+    deploymentTarget: "18.0"
+    sources:
+      - iOS-SwiftUI-Widgets-WidgetExtension
+      - Shared
+    configFiles:
+      Debug: iOS-SwiftUI-Widgets-WidgetExtension.xcconfig
+      Release: iOS-SwiftUI-Widgets-WidgetExtension.xcconfig
+schemes:
+  iOS-SwiftUI-Widgets:
+    build:
+      targets:
+        iOS-SwiftUI-Widgets: all
+        iOS-SwiftUI-Widgets-WidgetExtension: all
+    run:
+      config: Debug
+    profile:
+      config: Release
+    archive:
+      config: Release
