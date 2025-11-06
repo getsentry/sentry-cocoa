@@ -19,12 +19,12 @@ jobs:
       # Since Github also accepts `skipped` results for Required Workflows, we need
       # to fail the job to ensure that the downstream jobs don't just skip.
       - name: Fail until the 'ready-to-merge' label is present
-        if: ${{ inputs.is-pr == 'true' && !contains(inputs.labels, 'ready-to-merge') }}
+        if: ${{ inputs.is-pr == 'true' && !contains(inputs.labels, '"name":"ready-to-merge"') }}
         run: |
           echo "Add the 'ready-to-merge' label to run CI."
           exit 1
       - name: Gate passed
-        if: ${{ inputs.is-pr == 'true' && contains(inputs.labels, 'ready-to-merge') }}
+        if: ${{ inputs.is-pr == 'true' && contains(inputs.labels, '"name":"ready-to-merge"') }}
         run: echo "Label present. Proceeding with CI."
       - name: Gate passed
         if: ${{ inputs.is-pr == 'false' }}
