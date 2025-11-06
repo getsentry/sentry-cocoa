@@ -12,7 +12,7 @@ on:
         type: boolean
 
 jobs:
-  ready:
+  ready-to-merge-gate:
     name: 'Missing "ready-to-merge" label'
     runs-on: ubuntu-latest
     steps:
