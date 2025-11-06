@@ -21,6 +21,7 @@
 - Removes `SentryIntegrationProtocol` from the API. This is not used after the removal of the `integrations` property (#6660)
 - Removes deprecated SentryDebugImageProvider class (#5598)
 - Properties on SentryOptions that had no effect on the WithoutUIKit variant are now removed from the API (#6644)
+- Removes the SentryOptions.inAppExclude property because it had no effect (#6646)
 - Removes segment property on SentryUser, SentryBaggage, and SentryTraceContext (#5638)
 - Removes deprecated TraceContext initializers (#6348)
 - Removes deprecated user feedback API, this is replaced with the new feedback API (#5591)
