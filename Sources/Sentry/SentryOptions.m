@@ -139,8 +139,6 @@ NSString *const kSentryDefaultEnvironment = @"production";
             _inAppIncludes = @[ bundleExecutable ];
         }
 
-        _inAppExcludes = [NSArray new];
-
         // Set default release name
         if (infoDict != nil) {
             self.releaseName =
@@ -214,11 +212,6 @@ NSString *const kSentryDefaultEnvironment = @"production";
 - (void)addInAppInclude:(NSString *)inAppInclude
 {
     _inAppIncludes = [self.inAppIncludes arrayByAddingObject:inAppInclude];
-}
-
-- (void)addInAppExclude:(NSString *)inAppExclude
-{
-    _inAppExcludes = [self.inAppExcludes arrayByAddingObject:inAppExclude];
 }
 
 - (void)setSampleRate:(NSNumber *)sampleRate
