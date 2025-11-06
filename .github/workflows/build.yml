@@ -104,11 +104,13 @@ jobs:
 
       # Note: Due to complexity in implementing the CODE_SIGNING_ALLOWED flag in the sentry-xcodebuild.sh script,
       #       we did not yet migrate this step to use the script yet.
+      # For the --disableAutomaticPackageResolution flag, see SKIP_SPM_RESOLUTION_NOTE ab the bottom of the Fastfile.
       - run: >-
           set -o pipefail && NSUnbufferedIO=YES xcodebuild
           -workspace Sentry.xcworkspace
           -scheme '${{matrix.scheme}}'
           -configuration '${{matrix.config}}'
+          -disableAutomaticPackageResolution
           CODE_SIGNING_ALLOWED="NO"
           build 2>&1
           | tee raw-build-output.log
