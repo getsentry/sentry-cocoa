@@ -1,5 +1,24 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Fix rendering method for fast view rendering (#6360)
+- Session Replay masking improvements (#6292)
+  - Fix SwiftUI.List background decoration view causing incorrect clipping of screen content
+  - Fix sublayer rendering order by properly sorting by zPosition with insertion order as tie-breaker
+  - Fix UISwitch internal images being incorrectly redacted
+  - Fix UITextField placeholder text (UITextFieldLabel) not being detected for redaction
+  - Use string-based class comparison to avoid triggering Objective-C +initialize on background threads
+  - Add layer class filtering for views used in multiple contexts (e.g., SwiftUI._UIGraphicsView)
+  - Improve transform calculations for views with custom anchor points
+  - Fix axis-aligned transform detection for optimized opaque view clipping
+- Fix conversion of frame rate to time interval for session replay (#6623)
+- Change Session Replay masking to prevent semi‑transparent full‑screen overlays from clearing redactions by making opaque clipping stricter (#6629)
+  Views now need to be fully opaque (view and layer backgrounds with alpha == 1) and report opaque to qualify for clip‑out.
+  This avoids leaks at the cost of fewer clip‑out optimizations.
+
 ## 8.57.1
 
 ### Fixes

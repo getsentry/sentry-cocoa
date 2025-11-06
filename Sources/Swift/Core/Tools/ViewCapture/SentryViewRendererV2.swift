@@ -15,7 +15,7 @@ import UIKit
         let scale = (view as? UIWindow ?? view.window)?.screen.scale ?? 1
         let image = SentryGraphicsImageRenderer(size: view.bounds.size, scale: scale).image { context in
             if enableFastViewRendering {
-                view.layer.draw(in: context.cgContext)
+                view.layer.render(in: context.cgContext)
             } else {
                 view.drawHierarchy(in: view.bounds, afterScreenUpdates: false)
             }

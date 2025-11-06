@@ -233,7 +233,7 @@ import UIKit
             return
         }
 
-        if now.timeIntervalSince(lastScreenShot) >= Double(1 / replayOptions.frameRate) {
+        if now.timeIntervalSince(lastScreenShot) >= 1.0 / Double(replayOptions.frameRate) {
             takeScreenshot()
             self.lastScreenShot = now
             
