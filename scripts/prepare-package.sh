@@ -12,8 +12,8 @@ Options:
   --remove-duplicate true|false
                              Whether to strip duplicate targets (default: false)
   --change-path true|false   Whether to swap SPM binary URLs for local paths (default: false)
-  --remove-binary-targets true|false
-                             Whether to remove all binaryTarget blocks (default: false)
+  --only-keep-distribution true|false
+                             Whether to keep only SentryDistribution product/target (default: false)
   -h, --help                 Show this help message
 USAGE
 }
@@ -29,7 +29,7 @@ PACKAGE_FILE="Package.swift"
 IS_PR="false"
 REMOVE_DUPLICATE="false"
 CHANGE_PATH="false"
-REMOVE_BINARY_TARGETS="false"
+ONLY_KEEP_DISTRIBUTION="false"
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -53,9 +53,9 @@ while [[ $# -gt 0 ]]; do
       CHANGE_PATH="$2"
       shift 2
       ;;
-    --remove-binary-targets)
+    --only-keep-distribution)
       [[ $# -lt 2 ]] && { echo "Missing value for $1" >&2; exit 1; }
-      REMOVE_BINARY_TARGETS="$2"
+      ONLY_KEEP_DISTRIBUTION="$2"
       shift 2
       ;;
     -h|--help)
@@ -103,9 +103,24 @@ if is_enabled "$CHANGE_PATH"; then
   sed -i '' 's/platforms: \[\.iOS(\.v11), \.macOS(\.v10_13), \.tvOS(\.v11), \.watchOS(\.v4)\]$/platforms: [.iOS(.v11), .macOS(.v10_13), .tvOS(.v11), .watchOS(.v4)],/g' "$PACKAGE_FILE"
 fi
 
-if is_enabled "$REMOVE_BINARY_TARGETS"; then
-  # Remove entire binaryTarget declarations, including their closing line.
-  sed -i '' '/^[[:space:]]*\.binaryTarget(/,/^[[:space:]]*)[[:space:]]*,\{0,1\}[[:space:]]*$/d' "$PACKAGE_FILE"
-  # Clean up any stray commas left behind.
-  sed -i '' '/^[[:space:]]*,$/d' "$PACKAGE_FILE"
+if is_enabled "$ONLY_KEEP_DISTRIBUTION"; then
+  # Remove all binary targets.
+  sed -i '' '/^[[:space:]]*\.binaryTarget(/,/^[[:space:]]*),\{0,1\}$/d' "$PACKAGE_FILE"
+
+  # Keep only the SentryDistribution library in the products array.
+  sed -i '' '/^var products: \[Product\] = \[/,/^]/c\
+var products: [Product] = [\
+    .library(name: "SentryDistribution", targets: ["SentryDistribution"]),\
+]\
+' "$PACKAGE_FILE"
+
+  # Keep only the SentryDistribution target in the targets array.
+  sed -i '' '/^var targets: \[Target\] = \[/,/^]/c\
+var targets: [Target] = [\
+    .target(name: "SentryDistribution", path: "Sources/SentryDistribution"),\
+]\
+' "$PACKAGE_FILE"
+
+  # Remove conditional append blocks that reintroduce other targets/products.
+  sed -i '' '/^let env = getenv("EXPERIMENTAL_SPM_BUILDS")/,/^}/d' "$PACKAGE_FILE"
 fi

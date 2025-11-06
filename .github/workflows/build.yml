@@ -98,12 +98,16 @@ jobs:
 
     steps:
       - uses: actions/checkout@v5
+
+      # The binary targets are not needed for the sample builds.
+      # As the build distribution sample uses local SPM, xcodebuild resolves SPM dependencies also for these
+      # sample projects. The binary targets aren't required and cause chicken-egg problems when releasing.
+      - name: Remove binary targets from Package.swift
+        run: ./scripts/prepare-package.sh --only-keep-distribution true
+
       - run: ./scripts/ci-select-xcode.sh 16.4
       - run: make init-ci-build
       - run: make xcode-ci
-
-      - name: Remove binary targets from Package.swift
-        run: ./scripts/prepare-package.sh --remove-binary-targets true
 
       # Note: Due to complexity in implementing the CODE_SIGNING_ALLOWED flag in the sentry-xcodebuild.sh script,
       #       we did not yet migrate this step to use the script yet.
@@ -136,11 +140,14 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
+      # The binary targets are not needed for the sample builds.
+      # As the build distribution sample uses local SPM, xcodebuild resolves SPM dependencies also for these
+      # sample projects. The binary targets aren't required and cause chicken-egg problems when releasing.
+      - name: Remove binary targets from Package.swift
+        run: ./scripts/prepare-package.sh --only-keep-distribution true
+
       - run: ./scripts/ci-select-xcode.sh 16.4
         shell: sh
-
-      - name: Remove binary targets from Package.swift
-        run: ./scripts/prepare-package.sh --remove-binary-targets true
 
       - run: rm -r Sentry.xcodeproj && rm -r Sentry.xcworkspace
       - run: set -o pipefail && NSUnbufferedIO=YES xcodebuild build -scheme SentryDistribution -sdk iphoneos -destination 'generic/platform=iphoneos' | tee raw-build-output-spm.log | xcbeautify
