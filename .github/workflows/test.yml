@@ -375,6 +375,7 @@ jobs:
           - job_id: catalyst_15
             name: Catalyst 15 Sentry
             runs-on: macos-15
+            runs-on-cirrus: sequoia
             xcode: "16.4"
             test-destination-os: "latest"
             platform: "Catalyst"
