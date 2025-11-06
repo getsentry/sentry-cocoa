@@ -25,7 +25,7 @@
 - (void)setUp
 {
     [super setUp];
-    self.inAppLogic = [[SentryInAppLogic alloc] initWithInAppIncludes:@[] inAppExcludes:@[]];
+    self.inAppLogic = [[SentryInAppLogic alloc] initWithInAppIncludes:@[]];
 }
 
 - (void)tearDown

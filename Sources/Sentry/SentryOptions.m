@@ -44,19 +44,6 @@ NSString *const kSentryDefaultEnvironment = @"production";
 
 #endif // SWIFT_PACKAGE || SENTRY_TEST
 
-+ (NSArray<NSString *> *)defaultIntegrations
-{
-    NSArray<Class> *defaultIntegrationClasses = [SentryOptionsInternal defaultIntegrationClasses];
-    NSMutableArray<NSString *> *defaultIntegrationNames =
-        [[NSMutableArray alloc] initWithCapacity:defaultIntegrationClasses.count];
-
-    for (Class class in defaultIntegrationClasses) {
-        [defaultIntegrationNames addObject:NSStringFromClass(class)];
-    }
-
-    return defaultIntegrationNames;
-}
-
 - (instancetype)init
 {
     if (self = [super init]) {
@@ -152,8 +139,6 @@ NSString *const kSentryDefaultEnvironment = @"production";
             _inAppIncludes = @[ bundleExecutable ];
         }
 
-        _inAppExcludes = [NSArray new];
-
         // Set default release name
         if (infoDict != nil) {
             self.releaseName =
@@ -227,11 +212,6 @@ NSString *const kSentryDefaultEnvironment = @"production";
 - (void)addInAppInclude:(NSString *)inAppInclude
 {
     _inAppIncludes = [self.inAppIncludes arrayByAddingObject:inAppInclude];
-}
-
-- (void)addInAppExclude:(NSString *)inAppExclude
-{
-    _inAppExcludes = [self.inAppExcludes arrayByAddingObject:inAppExclude];
 }
 
 - (void)setSampleRate:(NSNumber *)sampleRate

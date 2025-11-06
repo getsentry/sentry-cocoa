@@ -25,6 +25,7 @@
 #import "SentryStacktrace.h"
 #import "SentrySwift.h"
 #import "SentryThread.h"
+#import "SentryTraceContext+Private.h"
 #import "SentryTraceContext.h"
 #import "SentryTraceHeader.h"
 #import "SentryTraceOrigin.h"
