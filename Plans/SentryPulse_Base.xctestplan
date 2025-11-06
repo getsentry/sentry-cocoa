@@ -1,0 +1,24 @@
+{
+  "configurations" : [
+    {
+      "id" : "EBB4F92C-3CA9-47E0-8589-7934881F1E4B",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "codeCoverage" : true
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:Sentry.xcodeproj",
+        "identifier" : "92B71B682EBB7F3C00A64658",
+        "name" : "SentryPulseTests"
+      }
+    }
+  ],
+  "version" : 1
+}

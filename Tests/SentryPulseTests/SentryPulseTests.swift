@@ -1,3 +1,4 @@
+internal import _SentryPrivate
 import Pulse
 @_spi(Private) @testable import Sentry
 @_spi(Private) @testable import SentryPulse

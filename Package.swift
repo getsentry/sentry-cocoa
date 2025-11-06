@@ -143,7 +143,7 @@ let package = Package(
         // SPM doesn't support peer-dependencies, so users are locked into our declared version.
         // Using `from: "1.6.0"` covers 1.6.0 < 2.0.0, resolving minor versions automatically.
         // See develop-docs/DECISIONS.md for discussion.
-        .package(url: "https://github.com/apple/swift-log", from: "1.6.0")
+        .package(url: "https://github.com/apple/swift-log", from: "1.6.0"),
         .package(url: "https://github.com/kean/Pulse", from: "5.0.0")
     ],
     targets: targets,
