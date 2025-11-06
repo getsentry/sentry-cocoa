@@ -126,7 +126,6 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       # Ensure the user has write permissions to the Xcode DerivedData directory
-      - run: sudo chown -R $(whoami) ~/Library/Developer
       - run: ./scripts/ci-select-xcode.sh "16.4"
       - name: Prepare Package.swift
         uses: ./.github/actions/prepare-package.swift
