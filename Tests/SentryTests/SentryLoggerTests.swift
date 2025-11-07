@@ -440,12 +440,6 @@ final class SentryLoggerTests: XCTestCase {
         )
     }
     
-    func testNoOpInit_DoesNotCapture() {
-        let sut = SentryLogger(dateProvider: fixture.dateProvider)
-        sut.info("foobar", attributes: [:])
-        XCTAssertNil(fixture.delegate.capturedLogs.invocations.first)
-    }
-    
     // MARK: - Helper Methods
     
     private func assertLogCaptured(
