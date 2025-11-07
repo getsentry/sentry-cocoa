@@ -4,23 +4,13 @@ import Sentry
 import SentrySampleShared
 
 class IntentHandler: INExtension, INSendMessageIntentHandling {
-    
-    private static var hasSetupSentry = false
-    
+
     override init() {
         super.init()
-        print("🔵 IntentHandler.init() called")
-        setupSentrySDK()
+        setupSentry()
     }
     
-    private func setupSentrySDK() {
-        // Only setup once per process
-        guard !Self.hasSetupSentry else {
-            return
-        }
-        Self.hasSetupSentry = true
-        
-        print("🔵 IntentHandler.setupSentrySDK() called")
+    private func setupSentry() {
         SentrySDKWrapper.shared.startSentry()
         
         // Small delay to ensure SDK is initialized
@@ -45,9 +35,7 @@ class IntentHandler: INExtension, INSendMessageIntentHandling {
     }
     
     override func handler(for intent: INIntent) -> Any {
-        print("🔵 IntentHandler.handler(for intent:) called with intent: \(type(of: intent))")
-        // Ensure Sentry is setup when handler is requested
-        setupSentrySDK()
+        setupSentry()
         return self
     }
     

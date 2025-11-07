@@ -1,4 +1,4 @@
-import Sentry
+@_spi(Private) @testable import Sentry
 import SentrySampleShared
 import Social
 import UIKit
@@ -16,10 +16,18 @@ class ShareViewController: SLComposeServiceViewController {
     }
 
     private func setupSentry() {
-        SentrySDKWrapper.shared.startSentry()
+        // For this extension we need a specific configuration set, therefore we do not use the shared sample initializer
+        SentrySDK.start { options in
+            options.dsn = SentrySDKWrapper.defaultDSN
+            options.debug = true
+
+            // App Hang Tracking must be enabled, but should not be installed
+            options.enableAppHangTracking = true
+        }
     }
 
     override func isContentValid() -> Bool {
+        // We are not actually processing any information, therefore just allow all content
         return true
     }
 
@@ -30,6 +38,30 @@ class ShareViewController: SLComposeServiceViewController {
     }
 
     override func configurationItems() -> [Any]! {
-        return []
+        guard let isSDKEnabledItem = SLComposeSheetConfigurationItem() else {
+            return []
+        }
+        isSDKEnabledItem.title = "Sentry Enabled?"
+        isSDKEnabledItem.value = isSentryEnabled ? "✅" : "❌"
+
+        guard let isANRActiveItem = SLComposeSheetConfigurationItem() else {
+            return []
+        }
+        isANRActiveItem.title = "ANR Disabled?"
+        // We want the ANR integration to be disabled for share extensions due to false-positives
+        isANRActiveItem.value = !isANRInstalled ? "✅" : "❌"
+
+        return [
+            isSDKEnabledItem,
+            isANRActiveItem
+        ]
+    }
+
+    var isANRInstalled: Bool {
+        return isSentryEnabled && SentrySDKInternal.trimmedInstalledIntegrationNames().contains("ANRTracking")
+    }
+
+    var isSentryEnabled: Bool {
+        SentrySDK.isEnabled
     }
 }

@@ -7,7 +7,9 @@ public enum SentryExtensionType: Int {
     case intent
     /// Action extensions (share, today, etc.)
     case action
-    
+    /// Share extensions
+    case share
+
     /// Returns the NSExtensionPointIdentifier string for this extension type
     public var identifier: String {
         switch self {
@@ -17,6 +19,8 @@ public enum SentryExtensionType: Int {
             return "com.apple.intents-service"
         case .action:
             return "com.apple.ui-services"
+        case .share:
+            return "com.apple.share-services"
         }
     }
 }

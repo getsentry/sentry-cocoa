@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 70;
+	objectVersion = 63;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -457,11 +457,6 @@
 		FEEA62485E8E4A953DCA6466 /* TableViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = TableViewController.xib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
-/* Begin PBXFileSystemSynchronizedRootGroup section */
-		D48891382EBDF97F00054D46 /* IE */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = IE; sourceTree = "<group>"; };
-		D48891432EBDF97F00054D46 /* IEUI */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = IEUI; sourceTree = "<group>"; };
-/* End PBXFileSystemSynchronizedRootGroup section */
-
 /* Begin PBXFrameworksBuildPhase section */
 		792421530B8177491C99E802 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
@@ -719,8 +714,6 @@
 				EC3C812AAD487544954AED5D /* iOS-SwiftClip */,
 				87339914655042F1BBE52163 /* Plans */,
 				CC80618C88F712CCC9C11AC2 /* Shared */,
-				D48891382EBDF97F00054D46 /* IE */,
-				D48891432EBDF97F00054D46 /* IEUI */,
 				D48891352EBDF97E00054D46 /* Frameworks */,
 				53941E696F63F4E24A3A6B38 /* Products */,
 				5D37403FC0B005B14A3BAE3B /* Projects */,
@@ -1634,6 +1627,7 @@
 			baseConfigurationReference = 8B24580901EF7733F1B03B44 /* iOS-Swift-ShareExtension.xcconfig */;
 			buildSettings = {
 				INFOPLIST_FILE = "iOS-Swift-ShareExtension/Resources/Info.plist";
+				SWIFT_OBJC_BRIDGING_HEADER = "iOS-Swift/Tools/iOS-Swift-Bridging-Header.h";
 			};
 			name = Release;
 		};
@@ -1823,6 +1817,7 @@
 			baseConfigurationReference = 8B24580901EF7733F1B03B44 /* iOS-Swift-ShareExtension.xcconfig */;
 			buildSettings = {
 				INFOPLIST_FILE = "iOS-Swift-ShareExtension/Resources/Info.plist";
+				SWIFT_OBJC_BRIDGING_HEADER = "iOS-Swift/Tools/iOS-Swift-Bridging-Header.h";
 			};
 			name = Test;
 		};
@@ -1864,6 +1859,7 @@
 			baseConfigurationReference = 8B24580901EF7733F1B03B44 /* iOS-Swift-ShareExtension.xcconfig */;
 			buildSettings = {
 				INFOPLIST_FILE = "iOS-Swift-ShareExtension/Resources/Info.plist";
+				SWIFT_OBJC_BRIDGING_HEADER = "iOS-Swift/Tools/iOS-Swift-Bridging-Header.h";
 			};
 			name = TestCI;
 		};
@@ -1881,6 +1877,7 @@
 			baseConfigurationReference = 8B24580901EF7733F1B03B44 /* iOS-Swift-ShareExtension.xcconfig */;
 			buildSettings = {
 				INFOPLIST_FILE = "iOS-Swift-ShareExtension/Resources/Info.plist";
+				SWIFT_OBJC_BRIDGING_HEADER = "iOS-Swift/Tools/iOS-Swift-Bridging-Header.h";
 			};
 			name = Debug;
 		};
