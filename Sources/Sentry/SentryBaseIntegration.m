@@ -133,11 +133,11 @@ NS_ASSUME_NONNULL_BEGIN
         return NO;
     }
 
-    //    if ((integrationOptions & kIntegrationOptionDebuggerNotAttached) &&
-    //        [SentryDependencyContainer.sharedInstance.crashWrapper isBeingTraced]) {
-    //        [self logWithReason:@"because the debugger is attached"];
-    //        return NO;
-    //    }
+    if ((integrationOptions & kIntegrationOptionDebuggerNotAttached) &&
+        [SentryDependencyContainer.sharedInstance.crashWrapper isBeingTraced]) {
+        [self logWithReason:@"because the debugger is attached"];
+        return NO;
+    }
 
 #if SENTRY_HAS_UIKIT
     if ((integrationOptions & kIntegrationOptionAttachViewHierarchy)

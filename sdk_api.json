@@ -26114,6 +26114,45 @@
             "declAttributes": [
               "ObjC"
             ]
+          },
+          {
+            "kind": "Var",
+            "name": "share",
+            "printedName": "share",
+            "children": [
+              {
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(Sentry.SentryExtensionType.Type) -> Sentry.SentryExtensionType",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SentryExtensionType",
+                    "printedName": "Sentry.SentryExtensionType",
+                    "usr": "c:@M@Sentry@E@SentryExtensionType"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Metatype",
+                    "printedName": "Sentry.SentryExtensionType.Type",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SentryExtensionType",
+                        "printedName": "Sentry.SentryExtensionType",
+                        "usr": "c:@M@Sentry@E@SentryExtensionType"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "declKind": "EnumElement",
+            "usr": "c:@M@Sentry@E@SentryExtensionType@SentryExtensionTypeShare",
+            "moduleName": "Sentry",
+            "declAttributes": [
+              "ObjC"
+            ]
           }
         ],
         "declKind": "Enum",
