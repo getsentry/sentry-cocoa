@@ -34,6 +34,15 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
+  debug:
+    name: Debug Information
+    runs-on: ubuntu-latest
+    steps:
+      - name: Debug Information
+        run: |
+          echo "github.event_name: ${{ github.event_name }}"
+          echo "github.event.pull_request.labels: ${{ toJson(github.event.pull_request.labels) }}"
+
   ready-to-merge-gate:
     name: Ready-to-merge gate
     uses: ./.github/workflows/ready-to-merge-workflow.yml
