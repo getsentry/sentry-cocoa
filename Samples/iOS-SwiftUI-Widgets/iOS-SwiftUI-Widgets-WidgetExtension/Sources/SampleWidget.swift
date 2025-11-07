@@ -26,9 +26,9 @@ fileprivate struct SampleWidgetEntryView: View {
                 .font(.caption)
                 .foregroundColor(isSentryEnabled ? .green : .red)
                 .bold()
-            Text("ANR Disabled? \(isANRInstalled ? "❌" : "✅")")
+            Text("ANR Disabled? \(!isANRInstalled ? "✅" : "❌")")
                 .font(.caption)
-                .foregroundColor(isANRInstalled ? .red : .green)
+                .foregroundColor(!isANRInstalled ? .green : .red)
                 .bold()
 
             Text(entry.date, style: .time)

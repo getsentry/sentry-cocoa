@@ -15,7 +15,7 @@ final class LiveActivityViewModel: ObservableObject {
     
     private var currentActivity: Activity<LiveActivityAttributes>?
 
-    private let logger = Logger(subsystem: "io.sentry.sentry-cocoa.samples.iOS-SwiftUI-Widgets", category: "LiveActivity")
+    private let logger = Logger(subsystem: Bundle.main.bundleIdentifier!, category: "LiveActivity")
 
     func startLiveActivity() {
         logger.info("Starting Live Activity...")
@@ -37,10 +37,7 @@ final class LiveActivityViewModel: ObservableObject {
             let attributes = LiveActivityAttributes(
                 id: ""
             )
-            let initialState = LiveActivityAttributes.ContentState(
-                anrTrackingStatus: "Enabled",
-                timestamp: Date()
-            )
+            let initialState = LiveActivityAttributes.ContentState(timestamp: Date())
             
             logger.info("Requesting activity with attributes name: \(attributes.id)")
 
@@ -51,7 +48,6 @@ final class LiveActivityViewModel: ObservableObject {
             )
             
             logger.info("Activity created successfully! ID: \(activity.id), State: \(String(describing: activity.activityState))")
-            logger.info("Activity content state: emoji=\(initialState.anrTrackingStatus)")
             logger.info("Activity pushToken initially: \(activity.pushToken?.hexadecimalString ?? "nil")")
             
             currentActivity = activity
@@ -98,7 +94,6 @@ final class LiveActivityViewModel: ObservableObject {
 
                 group.addTask { @MainActor in
                     for await contentState in activity.contentUpdates {
-                        self.logger.info("Content state updated: emoji=\(contentState.state.anrTrackingStatus)")
                         self.activityViewState?.contentState = contentState.state
                     }
                 }
@@ -132,11 +127,7 @@ final class LiveActivityViewModel: ObservableObject {
         
         logger.info("Ending activity: \(activity.id)")
         
-        let finalState = LiveActivityAttributes.ContentState(
-            anrTrackingStatus: "Disabled",
-            timestamp: Date()
-        )
-        
+        let finalState = LiveActivityAttributes.ContentState(timestamp: Date())
         await activity.end(
             ActivityContent(state: finalState, staleDate: nil),
             dismissalPolicy: .immediate

@@ -32,7 +32,6 @@
 		D227C1CF3F22B3BB0C0A3359 /* LiveActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 390EE81AB45CB2CFB0C302D5 /* LiveActivityAttributes.swift */; };
 		DDB3989A2B1B79F9A3552261 /* iOS-SwiftUI-Widgets-WidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = CAB2A45774261B103D71A7D8 /* iOS-SwiftUI-Widgets-WidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		E250C0921C219246793FC8E9 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7A5BE5B3A3FDBEE3FB8D52EF /* Assets.xcassets */; };
-		F2C97A3B5423E032BA89E78E /* LiveActivityConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AE873C816BD3A74B547E341 /* LiveActivityConfiguration.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -152,7 +151,6 @@
 		35D83218361FAB3360A43FF8 /* SampleWidgetControl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SampleWidgetControl.swift; sourceTree = "<group>"; };
 		390E7D5C87007CF8A805C089 /* LiveActivityWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveActivityWidget.swift; sourceTree = "<group>"; };
 		390EE81AB45CB2CFB0C302D5 /* LiveActivityAttributes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveActivityAttributes.swift; sourceTree = "<group>"; };
-		3AE873C816BD3A74B547E341 /* LiveActivityConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveActivityConfiguration.swift; sourceTree = "<group>"; };
 		45D0B752BDA7CA6AC5F9E734 /* Entitlements.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Entitlements.entitlements; sourceTree = "<group>"; };
 		51774442E9250743D901AE0A /* Localization.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Localization.xcconfig; sourceTree = "<group>"; };
 		51A88DFDADBA85F4DAE38202 /* Packaging.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Packaging.xcconfig; sourceTree = "<group>"; };
@@ -359,7 +357,6 @@
 			isa = PBXGroup;
 			children = (
 				2BBDA2A81E64F7A5789BD5D5 /* LiveActivityBundle.swift */,
-				3AE873C816BD3A74B547E341 /* LiveActivityConfiguration.swift */,
 				390E7D5C87007CF8A805C089 /* LiveActivityWidget.swift */,
 			);
 			path = Sources;
@@ -602,7 +599,6 @@
 			files = (
 				13023A9E33DCCAA00AE04919 /* LiveActivityAttributes.swift in Sources */,
 				B120A7FC1173608E28B32878 /* LiveActivityBundle.swift in Sources */,
-				F2C97A3B5423E032BA89E78E /* LiveActivityConfiguration.swift in Sources */,
 				221EDE644A6F0F0721AEBB6B /* LiveActivityWidget.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

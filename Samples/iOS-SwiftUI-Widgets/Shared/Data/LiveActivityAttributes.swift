@@ -6,7 +6,6 @@ import ActivityKit
 
 struct LiveActivityAttributes: ActivityAttributes {
     struct ContentState: Codable & Hashable {
-        let anrTrackingStatus: String // "Enabled" or "Disabled"
         let timestamp: Date
     }
     
