@@ -161,14 +161,20 @@ schemes:
     build:
       targets:
         iOS-Swift: all
-        iOS-Swift-IntentExtension: test
+        iOS-Swift-IntentExtension: all
+    run:
+      config: Debug
   iOS-Swift-ActionExtension:
     build:
       targets:
         iOS-Swift: all
-        iOS-Swift-ActionExtension: test
+        iOS-Swift-ActionExtension: all
+    run:
+      config: Debug
   iOS-Swift-ShareExtension:
     build:
       targets:
         iOS-Swift: all
-        iOS-Swift-ShareExtension: test
+        iOS-Swift-ShareExtension: all
+    run:
+      config: Debug

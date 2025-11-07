@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 63;
+	objectVersion = 77;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -35,20 +35,22 @@
 		4A6288CAA3E47ADBC98E03A2 /* SentrySwiftLog.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 923CF519D4F6789CCFDECE17 /* SentrySwiftLog.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		4F6AA26561C2DEBAC1F428BD /* InfoForBreadcrumbController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E554CB6D8C25262F430A739C /* InfoForBreadcrumbController.swift */; };
 		51183F4C696186DB42BD8484 /* SentryBenchmarking.mm in Sources */ = {isa = PBXBuildFile; fileRef = 77E8D04AD50CA1647ACBF553 /* SentryBenchmarking.mm */; };
-		51A85B15CAD3953FE3556C04 /* Sentry.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0F6BBB6AA617495A3083BF7A /* Sentry.framework */; };
+		5133770424120A9B4C96C9A1 /* ActionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA82C91822C2EBD3D6D742A1 /* ActionViewController.swift */; };
+		51A85B15CAD3953FE3556C04 /* Sentry-iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0F6BBB6AA617495A3083BF7A /* Sentry-iOS.framework */; };
 		51DE8527F5BE077F8DA9418F /* NSObject+SentryAppSetup.m in Sources */ = {isa = PBXBuildFile; fileRef = B231B9FDB45669E5B5BC85F3 /* NSObject+SentryAppSetup.m */; };
 		521D00C7E7EF3B0AD4633167 /* SentrySampleUITestShared.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AF1D8F1C2DB7F81F4C7718B2 /* SentrySampleUITestShared.framework */; };
-		53581AA5D1FD2F734A163752 /* Sentry.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0F6BBB6AA617495A3083BF7A /* Sentry.framework */; };
+		53581AA5D1FD2F734A163752 /* Sentry-iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0F6BBB6AA617495A3083BF7A /* Sentry-iOS.framework */; };
 		55DB9EEC221DF519072BE0B3 /* SentrySampleShared.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 018FEE288B12E7853958FA69 /* SentrySampleShared.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		55E86406E580D92EA33438FC /* ProfilingNetworkScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84A4BC6BD538C2B4F8E20101 /* ProfilingNetworkScanner.swift */; };
 		55F607BA16B254E78EB63132 /* MetricKitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA1D703A0A609E9A5B7F4334 /* MetricKitManager.swift */; };
 		58DF542F78921F4880ECAE94 /* SentrySwiftLog.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 923CF519D4F6789CCFDECE17 /* SentrySwiftLog.framework */; };
 		5BB2BE14330C47B96FFD11FC /* SampleAssets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2F62C06F30188F22B3FC33D6 /* SampleAssets.xcassets */; };
 		5CF2C5A14A89516BD01B1028 /* TopViewControllerInspector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A1935AC3E350D80A199728D /* TopViewControllerInspector.swift */; };
-		5D2281140DE120DF5FAFCA46 /* Sentry.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0F6BBB6AA617495A3083BF7A /* Sentry.framework */; };
+		5D2281140DE120DF5FAFCA46 /* Sentry-iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0F6BBB6AA617495A3083BF7A /* Sentry-iOS.framework */; };
 		63077CC6E384663E06B7A1D7 /* SentryVideoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 684D082B39C1AF4D69C1852F /* SentryVideoViewController.swift */; };
 		658BD4C7B5E66786A5D70C2F /* iOS-Swift-ShareExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 1D92FAAD8C8895CB6683E43A /* iOS-Swift-ShareExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		67BEBED634D92F2B1591DA05 /* Sentry.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0F6BBB6AA617495A3083BF7A /* Sentry.framework */; };
+		662B05F82BA41661ABA0E0CA /* iOS-Swift-IntentExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 1DEF15A1ACA9C9854945F4C6 /* iOS-Swift-IntentExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		67BEBED634D92F2B1591DA05 /* Sentry-iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0F6BBB6AA617495A3083BF7A /* Sentry-iOS.framework */; };
 		67D83B8F6B8B36C3153AD166 /* SampleAssets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2F62C06F30188F22B3FC33D6 /* SampleAssets.xcassets */; };
 		6AD61205E0EF9D834B7049C5 /* UIEventBreadcrumbsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D53477847607017C3A437AE7 /* UIEventBreadcrumbsController.swift */; };
 		6F370012A1C84FDF6A82BD8D /* TransactionsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BBBC9883318840251690D58 /* TransactionsViewController.swift */; };
@@ -56,7 +58,6 @@
 		78F6F743686DBEACC4D34679 /* SentrySampleShared.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 018FEE288B12E7853958FA69 /* SentrySampleShared.framework */; };
 		794FF69C305368C6D432AAF0 /* SentrySampleShared.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 018FEE288B12E7853958FA69 /* SentrySampleShared.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		7B6DC5B01ABEB99144644E87 /* DiskWriteException.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C58FB28BDB584B486D60D5C /* DiskWriteException.swift */; };
-		7BD39BA8DA56883832D7171C /* ActionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC535DA5D6DB09218CA168DA /* ActionViewController.swift */; };
 		7D9AEC24B1E6A3E9EDE7E463 /* BenchmarkingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F561960FD13128F6785A21A7 /* BenchmarkingViewController.swift */; };
 		7F70072A4CC02F1A7F5AD352 /* ErrorsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80ED14BF53BD24179AF936DE /* ErrorsViewController.swift */; };
 		811D0E72F3EC4835AC2DEAEE /* Tongariro.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 2694665D127C4B4B62B2DCC3 /* Tongariro.jpg */; };
@@ -64,36 +65,35 @@
 		846570ED1077949BE6404BA5 /* SentrySampleShared.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 018FEE288B12E7853958FA69 /* SentrySampleShared.framework */; };
 		85EAE34F771673A771ED6860 /* NibViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 5FE4A549ED401080AFCB8B2A /* NibViewController.xib */; };
 		864CDDF55D447714ECD8113B /* SentrySampleShared.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 018FEE288B12E7853958FA69 /* SentrySampleShared.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		8A265A5A425593298A5661C7 /* ShareViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 398D106D13E48BC9F9C5BED2 /* ShareViewController.swift */; };
 		8AD86CC5980E52382B4CB190 /* ViewLifecycleUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C94FAA087A715E1C000463EB /* ViewLifecycleUITests.swift */; };
-		8CF15B29406C6DE9B7E23453 /* IntentHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1629F8166CE76494F9B01D8F /* IntentHandler.swift */; };
 		8EFBF7F312296D36BD7A65D8 /* SentrySampleShared.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 018FEE288B12E7853958FA69 /* SentrySampleShared.framework */; };
 		907F36A87BA875ADDD9EE77D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 37FB718FAF4DE8DD3FA44C14 /* LaunchScreen.storyboard */; };
 		945ADF884F4CE322E96F7609 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63A069618DFB86210BA92797 /* SceneDelegate.swift */; };
 		9992CC67FEEFCD5C449647F5 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B77039FF4008016404245CD /* AppDelegate.swift */; };
+		9ACA3389570D88D40C770C04 /* MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 6E0C905647A1A0897FC57FFC /* MainInterface.storyboard */; };
 		9F633516A435CF3A80629711 /* iOS-Swift-ActionExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 9110682E13966E0619F4C1FF /* iOS-Swift-ActionExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		9FA845DB84D1CD64F65F09C3 /* SentrySampleUITestShared.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = AF1D8F1C2DB7F81F4C7718B2 /* SentrySampleUITestShared.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		A134CD1F5B1EF57310E0D28A /* ProfilingCPUWork.swift in Sources */ = {isa = PBXBuildFile; fileRef = F176BD186091A9355B8C54A2 /* ProfilingCPUWork.swift */; };
 		A33B7315864168745B888AAA /* UserFeedbackUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7EDF3062F37C6E63D1205BF /* UserFeedbackUITests.swift */; };
 		A36F7529967DF4650B2A30F4 /* ExtraViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F167D91DC443457E9459B25A /* ExtraViewController.swift */; };
 		A7BABE45A57F6086EA714391 /* TopViewControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81A88F9881D9A8C9BC4D0981 /* TopViewControllerTests.swift */; };
-		B353F36AAE7165D1185D6D59 /* MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E3BD87A2B62E1BC3E57D6159 /* MainInterface.storyboard */; };
+		AB507A8400D367E151715AD4 /* IntentHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4439126C6455FFD1DC5F14D9 /* IntentHandler.swift */; };
 		B53B2B2FAFE59E3F16442710 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 985DCC5D72E703B5070AE77A /* Assets.xcassets */; };
 		B88DCA642A478D48BE5F33FC /* SentryPDFViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 28E5BFD867CC9CD8D561CD61 /* SentryPDFViewController.swift */; };
 		BB881433D04369350EAF28EE /* UITestHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6757896C15DC45A3721E0E4 /* UITestHelpers.swift */; };
-		BEB39C50554F955B9C0ED4CC /* ShareViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9FD176B4441601AB5FEAF11 /* ShareViewController.swift */; };
 		C8685E311CFD471F959409E0 /* TableViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = FEEA62485E8E4A953DCA6466 /* TableViewController.xib */; };
 		CB071CF3620376DE56A74E5A /* TableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 091E029BF7040895247FB10B /* TableViewController.swift */; };
 		CC7669CB4839913CA07942FC /* BaseUITest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DD0D69ED7EDE646A6423EAA /* BaseUITest.swift */; };
-		D48891782EBDFA5800054D46 /* iOS-Swift-IntentExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 1DEF15A1ACA9C9854945F4C6 /* iOS-Swift-IntentExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		D8D43AE7F1763F285823DE04 /* SentrySampleUITestShared.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = AF1D8F1C2DB7F81F4C7718B2 /* SentrySampleUITestShared.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		DEC8E471E76504FF0FC3A813 /* Sample.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = B8D34DA3392FA270D53C12EF /* Sample.mp4 */; };
-		DFC067DA37586FB5C3845AE6 /* Sentry.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0F6BBB6AA617495A3083BF7A /* Sentry.framework */; };
-		E19537E24AC87FA8FB614976 /* Sentry.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 0F6BBB6AA617495A3083BF7A /* Sentry.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		DFC067DA37586FB5C3845AE6 /* Sentry-iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0F6BBB6AA617495A3083BF7A /* Sentry-iOS.framework */; };
+		E19537E24AC87FA8FB614976 /* Sentry-iOS.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 0F6BBB6AA617495A3083BF7A /* Sentry-iOS.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		E9AC8007BD56C0BEC1CDEA8D /* LaunchUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11C193449DEA7C4DDE40BBAC /* LaunchUITests.swift */; };
 		E9EA0697CF31EE5674B3B172 /* LoremIpsumViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC29F2EAA808DD5E7D7BE2B4 /* LoremIpsumViewController.swift */; };
 		EC069813F2C25A4E597ACB4C /* SentrySDKPerformanceBenchmarkTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 734953962E0C95C1D03532C6 /* SentrySDKPerformanceBenchmarkTests.m */; };
 		EC3DCFEA537525E12B4BFAB3 /* CppWrapper.mm in Sources */ = {isa = PBXBuildFile; fileRef = 78091604E5DA43126BC9F195 /* CppWrapper.mm */; };
-		F2EB8945FE8410AC4013F1D3 /* Sentry.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 0F6BBB6AA617495A3083BF7A /* Sentry.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		F2EB8945FE8410AC4013F1D3 /* Sentry-iOS.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 0F6BBB6AA617495A3083BF7A /* Sentry-iOS.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		F43644B26FE87149146D3A94 /* SentrySampleUITestShared.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AF1D8F1C2DB7F81F4C7718B2 /* SentrySampleUITestShared.framework */; };
 		F47EE1EDBE1652A95F4F38D0 /* SampleAssets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2F62C06F30188F22B3FC33D6 /* SampleAssets.xcassets */; };
 		F8CBB74BDDC9BDF32A0B53C2 /* TraceTestViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F46879D621F90A7655C615F /* TraceTestViewController.swift */; };
@@ -156,6 +156,13 @@
 			proxyType = 2;
 			remoteGlobalIDString = 431A3FE213391C00C3CE66D2;
 			remoteInfo = SentrySampleShared;
+		};
+		72DFB8179857ED959AC59C6A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 3A77435E8E76EAE86C6ABE7F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 5DB3F50F9D50D2F2419F11F3;
+			remoteInfo = "iOS-Swift-IntentExtension";
 		};
 		75965192E3621CC601EFF76B /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -227,13 +234,6 @@
 			remoteGlobalIDString = 6B366C32DB86ECAEC77565BA;
 			remoteInfo = SentrySampleUITestShared;
 		};
-		D48891792EBDFA5800054D46 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 3A77435E8E76EAE86C6ABE7F /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 5DB3F50F9D50D2F2419F11F3;
-			remoteInfo = "iOS-Swift-IntentExtension";
-		};
 		DA6BA1590AD71A7A6A923C4B /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = D38DD5BC3D9D6F07E866E713 /* SentrySampleShared */;
@@ -264,7 +264,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				E19537E24AC87FA8FB614976 /* Sentry.framework in Embed Frameworks */,
+				E19537E24AC87FA8FB614976 /* Sentry-iOS.framework in Embed Frameworks */,
 				864CDDF55D447714ECD8113B /* SentrySampleShared.framework in Embed Frameworks */,
 				4A6288CAA3E47ADBC98E03A2 /* SentrySwiftLog.framework in Embed Frameworks */,
 			);
@@ -300,9 +300,9 @@
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
-				D48891782EBDFA5800054D46 /* iOS-Swift-IntentExtension.appex in Embed Foundation Extensions */,
 				658BD4C7B5E66786A5D70C2F /* iOS-Swift-ShareExtension.appex in Embed Foundation Extensions */,
 				9F633516A435CF3A80629711 /* iOS-Swift-ActionExtension.appex in Embed Foundation Extensions */,
+				662B05F82BA41661ABA0E0CA /* iOS-Swift-IntentExtension.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -313,7 +313,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				F2EB8945FE8410AC4013F1D3 /* Sentry.framework in Embed Frameworks */,
+				F2EB8945FE8410AC4013F1D3 /* Sentry-iOS.framework in Embed Frameworks */,
 				55DB9EEC221DF519072BE0B3 /* SentrySampleShared.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
@@ -341,10 +341,9 @@
 		111D68433FFABCFE3119006C /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		11C193449DEA7C4DDE40BBAC /* LaunchUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchUITests.swift; sourceTree = "<group>"; };
 		15C104D665E62308894E2A3B /* iOS-SwiftClip.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "iOS-SwiftClip.xcconfig"; sourceTree = "<group>"; };
-		1629F8166CE76494F9B01D8F /* IntentHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntentHandler.swift; sourceTree = "<group>"; };
 		191E19F619E741E73E835E47 /* BuildOptions.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = BuildOptions.xcconfig; sourceTree = "<group>"; };
-		1D92FAAD8C8895CB6683E43A /* iOS-Swift-ShareExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "iOS-Swift-ShareExtension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
-		1DEF15A1ACA9C9854945F4C6 /* iOS-Swift-IntentExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "iOS-Swift-IntentExtension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		1D92FAAD8C8895CB6683E43A /* iOS-Swift-ShareExtension.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = "iOS-Swift-ShareExtension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		1DEF15A1ACA9C9854945F4C6 /* iOS-Swift-IntentExtension.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = "iOS-Swift-IntentExtension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
 		1E3F3B596C5D113BE83B2428 /* ClangCppLanguage.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = ClangCppLanguage.xcconfig; sourceTree = "<group>"; };
 		2026796F32A57B6F4F468797 /* Deployment.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Deployment.xcconfig; sourceTree = "<group>"; };
 		23A58E2CDED64E05B5C8BB92 /* iOS-Swift-IntentExtension.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "iOS-Swift-IntentExtension.xcconfig"; sourceTree = "<group>"; };
@@ -355,30 +354,34 @@
 		28E5BFD867CC9CD8D561CD61 /* SentryPDFViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryPDFViewController.swift; sourceTree = "<group>"; };
 		2C58FB28BDB584B486D60D5C /* DiskWriteException.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiskWriteException.swift; sourceTree = "<group>"; };
 		2CE4A1607B6636E7F9D1049F /* PermissionsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionsViewController.swift; sourceTree = "<group>"; };
+		2EFD3AD5D144F9C019871849 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		2F62C06F30188F22B3FC33D6 /* SampleAssets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = SampleAssets.xcassets; sourceTree = "<group>"; };
 		3134BF0471477E94C9886A4F /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		328DE61B3CAEB67D00E916F0 /* iOS_SwiftClip.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = iOS_SwiftClip.entitlements; sourceTree = "<group>"; };
 		32ECFAF2EE13BB90EAC1BEF6 /* SessionReplayUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionReplayUITests.swift; sourceTree = "<group>"; };
 		34E9AEE9AA451F75F7DB63AA /* CoreDataViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataViewController.swift; sourceTree = "<group>"; };
 		3589A0CF9BB424480A9B7323 /* Sample.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Sample.xcconfig; sourceTree = "<group>"; };
+		398D106D13E48BC9F9C5BED2 /* ShareViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareViewController.swift; sourceTree = "<group>"; };
 		3A5B13F49927E3AD638263E7 /* UIEventBreadcrumbTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIEventBreadcrumbTests.swift; sourceTree = "<group>"; };
-		3C4C86237C0D6D586B3FFB9B /* iOS-Swift.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "iOS-Swift.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		3C4C86237C0D6D586B3FFB9B /* iOS-Swift.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = "iOS-Swift.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		3CCD9ACD51F4FD1F18406815 /* ClangObjCLanguage.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = ClangObjCLanguage.xcconfig; sourceTree = "<group>"; };
 		3EDA1112F32AFA3C38DCB341 /* _Common.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = _Common.xcconfig; sourceTree = "<group>"; };
 		3F640261ED8F2221C4FDBD1F /* iOS-Swift.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "iOS-Swift.entitlements"; sourceTree = "<group>"; };
 		438A5FECE8C2A2E5F63EE2F0 /* Localization.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Localization.xcconfig; sourceTree = "<group>"; };
+		4439126C6455FFD1DC5F14D9 /* IntentHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntentHandler.swift; sourceTree = "<group>"; };
 		4516D984EA4343F20D13AE5E /* ClangLanguage.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = ClangLanguage.xcconfig; sourceTree = "<group>"; };
 		49D00325763455DB94436C6E /* iOS-Swift-ActionExtension.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "iOS-Swift-ActionExtension.xcconfig"; sourceTree = "<group>"; };
 		4B77039FF4008016404245CD /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		4D6A40C9633EAECD3B8E0C67 /* iOS-Swift_Base.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = "iOS-Swift_Base.xctestplan"; sourceTree = "<group>"; };
+		4D6A40C9633EAECD3B8E0C67 /* iOS-Swift_Base.xctestplan */ = {isa = PBXFileReference; path = "iOS-Swift_Base.xctestplan"; sourceTree = "<group>"; };
 		5305DB7675BCC04CEE052B5C /* ProfilingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfilingViewController.swift; sourceTree = "<group>"; };
 		551550B87A4D1AE259A27A3F /* ProfilingUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfilingUITests.swift; sourceTree = "<group>"; };
 		58879E907B39D86CB12A4F4C /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		594C6C143D646B48D67B610C /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/MainInterface.storyboard; sourceTree = "<group>"; };
 		5BE4ABE21383962A011E3860 /* iOS-Swift.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "iOS-Swift.xcconfig"; sourceTree = "<group>"; };
-		5F0230BC4622C791FBEA4976 /* iOS-Benchmarking_Base.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = "iOS-Benchmarking_Base.xctestplan"; sourceTree = "<group>"; };
+		5F0230BC4622C791FBEA4976 /* iOS-Benchmarking_Base.xctestplan */ = {isa = PBXFileReference; path = "iOS-Benchmarking_Base.xctestplan"; sourceTree = "<group>"; };
 		5FE4A549ED401080AFCB8B2A /* NibViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = NibViewController.xib; sourceTree = "<group>"; };
 		63A069618DFB86210BA92797 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
-		6550F952A3DE74ECDB5DE1FA /* iOS-Swift-UITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "iOS-Swift-UITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		6550F952A3DE74ECDB5DE1FA /* iOS-Swift-UITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = "iOS-Swift-UITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		65C5531F29280E37333FE180 /* iOS-Benchmarking.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "iOS-Benchmarking.xcconfig"; sourceTree = "<group>"; };
 		684D082B39C1AF4D69C1852F /* SentryVideoViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryVideoViewController.swift; sourceTree = "<group>"; };
 		6960C6B2C93BD6A655026C18 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -389,27 +392,26 @@
 		7BBBC9883318840251690D58 /* TransactionsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionsViewController.swift; sourceTree = "<group>"; };
 		7DD0D69ED7EDE646A6423EAA /* BaseUITest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseUITest.swift; sourceTree = "<group>"; };
 		7F46879D621F90A7655C615F /* TraceTestViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TraceTestViewController.swift; sourceTree = "<group>"; };
+		80C56678E58B19DE7E5AC505 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		80ED14BF53BD24179AF936DE /* ErrorsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorsViewController.swift; sourceTree = "<group>"; };
 		81A88F9881D9A8C9BC4D0981 /* TopViewControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopViewControllerTests.swift; sourceTree = "<group>"; };
+		8212E22D95B5E357BD0E5253 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		82187F5842E4AF261FF7A79B /* ClangWarnings.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = ClangWarnings.xcconfig; sourceTree = "<group>"; };
 		84A4BC6BD538C2B4F8E20101 /* ProfilingNetworkScanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfilingNetworkScanner.swift; sourceTree = "<group>"; };
-		85850348B69F1BD2BC0102AC /* iOS-SwiftClip.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "iOS-SwiftClip.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		85850348B69F1BD2BC0102AC /* iOS-SwiftClip.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = "iOS-SwiftClip.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		8676CFD056BB0C02B05026F8 /* Architectures.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Architectures.xcconfig; sourceTree = "<group>"; };
 		884173CDEBFCB5BCA30755D8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		884F6DC27D1D6479DE82A19C /* SearchPaths.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = SearchPaths.xcconfig; sourceTree = "<group>"; };
-		888CD837181BB01EDC8C69A1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		89700FC1B6E2F322734C4681 /* Linking.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Linking.xcconfig; sourceTree = "<group>"; };
 		8B24580901EF7733F1B03B44 /* iOS-Swift-ShareExtension.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "iOS-Swift-ShareExtension.xcconfig"; sourceTree = "<group>"; };
 		8B4DF0C116D93A28F939AAEF /* ClangModules.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = ClangModules.xcconfig; sourceTree = "<group>"; };
-		8FE6B9D12582A2EEA684917F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		9110682E13966E0619F4C1FF /* iOS-Swift-ActionExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "iOS-Swift-ActionExtension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		9110682E13966E0619F4C1FF /* iOS-Swift-ActionExtension.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = "iOS-Swift-ActionExtension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
 		919455E53FC420C8ED9F8790 /* ClangWarningsObjC.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = ClangWarningsObjC.xcconfig; sourceTree = "<group>"; };
 		972DD7CBB48B45181873FE3E /* ClangPreprocessing.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = ClangPreprocessing.xcconfig; sourceTree = "<group>"; };
 		9736CB8B27AB4F265767C4AF /* Metal.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Metal.xcconfig; sourceTree = "<group>"; };
 		985DCC5D72E703B5070AE77A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		A1F9EDDC06DDABBA4DB04A3D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		A4568D77EB0E9357D64D0B1F /* Signing.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Signing.xcconfig; sourceTree = "<group>"; };
-		A4FCD86C1D07412A120BF869 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/MainInterface.storyboard; sourceTree = "<group>"; };
 		A6CFF1E7A99769E83BA0E317 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		A7EDF3062F37C6E63D1205BF /* UserFeedbackUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserFeedbackUITests.swift; sourceTree = "<group>"; };
 		A8768C166771E0D49A7057B6 /* Packaging.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Packaging.xcconfig; sourceTree = "<group>"; };
@@ -417,7 +419,7 @@
 		A92E0DC9A242AE1C8D55FE4E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		B231B9FDB45669E5B5BC85F3 /* NSObject+SentryAppSetup.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSObject+SentryAppSetup.m"; sourceTree = "<group>"; };
 		B363B5FE6C5D8037994CF501 /* ProjectProposal.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = ProjectProposal.pdf; sourceTree = "<group>"; };
-		B8D34DA3392FA270D53C12EF /* Sample.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = Sample.mp4; sourceTree = "<group>"; };
+		B8D34DA3392FA270D53C12EF /* Sample.mp4 */ = {isa = PBXFileReference; path = Sample.mp4; sourceTree = "<group>"; };
 		BA1D703A0A609E9A5B7F4334 /* MetricKitManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetricKitManager.swift; sourceTree = "<group>"; };
 		BA815EDE87FD977D9551AD8B /* iOS-Swift-UITests.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "iOS-Swift-UITests.xcconfig"; sourceTree = "<group>"; };
 		C06597CE87CAE662AD88887C /* ClangAnalyzer.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = ClangAnalyzer.xcconfig; sourceTree = "<group>"; };
@@ -428,23 +430,20 @@
 		D265E2EDD00C60F7F5B6B888 /* TriggerAppHang.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TriggerAppHang.swift; sourceTree = "<group>"; };
 		D38DD5BC3D9D6F07E866E713 /* SentrySampleShared */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = SentrySampleShared; path = ../SentrySampleShared/SentrySampleShared.xcodeproj; sourceTree = "<group>"; };
 		D46A7072778733E46E720E52 /* CppCode.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = CppCode.hpp; sourceTree = "<group>"; };
-		D48891362EBDF97E00054D46 /* Intents.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Intents.framework; path = System/Library/Frameworks/Intents.framework; sourceTree = SDKROOT; };
-		D48891412EBDF97F00054D46 /* IntentsUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IntentsUI.framework; path = System/Library/Frameworks/IntentsUI.framework; sourceTree = SDKROOT; };
 		D53477847607017C3A437AE7 /* UIEventBreadcrumbsController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIEventBreadcrumbsController.swift; sourceTree = "<group>"; };
 		D5AC0B967B60BC739056BD34 /* NibViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NibViewController.swift; sourceTree = "<group>"; };
 		D765E5E52128E3F6B9D0146C /* PageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PageViewController.swift; sourceTree = "<group>"; };
 		D80A83A9FD1BECA60D8DAAF8 /* SentryExposure.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SentryExposure.h; sourceTree = "<group>"; };
 		D81C678605E1A38F19B5A024 /* CodeGeneration.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = CodeGeneration.xcconfig; sourceTree = "<group>"; };
 		D82593E08C9EEE14439FEB1D /* ViewLifecycleTestViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewLifecycleTestViewController.swift; sourceTree = "<group>"; };
-		D9FD176B4441601AB5FEAF11 /* ShareViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareViewController.swift; sourceTree = "<group>"; };
+		DA82C91822C2EBD3D6D742A1 /* ActionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionViewController.swift; sourceTree = "<group>"; };
 		E312023EF6ACB33ED0305DFC /* SentryBenchmarking.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SentryBenchmarking.h; sourceTree = "<group>"; };
 		E405B26D12528D3D4D0F5ECD /* Person.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Person.xcdatamodel; sourceTree = "<group>"; };
 		E554CB6D8C25262F430A739C /* InfoForBreadcrumbController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoForBreadcrumbController.swift; sourceTree = "<group>"; };
-		E5D662D2A5DE3813AAE19A12 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		EB15DB1B86AFA85242911AF5 /* SplitViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplitViewController.swift; sourceTree = "<group>"; };
 		EB925B776381501478AB32A1 /* WebViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebViewController.swift; sourceTree = "<group>"; };
 		EC29F2EAA808DD5E7D7BE2B4 /* LoremIpsumViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoremIpsumViewController.swift; sourceTree = "<group>"; };
-		EFBCF1F91BFDD5F2AA3B836D /* iOS-Benchmarking.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "iOS-Benchmarking.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		EFBCF1F91BFDD5F2AA3B836D /* iOS-Benchmarking.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = "iOS-Benchmarking.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		EFD16BCAD9B26BEB540196C3 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		F167D91DC443457E9459B25A /* ExtraViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExtraViewController.swift; sourceTree = "<group>"; };
 		F176BD186091A9355B8C54A2 /* ProfilingCPUWork.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfilingCPUWork.swift; sourceTree = "<group>"; };
@@ -453,7 +452,6 @@
 		F938A0625B5B6F20402224EE /* AssetCatalog.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = AssetCatalog.xcconfig; sourceTree = "<group>"; };
 		F94A74A23ED1C3E0778D26AC /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		FC08BFF2EC8DF341033195E4 /* ReplaceContentViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReplaceContentViewController.swift; sourceTree = "<group>"; };
-		FC535DA5D6DB09218CA168DA /* ActionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionViewController.swift; sourceTree = "<group>"; };
 		FEEA62485E8E4A953DCA6466 /* TableViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = TableViewController.xib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -462,7 +460,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				53581AA5D1FD2F734A163752 /* Sentry.framework in Frameworks */,
+				53581AA5D1FD2F734A163752 /* Sentry-iOS.framework in Frameworks */,
 				846570ED1077949BE6404BA5 /* SentrySampleShared.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -471,7 +469,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5D2281140DE120DF5FAFCA46 /* Sentry.framework in Frameworks */,
+				5D2281140DE120DF5FAFCA46 /* Sentry-iOS.framework in Frameworks */,
 				2E37B5254D7597BD8B6169B9 /* SentrySampleShared.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -489,7 +487,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				67BEBED634D92F2B1591DA05 /* Sentry.framework in Frameworks */,
+				67BEBED634D92F2B1591DA05 /* Sentry-iOS.framework in Frameworks */,
 				2FCE6F02F09EC77C3AD49997 /* SentrySampleShared.framework in Frameworks */,
 				58DF542F78921F4880ECAE94 /* SentrySwiftLog.framework in Frameworks */,
 			);
@@ -507,7 +505,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DFC067DA37586FB5C3845AE6 /* Sentry.framework in Frameworks */,
+				DFC067DA37586FB5C3845AE6 /* Sentry-iOS.framework in Frameworks */,
 				8EFBF7F312296D36BD7A65D8 /* SentrySampleShared.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -516,7 +514,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				51A85B15CAD3953FE3556C04 /* Sentry.framework in Frameworks */,
+				51A85B15CAD3953FE3556C04 /* Sentry-iOS.framework in Frameworks */,
 				1336182701E13D2606D4FFEB /* SentrySampleShared.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -527,8 +525,8 @@
 		06619803D06AFF4B14100FAB /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				018FEE288B12E7853958FA69 /* SentrySampleShared.framework */,
 				AF1D8F1C2DB7F81F4C7718B2 /* SentrySampleUITestShared.framework */,
+				018FEE288B12E7853958FA69 /* SentrySampleShared.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -536,10 +534,18 @@
 		0D24C59349E6F2D92B327248 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				0F6BBB6AA617495A3083BF7A /* Sentry.framework */,
+				0F6BBB6AA617495A3083BF7A /* Sentry-iOS.framework */,
 				923CF519D4F6789CCFDECE17 /* SentrySwiftLog.framework */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		14D1E89FCCC6AE55333D8A0B /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				4439126C6455FFD1DC5F14D9 /* IntentHandler.swift */,
+			);
+			path = Sources;
 			sourceTree = "<group>";
 		};
 		14E8B9BA6F996DBFE2FEB910 /* Tools */ = {
@@ -621,8 +627,8 @@
 		530A144D78039C529394F66A /* iOS-Swift-ShareExtension */ = {
 			isa = PBXGroup;
 			children = (
-				D48890E42EBDF38700054D46 /* Resources */,
-				D48890E32EBDF37B00054D46 /* Sources */,
+				A77545ADBE9D1E26F8D1ED05 /* Resources */,
+				AD9C8FB43B9FB54F857B8C88 /* Sources */,
 			);
 			path = "iOS-Swift-ShareExtension";
 			sourceTree = "<group>";
@@ -680,6 +686,14 @@
 			name = Projects;
 			sourceTree = "<group>";
 		};
+		6803A2E39B1CD38B6F6FA200 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				2EFD3AD5D144F9C019871849 /* Info.plist */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
 		6ECEBFFC5098DEDAE506F622 /* iOS-Benchmarking */ = {
 			isa = PBXGroup;
 			children = (
@@ -714,17 +728,33 @@
 				EC3C812AAD487544954AED5D /* iOS-SwiftClip */,
 				87339914655042F1BBE52163 /* Plans */,
 				CC80618C88F712CCC9C11AC2 /* Shared */,
-				D48891352EBDF97E00054D46 /* Frameworks */,
 				53941E696F63F4E24A3A6B38 /* Products */,
 				5D37403FC0B005B14A3BAE3B /* Projects */,
 			);
 			sourceTree = "<group>";
 		};
+		A77545ADBE9D1E26F8D1ED05 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				8212E22D95B5E357BD0E5253 /* Info.plist */,
+				6E0C905647A1A0897FC57FFC /* MainInterface.storyboard */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		AD9C8FB43B9FB54F857B8C88 /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				398D106D13E48BC9F9C5BED2 /* ShareViewController.swift */,
+			);
+			path = Sources;
+			sourceTree = "<group>";
+		};
 		B1F08350D217FF6B7A06EE44 /* iOS-Swift-IntentExtension */ = {
 			isa = PBXGroup;
 			children = (
-				D48890E52EBDF38E00054D46 /* Resources */,
-				D48890E22EBDF37700054D46 /* Sources */,
+				6803A2E39B1CD38B6F6FA200 /* Resources */,
+				14D1E89FCCC6AE55333D8A0B /* Sources */,
 			);
 			path = "iOS-Swift-IntentExtension";
 			sourceTree = "<group>";
@@ -736,64 +766,6 @@
 			);
 			name = Shared;
 			path = ../Shared;
-			sourceTree = "<group>";
-		};
-		D48890C92EBDF37100054D46 /* Sources */ = {
-			isa = PBXGroup;
-			children = (
-				FC535DA5D6DB09218CA168DA /* ActionViewController.swift */,
-			);
-			path = Sources;
-			sourceTree = "<group>";
-		};
-		D48890E22EBDF37700054D46 /* Sources */ = {
-			isa = PBXGroup;
-			children = (
-				1629F8166CE76494F9B01D8F /* IntentHandler.swift */,
-			);
-			path = Sources;
-			sourceTree = "<group>";
-		};
-		D48890E32EBDF37B00054D46 /* Sources */ = {
-			isa = PBXGroup;
-			children = (
-				D9FD176B4441601AB5FEAF11 /* ShareViewController.swift */,
-			);
-			path = Sources;
-			sourceTree = "<group>";
-		};
-		D48890E42EBDF38700054D46 /* Resources */ = {
-			isa = PBXGroup;
-			children = (
-				8FE6B9D12582A2EEA684917F /* Info.plist */,
-				E3BD87A2B62E1BC3E57D6159 /* MainInterface.storyboard */,
-			);
-			path = Resources;
-			sourceTree = "<group>";
-		};
-		D48890E52EBDF38E00054D46 /* Resources */ = {
-			isa = PBXGroup;
-			children = (
-				E5D662D2A5DE3813AAE19A12 /* Info.plist */,
-			);
-			path = Resources;
-			sourceTree = "<group>";
-		};
-		D48890E62EBDF39300054D46 /* Resources */ = {
-			isa = PBXGroup;
-			children = (
-				888CD837181BB01EDC8C69A1 /* Info.plist */,
-			);
-			path = Resources;
-			sourceTree = "<group>";
-		};
-		D48891352EBDF97E00054D46 /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				D48891362EBDF97E00054D46 /* Intents.framework */,
-				D48891412EBDF97F00054D46 /* IntentsUI.framework */,
-			);
-			name = Frameworks;
 			sourceTree = "<group>";
 		};
 		DC3B49050E8865F0B7DCAD5D /* Profiling */ = {
@@ -812,8 +784,8 @@
 		E1C30EC84D3648E5D2AA6090 /* iOS-Swift-ActionExtension */ = {
 			isa = PBXGroup;
 			children = (
-				D48890E62EBDF39300054D46 /* Resources */,
-				D48890C92EBDF37100054D46 /* Sources */,
+				F00645BFC4F4EE8486F76C8B /* Resources */,
+				F8E13979B1781571A2E81BF3 /* Sources */,
 			);
 			path = "iOS-Swift-ActionExtension";
 			sourceTree = "<group>";
@@ -831,6 +803,22 @@
 				111D68433FFABCFE3119006C /* ViewController.swift */,
 			);
 			path = "iOS-SwiftClip";
+			sourceTree = "<group>";
+		};
+		F00645BFC4F4EE8486F76C8B /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				80C56678E58B19DE7E5AC505 /* Info.plist */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		F8E13979B1781571A2E81BF3 /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				DA82C91822C2EBD3D6D742A1 /* ActionViewController.swift */,
+			);
+			path = Sources;
 			sourceTree = "<group>";
 		};
 		F9540EC35C5925E94F45B382 /* ViewControllers */ = {
@@ -943,8 +931,8 @@
 				EC1A2A52557D0A7B4A3E5719 /* PBXTargetDependency */,
 				0F77B63056CDE5F11DB7B308 /* PBXTargetDependency */,
 				8DE49BBCA6E0FA936BDFF05F /* PBXTargetDependency */,
+				093A53C82423ED7FCCD9F687 /* PBXTargetDependency */,
 				79FB95E9457D617F3FAA2559 /* PBXTargetDependency */,
-				D488917A2EBDFA5800054D46 /* PBXTargetDependency */,
 			);
 			name = "iOS-Swift";
 			packageProductDependencies = (
@@ -1026,7 +1014,6 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
-				LastSwiftUpdateCheck = 2610;
 				LastUpgradeCheck = 1430;
 				TargetAttributes = {
 					0217293F044A3AEED8E37A25 = {
@@ -1069,6 +1056,7 @@
 			);
 			mainGroup = 9D75FD88C0E38876C1D4BBC7;
 			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
 			projectDirPath = "";
 			projectReferences = (
 				{
@@ -1101,10 +1089,10 @@
 			remoteRef = 57429C308B31F557BC7F076D /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		0F6BBB6AA617495A3083BF7A /* Sentry.framework */ = {
+		0F6BBB6AA617495A3083BF7A /* Sentry-iOS.framework */ = {
 			isa = PBXReferenceProxy;
 			fileType = wrapper.framework;
-			path = Sentry.framework;
+			path = "Sentry-iOS.framework";
 			remoteRef = 28D99B7E8D5D8A3FEF039435 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
@@ -1148,7 +1136,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B353F36AAE7165D1185D6D59 /* MainInterface.storyboard in Resources */,
+				9ACA3389570D88D40C770C04 /* MainInterface.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1294,7 +1282,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7BD39BA8DA56883832D7171C /* ActionViewController.swift in Sources */,
+				5133770424120A9B4C96C9A1 /* ActionViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1337,7 +1325,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				BEB39C50554F955B9C0ED4CC /* ShareViewController.swift in Sources */,
+				8A265A5A425593298A5661C7 /* ShareViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1345,13 +1333,18 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8CF15B29406C6DE9B7E23453 /* IntentHandler.swift in Sources */,
+				AB507A8400D367E151715AD4 /* IntentHandler.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		093A53C82423ED7FCCD9F687 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 5DB3F50F9D50D2F2419F11F3 /* iOS-Swift-IntentExtension */;
+			targetProxy = 72DFB8179857ED959AC59C6A /* PBXContainerItemProxy */;
+		};
 		0F77B63056CDE5F11DB7B308 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = C97FF7E8B34B54F1E1DA596E /* iOS-Swift-ShareExtension */;
@@ -1422,11 +1415,6 @@
 			name = SentrySampleUITestShared;
 			targetProxy = 9AA1C80EDE26555EB9D13AA5 /* PBXContainerItemProxy */;
 		};
-		D488917A2EBDFA5800054D46 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 5DB3F50F9D50D2F2419F11F3 /* iOS-Swift-IntentExtension */;
-			targetProxy = D48891792EBDFA5800054D46 /* PBXContainerItemProxy */;
-		};
 		EC1A2A52557D0A7B4A3E5719 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = SentrySampleShared;
@@ -1461,20 +1449,20 @@
 			name = LaunchScreen.storyboard;
 			sourceTree = "<group>";
 		};
+		6E0C905647A1A0897FC57FFC /* MainInterface.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				594C6C143D646B48D67B610C /* Base */,
+			);
+			name = MainInterface.storyboard;
+			sourceTree = "<group>";
+		};
 		8813728C87CB00CBB907AF8D /* Main.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
 				6960C6B2C93BD6A655026C18 /* Base */,
 			);
 			name = Main.storyboard;
-			sourceTree = "<group>";
-		};
-		E3BD87A2B62E1BC3E57D6159 /* MainInterface.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				A4FCD86C1D07412A120BF869 /* Base */,
-			);
-			name = MainInterface.storyboard;
 			sourceTree = "<group>";
 		};
 		E702320CD964146FB4A53460 /* Main.storyboard */ = {
@@ -1627,7 +1615,6 @@
 			baseConfigurationReference = 8B24580901EF7733F1B03B44 /* iOS-Swift-ShareExtension.xcconfig */;
 			buildSettings = {
 				INFOPLIST_FILE = "iOS-Swift-ShareExtension/Resources/Info.plist";
-				SWIFT_OBJC_BRIDGING_HEADER = "iOS-Swift/Tools/iOS-Swift-Bridging-Header.h";
 			};
 			name = Release;
 		};
@@ -1817,7 +1804,6 @@
 			baseConfigurationReference = 8B24580901EF7733F1B03B44 /* iOS-Swift-ShareExtension.xcconfig */;
 			buildSettings = {
 				INFOPLIST_FILE = "iOS-Swift-ShareExtension/Resources/Info.plist";
-				SWIFT_OBJC_BRIDGING_HEADER = "iOS-Swift/Tools/iOS-Swift-Bridging-Header.h";
 			};
 			name = Test;
 		};
@@ -1859,7 +1845,6 @@
 			baseConfigurationReference = 8B24580901EF7733F1B03B44 /* iOS-Swift-ShareExtension.xcconfig */;
 			buildSettings = {
 				INFOPLIST_FILE = "iOS-Swift-ShareExtension/Resources/Info.plist";
-				SWIFT_OBJC_BRIDGING_HEADER = "iOS-Swift/Tools/iOS-Swift-Bridging-Header.h";
 			};
 			name = TestCI;
 		};
@@ -1877,7 +1862,6 @@
 			baseConfigurationReference = 8B24580901EF7733F1B03B44 /* iOS-Swift-ShareExtension.xcconfig */;
 			buildSettings = {
 				INFOPLIST_FILE = "iOS-Swift-ShareExtension/Resources/Info.plist";
-				SWIFT_OBJC_BRIDGING_HEADER = "iOS-Swift/Tools/iOS-Swift-Bridging-Header.h";
 			};
 			name = Debug;
 		};

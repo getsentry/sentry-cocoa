@@ -1,26 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
    LastUpgradeVersion = "1430"
-   wasCreatedForAppExtension = "YES"
-   version = "2.0">
+   version = "1.7">
    <BuildAction
       parallelizeBuildables = "YES"
-      buildImplicitDependencies = "YES">
+      buildImplicitDependencies = "YES"
+      runPostActionsOnFailure = "NO">
       <BuildActionEntries>
-         <BuildActionEntry
-            buildForTesting = "YES"
-            buildForRunning = "YES"
-            buildForProfiling = "YES"
-            buildForArchiving = "YES"
-            buildForAnalyzing = "YES">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "5B05A31890F168B2E9851B98"
-               BuildableName = "iOS-Swift-ActionExtension.appex"
-               BlueprintName = "iOS-Swift-ActionExtension"
-               ReferencedContainer = "container:iOS-Swift.xcodeproj">
-            </BuildableReference>
-         </BuildActionEntry>
          <BuildActionEntry
             buildForTesting = "YES"
             buildForRunning = "YES"
@@ -35,19 +21,34 @@
                ReferencedContainer = "container:iOS-Swift.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "5B05A31890F168B2E9851B98"
+               BuildableName = "iOS-Swift-ActionExtension.appex"
+               BlueprintName = "iOS-Swift-ActionExtension"
+               ReferencedContainer = "container:iOS-Swift.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
       </BuildActionEntries>
    </BuildAction>
    <TestAction
       buildConfiguration = "Debug"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
-      shouldUseLaunchSchemeArgsEnv = "YES">
+      shouldUseLaunchSchemeArgsEnv = "YES"
+      onlyGenerateCoverageForSpecifiedTargets = "NO">
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "5B05A31890F168B2E9851B98"
-            BuildableName = "iOS-Swift-ActionExtension.appex"
-            BlueprintName = "iOS-Swift-ActionExtension"
+            BlueprintIdentifier = "6C5B85CBF6AE4AA020E28E5F"
+            BuildableName = "iOS-Swift.app"
+            BlueprintName = "iOS-Swift"
             ReferencedContainer = "container:iOS-Swift.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -56,25 +57,26 @@
    </TestAction>
    <LaunchAction
       buildConfiguration = "Debug"
-      selectedDebuggerIdentifier = ""
-      selectedLauncherIdentifier = "Xcode.IDEFoundation.Launcher.PosixSpawn"
+      selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
+      selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       launchStyle = "0"
-      askForAppToLaunch = "Yes"
       useCustomWorkingDirectory = "NO"
       ignoresPersistentStateOnLaunch = "NO"
       debugDocumentVersioning = "YES"
       debugServiceExtension = "internal"
-      allowLocationSimulation = "YES"
-      launchAutomaticallySubstyle = "2">
-      <MacroExpansion>
+      allowLocationSimulation = "YES">
+      <BuildableProductRunnable
+         runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "5B05A31890F168B2E9851B98"
-            BuildableName = "iOS-Swift-ActionExtension.appex"
-            BlueprintName = "iOS-Swift-ActionExtension"
+            BlueprintIdentifier = "6C5B85CBF6AE4AA020E28E5F"
+            BuildableName = "iOS-Swift.app"
+            BlueprintName = "iOS-Swift"
             ReferencedContainer = "container:iOS-Swift.xcodeproj">
          </BuildableReference>
-      </MacroExpansion>
+      </BuildableProductRunnable>
+      <CommandLineArguments>
+      </CommandLineArguments>
    </LaunchAction>
    <ProfileAction
       buildConfiguration = "Release"
@@ -86,9 +88,9 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "5B05A31890F168B2E9851B98"
-            BuildableName = "iOS-Swift-ActionExtension.appex"
-            BlueprintName = "iOS-Swift-ActionExtension"
+            BlueprintIdentifier = "6C5B85CBF6AE4AA020E28E5F"
+            BuildableName = "iOS-Swift.app"
+            BlueprintName = "iOS-Swift"
             ReferencedContainer = "container:iOS-Swift.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>

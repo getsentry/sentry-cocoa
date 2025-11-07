@@ -17,6 +17,12 @@ class ActionViewController: UIViewController {
     }
 
     private func setupSentry() {
+        // Prevent double initialization - SentrySDK.start() can be called multiple times
+        // but we want to avoid unnecessary re-initialization
+        guard !SentrySDK.isEnabled else {
+            return
+        }
+
         // For this extension we need a specific configuration set, therefore we do not use the shared sample initializer
         SentrySDK.start { options in
             options.dsn = SentrySDKWrapper.defaultDSN
