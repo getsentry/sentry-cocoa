@@ -9,95 +9,64 @@ class IntentHandler: INExtension, INSendMessageIntentHandling {
         super.init()
         setupSentry()
     }
-    
-    private func setupSentry() {
-        SentrySDKWrapper.shared.startSentry()
-        
-        // Small delay to ensure SDK is initialized
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            self.checkANRStatus()
-        }
-    }
-    
-    private func checkANRStatus() {
-        // Verify ANR tracking is disabled
-        var anrInstalled = false
-        if SentrySDK.isEnabled {
-            let integrationNames = SentrySDKInternal.trimmedInstalledIntegrationNames()
-            anrInstalled = integrationNames.contains("ANRTracking")
-        }
-        
-        if anrInstalled {
-            print("❌ ERROR: ANR tracking should be disabled in Intent Extension but it's enabled!")
-        } else {
-            print("✅ ANR tracking is correctly disabled in Intent Extension")
-        }
-    }
-    
+
     override func handler(for intent: INIntent) -> Any {
         setupSentry()
         return self
     }
+
+    private func setupSentry() {
+        // For this extension we need a specific configuration set, therefore we do not use the shared sample initializer
+        SentrySDK.start { options in
+            options.dsn = SentrySDKWrapper.defaultDSN
+            options.debug = true
+
+            // App Hang Tracking must be enabled, but should not be installed
+            options.enableAppHangTracking = true
+        }
+    }
     
     // MARK: - INSendMessageIntentHandling
     
-    // Implement resolution methods to provide additional information about your intent (optional).
     func resolveRecipients(for intent: INSendMessageIntent, with completion: @escaping ([INSendMessageRecipientResolutionResult]) -> Void) {
-        if let recipients = intent.recipients {
-            // If no recipients were provided we'll need to prompt for a value.
-            if recipients.count == 0 {
-                completion([INSendMessageRecipientResolutionResult.needsValue()])
-                return
-            }
-            
-            var resolutionResults = [INSendMessageRecipientResolutionResult]()
-            for recipient in recipients {
-                let matchingContacts = [recipient] // Implement your contact matching logic here to create an array of matching contacts
-                switch matchingContacts.count {
-                case 2 ... Int.max:
-                    // We need Siri's help to ask user to pick one from the matches.
-                    resolutionResults += [INSendMessageRecipientResolutionResult.disambiguation(with: matchingContacts)]
-                    
-                case 1:
-                    // We have exactly one matching contact
-                    resolutionResults += [INSendMessageRecipientResolutionResult.success(with: recipient)]
-                    
-                case 0:
-                    // We have no contacts matching the description provided
-                    resolutionResults += [INSendMessageRecipientResolutionResult.unsupported()]
-                    
-                default:
-                    break
-                }
-            }
-            completion(resolutionResults)
-        } else {
-            completion([INSendMessageRecipientResolutionResult.needsValue()])
-        }
+        let person = INPerson(
+            personHandle: INPersonHandle(value: "john-snow", type: .unknown),
+            nameComponents: PersonNameComponents(givenName: "John", familyName: "Snow"),
+            displayName: "John Snow",
+            image: nil,
+            contactIdentifier: nil,
+            customIdentifier: nil
+        )
+        completion([INSendMessageRecipientResolutionResult.success(with: person)])
     }
     
     func resolveContent(for intent: INSendMessageIntent, with completion: @escaping (INStringResolutionResult) -> Void) {
-        if let text = intent.content, !text.isEmpty {
-            completion(INStringResolutionResult.success(with: text))
-        } else {
-            completion(INStringResolutionResult.needsValue())
-        }
+        let message = """
+        Sentry Enabled? \(isSentryEnabled ? "✅" : "❌")
+        ANR Disabled? \(!isANRInstalled ? "✅" : "❌")
+        """
+        completion(INStringResolutionResult.success(with: message))
     }
     
-    // Once resolution is completed, perform validation on the intent and provide confirmation (optional).
     func confirm(intent: INSendMessageIntent, completion: @escaping (INSendMessageIntentResponse) -> Void) {
-        // Verify user is authenticated and your app is ready to send a message.
         let userActivity = NSUserActivity(activityType: NSStringFromClass(INSendMessageIntent.self))
-        let response = INSendMessageIntentResponse(code: .ready, userActivity: userActivity)
-        completion(response)
+        completion(INSendMessageIntentResponse(code: .ready, userActivity: userActivity))
     }
     
-    // Handle the completed intent (required).
     func handle(intent: INSendMessageIntent, completion: @escaping (INSendMessageIntentResponse) -> Void) {
-        print("🔵 IntentHandler.handle(intent:) called")
         SentrySDK.capture(message: "iOS-Swift-IntentExtension: handle intent called")
+
         let userActivity = NSUserActivity(activityType: NSStringFromClass(INSendMessageIntent.self))
-        let response = INSendMessageIntentResponse(code: .success, userActivity: userActivity)
-        completion(response)
+        completion(INSendMessageIntentResponse(code: .success, userActivity: userActivity))
+    }
+
+    // MARK: - Helpers
+
+    var isANRInstalled: Bool {
+        return isSentryEnabled && SentrySDKInternal.trimmedInstalledIntegrationNames().contains("ANRTracking")
+    }
+
+    var isSentryEnabled: Bool {
+        SentrySDK.isEnabled
     }
 }

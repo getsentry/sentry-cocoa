@@ -66,11 +66,6 @@
       debugServiceExtension = "internal"
       allowLocationSimulation = "YES"
       launchAutomaticallySubstyle = "2">
-      <RemoteRunnable
-         runnableDebuggingMode = "0"
-         BundleIdentifier = "com.apple.Maps"
-         RemotePath = "/var/containers/Bundle/Application/AEF0736D-F834-4160-932E-6AE44AAD3B51/Maps.app">
-      </RemoteRunnable>
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
