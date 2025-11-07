@@ -1,4 +1,5 @@
 @_spi(Private) @testable import Sentry
+import SentrySampleShared
 import SwiftUI
 import WidgetKit
 
@@ -17,24 +18,30 @@ fileprivate struct SampleWidgetEntryView: View {
     var entry: Provider.Entry
 
     var body: some View {
-        let anrInstalled = SentrySDK.isEnabled &&
-        SentrySDKInternal.trimmedInstalledIntegrationNames()
-            .contains("ANRTracking")
-
         VStack(spacing: 8) {
             Text("Sentry")
                 .font(.headline)
 
-            Text("ANR Tracking:")
-                .font(.caption2)
-            Text(anrInstalled ? "❌ Enabled" : "✅ Disabled")
+            Text("SDK Enabled? \(isSentryEnabled ? "✅" : "❌")")
                 .font(.caption)
-                .foregroundColor(anrInstalled ? .red : .green)
+                .foregroundColor(isSentryEnabled ? .green : .red)
+                .bold()
+            Text("ANR Disabled? \(isANRInstalled ? "❌" : "✅")")
+                .font(.caption)
+                .foregroundColor(isANRInstalled ? .red : .green)
                 .bold()
 
             Text(entry.date, style: .time)
                 .font(.caption2)
         }
+    }
+
+    var isANRInstalled: Bool {
+        return isSentryEnabled && SentrySDKInternal.trimmedInstalledIntegrationNames().contains("ANRTracking")
+    }
+
+    var isSentryEnabled: Bool {
+        SentrySDK.isEnabled
     }
 }
 
@@ -61,7 +68,7 @@ private struct Provider: AppIntentTimelineProvider {
             return
         }
         SentrySDK.start { options in
-            options.dsn = "https://a92d50327ac74b8b9aa4ea80eccfb267@o447951.ingest.sentry.io/5428557"
+            options.dsn = SentrySDKWrapper.defaultDSN
             options.debug = true
             options.enableAppHangTracking = true
         }

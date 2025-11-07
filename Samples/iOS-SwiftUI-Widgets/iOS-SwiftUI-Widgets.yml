@@ -11,6 +11,11 @@ configs:
 fileGroups:
   - ../Shared/Config
   - iOS-SwiftUI-Widgets.yml
+projectReferences:
+  Sentry:
+    path: ../../Sentry.xcodeproj
+  SentrySampleShared:
+    path: ../SentrySampleShared/SentrySampleShared.xcodeproj
 options:
   bundleIdPrefix: io.sentry.sentry-cocoa.samples
 targets:
@@ -22,6 +27,8 @@ targets:
       - iOS-SwiftUI-Widgets
       - Shared
     dependencies:
+      - target: Sentry/Sentry
+      - target: SentrySampleShared/SentrySampleShared
       - target: iOS-SwiftUI-Widgets-WidgetExtension
     configFiles:
       Debug: iOS-SwiftUI-Widgets.xcconfig
@@ -33,6 +40,9 @@ targets:
     sources:
       - iOS-SwiftUI-Widgets-WidgetExtension
       - Shared
+    dependencies:
+      - target: Sentry/Sentry
+      - target: SentrySampleShared/SentrySampleShared
     configFiles:
       Debug: iOS-SwiftUI-Widgets-WidgetExtension.xcconfig
       Release: iOS-SwiftUI-Widgets-WidgetExtension.xcconfig
@@ -48,3 +58,23 @@ schemes:
       config: Release
     archive:
       config: Release
+  iOS-SwiftUI-Widgets-WidgetExtension:
+    build:
+      targets:
+        iOS-SwiftUI-Widgets: all
+        iOS-SwiftUI-Widgets-WidgetExtension: all
+    run:
+      config: Debug
+      askForAppToLaunch: true
+      environmentVariables:
+        _XCWidgetKind: SampleWidget
+  iOS-SwiftUI-Widgets-WidgetControl:
+    build:
+      targets:
+        iOS-SwiftUI-Widgets: all
+        iOS-SwiftUI-Widgets-WidgetExtension: all
+    run:
+      config: Debug
+      askForAppToLaunch: true
+      environmentVariables:
+        _XCWidgetKind: SampleWidgetControl

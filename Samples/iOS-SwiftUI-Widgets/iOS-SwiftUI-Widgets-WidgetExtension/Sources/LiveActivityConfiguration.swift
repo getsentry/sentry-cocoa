@@ -1,5 +1,6 @@
 import ActivityKit
 import Sentry
+import SentrySampleShared
 import SwiftUI
 import WidgetKit
 
@@ -76,7 +77,7 @@ struct LiveActivityConfiguration: Widget {
             return
         }
         SentrySDK.start { options in
-            options.dsn = "https://a92d50327ac74b8b9aa4ea80eccfb267@o447951.ingest.sentry.io/5428557"
+            options.dsn = SentrySDKWrapper.defaultDSN
             options.debug = true
             options.enableAppHangTracking = true
         }
