@@ -64,4 +64,13 @@ public class TestHub: SentryHubInternal {
     }
 #endif
 #endif
+    
+    public var captureLogsInvocations = Invocations<SentryLog>()
+    public func capture(log: SentryLog) {
+        captureLogsInvocations.record(log)
+    }
 }
+
+// SentryHub's compliance to SentryLoggerDelegate is only in
+// the SentryHub.m file, so I am adding it here for tests
+@_spi(Private) extension TestHub: SentryLoggerDelegate { }

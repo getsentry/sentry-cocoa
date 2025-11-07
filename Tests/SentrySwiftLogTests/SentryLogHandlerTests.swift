@@ -15,21 +15,21 @@ final class SentryLogHandlerTests: XCTestCase {
         let dateProvider: TestCurrentDateProvider
         let options: Options
         let scope: Scope
-        let batcher: TestLogBatcher
         let sentryLogger: SentryLogger
+        let loggerDelegate: TestLoggerDelegate
         
         init() {
             options = Options()
-            options.dsn = TestConstants.dsnAsString(username: "SentryLogHandlerTests")
+            options.dsn = TestConstants.dsnAsString(username: "SentryLogTests")
             
             client = TestClient(options: options)!
             scope = Scope()
             hub = TestHub(client: client, andScope: scope)
             dateProvider = TestCurrentDateProvider()
-            batcher = TestLogBatcher(client: client, dispatchQueue: TestSentryDispatchQueueWrapper())
             
             dateProvider.setDate(date: Date(timeIntervalSince1970: 1_627_846_800.123456))
-            sentryLogger = SentryLogger(hub: hub, dateProvider: dateProvider, batcher: batcher)
+            loggerDelegate = TestLoggerDelegate()
+            sentryLogger = SentryLogger(delegate: loggerDelegate, dateProvider: dateProvider)
         }
         
         func getSut() -> SentryLogHandler {
@@ -37,11 +37,11 @@ final class SentryLogHandlerTests: XCTestCase {
         }
     }
     
-    private class TestLogBatcher: SentryLogBatcher {
-        var addInvocations = Invocations<SentryLog>()
+    private class TestLoggerDelegate: SentryLoggerDelegate {
+        var captureInvocations = Invocations<SentryLog>()
             
-        override func add(_ log: SentryLog) {
-            addInvocations.record(log)
+        func capture(log: SentryLog) {
+            captureInvocations.record(log)
         }
     }
     
@@ -78,12 +78,9 @@ final class SentryLogHandlerTests: XCTestCase {
         sut.log(level: .info, message: "Test message from default init", metadata: nil, source: "test", file: "TestFile.swift", function: "testDefaultInit", line: 1)
         SentrySDK.flush(timeout: 0.25)
         
-        let invocation = try XCTUnwrap(testClient.captureLogsDataInvocations.invocations.first)
-        let jsonObject = try XCTUnwrap(JSONSerialization.jsonObject(with: invocation.data) as? [String: Any])
-        let items = try XCTUnwrap(jsonObject["items"] as? [[String: Any]])
-        let item = try XCTUnwrap(items.first)
-        XCTAssertEqual(1, items.count)
-        XCTAssertEqual("Test message from default init", item["body"] as? String)
+        XCTAssertEqual(1, testHub.captureLogsInvocations.invocations.count)
+        let firstLog = try XCTUnwrap(testHub.captureLogsInvocations.invocations.first)
+        XCTAssertEqual("Test message from default init", firstLog.body)
         
         SentrySDKInternal.close()
     }
@@ -324,7 +321,7 @@ final class SentryLogHandlerTests: XCTestCase {
         sut.log(level: .info, message: "Test with dictionary metadata", metadata: metadata, source: "test", file: "TestFile.swift", function: "testFunction", line: 50)
         
         // Verify the log was captured
-        let logs = fixture.batcher.addInvocations.invocations
+        let logs = fixture.loggerDelegate.captureInvocations.invocations
         XCTAssertEqual(logs.count, 1, "Expected exactly one log to be captured")
         
         guard let capturedLog = logs.first else {
@@ -364,7 +361,7 @@ final class SentryLogHandlerTests: XCTestCase {
         sut.log(level: .info, message: "Test with array metadata", metadata: metadata, source: "test", file: "TestFile.swift", function: "testFunction", line: 60)
         
         // Verify the log was captured
-        let logs = fixture.batcher.addInvocations.invocations
+        let logs = fixture.loggerDelegate.captureInvocations.invocations
         XCTAssertEqual(logs.count, 1, "Expected exactly one log to be captured")
         
         guard let capturedLog = logs.first else {
@@ -526,7 +523,7 @@ final class SentryLogHandlerTests: XCTestCase {
         file: StaticString = #file,
         line: UInt = #line
     ) {
-        let logs = fixture.batcher.addInvocations.invocations
+        let logs = fixture.loggerDelegate.captureInvocations.invocations
         XCTAssertEqual(logs.count, 0, "Expected no logs to be captured", file: file, line: line)
     }
     
@@ -537,7 +534,7 @@ final class SentryLogHandlerTests: XCTestCase {
         file: StaticString = #file,
         line: UInt = #line
     ) {
-        let logs = fixture.batcher.addInvocations.invocations
+        let logs = fixture.loggerDelegate.captureInvocations.invocations
         XCTAssertEqual(logs.count, 1, "Expected exactly one log to be captured", file: file, line: line)
         
         guard let capturedLog = logs.first else {
@@ -549,31 +546,8 @@ final class SentryLogHandlerTests: XCTestCase {
         XCTAssertEqual(capturedLog.body, expectedBody, "Log body mismatch", file: file, line: line)
         XCTAssertEqual(capturedLog.timestamp, fixture.dateProvider.date(), "Log timestamp mismatch", file: file, line: line)
         
-        // Count expected default attributes dynamically
-        var expectedDefaultAttributeCount = 3 // sdk.name, sdk.version, environment are always present
-        if fixture.options.releaseName != nil {
-            expectedDefaultAttributeCount += 1 // sentry.release
-        }
-        if fixture.hub.scope.span != nil {
-            expectedDefaultAttributeCount += 1 // sentry.trace.parent_span_id
-        }
-        // OS and device attributes (up to 5 more if context is available)
-        if let contextDictionary = fixture.hub.scope.serialize()["context"] as? [String: [String: Any]] {
-            if let osContext = contextDictionary["os"] {
-                if osContext["name"] != nil { expectedDefaultAttributeCount += 1 }
-                if osContext["version"] != nil { expectedDefaultAttributeCount += 1 }
-            }
-            if contextDictionary["device"] != nil {
-                expectedDefaultAttributeCount += 1 // device.brand (always "Apple")
-                if let deviceContext = contextDictionary["device"] {
-                    if deviceContext["model"] != nil { expectedDefaultAttributeCount += 1 }
-                    if deviceContext["family"] != nil { expectedDefaultAttributeCount += 1 }
-                }
-            }
-        }
-        
         // Compare attributes
-        XCTAssertEqual(capturedLog.attributes.count, expectedAttributes.count + expectedDefaultAttributeCount, "Attribute count mismatch", file: file, line: line)
+        XCTAssertEqual(capturedLog.attributes.count, expectedAttributes.count, "Attribute count mismatch", file: file, line: line)
         
         for (key, expectedAttribute) in expectedAttributes {
             guard let actualAttribute = capturedLog.attributes[key] else {
