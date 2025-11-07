@@ -7,6 +7,7 @@ on:
       - release/**
 
   pull_request:
+    types: [opened, synchronize, reopened, labeled]
 
 # Concurrency configuration:
 # - We use workflow-specific concurrency groups to allow independent test runs across different workflows
@@ -20,6 +21,13 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
+  ready-to-merge-gate:
+    name: Ready-to-merge gate
+    uses: ./.github/workflows/ready-to-merge-workflow.yml
+    with:
+      is-pr: ${{ github.event_name == 'pull_request' }}
+      labels: ${{ toJson(github.event.pull_request.labels) }}
+
   # This job detects if the PR contains changes that require running unit tests.
   # If yes, the job will output a flag that will be used by the next job to run the unit tests.
   # If no, the job will output a flag that will be used by the next job to skip running the unit tests.
@@ -28,6 +36,7 @@ jobs:
   files-changed:
     name: Detect File Changes
     runs-on: ubuntu-latest
+    needs: ready-to-merge-gate
     # Map a step output to a job output
     outputs:
       run_unit_tests_for_prs: ${{ steps.changes.outputs.run_unit_tests_for_prs }}
@@ -96,6 +105,9 @@ jobs:
   distribution-tests:
     name: Distribution Tests
     runs-on: macos-15
+    # Don't run this on release branches, cause the SPM Package.swift points to the unreleased versions.
+    # Also, skip when PR changes don't require running tests to save CI time.
+    if: startsWith(github.ref, 'refs/heads/release/') == false && (github.event_name != 'pull_request' || needs.files-changed.outputs.run_unit_tests_for_prs == 'true')
     needs: files-changed
     steps:
       - uses: actions/checkout@v5
