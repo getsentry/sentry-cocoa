@@ -105,6 +105,8 @@ jobs:
   distribution-tests:
     name: Distribution Tests
     runs-on: macos-15
+    # Don't run this on release branches, cause the SPM Package.swift points to the unreleased versions.
+    if: startsWith(github.ref, 'refs/heads/release/') == false
     needs: files-changed
     steps:
       - uses: actions/checkout@v5
