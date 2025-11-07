@@ -39,6 +39,12 @@ public final class SentryLogger: NSObject {
         super.init()
     }
     
+    // NoOp Init
+    init(dateProvider: SentryCurrentDateProvider) {
+        self.dateProvider = dateProvider
+        super.init()
+    }
+    
     // MARK: - Trace Level
     
     /// Logs a trace-level message with structured string interpolation and optional attributes.
@@ -169,7 +175,6 @@ public final class SentryLogger: NSObject {
     
     private func captureLog(level: SentryLog.Level, logMessage: SentryLogMessage, attributes: [String: Any]) {
         guard let delegate else {
-            SentrySDKLog.warning("No delegate set for SentryLogger, skipping log capture.")
             return
         }
         // Convert provided attributes to SentryLog.Attribute format
@@ -193,11 +198,5 @@ public final class SentryLogger: NSObject {
             attributes: logAttributes
         )
         delegate.capture(log: log)
-    }
-}
-
-final class NoOpLoggerDelegate: SentryLoggerDelegate {
-    func capture(log: SentryLog) {
-        // No-op
     }
 }

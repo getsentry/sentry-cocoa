@@ -34,7 +34,7 @@ import Foundation
             return logger
         } else {
             SentrySDKLog.fatal("Unable to access configured logger. Logs will not be sent to Sentry.")
-            return SentryLogger(delegate: NoOpLoggerDelegate(), dateProvider: SentryDependencyContainer.sharedInstance().dateProvider)
+            return SentryLogger(dateProvider: SentryDependencyContainer.sharedInstance().dateProvider)
         }
     }
     
