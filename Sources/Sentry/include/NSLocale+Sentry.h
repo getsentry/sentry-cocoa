@@ -5,6 +5,6 @@
 + (BOOL)timeIs24HourFormat;
 + (BOOL)isRightToLeftLanguage;
 
-// This is a change to trigger a build.
+// Another change
 
 @end
