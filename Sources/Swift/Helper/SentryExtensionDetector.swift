@@ -3,7 +3,12 @@ import Foundation
 @_spi(Private) public final class SentryExtensionDetector: NSObject {
     /// All extension types where app hang tracking should be disabled
     private static var disabledAppHangTypes: [SentryExtensionType] {
-        return [.widget, .intent, .action, .share]
+        return [
+            .widget,
+            .intent,
+            .action,
+            .share
+        ]
     }
 
     private let infoPlistWrapper: SentryInfoPlistWrapperProvider

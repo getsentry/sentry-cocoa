@@ -5,84 +5,96 @@ import UIKit
 import UniformTypeIdentifiers
 
 class ActionViewController: UIViewController {
-    
+
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+        setupSentry()
+    }
+
+    override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
+        super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
+        setupSentry()
+    }
+
+    private func setupSentry() {
+        // For this extension we need a specific configuration set, therefore we do not use the shared sample initializer
+        SentrySDK.start { options in
+            options.dsn = SentrySDKWrapper.defaultDSN
+            options.debug = true
+
+            // App Hang Tracking must be enabled, but should not be installed
+            options.enableAppHangTracking = true
+        }
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        // Setup view first
+
+        setupUI()
+    }
+
+    func setupUI() {
         view.backgroundColor = .systemBackground
-        
-        // Setup Sentry SDK
-        setupSentrySDK()
-        
-        // Display ANR status
-        setupStatusLabel()
+
+        setupDoneButton()
+        setupStatusChecklist()
     }
-    
-    private func setupSentrySDK() {
-        SentrySDKWrapper.shared.startSentry()
-        
-        // Small delay to ensure SDK is initialized
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            self.checkANRStatus()
-        }
+
+    var isANRInstalled: Bool {
+        return isSentryEnabled && SentrySDKInternal.trimmedInstalledIntegrationNames().contains("ANRTracking")
     }
-    
-    private func checkANRStatus() {
-        // Verify ANR tracking is disabled
-        var anrInstalled = false
-        if SentrySDK.isEnabled {
-            let integrationNames = SentrySDKInternal.trimmedInstalledIntegrationNames()
-            anrInstalled = integrationNames.contains("ANRTracking")
-        }
-        
-        if anrInstalled {
-            print("❌ ERROR: ANR tracking should be disabled in Action Extension but it's enabled!")
-        } else {
-            print("✅ ANR tracking is correctly disabled in Action Extension")
-        }
-        
-        // Update label if view is still loaded
-        if view.window != nil {
-            updateStatusLabel(anrInstalled: anrInstalled)
-        }
+
+    var isSentryEnabled: Bool {
+        SentrySDK.isEnabled
     }
-    
-    private func setupStatusLabel() {
-        // Initial check - might show "checking..." if SDK not ready
-        var anrInstalled = false
-        if SentrySDK.isEnabled {
-            let integrationNames = SentrySDKInternal.trimmedInstalledIntegrationNames()
-            anrInstalled = integrationNames.contains("ANRTracking")
-        }
-        
-        updateStatusLabel(anrInstalled: anrInstalled)
-    }
-    
-    private func updateStatusLabel(anrInstalled: Bool) {
-        // Remove existing label if any
-        view.subviews.forEach { $0.removeFromSuperview() }
-        
-        let statusLabel = UILabel()
-        statusLabel.text = anrInstalled ? "❌ ANR Enabled (ERROR!)" : "✅ ANR Disabled"
-        statusLabel.textColor = anrInstalled ? .red : .green
-        statusLabel.font = .systemFont(ofSize: 24, weight: .bold)
-        statusLabel.textAlignment = .center
-        statusLabel.numberOfLines = 0
-        statusLabel.translatesAutoresizingMaskIntoConstraints = false
-        
-        view.addSubview(statusLabel)
+
+    // MARK: - UI
+
+    func setupDoneButton() {
+        var configuration = UIButton.Configuration.borderedProminent()
+        configuration.title = "Done"
+        configuration.baseBackgroundColor = .systemBlue
+        configuration.buttonSize = .large
+
+        let button = UIButton(configuration: configuration)
+        button.addTarget(self, action: #selector(doneAction(_:)), for: .touchUpInside)
+        view.addSubview(button)
+
+        button.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            statusLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            statusLabel.centerYAnchor.constraint(equalTo: view.centerYAnchor),
-            statusLabel.leadingAnchor.constraint(greaterThanOrEqualTo: view.leadingAnchor, constant: 20),
-            statusLabel.trailingAnchor.constraint(lessThanOrEqualTo: view.trailingAnchor, constant: -20)
+            button.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            button.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
+            button.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16)
         ])
     }
-    
-    @IBAction func done() {
+
+    @objc func doneAction(_ sender: UIButton) {
         SentrySDK.capture(message: "iOS-Swift-ActionExtension: done called")
         let returnItems = extensionContext?.inputItems as? [NSExtensionItem] ?? []
         extensionContext?.completeRequest(returningItems: returnItems, completionHandler: nil)
+    }
+
+    func setupStatusChecklist() {
+        let stack = UIStackView()
+        stack.axis = .vertical
+        stack.spacing = 8
+        view.addSubview(stack)
+
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            stack.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            stack.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+        ])
+
+        let sdkStatusLabel = UILabel()
+        sdkStatusLabel.text = isSentryEnabled ? "✅ Sentry is enabled" : "❌ Sentry is not enabled"
+        sdkStatusLabel.textAlignment = .center
+        stack.addArrangedSubview(sdkStatusLabel)
+
+        let anrStatusLabel = UILabel()
+        // We want the ANR integration to be disabled for share extensions due to false-positives
+        anrStatusLabel.text = !isANRInstalled ? "✅ ANR Tracking not installed" : "❌ ANR Tracking installed"
+        anrStatusLabel.textAlignment = .center
+        stack.addArrangedSubview(anrStatusLabel)
     }
 }
