@@ -56,8 +56,6 @@
 
     SentryException *exception = event.exceptions.firstObject;
     XCTAssertEqualObjects(
-        exception.stacktrace.frames.lastObject.symbolAddress, @"0x0000000000000000");
-    XCTAssertEqualObjects(
         exception.stacktrace.frames.lastObject.instructionAddress, @"0x000000010014caa4");
     XCTAssertEqualObjects(
         exception.stacktrace.frames.lastObject.imageAddress, @"0x0000000100144000");

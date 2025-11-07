@@ -46,7 +46,7 @@ extern "C" {
 typedef struct {
     /** Current address in the stack trace. */
     uintptr_t address;
-    
+
     /** The name (if any) of the binary image the current address falls
      * inside. */
     const char *imageName;

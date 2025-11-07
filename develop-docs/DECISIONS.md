@@ -1,5 +1,13 @@
 # Decision Log
 
+## No local symbolication of crashes
+
+Date: Nov 7th, 2025
+Contributors: @noahsmartin, @philipphofmann
+
+We decided to remove local symbolication. The existing local symbolication was not signal-safe and caused deadlocks (https://github.com/getsentry/sentry-cocoa/issues/6560).
+It is possible to implement local symbolication that does not cause deadlocks; however, it would be a debug-only feature, since in production apps should have their symbols stripped and only available in the dSYM. Therefore, to quickly fix the issue, we decided to remove all unsafe local symbolication in v9. The addition of signal-safe symbolication for binaries with symbols can always be added in a future minor version.
+
 ## Not capturing screenshots for crashes
 
 Date: April 21st 2022

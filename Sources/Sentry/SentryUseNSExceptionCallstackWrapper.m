@@ -43,6 +43,10 @@
         enumerateObjectsUsingBlock:^(NSNumber *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
             SentryCrashStackCursor stackCursor;
             stackCursor.stackEntry.address = [obj unsignedLongValue];
+            stackCursor.stackEntry.imageName = nil;
+            stackCursor.stackEntry.imageAddress = 0;
+            stackCursor.stackEntry.symbolAddress = 0;
+            stackCursor.stackEntry.symbolName = nil;
 
             [frames addObject:[crashStackToEntryMapper
                                   sentryCrashStackEntryToSentryFrame:stackCursor.stackEntry]];
