@@ -103,6 +103,8 @@ jobs:
         run: ./scripts/ci-select-xcode.sh "$XCODE_VERSION"
 
       - name: Ensure simctl dyld shared cache is updated
+        # Xcode 15.x doesn't support this command, so we skip it for that version.
+        if: ${{ !contains(inputs.xcode_version, '15.') }}
         run: |
           xcrun simctl runtime dyld_shared_cache update --all
           xcrun simctl list devices
