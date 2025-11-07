@@ -39,7 +39,6 @@
   If you need a precompiled XCFramework built with Xcode 15, continue using Sentry SDK 8.x.x.
 - Set `SentryException.type` to `nil` when `NSException` has no `reason` (#6653). The backend then can provide a proper message when there is no reason.
 - Rename `SentryLog.Level` and `SentryLog.Attribute` for ObjC (#6666)
-- Rename `SentryMechanismMeta` to `SentryMechanismContext` to resolve Kotlin Multi-Platform build errors (#6607)
 
 ### Fixes
 
