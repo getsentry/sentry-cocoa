@@ -100,6 +100,7 @@ jobs:
       - name: Ensure simctl dyld shared cache is updated
         run: |
           xcrun simctl runtime dyld_shared_cache update --all
+          xcrun simctl list devices
 
       - name: Select Xcode version
         env:
