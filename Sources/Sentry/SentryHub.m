@@ -843,6 +843,7 @@ NS_ASSUME_NONNULL_BEGIN
 {
     SentryClientInternal *client = self.client;
     if (client == nil) {
+        SENTRY_LOG_WARN(@"No client configured. Dropping log.");
         return;
     }
 #if SENTRY_TARGET_REPLAY_SUPPORTED
