@@ -31,7 +31,6 @@ struct LiveActivityConfiguration: Widget {
             .activityBackgroundTint(Color.blue.opacity(0.1))
         } dynamicIsland: { context in
             DynamicIsland {
-                // Expanded view when tapped
                 DynamicIslandExpandedRegion(.leading) {
                     VStack(alignment: .leading, spacing: 4) {
                         Text("Sentry")

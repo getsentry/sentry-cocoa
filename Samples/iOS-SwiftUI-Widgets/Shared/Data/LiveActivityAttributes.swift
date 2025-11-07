@@ -13,4 +13,4 @@ struct LiveActivityAttributes: ActivityAttributes {
     let id: String
 }
 
-#endif
+#endif // canImport(ActivityKit)

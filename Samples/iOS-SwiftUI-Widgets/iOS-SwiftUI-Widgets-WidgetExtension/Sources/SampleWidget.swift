@@ -1,4 +1,4 @@
-@_spi(Private) @testable import Sentry
+import Sentry
 import SentrySampleShared
 import SwiftUI
 import WidgetKit
@@ -64,12 +64,18 @@ private struct Provider: AppIntentTimelineProvider {
     }
 
     private func setupSentrySDK() {
+        // Prevent double initialization - SentrySDK.start() can be called multiple times
+        // but we want to avoid unnecessary re-initialization
         guard !SentrySDK.isEnabled else {
             return
         }
+
+        // For this extension we need a specific configuration set, therefore we do not use the shared sample initializer
         SentrySDK.start { options in
             options.dsn = SentrySDKWrapper.defaultDSN
             options.debug = true
+
+            // App Hang Tracking must be enabled, but should not be installed
             options.enableAppHangTracking = true
         }
     }

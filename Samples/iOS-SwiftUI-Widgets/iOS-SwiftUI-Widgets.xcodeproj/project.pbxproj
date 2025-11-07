@@ -1,0 +1,892 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		00A2B42B73A20D0E31281668 /* Sentry-iOS.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 8B538B101740BB92239F1040 /* Sentry-iOS.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		00EBFD85C8FF0BFE4AE51444 /* Sentry-iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B538B101740BB92239F1040 /* Sentry-iOS.framework */; };
+		0734E10B2932AE6D6C6BFEED /* SampleWidgetControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35D83218361FAB3360A43FF8 /* SampleWidgetControl.swift */; };
+		13023A9E33DCCAA00AE04919 /* LiveActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 390EE81AB45CB2CFB0C302D5 /* LiveActivityAttributes.swift */; };
+		20815A5C341E5E7AF2D951E7 /* LiveActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 390EE81AB45CB2CFB0C302D5 /* LiveActivityAttributes.swift */; };
+		221EDE644A6F0F0721AEBB6B /* LiveActivityWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 390E7D5C87007CF8A805C089 /* LiveActivityWidget.swift */; };
+		2BB0F033107EE1C3AA8BB113 /* LiveActivityViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 809F2A3935C158DCDB81C66F /* LiveActivityViewModel.swift */; };
+		2ED227B9E061B91DAF58D7BF /* SentrySampleShared.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 408F6B39917ABFDF950B9EED /* SentrySampleShared.framework */; };
+		3EBFF7B8B288199DE5D9280E /* SampleConfigurationAppIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = B120A7B7E7CDA2E13EA357A4 /* SampleConfigurationAppIntent.swift */; };
+		4B4916E51E50A0ED3F3E0307 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DBAB8A46BE0E35ECF5DE304A /* Assets.xcassets */; };
+		4D81FA541F8607E47AB1C935 /* SentrySampleShared.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 408F6B39917ABFDF950B9EED /* SentrySampleShared.framework */; };
+		76E1B2896321F787F12BE2C3 /* Sentry-iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B538B101740BB92239F1040 /* Sentry-iOS.framework */; };
+		82492D9C0F314B1CFA96B93C /* Sentry-iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B538B101740BB92239F1040 /* Sentry-iOS.framework */; };
+		96EA82C3A685F953DC0EF095 /* MainApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDA164E21124BB974CA55E4A /* MainApp.swift */; };
+		9BE92817B8CEC595E584EF28 /* SampleWidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 237FEC1550A67DDF7948CFC8 /* SampleWidgetBundle.swift */; };
+		AA3429207848D8ACF0DC2563 /* SampleWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ECE10C04AF177DEE39C3741 /* SampleWidget.swift */; };
+		B120A7FC1173608E28B32878 /* LiveActivityBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BBDA2A81E64F7A5789BD5D5 /* LiveActivityBundle.swift */; };
+		BAF881547EAE2CACBC169131 /* SentrySampleShared.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 408F6B39917ABFDF950B9EED /* SentrySampleShared.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		C410658755005122CB7BD031 /* iOS-SwiftUI-Widgets-LiveActivity.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = AC285AB73685ECC7333910FD /* iOS-SwiftUI-Widgets-LiveActivity.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		C5B3BFA8FEA22383570D0465 /* SentrySampleShared.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 408F6B39917ABFDF950B9EED /* SentrySampleShared.framework */; };
+		CC0C276151989F36BF0EC57C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B88304703D152A6C3A6249F8 /* Assets.xcassets */; };
+		CEB7A4AD93EC93B09BADC6A3 /* LiveActivityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4837BEB5534D01407FD9E75 /* LiveActivityView.swift */; };
+		D227C1CF3F22B3BB0C0A3359 /* LiveActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 390EE81AB45CB2CFB0C302D5 /* LiveActivityAttributes.swift */; };
+		DDB3989A2B1B79F9A3552261 /* iOS-SwiftUI-Widgets-WidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = CAB2A45774261B103D71A7D8 /* iOS-SwiftUI-Widgets-WidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		E250C0921C219246793FC8E9 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7A5BE5B3A3FDBEE3FB8D52EF /* Assets.xcassets */; };
+		F2C97A3B5423E032BA89E78E /* LiveActivityConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AE873C816BD3A74B547E341 /* LiveActivityConfiguration.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		02562A2AAA09F57681225B4F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F093C2215D4DE0E4EFA6D980 /* Sentry */;
+			proxyType = 1;
+			remoteGlobalIDString = 63AA759A1EB8AEF500D153DE;
+			remoteInfo = Sentry;
+		};
+		206F31F59F2C041805232A2F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D6B98D3A58C262EE28C50B9E /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 5A1C22273766A4B9F99FB9F6;
+			remoteInfo = "iOS-SwiftUI-Widgets-WidgetExtension";
+		};
+		2E946D944F47996BBCAFE14D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 5C4562FFFCFD862D46C6E4C8 /* SentrySampleShared */;
+			proxyType = 2;
+			remoteGlobalIDString = 431A3FE213391C00C3CE66D2;
+			remoteInfo = SentrySampleShared;
+		};
+		3EDDB1E318FA394FDD463EEF /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 5C4562FFFCFD862D46C6E4C8 /* SentrySampleShared */;
+			proxyType = 1;
+			remoteGlobalIDString = F38DF624CDB2F74181F2A29B;
+			remoteInfo = SentrySampleShared;
+		};
+		62B95AE82B7A9CD381695B73 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F093C2215D4DE0E4EFA6D980 /* Sentry */;
+			proxyType = 1;
+			remoteGlobalIDString = 63AA759A1EB8AEF500D153DE;
+			remoteInfo = Sentry;
+		};
+		6347742289F4EDE3C00D212E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F093C2215D4DE0E4EFA6D980 /* Sentry */;
+			proxyType = 2;
+			remoteGlobalIDString = 63AA759B1EB8AEF500D153DE;
+			remoteInfo = Sentry;
+		};
+		685DC4895809A5DBE2D1CDCC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D6B98D3A58C262EE28C50B9E /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 37173ED846C393202EDE6F71;
+			remoteInfo = "iOS-SwiftUI-Widgets-LiveActivity";
+		};
+		705952D4A520D3DAAC164744 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 5C4562FFFCFD862D46C6E4C8 /* SentrySampleShared */;
+			proxyType = 1;
+			remoteGlobalIDString = F38DF624CDB2F74181F2A29B;
+			remoteInfo = SentrySampleShared;
+		};
+		CCE7D3B7939D3B6F6C51E7AA /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F093C2215D4DE0E4EFA6D980 /* Sentry */;
+			proxyType = 1;
+			remoteGlobalIDString = 63AA759A1EB8AEF500D153DE;
+			remoteInfo = Sentry;
+		};
+		F4B89680F2E6B9CE127ADFF2 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 5C4562FFFCFD862D46C6E4C8 /* SentrySampleShared */;
+			proxyType = 1;
+			remoteGlobalIDString = F38DF624CDB2F74181F2A29B;
+			remoteInfo = SentrySampleShared;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		6856E2BCC9C43B477A5C69B6 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				DDB3989A2B1B79F9A3552261 /* iOS-SwiftUI-Widgets-WidgetExtension.appex in Embed Foundation Extensions */,
+				C410658755005122CB7BD031 /* iOS-SwiftUI-Widgets-LiveActivity.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D8886BC84AB9B150C1ED7905 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				00A2B42B73A20D0E31281668 /* Sentry-iOS.framework in Embed Frameworks */,
+				BAF881547EAE2CACBC169131 /* SentrySampleShared.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		015A3634E549DECA810DA5C6 /* iOS-SwiftUI-Widgets-WidgetExtension.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "iOS-SwiftUI-Widgets-WidgetExtension.xcconfig"; sourceTree = "<group>"; };
+		0ECE10C04AF177DEE39C3741 /* SampleWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SampleWidget.swift; sourceTree = "<group>"; };
+		12171C856F4A0A8AB628D056 /* iOS-SwiftUI-Widgets.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "iOS-SwiftUI-Widgets.xcconfig"; sourceTree = "<group>"; };
+		149B790B19CCDCCD77651B49 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		17618448664A3684815F1573 /* ClangWarningsObjC.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = ClangWarningsObjC.xcconfig; sourceTree = "<group>"; };
+		196310663CB3EBF6BDF6E9B1 /* AssetCatalog.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = AssetCatalog.xcconfig; sourceTree = "<group>"; };
+		1C10E740433EC0862705BD2B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		1E1192AED22950F7264B3282 /* Metal.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Metal.xcconfig; sourceTree = "<group>"; };
+		237FEC1550A67DDF7948CFC8 /* SampleWidgetBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SampleWidgetBundle.swift; sourceTree = "<group>"; };
+		24907997E8B40A8FD762AB32 /* iOS-SwiftUI-Widgets.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = "iOS-SwiftUI-Widgets.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		2B6B30E5B007A80F47E9B209 /* ClangWarnings.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = ClangWarnings.xcconfig; sourceTree = "<group>"; };
+		2BBDA2A81E64F7A5789BD5D5 /* LiveActivityBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveActivityBundle.swift; sourceTree = "<group>"; };
+		2F3B322F45887E1CB5391F28 /* ClangLanguage.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = ClangLanguage.xcconfig; sourceTree = "<group>"; };
+		35D83218361FAB3360A43FF8 /* SampleWidgetControl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SampleWidgetControl.swift; sourceTree = "<group>"; };
+		390E7D5C87007CF8A805C089 /* LiveActivityWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveActivityWidget.swift; sourceTree = "<group>"; };
+		390EE81AB45CB2CFB0C302D5 /* LiveActivityAttributes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveActivityAttributes.swift; sourceTree = "<group>"; };
+		3AE873C816BD3A74B547E341 /* LiveActivityConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveActivityConfiguration.swift; sourceTree = "<group>"; };
+		45D0B752BDA7CA6AC5F9E734 /* Entitlements.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Entitlements.entitlements; sourceTree = "<group>"; };
+		51774442E9250743D901AE0A /* Localization.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Localization.xcconfig; sourceTree = "<group>"; };
+		51A88DFDADBA85F4DAE38202 /* Packaging.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Packaging.xcconfig; sourceTree = "<group>"; };
+		553AF3F0937DC6C4C9ECDB17 /* iOS-SwiftUI-Widgets-LiveActivity.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "iOS-SwiftUI-Widgets-LiveActivity.xcconfig"; sourceTree = "<group>"; };
+		5852B8D937B9A717AC9E2783 /* ClangWarningsCpp.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = ClangWarningsCpp.xcconfig; sourceTree = "<group>"; };
+		5C379869BA6B600711B514AA /* Deployment.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Deployment.xcconfig; sourceTree = "<group>"; };
+		5C4562FFFCFD862D46C6E4C8 /* SentrySampleShared */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = SentrySampleShared; path = ../SentrySampleShared/SentrySampleShared.xcodeproj; sourceTree = "<group>"; };
+		5FBF1819E3DFF47177E3A36F /* Architectures.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Architectures.xcconfig; sourceTree = "<group>"; };
+		6525F4DD1BBD1B4C36B4ABF8 /* Signing.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Signing.xcconfig; sourceTree = "<group>"; };
+		7A5BE5B3A3FDBEE3FB8D52EF /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		809F2A3935C158DCDB81C66F /* LiveActivityViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveActivityViewModel.swift; sourceTree = "<group>"; };
+		839CA37AFE468F8DB114B7EA /* iOS-Swift-Widget-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "iOS-Swift-Widget-Bridging-Header.h"; sourceTree = "<group>"; };
+		844E572B807D8AFDAFA2BBE7 /* Entitlements.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Entitlements.entitlements; sourceTree = "<group>"; };
+		8B35BEDC69F0FD564764FFE3 /* BuildOptions.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = BuildOptions.xcconfig; sourceTree = "<group>"; };
+		94D2B03D743F5910FB70E3DD /* ClangAnalyzer.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = ClangAnalyzer.xcconfig; sourceTree = "<group>"; };
+		963761122A7CD280F6EC496C /* SentryExposure.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SentryExposure.h; sourceTree = "<group>"; };
+		96A4523297DE6A9161AD4EE9 /* ClangCppLanguage.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = ClangCppLanguage.xcconfig; sourceTree = "<group>"; };
+		AC285AB73685ECC7333910FD /* iOS-SwiftUI-Widgets-LiveActivity.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = "iOS-SwiftUI-Widgets-LiveActivity.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		B120A7B7E7CDA2E13EA357A4 /* SampleConfigurationAppIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SampleConfigurationAppIntent.swift; sourceTree = "<group>"; };
+		B88304703D152A6C3A6249F8 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		B9FF238E8ACED2C98ED3E004 /* iOS-SwiftUI-Widgets.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = "iOS-SwiftUI-Widgets.yml"; sourceTree = "<group>"; };
+		C7A32DBA6D6A3A3014F75EBF /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		CA6671B6A99DBC03A3E7A774 /* ClangPreprocessing.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = ClangPreprocessing.xcconfig; sourceTree = "<group>"; };
+		CAB2A45774261B103D71A7D8 /* iOS-SwiftUI-Widgets-WidgetExtension.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = "iOS-SwiftUI-Widgets-WidgetExtension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		D214D209886146D158EBF653 /* Entitlements.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Entitlements.entitlements; sourceTree = "<group>"; };
+		D4837BEB5534D01407FD9E75 /* LiveActivityView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveActivityView.swift; sourceTree = "<group>"; };
+		DA21F50E48AC49A11322CCB1 /* SearchPaths.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = SearchPaths.xcconfig; sourceTree = "<group>"; };
+		DBAB8A46BE0E35ECF5DE304A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		DE44B5C60A0E77AA51A99EA9 /* Swift.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Swift.xcconfig; sourceTree = "<group>"; };
+		E4689ECE0E21A2872542D677 /* Linking.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Linking.xcconfig; sourceTree = "<group>"; };
+		EDA164E21124BB974CA55E4A /* MainApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainApp.swift; sourceTree = "<group>"; };
+		F081F749B3F69ED90E1641EE /* _Common.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = _Common.xcconfig; sourceTree = "<group>"; };
+		F093C2215D4DE0E4EFA6D980 /* Sentry */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Sentry; path = ../../Sentry.xcodeproj; sourceTree = "<group>"; };
+		F32507DB78E3E799B83145F5 /* ClangModules.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = ClangModules.xcconfig; sourceTree = "<group>"; };
+		FE2BFF17E51BB98851744650 /* ClangObjCLanguage.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = ClangObjCLanguage.xcconfig; sourceTree = "<group>"; };
+		FF4F4E737A195B0D1626B659 /* CodeGeneration.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = CodeGeneration.xcconfig; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		0E4763FB42D7C7D1B6F14108 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				82492D9C0F314B1CFA96B93C /* Sentry-iOS.framework in Frameworks */,
+				4D81FA541F8607E47AB1C935 /* SentrySampleShared.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		52E949549D99168E88C209CA /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				00EBFD85C8FF0BFE4AE51444 /* Sentry-iOS.framework in Frameworks */,
+				C5B3BFA8FEA22383570D0465 /* SentrySampleShared.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F7CAEAD643B385975C4240F5 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				76E1B2896321F787F12BE2C3 /* Sentry-iOS.framework in Frameworks */,
+				2ED227B9E061B91DAF58D7BF /* SentrySampleShared.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		12412823A76950EA3A6F4A1E /* Config */ = {
+			isa = PBXGroup;
+			children = (
+				F081F749B3F69ED90E1641EE /* _Common.xcconfig */,
+				5FBF1819E3DFF47177E3A36F /* Architectures.xcconfig */,
+				196310663CB3EBF6BDF6E9B1 /* AssetCatalog.xcconfig */,
+				8B35BEDC69F0FD564764FFE3 /* BuildOptions.xcconfig */,
+				94D2B03D743F5910FB70E3DD /* ClangAnalyzer.xcconfig */,
+				96A4523297DE6A9161AD4EE9 /* ClangCppLanguage.xcconfig */,
+				2F3B322F45887E1CB5391F28 /* ClangLanguage.xcconfig */,
+				F32507DB78E3E799B83145F5 /* ClangModules.xcconfig */,
+				FE2BFF17E51BB98851744650 /* ClangObjCLanguage.xcconfig */,
+				CA6671B6A99DBC03A3E7A774 /* ClangPreprocessing.xcconfig */,
+				2B6B30E5B007A80F47E9B209 /* ClangWarnings.xcconfig */,
+				5852B8D937B9A717AC9E2783 /* ClangWarningsCpp.xcconfig */,
+				17618448664A3684815F1573 /* ClangWarningsObjC.xcconfig */,
+				FF4F4E737A195B0D1626B659 /* CodeGeneration.xcconfig */,
+				5C379869BA6B600711B514AA /* Deployment.xcconfig */,
+				E4689ECE0E21A2872542D677 /* Linking.xcconfig */,
+				51774442E9250743D901AE0A /* Localization.xcconfig */,
+				1E1192AED22950F7264B3282 /* Metal.xcconfig */,
+				51A88DFDADBA85F4DAE38202 /* Packaging.xcconfig */,
+				DA21F50E48AC49A11322CCB1 /* SearchPaths.xcconfig */,
+				6525F4DD1BBD1B4C36B4ABF8 /* Signing.xcconfig */,
+				DE44B5C60A0E77AA51A99EA9 /* Swift.xcconfig */,
+			);
+			name = Config;
+			path = ../Shared/Config;
+			sourceTree = "<group>";
+		};
+		1688693D4D74BC2FEEC77F10 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				8B538B101740BB92239F1040 /* Sentry-iOS.framework */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		20C2ED16047494F4E7A3CB64 /* iOS-SwiftUI-Widgets */ = {
+			isa = PBXGroup;
+			children = (
+				F351AB0C79B4F4A26405F7B8 /* Resources */,
+				37F2198026D3702138A1C8FA /* Sources */,
+			);
+			path = "iOS-SwiftUI-Widgets";
+			sourceTree = "<group>";
+		};
+		224704913839EB7C391AF43A /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				408F6B39917ABFDF950B9EED /* SentrySampleShared.framework */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		37F2198026D3702138A1C8FA /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				D4837BEB5534D01407FD9E75 /* LiveActivityView.swift */,
+				809F2A3935C158DCDB81C66F /* LiveActivityViewModel.swift */,
+				EDA164E21124BB974CA55E4A /* MainApp.swift */,
+			);
+			path = Sources;
+			sourceTree = "<group>";
+		};
+		4291BCC5BFC3E8A546501509 /* iOS-SwiftUI-Widgets-LiveActivity */ = {
+			isa = PBXGroup;
+			children = (
+				A4D65D144C8D1D0EF0CC3FFA /* Resources */,
+				7E832A7867F1B9965A7AEA73 /* Sources */,
+			);
+			path = "iOS-SwiftUI-Widgets-LiveActivity";
+			sourceTree = "<group>";
+		};
+		5BCF46669C95D0C5AA64EB32 /* Headers */ = {
+			isa = PBXGroup;
+			children = (
+				839CA37AFE468F8DB114B7EA /* iOS-Swift-Widget-Bridging-Header.h */,
+				963761122A7CD280F6EC496C /* SentryExposure.h */,
+			);
+			path = Headers;
+			sourceTree = "<group>";
+		};
+		64610524F65A780DF9BFB212 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				AC285AB73685ECC7333910FD /* iOS-SwiftUI-Widgets-LiveActivity.appex */,
+				CAB2A45774261B103D71A7D8 /* iOS-SwiftUI-Widgets-WidgetExtension.appex */,
+				24907997E8B40A8FD762AB32 /* iOS-SwiftUI-Widgets.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		6D269449F86664A48307455D /* iOS-SwiftUI-Widgets-WidgetExtension */ = {
+			isa = PBXGroup;
+			children = (
+				8F7F6649D6F4D4D09A89EDCF /* Resources */,
+				784318D35811F9E6AA983341 /* Sources */,
+			);
+			path = "iOS-SwiftUI-Widgets-WidgetExtension";
+			sourceTree = "<group>";
+		};
+		6ECE8158CD72EC6778BD4F1E /* Projects */ = {
+			isa = PBXGroup;
+			children = (
+				F093C2215D4DE0E4EFA6D980 /* Sentry */,
+				5C4562FFFCFD862D46C6E4C8 /* SentrySampleShared */,
+			);
+			name = Projects;
+			sourceTree = "<group>";
+		};
+		713ECB770FFEB2DC09060073 /* iOS-SwiftUI-Widgets */ = {
+			isa = PBXGroup;
+			children = (
+				553AF3F0937DC6C4C9ECDB17 /* iOS-SwiftUI-Widgets-LiveActivity.xcconfig */,
+				015A3634E549DECA810DA5C6 /* iOS-SwiftUI-Widgets-WidgetExtension.xcconfig */,
+				12171C856F4A0A8AB628D056 /* iOS-SwiftUI-Widgets.xcconfig */,
+			);
+			name = "iOS-SwiftUI-Widgets";
+			path = .;
+			sourceTree = "<group>";
+		};
+		784318D35811F9E6AA983341 /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				B120A7B7E7CDA2E13EA357A4 /* SampleConfigurationAppIntent.swift */,
+				0ECE10C04AF177DEE39C3741 /* SampleWidget.swift */,
+				237FEC1550A67DDF7948CFC8 /* SampleWidgetBundle.swift */,
+				35D83218361FAB3360A43FF8 /* SampleWidgetControl.swift */,
+			);
+			path = Sources;
+			sourceTree = "<group>";
+		};
+		7E832A7867F1B9965A7AEA73 /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				2BBDA2A81E64F7A5789BD5D5 /* LiveActivityBundle.swift */,
+				3AE873C816BD3A74B547E341 /* LiveActivityConfiguration.swift */,
+				390E7D5C87007CF8A805C089 /* LiveActivityWidget.swift */,
+			);
+			path = Sources;
+			sourceTree = "<group>";
+		};
+		8F7F6649D6F4D4D09A89EDCF /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				DBAB8A46BE0E35ECF5DE304A /* Assets.xcassets */,
+				D214D209886146D158EBF653 /* Entitlements.entitlements */,
+				C7A32DBA6D6A3A3014F75EBF /* Info.plist */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		97261E177AEFD1FBF9AFD26C /* Data */ = {
+			isa = PBXGroup;
+			children = (
+				390EE81AB45CB2CFB0C302D5 /* LiveActivityAttributes.swift */,
+			);
+			path = Data;
+			sourceTree = "<group>";
+		};
+		A4D65D144C8D1D0EF0CC3FFA /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				7A5BE5B3A3FDBEE3FB8D52EF /* Assets.xcassets */,
+				844E572B807D8AFDAFA2BBE7 /* Entitlements.entitlements */,
+				149B790B19CCDCCD77651B49 /* Info.plist */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		B067CD4E68396FF941842D6F /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				97261E177AEFD1FBF9AFD26C /* Data */,
+				5BCF46669C95D0C5AA64EB32 /* Headers */,
+			);
+			path = Shared;
+			sourceTree = "<group>";
+		};
+		B881B0C8A980D4462DB07732 = {
+			isa = PBXGroup;
+			children = (
+				B9FF238E8ACED2C98ED3E004 /* iOS-SwiftUI-Widgets.yml */,
+				12412823A76950EA3A6F4A1E /* Config */,
+				20C2ED16047494F4E7A3CB64 /* iOS-SwiftUI-Widgets */,
+				713ECB770FFEB2DC09060073 /* iOS-SwiftUI-Widgets */,
+				4291BCC5BFC3E8A546501509 /* iOS-SwiftUI-Widgets-LiveActivity */,
+				6D269449F86664A48307455D /* iOS-SwiftUI-Widgets-WidgetExtension */,
+				B067CD4E68396FF941842D6F /* Shared */,
+				64610524F65A780DF9BFB212 /* Products */,
+				6ECE8158CD72EC6778BD4F1E /* Projects */,
+			);
+			sourceTree = "<group>";
+		};
+		F351AB0C79B4F4A26405F7B8 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				B88304703D152A6C3A6249F8 /* Assets.xcassets */,
+				45D0B752BDA7CA6AC5F9E734 /* Entitlements.entitlements */,
+				1C10E740433EC0862705BD2B /* Info.plist */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		37173ED846C393202EDE6F71 /* iOS-SwiftUI-Widgets-LiveActivity */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 070200C57AB30631FE740A64 /* Build configuration list for PBXNativeTarget "iOS-SwiftUI-Widgets-LiveActivity" */;
+			buildPhases = (
+				4CAE9BE46F6A17062C743956 /* Sources */,
+				D97E6CEC931D92D395E54FFE /* Resources */,
+				52E949549D99168E88C209CA /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				16AE9AF1906E06B23E66FBEF /* PBXTargetDependency */,
+				2901C059CC4BE9D9A8FFB118 /* PBXTargetDependency */,
+			);
+			name = "iOS-SwiftUI-Widgets-LiveActivity";
+			packageProductDependencies = (
+			);
+			productName = "iOS-SwiftUI-Widgets-LiveActivity";
+			productReference = AC285AB73685ECC7333910FD /* iOS-SwiftUI-Widgets-LiveActivity.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		5A1C22273766A4B9F99FB9F6 /* iOS-SwiftUI-Widgets-WidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 43FCF799CF2ABEAF734043DB /* Build configuration list for PBXNativeTarget "iOS-SwiftUI-Widgets-WidgetExtension" */;
+			buildPhases = (
+				79071996082F166983FE9D74 /* Sources */,
+				B70BBFEAC3F6528B1EBF1FF7 /* Resources */,
+				0E4763FB42D7C7D1B6F14108 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				6E995F902ABB799E207C4DB3 /* PBXTargetDependency */,
+				65CA940D29A6140EFDA46135 /* PBXTargetDependency */,
+			);
+			name = "iOS-SwiftUI-Widgets-WidgetExtension";
+			packageProductDependencies = (
+			);
+			productName = "iOS-SwiftUI-Widgets-WidgetExtension";
+			productReference = CAB2A45774261B103D71A7D8 /* iOS-SwiftUI-Widgets-WidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		8E239B450D0DE382D706B6B7 /* iOS-SwiftUI-Widgets */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 30A33C7A02ED7CC864553D30 /* Build configuration list for PBXNativeTarget "iOS-SwiftUI-Widgets" */;
+			buildPhases = (
+				DC38EC959ED2BB986CE38BD2 /* Sources */,
+				769D4ACB4830B4AE8EE3EF73 /* Resources */,
+				F7CAEAD643B385975C4240F5 /* Frameworks */,
+				6856E2BCC9C43B477A5C69B6 /* Embed Foundation Extensions */,
+				D8886BC84AB9B150C1ED7905 /* Embed Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				9AAE14BE8CD74FFC79074594 /* PBXTargetDependency */,
+				F165474953FA4A56979356D4 /* PBXTargetDependency */,
+				A2F9A537196C85E11DA332B6 /* PBXTargetDependency */,
+				6D26E5089C9C2F00B5B3407D /* PBXTargetDependency */,
+			);
+			name = "iOS-SwiftUI-Widgets";
+			packageProductDependencies = (
+			);
+			productName = "iOS-SwiftUI-Widgets";
+			productReference = 24907997E8B40A8FD762AB32 /* iOS-SwiftUI-Widgets.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		D6B98D3A58C262EE28C50B9E /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					37173ED846C393202EDE6F71 = {
+						DevelopmentTeam = 97JCY7859U;
+						ProvisioningStyle = Manual;
+					};
+					5A1C22273766A4B9F99FB9F6 = {
+						DevelopmentTeam = 97JCY7859U;
+						ProvisioningStyle = Manual;
+					};
+					8E239B450D0DE382D706B6B7 = {
+						DevelopmentTeam = 97JCY7859U;
+						ProvisioningStyle = Manual;
+					};
+				};
+			};
+			buildConfigurationList = 1458D1D214F0C9E5A81F1482 /* Build configuration list for PBXProject "iOS-SwiftUI-Widgets" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = B881B0C8A980D4462DB07732;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 1688693D4D74BC2FEEC77F10 /* Products */;
+					ProjectRef = F093C2215D4DE0E4EFA6D980 /* Sentry */;
+				},
+				{
+					ProductGroup = 224704913839EB7C391AF43A /* Products */;
+					ProjectRef = 5C4562FFFCFD862D46C6E4C8 /* SentrySampleShared */;
+				},
+			);
+			projectRoot = "";
+			targets = (
+				8E239B450D0DE382D706B6B7 /* iOS-SwiftUI-Widgets */,
+				37173ED846C393202EDE6F71 /* iOS-SwiftUI-Widgets-LiveActivity */,
+				5A1C22273766A4B9F99FB9F6 /* iOS-SwiftUI-Widgets-WidgetExtension */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		408F6B39917ABFDF950B9EED /* SentrySampleShared.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = SentrySampleShared.framework;
+			remoteRef = 2E946D944F47996BBCAFE14D /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		8B538B101740BB92239F1040 /* Sentry-iOS.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = "Sentry-iOS.framework";
+			remoteRef = 6347742289F4EDE3C00D212E /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
+
+/* Begin PBXResourcesBuildPhase section */
+		769D4ACB4830B4AE8EE3EF73 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CC0C276151989F36BF0EC57C /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B70BBFEAC3F6528B1EBF1FF7 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4B4916E51E50A0ED3F3E0307 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D97E6CEC931D92D395E54FFE /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E250C0921C219246793FC8E9 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		4CAE9BE46F6A17062C743956 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				13023A9E33DCCAA00AE04919 /* LiveActivityAttributes.swift in Sources */,
+				B120A7FC1173608E28B32878 /* LiveActivityBundle.swift in Sources */,
+				F2C97A3B5423E032BA89E78E /* LiveActivityConfiguration.swift in Sources */,
+				221EDE644A6F0F0721AEBB6B /* LiveActivityWidget.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		79071996082F166983FE9D74 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				20815A5C341E5E7AF2D951E7 /* LiveActivityAttributes.swift in Sources */,
+				3EBFF7B8B288199DE5D9280E /* SampleConfigurationAppIntent.swift in Sources */,
+				AA3429207848D8ACF0DC2563 /* SampleWidget.swift in Sources */,
+				9BE92817B8CEC595E584EF28 /* SampleWidgetBundle.swift in Sources */,
+				0734E10B2932AE6D6C6BFEED /* SampleWidgetControl.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DC38EC959ED2BB986CE38BD2 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D227C1CF3F22B3BB0C0A3359 /* LiveActivityAttributes.swift in Sources */,
+				CEB7A4AD93EC93B09BADC6A3 /* LiveActivityView.swift in Sources */,
+				2BB0F033107EE1C3AA8BB113 /* LiveActivityViewModel.swift in Sources */,
+				96EA82C3A685F953DC0EF095 /* MainApp.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		16AE9AF1906E06B23E66FBEF /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = Sentry;
+			targetProxy = 62B95AE82B7A9CD381695B73 /* PBXContainerItemProxy */;
+		};
+		2901C059CC4BE9D9A8FFB118 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = SentrySampleShared;
+			targetProxy = 3EDDB1E318FA394FDD463EEF /* PBXContainerItemProxy */;
+		};
+		65CA940D29A6140EFDA46135 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = SentrySampleShared;
+			targetProxy = F4B89680F2E6B9CE127ADFF2 /* PBXContainerItemProxy */;
+		};
+		6D26E5089C9C2F00B5B3407D /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 37173ED846C393202EDE6F71 /* iOS-SwiftUI-Widgets-LiveActivity */;
+			targetProxy = 685DC4895809A5DBE2D1CDCC /* PBXContainerItemProxy */;
+		};
+		6E995F902ABB799E207C4DB3 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = Sentry;
+			targetProxy = CCE7D3B7939D3B6F6C51E7AA /* PBXContainerItemProxy */;
+		};
+		9AAE14BE8CD74FFC79074594 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = Sentry;
+			targetProxy = 02562A2AAA09F57681225B4F /* PBXContainerItemProxy */;
+		};
+		A2F9A537196C85E11DA332B6 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 5A1C22273766A4B9F99FB9F6 /* iOS-SwiftUI-Widgets-WidgetExtension */;
+			targetProxy = 206F31F59F2C041805232A2F /* PBXContainerItemProxy */;
+		};
+		F165474953FA4A56979356D4 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = SentrySampleShared;
+			targetProxy = 705952D4A520D3DAAC164744 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		180D348244D8D9212C67AE1A /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 12171C856F4A0A8AB628D056 /* iOS-SwiftUI-Widgets.xcconfig */;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = "iOS-SwiftUI-Widgets/Resources/Entitlements.entitlements";
+				INFOPLIST_FILE = "iOS-SwiftUI-Widgets/Resources/Info.plist";
+			};
+			name = Release;
+		};
+		1B9F865ECE37130BDBB5A023 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 12171C856F4A0A8AB628D056 /* iOS-SwiftUI-Widgets.xcconfig */;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = "iOS-SwiftUI-Widgets/Resources/Entitlements.entitlements";
+				INFOPLIST_FILE = "iOS-SwiftUI-Widgets/Resources/Info.plist";
+			};
+			name = Debug;
+		};
+		221CEBB496C7E9ADB264FBDE /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 015A3634E549DECA810DA5C6 /* iOS-SwiftUI-Widgets-WidgetExtension.xcconfig */;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = "iOS-SwiftUI-Widgets-WidgetExtension/Resources/Entitlements.entitlements";
+				INFOPLIST_FILE = "iOS-SwiftUI-Widgets-WidgetExtension/Resources/Info.plist";
+			};
+			name = Release;
+		};
+		6CA1E23D2E331683FA217276 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		761A2113671B4BD4CF6F2759 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		8BDFA6BD2B7E61EAB0B43EB2 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 553AF3F0937DC6C4C9ECDB17 /* iOS-SwiftUI-Widgets-LiveActivity.xcconfig */;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = "iOS-SwiftUI-Widgets-LiveActivity/Resources/Entitlements.entitlements";
+				INFOPLIST_FILE = "iOS-SwiftUI-Widgets-LiveActivity/Resources/Info.plist";
+			};
+			name = Debug;
+		};
+		9CE8FF7BC1499AAC7538B778 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 015A3634E549DECA810DA5C6 /* iOS-SwiftUI-Widgets-WidgetExtension.xcconfig */;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = "iOS-SwiftUI-Widgets-WidgetExtension/Resources/Entitlements.entitlements";
+				INFOPLIST_FILE = "iOS-SwiftUI-Widgets-WidgetExtension/Resources/Info.plist";
+			};
+			name = Debug;
+		};
+		E9C055E9DD3FE2CBB51EF61F /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 553AF3F0937DC6C4C9ECDB17 /* iOS-SwiftUI-Widgets-LiveActivity.xcconfig */;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = "iOS-SwiftUI-Widgets-LiveActivity/Resources/Entitlements.entitlements";
+				INFOPLIST_FILE = "iOS-SwiftUI-Widgets-LiveActivity/Resources/Info.plist";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		070200C57AB30631FE740A64 /* Build configuration list for PBXNativeTarget "iOS-SwiftUI-Widgets-LiveActivity" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8BDFA6BD2B7E61EAB0B43EB2 /* Debug */,
+				E9C055E9DD3FE2CBB51EF61F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		1458D1D214F0C9E5A81F1482 /* Build configuration list for PBXProject "iOS-SwiftUI-Widgets" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6CA1E23D2E331683FA217276 /* Debug */,
+				761A2113671B4BD4CF6F2759 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		30A33C7A02ED7CC864553D30 /* Build configuration list for PBXNativeTarget "iOS-SwiftUI-Widgets" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1B9F865ECE37130BDBB5A023 /* Debug */,
+				180D348244D8D9212C67AE1A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		43FCF799CF2ABEAF734043DB /* Build configuration list for PBXNativeTarget "iOS-SwiftUI-Widgets-WidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9CE8FF7BC1499AAC7538B778 /* Debug */,
+				221CEBB496C7E9ADB264FBDE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = D6B98D3A58C262EE28C50B9E /* Project object */;
+}

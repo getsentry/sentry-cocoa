@@ -1,7 +1,5 @@
 import ActivityKit
-@_spi(Private) @testable import Sentry
 import SwiftUI
-import UserNotifications
 
 struct LiveActivityView: View {
     @StateObject private var viewModel = LiveActivityViewModel()
@@ -11,15 +9,53 @@ struct LiveActivityView: View {
             Text("Live Activity Test")
                 .font(.title)
             
-            if viewModel.isActivityActive {
+            // Debug info
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Debug Info:")
+                    .font(.headline)
+                Text("Activities Enabled: \(ActivityAuthorizationInfo().areActivitiesEnabled ? "Yes" : "No")")
+                    .font(.caption)
+                Text("Existing Activities: \(Activity<LiveActivityAttributes>.activities.count)")
+                    .font(.caption)
+            }
+            .padding()
+            .background(Color.gray.opacity(0.1))
+            .cornerRadius(8)
+            
+            // Simulator note
+            VStack(alignment: .leading, spacing: 4) {
+                Text("ℹ️ Simulator Note:")
+                    .font(.headline)
+                    .foregroundColor(.blue)
+                Text("Live Activities show on lock screen in simulator. Dynamic Island requires a physical iPhone 14 Pro or later.")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+            .padding()
+            .background(Color.blue.opacity(0.1))
+            .cornerRadius(8)
+            
+            if let activityViewState = viewModel.activityViewState {
                 VStack(spacing: 10) {
-                    Text("Live Activity is running")
+                    Text("✅ Live Activity is running")
                         .font(.headline)
                         .foregroundColor(.green)
-                    
-                    Text("It will end automatically in 10 seconds")
+
+                    Text(activityViewState.pushToken ?? "No token available")
                         .font(.caption)
                         .foregroundColor(.secondary)
+
+                    Text("Lock the simulator to see it on the lock screen")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        .multilineTextAlignment(.center)
+                    
+                    Button("End Activity") {
+                        Task {
+                            await viewModel.endLiveActivity()
+                        }
+                    }
+                    .buttonStyle(.bordered)
                 }
                 .padding()
                 .background(Color.green.opacity(0.1))
@@ -36,123 +72,10 @@ struct LiveActivityView: View {
                     .foregroundColor(.red)
                     .font(.caption)
                     .padding()
+                    .background(Color.red.opacity(0.1))
+                    .cornerRadius(8)
             }
         }
         .padding()
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color(UIColor.systemBackground))
-        .onAppear {
-            viewModel.setupSentrySDK()
-        }
-    }
-}
-
-@MainActor
-final class LiveActivityViewModel: ObservableObject {
-    @Published var isActivityActive = false
-    @Published var errorMessage: String?
-    
-    private var currentActivity: Activity<LiveActivityAttributes>?
-    
-    func setupSentrySDK() {
-        guard !SentrySDK.isEnabled else {
-            return
-        }
-        SentrySDK.start { options in
-            options.dsn = "https://a92d50327ac74b8b9aa4ea80eccfb267@o447951.ingest.sentry.io/5428557"
-            options.debug = true
-            options.enableAppHangTracking = true
-        }
-    }
-    
-    func startLiveActivity() {
-        Task {
-            // Request notification permissions if needed
-            let center = UNUserNotificationCenter.current()
-            let settings = await center.notificationSettings()
-            
-            if settings.authorizationStatus == .notDetermined {
-                do {
-                    let granted = try await center.requestAuthorization(options: [.alert, .sound, .badge, .providesAppNotificationSettings])
-                    if !granted {
-                        self.errorMessage = "Notification permissions are required for Live Activities."
-                        return
-                    }
-                } catch {
-                    self.errorMessage = "Failed to request notification permissions: \(error.localizedDescription)"
-                    return
-                }
-            } else if settings.authorizationStatus == .denied {
-                self.errorMessage = "Notification permissions are denied. Please enable notifications in Settings."
-                return
-            }
-            
-            // Check if Live Activities are enabled
-            let authInfo = ActivityAuthorizationInfo()
-            guard authInfo.areActivitiesEnabled else {
-                self.errorMessage = "Live Activities are not enabled. Please enable them in Settings."
-                return
-            }
-            
-            do {
-                // Check ANR tracking status
-                let anrInstalled = SentrySDK.isEnabled &&
-                    SentrySDKInternal.trimmedInstalledIntegrationNames()
-                        .contains("ANRTracking")
-                
-                let anrStatus = anrInstalled ? "Enabled" : "Disabled"
-                
-                let attributes = LiveActivityAttributes(id: UUID().uuidString)
-                let initialState = LiveActivityAttributes.ContentState(
-                    anrTrackingStatus: anrStatus,
-                    timestamp: Date()
-                )
-                
-                let activity = try Activity.request(
-                    attributes: attributes,
-                    content: .init(state: initialState, staleDate: nil),
-                    pushType: .token
-                )
-                
-                self.currentActivity = activity
-                self.isActivityActive = true
-                self.errorMessage = nil
-                
-                // Auto-end after 10 seconds
-                Task {
-                    try? await Task.sleep(for: .seconds(10))
-                    await self.endLiveActivity()
-                }
-            } catch {
-                self.errorMessage = "Failed to start Live Activity: \(error.localizedDescription)"
-            }
-        }
-    }
-    
-    func endLiveActivity() async {
-        guard let activity = currentActivity else {
-            return
-        }
-        
-        // Check ANR tracking status again for final state
-        let anrInstalled = SentrySDK.isEnabled &&
-            SentrySDKInternal.trimmedInstalledIntegrationNames()
-                .contains("ANRTracking")
-        
-        let anrStatus = anrInstalled ? "Enabled" : "Disabled"
-        
-        let finalState = LiveActivityAttributes.ContentState(
-            anrTrackingStatus: anrStatus,
-            timestamp: Date()
-        )
-        await activity.end(
-            ActivityContent(state: finalState, staleDate: nil),
-            dismissalPolicy: .immediate
-        )
-        
-        await MainActor.run {
-            self.currentActivity = nil
-            self.isActivityActive = false
-        }
     }
 }

@@ -50,10 +50,9 @@ extension SampleWidgetControl {
 
         func currentValue(configuration: ANRConfiguration) async throws -> Value {
             // Check if ANR tracking is installed
-            let anrInstalled = SentrySDK.isEnabled &&
-                SentrySDKInternal.trimmedInstalledIntegrationNames()
+            let anrInstalled = SentrySDK.isEnabled && SentrySDKInternal.trimmedInstalledIntegrationNames()
                     .contains("ANRTracking")
-            
+
             // isOn = true means ANR is disabled (good for widgets)
             // isOn = false means ANR is enabled (bad for widgets)
             return Value(isOn: !anrInstalled)
@@ -72,7 +71,6 @@ struct RefreshStatusIntent: AppIntent {
     init() {}
 
     func perform() async throws -> some IntentResult {
-        // Trigger widget refresh to show updated status
         await WidgetCenter.shared.reloadTimelines(ofKind: SampleWidgetControl.kind)
         return .result()
     }

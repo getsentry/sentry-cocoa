@@ -6,6 +6,5 @@ struct SampleWidgetBundle: WidgetBundle {
     var body: some Widget {
         SampleWidget()
         SampleWidgetControl()
-        LiveActivityConfiguration()
     }
 }
