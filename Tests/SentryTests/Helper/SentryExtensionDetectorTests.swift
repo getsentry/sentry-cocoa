@@ -78,6 +78,20 @@ final class SentryExtensionDetectorTests: XCTestCase {
         XCTAssertEqual(identifier, "com.apple.ui-services")
     }
     
+    func testGetExtensionPointIdentifier_shareExtension() {
+        // Arrange
+        infoPlistWrapper.mockGetAppValueDictionaryReturnValue(
+            forKey: SentryInfoPlistKey.extension.rawValue,
+            value: ["NSExtensionPointIdentifier": "com.apple.share-services"]
+        )
+        
+        // Act
+        let identifier = sut.getExtensionPointIdentifier()
+        
+        // Assert
+        XCTAssertEqual(identifier, "com.apple.share-services")
+    }
+    
     // MARK: - App Hang Tracking Disable Detection
     
     func testShouldDisableAppHangTracking_notAnExtension() {
@@ -128,6 +142,20 @@ final class SentryExtensionDetectorTests: XCTestCase {
         
         // Assert
         XCTAssertTrue(shouldDisable, "Action extension should disable app hang tracking")
+    }
+    
+    func testShouldDisableAppHangTracking_shareExtension() {
+        // Arrange
+        infoPlistWrapper.mockGetAppValueDictionaryReturnValue(
+            forKey: SentryInfoPlistKey.extension.rawValue,
+            value: ["NSExtensionPointIdentifier": "com.apple.share-services"]
+        )
+        
+        // Act
+        let shouldDisable = sut.shouldDisableAppHangTracking()
+        
+        // Assert
+        XCTAssertTrue(shouldDisable, "Share extension should disable app hang tracking")
     }
     
     func testShouldDisableAppHangTracking_unknownExtension() {

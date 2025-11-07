@@ -822,6 +822,31 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         XCTAssertNil(Dynamic(sut).tracker.asAnyObject, "Tracker should not be initialized")
     }
     
+    func testInstall_runningInShareExtension_shouldNotInstall() {
+        // Arrange
+        let mockInfoPlist = TestInfoPlistWrapper()
+        mockInfoPlist.mockGetAppValueDictionaryReturnValue(
+            forKey: SentryInfoPlistKey.extension.rawValue,
+            value: ["NSExtensionPointIdentifier": "com.apple.share-services"]
+        )
+        Dependencies.extensionDetector = SentryExtensionDetector(infoPlistWrapper: mockInfoPlist)
+        
+        let options = Options()
+        options.dsn = SentryANRTrackingIntegrationTests.dsn
+        options.enableAppHangTracking = true
+        options.appHangTimeoutInterval = 2.0
+        
+        crashWrapper.internalIsBeingTraced = false
+        sut = SentryANRTrackingIntegration()
+        
+        // Act
+        let result = sut.install(with: options)
+        
+        // Assert
+        XCTAssertFalse(result, "Should not install when running in a Share extension")
+        XCTAssertNil(Dynamic(sut).tracker.asAnyObject, "Tracker should not be initialized")
+    }
+    
     func testInstall_runningInUnknownExtension_shouldInstall() {
         // Arrange
         let mockInfoPlist = TestInfoPlistWrapper()

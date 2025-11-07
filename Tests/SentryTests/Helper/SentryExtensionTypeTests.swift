@@ -13,4 +13,8 @@ final class SentryExtensionTypeTests: XCTestCase {
     func testAction_shouldReturnExpectedIdentifier() {
         XCTAssertEqual(SentryExtensionType.action.identifier, "com.apple.ui-services")
     }
+
+    func testShare_shouldReturnExpectedIdentifier() {
+        XCTAssertEqual(SentryExtensionType.share.identifier, "com.apple.share-services")
+    }
 }
