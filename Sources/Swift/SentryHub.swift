@@ -191,6 +191,14 @@ import Foundation
         helper.scope
     }
 
+    /// Returns the logger associated with this Hub.
+    @objc public var logger: SentryLogger {
+        // We know the type so it's fine to force cast.
+        // swiftlint:disable force_cast
+        return self.helper._swiftLogger as! SentryLogger
+        // swiftlint:enable force_cast
+    }
+
     /// Binds a different client to the hub.
     @objc public func bindClient(_ client: SentryClient?) {
         helper.bindClient(client?.helper)

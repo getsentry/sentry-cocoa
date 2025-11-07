@@ -66,6 +66,7 @@
 - Move `enableDataSwizzling` from experimental options to top-level options (#6592). This option remains enabled by default.
 - Add `sentry.replay_id` attribute to logs ([#6515](https://github.com/getsentry/sentry-cocoa/pull/6515))
 - Structured Logs: Add `SentrySwiftLog` Integration (#6286)
+- Structured Logs: Add log APIs to `Hub` and `Client` (#6518)
 
 ## 8.57.2
 
