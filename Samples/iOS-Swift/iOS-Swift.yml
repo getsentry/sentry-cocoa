@@ -34,6 +34,8 @@ targets:
       - target: iOS-SwiftClip
       - target: SentrySampleShared/SentrySampleShared
       - target: iOS-Swift-ShareExtension
+      - target: iOS-Swift-ActionExtension
+      - target: iOS-Swift-IntentExtension
       - target: Sentry/SentrySwiftLog
     configFiles:
       Debug: iOS-Swift.xcconfig
@@ -109,6 +111,32 @@ targets:
       Release: iOS-Swift-ShareExtension.xcconfig
       Test: iOS-Swift-ShareExtension.xcconfig
       TestCI: iOS-Swift-ShareExtension.xcconfig
+  iOS-Swift-ActionExtension:
+    type: app-extension
+    platform: auto
+    sources:
+      - iOS-Swift-ActionExtension
+    dependencies:
+      - target: Sentry/Sentry
+      - target: SentrySampleShared/SentrySampleShared
+    configFiles:
+      Debug: iOS-Swift-ActionExtension.xcconfig
+      Release: iOS-Swift-ActionExtension.xcconfig
+      Test: iOS-Swift-ActionExtension.xcconfig
+      TestCI: iOS-Swift-ActionExtension.xcconfig
+  iOS-Swift-IntentExtension:
+    type: app-extension
+    platform: auto
+    sources:
+      - iOS-Swift-IntentExtension
+    dependencies:
+      - target: Sentry/Sentry
+      - target: SentrySampleShared/SentrySampleShared
+    configFiles:
+      Debug: iOS-Swift-IntentExtension.xcconfig
+      Release: iOS-Swift-IntentExtension.xcconfig
+      Test: iOS-Swift-IntentExtension.xcconfig
+      TestCI: iOS-Swift-IntentExtension.xcconfig
 schemes:
   iOS-Swift:
     templates:
@@ -129,3 +157,18 @@ schemes:
       config: Debug
       testPlans:
         - path: ../../Plans/iOS-Benchmarking_Base.xctestplan
+  iOS-Swift-IntentExtension:
+    build:
+      targets:
+        iOS-Swift: all
+        iOS-Swift-IntentExtension: test
+  iOS-Swift-ActionExtension:
+    build:
+      targets:
+        iOS-Swift: all
+        iOS-Swift-ActionExtension: test
+  iOS-Swift-ShareExtension:
+    build:
+      targets:
+        iOS-Swift: all
+        iOS-Swift-ShareExtension: test

@@ -1,0 +1,20 @@
+#include "../Shared/Config/_Common.xcconfig"
+
+PRODUCT_BUNDLE_IDENTIFIER = io.sentry.sample.iOS-Swift.ActionExtension
+INFOPLIST_FILE = iOS-Swift-ActionExtension/Info.plist
+
+PROVISIONING_PROFILE_SPECIFIER_Debug = match Development io.sentry.sample.iOS-Swift.ActionExtension
+PROVISIONING_PROFILE_SPECIFIER_Test = match Development io.sentry.sample.iOS-Swift.ActionExtension
+PROVISIONING_PROFILE_SPECIFIER_TestCI = match Development io.sentry.sample.iOS-Swift.ActionExtension
+PROVISIONING_PROFILE_SPECIFIER_Release = match AppStore io.sentry.sample.iOS-Swift.ActionExtension
+PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*] = $(PROVISIONING_PROFILE_SPECIFIER_$(CONFIGURATION))
+PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*] =
+
+CODE_SIGN_STYLE = Manual
+
+SUPPORTED_PLATFORMS = iphoneos iphonesimulator
+
+SWIFT_OBJC_BRIDGING_HEADER = iOS-Swift/Tools/iOS-Swift-Bridging-Header.h
+
+// Runtime search paths for app extensions to find frameworks in parent app
+LD_RUNPATH_SEARCH_PATHS = $(inherited) @executable_path/Frameworks @executable_path/../../Frameworks
