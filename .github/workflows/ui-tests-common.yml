@@ -97,15 +97,15 @@ jobs:
           HOMEBREW_DEVELOPER=1 brew install --formula ./scripts/xcodegen.rb
           brew pin xcodegen
 
-      - name: Ensure simctl dyld shared cache is updated
-        run: |
-          xcrun simctl runtime dyld_shared_cache update --all
-          xcrun simctl list devices
-
       - name: Select Xcode version
         env:
           XCODE_VERSION: ${{ inputs.xcode_version }}
         run: ./scripts/ci-select-xcode.sh "$XCODE_VERSION"
+
+      - name: Ensure simctl dyld shared cache is updated
+        run: |
+          xcrun simctl runtime dyld_shared_cache update --all
+          xcrun simctl list devices
 
       - name: Install required platforms for Xcode 26
         if: ${{ inputs.install_platforms }}
