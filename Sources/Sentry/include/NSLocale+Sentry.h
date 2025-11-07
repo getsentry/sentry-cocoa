@@ -5,6 +5,6 @@
 + (BOOL)timeIs24HourFormat;
 + (BOOL)isRightToLeftLanguage;
 
-// Another change
+// Another change v3
 
 @end
