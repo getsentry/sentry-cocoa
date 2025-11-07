@@ -1,6 +1,6 @@
 # Changelog
 
-## 8.57.2
+## Unreleased
 
 ### Breaking Changes
 
@@ -39,6 +39,21 @@
   If you need a precompiled XCFramework built with Xcode 15, continue using Sentry SDK 8.x.x.
 - Set `SentryException.type` to `nil` when `NSException` has no `reason` (#6653). The backend then can provide a proper message when there is no reason.
 - Rename `SentryLog.Level` and `SentryLog.Attribute` for ObjC (#6666)
+- Rename `SentryMechanismMeta` to `SentryMechanismContext` to resolve Kotlin Multi-Platform build errors (#6607)
+
+### Fixes
+
+- Fixes warnings about minimum OS version being lower than Xcode supported version (#5591)
+- Fixes a crash when setting configureUserFeedback to nil (#6642)
+- Fix issue where the thread that generated an event could be missing when more than 100 threads are running (#6377)
+- Fix wrong Frame Delay when becoming active, which lead to false reported app hangs when the app moves to the foreground after being in the background (#6381)
+- Rename `SentryMechanismMeta` to `SentryMechanismContext` to resolve Kotlin Multi-Platform build errors (#6607)
+
+### Improvements
+
+- Replace deprecated SCNetworkReachability with NWPathMonitor (#6019)
+- Expose attachment type on `SentryAttachment` for downstream SDKs (like sentry-godot) (#6521)
+- Increase attachment max size to 100MB (#6537)
 
 ### Features
 
@@ -51,13 +66,11 @@
 - Add `sentry.replay_id` attribute to logs ([#6515](https://github.com/getsentry/sentry-cocoa/pull/6515))
 - Structured Logs: Add `SentrySwiftLog` Integration (#6286)
 
+## 8.57.2
+
 ### Fixes
 
-- Fixes warnings about minimum OS version being lower than Xcode supported version (#5591)
 - Fix rendering method for fast view rendering (#6360)
-- Fixes a crash when setting configureUserFeedback to nil (#6642)
-- Fix issue where the thread that generated an event could be missing when more than 100 threads are running (#6377)
-- Fix wrong Frame Delay when becoming active, which lead to false reported app hangs when the app moves to the foreground after being in the background (#6381)
 - Session Replay masking improvements (#6292)
   - Fix SwiftUI.List background decoration view causing incorrect clipping of screen content
   - Fix sublayer rendering order by properly sorting by zPosition with insertion order as tie-breaker
@@ -67,17 +80,10 @@
   - Add layer class filtering for views used in multiple contexts (e.g., SwiftUI._UIGraphicsView)
   - Improve transform calculations for views with custom anchor points
   - Fix axis-aligned transform detection for optimized opaque view clipping
-- Rename `SentryMechanismMeta` to `SentryMechanismContext` to resolve Kotlin Multi-Platform build errors (#6607)
 - Fix conversion of frame rate to time interval for session replay (#6623)
 - Change Session Replay masking to prevent semi‑transparent full‑screen overlays from clearing redactions by making opaque clipping stricter (#6629)
   Views now need to be fully opaque (view and layer backgrounds with alpha == 1) and report opaque to qualify for clip‑out.
   This avoids leaks at the cost of fewer clip‑out optimizations.
-
-### Improvements
-
-- Replace deprecated SCNetworkReachability with NWPathMonitor (#6019)
-- Expose attachment type on `SentryAttachment` for downstream SDKs (like sentry-godot) (#6521)
-- Increase attachment max size to 100MB (#6537)
 
 ## 8.57.1
 
