@@ -106,7 +106,8 @@ jobs:
     name: Distribution Tests
     runs-on: macos-15
     # Don't run this on release branches, cause the SPM Package.swift points to the unreleased versions.
-    if: startsWith(github.ref, 'refs/heads/release/') == false
+    # Also, skip when PR changes don't require running tests to save CI time.
+    if: startsWith(github.ref, 'refs/heads/release/') == false && (github.event_name != 'pull_request' || needs.files-changed.outputs.run_unit_tests_for_prs == 'true')
     needs: files-changed
     steps:
       - uses: actions/checkout@v5
