@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Breaking Changes
+
+- Change `SentryFeedback` initializer to support multiple attachments (#6459)
+
 ## 9.0.0-alpha.0
 
 ### Breaking Changes
@@ -39,7 +45,6 @@
   If you need a precompiled XCFramework built with Xcode 15, continue using Sentry SDK 8.x.x.
 - Set `SentryException.type` to `nil` when `NSException` has no `reason` (#6653). The backend then can provide a proper message when there is no reason.
 - Rename `SentryLog.Level` and `SentryLog.Attribute` for ObjC (#6666)
-- Change `SentryFeedback` initializer to support multiple attachments (#6459)
 
 ### Fixes
 
