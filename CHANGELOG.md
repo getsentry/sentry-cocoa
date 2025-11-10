@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Breaking Changes
+
+- Structured Logs: Remove `SentrySwiftLog` Integration (#6286)
+
 ## 9.0.0-alpha.0
 
 ### Breaking Changes
