@@ -1,5 +1,4 @@
 #import "SentryStdOutLogIntegration.h"
-#import "SentryDependencyContainer.h"
 #import "SentryLogC.h"
 #import "SentryOptions.h"
 #import "SentrySwift.h"
