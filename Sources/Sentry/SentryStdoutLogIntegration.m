@@ -74,6 +74,11 @@ static _Atomic bool _isForwardingLogs = false;
             NSString *logString = [[NSString alloc] initWithData:data
                                                         encoding:NSUTF8StringEncoding];
             if (logString) {
+                // Skip logs from Sentry itself to avoid infinite loops
+                if ([logString containsString:@"[Sentry]"]) {
+                    return;
+                }
+
                 // Check global atomic flag to avoid infinite loops
                 if (atomic_exchange(&_isForwardingLogs, true)) {
                     return; // Already forwarding, break the loop.

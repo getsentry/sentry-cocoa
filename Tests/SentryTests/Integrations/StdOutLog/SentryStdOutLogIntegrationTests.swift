@@ -7,7 +7,7 @@ class SentryStdOutLogIntegrationTests: XCTestCase {
     private class Fixture {
         let options: Options
         let client: TestClient
-        let hub: SentryHub
+        let hub: SentryHubInternal
         let batcher: TestLogBatcher
         let logger: SentryLogger
         let dispatchFactory: TestDispatchFactory
@@ -106,6 +106,35 @@ class SentryStdOutLogIntegrationTests: XCTestCase {
         XCTAssertEqual(log.level, SentryLog.Level.warn, "Should use warn level for stderr")
         XCTAssertTrue(log.body.contains("App stderr message from NSLog"), "Should contain the stderr test message")
         XCTAssertEqual(log.attributes["sentry.log.source"]?.value as? String, "stderr", "Should have stderr source attribute")
+        
+        // Clean up
+        integration.uninstall()
+    }
+    
+    func testSentryLogsAreIgnored() throws {
+        let integration = fixture.getIntegration()
+        _ = integration.install(with: fixture.options)
+        
+        print("[Sentry] This is a Sentry internal print log message")
+        expect("Wait first print non-capture")
+
+        // OSLOG-E0E93946-72CD-47A5-A9E7-13AD8B177E35 7 80 L 0 {t:1762782027.629955,tz:-60,tzDST:0,tid:0x326ba22,type:"Default",subsystem:null,category:null,offset:0x70a5d8,imgUUID:"249188A3-8F44-3D76-ACB0-0345A43EB0A3",imgPath:"/Library/Developer/CoreSimulator/Volumes/iOS_23B80/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 26.1.simruntime/Contents/Resources/RuntimeRoot/System/Library/Frameworks/Foundation.framework/Foundation",procName:"xctest",pid:37095,uid:501}    [Sentry] This is a Sentry internal NSLog log message
+        NSLog("[Sentry] This is a Sentry internal NSLog log message")
+        expect("Wait first NSLog non-capture")
+        
+        SentrySDKLog.error("This is a Sentry internal error message")
+        expect("Wait first SentrySDKLog.error non-capture")
+        
+        // Print another normal log to verify the integration is still working
+        print("A normal log")
+        expect("Wait for second normal log capture")
+        
+        // Verify only 2 logs were captured (the [Sentry] log was skipped)
+        XCTAssertEqual(fixture.batcher.addInvocations.count, 1, "Only non-Sentry logs should be captured")
+        
+        let log = try XCTUnwrap(fixture.batcher.addInvocations.first)
+        XCTAssertTrue(log.body.contains("A normal log"), "Only the normal log should be captured")
+        XCTAssertFalse(log.body.contains("[Sentry]"), "Sentry internal log should not be captured")
         
         // Clean up
         integration.uninstall()
