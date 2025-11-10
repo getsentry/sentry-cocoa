@@ -6,7 +6,7 @@
 public final class SentryLog: NSObject {
     /// The timestamp when the log event occurred
     public var timestamp: Date
-    /// The trace ID to associate this log with distributed tracing. This will be set to a valid non-empty value during processing.
+    /// The trace ID to associate this log with distributed tracing
     public var traceId: SentryId
     /// The severity level of the log entry
     public var level: Level
@@ -16,42 +16,6 @@ public final class SentryLog: NSObject {
     public var attributes: [String: Attribute]
     /// Numeric representation of the severity level (Int)
     public var severityNumber: NSNumber?
-    
-    /// Creates a log entry with the specified level and message.
-    /// - Parameters:
-    ///   - level: The severity level of the log entry
-    ///   - body: The main log message content
-    @objc public convenience init(
-        level: Level,
-        body: String
-    ) {
-        self.init(
-            timestamp: Date(),
-            traceId: SentryId.empty,
-            level: level,
-            body: body,
-            attributes: [:]
-        )
-    }
-    
-    /// Creates a log entry with the specified level, message, and attributes.
-    /// - Parameters:
-    ///   - level: The severity level of the log entry
-    ///   - body: The main log message content
-    ///   - attributes: A dictionary of structured attributes to add to the log entry
-    @objc public convenience init(
-        level: Level,
-        body: String,
-        attributes: [String: Attribute]
-    ) {
-        self.init(
-            timestamp: Date(),
-            traceId: SentryId.empty,
-            level: level,
-            body: body,
-            attributes: attributes
-        )
-    }
     
     internal init(
         timestamp: Date,
@@ -68,18 +32,6 @@ public final class SentryLog: NSObject {
         self.attributes = attributes
         self.severityNumber = severityNumber ?? NSNumber(value: level.toSeverityNumber())
         super.init()
-    }
-    
-    /// Adds or updates an attribute in the log entry.
-    /// - Parameters:
-    ///   - attribute: The attribute value to add
-    ///   - key: The key for the attribute
-    @objc public func setAttribute(_ attribute: Attribute?, forKey key: String) {
-        if let attribute = attribute {
-            attributes[key] = attribute
-        } else {
-            attributes.removeValue(forKey: key)
-        }
     }
 }
 

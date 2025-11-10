@@ -103,14 +103,6 @@ import Foundation
           scope: scope)
     }
 
-    /// Captures a log entry and sends it to Sentry.
-    /// - Parameters:
-    ///   - log: The log entry to send to Sentry.
-    ///   - scope: The scope containing event metadata.
-    @objc(captureLog:withScope:) public func capture(log: SentryLog, scope: Scope) {
-        helper._swiftCaptureLog(log, with: scope)
-    }
-
     /// Waits synchronously for the SDK to flush out all queued and cached items for up to the specified timeout in seconds.
     /// If there is no internet connection, the function returns immediately. The SDK doesn't dispose the client or the hub.
     /// - Parameter timeout: The time to wait for the SDK to complete the flush.
