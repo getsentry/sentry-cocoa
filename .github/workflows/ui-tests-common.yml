@@ -113,7 +113,6 @@ jobs:
       - name: Install Rosetta
         run: |
           xcrun simctl list runtimes -v
-          softwareupdate --install-rosetta --agree-to-license
 
       - name: Ensure simctl dyld shared cache is updated
         # Xcode 15.x doesn't support this command, so we skip it for that version.
