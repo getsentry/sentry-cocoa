@@ -48,6 +48,7 @@ jobs:
         with:
           token: ${{ github.token }}
           filters: .github/file-filters.yml
+
   build-test-server:
     name: Build test server
     if: needs.files-changed.outputs.run_unit_tests_for_prs == 'true'
@@ -394,6 +395,7 @@ jobs:
         build-test-server,
         distribution-tests,
         unit-tests,
+        ready-to-merge-gate,
         unit-tests-with-test-server,
       ]
     name: Unit Tests

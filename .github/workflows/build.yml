@@ -400,6 +400,7 @@ jobs:
         check-debug-with-UIKit,
         check-release-with-UIKit,
         check-compiling-async-safe-logs,
+        ready-to-merge-gate,
       ]
     name: Build
     # This is necessary since a failed/skipped dependent job would cause this job to be skipped
