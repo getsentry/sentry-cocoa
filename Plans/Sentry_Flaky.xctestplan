@@ -19,6 +19,7 @@
         "PrivateSentrySDKOnlyTests\/testProfilingStartAndCollect()",
         "SentryCrashBinaryImageCacheTests\/testRemoveImageFromBeginning",
         "SentryCrashReportStore_Tests\/testPruneReports",
+        "SentryFileManagerTests\/testCreateDirectoryIfNotExists_successful_shouldNotLogError()",
         "SentryHttpTransportFlushIntegrationTests",
         "SentryWatchdogTerminationTrackerTests\/testTerminateApp_RunsOnMainThread()"
       ],
