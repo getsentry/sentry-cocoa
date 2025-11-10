@@ -384,6 +384,7 @@ jobs:
         swift-build,
         duplication-tests,
         app-metrics,
+        ready-to-merge-gate,
       ]
     name: Release
     # This is necessary since a failed/skipped dependent job would cause this job to be skipped
