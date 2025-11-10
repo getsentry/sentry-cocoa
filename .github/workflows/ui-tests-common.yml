@@ -77,8 +77,7 @@ on:
 
 jobs:
   common-ui-tests:
-    # test in cirrus labs
-    # if: ${{ !inputs.should_skip }}
+    if: ${{ !inputs.should_skip }}
     name: UI Tests Common
     runs-on: ${{ inputs.run_on_cirrus_labs && fromJSON(format('["ghcr.io/cirruslabs/macos-runner:{0}", "runner_group_id:10"]', inputs.macos_version)) || inputs.macos_version }}
     timeout-minutes: 40
