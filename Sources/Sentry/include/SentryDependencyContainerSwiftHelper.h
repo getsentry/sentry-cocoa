@@ -1,17 +1,25 @@
 #import "SentryDefines.h"
+#import "SentryProfilingConditionals.h"
 #import <Foundation/Foundation.h>
 
 #if SENTRY_HAS_UIKIT
 #    import <UIKit/UIKit.h>
 #endif // SENTRY_HAS_UIKIT
 
-@protocol SentryObjCRuntimeWrapper;
-@protocol SentryUIDeviceWrapper;
-@class SentryHub;
-@class SentryCrash;
-@class SentryNSProcessInfoWrapper;
+@class SentryHubInternal;
+@class SentryDispatchQueueWrapper;
+@class SentryOptions;
 
 NS_ASSUME_NONNULL_BEGIN
+
+@interface SentryDefaultRedactOptions : NSObject
+
+@property (nonatomic) BOOL maskAllText;
+@property (nonatomic) BOOL maskAllImages;
+@property (nonatomic) NSArray<Class> *maskedViewClasses;
+@property (nonatomic) NSArray<Class> *unmaskedViewClasses;
+
+@end
 
 // Some Swift code needs to access Sentry types that we don’t want to completely
 // expose to Swift. This class is exposed to Swift
@@ -23,12 +31,22 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (nullable NSArray<UIWindow *> *)windows;
 
+// Since SentryOptions is in ObjC, Swift code can't see the SentryViewScreenshotOptions property
++ (BOOL)fastViewRenderingEnabled:(SentryOptions *)options;
++ (BOOL)viewRendererV2Enabled:(SentryOptions *)options;
++ (SentryDefaultRedactOptions *)redactOptions:(SentryOptions *)options;
+
 #endif // SENTRY_HAS_UIKIT
 
++ (SentryDispatchQueueWrapper *)dispatchQueueWrapper;
 + (void)dispatchSyncOnMainQueue:(void (^)(void))block;
-+ (id<SentryObjCRuntimeWrapper>)objcRuntimeWrapper;
-+ (SentryHub *)currentHub;
-+ (SentryCrash *)crashReporter;
++ (nullable NSDate *)readTimestampLastInForeground;
++ (void)deleteTimestampLastInForeground;
++ (void)storeTimestampLastInForeground:(NSDate *)timestamp;
+
+#if SENTRY_TARGET_PROFILING_SUPPORTED
++ (BOOL)hasProfilingOptions;
+#endif
 
 @end
 

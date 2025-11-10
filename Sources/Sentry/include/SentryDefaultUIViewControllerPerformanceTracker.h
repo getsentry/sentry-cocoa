@@ -9,16 +9,13 @@
 @class SentryPerformanceTracker;
 @class SentryDispatchQueueWrapper;
 
-@protocol SentryInitialDisplayReporting;
-
 NS_ASSUME_NONNULL_BEGIN
 
 @interface SentryObjCSwiftUISpanHelper : NSObject
 
 @property (nonatomic, readonly) BOOL hasSpan;
 
-@property (nonatomic, strong, readonly, nullable) id<SentryInitialDisplayReporting>
-    initialDisplayReporting;
+- (void)reportInitialDisplay;
 
 @end
 
@@ -28,14 +25,11 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface SentryDefaultUIViewControllerPerformanceTracker : NSObject
 
-@property (nonatomic, strong) SentryInAppLogic *inAppLogic;
-
 @property (nonatomic) BOOL alwaysWaitForFullDisplay;
 
 SENTRY_NO_INIT
 
-- (instancetype)initWithTracker:(SentryPerformanceTracker *)tracker
-           dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper;
+- (instancetype)initWithTracker:(SentryPerformanceTracker *)tracker;
 
 /**
  * Measures @c controller's @c loadView method.
@@ -46,6 +40,7 @@ SENTRY_NO_INIT
  * @c loadView method.
  */
 - (void)viewControllerLoadView:(UIViewController *)controller
+                       isInApp:(BOOL (^)(Class))isInApp
               callbackToOrigin:(void (^)(void))callback;
 
 /**
@@ -105,6 +100,10 @@ SENTRY_NO_INIT
                            callbackToOrigin:(void (^)(void))callback;
 
 - (void)reportFullyDisplayed;
+
+- (SentryObjCSwiftUISpanHelper *)startTimeToDisplayTrackerForScreen:(NSString *)screenName
+                                                 waitForFullDisplay:(BOOL)waitforFullDisplay
+                                                      transactionId:(SentrySpanId *)transactionId;
 
 + (SentryObjCSwiftUISpanHelper *)startTimeToDisplayTrackerForScreen:(NSString *)screenName
                                                  waitForFullDisplay:(BOOL)waitforFullDisplay

@@ -3,7 +3,6 @@
 #if SENTRY_HAS_UIKIT
 
 #    import "SentryDefines.h"
-#    import "SentryDependencyContainer.h"
 #    import "SentryLogC.h"
 #    import "SentrySubClassFinder.h"
 #    import "SentrySwift.h"
@@ -52,8 +51,7 @@
 {
     if (self = [super init]) {
         self.options = options;
-        self.inAppLogic = [[SentryInAppLogic alloc] initWithInAppIncludes:options.inAppIncludes
-                                                            inAppExcludes:options.inAppExcludes];
+        self.inAppLogic = [[SentryInAppLogic alloc] initWithInAppIncludes:options.inAppIncludes];
         self.dispatchQueue = dispatchQueue;
         self.objcRuntimeWrapper = objcRuntimeWrapper;
         self.subClassFinder = subClassFinder;
@@ -110,7 +108,7 @@
     }
 
     [self swizzleUIViewController];
-    id<SentryUIViewControllerPerformanceTracker> performanceTracker =
+    SentryUIViewControllerPerformanceTracker *performanceTracker =
         [SentryDependencyContainer.sharedInstance uiViewControllerPerformanceTracker];
     performanceTracker.inAppLogic = self.inAppLogic;
 }

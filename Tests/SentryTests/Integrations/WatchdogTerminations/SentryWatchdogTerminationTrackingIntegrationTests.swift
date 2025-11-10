@@ -4,8 +4,6 @@
 @_spi(Private) import SentryTestUtils
 import XCTest
 
-@_spi(Private) extension SentryDefaultAppStateManager: SentryAppStateManager { }
-
 class SentryWatchdogTerminationIntegrationTests: XCTestCase {
     private static let dsn = TestConstants.dsnForTestCase(type: SentryWatchdogTerminationIntegrationTests.self)
 
@@ -16,9 +14,9 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         let fileManager: SentryFileManager
         let processInfoWrapper: MockSentryProcessInfo
         let watchdogTerminationAttributesProcessor: TestSentryWatchdogTerminationAttributesProcessor
-        let hub: SentryHub
+        let hub: SentryHubInternal
         let scope: Scope
-        let appStateManager: SentryDefaultAppStateManager
+        let appStateManager: SentryAppStateManager
 
         convenience init() throws {
             let options = Options()
@@ -51,12 +49,13 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
             container.fileManager = fileManager
 
             let notificationCenterWrapper = TestNSNotificationCenterWrapper()
-            appStateManager = SentryDefaultAppStateManager(
+            SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = dispatchQueueWrapper
+            SentryDependencyContainer.sharedInstance().notificationCenterWrapper = notificationCenterWrapper
+            appStateManager = SentryAppStateManager(
                 options: options,
                 crashWrapper: crashWrapper,
                 fileManager: fileManager,
-                dispatchQueueWrapper: dispatchQueueWrapper,
-                notificationCenterWrapper: notificationCenterWrapper
+                sysctlWrapper: SentryDependencyContainer.sharedInstance().sysctlWrapper
             )
             container.appStateManager = appStateManager
             appStateManager.start()
@@ -70,7 +69,7 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
 
             let client = TestClient(options: options)
             scope = Scope()
-            hub = SentryHub(client: client, andScope: scope, andCrashWrapper: crashWrapper, andDispatchQueue: dispatchQueueWrapper)
+            hub = SentryHubInternal(client: client, andScope: scope, andCrashWrapper: crashWrapper, andDispatchQueue: dispatchQueueWrapper)
             SentrySDKInternal.setCurrentHub(hub)
         }
 

@@ -6,6 +6,7 @@
 #import "SentryEvent.h"
 #import "SentryException.h"
 #import "SentryFrame.h"
+#import "SentryId.h"
 #import "SentryMechanism.h"
 #import "SentryMeta.h"
 #import "SentryStackTrace.h"
@@ -24,7 +25,7 @@
     SentryFrame *frame = [[SentryFrame alloc] init];
     frame.symbolAddress = @"0x01";
     XCTAssertNotNil(frame.symbolAddress);
-    NSDictionary *serialized = @{ @"symbol_addr" : @"0x01", @"function" : @"<redacted>" };
+    NSDictionary *serialized = @{ @"symbol_addr" : @"0x01" };
     XCTAssertEqualObjects([frame serialize], serialized);
 
     SentryFrame *frame2 = [[SentryFrame alloc] init];
@@ -223,10 +224,8 @@
     XCTAssertNotNil(stacktrace.frames);
     XCTAssertNotNil(stacktrace.registers);
     [stacktrace fixDuplicateFrames];
-    NSDictionary *serialized = @{
-        @"frames" : @[ @{ @"symbol_addr" : @"0x01", @"function" : @"<redacted>" } ],
-        @"registers" : @ { @"a" : @"1" }
-    };
+    NSDictionary *serialized =
+        @{ @"frames" : @[ @{ @"symbol_addr" : @"0x01" } ], @"registers" : @ { @"a" : @"1" } };
     XCTAssertEqualObjects([stacktrace serialize], serialized);
 }
 
@@ -251,10 +250,8 @@
         @"crashed" : @(YES),
         @"current" : @(NO),
         @"name" : @"name",
-        @"stacktrace" : @ {
-            @"frames" : @[ @{ @"symbol_addr" : @"0x01", @"function" : @"<redacted>" } ],
-            @"registers" : @ { @"a" : @"1" }
-        }
+        @"stacktrace" :
+            @ { @"frames" : @[ @{ @"symbol_addr" : @"0x01" } ], @"registers" : @ { @"a" : @"1" } }
     };
     XCTAssertEqualObjects([thread2 serialize], serialized2);
 }
@@ -344,10 +341,8 @@
         @"value" : @"value",
         @"type" : @"type",
         @"thread_id" : @(2),
-        @"stacktrace" : @ {
-            @"frames" : @[ @{ @"symbol_addr" : @"0x01", @"function" : @"<redacted>" } ],
-            @"registers" : @ { @"a" : @"1" }
-        },
+        @"stacktrace" :
+            @ { @"frames" : @[ @{ @"symbol_addr" : @"0x01" } ], @"registers" : @ { @"a" : @"1" } },
         @"module" : @"module",
         @"mechanism" : @ { @"type" : @"test" }
     };

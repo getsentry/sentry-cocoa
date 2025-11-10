@@ -1,11 +1,10 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
-@objcMembers @_spi(Private) public class SentryEnabledFeaturesBuilder: NSObject {
+final class SentryEnabledFeaturesBuilder: NSObject {
 
     // swiftlint:disable cyclomatic_complexity function_body_length
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
-    public static func getEnabledFeatures(options: Options?) -> [String] {
+    static func getEnabledFeatures(options: Options?) -> [String] {
         guard let options = options else {
             return []
         }
@@ -18,34 +17,10 @@ import Foundation
         if options.enableTimeToFullDisplayTracing {
             features.append("timeToFullDisplayTracing")
         }
-
-#if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
-        #if !SDK_V9
-        if options.enableAppLaunchProfiling {
-            features.append("appLaunchProfiling")
-        }
-        #endif // !SDK_V9
-#endif // os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
-
-#if os(iOS) || os(tvOS)
-#if canImport(UIKit) && !SENTRY_NO_UIKIT
-        if options.enablePreWarmedAppStartTracing {
-            features.append("preWarmedAppStartTracing")
-        }
-#endif // canImport(UIKit)
-#endif // os(iOS) || os(tvOS)
         
         if options.swiftAsyncStacktraces {
             features.append("swiftAsyncStacktraces")
         }
-
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-        #if !SDK_V9
-        if options.enableAppHangTrackingV2 {
-            features.append("appHangTrackingV2")
-        }
-        #endif // !SDK_V9
-#endif //os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
         
         if options.enablePersistingTracesWhenCrashing {
             features.append("persistingTracesWhenCrashing")
@@ -61,10 +36,10 @@ import Foundation
         }
 #endif // (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT
 
-        if options.experimental.enableDataSwizzling {
+        if options.enableDataSwizzling {
             features.append("dataSwizzling")
         }
-        if options.experimental.enableFileManagerSwizzling {
+        if options.enableFileManagerSwizzling {
             features.append("fileManagerSwizzling")
         }
         if options.experimental.enableUnhandledCPPExceptionsV2 {

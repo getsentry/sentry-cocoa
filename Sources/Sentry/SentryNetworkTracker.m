@@ -10,6 +10,7 @@
 #import "SentryHttpStatusCodeRange.h"
 #import "SentryHub+Private.h"
 #import "SentryInternalCDefines.h"
+#import "SentryInternalDefines.h"
 #import "SentryLogC.h"
 #import "SentryMechanism.h"
 #import "SentryNoOpSpan.h"
@@ -24,6 +25,7 @@
 #import "SentryStacktrace.h"
 #import "SentrySwift.h"
 #import "SentryThread.h"
+#import "SentryTraceContext+Private.h"
 #import "SentryTraceContext.h"
 #import "SentryTraceHeader.h"
 #import "SentryTraceOrigin.h"
@@ -131,8 +133,10 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
     }
 
     // Don't measure requests to Sentry's backend
-    NSURL *apiUrl = SentrySDKInternal.options.parsedDsn.url;
-    if ([url.host isEqualToString:apiUrl.host] && [url.path containsString:apiUrl.path]) {
+    NSURL *_Nullable apiUrl = SentrySDKInternal.options.parsedDsn.url;
+    if (apiUrl && apiUrl.host && apiUrl.path.length > 0 &&
+        [url.host isEqualToString:SENTRY_UNWRAP_NULLABLE(NSString, apiUrl.host)] &&
+        [url.path containsString:SENTRY_UNWRAP_NULLABLE(NSString, apiUrl.path)]) {
         return;
     }
 
@@ -191,7 +195,8 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
         SentryBaggage *baggage = [[[SentryTracer getTracer:span] traceContext] toBaggage];
         [SentryTracePropagation
                    addBaggageHeader:baggage
-                        traceHeader:[netSpan toTraceHeader]
+                        traceHeader:SENTRY_UNWRAP_NULLABLE(
+                                        SentryTraceHeader, [netSpan toTraceHeader])
                propagateTraceparent:SentrySDKInternal.options.enablePropagateTraceparent
             tracePropagationTargets:SentrySDKInternal.options.tracePropagationTargets
                           toRequest:sessionTask];
@@ -210,20 +215,10 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
     SentryPropagationContext *propagationContext
         = SentrySDKInternal.currentHub.scope.propagationContext;
 
-#if !SDK_V9
-    NSString *segment = nil;
-#    pragma clang diagnostic push
-#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    segment = SentrySDKInternal.currentHub.scope.userObject.segment;
-#    pragma clang diagnostic pop
-#endif
-
     SentryTraceContext *traceContext =
         [[SentryTraceContext alloc] initWithTraceId:propagationContext.traceId
-                                            options:SentrySDKInternal.currentHub.client.options
-#if !SDK_V9
-                                        userSegment:segment
-#endif
+                                            options:SENTRY_UNWRAP_NULLABLE(SentryOptions,
+                                                        SentrySDKInternal.currentHub.client.options)
                                            replayId:SentrySDKInternal.currentHub.scope.replayId];
 
     [SentryTracePropagation addBaggageHeader:[traceContext toBaggage]
@@ -256,7 +251,8 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
 
     // Don't measure requests to Sentry's backend
     NSURL *apiUrl = SentrySDKInternal.options.parsedDsn.url;
-    if ([url.host isEqualToString:apiUrl.host] && [url.path containsString:apiUrl.path]) {
+    if ([url.host isEqualToString:SENTRY_UNWRAP_NULLABLE(NSString, apiUrl.host)] &&
+        [url.path containsString:SENTRY_UNWRAP_NULLABLE(NSString, apiUrl.path)]) {
         return;
     }
 
@@ -323,8 +319,9 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
         return;
     }
 
-    if (![SentryTracePropagation isTargetMatch:myRequest.URL
-                                   withTargets:SentrySDKInternal.options.failedRequestTargets]) {
+    if (![SentryTracePropagation
+            isTargetMatch:SENTRY_UNWRAP_NULLABLE(NSURL, myRequest.URL)
+              withTargets:SentrySDKInternal.options.failedRequestTargets ?: @[]]) {
         SENTRY_LOG_DEBUG(
             @"Request url isn't within the request targets, not capturing HTTP Client errors.");
         return;
@@ -358,7 +355,8 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
 
     SentryRequest *request = [[SentryRequest alloc] init];
 
-    UrlSanitized *url = [[UrlSanitized alloc] initWithURL:[[sessionTask currentRequest] URL]];
+    UrlSanitized *url = [[UrlSanitized alloc]
+        initWithURL:SENTRY_UNWRAP_NULLABLE(NSURL, [[sessionTask currentRequest] URL])];
 
     request.url = url.sanitizedUrl;
     request.method = myRequest.HTTPMethod;
@@ -434,7 +432,8 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
     SentryBreadcrumb *breadcrumb = [[SentryBreadcrumb alloc] initWithLevel:breadcrumbLevel
                                                                   category:@"http"];
 
-    UrlSanitized *urlComponents = [[UrlSanitized alloc] initWithURL:sessionTask.currentRequest.URL];
+    UrlSanitized *urlComponents = [[UrlSanitized alloc]
+        initWithURL:SENTRY_UNWRAP_NULLABLE(NSURL, sessionTask.currentRequest.URL)];
 
     breadcrumb.type = @"http";
     NSMutableDictionary<NSString *, id> *breadcrumbData = [NSMutableDictionary new];

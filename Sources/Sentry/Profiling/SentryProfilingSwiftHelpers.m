@@ -1,34 +1,26 @@
 #import "SentryProfilingSwiftHelpers.h"
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
-#    import "SentryDependencyContainer.h"
+#    import "SentryClient.h"
 #    import "SentryLogC.h"
 #    import "SentryOptions+Private.h"
 #    import "SentryProfiler+Private.h"
 #    import "SentrySamplerDecision.h"
 #    import "SentrySwift.h"
 
-#    if !SDK_V9
 BOOL
-sentry_isContinuousProfilingEnabled(SentryClient *client)
+sentry_isContinuousProfilingEnabled(SentryClientInternal *client)
 {
     return [client.options isContinuousProfilingEnabled];
 }
-#    endif // !SDK_V9
 
 BOOL
-sentry_isContinuousProfilingV2Enabled(SentryClient *client)
-{
-    return [client.options isContinuousProfilingV2Enabled];
-}
-
-BOOL
-sentry_isProfilingCorrelatedToTraces(SentryClient *client)
+sentry_isProfilingCorrelatedToTraces(SentryClientInternal *client)
 {
     return [client.options isProfilingCorrelatedToTraces];
 }
 
-SentryProfileOptions *_Nullable sentry_getProfiling(SentryClient *client)
+SentryProfileOptions *_Nullable sentry_getProfiling(SentryClientInternal *client)
 {
     return client.options.profiling;
 }
@@ -166,4 +158,29 @@ sentry_scheduledTimerWithTarget(
                                repeats:repeats];
 }
 
+#    if SENTRY_HAS_UIKIT
+void
+sentry_startFramesTracker(void)
+{
+    [SentryDependencyContainer.sharedInstance.framesTracker start];
+}
+
+void
+sentry_stopFramesTracker(void)
+{
+    [SentryDependencyContainer.sharedInstance.framesTracker stop];
+}
+
+void
+sentry_framesTrackerResetProfilingTimestamps(void)
+{
+    [SentryDependencyContainer.sharedInstance.framesTracker resetProfilingTimestamps];
+}
+
+SentryScreenFrames *
+sentry_framesTrackerGetCurrentFrames(void)
+{
+    return [SentryDependencyContainer.sharedInstance.framesTracker currentFrames];
+}
+#    endif // SENTRY_HAS_UIKIT
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED

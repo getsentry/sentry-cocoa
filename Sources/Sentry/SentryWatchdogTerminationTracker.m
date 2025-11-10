@@ -17,7 +17,7 @@
 @property (nonatomic, strong) SentryOptions *options;
 @property (nonatomic, strong) SentryWatchdogTerminationLogic *watchdogTerminationLogic;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueue;
-@property (nonatomic, strong) id<SentryAppStateManager> appStateManager;
+@property (nonatomic, strong) SentryAppStateManager *appStateManager;
 @property (nonatomic, strong) SentryFileManager *fileManager;
 @property (nonatomic, strong) SentryScopePersistentStore *scopePersistentStore;
 
@@ -27,7 +27,7 @@
 
 - (instancetype)initWithOptions:(SentryOptions *)options
        watchdogTerminationLogic:(SentryWatchdogTerminationLogic *)watchdogTerminationLogic
-                appStateManager:(id<SentryAppStateManager>)appStateManager
+                appStateManager:(SentryAppStateManager *)appStateManager
            dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
                     fileManager:(SentryFileManager *)fileManager
            scopePersistentStore:(SentryScopePersistentStore *)scopePersistentStore

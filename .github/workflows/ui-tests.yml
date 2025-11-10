@@ -3,8 +3,10 @@ on:
   push:
     branches:
       - main
+      - v8.x
 
   pull_request:
+    types: [opened, synchronize, reopened, labeled]
 
 # Concurrency configuration:
 # - We use workflow-specific concurrency groups to prevent multiple UI test runs on the same code,
@@ -18,9 +20,17 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
+  ready-to-merge-gate:
+    name: Ready-to-merge gate
+    uses: ./.github/workflows/ready-to-merge-workflow.yml
+    with:
+      is-pr: ${{ github.event_name == 'pull_request' }}
+      labels: ${{ toJson(github.event.pull_request.labels) }}
+
   files-changed:
     name: Detect File Changes
     runs-on: ubuntu-latest
+    needs: ready-to-merge-gate
     outputs:
       run_ui_tests_for_prs: ${{ steps.changes.outputs.run_ui_tests_for_prs }}
     steps:
@@ -35,97 +45,165 @@ jobs:
   ui-tests:
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_ui_tests_for_prs == 'true'
     needs: files-changed
-    name: Test ${{matrix.name}} V3 # Up the version with every change to keep track of flaky tests
-    uses: ./.github/workflows/ui-tests-common.yml
-    strategy:
-      matrix:
-        include:
-          - name: iOS Objective-C
-            target: ios_objc
-          - name: tvOS Swift
-            target: tvos_swift
-    with:
-      fastlane_command: ui_tests_${{matrix.target}}
-      xcode_version: 16.2
-      build_with_make: true
-      macos_version: macos-14
-      codecov_test_analytics: true
-    secrets:
-      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-
-  # SwiftUI only supports iOS 14+ so we run it in a separate matrix here
-  ui-tests-swift-ui:
-    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_ui_tests_for_prs == 'true'
-    needs: files-changed
-    name: Test SwiftUI V4 # Up the version with every change to keep track of flaky tests
-    uses: ./.github/workflows/ui-tests-common.yml
-    with:
-      fastlane_command: ui_tests_ios_swiftui
-      xcode_version: 16.4
-      build_with_make: true
-      macos_version: macos-15
-      codecov_test_analytics: true
-      device: iPhone 16 Pro
-      test-destination-os: "18.4"
-    secrets:
-      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-
-  ui-tests-swift:
-    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_ui_tests_for_prs == 'true'
-    needs: files-changed
-    name: Test Swift ${{matrix.name}} V5 # Up the version with every change to keep track of flaky tests
+    name: Test ${{matrix.name}} on ${{matrix.runner}} V3 # Up the version with every change to keep track of flaky tests
     uses: ./.github/workflows/ui-tests-common.yml
     strategy:
       fail-fast: false
       matrix:
+        runner:
+          - GitHub
+          - Cirrus Labs
+        job_id:
+          - ios_objc
+          - tvos_swift
         include:
-          - name: iOS 16
-            runs-on: macos-13
-            xcode: "14.3.1"
-            device: iPhone 14 Pro
-            test-destination-os: "16.4"
-          - name: iOS 17
-            runs-on: macos-14
+          - job_id: ios_objc
+            name: iOS Objective-C
+            target: ios_objc
+            test_destination_os: "18.6"
+            device: iPhone 16 Pro
+          - job_id: tvos_swift
+            name: tvOS Swift
+            target: tvos_swift
+            test_destination_os: "18.5"
+            device: "Apple TV"
+    with:
+      fastlane_command: ui_tests_${{matrix.target}}
+      xcode_version: 16.4
+      build_with_make: true
+      macos_version: ${{ matrix.runner == 'Cirrus Labs' && 'sequoia' || 'macos-15' }}
+      run_on_cirrus_labs: ${{ matrix.runner == 'Cirrus Labs' }}
+      codecov_test_analytics: true
+      test-destination-os: ${{matrix.test_destination_os}}
+      device: ${{matrix.device}}
+      files_suffix: _${{matrix.target}}_${{matrix.runner}}
+      # Github doesn't allow using matrix variables in if conditions, so we pass it to the common workflow and skip there.
+      # This lets us skip the job if it's a push to the main branch and the runner is Cirrus Labs.
+      should_skip: ${{ ( github.event_name != 'push' || github.ref != 'refs/heads/main' ) && matrix.runner == 'Cirrus Labs' }}
+    secrets:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+  ui-tests-swift-ui:
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_ui_tests_for_prs == 'true'
+    needs: files-changed
+    name: Test SwiftUI on ${{matrix.runner}} V4 # Up the version with every change to keep track of flaky tests
+    uses: ./.github/workflows/ui-tests-common.yml
+    with:
+      fastlane_command: ui_tests_ios_swiftui
+      build_with_make: true
+      codecov_test_analytics: true
+      xcode_version: 16.4
+      macos_version: ${{ matrix.runner == 'Cirrus Labs' && 'sequoia' || 'macos-15' }}
+      run_on_cirrus_labs: ${{ matrix.runner == 'Cirrus Labs' }}
+      test-destination-os: "18.6"
+      device: iPhone 16 Pro
+      files_suffix: _swiftui_-${{matrix.runner}}
+      # Github doesn't allow using matrix variables in if conditions, so we pass it to the common workflow and skip there.
+      # This lets us skip the job if it's a push to the main branch and the runner is Cirrus Labs.
+      should_skip: ${{ ( github.event_name != 'push' || github.ref != 'refs/heads/main' ) && matrix.runner == 'Cirrus Labs' }}
+    secrets:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+    strategy:
+      fail-fast: false
+      matrix:
+        runner:
+          - GitHub
+          - Cirrus Labs
+  ui-tests-swift:
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_ui_tests_for_prs == 'true'
+    needs: files-changed
+    name: Test Swift ${{matrix.name}} on ${{matrix.runner}} V5 # Up the version with every change to keep track of flaky tests
+    uses: ./.github/workflows/ui-tests-common.yml
+    strategy:
+      fail-fast: false
+      matrix:
+        runner:
+          - GitHub
+          - Cirrus Labs
+        job_id:
+          - ios_17
+          - ios_18
+          - ios_26
+        include:
+          # iOS 17 - Use iOS 17.5 runtime on macOS-15 with Xcode 16.4
+          - job_id: ios_17
+            name: iOS 17
+            runs_on: macos-14
+            runs_on_cirrus: sequoia
             xcode: "15.4"
-            device: iPhone 15 Pro
-            test-destination-os: "17.5"
-          - name: iOS 18
-            runs-on: macos-15
-            xcode: "16.4"
-            device: iPhone 16 Pro
-            test-destination-os: "18.4"
-          - name: iOS 26
-            runs-on: macos-15
+            xcode_cirrus: "16.4"
+            test_destination_os: "17.5"
             platform: "iOS"
-            xcode: "26.0.1"
+            install_platforms: false
+            create_device: true
+            device: iPhone 15 Pro
+
+          # iOS 18 - Use pre-installed iOS 18.4 runtime on macOS-15
+          - job_id: ios_18
+            name: iOS 18
+            runs_on: macos-15
+            runs_on_cirrus: sequoia
+            xcode: "16.4"
+            test_destination_os: "18.4"
+            platform: "iOS"
             device: iPhone 16 Pro
-            test-destination-os: "26.0"
+            install_platforms: false
+            create_device: false
+
+          # iOS 26 - Download iOS 26.1 beta runtime on macOS-26
+          - job_id: ios_26
+            name: iOS 26
+            runs_on: macos-26
+            runs_on_cirrus: tahoe
+            xcode: "26.1"
+            test_destination_os: "26.1"
+            install_platforms: true
+            platform: "iOS"
+            create_device: true
+            device: iPhone 17 Pro
     with:
       fastlane_command: ui_tests_ios_swift
-      files_suffix: _xcode_${{matrix.xcode}}-${{matrix.device}}
-      xcode_version: ${{matrix.xcode}}
+      files_suffix: _xcode_${{matrix.xcode}}-${{matrix.device}}-${{matrix.runner}}
       build_with_make: true
-      macos_version: ${{matrix.runs-on}}
-      platform: ${{matrix.platform}}
-      test-destination-os: ${{matrix.test-destination-os}}
-      device: ${{matrix.device}}
+      macos_version: ${{matrix.runner == 'Cirrus Labs' && matrix.runs_on_cirrus || matrix.runs_on}}
+      run_on_cirrus_labs: ${{ matrix.runner == 'Cirrus Labs' }}
       codecov_test_analytics: true
+      xcode_version: ${{ matrix.runner == 'Cirrus Labs' && matrix.xcode_cirrus || matrix.xcode}}
+      test-destination-os: ${{matrix.test_destination_os}}
+      install_platforms: ${{matrix.install_platforms}}
+      platform: ${{matrix.platform}}
+      create_device: ${{matrix.create_device}}
+      device: ${{matrix.device}}
+      # Github doesn't allow using matrix variables in if conditions, so we pass it to the common workflow and skip there.
+      # This lets us skip the job if it's a push to the main branch and the runner is Cirrus Labs.
+      should_skip: ${{ ( github.event_name != 'push' || github.ref != 'refs/heads/main' ) && matrix.runner == 'Cirrus Labs' }}
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   ui-tests-swift6:
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_ui_tests_for_prs == 'true'
     needs: files-changed
-    name: Test iOS Swift6 V3 # Up the version with every change to keep track of flaky tests
+    name: Test iOS Swift6 on ${{matrix.runner}} V3 # Up the version with every change to keep track of flaky tests
     uses: ./.github/workflows/ui-tests-common.yml
+    strategy:
+      fail-fast: false
+      matrix:
+        runner:
+          - GitHub
+          - Cirrus Labs
     with:
       fastlane_command: ui_tests_ios_swift6
       xcode_version: 16.4
       build_with_make: true
-      macos_version: macos-15
+      macos_version: ${{matrix.runner == 'Cirrus Labs' && 'sequoia' || 'macos-15'}}
+      run_on_cirrus_labs: ${{matrix.runner == 'Cirrus Labs'}}
       codecov_test_analytics: true
       device: iPhone 16 Pro
       test-destination-os: "18.4"
+      files_suffix: _swift6_-${{matrix.runner}}
+      # Github doesn't allow using matrix variables in if conditions, so we pass it to the common workflow and skip there.
+      # This lets us skip the job if it's a push to the main branch and the runner is Cirrus Labs.
+      should_skip: ${{ ( github.event_name != 'push' || github.ref != 'refs/heads/main' ) && matrix.runner == 'Cirrus Labs' }}
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
@@ -140,6 +218,7 @@ jobs:
         ui-tests-swift-ui,
         ui-tests-swift,
         ui-tests-swift6,
+        ready-to-merge-gate,
       ]
     name: UI Tests
     # This is necessary since a failed/skipped dependent job would cause this job to be skipped

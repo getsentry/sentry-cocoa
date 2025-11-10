@@ -3,7 +3,6 @@
 #if SENTRY_HAS_UIKIT
 #    import "SentryAttachment+Private.h"
 #    import "SentryCrashC.h"
-#    import "SentryDependencyContainer.h"
 #    import "SentryEvent+Private.h"
 #    import "SentryException.h"
 #    import "SentryHub+Private.h"
@@ -44,7 +43,7 @@ saveViewHierarchy(const char *reportDirectoryPath)
 
     self.options = options;
 
-    SentryClient *client = [SentrySDKInternal.currentHub getClient];
+    SentryClientInternal *client = [SentrySDKInternal.currentHub getClient];
     [client addAttachmentProcessor:self];
 
     sentrycrash_setSaveViewHierarchy(&saveViewHierarchy);
@@ -63,7 +62,7 @@ saveViewHierarchy(const char *reportDirectoryPath)
 {
     sentrycrash_setSaveViewHierarchy(NULL);
 
-    SentryClient *client = [SentrySDKInternal.currentHub getClient];
+    SentryClientInternal *client = [SentrySDKInternal.currentHub getClient];
     [client removeAttachmentProcessor:self];
 }
 

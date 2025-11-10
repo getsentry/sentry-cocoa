@@ -1,7 +1,6 @@
 #import "SentryHttpTransport.h"
 #import "SentryDataCategory.h"
 #import "SentryDataCategoryMapper.h"
-#import "SentryDependencyContainer.h"
 #import "SentryDiscardReasonMapper.h"
 #import "SentryDsn.h"
 #import "SentryEnvelopeItemHeader.h"
@@ -446,8 +445,11 @@
 - (void)recordLostSpans:(SentryEnvelopeItem *)envelopeItem reason:(SentryDiscardReason)reason
 {
     if ([SentryEnvelopeItemTypes.transaction isEqualToString:envelopeItem.header.type]) {
-        NSDictionary *_Nullable transactionJson =
-            [SentrySerialization deserializeDictionaryFromJsonData:envelopeItem.data];
+        if (envelopeItem.data == nil) {
+            return;
+        }
+        NSDictionary *_Nullable transactionJson = [SentrySerialization
+            deserializeDictionaryFromJsonData:SENTRY_UNWRAP_NULLABLE(NSData, envelopeItem.data)];
         if (transactionJson == nil) {
             return;
         }

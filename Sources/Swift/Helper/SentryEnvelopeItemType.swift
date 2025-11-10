@@ -5,9 +5,6 @@
 @_spi(Private) @objcMembers public final class SentryEnvelopeItemTypes: NSObject {
     public static let event = "event"
     public static let session = "session"
-    #if !SDK_V9
-    public static let userFeedback = "user_report"
-    #endif
     public static let feedback = "feedback"
     public static let transaction = "transaction"
     public static let attachment = "attachment"

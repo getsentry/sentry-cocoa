@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - main
+      - v8.x
 
   pull_request:
 
@@ -45,7 +46,7 @@ jobs:
         run: ./scripts/ci-select-xcode.sh 16.4
 
       - name: Setup Ruby
-        uses: ruby/setup-ruby@32110d4e311bd8996b2a82bf2a43b714ccc91777 # v1.221.0
+        uses: ruby/setup-ruby@d5126b9b3579e429dd52e51e68624dda2e05be25 # v1.267.0
         with:
           bundler-cache: true
 
@@ -54,7 +55,7 @@ jobs:
         working-directory: Samples/iOS-Cocoapods-Swift6
 
       - name: Upload Result Bundle
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         if: ${{ failure() }}
         with:
           name: integration-test-iOS-Cocoapods-Swift6.xcresult
@@ -69,11 +70,7 @@ jobs:
   # to make integration tests a required check with only running the integration tests when required.
   # So, we don't have to run integration tests, for example, for Changelog or ReadMe changes.
   integration_test-required-check:
-    needs:
-      [
-        files-changed,
-        test,
-      ]
+    needs: [files-changed, test]
     name: Integration Test
     # This is necessary since a failed/skipped dependent job would cause this job to be skipped
     if: always()

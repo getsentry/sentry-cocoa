@@ -5,6 +5,8 @@ import XCTest
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 
+class TestDelayedWrapper: SentryDelayedFramesTracker {}
+
 class SentryTimeToDisplayTrackerTest: XCTestCase {
 
     private class Fixture {
@@ -15,7 +17,7 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
 
         init() throws {
             framesTracker = SentryFramesTracker(displayLinkWrapper: displayLinkWrapper, dateProvider: dateProvider, dispatchQueueWrapper: dispatchQueue,
-                                                notificationCenter: TestNSNotificationCenterWrapper(), keepDelayedFramesDuration: 0)
+                                                notificationCenter: TestNSNotificationCenterWrapper(), delayedFramesTracker: TestDelayedWrapper(keepDelayedFramesDuration: 0, dateProvider: dateProvider))
             SentryDependencyContainer.sharedInstance().framesTracker = framesTracker
             framesTracker.start()
 
@@ -37,7 +39,7 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
                 dispatchQueueWrapper: dispatchQueue
             )
 
-            let hub = TestHub(client: SentryClient(options: options, fileManager: fileManager, deleteOldEnvelopeItems: false), andScope: nil)
+            let hub = TestHub(client: SentryClientInternal(options: options, fileManager: fileManager), andScope: nil)
             return SentryTracer(transactionContext: TransactionContext(operation: "ui.load"), hub: hub, configuration: SentryTracerConfiguration(block: {
                 $0.waitForChildren = true
             }))
@@ -82,7 +84,7 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
 
         XCTAssertTrue(sut.start(for: tracer))
         XCTAssertEqual(tracer.children.count, 1)
-        XCTAssertEqual(Dynamic(self.fixture.framesTracker).listeners.count, 1)
+        XCTAssertEqual(self.fixture.framesTracker.listenersCount, 1)
 
         let ttidSpan = try XCTUnwrap(tracer.children.first, "Expected a TTID span")
         XCTAssertEqual(ttidSpan.startTimestamp, fixture.dateProvider.date())
@@ -103,7 +105,7 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
 
         assertMeasurement(tracer: tracer, name: "time_to_initial_display", duration: 2_000)
 
-        XCTAssertEqual(Dynamic(self.fixture.framesTracker).listeners.count, 0)
+        XCTAssertEqual(self.fixture.framesTracker.listenersCount, 0)
     }
 
     func testReportInitialDisplay_waitForFullDisplay() throws {
@@ -134,7 +136,7 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
         XCTAssertNil(sut.fullDisplaySpan?.timestamp)
         XCTAssertNil(tracer.measurements["time_to_full_display"])
         
-        XCTAssertEqual(Dynamic(self.fixture.framesTracker).listeners.count, 1)
+        XCTAssertEqual(self.fixture.framesTracker.listenersCount, 1)
     }
 
     func testReportFullDisplay_notWaitingForFullDisplay() throws {
@@ -152,7 +154,7 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
         XCTAssertEqual(tracer.children.count, 1)
         XCTAssertNil(tracer.measurements["time_to_full_display"])
         
-        XCTAssertEqual(Dynamic(self.fixture.framesTracker).listeners.count, 0)
+        XCTAssertEqual(self.fixture.framesTracker.listenersCount, 0)
     }
     
     func testReportFullDisplay_waitingForFullDisplay() throws {
@@ -187,7 +189,7 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
         
         assertMeasurement(tracer: tracer, name: "time_to_full_display", duration: 3_000)
         
-        XCTAssertEqual(Dynamic(self.fixture.framesTracker).listeners.count, 0)
+        XCTAssertEqual(self.fixture.framesTracker.listenersCount, 0)
     }
     
     func testWaitingForFullDisplay_ReportFullDisplayBeforeInitialDisplay() throws {
@@ -228,7 +230,7 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
         XCTAssertEqual(fullDisplaySpan.status, .ok)
         assertMeasurement(tracer: tracer, name: "time_to_full_display", duration: 3_000)
         
-        XCTAssertEqual(Dynamic(self.fixture.framesTracker).listeners.count, 0)
+        XCTAssertEqual(self.fixture.framesTracker.listenersCount, 0)
     }
     
     func testTracerFinishesBeforeReportInitialDisplay_FinishesInitialDisplaySpan() throws {
@@ -239,7 +241,7 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
 
         sut.start(for: tracer)
         XCTAssertEqual(tracer.children.count, 1)
-        XCTAssertEqual(Dynamic(self.fixture.framesTracker).listeners.count, 1)
+        XCTAssertEqual(self.fixture.framesTracker.listenersCount, 1)
 
         let ttidSpan = try XCTUnwrap(tracer.children.first, "Expected a TTID span")
         XCTAssertEqual(ttidSpan.startTimestamp, fixture.dateProvider.date())
@@ -255,7 +257,7 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
 
         assertMeasurement(tracer: tracer, name: "time_to_initial_display", duration: 2_000)
 
-        XCTAssertEqual(Dynamic(self.fixture.framesTracker).listeners.count, 0)
+        XCTAssertEqual(self.fixture.framesTracker.listenersCount, 0)
     }
 
     func testCheckInitialTime() throws {
@@ -383,7 +385,7 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
         XCTAssertNil(sut.fullDisplaySpan)
         XCTAssertNil(tracer.measurements["time_to_full_display"])
         
-        XCTAssertEqual(Dynamic(self.fixture.framesTracker).listeners.count, 0)
+        XCTAssertEqual(self.fixture.framesTracker.listenersCount, 0)
     }
     
     func testTracerWithAppStartData_waitingForFullDisplay() throws {
@@ -418,7 +420,7 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
         XCTAssertEqual(sut.fullDisplaySpan?.timestamp, Date(timeIntervalSince1970: 9))
         assertMeasurement(tracer: tracer, name: "time_to_full_display", duration: 3_000)
         
-        XCTAssertEqual(Dynamic(self.fixture.framesTracker).listeners.count, 0)
+        XCTAssertEqual(self.fixture.framesTracker.listenersCount, 0)
     }
     
     func testFinish_WithoutCallingReportFullyDisplayed() throws {
@@ -453,7 +455,7 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
         
         assertMeasurement(tracer: tracer, name: "time_to_full_display", duration: 1_000)
         
-        XCTAssertEqual(Dynamic(self.fixture.framesTracker).listeners.count, 0)
+        XCTAssertEqual(self.fixture.framesTracker.listenersCount, 0)
     }
     
     func testFinish_WithoutTTID() throws {
@@ -489,7 +491,7 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
         XCTAssertEqual(fullDisplaySpan.origin, SentryTraceOriginManualUITimeToDisplay)
         assertMeasurement(tracer: tracer, name: "time_to_full_display", duration: 1_000)
         
-        XCTAssertEqual(Dynamic(self.fixture.framesTracker).listeners.count, 0)
+        XCTAssertEqual(self.fixture.framesTracker.listenersCount, 0)
     }
     
     func testFinishSpansIfNotFinished_FullyDisplayedRecorded_ButNoNewFrame() throws {
@@ -551,7 +553,7 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
         sut.finishSpansIfNotFinished()
 
         // Assert
-        XCTAssertEqual(Dynamic(self.fixture.framesTracker).listeners.count, 0, "Frames tracker listener should be removed")
+        XCTAssertEqual(self.fixture.framesTracker.listenersCount, 0, "Frames tracker listener should be removed")
     }
     
     func testFinishSpansIfNotFinished_RemovesFramesTrackerListener() throws {
@@ -569,7 +571,7 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
         sut.finishSpansIfNotFinished()
         
         // Assert
-        XCTAssertEqual(Dynamic(self.fixture.framesTracker).listeners.count, 0, "Frames tracker listener should be removed")
+        XCTAssertEqual(self.fixture.framesTracker.listenersCount, 0, "Frames tracker listener should be removed")
     }
 
     private func assertMeasurement(tracer: SentryTracer, name: String, duration: TimeInterval) {

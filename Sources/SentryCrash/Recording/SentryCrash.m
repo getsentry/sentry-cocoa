@@ -37,7 +37,6 @@
 #import "SentryCrashReportFields.h"
 #import "SentryCrashReportStore.h"
 #import "SentryDefines.h"
-#import "SentryDependencyContainer.h"
 #import "SentryInternalCDefines.h"
 #import "SentrySwift.h"
 #import <SentryNSDataUtils.h>

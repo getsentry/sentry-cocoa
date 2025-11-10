@@ -68,7 +68,6 @@ class SentryEnvelopeTests: XCTestCase {
                                                packages: [],
                                                settings: defaultSdkSettings)
 
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testSentryEnvelopeFromEvent() throws {
         let event = Event()
         
@@ -84,7 +83,6 @@ class SentryEnvelopeTests: XCTestCase {
         assertJsonIsEqual(actual: json, expected: try XCTUnwrap(XCTUnwrap(envelope.items.first).data))
     }
     
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testSentryEnvelopeWithExplicitInitMessages() {
         let attachment = "{}"
         let data = attachment.data(using: .utf8)!
@@ -104,7 +102,6 @@ class SentryEnvelopeTests: XCTestCase {
         XCTAssertEqual(data, try XCTUnwrap(envelope.items.first).data)
     }
     
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testSentryEnvelopeWithExplicitInitMessagesMultipleItems() {
         var items: [SentryEnvelopeItem] = []
         let itemCount = 3
@@ -130,7 +127,6 @@ class SentryEnvelopeTests: XCTestCase {
         }
     }
     
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testInitSentryEnvelopeHeader_DefaultSdkInfoIsSet() {
         XCTAssertEqual(defaultSdkInfo, SentryEnvelopeHeader(id: nil).sdkInfo)
     }
@@ -142,7 +138,6 @@ class SentryEnvelopeTests: XCTestCase {
         XCTAssertNil(allNil.traceContext)
     }
     
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testInitSentryEnvelopeHeader_IdAndTraceStateNil() {
         let allNil = SentryEnvelopeHeader(id: nil, traceContext: nil)
         XCTAssertNil(allNil.eventId)
@@ -159,24 +154,21 @@ class SentryEnvelopeTests: XCTestCase {
         XCTAssertEqual(sdkInfo, envelopeHeader.sdkInfo)
     }
     
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testInitSentryEnvelopeHeader_SetIdAndTraceState() {
         let eventId = SentryId()
-        let traceContext = TraceContext(trace: SentryId(), publicKey: "publicKey", releaseName: "releaseName", environment: "environment", transaction: "transaction", userSegment: nil, sampleRate: nil, sampled: nil, replayId: nil)
+        let traceContext = TraceContext(trace: SentryId(), publicKey: "publicKey", releaseName: "releaseName", environment: "environment", transaction: "transaction", sampleRate: nil, sampled: nil, replayId: nil)
         
         let envelopeHeader = SentryEnvelopeHeader(id: eventId, traceContext: traceContext)
         XCTAssertEqual(eventId, envelopeHeader.eventId)
         XCTAssertEqual(traceContext, envelopeHeader.traceContext)
     }
     
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testInitSentryEnvelopeWithSession_DefaultSdkInfoIsSet() {
         let envelope = SentryEnvelope(session: SentrySession(releaseName: "1.1.1", distinctId: "some-id"))
         
         XCTAssertEqual(defaultSdkInfo, envelope.header.sdkInfo)
     }
 
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testInitWithEvent() throws {
         let event = fixture.event
         let envelope = SentryEnvelope(event: event)
@@ -190,7 +182,6 @@ class SentryEnvelopeTests: XCTestCase {
         XCTAssertEqual(expected, actual)
     }
 
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testInitWithEvent_SerializationFails_SendsEventWithSerializationFailure() {
         let event = fixture.eventWithContinousSerializationFailure
         let envelope = SentryEnvelope(event: event)
@@ -226,7 +217,6 @@ class SentryEnvelopeTests: XCTestCase {
         XCTAssertEqual(attachment.contentType, envelopeItem.header.contentType)
     }
     
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testEmptyHeader() {
         let sut = SentryEnvelopeHeader.empty()
         XCTAssertNil(sut.eventId)

@@ -9,7 +9,6 @@
 #    import <Foundation/Foundation.h>
 #    import <SentryAttachment.h>
 #    import <SentryDebugMeta.h>
-#    import <SentryDependencyContainer.h>
 #    import <SentryEvent.h>
 #    import <SentryException.h>
 #    import <SentryFormatter.h>
@@ -68,8 +67,7 @@ NS_ASSUME_NONNULL_BEGIN
     self.measurementFormatter = [[NSMeasurementFormatter alloc] init];
     self.measurementFormatter.locale = [[NSLocale alloc] initWithLocaleIdentifier:@"en_US"];
     self.measurementFormatter.unitOptions = NSMeasurementFormatterUnitOptionsProvidedUnit;
-    self.inAppLogic = [[SentryInAppLogic alloc] initWithInAppIncludes:options.inAppIncludes
-                                                        inAppExcludes:options.inAppExcludes];
+    self.inAppLogic = [[SentryInAppLogic alloc] initWithInAppIncludes:options.inAppIncludes];
     self.attachDiagnosticAsAttachment = options.enableMetricKitRawPayload;
 
     return YES;
@@ -318,7 +316,7 @@ NS_ASSUME_NONNULL_BEGIN
             SentryMXFrame *parentFrame = addressesToParentFrames[@(currentFrame.address)];
 
             SentryMXFrame *firstUnprocessedSibling =
-                [self getFirstUnprocessedSubFrames:parentFrame.subFrames
+                [self getFirstUnprocessedSubFrames:parentFrame.subFrames ?: @[]
                            processedFrameAddresses:processedFrameAddresses];
 
             BOOL lastUnprocessedSibling = firstUnprocessedSibling == nil;
@@ -340,7 +338,7 @@ NS_ASSUME_NONNULL_BEGIN
                 }
             } else {
                 SentryMXFrame *nonProcessedSubFrame =
-                    [self getFirstUnprocessedSubFrames:currentFrame.subFrames
+                    [self getFirstUnprocessedSubFrames:currentFrame.subFrames ?: @[]
                                processedFrameAddresses:processedFrameAddresses];
 
                 // Keep adding sub frames
@@ -481,7 +479,10 @@ NS_ASSUME_NONNULL_BEGIN
             [self extractDebugMetaFromMXFrames:callStack.flattenedRootFrames];
 
         for (SentryDebugMeta *debugMeta in callStackDebugMetas) {
-            debugMetas[debugMeta.debugID] = debugMeta;
+            if (debugMeta.debugID != nil) {
+                debugMetas[SENTRY_UNWRAP_NULLABLE_VALUE(id<NSCopying>, debugMeta.debugID)]
+                    = debugMeta;
+            }
         }
     }
 

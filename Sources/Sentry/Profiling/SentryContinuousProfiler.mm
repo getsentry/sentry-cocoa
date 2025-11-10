@@ -2,7 +2,7 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
-#    import "SentryDependencyContainer.h"
+#    import "SentryDependencyContainerSwiftHelper.h"
 #    import "SentryInternalDefines.h"
 #    import "SentryLogC.h"
 #    import "SentryMetricProfiler.h"
@@ -16,11 +16,13 @@
 #    include <mutex>
 
 #    if SENTRY_HAS_UIKIT
-#        import "SentryFramesTracker.h"
 #        import <UIKit/UIKit.h>
 #    endif // SENTRY_HAS_UIKIT
 
 #    pragma mark - Private
+
+NSString *const kSentryNotificationContinuousProfileStarted
+    = @"io.sentry.notification.continuous-profile-started";
 
 NSTimeInterval kSentryProfilerChunkExpirationInterval = 60;
 
@@ -71,10 +73,9 @@ _sentry_threadUnsafe_transmitChunkEnvelope(void)
     [profiler.metricProfiler clear];
 
 #    if SENTRY_HAS_UIKIT
-    const auto framesTracker = SentryDependencyContainer.sharedInstance.framesTracker;
     SentryScreenFrames *screenFrameData =
-        [SentryProfilingScreenFramesHelper copyScreenFrames:framesTracker.currentFrames];
-    [framesTracker resetProfilingTimestamps];
+        [SentryProfilingScreenFramesHelper copyScreenFrames:sentry_framesTrackerGetCurrentFrames()];
+    sentry_framesTrackerResetProfilingTimestamps();
 #    endif // SENTRY_HAS_UIKIT
 
     // Capture profiler ID on main thread since we need it for the background work
@@ -82,7 +83,7 @@ _sentry_threadUnsafe_transmitChunkEnvelope(void)
 
     // Move the serialization work to a background queue to avoid potentially
     // blocking the main thread. The serialization can take several milliseconds.
-    sentry_dispatchAsync(SentryDependencyContainer.sharedInstance.dispatchQueueWrapper, ^{
+    sentry_dispatchAsync(SentryDependencyContainerSwiftHelper.dispatchQueueWrapper, ^{
         NSDictionary *_Nonnull serializedMetrics
             = serializeContinuousProfileMetrics(metricProfilerState);
         SentryEnvelope *_Nullable envelope
@@ -198,7 +199,7 @@ _sentry_unsafe_stopTimerAndCleanup()
 + (void)scheduleTimer
 {
     sentry_dispatchAsyncOnMainIfNotMainThread(
-        SentryDependencyContainer.sharedInstance.dispatchQueueWrapper, ^{
+        SentryDependencyContainerSwiftHelper.dispatchQueueWrapper, ^{
             std::lock_guard<std::mutex> l(_threadUnsafe_gContinuousProfilerLock);
             if (_chunkTimer != nil) {
                 SENTRY_LOG_WARN(

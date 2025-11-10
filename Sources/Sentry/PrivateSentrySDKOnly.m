@@ -2,9 +2,6 @@
 #import "SentryAppStartMeasurement.h"
 #import "SentryBreadcrumb+Private.h"
 #import "SentryClient.h"
-#import "SentryDebugImageProvider+HybridSDKs.h"
-#import "SentryDebugImageProvider.h"
-#import "SentryExtraContextProvider.h"
 #import "SentryHub+Private.h"
 #import "SentryInstallation.h"
 #import "SentryInternalDefines.h"
@@ -18,8 +15,6 @@
 #import "SentrySwift.h"
 #import "SentryUser+Private.h"
 #import <SentryBreadcrumb.h>
-#import <SentryDependencyContainer.h>
-#import <SentryFramesTracker.h>
 #import <SentryScope+Private.h>
 #import <SentryUser.h>
 
@@ -51,23 +46,6 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 {
     return [SentrySerializationSwift envelopeWithData:data];
 }
-
-#if !SDK_V9
-+ (NSArray<SentryDebugMeta *> *)getDebugImages
-{
-    // maintains previous behavior for the same method call by also trying to gather crash info
-    return [self getDebugImagesCrashed:YES];
-}
-
-+ (NSArray<SentryDebugMeta *> *)getDebugImagesCrashed:(BOOL)isCrash
-{
-#    pragma clang diagnostic push
-#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    return [[SentryDependencyContainer sharedInstance].debugImageProvider
-        getDebugImagesCrashed:isCrash];
-#    pragma clang diagnostic pop
-}
-#endif // !SDK_V9
 
 + (nullable SentryAppStartMeasurement *)appStartMeasurement
 {
@@ -283,9 +261,12 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 #if SENTRY_TARGET_REPLAY_SUPPORTED
     // As the options are not passed in by the hybrid SDK, we need to use the options from the
     // current hub.
-    SentryScreenshotSource *_Nonnull screenshotSource
+    SentryScreenshotSource *_Nullable screenshotSource
         = SentryDependencyContainer.sharedInstance.screenshotSource;
-    return [screenshotSource appScreenshotsData];
+    if (!screenshotSource) {
+        return nil;
+    }
+    return [SENTRY_UNWRAP_NULLABLE(SentryScreenshotSource, screenshotSource) appScreenshotsData];
 #else
     SENTRY_LOG_DEBUG(
         @"PrivateSentrySDKOnly.captureScreenshots only works with UIKit enabled. Ensure you're "
@@ -305,7 +286,13 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 + (NSData *)captureViewHierarchy
 {
 #if SENTRY_HAS_UIKIT
-    return [SentryDependencyContainer.sharedInstance.viewHierarchyProvider appViewHierarchy];
+    SentryViewHierarchyProvider *_Nullable viewHierarchyProvider
+        = SentryDependencyContainer.sharedInstance.viewHierarchyProvider;
+    if (!viewHierarchyProvider) {
+        return nil;
+    }
+    return [SENTRY_UNWRAP_NULLABLE(SentryViewHierarchyProvider, viewHierarchyProvider)
+        appViewHierarchy];
 #else
     SENTRY_LOG_DEBUG(
         @"PrivateSentrySDKOnly.captureViewHierarchy only works with UIKit enabled. Ensure you're "

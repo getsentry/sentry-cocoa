@@ -7,6 +7,7 @@
 @class SentryEnvelopeItem;
 @class SentryId;
 @class SentryReplayEvent;
+@class SentryFileManager;
 @class SentryReplayRecording;
 @class SentrySession;
 @class SentryDefaultThreadInspector;
@@ -20,7 +21,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-@interface SentryClient ()
+@interface SentryClientInternal ()
 
 @property (nonatomic, strong)
     NSMutableArray<id<SentryClientAttachmentProcessor>> *attachmentProcessors;

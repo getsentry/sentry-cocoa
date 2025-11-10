@@ -152,20 +152,6 @@ typedef NSNumber *_Nullable (^SentryTracesSamplerCallback)(
 typedef NS_ENUM(NSUInteger,
     SentryLevel); // This is a forward declaration, the actual enum is implemented in Swift.
 
-/**
- * Static internal helper to convert enum to string.
- */
-static DEPRECATED_MSG_ATTRIBUTE(
-    "Use nameForSentryLevel() instead.") NSString *_Nonnull const SentryLevelNames[]
-    = {
-          @"none",
-          @"debug",
-          @"info",
-          @"warning",
-          @"error",
-          @"fatal",
-      };
-
 static NSUInteger const defaultMaxBreadcrumbs = 100;
 
 static NSString *_Nonnull const kSentryTrueString = @"true";

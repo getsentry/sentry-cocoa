@@ -2,7 +2,6 @@
 import XCTest
 
 #if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
-@available(*, deprecated, message: "App launch profiling is deprecated in favor of continuous profiling.")
 final class SentryAppLaunchProfilingTests: XCTestCase {
     private var fixture: SentryProfileTestFixture!
 
@@ -18,12 +17,10 @@ final class SentryAppLaunchProfilingTests: XCTestCase {
 }
 
 // MARK: continuous profiling v2
-@available(*, deprecated, message: "This is only deprecated because SentryAppLaunchProfilingTests is deprecated. Once trace based and continuous profiling v1 is removed this deprecation can be removed.")
 extension SentryAppLaunchProfilingTests {
     func testContinuousLaunchProfileV2TraceLifecycleConfiguration() throws {
         // Arrange
         let options = Options()
-        options.profilesSampleRate = nil
         options.tracesSampleRate = 1
         options.configureProfiling = {
             $0.lifecycle = .trace
@@ -40,7 +37,6 @@ extension SentryAppLaunchProfilingTests {
         // Assert
         XCTAssert(appLaunchProfileConfigFileExists())
         let dict = try XCTUnwrap(sentry_persistedLaunchProfileConfigurationOptions())
-        XCTAssertEqual(try XCTUnwrap(dict[kSentryLaunchProfileConfigKeyContinuousProfilingV2]), true)
         XCTAssertEqual(try XCTUnwrap(dict[kSentryLaunchProfileConfigKeyProfilesSampleRate]), 1)
         XCTAssertEqual(try XCTUnwrap(dict[kSentryLaunchProfileConfigKeyProfilesSampleRand]), 0.5)
         XCTAssertEqual(try XCTUnwrap(dict[kSentryLaunchProfileConfigKeyTracesSampleRate]), 1)
@@ -57,7 +53,6 @@ extension SentryAppLaunchProfilingTests {
     func testContinuousLaunchProfileV2ManualLifecycleConfiguration() throws {
         // Arrange
         let options = Options()
-        options.profilesSampleRate = nil
         options.configureProfiling = {
             $0.lifecycle = .manual
             $0.sessionSampleRate = 1
@@ -73,7 +68,6 @@ extension SentryAppLaunchProfilingTests {
         // Assert
         XCTAssert(appLaunchProfileConfigFileExists())
         let dict = try XCTUnwrap(sentry_persistedLaunchProfileConfigurationOptions())
-        XCTAssertEqual(try XCTUnwrap(dict[kSentryLaunchProfileConfigKeyContinuousProfilingV2]), true)
         XCTAssertEqual(try XCTUnwrap(dict[kSentryLaunchProfileConfigKeyProfilesSampleRate]), 1)
         XCTAssertEqual(try XCTUnwrap(dict[kSentryLaunchProfileConfigKeyProfilesSampleRand]), 0.5)
         XCTAssertNil(dict[kSentryLaunchProfileConfigKeyTracesSampleRate])
@@ -90,12 +84,10 @@ extension SentryAppLaunchProfilingTests {
 
 // MARK: continuous profiling v2 (iOS-only)
 #if !os(macOS)
-@available(*, deprecated, message: "This is only deprecated because SentryAppLaunchProfilingTests is deprecated. Once trace based and continuous profiling v1 is removed this deprecation can be removed.")
 extension SentryAppLaunchProfilingTests {
     func testLaunchContinuousProfileV2TraceLifecycleNotStoppedOnFullyDisplayed() throws {
         // Arrange
         fixture.options.tracesSampleRate = 1
-        fixture.options.profilesSampleRate = nil
         fixture.options.configureProfiling = {
             $0.profileAppStarts = true
             $0.sessionSampleRate = 1
@@ -127,7 +119,6 @@ extension SentryAppLaunchProfilingTests {
 
     func testLaunchContinuousProfileV2ManualLifecycleNotStoppedOnFullyDisplayed() throws {
         // Arrange
-        fixture.options.profilesSampleRate = nil
         fixture.options.configureProfiling = {
             $0.profileAppStarts = true
             $0.sessionSampleRate = 1
@@ -160,7 +151,6 @@ extension SentryAppLaunchProfilingTests {
     func testLaunchContinuousProfileV2TraceLifecycleNotStoppedOnInitialDisplayWithoutWaitingForFullDisplay() throws {
         // Arrange
         fixture.options.tracesSampleRate = 1
-        fixture.options.profilesSampleRate = nil
         fixture.options.configureProfiling = {
             $0.profileAppStarts = true
             $0.sessionSampleRate = 1
@@ -191,7 +181,6 @@ extension SentryAppLaunchProfilingTests {
 
     func testLaunchContinuousProfileV2ManualLifecycleNotStoppedOnInitialDisplayWithoutWaitingForFullDisplay() throws {
         // Arrange
-        fixture.options.profilesSampleRate = nil
         fixture.options.configureProfiling = {
             $0.profileAppStarts = true
             $0.sessionSampleRate = 1

@@ -7,7 +7,7 @@
         internalHelper = SentryDefaultThreadInspector(options: SentrySDKInternal.options)
     }
 
-    @objc public init(options: Options) {
+    init(options: Options) {
         internalHelper = SentryDefaultThreadInspector(options: options)
     }
 
@@ -17,6 +17,10 @@
     
     @objc public func getCurrentThreadsWithStackTrace() -> [SentryThread] {
         internalHelper.getCurrentThreadsWithStackTrace()
+    }
+    
+    @objc public func getCurrentThreads() -> [SentryThread] {
+        internalHelper.getCurrentThreads()
     }
     
     @objc public func getThreadName(_ thread: UInt) -> String? {

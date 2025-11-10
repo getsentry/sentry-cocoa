@@ -5,8 +5,10 @@ on:
   push:
     branches:
       - main
+      - v8.x
 
   pull_request:
+    types: [opened, synchronize, reopened, labeled]
 
   workflow_dispatch:
     inputs:
@@ -32,9 +34,17 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
+  ready-to-merge-gate:
+    name: Ready-to-merge gate
+    uses: ./.github/workflows/ready-to-merge-workflow.yml
+    with:
+      is-pr: ${{ github.event_name == 'pull_request' }}
+      labels: ${{ toJson(github.event.pull_request.labels) }}
+
   files-changed:
     name: Detect File Changes
     runs-on: ubuntu-latest
+    needs: ready-to-merge-gate
     outputs:
       run_release_for_prs: ${{ steps.changes.outputs.run_release_for_prs }}
     steps:
@@ -105,21 +115,21 @@ jobs:
 
   validate-xcframework:
     name: Validate XCFramework
-    runs-on: macos-14
+    runs-on: macos-15
     needs: [files-changed, assemble-xcframework-variant]
     # Run the job only for PRs with related changes or non-PR events.
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
     steps:
       - uses: actions/checkout@v5
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v6
         with:
           pattern: xcframework-${{github.sha}}-sentry-static
           path: Carthage/
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v6
         with:
           pattern: xcframework-${{github.sha}}-sentry-swiftui
           path: Carthage/
-      - run: ./scripts/ci-select-xcode.sh 15.4
+      - run: ./scripts/ci-select-xcode.sh 16.4
       - run: make build-xcframework-sample
       - name: Run CI Diagnostics
         if: failure()
@@ -130,20 +140,24 @@ jobs:
   # See https://github.community/t/github-sha-isnt-the-value-expected/17903/17906.
   validate-spm:
     name: Validate SPM Static
-    runs-on: macos-14
+    runs-on: macos-15
     needs: [files-changed, assemble-xcframework-variant]
     # Run the job only for PRs with related changes or non-PR events.
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
     steps:
       - uses: actions/checkout@v5
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v6
         with:
           pattern: xcframework-${{github.sha}}-*
           merge-multiple: true
       - name: Prepare Package.swift
-        uses: ./.github/actions/prepare-package.swift
-        with:
-          is-pr: ${{ github.event_name == 'pull_request' }}
+        shell: bash
+        run: |
+          ./scripts/prepare-package.sh \
+            --package-file Package.swift \
+            --is-pr "${{ github.event_name == 'pull_request' }}" \
+            --change-path true
+      - run: ./scripts/ci-select-xcode.sh 16.4
       - run: swift build
         working-directory: Samples/macOS-SPM-CommandLine
       - name: Run CI Diagnostics
@@ -152,20 +166,24 @@ jobs:
 
   validate-spm-dynamic:
     name: Validate SPM Dynamic
-    runs-on: macos-14
+    runs-on: macos-15
     needs: [files-changed, assemble-xcframework-variant]
     # Run the job only for PRs with related changes or non-PR events.
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
     steps:
       - uses: actions/checkout@v5
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v6
         with:
           pattern: xcframework-${{github.sha}}-*
           merge-multiple: true
       - name: Prepare Package.swift
-        uses: ./.github/actions/prepare-package.swift
-        with:
-          is-pr: ${{ github.event_name == 'pull_request' }}
+        shell: bash
+        run: |
+          ./scripts/prepare-package.sh \
+            --package-file Package.swift \
+            --is-pr "${{ github.event_name == 'pull_request' }}" \
+            --change-path true
+      - run: ./scripts/ci-select-xcode.sh 16.4
       - run: swift build
         working-directory: Samples/SPM-Dynamic
       - name: Run CI Diagnostics
@@ -174,20 +192,24 @@ jobs:
 
   swift-build:
     name: Build Swift Static
-    runs-on: macos-14
+    runs-on: macos-15
     needs: [files-changed, assemble-xcframework-variant]
     # Run the job only for PRs with related changes or non-PR events.
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
     steps:
       - uses: actions/checkout@v5
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v6
         with:
           pattern: xcframework-${{github.sha}}-*
           merge-multiple: true
       - name: Prepare Package.swift
-        uses: ./.github/actions/prepare-package.swift
-        with:
-          is-pr: ${{ github.event_name == 'pull_request' }}
+        shell: bash
+        run: |
+          ./scripts/prepare-package.sh \
+            --package-file Package.swift \
+            --is-pr "${{ github.event_name == 'pull_request' }}" \
+            --change-path true
+      - run: ./scripts/ci-select-xcode.sh 16.4
       - run: swift build
       - name: Run CI Diagnostics
         if: failure()
@@ -195,20 +217,24 @@ jobs:
 
   validate-spm-visionos:
     name: Validate SPM Static visionOS
-    runs-on: macos-14
+    runs-on: macos-15
     needs: [files-changed, assemble-xcframework-variant]
     # Run the job only for PRs with related changes or non-PR events.
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
     steps:
       - uses: actions/checkout@v5
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v6
         with:
           pattern: xcframework-${{github.sha}}-*
           merge-multiple: true
       - name: Prepare Package.swift
-        uses: ./.github/actions/prepare-package.swift
-        with:
-          is-pr: ${{ github.event_name == 'pull_request' }}
+        shell: bash
+        run: |
+          ./scripts/prepare-package.sh \
+            --package-file Package.swift \
+            --is-pr "${{ github.event_name == 'pull_request' }}" \
+            --change-path true
+      - run: ./scripts/ci-select-xcode.sh 16.4
       - run: set -o pipefail &&xcodebuild build -scheme visionOS-SPM -sdk xros -destination 'generic/platform=xros' | tee raw-build-output-spm-visionOS.log | xcbeautify
         working-directory: Samples/visionOS-SPM
       - name: Run CI Diagnostics
@@ -240,7 +266,8 @@ jobs:
       - name: Git checkout
         uses: actions/checkout@v5
       - run: ./scripts/ci-select-xcode.sh 16.4
-      - uses: ruby/setup-ruby@v1
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@d5126b9b3579e429dd52e51e68624dda2e05be25 # v1.267.0
         with:
           bundler-cache: true
       - uses: actions/cache@v4
@@ -259,7 +286,7 @@ jobs:
           MATCH_GIT_PRIVATE_KEY: ${{ secrets.MATCH_GIT_PRIVATE_KEY }}
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v6
         with:
           pattern: xcframework-${{github.sha}}-sentry-dynamic
           path: Carthage/
@@ -287,15 +314,16 @@ jobs:
   job_release:
     runs-on: ubuntu-latest
     name: "Release New Version"
-    needs: [
-      files-changed,
-      validate-xcframework,
-      validate-spm,
-      validate-spm-dynamic,
-      swift-build,
-      duplication-tests,
-      app-metrics,
-    ]
+    needs:
+      [
+        files-changed,
+        validate-xcframework,
+        validate-spm,
+        validate-spm-dynamic,
+        swift-build,
+        duplication-tests,
+        app-metrics,
+      ]
     if: ${{ github.event_name == 'workflow_dispatch' }}
     steps:
       - name: Get auth token
@@ -310,14 +338,14 @@ jobs:
           token: ${{ steps.token.outputs.token }}
           fetch-depth: 0
 
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v6
         with:
           pattern: xcframework-${{github.sha}}-*
           merge-multiple: true
           path: Carthage/
 
       - name: Archive XCFrameworks for Craft
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: xcframeworks.zip
           if-no-files-found: error
@@ -356,6 +384,7 @@ jobs:
         swift-build,
         duplication-tests,
         app-metrics,
+        ready-to-merge-gate,
       ]
     name: Release
     # This is necessary since a failed/skipped dependent job would cause this job to be skipped
