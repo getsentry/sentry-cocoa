@@ -83,6 +83,11 @@ jobs:
         if: ${{ inputs.install_platforms }}
         run: ./scripts/ci-install-platforms.sh --platforms "${{ inputs.platform }}" --os-version "${{ inputs.test-destination-os }}"
 
+      - name: Install Rosetta
+        run: |
+          xcrun simctl list runtimes -v
+          softwareupdate --install-rosetta --agree-to-license
+
       - name: Ensure simctl dyld shared cache is updated
         # Xcode 15.x doesn't support this command, so we skip it for that version.
         if: ${{ !contains(inputs.xcode, '15.') }}
@@ -90,9 +95,6 @@ jobs:
           xcrun simctl runtime dyld_shared_cache update --all
           xcrun simctl list runtimes -v
           xcrun simctl list devices
-
-      - name: Install Rosetta
-        run: softwareupdate --install-rosetta --agree-to-license
 
       # Create simulator devices for non-preinstalled simulators
       # Required for iOS 16.4, iOS 17.5 (on Xcode 15.4), and iOS/tvOS 26.1
