@@ -1,8 +1,6 @@
 import SentrySampleShared
 import UIKit
 
-import Logging
-
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
     private var randomDistributionTimer: Timer?
