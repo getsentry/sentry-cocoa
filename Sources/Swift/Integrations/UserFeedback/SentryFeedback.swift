@@ -83,19 +83,7 @@ extension SentryFeedback {
             dict["email"] = email
         }
         if let attachments = attachments {
-            dict["attachments"] = attachments.map { attachment -> [String: Any] in
-                var attDict: [String: Any] = ["filename": attachment.filename]
-                if let data = attachment.data {
-                    attDict["data"] = data
-                }
-                if let path = attachment.path {
-                    attDict["path"] = path
-                }
-                if let contentType = attachment.contentType {
-                    attDict["contentType"] = contentType
-                }
-                return attDict
-            }
+            dict["attachments"] = attachments.map { $0.dataDictionary() }
         }
         return dict
     }
@@ -105,5 +93,22 @@ extension SentryFeedback {
      */
     @_spi(Private) public func attachmentsForEnvelope() -> [Attachment] {
         return attachments ?? []
+    }
+}
+
+// MARK: Attachment Serialization
+extension Attachment {
+    func dataDictionary() -> [String: Any] {
+        var attDict: [String: Any] = ["filename": filename]
+        if let data = data {
+            attDict["data"] = data
+        }
+        if let path = path {
+            attDict["path"] = path
+        }
+        if let contentType = contentType {
+            attDict["contentType"] = contentType
+        }
+        return attDict
     }
 }
