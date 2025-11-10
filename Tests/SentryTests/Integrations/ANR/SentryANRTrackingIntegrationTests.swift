@@ -24,6 +24,7 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
     
     private var fixture: Fixture!
     private var sut: SentryANRTrackingIntegration!
+    private var originalExtensionDetector: SentryExtensionDetector!
     
     override var options: Options {
         self.fixture.options
@@ -32,6 +33,9 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
     override func setUp() {
         super.setUp()
         fixture = Fixture()
+        
+        // Store original extensionDetector to restore in tearDown
+        originalExtensionDetector = Dependencies.extensionDetector
 
         SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
         SentryDependencyContainer.sharedInstance().debugImageProvider = fixture.debugImageProvider
@@ -39,6 +43,12 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
     
     override func tearDown() {
         sut?.uninstall()
+        
+        // Restore original extensionDetector to prevent test pollution
+        if let originalExtensionDetector = originalExtensionDetector {
+            Dependencies.extensionDetector = originalExtensionDetector
+        }
+        
         clearTestState()
         super.tearDown()
     }
