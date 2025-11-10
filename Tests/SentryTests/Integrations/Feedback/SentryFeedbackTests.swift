@@ -30,7 +30,7 @@ class SentryFeedbackTests: XCTestCase {
     }
     
     func testSerializeWithAllFields() throws {
-        let attachment = Attachment(data: Data(), filename: "screenshot.png.png", contentType: "image/png")
+        let attachment = Attachment(data: Data(), filename: "screenshot.png", contentType: "image/png")
         let sut = SentryFeedback(message: "Test feedback message", name: "Test feedback provider", email: "test-feedback-provider@sentry.io", attachments: [attachment])
 
         let serialization = sut.serialize()
