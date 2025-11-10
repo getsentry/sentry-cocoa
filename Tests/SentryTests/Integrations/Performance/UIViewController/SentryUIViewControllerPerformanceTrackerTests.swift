@@ -38,10 +38,9 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         var viewControllerName: String!
 
         var inAppLogic: SentryInAppLogic {
-            return SentryInAppLogic(inAppIncludes: options.inAppIncludes, inAppExcludes: [])
+            return SentryInAppLogic(inAppIncludes: options.inAppIncludes)
         }
         
-        @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
         init() {
             options = Options.noIntegrations()
             let imageName = String(
@@ -68,7 +67,6 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
     
     private var fixture: Fixture!
     
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     override func setUp() {
         super.setUp()
         fixture = Fixture()

@@ -505,38 +505,6 @@
     XCTAssertNil(options.onCrashedLastRun);
 }
 
-- (void)testIntegrations
-{
-    NSArray<NSString *> *integrations = @[ @"integration1", @"integration2" ];
-    SentryOptions *options = [self getValidOptions:@{ @"integrations" : integrations }];
-
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    [self assertArrayEquals:integrations actual:options.integrations];
-#pragma clang diagnostic pop
-}
-
-- (void)testDefaultIntegrations
-{
-    SentryOptions *options = [self getValidOptions:@{}];
-
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    XCTAssertTrue([[SentryOptions defaultIntegrations] isEqualToArray:options.integrations],
-        @"Default integrations are not set correctly");
-#pragma clang diagnostic pop
-}
-
-#if SENTRY_HAS_UIKIT
-- (void)testIntegrationOrder
-{
-    XCTAssertEqualObjects(SentryOptions.defaultIntegrations.firstObject,
-        NSStringFromClass([SentrySessionReplayIntegration class]));
-    XCTAssertEqualObjects(
-        SentryOptions.defaultIntegrations[1], NSStringFromClass([SentryCrashIntegration class]));
-}
-#endif
-
 - (void)testSampleRateWithDict
 {
     NSNumber *sampleRate = @0.1;
@@ -679,7 +647,6 @@
         @"profilesSampler" : [NSNull null],
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
         @"inAppIncludes" : [NSNull null],
-        @"inAppExcludes" : [NSNull null],
         @"urlSessionDelegate" : [NSNull null],
         @"enableSwizzling" : [NSNull null],
         @"swizzleClassNameExcludes" : [NSNull null],
@@ -714,17 +681,12 @@
     XCTAssertNil(options.beforeSend);
     XCTAssertNil(options.beforeBreadcrumb);
     XCTAssertNil(options.onCrashedLastRun);
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    XCTAssertTrue([[SentryOptions defaultIntegrations] isEqualToArray:options.integrations],
-        @"Default integrations are not set correctly");
-#pragma clang diagnostic pop
     XCTAssertEqual(1.0, options.sampleRate.floatValue);
     XCTAssertEqual(YES, options.enableAutoSessionTracking);
     XCTAssertEqual(YES, options.enableWatchdogTerminationTracking);
     XCTAssertEqual([@30000 unsignedIntValue], options.sessionTrackingIntervalMillis);
     XCTAssertEqual(YES, options.attachStacktrace);
-    XCTAssertEqual(20 * 1024 * 1024, options.maxAttachmentSize);
+    XCTAssertEqual(100 * 1024 * 1024, options.maxAttachmentSize);
     XCTAssertEqual(NO, options.sendDefaultPii);
     XCTAssertTrue(options.enableAutoPerformanceTracing);
 #if SENTRY_HAS_UIKIT
@@ -744,7 +706,6 @@
     XCTAssertNil(options.tracesSampleRate);
     XCTAssertNil(options.tracesSampler);
     XCTAssertEqualObjects([self getDefaultInAppIncludes], options.inAppIncludes);
-    XCTAssertEqual(@[], options.inAppExcludes);
     XCTAssertNil(options.urlSessionDelegate);
     XCTAssertNil(options.urlSession);
     XCTAssertEqual(YES, options.enableSwizzling);
@@ -844,7 +805,7 @@
 {
     SentryOptions *options = [self getValidOptions:@{}];
 
-    XCTAssertEqual(20 * 1024 * 1024, options.maxAttachmentSize);
+    XCTAssertEqual(100 * 1024 * 1024, options.maxAttachmentSize);
 }
 
 - (void)testSendDefaultPii
@@ -1141,29 +1102,6 @@
 {
     SentryOptions *options = [self getValidOptions:@{}];
     XCTAssertEqualObjects([self getDefaultInAppIncludes], options.inAppIncludes);
-}
-
-- (void)testInAppExcludes
-{
-    NSArray<NSString *> *expected = @[ @"Sentry" ];
-    NSArray *inAppExcludes = @[ @"Sentry", @2 ];
-
-    SentryOptions *options = [self getValidOptions:@{ @"inAppExcludes" : inAppExcludes }];
-
-    XCTAssertEqualObjects(expected, options.inAppExcludes);
-}
-
-- (void)testAddInAppExcludes
-{
-    SentryOptions *options = [self getValidOptions:@{}];
-    [options addInAppExclude:@"App"];
-    XCTAssertEqualObjects(@[ @"App" ], options.inAppExcludes);
-}
-
-- (void)testDefaultInAppExcludes
-{
-    SentryOptions *options = [self getValidOptions:@{}];
-    XCTAssertEqualObjects(@[], options.inAppExcludes);
 }
 
 - (void)testDefaultInitialScope

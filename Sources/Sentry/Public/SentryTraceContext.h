@@ -5,9 +5,7 @@
 #else
 #    import <SentryDefines.h>
 #endif
-#if !SDK_V9
-#    import SENTRY_HEADER(SentrySerializable)
-#endif
+#import SENTRY_HEADER(SentrySerializable)
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -19,10 +17,7 @@ NS_ASSUME_NONNULL_BEGIN
 @class SentryUser;
 
 NS_SWIFT_NAME(TraceContext)
-@interface SentryTraceContext : NSObject
-#if !SDK_V9
-                                <SentrySerializable>
-#endif
+@interface SentryTraceContext : NSObject <SentrySerializable>
 
 /**
  * UUID V4 encoded as a hexadecimal sequence with no dashes (e.g. 771a43a4192642f0b136d5159a501700)
@@ -69,59 +64,6 @@ NS_SWIFT_NAME(TraceContext)
  * Id of the current session replay.
  */
 @property (nullable, nonatomic, readonly) NSString *replayId;
-
-/**
- * Initializes a SentryTraceContext with given properties.
- */
-- (instancetype)initWithTraceId:(SentryId *)traceId
-                      publicKey:(NSString *)publicKey
-                    releaseName:(nullable NSString *)releaseName
-                    environment:(nullable NSString *)environment
-                    transaction:(nullable NSString *)transaction
-                     sampleRate:(nullable NSString *)sampleRate
-                        sampled:(nullable NSString *)sampled
-                       replayId:(nullable NSString *)replayId;
-
-/**
- * Initializes a SentryTraceContext with given properties.
- */
-- (instancetype)initWithTraceId:(SentryId *)traceId
-                      publicKey:(NSString *)publicKey
-                    releaseName:(nullable NSString *)releaseName
-                    environment:(nullable NSString *)environment
-                    transaction:(nullable NSString *)transaction
-                     sampleRate:(nullable NSString *)sampleRate
-                     sampleRand:(nullable NSString *)sampleRand
-                        sampled:(nullable NSString *)sampled
-                       replayId:(nullable NSString *)replayId;
-
-/**
- * Initializes a SentryTraceContext with data from scope and options.
- */
-- (nullable instancetype)initWithScope:(SentryScope *)scope options:(SentryOptions *)options;
-
-/**
- * Initializes a SentryTraceContext with data from a dictionary.
- */
-- (nullable instancetype)initWithDict:(NSDictionary<NSString *, id> *)dictionary;
-
-/**
- * Initializes a SentryTraceContext with data from a trace, scope and options.
- */
-- (nullable instancetype)initWithTracer:(SentryTracer *)tracer
-                                  scope:(nullable SentryScope *)scope
-                                options:(SentryOptions *)options;
-
-/**
- * Initializes a SentryTraceContext with data from a traceId, options and replayId.
- *
- *  @param traceId The current tracer.
- *  @param options The current active options.
- *  @param replayId The current session replay.
- */
-- (instancetype)initWithTraceId:(SentryId *)traceId
-                        options:(SentryOptions *)options
-                       replayId:(nullable NSString *)replayId;
 
 /**
  * Create a SentryBaggage with the information of this SentryTraceContext.

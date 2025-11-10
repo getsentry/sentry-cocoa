@@ -141,7 +141,8 @@ platform :ios do
       include_bitcode: false,
       include_symbols: true,
       export_method: "app-store",
-      archive_path: "iOS-Swift"
+      archive_path: "iOS-Swift",
+      skip_package_dependencies_resolution: true # See SKIP_SPM_RESOLUTION_NOTE
     )
 
     delete_keychain(name: "fastlane_tmp_keychain") if is_ci
@@ -166,7 +167,7 @@ platform :ios do
       scheme: "iOS-Swift",
       derived_data_path: "DerivedData",
       skip_archive: true,
-      skip_package_dependencies_resolution: true
+      skip_package_dependencies_resolution: true # See SKIP_SPM_RESOLUTION_NOTE
     )
 
     delete_keychain(name: "fastlane_tmp_keychain") if is_ci
@@ -214,7 +215,7 @@ platform :ios do
       xcargs: "build-for-testing",
       derived_data_path: "DerivedData",
       skip_archive: true,
-      skip_package_dependencies_resolution: true
+      skip_package_dependencies_resolution: true # See SKIP_SPM_RESOLUTION_NOTE
     )
 
     delete_keychain(name: "fastlane_tmp_keychain") if is_ci
@@ -271,9 +272,10 @@ platform :ios do
     )
   end
 
-  lane :ui_tests_ios_objc do
+  lane :ui_tests_ios_objc do |options|
     run_ui_tests(
       scheme: "iOS-ObjectiveC",
+      device: options[:device],
       result_bundle_name: "ui_tests_ios_objc"
     )
   end
@@ -287,9 +289,10 @@ platform :ios do
     )
   end
 
-  lane :ui_tests_tvos_swift do
+  lane :ui_tests_tvos_swift do |options|
     run_ui_tests(
       scheme: "tvOS-Swift",
+      device: options[:device],
       result_bundle_name: "ui_tests_tvos_swift"
     )
   end
@@ -330,7 +333,7 @@ platform :ios do
       export_method: "development",
       output_directory: "Tests/Perf/",
       output_name: "test-app-plain.ipa",
-      skip_package_dependencies_resolution: true
+      skip_package_dependencies_resolution: true # See SKIP_SPM_RESOLUTION_NOTE
     )
 
     delete_keychain(name: "fastlane_tmp_keychain") if is_ci
@@ -357,7 +360,7 @@ platform :ios do
       export_method: "development",
       output_directory: "Tests/Perf/",
       output_name: "test-app-sentry.ipa",
-      skip_package_dependencies_resolution: true
+      skip_package_dependencies_resolution: true # See SKIP_SPM_RESOLUTION_NOTE
     )
 
     delete_keychain(name: "fastlane_tmp_keychain") if is_ci
@@ -385,3 +388,9 @@ platform :ios do
     )
   end
 end
+
+# SKIP_SPM_RESOLUTION_NOTE:
+# We skip Swift Package resolution in these lanes because the samples embed the locally built
+# Sentry.framework. When `Package.swift` points to upcoming release artefacts the resolver would
+# fail before the build starts. Skipping resolution keeps CI green while release assets are still
+# being published.

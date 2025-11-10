@@ -9,7 +9,7 @@ class SentryStacktraceBuilderTests: XCTestCase {
 
         var sut: SentryStacktraceBuilder {
             SentryDependencyContainer.sharedInstance().reachability = TestSentryReachability()
-            let res = SentryStacktraceBuilder(crashStackEntryMapper: SentryCrashStackEntryMapper(inAppLogic: SentryInAppLogic(inAppIncludes: [], inAppExcludes: [])))
+            let res = SentryStacktraceBuilder(crashStackEntryMapper: SentryCrashStackEntryMapper(inAppLogic: SentryInAppLogic(inAppIncludes: [])))
             res.symbolicate = true
             return res
         }
@@ -76,7 +76,6 @@ class SentryStacktraceBuilderTests: XCTestCase {
         )
     }
 
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func testConcurrentStacktraces() throws {
         guard #available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *) else {
             throw XCTSkip("Not available for earlier platform versions")
@@ -86,7 +85,9 @@ class SentryStacktraceBuilderTests: XCTestCase {
             options.dsn = TestConstants.dsnAsString(username: "SentryStacktraceBuilderTests")
             options.swiftAsyncStacktraces = true
             options.debug = true
-            options.setIntegrations([SentryCrashIntegration.self, SentrySwiftAsyncIntegration.self])
+            options.removeAllIntegrations()
+            options.swiftAsyncStacktraces = true
+            options.enableCrashHandler = true
         }
 
         let waitForAsyncToRun = expectation(description: "Wait async functions")
@@ -100,7 +101,6 @@ class SentryStacktraceBuilderTests: XCTestCase {
         wait(for: [waitForAsyncToRun], timeout: 10)
     }
 
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func testConcurrentStacktraces_noStitching() throws {
         guard #available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *) else {
             throw XCTSkip("Not available for earlier platform versions")
@@ -110,7 +110,9 @@ class SentryStacktraceBuilderTests: XCTestCase {
             options.dsn = TestConstants.dsnAsString(username: "SentryStacktraceBuilderTests")
             options.swiftAsyncStacktraces = false
             options.debug = true
-            options.setIntegrations([SentryCrashIntegration.self, SentrySwiftAsyncIntegration.self])
+            options.removeAllIntegrations()
+            options.swiftAsyncStacktraces = true
+            options.enableCrashHandler = true
         }
 
         let waitForAsyncToRun = expectation(description: "Wait async functions")

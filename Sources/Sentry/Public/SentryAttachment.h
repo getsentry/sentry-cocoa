@@ -9,6 +9,29 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
+ * Attachment Type
+ *
+ * This enum specifies the type of attachment. The attachment type is primarily used by downstream
+ * SDKs (such as sentry-godot) to distinguish between different attachment categories.
+ * Most applications using the SDK directly do not need to specify this, as the default
+ * @c kSentryAttachmentTypeEventAttachment is used for regular file attachments.
+ *
+ *
+ * See also: https://develop.sentry.dev/sdk/data-model/envelope-items/#attachment
+ */
+typedef NS_ENUM(NSInteger, SentryAttachmentType) {
+    /**
+     * Standard event attachment. This is the default type for user-provided attachments.
+     */
+    kSentryAttachmentTypeEventAttachment,
+    /**
+     * View hierarchy attachment. Automatically set by the SDK when capturing view hierarchy data.
+     * This type is primarily used by downstream SDKs.
+     */
+    kSentryAttachmentTypeViewHierarchy
+};
+
+/**
  * You can use an attachment to store additional files alongside an event.
  */
 NS_SWIFT_NAME(Attachment)
@@ -63,6 +86,30 @@ SENTRY_NO_INIT
                  contentType:(nullable NSString *)contentType;
 
 /**
+ * Initializes an attachment with data.
+ * @param data The data for the attachment.
+ * @param filename The name of the attachment to display in Sentry.
+ * @param contentType The content type of the attachment. Default is @c "application/octet-stream".
+ * @param attachmentType The type of the attachment. Default is @c "EventAttachment".
+ */
+- (instancetype)initWithData:(NSData *)data
+                    filename:(NSString *)filename
+                 contentType:(nullable NSString *)contentType
+              attachmentType:(SentryAttachmentType)attachmentType;
+
+/**
+ * Initializes an attachment with data.
+ * @param path The path of the file whose contents you want to upload to Sentry.
+ * @param filename The name of the attachment to display in Sentry.
+ * @param contentType The content type of the attachment. Default is @c "application/octet-stream".
+ * @param attachmentType The type of the attachment. Default is@c  "EventAttachment".
+ */
+- (instancetype)initWithPath:(NSString *)path
+                    filename:(NSString *)filename
+                 contentType:(nullable NSString *)contentType
+              attachmentType:(SentryAttachmentType)attachmentType;
+
+/**
  * The data of the attachment.
  */
 @property (readonly, nonatomic, strong, nullable) NSData *data;
@@ -81,6 +128,11 @@ SENTRY_NO_INIT
  * The content type of the attachment.
  */
 @property (readonly, nonatomic, copy, nullable) NSString *contentType;
+
+/**
+ * The type of the attachment.
+ */
+@property (readonly, nonatomic) SentryAttachmentType attachmentType;
 
 @end
 

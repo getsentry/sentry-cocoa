@@ -23,11 +23,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-@interface SentryHub ()
+@interface SentryHubInternal ()
 
 @property (nullable, nonatomic, strong) SentrySession *session;
 
 @property (nonatomic, strong) NSMutableArray<id<SentryIntegrationProtocol>> *installedIntegrations;
+
+@property (nonatomic, readonly, strong) NSObject *_swiftLogger;
 
 /**
  * Every integration starts with "Sentry" and ends with "Integration". To keep the payload of the
@@ -38,7 +40,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)addInstalledIntegration:(id<SentryIntegrationProtocol>)integration name:(NSString *)name;
 - (void)removeAllIntegrations;
 
-- (SentryClient *_Nullable)client;
+- (SentryClientInternal *_Nullable)client;
 
 - (void)captureFatalEvent:(SentryEvent *)event;
 
@@ -81,6 +83,10 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)registerSessionListener:(id<SentrySessionListener>)listener;
 - (void)unregisterSessionListener:(id<SentrySessionListener>)listener;
 - (nullable id<SentryIntegrationProtocol>)getInstalledIntegration:(Class)integrationClass;
+
+#if SENTRY_TARGET_REPLAY_SUPPORTED
+- (NSString *__nullable)getSessionReplayId;
+#endif
 
 @end
 

@@ -6,7 +6,7 @@
 #    import "SentryProfilerDefines.h"
 
 @class SentryEnvelopeItem;
-@class SentryHub;
+@class SentryHubInternal;
 @class SentryId;
 @class SentryMetricProfiler;
 @class SentryOptions;
@@ -35,7 +35,7 @@ typedef struct {
  * launch's profiling, stop tracer profiling if no automatic performance transaction is running,
  * start the continuous profiler if enabled and not profiling from launch.
  */
-SENTRY_EXTERN void sentry_sdkInitProfilerTasks(SentryOptions *options, SentryHub *hub);
+SENTRY_EXTERN void sentry_sdkInitProfilerTasks(SentryOptions *options, SentryHubInternal *hub);
 
 SENTRY_EXTERN SentryProfileConfiguration *_Nullable sentry_profileConfiguration;
 

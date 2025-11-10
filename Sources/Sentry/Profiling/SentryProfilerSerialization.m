@@ -8,11 +8,11 @@
 #    import "SentryEnvelopeItemHeader.h"
 #    import "SentryEvent+Private.h"
 #    import "SentryFormatter.h"
+#    import "SentryHub.h"
 #    import "SentryInternalDefines.h"
 #    import "SentryLogC.h"
 #    import "SentryMeta.h"
 #    import "SentryMetricProfiler.h"
-#    import "SentryModels+Serializable.h"
 #    import "SentryProfileTimeseries.h"
 #    import "SentryProfiledTracerConcurrency.h"
 #    import "SentryProfiler+Private.h"
@@ -111,7 +111,7 @@ NSMutableDictionary<NSString *, id> *
 sentry_serializedTraceProfileData(
     NSDictionary<NSString *, id> *profileData, uint64_t startSystemTime, uint64_t endSystemTime,
     NSString *truncationReason, NSDictionary<NSString *, id> *serializedMetrics,
-    NSArray<SentryDebugMeta *> *debugMeta, SentryHub *hub
+    NSArray<SentryDebugMeta *> *debugMeta, SentryHubInternal *hub
 #    if SENTRY_HAS_UIKIT
     ,
     SentryScreenFrames *gpuData
@@ -223,7 +223,7 @@ sentry_serializedTraceProfileData(
 NSMutableDictionary<NSString *, id> *
 sentry_serializedContinuousProfileChunk(SentryId *profileID, SentryId *chunkID,
     NSDictionary<NSString *, id> *profileData, NSDictionary<NSString *, id> *serializedMetrics,
-    NSArray<SentryDebugMeta *> *debugMeta, SentryHub *hub
+    NSArray<SentryDebugMeta *> *debugMeta, SentryHubInternal *hub
 #    if SENTRY_HAS_UIKIT
     ,
     SentryScreenFrames *gpuData
@@ -359,7 +359,7 @@ SentryEnvelope *_Nullable sentry_continuousProfileChunkEnvelope(
 #    pragma clang diagnostic pop
 }
 
-SentryEnvelopeItem *_Nullable sentry_traceProfileEnvelopeItem(SentryHub *hub,
+SentryEnvelopeItem *_Nullable sentry_traceProfileEnvelopeItem(SentryHubInternal *hub,
     SentryProfiler *profiler, NSDictionary<NSString *, id> *profilingData,
     SentryTransaction *transaction, NSDate *startTimestamp)
 {
@@ -386,8 +386,12 @@ SentryEnvelopeItem *_Nullable sentry_traceProfileEnvelopeItem(SentryHub *hub,
     NSMutableDictionary *transactionDict = [[NSMutableDictionary alloc] initWithDictionary:@ {
         @"id" : transaction.eventId.sentryIdString,
         @"trace_id" : transaction.trace.traceId.sentryIdString,
-        @"active_thread_id" : [transaction.trace.transactionContext sentry_threadInfo].threadId
     }];
+    NSNumber *_Nullable activeThreadId =
+        [transaction.trace.transactionContext sentry_threadInfo].threadId;
+    if (activeThreadId != nil || [activeThreadId isEqual:@0]) {
+        transactionDict[@"active_thread_id"] = activeThreadId;
+    }
     if (transaction.transaction) {
         transactionDict[@"name"] = transaction.transaction;
     }
@@ -411,7 +415,7 @@ SentryEnvelopeItem *_Nullable sentry_traceProfileEnvelopeItem(SentryHub *hub,
 }
 
 NSMutableDictionary<NSString *, id> *_Nullable sentry_collectProfileDataHybridSDK(
-    uint64_t startSystemTime, uint64_t endSystemTime, SentryId *traceId, SentryHub *hub)
+    uint64_t startSystemTime, uint64_t endSystemTime, SentryId *traceId, SentryHubInternal *hub)
 {
     SentryProfiler *profiler = sentry_profilerForFinishedTracer(traceId);
     if (!profiler) {

@@ -24,6 +24,7 @@ run_unit_tests_for_prs: &run_unit_tests_for_prs
   - "Tests/**"
   - "SentryTestUtils/**"
   - "SentryTestUtilsDynamic/**"
+  - "SentryTestUtilsTests/**"
 
   # GH Actions
   - ".github/workflows/test.yml"
@@ -427,6 +428,7 @@ run_version_bump_util_for_prs: &run_version_bump_util_for_prs
   - "Sources/Configuration/SDK.xcconfig"
   - "Sources/Configuration/Versioning.xcconfig"
   - "Sources/Configuration/SentrySwiftUI.xcconfig"
+  - "Sources/Configuration/SentrySwiftLog.xcconfig"
 
 run_ui_tests_for_prs: &run_ui_tests_for_prs
   - "Sources/**"
@@ -434,6 +436,7 @@ run_ui_tests_for_prs: &run_ui_tests_for_prs
 
   # GH Actions
   - ".github/workflows/ui-tests.yml"
+  - ".github/workflows/ui-tests-cirrus-labs.yml"
   - ".github/workflows/ui-tests-common.yml"
   - ".github/workflows/build-xcframework-variant-slices.yml"
   - ".github/workflows/assemble-xcframework-variant.yml"

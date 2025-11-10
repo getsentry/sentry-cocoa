@@ -218,7 +218,7 @@ class SentryFeedbackTests: XCTestCase {
         let transport = TestTransport()
         let transportAdapter = TestTransportAdapter(transports: [transport], options: options)
 
-        let client = SentryClient(
+        let client = SentryClientInternal(
             options: options,
             transportAdapter: transportAdapter,
             fileManager: try XCTUnwrap(SentryFileManager(
@@ -226,7 +226,6 @@ class SentryFeedbackTests: XCTestCase {
                 dateProvider: TestCurrentDateProvider(),
                 dispatchQueueWrapper: TestSentryDispatchQueueWrapper()
             )),
-            deleteOldEnvelopeItems: false,
             threadInspector: TestDefaultThreadInspector.instance,
             debugImageProvider: TestDebugImageProvider(),
             random: TestRandom(value: 1.0),
@@ -261,7 +260,7 @@ class SentryFeedbackTests: XCTestCase {
         let transport = TestTransport()
         let transportAdapter = TestTransportAdapter(transports: [transport], options: options)
 
-        let client = SentryClient(
+        let client = SentryClientInternal(
             options: options,
             transportAdapter: transportAdapter,
             fileManager: try XCTUnwrap(SentryFileManager(
@@ -269,7 +268,6 @@ class SentryFeedbackTests: XCTestCase {
                 dateProvider: TestCurrentDateProvider(),
                 dispatchQueueWrapper: TestSentryDispatchQueueWrapper()
             )),
-            deleteOldEnvelopeItems: false,
             threadInspector: TestDefaultThreadInspector.instance,
             debugImageProvider: TestDebugImageProvider(),
             random: TestRandom(value: 1.0),
@@ -304,7 +302,7 @@ class SentryFeedbackTests: XCTestCase {
         let transport = TestTransport()
         let transportAdapter = TestTransportAdapter(transports: [transport], options: options)
 
-        let client = SentryClient(
+        let client = SentryClientInternal(
             options: options,
             transportAdapter: transportAdapter,
             fileManager: try XCTUnwrap(SentryFileManager(
@@ -312,7 +310,6 @@ class SentryFeedbackTests: XCTestCase {
                 dateProvider: TestCurrentDateProvider(),
                 dispatchQueueWrapper: TestSentryDispatchQueueWrapper()
             )),
-            deleteOldEnvelopeItems: false,
             threadInspector: TestDefaultThreadInspector.instance,
             debugImageProvider: TestDebugImageProvider(),
             random: TestRandom(value: 1.0),

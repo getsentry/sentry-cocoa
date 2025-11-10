@@ -21,7 +21,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-@interface SentryClient ()
+@interface SentryClientInternal ()
 
 @property (nonatomic, strong)
     NSMutableArray<id<SentryClientAttachmentProcessor>> *attachmentProcessors;
@@ -77,6 +77,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)addAttachmentProcessor:(id<SentryClientAttachmentProcessor>)attachmentProcessor;
 - (void)removeAttachmentProcessor:(id<SentryClientAttachmentProcessor>)attachmentProcessor;
+
+- (void)_swiftCaptureLog:(NSObject *)log withScope:(SentryScope *)scope;
 
 @end
 

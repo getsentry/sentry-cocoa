@@ -16,50 +16,61 @@ var products: [Product] = [
     .library(name: "Sentry-WithoutUIKitOrAppKit", targets: ["Sentry-WithoutUIKitOrAppKit", "SentryCppHelper"]),
     .library(name: "Sentry-WithoutUIKitOrAppKit-WithARM64e", targets: ["Sentry-WithoutUIKitOrAppKit-WithARM64e", "SentryCppHelper"]),
     .library(name: "SentrySwiftUI", targets: ["Sentry", "SentrySwiftUI", "SentryCppHelper"]),
-    .library(name: "SentryDistribution", targets: ["SentryDistribution"])
+    .library(name: "SentryDistribution", targets: ["SentryDistribution"]),
+    .library(name: "SentrySwiftLog", targets: ["Sentry", "SentrySwiftLog"])
 ]
 
 var targets: [Target] = [
     .binaryTarget(
         name: "Sentry",
-        url: "https://github.com/getsentry/sentry-cocoa/releases/download/8.57.0/Sentry.xcframework.zip",
-        checksum: "2e7948d8fac8b7dfbcc24117c2ae02e79757a49ff3dfb15a06866fc405134a38" //Sentry-Static
+        url: "https://github.com/getsentry/sentry-cocoa/releases/download/8.57.2/Sentry.xcframework.zip",
+        checksum: "d5d3aeab545b605a345f27d15d69192ab56f20a5b46775cff6ab6f910701a91e" //Sentry-Static
     ),
     .binaryTarget(
         name: "Sentry-Dynamic",
-        url: "https://github.com/getsentry/sentry-cocoa/releases/download/8.57.0/Sentry-Dynamic.xcframework.zip",
-        checksum: "03f88d2236cb896d45897f3e223aa50d68940734e81d48d96238793bc66bbd42" //Sentry-Dynamic
+        url: "https://github.com/getsentry/sentry-cocoa/releases/download/8.57.2/Sentry-Dynamic.xcframework.zip",
+        checksum: "ea75510a87b285c9a4e3b66a720bdb3940cccb07d67fc08fbdc28dc003f358f5" //Sentry-Dynamic
     ),
     .binaryTarget(
         name: "Sentry-Dynamic-WithARM64e",
-        url: "https://github.com/getsentry/sentry-cocoa/releases/download/8.57.0/Sentry-Dynamic-WithARM64e.xcframework.zip",
-        checksum: "56357754f1235d49a0847598a46ed88790b0f7905895010c0e684c38edbad31c" //Sentry-Dynamic-WithARM64e
+        url: "https://github.com/getsentry/sentry-cocoa/releases/download/8.57.2/Sentry-Dynamic-WithARM64e.xcframework.zip",
+        checksum: "db93da7d2e39d115c96727b98bb1a915575a16a9bcfa9d468941c822bb3376f3" //Sentry-Dynamic-WithARM64e
     ),
     .binaryTarget(
         name: "Sentry-WithoutUIKitOrAppKit",
-        url: "https://github.com/getsentry/sentry-cocoa/releases/download/8.57.0/Sentry-WithoutUIKitOrAppKit.xcframework.zip",
-        checksum: "c3ca71808c6feb2a9fcb219a35afa84652c41fcee16b0fa4a6ab62cab23953ea" //Sentry-WithoutUIKitOrAppKit
+        url: "https://github.com/getsentry/sentry-cocoa/releases/download/8.57.2/Sentry-WithoutUIKitOrAppKit.xcframework.zip",
+        checksum: "0fcf652ddced26bfa58c0d29be7f84be20ae139f58310b84b04b1e6eec9ca817" //Sentry-WithoutUIKitOrAppKit
     ),
     .binaryTarget(
         name: "Sentry-WithoutUIKitOrAppKit-WithARM64e",
-        url: "https://github.com/getsentry/sentry-cocoa/releases/download/8.57.0/Sentry-WithoutUIKitOrAppKit-WithARM64e.xcframework.zip",
-        checksum: "00f0805426b3b3defbb9b3dd1a5ceab316cb43e6909764c0f1c54dd206304d02" //Sentry-WithoutUIKitOrAppKit-WithARM64e
+        url: "https://github.com/getsentry/sentry-cocoa/releases/download/8.57.2/Sentry-WithoutUIKitOrAppKit-WithARM64e.xcframework.zip",
+        checksum: "981d72375b712a6bb6bd8ae445473a437f902e8872d04192e111a6d6851dd7d1" //Sentry-WithoutUIKitOrAppKit-WithARM64e
     ),
-    .target (
+    .target(
         name: "SentrySwiftUI",
         dependencies: ["Sentry", "SentryInternal"],
         path: "Sources/SentrySwiftUI",
         exclude: ["SentryInternal/", "module.modulemap"],
         linkerSettings: [
             .linkedFramework("Sentry")
-        ]),
+        ]
+    ),
+    .target(
+        name: "SentrySwiftLog",
+        dependencies: ["Sentry", .product(name: "Logging", package: "swift-log")],
+        path: "Sources/SentrySwiftLog",
+        linkerSettings: [
+            .linkedFramework("Sentry")
+        ]
+    ),
     .target(
         name: "SentryInternal",
         path: "Sources/SentrySwiftUI",
         sources: [
             "SentryInternal/"
         ],
-        publicHeadersPath: "SentryInternal/"),
+        publicHeadersPath: "SentryInternal/"
+    ),
     .target(
         name: "SentryCppHelper",
         dependencies: ["Sentry"],
@@ -95,16 +106,13 @@ if let env = env, String(cString: env, encoding: .utf8) == "1" {
             dependencies: ["_SentryPrivate", "SentryHeaders"],
             path: "Sources/Swift",
             swiftSettings: [
-                .unsafeFlags(["-enable-library-evolution"]),
-                // Some API breaking changes are necessary for the framework to compile with SPM, we’ll ship
-                // those in V9.
-                .define("SDK_V9")
+                .unsafeFlags(["-enable-library-evolution"])
             ]),
         .target(
             name: "SentryObjc",
             dependencies: ["SentrySwift"],
             path: "Sources",
-            exclude: ["Sentry/SentryDummyPublicEmptyClass.m", "Sentry/SentryDummyPrivateEmptyClass.m", "Swift", "SentrySwiftUI", "Resources", "Configuration", "SentryCppHelper", "SentryDistribution", "SentryDistributionTests"],
+            exclude: ["Sentry/SentryDummyPublicEmptyClass.m", "Sentry/SentryDummyPrivateEmptyClass.m", "Swift", "SentrySwiftUI", "SentrySwiftLog", "Resources", "Configuration", "SentryCppHelper", "SentryDistribution", "SentryDistributionTests"],
             cSettings: [
                 .headerSearchPath("Sentry/include/HybridPublic"),
                 .headerSearchPath("Sentry"),
@@ -113,8 +121,7 @@ if let env = env, String(cString: env, encoding: .utf8) == "1" {
                 .headerSearchPath("SentryCrash/Recording/Tools"),
                 .headerSearchPath("SentryCrash/Installations"),
                 .headerSearchPath("SentryCrash/Reporting/Filters"),
-                .headerSearchPath("SentryCrash/Reporting/Filters/Tools"),
-                .define("SDK_V9")])
+                .headerSearchPath("SentryCrash/Reporting/Filters/Tools")])
     ])
 }
 
@@ -122,6 +129,12 @@ let package = Package(
     name: "Sentry",
     platforms: [.iOS(.v15), .macOS(.v12), .tvOS(.v15), .watchOS(.v8)],
     products: products,
+    dependencies: [
+        // SPM doesn't support peer-dependencies, so users are locked into our declared version.
+        // Using `from: "1.6.0"` covers 1.6.0 < 2.0.0, resolving minor versions automatically.
+        // See develop-docs/DECISIONS.md for discussion.
+        .package(url: "https://github.com/apple/swift-log", from: "1.6.0")
+    ],
     targets: targets,
     cxxLanguageStandard: .cxx14
 )

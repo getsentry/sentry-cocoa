@@ -6,13 +6,13 @@ class SentryDefaultThreadInspectorTests: XCTestCase {
     
     private class Fixture {
         var testMachineContextWrapper = TestMachineContextWrapper()
-        var stacktraceBuilder = TestSentryStacktraceBuilder(crashStackEntryMapper: SentryCrashStackEntryMapper(inAppLogic: SentryInAppLogic(inAppIncludes: [], inAppExcludes: [])))
+        var stacktraceBuilder = TestSentryStacktraceBuilder(crashStackEntryMapper: SentryCrashStackEntryMapper(inAppLogic: SentryInAppLogic(inAppIncludes: [])))
         var keepThreadAlive = true
         
         func getSut(testWithRealMachineContextWrapper: Bool = false, symbolicate: Bool = true) -> SentryDefaultThreadInspector {
             
             let machineContextWrapper = testWithRealMachineContextWrapper ? SentryCrashDefaultMachineContextWrapper() : testMachineContextWrapper as SentryCrashMachineContextWrapper
-            let stacktraceBuilder = testWithRealMachineContextWrapper ? SentryStacktraceBuilder(crashStackEntryMapper: SentryCrashStackEntryMapper(inAppLogic: SentryInAppLogic(inAppIncludes: [], inAppExcludes: []))) : self.stacktraceBuilder
+            let stacktraceBuilder = testWithRealMachineContextWrapper ? SentryStacktraceBuilder(crashStackEntryMapper: SentryCrashStackEntryMapper(inAppLogic: SentryInAppLogic(inAppIncludes: []))) : self.stacktraceBuilder
 
             stacktraceBuilder.symbolicate = symbolicate
 
@@ -220,7 +220,7 @@ class SentryDefaultThreadInspectorTests: XCTestCase {
 
         XCTAssertNotNil(stackTrace)
         XCTAssertGreaterThan(stackTrace.frames.count, 0)
-        XCTAssertEqual(stackTrace.frames.first?.function, "<redacted>")
+        XCTAssertNil(stackTrace.frames.first?.function)
     }
 
     func testOnlyCurrentThreadHasStacktrace() throws {
