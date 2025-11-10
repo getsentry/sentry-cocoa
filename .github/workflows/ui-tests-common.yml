@@ -120,11 +120,6 @@ jobs:
       - name: Install Rosetta
         run: softwareupdate --install-rosetta --agree-to-license
 
-      - name: List available simulators
-        run: |
-          xcrun simctl list runtimes -v
-          xcrun simctl list devices
-
       - name: Create simulator device
         if: ${{ inputs.create_device }}
         env:

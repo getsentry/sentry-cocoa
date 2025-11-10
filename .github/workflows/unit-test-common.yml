@@ -94,11 +94,6 @@ jobs:
       - name: Install Rosetta
         run: softwareupdate --install-rosetta --agree-to-license
 
-      - name: List available simulators
-        run: |
-          xcrun simctl list runtimes -v
-          xcrun simctl list devices
-
       # Create simulator devices for non-preinstalled simulators
       # Required for iOS 16.4, iOS 17.5 (on Xcode 15.4), and iOS/tvOS 26.1
       - name: Create simulator device
