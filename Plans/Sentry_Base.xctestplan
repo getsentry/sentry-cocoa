@@ -36,6 +36,7 @@
         "SentryCrashIntegrationTests\/testStartUpCrash_CallsFlush()",
         "SentryCrashReportStore_Tests\/testCrashReportCount1",
         "SentryCrashReportStore_Tests\/testDeleteAllReports",
+        "SentryCrashReportStore_Tests\/testPruneReports",
         "SentryCrashReportStore_Tests\/testStoresLoadsMultipleReports",
         "SentryHttpTransportFlushIntegrationTests",
         "SentryHttpTransportTests\/testFlush_WhenNoInternet_BlocksAndFinishes()",
