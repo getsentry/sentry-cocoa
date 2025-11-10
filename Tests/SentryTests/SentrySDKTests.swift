@@ -54,7 +54,7 @@ class SentrySDKTests: XCTestCase {
             scope = Scope()
             scope.setTag(value: "value", key: "key")
 
-            client = TestClient(options: options.toInternal())!
+            client = TestClient(options: options)!
             hub = SentryHubInternal(client: client, andScope: scope, andCrashWrapper: TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo), andDispatchQueue: SentryDispatchQueueWrapper())
 
             feedback = SentryFeedback(message: "Again really?", name: "Tim Apple", email: "tim@apple.com")

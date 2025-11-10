@@ -17,6 +17,31 @@ let defaultApplicationProvider: () -> SentryApplication? = {
 
 let SENTRY_AUTO_TRANSACTION_MAX_DURATION = 500.0
 
+// MARK: - RedactWrapper
+
+final class RedactWrapper: SentryRedactOptions {
+    var maskAllText: Bool {
+        defaultOptions.maskAllText
+    }
+    
+    var maskAllImages: Bool {
+        defaultOptions.maskAllImages
+    }
+    
+    var maskedViewClasses: [AnyClass] {
+        defaultOptions.maskedViewClasses
+    }
+    
+    var unmaskedViewClasses: [AnyClass] {
+        defaultOptions.unmaskedViewClasses
+    }
+    
+    private let defaultOptions: SentryDefaultRedactOptions
+    init(_ defaultOptions: SentryDefaultRedactOptions) {
+        self.defaultOptions = defaultOptions
+    }
+}
+
 // MARK: - Extensions
 
 extension SentryFileManager: SentryFileManagerProtocol { }
@@ -181,21 +206,21 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     @objc public lazy var screenshotSource: SentryScreenshotSource? = getOptionalLazyVar(\._screenshotSource) {
         // The options could be null here, but this is a general issue in the dependency
         // container and will be fixed in a future refactoring.
-        guard let options = SentrySDKInternal.optionsInternal?.toOptions() else {
+        guard let options = SentrySDKInternal.optionsInternal else {
             return nil
         }
         
         let viewRenderer: SentryViewRenderer
-        if options.screenshot.enableViewRendererV2 {
-            viewRenderer = SentryViewRendererV2(enableFastViewRendering: options.screenshot.enableFastViewRendering)
+        if SentryDependencyContainerSwiftHelper.viewRendererV2Enabled(options) {
+            viewRenderer = SentryViewRendererV2(enableFastViewRendering: SentryDependencyContainerSwiftHelper.fastViewRenderingEnabled(options))
         } else {
             viewRenderer = SentryDefaultViewRenderer()
         }
 
         let photographer = SentryViewPhotographer(
             renderer: viewRenderer,
-            redactOptions: options.screenshot,
-            enableMaskRendererV2: options.screenshot.enableViewRendererV2)
+            redactOptions: RedactWrapper(SentryDependencyContainerSwiftHelper.redactOptions(options)),
+            enableMaskRendererV2: SentryDependencyContainerSwiftHelper.viewRendererV2Enabled(options))
         return SentryScreenshotSource(photographer: photographer)
     }
 #endif
@@ -203,7 +228,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     private var _fileManager: SentryFileManager?
     @objc public lazy var fileManager: SentryFileManager? = getOptionalLazyVar(\._fileManager) {
         do {
-            return try SentryFileManager(options: SentrySDKInternal.optionsInternal?.toOptions(), dateProvider: Dependencies.dateProvider, dispatchQueueWrapper: Dependencies.dispatchQueueWrapper)
+            return try SentryFileManager(dateProvider: Dependencies.dateProvider, dispatchQueueWrapper: Dependencies.dispatchQueueWrapper)
         } catch {
             SentrySDKLog.debug("Could not create file manager - \(error)")
             return nil
@@ -219,15 +244,19 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     }
     private var _appStateManager: SentryAppStateManager?
     @objc public lazy var appStateManager = getLazyVar(\._appStateManager) {
-        SentryAppStateManager(
-            options: SentrySDKInternal.optionsInternal?.toOptions(),
+        var release: String?
+        if let options = SentrySDKInternal.optionsInternal {
+            release = SentryDependencyContainerSwiftHelper.release(options)
+        }
+        return SentryAppStateManager(
+            releaseName: release,
             crashWrapper: crashWrapper,
             fileManager: fileManager,
             sysctlWrapper: sysctlWrapper)
     }
     private var _crashReporter: SentryCrashSwift?
     @objc public lazy var crashReporter = getLazyVar(\._crashReporter) {
-        SentryCrashSwift(with: SentrySDKInternal.optionsInternal?.toOptions().cacheDirectoryPath)
+        SentryCrashSwift(with: SentrySDKInternal.optionsInternal.map { SentryDependencyContainerSwiftHelper.cacheDirectoryPath($0) })
     }
     
     private var anrTracker: SentryANRTracker?

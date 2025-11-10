@@ -21,9 +21,11 @@ SENTRY_NO_INIT
 
 @property (nonatomic, assign, readonly) BOOL isEnabled;
 
-@property (nonatomic, strong) SentryOptionsObjC *optionsInternal;
+@property (nonatomic, strong) SentryOptions *options;
 
-@property (nonatomic, strong, readonly) SentryOptions *options;
+- (void)setOptionsInternal:(SentryOptionsObjC *)optionsInternal;
+
+- (SentryOptionsObjC *)getOptions;
 
 /**
  * Initializes a @c SentryClient. Pass in a dictionary of options.

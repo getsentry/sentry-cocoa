@@ -21,8 +21,7 @@
     }
 
     self.tracker = [[SentryCoreDataTracker alloc]
-        initWithThreadInspector:[[SentryDefaultThreadInspector alloc]
-                                    initWithOptions:[options toInternal]]
+        initWithThreadInspector:[[SentryDefaultThreadInspector alloc] initWithOptions:options]
              processInfoWrapper:[SentryDependencyContainer.sharedInstance processInfoWrapper]];
     [SentryCoreDataSwizzling.sharedInstance startWithTracker:self.tracker];
 

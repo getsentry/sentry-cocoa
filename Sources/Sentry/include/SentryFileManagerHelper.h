@@ -9,7 +9,7 @@ NS_ASSUME_NONNULL_BEGIN
 @class SentryEvent;
 @class SentryEnvelope;
 @class SentryEnvelopeItem;
-@class SentrySession;
+@class SentryOptions;
 
 @protocol SentryCurrentDateProvider;
 
@@ -32,6 +32,9 @@ SENTRY_NO_INIT
 @property (nonatomic, copy) NSString *appHangEventFilePath;
 
 @property (nonatomic, copy, nullable) void (^handleEnvelopesLimit)(void);
+
+- (nullable instancetype)initWithPlaceholder:(NSObject *)objc
+                                       error:(NSError *_Nullable *_Nullable)error;
 
 - (nullable instancetype)initWithOptions:(SentryOptionsObjC *_Nullable)options
                                    error:(NSError **)error NS_DESIGNATED_INITIALIZER;

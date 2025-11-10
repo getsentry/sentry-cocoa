@@ -11,7 +11,7 @@ class SentryHubTests: XCTestCase {
         let options: Options
         let error = NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Object does not exist"])
         let exception = NSException(name: NSExceptionName("My Custom exception"), reason: "User wants to crash", userInfo: nil)
-        lazy var client = TestClient(options: options.toInternal())!
+        lazy var client = TestClient(options: options)!
         let crumb = Breadcrumb(level: .error, category: "default")
         let scope = Scope()
         let message = "some message"
@@ -97,7 +97,7 @@ class SentryHubTests: XCTestCase {
         sentryOption.dsn = "https://6cc9bae94def43cab8444a99e0031c28@o447951.ingest.sentry.io/5428557"
                 
         let scope = Scope()
-        let sentryHub = SentryHubInternal(client: SentryClientInternal(options: sentryOption.toInternal()), andScope: scope)
+        let sentryHub = SentryHubInternal(client: SentryClientInternal(options: sentryOption), andScope: scope)
 
         let error = NSError(domain: "Test.CaptureErrorWithRealDSN", code: 12)
         sentryHub.capture(error: error)
@@ -951,7 +951,7 @@ class SentryHubTests: XCTestCase {
         sut = fixture.getSut()
         let options = fixture.options
         options.releaseName = nil
-        let client = SentryClientInternal(options: options.toInternal())
+        let client = SentryClientInternal(options: options)
         sut.bindClient(client)
         
         givenCrashedSession()
@@ -1046,7 +1046,7 @@ class SentryHubTests: XCTestCase {
         sut = fixture.getSut()
         let options = fixture.options
         options.releaseName = nil
-        let client = SentryClientInternal(options: options.toInternal())
+        let client = SentryClientInternal(options: options)
         sut.bindClient(client)
         
         // Act
@@ -1138,7 +1138,7 @@ class SentryHubTests: XCTestCase {
                 self.scope = scope
             }
         }
-        let mockClient = SentryClientMockReplay(options: fixture.options.toInternal())
+        let mockClient = SentryClientMockReplay(options: fixture.options)
         
         let replayEvent = SentryReplayEvent(eventId: SentryId(), replayStartTimestamp: Date(), replayType: .buffer, segmentId: 1)
         let replayRecording = SentryReplayRecording(segmentId: 3, size: 200, start: Date(timeIntervalSince1970: 2), duration: 5_000, frameCount: 5, frameRate: 1, height: 930, width: 390, extraEvents: [])

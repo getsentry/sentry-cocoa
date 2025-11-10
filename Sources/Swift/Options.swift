@@ -56,7 +56,7 @@
 
     /// The environment used for events if no environment is set on the current scope.
     /// @note Default value is "production".
-    @objc public var environment: String = "production"
+    @objc public var environment: String = Options.defaultEnvironment
 
     /// Specifies whether this SDK should send events to Sentry. If set to NO events will be
     /// dropped in the client and not sent to Sentry. Default is YES.
@@ -624,29 +624,13 @@
     @_spi(Private) @objc public static func isValidSampleRate(_ rate: NSNumber) -> Bool {
         rate.isValidSampleRate()
     }
+    
+    @_spi(Private) @objc public static let defaultEnvironment = "production"
 }
 
 extension NSNumber {
     func isValidSampleRate() -> Bool {
         doubleValue >= 0 && doubleValue <= 1.0
-    }
-}
-
-// The following two extensions provide helpers for objc code
-// to work with SentryOptions. Since ObjC headers can't use the
-// Swift type we need to type erase it there, and rely on a runtime
-// cast rather than a compile type check. These extensions implement
-// the runtime casting.
-extension NSObject {
-    @_spi(Private) @objc public func toOptions() -> Options {
-        // swiftlint:disable force_cast
-        return self as! Options
-        // swiftlint:enable force_cast
-    }
-}
-extension Options {
-    @_spi(Private) @objc public func toInternal() -> NSObject {
-        self
     }
 }
 

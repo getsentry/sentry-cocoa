@@ -9,10 +9,10 @@ extension SentryClientInternal {
         let transportAdapter = SentryTransportAdapter(transports: transports, options: options)
 
         self.init(
-            options: options.toInternal(),
+            options: options,
             transportAdapter: transportAdapter,
             fileManager: fileManager,
-            threadInspector: SentryDefaultThreadInspector(options: options.toInternal()),
+            threadInspector: SentryDefaultThreadInspector(options: options),
             debugImageProvider: SentryDependencyContainer.sharedInstance().debugImageProvider,
             random: SentryDependencyContainer.sharedInstance().random,
             locale: Locale.autoupdatingCurrent,
@@ -111,7 +111,7 @@ class SentryClientTests: XCTestCase {
                 configureOptions(options)
 
                 client = SentryClientInternal(
-                    options: options.toInternal(),
+                    options: options,
                     transportAdapter: transportAdapter,
                     fileManager: fileManager,
                     threadInspector: threadInspector,
@@ -402,7 +402,7 @@ class SentryClientTests: XCTestCase {
         SentryDependencyContainer.sharedInstance().applicationOverride = TestSentryUIApplication()
         let scope = fixture.scope
         scope.currentScreen = "TransactionScreen"
-        let hub = SentryHubInternal(client: SentryClientInternal(options: Options().toInternal()), andScope: scope)
+        let hub = SentryHubInternal(client: SentryClientInternal(options: Options()), andScope: scope)
         
         let tracer = SentryTracer(transactionContext: TransactionContext(operation: "Operation"), hub: hub)
         
@@ -1768,7 +1768,7 @@ class SentryClientTests: XCTestCase {
 
         let options = Options()
         options.dsn = SentryClientTests.dsn
-        let client = SentryClientInternal(options: options.toInternal())
+        let client = SentryClientInternal(options: options)
 
         XCTAssertNil(client)
     }

@@ -220,11 +220,10 @@ static NSDate *_Nullable startTimestamp = nil;
     startTimestamp = value;
 }
 
-+ (void)startWithOptions:(SentryOptionsObjC *)internalOptions
++ (void)startWithOptions:(SentryOptions *)options
 {
     // We save the options before checking for Xcode preview because
     // we will use this options in the preview
-    SentryOptions *options = [internalOptions toOptions];
     startOption = options;
     if ([SentryDependencyContainer.sharedInstance.processInfoWrapper
                 .environment[SENTRY_XCODE_PREVIEW_ENVIRONMENT_KEY] isEqualToString:@"1"]) {
@@ -255,8 +254,7 @@ static NSDate *_Nullable startTimestamp = nil;
     startInvocations++;
     startTimestamp = [SentryDependencyContainer.sharedInstance.dateProvider date];
 
-    SentryClientInternal *newClient =
-        [[SentryClientInternal alloc] initWithOptions:internalOptions];
+    SentryClientInternal *newClient = [[SentryClientInternal alloc] initWithOptions:options];
     [newClient.fileManager moveAppStateToPreviousAppState];
     [newClient.fileManager moveBreadcrumbsToPreviousBreadcrumbs];
     [SentryDependencyContainer.sharedInstance

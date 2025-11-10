@@ -42,7 +42,7 @@ class SentryNetworkTrackerTests: XCTestCase {
             options.enablePropagateTraceparent = true
             sentryTask = URLSessionDataTaskMock(request: URLRequest(url: URL(string: options.dsn!)!))
             scope = Scope()
-            client = TestClient(options: options.toInternal())
+            client = TestClient(options: options)
             hub = TestHub(client: client, andScope: scope)
         }
 

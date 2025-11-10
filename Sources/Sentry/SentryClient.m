@@ -58,9 +58,8 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
 @implementation SentryClientInternal
 
-- (_Nullable instancetype)initWithOptions:(SentryOptionsObjC *)internalOptions
+- (_Nullable instancetype)initWithOptions:(SentryOptions *)options
 {
-    SentryOptions *options = [internalOptions toOptions];
     NSError *error;
     SentryFileManager *fileManager = [[SentryFileManager alloc]
              initWithOptions:options
@@ -82,9 +81,9 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         [[SentryTransportAdapter alloc] initWithTransports:transports options:options];
 
     SentryDefaultThreadInspector *threadInspector =
-        [[SentryDefaultThreadInspector alloc] initWithOptions:internalOptions];
+        [[SentryDefaultThreadInspector alloc] initWithOptions:options];
 
-    return [self initWithOptions:internalOptions
+    return [self initWithOptions:options
                 transportAdapter:transportAdapter
                      fileManager:fileManager
                  threadInspector:threadInspector
@@ -94,7 +93,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                         timezone:[NSCalendar autoupdatingCurrentCalendar].timeZone];
 }
 
-- (instancetype)initWithOptions:(SentryOptionsObjC *)options
+- (instancetype)initWithOptions:(SentryOptions *)options
                transportAdapter:(SentryTransportAdapter *)transportAdapter
                     fileManager:(SentryFileManager *)fileManager
                 threadInspector:(SentryDefaultThreadInspector *)threadInspector
@@ -105,7 +104,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 {
     if (self = [super init]) {
         _isEnabled = YES;
-        self.optionsInternal = options;
+        self.options = options;
         self.transportAdapter = transportAdapter;
         self.fileManager = fileManager;
         self.threadInspector = threadInspector;
@@ -117,17 +116,21 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
         // The SDK stores the installationID in a file. The first call requires file IO. To avoid
         // executing this on the main thread, we cache the installationID async here.
-        [SentryInstallation
-            cacheIDAsyncWithCacheDirectoryPath:[options toOptions].cacheDirectoryPath];
+        [SentryInstallation cacheIDAsyncWithCacheDirectoryPath:options.cacheDirectoryPath];
 
         [fileManager deleteOldEnvelopeItems];
     }
     return self;
 }
 
-- (SentryOptions *)options
+- (void)setOptionsInternal:(SentryOptions *)optionsInternal
 {
-    return [self.optionsInternal toOptions];
+    self.options = optionsInternal;
+}
+
+- (NSObject *)getOptions
+{
+    return self.options;
 }
 
 - (SentryId *)captureMessage:(NSString *)message
@@ -384,7 +387,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
     SentryTracer *tracer = [SentryTracer getTracer:span];
     if (tracer != nil) {
-        return [[SentryTraceContext alloc] initWithTracer:tracer scope:scope options:self.options];
+        return [[SentryTraceContext alloc] initWithTracer:tracer scope:scope options:_options];
     }
 
     if (event.error || event.exceptions.count > 0) {

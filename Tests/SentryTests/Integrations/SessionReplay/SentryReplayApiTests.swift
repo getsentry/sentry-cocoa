@@ -15,7 +15,7 @@ class SentryReplayApiTests: XCTestCase {
 
     func testStart_whenReplayIntegrationAlreadyInstalled_shouldCallStartOnExistingIntegration() {
         // Arrange
-        let mockClient = TestClient(options: Options().toInternal())
+        let mockClient = TestClient(options: Options())
         let mockReplayIntegration = MockSessionReplayIntegration()
         let mockHub = TestHub(client: mockClient, andScope: Scope())
         mockHub.removeAllIntegrations()
@@ -37,7 +37,7 @@ class SentryReplayApiTests: XCTestCase {
         let options = Options()
         options.sessionReplay = SentryReplayOptions(sessionSampleRate: 1.0, onErrorSampleRate: 1.0)
         options.experimental.enableSessionReplayInUnreliableEnvironment = false
-        let mockClient = TestClient(options: options.toInternal())
+        let mockClient = TestClient(options: options)
         let mockHub = TestHub(client: mockClient, andScope: Scope())
         mockHub.removeAllIntegrations()
         SentrySDKInternal.setCurrentHub(mockHub)
@@ -59,7 +59,7 @@ class SentryReplayApiTests: XCTestCase {
         options.sessionReplay = SentryReplayOptions(sessionSampleRate: 1.0, onErrorSampleRate: 1.0)
         options.experimental.enableSessionReplayInUnreliableEnvironment = true
         options.dsn = "https://user@test.com/test"
-        let mockClient = TestClient(options: options.toInternal())
+        let mockClient = TestClient(options: options)
         let mockHub = TestHub(client: mockClient, andScope: Scope())
         mockHub.removeAllIntegrations()
         SentrySDKInternal.setCurrentHub(mockHub)

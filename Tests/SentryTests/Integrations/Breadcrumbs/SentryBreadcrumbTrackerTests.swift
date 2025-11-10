@@ -97,7 +97,7 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
         SentryDependencyContainer.sharedInstance().reachability = testReachability
         
         let scope = Scope()
-        let client = TestClient(options: Options().toInternal())
+        let client = TestClient(options: Options())
         let hub = TestHub(client: client, andScope: scope)
         SentrySDKInternal.setCurrentHub(hub)
         
@@ -164,7 +164,7 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
     
     func testAppLifeCycleBreadcrumbForSessionReplay() throws {
         let scope = Scope()
-        let client = TestClient(options: Options().toInternal())
+        let client = TestClient(options: Options())
         let hub = TestHub(client: client, andScope: scope)
         SentrySDKInternal.setCurrentHub(hub)
         
@@ -208,7 +208,7 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
     
     func testTouchBreadcrumbForSessionReplay() throws {
         let scope = Scope()
-        let client = TestClient(options: Options().toInternal())
+        let client = TestClient(options: Options())
         let hub = TestHub(client: client, andScope: scope)
         SentrySDKInternal.setCurrentHub(hub)
         
@@ -237,7 +237,7 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
     
     func testTouchBreadcrumb_DontReportAccessibilityIdentifier() throws {
         let scope = Scope()
-        let client = TestClient(options: Options().toInternal())
+        let client = TestClient(options: Options())
         let hub = TestHub(client: client, andScope: scope)
         SentrySDKInternal.setCurrentHub(hub)
         
@@ -265,7 +265,7 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
     
     func testTouchBreadcrumb_ReportAccessibilityIdentifier() throws {
         let scope = Scope()
-        let client = TestClient(options: Options().toInternal())
+        let client = TestClient(options: Options())
         let hub = TestHub(client: client, andScope: scope)
         SentrySDKInternal.setCurrentHub(hub)
         
@@ -292,7 +292,7 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
         SentryDependencyContainer.sharedInstance().reachability = testReachability
 
         let scope = Scope()
-        let client = TestClient(options: Options().toInternal())
+        let client = TestClient(options: Options())
         let hub = TestHub(client: client, andScope: scope)
         SentrySDKInternal.setCurrentHub(hub)
 

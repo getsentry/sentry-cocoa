@@ -1,10 +1,10 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
-final class SentryEnabledFeaturesBuilder: NSObject {
+@_spi(Private) @objc public final class SentryEnabledFeaturesBuilder: NSObject {
 
     // swiftlint:disable cyclomatic_complexity function_body_length
-    static func getEnabledFeatures(options: Options?) -> [String] {
+    @objc public static func getEnabledFeatures(options: Options?) -> [String] {
         guard let options = options else {
             return []
         }

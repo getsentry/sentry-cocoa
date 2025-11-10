@@ -83,7 +83,7 @@ class SentryCrashInstallationReporterTests: XCTestCase {
         options.dsn = TestConstants.dsnAsString(username: "SentryCrashInstallationReporterTests")
         SentrySDK.start(options: options)
         
-        testClient = TestClient(options: options.toInternal())
+        testClient = TestClient(options: options)
         let hub = SentryHubInternal(client: testClient, andScope: nil)
         SentrySDKInternal.setCurrentHub(hub)
         

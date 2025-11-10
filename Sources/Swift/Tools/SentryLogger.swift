@@ -212,9 +212,8 @@ public final class SentryLogger: NSObject {
         )
         
         var processedLog: SentryLog? = log
-        if let beforeSendLog = batcher.options.beforeSendLog {
-            processedLog = beforeSendLog(log)
-        }
+        // Swift cannot see ObjC headers with Swift types, so we need to cast the result
+        processedLog = SentryDependencyContainerSwiftHelper.beforeSendLog(log, options: batcher.options) as? SentryLog
         
         if let processedLog {
             SentrySDKLog.log(
@@ -231,8 +230,8 @@ public final class SentryLogger: NSObject {
         }
         attributes["sentry.sdk.name"] = .init(string: SentryMeta.sdkName)
         attributes["sentry.sdk.version"] = .init(string: SentryMeta.versionString)
-        attributes["sentry.environment"] = .init(string: batcher.options.environment)
-        if let releaseName = batcher.options.releaseName {
+        attributes["sentry.environment"] = .init(string: SentryDependencyContainerSwiftHelper.environment(batcher.options))
+        if let releaseName = SentryDependencyContainerSwiftHelper.release(batcher.options) {
             attributes["sentry.release"] = .init(string: releaseName)
         }
         if let span = hub.scope.span {

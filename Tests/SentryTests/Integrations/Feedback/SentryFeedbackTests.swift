@@ -200,7 +200,7 @@ class SentryFeedbackTests: XCTestCase {
         let transportAdapter = TestTransportAdapter(transports: [transport], options: options)
 
         let client = SentryClientInternal(
-            options: options.toInternal(),
+            options: options,
             transportAdapter: transportAdapter,
             fileManager: try XCTUnwrap(SentryFileManager(
                 options: options,
@@ -242,7 +242,7 @@ class SentryFeedbackTests: XCTestCase {
         let transportAdapter = TestTransportAdapter(transports: [transport], options: options)
 
         let client = SentryClientInternal(
-            options: options.toInternal(),
+            options: options,
             transportAdapter: transportAdapter,
             fileManager: try XCTUnwrap(SentryFileManager(
                 options: options,
@@ -284,7 +284,7 @@ class SentryFeedbackTests: XCTestCase {
         let transportAdapter = TestTransportAdapter(transports: [transport], options: options)
 
         let client = SentryClientInternal(
-            options: options.toInternal(),
+            options: options,
             transportAdapter: transportAdapter,
             fileManager: try XCTUnwrap(SentryFileManager(
                 options: options,

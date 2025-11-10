@@ -167,12 +167,20 @@ sentry_scheduledTimerWithTarget(
 BOOL
 sentry_appHangsDisabled(void)
 {
-    return [[[[SentrySDKInternal currentHub] getClient] options] isAppHangTrackingDisabled];
+    SentryOptions *options = [[[SentrySDKInternal currentHub] getClient] options];
+    if (options == nil) {
+        return NO;
+    }
+    return [options isAppHangTrackingDisabled];
 }
 BOOL
 sentry_autoPerformanceTracingDisabled(void)
 {
-    return ![[[[SentrySDKInternal currentHub] getClient] options] enableAutoPerformanceTracing];
+    SentryOptions *options = [[[SentrySDKInternal currentHub] getClient] options];
+    if (options == nil) {
+        return YES;
+    }
+    return ![options enableAutoPerformanceTracing];
 }
 void
 sentry_startFramesTracker(void)

@@ -1,6 +1,6 @@
 import _SentryPrivate
 import Foundation
-@_spi(Private) import Sentry
+@_spi(Private) @testable import Sentry
 
 public class TestClient: SentryClientInternal {
     public override init?(options: NSObject) {
@@ -8,7 +8,7 @@ public class TestClient: SentryClientInternal {
             options: options,
             transportAdapter: TestTransportAdapter(transports: [TestTransport()], options: options as! Options),
             fileManager: try! TestFileManager(
-                options: options.toOptions(),
+                options: options as? Options,
                 dateProvider: TestCurrentDateProvider(),
                 dispatchQueueWrapper: TestSentryDispatchQueueWrapper()
             ),

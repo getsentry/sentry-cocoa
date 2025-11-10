@@ -95,7 +95,7 @@
 - (void)testEnvironment
 {
     SentryOptions *options = [self getValidOptions:@{}];
-    XCTAssertEqualObjects(options.environment, @"production");
+    XCTAssertEqualObjects(options.environment, [SentryOptions defaultEnvironment]);
 
     options = [self getValidOptions:@{ @"environment" : @"xxx" }];
     XCTAssertEqualObjects(options.environment, @"xxx");
@@ -695,7 +695,7 @@ typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull 
     XCTAssertEqual(2.0, options.shutdownTimeInterval);
     XCTAssertEqual(NO, options.debug);
     XCTAssertEqual(kSentryLevelDebug, options.diagnosticLevel);
-    XCTAssertEqualObjects(options.environment, @"production");
+    XCTAssertEqualObjects(options.environment, [SentryOptions defaultEnvironment]);
     XCTAssertNil(options.dist);
     XCTAssertEqual(defaultMaxBreadcrumbs, options.maxBreadcrumbs);
     XCTAssertTrue(options.enableNetworkBreadcrumbs);

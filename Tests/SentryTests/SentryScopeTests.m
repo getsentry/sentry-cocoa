@@ -124,7 +124,7 @@
 - (void)testEnvironmentSerializes
 {
     SentryScope *scope = [[SentryScope alloc] init];
-    NSString *expectedEnvironment = @"production";
+    NSString *expectedEnvironment = [SentryOptions defaultEnvironment];
     [scope setEnvironment:expectedEnvironment];
     XCTAssertEqualObjects([[scope serialize] objectForKey:@"environment"], expectedEnvironment);
 }
