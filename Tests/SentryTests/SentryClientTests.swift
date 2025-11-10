@@ -2172,55 +2172,40 @@ class SentryClientTests: XCTestCase {
         XCTAssertEqual(scope.replayId, "someReplay")
     }
     
-    func testCaptureLog() throws {
+    func testCaptureLogsData() throws {
         let sut = fixture.getSut()
+        let logData = Data("{\"items\":[{\"timestamp\":1627846801,\"level\":\"info\",\"body\":\"Test log message\"}]}".utf8)
         
-        // Create a test batcher to verify addLog is called
-        let testDelegate = TestLogBatcherDelegateForClient()
-        let testBatcher = TestLogBatcherForClient(
-            options: sut.options,
-            dispatchQueue: TestSentryDispatchQueueWrapper(),
-            delegate: testDelegate
-        )
-        Dynamic(sut).logBatcher = testBatcher
+        sut.captureLogsData(logData, with: NSNumber(value: 1))
         
-        let log = SentryLog(
-            timestamp: Date(timeIntervalSince1970: 1_627_846_801),
-            traceId: SentryId.empty, // Temporary set to empty until its assigned by the batcher.
-            level: .info,
-            body: "Test log message",
-            attributes: [:]
-        )
-        let scope = Scope()
+        // Verify that an envelope was sent
+        XCTAssertEqual(1, fixture.transport.sentEnvelopes.count)
         
-        sut._swiftCaptureLog(log, with: scope)
+        let envelope = try XCTUnwrap(fixture.transport.sentEnvelopes.first)
         
-        // Verify that the log was passed to the batcher
-        XCTAssertEqual(testBatcher.addLogInvocations.count, 1)
-        XCTAssertEqual(testBatcher.addLogInvocations.first?.log.body, "Test log message")
-        XCTAssertEqual(testBatcher.addLogInvocations.first?.log.level, .info)
+        // Verify envelope has one item
+        XCTAssertEqual(1, envelope.items.count)
+        
+        let item = try XCTUnwrap(envelope.items.first)
+        
+        // Verify the envelope item header
+        XCTAssertEqual("log", item.header.type)
+        XCTAssertEqual(UInt(logData.count), item.header.length)
+        XCTAssertEqual("application/vnd.sentry.items.log+json", item.header.contentType)
+        XCTAssertEqual(NSNumber(value: 1), item.header.itemCount)
+        
+        // Verify the envelope item data
+        XCTAssertEqual(logData, item.data)
     }
     
-    func testFlushCallsLogBatcherCaptureLogs() {
-        let sut = fixture.getSut()
+    func testCaptureLogsData_WithDisabledClient() {
+        let sut = fixture.getSutDisabledSdk()
+        let logData = Data("{\"items\":[{\"timestamp\":1627846801,\"level\":\"info\",\"body\":\"Test log message\"}]}".utf8)
         
-        // Create a test batcher to verify captureLogs is called
-        let testDelegate = TestLogBatcherDelegateForClient()
-        let testBatcher = TestLogBatcherForClient(
-            options: sut.options,
-            dispatchQueue: TestSentryDispatchQueueWrapper(),
-            delegate: testDelegate
-        )
-        Dynamic(sut).logBatcher = testBatcher
+        sut.captureLogsData(logData, with: NSNumber(value: 1))
         
-        // Verify initial state
-        XCTAssertEqual(testBatcher.captureLogsInvocations.count, 0)
-        
-        // Call flush - this should trigger the log batcher to capture logs
-        sut.flush(timeout: 1.0)
-        
-        // Verify that captureLogs was called on the log batcher
-        XCTAssertEqual(testBatcher.captureLogsInvocations.count, 1)
+        // Verify that no envelope was sent when client is disabled
+        XCTAssertEqual(0, fixture.transport.sentEnvelopes.count)
     }
     
     func testCaptureSentryWrappedException() throws {
@@ -2427,27 +2412,6 @@ private extension SentryClientTests {
         }
     }
     
-}
-
-final class TestLogBatcherForClient: SentryLogBatcher {
-    var addLogInvocations = Invocations<(log: SentryLog, scope: Scope)>()
-    var captureLogsInvocations = Invocations<Void>()
-    
-    override func addLog(_ log: SentryLog, scope: Scope) {
-        addLogInvocations.record((log, scope))
-    }
-    
-    @discardableResult
-    override func captureLogs() -> TimeInterval {
-        captureLogsInvocations.record(())
-        return super.captureLogs()
-    }
-}
-
-final class TestLogBatcherDelegateForClient: NSObject, SentryLogBatcherDelegate {
-    func capture(logsData: NSData, count: NSNumber) {
-        // No-op for tests that don't need to verify delegate calls
-    }
 }
 
 enum SentryClientError: Error {
