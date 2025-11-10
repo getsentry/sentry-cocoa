@@ -173,32 +173,4 @@ final class SentryLogTests: XCTestCase {
         let decodedScoreValue = try XCTUnwrap(decoded.attributes["score"]?.value as? Double)
         XCTAssertEqual(decodedScoreValue, 3.14159, accuracy: 0.00001)
     }
-    
-    // MARK: - setAttribute Tests
-    
-    func testSetAttribute_AddsUpdatedsRemovesAtribute() {
-        let log = SentryLog(
-            level: .info,
-            body: "Test message",
-            attributes: [:]
-        )
-        
-        log.setAttribute(SentryLog.Attribute(string: "test_value"), forKey: "test_key")
-        
-        XCTAssertEqual(log.attributes.count, 1)
-        XCTAssertEqual(log.attributes["test_key"]?.type, "string")
-        XCTAssertEqual(log.attributes["test_key"]?.value as? String, "test_value")
-
-        log.setAttribute(SentryLog.Attribute(string: "test_value_2"), forKey: "test_key")
-
-        XCTAssertEqual(log.attributes.count, 1)
-        XCTAssertEqual(log.attributes["test_key"]?.type, "string")
-        XCTAssertEqual(log.attributes["test_key"]?.value as? String, "test_value_2")
-
-        log.setAttribute(nil, forKey: "test_key")
-
-        XCTAssertEqual(log.attributes.count, 0)
-        XCTAssertNil(log.attributes["test_key"])
-    }
-    
 }

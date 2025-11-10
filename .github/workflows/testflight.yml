@@ -42,7 +42,8 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - run: ./scripts/ci-select-xcode.sh 16.4
-      - uses: ruby/setup-ruby@v1
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@d5126b9b3579e429dd52e51e68624dda2e05be25 # v1.267.0
         with:
           bundler-cache: true
 
@@ -101,11 +102,7 @@ jobs:
   # to make testflight a required check with only running the upload_to_testflight when required.
   # So, we don't have to run upload_to_testflight, for example, for unrelated changes.
   testflight-required-check:
-    needs:
-      [
-        files-changed,
-        upload_to_testflight,
-      ]
+    needs: [files-changed, upload_to_testflight]
     name: Testflight
     # This is necessary since a failed/skipped dependent job would cause this job to be skipped
     if: always()
