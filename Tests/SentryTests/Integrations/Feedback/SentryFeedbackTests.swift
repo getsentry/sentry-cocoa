@@ -30,10 +30,14 @@ class SentryFeedbackTests: XCTestCase {
     }
     
     func testSerializeWithAllFields() throws {
+        // -- Arrange --
         let attachment = Attachment(data: Data(), filename: "screenshot.png", contentType: "image/png")
         let sut = SentryFeedback(message: "Test feedback message", name: "Test feedback provider", email: "test-feedback-provider@sentry.io", attachments: [attachment])
 
+        // -- Act --
         let serialization = sut.serialize()
+
+        // -- Assert --
         XCTAssertEqual(try XCTUnwrap(serialization["message"] as? String), "Test feedback message")
         XCTAssertEqual(try XCTUnwrap(serialization["name"] as? String), "Test feedback provider")
         XCTAssertEqual(try XCTUnwrap(serialization["contact_email"] as? String), "test-feedback-provider@sentry.io")
