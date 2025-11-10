@@ -45,14 +45,13 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryClientInternal () <SentryLogBatcherDelegate>
+@interface SentryClientInternal ()
 
 @property (nonatomic, strong) SentryTransportAdapter *transportAdapter;
 @property (nonatomic, strong) SentryDebugImageProvider *debugImageProvider;
 @property (nonatomic, strong) id<SentryRandomProtocol> random;
 @property (nonatomic, strong) NSLocale *locale;
 @property (nonatomic, strong) NSTimeZone *timezone;
-@property (nonatomic, strong) SentryLogBatcher *logBatcher;
 
 @end
 
@@ -115,10 +114,6 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         self.locale = locale;
         self.timezone = timezone;
         self.attachmentProcessors = [[NSMutableArray alloc] init];
-        self.logBatcher = [[SentryLogBatcher alloc]
-            initWithOptions:options
-              dispatchQueue:SentryDependencyContainer.sharedInstance.dispatchQueueWrapper
-                   delegate:self];
 
         // The SDK stores the installationID in a file. The first call requires file IO. To avoid
         // executing this on the main thread, we cache the installationID async here.
@@ -624,11 +619,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
 - (void)flush:(NSTimeInterval)timeout
 {
-    NSTimeInterval captureLogsDuration = [self.logBatcher captureLogs];
-    // Capturing batched logs should never take long, but we need to fall back to a sane value.
-    // This is a workaround for in-memory logs, until we'll write batched logs to disk,
-    // to avoid data loss due to crashes. This is a trade-off until then.
-    [self.transportAdapter flush:fmax(timeout / 2, timeout - captureLogsDuration)];
+    [self.transportAdapter flush:timeout];
 }
 
 - (void)close
@@ -1098,14 +1089,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     return processedAttachments;
 }
 
-- (void)_swiftCaptureLog:(NSObject *)log withScope:(SentryScope *)scope
-{
-    if ([log isKindOfClass:[SentryLog class]]) {
-        [self.logBatcher addLog:(SentryLog *)log scope:scope];
-    }
-}
-
-- (void)captureLogsData:(NSData *)data with:(NSNumber *)itemCount
+- (void)captureLogsData:(NSData *)data with:(NSNumber *)itemCount;
 {
     SentryEnvelopeItemHeader *header =
         [[SentryEnvelopeItemHeader alloc] initWithType:SentryEnvelopeItemTypes.log

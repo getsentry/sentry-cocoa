@@ -28,6 +28,7 @@
 #import "SentryANRTrackerV1.h"
 #import "SentryANRTrackerV2.h"
 #import "SentryAsyncLog.h"
+#import "SentryClient+Logs.h"
 #import "SentryContinuousProfiler.h"
 #import "SentryCrash.h"
 #import "SentryCrashDebug.h"

@@ -26,7 +26,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryHubInternal () <SentryLoggerDelegate>
+@interface SentryHubInternal ()
 
 @property (nullable, atomic, strong) SentryClientInternal *client;
 @property (nullable, nonatomic, strong) SentryScope *scope;
@@ -73,10 +73,6 @@ NS_ASSUME_NONNULL_BEGIN
         if (_scope) {
             [_crashWrapper enrichScope:SENTRY_UNWRAP_NULLABLE(SentryScope, _scope)];
         }
-
-        __swiftLogger = [[SentryLogger alloc]
-            initWithDelegate:self
-                dateProvider:SentryDependencyContainer.sharedInstance.dateProvider];
     }
 
     return self;
@@ -835,35 +831,6 @@ NS_ASSUME_NONNULL_BEGIN
     if (_sessionListener == listener) {
         _sessionListener = nil;
     }
-}
-
-// SentryLoggerDelegate
-
-- (void)captureLog:(SentryLog *)log
-{
-    SentryClientInternal *client = self.client;
-    if (client == nil) {
-        SENTRY_LOG_WARN(@"No client configured. Dropping log.");
-        return;
-    }
-#if SENTRY_TARGET_REPLAY_SUPPORTED
-    NSString *scopeReplayId = self.scope.replayId;
-    if (scopeReplayId != nil) {
-        // Session mode: use scope replay ID
-        [log setAttribute:[[SentryLogAttribute alloc] initWithString:scopeReplayId]
-                   forKey:@"sentry.replay_id"];
-    } else {
-        // Buffer mode: check if hub has a session replay ID
-        NSString *sessionReplayId = [self getSessionReplayId];
-        if (sessionReplayId != nil) {
-            [log setAttribute:[[SentryLogAttribute alloc] initWithString:sessionReplayId]
-                       forKey:@"sentry.replay_id"];
-            [log setAttribute:[[SentryLogAttribute alloc] initWithBoolean:YES]
-                       forKey:@"sentry._internal.replay_is_buffering"];
-        }
-    }
-#endif
-    [client _swiftCaptureLog:log withScope:self.scope];
 }
 
 #pragma mark - Protected
