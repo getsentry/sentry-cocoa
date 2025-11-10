@@ -88,6 +88,15 @@ jobs:
         if: ${{ !contains(inputs.xcode, '15.') }}
         run: |
           xcrun simctl runtime dyld_shared_cache update --all
+          xcrun simctl list runtimes -v
+          xcrun simctl list devices
+
+      - name: Install Rosetta
+        run: softwareupdate --install-rosetta --agree-to-license
+
+      - name: List available simulators
+        run: |
+          xcrun simctl list runtimes -v
           xcrun simctl list devices
 
       # Create simulator devices for non-preinstalled simulators
