@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Improvements
+
+- Increase maximum attachment size to 200MB (#6726)
+
 ## 9.0.0-alpha.0
 
 ### Breaking Changes
