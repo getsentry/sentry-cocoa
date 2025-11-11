@@ -1,13 +1,14 @@
 #import "SentryFileManagerHelper.h"
 #import "SentryDataCategoryMapper.h"
 #import "SentryDateUtils.h"
+#import "SentryDsn+Private.h"
 #import "SentryDsn.h"
 #import "SentryEnvelopeItemHeader.h"
 #import "SentryError.h"
 #import "SentryEvent.h"
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"
-#import "SentryOptions.h"
+#import "SentrySDK+Private.h"
 #import "SentrySerialization.h"
 #import "SentrySwift.h"
 
@@ -100,6 +101,13 @@ _non_thread_safe_removeFileAtPath(NSString *path)
 @end
 
 @implementation SentryFileManagerHelper
+
+- (nullable instancetype)initWithPlaceholder:(NSObject *)objc
+                                       error:(NSError *_Nullable *_Nullable)error
+{
+    SentryOptions *options = [SentrySDKInternal options];
+    return [self initWithOptions:options error:error];
+}
 
 - (nullable instancetype)initWithOptions:(SentryOptions *_Nullable)options error:(NSError **)error
 {

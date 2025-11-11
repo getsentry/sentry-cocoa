@@ -7,7 +7,6 @@
 #import "SentryInternalDefines.h"
 #import "SentryLevelMapper.h"
 #import "SentryLogC.h"
-#import "SentryOptions+Private.h"
 #import "SentryPerformanceTracker.h"
 #import "SentryProfilingConditionals.h"
 #import "SentrySDK+Private.h"
@@ -16,6 +15,7 @@
 #import "SentrySamplingContext.h"
 #import "SentryScope+Private.h"
 #import "SentrySerialization.h"
+#import "SentrySessionReplayIntegration+Private.h"
 #import "SentrySwift.h"
 #import "SentryTraceOrigin.h"
 #import "SentryTracer.h"
@@ -25,9 +25,9 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryHub ()
+@interface SentryHubInternal ()
 
-@property (nullable, atomic, strong) SentryClient *client;
+@property (nullable, atomic, strong) SentryClientInternal *client;
 @property (nullable, nonatomic, strong) SentryScope *scope;
 @property (nonatomic) SentryDispatchQueueWrapper *dispatchQueue;
 @property (nonatomic, strong) SentryCrashWrapper *crashWrapper;
@@ -37,12 +37,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-@implementation SentryHub {
+@implementation SentryHubInternal {
     NSObject *_sessionLock;
     NSObject *_integrationsLock;
 }
 
-- (instancetype)initWithClient:(nullable SentryClient *)client
+- (instancetype)initWithClient:(nullable SentryClientInternal *)client
                       andScope:(nullable SentryScope *)scope
 {
     return [self initWithClient:client
@@ -52,7 +52,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 /** Internal constructor for testing */
-- (instancetype)initWithClient:(nullable SentryClient *)client
+- (instancetype)initWithClient:(nullable SentryClientInternal *)client
                       andScope:(nullable SentryScope *)scope
                andCrashWrapper:(SentryCrashWrapper *)crashWrapper
               andDispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue
@@ -169,7 +169,7 @@ NS_ASSUME_NONNULL_BEGIN
     SENTRY_LOG_DEBUG(@"A cached session was found.");
 
     // Make sure there's a client bound.
-    SentryClient *client = self.client;
+    SentryClientInternal *client = self.client;
     if (client == nil) {
         SENTRY_LOG_DEBUG(@"No client bound.");
         return;
@@ -199,7 +199,7 @@ NS_ASSUME_NONNULL_BEGIN
         return;
     }
 
-    SentryClient *client = self.client;
+    SentryClientInternal *client = self.client;
     if (client.options.diagnosticLevel == kSentryLevelDebug) {
         SENTRY_LOG_DEBUG(@"Capturing session with status: %@",
             [self createSessionDebugString:SENTRY_UNWRAP_NULLABLE(SentrySession, session)]);
@@ -236,7 +236,7 @@ NS_ASSUME_NONNULL_BEGIN
 {
     event.isFatalEvent = YES;
 
-    SentryClient *client = self.client;
+    SentryClientInternal *client = self.client;
     if (client == nil) {
         return;
     }
@@ -266,7 +266,7 @@ NS_ASSUME_NONNULL_BEGIN
     // We treat fatal app hang events similar to crashes.
     event.isFatalEvent = YES;
 
-    SentryClient *_Nullable client = _client;
+    SentryClientInternal *_Nullable client = _client;
     if (client == nil) {
         return;
     }
@@ -313,7 +313,7 @@ NS_ASSUME_NONNULL_BEGIN
     // When a user calls finish on a transaction, which calls captureTransaction, the calling thread
     // here could be the main thread, which we only want to block as long as required. Therefore, we
     // capture the transaction on a background thread.
-    __weak SentryHub *weakSelf = self;
+    __weak SentryHubInternal *weakSelf = self;
     [self.dispatchQueue dispatchAsyncWithBlock:^{
         [weakSelf captureEvent:transaction
                           withScope:scope
@@ -330,7 +330,7 @@ NS_ASSUME_NONNULL_BEGIN
         return;
     }
 
-    SentryClient *client = self.client;
+    SentryClientInternal *client = self.client;
     if (client != nil) {
         [client saveCrashTransaction:transaction withScope:self.scope];
     }
@@ -350,7 +350,7 @@ NS_ASSUME_NONNULL_BEGIN
                   withScope:(SentryScope *)scope
     additionalEnvelopeItems:(NSArray<SentryEnvelopeItem *> *)additionalEnvelopeItems
 {
-    SentryClient *client = self.client;
+    SentryClientInternal *client = self.client;
     if (client != nil) {
         return [client captureEvent:event
                           withScope:scope
@@ -474,7 +474,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (SentryId *)captureMessage:(NSString *)message withScope:(SentryScope *)scope
 {
-    SentryClient *client = self.client;
+    SentryClientInternal *client = self.client;
     if (client != nil) {
         return [client captureMessage:message withScope:scope];
     }
@@ -489,7 +489,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (SentryId *)captureError:(NSError *)error withScope:(SentryScope *)scope
 {
     SentrySession *currentSession = _session;
-    SentryClient *client = self.client;
+    SentryClientInternal *client = self.client;
     if (client != nil) {
         if (currentSession != nil) {
             return [client captureError:error
@@ -511,7 +511,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (SentryId *)captureException:(NSException *)exception withScope:(SentryScope *)scope
 {
     SentrySession *currentSession = _session;
-    SentryClient *client = self.client;
+    SentryClientInternal *client = self.client;
     if (client != nil) {
         if (currentSession != nil) {
             return [client captureException:exception
@@ -527,7 +527,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)captureFeedback:(SentryFeedback *)feedback
 {
-    SentryClient *client = self.client;
+    SentryClientInternal *client = self.client;
     if (client != nil) {
         [client captureFeedback:feedback withScope:self.scope];
     }
@@ -537,7 +537,7 @@ NS_ASSUME_NONNULL_BEGIN
                       withEventId:(NSString *)feedbackEventId
                       attachments:(NSArray<SentryAttachment *> *)feedbackAttachments
 {
-    SentryClient *client = self.client;
+    SentryClientInternal *client = self.client;
     if (client != nil) {
         [client captureSerializedFeedback:serializedFeedback
                               withEventId:feedbackEventId
@@ -564,12 +564,12 @@ NS_ASSUME_NONNULL_BEGIN
     [self.scope addBreadcrumb:SENTRY_UNWRAP_NULLABLE(SentryBreadcrumb, nullableCrumb)];
 }
 
-- (nullable SentryClient *)getClient
+- (nullable SentryClientInternal *)getClient
 {
     return self.client;
 }
 
-- (void)bindClient:(nullable SentryClient *)client
+- (void)bindClient:(nullable SentryClientInternal *)client
 {
     self.client = client;
 }
@@ -578,7 +578,7 @@ NS_ASSUME_NONNULL_BEGIN
 {
     @synchronized(self) {
         if (_scope == nil) {
-            SentryClient *client = self.client;
+            SentryClientInternal *client = self.client;
             if (client != nil) {
                 _scope = [[SentryScope alloc] initWithMaxBreadcrumbs:client.options.maxBreadcrumbs];
             } else {
@@ -594,7 +594,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)configureScope:(void (^)(SentryScope *scope))callback
 {
     SentryScope *scope = self.scope;
-    SentryClient *client = _client;
+    SentryClientInternal *client = _client;
     if (client != nil && scope != nil) {
         callback(scope);
     }
@@ -686,7 +686,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)storeEnvelope:(SentryEnvelope *)envelope
 {
-    SentryClient *client = self.client;
+    SentryClientInternal *client = self.client;
     if (client == nil) {
         return;
     }
@@ -698,7 +698,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)captureEnvelope:(SentryEnvelope *)envelope
 {
-    SentryClient *client = self.client;
+    SentryClientInternal *client = self.client;
     if (client == nil) {
         return;
     }
@@ -808,7 +808,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)flush:(NSTimeInterval)timeout
 {
-    SentryClient *client = self.client;
+    SentryClientInternal *client = self.client;
     if (client != nil) {
         [client flush:timeout];
     }
@@ -848,6 +848,22 @@ NS_ASSUME_NONNULL_BEGIN
     }
     return integrations;
 }
+
+#if SENTRY_TARGET_REPLAY_SUPPORTED
+- (NSString *__nullable)getSessionReplayId
+{
+    SentrySessionReplayIntegration *integration =
+        [self getInstalledIntegration:[SentrySessionReplayIntegration class]];
+    if (integration == nil || integration.sessionReplay == nil) {
+        return nil;
+    }
+    SentryId *replayId = integration.sessionReplay.sessionReplayId;
+    if (replayId == nil) {
+        return nil;
+    }
+    return replayId.sentryIdString;
+}
+#endif
 
 @end
 

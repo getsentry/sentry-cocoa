@@ -42,7 +42,7 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
             
             crashWrapper = TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo)
             
-            let hub = SentryHub(client: client, andScope: nil, andCrashWrapper: crashWrapper, andDispatchQueue: SentryDispatchQueueWrapper())
+            let hub = SentryHubInternal(client: client, andScope: nil, andCrashWrapper: crashWrapper, andDispatchQueue: SentryDispatchQueueWrapper())
             SentrySDKInternal.setCurrentHub(hub)
         }
         
@@ -53,7 +53,7 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
         func getSut(fileManager: SentryFileManager) throws -> SentryWatchdogTerminationTracker {
             SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = dispatchQueue
             let appStateManager = SentryAppStateManager(
-                options: options,
+                releaseName: options.releaseName,
                 crashWrapper: crashWrapper,
                 fileManager: fileManager,
                 sysctlWrapper: sysctl

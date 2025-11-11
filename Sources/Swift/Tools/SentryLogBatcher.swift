@@ -5,12 +5,10 @@ import Foundation
 @objcMembers
 @_spi(Private) public class SentryLogBatcher: NSObject {
     
-    private let client: SentryClient
+    private let client: SentryClientInternal
     private let flushTimeout: TimeInterval
     private let maxBufferSizeBytes: Int
     private let dispatchQueue: SentryDispatchQueueWrapper
-    
-    internal let options: Options
 
     // All mutable state is accessed from the same serial dispatch queue.
     
@@ -18,6 +16,10 @@ import Foundation
     private var encodedLogs: [Data] = []
     private var encodedLogsSize: Int = 0
     private var timerWorkItem: DispatchWorkItem?
+    
+    var options: SentryOptionsObjC {
+        client.getOptions()
+    }
 
     /// Initializes a new SentryLogBatcher.
     /// - Parameters:
@@ -28,34 +30,17 @@ import Foundation
     ///
     /// - Important: The `dispatchQueue` parameter MUST be a serial queue to ensure thread safety.
     ///              Passing a concurrent queue will result in undefined behavior and potential data races.
-    @_spi(Private) public init(
-        client: SentryClient,
-        flushTimeout: TimeInterval,
-        maxBufferSizeBytes: Int,
+    init(
+        client: SentryClientInternal,
+        flushTimeout: TimeInterval = 5,
+        maxBufferSizeBytes: Int = 1_024 * 1_024,
         dispatchQueue: SentryDispatchQueueWrapper
     ) {
         self.client = client
-        self.options = client.options
         self.flushTimeout = flushTimeout
         self.maxBufferSizeBytes = maxBufferSizeBytes
         self.dispatchQueue = dispatchQueue
         super.init()
-    }
-    
-    /// Convenience initializer with default flush timeout and buffer size.
-    /// - Parameters:
-    ///   - client: The SentryClient to use for sending logs
-    ///   - dispatchQueue: A **serial** dispatch queue wrapper for thread-safe access to mutable state
-    ///
-    /// - Important: The `dispatchQueue` parameter MUST be a serial queue to ensure thread safety.
-    ///              Passing a concurrent queue will result in undefined behavior and potential data races.
-    @_spi(Private) public convenience init(client: SentryClient, dispatchQueue: SentryDispatchQueueWrapper) {
-        self.init(
-            client: client,
-            flushTimeout: 5,
-            maxBufferSizeBytes: 1_024 * 1_024, // 1MB
-            dispatchQueue: dispatchQueue
-        )
     }
     
     @_spi(Private) func add(_ log: SentryLog) {

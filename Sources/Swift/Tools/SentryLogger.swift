@@ -29,12 +29,12 @@ import Foundation
 /// ```
 @objc
 public final class SentryLogger: NSObject {
-    private let hub: SentryHub
+    private let hub: SentryHubInternal
     private let dateProvider: SentryCurrentDateProvider
     // Nil in the case where the Hub's client is nil or logs are disabled through options.
     private let batcher: SentryLogBatcher?
     
-    @_spi(Private) public init(hub: SentryHub, dateProvider: SentryCurrentDateProvider, batcher: SentryLogBatcher?) {
+    init(hub: SentryHubInternal, dateProvider: SentryCurrentDateProvider, batcher: SentryLogBatcher?) {
         self.hub = hub
         self.dateProvider = dateProvider
         self.batcher = batcher
@@ -198,6 +198,7 @@ public final class SentryLogger: NSObject {
         addOSAttributes(to: &logAttributes)
         addDeviceAttributes(to: &logAttributes)
         addUserAttributes(to: &logAttributes)
+        addReplayAttributes(to: &logAttributes)
 
         let propagationContextTraceIdString = hub.scope.propagationContextTraceIdString
         let propagationContextTraceId = SentryId(uuidString: propagationContextTraceIdString)
@@ -211,9 +212,8 @@ public final class SentryLogger: NSObject {
         )
         
         var processedLog: SentryLog? = log
-        if let beforeSendLog = batcher.options.beforeSendLog {
-            processedLog = beforeSendLog(log)
-        }
+        // Swift cannot see ObjC headers with Swift types, so we need to cast the result
+        processedLog = SentryDependencyContainerSwiftHelper.beforeSendLog(log, options: batcher.options) as? SentryLog
         
         if let processedLog {
             SentrySDKLog.log(
@@ -230,8 +230,8 @@ public final class SentryLogger: NSObject {
         }
         attributes["sentry.sdk.name"] = .init(string: SentryMeta.sdkName)
         attributes["sentry.sdk.version"] = .init(string: SentryMeta.versionString)
-        attributes["sentry.environment"] = .init(string: batcher.options.environment)
-        if let releaseName = batcher.options.releaseName {
+        attributes["sentry.environment"] = .init(string: SentryDependencyContainerSwiftHelper.environment(batcher.options))
+        if let releaseName = SentryDependencyContainerSwiftHelper.release(batcher.options) {
             attributes["sentry.release"] = .init(string: releaseName)
         }
         if let span = hub.scope.span {
@@ -280,30 +280,19 @@ public final class SentryLogger: NSObject {
             attributes["user.email"] = .init(string: userEmail)
         }
     }
-}
-
-#if SWIFT_PACKAGE
-/**
- * Use this callback to drop or modify a log before the SDK sends it to Sentry. Return `nil` to
- * drop the log.
- */
-public typealias SentryBeforeSendLogCallback = (SentryLog) -> SentryLog?
-
-// Makes the `beforeSendLog` property visible as the Swift type `SentryBeforeSendLogCallback`.
-// This works around `SentryLog` being only forward declared in the objc header, resulting in 
-// compile time issues with SPM builds.
-@objc
-public extension Options {
-    /**
-     * Use this callback to drop or modify a log before the SDK sends it to Sentry. Return `nil` to
-     * drop the log.
-     */
-    @objc
-    var beforeSendLog: SentryBeforeSendLogCallback? {
-        // Note: This property provides SentryLog type safety for SPM builds where the native Objective-C 
-        // property cannot be used due to Swift-to-Objective-C bridging limitations.
-        get { return value(forKey: "beforeSendLogDynamic") as? SentryBeforeSendLogCallback }
-        set { setValue(newValue, forKey: "beforeSendLogDynamic") }
+    
+    private func addReplayAttributes(to attributes: inout [String: SentryLog.Attribute]) {
+#if canImport(UIKit) && !SENTRY_NO_UIKIT
+#if os(iOS) || os(tvOS)
+        if let scopeReplayId = hub.scope.replayId {
+            // Session mode: use scope replay ID
+            attributes["sentry.replay_id"] = .init(string: scopeReplayId)
+        } else if let sessionReplayId = hub.getSessionReplayId() {
+            // Buffer mode: scope has no ID but integration does
+            attributes["sentry.replay_id"] = .init(string: sessionReplayId)
+            attributes["sentry._internal.replay_is_buffering"] = .init(boolean: true)
+        }
+#endif
+#endif
     }
 }
-#endif // SWIFT_PACKAGE

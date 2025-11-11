@@ -7,7 +7,6 @@
 #import "SentryEvent.h"
 #import "SentryHub.h"
 #import "SentryInternalDefines.h"
-#import "SentryOptions.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
 #import "SentryScope+PrivateSwift.h"
@@ -145,8 +144,7 @@ sentry_finishAndSaveTransaction(void)
         BOOL canSendReports = NO;
         if (installation == nil) {
             SentryInAppLogic *inAppLogic =
-                [[SentryInAppLogic alloc] initWithInAppIncludes:self.options.inAppIncludes
-                                                  inAppExcludes:self.options.inAppExcludes];
+                [[SentryInAppLogic alloc] initWithInAppIncludes:self.options.inAppIncludes];
 
             installation = [[SentryCrashInstallationReporter alloc]
                 initWithInAppLogic:inAppLogic

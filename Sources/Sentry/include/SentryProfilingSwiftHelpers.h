@@ -4,7 +4,7 @@
 @class SentryId;
 @class SentryProfileOptions;
 @class SentrySpanId;
-@class SentryClient;
+@class SentryClientInternal;
 @class SentryDispatchQueueWrapper;
 @class SentryScreenFrames;
 @class SentryTransactionContext;
@@ -19,9 +19,9 @@ NS_ASSUME_NONNULL_BEGIN
 extern "C" {
 #endif
 
-BOOL sentry_isContinuousProfilingEnabled(SentryClient *client);
-BOOL sentry_isProfilingCorrelatedToTraces(SentryClient *client);
-SentryProfileOptions *_Nullable sentry_getProfiling(SentryClient *client);
+BOOL sentry_isContinuousProfilingEnabled(SentryClientInternal *client);
+BOOL sentry_isProfilingCorrelatedToTraces(SentryClientInternal *client);
+SentryProfileOptions *_Nullable sentry_getProfiling(SentryClientInternal *client);
 NSString *sentry_stringFromSentryID(SentryId *sentryID);
 NSDate *sentry_getDate(void);
 uint64_t sentry_getSystemTime(void);
@@ -45,6 +45,8 @@ NSTimer *sentry_scheduledTimerWithTarget(
     NSTimeInterval interval, id target, SEL selector, _Nullable id userInfo, BOOL repeats);
 
 #if SENTRY_HAS_UIKIT
+BOOL sentry_appHangsDisabled(void);
+BOOL sentry_autoPerformanceTracingDisabled(void);
 void sentry_startFramesTracker(void);
 void sentry_stopFramesTracker(void);
 void sentry_framesTrackerResetProfilingTimestamps(void);

@@ -1,30 +1,30 @@
 {
-    "fileFormatVersion": "1.0.0",
-    "itemInfoEntries": {
-        "14BC4834-7C94-40B3-9ED3-01064D56F7DE": {
-            "author": "com.apple.CoreML",
-            "description": "External FeatureDescription Overlay",
-            "name": "FeatureDescriptions.json",
-            "path": "com.apple.CoreML/FeatureDescriptions.json"
-        },
-        "39119436-A185-454C-9355-FAE9D78AD25E": {
-            "author": "com.apple.CoreML",
-            "description": "CoreML Model Weights",
-            "name": "weights",
-            "path": "com.apple.CoreML/weights"
-        },
-        "99D8118F-826E-4FA8-9BC2-3A3A6F0398CB": {
-            "author": "com.apple.CoreML",
-            "description": "CoreML Model Specification",
-            "name": "model.mlmodel",
-            "path": "com.apple.CoreML/model.mlmodel"
-        },
-        "F16C0EF2-758E-46D2-A287-F207B193E2A6": {
-            "author": "com.apple.CoreML",
-            "description": "External Metadata Overlay",
-            "name": "Metadata.json",
-            "path": "com.apple.CoreML/Metadata.json"
-        }
+  "fileFormatVersion": "1.0.0",
+  "itemInfoEntries": {
+    "14BC4834-7C94-40B3-9ED3-01064D56F7DE": {
+      "author": "com.apple.CoreML",
+      "description": "External FeatureDescription Overlay",
+      "name": "FeatureDescriptions.json",
+      "path": "com.apple.CoreML/FeatureDescriptions.json"
     },
-    "rootModelIdentifier": "99D8118F-826E-4FA8-9BC2-3A3A6F0398CB"
+    "39119436-A185-454C-9355-FAE9D78AD25E": {
+      "author": "com.apple.CoreML",
+      "description": "CoreML Model Weights",
+      "name": "weights",
+      "path": "com.apple.CoreML/weights"
+    },
+    "99D8118F-826E-4FA8-9BC2-3A3A6F0398CB": {
+      "author": "com.apple.CoreML",
+      "description": "CoreML Model Specification",
+      "name": "model.mlmodel",
+      "path": "com.apple.CoreML/model.mlmodel"
+    },
+    "F16C0EF2-758E-46D2-A287-F207B193E2A6": {
+      "author": "com.apple.CoreML",
+      "description": "External Metadata Overlay",
+      "name": "Metadata.json",
+      "path": "com.apple.CoreML/Metadata.json"
+    }
+  },
+  "rootModelIdentifier": "99D8118F-826E-4FA8-9BC2-3A3A6F0398CB"
 }

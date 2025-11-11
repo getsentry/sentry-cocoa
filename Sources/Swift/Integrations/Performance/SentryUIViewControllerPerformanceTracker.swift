@@ -26,8 +26,9 @@ import UIKit
     @objc private let helper: SentryDefaultUIViewControllerPerformanceTracker
     
     override init() {
-        let options = SentrySDKInternal.options
-        inAppLogic = SentryInAppLogic(inAppIncludes: options?.inAppIncludes ?? [], inAppExcludes: options?.inAppExcludes ?? [])
+        let options = SentrySDKInternal.optionsInternal
+        let inAppIncludes = options.map { SentryDependencyContainerSwiftHelper.inAppIncludes($0) } ?? []
+        inAppLogic = SentryInAppLogic(inAppIncludes: inAppIncludes)
         helper = SentryDefaultUIViewControllerPerformanceTracker(tracker: SentryPerformanceTracker.shared)
     }
     

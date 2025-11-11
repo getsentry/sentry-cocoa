@@ -7,7 +7,6 @@
 #    import "SentryEvent+Private.h"
 #    import "SentryException.h"
 #    import "SentryHub+Private.h"
-#    import "SentryOptions.h"
 #    import "SentrySDK+Private.h"
 #    import "SentrySwift.h"
 
@@ -24,7 +23,7 @@ saveScreenShot(const char *path)
     [screenshotSource saveScreenShots:reportPath];
 }
 
-@interface SentryScreenshotIntegration ()
+@interface SentryScreenshotIntegration () <SentryClientAttachmentProcessor>
 
 @property (nonatomic, strong) SentryOptions *options;
 
@@ -40,7 +39,7 @@ saveScreenShot(const char *path)
         return NO;
     }
 
-    SentryClient *client = [SentrySDKInternal.currentHub getClient];
+    SentryClientInternal *client = [SentrySDKInternal.currentHub getClient];
     [client addAttachmentProcessor:self];
 
     sentrycrash_setSaveScreenshots(&saveScreenShot);
@@ -57,7 +56,7 @@ saveScreenShot(const char *path)
 {
     sentrycrash_setSaveScreenshots(NULL);
 
-    SentryClient *client = [SentrySDKInternal.currentHub getClient];
+    SentryClientInternal *client = [SentrySDKInternal.currentHub getClient];
     [client removeAttachmentProcessor:self];
 }
 

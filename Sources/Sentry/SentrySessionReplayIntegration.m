@@ -7,7 +7,6 @@
 #    import "SentryHub+Private.h"
 #    import "SentryInternalDefines.h"
 #    import "SentryLogC.h"
-#    import "SentryOptions.h"
 #    import "SentrySDK+Private.h"
 #    import "SentryScope+Private.h"
 #    import "SentrySerialization.h"
@@ -128,9 +127,11 @@ static SentryTouchTracker *_touchTracker;
     }
 
     id<SentryUIRedactBuilderProtocol> redactBuilder;
-    if (experimentalOptions.sessionReplayMaskingStrategy == kSessionReplayMaskingStrategyAccessibilty) {
+    if (experimentalOptions.sessionReplayMaskingStrategy
+        == kSessionReplayMaskingStrategyAccessibilty) {
         redactBuilder = [[SentryAccessibilityRedactBuilder alloc] initWithOptions:replayOptions];
-    } else if(experimentalOptions.sessionReplayMaskingStrategy == kSessionReplayMaskingStrategyMachineLearning) {
+    } else if (experimentalOptions.sessionReplayMaskingStrategy
+        == kSessionReplayMaskingStrategyMachineLearning) {
         redactBuilder = [[SentryMLRedactBuilder alloc] initWithOptions:replayOptions];
     } else {
         redactBuilder = [[SentryUIRedactBuilder alloc] initWithOptions:replayOptions];

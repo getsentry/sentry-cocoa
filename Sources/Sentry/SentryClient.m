@@ -10,19 +10,16 @@
 #import "SentryDsn.h"
 #import "SentryEvent+Private.h"
 #import "SentryException.h"
-#import "SentryHub+Private.h"
-#import "SentryHub.h"
 #import "SentryInstallation.h"
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"
 #import "SentryMechanism.h"
-#import "SentryMechanismMeta.h"
+#import "SentryMechanismContext.h"
 #import "SentryMessage.h"
 #import "SentryMeta.h"
 #import "SentryMsgPackSerializer.h"
 #import "SentryNSDictionarySanitize.h"
 #import "SentryNSError.h"
-#import "SentryOptions+Private.h"
 #import "SentryPropagationContext.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
@@ -30,6 +27,7 @@
 #import "SentrySerialization.h"
 #import "SentryStacktraceBuilder.h"
 #import "SentrySwift.h"
+#import "SentryTraceContext+Private.h"
 #import "SentryTraceContext.h"
 #import "SentryTracer.h"
 #import "SentryTransaction.h"
@@ -46,7 +44,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryClient ()
+@interface SentryClientInternal ()
 
 @property (nonatomic, strong) SentryTransportAdapter *transportAdapter;
 @property (nonatomic, strong) SentryDebugImageProvider *debugImageProvider;
@@ -58,40 +56,21 @@ NS_ASSUME_NONNULL_BEGIN
 
 NSString *const DropSessionLogMessage = @"Session has no release name. Won't send it.";
 
-@implementation SentryClient
+@implementation SentryClientInternal
 
 - (_Nullable instancetype)initWithOptions:(SentryOptions *)options
 {
-    return [self initWithOptions:options
-                    dateProvider:SentryDependencyContainer.sharedInstance.dateProvider
-                   dispatchQueue:SentryDependencyContainer.sharedInstance.dispatchQueueWrapper
-          deleteOldEnvelopeItems:YES];
-}
-
-- (nullable instancetype)initWithOptions:(SentryOptions *)options
-                            dateProvider:(id<SentryCurrentDateProvider>)dateProvider
-                           dispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue
-                  deleteOldEnvelopeItems:(BOOL)deleteOldEnvelopeItems
-{
     NSError *error;
-    SentryFileManager *fileManager = [[SentryFileManager alloc] initWithOptions:options
-                                                                   dateProvider:dateProvider
-                                                           dispatchQueueWrapper:dispatchQueue
-                                                                          error:&error];
+    SentryFileManager *fileManager = [[SentryFileManager alloc]
+             initWithOptions:options
+                dateProvider:SentryDependencyContainer.sharedInstance.dateProvider
+        dispatchQueueWrapper:SentryDependencyContainer.sharedInstance.dispatchQueueWrapper
+                       error:&error];
     if (error != nil) {
         SENTRY_LOG_FATAL(@"Failed to initialize file system: %@", error.localizedDescription);
         return nil;
     }
-    return [self initWithOptions:options
-                     fileManager:fileManager
-          deleteOldEnvelopeItems:deleteOldEnvelopeItems];
-}
 
-/** Internal constructor for testing purposes. */
-- (instancetype)initWithOptions:(SentryOptions *)options
-                    fileManager:(SentryFileManager *)fileManager
-         deleteOldEnvelopeItems:(BOOL)deleteOldEnvelopeItems
-{
     NSArray<id<SentryTransport>> *transports =
         [SentryTransportFactory initTransports:options
                                   dateProvider:SentryDependencyContainer.sharedInstance.dateProvider
@@ -101,26 +80,12 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     SentryTransportAdapter *transportAdapter =
         [[SentryTransportAdapter alloc] initWithTransports:transports options:options];
 
-    return [self initWithOptions:options
-                     fileManager:fileManager
-          deleteOldEnvelopeItems:deleteOldEnvelopeItems
-                transportAdapter:transportAdapter];
-}
-
-/** Internal constructor for testing purposes. */
-- (instancetype)initWithOptions:(SentryOptions *)options
-                    fileManager:(SentryFileManager *)fileManager
-         deleteOldEnvelopeItems:(BOOL)deleteOldEnvelopeItems
-               transportAdapter:(SentryTransportAdapter *)transportAdapter
-
-{
     SentryDefaultThreadInspector *threadInspector =
         [[SentryDefaultThreadInspector alloc] initWithOptions:options];
 
     return [self initWithOptions:options
                 transportAdapter:transportAdapter
                      fileManager:fileManager
-          deleteOldEnvelopeItems:deleteOldEnvelopeItems
                  threadInspector:threadInspector
               debugImageProvider:[SentryDependencyContainer sharedInstance].debugImageProvider
                           random:[SentryDependencyContainer sharedInstance].random
@@ -131,7 +96,6 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 - (instancetype)initWithOptions:(SentryOptions *)options
                transportAdapter:(SentryTransportAdapter *)transportAdapter
                     fileManager:(SentryFileManager *)fileManager
-         deleteOldEnvelopeItems:(BOOL)deleteOldEnvelopeItems
                 threadInspector:(SentryDefaultThreadInspector *)threadInspector
              debugImageProvider:(SentryDebugImageProvider *)debugImageProvider
                          random:(id<SentryRandomProtocol>)random
@@ -154,11 +118,19 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         // executing this on the main thread, we cache the installationID async here.
         [SentryInstallation cacheIDAsyncWithCacheDirectoryPath:options.cacheDirectoryPath];
 
-        if (deleteOldEnvelopeItems) {
-            [fileManager deleteOldEnvelopeItems];
-        }
+        [fileManager deleteOldEnvelopeItems];
     }
     return self;
+}
+
+- (void)setOptionsInternal:(SentryOptions *)optionsInternal
+{
+    self.options = optionsInternal;
+}
+
+- (NSObject *)getOptions
+{
+    return self.options;
 }
 
 - (SentryId *)captureMessage:(NSString *)message
@@ -324,7 +296,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
     // Sentry uses the error domain and code on the mechanism for gouping
     SentryMechanism *mechanism = [[SentryMechanism alloc] initWithType:@"NSError"];
-    SentryMechanismMeta *mechanismMeta = [[SentryMechanismMeta alloc] init];
+    SentryMechanismContext *mechanismMeta = [[SentryMechanismContext alloc] init];
     mechanismMeta.error = [[SentryNSError alloc] initWithDomain:error.domain code:error.code];
     mechanism.meta = mechanismMeta;
     // The description of the error can be especially useful for error from swift that

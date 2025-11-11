@@ -1,7 +1,6 @@
 #import "SentryCrashSysCtl.h"
 #import "SentryNotificationNames.h"
 #import <SentryDefaultAppStateManager.h>
-#import <SentryOptions.h>
 #import <SentrySwift.h>
 
 #if SENTRY_HAS_UIKIT

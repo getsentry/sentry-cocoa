@@ -1,0 +1,214 @@
+---
+description: |
+  Apply this rule when making changes to the project's file hierarchy or structure, including:
+  - Creating new directories (e.g., new test directories, sample projects, utility folders)
+  - Renaming or moving existing directories
+  - Restructuring code organization (e.g., splitting modules, reorganizing tests)
+  - Adding new top-level folders or reorganizing subdirectories
+  - Reviewing PRs that involve file/folder creation, deletion, or reorganization
+  
+  This rule ensures that .github/file-filters.yml stays synchronized with the project structure
+  so that GitHub Actions workflows are properly triggered by relevant file changes. Missing
+  patterns can cause CI workflows to not run when they should, leading to undetected issues.
+alwaysApply: false
+---
+
+# File Filters Configuration Rules
+
+## Core Principles
+
+### 1. Complete Coverage
+Every directory that contains code, tests, or configuration affecting CI should be included in at least one filter pattern.
+
+### 2. Logical Grouping
+Files should be grouped with workflows they logically affect:
+- **Source changes** → Build and test workflows
+- **Test changes** → Test workflows
+- **Configuration changes** → Relevant validation workflows
+- **Script changes** → Workflows using those scripts
+
+### 3. Hierarchy Awareness
+Use glob patterns (`**`) to capture all subdirectories and their contents recursively.
+
+## Verification Checklist
+
+Before submitting a PR that affects project structure:
+
+- [ ] List all new or renamed directories
+- [ ] Check if each directory appears in `.github/file-filters.yml`
+- [ ] Add missing patterns to appropriate filter groups
+- [ ] Verify glob patterns match intended files
+- [ ] Test locally using the `dorny/paths-filter` action logic
+
+## Pattern Best Practices
+
+### Use Glob Patterns for Depth
+✅ **Good:**
+```yaml
+- "Sources/**"           # Matches all files under Sources/
+- "Tests/**"             # Matches all files under Tests/
+- "SentryTestUtils/**"   # Matches all files under SentryTestUtils/
+```
+
+❌ **Bad:**
+```yaml
+- "Sources/*"            # Only matches one level deep
+- "Tests/"               # Doesn't match files, only directory
+```
+
+### Be Specific When Needed
+✅ **Good:**
+```yaml
+- "Samples/iOS-Cocoapods-*/**"   # Matches multiple specific samples
+- "**/*.xctestplan"              # Matches test plans anywhere
+- "scripts/ci-*.sh"              # Matches CI scripts specifically
+```
+
+❌ **Bad:**
+```yaml
+- "Samples/**"                   # Too broad, includes unrelated samples
+- "**/*"                         # Matches everything (defeats the purpose)
+```
+
+### Include Related Configuration
+Always include configuration files that affect the workflow:
+
+```yaml
+run_unit_tests_for_prs: &run_unit_tests_for_prs
+  - "Sources/**"
+  - "Tests/**"
+  
+  # GH Actions - Changes to these workflows should trigger tests
+  - ".github/workflows/test.yml"
+  - ".github/file-filters.yml"
+  
+  # Project files - Changes to project structure should trigger tests
+  - "Sentry.xcodeproj/**"
+  - "Sentry.xcworkspace/**"
+```
+
+## Common Patterns by Workflow Type
+
+These are complete, production-ready filter patterns for common workflow types. Use these as templates when adding new workflows or ensuring proper coverage.
+
+### Unit Test Workflows
+**Required coverage:** All test-related directories (Tests, SentryTestUtils, SentryTestUtilsDynamic, SentryTestUtilsTests) must be included to ensure changes to test infrastructure trigger test runs.
+```yaml
+run_unit_tests_for_prs: &run_unit_tests_for_prs
+  - "Sources/**"                    # Source code changes
+  - "Tests/**"                      # Test changes
+  - "SentryTestUtils/**"            # Test utility changes
+  - "SentryTestUtilsDynamic/**"     # Dynamic test utilities
+  - "SentryTestUtilsTests/**"       # Test utility tests
+  - ".github/workflows/test.yml"    # Workflow definition
+  - ".github/file-filters.yml"      # Filter changes
+  - "scripts/ci-*.sh"               # CI scripts
+  - "test-server/**"                # Test infrastructure
+  - "**/*.xctestplan"               # Test plans
+  - "Plans/**"                      # Test plan directory
+  - "Sentry.xcodeproj/**"           # Project structure
+```
+
+### Lint Workflows
+```yaml
+run_lint_swift_formatting_for_prs: &run_lint_swift_formatting_for_prs
+  - "**/*.swift"                    # All Swift files
+  - ".github/workflows/lint-swift-formatting.yml"
+  - ".github/file-filters.yml"
+  - ".swiftlint.yml"                # Linter config
+  - "scripts/.swiftlint-version"    # Version config
+```
+
+### Build Workflows
+```yaml
+run_build_for_prs: &run_build_for_prs
+  - "Sources/**"                    # Source code
+  - "Samples/**"                    # Sample projects
+  - ".github/workflows/build.yml"
+  - ".github/file-filters.yml"
+  - "Sentry.xcodeproj/**"           # Project files
+  - "Package*.swift"                # SPM config
+  - "scripts/sentry-xcodebuild.sh"  # Build script
+```
+
+## Troubleshooting
+
+### PR Not Triggering Expected Workflows
+
+1. **Check the paths-filter configuration** in the workflow:
+   ```yaml
+   - uses: dorny/paths-filter@v3
+     id: changes
+     with:
+       filters: .github/file-filters.yml
+   ```
+
+2. **Verify the filter name** matches between `file-filters.yml` and workflow:
+   ```yaml
+   # In file-filters.yml
+   run_unit_tests_for_prs: &run_unit_tests_for_prs
+   
+   # In workflow
+   if: steps.changes.outputs.run_unit_tests_for_prs == 'true'
+   ```
+
+3. **Test the pattern locally** using glob matching tools
+
+### Pattern Not Matching Expected Files
+
+Common issues:
+- Missing `**` for recursive matching
+- Using `*` instead of `**` for deep directories
+- Forgetting to include file extensions
+- Pattern too broad or too narrow
+
+## Maintenance Guidelines
+
+### Regular Audits
+Periodically review file-filters.yml to:
+- Remove patterns for deleted directories
+- Update patterns for renamed directories  
+- Ensure new directories are covered
+- Verify patterns match current structure
+
+### Documentation
+Each filter group should have comments explaining:
+- What the filter is for
+- Which workflow uses it
+- Special considerations
+
+### Testing Changes
+When updating file-filters.yml:
+1. Create a test PR with changes in the new pattern
+2. Verify the expected workflow triggers
+3. Check that unrelated workflows don't trigger
+4. Review the GitHub Actions logs for filter results
+
+## Error Prevention
+
+### Pre-Merge Checklist for Structural Changes
+
+When reviewing PRs that add/move/rename directories:
+
+1. **Identify all affected directories**
+   ```bash
+   gh pr view --json files --jq '.files[].path' | cut -d'/' -f1-2 | sort | uniq
+   ```
+
+2. **Check each directory against file-filters.yml**
+   ```bash
+   grep -r "DirectoryName" .github/file-filters.yml
+   ```
+
+3. **Add missing patterns** to appropriate filter groups
+
+4. **Verify the changes** trigger correct workflows
+
+### Automated Detection (Future Enhancement)
+
+Consider adding a script that:
+- Detects new top-level directories
+- Checks if they appear in file-filters.yml
+- Warns in PR if missing coverage
+
+Example location: `.github/workflows/check-file-filters.yml`

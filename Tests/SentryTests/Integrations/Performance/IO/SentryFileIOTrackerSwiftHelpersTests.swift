@@ -4,7 +4,7 @@
 import XCTest
 
 class SentryFileIOTrackerSwiftHelpersTests: XCTestCase {
-    private var hub: SentryHub!
+    private var hub: SentryHubInternal!
     private var tracker: SentryFileIOTracker!
     private var mockedDateProvider: TestCurrentDateProvider!
 
@@ -24,7 +24,7 @@ class SentryFileIOTrackerSwiftHelpersTests: XCTestCase {
         mockedDateProvider = TestCurrentDateProvider()
         SentryDependencyContainer.sharedInstance().dateProvider = mockedDateProvider
 
-        hub = SentryHub(client: nil, andScope: nil)
+        hub = SentryHubInternal(client: nil, andScope: nil)
         SentrySDKInternal.setCurrentHub(hub)
 
         tracker = SentryFileIOTracker(
