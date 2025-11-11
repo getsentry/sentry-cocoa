@@ -4,7 +4,7 @@
 
 ### Breaking Changes
 
-- Change `SentryFeedback` initializer to support multiple attachments (#6459)
+- Change `SentryFeedback` initializer to support multiple attachments (#6752)
 
 ## 9.0.0-alpha.0
 
