@@ -206,7 +206,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     @objc public lazy var screenshotSource: SentryScreenshotSource? = getOptionalLazyVar(\._screenshotSource) {
         // The options could be null here, but this is a general issue in the dependency
         // container and will be fixed in a future refactoring.
-        guard let options = SentrySDKInternal.options else {
+        guard let options = SentrySDKInternal.optionsInternal else {
             return nil
         }
         
@@ -228,7 +228,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     private var _fileManager: SentryFileManager?
     @objc public lazy var fileManager: SentryFileManager? = getOptionalLazyVar(\._fileManager) {
         do {
-            return try SentryFileManager(options: SentrySDKInternal.options, dateProvider: Dependencies.dateProvider, dispatchQueueWrapper: Dependencies.dispatchQueueWrapper)
+            return try SentryFileManager(dateProvider: Dependencies.dateProvider, dispatchQueueWrapper: Dependencies.dispatchQueueWrapper)
         } catch {
             SentrySDKLog.debug("Could not create file manager - \(error)")
             return nil
@@ -244,15 +244,19 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     }
     private var _appStateManager: SentryAppStateManager?
     @objc public lazy var appStateManager = getLazyVar(\._appStateManager) {
-        SentryAppStateManager(
-            options: SentrySDKInternal.options,
+        var release: String?
+        if let options = SentrySDKInternal.optionsInternal {
+            release = SentryDependencyContainerSwiftHelper.release(options)
+        }
+        return SentryAppStateManager(
+            releaseName: release,
             crashWrapper: crashWrapper,
             fileManager: fileManager,
             sysctlWrapper: sysctlWrapper)
     }
     private var _crashReporter: SentryCrashSwift?
     @objc public lazy var crashReporter = getLazyVar(\._crashReporter) {
-        SentryCrashSwift(with: SentrySDKInternal.options?.cacheDirectoryPath)
+        SentryCrashSwift(with: SentrySDKInternal.optionsInternal.map { SentryDependencyContainerSwiftHelper.cacheDirectoryPath($0) })
     }
     
     private var anrTracker: SentryANRTracker?

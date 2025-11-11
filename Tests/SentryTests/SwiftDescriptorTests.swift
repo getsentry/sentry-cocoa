@@ -18,7 +18,7 @@ class SwiftDescriptorTests: XCTestCase {
         let object = Options()
         let name = sanitize(object)
         
-        XCTAssertEqual(name, "SentryOptions")
+        XCTAssertEqual(name, "Options")
     }
     
     func testDescriptionWithPrivateSwiftClass() {

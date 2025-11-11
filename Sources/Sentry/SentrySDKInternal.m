@@ -15,8 +15,6 @@
 #import "SentryLogC.h"
 #import "SentryMeta.h"
 #import "SentryNetworkTrackingIntegration.h"
-#import "SentryOptions+Private.h"
-#import "SentryOptionsInternal.h"
 #import "SentryProfilingConditionals.h"
 #import "SentryReplayApi.h"
 #import "SentrySamplerDecision.h"
@@ -117,6 +115,10 @@ static NSDate *_Nullable startTimestamp = nil;
     @synchronized(startOptionsLock) {
         return startOption;
     }
+}
++ (nullable SentryOptionsObjC *)optionsInternal
+{
+    return [SentrySDKInternal options];
 }
 #if SENTRY_TARGET_REPLAY_SUPPORTED
 + (SentryReplayApi *)replay
@@ -289,13 +291,6 @@ static NSDate *_Nullable startTimestamp = nil;
         }];
 
     SENTRY_LOG_DEBUG(@"SDK initialized! Version: %@", SentryMeta.versionString);
-}
-
-+ (void)startWithConfigureOptions:(void (^)(SentryOptions *options))configureOptions
-{
-    SentryOptions *options = [[SentryOptions alloc] init];
-    configureOptions(options);
-    [SentrySDKInternal startWithOptions:options];
 }
 
 + (void)captureFatalEvent:(SentryEvent *)event
