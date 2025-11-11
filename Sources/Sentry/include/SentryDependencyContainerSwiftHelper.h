@@ -35,6 +35,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (BOOL)fastViewRenderingEnabled:(SentryOptionsObjC *)options;
 + (BOOL)viewRendererV2Enabled:(SentryOptionsObjC *)options;
 + (SentryDefaultRedactOptions *)redactOptions:(SentryOptionsObjC *)options;
++ (int)getSessionReplayMaskingStrategy:(SentryOptionsObjC *)options;
 
 #endif // SENTRY_HAS_UIKIT
 

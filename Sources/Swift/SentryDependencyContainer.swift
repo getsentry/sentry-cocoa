@@ -218,14 +218,25 @@ extension SentryFileManager: SentryFileManagerProtocol { }
         }
 
         let redactBuilder: SentryUIRedactBuilderProtocol
-        redactBuilder = SentryUIRedactBuilder(options: RedactWrapper(
-            SentryDependencyContainerSwiftHelper.redactOptions(options))
-        )
+        guard let maskingStrategy = SessionReplayMaskingStrategy(rawValue: Int(SentryDependencyContainerSwiftHelper.getSessionReplayMaskingStrategy(options))) else {
+            SentrySDKLog.error("Failed to parse session replay masking strategy from options")
+            return nil
+        }
+        let redactOptions = RedactWrapper(SentryDependencyContainerSwiftHelper.redactOptions(options))
+        switch maskingStrategy {
+        case .accessibility:
+            redactBuilder = SentryAccessibilityRedactBuilder(options: redactOptions)
+        case .machineLearning:
+            redactBuilder = SentryMLRedactBuilder(options: redactOptions)
+        case .viewHierarchy:
+            redactBuilder = SentryUIRedactBuilder(options: redactOptions)
+        }
 
         let photographer = SentryViewPhotographer(
             renderer: viewRenderer,
             redactBuilder: redactBuilder,
-            enableMaskRendererV2: SentryDependencyContainerSwiftHelper.viewRendererV2Enabled(options))
+            enableMaskRendererV2: SentryDependencyContainerSwiftHelper.viewRendererV2Enabled(options)
+        )
         return SentryScreenshotSource(photographer: photographer)
     }
 #endif
