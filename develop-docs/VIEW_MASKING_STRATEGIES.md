@@ -256,617 +256,10 @@ Furthermore, while the view hierarchy is already a tree structure with multiple 
 
 The built accessibility tree is therefore larger than the view hierarchy tree by itself, which makes it especially valuable when working with SwiftUI views, due to them being partially rendered via graphical views.
 
-<details>
-<summary>UIKit - View Hierarchy Tree (without enabler)</summary>
-```swift
-UIWindow(frame: {{0, 0}, {402, 874}}, ax=0)
-└─ UITransitionView(frame: {{0, 0}, {402, 874}}, ax=0)
-   └─ UIDropShadowView(frame: {{0, 0}, {402, 874}}, ax=0)
-      └─ UILayoutContainerView(frame: {{0, 0}, {402, 874}}, ax=0)
-         ├─ UINavigationTransitionView(frame: {{0, 0}, {402, 874}}, ax=0)
-         │  └─ UIViewControllerWrapperView(frame: {{0, 0}, {402, 874}}, ax=0)
-         │     └─ UILayoutContainerView(frame: {{0, 0}, {402, 874}}, ax=0)
-         │        ├─ UITransitionView(frame: {{0, 0}, {402, 874}}, ax=0)
-         │        │  └─ UIViewControllerWrapperView(frame: {{0, 0}, {402, 874}}, ax=0)
-         │        │     └─ UIView(frame: {{0, 0}, {402, 874}}, ax=0)
-         │        │        └─ UIStackView(frame: {{0, 116}, {402, 274.33333333333331}}, ax=0)
-         │        │           ├─ UIStackView(frame: {{0, 0}, {402, 146.33333333333334}}, ax=0)
-         │        │           │  ├─ UIStackView(frame: {{0, 0}, {201, 146.33333333333334}}, ax=0)
-         │        │           │  │  ├─ UIButton(frame: {{0, 0}, {201, 28}}, ax=1, "Capture Error")
-         │        │           │  │  │  └─ UIButtonLabel(frame: {{59.666666666666657, 6}, {82, 16}}, ax=0, "Capture Error")
-         │        │           │  │  ├─ UIButton(frame: {{0, 29.666666666666657}, {201, 28}}, ax=1, "Capture NSException")
-         │        │           │  │  │  └─ UIButtonLabel(frame: {{35.666666666666657, 6}, {130, 16}}, ax=0, "Capture NSException")
-         │        │           │  │  ├─ UIButton(frame: {{0, 59.333333333333343}, {201, 28}}, ax=1, "Throw FatalError")
-         │        │           │  │  │  └─ UIButtonLabel(frame: {{50, 6}, {101, 16}}, ax=0, "Throw FatalError")
-         │        │           │  │  ├─ UIButton(frame: {{0, 88.666666666666657}, {201, 28}}, ax=1, "Fatal Duplicate Key Error")
-         │        │           │  │  │  └─ UIButtonLabel(frame: {{25.666666666666671, 6}, {150, 16}}, ax=0, "Fatal Duplicate Key Error")
-         │        │           │  │  └─ UIButton(frame: {{0, 118.33333333333334}, {201, 28}}, ax=1, "OOM crash")
-         │        │           │  │     └─ UIButtonLabel(frame: {{66, 6}, {69, 16}}, ax=0, "OOM crash")
-         │        │           │  └─ UIStackView(frame: {{201, 0}, {201, 146.33333333333334}}, ax=0)
-         │        │           │     ├─ UIButton(frame: {{0, 0}, {201, 28}}, ax=1, "Force unwrap optional")
-         │        │           │     │  └─ UIButtonLabel(frame: {{33, 6}, {135, 16}}, ax=0, "Force unwrap optional")
-         │        │           │     ├─ UIButton(frame: {{0, 28}, {201, 28}}, ax=1, "DiskWriteException")
-         │        │           │     │  └─ UIButtonLabel(frame: {{41.666666666666657, 6}, {118, 16}}, ax=0, "DiskWriteException")
-         │        │           │     ├─ UIButton(frame: {{0, 56}, {201, 28}}, ax=1, "crashTheApp")
-         │        │           │     │  └─ UIButtonLabel(frame: {{57.666666666666657, 6}, {86, 16}}, ax=0, "Crash the app")
-         │        │           │     ├─ UIButton(frame: {{0, 84}, {201, 28}}, ax=1, "crashTheApp")
-         │        │           │     │  └─ UIButtonLabel(frame: {{21.666666666666671, 6}, {158, 16}}, ax=0, "Unhandled C++ Exception")
-         │        │           │     └─ UIButton(frame: {{0, 111.99999999999999}, {201, 34.333333333333336}}, ax=1, "Use-after-free")
-         │        │           │        └─ _UISystemBackgroundView(frame: {{0, 0}, {201, 34.333333333333336}}, ax=0)
-         │        │           │           └─ UIView(frame: {{0, 0}, {201, 34.333333333333336}}, ax=0)
-         │        │           │              └─ UILabel(frame: {{45.333333333333343, 6.9999999999999982}, {110, 20.333333333333332}}, ax=1, "Use-after-free")
-         │        │           └─ UIImageView(frame: {{0, 146.33333333333331}, {402, 128}}, ax=0)
-         │        └─ _UITabBarContainerWrapperView(frame: {{0, 791}, {402, 83}}, ax=0)
-         │           └─ _UITabBarContainerView(frame: {{0, -791}, {402, 874}}, ax=0)
-         │              └─ UITabBar(frame: {{0, 791}, {402, 83}}, ax=0, "Tab Bar")
-         │                 └─ _UITabBarPlatterView(frame: {{21, 0}, {360, 62}}, ax=0)
-         │                    ├─ SelectedContentView(frame: {{0, 0}, {360, 62}}, ax=0)
-         │                    │  ├─ _UITabButton(frame: {{4, 4}, {74, 54}}, ax=1, "Errors")
-         │                    │  │  ├─ UIImageView(frame: {{23, 6.6666666666666679}, {28.666666666666668, 26}}, ax=0, "warning")
-         │                    │  │  └─ Label(frame: {{22, 35}, {31, 12}}, ax=1, "Errors")
-         │                    │  ├─ _UITabButton(frame: {{60.833333333333343, 4}, {95.666666666666657, 54}}, ax=1, "Transactions")
-         │                    │  │  ├─ UIImageView(frame: {{34, 6.3333333333333339}, {27.333333333333332, 27.333333333333332}}, ax=0, "clock")
-         │                    │  │  └─ Label(frame: {{15, 35}, {65, 12}}, ax=1, "Transactions")
-         │                    │  ├─ _UITabButton(frame: {{139.33333333333334, 4}, {74, 54}}, ax=1, "Extra")
-         │                    │  │  ├─ UIImageView(frame: {{23, 6.3333333333333339}, {27.333333333333332, 27.333333333333332}}, ax=0, "More")
-         │                    │  │  └─ Label(frame: {{24, 35}, {26.333333333333332, 12}}, ax=1, "Extra")
-         │                    │  ├─ _UITabButton(frame: {{196.16666666666669, 4}, {74, 54}}, ax=1, "Profiling")
-         │                    │  │  ├─ UIImageView(frame: {{25, 4.6666666666666661}, {23.333333333333332, 28.666666666666668}}, ax=0, "Flame")
-         │                    │  │  └─ Label(frame: {{15.999999999999996, 35}, {42.666666666666664, 12}}, ax=1, "Profiling")
-         │                    │  └─ _UITabButton(frame: {{253, 4}, {103, 54}}, ax=1, "Benchmarking")
-         │                    │     ├─ UIImageView(frame: {{38, 6.0000000000000018}, {27.333333333333332, 27.666666666666668}}, ax=0, "deskclock.fill")
-         │                    │     └─ Label(frame: {{15, 35}, {72.333333333333329, 12}}, ax=1, "Benchmarking")
-         │                    ├─ _UILiquidLensView(frame: {{4, 4}, {74, 54}}, ax=0)
-         │                    │  └─ UIView(frame: {{0, 0}, {74, 54}}, ax=0)
-         │                    │     ├─ _UITabSelectionView(frame: {{0, 0}, {74, 54}}, ax=0)
-         │                    │     └─ ClearGlassView(frame: {{0, 0}, {74, 54}}, ax=0)
-         │                    │        ├─ UIView(frame: {{0, 0}, {74, 54}}, ax=0)
-         │                    │        │  ├─ SDFView(frame: {{0, 0}, {74, 54}}, ax=0)
-         │                    │        │  │  └─ SDFElementView(frame: {{0, 0}, {74, 54}}, ax=0)
-         │                    │        │  └─ _UIPortalView(frame: {{0, 0}, {74, 54}}, ax=0)
-         │                    │        └─ UIView(frame: {{0, 0}, {74, 54}}, ax=0)
-         │                    ├─ ContentView(frame: {{0, 0}, {360, 62}}, ax=0)
-         │                    │  ├─ _UITabButton(frame: {{4, 4}, {74, 54}}, ax=1, "Errors")
-         │                    │  │  ├─ UIImageView(frame: {{23, 6.6666666666666679}, {28.666666666666668, 26}}, ax=0, "warning")
-         │                    │  │  └─ Label(frame: {{22, 35}, {30.333333333333332, 12}}, ax=1, "Errors")
-         │                    │  ├─ _UITabButton(frame: {{60.833333333333343, 4}, {95.666666666666657, 54}}, ax=1, "Transactions")
-         │                    │  │  ├─ UIImageView(frame: {{34, 6.3333333333333339}, {27.333333333333332, 27.333333333333332}}, ax=0, "clock")
-         │                    │  │  └─ Label(frame: {{15.999999999999996, 35}, {63.666666666666664, 12}}, ax=1, "Transactions")
-         │                    │  ├─ _UITabButton(frame: {{139.33333333333334, 4}, {74, 54}}, ax=1, "Extra")
-         │                    │  │  ├─ UIImageView(frame: {{23, 6.3333333333333339}, {27.333333333333332, 27.333333333333332}}, ax=0, "More")
-         │                    │  │  └─ Label(frame: {{24, 35}, {25.666666666666668, 12}}, ax=1, "Extra")
-         │                    │  ├─ _UITabButton(frame: {{196.16666666666669, 4}, {74, 54}}, ax=1, "Profiling")
-         │                    │  │  ├─ UIImageView(frame: {{25, 4.6666666666666661}, {23.333333333333332, 28.666666666666668}}, ax=0, "Flame")
-         │                    │  │  └─ Label(frame: {{15.999999999999996, 35}, {41.666666666666664, 12}}, ax=1, "Profiling")
-         │                    │  └─ _UITabButton(frame: {{253, 4}, {103, 54}}, ax=1, "Benchmarking")
-         │                    │     ├─ UIImageView(frame: {{38, 6.0000000000000018}, {27.333333333333332, 27.666666666666668}}, ax=0, "deskclock")
-         │                    │     └─ Label(frame: {{16, 35}, {71, 12}}, ax=1, "Benchmarking")
-         │                    └─ DestOutView(frame: {{0, 0}, {74, 54}}, ax=0)
-         ├─ UINavigationBar(frame: {{0, 62}, {402, 54}}, ax=0)
-         │  ├─ _UIBarBackground(frame: {{0, -62}, {402, 116}}, ax=0)
-         │  ├─ NavigationBarContentView(frame: {{0, 0}, {402, 54}}, ax=0)
-         │  │  └─ NavigationBarTransitionContainer(frame: {{0, 0}, {402, 54}}, ax=0)
-         │  │     ├─ HostedViewContainer(frame: {{0, 0}, {402, 54}}, ax=0)
-         │  │     ├─ UIView(frame: {{0, 0}, {402, 54}}, ax=0)
-         │  │     └─ NavigationBarPlatterContainer(frame: {{0, 0}, {402, 54}}, ax=0)
-         │  └─ _UIPointerInteractionAssistantEffectContainerView(frame: {{0, 0}, {0, 0}}, ax=0)
-         └─ FloatingBarContainerView(frame: {{0, 0}, {402, 874}}, ax=0)
-            ├─ FloatingBarHostingView<FloatingBarContainer>(frame: {{0, 0}, {402, 874}}, ax=0)
-            └─ _UIPointerInteractionAssistantEffectContainerView(frame: {{0, 0}, {0, 0}}, ax=0)
-```
-</details>
+While testing potential implementations, we identified that while accessing the view hiearachy with accessibility information works on iOS simulators at all times, the **accessibility information is not populated on real iOS devices unless VoiceOver is enabled system-wide**.
+The reason for this is that UIKit checks if VoiceOver is enabled by accessing the private `_AXSAutomationEnabled` flag in the `Accessibility.framework` and only sets values for the accessibility information if it is enabled.
 
-<details>
-<summary>UIKit - View Hierarchy + Accessibility Tree (without enabler)</summary>
-```swift
-UIWindow(frame: {{0, 0}, {402, 874}}, ax=0)
-└─ UITransitionView(frame: {{0, 0}, {402, 874}}, ax=0)
-   └─ UIDropShadowView(frame: {{0, 0}, {402, 874}}, ax=0)
-      └─ UILayoutContainerView(frame: {{0, 0}, {402, 874}}, ax=0)
-         ├─ UINavigationTransitionView(frame: {{0, 0}, {402, 874}}, ax=0)
-         │  └─ UIViewControllerWrapperView(frame: {{0, 0}, {402, 874}}, ax=0)
-         │     └─ UILayoutContainerView(frame: {{0, 0}, {402, 874}}, ax=0)
-         │        ├─ UITransitionView(frame: {{0, 0}, {402, 874}}, ax=0)
-         │        │  └─ UIViewControllerWrapperView(frame: {{0, 0}, {402, 874}}, ax=0)
-         │        │     └─ UIView(frame: {{0, 0}, {402, 874}}, ax=0)
-         │        │        └─ UIStackView(frame: {{0, 116}, {402, 274.33333333333331}}, ax=0)
-         │        │           ├─ UIStackView(frame: {{0, 0}, {402, 146.33333333333334}}, ax=0)
-         │        │           │  ├─ UIStackView(frame: {{0, 0}, {201, 146.33333333333334}}, ax=0)
-         │        │           │  │  ├─ UIButton(frame: {{0, 0}, {201, 28}}, ax=1, "Capture Error")
-         │        │           │  │  │  └─ UIButtonLabel(frame: {{59.666666666666657, 6}, {82, 16}}, ax=0, "Capture Error")
-         │        │           │  │  ├─ UIButton(frame: {{0, 29.666666666666657}, {201, 28}}, ax=1, "Capture NSException")
-         │        │           │  │  │  └─ UIButtonLabel(frame: {{35.666666666666657, 6}, {130, 16}}, ax=0, "Capture NSException")
-         │        │           │  │  ├─ UIButton(frame: {{0, 59.333333333333343}, {201, 28}}, ax=1, "Throw FatalError")
-         │        │           │  │  │  └─ UIButtonLabel(frame: {{50, 6}, {101, 16}}, ax=0, "Throw FatalError")
-         │        │           │  │  ├─ UIButton(frame: {{0, 88.666666666666657}, {201, 28}}, ax=1, "Fatal Duplicate Key Error")
-         │        │           │  │  │  └─ UIButtonLabel(frame: {{25.666666666666671, 6}, {150, 16}}, ax=0, "Fatal Duplicate Key Error")
-         │        │           │  │  └─ UIButton(frame: {{0, 118.33333333333334}, {201, 28}}, ax=1, "OOM crash")
-         │        │           │  │     └─ UIButtonLabel(frame: {{66, 6}, {69, 16}}, ax=0, "OOM crash")
-         │        │           │  └─ UIStackView(frame: {{201, 0}, {201, 146.33333333333334}}, ax=0)
-         │        │           │     ├─ UIButton(frame: {{0, 0}, {201, 28}}, ax=1, "Force unwrap optional")
-         │        │           │     │  └─ UIButtonLabel(frame: {{33, 6}, {135, 16}}, ax=0, "Force unwrap optional")
-         │        │           │     ├─ UIButton(frame: {{0, 28}, {201, 28}}, ax=1, "DiskWriteException")
-         │        │           │     │  └─ UIButtonLabel(frame: {{41.666666666666657, 6}, {118, 16}}, ax=0, "DiskWriteException")
-         │        │           │     ├─ UIButton(frame: {{0, 56}, {201, 28}}, ax=1, "crashTheApp")
-         │        │           │     │  └─ UIButtonLabel(frame: {{57.666666666666657, 6}, {86, 16}}, ax=0, "Crash the app")
-         │        │           │     ├─ UIButton(frame: {{0, 84}, {201, 28}}, ax=1, "crashTheApp")
-         │        │           │     │  └─ UIButtonLabel(frame: {{21.666666666666671, 6}, {158, 16}}, ax=0, "Unhandled C++ Exception")
-         │        │           │     └─ UIButton(frame: {{0, 111.99999999999999}, {201, 34.333333333333336}}, ax=1, "Use-after-free")
-         │        │           │        └─ _UISystemBackgroundView(frame: {{0, 0}, {201, 34.333333333333336}}, ax=0)
-         │        │           │           └─ UIView(frame: {{0, 0}, {201, 34.333333333333336}}, ax=0)
-         │        │           │              └─ UILabel(frame: {{45.333333333333343, 6.9999999999999982}, {110, 20.333333333333332}}, ax=1, "Use-after-free")
-         │        │           └─ UIImageView(frame: {{0, 146.33333333333331}, {402, 128}}, ax=0)
-         │        └─ _UITabBarContainerWrapperView(frame: {{0, 791}, {402, 83}}, ax=0)
-         │           └─ _UITabBarContainerView(frame: {{0, -791}, {402, 874}}, ax=0)
-         │              └─ UITabBar(frame: {{0, 791}, {402, 83}}, ax=0, "Tab Bar")
-         │                 └─ _UITabBarPlatterView(frame: {{21, 0}, {360, 62}}, ax=0)
-         │                    ├─ SelectedContentView(frame: {{0, 0}, {360, 62}}, ax=0)
-         │                    │  ├─ _UITabButton(frame: {{4, 4}, {74, 54}}, ax=1, "Errors")
-         │                    │  │  ├─ UIImageView(frame: {{23, 6.6666666666666679}, {28.666666666666668, 26}}, ax=0, "warning")
-         │                    │  │  └─ Label(frame: {{22, 35}, {31, 12}}, ax=1, "Errors")
-         │                    │  ├─ _UITabButton(frame: {{60.833333333333343, 4}, {95.666666666666657, 54}}, ax=1, "Transactions")
-         │                    │  │  ├─ UIImageView(frame: {{34, 6.3333333333333339}, {27.333333333333332, 27.333333333333332}}, ax=0, "clock")
-         │                    │  │  └─ Label(frame: {{15, 35}, {65, 12}}, ax=1, "Transactions")
-         │                    │  ├─ _UITabButton(frame: {{139.33333333333334, 4}, {74, 54}}, ax=1, "Extra")
-         │                    │  │  ├─ UIImageView(frame: {{23, 6.3333333333333339}, {27.333333333333332, 27.333333333333332}}, ax=0, "More")
-         │                    │  │  └─ Label(frame: {{24, 35}, {26.333333333333332, 12}}, ax=1, "Extra")
-         │                    │  ├─ _UITabButton(frame: {{196.16666666666669, 4}, {74, 54}}, ax=1, "Profiling")
-         │                    │  │  ├─ UIImageView(frame: {{25, 4.6666666666666661}, {23.333333333333332, 28.666666666666668}}, ax=0, "Flame")
-         │                    │  │  └─ Label(frame: {{15.999999999999996, 35}, {42.666666666666664, 12}}, ax=1, "Profiling")
-         │                    │  └─ _UITabButton(frame: {{253, 4}, {103, 54}}, ax=1, "Benchmarking")
-         │                    │     ├─ UIImageView(frame: {{38, 6.0000000000000018}, {27.333333333333332, 27.666666666666668}}, ax=0, "deskclock.fill")
-         │                    │     └─ Label(frame: {{15, 35}, {72.333333333333329, 12}}, ax=1, "Benchmarking")
-         │                    ├─ _UILiquidLensView(frame: {{4, 4}, {74, 54}}, ax=0)
-         │                    │  └─ UIView(frame: {{0, 0}, {74, 54}}, ax=0)
-         │                    │     ├─ _UITabSelectionView(frame: {{0, 0}, {74, 54}}, ax=0)
-         │                    │     └─ ClearGlassView(frame: {{0, 0}, {74, 54}}, ax=0)
-         │                    │        ├─ UIView(frame: {{0, 0}, {74, 54}}, ax=0)
-         │                    │        │  ├─ SDFView(frame: {{0, 0}, {74, 54}}, ax=0)
-         │                    │        │  │  └─ SDFElementView(frame: {{0, 0}, {74, 54}}, ax=0)
-         │                    │        │  └─ _UIPortalView(frame: {{0, 0}, {74, 54}}, ax=0)
-         │                    │        └─ UIView(frame: {{0, 0}, {74, 54}}, ax=0)
-         │                    ├─ ContentView(frame: {{0, 0}, {360, 62}}, ax=0)
-         │                    │  ├─ _UITabButton(frame: {{4, 4}, {74, 54}}, ax=1, "Errors")
-         │                    │  │  ├─ UIImageView(frame: {{23, 6.6666666666666679}, {28.666666666666668, 26}}, ax=0, "warning")
-         │                    │  │  └─ Label(frame: {{22, 35}, {30.333333333333332, 12}}, ax=1, "Errors")
-         │                    │  ├─ _UITabButton(frame: {{60.833333333333343, 4}, {95.666666666666657, 54}}, ax=1, "Transactions")
-         │                    │  │  ├─ UIImageView(frame: {{34, 6.3333333333333339}, {27.333333333333332, 27.333333333333332}}, ax=0, "clock")
-         │                    │  │  └─ Label(frame: {{15.999999999999996, 35}, {63.666666666666664, 12}}, ax=1, "Transactions")
-         │                    │  ├─ _UITabButton(frame: {{139.33333333333334, 4}, {74, 54}}, ax=1, "Extra")
-         │                    │  │  ├─ UIImageView(frame: {{23, 6.3333333333333339}, {27.333333333333332, 27.333333333333332}}, ax=0, "More")
-         │                    │  │  └─ Label(frame: {{24, 35}, {25.666666666666668, 12}}, ax=1, "Extra")
-         │                    │  ├─ _UITabButton(frame: {{196.16666666666669, 4}, {74, 54}}, ax=1, "Profiling")
-         │                    │  │  ├─ UIImageView(frame: {{25, 4.6666666666666661}, {23.333333333333332, 28.666666666666668}}, ax=0, "Flame")
-         │                    │  │  └─ Label(frame: {{15.999999999999996, 35}, {41.666666666666664, 12}}, ax=1, "Profiling")
-         │                    │  └─ _UITabButton(frame: {{253, 4}, {103, 54}}, ax=1, "Benchmarking")
-         │                    │     ├─ UIImageView(frame: {{38, 6.0000000000000018}, {27.333333333333332, 27.666666666666668}}, ax=0, "deskclock")
-         │                    │     └─ Label(frame: {{16, 35}, {71, 12}}, ax=1, "Benchmarking")
-         │                    └─ DestOutView(frame: {{0, 0}, {74, 54}}, ax=0)
-         ├─ UINavigationBar(frame: {{0, 62}, {402, 54}}, ax=0)
-         │  ├─ _UIBarBackground(frame: {{0, -62}, {402, 116}}, ax=0)
-         │  ├─ NavigationBarContentView(frame: {{0, 0}, {402, 54}}, ax=0)
-         │  │  └─ NavigationBarTransitionContainer(frame: {{0, 0}, {402, 54}}, ax=0)
-         │  │     ├─ HostedViewContainer(frame: {{0, 0}, {402, 54}}, ax=0)
-         │  │     ├─ UIView(frame: {{0, 0}, {402, 54}}, ax=0)
-         │  │     └─ NavigationBarPlatterContainer(frame: {{0, 0}, {402, 54}}, ax=0)
-         │  └─ _UIPointerInteractionAssistantEffectContainerView(frame: {{0, 0}, {0, 0}}, ax=0)
-         └─ FloatingBarContainerView(frame: {{0, 0}, {402, 874}}, ax=0)
-            ├─ FloatingBarHostingView<FloatingBarContainer>(frame: {{0, 0}, {402, 874}}, ax=0)
-            └─ _UIPointerInteractionAssistantEffectContainerView(frame: {{0, 0}, {0, 0}}, ax=0)
-```
-</details>
-
-<details>
-<summary>UIKit App - View Hierarchy + Accessibility Tree (with Enabler) - iOS-Swift / iPhone 17 Pro / iOS 26.1</summary>
-```swift
-UIWindow(frame: {{0, 0}, {402, 874}}, ax=0)
-└─ UITransitionView(frame: {{0, 0}, {402, 874}}, ax=0)
-   └─ UIDropShadowView(frame: {{0, 0}, {402, 874}}, ax=0)
-      └─ UILayoutContainerView(frame: {{0, 0}, {402, 874}}, ax=0)
-         ├─ UINavigationTransitionView(frame: {{0, 0}, {402, 874}}, ax=0)
-         │  └─ UIViewControllerWrapperView(frame: {{0, 0}, {402, 874}}, ax=0)
-         │     └─ UILayoutContainerView(frame: {{0, 0}, {402, 874}}, ax=0)
-         │        ├─ UITransitionView(frame: {{0, 0}, {402, 874}}, ax=0)
-         │        │  └─ UIViewControllerWrapperView(frame: {{0, 0}, {402, 874}}, ax=0)
-         │        │     └─ UIView(frame: {{0, 0}, {402, 874}}, ax=0)
-         │        │        └─ UIStackView(frame: {{0, 116}, {402, 274.33333333333331}}, ax=0)
-         │        │           ├─ UIStackView(frame: {{0, 0}, {402, 146.33333333333334}}, ax=0)
-         │        │           │  ├─ UIStackView(frame: {{0, 0}, {201, 146.33333333333334}}, ax=0)
-         │        │           │  │  ├─ UIButton(frame: {{0, 0}, {201, 28}}, ax=1, "Capture Error")
-         │        │           │  │  │  └─ UIButtonLabel(frame: {{59.666666666666657, 6}, {82, 16}}, ax=0, "Capture Error")
-         │        │           │  │  ├─ UIButton(frame: {{0, 29.666666666666657}, {201, 28}}, ax=1, "Capture NSException")
-         │        │           │  │  │  └─ UIButtonLabel(frame: {{35.666666666666657, 6}, {130, 16}}, ax=0, "Capture NSException")
-         │        │           │  │  ├─ UIButton(frame: {{0, 59.333333333333343}, {201, 28}}, ax=1, "Throw FatalError")
-         │        │           │  │  │  └─ UIButtonLabel(frame: {{50, 6}, {101, 16}}, ax=0, "Throw FatalError")
-         │        │           │  │  ├─ UIButton(frame: {{0, 88.666666666666657}, {201, 28}}, ax=1, "Fatal Duplicate Key Error")
-         │        │           │  │  │  └─ UIButtonLabel(frame: {{25.666666666666671, 6}, {150, 16}}, ax=0, "Fatal Duplicate Key Error")
-         │        │           │  │  └─ UIButton(frame: {{0, 118.33333333333334}, {201, 28}}, ax=1, "OOM crash")
-         │        │           │  │     └─ UIButtonLabel(frame: {{66, 6}, {69, 16}}, ax=0, "OOM crash")
-         │        │           │  └─ UIStackView(frame: {{201, 0}, {201, 146.33333333333334}}, ax=0)
-         │        │           │     ├─ UIButton(frame: {{0, 0}, {201, 28}}, ax=1, "Force unwrap optional")
-         │        │           │     │  └─ UIButtonLabel(frame: {{33, 6}, {135, 16}}, ax=0, "Force unwrap optional")
-         │        │           │     ├─ UIButton(frame: {{0, 28}, {201, 28}}, ax=1, "DiskWriteException")
-         │        │           │     │  └─ UIButtonLabel(frame: {{41.666666666666657, 6}, {118, 16}}, ax=0, "DiskWriteException")
-         │        │           │     ├─ UIButton(frame: {{0, 56}, {201, 28}}, ax=1, "crashTheApp")
-         │        │           │     │  └─ UIButtonLabel(frame: {{57.666666666666657, 6}, {86, 16}}, ax=0, "Crash the app")
-         │        │           │     ├─ UIButton(frame: {{0, 84}, {201, 28}}, ax=1, "crashTheApp")
-         │        │           │     │  └─ UIButtonLabel(frame: {{21.666666666666671, 6}, {158, 16}}, ax=0, "Unhandled C++ Exception")
-         │        │           │     └─ UIButton(frame: {{0, 111.99999999999999}, {201, 34.333333333333336}}, ax=1, "Use-after-free")
-         │        │           │        └─ _UISystemBackgroundView(frame: {{0, 0}, {201, 34.333333333333336}}, ax=0)
-         │        │           │           └─ UIView(frame: {{0, 0}, {201, 34.333333333333336}}, ax=0)
-         │        │           │              └─ UILabel(frame: {{45.333333333333343, 6.9999999999999982}, {110, 20.333333333333332}}, ax=1, "Use-after-free")
-         │        │           └─ UIImageView(frame: {{0, 146.33333333333331}, {402, 128}}, ax=0)
-         │        └─ _UITabBarContainerWrapperView(frame: {{0, 791}, {402, 83}}, ax=0)
-         │           └─ _UITabBarContainerView(frame: {{0, -791}, {402, 874}}, ax=0)
-         │              └─ UITabBar(frame: {{0, 791}, {402, 83}}, ax=0, "Tab Bar")
-         │                 └─ _UITabBarPlatterView(frame: {{21, 0}, {360, 62}}, ax=0)
-         │                    ├─ SelectedContentView(frame: {{0, 0}, {360, 62}}, ax=0)
-         │                    │  ├─ _UITabButton(frame: {{4, 4}, {74, 54}}, ax=1, "Errors")
-         │                    │  │  ├─ UIImageView(frame: {{23, 6.6666666666666679}, {28.666666666666668, 26}}, ax=0, "warning")
-         │                    │  │  └─ Label(frame: {{22, 35}, {31, 12}}, ax=1, "Errors")
-         │                    │  ├─ _UITabButton(frame: {{60.833333333333343, 4}, {95.666666666666657, 54}}, ax=1, "Transactions")
-         │                    │  │  ├─ UIImageView(frame: {{34, 6.3333333333333339}, {27.333333333333332, 27.333333333333332}}, ax=0, "clock")
-         │                    │  │  └─ Label(frame: {{15, 35}, {65, 12}}, ax=1, "Transactions")
-         │                    │  ├─ _UITabButton(frame: {{139.33333333333334, 4}, {74, 54}}, ax=1, "Extra")
-         │                    │  │  ├─ UIImageView(frame: {{23, 6.3333333333333339}, {27.333333333333332, 27.333333333333332}}, ax=0, "More")
-         │                    │  │  └─ Label(frame: {{24, 35}, {26.333333333333332, 12}}, ax=1, "Extra")
-         │                    │  ├─ _UITabButton(frame: {{196.16666666666669, 4}, {74, 54}}, ax=1, "Profiling")
-         │                    │  │  ├─ UIImageView(frame: {{25, 4.6666666666666661}, {23.333333333333332, 28.666666666666668}}, ax=0, "Flame")
-         │                    │  │  └─ Label(frame: {{15.999999999999996, 35}, {42.666666666666664, 12}}, ax=1, "Profiling")
-         │                    │  └─ _UITabButton(frame: {{253, 4}, {103, 54}}, ax=1, "Benchmarking")
-         │                    │     ├─ UIImageView(frame: {{38, 6.0000000000000018}, {27.333333333333332, 27.666666666666668}}, ax=0, "deskclock.fill")
-         │                    │     └─ Label(frame: {{15, 35}, {72.333333333333329, 12}}, ax=1, "Benchmarking")
-         │                    ├─ _UILiquidLensView(frame: {{4, 4}, {74, 54}}, ax=0)
-         │                    │  └─ UIView(frame: {{0, 0}, {74, 54}}, ax=0)
-         │                    │     ├─ _UITabSelectionView(frame: {{0, 0}, {74, 54}}, ax=0)
-         │                    │     └─ ClearGlassView(frame: {{0, 0}, {74, 54}}, ax=0)
-         │                    │        ├─ UIView(frame: {{0, 0}, {74, 54}}, ax=0)
-         │                    │        │  ├─ SDFView(frame: {{0, 0}, {74, 54}}, ax=0)
-         │                    │        │  │  └─ SDFElementView(frame: {{0, 0}, {74, 54}}, ax=0)
-         │                    │        │  └─ _UIPortalView(frame: {{0, 0}, {74, 54}}, ax=0)
-         │                    │        └─ UIView(frame: {{0, 0}, {74, 54}}, ax=0)
-         │                    ├─ ContentView(frame: {{0, 0}, {360, 62}}, ax=0)
-         │                    │  ├─ _UITabButton(frame: {{4, 4}, {74, 54}}, ax=1, "Errors")
-         │                    │  │  ├─ UIImageView(frame: {{23, 6.6666666666666679}, {28.666666666666668, 26}}, ax=0, "warning")
-         │                    │  │  └─ Label(frame: {{22, 35}, {30.333333333333332, 12}}, ax=1, "Errors")
-         │                    │  ├─ _UITabButton(frame: {{60.833333333333343, 4}, {95.666666666666657, 54}}, ax=1, "Transactions")
-         │                    │  │  ├─ UIImageView(frame: {{34, 6.3333333333333339}, {27.333333333333332, 27.333333333333332}}, ax=0, "clock")
-         │                    │  │  └─ Label(frame: {{15.999999999999996, 35}, {63.666666666666664, 12}}, ax=1, "Transactions")
-         │                    │  ├─ _UITabButton(frame: {{139.33333333333334, 4}, {74, 54}}, ax=1, "Extra")
-         │                    │  │  ├─ UIImageView(frame: {{23, 6.3333333333333339}, {27.333333333333332, 27.333333333333332}}, ax=0, "More")
-         │                    │  │  └─ Label(frame: {{24, 35}, {25.666666666666668, 12}}, ax=1, "Extra")
-         │                    │  ├─ _UITabButton(frame: {{196.16666666666669, 4}, {74, 54}}, ax=1, "Profiling")
-         │                    │  │  ├─ UIImageView(frame: {{25, 4.6666666666666661}, {23.333333333333332, 28.666666666666668}}, ax=0, "Flame")
-         │                    │  │  └─ Label(frame: {{15.999999999999996, 35}, {41.666666666666664, 12}}, ax=1, "Profiling")
-         │                    │  └─ _UITabButton(frame: {{253, 4}, {103, 54}}, ax=1, "Benchmarking")
-         │                    │     ├─ UIImageView(frame: {{38, 6.0000000000000018}, {27.333333333333332, 27.666666666666668}}, ax=0, "deskclock")
-         │                    │     └─ Label(frame: {{16, 35}, {71, 12}}, ax=1, "Benchmarking")
-         │                    └─ DestOutView(frame: {{0, 0}, {74, 54}}, ax=0)
-         ├─ UINavigationBar(frame: {{0, 62}, {402, 54}}, ax=0)
-         │  ├─ _UIBarBackground(frame: {{0, -62}, {402, 116}}, ax=0)
-         │  ├─ NavigationBarContentView(frame: {{0, 0}, {402, 54}}, ax=0)
-         │  │  └─ NavigationBarTransitionContainer(frame: {{0, 0}, {402, 54}}, ax=0)
-         │  │     ├─ HostedViewContainer(frame: {{0, 0}, {402, 54}}, ax=0)
-         │  │     ├─ UIView(frame: {{0, 0}, {402, 54}}, ax=0)
-         │  │     └─ NavigationBarPlatterContainer(frame: {{0, 0}, {402, 54}}, ax=0)
-         │  └─ _UIPointerInteractionAssistantEffectContainerView(frame: {{0, 0}, {0, 0}}, ax=0)
-         └─ FloatingBarContainerView(frame: {{0, 0}, {402, 874}}, ax=0)
-            ├─ FloatingBarHostingView<FloatingBarContainer>(frame: {{0, 0}, {402, 874}}, ax=0)
-            └─ _UIPointerInteractionAssistantEffectContainerView(frame: {{0, 0}, {0, 0}}, ax=0)
-```
-</details>
-
-<details>
-<summary>SwiftUI - View Hierarchy - iOS-SwiftUI / iPhone 17 Pro / iOS 26.1</summary>
-```swift
-UIWindow(frame: {{0, 0}, {402, 874}}, ax=0)
-└─ UITransitionView(frame: {{0, 0}, {402, 874}}, ax=0)
-   └─ UIDropShadowView(frame: {{0, 0}, {402, 874}}, ax=0)
-      └─ _UIHostingView<ModifiedContent<AnyView, RootModifier>>(frame: {{0, 0}, {402, 874}}, ax=0)
-         └─ PlatformViewHost<PlatformViewControllerRepresentableAdaptor<MulticolumnSplitViewRepresentable<ModifiedContent<Element, NavigationColumnModifier>, Never, _UnaryViewAdaptor<EmptyView>>>>(frame: {{0, 0}, {402, 874}}, ax=0)
-            └─ _UISplitViewControllerPanelImplView(frame: {{0, 0}, {402, 874}}, ax=0)
-               └─ _UIPanelControllerContentView(frame: {{0, 0}, {402, 874}}, ax=0)
-                  └─ UILayoutContainerView(frame: {{0, 0}, {402, 874}}, ax=0)
-                     ├─ UINavigationTransitionView(frame: {{0, 0}, {402, 874}}, ax=0)
-                     │  └─ UIViewControllerWrapperView(frame: {{0, 0}, {402, 874}}, ax=0)
-                     │     └─ _UIHostingView<ModifiedContent<ModifiedContent<Element, NavigationColumnModifier>, StyleContextWriter<SidebarStyleContext>>>(frame: {{0, 0}, {402, 874}}, ax=0)
-                     │        ├─ CGDrawingView(frame: {{128.33333333333331, 203.66666666666666}, {145.66666666666666, 20.333333333333332}}, ax=0)
-                     │        ├─ PlatformViewHost<PlatformViewRepresentableAdaptor<SentryReplayView>>(frame: {{128.33333333333331, 203.66666666666666}, {145.66666666666666, 20.333333333333332}}, ax=0)
-                     │        │  └─ SentryRedactView(frame: {{0, 0}, {145.66666666666666, 20.333333333333332}}, ax=0)
-                     │        ├─ CGDrawingView(frame: {{128.66666666666666, 240}, {145, 20.333333333333332}}, ax=0)
-                     │        ├─ PlatformViewHost<PlatformViewRepresentableAdaptor<SentryReplayView>>(frame: {{128.66666666666666, 240}, {145, 20.333333333333332}}, ax=0)
-                     │        │  └─ SentryRedactView(frame: {{0, 0}, {145, 20.333333333333332}}, ax=0)
-                     │        ├─ PlatformViewHost<PlatformViewRepresentableAdaptor<SentryReplayView>>(frame: {{128.66666666666666, 240}, {145, 20.333333333333332}}, ax=0)
-                     │        │  └─ SentryRedactView(frame: {{0, 0}, {145, 20.333333333333332}}, ax=0)
-                     │        ├─ CGDrawingView(frame: {{143.66666666666666, 276.33333333333331}, {114.66666666666666, 20.333333333333332}}, ax=0)
-                     │        ├─ PlatformViewHost<PlatformViewRepresentableAdaptor<SentryReplayView>>(frame: {{143.66666666666666, 276.33333333333331}, {114.66666666666666, 20.333333333333332}}, ax=0)
-                     │        │  └─ SentryRedactView(frame: {{0, 0}, {114.66666666666666, 20.333333333333332}}, ax=0)
-                     │        ├─ CGDrawingView(frame: {{160, 312.66666666666663}, {82.333333333333329, 20.333333333333332}}, ax=0)
-                     │        ├─ CGDrawingView(frame: {{128.66666666666666, 335}, {145, 20.333333333333332}}, ax=0)
-                     │        ├─ CGDrawingView(frame: {{143.66666666666666, 357.33333333333331}, {114.66666666666666, 20.333333333333332}}, ax=0)
-                     │        ├─ CGDrawingView(frame: {{50.333333333333329, 412}, {128.66666666666666, 20.333333333333332}}, ax=0)
-                     │        ├─ CGDrawingView(frame: {{47.666666666666664, 448.33333333333331}, {134, 20.333333333333332}}, ax=0)
-                     │        ├─ CGDrawingView(frame: {{63.333333333333329, 484.66666666666663}, {102.66666666666666, 20.333333333333332}}, ax=0)
-                     │        ├─ CGDrawingView(frame: {{33.333333333333329, 520.66666666666663}, {162.66666666666666, 20.333333333333332}}, ax=0)
-                     │        ├─ CGDrawingView(frame: {{37.333333333333329, 557}, {154.33333333333331, 20.333333333333332}}, ax=0)
-                     │        ├─ CGDrawingView(frame: {{75, 593.66666666666663}, {79, 20.333333333333332}}, ax=0)
-                     │        ├─ PlatformViewHost<PlatformViewRepresentableAdaptor<SentryReplayView>>(frame: {{75, 593.66666666666663}, {79, 20.333333333333332}}, ax=0)
-                     │        │  └─ SentryRedactView(frame: {{0, 0}, {79, 20.333333333333332}}, ax=0)
-                     │        ├─ _UIGraphicsView(frame: {{226, 393.66666666666663}, {143, 238.33333333333331}}, ax=0)
-                     │        ├─ CGDrawingView(frame: {{275, 393.66666666666663}, {45, 20.333333333333332}}, ax=0)
-                     │        ├─ CGDrawingView(frame: {{249.66666666666666, 430}, {95.666666666666657, 20.333333333333332}}, ax=0)
-                     │        ├─ CGDrawingView(frame: {{253, 466.33333333333331}, {89, 20.333333333333332}}, ax=0)
-                     │        ├─ CGDrawingView(frame: {{226, 502.66666666666663}, {143, 20.333333333333332}}, ax=0)
-                     │        ├─ CGDrawingView(frame: {{248, 539}, {98.666666666666657, 20.333333333333332}}, ax=0)
-                     │        ├─ CGDrawingView(frame: {{250.33333333333331, 575.33333333333326}, {94.333333333333329, 20.333333333333332}}, ax=0)
-                     │        ├─ CGDrawingView(frame: {{248.66666666666666, 611.66666666666663}, {97.333333333333329, 20.333333333333332}}, ax=0)
-                     │        └─ CGDrawingView(frame: {{113.66666666666666, 648}, {174.66666666666666, 20.333333333333332}}, ax=0)
-                     └─ UIKitToolbar(frame: {{0, 874}, {402, 49}}, ax=0, "Toolbar")
-                        └─ _UIBarBackground(frame: {{0, 0}, {402, 83}}, ax=0)
-                           ├─ UIVisualEffectView(frame: {{0, 0}, {402, 83}}, ax=0)
-                           │  └─ _UIVisualEffectBackdropView(frame: {{0, 0}, {402, 83}}, ax=0)
-                           └─ _UIBarBackgroundShadowView(frame: {{0, -0.33333333333333331}, {402, 0.33333333333333331}}, ax=0)
-                              └─ _UIBarBackgroundShadowContentImageView(frame: {{0, 0}, {402, 0.33333333333333331}}, ax=0)
-```
-</details>
-
-<details>
-<summary>SwiftUI - View Hierarchy Tree (without enabler) - iOS-SwiftUI / iPhone 17 Pro / iOS 26.1</summary>
-```swift
-UIWindow(frame: {{0, 0}, {402, 874}}, ax=0)
-└─ UITransitionView(frame: {{0, 0}, {402, 874}}, ax=0)
-   └─ UIDropShadowView(frame: {{0, 0}, {402, 874}}, ax=0)
-      └─ _UIHostingView<ModifiedContent<AnyView, RootModifier>>(frame: {{0, 0}, {402, 874}}, ax=0)
-         ├─ _UISplitViewControllerPanelImplView(frame: {{0, 0}, {402, 874}}, ax=0)
-         │  └─ _UIPanelControllerContentView(frame: {{0, 0}, {402, 874}}, ax=0)
-         │     └─ UILayoutContainerView(frame: {{0, 0}, {402, 874}}, ax=0)
-         │        ├─ UINavigationTransitionView(frame: {{0, 0}, {402, 874}}, ax=0)
-         │        │  └─ UIViewControllerWrapperView(frame: {{0, 0}, {402, 874}}, ax=0)
-         │        │     └─ _UIHostingView<ModifiedContent<ModifiedContent<Element, NavigationColumnModifier>, StyleContextWriter<SidebarStyleContext>>>(frame: {{0, 0}, {402, 874}}, ax=0)
-         │        │        ├─ (AX) label="Content View Body", value="", traits=[staticText], frame: {{128.16666666666669, 203.66666666666666}, {145.66666666666669, 20.333333333333343}}
-         │        │        ├─ SentryRedactView(frame: {{0, 0}, {145.66666666666666, 20.333333333333332}}, ax=0)
-         │        │        ├─ (AX) label="7c34efa2e3aa4f3e", value="", traits=[staticText], frame: {{128.5, 240}, {145, 20.333333333333314}}
-         │        │        ├─ SentryRedactView(frame: {{0, 0}, {145, 20.333333333333332}}, ax=0)
-         │        │        ├─ SentryRedactView(frame: {{0, 0}, {145, 20.333333333333332}}, ax=0)
-         │        │        ├─ SentryRedactView(frame: {{0, 0}, {114.66666666666666, 20.333333333333332}}, ax=0)
-         │        │        ├─ (AX) label="auto.ui.swift_ui", value="", traits=[staticText], frame: {{143.66666666666669, 276.33333333333331}, {114.66666666666669, 20.333333333333314}}
-         │        │        ├─ (AX) label="Child Span", value="", traits=[staticText], frame: {{159.83333333333334, 312.66666666666663}, {82.333333333333343, 20.333333333333314}}
-         │        │        ├─ (AX) label="7c34efa2e3aa4f3e", value="", traits=[staticText], frame: {{128.5, 334.99999999999994}, {145, 20.333333333333314}}
-         │        │        ├─ (AX) label="auto.ui.swift_ui", value="", traits=[staticText], frame: {{143.66666666666669, 357.33333333333326}, {114.66666666666669, 20.333333333333314}}
-         │        │        ├─ (AX) label="Crash", value="", traits=[button], frame: {{275, 393.66666666666663}, {45, 20.333333333333314}}
-         │        │        ├─ (AX) label="Add Breadcrumb", value="", traits=[button], frame: {{50.333333333333329, 412}, {128.66666666666669, 20.333333333333314}}
-         │        │        ├─ (AX) label="Async Crash", value="", traits=[button], frame: {{249.66666666666666, 430}, {95.666666666666657, 20.333333333333314}}
-         │        │        ├─ (AX) label="Capture Message", value="", traits=[button], frame: {{47.666666666666664, 448.33333333333331}, {134, 20.333333333333314}}
-         │        │        ├─ (AX) label="OOM Crash", value="", traits=[button], frame: {{253, 466.33333333333331}, {89, 20.333333333333314}}
-         │        │        ├─ (AX) label="Capture Error", value="", traits=[button], frame: {{63.333333333333329, 484.66666666666663}, {102.66666666666667, 20.333333333333314}}
-         │        │        ├─ (AX) label="Show Detail View 1", value="", traits=[button], frame: {{226, 502.66666666666663}, {143, 20.333333333333371}}
-         │        │        ├─ (AX) label="Capture NSException", value="", traits=[button], frame: {{33.333333333333329, 520.66666666666663}, {162.66666666666669, 20.333333333333371}}
-         │        │        ├─ (AX) label="Lorem Ipsum", value="", traits=[button], frame: {{248, 539}, {98.666666666666629, 20.333333333333371}}
-         │        │        ├─ (AX) label="Capture Transaction", value="", traits=[button], frame: {{37.333333333333329, 557}, {154.33333333333331, 20.666666666666629}}
-         │        │        ├─ (AX) label="UIKit Screen", value="", traits=[button], frame: {{250.33333333333331, 575.33333333333326}, {94.333333333333314, 20.333333333333371}}
-         │        │        ├─ SentryRedactView(frame: {{0, 0}, {79, 20.333333333333332}}, ax=0)
-         │        │        ├─ (AX) label="Show TTD", value="", traits=[button], frame: {{75, 593.66666666666663}, {79, 20.333333333333371}}
-         │        │        ├─ (AX) label="Form Screen", value="", traits=[button], frame: {{248.66666666666666, 611.66666666666663}, {97.333333333333343, 20.333333333333371}}
-         │        │        ├─ (AX) label="This is the detail view 1", value="", traits=[staticText], frame: {{113.66666666666667, 648}, {174.66666666666663, 20.333333333333371}}
-         │        │        ├─ CGDrawingView(frame: {{128.33333333333331, 203.66666666666666}, {145.66666666666666, 20.333333333333332}}, ax=0)
-         │        │        ├─ PlatformViewHost<PlatformViewRepresentableAdaptor<SentryReplayView>>(frame: {{128.33333333333331, 203.66666666666666}, {145.66666666666666, 20.333333333333332}}, ax=0)
-         │        │        │  └─ SentryRedactView(frame: {{0, 0}, {145.66666666666666, 20.333333333333332}}, ax=0)
-         │        │        ├─ CGDrawingView(frame: {{128.66666666666666, 240}, {145, 20.333333333333332}}, ax=0)
-         │        │        ├─ PlatformViewHost<PlatformViewRepresentableAdaptor<SentryReplayView>>(frame: {{128.66666666666666, 240}, {145, 20.333333333333332}}, ax=0)
-         │        │        │  └─ SentryRedactView(frame: {{0, 0}, {145, 20.333333333333332}}, ax=0)
-         │        │        ├─ PlatformViewHost<PlatformViewRepresentableAdaptor<SentryReplayView>>(frame: {{128.66666666666666, 240}, {145, 20.333333333333332}}, ax=0)
-         │        │        │  └─ SentryRedactView(frame: {{0, 0}, {145, 20.333333333333332}}, ax=0)
-         │        │        ├─ CGDrawingView(frame: {{143.66666666666666, 276.33333333333331}, {114.66666666666666, 20.333333333333332}}, ax=0)
-         │        │        ├─ PlatformViewHost<PlatformViewRepresentableAdaptor<SentryReplayView>>(frame: {{143.66666666666666, 276.33333333333331}, {114.66666666666666, 20.333333333333332}}, ax=0)
-         │        │        │  └─ SentryRedactView(frame: {{0, 0}, {114.66666666666666, 20.333333333333332}}, ax=0)
-         │        │        ├─ CGDrawingView(frame: {{160, 312.66666666666663}, {82.333333333333329, 20.333333333333332}}, ax=0)
-         │        │        ├─ CGDrawingView(frame: {{128.66666666666666, 335}, {145, 20.333333333333332}}, ax=0)
-         │        │        ├─ CGDrawingView(frame: {{143.66666666666666, 357.33333333333331}, {114.66666666666666, 20.333333333333332}}, ax=0)
-         │        │        ├─ CGDrawingView(frame: {{50.333333333333329, 412}, {128.66666666666666, 20.333333333333332}}, ax=0)
-         │        │        ├─ CGDrawingView(frame: {{47.666666666666664, 448.33333333333331}, {134, 20.333333333333332}}, ax=0)
-         │        │        ├─ CGDrawingView(frame: {{63.333333333333329, 484.66666666666663}, {102.66666666666666, 20.333333333333332}}, ax=0)
-         │        │        ├─ CGDrawingView(frame: {{33.333333333333329, 520.66666666666663}, {162.66666666666666, 20.333333333333332}}, ax=0)
-         │        │        ├─ CGDrawingView(frame: {{37.333333333333329, 557}, {154.33333333333331, 20.333333333333332}}, ax=0)
-         │        │        ├─ CGDrawingView(frame: {{75, 593.66666666666663}, {79, 20.333333333333332}}, ax=0)
-         │        │        ├─ PlatformViewHost<PlatformViewRepresentableAdaptor<SentryReplayView>>(frame: {{75, 593.66666666666663}, {79, 20.333333333333332}}, ax=0)
-         │        │        │  └─ SentryRedactView(frame: {{0, 0}, {79, 20.333333333333332}}, ax=0)
-         │        │        ├─ _UIGraphicsView(frame: {{226, 393.66666666666663}, {143, 238.33333333333331}}, ax=0)
-         │        │        ├─ CGDrawingView(frame: {{275, 393.66666666666663}, {45, 20.333333333333332}}, ax=0)
-         │        │        ├─ CGDrawingView(frame: {{249.66666666666666, 430}, {95.666666666666657, 20.333333333333332}}, ax=0)
-         │        │        ├─ CGDrawingView(frame: {{253, 466.33333333333331}, {89, 20.333333333333332}}, ax=0)
-         │        │        ├─ CGDrawingView(frame: {{226, 502.66666666666663}, {143, 20.333333333333332}}, ax=0)
-         │        │        ├─ CGDrawingView(frame: {{248, 539}, {98.666666666666657, 20.333333333333332}}, ax=0)
-         │        │        ├─ CGDrawingView(frame: {{250.33333333333331, 575.33333333333326}, {94.333333333333329, 20.333333333333332}}, ax=0)
-         │        │        ├─ CGDrawingView(frame: {{248.66666666666666, 611.66666666666663}, {97.333333333333329, 20.333333333333332}}, ax=0)
-         │        │        └─ CGDrawingView(frame: {{113.66666666666666, 648}, {174.66666666666666, 20.333333333333332}}, ax=0)
-         │        └─ UIKitToolbar(frame: {{0, 874}, {402, 49}}, ax=0, "Toolbar")
-         │           └─ _UIBarBackground(frame: {{0, 0}, {402, 83}}, ax=0)
-         │              ├─ UIVisualEffectView(frame: {{0, 0}, {402, 83}}, ax=0)
-         │              │  └─ _UIVisualEffectBackdropView(frame: {{0, 0}, {402, 83}}, ax=0)
-         │              └─ _UIBarBackgroundShadowView(frame: {{0, -0.33333333333333331}, {402, 0.33333333333333331}}, ax=0)
-         │                 └─ _UIBarBackgroundShadowContentImageView(frame: {{0, 0}, {402, 0.33333333333333331}}, ax=0)
-         └─ PlatformViewHost<PlatformViewControllerRepresentableAdaptor<MulticolumnSplitViewRepresentable<ModifiedContent<Element, NavigationColumnModifier>, Never, _UnaryViewAdaptor<EmptyView>>>>(frame: {{0, 0}, {402, 874}}, ax=0)
-            └─ _UISplitViewControllerPanelImplView(frame: {{0, 0}, {402, 874}}, ax=0)
-               └─ _UIPanelControllerContentView(frame: {{0, 0}, {402, 874}}, ax=0)
-                  └─ UILayoutContainerView(frame: {{0, 0}, {402, 874}}, ax=0)
-                     ├─ UINavigationTransitionView(frame: {{0, 0}, {402, 874}}, ax=0)
-                     │  └─ UIViewControllerWrapperView(frame: {{0, 0}, {402, 874}}, ax=0)
-                     │     └─ _UIHostingView<ModifiedContent<ModifiedContent<Element, NavigationColumnModifier>, StyleContextWriter<SidebarStyleContext>>>(frame: {{0, 0}, {402, 874}}, ax=0)
-                     │        ├─ (AX) label="Content View Body", value="", traits=[staticText], frame: {{128.16666666666669, 203.66666666666666}, {145.66666666666669, 20.333333333333343}}
-                     │        ├─ SentryRedactView(frame: {{0, 0}, {145.66666666666666, 20.333333333333332}}, ax=0)
-                     │        ├─ (AX) label="7c34efa2e3aa4f3e", value="", traits=[staticText], frame: {{128.5, 240}, {145, 20.333333333333314}}
-                     │        ├─ SentryRedactView(frame: {{0, 0}, {145, 20.333333333333332}}, ax=0)
-                     │        ├─ SentryRedactView(frame: {{0, 0}, {145, 20.333333333333332}}, ax=0)
-                     │        ├─ SentryRedactView(frame: {{0, 0}, {114.66666666666666, 20.333333333333332}}, ax=0)
-                     │        ├─ (AX) label="auto.ui.swift_ui", value="", traits=[staticText], frame: {{143.66666666666669, 276.33333333333331}, {114.66666666666669, 20.333333333333314}}
-                     │        ├─ (AX) label="Child Span", value="", traits=[staticText], frame: {{159.83333333333334, 312.66666666666663}, {82.333333333333343, 20.333333333333314}}
-                     │        ├─ (AX) label="7c34efa2e3aa4f3e", value="", traits=[staticText], frame: {{128.5, 334.99999999999994}, {145, 20.333333333333314}}
-                     │        ├─ (AX) label="auto.ui.swift_ui", value="", traits=[staticText], frame: {{143.66666666666669, 357.33333333333326}, {114.66666666666669, 20.333333333333314}}
-                     │        ├─ (AX) label="Crash", value="", traits=[button], frame: {{275, 393.66666666666663}, {45, 20.333333333333314}}
-                     │        ├─ (AX) label="Add Breadcrumb", value="", traits=[button], frame: {{50.333333333333329, 412}, {128.66666666666669, 20.333333333333314}}
-                     │        ├─ (AX) label="Async Crash", value="", traits=[button], frame: {{249.66666666666666, 430}, {95.666666666666657, 20.333333333333314}}
-                     │        ├─ (AX) label="Capture Message", value="", traits=[button], frame: {{47.666666666666664, 448.33333333333331}, {134, 20.333333333333314}}
-                     │        ├─ (AX) label="OOM Crash", value="", traits=[button], frame: {{253, 466.33333333333331}, {89, 20.333333333333314}}
-                     │        ├─ (AX) label="Capture Error", value="", traits=[button], frame: {{63.333333333333329, 484.66666666666663}, {102.66666666666667, 20.333333333333314}}
-                     │        ├─ (AX) label="Show Detail View 1", value="", traits=[button], frame: {{226, 502.66666666666663}, {143, 20.333333333333371}}
-                     │        ├─ (AX) label="Capture NSException", value="", traits=[button], frame: {{33.333333333333329, 520.66666666666663}, {162.66666666666669, 20.333333333333371}}
-                     │        ├─ (AX) label="Lorem Ipsum", value="", traits=[button], frame: {{248, 539}, {98.666666666666629, 20.333333333333371}}
-                     │        ├─ (AX) label="Capture Transaction", value="", traits=[button], frame: {{37.333333333333329, 557}, {154.33333333333331, 20.666666666666629}}
-                     │        ├─ (AX) label="UIKit Screen", value="", traits=[button], frame: {{250.33333333333331, 575.33333333333326}, {94.333333333333314, 20.333333333333371}}
-                     │        ├─ SentryRedactView(frame: {{0, 0}, {79, 20.333333333333332}}, ax=0)
-                     │        ├─ (AX) label="Show TTD", value="", traits=[button], frame: {{75, 593.66666666666663}, {79, 20.333333333333371}}
-                     │        ├─ (AX) label="Form Screen", value="", traits=[button], frame: {{248.66666666666666, 611.66666666666663}, {97.333333333333343, 20.333333333333371}}
-                     │        ├─ (AX) label="This is the detail view 1", value="", traits=[staticText], frame: {{113.66666666666667, 648}, {174.66666666666663, 20.333333333333371}}
-                     │        ├─ CGDrawingView(frame: {{128.33333333333331, 203.66666666666666}, {145.66666666666666, 20.333333333333332}}, ax=0)
-                     │        ├─ PlatformViewHost<PlatformViewRepresentableAdaptor<SentryReplayView>>(frame: {{128.33333333333331, 203.66666666666666}, {145.66666666666666, 20.333333333333332}}, ax=0)
-                     │        │  └─ SentryRedactView(frame: {{0, 0}, {145.66666666666666, 20.333333333333332}}, ax=0)
-                     │        ├─ CGDrawingView(frame: {{128.66666666666666, 240}, {145, 20.333333333333332}}, ax=0)
-                     │        ├─ PlatformViewHost<PlatformViewRepresentableAdaptor<SentryReplayView>>(frame: {{128.66666666666666, 240}, {145, 20.333333333333332}}, ax=0)
-                     │        │  └─ SentryRedactView(frame: {{0, 0}, {145, 20.333333333333332}}, ax=0)
-                     │        ├─ PlatformViewHost<PlatformViewRepresentableAdaptor<SentryReplayView>>(frame: {{128.66666666666666, 240}, {145, 20.333333333333332}}, ax=0)
-                     │        │  └─ SentryRedactView(frame: {{0, 0}, {145, 20.333333333333332}}, ax=0)
-                     │        ├─ CGDrawingView(frame: {{143.66666666666666, 276.33333333333331}, {114.66666666666666, 20.333333333333332}}, ax=0)
-                     │        ├─ PlatformViewHost<PlatformViewRepresentableAdaptor<SentryReplayView>>(frame: {{143.66666666666666, 276.33333333333331}, {114.66666666666666, 20.333333333333332}}, ax=0)
-                     │        │  └─ SentryRedactView(frame: {{0, 0}, {114.66666666666666, 20.333333333333332}}, ax=0)
-                     │        ├─ CGDrawingView(frame: {{160, 312.66666666666663}, {82.333333333333329, 20.333333333333332}}, ax=0)
-                     │        ├─ CGDrawingView(frame: {{128.66666666666666, 335}, {145, 20.333333333333332}}, ax=0)
-                     │        ├─ CGDrawingView(frame: {{143.66666666666666, 357.33333333333331}, {114.66666666666666, 20.333333333333332}}, ax=0)
-                     │        ├─ CGDrawingView(frame: {{50.333333333333329, 412}, {128.66666666666666, 20.333333333333332}}, ax=0)
-                     │        ├─ CGDrawingView(frame: {{47.666666666666664, 448.33333333333331}, {134, 20.333333333333332}}, ax=0)
-                     │        ├─ CGDrawingView(frame: {{63.333333333333329, 484.66666666666663}, {102.66666666666666, 20.333333333333332}}, ax=0)
-                     │        ├─ CGDrawingView(frame: {{33.333333333333329, 520.66666666666663}, {162.66666666666666, 20.333333333333332}}, ax=0)
-                     │        ├─ CGDrawingView(frame: {{37.333333333333329, 557}, {154.33333333333331, 20.333333333333332}}, ax=0)
-                     │        ├─ CGDrawingView(frame: {{75, 593.66666666666663}, {79, 20.333333333333332}}, ax=0)
-                     │        ├─ PlatformViewHost<PlatformViewRepresentableAdaptor<SentryReplayView>>(frame: {{75, 593.66666666666663}, {79, 20.333333333333332}}, ax=0)
-                     │        │  └─ SentryRedactView(frame: {{0, 0}, {79, 20.333333333333332}}, ax=0)
-                     │        ├─ _UIGraphicsView(frame: {{226, 393.66666666666663}, {143, 238.33333333333331}}, ax=0)
-                     │        ├─ CGDrawingView(frame: {{275, 393.66666666666663}, {45, 20.333333333333332}}, ax=0)
-                     │        ├─ CGDrawingView(frame: {{249.66666666666666, 430}, {95.666666666666657, 20.333333333333332}}, ax=0)
-                     │        ├─ CGDrawingView(frame: {{253, 466.33333333333331}, {89, 20.333333333333332}}, ax=0)
-                     │        ├─ CGDrawingView(frame: {{226, 502.66666666666663}, {143, 20.333333333333332}}, ax=0)
-                     │        ├─ CGDrawingView(frame: {{248, 539}, {98.666666666666657, 20.333333333333332}}, ax=0)
-                     │        ├─ CGDrawingView(frame: {{250.33333333333331, 575.33333333333326}, {94.333333333333329, 20.333333333333332}}, ax=0)
-                     │        ├─ CGDrawingView(frame: {{248.66666666666666, 611.66666666666663}, {97.333333333333329, 20.333333333333332}}, ax=0)
-                     │        └─ CGDrawingView(frame: {{113.66666666666666, 648}, {174.66666666666666, 20.333333333333332}}, ax=0)
-                     └─ UIKitToolbar(frame: {{0, 874}, {402, 49}}, ax=0, "Toolbar")
-                        └─ _UIBarBackground(frame: {{0, 0}, {402, 83}}, ax=0)
-                           ├─ UIVisualEffectView(frame: {{0, 0}, {402, 83}}, ax=0)
-                           │  └─ _UIVisualEffectBackdropView(frame: {{0, 0}, {402, 83}}, ax=0)
-                           └─ _UIBarBackgroundShadowView(frame: {{0, -0.33333333333333331}, {402, 0.33333333333333331}}, ax=0)
-                              └─ _UIBarBackgroundShadowContentImageView(frame: {{0, 0}, {402, 0.33333333333333331}}, ax=0)
-```
-</details>
-
-<details>
-<summary>SwiftUI - View Hierarchy Tree (with Enabler) - iOS-SwiftUI / iPhone 17 Pro / iOS 26.1</summary>
-```swift
-UIWindow(frame: {{0, 0}, {402, 874}}, ax=0)
-└─ UITransitionView(frame: {{0, 0}, {402, 874}}, ax=0)
-   └─ UIDropShadowView(frame: {{0, 0}, {402, 874}}, ax=0)
-      └─ _UIHostingView<ModifiedContent<AnyView, RootModifier>>(frame: {{0, 0}, {402, 874}}, ax=0)
-         ├─ UIView(frame: {{0, 0}, {402, 874}}, ax=0)
-         │  ├─ _UISplitViewControllerAdaptiveColumnContainerView(frame: {{0, 0}, {402, 874}}, ax=0)
-         │  │  └─ _UISplitViewControllerAdaptiveColumnView(frame: {{0, 0}, {402, 874}}, ax=0)
-         │  │     └─ UILayoutContainerView(frame: {{0, 0}, {402, 874}}, ax=0)
-         │  │        ├─ UINavigationTransitionView(frame: {{0, 0}, {402, 874}}, ax=0)
-         │  │        │  └─ UIViewControllerWrapperView(frame: {{0, 0}, {402, 874}}, ax=0)
-         │  │        │     └─ _UIHostingView<ModifiedContent<ModifiedContent<ModifiedContent<Element, NavigationSearchColumnModifier>, NavigationColumnModifier>, StyleContextWriter<SidebarStyleContext>>>(frame: {{0, 0}, {402, 874}}, ax=0)
-         │  │        │        ├─ (AX) label="Content View Body", value="", traits=[staticText], frame: {{128.16666666666669, 203.66666666666666}, {145.66666666666669, 20.333333333333343}}
-         │  │        │        ├─ SentryRedactView(frame: {{0, 0}, {145.66666666666666, 20.333333333333332}}, ax=0)
-         │  │        │        ├─ SentryRedactView(frame: {{0, 0}, {153.33333333333331, 20.333333333333332}}, ax=0)
-         │  │        │        ├─ SentryRedactView(frame: {{0, 0}, {153.33333333333331, 20.333333333333332}}, ax=0)
-         │  │        │        ├─ (AX) label="ce61ad9c41004e53", value="", traits=[staticText], frame: {{124.33333333333334, 240}, {153.33333333333329, 20.333333333333314}}
-         │  │        │        ├─ SentryRedactView(frame: {{0, 0}, {114.66666666666666, 20.333333333333332}}, ax=0)
-         │  │        │        ├─ (AX) label="auto.ui.swift_ui", value="", traits=[staticText], frame: {{143.66666666666669, 276.33333333333331}, {114.66666666666669, 20.333333333333314}}
-         │  │        │        ├─ (AX) label="Child Span", value="", traits=[staticText], frame: {{159.83333333333334, 312.66666666666663}, {82.333333333333343, 20.333333333333314}}
-         │  │        │        ├─ (AX) label="ce61ad9c41004e53", value="", traits=[staticText], frame: {{124.33333333333334, 334.99999999999994}, {153.33333333333329, 20.333333333333314}}
-         │  │        │        ├─ (AX) label="auto.ui.swift_ui", value="", traits=[staticText], frame: {{143.66666666666669, 357.33333333333326}, {114.66666666666669, 20.333333333333314}}
-         │  │        │        ├─ (AX) label="Crash", value="", traits=[button], frame: {{275, 393.66666666666663}, {45, 20.333333333333314}}
-         │  │        │        ├─ (AX) label="Add Breadcrumb", value="", traits=[button], frame: {{50.333333333333329, 412}, {128.66666666666669, 20.333333333333314}}
-         │  │        │        ├─ (AX) label="Async Crash", value="", traits=[button], frame: {{249.66666666666666, 430}, {95.666666666666657, 20.333333333333314}}
-         │  │        │        ├─ (AX) label="Capture Message", value="", traits=[button], frame: {{47.666666666666664, 448.33333333333331}, {134, 20.333333333333314}}
-         │  │        │        ├─ (AX) label="OOM Crash", value="", traits=[button], frame: {{253, 466.33333333333331}, {89, 20.333333333333314}}
-         │  │        │        ├─ (AX) label="Capture Error", value="", traits=[button], frame: {{63.333333333333329, 484.66666666666663}, {102.66666666666667, 20.333333333333314}}
-         │  │        │        ├─ (AX) label="Show Detail View 1", value="", traits=[button], frame: {{226, 502.66666666666663}, {143, 20.333333333333371}}
-         │  │        │        ├─ (AX) label="Capture NSException", value="", traits=[button], frame: {{33.333333333333329, 520.66666666666663}, {162.66666666666669, 20.333333333333371}}
-         │  │        │        ├─ (AX) label="Lorem Ipsum", value="", traits=[button], frame: {{248, 539}, {98.666666666666629, 20.333333333333371}}
-         │  │        │        ├─ (AX) label="Capture Transaction", value="", traits=[button], frame: {{37.333333333333329, 557}, {154.33333333333331, 20.666666666666629}}
-         │  │        │        ├─ (AX) label="UIKit Screen", value="", traits=[button], frame: {{250.33333333333331, 575.33333333333326}, {94.333333333333314, 20.333333333333371}}
-         │  │        │        ├─ SentryRedactView(frame: {{0, 0}, {79, 20.333333333333332}}, ax=0)
-         │  │        │        ├─ (AX) label="Show TTD", value="", traits=[button], frame: {{75, 593.66666666666663}, {79, 20.333333333333371}}
-         │  │        │        ├─ (AX) label="Form Screen", value="", traits=[button], frame: {{248.66666666666666, 611.66666666666663}, {97.333333333333343, 20.333333333333371}}
-         │  │        │        ├─ (AX) label="This is the detail view 1", value="", traits=[staticText], frame: {{113.66666666666667, 648}, {174.66666666666663, 20.333333333333371}}
-         │  │        │        ├─ UIKitPlatformViewHost<PlatformViewRepresentableAdaptor<SentryReplayView>>(frame: {{128.33333333333331, 203.66666666666666}, {145.66666666666666, 20.333333333333332}}, ax=0)
-         │  │        │        │  └─ SentryRedactView(frame: {{0, 0}, {145.66666666666666, 20.333333333333332}}, ax=0)
-         │  │        │        ├─ UIKitPlatformViewHost<PlatformViewRepresentableAdaptor<SentryReplayView>>(frame: {{124.33333333333333, 240}, {153.33333333333331, 20.333333333333332}}, ax=0)
-         │  │        │        │  └─ SentryRedactView(frame: {{0, 0}, {153.33333333333331, 20.333333333333332}}, ax=0)
-         │  │        │        ├─ UIKitPlatformViewHost<PlatformViewRepresentableAdaptor<SentryReplayView>>(frame: {{124.33333333333333, 240}, {153.33333333333331, 20.333333333333332}}, ax=0)
-         │  │        │        │  └─ SentryRedactView(frame: {{0, 0}, {153.33333333333331, 20.333333333333332}}, ax=0)
-         │  │        │        ├─ UIKitPlatformViewHost<PlatformViewRepresentableAdaptor<SentryReplayView>>(frame: {{143.66666666666666, 276.33333333333331}, {114.66666666666666, 20.333333333333332}}, ax=0)
-         │  │        │        │  └─ SentryRedactView(frame: {{0, 0}, {114.66666666666666, 20.333333333333332}}, ax=0)
-         │  │        │        └─ UIKitPlatformViewHost<PlatformViewRepresentableAdaptor<SentryReplayView>>(frame: {{75, 593.66666666666663}, {79, 20.333333333333332}}, ax=0)
-         │  │        │           └─ SentryRedactView(frame: {{0, 0}, {79, 20.333333333333332}}, ax=0)
-         │  │        └─ FloatingBarContainerView(frame: {{0, 0}, {402, 874}}, ax=0)
-         │  │           ├─ FloatingBarHostingView<FloatingBarContainer>(frame: {{0, 0}, {402, 874}}, ax=0)
-         │  │           └─ _UIPointerInteractionAssistantEffectContainerView(frame: {{0, 0}, {0, 0}}, ax=0)
-         │  └─ _UISplitViewControllerAdaptiveTransitionView(frame: {{0, 0}, {402, 874}}, ax=0)
-         │     └─ _UITouchPassthroughView(frame: {{0, 0}, {402, 874}}, ax=0)
-         └─ UIKitPlatformViewHost<PlatformViewControllerRepresentableAdaptor<MulticolumnSplitViewRepresentable<ModifiedContent<ModifiedContent<Element, NavigationSearchColumnModifier>, NavigationColumnModifier>, Never, _UnaryViewAdaptor<EmptyView>>>>(frame: {{0, 0}, {402, 874}}, ax=0)
-            └─ UIView(frame: {{0, 0}, {402, 874}}, ax=0)
-               ├─ _UISplitViewControllerAdaptiveColumnContainerView(frame: {{0, 0}, {402, 874}}, ax=0)
-               │  └─ _UISplitViewControllerAdaptiveColumnView(frame: {{0, 0}, {402, 874}}, ax=0)
-               │     └─ UILayoutContainerView(frame: {{0, 0}, {402, 874}}, ax=0)
-               │        ├─ UINavigationTransitionView(frame: {{0, 0}, {402, 874}}, ax=0)
-               │        │  └─ UIViewControllerWrapperView(frame: {{0, 0}, {402, 874}}, ax=0)
-               │        │     └─ _UIHostingView<ModifiedContent<ModifiedContent<ModifiedContent<Element, NavigationSearchColumnModifier>, NavigationColumnModifier>, StyleContextWriter<SidebarStyleContext>>>(frame: {{0, 0}, {402, 874}}, ax=0)
-               │        │        ├─ (AX) label="Content View Body", value="", traits=[staticText], frame: {{128.16666666666669, 203.66666666666666}, {145.66666666666669, 20.333333333333343}}
-               │        │        ├─ SentryRedactView(frame: {{0, 0}, {145.66666666666666, 20.333333333333332}}, ax=0)
-               │        │        ├─ SentryRedactView(frame: {{0, 0}, {153.33333333333331, 20.333333333333332}}, ax=0)
-               │        │        ├─ SentryRedactView(frame: {{0, 0}, {153.33333333333331, 20.333333333333332}}, ax=0)
-               │        │        ├─ (AX) label="ce61ad9c41004e53", value="", traits=[staticText], frame: {{124.33333333333334, 240}, {153.33333333333329, 20.333333333333314}}
-               │        │        ├─ SentryRedactView(frame: {{0, 0}, {114.66666666666666, 20.333333333333332}}, ax=0)
-               │        │        ├─ (AX) label="auto.ui.swift_ui", value="", traits=[staticText], frame: {{143.66666666666669, 276.33333333333331}, {114.66666666666669, 20.333333333333314}}
-               │        │        ├─ (AX) label="Child Span", value="", traits=[staticText], frame: {{159.83333333333334, 312.66666666666663}, {82.333333333333343, 20.333333333333314}}
-               │        │        ├─ (AX) label="ce61ad9c41004e53", value="", traits=[staticText], frame: {{124.33333333333334, 334.99999999999994}, {153.33333333333329, 20.333333333333314}}
-               │        │        ├─ (AX) label="auto.ui.swift_ui", value="", traits=[staticText], frame: {{143.66666666666669, 357.33333333333326}, {114.66666666666669, 20.333333333333314}}
-               │        │        ├─ (AX) label="Crash", value="", traits=[button], frame: {{275, 393.66666666666663}, {45, 20.333333333333314}}
-               │        │        ├─ (AX) label="Add Breadcrumb", value="", traits=[button], frame: {{50.333333333333329, 412}, {128.66666666666669, 20.333333333333314}}
-               │        │        ├─ (AX) label="Async Crash", value="", traits=[button], frame: {{249.66666666666666, 430}, {95.666666666666657, 20.333333333333314}}
-               │        │        ├─ (AX) label="Capture Message", value="", traits=[button], frame: {{47.666666666666664, 448.33333333333331}, {134, 20.333333333333314}}
-               │        │        ├─ (AX) label="OOM Crash", value="", traits=[button], frame: {{253, 466.33333333333331}, {89, 20.333333333333314}}
-               │        │        ├─ (AX) label="Capture Error", value="", traits=[button], frame: {{63.333333333333329, 484.66666666666663}, {102.66666666666667, 20.333333333333314}}
-               │        │        ├─ (AX) label="Show Detail View 1", value="", traits=[button], frame: {{226, 502.66666666666663}, {143, 20.333333333333371}}
-               │        │        ├─ (AX) label="Capture NSException", value="", traits=[button], frame: {{33.333333333333329, 520.66666666666663}, {162.66666666666669, 20.333333333333371}}
-               │        │        ├─ (AX) label="Lorem Ipsum", value="", traits=[button], frame: {{248, 539}, {98.666666666666629, 20.333333333333371}}
-               │        │        ├─ (AX) label="Capture Transaction", value="", traits=[button], frame: {{37.333333333333329, 557}, {154.33333333333331, 20.666666666666629}}
-               │        │        ├─ (AX) label="UIKit Screen", value="", traits=[button], frame: {{250.33333333333331, 575.33333333333326}, {94.333333333333314, 20.333333333333371}}
-               │        │        ├─ SentryRedactView(frame: {{0, 0}, {79, 20.333333333333332}}, ax=0)
-               │        │        ├─ (AX) label="Show TTD", value="", traits=[button], frame: {{75, 593.66666666666663}, {79, 20.333333333333371}}
-               │        │        ├─ (AX) label="Form Screen", value="", traits=[button], frame: {{248.66666666666666, 611.66666666666663}, {97.333333333333343, 20.333333333333371}}
-               │        │        ├─ (AX) label="This is the detail view 1", value="", traits=[staticText], frame: {{113.66666666666667, 648}, {174.66666666666663, 20.333333333333371}}
-               │        │        ├─ UIKitPlatformViewHost<PlatformViewRepresentableAdaptor<SentryReplayView>>(frame: {{128.33333333333331, 203.66666666666666}, {145.66666666666666, 20.333333333333332}}, ax=0)
-               │        │        │  └─ SentryRedactView(frame: {{0, 0}, {145.66666666666666, 20.333333333333332}}, ax=0)
-               │        │        ├─ UIKitPlatformViewHost<PlatformViewRepresentableAdaptor<SentryReplayView>>(frame: {{124.33333333333333, 240}, {153.33333333333331, 20.333333333333332}}, ax=0)
-               │        │        │  └─ SentryRedactView(frame: {{0, 0}, {153.33333333333331, 20.333333333333332}}, ax=0)
-               │        │        ├─ UIKitPlatformViewHost<PlatformViewRepresentableAdaptor<SentryReplayView>>(frame: {{124.33333333333333, 240}, {153.33333333333331, 20.333333333333332}}, ax=0)
-               │        │        │  └─ SentryRedactView(frame: {{0, 0}, {153.33333333333331, 20.333333333333332}}, ax=0)
-               │        │        ├─ UIKitPlatformViewHost<PlatformViewRepresentableAdaptor<SentryReplayView>>(frame: {{143.66666666666666, 276.33333333333331}, {114.66666666666666, 20.333333333333332}}, ax=0)
-               │        │        │  └─ SentryRedactView(frame: {{0, 0}, {114.66666666666666, 20.333333333333332}}, ax=0)
-               │        │        └─ UIKitPlatformViewHost<PlatformViewRepresentableAdaptor<SentryReplayView>>(frame: {{75, 593.66666666666663}, {79, 20.333333333333332}}, ax=0)
-               │        │           └─ SentryRedactView(frame: {{0, 0}, {79, 20.333333333333332}}, ax=0)
-               │        └─ FloatingBarContainerView(frame: {{0, 0}, {402, 874}}, ax=0)
-               │           ├─ FloatingBarHostingView<FloatingBarContainer>(frame: {{0, 0}, {402, 874}}, ax=0)
-               │           └─ _UIPointerInteractionAssistantEffectContainerView(frame: {{0, 0}, {0, 0}}, ax=0)
-               └─ _UISplitViewControllerAdaptiveTransitionView(frame: {{0, 0}, {402, 874}}, ax=0)
-                  └─ _UITouchPassthroughView(frame: {{0, 0}, {402, 874}}, ax=0)
-```
-</details>
-### Known Limitations and Safeguards
-
-While testing potential implementations, we identified the key issue that **accessibility information is not populated unless VoiceOver is enabled system-wide**.
-UIKit checks if VoiceOver is enabled by accessing the private `_AXSAutomationEnabled` flag in the `Accessibility.framework` and only sets values for the accessibility information if it is enabled.
-
-Snapshot testing libraries such as [AccessibilitySnapshot](https://github.com/cashapp/AccessibilitySnapshot) are handling this by patching the `Accessibility.framework` to always return true for the `_AXSAutomationEnabled` flag in their [ASAccessibilityEnabler.m](https://github.com/cashapp/AccessibilitySnapshot/blob/main/Sources/AccessibilitySnapshot/Parser/ObjC/ASAccessibilityEnabler.m#L37-L49) class, which can also be rewritten in Swift as follows:
+Snapshot testing libraries such as [AccessibilitySnapshot](https://github.com/cashapp/AccessibilitySnapshot) are handling this by patching the `Accessibility.framework` to always return `true` for the `_AXSAutomationEnabled` flag in their [ASAccessibilityEnabler.m](https://github.com/cashapp/AccessibilitySnapshot/blob/main/Sources/AccessibilitySnapshot/Parser/ObjC/ASAccessibilityEnabler.m#L37-L49) class, which can also be rewritten in Swift as follows:
 
 ```swift
 // Load the private accessibility dylib
@@ -875,8 +268,7 @@ guard let handle = loadDylib(path: "/usr/lib/libAccessibility.dylib") else {
 }
 
 // Resolve function pointers to private APIs
-guard let symEnabled = dlsym(handle, "_AXSAutomationEnabled"),
-        let symSetEnabled = dlsym(handle, "_AXSSetAutomationEnabled") else {
+guard let symEnabled = dlsym(handle, "_AXSAutomationEnabled"), let symSetEnabled = dlsym(handle, "_AXSSetAutomationEnabled") else {
     dlclose(handle)
     fatalError("Failed to find accessibility automation functions")
 }
@@ -893,6 +285,260 @@ setAutomationEnabled?(1)
 // Restore previous state
 setAutomationEnabled?(previousValue)
 dlclose(handle)
+```
+
+Loading the Accessibility framework and calling private methods via `dlsym` is not allowed by Apple and would already cause non-conformity with the App Store Review Guidelines.
+
+To proof that this set up is required, we can run the following application and inspect the logs using this view hierarchy and accessibility tree printer:
+
+<details>
+<summary>View Hierarchy and Accessibility Tree Printer</summary>
+
+```swift
+/// Prints a minimal tree of the `UIView` hierarchy similar to the `tree` CLI.
+/// Runs on the main thread for UIKit safety.
+///
+/// Example output:
+/// ├─ UIView(frame: {{0, 0}, {390, 844}})
+/// │  ├─ UILabel(frame: {{16, 24}, {200, 20}}, ax=1, "Title")
+/// │  └─ UIButton(frame: {{16, 60}, {80, 32}}, ax=1, "Login")
+///
+public func printViewHierarchyTree(from root: UIView, maxDepth: Int = 64) {
+    if !Thread.isMainThread {
+        DispatchQueue.main.async { [weak self] in
+            self?.printViewHierarchyTree(from: root, maxDepth: maxDepth)
+        }
+        return
+    }
+
+    func describeView(_ view: UIView) -> String {
+        let typeName = String(describing: type(of: view))
+        let frameStr = "frame: \(NSCoder.string(for: view.frame))"
+        let isAX = view.isAccessibilityElement ? "1" : "0"
+        let label = (view.accessibilityLabel?.isEmpty == false) ? ", \"\(view.accessibilityLabel!)\"" : ""
+        return "\(typeName)(\(frameStr), ax=\(isAX)\(label))"
+    }
+
+    func printTree(_ view: UIView, prefix: String, isLast: Bool, depth: Int) {
+        if depth > maxDepth { return }
+        
+        let branch = isLast ? "└─ " : "├─ "
+        print("\(prefix)\(branch)\(describeView(view))")
+        
+        let nextPrefix = prefix + (isLast ? "   " : "│  ")
+        let subviews = view.subviews
+        for (index, subview) in subviews.enumerated() {
+            let last = index == subviews.count - 1
+            printTree(subview, prefix: nextPrefix, isLast: last, depth: depth + 1)
+        }
+    }
+
+    // Print root without leading branch
+    print(describeView(root))
+    let subviews = root.subviews
+    for (index, subview) in subviews.enumerated() {
+        let last = index == subviews.count - 1
+        printTree(subview, prefix: "", isLast: last, depth: 1)
+    }
+
+}
+
+/// Prints a minimal combined tree that includes the `UIView` hierarchy
+/// plus any `accessibilityElements` children exposed by objects.
+/// Runs on the main thread for UIKit safety.
+///
+/// Example output:
+/// ├─ UIView(frame: {{0, 0}, {390, 844}})
+/// │ ├─ UILabel(frame: {{16, 24}, {200, 20}}, ax=1, "Title")
+/// │ │ └─ (AX) label="Title", value="", traits=[staticText]
+/// │ └─ UIView(frame: {{0, 100}, {390, 44}})
+/// │ └─ (AX) label="Search", value="", traits=[searchField]
+///
+public func printCombinedViewAndAccessibilityTree(from root: UIView, maxDepth: Int = 64) {
+    func describeView(_ view: UIView) -> String {
+        let typeName = String(describing: type(of: view))
+        let frameStr = "frame: \(NSCoder.string(for: view.frame))"
+        let isAX = view.isAccessibilityElement ? "1" : "0"
+        let label = (view.accessibilityLabel?.isEmpty == false) ? ", \"\(view.accessibilityLabel!)\"" : ""
+        return "\(typeName)(\(frameStr), ax=\(isAX)\(label))"
+    }
+
+    func readableTraits(_ traits: UIAccessibilityTraits) -> String {
+        var parts: [String] = []
+        if traits.contains(.button) { parts.append("button") }
+        if traits.contains(.link) { parts.append("link") }
+        if traits.contains(.image) { parts.append("image") }
+        if traits.contains(.staticText) { parts.append("staticText") }
+        if traits.contains(.keyboardKey) { parts.append("keyboardKey") }
+        if traits.contains(.searchField) { parts.append("searchField") }
+        if traits.contains(.header) { parts.append("header") }
+        if traits.contains(.selected) { parts.append("selected") }
+        if traits.contains(.playsSound) { parts.append("playsSound") }
+        if traits.contains(.summaryElement) { parts.append("summary") }
+        if traits.contains(.updatesFrequently) { parts.append("updatesFrequently") }
+        if traits.contains(.startsMediaSession) { parts.append("startsMedia") }
+        if traits.contains(.adjustable) { parts.append("adjustable") }
+        if traits.contains(.allowsDirectInteraction) { parts.append("directInteraction") }
+        if traits.contains(.notEnabled) { parts.append("disabled") }
+        if traits.contains(.keyboardKey) { parts.append("keyboardKey") }
+        return parts.isEmpty ? "" : parts.joined(separator: "|")
+    }
+
+    func describeAX(_ object: NSObject, relativeTo root: UIView) -> String {
+        let label = object.accessibilityLabel ?? ""
+        let value = object.accessibilityValue ?? ""
+        let traits = readableTraits(object.accessibilityTraits)
+        let frame = object is UIView ? (object as! UIView).frame : root.convert(object.accessibilityFrame, from: nil)
+        let frameStr = NSCoder.string(for: frame)
+        return "(AX) label=\"\(label)\", value=\"\(value)\", traits=[\(traits)], frame: \(frameStr)"
+    }
+
+    func childrenForObject(_ object: NSObject) -> [NSObject] {
+        if let view = object as? UIView {
+            var children: [NSObject] = []
+            if let axChildren = view.accessibilityElements as? [NSObject], !axChildren.isEmpty {
+                children.append(contentsOf: axChildren)
+            }
+            children.append(contentsOf: view.subviews)
+            return children
+        } else if let axChildren = object.accessibilityElements as? [NSObject] {
+            return axChildren
+        } else {
+            return []
+        }
+    }
+
+    func printTree(_ object: NSObject, prefix: String, isLast: Bool, depth: Int) {
+        if depth > maxDepth { return }
+        
+        let branch = isLast ? "└─ " : "├─ "
+        if let view = object as? UIView {
+            print("\(prefix)\(branch)\(describeView(view))")
+        } else {
+            print("\(prefix)\(branch)\(describeAX(object, relativeTo: root))")
+        }
+        
+        let nextPrefix = prefix + (isLast ? "   " : "│  ")
+        let children = childrenForObject(object)
+        for (index, child) in children.enumerated() {
+            let last = index == children.count - 1
+            printTree(child, prefix: nextPrefix, isLast: last, depth: depth + 1)
+        }
+    }
+
+    // Print root without leading branch
+    print(describeView(root))
+    let children = childrenForObject(root)
+    for (index, child) in children.enumerated() {
+        let last = index == children.count - 1
+        printTree(child, prefix: "", isLast: last, depth: 1)
+    }
+
+}
+```
+
+</details>
+
+**Example SwiftUI:**
+
+The following sample app was inspected on a real iPhone 14 Pro with iOS 26.1 with and without patching the Accessibility.framework to always return true for the `_AXSAutomationEnabled` flag.
+
+```swift
+struct ContentView: View {
+    var body: some View {
+        VStack {
+            Label("Invisbible Title", image: "xmark")
+                .labelStyle(.iconOnly)
+            Label("Only Title", image: "xmark")
+                .labelStyle(.titleOnly)
+            Label("Title & Icon", image: "xmark")
+                .labelStyle(.titleAndIcon)
+            Text("Hello, World!")
+            TextField("Insecure Textfield", text: .constant("Insecure Value"))
+            TextField("Secure Textfield", text: .constant("Secure Value"))
+        }
+    }
+}
+```
+
+<details>
+<summary>View Hierarchy</summary>
+```swift
+UIWindow(frame: {{0, 0}, {393, 852}}, ax=0)
+└─ UITransitionView(frame: {{0, 0}, {393, 852}}, ax=0)
+   └─ UIDropShadowView(frame: {{0, 0}, {393, 852}}, ax=0)
+      └─ _UIHostingView<ModifiedContent<AnyView, RootModifier>>(frame: {{0, 0}, {393, 852}}, ax=0)
+         ├─ UIKitPlatformViewHost<PlatformViewRepresentableAdaptor<PlatformTextFieldAdaptor>>(frame: {{0, 456.66666666666663}, {393, 19.666666666666664}}, ax=0)
+         │  └─ UITextField(frame: {{0, 0}, {393, 19.666666666666664}}, ax=0)
+         │     ├─ _UITouchPassthroughView(frame: {{0, 0}, {393, 19.666666666666668}}, ax=0)
+         │     └─ _UITextLayoutCanvasView(frame: {{0, 0}, {393, 19.666666666666668}}, ax=0)
+         │        └─ _UITextLayoutFragmentView(frame: {{-8, 0}, {146, 20.333333333333332}}, ax=0)
+         └─ UIKitPlatformViewHost<PlatformViewRepresentableAdaptor<PlatformTextFieldAdaptor>>(frame: {{0, 484.33333333333331}, {393, 19.666666666666664}}, ax=0)
+            └─ UITextField(frame: {{0, 0}, {393, 19.666666666666664}}, ax=0)
+               ├─ _UITouchPassthroughView(frame: {{0, 0}, {393, 19.666666666666668}}, ax=0)
+               └─ _UITextLayoutCanvasView(frame: {{0, 0}, {393, 19.666666666666668}}, ax=0)
+                  └─ _UITextLayoutFragmentView(frame: {{-8, 0}, {135, 20.333333333333332}}, ax=0)
+```
+</details>
+
+<details>
+<summary>View Hierarchy + Accessibility Tree (without AccessibilityEnabler)</summary>
+```swift
+UIWindow(frame: {{0, 0}, {393, 852}}, ax=0)
+└─ UITransitionView(frame: {{0, 0}, {393, 852}}, ax=0)
+   └─ UIDropShadowView(frame: {{0, 0}, {393, 852}}, ax=0)
+      └─ _UIHostingView<ModifiedContent<AnyView, RootModifier>>(frame: {{0, 0}, {393, 852}}, ax=0)
+         ├─ UIKitPlatformViewHost<PlatformViewRepresentableAdaptor<PlatformTextFieldAdaptor>>(frame: {{0, 456.66666666666663}, {393, 19.666666666666664}}, ax=0)
+         │  └─ UITextField(frame: {{0, 0}, {393, 19.666666666666664}}, ax=0)
+         │     ├─ _UITouchPassthroughView(frame: {{0, 0}, {393, 19.666666666666668}}, ax=0)
+         │     └─ _UITextLayoutCanvasView(frame: {{0, 0}, {393, 19.666666666666668}}, ax=0)
+         │        └─ _UITextLayoutFragmentView(frame: {{-8, 0}, {146, 20.333333333333332}}, ax=0)
+         └─ UIKitPlatformViewHost<PlatformViewRepresentableAdaptor<PlatformTextFieldAdaptor>>(frame: {{0, 484.33333333333331}, {393, 19.666666666666664}}, ax=0)
+            └─ UITextField(frame: {{0, 0}, {393, 19.666666666666664}}, ax=0)
+               ├─ _UITouchPassthroughView(frame: {{0, 0}, {393, 19.666666666666668}}, ax=0)
+               └─ _UITextLayoutCanvasView(frame: {{0, 0}, {393, 19.666666666666668}}, ax=0)
+                  └─ _UITextLayoutFragmentView(frame: {{-8, 0}, {135, 20.333333333333332}}, ax=0)
+```
+</details>
+
+<details>
+<summary>View Hierarchy + Accessibility Tree (without AccessibilityEnabler)</summary>
+```swift
+UIWindow(frame: {{0, 0}, {393, 852}}, ax=0)
+└─ UITransitionView(frame: {{0, 0}, {393, 852}}, ax=0)
+   └─ UIDropShadowView(frame: {{0, 0}, {393, 852}}, ax=0)
+      └─ _UIHostingView<ModifiedContent<AnyView, RootModifier>>(frame: {{0, 0}, {393, 852}}, ax=0)
+         ├─ (AX) label="Invisbible Title", value="", traits=[image], frame: {{196.5, 372.88362630208331}, {0, 0}}
+         ├─ (AX) label="Only Title", value="", traits=[staticText], frame: {{163.83333333333334, 378.50179036458331}, {65.333333333333343, 18}}
+         ├─ (AX) label="Title & Icon", value="", traits=[staticText], frame: {{161.83333333333334, 405.83333333333331}, {77.333333333333343, 18}}
+         ├─ (AX) label="Hello, World!", value="", traits=[staticText], frame: {{152.66666666666669, 429.45149739583331}, {87.666666666666657, 18}}
+         ├─ UITextField(frame: {{0, 0}, {393, 19.666666666666664}}, ax=1)
+         │  ├─ _UITouchPassthroughView(frame: {{0, 0}, {393, 19.666666666666668}}, ax=0)
+         │  └─ _UITextLayoutCanvasView(frame: {{0, 0}, {393, 19.666666666666668}}, ax=0)
+         │     └─ _UITextLayoutFragmentView(frame: {{-8, 0}, {146, 20.333333333333332}}, ax=0)
+         ├─ UITextField(frame: {{0, 0}, {393, 19.666666666666664}}, ax=1)
+         │  ├─ _UITouchPassthroughView(frame: {{0, 0}, {393, 19.666666666666668}}, ax=0)
+         │  └─ _UITextLayoutCanvasView(frame: {{0, 0}, {393, 19.666666666666668}}, ax=0)
+         │     └─ _UITextLayoutFragmentView(frame: {{-8, 0}, {135, 20.333333333333332}}, ax=0)
+         ├─ UIKitPlatformViewHost<PlatformViewRepresentableAdaptor<PlatformTextFieldAdaptor>>(frame: {{0, 456.66666666666663}, {393, 19.666666666666664}}, ax=0)
+         │  └─ UITextField(frame: {{0, 0}, {393, 19.666666666666664}}, ax=1)
+         │     ├─ _UITouchPassthroughView(frame: {{0, 0}, {393, 19.666666666666668}}, ax=0)
+         │     └─ _UITextLayoutCanvasView(frame: {{0, 0}, {393, 19.666666666666668}}, ax=0)
+         │        └─ _UITextLayoutFragmentView(frame: {{-8, 0}, {146, 20.333333333333332}}, ax=0)
+         └─ UIKitPlatformViewHost<PlatformViewRepresentableAdaptor<PlatformTextFieldAdaptor>>(frame: {{0, 484.33333333333331}, {393, 19.666666666666664}}, ax=0)
+            └─ UITextField(frame: {{0, 0}, {393, 19.666666666666664}}, ax=1)
+               ├─ _UITouchPassthroughView(frame: {{0, 0}, {393, 19.666666666666668}}, ax=0)
+               └─ _UITextLayoutCanvasView(frame: {{0, 0}, {393, 19.666666666666668}}, ax=0)
+                  └─ _UITextLayoutFragmentView(frame: {{-8, 0}, {135, 20.333333333333332}}, ax=0)
+```
+</details>
+
+When running the application and inspecting the logs, we see the following error on real iOS devices, indicating a clear violation of the sandboxing rules:
+
+```bash
+Couldn't write values for keys (
+    ApplicationAccessibilityEnabled
+) in CFPrefsPlistSource<0x11a209a80> (Domain: com.apple.Accessibility, User: kCFPreferencesCurrentUser, ByHost: No, Container: (null), Contents Need Refresh: No): setting preferences outside an application's container requires user-preference-write or file-write-data sandbox access
 ```
 
 Due to this limitation, this approach is not feasible for Sentry SDK to use, as it would require accessing and swizzling private APIs, which is not allowed by Apple.
