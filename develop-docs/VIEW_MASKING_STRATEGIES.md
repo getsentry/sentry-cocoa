@@ -153,7 +153,7 @@ struct LoginView: View {
     }
 ```
 
-In addition to assistive use cases, the Accessibility framework also powers automated UI testing tools such as XCTest’s UI test APIs. UI tests interact with an app not by directly manipulating view instances, but by simulating user actions (like taps or swipes) on accessibility elements. The framework exposes a stable, semantic interface layer that remains consistent even if the underlying view implementation changes, making tests more robust and maintainable. This unified approach means the same accessibility information that enables inclusive apps for users with disabilities also enables reliable, semantic-driven testing and automation.
+In addition to assistive use cases, the Accessibility framework also powers automated UI testing tools such as XCTest’s UI test APIs. UI tests interact with an app not by directly manipulating view instances, but by simulating user actions (like taps or swipes) on accessibility elements. The framework exposes a stable interface layer that remains consistent even if the underlying view implementation changes, making tests more robust and maintainable.
 
 **Example:**
 
@@ -172,57 +172,91 @@ To explore the Accessibility information available in a view hierarchy, we can u
 
 ### Accessing Accessibility Information from SDK
 
-To access the information from the SDK, we have two options available:
+To access the information from the SDK, we have two potential approaches:
 
-1. Access the tree directly using the `UIAccessibility` framework.
+1. Access the tree directly using the `UIAccessibility` framework, similar to how Xcode UI Tests and the Accessibility Inspector work.
 2. Traversing the view hierarchy and accessing the accessibility information from the views.
 
 #### Accessing the Accessibility Tree Directly
 
-The `UIAccessibility` framework provides a way to access the Accessibility tree directly.
+The Accessibility framework does not offer a public API to directly query the system accessibility server (which is used by `XCUIApplication` to interact with the app), as it lives outside of the app's process.
+Further analysis of SDK frameworks show that only the `Accessibility.framework` is available in the SDK, while all other frameworks mentioning `Accessibility` or `AX*` (e.g. `AXRuntime` is used by `XCUITests`) are private frameworks.
 
-```swift
-let accessibilityElement = UIAccessibilityElement(accessibilityContainer: view)
-let accessibilityFrame = accessibilityElement.accessibilityFrame
+```bash
+$ find /Applications/Xcode-26.1.0.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk -name "Accessibility*"
+/Applications/Xcode-26.1.0.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/System/Library/Frameworks/Accessibility.framework
+/Applications/Xcode-26.1.0.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/System/Library/Frameworks/Accessibility.framework/Accessibility.tbd
+/Applications/Xcode-26.1.0.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/System/Library/Frameworks/Accessibility.framework/Headers/Accessibility.h
+/Applications/Xcode-26.1.0.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/System/Library/Frameworks/Accessibility.framework/Modules/Accessibility.swiftmodule
+
+$ find /Applications/Xcode-26.1.0.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk -name "AX*"
+/Applications/Xcode-26.1.0.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/System/Library/Frameworks/Accessibility.framework/Headers/AXColorUtilities.h
+/Applications/Xcode-26.1.0.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/System/Library/Frameworks/Accessibility.framework/Headers/AXMathExpression.h
+/Applications/Xcode-26.1.0.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/System/Library/Frameworks/Accessibility.framework/Headers/AXHearingUtilities.h
+/Applications/Xcode-26.1.0.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/System/Library/Frameworks/Accessibility.framework/Headers/AXAudiograph.h
+/Applications/Xcode-26.1.0.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/System/Library/Frameworks/Accessibility.framework/Headers/AXCustomContent.h
+/Applications/Xcode-26.1.0.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/System/Library/Frameworks/Accessibility.framework/Headers/AXTechnology.h
+/Applications/Xcode-26.1.0.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/System/Library/Frameworks/Accessibility.framework/Headers/AXRequest.h
+/Applications/Xcode-26.1.0.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/System/Library/Frameworks/Accessibility.framework/Headers/AXFoundation.h
+/Applications/Xcode-26.1.0.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/System/Library/Frameworks/Accessibility.framework/Headers/AXBrailleTranslator.h
+/Applications/Xcode-26.1.0.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/System/Library/Frameworks/Accessibility.framework/Headers/AXFeatureOverrideSessionManager.h
+/Applications/Xcode-26.1.0.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/System/Library/Frameworks/Accessibility.framework/Headers/AXBrailleMap.h
+/Applications/Xcode-26.1.0.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/System/Library/Frameworks/Accessibility.framework/Headers/AXSettings.h
 ```
+
+Further private frameworks can be found when looking into the macOS platform SDKs, proofing the existence of the Accessibility runtime:
+
+```bash
+$ find /Applications/Xcode-26.1.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/PrivateFrameworks/ -name "Accessibility*"
+/Applications/Xcode-26.1.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/PrivateFrameworks/AccessibilityUIShared.framework
+/Applications/Xcode-26.1.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/PrivateFrameworks/AccessibilityAudit.framework
+/Applications/Xcode-26.1.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/PrivateFrameworks/AccessibilityPerformance.framework
+/Applications/Xcode-26.1.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/PrivateFrameworks/AccessibilityBundles.framework
+/Applications/Xcode-26.1.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/PrivateFrameworks/AccessibilityPlatformTranslation.framework
+/Applications/Xcode-26.1.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/PrivateFrameworks/AccessibilityUI.framework
+/Applications/Xcode-26.1.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/PrivateFrameworks/AccessibilitySharedSupport.framework
+/Applications/Xcode-26.1.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/PrivateFrameworks/AccessibilityUIService.framework
+/Applications/Xcode-26.1.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/PrivateFrameworks/AccessibilityReaderData.framework
+/Applications/Xcode-26.1.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/PrivateFrameworks/AccessibilityUtilities.framework
+/Applications/Xcode-26.1.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/PrivateFrameworks/AccessibilityReadingUI.framework
+/Applications/Xcode-26.1.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/PrivateFrameworks/AccessibilitySettingsUI.framework
+/Applications/Xcode-26.1.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/PrivateFrameworks/AccessibilitySharedUISupport.framework
+/Applications/Xcode-26.1.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/PrivateFrameworks/AccessibilitySupport.framework
+
+$ find /Applications/Xcode-26.1.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/PrivateFrameworks/ -name "AX*"
+/Applications/Xcode-26.1.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/PrivateFrameworks/AXMotionCuesServices.framework
+/Applications/Xcode-26.1.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/PrivateFrameworks/AXMotionCuesServices.framework/AXMotionCuesServices.tbd
+/Applications/Xcode-26.1.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/PrivateFrameworks/AXMotionCuesServices.framework/Versions/A/AXMotionCuesServices.tbd
+/Applications/Xcode-26.1.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/PrivateFrameworks/AXMediaUtilities.framework
+/Applications/Xcode-26.1.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/PrivateFrameworks/AXMediaUtilities.framework/Versions/A/AXMediaUtilities.tbd
+/Applications/Xcode-26.1.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/PrivateFrameworks/AXMediaUtilities.framework/AXMediaUtilities.tbd
+/Applications/Xcode-26.1.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/PrivateFrameworks/AXRuntime.framework
+/Applications/Xcode-26.1.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/PrivateFrameworks/AXRuntime.framework/AXRuntime.tbd
+/Applications/Xcode-26.1.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/PrivateFrameworks/AXRuntime.framework/Versions/A/AXRuntime.tbd
+/Applications/Xcode-26.1.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/PrivateFrameworks/AXCoreUtilities.framework
+/Applications/Xcode-26.1.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/PrivateFrameworks/AXCoreUtilities.framework/AXCoreUtilities.tbd
+/Applications/Xcode-26.1.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/PrivateFrameworks/AXCoreUtilities.framework/Versions/A/AXCoreUtilities.tbd
+/Applications/Xcode-26.1.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/PrivateFrameworks/AXGuestPassServices.framework
+/Applications/Xcode-26.1.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/PrivateFrameworks/AXGuestPassServices.framework/Versions/A/AXGuestPassServices.tbd
+/Applications/Xcode-26.1.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/PrivateFrameworks/AXGuestPassServices.framework/AXGuestPassServices.tbd
+/Applications/Xcode-26.1.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/PrivateFrameworks/AXAssetLoader.framework
+/Applications/Xcode-26.1.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/PrivateFrameworks/AXAssetLoader.framework/Versions/A/AXAssetLoader.tbd
+/Applications/Xcode-26.1.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/PrivateFrameworks/AXAssetLoader.framework/AXAssetLoader.tbd
+```
+
+Due to this limitation, this approach is not feasible for the Sentry SDK and would cause non-conformity with the App Store Review Guidelines.
 
 #### Traversing the View Hierarchy
 
-The SDK traverses the view hierarchy and accesses the accessibility information from the views.
+The view hierarchy consists of a tree structure of `UIView`, which are subclasses of `NSObject` and have a `subviews` property that contains an array of `UIView` instances.
+As the accessibility information properties are instance properties of `NSObject` (see [Apple Documentation](https://developer.apple.com/documentation/objectivec/nsobject-swift.class#Instance-Properties)), it allows us to traverse the view hierarchy and access the accessibility information from the views.
 
-<!-- ### Using the Accessibility Framework for Redaction
+It is important to note that each view is therefore an accessibility element with an accessibility frame, accessibility label, accessibility value, accessibility traits, and accessibility identifier.
+Furthermore, while the view hierarchy is already a tree structure with multiple leaf nodes per subview, each accessibility element can also have multiple children set in [`accessibilityElements`](https://developer.apple.com/documentation/objectivec/nsobject-swift.class/accessibilityelements).
 
-The `SentryAccessibilityRedactBuilder` is a builder that uses the Accessibility framework to identify which areas of a view hierarchy should be masked during screenshot or session replay capture. It works by:
+The built accessibility tree is therefore larger than the view hierarchy tree by itself, which makes it especially valuable when working with SwiftUI views, due to them being partially rendered via graphical views.
 
-- Temporarily enabling accessibility automation to prompt SwiftUI to populate accessibility properties.
-- Waiting briefly (~100ms) for SwiftUI to populate `accessibilityLabel`/`accessibilityValue`.
-- Traversing the accessibility tree starting from the provided root `UIView`.
-- Computing a rectangle in image coordinates for each accessibility element and deciding whether to redact it based on traits and options.
-- Emitting `SentryRedactRegion` entries consumed by the renderer.
-- The screenshot image uses the root view’s bounds as its coordinate space.
-- For `UIView`-backed elements, the builder prefers Core Animation presentation layers to match in-flight animations and transitions:
-  - Convert the element’s `view.layer.presentation()?.bounds` into the root layer’s coordinate space.
-- For non-`UIView` elements, the builder falls back to `accessibilityFrame` (screen coordinates) and converts to the root view’s coordinates.
-- Rectangles are scaled from root-view coordinates into image coordinates using width/height scale factors.
-- Always redact secure text entry fields (`UITextField`/`UITextView` with `isSecureTextEntry = true`, SwiftUI `SecureField`).
-- If `maskAllText` is enabled in `SentryRedactOptions`:
-  - Redact elements with traits indicating text (e.g., `.staticText`, `.keyboardKey`, `.searchField`).
-  - Redact elements exposing a non-`nil` `accessibilityLabel` or `accessibilityValue`.
+**Example:**
 
-Regions are emitted as `size` + `transform` (center-based), with an optional `name` derived from label/value for debugging.
-
-- Enabling/disabling automation and reading UIKit/SwiftUI properties happens on the main thread.
-- After capturing lightweight value types (frames, labels, values, traits), processing moves to a background queue to avoid blocking UI.
-- The automation state is restored immediately after capture to minimize side effects.
-
-## Accessibility-Based Redaction (Merged Details)
-
-### The Problem (SwiftUI)
-
-- SwiftUI often does not populate standard accessibility properties (`accessibilityLabel`, `accessibilityValue`) unless iOS believes accessibility automation (e.g., VoiceOver/UI testing) is active. Without this, `UILabel.text` and `UITextField.text` remain available via UIKit, but SwiftUI text/value discovery via accessibility APIs frequently returns `nil`.
-
-### Internal-Only Solution: Temporarily Enable Accessibility Automation
-
-In internal/testing builds, we temporarily enable accessibility automation via private APIs so SwiftUI fills accessibility properties. After a short delay (~100ms), we capture all required metadata and then disable automation immediately.
-
-Enabling and disabling (from our Swift enabler): -->
+```swift
+```
