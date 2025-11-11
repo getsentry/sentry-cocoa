@@ -5,7 +5,6 @@
 #import "SentryCrashStackEntryMapper.h"
 #include "SentryCrashSymbolicator.h"
 #import "SentryFrame.h"
-#import "SentryOptions.h"
 #import "SentryStacktrace.h"
 #import "SentryStacktraceBuilder.h"
 #import "SentrySwift.h"

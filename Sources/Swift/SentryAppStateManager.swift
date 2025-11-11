@@ -6,7 +6,7 @@ import UIKit
 
 @_spi(Private) @objc public final class SentryAppStateManager: NSObject {
     
-    private let options: Options?
+    private let releaseName: String?
     private let crashWrapper: SentryCrashWrapper
     private let fileManager: SentryFileManager?
 #if (os(iOS) || os(tvOS) || (swift(>=5.9) && os(visionOS))) && !SENTRY_NO_UIKIT
@@ -15,8 +15,8 @@ import UIKit
     private let helper: SentryDefaultAppStateManager
 #endif
     
-    init(options: Options?, crashWrapper: SentryCrashWrapper, fileManager: SentryFileManager?, sysctlWrapper: SentrySysctl) {
-        self.options = options
+    init(releaseName: String?, crashWrapper: SentryCrashWrapper, fileManager: SentryFileManager?, sysctlWrapper: SentrySysctl) {
+        self.releaseName = releaseName
         self.crashWrapper = crashWrapper
         self.fileManager = fileManager
 #if (os(iOS) || os(tvOS) || (swift(>=5.9) && os(visionOS))) && !SENTRY_NO_UIKIT
@@ -28,7 +28,7 @@ import UIKit
             let device = UIDevice.current
             let vendorId = device.identifierForVendor?.uuidString
 
-            return SentryAppState(releaseName: options?.releaseName, osVersion: device.systemVersion, vendorId: vendorId, isDebugging: isDebugging, systemBootTimestamp: sysctlWrapper.systemBootTimestamp)
+            return SentryAppState(releaseName: releaseName, osVersion: device.systemVersion, vendorId: vendorId, isDebugging: isDebugging, systemBootTimestamp: sysctlWrapper.systemBootTimestamp)
         }
         _buildCurrentAppState = buildCurrentAppState
         let updateAppState: (@escaping (SentryAppState) -> Void) -> Void = { block in

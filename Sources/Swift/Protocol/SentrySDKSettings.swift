@@ -8,8 +8,12 @@
         autoInferIP = false
     }
     
-    @objc public init(options: Options?) {
-        autoInferIP = options?.sendDefaultPii ?? false
+    @objc public convenience init(options: Options?) {
+        self.init(sendDefaultPii: options?.sendDefaultPii ?? false)
+    }
+
+    @objc public init(sendDefaultPii: Bool) {
+        autoInferIP = sendDefaultPii
     }
     
     @objc public init(dict: NSDictionary) {

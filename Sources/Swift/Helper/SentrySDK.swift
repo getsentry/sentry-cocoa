@@ -51,7 +51,9 @@ import Foundation
     /// - note: Call this method on the main thread. When calling it from a background thread, the
     /// SDK starts on the main thread async.
     @objc public static func start(configureOptions: @escaping (Options) -> Void) {
-        SentrySDKInternal.start(configureOptions: configureOptions)
+        let options = Options()
+        configureOptions(options)
+        SentrySDKInternal.start(options: options)
     }
     
     // MARK: - Event Capture

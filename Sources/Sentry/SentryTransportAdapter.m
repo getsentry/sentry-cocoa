@@ -1,6 +1,5 @@
 #import "SentryTransportAdapter.h"
 #import "SentryEvent.h"
-#import "SentryOptions.h"
 #import "SentrySwift.h"
 
 NS_ASSUME_NONNULL_BEGIN
