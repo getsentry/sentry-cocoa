@@ -463,6 +463,7 @@ struct ContentView: View {
 
 <details>
 <summary>View Hierarchy</summary>
+
 ```swift
 UIWindow(frame: {{0, 0}, {393, 852}}, ax=0)
 └─ UITransitionView(frame: {{0, 0}, {393, 852}}, ax=0)
@@ -479,10 +480,12 @@ UIWindow(frame: {{0, 0}, {393, 852}}, ax=0)
                └─ _UITextLayoutCanvasView(frame: {{0, 0}, {393, 19.666666666666668}}, ax=0)
                   └─ _UITextLayoutFragmentView(frame: {{-8, 0}, {135, 20.333333333333332}}, ax=0)
 ```
+
 </details>
 
 <details>
 <summary>View Hierarchy + Accessibility Tree (without AccessibilityEnabler)</summary>
+
 ```swift
 UIWindow(frame: {{0, 0}, {393, 852}}, ax=0)
 └─ UITransitionView(frame: {{0, 0}, {393, 852}}, ax=0)
@@ -499,10 +502,12 @@ UIWindow(frame: {{0, 0}, {393, 852}}, ax=0)
                └─ _UITextLayoutCanvasView(frame: {{0, 0}, {393, 19.666666666666668}}, ax=0)
                   └─ _UITextLayoutFragmentView(frame: {{-8, 0}, {135, 20.333333333333332}}, ax=0)
 ```
+
 </details>
 
 <details>
 <summary>View Hierarchy + Accessibility Tree (without AccessibilityEnabler)</summary>
+
 ```swift
 UIWindow(frame: {{0, 0}, {393, 852}}, ax=0)
 └─ UITransitionView(frame: {{0, 0}, {393, 852}}, ax=0)
@@ -531,6 +536,7 @@ UIWindow(frame: {{0, 0}, {393, 852}}, ax=0)
                └─ _UITextLayoutCanvasView(frame: {{0, 0}, {393, 19.666666666666668}}, ax=0)
                   └─ _UITextLayoutFragmentView(frame: {{-8, 0}, {135, 20.333333333333332}}, ax=0)
 ```
+
 </details>
 
 When running the application and inspecting the logs, we see the following error on real iOS devices, indicating a clear violation of the sandboxing rules:
@@ -542,3 +548,7 @@ Couldn't write values for keys (
 ```
 
 Due to this limitation, this approach is not feasible for Sentry SDK to use, as it would require accessing and swizzling private APIs, which is not allowed by Apple.
+
+## Machine Learning Based Approach
+
+## View Hierarchy Wireframe Based Approach
