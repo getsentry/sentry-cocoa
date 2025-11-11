@@ -7,7 +7,6 @@
 #    import "SentrySubClassFinder.h"
 #    import "SentrySwift.h"
 #    import "SentrySwizzle.h"
-#    import <SentryOptions.h>
 #    import <UIKit/UIKit.h>
 #    import <UIViewController+Sentry.h>
 #    import <objc/runtime.h>

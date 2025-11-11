@@ -4,7 +4,7 @@
     private let internalHelper: SentryDefaultThreadInspector
     
     override init() {
-        internalHelper = SentryDefaultThreadInspector(options: SentrySDKInternal.options)
+        internalHelper = SentryDefaultThreadInspector(options: SentrySDKInternal.optionsInternal)
     }
 
     init(options: Options) {

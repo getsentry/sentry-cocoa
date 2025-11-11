@@ -6,7 +6,6 @@
 #import "SentryInstallation.h"
 #import "SentryInternalDefines.h"
 #import "SentryMeta.h"
-#import "SentryOptions+Private.h"
 #import "SentryProfileCollector.h"
 #import "SentryPropagationContext.h"
 #import "SentrySDK+Private.h"

@@ -1,10 +1,10 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
-final class SentryEnabledFeaturesBuilder: NSObject {
+@_spi(Private) @objc public final class SentryEnabledFeaturesBuilder: NSObject {
 
     // swiftlint:disable cyclomatic_complexity function_body_length
-    static func getEnabledFeatures(options: Options?) -> [String] {
+    @objc public static func getEnabledFeatures(options: Options?) -> [String] {
         guard let options = options else {
             return []
         }
@@ -27,11 +27,11 @@ final class SentryEnabledFeaturesBuilder: NSObject {
         }
 
 #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT
-        if options.enableViewRendererV2() {
+        if options.sessionReplay.enableViewRendererV2 {
             // We keep the old name for backwards compatibility of the telemetry data.
             features.append("experimentalViewRenderer")
         }
-        if options.enableFastViewRendering() {
+        if options.sessionReplay.enableFastViewRendering {
             features.append("fastViewRendering")
         }
 #endif // (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT

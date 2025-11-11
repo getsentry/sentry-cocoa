@@ -412,7 +412,7 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
     func testAddIgnoreContainer() throws {
         class IgnoreContainer: UIView {}
 
-        SentrySDKInternal.start {
+        SentrySDK.start {
             $0.removeAllIntegrations()
             $0.sessionReplay = SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1)
             $0.experimental.enableSessionReplayInUnreliableEnvironment = true
@@ -429,7 +429,7 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
     func testAddRedactContainer() throws {
         class RedactContainer: UIView {}
 
-        SentrySDKInternal.start {
+        SentrySDK.start {
             $0.removeAllIntegrations()
             $0.sessionReplay = SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1)
             $0.experimental.enableSessionReplayInUnreliableEnvironment = true
