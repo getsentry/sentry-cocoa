@@ -127,14 +127,27 @@ static SentryTouchTracker *_touchTracker;
     }
 
     id<SentryUIRedactBuilderProtocol> redactBuilder;
-    if (experimentalOptions.sessionReplayMaskingStrategy
-        == kSessionReplayMaskingStrategyAccessibilty) {
+    switch (experimentalOptions.sessionReplayMaskingStrategy) {
+    case kSessionReplayMaskingStrategyAccessibilty:
         redactBuilder = [[SentryAccessibilityRedactBuilder alloc] initWithOptions:replayOptions];
-    } else if (experimentalOptions.sessionReplayMaskingStrategy
-        == kSessionReplayMaskingStrategyMachineLearning) {
+        break;
+    case kSessionReplayMaskingStrategyDefensive:
+        redactBuilder = [[SentryDefensiveRedactBuilder alloc] initWithOptions:replayOptions];
+        break;
+    case kSessionReplayMaskingStrategyMachineLearning:
         redactBuilder = [[SentryMLRedactBuilder alloc] initWithOptions:replayOptions];
-    } else {
+        break;
+    case kSessionReplayMaskingStrategyPDF:
+        redactBuilder = [[SentryPDFRedactBuilder alloc] initWithOptions:replayOptions];
+        break;
+    case kSessionReplayMaskingStrategyWireframe:
+        redactBuilder = [[SentryWireframeRedactBuilder alloc] initWithOptions:replayOptions];
+        break;
+    case kSessionReplayMaskingStrategyViewHierarchy:
         redactBuilder = [[SentryUIRedactBuilder alloc] initWithOptions:replayOptions];
+        break;
+    default:
+        break;
     }
 
     // We are using the flag for the view renderer V2 also for the mask renderer V2, as it would

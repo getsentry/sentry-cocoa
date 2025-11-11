@@ -580,4 +580,133 @@ doesn't help if we don't get the full view hierarchy and layer tree for SwiftUI 
 
 ## PDF Based Approach
 
-Draw the view into a PDF context, then use PDF manipulation to remove all images (probably not possible because the rendered view is an image by itself)
+This approach is rendering the view hierarchy into a PDF context using CoreGraphics and UIKit's built-in PDF rendering capabilities, which is then modified at the PDF level to remove all images and text, before converting it into an image.
+
+### Draw the view hierarchy into a PDF context
+
+To generate a simple PDF document, we can create a new PDF graphics context, start a new page and render the view hierarchy into the context. To finalize the PDF document, we need to end the context and write the data to a temporary file.
+
+```swift
+let data = NSMutableData()
+let bounds = view.bounds
+
+UIGraphicsBeginPDFContextToData(data, bounds, nil)
+guard let context = UIGraphicsGetCurrentContext() else {
+    UIGraphicsEndPDFContext()
+    SentrySDKLog.error("Failed to create PDF graphics context")
+    throw RedactionError.failedToCreateContext
+}
+UIGraphicsBeginPDFPage()
+let layer = view.layer.presentation() ?? view.layer
+layer.render(in: context)
+UIGraphicsEndPDFContext()
+
+try data.write(to: URL(fileURLWithPath: "/tmp/output.pdf"))
+```
+
+### Exploring the PDF document
+
+To explore the PDF document on an object level, we can use the `MuPDF` library / CLI tool.
+
+```bash
+# Show the trailer of the PDF document:
+$ mutool show /tmp/output.pdf 
+trailer
+<<
+  /Size 21
+  /Root 19 0 R
+  /Info 20 0 R
+  /ID [ <A6E83D94C1B9ACAD3980B7EB2AA32E02> <A6E83D94C1B9ACAD3980B7EB2AA32E02> ]
+>>
+
+# List all objects in the PDF document:
+$ mutool show /tmp/output.pdf grep
+1 0 obj <</Contents 3 0 R/Parent 2 0 R/Resources 4 0 R/Type/Page>>
+2 0 obj <</Count 1/Kids[1 0 R]/MediaBox[0 0 402 874]/Type/Pages>>
+3 0 obj <</Filter/FlateDecode/Length 209>> stream
+4 0 obj <</ColorSpace<</Cs1 5 0 R>>/ProcSet[/PDF/ImageB/ImageC/ImageI]/XObject<</Im1 6 0 R/Im2 7 0 R/Im3 8 0 R/Im4 9 0 R/Im5 10 0 R>>>>
+5 0 obj [/ICCBased 17 0 R]
+6 0 obj <</Type/XObject/Subtype/Image/BitsPerComponent 8/ColorSpace 11 0 R/Filter/FlateDecode/Height 61/Interpolate true/Length 195/SMask 12 0 R/Width 217>> stream
+7 0 obj <</Type/XObject/Subtype/Image/BitsPerComponent 8/ColorSpace 11 0 R/Filter/FlateDecode/Height 61/Interpolate true/Length 229/SMask 13 0 R/Width 257>> stream
+8 0 obj <</Type/XObject/Subtype/Image/BitsPerComponent 8/ColorSpace 11 0 R/Filter/FlateDecode/Height 61/Interpolate true/Length 257/SMask 14 0 R/Width 292>> stream
+9 0 obj <</Type/XObject/Subtype/Image/BitsPerComponent 8/ColorSpace 11 0 R/Filter/FlateDecode/Height 67/Interpolate true/Length 449/SMask 15 0 R/Width 486>> stream
+10 0 obj <</Type/XObject/Subtype/Image/BitsPerComponent 8/ColorSpace 11 0 R/Filter/FlateDecode/Height 67/Interpolate true/Length 418/SMask 16 0 R/Width 450>> stream
+11 0 obj [/ICCBased 18 0 R]
+12 0 obj <</Type/XObject/Subtype/Image/BitsPerComponent 8/ColorSpace/DeviceGray/Filter/FlateDecode/Height 61/Length 1977/Width 217>> stream
+13 0 obj <</Type/XObject/Subtype/Image/BitsPerComponent 8/ColorSpace/DeviceGray/Filter/FlateDecode/Height 61/Length 2361/Width 257>> stream
+14 0 obj <</Type/XObject/Subtype/Image/BitsPerComponent 8/ColorSpace/DeviceGray/Filter/FlateDecode/Height 61/Length 2818/Width 292>> stream
+15 0 obj <</Type/XObject/Subtype/Image/BitsPerComponent 8/ColorSpace/DeviceGray/Filter/FlateDecode/Height 67/Length 2900/Width 486>> stream
+16 0 obj <</Type/XObject/Subtype/Image/BitsPerComponent 8/ColorSpace/DeviceGray/Filter/FlateDecode/Height 67/Length 2802/Width 450>> stream
+17 0 obj <</Alternate/DeviceGray/Filter/FlateDecode/Length 3385/N 1/Range[-2147483648 2147483647]>> stream
+18 0 obj <</Alternate/DeviceRGB/Filter/FlateDecode/Length 2612/N 3>> stream
+19 0 obj <</Type/Catalog/Pages 2 0 R/Version/1.4>>
+20 0 obj <</CreationDate(D:20251111140334Z00'00')/ModDate(D:20251111140334Z00'00')/Producer(iOS Version 26.1 \(Build 23B80\) Quartz PDFContext)>>
+trailer <</Size 21/Root 19 0 R/Info 20 0 R/ID[<A6E83D94C1B9ACAD3980B7EB2AA32E02><A6E83D94C1B9ACAD3980B7EB2AA32E02>]>>
+```
+
+Based on the output above, we can see that the PDF document contains 21 objects, but only images and no text, even though we are expecting text from labels and text fields.
+
+Therefore, this approach can not be used to redact text from the PDF document.
+
+<details>
+<summary>Running `mupdf` in a Docker container</summary>
+
+In case you don't want to build and install `MuPDF` on your machine, you can run it in a Docker container.
+
+First create a new Dockerfile:
+
+```Dockerfile
+# ================================================================================================================
+# Downloader
+# ================================================================================================================  
+
+FROM debian:latest AS downloader
+WORKDIR /tmp
+
+RUN apt-get update \
+    && apt-get install -y wget \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN wget -O mupdf-1.26.11-source.tar.gz https://casper.mupdf.com/downloads/archive/mupdf-1.26.11-source.tar.gz
+RUN tar -xzf mupdf-1.26.11-source.tar.gz && rm mupdf-1.26.11-source.tar.gz
+RUN mv mupdf-1.26.11-source mupdf
+
+# ================================================================================================================
+# Builder
+# ================================================================================================================
+
+FROM debian:latest AS builder   
+RUN apt-get update && apt-get install -y gcc g++ make pkg-config && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+COPY --from=downloader /tmp/mupdf /tmp/mupdf
+WORKDIR /tmp/mupdf
+RUN make
+
+# ================================================================================================================
+# Release
+# ================================================================================================================
+
+FROM debian:latest AS release
+
+RUN apt-get update && apt-get install -y make && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+COPY --from=builder /tmp/mupdf /tmp/mupdf
+RUN cd /tmp/mupdf && make install && rm -rf /tmp/mupdf
+```
+
+The build the image locally:
+
+```bash
+$ docker build -t mupdf .
+```
+
+Then run the container and pass the PDF file as a volume:
+
+```bash
+$ docker run -it --rm -v /tmp/output.pdf:/tmp/output.pdf mupdf
+```
+
+Now you are in an interactive shell with the `mupdf` CLI tool available.
+
+</details>

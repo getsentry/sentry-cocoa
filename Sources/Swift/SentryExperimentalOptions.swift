@@ -38,20 +38,8 @@ public final class SentryExperimentalOptions: NSObject {
      *
      * - Note: See [GitHub issues #6389](https://github.com/getsentry/sentry-cocoa/issues/6389) for more information.
      */
-    public var sessionReplayMaskingStrategy: SessionReplayMaskingStrategy = .viewHierarchy
+    public var sessionReplayMaskingStrategy: SentrySessionReplayMaskingStrategy = .viewHierarchy
 
     @_spi(Private) public func validateOptions(_ options: [String: Any]?) {
     }
-}
-
-@objc(kSentrySessionReplayMaskingStrategy)
-public enum SessionReplayMaskingStrategy: Int {
-    @objc(kSessionReplayMaskingStrategyViewHierarchy)
-    case viewHierarchy = 0
-
-    @objc(kSessionReplayMaskingStrategyAccessibilty)
-    case accessibility
-
-    @objc(kSessionReplayMaskingStrategyMachineLearning)
-    case machineLearning
 }

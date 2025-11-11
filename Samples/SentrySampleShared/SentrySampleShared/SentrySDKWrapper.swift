@@ -66,7 +66,7 @@ public struct SentrySDKWrapper {
             // Default to false for the sample app to allow testing on iOS 26+ with Liquid Glass.
             options.experimental.enableSessionReplayInUnreliableEnvironment = SentrySDKOverrides.SessionReplay.enableInUnreliableEnvironment.boolValue
 
-            options.experimental.sessionReplayMaskingStrategy = .accessibility
+            options.experimental.sessionReplayMaskingStrategy = .pdf
         }
 
 #if !os(tvOS)
