@@ -41700,8 +41700,8 @@
         "usr": "c:@M@Sentry@objc(cs)SentrySDK",
         "mangledName": "$s6Sentry0A3SDKC",
         "moduleName": "Sentry",
-        "isOpen": true,
         "declAttributes": [
+          "Final",
           "ObjC"
         ],
         "superclassUsr": "c:objc(cs)NSObject",
