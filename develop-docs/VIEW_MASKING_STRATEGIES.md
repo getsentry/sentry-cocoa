@@ -8,6 +8,7 @@ Traditional UIKit-based masking via view traversal often fails for SwiftUI becau
 ## Background & Motivation
 
 SDK features like session replay and screenshots may capture PII if left unredacted. Shipping a defensible, default-on redaction solution is required for privacy (GDPR/CCPA), regulatory compliance, and user trust.
+
 While UIKit exposes rich view metadata, SwiftUI does not, therefore we need to move away from class-name heuristics toward alternatives such as semantic information from accessibility or pixel-based analysis using machine-learning.
 
 ### Goals
@@ -40,9 +41,26 @@ flowchart TD
     A --> B --> C --> D --> E
 ```
 
-This document focuses on the **Region Detection Engine** and how we calculate the `SentryRedactRegion` geometry.
+This document focuses on the **Region Detection Engine** and how we calculate the `SentryRedactRegion` geometry based on a given view hierarchy and layer tree.
 
-## View Hierarchy-Based Redaction (Default Implementation)
+## View Hierarchies on iOS
+
+On iOS, the UI is organized as a tree of `UIView` objects (UIKit views). Each view manages layout, interaction, and is part of the responder chain. Every `UIView` also owns a primary Core Animation layer (`CALayer`) available via `view.layer`. Layers form their own tree and are responsible for rendering and animation.
+
+Difference between a view and a layer:
+
+- View (`UIView`): UIKit object that participates in hit‑testing and input events, Auto Layout, coordinate conversion, and accessibility. Views determine where content goes and when it needs to be redrawn, and may implement `draw(_:)` or act as the `CALayer`’s delegate.
+- Layer (`CALayer`): Core Animation object that holds the visual content and animation state. Layers composite on the render server, expose visual properties (e.g., `backgroundColor`, `cornerRadius`, `shadow*`, `opacity`, `transform`), and can have `sublayers`. Layers do not receive touch events, are not first responders, and do not own constraints; their geometry is defined by `bounds`/`position`/`anchorPoint`.
+
+Important consequences:
+
+- The view tree and the layer tree are related but not identical. A single view can add multiple sublayers, and some sublayers have no backing `UIView`.
+- During animations, the on‑screen geometry lives in the layer’s `presentationLayer` (the animated state), which can differ from the model layer values and the view’s frame.
+- Frameworks like SwiftUI and hybrid renderers often draw into generic views that host complex layer subtrees without exposing a view hierarchy.
+
+These distinctions matter for masking: to match what the user actually sees, our redaction logic inspects the Core Animation layer tree (and, when needed, the `presentationLayer`) rather than relying only on the `UIView` hierarchy.
+
+## View Hierarchy & Layer Tree-Based Redaction (Default Implementation)
 
 The `SentryUIRedactBuilder` is the current default implementation for identifying which areas of a view hierarchy should be masked during screenshot or session replay capture.
 It is highly configurable and built to handle both UIKit and modern hybrid/SwiftUI scenarios, minimizing risk of privacy leaks while reducing the chance of costly masking mistakes (such as over-masking backgrounds or missing PII embedded in complex render trees).
@@ -208,47 +226,45 @@ Further private frameworks can be found when looking into the macOS platform SDK
 
 ```bash
 $ find /Applications/Xcode-26.1.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/PrivateFrameworks/ -name "Accessibility*"
-/Applications/Xcode-26.1.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/PrivateFrameworks/AccessibilityUIShared.framework
-/Applications/Xcode-26.1.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/PrivateFrameworks/AccessibilityAudit.framework
-/Applications/Xcode-26.1.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/PrivateFrameworks/AccessibilityPerformance.framework
-/Applications/Xcode-26.1.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/PrivateFrameworks/AccessibilityBundles.framework
-/Applications/Xcode-26.1.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/PrivateFrameworks/AccessibilityPlatformTranslation.framework
-/Applications/Xcode-26.1.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/PrivateFrameworks/AccessibilityUI.framework
-/Applications/Xcode-26.1.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/PrivateFrameworks/AccessibilitySharedSupport.framework
-/Applications/Xcode-26.1.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/PrivateFrameworks/AccessibilityUIService.framework
-/Applications/Xcode-26.1.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/PrivateFrameworks/AccessibilityReaderData.framework
-/Applications/Xcode-26.1.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/PrivateFrameworks/AccessibilityUtilities.framework
-/Applications/Xcode-26.1.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/PrivateFrameworks/AccessibilityReadingUI.framework
-/Applications/Xcode-26.1.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/PrivateFrameworks/AccessibilitySettingsUI.framework
-/Applications/Xcode-26.1.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/PrivateFrameworks/AccessibilitySharedUISupport.framework
-/Applications/Xcode-26.1.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/PrivateFrameworks/AccessibilitySupport.framework
+.../PrivateFrameworks/AccessibilityUIShared.framework
+.../PrivateFrameworks/AccessibilityAudit.framework
+.../PrivateFrameworks/AccessibilityPerformance.framework
+.../PrivateFrameworks/AccessibilityBundles.framework
+.../PrivateFrameworks/AccessibilityPlatformTranslation.framework
+.../PrivateFrameworks/AccessibilityUI.framework
+.../PrivateFrameworks/AccessibilitySharedSupport.framework
+.../PrivateFrameworks/AccessibilityUIService.framework
+.../PrivateFrameworks/AccessibilityReaderData.framework
+.../PrivateFrameworks/AccessibilityUtilities.framework
+.../PrivateFrameworks/AccessibilityReadingUI.framework
+.../PrivateFrameworks/AccessibilitySettingsUI.framework
+.../PrivateFrameworks/AccessibilitySharedUISupport.framework
 
 $ find /Applications/Xcode-26.1.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/PrivateFrameworks/ -name "AX*"
-/Applications/Xcode-26.1.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/PrivateFrameworks/AXMotionCuesServices.framework
-/Applications/Xcode-26.1.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/PrivateFrameworks/AXMotionCuesServices.framework/AXMotionCuesServices.tbd
-/Applications/Xcode-26.1.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/PrivateFrameworks/AXMotionCuesServices.framework/Versions/A/AXMotionCuesServices.tbd
-/Applications/Xcode-26.1.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/PrivateFrameworks/AXMediaUtilities.framework
-/Applications/Xcode-26.1.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/PrivateFrameworks/AXMediaUtilities.framework/Versions/A/AXMediaUtilities.tbd
-/Applications/Xcode-26.1.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/PrivateFrameworks/AXMediaUtilities.framework/AXMediaUtilities.tbd
-/Applications/Xcode-26.1.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/PrivateFrameworks/AXRuntime.framework
-/Applications/Xcode-26.1.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/PrivateFrameworks/AXRuntime.framework/AXRuntime.tbd
-/Applications/Xcode-26.1.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/PrivateFrameworks/AXRuntime.framework/Versions/A/AXRuntime.tbd
-/Applications/Xcode-26.1.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/PrivateFrameworks/AXCoreUtilities.framework
-/Applications/Xcode-26.1.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/PrivateFrameworks/AXCoreUtilities.framework/AXCoreUtilities.tbd
-/Applications/Xcode-26.1.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/PrivateFrameworks/AXCoreUtilities.framework/Versions/A/AXCoreUtilities.tbd
-/Applications/Xcode-26.1.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/PrivateFrameworks/AXGuestPassServices.framework
-/Applications/Xcode-26.1.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/PrivateFrameworks/AXGuestPassServices.framework/Versions/A/AXGuestPassServices.tbd
-/Applications/Xcode-26.1.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/PrivateFrameworks/AXGuestPassServices.framework/AXGuestPassServices.tbd
-/Applications/Xcode-26.1.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/PrivateFrameworks/AXAssetLoader.framework
-/Applications/Xcode-26.1.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/PrivateFrameworks/AXAssetLoader.framework/Versions/A/AXAssetLoader.tbd
-/Applications/Xcode-26.1.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/PrivateFrameworks/AXAssetLoader.framework/AXAssetLoader.tbd
+.../PrivateFrameworks/AXMotionCuesServices.framework
+.../PrivateFrameworks/AXMotionCuesServices.framework/AXMotionCuesServices.tbd
+.../PrivateFrameworks/AXMotionCuesServices.framework/Versions/A/AXMotionCuesServices.tbd
+.../PrivateFrameworks/AXMediaUtilities.framework
+.../PrivateFrameworks/AXMediaUtilities.framework/Versions/A/AXMediaUtilities.tbd
+.../PrivateFrameworks/AXMediaUtilities.framework/AXMediaUtilities.tbd
+.../PrivateFrameworks/AXRuntime.framework
+.../PrivateFrameworks/AXRuntime.framework/AXRuntime.tbd
+.../PrivateFrameworks/AXRuntime.framework/Versions/A/AXRuntime.tbd
+.../PrivateFrameworks/AXCoreUtilities.framework
+.../PrivateFrameworks/AXCoreUtilities.framework/AXCoreUtilities.tbd
+.../PrivateFrameworks/AXCoreUtilities.framework/Versions/A/AXCoreUtilities.tbd
+.../PrivateFrameworks/AXGuestPassServices.framework
+.../PrivateFrameworks/AXGuestPassServices.framework/Versions/A/AXGuestPassServices.tbd
+.../PrivateFrameworks/AXGuestPassServices.framework/AXGuestPassServices.tbd
+.../PrivateFrameworks/AXAssetLoader.framework
+.../PrivateFrameworks/AXAssetLoader.framework/Versions/A/AXAssetLoader.tbd
+.../PrivateFrameworks/AXAssetLoader.framework/AXAssetLoader.tbd
 ```
 
 Due to this limitation, this approach is not feasible for the Sentry SDK and would cause non-conformity with the App Store Review Guidelines.
 
 #### Traversing the View Hierarchy
 
-The view hierarchy consists of a tree structure of `UIView`, which are subclasses of `NSObject` and have a `subviews` property that contains an array of `UIView` instances.
 As the accessibility information properties are instance properties of `NSObject` (see [Apple Documentation](https://developer.apple.com/documentation/objectivec/nsobject-swift.class#Instance-Properties)), it allows us to traverse the view hierarchy and access the accessibility information from the views.
 
 It is important to note that each view is therefore an accessibility element with an accessibility frame, accessibility label, accessibility value, accessibility traits, and accessibility identifier.
@@ -380,8 +396,7 @@ public func printCombinedViewAndAccessibilityTree(from root: UIView, maxDepth: I
         if traits.contains(.adjustable) { parts.append("adjustable") }
         if traits.contains(.allowsDirectInteraction) { parts.append("directInteraction") }
         if traits.contains(.notEnabled) { parts.append("disabled") }
-        if traits.contains(.keyboardKey) { parts.append("keyboardKey") }
-        return parts.isEmpty ? "" : parts.joined(separator: "|")
+        return parts.joined(separator: "|")
     }
 
     func describeAX(_ object: NSObject, relativeTo root: UIView) -> String {
@@ -551,4 +566,18 @@ Due to this limitation, this approach is not feasible for Sentry SDK to use, as 
 
 ## Machine Learning Based Approach
 
-## View Hierarchy Wireframe Based Approach
+TODO
+
+## Wireframe Based Approach
+
+Rebuilding a wireframe using colored rectangles based on the view hierarchy, without calling draw methods (should also result in performance improvement)
+
+## Defensive-Unredacting Approach
+
+Defensive-programming approach, masking everything unless there is a 100% certainty an area can be unmasked safely (safest but most complicated approach).
+
+doesn't help if we don't get the full view hierarchy and layer tree for SwiftUI views.
+
+## PDF Based Approach
+
+Draw the view into a PDF context, then use PDF manipulation to remove all images (probably not possible because the rendered view is an image by itself)
