@@ -1,7 +1,6 @@
 #import "SentryUseNSExceptionCallstackWrapper.h"
 #import "SentryCrashStackEntryMapper.h"
 #import "SentryCrashSymbolicator.h"
-#import "SentryOptions+Private.h"
 #import "SentrySDK+Private.h"
 #import "SentryStacktraceBuilder.h"
 #import "SentrySwift.h"

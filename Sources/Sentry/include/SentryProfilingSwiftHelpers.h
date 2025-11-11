@@ -45,6 +45,8 @@ NSTimer *sentry_scheduledTimerWithTarget(
     NSTimeInterval interval, id target, SEL selector, _Nullable id userInfo, BOOL repeats);
 
 #if SENTRY_HAS_UIKIT
+BOOL sentry_appHangsDisabled(void);
+BOOL sentry_autoPerformanceTracingDisabled(void);
 void sentry_startFramesTracker(void);
 void sentry_stopFramesTracker(void);
 void sentry_framesTrackerResetProfilingTimestamps(void);

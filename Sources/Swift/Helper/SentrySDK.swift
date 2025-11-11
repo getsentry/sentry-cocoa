@@ -37,7 +37,7 @@ import Foundation
             }
             let hub = SentrySDKInternal.currentHub()
             var batcher: SentryLogBatcher?
-            if let client = hub.getClient(), client.options.enableLogs {
+            if let client = hub.getClient(), SentryDependencyContainerSwiftHelper.enableLogs(client.getOptions()) {
                 batcher = SentryLogBatcher(client: client, dispatchQueue: Dependencies.dispatchQueueWrapper)
             }
             let logger = SentryLogger(
@@ -64,7 +64,9 @@ import Foundation
     /// - note: Call this method on the main thread. When calling it from a background thread, the
     /// SDK starts on the main thread async.
     @objc public static func start(configureOptions: @escaping (Options) -> Void) {
-        SentrySDKInternal.start(configureOptions: configureOptions)
+        let options = Options()
+        configureOptions(options)
+        SentrySDKInternal.start(options: options)
     }
     
     // MARK: - Event Capture

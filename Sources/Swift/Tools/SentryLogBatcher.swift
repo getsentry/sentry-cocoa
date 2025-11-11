@@ -9,8 +9,6 @@ import Foundation
     private let flushTimeout: TimeInterval
     private let maxBufferSizeBytes: Int
     private let dispatchQueue: SentryDispatchQueueWrapper
-    
-    internal let options: Options
 
     // All mutable state is accessed from the same serial dispatch queue.
     
@@ -18,6 +16,10 @@ import Foundation
     private var encodedLogs: [Data] = []
     private var encodedLogsSize: Int = 0
     private var timerWorkItem: DispatchWorkItem?
+    
+    var options: SentryOptionsObjC {
+        client.getOptions()
+    }
 
     /// Initializes a new SentryLogBatcher.
     /// - Parameters:
@@ -35,7 +37,6 @@ import Foundation
         dispatchQueue: SentryDispatchQueueWrapper
     ) {
         self.client = client
-        self.options = client.options
         self.flushTimeout = flushTimeout
         self.maxBufferSizeBytes = maxBufferSizeBytes
         self.dispatchQueue = dispatchQueue

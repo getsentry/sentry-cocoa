@@ -212,9 +212,8 @@ public final class SentryLogger: NSObject {
         )
         
         var processedLog: SentryLog? = log
-        if let beforeSendLog = batcher.options.beforeSendLog {
-            processedLog = beforeSendLog(log)
-        }
+        // Swift cannot see ObjC headers with Swift types, so we need to cast the result
+        processedLog = SentryDependencyContainerSwiftHelper.beforeSendLog(log, options: batcher.options) as? SentryLog
         
         if let processedLog {
             SentrySDKLog.log(
@@ -231,8 +230,8 @@ public final class SentryLogger: NSObject {
         }
         attributes["sentry.sdk.name"] = .init(string: SentryMeta.sdkName)
         attributes["sentry.sdk.version"] = .init(string: SentryMeta.versionString)
-        attributes["sentry.environment"] = .init(string: batcher.options.environment)
-        if let releaseName = batcher.options.releaseName {
+        attributes["sentry.environment"] = .init(string: SentryDependencyContainerSwiftHelper.environment(batcher.options))
+        if let releaseName = SentryDependencyContainerSwiftHelper.release(batcher.options) {
             attributes["sentry.release"] = .init(string: releaseName)
         }
         if let span = hub.scope.span {
@@ -297,29 +296,3 @@ public final class SentryLogger: NSObject {
 #endif
     }
 }
-
-#if SWIFT_PACKAGE
-/**
- * Use this callback to drop or modify a log before the SDK sends it to Sentry. Return `nil` to
- * drop the log.
- */
-public typealias SentryBeforeSendLogCallback = (SentryLog) -> SentryLog?
-
-// Makes the `beforeSendLog` property visible as the Swift type `SentryBeforeSendLogCallback`.
-// This works around `SentryLog` being only forward declared in the objc header, resulting in 
-// compile time issues with SPM builds.
-@objc
-public extension Options {
-    /**
-     * Use this callback to drop or modify a log before the SDK sends it to Sentry. Return `nil` to
-     * drop the log.
-     */
-    @objc
-    var beforeSendLog: SentryBeforeSendLogCallback? {
-        // Note: This property provides SentryLog type safety for SPM builds where the native Objective-C 
-        // property cannot be used due to Swift-to-Objective-C bridging limitations.
-        get { return value(forKey: "beforeSendLogDynamic") as? SentryBeforeSendLogCallback }
-        set { setValue(newValue, forKey: "beforeSendLogDynamic") }
-    }
-}
-#endif // SWIFT_PACKAGE

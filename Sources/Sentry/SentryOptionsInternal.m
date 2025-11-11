@@ -2,8 +2,6 @@
 #import "SentryDsn.h"
 #import "SentryInternalDefines.h"
 #import "SentryLevelMapper.h"
-#import "SentryOptions+Private.h"
-#import "SentryOptions.h"
 #import "SentrySwift.h"
 
 @implementation SentryOptionsInternal
@@ -115,11 +113,9 @@
         sentryOptions.beforeSend = options[@"beforeSend"];
     }
 
-#if !SWIFT_PACKAGE
     if ([self isBlock:options[@"beforeSendLog"]]) {
         sentryOptions.beforeSendLog = options[@"beforeSendLog"];
     }
-#endif // !SWIFT_PACKAGE
 
     if ([self isBlock:options[@"beforeSendSpan"]]) {
         sentryOptions.beforeSendSpan = options[@"beforeSendSpan"];
