@@ -4,7 +4,7 @@ import Foundation
 
 /// The main entry point for the Sentry SDK.
 /// We recommend using `start(configureOptions:)` to initialize Sentry.
-@objc open class SentrySDK: NSObject {
+@objc public final class SentrySDK: NSObject {
     
     // MARK: - Public
     
