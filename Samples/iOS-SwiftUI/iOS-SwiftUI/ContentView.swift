@@ -124,11 +124,26 @@ struct ContentView: View {
 
         return DataBag.shared.info["lastSpan"] as? Span
     }
- 
+
     var body: some View {
+        VStack {
+            Label("Invisbible Title", image: "xmark")
+                .labelStyle(.iconOnly)
+            Label("Only Title", image: "xmark")
+                .labelStyle(.titleOnly)
+            Label("Title & Icon", image: "xmark")
+                .labelStyle(.titleAndIcon)
+            Text("Hello, World!")
+            TextField("Insecure Textfield", text: .constant("Insecure Value"))
+            TextField("Secure Textfield", text: .constant("Secure Value"))
+        }
+    }
+
+    var body1: some View {
         return SentryTracedView("Content View Body", waitForFullDisplay: true) {
             NavigationView {
                 VStack(alignment: HorizontalAlignment.center, spacing: 16) {
+                    SecureField("Secret Value", text: .constant("This is a password"))
                     Group {
                         Text(getCurrentTracer()?.transactionContext.name ?? "NO SPAN")
                             .accessibilityIdentifier("TRANSACTION_NAME")

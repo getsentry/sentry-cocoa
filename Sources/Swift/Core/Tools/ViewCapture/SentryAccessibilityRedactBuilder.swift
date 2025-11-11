@@ -148,13 +148,27 @@ import UIKit
     }
 
     public func redactRegionsFor(view: UIView, image: UIImage, callback: @escaping ([SentryRedactRegion]?, Error?) -> Void) {
+        // Ensure UIKit access is on main thread for deterministic debug output order
+        if !Thread.isMainThread {
+            DispatchQueue.main.async { [weak self] in
+                self?.redactRegionsFor(view: view, image: image, callback: callback)
+            }
+            return
+        }
+        
+        // Debug: print trees before enabling accessibility
+        SentrySDKLog.debug("View hierarchy tree BEFORE enabling accessibility:")
+        self.printViewHierarchyTree(from: view)
+        SentrySDKLog.debug("Combined view+accessibility tree BEFORE enabling accessibility:")
+        self.printCombinedViewAndAccessibilityTree(from: view)
+        
         // Enable accessibility automation temporarily to ensure SwiftUI populates accessibility properties
         let accessibilityEnabler = SentryAccessibilityEnabler()
         let accessibilityEnabled = accessibilityEnabler.enable()
         
         if !accessibilityEnabled {
             // Log warning but continue - some elements may still be accessible
-            print("[Sentry] Warning: Failed to enable accessibility automation. SwiftUI text may not be detected.")
+            SentrySDKLog.warning("Failed to enable accessibility automation. SwiftUI text may not be detected.")
         }
         
         // Give the system a moment to update accessibility properties
@@ -164,6 +178,10 @@ import UIKit
                 accessibilityEnabler.disable()
                 return
             }
+            
+            // Debug: print combined tree after enabling accessibility (post-delay for population)
+            SentrySDKLog.debug("Combined view+accessibility tree AFTER enabling accessibility:")
+            self.printCombinedViewAndAccessibilityTree(from: view)
             
             // Capture a lightweight snapshot of accessibility elements on the main thread
             let elements = self.parseAccessibilityElements(in: view, image: image)
@@ -232,6 +250,160 @@ import UIKit
         }
         
         return false
+    }
+    
+    // MARK: - Debug helpers
+    
+    /// Prints a minimal tree of the `UIView` hierarchy similar to the `tree` CLI.
+    /// Runs on the main thread for UIKit safety.
+    ///
+    /// Example output:
+    /// ├─ UIView(frame: {{0, 0}, {390, 844}})
+    /// │  ├─ UILabel(frame: {{16, 24}, {200, 20}}, ax=1, "Title")
+    /// │  └─ UIButton(frame: {{16, 60}, {80, 32}}, ax=1, "Login")
+    ///
+    /// - Parameters:
+    ///   - root: The root view to start printing from.
+    ///   - maxDepth: Optional maximum depth to traverse.
+    public func printViewHierarchyTree(from root: UIView, maxDepth: Int = 64) {
+        if !Thread.isMainThread {
+            DispatchQueue.main.async { [weak self] in
+                self?.printViewHierarchyTree(from: root, maxDepth: maxDepth)
+            }
+            return
+        }
+        
+        func describeView(_ view: UIView) -> String {
+            let typeName = String(describing: type(of: view))
+            let frameStr = "frame: \(NSCoder.string(for: view.frame))"
+            let isAX = view.isAccessibilityElement ? "1" : "0"
+            let label = (view.accessibilityLabel?.isEmpty == false) ? ", \"\(view.accessibilityLabel!)\"" : ""
+            return "\(typeName)(\(frameStr), ax=\(isAX)\(label))"
+        }
+        
+        func printTree(_ view: UIView, prefix: String, isLast: Bool, depth: Int) {
+            if depth > maxDepth { return }
+            
+            let branch = isLast ? "└─ " : "├─ "
+            print("\(prefix)\(branch)\(describeView(view))")
+            
+            let nextPrefix = prefix + (isLast ? "   " : "│  ")
+            let subviews = view.subviews
+            for (index, subview) in subviews.enumerated() {
+                let last = index == subviews.count - 1
+                printTree(subview, prefix: nextPrefix, isLast: last, depth: depth + 1)
+            }
+        }
+        
+        // Print root without leading branch
+        print(describeView(root))
+        let subviews = root.subviews
+        for (index, subview) in subviews.enumerated() {
+            let last = index == subviews.count - 1
+            printTree(subview, prefix: "", isLast: last, depth: 1)
+        }
+    }
+    
+    /// Prints a minimal combined tree that includes the `UIView` hierarchy
+    /// plus any `accessibilityElements` children exposed by objects.
+    /// Runs on the main thread for UIKit safety.
+    ///
+    /// Example output:
+    /// ├─ UIView(frame: {{0, 0}, {390, 844}})
+    /// │  ├─ UILabel(frame: {{16, 24}, {200, 20}}, ax=1, "Title")
+    /// │  │  └─ (AX) label="Title", value="", traits=[staticText]
+    /// │  └─ UIView(frame: {{0, 100}, {390, 44}})
+    /// │     └─ (AX) label="Search", value="", traits=[searchField]
+    ///
+    /// - Parameters:
+    ///   - root: The root view to start printing from.
+    ///   - maxDepth: Optional maximum depth to traverse.
+    public func printCombinedViewAndAccessibilityTree(from root: UIView, maxDepth: Int = 64) {
+        if !Thread.isMainThread {
+            DispatchQueue.main.async { [weak self] in
+                self?.printCombinedViewAndAccessibilityTree(from: root, maxDepth: maxDepth)
+            }
+            return
+        }
+        
+        func describeView(_ view: UIView) -> String {
+            let typeName = String(describing: type(of: view))
+            let frameStr = "frame: \(NSCoder.string(for: view.frame))"
+            let isAX = view.isAccessibilityElement ? "1" : "0"
+            let label = (view.accessibilityLabel?.isEmpty == false) ? ", \"\(view.accessibilityLabel!)\"" : ""
+            return "\(typeName)(\(frameStr), ax=\(isAX)\(label))"
+        }
+        
+        func readableTraits(_ traits: UIAccessibilityTraits) -> String {
+            var parts: [String] = []
+            if traits.contains(.button) { parts.append("button") }
+            if traits.contains(.link) { parts.append("link") }
+            if traits.contains(.image) { parts.append("image") }
+            if traits.contains(.staticText) { parts.append("staticText") }
+            if traits.contains(.keyboardKey) { parts.append("keyboardKey") }
+            if traits.contains(.searchField) { parts.append("searchField") }
+            if traits.contains(.header) { parts.append("header") }
+            if traits.contains(.selected) { parts.append("selected") }
+            if traits.contains(.playsSound) { parts.append("playsSound") }
+            if traits.contains(.summaryElement) { parts.append("summary") }
+            if traits.contains(.updatesFrequently) { parts.append("updatesFrequently") }
+            if traits.contains(.startsMediaSession) { parts.append("startsMedia") }
+            if traits.contains(.adjustable) { parts.append("adjustable") }
+            if traits.contains(.allowsDirectInteraction) { parts.append("directInteraction") }
+            if traits.contains(.notEnabled) { parts.append("disabled") }
+            if traits.contains(.keyboardKey) { parts.append("keyboardKey") }
+            return parts.isEmpty ? "" : parts.joined(separator: "|")
+        }
+        
+        func describeAX(_ object: NSObject, relativeTo root: UIView) -> String {
+            let label = object.accessibilityLabel ?? ""
+            let value = object.accessibilityValue ?? ""
+            let traits = readableTraits(object.accessibilityTraits)
+            let frame = object is UIView ? (object as! UIView).frame : root.convert(object.accessibilityFrame, from: nil)
+            let frameStr = NSCoder.string(for: frame)
+            return "(AX) label=\"\(label)\", value=\"\(value)\", traits=[\(traits)], frame: \(frameStr)"
+        }
+        
+        func childrenForObject(_ object: NSObject) -> [NSObject] {
+            if let view = object as? UIView {
+                var children: [NSObject] = []
+                if let axChildren = view.accessibilityElements as? [NSObject], !axChildren.isEmpty {
+                    children.append(contentsOf: axChildren)
+                }
+                children.append(contentsOf: view.subviews)
+                return children
+            } else if let axChildren = object.accessibilityElements as? [NSObject] {
+                return axChildren
+            } else {
+                return []
+            }
+        }
+        
+        func printTree(_ object: NSObject, prefix: String, isLast: Bool, depth: Int) {
+            if depth > maxDepth { return }
+            
+            let branch = isLast ? "└─ " : "├─ "
+            if let view = object as? UIView {
+                print("\(prefix)\(branch)\(describeView(view))")
+            } else {
+                print("\(prefix)\(branch)\(describeAX(object, relativeTo: root))")
+            }
+            
+            let nextPrefix = prefix + (isLast ? "   " : "│  ")
+            let children = childrenForObject(object)
+            for (index, child) in children.enumerated() {
+                let last = index == children.count - 1
+                printTree(child, prefix: nextPrefix, isLast: last, depth: depth + 1)
+            }
+        }
+        
+        // Print root without leading branch
+        print(describeView(root))
+        let children = childrenForObject(root)
+        for (index, child) in children.enumerated() {
+            let last = index == children.count - 1
+            printTree(child, prefix: "", isLast: last, depth: 1)
+        }
     }
 }
 
