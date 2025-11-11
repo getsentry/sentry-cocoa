@@ -7,7 +7,6 @@
 #    import "SentryEvent+Private.h"
 #    import "SentryException.h"
 #    import "SentryHub+Private.h"
-#    import "SentryOptions.h"
 #    import "SentrySDK+Private.h"
 #    import "SentrySwift.h"
 

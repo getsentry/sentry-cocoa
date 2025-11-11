@@ -1,7 +1,6 @@
 #import "SentryAutoBreadcrumbTrackingIntegration.h"
 #import "SentryBreadcrumbTracker.h"
 #import "SentryLogC.h"
-#import "SentryOptions.h"
 #import "SentrySDKInternal.h"
 #import "SentrySwift.h"
 #import "SentrySystemEventBreadcrumbs.h"

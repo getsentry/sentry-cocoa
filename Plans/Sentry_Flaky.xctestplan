@@ -16,10 +16,12 @@
   "testTargets" : [
     {
       "selectedTests" : [
-        "SentryWatchdogTerminationTrackerTests\/testTerminateApp_RunsOnMainThread()",
         "PrivateSentrySDKOnlyTests\/testProfilingStartAndCollect()",
         "SentryCrashBinaryImageCacheTests\/testRemoveImageFromBeginning",
-        "SentryHttpTransportFlushIntegrationTests"
+        "SentryCrashReportStore_Tests\/testPruneReports",
+        "SentryFileManagerTests\/testCreateDirectoryIfNotExists_successful_shouldNotLogError()",
+        "SentryHttpTransportFlushIntegrationTests",
+        "SentryWatchdogTerminationTrackerTests\/testTerminateApp_RunsOnMainThread()"
       ],
       "target" : {
         "containerPath" : "container:Sentry.xcodeproj",

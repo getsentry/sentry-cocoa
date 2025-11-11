@@ -218,6 +218,7 @@ jobs:
         ui-tests-swift-ui,
         ui-tests-swift,
         ui-tests-swift6,
+        ready-to-merge-gate,
       ]
     name: UI Tests
     # This is necessary since a failed/skipped dependent job would cause this job to be skipped

@@ -7,7 +7,6 @@
 #import <SentryLogC.h>
 #import <SentryMechanism.h>
 #import <SentryMessage.h>
-#import <SentryOptions.h>
 #import <SentrySDK+Private.h>
 #import <SentryWatchdogTerminationLogic.h>
 #import <SentryWatchdogTerminationTracker.h>

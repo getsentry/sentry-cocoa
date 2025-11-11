@@ -2,7 +2,6 @@
 @import Sentry;
 @import SentryTestUtilsDynamic;
 #import "SentryClient.h"
-#import "SentryOptions+Private.h"
 #import "SentryProfilingSwiftHelpers.h"
 
 @interface SentryProfilingSwiftHelpersTests : XCTestCase

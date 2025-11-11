@@ -7,6 +7,11 @@ import Foundation
     var readTimestampLastInForegroundInvocations: Int = 0
     var storeTimestampLastInForegroundInvocations: Int = 0
     var deleteTimestampLastInForegroundInvocations: Int = 0
+    
+    public init(options: Options?, dateProvider: any SentryCurrentDateProvider, dispatchQueueWrapper: SentryDispatchQueueWrapper) throws {
+        let helper = try SentryFileManagerHelper(options: options)
+        super.init(helper: helper, dateProvider: dateProvider, dispatchQueueWrapper: dispatchQueueWrapper)
+    }
 
     @_spi(Private) public var storeEnvelopeInvocations = Invocations<SentryEnvelope>()
     public var storeEnvelopePath: String?

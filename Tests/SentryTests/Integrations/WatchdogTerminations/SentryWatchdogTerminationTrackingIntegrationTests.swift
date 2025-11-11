@@ -52,7 +52,7 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
             SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = dispatchQueueWrapper
             SentryDependencyContainer.sharedInstance().notificationCenterWrapper = notificationCenterWrapper
             appStateManager = SentryAppStateManager(
-                options: options,
+                releaseName: options.releaseName,
                 crashWrapper: crashWrapper,
                 fileManager: fileManager,
                 sysctlWrapper: SentryDependencyContainer.sharedInstance().sysctlWrapper

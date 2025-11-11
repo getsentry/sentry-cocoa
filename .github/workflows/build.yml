@@ -66,7 +66,8 @@ jobs:
         run: ./scripts/prepare-package.sh --only-keep-distribution true
 
       - run: ./scripts/ci-select-xcode.sh 16.4
-      - uses: ruby/setup-ruby@v1
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@d5126b9b3579e429dd52e51e68624dda2e05be25 # v1.267.0
         with:
           bundler-cache: true
       - run: make init-ci-build
@@ -400,6 +401,7 @@ jobs:
         check-debug-with-UIKit,
         check-release-with-UIKit,
         check-compiling-async-safe-logs,
+        ready-to-merge-gate,
       ]
     name: Build
     # This is necessary since a failed/skipped dependent job would cause this job to be skipped

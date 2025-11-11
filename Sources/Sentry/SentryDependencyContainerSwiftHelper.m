@@ -1,7 +1,6 @@
 #import "SentryDependencyContainerSwiftHelper.h"
 #import "SentryClient+Private.h"
 #import "SentryHub+Private.h"
-#import "SentryOptions+Private.h"
 #import "SentrySDK+Private.h"
 #import "SentrySwift.h"
 
@@ -52,6 +51,49 @@
 }
 
 #endif // SENTRY_HAS_UIKIT
+
++ (NSString *)release:(SentryOptions *)options
+{
+    return options.releaseName;
+}
+
++ (SentryLog *)beforeSendLog:(SentryLog *)log options:(SentryOptions *)options
+{
+    if (options.beforeSendLog) {
+        return options.beforeSendLog(log);
+    }
+    return log;
+}
+
++ (NSString *)environment:(SentryOptions *)options
+{
+    return options.environment;
+}
+
++ (NSString *)cacheDirectoryPath:(SentryOptions *)options
+{
+    return options.cacheDirectoryPath;
+}
+
++ (BOOL)enableLogs:(SentryOptions *)options
+{
+    return options.enableLogs;
+}
+
++ (NSArray<NSString *> *)enabledFeatures:(SentryOptions *)options
+{
+    return [SentryEnabledFeaturesBuilder getEnabledFeaturesWithOptions:options];
+}
+
++ (BOOL)sendDefaultPii:(SentryOptions *)options
+{
+    return options.sendDefaultPii;
+}
+
++ (NSArray<NSString *> *)inAppIncludes:(SentryOptions *)options
+{
+    return options.inAppIncludes;
+}
 
 + (SentryDispatchQueueWrapper *)dispatchQueueWrapper
 {
