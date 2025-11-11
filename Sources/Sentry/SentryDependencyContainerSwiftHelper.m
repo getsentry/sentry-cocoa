@@ -50,6 +50,11 @@
         unmaskedViewClasses:options.screenshot.unmaskedViewClasses];
 }
 
++ (int)getSessionReplayMaskingStrategy:(SentryOptions *)options
+{
+    return (int)options.experimental.sessionReplayMaskingStrategy;
+}
+
 #endif // SENTRY_HAS_UIKIT
 
 + (NSString *)release:(SentryOptions *)options

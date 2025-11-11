@@ -217,10 +217,32 @@ extension SentryFileManager: SentryFileManagerProtocol { }
             viewRenderer = SentryDefaultViewRenderer()
         }
 
+        let redactBuilder: SentryUIRedactBuilderProtocol
+        guard let maskingStrategy = SentrySessionReplayMaskingStrategy(rawValue: Int(SentryDependencyContainerSwiftHelper.getSessionReplayMaskingStrategy(options))) else {
+            SentrySDKLog.error("Failed to parse session replay masking strategy from options")
+            return nil
+        }
+        let redactOptions = RedactWrapper(SentryDependencyContainerSwiftHelper.redactOptions(options))
+        switch maskingStrategy {
+        case .accessibility:
+            redactBuilder = SentryAccessibilityRedactBuilder(options: redactOptions)
+        case .defensive:
+            redactBuilder = SentryDefensiveRedactBuilder(options: redactOptions)
+        case .machineLearning:
+            redactBuilder = SentryMLRedactBuilder(options: redactOptions)
+        case .pdf:
+            redactBuilder = SentryPDFRedactBuilder(options: redactOptions)
+        case .viewHierarchy:
+            redactBuilder = SentryUIRedactBuilder(options: redactOptions)
+        case .wireframe:
+            redactBuilder = SentryWireframeRedactBuilder(options: redactOptions)
+        }
+
         let photographer = SentryViewPhotographer(
             renderer: viewRenderer,
-            redactOptions: RedactWrapper(SentryDependencyContainerSwiftHelper.redactOptions(options)),
-            enableMaskRendererV2: SentryDependencyContainerSwiftHelper.viewRendererV2Enabled(options))
+            redactBuilder: redactBuilder,
+            enableMaskRendererV2: SentryDependencyContainerSwiftHelper.viewRendererV2Enabled(options)
+        )
         return SentryScreenshotSource(photographer: photographer)
     }
 #endif
