@@ -2,12 +2,6 @@
 
 ## Unreleased
 
-### Improvements
-
-- Increase maximum attachment size to 200MB (#6726)
-
-## 9.0.0-alpha.0
-
 ### Breaking Changes
 
 - Bumped minimum OS versions to iOS 15.0, macOS 12.0, tvOS 15.0, visionOS 1.0, and watchOS 8.0
@@ -61,6 +55,7 @@
 - Replace deprecated SCNetworkReachability with NWPathMonitor (#6019)
 - Expose attachment type on `SentryAttachment` for downstream SDKs (like sentry-godot) (#6521)
 - Increase attachment max size to 100MB (#6537)
+- Increase maximum attachment size to 200MB (#6726)
 
 ### Features
 
