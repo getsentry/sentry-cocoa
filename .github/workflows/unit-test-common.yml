@@ -93,7 +93,7 @@ jobs:
       - name: Create simulator device
         if: ${{ inputs.create_device }}
         env:
-          PLATFORMS: ${{ inputs.platform }}
+          PLATFORM: ${{ inputs.platform }}
           OS_VERSION: ${{ inputs.test-destination-os }}
           DEVICE_NAME: ${{inputs.device}}
         run: ./scripts/ci-create-simulator.sh --platform "$PLATFORM" --os-version "$OS_VERSION" --device-name "$DEVICE_NAME"
