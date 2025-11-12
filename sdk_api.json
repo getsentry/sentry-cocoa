@@ -32783,18 +32783,18 @@
               {
                 "kind": "TypeNominal",
                 "name": "Optional",
-                "printedName": "[Foundation.Data]?",
+                "printedName": "[Sentry.Attachment]?",
                 "children": [
                   {
                     "kind": "TypeNominal",
                     "name": "Array",
-                    "printedName": "[Foundation.Data]",
+                    "printedName": "[Sentry.Attachment]",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "Data",
-                        "printedName": "Foundation.Data",
-                        "usr": "s:10Foundation4DataV"
+                        "name": "Attachment",
+                        "printedName": "Sentry.Attachment",
+                        "usr": "c:objc(cs)SentryAttachment"
                       }
                     ],
                     "usr": "s:Sa"
@@ -32806,7 +32806,7 @@
             ],
             "declKind": "Constructor",
             "usr": "c:@M@Sentry@objc(cs)SentryFeedback(im)initWithMessage:name:email:source:associatedEventId:attachments:",
-            "mangledName": "$s6Sentry0A8FeedbackC7message4name5email6source17associatedEventId11attachmentsACSS_SSSgAjC0aB6SourceOSo0aI0CSgSay10Foundation4DataVGSgtcfc",
+            "mangledName": "$s6Sentry0A8FeedbackC7message4name5email6source17associatedEventId11attachmentsACSS_SSSgAjC0aB6SourceOSo0aI0CSgSaySo0A10AttachmentCGSgtcfc",
             "moduleName": "Sentry",
             "objc_name": "initWithMessage:name:email:source:associatedEventId:attachments:",
             "declAttributes": [
