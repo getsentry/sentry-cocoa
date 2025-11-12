@@ -4,7 +4,6 @@
 
 ### Breaking Changes
 
-- Structured Logs: Remove `SentrySwiftLog` Integration (#6286)
 - Moves `SentryEventDecoder` to SPI (#6365)
 - Makes `PreviewRedactOptions`, `SentryProfileOptions`, `SentryRedactViewHelper`, `SentryViewScreenshotOptions`, `SentryReplayOptions`, `SentryUserFeedbackConfiguration`, `SentryUserFeedbackFormConfiguration`, `SentryUserFeedbackThemeConfiguration`, `SentryUserFeedbackWidgetConfiguration`, `SentryFeedback`, and `SentryExperimentalOptions` `final` (#6365)
 - Removes Decodable conformances from the public API of model classes (#5691)
@@ -64,7 +63,6 @@
   This option is still disabled by default and will be enabled in a future major release.
 - Move `enableDataSwizzling` from experimental options to top-level options (#6592). This option remains enabled by default.
 - Add `sentry.replay_id` attribute to logs ([#6515](https://github.com/getsentry/sentry-cocoa/pull/6515))
-- Structured Logs: Add `SentrySwiftLog` Integration (#6286)
 
 ## 9.0.0-alpha.0
 
