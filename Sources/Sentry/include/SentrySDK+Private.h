@@ -49,7 +49,6 @@ NS_ASSUME_NONNULL_BEGIN
  * The option used to start the SDK
  */
 @property (nonatomic, nullable, readonly, class) SentryOptions *options;
-@property (nonatomic, nullable, readonly, class) SentryOptionsObjC *optionsInternal;
 
 /**
  * Needed by hybrid SDKs as react-native to synchronously store an envelope to disk.

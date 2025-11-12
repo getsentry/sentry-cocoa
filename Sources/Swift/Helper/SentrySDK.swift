@@ -4,7 +4,7 @@ import Foundation
 
 /// The main entry point for the Sentry SDK.
 /// We recommend using `start(configureOptions:)` to initialize Sentry.
-@objc open class SentrySDK: NSObject {
+@objc public final class SentrySDK: NSObject {
     
     // MARK: - Public
     
@@ -43,6 +43,15 @@ import Foundation
     /// - note: Call this method on the main thread. When calling it from a background thread, the
     /// SDK starts on the main thread async.
     @objc public static func start(options: Options) {
+        // We save the options before checking for Xcode preview because
+        // we will use this options in the preview
+        setStart(with: options)
+        guard SentryDependencyContainer.sharedInstance().processInfoWrapper
+                    .environment["XCODE_RUNNING_FOR_PREVIEWS"] != "1" else {
+            // Using NSLog because SentryLog was not initialized yet.
+            NSLog("[SENTRY] [WARNING] SentrySDK not started. Running from Xcode preview.")
+            return
+        }
         SentrySDKInternal.start(options: options)
     }
     
@@ -53,7 +62,7 @@ import Foundation
     @objc public static func start(configureOptions: @escaping (Options) -> Void) {
         let options = Options()
         configureOptions(options)
-        SentrySDKInternal.start(options: options)
+        start(options: options)
     }
     
     // MARK: - Event Capture
@@ -395,6 +404,22 @@ import Foundation
         SentrySDKInternal.stopProfiler()
     }
     #endif
+
+    // MARK: Internal
+
+    /// The option used to start the SDK
+    private static var _startOption: Options?
+    private static let startOptionLock = NSRecursiveLock()
+    @_spi(Private) @objc public static var startOption: Options? {
+        startOptionLock.synchronized {
+            return _startOption
+        }
+    }
+    @_spi(Private) @objc public static func setStart(with option: Options?) {
+        startOptionLock.synchronized {
+            _startOption = option
+        }
+    }
 }
 
 // swiftlint:enable file_length
