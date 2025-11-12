@@ -35,12 +35,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) SentryFileManager *fileManager;
 @property (nonatomic, weak, nullable) id<SentrySessionDelegate> sessionDelegate;
 
-- (SentryId *)captureErrorIncrementingSessionErrorCount:(NSError *)error
-                                              withScope:(SentryScope *)scope;
-
-- (SentryId *)captureExceptionIncrementingSessionErrorCount:(NSException *)exception
-                                                  withScope:(SentryScope *)scope;
-
 - (SentryId *)captureFatalEvent:(SentryEvent *)event withScope:(SentryScope *)scope;
 
 - (SentryId *)captureFatalEvent:(SentryEvent *)event
@@ -61,8 +55,8 @@ NS_ASSUME_NONNULL_BEGIN
     additionalEnvelopeItems:(NSArray<SentryEnvelopeItem *> *)additionalEnvelopeItems
     NS_SWIFT_NAME(capture(event:scope:additionalEnvelopeItems:));
 
-- (SentryId *)captureErrorEventIncrementingSessionErrorCount:(SentryEvent *)event
-                                                   withScope:(SentryScope *)scope;
+- (SentryId *)captureEventIncrementingSessionErrorCount:(SentryEvent *)event
+                                              withScope:(SentryScope *)scope;
 
 - (void)captureReplayEvent:(SentryReplayEvent *)replayEvent
            replayRecording:(SentryReplayRecording *)replayRecording

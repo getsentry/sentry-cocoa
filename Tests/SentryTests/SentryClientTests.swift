@@ -478,7 +478,7 @@ class SentryClientTests: XCTestCase {
         sut.addAttachmentProcessor(processor)
         let sessionDelegate = SentryTestSessionDelegate { self.fixture.session }
         sut.sessionDelegate = sessionDelegate
-        sut.captureErrorIncrementingSessionErrorCount(error, with: Scope())
+        sut.capture(error: error, scope: Scope())
 
         let sentAttachments = fixture.transportAdapter.sentEventsWithSessionTraceState.first?.attachments ?? []
 
@@ -502,8 +502,8 @@ class SentryClientTests: XCTestCase {
             SentrySession(releaseName: "", distinctId: "some-id")
         }
         sut.sessionDelegate = sessionDelegate
-        sut.captureErrorIncrementingSessionErrorCount(error, with: Scope())
-        
+        sut.capture(error: error, scope: Scope())
+
         let sentAttachments = fixture.transportAdapter.sendEventWithTraceStateInvocations.first?.attachments ?? []
         
         XCTAssertEqual(sentAttachments.count, 1)
@@ -810,7 +810,7 @@ class SentryClientTests: XCTestCase {
             return self.fixture.session
         }
         sut.sessionDelegate = sessionDelegate
-        let eventId = sut.captureErrorIncrementingSessionErrorCount(error, with: scope)
+        let eventId = sut.capture(error: error, scope: scope)
         wait(for: [sessionBlockExpectation], timeout: 0.2)
 
         eventId.assertIsNotEmpty()
@@ -838,7 +838,7 @@ class SentryClientTests: XCTestCase {
             return self.fixture.session
         }
         sut.sessionDelegate = sessionDelegate
-        let eventId = sut.captureErrorIncrementingSessionErrorCount(error, with: Scope())
+        let eventId = sut.capture(error: error, scope: Scope())
         wait(for: [sessionBlockExpectation], timeout: 0.2)
         
         eventId.assertIsEmpty()
@@ -1156,11 +1156,11 @@ class SentryClientTests: XCTestCase {
         assertValidExceptionEvent(actual)
     }
     
-    func testCaptureExceptionWithSession() {
+    func testCaptureException_IncreasesSessionErrors() {
         let sut = fixture.getSut()
         let sessionDelegate = SentryTestSessionDelegate { self.fixture.session }
         sut.sessionDelegate = sessionDelegate
-        let eventId = sut.captureExceptionIncrementingSessionErrorCount(exception, with: fixture.scope)
+        let eventId = sut.capture(exception: exception, scope: fixture.scope)
 
         eventId.assertIsNotEmpty()
         XCTAssertNotNil(fixture.transportAdapter.sentEventsWithSessionTraceState.last)
@@ -1171,7 +1171,7 @@ class SentryClientTests: XCTestCase {
         }
     }
     
-    func testCaptureExceptionWithSession_WithBeforeSendReturnsNil() throws {
+    func testCaptureException_WithBeforeSendReturnsNil() throws {
         let sessionBlockExpectation = expectation(description: "session block does not get called")
         sessionBlockExpectation.isInverted = true
 
@@ -1184,7 +1184,7 @@ class SentryClientTests: XCTestCase {
             return self.fixture.session
         }
         sut.sessionDelegate = sessionDelegate
-        let eventId = sut.captureExceptionIncrementingSessionErrorCount(exception, with: fixture.scope)
+        let eventId = sut.capture(exception: exception, scope: fixture.scope)
         wait(for: [sessionBlockExpectation], timeout: 0.2)
         
         eventId.assertIsEmpty()
@@ -1226,7 +1226,7 @@ class SentryClientTests: XCTestCase {
         let sessionDelegate = SentryTestSessionDelegate { session }
         sut.sessionDelegate = sessionDelegate
 
-        sut.captureExceptionIncrementingSessionErrorCount(exception, with: Scope())
+        sut.capture(exception: exception, scope: Scope())
             .assertIsNotEmpty()
         sut.captureFatalEvent(fixture.event, with: session, with: Scope())
             .assertIsNotEmpty()
@@ -1410,7 +1410,7 @@ class SentryClientTests: XCTestCase {
         })
         let sessionDelegate = SentryTestSessionDelegate { self.fixture.session }
         sut.sessionDelegate = sessionDelegate
-        let eventId = sut.captureExceptionIncrementingSessionErrorCount(self.exception, with: fixture.scope)
+        let eventId = sut.capture(exception: self.exception, scope: fixture.scope)
 
         eventId.assertIsEmpty()
         assertNothingSent()
@@ -1423,7 +1423,7 @@ class SentryClientTests: XCTestCase {
         })
         let sessionDelegate = SentryTestSessionDelegate { self.fixture.session }
         sut.sessionDelegate = sessionDelegate
-        let eventId = sut.captureErrorIncrementingSessionErrorCount(self.error, with: fixture.scope)
+        let eventId = sut.capture(error: self.error, scope: fixture.scope)
 
         eventId.assertIsEmpty()
         assertNothingSent()

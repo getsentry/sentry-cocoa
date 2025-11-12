@@ -27,7 +27,7 @@ class SentryHubTests: XCTestCase {
         let random = TestRandom(value: 0.5)
         let queue = DispatchQueue(label: "SentryHubTests", qos: .utility, attributes: [.concurrent])
         let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
-        
+
         init() {
             options = Options()
             options.dsn = SentryHubTests.dsnAsString
@@ -673,24 +673,28 @@ class SentryHubTests: XCTestCase {
             XCTAssertEqual(fixture.scope, errorArguments.scope)
         }
     }
-    
-    func testCaptureErrorWithSessionWithScope() {
+
+    func testCaptureErrorWithSessionWithScope() throws {
+        // Arrange
         let sut = fixture.getSut()
         sut.startSession()
+
+        // Act
         sut.capture(error: fixture.error, scope: fixture.scope).assertIsNotEmpty()
-        
-        XCTAssertEqual(1, fixture.client.captureErrorWithSessionInvocations.count)
-        if let errorArguments = fixture.client.captureErrorWithSessionInvocations.first {
+
+        // Assert
+        XCTAssertEqual(1, fixture.client.captureErrorWithScopeInvocations.count)
+        if let errorArguments = fixture.client.captureErrorWithScopeInvocations.first {
             XCTAssertEqual(fixture.error, errorArguments.error as NSError)
-            
-            XCTAssertEqual(1, errorArguments.session?.errors)
-            XCTAssertEqual(SentrySessionStatus.ok, errorArguments.session?.status)
-            
             XCTAssertEqual(fixture.scope, errorArguments.scope)
         }
         
         // only session init is sent
-        XCTAssertEqual(1, fixture.client.captureSessionInvocations.count)
+        XCTAssertEqual(fixture.client.captureSessionInvocations.count, 1)
+
+        let actualSession = try XCTUnwrap(sut.session)
+        XCTAssertEqual(actualSession.errors, 1)
+        XCTAssertEqual(actualSession.status, SentrySessionStatus.ok)
     }
     
     func testCaptureErrorBeforeSessionStart() {
@@ -745,23 +749,6 @@ class SentryHubTests: XCTestCase {
         }
     }
     
-    func testCaptureWithoutIncreasingErrorCount() {
-        let sut = fixture.getSut()
-        sut.startSession()
-        fixture.client.callSessionBlockWithIncrementSessionErrors = false
-        sut.capture(error: fixture.error, scope: fixture.scope).assertIsNotEmpty()
-        
-        XCTAssertEqual(1, fixture.client.captureErrorWithSessionInvocations.count)
-        if let errorArguments = fixture.client.captureErrorWithSessionInvocations.first {
-            XCTAssertEqual(fixture.error, errorArguments.error as NSError)
-            XCTAssertNil(errorArguments.session)
-            XCTAssertEqual(fixture.scope, errorArguments.scope)
-        }
-        
-        // only session init is sent
-        XCTAssertEqual(1, fixture.client.captureSessionInvocations.count)
-    }
-    
     func testCaptureErrorWithoutScope() {
         fixture.getSut(fixture.options, fixture.scope).capture(error: fixture.error).assertIsNotEmpty()
         
@@ -791,112 +778,75 @@ class SentryHubTests: XCTestCase {
             XCTAssertEqual(fixture.scope, errorArguments.scope)
         }
     }
-    
-    func testCaptureExceptionWithSessionWithScope() {
-        let sut = fixture.getSut()
-        sut.startSession()
-        sut.capture(exception: fixture.exception, scope: fixture.scope).assertIsNotEmpty()
-        
-        XCTAssertEqual(1, fixture.client.captureExceptionWithSessionInvocations.count)
-        if let exceptionArguments = fixture.client.captureExceptionWithSessionInvocations.first {
-            XCTAssertEqual(fixture.exception, exceptionArguments.exception)
-            
-            XCTAssertEqual(1, exceptionArguments.session?.errors)
-            XCTAssertEqual(SentrySessionStatus.ok, exceptionArguments.session?.status)
-            
-            XCTAssertEqual(fixture.scope, exceptionArguments.scope)
-        }
-        
-        // only session init is sent
-        XCTAssertEqual(1, fixture.client.captureSessionInvocations.count)
-    }
-    
-    func testCaptureExceptionWithoutIncreasingErrorCount() {
-        let sut = fixture.getSut()
-        sut.startSession()
-        fixture.client.callSessionBlockWithIncrementSessionErrors = false
-        sut.capture(exception: fixture.exception, scope: fixture.scope).assertIsNotEmpty()
-        
-        XCTAssertEqual(1, fixture.client.captureExceptionWithSessionInvocations.count)
-        if let exceptionArguments = fixture.client.captureExceptionWithSessionInvocations.first {
-            XCTAssertEqual(fixture.exception, exceptionArguments.exception)
-            XCTAssertNil(exceptionArguments.session)
-            XCTAssertEqual(fixture.scope, exceptionArguments.scope)
-        }
-        
-        // only session init is sent
-        XCTAssertEqual(1, fixture.client.captureSessionInvocations.count)
-    }
-    
-    func testCaptureMultipleExceptionWithSessionInParallel() {
+
+    func testCaptureMultipleExceptionsInParallel_IncrementsSessionCount() throws {
+        // Arrange
         let captureCount = 100
-        captureConcurrentWithSession(count: captureCount) { sut in
-            sut.capture(exception: self.fixture.exception, scope: self.fixture.scope)
+
+        let sut = fixture.getSut()
+
+        sut.startSession()
+
+        let expectation = XCTestExpectation(description: "Capture error")
+        expectation.expectedFulfillmentCount = captureCount
+        expectation.assertForOverFulfill = true
+
+        // Act
+        for _ in 0..<captureCount {
+
+            fixture.queue.async {
+                sut.capture(exception: self.fixture.exception, scope: self.fixture.scope)
+                expectation.fulfill()
+            }
         }
-        
-        let invocations = fixture.client.captureExceptionWithSessionInvocations.invocations
-        XCTAssertEqual(captureCount, invocations.count)
-        for i in 1...captureCount {
-            // The session error count must not be in order as we use a concurrent DispatchQueue
-            XCTAssertTrue(
-                invocations.contains { $0.session!.errors == i },
-                "No session captured with \(i) amount of errors."
-            )
-        }
-    }
-    
-    func testCaptureMultipleErrorsWithSessionInParallel() {
-        let captureCount = 100
-        captureConcurrentWithSession(count: captureCount) { sut in
-            sut.capture(error: self.fixture.error, scope: self.fixture.scope)
-        }
-        
-        let invocations = fixture.client.captureErrorWithSessionInvocations.invocations
-        XCTAssertEqual(captureCount, invocations.count)
-        for i in 1..<captureCount {
-            // The session error count must not be in order as we use a concurrent DispatchQueue
-            XCTAssertTrue(
-                invocations.contains { $0.session!.errors == i },
-                "No session captured with \(i) amount of errors."
-            )
-        }
+
+        wait(for: [expectation], timeout: 5.0)
+
+        // Assert
+        let session = try XCTUnwrap(sut.session)
+        XCTAssertEqual(session.errors, UInt(captureCount))
     }
 
-    func testCaptureErrorEvent_WithSession() {
+    func testCaptureMultipleErrorsInParallel_IncrementsSessionCount() throws {
+        // Arrange
+        let captureCount = 100
+
+        let sut = fixture.getSut()
+
+        sut.startSession()
+
+        let expectation = XCTestExpectation(description: "Capture error")
+        expectation.expectedFulfillmentCount = captureCount
+        expectation.assertForOverFulfill = true
+
+        // Act
+        for _ in 0..<captureCount {
+
+            fixture.queue.async {
+                sut.capture(error: self.fixture.error, scope: self.fixture.scope)
+                expectation.fulfill()
+            }
+        }
+
+        wait(for: [expectation], timeout: 5.0)
+
+        // Assert
+        let session = try XCTUnwrap(sut.session)
+        XCTAssertEqual(session.errors, UInt(captureCount))
+    }
+
+    func testCaptureEventIncrementingSessionErrorCount_WithStartedSession_OnlySendsSessionInit() {
         let sut = fixture.getSut()
         sut.startSession()
 
         let event = fixture.event
         sut.captureErrorEvent(event: event).assertIsNotEmpty()
 
-        XCTAssertEqual(1, fixture.client.captureErrorEventWithSessionInvocations.count)
-        if let eventArguments = fixture.client.captureErrorEventWithSessionInvocations.first {
-            XCTAssertEqual(event, eventArguments.event)
+        XCTAssertEqual(fixture.client.captureEventIncrementingSessionErrorCountInvocations.count, 1)
+        if let eventArguments = fixture.client.captureEventIncrementingSessionErrorCountInvocations.first {
+            XCTAssertEqual(eventArguments.event.eventId, event.eventId)
 
-            XCTAssertEqual(1, eventArguments.session?.errors)
-            XCTAssertEqual(SentrySessionStatus.ok, eventArguments.session?.status)
-
-            XCTAssertEqual(sut.scope, eventArguments.scope)
-        }
-
-        // only session init is sent
-        XCTAssertEqual(1, fixture.client.captureSessionInvocations.count)
-    }
-
-    func testCaptureErrorEvent_WithoutIncreasingErrorCount() {
-        let sut = fixture.getSut()
-        sut.startSession()
-
-        fixture.client.callSessionBlockWithIncrementSessionErrors = false
-
-        let event = fixture.event
-        sut.captureErrorEvent(event: event).assertIsNotEmpty()
-
-        XCTAssertEqual(1, fixture.client.captureErrorEventWithSessionInvocations.count)
-        if let eventArguments = fixture.client.captureErrorEventWithSessionInvocations.first {
-            XCTAssertEqual(event, eventArguments.event)
-            XCTAssertNil(eventArguments.session)
-            XCTAssertEqual(sut.scope, eventArguments.scope)
+            XCTAssertEqual(eventArguments.scope, sut.scope)
         }
 
         // only session init is sent
@@ -1290,26 +1240,6 @@ class SentryHubTests: XCTestCase {
         hub.configureScope({ scope in
             scope.addBreadcrumb(self.fixture.crumb)
         })
-    }
-    
-    private func captureConcurrentWithSession(count: Int, _ capture: @escaping (SentryHubInternal) -> Void) {
-        let sut = fixture.getSut()
-        sut.startSession()
-        
-        let queue = fixture.queue
-
-        let expectation = XCTestExpectation(description: "Capture should be called \(count) times")
-        expectation.expectedFulfillmentCount = count
-
-        for _ in 0..<count {
-
-            queue.async {
-                capture(sut)
-                expectation.fulfill()
-            }
-        }
-
-        wait(for: [expectation], timeout: 5.0)
     }
     
     func testModifyIntegrationsConcurrently() {

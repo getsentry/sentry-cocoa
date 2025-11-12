@@ -153,14 +153,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 - (SentryId *)captureException:(NSException *)exception withScope:(SentryScope *)scope
 {
     SentryEvent *event = [self buildExceptionEvent:exception];
-    return [self sendEvent:event withScope:scope alwaysAttachStacktrace:YES];
-}
-
-- (SentryId *)captureExceptionIncrementingSessionErrorCount:(NSException *)exception
-                                                  withScope:(SentryScope *)scope
-{
-    SentryEvent *event = [self buildExceptionEvent:exception];
-    return [self captureErrorEventIncrementingSessionErrorCount:event withScope:scope];
+    return [self captureEventIncrementingSessionErrorCount:event withScope:scope];
 }
 
 - (SentryEvent *)buildExceptionEvent:(NSException *)exception
@@ -191,14 +184,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 - (SentryId *)captureError:(NSError *)error withScope:(SentryScope *)scope
 {
     SentryEvent *event = [self buildErrorEvent:error];
-    return [self sendEvent:event withScope:scope alwaysAttachStacktrace:YES];
-}
-
-- (SentryId *)captureErrorIncrementingSessionErrorCount:(NSError *)error
-                                              withScope:(SentryScope *)scope
-{
-    SentryEvent *event = [self buildErrorEvent:error];
-    return [self captureErrorEventIncrementingSessionErrorCount:event withScope:scope];
+    return [self captureEventIncrementingSessionErrorCount:event withScope:scope];
 }
 
 - (SentryEvent *)buildErrorEvent:(NSError *)error
@@ -347,8 +333,8 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         additionalEnvelopeItems:additionalEnvelopeItems];
 }
 
-- (SentryId *)captureErrorEventIncrementingSessionErrorCount:(SentryEvent *)event
-                                                   withScope:(SentryScope *)scope
+- (SentryId *)captureEventIncrementingSessionErrorCount:(SentryEvent *)event
+                                              withScope:(SentryScope *)scope
 {
     SentryEvent *preparedEvent = [self prepareEvent:event
                                           withScope:scope
@@ -360,6 +346,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         if (delegate != nil) {
             session = [delegate incrementSessionErrors];
         }
+
         return [self sendEvent:preparedEvent withSession:session withScope:scope];
     }
 
@@ -443,7 +430,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 }
 
 - (SentryId *)sendEvent:(SentryEvent *)event
-            withSession:(SentrySession *)session
+            withSession:(nullable SentrySession *)session
               withScope:(SentryScope *)scope
 {
     if (event == nil) {
@@ -468,10 +455,14 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         return event.eventId;
     }
 
-    [self.transportAdapter sendEvent:event
-                         withSession:session
-                        traceContext:traceContext
-                         attachments:attachments];
+    if (session != nil) {
+        [self.transportAdapter sendEvent:event
+                             withSession:SENTRY_UNWRAP_NULLABLE(SentrySession, session)
+                            traceContext:traceContext
+                             attachments:attachments];
+    } else {
+        [self.transportAdapter sendEvent:event traceContext:traceContext attachments:attachments];
+    }
 
     return event.eventId;
 }
