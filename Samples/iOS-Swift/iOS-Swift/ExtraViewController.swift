@@ -60,18 +60,14 @@ class ExtraViewController: UIViewController {
   
   @IBAction func highEnergyCPU(_ sender: UIButton) {
     highlightButton(sender)
-    if #available(iOS 15.0, *) {
-      batteryConsumer = BatteryConsumer(qos: .userInitiated)
-      batteryConsumer?.start()
-    }
+    batteryConsumer = BatteryConsumer(qos: .userInitiated)
+    batteryConsumer?.start()
   }
   
   @IBAction func lowEnergyCPU(_ sender: UIButton) {
     highlightButton(sender)
-    if #available(iOS 15.0, *) {
-      batteryConsumer = BatteryConsumer(qos: .background)
-      batteryConsumer?.start()
-    }
+    batteryConsumer = BatteryConsumer(qos: .background)
+    batteryConsumer?.start()
   }
   
   @IBAction func stopUsingEnergy(_ sender: UIButton) {
@@ -187,7 +183,6 @@ class ExtraViewController: UIViewController {
         self.present(safariVC, animated: true)
     }
 
-    @available(iOS 13.0, *)
     @IBAction func openAuthenticationServicesWebView(_ sender: UIButton) {
         let url = URL(string: "https://sentry.io/auth/login/")!
         let session = ASWebAuthenticationSession(url: url, callbackURLScheme: "sentry-callback") { url, error in
@@ -394,19 +389,11 @@ class ExtraViewController: UIViewController {
     }
 
     @IBAction func showFeedbackWidget(_ sender: Any) {
-        if #available(iOS 13.0, *) {
-            SentrySDK.feedback.showWidget()
-        } else {
-            showToast(in: self, type: .warning, message: "Feedback widget only available in iOS 13 or later.")
-        }
+        SentrySDK.feedback.showWidget()
     }
 
     @IBAction func hideFeedbackWidget(_ sender: Any) {
-        if #available(iOS 13.0, *) {
-            SentrySDK.feedback.hideWidget()
-        } else {
-            showToast(in: self, type: .warning, message: "Feedback widget only available in iOS 13 or later.")
-        }
+        SentrySDK.feedback.hideWidget()
     }
 
     @IBAction func showCameraUIAction(_ sender: Any) {
@@ -425,7 +412,6 @@ class ExtraViewController: UIViewController {
     }
 }
 
-@available(iOS 13.0, *)
 extension ExtraViewController: ASWebAuthenticationPresentationContextProviding {
     func presentationAnchor(for session: ASWebAuthenticationSession) -> ASPresentationAnchor {
         guard let window = view.window else {

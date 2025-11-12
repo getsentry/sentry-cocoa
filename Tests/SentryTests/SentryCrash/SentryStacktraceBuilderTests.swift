@@ -77,10 +77,6 @@ class SentryStacktraceBuilderTests: XCTestCase {
     }
 
     func testConcurrentStacktraces() throws {
-        guard #available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *) else {
-            throw XCTSkip("Not available for earlier platform versions")
-        }
-
         SentrySDK.start { options in
             options.dsn = TestConstants.dsnAsString(username: "SentryStacktraceBuilderTests")
             options.swiftAsyncStacktraces = true
@@ -102,10 +98,6 @@ class SentryStacktraceBuilderTests: XCTestCase {
     }
 
     func testConcurrentStacktraces_noStitching() throws {
-        guard #available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *) else {
-            throw XCTSkip("Not available for earlier platform versions")
-        }
-
         SentrySDK.start { options in
             options.dsn = TestConstants.dsnAsString(username: "SentryStacktraceBuilderTests")
             options.swiftAsyncStacktraces = false
@@ -126,13 +118,11 @@ class SentryStacktraceBuilderTests: XCTestCase {
         wait(for: [waitForAsyncToRun], timeout: 10)
     }
 
-    @available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
     private func firstFrame() async -> Int {
         print("\(Date()) [Sentry] [TEST] first async frame about to await...")
         return await innerFrame1()
     }
 
-    @available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
     private func innerFrame1() async -> Int {
         print("\(Date()) [Sentry] [TEST] second async frame about to await on task...")
         await Task { @MainActor in
@@ -141,7 +131,6 @@ class SentryStacktraceBuilderTests: XCTestCase {
         return await innerFrame2()
     }
 
-    @available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
     private func innerFrame2() async -> Int {
         let needed = ["firstFrame", "innerFrame1", "innerFrame2"]
         let actual = fixture.sut.buildStacktraceForCurrentThreadAsyncUnsafe()!

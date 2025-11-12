@@ -7,10 +7,8 @@ public class SampleAppDebugMenu: NSObject {
     static var displayingMenu = false
 
     let window = {
-        if #available(iOS 13.0, *) {
-            if let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
-                return Window(windowScene: scene)
-            }
+        if let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
+            return Window(windowScene: scene)
         }
         return Window()
     }()
@@ -51,7 +49,6 @@ public class SampleAppDebugMenu: NSObject {
 
     class Window: UIWindow {
 
-        @available(iOS 13.0, *)
         override init(windowScene: UIWindowScene) {
             super.init(windowScene: windowScene)
             commonInit()

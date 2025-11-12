@@ -55,11 +55,8 @@ class LaunchUITests: BaseUITest {
         app.buttons["showSplitViewButton"].tap()
         
         app.navigationBars["iOS_Swift.SecondarySplitView"].buttons["Root ViewController"].waitForExistence("SplitView not loaded.")
-        
-        // This validation is currently not working on iOS 12 and iOS 10.
-        if #available(iOS 13.0, *) {
-            assertApp()
-        }
+
+        assertApp()
     }
 
     func testCheckSlowAndFrozenFrames() {
@@ -114,10 +111,6 @@ class LaunchUITests: BaseUITest {
      * transaction leads to the ASAN error.
      */
     func testUseAfterFreeAfterUIImageNamedEmptyString() throws {
-        guard #available(iOS 14, *) else {
-            throw XCTSkip("Only run for iOS 14 or later")
-        }
-
         let app = XCUIApplication()
 
         // this primes the state required according to the customer report, by setting a UIImageView.image property to a UIImage(named: "")
