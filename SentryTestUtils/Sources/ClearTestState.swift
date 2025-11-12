@@ -27,7 +27,7 @@ class TestCleanup: NSObject {
         SentrySDKInternal.crashedLastRunCalled = false
         SentrySDKInternal.startInvocations = 0
         SentrySDKInternal.setDetectedStartUpCrash(false)
-        SentrySDKInternal.setStart(with: nil)
+        SentrySDK.setStart(with: nil)
         PrivateSentrySDKOnly.appStartMeasurementHybridSDKMode = false
         SentryNetworkTracker.sharedInstance.disable()
 

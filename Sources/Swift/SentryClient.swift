@@ -23,8 +23,14 @@ import Foundation
     }
     
     @objc public var options: Options {
-        get { helper.options }
-        set { helper.options = newValue }
+        get {
+            // Swift code cannot see ObjC headers that use Swift types, so this needs to use a force cast until SentryClient is completely written in Swift
+            // and has this property in the Swift code instead of ObjC.
+            // swiftlint:disable force_cast
+            return helper.getOptions() as! Options
+            // swiftlint:enable force_cast
+        }
+        set { helper.setOptions(newValue) }
     }
     
     /// Captures a manually created event and sends it to Sentry.
@@ -101,6 +107,14 @@ import Foundation
           withEventId: feedback.eventId.sentryIdString,
           attachments: feedback.attachmentsForEnvelope(),
           scope: scope)
+    }
+
+    /// Captures a log entry and sends it to Sentry.
+    /// - Parameters:
+    ///   - log: The log entry to send to Sentry.
+    ///   - scope: The scope containing event metadata.
+    @objc(captureLog:withScope:) public func capture(log: SentryLog, scope: Scope) {
+        helper._swiftCaptureLog(log, with: scope)
     }
 
     /// Waits synchronously for the SDK to flush out all queued and cached items for up to the specified timeout in seconds.

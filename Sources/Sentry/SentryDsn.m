@@ -14,7 +14,7 @@ NS_ASSUME_NONNULL_BEGIN
     NSURL *_envelopeEndpoint;
 }
 
-- (_Nullable instancetype)initWithString:(NSString *)dsnString
+- (_Nullable instancetype)initWithString:(NSString *_Nullable)dsnString
                         didFailWithError:(NSError *_Nullable *_Nullable)error
 {
     self = [super init];
@@ -77,7 +77,7 @@ NS_ASSUME_NONNULL_BEGIN
     return SENTRY_UNWRAP_NULLABLE(NSURL, components.URL);
 }
 
-- (NSURL *_Nullable)convertDsnString:(NSString *)dsnString
+- (NSURL *_Nullable)convertDsnString:(NSString *_Nullable)dsnString
                     didFailWithError:(NSError *_Nullable *_Nullable)error
 {
     NSString *trimmedDsnString = [dsnString

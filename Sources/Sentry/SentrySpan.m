@@ -18,7 +18,6 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 #    import "SentryContinuousProfiler.h"
-#    import "SentryOptions+Private.h"
 #    import "SentryProfilingConditionals.h"
 #    import "SentrySDK+Private.h"
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
@@ -90,7 +89,7 @@ NS_ASSUME_NONNULL_BEGIN
         _origin = context.origin;
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-        _isContinuousProfiling = SentrySDKInternal.options != nil;
+        _isContinuousProfiling = SentrySDK.startOption != nil;
         if (_isContinuousProfiling) {
             _profileSessionID = SentryContinuousProfiler.currentProfilerID.sentryIdString;
             if (_profileSessionID == nil) {

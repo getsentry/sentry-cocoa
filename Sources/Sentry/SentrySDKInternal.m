@@ -15,8 +15,6 @@
 #import "SentryLogC.h"
 #import "SentryMeta.h"
 #import "SentryNetworkTrackingIntegration.h"
-#import "SentryOptions+Private.h"
-#import "SentryOptionsInternal.h"
 #import "SentryProfilingConditionals.h"
 #import "SentryReplayApi.h"
 #import "SentrySamplerDecision.h"
@@ -62,8 +60,6 @@
 #    import "SentryProfiler+Private.h"
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
-NSString *const SENTRY_XCODE_PREVIEW_ENVIRONMENT_KEY = @"XCODE_RUNNING_FOR_PREVIEWS";
-
 @interface SentrySDKInternal ()
 
 @property (class) SentryHubInternal *currentHub;
@@ -78,8 +74,6 @@ static BOOL crashedLastRunCalled;
 static SentryAppStartMeasurement *_Nullable sentrySDKappStartMeasurement;
 static NSObject *sentrySDKappStartMeasurementLock;
 static BOOL _detectedStartUpCrash;
-static SentryOptions *_Nullable startOption;
-static NSObject *startOptionsLock;
 
 /**
  * @brief We need to keep track of the number of times @c +[startWith...] is called, because our
@@ -97,7 +91,6 @@ static NSDate *_Nullable startTimestamp = nil;
     if (self == [SentrySDKInternal class]) {
         sentrySDKappStartMeasurementLock = [[NSObject alloc] init];
         currentHubLock = [[NSObject alloc] init];
-        startOptionsLock = [[NSObject alloc] init];
         startInvocations = 0;
         _detectedStartUpCrash = NO;
     }
@@ -115,10 +108,9 @@ static NSDate *_Nullable startTimestamp = nil;
 
 + (nullable SentryOptions *)options
 {
-    @synchronized(startOptionsLock) {
-        return startOption;
-    }
+    return SentrySDK.startOption;
 }
+
 #if SENTRY_TARGET_REPLAY_SUPPORTED
 + (SentryReplayApi *)replay
 {
@@ -136,12 +128,11 @@ static NSDate *_Nullable startTimestamp = nil;
         currentHub = hub;
     }
 }
+
 /** Internal, only needed for testing. */
 + (void)setStartOptions:(nullable SentryOptions *)options
 {
-    @synchronized(startOptionsLock) {
-        startOption = options;
-    }
+    [SentrySDK setStartWith:options];
 }
 
 + (nullable id<SentrySpan>)span
@@ -221,16 +212,6 @@ static NSDate *_Nullable startTimestamp = nil;
 
 + (void)startWithOptions:(SentryOptions *)options
 {
-    // We save the options before checking for Xcode preview because
-    // we will use this options in the preview
-    startOption = options;
-    if ([SentryDependencyContainer.sharedInstance.processInfoWrapper
-                .environment[SENTRY_XCODE_PREVIEW_ENVIRONMENT_KEY] isEqualToString:@"1"]) {
-        // Using NSLog because SentryLog was not initialized yet.
-        NSLog(@"[SENTRY] [WARNING] SentrySDK not started. Running from Xcode preview.");
-        return;
-    }
-
     [SentrySDKLogSupport configure:options.debug diagnosticLevel:options.diagnosticLevel];
 
     // We accept the tradeoff that the SDK might not be fully initialized directly after
@@ -290,13 +271,6 @@ static NSDate *_Nullable startTimestamp = nil;
         }];
 
     SENTRY_LOG_DEBUG(@"SDK initialized! Version: %@", SentryMeta.versionString);
-}
-
-+ (void)startWithConfigureOptions:(void (^)(SentryOptions *options))configureOptions
-{
-    SentryOptions *options = [[SentryOptions alloc] init];
-    configureOptions(options);
-    [SentrySDKInternal startWithOptions:options];
 }
 
 + (void)captureFatalEvent:(SentryEvent *)event
@@ -667,8 +641,6 @@ static NSDate *_Nullable startTimestamp = nil;
     [hub bindClient:nil];
 
     [SentrySDKInternal setCurrentHub:nil];
-
-    [SentrySDK clearLogger];
 
     [SentryDependencyContainer.sharedInstance.crashWrapper stopBinaryImageCache];
     [SentryDependencyContainer.sharedInstance.binaryImageCache stop];

@@ -76,7 +76,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         fixture.client.fileManager.deleteAppState()
         fixture.client.fileManager.deleteAppHangEvent()
         
-        SentrySDKInternal.setStart(with: fixture.options)
+        SentrySDK.setStart(with: fixture.options)
     }
     
     override func tearDown() {
@@ -740,6 +740,11 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
 }
 
 private class DeleteAppHangWhenCheckingExistenceFileManager: SentryFileManager {
+    
+    public init(options: Options?, dateProvider: any SentryCurrentDateProvider, dispatchQueueWrapper: SentryDispatchQueueWrapper) throws {
+        let helper = try SentryFileManagerHelper(options: options)
+        super.init(helper: helper, dateProvider: dateProvider, dispatchQueueWrapper: dispatchQueueWrapper)
+    }
     
     override func appHangEventExists() -> Bool {
         let result = super.appHangEventExists()
