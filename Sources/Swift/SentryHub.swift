@@ -191,6 +191,16 @@ import Foundation
         helper.scope
     }
 
+    /// Returns the logger associated with this Hub.
+    @objc public var logger: SentryLogger {
+        if let logger = self.helper._swiftLogger as? SentryLogger {
+            return logger
+        } else {
+            SentrySDKLog.fatal("Unable to access configured logger. Logs will not be sent to Sentry.")
+            return SentryLogger(dateProvider: SentryDependencyContainer.sharedInstance().dateProvider)
+        }
+    }
+
     /// Binds a different client to the hub.
     @objc public func bindClient(_ client: SentryClient?) {
         helper.bindClient(client?.helper)

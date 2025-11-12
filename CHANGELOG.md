@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## Features
+
+- Structured Logs: Add log APIs to `Hub` and `Client` (#6737)
+
 ### Breaking Changes
 
 - Bumped minimum OS versions to iOS 15.0, macOS 12.0, tvOS 15.0, visionOS 1.0, and watchOS 8.0
