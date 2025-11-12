@@ -428,8 +428,8 @@ static BOOL appStartMeasurementRead;
                 _traceContext = [[SentryTraceContext alloc] initWithTracer:self
                                                                      scope:_hub.scope
                                                                    options:_hub.client.options
-                        ?: SentrySDKInternal.options]; // We should remove static classes and always
-                                                       // inject dependencies.
+                        ?: SentrySDK.startOption]; // We should remove static classes and always
+                                                   // inject dependencies.
             }
         }
     }
