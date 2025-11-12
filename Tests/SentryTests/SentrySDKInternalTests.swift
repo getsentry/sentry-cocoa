@@ -985,12 +985,12 @@ private extension SentrySDKInternalTests {
 
     func givenSdkWithHub() {
         SentrySDKInternal.setCurrentHub(fixture.hub)
-        SentrySDKInternal.setStart(with: fixture.options)
+        SentrySDK.setStart(with: fixture.options)
     }
 
     func givenSdkWithHubButNoClient() {
         SentrySDKInternal.setCurrentHub(SentryHubInternal(client: nil, andScope: nil))
-        SentrySDKInternal.setStart(with: fixture.options)
+        SentrySDK.setStart(with: fixture.options)
     }
 
     func assertIntegrationsInstalled(integrations: [String]) {
@@ -1019,7 +1019,7 @@ class SentrySDKWithSetupTests: XCTestCase {
         let expectation = expectation(description: "no deadlock")
         expectation.expectedFulfillmentCount = 20
 
-        SentrySDKInternal.setStart(with: Options())
+        SentrySDK.setStart(with: Options())
 
         for _ in 0..<10 {
             concurrentQueue.async {
