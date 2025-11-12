@@ -163,7 +163,7 @@ static NSString *const SentryANRMechanismDataAppHangDuration = @"app_hang_durati
     // we would lose the scope. Furthermore, we want to know in which state the app was when the
     // app hang started.
     SentryScope *scope = [SentrySDKInternal currentHub].scope;
-    SentryOptions *options = SentrySDKInternal.options;
+    SentryOptions *options = SentrySDK.startOption;
     if (scope != nil && options != nil) {
         [scope applyToEvent:event maxBreadcrumb:options.maxBreadcrumbs];
     }

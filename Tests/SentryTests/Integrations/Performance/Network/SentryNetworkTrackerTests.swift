@@ -63,7 +63,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         fixture = Fixture()
 
         SentrySDKInternal.setCurrentHub(fixture.hub)
-        SentrySDKInternal.setStart(with: fixture.options)
+        SentrySDK.setStart(with: fixture.options)
         SentryDependencyContainer.sharedInstance().dateProvider = fixture.dateProvider
     }
 
