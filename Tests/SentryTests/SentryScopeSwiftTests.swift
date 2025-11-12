@@ -798,6 +798,65 @@ class SentryScopeSwiftTests: XCTestCase {
         XCTAssertEqual(spanId.sentrySpanIdString, traceContext["span_id"] as? String)
     }
 
+    func testGetCasedInternalSpan_SpanIsNil() {
+        // -- Arrange --
+        let scope = Scope()
+
+        // -- Act --
+        let span = scope.getCastedInternalSpan()
+
+        // -- Assert --
+        XCTAssertNil(span)
+    }
+
+#if os(macOS)
+    // We test this only on macOS because the SentrySpan init methods require a frames tracker.
+    // As we're testing simple logic here, we can skip the other platforms.
+    func testGetCasedInternalSpan_SpanIsOfInternalTypeSpan() throws {
+        // -- Arrange --
+        let scope = Scope()
+        let span = SentrySpan(context: SpanContext(operation: "TEST"))
+
+        scope.span = span
+
+        // -- Act --
+        let actualSpan = try XCTUnwrap(scope.getCastedInternalSpan())
+
+        // -- Assert --
+        XCTAssertEqual(actualSpan, span)
+        XCTAssertEqual(actualSpan.spanId, span.spanId)
+    }
+
+    func testGetCasedInternalSpan_SpanIsSubClassOfInternalTypeSpan() throws {
+        // -- Arrange --
+        let scope = Scope()
+        let span = SubClassOfSentrySpan(context: SpanContext(operation: "TEST"))
+
+        scope.span = span
+
+        // -- Act --
+        let actualSpan = try XCTUnwrap(scope.getCastedInternalSpan())
+
+        // -- Assert --
+        XCTAssertEqual(actualSpan, span)
+        XCTAssertEqual(actualSpan.spanId, span.spanId)
+    }
+#endif // os(macOS)
+
+    func testGetCasedInternalSpan_SpanIsOfDifferentType() {
+        // -- Arrange --
+        let scope = Scope()
+        let span = NotOfTypeSpan()
+
+        scope.span = span
+
+        // -- Act --
+        let actualSpan = scope.getCastedInternalSpan()
+
+        // -- Assert --
+        XCTAssertNil(actualSpan)
+    }
+
     private class TestScopeObserver: NSObject, SentryScopeObserver {
         var tags: [String: String]?
         func setTags(_ tags: [String: String]?) {
@@ -863,3 +922,46 @@ class SentryScopeSwiftTests: XCTestCase {
         }
     }
 }
+
+// A minimal dummy Span implementation that is not SentrySpan.
+private final class NotOfTypeSpan: NSObject, Span {
+
+    init(traceId: SentryId = SentryId()) {
+        self.traceId = traceId
+    }
+
+    // MARK: - Properties required by Span (set to neutral values)
+    var traceId: SentryId = SentryId()
+    var spanId: SpanId = SpanId()
+    var parentSpanId: SpanId?
+    var sampled: SentrySampleDecision = .undecided
+    var operation: String = ""
+    var origin: String = ""
+    var spanDescription: String?
+    var status: SentrySpanStatus = .undefined
+    var timestamp: Date?
+    var startTimestamp: Date?
+    var data: [String: Any] { [:] }
+    var tags: [String: String] { [:] }
+    var isFinished: Bool { false }
+    var traceContext: TraceContext? { nil }
+
+    // MARK: - Methods required by Span (no-ops)
+    func startChild(operation: String) -> Span { return self }
+    func startChild(operation: String, description: String?) -> Span { return self }
+    func setData(value: Any?, key: String) {}
+    func removeData(key: String) {}
+    func setTag(value: String, key: String) {}
+    func removeTag(key: String) {}
+    func setMeasurement(name: String, value: NSNumber) {}
+    func setMeasurement(name: String, value: NSNumber, unit: MeasurementUnit) {}
+    func finish() {}
+    func finish(status: SentrySpanStatus) {}
+    func toTraceHeader() -> TraceHeader { return TraceHeader(trace: traceId, spanId: spanId, sampled: sampled) }
+    func baggageHttpHeader() -> String? { return nil }
+
+    // MARK: - SentrySerializable (no-op payload)
+    func serialize() -> [String: Any] { return [:] }
+}
+
+private final class SubClassOfSentrySpan: SentrySpan {}

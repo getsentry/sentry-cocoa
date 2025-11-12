@@ -1,71 +1,10 @@
 #import "SentryOptionsInternal.h"
-#import "SentryANRTrackingIntegration.h"
-#import "SentryAutoBreadcrumbTrackingIntegration.h"
-#import "SentryAutoSessionTrackingIntegration.h"
-#import "SentryCoreDataTrackingIntegration.h"
-#import "SentryCrashIntegration.h"
 #import "SentryDsn.h"
-#import "SentryFileIOTrackingIntegration.h"
 #import "SentryInternalDefines.h"
 #import "SentryLevelMapper.h"
-#import "SentryNetworkTrackingIntegration.h"
-#import "SentryOptions+Private.h"
-#import "SentryOptions.h"
-#import "SentrySessionReplayIntegration.h"
 #import "SentrySwift.h"
-#import "SentrySwiftAsyncIntegration.h"
-
-#if SENTRY_HAS_UIKIT
-#    import "SentryAppStartTrackingIntegration.h"
-#    import "SentryFramesTrackingIntegration.h"
-#    import "SentryPerformanceTrackingIntegration.h"
-#    import "SentryScreenshotIntegration.h"
-#    import "SentryUIEventTrackingIntegration.h"
-#    import "SentryUserFeedbackIntegration.h"
-#    import "SentryViewHierarchyIntegration.h"
-#    import "SentryWatchdogTerminationTrackingIntegration.h"
-#endif // SENTRY_HAS_UIKIT
-
-#if SENTRY_HAS_METRIC_KIT
-#    import "SentryMetricKitIntegration.h"
-#endif // SENTRY_HAS_METRIC_KIT
 
 @implementation SentryOptionsInternal
-
-+ (NSArray<Class> *)defaultIntegrationClasses
-{
-    // The order of integrations here is important.
-    // SentryCrashIntegration needs to be initialized before SentryAutoSessionTrackingIntegration.
-    // And SentrySessionReplayIntegration before SentryCrashIntegration.
-    NSMutableArray<Class> *defaultIntegrations = [NSMutableArray<Class> arrayWithObjects:
-#if SENTRY_TARGET_REPLAY_SUPPORTED
-            [SentrySessionReplayIntegration class],
-#endif // SENTRY_TARGET_REPLAY_SUPPORTED
-        [SentryCrashIntegration class],
-#if SENTRY_HAS_UIKIT
-        [SentryAppStartTrackingIntegration class], [SentryFramesTrackingIntegration class],
-        [SentryPerformanceTrackingIntegration class], [SentryUIEventTrackingIntegration class],
-        [SentryViewHierarchyIntegration class],
-        [SentryWatchdogTerminationTrackingIntegration class],
-#endif // SENTRY_HAS_UIKIT
-#if SENTRY_TARGET_REPLAY_SUPPORTED
-        [SentryScreenshotIntegration class],
-#endif // SENTRY_TARGET_REPLAY_SUPPORTED
-        [SentryANRTrackingIntegration class], [SentryAutoBreadcrumbTrackingIntegration class],
-        [SentryAutoSessionTrackingIntegration class], [SentryCoreDataTrackingIntegration class],
-        [SentryFileIOTrackingIntegration class], [SentryNetworkTrackingIntegration class],
-        [SentrySwiftAsyncIntegration class], nil];
-
-#if TARGET_OS_IOS && SENTRY_HAS_UIKIT
-    [defaultIntegrations addObject:[SentryUserFeedbackIntegration class]];
-#endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
-
-#if SENTRY_HAS_METRIC_KIT
-    [defaultIntegrations addObject:[SentryMetricKitIntegration class]];
-#endif // SENTRY_HAS_METRIC_KIT
-
-    return defaultIntegrations;
-}
 
 + (nullable SentryOptions *)initWithDict:(NSDictionary<NSString *, id> *)options
                         didFailWithError:(NSError *_Nullable *_Nullable)error
@@ -174,11 +113,9 @@
         sentryOptions.beforeSend = options[@"beforeSend"];
     }
 
-#if !SWIFT_PACKAGE
     if ([self isBlock:options[@"beforeSendLog"]]) {
         sentryOptions.beforeSendLog = options[@"beforeSendLog"];
     }
-#endif // !SWIFT_PACKAGE
 
     if ([self isBlock:options[@"beforeSendSpan"]]) {
         sentryOptions.beforeSendSpan = options[@"beforeSendSpan"];
@@ -308,14 +245,6 @@
             [options[@"inAppIncludes"] filteredArrayUsingPredicate:isNSString];
         for (NSString *include in inAppIncludes) {
             [sentryOptions addInAppInclude:include];
-        }
-    }
-
-    if ([options[@"inAppExcludes"] isKindOfClass:[NSArray class]]) {
-        NSArray<NSString *> *inAppExcludes =
-            [options[@"inAppExcludes"] filteredArrayUsingPredicate:isNSString];
-        for (NSString *exclude in inAppExcludes) {
-            [sentryOptions addInAppExclude:exclude];
         }
     }
 

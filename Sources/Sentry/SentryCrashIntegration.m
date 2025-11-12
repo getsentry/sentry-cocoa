@@ -7,7 +7,6 @@
 #import "SentryEvent.h"
 #import "SentryHub.h"
 #import "SentryInternalDefines.h"
-#import "SentryOptions.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
 #import "SentryScope+PrivateSwift.h"
@@ -36,7 +35,7 @@ static NSString *const LOCALE_KEY = @"locale";
 void
 sentry_finishAndSaveTransaction(void)
 {
-    SentrySpan *span = (SentrySpan *)SentrySDKInternal.currentHub.scope.span;
+    SentrySpan *span = [SentrySDKInternal.currentHub.scope getCastedInternalSpan];
 
     if (span != nil) {
         SentryTracer *tracer = [span tracer];
@@ -145,8 +144,7 @@ sentry_finishAndSaveTransaction(void)
         BOOL canSendReports = NO;
         if (installation == nil) {
             SentryInAppLogic *inAppLogic =
-                [[SentryInAppLogic alloc] initWithInAppIncludes:self.options.inAppIncludes
-                                                  inAppExcludes:self.options.inAppExcludes];
+                [[SentryInAppLogic alloc] initWithInAppIncludes:self.options.inAppIncludes];
 
             installation = [[SentryCrashInstallationReporter alloc]
                 initWithInAppLogic:inAppLogic

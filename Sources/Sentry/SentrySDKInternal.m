@@ -2,25 +2,46 @@
 #import "PrivateSentrySDKOnly.h"
 #import "SentryANRTrackingIntegration.h"
 #import "SentryAppStartMeasurement.h"
+#import "SentryAutoBreadcrumbTrackingIntegration.h"
+#import "SentryAutoSessionTrackingIntegration.h"
 #import "SentryBreadcrumb.h"
 #import "SentryClient+Private.h"
+#import "SentryCoreDataTrackingIntegration.h"
 #import "SentryCrash.h"
+#import "SentryCrashIntegration.h"
+#import "SentryFileIOTrackingIntegration.h"
 #import "SentryHub+Private.h"
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"
 #import "SentryMeta.h"
-#import "SentryOptions+Private.h"
-#import "SentryOptionsInternal.h"
+#import "SentryNetworkTrackingIntegration.h"
 #import "SentryProfilingConditionals.h"
 #import "SentryReplayApi.h"
 #import "SentrySamplerDecision.h"
 #import "SentrySamplingContext.h"
 #import "SentryScope.h"
 #import "SentrySerialization.h"
+#import "SentrySessionReplayIntegration.h"
 #import "SentrySwift.h"
+#import "SentrySwiftAsyncIntegration.h"
 #import "SentryTransactionContext.h"
 #import "SentryUseNSExceptionCallstackWrapper.h"
 #import "SentryUserFeedbackIntegration.h"
+
+#if SENTRY_HAS_UIKIT
+#    import "SentryAppStartTrackingIntegration.h"
+#    import "SentryFramesTrackingIntegration.h"
+#    import "SentryPerformanceTrackingIntegration.h"
+#    import "SentryScreenshotIntegration.h"
+#    import "SentryUIEventTrackingIntegration.h"
+#    import "SentryUserFeedbackIntegration.h"
+#    import "SentryViewHierarchyIntegration.h"
+#    import "SentryWatchdogTerminationTrackingIntegration.h"
+#endif // SENTRY_HAS_UIKIT
+
+#if SENTRY_HAS_METRIC_KIT
+#    import "SentryMetricKitIntegration.h"
+#endif // SENTRY_HAS_METRIC_KIT
 
 #if TARGET_OS_OSX
 #    import "SentryCrashExceptionApplication.h"
@@ -38,8 +59,6 @@
 #    import "SentryProfiler+Private.h"
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
-NSString *const SENTRY_XCODE_PREVIEW_ENVIRONMENT_KEY = @"XCODE_RUNNING_FOR_PREVIEWS";
-
 @interface SentrySDKInternal ()
 
 @property (class) SentryHubInternal *currentHub;
@@ -54,8 +73,6 @@ static BOOL crashedLastRunCalled;
 static SentryAppStartMeasurement *_Nullable sentrySDKappStartMeasurement;
 static NSObject *sentrySDKappStartMeasurementLock;
 static BOOL _detectedStartUpCrash;
-static SentryOptions *_Nullable startOption;
-static NSObject *startOptionsLock;
 
 /**
  * @brief We need to keep track of the number of times @c +[startWith...] is called, because our
@@ -73,7 +90,6 @@ static NSDate *_Nullable startTimestamp = nil;
     if (self == [SentrySDKInternal class]) {
         sentrySDKappStartMeasurementLock = [[NSObject alloc] init];
         currentHubLock = [[NSObject alloc] init];
-        startOptionsLock = [[NSObject alloc] init];
         startInvocations = 0;
         _detectedStartUpCrash = NO;
     }
@@ -91,10 +107,9 @@ static NSDate *_Nullable startTimestamp = nil;
 
 + (nullable SentryOptions *)options
 {
-    @synchronized(startOptionsLock) {
-        return startOption;
-    }
+    return SentrySDK.startOption;
 }
+
 #if SENTRY_TARGET_REPLAY_SUPPORTED
 + (SentryReplayApi *)replay
 {
@@ -112,12 +127,11 @@ static NSDate *_Nullable startTimestamp = nil;
         currentHub = hub;
     }
 }
+
 /** Internal, only needed for testing. */
 + (void)setStartOptions:(nullable SentryOptions *)options
 {
-    @synchronized(startOptionsLock) {
-        startOption = options;
-    }
+    [SentrySDK setStartWith:options];
 }
 
 + (nullable id<SentrySpan>)span
@@ -197,16 +211,6 @@ static NSDate *_Nullable startTimestamp = nil;
 
 + (void)startWithOptions:(SentryOptions *)options
 {
-    // We save the options before checking for Xcode preview because
-    // we will use this options in the preview
-    startOption = options;
-    if ([SentryDependencyContainer.sharedInstance.processInfoWrapper
-                .environment[SENTRY_XCODE_PREVIEW_ENVIRONMENT_KEY] isEqualToString:@"1"]) {
-        // Using NSLog because SentryLog was not initialized yet.
-        NSLog(@"[SENTRY] [WARNING] SentrySDK not started. Running from Xcode preview.");
-        return;
-    }
-
     [SentrySDKLogSupport configure:options.debug diagnosticLevel:options.diagnosticLevel];
 
     // We accept the tradeoff that the SDK might not be fully initialized directly after
@@ -266,13 +270,6 @@ static NSDate *_Nullable startTimestamp = nil;
         }];
 
     SENTRY_LOG_DEBUG(@"SDK initialized! Version: %@", SentryMeta.versionString);
-}
-
-+ (void)startWithConfigureOptions:(void (^)(SentryOptions *options))configureOptions
-{
-    SentryOptions *options = [[SentryOptions alloc] init];
-    configureOptions(options);
-    [SentrySDKInternal startWithOptions:options];
 }
 
 + (void)captureFatalEvent:(SentryEvent *)event
@@ -520,6 +517,41 @@ static NSDate *_Nullable startTimestamp = nil;
     [SentrySDKInternal.currentHub endSession];
 }
 
++ (NSArray<Class> *)defaultIntegrationClasses
+{
+    // The order of integrations here is important.
+    // SentryCrashIntegration needs to be initialized before SentryAutoSessionTrackingIntegration.
+    // And SentrySessionReplayIntegration before SentryCrashIntegration.
+    NSMutableArray<Class> *defaultIntegrations = [NSMutableArray<Class> arrayWithObjects:
+#if SENTRY_TARGET_REPLAY_SUPPORTED
+            [SentrySessionReplayIntegration class],
+#endif // SENTRY_TARGET_REPLAY_SUPPORTED
+        [SentryCrashIntegration class],
+#if SENTRY_HAS_UIKIT
+        [SentryAppStartTrackingIntegration class], [SentryFramesTrackingIntegration class],
+        [SentryPerformanceTrackingIntegration class], [SentryUIEventTrackingIntegration class],
+        [SentryViewHierarchyIntegration class],
+        [SentryWatchdogTerminationTrackingIntegration class],
+#endif // SENTRY_HAS_UIKIT
+#if SENTRY_TARGET_REPLAY_SUPPORTED
+        [SentryScreenshotIntegration class],
+#endif // SENTRY_TARGET_REPLAY_SUPPORTED
+        [SentryANRTrackingIntegration class], [SentryAutoBreadcrumbTrackingIntegration class],
+        [SentryAutoSessionTrackingIntegration class], [SentryCoreDataTrackingIntegration class],
+        [SentryFileIOTrackingIntegration class], [SentryNetworkTrackingIntegration class],
+        [SentrySwiftAsyncIntegration class], nil];
+
+#if TARGET_OS_IOS && SENTRY_HAS_UIKIT
+    [defaultIntegrations addObject:[SentryUserFeedbackIntegration class]];
+#endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
+
+#if SENTRY_HAS_METRIC_KIT
+    [defaultIntegrations addObject:[SentryMetricKitIntegration class]];
+#endif // SENTRY_HAS_METRIC_KIT
+
+    return defaultIntegrations;
+}
+
 /**
  * Install integrations and keeps ref in @c SentryHub.integrations
  */
@@ -530,48 +562,24 @@ static NSDate *_Nullable startTimestamp = nil;
         return;
     }
     SentryOptions *options = [SentrySDKInternal.currentHub getClient].options;
-    NSMutableArray<NSString *> *integrationNames = [SentryOptions defaultIntegrations].mutableCopy;
 
-    NSArray<Class> *defaultIntegrations = SentryOptionsInternal.defaultIntegrationClasses;
+    NSArray<Class> *integrationClasses = [SentrySDKInternal defaultIntegrationClasses];
 
-    // Since 8.22.0, we use a precompiled XCFramework for SPM, which can lead to Sentry's
-    // definition getting duplicated in the app with a warning “SentrySDK is defined in both
-    // ModuleA and ModuleB”. This doesn't happen when users use Sentry-Dynamic and
-    // when compiling Sentry from source via SPM. Due to the duplication, some users didn't
-    // see any crashes reported to Sentry cause the SentryCrashReportSink couldn't find
-    // a hub bound to the SentrySDK, and it dropped the crash events. This problem
-    // is fixed now by using a dictionary that links the classes with their names
-    // so we can quickly check whether that class is in the option integrations collection.
-    // We cannot load the class itself with NSClassFromString because doing so may load a class
-    // that was duplicated in another module, leading to undefined behavior.
-    NSMutableDictionary<NSString *, Class> *integrationDictionary =
-        [[NSMutableDictionary alloc] init];
-
-    for (Class integrationClass in defaultIntegrations) {
-        integrationDictionary[NSStringFromClass(integrationClass)] = integrationClass;
-    }
-
-    for (NSString *integrationName in integrationNames) {
-        Class integrationClass
-            = integrationDictionary[integrationName] ?: NSClassFromString(integrationName);
-        if (nil == integrationClass) {
-            SENTRY_LOG_ERROR(@"[SentryHub doInstallIntegrations] "
-                             @"couldn't find \"%@\" -> skipping.",
-                integrationName);
-            continue;
-        } else if ([SentrySDKInternal.currentHub isIntegrationInstalled:integrationClass]) {
+    for (Class integrationClass in integrationClasses) {
+        if ([SentrySDKInternal.currentHub isIntegrationInstalled:integrationClass]) {
             SENTRY_LOG_ERROR(
                 @"[SentryHub doInstallIntegrations] already installed \"%@\" -> skipping.",
-                integrationName);
+                NSStringFromClass(integrationClass));
             continue;
         }
+
         id<SentryIntegrationProtocol> integrationInstance = [[integrationClass alloc] init];
         BOOL shouldInstall = [integrationInstance installWithOptions:options];
-
         if (shouldInstall) {
-            SENTRY_LOG_DEBUG(@"Integration installed: %@", integrationName);
-            [SentrySDKInternal.currentHub addInstalledIntegration:integrationInstance
-                                                             name:integrationName];
+            SENTRY_LOG_DEBUG(@"Integration installed: %@", NSStringFromClass(integrationClass));
+            [SentrySDKInternal.currentHub
+                addInstalledIntegration:integrationInstance
+                                   name:NSStringFromClass(integrationClass)];
         }
     }
 }

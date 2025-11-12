@@ -20,7 +20,6 @@
 #import "SentryMsgPackSerializer.h"
 #import "SentryNSDictionarySanitize.h"
 #import "SentryNSError.h"
-#import "SentryOptions+Private.h"
 #import "SentryPropagationContext.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
@@ -28,6 +27,7 @@
 #import "SentrySerialization.h"
 #import "SentryStacktraceBuilder.h"
 #import "SentrySwift.h"
+#import "SentryTraceContext+Private.h"
 #import "SentryTraceContext.h"
 #import "SentryTracer.h"
 #import "SentryTransaction.h"
@@ -121,6 +121,16 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         [fileManager deleteOldEnvelopeItems];
     }
     return self;
+}
+
+- (void)setOptionsInternal:(SentryOptions *)optionsInternal
+{
+    self.options = optionsInternal;
+}
+
+- (NSObject *)getOptions
+{
+    return self.options;
 }
 
 - (SentryId *)captureMessage:(NSString *)message

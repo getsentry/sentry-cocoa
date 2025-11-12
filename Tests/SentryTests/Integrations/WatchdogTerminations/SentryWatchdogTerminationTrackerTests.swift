@@ -53,7 +53,7 @@ class SentryWatchdogTerminationTrackerTests: NotificationCenterTestCase {
         func getSut(fileManager: SentryFileManager) throws -> SentryWatchdogTerminationTracker {
             SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = dispatchQueue
             let appStateManager = SentryAppStateManager(
-                options: options,
+                releaseName: options.releaseName,
                 crashWrapper: crashWrapper,
                 fileManager: fileManager,
                 sysctlWrapper: sysctl

@@ -8,6 +8,7 @@ on:
       - v8.x
 
   pull_request:
+    types: [opened, synchronize, reopened, labeled]
 
   workflow_dispatch:
     inputs:
@@ -33,9 +34,17 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
+  ready-to-merge-gate:
+    name: Ready-to-merge gate
+    uses: ./.github/workflows/ready-to-merge-workflow.yml
+    with:
+      is-pr: ${{ github.event_name == 'pull_request' }}
+      labels: ${{ toJson(github.event.pull_request.labels) }}
+
   files-changed:
     name: Detect File Changes
     runs-on: ubuntu-latest
+    needs: ready-to-merge-gate
     outputs:
       run_release_for_prs: ${{ steps.changes.outputs.run_release_for_prs }}
     steps:
@@ -142,9 +151,12 @@ jobs:
           pattern: xcframework-${{github.sha}}-*
           merge-multiple: true
       - name: Prepare Package.swift
-        uses: ./.github/actions/prepare-package.swift
-        with:
-          is-pr: ${{ github.event_name == 'pull_request' }}
+        shell: bash
+        run: |
+          ./scripts/prepare-package.sh \
+            --package-file Package.swift \
+            --is-pr "${{ github.event_name == 'pull_request' }}" \
+            --change-path true
       - run: ./scripts/ci-select-xcode.sh 16.4
       - run: swift build
         working-directory: Samples/macOS-SPM-CommandLine
@@ -165,9 +177,12 @@ jobs:
           pattern: xcframework-${{github.sha}}-*
           merge-multiple: true
       - name: Prepare Package.swift
-        uses: ./.github/actions/prepare-package.swift
-        with:
-          is-pr: ${{ github.event_name == 'pull_request' }}
+        shell: bash
+        run: |
+          ./scripts/prepare-package.sh \
+            --package-file Package.swift \
+            --is-pr "${{ github.event_name == 'pull_request' }}" \
+            --change-path true
       - run: ./scripts/ci-select-xcode.sh 16.4
       - run: swift build
         working-directory: Samples/SPM-Dynamic
@@ -188,9 +203,12 @@ jobs:
           pattern: xcframework-${{github.sha}}-*
           merge-multiple: true
       - name: Prepare Package.swift
-        uses: ./.github/actions/prepare-package.swift
-        with:
-          is-pr: ${{ github.event_name == 'pull_request' }}
+        shell: bash
+        run: |
+          ./scripts/prepare-package.sh \
+            --package-file Package.swift \
+            --is-pr "${{ github.event_name == 'pull_request' }}" \
+            --change-path true
       - run: ./scripts/ci-select-xcode.sh 16.4
       - run: swift build
       - name: Run CI Diagnostics
@@ -210,9 +228,12 @@ jobs:
           pattern: xcframework-${{github.sha}}-*
           merge-multiple: true
       - name: Prepare Package.swift
-        uses: ./.github/actions/prepare-package.swift
-        with:
-          is-pr: ${{ github.event_name == 'pull_request' }}
+        shell: bash
+        run: |
+          ./scripts/prepare-package.sh \
+            --package-file Package.swift \
+            --is-pr "${{ github.event_name == 'pull_request' }}" \
+            --change-path true
       - run: ./scripts/ci-select-xcode.sh 16.4
       - run: set -o pipefail &&xcodebuild build -scheme visionOS-SPM -sdk xros -destination 'generic/platform=xros' | tee raw-build-output-spm-visionOS.log | xcbeautify
         working-directory: Samples/visionOS-SPM
@@ -245,7 +266,8 @@ jobs:
       - name: Git checkout
         uses: actions/checkout@v5
       - run: ./scripts/ci-select-xcode.sh 16.4
-      - uses: ruby/setup-ruby@v1
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@d5126b9b3579e429dd52e51e68624dda2e05be25 # v1.267.0
         with:
           bundler-cache: true
       - uses: actions/cache@v4
@@ -362,6 +384,7 @@ jobs:
         swift-build,
         duplication-tests,
         app-metrics,
+        ready-to-merge-gate,
       ]
     name: Release
     # This is necessary since a failed/skipped dependent job would cause this job to be skipped
