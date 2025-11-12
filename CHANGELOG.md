@@ -2,8 +2,13 @@
 
 ## Unreleased
 
+## Features
+
+- Structured Logs: Add log APIs to `Hub` and `Client` (#6737)
+
 ### Breaking Changes
 
+- Bumped minimum OS versions to iOS 15.0, macOS 12.0, tvOS 15.0, visionOS 1.0, and watchOS 8.0
 - Moves `SentryEventDecoder` to SPI (#6365)
 - Makes `PreviewRedactOptions`, `SentryProfileOptions`, `SentryRedactViewHelper`, `SentryViewScreenshotOptions`, `SentryReplayOptions`, `SentryUserFeedbackConfiguration`, `SentryUserFeedbackFormConfiguration`, `SentryUserFeedbackThemeConfiguration`, `SentryUserFeedbackWidgetConfiguration`, `SentryFeedback`, and `SentryExperimentalOptions` `final` (#6365)
 - Removes Decodable conformances from the public API of model classes (#5691)
@@ -39,6 +44,7 @@
   If you need a precompiled XCFramework built with Xcode 15, continue using Sentry SDK 8.x.x.
 - Set `SentryException.type` to `nil` when `NSException` has no `reason` (#6653). The backend then can provide a proper message when there is no reason.
 - Rename `SentryLog.Level` and `SentryLog.Attribute` for ObjC (#6666)
+- Change `SentryFeedback` initializer to support multiple attachments (#6752)
 
 ### Fixes
 
@@ -53,6 +59,7 @@
 - Replace deprecated SCNetworkReachability with NWPathMonitor (#6019)
 - Expose attachment type on `SentryAttachment` for downstream SDKs (like sentry-godot) (#6521)
 - Increase attachment max size to 100MB (#6537)
+- Increase maximum attachment size to 200MB (#6726)
 
 ### Features
 
@@ -63,7 +70,6 @@
   This option is still disabled by default and will be enabled in a future major release.
 - Move `enableDataSwizzling` from experimental options to top-level options (#6592). This option remains enabled by default.
 - Add `sentry.replay_id` attribute to logs ([#6515](https://github.com/getsentry/sentry-cocoa/pull/6515))
-- Structured Logs: Add `SentrySwiftLog` Integration (#6286)
 
 ## 9.0.0-alpha.0
 
@@ -127,7 +133,6 @@
   This option is still disabled by default and will be enabled in a future major release.
 - Move `enableDataSwizzling` from experimental options to top-level options (#6592). This option remains enabled by default.
 - Add `sentry.replay_id` attribute to logs ([#6515](https://github.com/getsentry/sentry-cocoa/pull/6515))
-- Structured Logs: Add `SentrySwiftLog` Integration (#6286)
 
 ## 8.57.2
 

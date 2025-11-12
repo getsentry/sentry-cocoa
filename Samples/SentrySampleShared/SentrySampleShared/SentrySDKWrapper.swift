@@ -351,10 +351,19 @@ extension SentrySDKWrapper {
             alert.addAction(.init(title: "Deal with it 🕶️", style: .default))
             UIApplication.shared.delegate?.window??.rootViewController?.present(alert, animated: true)
 
-            // if there's a screenshot's Data in this dictionary, JSONSerialization crashes _even though_ there's a `try?`, so we'll write the base64 encoding of it
             var infoToWriteToFile = info
-            if let attachments = info["attachments"] as? [Any], let screenshot = attachments.first as? Data {
-                infoToWriteToFile["attachments"] = [screenshot.base64EncodedString()]
+            if let attachments = info["attachments"] as? [[String: Any]] {
+                // Extract data from each attachment dictionary (JSONSerialization crashes _even though_ there's a `try?`, so we'll write the base64 encoding of it)
+                let processedAttachments = attachments.compactMap { attachment -> [String: Any]? in
+                    var processed = attachment
+                    if let data = attachment["data"] as? Data {
+                        processed["data"] = data.base64EncodedString()
+                    }
+                    return processed
+                }
+                if !processedAttachments.isEmpty {
+                    infoToWriteToFile["attachments"] = processedAttachments
+                }
             }
 
             let jsonData = (try? JSONSerialization.data(withJSONObject: infoToWriteToFile, options: .sortedKeys)) ?? Data()
