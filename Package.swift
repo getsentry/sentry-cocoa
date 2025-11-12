@@ -61,7 +61,6 @@ var targets: [Target] = [
         publicHeadersPath: "SentryInternal/"),
     .target(
         name: "SentryCppHelper",
-        dependencies: ["Sentry"],
         path: "Sources/SentryCppHelper",
         linkerSettings: [
          .linkedLibrary("c++")
