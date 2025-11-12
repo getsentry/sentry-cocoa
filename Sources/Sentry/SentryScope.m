@@ -150,6 +150,23 @@ NS_ASSUME_NONNULL_BEGIN
     }
 }
 
+- (nullable SentrySpan *)getCastedInternalSpan
+{
+    id<SentrySpan> span = self.span;
+
+    if (span == nil) {
+        return nil;
+    }
+
+    if (span && [span isKindOfClass:[SentrySpan class]]) {
+        return (SentrySpan *)span;
+    }
+
+    SENTRY_LOG_DEBUG(@"The span on the scope is not of type SentrySpan, returning nil.");
+
+    return nil;
+}
+
 - (void)clear
 {
     // As we need to synchronize the accesses of the arrays and dictionaries and we use the

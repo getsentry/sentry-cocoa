@@ -57,7 +57,7 @@
 
 - (SentryCrashStackEntryMapper *)buildCrashStackToEntryMapper
 {
-    SentryOptions *options = SentrySDKInternal.options;
+    SentryOptions *options = SentrySDK.startOption;
 
     SentryInAppLogic *inAppLogic =
         [[SentryInAppLogic alloc] initWithInAppIncludes:options.inAppIncludes];
