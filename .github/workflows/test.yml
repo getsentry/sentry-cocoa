@@ -355,16 +355,6 @@ jobs:
             device: "iPhone 15 Pro"
             scheme: "SentrySwiftUI"
 
-          # iOS 17 - Use pre-installed iOS 17.5 runtime on macOS-14 with Xcode 15.4
-          - name: iOS 17 SentrySwiftLog
-            runs-on: macos-14
-            xcode: "15.4"
-            test-destination-os: "17.5"
-            platform: "iOS"
-            create_device: true
-            device: "iPhone 15 Pro"
-            scheme: "SentrySwiftLog"
-
           # tvOS 18
           - name: tvOS 18 Sentry
             runs-on: macos-15

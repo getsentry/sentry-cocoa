@@ -1,9 +1,6 @@
 import SentrySampleShared
 import UIKit
 
-import Logging
-import SentrySwiftLog
-
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
     private var randomDistributionTimer: Timer?
@@ -31,17 +28,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         if #available(iOS 15.0, *) {
             metricKit.receiveReports()
         }
-        
-        // Use structured logs with swift-log
-        LoggingSystem.bootstrap { _ in
-            return SentryLogHandler(logLevel: .trace)
-        }
-        let logger = Logger(label: "io.sentry.iOS-Swift")
-        logger.trace(
-            "[iOS-Swift] didFinishLaunchingWithOptions",
-            metadata: ["foo": "bar"],
-            source: "iOS"
-        )
         
         return true
     }
