@@ -2,10 +2,6 @@
 
 ## Unreleased
 
-## Features
-
-- Structured Logs: Add log APIs to `Hub` and `Client` (#6737)
-
 ### Breaking Changes
 
 - Bumped minimum OS versions to iOS 15.0, macOS 12.0, tvOS 15.0, visionOS 1.0, and watchOS 8.0
@@ -53,6 +49,7 @@
 - Fix issue where the thread that generated an event could be missing when more than 100 threads are running (#6377)
 - Fix wrong Frame Delay when becoming active, which lead to false reported app hangs when the app moves to the foreground after being in the background (#6381)
 - Rename `SentryMechanismMeta` to `SentryMechanismContext` to resolve Kotlin Multi-Platform build errors (#6607)
+- Remove unnecesary dependency on `SentryCppHelper` to Sentry (#6754)
 
 ### Improvements
 
@@ -70,6 +67,7 @@
   This option is still disabled by default and will be enabled in a future major release.
 - Move `enableDataSwizzling` from experimental options to top-level options (#6592). This option remains enabled by default.
 - Add `sentry.replay_id` attribute to logs ([#6515](https://github.com/getsentry/sentry-cocoa/pull/6515))
+- Structured Logs: Add log APIs to `Hub` and `Client` (#6737)
 
 ## 9.0.0-alpha.0
 
