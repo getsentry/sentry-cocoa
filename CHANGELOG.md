@@ -8,7 +8,7 @@
 
 ### Fixes
 
-- Limit log batching to maximum 1000 logs per batch (#6768)
+- Limit log batching to maximum 100 logs per batch (#6768)
 
 ## 9.0.0-alpha.1
 
