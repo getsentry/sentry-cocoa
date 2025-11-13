@@ -5,7 +5,8 @@ GEM
       base64
       nkf
       rexml
-    activesupport (7.2.2)
+    abbrev (0.1.2)
+    activesupport (7.2.3)
       base64
       benchmark (>= 0.3)
       bigdecimal
@@ -25,7 +26,7 @@ GEM
     artifactory (3.0.17)
     atomos (0.1.3)
     aws-eventstream (1.4.0)
-    aws-partitions (1.1179.0)
+    aws-partitions (1.1181.0)
     aws-sdk-core (3.236.0)
       aws-eventstream (~> 1, >= 1.3.0)
       aws-partitions (~> 1, >= 1.992.0)
@@ -34,10 +35,10 @@ GEM
       bigdecimal
       jmespath (~> 1, >= 1.6.1)
       logger
-    aws-sdk-kms (1.116.0)
+    aws-sdk-kms (1.117.0)
       aws-sdk-core (~> 3, >= 3.234.0)
       aws-sigv4 (~> 1.5)
-    aws-sdk-s3 (1.202.0)
+    aws-sdk-s3 (1.203.0)
       aws-sdk-core (~> 3, >= 3.234.0)
       aws-sdk-kms (~> 1)
       aws-sigv4 (~> 1.5)
@@ -45,10 +46,10 @@ GEM
       aws-eventstream (~> 1, >= 1.0.2)
     babosa (1.0.4)
     base64 (0.3.0)
-    benchmark (0.4.0)
-    bigdecimal (3.1.8)
+    benchmark (0.5.0)
+    bigdecimal (3.3.1)
     claide (1.1.0)
-    clamp (1.3.2)
+    clamp (1.3.3)
     cocoapods (1.16.2)
       addressable (~> 2.8)
       claide (>= 1.0.2, < 2.0)
@@ -90,18 +91,20 @@ GEM
     colored2 (3.1.2)
     commander (4.6.0)
       highline (~> 2.0.0)
-    concurrent-ruby (1.3.4)
-    connection_pool (2.4.1)
+    concurrent-ruby (1.3.5)
+    connection_pool (2.5.4)
+    csv (3.3.5)
     declarative (0.0.20)
     digest-crc (0.7.0)
       rake (>= 12.0.0, < 14.0.0)
     domain_name (0.6.20240107)
     dotenv (2.8.1)
-    drb (2.2.1)
+    drb (2.2.3)
     emoji_regex (3.2.3)
     escape (0.0.4)
-    ethon (0.16.0)
+    ethon (0.18.0)
       ffi (>= 1.15.0)
+      logger
     excon (0.112.0)
     faraday (1.10.4)
       faraday-em_http (~> 1.0)
@@ -174,11 +177,11 @@ GEM
       xcodeproj (>= 1.13.0, < 2.0.0)
       xcpretty (~> 0.4.1)
       xcpretty-travis-formatter (>= 0.0.3, < 2.0.0)
-    fastlane-plugin-sentry (1.34.0)
+    fastlane-plugin-sentry (1.35.0)
       os (~> 1.1, >= 1.1.4)
     fastlane-sirp (1.0.0)
       sysrandom (~> 1.0)
-    ffi (1.17.0)
+    ffi (1.17.2)
     fourflusher (2.3.1)
     fuzzy_match (2.0.4)
     gh_inspector (1.1.3)
@@ -224,20 +227,21 @@ GEM
       domain_name (~> 0.5)
     httpclient (2.9.0)
       mutex_m
-    i18n (1.14.6)
+    i18n (1.14.7)
       concurrent-ruby (~> 1.0)
     jmespath (1.6.2)
-    json (2.15.2)
+    json (2.16.0)
     jwt (2.10.2)
       base64
     logger (1.7.0)
-    mime-types (3.5.1)
-      mime-types-data (~> 3.2015)
-    mime-types-data (3.2023.1003)
+    mime-types (3.7.0)
+      logger
+      mime-types-data (~> 3.2025, >= 3.2025.0507)
+    mime-types-data (3.2025.0924)
     mini_magick (4.13.2)
     mini_mime (1.1.5)
     mini_portile2 (2.8.9)
-    minitest (5.25.1)
+    minitest (5.26.1)
     molinillo (0.8.0)
     multi_json (1.17.0)
     multipart-post (2.4.1)
@@ -247,11 +251,12 @@ GEM
     naturally (2.3.0)
     netrc (0.11.0)
     nkf (0.2.0)
-    nokogiri (1.18.9)
+    nokogiri (1.18.10)
       mini_portile2 (~> 2.8.2)
       racc (~> 1.4)
     optparse (0.8.0)
     os (1.1.4)
+    ostruct (0.6.3)
     plist (3.7.2)
     public_suffix (4.0.7)
     racc (1.8.1)
@@ -271,7 +276,7 @@ GEM
     ruby-macho (2.5.1)
     ruby2_keywords (0.0.5)
     rubyzip (2.4.1)
-    securerandom (0.3.2)
+    securerandom (0.4.1)
     security (0.1.5)
     signet (0.21.0)
       addressable (~> 2.8)
@@ -319,12 +324,17 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  abbrev
+  benchmark
   bundler (>= 2)
   cocoapods (>= 1.9.1)
+  csv
   fastlane
   fastlane-plugin-sentry
+  mutex_m
+  ostruct
   rest-client
   slather
 
 BUNDLED WITH
-   2.4.20
+   2.7.2

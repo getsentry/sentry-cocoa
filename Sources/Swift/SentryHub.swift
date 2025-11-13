@@ -193,10 +193,12 @@ import Foundation
 
     /// Returns the logger associated with this Hub.
     @objc public var logger: SentryLogger {
-        // We know the type so it's fine to force cast.
-        // swiftlint:disable force_cast
-        return self.helper._swiftLogger as! SentryLogger
-        // swiftlint:enable force_cast
+        if let logger = self.helper._swiftLogger as? SentryLogger {
+            return logger
+        } else {
+            SentrySDKLog.fatal("Unable to access configured logger. Logs will not be sent to Sentry.")
+            return SentryLogger(dateProvider: SentryDependencyContainer.sharedInstance().dateProvider)
+        }
     }
 
     /// Binds a different client to the hub.

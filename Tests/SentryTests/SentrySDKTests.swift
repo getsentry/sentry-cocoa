@@ -248,14 +248,14 @@ class SentrySDKTests: XCTestCase {
 
     func testGlobalOptions() {
         SentrySDK.start(options: fixture.options)
-        XCTAssertEqual(SentrySDKInternal.options, fixture.options)
+        XCTAssertEqual(SentrySDK.startOption, fixture.options)
     }
 
     func testGlobalOptionsForPreview() {
         startprocessInfoWrapperForPreview()
 
         SentrySDK.start(options: fixture.options)
-        XCTAssertEqual(SentrySDKInternal.options, fixture.options)
+        XCTAssertEqual(SentrySDK.startOption, fixture.options)
     }
 
     func testCaptureEvent() {
@@ -422,7 +422,7 @@ class SentrySDKTests: XCTestCase {
     func testFlush_CallsLoggerCaptureLogs() {
         fixture.client.options.enableLogs = true
         SentrySDKInternal.setCurrentHub(fixture.hub)
-        SentrySDKInternal.setStart(with: fixture.client.options)
+        SentrySDK.setStart(with: fixture.client.options)
         
         // Add a log to ensure there's something to flush
         SentrySDK.logger.info("Test log message")
@@ -441,7 +441,7 @@ class SentrySDKTests: XCTestCase {
     func testClose_CallsLoggerCaptureLogs() {
         fixture.client.options.enableLogs = true
         SentrySDKInternal.setCurrentHub(fixture.hub)
-        SentrySDKInternal.setStart(with: fixture.client.options)
+        SentrySDK.setStart(with: fixture.client.options)
         
         // Add a log to ensure there's something to flush
         SentrySDK.logger.info("Test log message")
@@ -510,11 +510,11 @@ extension SentrySDKTests {
 
     private func givenSdkWithHubButNoClient() {
         SentrySDKInternal.setCurrentHub(SentryHubInternal(client: nil, andScope: nil))
-        SentrySDKInternal.setStart(with: fixture.options)
+        SentrySDK.setStart(with: fixture.options)
     }
 
     private func givenSdkWithHub() {
         SentrySDKInternal.setCurrentHub(fixture.hub)
-        SentrySDKInternal.setStart(with: fixture.options)
+        SentrySDK.setStart(with: fixture.options)
     }
 }

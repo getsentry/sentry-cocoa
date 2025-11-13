@@ -37,9 +37,6 @@ jobs:
   ready-to-merge-gate:
     name: Ready-to-merge gate
     uses: ./.github/workflows/ready-to-merge-workflow.yml
-    with:
-      is-pr: ${{ github.event_name == 'pull_request' }}
-      labels: ${{ toJson(github.event.pull_request.labels) }}
 
   files-changed:
     name: Detect File Changes
@@ -266,7 +263,8 @@ jobs:
       - name: Git checkout
         uses: actions/checkout@v5
       - run: ./scripts/ci-select-xcode.sh 16.4
-      - uses: ruby/setup-ruby@v1
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@d5126b9b3579e429dd52e51e68624dda2e05be25 # v1.267.0
         with:
           bundler-cache: true
       - uses: actions/cache@v4
@@ -383,6 +381,7 @@ jobs:
         swift-build,
         duplication-tests,
         app-metrics,
+        ready-to-merge-gate,
       ]
     name: Release
     # This is necessary since a failed/skipped dependent job would cause this job to be skipped

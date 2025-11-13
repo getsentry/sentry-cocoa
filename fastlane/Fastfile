@@ -392,26 +392,25 @@ platform :ios do
 
   desc "Generate all provisioning profiles for development"
   lane :setup_code_signing do
+    app_identifiers = [
+      "io.sentry.cocoa.perf-test-app-plain",
+      "io.sentry.cocoa.perf-test-app-sentry",
+      "io.sentry.iOS-Benchmarking.xctrunner",
+      "io.sentry.iOS-Swift-UITests.xctrunner",
+      "io.sentry.sample.iOS-Swift",
+      "io.sentry.sample.iOS-Swift.Clip",
+      "io.sentry.sample.iOS-Swift.ShareExtension",
+      "io.sentry.sample.iOS-Swift.IntentExtension",
+      "io.sentry.sample.iOS-Swift.ActionExtension"
+    ]
     sync_code_signing(
       type: "development",
-      app_identifier: [
-        "io.sentry.sample.iOS-Swift",
-        "io.sentry.sample.iOS-Swift.Clip",
-        "io.sentry.sample.iOS-Swift.ShareExtension",
-        "io.sentry.sample.iOS-Swift.IntentExtension",
-        "io.sentry.sample.iOS-Swift.ActionExtension"
-      ],
+      app_identifier: app_identifiers,
       readonly: false
     )
     sync_code_signing(
       type: "appstore",
-      app_identifier: [
-        "io.sentry.sample.iOS-Swift",
-        "io.sentry.sample.iOS-Swift.Clip",
-        "io.sentry.sample.iOS-Swift.ShareExtension",
-        "io.sentry.sample.iOS-Swift.IntentExtension",
-        "io.sentry.sample.iOS-Swift.ActionExtension"
-      ],
+      app_identifier: app_identifiers,
       readonly: false
     )
   end

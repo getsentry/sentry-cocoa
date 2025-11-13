@@ -14,14 +14,14 @@ import Foundation
     private let flushTimeout: TimeInterval
     private let maxBufferSizeBytes: Int
     private let dispatchQueue: SentryDispatchQueueWrapper
-    
+
     // All mutable state is accessed from the same serial dispatch queue.
     
     // Every logs data is added sepratley. They are flushed together in an envelope.
     private var encodedLogs: [Data] = []
     private var encodedLogsSize: Int = 0
     private var timerWorkItem: DispatchWorkItem?
-
+        
     private weak var delegate: SentryLogBatcherDelegate?
     
     /// Convenience initializer with default flush timeout and buffer size.

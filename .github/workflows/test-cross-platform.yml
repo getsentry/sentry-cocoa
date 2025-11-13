@@ -57,7 +57,7 @@ jobs:
         with:
           repository: getsentry/sentry-react-native
           path: sentry-react-native
-          ref: itay/frames_tracker_swift
+          ref: cocoa-v9
 
       - name: Enable Corepack
         working-directory: sentry-react-native

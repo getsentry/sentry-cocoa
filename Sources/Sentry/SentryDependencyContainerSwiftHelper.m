@@ -1,27 +1,8 @@
 #import "SentryDependencyContainerSwiftHelper.h"
 #import "SentryClient+Private.h"
 #import "SentryHub+Private.h"
-#import "SentryOptions+Private.h"
 #import "SentrySDK+Private.h"
 #import "SentrySwift.h"
-
-@implementation SentryDefaultRedactOptions
-- (instancetype)initWithMaskAllText:(BOOL)maskAllText
-                      maskAllImages:(BOOL)maskAllImages
-                  maskedViewClasses:(NSArray<Class> *)maskedViewClasses
-                unmaskedViewClasses:(NSArray<Class> *)unmaskedViewClasses
-{
-    if (self = [super init]) {
-        _maskAllText = maskAllText;
-        _maskAllImages = maskAllImages;
-        _maskedViewClasses = maskedViewClasses;
-        _unmaskedViewClasses = unmaskedViewClasses;
-        return self;
-    }
-    return nil;
-}
-
-@end
 
 @implementation SentryDependencyContainerSwiftHelper
 
@@ -32,26 +13,40 @@
     return [SentryDependencyContainer.sharedInstance.application getWindows];
 }
 
-+ (BOOL)fastViewRenderingEnabled:(SentryOptions *)options
-{
-    return options.screenshot.enableFastViewRendering;
-}
-
-+ (BOOL)viewRendererV2Enabled:(SentryOptions *)options
-{
-    return options.screenshot.enableViewRendererV2;
-}
-
-+ (SentryDefaultRedactOptions *)redactOptions:(SentryOptions *)options
-{
-    return [[SentryDefaultRedactOptions alloc]
-        initWithMaskAllText:options.screenshot.maskAllText
-              maskAllImages:options.screenshot.maskAllImages
-          maskedViewClasses:options.screenshot.maskedViewClasses
-        unmaskedViewClasses:options.screenshot.unmaskedViewClasses];
-}
-
 #endif // SENTRY_HAS_UIKIT
+
++ (NSString *)release:(SentryOptions *)options
+{
+    return options.releaseName;
+}
+
++ (SentryLog *)beforeSendLog:(SentryLog *)log options:(SentryOptions *)options
+{
+    if (options.beforeSendLog) {
+        return options.beforeSendLog(log);
+    }
+    return log;
+}
+
++ (NSString *)environment:(SentryOptions *)options
+{
+    return options.environment;
+}
+
++ (BOOL)enableLogs:(SentryOptions *)options
+{
+    return options.enableLogs;
+}
+
++ (NSArray<NSString *> *)enabledFeatures:(SentryOptions *)options
+{
+    return [SentryEnabledFeaturesBuilder getEnabledFeaturesWithOptions:options];
+}
+
++ (BOOL)sendDefaultPii:(SentryOptions *)options
+{
+    return options.sendDefaultPii;
+}
 
 + (SentryDispatchQueueWrapper *)dispatchQueueWrapper
 {

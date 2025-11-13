@@ -5,6 +5,7 @@
 #else
 #    import <SentryDefines.h>
 #endif
+#import "SentryOptionsObjC.h"
 
 @class SentryEvent;
 @class SentryFeedback;
@@ -22,12 +23,16 @@ SENTRY_NO_INIT
 
 @property (nonatomic, strong) SentryOptions *options;
 
+- (void)setOptionsInternal:(SentryOptionsObjC *)optionsInternal;
+
+- (SentryOptionsObjC *)getOptions;
+
 /**
  * Initializes a @c SentryClient. Pass in a dictionary of options.
  * @param options Options dictionary
  * @return An initialized @c SentryClient or @c nil if an error occurred.
  */
-- (_Nullable instancetype)initWithOptions:(SentryOptions *)options;
+- (_Nullable instancetype)initWithOptions:(SentryOptionsObjC *)options;
 
 /**
  * Captures a manually created event and sends it to Sentry.

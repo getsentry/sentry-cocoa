@@ -478,13 +478,13 @@ extension SentryProfilingPublicAPITests {
 private extension SentryProfilingPublicAPITests {
     func givenSdkWithHub() {
         SentrySDKInternal.setCurrentHub(fixture.hub)
-        SentrySDKInternal.setStart(with: fixture.options)
+        SentrySDK.setStart(with: fixture.options)
         sentry_sdkInitProfilerTasks(fixture.options, fixture.hub)
     }
 
     func givenSdkWithHubButNoClient() {
         SentrySDKInternal.setCurrentHub(SentryHubInternal(client: nil, andScope: nil))
-        SentrySDKInternal.setStart(with: fixture.options)
+        SentrySDK.setStart(with: fixture.options)
     }
 
     func stopProfiler() throws {

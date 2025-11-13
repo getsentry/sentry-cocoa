@@ -5,7 +5,6 @@
 
 #    import "SentryHub.h"
 #    import "SentryLogC.h"
-#    import "SentryOptions.h"
 #    import "SentryPerformanceTracker.h"
 #    import "SentrySDK+Private.h"
 #    import "SentrySpanId.h"
@@ -120,7 +119,7 @@
         return;
     }
 
-    SentryOptions *options = [SentrySDKInternal options];
+    SentryOptions *options = SentrySDK.startOption;
 
     if ([SentrySwizzleClassNameExclude
             shouldExcludeClassWithClassName:NSStringFromClass([controller class])

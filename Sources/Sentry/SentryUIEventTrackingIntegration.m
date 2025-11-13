@@ -2,10 +2,9 @@
 
 #if SENTRY_HAS_UIKIT
 
+#    import "SentrySwift.h"
 #    import <SentryLogC.h>
 #    import <SentryNSDataSwizzling.h>
-#    import <SentryOptions+Private.h>
-#    import <SentryOptions.h>
 #    import <SentryUIEventTracker.h>
 #    import <SentryUIEventTrackerTransactionMode.h>
 
