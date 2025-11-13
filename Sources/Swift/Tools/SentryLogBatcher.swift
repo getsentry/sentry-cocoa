@@ -25,7 +25,7 @@ import Foundation
         
     private weak var delegate: SentryLogBatcherDelegate?
     
-    /// Convenience initializer with default flush timeout, max log count (1000), and buffer size.
+    /// Convenience initializer with default flush timeout, max log count (100), and buffer size.
     /// - Parameters:
     ///   - options: The Sentry configuration options
     ///   - dispatchQueue: A **serial** dispatch queue wrapper for thread-safe access to mutable state
