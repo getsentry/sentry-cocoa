@@ -73,8 +73,6 @@ var targets: [Target] = [
     .testTarget(name: "SentryDistributionTests", dependencies: ["SentryDistribution"], path: "Sources/SentryDistributionTests")
 ]
 
-let env = getenv("EXPERIMENTAL_SPM_BUILDS")
-if let env = env, String(cString: env, encoding: .utf8) == "1" {
     products.append(.library(name: "SentrySPM", type: .dynamic, targets: ["SentryObjc"]))
     targets.append(contentsOf: [
         // At least one source file is required, therefore we use a dummy class to satisfy the SPM build system
@@ -113,7 +111,6 @@ if let env = env, String(cString: env, encoding: .utf8) == "1" {
                 .headerSearchPath("SentryCrash/Reporting/Filters"),
                 .headerSearchPath("SentryCrash/Reporting/Filters/Tools")])
     ])
-}
 
 let package = Package(
     name: "Sentry",

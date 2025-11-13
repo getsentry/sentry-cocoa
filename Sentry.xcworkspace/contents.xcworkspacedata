@@ -14,6 +14,9 @@
          location = "group:Samples/DistributionSample/DistributionSample.xcodeproj">
       </FileRef>
       <FileRef
+         location = "group:Samples/SPM/SPM.xcodeproj">
+      </FileRef>
+      <FileRef
          location = "group:Samples/SentrySampleShared/SentrySampleShared.xcodeproj">
       </FileRef>
       <FileRef
