@@ -124,7 +124,6 @@ final class SentryCrashWrapperTests: XCTestCase {
     }
     
     func testEnrichScope_RuntimeContext_MacCatalyst() throws {
-        if #available(iOS 13.0, macOS 10.15, watchOS 6.0, tvOS 13.0, *) {
             #if targetEnvironment(macCatalyst)
             crashWrapper.enrichScope(scope)
             
@@ -132,6 +131,5 @@ final class SentryCrashWrapperTests: XCTestCase {
             XCTAssertEqual(runtimeContext["name"] as? String, "Mac Catalyst App")
             XCTAssertEqual(runtimeContext["raw_description"] as? String, "raw_description")
             #endif
-        }
     }
 }

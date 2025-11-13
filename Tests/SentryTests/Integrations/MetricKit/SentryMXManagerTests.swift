@@ -20,7 +20,6 @@ final class SentryMXManagerTests: XCTestCase {
     }
 
     func testReceiveNoPayloads() {
-        if #available(iOS 15, macOS 12, macCatalyst 15, *) {
             let (sut, delegate) = givenSut()
             
             sut.didReceive([])
@@ -29,11 +28,9 @@ final class SentryMXManagerTests: XCTestCase {
             XCTAssertEqual(0, delegate.diskWriteExceptionInvocations.count)
             XCTAssertEqual(0, delegate.cpuExceptionInvocations.count)
             XCTAssertEqual(0, delegate.hangDiagnosticInvocations.count)
-        }
     }
     
     func testReceiveCrashPayload_DoesNothing() throws {
-        if #available(iOS 15, macOS 12, macCatalyst 15, *) {
             let (sut, delegate) = givenSut()
             
             let payload = try givenPayloads()
@@ -44,11 +41,9 @@ final class SentryMXManagerTests: XCTestCase {
             XCTAssertEqual(1, delegate.diskWriteExceptionInvocations.count)
             XCTAssertEqual(1, delegate.cpuExceptionInvocations.count)
             XCTAssertEqual(1, delegate.hangDiagnosticInvocations.count)
-        }
     }
     
     func testReceivePayloadsWithFaultyJSON_DoesNothing() throws {
-        if #available(iOS 15, macOS 12, macCatalyst 15, *) {
             let (sut, delegate) = givenSut(disableCrashDiagnostics: false)
             
             let payload = try givenPayloads(withCallStackJSON: false)
@@ -59,11 +54,9 @@ final class SentryMXManagerTests: XCTestCase {
             XCTAssertEqual(0, delegate.diskWriteExceptionInvocations.count)
             XCTAssertEqual(0, delegate.cpuExceptionInvocations.count)
             XCTAssertEqual(0, delegate.hangDiagnosticInvocations.count)
-        }
     }
     
     func testReceiveCrashPayloadEnabled_ForwardPayload() throws {
-        if #available(iOS 15, macOS 12, macCatalyst 15, *) {
             let (sut, delegate) = givenSut(disableCrashDiagnostics: false)
             
             let payload = try givenPayloads()
@@ -74,10 +67,8 @@ final class SentryMXManagerTests: XCTestCase {
             XCTAssertEqual(1, delegate.diskWriteExceptionInvocations.count)
             XCTAssertEqual(1, delegate.cpuExceptionInvocations.count)
             XCTAssertEqual(1, delegate.hangDiagnosticInvocations.count)
-        }
     }
     
-    @available(iOS 15, macOS 12, macCatalyst 15, *)
     @available(tvOS, unavailable)
     @available(watchOS, unavailable)
     private func givenSut(disableCrashDiagnostics: Bool = true) -> (SentryMXManager, SentryMXManagerTestDelegate) {
@@ -88,7 +79,6 @@ final class SentryMXManagerTests: XCTestCase {
         return (sut, delegate)
     }
     
-    @available(iOS 15, macOS 12, macCatalyst 15, *)
     @available(tvOS, unavailable)
     @available(watchOS, unavailable)
     private func givenPayloads(withCallStackJSON: Bool = true) throws -> TestMXDiagnosticPayload {
@@ -120,7 +110,6 @@ final class SentryMXManagerTests: XCTestCase {
     }
 }
 
-@available(iOS 15, macOS 12, macCatalyst 15, *)
 @available(tvOS, unavailable)
 @available(watchOS, unavailable)
 class TestMXDiagnosticPayload: MXDiagnosticPayload {
@@ -161,7 +150,6 @@ class TestMXDiagnosticPayload: MXDiagnosticPayload {
     }
 }
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, *)
 @available(tvOS, unavailable)
 @available(watchOS, unavailable)
 class SentryMXManagerTestDelegate: SentryMXManagerDelegate {
