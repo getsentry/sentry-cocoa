@@ -217,7 +217,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
             viewRenderer = SentryDefaultViewRenderer()
         }
 
-        let redactBuilder: SentryUIRedactBuilderProtocol
+        let redactBuilder: SentryRedactBuilderProtocol
         guard let maskingStrategy = SentrySessionReplayMaskingStrategy(rawValue: Int(SentryDependencyContainerSwiftHelper.getSessionReplayMaskingStrategy(options))) else {
             SentrySDKLog.error("Failed to parse session replay masking strategy from options")
             return nil

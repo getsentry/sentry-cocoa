@@ -826,7 +826,7 @@
 		D4AF00252D2E93C400F5F3D7 /* SentryNSFileManagerSwizzlingTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D4AF00242D2E93C400F5F3D7 /* SentryNSFileManagerSwizzlingTests.m */; };
 		D4AF7D2A2E940493004F0F59 /* SentryUIRedactBuilderTests+Common.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4AF7D292E940492004F0F59 /* SentryUIRedactBuilderTests+Common.swift */; };
 		D4AF7D2C2E9404ED004F0F59 /* SentryUIRedactBuilderTests+EdgeCases.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4AF7D2B2E9404ED004F0F59 /* SentryUIRedactBuilderTests+EdgeCases.swift */; };
-		D4AF7E7D2E9537FD004F0F59 /* SentryUIRedactBuilderProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4AF7E772E9537F5004F0F59 /* SentryUIRedactBuilderProtocol.swift */; };
+		D4AF7E7D2E9537FD004F0F59 /* SentryRedactBuilderProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4AF7E772E9537F5004F0F59 /* SentryRedactBuilderProtocol.swift */; };
 		D4AF7E7F2E953B43004F0F59 /* SentryMLRedactBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4AF7E7E2E953B3E004F0F59 /* SentryMLRedactBuilder.swift */; };
 		D4AF7E812E953D10004F0F59 /* SentryMaskingModel.mlpackage in Sources */ = {isa = PBXBuildFile; fileRef = D4AF7E802E953D10004F0F59 /* SentryMaskingModel.mlpackage */; };
 		D4B0DC7F2DA9257A00DE61B6 /* SentryRenderVideoResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4B0DC7E2DA9257200DE61B6 /* SentryRenderVideoResult.swift */; };
@@ -2247,7 +2247,7 @@
 		D4AF7D252E9401EB004F0F59 /* SentryUIRedactBuilderTests+UIKit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SentryUIRedactBuilderTests+UIKit.swift"; sourceTree = "<group>"; };
 		D4AF7D292E940492004F0F59 /* SentryUIRedactBuilderTests+Common.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SentryUIRedactBuilderTests+Common.swift"; sourceTree = "<group>"; };
 		D4AF7D2B2E9404ED004F0F59 /* SentryUIRedactBuilderTests+EdgeCases.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SentryUIRedactBuilderTests+EdgeCases.swift"; sourceTree = "<group>"; };
-		D4AF7E772E9537F5004F0F59 /* SentryUIRedactBuilderProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryUIRedactBuilderProtocol.swift; sourceTree = "<group>"; };
+		D4AF7E772E9537F5004F0F59 /* SentryRedactBuilderProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryRedactBuilderProtocol.swift; sourceTree = "<group>"; };
 		D4AF7E7E2E953B3E004F0F59 /* SentryMLRedactBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryMLRedactBuilder.swift; sourceTree = "<group>"; };
 		D4AF7E802E953D10004F0F59 /* SentryMaskingModel.mlpackage */ = {isa = PBXFileReference; lastKnownFileType = folder.mlpackage; path = SentryMaskingModel.mlpackage; sourceTree = "<group>"; };
 		D4B0DC7E2DA9257200DE61B6 /* SentryRenderVideoResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryRenderVideoResult.swift; sourceTree = "<group>"; };
@@ -5151,7 +5151,7 @@
 				D443B08C2EC3735200C94624 /* SentryPDFRedactBuilder.swift */,
 				D443B0932EC373F100C94624 /* SentryDefensiveRedactBuilder.swift */,
 				D443B0952EC373F700C94624 /* SentryWireframeRedactBuilder.swift */,
-				D4AF7E772E9537F5004F0F59 /* SentryUIRedactBuilderProtocol.swift */,
+				D4AF7E772E9537F5004F0F59 /* SentryRedactBuilderProtocol.swift */,
 				FA67DCE42DDBD4EA00896B02 /* SentryViewPhotographer.swift */,
 				FA67DCE52DDBD4EA00896B02 /* SentryViewRenderer.swift */,
 				FA67DCE62DDBD4EA00896B02 /* SentryViewRendererV2.swift */,
@@ -6046,7 +6046,7 @@
 				8E133FA225E72DEF00ABD0BF /* SentrySamplingContext.m in Sources */,
 				F451FAA62E0B304E0050ACF2 /* LoadValidator.swift in Sources */,
 				D81988C02BEBFFF70020E36C /* SentryReplayRecording.swift in Sources */,
-				D4AF7E7D2E9537FD004F0F59 /* SentryUIRedactBuilderProtocol.swift in Sources */,
+				D4AF7E7D2E9537FD004F0F59 /* SentryRedactBuilderProtocol.swift in Sources */,
 				7B6C5F8726034395007F7DFF /* SentryWatchdogTerminationLogic.m in Sources */,
 				63FE708D20DA4C1000CDBAE8 /* SentryCrashReportFilterBasic.m in Sources */,
 				F40E42352EA1887000E53876 /* SentryFramesTracker.swift in Sources */,

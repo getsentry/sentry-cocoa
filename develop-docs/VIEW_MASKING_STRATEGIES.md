@@ -570,7 +570,8 @@ TODO
 
 ## Wireframe Based Approach
 
-Rebuilding a wireframe using colored rectangles based on the view hierarchy, without calling draw methods (should also result in performance improvement)
+This approach maps the view hierarchy into a wireframe using colored rectangles (derived from the view using heuristics) without rendering the view itself.
+This approach can therefore skip the step _Full-Screen Screenshot_ and instead return a list of rectangles with to be rendered as an image.
 
 ## Defensive-Unredacting Approach
 

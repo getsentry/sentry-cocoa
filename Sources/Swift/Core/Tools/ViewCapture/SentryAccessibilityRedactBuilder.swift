@@ -1,10 +1,10 @@
 #if canImport(UIKit) && !SENTRY_NO_UIKIT
 #if os(iOS) || os(tvOS)
-import UIKit
 @_implementationOnly import _SentryPrivate
+import UIKit
 
 @objcMembers
-@_spi(Private) public class SentryAccessibilityRedactBuilder: NSObject, SentryUIRedactBuilderProtocol {
+@_spi(Private) public class SentryAccessibilityRedactBuilder: NSObject, SentryRedactBuilderProtocol {
     
     private let options: SentryRedactOptions
     

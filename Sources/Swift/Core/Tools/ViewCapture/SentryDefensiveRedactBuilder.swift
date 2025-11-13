@@ -4,7 +4,7 @@
 import UIKit
 
 @objcMembers
-@_spi(Private) public class SentryDefensiveRedactBuilder: NSObject, SentryUIRedactBuilderProtocol {
+@_spi(Private) public class SentryDefensiveRedactBuilder: NSObject, SentryRedactBuilderProtocol {
 
     private let options: SentryRedactOptions
 

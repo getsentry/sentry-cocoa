@@ -11,7 +11,7 @@ import WebKit
 #endif
 
 @objcMembers
-@_spi(Private) public class SentryUIRedactBuilder: NSObject, SentryUIRedactBuilderProtocol {
+@_spi(Private) public class SentryUIRedactBuilder: NSObject, SentryRedactBuilderProtocol {
     // MARK: - Types
 
     /// Type used to represented a view that needs to be redacted

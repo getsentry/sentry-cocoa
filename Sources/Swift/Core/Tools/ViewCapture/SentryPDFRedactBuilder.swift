@@ -5,7 +5,7 @@ import PDFKit
 import UIKit
 
 @objcMembers
-@_spi(Private) public class SentryPDFRedactBuilder: NSObject, SentryUIRedactBuilderProtocol {
+@_spi(Private) public class SentryPDFRedactBuilder: NSObject, SentryRedactBuilderProtocol {
 
     enum RedactionError: Error {
         case failedToCreateContext

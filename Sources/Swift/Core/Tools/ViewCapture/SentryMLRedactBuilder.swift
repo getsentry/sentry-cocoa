@@ -1,12 +1,12 @@
 #if canImport(UIKit) && !SENTRY_NO_UIKIT
 #if os(iOS) || os(tvOS)
-import UIKit
-import CoreML
 @_implementationOnly import _SentryPrivate
+import CoreML
+import UIKit
 import Vision
 
 @objcMembers
-@_spi(Private) public class SentryMLRedactBuilder: NSObject, SentryUIRedactBuilderProtocol {
+@_spi(Private) public class SentryMLRedactBuilder: NSObject, SentryRedactBuilderProtocol {
     private static let modelInputSize: CGFloat = 640.0
     private let mlModel: MLModel
     private let queue: DispatchQueue
@@ -141,7 +141,7 @@ import Vision
                 let model = try VNCoreMLModel(for: self.mlModel)
                 model.inputImageFeatureName = "image"
 
-                let request = VNCoreMLRequest(model: model) { request, error in
+                let request = VNCoreMLRequest(model: model) { request, _ in
                     guard let observations = request.results as? [VNRecognizedObjectObservation] else {
                         fatalError()
                     }
@@ -178,7 +178,6 @@ import Vision
                 // let handler = VNImageRequestHandler(url: tempUrl)
                 let handler = VNImageRequestHandler(ciImage: ciImage, orientation: .up)
                 try handler.perform([request])
-
 
 //                // Parse the output
 //                guard let coordinatesFeature = output.featureValue(for: "coordinates"),
@@ -383,7 +382,7 @@ import Vision
                 }
             }
             if detectedClasses.isEmpty {
-                continue;
+                continue
             }
             let className = detectedClasses.sorted { lhs, rhs in
                 lhs.confidence > rhs.confidence

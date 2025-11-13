@@ -8,7 +8,7 @@ import UIKit
 
 @objcMembers
 @_spi(Private) public class SentryViewPhotographer: NSObject, SentryViewScreenshotProvider {
-    private let redactBuilder: SentryUIRedactBuilderProtocol
+    private let redactBuilder: SentryRedactBuilderProtocol
     private let maskRenderer: SentryMaskRenderer
     private let dispatchQueue = SentryDispatchQueueWrapper()
 
@@ -23,7 +23,7 @@ import UIKit
     ///         Therefore, it is not part of the the `redactOptions` parameter, to not further expose it.
     public init(
         renderer: SentryViewRenderer,
-        redactBuilder: SentryUIRedactBuilderProtocol,
+        redactBuilder: SentryRedactBuilderProtocol,
         enableMaskRendererV2: Bool
     ) {
         self.renderer = renderer
@@ -62,7 +62,7 @@ import UIKit
         let renderedScreenshot = renderer.render(view: view)
         let dispatchGroup = DispatchGroup()
         var redactRegions: [SentryRedactRegion]?
-        redactBuilder.redactRegionsFor(view: view, image: renderedScreenshot, callback: { regions, error in
+        redactBuilder.redactRegionsFor(view: view, image: renderedScreenshot, callback: { regions, _ in
             redactRegions = regions
             dispatchGroup.leave()
         })

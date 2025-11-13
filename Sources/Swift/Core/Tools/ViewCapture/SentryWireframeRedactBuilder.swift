@@ -4,7 +4,12 @@
 import UIKit
 
 @objcMembers
-@_spi(Private) public class SentryWireframeRedactBuilder: NSObject, SentryUIRedactBuilderProtocol {
+@_spi(Private) public class SentryWireframeRedactBuilder: NSObject, SentryRedactBuilderProtocol {
+    struct RenderRegion {
+        let frame: CGRect
+        let zPosition: CGFloat
+        let color: UIColor
+    }
 
     private let options: SentryRedactOptions
 
@@ -38,7 +43,72 @@ import UIKit
     }
 
     public func redactRegionsFor(view: UIView, image: UIImage, callback: @escaping ([SentryRedactRegion]?, Error?) -> Void) {
-        callback(nil, nil)
+        let regions = getRecursiveRegionsForView(view: view)
+
+        callback(regions.map { region in
+            SentryRedactRegion(
+                size: region.frame.size,
+                transform: CGAffineTransformMakeTranslation(region.frame.minX, region.frame.minY),
+                type: .redactOutline,
+                color: region.color,
+                name: ""
+            )
+        }, nil)
+    }
+
+    func getRecursiveRegionsForView(view: UIView) -> [RenderRegion] {
+        var regions: [RenderRegion] = []
+
+        // Add the view itself to the region
+        regions.append(RenderRegion(
+            frame: view.frame,
+            zPosition: view.layer.zPosition,
+            color: getColorForView(view: view)
+        ))
+
+        regions += getRecursiveRegionsForLayer(layer: view.layer)
+
+        // Traverse all subview
+        for subview in view.subviews {
+            regions += getRecursiveRegionsForView(view: subview)
+        }
+        
+        return regions
+    }
+
+    func getColorForView(view: UIView) -> UIColor {
+        if let label = view as? UILabel {
+            return label.textColor
+        }
+        return view.backgroundColor ?? UIColor.black
+    }
+
+    func getRecursiveRegionsForLayer(layer: CALayer) -> [RenderRegion] {
+        var regions: [RenderRegion] = []
+
+        // Add the layer itself to the region
+        regions.append(RenderRegion(
+            frame: layer.frame,
+            zPosition: layer.zPosition,
+            color: getColorForLayer(layer: layer)
+        ))
+
+        // Traverse all sublayers
+        for sublayer in layer.sublayers ?? [] {
+            regions += getRecursiveRegionsForLayer(layer: sublayer)
+        }
+
+        return regions
+    }
+
+    func getColorForLayer(layer: CALayer) -> UIColor {
+        if let backgroundColor = layer.backgroundColor {
+            return UIColor(cgColor: backgroundColor)
+        }
+        if let fillColor = (layer as? CAShapeLayer)?.fillColor {
+            return UIColor(cgColor: fillColor)
+        }
+        return UIColor.black
     }
 }
 

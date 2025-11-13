@@ -126,7 +126,7 @@ static SentryTouchTracker *_touchTracker;
         viewRenderer = [[SentryDefaultViewRenderer alloc] init];
     }
 
-    id<SentryUIRedactBuilderProtocol> redactBuilder;
+    id<SentryRedactBuilderProtocol> redactBuilder;
     switch (experimentalOptions.sessionReplayMaskingStrategy) {
     case kSessionReplayMaskingStrategyAccessibilty:
         redactBuilder = [[SentryAccessibilityRedactBuilder alloc] initWithOptions:replayOptions];

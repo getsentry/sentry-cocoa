@@ -2,7 +2,7 @@
 #if os(iOS) || os(tvOS)
 import UIKit
 
-@objc @_spi(Private) public protocol SentryUIRedactBuilderProtocol {
+@objc @_spi(Private) public protocol SentryRedactBuilderProtocol {
     init(options: SentryRedactOptions)
     func redactRegionsFor(view: UIView, image: UIImage, callback: @escaping ([SentryRedactRegion]?, Error?) -> Void)
     func addIgnoreClass(_ ignoreClass: AnyClass)
