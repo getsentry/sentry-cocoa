@@ -79,10 +79,6 @@ typedef struct SentryCrashStackCursor {
     /** Advance the cursor to the next stack entry. */
     bool (*advanceCursor)(struct SentryCrashStackCursor *);
 
-    /** Attempt to symbolicate the current address, filling in the fields in
-     * stackEntry. */
-    bool (*symbolicate)(struct SentryCrashStackCursor *);
-
     /** Internal context-specific information. */
     void *context[SentryCrashSC_CONTEXT_SIZE];
 } SentryCrashStackCursor;
