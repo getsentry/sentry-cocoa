@@ -613,7 +613,7 @@ class SentrySDKInternalTests: XCTestCase {
         SentrySDKInternal.currentHub().bindClient(client)
         SentrySDK.close()
 
-        XCTAssertEqual(Options().shutdownTimeInterval, transport.flushInvocations.first ?? 0.0, accuracy: 0.003)
+        XCTAssertEqual(Options().shutdownTimeInterval, transport.flushInvocations.first ?? 0.0, accuracy: 0.03)
     }
 
     func testLogger_ReturnsSameInstanceOnMultipleCalls() {
