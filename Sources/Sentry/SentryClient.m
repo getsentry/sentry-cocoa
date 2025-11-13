@@ -453,21 +453,24 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
     SentryTraceContext *traceContext = [self getTraceStateWithEvent:event withScope:scope];
 
-    if (nil == session.releaseName || [session.releaseName length] == 0) {
+    if (session == nil) {
+        [self.transportAdapter sendEvent:event traceContext:traceContext attachments:attachments];
+        return event.eventId;
+    }
+
+    SentrySession *nonnullSession = SENTRY_UNWRAP_NULLABLE(SentrySession, session);
+
+    if (nonnullSession.releaseName == nil || [nonnullSession.releaseName length] == 0) {
         SENTRY_LOG_DEBUG(DropSessionLogMessage);
 
         [self.transportAdapter sendEvent:event traceContext:traceContext attachments:attachments];
         return event.eventId;
     }
 
-    if (session != nil) {
-        [self.transportAdapter sendEvent:event
-                             withSession:SENTRY_UNWRAP_NULLABLE(SentrySession, session)
-                            traceContext:traceContext
-                             attachments:attachments];
-    } else {
-        [self.transportAdapter sendEvent:event traceContext:traceContext attachments:attachments];
-    }
+    [self.transportAdapter sendEvent:event
+                         withSession:nonnullSession
+                        traceContext:traceContext
+                         attachments:attachments];
 
     return event.eventId;
 }
