@@ -1,4 +1,4 @@
-@_spi(Private) @testable import Sentry
+@_spi(Private) import Sentry
 import SentrySampleShared
 import Social
 import UIKit
