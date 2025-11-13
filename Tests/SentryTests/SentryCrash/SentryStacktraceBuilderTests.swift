@@ -58,6 +58,7 @@ class SentryStacktraceBuilderTests: XCTestCase {
         // Make sure the first 4 frames contain an address close to the main function
         let isMainInFirstFrames = actual.frames[...3].contains(where: { frame in
             let inst = Int(frame.instructionAddress?.replacingOccurrences(of: "0x", with: "") ?? "", radix: 16) ?? 0
+            // Use the symbol name for the first stack entry in dyld
             #if targetEnvironment(simulator)
             return name(for: inst) == "start_sim"
             #else
