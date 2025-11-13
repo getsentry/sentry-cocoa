@@ -10,15 +10,15 @@ private enum SentryPackageManagerOption: UInt {
 }
 
 #if SWIFT_PACKAGE
-nonisolated(unsafe) private var SENTRY_PACKAGE_INFO: SentryPackageManagerOption = .swiftPackageManager
+private var SENTRY_PACKAGE_INFO: SentryPackageManagerOption = .swiftPackageManager
 #elseif COCOAPODS
-nonisolated(unsafe) private var SENTRY_PACKAGE_INFO: SentryPackageManagerOption = .cocoaPods
+private var SENTRY_PACKAGE_INFO: SentryPackageManagerOption = .cocoaPods
 #elseif CARTHAGE_YES
 // CARTHAGE is a xcodebuild build setting with value `YES`, we need to convert it into a compiler
 // definition to be able to use it.
-nonisolated(unsafe) private var SENTRY_PACKAGE_INFO: SentryPackageManagerOption = .carthage
+private var SENTRY_PACKAGE_INFO: SentryPackageManagerOption = .carthage
 #else
-nonisolated(unsafe) private var SENTRY_PACKAGE_INFO: SentryPackageManagerOption = .unknown
+private var SENTRY_PACKAGE_INFO: SentryPackageManagerOption = .unknown
 #endif
 
 @objc

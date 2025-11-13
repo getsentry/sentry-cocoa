@@ -12,7 +12,6 @@ NS_ASSUME_NONNULL_BEGIN
 @class SentryGeo;
 
 NS_SWIFT_NAME(User)
-NS_SWIFT_SENDABLE
 @interface SentryUser : NSObject <SentrySerializable, NSCopying>
 
 /**

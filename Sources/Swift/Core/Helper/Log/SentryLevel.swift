@@ -1,7 +1,7 @@
 import Foundation
 
 @objc
-public enum SentryLevel: UInt, Sendable {
+public enum SentryLevel: UInt {
     static let levelNames = ["none", "debug", "info", "warning", "error", "fatal"]
     
     @objc(kSentryLevelNone)

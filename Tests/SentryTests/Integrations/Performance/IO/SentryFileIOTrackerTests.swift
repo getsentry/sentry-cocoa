@@ -1,5 +1,5 @@
 @_spi(Private) @testable import Sentry
-@_spi(Private) @testable import SentryTestUtils
+@_spi(Private) import SentryTestUtils
 import XCTest
 
 class SentryFileIOTrackerTests: XCTestCase {
@@ -35,9 +35,8 @@ class SentryFileIOTrackerTests: XCTestCase {
         func getSut() -> SentryFileIOTracker {
             threadInspector.allThreads = [TestData.thread2]
 
-            var overrides = MockSentryProcessInfo.Override()
-            overrides.processDirectoryPath = "sentrytest"
-            let processInfoWrapper = MockSentryProcessInfo(overrides: overrides)
+            let processInfoWrapper = MockSentryProcessInfo()
+            processInfoWrapper.overrides.processDirectoryPath = "sentrytest"
 
             let result = SentryFileIOTracker(threadInspector: threadInspector, processInfoWrapper: processInfoWrapper)
             result.enable()

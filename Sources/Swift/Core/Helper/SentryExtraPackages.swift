@@ -1,7 +1,7 @@
 import Foundation
 
 @objc @_spi(Private) public final class SentryExtraPackages: NSObject {
-    nonisolated(unsafe) private static var extraPackages = Set<[String: String]>()
+    private static var extraPackages = Set<[String: String]>()
     private static let lock = NSRecursiveLock()
 
     @objc

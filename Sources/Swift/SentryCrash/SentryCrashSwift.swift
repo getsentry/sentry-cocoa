@@ -82,7 +82,7 @@ private final class CrashReportFilterBridge: NSObject, SentryCrashReportFilter {
         set { sentryCrash.userInfo = newValue }
     }
     
-    @objc public func sendAllReports(completion: @Sendable @escaping ([Any]?, Bool, (any Error)?) -> Void) {
+    @objc public func sendAllReports(completion: @escaping ([Any]?, Bool, (any Error)?) -> Void) {
         sentryCrash.sendAllReports(completion: completion)
     }
 

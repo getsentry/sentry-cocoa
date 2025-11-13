@@ -2,15 +2,9 @@
 
 @_spi(Private) public final class MockSentryProcessInfo: SentryProcessInfoSource {
 
-    public convenience init() {
-        self.init(overrides: Override())
-    }
-
-    public init(overrides: Override) {
-        self.overrides = overrides
-    }
+    public init() { }
     
-    public struct Override: Sendable {
+    public struct Override {
         public var processorCount: Int?
         public var processDirectoryPath: String?
         public var processPath: String?
@@ -20,7 +14,7 @@
         public var isMacCatalystApp: Bool?
     }
 
-    nonisolated(unsafe) public var overrides = Override()
+    public var overrides = Override()
 
     public var processorCount: Int {
         overrides.processorCount ?? ProcessInfo.processInfo.processorCount

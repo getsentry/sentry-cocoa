@@ -15,15 +15,15 @@ typealias SentryLogOutput = ((String) -> Void)
 @objc
 @_spi(Private) public class SentrySDKLog: NSObject {
     
-    nonisolated(unsafe) static private(set) var isDebug = true
-    nonisolated(unsafe) static private(set) var diagnosticLevel = SentryLevel.error
+    static private(set) var isDebug = true
+    static private(set) var diagnosticLevel = SentryLevel.error
 
     /**
      * Threshold log level to always log, regardless of the current configuration
      */
     static let alwaysLevel = SentryLevel.fatal
-    nonisolated(unsafe) private static var logOutput: ((String) -> Void) = { print($0) }
-    nonisolated(unsafe) private static var dateProvider: SentryCurrentDateProvider = SentryDefaultCurrentDateProvider()
+    private static var logOutput: ((String) -> Void) = { print($0) }
+    private static var dateProvider: SentryCurrentDateProvider = SentryDefaultCurrentDateProvider()
 
     static func _configure(_ isDebug: Bool, diagnosticLevel: SentryLevel) {
         self.isDebug = isDebug

@@ -408,7 +408,7 @@ import Foundation
     // MARK: Internal
 
     /// The option used to start the SDK
-    nonisolated(unsafe) private static var _startOption: Options?
+    private static var _startOption: Options?
     private static let startOptionLock = NSRecursiveLock()
     @_spi(Private) @objc public static var startOption: Options? {
         startOptionLock.synchronized {

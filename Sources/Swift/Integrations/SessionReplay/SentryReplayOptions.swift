@@ -24,7 +24,7 @@ public final class SentryReplayOptions: NSObject, SentryRedactOptions {
 
         // The following properties are defaults which are not configurable by the user.
 
-        nonisolated(unsafe) fileprivate static let sdkInfo: [String: Any]? = nil
+        fileprivate static let sdkInfo: [String: Any]? = nil
         fileprivate static let frameRate: UInt = 1
         fileprivate static let errorReplayDuration: TimeInterval = 30
         fileprivate static let sessionSegmentDuration: TimeInterval = 5
@@ -35,7 +35,7 @@ public final class SentryReplayOptions: NSObject, SentryRedactOptions {
      * Enum to define the quality of the session replay.
      */
     @objc
-    public enum SentryReplayQuality: Int, CustomStringConvertible, Sendable {
+    public enum SentryReplayQuality: Int, CustomStringConvertible {
         /**
          * Video Scale: 80%
          * Bit Rate: 20.000

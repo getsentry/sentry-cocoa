@@ -24,11 +24,11 @@ class SentryWatchdogTerminationScopeObserver: NSObject, SentryScopeObserver {
         attributesProcessor.setTags(tags)
     }
     
-    func setExtras(_ extras: [String: (Any & Sendable)]?) {
+    func setExtras(_ extras: [String: Any]?) {
         attributesProcessor.setExtras(extras)
     }
     
-    func setContext(_ context: [String: [String: (Any & Sendable)]]?) {
+    func setContext(_ context: [String: [String: Any]]?) {
         attributesProcessor.setContext(context)
     }
     

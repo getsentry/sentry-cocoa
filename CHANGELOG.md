@@ -5,7 +5,6 @@
 ### Breaking Changes
 
 - [HTTP Client errors](https://docs.sentry.io/platforms/apple/guides/ios/configuration/http-client-errors/) now mark sessions as errored (#6633)
-- The Package.swift has swift-tools-version set to 6.0
 
 ## 9.0.0-alpha.1
 

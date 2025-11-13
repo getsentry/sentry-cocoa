@@ -1,8 +1,8 @@
 @_spi(Private) @objc public protocol SentryScopeObserver: NSObjectProtocol {
     func setUser(_ user: User?)
     func setTags(_ tags: [String: String]?)
-    func setExtras(_ extras: [String: (Any & Sendable)]?)
-    func setContext(_ context: [String: [String: (Any & Sendable)]]?)
+    func setExtras(_ extras: [String: Any]?)
+    func setContext(_ context: [String: [String: Any]]?)
     func setTraceContext(_ traceContext: [String: Any]?)
     func setDist(_ dist: String?)
     func setEnvironment(_ environment: String?)

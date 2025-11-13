@@ -3,7 +3,7 @@
 /// Use the `options.beforeSendLog` callback to modify or filter log data.
 @objc
 @objcMembers
-public final class SentryLog: NSObject, @unchecked Sendable {
+public final class SentryLog: NSObject {
     /// The timestamp when the log event occurred
     public var timestamp: Date
     /// The trace ID to associate this log with distributed tracing. This will be set to a valid non-empty value during processing.

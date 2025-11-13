@@ -1,17 +1,17 @@
 import Foundation
 @_spi(Private) @testable import Sentry
 
-@_spi(Private) public final class TestCurrentDateProvider: SentryCurrentDateProvider {
+@_spi(Private) public class TestCurrentDateProvider: SentryCurrentDateProvider {
 
     public static let defaultStartingDate = Date(timeIntervalSinceReferenceDate: 0)
 
-    nonisolated(unsafe) private var internalDate = defaultStartingDate
-    nonisolated(unsafe) private var internalSystemTime: UInt64 = 0
+    private var internalDate = defaultStartingDate
+    private var internalSystemTime: UInt64 = 0
 
-    nonisolated(unsafe) public var driftTimeForEveryRead = false
-    nonisolated(unsafe) public var driftTimeInterval = 0.1
+    public var driftTimeForEveryRead = false
+    public var driftTimeInterval = 0.1
 
-    nonisolated(unsafe) private var _systemUptime: TimeInterval = 0
+    private var _systemUptime: TimeInterval = 0
 
     // NSLock isn't reentrant, so we use NSRecursiveLock.
     private let lock = NSRecursiveLock()
@@ -83,7 +83,7 @@ import Foundation
         }
     }
 
-    nonisolated(unsafe) private var _timezoneOffsetValue = 0
+    private var _timezoneOffsetValue = 0
     public var timezoneOffsetValue: Int {
         get {
             return lock.synchronized {

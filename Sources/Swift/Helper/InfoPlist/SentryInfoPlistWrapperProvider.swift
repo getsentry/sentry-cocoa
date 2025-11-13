@@ -1,4 +1,4 @@
-protocol SentryInfoPlistWrapperProvider: Sendable {
+protocol SentryInfoPlistWrapperProvider {
     /**
      * Retrieves a value from the app's `Info.plist` file for the given key and trys to cast it to a ``String``.
      *

@@ -2,7 +2,7 @@
 import Foundation
 
 @objcMembers
-@_spi(Private) public class SentryWatchdogTerminationAttributesProcessor: NSObject, @unchecked Sendable {
+@_spi(Private) public class SentryWatchdogTerminationAttributesProcessor: NSObject {
 
     private let dispatchQueueWrapper: SentryDispatchQueueWrapper
     private let scopePersistentStore: SentryScopePersistentStore?
@@ -24,7 +24,7 @@ import Foundation
         scopePersistentStore?.deleteAllCurrentState()
     }
 
-    public func setContext(_ context: [String: [String: (Any & Sendable)]]?) {
+    public func setContext(_ context: [String: [String: Any]]?) {
         setData(data: context, field: .context) { [weak self] data in
             self?.scopePersistentStore?.writeContextToDisk(context: data)
         }
@@ -54,7 +54,7 @@ import Foundation
         }
     }
     
-    public func setExtras(_ extras: [String: (Any & Sendable)]?) {
+    public func setExtras(_ extras: [String: Any]?) {
         setData(data: extras, field: .extras) { [weak self] data in
             self?.scopePersistentStore?.writeExtrasToDisk(extras: data)
         }
@@ -67,16 +67,16 @@ import Foundation
     }
     
     // MARK: - Private
-    private func setData<T: Sendable>(data: T?, field: SentryScopeField, save: @Sendable @escaping (T) -> Void) {
+    private func setData<T>(data: T?, field: SentryScopeField, save: @escaping (T) -> Void) {
         SentrySDKLog.debug("Setting \(field.name) in background queue: \(String(describing: data))")
         dispatchQueueWrapper.dispatchAsync { [weak self] in
-            guard let self else {
+            guard let strongSelf = self else {
                 SentrySDKLog.debug("Can not set \(field.name), reason: reference to processor is nil")
                 return
             }
             guard let data = data else {
                 SentrySDKLog.debug("Data for \(field.name) is nil, deleting active file.")
-                self.scopePersistentStore?.deleteCurrentFieldOnDisk(field: field)
+                strongSelf.scopePersistentStore?.deleteCurrentFieldOnDisk(field: field)
                 return
             }
             save(data)

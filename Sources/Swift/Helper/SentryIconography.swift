@@ -31,7 +31,7 @@ extension CGPoint {
 }
 
 struct SentryIconography {
-    nonisolated(unsafe) static let logo = {
+    static let logo = {
         let path = CGMutablePath()
 
         // M29,2.26
@@ -192,7 +192,7 @@ struct SentryIconography {
         return path
     }()
     
-    nonisolated(unsafe) static let megaphone = {
+    static let megaphone = {
         let path = CGMutablePath()
                 
         path.move(to: CGPoint(x: 1, y: 3))
