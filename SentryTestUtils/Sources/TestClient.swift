@@ -66,47 +66,46 @@ public class TestClient: SentryClientInternal {
         return SentryId()
     }
     
-    var captureErrorInvocations = Invocations<Error>()
+    public var captureErrorInvocations = Invocations<Error>()
     public override func capture(error: Error) -> SentryId {
+        super.capture(error: error)
+
         captureErrorInvocations.record(error)
         return SentryId()
     }
     
     public var captureErrorWithScopeInvocations = Invocations<(error: Error, scope: Scope)>()
     public override func capture(error: Error, scope: Scope) -> SentryId {
+        super.capture(error: error, scope: scope)
+
         captureErrorWithScopeInvocations.record((error, scope))
         return SentryId()
     }
     
     var captureExceptionInvocations = Invocations<NSException>()
     public override func capture(exception: NSException) -> SentryId {
+        super.capture(exception: exception)
+
         captureExceptionInvocations.record(exception)
         return SentryId()
     }
     
     public var captureExceptionWithScopeInvocations = Invocations<(exception: NSException, scope: Scope)>()
     public override func capture(exception: NSException, scope: Scope) -> SentryId {
+        super.capture(exception: exception, scope: scope)
+
         captureExceptionWithScopeInvocations.record((exception, scope))
         return SentryId()
     }
 
-    public var callSessionBlockWithIncrementSessionErrors = true
-    @_spi(Private)
-    public var captureErrorWithSessionInvocations = Invocations<(error: Error, session: SentrySession?, scope: Scope)>()
-    @_spi(Private)
-    public override func captureError(_ error: Error, with scope: Scope, incrementSessionErrors sessionBlock: @escaping () -> SentrySession) -> SentryId {
-        captureErrorWithSessionInvocations.record((error, callSessionBlockWithIncrementSessionErrors ? sessionBlock() : nil, scope))
+    @_spi(Private) public var captureEventIncrementingSessionErrorCountInvocations = Invocations<(event: Event, scope: Scope)>()
+    @_spi(Private) public override func captureEventIncrementingSessionErrorCount(_ event: Event, with scope: Scope) -> SentryId {
+        super.captureEventIncrementingSessionErrorCount(event, with: scope)
+
+        captureEventIncrementingSessionErrorCountInvocations.record((event, scope))
         return SentryId()
     }
-    
-    @_spi(Private)
-    public var captureExceptionWithSessionInvocations = Invocations<(exception: NSException, session: SentrySession?, scope: Scope)>()
-    @_spi(Private)
-    public override func capture(_ exception: NSException, with scope: Scope, incrementSessionErrors sessionBlock: @escaping () -> SentrySession) -> SentryId {
-        captureExceptionWithSessionInvocations.record((exception, callSessionBlockWithIncrementSessionErrors ? sessionBlock() : nil, scope))
-        return SentryId()
-    }
-    
+
     public var captureFatalEventInvocations = Invocations<(event: Event, scope: Scope)>()
     public override func captureFatalEvent(_ event: Event, with scope: Scope) -> SentryId {
         captureFatalEventInvocations.record((event, scope))

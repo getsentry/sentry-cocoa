@@ -815,25 +815,21 @@ class SentrySessionTrackerTests: XCTestCase {
     
     private func assertNoInitSessionSent(file: StaticString = #file, line: UInt = #line) {
         let eventWithSessions = fixture.client.captureFatalEventWithSessionInvocations.invocations.map({ triple in triple.session })
-        let errorWithSessions = fixture.client.captureErrorWithSessionInvocations.invocations.map({ triple in triple.session })
-        let exceptionWithSessions = fixture.client.captureExceptionWithSessionInvocations.invocations.map({ triple in triple.session })
         
-        var sessions = fixture.client.captureSessionInvocations.invocations + eventWithSessions + errorWithSessions + exceptionWithSessions
+        var sessions = fixture.client.captureSessionInvocations.invocations + eventWithSessions
         
-        sessions.sort { first, second in return first!.started < second!.started }
+        sessions.sort { first, second in return first.started < second.started }
         
         if let session = sessions.last {
-            XCTAssertFalse(session?.flagInit?.boolValue ?? false, file: file, line: line)
+            XCTAssertFalse(session.flagInit?.boolValue ?? false, file: file, line: line)
         }
     }
     
     private func assertSessionsSent(count: Int, file: StaticString = #file, line: UInt = #line) {
         let eventWithSessions = fixture.client.captureFatalEventWithSessionInvocations.count
-        let errorWithSessions = fixture.client.captureErrorWithSessionInvocations.count
-        let exceptionWithSessions = fixture.client.captureExceptionWithSessionInvocations.count
         let sessions = fixture.client.captureSessionInvocations.count
         
-        let sessionsSent = eventWithSessions + errorWithSessions + exceptionWithSessions + sessions
+        let sessionsSent = eventWithSessions + sessions
         
         XCTAssertEqual(count, sessionsSent, file: file, line: line)
     }

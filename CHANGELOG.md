@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Breaking Changes
+
+- [HTTP Client errors](https://docs.sentry.io/platforms/apple/guides/ios/configuration/http-client-errors/) now mark sessions as errored (#6633)
+
 ## 9.0.0-alpha.1
 
 ### Breaking Changes
