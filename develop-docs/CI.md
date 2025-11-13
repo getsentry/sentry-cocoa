@@ -13,9 +13,6 @@ Add this job at the start the workflow and then add `need: ready-to-merge-gate` 
 ready-to-merge-gate:
   name: Ready-to-merge gate
   uses: ./.github/workflows/ready-to-merge-workflow.yml
-  with:
-    is-pr: ${{ github.event_name == 'pull_request' }}
-    labels: ${{ toJson(github.event.pull_request.labels) }}
 ```
 
 This job will:

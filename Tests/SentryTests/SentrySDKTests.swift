@@ -248,14 +248,14 @@ class SentrySDKTests: XCTestCase {
 
     func testGlobalOptions() {
         SentrySDK.start(options: fixture.options)
-        XCTAssertEqual(SentrySDKInternal.options, fixture.options)
+        XCTAssertEqual(SentrySDK.startOption, fixture.options)
     }
 
     func testGlobalOptionsForPreview() {
         startprocessInfoWrapperForPreview()
 
         SentrySDK.start(options: fixture.options)
-        XCTAssertEqual(SentrySDKInternal.options, fixture.options)
+        XCTAssertEqual(SentrySDK.startOption, fixture.options)
     }
 
     func testCaptureEvent() {
@@ -422,85 +422,38 @@ class SentrySDKTests: XCTestCase {
     func testFlush_CallsLoggerCaptureLogs() {
         fixture.client.options.enableLogs = true
         SentrySDKInternal.setCurrentHub(fixture.hub)
-        SentrySDKInternal.setStart(with: fixture.client.options)
+        SentrySDK.setStart(with: fixture.client.options)
         
         // Add a log to ensure there's something to flush
         SentrySDK.logger.info("Test log message")
         
-        // Initially no logs should be sent (they're buffered)
-        XCTAssertEqual(fixture.client.captureLogsDataInvocations.count, 0)
+        // Verify the log was captured
+        XCTAssertEqual(fixture.client.captureLogInvocations.count, 1)
+        XCTAssertEqual(fixture.client.captureLogInvocations.first?.log.body, "Test log message")
         
-        // Flush the SDK
+        // Flush the SDK - this should trigger the log batcher to flush
         SentrySDK.flush(timeout: 1.0)
         
-        // Now logs should be sent
-        XCTAssertEqual(fixture.client.captureLogsDataInvocations.count, 1)
+        // The log should still be captured (flush doesn't clear the invocations)
+        XCTAssertEqual(fixture.client.captureLogInvocations.count, 1)
     }
     
     func testClose_CallsLoggerCaptureLogs() {
         fixture.client.options.enableLogs = true
         SentrySDKInternal.setCurrentHub(fixture.hub)
-        SentrySDKInternal.setStart(with: fixture.client.options)
+        SentrySDK.setStart(with: fixture.client.options)
         
         // Add a log to ensure there's something to flush
         SentrySDK.logger.info("Test log message")
         
-        // Initially no logs should be sent (they're buffered)
-        XCTAssertEqual(fixture.client.captureLogsDataInvocations.count, 0)
+        // Verify the log was captured
+        XCTAssertEqual(fixture.client.captureLogInvocations.count, 1)
         
         // Close the SDK
         SentrySDK.close()
         
-        // Now logs should be sent
-        XCTAssertEqual(fixture.client.captureLogsDataInvocations.count, 1)
-    }
-    
-    func testLogger_RecreatedWhenSDKStartedAfterAccess() {
-        // Access logger before SDK is started
-        let loggerBeforeStart = SentrySDK.logger
-        
-        // Now properly start the SDK using internal APIs  
-        fixture.client.options.enableLogs = true
-        SentrySDKInternal.setCurrentHub(fixture.hub)
-        SentrySDKInternal.setStart(with: fixture.client.options)
-        
-        // Access logger again after SDK is started
-        let loggerAfterStart = SentrySDK.logger
-        
-        // Verify it's a different instance (recreated)
-        XCTAssertNotIdentical(loggerBeforeStart, loggerAfterStart)
-        
-        // Verify the new logger can actually capture logs
-        loggerAfterStart.info("Test log message")
-        
-        // Force flush by closing the SDK
-        SentrySDK.close()
-        
-        // Verify log was captured
-        XCTAssertEqual(fixture.client.captureLogsDataInvocations.count, 1)
-    }
-    
-    func testLogger_WhenLogsDisabled() {
-        // Start SDK with logs disabled
-        fixture.client.options.enableLogs = false
-        SentrySDKInternal.setCurrentHub(fixture.hub)
-        SentrySDKInternal.setStart(with: fixture.client.options)
-        
-        // Access logger
-        let logger = SentrySDK.logger
-        
-        // Verify that logs are not captured when disabled
-        logger.info("Test log message")
-        
-        // Wait a bit for async processing
-        let expectation = self.expectation(description: "Wait for log capture")
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            expectation.fulfill()
-        }
-        waitForExpectations(timeout: 5.0)
-        
-        // Verify no logs were captured
-        XCTAssertEqual(fixture.client.captureLogsDataInvocations.count, 0)
+        // The log should still be captured
+        XCTAssertEqual(fixture.client.captureLogInvocations.count, 1)
     }
 }
 
@@ -557,11 +510,11 @@ extension SentrySDKTests {
 
     private func givenSdkWithHubButNoClient() {
         SentrySDKInternal.setCurrentHub(SentryHubInternal(client: nil, andScope: nil))
-        SentrySDKInternal.setStart(with: fixture.options)
+        SentrySDK.setStart(with: fixture.options)
     }
 
     private func givenSdkWithHub() {
         SentrySDKInternal.setCurrentHub(fixture.hub)
-        SentrySDKInternal.setStart(with: fixture.options)
+        SentrySDK.setStart(with: fixture.options)
     }
 }

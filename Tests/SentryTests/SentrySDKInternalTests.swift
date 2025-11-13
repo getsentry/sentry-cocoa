@@ -613,7 +613,7 @@ class SentrySDKInternalTests: XCTestCase {
         SentrySDKInternal.currentHub().bindClient(client)
         SentrySDK.close()
 
-        XCTAssertEqual(Options().shutdownTimeInterval, transport.flushInvocations.first)
+        XCTAssertEqual(Options().shutdownTimeInterval, transport.flushInvocations.first ?? 0.0, accuracy: 0.003)
     }
 
     func testLogger_ReturnsSameInstanceOnMultipleCalls() {
@@ -625,44 +625,16 @@ class SentrySDKInternalTests: XCTestCase {
         XCTAssertIdentical(logger1, logger2)
     }
 
-    func testClose_ResetsLogger() {
-        givenSdkWithHub()
-
-        // Get logger instance
-        let logger1 = SentrySDK.logger
-        XCTAssertNotNil(logger1)
-
-        // Close SDK
-        SentrySDK.close()
-
-        // Start SDK again
-        givenSdkWithHub()
-
-        // Get logger instance again
-        let logger2 = SentrySDK.logger
-        XCTAssertNotNil(logger2)
-
-        // Should be a different instance
-        XCTAssertNotIdentical(logger1, logger2)
-    }
-
-    func testLogger_WithLogsEnabled_CapturesLog() {
-        fixture.client.options.enableLogs = true
+    func testLogger_WithClient_CapturesLog() {
         givenSdkWithHub()
 
         SentrySDK.logger.error(String(repeating: "S", count: 1_024 * 1_024))
 
-        let expectation = self.expectation(description: "Wait for async add.")
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            expectation.fulfill()
-        }
-        waitForExpectations(timeout: 5.0)
-
-        XCTAssertEqual(fixture.client.captureLogsDataInvocations.count, 1)
+        // Verify the log was captured
+        XCTAssertEqual(fixture.client.captureLogInvocations.count, 1)
     }
 
     func testLogger_WithNoClient_DoesNotCaptureLog() {
-        fixture.client.options.enableLogs = true
         let hubWithoutClient = SentryHubInternal(client: nil, andScope: nil)
         SentrySDKInternal.setCurrentHub(hubWithoutClient)
 
@@ -674,17 +646,9 @@ class SentrySDKInternalTests: XCTestCase {
         }
         waitForExpectations(timeout: 5.0)
 
-        XCTAssertEqual(fixture.client.captureLogsDataInvocations.count, 0)
+        XCTAssertEqual(fixture.client.captureLogInvocations.count, 0)
     }
-
-    func testLogger_WithLogsDisabled_DoesNotCaptureLog() {
-        fixture.client.options.enableLogs = false
-        givenSdkWithHub()
-
-        SentrySDK.logger.error("foo")
-        XCTAssertEqual(fixture.client.captureLogsDataInvocations.count, 0)
-    }
-
+    
     func testFlush_CallsFlushCorrectlyOnTransport() throws {
         SentrySDK.start { options in
             options.dsn = SentrySDKInternalTests.dsnAsString
@@ -700,7 +664,7 @@ class SentrySDKInternalTests: XCTestCase {
         let flushTimeout = 10.0
         SentrySDK.flush(timeout: flushTimeout)
 
-        XCTAssertEqual(flushTimeout, transport.flushInvocations.first ?? 0.0, accuracy: 0.001)
+        XCTAssertEqual(flushTimeout, transport.flushInvocations.first ?? 0.0, accuracy: 0.002)
     }
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
@@ -985,12 +949,12 @@ private extension SentrySDKInternalTests {
 
     func givenSdkWithHub() {
         SentrySDKInternal.setCurrentHub(fixture.hub)
-        SentrySDKInternal.setStart(with: fixture.options)
+        SentrySDK.setStart(with: fixture.options)
     }
 
     func givenSdkWithHubButNoClient() {
         SentrySDKInternal.setCurrentHub(SentryHubInternal(client: nil, andScope: nil))
-        SentrySDKInternal.setStart(with: fixture.options)
+        SentrySDK.setStart(with: fixture.options)
     }
 
     func assertIntegrationsInstalled(integrations: [String]) {
@@ -1019,7 +983,7 @@ class SentrySDKWithSetupTests: XCTestCase {
         let expectation = expectation(description: "no deadlock")
         expectation.expectedFulfillmentCount = 20
 
-        SentrySDKInternal.setStart(with: Options())
+        SentrySDK.setStart(with: Options())
 
         for _ in 0..<10 {
             concurrentQueue.async {
