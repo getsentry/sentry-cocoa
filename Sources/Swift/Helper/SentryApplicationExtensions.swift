@@ -136,8 +136,18 @@ extension SentryApplication {
                 return nil
             }
         }
+
         if let splitViewController = vc as? UISplitViewController {
-            if splitViewController.viewControllers.count > 0 {
+            // We encountered a case where the private class `UIPrintPanelViewController` overrides the `isKindOfClass:` method and wrongfully
+            // allows casting to `UISplitViewController`, while not actually being a subclass:
+            //
+            //   -[UIPrintPanelViewController viewControllers]: unrecognized selector sent to instance 0x124f45e00
+            //
+            // Check if the selector exists as a double-check mechanism
+            // See: https://github.com/getsentry/sentry-cocoa/issues/6725
+            if !splitViewController.responds(to: NSSelectorFromString("viewControllers")) {
+                SentrySDKLog.warning("Failed to get viewControllers from UISplitViewController. This is a known bug in iOS 26.1")
+            } else if splitViewController.viewControllers.count > 0 {
                 return splitViewController.viewControllers
             }
         }
