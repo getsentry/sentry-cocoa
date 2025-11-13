@@ -1,13 +1,13 @@
 @_spi(Private) @testable import Sentry
 import XCTest
 
-@_spi(Private) public class TestInfoPlistWrapper: SentryInfoPlistWrapperProvider {
+@_spi(Private) public final class TestInfoPlistWrapper: SentryInfoPlistWrapperProvider {
 
-    public var getAppValueStringInvocations = Invocations<String>()
-    private var mockedGetAppValueStringReturnValue: [String: Result<String, Error>] = [:]
+    nonisolated(unsafe) public var getAppValueStringInvocations = Invocations<String>()
+    nonisolated(unsafe) private var mockedGetAppValueStringReturnValue: [String: Result<String, Error>] = [:]
 
-    public var getAppValueBooleanInvocations = Invocations<(String, NSErrorPointer)>()
-    private var mockedGetAppValueBooleanReturnValue: [String: Result<Bool, NSError>] = [:]
+    nonisolated(unsafe) public var getAppValueBooleanInvocations = Invocations<(String, NSErrorPointer)>()
+    nonisolated(unsafe) private var mockedGetAppValueBooleanReturnValue: [String: Result<Bool, NSError>] = [:]
 
     public init() {}
 

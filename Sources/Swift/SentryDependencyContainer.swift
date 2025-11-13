@@ -5,7 +5,7 @@ import UIKit
 
 // Declare the application provider block at the top level to prevent capturing 'self'
 // from the dependency container, which would create cyclic dependencies and memory leaks.
-let defaultApplicationProvider: () -> SentryApplication? = {
+nonisolated(unsafe) let defaultApplicationProvider: () -> SentryApplication? = {
 #if (os(iOS) || os(tvOS) || (swift(>=5.9) && os(visionOS))) && !SENTRY_NO_UIKIT
     return UIApplication.shared
 #elseif os(macOS)
@@ -39,7 +39,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     // MARK: Private
 
     private static let instanceLock = NSRecursiveLock()
-    private static var instance = SentryDependencyContainer()
+    nonisolated(unsafe) private static var instance = SentryDependencyContainer()
     private let paramLock = NSRecursiveLock()
     
     private func getLazyVar<T>(_ keyPath: ReferenceWritableKeyPath<SentryDependencyContainer, T?>, builder: () -> T) -> T {

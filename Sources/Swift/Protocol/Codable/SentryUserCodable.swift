@@ -1,7 +1,7 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
-final class UserDecodable: User {
+final class UserDecodable: User, @unchecked Sendable {
     convenience public init(from decoder: any Decoder) throws {
         try self.init(decodedFrom: decoder)
     }

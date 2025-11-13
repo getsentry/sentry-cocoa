@@ -26,7 +26,7 @@ public protocol SentryReachabilityObserver: NSObjectProtocol {
 
 // MARK: - SentryReachability
 @_spi(Private) @objc
-public class SentryReachability: NSObject {
+public class SentryReachability: NSObject, @unchecked Sendable {
     private var reachabilityObservers = NSHashTable<SentryReachabilityObserver>.weakObjects()
     private var currentConnectivity: SentryConnectivity = .none
     private var pathMonitor: NWPathMonitor?
@@ -71,7 +71,9 @@ public class SentryReachability: NSObject {
 #endif // DEBUG || SENTRY_TEST || SENTRY_TEST_CI
         
         self.pathMonitor = NWPathMonitor()
-        self.pathMonitor?.pathUpdateHandler = self.pathUpdateHandler
+        self.pathMonitor?.pathUpdateHandler = { [weak self] path in
+            self?.pathUpdateHandler(path)
+        }
         self.pathMonitor?.start(queue: self.reachabilityQueue)
     }
     

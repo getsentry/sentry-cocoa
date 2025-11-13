@@ -1,6 +1,6 @@
 @_implementationOnly import _SentryPrivate
 
-@_spi(Private) @objc public class SentryFileManager: NSObject {
+@_spi(Private) @objc public class SentryFileManager: NSObject, @unchecked Sendable {
 
     // The UInt is a SentryDataCategory. This type cannot be in the Swift public interface since it's `implementationOnly`
     // We can use the enum type directly once users of this callback are written in Swift and we can drop the @objc annotation
