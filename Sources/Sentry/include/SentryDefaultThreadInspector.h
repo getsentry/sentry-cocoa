@@ -15,8 +15,7 @@ NS_ASSUME_NONNULL_BEGIN
 SENTRY_NO_INIT
 
 - (id)initWithStacktraceBuilder:(SentryStacktraceBuilder *)stacktraceBuilder
-       andMachineContextWrapper:(id<SentryCrashMachineContextWrapper>)machineContextWrapper
-                    symbolicate:(BOOL)symbolicate;
+       andMachineContextWrapper:(id<SentryCrashMachineContextWrapper>)machineContextWrapper;
 
 - (instancetype)initWithOptions:(SentryOptionsObjC *_Nullable)options;
 

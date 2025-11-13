@@ -182,7 +182,6 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
                 
                 XCTAssertEqual(1, sentryFrames.count)
                 let frame = sentryFrames.first
-                XCTAssertNil(frame?.function)
                 XCTAssertEqual("0x000000021f1a0001", frame?.imageAddress)
                 XCTAssertEqual("libsystem_pthread.dylib", frame?.package)
                 XCTAssertFalse(frame?.inApp?.boolValue ?? true)
