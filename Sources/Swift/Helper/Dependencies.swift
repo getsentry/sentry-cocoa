@@ -8,7 +8,7 @@
     @objc public static let sessionReplayEnvironmentChecker: SentrySessionReplayEnvironmentChecker = {
         SentrySessionReplayEnvironmentChecker(infoPlistWrapper: Dependencies.infoPlistWrapper)
     }()
-    @objc public static let extensionDetector: SentryExtensionDetector = {
+    @objc public static var extensionDetector: SentryExtensionDetector = {
         SentryExtensionDetector(infoPlistWrapper: Dependencies.infoPlistWrapper)
     }()
     @objc public static let dispatchQueueWrapper = SentryDispatchQueueWrapper()

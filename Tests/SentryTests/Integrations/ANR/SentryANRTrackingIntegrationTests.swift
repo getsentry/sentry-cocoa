@@ -11,6 +11,10 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         
         let currentDate = TestCurrentDateProvider()
         let debugImageProvider = TestDebugImageProvider()
+        let infoPlistWrapper = TestInfoPlistWrapper()
+        let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
+
+        private var originalExtensionDetector: SentryExtensionDetector!
 
         init() {
             options = Options()
@@ -20,11 +24,28 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
 
             debugImageProvider.debugImages = [TestData.debugImage]
         }
+
+        func setUpDI(extensionDetector: SentryExtensionDetector) throws {
+            SentryDependencyContainer.sharedInstance().fileManager = try TestFileManager(
+                options: options,
+                dateProvider: currentDate,
+                dispatchQueueWrapper: dispatchQueueWrapper
+            )
+
+            originalExtensionDetector = Dependencies.extensionDetector
+            Dependencies.extensionDetector = extensionDetector
+        }
+
+        func tearDownDI() throws {
+            SentryDependencyContainer.sharedInstance().fileManager = nil
+            if let extensionDetector = originalExtensionDetector {
+                Dependencies.extensionDetector = extensionDetector
+            }
+        }
     }
     
     private var fixture: Fixture!
     private var sut: SentryANRTrackingIntegration!
-    private var originalExtensionDetector: SentryExtensionDetector!
     
     override var options: Options {
         self.fixture.options
@@ -33,21 +54,15 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
     override func setUp() {
         super.setUp()
         fixture = Fixture()
-        
-        // Store original extensionDetector to restore in tearDown
-        originalExtensionDetector = Dependencies.extensionDetector
 
-        SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
+        SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = fixture.dispatchQueueWrapper
         SentryDependencyContainer.sharedInstance().debugImageProvider = fixture.debugImageProvider
     }
     
-    override func tearDown() {
+    override func tearDownWithError() throws {
         sut?.uninstall()
-        
-        // Restore original extensionDetector to prevent test pollution
-        if let originalExtensionDetector = originalExtensionDetector {
-            Dependencies.extensionDetector = originalExtensionDetector
-        }
+
+        try fixture.tearDownDI()
         
         clearTestState()
         super.tearDown()
@@ -731,22 +746,18 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
     func testEventIsNotANR() {
         XCTAssertFalse(Event().isAppHangEvent)
     }
-    
-    func testInstall_notRunningInExtension_shouldInstall() {
+
+    func testInstall_notRunningInExtension_shouldInstall() throws {
         // Arrange
-        let mockInfoPlist = TestInfoPlistWrapper()
-        mockInfoPlist.mockGetAppValueDictionaryThrowError(
+        fixture.infoPlistWrapper.mockGetAppValueDictionaryThrowError(
             forKey: SentryInfoPlistKey.extension.rawValue,
             error: SentryInfoPlistError.keyNotFound(key: SentryInfoPlistKey.extension.rawValue)
         )
-        Dependencies.extensionDetector = SentryExtensionDetector(infoPlistWrapper: mockInfoPlist)
-        
-        let options = Options()
-        options.dsn = SentryANRTrackingIntegrationTests.dsn
-        options.enableAppHangTracking = true
-        options.appHangTimeoutInterval = 2.0
-        
+        try fixture.setUpDI(
+            extensionDetector: SentryExtensionDetector(infoPlistWrapper: fixture.infoPlistWrapper)
+        )
         crashWrapper.internalIsBeingTraced = false
+
         sut = SentryANRTrackingIntegration()
         
         // Act
@@ -757,23 +768,19 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         XCTAssertNotNil(Dynamic(sut).tracker.asAnyObject, "Tracker should be initialized")
     }
     
-    func testInstall_runningInWidgetExtension_shouldNotInstall() {
+    func testInstall_runningInWidgetExtension_shouldNotInstall() throws {
         // Arrange
-        let mockInfoPlist = TestInfoPlistWrapper()
-        mockInfoPlist.mockGetAppValueDictionaryReturnValue(
+        fixture.infoPlistWrapper.mockGetAppValueDictionaryReturnValue(
             forKey: SentryInfoPlistKey.extension.rawValue,
             value: ["NSExtensionPointIdentifier": "com.apple.widgetkit-extension"]
         )
-        Dependencies.extensionDetector = SentryExtensionDetector(infoPlistWrapper: mockInfoPlist)
-        
-        let options = Options()
-        options.dsn = SentryANRTrackingIntegrationTests.dsn
-        options.enableAppHangTracking = true
-        options.appHangTimeoutInterval = 2.0
-        
+        try fixture.setUpDI(
+            extensionDetector: SentryExtensionDetector(infoPlistWrapper: fixture.infoPlistWrapper)
+        )
         crashWrapper.internalIsBeingTraced = false
+
         sut = SentryANRTrackingIntegration()
-        
+
         // Act
         let result = sut.install(with: options)
         
@@ -782,23 +789,19 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         XCTAssertNil(Dynamic(sut).tracker.asAnyObject, "Tracker should not be initialized")
     }
     
-    func testInstall_runningInIntentExtension_shouldNotInstall() {
+    func testInstall_runningInIntentExtension_shouldNotInstall() throws {
         // Arrange
-        let mockInfoPlist = TestInfoPlistWrapper()
-        mockInfoPlist.mockGetAppValueDictionaryReturnValue(
+        fixture.infoPlistWrapper.mockGetAppValueDictionaryReturnValue(
             forKey: SentryInfoPlistKey.extension.rawValue,
             value: ["NSExtensionPointIdentifier": "com.apple.intents-service"]
         )
-        Dependencies.extensionDetector = SentryExtensionDetector(infoPlistWrapper: mockInfoPlist)
-        
-        let options = Options()
-        options.dsn = SentryANRTrackingIntegrationTests.dsn
-        options.enableAppHangTracking = true
-        options.appHangTimeoutInterval = 2.0
-        
+        try fixture.setUpDI(
+            extensionDetector: SentryExtensionDetector(infoPlistWrapper: fixture.infoPlistWrapper)
+        )
         crashWrapper.internalIsBeingTraced = false
+
         sut = SentryANRTrackingIntegration()
-        
+
         // Act
         let result = sut.install(with: options)
         
@@ -807,23 +810,19 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         XCTAssertNil(Dynamic(sut).tracker.asAnyObject, "Tracker should not be initialized")
     }
     
-    func testInstall_runningInActionExtension_shouldNotInstall() {
+    func testInstall_runningInActionExtension_shouldNotInstall() throws {
         // Arrange
-        let mockInfoPlist = TestInfoPlistWrapper()
-        mockInfoPlist.mockGetAppValueDictionaryReturnValue(
+        fixture.infoPlistWrapper.mockGetAppValueDictionaryReturnValue(
             forKey: SentryInfoPlistKey.extension.rawValue,
             value: ["NSExtensionPointIdentifier": "com.apple.ui-services"]
         )
-        Dependencies.extensionDetector = SentryExtensionDetector(infoPlistWrapper: mockInfoPlist)
-        
-        let options = Options()
-        options.dsn = SentryANRTrackingIntegrationTests.dsn
-        options.enableAppHangTracking = true
-        options.appHangTimeoutInterval = 2.0
-        
+        try fixture.setUpDI(
+            extensionDetector: SentryExtensionDetector(infoPlistWrapper: fixture.infoPlistWrapper)
+        )
         crashWrapper.internalIsBeingTraced = false
+
         sut = SentryANRTrackingIntegration()
-        
+
         // Act
         let result = sut.install(with: options)
         
@@ -832,23 +831,19 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         XCTAssertNil(Dynamic(sut).tracker.asAnyObject, "Tracker should not be initialized")
     }
     
-    func testInstall_runningInShareExtension_shouldNotInstall() {
+    func testInstall_runningInShareExtension_shouldNotInstall() throws {
         // Arrange
-        let mockInfoPlist = TestInfoPlistWrapper()
-        mockInfoPlist.mockGetAppValueDictionaryReturnValue(
+        fixture.infoPlistWrapper.mockGetAppValueDictionaryReturnValue(
             forKey: SentryInfoPlistKey.extension.rawValue,
             value: ["NSExtensionPointIdentifier": "com.apple.share-services"]
         )
-        Dependencies.extensionDetector = SentryExtensionDetector(infoPlistWrapper: mockInfoPlist)
-        
-        let options = Options()
-        options.dsn = SentryANRTrackingIntegrationTests.dsn
-        options.enableAppHangTracking = true
-        options.appHangTimeoutInterval = 2.0
-        
+        try fixture.setUpDI(
+            extensionDetector: SentryExtensionDetector(infoPlistWrapper: fixture.infoPlistWrapper)
+        )
         crashWrapper.internalIsBeingTraced = false
+
         sut = SentryANRTrackingIntegration()
-        
+
         // Act
         let result = sut.install(with: options)
         
@@ -857,23 +852,22 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         XCTAssertNil(Dynamic(sut).tracker.asAnyObject, "Tracker should not be initialized")
     }
     
-    func testInstall_runningInUnknownExtension_shouldInstall() {
+    func testInstall_runningInUnknownExtension_shouldInstall() throws {
         // Arrange
-        let mockInfoPlist = TestInfoPlistWrapper()
-        mockInfoPlist.mockGetAppValueDictionaryReturnValue(
+        fixture.infoPlistWrapper.mockGetAppValueDictionaryReturnValue(
             forKey: SentryInfoPlistKey.extension.rawValue,
             value: ["NSExtensionPointIdentifier": "com.apple.unknown-extension"]
         )
-        Dependencies.extensionDetector = SentryExtensionDetector(infoPlistWrapper: mockInfoPlist)
-        
-        let options = Options()
-        options.dsn = SentryANRTrackingIntegrationTests.dsn
-        options.enableAppHangTracking = true
-        options.appHangTimeoutInterval = 2.0
-        
+        try fixture.setUpDI(
+            extensionDetector: SentryExtensionDetector(infoPlistWrapper: fixture.infoPlistWrapper)
+        )
+        defer {
+            try? fixture.tearDownDI()
+        }
         crashWrapper.internalIsBeingTraced = false
+
         sut = SentryANRTrackingIntegration()
-        
+
         // Act
         let result = sut.install(with: options)
         

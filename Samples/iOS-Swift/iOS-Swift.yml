@@ -36,7 +36,6 @@ targets:
       - target: iOS-Swift-ShareExtension
       - target: iOS-Swift-ActionExtension
       - target: iOS-Swift-IntentExtension
-      - target: Sentry/SentrySwiftLog
     configFiles:
       Debug: iOS-Swift.xcconfig
       Release: iOS-Swift.xcconfig

@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+### Breaking Changes
+
+- App hang tracking is now automatically disabled for Widgets, Live Activities, Action Extensions, (Siri) Intent Extensions, and Share Extensions (#6670).
+  These components run in separate processes or sandboxes with different execution characteristics, which can cause false positive app hang reports.
+
 ## 9.0.0-alpha.1
 
 ### Breaking Changes
@@ -107,8 +114,6 @@
   If you need a precompiled XCFramework built with Xcode 15, continue using Sentry SDK 8.x.x.
 - Set `SentryException.type` to `nil` when `NSException` has no `reason` (#6653). The backend then can provide a proper message when there is no reason.
 - Rename `SentryLog.Level` and `SentryLog.Attribute` for ObjC (#6666)
-- App hang tracking is now automatically disabled for Widgets, Live Activities, Action Extensions, (Siri) Intent Extensions, and Share Extensions (#6670).
-  These components run in separate processes or sandboxes with different execution characteristics, which can cause false positive app hang reports.
 
 ### Fixes
 
