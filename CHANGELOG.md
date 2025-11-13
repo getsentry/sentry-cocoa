@@ -6,6 +6,10 @@
 
 - [HTTP Client errors](https://docs.sentry.io/platforms/apple/guides/ios/configuration/http-client-errors/) now mark sessions as errored (#6633)
 
+### Fixes
+
+- Limit log batching to maximum 1000 logs per batch (#6768)
+
 ## 9.0.0-alpha.1
 
 ### Breaking Changes
