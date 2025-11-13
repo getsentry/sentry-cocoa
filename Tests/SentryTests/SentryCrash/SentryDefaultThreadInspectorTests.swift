@@ -46,67 +46,7 @@ class SentryDefaultThreadInspectorTests: XCTestCase {
         XCTAssertTrue(30 < stacktrace?.frames.count ?? 0, "Not enough stacktrace frames.")
     }
     
-    func testGetCurrentThreadsWithStacktrace_WithSymbolication() {
-        let queue = DispatchQueue(label: "test-queue", attributes: [.concurrent, .initiallyInactive])
-        
-        let expect = expectation(description: "Read every thread")
-        expect.expectedFulfillmentCount = 10
-        
-        let sut = self.fixture.getSut(testWithRealMachineContextWrapper: true)
-
-        for _ in 0..<10 {
-
-            queue.async {
-                let threads = sut.getCurrentThreadsWithStackTrace()
-
-                if threads.count == 0 {
-                    // If there are more than 70 threads getCurrentThreadsWithStackTrace
-                    // returns an empty list because it can't handle so many threads.
-                    // This is a known limitation SentryThreadInspector and should be
-                    // addressed in https://github.com/getsentry/sentry-cocoa/issues/2825.
-                    // We see this sometimes happening in CI.
-                    expect.fulfill()
-                    return
-                }
-
-                var threadsWithStackTraceFrames = 0
-
-                for thread in threads {
-
-                    guard let frames = thread.stacktrace?.frames else {
-                        continue
-                    }
-
-                    if frames.count == 0 {
-                        continue
-                    }
-
-                    for frame in frames {
-                        XCTAssertNotNil(frame.instructionAddress)
-                        XCTAssertNotNil(frame.imageAddress)
-
-                    }
-
-                    threadsWithStackTraceFrames += 1
-                }
-
-                let percantageWithStacktraceFrames = Double(threadsWithStackTraceFrames) / Double(threads.count)
-
-                // During testing we usually have around 90% to 100%
-                // We choose a bit lower threshold to avoid flaky tests in CI
-                // Especially during the test when launching multiple threads for the concurrent DispatchQueue
-                // it can occur that more than one thread have no stacktrace frames yet, because they just started.
-                XCTAssertGreaterThan(percantageWithStacktraceFrames, 0.6, "More than 60% of threads should have stacktrace frames, but got \(percantageWithStacktraceFrames * 100)%")
-
-                expect.fulfill()
-            }
-        }
-
-        queue.activate()
-        wait(for: [expect], timeout: 10)
-    }
-    
-    func testGetCurrentThreadsWithStacktrace_WithoutSymbolication() {
+    func testGetCurrentThreadsWithStacktrace() {
         let queue = DispatchQueue(label: "test-queue", attributes: [.concurrent, .initiallyInactive])
         
         let expect = expectation(description: "Read every thread")
@@ -196,27 +136,16 @@ class SentryDefaultThreadInspectorTests: XCTestCase {
         XCTAssertEqual(suspendedThreads.count, 0)
     }
 
-    func testStackTrackForCurrentThreadAsyncUnsafe() {
-        guard let stackTrace = fixture.getSut(testWithRealMachineContextWrapper: true).stacktraceForCurrentThreadAsyncUnsafe() else {
-            XCTFail("Stack Trace not found")
-            return
+    func testStackTrackForCurrentThreadAsyncUnsafe() throws {
+        let stacktrace = try XCTUnwrap(fixture.getSut(testWithRealMachineContextWrapper: true).stacktraceForCurrentThreadAsyncUnsafe())
+
+         let frames = try XCTUnwrap(stacktrace.frames)
+
+        for frame in frames {
+            XCTAssertNotNil(frame.instructionAddress)
+            XCTAssertNotNil(frame.imageAddress)
+            XCTAssertNil(frame.symbolAddress)
         }
-        let stackTrace2 = fixture.getSut(testWithRealMachineContextWrapper: true).getCurrentThreadsWithStackTrace() 
-
-        XCTAssertNotNil(stackTrace)
-        XCTAssertNotNil(stackTrace2)
-        XCTAssertGreaterThan(stackTrace.frames.count, 0)
-        XCTAssertNotEqual(stackTrace.frames.first?.instructionAddress, "0x0000000000000000")
-    }
-
-    func testStackTrackForCurrentThreadAsyncUnsafe_NoSymbolication() {
-        guard let stackTrace = fixture.getSut(testWithRealMachineContextWrapper: true).stacktraceForCurrentThreadAsyncUnsafe() else {
-            XCTFail("Stack Trace not found")
-            return
-        }
-
-        XCTAssertNotNil(stackTrace)
-        XCTAssertGreaterThan(stackTrace.frames.count, 0)
     }
 
     func testOnlyCurrentThreadHasStacktrace() throws {
