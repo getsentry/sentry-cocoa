@@ -114,7 +114,6 @@
 - Fixes a crash when setting configureUserFeedback to nil (#6642)
 - Fix issue where the thread that generated an event could be missing when more than 100 threads are running (#6377)
 - Fix wrong Frame Delay when becoming active, which lead to false reported app hangs when the app moves to the foreground after being in the background (#6381)
-- Add SwiftUI.List's background decoration view to ignored redaction views (#6292)
 - Rename `SentryMechanismMeta` to `SentryMechanismContext` to resolve Kotlin Multi-Platform build errors (#6607)
 
 ### Improvements
