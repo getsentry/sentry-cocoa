@@ -27,27 +27,14 @@ import Foundation
 
     /// API to access Sentry logs
     @objc public static var logger: SentryLogger {
-        return _loggerLock.synchronized {
-            let sdkEnabled = SentrySDKInternal.isEnabled
-            if !sdkEnabled {
-                SentrySDKLog.fatal("Logs called before SentrySDK.start() will be dropped.")
-            }
-            if let _logger, _loggerConfigured {
-                return _logger
-            }
-            let hub = SentrySDKInternal.currentHub()
-            var batcher: SentryLogBatcher?
-            if let client = hub.getClient(), SentryDependencyContainerSwiftHelper.enableLogs(client.getOptions()) {
-                batcher = SentryLogBatcher(client: client, dispatchQueue: Dependencies.dispatchQueueWrapper)
-            }
-            let logger = SentryLogger(
-                hub: hub,
-                dateProvider: Dependencies.dateProvider,
-                batcher: batcher
-            )
-            _logger = logger
-            _loggerConfigured = sdkEnabled
+        if !SentrySDKInternal.isEnabled {
+            SentrySDKLog.fatal("Logs called before SentrySDK.start() will not be sent to Sentry.")
+        }
+        if let logger = SentrySDKInternal.currentHub()._swiftLogger as? SentryLogger {
             return logger
+        } else {
+            SentrySDKLog.fatal("Unable to access configured logger. Logs will not be sent to Sentry.")
+            return SentryLogger(dateProvider: SentryDependencyContainer.sharedInstance().dateProvider)
         }
     }
     
@@ -371,18 +358,12 @@ import Foundation
     /// - note: This might take slightly longer than the specified timeout if there are many batched logs to capture.
     @objc(flush:)
     public static func flush(timeout: TimeInterval) {
-        let captureLogsDuration = captureLogs()
-        // Capturing batched logs should never take long, but we need to fall back to a sane value.
-        // This is a workaround for experimental logs, until we'll write batched logs to disk, 
-        // to avoid data loss due to crashes. This is a trade-off until then.
-        SentrySDKInternal.flush(timeout: max(timeout / 2, timeout - captureLogsDuration))
+        SentrySDKInternal.flush(timeout: timeout)
     }
     
     /// Closes the SDK, uninstalls all the integrations, and calls `flush` with
     /// `SentryOptions.shutdownTimeInterval`.
     @objc public static func close() {
-        // Capturing batched logs should never take long, ignore the duration here.
-        _ = captureLogs()
         SentrySDKInternal.close()
     }
     
@@ -426,14 +407,6 @@ import Foundation
 
     // MARK: Internal
 
-    /// - note: Conceptually internal but needs to be marked public with SPI for ObjC visibility
-    @objc @_spi(Private) public static func clearLogger() {
-        _loggerLock.synchronized {
-            _logger = nil
-            _loggerConfigured = false
-        }
-    }
-
     /// The option used to start the SDK
     private static var _startOption: Options?
     private static let startOptionLock = NSRecursiveLock()
@@ -446,22 +419,6 @@ import Foundation
         startOptionLock.synchronized {
             _startOption = option
         }
-    }
-
-    // MARK: Private
-    
-    private static var _loggerLock = NSLock()
-    private static var _logger: SentryLogger?
-    // Flag to re-create instance if accessed before SDK init.
-    private static var _loggerConfigured = false
-
-    @discardableResult
-    private static func captureLogs() -> TimeInterval {
-        var duration: TimeInterval = 0.0
-        _loggerLock.synchronized {
-            duration = _logger?.captureLogs() ?? 0.0
-        }
-        return duration
     }
 }
 

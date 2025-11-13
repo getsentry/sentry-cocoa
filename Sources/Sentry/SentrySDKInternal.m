@@ -641,8 +641,6 @@ static NSDate *_Nullable startTimestamp = nil;
 
     [SentrySDKInternal setCurrentHub:nil];
 
-    [SentrySDK clearLogger];
-
     [SentryDependencyContainer.sharedInstance.crashWrapper stopBinaryImageCache];
     [SentryDependencyContainer.sharedInstance.binaryImageCache stop];
 
