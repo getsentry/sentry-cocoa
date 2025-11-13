@@ -55,13 +55,13 @@ class SentryHubTests: XCTestCase {
             abnormalSession.environment = options.environment
         }
         
-        func getSut(withMaxBreadcrumbs maxBreadcrumbs: UInt = 100) -> SentryHub {
+        func getSut(withMaxBreadcrumbs maxBreadcrumbs: UInt = 100) -> SentryHubInternal {
             options.maxBreadcrumbs = maxBreadcrumbs
             return getSut(options)
         }
         
-        func getSut(_ options: Options, _ scope: Scope? = nil) -> SentryHub {
-            let hub = SentryHub(client: client, andScope: scope, andCrashWrapper: sentryCrashWrapper, andDispatchQueue: dispatchQueueWrapper)
+        func getSut(_ options: Options, _ scope: Scope? = nil) -> SentryHubInternal {
+            let hub = SentryHubInternal(client: client, andScope: scope, andCrashWrapper: sentryCrashWrapper, andDispatchQueue: dispatchQueueWrapper)
             hub.bindClient(client)
             return hub
         }
@@ -97,7 +97,7 @@ class SentryHubTests: XCTestCase {
         sentryOption.dsn = "https://6cc9bae94def43cab8444a99e0031c28@o447951.ingest.sentry.io/5428557"
                 
         let scope = Scope()
-        let sentryHub = SentryHub(client: SentryClient(options: sentryOption), andScope: scope)
+        let sentryHub = SentryHubInternal(client: SentryClientInternal(options: sentryOption), andScope: scope)
 
         let error = NSError(domain: "Test.CaptureErrorWithRealDSN", code: 12)
         sentryHub.capture(error: error)
@@ -185,7 +185,7 @@ class SentryHubTests: XCTestCase {
     }
     
     func testScopeEnriched_WithInitializer() {
-        let hub = SentryHub(client: nil, andScope: Scope())
+        let hub = SentryHubInternal(client: nil, andScope: Scope())
         XCTAssertFalse(hub.scope.contextDictionary.allValues.isEmpty)
         XCTAssertNotNil(hub.scope.contextDictionary["os"])
         XCTAssertNotNil(hub.scope.contextDictionary["device"])
@@ -200,7 +200,7 @@ class SentryHubTests: XCTestCase {
         let crashWrapper = SentryCrashWrapper(processInfoWrapper: processInfoWrapper)
         
         // Act
-        let hub = SentryHub(client: nil, andScope: Scope(), andCrashWrapper: crashWrapper, andDispatchQueue: TestSentryDispatchQueueWrapper())
+        let hub = SentryHubInternal(client: nil, andScope: Scope(), andCrashWrapper: crashWrapper, andDispatchQueue: TestSentryDispatchQueueWrapper())
 
         // Assert
         XCTAssertNil(hub.scope.contextDictionary["runtime"])
@@ -215,7 +215,7 @@ class SentryHubTests: XCTestCase {
         let crashWrapper = SentryCrashWrapper(processInfoWrapper: processInfoWrapper)
         
         // Act
-        let hub = SentryHub(client: nil, andScope: Scope(), andCrashWrapper: crashWrapper, andDispatchQueue: TestSentryDispatchQueueWrapper())
+        let hub = SentryHubInternal(client: nil, andScope: Scope(), andCrashWrapper: crashWrapper, andDispatchQueue: TestSentryDispatchQueueWrapper())
         
         // Assert
         let runtimeContext = try XCTUnwrap (hub.scope.contextDictionary["runtime"] as? [String: String])
@@ -233,7 +233,7 @@ class SentryHubTests: XCTestCase {
         let crashWrapper = SentryCrashWrapper(processInfoWrapper: processInfoWrapper)
         
         // Act
-        let hub = SentryHub(client: nil, andScope: Scope(), andCrashWrapper: crashWrapper, andDispatchQueue: TestSentryDispatchQueueWrapper())
+        let hub = SentryHubInternal(client: nil, andScope: Scope(), andCrashWrapper: crashWrapper, andDispatchQueue: TestSentryDispatchQueueWrapper())
 
         // Assert
         let runtimeContext = try XCTUnwrap (hub.scope.contextDictionary["runtime"] as? [String: String])
@@ -248,7 +248,7 @@ class SentryHubTests: XCTestCase {
     }
     
     func testScopeEnriched_WhenCreatingDefaultScope() {
-        let hub = SentryHub(client: nil, andScope: nil)
+        let hub = SentryHubInternal(client: nil, andScope: nil)
         
         let scope = hub.scope
         XCTAssertFalse(scope.contextDictionary.allValues.isEmpty)
@@ -275,12 +275,11 @@ class SentryHubTests: XCTestCase {
     }
     
     func testAddUserToTheScope() throws {
-        let client = SentryClient(
+        let client = SentryClientInternal(
             options: fixture.options,
-            fileManager: fixture.fileManager,
-            deleteOldEnvelopeItems: false
+            fileManager: fixture.fileManager
         )
-        let hub = SentryHub(client: client, andScope: Scope())
+        let hub = SentryHubInternal(client: client, andScope: Scope())
         
         let user = User()
         user.userId = "123"
@@ -429,9 +428,8 @@ class SentryHubTests: XCTestCase {
         XCTAssertEqual(span.sampled, .no)
     }
     
-    @available(*, deprecated, message: "The test is marked as deprecated to silence the deprecation warning of the initializer")
     func testCaptureTransaction_CapturesEventAsync() throws {
-        let transaction = sut.startTransaction(transactionContext: TransactionContext(name: fixture.transactionName, operation: fixture.transactionOperation, sampled: .yes))
+        let transaction = sut.startTransaction(transactionContext: TransactionContext(name: fixture.transactionName, operation: fixture.transactionOperation, sampled: .yes, sampleRate: nil, sampleRand: nil))
 
         let trans = Dynamic(transaction).toTransaction().asAnyObject
         sut.capture(try XCTUnwrap(trans as? Transaction), with: Scope())
@@ -458,9 +456,8 @@ class SentryHubTests: XCTestCase {
         XCTAssertEqual(self.fixture.dispatchQueueWrapper.dispatchAsyncInvocations.count, 1)
     }
 
-    @available(*, deprecated, message: "The test is marked as deprecated to silence the deprecation warning of the initializer")
     func testCaptureSampledTransaction_DoesNotCaptureEvent() throws {
-        let transaction = sut.startTransaction(transactionContext: TransactionContext(name: fixture.transactionName, operation: fixture.transactionOperation, sampled: .no))
+        let transaction = sut.startTransaction(transactionContext: TransactionContext(name: fixture.transactionName, operation: fixture.transactionOperation, sampled: .no, sampleRate: nil, sampleRand: nil))
 
         let trans = Dynamic(transaction).toTransaction().asAnyObject
         sut.capture(try XCTUnwrap(trans as? Transaction), with: Scope())
@@ -487,9 +484,8 @@ class SentryHubTests: XCTestCase {
         XCTAssertEqual(self.fixture.client.captureEventWithScopeInvocations.count, 0)
     }
     
-    @available(*, deprecated, message: "The test is marked as deprecated to silence the deprecation warning of the initializer")
     func testCaptureSampledTransaction_RecordsLostEvent() throws {
-        let transaction = sut.startTransaction(transactionContext: TransactionContext(name: fixture.transactionName, operation: fixture.transactionOperation, sampled: .no))
+        let transaction = sut.startTransaction(transactionContext: TransactionContext(name: fixture.transactionName, operation: fixture.transactionOperation, sampled: .no, sampleRate: nil, sampleRand: nil))
 
         let trans = Dynamic(transaction).toTransaction().asAnyObject
         sut.capture(try XCTUnwrap(trans as? Transaction), with: Scope())
@@ -522,9 +518,8 @@ class SentryHubTests: XCTestCase {
         XCTAssertEqual(lostEvent?.reason, .sampleRate)
     }
     
-    @available(*, deprecated, message: "The test is marked as deprecated to silence the deprecation warning of the initializer")
     func testCaptureSampledTransaction_RecordsLostSpans() throws {
-        let transaction = sut.startTransaction(transactionContext: TransactionContext(name: fixture.transactionName, operation: fixture.transactionOperation, sampled: .no))
+        let transaction = sut.startTransaction(transactionContext: TransactionContext(name: fixture.transactionName, operation: fixture.transactionOperation, sampled: .no, sampleRate: nil, sampleRand: nil))
         let trans = Dynamic(transaction).toTransaction().asAnyObject
         
         if let tracer = transaction as? SentryTracer {
@@ -576,12 +571,11 @@ class SentryHubTests: XCTestCase {
         XCTAssertEqual(lostEvent?.quantity, 4)
     }
     
-    @available(*, deprecated, message: "The test is marked as deprecated to silence the deprecation warning of the initializer")
     func testSaveCrashTransaction_SavesTransaction() throws {
         let scope = fixture.scope
-        let sut = SentryHub(client: fixture.client, andScope: scope)
+        let sut = SentryHubInternal(client: fixture.client, andScope: scope)
         
-        let transaction = sut.startTransaction(transactionContext: TransactionContext(name: fixture.transactionName, operation: fixture.transactionOperation, sampled: .yes))
+        let transaction = sut.startTransaction(transactionContext: TransactionContext(name: fixture.transactionName, operation: fixture.transactionOperation, sampled: .yes, sampleRate: nil, sampleRand: nil))
 
         let trans = Dynamic(transaction).toTransaction().asAnyObject
         sut.saveCrash(try XCTUnwrap(trans as? Transaction))
@@ -595,7 +589,7 @@ class SentryHubTests: XCTestCase {
     func testSaveCrashTransaction_withSampleRateRand_SavesTransaction() throws {
         // Arrange
         let scope = fixture.scope
-        let sut = SentryHub(client: fixture.client, andScope: scope)
+        let sut = SentryHubInternal(client: fixture.client, andScope: scope)
         
         let transaction = sut.startTransaction(
             transactionContext: TransactionContext(
@@ -618,12 +612,11 @@ class SentryHubTests: XCTestCase {
         XCTAssertEqual(0, client.recordLostEvents.count)
     }
     
-    @available(*, deprecated, message: "The test is marked as deprecated to silence the deprecation warning of the initializer")
     func testSaveCrashTransaction_NotSampled_DoesNotSaveTransaction() throws {
         let scope = fixture.scope
-        let sut = SentryHub(client: fixture.client, andScope: scope)
+        let sut = SentryHubInternal(client: fixture.client, andScope: scope)
         
-        let transaction = sut.startTransaction(transactionContext: TransactionContext(name: fixture.transactionName, operation: fixture.transactionOperation, sampled: .no))
+        let transaction = sut.startTransaction(transactionContext: TransactionContext(name: fixture.transactionName, operation: fixture.transactionOperation, sampled: .no, sampleRate: nil, sampleRand: nil))
 
         let trans = Dynamic(transaction).toTransaction().asAnyObject
         sut.saveCrash(try XCTUnwrap(trans as? Transaction))
@@ -633,7 +626,7 @@ class SentryHubTests: XCTestCase {
 
     func testSaveCrashTransaction_NotSampledWithSampleRateRand_DoesNotSaveTransaction() throws {
         let scope = fixture.scope
-        let sut = SentryHub(client: fixture.client, andScope: scope)
+        let sut = SentryHubInternal(client: fixture.client, andScope: scope)
         
         let transaction = sut.startTransaction(
             transactionContext: TransactionContext(
@@ -670,6 +663,88 @@ class SentryHubTests: XCTestCase {
             XCTAssertEqual(fixture.scope, messageArguments.scope)
         }
     }
+    
+    func testCaptureLog() {
+        let hub = fixture.getSut(fixture.options, fixture.scope)
+        (hub._swiftLogger as! SentryLogger).info("Test log message")
+        
+        XCTAssertEqual(1, fixture.client.captureLogInvocations.count)
+        if let logArguments = fixture.client.captureLogInvocations.first {
+            XCTAssertEqual("Test log message", logArguments.log.body)
+            XCTAssertEqual(fixture.scope, logArguments.scope)
+        }
+    }
+    
+    // MARK: - Replay Attributes Tests
+    
+#if canImport(UIKit) && !SENTRY_NO_UIKIT
+#if os(iOS) || os(tvOS)
+    func testCaptureLog_ReplayAttributes_SessionMode_AddsReplayId() {
+        // Setup replay integration
+        let replayOptions = SentryReplayOptions(sessionSampleRate: 1.0, onErrorSampleRate: 0.0)
+        fixture.options.sessionReplay = replayOptions
+        
+        let replayIntegration = SentrySessionReplayIntegration()
+        sut.addInstalledIntegration(replayIntegration, name: "SentrySessionReplayIntegration")
+        
+        // Set replayId on scope (session mode)
+        let replayId = "12345678-1234-1234-1234-123456789012"
+        fixture.scope.replayId = replayId
+        
+        let sut = fixture.getSut(fixture.options, fixture.scope)
+        (sut._swiftLogger as! SentryLogger).info("Test message")
+        
+        XCTAssertEqual(1, fixture.client.captureLogInvocations.count)
+        let capturedLog = fixture.client.captureLogInvocations.first?.log
+        XCTAssertEqual(capturedLog?.attributes["sentry.replay_id"]?.value as? String, replayId)
+        XCTAssertNil(capturedLog?.attributes["sentry._internal.replay_is_buffering"])
+    }
+    
+    func testCaptureLog_ReplayAttributes_BufferMode_AddsReplayIdAndBufferingFlag() {
+        // Set up buffer mode: hub has an ID, but scope.replayId is nil
+        let mockReplayId = SentryId()
+        let testHub = TestHub(client: fixture.client, andScope: fixture.scope)
+        testHub.mockReplayId = mockReplayId.sentryIdString
+        fixture.scope.replayId = nil
+        
+        (testHub._swiftLogger as! SentryLogger).info("Test message")
+        
+        XCTAssertEqual(1, fixture.client.captureLogInvocations.count)
+        let capturedLog = fixture.client.captureLogInvocations.first?.log
+        let replayIdString = capturedLog?.attributes["sentry.replay_id"]?.value as? String
+        XCTAssertEqual(replayIdString, mockReplayId.sentryIdString)
+        XCTAssertEqual(capturedLog?.attributes["sentry._internal.replay_is_buffering"]?.value as? Bool, true)
+    }
+    
+    func testCaptureLog_ReplayAttributes_NoReplay_NoAttributesAdded() {
+        // Don't set up replay integration
+        let sut = fixture.getSut(fixture.options, fixture.scope)
+        
+        (sut._swiftLogger as! SentryLogger).info("Test message")
+        
+        XCTAssertEqual(1, fixture.client.captureLogInvocations.count)
+        let capturedLog = fixture.client.captureLogInvocations.first?.log
+        XCTAssertNil(capturedLog?.attributes["sentry.replay_id"])
+        XCTAssertNil(capturedLog?.attributes["sentry._internal.replay_is_buffering"])
+    }
+    
+    func testCaptureLog_ReplayAttributes_BothSessionAndScopeReplayId_SessionMode() {
+        // Session mode: scope has the ID, hub also has one
+        let replayId = "12345678-1234-1234-1234-123456789012"
+        let testHub = TestHub(client: fixture.client, andScope: fixture.scope)
+        testHub.mockReplayId = replayId
+        fixture.scope.replayId = replayId
+        
+        (testHub._swiftLogger as! SentryLogger).info("Test message")
+        
+        XCTAssertEqual(1, fixture.client.captureLogInvocations.count)
+        let capturedLog = fixture.client.captureLogInvocations.first?.log
+        // Session mode should use scope's ID (takes precedence) and not add buffering flag
+        XCTAssertEqual(capturedLog?.attributes["sentry.replay_id"]?.value as? String, replayId)
+        XCTAssertNil(capturedLog?.attributes["sentry._internal.replay_is_buffering"])
+    }
+#endif
+#endif
     
     func testCaptureErrorWithScope() {
         fixture.getSut().capture(error: fixture.error, scope: fixture.scope).assertIsNotEmpty()
@@ -958,7 +1033,7 @@ class SentryHubTests: XCTestCase {
         sut = fixture.getSut()
         let options = fixture.options
         options.releaseName = nil
-        let client = SentryClient(options: options)
+        let client = SentryClientInternal(options: options)
         sut.bindClient(client)
         
         givenCrashedSession()
@@ -1053,7 +1128,7 @@ class SentryHubTests: XCTestCase {
         sut = fixture.getSut()
         let options = fixture.options
         options.releaseName = nil
-        let client = SentryClient(options: options)
+        let client = SentryClientInternal(options: options)
         sut.bindClient(client)
         
         // Act
@@ -1064,8 +1139,7 @@ class SentryHubTests: XCTestCase {
         assertNoEventsSent()
     }
 #endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-    
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
+
     func testCaptureEnvelope_WithEventWithError() throws {
         sut.startSession()
         
@@ -1073,8 +1147,7 @@ class SentryHubTests: XCTestCase {
         
         try assertSessionWithIncrementedErrorCountedAdded()
     }
-    
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
+
     func testCaptureEnvelope_WithEventWithoutExceptionMechanism() throws {
         sut.startSession()
         
@@ -1082,8 +1155,7 @@ class SentryHubTests: XCTestCase {
         
         try assertSessionWithIncrementedErrorCountedAdded()
     }
-    
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
+
     func testCaptureEnvelope_WithEventWithFatal() throws {
         sut.startSession()
         
@@ -1091,8 +1163,7 @@ class SentryHubTests: XCTestCase {
         
         try assertSessionWithIncrementedErrorCountedAdded()
     }
-    
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
+
     func testCaptureEnvelope_WithEventWithNoLevel() throws {
         sut.startSession()
         
@@ -1103,8 +1174,7 @@ class SentryHubTests: XCTestCase {
         
         try assertSessionWithIncrementedErrorCountedAdded()
     }
-    
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
+
     func testCaptureEnvelope_WithEventWithGarbageLevel() throws {
         sut.startSession()
         
@@ -1115,15 +1185,13 @@ class SentryHubTests: XCTestCase {
         
         try assertSessionWithIncrementedErrorCountedAdded()
     }
-    
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
+
     func testCaptureEnvelope_WithEventWithFatal_SessionNotStarted() {
         captureEventEnvelope(level: SentryLevel.fatal)
         
         assertNoSessionAddedToCapturedEnvelope()
     }
-    
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
+
     func testCaptureEnvelope_WithEventWithWarning() {
         sut.startSession()
         
@@ -1131,8 +1199,7 @@ class SentryHubTests: XCTestCase {
         
         assertNoSessionAddedToCapturedEnvelope()
     }
-    
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
+
     func testCaptureEnvelope_WithClientNil() {
         sut.bindClient(nil)
         captureEventEnvelope(level: SentryLevel.warning)
@@ -1141,7 +1208,7 @@ class SentryHubTests: XCTestCase {
     }
     
     func testCaptureReplay() {
-        class SentryClientMockReplay: SentryClient {
+        class SentryClientMockReplay: SentryClientInternal {
             var replayEvent: SentryReplayEvent?
             var replayRecording: SentryReplayRecording?
             var videoUrl: URL?
@@ -1167,8 +1234,7 @@ class SentryHubTests: XCTestCase {
         XCTAssertEqual(mockClient?.videoUrl, videoUrl)
         XCTAssertEqual(mockClient?.scope, sut.scope)
     }
-    
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
+
     func testCaptureEnvelope_WithSession() {
         let envelope = SentryEnvelope(session: SentrySession(releaseName: "", distinctId: ""))
         sut.capture(envelope)
@@ -1176,8 +1242,7 @@ class SentryHubTests: XCTestCase {
         XCTAssertEqual(1, fixture.client.captureEnvelopeInvocations.count)
         XCTAssertEqual(envelope, fixture.client.captureEnvelopeInvocations.first)
     }
-    
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
+
     func testCaptureEnvelope_WithUnhandledException() throws {
         sut.startSession()
         
@@ -1198,8 +1263,7 @@ class SentryHubTests: XCTestCase {
         XCTAssertEqual(json["timestamp"] as? String, "1970-01-01T00:00:02.000Z")
         XCTAssertEqual(json["status"] as? String, "crashed")
     }
-    
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
+
     func testCaptureEnvelope_WithHandledException() {
         sut.startSession()
         
@@ -1223,7 +1287,7 @@ class SentryHubTests: XCTestCase {
         let testTTDTracker = TestTimeToDisplayTracker(waitForFullDisplay: true)
         
         let performanceTracker = Dynamic(SentryDependencyContainer.sharedInstance().uiViewControllerPerformanceTracker)
-        performanceTracker.currentTTDTracker = testTTDTracker
+        Dynamic(performanceTracker.helper).currentTTDTracker = testTTDTracker
 
         // -- Act --
         sut.reportFullyDisplayed()
@@ -1263,13 +1327,13 @@ class SentryHubTests: XCTestCase {
         }
     }
     
-    private func addBreadcrumbThroughConfigureScope(_ hub: SentryHub) {
+    private func addBreadcrumbThroughConfigureScope(_ hub: SentryHubInternal) {
         hub.configureScope({ scope in
             scope.addBreadcrumb(self.fixture.crumb)
         })
     }
     
-    private func captureConcurrentWithSession(count: Int, _ capture: @escaping (SentryHub) -> Void) {
+    private func captureConcurrentWithSession(count: Int, _ capture: @escaping (SentryHubInternal) -> Void) {
         let sut = fixture.getSut()
         sut.startSession()
         
@@ -1401,15 +1465,13 @@ class SentryHubTests: XCTestCase {
                                                             ]
                                                          ]))
     }
-    
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
+
     private func captureEventEnvelope(level: SentryLevel) {
         let event = TestData.event
         event.level = level
         sut.capture(SentryEnvelope(event: event))
     }
-    
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
+
     private func captureFatalEventWithoutExceptionMechanism() throws {
         let event = TestData.event
         event.level = SentryLevel.fatal
@@ -1436,7 +1498,6 @@ class SentryHubTests: XCTestCase {
         sut = fixture.getSut(options)
     }
     
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     private func givenEnvelopeWithModifiedEvent(modifyEventDict: (inout [String: Any]) -> Void) throws -> SentryEnvelope {
         let event = TestData.event
         let envelopeItem = SentryEnvelopeItem(event: event)
@@ -1452,7 +1513,7 @@ class SentryHubTests: XCTestCase {
         fixture.currentDateProvider.setDate(date: fixture.currentDateProvider.date().addingTimeInterval(bySeconds))
     }
     
-    private func assert(withScopeBreadcrumbsCount count: Int, with hub: SentryHub) {
+    private func assert(withScopeBreadcrumbsCount count: Int, with hub: SentryHubInternal) {
         let scopeBreadcrumbs = hub.scope.serialize()["breadcrumbs"] as? [AnyHashable]
         XCTAssertNotNil(scopeBreadcrumbs)
         XCTAssertEqual(scopeBreadcrumbs?.count, count)
@@ -1534,6 +1595,70 @@ class SentryHubTests: XCTestCase {
         
         XCTAssertEqual(expected, span.sampled)
     }
+    
+#if canImport(UIKit) && !SENTRY_NO_UIKIT
+#if os(iOS) || os(tvOS)
+    func testGetSessionReplayId_ReturnsNilWhenIntegrationNotInstalled() {
+        let result = sut.getSessionReplayId()
+        XCTAssertNil(result)
+    }
+    
+    func testGetSessionReplayId_ReturnsNilWhenSessionReplayIsNil() {
+        let integration = SentrySessionReplayIntegration()
+        sut.addInstalledIntegration(integration, name: "SentrySessionReplayIntegration")
+        
+        let result = sut.getSessionReplayId()
+        
+        XCTAssertNil(result)
+    }
+    
+    func testGetSessionReplayId_ReturnsNilWhenSessionReplayIdIsNil() {
+        let integration = SentrySessionReplayIntegration()
+        let mockSessionReplay = createMockSessionReplay()
+        Dynamic(integration).sessionReplay = mockSessionReplay
+        sut.addInstalledIntegration(integration, name: "SentrySessionReplayIntegration")
+        
+        let result = sut.getSessionReplayId()
+        
+        XCTAssertNil(result)
+    }
+    
+    func testGetSessionReplayId_ReturnsIdStringWhenSessionReplayIdExists() {
+        let integration = SentrySessionReplayIntegration()
+        let mockSessionReplay = createMockSessionReplay()
+        let rootView = UIView()
+        mockSessionReplay.start(rootView: rootView, fullSession: true)
+        
+        Dynamic(integration).sessionReplay = mockSessionReplay
+        sut.addInstalledIntegration(integration, name: "SentrySessionReplayIntegration")
+        
+        let result = sut.getSessionReplayId()
+        
+        XCTAssertNotNil(result)
+        XCTAssertEqual(result, mockSessionReplay.sessionReplayId?.sentryIdString)
+    }
+    
+    private func createMockSessionReplay() -> MockSentrySessionReplay {
+        return MockSentrySessionReplay()
+    }
+    
+    private class MockSentrySessionReplay: SentrySessionReplay {
+        init() {
+            super.init(
+                replayOptions: SentryReplayOptions(sessionSampleRate: 0, onErrorSampleRate: 0),
+                replayFolderPath: FileManager.default.temporaryDirectory,
+                screenshotProvider: MockScreenshotProvider(),
+                replayMaker: MockReplayMaker(),
+                breadcrumbConverter: SentrySRDefaultBreadcrumbConverter(),
+                touchTracker: nil,
+                dateProvider: TestCurrentDateProvider(),
+                delegate: MockReplayDelegate(),
+                displayLinkWrapper: TestDisplayLinkWrapper()
+            )
+        }
+    }
+#endif
+#endif
 }
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
@@ -1547,6 +1672,30 @@ class TestTimeToDisplayTracker: SentryTimeToDisplayTracker {
     override func reportFullyDisplayed() {
         registerFullDisplayCalled = true
     }
-    
 }
+#endif
+
+#if canImport(UIKit) && !SENTRY_NO_UIKIT
+#if os(iOS) || os(tvOS)
+private class MockScreenshotProvider: NSObject, SentryViewScreenshotProvider {
+    func image(view: UIView, onComplete: @escaping Sentry.ScreenshotCallback) {
+        onComplete(UIImage())
+    }
+}
+
+private class MockReplayDelegate: NSObject, SentrySessionReplayDelegate {
+    func sessionReplayShouldCaptureReplayForError() -> Bool { return true }
+    func sessionReplayNewSegment(replayEvent: SentryReplayEvent, replayRecording: SentryReplayRecording, videoUrl: URL) {}
+    func sessionReplayStarted(replayId: SentryId) {}
+    func breadcrumbsForSessionReplay() -> [Breadcrumb] { return [] }
+    func currentScreenNameForSessionReplay() -> String? { return nil }
+}
+
+private class MockReplayMaker: NSObject, SentryReplayVideoMaker {
+    func createVideoInBackgroundWith(beginning: Date, end: Date, completion: @escaping ([Sentry.SentryVideoInfo]) -> Void) {}
+    func createVideoWith(beginning: Date, end: Date) -> [Sentry.SentryVideoInfo] { return [] }
+    func addFrameAsync(timestamp: Date, maskedViewImage: UIImage, forScreen: String?) {}
+    func releaseFramesUntil(_ date: Date) {}
+}
+#endif
 #endif

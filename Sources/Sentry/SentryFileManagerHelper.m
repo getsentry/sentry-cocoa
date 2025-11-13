@@ -1,15 +1,14 @@
 #import "SentryFileManagerHelper.h"
 #import "SentryDataCategoryMapper.h"
 #import "SentryDateUtils.h"
-#import "SentryDependencyContainer.h"
+#import "SentryDsn+Private.h"
 #import "SentryDsn.h"
 #import "SentryEnvelopeItemHeader.h"
 #import "SentryError.h"
-#import "SentryEvent+Serialize.h"
 #import "SentryEvent.h"
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"
-#import "SentryOptions.h"
+#import "SentrySDK+Private.h"
 #import "SentrySerialization.h"
 #import "SentrySwift.h"
 
@@ -103,7 +102,14 @@ _non_thread_safe_removeFileAtPath(NSString *path)
 
 @implementation SentryFileManagerHelper
 
-- (nullable instancetype)initWithOptions:(SentryOptions *)options error:(NSError **)error
+- (nullable instancetype)initWithPlaceholder:(NSObject *)objc
+                                       error:(NSError *_Nullable *_Nullable)error
+{
+    SentryOptions *options = SentrySDK.startOption;
+    return [self initWithOptions:options error:error];
+}
+
+- (nullable instancetype)initWithOptions:(SentryOptions *_Nullable)options error:(NSError **)error
 {
     if (self = [super init]) {
         [self createPathsWithOptions:options];
@@ -128,7 +134,7 @@ _non_thread_safe_removeFileAtPath(NSString *path)
     return self;
 }
 
-- (void)createPathsWithOptions:(SentryOptions *)options
+- (void)createPathsWithOptions:(SentryOptions *_Nullable)options
 {
     NSString *cachePath = options.cacheDirectoryPath;
 

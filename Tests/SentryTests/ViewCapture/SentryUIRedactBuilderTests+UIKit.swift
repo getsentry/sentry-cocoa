@@ -1,11 +1,10 @@
-#if os(iOS)
+#if os(iOS) && !targetEnvironment(macCatalyst)
 import AVKit
 import Foundation
 import PDFKit
 import SafariServices
 @_spi(Private) @testable import Sentry
 import SentryTestUtils
-import SnapshotTesting
 import SwiftUI
 import UIKit
 import WebKit
@@ -17,8 +16,6 @@ import XCTest
 // (lldb) po rootView.value(forKey: "recursiveDescription")!
 // ```
 class SentryUIRedactBuilderTests_UIKit: SentryUIRedactBuilderTests { // swiftlint:disable:this type_name
-    private var rootView: UIView!
-
     private func getSut(maskAllText: Bool, maskAllImages: Bool) -> SentryUIRedactBuilder {
         return SentryUIRedactBuilder(options: TestRedactOptions(
             maskAllText: maskAllText,
@@ -26,16 +23,16 @@ class SentryUIRedactBuilderTests_UIKit: SentryUIRedactBuilderTests { // swiftlin
         ))
     }
 
-    override func setUp() {
-        rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
-    }
-
     // MARK: - UILabel Redaction
 
-    private func setupUILabelFixture(textColor: UIColor? = nil) {
+    private func setupUILabelFixture(textColor: UIColor? = nil) -> UIView {
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+
         let label = UILabel(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
         label.textColor = textColor ?? .purple
         rootView.addSubview(label)
+
+        return rootView
 
         // View Hierarchy:
         // ---------------
@@ -45,16 +42,13 @@ class SentryUIRedactBuilderTests_UIKit: SentryUIRedactBuilderTests { // swiftlin
 
     func testRedact_withUILabel_withMaskAllTextEnabled_shouldRedactView() throws {
         // -- Arrange --
-        setupUILabelFixture()
+        let rootView = setupUILabelFixture()
 
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: true)
         let result = sut.redactRegionsFor(view: rootView)
-        let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: masked, as: .image)
-        
         let region = try XCTUnwrap(result.element(at: 0))
         // For UILabel we can use the text color directly to render the redaction geometry
         XCTAssertEqual(region.color, .purple)
@@ -68,21 +62,18 @@ class SentryUIRedactBuilderTests_UIKit: SentryUIRedactBuilderTests { // swiftlin
 
     func testRedact_withUILabel_withMaskAllTextEnabled_withTransparentForegroundColor_shouldNotUseTransparentColor() throws {
         // -- Arrange --
-        setupUILabelFixture(
+        let rootView = setupUILabelFixture(
             textColor: UIColor.purple.withAlphaComponent(0.5) // Any color with an opacity below 1.0 is considered transparent
         )
 
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: true)
         let result = sut.redactRegionsFor(view: rootView)
-        let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: masked, as: .image)
-        
         let region = try XCTUnwrap(result.element(at: 0))
         // For UILabel we can derive which color should be used to render the redaction geometry
-        XCTAssertEqual(region.color, .purple)
+        XCTAssertEqual(region.color, UIColor.purple.withAlphaComponent(1.0))
         XCTAssertEqual(region.size, CGSize(width: 40, height: 40))
         XCTAssertEqual(region.type, .redact)
         XCTAssertEqual(region.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 20, ty: 20))
@@ -93,39 +84,39 @@ class SentryUIRedactBuilderTests_UIKit: SentryUIRedactBuilderTests { // swiftlin
 
     func testRedact_withUILabel_withMaskAllTextDisabled_shouldNotRedactView() {
         // -- Arrange --
-        setupUILabelFixture()
+        let rootView = setupUILabelFixture()
 
         // -- Act --
         let sut = getSut(maskAllText: false, maskAllImages: true)
         let result = sut.redactRegionsFor(view: rootView)
-        let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: masked, as: .image)
         XCTAssertEqual(result.count, 0)
     }
 
     /// This test is to ensure that the option `maskAllImages` does not affect the UILabel redaction
     func testRedact_withUILabel_withMaskAllImagesDisabled_shouldRedactView() throws {
         // -- Arrange --
-        setupUILabelFixture()
+        let rootView = setupUILabelFixture()
 
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: false)
         let result = sut.redactRegionsFor(view: rootView)
-        let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: masked, as: .image)
         XCTAssertEqual(result.count, 1)
     }
 
     // - MARK: - UITextView Redaction
 
-    private func setupUITextViewFixture() {
+    private func setupUITextViewFixture() -> UIView {
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+
         let textView = UITextView(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
         textView.textColor = .purple // Set a specific color so it's definitiely set
         rootView.addSubview(textView)
+
+        return rootView
 
         // View Hierarchy:
         // ---------------
@@ -156,16 +147,13 @@ class SentryUIRedactBuilderTests_UIKit: SentryUIRedactBuilderTests { // swiftlin
 
     func testRedact_withUITextView_withMaskAllTextEnabled_shouldRedactView() throws {
         // -- Arrange --
-        setupUITextViewFixture()
+        let rootView = setupUITextViewFixture()
 
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: true)
         let result = sut.redactRegionsFor(view: rootView)
-        let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: masked, as: .image)
-        
         let region = try XCTUnwrap(result.element(at: 0))
         // The text color of UITextView is not used for redaction
         XCTAssertNil(region.color)
@@ -179,16 +167,13 @@ class SentryUIRedactBuilderTests_UIKit: SentryUIRedactBuilderTests { // swiftlin
 
     func testRedact_withUITextView_withMaskAllTextDisabled_shouldNotRedactView() throws {
         // -- Arrange --
-        setupUITextViewFixture()
+        let rootView = setupUITextViewFixture()
 
         // -- Act --
         let sut = getSut(maskAllText: false, maskAllImages: true)
         let result = sut.redactRegionsFor(view: rootView)
-        let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: masked, as: .image)
-        
         let region1 = try XCTUnwrap(result.element(at: 0))
         XCTAssertNil(region1.color)
         XCTAssertEqual(region1.size, CGSize(width: 40, height: 40))
@@ -214,53 +199,51 @@ class SentryUIRedactBuilderTests_UIKit: SentryUIRedactBuilderTests { // swiftlin
 
     func testRedact_withUITextView_withMaskAllImagesDisabled_shouldRedactView() throws {
         // -- Arrange --
-        setupUITextViewFixture()
+        let rootView = setupUITextViewFixture()
 
         // -- Act --
-        let sut = getSut(maskAllText: true, maskAllImages: true)
+        let sut = getSut(maskAllText: true, maskAllImages: false)
         let result = sut.redactRegionsFor(view: rootView)
-        let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: masked, as: .image)
         XCTAssertEqual(result.count, 1)
     }
 
     // MARK: - UITextField Redaction
 
-    private func setupUITextFieldFixture() {
+    private func setupUITextFieldFixture() -> UIView {
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+        
         let textField = UITextField(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
         textField.textColor = .purple // Set a specific color so it's definitiely set
         rootView.addSubview(textField)
+
+        return rootView
 
         // View Hierarchy:
         // ---------------
         // <UIView: 0x104151d70; frame = (0 0; 100 100); layer = <CALayer: 0x600000cf0ab0>>
         // | <UITextField: 0x104842200; frame = (20 20; 40 40); text = ''; opaque = NO; borderStyle = None; background = <_UITextFieldNoBackgroundProvider: 0x600000030670: textfield=<UITextField: 0x104842200>>; layer = <CALayer: 0x600000cf21f0>>
         // |    | <_UITextLayoutCanvasView: 0x104241040; frame = (0 0; 0 0); layer = <CALayer: 0x600000cee4f0>>
-        
     }
 
     func testRedact_withUITextField_withMaskAllTextEnabled_shouldRedactView() throws {
         // -- Arrange --
-        setupUITextFieldFixture()
+        let rootView = setupUITextFieldFixture()
 
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: true)
         let result = sut.redactRegionsFor(view: rootView)
-        let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: masked, as: .image)
-        
         let region1 = try XCTUnwrap(result.element(at: 0)) // _UITextLayoutCanvasView
-        XCTAssertNil(region1.color)// The text color of UITextView is not used for redaction
+        XCTAssertNil(region1.color) // The text color of UITextField is not used for redaction
         XCTAssertEqual(region1.size, CGSize(width: 0, height: 0))
         XCTAssertEqual(region1.type, .redact)
         XCTAssertEqual(region1.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 20, ty: 20))
 
         let region2 = try XCTUnwrap(result.element(at: 1)) // UITextField
-        XCTAssertNil(region2.color) // The text color of UITextView is not used for redaction
+        XCTAssertNil(region2.color) // The text color of UITextField is not used for redaction
         XCTAssertEqual(region2.size, CGSize(width: 40, height: 40))
         XCTAssertEqual(region2.type, .redact)
         XCTAssertEqual(region2.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 20, ty: 20))
@@ -271,35 +254,33 @@ class SentryUIRedactBuilderTests_UIKit: SentryUIRedactBuilderTests { // swiftlin
 
     func testRedact_withUITextField_withMaskAllTextDisabled_shouldNotRedactView() {
         // -- Arrange --
-        setupUITextFieldFixture()
+        let rootView = setupUITextFieldFixture()
 
         // -- Act --
         let sut = getSut(maskAllText: false, maskAllImages: true)
         let result = sut.redactRegionsFor(view: rootView)
-        let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: masked, as: .image)
         XCTAssertEqual(result.count, 0)
     }
 
     func testRedact_withUITextField_withMaskAllImagesDisabled_shouldRedactView() {
         // -- Arrange --
-        setupUITextFieldFixture()
+        let rootView = setupUITextFieldFixture()
 
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: false)
         let result = sut.redactRegionsFor(view: rootView)
-        let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: masked, as: .image)
         XCTAssertEqual(result.count, 2)
     }
 
     // MARK: - UIImageView Redaction
 
-    private func setupUIImageViewFixture() {
+    private func setupUIImageViewFixture() -> UIView {
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+
         let image = UIGraphicsImageRenderer(size: CGSize(width: 40, height: 40)).image { context in
             context.fill(CGRect(x: 0, y: 0, width: 40, height: 40))
         }
@@ -307,6 +288,8 @@ class SentryUIRedactBuilderTests_UIKit: SentryUIRedactBuilderTests { // swiftlin
         let imageView = UIImageView(image: image)
         imageView.frame = CGRect(x: 20, y: 20, width: 40, height: 40)
         rootView.addSubview(imageView)
+
+        return rootView
 
         // View Hierarchy:
         // ---------------
@@ -316,16 +299,13 @@ class SentryUIRedactBuilderTests_UIKit: SentryUIRedactBuilderTests { // swiftlin
 
     func testRedact_withUIImageView_withMaskAllImagesEnabled_shouldRedactView() throws {
         // -- Arrange --
-        setupUIImageViewFixture()
+        let rootView = setupUIImageViewFixture()
 
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: true)
         let result = sut.redactRegionsFor(view: rootView)
-        let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: masked, as: .image)
-        
         let region = try XCTUnwrap(result.element(at: 0))
         // The text color of UITextView is not used for redaction
         XCTAssertNil(region.color)
@@ -339,29 +319,25 @@ class SentryUIRedactBuilderTests_UIKit: SentryUIRedactBuilderTests { // swiftlin
 
     func testRedact_withUIImageView_withMaskAllImagesDisabled_shouldNotRedactView() {
         // -- Arrange --
-        setupUIImageViewFixture()
+        let rootView = setupUIImageViewFixture()
 
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: false)
         let result = sut.redactRegionsFor(view: rootView)
-        let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: masked, as: .image)
         XCTAssertEqual(result.count, 0)
     }
 
     func testRedact_withUIImageView_withMaskAllTextDisabled_shouldRedactView() {
         // -- Arrange --
-        setupUIImageViewFixture()
+        let rootView = setupUIImageViewFixture()
 
         // -- Act --
         let sut = getSut(maskAllText: false, maskAllImages: true)
         let result = sut.redactRegionsFor(view: rootView)
-        let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: masked, as: .image)
         XCTAssertEqual(result.count, 1)
     }
 
@@ -373,6 +349,7 @@ class SentryUIRedactBuilderTests_UIKit: SentryUIRedactBuilderTests { // swiftlin
         }
 
         // -- Arrange --
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
         let imageView = UIImageView(image: .add)
         imageView.frame = CGRect(x: 20, y: 20, width: 40, height: 40)
         rootView.addSubview(imageView)
@@ -392,6 +369,7 @@ class SentryUIRedactBuilderTests_UIKit: SentryUIRedactBuilderTests { // swiftlin
 
     func testUIImageViewSmallImage_shouldNotRedact() {
         // -- Arrange --
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
         // Create a tiny image (below 10x10 threshold)
         let tiny = UIGraphicsImageRenderer(size: CGSize(width: 5, height: 5)).image { ctx in
             UIColor.black.setFill()
@@ -409,73 +387,106 @@ class SentryUIRedactBuilderTests_UIKit: SentryUIRedactBuilderTests { // swiftlin
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: true)
         let result = sut.redactRegionsFor(view: rootView)
-        let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: masked, as: .image)
         XCTAssertEqual(result.count, 0)
     }
 
-    // MARK: - UIWebView
-
-    private func setupUIWebViewFixture() throws {
-        // The UIWebView initializer are marked as unavailable, therefore we need to create a fake view
-        let webView = try XCTUnwrap(createFakeView(
-            type: UIView.self,
-            name: "UIWebView",
-            frame: .init(x: 20, y: 20, width: 40, height: 40)
-        ))
-        rootView.addSubview(webView)
-
-        // View Hierarchy:
-        // ---------------
-        // <UIView: 0x106c20400; frame = (0 0; 100 100); layer = <CALayer: 0x600000cf08d0>>
-        //    | <UIWebView: 0x103a76a00; frame = (20 20; 40 40); layer = <CALayer: 0x600000cf1b60>>
-    }
-
-    func testRedact_withUIWebView_withMaskingEnabled_shouldRedactView() throws {
+    func testShouldRedact_withImageView_withNilImage_shouldNotRedact() {
         // -- Arrange --
-        try setupUIWebViewFixture()
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+        let imageView = UIImageView(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
+        imageView.image = nil
+        rootView.addSubview(imageView)
 
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: true)
         let result = sut.redactRegionsFor(view: rootView)
-        let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: masked, as: .image)
-        
-        let region = try XCTUnwrap(result.element(at: 0))
-        XCTAssertNil(region.color)
-        XCTAssertEqual(region.size, CGSize(width: 40, height: 40))
-        XCTAssertEqual(region.type, .redact)
-        XCTAssertEqual(region.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 20, ty: 20))
-
-        // Assert no additional regions
-        XCTAssertEqual(result.count, 1)
+        XCTAssertEqual(result.count, 0)
     }
 
-    func testRedact_withUIWebView_withMaskingDisabled_shouldRedactView() throws {
+    func testShouldRedact_withImageView_withExactly10x10Image_shouldNotRedact() {
         // -- Arrange --
-        try setupUIWebViewFixture()
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+        let image = UIGraphicsImageRenderer(size: CGSize(width: 10, height: 10)).image { ctx in
+            UIColor.black.setFill()
+            ctx.fill(CGRect(x: 0, y: 0, width: 10, height: 10))
+        }
+        let imageView = UIImageView(image: image)
+        imageView.frame = CGRect(x: 20, y: 20, width: 40, height: 40)
+        rootView.addSubview(imageView)
 
         // -- Act --
-        let sut = getSut(maskAllText: false, maskAllImages: false)
+        let sut = getSut(maskAllText: true, maskAllImages: true)
         let result = sut.redactRegionsFor(view: rootView)
-        let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: masked, as: .image)
-        
-        let region = try XCTUnwrap(result.element(at: 0))
-        XCTAssertNil(region.color)
-        XCTAssertEqual(region.size, CGSize(width: 40, height: 40))
-        XCTAssertEqual(region.type, .redact)
-        XCTAssertEqual(region.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 20, ty: 20))
+        XCTAssertEqual(result.count, 0)
+    }
 
-        // Assert no additional regions
+    func testShouldRedact_withImageView_with9x9Image_shouldNotRedact() {
+        // -- Arrange --
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+        let image = UIGraphicsImageRenderer(size: CGSize(width: 9, height: 9)).image { ctx in
+            UIColor.black.setFill()
+            ctx.fill(CGRect(x: 0, y: 0, width: 9, height: 9))
+        }
+        let imageView = UIImageView(image: image)
+        imageView.frame = CGRect(x: 20, y: 20, width: 40, height: 40)
+        rootView.addSubview(imageView)
+
+        // -- Act --
+        let sut = getSut(maskAllText: true, maskAllImages: true)
+        let result = sut.redactRegionsFor(view: rootView)
+
+        // -- Assert --
+        XCTAssertEqual(result.count, 0)
+    }
+
+    func testShouldRedact_withImageView_with11x11Image_shouldRedact() throws {
+        // -- Arrange --
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+        let image = UIGraphicsImageRenderer(size: CGSize(width: 11, height: 11)).image { ctx in
+            UIColor.black.setFill()
+            ctx.fill(CGRect(x: 0, y: 0, width: 11, height: 11))
+        }
+        let imageView = UIImageView(image: image)
+        imageView.frame = CGRect(x: 20, y: 20, width: 40, height: 40)
+        rootView.addSubview(imageView)
+
+        // -- Act --
+        let sut = getSut(maskAllText: true, maskAllImages: true)
+        let result = sut.redactRegionsFor(view: rootView)
+
+        // -- Assert --
         XCTAssertEqual(result.count, 1)
+        let region = try XCTUnwrap(result.first)
+        XCTAssertEqual(region.type, .redact)
+    }
+
+    func testShouldRedact_withImageView_withNilImageAsset_shouldRedact() throws {
+        // -- Arrange --
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+        // Create an image programmatically (no asset bundle)
+        let image = UIGraphicsImageRenderer(size: CGSize(width: 50, height: 50)).image { ctx in
+            UIColor.red.setFill()
+            ctx.fill(CGRect(x: 0, y: 0, width: 50, height: 50))
+        }
+        let imageView = UIImageView(image: image)
+        imageView.frame = CGRect(x: 20, y: 20, width: 40, height: 40)
+        rootView.addSubview(imageView)
+
+        // -- Act --
+        let sut = getSut(maskAllText: true, maskAllImages: true)
+        let result = sut.redactRegionsFor(view: rootView)
+
+        // -- Assert --
+        XCTAssertEqual(result.count, 1)
+        let region = try XCTUnwrap(result.first)
+        XCTAssertEqual(region.type, .redact)
     }
 }
 
-#endif // os(iOS)
+#endif // os(iOS) && !targetEnvironment(macCatalyst)

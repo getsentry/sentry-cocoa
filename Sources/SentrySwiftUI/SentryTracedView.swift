@@ -27,13 +27,13 @@ class SentryTraceViewModel {
     func startSpan() -> SpanId? {
         guard !viewAppeared else { return nil }
         
-        let trace = startRootTransaction()
-        let name = trace != nil ? "\(name) - body" : name
+        let hasTrace = startRootTransaction()
+        let name = hasTrace ? "\(name) - body" : name
         return createBodySpan(name: name)
     }
     
-    private func startRootTransaction() -> SentryTracer? {
-        guard SentryPerformanceTracker.shared.activeSpanId() == nil else { return nil }
+    private func startRootTransaction() -> Bool {
+        guard SentryPerformanceTracker.shared.activeSpanId() == nil else { return false }
         
         let transactionId = SentryPerformanceTracker.shared.startSpan(
             withName: name,
@@ -43,14 +43,14 @@ class SentryTraceViewModel {
         )
         SentryPerformanceTracker.shared.pushActiveSpan(transactionId)
         self.transactionId = transactionId
-        let tracer = SentryPerformanceTracker.shared.getSpan(transactionId) as? SentryTracer
 #if canImport(SwiftUI) && canImport(UIKit) && os(iOS) || os(tvOS)
-        if let tracer = tracer {
-            let uiViewControllerPerformanceTracker = SentryDependencyContainer.sharedInstance().uiViewControllerPerformanceTracker
-            tracker = uiViewControllerPerformanceTracker.startTimeToDisplay(forScreen: name, waitForFullDisplay: waitForFullDisplay, tracer: tracer)
-        }
+        let swiftUITraceHelper = SentryDefaultUIViewControllerPerformanceTracker.startTimeToDisplay(forScreen: name, waitForFullDisplay: waitForFullDisplay, transactionId: transactionId)
+        self.tracker = swiftUITraceHelper.initialDisplayReporting
+        return swiftUITraceHelper.hasSpan
+#else
+        return SentryPerformanceTracker.shared.hasSpan(transactionId)
 #endif
-        return tracer
+        
     }
     
     private func createBodySpan(name: String) -> SpanId {

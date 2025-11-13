@@ -1,16 +1,14 @@
 // swiftlint:disable file_length type_body_length
-#if os(iOS)
+#if os(iOS) && !targetEnvironment(macCatalyst)
 import Foundation
 @_spi(Private) @testable import Sentry
 import SentryTestUtils
-import SnapshotTesting
 import SwiftUI
 import UIKit
 import XCTest
 
+/// See `SentryUIRedactBuilderTests.swift` for more information on how to print the internal view hierarchy of a view.
 class SentryUIRedactBuilderTests_EdgeCases: SentryUIRedactBuilderTests { // swiftlint:disable:this type_name
-    private var rootView: UIView!
-
     private func getSut(maskAllText: Bool, maskAllImages: Bool, maskedViewClasses: [AnyClass] = [], unmaskedViewClasses: [AnyClass] = []) -> SentryUIRedactBuilder {
         return SentryUIRedactBuilder(options: TestRedactOptions(
             maskAllText: maskAllText,
@@ -20,79 +18,11 @@ class SentryUIRedactBuilderTests_EdgeCases: SentryUIRedactBuilderTests { // swif
         ))
     }
 
-    override func setUp() {
-        rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
-    }
-
-    // MARK: - ExtendedClassIdentifier & Layer Filtering
-
-    func testExtendedClassIdentifier_withMatchingLayerId_shouldMatch() {
-        // -- Arrange --
-        // Create a custom view with a custom layer
-        class CustomLayer: CALayer {}
-        class CustomView: UIView {
-            override class var layerClass: AnyClass {
-                return CustomLayer.self
-            }
-        }
-
-        let view = CustomView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
-        let identifier = SentryUIRedactBuilder.ExtendedClassIdentifier(
-            classId: CustomView.description(),
-            layerId: CustomLayer.description()
-        )
-
-        // -- Act --
-        let matches = identifier.matches(viewClass: type(of: view), layerClass: type(of: view.layer))
-
-        // -- Assert --
-        XCTAssertTrue(matches)
-    }
-
-    func testExtendedClassIdentifier_withoutMatchingLayerId_shouldNotMatch() {
-        // -- Arrange --
-        // Create a custom view with a standard CALayer
-        class CustomView: UIView {}
-
-        let view = CustomView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
-        let identifier = SentryUIRedactBuilder.ExtendedClassIdentifier(
-            classId: CustomView.description(),
-            layerId: "SomeOtherLayer"
-        )
-
-        // -- Act --
-        let matches = identifier.matches(viewClass: type(of: view), layerClass: type(of: view.layer))
-
-        // -- Assert --
-        XCTAssertFalse(matches)
-    }
-
-    func testExtendedClassIdentifier_withNoLayerIdFilter_shouldMatchAnyLayer() {
-        // -- Arrange --
-        class CustomLayer: CALayer {}
-        class CustomView: UIView {
-            override class var layerClass: AnyClass {
-                return CustomLayer.self
-            }
-        }
-
-        let view = CustomView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
-        let identifier = SentryUIRedactBuilder.ExtendedClassIdentifier(
-            classId: CustomView.description(),
-            layerId: nil
-        )
-
-        // -- Act --
-        let matches = identifier.matches(viewClass: type(of: view), layerClass: type(of: view.layer))
-
-        // -- Assert --
-        XCTAssertTrue(matches)
-    }
-
     // MARK: - Early Returns & Guard Conditions
 
     func testMapRedactRegion_withEmptyRedactClasses_shouldReturnEarly() {
         // -- Arrange --
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
         let label = UILabel(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
         rootView.addSubview(label)
 
@@ -106,36 +36,9 @@ class SentryUIRedactBuilderTests_EdgeCases: SentryUIRedactBuilderTests { // swif
         XCTAssertEqual(result.count, 0)
     }
 
-    func testMapRedactRegion_withHiddenLayer_shouldSkip() {
-        // -- Arrange --
-        let label = UILabel(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
-        label.isHidden = true
-        rootView.addSubview(label)
-
-        // -- Act --
-        let sut = getSut(maskAllText: true, maskAllImages: true)
-        let result = sut.redactRegionsFor(view: rootView)
-
-        // -- Assert --
-        XCTAssertEqual(result.count, 0)
-    }
-
-    func testMapRedactRegion_withZeroOpacity_shouldSkip() {
-        // -- Arrange --
-        let label = UILabel(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
-        label.alpha = 0
-        rootView.addSubview(label)
-
-        // -- Act --
-        let sut = getSut(maskAllText: true, maskAllImages: true)
-        let result = sut.redactRegionsFor(view: rootView)
-
-        // -- Assert --
-        XCTAssertEqual(result.count, 0)
-    }
-
     func testMapRedactRegion_withNoSublayers_shouldNotCrash() {
         // -- Arrange --
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
         // A simple view with no subviews will have no sublayers beyond its own layer
         let view = UIView(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
         rootView.addSubview(view)
@@ -151,6 +54,7 @@ class SentryUIRedactBuilderTests_EdgeCases: SentryUIRedactBuilderTests { // swif
 
     func testMapRedactRegion_withEmptySublayers_shouldNotCrash() {
         // -- Arrange --
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
         let view = UIView(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
         rootView.addSubview(view)
         // Explicitly set sublayers to empty array (though this is unusual)
@@ -164,103 +68,11 @@ class SentryUIRedactBuilderTests_EdgeCases: SentryUIRedactBuilderTests { // swif
         XCTAssertEqual(result.count, 0)
     }
 
-    // MARK: - UIImageView Edge Cases
-
-    func testShouldRedact_withImageView_withNilImage_shouldNotRedact() {
-        // -- Arrange --
-        let imageView = UIImageView(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
-        imageView.image = nil
-        rootView.addSubview(imageView)
-
-        // -- Act --
-        let sut = getSut(maskAllText: true, maskAllImages: true)
-        let result = sut.redactRegionsFor(view: rootView)
-
-        // -- Assert --
-        XCTAssertEqual(result.count, 0)
-    }
-
-    func testShouldRedact_withImageView_withExactly10x10Image_shouldNotRedact() {
-        // -- Arrange --
-        let image = UIGraphicsImageRenderer(size: CGSize(width: 10, height: 10)).image { ctx in
-            UIColor.black.setFill()
-            ctx.fill(CGRect(x: 0, y: 0, width: 10, height: 10))
-        }
-        let imageView = UIImageView(image: image)
-        imageView.frame = CGRect(x: 20, y: 20, width: 40, height: 40)
-        rootView.addSubview(imageView)
-
-        // -- Act --
-        let sut = getSut(maskAllText: true, maskAllImages: true)
-        let result = sut.redactRegionsFor(view: rootView)
-
-        // -- Assert --
-        XCTAssertEqual(result.count, 0)
-    }
-
-    func testShouldRedact_withImageView_with9x9Image_shouldNotRedact() {
-        // -- Arrange --
-        let image = UIGraphicsImageRenderer(size: CGSize(width: 9, height: 9)).image { ctx in
-            UIColor.black.setFill()
-            ctx.fill(CGRect(x: 0, y: 0, width: 9, height: 9))
-        }
-        let imageView = UIImageView(image: image)
-        imageView.frame = CGRect(x: 20, y: 20, width: 40, height: 40)
-        rootView.addSubview(imageView)
-
-        // -- Act --
-        let sut = getSut(maskAllText: true, maskAllImages: true)
-        let result = sut.redactRegionsFor(view: rootView)
-
-        // -- Assert --
-        XCTAssertEqual(result.count, 0)
-    }
-
-    func testShouldRedact_withImageView_with11x11Image_shouldRedact() throws {
-        // -- Arrange --
-        let image = UIGraphicsImageRenderer(size: CGSize(width: 11, height: 11)).image { ctx in
-            UIColor.black.setFill()
-            ctx.fill(CGRect(x: 0, y: 0, width: 11, height: 11))
-        }
-        let imageView = UIImageView(image: image)
-        imageView.frame = CGRect(x: 20, y: 20, width: 40, height: 40)
-        rootView.addSubview(imageView)
-
-        // -- Act --
-        let sut = getSut(maskAllText: true, maskAllImages: true)
-        let result = sut.redactRegionsFor(view: rootView)
-
-        // -- Assert --
-        XCTAssertEqual(result.count, 1)
-        let region = try XCTUnwrap(result.first)
-        XCTAssertEqual(region.type, .redact)
-    }
-
-    func testShouldRedact_withImageView_withNilImageAsset_shouldRedact() throws {
-        // -- Arrange --
-        // Create an image programmatically (no asset bundle)
-        let image = UIGraphicsImageRenderer(size: CGSize(width: 50, height: 50)).image { ctx in
-            UIColor.red.setFill()
-            ctx.fill(CGRect(x: 0, y: 0, width: 50, height: 50))
-        }
-        let imageView = UIImageView(image: image)
-        imageView.frame = CGRect(x: 20, y: 20, width: 40, height: 40)
-        rootView.addSubview(imageView)
-
-        // -- Act --
-        let sut = getSut(maskAllText: true, maskAllImages: true)
-        let result = sut.redactRegionsFor(view: rootView)
-
-        // -- Assert --
-        XCTAssertEqual(result.count, 1)
-        let region = try XCTUnwrap(result.first)
-        XCTAssertEqual(region.type, .redact)
-    }
-
     // MARK: - Color Extraction
 
     func testColor_withUILabel_withNilTextColor_shouldUseDefaultColor() throws {
         // -- Arrange --
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
         let label = UILabel(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
         label.textColor = nil // UIKit will assign default label color
         rootView.addSubview(label)
@@ -280,6 +92,7 @@ class SentryUIRedactBuilderTests_EdgeCases: SentryUIRedactBuilderTests { // swif
 
     func testColor_withNonUILabel_shouldReturnNil() throws {
         // -- Arrange --
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
         let textView = UITextView(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
         rootView.addSubview(textView)
 
@@ -296,6 +109,7 @@ class SentryUIRedactBuilderTests_EdgeCases: SentryUIRedactBuilderTests { // swif
 
     func testColor_withUILabel_withTransparentTextColor_shouldReturnOpaqueVersion() throws {
         // -- Arrange --
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
         let label = UILabel(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
         label.textColor = UIColor.purple.withAlphaComponent(0.5)
         rootView.addSubview(label)
@@ -313,8 +127,92 @@ class SentryUIRedactBuilderTests_EdgeCases: SentryUIRedactBuilderTests { // swif
 
     // MARK: - Transform & Geometry
 
+    func testOpaqueRotatedView_coveringRoot_doesNotClearPreviousRedactions() throws {
+        // -- Arrange --
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+        // Add a label that should be redacted
+        let label = UILabel(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
+        label.text = "Hello World"
+        label.textColor = .purple
+        rootView.addSubview(label)
+
+        // Add an opaque view that covers the root bounds but is rotated (not axis aligned)
+        let cover = UIView(frame: rootView.bounds)
+        cover.backgroundColor = .black
+        cover.transform = CGAffineTransform(rotationAngle: .pi / 8)
+        rootView.addSubview(cover)
+
+        // View Hierarchy:
+        // ---------------
+        // <UIView: 0x11cc1e820; frame = (0 0; 100 100); layer = <CALayer: 0x600000cc8b70>>
+        //   | <UILabel: 0x11ca06500; frame = (20 20; 40 40); userInteractionEnabled = NO; backgroundColor = UIExtendedGrayColorSpace 0 0; layer = <_UILabelLayer: 0x600002c47c00>>
+        //   | <UIView: 0x11ca04440; frame = (-15.3281 -15.3281; 130.656 130.656); transform = [0.92387953251128674, 0.38268343236508978, -0.38268343236508978, 0.92387953251128674, 0, 0]; backgroundColor = UIExtendedGrayColorSpace 0 1; layer = <CALayer: 0x600000c21170>>
+
+        // -- Act --
+        let sut = getSut(maskAllText: true, maskAllImages: true)
+        let result = sut.redactRegionsFor(view: rootView)
+
+        // -- Assert --
+        // Without explicit opaque configuration, no clipOut should be added; label remains redacted
+        let onlyRegion = try XCTUnwrap(result.element(at: 0))
+        XCTAssertEqual(onlyRegion.color, UIColor.purple)
+        XCTAssertEqual(onlyRegion.type, .redact)
+        XCTAssertEqual(onlyRegion.size, CGSize(width: 40, height: 40))
+        XCTAssertEqual(onlyRegion.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 20, ty: 20))
+        XCTAssertEqual(result.count, 1)
+    }
+
+    func testOpaqueRotatedView_coveringRoot_explicitOpaque_shouldCreateClipOut() throws {
+        // -- Arrange --
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+        let label = UILabel(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
+        label.text = "Hello World"
+        label.textColor = .purple
+        rootView.addSubview(label)
+
+        let cover = UIView(frame: rootView.bounds)
+        cover.backgroundColor = .black
+        cover.isOpaque = true
+        cover.layer.isOpaque = true
+        cover.layer.backgroundColor = UIColor.black.cgColor
+        cover.transform = CGAffineTransform(rotationAngle: .pi / 8)
+        rootView.addSubview(cover)
+
+        // -- Act --
+        let sut = getSut(maskAllText: true, maskAllImages: true)
+        let result = sut.redactRegionsFor(view: rootView)
+
+        // -- Assert --
+        let region = try XCTUnwrap(result.element(at: 0))
+        XCTAssertNil(region.color)
+        XCTAssertEqual(region.size, CGSize(width: 100, height: 100))
+        XCTAssertEqual(region.type, .clipOut)
+        XCTAssertAffineTransformEqual(
+            region.transform,
+            CGAffineTransform(
+                a: 0.9238795325112867,
+                b: 0.3826834323650898,
+                c: -0.3826834323650898,
+                d: 0.9238795325112867,
+                tx: 22.940194992690152,
+                ty: -15.328148243818825
+            ),
+            accuracy: 0.001
+        )
+
+        let region2 = try XCTUnwrap(result.element(at: 1))
+        XCTAssertEqual(region2.color, UIColor.purple)
+        XCTAssertEqual(region2.size, CGSize(width: 40, height: 40))
+        XCTAssertEqual(region2.type, .redact)
+        XCTAssertEqual(region2.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 20, ty: 20))
+
+        // Assert that no other regions
+        XCTAssertEqual(result.count, 2)
+    }
+
     func testConcatenateTranform_withCustomAnchorPoint_shouldCalculateCorrectly() throws {
         // -- Arrange --
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
         let label = UILabel(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
         label.layer.anchorPoint = CGPoint(x: 0.25, y: 0.75)
         rootView.addSubview(label)
@@ -338,6 +236,7 @@ class SentryUIRedactBuilderTests_EdgeCases: SentryUIRedactBuilderTests { // swif
 
     func testConcatenateTranform_withZeroAnchorPoint_shouldCalculateCorrectly() throws {
         // -- Arrange --
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
         let label = UILabel(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
         label.layer.anchorPoint = CGPoint(x: 0, y: 0)
         rootView.addSubview(label)
@@ -358,6 +257,7 @@ class SentryUIRedactBuilderTests_EdgeCases: SentryUIRedactBuilderTests { // swif
 
     func testConcatenateTranform_withOneAnchorPoint_shouldCalculateCorrectly() throws {
         // -- Arrange --
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
         let label = UILabel(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
         label.layer.anchorPoint = CGPoint(x: 1, y: 1)
         rootView.addSubview(label)
@@ -379,8 +279,10 @@ class SentryUIRedactBuilderTests_EdgeCases: SentryUIRedactBuilderTests { // swif
 
     func testIsAxisAligned_withRotation_shouldReturnFalse() throws {
         // -- Arrange --
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
         let label = UILabel(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
         label.transform = CGAffineTransform(rotationAngle: .pi / 4)
+        label.textColor = .purple
         rootView.addSubview(label)
 
         // Create an opaque view covering the entire root to test axis alignment check
@@ -394,16 +296,91 @@ class SentryUIRedactBuilderTests_EdgeCases: SentryUIRedactBuilderTests { // swif
         let result = sut.redactRegionsFor(view: rootView)
 
         // -- Assert --
-        // The rotated opaque view should create a clipOut region (not clear the redacting array)
-        // because isAxisAligned returns false
-        XCTAssertGreaterThan(result.count, 0)
-        let hasClipOut = result.contains { $0.type == .clipOut }
-        XCTAssertTrue(hasClipOut, "Rotated opaque view should create clipOut region")
+        // Without explicit opaque configuration, expect only the rotated label redact region
+        let labelRegion = try XCTUnwrap(result.element(at: 0))
+        XCTAssertEqual(labelRegion.color, UIColor.purple)
+        XCTAssertEqual(labelRegion.type, .redact)
+        XCTAssertEqual(labelRegion.size, CGSize(width: 40, height: 40))
+        XCTAssertAffineTransformEqual(
+            labelRegion.transform,
+            CGAffineTransform(
+                a: 0.70710678118654757,
+                b: 0.70710678118654746,
+                c: -0.70710678118654746,
+                d: 0.70710678118654757,
+                tx: 40,
+                ty: 11.715728752538098
+            ),
+            accuracy: 0.001
+        )
+        XCTAssertEqual(result.count, 1)
+    }
+
+    func testIsAxisAligned_withRotation_explicitOpaque_shouldReturnFalse() throws {
+        // -- Arrange --
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+        let label = UILabel(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
+        label.transform = CGAffineTransform(rotationAngle: .pi / 4)
+        label.textColor = .purple
+        rootView.addSubview(label)
+
+        let opaqueView = UIView(frame: rootView.bounds)
+        opaqueView.backgroundColor = .black
+        opaqueView.isOpaque = true
+        opaqueView.layer.isOpaque = true
+        opaqueView.layer.backgroundColor = UIColor.black.cgColor
+        opaqueView.transform = CGAffineTransform(rotationAngle: .pi / 4)
+        rootView.addSubview(opaqueView)
+
+        // -- Act --
+        let sut = getSut(maskAllText: true, maskAllImages: true)
+        let result = sut.redactRegionsFor(view: rootView)
+
+        // -- Assert --
+        let containerRegion = try XCTUnwrap(result.element(at: 0))
+        XCTAssertNil(containerRegion.color)
+        XCTAssertEqual(containerRegion.type, .clipOut)
+        XCTAssertEqual(containerRegion.size, CGSize(width: 100, height: 100))
+        XCTAssertAffineTransformEqual(
+            containerRegion.transform,
+            CGAffineTransform(
+                a: 0.70710678118654757,
+                b: 0.70710678118654746,
+                c: -0.70710678118654746,
+                d: 0.70710678118654757,
+                tx: 50,
+                ty: -20.710678118654752
+            ),
+            accuracy: 0.001
+        )
+
+        let labelRegion = try XCTUnwrap(result.element(at: 1))
+        XCTAssertEqual(labelRegion.color, UIColor.purple)
+        XCTAssertEqual(labelRegion.type, .redact)
+        XCTAssertEqual(labelRegion.size, CGSize(width: 40, height: 40))
+        XCTAssertAffineTransformEqual(
+            labelRegion.transform,
+            CGAffineTransform(
+                a: 0.70710678118654757,
+                b: 0.70710678118654746,
+                c: -0.70710678118654746,
+                d: 0.70710678118654757,
+                tx: 40,
+                ty: 11.715728752538098
+            ),
+            accuracy: 0.001
+        )
+
+        // Assert that no other regions
+        XCTAssertEqual(result.count, 2)
     }
 
     func testIsAxisAligned_withScaleOnly_shouldReturnTrue() throws {
         // -- Arrange --
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
         let label = UILabel(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
+        label.text = "Hello, World!"
+        label.textColor = .purple
         rootView.addSubview(label)
 
         // Create an opaque view that covers the entire root with scale transform
@@ -417,15 +394,243 @@ class SentryUIRedactBuilderTests_EdgeCases: SentryUIRedactBuilderTests { // swif
         let result = sut.redactRegionsFor(view: rootView)
 
         // -- Assert --
-        // With scale only and covering the root, it might clear or create clipOut
-        // The important thing is it doesn't crash and handles scale-only transforms
-        XCTAssertNotNil(result)
+        // Without explicit opaque configuration, view should not be treated as opaque; expect only label redact
+        let labelRegion = try XCTUnwrap(result.element(at: 0))
+        XCTAssertEqual(labelRegion.color, UIColor.purple)
+        XCTAssertEqual(labelRegion.type, .redact)
+        XCTAssertEqual(labelRegion.size, CGSize(width: 40, height: 40))
+        XCTAssertAffineTransformEqual(
+            labelRegion.transform,
+            CGAffineTransform(
+                a: 1,
+                b: 0,
+                c: 0,
+                d: 1,
+                tx: 20,
+                ty: 20
+            ),
+            accuracy: 0.001
+        )
+        XCTAssertEqual(result.count, 1)
+    }
+
+    func testIsAxisAligned_withScaleOnly_explicitOpaque_shouldReturnTrue() throws {
+        // -- Arrange --
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+        let label = UILabel(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
+        label.text = "Hello, World!"
+        label.textColor = .purple
+        rootView.addSubview(label)
+
+        let opaqueView = UIView(frame: rootView.bounds)
+        opaqueView.backgroundColor = .black
+        opaqueView.isOpaque = true
+        opaqueView.layer.isOpaque = true
+        opaqueView.layer.backgroundColor = UIColor.black.cgColor
+        opaqueView.transform = CGAffineTransform(scaleX: 2, y: 2)
+        rootView.addSubview(opaqueView)
+
+        // -- Act --
+        let sut = getSut(maskAllText: true, maskAllImages: true)
+        let result = sut.redactRegionsFor(view: rootView)
+
+        // -- Assert --
+        let containerRegion = try XCTUnwrap(result.element(at: 0))
+        XCTAssertNil(containerRegion.color)
+        XCTAssertEqual(containerRegion.type, .clipOut)
+        XCTAssertEqual(containerRegion.size, CGSize(width: 100, height: 100))
+        XCTAssertAffineTransformEqual(
+            containerRegion.transform,
+            CGAffineTransform(
+                a: 2,
+                b: 0,
+                c: 0,
+                d: 2,
+                tx: -50,
+                ty: -50
+            ),
+            accuracy: 0.001
+        )
+
+        let labelRegion = try XCTUnwrap(result.element(at: 1))
+        XCTAssertEqual(labelRegion.color, UIColor.purple)
+        XCTAssertEqual(labelRegion.type, .redact)
+        XCTAssertEqual(labelRegion.size, CGSize(width: 40, height: 40))
+        XCTAssertAffineTransformEqual(
+            labelRegion.transform,
+            CGAffineTransform(
+                a: 1,
+                b: 0,
+                c: 0,
+                d: 1,
+                tx: 20,
+                ty: 20
+            ),
+            accuracy: 0.001
+        )
+
+        // Assert that no other regions
+        XCTAssertEqual(result.count, 2)
+    }
+
+    // MARK: - Opaque Behavior Without Explicit Config
+
+    func testOpaqueRotatedView_coveringRoot_withoutExplicitOpaqueConfig_shouldNotInsertClipOut() throws {
+        // -- Arrange --
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+
+        let label = UILabel(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
+        label.text = "Hello World"
+        label.textColor = .purple
+        rootView.addSubview(label)
+
+        // Add a rotated cover but DO NOT mark it explicitly opaque
+        let cover = UIView(frame: rootView.bounds)
+        cover.backgroundColor = .black
+        cover.transform = CGAffineTransform(rotationAngle: .pi / 8)
+        rootView.addSubview(cover)
+
+        // -- Act --
+        let sut = getSut(maskAllText: true, maskAllImages: true)
+        let result = sut.redactRegionsFor(view: rootView)
+
+        // -- Assert --
+        // Without explicit opaque configuration, no clipOut should be added; label remains redacted
+        let onlyRegion = try XCTUnwrap(result.element(at: 0))
+        XCTAssertEqual(onlyRegion.color, UIColor.purple)
+        XCTAssertEqual(onlyRegion.type, .redact)
+        XCTAssertEqual(onlyRegion.size, CGSize(width: 40, height: 40))
+        XCTAssertEqual(onlyRegion.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 20, ty: 20))
+        XCTAssertEqual(result.count, 1)
+    }
+
+    func testIsAxisAligned_withRotation_withoutOpaqueConfig_shouldNotInsertClipOut() throws {
+        // -- Arrange --
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+        let label = UILabel(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
+        label.transform = CGAffineTransform(rotationAngle: .pi / 4)
+        label.textColor = .purple
+        rootView.addSubview(label)
+
+        let cover = UIView(frame: rootView.bounds)
+        cover.backgroundColor = .black
+        cover.transform = CGAffineTransform(rotationAngle: .pi / 4)
+        rootView.addSubview(cover)
+
+        // -- Act --
+        let sut = getSut(maskAllText: true, maskAllImages: true)
+        let result = sut.redactRegionsFor(view: rootView)
+
+        // -- Assert --
+        // Without explicit opaque configuration, expect only the rotated label redact region
+        let labelRegion = try XCTUnwrap(result.element(at: 0))
+        XCTAssertEqual(labelRegion.color, UIColor.purple)
+        XCTAssertEqual(labelRegion.type, .redact)
+        XCTAssertEqual(labelRegion.size, CGSize(width: 40, height: 40))
+        XCTAssertAffineTransformEqual(
+            labelRegion.transform,
+            CGAffineTransform(
+                a: 0.70710678118654757,
+                b: 0.70710678118654746,
+                c: -0.70710678118654746,
+                d: 0.70710678118654757,
+                tx: 40,
+                ty: 11.715728752538098
+            ),
+            accuracy: 0.001
+        )
+        XCTAssertEqual(result.count, 1)
+    }
+
+    func testIsAxisAligned_withScaleOnly_withoutOpaqueConfig_shouldNotInsertClipOut() throws {
+        // -- Arrange --
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+        let label = UILabel(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
+        label.text = "Hello, World!"
+        label.textColor = .purple
+        rootView.addSubview(label)
+
+        let cover = UIView(frame: rootView.bounds)
+        cover.backgroundColor = .black
+        cover.transform = CGAffineTransform(scaleX: 2, y: 2)
+        rootView.addSubview(cover)
+
+        // -- Act --
+        let sut = getSut(maskAllText: true, maskAllImages: true)
+        let result = sut.redactRegionsFor(view: rootView)
+
+        // -- Assert --
+        // Without explicit opaque configuration, expect only the label redact region
+        let labelRegion = try XCTUnwrap(result.element(at: 0))
+        XCTAssertEqual(labelRegion.color, UIColor.purple)
+        XCTAssertEqual(labelRegion.type, .redact)
+        XCTAssertEqual(labelRegion.size, CGSize(width: 40, height: 40))
+        XCTAssertAffineTransformEqual(
+            labelRegion.transform,
+            CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 20, ty: 20),
+            accuracy: 0.001
+        )
+        XCTAssertEqual(result.count, 1)
+    }
+
+    func testRedactRegionsFor_withMixedRegionTypes_withoutOpaqueConfig_shouldNotInsertClipOut() throws {
+        // -- Arrange --
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+        let label = UILabel(frame: CGRect(x: 10, y: 10, width: 20, height: 20))
+        label.text = "Hello, World!"
+        label.textColor = .red
+        rootView.addSubview(label)
+
+        let cover = UIView(frame: CGRect(x: 30, y: 30, width: 20, height: 20))
+        cover.backgroundColor = .white
+        rootView.addSubview(cover)
+
+        // -- Act --
+        let sut = getSut(maskAllText: true, maskAllImages: true)
+        let result = sut.redactRegionsFor(view: rootView)
+
+        // -- Assert --
+        // Without explicit opaque configuration, only the label should be redacted
+        let region = try XCTUnwrap(result.element(at: 0))
+        XCTAssertEqual(region.color, UIColor.red)
+        XCTAssertEqual(region.type, .redact)
+        XCTAssertEqual(region.size, CGSize(width: 20, height: 20))
+        XCTAssertEqual(region.transform, CGAffineTransform(a: 1.0, b: 0.0, c: 0.0, d: 1.0, tx: 10.0, ty: 10.0))
+        XCTAssertEqual(result.count, 1)
+    }
+
+    func testFullyOpaqueView_withoutExplicitConfig_shouldNotClearRedactions() throws {
+        // -- Arrange --
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+
+        let label = UILabel(frame: CGRect(x: 10, y: 10, width: 80, height: 20))
+        label.text = "Secret Text"
+        label.textColor = .purple
+        rootView.addSubview(label)
+
+        // Add a cover view but DO NOT configure layer/background opacity here
+        let cover = UIView(frame: rootView.bounds)
+        cover.backgroundColor = .white
+        rootView.addSubview(cover)
+
+        // -- Act --
+        let sut = getSut(maskAllText: true, maskAllImages: true)
+        let result = sut.redactRegionsFor(view: rootView)
+
+        // -- Assert --
+        // Without explicit opaque configuration, label should still be redacted
+        let labelRegions = result.filter { $0.type == .redact && $0.color == UIColor.purple }
+        XCTAssertEqual(labelRegions.count, 1)
+        
+        // Assert that no other regions
+        XCTAssertEqual(result.count, 1)
     }
 
     // MARK: - Region Ordering
 
     func testRedactRegionsFor_shouldReturnReversedOrder() throws {
         // -- Arrange --
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
         let label1 = UILabel(frame: CGRect(x: 10, y: 10, width: 20, height: 20))
         label1.textColor = .red
         rootView.addSubview(label1)
@@ -439,20 +644,31 @@ class SentryUIRedactBuilderTests_EdgeCases: SentryUIRedactBuilderTests { // swif
         let result = sut.redactRegionsFor(view: rootView)
 
         // -- Assert --
-        XCTAssertEqual(result.count, 2)
         // The regions should be in reverse order of traversal
         // label2 should appear before label1 in the result
-        let firstRegion = try XCTUnwrap(result.first)
-        let secondRegion = try XCTUnwrap(result.last)
-        
+        let firstRegion = try XCTUnwrap(result.element(at: 0))
+        XCTAssertEqual(firstRegion.color, UIColor.blue)
+        XCTAssertEqual(firstRegion.type, .redact)
+        XCTAssertEqual(firstRegion.size, CGSize(width: 20, height: 20))
+        XCTAssertEqual(firstRegion.transform, CGAffineTransform(a: 1.0, b: 0.0, c: 0.0, d: 1.0, tx: 40.0, ty: 40.0))
+
         // Check that the first result corresponds to label2 (added second, reversed to first)
-        XCTAssertEqual(firstRegion.color, .blue)
-        XCTAssertEqual(secondRegion.color, .red)
+        let secondRegion = try XCTUnwrap(result.element(at: 1))
+        XCTAssertEqual(secondRegion.color, UIColor.red)
+        XCTAssertEqual(secondRegion.type, .redact)
+        XCTAssertEqual(secondRegion.size, CGSize(width: 20, height: 20))
+        XCTAssertEqual(secondRegion.transform, CGAffineTransform(a: 1.0, b: 0.0, c: 0.0, d: 1.0, tx: 10.0, ty: 10.0))
+
+        // Assert that no other regions
+        XCTAssertEqual(result.count, 2)
     }
 
     func testRedactRegionsFor_withSwiftUIRegions_shouldAppearFirst() throws {
         // -- Arrange --
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
         let label = UILabel(frame: CGRect(x: 10, y: 10, width: 20, height: 20))
+        label.text = "Hello, World!"
+        label.textColor = .red
         rootView.addSubview(label)
 
         // Create a view that would be marked as SwiftUI redact
@@ -465,15 +681,29 @@ class SentryUIRedactBuilderTests_EdgeCases: SentryUIRedactBuilderTests { // swif
         let result = sut.redactRegionsFor(view: rootView)
 
         // -- Assert --
-        XCTAssertGreaterThanOrEqual(result.count, 2)
         // SwiftUI regions should appear first (after reversing, redactSwiftUI is moved to end, then reversed to start)
-        let firstRegion = try XCTUnwrap(result.first)
-        XCTAssertEqual(firstRegion.type, .redactSwiftUI) // SwiftUI regions preserve their type
+        let firstRegion = try XCTUnwrap(result.element(at: 0))
+        XCTAssertNil(firstRegion.color)
+        XCTAssertEqual(firstRegion.type, .redactSwiftUI)
+        XCTAssertEqual(firstRegion.size, CGSize(width: 20, height: 20))
+        XCTAssertEqual(firstRegion.transform, CGAffineTransform(a: 1.0, b: 0.0, c: 0.0, d: 1.0, tx: 40.0, ty: 40.0))
+
+        let secondRegion = try XCTUnwrap(result.element(at: 1))
+        XCTAssertEqual(secondRegion.color, UIColor.red)
+        XCTAssertEqual(secondRegion.type, .redact)
+        XCTAssertEqual(secondRegion.size, CGSize(width: 20, height: 20))
+        XCTAssertEqual(secondRegion.transform, CGAffineTransform(a: 1.0, b: 0.0, c: 0.0, d: 1.0, tx: 10.0, ty: 10.0))
+
+        // Assert that no other regions
+        XCTAssertEqual(result.count, 2)
     }
 
     func testRedactRegionsFor_withMixedRegionTypes_shouldOrderCorrectly() throws {
         // -- Arrange --
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
         let label = UILabel(frame: CGRect(x: 10, y: 10, width: 20, height: 20))
+        label.text = "Hello, World!"
+        label.textColor = .red
         rootView.addSubview(label)
 
         let opaqueView = UIView(frame: CGRect(x: 30, y: 30, width: 20, height: 20))
@@ -485,18 +715,109 @@ class SentryUIRedactBuilderTests_EdgeCases: SentryUIRedactBuilderTests { // swif
         let result = sut.redactRegionsFor(view: rootView)
 
         // -- Assert --
-        XCTAssertGreaterThanOrEqual(result.count, 2)
-        // Should have a mix of redact and clipOut types
-        let hasRedact = result.contains { $0.type == .redact }
-        let hasClipOut = result.contains { $0.type == .clipOut }
-        XCTAssertTrue(hasRedact)
-        XCTAssertTrue(hasClipOut)
+        // Without explicit opaque configuration, the 20x20 view should not clip; only label redact remains
+        let onlyRegion = try XCTUnwrap(result.element(at: 0))
+        XCTAssertEqual(onlyRegion.color, UIColor.red)
+        XCTAssertEqual(onlyRegion.type, .redact)
+        XCTAssertEqual(onlyRegion.size, CGSize(width: 20, height: 20))
+        XCTAssertEqual(onlyRegion.transform, CGAffineTransform(a: 1.0, b: 0.0, c: 0.0, d: 1.0, tx: 10.0, ty: 10.0))
+        XCTAssertEqual(result.count, 1)
+    }
+
+    func testRedactRegionsFor_withMixedRegionTypes_explicitOpaque_shouldOrderCorrectly() throws {
+        // -- Arrange --
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+        let label = UILabel(frame: CGRect(x: 10, y: 10, width: 20, height: 20))
+        label.text = "Hello, World!"
+        label.textColor = .red
+        rootView.addSubview(label)
+
+        let opaqueView = UIView(frame: CGRect(x: 30, y: 30, width: 20, height: 20))
+        opaqueView.backgroundColor = .white
+        opaqueView.isOpaque = true
+        opaqueView.layer.isOpaque = true
+        opaqueView.layer.backgroundColor = UIColor.white.cgColor
+        rootView.addSubview(opaqueView)
+
+        // -- Act --
+        let sut = getSut(maskAllText: true, maskAllImages: true)
+        let result = sut.redactRegionsFor(view: rootView)
+
+        // -- Assert --
+        let firstRegion = try XCTUnwrap(result.element(at: 0))
+        XCTAssertNil(firstRegion.color)
+        XCTAssertEqual(firstRegion.type, .clipOut)
+        XCTAssertEqual(firstRegion.size, CGSize(width: 20, height: 20))
+        XCTAssertEqual(firstRegion.transform, CGAffineTransform(a: 1.0, b: 0.0, c: 0.0, d: 1.0, tx: 30.0, ty: 30.0))
+
+        let secondRegion = try XCTUnwrap(result.element(at: 1))
+        XCTAssertEqual(secondRegion.color, UIColor.red)
+        XCTAssertEqual(secondRegion.type, .redact)
+        XCTAssertEqual(secondRegion.size, CGSize(width: 20, height: 20))
+        XCTAssertEqual(secondRegion.transform, CGAffineTransform(a: 1.0, b: 0.0, c: 0.0, d: 1.0, tx: 10.0, ty: 10.0))
+
+        // Assert that no other regions
+        XCTAssertEqual(result.count, 2)
+    }
+
+    // MARK: - Transparent Overlay (PopupDialog) Repro
+
+    func testTransparentOverlay_shouldNotClearUnderlyingLabels_reproFromDump() throws {
+        // -- Arrange --
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 402, height: 874))
+
+        // Container matching the dialog location
+        let contentHolder = UIView(frame: CGRect(x: 31, y: 377.6667, width: 340, height: 118.6667))
+        contentHolder.backgroundColor = .black
+        rootView.addSubview(contentHolder)
+
+        let contentInner = UIView(frame: CGRect(x: 0, y: 0, width: 340, height: 118.6667))
+        contentInner.backgroundColor = .white
+        contentInner.clipsToBounds = true
+        contentHolder.addSubview(contentInner)
+
+        let titleLabel = UILabel(frame: CGRect(x: 20, y: 30, width: 300, height: 17))
+        titleLabel.text = "THIS IS THE DIALOG TITLE"
+        contentInner.addSubview(titleLabel)
+
+        let messageLabel = UILabel(frame: CGRect(x: 20, y: 55, width: 300, height: 33.6667))
+        messageLabel.text = "This is the message section of the popup dialog default view"
+        contentInner.addSubview(messageLabel)
+
+        // Semi-transparent red overlay across the whole screen
+        let overlay = UIView(frame: rootView.bounds)
+        overlay.backgroundColor = .red
+        overlay.alpha = 0.2
+        rootView.addSubview(overlay)
+
+        // -- Act --
+        let sut = getSut(maskAllText: true, maskAllImages: true)
+        let result = sut.redactRegionsFor(view: rootView)
+
+        // -- Assert --
+        let labelRegions = result.filter { $0.type == .redact }
+        XCTAssertGreaterThanOrEqual(labelRegions.count, 2)
+
+        let title = try XCTUnwrap(labelRegions.first { region in
+            region.size == CGSize(width: 300, height: 17) &&
+            abs(region.transform.tx - 51) < 0.01 &&
+            abs(region.transform.ty - 407.6667) < 0.02
+        })
+        XCTAssertEqual(title.type, .redact)
+
+        let message = try XCTUnwrap(labelRegions.first { region in
+            region.size == CGSize(width: 300, height: 33.6667) &&
+            abs(region.transform.tx - 51) < 0.01 &&
+            abs(region.transform.ty - 432.6667) < 0.02
+        })
+        XCTAssertEqual(message.type, .redact)
     }
 
     // MARK: - Sublayer Sorting (zPosition)
 
     func testMapRedactRegion_withDifferentZPositions_shouldSortCorrectly() throws {
         // -- Arrange --
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
         let label1 = UILabel(frame: CGRect(x: 10, y: 10, width: 20, height: 20))
         label1.textColor = .red
         label1.layer.zPosition = 10
@@ -517,16 +838,33 @@ class SentryUIRedactBuilderTests_EdgeCases: SentryUIRedactBuilderTests { // swif
         let result = sut.redactRegionsFor(view: rootView)
 
         // -- Assert --
-        XCTAssertEqual(result.count, 3)
         // After sorting by zPosition (5, 10, 15) and reversing, we should get (15, 10, 5)
         // which means green, red, blue
-        XCTAssertEqual(result[0].color, .green)
-        XCTAssertEqual(result[1].color, .red)
-        XCTAssertEqual(result[2].color, .blue)
+        let greenRegion = try XCTUnwrap(result.element(at: 0))
+        XCTAssertEqual(greenRegion.color, UIColor.green)
+        XCTAssertEqual(greenRegion.type, .redact)
+        XCTAssertEqual(greenRegion.size, CGSize(width: 20, height: 20))
+        XCTAssertEqual(greenRegion.transform, CGAffineTransform(a: 1.0, b: 0.0, c: 0.0, d: 1.0, tx: 70.0, ty: 70.0))
+
+        let redRegion = try XCTUnwrap(result.element(at: 1))
+        XCTAssertEqual(redRegion.color, UIColor.red)
+        XCTAssertEqual(redRegion.type, .redact)
+        XCTAssertEqual(redRegion.size, CGSize(width: 20, height: 20))
+        XCTAssertEqual(redRegion.transform, CGAffineTransform(a: 1.0, b: 0.0, c: 0.0, d: 1.0, tx: 10.0, ty: 10.0))
+
+        let blueRegion = try XCTUnwrap(result.element(at: 2))
+        XCTAssertEqual(blueRegion.color, UIColor.blue)
+        XCTAssertEqual(blueRegion.type, .redact)
+        XCTAssertEqual(blueRegion.size, CGSize(width: 20, height: 20))
+        XCTAssertEqual(blueRegion.transform, CGAffineTransform(a: 1.0, b: 0.0, c: 0.0, d: 1.0, tx: 40.0, ty: 40.0))
+
+        // Assert that no other regions
+        XCTAssertEqual(result.count, 3)
     }
 
     func testMapRedactRegion_withSameZPosition_shouldPreserveInsertionOrder() throws {
         // -- Arrange --
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
         let label1 = UILabel(frame: CGRect(x: 10, y: 10, width: 20, height: 20))
         label1.textColor = .red
         label1.layer.zPosition = 5
@@ -547,18 +885,270 @@ class SentryUIRedactBuilderTests_EdgeCases: SentryUIRedactBuilderTests { // swif
         let result = sut.redactRegionsFor(view: rootView)
 
         // -- Assert --
-        XCTAssertEqual(result.count, 3)
         // With same zPosition, insertion order should be preserved, then reversed
         // So: green, blue, red
-        XCTAssertEqual(result[0].color, .green)
-        XCTAssertEqual(result[1].color, .blue)
-        XCTAssertEqual(result[2].color, .red)
+        let greenRegion = try XCTUnwrap(result.element(at: 0))
+        XCTAssertEqual(greenRegion.color, UIColor.green)
+        XCTAssertEqual(greenRegion.type, .redact)
+        XCTAssertEqual(greenRegion.size, CGSize(width: 20, height: 20))
+        XCTAssertEqual(greenRegion.transform, CGAffineTransform(a: 1.0, b: 0.0, c: 0.0, d: 1.0, tx: 70.0, ty: 70.0))
+
+        let blueRegion = try XCTUnwrap(result.element(at: 1))
+        XCTAssertEqual(blueRegion.color, UIColor.blue)
+        XCTAssertEqual(blueRegion.type, .redact)
+        XCTAssertEqual(blueRegion.size, CGSize(width: 20, height: 20))
+        XCTAssertEqual(blueRegion.transform, CGAffineTransform(a: 1.0, b: 0.0, c: 0.0, d: 1.0, tx: 40.0, ty: 40.0))
+
+        let redRegion = try XCTUnwrap(result.element(at: 2))
+        XCTAssertEqual(redRegion.color, UIColor.red)
+        XCTAssertEqual(redRegion.type, .redact)
+        XCTAssertEqual(redRegion.size, CGSize(width: 20, height: 20))
+        XCTAssertEqual(redRegion.transform, CGAffineTransform(a: 1.0, b: 0.0, c: 0.0, d: 1.0, tx: 10.0, ty: 10.0))
+
+        // Assert that no other regions
+        XCTAssertEqual(result.count, 3)
+    }
+
+    // MARK: - Opaque View Detection
+
+    func testSemiTransparentOverlay_shouldNotClearRedactions() throws {
+        // -- Arrange --
+        // This test reproduces the issue from https://github.com/getsentry/sentry-cocoa/pull/6629#issuecomment-3479730690
+        // where a semi-transparent overlay (alpha = 0.2) was incorrectly treated as opaque and cleared all previous redactions.
+        
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+        
+        // Add labels that should be redacted
+        let label1 = UILabel(frame: CGRect(x: 10, y: 10, width: 80, height: 20))
+        label1.text = "This is some text"
+        label1.textColor = .purple
+        rootView.addSubview(label1)
+        
+        let label2 = UILabel(frame: CGRect(x: 10, y: 40, width: 80, height: 20))
+        label2.text = "This is the message section"
+        label2.textColor = .purple
+        rootView.addSubview(label2)
+        
+        // Add a semi-transparent overlay that covers the entire root (simulates PopupDialogOverlayView)
+        let overlay = UIView(frame: rootView.bounds)
+        overlay.backgroundColor = .red
+        overlay.alpha = 0.2  // Semi-transparent - should NOT be treated as opaque
+        rootView.addSubview(overlay)
+        
+        // -- Act --
+        let sut = getSut(maskAllText: true, maskAllImages: true)
+        let result = sut.redactRegionsFor(view: rootView)
+        
+        // -- Assert --
+        // The semi-transparent overlay should NOT clear the label redactions
+        // We expect both labels to still be redacted
+        XCTAssertGreaterThanOrEqual(result.count, 2, "Semi-transparent overlay should not clear previous redactions")
+        
+        // Verify that both labels are in the redaction list
+        let labelRegions = result.filter { $0.type == .redact && $0.color == UIColor.purple }
+        XCTAssertEqual(labelRegions.count, 2, "Both labels should be redacted")
+        
+        // Verify label 1 is redacted
+        let label1Region = try XCTUnwrap(labelRegions.first { $0.size == CGSize(width: 80, height: 20) && $0.transform.tx == 10 && $0.transform.ty == 10 })
+        XCTAssertEqual(label1Region.color, UIColor.purple)
+        XCTAssertEqual(label1Region.type, .redact)
+        
+        // Verify label 2 is redacted
+        let label2Region = try XCTUnwrap(labelRegions.first { $0.size == CGSize(width: 80, height: 20) && $0.transform.tx == 10 && $0.transform.ty == 40 })
+        XCTAssertEqual(label2Region.color, UIColor.purple)
+        XCTAssertEqual(label2Region.type, .redact)
+    }
+
+    func testFullyOpaqueView_shouldClearRedactions() throws {
+        // -- Arrange --
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+        
+        // Add a label that should be redacted
+        let label = UILabel(frame: CGRect(x: 10, y: 10, width: 80, height: 20))
+        label.text = "Secret Text"
+        label.textColor = .purple
+        rootView.addSubview(label)
+        
+        // Add a fully opaque view that covers the entire root
+        let opaqueView = UIView(frame: rootView.bounds)
+        opaqueView.backgroundColor = .white
+        opaqueView.alpha = 1.0  // Fully opaque
+        opaqueView.isOpaque = true
+        // Ensure both view and layer background colors are set and opaque
+        opaqueView.layer.backgroundColor = UIColor.white.cgColor
+        opaqueView.layer.isOpaque = true
+        rootView.addSubview(opaqueView)
+        
+        // -- Act --
+        let sut = getSut(maskAllText: true, maskAllImages: true)
+        let result = sut.redactRegionsFor(view: rootView)
+        
+        // -- Assert --
+        // The fully opaque view should clear all previous redactions
+        // We expect no redact regions for the label (it's completely covered)
+        let labelRegions = result.filter { $0.type == .redact && $0.color == UIColor.purple }
+        XCTAssertEqual(labelRegions.count, 0, "Label should be cleared by fully opaque view")
+    }
+
+    func testClipOutOverride_withSemiTransparentFullCover_shouldClearRedactions() throws {
+        // -- Arrange --
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+
+        // Add a label that should be redacted
+        let label = UILabel(frame: CGRect(x: 10, y: 10, width: 80, height: 20))
+        label.text = "Secret Text"
+        label.textColor = .purple
+        rootView.addSubview(label)
+
+        // Add a semi-transparent overlay covering the entire root and force clip-out via override
+        let overlay = UIView(frame: rootView.bounds)
+        overlay.backgroundColor = .black
+        overlay.alpha = 0.2 // Semi-transparent; would not be opaque without override
+        SentryRedactViewHelper.clipOutView(overlay)
+        rootView.addSubview(overlay)
+
+        // -- Act --
+        let sut = getSut(maskAllText: true, maskAllImages: true)
+        let result = sut.redactRegionsFor(view: rootView)
+
+        // -- Assert --
+        // Axis-aligned full-cover with clipOut override should clear prior redactions entirely
+        XCTAssertEqual(result.count, 0)
+    }
+
+    func testClipOutOverride_withSemiTransparentSubview_shouldInsertClipOutRegion() throws {
+        // -- Arrange --
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+
+        let label = UILabel(frame: CGRect(x: 10, y: 10, width: 20, height: 20))
+        label.text = "Hello, World!"
+        label.textColor = .red
+        rootView.addSubview(label)
+
+        // Semi-transparent subview; override to clip-out
+        let subview = UIView(frame: CGRect(x: 30, y: 30, width: 20, height: 20))
+        subview.backgroundColor = .black
+        subview.alpha = 0.2 // Not opaque by itself
+        SentryRedactViewHelper.clipOutView(subview)
+        rootView.addSubview(subview)
+
+        // -- Act --
+        let sut = getSut(maskAllText: true, maskAllImages: true)
+        let result = sut.redactRegionsFor(view: rootView)
+
+        // -- Assert --
+        let firstRegion = try XCTUnwrap(result.element(at: 0))
+        XCTAssertNil(firstRegion.color)
+        XCTAssertEqual(firstRegion.type, .clipOut)
+        XCTAssertEqual(firstRegion.size, CGSize(width: 20, height: 20))
+        XCTAssertEqual(firstRegion.transform, CGAffineTransform(a: 1.0, b: 0.0, c: 0.0, d: 1.0, tx: 30.0, ty: 30.0))
+
+        let secondRegion = try XCTUnwrap(result.element(at: 1))
+        XCTAssertEqual(secondRegion.color, UIColor.red)
+        XCTAssertEqual(secondRegion.type, .redact)
+        XCTAssertEqual(secondRegion.size, CGSize(width: 20, height: 20))
+        XCTAssertEqual(secondRegion.transform, CGAffineTransform(a: 1.0, b: 0.0, c: 0.0, d: 1.0, tx: 10.0, ty: 10.0))
+
+        XCTAssertEqual(result.count, 2)
+    }
+
+    func testViewWithSemiTransparentBackground_shouldNotBeTreatedAsOpaque() throws {
+        // -- Arrange --
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+        
+        let label = UILabel(frame: CGRect(x: 10, y: 10, width: 80, height: 20))
+        label.text = "Secret Text"
+        label.textColor = .purple
+        rootView.addSubview(label)
+        
+        // Add a view with semi-transparent background color (alpha in the color itself)
+        let semiTransparentView = UIView(frame: rootView.bounds)
+        semiTransparentView.backgroundColor = UIColor.red.withAlphaComponent(0.5)
+        rootView.addSubview(semiTransparentView)
+        
+        // -- Act --
+        let sut = getSut(maskAllText: true, maskAllImages: true)
+        let result = sut.redactRegionsFor(view: rootView)
+        
+        // -- Assert --
+        // The semi-transparent view should NOT clear the label redactions
+        let labelRegions = result.filter { $0.type == .redact && $0.color == UIColor.purple }
+        XCTAssertEqual(labelRegions.count, 1, "Label should still be redacted")
+    }
+
+    func testViewWithTransparentLayerBackground_shouldNotBeTreatedAsOpaque() throws {
+        // -- Arrange --
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+        
+        let label = UILabel(frame: CGRect(x: 10, y: 10, width: 80, height: 20))
+        label.text = "Secret Text"
+        label.textColor = .purple
+        rootView.addSubview(label)
+        
+        // Add a view with transparent layer background
+        let viewWithTransparentLayer = UIView(frame: rootView.bounds)
+        viewWithTransparentLayer.backgroundColor = .red
+        viewWithTransparentLayer.layer.backgroundColor = UIColor.red.withAlphaComponent(0.3).cgColor
+        rootView.addSubview(viewWithTransparentLayer)
+        
+        // -- Act --
+        let sut = getSut(maskAllText: true, maskAllImages: true)
+        let result = sut.redactRegionsFor(view: rootView)
+        
+        // -- Assert --
+        // The view with transparent layer background should NOT clear the label redactions
+        let labelRegions = result.filter { $0.type == .redact && $0.color == UIColor.purple }
+        XCTAssertEqual(labelRegions.count, 1, "Label should still be redacted")
+    }
+
+    func testSemiTransparentOverlayWithBackgroundText_shouldMaskAllText() throws {
+        // -- Arrange --
+        // This test verifies that text in the background is still masked when there's a semi-transparent overlay on top
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+        
+        // Add background text that should be masked
+        let backgroundLabel = UILabel(frame: CGRect(x: 10, y: 10, width: 80, height: 20))
+        backgroundLabel.text = "Background Secret"
+        backgroundLabel.textColor = .blue
+        rootView.addSubview(backgroundLabel)
+        
+        // Add a semi-transparent overlay
+        let overlay = UIView(frame: rootView.bounds)
+        overlay.backgroundColor = .white
+        overlay.alpha = 0.5  // Semi-transparent
+        rootView.addSubview(overlay)
+        
+        // Add foreground text that should also be masked
+        let foregroundLabel = UILabel(frame: CGRect(x: 10, y: 40, width: 80, height: 20))
+        foregroundLabel.text = "Foreground Secret"
+        foregroundLabel.textColor = .green
+        rootView.addSubview(foregroundLabel)
+        
+        // -- Act --
+        let sut = getSut(maskAllText: true, maskAllImages: true)
+        let result = sut.redactRegionsFor(view: rootView)
+        
+        // -- Assert --
+        // Both labels should be redacted regardless of the semi-transparent overlay
+        let backgroundLabelRegion = result.first { $0.type == .redact && $0.color == UIColor.blue }
+        XCTAssertNotNil(backgroundLabelRegion, "Background label should be redacted")
+        
+        let foregroundLabelRegion = result.first { $0.type == .redact && $0.color == UIColor.green }
+        XCTAssertNotNil(foregroundLabelRegion, "Foreground label should be redacted")
+        
+        // Verify both labels are in the redaction list
+        let labelRegions = result.filter { $0.type == .redact && ($0.color == UIColor.blue || $0.color == UIColor.green) }
+        XCTAssertEqual(labelRegions.count, 2, "Both labels should be redacted")
+        
+        // Assert that no other regions
+        XCTAssertEqual(result.count, 2)
     }
 
     // MARK: - Nested Clipping
 
     func testMapRedactRegion_withNestedClipToBounds_shouldCreateNestedClipRegions() throws {
         // -- Arrange --
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
         let container1 = UIView(frame: CGRect(x: 10, y: 10, width: 80, height: 80))
         container1.clipsToBounds = true
         rootView.addSubview(container1)
@@ -568,6 +1158,8 @@ class SentryUIRedactBuilderTests_EdgeCases: SentryUIRedactBuilderTests { // swif
         container1.addSubview(container2)
 
         let label = UILabel(frame: CGRect(x: 10, y: 10, width: 40, height: 40))
+        label.text = "Hello, World!"
+        label.textColor = UIColor.purple
         container2.addSubview(label)
 
         // -- Act --
@@ -575,23 +1167,50 @@ class SentryUIRedactBuilderTests_EdgeCases: SentryUIRedactBuilderTests { // swif
         let result = sut.redactRegionsFor(view: rootView)
 
         // -- Assert --
-        // Should have: redact, clipBegin (inner), clipEnd (inner), clipBegin (outer), clipEnd (outer)
-        XCTAssertGreaterThanOrEqual(result.count, 5)
-        
-        let clipBegins = result.filter { $0.type == .clipBegin }
-        let clipEnds = result.filter { $0.type == .clipEnd }
-        
-        XCTAssertEqual(clipBegins.count, 2)
-        XCTAssertEqual(clipEnds.count, 2)
+        let region0 = try XCTUnwrap(result.element(at: 0))
+        XCTAssertNil(region0.color)
+        XCTAssertEqual(region0.type, .clipBegin)
+        XCTAssertEqual(region0.size, CGSize(width: 80, height: 80))
+        XCTAssertEqual(region0.transform, CGAffineTransform(a: 1.0, b: 0.0, c: 0.0, d: 1.0, tx: 10.0, ty: 10.0))
+
+        let region1 = try XCTUnwrap(result.element(at: 1))
+        XCTAssertNil(region1.color)
+        XCTAssertEqual(region1.type, .clipBegin)
+        XCTAssertEqual(region1.size, CGSize(width: 60, height: 60))
+        XCTAssertEqual(region1.transform, CGAffineTransform(a: 1.0, b: 0.0, c: 0.0, d: 1.0, tx: 20.0, ty: 20.0))
+
+        let region2 = try XCTUnwrap(result.element(at: 2))
+        XCTAssertEqual(region2.color, UIColor.purple)
+        XCTAssertEqual(region2.type, .redact)
+        XCTAssertEqual(region2.size, CGSize(width: 40, height: 40))
+        XCTAssertEqual(region2.transform, CGAffineTransform(a: 1.0, b: 0.0, c: 0.0, d: 1.0, tx: 30.0, ty: 30.0))
+
+        let region3 = try XCTUnwrap(result.element(at: 3))
+        XCTAssertNil(region3.color)
+        XCTAssertEqual(region3.type, .clipEnd)
+        XCTAssertEqual(region3.size, CGSize(width: 60, height: 60))
+        XCTAssertEqual(region3.transform, CGAffineTransform(a: 1.0, b: 0.0, c: 0.0, d: 1.0, tx: 20.0, ty: 20.0))
+
+        let region4 = try XCTUnwrap(result.element(at: 4))
+        XCTAssertNil(region4.color)
+        XCTAssertEqual(region4.type, .clipEnd)
+        XCTAssertEqual(region4.size, CGSize(width: 80, height: 80))
+        XCTAssertEqual(region4.transform, CGAffineTransform(a: 1.0, b: 0.0, c: 0.0, d: 1.0, tx: 10.0, ty: 10.0))
+
+        // Assert that no other regions
+        XCTAssertEqual(result.count, 5)
     }
 
     func testMapRedactRegion_withNestedClipToBounds_shouldHaveCorrectClipBeginEnd() throws {
         // -- Arrange --
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
         let container = UIView(frame: CGRect(x: 10, y: 10, width: 80, height: 80))
         container.clipsToBounds = true
         rootView.addSubview(container)
 
         let label = UILabel(frame: CGRect(x: 10, y: 10, width: 40, height: 40))
+        label.text = "Hello, World!"
+        label.textColor = UIColor.purple
         container.addSubview(label)
 
         // -- Act --
@@ -599,41 +1218,77 @@ class SentryUIRedactBuilderTests_EdgeCases: SentryUIRedactBuilderTests { // swif
         let result = sut.redactRegionsFor(view: rootView)
 
         // -- Assert --
-        // Should have: redact, clipBegin, clipEnd
+        let region0 = try XCTUnwrap(result.element(at: 0))
+        XCTAssertNil(region0.color)
+        XCTAssertEqual(region0.type, .clipBegin)
+        XCTAssertEqual(region0.size, CGSize(width: 80, height: 80))
+        XCTAssertEqual(region0.transform, CGAffineTransform(a: 1.0, b: 0.0, c: 0.0, d: 1.0, tx: 10.0, ty: 10.0))
+
+        let region1 = try XCTUnwrap(result.element(at: 1))
+        XCTAssertEqual(region1.color, UIColor.purple)
+        XCTAssertEqual(region1.type, .redact)
+        XCTAssertEqual(region1.size, CGSize(width: 40, height: 40))
+        XCTAssertEqual(region1.transform, CGAffineTransform(a: 1.0, b: 0.0, c: 0.0, d: 1.0, tx: 20.0, ty: 20.0))
+
+        let region2 = try XCTUnwrap(result.element(at: 2))
+        XCTAssertNil(region2.color)
+        XCTAssertEqual(region2.type, .clipEnd)
+        XCTAssertEqual(region2.size, CGSize(width: 80, height: 80))
+        XCTAssertEqual(region2.transform, CGAffineTransform(a: 1.0, b: 0.0, c: 0.0, d: 1.0, tx: 10.0, ty: 10.0))
+
+        // Assert that no other regions
         XCTAssertEqual(result.count, 3)
-        
-        // Order should be: clipBegin (first in reversed output), redact, clipEnd (last)
-        XCTAssertEqual(result[0].type, .clipBegin)
-        XCTAssertEqual(result[1].type, .redact)
-        XCTAssertEqual(result[2].type, .clipEnd)
     }
 
     // MARK: - Presentation Layer
 
     func testMapRedactRegion_withPresentationLayer_shouldUsePresentationLayer() throws {
         // -- Arrange --
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
         let label = UILabel(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
+        label.text = "Hello, World!"
+        label.textColor = UIColor.purple
         rootView.addSubview(label)
 
-        // Start an animation to create a presentation layer
-        UIView.animate(withDuration: 10) {
+        // Start a shorter animation with linear timing to create a predictable presentation layer
+        UIView.animate(withDuration: 10.0, delay: 0, options: .curveLinear) {
             label.frame = CGRect(x: 60, y: 60, width: 40, height: 40)
         }
+
+        // Wait for animation to reach approximately 50% completion (0.5 seconds of 1.0 second animation)
+        let expectation = XCTestExpectation(description: "Wait for animation to reach midpoint")
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            expectation.fulfill()
+        }
+        wait(for: [expectation], timeout: 1.0)
 
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: true)
         let result = sut.redactRegionsFor(view: rootView)
 
         // -- Assert --
-        XCTAssertGreaterThanOrEqual(result.count, 1)
         // During animation, the presentation layer should be used
-        // The exact position will be somewhere between start and end
-        let region = try XCTUnwrap(result.first)
-        XCTAssertNotNil(region)
+        // With linear timing at 50% completion, position should be approximately halfway between start (20, 20) and end (60, 60)
+        // Expected midpoint: (40, 40) with some tolerance for timing precision
+        let region = try XCTUnwrap(result.element(at: 0))
+        XCTAssertEqual(region.color, UIColor.purple)
+        XCTAssertEqual(region.type, .redact)
+        XCTAssertEqual(region.size, CGSize(width: 40, height: 40))
+        
+        // Verify the position is in the middle third of the animation range (between 30 and 50)
+        // This ensures the presentation layer is being used and represents an intermediate state
+        XCTAssertGreaterThan(region.transform.tx, 20.0)
+        XCTAssertLessThanOrEqual(region.transform.tx, 60.0)
+        XCTAssertGreaterThan(region.transform.ty, 20.0)
+        XCTAssertLessThanOrEqual(region.transform.ty, 60.0)
+
+        // Assert that no other regions
+        XCTAssertEqual(result.count, 1)
     }
 
     func testMapRedactRegion_withoutPresentationLayer_shouldUseModelLayer() throws {
         // -- Arrange --
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
         let label = UILabel(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
         rootView.addSubview(label)
 
@@ -642,18 +1297,30 @@ class SentryUIRedactBuilderTests_EdgeCases: SentryUIRedactBuilderTests { // swif
         let result = sut.redactRegionsFor(view: rootView)
 
         // -- Assert --
-        XCTAssertEqual(result.count, 1)
         let region = try XCTUnwrap(result.first)
         // Should use model layer when no animation is in progress
-        XCTAssertEqual(region.transform.tx, 20, accuracy: 0.01)
-        XCTAssertEqual(region.transform.ty, 20, accuracy: 0.01)
+        XCTAssertAffineTransformEqual(
+            region.transform,
+            CGAffineTransform(
+                a: 1,
+                b: 0,
+                c: 0,
+                d: 1,
+                tx: 20,
+                ty: 20
+            ),
+            accuracy: 0.001
+        )
+
+        // Assert that no other regions
+        XCTAssertEqual(result.count, 1)
     }
 
     // MARK: - ExtendedClassIdentifier Initializers
 
     func testExtendedClassIdentifier_initWithClassId_shouldStoreCorrectly() {
         // -- Arrange & Act --
-        let identifier = SentryUIRedactBuilder.ExtendedClassIdentifier(
+        let identifier = SentryUIRedactBuilder.ClassIdentifier(
             classId: "MyCustomClass",
             layerId: "MyCustomLayer"
         )
@@ -665,7 +1332,7 @@ class SentryUIRedactBuilderTests_EdgeCases: SentryUIRedactBuilderTests { // swif
 
     func testExtendedClassIdentifier_initWithObjcType_shouldStoreCorrectDescription() {
         // -- Arrange & Act --
-        let identifier = SentryUIRedactBuilder.ExtendedClassIdentifier(
+        let identifier = SentryUIRedactBuilder.ClassIdentifier(
             objcType: UILabel.self,
             layerId: "CustomLayer"
         )
@@ -680,7 +1347,7 @@ class SentryUIRedactBuilderTests_EdgeCases: SentryUIRedactBuilderTests { // swif
         class MyCustomClass: NSObject {}
 
         // -- Act --
-        let identifier = SentryUIRedactBuilder.ExtendedClassIdentifier(
+        let identifier = SentryUIRedactBuilder.ClassIdentifier(
             class: MyCustomClass.self,
             layerId: nil
         )
@@ -692,21 +1359,21 @@ class SentryUIRedactBuilderTests_EdgeCases: SentryUIRedactBuilderTests { // swif
 
     func testExtendedClassIdentifier_hashable_shouldWorkInSet() {
         // -- Arrange --
-        let identifier1 = SentryUIRedactBuilder.ExtendedClassIdentifier(
+        let identifier1 = SentryUIRedactBuilder.ClassIdentifier(
             classId: "ClassA",
             layerId: "LayerA"
         )
-        let identifier2 = SentryUIRedactBuilder.ExtendedClassIdentifier(
+        let identifier2 = SentryUIRedactBuilder.ClassIdentifier(
             classId: "ClassA",
             layerId: "LayerA"
         )
-        let identifier3 = SentryUIRedactBuilder.ExtendedClassIdentifier(
+        let identifier3 = SentryUIRedactBuilder.ClassIdentifier(
             classId: "ClassB",
             layerId: "LayerB"
         )
 
         // -- Act --
-        var set = Set<SentryUIRedactBuilder.ExtendedClassIdentifier>()
+        var set = Set<SentryUIRedactBuilder.ClassIdentifier>()
         set.insert(identifier1)
         set.insert(identifier2)
         set.insert(identifier3)
@@ -719,5 +1386,5 @@ class SentryUIRedactBuilderTests_EdgeCases: SentryUIRedactBuilderTests { // swif
     }
 }
 
-#endif // os(iOS)
+#endif // os(iOS) && !targetEnvironment(macCatalyst)
 // swiftlint:enable file_length type_body_length

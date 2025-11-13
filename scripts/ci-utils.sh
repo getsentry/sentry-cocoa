@@ -2,6 +2,9 @@
 
 # Utility functions for CI logging and grouping.
 # This file is intended to be sourced from other scripts.
+#
+# GitHub Actions workflow commands (::notice::, ::warning::, ::error::, ::group::, ::endgroup::)
+# follow the specification at: https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-commands
 
 # Detect if we are running on GitHub Actions
 if [ "${GITHUB_ACTIONS:-}" = "true" ]; then
@@ -10,27 +13,32 @@ else
   IS_GITHUB_ACTIONS=false
 fi
 
+# Get current timestamp in format HH:MM:SS
+get_timestamp() {
+  date +"%T"
+}
+
 log_notice() {
   if $IS_GITHUB_ACTIONS; then
-    echo "::notice::${1}"
+    echo "::notice::[$(get_timestamp)] ${1}"
   else
-    echo "[notice] ${1}"
+    echo "[notice] [$(get_timestamp)] ${1}"
   fi
 }
 
 log_warning() {
   if $IS_GITHUB_ACTIONS; then
-    echo "::warning::${1}"
+    echo "::warning::[$(get_timestamp)] ${1}"
   else
-    echo "[warning] ${1}"
+    echo "[warning] [$(get_timestamp)] ${1}"
   fi
 }
 
 log_error() {
   if $IS_GITHUB_ACTIONS; then
-    echo "::error::${1}"    
+    echo "::error::[$(get_timestamp)] ${1}"    
   else                      
-    echo "[error] ${1}"     
+    echo "[error] [$(get_timestamp)] ${1}"     
   fi                        
 }                           
                             
@@ -39,7 +47,7 @@ begin_group() {
   if $IS_GITHUB_ACTIONS; then
     echo "::group::${title}"
   else                      
-    echo                    
+    echo 
     echo "== ${title} =="
   fi                        
 }                           

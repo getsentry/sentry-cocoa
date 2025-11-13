@@ -5,9 +5,7 @@
 #else
 #    import <SentryDefines.h>
 #endif
-#if !SDK_V9
-#    import SENTRY_HEADER(SentrySerializable)
-#endif // SDK_V9
+#import SENTRY_HEADER(SentrySerializable)
 #import SENTRY_HEADER(SentrySpanProtocol)
 
 @class SentryAttachment;
@@ -24,20 +22,13 @@ NS_ASSUME_NONNULL_BEGIN
  * https://docs.sentry.io/platforms/apple/enriching-events/scopes/#whats-a-scope-whats-a-hub
  */
 NS_SWIFT_NAME(Scope)
-@interface SentryScope : NSObject
-#if !SDK_V9
-                         <SentrySerializable>
-#endif // !SDK_V9
+@interface SentryScope : NSObject <SentrySerializable>
 
 /**
  * Returns current Span or Transaction.
  * @return current Span or Transaction or null if transaction has not been set.
  */
-#if SDK_V9
-@property (nullable, nonatomic, readonly, strong) id<SentrySpan> span;
-#else
 @property (nullable, nonatomic, strong) id<SentrySpan> span;
-#endif // SDK_V9
 
 /**
  * The id of current session replay.
@@ -116,20 +107,15 @@ NS_SWIFT_NAME(Scope)
  */
 - (void)addBreadcrumb:(SentryBreadcrumb *)crumb NS_SWIFT_NAME(addBreadcrumb(_:));
 
-- (void)add:(SentryBreadcrumb *)crumb DEPRECATED_MSG_ATTRIBUTE("use `addBreadcrumb` instead")
-                NS_SWIFT_NAME(add(_:));
-
 /**
  * Clears all breadcrumbs in the scope
  */
 - (void)clearBreadcrumbs;
 
-#if !SDK_V9
 /**
  * Serializes the Scope to JSON
  */
 - (NSDictionary<NSString *, id> *)serialize;
-#endif // !SDK_V9
 
 /**
  * Sets context values which will overwrite SentryEvent.context when event is
@@ -149,11 +135,6 @@ NS_SWIFT_NAME(Scope)
  * @param attachment The attachment to add to the Scope's list of attachments.
  */
 - (void)addAttachment:(SentryAttachment *)attachment NS_SWIFT_NAME(addAttachment(_:));
-
-// We want to keep the old Swift `add(_ attachment:)` function as deprecated, but we cant have
-// another objc `add` method
-- (void)includeAttachment:(SentryAttachment *)attachment
-    DEPRECATED_MSG_ATTRIBUTE("use `addAttachment` instead")NS_SWIFT_NAME(add(_:));
 
 /**
  * Clears all attachments in the scope.

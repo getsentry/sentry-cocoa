@@ -22,47 +22,48 @@ var products: [Product] = [
 var targets: [Target] = [
     .binaryTarget(
         name: "Sentry",
-        url: "https://github.com/getsentry/sentry-cocoa/releases/download/8.56.2/Sentry.xcframework.zip",
-        checksum: "f0b8530fc902f56cccf157b5548e83f4b866812b40828bd8e3dca59e6b3171b0" //Sentry-Static
+        url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.0.0-alpha.1/Sentry.xcframework.zip",
+        checksum: "eb8cebd331b14fc0b9b09a183cd0b53ec26814921a0f49d8ded70ee8d0a97592" //Sentry-Static
     ),
     .binaryTarget(
         name: "Sentry-Dynamic",
-        url: "https://github.com/getsentry/sentry-cocoa/releases/download/8.56.2/Sentry-Dynamic.xcframework.zip",
-        checksum: "33be119ee7bb364836bfa686fd0ddb7021b16d765f3498cad1a7f8b1faeed765" //Sentry-Dynamic
+        url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.0.0-alpha.1/Sentry-Dynamic.xcframework.zip",
+        checksum: "e47d947510d08599b63b05ac70493badc4703c2a28acf1ea8eacb4638458118c" //Sentry-Dynamic
     ),
     .binaryTarget(
         name: "Sentry-Dynamic-WithARM64e",
-        url: "https://github.com/getsentry/sentry-cocoa/releases/download/8.56.2/Sentry-Dynamic-WithARM64e.xcframework.zip",
-        checksum: "75443ea3455cdbc05548115f64ed06dd70030a736a6248d5ab19c7f3c433ef5b" //Sentry-Dynamic-WithARM64e
+        url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.0.0-alpha.1/Sentry-Dynamic-WithARM64e.xcframework.zip",
+        checksum: "8a9172b9a0c9debc1d565d9adddeb6261a44cd52b592bf935e5262c160203bea" //Sentry-Dynamic-WithARM64e
     ),
     .binaryTarget(
         name: "Sentry-WithoutUIKitOrAppKit",
-        url: "https://github.com/getsentry/sentry-cocoa/releases/download/8.56.2/Sentry-WithoutUIKitOrAppKit.xcframework.zip",
-        checksum: "d88ffb2aaa266d237206a82d0f72f19fd575229b5a01156768b4d9ed4bfac475" //Sentry-WithoutUIKitOrAppKit
+        url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.0.0-alpha.1/Sentry-WithoutUIKitOrAppKit.xcframework.zip",
+        checksum: "e1252ac7bc9a2b391d4b2123d1700598e224333794f8a0a96a550d8293d0d6ad" //Sentry-WithoutUIKitOrAppKit
     ),
     .binaryTarget(
         name: "Sentry-WithoutUIKitOrAppKit-WithARM64e",
-        url: "https://github.com/getsentry/sentry-cocoa/releases/download/8.56.2/Sentry-WithoutUIKitOrAppKit-WithARM64e.xcframework.zip",
-        checksum: "0c716f6a6475d8fd6e78b9204c74adffef5c0989f057c5d795989a667ae58047" //Sentry-WithoutUIKitOrAppKit-WithARM64e
+        url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.0.0-alpha.1/Sentry-WithoutUIKitOrAppKit-WithARM64e.xcframework.zip",
+        checksum: "a57c32ec5e8cc04bc382b91357858123cb7a32f316611c62aa03a011b1e197c8" //Sentry-WithoutUIKitOrAppKit-WithARM64e
     ),
-    .target (
+    .target(
         name: "SentrySwiftUI",
         dependencies: ["Sentry", "SentryInternal"],
         path: "Sources/SentrySwiftUI",
         exclude: ["SentryInternal/", "module.modulemap"],
         linkerSettings: [
             .linkedFramework("Sentry")
-        ]),
+        ]
+    ),
     .target(
         name: "SentryInternal",
         path: "Sources/SentrySwiftUI",
         sources: [
             "SentryInternal/"
         ],
-        publicHeadersPath: "SentryInternal/"),
+        publicHeadersPath: "SentryInternal/"
+    ),
     .target(
         name: "SentryCppHelper",
-        dependencies: ["Sentry"],
         path: "Sources/SentryCppHelper",
         linkerSettings: [
          .linkedLibrary("c++")
@@ -95,10 +96,7 @@ if let env = env, String(cString: env, encoding: .utf8) == "1" {
             dependencies: ["_SentryPrivate", "SentryHeaders"],
             path: "Sources/Swift",
             swiftSettings: [
-                .unsafeFlags(["-enable-library-evolution"]),
-                // Some API breaking changes are necessary for the framework to compile with SPM, we’ll ship
-                // those in V9.
-                .define("SDK_V9")
+                .unsafeFlags(["-enable-library-evolution"])
             ]),
         .target(
             name: "SentryObjc",
@@ -113,8 +111,7 @@ if let env = env, String(cString: env, encoding: .utf8) == "1" {
                 .headerSearchPath("SentryCrash/Recording/Tools"),
                 .headerSearchPath("SentryCrash/Installations"),
                 .headerSearchPath("SentryCrash/Reporting/Filters"),
-                .headerSearchPath("SentryCrash/Reporting/Filters/Tools"),
-                .define("SDK_V9")])
+                .headerSearchPath("SentryCrash/Reporting/Filters/Tools")])
     ])
 }
 

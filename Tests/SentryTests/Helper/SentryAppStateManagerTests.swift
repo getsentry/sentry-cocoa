@@ -1,4 +1,4 @@
-@_spi(Private) import Sentry
+@_spi(Private) @testable import Sentry
 @_spi(Private) import SentryTestUtils
 import XCTest
 
@@ -28,12 +28,13 @@ class SentryAppStateManagerTests: XCTestCase {
 
         func getSut() -> SentryAppStateManager {
             SentryDependencyContainer.sharedInstance().sysctlWrapper = TestSysctl()
-            return SentryDefaultAppStateManager(
-                options: options,
+            SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
+            SentryDependencyContainer.sharedInstance().notificationCenterWrapper = notificationCenterWrapper
+            return SentryAppStateManager(
+                releaseName: options.releaseName,
                 crashWrapper: TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo),
                 fileManager: fileManager,
-                dispatchQueueWrapper: TestSentryDispatchQueueWrapper(),
-                notificationCenterWrapper: notificationCenterWrapper
+                sysctlWrapper: SentryDependencyContainer.sharedInstance().sysctlWrapper
             )
         }
     }

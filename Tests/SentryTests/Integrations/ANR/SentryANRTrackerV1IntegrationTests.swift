@@ -12,11 +12,11 @@ final class SentryANRTrackerV1IntegrationTests: XCTestCase {
 
         let listener = SentryANRTrackerTestDelegate()
 
-        let anrTracker: SentryANRTracker = SentryANRTrackerV1(
+        let anrTracker = SentryANRTracker(helper: SentryANRTrackerV1(
             timeoutInterval: 0.01,
             crashWrapper: TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo),
             dispatchQueueWrapper: SentryDispatchQueueWrapper(),
-            threadWrapper: SentryThreadWrapper()) as! SentryANRTracker
+            threadWrapper: SentryThreadWrapper()))
 
         anrTracker.add(listener: listener)
 

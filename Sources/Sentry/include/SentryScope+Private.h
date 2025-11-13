@@ -1,11 +1,13 @@
 #import <Foundation/Foundation.h>
 
 #import "SentryScope.h"
-#import "SentryScopeObserver.h"
 
 @class SentryAttachment;
 @class SentryPropagationContext;
 @class SentrySession;
+@class SentrySpan;
+
+@protocol SentryScopeObserver;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -44,7 +46,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (NSArray<SentryBreadcrumb *> *)breadcrumbs;
 
-- (void)setSpan:(nullable id<SentrySpan>)span;
+- (nullable SentrySpan *)getCastedInternalSpan;
 
 /**
  * used to add values in event context.
@@ -59,7 +61,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)addObserver:(id<SentryScopeObserver>)observer;
 
-- (nullable SentryEvent *)applyToEvent:(SentryEvent *)event
+- (nullable SentryEvent *)applyToEvent:(SentryEvent *_Nullable)event
                          maxBreadcrumb:(NSUInteger)maxBreadcrumbs
     NS_SWIFT_NAME(applyTo(event:maxBreadcrumbs:));
 

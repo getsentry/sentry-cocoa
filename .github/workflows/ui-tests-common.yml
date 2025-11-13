@@ -24,6 +24,7 @@ on:
       macos_version:
         description: "macOS version"
         required: true
+        default: macos-26
         type: string
       needs_xcframework:
         description: "Whether the workflow needs to download the XCFramework."
@@ -40,30 +41,51 @@ on:
         required: false
         default: ""
         type: string
+      create_device:
+        description: "Whether to create the device for the given platform and OS version"
+        required: false
+        default: false
+        type: boolean
       device:
         description: "Device"
         required: false
         default: ""
         type: string
+      install_platforms:
+        description: "Whether to install the platforms"
+        required: false
+        default: false
+        type: boolean
       platform:
         description: "Additional platform to install"
         required: false
         default: ""
         type: string
+      run_on_cirrus_labs:
+        description: "Whether to run the tests on Cirrus Labs"
+        required: false
+        default: false
+        type: boolean
+      should_skip:
+        description: "Whether to skip the job"
+        required: false
+        default: false
+        type: boolean
     secrets:
       CODECOV_TOKEN:
         required: true
 
 jobs:
   common-ui-tests:
+    if: ${{ !inputs.should_skip }}
     name: UI Tests Common
-    runs-on: ${{ inputs.macos_version }}
+    runs-on: ${{ inputs.run_on_cirrus_labs && fromJSON(format('["ghcr.io/cirruslabs/macos-runner:{0}", "runner_group_id:10"]', inputs.macos_version)) || inputs.macos_version }}
     timeout-minutes: 40
     steps:
       - uses: actions/checkout@v5
 
       - name: Setup Ruby
-        uses: ruby/setup-ruby@13e7a03dc3ac6c3798f4570bfead2aed4d96abfb # v1.244.0
+        uses: ruby/setup-ruby@d5126b9b3579e429dd52e51e68624dda2e05be25 # v1.267.0
         with:
           bundler-cache: true
 
@@ -76,22 +98,35 @@ jobs:
           brew pin xcodegen
 
       - name: Select Xcode version
-        run: ./scripts/ci-select-xcode.sh "$XCODE_VERSION"
         env:
           XCODE_VERSION: ${{ inputs.xcode_version }}
+        run: ./scripts/ci-select-xcode.sh "$XCODE_VERSION"
+
       - name: Install required platforms for Xcode 26
-        if: ${{ inputs.xcode_version == '26.0.1' }}
+        if: ${{ inputs.install_platforms }}
         env:
           PLATFORM: ${{ inputs.platform }}
-        run: ./scripts/ci-install-xOS-26-platforms.sh --platforms "$PLATFORM"
+          OS_VERSION: ${{ inputs.test-destination-os }}
+        run: ./scripts/ci-install-platforms.sh --platforms "$PLATFORM" --os-version "$OS_VERSION"
 
-      - name: Create simulator device for Xcode 26
-        if: ${{ inputs.xcode_version == '26.0.1' }}
+      - name: Create simulator device
+        if: ${{ inputs.create_device }}
         env:
           PLATFORM: ${{ inputs.platform }}
           OS_VERSION: ${{ inputs.test-destination-os }}
           DEVICE_NAME: ${{ inputs.device }}
         run: ./scripts/ci-create-simulator.sh --platform "$PLATFORM" --os-version "$OS_VERSION" --device-name "$DEVICE_NAME"
+
+      # Boot created simulators to ensure they're ready before tests run
+      # Based on CircleCI forum comment, booting is especially important for Xcode 26: https://discuss.circleci.com/t/xcode-26-rc/54066/18
+      - name: Boot simulator
+        if: ${{ inputs.create_device && inputs.platform == 'iOS' }}
+        env:
+          XCODE_VERSION: ${{ inputs.xcode_version }}
+          DEVICE_NAME: ${{ inputs.device }}
+          OS_VERSION: ${{ inputs.test-destination-os }}
+        run: ./scripts/ci-boot-simulator.sh --xcode "$XCODE_VERSION" --device "$DEVICE_NAME" --os-version "$OS_VERSION"
+
       - run: make init-ci-build
         if: ${{ inputs.build_with_make }}
 
@@ -103,7 +138,7 @@ jobs:
 
       - name: Download XCFramework
         if: ${{ inputs.needs_xcframework }}
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: xcframework-${{github.sha}}-sentry-static
           path: Carthage/
@@ -126,7 +161,7 @@ jobs:
           fi
 
       - name: Publish Test Report
-        uses: mikepenz/action-junit-report@3585e9575db828022551b4231f165eb59a0e74e3 # v5.6.2
+        uses: mikepenz/action-junit-report@e08919a3b1fb83a78393dfb775a9c37f17d8eea6 # v6.0.1
         if: always()
         with:
           report_paths: build/reports/*junit.xml
@@ -144,7 +179,7 @@ jobs:
           flags: ui-tests-${{ inputs.fastlane_command }}-${{ inputs.xcode_version }}, ui-tests
 
       - name: Upload Result Bundle
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         if: ${{ failure() }}
         with:
           name: ${{ inputs.fastlane_command }}${{ inputs.files_suffix }}
@@ -152,7 +187,7 @@ jobs:
             fastlane/test_results/**/*.xcresult
 
       - name: Upload iOS Simulator Crash Logs
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         if: ${{ failure() }}
         with:
           name: ${{ inputs.fastlane_command }}${{ inputs.files_suffix }}_crash_logs
@@ -160,7 +195,7 @@ jobs:
             ~/Library/Logs/DiagnosticReports/**
 
       - name: Archiving Raw Test Logs
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         if: ${{ failure() || cancelled() }}
         with:
           name: ${{ inputs.fastlane_command }}${{ inputs.files_suffix }}_raw_output

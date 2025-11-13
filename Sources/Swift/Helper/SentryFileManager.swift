@@ -25,11 +25,21 @@
     @objc public var previousBreadcrumbsFilePathTwo: String {
         helper.previousBreadcrumbsFilePathTwo
     }
+    
+    convenience init(dateProvider: SentryCurrentDateProvider, dispatchQueueWrapper: SentryDispatchQueueWrapper) throws {
+        let helper = try SentryFileManagerHelper(placeholder: "" as NSObject)
+        self.init(helper: helper, dateProvider: dateProvider, dispatchQueueWrapper: dispatchQueueWrapper)
+    }
 
-    @objc public init(options: Options, dateProvider: SentryCurrentDateProvider, dispatchQueueWrapper: SentryDispatchQueueWrapper) throws {
+    @objc public convenience init(options: Options?, dateProvider: SentryCurrentDateProvider, dispatchQueueWrapper: SentryDispatchQueueWrapper) throws {
+        let helper = try SentryFileManagerHelper(options: options)
+        self.init(helper: helper, dateProvider: dateProvider, dispatchQueueWrapper: dispatchQueueWrapper)
+    }
+        
+    init(helper: SentryFileManagerHelper, dateProvider: SentryCurrentDateProvider, dispatchQueueWrapper: SentryDispatchQueueWrapper) {
         dispatchQueue = dispatchQueueWrapper
         self.dateProvider = dateProvider
-        helper = try SentryFileManagerHelper(options: options)
+        self.helper = helper
         super.init()
 
         helper.handleEnvelopesLimit = { [weak self] in

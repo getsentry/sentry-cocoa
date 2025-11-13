@@ -205,9 +205,9 @@ class ExtraViewController: UIViewController {
 
     @IBAction func captureUserFeedbackV2(_ sender: UIButton) {
         highlightButton(sender)
-        var attachments: [Data]?
+        var attachments: [Attachment]?
         if let url = BundleResourceProvider.screenshotURL, let data = try? Data(contentsOf: url) {
-            attachments = [data]
+            attachments = [Attachment(data: data, filename: "screenshot.png", contentType: "image/png")]
         }
         let errorEventID = SentrySDK.capture(error: NSError(domain: "test-error.user-feedback.iOS-Swift", code: 1))
         let feedback = SentryFeedback(message: "It broke again on iOS-Swift. I don't know why, but this happens.", name: "John Me", email: "john@me.com", source: .custom, associatedEventId: errorEventID, attachments: attachments)

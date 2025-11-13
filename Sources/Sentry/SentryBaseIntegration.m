@@ -1,8 +1,6 @@
 #import "SentryBaseIntegration.h"
 #import "SentryLogC.h"
 #import "SentrySwift.h"
-#import <SentryDependencyContainer.h>
-#import <SentryOptions+Private.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -77,17 +75,10 @@ NS_ASSUME_NONNULL_BEGIN
 
     if (integrationOptions & kIntegrationOptionEnableAppHangTracking) {
 #if SENTRY_HAS_UIKIT
-#    if SDK_V9
         if (!options.enableAppHangTracking) {
             [self logWithOptionName:@"enableAppHangTracking"];
             return NO;
         }
-#    else
-        if (!options.enableAppHangTracking && !options.enableAppHangTrackingV2) {
-            [self logWithOptionName:@"enableAppHangTracking && enableAppHangTrackingV2"];
-            return NO;
-        }
-#    endif
 #else
         if (!options.enableAppHangTracking) {
             [self logWithOptionName:@"enableAppHangTracking"];
@@ -176,26 +167,20 @@ NS_ASSUME_NONNULL_BEGIN
     }
 #endif
 
-    // The frames tracker runs when tracing is enabled or AppHangsV2. We have to use an extra option
-    // for this.
     if (integrationOptions & kIntegrationOptionStartFramesTracker) {
 
 #if SENTRY_HAS_UIKIT
         BOOL performanceDisabled
             = !options.enableAutoPerformanceTracing || !options.isTracingEnabled;
-        BOOL appHangsV2Disabled = options.isAppHangTrackingV2Disabled;
-#    if SDK_V9
-        // The V9 watchdog tracker uses the frames tracker, so frame tracking
+        BOOL appHangsDisabled = options.isAppHangTrackingDisabled;
+
+        // The watchdog tracker uses the frames tracker, so frame tracking
         // must be enabled if watchdog tracking is enabled.
         BOOL watchdogDisabled = !options.enableWatchdogTerminationTracking;
-#    else
-        // Before V9 this should have no effect so set it to YES
-        BOOL watchdogDisabled = YES;
-#    endif // SDK_V9
 
-        if (performanceDisabled && appHangsV2Disabled && watchdogDisabled) {
-            if (appHangsV2Disabled) {
-                SENTRY_LOG_DEBUG(@"Not going to enable %@ because enableAppHangTrackingV2 is "
+        if (performanceDisabled && appHangsDisabled && watchdogDisabled) {
+            if (appHangsDisabled) {
+                SENTRY_LOG_DEBUG(@"Not going to enable %@ because enableAppHangTracking is "
                                  @"disabled or the appHangTimeoutInterval is 0.",
                     self.integrationName);
             }
@@ -206,14 +191,12 @@ NS_ASSUME_NONNULL_BEGIN
                     self.integrationName);
             }
 
-#    if SDK_V9
             if (watchdogDisabled) {
                 SENTRY_LOG_DEBUG(
                     @"Not going to enable %@ because enableWatchdogTerminationTracking "
                     @"is disabled.",
                     self.integrationName);
             }
-#    endif // SKD_V9
 
             return NO;
         }

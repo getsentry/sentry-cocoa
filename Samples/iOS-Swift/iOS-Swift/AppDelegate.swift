@@ -24,7 +24,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         SentrySDKWrapper.shared.startSentry()
         SampleAppDebugMenu.shared.display()
-
+        
         if #available(iOS 15.0, *) {
             metricKit.receiveReports()
         }

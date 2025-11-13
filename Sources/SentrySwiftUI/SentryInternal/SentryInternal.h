@@ -21,14 +21,13 @@
 #    import "SentrySpan.h"
 #    import "SentryTracer.h"
 #else
-@class SentrySpan;
+@protocol SentrySpan;
+
 @interface SentryTracer : NSObject <SentrySpan>
 @end
 #endif
 
 NS_ASSUME_NONNULL_BEGIN
-
-extern NSString *const SENTRY_XCODE_PREVIEW_ENVIRONMENT_KEY;
 
 typedef NS_ENUM(NSInteger, SentryTransactionNameSource);
 
@@ -71,6 +70,8 @@ typedef NS_ENUM(NSUInteger, SentrySpanStatus);
 
 - (nullable id<SentrySpan>)getSpan:(SentrySpanId *)spanId;
 
+- (BOOL)hasSpan:(SentrySpanId *)spanId;
+
 - (BOOL)pushActiveSpan:(SentrySpanId *)spanId;
 
 - (void)popActiveSpan;
@@ -81,9 +82,9 @@ typedef NS_ENUM(NSUInteger, SentrySpanStatus);
 - (instancetype)init NS_UNAVAILABLE;
 + (instancetype)new NS_UNAVAILABLE;
 
-@property (nullable, nonatomic, weak, readonly) SentrySpan *initialDisplaySpan;
+@property (nullable, nonatomic, weak, readonly) id<SentrySpan> initialDisplaySpan;
 
-@property (nullable, nonatomic, weak, readonly) SentrySpan *fullDisplaySpan;
+@property (nullable, nonatomic, weak, readonly) id<SentrySpan> fullDisplaySpan;
 
 @property (nonatomic, readonly) BOOL waitForFullDisplay;
 
@@ -103,15 +104,26 @@ typedef NS_ENUM(NSUInteger, SentrySpanStatus);
 
 @end
 
-@interface SentryUIViewControllerPerformanceTracker : NSObject
+@interface SentryObjCSwiftUISpanHelper : NSObject
+
+@property (nonatomic, readonly) BOOL hasSpan;
+
+@property (nonatomic, strong, readonly, nullable)
+    SentryTimeToDisplayTracker *initialDisplayReporting;
+
+@end
+
+@interface SentryDefaultUIViewControllerPerformanceTracker : NSObject
 
 - (void)reportFullyDisplayed;
 
-- (nullable SentryTimeToDisplayTracker *)startTimeToDisplayTrackerForScreen:(NSString *)screenName
-                                                         waitForFullDisplay:(BOOL)waitForFullDisplay
-                                                                     tracer:(SentryTracer *)tracer;
++ (SentryObjCSwiftUISpanHelper *)startTimeToDisplayTrackerForScreen:(NSString *)screenName
+                                                 waitForFullDisplay:(BOOL)waitforFullDisplay
+                                                      transactionId:(SentrySpanId *)transactionId;
 
 @end
+
+@class SentryHubInternal;
 
 #if __has_include("SentrySDKInternal.h")
 @interface SentrySDKInternal ()
@@ -120,7 +132,7 @@ typedef NS_ENUM(NSUInteger, SentrySpanStatus);
 #endif
 
 @property (nonatomic, nullable, readonly, class) SentryOptions *options;
-+ (void)setCurrentHub:(nullable SentryHub *)hub;
++ (void)setCurrentHub:(nullable SentryHubInternal *)hub;
 + (void)setStartOptions:(nullable SentryOptions *)options NS_SWIFT_NAME(setStart(with:));
 
 @end

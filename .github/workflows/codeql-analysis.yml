@@ -2,10 +2,15 @@ name: CodeQL
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
+      - v8.x
+
   pull_request:
     branches:
       - main
+      - v8.x
+
   schedule:
     - cron: "40 4 * * 6" # Weekly scheduled run to catch issues regardless of changes
 
@@ -39,7 +44,7 @@ jobs:
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_codeql_analysis_for_prs == 'true'
     needs: files-changed
     name: Analyze (${{ matrix.language }})
-    runs-on: macos-14
+    runs-on: macos-26
 
     strategy:
       fail-fast: false
@@ -60,7 +65,7 @@ jobs:
             -workspace Sentry.xcworkspace \
             -scheme Sentry \
             -configuration Release \
-            -destination platform="iOS Simulator,OS=16.4,name=iPhone 14 Pro" \
+            -destination platform="iOS Simulator,OS=26.1,name=iPhone 17 Pro" \
             build 2>&1 |
             tee raw-analyze-output.log |
             xcbeautify
@@ -76,11 +81,7 @@ jobs:
   # to make CodeQL analysis a required check with only running the analysis when required.
   # So, we don't have to run CodeQL analysis, for example, for unrelated changes.
   codeql_analysis-required-check:
-    needs:
-      [
-        files-changed,
-        analyze,
-      ]
+    needs: [files-changed, analyze]
     name: Analyze
     # This is necessary since a failed/skipped dependent job would cause this job to be skipped
     if: always()

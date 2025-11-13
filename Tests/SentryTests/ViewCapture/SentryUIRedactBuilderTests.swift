@@ -1,23 +1,73 @@
 // swiftlint:disable test_case_accessibility
 
+#if os(iOS) && !targetEnvironment(macCatalyst)
 @_spi(Private) @testable import Sentry
 import SwiftUI
 import UIKit
 import XCTest
 
+/// To print the internal view hierarchy of a view in the test cases, follow these steps:
+///
+/// 1. Set a breakpoint in the test case after creating the view instance.
+/// 2. Run the test case.
+/// 3. In the debugger, print the view hierarchy by evaluating the following expression in `lldb`:
+///
+/// ```
+/// (lldb) po view.value(forKey: "recursiveDescription")!
+/// ```
+///
+/// Example output:
+///
+/// ```
+/// <UIView: 0x12be081f0; frame = (0 0; 100 100); layer = <CALayer: 0x600001161840>>
+///   | <UILabel: 0x14bd5e8b0; frame = (20 10; 40 5); hidden = YES; userInteractionEnabled = NO; backgroundColor = UIExtendedGrayColorSpace 0 0; layer = <_UILabelLayer: 0x600003244eb0>>
+///   | <UILabel: 0x12be0b2b0; frame = (20 20; 50 8); userInteractionEnabled = NO; backgroundColor = UIExtendedGrayColorSpace 0 0; layer = <_UILabelLayer: 0x60000323ceb0>>
+/// ```
 class SentryUIRedactBuilderTests: XCTestCase {
+
+    // MARK: - Properties
+    
+    /// Holds references to fake views that need manual disposal to avoid crashes in dealloc
+    /// 
+    /// Some deprecated views like UIWebView crash if their dealloc is called without proper
+    /// initialization. We keep strong references here and manually dispose of them in tearDown.
+    private var fakeViewsRequiringManualDisposal: [AnyObject] = []
+
+    // MARK: - Lifecycle
+    
+    override func tearDown() {
+        super.tearDown()
+        
+        // Remove fake views from their superviews to prevent reference cycle issues,
+        // but keep them in the fakeViewsRequiringManualDisposal array.
+        //
+        // We intentionally don't deallocate these views because their dealloc methods
+        // (e.g., UIWebView) expect internal state that was never initialized. Since these
+        // are test objects created only a few times during testing, retaining them is an
+        // acceptable trade-off to prevent crashes.
+        for view in fakeViewsRequiringManualDisposal {
+            if let uiView = view as? UIView {
+                uiView.removeFromSuperview()
+            }
+        }
+        // Note: We intentionally don't clear the array to keep the objects alive
+    }
 
     // MARK: - Helper Methods
 
-    func createMaskedScreenshot(view: UIView, regions: [SentryRedactRegion]) -> UIImage {
-        let image = SentryViewRendererV2(enableFastViewRendering: true).render(view: view)
-        return SentryMaskRendererV2().maskScreenshot(screenshot: image, size: view.bounds.size, masking: regions)
-    }
-
     /// Creates a fake instance of a view for tests.
     ///
+    /// This function is used for views that cannot be instantiated normally (e.g., unavailable initializers).
+    /// It creates instances using low-level runtime APIs, bypassing proper initialization.
+    ///
+    /// **⚠️ Warning:** All fake views are kept alive to prevent crashes during deallocation.
+    /// Views created this way have incomplete internal state, and their dealloc methods may expect
+    /// state that was never initialized. Retaining them is an acceptable trade-off for test stability.
+    ///
+    /// - Parameter type: The UIView subclass type to cast to
+    /// - Parameter name: The class name to instantiate (e.g., "UIWebView")
     /// - Parameter frame: The frame to set for the created view
-    /// - Returns: The created view or `nil` if the type is absent
+    /// - Returns: The created view or `nil` if the class is unavailable
     func createFakeView<T: UIView>(type: T.Type, name: String, frame: CGRect) throws -> T? {
         // Obtain class at runtime – return nil if unavailable
         guard let viewClass = NSClassFromString(name) else {
@@ -33,6 +83,9 @@ class SentryUIRedactBuilderTests: XCTestCase {
         let m = try XCTUnwrap(class_getInstanceMethod(UIView.self, sel))
         let f = unsafeBitCast(method_getImplementation(m), to: InitWithFrame.self)
         _ = f(instance, sel, frame)
+
+        // Always store reference to prevent unsafe dealloc (see function documentation)
+        fakeViewsRequiringManualDisposal.append(instance)
 
         return instance
     }
@@ -54,13 +107,13 @@ class SentryUIRedactBuilderTests: XCTestCase {
         return window
     }
 
-    /// Creates a snapshot test identifier for the the n-th snapshot in the test, defined by `index`
+    /// Creates a snapshot test identifier for a named snapshot in the test
     ///
-    /// - Parameter index: Index of the snapshot in the current test, must be set if asserting multiple snapshots
+    /// - Parameter name: Name of the snapshot in the current test, must be unique per test
     /// - Returns Snapshot identifier bound to the current device OS
-    func createTestDeviceOSBoundSnapshotName(index: Int = 0) -> String {
+    func createTestDeviceOSBoundSnapshotName(name: String) -> String {
         let device = UIDevice.current
-        return "\(device.systemName)-\(device.systemVersion).\(index)"
+        return "\(device.name).\(device.systemName)-\(device.systemVersion).\(name)"
     }
 }
 
@@ -77,4 +130,5 @@ func XCTAssertCGSizeEqual(_ lhs: CGSize, _ rhs: CGSize, accuracy: CGFloat, file:
     XCTAssertEqual(lhs.width, rhs.width, accuracy: accuracy, "Width should be the same: \(lhs.width) != \(rhs.width) (+- \(accuracy))", file: file, line: line)
     XCTAssertEqual(lhs.height, rhs.height, accuracy: accuracy, "Height should be the same: \(lhs.height) != \(rhs.height) (+- \(accuracy))", file: file, line: line)
 }
+#endif // os(iOS) && !targetEnvironment(macCatalyst)
 // swiftlint:enable test_case_accessibility

@@ -1,8 +1,6 @@
 #import "SentryCrashSysCtl.h"
-#import "SentryDependencyContainer.h"
 #import "SentryNotificationNames.h"
 #import <SentryDefaultAppStateManager.h>
-#import <SentryOptions.h>
 #import <SentrySwift.h>
 
 #if SENTRY_HAS_UIKIT
@@ -12,29 +10,31 @@
 
 @interface SentryDefaultAppStateManager ()
 
-@property (nonatomic, strong) SentryOptions *options;
-@property (nonatomic, strong) SentryCrashWrapper *crashWrapper;
-@property (nonatomic, strong) SentryFileManager *fileManager;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueue;
 @property (nonatomic, strong) id<SentryNSNotificationCenterWrapper> notificationCenterWrapper;
+@property (nonatomic, copy) void (^storeCurrent)(void);
+@property (nonatomic, copy) void (^updateTerminated)(void);
+@property (nonatomic, copy) void (^updateSDKNotRunning)(void);
+@property (nonatomic, copy) void (^updateActive)(BOOL);
 @property (nonatomic) NSInteger startCount;
 
 @end
 
 @implementation SentryDefaultAppStateManager
 
-- (instancetype)initWithOptions:(SentryOptions *)options
-                   crashWrapper:(SentryCrashWrapper *)crashWrapper
-                    fileManager:(SentryFileManager *)fileManager
-           dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
-      notificationCenterWrapper:(id<SentryNSNotificationCenterWrapper>)notificationCenterWrapper
+- (instancetype)initWithStoreCurrent:(void (^)(void))storeCurrent
+                    updateTerminated:(void (^)(void))updateTerminated
+                 updateSDKNotRunning:(void (^)(void))updateSDKNotRunning
+                        updateActive:(void (^)(BOOL))updateActive
 {
     if (self = [super init]) {
-        self.options = options;
-        self.crashWrapper = crashWrapper;
-        self.fileManager = fileManager;
-        self.dispatchQueue = dispatchQueueWrapper;
-        self.notificationCenterWrapper = notificationCenterWrapper;
+        self.dispatchQueue = SentryDependencyContainer.sharedInstance.dispatchQueueWrapper;
+        self.notificationCenterWrapper
+            = SentryDependencyContainer.sharedInstance.notificationCenterWrapper;
+        self.storeCurrent = storeCurrent;
+        self.updateTerminated = updateTerminated;
+        self.updateSDKNotRunning = updateSDKNotRunning;
+        self.updateActive = updateActive;
         self.startCount = 0;
     }
     return self;
@@ -65,7 +65,7 @@
                                                name:SentryWillTerminateNotification
                                              object:nil];
 
-        [self storeCurrentAppState];
+        self.storeCurrent();
     }
 
     self.startCount += 1;
@@ -84,8 +84,7 @@
     }
 
     if (forceStop) {
-        [self
-            updateAppStateInBackground:^(SentryAppState *appState) { appState.isSDKRunning = NO; }];
+        [self.dispatchQueue dispatchAsyncWithBlock:^{ self.updateSDKNotRunning(); }];
 
         self.startCount = 0;
     } else {
@@ -130,7 +129,7 @@
  */
 - (void)didBecomeActive
 {
-    [self updateAppStateInBackground:^(SentryAppState *appState) { appState.isActive = YES; }];
+    [self.dispatchQueue dispatchAsyncWithBlock:^{ self.updateActive(YES); }];
 }
 
 /**
@@ -139,7 +138,7 @@
  */
 - (void)willResignActive
 {
-    [self updateAppStateInBackground:^(SentryAppState *appState) { appState.isActive = NO; }];
+    [self.dispatchQueue dispatchAsyncWithBlock:^{ self.updateActive(NO); }];
 }
 
 - (void)willTerminate
@@ -147,51 +146,7 @@
     // The app is terminating so it is fine to do this on the main thread.
     // Furthermore, so users can manually post UIApplicationWillTerminateNotification and then call
     // exit(0), to avoid getting false watchdog terminations when using exit(0), see GH-1252.
-    [self updateAppState:^(SentryAppState *appState) { appState.wasTerminated = YES; }];
-}
-
-- (void)updateAppStateInBackground:(void (^)(SentryAppState *))block
-{
-    // We accept the tradeoff that the app state might not be 100% up to date over blocking the main
-    // thread.
-    [self.dispatchQueue dispatchAsyncWithBlock:^{ [self updateAppState:block]; }];
-}
-
-- (void)updateAppState:(void (^)(SentryAppState *))block
-{
-    @synchronized(self) {
-        SentryAppState *appState = [self.fileManager readAppState];
-        if (appState != nil) {
-            block(appState);
-            [self.fileManager storeAppState:appState];
-        }
-    }
-}
-
-- (SentryAppState *)buildCurrentAppState
-{
-    // Is the current process being traced or not? If it is a debugger is attached.
-    bool isDebugging = self.crashWrapper.isBeingTraced;
-
-    UIDevice *device = [UIDevice currentDevice];
-    NSString *vendorId = [device.identifierForVendor UUIDString];
-
-    return [[SentryAppState alloc] initWithReleaseName:self.options.releaseName
-                                             osVersion:device.systemVersion
-                                              vendorId:vendorId
-                                           isDebugging:isDebugging
-                                   systemBootTimestamp:SentryDependencyContainer.sharedInstance
-                                                           .sysctlWrapper.systemBootTimestamp];
-}
-
-- (nullable SentryAppState *)loadPreviousAppState
-{
-    return [self.fileManager readPreviousAppState];
-}
-
-- (void)storeCurrentAppState
-{
-    [self.fileManager storeAppState:[self buildCurrentAppState]];
+    self.updateTerminated();
 }
 
 #endif

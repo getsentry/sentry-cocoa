@@ -3,12 +3,27 @@
 #if SENTRY_HAS_UIKIT
 
 @protocol SentryCurrentDateProvider;
-@class SentryFramesDelayResult;
 
 NS_ASSUME_NONNULL_BEGIN
 
+@interface SentryFramesDelayResultObjC : NSObject
+
+@property (nonatomic, readonly) CFTimeInterval delayDuration;
+@property (nonatomic, readonly) NSUInteger framesContributingToDelayCount;
+
+@end
+
 @interface SentryDelayedFramesTracker : NSObject
 SENTRY_NO_INIT
+
+/**
+ * Initializes a @c SentryDelayedFramesTracker. This class keeps track of information on delayed
+ * frames. Whenever a new delayed frame is recorded, it removes recorded delayed frames older than
+ * the current time minus the @c keepDelayedFramesDuration.
+ *
+ * @param keepDelayedFramesDuration The maximum duration to keep delayed frames records in memory.
+ */
+- (instancetype)initWithKeepDelayedFramesDuration:(CFTimeInterval)keepDelayedFramesDuration;
 
 /**
  * Initializes a @c SentryDelayedFramesTracker. This class keeps track of information on delayed
@@ -50,10 +65,10 @@ SENTRY_NO_INIT
  * @param isRunning Wether the frames tracker is running or not.
  * @param slowFrameThreshold The threshold for a slow frame. For 60 fps this is roughly 16.67 ms.
  */
-- (SentryFramesDelayResult *)getFramesDelay:(uint64_t)startSystemTimestamp
-                         endSystemTimestamp:(uint64_t)endSystemTimestamp
-                                  isRunning:(BOOL)isRunning
-                         slowFrameThreshold:(CFTimeInterval)slowFrameThreshold;
+- (SentryFramesDelayResultObjC *)getFramesDelayObjC:(uint64_t)startSystemTimestamp
+                                 endSystemTimestamp:(uint64_t)endSystemTimestamp
+                                          isRunning:(BOOL)isRunning
+                                 slowFrameThreshold:(CFTimeInterval)slowFrameThreshold;
 
 @end
 

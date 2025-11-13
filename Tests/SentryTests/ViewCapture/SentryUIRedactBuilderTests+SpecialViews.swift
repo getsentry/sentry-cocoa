@@ -1,4 +1,4 @@
-#if os(iOS)
+#if os(iOS) && !targetEnvironment(macCatalyst)
 import AVKit
 import Foundation
 import PDFKit
@@ -11,14 +11,8 @@ import UIKit
 import WebKit
 import XCTest
 
-// The following command was used to derive the view hierarchy:
-//
-// ```
-// (lldb) po rootView.value(forKey: "recursiveDescription")!
-// ```
+/// See `SentryUIRedactBuilderTests.swift` for more information on how to print the internal view hierarchy of a view.
 class SentryUIRedactBuilderTests_SpecialViews: SentryUIRedactBuilderTests { // swiftlint:disable:this type_name
-    private var rootView: UIView!
-
     private func getSut(maskAllText: Bool, maskAllImages: Bool) -> SentryUIRedactBuilder {
         return SentryUIRedactBuilder(options: TestRedactOptions(
             maskAllText: maskAllText,
@@ -26,15 +20,15 @@ class SentryUIRedactBuilderTests_SpecialViews: SentryUIRedactBuilderTests { // s
         ))
     }
 
-    override func setUp() {
-        rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
-    }
-
     // MARK: - PDF View
 
-    private func setupPDFViewFixture() {
+    private func setupPDFViewFixture() -> UIView {
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+        
         let pdfView = PDFView(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
         rootView.addSubview(pdfView)
+
+        return rootView
 
         // View Hierarchy:
         // ---------------
@@ -45,16 +39,13 @@ class SentryUIRedactBuilderTests_SpecialViews: SentryUIRedactBuilderTests { // s
 
     func testRedact_withPDFView_withMaskingEnabled_shouldBeRedacted() throws {
         // -- Arrange --
-        setupPDFViewFixture()
+        let rootView = setupPDFViewFixture()
 
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: true)
         let result = sut.redactRegionsFor(view: rootView)
-        let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: masked, as: .image)
-        
         let pdfRegion = try XCTUnwrap(result.element(at: 0))
         XCTAssertEqual(pdfRegion.size, CGSize(width: 40, height: 40))
         XCTAssertEqual(pdfRegion.type, .redact)
@@ -73,17 +64,13 @@ class SentryUIRedactBuilderTests_SpecialViews: SentryUIRedactBuilderTests { // s
 
     func testRedact_withPDFView_withMaskingDisabled_shouldBeRedacted() throws {
         // -- Arrange --
-        setupPDFViewFixture()
+        let rootView = setupPDFViewFixture()
 
         // -- Act --
         let sut = getSut(maskAllText: false, maskAllImages: false)
         let result = sut.redactRegionsFor(view: rootView)
-        let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: masked, as: .image)
-        
-        XCTAssertEqual(result.count, 2)
         let pdfRegion = try XCTUnwrap(result.element(at: 0))
         XCTAssertEqual(pdfRegion.size, CGSize(width: 40, height: 40))
         XCTAssertEqual(pdfRegion.type, .redact)
@@ -95,13 +82,20 @@ class SentryUIRedactBuilderTests_SpecialViews: SentryUIRedactBuilderTests { // s
         XCTAssertEqual(pdfScrollViewRegion.type, .redact)
         XCTAssertEqual(pdfScrollViewRegion.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 20, ty: 20))
         XCTAssertNil(pdfScrollViewRegion.color)
+
+        // Assert no additional regions
+        XCTAssertEqual(result.count, 2)
     }
 
     // MARK: - WKWebView
 
-    private func setupWKWebViewFixture() {
+    private func setupWKWebViewFixture() -> UIView {
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+
         let webView = WKWebView(frame: .init(x: 20, y: 20, width: 40, height: 40), configuration: .init())
         rootView.addSubview(webView)
+
+        return rootView
 
         // View Hierarchy:
         // ---------------
@@ -120,16 +114,13 @@ class SentryUIRedactBuilderTests_SpecialViews: SentryUIRedactBuilderTests { // s
 
     func testRedact_withWKWebView_withMaskingEnabled_shouldRedactView() throws {
         // -- Arrange --
-        setupWKWebViewFixture()
+        let rootView = setupWKWebViewFixture()
 
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: true)
         let result = sut.redactRegionsFor(view: rootView)
-        let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: masked, as: .image)
-        
         let region = try XCTUnwrap(result.element(at: 0)) // WKWebView
         XCTAssertNil(region.color)
         XCTAssertEqual(region.size, CGSize(width: 40, height: 40))
@@ -148,16 +139,13 @@ class SentryUIRedactBuilderTests_SpecialViews: SentryUIRedactBuilderTests { // s
 
     func testRedact_withWKWebView_withMaskingDisabled_shouldRedactView() throws {
         // -- Arrange --
-        setupWKWebViewFixture()
+        let rootView = setupWKWebViewFixture()
 
         // -- Act --
-        let sut = getSut(maskAllText: true, maskAllImages: true)
+        let sut = getSut(maskAllText: false, maskAllImages: false)
         let result = sut.redactRegionsFor(view: rootView)
-        let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: masked, as: .image)
-        
         let region = try XCTUnwrap(result.element(at: 0))
         XCTAssertNil(region.color)
         XCTAssertEqual(region.size, CGSize(width: 40, height: 40)) // WKWebView
@@ -176,14 +164,19 @@ class SentryUIRedactBuilderTests_SpecialViews: SentryUIRedactBuilderTests { // s
 
     // MARK: - UIWebView
 
-    private func setupUIWebViewFixture() throws {
-        // The UIWebView initializer are marked as unavailable, therefore we need to create a fake view
+    private func setupUIWebViewFixture() throws -> UIView {
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+
+        // The UIWebView initializers are marked as unavailable, so we use createFakeView.
+        // Note: All fake views are kept alive to prevent dealloc crashes (see createFakeView docs).
         let webView = try XCTUnwrap(createFakeView(
             type: UIView.self,
             name: "UIWebView",
             frame: .init(x: 20, y: 20, width: 40, height: 40)
         ))
         rootView.addSubview(webView)
+
+        return rootView
 
         // View Hierarchy:
         // ---------------
@@ -193,16 +186,13 @@ class SentryUIRedactBuilderTests_SpecialViews: SentryUIRedactBuilderTests { // s
 
     func testRedact_withUIWebView_withMaskingEnabled_shouldRedactView() throws {
         // -- Arrange --
-        try setupUIWebViewFixture()
+        let rootView = try setupUIWebViewFixture()
 
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: true)
         let result = sut.redactRegionsFor(view: rootView)
-        let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: masked, as: .image)
-        
         let region = try XCTUnwrap(result.element(at: 0))
         XCTAssertNil(region.color)
         XCTAssertEqual(region.size, CGSize(width: 40, height: 40))
@@ -215,16 +205,13 @@ class SentryUIRedactBuilderTests_SpecialViews: SentryUIRedactBuilderTests { // s
 
     func testRedact_withUIWebView_withMaskingDisabled_shouldRedactView() throws {
         // -- Arrange --
-        try setupUIWebViewFixture()
+        let rootView = try setupUIWebViewFixture()
 
         // -- Act --
         let sut = getSut(maskAllText: false, maskAllImages: false)
         let result = sut.redactRegionsFor(view: rootView)
-        let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: masked, as: .image)
-        
         let region = try XCTUnwrap(result.element(at: 0))
         XCTAssertNil(region.color)
         XCTAssertEqual(region.size, CGSize(width: 40, height: 40))
@@ -237,11 +224,15 @@ class SentryUIRedactBuilderTests_SpecialViews: SentryUIRedactBuilderTests { // s
 
     // MARK: - SFSafariView Redaction
 
-    private func setupSFSafariViewControllerFixture() throws {
+    private func setupSFSafariViewControllerFixture() throws -> UIView {
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+
         let safariViewController = SFSafariViewController(url: URL(string: "https://example.com")!)
         let safariView = try XCTUnwrap(safariViewController.view)
         safariView.frame = CGRect(x: 20, y: 20, width: 40, height: 40)
         rootView.addSubview(safariView)
+
+        return rootView
 
         // View Hierarchy:
         // ---------------
@@ -284,7 +275,7 @@ class SentryUIRedactBuilderTests_SpecialViews: SentryUIRedactBuilderTests { // s
             XCTAssertNil(placeholderRegion.color)
             XCTAssertEqual(placeholderRegion.size, CGSize(width: 40, height: 40))
             XCTAssertEqual(placeholderRegion.type, .redact)
-            XCTAssertEqual(toolbarRegion.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 20, ty: 20))
+            XCTAssertEqual(placeholderRegion.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 20, ty: 20))
 
             let safariViewRegion = try XCTUnwrap(regions.element(at: 3)) // SFSafariView
             XCTAssertNil(safariViewRegion.color)
@@ -304,15 +295,13 @@ class SentryUIRedactBuilderTests_SpecialViews: SentryUIRedactBuilderTests { // s
         throw XCTSkip("SFSafariViewController opens system browser on macOS, nothing to redact, skipping test")
 #else
         // -- Arrange --
-        try setupSFSafariViewControllerFixture()
+        let rootView = try setupSFSafariViewControllerFixture()
 
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: true)
         let result = sut.redactRegionsFor(view: rootView)
-        let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: masked, as: .image, named: createTestDeviceOSBoundSnapshotName())
         try assertSFSafariViewControllerRegions(regions: result)
 #endif
     }
@@ -322,26 +311,28 @@ class SentryUIRedactBuilderTests_SpecialViews: SentryUIRedactBuilderTests { // s
         throw XCTSkip("SFSafariViewController opens system browser on macOS, nothing to redact, skipping test")
 #else
         // -- Arrange --
-        try setupSFSafariViewControllerFixture()
+        let rootView = try setupSFSafariViewControllerFixture()
 
         // -- Act --
         let sut = getSut(maskAllText: false, maskAllImages: false)
         let result = sut.redactRegionsFor(view: rootView)
-        let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: masked, as: .image, named: createTestDeviceOSBoundSnapshotName())
         try assertSFSafariViewControllerRegions(regions: result)
 #endif
     }
 
     // MARK: - AVPlayer Redaction
 
-    private func setupAVPlayerViewControllerFixture() throws {
+    private func setupAVPlayerViewControllerFixture() throws -> UIView {
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+
         let avPlayerViewController = AVPlayerViewController()
         let avPlayerView = try XCTUnwrap(avPlayerViewController.view)
         avPlayerView.frame = CGRect(x: 20, y: 20, width: 40, height: 40)
         rootView.addSubview(avPlayerView)
+
+        return rootView
 
         // View Hierarchy:
         // ---------------
@@ -362,31 +353,27 @@ class SentryUIRedactBuilderTests_SpecialViews: SentryUIRedactBuilderTests { // s
 
     func testRedact_withAVPlayerViewController_shouldBeRedacted() throws {
         // -- Arrange --
-        try setupAVPlayerViewControllerFixture()
+        let rootView = try setupAVPlayerViewControllerFixture()
 
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: true)
         let result = sut.redactRegionsFor(view: rootView)
-        let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: masked, as: .image)
         try assertAVPlayerViewControllerRegions(regions: result)
     }
 
     func testRedact_withAVPlayerViewControllerEvenWithMaskingDisabled_shouldBeRedacted() throws {
         // -- Arrange --
-        try setupAVPlayerViewControllerFixture()
+        let rootView = try setupAVPlayerViewControllerFixture()
 
         // -- Act --
         let sut = getSut(maskAllText: false, maskAllImages: false)
         let result = sut.redactRegionsFor(view: rootView)
-        let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: masked, as: .image)
         try assertAVPlayerViewControllerRegions(regions: result)
     }
 }
 
-#endif // os(iOS)
+#endif // os(iOS) && !targetEnvironment(macCatalyst)

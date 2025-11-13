@@ -40,17 +40,16 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
             )
 
             SentryDependencyContainer.sharedInstance().sysctlWrapper = sysctl
-            
-            appStateManager = SentryDefaultAppStateManager(
-                options: options,
+            SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = dispatchQueue
+            appStateManager = SentryAppStateManager(
+                releaseName: options.releaseName,
                 crashWrapper: crashWrapper,
                 fileManager: fileManager,
-                dispatchQueueWrapper: dispatchQueue,
-                notificationCenterWrapper: NotificationCenter.default
+                sysctlWrapper: sysctl
             )
             
             framesTracker = SentryFramesTracker(displayLinkWrapper: displayLinkWrapper, dateProvider: currentDate, dispatchQueueWrapper: TestSentryDispatchQueueWrapper(),
-                                                notificationCenter: TestNSNotificationCenterWrapper(), keepDelayedFramesDuration: 0)
+                                                notificationCenter: TestNSNotificationCenterWrapper(), delayedFramesTracker: TestDelayedWrapper(keepDelayedFramesDuration: 0, dateProvider: currentDate))
             framesTracker.start()
             
             runtimeInitTimestamp = SentryDependencyContainer.sharedInstance().dateProvider.date().addingTimeInterval(0.2)

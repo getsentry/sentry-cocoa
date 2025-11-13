@@ -3,8 +3,10 @@ on:
   push:
     branches:
       - main
+      - v8.x
 
   pull_request:
+    types: [opened, synchronize, reopened, labeled]
 
 # Concurrency configuration:
 # - We use workflow-specific concurrency groups to prevent multiple critical UI test runs,
@@ -18,9 +20,14 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
+  ready-to-merge-gate:
+    name: Ready-to-merge gate
+    uses: ./.github/workflows/ready-to-merge-workflow.yml
+
   files-changed:
     name: Detect File Changes
     runs-on: ubuntu-latest
+    needs: ready-to-merge-gate
     outputs:
       run_ui_tests_critical_for_prs: ${{ steps.changes.outputs.run_ui_tests_critical_for_prs }}
     steps:
@@ -40,45 +47,43 @@ jobs:
     with:
       fastlane_command: ui_critical_tests_ios_swiftui_envelope
       build_with_make: true
-      xcode_version: ${{matrix.platform.xcode}}
       macos_version: ${{matrix.platform.runs-on}}
       files_suffix: _${{matrix.platform.xcode}}
-      platform: ${{matrix.platform.platform}}
-      device: ${{matrix.platform.device}}
       test-destination-os: ${{matrix.platform.test-destination-os}}
+      xcode_version: ${{matrix.platform.xcode}}
+      install_platforms: ${{matrix.platform.install_platforms}}
+      platform: ${{matrix.platform.platform}}
+      create_device: ${{matrix.platform.create_device}}
+      device: ${{matrix.platform.device}}
     strategy:
       fail-fast: false
       matrix:
         include:
-          # As of 25th March 2025, the preinstalled iOS simulator version is 16.4 for macOS 13 and Xcode 14.3.1; see
-          # https://github.com/actions/runner-images/blob/main/images/macos/macos-13-Readme.md#installed-sdks
-          - name: iOS 16
-            platform:
-              runs-on: macos-13
-              xcode: "14.3.1"
-              platform: "iOS"
-              device: "iPhone 14 Pro"
-              test-destination-os: "16.4"
-
           # macos-14 iOS 17 not included due to the XCUIServerNotFound errors causing flaky tests
 
-          # As of 14th August 2025, the preinstalled iOS simulator version is 18.4 for macOS 15 and Xcode 16.4; see
+          # iOS 18 - Use pre-installed iOS 18.4 runtime on macOS-15
+          # As of 14th August 2025, iOS 18.4 is preinstalled for macOS-15 and Xcode 16.4; see
           # https://github.com/actions/runner-images/blob/main/images/macos/macos-15-Readme.md#installed-sdks
           - name: iOS 18
             platform:
               runs-on: macos-15
               xcode: "16.4"
-              platform: "iOS"
-              device: "iPhone 16 Pro"
               test-destination-os: "18.4"
+              install_platforms: false
+              platform: "iOS"
+              create_device: false
+              device: "iPhone 16 Pro"
 
+          # iOS 26 - Download iOS 26.1 beta runtime on macOS-26
           - name: iOS 26
             platform:
-              runs-on: macos-15
-              xcode: "26.0.1"
+              runs-on: macos-26
+              xcode: "26.1"
+              test-destination-os: "26.1"
+              install_platforms: true
               platform: "iOS"
-              device: "iPhone 16 Pro"
-              test-destination-os: "26.0"
+              create_device: true
+              device: "iPhone 17 Pro"
 
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
@@ -109,7 +114,7 @@ jobs:
           ./TestSamples/SwiftUICrashTest/test-crash-and-relaunch.sh --screenshots-dir "swiftui-crash-test-screenshots"
 
       - name: Upload SwiftUI Crash Test Screenshots
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         if: always()
         with:
           name: swiftui-crash-test-screenshots
@@ -120,7 +125,7 @@ jobs:
         run: xcrun simctl spawn booted log collect --output $(pwd)/swiftui-crash-test-log.logarchive
 
       - name: Upload Logs
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         if: always()
         with:
           name: swiftui-crash-test-log.logarchive
@@ -134,12 +139,7 @@ jobs:
   # to make UI tests critical a required check with only running the UI tests critical when required.
   # So, we don't have to run UI tests critical, for example, for unrelated changes.
   ui_tests_critical-required-check:
-    needs:
-      [
-        files-changed,
-        run-tests,
-        run-swiftui-crash-test,
-      ]
+    needs: [files-changed, run-tests, run-swiftui-crash-test]
     name: UI Tests Critical
     # This is necessary since a failed/skipped dependent job would cause this job to be skipped
     if: always()

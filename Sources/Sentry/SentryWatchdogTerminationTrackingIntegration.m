@@ -4,25 +4,22 @@
 #    import "SentryScope+Private.h"
 #    import <SentryANRTrackerV1.h>
 #    import <SentryClient+Private.h>
-#    import <SentryDependencyContainer.h>
 #    import <SentryHub.h>
-#    import <SentryOptions+Private.h>
 #    import <SentryPropagationContext.h>
 #    import <SentrySDK+Private.h>
 #    import <SentryScope+PrivateSwift.h>
 #    import <SentrySwift.h>
 #    import <SentryWatchdogTerminationBreadcrumbProcessor.h>
 #    import <SentryWatchdogTerminationLogic.h>
-#    import <SentryWatchdogTerminationScopeObserver.h>
 #    import <SentryWatchdogTerminationTracker.h>
 NS_ASSUME_NONNULL_BEGIN
 
 @interface SentryWatchdogTerminationTrackingIntegration () <SentryANRTrackerDelegate>
 
 @property (nonatomic, strong) SentryWatchdogTerminationTracker *tracker;
-@property (nonatomic, strong) id<SentryANRTracker> anrTracker;
+@property (nonatomic, strong) SentryANRTracker *anrTracker;
 @property (nullable, nonatomic, copy) NSString *testConfigurationFilePath;
-@property (nonatomic, strong) id<SentryAppStateManager> appStateManager;
+@property (nonatomic, strong) SentryAppStateManager *appStateManager;
 
 @end
 
@@ -56,7 +53,7 @@ NS_ASSUME_NONNULL_BEGIN
                                               attributes:attributes];
 
     SentryFileManager *fileManager = [[[SentrySDKInternal currentHub] getClient] fileManager];
-    id<SentryAppStateManager> appStateManager =
+    SentryAppStateManager *appStateManager =
         [SentryDependencyContainer sharedInstance].appStateManager;
     SentryCrashWrapper *crashWrapper = [SentryDependencyContainer sharedInstance].crashWrapper;
     SentryWatchdogTerminationLogic *logic =
@@ -75,22 +72,14 @@ NS_ASSUME_NONNULL_BEGIN
 
     [self.tracker start];
 
-#    if SDK_V9
-    BOOL isV2Enabled = YES;
-#    else
-    BOOL isV2Enabled = options.enableAppHangTrackingV2;
-#    endif // SDK_V9
-
     self.anrTracker =
-        [SentryDependencyContainer.sharedInstance getANRTracker:options.appHangTimeoutInterval
-                                                    isV2Enabled:isV2Enabled];
+        [SentryDependencyContainer.sharedInstance getANRTracker:options.appHangTimeoutInterval];
     [self.anrTracker addListener:self];
 
     self.appStateManager = appStateManager;
 
-    SentryWatchdogTerminationScopeObserver *scopeObserver =
-        [SentryDependencyContainer.sharedInstance
-            getWatchdogTerminationScopeObserverWithOptions:options];
+    id<SentryScopeObserver> scopeObserver = [SentryDependencyContainer.sharedInstance
+        getWatchdogTerminationScopeObserverWithOptions:options];
 
     [SentrySDKInternal.currentHub configureScope:^(SentryScope *_Nonnull outerScope) {
         // Add the observer to the scope so that it can be notified when the scope changes.

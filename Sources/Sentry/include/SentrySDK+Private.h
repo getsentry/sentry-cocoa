@@ -1,4 +1,4 @@
-#if __has_include(<Sentry/SentryOptions.h>)
+#if __has_include(<Sentry/SentryProfilingConditionals.h>)
 #    import <Sentry/SentryProfilingConditionals.h>
 #else
 #    import "SentryProfilingConditionals.h"
@@ -13,8 +13,9 @@
 @class SentryAppStartMeasurement;
 @class SentryEnvelope;
 @class SentryFeedback;
-@class SentryHub;
+@class SentryOptions;
 @class SentryId;
+@class SentryHubInternal;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -42,7 +43,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, class) NSUInteger startInvocations;
 @property (nullable, nonatomic, class) NSDate *startTimestamp;
 
-+ (SentryHub *)currentHub;
++ (SentryHubInternal *)currentHub;
 
 /**
  * The option used to start the SDK

@@ -30,64 +30,83 @@ class SentryFeedbackTests: XCTestCase {
     }
     
     func testSerializeWithAllFields() throws {
-        let sut = SentryFeedback(message: "Test feedback message", name: "Test feedback provider", email: "test-feedback-provider@sentry.io", attachments: [Data()])
-        
+        let attachment = Attachment(data: Data(), filename: "screenshot.png", contentType: "image/png")
+        let sut = SentryFeedback(message: "Test feedback message", name: "Test feedback provider", email: "test-feedback-provider@sentry.io", attachments: [attachment])
+
         let serialization = sut.serialize()
         XCTAssertEqual(try XCTUnwrap(serialization["message"] as? String), "Test feedback message")
         XCTAssertEqual(try XCTUnwrap(serialization["name"] as? String), "Test feedback provider")
         XCTAssertEqual(try XCTUnwrap(serialization["contact_email"] as? String), "test-feedback-provider@sentry.io")
         XCTAssertEqual(try XCTUnwrap(serialization["source"] as? String), "widget")
-        
+
         let attachments = sut.attachmentsForEnvelope()
         XCTAssertEqual(attachments.count, 1)
         XCTAssertEqual(try XCTUnwrap(attachments.first).filename, "screenshot.png")
-        XCTAssertEqual(try XCTUnwrap(attachments.first).contentType, "application/png")
+        XCTAssertEqual(try XCTUnwrap(attachments.first).contentType, "image/png")
     }
     
     func testSerializeCustomFeedback() throws {
-        let sut = SentryFeedback(message: "Test feedback message", name: "Test feedback provider", email: "test-feedback-provider@sentry.io", source: .custom, attachments: [Data()])
-        
+        let attachment = Attachment(data: Data(), filename: "screenshot.png", contentType: "image/png")
+        let sut = SentryFeedback(message: "Test feedback message", name: "Test feedback provider", email: "test-feedback-provider@sentry.io", source: .custom, attachments: [attachment])
+
         let serialization = sut.serialize()
         XCTAssertEqual(try XCTUnwrap(serialization["message"] as? String), "Test feedback message")
         XCTAssertEqual(try XCTUnwrap(serialization["name"] as? String), "Test feedback provider")
         XCTAssertEqual(try XCTUnwrap(serialization["contact_email"] as? String), "test-feedback-provider@sentry.io")
         XCTAssertEqual(try XCTUnwrap(serialization["source"] as? String), "custom")
-        
+
         let attachments = sut.attachmentsForEnvelope()
         XCTAssertEqual(attachments.count, 1)
         XCTAssertEqual(try XCTUnwrap(attachments.first).filename, "screenshot.png")
-        XCTAssertEqual(try XCTUnwrap(attachments.first).contentType, "application/png")
+        XCTAssertEqual(try XCTUnwrap(attachments.first).contentType, "image/png")
     }
     
     func testSerializeWithAssociatedEventID() throws {
         let eventID = SentryId()
-        
-        let sut = SentryFeedback(message: "Test feedback message", name: "Test feedback provider", email: "test-feedback-provider@sentry.io", source: .custom, associatedEventId: eventID, attachments: [Data()])
-        
+        let attachment = Attachment(data: Data(), filename: "screenshot.png", contentType: "image/png")
+        let sut = SentryFeedback(message: "Test feedback message", name: "Test feedback provider", email: "test-feedback-provider@sentry.io", source: .custom, associatedEventId: eventID, attachments: [attachment])
+
         let serialization = sut.serialize()
         XCTAssertEqual(try XCTUnwrap(serialization["message"] as? String), "Test feedback message")
         XCTAssertEqual(try XCTUnwrap(serialization["name"] as? String), "Test feedback provider")
         XCTAssertEqual(try XCTUnwrap(serialization["contact_email"] as? String), "test-feedback-provider@sentry.io")
         XCTAssertEqual(try XCTUnwrap(serialization["source"] as? String), "custom")
         XCTAssertEqual(try XCTUnwrap(serialization["associated_event_id"] as? String), eventID.sentryIdString)
-        
+
         let attachments = sut.attachmentsForEnvelope()
         XCTAssertEqual(attachments.count, 1)
         XCTAssertEqual(try XCTUnwrap(attachments.first).filename, "screenshot.png")
-        XCTAssertEqual(try XCTUnwrap(attachments.first).contentType, "application/png")
+        XCTAssertEqual(try XCTUnwrap(attachments.first).contentType, "image/png")
     }
     
     func testSerializeWithNoOptionalFields() throws {
         let sut = SentryFeedback(message: "Test feedback message", name: nil, email: nil)
-        
+
         let serialization = sut.serialize()
         XCTAssertEqual(try XCTUnwrap(serialization["message"] as? String), "Test feedback message")
         XCTAssertNil(serialization["name"])
         XCTAssertNil(serialization["contact_email"])
         XCTAssertEqual(try XCTUnwrap(serialization["source"] as? String), "widget")
-        
+
         let attachments = sut.attachmentsForEnvelope()
         XCTAssertEqual(attachments.count, 0)
+    }
+
+    func testMultipleAttachments() throws {
+        let screenshot = Attachment(data: Data("screenshot".utf8), filename: "screenshot.png", contentType: "image/png")
+        let logFile = Attachment(data: Data("log content".utf8), filename: "app.log", contentType: "text/plain")
+        let videoFile = Attachment(data: Data("video".utf8), filename: "recording.mp4", contentType: "video/mp4")
+
+        let sut = SentryFeedback(message: "Test feedback with multiple attachments", name: "Test User", email: "test@example.com", attachments: [screenshot, logFile, videoFile])
+
+        let attachments = sut.attachmentsForEnvelope()
+        XCTAssertEqual(attachments.count, 3)
+        XCTAssertEqual(attachments[0].filename, "screenshot.png")
+        XCTAssertEqual(attachments[0].contentType, "image/png")
+        XCTAssertEqual(attachments[1].filename, "app.log")
+        XCTAssertEqual(attachments[1].contentType, "text/plain")
+        XCTAssertEqual(attachments[2].filename, "recording.mp4")
+        XCTAssertEqual(attachments[2].contentType, "video/mp4")
     }
         
     private let inputCombinations: [FeedbackTestCase] = [
@@ -199,7 +218,7 @@ class SentryFeedbackTests: XCTestCase {
         let transport = TestTransport()
         let transportAdapter = TestTransportAdapter(transports: [transport], options: options)
 
-        let client = SentryClient(
+        let client = SentryClientInternal(
             options: options,
             transportAdapter: transportAdapter,
             fileManager: try XCTUnwrap(SentryFileManager(
@@ -207,7 +226,6 @@ class SentryFeedbackTests: XCTestCase {
                 dateProvider: TestCurrentDateProvider(),
                 dispatchQueueWrapper: TestSentryDispatchQueueWrapper()
             )),
-            deleteOldEnvelopeItems: false,
             threadInspector: TestDefaultThreadInspector.instance,
             debugImageProvider: TestDebugImageProvider(),
             random: TestRandom(value: 1.0),
@@ -242,7 +260,7 @@ class SentryFeedbackTests: XCTestCase {
         let transport = TestTransport()
         let transportAdapter = TestTransportAdapter(transports: [transport], options: options)
 
-        let client = SentryClient(
+        let client = SentryClientInternal(
             options: options,
             transportAdapter: transportAdapter,
             fileManager: try XCTUnwrap(SentryFileManager(
@@ -250,7 +268,6 @@ class SentryFeedbackTests: XCTestCase {
                 dateProvider: TestCurrentDateProvider(),
                 dispatchQueueWrapper: TestSentryDispatchQueueWrapper()
             )),
-            deleteOldEnvelopeItems: false,
             threadInspector: TestDefaultThreadInspector.instance,
             debugImageProvider: TestDebugImageProvider(),
             random: TestRandom(value: 1.0),
@@ -285,7 +302,7 @@ class SentryFeedbackTests: XCTestCase {
         let transport = TestTransport()
         let transportAdapter = TestTransportAdapter(transports: [transport], options: options)
 
-        let client = SentryClient(
+        let client = SentryClientInternal(
             options: options,
             transportAdapter: transportAdapter,
             fileManager: try XCTUnwrap(SentryFileManager(
@@ -293,7 +310,6 @@ class SentryFeedbackTests: XCTestCase {
                 dateProvider: TestCurrentDateProvider(),
                 dispatchQueueWrapper: TestSentryDispatchQueueWrapper()
             )),
-            deleteOldEnvelopeItems: false,
             threadInspector: TestDefaultThreadInspector.instance,
             debugImageProvider: TestDebugImageProvider(),
             random: TestRandom(value: 1.0),

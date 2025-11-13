@@ -1,11 +1,10 @@
-#if os(iOS)
+#if os(iOS) && !targetEnvironment(macCatalyst)
 import AVKit
 import Foundation
 import PDFKit
 import SafariServices
 @_spi(Private) @testable import Sentry
 import SentryTestUtils
-import SnapshotTesting
 import SwiftUI
 import UIKit
 import WebKit
@@ -32,14 +31,8 @@ private class RCTParagraphComponentView: UIView {
 private class RCTImageView: UIView {
 }
 
-// The following command was used to derive the view hierarchy:
-//
-// ```
-// (lldb) po rootView.value(forKey: "recursiveDescription")!
-// ```
+/// See `SentryUIRedactBuilderTests.swift` for more information on how to print the internal view hierarchy of a view.
 class SentryUIRedactBuilderTests_ReactNative: SentryUIRedactBuilderTests { // swiftlint:disable:this type_name
-    private var rootView: UIView!
-
     private func getSut(maskAllText: Bool, maskAllImages: Bool) -> SentryUIRedactBuilder {
         return SentryUIRedactBuilder(options: TestRedactOptions(
             maskAllText: maskAllText,
@@ -47,15 +40,15 @@ class SentryUIRedactBuilderTests_ReactNative: SentryUIRedactBuilderTests { // sw
         ))
     }
 
-    override func setUp() {
-        rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
-    }
-
     // MARK: - RCTTextView Redaction
 
-    private func setupRCTTextViewFixture() {
+    private func setupRCTTextViewFixture() -> UIView {
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+
         let textView = RCTTextView(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
         rootView.addSubview(textView)
+
+        return rootView
 
         // View Hierarchy:
         // ---------------
@@ -65,16 +58,13 @@ class SentryUIRedactBuilderTests_ReactNative: SentryUIRedactBuilderTests { // sw
 
     func testRedact_withRCTTextView_withMaskAllTextEnabled_shouldRedactView() throws {
         // -- Arrange --
-        setupRCTTextViewFixture()
+        let rootView = setupRCTTextViewFixture()
 
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: true)
         let result = sut.redactRegionsFor(view: rootView)
-        let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: masked, as: .image)
-
         let region = try XCTUnwrap(result.element(at: 0))
         // The text color of UITextView is not used for redaction
         XCTAssertNil(region.color)
@@ -88,37 +78,37 @@ class SentryUIRedactBuilderTests_ReactNative: SentryUIRedactBuilderTests { // sw
 
     func testRedact_withRCTTextView_withMaskAllTextDisabled_shouldNotRedactView() {
         // -- Arrange --
-        setupRCTTextViewFixture()
+        let rootView = setupRCTTextViewFixture()
 
         // -- Act --
         let sut = getSut(maskAllText: false, maskAllImages: true)
         let result = sut.redactRegionsFor(view: rootView)
-        let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: masked, as: .image)
         XCTAssertEqual(result.count, 0)
     }
 
     func testRedact_withRCTTextView_withMaskAllImagesDisabled_shouldRedactView() {
         // -- Arrange --
-        setupRCTTextViewFixture()
+        let rootView = setupRCTTextViewFixture()
 
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: false)
         let result = sut.redactRegionsFor(view: rootView)
-        let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: masked, as: .image)
         XCTAssertEqual(result.count, 1)
     }
 
     // MARK: - RCTParagraphComponentView Redaction
 
-    private func setupRCTParagraphComponentFixture() {
+    private func setupRCTParagraphComponentFixture() -> UIView {
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+        
         let textView = RCTParagraphComponentView(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
         rootView.addSubview(textView)
+
+        return rootView
 
         // View Hierarchy:
         // ---------------
@@ -128,16 +118,13 @@ class SentryUIRedactBuilderTests_ReactNative: SentryUIRedactBuilderTests { // sw
 
     func testRedact_withRCTParagraphComponent_withMaskAllTextEnabled_shouldRedactView() throws {
         // -- Arrange --
-        setupRCTParagraphComponentFixture()
+        let rootView = setupRCTParagraphComponentFixture()
 
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: true)
         let result = sut.redactRegionsFor(view: rootView)
-        let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: masked, as: .image)
-        
         let region = try XCTUnwrap(result.element(at: 0))
         // The text color of UITextView is not used for redaction
         XCTAssertNil(region.color)
@@ -151,35 +138,32 @@ class SentryUIRedactBuilderTests_ReactNative: SentryUIRedactBuilderTests { // sw
 
     func testRedact_withRCTParagraphComponent_withMaskAllTextDisabled_shouldNotRedactView() {
         // -- Arrange --
-        setupRCTParagraphComponentFixture()
+        let rootView = setupRCTParagraphComponentFixture()
 
         // -- Act --
         let sut = getSut(maskAllText: false, maskAllImages: true)
         let result = sut.redactRegionsFor(view: rootView)
-        let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: masked, as: .image)
         XCTAssertEqual(result.count, 0)
     }
 
     func testRedact_withRCTParagraphComponent_withMaskAllImagesDisabled_shouldRedactView() {
         // -- Arrange --
-        setupRCTParagraphComponentFixture()
+        let rootView = setupRCTParagraphComponentFixture()
 
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: false)
         let result = sut.redactRegionsFor(view: rootView)
-        let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: masked, as: .image)
         XCTAssertEqual(result.count, 1)
     }
 
     // - MARK: - RCTImageView Redaction
 
-    private func setupRCTImageViewFixture() {
+    private func setupRCTImageViewFixture() -> UIView {
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
         let imageView = RCTImageView(frame: CGRect(x: 20, y: 20, width: 40, height: 40))
         rootView.addSubview(imageView)
 
@@ -187,20 +171,18 @@ class SentryUIRedactBuilderTests_ReactNative: SentryUIRedactBuilderTests { // sw
         // ---------------
         // <UIView: 0x10584f470; frame = (0 0; 100 100); layer = <CALayer: 0x600000ce8fc0>>
         //   | <RCTImageView: 0x10585e6a0; frame = (20 20; 40 40); layer = <CALayer: 0x600000cea130>>
+        return rootView
     }
 
     func testRedact_withRCTImageView_withMaskAllImagesEnabled_shouldRedactView() throws {
         // -- Arrange --
-        setupRCTImageViewFixture()
+        let rootView = setupRCTImageViewFixture()
 
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: true)
         let result = sut.redactRegionsFor(view: rootView)
-        let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: masked, as: .image)
-        
         let region = try XCTUnwrap(result.element(at: 0))
         // The text color of UITextView is not used for redaction
         XCTAssertNil(region.color)
@@ -214,31 +196,27 @@ class SentryUIRedactBuilderTests_ReactNative: SentryUIRedactBuilderTests { // sw
 
     func testRedact_withRCTImageView_withMaskAllImagesDisabled_shouldNotRedactView() {
         // -- Arrange --
-        setupRCTImageViewFixture()
+        let rootView = setupRCTImageViewFixture()
 
         // -- Act --
         let sut = getSut(maskAllText: true, maskAllImages: false)
         let result = sut.redactRegionsFor(view: rootView)
-        let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: masked, as: .image)
         XCTAssertEqual(result.count, 0)
     }
 
     func testRedact_withRCTImageView_withMaskAllTextDisabled_shouldRedactView() {
         // -- Arrange --
-        setupRCTImageViewFixture()
+        let rootView = setupRCTImageViewFixture()
 
         // -- Act --
         let sut = getSut(maskAllText: false, maskAllImages: true)
         let result = sut.redactRegionsFor(view: rootView)
-        let masked = createMaskedScreenshot(view: rootView, regions: result)
 
         // -- Assert --
-        assertSnapshot(of: masked, as: .image)
         XCTAssertEqual(result.count, 1)
     }
 }
 
-#endif // os(iOS)
+#endif // os(iOS) && !targetEnvironment(macCatalyst)

@@ -1,9 +1,8 @@
 #import "SentryAutoBreadcrumbTrackingIntegration.h"
 #import "SentryBreadcrumbTracker.h"
-#import "SentryDependencyContainer.h"
 #import "SentryLogC.h"
-#import "SentryOptions.h"
 #import "SentrySDKInternal.h"
+#import "SentrySwift.h"
 #import "SentrySystemEventBreadcrumbs.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -26,15 +25,22 @@ NS_ASSUME_NONNULL_BEGIN
         return NO;
     }
 
+    SentryFileManager *_Nullable fileManager = SentryDependencyContainer.sharedInstance.fileManager;
+    if (!fileManager) {
+        SENTRY_LOG_FATAL(@"File manager is not available");
+        return NO;
+    }
+
 #if TARGET_OS_IOS && SENTRY_HAS_UIKIT
     [self installWithOptions:options
              breadcrumbTracker:[[SentryBreadcrumbTracker alloc] initReportAccessibilityIdentifier:
                                        options.reportAccessibilityIdentifier]
-        systemEventBreadcrumbs:
-            [[SentrySystemEventBreadcrumbs alloc]
-                         initWithFileManager:[SentryDependencyContainer sharedInstance].fileManager
-                andNotificationCenterWrapper:[SentryDependencyContainer sharedInstance]
-                                                 .notificationCenterWrapper]];
+        systemEventBreadcrumbs:[[SentrySystemEventBreadcrumbs alloc]
+                                            initWithFileManager:SENTRY_UNWRAP_NULLABLE(
+                                                                    SentryFileManager, fileManager)
+                                   andNotificationCenterWrapper:SentryDependencyContainer
+                                                                    .sharedInstance
+                                                                    .notificationCenterWrapper]];
 #else
     [self installWithOptions:options
            breadcrumbTracker:[[SentryBreadcrumbTracker alloc]

@@ -1,14 +1,12 @@
 #import "SentryCrashIntegration.h"
-#import "SentryCrashInstallationReporter.h"
-
 #import "SentryCrashC.h"
+#import "SentryCrashInstallationReporter.h"
 #import "SentryCrashIntegrationSessionHandler.h"
 #import "SentryCrashMonitor_CPPException.h"
 #include "SentryCrashMonitor_Signal.h"
 #import "SentryEvent.h"
 #import "SentryHub.h"
-#import "SentryModels+Serializable.h"
-#import "SentryOptions.h"
+#import "SentryInternalDefines.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
 #import "SentryScope+PrivateSwift.h"
@@ -18,7 +16,6 @@
 #import "SentryWatchdogTerminationLogic.h"
 #import <SentryClient+Private.h>
 #import <SentryCrashScopeObserver.h>
-#import <SentryDependencyContainer.h>
 #import <SentryLogC.h>
 #import <SentrySDK+Private.h>
 
@@ -38,13 +35,16 @@ static NSString *const LOCALE_KEY = @"locale";
 void
 sentry_finishAndSaveTransaction(void)
 {
-    SentrySpan *span = (SentrySpan *)SentrySDKInternal.currentHub.scope.span;
+    SentrySpan *span = [SentrySDKInternal.currentHub.scope getCastedInternalSpan];
 
     if (span != nil) {
         SentryTracer *tracer = [span tracer];
         [tracer finishForCrash];
     }
 }
+
+@interface SentryCrashScopeObserver () <SentryScopeObserver>
+@end
 
 @interface SentryCrashIntegration ()
 
@@ -87,7 +87,7 @@ sentry_finishAndSaveTransaction(void)
     self.options = options;
 
 #if SENTRY_HAS_UIKIT
-    id<SentryAppStateManager> appStateManager =
+    SentryAppStateManager *appStateManager =
         [SentryDependencyContainer sharedInstance].appStateManager;
     SentryWatchdogTerminationLogic *logic =
         [[SentryWatchdogTerminationLogic alloc] initWithOptions:options
@@ -144,8 +144,7 @@ sentry_finishAndSaveTransaction(void)
         BOOL canSendReports = NO;
         if (installation == nil) {
             SentryInAppLogic *inAppLogic =
-                [[SentryInAppLogic alloc] initWithInAppIncludes:self.options.inAppIncludes
-                                                  inAppExcludes:self.options.inAppExcludes];
+                [[SentryInAppLogic alloc] initWithInAppIncludes:self.options.inAppIncludes];
 
             installation = [[SentryCrashInstallationReporter alloc]
                 initWithInAppLogic:inAppLogic
@@ -258,7 +257,8 @@ sentry_finishAndSaveTransaction(void)
         if (scope.contextDictionary != nil
             && scope.contextDictionary[SENTRY_CONTEXT_DEVICE_KEY] != nil) {
             device = [[NSMutableDictionary alloc]
-                initWithDictionary:scope.contextDictionary[SENTRY_CONTEXT_DEVICE_KEY]];
+                initWithDictionary:SENTRY_UNWRAP_NULLABLE_DICT(NSString *, id,
+                                       scope.contextDictionary[SENTRY_CONTEXT_DEVICE_KEY])];
         } else {
             device = [NSMutableDictionary new];
         }

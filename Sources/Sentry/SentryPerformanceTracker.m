@@ -235,6 +235,11 @@ NS_ASSUME_NONNULL_BEGIN
     }
 }
 
+- (BOOL)hasSpan:(SentrySpanId *)spanId
+{
+    return [self getSpan:spanId] != nil;
+}
+
 - (nullable id<SentrySpan>)getActiveSpan
 {
     @synchronized(self.activeSpanStack) {

@@ -1,6 +1,5 @@
 #import "SentryByteCountFormatter.h"
 #import "SentryFileIOTrackerHelper.h"
-#import "SentryOptions.h"
 #import "SentrySpan.h"
 #import "SentrySpanOperation.h"
 #import "SentrySwizzle.h"
@@ -55,7 +54,7 @@
         options.enableFileIOTracing = YES;
         options.tracesSampleRate = @1;
 
-        options.experimental.enableFileManagerSwizzling = YES;
+        options.enableFileManagerSwizzling = YES;
     }];
 }
 

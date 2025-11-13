@@ -3,7 +3,6 @@
 
 #if SENTRY_HAS_UIKIT
 
-#    import <SentryOptions.h>
 #    import <SentrySDK+Private.h>
 #    import <SentrySwift.h>
 
@@ -11,7 +10,7 @@
 
 @property (nonatomic, strong) SentryOptions *options;
 @property (nonatomic, strong) SentryCrashWrapper *crashAdapter;
-@property (nonatomic, strong) id<SentryAppStateManager> appStateManager;
+@property (nonatomic, strong) SentryAppStateManager *appStateManager;
 
 @end
 
@@ -19,7 +18,7 @@
 
 - (instancetype)initWithOptions:(SentryOptions *)options
                    crashAdapter:(SentryCrashWrapper *)crashAdapter
-                appStateManager:(id<SentryAppStateManager>)appStateManager
+                appStateManager:(SentryAppStateManager *)appStateManager
 {
     if (self = [super init]) {
         self.options = options;
@@ -67,7 +66,8 @@
 
     // This value can change when installing test builds using Xcode or when installing an app
     // on a device using ad-hoc distribution.
-    if (![currentAppState.vendorId isEqualToString:previousAppState.vendorId]) {
+    if (![currentAppState.vendorId
+            isEqualToString:SENTRY_UNWRAP_NULLABLE(NSString, previousAppState.vendorId)]) {
         return NO;
     }
 

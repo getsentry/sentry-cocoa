@@ -11,7 +11,7 @@ class SentryCrashStackEntryMapperTests: XCTestCase {
     
     override func setUp() {
         super.setUp()
-        sut = SentryCrashStackEntryMapper(inAppLogic: SentryInAppLogic(inAppIncludes: [bundleExecutable], inAppExcludes: []))
+        sut = SentryCrashStackEntryMapper(inAppLogic: SentryInAppLogic(inAppIncludes: [bundleExecutable]))
     }
     
     override func tearDown() {
@@ -49,7 +49,7 @@ class SentryCrashStackEntryMapperTests: XCTestCase {
     func testSymbolNameIsNull() {
         let frame = sut.mapStackEntry(with: SentryCrashStackCursor())
         
-        XCTAssertEqual("<redacted>", frame.function)
+        XCTAssertNil(frame.function)
     }
 
     func testSymbolName() {

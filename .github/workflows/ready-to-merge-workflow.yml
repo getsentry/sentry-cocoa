@@ -1,0 +1,44 @@
+name: Ready to Merge Workflow
+on:
+  workflow_call:
+
+jobs:
+  ready-to-merge-gate:
+    name: 'Missing "ready-to-merge" label'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check for exact 'ready-to-merge' label
+        if: ${{ github.event_name == 'pull_request' }}
+        id: check-label
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const expectedLabel = 'ready-to-merge';
+
+            // Fetch labels from GitHub API
+            // GitHub Actions may not contain the labels in the event, so we need to fetch them from the API.
+            const { data: labels } = await github.rest.issues.listLabelsOnIssue({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number
+            });
+
+            const labelNames = labels.map(label => label.name);
+            console.log(`Found labels: ${labelNames.join(', ')}`);
+
+            // Check for exact 'ready-to-merge' label match
+            const labelFound = labelNames.includes(expectedLabel);
+            core.setOutput('label_found', labelFound.toString());
+      # Since Github also accepts `skipped` results for Required Workflows, we need
+      # to fail the job to ensure that the downstream jobs don't just skip.
+      - name: Fail until the 'ready-to-merge' label is present
+        if: ${{ github.event_name == 'pull_request' && steps.check-label.outputs.label_found == 'false' }}
+        run: |
+          echo "Add the 'ready-to-merge' label to run CI."
+          exit 1
+      - name: Gate passed
+        if: ${{ github.event_name == 'pull_request' && steps.check-label.outputs.label_found == 'true' }}
+        run: echo "Label present. Proceeding with CI."
+      - name: Gate passed
+        if: ${{ github.event_name != 'pull_request' }}
+        run: echo "Not a PR. Proceeding with CI."

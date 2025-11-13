@@ -1,4 +1,5 @@
 #import "SentryDefines.h"
+#import "SentryOptionsObjC.h"
 #import "SentryProfilingConditionals.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -9,7 +10,6 @@ NS_ASSUME_NONNULL_BEGIN
 @class SentryEnvelope;
 @class SentryEnvelopeItem;
 @class SentryOptions;
-@class SentrySession;
 
 @protocol SentryCurrentDateProvider;
 
@@ -33,7 +33,10 @@ SENTRY_NO_INIT
 
 @property (nonatomic, copy, nullable) void (^handleEnvelopesLimit)(void);
 
-- (nullable instancetype)initWithOptions:(SentryOptions *)options
+- (nullable instancetype)initWithPlaceholder:(NSObject *)objc
+                                       error:(NSError *_Nullable *_Nullable)error;
+
+- (nullable instancetype)initWithOptions:(SentryOptionsObjC *_Nullable)options
                                    error:(NSError **)error NS_DESIGNATED_INITIALIZER;
 
 #pragma mark - Envelope

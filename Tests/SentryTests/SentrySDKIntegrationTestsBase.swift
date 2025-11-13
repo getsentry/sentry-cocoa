@@ -28,9 +28,9 @@ class SentrySDKIntegrationTestsBase: XCTestCase {
     
     func givenSdkWithHub(_ options: Options? = nil, scope: Scope = Scope()) {
         let client = TestClient(options: options ?? self.options)
-        let hub = SentryHub(client: client, andScope: scope, andCrashWrapper: TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo), andDispatchQueue: SentryDispatchQueueWrapper())
+        let hub = SentryHubInternal(client: client, andScope: scope, andCrashWrapper: TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo), andDispatchQueue: SentryDispatchQueueWrapper())
         
-        SentrySDKInternal.setStart(with: self.options)
+        SentrySDK.setStart(with: self.options)
         SentrySDKInternal.setCurrentHub(hub)
     }
     

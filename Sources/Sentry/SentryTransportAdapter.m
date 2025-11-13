@@ -1,6 +1,5 @@
 #import "SentryTransportAdapter.h"
 #import "SentryEvent.h"
-#import "SentryOptions.h"
 #import "SentrySwift.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -51,11 +50,8 @@ NS_ASSUME_NONNULL_BEGIN
                                                                attachments:attachments];
     [items addObjectsFromArray:additionalEnvelopeItems];
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     SentryEnvelopeHeader *envelopeHeader = [[SentryEnvelopeHeader alloc] initWithId:event.eventId
                                                                        traceContext:traceContext];
-#pragma clang diagnostic pop
     SentryEnvelope *envelope = [[SentryEnvelope alloc] initWithHeader:envelopeHeader items:items];
 
     [self sendEnvelope:envelope];
@@ -70,11 +66,8 @@ NS_ASSUME_NONNULL_BEGIN
                                                                attachments:attachments];
     [items addObject:[[SentryEnvelopeItem alloc] initWithSession:session]];
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     SentryEnvelopeHeader *envelopeHeader = [[SentryEnvelopeHeader alloc] initWithId:event.eventId
                                                                        traceContext:traceContext];
-#pragma clang diagnostic pop
 
     SentryEnvelope *envelope = [[SentryEnvelope alloc] initWithHeader:envelopeHeader items:items];
 
@@ -85,11 +78,8 @@ NS_ASSUME_NONNULL_BEGIN
 {
     SentryEnvelopeItem *item = [[SentryEnvelopeItem alloc] initWithEvent:event];
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     SentryEnvelopeHeader *envelopeHeader = [[SentryEnvelopeHeader alloc] initWithId:event.eventId
                                                                        traceContext:traceContext];
-#pragma clang diagnostic pop
 
     SentryEnvelope *envelope = [[SentryEnvelope alloc] initWithHeader:envelopeHeader
                                                                 items:@[ item ]];
