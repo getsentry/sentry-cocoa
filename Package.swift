@@ -1,4 +1,4 @@
-// swift-tools-version:5.5
+// swift-tools-version:6.0
 #if canImport(Darwin)
 import Darwin.C
 #elseif canImport(Glibc)
@@ -117,7 +117,7 @@ if let env = env, String(cString: env, encoding: .utf8) == "1" {
 
 let package = Package(
     name: "Sentry",
-    platforms: [.iOS(.v15), .macOS(.v12), .tvOS(.v15), .watchOS(.v8)],
+    platforms: [.iOS(.v15), .macOS(.v12), .tvOS(.v15), .watchOS(.v8), .visionOS(.v1)],
     products: products,
     targets: targets,
     cxxLanguageStandard: .cxx14
