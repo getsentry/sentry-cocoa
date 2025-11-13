@@ -34,7 +34,7 @@ import Foundation
     /// - Important: The `dispatchQueue` parameter MUST be a serial queue to ensure thread safety.
     ///              Passing a concurrent queue will result in undefined behavior and potential data races.
     ///
-    /// - Note: This initializer sets `maxLogCount` to 1000, ensuring we never send more than 1000 logs in a single batch.
+    /// - Note: This initializer sets `maxLogCount` to 1000, which is a hard limit in Replay.
     @_spi(Private) public convenience init(
         options: Options,
         dispatchQueue: SentryDispatchQueueWrapper,
@@ -54,7 +54,7 @@ import Foundation
     /// - Parameters:
     ///   - options: The Sentry configuration options
     ///   - flushTimeout: The timeout interval after which buffered logs will be flushed
-    ///   - maxLogCount: The maximum number of logs to batch before triggering an immediate flush (default: 1000)
+    ///   - maxLogCount: Maximum number of logs to batch before triggering an immediate flush. Default 1000 is a hard limit in Replay.
     ///   - maxBufferSizeBytes: The maximum buffer size in bytes before triggering an immediate flush
     ///   - dispatchQueue: A **serial** dispatch queue wrapper for thread-safe access to mutable state
     ///   - delegate: The delegate to handle captured log batches
@@ -62,8 +62,7 @@ import Foundation
     /// - Important: The `dispatchQueue` parameter MUST be a serial queue to ensure thread safety.
     ///              Passing a concurrent queue will result in undefined behavior and potential data races.
     ///
-    /// - Note: Logs are flushed when either `maxLogCount` (1000) or `maxBufferSizeBytes` limit is reached,
-    ///         ensuring we never send more than 1000 logs in a single batch.
+    /// - Note: Logs are flushed when either `maxLogCount` or `maxBufferSizeBytes` limit is reached.
     @_spi(Private) public init(
         options: Options,
         flushTimeout: TimeInterval,
