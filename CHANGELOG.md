@@ -3,6 +3,9 @@
 ## Unreleased
 
 - Resolve SDK crash caused by UIPrintPanelViewController incorrectly casting to UISplitViewController (#6771)
+### Fixes
+
+- Remove unnecesary dependency on `SentryCppHelper` to Sentry (#6754) (#6761)
 
 ## 8.57.2
 
