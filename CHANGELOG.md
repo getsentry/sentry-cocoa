@@ -2,6 +2,10 @@
 
 ## 9.0.0-alpha.1
 
+## Features
+
+- Structured Logs: Collect `stdout/stderr` per default (#6441)
+
 ### Breaking Changes
 
 - Bumped minimum OS versions to iOS 15.0, macOS 12.0, tvOS 15.0, visionOS 1.0, and watchOS 8.0
@@ -96,6 +100,11 @@
 - Removes `enablePerformanceV2` option and makes this the default. The app start duration will now finish when the first frame is drawn instead of when the OS posts the UIWindowDidBecomeVisibleNotification. (#6008)
 - Removes enableTracing property from SentryOptions (#5694)
 - Structured Logs: Move options out of experimental (#6359)
+
+### Features
+
+- Add SentryDistribution as Swift Package Manager target (#6149)
+- Add option `enablePropagateTraceparent` to support OTel/W3C trace propagation (#6356)
 - Remove unused `SentryFrame.instruction` property (#6504)
 - Remove `uuid` and `name` of `SentryDebugMeta` (#6512) Use `debugID` instead of `uuid` and `codeFile` instead of `name`.
 - Enable enablePreWarmedAppStartTracing by default (#6508). With this option enabled, the SDK collects [prewarmed app starts](https://docs.sentry.io/platforms/apple/tracing/instrumentation/automatic-instrumentation/#prewarmed-app-start-tracing).

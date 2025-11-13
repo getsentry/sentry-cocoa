@@ -159,6 +159,7 @@
 #import "SentrySpotlightTransport.h"
 #import "SentryStacktrace.h"
 #import "SentryStacktraceBuilder.h"
+#import "SentryStdOutLogIntegration.h"
 #import "SentrySubClassFinder.h"
 #import "SentrySwift.h"
 #import "SentrySwiftAsyncIntegration.h"
