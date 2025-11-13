@@ -1,0 +1,35 @@
+# yaml-language-server: $schema=../../schema/xcodegen.schema.json
+
+name: SPM
+createIntermediateGroups: true
+generateEmptyDirectories: true
+configs:
+  Debug: debug
+  Release: release
+fileGroups:
+  - SPM.yml
+options:
+  bundleIdPrefix: io.sentry
+packages:
+  Sentry:
+    path: ../../
+targets:
+  SPM:
+    type: application
+    platform: auto
+    sources:
+      - SPM
+    dependencies:
+      - package: Sentry
+        products:
+          - SentrySwift
+    configFiles:
+      Debug: SPM.xcconfig
+      Release: SPM.xcconfig
+schemes:
+  SPM:
+    templates:
+      - SampleAppScheme
+    build:
+      targets:
+        SPM: all
