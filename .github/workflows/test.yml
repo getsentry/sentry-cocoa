@@ -270,14 +270,12 @@ jobs:
             device: "iPhone 16 Pro"
             scheme: "Sentry"
 
-          # iOS 26 - Download iOS 26.1 beta runtime on macOS-26
+          # iOS 26 - Use pre-installed iOS 26.1 runtime on macOS-26
           - name: iOS 26 Sentry
             runs-on: macos-26
             xcode: "26.1"
             test-destination-os: "26.1"
-            install_platforms: true
             platform: "iOS"
-            create_device: true
             device: "iPhone 17 Pro"
             scheme: "Sentry"
             # This runner seems to be slower than the others, so we give it more time because otherwise it frequently times out. The build step often alone takes 20 minutes and also booting the simulator takes a while.
