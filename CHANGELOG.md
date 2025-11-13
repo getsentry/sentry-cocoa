@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Resolve SDK crash caused by UIPrintPanelViewController incorrectly casting to UISplitViewController (#6771)
+
 ## 8.57.2
 
 ### Fixes
