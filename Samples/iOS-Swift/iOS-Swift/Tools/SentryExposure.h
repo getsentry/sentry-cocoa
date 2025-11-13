@@ -23,6 +23,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (nullable SentryClientInternal *)getClient;
 
+- (NSArray<NSString *> *)trimmedInstalledIntegrationNames;
+
 @end
 
 @interface SentrySDKInternal : NSObject
@@ -30,6 +32,8 @@ NS_ASSUME_NONNULL_BEGIN
 + (nullable NSArray<NSString *> *)relevantViewControllersNames;
 
 + (SentryHubInternal *)currentHub;
+
++ (NSArray<NSString *> *)trimmedInstalledIntegrationNames;
 
 @end
 

@@ -13,3 +13,8 @@ PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*] =
 CODE_SIGN_STYLE = Manual
 
 SUPPORTED_PLATFORMS = iphoneos iphonesimulator
+
+SWIFT_OBJC_BRIDGING_HEADER = iOS-Swift/Tools/iOS-Swift-Bridging-Header.h
+
+// Runtime search paths for app extensions to find frameworks in parent app
+LD_RUNPATH_SEARCH_PATHS = $(inherited) @executable_path/Frameworks @executable_path/../../Frameworks

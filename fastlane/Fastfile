@@ -8,6 +8,8 @@ platform :ios do
   ios_swift_infoplist_path = "./Samples/iOS-Swift/iOS-Swift/Info.plist"
   ios_swift_clip_infoplist_path = "./Samples/iOS-Swift/iOS-SwiftClip/Info.plist"
   ios_swift_share_extension_infoplist_path = "./Samples/iOS-Swift/iOS-Swift-ShareExtension/Info.plist"
+  ios_swift_intent_extension_infoplist_path = "./Samples/iOS-Swift/iOS-Swift-IntentExtension/Info.plist"
+  ios_swift_action_extension_infoplist_path = "./Samples/iOS-Swift/iOS-Swift-ActionExtension/Info.plist"
 
   # Helper method to run tests with common configuration
   def run_ui_tests(scheme:, result_bundle_name:, device: nil, address_sanitizer: false)
@@ -73,6 +75,16 @@ platform :ios do
       key: "CFBundleShortVersionString",
       value: new_version
     )
+    set_info_plist_value(
+      path: ios_swift_intent_extension_infoplist_path,
+      key: "CFBundleShortVersionString",
+      value: new_version
+    )
+    set_info_plist_value(
+      path: ios_swift_action_extension_infoplist_path,
+      key: "CFBundleShortVersionString",
+      value: new_version
+    )
 
     sentryInfoPlistPath = "./Sources/Resources/Info.plist"
     set_info_plist_value(
@@ -99,7 +111,9 @@ platform :ios do
         "io.sentry.iOS-Swift-UITests.xctrunner",
         "io.sentry.sample.iOS-Swift",
         "io.sentry.sample.iOS-Swift.Clip",
-        "io.sentry.sample.iOS-Swift.ShareExtension"
+        "io.sentry.sample.iOS-Swift.ShareExtension",
+        "io.sentry.sample.iOS-Swift.IntentExtension",
+        "io.sentry.sample.iOS-Swift.ActionExtension"
       ],
       readonly: true
     )
@@ -113,7 +127,9 @@ platform :ios do
         "io.sentry.iOS-Swift-UITests.xctrunner",
         "io.sentry.sample.iOS-Swift",
         "io.sentry.sample.iOS-Swift.Clip",
-        "io.sentry.sample.iOS-Swift.ShareExtension"
+        "io.sentry.sample.iOS-Swift.ShareExtension",
+        "io.sentry.sample.iOS-Swift.IntentExtension",
+        "io.sentry.sample.iOS-Swift.ActionExtension"
       ],
       readonly: true
     )
@@ -128,7 +144,9 @@ platform :ios do
       app_identifier: [
         "io.sentry.sample.iOS-Swift",
         "io.sentry.sample.iOS-Swift.Clip",
-        "io.sentry.sample.iOS-Swift.ShareExtension"
+        "io.sentry.sample.iOS-Swift.ShareExtension",
+        "io.sentry.sample.iOS-Swift.IntentExtension",
+        "io.sentry.sample.iOS-Swift.ActionExtension"
       ],
     )
 
@@ -158,7 +176,9 @@ platform :ios do
       app_identifier: [
         "io.sentry.sample.iOS-Swift",
         "io.sentry.sample.iOS-Swift.Clip",
-        "io.sentry.sample.iOS-Swift.ShareExtension"
+        "io.sentry.sample.iOS-Swift.ShareExtension",
+        "io.sentry.sample.iOS-Swift.IntentExtension",
+        "io.sentry.sample.iOS-Swift.ActionExtension"
       ]
     )
 
@@ -184,6 +204,8 @@ platform :ios do
         "io.sentry.sample.iOS-Swift",
         "io.sentry.sample.iOS-Swift.Clip", 
         "io.sentry.sample.iOS-Swift.ShareExtension", 
+        "io.sentry.sample.iOS-Swift.IntentExtension",
+        "io.sentry.sample.iOS-Swift.ActionExtension",
         "io.sentry.iOS-Swift-UITests.xctrunner"
       ],
     )
@@ -205,6 +227,8 @@ platform :ios do
         "io.sentry.sample.iOS-Swift", 
         "io.sentry.sample.iOS-Swift.Clip", 
         "io.sentry.sample.iOS-Swift.ShareExtension", 
+        "io.sentry.sample.iOS-Swift.IntentExtension",
+        "io.sentry.sample.iOS-Swift.ActionExtension",
         "io.sentry.iOS-Benchmarking.xctrunner"
       ],
     )
@@ -375,7 +399,9 @@ platform :ios do
       "io.sentry.iOS-Swift-UITests.xctrunner",
       "io.sentry.sample.iOS-Swift",
       "io.sentry.sample.iOS-Swift.Clip",
-      "io.sentry.sample.iOS-Swift.ShareExtension"
+      "io.sentry.sample.iOS-Swift.ShareExtension",
+      "io.sentry.sample.iOS-Swift.IntentExtension",
+      "io.sentry.sample.iOS-Swift.ActionExtension"
     ]
     sync_code_signing(
       type: "development",

@@ -28,6 +28,13 @@ final class SentryInfoPlistWrapper: SentryInfoPlistWrapperProvider {
         return value
     }
 
+    public func getAppValueDictionary(for key: String) throws -> [String: Any] {
+        guard let value = try getAppValue(for: key, type: [String: Any].self) else {
+            throw SentryInfoPlistError.keyNotFound(key: key)
+        }
+        return value
+    }
+
     // MARK: - Swift Implementation
 
     private func getAppValue<T>(for key: String, type: T.Type) throws -> T? {

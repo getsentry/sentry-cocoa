@@ -1,3 +1,5 @@
+// swiftlint:disable file_length type_body_length
+
 @_spi(Private) @testable import Sentry
 @_spi(Private) @testable import SentryTestUtils
 import XCTest
@@ -279,4 +281,147 @@ class TestInfoPlistWrapperTests: XCTestCase {
         XCTAssertFalse(result2, "Should return false for key2")
         XCTAssertNil(error2, "Should not set error for key2")
     }
+
+    // MARK: - getAppValueDictionary(for:)
+
+    func testGetAppValueDictionary_withoutMockedValue_shouldFail() throws {
+        // -- Arrange --
+        let sut = TestInfoPlistWrapper()
+        // Don't mock any value for this key
+
+        // -- Act & Assert --
+        XCTExpectFailure("We are expecting a failure when accessing an unmocked key, as it indicates the test setup is incomplete")
+        _ = try sut.getAppValueDictionary(for: "unmockedKey")
+    }
+
+    func testGetAppValueDictionary_withMockedValue_withSingleInvocations_shouldReturnMockedValue() throws {
+        // -- Arrange --
+        let sut = TestInfoPlistWrapper()
+        let expectedDict = ["key1": "value1", "key2": 123] as [String: Any]
+        sut.mockGetAppValueDictionaryReturnValue(forKey: "dictKey", value: expectedDict)
+
+        // -- Act --
+        let result = try sut.getAppValueDictionary(for: "dictKey")
+
+        // -- Assert --
+        XCTAssertEqual(result["key1"] as? String, "value1", "Should return the mocked dictionary")
+        XCTAssertEqual(result["key2"] as? Int, 123, "Should return the mocked dictionary")
+    }
+
+    func testGetAppValueDictionary_withMockedValue_withMultipleInvocations_shouldReturnSameValue() throws {
+        // -- Arrange --
+        let sut = TestInfoPlistWrapper()
+        let expectedDict = ["test": "value"] as [String: Any]
+        sut.mockGetAppValueDictionaryReturnValue(forKey: "key1", value: expectedDict)
+
+        // -- Act --
+        let result1 = try sut.getAppValueDictionary(for: "key1")
+        let result2 = try sut.getAppValueDictionary(for: "key1")
+
+        // -- Assert --
+        XCTAssertEqual(result1["test"] as? String, "value", "First invocation should return mocked value")
+        XCTAssertEqual(result2["test"] as? String, "value", "Second invocation should return same mocked value")
+    }
+    
+    func testGetAppValueDictionary_shouldRecordInvocations() throws {
+        // -- Arrange --
+        let sut = TestInfoPlistWrapper()
+        sut.mockGetAppValueDictionaryReturnValue(forKey: "key1", value: ["a": 1])
+        sut.mockGetAppValueDictionaryReturnValue(forKey: "key2", value: ["b": 2])
+        sut.mockGetAppValueDictionaryReturnValue(forKey: "key3", value: ["c": 3])
+
+        // -- Act --
+        _ = try sut.getAppValueDictionary(for: "key1")
+        _ = try sut.getAppValueDictionary(for: "key2")
+        _ = try sut.getAppValueDictionary(for: "key3")
+
+        // -- Assert --
+        XCTAssertEqual(sut.getAppValueDictionaryInvocations.count, 3, "Should record all three invocations")
+        XCTAssertEqual(sut.getAppValueDictionaryInvocations.invocations.element(at: 0), "key1", "First invocation should be for key1")
+        XCTAssertEqual(sut.getAppValueDictionaryInvocations.invocations.element(at: 1), "key2", "Second invocation should be for key2")
+        XCTAssertEqual(sut.getAppValueDictionaryInvocations.invocations.element(at: 2), "key3", "Third invocation should be for key3")
+    }
+    
+    func testGetAppValueDictionary_withDifferentKeys_shouldReturnDifferentValues() throws {
+        // -- Arrange --
+        let sut = TestInfoPlistWrapper()
+        sut.mockGetAppValueDictionaryReturnValue(forKey: "key1", value: ["value": "one"])
+        sut.mockGetAppValueDictionaryReturnValue(forKey: "key2", value: ["value": "two"])
+
+        // -- Act --
+        let result1 = try sut.getAppValueDictionary(for: "key1")
+        let result2 = try sut.getAppValueDictionary(for: "key2")
+
+        // -- Assert --
+        XCTAssertEqual(result1["value"] as? String, "one", "Should return 'one' for key1")
+        XCTAssertEqual(result2["value"] as? String, "two", "Should return 'two' for key2")
+        XCTAssertEqual(sut.getAppValueDictionaryInvocations.count, 2, "Should record both invocations")
+    }
+    
+    func testGetAppValueDictionary_withFailureResult_shouldThrowError() {
+        // -- Arrange --
+        let sut = TestInfoPlistWrapper()
+        sut.mockGetAppValueDictionaryThrowError(forKey: "key", error: SentryInfoPlistError.keyNotFound(key: "testKey"))
+
+        // -- Act & Assert --
+        XCTAssertThrowsError(try sut.getAppValueDictionary(for: "key")) { error in
+            guard case SentryInfoPlistError.keyNotFound(let key) = error else {
+                XCTFail("Expected SentryInfoPlistError.keyNotFound, got \(error)")
+                return
+            }
+            XCTAssertEqual(key, "testKey", "Error should contain the expected key")
+        }
+    }
+    
+    func testGetAppValueDictionary_withDifferentErrorTypes_shouldThrowCorrectError() {
+        // -- Arrange --
+        let sut = TestInfoPlistWrapper()
+        
+        // Test mainInfoPlistNotFound
+        sut.mockGetAppValueDictionaryThrowError(forKey: "key1", error: SentryInfoPlistError.mainInfoPlistNotFound)
+        XCTAssertThrowsError(try sut.getAppValueDictionary(for: "key1")) { error in
+            guard case SentryInfoPlistError.mainInfoPlistNotFound = error else {
+                XCTFail("Expected SentryInfoPlistError.mainInfoPlistNotFound, got \(error)")
+                return
+            }
+        }
+        
+        // Test unableToCastValue
+        sut.mockGetAppValueDictionaryThrowError(forKey: "key2", error: SentryInfoPlistError.unableToCastValue(key: "castKey", value: "not a dict", type: [String: Any].self))
+        XCTAssertThrowsError(try sut.getAppValueDictionary(for: "key2")) { error in
+            guard case SentryInfoPlistError.unableToCastValue(let key, let value, let type) = error else {
+                XCTFail("Expected SentryInfoPlistError.unableToCastValue, got \(error)")
+                return
+            }
+            XCTAssertEqual(key, "castKey", "Error should contain the correct key")
+            XCTAssertEqual(value as? String, "not a dict", "Error should contain the correct value")
+            XCTAssertTrue(type == [String: Any].self, "Error should contain the correct type")
+        }
+    }
+    
+    func testGetAppValueDictionary_afterThrowingError_shouldRecordInvocation() {
+        // -- Arrange --
+        let sut = TestInfoPlistWrapper()
+        sut.mockGetAppValueDictionaryThrowError(forKey: "key1", error: SentryInfoPlistError.keyNotFound(key: "testKey"))
+
+        // -- Act --
+        _ = try? sut.getAppValueDictionary(for: "key1")
+
+        // -- Assert --
+        XCTAssertEqual(sut.getAppValueDictionaryInvocations.count, 1, "Should record invocation even when throwing error")
+        XCTAssertEqual(sut.getAppValueDictionaryInvocations.invocations.element(at: 0), "key1", "Should record the correct key")
+    }
+    
+    func testGetAppValueDictionary_withEmptyDictionary_shouldReturnEmptyDictionary() throws {
+        // -- Arrange --
+        let sut = TestInfoPlistWrapper()
+        sut.mockGetAppValueDictionaryReturnValue(forKey: "key", value: [:])
+
+        // -- Act --
+        let result = try sut.getAppValueDictionary(for: "key")
+
+        // -- Assert --
+        XCTAssertTrue(result.isEmpty, "Should return empty dictionary when mocked with empty dictionary")
+    }
 }
+// swiftlint:enable file_length type_body_length

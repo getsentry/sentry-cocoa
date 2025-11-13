@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+### Breaking Changes
+
+- App hang tracking is now automatically disabled for Widgets, Live Activities, Action Extensions, (Siri) Intent Extensions, and Share Extensions (#6670).
+  These components run in separate processes or sandboxes with different execution characteristics, which can cause false positive app hang reports.
+
 ## 9.0.0-alpha.1
 
 ### Breaking Changes
