@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Breaking Changes
+
+- [HTTP Client errors](https://docs.sentry.io/platforms/apple/guides/ios/configuration/http-client-errors/) now mark sessions as errored (#6633)
+
 ## 9.0.0-alpha.1
 
 ### Breaking Changes
@@ -103,7 +109,6 @@
 - Change `value` and `type` of `SentryException` to be nullable (#6563)
 - Change the default trace context status to "ok" instead of "undefined" (#6611)
 - Remove `getHash` from SentryDsn (#6605)
-- [HTTP Client errors](https://docs.sentry.io/platforms/apple/guides/ios/configuration/http-client-errors/) now mark sessions as errored (#6633)
 - The precompiled XCFramework is now built with Xcode 16. To submit to the App Store, [Apple now requires Xcode 16](https://developer.apple.com/news/upcoming-requirements/?id=02212025a).
   If you need a precompiled XCFramework built with Xcode 15, continue using Sentry SDK 8.x.x.
 - Set `SentryException.type` to `nil` when `NSException` has no `reason` (#6653). The backend then can provide a proper message when there is no reason.
