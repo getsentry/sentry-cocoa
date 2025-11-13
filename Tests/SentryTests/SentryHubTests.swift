@@ -1437,6 +1437,33 @@ class SentryHubTests: XCTestCase {
                                                          ]))
     }
 
+    func testBindClient_SetsSessionDelegate() throws {
+        // Arrange
+        let sut = fixture.getSut()
+        let currentClient = fixture.client
+        let newClient = SentryClientInternal(options: fixture.options)
+
+        // Act
+        sut.bindClient(newClient)
+
+        // Assert
+        XCTAssertNil(currentClient.sessionDelegate)
+        // We only assert if it's not nil for a safety check. Other unit tests validate the correctness of the delegate methods.
+        XCTAssertNotNil(newClient?.sessionDelegate)
+    }
+
+    func testBindNilClient_SetsSessionDelegateToNil() {
+        // Arrange
+        let sut = fixture.getSut()
+        let client = fixture.client
+
+        // Act
+        sut.bindClient(nil)
+
+        // Assert
+        XCTAssertNil(client.sessionDelegate)
+    }
+
     private func captureEventEnvelope(level: SentryLevel) {
         let event = TestData.event
         event.level = level

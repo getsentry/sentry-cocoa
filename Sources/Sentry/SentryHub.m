@@ -25,7 +25,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryHubInternal () <SentrySessionDelegate>
+@interface SentryHubInternal () <SentryLoggerDelegate, SentrySessionDelegate>
 
 @property (nullable, atomic, strong) SentryClientInternal *client;
 @property (nullable, nonatomic, strong) SentryScope *scope;
@@ -578,10 +578,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)bindClient:(nullable SentryClientInternal *)client
 {
-    SentryClientInternal *currentClient = self.client;
-    if (currentClient != nil) {
-        currentClient.sessionDelegate = nil;
-    }
+    self.client.sessionDelegate = nil;
 
     self.client = client;
 
