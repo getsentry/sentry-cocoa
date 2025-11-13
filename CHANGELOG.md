@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Remove unnecesary dependency on `SentryCppHelper` to Sentry (#6754) (#6761)
+
 ## 8.57.2
 
 ### Fixes
