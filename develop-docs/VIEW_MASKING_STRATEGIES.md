@@ -60,7 +60,10 @@ Important consequences:
 
 These distinctions matter for masking: to match what the user actually sees, our redaction logic inspects the Core Animation layer tree (and, when needed, the `presentationLayer`) rather than relying only on the `UIView` hierarchy.
 
-## View Hierarchy & Layer Tree-Based Redaction (Default Implementation)
+## View Hierarchy & Layer Tree-Based Redaction
+
+> ![INFO]
+> As of Nov 13th, 2025, this is the default implementation for identifying which areas of a view hierarchy should be masked during screenshot or session replay capture.
 
 The `SentryUIRedactBuilder` is the current default implementation for identifying which areas of a view hierarchy should be masked during screenshot or session replay capture.
 It is highly configurable and built to handle both UIKit and modern hybrid/SwiftUI scenarios, minimizing risk of privacy leaks while reducing the chance of costly masking mistakes (such as over-masking backgrounds or missing PII embedded in complex render trees).
@@ -133,6 +136,9 @@ Some UIKit/private class names or render layers can change across iOS versions. 
 Some "decoration" views (e.g., `"_UICollectionViewListLayoutSectionBackgroundColorDecorationView"`) get special handling to prevent over-eager region suppression.
 
 ## Accessibility-Based Redaction:
+
+> ![WARNING]
+> This approach is not usable for session replay due to unavailability of accessibility information on actual iOS devices unless VoiceOver is enabled system-wide.
 
 The `SentryAccessibilityRedactBuilder` is an alternative implementation for identifying which areas of a view hierarchy should be masked during screenshot or session replay capture.
 
@@ -570,16 +576,213 @@ TODO
 
 ## Wireframe Based Approach
 
-This approach maps the view hierarchy into a wireframe using colored rectangles (derived from the view using heuristics) without rendering the view itself.
-This approach can therefore skip the step _Full-Screen Screenshot_ and instead return a list of rectangles with to be rendered as an image.
+> ![WARNING]
+> This approach is not usable for session replay due to unavailability of the view hierarchy in SwiftUI views.
+
+This approach replaces the traditional screenshot capture by converting the view hierarchy directly into a simplified wireframe representation using colored rectangles.
+By representing views as colored rectangles rather than pixel-perfect screenshots, it eliminates the risk of capturing sensitive content while maintaining enough visual context to understand user interactions and UI state.
+
+### How It Works
+
+1. Traverse view hierarchy and layer tree
+2. Categorize each view by type (button, label, image, container, etc.)
+3. Generate rectangle primitives with:
+   - Frame geometry (from `view.frame` or `layer.presentationLayer`)
+   - Color assignment (based on view heuristics)
+   - Z-ordering (based on view hierarchy)
+   - Available metadata (view class, accessibility info, view properties, etc.)
+4. Order rectangles by z-position to ensure correct visual layering
+5. Render rectangles into final image (can be done on background thread)
+
+### View Categorization and Color Heuristics
+
+The core challenge of this approach is determining appropriate colors for rectangles, so that the wireframe visually represents the view hierarchy and the content of the view.
+
+One approach could be grouping the views into semantic groups and assigning a color to each group (similar to the [bitdrift.io approach](https://github.com/bitdriftlabs/capture-sdk/tree/main/platform/swift/source/replay))
+
+**Example Categories:**
+
+- Interactive elements (e.g. Buttons, switches, sliders)
+- Text containers (e.g. Labels, text fields, text views)
+- Image containers (e.g. Image views)
+- Containers (e.g. Views, scroll views, table views)
+- System UI (e.g. Status bar, navigation bars)
+
+Another approach could be deriving information from the view instance itself to determine the color of the view:
+
+- Use properties of the view to determine the color (e.g. background color, text color, etc.)
+- Vary colors for enabled/disabled, selected/unselected states (e.g. red for disabled, green for enabled toggles)
+- Select colors based on the semantic group of the view (e.g. blue for buttons, green for text fields, etc.)
+
+A reference implementation can be found in [bitdrift.io's capture SDK](https://github.com/bitdriftlabs/capture-sdk/tree/main/platform/swift/source/replay), which demonstrates view categorization and color assignment strategies.
+
+### Performance Benefits
+
+**Elimination of Graphics Context Rendering:**
+
+As documented in our [performance analysis](https://blog.sentry.io/boosting-session-replay-performance-on-ios-with-view-renderer-v2/), rendering the view hierarchy into a graphical context causes a performance hit. Using the wireframe approach, we **do not have to render the view hierarchy into a graphical context**, which allows for significant performance improvements. This avoids the expensive `draw(_:)` and `render(in:)` calls and reduces memory allocation for full-screen bitmap buffers.
+
+**Parallel Processing:**
+
+As view hierarchy traversal must be performed on the main thread, this approach allows for parallel processing of the view hierarchy on a background thread.
+
+**Spatial & Temporal Compression Benefits:**
+
+Wireframes contain fewer colors and simple geometric shapes, which compress more efficiently than complex pixel data. These large areas of uniform color (common in wireframes) compress extremely well and therefore reduce the overall data size of the session replay. Simple geometric shapes moving between frames compress better than complex images, as video codecs can more easily predict and encode the changes.
+
+**However**, the most significant data size reduction comes from moving away from video encoding entirely (see RRWeb Integration Potential below), where structured data representing only changes between frames can be orders of magnitude smaller than even compressed video.
+
+### RRWeb Integration Potential
+
+One of the most compelling advantages of the wireframe approach is the potential to move away from video-based session replay entirely. Instead of capturing frames as images, we could:
+
+1. **Convert to DOM-like structure**: Represent the view hierarchy as a tree of elements (similar to HTML DOM)
+2. **Use RRWeb format**: Leverage the same format used by the JavaScript SDK for web session replay
+3. **Event-based updates**: Only capture changes (view additions, removals, frame updates) rather than full frames
+4. **Client-side rendering**: Let the Sentry UI reconstruct the wireframe visualization from the structured data
+
+This would provide:
+
+- **Dramatically reduced payload sizes**: Only structural changes, not full images
+- **Better scalability**: Text-based format is easier to compress and store
+- **Unified format**: Same replay format across web and mobile platforms
+- **Better debugging**: Structured data enables querying and analysis
+
+### View Hierarchy Traversal
+
+The wireframe generation process traverses both the `UIView` hierarchy and the `CALayer` tree to capture all visible elements:
+
+1. **Start from root window/view**
+2. **For each view:**
+   - Extract frame geometry (using `presentationLayer` during animations)
+   - Determine view category based on class, traits, and context
+   - Assign color based on category heuristics
+   - Handle special cases (clipsToBounds, opacity, transforms)
+3. **For each layer:**
+   - Process sublayers that don't have backing views
+   - Handle layer-specific properties (cornerRadius, shadows, etc.)
+4. **Generate rectangle primitives** with all metadata
+5. **Apply z-ordering** to ensure correct visual layering
+
+### Handling Edge Cases
+
+**Animations:**
+
+When capturing animated frames, we need to use the `presentationLayer` to capture the animated frame positions, and maybe even interpolate the positions between frames to capture the animated frame positions.
+
+**Transparency and Overlapping:**
+
+Views with `alpha < 1.0` can be represented with semi-transparent rectangles, and overlapping views require proper z-ordering in the rectangle list.
+
+**Custom Drawing:**
+
+Views that override `draw(_:)` may not be accurately represented. Heuristics may need to detect custom drawing and apply special handling, e.g. adding a visual warning information.
+
+**SwiftUI Views:**
+
+Ability to handle SwiftUI views is limited, as SwiftUI views are often rendered through opaque layers without exposing their internal structure. This will result in large single-colored areas, resulting in unusable session replay video segments.
+
+**Capturing Images:**
+
+When rendering captured image views, a large screen portion might be replaced by a single color, taking away any visual context of the image. This could be improved by calculating a color average of the image view content, rather than using a default color.
+
+### Implementation Considerations
+
+**Advantages:**
+
+- No sensitive content is ever captured
+- Significantly faster than screenshot capture
+- Smaller data payloads enable better storage efficiency
+- Future-proof, potential for RRWeb integration and unified replay format
+- Background processing, rendering can occur off main thread
+
+**Disadvantages:**
+
+- Heuristic complexity, requires extensive rules for view categorization and color assignment
+- Visual fidelity, Wireframe representation is less visually accurate than screenshots
+- Maintenance burden, heuristics may need updates for new view types or iOS versions
+- SwiftUI challenges, opaque rendering layers make categorization difficult
+- User experience, Wireframes may be less intuitive for non-technical users reviewing replays
+
+### Conclusion
+
+The Wireframe Based Approach offers a great alternative to screenshot-based session replay, providing inherent privacy protection and significant performance benefits. While it requires extensive heuristics for view categorization and color assignment, the approach is viable and has been successfully implemented by other SDKs.
+
+The main trade-off is reduced visual fidelity in exchange for better performance, privacy, and scalability.
 
 ## Defensive-Unredacting Approach
 
-Defensive-programming approach, masking everything unless there is a 100% certainty an area can be unmasked safely (safest but most complicated approach).
+> ![WARNING]
+> This approach is not usable for session replay due to complex heuristics and the need to prove safety of the region.
 
-doesn't help if we don't get the full view hierarchy and layer tree for SwiftUI views.
+The Defensive-Unredacting Approach inverts the masking logic used by `SentryUIRedactBuilder`. Instead of starting with an unmasked screenshot and adding redaction regions for potentially sensitive content, this approach begins with a fully redacted (masked) screenshot and removes redaction only from areas that can be proven safe with 100% certainty.
+
+### Philosophy: Better Safe Than Sorry
+
+This approach follows a defensive programming philosophy: **assume everything is sensitive unless proven otherwise**. The core principle is that we cannot assume an area is safe to show unless we have definitive proof that it contains no PII or sensitive information.
+
+### Inverse Masking Logic
+
+The current `SentryUIRedactBuilder` approach:
+
+1. Starts with an unmasked screenshot
+2. Traverses the view hierarchy
+3. Identifies potentially sensitive views (e.g., `UILabel`, `UITextView`, `UIImageView`)
+4. Adds redaction regions for those views
+
+The Defensive-Unredacting Approach:
+
+1. Starts with a fully masked screenshot (everything redacted)
+2. Traverses the view hierarchy
+3. Identifies regions that are **definitively safe** (e.g., completely empty views, padding areas, known-safe system UI)
+4. Removes redaction from those safe regions
+
+### Identifying Safe Regions
+
+The primary blocker for implementing this approach is the difficulty in establishing reliable heuristics for what constitutes a "safe" region. Unlike identifying potentially sensitive content (where we can err on the side of caution by masking anything that might contain PII), identifying safe regions requires **absolute certainty** that an area contains no sensitive information.
+
+**Examples of potentially safe regions:**
+
+- Completely empty views (no subviews, no content, transparent background)
+- Known padding/margin areas (though these may overlap with content)
+- System UI elements that are guaranteed to never contain user data (e.g., status bar indicators, system navigation chrome)
+
+**Some Challenges:**
+
+- A view may appear empty but could contain text rendered via Core Graphics or custom drawing
+- Padding regions may overlap with content due to transparency or layering
+- Views with transparency cannot be considered safe, as underlying content may be visible
+- Views that appear safe at one moment may contain sensitive content after state changes
+
+### SwiftUI Limitations
+
+This approach requires complete visibility into the view hierarchy and layer tree to reliably identify safe regions.
+Since SwiftUI views are often rendered through opaque layers without exposing their internal structure, the defensive-unredacting approach cannot work reliably for SwiftUI content.
+
+### Implementation Considerations
+
+**Advantages:**
+
+- Maximum privacy protection, fails safe on the side of over-masking
+- Eliminates false negatives (missed sensitive content)
+- Provides a clear safety guarantee, if it's visible, it's proven safe
+
+**Disadvantages:**
+
+- Requires proving safety rather than identifying risk
+- Likely to over-masking
+- Difficult to establish reliable rules for what's safe
+- May require more extensive analysis, causing performance degradation
+- SwiftUI incompatibility, cannot work reliably without full hierarchy visibility
+
+### Conclusion
+
+While the Defensive-Unredacting Approach offers the strongest privacy guarantees by eliminating the possibility of false negatives (missed sensitive content), its implementation is blocked by the lack of clear, reliable heuristics for identifying safe regions. The fundamental challenge is that proving an area is safe requires more information than proving an area might be sensitive. Without a robust method for identifying definitively safe regions—particularly in the face of transparency, overlapping views, and opaque rendering layers—this approach remains theoretical rather than practical.
 
 ## PDF Based Approach
+
+> ![WARNING]
+> This approach is not usable for session replay because the view is rendered as a single image, which makes it impossible to redact text from the PDF document.
 
 This approach is rendering the view hierarchy into a PDF context using CoreGraphics and UIKit's built-in PDF rendering capabilities, which is then modified at the PDF level to remove all images and text, before converting it into an image.
 
