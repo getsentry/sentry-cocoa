@@ -664,6 +664,88 @@ class SentryHubTests: XCTestCase {
         }
     }
     
+    func testCaptureLog() {
+        let hub = fixture.getSut(fixture.options, fixture.scope)
+        (hub._swiftLogger as! SentryLogger).info("Test log message")
+        
+        XCTAssertEqual(1, fixture.client.captureLogInvocations.count)
+        if let logArguments = fixture.client.captureLogInvocations.first {
+            XCTAssertEqual("Test log message", logArguments.log.body)
+            XCTAssertEqual(fixture.scope, logArguments.scope)
+        }
+    }
+    
+    // MARK: - Replay Attributes Tests
+    
+#if canImport(UIKit) && !SENTRY_NO_UIKIT
+#if os(iOS) || os(tvOS)
+    func testCaptureLog_ReplayAttributes_SessionMode_AddsReplayId() {
+        // Setup replay integration
+        let replayOptions = SentryReplayOptions(sessionSampleRate: 1.0, onErrorSampleRate: 0.0)
+        fixture.options.sessionReplay = replayOptions
+        
+        let replayIntegration = SentrySessionReplayIntegration()
+        sut.addInstalledIntegration(replayIntegration, name: "SentrySessionReplayIntegration")
+        
+        // Set replayId on scope (session mode)
+        let replayId = "12345678-1234-1234-1234-123456789012"
+        fixture.scope.replayId = replayId
+        
+        let sut = fixture.getSut(fixture.options, fixture.scope)
+        (sut._swiftLogger as! SentryLogger).info("Test message")
+        
+        XCTAssertEqual(1, fixture.client.captureLogInvocations.count)
+        let capturedLog = fixture.client.captureLogInvocations.first?.log
+        XCTAssertEqual(capturedLog?.attributes["sentry.replay_id"]?.value as? String, replayId)
+        XCTAssertNil(capturedLog?.attributes["sentry._internal.replay_is_buffering"])
+    }
+    
+    func testCaptureLog_ReplayAttributes_BufferMode_AddsReplayIdAndBufferingFlag() {
+        // Set up buffer mode: hub has an ID, but scope.replayId is nil
+        let mockReplayId = SentryId()
+        let testHub = TestHub(client: fixture.client, andScope: fixture.scope)
+        testHub.mockReplayId = mockReplayId.sentryIdString
+        fixture.scope.replayId = nil
+        
+        (testHub._swiftLogger as! SentryLogger).info("Test message")
+        
+        XCTAssertEqual(1, fixture.client.captureLogInvocations.count)
+        let capturedLog = fixture.client.captureLogInvocations.first?.log
+        let replayIdString = capturedLog?.attributes["sentry.replay_id"]?.value as? String
+        XCTAssertEqual(replayIdString, mockReplayId.sentryIdString)
+        XCTAssertEqual(capturedLog?.attributes["sentry._internal.replay_is_buffering"]?.value as? Bool, true)
+    }
+    
+    func testCaptureLog_ReplayAttributes_NoReplay_NoAttributesAdded() {
+        // Don't set up replay integration
+        let sut = fixture.getSut(fixture.options, fixture.scope)
+        
+        (sut._swiftLogger as! SentryLogger).info("Test message")
+        
+        XCTAssertEqual(1, fixture.client.captureLogInvocations.count)
+        let capturedLog = fixture.client.captureLogInvocations.first?.log
+        XCTAssertNil(capturedLog?.attributes["sentry.replay_id"])
+        XCTAssertNil(capturedLog?.attributes["sentry._internal.replay_is_buffering"])
+    }
+    
+    func testCaptureLog_ReplayAttributes_BothSessionAndScopeReplayId_SessionMode() {
+        // Session mode: scope has the ID, hub also has one
+        let replayId = "12345678-1234-1234-1234-123456789012"
+        let testHub = TestHub(client: fixture.client, andScope: fixture.scope)
+        testHub.mockReplayId = replayId
+        fixture.scope.replayId = replayId
+        
+        (testHub._swiftLogger as! SentryLogger).info("Test message")
+        
+        XCTAssertEqual(1, fixture.client.captureLogInvocations.count)
+        let capturedLog = fixture.client.captureLogInvocations.first?.log
+        // Session mode should use scope's ID (takes precedence) and not add buffering flag
+        XCTAssertEqual(capturedLog?.attributes["sentry.replay_id"]?.value as? String, replayId)
+        XCTAssertNil(capturedLog?.attributes["sentry._internal.replay_is_buffering"])
+    }
+#endif
+#endif
+    
     func testCaptureErrorWithScope() {
         fixture.getSut().capture(error: fixture.error, scope: fixture.scope).assertIsNotEmpty()
         

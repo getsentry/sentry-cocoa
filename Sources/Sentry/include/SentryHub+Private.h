@@ -29,6 +29,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, strong) NSMutableArray<id<SentryIntegrationProtocol>> *installedIntegrations;
 
+@property (nonatomic, readonly, strong) NSObject *_swiftLogger;
+
 /**
  * Every integration starts with "Sentry" and ends with "Integration". To keep the payload of the
  * event small we remove both.
