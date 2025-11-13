@@ -9,19 +9,19 @@ import AppKit
 public typealias CrossPlatformApplication = NSApplication
 #endif
 
-@objcMembers public class TestNSNotificationCenterWrapper: NSObject {
+@objcMembers public final class TestNSNotificationCenterWrapper: NSObject {
     private enum Observer {
         case observerWithObject(WeakReference<NSObject>, Selector, NSNotification.Name?, Any?)
         case observerForKeyPath(WeakReference<NSObject>, String, NSKeyValueObservingOptions, UnsafeMutableRawPointer?)
         case observerWithBlock(WeakReference<NSObject>, NSNotification.Name?, (Notification) -> Void)
     }
 
-    public var ignoreRemoveObserver = false
-    public var ignoreAddObserver = false
+    nonisolated(unsafe) public var ignoreRemoveObserver = false
+    nonisolated(unsafe) public var ignoreAddObserver = false
 
-    private var observers: [Observer] = []
+    nonisolated(unsafe) private var observers: [Observer] = []
 
-    public var addObserverWithObjectInvocations = Invocations<(
+    nonisolated(unsafe) public var addObserverWithObjectInvocations = Invocations<(
         observer: WeakReference<NSObject>,
         selector: Selector,
         name: NSNotification.Name?,
@@ -39,7 +39,7 @@ public typealias CrossPlatformApplication = NSApplication
         }
     }
 
-    public var addObserverForKeyPathWithContextInvocations = Invocations<(
+    nonisolated(unsafe) public var addObserverForKeyPathWithContextInvocations = Invocations<(
         observer: WeakReference<NSObject>,
         keyPath: String,
         options: NSKeyValueObservingOptions,
@@ -57,7 +57,7 @@ public typealias CrossPlatformApplication = NSApplication
         }
     }
 
-    public var addObserverWithBlockInvocations = Invocations<(observer: WeakReference<NSObject>, name: NSNotification.Name?, block: (Notification) -> Void)>()
+    nonisolated(unsafe) public var addObserverWithBlockInvocations = Invocations<(observer: WeakReference<NSObject>, name: NSNotification.Name?, block: (Notification) -> Void)>()
     public func addObserver(forName name: NSNotification.Name?, object obj: Any?, queue: OperationQueue?, using block: @escaping (Notification) -> Void) -> any NSObjectProtocol {
         if ignoreAddObserver == false {
             let observer = NSObject()
@@ -71,7 +71,7 @@ public typealias CrossPlatformApplication = NSApplication
     /// We don't keep track of the actual objects, because removeObserver
     /// gets often called in dealloc, and we don't want to store an object about to be deallocated
     /// in an array.
-    public var removeObserverWithNameAndObjectInvocations = Invocations<(name: NSNotification.Name?, object: Any?)>()
+    nonisolated(unsafe) public var removeObserverWithNameAndObjectInvocations = Invocations<(name: NSNotification.Name?, object: Any?)>()
     public func removeObserver(
         _ observer: Any,
         name aName: NSNotification.Name? = nil,
@@ -93,7 +93,7 @@ public typealias CrossPlatformApplication = NSApplication
         }
     }
 
-    public var removeObserverForKeyPathWithContextInvocations = Invocations<(keyPath: String, context: UnsafeMutableRawPointer?)>()
+    nonisolated(unsafe) public var removeObserverForKeyPathWithContextInvocations = Invocations<(keyPath: String, context: UnsafeMutableRawPointer?)>()
     public override func removeObserver(
         _ observer: NSObject,
         forKeyPath keyPath: String,

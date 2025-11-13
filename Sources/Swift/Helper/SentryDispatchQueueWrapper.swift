@@ -24,7 +24,7 @@
     }
 
     @objc(dispatchAsyncWithBlock:)
-    public func dispatchAsync(_ block: @escaping () -> Void) {
+    public func dispatchAsync(_ block: @Sendable @escaping () -> Void) {
         internalWrapper.dispatchAsync(block)
     }
     

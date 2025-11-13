@@ -1,4 +1,4 @@
-@objc @_spi(Private) public class SentrySessionReplayEnvironmentChecker: NSObject, SentrySessionReplayEnvironmentCheckerProvider {
+@objc @_spi(Private) public final class SentrySessionReplayEnvironmentChecker: NSObject, SentrySessionReplayEnvironmentCheckerProvider, Sendable {
     /// Represents the reliability assessment of the environment for Session Replay.
     private enum Reliability {
         /// The environment is confirmed to be reliable (no Liquid Glass issues).

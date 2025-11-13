@@ -8,7 +8,7 @@ import Foundation
 
 @objc
 @objcMembers
-@_spi(Private) public class SentryLogBatcher: NSObject {
+@_spi(Private) public class SentryLogBatcher: NSObject, @unchecked Sendable {
     
     private let options: Options
     private let flushTimeout: TimeInterval

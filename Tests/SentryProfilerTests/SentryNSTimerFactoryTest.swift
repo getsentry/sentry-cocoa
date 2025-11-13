@@ -17,7 +17,7 @@ class SentryNSTimerFactoryTests: XCTestCase {
     }
 
     func testRepeatingTimer() {
-        var count = 0
+        nonisolated(unsafe) var count = 0
         let exp = expectation(description: "timer fires multiple times")
         exp.expectedFulfillmentCount = 2
         fixture.timerFactory.scheduledTimer(withTimeInterval: 0.1, repeats: true) {

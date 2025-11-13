@@ -863,13 +863,13 @@ class SentryScopeSwiftTests: XCTestCase {
             self.tags = tags
         }
         
-        var extras: [String: Any]?
-        func setExtras(_ extras: [String: Any]?) {
+        var extras: [String: (Any & Sendable)]?
+        func setExtras(_ extras: [String: (Any & Sendable)]?) {
             self.extras = extras
         }
         
-        var context: [String: [String: Any]]?
-        func setContext(_ context: [String: [String: Any]]?) {
+        var context: [String: [String: (Any & Sendable)]]?
+        func setContext(_ context: [String: [String: (Any & Sendable)]]?) {
             self.context = context
         }
         

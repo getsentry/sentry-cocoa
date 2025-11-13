@@ -21,7 +21,7 @@ import MachO
                                       dispatchQueueWrapper: dispatchQueueWrapper)
     }
     
-    class func internalCheckForDuplicatedSDK(_ imageName: String, _ imageAddress: UInt64, _ imageSize: UInt64, objcRuntimeWrapper: SentryObjCRuntimeWrapper, dispatchQueueWrapper: SentryDispatchQueueWrapper, resultHandler: ((Bool) -> Void)? = nil) {
+    class func internalCheckForDuplicatedSDK(_ imageName: String, _ imageAddress: UInt64, _ imageSize: UInt64, objcRuntimeWrapper: SentryObjCRuntimeWrapper, dispatchQueueWrapper: SentryDispatchQueueWrapper, resultHandler: (@Sendable (Bool) -> Void)? = nil) {
         let systemLibraryPath = "/usr/lib/"
         let ignoredPathDevelopers = "/Library/Developer/CoreSimulator/Volumes/"
         let ignoredPathSystem = "/System/Library/"
