@@ -72,3 +72,22 @@ jobs:
         if: failure()
         shell: bash
         run: ./scripts/ci-diagnostics.sh
+
+  build-required-check:
+    needs:
+      [
+        ready-to-merge-gate,
+        files-changed,
+        build,
+      ]
+    name: Size Analysis
+    # This is necessary since a failed/skipped dependent job would cause this job to be skipped
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      # If any jobs we depend on fails gets cancelled or times out, this job will fail.
+      # Skipped jobs are not considered failures.
+      - name: Check for failures
+        if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
+        run: |
+          echo "One of the size analysis jobs has failed." && exit 1
