@@ -402,6 +402,7 @@ lane :build_ios_for_size_analysis do
   )
 
   build_ios_app(
+    workspace: "Sentry.xcworkspace",
     scheme: 'SDK-Size',
     output_name: 'SDK-Size',
     configuration: 'Release',
