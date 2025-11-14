@@ -136,7 +136,7 @@ jobs:
           - job_id: ios_26
             name: iOS 26
             runs_on: tahoe
-            xcode: "26.1"
+            xcode: "26.1.1"
             test_destination_os: "26.1"
             platform: "iOS"
             device: iPhone 17 Pro
