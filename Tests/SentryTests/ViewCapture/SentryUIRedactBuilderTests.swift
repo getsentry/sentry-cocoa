@@ -97,12 +97,36 @@ class SentryUIRedactBuilderTests: XCTestCase {
         // Create a transient window to drive lifecycle/layout for SwiftUI
         let window = UIWindow(frame: frame)
         window.rootViewController = hostingVC
+        
+        // Ensure the view controller's view is loaded before making window visible
+        // This is critical for SwiftUI to properly initialize its view hierarchy
+        _ = hostingVC.view
+        
         window.makeKeyAndVisible()
 
-        // Pump the runloop and force layout to allow SwiftUI to build internals
+        // Force the window to be added to the application's window hierarchy if available
+        // This ensures proper view lifecycle and rendering
+        if #available(iOS 13.0, *) {
+            if let scene = window.windowScene ?? UIApplication.shared.connectedScenes.first as? UIWindowScene {
+                window.windowScene = scene
+            }
+        }
+
+        // Force initial layout
         hostingVC.view.setNeedsLayout()
         hostingVC.view.layoutIfNeeded()
-        RunLoop.main.run(until: Date().addingTimeInterval(0.3))
+        
+        // Wait for SwiftUI to render - multiple runloop passes ensure async rendering completes
+        // SwiftUI renders views asynchronously, so we need to give it time to build the view hierarchy
+        for _ in 0..<5 {
+            RunLoop.main.run(until: Date().addingTimeInterval(0.1))
+            // Force layout on the entire view hierarchy to ensure all subviews are laid out
+            hostingVC.view.setNeedsLayout()
+            hostingVC.view.layoutIfNeeded()
+            // Also force layout on the window to ensure proper coordinate space setup
+            window.setNeedsLayout()
+            window.layoutIfNeeded()
+        }
 
         return window
     }

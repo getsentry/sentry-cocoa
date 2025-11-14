@@ -143,6 +143,10 @@ final class SentryUIRedactBuilder {
 
             // Used to render SwiftUI.Text on iOS versions prior to iOS 18
             redactClasses.insert(ClassIdentifier(classId: "_TtCOCV7SwiftUI11DisplayList11ViewUpdater8Platform13CGDrawingView"))
+            
+            // Used by SwiftUI on iOS 26+ to render text as a layer directly (without a view wrapper)
+            // The layer class name is a mangled Swift name that includes CGDrawingLayer
+            redactClasses.insert(ClassIdentifier(classId: "_TtC7SwiftUIP33_863CCF9D49B535DAEB1C7D61BEE53B5914CGDrawingLayer"))
 
         }
         
@@ -156,6 +160,9 @@ final class SentryUIRedactBuilder {
             // The same view class is also used for structural backgrounds. We differentiate by
             // requiring the backing layer to be `SwiftUI.ImageLayer` so we only redact the image case.
             redactClasses.insert(ClassIdentifier(classId: "SwiftUI._UIGraphicsView", layerId: "SwiftUI.ImageLayer"))
+            
+            // On iOS 26+, SwiftUI.Image may use ImageLayer directly without a view wrapper
+            redactClasses.insert(ClassIdentifier(classId: "SwiftUI.ImageLayer"))
 
             // These classes are used by React Native to display images/vectors.
             // We are including them here to avoid leaking images from RN apps with manually initialized sentry-cocoa.
@@ -505,6 +512,66 @@ final class SentryUIRedactBuilder {
                     ))
                 }
             }
+        } else {
+            // Handle layers without view delegates (e.g., SwiftUI layers on iOS 26+)
+            // Check if the layer class itself matches any redact identifiers
+            let layerType = type(of: layer)
+            let layerTypeId = layerType.description()
+            
+            var layerMatchesRedactClass = false
+            
+            // Check if this layer type matches any of our redact class identifiers
+            // We check both the exact layer class and look for matches in our identifier set
+            for identifier in redactClassesIdentifiers {
+                // If the identifier has a layerId, check if it matches this layer
+                if let requiredLayerId = identifier.layerId {
+                    if layerTypeId == requiredLayerId {
+                        // This layer matches a constrained identifier (e.g., SwiftUI.ImageLayer)
+                        redacting.append(SentryRedactRegion(
+                            size: layer.bounds.size,
+                            transform: newTransform,
+                            type: .redact,
+                            color: nil,
+                            name: layer.debugDescription
+                        ))
+                        enforceRedact = true
+                        layerMatchesRedactClass = true
+                        break
+                    }
+                } else {
+                    // Check if the layer class name matches the identifier
+                    // This handles cases where we register layer classes directly
+                    if layerTypeId == identifier.classId {
+                        redacting.append(SentryRedactRegion(
+                            size: layer.bounds.size,
+                            transform: newTransform,
+                            type: .redact,
+                            color: nil,
+                            name: layer.debugDescription
+                        ))
+                        enforceRedact = true
+                        layerMatchesRedactClass = true
+                        break
+                    }
+                }
+            }
+            
+            // If the layer doesn't match a redact class but is opaque, it should create a clipOut region
+            // This handles background layers (e.g., SwiftUI background colors on iOS 26+)
+            if !layerMatchesRedactClass && isLayerOpaque(layer) {
+                let finalLayerFrame = CGRect(origin: .zero, size: layer.bounds.size).applying(newTransform)
+                if isAxisAligned(newTransform) && finalLayerFrame == rootFrame {
+                    // Because the current layer is covering everything we found so far we can clear `redacting` list
+                    redacting.removeAll()
+                } else {
+                    redacting.append(SentryRedactRegion(
+                        size: layer.bounds.size,
+                        transform: newTransform,
+                        type: .clipOut,
+                        name: layer.debugDescription
+                    ))
+                }
+            }
         }
 
         // Traverse the sublayers to redact them if necessary
@@ -639,6 +706,30 @@ final class SentryUIRedactBuilder {
     /// This implementation fixes the issue where semi-transparent overlays (e.g., with `alpha = 0.2`)
     /// were incorrectly treated as opaque, causing text behind them to not be redacted.
     /// See: https://github.com/getsentry/sentry-cocoa/pull/6629#issuecomment-3479730690
+    private func isLayerOpaque(_ layer: CALayer) -> Bool {
+        // Check layer opacity
+        guard layer.opacity == 1 else {
+            return false
+        }
+        
+        // For layers without view delegates, we check if they have an opaque background color
+        // Layers may not have isOpaque explicitly set, but if they have a solid background color,
+        // they effectively block content behind them
+        if let backgroundColor = layer.backgroundColor, backgroundColor.alpha == 1 {
+            // If the layer is explicitly marked as opaque, definitely treat it as opaque
+            if layer.isOpaque {
+                return true
+            }
+            // Even if not explicitly marked, a layer with an opaque background color
+            // that covers a non-zero area should be treated as opaque
+            if !layer.bounds.isEmpty {
+                return true
+            }
+        }
+        
+        return false
+    }
+    
     private func isOpaque(_ view: UIView) -> Bool {
         let layer = view.layer.presentation() ?? view.layer
 

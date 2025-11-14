@@ -743,6 +743,7 @@
 		A8F17B342902870300990B25 /* SentryHttpStatusCodeRange.m in Sources */ = {isa = PBXBuildFile; fileRef = A8F17B332902870300990B25 /* SentryHttpStatusCodeRange.m */; };
 		D4009EB22D771BC20007AF30 /* SentryFileIOTrackerSwiftHelpersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4009EB12D771BB90007AF30 /* SentryFileIOTrackerSwiftHelpersTests.swift */; };
 		D41415A72DEEE532003B14D5 /* SentryRedactViewHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = D41415A62DEEE532003B14D5 /* SentryRedactViewHelper.swift */; };
+		D4145CF62EC60B910066BBC6 /* SentryUIRedactBuilderTests+SwiftUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4145CF52EC60B910066BBC6 /* SentryUIRedactBuilderTests+SwiftUI.swift */; };
 		D4237B3D2EB39D9700FE027C /* SentryDsn+Private.h in Headers */ = {isa = PBXBuildFile; fileRef = D4237B3C2EB39D9700FE027C /* SentryDsn+Private.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		D4291A6D2DD62ACE00772088 /* SentryDispatchFactoryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D4291A6C2DD62AC800772088 /* SentryDispatchFactoryTests.m */; };
 		D42ADEEF2E9CF43200753166 /* SentrySessionReplayEnvironmentChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = D42ADEE92E9CF42800753166 /* SentrySessionReplayEnvironmentChecker.swift */; };
@@ -2101,6 +2102,7 @@
 		A8F17B332902870300990B25 /* SentryHttpStatusCodeRange.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryHttpStatusCodeRange.m; sourceTree = "<group>"; };
 		D4009EB12D771BB90007AF30 /* SentryFileIOTrackerSwiftHelpersTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryFileIOTrackerSwiftHelpersTests.swift; sourceTree = "<group>"; };
 		D41415A62DEEE532003B14D5 /* SentryRedactViewHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryRedactViewHelper.swift; sourceTree = "<group>"; };
+		D4145CF52EC60B910066BBC6 /* SentryUIRedactBuilderTests+SwiftUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SentryUIRedactBuilderTests+SwiftUI.swift"; sourceTree = "<group>"; };
 		D41909922D48FFF6002B83D0 /* SentryNSDictionarySanitize+Tests.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SentryNSDictionarySanitize+Tests.h"; sourceTree = "<group>"; };
 		D41909942D490006002B83D0 /* SentryNSDictionarySanitize+Tests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "SentryNSDictionarySanitize+Tests.m"; sourceTree = "<group>"; };
 		D4237B3C2EB39D9700FE027C /* SentryDsn+Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "SentryDsn+Private.h"; path = "include/SentryDsn+Private.h"; sourceTree = "<group>"; };
@@ -4193,13 +4195,13 @@
 		D4009EA02D77196F0007AF30 /* ViewCapture */ = {
 			isa = PBXGroup;
 			children = (
-				D4AF802E2E965188004F0F59 /* __Snapshots__ */,
-				D82915622C85EF0C00A6CDD4 /* SentryViewPhotographerTests.swift */,
 				D8F67AF22BE10F7600C9197B /* SentryUIRedactBuilderTests.swift */,
 				D4AF7D292E940492004F0F59 /* SentryUIRedactBuilderTests+Common.swift */,
 				D4AF7D2B2E9404ED004F0F59 /* SentryUIRedactBuilderTests+EdgeCases.swift */,
-				D4AF7D252E9401EB004F0F59 /* SentryUIRedactBuilderTests+UIKit.swift */,
 				D4AF7D212E93FFCA004F0F59 /* SentryUIRedactBuilderTests+ReactNative.swift */,
+				D4145CF52EC60B910066BBC6 /* SentryUIRedactBuilderTests+SwiftUI.swift */,
+				D4AF7D252E9401EB004F0F59 /* SentryUIRedactBuilderTests+UIKit.swift */,
+				D82915622C85EF0C00A6CDD4 /* SentryViewPhotographerTests.swift */,
 				D45E2D762E003EBF0072A6B7 /* TestRedactOptions.swift */,
 			);
 			path = ViewCapture;
@@ -4417,13 +4419,6 @@
 				D4A0C2362E9E3F4400791353 /* TestInfoPlist.plist */,
 			);
 			path = InfoPlist;
-			sourceTree = "<group>";
-		};
-		D4AF802E2E965188004F0F59 /* __Snapshots__ */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = __Snapshots__;
 			sourceTree = "<group>";
 		};
 		D4CBA2522DE06D1600581618 /* SentryTestUtilsTests */ = {
@@ -6413,6 +6408,7 @@
 				D8AE48C12C57B1550092A2A6 /* SentryLevelTests.swift in Sources */,
 				63FE721820DA66EC00CDBAE8 /* TestThread.m in Sources */,
 				7B4D308A26FC616B00C94DE9 /* SentryHttpTransportTests.swift in Sources */,
+				D4145CF62EC60B910066BBC6 /* SentryUIRedactBuilderTests+SwiftUI.swift in Sources */,
 				6276E68B2E7A779B002A4A8F /* SentryNetworkTrackerIntegrationTestServerTests.swift in Sources */,
 				7B4E23B6251A07BD00060D68 /* SentryDispatchQueueWrapperTests.swift in Sources */,
 				63FE720720DA66EC00CDBAE8 /* SentryCrashReportFilter_Tests.m in Sources */,
@@ -6692,6 +6688,7 @@
 			baseConfigurationReference = 63AA75C51EB8B00100D153DE /* Sentry.xcconfig */;
 			buildSettings = {
 				CLANG_UNDEFINED_BEHAVIOR_SANITIZER_NULLABILITY = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.10.0;
 				OTHER_CFLAGS = (
 					"-Wnullable-to-nonnull-conversion",
 					"-Wnullability-completeness",
@@ -6704,6 +6701,7 @@
 			baseConfigurationReference = 63AA75C51EB8B00100D153DE /* Sentry.xcconfig */;
 			buildSettings = {
 				CLANG_UNDEFINED_BEHAVIOR_SANITIZER_NULLABILITY = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.10.0;
 				OTHER_CFLAGS = (
 					"-Wnullable-to-nonnull-conversion",
 					"-Wnullability-completeness",
@@ -6799,6 +6797,7 @@
 			baseConfigurationReference = 63AA75C51EB8B00100D153DE /* Sentry.xcconfig */;
 			buildSettings = {
 				CLANG_UNDEFINED_BEHAVIOR_SANITIZER_NULLABILITY = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.10.0;
 				OTHER_CFLAGS = (
 					"-Wnullable-to-nonnull-conversion",
 					"-Wnullability-completeness",
@@ -6860,6 +6859,7 @@
 			baseConfigurationReference = 63AA75C51EB8B00100D153DE /* Sentry.xcconfig */;
 			buildSettings = {
 				CLANG_UNDEFINED_BEHAVIOR_SANITIZER_NULLABILITY = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.10.0;
 				OTHER_CFLAGS = (
 					"-Wnullable-to-nonnull-conversion",
 					"-Wnullability-completeness",
@@ -7267,6 +7267,7 @@
 			baseConfigurationReference = 63AA75C51EB8B00100D153DE /* Sentry.xcconfig */;
 			buildSettings = {
 				CLANG_UNDEFINED_BEHAVIOR_SANITIZER_NULLABILITY = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.10.0;
 				OTHER_CFLAGS = (
 					"-Wnullable-to-nonnull-conversion",
 					"-Wnullability-completeness",
@@ -7562,6 +7563,7 @@
 			baseConfigurationReference = 63AA75C51EB8B00100D153DE /* Sentry.xcconfig */;
 			buildSettings = {
 				CLANG_UNDEFINED_BEHAVIOR_SANITIZER_NULLABILITY = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.10.0;
 				OTHER_CFLAGS = (
 					"-Wnullable-to-nonnull-conversion",
 					"-Wnullability-completeness",
