@@ -38,20 +38,14 @@ jobs:
     # Run the job only for PRs with related changes or non-PR events.
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_benchmarking_for_prs == 'true'
     needs: files-changed
-    runs-on: macos-14
+    runs-on: macos-26
     steps:
       - uses: actions/checkout@v5
-      - run: ./scripts/ci-select-xcode.sh 15.4
+      - run: ./scripts/ci-select-xcode.sh 26.1
       - name: Setup Ruby
         uses: ruby/setup-ruby@d5126b9b3579e429dd52e51e68624dda2e05be25 # v1.267.0
         with:
           bundler-cache: true
-      - name: Install old xcodegen
-        # Install xcodegen 2.43.0 for since newer versions don't work with Xcode older than Xcode 16
-        # We need to set HOMEBREW_DEVELOPER=1 to allow installing from a local formula
-        run: |
-          HOMEBREW_DEVELOPER=1 brew install --formula ./scripts/xcodegen.rb
-          brew pin xcodegen
       - run: make init-ci-build
       - run: make xcode-ci
       - name: Install SentryCli
