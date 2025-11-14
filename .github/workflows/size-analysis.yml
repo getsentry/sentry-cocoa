@@ -48,6 +48,9 @@ jobs:
 
       - run: make init-ci-build
       - run: make xcode-ci
+      - name: Make Sentry Static
+        run: |
+          echo "MACH_O_TYPE = staticlib" >> Sources/Configuration/Sentry.xcconfig
 
       - name: Build and Upload for Size Analysis
         run: bundle exec fastlane build_ios_for_size_analysis

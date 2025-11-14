@@ -397,23 +397,21 @@ lane :build_ios_for_size_analysis do
   sync_code_signing(
       type: "appstore",
       app_identifier: [
-        "io.sentry.sample.iOS-Swift",
-        "io.sentry.sample.iOS-Swift.Clip",
-        "io.sentry.sample.iOS-Swift.ShareExtension"
+        "io.sentry.sample.SDK-Size"
       ],
   )
 
   build_ios_app(
-    scheme: 'iOS-Swift',
-    output_name: 'iOS-Swift',
+    scheme: 'SDK-Size',
+    output_name: 'SDK-Size',
     configuration: 'Release',
     skip_package_ipa: true,
-    archive_path: './build/Sentry.xcarchive',
+    archive_path: './build/SDK-Size.xcarchive',
   )
 
   sentry_upload_build(
-    xcarchive_path: './build/Sentry.xcarchive',
-    auth_token: ENV['SENTRY_SENTRY_AUTH_TOKEN'],
+    xcarchive_path: './build/SDK-Size.xcarchive',
+    auth_token: ENV['SENTRY_AUTH_TOKEN'],
     org_slug: 'sentry-sdks',
     project_slug: 'sentry-cocoa',
     build_configuration: 'Release',
