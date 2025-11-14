@@ -77,7 +77,8 @@ on:
 
 jobs:
   common-ui-tests:
-    if: ${{ !inputs.should_skip }}
+    # test in cirrus labs
+    # if: ${{ !inputs.should_skip }}
     name: UI Tests Common
     runs-on: ${{ inputs.run_on_cirrus_labs && fromJSON(format('["ghcr.io/cirruslabs/macos-runner:{0}", "runner_group_id:10"]', inputs.macos_version)) || inputs.macos_version }}
     timeout-minutes: 40
@@ -108,6 +109,18 @@ jobs:
           PLATFORM: ${{ inputs.platform }}
           OS_VERSION: ${{ inputs.test-destination-os }}
         run: ./scripts/ci-install-platforms.sh --platforms "$PLATFORM" --os-version "$OS_VERSION"
+
+      - name: Install Rosetta
+        run: |
+          xcrun simctl list runtimes -v
+
+      - name: Ensure simctl dyld shared cache is updated
+        # Xcode 15.x doesn't support this command, so we skip it for that version.
+        if: ${{ !contains(inputs.xcode_version, '15.') }}
+        run: |
+          xcrun simctl runtime dyld_shared_cache update --all
+          xcrun simctl list runtimes -v
+          xcrun simctl list devices
 
       - name: Create simulator device
         if: ${{ inputs.create_device }}
