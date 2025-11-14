@@ -56510,6 +56510,197 @@
             ]
           },
           {
+            "kind": "Var",
+            "name": "unexpectedErrorText",
+            "printedName": "unexpectedErrorText",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackFormConfiguration(py)unexpectedErrorText",
+            "mangledName": "$s6Sentry0A29UserFeedbackFormConfigurationC19unexpectedErrorTextSSvp",
+            "moduleName": "Sentry",
+            "declAttributes": [
+              "Final",
+              "ObjC",
+              "HasStorage"
+            ],
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackFormConfiguration(im)unexpectedErrorText",
+                "mangledName": "$s6Sentry0A29UserFeedbackFormConfigurationC19unexpectedErrorTextSSvg",
+                "moduleName": "Sentry",
+                "implicit": true,
+                "declAttributes": [
+                  "Final",
+                  "ObjC"
+                ],
+                "accessorKind": "get"
+              },
+              {
+                "kind": "Accessor",
+                "name": "Set",
+                "printedName": "Set()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackFormConfiguration(im)setUnexpectedErrorText:",
+                "mangledName": "$s6Sentry0A29UserFeedbackFormConfigurationC19unexpectedErrorTextSSvs",
+                "moduleName": "Sentry",
+                "implicit": true,
+                "declAttributes": [
+                  "Final",
+                  "ObjC"
+                ],
+                "accessorKind": "set"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "validationErrorMessage",
+            "printedName": "validationErrorMessage",
+            "children": [
+              {
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(Swift.Bool) -> Swift.String",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  }
+                ]
+              }
+            ],
+            "declKind": "Var",
+            "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackFormConfiguration(py)validationErrorMessage",
+            "mangledName": "$s6Sentry0A29UserFeedbackFormConfigurationC22validationErrorMessageySSSbcvp",
+            "moduleName": "Sentry",
+            "declAttributes": [
+              "Final",
+              "ObjC",
+              "HasStorage"
+            ],
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(Swift.Bool) -> Swift.String",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Bool",
+                        "printedName": "Swift.Bool",
+                        "usr": "s:Sb"
+                      }
+                    ]
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackFormConfiguration(im)validationErrorMessage",
+                "mangledName": "$s6Sentry0A29UserFeedbackFormConfigurationC22validationErrorMessageySSSbcvg",
+                "moduleName": "Sentry",
+                "implicit": true,
+                "declAttributes": [
+                  "Final",
+                  "ObjC"
+                ],
+                "accessorKind": "get"
+              },
+              {
+                "kind": "Accessor",
+                "name": "Set",
+                "printedName": "Set()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  },
+                  {
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(Swift.Bool) -> Swift.String",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Bool",
+                        "printedName": "Swift.Bool",
+                        "usr": "s:Sb"
+                      }
+                    ]
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackFormConfiguration(im)setValidationErrorMessage:",
+                "mangledName": "$s6Sentry0A29UserFeedbackFormConfigurationC22validationErrorMessageySSSbcvs",
+                "moduleName": "Sentry",
+                "implicit": true,
+                "declAttributes": [
+                  "Final",
+                  "ObjC"
+                ],
+                "accessorKind": "set"
+              }
+            ]
+          },
+          {
             "kind": "Constructor",
             "name": "init",
             "printedName": "init()",
