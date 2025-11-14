@@ -33,7 +33,9 @@ jobs:
   build:
     name: Build and Analyze SDK Size
     runs-on: macos-26
-
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_size_analysis_for_prs == 'true'
+    needs: files-changed
+    timeout-minutes: 20
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v5
