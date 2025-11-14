@@ -325,7 +325,7 @@ extension SentryUserFeedbackFormViewModel {
     func updateSubmitButtonAccessibilityHint() {
         switch validate() {
         case .success(let hint): submitButton.accessibilityHint = hint
-        case .failure(let error): submitButton.accessibilityHint = error.description
+        case .failure(let error): submitButton.accessibilityHint = error.getDescription(formConfig: config.formConfig)
         }
     }
     
@@ -443,11 +443,11 @@ extension SentryUserFeedbackFormViewModel {
     enum InputError: Error {
         case validationError(missingFields: [String])
         
-        var description: String {
+        func getDescription(formConfig: SentryUserFeedbackFormConfiguration) -> String {
             switch self {
             case .validationError(let missingFields):
                 let list = missingFields.count == 1 ? missingFields[0] : missingFields[0 ..< missingFields.count - 1].joined(separator: ", ") + " and " + missingFields[missingFields.count - 1]
-                return "You must provide all required information before submitting. Please check the following field\(missingFields.count > 1 ? "s" : ""): \(list)."
+                return "\(formConfig.validationErrorMessage(missingFields.count > 1 )): \(list)."
             }
         }
     }
