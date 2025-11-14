@@ -8,7 +8,7 @@
 
 ### Improvements
 
-- Add options to customize UserFeedback error messages
+- Add options to customize UserFeedback error messages (#6790)
 
 ## 9.0.0-alpha.1
 
