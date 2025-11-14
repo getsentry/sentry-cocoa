@@ -6,6 +6,10 @@
 
 - [HTTP Client errors](https://docs.sentry.io/platforms/apple/guides/ios/configuration/http-client-errors/) now mark sessions as errored (#6633)
 
+### Improvements
+
+- Add options to customize UserFeedback error messages
+
 ## 9.0.0-alpha.1
 
 ### Breaking Changes
