@@ -204,7 +204,7 @@ class SentryFeedbackTests: XCTestCase {
                 XCTAssert(input.shouldValidate)
                 XCTAssertEqual(hint, input.expectedSubmitButtonAccessibilityHint, testCaseDescription())
             case .failure(let error):
-                XCTAssertFalse(input.shouldValidate, error.description + "; " + testCaseDescription())
+                XCTAssertFalse(input.shouldValidate, error.getDescription(formConfig: config.formConfig) + "; " + testCaseDescription())
             }
 
         }
