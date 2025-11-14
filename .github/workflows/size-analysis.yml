@@ -47,10 +47,14 @@ jobs:
           bundler-cache: true
 
       - run: make init-ci-build
-      - run: make xcode-ci
+
+      # This needs to be done before xcode-ci because it makes the Sentry framework to be static.
+      # Or Xcode will try to embed an empty framework.
       - name: Make Sentry Static
         run: |
           echo "MACH_O_TYPE = staticlib" >> Sources/Configuration/Sentry.xcconfig
+
+      - run: make xcode-ci
 
       - name: Build and Upload for Size Analysis
         run: bundle exec fastlane build_ios_for_size_analysis
