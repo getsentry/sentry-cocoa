@@ -52,6 +52,11 @@ jobs:
       - name: Build and Upload for Size Analysis
         run: bundle exec fastlane build_ios_for_size_analysis
         env:
+          FASTLANE_BUNDLE_VERSION: ${{ github.run_number }}
+          FASTLANE_KEYCHAIN_PASSWORD: ${{ secrets.FASTLANE_KEYCHAIN_PASSWORD }}
+          MATCH_GIT_PRIVATE_KEY: ${{ secrets.MATCH_GIT_PRIVATE_KEY }}
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+          MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
 
       - name: Run CI Diagnostics
