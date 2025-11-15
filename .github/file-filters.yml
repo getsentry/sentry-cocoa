@@ -47,6 +47,7 @@ run_unit_tests_for_prs: &run_unit_tests_for_prs
   # Project files
   - "Sentry.xcodeproj/**"
   - "Sentry.xcworkspace/**"
+  - "Package*.swift"
 
   # Build configuration
   - "fastlane/**"
