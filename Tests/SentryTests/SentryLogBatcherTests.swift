@@ -24,7 +24,8 @@ final class SentryLogBatcherTests: XCTestCase {
         sut = SentryLogBatcher(
             options: options,
             flushTimeout: 0.1, // Very small timeout for testing
-            maxBufferSizeBytes: 800, // byte limit for testing (log with attributes ~390 bytes)
+            maxLogCount: 10, // Maximum 10 logs per batch
+            maxBufferSizeBytes: 8_000, // byte limit for testing (log with attributes ~390 bytes)
             dispatchQueue: testDispatchQueue,
             delegate: testDelegate
         )
@@ -69,7 +70,7 @@ final class SentryLogBatcherTests: XCTestCase {
     
     func testBufferReachesMaxSize_FlushesImmediately() throws {
         // Arrange
-        let largeLogBody = String(repeating: "A", count: 600) // Larger than 500 byte limit
+        let largeLogBody = String(repeating: "A", count: 8_000) // Larger than 8000 byte limit
         let largeLog = createTestLog(body: largeLogBody)
         
         // Act
@@ -82,6 +83,27 @@ final class SentryLogBatcherTests: XCTestCase {
         let capturedLogs = testDelegate.getCapturedLogs()
         XCTAssertEqual(capturedLogs.count, 1)
         XCTAssertEqual(capturedLogs[0].body, largeLogBody)
+    }
+    
+    // MARK: - Max Log Count Tests
+    
+    func testMaxLogCount_FlushesWhenReached() throws {
+        // Act - Add exactly maxLogCount logs
+        for i in 0..<9 {
+            let log = createTestLog(body: "Log \(i + 1)")
+            sut.addLog(log, scope: scope)
+        }
+        
+        XCTAssertEqual(testDelegate.captureLogsDataInvocations.count, 0)
+        
+        let log = createTestLog(body: "Log \(10)") // Reached 10 max logs limit
+        sut.addLog(log, scope: scope)
+        
+        // Assert - Should have flushed once when reaching maxLogCount
+        XCTAssertEqual(testDelegate.captureLogsDataInvocations.count, 1)
+        
+        let capturedLogs = testDelegate.getCapturedLogs()
+        XCTAssertEqual(capturedLogs.count, 10, "Should have captured exactly \(10) logs")
     }
     
     // MARK: - Timeout Tests
@@ -185,7 +207,7 @@ final class SentryLogBatcherTests: XCTestCase {
     
     func testScheduledFlushAfterBufferAlreadyFlushed_DoesNothing() throws {
         // Arrange
-        let largeLogBody = String(repeating: "B", count: 300)
+        let largeLogBody = String(repeating: "B", count: 4_000)
         let log1 = createTestLog(body: largeLogBody)
         let log2 = createTestLog(body: largeLogBody)
         
@@ -235,6 +257,7 @@ final class SentryLogBatcherTests: XCTestCase {
         let sutWithRealQueue = SentryLogBatcher(
             options: options,
             flushTimeout: 5,
+            maxLogCount: 1_000, // Maximum 1000 logs per batch
             maxBufferSizeBytes: 10_000,
             dispatchQueue: SentryDispatchQueueWrapper(),
             delegate: testDelegate
@@ -264,6 +287,7 @@ final class SentryLogBatcherTests: XCTestCase {
         let sutWithRealQueue = SentryLogBatcher(
             options: options,
             flushTimeout: 0.2,
+            maxLogCount: 1_000, // Maximum 1000 logs per batch
             maxBufferSizeBytes: 10_000,
             dispatchQueue: SentryDispatchQueueWrapper(),
             delegate: testDelegate
