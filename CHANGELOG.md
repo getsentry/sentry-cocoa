@@ -4,7 +4,14 @@
 
 ### Breaking Changes
 
+- App hang tracking is now automatically disabled for Widgets, Live Activities, Action Extensions, (Siri) Intent Extensions, and Share Extensions (#6670).
+  These components run in separate processes or sandboxes with different execution characteristics, which can cause false positive app hang reports.
 - [HTTP Client errors](https://docs.sentry.io/platforms/apple/guides/ios/configuration/http-client-errors/) now mark sessions as errored (#6633)
+- The Package.swift has swift-tools-version set to 6.0 (#6764)
+
+### Fixes
+
+- Limit log batching to maximum 100 logs per batch (#6768)
 
 ## 9.0.0-alpha.1
 
@@ -138,6 +145,13 @@
   This option is still disabled by default and will be enabled in a future major release.
 - Move `enableDataSwizzling` from experimental options to top-level options (#6592). This option remains enabled by default.
 - Add `sentry.replay_id` attribute to logs ([#6515](https://github.com/getsentry/sentry-cocoa/pull/6515))
+
+## 8.57.3
+
+### Fixes
+
+- Remove unnecesary dependency on `SentryCppHelper` to Sentry (#6754) (#6761)
+- Resolve SDK crash caused by UIPrintPanelViewController incorrectly casting to UISplitViewController (#6771)
 
 ## 8.57.2
 

@@ -85,6 +85,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)registerSessionListener:(id<SentrySessionListener>)listener;
 - (void)unregisterSessionListener:(id<SentrySessionListener>)listener;
 - (nullable id<SentryIntegrationProtocol>)getInstalledIntegration:(Class)integrationClass;
+- (NSSet<NSString *> *)installedIntegrationNames;
 
 #if SENTRY_TARGET_REPLAY_SUPPORTED
 - (NSString *__nullable)getSessionReplayId;

@@ -8,8 +8,21 @@ enum SentryInfoPlistKey: String {
     ///
     /// If `NO`, the system uses the UI design of the running OS, with no compatibility mode. Absence of the key, or NO, is the default value for apps linking against the latest SDKs.
     ///
-    /// - Warning: This key is used temporarily while reviewing and refining an app’s UI for the design in the latest SDKs (i.e. Liquid Glass).
+    /// - Warning: This key is used temporarily while reviewing and refining an app's UI for the design in the latest SDKs (i.e. Liquid Glass).
     ///
     /// - SeeAlso: [Apple Documentation](https://developer.apple.com/documentation/BundleResources/Information-Property-List/UIDesignRequiresCompatibility)
     case designRequiresCompatibility = "UIDesignRequiresCompatibility"
+    
+    /// The extension configuration dictionary for app extensions
+    ///
+    /// - SeeAlso: [Apple Documentation](https://developer.apple.com/documentation/bundleresources/information_property_list/nsextension)
+    case `extension` = "NSExtension"
+    
+    /// Keys within the NSExtension dictionary
+    enum Extension: String {
+        /// The extension point identifier that specifies the type of app extension
+        ///
+        /// - SeeAlso: [Apple Documentation](https://developer.apple.com/documentation/bundleresources/information_property_list/nsextension/nsextensionpointidentifier)
+        case pointIdentifier = "NSExtensionPointIdentifier"
+    }
 }
