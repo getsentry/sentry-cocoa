@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Structured Logs: Collect `stdout/stderr` (#6441)
+
 ## 9.0.0-rc.0
 
 ### Breaking Changes
@@ -75,10 +79,6 @@
 - Increase maximum attachment size to 200MB (#6726)
 
 ## 9.0.0-alpha.1
-
-## Features
-
-- Structured Logs: Collect `stdout/stderr` per default (#6441)
 
 ### Breaking Changes
 
