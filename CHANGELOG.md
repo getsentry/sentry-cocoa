@@ -4,7 +4,10 @@
 
 ### Breaking Changes
 
+- App hang tracking is now automatically disabled for Widgets, Live Activities, Action Extensions, (Siri) Intent Extensions, and Share Extensions (#6670).
+  These components run in separate processes or sandboxes with different execution characteristics, which can cause false positive app hang reports.
 - [HTTP Client errors](https://docs.sentry.io/platforms/apple/guides/ios/configuration/http-client-errors/) now mark sessions as errored (#6633)
+- The Package.swift has swift-tools-version set to 6.0 (#6764)
 
 ## 9.0.0-alpha.1
 
