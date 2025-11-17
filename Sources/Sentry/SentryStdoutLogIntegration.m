@@ -1,9 +1,7 @@
 #import "SentryStdOutLogIntegration.h"
 #import "SentryLogC.h"
-#import "SentryOptions.h"
 #import "SentrySwift.h"
 #import <Foundation/Foundation.h>
-#import <stdatomic.h>
 
 @interface SentryStdOutLogIntegration ()
 
@@ -12,41 +10,23 @@
 @property (nonatomic, copy) void (^logHandler)(NSData *, BOOL isStderr);
 @property (nonatomic, assign) int originalStdOut;
 @property (nonatomic, assign) int originalStdErr;
-@property (strong, nonatomic, nullable) SentryLogger *injectedLogger;
-@property (strong, nonatomic, nullable) SentryDispatchFactory *injectedDispatchFactory;
-@property (strong, nonatomic, nullable) SentryDispatchQueueWrapper *dispatchQueueWrapper;
+
+@property (strong, nonatomic) SentryLogger *logger;
+@property (strong, nonatomic) SentryDispatchQueueWrapper *dispatchQueue;
 
 @end
 
-// Global atomic flag for infinite loop protection
-static _Atomic bool _isForwardingLogs = false;
-
 @implementation SentryStdOutLogIntegration
 
-- (instancetype)init:(SentryDispatchFactory *)dispatchFactory
-{
-    return [self initWithDispatchFactory:dispatchFactory logger:nil];
-}
-
 // Only for testing
-- (instancetype)initWithDispatchFactory:(SentryDispatchFactory *)dispatchFactory
-                                 logger:(nullable SentryLogger *)logger
+- (instancetype)initWithDispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue
+                               logger:(SentryLogger *)logger
 {
     if (self = [super init]) {
-        self.injectedLogger = logger;
-        self.injectedDispatchFactory = dispatchFactory;
+        self.logger = logger;
+        self.dispatchQueue = dispatchQueue;
     }
     return self;
-}
-
-- (SentryLogger *)logger
-{
-    return self.injectedLogger ?: SentrySDK.logger;
-}
-
-- (SentryDispatchFactory *)dispatchFactory
-{
-    return self.injectedDispatchFactory ?: SentryDependencyContainer.sharedInstance.dispatchFactory;
 }
 
 - (BOOL)installWithOptions:(SentryOptions *)options
@@ -59,10 +39,6 @@ static _Atomic bool _isForwardingLogs = false;
     if (!options.enableLogs) {
         return NO;
     }
-
-    self.dispatchQueueWrapper =
-        [self.dispatchFactory createUtilityQueue:"com.sentry.stdout_log_writing_queue"
-                                relativePriority:-3];
 
     __weak typeof(self) weakSelf = self;
     self.logHandler = ^(NSData *data, BOOL isStderr) {
@@ -79,10 +55,6 @@ static _Atomic bool _isForwardingLogs = false;
                     return;
                 }
 
-                // Check global atomic flag to avoid infinite loops
-                if (atomic_exchange(&_isForwardingLogs, true)) {
-                    return; // Already forwarding, break the loop.
-                }
                 NSDictionary *attributes =
                     @{ @"sentry.log.source" : isStderr ? @"stderr" : @"stdout" };
                 if (isStderr) {
@@ -90,9 +62,6 @@ static _Atomic bool _isForwardingLogs = false;
                 } else {
                     [strongSelf.logger info:logString attributes:attributes];
                 }
-
-                // Clear global atomic flag
-                atomic_store(&_isForwardingLogs, false);
             }
         }
     };
@@ -129,10 +98,11 @@ static _Atomic bool _isForwardingLogs = false;
 
         // Clean up pipes
         self.stdOutPipe.fileHandleForReading.readabilityHandler = nil;
-        self.stdErrPipe.fileHandleForReading.readabilityHandler = nil;
-
         self.stdOutPipe = nil;
+
+        self.stdErrPipe.fileHandleForReading.readabilityHandler = nil;
         self.stdErrPipe = nil;
+
         self.logHandler = nil;
     }
 }
@@ -161,9 +131,10 @@ static _Atomic bool _isForwardingLogs = false;
     pipe.fileHandleForReading.readabilityHandler = ^(NSFileHandle *handle) {
         NSData *data = handle.availableData;
         if (weakSelf.logHandler) {
-            weakSelf.logHandler(data, isStderr);
+            [weakSelf.dispatchQueue
+                dispatchAsyncWithBlock:^{ weakSelf.logHandler(data, isStderr); }];
         }
-        [weakSelf.dispatchQueueWrapper dispatchAsyncWithBlock:^{ [newFileHandle writeData:data]; }];
+        [newFileHandle writeData:data];
     };
 
     return pipe;

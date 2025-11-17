@@ -3,7 +3,6 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @class SentryLogger;
-@class SentryDispatchFactory;
 @class SentryDispatchQueueWrapper;
 
 /**
@@ -13,8 +12,8 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SentryStdOutLogIntegration : SentryBaseIntegration
 
 // Only for testing
-- (instancetype)initWithDispatchFactory:(SentryDispatchFactory *)dispatchFactory
-                                 logger:(nullable SentryLogger *)logger;
+- (instancetype)initWithDispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue
+                               logger:(SentryLogger *)logger;
 
 @end
 

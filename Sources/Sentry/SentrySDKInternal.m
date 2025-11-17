@@ -22,7 +22,6 @@
 #import "SentryScope.h"
 #import "SentrySerialization.h"
 #import "SentrySessionReplayIntegration.h"
-#import "SentryStdOutLogIntegration.h"
 #import "SentrySwift.h"
 #import "SentrySwiftAsyncIntegration.h"
 #import "SentryTransactionContext.h"
@@ -540,7 +539,7 @@ static NSDate *_Nullable startTimestamp = nil;
         [SentryANRTrackingIntegration class], [SentryAutoBreadcrumbTrackingIntegration class],
         [SentryAutoSessionTrackingIntegration class], [SentryCoreDataTrackingIntegration class],
         [SentryFileIOTrackingIntegration class], [SentryNetworkTrackingIntegration class],
-        [SentrySwiftAsyncIntegration class], [SentryStdOutLogIntegration class], nil];
+        [SentrySwiftAsyncIntegration class], nil];
 
 #if TARGET_OS_IOS && SENTRY_HAS_UIKIT
     [defaultIntegrations addObject:[SentryUserFeedbackIntegration class]];

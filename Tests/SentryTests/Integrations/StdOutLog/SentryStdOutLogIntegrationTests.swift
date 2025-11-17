@@ -4,33 +4,35 @@ import XCTest
 
 class SentryStdOutLogIntegrationTests: XCTestCase {
 
+    private class TestLoggerDelegate: NSObject, SentryLoggerDelegate {
+        let capturedLogs = Invocations<SentryLog>()
+        
+        func capture(log: SentryLog) {
+            capturedLogs.record(log)
+        }
+    }
+
     private class Fixture {
         let options: Options
         let client: TestClient
-        let hub: SentryHubInternal
-        let batcher: TestLogBatcher
+        let delegate: TestLoggerDelegate
         let logger: SentryLogger
-        let dispatchFactory: TestDispatchFactory
-        
-        var testQueue: TestSentryDispatchQueueWrapper?
+        let testQueue: TestSentryDispatchQueueWrapper
         
         init() {
             options = Options()
             options.enableLogs = true
             
             client = TestClient(options: options)!
-            hub = TestHub(client: client, andScope: Scope())
-            batcher = TestLogBatcher(client: client, dispatchQueue: TestSentryDispatchQueueWrapper())
-            logger = SentryLogger(hub: hub, dateProvider: TestCurrentDateProvider(), batcher: batcher)
+            delegate = TestLoggerDelegate()
+            logger = SentryLogger(delegate: delegate, dateProvider: TestCurrentDateProvider())
             
-            dispatchFactory = TestDispatchFactory()
-            dispatchFactory.vendedUtilityQueueHandler = { [weak self] queue in
-                self?.testQueue = queue
-            }
+            testQueue = TestSentryDispatchQueueWrapper()
+            testQueue.dispatchAsyncExecutesBlock = true
         }
         
         func getIntegration() -> SentryStdOutLogIntegration {
-            return SentryStdOutLogIntegration(dispatchFactory: dispatchFactory, logger: logger)
+            return SentryStdOutLogIntegration(dispatchQueue: testQueue, logger: logger)
         }
     }
     
@@ -85,7 +87,7 @@ class SentryStdOutLogIntegrationTests: XCTestCase {
         print("App stdout message from print")
         expect("Wait for stdout capture to trigger async dispatch")
         
-        let log = try XCTUnwrap(fixture.batcher.addInvocations.first)
+        let log = try XCTUnwrap(fixture.delegate.capturedLogs.first)
         XCTAssertEqual(log.level, SentryLog.Level.info, "Should use info level for stdout")
         XCTAssertTrue(log.body.contains("App stdout message from print"), "Should contain the stdout test message")
         XCTAssertEqual(log.attributes["sentry.log.source"]?.value as? String, "stdout", "Should have stdout source attribute")
@@ -102,7 +104,7 @@ class SentryStdOutLogIntegrationTests: XCTestCase {
         NSLog("App stderr message from NSLog")
         expect("Wait for stderr capture to trigger async dispatch")
         
-        let log = try XCTUnwrap(fixture.batcher.addInvocations.first)
+        let log = try XCTUnwrap(fixture.delegate.capturedLogs.first)
         XCTAssertEqual(log.level, SentryLog.Level.warn, "Should use warn level for stderr")
         XCTAssertTrue(log.body.contains("App stderr message from NSLog"), "Should contain the stderr test message")
         XCTAssertEqual(log.attributes["sentry.log.source"]?.value as? String, "stderr", "Should have stderr source attribute")
@@ -116,23 +118,22 @@ class SentryStdOutLogIntegrationTests: XCTestCase {
         _ = integration.install(with: fixture.options)
         
         print("[Sentry] This is a Sentry internal print log message")
-        expect("Wait first print non-capture")
-
-        // OSLOG-E0E93946-72CD-47A5-A9E7-13AD8B177E35 7 80 L 0 {t:1762782027.629955,tz:-60,tzDST:0,tid:0x326ba22,type:"Default",subsystem:null,category:null,offset:0x70a5d8,imgUUID:"249188A3-8F44-3D76-ACB0-0345A43EB0A3",imgPath:"/Library/Developer/CoreSimulator/Volumes/iOS_23B80/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 26.1.simruntime/Contents/Resources/RuntimeRoot/System/Library/Frameworks/Foundation.framework/Foundation",procName:"xctest",pid:37095,uid:501}    [Sentry] This is a Sentry internal NSLog log message
+        expect("Wait")
+        
         NSLog("[Sentry] This is a Sentry internal NSLog log message")
-        expect("Wait first NSLog non-capture")
+        expect("Wait")
         
         SentrySDKLog.error("This is a Sentry internal error message")
-        expect("Wait first SentrySDKLog.error non-capture")
+        expect("Wait")
         
         // Print another normal log to verify the integration is still working
         print("A normal log")
         expect("Wait for second normal log capture")
         
-        // Verify only 2 logs were captured (the [Sentry] log was skipped)
-        XCTAssertEqual(fixture.batcher.addInvocations.count, 1, "Only non-Sentry logs should be captured")
+        // Verify only 1 log was captured (the [Sentry] logs were skipped)
+        XCTAssertEqual(fixture.delegate.capturedLogs.count, 1, "Only non-Sentry logs should be captured")
         
-        let log = try XCTUnwrap(fixture.batcher.addInvocations.first)
+        let log = try XCTUnwrap(fixture.delegate.capturedLogs.first)
         XCTAssertTrue(log.body.contains("A normal log"), "Only the normal log should be captured")
         XCTAssertFalse(log.body.contains("[Sentry]"), "Sentry internal log should not be captured")
         
@@ -142,19 +143,21 @@ class SentryStdOutLogIntegrationTests: XCTestCase {
     
     // Helper
     
-    private func expect(_ description: String, timeout: TimeInterval = 0.1) {
-        // Record the initial count of async invocations
-        let initialAsyncCount = fixture.testQueue?.dispatchAsyncInvocations.count ?? 0
+    private func expect(_ description: String) {
+        // Record the initial count of async dispatch invocations
+        let initialAsyncCount = fixture.testQueue.dispatchAsyncInvocations.count
         
-        // Wait for the capture to trigger an async dispatch
+        // Wait for the log handler to be dispatched to its queue
         let expectation = XCTestExpectation(description: description)
-        let timer = Timer.scheduledTimer(withTimeInterval: 0.01, repeats: true) { _ in
-            if (self.fixture.testQueue?.dispatchAsyncInvocations.count ?? 0) > initialAsyncCount {
+        let timer = Timer.scheduledTimer(withTimeInterval: 0.01, repeats: true) { timer in
+            let currentAsyncCount = self.fixture.testQueue.dispatchAsyncInvocations.count
+            if currentAsyncCount > initialAsyncCount {
                 expectation.fulfill()
+                timer.invalidate()
             }
         }
         
-        wait(for: [expectation], timeout: timeout)
+        wait(for: [expectation], timeout: 1)
         timer.invalidate()
     }
 }
