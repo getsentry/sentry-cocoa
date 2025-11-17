@@ -25,16 +25,25 @@ import Foundation
         originalStdOut = dup(fileno(stdout))
         originalStdErr = dup(fileno(stderr))
         
+        configureSentrySDKLogToBypassPipe()
+        
         stdOutPipe = duplicateFileDescriptor(fileno(stdout), isStderr: false)
         stdErrPipe = duplicateFileDescriptor(fileno(stderr), isStderr: true)
     }
     
     @objc @_spi(Private) public func stop() {
+        // Restore SDK log print output
+        
+        SentrySDKLog.setOutput {
+            print($0)
+        }
+        
         guard stdOutPipe != nil || stdErrPipe != nil else {
             return
         }
         
         // Restore original file descriptors
+        
         if originalStdOut >= 0 {
             fflush(stdout)
             dup2(originalStdOut, fileno(stdout))
@@ -50,6 +59,7 @@ import Foundation
         }
         
         // Clean up pipes
+        
         stdOutPipe?.fileHandleForReading.readabilityHandler = nil
         stdOutPipe = nil
         
@@ -83,14 +93,29 @@ import Foundation
         return pipe
     }
     
+    // This way we do not produce loops by using SentrySDKLog during stdout log capture.
+    private func configureSentrySDKLogToBypassPipe() {
+        let fd = originalStdOut
+        
+        SentrySDKLog.setOutput { message in
+            guard fd >= 0 else { return }
+            
+            // Append newline to match print() behavior
+            let messageWithNewline = message + "\n"
+            guard let data = messageWithNewline.data(using: .utf8) else {
+                return
+            }
+            data.withUnsafeBytes { bytes in
+                if let baseAddress = bytes.baseAddress {
+                    write(fd, baseAddress, data.count)
+                }
+            }
+        }
+    }
+    
     private func handleLogData(_ data: Data, isStderr: Bool) {
         guard data.count > 0,
               let logString = String(data: data, encoding: .utf8) else {
-            return
-        }
-        
-        // Skip logs from Sentry itself to avoid infinite loops
-        if logString.contains("[Sentry]") {
             return
         }
         

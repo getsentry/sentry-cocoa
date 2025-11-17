@@ -117,13 +117,8 @@ class SentryStdOutLogIntegrationTests: XCTestCase {
         let integration = fixture.getIntegration()
         _ = integration.install(with: fixture.options)
         
-        print("[Sentry] This is a Sentry internal print log message")
-        expect("Wait")
+        SentrySDKLog.error("This is a internal SentrySDK NSLog log message")
         
-        NSLog("[Sentry] This is a Sentry internal NSLog log message")
-        expect("Wait")
-        
-        // Print another normal log to verify the integration is still working
         print("A normal log")
         expect("Wait for second normal log capture")
         
