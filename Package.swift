@@ -1,4 +1,4 @@
-// swift-tools-version:5.5
+// swift-tools-version:6.0
 #if canImport(Darwin)
 import Darwin.C
 #elseif canImport(Glibc)
@@ -73,9 +73,7 @@ var targets: [Target] = [
     .testTarget(name: "SentryDistributionTests", dependencies: ["SentryDistribution"], path: "Sources/SentryDistributionTests")
 ]
 
-let env = getenv("EXPERIMENTAL_SPM_BUILDS")
-if let env = env, String(cString: env, encoding: .utf8) == "1" {
-    products.append(.library(name: "SentrySPM", type: .dynamic, targets: ["SentryObjc"]))
+    products.append(.library(name: "SentrySPM", targets: ["SentryObjc"]))
     targets.append(contentsOf: [
         // At least one source file is required, therefore we use a dummy class to satisfy the SPM build system
         .target(
@@ -113,12 +111,12 @@ if let env = env, String(cString: env, encoding: .utf8) == "1" {
                 .headerSearchPath("SentryCrash/Reporting/Filters"),
                 .headerSearchPath("SentryCrash/Reporting/Filters/Tools")])
     ])
-}
 
 let package = Package(
     name: "Sentry",
-    platforms: [.iOS(.v15), .macOS(.v12), .tvOS(.v15), .watchOS(.v8)],
+    platforms: [.iOS(.v15), .macOS(.v12), .tvOS(.v15), .watchOS(.v8), .visionOS(.v1)],
     products: products,
     targets: targets,
+    swiftLanguageModes: [.v5],
     cxxLanguageStandard: .cxx14
 )

@@ -60,7 +60,7 @@ jobs:
       # sample projects don't use SPM for including Sentry. Only the DistributionSample uses local SPM.
       # Therefore, we only keep the local DistributionSample reference in the Package.swift as a workaround.
       - name: Only keep distribution lib and target in Package.swift
-        run: ./scripts/prepare-package.sh --only-keep-distribution true
+        run: ./scripts/prepare-package.sh --remove-binary-targets true
 
       - run: ./scripts/ci-select-xcode.sh 16.4
       - name: Setup Ruby
@@ -112,6 +112,8 @@ jobs:
             config: Debug
           - scheme: iOS-ObjectiveC
             config: Debug
+          - scheme: SPM
+            config: Debug
           - scheme: DistributionSample
             config: Debug
 
@@ -126,7 +128,7 @@ jobs:
       # sample projects don't use SPM for including Sentry. Only the DistributionSample uses local SPM.
       # Therefore, we only keep the local DistributionSample reference in the Package.swift as a workaround.
       - name: Only keep distribution lib and target in Package.swift
-        run: ./scripts/prepare-package.sh --only-keep-distribution true
+        run: ./scripts/prepare-package.sh --remove-binary-targets true
 
       - run: ./scripts/ci-select-xcode.sh 16.4
       - run: make init-ci-build

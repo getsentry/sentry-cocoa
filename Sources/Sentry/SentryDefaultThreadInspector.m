@@ -3,7 +3,6 @@
 #import "SentryCrashStackCursor.h"
 #include "SentryCrashStackCursor_MachineContext.h"
 #import "SentryCrashStackEntryMapper.h"
-#include "SentryCrashSymbolicator.h"
 #import "SentryFrame.h"
 #import "SentryStacktrace.h"
 #import "SentryStacktraceBuilder.h"
@@ -31,7 +30,7 @@ typedef struct {
 // async-signal-safe.
 unsigned int
 getStackEntriesFromThread(SentryCrashThread thread, struct SentryCrashMachineContext *context,
-    SentryCrashStackEntry *buffer, unsigned int maxEntries, bool asyncUnsafeSymbolicate)
+    SentryCrashStackEntry *buffer, unsigned int maxEntries)
 {
     sentrycrashmc_getContextForThread(thread, context, NO);
     SentryCrashStackCursor stackCursor;
@@ -42,10 +41,8 @@ getStackEntriesFromThread(SentryCrashThread thread, struct SentryCrashMachineCon
     while (stackCursor.advanceCursor(&stackCursor)) {
         if (entries == maxEntries)
             break;
-        if (asyncUnsafeSymbolicate == false || stackCursor.symbolicate(&stackCursor)) {
-            buffer[entries] = stackCursor.stackEntry;
-            entries++;
-        }
+        buffer[entries] = stackCursor.stackEntry;
+        entries++;
     }
 
     return entries;
@@ -55,12 +52,10 @@ getStackEntriesFromThread(SentryCrashThread thread, struct SentryCrashMachineCon
 
 - (id)initWithStacktraceBuilder:(SentryStacktraceBuilder *)stacktraceBuilder
        andMachineContextWrapper:(id<SentryCrashMachineContextWrapper>)machineContextWrapper
-                    symbolicate:(BOOL)symbolicate
 {
     if (self = [super init]) {
         self.stacktraceBuilder = stacktraceBuilder;
         self.machineContextWrapper = machineContextWrapper;
-        self.symbolicate = symbolicate;
     }
     return self;
 }
@@ -73,13 +68,11 @@ getStackEntriesFromThread(SentryCrashThread thread, struct SentryCrashMachineCon
         [[SentryCrashStackEntryMapper alloc] initWithInAppLogic:inAppLogic];
     SentryStacktraceBuilder *stacktraceBuilder =
         [[SentryStacktraceBuilder alloc] initWithCrashStackEntryMapper:crashStackEntryMapper];
-    stacktraceBuilder.symbolicate = options.debug;
 
     id<SentryCrashMachineContextWrapper> machineContextWrapper =
         [[SentryCrashDefaultMachineContextWrapper alloc] init];
     return [self initWithStacktraceBuilder:stacktraceBuilder
-                  andMachineContextWrapper:machineContextWrapper
-                               symbolicate:options.debug];
+                  andMachineContextWrapper:machineContextWrapper];
 }
 
 - (SentryStacktrace *)stacktraceForCurrentThreadAsyncUnsafe
@@ -142,8 +135,6 @@ getStackEntriesFromThread(SentryCrashThread thread, struct SentryCrashMachineCon
         thread_act_array_t suspendedThreads = NULL;
         mach_msg_type_number_t numSuspendedThreads = 0;
 
-        bool symbolicate = self.symbolicate;
-
         // SentryThreadInspector is crashing when there is too many threads.
         // We add a limit of 70 threads because in test with up to 100 threads it seems fine.
         // We are giving it an extra safety margin.
@@ -163,7 +154,7 @@ getStackEntriesFromThread(SentryCrashThread thread, struct SentryCrashMachineCon
         for (int i = 0; i < numSuspendedThreads; i++) {
             if (suspendedThreads[i] != currentThread) {
                 int numberOfEntries = getStackEntriesFromThread(suspendedThreads[i], context,
-                    threadsInfos[i].stackEntries, MAX_STACKTRACE_LENGTH, symbolicate);
+                    threadsInfos[i].stackEntries, MAX_STACKTRACE_LENGTH);
                 threadsInfos[i].stackLength = numberOfEntries;
             } else {
                 // We can't use 'getStackEntriesFromThread' to retrieve stack frames from the

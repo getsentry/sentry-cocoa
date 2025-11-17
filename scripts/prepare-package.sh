@@ -12,7 +12,7 @@ Options:
   --remove-duplicate true|false
                              Whether to strip duplicate targets (default: false)
   --change-path true|false   Whether to swap SPM binary URLs for local paths (default: false)
-  --only-keep-distribution true|false
+  --remove-binary-targets true|false
                              Whether to keep only SentryDistribution product/target (default: false)
   -h, --help                 Show this help message
 USAGE
@@ -29,7 +29,7 @@ PACKAGE_FILE="Package.swift"
 IS_PR="false"
 REMOVE_DUPLICATE="false"
 CHANGE_PATH="false"
-ONLY_KEEP_DISTRIBUTION="false"
+REMOVE_BINARY_TARGETS="false"
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -53,9 +53,9 @@ while [[ $# -gt 0 ]]; do
       CHANGE_PATH="$2"
       shift 2
       ;;
-    --only-keep-distribution)
+    --remove-binary-targets)
       [[ $# -lt 2 ]] && { echo "Missing value for $1" >&2; exit 1; }
-      ONLY_KEEP_DISTRIBUTION="$2"
+      REMOVE_BINARY_TARGETS="$2"
       shift 2
       ;;
     -h|--help)
@@ -103,7 +103,7 @@ if is_enabled "$CHANGE_PATH"; then
   sed -i '' 's/platforms: \[\.iOS(\.v11), \.macOS(\.v10_13), \.tvOS(\.v11), \.watchOS(\.v4)\]$/platforms: [.iOS(.v11), .macOS(.v10_13), .tvOS(.v11), .watchOS(.v4)],/g' "$PACKAGE_FILE"
 fi
 
-if is_enabled "$ONLY_KEEP_DISTRIBUTION"; then
+if is_enabled "$REMOVE_BINARY_TARGETS"; then
   # Remove all binary targets.
   sed -i '' '/^[[:space:]]*\.binaryTarget(/,/^[[:space:]]*),\{0,1\}$/d' "$PACKAGE_FILE"
 
@@ -118,6 +118,7 @@ var products: [Product] = [\
   sed -i '' '/^var targets: \[Target\] = \[/,/^]/c\
 var targets: [Target] = [\
     .target(name: "SentryDistribution", path: "Sources/SentryDistribution"),\
+    .testTarget(name: "SentryDistributionTests", dependencies: ["SentryDistribution"], path: "Sources/SentryDistributionTests")\
 ]\
 ' "$PACKAGE_FILE"
 

@@ -84,24 +84,7 @@ jobs:
           fi
         shell: sh
 
-      - name: Compute cache key
-        env:
-          RUNNER_OS: ${{ runner.os }}
-          VARIANT_ID: ${{ inputs.variant-id }}
-          MATRIX_SDK: ${{ matrix.sdk }}
-          VERSION: ${{ env.VERSION }}
-        run: |
-          echo "SENTRY_XCFRAMEWORK_CACHE_KEY=${RUNNER_OS}-xcframework-${VARIANT_ID}-slice-${MATRIX_SDK}-${VERSION}-${{hashFiles('Sources/**')}}-${{hashFiles('Sentry.xcodeproj/**')}}" >> $GITHUB_ENV
-
-      - name: Restore xcarchive cache
-        id: cache-xcarchive
-        uses: actions/cache@v4
-        with:
-          key: ${{env.SENTRY_XCFRAMEWORK_CACHE_KEY}}
-          path: ${{inputs.name}}${{inputs.suffix}}.xcarchive.zip
-
       - name: Bump version
-        if: steps.cache-xcarchive.outputs.cache-hit != 'true'
         env:
           VERSION: ${{ env.VERSION }}
         run: |
@@ -109,7 +92,6 @@ jobs:
           make bump-version TO=$VERSION
 
       - name: Build ${{inputs.name}}${{inputs.suffix}} XCFramework slice for ${{matrix.sdk}}
-        if: steps.cache-xcarchive.outputs.cache-hit != 'true'
         env:
           MATRIX_SDK: ${{ matrix.sdk }}
           INPUT_NAME: ${{ inputs.name }}
@@ -121,7 +103,7 @@ jobs:
 
       # The SentrySwiftUI archive build also builds Sentry.framework as a byproduct of the dependency. We need to remove that to avoid downstream assembly tasks from tripping on these extra files. In the future we could investigate using this byproduct instead of running a separate task for Sentry.framework, or use the one already built by that other task instead of rebuilding it here.
       - name: Remove Sentry.framework from SentrySwiftUI build
-        if: steps.cache-xcarchive.outputs.cache-hit != 'true' && inputs.name == 'SentrySwiftUI'
+        if: inputs.name == 'SentrySwiftUI'
         env:
           GITHUB_WORKSPACE: ${{ github.workspace }}
         run: |
@@ -131,7 +113,6 @@ jobs:
 
       # the upload action broke symlinks in the mac sdk slice's xcarchive
       - name: Zip xcarchive
-        if: steps.cache-xcarchive.outputs.cache-hit != 'true'
         env:
           GITHUB_WORKSPACE: ${{ github.workspace }}
           INPUT_NAME: ${{ inputs.name }}
@@ -140,13 +121,6 @@ jobs:
         run: |
           ditto -c -k -X --rsrc --keepParent ${GITHUB_WORKSPACE}/Carthage/archive/${INPUT_NAME}${INPUT_SUFFIX}/${MATRIX_SDK}.xcarchive ${INPUT_NAME}${INPUT_SUFFIX}.xcarchive.zip
         shell: bash
-
-      - name: Cache xcarchive
-        if: steps.cache-xcarchive.outputs.cache-hit != 'true'
-        uses: actions/cache@v4
-        with:
-          key: ${{env.SENTRY_XCFRAMEWORK_CACHE_KEY}}
-          path: ${{inputs.name}}${{inputs.suffix}}.xcarchive.zip
 
       - name: Upload xcarchive
         uses: actions/upload-artifact@v5

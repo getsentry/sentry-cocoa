@@ -11,6 +11,10 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         
         let currentDate = TestCurrentDateProvider()
         let debugImageProvider = TestDebugImageProvider()
+        let infoPlistWrapper = TestInfoPlistWrapper()
+        let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
+
+        private var originalExtensionDetector: SentryExtensionDetector!
 
         init() {
             options = Options()
@@ -19,6 +23,24 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
             options.appHangTimeoutInterval = 4.5
 
             debugImageProvider.debugImages = [TestData.debugImage]
+        }
+
+        func setUpDI(extensionDetector: SentryExtensionDetector) throws {
+            SentryDependencyContainer.sharedInstance().fileManager = try TestFileManager(
+                options: options,
+                dateProvider: currentDate,
+                dispatchQueueWrapper: dispatchQueueWrapper
+            )
+
+            originalExtensionDetector = Dependencies.extensionDetector
+            Dependencies.extensionDetector = extensionDetector
+        }
+
+        func tearDownDI() throws {
+            SentryDependencyContainer.sharedInstance().fileManager = nil
+            if let extensionDetector = originalExtensionDetector {
+                Dependencies.extensionDetector = extensionDetector
+            }
         }
     }
     
@@ -33,12 +55,15 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         super.setUp()
         fixture = Fixture()
 
-        SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
+        SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = fixture.dispatchQueueWrapper
         SentryDependencyContainer.sharedInstance().debugImageProvider = fixture.debugImageProvider
     }
     
-    override func tearDown() {
+    override func tearDownWithError() throws {
         sut?.uninstall()
+
+        try fixture.tearDownDI()
+        
         clearTestState()
         super.tearDown()
     }
@@ -99,7 +124,6 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
             XCTAssertEqual(ex.type, "App Hanging")
             XCTAssertEqual(ex.value, "App hanging for at least 4500 ms.")
             XCTAssertNotNil(ex.stacktrace)
-            XCTAssertEqual(ex.stacktrace?.frames.first?.function, "main")
             XCTAssertEqual(ex.stacktrace?.snapshot?.boolValue, true)
             XCTAssertEqual(try XCTUnwrap(event?.threads?.first).current?.boolValue, true)
             XCTAssertEqual(event?.isAppHangEvent, true)
@@ -140,7 +164,6 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
             XCTAssertEqual(ex.type, "App Hang Fully Blocked")
             XCTAssertEqual(ex.value, "App hanging for at least 4500 ms.")
             XCTAssertNotNil(ex.stacktrace)
-            XCTAssertEqual(ex.stacktrace?.frames.first?.function, "main")
             XCTAssertEqual(ex.stacktrace?.snapshot?.boolValue, true)
             XCTAssertEqual(try XCTUnwrap(event?.threads?.first).current?.boolValue, true)
             XCTAssertEqual(event?.isAppHangEvent, true)
@@ -182,7 +205,6 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
             XCTAssertEqual(ex.value, "App hanging for at least 4500 ms.")
             XCTAssertNil(ex.mechanism?.data)
             XCTAssertNotNil(ex.stacktrace)
-            XCTAssertEqual(ex.stacktrace?.frames.first?.function, "main")
             XCTAssertEqual(ex.stacktrace?.snapshot?.boolValue, true)
             XCTAssertEqual(try XCTUnwrap(event?.threads?.first).current?.boolValue, true)
             XCTAssertEqual(event?.isAppHangEvent, true)
@@ -224,7 +246,6 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
             XCTAssertEqual(ex.value, "App hanging for at least 4500 ms.")
             XCTAssertNil(ex.mechanism?.data)
             XCTAssertNotNil(ex.stacktrace)
-            XCTAssertEqual(ex.stacktrace?.frames.first?.function, "main")
             XCTAssertEqual(ex.stacktrace?.snapshot?.boolValue, true)
             XCTAssertEqual(try XCTUnwrap(event?.threads?.first).current?.boolValue, true)
             XCTAssertEqual(event?.isAppHangEvent, true)
@@ -384,20 +405,9 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
             XCTAssertTrue(mechanismData.isEmpty)
             
             XCTAssertNotNil(ex.stacktrace)
-            XCTAssertEqual(ex.stacktrace?.frames.first?.function, "main")
             XCTAssertEqual(ex.stacktrace?.snapshot?.boolValue, true)
             XCTAssertEqual(try XCTUnwrap(event?.threads?.first).current?.boolValue, true)
             XCTAssertEqual(event?.isAppHangEvent, true)
-            
-            let threads = try XCTUnwrap(event?.threads)
-            
-            // Sometimes during tests its possible to have one thread without frames
-            // We just need to make sure we retrieve frame information for at least one other thread than the main thread
-            let threadsWithFrames = threads.filter {
-                ($0.stacktrace?.frames.count ?? 0) >= 1
-            }.count
-            
-            XCTAssertTrue(threadsWithFrames > 1, "Not enough threads with frames")
 
             XCTAssertEqual(event?.debugMeta?.count, 1)
             let eventDebugImage = try XCTUnwrap(event?.debugMeta?.first)
@@ -443,20 +453,9 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
             XCTAssertTrue(mechanismData.isEmpty)
 
             XCTAssertNotNil(ex.stacktrace)
-            XCTAssertEqual(ex.stacktrace?.frames.first?.function, "main")
             XCTAssertEqual(ex.stacktrace?.snapshot?.boolValue, true)
             XCTAssertEqual(try XCTUnwrap(event?.threads?.first).current?.boolValue, true)
             XCTAssertEqual(event?.isAppHangEvent, true)
-
-            let threads = try XCTUnwrap(event?.threads)
-
-            // Sometimes during tests its possible to have one thread without frames
-            // We just need to make sure we retrieve frame information for at least one other thread than the main thread
-            let threadsWithFrames = threads.filter {
-                ($0.stacktrace?.frames.count ?? 0) >= 1
-            }.count
-
-            XCTAssertTrue(threadsWithFrames > 1, "Not enough threads with frames")
 
             XCTAssertEqual(event?.debugMeta?.count, 1)
             let eventDebugImage = try XCTUnwrap(event?.debugMeta?.first)
@@ -721,6 +720,135 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
     func testEventIsNotANR() {
         XCTAssertFalse(Event().isAppHangEvent)
     }
+
+    func testInstall_notRunningInExtension_shouldInstall() throws {
+        // Arrange
+        fixture.infoPlistWrapper.mockGetAppValueDictionaryThrowError(
+            forKey: SentryInfoPlistKey.extension.rawValue,
+            error: SentryInfoPlistError.keyNotFound(key: SentryInfoPlistKey.extension.rawValue)
+        )
+        try fixture.setUpDI(
+            extensionDetector: SentryExtensionDetector(infoPlistWrapper: fixture.infoPlistWrapper)
+        )
+        crashWrapper.internalIsBeingTraced = false
+
+        sut = SentryANRTrackingIntegration()
+        
+        // Act
+        let result = sut.install(with: options)
+        
+        // Assert
+        XCTAssertTrue(result, "Should install when not running in an extension")
+        XCTAssertNotNil(Dynamic(sut).tracker.asAnyObject, "Tracker should be initialized")
+    }
+    
+    func testInstall_runningInWidgetExtension_shouldNotInstall() throws {
+        // Arrange
+        fixture.infoPlistWrapper.mockGetAppValueDictionaryReturnValue(
+            forKey: SentryInfoPlistKey.extension.rawValue,
+            value: ["NSExtensionPointIdentifier": "com.apple.widgetkit-extension"]
+        )
+        try fixture.setUpDI(
+            extensionDetector: SentryExtensionDetector(infoPlistWrapper: fixture.infoPlistWrapper)
+        )
+        crashWrapper.internalIsBeingTraced = false
+
+        sut = SentryANRTrackingIntegration()
+
+        // Act
+        let result = sut.install(with: options)
+        
+        // Assert
+        XCTAssertFalse(result, "Should not install when running in a Widget extension")
+        XCTAssertNil(Dynamic(sut).tracker.asAnyObject, "Tracker should not be initialized")
+    }
+    
+    func testInstall_runningInIntentExtension_shouldNotInstall() throws {
+        // Arrange
+        fixture.infoPlistWrapper.mockGetAppValueDictionaryReturnValue(
+            forKey: SentryInfoPlistKey.extension.rawValue,
+            value: ["NSExtensionPointIdentifier": "com.apple.intents-service"]
+        )
+        try fixture.setUpDI(
+            extensionDetector: SentryExtensionDetector(infoPlistWrapper: fixture.infoPlistWrapper)
+        )
+        crashWrapper.internalIsBeingTraced = false
+
+        sut = SentryANRTrackingIntegration()
+
+        // Act
+        let result = sut.install(with: options)
+        
+        // Assert
+        XCTAssertFalse(result, "Should not install when running in an Intent extension")
+        XCTAssertNil(Dynamic(sut).tracker.asAnyObject, "Tracker should not be initialized")
+    }
+    
+    func testInstall_runningInActionExtension_shouldNotInstall() throws {
+        // Arrange
+        fixture.infoPlistWrapper.mockGetAppValueDictionaryReturnValue(
+            forKey: SentryInfoPlistKey.extension.rawValue,
+            value: ["NSExtensionPointIdentifier": "com.apple.ui-services"]
+        )
+        try fixture.setUpDI(
+            extensionDetector: SentryExtensionDetector(infoPlistWrapper: fixture.infoPlistWrapper)
+        )
+        crashWrapper.internalIsBeingTraced = false
+
+        sut = SentryANRTrackingIntegration()
+
+        // Act
+        let result = sut.install(with: options)
+        
+        // Assert
+        XCTAssertFalse(result, "Should not install when running in an Action extension")
+        XCTAssertNil(Dynamic(sut).tracker.asAnyObject, "Tracker should not be initialized")
+    }
+    
+    func testInstall_runningInShareExtension_shouldNotInstall() throws {
+        // Arrange
+        fixture.infoPlistWrapper.mockGetAppValueDictionaryReturnValue(
+            forKey: SentryInfoPlistKey.extension.rawValue,
+            value: ["NSExtensionPointIdentifier": "com.apple.share-services"]
+        )
+        try fixture.setUpDI(
+            extensionDetector: SentryExtensionDetector(infoPlistWrapper: fixture.infoPlistWrapper)
+        )
+        crashWrapper.internalIsBeingTraced = false
+
+        sut = SentryANRTrackingIntegration()
+
+        // Act
+        let result = sut.install(with: options)
+        
+        // Assert
+        XCTAssertFalse(result, "Should not install when running in a Share extension")
+        XCTAssertNil(Dynamic(sut).tracker.asAnyObject, "Tracker should not be initialized")
+    }
+    
+    func testInstall_runningInUnknownExtension_shouldInstall() throws {
+        // Arrange
+        fixture.infoPlistWrapper.mockGetAppValueDictionaryReturnValue(
+            forKey: SentryInfoPlistKey.extension.rawValue,
+            value: ["NSExtensionPointIdentifier": "com.apple.unknown-extension"]
+        )
+        try fixture.setUpDI(
+            extensionDetector: SentryExtensionDetector(infoPlistWrapper: fixture.infoPlistWrapper)
+        )
+        defer {
+            try? fixture.tearDownDI()
+        }
+        crashWrapper.internalIsBeingTraced = false
+
+        sut = SentryANRTrackingIntegration()
+
+        // Act
+        let result = sut.install(with: options)
+        
+        // Assert
+        XCTAssertTrue(result, "Should install when running in an unknown extension type")
+        XCTAssertNotNil(Dynamic(sut).tracker.asAnyObject, "Tracker should be initialized")
+    }
     
     private func givenInitializedTracker(isBeingTraced: Bool = false, crashedLastLaunch: Bool = false) {
         givenSdkWithHub()
@@ -744,14 +872,12 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         if addThreads {
             
             let frame1 = Sentry.Frame()
-            frame1.function = "Second_frame_function"
             
             let thread1 = SentryThread(threadId: 0)
             thread1.stacktrace = SentryStacktrace(frames: [frame1], registers: [:])
             thread1.current = true
             
             let frame2 = Sentry.Frame()
-            frame2.function = "main"
             
             let thread2 = SentryThread(threadId: 1)
             thread2.stacktrace = SentryStacktrace(frames: [frame2], registers: [:])
