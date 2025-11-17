@@ -153,9 +153,7 @@ public struct SentrySDKWrapper {
         }
 
 #if !os(macOS) && !os(tvOS) && !os(watchOS) && !os(visionOS)
-        if #available(iOS 13.0, *) {
-            options.configureUserFeedback = configureFeedback(config:)
-        }
+        options.configureUserFeedback = configureFeedback(config:)
 #endif // !os(macOS) && !os(tvOS) && !os(watchOS) && !os(visionOS)
 
         options.enableLogs = true
@@ -251,7 +249,6 @@ public struct SentrySDKWrapper {
 
 #if !os(macOS) && !os(tvOS) && !os(watchOS) && !os(visionOS)
 // MARK: User feedback configuration
-@available(iOS 13.0, *)
 extension SentrySDKWrapper {
     var layoutOffset: UIOffset { UIOffset(horizontal: 25, vertical: 75) }
 

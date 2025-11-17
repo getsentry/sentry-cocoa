@@ -6,6 +6,8 @@
 
 - App hang tracking is now automatically disabled for Widgets, Live Activities, Action Extensions, (Siri) Intent Extensions, and Share Extensions (#6670).
   These components run in separate processes or sandboxes with different execution characteristics, which can cause false positive app hang reports.
+- [HTTP Client errors](https://docs.sentry.io/platforms/apple/guides/ios/configuration/http-client-errors/) now mark sessions as errored (#6633)
+- The Package.swift has swift-tools-version set to 6.0 (#6764)
 
 ## 9.0.0-alpha.1
 
@@ -98,6 +100,7 @@
 - Properties on SentryOptions that had no effect on the WithoutUIKit variant are now removed from the API (#6644)
 - Removes the SentryOptions.inAppExclude property because it had no effect (#6646)
 - Removes segment property on SentryUser, SentryBaggage, and SentryTraceContext (#5638)
+- Removes local symbolication when `debug=True` which fixes various deadlocks (#6562)
 - Removes deprecated TraceContext initializers (#6348)
 - Removes deprecated user feedback API, this is replaced with the new feedback API (#5591)
 - Removes `enablePerformanceV2` option and makes this the default. The app start duration will now finish when the first frame is drawn instead of when the OS posts the UIWindowDidBecomeVisibleNotification. (#6008)

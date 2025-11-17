@@ -935,9 +935,6 @@ class SentryFileManagerTests: XCTestCase {
 
     func testIsErrorPathTooLong_underlyingErrorsAvailableAndMultipleErrorsGiven_shouldUseErrorInUserInfo() throws {
         // -- Arrange --
-        guard #available(macOS 11.3, iOS 14.5, watchOS 7.4, tvOS 14.5, *) else {
-            throw XCTSkip("This test is only for macOS 11 and above")
-        }
         // When accessing via `underlyingErrors`, the first result is the error set with `NSUnderlyingErrorKey`.
         // This test asserts if that behavior changes.
         let error = NSError(domain: NSCocoaErrorDomain, code: 1, userInfo: [
@@ -954,9 +951,6 @@ class SentryFileManagerTests: XCTestCase {
 
     func testIsErrorPathTooLong_underlyingErrorsAvailableAndMultipleErrorsEmpty_shouldUseErrorInUserInfo() throws {
         // -- Arrange --
-        guard #available(macOS 11.3, iOS 14.5, watchOS 7.4, tvOS 14.5, *) else {
-            throw XCTSkip("Test is disabled for this OS version")
-        }
         // When accessing via `underlyingErrors`, the first result is the error set with `NSUnderlyingErrorKey`.
         // This test asserts if that behavior changes.
         let error = NSError(domain: NSCocoaErrorDomain, code: 1, userInfo: [
@@ -971,9 +965,6 @@ class SentryFileManagerTests: XCTestCase {
 
     func testIsErrorPathTooLong_underlyingErrorsAvailableAndMultipleErrorsNotSet_shouldUseErrorInUserInfo() throws {
         // -- Arrange --
-        guard #available(macOS 11.3, iOS 14.5, watchOS 7.4, tvOS 14.5, *) else {
-            throw XCTSkip("Test is disabled for this OS version")
-        }
         // When accessing via `underlyingErrors`, the first result is the error set with `NSUnderlyingErrorKey`.
         // This test asserts if that behavior changes.
         let error = NSError(domain: NSCocoaErrorDomain, code: 1, userInfo: [
@@ -987,9 +978,6 @@ class SentryFileManagerTests: XCTestCase {
 
     func testIsErrorPathTooLong_underlyingErrorsAvailableAndOnlyMultipleErrorsGiven_shouldUseErrorFirstError() throws {
         // -- Arrange --
-        guard #available(macOS 11.3, iOS 14.5, watchOS 7.4, tvOS 14.5, *) else {
-            throw XCTSkip("Test is disabled for this OS version")
-        }
         // When accessing via `underlyingErrors`, the first result is the error set with `NSUnderlyingErrorKey`.
         // This test asserts if that behavior changes.
         let error = NSError(domain: NSCocoaErrorDomain, code: 1, userInfo: [
@@ -1006,9 +994,6 @@ class SentryFileManagerTests: XCTestCase {
 
     func testIsErrorPathTooLong_underlyingErrorsNotAvailableAndErrorNotInUserInfo_shouldNotCheckError() throws {
         // -- Arrange --
-        guard #unavailable(macOS 11.3, iOS 14.5, watchOS 7.4, tvOS 14.5) else {
-            throw XCTSkip("Test is disabled for this OS version")
-        }
         // When accessing via `underlyingErrors`, the first result is the error set with `NSUnderlyingErrorKey`.
         // This test asserts if that behavior changes.
         let error = NSError(domain: NSCocoaErrorDomain, code: 1, userInfo: [:])
@@ -1020,9 +1005,6 @@ class SentryFileManagerTests: XCTestCase {
 
     func testIsErrorPathTooLong_underlyingErrorsNotAvailableAndNonErrorInUserInfo_shouldNotCheckError() throws {
         // -- Arrange --
-        guard #unavailable(macOS 11.3, iOS 14.5, watchOS 7.4, tvOS 14.5) else {
-            throw XCTSkip("Test is disabled for this OS version")
-        }
         // When accessing via `underlyingErrors`, the first result is the error set with `NSUnderlyingErrorKey`.
         // This test asserts if that behavior changes.
         let error = NSError(domain: NSCocoaErrorDomain, code: 1, userInfo: [
@@ -1036,9 +1018,6 @@ class SentryFileManagerTests: XCTestCase {
 
     func testIsErrorPathTooLong_underlyingErrorsNotAvailableAndErrorInUserInfo_shouldNotCheckError() throws {
         // -- Arrange --
-        guard #unavailable(macOS 11.3, iOS 14.5, watchOS 7.4, tvOS 14.5) else {
-            throw XCTSkip("Test is disabled for this OS version")
-        }
         // When accessing via `underlyingErrors`, the first result is the error set with `NSUnderlyingErrorKey`.
         // This test asserts if that behavior changes.
         let error = NSError(domain: NSCocoaErrorDomain, code: 1, userInfo: [

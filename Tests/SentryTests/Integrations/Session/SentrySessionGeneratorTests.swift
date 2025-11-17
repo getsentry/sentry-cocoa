@@ -5,7 +5,6 @@ import XCTest
 /**
 * This isn't an actual test. It sends Sessions to the Sentry, but doesn't verify if they arrive there.
 */
-@available(OSX 10.10, *)
 class SentrySessionGeneratorTests: NotificationCenterTestCase {
     
     struct Sessions {

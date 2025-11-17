@@ -304,7 +304,6 @@ protocol SentryUserFeedbackFormViewModelDelegate: NSObjectProtocol {
 
 // MARK: Actions
 
-@available(iOS 13.0, *)
 extension SentryUserFeedbackFormViewModel {
     func removeScreenshotTapped() {
         screenshotImageView.image = nil
@@ -322,7 +321,6 @@ extension SentryUserFeedbackFormViewModel {
 
 // MARK: API
 
-@available(iOS 13.0, *)
 extension SentryUserFeedbackFormViewModel {
     func updateSubmitButtonAccessibilityHint() {
         switch validate() {

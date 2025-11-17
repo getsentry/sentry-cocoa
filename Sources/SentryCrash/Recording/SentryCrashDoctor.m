@@ -262,30 +262,6 @@ typedef enum { CPUFamilyUnknown, CPUFamilyArm, CPUFamilyX86, CPUFamilyX86_64 } C
     return basic;
 }
 
-- (NSDictionary *)lastInAppStackEntry:(NSDictionary *)report
-{
-    NSString *executableName = [self mainExecutableNameForReport:report];
-    NSDictionary *crashedThread = [self crashedThreadReport:report];
-    NSArray *backtrace = [self backtraceFromThreadReport:crashedThread];
-    for (NSDictionary *entry in backtrace) {
-        NSString *objectName = [entry objectForKey:@SentryCrashField_ObjectName];
-        if ([objectName isEqualToString:executableName]) {
-            return entry;
-        }
-    }
-    return nil;
-}
-
-- (NSDictionary *)lastStackEntry:(NSDictionary *)report
-{
-    NSDictionary *crashedThread = [self crashedThreadReport:report];
-    NSArray *backtrace = [self backtraceFromThreadReport:crashedThread];
-    if ([backtrace count] > 0) {
-        return [backtrace objectAtIndex:0];
-    }
-    return nil;
-}
-
 - (BOOL)isInvalidAddress:(NSDictionary *)errorReport
 {
     NSDictionary *machError = [errorReport objectForKey:@SentryCrashField_Mach];
@@ -329,25 +305,6 @@ typedef enum { CPUFamilyUnknown, CPUFamilyArm, CPUFamilyX86, CPUFamilyX86_64 } C
         }
     }
 
-    NSArray *backtrace = [self backtraceFromThreadReport:crashedThread];
-    for (NSDictionary *entry in backtrace) {
-        NSString *objectName = [entry objectForKey:@SentryCrashField_ObjectName];
-        NSString *symbolName = [entry objectForKey:@SentryCrashField_SymbolName];
-        if ([symbolName isEqualToString:@"objc_autoreleasePoolPush"]) {
-            return YES;
-        }
-        if ([symbolName isEqualToString:@"free_list_checksum_botch"]) {
-            return YES;
-        }
-        if ([symbolName isEqualToString:@"szone_malloc_should_clear"]) {
-            return YES;
-        }
-        if ([symbolName isEqualToString:@"lookUpMethod"] &&
-            [objectName isEqualToString:@"libobjc.A.dylib"]) {
-            return YES;
-        }
-    }
-
     return NO;
 }
 
@@ -359,8 +316,6 @@ typedef enum { CPUFamilyUnknown, CPUFamilyArm, CPUFamilyX86, CPUFamilyX86_64 } C
 - (SentryCrashDoctorFunctionCall *)lastFunctionCall:(NSDictionary *)report
 {
     SentryCrashDoctorFunctionCall *function = [[SentryCrashDoctorFunctionCall alloc] init];
-    NSDictionary *lastStackEntry = [self lastStackEntry:report];
-    function.name = [lastStackEntry objectForKey:@SentryCrashField_SymbolName];
 
     NSDictionary *crashedThread = [self crashedThreadReport:report];
     NSDictionary *notableAddresses =
@@ -425,13 +380,11 @@ typedef enum { CPUFamilyUnknown, CPUFamilyArm, CPUFamilyX86, CPUFamilyX86_64 } C
 - (NSString *)diagnoseCrash:(NSDictionary *)report
 {
     @try {
-        NSString *lastFunctionName =
-            [[self lastInAppStackEntry:report] objectForKey:@SentryCrashField_SymbolName];
         NSDictionary *crashedThreadReport = [self crashedThreadReport:report];
         NSDictionary *errorReport = [self errorReport:report];
 
         if ([self isStackOverflow:crashedThreadReport]) {
-            return [NSString stringWithFormat:@"Stack overflow in %@", lastFunctionName];
+            return [NSString stringWithFormat:@"Stack overflow"];
         }
 
         NSString *crashType = [errorReport objectForKey:@SentryCrashField_Type];

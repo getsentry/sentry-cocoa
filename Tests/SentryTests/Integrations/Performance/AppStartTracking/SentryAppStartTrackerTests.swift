@@ -196,11 +196,7 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
         fixture.fileManager.moveAppStateToPreviousAppState()
         startApp(processStartTimeStamp: SentryDependencyContainer.sharedInstance().dateProvider.date().addingTimeInterval(-60 * 60 * 4), callDisplayLink: true)
 #if os(iOS)
-        if #available(iOS 14.0, *) {
-            assertValidStart(type: .warm, expectedDuration: 0.35, preWarmed: true)
-        } else {
-            assertNoAppStartUp()
-        }
+        assertValidStart(type: .warm, expectedDuration: 0.35, preWarmed: true)
 #else
         assertNoAppStartUp()
 #endif
@@ -216,11 +212,7 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
         fixture.fileManager.moveAppStateToPreviousAppState()
         startApp(callDisplayLink: true)
 #if os(iOS)
-        if #available(iOS 14.0, *) {
-            assertNoAppStartUp()
-        } else {
-            assertValidStart(type: .warm, expectedDuration: 0.45)
-        }
+        assertNoAppStartUp()
 #else
         assertValidStart(type: .warm, expectedDuration: 0.45)
 #endif

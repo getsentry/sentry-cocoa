@@ -184,6 +184,7 @@ xcode:
 	open Sentry.xcworkspace
 
 xcode-ci:
+	xcodegen --spec Samples/SPM/SPM.yml
 	xcodegen --spec Samples/SentrySampleShared/SentrySampleShared.yml
 	xcodegen --spec Samples/SessionReplay-CameraTest/SessionReplay-CameraTest.yml
 	xcodegen --spec Samples/iOS-ObjectiveC/iOS-ObjectiveC.yml

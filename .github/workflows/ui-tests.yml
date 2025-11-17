@@ -127,7 +127,7 @@ jobs:
             name: iOS 17
             runs_on: macos-14
             runs_on_cirrus: sequoia
-            xcode: "15.4"
+            xcode: "16.2"
             xcode_cirrus: "16.4"
             test_destination_os: "17.5"
             platform: "iOS"

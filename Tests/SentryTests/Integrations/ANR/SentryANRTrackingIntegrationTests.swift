@@ -124,7 +124,6 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
             XCTAssertEqual(ex.type, "App Hanging")
             XCTAssertEqual(ex.value, "App hanging for at least 4500 ms.")
             XCTAssertNotNil(ex.stacktrace)
-            XCTAssertEqual(ex.stacktrace?.frames.first?.function, "main")
             XCTAssertEqual(ex.stacktrace?.snapshot?.boolValue, true)
             XCTAssertEqual(try XCTUnwrap(event?.threads?.first).current?.boolValue, true)
             XCTAssertEqual(event?.isAppHangEvent, true)
@@ -165,7 +164,6 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
             XCTAssertEqual(ex.type, "App Hang Fully Blocked")
             XCTAssertEqual(ex.value, "App hanging for at least 4500 ms.")
             XCTAssertNotNil(ex.stacktrace)
-            XCTAssertEqual(ex.stacktrace?.frames.first?.function, "main")
             XCTAssertEqual(ex.stacktrace?.snapshot?.boolValue, true)
             XCTAssertEqual(try XCTUnwrap(event?.threads?.first).current?.boolValue, true)
             XCTAssertEqual(event?.isAppHangEvent, true)
@@ -207,7 +205,6 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
             XCTAssertEqual(ex.value, "App hanging for at least 4500 ms.")
             XCTAssertNil(ex.mechanism?.data)
             XCTAssertNotNil(ex.stacktrace)
-            XCTAssertEqual(ex.stacktrace?.frames.first?.function, "main")
             XCTAssertEqual(ex.stacktrace?.snapshot?.boolValue, true)
             XCTAssertEqual(try XCTUnwrap(event?.threads?.first).current?.boolValue, true)
             XCTAssertEqual(event?.isAppHangEvent, true)
@@ -249,7 +246,6 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
             XCTAssertEqual(ex.value, "App hanging for at least 4500 ms.")
             XCTAssertNil(ex.mechanism?.data)
             XCTAssertNotNil(ex.stacktrace)
-            XCTAssertEqual(ex.stacktrace?.frames.first?.function, "main")
             XCTAssertEqual(ex.stacktrace?.snapshot?.boolValue, true)
             XCTAssertEqual(try XCTUnwrap(event?.threads?.first).current?.boolValue, true)
             XCTAssertEqual(event?.isAppHangEvent, true)
@@ -409,20 +405,9 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
             XCTAssertTrue(mechanismData.isEmpty)
             
             XCTAssertNotNil(ex.stacktrace)
-            XCTAssertEqual(ex.stacktrace?.frames.first?.function, "main")
             XCTAssertEqual(ex.stacktrace?.snapshot?.boolValue, true)
             XCTAssertEqual(try XCTUnwrap(event?.threads?.first).current?.boolValue, true)
             XCTAssertEqual(event?.isAppHangEvent, true)
-            
-            let threads = try XCTUnwrap(event?.threads)
-            
-            // Sometimes during tests its possible to have one thread without frames
-            // We just need to make sure we retrieve frame information for at least one other thread than the main thread
-            let threadsWithFrames = threads.filter {
-                ($0.stacktrace?.frames.count ?? 0) >= 1
-            }.count
-            
-            XCTAssertTrue(threadsWithFrames > 1, "Not enough threads with frames")
 
             XCTAssertEqual(event?.debugMeta?.count, 1)
             let eventDebugImage = try XCTUnwrap(event?.debugMeta?.first)
@@ -468,20 +453,9 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
             XCTAssertTrue(mechanismData.isEmpty)
 
             XCTAssertNotNil(ex.stacktrace)
-            XCTAssertEqual(ex.stacktrace?.frames.first?.function, "main")
             XCTAssertEqual(ex.stacktrace?.snapshot?.boolValue, true)
             XCTAssertEqual(try XCTUnwrap(event?.threads?.first).current?.boolValue, true)
             XCTAssertEqual(event?.isAppHangEvent, true)
-
-            let threads = try XCTUnwrap(event?.threads)
-
-            // Sometimes during tests its possible to have one thread without frames
-            // We just need to make sure we retrieve frame information for at least one other thread than the main thread
-            let threadsWithFrames = threads.filter {
-                ($0.stacktrace?.frames.count ?? 0) >= 1
-            }.count
-
-            XCTAssertTrue(threadsWithFrames > 1, "Not enough threads with frames")
 
             XCTAssertEqual(event?.debugMeta?.count, 1)
             let eventDebugImage = try XCTUnwrap(event?.debugMeta?.first)
@@ -898,14 +872,12 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         if addThreads {
             
             let frame1 = Sentry.Frame()
-            frame1.function = "Second_frame_function"
             
             let thread1 = SentryThread(threadId: 0)
             thread1.stacktrace = SentryStacktrace(frames: [frame1], registers: [:])
             thread1.current = true
             
             let frame2 = Sentry.Frame()
-            frame2.function = "main"
             
             let thread2 = SentryThread(threadId: 1)
             thread2.stacktrace = SentryStacktrace(frames: [frame2], registers: [:])
