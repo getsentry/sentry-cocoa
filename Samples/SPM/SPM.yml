@@ -22,7 +22,7 @@ targets:
     dependencies:
       - package: Sentry
         products:
-          - SentrySwift
+          - SentrySPM
     configFiles:
       Debug: SPM.xcconfig
       Release: SPM.xcconfig
