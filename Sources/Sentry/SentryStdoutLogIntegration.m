@@ -4,7 +4,7 @@
 
 @interface SentryStdOutLogIntegration ()
 
-@property (strong, nonatomic) SentryStdOutLogIntegrationDriver *driver;
+@property (strong, nonatomic, nullable) SentryStdOutLogIntegrationDriver *driver;
 
 @end
 
