@@ -54,7 +54,6 @@
         "SentryThreadInspectorTests\/testGetCurrentThreadsWithStacktrace_WithSymbolication()",
         "SentryThreadInspectorTests\/testStacktraceHasFrames_forEveryThread()",
         "SentryThreadWrapperTests\/testOnMainThreadFromNonMainContext()",
-        "SentryTracerTests\/testDeadlineTimer_StartedAndCancelledOnMainThread()",
         "SentryWatchdogTerminationTrackerTests\/testTerminateApp_RunsOnMainThread()"
       ],
       "target" : {

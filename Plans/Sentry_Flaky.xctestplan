@@ -18,9 +18,12 @@
       "selectedTests" : [
         "PrivateSentrySDKOnlyTests\/testProfilingStartAndCollect()",
         "SentryCrashBinaryImageCacheTests\/testRemoveImageFromBeginning",
+        "SentryCrashReportStore_Tests\/testCrashReportCount1",
         "SentryCrashReportStore_Tests\/testPruneReports",
         "SentryFileManagerTests\/testCreateDirectoryIfNotExists_successful_shouldNotLogError()",
         "SentryHttpTransportFlushIntegrationTests",
+        "SentryOnDemandReplayTests\/testAddFrameIsThreadSafe()",
+        "SentrySubClassFinderTests\/testActOnSubclassesOfViewController()",
         "SentryWatchdogTerminationTrackerTests\/testTerminateApp_RunsOnMainThread()"
       ],
       "target" : {
