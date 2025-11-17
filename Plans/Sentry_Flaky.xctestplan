@@ -19,6 +19,7 @@
         "PrivateSentrySDKOnlyTests\/testProfilingStartAndCollect()",
         "SentryCrashBinaryImageCacheTests\/testRemoveImageFromBeginning",
         "SentryCrashReportStore_Tests\/testCrashReportCount1",
+        "SentryCrashReportStore_Tests\/testDeleteAllReports",
         "SentryCrashReportStore_Tests\/testPruneReports",
         "SentryFileManagerTests\/testCreateDirectoryIfNotExists_successful_shouldNotLogError()",
         "SentryHttpTransportFlushIntegrationTests",
