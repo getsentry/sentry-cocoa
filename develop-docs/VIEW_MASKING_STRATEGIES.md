@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document explores approaches of a robust, extensible approach to detecting and masking sensitive content in screenshots and session replay frames captured on iOS, with a particular focus on SwiftUI.
+This document explores approaches to a robust, extensible approach to detecting and masking sensitive content in screenshots and session replay frames captured on iOS, with a particular focus on SwiftUI.
 Traditional UIKit-based masking via view traversal often fails for SwiftUI because text and values are frequently rendered by opaque layers and not represented by discrete, discoverable `UIView` subclasses (anymore).
 
 ## Background & Motivation
@@ -91,10 +91,9 @@ The builder supports:
 
 ### Layer Tree Traversal & Presentation-State Geometry
 
-The redaction builder walks the Core Animation layer tree, not just the UIKit `subviews`, to match real-time, animated geometry. This allows the builder to correctly handle views that are hidden, alpha-transparent, or have a non-zero frame size, and also cases where views use multiple layers.
+The redaction builder walks the Core Animation layer tree (as described in the "View Hierarchies on iOS" section above), not just the UIKit `subviews`, to match real-time, animated geometry. This allows the builder to correctly handle views that are hidden, alpha-transparent, or have a non-zero frame size, and also cases where views use multiple layers.
 
-Each view’s masking eligibility is checked not only based on its type but, when necessary, with a secondary filter on the underlying `CALayer` type.
-This allows disambiguation for cases like SwiftUI rendering, where the same view class serves both as a text/image renderer and as a generic structural element.
+Each view's masking eligibility is checked not only based on its type but, when necessary, with a secondary filter on the underlying `CALayer` type. This allows disambiguation for cases like SwiftUI rendering, where the same view class serves both as a text/image renderer and as a generic structural element.
 
 During traversal, if the system encounters opaque views that completely cover previously marked redaction regions, it can remove or bypass those earlier masks to prevent the creation of unnecessary or hidden mask layers. The rules that determine which parts of the interface to mask are flexible and can be combined: for instance, a `UIImageView` may be masked or left visible depending on specific heuristics, such as whether its image comes from a bundle asset or if the image is very small.
 
@@ -135,7 +134,7 @@ At the end, the builder outputs a collection of `SentryRedactRegion` items, each
 Some UIKit/private class names or render layers can change across iOS versions. The design allows quick update of class/layer rules but requires regular review on new OS releases.
 Some "decoration" views (e.g., `"_UICollectionViewListLayoutSectionBackgroundColorDecorationView"`) get special handling to prevent over-eager region suppression.
 
-## Accessibility-Based Redaction:
+## Accessibility-Based Redaction
 
 > [!WARNING]
 > This approach is not usable for session replay due to unavailability of accessibility information on actual iOS devices unless VoiceOver is enabled system-wide.
@@ -309,7 +308,7 @@ setAutomationEnabled?(previousValue)
 dlclose(handle)
 ```
 
-Loading the Accessibility framework and calling private methods via `dlsym` is not allowed by Apple and would already cause non-conformity with the App Store Review Guidelines.
+Loading the Accessibility framework and calling private methods via `dlsym` is not allowed by Apple and would cause non-conformity with the App Store Review Guidelines.
 
 To proof that this set up is required, we can run the following application and inspect the logs using this view hierarchy and accessibility tree printer:
 
@@ -568,7 +567,9 @@ Couldn't write values for keys (
 ) in CFPrefsPlistSource<0x11a209a80> (Domain: com.apple.Accessibility, User: kCFPreferencesCurrentUser, ByHost: No, Container: (null), Contents Need Refresh: No): setting preferences outside an application's container requires user-preference-write or file-write-data sandbox access
 ```
 
-Due to this limitation, this approach is not feasible for Sentry SDK to use, as it would require accessing and swizzling private APIs, which is not allowed by Apple.
+**Conclusion:**
+
+Due to these limitations, this approach is not feasible for the Sentry SDK. It would require accessing and swizzling private APIs (which violates App Store Review Guidelines) and only works when VoiceOver is enabled system-wide, making it unsuitable for production use.
 
 ## Machine Learning Based Approach
 
@@ -702,7 +703,7 @@ To feed variable-size screenshots into a fixed-size model, the image must be:
 
 **Coordinate Transformation:**
 
-After the model detects objects in the normalized 640x640 space, coordinates must be transformed back to the original screenshot space:
+After the model detects objects in the normalized 640x640 space, coordinates must be transformed back to the original screenshot space. This requires calculating the scale factor and offset used during letterboxing, then applying the inverse transformation. The Vision framework provides coordinate normalization helpers, but careful attention must be paid to coordinate system differences (Vision uses bottom-left origin, UIKit uses top-left origin).
 
 ```swift
 // Calculate scaling and offset for letterboxing
@@ -743,20 +744,11 @@ All iPhones starting with iPhone 8 (A11 Bionic chip, 2017) include Apple's Neura
 
 **Performance Benchmarks:**
 
-Initial testing with an unoptimized model showed:
-
-- Detection performance: ~2-3ms per frame
-- Model size: 3.2MB (compiled `.mlmodelc`)
-- Hardware: CPU + Neural Network chip acceleration
-- Background thread processing: No main thread blocking
+Initial testing with an unoptimized model showed ~2-3ms per frame using a 3.2MB compiled model on devices with Neural Engine acceleration. Background thread processing eliminates main thread blocking.
 
 **Performance Concerns:**
 
-- Devices without Neural Engine (iPhone 7 and earlier) will fall back to CPU-only inference, which may be considerably slower on older devices
-- Continuous ML inference during session replay may impact battery life, especially on older devices
-- Extended inference sessions may trigger thermal throttling, degrading performance
-
-These concerns require benchmarking across device generations to establish performance baselines and determine minimum device requirements.
+Devices without Neural Engine (iPhone 7 and earlier) will fall back to CPU-only inference, which may be considerably slower. Continuous ML inference during session replay may impact battery life and trigger thermal throttling on older devices. These concerns require benchmarking across device generations to establish performance baselines.
 
 ### Model Training and Customization
 
@@ -785,27 +777,17 @@ To enable domain-specific optimization, a repository with training setup will be
 
 ### Hybrid Approach: Combining Deterministic and ML Detection
 
-Rather than replacing the view hierarchy-based approach entirely, the optimal solution combines both methods not only using the screenshot as graphical input, but also using the view hierarchy as structured text input.
-This allows the model to learn from both visual patterns and semantic information about the view hierarchy.
-
-Further improvements to ML-based masking could include injecting additional context beyond just the screenshot pixels. The view hierarchy could be provided as structured text, giving the model semantic information about view types and relationships. Additionally, the detected regions from the default deterministic redaction builder could be provided as additional input channels to the screenshot, allowing the model to learn from both pixel data and known sensitive regions identified through view traversal. This multi-modal approach could improve detection accuracy by combining visual patterns with structural information.
+Rather than replacing the view hierarchy-based approach entirely, the optimal solution combines both methods. The view hierarchy could be provided as structured text input, giving the model semantic information about view types and relationships. Additionally, detected regions from the deterministic redaction builder could be provided as additional input channels, allowing the model to learn from both pixel data and known sensitive regions identified through view traversal.
 
 **Advantages:**
 
 - Known view types, explicit class-based rules, and predictable UI patterns are where deterministic algorithms excel
 - Opaque rendering layers, custom drawing, dynamic content, and SwiftUI views are where ML detection excels
-- Both systems can correct each other: A text label not detected by ML (low confidence) might be caught by deterministic view traversal, a custom-drawn sensitive region missed by view hierarchy analysis might be detected by ML pixel analysis
-
-**Disadvantages:**
+- Both systems can correct each other: A text label not detected by ML (low confidence) might be caught by deterministic view traversal; a custom-drawn sensitive region missed by view hierarchy analysis might be detected by ML pixel analysis
 
 **Implementation Strategy:**
 
-This can be done in two ways:
-
-1. Screenshot, already detected masking regions and view hierarchy are image and text input for the ML model, with it returning a list of regions to redact.
-2. Only screenshot and view hierarchy are inputs of the ML model, with it returning a list of regions to redact, which is the combined with the already detected masking regions from the deterministic redaction builder.
-
-Both approaches have their own advantages and disadvantages, and the best approach depends on the specific use case.
+Two approaches are possible: (1) Use screenshot, detected masking regions, and view hierarchy as multi-modal input to the ML model, or (2) Use only screenshot and view hierarchy as inputs, then combine ML-detected regions with deterministic redaction builder results. The best approach depends on the specific use case.
 
 ### Limitations and Considerations
 
@@ -837,11 +819,7 @@ Machine learning-based detection is inherently probabilistic and cannot guarante
 
 ### Conclusion
 
-The Machine Learning Based Approach offers a promising alternative to deterministic view hierarchy masking, particularly for SwiftUI and custom-rendered content.
-While it introduces complexity around model distribution, coordinate transformations, and performance optimization, the ability to detect sensitive content at the pixel level provides valuable coverage for cases where view hierarchy analysis falls short.
-
-The hybrid approach—combining deterministic algorithms with ML detection—provides the strongest defense-in-depth strategy, leveraging the strengths of both methods while mitigating their individual weaknesses.
-However, the probabilistic nature of ML detection requires careful communication about limitations and appropriate expectations around detection accuracy.
+The Machine Learning Based Approach offers a promising alternative to deterministic view hierarchy masking, particularly for SwiftUI and custom-rendered content. While it introduces complexity around model distribution, coordinate transformations, and performance optimization, the ability to detect sensitive content at the pixel level provides valuable coverage for cases where view hierarchy analysis falls short. The hybrid approach—combining deterministic algorithms with ML detection—provides the strongest defense-in-depth strategy, leveraging the strengths of both methods while mitigating their individual weaknesses. However, the probabilistic nature of ML detection requires careful communication about limitations and appropriate expectations around detection accuracy.
 
 ## Wireframe Based Approach
 
@@ -919,19 +897,7 @@ This would provide:
 
 ### View Hierarchy Traversal
 
-The wireframe generation process traverses both the `UIView` hierarchy and the `CALayer` tree to capture all visible elements:
-
-1. **Start from root window/view**
-2. **For each view:**
-   - Extract frame geometry (using `presentationLayer` during animations)
-   - Determine view category based on class, traits, and context
-   - Assign color based on category heuristics
-   - Handle special cases (clipsToBounds, opacity, transforms)
-3. **For each layer:**
-   - Process sublayers that don't have backing views
-   - Handle layer-specific properties (cornerRadius, shadows, etc.)
-4. **Generate rectangle primitives** with all metadata
-5. **Apply z-ordering** to ensure correct visual layering
+The wireframe generation process traverses both the `UIView` hierarchy and the `CALayer` tree (as described in the "View Hierarchies on iOS" section above) to capture all visible elements. For each view, it extracts frame geometry (using `presentationLayer` during animations), determines view category based on class and traits, assigns color based on category heuristics, and generates rectangle primitives with metadata. Z-ordering is applied to ensure correct visual layering.
 
 ### Handling Edge Cases
 
@@ -986,11 +952,11 @@ The main trade-off is reduced visual fidelity in exchange for better performance
 
 The Defensive-Unredacting Approach inverts the masking logic used by `SentryUIRedactBuilder`. Instead of starting with an unmasked screenshot and adding redaction regions for potentially sensitive content, this approach begins with a fully redacted (masked) screenshot and removes redaction only from areas that can be proven safe with 100% certainty.
 
-### Philosophy: Better Safe Than Sorry
+### How It Works
 
 This approach follows a defensive programming philosophy: **assume everything is sensitive unless proven otherwise**. The core principle is that we cannot assume an area is safe to show unless we have definitive proof that it contains no PII or sensitive information.
 
-### Inverse Masking Logic
+### Implementation Logic
 
 The current `SentryUIRedactBuilder` approach:
 
@@ -1023,10 +989,9 @@ The primary blocker for implementing this approach is the difficulty in establis
 - Views with transparency cannot be considered safe, as underlying content may be visible
 - Views that appear safe at one moment may contain sensitive content after state changes
 
-### SwiftUI Limitations
+### Limitations
 
-This approach requires complete visibility into the view hierarchy and layer tree to reliably identify safe regions.
-Since SwiftUI views are often rendered through opaque layers without exposing their internal structure, the defensive-unredacting approach cannot work reliably for SwiftUI content.
+**SwiftUI Incompatibility:** This approach requires complete visibility into the view hierarchy and layer tree to reliably identify safe regions. Since SwiftUI views are often rendered through opaque layers without exposing their internal structure, the defensive-unredacting approach cannot work reliably for SwiftUI content.
 
 ### Implementation Considerations
 
@@ -1053,11 +1018,11 @@ While the Defensive-Unredacting Approach offers the strongest privacy guarantees
 > [!CAUTION]
 > This approach is not usable for session replay because the view is rendered as a single image, which makes it impossible to redact text from the PDF document.
 
-This approach is rendering the view hierarchy into a PDF context using CoreGraphics and UIKit's built-in PDF rendering capabilities, which is then modified at the PDF level to remove all images and text, before converting it into an image.
+This approach renders the view hierarchy into a PDF context using CoreGraphics and UIKit's built-in PDF rendering capabilities, which would then be modified at the PDF level to remove all images and text before converting it into an image.
 
-### Draw the view hierarchy into a PDF context
+### How It Works
 
-To generate a simple PDF document, we can create a new PDF graphics context, start a new page and render the view hierarchy into the context. To finalize the PDF document, we need to end the context and write the data to a temporary file.
+The view hierarchy is rendered into a PDF graphics context, creating a PDF document that could theoretically be modified to remove text and images at the PDF object level.
 
 ```swift
 let data = NSMutableData()
