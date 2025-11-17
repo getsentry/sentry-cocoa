@@ -1,0 +1,14 @@
+#include "../Shared/Config/_Common.xcconfig"
+
+PRODUCT_BUNDLE_IDENTIFIER = io.sentry.sample.SPM
+INFOPLIST_FILE = SPM/Info.plist
+CODE_SIGN_ENTITLEMENTS = SPM/SPM.entitlements
+
+PROVISIONING_PROFILE_SPECIFIER_Debug = match Development io.sentry.sample.SPM
+PROVISIONING_PROFILE_SPECIFIER_Release = match AppStore io.sentry.sample.SPM
+PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*] = $(PROVISIONING_PROFILE_SPECIFIER_$(CONFIGURATION))
+PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*] =
+
+CODE_SIGN_STYLE = Manual
+
+SUPPORTED_PLATFORMS = iphoneos iphonesimulator

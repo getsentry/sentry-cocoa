@@ -207,7 +207,7 @@ jobs:
             --is-pr "${{ github.event_name == 'pull_request' }}" \
             --change-path true
       - run: ./scripts/ci-select-xcode.sh 16.4
-      - run: swift build
+      - run: swift build --target SentrySwiftUI
       - name: Run CI Diagnostics
         if: failure()
         run: ./scripts/ci-diagnostics.sh
