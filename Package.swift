@@ -22,28 +22,28 @@ var products: [Product] = [
 var targets: [Target] = [
     .binaryTarget(
         name: "Sentry",
-        url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.0.0-alpha.1/Sentry.xcframework.zip",
-        checksum: "eb8cebd331b14fc0b9b09a183cd0b53ec26814921a0f49d8ded70ee8d0a97592" //Sentry-Static
+        url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.0.0-rc.0/Sentry.xcframework.zip",
+        checksum: "ac1dc89e7a6d685790fccf3fdaeec79e9a276be91fcb0bbfa4a82eedbf7fe539" //Sentry-Static
     ),
     .binaryTarget(
         name: "Sentry-Dynamic",
-        url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.0.0-alpha.1/Sentry-Dynamic.xcframework.zip",
-        checksum: "e47d947510d08599b63b05ac70493badc4703c2a28acf1ea8eacb4638458118c" //Sentry-Dynamic
+        url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.0.0-rc.0/Sentry-Dynamic.xcframework.zip",
+        checksum: "ce68bf52d560d95a3f56703787c5d1e9502f4f3d9cf82bc3109efdb6678a1445" //Sentry-Dynamic
     ),
     .binaryTarget(
         name: "Sentry-Dynamic-WithARM64e",
-        url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.0.0-alpha.1/Sentry-Dynamic-WithARM64e.xcframework.zip",
-        checksum: "8a9172b9a0c9debc1d565d9adddeb6261a44cd52b592bf935e5262c160203bea" //Sentry-Dynamic-WithARM64e
+        url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.0.0-rc.0/Sentry-Dynamic-WithARM64e.xcframework.zip",
+        checksum: "d2de9313ac270d218dec8da031dae09edde913caee972b2ae287ec162f877025" //Sentry-Dynamic-WithARM64e
     ),
     .binaryTarget(
         name: "Sentry-WithoutUIKitOrAppKit",
-        url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.0.0-alpha.1/Sentry-WithoutUIKitOrAppKit.xcframework.zip",
-        checksum: "e1252ac7bc9a2b391d4b2123d1700598e224333794f8a0a96a550d8293d0d6ad" //Sentry-WithoutUIKitOrAppKit
+        url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.0.0-rc.0/Sentry-WithoutUIKitOrAppKit.xcframework.zip",
+        checksum: "55a7abe025410edd4b2d466750541b58d57b35c9e4b6d1b1c5ca6ea1d45a1667" //Sentry-WithoutUIKitOrAppKit
     ),
     .binaryTarget(
         name: "Sentry-WithoutUIKitOrAppKit-WithARM64e",
-        url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.0.0-alpha.1/Sentry-WithoutUIKitOrAppKit-WithARM64e.xcframework.zip",
-        checksum: "a57c32ec5e8cc04bc382b91357858123cb7a32f316611c62aa03a011b1e197c8" //Sentry-WithoutUIKitOrAppKit-WithARM64e
+        url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.0.0-rc.0/Sentry-WithoutUIKitOrAppKit-WithARM64e.xcframework.zip",
+        checksum: "968a22d6508eeb18e9f80dab025219a96e0a95d0e7607579e03fb2b2dc285f8a" //Sentry-WithoutUIKitOrAppKit-WithARM64e
     ),
     .target(
         name: "SentrySwiftUI",
@@ -73,7 +73,7 @@ var targets: [Target] = [
     .testTarget(name: "SentryDistributionTests", dependencies: ["SentryDistribution"], path: "Sources/SentryDistributionTests")
 ]
 
-    products.append(.library(name: "SentrySPM", type: .dynamic, targets: ["SentryObjc"]))
+    products.append(.library(name: "SentrySPM", targets: ["SentryObjc"]))
     targets.append(contentsOf: [
         // At least one source file is required, therefore we use a dummy class to satisfy the SPM build system
         .target(
