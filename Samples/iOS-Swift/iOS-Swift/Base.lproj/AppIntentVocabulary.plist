@@ -7,28 +7,28 @@
 		<dict>
 			<key>IntentName</key>
 			<string>INSendMessageIntent</string>
-			<key>ExamplePhrases</key>
+			<key>IntentExamples</key>
 			<array>
-				<string>Send a message</string>
 				<string>Send a message using iOS-Swift</string>
+				<string>Tell iOS-Swift to send a message</string>
 			</array>
 		</dict>
 		<dict>
 			<key>IntentName</key>
 			<string>INSetMessageAttributeIntent</string>
-			<key>ExamplePhrases</key>
+			<key>IntentExamples</key>
 			<array>
-				<string>Mark message as read</string>
-				<string>Set message attribute</string>
+				<string>Mark the message as read in iOS-Swift</string>
+				<string>Set the message as unread using iOS-Swift</string>
 			</array>
 		</dict>
 		<dict>
 			<key>IntentName</key>
 			<string>INSearchForMessagesIntent</string>
-			<key>ExamplePhrases</key>
+			<key>IntentExamples</key>
 			<array>
-				<string>Search for messages</string>
-				<string>Find messages</string>
+				<string>Search for messages in iOS-Swift</string>
+				<string>Find messages using iOS-Swift</string>
 			</array>
 		</dict>
 	</array>
