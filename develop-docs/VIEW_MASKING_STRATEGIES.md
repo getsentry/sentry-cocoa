@@ -137,7 +137,7 @@ Some "decoration" views (e.g., `"_UICollectionViewListLayoutSectionBackgroundCol
 
 ## Accessibility-Based Redaction:
 
-> ![WARNING]
+> [!WARNING]
 > This approach is not usable for session replay due to unavailability of accessibility information on actual iOS devices unless VoiceOver is enabled system-wide.
 
 The `SentryAccessibilityRedactBuilder` is an alternative implementation for identifying which areas of a view hierarchy should be masked during screenshot or session replay capture.
@@ -572,11 +572,280 @@ Due to this limitation, this approach is not feasible for Sentry SDK to use, as 
 
 ## Machine Learning Based Approach
 
-TODO
+> [!NOTE]
+> This approach is a viable alternative to the view hierarchy based approach, and is the recommended approach for Sentry SDK to use.
+
+Machine learning-based masking analyzes the actual pixel content of screenshots rather than relying on view hierarchy metadata. This approach is particularly valuable for detecting sensitive content in SwiftUI views, custom drawing, hybrid apps, and dynamic content that may not be discoverable through view traversal alone. Additionally, ML-based detection can identify sensitive content during view transitions and animations, which is a common issue with the view hierarchy approach where views may be in intermediate states or partially rendered during transitions. The implementation uses a YOLO-style object detection model trained to identify various types of sensitive UI elements (text fields, labels, images, buttons, etc.) directly from pixel data.
+
+### Framework Selection
+
+The first implementation should use Apple's Vision framework as the primary interface. Vision provides optimized image preprocessing, automatic handling of device orientation, integration with CoreML's Neural Engine acceleration, and standardized coordinate system transformations. If Vision framework limitations are encountered, the implementation can fall back to using CoreML directly for more granular control over model inference and preprocessing.
+
+### Background Processing
+
+Since ML models only require the rendered screenshot as input (not the full view hierarchy), all inference work can be performed on a background thread. This eliminates main thread blocking and improves performance characteristics compared to view hierarchy traversal.
+
+### Model Distribution Strategies
+
+One of the key considerations for ML-based masking is how to distribute the CoreML model to end-user devices. There are three primary approaches, each with different trade-offs:
+
+#### 1. Bundled Model Asset
+
+**Approach:** Include the compiled `.mlmodelc` file directly in the SDK framework bundle.
+
+**Advantages:**
+
+- No network dependency for model loading
+- Immediate availability after app installation
+- Works offline
+
+**Disadvantages:**
+
+- A typical YOLO-style detection model can be 3-5MB, directly adding to the app's download size and increasing SDK install size
+- Cannot improve detection accuracy without shipping a new SDK version, as model updates require SDK updates
+- All users download the model regardless of whether they use session replay
+
+**Implementation:**
+
+```swift
+guard let modelURL = Bundle(for: Self.self).url(
+    forResource: "SentryMaskingModel", 
+    withExtension: "mlmodelc"
+) else {
+    fatalError("Could not find SentryMaskingModel.mlmodelc in bundle")
+}
+let mlModel = try MLModel(contentsOf: modelURL, configuration: config)
+```
+
+#### 2. Remote Model Download
+
+**Approach:** Download the model from a remote server on-demand.
+
+**Advantages:**
+
+- Model only downloaded when session replay is enabled for on-demand installation
+- Can deploy improved models without requiring SDK updates, enabling model updates without app updates
+- Model size doesn't count against SDK footprint, resulting in smaller initial SDK size
+- Can serve different models to different user segments for A/B testing capabilities
+
+**Disadvantages:**
+
+- Requires internet connectivity for initial download and may fail if network is unavailable, creating a network dependency
+- First session replay capture may be delayed while model downloads, causing download latency
+- Need to handle model versioning and cache invalidation, adding caching complexity
+- Dynamic code loading may require justification, potentially raising App Store review concerns
+
+**Implementation Considerations:**
+
+```swift
+// Pseudo-code for remote model loading
+func loadModelFromRemote() async throws -> MLModel {
+    let modelURL = URL(string: "https://cdn.sentry.io/models/masking/v1.mlmodelc")!
+    let localURL = FileManager.default.temporaryDirectory
+        .appendingPathComponent("SentryMaskingModel.mlmodelc")
+    
+    // Download and cache model
+    let (data, _) = try await URLSession.shared.data(from: modelURL)
+    try data.write(to: localURL)
+    
+    return try MLModel(contentsOf: localURL, configuration: config)
+}
+```
+
+#### 3. Apple On-Demand Resources (ODR)
+
+**Approach:** Use Apple's On-Demand Resources system to tag the model as an optional asset that can be downloaded from the App Store.
+
+**Advantages:**
+
+- Uses Apple's built-in asset management system for native iOS integration
+- iOS handles download, caching, and cleanup automatically
+- Model downloaded only when needed and can be purged when not in use for bandwidth optimization
+- Model distributed through Apple's CDN via App Store distribution
+
+**Disadvantages:**
+
+- Not available for TestFlight or enterprise distribution, as it requires App Store distribution
+- Requires Xcode project configuration and tag management, adding ODR complexity
+- Apple manages download timing and caching policies, providing less control
+- Updating models requires new app versions, creating versioning limitations
+
+**Implementation:**
+
+The model would be tagged in Xcode with an ODR tag (e.g., "SentryMaskingModel"), and loaded using:
+
+```swift
+let resourceRequest = NSBundleResourceRequest(tags: ["SentryMaskingModel"])
+await resourceRequest.beginAccessingResources()
+// Model available in bundle after resources are loaded
+```
+
+### Coordinate System Challenges
+
+One of the most complex aspects of ML-based masking is correctly mapping model output coordinates back to the original screenshot coordinate system. Several factors complicate this:
+
+**Model Input Constraints:**
+
+Most object detection models expect fixed-size square inputs (e.g., 640x640 pixels). Screenshots from iOS devices have varying aspect ratios:
+
+- iPhone SE: 375x667 (portrait)
+- iPhone 15 Pro: 393x852 (portrait)
+- iPad Pro: 1024x1366 (portrait)
+
+**Image Preprocessing:**
+
+To feed variable-size screenshots into a fixed-size model, the image must be:
+
+1. Scaled to fit the model input while maintaining aspect ratio
+2. Letterboxed or pillarboxed (black bars added) to fill the square input
+3. Normalized for the model's expected pixel value range
+
+**Coordinate Transformation:**
+
+After the model detects objects in the normalized 640x640 space, coordinates must be transformed back to the original screenshot space:
+
+```swift
+// Calculate scaling and offset for letterboxing
+let scaleFactor = min(targetSize / originalSize.width, 
+                      targetSize / originalSize.height)
+let scaledWidth = originalSize.width * scaleFactor
+let scaledHeight = originalSize.height * scaleFactor
+let xOffset = (targetSize - scaledWidth) / 2.0
+let yOffset = (targetSize - scaledHeight) / 2.0
+
+// Transform model output coordinates back to original space
+let xCenterOriginal = (xCenter640 - xOffset) / scaleFactor
+let yCenterOriginal = (yCenter640 - yOffset) / scaleFactor
+```
+
+**Device Orientation:**
+
+Device orientation changes add another layer of complexity:
+
+- Screenshots may be captured in portrait or landscape
+- Model may be trained on a specific orientation
+- Vision framework provides `VNImageRequestHandler(ciImage:orientation:)` to handle orientation, but coordinate transformations must account for rotation
+- The `denormalizeRect` function must flip coordinates from Vision's bottom-left origin to UIKit's top-left origin
+
+**Known Issues:**
+
+During initial testing, generated output geometry did not work correctly when using a real device, requiring additional debugging and coordinate system validation. The implementation uses Vision framework's coordinate normalization to help mitigate these issues, but careful testing across device types and orientations is essential.
+
+### Performance Characteristics
+
+**Hardware Acceleration:**
+
+All iPhones starting with iPhone 8 (A11 Bionic chip, 2017) include Apple's Neural Engine, which provides dedicated hardware acceleration for CoreML inference. This enables:
+
+- ~2-3ms per frame using CPU + Neural Engine with a 3.2MB model for fast inference times
+- Neural Engine is more power-efficient than CPU/GPU for ML workloads, resulting in low power consumption
+- Inference could be run off the main thread without impacting UI responsiveness, even less impact when using background processing
+
+**Performance Benchmarks:**
+
+Initial testing with an unoptimized model showed:
+
+- Detection performance: ~2-3ms per frame
+- Model size: 3.2MB (compiled `.mlmodelc`)
+- Hardware: CPU + Neural Network chip acceleration
+- Background thread processing: No main thread blocking
+
+**Performance Concerns:**
+
+- Devices without Neural Engine (iPhone 7 and earlier) will fall back to CPU-only inference, which may be considerably slower on older devices
+- Continuous ML inference during session replay may impact battery life, especially on older devices
+- Extended inference sessions may trigger thermal throttling, degrading performance
+
+These concerns require benchmarking across device generations to establish performance baselines and determine minimum device requirements.
+
+### Model Training and Customization
+
+**General-Purpose Model:**
+
+We build a separate repository with extensive test data to train a default general-purpose model. This model will be:
+
+- Trained on diverse UI patterns from various app categories
+- Optimized for common sensitive content types (text fields, labels, images, credit cards, etc.)
+- Regularly updated as new UI patterns emerge
+- Available for download by Sentry SDK users
+
+This training setup lives in another open source repository and actively maintained by us, so we can use it to regularly update the model with new UI patterns and sensitive content types.
+
+Furthermore, this allows customers to contribute testing data to the repository, and even forking it to train their own models.
+
+**Bring-Your-Own-Model (BYOM) Approach:**
+
+To enable domain-specific optimization, a repository with training setup will be provided so customers can clone, edit, and build their own models. Customers can add domain-specific test data from their own apps (e.g., banking apps with credit card forms) and train specialized models optimized for their specific UI patterns and sensitive content types. The training setup can also be used to derive models compatible for Android, enabling cross-platform model sharing.
+
+**Example Use Cases:**
+
+- Models trained specifically on credit card forms, account numbers, and financial data patterns for banking apps
+- Models optimized for medical record numbers, patient information, and HIPAA-sensitive content for healthcare apps
+- Models focused on payment forms, shipping addresses, and order details for e-commerce apps
+
+### Hybrid Approach: Combining Deterministic and ML Detection
+
+Rather than replacing the view hierarchy-based approach entirely, the optimal solution combines both methods not only using the screenshot as graphical input, but also using the view hierarchy as structured text input.
+This allows the model to learn from both visual patterns and semantic information about the view hierarchy.
+
+Further improvements to ML-based masking could include injecting additional context beyond just the screenshot pixels. The view hierarchy could be provided as structured text, giving the model semantic information about view types and relationships. Additionally, the detected regions from the default deterministic redaction builder could be provided as additional input channels to the screenshot, allowing the model to learn from both pixel data and known sensitive regions identified through view traversal. This multi-modal approach could improve detection accuracy by combining visual patterns with structural information.
+
+**Advantages:**
+
+- Known view types, explicit class-based rules, and predictable UI patterns are where deterministic algorithms excel
+- Opaque rendering layers, custom drawing, dynamic content, and SwiftUI views are where ML detection excels
+- Both systems can correct each other: A text label not detected by ML (low confidence) might be caught by deterministic view traversal, a custom-drawn sensitive region missed by view hierarchy analysis might be detected by ML pixel analysis
+
+**Disadvantages:**
+
+**Implementation Strategy:**
+
+This can be done in two ways:
+
+1. Screenshot, already detected masking regions and view hierarchy are image and text input for the ML model, with it returning a list of regions to redact.
+2. Only screenshot and view hierarchy are inputs of the ML model, with it returning a list of regions to redact, which is the combined with the already detected masking regions from the deterministic redaction builder.
+
+Both approaches have their own advantages and disadvantages, and the best approach depends on the specific use case.
+
+### Limitations and Considerations
+
+**Best-Effort Approach:**
+
+Machine learning-based detection is inherently probabilistic and cannot guarantee 100% accuracy. Unlike deterministic algorithms that can provide guarantees about specific view types, ML models provide confidence scores that reflect detection certainty. This requires:
+
+- Documentation and terms of service must clarify that masking is "best-effort"
+- Models output confidence scores (e.g., 0.0-1.0) that can be used to filter low-confidence detections via confidence thresholds
+- Ability to fall back to deterministic algorithms or more aggressive masking if ML confidence is low through fallback mechanisms
+
+**Model Accuracy:**
+
+- Models are trained on finite datasets and may not generalize to all UI patterns
+- Novel UI designs or custom components may not be detected
+- False positives (masking non-sensitive content) and false negatives (missing sensitive content) are possible
+
+**Maintenance Burden:**
+
+- Models may need retraining as new iOS versions introduce UI changes
+- Training data must be continuously updated to reflect modern UI patterns
+- Model versioning and compatibility must be managed across SDK versions
+
+**Privacy and Security:**
+
+- Models themselves do not contain sensitive data (they detect patterns, not content)
+- However, training data may contain sensitive screenshots that must be handled securely
+- Model inference happens entirely on-device; no pixel data is sent to servers
+
+### Conclusion
+
+The Machine Learning Based Approach offers a promising alternative to deterministic view hierarchy masking, particularly for SwiftUI and custom-rendered content.
+While it introduces complexity around model distribution, coordinate transformations, and performance optimization, the ability to detect sensitive content at the pixel level provides valuable coverage for cases where view hierarchy analysis falls short.
+
+The hybrid approach—combining deterministic algorithms with ML detection—provides the strongest defense-in-depth strategy, leveraging the strengths of both methods while mitigating their individual weaknesses.
+However, the probabilistic nature of ML detection requires careful communication about limitations and appropriate expectations around detection accuracy.
 
 ## Wireframe Based Approach
 
-> ![WARNING]
+> [!CAUTION]
 > This approach is not usable for session replay due to unavailability of the view hierarchy in SwiftUI views.
 
 This approach replaces the traditional screenshot capture by converting the view hierarchy directly into a simplified wireframe representation using colored rectangles.
@@ -712,7 +981,7 @@ The main trade-off is reduced visual fidelity in exchange for better performance
 
 ## Defensive-Unredacting Approach
 
-> ![WARNING]
+> [!WARNING]
 > This approach is not usable for session replay due to complex heuristics and the need to prove safety of the region.
 
 The Defensive-Unredacting Approach inverts the masking logic used by `SentryUIRedactBuilder`. Instead of starting with an unmasked screenshot and adding redaction regions for potentially sensitive content, this approach begins with a fully redacted (masked) screenshot and removes redaction only from areas that can be proven safe with 100% certainty.
@@ -781,7 +1050,7 @@ While the Defensive-Unredacting Approach offers the strongest privacy guarantees
 
 ## PDF Based Approach
 
-> ![WARNING]
+> [!CAUTION]
 > This approach is not usable for session replay because the view is rendered as a single image, which makes it impossible to redact text from the PDF document.
 
 This approach is rendering the view hierarchy into a PDF context using CoreGraphics and UIKit's built-in PDF rendering capabilities, which is then modified at the PDF level to remove all images and text, before converting it into an image.
