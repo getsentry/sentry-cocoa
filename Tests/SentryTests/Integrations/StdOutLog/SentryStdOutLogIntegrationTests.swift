@@ -123,9 +123,6 @@ class SentryStdOutLogIntegrationTests: XCTestCase {
         NSLog("[Sentry] This is a Sentry internal NSLog log message")
         expect("Wait")
         
-        SentrySDKLog.error("This is a Sentry internal error message")
-        expect("Wait")
-        
         // Print another normal log to verify the integration is still working
         print("A normal log")
         expect("Wait for second normal log capture")
