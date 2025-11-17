@@ -7,9 +7,9 @@ platform :ios do
 
   ios_swift_infoplist_path = "./Samples/iOS-Swift/iOS-Swift/Info.plist"
   ios_swift_clip_infoplist_path = "./Samples/iOS-Swift/iOS-SwiftClip/Info.plist"
-  ios_swift_share_extension_infoplist_path = "./Samples/iOS-Swift/iOS-Swift-ShareExtension/Info.plist"
-  ios_swift_intent_extension_infoplist_path = "./Samples/iOS-Swift/iOS-Swift-IntentExtension/Info.plist"
-  ios_swift_action_extension_infoplist_path = "./Samples/iOS-Swift/iOS-Swift-ActionExtension/Info.plist"
+  ios_swift_share_extension_infoplist_path = "./Samples/iOS-Swift/iOS-Swift-ShareExtension/Resources/Info.plist"
+  ios_swift_intent_extension_infoplist_path = "./Samples/iOS-Swift/iOS-Swift-IntentExtension/Resources/Info.plist"
+  ios_swift_action_extension_infoplist_path = "./Samples/iOS-Swift/iOS-Swift-ActionExtension/Resources/Info.plist"
 
   # Helper method to run tests with common configuration
   def run_ui_tests(scheme:, result_bundle_name:, device: nil, address_sanitizer: false)
