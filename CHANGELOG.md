@@ -146,6 +146,13 @@
 - Move `enableDataSwizzling` from experimental options to top-level options (#6592). This option remains enabled by default.
 - Add `sentry.replay_id` attribute to logs ([#6515](https://github.com/getsentry/sentry-cocoa/pull/6515))
 
+## 8.57.3
+
+### Fixes
+
+- Remove unnecesary dependency on `SentryCppHelper` to Sentry (#6754) (#6761)
+- Resolve SDK crash caused by UIPrintPanelViewController incorrectly casting to UISplitViewController (#6771)
+
 ## 8.57.2
 
 ### Fixes
