@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IntentPhrases</key>
+	<array>
+		<dict>
+			<key>IntentName</key>
+			<string>INSendMessageIntent</string>
+			<key>ExamplePhrases</key>
+			<array>
+				<string>Send a message</string>
+				<string>Send a message using iOS-Swift</string>
+			</array>
+		</dict>
+		<dict>
+			<key>IntentName</key>
+			<string>INSetMessageAttributeIntent</string>
+			<key>ExamplePhrases</key>
+			<array>
+				<string>Mark message as read</string>
+				<string>Set message attribute</string>
+			</array>
+		</dict>
+		<dict>
+			<key>IntentName</key>
+			<string>INSearchForMessagesIntent</string>
+			<key>ExamplePhrases</key>
+			<array>
+				<string>Search for messages</string>
+				<string>Find messages</string>
+			</array>
+		</dict>
+	</array>
+</dict>
+</plist>
