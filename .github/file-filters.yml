@@ -132,6 +132,7 @@ run_benchmarking_for_prs: &run_benchmarking_for_prs
   - "Samples/iOS-Swift/iOS-Swift.xcconfig"
   - "Samples/iOS-Swift/iOS-SwiftClip.xcconfig"
   - "Samples/iOS-Swift/iOS-Benchmarking.xcconfig"
+  - "Package*.swift"
 
   # Build configuration
   - "fastlane/**"
