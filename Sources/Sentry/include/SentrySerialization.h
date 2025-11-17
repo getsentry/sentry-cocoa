@@ -1,4 +1,5 @@
 #import "SentryDefines.h"
+#import "SentryLevel.h"
 
 @class SentryEnvelope;
 @class SentrySession;

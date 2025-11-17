@@ -7,6 +7,7 @@
 #    import <SentryDefines.h>
 #endif
 #import SENTRY_HEADER(SentrySerializable)
+#import SENTRY_HEADER(SentryLevel)
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -54,7 +55,7 @@ NS_SWIFT_NAME(Event)
 /**
  * @c SentryLevel of the event.
  */
-@property (nonatomic) enum SentryLevel level;
+@property (nonatomic) SentryLevel level;
 
 /**
  * This will be used for symbolicating on the server should be "cocoa".

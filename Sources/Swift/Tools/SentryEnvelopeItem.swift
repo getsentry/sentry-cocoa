@@ -32,7 +32,7 @@
         if json == nil {
             // We don't know what caused the serialization to fail.
             let errorEvent = Event()
-            SentryLevelBridge.setBreadcrumbLevelOn(errorEvent, level: SentryLevel.warning.rawValue)
+            errorEvent.level = .warning
             
             // Add some context to the event. We can only set simple properties otherwise we
             // risk that the conversion fails again.
