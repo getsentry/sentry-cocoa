@@ -416,6 +416,38 @@ platform :ios do
   end
 end
 
+desc "Build and Upload for Size Analysis"
+lane :build_ios_for_size_analysis do
+  setup_ci if is_ci
+
+  sync_code_signing(
+      type: "appstore",
+      app_identifier: [
+        "io.sentry.sample.SDK-Size"
+      ],
+  )
+
+  build_ios_app(
+    workspace: "Sentry.xcworkspace",
+    scheme: 'SDK-Size',
+    output_name: 'SDK-Size',
+    configuration: 'Release',
+    skip_package_ipa: true,
+    archive_path: './build/SDK-Size.xcarchive',
+  )
+
+  sentry_upload_build(
+    xcarchive_path: './build/SDK-Size.xcarchive',
+    auth_token: ENV['SENTRY_AUTH_TOKEN'],
+    org_slug: 'sentry-sdks',
+    project_slug: 'sentry-cocoa',
+    build_configuration: 'Release',
+    log_level: 'debug'
+  )
+
+  delete_keychain(name: "fastlane_tmp_keychain") if is_ci
+end
+
 # SKIP_SPM_RESOLUTION_NOTE:
 # We skip Swift Package resolution in these lanes because the samples embed the locally built
 # Sentry.framework. When `Package.swift` points to upcoming release artefacts the resolver would

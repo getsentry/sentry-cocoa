@@ -1,0 +1,16 @@
+#include "../Shared/Config/_Common.xcconfig"
+
+PRODUCT_BUNDLE_IDENTIFIER = io.sentry.sample.SDK-Size
+INFOPLIST_FILE = SDK-Size/Info.plist
+CODE_SIGN_ENTITLEMENTS = SDK-Size/SDK-Size.entitlements
+
+PROVISIONING_PROFILE_SPECIFIER_Debug = match Development io.sentry.sample.SDK-Size
+PROVISIONING_PROFILE_SPECIFIER_Test = match Development io.sentry.sample.SDK-Size
+PROVISIONING_PROFILE_SPECIFIER_TestCI = match Development io.sentry.sample.SDK-Size
+PROVISIONING_PROFILE_SPECIFIER_Release = match AppStore io.sentry.sample.SDK-Size
+PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*] = $(PROVISIONING_PROFILE_SPECIFIER_$(CONFIGURATION))
+PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*] =
+
+CODE_SIGN_STYLE = Manual
+
+SUPPORTED_PLATFORMS = iphoneos iphonesimulator

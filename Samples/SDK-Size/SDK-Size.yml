@@ -1,0 +1,42 @@
+# yaml-language-server: $schema=../../schema/xcodegen.schema.json
+
+name: SDK-Size
+createIntermediateGroups: true
+generateEmptyDirectories: true
+configs:
+  Debug: debug
+  Release: release
+projectReferences:
+  Sentry:
+    path: ../../Sentry.xcodeproj
+fileGroups:
+  - ../Shared/Config
+  - SDK-Size.yml
+options:
+  bundleIdPrefix: io.sentry
+targets:
+  SDK-Size:
+    type: application
+    platform: auto
+    sources:
+      - SDK-Size
+    dependencies:
+      - target: Sentry/Sentry
+    configFiles:
+      Debug: SDK-Size.xcconfig
+      Release: SDK-Size.xcconfig
+    postCompileScripts:
+      - script: ../Shared/inject-git-info.sh
+        name: Inject Git Information into Info.plist
+        basedOnDependencyAnalysis: false
+    postBuildScripts:
+      - script: ../Shared/reset-git-info.sh
+        name: Reset Git Fields in Info.plist
+        basedOnDependencyAnalysis: false
+schemes:
+  SDK-Size:
+    templates:
+      - SampleAppScheme
+    build:
+      targets:
+        SDK-Size: all
