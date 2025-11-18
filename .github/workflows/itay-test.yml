@@ -16,6 +16,16 @@ jobs:
           xcrun simctl list runtimes -v
           xcrun simctl list devices -v
 
+      - name: Select Xcode version
+        env:
+          XCODE_VERSION: "26.1.1"
+        run: ./scripts/ci-select-xcode.sh "$XCODE_VERSION"
+
+      - name: List xcode runtimes and devices
+        run: |
+          xcrun simctl list runtimes -v
+          xcrun simctl list devices -v
+
       - name: Wait until all devices are available
         run: |
           count=0
