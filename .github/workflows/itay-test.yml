@@ -32,6 +32,14 @@ jobs:
 
       - name: Wait until all devices are available
         run: |
+          # Unmount simulator volumes once before checking
+          for dir in /Library/Developer/CoreSimulator/Volumes/*; do
+            echo "Ejecting $dir"
+            sudo diskutil unmount force "$dir" || true
+          done
+          sudo launchctl kill -9 system/com.apple.CoreSimulator.simdiskimaged || true
+          sudo pkill -9 com.apple.CoreSimulator.CoreSimulatorService || true
+
           count=0
           while true; do
             unavailable_count=$(xcrun simctl list devices -v | grep -c "unavailable" || true)
@@ -44,12 +52,7 @@ jobs:
             echo "--------------------------------"
             xcrun simctl list devices -v | grep unavailable
             echo "--------------------------------"
-            for dir in /Library/Developer/CoreSimulator/Volumes/*; do
-              echo "Ejecting $dir"
-              sudo diskutil unmount force "$dir" || true
-            done
-            sudo launchctl kill -9 system/com.apple.CoreSimulator.simdiskimaged || true
-            sudo pkill -9 com.apple.CoreSimulator.CoreSimulatorService || true
+
             sleep 20
             count=$((count + 1))
           done
