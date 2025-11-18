@@ -1,0 +1,30 @@
+name: Test Wait for Runtimes
+
+on:
+  pull_request:
+
+jobs:
+  runtimes:
+    name: Wait for Runtimes
+    runs-on: ["ghcr.io/cirruslabs/macos-runner:tahoe", "runner_group_id:10"]
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: List xcode runtimes and devices
+        run: |
+          xcrun simctl list runtimes -v
+          xcrun simctl list devices -v
+
+      - name: Wait until all devices are available
+        run: |
+          count=0
+          while xcrun simctl list devices -v | grep -q "unavailable"; do
+            echo "Waiting for devices to be available... $count"
+            echo "--------------------------------"
+            xcrun simctl list devices -v
+            echo "--------------------------------"
+            sleep 20
+            count=$((count + 1))
+          done
+          echo "Devices are available after $count attempts"
