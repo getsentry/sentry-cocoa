@@ -45,7 +45,7 @@ class SentrySDKTests: XCTestCase {
         let operation = "ui.load"
         let transactionName = "Load Main Screen"
 
-        init() {
+        init() throws {
             SentryDependencyContainer.sharedInstance().dateProvider = currentDate
 
             event = Event()
@@ -62,13 +62,13 @@ class SentrySDKTests: XCTestCase {
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
             options.dsn = SentrySDKTests.dsnAsString
 
-            let fileManager = try! TestFileManager(
+            let fileManager = try XCTUnwrap(TestFileManager(
                 options: options,
                 dateProvider: currentDate,
                 dispatchQueueWrapper: dispatchQueueWrapper
-            )
+            ))
             let breadcrumbProcessor = SentryWatchdogTerminationBreadcrumbProcessor(maxBreadcrumbs: 10, fileManager: fileManager)
-            scopePersistentStore = try! XCTUnwrap(TestSentryScopePersistentStore(fileManager: fileManager))
+            scopePersistentStore = try XCTUnwrap(TestSentryScopePersistentStore(fileManager: fileManager))
             let attributesProcessor = SentryWatchdogTerminationAttributesProcessor(
                 withDispatchQueueWrapper: dispatchQueueWrapper,
                 scopePersistentStore: scopePersistentStore
@@ -80,9 +80,9 @@ class SentrySDKTests: XCTestCase {
 
     private var fixture: Fixture!
 
-    override func setUp() {
-        super.setUp()
-        fixture = Fixture()
+    override func setUpWithError() throws {
+        try super.setUpWithError()
+        fixture = try Fixture()
     }
     
     override func tearDown() {

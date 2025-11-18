@@ -23,15 +23,17 @@ class SentrySessionTrackerTests: XCTestCase {
         }
         let notificationCenter = TestNSNotificationCenterWrapper()
         let dispatchQueue = TestSentryDispatchQueueWrapper()
-        lazy var fileManager = try! SentryFileManager(options: options, dateProvider: currentDateProvider, dispatchQueueWrapper: dispatchQueue)
-        
-        init() {
+        let fileManager: SentryFileManager
+
+        init() throws {
             options = Options()
             options.dsn = SentrySessionTrackerTests.dsnAsString
             options.releaseName = "SentrySessionTrackerIntegrationTests"
             options.sessionTrackingIntervalMillis = 10_000
             options.environment = "debug"
-            
+
+            fileManager = try XCTUnwrap(SentryFileManager(options: options, dateProvider: currentDateProvider, dispatchQueueWrapper: dispatchQueue))
+
             client = TestClient(options: options)
             
             sentryCrash = TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo)
@@ -69,10 +71,10 @@ class SentrySessionTrackerTests: XCTestCase {
         clearTestState()
     }
     
-    override func setUp() {
-        super.setUp()
-        
-        fixture = Fixture()
+    override func setUpWithError() throws {
+        try super.setUpWithError()
+
+        fixture = try Fixture()
 
         SentryDependencyContainer.sharedInstance().dateProvider = fixture.currentDateProvider
 

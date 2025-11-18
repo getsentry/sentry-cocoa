@@ -78,7 +78,7 @@ class SentryEnvelopeTests: XCTestCase {
         XCTAssertEqual(1, envelope.items.count)
         XCTAssertEqual("event", try XCTUnwrap(envelope.items.first).header.type)
         
-        let json = try! JSONSerialization.data(withJSONObject: event.serialize(), options: JSONSerialization.WritingOptions(rawValue: 0))
+        let json = try XCTUnwrap(JSONSerialization.data(withJSONObject: event.serialize(), options: JSONSerialization.WritingOptions(rawValue: 0)))
         
         assertJsonIsEqual(actual: json, expected: try XCTUnwrap(XCTUnwrap(envelope.items.first).data))
     }
