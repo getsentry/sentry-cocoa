@@ -235,7 +235,7 @@ jobs:
     secrets: inherit
     with:
       name: ${{matrix.name}}
-      runs-on: ${{matrix.runs-on}}
+      runs-on: ${{ matrix.runs-on-cirrus && fromJSON(format('["ghcr.io/cirruslabs/macos-runner:{0}", "runner_group_id:10"]', matrix.runs-on-cirrus)) || matrix.runs-on }}
       should_skip: ${{needs.files-changed.outputs.run_unit_tests_for_prs != 'true'}}
       xcode: ${{matrix.xcode}}
       platform: ${{matrix.platform}}
@@ -273,10 +273,7 @@ jobs:
 
           # iOS 26 - Use pre-installed iOS 26.1 runtime on macOS-26
           - name: iOS 26 Sentry
-            runs-on: [
-              "ghcr.io/cirruslabs/macos-runner:sequoia",
-              "runner_group_id:10",
-            ]
+            runs-on-cirrus: "sequoia"
             xcode: "26.1.1"
             test-destination-os: "26.1.1"
             platform: "iOS"
