@@ -32,6 +32,7 @@
         "SentryANRTrackerTests\/testMultipleListeners()",
         "SentryCoreDataTrackerTests\/testFetchRequestBackgroundThread()",
         "SentryCoreDataTrackerTests\/testSaveBackgroundThread()",
+        "SentryCrashBinaryImageCacheTests\/testRemoveImageAddAgain",
         "SentryCrashBinaryImageCacheTests\/testRemoveImageFromBeginning",
         "SentryCrashIntegrationTests\/testStartUpCrash_CallsFlush()",
         "SentryCrashReportStore_Tests\/testCrashReportCount1",

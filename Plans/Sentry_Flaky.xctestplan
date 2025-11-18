@@ -17,6 +17,7 @@
     {
       "selectedTests" : [
         "PrivateSentrySDKOnlyTests\/testProfilingStartAndCollect()",
+        "SentryCrashBinaryImageCacheTests\/testRemoveImageAddAgain",
         "SentryCrashBinaryImageCacheTests\/testRemoveImageFromBeginning",
         "SentryCrashReportStore_Tests\/testCrashReportCount1",
         "SentryCrashReportStore_Tests\/testDeleteAllReports",
