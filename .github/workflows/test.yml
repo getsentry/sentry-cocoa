@@ -273,14 +273,15 @@ jobs:
 
           # iOS 26 - Use pre-installed iOS 26.1 runtime on macOS-26
           - name: iOS 26 Sentry
-            runs-on: macos-26
-            xcode: "26.1"
-            test-destination-os: "26.1"
+            runs-on: [
+              "ghcr.io/cirruslabs/macos-runner:sequoia",
+              "runner_group_id:10",
+            ]
+            xcode: "26.1.1"
+            test-destination-os: "26.1.1"
             platform: "iOS"
             device: "iPhone 17 Pro"
             scheme: "Sentry"
-            # This runner seems to be slower than the others, so we give it more time because otherwise it frequently times out. The build step often alone takes 20 minutes and also booting the simulator takes a while.
-            timeout: 40
 
           # We don't run the unit tests on macOS 13 cause we run them on all on GH actions available iOS versions.
           # The chance of missing a bug solely on tvOS 16 that doesn't occur on iOS, macOS 12 or macOS 14 is minimal.
