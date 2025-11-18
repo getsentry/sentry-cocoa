@@ -14,16 +14,16 @@ class SentryAppStateManagerTests: XCTestCase {
         let dispatchQueue = TestSentryDispatchQueueWrapper()
         let notificationCenterWrapper = TestNSNotificationCenterWrapper()
 
-        init() {
+        init() throws {
             options = Options()
             options.dsn = SentryAppStateManagerTests.dsnAsString
             options.releaseName = TestData.appState.releaseName
             
-            fileManager = try! SentryFileManager(
+            fileManager = try XCTUnwrap(SentryFileManager(
                 options: options,
                 dateProvider: currentDate,
                 dispatchQueueWrapper: dispatchQueue
-            )
+            ))
         }
 
         func getSut() -> SentryAppStateManager {
@@ -42,10 +42,10 @@ class SentryAppStateManagerTests: XCTestCase {
     private var fixture: Fixture!
     private var sut: SentryAppStateManager!
 
-    override func setUp() {
-        super.setUp()
+    override func setUpWithError() throws {
+        try super.setUpWithError()
 
-        fixture = Fixture()
+        fixture = try Fixture()
         sut = fixture.getSut()
     }
 

@@ -26,7 +26,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
             options.releaseName = TestData.appState.releaseName
             options.tracesSampleRate = 1.0
             
-            client = TestClient(options: options, fileManager: try! SentryFileManager(
+            client = TestClient(options: options, fileManager: try SentryFileManager(
                 options: options,
                 dateProvider: dateProvider,
                 dispatchQueueWrapper: dispatchQueueWrapper
