@@ -52,7 +52,7 @@ sentrycrashdebug_isBeingTraced(void)
     int mib[] = { CTL_KERN, KERN_PROC, KERN_PROC_PID, getpid() };
 
     if (sysctl(mib, sizeof(mib) / sizeof(*mib), &procInfo, &structSize, NULL, 0) != 0) {
-        SENTRY_ASYNC_SAFE_LOG_ERROR("sysctl: %s", strerror(errno));
+        SENTRY_ASYNC_SAFE_LOG_ERROR("sysctl: %s", SENTRY_STRERROR_R(errno));
         return false;
     }
 

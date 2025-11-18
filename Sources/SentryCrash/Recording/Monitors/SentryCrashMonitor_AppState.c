@@ -271,7 +271,7 @@ saveState(const char *const path)
     int fd = open(path, O_RDWR | O_CREAT | O_TRUNC, 0644);
     if (fd < 0) {
         SENTRY_ASYNC_SAFE_LOG_ERROR(
-            "Could not open file %s for writing: %s", path, strerror(errno));
+            "Could not open file %s for writing: %s", path, SENTRY_STRERROR_R(errno));
         return false;
     }
 

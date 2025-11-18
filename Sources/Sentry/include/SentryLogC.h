@@ -1,3 +1,4 @@
+#import "SentryAsyncSafeLog.h"
 #import "SentryDefines.h"
 
 #ifdef __cplusplus
@@ -45,7 +46,7 @@ void logFatal(const char file[], int line, NSString *format, ...);
         const int __log_errnum = errno;                                                            \
         if (__log_errnum != 0) {                                                                   \
             SENTRY_LOG_ERROR(@"%s failed with code: %d, description: %s", #statement,              \
-                __log_errnum, strerror(__log_errnum));                                             \
+                __log_errnum, SENTRY_STRERROR_R(__log_errnum));                                    \
         }                                                                                          \
         __log_rv;                                                                                  \
     })

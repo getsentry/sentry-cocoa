@@ -140,7 +140,7 @@ installSignalHandler(void)
 
     SENTRY_ASYNC_SAFE_LOG_DEBUG("Setting signal stack area.");
     if (sigaltstack(&g_signalStack, NULL) != 0) {
-        SENTRY_ASYNC_SAFE_LOG_ERROR("signalstack: %s", strerror(errno));
+        SENTRY_ASYNC_SAFE_LOG_ERROR("signalstack: %s", SENTRY_STRERROR_R(errno));
         goto failed;
     }
 #    endif
@@ -176,7 +176,7 @@ installSignalHandler(void)
                 snprintf(sigNameBuff, sizeof(sigNameBuff), "%d", fatalSignals[i]);
                 sigName = sigNameBuff;
             }
-            SENTRY_ASYNC_SAFE_LOG_ERROR("sigaction (%s): %s", sigName, strerror(errno));
+            SENTRY_ASYNC_SAFE_LOG_ERROR("sigaction (%s): %s", sigName, SENTRY_STRERROR_R(errno));
             // Try to reverse the damage
             for (i--; i >= 0; i--) {
                 sigaction(fatalSignals[i], &g_previousSignalHandlers[i], NULL);

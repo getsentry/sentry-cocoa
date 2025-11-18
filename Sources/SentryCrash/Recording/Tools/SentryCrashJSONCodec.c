@@ -1345,8 +1345,8 @@ updateDecoder_readFile(struct JSONFromFileContext *context)
             unlikely_if(bytesRead < fillLength)
             {
                 if (bytesRead < 0) {
-                    SENTRY_ASYNC_SAFE_LOG_ERROR(
-                        "Error reading file %s: %s", context->sourceFilename, strerror(errno));
+                    SENTRY_ASYNC_SAFE_LOG_ERROR("Error reading file %s: %s",
+                        context->sourceFilename, SENTRY_STRERROR_R(errno));
                 }
                 context->isEOF = true;
             }

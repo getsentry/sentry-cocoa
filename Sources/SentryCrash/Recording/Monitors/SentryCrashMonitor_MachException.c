@@ -500,7 +500,7 @@ installExceptionHandler(void)
     pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
     error = pthread_create(&g_secondaryPThread, &attr, &handleExceptions, kThreadSecondary);
     if (error != 0) {
-        SENTRY_ASYNC_SAFE_LOG_ERROR("pthread_create_suspended_np: %s", strerror(error));
+        SENTRY_ASYNC_SAFE_LOG_ERROR("pthread_create_suspended_np: %s", SENTRY_STRERROR_R(error));
         goto failed;
     }
     g_secondaryMachThread = pthread_mach_thread_np(g_secondaryPThread);
@@ -508,7 +508,7 @@ installExceptionHandler(void)
     SENTRY_ASYNC_SAFE_LOG_DEBUG("Creating primary exception thread.");
     error = pthread_create(&g_primaryPThread, &attr, &handleExceptions, kThreadPrimary);
     if (error != 0) {
-        SENTRY_ASYNC_SAFE_LOG_ERROR("pthread_create: %s", strerror(error));
+        SENTRY_ASYNC_SAFE_LOG_ERROR("pthread_create: %s", SENTRY_STRERROR_R(error));
         goto failed;
     }
     pthread_attr_destroy(&attr);

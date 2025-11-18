@@ -151,7 +151,8 @@ addTextFileElement(
 {
     const int fd = open(filePath, O_RDONLY);
     if (fd < 0) {
-        SENTRY_ASYNC_SAFE_LOG_ERROR("Could not open file %s: %s", filePath, strerror(errno));
+        SENTRY_ASYNC_SAFE_LOG_ERROR(
+            "Could not open file %s: %s", filePath, SENTRY_STRERROR_R(errno));
         return;
     }
 
@@ -1466,7 +1467,7 @@ sentrycrashreport_writeRecrashReport(
 
     if (rename(path, tempPath) < 0) {
         SENTRY_ASYNC_SAFE_LOG_ERROR(
-            "Could not rename %s to %s: %s", path, tempPath, strerror(errno));
+            "Could not rename %s to %s: %s", path, tempPath, SENTRY_STRERROR_R(errno));
     }
     if (!sentrycrashfu_openBufferedWriter(
             &bufferedWriter, path, writeBuffer, sizeof(writeBuffer))) {
@@ -1488,7 +1489,8 @@ sentrycrashreport_writeRecrashReport(
         writeRecrash(writer, SentryCrashField_RecrashReport, tempPath);
         sentrycrashfu_flushBufferedWriter(&bufferedWriter);
         if (remove(tempPath) < 0) {
-            SENTRY_ASYNC_SAFE_LOG_ERROR("Could not remove %s: %s", tempPath, strerror(errno));
+            SENTRY_ASYNC_SAFE_LOG_ERROR(
+                "Could not remove %s: %s", tempPath, SENTRY_STRERROR_R(errno));
         }
         writeReportInfo(writer, SentryCrashField_Report, SentryCrashReportType_Minimal,
             monitorContext->eventID, monitorContext->System.processName);

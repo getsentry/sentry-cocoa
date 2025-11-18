@@ -31,6 +31,16 @@
 #define SENTRY_ASYNC_SAFE_LOG_C_BUFFER_SIZE 1024
 
 /**
+ * Buffer size for thread-safe strerror_r operations.
+ *
+ * POSIX doesn't specify a minimum buffer size for strerror_r. We use 1024 bytes to match
+ * glibc's implementation, which uses a 1024-byte buffer for strerror() to ensure sufficient
+ * space for error messages across all locales and systems. This provides a safe upper bound
+ * while being reasonable for stack allocation since it's allocated per macro expansion.
+ */
+#define SENTRY_STRERROR_R_BUFFER_SIZE 1024
+
+/**
  * In addition to writing to file, we can also write to the console. This is not safe to do from
  * actual async contexts, but can be helpful while running with the debugger attached in certain
  * cases. The logger will never write to the console if there is no debugger attached.
@@ -43,7 +53,9 @@
 extern "C" {
 #endif
 
+#include <errno.h>
 #include <stdbool.h>
+#include <string.h>
 
 static char g_logFilename[1024];
 
@@ -149,6 +161,26 @@ int sentry_asyncLogSetFileName(const char *filename, bool overwrite);
 #endif
 
 /**
+ * Thread-safe version of strerror using strerror_r.
+ * On macOS/iOS, strerror_r follows XSI-compliant version which returns int.
+ * This macro evaluates to a pointer to a buffer containing the error string.
+ * Each macro expansion uses a local variable, making it thread-safe.
+ *
+ * The buffer size is defined by SENTRY_STRERROR_R_BUFFER_SIZE (1024 bytes, matching glibc).
+ *
+ * @param ERRNUM The error number (e.g., errno).
+ * @return Pointer to a thread-safe error string.
+ */
+#define SENTRY_STRERROR_R(ERRNUM)                                                                  \
+    ({                                                                                             \
+        char __strerror_buf[SENTRY_STRERROR_R_BUFFER_SIZE];                                        \
+        if (strerror_r((ERRNUM), __strerror_buf, sizeof(__strerror_buf)) != 0) {                   \
+            snprintf(__strerror_buf, sizeof(__strerror_buf), "Unknown error %d", (ERRNUM));        \
+        }                                                                                          \
+        __strerror_buf;                                                                            \
+    })
+
+/**
  * If @c errno is set to a non-zero value after @c statement finishes executing,
  * the error value is logged, and the original return value of @c statement is
  * returned.
@@ -160,7 +192,7 @@ int sentry_asyncLogSetFileName(const char *filename, bool overwrite);
         const int __log_errnum = errno;                                                            \
         if (__log_errnum != 0) {                                                                   \
             SENTRY_ASYNC_SAFE_LOG_ERROR("%s failed with code: %d, description: %s", #statement,    \
-                __log_errnum, strerror(__log_errnum));                                             \
+                __log_errnum, SENTRY_STRERROR_R(__log_errnum));                                    \
         }                                                                                          \
         __log_rv;                                                                                  \
     })
