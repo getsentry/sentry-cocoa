@@ -10,7 +10,7 @@ jobs:
       - name: Check for exact 'ready-to-merge' label
         if: ${{ github.event_name == 'pull_request' }}
         id: check-label
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const expectedLabel = 'ready-to-merge';

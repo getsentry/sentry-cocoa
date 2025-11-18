@@ -90,13 +90,13 @@ class SentryFileIOTrackerTests: XCTestCase {
         XCTAssertTrue(result)
     }
 
-    func testWritePathOptionsError() {
+    func testWritePathOptionsError() throws {
         let sut = fixture.getSut()
         var methodPath: String?
         var methodOptions: NSData.WritingOptions?
         var methodError: NSError?
 
-        try! sut.measure(fixture.data, writeToFile: fixture.filePath, options: .atomic, origin: "custom.origin") { path, writingOption, _ -> Bool in
+        try sut.measure(fixture.data, writeToFile: fixture.filePath, options: .atomic, origin: "custom.origin") { path, writingOption, _ -> Bool in
             methodPath = path
             methodOptions = writingOption
             return true
@@ -198,12 +198,12 @@ class SentryFileIOTrackerTests: XCTestCase {
         wait(for: [expect], timeout: 0.1)
     }
 
-    func testWriteWithOptionsAndError_CheckTrace() {
+    func testWriteWithOptionsAndError_CheckTrace() throws {
         let sut = fixture.getSut()
         let transaction = SentrySDK.startTransaction(name: "Transaction", operation: "Test", bindToScope: true)
         var span: Span?
 
-        try! sut.measure(fixture.data, writeToFile: fixture.filePath, options: .atomic, origin: "custom.origin") { _, _, _ -> Bool in
+        try sut.measure(fixture.data, writeToFile: fixture.filePath, options: .atomic, origin: "custom.origin") { _, _, _ -> Bool in
             span = self.firstSpan(transaction)
             XCTAssertFalse(span?.isFinished ?? true)
             self.advanceTime(bySeconds: 3)
@@ -214,13 +214,13 @@ class SentryFileIOTrackerTests: XCTestCase {
         assertDataSpan(span, path: fixture.filePath, operation: SentrySpanOperationFileWrite, size: fixture.data.count, origin: "custom.origin")
     }
 
-    func testDontTrackSentryFilesWrites() {
+    func testDontTrackSentryFilesWrites() throws {
         let sut = fixture.getSut()
         let transaction = SentrySDK.startTransaction(name: "Transaction", operation: "Test", bindToScope: true)
         var span: Span?
 
         let expect = expectation(description: "")
-        try! sut.measure(fixture.data, writeToFile: fixture.sentryPath, options: .atomic, origin: "custom.origin") { _, _, _ -> Bool in
+        try sut.measure(fixture.data, writeToFile: fixture.sentryPath, options: .atomic, origin: "custom.origin") { _, _, _ -> Bool in
             span = self.firstSpan(transaction)
             expect.fulfill()
             return true
