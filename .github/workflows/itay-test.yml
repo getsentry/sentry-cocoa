@@ -40,6 +40,7 @@ jobs:
             echo "--------------------------------"
             xcrun simctl list devices -v | grep unavailable
             echo "--------------------------------"
+            sudo killall -9 com.apple.CoreSimulator.CoreSimulatorService
             sleep 20
             count=$((count + 1))
           done
