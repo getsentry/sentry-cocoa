@@ -274,7 +274,7 @@ jobs:
 
           # iOS 26 - Use pre-installed iOS 26.1 runtime on macOS-26
           - name: iOS 26 Sentry
-            runs-on: sequoia
+            runs-on: tahoe
             xcode: "26.1.1"
             test-destination-os: "26.1.1"
             platform: "iOS"
