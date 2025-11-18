@@ -418,8 +418,8 @@ class SentryVideoFrameProcessorTests: XCTestCase {
         }
     }
 
-    func testFinishVideo_WhenSelfIsDeallocated_ShouldReturnNilVideoInfo() {
-        let delayedVideoWriter = try! DelayedTestAVAssetWriter(url: fixture.outputFileURL, fileType: .mp4)
+    func testFinishVideo_WhenSelfIsDeallocated_ShouldReturnNilVideoInfo() throws {
+        let delayedVideoWriter = try XCTUnwrap(DelayedTestAVAssetWriter(url: fixture.outputFileURL, fileType: .mp4))
         delayedVideoWriter.statusOverride = .completed
         let videoWriterInput = TestAVAssetWriterInput(mediaType: .video, outputSettings: nil)
         delayedVideoWriter.add(videoWriterInput)

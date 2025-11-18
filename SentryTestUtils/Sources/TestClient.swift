@@ -3,6 +3,7 @@ import Foundation
 @_spi(Private) @testable import Sentry
 
 public class TestClient: SentryClientInternal {
+
     public override init?(options: NSObject) {
         super.init(
             options: options,
