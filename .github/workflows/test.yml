@@ -240,7 +240,6 @@ jobs:
       xcode: ${{matrix.xcode}}
       platform: ${{matrix.platform}}
       test-destination-os: ${{matrix.test-destination-os || 'latest'}}
-      timeout: ${{matrix.timeout || 20}}
       create_device: ${{matrix.create_device || false}}
       install_platforms: ${{matrix.install_platforms || false}}
       device: ${{matrix.device || ''}}
@@ -273,7 +272,7 @@ jobs:
 
           # iOS 26 - Use pre-installed iOS 26.1 runtime on macOS-26
           - name: iOS 26 Sentry
-            runs-on-cirrus: "sequoia"
+            runs-on-cirrus: sequoia
             xcode: "26.1.1"
             test-destination-os: "26.1.1"
             platform: "iOS"
