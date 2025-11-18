@@ -63,10 +63,16 @@ on:
         required: true
         type: string
 
+      run_on_cirrus_labs:
+        description: "Whether to run the tests on Cirrus Labs"
+        required: false
+        default: false
+        type: boolean
+
 jobs:
   unit-tests:
     name: Unit ${{inputs.name}}
-    runs-on: ${{inputs.runs-on}}
+    runs-on: ${{ inputs.run_on_cirrus_labs && fromJSON(format('["ghcr.io/cirruslabs/macos-runner:{0}", "runner_group_id:10"]', inputs.runs-on)) || inputs.runs-on }}
     timeout-minutes: ${{inputs.timeout}}
     if: ${{!inputs.should_skip}}
     steps:
