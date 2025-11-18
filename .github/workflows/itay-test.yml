@@ -19,12 +19,17 @@ jobs:
       - name: Wait until all devices are available
         run: |
           count=0
-          while xcrun simctl list devices -v | grep -q "unavailable"; do
-            echo "Waiting for devices to be available... $count"
+          while true; do
+            unavailable_count=$(xcrun simctl list devices -v | grep -c "unavailable" || true)
+            if [ "$unavailable_count" -eq 0 ]; then
+              echo "All devices are available after $count attempts"
+              break
+            fi
+            echo "Waiting for devices to be available... attempt $count"
+            echo "Number of unavailable devices: $unavailable_count"
             echo "--------------------------------"
-            xcrun simctl list devices -v
+            xcrun simctl list devices -v | grep unavailable
             echo "--------------------------------"
             sleep 20
             count=$((count + 1))
           done
-          echo "Devices are available after $count attempts"
