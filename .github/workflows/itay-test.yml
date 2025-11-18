@@ -16,6 +16,10 @@ jobs:
           xcrun simctl list runtimes -v
           xcrun simctl list devices -v
 
+      - name: List mounted simulators
+        run: |
+          mount | grep CoreSimulator
+
       - name: Select Xcode version
         env:
           XCODE_VERSION: "26.1.1"
