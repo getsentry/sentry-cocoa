@@ -32,6 +32,11 @@
         return NO;
     }
 
+    // Only install if experimental flag is enabled
+    if (!options.experimental.enableStdOutCapture) {
+        return NO;
+    }
+
     // Use default instances if driver wasn't initialized (for production use)
     if (!_driver) {
         SentryLogger *logger = SentrySDK.logger;

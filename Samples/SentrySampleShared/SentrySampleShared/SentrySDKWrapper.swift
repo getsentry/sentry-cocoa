@@ -157,6 +157,11 @@ public struct SentrySDKWrapper {
 #endif // !os(macOS) && !os(tvOS) && !os(watchOS) && !os(visionOS)
 
         options.enableLogs = true
+        options.experimental.enableStdOutCapture = true
+        options.beforeSendLog = { log in
+            print("foo")
+            return log
+        }
 
         // Experimental features
         options.enableFileManagerSwizzling = !SentrySDKOverrides.Other.disableFileManagerSwizzling.boolValue
