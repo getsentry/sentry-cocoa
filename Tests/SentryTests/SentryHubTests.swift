@@ -28,7 +28,7 @@ class SentryHubTests: XCTestCase {
         let queue = DispatchQueue(label: "SentryHubTests", qos: .utility, attributes: [.concurrent])
         let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
 
-        init() {
+        init() throws {
             options = Options()
             options.dsn = SentryHubTests.dsnAsString
             
@@ -37,11 +37,11 @@ class SentryHubTests: XCTestCase {
             event = Event()
             event.message = SentryMessage(formatted: message)
             
-            fileManager = try! TestFileManager(
+            fileManager = try XCTUnwrap(TestFileManager(
                 options: options,
                 dateProvider: currentDateProvider,
                 dispatchQueueWrapper: TestSentryDispatchQueueWrapper()
-            )
+            ))
 
             SentryDependencyContainer.sharedInstance().dateProvider = currentDateProvider
             SentryDependencyContainer.sharedInstance().random = random
@@ -70,9 +70,9 @@ class SentryHubTests: XCTestCase {
     private var fixture: Fixture!
     private lazy var sut = fixture.getSut()
     
-    override func setUp() {
-        super.setUp()
-        fixture = Fixture()
+    override func setUpWithError() throws {
+        try super.setUpWithError()
+        fixture = try Fixture()
         fixture.fileManager.deleteCurrentSession()
         fixture.fileManager.deleteCrashedSession()
         fixture.fileManager.deleteAbnormalSession()
@@ -1249,7 +1249,7 @@ class SentryHubTests: XCTestCase {
         let envelope = fixture.client.captureEnvelopeInvocations.first
         let sessionEnvelopeItem = envelope?.items.first(where: { $0.header.type == "session" })
         
-        let json = try XCTUnwrap((try! JSONSerialization.jsonObject(with: XCTUnwrap(sessionEnvelopeItem?.data))) as? [String: Any])
+        let json = try XCTUnwrap((try JSONSerialization.jsonObject(with: XCTUnwrap(sessionEnvelopeItem?.data))) as? [String: Any])
         
         XCTAssertEqual(json["timestamp"] as? String, "1970-01-01T00:00:02.000Z")
         XCTAssertEqual(json["status"] as? String, "crashed")

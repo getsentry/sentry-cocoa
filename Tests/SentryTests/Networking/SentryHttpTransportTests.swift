@@ -43,7 +43,7 @@ class SentryHttpTransportTests: XCTestCase {
         
         let queue = DispatchQueue(label: "SentryHttpTransportTests", qos: .userInitiated, attributes: [.concurrent, .initiallyInactive])
 
-        init() {
+        init() throws {
             SentryDependencyContainer.sharedInstance().reachability = reachability
             
             currentDateProvider = TestCurrentDateProvider()
@@ -73,7 +73,7 @@ class SentryHttpTransportTests: XCTestCase {
 
             options = Options()
             options.dsn = SentryHttpTransportTests.dsnAsString
-            fileManager = try! TestFileManager(options: options, dateProvider: currentDateProvider, dispatchQueueWrapper: dispatchQueueWrapper)
+            fileManager = try XCTUnwrap( TestFileManager(options: options, dateProvider: currentDateProvider, dispatchQueueWrapper: dispatchQueueWrapper))
 
             requestManager = TestRequestManager(session: URLSession(configuration: URLSessionConfiguration.ephemeral))
             
@@ -157,8 +157,8 @@ class SentryHttpTransportTests: XCTestCase {
     private var sut: SentryHttpTransport!
 
     override func setUpWithError() throws {
-        super.setUp()
-        fixture = Fixture()
+        try super.setUpWithError()
+        fixture = try Fixture()
         fixture.fileManager.deleteAllEnvelopes()
         fixture.requestManager.returnResponse(response: HTTPURLResponse())
 

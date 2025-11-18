@@ -109,7 +109,7 @@ class SentryVideoFrameProcessorTests: XCTestCase {
         let initialFrameIndex: Int = 0
         let initialImageSize: CGSize = CGSize(width: 200, height: 100)
 
-        init() {
+        init() throws {
             // Create test frames
             let testImagePath = FileManager.default.temporaryDirectory.appendingPathComponent("test.png")
 
@@ -121,7 +121,7 @@ class SentryVideoFrameProcessorTests: XCTestCase {
 
             currentPixelBuffer = TestSentryPixelBuffer()
             outputFileURL = FileManager.default.temporaryDirectory.appendingPathComponent("test_video.mp4")
-            videoWriter = try! TestAVAssetWriter(url: outputFileURL, fileType: .mp4)
+            videoWriter = try XCTUnwrap(TestAVAssetWriter(url: outputFileURL, fileType: .mp4))
 
             createTestImage()
         }
@@ -169,9 +169,9 @@ class SentryVideoFrameProcessorTests: XCTestCase {
 
     private var fixture: Fixture!
 
-    override func setUp() {
-        super.setUp()
-        fixture = Fixture()
+    override func setUpWithError() throws {
+        try super.setUpWithError()
+        fixture = try Fixture()
     }
 
     override func tearDown() {
