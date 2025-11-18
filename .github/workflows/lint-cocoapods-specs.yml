@@ -39,7 +39,7 @@ jobs:
     # Run the job only for PRs with related changes or non-PR events.
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_lint_cocoapods_specs_for_prs == 'true'
     needs: files-changed
-    runs-on: macos-14
+    runs-on: macos-15
     strategy:
       fail-fast: false
       matrix:
@@ -49,11 +49,12 @@ jobs:
 
     steps:
       - uses: actions/checkout@v5
-      - run: ./scripts/ci-select-xcode.sh 15.4
+      - run: ./scripts/ci-select-xcode.sh 16.4
       # We need to update the spec-repo, because it can happen that it is not up to date and then the lint fails.
       - run: pod repo update
       - name: Validate Podspec
-        run: ./scripts/pod-lib-lint.sh ${{ matrix.platform }} ${{ matrix.podspec}} ${{ matrix.library_type}}
+        #  Use --allow-warnings because cocoapods gives warnings like "warning: using '@_implementationOnly' without enabling library evolution for 'Sentry' may lead to instability during execution"
+        run: ./scripts/pod-lib-lint.sh ${{ matrix.platform }} ${{ matrix.podspec}} ${{ matrix.library_type}} --allow-warnings
       - name: Run CI Diagnostics
         if: failure()
         run: ./scripts/ci-diagnostics.sh
@@ -63,11 +64,11 @@ jobs:
     # Run the job only for PRs with related changes or non-PR events.
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_lint_cocoapods_specs_for_prs == 'true'
     needs: files-changed
-    runs-on: macos-14
+    runs-on: macos-15
 
     steps:
       - uses: actions/checkout@v5
-      - run: ./scripts/ci-select-xcode.sh 15.4
+      - run: ./scripts/ci-select-xcode.sh 16.4
       - run: pod repo update
       - name: Validate HybridPod Podspec
         run: pod lib lint ./Tests/HybridSDKTest/HybridPod.podspec --allow-warnings --verbose --platforms=ios "--include-podspecs={Sentry.podspec}"
