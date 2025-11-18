@@ -44,7 +44,8 @@ jobs:
             echo "--------------------------------"
             xcrun simctl list devices -v | grep unavailable
             echo "--------------------------------"
-            sudo killall -9 com.apple.CoreSimulator.CoreSimulatorService
+            sudo launchctl kill -9 system/com.apple.CoreSimulator.simdiskimaged || true
+            sudo pkill -9 com.apple.CoreSimulator.CoreSimulatorService || true
             sleep 20
             count=$((count + 1))
           done
