@@ -240,6 +240,7 @@ jobs:
       xcode: ${{matrix.xcode}}
       platform: ${{matrix.platform}}
       test-destination-os: ${{matrix.test-destination-os || 'latest'}}
+      timeout: 20
       create_device: ${{matrix.create_device || false}}
       install_platforms: ${{matrix.install_platforms || false}}
       device: ${{matrix.device || ''}}
