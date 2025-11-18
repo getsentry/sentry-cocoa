@@ -245,7 +245,7 @@ jobs:
       install_platforms: ${{matrix.install_platforms || false}}
       device: ${{matrix.device || ''}}
       scheme: ${{matrix.scheme || 'Sentry'}}
-      run_on_cirrus_labs: ${{ contains(matrix.runs-on, 'macos-') && false || true }}
+      run_on_cirrus_labs: ${{ !contains(matrix.runs-on, 'macos-') }}
     strategy:
       fail-fast: false
       matrix:
