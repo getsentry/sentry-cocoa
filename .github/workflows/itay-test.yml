@@ -49,10 +49,15 @@ jobs:
             fi
             echo "Waiting for devices to be available... attempt $count"
             echo "Number of unavailable devices: $unavailable_count"
-            echo "--------------------------------"
-            xcrun simctl list devices -v | grep unavailable
-            echo "--------------------------------"
+            # echo "--------------------------------"
+            # xcrun simctl list devices -v | grep unavailable
+            # echo "--------------------------------"
 
             sleep 20
             count=$((count + 1))
           done
+
+          echo "Listing devices after waiting"
+          echo "--------------------------------"
+          xcrun simctl list devices -v
+          echo "--------------------------------"
