@@ -447,7 +447,7 @@ extension SentryUserFeedbackFormViewModel {
             switch self {
             case .validationError(let missingFields):
                 let list = missingFields.count == 1 ? missingFields[0] : missingFields[0 ..< missingFields.count - 1].joined(separator: ", ") + " and " + missingFields[missingFields.count - 1]
-                return "\(formConfig.validationErrorMessage(missingFields.count > 1 )): \(list)."
+                return "\(formConfig.validationErrorMessage(missingFields.count > 1 )) \(list)."
             }
         }
     }
