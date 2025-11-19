@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Improvements
+
+- Add options to customize UserFeedback error messages (#6790)
+
 ## 9.0.0-rc.0
 
 ### Breaking Changes
@@ -73,10 +79,6 @@
 - Expose attachment type on `SentryAttachment` for downstream SDKs (like sentry-godot) (#6521)
 - Increase attachment max size to 100MB (#6537)
 - Increase maximum attachment size to 200MB (#6726)
-
-### Improvements
-
-- Add options to customize UserFeedback error messages (#6790)
 
 ## 9.0.0-alpha.1
 
