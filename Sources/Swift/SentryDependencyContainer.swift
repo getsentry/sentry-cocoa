@@ -134,7 +134,17 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     // Disable crash diagnostics as we only use it for validation of the symbolication
     // of stacktraces, because crashes are easy to trigger for MetricKit. We don't want
     // crash reports of MetricKit in production as we have SentryCrash.
-    @objc public var metricKitManager = SentryMXManager(disableCrashDiagnostics: true)
+    @objc public var _metricKitManager = SentryMXManager(disableCrashDiagnostics: true)
+
+    @available(macOS 12.0, *)
+    public var metricKitManager: SentryMXManager {
+        set {
+
+        }
+        get {
+
+        }
+    }
 #endif
 
 #if (os(iOS) || os(tvOS) || (swift(>=5.9) && os(visionOS))) && !SENTRY_NO_UIKIT
