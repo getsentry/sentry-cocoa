@@ -24,7 +24,7 @@ class DataSentryTracingIntegrationTests: XCTestCase {
             let fileManager = FileManager.default
             let tempDirUrl = URL(fileURLWithPath: NSTemporaryDirectory())
                 .appendingPathComponent("test-\(testName.hashValue.description)")
-            try! fileManager
+            try fileManager
                 .createDirectory(at: tempDirUrl, withIntermediateDirectories: true)
 
             if isSDKEnabled {

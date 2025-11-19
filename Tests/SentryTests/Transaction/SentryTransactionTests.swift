@@ -105,7 +105,7 @@ class SentryTransactionTests: XCTestCase {
         XCTAssertEqual(customUnit.unit, try XCTUnwrap(customMeasurement?["unit"] as? String))
     }
     
-    func testSerialize_Tags() {
+    func testSerialize_Tags() throws {
         // given
         let trace = fixture.getTrace()
         trace.setTag(value: fixture.testValue, key: fixture.testKey)
@@ -114,29 +114,29 @@ class SentryTransactionTests: XCTestCase {
         
         // when
         let serializedTransaction = sut.serialize()
-        let serializedTransactionTags = try! XCTUnwrap(serializedTransaction["tags"] as? [String: String])
+        let serializedTransactionTags = try XCTUnwrap(serializedTransaction["tags"] as? [String: String])
         
         // then
         XCTAssertEqual(serializedTransactionTags, [fixture.testKey: fixture.testValue])
     }
     
-    func testSerialize_shouldPreserveTagsFromScope() {
+    func testSerialize_shouldPreserveTagsFromScope() throws {
         // given
         let scope = Scope()
         scope.setTag(value: fixture.testValue, key: fixture.testKey)
         let transaction = fixture.getTransactionWith(scope: scope)
         
-        let sut = try! XCTUnwrap(scope.applyTo(event: transaction, maxBreadcrumbs: 0))
+        let sut = try XCTUnwrap(scope.applyTo(event: transaction, maxBreadcrumbs: 0))
 
         // when
         let serializedTransaction = sut.serialize()
-        let serializedTransactionTags = try! XCTUnwrap(serializedTransaction["tags"] as? [String: String])
+        let serializedTransactionTags = try XCTUnwrap(serializedTransaction["tags"] as? [String: String])
         
         // then
         XCTAssertEqual(serializedTransactionTags, [fixture.testKey: fixture.testValue])
     }
     
-    func testSerialize_shouldPreserveExtra() {
+    func testSerialize_shouldPreserveExtra() throws {
         // given
         let trace = fixture.getTrace()
         trace.setData(value: fixture.testValue, key: fixture.testKey)
@@ -145,24 +145,24 @@ class SentryTransactionTests: XCTestCase {
         
         // when
         let serializedTransaction = sut.serialize()
-        let serializedTransactionExtra = try! XCTUnwrap(serializedTransaction["extra"] as? [String: Any])
+        let serializedTransactionExtra = try XCTUnwrap(serializedTransaction["extra"] as? [String: Any])
         
         // then
         XCTAssertEqual(try XCTUnwrap(serializedTransactionExtra[fixture.testKey] as? String), fixture.testValue)
     }
     
-    func testSerialize_shouldPreserveExtraFromScope() {
+    func testSerialize_shouldPreserveExtraFromScope() throws {
         // given
         let scope = Scope()
         scope.setExtra(value: fixture.testValue, key: fixture.testKey)
         
         let transaction = fixture.getTransactionWith(scope: scope)
         
-        let sut = try! XCTUnwrap(scope.applyTo(event: transaction, maxBreadcrumbs: 0))
+        let sut = try XCTUnwrap(scope.applyTo(event: transaction, maxBreadcrumbs: 0))
 
         // when
         let serializedTransaction = sut.serialize()
-        let serializedTransactionExtra = try! XCTUnwrap(serializedTransaction["extra"] as? [String: Any])
+        let serializedTransactionExtra = try XCTUnwrap(serializedTransaction["extra"] as? [String: Any])
         
         // then
         XCTAssertEqual(try XCTUnwrap(serializedTransactionExtra[fixture.testKey] as? String), fixture.testValue)

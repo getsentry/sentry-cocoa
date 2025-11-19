@@ -516,3 +516,24 @@ run_lint_swiftlint_for_prs: &run_lint_swiftlint_for_prs
   # Build configuration
   - "Makefile"
   - "Brewfile*"
+
+run_size_analysis_for_prs: &run_size_analysis_for_prs
+  - "Sources/**"
+  - "Samples/**"
+
+  # GH Actions
+  - ".github/workflows/size-analysis.yml"
+  - ".github/file-filters.yml"
+
+  # Scripts
+  - "scripts/ci-select-xcode.sh"
+  - "scripts/ci-diagnostics.sh"
+  - "scripts/ci-utils.sh"
+
+  # Project files
+  - "Sentry.xcodeproj/**"
+  - "*.podspec"
+
+  # Build configuration
+  - "Makefile"
+  - "Brewfile*"

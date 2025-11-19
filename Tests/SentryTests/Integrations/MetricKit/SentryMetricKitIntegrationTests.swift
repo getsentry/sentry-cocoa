@@ -122,7 +122,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
             mxDelegate.didReceiveCrashDiagnostic(MXCrashDiagnostic(), callStackTree: callStackTreePerThread, timeStampBegin: timeStampBegin, timeStampEnd: timeStampEnd)
             
             try assertEventWithScopeCaptured { event, _, _ in
-                let stacktrace = try! XCTUnwrap( event?.threads?.first?.stacktrace)
+                let stacktrace = try XCTUnwrap( event?.threads?.first?.stacktrace)
                 
                 let inAppFramesCount = stacktrace.frames.filter { $0.inApp as? Bool ?? false }.count
                 
@@ -136,7 +136,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
             let sut = SentryMetricKitIntegration()
             givenInstalledWithEnabled(sut)
             
-            let mxDelegate = sut as! SentryMXManagerDelegate
+            let mxDelegate = try XCTUnwrap(sut as? SentryMXManagerDelegate)
             mxDelegate.didReceiveCpuExceptionDiagnostic(TestMXCPUExceptionDiagnostic(), callStackTree: callStackTreePerThread, timeStampBegin: timeStampBegin, timeStampEnd: timeStampEnd)
             
             assertNothingCaptured()
@@ -238,7 +238,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
                 var flattenedRootFrames = callSack.flattenedRootFrames
                 flattenedRootFrames.reverse()
                 
-                try! assertFrames(frames: flattenedRootFrames, event: event, exceptionType, exceptionValue, exceptionMechanism, handled: handled)
+                try assertFrames(frames: flattenedRootFrames, event: event, exceptionType, exceptionValue, exceptionMechanism, handled: handled)
             }
         }
     }
@@ -305,10 +305,10 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         XCTAssertEqual(frames.count, sentryFrames.count)
         
         XCTAssertEqual(1, event?.exceptions?.count)
-        let exception = try! XCTUnwrap(event?.exceptions?.first, "Event has exception.")
+        let exception = try XCTUnwrap(event?.exceptions?.first, "Event has exception.")
         XCTAssertEqual(frames.count, exception.stacktrace?.frames.count)
         
-        let exceptionFrames = try! XCTUnwrap(exception.stacktrace?.frames, "Exception has no frames.")
+        let exceptionFrames = try XCTUnwrap(exception.stacktrace?.frames, "Exception has no frames.")
     
         for i in 0..<frames.count {
             let mxFrame = frames[i]

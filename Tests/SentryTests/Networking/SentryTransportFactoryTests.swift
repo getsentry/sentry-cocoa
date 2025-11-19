@@ -19,11 +19,11 @@ class SentryTransportFactoryTests: XCTestCase {
         options.dsn = SentryTransportFactoryTests.dsnAsString
         options.urlSessionDelegate = urlSessionDelegateSpy
         
-        let fileManager = try! SentryFileManager(
+        let fileManager = try XCTUnwrap(SentryFileManager(
             options: options,
             dateProvider: dateProvider,
             dispatchQueueWrapper: TestSentryDispatchQueueWrapper()
-        )
+        ))
 
         // -- Act --
         let transports = TransportInitializer.initTransports(
@@ -59,11 +59,11 @@ class SentryTransportFactoryTests: XCTestCase {
         options.dsn = SentryTransportFactoryTests.dsnAsString
         options.urlSession = sessionConfiguration
         
-        let fileManager = try! SentryFileManager(
+        let fileManager = try XCTUnwrap(SentryFileManager(
             options: options,
             dateProvider: dateProvider,
             dispatchQueueWrapper: TestSentryDispatchQueueWrapper()
-        )
+        ))
 
         // -- Act --
         let transports = TransportInitializer.initTransports(

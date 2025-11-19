@@ -201,3 +201,4 @@ xcode-ci:
 	xcodegen --spec TestSamples/SwiftUITestSample/SwiftUITestSample.yml
 	xcodegen --spec TestSamples/SwiftUICrashTest/SwiftUICrashTest.yml
 	xcodegen --spec Samples/DistributionSample/DistributionSample.yml
+	xcodegen --spec Samples/SDK-Size/SDK-Size.yml
