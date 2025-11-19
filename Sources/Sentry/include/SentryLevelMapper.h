@@ -1,4 +1,5 @@
 #import "SentryDefines.h"
+#import "SentryLevel.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

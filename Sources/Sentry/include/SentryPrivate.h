@@ -43,7 +43,6 @@
 #import "SentryDeviceContextKeys.h"
 #import "SentryFileIOTrackerHelper.h"
 #import "SentryFileManagerHelper.h"
-#import "SentryLevelHelper.h"
 #import "SentryMeta.h"
 #import "SentryMsgPackSerializer.h"
 #import "SentryNSDictionarySanitize.h"

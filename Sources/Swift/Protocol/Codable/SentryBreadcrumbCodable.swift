@@ -26,7 +26,7 @@ extension BreadcrumbDecodable: Decodable {
         
         let rawLevel = try container.decode(String.self, forKey: .level)
         let level = SentryLevelHelper.levelForName(rawLevel)
-        SentryLevelBridge.setBreadcrumbLevel(self, level: level.rawValue)
+        self.level = level
         
         self.category = try container.decode(String.self, forKey: .category)
         self.timestamp = try container.decodeIfPresent(Date.self, forKey: .timestamp)

@@ -13,6 +13,8 @@ struct SPMTestApp: App {
     SentrySDK.start(options: options)
     let user = User()
     SentrySDK.setUser(user)
+    let breadcrumb = Breadcrumb(level: .error, category: "test")
+    SentrySDK.addBreadcrumb(breadcrumb)
   }
 
     var body: some Scene {
