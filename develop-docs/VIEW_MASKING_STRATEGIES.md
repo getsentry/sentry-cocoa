@@ -62,10 +62,10 @@ These distinctions matter for masking: to match what the user actually sees, our
 
 ## View Hierarchy & Layer Tree-Based Redaction
 
-> ![INFO]
+> [!INFO]
 > As of Nov 13th, 2025, this is the default implementation for identifying which areas of a view hierarchy should be masked during screenshot or session replay capture.
 
-The `SentryUIRedactBuilder` is the current default implementation for identifying which areas of a view hierarchy should be masked during screenshot or session replay capture.
+The [`SentryUIRedactBuilder`](https://github.com/getsentry/sentry-cocoa/blob/5fcb6a13262573efea7b9d1135209dae9d5d8d74/Sources/Swift/Core/Tools/ViewCapture/SentryUIRedactBuilder.swift) is the current default implementation for identifying which areas of a view hierarchy should be masked during screenshot or session replay capture.
 It is highly configurable and built to handle both UIKit and modern hybrid/SwiftUI scenarios, minimizing risk of privacy leaks while reducing the chance of costly masking mistakes (such as over-masking backgrounds or missing PII embedded in complex render trees).
 
 Some of the key features of the `SentryUIRedactBuilder` are:
@@ -91,7 +91,7 @@ The builder supports:
 
 ### Layer Tree Traversal & Presentation-State Geometry
 
-The redaction builder walks the Core Animation layer tree (as described in the "View Hierarchies on iOS" section above), not just the UIKit `subviews`, to match real-time, animated geometry. This allows the builder to correctly handle views that are hidden, alpha-transparent, or have a non-zero frame size, and also cases where views use multiple layers.
+The redaction builder walks the Core Animation layer tree (as described in the [View Hierarchies on iOS](#view-hierarchies-on-ios) section above), not just the UIKit `subviews`, to match real-time, animated geometry. This allows the builder to correctly handle views that are hidden, alpha-transparent, or have a non-zero frame size, and also cases where views use multiple layers.
 
 Each view's masking eligibility is checked not only based on its type but, when necessary, with a secondary filter on the underlying `CALayer` type. This allows disambiguation for cases like SwiftUI rendering, where the same view class serves both as a text/image renderer and as a generic structural element.
 
@@ -578,9 +578,17 @@ Due to these limitations, this approach is not feasible for the Sentry SDK. It w
 
 Machine learning-based masking analyzes the actual pixel content of screenshots rather than relying on view hierarchy metadata. This approach is particularly valuable for detecting sensitive content in SwiftUI views, custom drawing, hybrid apps, and dynamic content that may not be discoverable through view traversal alone. Additionally, ML-based detection can identify sensitive content during view transitions and animations, which is a common issue with the view hierarchy approach where views may be in intermediate states or partially rendered during transitions. The implementation uses a YOLO-style object detection model trained to identify various types of sensitive UI elements (text fields, labels, images, buttons, etc.) directly from pixel data.
 
+**YOLO-style object detection model:**
+
+YOLO (“You Only Look Once”) is a real-time object detection approach that predicts all bounding boxes and class probabilities in a single forward pass. It divides the image into a grid, and each grid cell directly outputs box coordinates, objectness, and class scores.
+
+Because it avoids multi-stage region proposal pipelines, YOLO is extremely fast and well-suited for GPU and edge hardware
+
+It’s widely used for applications that demand real-time performance, such as robotics, drones, and mobile vision systems.
+
 ### Framework Selection
 
-The first implementation should use Apple's Vision framework as the primary interface. Vision provides optimized image preprocessing, automatic handling of device orientation, integration with CoreML's Neural Engine acceleration, and standardized coordinate system transformations. If Vision framework limitations are encountered, the implementation can fall back to using CoreML directly for more granular control over model inference and preprocessing.
+The first implementation should use [Apple's Vision framework](https://developer.apple.com/documentation/vision) as the primary interface. Vision provides optimized image preprocessing, automatic handling of device orientation, integration with CoreML's Neural Engine acceleration, and standardized coordinate system transformations. If Vision framework limitations are encountered, the implementation can fall back to using CoreML directly for more granular control over model inference and preprocessing.
 
 ### Background Processing
 
@@ -774,6 +782,8 @@ To enable domain-specific optimization, a repository with training setup will be
 - Models trained specifically on credit card forms, account numbers, and financial data patterns for banking apps
 - Models optimized for medical record numbers, patient information, and HIPAA-sensitive content for healthcare apps
 - Models focused on payment forms, shipping addresses, and order details for e-commerce apps
+
+But, this approach could lead to more variations of SDK usage, making it harder to debug and support.
 
 ### Hybrid Approach: Combining Deterministic and ML Detection
 
