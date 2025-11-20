@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Add attributes data to `SentryScope` (#6830)
+
 ## 9.0.0-rc.0
 
 ### Breaking Changes
