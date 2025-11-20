@@ -126,16 +126,6 @@
       },
       {
         "kind": "Import",
-        "name": "Sentry.SentryFeedbackAPI",
-        "printedName": "Sentry.SentryFeedbackAPI",
-        "declKind": "Import",
-        "moduleName": "Sentry",
-        "declAttributes": [
-          "Exported"
-        ]
-      },
-      {
-        "kind": "Import",
         "name": "Sentry.SentryFrame",
         "printedName": "Sentry.SentryFrame",
         "declKind": "Import",
@@ -18713,167 +18703,6 @@
       },
       {
         "kind": "TypeDecl",
-        "name": "SentryFeedbackAPI",
-        "printedName": "SentryFeedbackAPI",
-        "children": [
-          {
-            "kind": "Function",
-            "name": "showWidget",
-            "printedName": "showWidget()",
-            "children": [
-              {
-                "kind": "TypeNameAlias",
-                "name": "Void",
-                "printedName": "Swift.Void",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Void",
-                    "printedName": "()"
-                  }
-                ]
-              }
-            ],
-            "declKind": "Func",
-            "usr": "c:objc(cs)SentryFeedbackAPI(im)showWidget",
-            "moduleName": "Sentry",
-            "isOpen": true,
-            "objc_name": "showWidget",
-            "declAttributes": [
-              "ObjC",
-              "Dynamic"
-            ],
-            "funcSelfKind": "NonMutating"
-          },
-          {
-            "kind": "Function",
-            "name": "hideWidget",
-            "printedName": "hideWidget()",
-            "children": [
-              {
-                "kind": "TypeNameAlias",
-                "name": "Void",
-                "printedName": "Swift.Void",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Void",
-                    "printedName": "()"
-                  }
-                ]
-              }
-            ],
-            "declKind": "Func",
-            "usr": "c:objc(cs)SentryFeedbackAPI(im)hideWidget",
-            "moduleName": "Sentry",
-            "isOpen": true,
-            "objc_name": "hideWidget",
-            "declAttributes": [
-              "ObjC",
-              "Dynamic"
-            ],
-            "funcSelfKind": "NonMutating"
-          },
-          {
-            "kind": "Constructor",
-            "name": "init",
-            "printedName": "init()",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "SentryFeedbackAPI",
-                "printedName": "Sentry.SentryFeedbackAPI",
-                "usr": "c:objc(cs)SentryFeedbackAPI"
-              }
-            ],
-            "declKind": "Constructor",
-            "usr": "c:objc(cs)NSObject(im)init",
-            "moduleName": "Sentry",
-            "overriding": true,
-            "implicit": true,
-            "objc_name": "init",
-            "declAttributes": [
-              "Override",
-              "ObjC",
-              "Dynamic"
-            ],
-            "init_kind": "Designated"
-          }
-        ],
-        "declKind": "Class",
-        "usr": "c:objc(cs)SentryFeedbackAPI",
-        "moduleName": "Sentry",
-        "isOpen": true,
-        "objc_name": "SentryFeedbackAPI",
-        "declAttributes": [
-          "ObjC",
-          "Dynamic"
-        ],
-        "superclassUsr": "c:objc(cs)NSObject",
-        "inheritsConvenienceInitializers": true,
-        "superclassNames": [
-          "ObjectiveC.NSObject"
-        ],
-        "conformances": [
-          {
-            "kind": "Conformance",
-            "name": "Copyable",
-            "printedName": "Copyable",
-            "usr": "s:s8CopyableP",
-            "mangledName": "$ss8CopyableP"
-          },
-          {
-            "kind": "Conformance",
-            "name": "Escapable",
-            "printedName": "Escapable",
-            "usr": "s:s9EscapableP",
-            "mangledName": "$ss9EscapableP"
-          },
-          {
-            "kind": "Conformance",
-            "name": "NSObjectProtocol",
-            "printedName": "NSObjectProtocol",
-            "usr": "c:objc(pl)NSObject"
-          },
-          {
-            "kind": "Conformance",
-            "name": "Equatable",
-            "printedName": "Equatable",
-            "usr": "s:SQ",
-            "mangledName": "$sSQ"
-          },
-          {
-            "kind": "Conformance",
-            "name": "Hashable",
-            "printedName": "Hashable",
-            "usr": "s:SH",
-            "mangledName": "$sSH"
-          },
-          {
-            "kind": "Conformance",
-            "name": "CVarArg",
-            "printedName": "CVarArg",
-            "usr": "s:s7CVarArgP",
-            "mangledName": "$ss7CVarArgP"
-          },
-          {
-            "kind": "Conformance",
-            "name": "CustomStringConvertible",
-            "printedName": "CustomStringConvertible",
-            "usr": "s:s23CustomStringConvertibleP",
-            "mangledName": "$ss23CustomStringConvertibleP"
-          },
-          {
-            "kind": "Conformance",
-            "name": "CustomDebugStringConvertible",
-            "printedName": "CustomDebugStringConvertible",
-            "usr": "s:s28CustomDebugStringConvertibleP",
-            "mangledName": "$ss28CustomDebugStringConvertibleP"
-          }
-        ]
-      },
-      {
-        "kind": "TypeDecl",
         "name": "SentryFeedbackSource",
         "printedName": "SentryFeedbackSource",
         "children": [
@@ -36630,6 +36459,152 @@
       },
       {
         "kind": "TypeDecl",
+        "name": "SentryFeedbackAPI",
+        "printedName": "SentryFeedbackAPI",
+        "children": [
+          {
+            "kind": "Function",
+            "name": "showWidget",
+            "printedName": "showWidget()",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "c:@M@Sentry@objc(cs)SentryFeedbackAPI(im)showWidget",
+            "mangledName": "$s6Sentry0A11FeedbackAPIC10showWidgetyyF",
+            "moduleName": "Sentry",
+            "declAttributes": [
+              "Final",
+              "ObjC",
+              "Available"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "hideWidget",
+            "printedName": "hideWidget()",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "c:@M@Sentry@objc(cs)SentryFeedbackAPI(im)hideWidget",
+            "mangledName": "$s6Sentry0A11FeedbackAPIC10hideWidgetyyF",
+            "moduleName": "Sentry",
+            "declAttributes": [
+              "Final",
+              "ObjC",
+              "Available"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init()",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "SentryFeedbackAPI",
+                "printedName": "Sentry.SentryFeedbackAPI",
+                "usr": "c:@M@Sentry@objc(cs)SentryFeedbackAPI"
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "c:@M@Sentry@objc(cs)SentryFeedbackAPI(im)init",
+            "mangledName": "$s6Sentry0A11FeedbackAPICACycfc",
+            "moduleName": "Sentry",
+            "overriding": true,
+            "objc_name": "init",
+            "declAttributes": [
+              "ObjC",
+              "Dynamic",
+              "Override"
+            ],
+            "init_kind": "Designated"
+          }
+        ],
+        "declKind": "Class",
+        "usr": "c:@M@Sentry@objc(cs)SentryFeedbackAPI",
+        "mangledName": "$s6Sentry0A11FeedbackAPIC",
+        "moduleName": "Sentry",
+        "declAttributes": [
+          "Final",
+          "ObjC"
+        ],
+        "superclassUsr": "c:objc(cs)NSObject",
+        "inheritsConvenienceInitializers": true,
+        "superclassNames": [
+          "ObjectiveC.NSObject"
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "NSObjectProtocol",
+            "printedName": "NSObjectProtocol",
+            "usr": "c:objc(pl)NSObject"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Equatable",
+            "printedName": "Equatable",
+            "usr": "s:SQ",
+            "mangledName": "$sSQ"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Hashable",
+            "printedName": "Hashable",
+            "usr": "s:SH",
+            "mangledName": "$sSH"
+          },
+          {
+            "kind": "Conformance",
+            "name": "CVarArg",
+            "printedName": "CVarArg",
+            "usr": "s:s7CVarArgP",
+            "mangledName": "$ss7CVarArgP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "CustomStringConvertible",
+            "printedName": "CustomStringConvertible",
+            "usr": "s:s23CustomStringConvertibleP",
+            "mangledName": "$ss23CustomStringConvertibleP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "CustomDebugStringConvertible",
+            "printedName": "CustomDebugStringConvertible",
+            "usr": "s:s28CustomDebugStringConvertibleP",
+            "mangledName": "$ss28CustomDebugStringConvertibleP"
+          }
+        ]
+      },
+      {
+        "kind": "TypeDecl",
         "name": "SentryReplayOptions",
         "printedName": "SentryReplayOptions",
         "children": [
@@ -42155,12 +42130,12 @@
                 "kind": "TypeNominal",
                 "name": "SentryFeedbackAPI",
                 "printedName": "Sentry.SentryFeedbackAPI",
-                "usr": "c:objc(cs)SentryFeedbackAPI"
+                "usr": "c:@M@Sentry@objc(cs)SentryFeedbackAPI"
               }
             ],
             "declKind": "Var",
             "usr": "c:@M@Sentry@objc(cs)SentrySDK(cpy)feedback",
-            "mangledName": "$s6Sentry0A3SDKC8feedbackSo0A11FeedbackAPICvpZ",
+            "mangledName": "$s6Sentry0A3SDKC8feedbackAA0A11FeedbackAPICvpZ",
             "moduleName": "Sentry",
             "static": true,
             "declAttributes": [
@@ -42180,12 +42155,12 @@
                     "kind": "TypeNominal",
                     "name": "SentryFeedbackAPI",
                     "printedName": "Sentry.SentryFeedbackAPI",
-                    "usr": "c:objc(cs)SentryFeedbackAPI"
+                    "usr": "c:@M@Sentry@objc(cs)SentryFeedbackAPI"
                   }
                 ],
                 "declKind": "Accessor",
                 "usr": "c:@M@Sentry@objc(cs)SentrySDK(cm)feedback",
-                "mangledName": "$s6Sentry0A3SDKC8feedbackSo0A11FeedbackAPICvgZ",
+                "mangledName": "$s6Sentry0A3SDKC8feedbackAA0A11FeedbackAPICvgZ",
                 "moduleName": "Sentry",
                 "static": true,
                 "implicit": true,
