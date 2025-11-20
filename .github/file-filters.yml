@@ -39,6 +39,7 @@ run_unit_tests_for_prs: &run_unit_tests_for_prs
   - "scripts/start-test-server.sh"
   - "scripts/tests-with-thread-sanitizer.sh"
   - "scripts/ci-boot-simulator.sh"
+  - "scripts/ci-ensure-runtime-loaded.sh"
 
   # Test infrastructure
   - "test-server/**"
@@ -450,6 +451,7 @@ run_ui_tests_for_prs: &run_ui_tests_for_prs
   - "scripts/assemble-xcframework.sh"
   - "scripts/ci-diagnostics.sh"
   - "scripts/ci-utils.sh"
+  - "scripts/ci-ensure-runtime-loaded.sh"
 
   # Test plans
   - "**/*.xctestplan"
@@ -485,6 +487,7 @@ run_ui_tests_critical_for_prs: &run_ui_tests_critical_for_prs
   - "scripts/ci-select-xcode.sh"
   - "scripts/ci-diagnostics.sh"
   - "scripts/ci-utils.sh"
+  - "scripts/ci-ensure-runtime-loaded.sh"
 
   # Build configuration
   - "fastlane/**"
