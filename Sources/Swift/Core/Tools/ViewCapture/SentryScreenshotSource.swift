@@ -16,7 +16,7 @@ import UIKit
         assertionFailure("Use init(photographer:) instead")
         self.init(photographer: SentryViewPhotographer(
             renderer: SentryDefaultViewRenderer(),
-            redactBuilder: SentryUIRedactBuilder(options: SentryRedactDefaultOptions()),
+            redactOptions: SentryRedactDefaultOptions(),
             enableMaskRendererV2: false
         ))
     }

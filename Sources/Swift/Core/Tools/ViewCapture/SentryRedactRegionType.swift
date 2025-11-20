@@ -2,9 +2,6 @@ public enum SentryRedactRegionType: String, Codable, Equatable {
     /// Redacts the region.
     case redact = "redact"
 
-    /// Redacts the region by drawing an outline only
-    case redactOutline = "redact_outline"
-
     /// Marks a region to not draw anything.
     /// This is used for opaque views.
     case clipOut = "clip_out"

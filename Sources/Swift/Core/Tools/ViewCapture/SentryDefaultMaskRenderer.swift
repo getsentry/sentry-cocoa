@@ -36,19 +36,13 @@ class SentryDefaultMaskRenderer: NSObject, SentryMaskRenderer {
             defer { latestRegion = region }
 
             switch region.type {
-            case .redact, .redactSwiftUI, .redactOutline:
+            case .redact, .redactSwiftUI:
                 // This early return is to avoid masking the same exact area in row,
                 // something that is very common in SwiftUI and can impact performance.
                 guard latestRegion?.canReplace(as: region) != true && imageRect.intersects(path.boundingBoxOfPath) else { continue }
                 (region.color ?? UIImageHelper.averageColor(of: context.currentImage, at: rect.applying(region.transform))).setFill()
                 context.cgContext.addPath(path)
-                if case SentryRedactRegionType.redactOutline = region.type {
-                    context.cgContext.setLineWidth(2)
-                    context.cgContext.strokePath()
-                    context.cgContext.setLineWidth(0)
-                } else {
-                    context.cgContext.fillPath()
-                }
+                context.cgContext.fillPath()
             case .clipOut:
                 clipOutPath.addPath(path)
                 self.updateClipping(for: context.cgContext,

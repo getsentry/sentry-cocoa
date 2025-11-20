@@ -29,17 +29,6 @@ public final class SentryExperimentalOptions: NSObject {
      */
     public var enableSessionReplayInUnreliableEnvironment = false
 
-    /**
-     * The strategy to use for masking the session replay.
-     *
-     * - Note: The default strategy is `viewHierarchy`.
-     *
-     * - Important: This flag allows to change the strategy to use for masking the session replay.
-     *
-     * - Note: See [GitHub issues #6389](https://github.com/getsentry/sentry-cocoa/issues/6389) for more information.
-     */
-    public var sessionReplayMaskingStrategy: SentrySessionReplayMaskingStrategy = .viewHierarchy
-
     @_spi(Private) public func validateOptions(_ options: [String: Any]?) {
     }
 }

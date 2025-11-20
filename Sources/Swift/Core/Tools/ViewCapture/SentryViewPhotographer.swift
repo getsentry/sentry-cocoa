@@ -8,7 +8,7 @@ import UIKit
 
 @objcMembers
 @_spi(Private) public class SentryViewPhotographer: NSObject, SentryViewScreenshotProvider {
-    private let redactBuilder: SentryRedactBuilderProtocol
+    private let redactBuilder: SentryUIRedactBuilder
     private let maskRenderer: SentryMaskRenderer
     private let dispatchQueue = SentryDispatchQueueWrapper()
 
@@ -18,17 +18,18 @@ import UIKit
     ///
     /// - Parameters:
     ///   - renderer: Implementation of the view renderer.
-    ///   - redactBuilder: Implementation of the redact builder
+    ///   - redactOptions: Options provided to redact sensitive information.
+    ///   - enableMaskRendererV2: Flag to enable experimental view renderer.
     /// - Note: The option `enableMaskRendererV2` is an internal flag, which is not part of the public API.
     ///         Therefore, it is not part of the the `redactOptions` parameter, to not further expose it.
     public init(
         renderer: SentryViewRenderer,
-        redactBuilder: SentryRedactBuilderProtocol,
+        redactOptions: SentryRedactOptions,
         enableMaskRendererV2: Bool
     ) {
         self.renderer = renderer
         self.maskRenderer = enableMaskRendererV2 ? SentryMaskRendererV2() : SentryDefaultMaskRenderer()
-        self.redactBuilder = redactBuilder
+        redactBuilder = SentryUIRedactBuilder(options: redactOptions)
         super.init()
     }
 
@@ -36,39 +37,28 @@ import UIKit
         // Define a helper variable for the size, so the view is not accessed in the async block
         let viewSize = view.bounds.size
 
+        // The redact regions are expected to be thread-safe data structures
+        let redactRegions = redactBuilder.redactRegionsFor(view: view)
+
         // The render method is synchronous and must be called on the main thread.
         // This is because the render method accesses the view hierarchy which is managed from the main thread.
         let renderedScreenshot = renderer.render(view: view)
 
-        // The redact regions are expected to be thread-safe data structures
-        redactBuilder
-            .redactRegionsFor(view: view, image: renderedScreenshot) { [dispatchQueue, maskRenderer] (redactRegions: [SentryRedactRegion]?, error: Error?) in
-                if let error = error {
-                    print(error)
-                }
-                dispatchQueue.dispatchAsync { [maskRenderer] in
-                    // The mask renderer does not need to be on the main thread.
-                    // Moving it to a background thread to avoid blocking the main thread, therefore reducing the performance
-                    // impact/lag of the user interface.
-                    let maskedScreenshot = maskRenderer.maskScreenshot(screenshot: renderedScreenshot, size: viewSize, masking: redactRegions ?? [])
+        dispatchQueue.dispatchAsync { [maskRenderer] in
+            // The mask renderer does not need to be on the main thread.
+            // Moving it to a background thread to avoid blocking the main thread, therefore reducing the performance
+            // impact/lag of the user interface.
+            let maskedScreenshot = maskRenderer.maskScreenshot(screenshot: renderedScreenshot, size: viewSize, masking: redactRegions)
 
-                    onComplete(maskedScreenshot)
-                }
-            }
+            onComplete(maskedScreenshot)
+        }
     }
 
     public func image(view: UIView) -> UIImage {
         let viewSize = view.bounds.size
+        let redactRegions = redactBuilder.redactRegionsFor(view: view)
         let renderedScreenshot = renderer.render(view: view)
-        let dispatchGroup = DispatchGroup()
-        var redactRegions: [SentryRedactRegion]?
-        redactBuilder.redactRegionsFor(view: view, image: renderedScreenshot, callback: { regions, _ in
-            redactRegions = regions
-            dispatchGroup.leave()
-        })
-        dispatchGroup.enter()
-        dispatchGroup.wait()
-        let maskedScreenshot = maskRenderer.maskScreenshot(screenshot: renderedScreenshot, size: viewSize, masking: redactRegions ?? [])
+        let maskedScreenshot = maskRenderer.maskScreenshot(screenshot: renderedScreenshot, size: viewSize, masking: redactRegions)
 
         return maskedScreenshot
     }
