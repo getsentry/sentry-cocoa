@@ -738,7 +738,7 @@ Device orientation changes add another layer of complexity:
 
 **Known Issues:**
 
-During initial testing, generated output geometry did not work correctly when using a real device, requiring additional debugging and coordinate system validation. The implementation uses Vision framework's coordinate normalization to help mitigate these issues, but careful testing across device types and orientations is essential.
+During initial testing, generated output geometry did not match the actual screenshot when using a real device, requiring additional debugging and coordinate system validation. The implementation uses Vision framework's coordinate normalization to help mitigate these issues, but careful testing across device types and orientations is essential.
 
 ### Performance Characteristics
 
