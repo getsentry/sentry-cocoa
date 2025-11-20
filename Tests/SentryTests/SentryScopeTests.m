@@ -137,4 +137,44 @@
     XCTAssertEqualObjects([[scope serialize] objectForKey:@"replay_id"], expectedReplayId);
 }
 
+- (void)testSetStringAttribute
+{
+    SentryScope *scope = [[SentryScope alloc] init];
+    [scope setAttributeValue:@"test-string" forKey:@"a-string-key"];
+    XCTAssertEqualObjects([scope attributes][@"a-string-key"], @"test-string");
+}
+
+- (void)testSetBoolAttribute
+{
+    SentryScope *scope = [[SentryScope alloc] init];
+    [scope setAttributeValue:@(true) forKey:@"a-bool-key"];
+    [scope setAttributeValue:@(false) forKey:@"a-bool-key-false"];
+    XCTAssertEqualObjects([scope attributes][@"a-bool-key"], @(true));
+    XCTAssertEqualObjects([scope attributes][@"a-bool-key-false"], @(false));
+}
+
+- (void)testSetDoubleAttribute
+{
+    SentryScope *scope = [[SentryScope alloc] init];
+    [scope setAttributeValue:@(1.4728) forKey:@"a-double-key"];
+    XCTAssertEqualObjects([scope attributes][@"a-double-key"], @(1.4728));
+}
+
+- (void)testSetIntegerAttribute
+{
+    SentryScope *scope = [[SentryScope alloc] init];
+    [scope setAttributeValue:@(4) forKey:@"an-integer-key"];
+    XCTAssertEqualObjects([scope attributes][@"an-integer-key"], @(4));
+}
+
+- (void)testRemoveAttribute
+{
+    SentryScope *scope = [[SentryScope alloc] init];
+    [scope setAttributeValue:@"test-string" forKey:@"a-key"];
+    XCTAssertEqualObjects([scope attributes][@"a-key"], @"test-string");
+
+    [scope removeAttributeForKey:@"a-key"];
+    XCTAssertEqualObjects([scope attributes][@"a-key"], nil);
+}
+
 @end

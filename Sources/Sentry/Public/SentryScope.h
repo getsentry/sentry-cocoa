@@ -40,6 +40,11 @@ NS_SWIFT_NAME(Scope)
  */
 @property (nonatomic, readonly, copy) NSDictionary<NSString *, NSString *> *tags;
 
+/**
+ * Gets the dictionary of currently set attributes.
+ */
+@property (nonatomic, readonly, copy) NSDictionary<NSString *, id> *attributes;
+
 - (instancetype)initWithMaxBreadcrumbs:(NSInteger)maxBreadcrumbs NS_DESIGNATED_INITIALIZER;
 - (instancetype)init;
 - (instancetype)initWithScope:(SentryScope *)scope;
@@ -135,6 +140,17 @@ NS_SWIFT_NAME(Scope)
  * @param attachment The attachment to add to the Scope's list of attachments.
  */
 - (void)addAttachment:(SentryAttachment *)attachment NS_SWIFT_NAME(addAttachment(_:));
+
+/**
+ * Set global attributes. Attributes are searchable key/value string pairs attached to every log
+ * message.
+ */
+- (void)setAttributeValue:(id)value forKey:(NSString *)key NS_SWIFT_NAME(setAttribute(value:key:));
+
+/**
+ * Remove the attribute for the specified key.
+ */
+- (void)removeAttributeForKey:(NSString *)key NS_SWIFT_NAME(removeAttribute(key:));
 
 /**
  * Clears all attachments in the scope.
