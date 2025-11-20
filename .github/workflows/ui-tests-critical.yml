@@ -102,13 +102,6 @@ jobs:
         shell: bash
         run: ./scripts/ci-enable-permissions.sh
 
-      - name: Ensure required runtime is loaded
-        # Ideally we will not need this, but CI sometimes is failing to load some runtimes, this will ensure they are loaded
-        timeout-minutes: 5 # 5 minutes timeout
-        env:
-          OS_VERSION: ${{ inputs.test-destination-os }}
-        run: ./scripts/ci-ensure-runtime-loaded.sh --os-version "$OS_VERSION"
-
       - name: Boot simulator
         run: ./scripts/ci-boot-simulator.sh
 
