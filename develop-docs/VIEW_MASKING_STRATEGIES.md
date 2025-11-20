@@ -13,7 +13,7 @@ While UIKit exposes rich view metadata, SwiftUI does not, therefore we need to m
 
 ### Goals
 
-- Detect and mask sensitive regions without requiring app developer annotations.
+- Detect and mask sensitive regions without requiring app developer annotations, such as a SwiftUI modifier `.sentryReplayMask()` ([Relevant Docs](https://docs.sentry.io/platforms/apple/guides/ios/session-replay/customredact/#swiftui))
 - Support UIKit, SwiftUI, and mixed apps incl. hybrid apps built with React Native.
 - Minimize maintenance cost across OS updates and new UI frameworks.
 - Keep performance overhead low and predictable.
@@ -22,7 +22,7 @@ While UIKit exposes rich view metadata, SwiftUI does not, therefore we need to m
 
 - No private APIs in production App Store builds.
 - No dependence on globally toggled system services (e.g., VoiceOver) in production.
-- Work reliably in background-capable scenarios and during animations (e.g., during view transitions).
+- Work reliably during transitions and animations (also when using snapshot placeholder views).
 - Capture edge-cases such as frames taken during view transitions.
 - Be configurable via user-provided include/exclude class lists.
 
