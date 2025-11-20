@@ -1,3 +1,4 @@
+// swiftlint:disable file_length
 @_spi(Private) import Sentry
 import SentryTestUtils
 import XCTest
@@ -62,6 +63,8 @@ class SentryScopeSwiftTests: XCTestCase {
             scope.addBreadcrumb(breadcrumb)
             
             scope.addAttachment(TestData.fileAttachment)
+            
+            scope.setAttribute(value: "my-value", key: "my-attribute-key")
             
             event = Event()
             event.message = SentryMessage(formatted: "message")
@@ -131,6 +134,7 @@ class SentryScopeSwiftTests: XCTestCase {
         XCTAssertEqual(try XCTUnwrap(cloned.serialize() as? [String: AnyHashable]), snapshot)
         XCTAssertEqual(scope.propagationContext.spanId, cloned.propagationContext.spanId)
         XCTAssertEqual(scope.propagationContext.traceId, cloned.propagationContext.traceId)
+        XCTAssertEqual(scope.attributes as NSDictionary, cloned.attributes as NSDictionary)
 
         let (event1, event2) = (Event(), Event())
         (event1.timestamp, event2.timestamp) = (fixture.date, fixture.date)
@@ -358,6 +362,7 @@ class SentryScopeSwiftTests: XCTestCase {
         let expected = Scope(maxBreadcrumbs: fixture.maxBreadcrumbs)
         XCTAssertEqual(expected, scope)
         XCTAssertEqual(0, scope.attachments.count)
+        XCTAssertEqual(0, scope.attributes.count)
     }
     
     func testAttachmentsIsACopy() {
@@ -856,6 +861,50 @@ class SentryScopeSwiftTests: XCTestCase {
         // -- Assert --
         XCTAssertNil(actualSpan)
     }
+    
+    func testSetStringAttribute() {
+        let scope = Scope()
+        
+        scope.setAttribute(value: "test-string", key: "a-string-key")
+        
+        XCTAssertEqual(try XCTUnwrap(scope.attributes["a-string-key"] as? String), "test-string")
+    }
+
+    func testSetBoolAttribute() {
+        let scope = Scope()
+        
+        scope.setAttribute(value: true, key: "a-bool-key")
+        scope.setAttribute(value: false, key: "a-bool-key-false")
+
+        XCTAssertEqual(try XCTUnwrap(scope.attributes["a-bool-key-false"] as? Bool), false)
+        XCTAssertEqual(try XCTUnwrap(scope.attributes["a-bool-key"] as? Bool), true)
+    }
+
+    func testSetDoubleAttribute() {
+        let scope = Scope()
+        
+        scope.setAttribute(value: 1.4728, key: "a-double-key")
+        
+        XCTAssertEqual(try XCTUnwrap(scope.attributes["a-double-key"] as? Double), 1.4728)
+    }
+
+    func testSetIntegerAttribute() {
+        let scope = Scope()
+        
+        scope.setAttribute(value: 4, key: "an-integer-key")
+        
+        XCTAssertEqual(try XCTUnwrap(scope.attributes["an-integer-key"] as? Int), 4)
+    }
+
+    func testRemoveAttribute() {
+        let scope = Scope()
+        
+        scope.setAttribute(value: "test-string", key: "a-key")
+        
+        scope.removeAttribute(key: "a-key")
+
+        XCTAssertNil(scope.attributes["a-key"])
+    }
 
     private class TestScopeObserver: NSObject, SentryScopeObserver {
         var tags: [String: String]?
@@ -965,3 +1014,4 @@ private final class NotOfTypeSpan: NSObject, Span {
 }
 
 private final class SubClassOfSentrySpan: SentrySpan {}
+// swiftlint:enable file_length

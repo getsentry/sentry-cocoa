@@ -144,11 +144,14 @@ NS_SWIFT_NAME(Scope)
 /**
  * Set global attributes. Attributes are searchable key/value string pairs attached to every log
  * message.
+ * @param value Supported values are string, integers, boolean and double
+ * @param key The key to store, cannot be an empty string
  */
 - (void)setAttributeValue:(id)value forKey:(NSString *)key NS_SWIFT_NAME(setAttribute(value:key:));
 
 /**
  * Remove the attribute for the specified key.
+ * @param key The key to remove
  */
 - (void)removeAttributeForKey:(NSString *)key NS_SWIFT_NAME(removeAttribute(key:));
 

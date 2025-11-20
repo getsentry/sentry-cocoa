@@ -76,6 +76,7 @@ NS_ASSUME_NONNULL_BEGIN
         [_breadcrumbArray addObjectsFromArray:crumbs];
         [_fingerprintArray addObjectsFromArray:[scope fingerprints]];
         [_attachmentArray addObjectsFromArray:[scope attachments]];
+        [_attributesDictionary addEntriesFromDictionary:[scope attributes]];
 
         self.propagationContext = scope.propagationContext;
         self.maxBreadcrumbs = scope.maxBreadcrumbs;
@@ -192,6 +193,9 @@ NS_ASSUME_NONNULL_BEGIN
     [self clearAttachments];
     @synchronized(_spanLock) {
         _span = nil;
+    }
+    @synchronized(_attributesDictionary) {
+        [_attributesDictionary removeAllObjects];
     }
 
     self.userObject = nil;
@@ -469,6 +473,42 @@ NS_ASSUME_NONNULL_BEGIN
     }
 }
 
+- (NSDictionary<NSString *, id> *)attributes
+{
+    @synchronized(_attributesDictionary) {
+        return _attributesDictionary.copy;
+    }
+}
+
+- (void)setAttributeValue:(id)value forKey:(NSString *)key
+{
+    if (key == nil || key.length == 0) {
+        SENTRY_LOG_ERROR(@"Attribute's key cannot be nil nor empty");
+        return;
+    }
+
+    @synchronized(_attributesDictionary) {
+        _attributesDictionary[key] = value;
+
+        // ScopeObservers are not called since at this moment attributes are only used for Logs,
+        // which are stored in memory, thus do not need to be stored in processor like
+        // WatchdogTermination events do. Attributes might be added to Crashes in a later time,
+        // which will need to revisit this.
+    }
+}
+
+- (void)removeAttributeForKey:(NSString *)key
+{
+    @synchronized(_attributesDictionary) {
+        [_attributesDictionary removeObjectForKey:key];
+
+        // ScopeObservers are not called since at this moment attributes are only used for Logs,
+        // which are stored in memory, thus do not need to be stored in processor like
+        // WatchdogTermination events do. Attributes might be added to Crashes in a later time,
+        // which will need to revisit this.
+    }
+}
+
 - (NSDictionary<NSString *, id> *)serialize
 {
     NSMutableDictionary *serializedData = [NSMutableDictionary new];
@@ -673,40 +713,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSString *)propagationContextTraceIdString
 {
     return [self.propagationContext.traceId sentryIdString];
-}
-
-- (NSDictionary<NSString *, id> *)attributes
-{
-    @synchronized(_attributesDictionary) {
-        return _attributesDictionary.copy;
-    }
-}
-
-- (void)setAttributeValue:(id)value forKey:(NSString *)key
-{
-    if (key == nil || key.length == 0) {
-        SENTRY_LOG_ERROR(@"Attribute's key cannot be nil nor empty");
-        return;
-    }
-
-    @synchronized(_attributesDictionary) {
-        _attributesDictionary[key] = value;
-
-        // ScopeObservers are not called since at this moment attributes are only used for Logs,
-        // which the LogBatcher obtains manually. At this moment not even Spans use this attributes.
-        // Should this change, we will need to call the observers.
-    }
-}
-
-- (void)removeAttributeForKey:(NSString *)key
-{
-    @synchronized(_attributesDictionary) {
-        [_attributesDictionary removeObjectForKey:key];
-
-        // ScopeObservers are not called since at this moment attributes are only used for Logs,
-        // which the LogBatcher obtains manually. At this moment not even Spans use this attributes.
-        // Should this change, we will need to call the observers.
-    }
 }
 
 @end
