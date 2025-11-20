@@ -109,6 +109,14 @@ jobs:
           OS_VERSION: ${{ inputs.test-destination-os }}
         run: ./scripts/ci-install-platforms.sh --platforms "$PLATFORM" --os-version "$OS_VERSION"
 
+      - name: Ensure required runtime is loaded
+        # Ideally we will not need this, but CI sometimes is failing to load some runtimes, this will ensure they are loaded
+        if: ${{ inputs.platform == 'iOS' }}
+        timeout-minutes: 5 # 5 minutes timeout
+        env:
+          OS_VERSION: ${{ inputs.test-destination-os }}
+        run: ./scripts/ci-ensure-runtime-loaded.sh --os-version "$OS_VERSION"
+
       - name: Create simulator device
         if: ${{ inputs.create_device }}
         env:
