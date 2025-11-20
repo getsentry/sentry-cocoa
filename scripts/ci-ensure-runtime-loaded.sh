@@ -39,7 +39,7 @@ fi
 echo "Ensuring runtime $OS_VERSION is loaded"
 
 # Check if the runtime is loaded
-if ! xcrun simctl list runtimes -v | grep -qE "$OS_VERSION.*unavailable" ; then
+if xcrun simctl list runtimes -v | grep -qE "iOS $OS_VERSION" && ! xcrun simctl list runtimes -v | grep -qE "iOS $OS_VERSION.*unavailable" ; then
     echo "Runtime $OS_VERSION is loaded"
     exit 0
 fi
@@ -58,7 +58,7 @@ sudo pkill -9 com.apple.CoreSimulator.CoreSimulatorService || true
 count=0
 MAX_ATTEMPTS=100 # 500 seconds timeout
 while [ $count -lt $MAX_ATTEMPTS ]; do
-    if ! xcrun simctl list runtimes -v | grep -qE "$OS_VERSION.*unavailable"; then
+    if xcrun simctl list runtimes -v | grep -qE "iOS $OS_VERSION" && ! xcrun simctl list runtimes -v | grep -qE "iOS $OS_VERSION.*unavailable"; then
         echo "Runtime $OS_VERSION is loaded after $count attempts"
         exit 0
     fi
