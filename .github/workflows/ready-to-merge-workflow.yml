@@ -12,6 +12,7 @@ jobs:
         id: check-label
         uses: actions/github-script@v8
         with:
+          debug: true
           script: |
             const expectedLabel = 'ready-to-merge';
 
