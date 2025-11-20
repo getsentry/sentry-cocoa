@@ -15161,6 +15161,80 @@
             ]
           },
           {
+            "kind": "Var",
+            "name": "attributes",
+            "printedName": "attributes",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Dictionary",
+                "printedName": "[Swift.String : Any]",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "ProtocolComposition",
+                    "printedName": "Any"
+                  }
+                ],
+                "usr": "s:SD"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "c:objc(cs)SentryScope(py)attributes",
+            "moduleName": "Sentry",
+            "isOpen": true,
+            "objc_name": "attributes",
+            "declAttributes": [
+              "ObjC",
+              "Dynamic"
+            ],
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Dictionary",
+                    "printedName": "[Swift.String : Any]",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "ProtocolComposition",
+                        "printedName": "Any"
+                      }
+                    ],
+                    "usr": "s:SD"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "c:objc(cs)SentryScope(im)attributes",
+                "moduleName": "Sentry",
+                "isOpen": true,
+                "objc_name": "attributes",
+                "declAttributes": [
+                  "DiscardableResult",
+                  "ObjC",
+                  "Dynamic"
+                ],
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
             "kind": "Constructor",
             "name": "init",
             "printedName": "init(maxBreadcrumbs:)",
@@ -15947,6 +16021,81 @@
             "moduleName": "Sentry",
             "isOpen": true,
             "objc_name": "addAttachment:",
+            "declAttributes": [
+              "ObjC",
+              "Dynamic"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "setAttribute",
+            "printedName": "setAttribute(value:key:)",
+            "children": [
+              {
+                "kind": "TypeNameAlias",
+                "name": "Void",
+                "printedName": "Swift.Void",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ]
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "ProtocolComposition",
+                "printedName": "Any"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "c:objc(cs)SentryScope(im)setAttributeValue:forKey:",
+            "moduleName": "Sentry",
+            "isOpen": true,
+            "objc_name": "setAttributeValue:forKey:",
+            "declAttributes": [
+              "ObjC",
+              "Dynamic"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "removeAttribute",
+            "printedName": "removeAttribute(key:)",
+            "children": [
+              {
+                "kind": "TypeNameAlias",
+                "name": "Void",
+                "printedName": "Swift.Void",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ]
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "c:objc(cs)SentryScope(im)removeAttributeForKey:",
+            "moduleName": "Sentry",
+            "isOpen": true,
+            "objc_name": "removeAttributeForKey:",
             "declAttributes": [
               "ObjC",
               "Dynamic"
