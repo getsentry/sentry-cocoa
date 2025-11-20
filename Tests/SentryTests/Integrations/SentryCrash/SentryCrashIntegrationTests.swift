@@ -26,7 +26,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
             options.releaseName = TestData.appState.releaseName
             options.tracesSampleRate = 1.0
             
-            client = TestClient(options: options, fileManager: try! SentryFileManager(
+            client = TestClient(options: options, fileManager: try SentryFileManager(
                 options: options,
                 dateProvider: dateProvider,
                 dispatchQueueWrapper: dispatchQueueWrapper
@@ -76,7 +76,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         fixture.client.fileManager.deleteAppState()
         fixture.client.fileManager.deleteAppHangEvent()
         
-        SentrySDKInternal.setStart(with: fixture.options)
+        SentrySDK.setStart(with: fixture.options)
     }
     
     override func tearDown() {

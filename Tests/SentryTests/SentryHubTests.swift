@@ -27,8 +27,8 @@ class SentryHubTests: XCTestCase {
         let random = TestRandom(value: 0.5)
         let queue = DispatchQueue(label: "SentryHubTests", qos: .utility, attributes: [.concurrent])
         let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
-        
-        init() {
+
+        init() throws {
             options = Options()
             options.dsn = SentryHubTests.dsnAsString
             
@@ -37,11 +37,11 @@ class SentryHubTests: XCTestCase {
             event = Event()
             event.message = SentryMessage(formatted: message)
             
-            fileManager = try! TestFileManager(
+            fileManager = try XCTUnwrap(TestFileManager(
                 options: options,
                 dateProvider: currentDateProvider,
                 dispatchQueueWrapper: TestSentryDispatchQueueWrapper()
-            )
+            ))
 
             SentryDependencyContainer.sharedInstance().dateProvider = currentDateProvider
             SentryDependencyContainer.sharedInstance().random = random
@@ -70,9 +70,9 @@ class SentryHubTests: XCTestCase {
     private var fixture: Fixture!
     private lazy var sut = fixture.getSut()
     
-    override func setUp() {
-        super.setUp()
-        fixture = Fixture()
+    override func setUpWithError() throws {
+        try super.setUpWithError()
+        fixture = try Fixture()
         fixture.fileManager.deleteCurrentSession()
         fixture.fileManager.deleteCrashedSession()
         fixture.fileManager.deleteAbnormalSession()
@@ -664,6 +664,88 @@ class SentryHubTests: XCTestCase {
         }
     }
     
+    func testCaptureLog() {
+        let hub = fixture.getSut(fixture.options, fixture.scope)
+        (hub._swiftLogger as! SentryLogger).info("Test log message")
+        
+        XCTAssertEqual(1, fixture.client.captureLogInvocations.count)
+        if let logArguments = fixture.client.captureLogInvocations.first {
+            XCTAssertEqual("Test log message", logArguments.log.body)
+            XCTAssertEqual(fixture.scope, logArguments.scope)
+        }
+    }
+    
+    // MARK: - Replay Attributes Tests
+    
+#if canImport(UIKit) && !SENTRY_NO_UIKIT
+#if os(iOS) || os(tvOS)
+    func testCaptureLog_ReplayAttributes_SessionMode_AddsReplayId() {
+        // Setup replay integration
+        let replayOptions = SentryReplayOptions(sessionSampleRate: 1.0, onErrorSampleRate: 0.0)
+        fixture.options.sessionReplay = replayOptions
+        
+        let replayIntegration = SentrySessionReplayIntegration()
+        sut.addInstalledIntegration(replayIntegration, name: "SentrySessionReplayIntegration")
+        
+        // Set replayId on scope (session mode)
+        let replayId = "12345678-1234-1234-1234-123456789012"
+        fixture.scope.replayId = replayId
+        
+        let sut = fixture.getSut(fixture.options, fixture.scope)
+        (sut._swiftLogger as! SentryLogger).info("Test message")
+        
+        XCTAssertEqual(1, fixture.client.captureLogInvocations.count)
+        let capturedLog = fixture.client.captureLogInvocations.first?.log
+        XCTAssertEqual(capturedLog?.attributes["sentry.replay_id"]?.value as? String, replayId)
+        XCTAssertNil(capturedLog?.attributes["sentry._internal.replay_is_buffering"])
+    }
+    
+    func testCaptureLog_ReplayAttributes_BufferMode_AddsReplayIdAndBufferingFlag() {
+        // Set up buffer mode: hub has an ID, but scope.replayId is nil
+        let mockReplayId = SentryId()
+        let testHub = TestHub(client: fixture.client, andScope: fixture.scope)
+        testHub.mockReplayId = mockReplayId.sentryIdString
+        fixture.scope.replayId = nil
+        
+        (testHub._swiftLogger as! SentryLogger).info("Test message")
+        
+        XCTAssertEqual(1, fixture.client.captureLogInvocations.count)
+        let capturedLog = fixture.client.captureLogInvocations.first?.log
+        let replayIdString = capturedLog?.attributes["sentry.replay_id"]?.value as? String
+        XCTAssertEqual(replayIdString, mockReplayId.sentryIdString)
+        XCTAssertEqual(capturedLog?.attributes["sentry._internal.replay_is_buffering"]?.value as? Bool, true)
+    }
+    
+    func testCaptureLog_ReplayAttributes_NoReplay_NoAttributesAdded() {
+        // Don't set up replay integration
+        let sut = fixture.getSut(fixture.options, fixture.scope)
+        
+        (sut._swiftLogger as! SentryLogger).info("Test message")
+        
+        XCTAssertEqual(1, fixture.client.captureLogInvocations.count)
+        let capturedLog = fixture.client.captureLogInvocations.first?.log
+        XCTAssertNil(capturedLog?.attributes["sentry.replay_id"])
+        XCTAssertNil(capturedLog?.attributes["sentry._internal.replay_is_buffering"])
+    }
+    
+    func testCaptureLog_ReplayAttributes_BothSessionAndScopeReplayId_SessionMode() {
+        // Session mode: scope has the ID, hub also has one
+        let replayId = "12345678-1234-1234-1234-123456789012"
+        let testHub = TestHub(client: fixture.client, andScope: fixture.scope)
+        testHub.mockReplayId = replayId
+        fixture.scope.replayId = replayId
+        
+        (testHub._swiftLogger as! SentryLogger).info("Test message")
+        
+        XCTAssertEqual(1, fixture.client.captureLogInvocations.count)
+        let capturedLog = fixture.client.captureLogInvocations.first?.log
+        // Session mode should use scope's ID (takes precedence) and not add buffering flag
+        XCTAssertEqual(capturedLog?.attributes["sentry.replay_id"]?.value as? String, replayId)
+        XCTAssertNil(capturedLog?.attributes["sentry._internal.replay_is_buffering"])
+    }
+#endif
+#endif
+    
     func testCaptureErrorWithScope() {
         fixture.getSut().capture(error: fixture.error, scope: fixture.scope).assertIsNotEmpty()
         
@@ -673,24 +755,28 @@ class SentryHubTests: XCTestCase {
             XCTAssertEqual(fixture.scope, errorArguments.scope)
         }
     }
-    
-    func testCaptureErrorWithSessionWithScope() {
+
+    func testCaptureErrorWithSessionWithScope() throws {
+        // Arrange
         let sut = fixture.getSut()
         sut.startSession()
+
+        // Act
         sut.capture(error: fixture.error, scope: fixture.scope).assertIsNotEmpty()
-        
-        XCTAssertEqual(1, fixture.client.captureErrorWithSessionInvocations.count)
-        if let errorArguments = fixture.client.captureErrorWithSessionInvocations.first {
+
+        // Assert
+        XCTAssertEqual(1, fixture.client.captureErrorWithScopeInvocations.count)
+        if let errorArguments = fixture.client.captureErrorWithScopeInvocations.first {
             XCTAssertEqual(fixture.error, errorArguments.error as NSError)
-            
-            XCTAssertEqual(1, errorArguments.session?.errors)
-            XCTAssertEqual(SentrySessionStatus.ok, errorArguments.session?.status)
-            
             XCTAssertEqual(fixture.scope, errorArguments.scope)
         }
         
         // only session init is sent
-        XCTAssertEqual(1, fixture.client.captureSessionInvocations.count)
+        XCTAssertEqual(fixture.client.captureSessionInvocations.count, 1)
+
+        let actualSession = try XCTUnwrap(sut.session)
+        XCTAssertEqual(actualSession.errors, 1)
+        XCTAssertEqual(actualSession.status, SentrySessionStatus.ok)
     }
     
     func testCaptureErrorBeforeSessionStart() {
@@ -745,23 +831,6 @@ class SentryHubTests: XCTestCase {
         }
     }
     
-    func testCaptureWithoutIncreasingErrorCount() {
-        let sut = fixture.getSut()
-        sut.startSession()
-        fixture.client.callSessionBlockWithIncrementSessionErrors = false
-        sut.capture(error: fixture.error, scope: fixture.scope).assertIsNotEmpty()
-        
-        XCTAssertEqual(1, fixture.client.captureErrorWithSessionInvocations.count)
-        if let errorArguments = fixture.client.captureErrorWithSessionInvocations.first {
-            XCTAssertEqual(fixture.error, errorArguments.error as NSError)
-            XCTAssertNil(errorArguments.session)
-            XCTAssertEqual(fixture.scope, errorArguments.scope)
-        }
-        
-        // only session init is sent
-        XCTAssertEqual(1, fixture.client.captureSessionInvocations.count)
-    }
-    
     func testCaptureErrorWithoutScope() {
         fixture.getSut(fixture.options, fixture.scope).capture(error: fixture.error).assertIsNotEmpty()
         
@@ -791,77 +860,81 @@ class SentryHubTests: XCTestCase {
             XCTAssertEqual(fixture.scope, errorArguments.scope)
         }
     }
-    
-    func testCaptureExceptionWithSessionWithScope() {
+
+    func testCaptureMultipleExceptionsInParallel_IncrementsSessionCount() throws {
+        // Arrange
+        let captureCount = 100
+
+        let sut = fixture.getSut()
+
+        sut.startSession()
+
+        let expectation = XCTestExpectation(description: "Capture error")
+        expectation.expectedFulfillmentCount = captureCount
+        expectation.assertForOverFulfill = true
+
+        // Act
+        for _ in 0..<captureCount {
+
+            fixture.queue.async {
+                sut.capture(exception: self.fixture.exception, scope: self.fixture.scope)
+                expectation.fulfill()
+            }
+        }
+
+        wait(for: [expectation], timeout: 5.0)
+
+        // Assert
+        let session = try XCTUnwrap(sut.session)
+        XCTAssertEqual(session.errors, UInt(captureCount))
+    }
+
+    func testCaptureMultipleErrorsInParallel_IncrementsSessionCount() throws {
+        // Arrange
+        let captureCount = 100
+
+        let sut = fixture.getSut()
+
+        sut.startSession()
+
+        let expectation = XCTestExpectation(description: "Capture error")
+        expectation.expectedFulfillmentCount = captureCount
+        expectation.assertForOverFulfill = true
+
+        // Act
+        for _ in 0..<captureCount {
+
+            fixture.queue.async {
+                sut.capture(error: self.fixture.error, scope: self.fixture.scope)
+                expectation.fulfill()
+            }
+        }
+
+        wait(for: [expectation], timeout: 5.0)
+
+        // Assert
+        let session = try XCTUnwrap(sut.session)
+        XCTAssertEqual(session.errors, UInt(captureCount))
+    }
+
+    func testCaptureEventIncrementingSessionErrorCount_WithStartedSession_OnlySendsSessionInit() {
         let sut = fixture.getSut()
         sut.startSession()
-        sut.capture(exception: fixture.exception, scope: fixture.scope).assertIsNotEmpty()
-        
-        XCTAssertEqual(1, fixture.client.captureExceptionWithSessionInvocations.count)
-        if let exceptionArguments = fixture.client.captureExceptionWithSessionInvocations.first {
-            XCTAssertEqual(fixture.exception, exceptionArguments.exception)
-            
-            XCTAssertEqual(1, exceptionArguments.session?.errors)
-            XCTAssertEqual(SentrySessionStatus.ok, exceptionArguments.session?.status)
-            
-            XCTAssertEqual(fixture.scope, exceptionArguments.scope)
+
+        let event = fixture.event
+        sut.captureErrorEvent(event: event).assertIsNotEmpty()
+
+        XCTAssertEqual(fixture.client.captureEventIncrementingSessionErrorCountInvocations.count, 1)
+        if let eventArguments = fixture.client.captureEventIncrementingSessionErrorCountInvocations.first {
+            XCTAssertEqual(eventArguments.event.eventId, event.eventId)
+
+            XCTAssertEqual(eventArguments.scope, sut.scope)
         }
-        
+
         // only session init is sent
         XCTAssertEqual(1, fixture.client.captureSessionInvocations.count)
     }
-    
-    func testCaptureExceptionWithoutIncreasingErrorCount() {
-        let sut = fixture.getSut()
-        sut.startSession()
-        fixture.client.callSessionBlockWithIncrementSessionErrors = false
-        sut.capture(exception: fixture.exception, scope: fixture.scope).assertIsNotEmpty()
-        
-        XCTAssertEqual(1, fixture.client.captureExceptionWithSessionInvocations.count)
-        if let exceptionArguments = fixture.client.captureExceptionWithSessionInvocations.first {
-            XCTAssertEqual(fixture.exception, exceptionArguments.exception)
-            XCTAssertNil(exceptionArguments.session)
-            XCTAssertEqual(fixture.scope, exceptionArguments.scope)
-        }
-        
-        // only session init is sent
-        XCTAssertEqual(1, fixture.client.captureSessionInvocations.count)
-    }
-    
-    func testCaptureMultipleExceptionWithSessionInParallel() {
-        let captureCount = 100
-        captureConcurrentWithSession(count: captureCount) { sut in
-            sut.capture(exception: self.fixture.exception, scope: self.fixture.scope)
-        }
-        
-        let invocations = fixture.client.captureExceptionWithSessionInvocations.invocations
-        XCTAssertEqual(captureCount, invocations.count)
-        for i in 1...captureCount {
-            // The session error count must not be in order as we use a concurrent DispatchQueue
-            XCTAssertTrue(
-                invocations.contains { $0.session!.errors == i },
-                "No session captured with \(i) amount of errors."
-            )
-        }
-    }
-    
-    func testCaptureMultipleErrorsWithSessionInParallel() {
-        let captureCount = 100
-        captureConcurrentWithSession(count: captureCount) { sut in
-            sut.capture(error: self.fixture.error, scope: self.fixture.scope)
-        }
-        
-        let invocations = fixture.client.captureErrorWithSessionInvocations.invocations
-        XCTAssertEqual(captureCount, invocations.count)
-        for i in 1..<captureCount {
-            // The session error count must not be in order as we use a concurrent DispatchQueue
-            XCTAssertTrue(
-                invocations.contains { $0.session!.errors == i },
-                "No session captured with \(i) amount of errors."
-            )
-        }
-    }
-    
+
     func testCaptureClientIsNil_ReturnsEmptySentryId() {
         sut.bindClient(nil)
         
@@ -1176,7 +1249,7 @@ class SentryHubTests: XCTestCase {
         let envelope = fixture.client.captureEnvelopeInvocations.first
         let sessionEnvelopeItem = envelope?.items.first(where: { $0.header.type == "session" })
         
-        let json = try XCTUnwrap((try! JSONSerialization.jsonObject(with: XCTUnwrap(sessionEnvelopeItem?.data))) as? [String: Any])
+        let json = try XCTUnwrap((try JSONSerialization.jsonObject(with: XCTUnwrap(sessionEnvelopeItem?.data))) as? [String: Any])
         
         XCTAssertEqual(json["timestamp"] as? String, "1970-01-01T00:00:02.000Z")
         XCTAssertEqual(json["status"] as? String, "crashed")
@@ -1249,26 +1322,6 @@ class SentryHubTests: XCTestCase {
         hub.configureScope({ scope in
             scope.addBreadcrumb(self.fixture.crumb)
         })
-    }
-    
-    private func captureConcurrentWithSession(count: Int, _ capture: @escaping (SentryHubInternal) -> Void) {
-        let sut = fixture.getSut()
-        sut.startSession()
-        
-        let queue = fixture.queue
-
-        let expectation = XCTestExpectation(description: "Capture should be called \(count) times")
-        expectation.expectedFulfillmentCount = count
-
-        for _ in 0..<count {
-
-            queue.async {
-                capture(sut)
-                expectation.fulfill()
-            }
-        }
-
-        wait(for: [expectation], timeout: 5.0)
     }
     
     func testModifyIntegrationsConcurrently() {
@@ -1382,6 +1435,33 @@ class SentryHubTests: XCTestCase {
                                                                  ["mechanism": ["other-key": false]]]
                                                             ]
                                                          ]))
+    }
+
+    func testBindClient_SetsSessionDelegate() throws {
+        // Arrange
+        let sut = fixture.getSut()
+        let currentClient = fixture.client
+        let newClient = SentryClientInternal(options: fixture.options)
+
+        // Act
+        sut.bindClient(newClient)
+
+        // Assert
+        XCTAssertNil(currentClient.sessionDelegate)
+        // We only assert if it's not nil for a safety check. Other unit tests validate the correctness of the delegate methods.
+        XCTAssertNotNil(newClient?.sessionDelegate)
+    }
+
+    func testBindNilClient_SetsSessionDelegateToNil() {
+        // Arrange
+        let sut = fixture.getSut()
+        let client = fixture.client
+
+        // Act
+        sut.bindClient(nil)
+
+        // Assert
+        XCTAssertNil(client.sessionDelegate)
     }
 
     private func captureEventEnvelope(level: SentryLevel) {

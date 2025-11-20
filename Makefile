@@ -184,12 +184,14 @@ xcode:
 	open Sentry.xcworkspace
 
 xcode-ci:
+	xcodegen --spec Samples/SPM/SPM.yml
 	xcodegen --spec Samples/SentrySampleShared/SentrySampleShared.yml
 	xcodegen --spec Samples/SessionReplay-CameraTest/SessionReplay-CameraTest.yml
 	xcodegen --spec Samples/iOS-ObjectiveC/iOS-ObjectiveC.yml
 	xcodegen --spec Samples/iOS-Swift/iOS-Swift.yml
 	xcodegen --spec Samples/iOS-Swift6/iOS-Swift6.yml
 	xcodegen --spec Samples/iOS-SwiftUI/iOS-SwiftUI.yml
+	xcodegen --spec Samples/iOS-SwiftUI-Widgets/iOS-SwiftUI-Widgets.yml
 	xcodegen --spec Samples/iOS15-SwiftUI/iOS15-SwiftUI.yml
 	xcodegen --spec Samples/macOS-SwiftUI/macOS-SwiftUI.yml
 	xcodegen --spec Samples/macOS-Swift/macOS-Swift.yml
@@ -199,3 +201,4 @@ xcode-ci:
 	xcodegen --spec TestSamples/SwiftUITestSample/SwiftUITestSample.yml
 	xcodegen --spec TestSamples/SwiftUICrashTest/SwiftUICrashTest.yml
 	xcodegen --spec Samples/DistributionSample/DistributionSample.yml
+	xcodegen --spec Samples/SDK-Size/SDK-Size.yml

@@ -29,12 +29,9 @@ NS_ASSUME_NONNULL_BEGIN
         return;
     }
 
-    SentryFrame *lastFrame = self.frames.lastObject;
     SentryFrame *beforeLastFrame = [self.frames objectAtIndex:self.frames.count - 2];
 
-    if ([lastFrame.symbolAddress
-            isEqualToString:SENTRY_UNWRAP_NULLABLE(NSString, beforeLastFrame.symbolAddress)]
-        && [self.registers[@"lr"]
+    if ([self.registers[@"lr"]
             isEqualToString:SENTRY_UNWRAP_NULLABLE(NSString, beforeLastFrame.instructionAddress)]) {
         NSMutableArray *copyFrames = self.frames.mutableCopy;
         [copyFrames removeObjectAtIndex:self.frames.count - 2];

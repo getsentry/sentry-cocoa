@@ -37,7 +37,7 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         
         let storedEnvelope = client?.storedEnvelopeInvocations.first
         let attachedSessionData = try XCTUnwrap(storedEnvelope!.items.last!.data)
-        let attachedSession = try XCTUnwrap(try! JSONSerialization.jsonObject(with: attachedSessionData) as? [String: Any])
+        let attachedSession = try XCTUnwrap(try JSONSerialization.jsonObject(with: attachedSessionData) as? [String: Any])
         
         XCTAssertEqual(0, hub.startSessionInvocations)
         // Assert crashed session was attached to the envelope
@@ -68,7 +68,7 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
 
         let capturedEnvelope = client?.captureEnvelopeInvocations.first
         let attachedSessionData = try XCTUnwrap(capturedEnvelope!.items.last!.data)
-        let attachedSession = try XCTUnwrap(try! JSONSerialization.jsonObject(with: attachedSessionData) as? [String: Any])
+        let attachedSession = try XCTUnwrap(try JSONSerialization.jsonObject(with: attachedSessionData) as? [String: Any])
         
         // Assert new session was started
         XCTAssertEqual(1, hub.startSessionInvocations)

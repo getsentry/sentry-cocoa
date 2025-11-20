@@ -1,15 +1,6 @@
 name: Ready to Merge Workflow
 on:
   workflow_call:
-    inputs:
-      labels:
-        description: The GitHub event's labels
-        required: true
-        type: string
-      is-pr:
-        description: Whether the workflow is running on a PR
-        required: true
-        type: boolean
 
 jobs:
   ready-to-merge-gate:
@@ -17,25 +8,37 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check for exact 'ready-to-merge' label
-        if: ${{ inputs.is-pr }}
+        if: ${{ github.event_name == 'pull_request' }}
         id: check-label
-        run: |
-          # Use jq to check for exact label match (avoids substring matching issues with contains())
-          if echo '${{ inputs.labels }}' | jq -e '.[] | select(.name == "ready-to-merge")' > /dev/null; then
-            echo "label_found=true" >> $GITHUB_OUTPUT
-          else
-            echo "label_found=false" >> $GITHUB_OUTPUT
-          fi
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const expectedLabel = 'ready-to-merge';
+
+            // Fetch labels from GitHub API
+            // GitHub Actions may not contain the labels in the event, so we need to fetch them from the API.
+            const { data: labels } = await github.rest.issues.listLabelsOnIssue({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number
+            });
+
+            const labelNames = labels.map(label => label.name);
+            console.log(`Found labels: ${labelNames.join(', ')}`);
+
+            // Check for exact 'ready-to-merge' label match
+            const labelFound = labelNames.includes(expectedLabel);
+            core.setOutput('label_found', labelFound.toString());
       # Since Github also accepts `skipped` results for Required Workflows, we need
       # to fail the job to ensure that the downstream jobs don't just skip.
       - name: Fail until the 'ready-to-merge' label is present
-        if: ${{ inputs.is-pr && steps.check-label.outputs.label_found == 'false' }}
+        if: ${{ github.event_name == 'pull_request' && steps.check-label.outputs.label_found == 'false' }}
         run: |
           echo "Add the 'ready-to-merge' label to run CI."
           exit 1
       - name: Gate passed
-        if: ${{ inputs.is-pr && steps.check-label.outputs.label_found == 'true' }}
+        if: ${{ github.event_name == 'pull_request' && steps.check-label.outputs.label_found == 'true' }}
         run: echo "Label present. Proceeding with CI."
       - name: Gate passed
-        if: ${{ !inputs.is-pr }}
+        if: ${{ github.event_name != 'pull_request' }}
         run: echo "Not a PR. Proceeding with CI."

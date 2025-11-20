@@ -39,7 +39,7 @@ jobs:
     # Run the job only for PRs with related changes or non-PR events.
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_test_cross_platform_for_prs == 'true'
     needs: files-changed
-    runs-on: macos-14
+    runs-on: macos-15
     # This job can take a while to run, so we set a timeout.
     timeout-minutes: 30
     steps:
@@ -57,7 +57,7 @@ jobs:
         with:
           repository: getsentry/sentry-react-native
           path: sentry-react-native
-          ref: itay/frames_tracker_swift
+          ref: cocoa-v9
 
       - name: Enable Corepack
         working-directory: sentry-react-native
@@ -68,10 +68,10 @@ jobs:
           node-version: 18
           cache: "yarn"
           cache-dependency-path: sentry-react-native/yarn.lock
-      - run: ./sentry-cocoa/scripts/ci-select-xcode.sh 16.2
+      - run: ./sentry-cocoa/scripts/ci-select-xcode.sh 16.4
 
-      - name: Create simulator device for iOS 17.5
-        run: ./sentry-cocoa/scripts/ci-create-simulator.sh --platform "iOS" --os-version "17.5" --device-name "iPhone 15 Pro"
+      - name: Create simulator device for iOS 18.4
+        run: ./sentry-cocoa/scripts/ci-create-simulator.sh --platform "iOS" --os-version "18.4" --device-name "iPhone 15 Pro"
 
       - name: Install SDK JS Dependencies
         working-directory: sentry-react-native
@@ -96,7 +96,7 @@ jobs:
         env:
           SCHEME: RNSentryCocoaTester
           CONFIGURATION: Release
-          DESTINATION: "platform=iOS Simulator,OS=17.5,name=iPhone 15 Pro"
+          DESTINATION: "platform=iOS Simulator,OS=18.4,name=iPhone 15 Pro"
         run: |
           set -o pipefail
           env NSUnbufferedIO=YES \

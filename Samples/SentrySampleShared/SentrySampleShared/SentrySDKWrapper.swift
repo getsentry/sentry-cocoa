@@ -65,8 +65,6 @@ public struct SentrySDKWrapper {
             // Allow configuring unreliable environment protection via SDK override.
             // Default to false for the sample app to allow testing on iOS 26+ with Liquid Glass.
             options.experimental.enableSessionReplayInUnreliableEnvironment = SentrySDKOverrides.SessionReplay.enableInUnreliableEnvironment.boolValue
-
-            options.experimental.sessionReplayMaskingStrategy = .wireframe
         }
 
 #if !os(tvOS)
@@ -155,9 +153,7 @@ public struct SentrySDKWrapper {
         }
 
 #if !os(macOS) && !os(tvOS) && !os(watchOS) && !os(visionOS)
-        if #available(iOS 13.0, *) {
-            options.configureUserFeedback = configureFeedback(config:)
-        }
+        options.configureUserFeedback = configureFeedback(config:)
 #endif // !os(macOS) && !os(tvOS) && !os(watchOS) && !os(visionOS)
 
         options.enableLogs = true
@@ -253,7 +249,6 @@ public struct SentrySDKWrapper {
 
 #if !os(macOS) && !os(tvOS) && !os(watchOS) && !os(visionOS)
 // MARK: User feedback configuration
-@available(iOS 13.0, *)
 extension SentrySDKWrapper {
     var layoutOffset: UIOffset { UIOffset(horizontal: 25, vertical: 75) }
 
@@ -353,10 +348,19 @@ extension SentrySDKWrapper {
             alert.addAction(.init(title: "Deal with it 🕶️", style: .default))
             UIApplication.shared.delegate?.window??.rootViewController?.present(alert, animated: true)
 
-            // if there's a screenshot's Data in this dictionary, JSONSerialization crashes _even though_ there's a `try?`, so we'll write the base64 encoding of it
             var infoToWriteToFile = info
-            if let attachments = info["attachments"] as? [Any], let screenshot = attachments.first as? Data {
-                infoToWriteToFile["attachments"] = [screenshot.base64EncodedString()]
+            if let attachments = info["attachments"] as? [[String: Any]] {
+                // Extract data from each attachment dictionary (JSONSerialization crashes _even though_ there's a `try?`, so we'll write the base64 encoding of it)
+                let processedAttachments = attachments.compactMap { attachment -> [String: Any]? in
+                    var processed = attachment
+                    if let data = attachment["data"] as? Data {
+                        processed["data"] = data.base64EncodedString()
+                    }
+                    return processed
+                }
+                if !processedAttachments.isEmpty {
+                    infoToWriteToFile["attachments"] = processedAttachments
+                }
             }
 
             let jsonData = (try? JSONSerialization.data(withJSONObject: infoToWriteToFile, options: .sortedKeys)) ?? Data()

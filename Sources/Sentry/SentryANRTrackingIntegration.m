@@ -42,6 +42,18 @@ static NSString *const SentryANRMechanismDataAppHangDuration = @"app_hang_durati
         return NO;
     }
 
+    // Disable app hang tracking for Widgets, Live Activities, and certain extensions
+    // where app hang detection might report false positives. These components run
+    // in separate processes or sandboxes with different execution characteristics.
+    SentryExtensionDetector *extensionDetector = SentryDependencies.extensionDetector;
+    if ([extensionDetector shouldDisableAppHangTracking]) {
+        NSString *extensionType = [extensionDetector getExtensionPointIdentifier];
+        SENTRY_LOG_WARN(@"Not enabling app hang tracking for extension: %@", extensionType);
+        [self logWithReason:[NSString stringWithFormat:@"because it's running in an extension (%@)",
+                                extensionType]];
+        return NO;
+    }
+
 #if SENTRY_HAS_UIKIT
     self.tracker =
         [SentryDependencyContainer.sharedInstance getANRTracker:options.appHangTimeoutInterval];
@@ -163,7 +175,7 @@ static NSString *const SentryANRMechanismDataAppHangDuration = @"app_hang_durati
     // we would lose the scope. Furthermore, we want to know in which state the app was when the
     // app hang started.
     SentryScope *scope = [SentrySDKInternal currentHub].scope;
-    SentryOptions *options = SentrySDKInternal.options;
+    SentryOptions *options = SentrySDK.startOption;
     if (scope != nil && options != nil) {
         [scope applyToEvent:event maxBreadcrumb:options.maxBreadcrumbs];
     }

@@ -4,6 +4,16 @@ Starting from version 8.0.0, it is now possible to include Swift code in the pro
 
 > In this document, `SentryPrivate` refers to the library written in Swift, while `Sentry` represents the framework written in Objective-C. The term `SentryPrivate` public API refers to the API that will be consumed by `Sentry` and is not intended for direct use by users.
 
+## How to bridge Swift and ObjC
+
+In general, an API that mixes languages cannot be used by a language other than the language the API was written in. The one exception is public ObjC types can be used by Swift code and that Swift code can still be used by ObjC.
+
+Examples
+
+- If you use an ObjC class from a Swift API like `func doSomething() -> MyObjCType`, that function would always be usable from Swift, but can only be visible from ObjC if `MyObjCType` is public, like `SentryUser`. This is why we have a CI job to analyze ObjC to Swift conversion. An ObjC class that uses a non-public ObjC type in it's API is not ready to be converted to Swift until the type it uses is also converted to Swift.
+
+- If you use a Swift class from an ObjC header file, like `- (MySwiftClass *)doSomething`, that function is not visible from Swift. This is why we sometimes need wrapper classes in ObjC that call these functions, or we need to treat the type as `NSObject` and force-cast. However, force casting can break if a user links the Sentry framework twice because there are two implementations of the same class. We can never user a Swift class in a public .h file because then our users would find the interface to be broken when they use it from Swift code. For example if `SentryUser.h` has a property of type `SentryId`, `SentryId` must be written in ObjC.
+
 ## Notes
 
 1. All Swift code will be bundled within the `SentryPrivate` library, which `Sentry` depends on.
@@ -26,7 +36,7 @@ Starting from version 8.0.0, it is now possible to include Swift code in the pro
 - **Swift to ObjC**: Add header to `SentryInternal.h`, then `@_implementationOnly import _SentryPrivate`
 - **Module system**: `_SentryPrivate` module for internal ObjC headers accessible to Swift
 
-When making an Objective-C class public for Swift SDK code, do the following:
+When making an Objective-C class visible for Swift SDK code, do the following:
 
 - Add it to SentryPrivate.h
 - Remove existing imports from any test bridging headers.

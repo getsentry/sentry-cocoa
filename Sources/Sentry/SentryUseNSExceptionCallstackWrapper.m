@@ -1,6 +1,5 @@
 #import "SentryUseNSExceptionCallstackWrapper.h"
 #import "SentryCrashStackEntryMapper.h"
-#import "SentryCrashSymbolicator.h"
 #import "SentrySDK+Private.h"
 #import "SentryStacktraceBuilder.h"
 #import "SentrySwift.h"
@@ -39,12 +38,15 @@
     SentryCrashStackEntryMapper *crashStackToEntryMapper = [self buildCrashStackToEntryMapper];
     NSMutableArray<SentryFrame *> *frames = [NSMutableArray array];
 
-    // Iterate over all the addresses, symbolicate and create a SentryFrame
+    // Iterate over all the addresses and create a SentryFrame
     [self.returnAddressesArray
         enumerateObjectsUsingBlock:^(NSNumber *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
             SentryCrashStackCursor stackCursor;
             stackCursor.stackEntry.address = [obj unsignedLongValue];
-            sentrycrashsymbolicator_symbolicate_async_unsafe_sentryDlAddr(&stackCursor);
+            stackCursor.stackEntry.imageName = nil;
+            stackCursor.stackEntry.imageAddress = 0;
+            stackCursor.stackEntry.symbolAddress = 0;
+            stackCursor.stackEntry.symbolName = nil;
 
             [frames addObject:[crashStackToEntryMapper
                                   sentryCrashStackEntryToSentryFrame:stackCursor.stackEntry]];
@@ -57,7 +59,7 @@
 
 - (SentryCrashStackEntryMapper *)buildCrashStackToEntryMapper
 {
-    SentryOptions *options = SentrySDKInternal.options;
+    SentryOptions *options = SentrySDK.startOption;
 
     SentryInAppLogic *inAppLogic =
         [[SentryInAppLogic alloc] initWithInAppIncludes:options.inAppIncludes];

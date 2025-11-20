@@ -21,7 +21,7 @@ While UIKit exposes rich view metadata, SwiftUI does not, therefore we need to m
 ### Requirements
 
 - No private APIs in production App Store builds.
-- No dependence on globally toggled system services (e.g., VoiceOver) in production.
+- No dependence on globally toggled system services (e.g., VoiceOver) in production
 - Work reliably during transitions and animations (also when using snapshot placeholder views).
 - Capture edge-cases such as frames taken during view transitions.
 - Be configurable via user-provided include/exclude class lists.

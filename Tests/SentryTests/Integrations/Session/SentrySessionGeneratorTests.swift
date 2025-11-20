@@ -5,7 +5,6 @@ import XCTest
 /**
 * This isn't an actual test. It sends Sessions to the Sentry, but doesn't verify if they arrive there.
 */
-@available(OSX 10.10, *)
 class SentrySessionGeneratorTests: NotificationCenterTestCase {
     
     struct Sessions {
@@ -22,9 +21,9 @@ class SentrySessionGeneratorTests: NotificationCenterTestCase {
     private var options: Options!
     private var fileManager: SentryFileManager!
     
-    override func setUp() {
-        super.setUp()
-        
+    override func setUpWithError() throws {
+        try super.setUpWithError()
+
         options = Options()
         options.dsn = TestConstants.realDSN
         
@@ -36,11 +35,11 @@ class SentrySessionGeneratorTests: NotificationCenterTestCase {
         // We want to start and stop the SentryAutoSessionTrackingIntegration ourselves so we can send crashed and abnormal sessions.
         options.enableAutoSessionTracking = false
 
-        fileManager = try! SentryFileManager(
+        fileManager = try XCTUnwrap(SentryFileManager(
             options: options,
             dateProvider: TestCurrentDateProvider(),
             dispatchQueueWrapper: TestSentryDispatchQueueWrapper()
-        )
+        ))
 
         fileManager.deleteCurrentSession()
         fileManager.deleteCrashedSession()

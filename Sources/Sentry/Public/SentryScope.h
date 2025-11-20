@@ -7,6 +7,7 @@
 #endif
 #import SENTRY_HEADER(SentrySerializable)
 #import SENTRY_HEADER(SentrySpanProtocol)
+#import SENTRY_HEADER(SentryLevel)
 
 @class SentryAttachment;
 @class SentryBreadcrumb;
@@ -28,7 +29,7 @@ NS_SWIFT_NAME(Scope)
  * Returns current Span or Transaction.
  * @return current Span or Transaction or null if transaction has not been set.
  */
-@property (nullable, nonatomic, readonly, strong) id<SentrySpan> span;
+@property (nullable, nonatomic, strong) id<SentrySpan> span;
 
 /**
  * The id of current session replay.
@@ -100,7 +101,7 @@ NS_SWIFT_NAME(Scope)
 /**
  * Sets the @c level in the scope
  */
-- (void)setLevel:(enum SentryLevel)level;
+- (void)setLevel:(SentryLevel)level;
 
 /**
  * Add a breadcrumb to the scope

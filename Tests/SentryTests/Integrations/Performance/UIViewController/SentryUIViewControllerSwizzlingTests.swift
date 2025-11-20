@@ -152,13 +152,8 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
         let notification = Notification(name: NSNotification.Name(rawValue: "UISceneWillConnectNotification"), object: mockWindowScene)
         swizzler.swizzleRootViewController(fromSceneDelegateNotification: notification)
         
-        // UIScene is available from iOS 13 and above.
-        if #available(iOS 13.0, tvOS 13.0, macCatalyst 13.0, *) {
-            XCTAssertEqual(swizzler.viewControllers.count, 1)
-            XCTAssertTrue(try XCTUnwrap(swizzler.viewControllers.first) is TestViewController)
-        } else {
-            XCTAssertEqual(swizzler.viewControllers.count, 0)
-        }
+        XCTAssertEqual(swizzler.viewControllers.count, 1)
+        XCTAssertTrue(try XCTUnwrap(swizzler.viewControllers.first) is TestViewController)
     }
     
     func testSwizzlingOfExternalLibs() {

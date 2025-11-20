@@ -710,7 +710,7 @@ typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull 
     XCTAssertEqual(YES, options.enableWatchdogTerminationTracking);
     XCTAssertEqual([@30000 unsignedIntValue], options.sessionTrackingIntervalMillis);
     XCTAssertEqual(YES, options.attachStacktrace);
-    XCTAssertEqual(100 * 1024 * 1024, options.maxAttachmentSize);
+    XCTAssertEqual(200 * 1024 * 1024, options.maxAttachmentSize);
     XCTAssertEqual(NO, options.sendDefaultPii);
     XCTAssertTrue(options.enableAutoPerformanceTracing);
 #if SENTRY_HAS_UIKIT
@@ -739,10 +739,8 @@ typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull 
     XCTAssertFalse(options.swiftAsyncStacktraces);
 
 #if SENTRY_HAS_METRIC_KIT
-    if (@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, *)) {
-        XCTAssertEqual(NO, options.enableMetricKit);
-        XCTAssertEqual(NO, options.enableMetricKitRawPayload);
-    }
+    XCTAssertEqual(NO, options.enableMetricKit);
+    XCTAssertEqual(NO, options.enableMetricKitRawPayload);
 #endif // SENTRY_HAS_METRIC_KIT
 
     NSRegularExpression *regexTrace = options.tracePropagationTargets[0];
@@ -829,7 +827,7 @@ typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull 
 {
     SentryOptions *options = [self getValidOptions:@{}];
 
-    XCTAssertEqual(100 * 1024 * 1024, options.maxAttachmentSize);
+    XCTAssertEqual(200 * 1024 * 1024, options.maxAttachmentSize);
 }
 
 - (void)testSendDefaultPii
@@ -921,16 +919,12 @@ typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull 
 
 - (void)testEnableMetricKit
 {
-    if (@available(iOS 14.0, macOS 12.0, macCatalyst 14.0, *)) {
-        [self testBooleanField:@"enableMetricKit" defaultValue:NO];
-    }
+    [self testBooleanField:@"enableMetricKit" defaultValue:NO];
 }
 
 - (void)testenableMetricKitRawPayload
 {
-    if (@available(iOS 14.0, macOS 12.0, macCatalyst 14.0, *)) {
-        [self testBooleanField:@"enableMetricKitRawPayload" defaultValue:NO];
-    }
+    [self testBooleanField:@"enableMetricKitRawPayload" defaultValue:NO];
 }
 #endif // SENTRY_HAS_METRIC_KIT
 

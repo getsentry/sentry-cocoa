@@ -12,11 +12,7 @@ class DSNDisplayViewController: UIViewController {
     override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
         super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
         
-        if #available(iOS 13.0, *) {
-            view.backgroundColor = .systemFill
-        } else {
-            view.backgroundColor = .lightGray.withAlphaComponent(0.5)
-        }
+        view.backgroundColor = .systemFill
         
         label.numberOfLines = 0
         label.lineBreakMode = .byCharWrapping

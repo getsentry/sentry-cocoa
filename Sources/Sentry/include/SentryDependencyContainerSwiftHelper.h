@@ -31,22 +31,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (nullable NSArray<UIWindow *> *)windows;
 
-// Since SentryOptions is in ObjC, Swift code can't see the SentryViewScreenshotOptions property
-+ (BOOL)fastViewRenderingEnabled:(SentryOptionsObjC *)options;
-+ (BOOL)viewRendererV2Enabled:(SentryOptionsObjC *)options;
-+ (SentryDefaultRedactOptions *)redactOptions:(SentryOptionsObjC *)options;
-+ (int)getSessionReplayMaskingStrategy:(SentryOptionsObjC *)options;
-
 #endif // SENTRY_HAS_UIKIT
 
 + (NSString *_Nullable)release:(SentryOptionsObjC *)options;
 + (NSString *)environment:(SentryOptionsObjC *)options;
 + (NSObject *_Nullable)beforeSendLog:(NSObject *)beforeSendLog options:(SentryOptionsObjC *)options;
-+ (NSString *)cacheDirectoryPath:(SentryOptionsObjC *)options;
 + (BOOL)enableLogs:(SentryOptionsObjC *)options;
 + (NSArray<NSString *> *)enabledFeatures:(SentryOptionsObjC *)options;
 + (BOOL)sendDefaultPii:(SentryOptionsObjC *)options;
-+ (NSArray<NSString *> *)inAppIncludes:(SentryOptionsObjC *)options;
 
 + (SentryDispatchQueueWrapper *)dispatchQueueWrapper;
 + (void)dispatchSyncOnMainQueue:(void (^)(void))block;

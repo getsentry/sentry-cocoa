@@ -63,15 +63,23 @@ on:
         required: true
         type: string
 
+      run_on_cirrus_labs:
+        description: "Whether to run the tests on Cirrus Labs"
+        required: false
+        default: false
+        type: boolean
+
 jobs:
   unit-tests:
     name: Unit ${{inputs.name}}
-    runs-on: ${{inputs.runs-on}}
+    runs-on: ${{ inputs.run_on_cirrus_labs && fromJSON(format('["ghcr.io/cirruslabs/macos-runner:{0}", "runner_group_id:10"]', inputs.runs-on)) || inputs.runs-on }}
     timeout-minutes: ${{inputs.timeout}}
     if: ${{!inputs.should_skip}}
     steps:
       - uses: actions/checkout@v5
-      - run: ./scripts/ci-select-xcode.sh ${{inputs.xcode}}
+      - run: ./scripts/ci-select-xcode.sh "$XCODE_VERSION"
+        env:
+          XCODE_VERSION: ${{inputs.xcode}}
 
       - name: Install Slather
         run: gem install slather
@@ -81,32 +89,57 @@ jobs:
       # For iOS/tvOS 26.1: Beta platforms not included by default
       - name: Install required platforms
         if: ${{ inputs.install_platforms }}
-        run: ./scripts/ci-install-platforms.sh --platforms "${{ inputs.platform }}" --os-version "${{ inputs.test-destination-os }}"
+        env:
+          PLATFORMS: ${{ inputs.platform }}
+          OS_VERSION: ${{ inputs.test-destination-os }}
+        run: ./scripts/ci-install-platforms.sh --platforms "$PLATFORMS" --os-version "$OS_VERSION"
+
+      - name: Ensure required runtime is loaded
+        # Ideally we will not need this, but CI sometimes is failing to load some runtimes, this will ensure they are loaded
+        if: ${{ inputs.platform == 'iOS' }}
+        timeout-minutes: 5 # 5 minutes timeout
+        env:
+          OS_VERSION: ${{ inputs.test-destination-os }}
+        run: ./scripts/ci-ensure-runtime-loaded.sh --os-version "$OS_VERSION"
 
       # Create simulator devices for non-preinstalled simulators
       # Required for iOS 16.4, iOS 17.5 (on Xcode 15.4), and iOS/tvOS 26.1
       - name: Create simulator device
         if: ${{ inputs.create_device }}
-        run: ./scripts/ci-create-simulator.sh --platform "${{ inputs.platform }}" --os-version "${{ inputs.test-destination-os }}" --device-name "${{ inputs.device }}"
+        env:
+          PLATFORM: ${{ inputs.platform }}
+          OS_VERSION: ${{ inputs.test-destination-os }}
+          DEVICE_NAME: ${{inputs.device}}
+        run: ./scripts/ci-create-simulator.sh --platform "$PLATFORM" --os-version "$OS_VERSION" --device-name "$DEVICE_NAME"
 
       # Boot created simulators to ensure they're ready before tests run
       # Based on CircleCI forum comment, booting is especially important for Xcode 26: https://discuss.circleci.com/t/xcode-26-rc/54066/18
       - name: Boot simulator
         if: ${{ inputs.create_device && inputs.platform == 'iOS' }}
-        run: ./scripts/ci-boot-simulator.sh --xcode ${{ inputs.xcode }} --device "${{ inputs.device }}" --os-version "${{ inputs.test-destination-os }}"
+        env:
+          XCODE_VERSION: ${{ inputs.xcode }}
+          DEVICE_NAME: ${{ inputs.device }}
+          OS_VERSION: ${{ inputs.test-destination-os }}
+        run: ./scripts/ci-boot-simulator.sh --xcode "$XCODE_VERSION" --device "$DEVICE_NAME" --os-version "$OS_VERSION"
 
       # We split building and running tests in two steps so we know how long running the tests takes.
       - name: Build Tests
         id: build_tests
+        env:
+          PLATFORM: ${{ inputs.platform }}
+          OS_VERSION: ${{ inputs.test-destination-os }}
+          REF_NAME: ${{ github.ref_name }}
+          DEVICE_NAME: ${{ inputs.device }}
+          SCHEME: ${{ inputs.scheme }}
         run: |
           ./scripts/sentry-xcodebuild.sh \
-            --platform ${{inputs.platform}} \
-            --os ${{inputs.test-destination-os}} \
-            --ref ${{ github.ref_name }} \
+            --platform "$PLATFORM" \
+            --os "$OS_VERSION" \
+            --ref "$REF_NAME" \
             --command build-for-testing \
-            --device "${{inputs.device}}" \
+            --device "$DEVICE_NAME" \
             --configuration TestCI \
-            --scheme ${{inputs.scheme}}
+            --scheme "$SCHEME"
 
       # Run Flaky Tests TestPlan which has a retry mechanism on failure.
       # We intentionally run these before the other test plan to fail early.
@@ -115,15 +148,21 @@ jobs:
       - name: Run Flaky Tests
         # Only the Sentry Scheme has the Flaky TestPlan.
         if: ${{ inputs.scheme == 'Sentry' }}
+        env:
+          PLATFORM: ${{ inputs.platform }}
+          OS_VERSION: ${{ inputs.test-destination-os }}
+          REF_NAME: ${{ github.ref_name }}
+          DEVICE_NAME: ${{ inputs.device }}
+          SCHEME: ${{ inputs.scheme }}
         run: |
           ./scripts/sentry-xcodebuild.sh \
-            --platform ${{inputs.platform}} \
-            --os ${{inputs.test-destination-os}} \
-            --ref ${{ github.ref_name }} \
+            --platform "$PLATFORM" \
+            --os "$OS_VERSION" \
+            --ref "$REF_NAME" \
             --command test-without-building \
-            --device "${{inputs.device}}" \
+            --device "$DEVICE_NAME" \
             --configuration TestCI \
-            --scheme ${{inputs.scheme}} \
+            --scheme "$SCHEME" \
             --test-plan Sentry_Flaky \
             --result-bundle flaky-results.xcresult
 
@@ -132,15 +171,21 @@ jobs:
         # passed to xcodebuild doesn't end up in the job name,
         # because GitHub Actions don't provide an easy way of
         # manipulating string in expressions.
+        env:
+          PLATFORM: ${{ inputs.platform }}
+          OS_VERSION: ${{ inputs.test-destination-os }}
+          REF_NAME: ${{ github.ref_name }}
+          DEVICE_NAME: ${{ inputs.device }}
+          SCHEME: ${{ inputs.scheme }}
         run: |
           ./scripts/sentry-xcodebuild.sh \
-            --platform ${{inputs.platform}} \
-            --os ${{inputs.test-destination-os}} \
-            --ref ${{ github.ref_name }} \
+            --platform "$PLATFORM" \
+            --os "$OS_VERSION" \
+            --ref "$REF_NAME" \
             --command test-without-building \
-            --device "${{inputs.device}}" \
+            --device "$DEVICE_NAME" \
             --configuration TestCI \
-            --scheme ${{inputs.scheme}} \
+            --scheme "$SCHEME" \
             --result-bundle results.xcresult
 
       - name: Publish Test Report

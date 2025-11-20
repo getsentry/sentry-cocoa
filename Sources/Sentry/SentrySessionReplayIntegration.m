@@ -6,6 +6,7 @@
 #    import "SentryEvent+Private.h"
 #    import "SentryHub+Private.h"
 #    import "SentryInternalDefines.h"
+#    import "SentryLevel.h"
 #    import "SentryLogC.h"
 #    import "SentrySDK+Private.h"
 #    import "SentryScope+Private.h"
@@ -126,34 +127,10 @@ static SentryTouchTracker *_touchTracker;
         viewRenderer = [[SentryDefaultViewRenderer alloc] init];
     }
 
-    id<SentryRedactBuilderProtocol> redactBuilder;
-    switch (experimentalOptions.sessionReplayMaskingStrategy) {
-    case kSessionReplayMaskingStrategyAccessibilty:
-        redactBuilder = [[SentryAccessibilityRedactBuilder alloc] initWithOptions:replayOptions];
-        break;
-    case kSessionReplayMaskingStrategyDefensive:
-        redactBuilder = [[SentryDefensiveRedactBuilder alloc] initWithOptions:replayOptions];
-        break;
-    case kSessionReplayMaskingStrategyMachineLearning:
-        redactBuilder = [[SentryMLRedactBuilder alloc] initWithOptions:replayOptions];
-        break;
-    case kSessionReplayMaskingStrategyPDF:
-        redactBuilder = [[SentryPDFRedactBuilder alloc] initWithOptions:replayOptions];
-        break;
-    case kSessionReplayMaskingStrategyWireframe:
-        redactBuilder = [[SentryWireframeRedactBuilder alloc] initWithOptions:replayOptions];
-        break;
-    case kSessionReplayMaskingStrategyViewHierarchy:
-        redactBuilder = [[SentryUIRedactBuilder alloc] initWithOptions:replayOptions];
-        break;
-    default:
-        break;
-    }
-
     // We are using the flag for the view renderer V2 also for the mask renderer V2, as it would
     // just introduce another option without affecting the SDK user experience.
     _viewPhotographer = [[SentryViewPhotographer alloc] initWithRenderer:viewRenderer
-                                                           redactBuilder:redactBuilder
+                                                           redactOptions:replayOptions
                                                     enableMaskRendererV2:enableViewRendererV2];
 
     if (touchTracker) {
@@ -743,7 +720,7 @@ static SentryTouchTracker *_touchTracker;
 + (id<SentryRRWebEvent>)createBreadcrumbwithTimestamp:(NSDate *)timestamp
                                              category:(NSString *)category
                                               message:(nullable NSString *)message
-                                                level:(enum SentryLevel)level
+                                                level:(SentryLevel)level
                                                  data:(nullable NSDictionary<NSString *, id> *)data
 {
     SENTRY_LOG_DEBUG(@"[Session Replay] Creating breadcrumb with timestamp: %@, category: %@, "

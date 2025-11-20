@@ -1,5 +1,13 @@
 # Decision Log
 
+## No local symbolication of crashes
+
+Date: Nov 7th, 2025
+Contributors: @noahsmartin, @philipphofmann
+
+We decided to remove local symbolication. The existing local symbolication was not signal-safe and caused deadlocks (https://github.com/getsentry/sentry-cocoa/issues/6560).
+It is possible to implement local symbolication that does not cause deadlocks; however, it would be a debug-only feature, since in production apps should have their symbols stripped and only available in the dSYM. Therefore, to quickly fix the issue, we decided to remove all unsafe local symbolication in v9. The addition of signal-safe symbolication for binaries with symbols can always be added in a future minor version.
+
 ## Not capturing screenshots for crashes
 
 Date: April 21st 2022
@@ -450,9 +458,9 @@ Contributors: @philprime, @philipphofmann, @itaybre
 
 While we keep supporting iOS 16 in the v9 SDK, we will remove testing in iOS 16 due to flakiness when running on GitHub Actions simulators as the test runners keep timing out.
 
-## swift-log dependency version constraint
+## swift-log dependency removal
 
-Date: 04.11.2025
-Contributors: @philprime, @denrase
+Date: 10.11.2025
+Contributors: @philipphofmann, @noahsmartin, @denrase
 
-SPM doesn't support peer-dependencies, so users will be locked into the swift-log version we declare. We use `from: "1.6.0"` which covers `1.6.0 < 2.0.0`, so future minor versions should be correctly resolved. As long as swift-log doesn't regularly change major versions, breaking API changes should be rare. We can always adjust the minimum supported version in future releases.
+The `swift-log` dependeceny we have added is primarly intendet to be used on backaned projects. While it could be used on the client, we do not want to have external dependencies in our `Package.swift`. So fot it and other logging integrations, a separate repo will be created.

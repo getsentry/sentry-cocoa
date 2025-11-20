@@ -43,7 +43,7 @@ class SentryHttpTransportTests: XCTestCase {
         
         let queue = DispatchQueue(label: "SentryHttpTransportTests", qos: .userInitiated, attributes: [.concurrent, .initiallyInactive])
 
-        init() {
+        init() throws {
             SentryDependencyContainer.sharedInstance().reachability = reachability
             
             currentDateProvider = TestCurrentDateProvider()
@@ -59,21 +59,21 @@ class SentryHttpTransportTests: XCTestCase {
             eventEnvelope = SentryEnvelope(id: event.eventId, items: [SentryEnvelopeItem(event: event), attachmentEnvelopeItem])
             // We are comparing byte data and the `sentAt` header is also set in the transport, so we also need them here in the expected envelope.
             eventEnvelope.header.sentAt = currentDateProvider.date()
-            eventWithAttachmentRequest = buildRequest(eventEnvelope)
-            
+            eventWithAttachmentRequest = try buildRequest(eventEnvelope)
+
             session = SentrySession(releaseName: "2.0.1", distinctId: "some-id")
             sessionEnvelope = SentryEnvelope(id: nil, singleItem: SentryEnvelopeItem(session: session))
             sessionEnvelope.header.sentAt = currentDateProvider.date()
-            sessionRequest = buildRequest(sessionEnvelope)
+            sessionRequest = try buildRequest(sessionEnvelope)
 
             let items = [SentryEnvelopeItem(event: event), SentryEnvelopeItem(session: session)]
             eventWithSessionEnvelope = SentryEnvelope(id: event.eventId, items: items)
             eventWithSessionEnvelope.header.sentAt = currentDateProvider.date()
-            eventWithSessionRequest = buildRequest(eventWithSessionEnvelope)
+            eventWithSessionRequest = try buildRequest(eventWithSessionEnvelope)
 
             options = Options()
             options.dsn = SentryHttpTransportTests.dsnAsString
-            fileManager = try! TestFileManager(options: options, dateProvider: currentDateProvider, dispatchQueueWrapper: dispatchQueueWrapper)
+            fileManager = try XCTUnwrap( TestFileManager(options: options, dateProvider: currentDateProvider, dispatchQueueWrapper: dispatchQueueWrapper))
 
             requestManager = TestRequestManager(session: URLSession(configuration: URLSessionConfiguration.ephemeral))
             
@@ -97,7 +97,7 @@ class SentryHttpTransportTests: XCTestCase {
             ]
             clientReportEnvelope = SentryEnvelope(id: event.eventId, items: clientReportEnvelopeItems)
             clientReportEnvelope.header.sentAt = currentDateProvider.date()
-            clientReportRequest = buildRequest(clientReportEnvelope)
+            clientReportRequest = try buildRequest(clientReportEnvelope)
         }
         
         func getTransactionEnvelope() -> SentryEnvelope {
@@ -148,17 +148,17 @@ class SentryHttpTransportTests: XCTestCase {
         try TestConstants.dsn(username: "SentryHttpTransportTests")
     }
 
-    private class func buildRequest(_ envelope: SentryEnvelope) -> URLRequest {
-        let envelopeData = try! XCTUnwrap(SentrySerializationSwift.data(with: envelope))
-        return try! SentryURLRequestFactory.envelopeRequest(with: dsn(), data: envelopeData)
+    private class func buildRequest(_ envelope: SentryEnvelope) throws -> URLRequest {
+        let envelopeData = try XCTUnwrap(SentrySerializationSwift.data(with: envelope))
+        return try SentryURLRequestFactory.envelopeRequest(with: dsn(), data: envelopeData)
     }
 
     private var fixture: Fixture!
     private var sut: SentryHttpTransport!
 
     override func setUpWithError() throws {
-        super.setUp()
-        fixture = Fixture()
+        try super.setUpWithError()
+        fixture = try Fixture()
         fixture.fileManager.deleteAllEnvelopes()
         fixture.requestManager.returnResponse(response: HTTPURLResponse())
 
@@ -241,7 +241,7 @@ class SentryHttpTransportTests: XCTestCase {
         ]
         let envelope = SentryEnvelope(id: fixture.event.eventId, items: envelopeItems)
         envelope.header.sentAt = fixture.currentDateProvider.date()
-        let request = SentryHttpTransportTests.buildRequest(envelope)
+        let request = try SentryHttpTransportTests.buildRequest(envelope)
 
         let actualData = try XCTUnwrap(request.httpBody)
         let expectedData = try XCTUnwrap(fixture.requestManager.requests.last?.httpBody)
@@ -470,7 +470,7 @@ class SentryHttpTransportTests: XCTestCase {
         let sessionEnvelope = SentryEnvelope(id: fixture.event.eventId, singleItem: SentryEnvelopeItem(session: fixture.session))
         sessionEnvelope.header.sentAt = fixture.currentDateProvider.date()
         let sessionData = try XCTUnwrap(SentrySerializationSwift.data(with: sessionEnvelope))
-        let sessionRequest = try! SentryURLRequestFactory.envelopeRequest(with: SentryHttpTransportTests.dsn(), data: sessionData)
+        let sessionRequest = try XCTUnwrap(SentryURLRequestFactory.envelopeRequest(with: SentryHttpTransportTests.dsn(), data: sessionData))
 
         if fixture.requestManager.requests.invocations.count > 3 {
             let unzippedBody = try XCTUnwrap(sentry_unzippedData(XCTUnwrap(sessionRequest.httpBody)))
@@ -564,8 +564,8 @@ class SentryHttpTransportTests: XCTestCase {
         ]
         let clientReportEnvelope = SentryEnvelope(id: fixture.event.eventId, items: clientReportEnvelopeItems)
         clientReportEnvelope.header.sentAt = fixture.currentDateProvider.date()
-        let clientReportRequest = SentryHttpTransportTests.buildRequest(clientReportEnvelope)
-        
+        let clientReportRequest = try SentryHttpTransportTests.buildRequest(clientReportEnvelope)
+
         givenRateLimitResponse(forCategory: "error")
         sendEvent()
         sendEvent()
@@ -592,8 +592,8 @@ class SentryHttpTransportTests: XCTestCase {
         
         let clientReportEnvelope = SentryEnvelope(id: transactionEnvelope.header.eventId, items: clientReportEnvelopeItems)
         clientReportEnvelope.header.sentAt = fixture.currentDateProvider.date()
-        let clientReportRequest = SentryHttpTransportTests.buildRequest(clientReportEnvelope)
-        
+        let clientReportRequest = try SentryHttpTransportTests.buildRequest(clientReportEnvelope)
+
         givenRateLimitResponse(forCategory: "transaction")
         
         sut.send(envelope: transactionEnvelope)

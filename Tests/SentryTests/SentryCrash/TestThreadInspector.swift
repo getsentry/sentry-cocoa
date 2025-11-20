@@ -10,7 +10,7 @@ class TestDefaultThreadInspector: SentryDefaultThreadInspector {
         let inAppLogic = SentryInAppLogic(inAppIncludes: [])
         let crashStackEntryMapper = SentryCrashStackEntryMapper(inAppLogic: inAppLogic)
         let stacktraceBuilder = SentryStacktraceBuilder(crashStackEntryMapper: crashStackEntryMapper)
-        return TestDefaultThreadInspector(stacktraceBuilder: stacktraceBuilder, andMachineContextWrapper: SentryCrashDefaultMachineContextWrapper(), symbolicate: false)
+        return TestDefaultThreadInspector(stacktraceBuilder: stacktraceBuilder, andMachineContextWrapper: SentryCrashDefaultMachineContextWrapper())
     }
 
     override func stacktraceForCurrentThreadAsyncUnsafe() -> SentryStacktrace? {

@@ -13,7 +13,6 @@ final class BatteryConsumer {
   private let lock = NSLock()
   private var running = false
 
-  @available(iOS 15.0, *)
   func start() {
     lock.lock()
     defer { lock.unlock() }

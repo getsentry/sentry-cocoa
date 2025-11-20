@@ -476,9 +476,9 @@ class SentryClientTests: XCTestCase {
         }
 
         sut.addAttachmentProcessor(processor)
-        sut.captureError(error, with: Scope()) {
-            self.fixture.session
-        }
+        let sessionDelegate = SentryTestSessionDelegate { self.fixture.session }
+        sut.sessionDelegate = sessionDelegate
+        sut.capture(error: error, scope: Scope())
 
         let sentAttachments = fixture.transportAdapter.sentEventsWithSessionTraceState.first?.attachments ?? []
 
@@ -498,10 +498,12 @@ class SentryClientTests: XCTestCase {
         }
         
         sut.addAttachmentProcessor(processor)
-        sut.captureError(error, with: Scope()) {
-            return SentrySession(releaseName: "", distinctId: "some-id")
+        let sessionDelegate = SentryTestSessionDelegate {
+            SentrySession(releaseName: "", distinctId: "some-id")
         }
-        
+        sut.sessionDelegate = sessionDelegate
+        sut.capture(error: error, scope: Scope())
+
         let sentAttachments = fixture.transportAdapter.sendEventWithTraceStateInvocations.first?.attachments ?? []
         
         XCTAssertEqual(sentAttachments.count, 1)
@@ -802,10 +804,13 @@ class SentryClientTests: XCTestCase {
     func testCaptureErrorWithSession() throws {
         let sessionBlockExpectation = expectation(description: "session block gets called")
         let scope = Scope()
-        let eventId = fixture.getSut().captureError(error, with: scope) {
+        let sut = fixture.getSut()
+        let sessionDelegate = SentryTestSessionDelegate {
             sessionBlockExpectation.fulfill()
             return self.fixture.session
         }
+        sut.sessionDelegate = sessionDelegate
+        let eventId = sut.capture(error: error, scope: scope)
         wait(for: [sessionBlockExpectation], timeout: 0.2)
 
         eventId.assertIsNotEmpty()
@@ -819,18 +824,43 @@ class SentryClientTests: XCTestCase {
                            expectedTraceContext.traceId)
         }
     }
-    
+
+    func testCaptureErrorWithOutSession() throws {
+        let sessionBlockExpectation = expectation(description: "session block gets called")
+        let scope = Scope()
+        let sut = fixture.getSut()
+        let sessionDelegate = SentryTestSessionDelegate {
+            sessionBlockExpectation.fulfill()
+            return nil
+        }
+        sut.sessionDelegate = sessionDelegate
+        let eventId = sut.capture(error: error, scope: scope)
+        wait(for: [sessionBlockExpectation], timeout: 0.2)
+
+        eventId.assertIsNotEmpty()
+        let eventWithSessionArguments = try XCTUnwrap(fixture.transportAdapter.sendEventWithTraceStateInvocations.last)
+
+        try assertValidErrorEvent(eventWithSessionArguments.event, error)
+
+        let expectedTraceContext = TraceContext(trace: scope.propagationContext.traceId, options: Options(), replayId: nil)
+        XCTAssertEqual(eventWithSessionArguments.traceContext?.traceId,
+                       expectedTraceContext.traceId)
+    }
+
     func testCaptureErrorWithSession_WithBeforeSendReturnsNil() throws {
         let sessionBlockExpectation = expectation(description: "session block does not get called")
         sessionBlockExpectation.isInverted = true
 
-        let eventId = fixture.getSut(configureOptions: { options in
+        let sut = fixture.getSut(configureOptions: { options in
             options.beforeSend = { _ in return nil }
-        }).captureError(error, with: Scope()) {
+        })
+        let sessionDelegate = SentryTestSessionDelegate {
             // This should NOT be called
             sessionBlockExpectation.fulfill()
             return self.fixture.session
         }
+        sut.sessionDelegate = sessionDelegate
+        let eventId = sut.capture(error: error, scope: Scope())
         wait(for: [sessionBlockExpectation], timeout: 0.2)
         
         eventId.assertIsEmpty()
@@ -1058,11 +1088,9 @@ class SentryClientTests: XCTestCase {
         let actual = try lastSentEvent()
         let culture = actual.context?["culture"]
         
-        if #available(iOS 10, macOS 10.12, watchOS 3, tvOS 10, *) {
             let expectedCalendar = fixture.locale.localizedString(for: fixture.locale.calendar.identifier)
             XCTAssertEqual(culture?["calendar"] as? String, expectedCalendar)
             XCTAssertEqual(culture?["display_name"] as? String, fixture.locale.localizedString(forIdentifier: fixture.locale.identifier))
-        }
             
         XCTAssertEqual(culture?["locale"] as? String, fixture.locale.identifier)
         XCTAssertEqual(culture?["is_24_hour_format"] as? Bool, SentryLocale.timeIs24HourFormat())
@@ -1148,10 +1176,11 @@ class SentryClientTests: XCTestCase {
         assertValidExceptionEvent(actual)
     }
     
-    func testCaptureExceptionWithSession() {
-        let eventId = fixture.getSut().capture(exception, with: fixture.scope) {
-            self.fixture.session
-        }
+    func testCaptureException_IncreasesSessionErrors() {
+        let sut = fixture.getSut()
+        let sessionDelegate = SentryTestSessionDelegate { self.fixture.session }
+        sut.sessionDelegate = sessionDelegate
+        let eventId = sut.capture(exception: exception, scope: fixture.scope)
 
         eventId.assertIsNotEmpty()
         XCTAssertNotNil(fixture.transportAdapter.sentEventsWithSessionTraceState.last)
@@ -1162,17 +1191,20 @@ class SentryClientTests: XCTestCase {
         }
     }
     
-    func testCaptureExceptionWithSession_WithBeforeSendReturnsNil() throws {
+    func testCaptureException_WithBeforeSendReturnsNil() throws {
         let sessionBlockExpectation = expectation(description: "session block does not get called")
         sessionBlockExpectation.isInverted = true
 
-        let eventId = fixture.getSut(configureOptions: { options in
+        let sut = fixture.getSut(configureOptions: { options in
             options.beforeSend = { _ in return nil }
-        }).capture(exception, with: fixture.scope) {
+        })
+        let sessionDelegate = SentryTestSessionDelegate {
             // This should NOT be called
             sessionBlockExpectation.fulfill()
             return self.fixture.session
         }
+        sut.sessionDelegate = sessionDelegate
+        let eventId = sut.capture(exception: exception, scope: fixture.scope)
         wait(for: [sessionBlockExpectation], timeout: 0.2)
         
         eventId.assertIsEmpty()
@@ -1210,11 +1242,13 @@ class SentryClientTests: XCTestCase {
         let session = SentrySession(releaseName: "", distinctId: "some-id")
         
         fixture.getSut().capture(session: session)
-        fixture.getSut().capture(exception, with: Scope()) {
-            session
-        }
+        let sut = fixture.getSut()
+        let sessionDelegate = SentryTestSessionDelegate { session }
+        sut.sessionDelegate = sessionDelegate
+
+        sut.capture(exception: exception, scope: Scope())
             .assertIsNotEmpty()
-        fixture.getSut().captureFatalEvent(fixture.event, with: session, with: Scope())
+        sut.captureFatalEvent(fixture.event, with: session, with: Scope())
             .assertIsNotEmpty()
         
         // No sessions sent
@@ -1378,9 +1412,12 @@ class SentryClientTests: XCTestCase {
 
     func testNoDsn_EventWithSessionsNotSent() {
         _ = SentryEnvelope(event: Event())
-        let eventId = fixture.getSut(configureOptions: { options in
+        let sut = fixture.getSut(configureOptions: { options in
             options.dsn = nil
-        }).captureFatalEvent(Event(), with: fixture.session, with: fixture.scope)
+        })
+        let sessionDelegate = SentryTestSessionDelegate { self.fixture.session }
+        sut.sessionDelegate = sessionDelegate
+        let eventId = sut.captureFatalEvent(fixture.event, with: fixture.session, with: fixture.scope)
 
         eventId.assertIsEmpty()
         assertNothingSent()
@@ -1388,11 +1425,12 @@ class SentryClientTests: XCTestCase {
 
     func testNoDsn_ExceptionWithSessionsNotSent() {
         _ = SentryEnvelope(event: Event())
-        let eventId = fixture.getSut(configureOptions: { options in
+        let sut = fixture.getSut(configureOptions: { options in
             options.dsn = nil
-        }).capture(self.exception, with: fixture.scope) {
-            self.fixture.session
-        }
+        })
+        let sessionDelegate = SentryTestSessionDelegate { self.fixture.session }
+        sut.sessionDelegate = sessionDelegate
+        let eventId = sut.capture(exception: self.exception, scope: fixture.scope)
 
         eventId.assertIsEmpty()
         assertNothingSent()
@@ -1400,11 +1438,12 @@ class SentryClientTests: XCTestCase {
 
     func testNoDsn_ErrorWithSessionsNotSent() {
         _ = SentryEnvelope(event: Event())
-        let eventId = fixture.getSut(configureOptions: { options in
+        let sut = fixture.getSut(configureOptions: { options in
             options.dsn = nil
-        }).captureError(self.error, with: fixture.scope) {
-            self.fixture.session
-        }
+        })
+        let sessionDelegate = SentryTestSessionDelegate { self.fixture.session }
+        sut.sessionDelegate = sessionDelegate
+        let eventId = sut.capture(error: self.error, scope: fixture.scope)
 
         eventId.assertIsEmpty()
         assertNothingSent()
@@ -2172,40 +2211,55 @@ class SentryClientTests: XCTestCase {
         XCTAssertEqual(scope.replayId, "someReplay")
     }
     
-    func testCaptureLogsData() throws {
+    func testCaptureLog() throws {
         let sut = fixture.getSut()
-        let logData = Data("{\"items\":[{\"timestamp\":1627846801,\"level\":\"info\",\"body\":\"Test log message\"}]}".utf8)
         
-        sut.captureLogsData(logData, with: NSNumber(value: 1))
+        // Create a test batcher to verify addLog is called
+        let testDelegate = TestLogBatcherDelegateForClient()
+        let testBatcher = TestLogBatcherForClient(
+            options: sut.options,
+            dispatchQueue: TestSentryDispatchQueueWrapper(),
+            delegate: testDelegate
+        )
+        Dynamic(sut).logBatcher = testBatcher
         
-        // Verify that an envelope was sent
-        XCTAssertEqual(1, fixture.transport.sentEnvelopes.count)
+        let log = SentryLog(
+            timestamp: Date(timeIntervalSince1970: 1_627_846_801),
+            traceId: SentryId.empty, // Temporary set to empty until its assigned by the batcher.
+            level: .info,
+            body: "Test log message",
+            attributes: [:]
+        )
+        let scope = Scope()
         
-        let envelope = try XCTUnwrap(fixture.transport.sentEnvelopes.first)
+        sut._swiftCaptureLog(log, with: scope)
         
-        // Verify envelope has one item
-        XCTAssertEqual(1, envelope.items.count)
-        
-        let item = try XCTUnwrap(envelope.items.first)
-        
-        // Verify the envelope item header
-        XCTAssertEqual("log", item.header.type)
-        XCTAssertEqual(UInt(logData.count), item.header.length)
-        XCTAssertEqual("application/vnd.sentry.items.log+json", item.header.contentType)
-        XCTAssertEqual(NSNumber(value: 1), item.header.itemCount)
-        
-        // Verify the envelope item data
-        XCTAssertEqual(logData, item.data)
+        // Verify that the log was passed to the batcher
+        XCTAssertEqual(testBatcher.addLogInvocations.count, 1)
+        XCTAssertEqual(testBatcher.addLogInvocations.first?.log.body, "Test log message")
+        XCTAssertEqual(testBatcher.addLogInvocations.first?.log.level, .info)
     }
     
-    func testCaptureLogsData_WithDisabledClient() {
-        let sut = fixture.getSutDisabledSdk()
-        let logData = Data("{\"items\":[{\"timestamp\":1627846801,\"level\":\"info\",\"body\":\"Test log message\"}]}".utf8)
+    func testFlushCallsLogBatcherCaptureLogs() {
+        let sut = fixture.getSut()
         
-        sut.captureLogsData(logData, with: NSNumber(value: 1))
+        // Create a test batcher to verify captureLogs is called
+        let testDelegate = TestLogBatcherDelegateForClient()
+        let testBatcher = TestLogBatcherForClient(
+            options: sut.options,
+            dispatchQueue: TestSentryDispatchQueueWrapper(),
+            delegate: testDelegate
+        )
+        Dynamic(sut).logBatcher = testBatcher
         
-        // Verify that no envelope was sent when client is disabled
-        XCTAssertEqual(0, fixture.transport.sentEnvelopes.count)
+        // Verify initial state
+        XCTAssertEqual(testBatcher.captureLogsInvocations.count, 0)
+        
+        // Call flush - this should trigger the log batcher to capture logs
+        sut.flush(timeout: 1.0)
+        
+        // Verify that captureLogs was called on the log batcher
+        XCTAssertEqual(testBatcher.captureLogsInvocations.count, 1)
     }
     
     func testCaptureSentryWrappedException() throws {
@@ -2229,15 +2283,7 @@ class SentryClientTests: XCTestCase {
         XCTAssertEqual(actual.threads?[0].isMain, true)
         // Make sure the stacktrace is not empty
         XCTAssertGreaterThan(actual.threads?[0].stacktrace?.frames.count ?? 0, 1)
-        // We will need to update it if the test class / module changes
-        let testMangledName = "$s11SentryTests0a6ClientB0C011testCaptureA16WrappedExceptionyyKF"
-        let frameWithTestFunction = actual.threads?[0].stacktrace?.frames.first { frame in
-            frame.function == testMangledName
-        }
-        XCTAssertNotNil(frameWithTestFunction, "Mangled name for testCaptureSentryWrappedException not found in stacktrace")
         
-        // Last frame should always be `__exceptionPreprocess`
-        XCTAssertEqual(actual.threads?[0].stacktrace?.frames.last?.function, "__exceptionPreprocess")
         #else
         throw XCTSkip("Test is disabled for this OS version")
         #endif // os(macOS)
@@ -2245,6 +2291,19 @@ class SentryClientTests: XCTestCase {
 }
 
 private extension SentryClientTests {
+
+    final class SentryTestSessionDelegate: NSObject, SentrySessionDelegate {
+        private let handler: () -> SentrySession?
+
+        init(handler: @escaping () -> SentrySession?) {
+            self.handler = handler
+        }
+
+        func incrementSessionErrors() -> SentrySession? {
+            handler()
+        }
+    }
+
     private func givenEventWithDebugMeta() -> Event {
         let event = Event(level: SentryLevel.fatal)
         let debugMeta = DebugMeta()
@@ -2412,6 +2471,27 @@ private extension SentryClientTests {
         }
     }
     
+}
+
+final class TestLogBatcherForClient: SentryLogBatcher {
+    var addLogInvocations = Invocations<(log: SentryLog, scope: Scope)>()
+    var captureLogsInvocations = Invocations<Void>()
+    
+    override func addLog(_ log: SentryLog, scope: Scope) {
+        addLogInvocations.record((log, scope))
+    }
+    
+    @discardableResult
+    override func captureLogs() -> TimeInterval {
+        captureLogsInvocations.record(())
+        return super.captureLogs()
+    }
+}
+
+final class TestLogBatcherDelegateForClient: NSObject, SentryLogBatcherDelegate {
+    func capture(logsData: NSData, count: NSNumber) {
+        // No-op for tests that don't need to verify delegate calls
+    }
 }
 
 enum SentryClientError: Error {

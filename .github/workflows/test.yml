@@ -24,9 +24,6 @@ jobs:
   ready-to-merge-gate:
     name: Ready-to-merge gate
     uses: ./.github/workflows/ready-to-merge-workflow.yml
-    with:
-      is-pr: ${{ github.event_name == 'pull_request' }}
-      labels: ${{ toJson(github.event.pull_request.labels) }}
 
   # This job detects if the PR contains changes that require running unit tests.
   # If yes, the job will output a flag that will be used by the next job to run the unit tests.
@@ -119,7 +116,8 @@ jobs:
             --package-file Package.swift \
             --is-pr "${{ github.event_name == 'pull_request' }}" \
             --remove-duplicate true \
-            --change-path false
+            --change-path false \
+            --remove-binary-targets true
       - run: rm -r Sentry.xcodeproj && rm -r Sentry.xcworkspace
       - run: set -o pipefail && NSUnbufferedIO=YES SKIP_BINARIES=1 xcodebuild test -scheme Sentry-Package -sdk iphonesimulator -destination 'platform=iOS Simulator,OS=18.4,name=iPhone 16 Pro' | tee raw-test-output-distribution.log | xcbeautify --preserve-unbeautified
         shell: sh
@@ -237,16 +235,17 @@ jobs:
     secrets: inherit
     with:
       name: ${{matrix.name}}
-      runs-on: ${{matrix.runs-on}}
+      runs-on: ${{ matrix.runs-on }}
       should_skip: ${{needs.files-changed.outputs.run_unit_tests_for_prs != 'true'}}
       xcode: ${{matrix.xcode}}
       platform: ${{matrix.platform}}
       test-destination-os: ${{matrix.test-destination-os || 'latest'}}
-      timeout: ${{matrix.timeout || 20}}
+      timeout: 20
       create_device: ${{matrix.create_device || false}}
       install_platforms: ${{matrix.install_platforms || false}}
       device: ${{matrix.device || ''}}
       scheme: ${{matrix.scheme || 'Sentry'}}
+      run_on_cirrus_labs: ${{ !contains(matrix.runs-on, 'macos-') }}
     strategy:
       fail-fast: false
       matrix:
@@ -273,18 +272,14 @@ jobs:
             device: "iPhone 16 Pro"
             scheme: "Sentry"
 
-          # iOS 26 - Download iOS 26.1 beta runtime on macOS-26
+          # iOS 26 - Use pre-installed iOS 26.1 runtime on macOS-26
           - name: iOS 26 Sentry
-            runs-on: macos-26
-            xcode: "26.1"
+            runs-on: tahoe
+            xcode: "26.1.1"
             test-destination-os: "26.1"
-            install_platforms: true
             platform: "iOS"
-            create_device: true
             device: "iPhone 17 Pro"
             scheme: "Sentry"
-            # This runner seems to be slower than the others, so we give it more time because otherwise it frequently times out. The build step often alone takes 20 minutes and also booting the simulator takes a while.
-            timeout: 40
 
           # We don't run the unit tests on macOS 13 cause we run them on all on GH actions available iOS versions.
           # The chance of missing a bug solely on tvOS 16 that doesn't occur on iOS, macOS 12 or macOS 14 is minimal.
@@ -354,16 +349,6 @@ jobs:
             create_device: true
             device: "iPhone 15 Pro"
             scheme: "SentrySwiftUI"
-
-          # iOS 17 - Use pre-installed iOS 17.5 runtime on macOS-14 with Xcode 15.4
-          - name: iOS 17 SentrySwiftLog
-            runs-on: macos-14
-            xcode: "15.4"
-            test-destination-os: "17.5"
-            platform: "iOS"
-            create_device: true
-            device: "iPhone 15 Pro"
-            scheme: "SentrySwiftLog"
 
           # tvOS 18
           - name: tvOS 18 Sentry

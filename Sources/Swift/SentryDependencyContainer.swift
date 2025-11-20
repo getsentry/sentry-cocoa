@@ -17,31 +17,6 @@ let defaultApplicationProvider: () -> SentryApplication? = {
 
 let SENTRY_AUTO_TRANSACTION_MAX_DURATION = 500.0
 
-// MARK: - RedactWrapper
-
-final class RedactWrapper: SentryRedactOptions {
-    var maskAllText: Bool {
-        defaultOptions.maskAllText
-    }
-    
-    var maskAllImages: Bool {
-        defaultOptions.maskAllImages
-    }
-    
-    var maskedViewClasses: [AnyClass] {
-        defaultOptions.maskedViewClasses
-    }
-    
-    var unmaskedViewClasses: [AnyClass] {
-        defaultOptions.unmaskedViewClasses
-    }
-    
-    private let defaultOptions: SentryDefaultRedactOptions
-    init(_ defaultOptions: SentryDefaultRedactOptions) {
-        self.defaultOptions = defaultOptions
-    }
-}
-
 // MARK: - Extensions
 
 extension SentryFileManager: SentryFileManagerProtocol { }
@@ -206,43 +181,21 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     @objc public lazy var screenshotSource: SentryScreenshotSource? = getOptionalLazyVar(\._screenshotSource) {
         // The options could be null here, but this is a general issue in the dependency
         // container and will be fixed in a future refactoring.
-        guard let options = SentrySDKInternal.optionsInternal else {
+        guard let options = SentrySDK.startOption else {
             return nil
         }
         
         let viewRenderer: SentryViewRenderer
-        if SentryDependencyContainerSwiftHelper.viewRendererV2Enabled(options) {
-            viewRenderer = SentryViewRendererV2(enableFastViewRendering: SentryDependencyContainerSwiftHelper.fastViewRenderingEnabled(options))
+        if options.screenshot.enableViewRendererV2 {
+            viewRenderer = SentryViewRendererV2(enableFastViewRendering: options.screenshot.enableFastViewRendering)
         } else {
             viewRenderer = SentryDefaultViewRenderer()
         }
 
-        let redactBuilder: SentryRedactBuilderProtocol
-        guard let maskingStrategy = SentrySessionReplayMaskingStrategy(rawValue: Int(SentryDependencyContainerSwiftHelper.getSessionReplayMaskingStrategy(options))) else {
-            SentrySDKLog.error("Failed to parse session replay masking strategy from options")
-            return nil
-        }
-        let redactOptions = RedactWrapper(SentryDependencyContainerSwiftHelper.redactOptions(options))
-        switch maskingStrategy {
-        case .accessibility:
-            redactBuilder = SentryAccessibilityRedactBuilder(options: redactOptions)
-        case .defensive:
-            redactBuilder = SentryDefensiveRedactBuilder(options: redactOptions)
-        case .machineLearning:
-            redactBuilder = SentryMLRedactBuilder(options: redactOptions)
-        case .pdf:
-            redactBuilder = SentryPDFRedactBuilder(options: redactOptions)
-        case .viewHierarchy:
-            redactBuilder = SentryUIRedactBuilder(options: redactOptions)
-        case .wireframe:
-            redactBuilder = SentryWireframeRedactBuilder(options: redactOptions)
-        }
-
         let photographer = SentryViewPhotographer(
             renderer: viewRenderer,
-            redactBuilder: redactBuilder,
-            enableMaskRendererV2: SentryDependencyContainerSwiftHelper.viewRendererV2Enabled(options)
-        )
+            redactOptions: options.screenshot,
+            enableMaskRendererV2: options.screenshot.enableViewRendererV2)
         return SentryScreenshotSource(photographer: photographer)
     }
 #endif
@@ -266,10 +219,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     }
     private var _appStateManager: SentryAppStateManager?
     @objc public lazy var appStateManager = getLazyVar(\._appStateManager) {
-        var release: String?
-        if let options = SentrySDKInternal.optionsInternal {
-            release = SentryDependencyContainerSwiftHelper.release(options)
-        }
+        let release = SentrySDK.startOption?.releaseName
         return SentryAppStateManager(
             releaseName: release,
             crashWrapper: crashWrapper,
@@ -278,7 +228,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     }
     private var _crashReporter: SentryCrashSwift?
     @objc public lazy var crashReporter = getLazyVar(\._crashReporter) {
-        SentryCrashSwift(with: SentrySDKInternal.optionsInternal.map { SentryDependencyContainerSwiftHelper.cacheDirectoryPath($0) })
+        SentryCrashSwift(with: SentrySDK.startOption?.cacheDirectoryPath)
     }
     
     private var anrTracker: SentryANRTracker?

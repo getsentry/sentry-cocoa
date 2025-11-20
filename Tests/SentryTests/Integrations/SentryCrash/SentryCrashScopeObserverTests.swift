@@ -24,13 +24,13 @@ class SentryCrashScopeObserverTests: XCTestCase {
         clearTestState()
     }
 
-    func testUser() {
+    func testUser() throws {
         let sut = fixture.sut
         let user = TestData.user
         sut.setUser(user)
         
-        let expected = serialize(object: user.serialize())
-        
+        let expected = try serialize(object: user.serialize())
+
         XCTAssertEqual(expected, getScopeJson { $0.user })
     }
 
@@ -58,11 +58,11 @@ class SentryCrashScopeObserverTests: XCTestCase {
         XCTAssertNil(getScopeJson { $0.level })
     }
 
-    func testDist() {
+    func testDist() throws {
         let sut = fixture.sut
         sut.setDist(fixture.dist)
 
-        let expected = serialize(object: fixture.dist)
+        let expected = try serialize(object: fixture.dist)
 
         XCTAssertEqual(expected, getScopeJson { $0.dist })
     }
@@ -75,11 +75,11 @@ class SentryCrashScopeObserverTests: XCTestCase {
         XCTAssertNil(getScopeJson { $0.dist })
     }
 
-    func testEnvironment() {
+    func testEnvironment() throws {
         let sut = fixture.sut
         sut.setEnvironment(fixture.environment)
 
-        let expected = serialize(object: fixture.environment)
+        let expected = try serialize(object: fixture.environment)
 
         XCTAssertEqual(expected, getScopeJson { $0.environment })
     }
@@ -92,11 +92,11 @@ class SentryCrashScopeObserverTests: XCTestCase {
         XCTAssertNil(getScopeJson { $0.environment })
     }
 
-    func testContext() {
+    func testContext() throws {
         let sut = fixture.sut
         sut.setContext(TestData.context)
 
-        let expected = serialize(object: TestData.context)
+        let expected = try serialize(object: TestData.context)
 
         XCTAssertEqual(expected, getScopeJson { $0.context })
     }
@@ -121,11 +121,11 @@ class SentryCrashScopeObserverTests: XCTestCase {
         XCTAssertNil(getScopeJson { $0.context })
     }
     
-    func testTraceContext() {
+    func testTraceContext() throws {
         let sut = fixture.sut
         sut.setTraceContext(TestData.traceContext)
 
-        let expected = serialize(object: TestData.traceContext)
+        let expected = try serialize(object: TestData.traceContext)
 
         XCTAssertEqual(expected, getScopeJson { $0.traceContext })
     }
@@ -146,11 +146,11 @@ class SentryCrashScopeObserverTests: XCTestCase {
         XCTAssertNil(getScopeJson { $0.traceContext })
     }
 
-    func testFingerprint() {
+    func testFingerprint() throws {
         let sut = fixture.sut
         sut.setFingerprint(fixture.fingerprint)
 
-        let expected = serialize(object: fixture.fingerprint)
+        let expected = try serialize(object: fixture.fingerprint)
 
         XCTAssertEqual(expected, getScopeJson { $0.fingerprint })
     }
@@ -171,11 +171,11 @@ class SentryCrashScopeObserverTests: XCTestCase {
         XCTAssertNil(getScopeJson { $0.fingerprint })
     }
 
-    func testExtra() {
+    func testExtra() throws {
         let sut = fixture.sut
         sut.setExtras(fixture.extras)
 
-        let expected = serialize(object: fixture.extras)
+        let expected = try serialize(object: fixture.extras)
 
         XCTAssertEqual(expected, getScopeJson { $0.extras })
     }
@@ -196,11 +196,11 @@ class SentryCrashScopeObserverTests: XCTestCase {
         XCTAssertNil(getScopeJson { $0.extras })
     }
 
-    func testTags() {
+    func testTags() throws {
         let sut = fixture.sut
         sut.setTags(fixture.tags)
 
-        let expected = serialize(object: fixture.tags)
+        let expected = try serialize(object: fixture.tags)
 
         XCTAssertEqual(expected, getScopeJson { $0.tags })
     }
@@ -221,19 +221,19 @@ class SentryCrashScopeObserverTests: XCTestCase {
         XCTAssertNil(getScopeJson { $0.tags })
     }
 
-    func testAddCrumb() {
+    func testAddCrumb() throws {
         let sut = fixture.sut
         let crumb = TestData.crumb
         sut.addSerializedBreadcrumb(crumb.serialize())
         
-        assertOneCrumbSetToScope(crumb: crumb)
+        try assertOneCrumbSetToScope(crumb: crumb)
     }
     
     func testAddCrumbWithoutConfigure_DoesNotCrash() {
         sentrycrash_scopesync_addBreadcrumb("")
     }
     
-    func testCallConfigureCrumbTwice() {
+    func testCallConfigureCrumbTwice() throws {
         let sut = fixture.sut
         let crumb = TestData.crumb
         sut.addSerializedBreadcrumb(crumb.serialize())
@@ -244,10 +244,10 @@ class SentryCrashScopeObserverTests: XCTestCase {
         XCTAssertEqual(0, scope?.pointee.currentCrumb)
         
         sut.addSerializedBreadcrumb(crumb.serialize())
-        assertOneCrumbSetToScope(crumb: crumb)
+        try assertOneCrumbSetToScope(crumb: crumb)
     }
 
-    func testAddCrumb_MoreThanMaxBreadcrumbs() {
+    func testAddCrumb_MoreThanMaxBreadcrumbs() throws {
         let sut = fixture.sut
         
         var crumbs: [Breadcrumb] = []
@@ -275,8 +275,8 @@ class SentryCrashScopeObserverTests: XCTestCase {
         for crumb in crumbs {
             let scopeCrumbJSON = String(cString: crumbPointer ?? UnsafeMutablePointer<CChar>.allocate(capacity: 0))
             
-            XCTAssertEqual(serialize(object: crumb.serialize()), scopeCrumbJSON)
-            
+            XCTAssertEqual(try serialize(object: crumb.serialize()), scopeCrumbJSON)
+
             i = (i + 1) % fixture.maxBreadcrumbs
             crumbPointer = breadcrumbs[i]
         }
@@ -307,8 +307,8 @@ class SentryCrashScopeObserverTests: XCTestCase {
         assertEmptyScope()
     }
     
-    private func serialize(object: Any) -> String {
-        let serialized = try! SentryCrashJSONCodec.encode(object, options: SentryCrashJSONEncodeOptionSorted)
+    private func serialize(object: Any) throws -> String {
+        let serialized = try XCTUnwrap(SentryCrashJSONCodec.encode(object, options: SentryCrashJSONEncodeOptionSorted))
         return String(data: serialized, encoding: .utf8) ?? ""
     }
     
@@ -329,9 +329,9 @@ class SentryCrashScopeObserverTests: XCTestCase {
         return String(cString: charPointer)
     }
     
-    private func assertOneCrumbSetToScope(crumb: Breadcrumb) {
-        let expected = serialize(object: crumb.serialize())
-        
+    private func assertOneCrumbSetToScope(crumb: Breadcrumb) throws {
+        let expected = try serialize(object: crumb.serialize())
+
         let scope = sentrycrash_scopesync_getScope()
         
         XCTAssertEqual(1, scope?.pointee.currentCrumb)

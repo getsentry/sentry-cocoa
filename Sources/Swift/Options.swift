@@ -206,11 +206,11 @@
     @objc public var attachStacktrace: Bool = true
 
     /// The maximum size for each attachment in bytes.
-    /// @note Default is 100 MiB (100 ✕ 1024 ✕ 1024 bytes).
+    /// @note Default is 200 MiB (200 ✕ 1024 ✕ 1024 bytes).
     /// @note Please also check the maximum attachment size of relay to make sure your attachments don't
     /// get discarded there:
     ///  https://docs.sentry.io/product/relay/options/
-    @objc public var maxAttachmentSize: UInt = 100 * 1_024 * 1_024
+    @objc public var maxAttachmentSize: UInt = 200 * 1_024 * 1_024
 
     /// When enabled, the SDK sends personal identifiable along with events.
     /// @note The default is NO.

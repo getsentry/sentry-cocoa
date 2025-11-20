@@ -121,7 +121,7 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
         return;
 
     // SDK not enabled no need to continue
-    if (SentrySDKInternal.options == nil) {
+    if (SentrySDK.startOption == nil) {
         return;
     }
 
@@ -132,7 +132,7 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
     }
 
     // Don't measure requests to Sentry's backend
-    NSURL *_Nullable apiUrl = SentrySDKInternal.options.parsedDsn.url;
+    NSURL *_Nullable apiUrl = SentrySDK.startOption.parsedDsn.url;
     if (apiUrl && apiUrl.host && apiUrl.path.length > 0 &&
         [url.host isEqualToString:SENTRY_UNWRAP_NULLABLE(NSString, apiUrl.host)] &&
         [url.path containsString:SENTRY_UNWRAP_NULLABLE(NSString, apiUrl.path)]) {
@@ -192,13 +192,12 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
         }
 
         SentryBaggage *baggage = [[[SentryTracer getTracer:span] traceContext] toBaggage];
-        [SentryTracePropagation
-                   addBaggageHeader:baggage
-                        traceHeader:SENTRY_UNWRAP_NULLABLE(
-                                        SentryTraceHeader, [netSpan toTraceHeader])
-               propagateTraceparent:SentrySDKInternal.options.enablePropagateTraceparent
-            tracePropagationTargets:SentrySDKInternal.options.tracePropagationTargets
-                          toRequest:sessionTask];
+        [SentryTracePropagation addBaggageHeader:baggage
+                                     traceHeader:SENTRY_UNWRAP_NULLABLE(
+                                                     SentryTraceHeader, [netSpan toTraceHeader])
+                            propagateTraceparent:SentrySDK.startOption.enablePropagateTraceparent
+                         tracePropagationTargets:SentrySDK.startOption.tracePropagationTargets
+                                       toRequest:sessionTask];
 
         SENTRY_LOG_DEBUG(
             @"SentryNetworkTracker automatically started HTTP span for sessionTask: %@",
@@ -222,8 +221,8 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
 
     [SentryTracePropagation addBaggageHeader:[traceContext toBaggage]
                                  traceHeader:[propagationContext traceHeader]
-                        propagateTraceparent:SentrySDKInternal.options.enablePropagateTraceparent
-                     tracePropagationTargets:SentrySDKInternal.options.tracePropagationTargets
+                        propagateTraceparent:SentrySDK.startOption.enablePropagateTraceparent
+                     tracePropagationTargets:SentrySDK.startOption.tracePropagationTargets
                                    toRequest:sessionTask];
 }
 
@@ -249,7 +248,7 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
     }
 
     // Don't measure requests to Sentry's backend
-    NSURL *apiUrl = SentrySDKInternal.options.parsedDsn.url;
+    NSURL *apiUrl = SentrySDK.startOption.parsedDsn.url;
     if ([url.host isEqualToString:SENTRY_UNWRAP_NULLABLE(NSString, apiUrl.host)] &&
         [url.path containsString:SENTRY_UNWRAP_NULLABLE(NSString, apiUrl.path)]) {
         return;
@@ -318,9 +317,8 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
         return;
     }
 
-    if (![SentryTracePropagation
-            isTargetMatch:SENTRY_UNWRAP_NULLABLE(NSURL, myRequest.URL)
-              withTargets:SentrySDKInternal.options.failedRequestTargets ?: @[]]) {
+    if (![SentryTracePropagation isTargetMatch:SENTRY_UNWRAP_NULLABLE(NSURL, myRequest.URL)
+                                   withTargets:SentrySDK.startOption.failedRequestTargets ?: @[]]) {
         SENTRY_LOG_DEBUG(
             @"Request url isn't within the request targets, not capturing HTTP Client errors.");
         return;
@@ -395,12 +393,12 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
 
     event.context = context;
 
-    [SentrySDK captureEvent:event];
+    [SentrySDKInternal.currentHub captureErrorEvent:event];
 }
 
 - (BOOL)containsStatusCode:(NSInteger)statusCode
 {
-    for (SentryHttpStatusCodeRange *range in SentrySDKInternal.options.failedRequestStatusCodes) {
+    for (SentryHttpStatusCodeRange *range in SentrySDK.startOption.failedRequestStatusCodes) {
         if ([range isInRange:statusCode]) {
             return YES;
         }
