@@ -1,6 +1,6 @@
 import Foundation
 
-typealias SentryLogOutput = ((String) -> Void)
+@_spi(Private) public typealias SentryLogOutput = ((String) -> Void)
 
 /// A note on the thread safety:
 /// The methods configure and log don't use synchronization mechanisms, meaning they aren't strictly speaking thread-safe.
@@ -57,11 +57,12 @@ typealias SentryLogOutput = ((String) -> Void)
         return isDebug && level.rawValue >= diagnosticLevel.rawValue
     }
  
-    #if SENTRY_TEST || SENTRY_TEST_CI
-    
-    static func setOutput(_ output: @escaping SentryLogOutput) {
+    /// Set a custom output function for logs. Used by integrations to redirect output.
+    @objc @_spi(Private) public static func setOutput(_ output: @escaping SentryLogOutput) {
         logOutput = output
     }
+    
+    #if SENTRY_TEST || SENTRY_TEST_CI
     
     static func getOutput() -> SentryLogOutput {
         return logOutput

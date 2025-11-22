@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Structured Logs: Collect `stdout/stderr` (#6441)
+
 ## 9.0.0-rc.0
 
 ### Breaking Changes

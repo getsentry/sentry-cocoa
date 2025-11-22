@@ -23,6 +23,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
 
         SentrySDKWrapper.shared.startSentry()
+        
         SampleAppDebugMenu.shared.display()
         
         metricKit.receiveReports()

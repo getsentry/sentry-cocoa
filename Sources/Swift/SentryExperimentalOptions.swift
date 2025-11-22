@@ -29,6 +29,17 @@ public final class SentryExperimentalOptions: NSObject {
      */
     public var enableSessionReplayInUnreliableEnvironment = false
 
+    /**
+     * Enables capturing stdout and stderr output and forwarding it to Sentry logs.
+     *
+     * When enabled, the SDK will capture all output written to stdout and stderr (including print statements,
+     * NSLog calls, etc.) and forward them as structured logs to Sentry.
+     *
+     * - Note: This requires `SentryOptions.enableLogs` to be set to `true`.
+     * - Experiment: This is an experimental feature and is therefore disabled by default.
+     */
+    public var enableStdOutCapture = false
+
     @_spi(Private) public func validateOptions(_ options: [String: Any]?) {
     }
 }
