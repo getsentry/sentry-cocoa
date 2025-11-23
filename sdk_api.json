@@ -236,16 +236,6 @@
       },
       {
         "kind": "Import",
-        "name": "Sentry.SentryProfilingConditionals",
-        "printedName": "Sentry.SentryProfilingConditionals",
-        "declKind": "Import",
-        "moduleName": "Sentry",
-        "declAttributes": [
-          "Exported"
-        ]
-      },
-      {
-        "kind": "Import",
         "name": "Sentry.SentryReplayApi",
         "printedName": "Sentry.SentryReplayApi",
         "declKind": "Import",
@@ -57111,48 +57101,6 @@
             "declKind": "Accessor",
             "usr": "s:SC26SENTRY_TARGET_MACOS_HAS_UIs5Int32Vvg",
             "mangledName": "$sSC26SENTRY_TARGET_MACOS_HAS_UIs5Int32Vvg",
-            "moduleName": "Sentry",
-            "declAttributes": [
-              "Transparent"
-            ],
-            "accessorKind": "get"
-          }
-        ]
-      },
-      {
-        "kind": "Var",
-        "name": "SENTRY_TARGET_PROFILING_SUPPORTED",
-        "printedName": "SENTRY_TARGET_PROFILING_SUPPORTED",
-        "children": [
-          {
-            "kind": "TypeNominal",
-            "name": "Int32",
-            "printedName": "Swift.Int32",
-            "usr": "s:s5Int32V"
-          }
-        ],
-        "declKind": "Var",
-        "usr": "c:@macro@SENTRY_TARGET_PROFILING_SUPPORTED",
-        "moduleName": "Sentry",
-        "declAttributes": [
-          "Nonisolated"
-        ],
-        "accessors": [
-          {
-            "kind": "Accessor",
-            "name": "Get",
-            "printedName": "Get()",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Int32",
-                "printedName": "Swift.Int32",
-                "usr": "s:s5Int32V"
-              }
-            ],
-            "declKind": "Accessor",
-            "usr": "s:SC33SENTRY_TARGET_PROFILING_SUPPORTEDs5Int32Vvg",
-            "mangledName": "$sSC33SENTRY_TARGET_PROFILING_SUPPORTEDs5Int32Vvg",
             "moduleName": "Sentry",
             "declAttributes": [
               "Transparent"
