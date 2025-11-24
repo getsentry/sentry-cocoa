@@ -12,22 +12,13 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryFeedbackAPI : NSObject
+// Needed to access SentryFeedbackIntegration until that class is written in Swift
+@interface SentryFeedbackAPIHelper : NSObject
 
-/**
- * Show the feedback widget button.
- * @warning This is an experimental feature and may still have bugs.
- * @seealso See @c SentryOptions.configureUserFeedback to configure the widget.
- */
-- (void)showWidget NS_EXTENSION_UNAVAILABLE(
++ (void)showWidget NS_EXTENSION_UNAVAILABLE(
     "Sentry User Feedback UI cannot be used from app extensions.");
 
-/**
- * Hide the feedback widget button.
- * @warning This is an experimental feature and may still have bugs.
- * @seealso See @c SentryOptions.configureUserFeedback to configure the widget.
- */
-- (void)hideWidget NS_EXTENSION_UNAVAILABLE(
++ (void)hideWidget NS_EXTENSION_UNAVAILABLE(
     "Sentry User Feedback UI cannot be used from app extensions.");
 
 /**

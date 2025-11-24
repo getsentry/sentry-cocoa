@@ -11,6 +11,7 @@ import XCTest
 import MetricKit
 #endif // canImport(MetricKit)
 
+@available(macOS 12.0, *)
 final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
     
     var callStackTreePerThread: SentryMXCallStackTree!
@@ -359,6 +360,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
 
 @available(tvOS, unavailable)
 @available(watchOS, unavailable)
+@available(macOS 12.0, *)
 class TestMXCallStackTree: MXCallStackTree {
     struct Override {
         var jsonRepresentation = Data()
@@ -373,6 +375,7 @@ class TestMXCallStackTree: MXCallStackTree {
 
 @available(tvOS, unavailable)
 @available(watchOS, unavailable)
+@available(macOS 12.0, *)
 class TestMXCrashDiagnostic: MXCrashDiagnostic {
     struct Override {
         var callStackTree = TestMXCallStackTree()
@@ -387,6 +390,7 @@ class TestMXCrashDiagnostic: MXCrashDiagnostic {
 
 @available(tvOS, unavailable)
 @available(watchOS, unavailable)
+@available(macOS 12.0, *)
 class TestMXCPUExceptionDiagnostic: MXCPUExceptionDiagnostic {
     struct Override {
         var callStackTree = TestMXCallStackTree()
@@ -409,6 +413,7 @@ class TestMXCPUExceptionDiagnostic: MXCPUExceptionDiagnostic {
 
 @available(tvOS, unavailable)
 @available(watchOS, unavailable)
+@available(macOS 12.0, *)
 class TestMXDiskWriteExceptionDiagnostic: MXDiskWriteExceptionDiagnostic {
     struct Override {
         var callStackTree = TestMXCallStackTree()
@@ -427,6 +432,7 @@ class TestMXDiskWriteExceptionDiagnostic: MXDiskWriteExceptionDiagnostic {
 
 @available(tvOS, unavailable)
 @available(watchOS, unavailable)
+@available(macOS 12.0, *)
 class TestMXHangDiagnostic: MXHangDiagnostic {
     struct Override {
         var callStackTree = TestMXCallStackTree()

@@ -464,3 +464,18 @@ Date: 10.11.2025
 Contributors: @philipphofmann, @noahsmartin, @denrase
 
 The `swift-log` dependeceny we have added is primarly intendet to be used on backaned projects. While it could be used on the client, we do not want to have external dependencies in our `Package.swift`. So fot it and other logging integrations, a separate repo will be created.
+
+## Change macOS deployment target to 10.14
+
+Date: November 19, 2025
+Contributors: @philprime, @philipphofmann, @itaybre, @noahsmartin
+
+Our internal data has shown that ~0.25% of events originate from macOS 10.14 and earlier.
+While this number is very low, there is not apparent reason to not support it, therefore we will change the macOS deployment target to 10.14 to allow users to use the SDK on macOS 10.14 and later.
+
+The main reason for choosing exactly this version as the earliest supported version is that it's the first one offering `NWPathMonitor` as a replacement for `SCNetworkReachability`.
+
+Related links:
+
+- https://github.com/getsentry/sentry-cocoa/issues/6758
+- https://github.com/getsentry/sentry-cocoa/pull/6873

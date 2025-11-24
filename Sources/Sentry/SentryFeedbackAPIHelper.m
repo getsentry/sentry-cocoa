@@ -8,22 +8,22 @@
 
 #if TARGET_OS_IOS && SENTRY_HAS_UIKIT
 
-#    import "SentryFeedbackAPI.h"
+#    import "SentryFeedbackAPIHelper.h"
 #    import "SentryHub+Private.h"
 #    import "SentryLogC.h"
 #    import "SentrySDK+Private.h"
 #    import "SentryUserFeedbackIntegration.h"
 
-@implementation SentryFeedbackAPI
+@implementation SentryFeedbackAPIHelper
 
-- (void)showWidget
++ (void)showWidget
 {
     SentryUserFeedbackIntegration *feedback = [[SentrySDKInternal currentHub]
         getInstalledIntegration:[SentryUserFeedbackIntegration class]];
     [feedback showWidget];
 }
 
-- (void)hideWidget
++ (void)hideWidget
 {
     SentryUserFeedbackIntegration *feedback = [SentrySDKInternal.currentHub
         getInstalledIntegration:[SentryUserFeedbackIntegration class]];

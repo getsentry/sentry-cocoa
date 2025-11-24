@@ -47,12 +47,6 @@
 #    import "SentryCrashExceptionApplication.h"
 #endif // TARGET_OS_MAC
 
-#if SENTRY_HAS_UIKIT
-#    if TARGET_OS_IOS
-#        import "SentryFeedbackAPI.h"
-#    endif // TARGET_OS_IOS
-#endif // SENTRY_HAS_UIKIT
-
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 #    import "SentryContinuousProfiler.h"
 #    import "SentryProfileConfiguration.h"
