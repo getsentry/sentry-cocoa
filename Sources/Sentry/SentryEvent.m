@@ -33,13 +33,13 @@ NS_ASSUME_NONNULL_BEGIN
     return [self commonInit:kSentryLevelNone];
 }
 
-- (instancetype)initWithLevel:(enum SentryLevel)level
+- (instancetype)initWithLevel:(SentryLevel)level
 {
     self = [super init];
     return [self commonInit:level];
 }
 
-- (instancetype)commonInit:(enum SentryLevel)level
+- (instancetype)commonInit:(SentryLevel)level
 {
     if (self) {
         self.eventId = [[SentryId alloc] init];

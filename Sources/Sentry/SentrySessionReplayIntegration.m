@@ -6,6 +6,7 @@
 #    import "SentryEvent+Private.h"
 #    import "SentryHub+Private.h"
 #    import "SentryInternalDefines.h"
+#    import "SentryLevel.h"
 #    import "SentryLogC.h"
 #    import "SentrySDK+Private.h"
 #    import "SentryScope+Private.h"
@@ -719,7 +720,7 @@ static SentryTouchTracker *_touchTracker;
 + (id<SentryRRWebEvent>)createBreadcrumbwithTimestamp:(NSDate *)timestamp
                                              category:(NSString *)category
                                               message:(nullable NSString *)message
-                                                level:(enum SentryLevel)level
+                                                level:(SentryLevel)level
                                                  data:(nullable NSDictionary<NSString *, id> *)data
 {
     SENTRY_LOG_DEBUG(@"[Session Replay] Creating breadcrumb with timestamp: %@, category: %@, "

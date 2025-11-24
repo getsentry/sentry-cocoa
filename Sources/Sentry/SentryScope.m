@@ -4,6 +4,7 @@
 #import "SentryDefines.h"
 #import "SentryEvent+Private.h"
 #import "SentryInternalDefines.h"
+#import "SentryLevel.h"
 #import "SentryLevelMapper.h"
 #import "SentryLogC.h"
 #import "SentryPropagationContext.h"
@@ -425,7 +426,7 @@ NS_ASSUME_NONNULL_BEGIN
     }
 }
 
-- (void)setLevel:(enum SentryLevel)level
+- (void)setLevel:(SentryLevel)level
 {
     self.levelEnum = level;
 

@@ -7,6 +7,7 @@
 #endif
 #import SENTRY_HEADER(SentrySerializable)
 #import SENTRY_HEADER(SentrySpanProtocol)
+#import SENTRY_HEADER(SentryLevel)
 
 @class SentryAttachment;
 @class SentryBreadcrumb;
@@ -105,7 +106,7 @@ NS_SWIFT_NAME(Scope)
 /**
  * Sets the @c level in the scope
  */
-- (void)setLevel:(enum SentryLevel)level;
+- (void)setLevel:(SentryLevel)level;
 
 /**
  * Add a breadcrumb to the scope
