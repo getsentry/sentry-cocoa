@@ -7,7 +7,7 @@
     /**
      * The envelope item header.
      */
-    @objc public let header: SentryEnvelopeItemHeader
+    let header: SentryEnvelopeItemHeader
     
     /**
      * The envelope payload.
@@ -16,10 +16,23 @@
     
     // MARK: - Initializers
     
+    @objc public convenience init(type: String, data: Data?, contentType: String, itemCount: NSNumber) {
+        let header = SentryEnvelopeItemHeader(type: type, length: UInt(data?.count ?? 0), contentType: contentType, itemCount: itemCount)
+        self.init(header: header, data: data)
+    }
+    
+    @objc public convenience init(type: String, data: Data?, addPlatform: Bool) {
+        let header = SentryEnvelopeItemHeader(type: type, length: UInt(data?.count ?? 0))
+        if addPlatform {
+            header.platform = "cocoa"
+        }
+        self.init(header: header, data: data)
+    }
+    
     /**
      * Designated initializer for creating an envelope item with a header and data.
      */
-    @objc public init(header: SentryEnvelopeItemHeader, data: Data?) {
+    init(header: SentryEnvelopeItemHeader, data: Data?) {
         self.header = header
         self.data = data
     }
@@ -188,5 +201,9 @@
         
         let itemHeader = SentryEnvelopeItemHeader(type: SentryEnvelopeItemTypes.replayVideo, length: UInt(envelopeItemContent?.count ?? 0))
         self.init(header: itemHeader, data: envelopeItemContent)
+    }
+    
+    @objc public func type() -> String {
+        header.type
     }
 }

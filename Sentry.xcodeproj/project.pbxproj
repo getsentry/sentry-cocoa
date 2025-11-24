@@ -953,7 +953,7 @@
 		D8CAC02F2BA0663E00E38F34 /* SentryVideoInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8CAC02B2BA0663E00E38F34 /* SentryVideoInfo.swift */; };
 		D8CB74152947246600A5F964 /* SentryEnvelopeAttachmentHeader.h in Headers */ = {isa = PBXBuildFile; fileRef = D8CB74142947246600A5F964 /* SentryEnvelopeAttachmentHeader.h */; };
 		D8CB7417294724CC00A5F964 /* SentryEnvelopeAttachmentHeader.m in Sources */ = {isa = PBXBuildFile; fileRef = D8CB7416294724CC00A5F964 /* SentryEnvelopeAttachmentHeader.m */; };
-		D8CB74192947285A00A5F964 /* SentryEnvelopeItemHeader.h in Headers */ = {isa = PBXBuildFile; fileRef = D8CB74182947285A00A5F964 /* SentryEnvelopeItemHeader.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D8CB74192947285A00A5F964 /* SentryEnvelopeItemHeader.h in Headers */ = {isa = PBXBuildFile; fileRef = D8CB74182947285A00A5F964 /* SentryEnvelopeItemHeader.h */; };
 		D8CB741B2947286500A5F964 /* SentryEnvelopeItemHeader.m in Sources */ = {isa = PBXBuildFile; fileRef = D8CB741A2947286500A5F964 /* SentryEnvelopeItemHeader.m */; };
 		D8CB742B294B1DD000A5F964 /* SentryUIApplicationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8CB742A294B1DD000A5F964 /* SentryUIApplicationTests.swift */; };
 		D8CB742E294B294B00A5F964 /* MockUIScene.m in Sources */ = {isa = PBXBuildFile; fileRef = D8CB742D294B294B00A5F964 /* MockUIScene.m */; };
@@ -2333,7 +2333,7 @@
 		D8CAC02B2BA0663E00E38F34 /* SentryVideoInfo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SentryVideoInfo.swift; sourceTree = "<group>"; };
 		D8CB74142947246600A5F964 /* SentryEnvelopeAttachmentHeader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryEnvelopeAttachmentHeader.h; path = include/SentryEnvelopeAttachmentHeader.h; sourceTree = "<group>"; };
 		D8CB7416294724CC00A5F964 /* SentryEnvelopeAttachmentHeader.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryEnvelopeAttachmentHeader.m; sourceTree = "<group>"; };
-		D8CB74182947285A00A5F964 /* SentryEnvelopeItemHeader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryEnvelopeItemHeader.h; path = Public/SentryEnvelopeItemHeader.h; sourceTree = "<group>"; };
+		D8CB74182947285A00A5F964 /* SentryEnvelopeItemHeader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryEnvelopeItemHeader.h; path = include/SentryEnvelopeItemHeader.h; sourceTree = "<group>"; };
 		D8CB741A2947286500A5F964 /* SentryEnvelopeItemHeader.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryEnvelopeItemHeader.m; sourceTree = "<group>"; };
 		D8CB742A294B1DD000A5F964 /* SentryUIApplicationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryUIApplicationTests.swift; sourceTree = "<group>"; };
 		D8CB742C294B294B00A5F964 /* MockUIScene.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MockUIScene.h; sourceTree = "<group>"; };

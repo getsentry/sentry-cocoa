@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Breaking Changes
+
+- Removes SentryEnvelopeItemHeader from the public API (#6870)
+
 ### Improvements
 
 - Change macOS deployment target to 10.14 (#6873)

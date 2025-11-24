@@ -429,7 +429,7 @@
 - (void)recordLostEventFor:(NSArray<SentryEnvelopeItem *> *)items
 {
     for (SentryEnvelopeItem *item in items) {
-        NSString *itemType = item.header.type;
+        NSString *itemType = item.type;
         // We don't want to record a lost event when it's a client report.
         // It's fine to drop it silently.
         if ([itemType isEqualToString:SentryEnvelopeItemTypes.clientReport]) {
@@ -443,7 +443,7 @@
 
 - (void)recordLostSpans:(SentryEnvelopeItem *)envelopeItem reason:(SentryDiscardReason)reason
 {
-    if ([SentryEnvelopeItemTypes.transaction isEqualToString:envelopeItem.header.type]) {
+    if ([SentryEnvelopeItemTypes.transaction isEqualToString:envelopeItem.type]) {
         if (envelopeItem.data == nil) {
             return;
         }
