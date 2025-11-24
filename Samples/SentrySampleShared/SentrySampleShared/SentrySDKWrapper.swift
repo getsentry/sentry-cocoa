@@ -198,7 +198,7 @@ public struct SentrySDKWrapper {
         scope.addAttachment(Attachment(data: data, filename: "log.txt"))
         
         scope.setAttribute(value: "\(Bundle.main.bundleIdentifier ?? "")-custom-attribute", key: "custom-attribute-text")
-        scope.setAttribute(value: Date.now.timeIntervalSince1970, key: "custom-attribute-numeric")
+        scope.setAttribute(value: Date().timeIntervalSince1970, key: "custom-attribute-numeric")
         scope.setAttribute(value: true, key: "custom-attribute-boolean")
 
         return scope
