@@ -869,6 +869,18 @@ class SentryScopeSwiftTests: XCTestCase {
         
         XCTAssertEqual(try XCTUnwrap(scope.attributes["a-string-key"] as? String), "test-string")
     }
+    
+    func testSetStringAttributeAgainChangesValue() {
+        let scope = Scope()
+        
+        scope.setAttribute(value: "test-string", key: "a-string-key")
+        
+        XCTAssertEqual(try XCTUnwrap(scope.attributes["a-string-key"] as? String), "test-string")
+        
+        scope.setAttribute(value: "another-string", key: "a-string-key")
+        
+        XCTAssertEqual(try XCTUnwrap(scope.attributes["a-string-key"] as? String), "another-string")
+    }
 
     func testSetBoolAttribute() {
         let scope = Scope()
@@ -904,6 +916,15 @@ class SentryScopeSwiftTests: XCTestCase {
         scope.removeAttribute(key: "a-key")
 
         XCTAssertNil(scope.attributes["a-key"])
+    }
+    
+    func testRemoveNotExistingAttributeDoesNotCrash() {
+        let scope = Scope()
+        
+        // This should not crash
+        scope.removeAttribute(key: "an-invalid-key")
+
+        XCTAssertTrue(scope.attributes.isEmpty)
     }
 
     private class TestScopeObserver: NSObject, SentryScopeObserver {

@@ -552,6 +552,9 @@ NS_ASSUME_NONNULL_BEGIN
     if (crumbs.count > 0) {
         [serializedData setValue:crumbs forKey:@"breadcrumbs"];
     }
+    if (self.attributes.count > 0) {
+        [serializedData setValue:[self attributes] forKey:@"attributes"];
+    }
     return serializedData;
 }
 
