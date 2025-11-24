@@ -1,3 +1,4 @@
+import Sentry
 import SwiftUI
 
 struct ContentView: View {
@@ -7,6 +8,9 @@ struct ContentView: View {
                 .imageScale(.large)
                 .foregroundStyle(.tint)
             Text("Hello, world!")
+            Button("Show Feedback Form") {
+                SentrySDK.feedback.showForm()
+            }
         }
         .padding()
     }
