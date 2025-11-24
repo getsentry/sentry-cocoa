@@ -76,7 +76,11 @@ import UIKit
         widget?.rootVC.setWidget(visible: false, animated: configuration.animations)
     }
 
-    @objc func showForm(sender: UIButton) {
+    @objc public func showForm() {
+        showForm(screenshot: nil)
+    }
+
+    @objc func showForm(sender: NSObject) {
         presenter?.present(SentryUserFeedbackFormController(config: configuration, delegate: self, screenshot: nil), animated: configuration.animations) {
             self.configuration.onFormOpen?()
         }
@@ -100,11 +104,7 @@ extension SentryUserFeedbackIntegrationDriver: SentryUserFeedbackFormDelegate {
 
 // MARK: SentryUserFeedbackWidgetDelegate
 @available(iOSApplicationExtension, unavailable)
-extension SentryUserFeedbackIntegrationDriver: SentryUserFeedbackWidgetDelegate {
-    func showForm() {
-        showForm(screenshot: nil)
-    }
-}
+extension SentryUserFeedbackIntegrationDriver: SentryUserFeedbackWidgetDelegate {}
 
 // MARK: UIAdaptivePresentationControllerDelegate
 @available(iOSApplicationExtension, unavailable)

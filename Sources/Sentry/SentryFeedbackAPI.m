@@ -30,6 +30,13 @@
     [feedback hideWidget];
 }
 
+- (void)showForm
+{
+    SentryUserFeedbackIntegration *feedback = [[SentrySDKInternal currentHub]
+        getInstalledIntegration:[SentryUserFeedbackIntegration class]];
+    [feedback showForm];
+}
+
 @end
 
 #endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT

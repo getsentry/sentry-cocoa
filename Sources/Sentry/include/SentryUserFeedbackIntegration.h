@@ -10,6 +10,7 @@ NS_EXTENSION_UNAVAILABLE("Sentry User Feedback UI cannot be used from app extens
 @interface SentryUserFeedbackIntegration : SentryBaseIntegration
 - (void)showWidget;
 - (void)hideWidget;
+- (void)showForm;
 @end
 
 NS_ASSUME_NONNULL_END

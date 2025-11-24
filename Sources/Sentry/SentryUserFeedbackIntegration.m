@@ -40,6 +40,11 @@
     [_driver hideWidget];
 }
 
+- (void)showForm
+{
+    [_driver showForm];
+}
+
 // MARK: SentryUserFeedbackIntegrationDriverDelegate
 
 - (void)captureWithFeedback:(SentryFeedback *)feedback
