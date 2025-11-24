@@ -90,6 +90,7 @@ import Foundation
         addDeviceAttributes(to: &log.attributes, scope: scope)
         addUserAttributes(to: &log.attributes, scope: scope)
         addReplayAttributes(to: &log.attributes, scope: scope)
+        addScopeAttributes(to: &log.attributes, scope: scope)
 
         let propagationContextTraceIdString = scope.propagationContextTraceIdString
         log.traceId = SentryId(uuidString: propagationContextTraceIdString)
@@ -186,6 +187,13 @@ import Foundation
         }
 #endif
 #endif
+    }
+    
+    private func addScopeAttributes(to attributes: inout [String: SentryLog.Attribute], scope: Scope) {
+        // Scope attributes should not override any existing attribute in the log
+        for (key, value) in scope.attributes where attributes[key] == nil {
+            attributes[key] = .init(value: value)
+        }
     }
 
     // Only ever call this from the serial dispatch queue.
