@@ -933,6 +933,7 @@ class SentryFileManagerTests: XCTestCase {
         XCTAssertNil(sut.readTimezoneOffset())
     }
 
+    @available(macOS 11.3, *)
     func testIsErrorPathTooLong_underlyingErrorsAvailableAndMultipleErrorsGiven_shouldUseErrorInUserInfo() throws {
         // -- Arrange --
         // When accessing via `underlyingErrors`, the first result is the error set with `NSUnderlyingErrorKey`.
@@ -949,6 +950,7 @@ class SentryFileManagerTests: XCTestCase {
         XCTAssertTrue(result)
     }
 
+    @available(macOS 11.3, *)
     func testIsErrorPathTooLong_underlyingErrorsAvailableAndMultipleErrorsEmpty_shouldUseErrorInUserInfo() throws {
         // -- Arrange --
         // When accessing via `underlyingErrors`, the first result is the error set with `NSUnderlyingErrorKey`.
@@ -976,6 +978,7 @@ class SentryFileManagerTests: XCTestCase {
         XCTAssertTrue(result)
     }
 
+    @available(macOS 11.3, *)
     func testIsErrorPathTooLong_underlyingErrorsAvailableAndOnlyMultipleErrorsGiven_shouldUseErrorFirstError() throws {
         // -- Arrange --
         // When accessing via `underlyingErrors`, the first result is the error set with `NSUnderlyingErrorKey`.
