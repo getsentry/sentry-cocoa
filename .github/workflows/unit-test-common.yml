@@ -76,7 +76,7 @@ jobs:
     timeout-minutes: ${{inputs.timeout}}
     if: ${{!inputs.should_skip}}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - run: ./scripts/ci-select-xcode.sh "$XCODE_VERSION"
         env:
           XCODE_VERSION: ${{inputs.xcode}}
