@@ -667,6 +667,26 @@ class SentrySDKInternalTests: XCTestCase {
         XCTAssertEqual(flushTimeout, transport.flushInvocations.first ?? 0.0, accuracy: 0.2)
     }
 
+    func testClose_DispatchesOnMainThread() {
+        // Arrange
+        let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
+        SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = dispatchQueueWrapper
+
+        SentrySDK.start { options in
+            options.dsn = SentrySDKInternalTests.dsnAsString
+            options.removeAllIntegrations()
+        }
+
+        // Reset the invocation count after start since start also uses the main thread dispatch
+        dispatchQueueWrapper.blockOnMainInvocations = Invocations<() -> Void>()
+
+        // Act
+        SentrySDK.close()
+
+        // Assert
+        XCTAssertEqual(1, dispatchQueueWrapper.blockOnMainInvocations.count, "Close should dispatch exactly once to main queue")
+    }
+
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 
     func testSetAppStartMeasurementConcurrently() {
