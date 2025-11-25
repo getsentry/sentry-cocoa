@@ -13,6 +13,11 @@
     return [SentryDependencyContainer.sharedInstance.application getWindows];
 }
 
++ (CGSize)activeScreenSize
+{
+    return [SentryDependencyContainer.sharedInstance.application getActiveWindowSize];
+}
+
 #endif // SENTRY_HAS_UIKIT
 
 + (NSString *)release:(SentryOptions *)options

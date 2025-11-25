@@ -13,6 +13,10 @@ import UIKit
         internal_getWindows()
     }
     
+    @objc public func getActiveWindowSize() -> CGSize {
+        internal_getActiveWindowSize()
+    }
+    
     @objc public func relevantViewControllersNames() -> [String]? {
         internal_relevantViewControllersNames()
     }
@@ -53,6 +57,19 @@ extension SentryApplication {
             }
         }, timeout: 0.01)
         return Array(windows)
+    }
+    
+    public func internal_getActiveWindowSize() -> CGSize {
+        var size = CGSize.zero
+        Dependencies.dispatchQueueWrapper.dispatchSyncOnMainQueue({ [weak self] in
+            guard let self,
+                  let window = self.internal_getWindows()?.first else {
+                return
+            }
+            
+            size = window.bounds.size
+        }, timeout: 0.01)
+        return size
     }
     
     // This cannot be declared with @objc so until we delete more ObjC code it needs a separate

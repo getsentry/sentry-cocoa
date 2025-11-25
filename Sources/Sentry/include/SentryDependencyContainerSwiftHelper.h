@@ -30,6 +30,7 @@ NS_ASSUME_NONNULL_BEGIN
 #if SENTRY_HAS_UIKIT
 
 + (nullable NSArray<UIWindow *> *)windows;
++ (CGSize)activeScreenSize;
 
 #endif // SENTRY_HAS_UIKIT
 
