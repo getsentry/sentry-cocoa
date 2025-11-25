@@ -191,9 +191,9 @@ _non_thread_safe_removeFileAtPath(NSString *path)
 
 #pragma mark - Convenience Accessors
 
-- (NSURL *)getSentryPathAsURL
+- (NSString *)getSentryPath
 {
-    return [NSURL fileURLWithPath:self.sentryPath];
+    return self.sentryPath;
 }
 
 #pragma mark - Envelope

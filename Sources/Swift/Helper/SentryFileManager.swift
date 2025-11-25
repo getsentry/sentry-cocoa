@@ -88,7 +88,7 @@
     }
     
     @objc public func getSentryPathAsURL() -> URL {
-        helper.getSentryPathAsURL()
+        URL(fileURLWithPath: helper.getSentryPath())
     }
 
     @objc public func moveState(_ stateFilePath: String, toPreviousState previousStateFilePath: String) {

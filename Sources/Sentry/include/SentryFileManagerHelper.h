@@ -58,7 +58,7 @@ SENTRY_NO_INIT
 - (void)deleteAllEnvelopes;
 
 #pragma mark - Convenience Accessors
-- (NSURL *)getSentryPathAsURL;
+- (NSString *)getSentryPath;
 
 #pragma mark - State
 - (void)moveState:(NSString *)stateFilePath toPreviousState:(NSString *)previousStateFilePath;

@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Fixes a possible crash from ObjC to Swift nullability conversion in SentryFileManager (#6899)
+
 ## 9.0.0-rc.1
 
 ### Breaking Changes
