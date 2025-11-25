@@ -55,6 +55,7 @@ extern "C" {
 
 #include <errno.h>
 #include <stdbool.h>
+#include <stdio.h>
 #include <string.h>
 
 static char g_logFilename[1024];
@@ -167,6 +168,11 @@ int sentry_asyncLogSetFileName(const char *filename, bool overwrite);
  * Each macro expansion uses a local variable, making it thread-safe.
  *
  * The buffer size is defined by SENTRY_STRERROR_R_BUFFER_SIZE (1024 bytes, matching glibc).
+ *
+ * The macro uses a GCC statement expression ({ ... }) which allows a block of statements
+ * to be used as an expression. The last expression in the block (__strerror_buf;) becomes
+ * the value of the entire expression, allowing the macro to be used directly in function
+ * calls like: SENTRY_ASYNC_SAFE_LOG_ERROR("Error: %s", SENTRY_STRERROR_R(errno));
  *
  * @param ERRNUM The error number (e.g., errno).
  * @return Pointer to a thread-safe error string.
