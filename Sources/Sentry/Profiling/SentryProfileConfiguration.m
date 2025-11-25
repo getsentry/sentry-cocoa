@@ -23,14 +23,12 @@
 }
 
 - (instancetype)initWaitingForFullDisplay:(BOOL)shouldWaitForFullDisplay
-                             continuousV1:(BOOL)continuousV1
 {
     if (!(self = [super init])) {
         return nil;
     }
 
     _waitForFullDisplay = shouldWaitForFullDisplay;
-    _isContinuousV1 = continuousV1;
     _isProfilingThisLaunch = YES;
     return self;
 }
@@ -39,7 +37,7 @@
                                                samplerDecision:(SentrySamplerDecision *)decision
                                                 profileOptions:(SentryProfileOptions *)options
 {
-    if (!(self = [self initWaitingForFullDisplay:shouldWaitForFullDisplay continuousV1:NO])) {
+    if (!(self = [self initWaitingForFullDisplay:shouldWaitForFullDisplay])) {
         return nil;
     }
 

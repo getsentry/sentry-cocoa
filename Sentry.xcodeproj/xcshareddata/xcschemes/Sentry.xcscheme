@@ -49,6 +49,12 @@
             reference = "container:Plans/Sentry_Base.xctestplan"
             default = "YES">
          </TestPlanReference>
+         <TestPlanReference
+            reference = "container:Plans/Sentry_TestServer.xctestplan">
+         </TestPlanReference>
+         <TestPlanReference
+            reference = "container:Plans/Sentry_Flaky.xctestplan">
+         </TestPlanReference>
       </TestPlans>
       <Testables>
          <TestableReference
@@ -107,9 +113,6 @@
                   Identifier = "SentrySDKIntegrationTestsBase">
                </Test>
                <Test
-                  Identifier = "SentrySDKTests/testStartOnTheMainThread()">
-               </Test>
-               <Test
                   Identifier = "SentrySessionGeneratorTests/testSendSessions()">
                </Test>
                <Test
@@ -120,12 +123,6 @@
                </Test>
                <Test
                   Identifier = "SentryThreadInspectorTests/testStacktraceHasFrames_forEveryThread()">
-               </Test>
-               <Test
-                  Identifier = "SentryThreadWrapperTests/testOnMainThreadFromNonMainContext()">
-               </Test>
-               <Test
-                  Identifier = "SentryTracerTests/testDeadlineTimer_StartedAndCancelledOnMainThread()">
                </Test>
             </SkippedTests>
          </TestableReference>

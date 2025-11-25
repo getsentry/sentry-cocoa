@@ -1,3 +1,5 @@
+# yaml-language-server: $schema=../../schema/xcodegen.schema.json
+
 name: iOS-SwiftUI
 include:
   - ../Shared/feature-flags.yml
@@ -5,7 +7,6 @@ createIntermediateGroups: true
 generateEmptyDirectories: true
 configs:
   Debug: debug
-  DebugV9: debug
   Test: debug
   TestCI: debug
   Release: release
@@ -30,14 +31,13 @@ targets:
       - ../../Sources/Sentry/Public/SentrySerializable.h
       - ../../Sources/Sentry/include/SentryTracer.h
       - ../../Sources/Sentry/include/SentryPerformanceTracker.h
-      - ../../Sources/Sentry/Public/SentryProfilingConditionals.h
+      - ../../Sources/Sentry/include/HybridPublic/SentryProfilingConditionals.h
     dependencies:
       - target: Sentry/Sentry
       - target: Sentry/SentrySwiftUI
       - target: SentrySampleShared/SentrySampleShared
     configFiles:
       Debug: iOS-SwiftUI.xcconfig
-      DebugV9: iOS-SwiftUI.xcconfig
       Release: iOS-SwiftUI.xcconfig
       Test: iOS-SwiftUI.xcconfig
       TestCI: iOS-SwiftUI.xcconfig

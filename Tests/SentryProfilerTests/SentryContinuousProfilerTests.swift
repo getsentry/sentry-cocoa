@@ -5,7 +5,6 @@ import XCTest
 
 #if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
 
-@available(*, deprecated, message: "This is only marked as deprecated because profilesSampleRate is marked as deprecated. Once that is removed this can be removed.")
 final class SentryContinuousProfilerTests: XCTestCase {
     private var fixture: SentryProfileTestFixture!
     
@@ -17,7 +16,6 @@ final class SentryContinuousProfilerTests: XCTestCase {
     override func setUp() {
         super.setUp()
         fixture = SentryProfileTestFixture()
-        fixture.options.profilesSampleRate = nil
     }
     
     override func tearDown() {
@@ -68,27 +66,9 @@ final class SentryContinuousProfilerTests: XCTestCase {
         try performContinuousProfilingTest(expectedEnvironment: expectedEnvironment)
     }
 
-    func testStartingContinuousProfilerWithSampleRateOne() throws {
-        fixture.options.profilesSampleRate = 1
-        try performContinuousProfilingTest()
-    }
-
-    func testStartingContinuousProfilerWithZeroSampleRate() throws {
-        fixture.options.profilesSampleRate = 0
-        try performContinuousProfilingTest()
-    }
-
 #if !os(macOS)
 
-    func testStopsFramesTracker_WhenAutoPerformanceAndAppHangsV2Disabled() throws {
-        fixture.options.enableAutoPerformanceTracing = false
-        try performContinuousProfilingTest()
-
-        XCTAssertFalse(SentryDependencyContainer.sharedInstance().framesTracker.isRunning)
-    }
-
     func testDoesNotStopFramesTracker_WhenAppHangsV2Enabled() throws {
-        fixture.options.enableAppHangTrackingV2 = true
         try performContinuousProfilingTest()
 
         XCTAssertTrue(SentryDependencyContainer.sharedInstance().framesTracker.isRunning)
@@ -222,9 +202,46 @@ final class SentryContinuousProfilerTests: XCTestCase {
         try fixture.timeoutTimerFactory.check()
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
     }
+    
+    func testTransmitChunkEnvelopeWithNilProfiler() throws {
+        // Arrange
+        // Ensure no profiler is currently running
+        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+        
+        // Act
+        SentryContinuousProfiler.transmitChunkEnvelope()
+        
+        // Assert
+        // The function should handle nil profiler gracefully:
+        // 1. Should not crash when no profiler is running
+        // 2. Should return early and log a debug message
+        // 3. Should not attempt to capture any envelopes
+        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+        XCTAssertTrue(fixture.client?.captureEnvelopeInvocations.isEmpty ?? true)
+    }
+    
+    func testEnvelopeCreationFailure() throws {
+        // Arrange
+        // Start continuous profiler and add mock samples
+        SentryContinuousProfiler.start()
+        XCTAssertTrue(SentryContinuousProfiler.isCurrentlyProfiling())
+        try addMockSamples(mockAddresses: [0x1, 0x2])
+        
+        // Act
+        // Advance time to trigger chunk creation and test envelope creation null handling
+        fixture.currentDateProvider.advanceBy(interval: 60)
+        
+        // Assert
+        // This tests that the profiler continues running even if envelope creation fails
+        // The code includes: if (envelope == nil) { SENTRY_LOG_ERROR(...); return; }
+        XCTAssertTrue(SentryContinuousProfiler.isCurrentlyProfiling())
+        
+        // Clean up
+        SentryContinuousProfiler.stop()
+        try assertContinuousProfileStoppage()
+    }
 }
 
-@available(*, deprecated, message: "This is only marked as deprecated because profilesSampleRate is marked as deprecated. Once that is removed this can be removed.")
 private extension SentryContinuousProfilerTests {
     func addMockSamples(mockAddresses: [NSNumber]) throws {
         let mockThreadMetadata = SentryProfileTestFixture.ThreadMetadata(id: 1, priority: 2, name: "main")
@@ -235,7 +252,7 @@ private extension SentryContinuousProfilerTests {
         }
     }
     
-    func performContinuousProfilingTest(expectedEnvironment: String = kSentryDefaultEnvironment) throws {
+    func performContinuousProfilingTest(expectedEnvironment: String = Options.defaultEnvironment) throws {
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
         SentryContinuousProfiler.start()
         XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())

@@ -1,4 +1,4 @@
-@_spi(Private) import Sentry
+@_spi(Private) @testable import Sentry
 @_spi(Private) import SentryTestUtils
 import XCTest
 
@@ -14,22 +14,27 @@ class SentryAppStateManagerTests: XCTestCase {
         let dispatchQueue = TestSentryDispatchQueueWrapper()
         let notificationCenterWrapper = TestNSNotificationCenterWrapper()
 
-        init() {
+        init() throws {
             options = Options()
             options.dsn = SentryAppStateManagerTests.dsnAsString
             options.releaseName = TestData.appState.releaseName
-
-            fileManager = try! SentryFileManager(options: options, dispatchQueueWrapper: dispatchQueue)
+            
+            fileManager = try XCTUnwrap(SentryFileManager(
+                options: options,
+                dateProvider: currentDate,
+                dispatchQueueWrapper: dispatchQueue
+            ))
         }
 
         func getSut() -> SentryAppStateManager {
             SentryDependencyContainer.sharedInstance().sysctlWrapper = TestSysctl()
+            SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
+            SentryDependencyContainer.sharedInstance().notificationCenterWrapper = notificationCenterWrapper
             return SentryAppStateManager(
-                options: options,
-                crashWrapper: TestSentryCrashWrapper.sharedInstance(),
+                releaseName: options.releaseName,
+                crashWrapper: TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo),
                 fileManager: fileManager,
-                dispatchQueueWrapper: TestSentryDispatchQueueWrapper(),
-                notificationCenterWrapper: notificationCenterWrapper
+                sysctlWrapper: SentryDependencyContainer.sharedInstance().sysctlWrapper
             )
         }
     }
@@ -37,10 +42,10 @@ class SentryAppStateManagerTests: XCTestCase {
     private var fixture: Fixture!
     private var sut: SentryAppStateManager!
 
-    override func setUp() {
-        super.setUp()
+    override func setUpWithError() throws {
+        try super.setUpWithError()
 
-        fixture = Fixture()
+        fixture = try Fixture()
         sut = fixture.getSut()
     }
 

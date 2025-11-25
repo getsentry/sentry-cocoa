@@ -23,7 +23,6 @@ import UIKit
  */
     func getWindows() -> [UIWindow]?
     
-    @available(iOS 13.0, tvOS 13.0, *)
     var connectedScenes: Set<UIScene> { get }
 
     var delegate: UIApplicationDelegate? { get }
@@ -35,11 +34,3 @@ import UIKit
     func relevantViewControllersNames() -> [String]?
     #endif // canImport(UIKit) && !SENTRY_NO_UIKIT
 }
-
-#if canImport(AppKit) && !targetEnvironment(macCatalyst)
-@objc @_spi(Private) extension NSApplication: SentryApplication {
-    public var mainThread_isActive: Bool {
-        isActive
-    }
-}
-#endif

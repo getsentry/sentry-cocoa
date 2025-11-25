@@ -4,18 +4,16 @@
 #import "SentryDefines.h"
 #import "SentryEvent+Private.h"
 #import "SentryInternalDefines.h"
+#import "SentryLevel.h"
 #import "SentryLevelMapper.h"
 #import "SentryLogC.h"
-#import "SentryModels+Serializable.h"
 #import "SentryPropagationContext.h"
 #import "SentryScope+Private.h"
 #import "SentryScope+PrivateSwift.h"
-#import "SentryScopeObserver.h"
-#import "SentrySpan.h"
+#import "SentrySpan+Private.h"
 #import "SentrySwift.h"
 #import "SentryTracer.h"
 #import "SentryTransactionContext.h"
-#import "SentryUser+Serialize.h"
 #import "SentryUser.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -153,13 +151,22 @@ NS_ASSUME_NONNULL_BEGIN
     }
 }
 
-#if !SDK_V9
-- (void)useSpan:(SentrySpanCallback)callback
+- (nullable SentrySpan *)getCastedInternalSpan
 {
-    id<SentrySpan> localSpan = [self span];
-    callback(localSpan);
+    id<SentrySpan> span = self.span;
+
+    if (span == nil) {
+        return nil;
+    }
+
+    if (span && [span isKindOfClass:[SentrySpan class]]) {
+        return (SentrySpan *)span;
+    }
+
+    SENTRY_LOG_DEBUG(@"The span on the scope is not of type SentrySpan, returning nil.");
+
+    return nil;
 }
-#endif // !SDK_V9
 
 - (void)clear
 {
@@ -412,7 +419,7 @@ NS_ASSUME_NONNULL_BEGIN
     }
 }
 
-- (void)setLevel:(enum SentryLevel)level
+- (void)setLevel:(SentryLevel)level
 {
     self.levelEnum = level;
 
@@ -532,9 +539,15 @@ NS_ASSUME_NONNULL_BEGIN
     }
 }
 
-- (SentryEvent *__nullable)applyToEvent:(SentryEvent *)event
+- (SentryEvent *__nullable)applyToEvent:(SentryEvent *_Nullable)event
                           maxBreadcrumb:(NSUInteger)maxBreadcrumbs
 {
+    // We changed the parameter to be nullable, so this method can be called with a potential null
+    // value
+    if (!event) {
+        return nil;
+    }
+
     if (event.isFatalEvent) {
         SENTRY_LOG_WARN(@"Won't apply scope to a crash event. This is not allowed as crash "
                         @"events are from a previous run of the app and the current scope might "
@@ -635,7 +648,21 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSDictionary *)buildTraceContext:(nullable id<SentrySpan>)span
 {
     if (span != nil) {
-        return [SENTRY_UNWRAP_NULLABLE_VALUE(id<SentrySpan>, span) serialize];
+        NSDictionary *dict = [SENTRY_UNWRAP_NULLABLE_VALUE(id<SentrySpan>, span) serialize];
+        if (dict[kSentrySpanStatusSerializationKey] != nil) {
+            return dict;
+        }
+
+        // We set the trace context status to OK by default here if it's not set, because spans on
+        // the scope are usually unfinished and don't have a status set. So the default trace
+        // context status would be undefined otherwise, which would confuse users. We don't want to
+        // set the default status for spans to OK, because when a span finishes, it sets the status
+        // to any state other than undefined. Spans first have a default status of OK, but we don't
+        // want to change this for the trace context status.
+        NSMutableDictionary *mutableDict = [dict mutableCopy];
+        mutableDict[kSentrySpanStatusSerializationKey] = kSentrySpanStatusNameOk;
+        return mutableDict;
+
     } else {
         return [self.propagationContext traceContextForEvent];
     }

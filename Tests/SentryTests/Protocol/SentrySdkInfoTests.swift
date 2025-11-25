@@ -97,7 +97,6 @@ class SentrySdkInfoTests: XCTestCase {
         XCTAssertEqual(["c", "d"], sdkInfo["features"] as? [String])
     }
 
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testSPM_packageInfo() throws {
         SentrySdkPackage.setPackageManager(0)
         let actual = SentrySdkInfo.global()
@@ -109,7 +108,6 @@ class SentrySdkInfoTests: XCTestCase {
         XCTAssertEqual(packages[0]["version"] as? String, SentryMeta.versionString)
     }
 
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testCarthage_packageInfo() throws {
         SentrySdkPackage.setPackageManager(2)
         let actual = SentrySdkInfo.global()
@@ -121,7 +119,6 @@ class SentrySdkInfoTests: XCTestCase {
         XCTAssertEqual(packages[0]["version"] as? String, SentryMeta.versionString)
     }
 
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testcocoapods_packageInfo() throws {
         SentrySdkPackage.setPackageManager(1)
         let actual = SentrySdkInfo.global()
@@ -133,8 +130,7 @@ class SentrySdkInfoTests: XCTestCase {
         XCTAssertEqual(packages[0]["version"] as? String, SentryMeta.versionString)
     }
 
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
-    func testNoPackageNames () {
+    func testNoPackageNames() {
         SentrySdkPackage.setPackageManager(3)
         let actual = SentrySdkInfo.global()
 
@@ -313,8 +309,7 @@ class SentrySdkInfoTests: XCTestCase {
         
         assertEmptySdkInfo(actual: SentrySdkInfo(dict: dict))
     }
-
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
+    
     func testglobal() throws {
         SentrySDK.start(options: Options())
         let actual = SentrySdkInfo.global()
@@ -324,7 +319,6 @@ class SentrySdkInfoTests: XCTestCase {
         XCTAssertTrue(actual.features.count > 0)
     }
     
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testFromGlobalsWithExtraPackage() throws {
         let extraPackage = ["name": "test-package", "version": "1.0.0"]
         SentryExtraPackages.addPackageName(extraPackage["name"]!, version: extraPackage["version"]!)
@@ -334,7 +328,6 @@ class SentrySdkInfoTests: XCTestCase {
         XCTAssertTrue(actual.packages.contains(extraPackage))
     }
     
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testFromGlobalsWithExtraPackageAndPackageManager() throws {
         let extraPackage = ["name": "test-package", "version": "1.0.0"]
         SentryExtraPackages.addPackageName(extraPackage["name"]!, version: extraPackage["version"]!)

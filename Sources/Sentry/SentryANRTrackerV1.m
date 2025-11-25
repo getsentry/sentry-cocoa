@@ -1,9 +1,7 @@
 #import "SentryANRTrackerV1.h"
-#import "SentryCrashWrapper.h"
-#import "SentryDependencyContainer.h"
+#import "SentryANRTrackerInternalDelegate.h"
 #import "SentryLogC.h"
 #import "SentrySwift.h"
-#import "SentryThreadWrapper.h"
 #import <stdatomic.h>
 
 NS_ASSUME_NONNULL_BEGIN
@@ -15,12 +13,12 @@ typedef NS_ENUM(NSInteger, SentryANRTrackerState) {
     kSentryANRTrackerStopping
 };
 
-@interface SentryANRTrackerV1 () <SentryANRTracker>
+@interface SentryANRTrackerV1 ()
 
 @property (nonatomic, strong) SentryCrashWrapper *crashWrapper;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueueWrapper;
 @property (nonatomic, strong) SentryThreadWrapper *threadWrapper;
-@property (nonatomic, strong) NSHashTable<id<SentryANRTrackerDelegate>> *listeners;
+@property (nonatomic, strong) NSHashTable<id<SentryANRTrackerInternalDelegate>> *listeners;
 @property (nonatomic, assign) NSTimeInterval timeoutInterval;
 
 @end
@@ -28,6 +26,15 @@ typedef NS_ENUM(NSInteger, SentryANRTrackerState) {
 @implementation SentryANRTrackerV1 {
     NSObject *threadLock;
     SentryANRTrackerState state;
+}
+
+- (instancetype)initWithTimeoutInterval:(NSTimeInterval)timeoutInterval
+{
+    return
+        [self initWithTimeoutInterval:timeoutInterval
+                         crashWrapper:SentryDependencyContainer.sharedInstance.crashWrapper
+                 dispatchQueueWrapper:SentryDependencyContainer.sharedInstance.dispatchQueueWrapper
+                        threadWrapper:SentryDependencyContainer.sharedInstance.threadWrapper];
 }
 
 - (instancetype)initWithTimeoutInterval:(NSTimeInterval)timeoutInterval
@@ -44,11 +51,6 @@ typedef NS_ENUM(NSInteger, SentryANRTrackerState) {
         threadLock = [[NSObject alloc] init];
         state = kSentryANRTrackerNotRunning;
     }
-    return self;
-}
-
-- (id<SentryANRTracker>)asProtocol
-{
     return self;
 }
 
@@ -89,7 +91,7 @@ typedef NS_ENUM(NSInteger, SentryANRTrackerState) {
 
         atomic_fetch_add_explicit(&ticksSinceUiUpdate, 1, memory_order_relaxed);
 
-        [self.dispatchQueueWrapper dispatchAsyncOnMainQueue:^{
+        [self.dispatchQueueWrapper dispatchAsyncOnMainQueueIfNotMainThread:^{
             atomic_store_explicit(&ticksSinceUiUpdate, 0, memory_order_relaxed);
 
             bool isReported = atomic_load_explicit(&reported, memory_order_relaxed);
@@ -151,8 +153,8 @@ typedef NS_ENUM(NSInteger, SentryANRTrackerState) {
         localListeners = [self.listeners allObjects];
     }
 
-    for (id<SentryANRTrackerDelegate> target in localListeners) {
-        [target anrDetectedWithType:SentryANRTypeUnknown];
+    for (id<SentryANRTrackerInternalDelegate> target in localListeners) {
+        [target anrDetected:kSentryANRTypeUnknown];
     }
 }
 
@@ -163,14 +165,14 @@ typedef NS_ENUM(NSInteger, SentryANRTrackerState) {
         targets = [self.listeners allObjects];
     }
 
-    for (id<SentryANRTrackerDelegate> target in targets) {
+    for (id<SentryANRTrackerInternalDelegate> target in targets) {
         // We intentionally don't measure the ANR duration, because V2 will replace V1, so it's not
         // worth the effort.
-        [target anrStoppedWithResult:nil];
+        [target anrStopped:nil];
     }
 }
 
-- (void)addListener:(id<SentryANRTrackerDelegate>)listener
+- (void)addListener:(id<SentryANRTrackerInternalDelegate>)listener
 {
     @synchronized(self.listeners) {
         [self.listeners addObject:listener];
@@ -188,7 +190,7 @@ typedef NS_ENUM(NSInteger, SentryANRTrackerState) {
     }
 }
 
-- (void)removeListener:(id<SentryANRTrackerDelegate>)listener
+- (void)removeListener:(id<SentryANRTrackerInternalDelegate>)listener
 {
     @synchronized(self.listeners) {
         [self.listeners removeObject:listener];

@@ -1,4 +1,4 @@
-@testable import Sentry
+@_spi(Private) @testable import Sentry
 @_spi(Private) import SentryTestUtils
 import XCTest
 
@@ -10,11 +10,16 @@ class SentryTransportInitializerTests: XCTestCase {
     private var dateProvider: TestCurrentDateProvider!
     private var rateLimits: (any RateLimits)!
 
-    override func setUp() {
-        super.setUp()
+    override func setUpWithError() throws {
+        try super.setUpWithError()
+
         let options = Options()
         options.dsn = SentryTransportInitializerTests.dsnAsString
-        fileManager = try! SentryFileManager(options: options, dispatchQueueWrapper: TestSentryDispatchQueueWrapper())
+        fileManager = try XCTUnwrap(SentryFileManager(
+            options: options,
+            dateProvider: TestCurrentDateProvider(),
+            dispatchQueueWrapper: TestSentryDispatchQueueWrapper()
+        ))
         dateProvider = TestCurrentDateProvider()
         rateLimits = SentryDependencyContainer.sharedInstance().rateLimits
     }

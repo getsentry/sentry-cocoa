@@ -1,9 +1,8 @@
 // swiftlint:disable file_length
-@testable import Sentry
+@_spi(Private) @testable import Sentry
 @_spi(Private) import SentryTestUtils
 import XCTest
 
-@available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
 class FileManagerSentryTracingIntegrationTests: XCTestCase {
     private class Fixture {
         let mockDateProvider: TestCurrentDateProvider = {
@@ -41,7 +40,6 @@ class FileManagerSentryTracingIntegrationTests: XCTestCase {
                 // Configure options required by File I/O tracking integration
                 options.enableAutoPerformanceTracing = true
                 options.enableFileIOTracing = isEnabled
-                options.setIntegrations(isEnabled ? [SentryFileIOTrackingIntegration.self] : [])
 
                 // Configure the tracing sample rate to record all traces
                 options.tracesSampleRate = 1.0
@@ -49,8 +47,8 @@ class FileManagerSentryTracingIntegrationTests: XCTestCase {
                 // NOTE: We are not testing for the case where swizzling is enabled, as it could lead to duplicate spans on older OS versions.
                 // Instead we are recommending to disable swizzling and use manual tracing.
                 options.enableSwizzling = true
-                options.experimental.enableDataSwizzling = false
-                options.experimental.enableFileManagerSwizzling = false
+                options.enableDataSwizzling = false
+                options.enableFileManagerSwizzling = false
             }
 
             // Get the working directory of the SDK, as the path is using the DSN hash to avoid conflicts
@@ -89,7 +87,7 @@ class FileManagerSentryTracingIntegrationTests: XCTestCase {
 
             let tempDir = URL(fileURLWithPath: NSTemporaryDirectory())
                 .appendingPathComponent("test-\(testName.hashValue.description)")
-            try! FileManager.default
+            try FileManager.default
                 .createDirectory(at: tempDir, withIntermediateDirectories: true)
 
             fileSrcUrl = tempDir.appendingPathComponent("source-file")

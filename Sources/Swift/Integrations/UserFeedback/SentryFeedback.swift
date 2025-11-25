@@ -2,7 +2,7 @@
 import Foundation
 
 @objcMembers
-public class SentryFeedback: NSObject {
+public final class SentryFeedback: NSObject {
     @objc public enum SentryFeedbackSource: Int {
         public var serialize: String {
             switch self {
@@ -20,17 +20,17 @@ public class SentryFeedback: NSObject {
     var message: String
     var source: SentryFeedbackSource
     @_spi(Private) public let eventId: SentryId
-    
-    /// Data objects for any attachments. Currently the web UI only supports showing one attached image, like for a screenshot.
-    private var attachments: [Data]?
-    
+
+    /// Attachments for this feedback submission, like a screenshot.
+    private var attachments: [Attachment]?
+
     /// The event id that this feedback is associated with, like a crash report.
     var associatedEventId: SentryId?
-    
+
     /// - parameters:
     ///   - associatedEventId The ID for an event you'd like associated with the feedback.
-    ///   - attachments Data objects for any attachments. Currently the web UI only supports showing one attached image, like for a screenshot.
-    @objc public init(message: String, name: String?, email: String?, source: SentryFeedbackSource = .widget, associatedEventId: SentryId? = nil, attachments: [Data]? = nil) {
+    ///   - attachments Attachment objects for any files to include with the feedback.
+    @objc public init(message: String, name: String?, email: String?, source: SentryFeedbackSource = .widget, associatedEventId: SentryId? = nil, attachments: [Attachment]? = nil) {
         self.eventId = SentryId()
         self.name = name
         self.email = email
@@ -42,20 +42,13 @@ public class SentryFeedback: NSObject {
     }
 }
 
-#if !SDK_V9
 extension SentryFeedback: SentrySerializable { }
-#endif
 
 extension SentryFeedback {
-    #if SDK_V9
-    @_spi(Private) public func serialize() -> [String: Any] {
-        return internalSerialize()
-    }
-    #else
+
     public func serialize() -> [String: Any] {
         return internalSerialize()
     }
-    #endif
 
     private func internalSerialize() -> [String: Any] {
         let numberOfOptionalItems = (name == nil ? 0 : 1) + (email == nil ? 0 : 1) + (associatedEventId == nil ? 0 : 1)
@@ -90,19 +83,32 @@ extension SentryFeedback {
             dict["email"] = email
         }
         if let attachments = attachments {
-            dict["attachments"] = attachments
+            dict["attachments"] = attachments.map { $0.dataDictionary() }
         }
         return dict
     }
     
     /**
-     * - note: Currently there is only a single attachment possible, for the screenshot, of which there can be only one.
+     * Returns all attachments for inclusion in the feedback envelope.
      */
     @_spi(Private) public func attachmentsForEnvelope() -> [Attachment] {
-        var items = [Attachment]()
-        if let screenshot = attachments?.first {
-            items.append(Attachment(data: screenshot, filename: "screenshot.png", contentType: "application/png"))
+        return attachments ?? []
+    }
+}
+
+// MARK: Attachment Serialization
+extension Attachment {
+    func dataDictionary() -> [String: Any] {
+        var attDict: [String: Any] = ["filename": filename]
+        if let data = data {
+            attDict["data"] = data
         }
-        return items
+        if let path = path {
+            attDict["path"] = path
+        }
+        if let contentType = contentType {
+            attDict["contentType"] = contentType
+        }
+        return attDict
     }
 }

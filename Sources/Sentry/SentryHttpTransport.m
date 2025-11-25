@@ -1,28 +1,18 @@
 #import "SentryHttpTransport.h"
 #import "SentryDataCategory.h"
 #import "SentryDataCategoryMapper.h"
-#import "SentryDependencyContainer.h"
 #import "SentryDiscardReasonMapper.h"
 #import "SentryDsn.h"
 #import "SentryEnvelopeItemHeader.h"
 #import "SentryEnvelopeRateLimit.h"
 #import "SentryEvent.h"
-#import "SentryFileManager.h"
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"
 #import "SentryNSURLRequestBuilder.h"
-#import "SentryOptions.h"
 #import "SentrySerialization.h"
 #import "SentrySwift.h"
 
-#if !TARGET_OS_WATCH
-#    import "SentryReachability.h"
-#endif // !TARGET_OS_WATCH
-
-@interface SentryHttpTransport ()
-#if SENTRY_HAS_REACHABILITY
-    <SentryReachabilityObserver>
-#endif // !TARGET_OS_WATCH
+@interface SentryHttpTransport () <SentryReachabilityObserver>
 
 @property (nonatomic, readonly) NSTimeInterval cachedEnvelopeSendDelay;
 @property (nonatomic, strong) SentryFileManager *fileManager;
@@ -91,18 +81,20 @@
         self.discardedEvents = [NSMutableDictionary new];
         self.notStoredEnvelopes = [NSMutableArray new];
         [self.envelopeRateLimit setDelegate:self];
-        [self.fileManager setDelegate:self];
+        typeof(self) __weak weakSelf = self;
+        [self.fileManager
+            setEnvelopeDeletedCallback:^(SentryEnvelopeItem *item, NSUInteger category) {
+                [weakSelf envelopeItemDeleted:item
+                                 withCategory:sentryDataCategoryForNSUInteger(category)];
+            }];
 
         [self sendAllCachedEnvelopes];
 
-#if SENTRY_HAS_REACHABILITY
         [SentryDependencyContainer.sharedInstance.reachability addObserver:self];
-#endif // !TARGET_OS_WATCH
     }
     return self;
 }
 
-#if SENTRY_HAS_REACHABILITY
 - (void)connectivityChanged:(BOOL)connected typeDescription:(nonnull NSString *)typeDescription
 {
     if (connected) {
@@ -117,7 +109,6 @@
 {
     [SentryDependencyContainer.sharedInstance.reachability removeObserver:self];
 }
-#endif // !TARGET_OS_WATCH
 
 - (void)sendEnvelope:(SentryEnvelope *)envelope
 {
@@ -260,9 +251,6 @@
     [self recordLostSpans:envelopeItem reason:kSentryDiscardReasonRateLimitBackoff];
 }
 
-/**
- * SentryFileManagerDelegate.
- */
 - (void)envelopeItemDeleted:(SentryEnvelopeItem *)envelopeItem
                withCategory:(SentryDataCategory)dataCategory
 {
@@ -338,7 +326,7 @@
 
         envelopeFilePath = envelopeFileContents.path;
 
-        envelope = [SentrySerialization envelopeWithData:envelopeFileContents.contents];
+        envelope = [SentrySerializationSwift envelopeWithData:envelopeFileContents.contents];
         if (nil == envelope) {
             SENTRY_LOG_DEBUG(@"Envelope contained no deserializable data.");
             [self deleteEnvelopeAndSendNext:envelopeFilePath];
@@ -441,7 +429,7 @@
 - (void)recordLostEventFor:(NSArray<SentryEnvelopeItem *> *)items
 {
     for (SentryEnvelopeItem *item in items) {
-        NSString *itemType = item.header.type;
+        NSString *itemType = item.type;
         // We don't want to record a lost event when it's a client report.
         // It's fine to drop it silently.
         if ([itemType isEqualToString:SentryEnvelopeItemTypes.clientReport]) {
@@ -455,9 +443,12 @@
 
 - (void)recordLostSpans:(SentryEnvelopeItem *)envelopeItem reason:(SentryDiscardReason)reason
 {
-    if ([SentryEnvelopeItemTypes.transaction isEqualToString:envelopeItem.header.type]) {
-        NSDictionary *_Nullable transactionJson =
-            [SentrySerialization deserializeDictionaryFromJsonData:envelopeItem.data];
+    if ([SentryEnvelopeItemTypes.transaction isEqualToString:envelopeItem.type]) {
+        if (envelopeItem.data == nil) {
+            return;
+        }
+        NSDictionary *_Nullable transactionJson = [SentrySerialization
+            deserializeDictionaryFromJsonData:SENTRY_UNWRAP_NULLABLE(NSData, envelopeItem.data)];
         if (transactionJson == nil) {
             return;
         }

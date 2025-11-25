@@ -49,7 +49,7 @@ SENTRY_NO_INIT
 @property (nonatomic, strong, nullable) NSNumber *parentSampleRand;
 
 /**
- * If app launch profiling is enabled via @c SentryOptions.enableAppLaunchProfiling and
+ * If app launch profiling is enabled via @c SentryProfileOptions.profileAppStarts and
  * @c SentryOptions.tracesSampler and/or @c SentryOptions.profilesSampler are defined,
  * @c SentrySDK.startWithOptions will call the sampler function with this property set to @c YES ,
  * and the returned value will be stored to disk for the next launch to calculate a sampling
@@ -72,36 +72,8 @@ SENTRY_NO_INIT
 - (instancetype)initWithName:(NSString *)name
                    operation:(NSString *)operation
                      sampled:(SentrySampleDecision)sampled
-    DEPRECATED_MSG_ATTRIBUTE("Use initWithName:operation:sampled:sampleRate:sampleRand instead");
-
-/**
- * @param name Transaction name
- * @param operation The operation this span is measuring.
- * @param sampled Determines whether the trace should be sampled.
- */
-- (instancetype)initWithName:(NSString *)name
-                   operation:(NSString *)operation
-                     sampled:(SentrySampleDecision)sampled
                   sampleRate:(nullable NSNumber *)sampleRate
                   sampleRand:(nullable NSNumber *)sampleRand;
-
-/**
- * @param name Transaction name
- * @param operation The operation this span is measuring.
- * @param traceId Trace Id
- * @param spanId Span Id
- * @param parentSpanId Parent span id
- * @param parentSampled Whether the parent is sampled
- */
-- (instancetype)initWithName:(NSString *)name
-                   operation:(NSString *)operation
-                     traceId:(SentryId *)traceId
-                      spanId:(SentrySpanId *)spanId
-                parentSpanId:(nullable SentrySpanId *)parentSpanId
-               parentSampled:(SentrySampleDecision)parentSampled
-    DEPRECATED_MSG_ATTRIBUTE("Use "
-                             "initWithName:operation:traceId:spanId:parentSpanId:parentSampled:"
-                             "parentSampleRate:parentSampleRand instead");
 
 /**
  * @param name Transaction name

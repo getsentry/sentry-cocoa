@@ -1,4 +1,4 @@
-@testable import Sentry
+@_spi(Private) @testable import Sentry
 import XCTest
 
 class SentryRequestTests: XCTestCase {
@@ -39,10 +39,10 @@ class SentryRequestTests: XCTestCase {
         // Arrange
         let request = TestData.request
         let actual = request.serialize()
-        let data = try XCTUnwrap(SentrySerialization.data(withJSONObject: actual))
+        let data = try XCTUnwrap(SentrySerializationSwift.data(withJSONObject: actual))
         
         // Act
-        let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as SentryRequest?)
+        let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as SentryRequestDecodable?)
         
         // Assert
         XCTAssertEqual(request.bodySize, decoded.bodySize)
@@ -58,10 +58,10 @@ class SentryRequestTests: XCTestCase {
         // Arrange
         let request = SentryRequest()
         let actual = request.serialize()
-        let data = try XCTUnwrap(SentrySerialization.data(withJSONObject: actual))
+        let data = try XCTUnwrap(SentrySerializationSwift.data(withJSONObject: actual))
         
         // Act
-        let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as SentryRequest?)
+        let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as SentryRequestDecodable?)
         
         // Assert
         XCTAssertNil(decoded.bodySize)
@@ -78,10 +78,10 @@ class SentryRequestTests: XCTestCase {
         let request = SentryRequest()
         request.bodySize = 100
         let actual = request.serialize()
-        let data = try XCTUnwrap(SentrySerialization.data(withJSONObject: actual))
+        let data = try XCTUnwrap(SentrySerializationSwift.data(withJSONObject: actual))
 
         // Act
-        let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as SentryRequest?)
+        let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as SentryRequestDecodable?)
 
         // Assert
         XCTAssertEqual(request.bodySize, decoded.bodySize)

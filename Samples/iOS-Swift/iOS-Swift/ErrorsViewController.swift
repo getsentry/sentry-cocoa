@@ -12,6 +12,8 @@ class ErrorsViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        SentrySDK.logger.info("ErrorsViewController.viewDidLoad")
+
         if SentrySDKOverrides.Feedback.useCustomFeedbackButton.boolValue {
             let button = SentrySDKWrapper.shared.feedbackButton
             view.addSubview(button)
@@ -22,6 +24,9 @@ class ErrorsViewController: UIViewController {
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
+
+        SentrySDK.logger.info("ErrorsViewController.viewDidAppear")
+
         SentrySDK.reportFullyDisplayed()
         
         if SentrySDKOverrides.Feedback.injectScreenshot.boolValue {

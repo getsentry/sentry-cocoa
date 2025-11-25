@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "Sentry"
-  s.version      = "8.56.0-alpha.1"
+  s.version      = "9.0.0-rc.1"
   s.summary      = "Sentry client for cocoa"
   s.homepage     = "https://github.com/getsentry/sentry-cocoa"
   s.license      = "mit"
@@ -8,10 +8,10 @@ Pod::Spec.new do |s|
   s.source       = { :git => "https://github.com/getsentry/sentry-cocoa.git",
                      :tag => s.version.to_s }
 
-  s.ios.deployment_target = "11.0"
-  s.osx.deployment_target = "10.13"
-  s.tvos.deployment_target = "11.0"
-  s.watchos.deployment_target = "4.0"
+  s.ios.deployment_target = "15.0"
+  s.osx.deployment_target = "12"
+  s.tvos.deployment_target = "15.0"
+  s.watchos.deployment_target = "8.0"
   s.visionos.deployment_target = "1.0"
   s.module_name  = "Sentry"
   s.requires_arc = true
@@ -34,10 +34,8 @@ Pod::Spec.new do |s|
   s.subspec 'Core' do |sp|
       sp.source_files = "Sources/Sentry/**/*.{h,hpp,m,mm,c,cpp}",
         "Sources/SentryCrash/**/*.{h,hpp,m,mm,c,cpp}", "Sources/Swift/**/*.{swift,h,hpp,m,mm,c,cpp}"
-      sp.preserve_path = "Sources/Sentry/include/module.modulemap"
       sp.public_header_files =
         "Sources/Sentry/Public/*.h"
-        
       sp.preserve_path = "Sources/Sentry/include/module.modulemap"
       sp.resource_bundles = { "Sentry" => "Sources/Resources/PrivacyInfo.xcprivacy" }
   end
@@ -45,11 +43,8 @@ Pod::Spec.new do |s|
   s.subspec 'HybridSDK' do |sp|
       sp.source_files = "Sources/Sentry/**/*.{h,hpp,m,mm,c,cpp}",
         "Sources/SentryCrash/**/*.{h,hpp,m,mm,c,cpp}", "Sources/Swift/**/*.{swift,h,hpp,m,mm,c,cpp}"
-    
-      sp.preserve_path = "Sources/Sentry/include/module.modulemap"
       sp.public_header_files =
         "Sources/Sentry/Public/*.h", "Sources/Sentry/include/HybridPublic/*.h"
-
       sp.preserve_path = "Sources/Sentry/include/module.modulemap"
       sp.resource_bundles = { "Sentry" => "Sources/Resources/PrivacyInfo.xcprivacy" }
   end

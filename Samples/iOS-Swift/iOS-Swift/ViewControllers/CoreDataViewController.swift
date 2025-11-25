@@ -59,7 +59,7 @@ class CoreDataViewController: UITableViewController {
         return obj
     }
     
-    func saveContext () {
+    func saveContext() {
         // iOS 9.0 and below - however you were previously handling it
         if managedObjectContext.hasChanges {
             do {

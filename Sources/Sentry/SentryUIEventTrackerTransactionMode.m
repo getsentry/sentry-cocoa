@@ -2,8 +2,8 @@
 
 #if SENTRY_HAS_UIKIT
 
+#    import "SentryInternalDefines.h"
 #    import "SentrySwift.h"
-#    import <SentryDependencyContainer.h>
 #    import <SentryHub+Private.h>
 #    import <SentryLogC.h>
 #    import <SentrySDK+Private.h>
@@ -13,6 +13,7 @@
 #    import <SentrySpanOperation.h>
 #    import <SentryTraceOrigin.h>
 #    import <SentryTracer.h>
+#    import <SentryTracerConfiguration.h>
 #    import <SentryTransactionContext+Private.h>
 
 NS_ASSUME_NONNULL_BEGIN
@@ -105,7 +106,8 @@ NS_ASSUME_NONNULL_BEGIN
     SENTRY_LOG_DEBUG(@"Automatically started a new transaction with name: %@", action);
 
     if (accessibilityIdentifier) {
-        [transaction setTagValue:accessibilityIdentifier forKey:@"accessibilityIdentifier"];
+        [transaction setTagValue:SENTRY_UNWRAP_NULLABLE(NSString, accessibilityIdentifier)
+                          forKey:@"accessibilityIdentifier"];
     }
 
     transaction.finishCallback = ^(SentryTracer *tracer) {

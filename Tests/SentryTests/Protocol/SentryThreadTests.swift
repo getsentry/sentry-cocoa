@@ -1,4 +1,4 @@
-@testable import Sentry
+@_spi(Private) @testable import Sentry
 import XCTest
 
 class SentryThreadTests: XCTestCase {
@@ -40,10 +40,10 @@ class SentryThreadTests: XCTestCase {
         // Arrange
         let thread = TestData.thread
         let actual = thread.serialize()
-        let data = try XCTUnwrap(SentrySerialization.data(withJSONObject: actual))
+        let data = try XCTUnwrap(SentrySerializationSwift.data(withJSONObject: actual))
         
         // Act
-        let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as SentryThread?)
+        let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as SentryThreadDecodable?)
         
         // Assert
         XCTAssertEqual(thread.threadId, decoded.threadId)
@@ -63,10 +63,10 @@ class SentryThreadTests: XCTestCase {
         // Arrange
         let thread = SentryThread(threadId: 0)
         let actual = thread.serialize()
-        let data = try XCTUnwrap(SentrySerialization.data(withJSONObject: actual))
+        let data = try XCTUnwrap(SentrySerializationSwift.data(withJSONObject: actual))
         
         // Act
-        let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as SentryThread?)
+        let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as SentryThreadDecodable?)
         
         // Assert
         XCTAssertEqual(thread.threadId, decoded.threadId)
@@ -77,15 +77,15 @@ class SentryThreadTests: XCTestCase {
         XCTAssertNil(decoded.isMain)
     }
 
-    func testDecode_WithWrongThreadId_ReturnsNil () throws {
+    func testDecode_WithWrongThreadId_ReturnsNil() throws {
         // Arrange
         let thread = SentryThread(threadId: 10)
         var actual = thread.serialize()
         actual["id"] = "nil"
-        let data = try XCTUnwrap(SentrySerialization.data(withJSONObject: actual))
+        let data = try XCTUnwrap(SentrySerializationSwift.data(withJSONObject: actual))
         
         // Act & Assert
-        XCTAssertNil(decodeFromJSONData(jsonData: data) as SentryThread?)
+        XCTAssertNil(decodeFromJSONData(jsonData: data) as SentryThreadDecodable?)
     }
     
 }

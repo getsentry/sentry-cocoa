@@ -1,6 +1,10 @@
 #!/bin/bash
 set -euxo pipefail
 
+# Disable SC1091 because it won't work with pre-commit
+# shellcheck source=./scripts/ci-utils.sh disable=SC1091
+source "$(cd "$(dirname "$0")" && pwd)/ci-utils.sh"
+
 # This is a helper script for GitHub Actions Matrix.
 # If we would specify the destinations in the GitHub Actions
 # Matrix, the name of the job would include the destination, which would
@@ -17,6 +21,8 @@ DEVICE="iPhone 14 Pro"
 CONFIGURATION_OVERRIDE=""
 DERIVED_DATA_PATH=""
 TEST_SCHEME="Sentry"
+TEST_PLAN=""
+RESULT_BUNDLE_PATH="results.xcresult"
 
 usage() {
     echo "Usage: $0"
@@ -28,6 +34,8 @@ usage() {
     echo "  -C|--configuration <config>     Configuration override"
     echo "  -D|--derived-data <path>        Derived data path"
     echo "  -s|--scheme <scheme>            Test scheme (default: Sentry)"
+    echo "  -t|--test-plan <plan>           Test plan name (default: empty)"
+    echo "  -R|--result-bundle <path>       Result bundle path (default: results.xcresult)"
     exit 1
 }
 
@@ -64,6 +72,14 @@ while [[ $# -gt 0 ]]; do
             ;;
         -s|--scheme)
             TEST_SCHEME="$2"
+            shift 2
+            ;;
+        -t|--test-plan)
+            TEST_PLAN="$2"
+            shift 2
+            ;;
+        -R|--result-bundle)
+            RESULT_BUNDLE_PATH="$2"
             shift 2
             ;;
         *)
@@ -135,6 +151,8 @@ case $COMMAND in
 esac
 
 if [ $RUN_BUILD == true ]; then
+    log_notice "Running xcodebuild build"
+    
     set -o pipefail && NSUnbufferedIO=YES xcodebuild \
         -workspace Sentry.xcworkspace \
         -scheme "$TEST_SCHEME" \
@@ -146,10 +164,19 @@ if [ $RUN_BUILD == true ]; then
         xcbeautify --preserve-unbeautified
 fi
 
+TEST_PLAN_ARGS=()
+if [ -n "$TEST_PLAN" ]; then
+    TEST_PLAN_ARGS+=("-testPlan" "$TEST_PLAN")
+fi
+
 if [ $RUN_BUILD_FOR_TESTING == true ]; then
+    # When no test plan is provided, we skip the -testPlan argument so xcodebuild uses the default test plan
+    log_notice "Running xcodebuild build-for-testing"
+
     set -o pipefail && NSUnbufferedIO=YES xcodebuild \
         -workspace Sentry.xcworkspace \
         -scheme "$TEST_SCHEME" \
+        "${TEST_PLAN_ARGS[@]+${TEST_PLAN_ARGS[@]}}" \
         -configuration "$CONFIGURATION" \
         -destination "$DESTINATION" \
         build-for-testing 2>&1 |
@@ -158,12 +185,19 @@ if [ $RUN_BUILD_FOR_TESTING == true ]; then
 fi
 
 if [ $RUN_TEST_WITHOUT_BUILDING == true ]; then
+    # When no test plan is provided, we skip the -testPlan argument so xcodebuild uses the default test plan
+    log_notice "Running xcodebuild test-without-building"
+
     set -o pipefail && NSUnbufferedIO=YES xcodebuild \
         -workspace Sentry.xcworkspace \
         -scheme "$TEST_SCHEME" \
+        "${TEST_PLAN_ARGS[@]+${TEST_PLAN_ARGS[@]}}" \
         -configuration "$CONFIGURATION" \
         -destination "$DESTINATION" \
+        -resultBundlePath "$RESULT_BUNDLE_PATH" \
         test-without-building 2>&1 |
         tee raw-test-output.log |
         xcbeautify --report junit
 fi
+
+log_notice "Finished xcodebuild"

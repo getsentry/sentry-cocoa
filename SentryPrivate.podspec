@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "SentryPrivate"
-  s.version      = "8.56.0-alpha.1"
+  s.version      = "9.0.0-rc.1"
   s.summary      = "Sentry Private Library."
   s.homepage     = "https://github.com/getsentry/sentry-cocoa"
   s.license      = "mit"
@@ -15,10 +15,10 @@ Pod::Spec.new do |s|
    Common APIs for internal Sentry usage.
                         DESC
   
-  s.ios.deployment_target = "11.0"
-  s.osx.deployment_target = "10.13"
-  s.tvos.deployment_target = "11.0"
-  s.watchos.deployment_target = "4.0"
+  s.ios.deployment_target = "15.0"
+  s.osx.deployment_target = "12"
+  s.tvos.deployment_target = "15.0"
+  s.watchos.deployment_target = "8.0"
   s.visionos.deployment_target = "1.0"
   s.module_name  = "SentryPrivate"
   s.frameworks = 'Foundation'

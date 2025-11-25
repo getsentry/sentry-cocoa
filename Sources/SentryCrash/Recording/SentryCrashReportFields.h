@@ -77,11 +77,6 @@
 #pragma mark - Backtrace -
 
 #define SentryCrashField_InstructionAddr "instruction_addr"
-#define SentryCrashField_LineOfCode "line_of_code"
-#define SentryCrashField_ObjectAddr "object_addr"
-#define SentryCrashField_ObjectName "object_name"
-#define SentryCrashField_SymbolAddr "symbol_addr"
-#define SentryCrashField_SymbolName "symbol_name"
 
 #pragma mark - Stack Dump -
 
@@ -187,8 +182,6 @@
 #define SentryCrashField_CPUArch "cpu_arch"
 #define SentryCrashField_CPUType "cpu_type"
 #define SentryCrashField_CPUSubType "cpu_subtype"
-#define SentryCrashField_BinaryCPUType "binary_cpu_type"
-#define SentryCrashField_BinaryCPUSubType "binary_cpu_subtype"
 #define SentryCrashField_DeviceAppHash "device_app_hash"
 #define SentryCrashField_Executable "CFBundleExecutable"
 #define SentryCrashField_ExecutablePath "CFBundleExecutablePath"

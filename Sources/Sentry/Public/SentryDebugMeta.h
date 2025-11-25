@@ -6,9 +6,7 @@
 #else
 #    import <SentryDefines.h>
 #endif
-#if !SDK_V9
-#    import SENTRY_HEADER(SentrySerializable)
-#endif
+#import SENTRY_HEADER(SentrySerializable)
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -22,15 +20,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @c SentryDebugImage in a future version.
  */
 NS_SWIFT_NAME(DebugMeta)
-@interface SentryDebugMeta : NSObject
-#if !SDK_V9
-                             <SentrySerializable>
-#endif
-
-/**
- * The UUID of the image. Use @c debugID when using "macho" as the @c type .
- */
-@property (nonatomic, copy) NSString *_Nullable uuid;
+@interface SentryDebugMeta : NSObject <SentrySerializable>
 
 /**
  * Identifier of the dynamic library or executable. It is the value of the @c LC_UUID load command
@@ -42,11 +32,6 @@ NS_SWIFT_NAME(DebugMeta)
  * Type of debug meta. We highly recommend using "macho"; was "apple" previously.
  */
 @property (nonatomic, copy) NSString *_Nullable type;
-
-/**
- * Name of the image. Use @c codeFile when using "macho" as the @c type .
- */
-@property (nullable, nonatomic, copy) NSString *name;
 
 /**
  * The size of the image in virtual memory. If missing, Sentry will assume that the image spans up

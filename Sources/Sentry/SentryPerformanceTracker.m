@@ -7,6 +7,7 @@
 #import "SentrySpanId.h"
 #import "SentrySpanProtocol.h"
 #import "SentryTracer.h"
+#import "SentryTracerConfiguration.h"
 #import "SentryTransactionContext+Private.h"
 
 #import "SentryProfilingConditionals.h"
@@ -232,6 +233,11 @@ NS_ASSUME_NONNULL_BEGIN
     @synchronized(self.spans) {
         return self.spans[spanId];
     }
+}
+
+- (BOOL)hasSpan:(SentrySpanId *)spanId
+{
+    return [self getSpan:spanId] != nil;
 }
 
 - (nullable id<SentrySpan>)getActiveSpan

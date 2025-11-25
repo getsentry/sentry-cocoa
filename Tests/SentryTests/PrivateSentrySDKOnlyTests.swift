@@ -1,5 +1,5 @@
-@testable import Sentry
-import SentryTestUtils
+@_spi(Private) @testable import Sentry
+@_spi(Private) import SentryTestUtils
 import XCTest
 
 class PrivateSentrySDKOnlyTests: XCTestCase {
@@ -16,7 +16,7 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
 
     func testStoreEnvelope() {
         let client = TestClient(options: Options())
-        SentrySDK.setCurrentHub(TestHub(client: client, andScope: nil))
+        SentrySDKInternal.setCurrentHub(TestHub(client: client, andScope: nil))
 
         let envelope = TestConstants.envelope
         PrivateSentrySDKOnly.store(envelope)
@@ -28,7 +28,7 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
     func testStoreEnvelopeWithUndhandled_MarksSessionAsCrashedAndDoesNotStartNewSession() throws {
         let client = TestClient(options: Options())
         let hub = TestHub(client: client, andScope: nil)
-        SentrySDK.setCurrentHub(hub)
+        SentrySDKInternal.setCurrentHub(hub)
         hub.setTestSession()
         let sessionToBeCrashed = hub.session
 
@@ -36,8 +36,8 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         PrivateSentrySDKOnly.store(envelope)
         
         let storedEnvelope = client?.storedEnvelopeInvocations.first
-        let attachedSessionData = storedEnvelope!.items.last!.data
-        let attachedSession = try XCTUnwrap(try! JSONSerialization.jsonObject(with: attachedSessionData) as? [String: Any])
+        let attachedSessionData = try XCTUnwrap(storedEnvelope!.items.last!.data)
+        let attachedSession = try XCTUnwrap(try JSONSerialization.jsonObject(with: attachedSessionData) as? [String: Any])
         
         XCTAssertEqual(0, hub.startSessionInvocations)
         // Assert crashed session was attached to the envelope
@@ -47,7 +47,7 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
     
     func testCaptureEnvelope() {
         let client = TestClient(options: Options())
-        SentrySDK.setCurrentHub(TestHub(client: client, andScope: nil))
+        SentrySDKInternal.setCurrentHub(TestHub(client: client, andScope: nil))
 
         let envelope = TestConstants.envelope
         PrivateSentrySDKOnly.capture(envelope)
@@ -59,7 +59,7 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
     func testCaptureEnvelopeWithUndhandled_MarksSessionAsCrashedAndStartsNewSession() throws {
         let client = TestClient(options: Options())
         let hub = TestHub(client: client, andScope: nil)
-        SentrySDK.setCurrentHub(hub)
+        SentrySDKInternal.setCurrentHub(hub)
         hub.setTestSession()
         let sessionToBeCrashed = hub.session
 
@@ -67,8 +67,8 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         PrivateSentrySDKOnly.capture(envelope)
 
         let capturedEnvelope = client?.captureEnvelopeInvocations.first
-        let attachedSessionData = capturedEnvelope!.items.last!.data
-        let attachedSession = try XCTUnwrap(try! JSONSerialization.jsonObject(with: attachedSessionData) as? [String: Any])
+        let attachedSessionData = try XCTUnwrap(capturedEnvelope!.items.last!.data)
+        let attachedSession = try XCTUnwrap(try JSONSerialization.jsonObject(with: attachedSessionData) as? [String: Any])
         
         // Assert new session was started
         XCTAssertEqual(1, hub.startSessionInvocations)
@@ -126,27 +126,19 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         XCTAssertNil(PrivateSentrySDKOnly.envelope(with: itemData))
     }
 
-    func testGetDebugImages() {
-        let images = PrivateSentrySDKOnly.getDebugImages()
-
-        // Only make sure we get some images. The actual tests are in
-        // SentryDebugImageProviderTests
-        XCTAssertGreaterThan(images.count, 100)
-    }
-
     #if canImport(UIKit)
     func testGetAppStartMeasurement() {
         let appStartMeasurement = TestData.getAppStartMeasurement(type: .warm, runtimeInitSystemTimestamp: 1)
-        SentrySDK.setAppStartMeasurement(appStartMeasurement)
+        SentrySDKInternal.setAppStartMeasurement(appStartMeasurement)
 
         XCTAssertEqual(appStartMeasurement, PrivateSentrySDKOnly.appStartMeasurement)
 
-        SentrySDK.setAppStartMeasurement(nil)
+        SentrySDKInternal.setAppStartMeasurement(nil)
         XCTAssertNil(PrivateSentrySDKOnly.appStartMeasurement)
     }
 
     func testGetAppStartMeasurementWithSpansCold() throws {
-        SentrySDK.setAppStartMeasurement(
+        SentrySDKInternal.setAppStartMeasurement(
             TestData.getAppStartMeasurement(type: .cold, runtimeInitSystemTimestamp: 1)
         )
 
@@ -162,7 +154,7 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
     }
 
     func testGetAppStartMeasurementWithSpansPreWarmed() throws {
-        SentrySDK.setAppStartMeasurement(
+        SentrySDKInternal.setAppStartMeasurement(
             TestData.getAppStartMeasurement(
                 type: .warm,
                 runtimeInitSystemTimestamp: 1,
@@ -197,7 +189,7 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
     }
 
     func testGetAppStartMeasurementWithSpansReturnsTimestampsInMs() throws {
-        SentrySDK.setAppStartMeasurement(
+        SentrySDKInternal.setAppStartMeasurement(
             TestData.getAppStartMeasurement(
                 type: .cold,
                 appStartTimestamp: Date(timeIntervalSince1970: 5),
@@ -237,7 +229,7 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         let options = Options()
         options.dsn = TestConstants.dsnAsString(username: "SentryFramesTrackingIntegrationTests")
         let client = TestClient(options: options)
-        SentrySDK.setCurrentHub(TestHub(client: client, andScope: nil))
+        SentrySDKInternal.setCurrentHub(TestHub(client: client, andScope: nil))
 
         XCTAssertEqual(PrivateSentrySDKOnly.options, options)
     }
@@ -254,7 +246,6 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
      */
     func testProfilingStartAndCollect() throws {
         let image = DebugMeta()
-        image.name = "sentrytest"
         image.imageAddress = "0x0000000105705000"
         image.imageVmAddress = "0x0000000105705000"
         image.codeFile = "codeFile"
@@ -272,7 +263,7 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         let options = Options()
         options.dsn = TestConstants.dsnAsString(username: "SentryFramesTrackingIntegrationTests")
         let client = TestClient(options: options)
-        SentrySDK.setCurrentHub(TestHub(client: client, andScope: nil))
+        SentrySDKInternal.setCurrentHub(TestHub(client: client, andScope: nil))
 
         let traceIdA = SentryId()
 
@@ -287,7 +278,6 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         let debugMeta = try XCTUnwrap(payload?["debug_meta"] as? [String: Any])
         let images = try XCTUnwrap(debugMeta["images"] as? [[String: Any]])
         let debugImage = try XCTUnwrap(images.first)
-        XCTAssertEqual(debugImage["name"] as? String, image.name)
         XCTAssertEqual(debugImage["image_addr"] as? String, image.imageAddress)
         XCTAssertEqual(debugImage["image_vmaddr"] as? String, image.imageVmAddress)
         XCTAssertEqual(debugImage["code_file"] as? String, image.codeFile)
@@ -311,7 +301,7 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         let options = Options()
         options.dsn = TestConstants.dsnAsString(username: "SentryFramesTrackingIntegrationTests")
         let client = TestClient(options: options)
-        SentrySDK.setCurrentHub(TestHub(client: client, andScope: nil))
+        SentrySDKInternal.setCurrentHub(TestHub(client: client, andScope: nil))
 
         let traceIdA = SentryId()
 
@@ -359,16 +349,35 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
     #endif
 
     #if canImport(UIKit)
-    func testCaptureReplayShouldCallReplayIntegration() {
+    func testCaptureReplayShouldCallReplayIntegration() throws {
         guard #available(iOS 16.0, tvOS 16.0, *) else { return }
 
-        let options = Options()
-        options.setIntegrations([TestSentrySessionReplayIntegration.self])
-        SentrySDK.start(options: options)
+        let options = Options.noIntegrations()
+        options.sessionReplay = .init(sessionSampleRate: 1.0)
+        options.experimental.enableSessionReplayInUnreliableEnvironment = true
+        SentrySDKInternal.start(options: options)
+
+        var didCallCaptureReplay = false
+        let cls: AnyClass = SentrySessionReplayIntegration.self
+        let originalSelector = #selector(SentrySessionReplayIntegration.captureReplay)
+        guard
+            let originalMethod = class_getInstanceMethod(cls, originalSelector)
+        else {
+            XCTFail("Expected SentrySessionReplayIntegration.captureReplay to exist")
+            return
+        }
+        // Swizzle captureReplay
+        let originalIMP = method_getImplementation(originalMethod)
+        let block: @convention(block) (AnyObject) -> Void = { _ in
+            didCallCaptureReplay = true
+        }
+        let newIMP = imp_implementationWithBlock(block)
+        method_setImplementation(originalMethod, newIMP)      
 
         PrivateSentrySDKOnly.captureReplay()
 
-        XCTAssertTrue(TestSentrySessionReplayIntegration.captureReplayShouldBeCalledAtLeastOnce())
+        XCTAssertTrue(didCallCaptureReplay, "Expected SentrySessionReplayIntegration.captureReplay to be called")
+        method_setImplementation(originalMethod, originalIMP)
     }
 
     func testGetReplayIdShouldBeNil() {
@@ -379,23 +388,23 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         let client = TestClient(options: Options())
         let scope = Scope()
         scope.replayId = VALID_REPLAY_ID
-        SentrySDK.setCurrentHub(TestHub(client: client, andScope: scope))
+        SentrySDKInternal.setCurrentHub(TestHub(client: client, andScope: scope))
 
         XCTAssertEqual(PrivateSentrySDKOnly.getReplayId(), VALID_REPLAY_ID)
     }
 
     func testAddReplayIgnoreClassesShouldNotFailWhenReplayIsAvailable() {
-        let options = Options()
-        options.setIntegrations([TestSentrySessionReplayIntegration.self])
-        SentrySDK.start(options: options)
+        let options = Options.noIntegrations()
+        options.sessionReplay = .init()
+        SentrySDKInternal.start(options: options)
 
         PrivateSentrySDKOnly.addReplayIgnoreClasses([UILabel.self])
     }
 
     func testAddReplayRedactShouldNotFailWhenReplayIsAvailable() {
         let options = Options()
-        options.setIntegrations([TestSentrySessionReplayIntegration.self])
-        SentrySDK.start(options: options)
+        options.sessionReplay = .init()
+        SentrySDKInternal.start(options: options)
 
         PrivateSentrySDKOnly.addReplayRedactClasses([UILabel.self])
     }
@@ -404,15 +413,16 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         class IgnoreContainer: UIView {}
 
         SentrySDK.start {
-            $0.experimental.sessionReplay = SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1)
-            $0.setIntegrations([SentrySessionReplayIntegration.self])
+            $0.removeAllIntegrations()
+            $0.sessionReplay = SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1)
+            $0.experimental.enableSessionReplayInUnreliableEnvironment = true
         }
 
         PrivateSentrySDKOnly.setIgnoreContainerClass(IgnoreContainer.self)
 
         let replayIntegration = try getFirstIntegrationAsReplay()
 
-        let redactBuilder = replayIntegration.viewPhotographer.getRedactBuild()
+        let redactBuilder = replayIntegration.viewPhotographer.getRedactBuilder()
         XCTAssertTrue(redactBuilder.isIgnoreContainerClassTestOnly(IgnoreContainer.self))
     }
 
@@ -420,53 +430,43 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         class RedactContainer: UIView {}
 
         SentrySDK.start {
-            $0.experimental.sessionReplay = SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1)
-            $0.setIntegrations([SentrySessionReplayIntegration.self])
+            $0.removeAllIntegrations()
+            $0.sessionReplay = SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1)
+            $0.experimental.enableSessionReplayInUnreliableEnvironment = true
         }
 
         PrivateSentrySDKOnly.setRedactContainerClass(RedactContainer.self)
 
         let replayIntegration = try getFirstIntegrationAsReplay()
 
-        let redactBuilder = replayIntegration.viewPhotographer.getRedactBuild()
+        let redactBuilder = replayIntegration.viewPhotographer.getRedactBuilder()
         XCTAssertTrue(redactBuilder.isRedactContainerClassTestOnly(RedactContainer.self))
     }
 
-    func testAddExtraSdkPackages() {
+    func testAddExtraSdkPackages() throws {
         PrivateSentrySDKOnly.addSdkPackage("package1", version: "version1")
         PrivateSentrySDKOnly.addSdkPackage("package2", version: "version2")
 
-        XCTAssertEqual(
-            SentrySdkInfo.global().packages,
-            [
-                ["name": "package1", "version": "version1"],
-                ["name": "package2", "version": "version2"]
-            ]
-        )
+        // In swift the order is not guaranteed
+        let packages = try SentrySdkInfo.global().packages.sorted { package1, package2 in
+            try XCTUnwrap(package1["name"]) < XCTUnwrap(package2["name"])
+        }
+        let expected = [
+            ["name": "package1", "version": "version1"],
+            ["name": "package2", "version": "version2"]
+        ]
+        XCTAssertEqual(packages.count, expected.count)
+        for (index, package) in packages.enumerated() {
+            XCTAssertEqual(expected[index]["name"], package["name"])
+            XCTAssertEqual(expected[index]["version"], package["version"])
+        }
     }
 
     private func getFirstIntegrationAsReplay() throws -> SentrySessionReplayIntegration {
-        return try XCTUnwrap(SentrySDK.currentHub().installedIntegrations().first as? SentrySessionReplayIntegration)
+        return try XCTUnwrap(SentrySDKInternal.currentHub().installedIntegrations().first as? SentrySessionReplayIntegration)
     }
 
     private let VALID_REPLAY_ID = "0eac7ab503354dd5819b03e263627a29"
-
-    private class TestSentrySessionReplayIntegration: SentrySessionReplayIntegration {
-        static var captureReplayCalledTimes = 0
-
-        override func install(with options: Options) -> Bool {
-            return true
-        }
-
-        override func captureReplay() -> Bool {
-            TestSentrySessionReplayIntegration.captureReplayCalledTimes += 1
-            return true
-        }
-
-        static func captureReplayShouldBeCalledAtLeastOnce() -> Bool {
-            return captureReplayCalledTimes > 0
-        }
-    }
     #endif
     
     private func getUnhandledExceptionEnvelope() -> SentryEnvelope {
@@ -481,17 +481,18 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
     func testSetTrace() {
         // -- Arrange --
         let traceId = SentryId()
-        let spanId = SentrySpanId()
+        let spanId = SpanId()
         
         let scope = Scope()
-        let hub = TestHub(client: nil, andScope: scope)
-        SentrySDK.setCurrentHub(hub)
+        let client = TestClient(options: Options())
+        let hub = TestHub(client: client, andScope: scope)
+        SentrySDKInternal.setCurrentHub(hub)
         
         // -- Act --
         PrivateSentrySDKOnly.setTrace(traceId, spanId: spanId)
         
         // -- Assert --        
-        XCTAssertEqual(scope.propagationContext?.traceId, traceId)
-        XCTAssertEqual(scope.propagationContext?.spanId, spanId)
+        XCTAssertEqual(scope.propagationContext.traceId, traceId)
+        XCTAssertEqual(scope.propagationContext.spanId, spanId)
     }
 }

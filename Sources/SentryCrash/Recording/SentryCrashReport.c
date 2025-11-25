@@ -799,20 +799,6 @@ writeBacktrace(const SentryCrashReportWriter *const writer, const char *const ke
             while (stackCursor->advanceCursor(stackCursor)) {
                 writer->beginObject(writer, NULL);
                 {
-                    if (stackCursor->symbolicate(stackCursor)) {
-                        if (stackCursor->stackEntry.imageName != NULL) {
-                            writer->addStringElement(writer, SentryCrashField_ObjectName,
-                                sentrycrashfu_lastPathEntry(stackCursor->stackEntry.imageName));
-                        }
-                        writer->addUIntegerElement(writer, SentryCrashField_ObjectAddr,
-                            stackCursor->stackEntry.imageAddress);
-                        if (stackCursor->stackEntry.symbolName != NULL) {
-                            writer->addStringElement(writer, SentryCrashField_SymbolName,
-                                stackCursor->stackEntry.symbolName);
-                        }
-                        writer->addUIntegerElement(writer, SentryCrashField_SymbolAddr,
-                            stackCursor->stackEntry.symbolAddress);
-                    }
                     writer->addUIntegerElement(
                         writer, SentryCrashField_InstructionAddr, stackCursor->stackEntry.address);
                 }
@@ -1565,10 +1551,6 @@ writeSystemInfo(const SentryCrashReportWriter *const writer, const char *const k
         writer->addIntegerElement(writer, SentryCrashField_CPUType, monitorContext->System.cpuType);
         writer->addIntegerElement(
             writer, SentryCrashField_CPUSubType, monitorContext->System.cpuSubType);
-        writer->addIntegerElement(
-            writer, SentryCrashField_BinaryCPUType, monitorContext->System.binaryCPUType);
-        writer->addIntegerElement(
-            writer, SentryCrashField_BinaryCPUSubType, monitorContext->System.binaryCPUSubType);
         writer->addStringElement(
             writer, SentryCrashField_ProcessName, monitorContext->System.processName);
         writer->addIntegerElement(

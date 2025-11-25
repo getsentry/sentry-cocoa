@@ -1,6 +1,6 @@
 @_implementationOnly import _SentryPrivate
 
-// This is the Swift verion of `_SentryDispatchQueueWrapperInternal`
+// This is the Swift version of `_SentryDispatchQueueWrapperInternal`
 // It exists to allow the implementation of `_SentryDispatchQueueWrapperInternal`
 // to be accessible to Swift without making that header file public
 @objcMembers @_spi(Private) public class SentryDispatchQueueWrapper: NSObject {
@@ -9,6 +9,10 @@
     
     public override init() {
         internalWrapper = _SentryDispatchQueueWrapperInternal()
+    }
+    
+    public init(name: UnsafePointer<CChar>, relativePriority: Int32) {
+        internalWrapper = _SentryDispatchQueueWrapperInternal(name: name, relativePriority: relativePriority)
     }
     
     public init(name: UnsafePointer<CChar>, attributes: __OS_dispatch_queue_attr?) {
@@ -28,9 +32,9 @@
         internalWrapper.dispatchSync(block)
     }
     
-    @objc(dispatchAsyncOnMainQueue:)
-    public func dispatchAsyncOnMainQueue(block: @escaping () -> Void) {
-        internalWrapper.dispatchAsyncOnMainQueue(block: block)
+    @objc(dispatchAsyncOnMainQueueIfNotMainThread:)
+    public func dispatchAsyncOnMainQueueIfNotMainThread(block: @escaping () -> Void) {
+        internalWrapper.dispatchAsyncOnMainQueueIfNotMainThread(block: block)
     }
 
     @objc(dispatchSyncOnMainQueue:)

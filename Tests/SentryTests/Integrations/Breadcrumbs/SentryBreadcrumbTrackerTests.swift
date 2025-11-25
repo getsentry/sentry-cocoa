@@ -31,9 +31,8 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
         sut.start(with: delegate)
         sut.startSwizzle()
         sut.stop()
-        
-        let dict = Dynamic(SentryDependencyContainer.sharedInstance().swizzleWrapper).swizzleSendActionCallbacks().asDictionary
-        XCTAssertEqual(0, dict?.count)
+
+        XCTAssertEqual(0, SentrySwizzleWrapper.sentrySwizzleSendActionCallbacks.count)
     }
     
     func testNetworkConnectivityChangeBreadcrumbs() throws {
@@ -43,12 +42,12 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
         
         let sut = SentryBreadcrumbTracker()
         sut.start(with: delegate)
-        let states = [SentryConnectivityCellular,
-                      SentryConnectivityWiFi,
-                      SentryConnectivityNone,
-                      SentryConnectivityWiFi,
-                      SentryConnectivityCellular,
-                      SentryConnectivityWiFi
+        let states: [SentryConnectivity] = [.cellular,
+                                            .wiFi,
+                                            .none,
+                                            .wiFi,
+                                            .cellular,
+                                            .wiFi
         ]
         states.forEach {
             testReachability.setReachabilityState(state: $0)
@@ -59,7 +58,7 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
             let crumb = delegate.addCrumbInvocations.invocations[$0.offset + 1]
             XCTAssertEqual(crumb.type, "connectivity")
             XCTAssertEqual(crumb.category, "device.connectivity")
-            XCTAssertEqual(try XCTUnwrap(crumb.data?["connectivity"] as? String), $0.element)
+            XCTAssertEqual(try XCTUnwrap(crumb.data?["connectivity"] as? String), $0.element.toString())
         }
     }
     
@@ -68,7 +67,7 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
         SentryDependencyContainer.sharedInstance().reachability = testReachability
         let sut = SentryBreadcrumbTracker()
         sut.start(with: delegate)
-        testReachability.setReachabilityState(state: SentryConnectivityCellular)
+        testReachability.setReachabilityState(state: .cellular)
         sut.stop()
         
         guard let breadcrumb = delegate.addCrumbInvocations.invocations.dropFirst().first else {

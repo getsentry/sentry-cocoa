@@ -3,7 +3,7 @@ import Foundation
 @_implementationOnly import _SentryPrivate
 import UIKit
 
-@available(iOS 13.0, *) @objc
+@objc
 @_spi(Private) public protocol SentryUserFeedbackIntegrationDriverDelegate: NSObjectProtocol {
     func capture(feedback: SentryFeedback)
 }
@@ -12,7 +12,6 @@ import UIKit
  * An integration managing a workflow for end users to report feedback via Sentry.
  * - note: The default method to show the feedback form is via a floating widget placed in the bottom trailing corner of the screen. See the configuration classes for alternative options.
  */
-@available(iOS 13.0, *)
 @available(iOSApplicationExtension, unavailable)
 @objcMembers
 @_spi(Private) public class SentryUserFeedbackIntegrationDriver: NSObject {
@@ -85,7 +84,6 @@ import UIKit
 }
 
 // MARK: SentryUserFeedbackFormDelegate
-@available(iOS 13.0, *)
 @available(iOSApplicationExtension, unavailable)
 extension SentryUserFeedbackIntegrationDriver: SentryUserFeedbackFormDelegate {
     func finished(with feedback: SentryFeedback?) {
@@ -101,7 +99,6 @@ extension SentryUserFeedbackIntegrationDriver: SentryUserFeedbackFormDelegate {
 }
 
 // MARK: SentryUserFeedbackWidgetDelegate
-@available(iOS 13.0, *)
 @available(iOSApplicationExtension, unavailable)
 extension SentryUserFeedbackIntegrationDriver: SentryUserFeedbackWidgetDelegate {
     func showForm() {
@@ -110,7 +107,6 @@ extension SentryUserFeedbackIntegrationDriver: SentryUserFeedbackWidgetDelegate 
 }
 
 // MARK: UIAdaptivePresentationControllerDelegate
-@available(iOS 13.0, *)
 @available(iOSApplicationExtension, unavailable)
 extension SentryUserFeedbackIntegrationDriver: UIAdaptivePresentationControllerDelegate {
     public func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
@@ -121,7 +117,6 @@ extension SentryUserFeedbackIntegrationDriver: UIAdaptivePresentationControllerD
 }
 
 // MARK: Private
-@available(iOS 13.0, *)
 @available(iOSApplicationExtension, unavailable)
 private extension SentryUserFeedbackIntegrationDriver {
     func showForm(screenshot: UIImage?) {

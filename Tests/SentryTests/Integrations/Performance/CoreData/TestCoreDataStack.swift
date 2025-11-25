@@ -98,14 +98,14 @@ class TestCoreDataStack {
         return obj
     }
     
-    func saveContext () {
+    func saveContext() {
         if managedObjectContext.hasChanges {
             try? managedObjectContext.save()
         }
     }
 }
 
-class TestNSManagedObjectContext: NSManagedObjectContext {
+class TestNSManagedObjectContext: NSManagedObjectContext, @unchecked Sendable {
 
     var inserted: Set<NSManagedObject>?
     var updated: Set<NSManagedObject>?

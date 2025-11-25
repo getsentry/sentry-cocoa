@@ -1,15 +1,15 @@
 @_spi(Private) import Sentry
-@_spi(Private) import SentryTestUtils
+@_spi(Private) @testable import SentryTestUtils
 import XCTest
 
 class SentryCrashReportSinkTests: SentrySDKIntegrationTestsBase {
     
     private class Fixture {
-        let crashWrapper = TestSentryCrashWrapper.sharedInstance()
+        let crashWrapper = TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo)
         let dispatchQueue = TestSentryDispatchQueueWrapper()
         
         var sut: SentryCrashReportSink {
-            return SentryCrashReportSink(inAppLogic: SentryInAppLogic(inAppIncludes: [], inAppExcludes: []), crashWrapper: crashWrapper, dispatchQueue: dispatchQueue)
+            return SentryCrashReportSink(inAppLogic: SentryInAppLogic(inAppIncludes: []), crashWrapper: crashWrapper, dispatchQueue: dispatchQueue)
         }
     }
     

@@ -1,4 +1,4 @@
-@testable import Sentry
+@_spi(Private) @testable import Sentry
 import XCTest
 
 class SentryExceptionTests: XCTestCase {
@@ -30,10 +30,10 @@ class SentryExceptionTests: XCTestCase {
         // Arrange
         let exception = TestData.exception
         let actual = exception.serialize()
-        let data = try XCTUnwrap(SentrySerialization.data(withJSONObject: actual))
+        let data = try XCTUnwrap(SentrySerializationSwift.data(withJSONObject: actual))
 
         // Act
-        let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as Exception?)
+        let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as ExceptionDecodable?)
 
         // Assert
         XCTAssertEqual(exception.type, decoded.type)
@@ -57,10 +57,10 @@ class SentryExceptionTests: XCTestCase {
         // Arrange
         let exception = Exception(value: "value", type: "type")
         let actual = exception.serialize()
-        let data = try XCTUnwrap(SentrySerialization.data(withJSONObject: actual))
+        let data = try XCTUnwrap(SentrySerializationSwift.data(withJSONObject: actual))
 
         // Act
-        let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as Exception?)
+        let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as ExceptionDecodable?)
 
         // Assert
         XCTAssertEqual(exception.type, decoded.type)

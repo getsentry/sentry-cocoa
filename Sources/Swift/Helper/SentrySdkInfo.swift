@@ -8,9 +8,12 @@ import Foundation
  */
 @_spi(Private) @objc public final class SentrySdkInfo: NSObject, SentrySerializable {
     
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     @objc public static func global() -> Self {
-        Self(withOptions: SentrySDKInternal.currentHub().getClient()?.options)
+        if let options = SentrySDKInternal.currentHub().getClient()?.getOptions() {
+            let enabledFeatures = SentryDependencyContainerSwiftHelper.enabledFeatures(options)
+            return Self(withEnabledFeatures: enabledFeatures, sendDefaultPii: SentryDependencyContainerSwiftHelper.sendDefaultPii(options))
+        }
+        return Self(withEnabledFeatures: [], sendDefaultPii: false)
     }
     
     /**
@@ -53,15 +56,13 @@ import Foundation
      */
     @objc public let settings: SentrySDKSettings
     
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     @objc public convenience init(withOptions options: Options?) {
         let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
-        var integrations = SentrySDKInternal.currentHub().trimmedInstalledIntegrationNames()
-        #if (os(iOS) || os(tvOS) || (swift(>=5.9) && os(visionOS))) && !SENTRY_NO_UIKIT
-            if options?.enablePreWarmedAppStartTracing ?? false {
-                integrations.append("PreWarmedAppStartTracing")
-            }
-        #endif
+        self.init(withEnabledFeatures: features, sendDefaultPii: options?.sendDefaultPii ?? false)
+    }
+
+    @objc public convenience init(withEnabledFeatures features: [String], sendDefaultPii: Bool) {
+        let integrations = SentrySDKInternal.currentHub().trimmedInstalledIntegrationNames()
         var packages = SentryExtraPackages.getPackages()
         let sdkPackage = SentrySdkPackage.global()
         if let sdkPackage {
@@ -73,7 +74,7 @@ import Foundation
             integrations: integrations,
             features: features,
             packages: Array(packages),
-            settings: SentrySDKSettings(options: options))
+            settings: SentrySDKSettings(sendDefaultPii: sendDefaultPii))
     }
     
     @objc public init(name: String?, version: String?, integrations: [String]?, features: [String]?, packages: [[String: String]]?, settings: SentrySDKSettings) {

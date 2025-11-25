@@ -1,15 +1,12 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
-#if SDK_V9
 final class BreadcrumbDecodable: Breadcrumb {
     convenience public init(from decoder: any Decoder) throws {
         try self.init(decodedFrom: decoder)
     }
 }
-#else
-typealias BreadcrumbDecodable = Breadcrumb
-#endif
+
 extension BreadcrumbDecodable: Decodable {
     
     private enum CodingKeys: String, CodingKey {
@@ -21,12 +18,6 @@ extension BreadcrumbDecodable: Decodable {
         case data
         case origin
     }
-    
-    #if !SDK_V9
-    required convenience public init(from decoder: any Decoder) throws {
-        try self.init(decodedFrom: decoder)
-    }
-    #endif
 
     private convenience init(decodedFrom decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -35,7 +26,7 @@ extension BreadcrumbDecodable: Decodable {
         
         let rawLevel = try container.decode(String.self, forKey: .level)
         let level = SentryLevelHelper.levelForName(rawLevel)
-        SentryLevelBridge.setBreadcrumbLevel(self, level: level.rawValue)
+        self.level = level
         
         self.category = try container.decode(String.self, forKey: .category)
         self.timestamp = try container.decodeIfPresent(Date.self, forKey: .timestamp)

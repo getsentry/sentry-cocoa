@@ -2,20 +2,17 @@
 #import "SentryBreadcrumb.h"
 #import "SentryClient.h"
 #import "SentryDebugMeta.h"
-#import "SentryDependencyContainer.h"
 #import "SentryEvent+Private.h"
 #import "SentryException.h"
 #import "SentryInternalDefines.h"
 #import "SentryLevelMapper.h"
 #import "SentryMessage.h"
 #import "SentryMeta.h"
-#import "SentryModels+Serializable.h"
 #import "SentryNSDictionarySanitize.h"
 #import "SentryRequest.h"
 #import "SentryStacktrace.h"
 #import "SentrySwift.h"
 #import "SentryThread.h"
-#import "SentryUser+Serialize.h"
 #import "SentryUser.h"
 
 #if SENTRY_HAS_METRIC_KIT
@@ -36,13 +33,13 @@ NS_ASSUME_NONNULL_BEGIN
     return [self commonInit:kSentryLevelNone];
 }
 
-- (instancetype)initWithLevel:(enum SentryLevel)level
+- (instancetype)initWithLevel:(SentryLevel)level
 {
     self = [super init];
     return [self commonInit:level];
 }
 
-- (instancetype)commonInit:(enum SentryLevel)level
+- (instancetype)commonInit:(SentryLevel)level
 {
     if (self) {
         self.eventId = [[SentryId alloc] init];

@@ -14,7 +14,7 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         let fileManager: SentryFileManager
         let processInfoWrapper: MockSentryProcessInfo
         let watchdogTerminationAttributesProcessor: TestSentryWatchdogTerminationAttributesProcessor
-        let hub: SentryHub
+        let hub: SentryHubInternal
         let scope: Scope
         let appStateManager: SentryAppStateManager
 
@@ -32,24 +32,30 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
 
             let container = SentryDependencyContainer.sharedInstance()
 
+            let dateProvider = TestCurrentDateProvider()
             let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
 
             processInfoWrapper = MockSentryProcessInfo()
             container.processInfoWrapper = processInfoWrapper
 
-            crashWrapper = TestSentryCrashWrapper.sharedInstance()
+            crashWrapper = TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo)
             container.crashWrapper = crashWrapper
 
-            fileManager = try SentryFileManager(options: options)
+            fileManager = try SentryFileManager(
+                options: options,
+                dateProvider: dateProvider,
+                dispatchQueueWrapper: dispatchQueueWrapper
+            )
             container.fileManager = fileManager
 
             let notificationCenterWrapper = TestNSNotificationCenterWrapper()
+            SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = dispatchQueueWrapper
+            SentryDependencyContainer.sharedInstance().notificationCenterWrapper = notificationCenterWrapper
             appStateManager = SentryAppStateManager(
-                options: options,
+                releaseName: options.releaseName,
                 crashWrapper: crashWrapper,
                 fileManager: fileManager,
-                dispatchQueueWrapper: dispatchQueueWrapper,
-                notificationCenterWrapper: notificationCenterWrapper
+                sysctlWrapper: SentryDependencyContainer.sharedInstance().sysctlWrapper
             )
             container.appStateManager = appStateManager
             appStateManager.start()
@@ -63,7 +69,7 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
 
             let client = TestClient(options: options)
             scope = Scope()
-            hub = SentryHub(client: client, andScope: scope, andCrashWrapper: crashWrapper, andDispatchQueue: dispatchQueueWrapper)
+            hub = SentryHubInternal(client: client, andScope: scope, andCrashWrapper: crashWrapper, andDispatchQueue: dispatchQueueWrapper)
             SentrySDKInternal.setCurrentHub(hub)
         }
 

@@ -1,7 +1,5 @@
 #import "SentryCrashBinaryImageCache.h"
 #import "SentryCrashDynamicLinker+Test.h"
-#import "SentryCrashWrapper.h"
-#import "SentryDependencyContainer.h"
 #import "SentrySwift.h"
 #import <XCTest/XCTest.h>
 
@@ -113,7 +111,7 @@ delayAddBinaryImage(void)
 
 - (void)testStartCache
 {
-    [[SentryCrashWrapper sharedInstance] startBinaryImageCache];
+    [SentryDependencyContainer.sharedInstance.crashWrapper startBinaryImageCache];
     [self assertBinaryImageCacheLength:5];
 }
 

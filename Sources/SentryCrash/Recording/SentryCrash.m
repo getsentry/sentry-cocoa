@@ -37,7 +37,6 @@
 #import "SentryCrashReportFields.h"
 #import "SentryCrashReportStore.h"
 #import "SentryDefines.h"
-#import "SentryDependencyContainer.h"
 #import "SentryInternalCDefines.h"
 #import "SentrySwift.h"
 #import <SentryNSDataUtils.h>
@@ -199,8 +198,6 @@
     COPY_STRING(cpuArchitecture);
     COPY_PRIMITIVE(cpuType);
     COPY_PRIMITIVE(cpuSubType);
-    COPY_PRIMITIVE(binaryCPUType);
-    COPY_PRIMITIVE(binaryCPUSubType);
     COPY_STRING(processName);
     COPY_PRIMITIVE(processID);
     COPY_PRIMITIVE(parentProcessID);

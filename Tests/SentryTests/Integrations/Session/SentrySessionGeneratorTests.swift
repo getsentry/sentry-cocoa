@@ -5,7 +5,6 @@ import XCTest
 /**
 * This isn't an actual test. It sends Sessions to the Sentry, but doesn't verify if they arrive there.
 */
-@available(OSX 10.10, *)
 class SentrySessionGeneratorTests: NotificationCenterTestCase {
     
     struct Sessions {
@@ -22,11 +21,10 @@ class SentrySessionGeneratorTests: NotificationCenterTestCase {
     private var options: Options!
     private var fileManager: SentryFileManager!
     
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
-    override func setUp() {
-        super.setUp()
-        
-        options = Options.noIntegrations()
+    override func setUpWithError() throws {
+        try super.setUpWithError()
+
+        options = Options()
         options.dsn = TestConstants.realDSN
         
         options.releaseName = "Release Health"
@@ -35,12 +33,14 @@ class SentrySessionGeneratorTests: NotificationCenterTestCase {
         options.sessionTrackingIntervalMillis = 1
         
         // We want to start and stop the SentryAutoSessionTrackingIntegration ourselves so we can send crashed and abnormal sessions.
-        options.integrations = Options.defaultIntegrations().filter { (name) -> Bool in
-            return name != "SentryAutoSessionTrackingIntegration"
-        }
+        options.enableAutoSessionTracking = false
 
-        fileManager = try! SentryFileManager(options: options, dispatchQueueWrapper: TestSentryDispatchQueueWrapper())
-        
+        fileManager = try XCTUnwrap(SentryFileManager(
+            options: options,
+            dateProvider: TestCurrentDateProvider(),
+            dispatchQueueWrapper: TestSentryDispatchQueueWrapper()
+        ))
+
         fileManager.deleteCurrentSession()
         fileManager.deleteCrashedSession()
         fileManager.deleteTimestampLastInForeground()
@@ -141,9 +141,9 @@ class SentrySessionGeneratorTests: NotificationCenterTestCase {
         
         SentrySDK.start(options: options)
         
-        sentryCrash = TestSentryCrashWrapper.sharedInstance()
+        sentryCrash = TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo)
         let client = SentrySDKInternal.currentHub().getClient()
-        let hub = SentryHub(client: client, andScope: nil, andCrashWrapper: self.sentryCrash, andDispatchQueue: SentryDispatchQueueWrapper())
+        let hub = SentryHubInternal(client: client, andScope: nil, andCrashWrapper: self.sentryCrash, andDispatchQueue: SentryDispatchQueueWrapper())
         SentrySDKInternal.setCurrentHub(hub)
         
         crashIntegration = SentryCrashIntegration(crashAdapter: sentryCrash, andDispatchQueueWrapper: TestSentryDispatchQueueWrapper())

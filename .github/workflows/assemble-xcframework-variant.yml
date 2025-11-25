@@ -69,9 +69,10 @@ jobs:
 
     runs-on: macos-14
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
-      - uses: ruby/setup-ruby@v1
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@8aeb6ff8030dd539317f8e1769a044873b56ea71 # v1.268.0
         if: ${{ inputs.signed }}
         with:
           bundler-cache: true
@@ -113,46 +114,25 @@ jobs:
             echo "XCFRAMEWORK_NAME=$SCHEME$SUFFIX" >> $GITHUB_ENV
           fi
 
-      - name: Compute cache key
-        env:
-          SDKS: ${{ inputs.sdks }}
-          VARIANT_ID: ${{ inputs.variant-id }}
-          SIGNED: ${{ inputs.signed }}
-          VERSION: ${{ env.VERSION }}
-        run: |
-          sdks_string="$SDKS"
-          sdks_string_slugified="${sdks_string//,/_}"
-          echo "SENTRY_XCFRAMEWORK_CACHE_KEY=${{runner.os}}-xcframework-$VARIANT_ID-$sdks_string_slugified-$SIGNED-$VERSION-${{hashFiles('Sources/**')}}-${{hashFiles('Sentry.xcodeproj/**')}}" >> $GITHUB_ENV
-
-      - name: Restore XCFramework cache
-        id: cache-xcframework
-        uses: actions/cache@v4
-        with:
-          key: ${{env.SENTRY_XCFRAMEWORK_CACHE_KEY}}
-          path: ${{env.XCFRAMEWORK_NAME}}.xcframework.zip
-
       - name: Download ${{inputs.variant-id}} Slices
-        if: steps.cache-xcframework.outputs.cache-hit != 'true'
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           pattern: xcframework-${{inputs.variant-id}}-slice-*
           path: xcframework-slices
 
       - name: Unzip slice artifact ZIP archives
-        if: steps.cache-xcframework.outputs.cache-hit != 'true'
         run: |
           find xcframework-slices -type f -print0 | xargs -t0I @ unzip @ -d xcframework-slices
         shell: bash
 
       - name: Remove excluded archs
-        if: ${{ steps.cache-xcframework.outputs.cache-hit != 'true' && inputs.excluded-archs != '' }}
+        if: ${{ inputs.excluded-archs != '' }}
         env:
           EXCLUDED_ARCHS: ${{ inputs.excluded-archs }}
         run: ./scripts/remove-architectures.sh xcframework-slices/ "$EXCLUDED_ARCHS"
         shell: bash
 
       - name: Assemble XCFramework
-        if: steps.cache-xcframework.outputs.cache-hit != 'true'
         env:
           SCHEME: ${{ inputs.scheme }}
           SUFFIX: ${{ inputs.suffix }}
@@ -173,40 +153,34 @@ jobs:
         shell: bash
 
       - name: Validate XCFramework structure
-        # only validate if the xcframework was not cached
-        if: steps.cache-xcframework.outputs.cache-hit != 'true'
         run: ./scripts/validate-xcframework-format.sh "${{env.XCFRAMEWORK_NAME}}.xcframework"
         shell: bash
         env:
           XCFRAMEWORK_NAME: ${{ env.XCFRAMEWORK_NAME }}
 
       - name: Zip XCFramework
-        if: steps.cache-xcframework.outputs.cache-hit != 'true'
         env:
           SIGNED: ${{ inputs.signed }}
           SCHEME: ${{ inputs.scheme }}
           SUFFIX: ${{ inputs.suffix }}
+          XCFRAMEWORK_NAME: ${{ env.XCFRAMEWORK_NAME }}
         run: |
           if [ "$SIGNED" = "true" ]; then
-            ./scripts/compress-xcframework.sh --sign "${{env.XCFRAMEWORK_NAME}}"
+            ./scripts/compress-xcframework.sh --sign "$XCFRAMEWORK_NAME"
           else
-            ./scripts/compress-xcframework.sh --not-signed "${{env.XCFRAMEWORK_NAME}}"
+            ./scripts/compress-xcframework.sh --not-signed "$XCFRAMEWORK_NAME"
           fi
         shell: bash
 
-      - name: Cache XCFramework
-        uses: actions/cache@v4
-        with:
-          key: ${{env.SENTRY_XCFRAMEWORK_CACHE_KEY}}
-          path: ${{env.XCFRAMEWORK_NAME}}.xcframework.zip
-
       - name: Upload XCFramework
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
+        env:
+          XCFRAMEWORK_NAME: ${{ env.XCFRAMEWORK_NAME }}
         with:
           overwrite: true
           name: xcframework-${{github.sha}}-${{inputs.override-name || inputs.variant-id}}
           if-no-files-found: error
-          path: ${{env.XCFRAMEWORK_NAME}}.xcframework.zip
+          path: ${{ env.XCFRAMEWORK_NAME }}.xcframework.zip
       - name: Run CI Diagnostics
         if: failure()
         run: ./scripts/ci-diagnostics.sh

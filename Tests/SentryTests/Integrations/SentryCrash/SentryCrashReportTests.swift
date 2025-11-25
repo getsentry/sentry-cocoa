@@ -1,3 +1,4 @@
+@_spi(Private) import Sentry
 import SentryTestUtils
 import XCTest
 
@@ -11,8 +12,8 @@ class SentryCrashReportTests: XCTestCase {
             reportPath = NSString.path(withComponents: [testPath, "SentryCrashReport.json"])
         }
         
-        var sut: SentryCrashScopeObserver {
-            return SentryCrashScopeObserver(maxBreadcrumbs: 10)
+        var sut: SentryScopeObserver {
+            return SentryCrashScopeHelper.getScopeObserver(withMaxBreacdrumb: 10)
         }
         
         var scope: Scope {
@@ -173,12 +174,29 @@ class SentryCrashReportTests: XCTestCase {
     }
 
 #if os(iOS) && !targetEnvironment(macCatalyst)
-    // We can't really test writing the crash_info_message unless there is an actual crash.
-    // We noticed that the libsystem_sim_platform.dylib is a simulator library that has a crash info message even when there is no crash.
-    // This is simply a smoke test to ensure we can write the crash_info_message key to the report.
-    // This only works on iOS and also not macCatalyst.
-    // Actual testing must be done manually with a fatalError in Swift.
+    // We can't really test reading the crash_info_message from the crash_info section unless there is an
+    // actual crash. To correctly test this, you must use an fatalError and let an app crash.
+    //
+    // While building this feature, we noticed that the libsystem_sim_platform.dylib, a simulator library,
+    // puts information about the simulator into the crash info section, for example:
+    // CoreSimulator 1047 - Device: iPhone 16 Pro iOS 26.0 (6EDB2433-B0C8-4501-924A-16B5D13F7435) - Runtime: iOS 26.0 (23A5326a) - DeviceType: iPhone 16 Pro
+    //
+    // On iOS 26.0, we identified that the crash info suddenly uses version 7, but sadly, we didn't identify
+    // the root cause or find any evidence in the Swift or Xcode release notes. We could change reading the
+    // crash info also with version 7, which would fix this unit test, but we decided against this approach
+    // because the fatal error using the crash info section still works correctly with version 5, and using
+    // version 7 brings an unknown risk with it. Neither KSCrash or Firebase Crashlytics read above version 5.
+    // Furthermore, we experienced crashes when accessing the crashInfo message when ignoring the safety checks
+    // in getCrashInfo. It seems incorrect to adapt the getCrashInfo to make a unit test work that doesn’t
+    // actually test the functionality. It seems like libsystem_sim_platform.dylib simply uses the crash info
+    // section to store device information.
+    //
+    // Therefore, we keep this test as is and skip it on iOS 26.0 and above.
     func testWriteCrashReport_ContainsCrashInfoMessage() throws {
+        if #available(iOS 26.0, *) {
+            throw XCTSkip("This test is only works on iOS versions before 26.0")
+        }
+
         writeCrashReport()
 
         let crashReportContents = FileManager.default.contents(atPath: fixture.reportPath) ?? Data()

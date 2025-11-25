@@ -1,13 +1,9 @@
 #import "SentryANRTrackingIntegration.h"
-#import "SentryClient+Private.h"
 #import "SentryCrashMachineContext.h"
-#import "SentryCrashWrapper.h"
-#import "SentryDebugImageProvider+HybridSDKs.h"
-#import "SentryDependencyContainer.h"
 #import "SentryEvent.h"
 #import "SentryException.h"
-#import "SentryFileManager.h"
 #import "SentryHub+Private.h"
+#import "SentryInternalDefines.h"
 #import "SentryLogC.h"
 #import "SentryMechanism.h"
 #import "SentrySDK+Private.h"
@@ -15,10 +11,6 @@
 #import "SentryStacktrace.h"
 #import "SentrySwift.h"
 #import "SentryThread.h"
-#import "SentryThreadInspector.h"
-#import "SentryThreadWrapper.h"
-#import <SentryCrashWrapper.h>
-#import <SentryOptions+Private.h>
 
 #if SENTRY_HAS_UIKIT
 #    import <UIKit/UIKit.h>
@@ -30,12 +22,13 @@ static NSString *const SentryANRMechanismDataAppHangDuration = @"app_hang_durati
 
 @interface SentryANRTrackingIntegration () <SentryANRTrackerDelegate>
 
-@property (nonatomic, strong) id<SentryANRTracker> tracker;
+@property (nonatomic, strong) SentryANRTracker *tracker;
 @property (nonatomic, strong) SentryOptions *options;
 @property (nonatomic, strong) SentryFileManager *fileManager;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueueWrapper;
 @property (nonatomic, strong) SentryCrashWrapper *crashWrapper;
 @property (nonatomic, strong) SentryDebugImageProvider *debugImageProvider;
+@property (nonatomic, strong) SentryThreadInspector *threadInspector;
 @property (atomic, assign) BOOL reportAppHangs;
 @property (atomic, assign) BOOL enableReportNonFullyBlockingAppHangs;
 
@@ -49,24 +42,36 @@ static NSString *const SentryANRMechanismDataAppHangDuration = @"app_hang_durati
         return NO;
     }
 
+    // Disable app hang tracking for Widgets, Live Activities, and certain extensions
+    // where app hang detection might report false positives. These components run
+    // in separate processes or sandboxes with different execution characteristics.
+    SentryExtensionDetector *extensionDetector = SentryDependencies.extensionDetector;
+    if ([extensionDetector shouldDisableAppHangTracking]) {
+        NSString *extensionType = [extensionDetector getExtensionPointIdentifier];
+        SENTRY_LOG_WARN(@"Not enabling app hang tracking for extension: %@", extensionType);
+        [self logWithReason:[NSString stringWithFormat:@"because it's running in an extension (%@)",
+                                extensionType]];
+        return NO;
+    }
+
 #if SENTRY_HAS_UIKIT
-#    if SDK_V9
-    BOOL isV2Enabled = YES;
-#    else
-    BOOL isV2Enabled = options.enableAppHangTrackingV2;
-#    endif // SDK_V9
     self.tracker =
-        [SentryDependencyContainer.sharedInstance getANRTracker:options.appHangTimeoutInterval
-                                                    isV2Enabled:isV2Enabled];
+        [SentryDependencyContainer.sharedInstance getANRTracker:options.appHangTimeoutInterval];
 #else
     self.tracker =
         [SentryDependencyContainer.sharedInstance getANRTracker:options.appHangTimeoutInterval];
 
 #endif // SENTRY_HAS_UIKIT
-    self.fileManager = SentryDependencyContainer.sharedInstance.fileManager;
+    SentryFileManager *fileManager = SentryDependencyContainer.sharedInstance.fileManager;
+    if (!fileManager) {
+        SENTRY_LOG_FATAL(@"File manager is not available");
+        return NO;
+    }
+    self.fileManager = fileManager;
     self.dispatchQueueWrapper = SentryDependencyContainer.sharedInstance.dispatchQueueWrapper;
     self.crashWrapper = SentryDependencyContainer.sharedInstance.crashWrapper;
     self.debugImageProvider = SentryDependencyContainer.sharedInstance.debugImageProvider;
+    self.threadInspector = SentryDependencyContainer.sharedInstance.threadInspector;
     [self.tracker addListener:self];
     self.options = options;
     self.reportAppHangs = YES;
@@ -124,9 +129,8 @@ static NSString *const SentryANRMechanismDataAppHangDuration = @"app_hang_durati
         return;
     }
 #endif // SENTRY_HAS_UIKIT
-    SentryThreadInspector *threadInspector = SentrySDKInternal.currentHub.getClient.threadInspector;
 
-    NSArray<SentryThread *> *threads = [threadInspector getCurrentThreadsWithStackTrace];
+    NSArray<SentryThread *> *threads = [self.threadInspector getCurrentThreadsWithStackTrace];
 
     if (threads.count == 0) {
         SENTRY_LOG_WARN(@"Getting current thread returned an empty list. Can't create AppHang "
@@ -158,51 +162,33 @@ static NSString *const SentryANRMechanismDataAppHangDuration = @"app_hang_durati
     // recover the debug images. The client would also attach the debug images when directly
     // capturing the app hang event. Still, we attach them already now to ensure all app hang events
     // have debug images cause it's easy to mess this up in the future.
-    event.debugMeta = [self.debugImageProvider getDebugImagesFromCacheForThreads:event.threads];
+    event.debugMeta = [self.debugImageProvider
+        getDebugImagesFromCacheForThreads:SENTRY_UNWRAP_NULLABLE(NSArray, event.threads)];
 
 #if SENTRY_HAS_UIKIT
-#    if SDK_V9
-    BOOL isV2Enabled = YES;
-#    else
-    BOOL isV2Enabled = self.options.enableAppHangTrackingV2;
-#    endif // SDK_V9
+    // We only temporarily store the app hang duration info, so we can change the error message
+    // when either sending a normal or fatal app hang event. Otherwise, we would have to rely on
+    // string parsing to retrieve the app hang duration info from the error message.
+    mechanism.data = @{ SentryANRMechanismDataAppHangDuration : appHangDurationInfo };
 
-    // We only measure app hang duration for V2.
-    // For V1, we directly capture the app hang event.
-    if (isV2Enabled) {
-        // We only temporarily store the app hang duration info, so we can change the error message
-        // when either sending a normal or fatal app hang event. Otherwise, we would have to rely on
-        // string parsing to retrieve the app hang duration info from the error message.
-        mechanism.data = @{ SentryANRMechanismDataAppHangDuration : appHangDurationInfo };
-
-        // We need to apply the scope now because if the app hang turns into a fatal one,
-        // we would lose the scope. Furthermore, we want to know in which state the app was when the
-        // app hang started.
-        SentryScope *scope = [SentrySDKInternal currentHub].scope;
-        SentryOptions *options = SentrySDKInternal.options;
-        if (scope != nil && options != nil) {
-            [scope applyToEvent:event maxBreadcrumb:options.maxBreadcrumbs];
-        }
-
-        [self.fileManager storeAppHangEvent:event];
-    } else {
-#endif // SENTRY_HAS_UIKIT
-        [SentrySDK captureEvent:event];
-#if SENTRY_HAS_UIKIT
+    // We need to apply the scope now because if the app hang turns into a fatal one,
+    // we would lose the scope. Furthermore, we want to know in which state the app was when the
+    // app hang started.
+    SentryScope *scope = [SentrySDKInternal currentHub].scope;
+    SentryOptions *options = SentrySDK.startOption;
+    if (scope != nil && options != nil) {
+        [scope applyToEvent:event maxBreadcrumb:options.maxBreadcrumbs];
     }
-#endif // SENTRY_UIKIT_AVAILABLE
+
+    [self.fileManager storeAppHangEvent:event];
+#else
+    [SentrySDK captureEvent:event];
+#endif
 }
 
 - (void)anrStoppedWithResult:(SentryANRStoppedResult *_Nullable)result
 {
 #if SENTRY_HAS_UIKIT
-    // We only measure app hang duration for V2, and therefore ignore V1.
-#    if !SDK_V9
-    if (!self.options.enableAppHangTrackingV2) {
-        return;
-    }
-#    endif // !SDK_V9
-
     if (result == nil) {
         SENTRY_LOG_WARN(@"ANR stopped for V2 but result was nil.")
         return;

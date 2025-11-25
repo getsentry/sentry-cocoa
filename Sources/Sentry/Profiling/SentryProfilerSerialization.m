@@ -4,17 +4,15 @@
 
 #    import "SentryClient+Private.h"
 #    import "SentryDateUtils.h"
-#    import "SentryDebugImageProvider+HybridSDKs.h"
-#    import "SentryDependencyContainer.h"
 #    import "SentryDevice.h"
 #    import "SentryEnvelopeItemHeader.h"
 #    import "SentryEvent+Private.h"
 #    import "SentryFormatter.h"
+#    import "SentryHub.h"
 #    import "SentryInternalDefines.h"
 #    import "SentryLogC.h"
 #    import "SentryMeta.h"
 #    import "SentryMetricProfiler.h"
-#    import "SentryModels+Serializable.h"
 #    import "SentryProfileTimeseries.h"
 #    import "SentryProfiledTracerConcurrency.h"
 #    import "SentryProfiler+Private.h"
@@ -113,7 +111,7 @@ NSMutableDictionary<NSString *, id> *
 sentry_serializedTraceProfileData(
     NSDictionary<NSString *, id> *profileData, uint64_t startSystemTime, uint64_t endSystemTime,
     NSString *truncationReason, NSDictionary<NSString *, id> *serializedMetrics,
-    NSArray<SentryDebugMeta *> *debugMeta, SentryHub *hub
+    NSArray<SentryDebugMeta *> *debugMeta, SentryHubInternal *hub
 #    if SENTRY_HAS_UIKIT
     ,
     SentryScreenFrames *gpuData
@@ -163,13 +161,18 @@ sentry_serializedTraceProfileData(
     };
 
     bool isEmulated = sentry_isSimulatorBuild();
-    payload[SENTRY_CONTEXT_DEVICE_KEY] = @{
+    NSMutableDictionary *deviceDict = [[NSMutableDictionary alloc] initWithDictionary:@{
         @"architecture" : sentry_getCPUArchitecture(),
         @"is_emulator" : @(isEmulated),
         @"locale" : NSLocale.currentLocale.localeIdentifier,
         @"manufacturer" : @"Apple",
-        @"model" : isEmulated ? sentry_getSimulatorDeviceModel() : sentry_getDeviceModel()
-    };
+    }];
+    NSString *_Nullable deviceModel
+        = isEmulated ? sentry_getSimulatorDeviceModel() : sentry_getDeviceModel();
+    if (deviceModel != nil) {
+        deviceDict[@"model"] = SENTRY_UNWRAP_NULLABLE(NSString, deviceModel);
+    }
+    payload[SENTRY_CONTEXT_DEVICE_KEY] = deviceDict;
 
     payload[@"profile_id"] = [[[SentryId alloc] init] sentryIdString];
     payload[@"truncation_reason"] = truncationReason;
@@ -220,7 +223,7 @@ sentry_serializedTraceProfileData(
 NSMutableDictionary<NSString *, id> *
 sentry_serializedContinuousProfileChunk(SentryId *profileID, SentryId *chunkID,
     NSDictionary<NSString *, id> *profileData, NSDictionary<NSString *, id> *serializedMetrics,
-    NSArray<SentryDebugMeta *> *debugMeta, SentryHub *hub
+    NSArray<SentryDebugMeta *> *debugMeta, SentryHubInternal *hub
 #    if SENTRY_HAS_UIKIT
     ,
     SentryScreenFrames *gpuData
@@ -326,7 +329,7 @@ SentryEnvelope *_Nullable sentry_continuousProfileChunkEnvelope(
         return nil;
     }
 
-    NSData *JSONData = [SentrySerialization dataWithJSONObject:payload];
+    NSData *JSONData = [SentrySerializationSwift dataWithJSONObject:payload];
     if (JSONData == nil) {
         SENTRY_LOG_DEBUG(@"Failed to encode profile to JSON.");
         return nil;
@@ -343,12 +346,10 @@ SentryEnvelope *_Nullable sentry_continuousProfileChunkEnvelope(
     }
 #    endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
 
-    SentryEnvelopeItemHeader *header =
-        [[SentryEnvelopeItemHeader alloc] initWithType:SentryEnvelopeItemTypes.profileChunk
-                                                length:JSONData.length];
-    header.platform = @"cocoa";
-    SentryEnvelopeItem *envelopeItem = [[SentryEnvelopeItem alloc] initWithHeader:header
-                                                                             data:JSONData];
+    SentryEnvelopeItem *envelopeItem =
+        [[SentryEnvelopeItem alloc] initWithType:SentryEnvelopeItemTypes.profileChunk
+                                            data:JSONData
+                                     addPlatform:YES];
 
 #    pragma clang diagnostic push
 #    pragma clang diagnostic ignored "-Wdeprecated-declarations"
@@ -356,7 +357,7 @@ SentryEnvelope *_Nullable sentry_continuousProfileChunkEnvelope(
 #    pragma clang diagnostic pop
 }
 
-SentryEnvelopeItem *_Nullable sentry_traceProfileEnvelopeItem(SentryHub *hub,
+SentryEnvelopeItem *_Nullable sentry_traceProfileEnvelopeItem(SentryHubInternal *hub,
     SentryProfiler *profiler, NSDictionary<NSString *, id> *profilingData,
     SentryTransaction *transaction, NSDate *startTimestamp)
 {
@@ -380,15 +381,22 @@ SentryEnvelopeItem *_Nullable sentry_traceProfileEnvelopeItem(SentryHub *hub,
     }
 
     payload[@"platform"] = SentryPlatformName;
-    payload[@"transaction"] = @ {
+    NSMutableDictionary *transactionDict = [[NSMutableDictionary alloc] initWithDictionary:@ {
         @"id" : transaction.eventId.sentryIdString,
         @"trace_id" : transaction.trace.traceId.sentryIdString,
-        @"name" : transaction.transaction,
-        @"active_thread_id" : [transaction.trace.transactionContext sentry_threadInfo].threadId
-    };
+    }];
+    NSNumber *_Nullable activeThreadId =
+        [transaction.trace.transactionContext sentry_threadInfo].threadId;
+    if (activeThreadId != nil || [activeThreadId isEqual:@0]) {
+        transactionDict[@"active_thread_id"] = activeThreadId;
+    }
+    if (transaction.transaction) {
+        transactionDict[@"name"] = transaction.transaction;
+    }
+    payload[@"transaction"] = transactionDict;
     payload[@"timestamp"] = sentry_toIso8601String(startTimestamp);
 
-    NSData *JSONData = [SentrySerialization dataWithJSONObject:payload];
+    NSData *JSONData = [SentrySerializationSwift dataWithJSONObject:payload];
     if (JSONData == nil) {
         SENTRY_LOG_DEBUG(@"Failed to encode profile to JSON.");
         return nil;
@@ -398,14 +406,13 @@ SentryEnvelopeItem *_Nullable sentry_traceProfileEnvelopeItem(SentryHub *hub,
     sentry_writeProfileFile(JSONData, false /*continuous*/);
 #    endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
 
-    SentryEnvelopeItemHeader *header =
-        [[SentryEnvelopeItemHeader alloc] initWithType:SentryEnvelopeItemTypes.profile
-                                                length:JSONData.length];
-    return [[SentryEnvelopeItem alloc] initWithHeader:header data:JSONData];
+    return [[SentryEnvelopeItem alloc] initWithType:SentryEnvelopeItemTypes.profile
+                                               data:JSONData
+                                        addPlatform:NO];
 }
 
 NSMutableDictionary<NSString *, id> *_Nullable sentry_collectProfileDataHybridSDK(
-    uint64_t startSystemTime, uint64_t endSystemTime, SentryId *traceId, SentryHub *hub)
+    uint64_t startSystemTime, uint64_t endSystemTime, SentryId *traceId, SentryHubInternal *hub)
 {
     SentryProfiler *profiler = sentry_profilerForFinishedTracer(traceId);
     if (!profiler) {

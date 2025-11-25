@@ -1,15 +1,12 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
-#if SDK_V9
 final class FrameDecodable: Frame {
     convenience public init(from decoder: any Decoder) throws {
         try self.init(decodedFrom: decoder)
     }
 }
-#else
-typealias FrameDecodable = Frame
-#endif
+
 extension FrameDecodable: Decodable {
 
     enum CodingKeys: String, CodingKey {
@@ -34,12 +31,6 @@ extension FrameDecodable: Decodable {
         case inApp = "in_app"
         case stackStart = "stack_start"
     }
-
-    #if !SDK_V9
-    required convenience public init(from decoder: any Decoder) throws {
-        try self.init(decodedFrom: decoder)
-    }
-    #endif
 
     private convenience init(decodedFrom decoder: Decoder) throws {
         self.init()

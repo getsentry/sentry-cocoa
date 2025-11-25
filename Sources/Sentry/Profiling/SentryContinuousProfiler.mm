@@ -2,24 +2,27 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
-#    import "SentryDependencyContainer.h"
+#    import "SentryDependencyContainerSwiftHelper.h"
+#    import "SentryInternalDefines.h"
 #    import "SentryLogC.h"
 #    import "SentryMetricProfiler.h"
 #    import "SentryProfiler+Private.h"
 #    import "SentryProfilerSerialization.h"
 #    import "SentryProfilerState.h"
+#    import "SentryProfilingScreenFramesHelper.h"
 #    import "SentryProfilingSwiftHelpers.h"
 #    import "SentrySDK+Private.h"
 #    import "SentrySample.h"
 #    include <mutex>
 
 #    if SENTRY_HAS_UIKIT
-#        import "SentryFramesTracker.h"
-#        import "SentryScreenFrames.h"
 #        import <UIKit/UIKit.h>
 #    endif // SENTRY_HAS_UIKIT
 
 #    pragma mark - Private
+
+NSString *const kSentryNotificationContinuousProfileStarted
+    = @"io.sentry.notification.continuous-profile-started";
 
 NSTimeInterval kSentryProfilerChunkExpirationInterval = 60;
 
@@ -55,18 +58,24 @@ disableTimer()
 void
 _sentry_threadUnsafe_transmitChunkEnvelope(void)
 {
-    const auto profiler = _threadUnsafe_gContinuousCurrentProfiler;
+    if (_threadUnsafe_gContinuousCurrentProfiler == nil) {
+        SENTRY_LOG_DEBUG(
+            @"No continuous profiler is currently running, so no chunk can be transmitted.");
+        return;
+    }
+    SentryProfiler *_Nonnull profiler
+        = SENTRY_UNWRAP_NULLABLE(SentryProfiler, _threadUnsafe_gContinuousCurrentProfiler);
     const auto profilerState = [profiler.state copyProfilingData];
     [profiler.state clear]; // !!!: profile this to see if it takes longer than one sample duration
                             // length: ~9ms
 
-    const auto metricProfilerState = [profiler.metricProfiler copyMetricProfilerData];
+    NSDictionary *_Nonnull metricProfilerState = [profiler.metricProfiler copyMetricProfilerData];
     [profiler.metricProfiler clear];
 
 #    if SENTRY_HAS_UIKIT
-    const auto framesTracker = SentryDependencyContainer.sharedInstance.framesTracker;
-    SentryScreenFrames *screenFrameData = [framesTracker.currentFrames copy];
-    [framesTracker resetProfilingTimestamps];
+    SentryScreenFrames *screenFrameData =
+        [SentryProfilingScreenFramesHelper copyScreenFrames:sentry_framesTrackerGetCurrentFrames()];
+    sentry_framesTrackerResetProfilingTimestamps();
 #    endif // SENTRY_HAS_UIKIT
 
     // Capture profiler ID on main thread since we need it for the background work
@@ -74,16 +83,21 @@ _sentry_threadUnsafe_transmitChunkEnvelope(void)
 
     // Move the serialization work to a background queue to avoid potentially
     // blocking the main thread. The serialization can take several milliseconds.
-    sentry_dispatchAsync(SentryDependencyContainer.sharedInstance.dispatchQueueWrapper, ^{
-        const auto serializedMetrics = serializeContinuousProfileMetrics(metricProfilerState);
-        const auto envelope
+    sentry_dispatchAsync(SentryDependencyContainerSwiftHelper.dispatchQueueWrapper, ^{
+        NSDictionary *_Nonnull serializedMetrics
+            = serializeContinuousProfileMetrics(metricProfilerState);
+        SentryEnvelope *_Nullable envelope
             = sentry_continuousProfileChunkEnvelope(profilerID, profilerState, serializedMetrics
 #    if SENTRY_HAS_UIKIT
                 ,
                 screenFrameData
 #    endif // SENTRY_HAS_UIKIT
             );
-        [SentrySDKInternal captureEnvelope:envelope];
+        if (envelope == nil) {
+            SENTRY_LOG_ERROR(@"Failed to create continuous profile chunk envelope.");
+            return;
+        }
+        [SentrySDKInternal captureEnvelope:SENTRY_UNWRAP_NULLABLE(SentryEnvelope, envelope)];
     });
 }
 
@@ -184,17 +198,19 @@ _sentry_unsafe_stopTimerAndCleanup()
  */
 + (void)scheduleTimer
 {
-    sentry_dispatchAsyncOnMain(SentryDependencyContainer.sharedInstance.dispatchQueueWrapper, ^{
-        std::lock_guard<std::mutex> l(_threadUnsafe_gContinuousProfilerLock);
-        if (_chunkTimer != nil) {
-            SENTRY_LOG_WARN(@"There was already a timer in flight, but this codepath shouldn't be "
-                            @"taken if there is no profiler running.");
-            return;
-        }
+    sentry_dispatchAsyncOnMainIfNotMainThread(
+        SentryDependencyContainerSwiftHelper.dispatchQueueWrapper, ^{
+            std::lock_guard<std::mutex> l(_threadUnsafe_gContinuousProfilerLock);
+            if (_chunkTimer != nil) {
+                SENTRY_LOG_WARN(
+                    @"There was already a timer in flight, but this codepath shouldn't be "
+                    @"taken if there is no profiler running.");
+                return;
+            }
 
-        _chunkTimer = sentry_scheduledTimerWithTarget(
-            kSentryProfilerChunkExpirationInterval, self, @selector(timerExpired), nil, YES);
-    });
+            _chunkTimer = sentry_scheduledTimerWithTarget(
+                kSentryProfilerChunkExpirationInterval, self, @selector(timerExpired), nil, YES);
+        });
 }
 
 + (void)timerExpired
@@ -239,6 +255,12 @@ _sentry_unsafe_stopTimerAndCleanup()
 {
     std::lock_guard<std::mutex> l(_threadUnsafe_gContinuousProfilerLock);
     return _threadUnsafe_gContinuousCurrentProfiler;
+}
+
++ (void)transmitChunkEnvelope
+{
+    std::lock_guard<std::mutex> l(_threadUnsafe_gContinuousProfilerLock);
+    _sentry_threadUnsafe_transmitChunkEnvelope();
 }
 #    endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
 

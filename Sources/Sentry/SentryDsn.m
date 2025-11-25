@@ -11,11 +11,10 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 @implementation SentryDsn {
-    NSURL *_storeEndpoint;
     NSURL *_envelopeEndpoint;
 }
 
-- (_Nullable instancetype)initWithString:(NSString *)dsnString
+- (_Nullable instancetype)initWithString:(NSString *_Nullable)dsnString
                         didFailWithError:(NSError *_Nullable *_Nullable)error
 {
     self = [super init];
@@ -40,20 +39,6 @@ NS_ASSUME_NONNULL_BEGIN
     }
     return output;
 }
-
-#if !SDK_V9
-- (NSURL *)getStoreEndpoint
-{
-    if (nil == _storeEndpoint) {
-        @synchronized(self) {
-            if (nil == _storeEndpoint) {
-                _storeEndpoint = [[self getBaseEndpoint] URLByAppendingPathComponent:@"store/"];
-            }
-        }
-    }
-    return _storeEndpoint;
-}
-#endif // !SDK_V9
 
 - (NSURL *)getEnvelopeEndpoint
 {
@@ -89,10 +74,10 @@ NS_ASSUME_NONNULL_BEGIN
     components.host = url.host;
     components.port = url.port;
     components.path = [NSString stringWithFormat:@"%@/api/%@/", path, projectId];
-    return components.URL;
+    return SENTRY_UNWRAP_NULLABLE(NSURL, components.URL);
 }
 
-- (NSURL *_Nullable)convertDsnString:(NSString *)dsnString
+- (NSURL *_Nullable)convertDsnString:(NSString *_Nullable)dsnString
                     didFailWithError:(NSError *_Nullable *_Nullable)error
 {
     NSString *trimmedDsnString = [dsnString

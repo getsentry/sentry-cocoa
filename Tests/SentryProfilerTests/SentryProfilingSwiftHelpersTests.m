@@ -1,7 +1,7 @@
 @import XCTest;
 @import Sentry;
 @import SentryTestUtilsDynamic;
-#import "SentryOptions+Private.h"
+#import "SentryClient.h"
 #import "SentryProfilingSwiftHelpers.h"
 
 @interface SentryProfilingSwiftHelpersTests : XCTestCase
@@ -15,19 +15,10 @@
 {
     SentryOptions *options = [[SentryOptions alloc] init];
     options.dsn = @"https://username:password@app.getsentry.com/12345";
-    SentryClient *client = [[SentryClient alloc] initWithOptions:options];
+    options.profiling = [[SentryProfileOptions alloc] init];
+    SentryClientInternal *client = [[SentryClientInternal alloc] initWithOptions:options];
     XCTAssertEqual(
         [client.options isContinuousProfilingEnabled], sentry_isContinuousProfilingEnabled(client));
-}
-
-- (void)testIsContinuousProfilingV2Enabled
-{
-    SentryOptions *options = [[SentryOptions alloc] init];
-    options.dsn = @"https://username:password@app.getsentry.com/12345";
-    options.profiling = [[SentryProfileOptions alloc] init];
-    SentryClient *client = [[SentryClient alloc] initWithOptions:options];
-    XCTAssertEqual([client.options isContinuousProfilingV2Enabled],
-        sentry_isContinuousProfilingV2Enabled(client));
 }
 
 - (void)testIsProfilingCorrelatedToTraces
@@ -36,7 +27,7 @@
     options.dsn = @"https://username:password@app.getsentry.com/12345";
     options.profiling = [[SentryProfileOptions alloc] init];
     options.profiling.lifecycle = SentryProfileLifecycleTrace;
-    SentryClient *client = [[SentryClient alloc] initWithOptions:options];
+    SentryClientInternal *client = [[SentryClientInternal alloc] initWithOptions:options];
     XCTAssertEqual([client.options isProfilingCorrelatedToTraces],
         sentry_isProfilingCorrelatedToTraces(client));
 }
@@ -46,8 +37,17 @@
     SentryOptions *options = [[SentryOptions alloc] init];
     options.dsn = @"https://username:password@app.getsentry.com/12345";
     options.profiling = [[SentryProfileOptions alloc] init];
-    SentryClient *client = [[SentryClient alloc] initWithOptions:options];
+    SentryClientInternal *client = [[SentryClientInternal alloc] initWithOptions:options];
     XCTAssertEqual(client.options.profiling, sentry_getProfiling(client));
+}
+
+- (void)testGetProfiling_whenProfilingOptionsIsNil_shouldReturnNil
+{
+    SentryOptions *options = [[SentryOptions alloc] init];
+    options.dsn = @"https://username:password@app.getsentry.com/12345";
+    options.profiling = nil;
+    SentryClientInternal *client = [[SentryClientInternal alloc] initWithOptions:options];
+    XCTAssertNil(sentry_getProfiling(client));
 }
 
 - (void)testStringFromSentryID
@@ -112,6 +112,17 @@
                                                 operation:@""
                                                   sampled:kSentrySampleDecisionNo];
     XCTAssertEqual(context.parentSpanId, sentry_getParentSpanID(context));
+}
+
+- (void)testGetParentSpanID_whenParentIdIsNil_shouldReturnNil
+{
+    SentryTransactionContext *context =
+        [[SentryTransactionContext alloc] initWithTraceId:[[SentryId alloc] init]
+                                                   spanId:[[SentrySpanId alloc] init]
+                                                 parentId:nil
+                                                operation:@""
+                                                  sampled:kSentrySampleDecisionNo];
+    XCTAssertNil(sentry_getParentSpanID(context));
 }
 
 - (void)testGetTraceID

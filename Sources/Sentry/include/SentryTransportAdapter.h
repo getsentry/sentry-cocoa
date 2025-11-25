@@ -11,7 +11,6 @@
 @class SentryOptions;
 @class SentrySession;
 @class SentryTraceContext;
-@class SentryUserFeedback;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -47,15 +46,6 @@ SENTRY_NO_INIT
       attachments:(NSArray<SentryAttachment *> *)attachments;
 
 - (void)storeEvent:(SentryEvent *)event traceContext:(nullable SentryTraceContext *)traceContext;
-
-#if !SDK_V9
-/**
- * @deprecated Use @c -[SentryClient @c captureFeedback:withScope:] .
- */
-- (void)sendUserFeedback:(SentryUserFeedback *)userFeedback
-    NS_SWIFT_NAME(send(userFeedback:))
-        DEPRECATED_MSG_ATTRIBUTE("Use -[SentryClient captureFeedback:withScope:].");
-#endif // !SDK_V9
 
 - (void)sendEnvelope:(SentryEnvelope *)envelope NS_SWIFT_NAME(send(envelope:));
 

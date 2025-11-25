@@ -7,11 +7,7 @@ class SentryNSURLSessionTaskSearchTests: XCTestCase {
         let classes = SentryNSURLSessionTaskSearch.urlSessionTaskClassesToTrack()
         
         XCTAssertEqual(classes.count, 1)
-        if #available(iOS 14, tvOS 14, *) {
-            XCTAssertTrue(classes.first === URLSessionTask.self)
-        } else {
-            XCTAssertEqual(String(describing: classes.first!), "__NSCFURLSessionTask")
-        }
+        XCTAssertTrue(classes.first === URLSessionTask.self)
     }
 
 }

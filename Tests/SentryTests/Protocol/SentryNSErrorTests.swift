@@ -1,4 +1,4 @@
-@testable import Sentry
+@_spi(Private) @testable import Sentry
 import XCTest
 
 class SentryNSErrorTests: XCTestCase {
@@ -15,10 +15,10 @@ class SentryNSErrorTests: XCTestCase {
     func testDecode_WithAllProperties() throws {
         // Arrange
         let error = SentryNSError(domain: "domain", code: 10)
-        let data = try XCTUnwrap(SentrySerialization.data(withJSONObject: error.serialize()))
+        let data = try XCTUnwrap(SentrySerializationSwift.data(withJSONObject: error.serialize()))
         
         // Act
-        let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as SentryNSError?)
+        let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as SentryNSErrorDecodable?)
         
         // Assert
         XCTAssertEqual(error.code, decoded.code)
@@ -30,10 +30,10 @@ class SentryNSErrorTests: XCTestCase {
         let error = SentryNSError(domain: "domain", code: 10)
         var serialized = error.serialize()
         serialized.removeValue(forKey: "domain")
-        let data = try XCTUnwrap(SentrySerialization.data(withJSONObject: serialized))
+        let data = try XCTUnwrap(SentrySerializationSwift.data(withJSONObject: serialized))
         
         // Act & Assert
-        XCTAssertNil(decodeFromJSONData(jsonData: data) as SentryNSError?)
+        XCTAssertNil(decodeFromJSONData(jsonData: data) as SentryNSErrorDecodable?)
     }
 
     func testSerializeWithUnderlyingNSError() {

@@ -6,14 +6,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, strong, readonly) NSURL *url;
 
-- (_Nullable instancetype)initWithString:(NSString *)dsnString
+- (_Nullable instancetype)initWithString:(NSString *_Nullable)dsnString
                         didFailWithError:(NSError *_Nullable *_Nullable)error;
 
-- (NSString *)getHash;
-
-#if !SDK_V9
-- (NSURL *)getStoreEndpoint DEPRECATED_MSG_ATTRIBUTE("This endpoint is no longer used");
-#endif // !SDK_V9
 - (NSURL *)getEnvelopeEndpoint;
 
 @end

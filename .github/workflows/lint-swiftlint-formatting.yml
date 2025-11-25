@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - v8.x
 
   pull_request:
 
@@ -25,7 +26,7 @@ jobs:
     outputs:
       run_lint_swiftlint_for_prs: ${{ steps.changes.outputs.run_lint_swiftlint_for_prs }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Get changed files
         id: changes
         uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
@@ -39,7 +40,7 @@ jobs:
     name: Lint
     runs-on: macos-14
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Install tooling
         run: make init-ci-format
       - run: swiftlint --version

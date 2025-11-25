@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # For available Xcode versions see:
-# - https://github.com/actions/runner-images/blob/main/images/macos/macos-13-Readme.md
 # - https://github.com/actions/runner-images/blob/main/images/macos/macos-14-Readme.md
 # - https://github.com/actions/runner-images/blob/main/images/macos/macos-15-Readme.md
+# - https://github.com/actions/runner-images/blob/main/images/macos/macos-26-arm64-Readme.md
 
 set -euo pipefail
 

@@ -4,7 +4,7 @@ import Foundation
 
 import MetricKit
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, *)
+@available(macOS 12.0, *)
 @available(tvOS, unavailable)
 @available(watchOS, unavailable)
 @objc @_spi(Private) public protocol SentryMXManagerDelegate {
@@ -18,14 +18,14 @@ import MetricKit
     func didReceiveHangDiagnostic(_ diagnostic: MXHangDiagnostic, callStackTree: SentryMXCallStackTree, timeStampBegin: Date, timeStampEnd: Date)
 }
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, *)
+@available(macOS 12.0, *)
 @available(tvOS, unavailable)
 @available(watchOS, unavailable)
 @objcMembers @_spi(Private) public class SentryMXManager: NSObject, MXMetricManagerSubscriber {
     
     let disableCrashDiagnostics: Bool
     
-    public init(disableCrashDiagnostics: Bool = true) {
+    init(disableCrashDiagnostics: Bool = true) {
         self.disableCrashDiagnostics = disableCrashDiagnostics
     }
 

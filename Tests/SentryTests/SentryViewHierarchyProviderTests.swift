@@ -8,7 +8,7 @@ class SentryViewHierarchyProviderTests: XCTestCase {
         let uiApplication = TestSentryUIApplication()
 
         var sut: SentryViewHierarchyProvider {
-            return SentryViewHierarchyProvider(dispatchQueueWrapper: SentryDispatchQueueWrapper(), sentryUIApplication: uiApplication)
+            return SentryViewHierarchyProvider(dispatchQueueWrapper: SentryDispatchQueueWrapper(), applicationProvider: { self.uiApplication })
         }
     }
 
@@ -18,21 +18,6 @@ class SentryViewHierarchyProviderTests: XCTestCase {
         super.setUp()
 
         fixture = Fixture()
-    }
-
-    override func setUpWithError() throws {
-        try super.setUpWithError()
-
-        /**
-         * This test is making iOS 13 simulator hang in GH workflow,
-         * thats why we need to check for iOS 13 or later.
-         * By testing this in the other versions of iOS we guarantee the behavior
-         * mean while, running an iOS 12 sample with Saucelabs ensures this feature
-         * is not crashing the app.
-         */
-        guard #available(iOS 13, *) else {
-            throw XCTSkip("Skipping for iOS < 13")
-        }
     }
 
     func test_Multiple_Window() {
@@ -170,23 +155,21 @@ class SentryViewHierarchyProviderTests: XCTestCase {
     }
 
     func test_invalidSerialization() {
-        let sut = TestSentryViewHierarchyProvider(dispatchQueueWrapper: SentryDispatchQueueWrapper(), sentryUIApplication: fixture.uiApplication)
-        sut.viewHierarchyResult = -1
+        TestSentryViewHierarchyProviderHelper.viewHierarchyResult = -1
         let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
         window.accessibilityIdentifier = "WindowId"
 
-        fixture.uiApplication.windows = [window]
-        let result = sut.appViewHierarchy()
+        let result = TestSentryViewHierarchyProviderHelper.appViewHierarchy(from: [window], reportAccessibilityIdentifier: false)
         XCTAssertNil(result)
     }
 
     func test_appViewHierarchyFromBackgroundTest() {
-        let sut = TestSentryViewHierarchyProvider(dispatchQueueWrapper: SentryDispatchQueueWrapper(), sentryUIApplication: fixture.uiApplication)
+        let sut = TestSentryViewHierarchyProvider(dispatchQueueWrapper: SentryDispatchQueueWrapper(), applicationProvider: { self.fixture.uiApplication })
         let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
         fixture.uiApplication.windows = [window]
 
         let ex = expectation(description: "Running on Main Thread")
-        sut.processViewHierarchyCallback = {
+        sut.appViewHierarchyCallback = {
             ex.fulfill()
             XCTAssertTrue(Thread.isMainThread)
         }
@@ -200,7 +183,7 @@ class SentryViewHierarchyProviderTests: XCTestCase {
     }
 
     func test_appViewHierarchy_usesMainThread() {
-        let sut = TestSentryViewHierarchyProvider(dispatchQueueWrapper: SentryDispatchQueueWrapper(), sentryUIApplication: fixture.uiApplication)
+        let sut = TestSentryViewHierarchyProvider(dispatchQueueWrapper: SentryDispatchQueueWrapper(), applicationProvider: { self.fixture.uiApplication })
         let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
         fixture.uiApplication.windows = [window]
 

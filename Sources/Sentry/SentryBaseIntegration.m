@@ -1,9 +1,6 @@
 #import "SentryBaseIntegration.h"
-#import "SentryCrashWrapper.h"
 #import "SentryLogC.h"
 #import "SentrySwift.h"
-#import <SentryDependencyContainer.h>
-#import <SentryOptions+Private.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -78,17 +75,10 @@ NS_ASSUME_NONNULL_BEGIN
 
     if (integrationOptions & kIntegrationOptionEnableAppHangTracking) {
 #if SENTRY_HAS_UIKIT
-#    if SDK_V9
         if (!options.enableAppHangTracking) {
             [self logWithOptionName:@"enableAppHangTracking"];
             return NO;
         }
-#    else
-        if (!options.enableAppHangTracking && !options.enableAppHangTrackingV2) {
-            [self logWithOptionName:@"enableAppHangTracking && enableAppHangTrackingV2"];
-            return NO;
-        }
-#    endif
 #else
         if (!options.enableAppHangTracking) {
             [self logWithOptionName:@"enableAppHangTracking"];
@@ -171,26 +161,26 @@ NS_ASSUME_NONNULL_BEGIN
     }
 
 #if SENTRY_HAS_METRIC_KIT
-    if (@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, *)) {
-        if ((integrationOptions & kIntegrationOptionEnableMetricKit) && !options.enableMetricKit) {
-            [self logWithOptionName:@"enableMetricKit"];
-            return NO;
-        }
+    if ((integrationOptions & kIntegrationOptionEnableMetricKit) && !options.enableMetricKit) {
+        [self logWithOptionName:@"enableMetricKit"];
+        return NO;
     }
 #endif
 
-    // The frames tracker runs when tracing is enabled or AppHangsV2. We have to use an extra option
-    // for this.
     if (integrationOptions & kIntegrationOptionStartFramesTracker) {
 
 #if SENTRY_HAS_UIKIT
         BOOL performanceDisabled
             = !options.enableAutoPerformanceTracing || !options.isTracingEnabled;
-        BOOL appHangsV2Disabled = options.isAppHangTrackingV2Disabled;
+        BOOL appHangsDisabled = options.isAppHangTrackingDisabled;
 
-        if (performanceDisabled && appHangsV2Disabled) {
-            if (appHangsV2Disabled) {
-                SENTRY_LOG_DEBUG(@"Not going to enable %@ because enableAppHangTrackingV2 is "
+        // The watchdog tracker uses the frames tracker, so frame tracking
+        // must be enabled if watchdog tracking is enabled.
+        BOOL watchdogDisabled = !options.enableWatchdogTerminationTracking;
+
+        if (performanceDisabled && appHangsDisabled && watchdogDisabled) {
+            if (appHangsDisabled) {
+                SENTRY_LOG_DEBUG(@"Not going to enable %@ because enableAppHangTracking is "
                                  @"disabled or the appHangTimeoutInterval is 0.",
                     self.integrationName);
             }
@@ -198,6 +188,13 @@ NS_ASSUME_NONNULL_BEGIN
             if (performanceDisabled) {
                 SENTRY_LOG_DEBUG(@"Not going to enable %@ because enableAutoPerformanceTracing and "
                                  @"isTracingEnabled are disabled.",
+                    self.integrationName);
+            }
+
+            if (watchdogDisabled) {
+                SENTRY_LOG_DEBUG(
+                    @"Not going to enable %@ because enableWatchdogTerminationTracking "
+                    @"is disabled.",
                     self.integrationName);
             }
 

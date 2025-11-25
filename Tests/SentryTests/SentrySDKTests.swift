@@ -8,7 +8,6 @@ class SentrySDKTests: XCTestCase {
     
     private class Fixture {
     
-        @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
         let options: Options = {
             let options = Options.noIntegrations()
             options.dsn = SentrySDKTests.dsnAsString
@@ -19,16 +18,15 @@ class SentrySDKTests: XCTestCase {
         let event: Event
         let scope: Scope
         let client: TestClient
-        let hub: SentryHub
+        let hub: SentryHubInternal
         let error: Error = NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Object does not exist"])
         let exception = NSException(name: NSExceptionName("My Custom exeption"), reason: "User clicked the button", userInfo: nil)
-        @available(*, deprecated, message: "SentryUserFeedback is deprecated in favor of SentryFeedback.")
-        let userFeedback: UserFeedback
         let feedback: SentryFeedback
+
         let currentDate = TestCurrentDateProvider()
-        
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
         let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
+
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
         let observer: SentryWatchdogTerminationScopeObserver
         let scopePersistentStore: TestSentryScopePersistentStore
 #endif //  os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
@@ -47,8 +45,7 @@ class SentrySDKTests: XCTestCase {
         let operation = "ui.load"
         let transactionName = "Load Main Screen"
 
-        @available(*, deprecated, message: "This is marked deprecated as a workaround until we can remove SentryUserFeedback in favor of SentryFeedback. When SentryUserFeedback is removed, this deprecation annotation can be removed.")
-        init() {
+        init() throws {
             SentryDependencyContainer.sharedInstance().dateProvider = currentDate
 
             event = Event()
@@ -58,21 +55,20 @@ class SentrySDKTests: XCTestCase {
             scope.setTag(value: "value", key: "key")
 
             client = TestClient(options: options)!
-            hub = SentryHub(client: client, andScope: scope, andCrashWrapper: TestSentryCrashWrapper.sharedInstance(), andDispatchQueue: SentryDispatchQueueWrapper())
-
-            userFeedback = UserFeedback(eventId: SentryId())
-            userFeedback.comments = "Again really?"
-            userFeedback.email = "tim@apple.com"
-            userFeedback.name = "Tim Apple"
+            hub = SentryHubInternal(client: client, andScope: scope, andCrashWrapper: TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo), andDispatchQueue: SentryDispatchQueueWrapper())
 
             feedback = SentryFeedback(message: "Again really?", name: "Tim Apple", email: "tim@apple.com")
             
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
             options.dsn = SentrySDKTests.dsnAsString
 
-            let fileManager = try! TestFileManager(options: options)
+            let fileManager = try XCTUnwrap(TestFileManager(
+                options: options,
+                dateProvider: currentDate,
+                dispatchQueueWrapper: dispatchQueueWrapper
+            ))
             let breadcrumbProcessor = SentryWatchdogTerminationBreadcrumbProcessor(maxBreadcrumbs: 10, fileManager: fileManager)
-            scopePersistentStore = try! XCTUnwrap(TestSentryScopePersistentStore(fileManager: fileManager))
+            scopePersistentStore = try XCTUnwrap(TestSentryScopePersistentStore(fileManager: fileManager))
             let attributesProcessor = SentryWatchdogTerminationAttributesProcessor(
                 withDispatchQueueWrapper: dispatchQueueWrapper,
                 scopePersistentStore: scopePersistentStore
@@ -84,13 +80,11 @@ class SentrySDKTests: XCTestCase {
 
     private var fixture: Fixture!
 
-    @available(*, deprecated, message: "This is marked deprecated as a workaround (for the workaround deprecating the Fixture.init method) until we can remove SentryUserFeedback in favor of SentryFeedback. When SentryUserFeedback is removed, this deprecation annotation can be removed.")
-    override func setUp() {
-        super.setUp()
-        fixture = Fixture()
+    override func setUpWithError() throws {
+        try super.setUpWithError()
+        fixture = try Fixture()
     }
     
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     override func tearDown() {
         super.tearDown()
 
@@ -106,12 +100,11 @@ class SentrySDKTests: XCTestCase {
     }
 
     // Repro for: https://github.com/getsentry/sentry-cocoa/issues/1325
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func testStartWithZeroMaxBreadcrumbsOptionsDoesNotCrash() {
         SentrySDK.start { options in
             options.dsn = SentrySDKTests.dsnAsString
             options.maxBreadcrumbs = 0
-            options.setIntegrations([])
+            options.removeAllIntegrations()
         }
 
         SentrySDK.addBreadcrumb(Breadcrumb(level: SentryLevel.warning, category: "test"))
@@ -145,14 +138,16 @@ class SentrySDKTests: XCTestCase {
             "SentryAutoSessionTrackingIntegration",
             "SentryNetworkTrackingIntegration"
         ]
-        if !SentryDependencyContainer.sharedInstance().crashWrapper.isBeingTraced() {
+        if !SentryDependencyContainer.sharedInstance().crashWrapper.isBeingTraced {
             expectedIntegrations.append("SentryANRTrackingIntegration")
         }
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+        expectedIntegrations.append("SentryFramesTrackingIntegration")
+#endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 
         assertIntegrationsInstalled(integrations: expectedIntegrations)
     }
 
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func testStartStopBinaryImageCache() throws {
         SentrySDK.start { options in
             options.debug = true
@@ -168,7 +163,6 @@ class SentrySDKTests: XCTestCase {
         XCTAssertNil(SentryDependencyContainer.sharedInstance().binaryImageCache.cache)
     }
 
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func testStartWithConfigureOptions_NoDsn() throws {
         SentrySDK.start { options in
             options.debug = true
@@ -182,7 +176,6 @@ class SentrySDKTests: XCTestCase {
         XCTAssertEqual(true, options?.debug)
     }
 
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func testStartWithConfigureOptions_WrongDsn() throws {
         SentrySDK.start { options in
             options.dsn = "wrong"
@@ -195,7 +188,6 @@ class SentrySDKTests: XCTestCase {
         XCTAssertNil(options?.parsedDsn)
     }
 
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func testStartWithConfigureOptions_BeforeSend() {
         var wasBeforeSendCalled = false
         SentrySDK.start { options in
@@ -212,7 +204,6 @@ class SentrySDKTests: XCTestCase {
         XCTAssertTrue(wasBeforeSendCalled, "beforeSend was not called.")
     }
 
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func testStartWithScope() {
         let scope = Scope()
         scope.setUser(User(userId: "me"))
@@ -247,7 +238,6 @@ class SentrySDKTests: XCTestCase {
         XCTAssertFalse(SentrySDK.detectedStartUpCrash)
     }
     
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func testInstallIntegrations_NoIntegrations() {
         SentrySDK.start { options in
             options.removeAllIntegrations()
@@ -256,21 +246,18 @@ class SentrySDKTests: XCTestCase {
         assertIntegrationsInstalled(integrations: [])
     }
 
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func testGlobalOptions() {
         SentrySDK.start(options: fixture.options)
-        XCTAssertEqual(SentrySDKInternal.options, fixture.options)
+        XCTAssertEqual(SentrySDK.startOption, fixture.options)
     }
 
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func testGlobalOptionsForPreview() {
         startprocessInfoWrapperForPreview()
 
         SentrySDK.start(options: fixture.options)
-        XCTAssertEqual(SentrySDKInternal.options, fixture.options)
+        XCTAssertEqual(SentrySDK.startOption, fixture.options)
     }
 
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func testCaptureEvent() {
         givenSdkWithHub()
 
@@ -279,7 +266,6 @@ class SentrySDKTests: XCTestCase {
         assertEventCaptured(expectedScope: fixture.scope)
     }
 
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func testCaptureEventWithScope() {
         givenSdkWithHub()
 
@@ -289,7 +275,6 @@ class SentrySDKTests: XCTestCase {
         assertEventCaptured(expectedScope: scope)
     }
        
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func testCaptureEventWithScopeBlock_ScopePassedToHub() {
         givenSdkWithHub()
 
@@ -298,7 +283,6 @@ class SentrySDKTests: XCTestCase {
         assertEventCaptured(expectedScope: fixture.scopeWithBlockApplied)
     }
 
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func testCaptureEventWithScopeBlock_CreatesNewScope() {
         givenSdkWithHub()
 
@@ -307,7 +291,6 @@ class SentrySDKTests: XCTestCase {
         assertHubScopeNotChanged()
     }
 
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func testCaptureError() {
         givenSdkWithHub()
 
@@ -316,7 +299,6 @@ class SentrySDKTests: XCTestCase {
         assertErrorCaptured(expectedScope: fixture.scope)
     }
 
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func testCaptureErrorWithScope() {
         givenSdkWithHub()
 
@@ -326,7 +308,6 @@ class SentrySDKTests: XCTestCase {
         assertErrorCaptured(expectedScope: scope)
     }
 
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func testCaptureErrorWithScopeBlock_ScopePassedToHub() {
         givenSdkWithHub()
 
@@ -335,7 +316,6 @@ class SentrySDKTests: XCTestCase {
         assertErrorCaptured(expectedScope: fixture.scopeWithBlockApplied)
     }
 
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func testCaptureErrorWithScopeBlock_CreatesNewScope() {
         givenSdkWithHub()
 
@@ -344,7 +324,6 @@ class SentrySDKTests: XCTestCase {
         assertHubScopeNotChanged()
     }
 
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func testCaptureException() {
         givenSdkWithHub()
 
@@ -353,7 +332,6 @@ class SentrySDKTests: XCTestCase {
         assertExceptionCaptured(expectedScope: fixture.scope)
     }
 
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func testCaptureExceptionWithScope() {
         givenSdkWithHub()
 
@@ -363,7 +341,6 @@ class SentrySDKTests: XCTestCase {
         assertExceptionCaptured(expectedScope: scope)
     }
 
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func testCaptureExceptionWithScopeBlock_ScopePassedToHub() {
         givenSdkWithHub()
 
@@ -372,7 +349,6 @@ class SentrySDKTests: XCTestCase {
         assertExceptionCaptured(expectedScope: fixture.scopeWithBlockApplied)
     }
 
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func testCaptureExceptionWithScopeBlock_CreatesNewScope() {
         givenSdkWithHub()
 
@@ -381,7 +357,6 @@ class SentrySDKTests: XCTestCase {
         assertHubScopeNotChanged()
     }
 
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func testCaptureMessageWithScopeBlock_ScopePassedToHub() {
         givenSdkWithHub()
 
@@ -390,7 +365,6 @@ class SentrySDKTests: XCTestCase {
         assertMessageCaptured(expectedScope: fixture.scopeWithBlockApplied)
     }
 
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     func testCaptureMessageWithScopeBlock_CreatesNewScope() {
         givenSdkWithHub()
 
@@ -421,7 +395,7 @@ class SentrySDKTests: XCTestCase {
 
         // Assert
         let eventEnvelopeItems = try fileManager.getAllEnvelopes().map { fileContent in
-            return try XCTUnwrap(SentrySerialization.envelope(with: fileContent.contents))
+            return try XCTUnwrap(SentrySerializationSwift.envelope(with: fileContent.contents))
         }.flatMap { envelope in
             return envelope.items.filter { $0.header.type == SentryEnvelopeItemTypes.event }
         }
@@ -446,87 +420,40 @@ class SentrySDKTests: XCTestCase {
     // MARK: - Logger Flush Tests
     
     func testFlush_CallsLoggerCaptureLogs() {
-        fixture.client.options.experimental.enableLogs = true
+        fixture.client.options.enableLogs = true
         SentrySDKInternal.setCurrentHub(fixture.hub)
-        SentrySDKInternal.setStart(with: fixture.client.options)
+        SentrySDK.setStart(with: fixture.client.options)
         
         // Add a log to ensure there's something to flush
         SentrySDK.logger.info("Test log message")
         
-        // Initially no logs should be sent (they're buffered)
-        XCTAssertEqual(fixture.client.captureLogsDataInvocations.count, 0)
+        // Verify the log was captured
+        XCTAssertEqual(fixture.client.captureLogInvocations.count, 1)
+        XCTAssertEqual(fixture.client.captureLogInvocations.first?.log.body, "Test log message")
         
-        // Flush the SDK
+        // Flush the SDK - this should trigger the log batcher to flush
         SentrySDK.flush(timeout: 1.0)
         
-        // Now logs should be sent
-        XCTAssertEqual(fixture.client.captureLogsDataInvocations.count, 1)
+        // The log should still be captured (flush doesn't clear the invocations)
+        XCTAssertEqual(fixture.client.captureLogInvocations.count, 1)
     }
     
     func testClose_CallsLoggerCaptureLogs() {
-        fixture.client.options.experimental.enableLogs = true
+        fixture.client.options.enableLogs = true
         SentrySDKInternal.setCurrentHub(fixture.hub)
-        SentrySDKInternal.setStart(with: fixture.client.options)
+        SentrySDK.setStart(with: fixture.client.options)
         
         // Add a log to ensure there's something to flush
         SentrySDK.logger.info("Test log message")
         
-        // Initially no logs should be sent (they're buffered)
-        XCTAssertEqual(fixture.client.captureLogsDataInvocations.count, 0)
+        // Verify the log was captured
+        XCTAssertEqual(fixture.client.captureLogInvocations.count, 1)
         
         // Close the SDK
         SentrySDK.close()
         
-        // Now logs should be sent
-        XCTAssertEqual(fixture.client.captureLogsDataInvocations.count, 1)
-    }
-    
-    func testLogger_RecreatedWhenSDKStartedAfterAccess() {
-        // Access logger before SDK is started
-        let loggerBeforeStart = SentrySDK.logger
-        
-        // Now properly start the SDK using internal APIs  
-        fixture.client.options.experimental.enableLogs = true
-        SentrySDKInternal.setCurrentHub(fixture.hub)
-        SentrySDKInternal.setStart(with: fixture.client.options)
-        
-        // Access logger again after SDK is started
-        let loggerAfterStart = SentrySDK.logger
-        
-        // Verify it's a different instance (recreated)
-        XCTAssertNotIdentical(loggerBeforeStart, loggerAfterStart)
-        
-        // Verify the new logger can actually capture logs
-        loggerAfterStart.info("Test log message")
-        
-        // Force flush by closing the SDK
-        SentrySDK.close()
-        
-        // Verify log was captured
-        XCTAssertEqual(fixture.client.captureLogsDataInvocations.count, 1)
-    }
-    
-    func testLogger_WhenLogsDisabled() {
-        // Start SDK with logs disabled
-        fixture.client.options.experimental.enableLogs = false
-        SentrySDKInternal.setCurrentHub(fixture.hub)
-        SentrySDKInternal.setStart(with: fixture.client.options)
-        
-        // Access logger
-        let logger = SentrySDK.logger
-        
-        // Verify that logs are not captured when disabled
-        logger.info("Test log message")
-        
-        // Wait a bit for async processing
-        let expectation = self.expectation(description: "Wait for log capture")
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            expectation.fulfill()
-        }
-        waitForExpectations(timeout: 5.0)
-        
-        // Verify no logs were captured
-        XCTAssertEqual(fixture.client.captureLogsDataInvocations.count, 0)
+        // The log should still be captured
+        XCTAssertEqual(fixture.client.captureLogInvocations.count, 1)
     }
 }
 
@@ -581,15 +508,13 @@ extension SentrySDKTests {
         }
     }
 
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     private func givenSdkWithHubButNoClient() {
-        SentrySDKInternal.setCurrentHub(SentryHub(client: nil, andScope: nil))
-        SentrySDKInternal.setStart(with: fixture.options)
+        SentrySDKInternal.setCurrentHub(SentryHubInternal(client: nil, andScope: nil))
+        SentrySDK.setStart(with: fixture.options)
     }
 
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     private func givenSdkWithHub() {
         SentrySDKInternal.setCurrentHub(fixture.hub)
-        SentrySDKInternal.setStart(with: fixture.options)
+        SentrySDK.setStart(with: fixture.options)
     }
 }

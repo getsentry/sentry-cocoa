@@ -28,6 +28,8 @@
 	<false/>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>Testing camera permissions</string>
 	<key>NSFaceIDUsageDescription</key>
 	<string>$(PRODUCT_NAME) Authentication with TouchId or FaceID for testing purposes of the Sentry Cocoa SDK.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
@@ -36,6 +38,10 @@
 	<string>Testing location permissions</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Testing location permissions</string>
+	<key>NSSiriUsageDescription</key>
+	<string>Testing app intents</string>
+	<key>NSSupportsSiriKit</key>
+	<true/>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
