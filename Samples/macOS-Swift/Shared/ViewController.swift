@@ -104,6 +104,7 @@ class ViewController: NSViewController {
         SentrySDK.span?.finish()
     }
 
+    @available(macOS 10.15, *)
     @IBAction func showSwiftUIView(_ sender: Any) {
         let controller = NSHostingController(rootView: SwiftUIView())
         let window = NSWindow(contentViewController: controller)

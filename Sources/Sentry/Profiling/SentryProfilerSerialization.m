@@ -346,12 +346,10 @@ SentryEnvelope *_Nullable sentry_continuousProfileChunkEnvelope(
     }
 #    endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
 
-    SentryEnvelopeItemHeader *header =
-        [[SentryEnvelopeItemHeader alloc] initWithType:SentryEnvelopeItemTypes.profileChunk
-                                                length:JSONData.length];
-    header.platform = @"cocoa";
-    SentryEnvelopeItem *envelopeItem = [[SentryEnvelopeItem alloc] initWithHeader:header
-                                                                             data:JSONData];
+    SentryEnvelopeItem *envelopeItem =
+        [[SentryEnvelopeItem alloc] initWithType:SentryEnvelopeItemTypes.profileChunk
+                                            data:JSONData
+                                     addPlatform:YES];
 
 #    pragma clang diagnostic push
 #    pragma clang diagnostic ignored "-Wdeprecated-declarations"
@@ -408,10 +406,9 @@ SentryEnvelopeItem *_Nullable sentry_traceProfileEnvelopeItem(SentryHubInternal 
     sentry_writeProfileFile(JSONData, false /*continuous*/);
 #    endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
 
-    SentryEnvelopeItemHeader *header =
-        [[SentryEnvelopeItemHeader alloc] initWithType:SentryEnvelopeItemTypes.profile
-                                                length:JSONData.length];
-    return [[SentryEnvelopeItem alloc] initWithHeader:header data:JSONData];
+    return [[SentryEnvelopeItem alloc] initWithType:SentryEnvelopeItemTypes.profile
+                                               data:JSONData
+                                        addPlatform:NO];
 }
 
 NSMutableDictionary<NSString *, id> *_Nullable sentry_collectProfileDataHybridSDK(

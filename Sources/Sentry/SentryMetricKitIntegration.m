@@ -43,6 +43,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
+API_AVAILABLE(macos(12.0))
 @interface SentryMetricKitIntegration () <SentryMXManagerDelegate>
 
 @property (nonatomic, strong, nullable) SentryMXManager *metricKitManager;
@@ -52,6 +53,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
+API_AVAILABLE(macos(12.0))
 @implementation SentryMetricKitIntegration
 
 - (BOOL)installWithOptions:(SentryOptions *)options
