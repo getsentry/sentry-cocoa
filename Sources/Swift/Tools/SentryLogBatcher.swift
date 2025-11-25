@@ -114,8 +114,17 @@ import Foundation
     @discardableResult
     @_spi(Private) @objc public func captureLogs() -> TimeInterval {
         let startTimeNs = SentryDefaultCurrentDateProvider.getAbsoluteTime()
-        dispatchQueue.dispatchSync { [weak self] in
-            self?.performCaptureLogs()
+        
+        // Guard against sync call deadlock when we are already on the dispatchQueue queue.
+        let currentQueueLabel = String(validatingUTF8: __dispatch_queue_get_label(nil)) ?? ""
+        let targetQueueLabel = dispatchQueue.queue.label
+        
+        if currentQueueLabel == targetQueueLabel {
+            performCaptureLogs()
+        } else {
+            dispatchQueue.dispatchSync { [weak self] in
+                self?.performCaptureLogs()
+            }
         }
         let endTimeNs = SentryDefaultCurrentDateProvider.getAbsoluteTime()
         return TimeInterval(endTimeNs - startTimeNs) / 1_000_000_000.0 // Convert nanoseconds to seconds
