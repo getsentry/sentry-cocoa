@@ -12,12 +12,12 @@ class SentrySDKSettingsTests: XCTestCase {
         XCTAssertFalse(settings.autoInferIP)
     }
     
-    func testInitWithOptions_WhenSendDefaultPiiTrue_SetsAutoInferIPToTrue() {
-        let options = try! SentryOptionsInternal.initWithDict([
+    func testInitWithOptions_WhenSendDefaultPiiTrue_SetsAutoInferIPToTrue() throws {
+        let options = try XCTUnwrap(SentryOptionsInternal.initWithDict([
             "dsn": "https://username:password@app.getsentry.com/12345",
             "sendDefaultPii": true
-        ])
-        
+        ]))
+
         XCTAssertNotNil(options)
         
         let settings = SentrySDKSettings(options: options)
@@ -26,12 +26,12 @@ class SentrySDKSettingsTests: XCTestCase {
         XCTAssertTrue(settings.autoInferIP)
     }
     
-    func testInitWithOptions_WhenSendDefaultPiiFalse_SetsAutoInferIPToFalse() {
-        let options = try! SentryOptionsInternal.initWithDict([
+    func testInitWithOptions_WhenSendDefaultPiiFalse_SetsAutoInferIPToFalse() throws {
+        let options = try XCTUnwrap(SentryOptionsInternal.initWithDict([
             "dsn": "https://username:password@app.getsentry.com/12345",
             "sendDefaultPii": false
-        ])
-        
+        ]))
+
         XCTAssertNotNil(options)
         
         let settings = SentrySDKSettings(options: options)

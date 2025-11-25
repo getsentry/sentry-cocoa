@@ -87,7 +87,7 @@ class FileManagerSentryTracingIntegrationTests: XCTestCase {
 
             let tempDir = URL(fileURLWithPath: NSTemporaryDirectory())
                 .appendingPathComponent("test-\(testName.hashValue.description)")
-            try! FileManager.default
+            try FileManager.default
                 .createDirectory(at: tempDir, withIntermediateDirectories: true)
 
             fileSrcUrl = tempDir.appendingPathComponent("source-file")

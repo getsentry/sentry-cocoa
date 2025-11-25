@@ -38,7 +38,7 @@ jobs:
     outputs:
       run_unit_tests_for_prs: ${{ steps.changes.outputs.run_unit_tests_for_prs }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Get changed files
         id: changes
         uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
@@ -52,7 +52,7 @@ jobs:
     needs: files-changed
     runs-on: macos-15
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Cache for Test Server
         id: cache_test_server
         uses: actions/cache@v4
@@ -108,7 +108,7 @@ jobs:
     if: startsWith(github.ref, 'refs/heads/release/') == false && (github.event_name != 'pull_request' || needs.files-changed.outputs.run_unit_tests_for_prs == 'true')
     needs: files-changed
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Prepare Package.swift
         shell: bash
         run: |
@@ -154,7 +154,7 @@ jobs:
             test-destination-os: "15.0"
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: actions/download-artifact@v6
         with:
           name: test-server
@@ -235,16 +235,17 @@ jobs:
     secrets: inherit
     with:
       name: ${{matrix.name}}
-      runs-on: ${{matrix.runs-on}}
+      runs-on: ${{ matrix.runs-on }}
       should_skip: ${{needs.files-changed.outputs.run_unit_tests_for_prs != 'true'}}
       xcode: ${{matrix.xcode}}
       platform: ${{matrix.platform}}
       test-destination-os: ${{matrix.test-destination-os || 'latest'}}
-      timeout: ${{matrix.timeout || 20}}
+      timeout: 20
       create_device: ${{matrix.create_device || false}}
       install_platforms: ${{matrix.install_platforms || false}}
       device: ${{matrix.device || ''}}
       scheme: ${{matrix.scheme || 'Sentry'}}
+      run_on_cirrus_labs: ${{ !contains(matrix.runs-on, 'macos-') }}
     strategy:
       fail-fast: false
       matrix:
@@ -273,14 +274,12 @@ jobs:
 
           # iOS 26 - Use pre-installed iOS 26.1 runtime on macOS-26
           - name: iOS 26 Sentry
-            runs-on: macos-26
-            xcode: "26.1"
+            runs-on: tahoe
+            xcode: "26.1.1"
             test-destination-os: "26.1"
             platform: "iOS"
             device: "iPhone 17 Pro"
             scheme: "Sentry"
-            # This runner seems to be slower than the others, so we give it more time because otherwise it frequently times out. The build step often alone takes 20 minutes and also booting the simulator takes a while.
-            timeout: 40
 
           # We don't run the unit tests on macOS 13 cause we run them on all on GH actions available iOS versions.
           # The chance of missing a bug solely on tvOS 16 that doesn't occur on iOS, macOS 12 or macOS 14 is minimal.

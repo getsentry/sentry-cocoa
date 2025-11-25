@@ -26,7 +26,7 @@ jobs:
     outputs:
       run_testflight_for_changes: ${{ github.event_name == 'pull_request' && steps.changes.outputs.run_testflight_for_prs || steps.changes.outputs.run_testflight_for_pushes }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Get changed files
         id: changes
         uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
@@ -40,10 +40,10 @@ jobs:
     name: Build and Upload iOS-Swift to Testflight
     runs-on: macos-15
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - run: ./scripts/ci-select-xcode.sh 16.4
       - name: Setup Ruby
-        uses: ruby/setup-ruby@d5126b9b3579e429dd52e51e68624dda2e05be25 # v1.267.0
+        uses: ruby/setup-ruby@8aeb6ff8030dd539317f8e1769a044873b56ea71 # v1.268.0
         with:
           bundler-cache: true
 

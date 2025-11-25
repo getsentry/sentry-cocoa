@@ -195,23 +195,25 @@ public final class SentryCrashWrapper: NSObject {
     
     private func enrichScopeWithRuntimeData(_ scope: Scope) {
         var runtimeContext: [String: Any] = [:]
-        
-        // We set this info on the runtime context because the app context has no existing fields
-        // suitable for representing Catalyst or iOS-on-Mac execution modes. We also wanted to avoid
-        // adding two new Apple-specific fields to the app context. Coming up with a generic,
-        // reusable property on the app context proved difficult, so instead we reuse the "name"
-        // field of the runtime context as a pragmatic and semantically acceptable solution.
-        // isiOSAppOnMac and isMacCatalystApp are mutually exclusive, so we only set one of them.
-        if self.processInfoWrapper.isiOSAppOnMac {
-            runtimeContext["name"] = "iOS App on Mac"
-            runtimeContext["raw_description"] = "ios-app-on-mac"
+
+        if #available(macOS 12, *) {
+            // We set this info on the runtime context because the app context has no existing fields
+            // suitable for representing Catalyst or iOS-on-Mac execution modes. We also wanted to avoid
+            // adding two new Apple-specific fields to the app context. Coming up with a generic,
+            // reusable property on the app context proved difficult, so instead we reuse the "name"
+            // field of the runtime context as a pragmatic and semantically acceptable solution.
+            // isiOSAppOnMac and isMacCatalystApp are mutually exclusive, so we only set one of them.
+            if self.processInfoWrapper.isiOSAppOnMac {
+                runtimeContext["name"] = "iOS App on Mac"
+                runtimeContext["raw_description"] = "ios-app-on-mac"
+            }
+
+            if self.processInfoWrapper.isMacCatalystApp {
+                runtimeContext["name"] = "Mac Catalyst App"
+                runtimeContext["raw_description"] = "raw_description"
+            }
         }
-        
-        if self.processInfoWrapper.isMacCatalystApp {
-            runtimeContext["name"] = "Mac Catalyst App"
-            runtimeContext["raw_description"] = "raw_description"
-        }
-        
+
         if !runtimeContext.isEmpty {
             scope.setContext(value: runtimeContext, key: "runtime")
         }

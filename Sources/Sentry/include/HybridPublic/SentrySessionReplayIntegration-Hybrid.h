@@ -9,6 +9,11 @@
 #else
 #    import "SentrySessionReplayIntegration.h"
 #endif
+#if __has_include(<Sentry/SentryLevel.h>)
+#    import <Sentry/SentryLevel.h>
+#else
+#    import "SentryLevel.h"
+#endif
 
 NS_ASSUME_NONNULL_BEGIN
 #if SENTRY_TARGET_REPLAY_SUPPORTED
@@ -23,7 +28,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (id<SentryRRWebEvent>)createBreadcrumbwithTimestamp:(NSDate *)timestamp
                                              category:(NSString *)category
                                               message:(nullable NSString *)message
-                                                level:(enum SentryLevel)level
+                                                level:(SentryLevel)level
                                                  data:(nullable NSDictionary<NSString *, id> *)data;
 
 + (id<SentryRRWebEvent>)createNetworkBreadcrumbWithTimestamp:(NSDate *)timestamp

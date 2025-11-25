@@ -55,6 +55,9 @@
       <FileRef
          location = "group:Samples/visionOS-Swift/visionOS-Swift.xcodeproj">
       </FileRef>
+      <FileRef
+         location = "group:Samples/SDK-Size/SDK-Size.xcodeproj">
+      </FileRef>
    </Group>
    <FileRef
       location = "group:Sentry.xcodeproj">

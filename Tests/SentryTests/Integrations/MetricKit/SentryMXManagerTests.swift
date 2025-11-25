@@ -12,6 +12,7 @@ import XCTest
 import MetricKit
 #endif
 
+@available(macOS 12.0, *)
 final class SentryMXManagerTests: XCTestCase {
     
     override func tearDown() {
@@ -112,6 +113,7 @@ final class SentryMXManagerTests: XCTestCase {
 
 @available(tvOS, unavailable)
 @available(watchOS, unavailable)
+@available(macOS 12.0, *)
 class TestMXDiagnosticPayload: MXDiagnosticPayload {
     struct Override {
         var crashDiagnostics: [MXCrashDiagnostic]?
@@ -152,6 +154,7 @@ class TestMXDiagnosticPayload: MXDiagnosticPayload {
 
 @available(tvOS, unavailable)
 @available(watchOS, unavailable)
+@available(macOS 12.0, *)
 class SentryMXManagerTestDelegate: SentryMXManagerDelegate {
 
     var crashInvocations = Invocations<(diagnostic: MXCrashDiagnostic, callStackTree: Sentry.SentryMXCallStackTree, timeStampBegin: Date, timeStampEnd: Date)>()
