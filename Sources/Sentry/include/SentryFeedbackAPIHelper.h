@@ -21,12 +21,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (void)hideWidget NS_EXTENSION_UNAVAILABLE(
     "Sentry User Feedback UI cannot be used from app extensions.");
 
-/**
- * Show the feedback form.
- * @warning This is an experimental feature and may still have bugs.
- * @seealso See @c SentryOptions.configureUserFeedback to configure the widget.
- */
-- (void)showForm NS_EXTENSION_UNAVAILABLE(
++ (void)showForm NS_EXTENSION_UNAVAILABLE(
     "Sentry User Feedback UI cannot be used from app extensions.");
 
 @end

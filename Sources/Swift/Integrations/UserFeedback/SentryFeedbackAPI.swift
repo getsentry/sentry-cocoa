@@ -20,5 +20,13 @@ public final class SentryFeedbackAPI: NSObject {
     @objc public func hideWidget() {
         SentryFeedbackAPIHelper.hideWidget()
     }
+
+    /// Show the feedback form.
+    /// - warning: This is an experimental feature and may still have bugs.
+    /// - seealso: See `SentryOptions.configureUserFeedback` to configure the form.
+    @available(iOSApplicationExtension, unavailable)
+    @objc public func showForm() {
+        SentryFeedbackAPIHelper.showForm()
+    }
 }
 #endif

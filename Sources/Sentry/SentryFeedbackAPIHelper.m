@@ -30,7 +30,7 @@
     [feedback hideWidget];
 }
 
-- (void)showForm
++ (void)showForm
 {
     SentryUserFeedbackIntegration *feedback = [[SentrySDKInternal currentHub]
         getInstalledIntegration:[SentryUserFeedbackIntegration class]];
