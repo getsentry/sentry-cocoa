@@ -10,11 +10,6 @@ import Foundation
     public let callStacks: [SentryMXCallStack]
     public let callStackPerThread: Bool
     
-    init(callStacks: [SentryMXCallStack], callStackPerThread: Bool) {
-        self.callStacks = callStacks
-        self.callStackPerThread = callStackPerThread
-    }
-    
     static func from(data: Data) throws -> SentryMXCallStackTree {
         return try JSONDecoder().decode(SentryMXCallStackTree.self, from: data)
     }
@@ -22,37 +17,22 @@ import Foundation
 
 @objcMembers
 @_spi(Private) public class SentryMXCallStack: NSObject, Codable {
-    public var threadAttributed: Bool?
-    public var callStackRootFrames: [SentryMXFrame]
+    public let threadAttributed: Bool?
+    public let callStackRootFrames: [SentryMXFrame]
     
     public var flattenedRootFrames: [SentryMXFrame] {
         return callStackRootFrames.flatMap { [$0] + $0.frames }
-    }
-
-    init(threadAttributed: Bool, rootFrames: [SentryMXFrame]) {
-        self.threadAttributed = threadAttributed
-        self.callStackRootFrames = rootFrames
     }
 }
 
 @objcMembers
 @_spi(Private) public class SentryMXFrame: NSObject, Codable {
-    public var binaryUUID: UUID
-    public var offsetIntoBinaryTextSegment: Int
-    public var binaryName: String?
-    public var address: UInt64
-    public var subFrames: [SentryMXFrame]?
-    
-    public var sampleCount: Int?
-    
-    init(binaryUUID: UUID, offsetIntoBinaryTextSegment: Int, sampleCount: Int? = nil, binaryName: String? = nil, address: UInt64, subFrames: [SentryMXFrame]?) {
-        self.binaryUUID = binaryUUID
-        self.offsetIntoBinaryTextSegment = offsetIntoBinaryTextSegment
-        self.sampleCount = sampleCount
-        self.binaryName = binaryName
-        self.address = address
-        self.subFrames = subFrames
-    }
+    public let binaryUUID: UUID
+    public let offsetIntoBinaryTextSegment: Int
+    public let binaryName: String?
+    public let address: UInt64
+    public let subFrames: [SentryMXFrame]?
+    public let sampleCount: Int?
     
     var frames: [SentryMXFrame] {
         return (subFrames?.flatMap { [$0] + $0.frames } ?? [])
