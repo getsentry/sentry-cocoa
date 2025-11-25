@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Fix UIWindow being possibly accessed from a background thread in SentryCrashWrapper (#6905)
+
 ## 9.0.0-rc.1
 
 ### Breaking Changes
