@@ -1111,6 +1111,11 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     }
 }
 
+- (void)flushLogs
+{
+    [self.logBatcher captureLogs];
+}
+
 - (void)captureLogsData:(NSData *)data with:(NSNumber *)itemCount
 {
     SentryEnvelopeItem *envelopeItem =
