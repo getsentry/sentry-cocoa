@@ -203,6 +203,11 @@ NS_ASSUME_NONNULL_BEGIN
 #endif // SENTRY_HAS_UIKIT
     }
 
+    if ((integrationOptions & kIntegrationOptionEnableLogs) && !options.enableLogs) {
+        [self logWithOptionName:@"enableLogs"];
+        return NO;
+    }
+
     return YES;
 }
 

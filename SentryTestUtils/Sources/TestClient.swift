@@ -167,4 +167,9 @@ public class TestClient: SentryClientInternal {
             captureLogInvocations.record((castLog, scope))
         }
     }
+    
+    public var flushLogsInvocations = Invocations<Void>()
+    public override func flushLogs() {
+        flushLogsInvocations.record(())
+    }
 }

@@ -203,6 +203,44 @@ final class SentryLogBatcherTests: XCTestCase {
         XCTAssertEqual(testDelegate.captureLogsDataInvocations.count, 0)
     }
     
+    func testCaptureLogs_WhenAlreadyOnQueue_DoesNotDeadlock() {
+        // Arrange: Create a real dispatch queue wrapper (not test wrapper) to test actual queue behavior
+        let realDispatchQueue = SentryDispatchQueueWrapper(name: "io.sentry.test.log-batcher", attributes: nil)
+        let testDelegate = TestLogBatcherDelegate()
+        
+        let batcher = SentryLogBatcher(
+            options: options,
+            flushTimeout: 0.1,
+            maxLogCount: 10,
+            maxBufferSizeBytes: 8_000,
+            dispatchQueue: realDispatchQueue,
+            delegate: testDelegate
+        )
+        
+        let log1 = createTestLog(body: "Log 1")
+        let log2 = createTestLog(body: "Log 2")
+        
+        batcher.addLog(log1, scope: scope)
+        batcher.addLog(log2, scope: scope)
+        
+        // Add logs asynchronously and wait for them to be processed
+        let addLogsExpectation = expectation(description: "logs added")
+        realDispatchQueue.dispatchAsync {
+            batcher.captureLogs()
+            addLogsExpectation.fulfill()
+        }
+        waitForExpectations(timeout: 1.0) { error in
+            if let error = error {
+                XCTFail("Test timed out or failed - possible deadlock: \(error)")
+            }
+        }
+        
+        let capturedLogs = testDelegate.getCapturedLogs()
+        XCTAssertEqual(capturedLogs.count, 2, "Should have captured both logs without deadlock.")
+        XCTAssertEqual(capturedLogs[0].body, "Log 1")
+        XCTAssertEqual(capturedLogs[1].body, "Log 2")
+    }
+    
     // MARK: - Edge Cases Tests
     
     func testScheduledFlushAfterBufferAlreadyFlushed_DoesNothing() throws {

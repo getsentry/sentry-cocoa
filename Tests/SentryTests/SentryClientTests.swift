@@ -2243,7 +2243,6 @@ class SentryClientTests: XCTestCase {
     func testFlushCallsLogBatcherCaptureLogs() {
         let sut = fixture.getSut()
         
-        // Create a test batcher to verify captureLogs is called
         let testDelegate = TestLogBatcherDelegateForClient()
         let testBatcher = TestLogBatcherForClient(
             options: sut.options,
@@ -2252,13 +2251,28 @@ class SentryClientTests: XCTestCase {
         )
         Dynamic(sut).logBatcher = testBatcher
         
-        // Verify initial state
         XCTAssertEqual(testBatcher.captureLogsInvocations.count, 0)
         
-        // Call flush - this should trigger the log batcher to capture logs
         sut.flush(timeout: 1.0)
         
-        // Verify that captureLogs was called on the log batcher
+        XCTAssertEqual(testBatcher.captureLogsInvocations.count, 1)
+    }
+    
+    func testFlushLogsCallsLogBatcherCaptureLogs() {
+        let sut = fixture.getSut()
+        
+        let testDelegate = TestLogBatcherDelegateForClient()
+        let testBatcher = TestLogBatcherForClient(
+            options: sut.options,
+            dispatchQueue: TestSentryDispatchQueueWrapper(),
+            delegate: testDelegate
+        )
+        Dynamic(sut).logBatcher = testBatcher
+        
+        XCTAssertEqual(testBatcher.captureLogsInvocations.count, 0)
+        
+        sut.flushLogs()
+        
         XCTAssertEqual(testBatcher.captureLogsInvocations.count, 1)
     }
     

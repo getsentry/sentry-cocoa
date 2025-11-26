@@ -71,4 +71,11 @@
     public var shouldCreateDispatchBlock: Bool {
         return true
     }
+    
+    /// Returns `true` if the current execution context is on this queue.
+    /// Uses `dispatch_get_specific` with a unique context pointer for reliable detection,
+    /// as queue labels are not guaranteed to be unique.
+    @_spi(Private) public func isCurrentQueue() -> Bool {
+        return internalWrapper.isCurrentQueue()
+    }
 }
