@@ -47,12 +47,6 @@
 #    import "SentryCrashExceptionApplication.h"
 #endif // TARGET_OS_MAC
 
-#if SENTRY_HAS_UIKIT
-#    if TARGET_OS_IOS
-#        import "SentryFeedbackAPI.h"
-#    endif // TARGET_OS_IOS
-#endif // SENTRY_HAS_UIKIT
-
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 #    import "SentryContinuousProfiler.h"
 #    import "SentryProfileConfiguration.h"
@@ -749,6 +743,13 @@ static NSDate *_Nullable startTimestamp = nil;
     return SentryDependencyContainer.sharedInstance.application.relevantViewControllersNames;
 }
 #endif // SENTRY_HAS_UIKIT
+
+/** Only needed for testing. We can't use `SENTRY_TEST || SENTRY_TEST_CI` because we call this from
+ * the iOS-Swift sample app. */
++ (NSArray<NSString *> *)trimmedInstalledIntegrationNames
+{
+    return [SentrySDKInternal.currentHub trimmedInstalledIntegrationNames];
+}
 
 @end
 

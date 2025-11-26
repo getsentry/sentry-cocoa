@@ -14,6 +14,9 @@
          location = "group:Samples/DistributionSample/DistributionSample.xcodeproj">
       </FileRef>
       <FileRef
+         location = "group:Samples/SPM/SPM.xcodeproj">
+      </FileRef>
+      <FileRef
          location = "group:Samples/SentrySampleShared/SentrySampleShared.xcodeproj">
       </FileRef>
       <FileRef
@@ -44,10 +47,16 @@
          location = "group:Samples/iOS-Swift6/iOS-Swift6.xcodeproj">
       </FileRef>
       <FileRef
+         location = "group:Samples/iOS-SwiftUI-Widgets/iOS-SwiftUI-Widgets.xcodeproj">
+      </FileRef>
+      <FileRef
          location = "group:Samples/SessionReplay-CameraTest/SessionReplay-CameraTest.xcodeproj">
       </FileRef>
       <FileRef
          location = "group:Samples/visionOS-Swift/visionOS-Swift.xcodeproj">
+      </FileRef>
+      <FileRef
+         location = "group:Samples/SDK-Size/SDK-Size.xcodeproj">
       </FileRef>
    </Group>
    <FileRef

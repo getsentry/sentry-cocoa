@@ -12,6 +12,7 @@ import Foundation
     
     private let options: Options
     private let flushTimeout: TimeInterval
+    private let maxLogCount: Int
     private let maxBufferSizeBytes: Int
     private let dispatchQueue: SentryDispatchQueueWrapper
 
@@ -24,7 +25,7 @@ import Foundation
         
     private weak var delegate: SentryLogBatcherDelegate?
     
-    /// Convenience initializer with default flush timeout and buffer size.
+    /// Convenience initializer with default flush timeout, max log count (100), and buffer size.
     /// - Parameters:
     ///   - options: The Sentry configuration options
     ///   - dispatchQueue: A **serial** dispatch queue wrapper for thread-safe access to mutable state
@@ -32,6 +33,8 @@ import Foundation
     ///
     /// - Important: The `dispatchQueue` parameter MUST be a serial queue to ensure thread safety.
     ///              Passing a concurrent queue will result in undefined behavior and potential data races.
+    ///
+    /// - Note: Setting `maxLogCount` to 100. While Replay hard limit is 1000, we keep this lower, as it's hard to lower once released.
     @_spi(Private) public convenience init(
         options: Options,
         dispatchQueue: SentryDispatchQueueWrapper,
@@ -40,7 +43,8 @@ import Foundation
         self.init(
             options: options,
             flushTimeout: 5,
-            maxBufferSizeBytes: 1_024 * 1_024, // 1MB
+            maxLogCount: 100, // Maximum 100 logs per batch
+            maxBufferSizeBytes: 1_024 * 1_024, // 1MB buffer size
             dispatchQueue: dispatchQueue,
             delegate: delegate
         )
@@ -50,21 +54,26 @@ import Foundation
     /// - Parameters:
     ///   - options: The Sentry configuration options
     ///   - flushTimeout: The timeout interval after which buffered logs will be flushed
+    ///   - maxLogCount: Maximum number of logs to batch before triggering an immediate flush.
     ///   - maxBufferSizeBytes: The maximum buffer size in bytes before triggering an immediate flush
     ///   - dispatchQueue: A **serial** dispatch queue wrapper for thread-safe access to mutable state
     ///   - delegate: The delegate to handle captured log batches
     ///
     /// - Important: The `dispatchQueue` parameter MUST be a serial queue to ensure thread safety.
     ///              Passing a concurrent queue will result in undefined behavior and potential data races.
+    ///
+    /// - Note: Logs are flushed when either `maxLogCount` or `maxBufferSizeBytes` limit is reached.
     @_spi(Private) public init(
         options: Options,
         flushTimeout: TimeInterval,
+        maxLogCount: Int,
         maxBufferSizeBytes: Int,
         dispatchQueue: SentryDispatchQueueWrapper,
         delegate: SentryLogBatcherDelegate
     ) {
         self.options = options
         self.flushTimeout = flushTimeout
+        self.maxLogCount = maxLogCount
         self.maxBufferSizeBytes = maxBufferSizeBytes
         self.dispatchQueue = dispatchQueue
         self.delegate = delegate
@@ -189,7 +198,8 @@ import Foundation
             encodedLogs.append(encodedLog)
             encodedLogsSize += encodedLog.count
             
-            if encodedLogsSize >= maxBufferSizeBytes {
+            // Flush when we reach max log count or max buffer size
+            if encodedLogs.count >= maxLogCount || encodedLogsSize >= maxBufferSizeBytes {
                 performCaptureLogs()
             } else if encodedLogsWereEmpty && timerWorkItem == nil {
                 startTimer()

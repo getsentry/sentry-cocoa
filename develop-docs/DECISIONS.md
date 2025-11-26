@@ -1,5 +1,13 @@
 # Decision Log
 
+## No local symbolication of crashes
+
+Date: Nov 7th, 2025
+Contributors: @noahsmartin, @philipphofmann
+
+We decided to remove local symbolication. The existing local symbolication was not signal-safe and caused deadlocks (https://github.com/getsentry/sentry-cocoa/issues/6560).
+It is possible to implement local symbolication that does not cause deadlocks; however, it would be a debug-only feature, since in production apps should have their symbols stripped and only available in the dSYM. Therefore, to quickly fix the issue, we decided to remove all unsafe local symbolication in v9. The addition of signal-safe symbolication for binaries with symbols can always be added in a future minor version.
+
 ## Not capturing screenshots for crashes
 
 Date: April 21st 2022
@@ -456,3 +464,18 @@ Date: 10.11.2025
 Contributors: @philipphofmann, @noahsmartin, @denrase
 
 The `swift-log` dependeceny we have added is primarly intendet to be used on backaned projects. While it could be used on the client, we do not want to have external dependencies in our `Package.swift`. So fot it and other logging integrations, a separate repo will be created.
+
+## Change macOS deployment target to 10.14
+
+Date: November 19, 2025
+Contributors: @philprime, @philipphofmann, @itaybre, @noahsmartin
+
+Our internal data has shown that ~0.25% of events originate from macOS 10.14 and earlier.
+While this number is very low, there is not apparent reason to not support it, therefore we will change the macOS deployment target to 10.14 to allow users to use the SDK on macOS 10.14 and later.
+
+The main reason for choosing exactly this version as the earliest supported version is that it's the first one offering `NWPathMonitor` as a replacement for `SCNetworkReachability`.
+
+Related links:
+
+- https://github.com/getsentry/sentry-cocoa/issues/6758
+- https://github.com/getsentry/sentry-cocoa/pull/6873

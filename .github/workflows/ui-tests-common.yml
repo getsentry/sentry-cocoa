@@ -82,10 +82,10 @@ jobs:
     runs-on: ${{ inputs.run_on_cirrus_labs && fromJSON(format('["ghcr.io/cirruslabs/macos-runner:{0}", "runner_group_id:10"]', inputs.macos_version)) || inputs.macos_version }}
     timeout-minutes: 40
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Setup Ruby
-        uses: ruby/setup-ruby@d5126b9b3579e429dd52e51e68624dda2e05be25 # v1.267.0
+        uses: ruby/setup-ruby@8aeb6ff8030dd539317f8e1769a044873b56ea71 # v1.268.0
         with:
           bundler-cache: true
 
@@ -109,6 +109,14 @@ jobs:
           OS_VERSION: ${{ inputs.test-destination-os }}
         run: ./scripts/ci-install-platforms.sh --platforms "$PLATFORM" --os-version "$OS_VERSION"
 
+      - name: Ensure required runtime is loaded
+        # Ideally we will not need this, but CI sometimes is failing to load some runtimes, this will ensure they are loaded
+        if: ${{ inputs.platform == 'iOS' }}
+        timeout-minutes: 5 # 5 minutes timeout
+        env:
+          OS_VERSION: ${{ inputs.test-destination-os }}
+        run: ./scripts/ci-ensure-runtime-loaded.sh --os-version "$OS_VERSION"
+
       - name: Create simulator device
         if: ${{ inputs.create_device }}
         env:
@@ -120,7 +128,7 @@ jobs:
       # Boot created simulators to ensure they're ready before tests run
       # Based on CircleCI forum comment, booting is especially important for Xcode 26: https://discuss.circleci.com/t/xcode-26-rc/54066/18
       - name: Boot simulator
-        if: ${{ inputs.create_device && inputs.platform == 'iOS' }}
+        if: ${{ inputs.platform == 'iOS' }}
         env:
           XCODE_VERSION: ${{ inputs.xcode_version }}
           DEVICE_NAME: ${{ inputs.device }}

@@ -66,6 +66,8 @@ NS_ASSUME_NONNULL_BEGIN
     additionalEnvelopeItems:(NSArray<SentryEnvelopeItem *> *)additionalEnvelopeItems
     NS_SWIFT_NAME(capture(event:scope:additionalEnvelopeItems:));
 
+- (SentryId *)captureErrorEvent:(SentryEvent *)event NS_SWIFT_NAME(captureErrorEvent(event:));
+
 - (void)captureSerializedFeedback:(NSDictionary *)serializedFeedback
                       withEventId:(NSString *)feedbackEventId
                       attachments:(NSArray<SentryAttachment *> *)feedbackAttachments;
@@ -83,6 +85,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)registerSessionListener:(id<SentrySessionListener>)listener;
 - (void)unregisterSessionListener:(id<SentrySessionListener>)listener;
 - (nullable id<SentryIntegrationProtocol>)getInstalledIntegration:(Class)integrationClass;
+- (NSSet<NSString *> *)installedIntegrationNames;
 
 #if SENTRY_TARGET_REPLAY_SUPPORTED
 - (NSString *__nullable)getSessionReplayId;

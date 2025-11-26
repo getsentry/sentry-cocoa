@@ -25,7 +25,7 @@ jobs:
     outputs:
       run_benchmarking_for_prs: ${{ steps.changes.outputs.run_benchmarking_for_prs }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Get changed files
         id: changes
         uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
@@ -38,39 +38,18 @@ jobs:
     # Run the job only for PRs with related changes or non-PR events.
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_benchmarking_for_prs == 'true'
     needs: files-changed
-    runs-on: macos-14
+    runs-on: macos-26
     steps:
-      - uses: actions/checkout@v5
-      - run: ./scripts/ci-select-xcode.sh 15.4
+      - uses: actions/checkout@v6
+      - run: ./scripts/ci-select-xcode.sh 26.1
       - name: Setup Ruby
-        uses: ruby/setup-ruby@d5126b9b3579e429dd52e51e68624dda2e05be25 # v1.267.0
+        uses: ruby/setup-ruby@8aeb6ff8030dd539317f8e1769a044873b56ea71 # v1.268.0
         with:
           bundler-cache: true
-      - name: Install old xcodegen
-        # Install xcodegen 2.43.0 for since newer versions don't work with Xcode older than Xcode 16
-        # We need to set HOMEBREW_DEVELOPER=1 to allow installing from a local formula
-        run: |
-          HOMEBREW_DEVELOPER=1 brew install --formula ./scripts/xcodegen.rb
-          brew pin xcodegen
       - run: make init-ci-build
       - run: make xcode-ci
       - name: Install SentryCli
         run: brew install getsentry/tools/sentry-cli
-      - name: Cache iOS-Swift App and dSYM build products
-        id: ios-swift-cache
-        uses: actions/cache@v4
-        with:
-          path: |
-            DerivedData/Build/Products/Debug-iphoneos/iOS-Swift.app.dSYM
-            DerivedData/Build/Products/Debug-iphoneos/iOS-Swift.app
-          key: ios-swift-for-ui-testing-cache-key-${{ hashFiles('Samples/iOS-Swift/**') }}-${{ hashFiles('Sources/Sentry/**') }}
-      - name: Cache iOS-Swift UI Test Runner App build product
-        id: ios-swift-benchmark-runner-cache
-        uses: actions/cache@v4
-        with:
-          path: |
-            DerivedData/Build/Products/Debug-iphoneos/iOS-Benchmarking-Runner.app
-          key: ios-swift-for-ui-testing-cache-key-${{ hashFiles('Samples/iOS-Benchmarking/**') }}
       - run: bundle exec fastlane build_ios_swift_for_tests
         env:
           APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
@@ -92,10 +71,10 @@ jobs:
       - name: Upload dSYMs
         run: |
           sentry-cli --auth-token ${{ secrets.SENTRY_AUTH_TOKEN }} upload-dif --org sentry-sdks --project sentry-cocoa DerivedData/Build/Products/Debug-iphoneos/iOS-Swift.app.dSYM
-      - name: Archiving DerivedData
+      - name: Upload Built Apps for SauceLabs
         uses: actions/upload-artifact@v5
         with:
-          name: DerivedData-Xcode
+          name: benchmark-apps
           path: |
             **/Debug-iphoneos/iOS-Swift.app
             **/Debug-iphoneos/iOS-Benchmarking-Runner.app
@@ -114,11 +93,11 @@ jobs:
       matrix:
         suite: ["High-end device", "Mid-range device", "Low-end device"]
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: actions/download-artifact@v6
         with:
-          name: DerivedData-Xcode
-      - run: npm install -g saucectl@0.186.0
+          name: benchmark-apps
+      - run: npm install -g saucectl@0.197.2
       - name: Run Benchmarks in SauceLab
         id: run-benchmarks-in-sauce-lab
         env:

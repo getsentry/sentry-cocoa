@@ -31,7 +31,7 @@ jobs:
     outputs:
       run_ui_tests_critical_for_prs: ${{ steps.changes.outputs.run_ui_tests_critical_for_prs }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Get changed files
         id: changes
         uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
@@ -51,10 +51,10 @@ jobs:
       files_suffix: _${{matrix.platform.xcode}}
       test-destination-os: ${{matrix.platform.test-destination-os}}
       xcode_version: ${{matrix.platform.xcode}}
-      install_platforms: ${{matrix.platform.install_platforms}}
       platform: ${{matrix.platform.platform}}
-      create_device: ${{matrix.platform.create_device}}
       device: ${{matrix.platform.device}}
+      # We run UI tests only on Cirrus Labs for now.
+      run_on_cirrus_labs: true
     strategy:
       fail-fast: false
       matrix:
@@ -66,23 +66,19 @@ jobs:
           # https://github.com/actions/runner-images/blob/main/images/macos/macos-15-Readme.md#installed-sdks
           - name: iOS 18
             platform:
-              runs-on: macos-15
+              runs-on: sequoia
               xcode: "16.4"
               test-destination-os: "18.4"
-              install_platforms: false
               platform: "iOS"
-              create_device: false
               device: "iPhone 16 Pro"
 
-          # iOS 26 - Download iOS 26.1 beta runtime on macOS-26
+          # iOS 26 - Use pre-installed iOS 26.1 runtime on macOS-26
           - name: iOS 26
             platform:
-              runs-on: macos-26
-              xcode: "26.1"
+              runs-on: tahoe
+              xcode: "26.1.1"
               test-destination-os: "26.1"
-              install_platforms: true
               platform: "iOS"
-              create_device: true
               device: "iPhone 17 Pro"
 
     secrets:
@@ -92,10 +88,10 @@ jobs:
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_ui_tests_critical_for_prs == 'true'
     needs: files-changed
     name: Run SwiftUI Crash Test
-    runs-on: macos-15
+    runs-on: ["ghcr.io/cirruslabs/macos-runner:sequoia", "runner_group_id:10"]
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - run: ./scripts/ci-select-xcode.sh 16.4
 

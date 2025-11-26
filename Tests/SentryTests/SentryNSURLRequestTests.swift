@@ -15,8 +15,8 @@ class SentryNSURLRequestTests: XCTestCase {
         XCTAssert(string.hasSuffix("/envelope/"))
     }
     
-    func testRequestWithEnvelopeEndpoint_hasUserAgentWithSdkNameAndVersion() {
-        let request = try! SentryURLRequestFactory.envelopeRequest(with: SentryNSURLRequestTests.dsn(), data: Data())
+    func testRequestWithEnvelopeEndpoint_hasUserAgentWithSdkNameAndVersion() throws {
+        let request = try XCTUnwrap(SentryURLRequestFactory.envelopeRequest(with: SentryNSURLRequestTests.dsn(), data: Data()))
         XCTAssertEqual(request.allHTTPHeaderFields?["User-Agent"], "\(SentryMeta.sdkName)/\(SentryMeta.versionString)")
     }
 }

@@ -1,4 +1,4 @@
-// swift-tools-version:5.5
+// swift-tools-version:6.0
 #if canImport(Darwin)
 import Darwin.C
 #elseif canImport(Glibc)
@@ -22,28 +22,28 @@ var products: [Product] = [
 var targets: [Target] = [
     .binaryTarget(
         name: "Sentry",
-        url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.0.0-alpha.1/Sentry.xcframework.zip",
-        checksum: "eb8cebd331b14fc0b9b09a183cd0b53ec26814921a0f49d8ded70ee8d0a97592" //Sentry-Static
+        url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.0.0-rc.1/Sentry.xcframework.zip",
+        checksum: "650dbfba5be95cf42ca7409bbdfb50dfd3eff46ea41aa12babb1f88fb42d5ffb" //Sentry-Static
     ),
     .binaryTarget(
         name: "Sentry-Dynamic",
-        url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.0.0-alpha.1/Sentry-Dynamic.xcframework.zip",
-        checksum: "e47d947510d08599b63b05ac70493badc4703c2a28acf1ea8eacb4638458118c" //Sentry-Dynamic
+        url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.0.0-rc.1/Sentry-Dynamic.xcframework.zip",
+        checksum: "171eb136ea50222576a93a269efa76af7334e6b06f33df4e9f850799968f0501" //Sentry-Dynamic
     ),
     .binaryTarget(
         name: "Sentry-Dynamic-WithARM64e",
-        url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.0.0-alpha.1/Sentry-Dynamic-WithARM64e.xcframework.zip",
-        checksum: "8a9172b9a0c9debc1d565d9adddeb6261a44cd52b592bf935e5262c160203bea" //Sentry-Dynamic-WithARM64e
+        url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.0.0-rc.1/Sentry-Dynamic-WithARM64e.xcframework.zip",
+        checksum: "b7e9a687b112fc86e4a5a777bdd4778d99ceb2268ccc9edee7a1ab277a61de2a" //Sentry-Dynamic-WithARM64e
     ),
     .binaryTarget(
         name: "Sentry-WithoutUIKitOrAppKit",
-        url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.0.0-alpha.1/Sentry-WithoutUIKitOrAppKit.xcframework.zip",
-        checksum: "e1252ac7bc9a2b391d4b2123d1700598e224333794f8a0a96a550d8293d0d6ad" //Sentry-WithoutUIKitOrAppKit
+        url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.0.0-rc.1/Sentry-WithoutUIKitOrAppKit.xcframework.zip",
+        checksum: "6d9e2d8ef8dc362c0254ee6b5b96ab69832ed0112a3b8f3354c69deb4a6dabbe" //Sentry-WithoutUIKitOrAppKit
     ),
     .binaryTarget(
         name: "Sentry-WithoutUIKitOrAppKit-WithARM64e",
-        url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.0.0-alpha.1/Sentry-WithoutUIKitOrAppKit-WithARM64e.xcframework.zip",
-        checksum: "a57c32ec5e8cc04bc382b91357858123cb7a32f316611c62aa03a011b1e197c8" //Sentry-WithoutUIKitOrAppKit-WithARM64e
+        url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.0.0-rc.1/Sentry-WithoutUIKitOrAppKit-WithARM64e.xcframework.zip",
+        checksum: "684b9e166170559f50e94004c4ba5fd9346ab327cf17195869d44c6e6caeddb2" //Sentry-WithoutUIKitOrAppKit-WithARM64e
     ),
     .target(
         name: "SentrySwiftUI",
@@ -73,9 +73,7 @@ var targets: [Target] = [
     .testTarget(name: "SentryDistributionTests", dependencies: ["SentryDistribution"], path: "Sources/SentryDistributionTests")
 ]
 
-let env = getenv("EXPERIMENTAL_SPM_BUILDS")
-if let env = env, String(cString: env, encoding: .utf8) == "1" {
-    products.append(.library(name: "SentrySPM", type: .dynamic, targets: ["SentryObjc"]))
+    products.append(.library(name: "SentrySPM", targets: ["SentryObjc"]))
     targets.append(contentsOf: [
         // At least one source file is required, therefore we use a dummy class to satisfy the SPM build system
         .target(
@@ -113,12 +111,12 @@ if let env = env, String(cString: env, encoding: .utf8) == "1" {
                 .headerSearchPath("SentryCrash/Reporting/Filters"),
                 .headerSearchPath("SentryCrash/Reporting/Filters/Tools")])
     ])
-}
 
 let package = Package(
     name: "Sentry",
-    platforms: [.iOS(.v15), .macOS(.v12), .tvOS(.v15), .watchOS(.v8)],
+    platforms: [.iOS(.v15), .macOS(.v10_14), .tvOS(.v15), .watchOS(.v8), .visionOS(.v1)],
     products: products,
     targets: targets,
+    swiftLanguageModes: [.v5],
     cxxLanguageStandard: .cxx14
 )

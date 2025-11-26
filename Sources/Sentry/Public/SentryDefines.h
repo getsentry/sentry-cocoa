@@ -138,12 +138,6 @@ typedef BOOL (^SentryShouldQueueEvent)(
 typedef NSNumber *_Nullable (^SentryTracesSamplerCallback)(
     SentrySamplingContext *_Nonnull samplingContext);
 
-/**
- * Sentry level.
- */
-typedef NS_ENUM(NSUInteger,
-    SentryLevel); // This is a forward declaration, the actual enum is implemented in Swift.
-
 static NSUInteger const defaultMaxBreadcrumbs = 100;
 
 static NSString *_Nonnull const kSentryTrueString = @"true";

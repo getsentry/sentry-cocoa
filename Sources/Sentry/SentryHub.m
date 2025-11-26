@@ -25,7 +25,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryHubInternal () <SentryLoggerDelegate>
+@interface SentryHubInternal () <SentryLoggerDelegate, SentrySessionDelegate>
 
 @property (nullable, atomic, strong) SentryClientInternal *client;
 @property (nullable, nonatomic, strong) SentryScope *scope;
@@ -68,6 +68,10 @@ NS_ASSUME_NONNULL_BEGIN
         _installedIntegrations = [[NSMutableArray alloc] init];
         _installedIntegrationNames = [[NSMutableSet alloc] init];
         _errorsBeforeSession = 0;
+
+        if (_client != nil) {
+            _client.sessionDelegate = self;
+        }
 
         if (_scope) {
             [_crashWrapper enrichScope:SENTRY_UNWRAP_NULLABLE(SentryScope, _scope)];
@@ -219,6 +223,8 @@ NS_ASSUME_NONNULL_BEGIN
             [_session incrementErrors];
             [self storeCurrentSession:SENTRY_UNWRAP_NULLABLE(SentrySession, _session)];
             sessionCopy = [_session copy];
+        } else {
+            _errorsBeforeSession++;
         }
     }
 
@@ -492,17 +498,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (SentryId *)captureError:(NSError *)error withScope:(SentryScope *)scope
 {
-    SentrySession *currentSession = _session;
     SentryClientInternal *client = self.client;
+
     if (client != nil) {
-        if (currentSession != nil) {
-            return [client captureError:error
-                              withScope:scope
-                 incrementSessionErrors:^(void) { return [self incrementSessionErrors]; }];
-        } else {
-            _errorsBeforeSession++;
-            return [client captureError:error withScope:scope];
-        }
+        return [client captureError:error withScope:scope];
     }
     return SentryId.empty;
 }
@@ -514,17 +513,21 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (SentryId *)captureException:(NSException *)exception withScope:(SentryScope *)scope
 {
-    SentrySession *currentSession = _session;
     SentryClientInternal *client = self.client;
+
     if (client != nil) {
-        if (currentSession != nil) {
-            return [client captureException:exception
-                                  withScope:scope
-                     incrementSessionErrors:^(void) { return [self incrementSessionErrors]; }];
-        } else {
-            _errorsBeforeSession++;
-            return [client captureException:exception withScope:scope];
-        }
+        return [client captureException:exception withScope:scope];
+    }
+    return SentryId.empty;
+}
+
+- (SentryId *)captureErrorEvent:(SentryEvent *)event
+{
+    SentryScope *scope = self.scope;
+    SentryClientInternal *client = self.client;
+
+    if (client != nil) {
+        return [client captureEventIncrementingSessionErrorCount:event withScope:scope];
     }
     return SentryId.empty;
 }
@@ -575,7 +578,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)bindClient:(nullable SentryClientInternal *)client
 {
+    self.client.sessionDelegate = nil;
+
     self.client = client;
+
+    if (client != nil) {
+        client.sessionDelegate = self;
+    }
 }
 
 - (SentryScope *)scope
@@ -752,7 +761,7 @@ NS_ASSUME_NONNULL_BEGIN
                                     wasHandled:(BOOL *)handled;
 {
     for (SentryEnvelopeItem *item in items) {
-        if ([item.header.type isEqualToString:SentryEnvelopeItemTypes.event]) {
+        if ([item.type isEqualToString:SentryEnvelopeItemTypes.event]) {
             if (!item.data) {
                 return NO;
             }

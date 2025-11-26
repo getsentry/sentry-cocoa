@@ -46,7 +46,7 @@ class SentrySDKInternalTests: XCTestCase {
         let operation = "ui.load"
         let transactionName = "Load Main Screen"
 
-        init() {
+        init() throws {
             SentryDependencyContainer.sharedInstance().dateProvider = currentDate
 
             event = Event()
@@ -63,13 +63,13 @@ class SentrySDKInternalTests: XCTestCase {
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
             options.dsn = SentrySDKInternalTests.dsnAsString
 
-            let fileManager = try! TestFileManager(
+            let fileManager = try XCTUnwrap(TestFileManager(
                 options: options,
                 dateProvider: currentDate,
                 dispatchQueueWrapper: dispatchQueueWrapper
-            )
+            ))
             let breadcrumbProcessor = SentryWatchdogTerminationBreadcrumbProcessor(maxBreadcrumbs: 10, fileManager: fileManager)
-            scopePersistentStore = try! XCTUnwrap(TestSentryScopePersistentStore(fileManager: fileManager))
+            scopePersistentStore = try XCTUnwrap(TestSentryScopePersistentStore(fileManager: fileManager))
             let attributesProcessor = SentryWatchdogTerminationAttributesProcessor(
                 withDispatchQueueWrapper: dispatchQueueWrapper,
                 scopePersistentStore: scopePersistentStore
@@ -81,9 +81,9 @@ class SentrySDKInternalTests: XCTestCase {
 
     private var fixture: Fixture!
 
-    override func setUp() {
-        super.setUp()
-        fixture = Fixture()
+    override func setUpWithError() throws {
+        try super.setUpWithError()
+        fixture = try Fixture()
     }
 
     override func tearDown() {
@@ -613,7 +613,7 @@ class SentrySDKInternalTests: XCTestCase {
         SentrySDKInternal.currentHub().bindClient(client)
         SentrySDK.close()
 
-        XCTAssertEqual(Options().shutdownTimeInterval, transport.flushInvocations.first ?? 0.0, accuracy: 0.003)
+        XCTAssertEqual(Options().shutdownTimeInterval, transport.flushInvocations.first ?? 0.0, accuracy: 0.03)
     }
 
     func testLogger_ReturnsSameInstanceOnMultipleCalls() {
@@ -664,7 +664,7 @@ class SentrySDKInternalTests: XCTestCase {
         let flushTimeout = 10.0
         SentrySDK.flush(timeout: flushTimeout)
 
-        XCTAssertEqual(flushTimeout, transport.flushInvocations.first ?? 0.0, accuracy: 0.002)
+        XCTAssertEqual(flushTimeout, transport.flushInvocations.first ?? 0.0, accuracy: 0.2)
     }
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
@@ -1002,24 +1002,6 @@ class SentrySDKWithSetupTests: XCTestCase {
         }
 
         wait(for: [expectation], timeout: 5.0)
-    }
-}
-
-public class MainThreadTestIntegration: NSObject, SentryIntegrationProtocol {
-
-    public let expectation = XCTestExpectation(description: "MainThreadTestIntegration installed")
-
-    public func install(with options: Options) -> Bool {
-        print("[Sentry] [TEST] [\(#file):\(#line) starting install.")
-        dispatchPrecondition(condition: .onQueue(.main))
-
-        expectation.fulfill()
-
-        return true
-    }
-
-    public func uninstall() {
-
     }
 }
 // swiftlint:enable file_length

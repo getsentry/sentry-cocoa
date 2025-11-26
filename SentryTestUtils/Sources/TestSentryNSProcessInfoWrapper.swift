@@ -36,12 +36,12 @@
         overrides.environment ?? ProcessInfo.processInfo.environment
     }
 
-    @available(iOS 14.0, macOS 11.0, tvOS 14.0, *)
+    @available(macOS 11.0, *)
     public var isiOSAppOnMac: Bool {
         return overrides.isiOSAppOnMac ?? ProcessInfo.processInfo.isiOSAppOnMac
     }
 
-    @available(iOS 13.0, macOS 10.15, tvOS 13.0, *)
+    @available(macOS 11.0, *)
     public var isMacCatalystApp: Bool {
         return overrides.isMacCatalystApp ?? ProcessInfo.processInfo.isMacCatalystApp
     }
