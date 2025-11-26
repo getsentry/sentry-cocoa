@@ -98,6 +98,7 @@ struct SentryMXFrame: Codable {
         result.type = SentryDebugImageType
         result.debugID = binaryUUID.uuidString
         result.codeFile = binaryName
+        result.imageAddress = sentry_formatHexAddressUInt64Swift(address - UInt64(offsetIntoBinaryTextSegment))
         return [result] + (subFrames?.flatMap { $0.toDebugMeta() } ?? [])
     }
 }
