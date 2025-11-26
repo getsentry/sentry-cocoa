@@ -26,7 +26,6 @@
 #import "SentrySwiftAsyncIntegration.h"
 #import "SentryTransactionContext.h"
 #import "SentryUseNSExceptionCallstackWrapper.h"
-#import "SentryUserFeedbackIntegration.h"
 
 #if SENTRY_HAS_UIKIT
 #    import "SentryAppStartTrackingIntegration.h"
@@ -34,7 +33,6 @@
 #    import "SentryPerformanceTrackingIntegration.h"
 #    import "SentryScreenshotIntegration.h"
 #    import "SentryUIEventTrackingIntegration.h"
-#    import "SentryUserFeedbackIntegration.h"
 #    import "SentryViewHierarchyIntegration.h"
 #    import "SentryWatchdogTerminationTrackingIntegration.h"
 #endif // SENTRY_HAS_UIKIT
@@ -535,10 +533,6 @@ static NSDate *_Nullable startTimestamp = nil;
         [SentryFileIOTrackingIntegration class], [SentryNetworkTrackingIntegration class],
         [SentrySwiftAsyncIntegration class], nil];
 
-#if TARGET_OS_IOS && SENTRY_HAS_UIKIT
-    [defaultIntegrations addObject:[SentryUserFeedbackIntegration class]];
-#endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
-
 #if SENTRY_HAS_METRIC_KIT
     [defaultIntegrations addObject:[SentryMetricKitIntegration class]];
 #endif // SENTRY_HAS_METRIC_KIT
@@ -567,7 +561,7 @@ static NSDate *_Nullable startTimestamp = nil;
             continue;
         }
 
-        id<SentryIntegrationProtocol> integrationInstance = [[integrationClass alloc] init];
+        id<SentryObjCIntegrationProtocol> integrationInstance = [[integrationClass alloc] init];
         BOOL shouldInstall = [integrationInstance installWithOptions:options];
         if (shouldInstall) {
             SENTRY_LOG_DEBUG(@"Integration installed: %@", NSStringFromClass(integrationClass));
@@ -576,6 +570,7 @@ static NSDate *_Nullable startTimestamp = nil;
                                    name:NSStringFromClass(integrationClass)];
         }
     }
+    [SentrySwiftIntegrationInstaller installWith:options];
 }
 
 + (void)reportFullyDisplayed
