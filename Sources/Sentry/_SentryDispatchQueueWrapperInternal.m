@@ -113,11 +113,16 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (BOOL)isCurrentQueue
 {
-    // Use dispatch_get_specific with the instance address as a unique context pointer
-    // instead of comparing queue labels, as labels are not guaranteed to be unique
-    // and can cause false positives leading to data races.
     void *key = (__bridge void *)self;
     return dispatch_get_specific(key) == key;
+}
+
+- (void)dealloc
+{
+    if (_queue != NULL) {
+        void *key = (__bridge void *)self;
+        dispatch_queue_set_specific(_queue, key, NULL, NULL);
+    }
 }
 
 @end
