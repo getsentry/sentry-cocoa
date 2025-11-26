@@ -40,12 +40,18 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)appStateManagerWillResignActive
 {
-    [[SentrySDKInternal.currentHub getClient] flushLogs];
+    SentryClientInternal *client = [SentrySDKInternal.currentHub getClient];
+    if (client != nil) {
+        [client flushLogs];
+    }
 }
 
 - (void)appStateManagerWillTerminate
 {
-    [[SentrySDKInternal.currentHub getClient] flushLogs];
+    SentryClientInternal *client = [SentrySDKInternal.currentHub getClient];
+    if (client != nil) {
+        [client flushLogs];
+    }
 }
 
 @end
