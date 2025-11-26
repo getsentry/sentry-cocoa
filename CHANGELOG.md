@@ -5,6 +5,7 @@
 ### Fixes
 
 - Fix UIWindow being possibly accessed from a background thread in SentryCrashWrapper (#6905)
+- Ensure SentrySDK.close resets everything on the main thread (#6907)
 
 ## 9.0.0-rc.1
 
