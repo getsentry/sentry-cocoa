@@ -67,7 +67,7 @@ extension SentryApplication {
                 return
             }
             
-            size = window.bounds.size
+            size = window.screen.bounds.size
         }, timeout: 0.01)
         return size
     }
