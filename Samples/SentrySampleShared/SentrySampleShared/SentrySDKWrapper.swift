@@ -29,6 +29,14 @@ public struct SentrySDKWrapper {
         if !SentrySDKOverrides.Special.skipSDKInit.boolValue {
             SentrySDK.start(configureOptions: configureSentryOptions(options:))
         }
+
+        let tracer = SentrySDK.startTransaction(name: "test", operation: "test")
+        tracer.setTag(value: "my-transaction-value", key: "my-transaction-key")
+        let child = tracer.startChild(operation: "nested-1")
+        child.setTag(value: "my-span-value", key: "my-span-key")
+        sleep(1)
+        child.finish()
+        tracer.finish()
     }
 
     func configureSentryOptions(options: Options) {
@@ -38,10 +46,12 @@ public struct SentrySDKWrapper {
         }
         options.beforeSend = {
             guard !SentrySDKOverrides.Events.rejectAll.boolValue else { return nil }
+            print("Before Send:", $0.tags!)
             return $0
         }
         options.beforeSendSpan = {
             guard !SentrySDKOverrides.Other.rejectAllSpans.boolValue else { return nil }
+            print("Before Send Span:", $0.tags)
             return $0
         }
         options.beforeCaptureScreenshot = { _ in !SentrySDKOverrides.Other.rejectScreenshots.boolValue }
