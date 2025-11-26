@@ -1004,22 +1004,4 @@ class SentrySDKWithSetupTests: XCTestCase {
         wait(for: [expectation], timeout: 5.0)
     }
 }
-
-public class MainThreadTestIntegration: NSObject, SentryIntegrationProtocol {
-
-    public let expectation = XCTestExpectation(description: "MainThreadTestIntegration installed")
-
-    public func install(with options: Options) -> Bool {
-        print("[Sentry] [TEST] [\(#file):\(#line) starting install.")
-        dispatchPrecondition(condition: .onQueue(.main))
-
-        expectation.fulfill()
-
-        return true
-    }
-
-    public func uninstall() {
-
-    }
-}
 // swiftlint:enable file_length
