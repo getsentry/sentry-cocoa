@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Improvements
+
+- Flush Logs on `WillTerminate` or `WillResignActive` App State (#6909)
+
 ## 9.0.0-rc.1
 
 ### Breaking Changes

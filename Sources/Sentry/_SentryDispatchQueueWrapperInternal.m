@@ -20,6 +20,8 @@ NS_ASSUME_NONNULL_BEGIN
 {
     if (self = [super init]) {
         _queue = dispatch_queue_create(name, attributes);
+        void *key = (__bridge void *)self;
+        dispatch_queue_set_specific(_queue, key, key, NULL);
     }
     return self;
 }
@@ -32,6 +34,8 @@ NS_ASSUME_NONNULL_BEGIN
         dispatch_queue_attr_t attributes = dispatch_queue_attr_make_with_qos_class(
             DISPATCH_QUEUE_SERIAL, QOS_CLASS_UTILITY, relativePriority);
         _queue = dispatch_queue_create(name, attributes);
+        void *key = (__bridge void *)self;
+        dispatch_queue_set_specific(_queue, key, key, NULL);
     }
     return self;
 }
@@ -105,6 +109,15 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)dispatchOnce:(dispatch_once_t *)predicate block:(void (^)(void))block
 {
     dispatch_once(predicate, block);
+}
+
+- (BOOL)isCurrentQueue
+{
+    // Use dispatch_get_specific with the instance address as a unique context pointer
+    // instead of comparing queue labels, as labels are not guaranteed to be unique
+    // and can cause false positives leading to data races.
+    void *key = (__bridge void *)self;
+    return dispatch_get_specific(key) == key;
 }
 
 @end

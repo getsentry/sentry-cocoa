@@ -115,11 +115,8 @@ import Foundation
     @_spi(Private) @objc public func captureLogs() -> TimeInterval {
         let startTimeNs = SentryDefaultCurrentDateProvider.getAbsoluteTime()
         
-        // Guard against sync call deadlock when we are already on the dispatchQueue queue.
-        let currentQueueLabel = String(validatingUTF8: __dispatch_queue_get_label(nil)) ?? ""
-        let targetQueueLabel = dispatchQueue.queue.label
-        
-        if currentQueueLabel == targetQueueLabel {
+        // Guard against sync call deadlock when we are already on the dispatchQueue.queue.
+        if dispatchQueue.isCurrentQueue() {
             performCaptureLogs()
         } else {
             dispatchQueue.dispatchSync { [weak self] in
