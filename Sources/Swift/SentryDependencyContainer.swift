@@ -141,7 +141,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
         if let manager = _metricKitManager as? SentryMXManager {
             return manager
         }
-        let manager = SentryMXManager(disableCrashDiagnostics: true)
+        let manager = SentryMXManager(disableCrashDiagnostics: false)
         _metricKitManager = manager as AnyObject
         return manager
     }

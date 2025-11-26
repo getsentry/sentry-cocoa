@@ -406,6 +406,10 @@ API_AVAILABLE(macos(12.0))
 
 - (void)captureEvent:(SentryEvent *)event withDiagnosticJSON:(NSData *)diagnosticJSON
 {
+    if (event.debugMeta == nil || event.debugMeta.count == 0) {
+        return;
+    }
+
     if (self.attachDiagnosticAsAttachment) {
         [SentrySDK captureEvent:event
                  withScopeBlock:^(SentryScope *_Nonnull scope) {
@@ -506,9 +510,6 @@ API_AVAILABLE(macos(12.0))
         debugMeta.type = SentryDebugImageType;
         debugMeta.debugID = binaryUUID;
         debugMeta.codeFile = mxFrame.binaryName;
-
-        uint64_t imageAddress = mxFrame.address - mxFrame.offsetIntoBinaryTextSegment;
-        debugMeta.imageAddress = sentry_formatHexAddressUInt64(imageAddress);
 
         debugMetas[binaryUUID] = debugMeta;
     }
