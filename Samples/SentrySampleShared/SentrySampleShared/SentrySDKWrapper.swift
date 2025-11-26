@@ -29,14 +29,6 @@ public struct SentrySDKWrapper {
         if !SentrySDKOverrides.Special.skipSDKInit.boolValue {
             SentrySDK.start(configureOptions: configureSentryOptions(options:))
         }
-
-        let tracer = SentrySDK.startTransaction(name: "test", operation: "test")
-        tracer.setTag(value: "my-transaction-value", key: "my-transaction-key")
-        let child = tracer.startChild(operation: "nested-1")
-        child.setTag(value: "my-span-value", key: "my-span-key")
-        sleep(1)
-        child.finish()
-        tracer.finish()
     }
 
     func configureSentryOptions(options: Options) {
@@ -46,18 +38,10 @@ public struct SentrySDKWrapper {
         }
         options.beforeSend = {
             guard !SentrySDKOverrides.Events.rejectAll.boolValue else { return nil }
-            print("Before Send:", $0.tags!) // Read --> Prints:  ["my-transaction-key": "my-transaction-value", "language": "swift", "git-commit-hash": "acfeec352-dirty", "git-branch-name": "philprime/beforesend-transactions"]
-//            $0.tags?["another-key"] = "another-value"        // Add
-//            $0.tags?["my-transaction-key"] = "changed-value" // Modify
-//            $0.tags?["git-branch-name"] = nil           // Delete
-            $0.tags = [
-                "foo": "bar"
-            ]
             return $0
         }
         options.beforeSendSpan = {
             guard !SentrySDKOverrides.Other.rejectAllSpans.boolValue else { return nil }
-            print("Before Send Span:", $0.tags)
             return $0
         }
         options.beforeCaptureScreenshot = { _ in !SentrySDKOverrides.Other.rejectScreenshots.boolValue }
