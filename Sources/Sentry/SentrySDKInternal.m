@@ -526,16 +526,12 @@ static NSDate *_Nullable startTimestamp = nil;
         [SentryAppStartTrackingIntegration class], [SentryFramesTrackingIntegration class],
         [SentryPerformanceTrackingIntegration class], [SentryUIEventTrackingIntegration class],
         [SentryViewHierarchyIntegration class],
-        [SentryWatchdogTerminationTrackingIntegration class],
+        [SentryWatchdogTerminationTrackingIntegration class], [SentryLogFlushIntegration class],
 #endif // SENTRY_HAS_UIKIT
 #if SENTRY_TARGET_REPLAY_SUPPORTED
         [SentryScreenshotIntegration class],
 #endif // SENTRY_TARGET_REPLAY_SUPPORTED
-        [SentryANRTrackingIntegration class],
-#if SENTRY_HAS_UIKIT
-        [SentryLogFlushIntegration class],
-#endif // SENTRY_HAS_UIKIT
-        [SentryAutoBreadcrumbTrackingIntegration class],
+        [SentryANRTrackingIntegration class], [SentryAutoBreadcrumbTrackingIntegration class],
         [SentryAutoSessionTrackingIntegration class], [SentryCoreDataTrackingIntegration class],
         [SentryFileIOTrackingIntegration class], [SentryNetworkTrackingIntegration class],
         [SentrySwiftAsyncIntegration class], nil];
