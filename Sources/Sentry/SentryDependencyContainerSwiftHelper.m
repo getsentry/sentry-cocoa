@@ -13,10 +13,12 @@
     return [SentryDependencyContainer.sharedInstance.application getWindows];
 }
 
+#    if TARGET_OS_IOS || TARGET_OS_TV
 + (CGSize)activeScreenSize
 {
     return [SentryDependencyContainer.sharedInstance.application getActiveWindowSize];
 }
+#    endif // TARGET_OS_IOS || TARGET_OS_TV
 
 #endif // SENTRY_HAS_UIKIT
 
