@@ -3525,7 +3525,7 @@
 		7B944FA924697E9700A10721 /* Integrations */ = {
 			isa = PBXGroup;
 			children = (
-				927D21F42ED5DE7800916D31 /* Logs */,
+				927D21F42ED5DE7800916D31 /* Log */,
 				843FB3422D156B9900558F18 /* Feedback */,
 				7BF6505D292B77D100BBA5A8 /* MetricKit */,
 				D808FB85281AB2EF009A2A33 /* UIEvents */,
@@ -4225,12 +4225,12 @@
 			path = AppState;
 			sourceTree = "<group>";
 		};
-		927D21F42ED5DE7800916D31 /* Logs */ = {
+		927D21F42ED5DE7800916D31 /* Log */ = {
 			isa = PBXGroup;
 			children = (
 				927D21FA2ED5DE7F00916D31 /* SentryLogFlushIntegrationTests.swift */,
 			);
-			path = Logs;
+			path = Log;
 			sourceTree = "<group>";
 		};
 		D4009EA02D77196F0007AF30 /* ViewCapture */ = {
