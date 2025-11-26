@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Breaking Changes
+
+- Change the `http.response.status_code` for spans to int (#6896)
+
 ## 9.0.0-rc.1
 
 ### Breaking Changes
@@ -47,7 +53,6 @@
 - The Package.swift has swift-tools-version set to 6.0 (#6764)
 - Converts the `SentryLevel` enum to be written in ObjC (#6802)
 - Removes SentryEnvelopeItemHeader from the public API (#6870)
-- Change the `http.response.status_code` for spans to int (#6896)
 
 ### Features
 
