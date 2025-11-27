@@ -5,6 +5,7 @@
 ### Feature
 
 - Add options to customize UserFeedback error messages (#6790)
+
 ### Fixes
 
 - Ensure SentrySDK.close resets everything on the main thread (#6907)
