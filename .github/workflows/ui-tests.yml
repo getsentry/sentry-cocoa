@@ -136,7 +136,7 @@ jobs:
             platform: "iOS"
             device: iPhone 16 Pro
 
-          # iOS 26 - Download iOS 26.1 beta runtime on macOS-26
+          # iOS 26 - Use pre-installed iOS 26.1 runtime on macOS-26
           - job_id: ios_26
             name: iOS 26
             runs_on: tahoe
