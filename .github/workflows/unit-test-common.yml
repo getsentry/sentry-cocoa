@@ -85,8 +85,6 @@ jobs:
         run: gem install slather
 
       # Install platform runtimes that are not included by default
-      # For iOS 16.4: Not included with Xcode 15.4 on macOS-14 (macOS-13 sunset)
-      # For iOS/tvOS 26.1: Beta platforms not included by default
       - name: Install required platforms
         if: ${{ inputs.install_platforms }}
         env:
