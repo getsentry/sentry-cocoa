@@ -86,13 +86,13 @@ extension SentryUserFeedbackFormController: SentryUserFeedbackFormViewModelDeleg
                 }
             }
             
-            guard case let SentryUserFeedbackFormViewModel.InputError.validationError(missing) = error else {
+            guard case let SentryUserFeedbackFormViewModel.InputError.validationError(missing, _) = error else {
                 SentrySDKLog.warning("Unexpected error type.")
                 presentAlert(message: config.formConfig.unexpectedErrorText, errorCode: 2, info: [NSLocalizedDescriptionKey: "Client error: ."])
                 return
             }
             
-            presentAlert(message: error.getDescription(formConfig: config.formConfig), errorCode: 1, info: ["missing_fields": missing, NSLocalizedDescriptionKey: "The user did not complete the feedback form."])
+            presentAlert(message: error.description, errorCode: 1, info: ["missing_fields": missing, NSLocalizedDescriptionKey: "The user did not complete the feedback form."])
         }
     }
     

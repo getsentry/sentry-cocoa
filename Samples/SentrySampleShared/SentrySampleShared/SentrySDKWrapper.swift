@@ -290,7 +290,7 @@ extension SentrySDKWrapper {
         config.nameLabel = "Thy name"
         config.unexpectedErrorText = "Santry doesn't know how to process this error"
         config.validationErrorMessage = { multipleErrors in
-            return "You got \(multipleErrors ? "many" : "a" ) error\(multipleErrors ? "s" : "") in this form:"
+            return "You got \(multipleErrors ? "many" : "an" ) error\(multipleErrors ? "s" : "") in this form:"
         }
     }
 
