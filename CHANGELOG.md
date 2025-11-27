@@ -5,8 +5,6 @@
 ### Features
 
 - Add attributes data to `SentryScope` (#6830)
-### Feature
-
 - Add options to customize UserFeedback error messages (#6790)
 
 ### Fixes
