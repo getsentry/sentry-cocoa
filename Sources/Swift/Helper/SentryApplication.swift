@@ -23,6 +23,10 @@ import UIKit
  */
     func getWindows() -> [UIWindow]?
     
+#if (os(iOS) || os(tvOS))
+    func getActiveWindowSize() -> CGSize
+#endif // os(iOS) || os(tvOS)
+    
     var connectedScenes: Set<UIScene> { get }
 
     var delegate: UIApplicationDelegate? { get }
