@@ -34,27 +34,21 @@
 
 @implementation SentryCrashDebug_Tests
 
-- (void)testIsBeingTraced_UsesSENTRY_STRERROR_R_ForSysctlFailure
-{
-    // -- Arrange --
-    // This test verifies that sentrycrashdebug_isBeingTraced uses SENTRY_STRERROR_R macro
-    // for error handling when sysctl fails.
-    //
-    // Note: We cannot easily force sysctl to fail in a test environment, but this test
-    // exercises the code path and documents that the error handling uses
-    // SENTRY_STRERROR_R(errno) to ensure thread-safe error message retrieval.
-
-    // -- Act --
-    // Call isBeingTraced which will attempt to query sysctl
-    // Under normal conditions, sysctl succeeds.
-    // If sysctl were to fail, the function would log using SENTRY_STRERROR_R(errno).
-    bool isTraced = sentrycrashdebug_isBeingTraced();
-
-    // -- Assert --
-    // Verify the function completes without crashing
-    // The result may be true or false depending on whether we're being debugged,
-    // but the function should work correctly in both cases
-    XCTAssertNoThrow(isTraced, @"isBeingTraced should complete without errors");
-}
+// Note: There is no test for the sysctl error handling path in sentrycrashdebug_isBeingTraced.
+// We attempted to create a test that verifies the error handling path when sysctl fails,
+// but we were unable to find a reliable way to force sysctl to fail in a test environment.
+//
+// Approaches Tried:
+// - Invalid mib array: The function uses a hardcoded mib array with valid parameters
+//   ({ CTL_KERN, KERN_PROC, KERN_PROC_PID, getpid() }), so we cannot pass invalid parameters.
+// - DYLD_INTERPOSE: Attempted to use function interposition to mock sysctl and force it to return
+//   an error. This approach doesn't work because DYLD_INTERPOSE only works for dynamically linked
+//   symbols, and sysctl calls may be statically linked or resolved before interposition.
+// - System resource limits: Attempted to use setrlimit or other restrictions, but these don't
+//   reliably cause sysctl to fail for this specific call.
+//
+// The error handling code path exists in the source code (lines 54-56 in SentryCrashDebug.c)
+// and correctly uses SENTRY_STRERROR_R(errno) when sysctl fails. The code change itself is correct
+// and verified through code review.
 
 @end
