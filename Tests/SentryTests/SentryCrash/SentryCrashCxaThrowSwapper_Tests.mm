@@ -312,7 +312,7 @@ testExceptionHandlerNoOp(
 {
     // Arrange
     // This test verifies that sentrycrashct_swap_cxa_throw uses SENTRY_STRERROR_R macro
-    // for error handling when malloc fails (line 369 in SentryCrashCxaThrowSwapper.c).
+    // for error handling when malloc fails.
     // The function should return -1 and log the error using the thread-safe strerror_r.
     //
     // Note: We cannot easily force malloc to fail in a test environment, but this test
@@ -362,9 +362,9 @@ testExceptionHandlerNoOp(
     // sentrycrashct_swap_cxa_throw and sentrycrashct_unswap_cxa_throw) uses SENTRY_STRERROR_R
     // macro for error handling when mprotect fails.
     //
-    // The function uses SENTRY_STRERROR_R in two places:
-    // 1. Line 203: When mprotect fails to set PROT_READ | PROT_WRITE for SEG_DATA_CONST sections
-    // 2. Line 260: When mprotect fails to restore protection for SEG_DATA_CONST sections
+    // The function uses SENTRY_STRERROR_R in two code paths:
+    // 1. When mprotect fails to set PROT_READ | PROT_WRITE for SEG_DATA_CONST sections
+    // 2. When mprotect fails to restore protection for SEG_DATA_CONST sections
     //
     // Note: perform_rebinding_with_section is a static function, so we test it indirectly
     // through swap/unswap operations. We cannot easily force mprotect to fail in a test
