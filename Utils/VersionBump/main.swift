@@ -22,6 +22,7 @@ enum FileError: Error, ErrorHandling {
 
 enum VersionError: Error, ErrorHandling {
     case versionNotFound(String)
+    case versionNotFoundInCarthage(String, String)
     case versionMismatch(String, String)
     
     var message: String {
@@ -30,6 +31,8 @@ enum VersionError: Error, ErrorHandling {
             return "No version found for \(file)"
         case .versionMismatch(let file, let versionFound):
             return "Unexpected version \(versionFound) found for file \(file)"
+        case .versionNotFoundInCarthage(let file, let version):
+            return "No version \(version) found in \(file) Carthage JSON file"
         }
     }
 }
@@ -51,6 +54,15 @@ let restrictFiles = [
     "./Sources/Configuration/SDK.xcconfig",
     "./Sources/Configuration/Versioning.xcconfig",
     "./Sources/Configuration/SentrySwiftUI.xcconfig"
+]
+
+let carthageFiles = [
+    "./Sentry-Dynamic-WithARM64e.json",
+    "./Sentry-Dynamic.json",
+    "./Sentry-WithoutUIKitOrAppKit-WithARM64e.json",
+    "./Sentry-WithoutUIKitOrAppKit.json",
+    "./Sentry.json",
+    "./SentrySwiftUI.json"
 ]
 
 let args = CommandLine.arguments
@@ -79,6 +91,10 @@ func updateVersionInFiles() throws {
         for file in files {
             try updateVersion(file, fromVersion, toVersion)
         }
+
+        for file in carthageFiles {
+            try createNewCarthageVersion(file, toVersion)
+        }
         
         fromVersion = extractVersionOnly(fromVersion)
         toVersion = extractVersionOnly(toVersion)
@@ -99,6 +115,62 @@ func updateVersion(_ file: String, _ fromVersion: String, _ toVersion: String) t
     overwriteFile.close()
 }
 
+func createNewCarthageVersion(_ file: String, _ toVersion: String) throws {
+    let readFile = try open(file)
+    let contents: String = readFile.read()
+    
+    // Parse the JSON as [String: String]
+    guard let jsonData = contents.data(using: .utf8) else {
+        throw FileError.unknownFile("Could not convert file contents to data")
+    }
+    
+    var versionDict = try JSONSerialization.jsonObject(with: jsonData, options: []) as? [String: String] ?? [:]
+    
+    // Extract the filename to construct the URL
+    let fileName = (file as NSString).lastPathComponent.replacingOccurrences(of: ".json", with: "")
+    let newURL = "https://github.com/getsentry/sentry-cocoa/releases/download/\(toVersion)/\(fileName).xcframework.zip"
+    
+    // Add the new version
+    versionDict[toVersion] = newURL
+    
+    // Sort by version keys
+    let sortedKeys = versionDict.keys.sorted { compareVersions($0, $1) }
+    let sortedDict = sortedKeys.reduce(into: [:]) { result, key in
+        result[key] = versionDict[key]
+    }
+    
+    // Use JSONEncoder with pretty printing and without escaping slashes
+    let encoder = JSONEncoder()
+    encoder.outputFormatting = [.prettyPrinted, .sortedKeys, .withoutEscapingSlashes]
+    let outputData = try encoder.encode(sortedDict)
+    guard let jsonString = String(data: outputData, encoding: .utf8) else {
+        throw FileError.unknownFile("Could not convert JSON data to string")
+    }
+    
+    // Write back to file
+    let overwriteFile = try! open(forWriting: file, overwrite: true)
+    overwriteFile.write(jsonString)
+    overwriteFile.close()
+}
+
+func compareVersions(_ v1: String, _ v2: String) -> Bool {
+    let parts1 = v1.split(separator: ".").compactMap { Int($0) }
+    let parts2 = v2.split(separator: ".").compactMap { Int($0) }
+    
+    let maxLength = max(parts1.count, parts2.count)
+    
+    for i in 0..<maxLength {
+        let p1 = i < parts1.count ? parts1[i] : 0
+        let p2 = i < parts2.count ? parts2[i] : 0
+        
+        if p1 != p2 {
+            return p1 < p2
+        }
+    }
+    
+    return false
+}
+
 func extractVersionOnly(_ version: String) -> String {
     guard let indexOfHypen = version.firstIndex(of: "-") else { return version }
     return String(version.prefix(upTo: indexOfHypen))
@@ -111,6 +183,14 @@ func verifyVersionInFiles(_ expectedVersion: String) throws {
     for file in files {
         do {
             try verifyFile(file, expectedVersion)
+        } catch let error as ErrorHandling {
+            errors.append(error.message)
+        }
+    }
+
+    for file in carthageFiles {
+        do {
+            try verifyCarthageFile(file, expectedVersion: expectedVersion)
         } catch let error as ErrorHandling {
             errors.append(error.message)
         }
@@ -171,6 +251,22 @@ func verifyRestrictedFile(_ file: String, expectedVersion: String) throws {
     }
     
     print("\(file) validated to have the correct version: \(version)")
+}
+
+func verifyCarthageFile(_ file: String, expectedVersion: String) throws {
+    let readFile = try open(file)
+    let contents: String = readFile.read()
+    guard let jsonData = contents.data(using: .utf8) else {
+        throw FileError.unknownFile("Could not convert file contents to data")
+    }
+    
+    let versionDict = try JSONSerialization.jsonObject(with: jsonData, options: []) as? [String: String] ?? [:]
+    
+    guard versionDict[expectedVersion] != nil else {
+        throw VersionError.versionNotFoundInCarthage(file, expectedVersion)
+    }
+
+    print("\(file) validated to contain the correct version: \(expectedVersion)")
 }
 
 func getRegexString(for file: String) throws -> String {

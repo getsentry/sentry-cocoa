@@ -3,6 +3,7 @@ import PackageDescription
 
 let package = Package(
     name: "VersionBump",
+    platforms: [.macOS(.v11)],
     products: [
         .executable(name: "VersionBump", targets: ["VersionBump"])
     ],

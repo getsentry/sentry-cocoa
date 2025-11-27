@@ -1,0 +1,5 @@
+{
+  "8.57.3": "https://github.com/getsentry/sentry-cocoa/releases/download/8.57.3/Sentry-WithoutUIKitOrAppKit-WithARM64e.xcframework.zip",
+  "9.0.0-rc.0": "https://github.com/getsentry/sentry-cocoa/releases/download/9.0.0-rc.0/Sentry-WithoutUIKitOrAppKit-WithARM64e.xcframework.zip",
+  "9.0.0-rc.1": "https://github.com/getsentry/sentry-cocoa/releases/download/9.0.0-rc.1/Sentry-WithoutUIKitOrAppKit-WithARM64e.xcframework.zip"
+}
