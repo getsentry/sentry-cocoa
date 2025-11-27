@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-### Improvements
+### Feature
 
 - Add options to customize UserFeedback error messages (#6790)
 
