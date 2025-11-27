@@ -22,6 +22,65 @@ NS_ASSUME_NONNULL_BEGIN
     return self;
 }
 
+- (nullable NSDictionary<NSString *, NSString *> *)tags
+{
+    if (self.trace == nil) {
+        // Fallback to superclass if trace is nil (shouldn't happen for valid transactions)
+        return [super tags];
+    }
+
+    // Merge event tags and tracer tags (tracer tags take precedence)
+    NSDictionary<NSString *, NSString *> *eventTags = [super tags] ?: @{};
+    NSDictionary<NSString *, NSString *> *tracerTags = self.trace.tags ?: @{};
+
+    // Merge both, with tracer tags taking precedence
+    // Note: We return a mutable dictionary copy (though declared as NSDictionary *).
+    //
+    // Swift behavior:
+    //   When Swift code does: transaction.tags?["key"] = "value"
+    //   Swift expands this to: get tags, modify copy, call setter with modified copy.
+    //   So the setter IS called automatically, which is why modifications persist.
+    //
+    // Objective-C behavior:
+    //   In Objective-C, modifying the returned dictionary directly does NOT persist:
+    //     NSMutableDictionary *tags = transaction.tags;
+    //     tags[@"key"] = @"value";  // Modifies local copy only!
+    //   To persist changes in Objective-C, you must explicitly call the setter:
+    //     transaction.tags = tags;  // Now changes persist
+    NSMutableDictionary<NSString *, NSString *> *merged =
+        [NSMutableDictionary dictionaryWithDictionary:eventTags];
+    [merged addEntriesFromDictionary:tracerTags];
+    return merged;
+}
+
+- (void)setTags:(NSDictionary<NSString *, NSString *> *_Nullable)tags
+{
+    if (self.trace == nil) {
+        // Fallback to superclass if trace is nil (shouldn't happen for valid transactions)
+        [super setTags:tags];
+        return;
+    }
+
+    // Remove all existing tags from the tracer
+    NSDictionary<NSString *, NSString *> *currentTracerTags = self.trace.tags;
+    for (NSString *key in currentTracerTags.allKeys) {
+        [self.trace removeTagForKey:key];
+    }
+
+    // Clear event tags on the event
+    [super setTags:nil];
+
+    // Set all new tags on the tracer (transaction tags belong on tracer)
+    if (tags != nil) {
+        for (NSString *key in tags.allKeys) {
+            NSString *value = tags[key];
+            if (value != nil) {
+                [self.trace setTagValue:value forKey:key];
+            }
+        }
+    }
+}
+
 - (NSDictionary<NSString *, id> *)serialize
 {
     NSMutableDictionary<NSString *, id> *serializedData =

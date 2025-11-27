@@ -292,6 +292,10 @@ extension SentrySDKWrapper {
         config.messageLabel = "Thy complaint"
         config.emailLabel = "Thine email"
         config.nameLabel = "Thy name"
+        config.unexpectedErrorText = "Santry doesn't know how to process this error"
+        config.validationErrorMessage = { multipleErrors in
+            return "You got \(multipleErrors ? "many" : "an" ) error\(multipleErrors ? "s" : "") in this form:"
+        }
     }
 
     func configureFeedbackTheme(config: SentryUserFeedbackThemeConfiguration) {
