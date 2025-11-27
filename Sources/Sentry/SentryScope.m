@@ -491,10 +491,9 @@ NS_ASSUME_NONNULL_BEGIN
     @synchronized(_attributesDictionary) {
         _attributesDictionary[key] = value;
 
-        // ScopeObservers are not called since at this moment attributes are only used for Logs,
-        // which are stored in memory, thus do not need to be stored in processor like
-        // WatchdogTermination events do. Attributes might be added to Crashes in a later time,
-        // which will need to revisit this.
+        for (id<SentryScopeObserver> observer in self.observers) {
+            [observer setAttributes:_attributesDictionary];
+        }
     }
 }
 
@@ -503,10 +502,9 @@ NS_ASSUME_NONNULL_BEGIN
     @synchronized(_attributesDictionary) {
         [_attributesDictionary removeObjectForKey:key];
 
-        // ScopeObservers are not called since at this moment attributes are only used for Logs,
-        // which are stored in memory, thus do not need to be stored in processor like
-        // WatchdogTermination events do. Attributes might be added to Crashes in a later time,
-        // which will need to revisit this.
+        for (id<SentryScopeObserver> observer in self.observers) {
+            [observer setAttributes:_attributesDictionary];
+        }
     }
 }
 

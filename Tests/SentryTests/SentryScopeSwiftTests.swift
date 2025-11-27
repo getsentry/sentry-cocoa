@@ -567,6 +567,24 @@ class SentryScopeSwiftTests: XCTestCase {
         XCTAssertEqual(level, observer.level)
     }
     
+    func testScopeObserver_setAttributes() {
+        let sut = Scope()
+        let observer = fixture.observer
+        sut.add(observer)
+        
+        sut.setAttribute(value: "my-attribute", key: "key-string")
+        sut.setAttribute(value: false, key: "key-bool")
+        sut.setAttribute(value: 1.5, key: "key-double")
+        sut.setAttribute(value: 4, key: "key-integer")
+        
+        XCTAssertEqual([
+            "key-string": "my-attribute",
+            "key-bool": false,
+            "key-double": 1.5,
+            "key-integer": 4
+        ] as [String: AnyHashable], try XCTUnwrap(sut.attributes as? [String: AnyHashable]))
+    }
+    
     func testScopeObserver_addBreadcrumb() {
         let sut = Scope()
         let observer = fixture.observer
@@ -989,6 +1007,11 @@ class SentryScopeSwiftTests: XCTestCase {
         var user: User?
         func setUser(_ user: User?) {
             self.user = user
+        }
+        
+        var attributes: [String: Any]?
+        func setAttributes(_ attributes: [String: Any]?) {
+            self.attributes = attributes
         }
     }
 }
