@@ -183,7 +183,7 @@ class SentryFeedbackTests: XCTestCase {
         (config: (requiresName: true, requiresEmail: true, nameInput: "tester", emailInput: "test@email.value", messageInput: "Test message", includeScreenshot: true), shouldValidate: true, expectedSubmitButtonAccessibilityHint: "Will submit feedback for tester at test@email.value including attached screenshot with message: Test message.")
     ]
     
-    func testSubmitButtonAccessibilityHint() {
+    func testSubmitButtonAccessibilityHint() throws {
         for input in inputCombinations {
             let config = SentryUserFeedbackConfiguration()
             config.configureForm = {
@@ -204,7 +204,8 @@ class SentryFeedbackTests: XCTestCase {
                 XCTAssert(input.shouldValidate)
                 XCTAssertEqual(hint, input.expectedSubmitButtonAccessibilityHint, testCaseDescription())
             case .failure(let error):
-                XCTAssertFalse(input.shouldValidate, try XCTUnwrap(error.errorDescription) + "; " + testCaseDescription())
+                let errorDescription = try XCTUnwrap(error.errorDescription)
+                XCTAssertFalse(input.shouldValidate, errorDescription + "; " + testCaseDescription())
             }
 
         }
