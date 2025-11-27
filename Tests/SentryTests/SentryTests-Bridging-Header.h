@@ -1,5 +1,7 @@
 #import "SentryDefines.h"
 
+#import "SentryLaunchProfiling+Tests.h"
+
 #if SENTRY_HAS_METRIC_KIT
 #    import "SentryMetricKitIntegration.h"
 #endif // SENTRY_HAS_METRIC_KIT
@@ -20,7 +22,6 @@
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 #    import "SentryContinuousProfiler+Test.h"
 #    import "SentryContinuousProfiler.h"
-#    import "SentryLaunchProfiling+Tests.h"
 #    import "SentryMetricProfiler.h"
 #    import "SentryProfiler+Private.h"
 #    import "SentryProfilerDefines.h"

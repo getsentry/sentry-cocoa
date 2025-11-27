@@ -42,8 +42,6 @@
     if (self.environment != session.environment
         && ![self.environment isEqualToString:session.environment])
         return NO;
-    if (self.user != session.user && ![self.user isEqual:session.user])
-        return NO;
     if (self.flagInit != session.flagInit && ![self.flagInit isEqualToNumber:session.flagInit])
         return NO;
     return YES;
@@ -63,7 +61,6 @@
     hash = hash * 23 + [self.timestamp hash];
     hash = hash * 23 + [self.releaseName hash];
     hash = hash * 23 + [self.environment hash];
-    hash = hash * 23 + [self.user hash];
 
     return hash;
 }
