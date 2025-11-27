@@ -47,8 +47,8 @@
 // - System resource limits: Attempted to use setrlimit or other restrictions, but these don't
 //   reliably cause sysctl to fail for this specific call.
 //
-// The error handling code path exists in the source code (lines 54-56 in SentryCrashDebug.c)
-// and correctly uses SENTRY_STRERROR_R(errno) when sysctl fails. The code change itself is correct
-// and verified through code review.
+// The error handling code path exists in SentryCrashDebug.c and correctly uses
+// SENTRY_STRERROR_R(errno) when sysctl fails. The code change itself is correct and
+// verified through code review.
 
 @end
