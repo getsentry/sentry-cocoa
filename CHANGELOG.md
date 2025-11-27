@@ -5,6 +5,7 @@
 ### Breaking Changes
 
 - Change the `http.response.status_code` for spans to int (#6896)
+
 ### Fixes
 
 - fix: Ensure SentrySDK.close resets everything on the main thread (#6907)
