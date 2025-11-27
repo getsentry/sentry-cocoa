@@ -8,7 +8,8 @@
 
 ### Fixes
 
-- fix: Ensure SentrySDK.close resets everything on the main thread (#6907)
+- Ensure SentrySDK.close resets everything on the main thread (#6907)
+- Allow transaction tags to be accessed and modified in `beforeSend` (#6910)
 
 ## 9.0.0-rc.1
 

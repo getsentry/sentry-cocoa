@@ -101,6 +101,14 @@ NS_SWIFT_NAME(Event)
 
 /**
  * Arbitrary key:value (string:string ) data that will be shown with the event.
+ *
+ * @note For @c SentryTransaction instances accessed in @c beforeSend callbacks, this property
+ * returns a merged dictionary of both event tags and tracer tags (with tracer tags taking
+ * precedence). Modifications to this dictionary persist when using Swift's dictionary subscript
+ * assignment (e.g., @c transaction.tags?["key"] = "value" ), which automatically calls the setter.
+ *
+ * In Objective-C, you must explicitly call the setter after modifying the dictionary to persist
+ * changes (e.g., @c transaction.tags = modifiedDict ).
  */
 @property (nonatomic, strong) NSDictionary<NSString *, NSString *> *_Nullable tags;
 
