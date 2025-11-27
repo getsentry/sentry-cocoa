@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Feature
+
+- Add options to customize UserFeedback error messages (#6790)
+
 ### Fixes
 
 - Fix UIWindow being possibly accessed from a background thread in SentryCrashWrapper (#6905)
