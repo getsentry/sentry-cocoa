@@ -1345,6 +1345,15 @@ updateDecoder_readFile(struct JSONFromFileContext *context)
             unlikely_if(bytesRead < fillLength)
             {
                 if (bytesRead < 0) {
+                    // Note: This error path cannot be reliably tested in a test environment.
+                    // The file descriptor is managed internally by sentrycrashjson_addJSONFromFile
+                    // and JSONFromFileContext is not exposed, so we cannot easily access the fd
+                    // from test callbacks to close it and force read() to fail. While we could
+                    // duplicate the logic from sentrycrashjson_addJSONFromFile with custom
+                    // callbacks, this would require significant code duplication and accessing
+                    // internal structures. The error handling code path exists and correctly uses
+                    // SENTRY_STRERROR_R(errno) to ensure thread-safe error message retrieval
+                    // (verified through code review).
                     SENTRY_ASYNC_SAFE_LOG_ERROR("Error reading file %s: %s",
                         context->sourceFilename, SENTRY_STRERROR_R(errno));
                 }
