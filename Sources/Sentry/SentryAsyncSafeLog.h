@@ -165,7 +165,6 @@ int sentry_asyncLogSetFileName(const char *filename, bool overwrite);
  * Thread-safe version of strerror using strerror_r.
  * On macOS/iOS, strerror_r follows XSI-compliant version which returns int.
  * This macro evaluates to a pointer to a buffer containing the error string.
- * Each macro expansion uses a local variable, making it thread-safe.
  *
  * The buffer size is defined by SENTRY_STRERROR_R_BUFFER_SIZE (1024 bytes, matching glibc).
  *
@@ -174,12 +173,18 @@ int sentry_asyncLogSetFileName(const char *filename, bool overwrite);
  * the value of the entire expression, allowing the macro to be used directly in function
  * calls like: SENTRY_ASYNC_SAFE_LOG_ERROR("Error: %s", SENTRY_STRERROR_R(errno));
  *
+ * IMPORTANT: Uses thread-local storage to ensure the pointer remains valid after the macro
+ * completes while maintaining thread safety. This is necessary because the macro is used
+ * as a function argument, and stack-allocated buffers would be deallocated before the
+ * function (e.g., vsnprintf) reads them. Thread-local storage ensures each thread has
+ * its own buffer, preventing race conditions.
+ *
  * @param ERRNUM The error number (e.g., errno).
- * @return Pointer to a thread-safe error string.
+ * @return Pointer to a thread-local buffer containing the error string.
  */
 #define SENTRY_STRERROR_R(ERRNUM)                                                                  \
     ({                                                                                             \
-        char __strerror_buf[SENTRY_STRERROR_R_BUFFER_SIZE];                                        \
+        static __thread char __strerror_buf[SENTRY_STRERROR_R_BUFFER_SIZE];                        \
         if (strerror_r((ERRNUM), __strerror_buf, sizeof(__strerror_buf)) != 0) {                   \
             snprintf(__strerror_buf, sizeof(__strerror_buf), "Unknown error %d", (ERRNUM));        \
         }                                                                                          \
