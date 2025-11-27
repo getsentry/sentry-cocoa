@@ -173,6 +173,7 @@ jobs:
       codecov_test_analytics: true
       device: iPhone 16 Pro
       test-destination-os: "18.4"
+      platform: "iOS"
       files_suffix: _swift6_-${{matrix.runner}}
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
