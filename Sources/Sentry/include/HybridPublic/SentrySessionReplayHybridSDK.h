@@ -4,10 +4,10 @@
 #    import "SentryDefines.h"
 #endif
 
-#if __has_include(<Sentry/SentrySessionReplayIntegration.h>)
-#    import <Sentry/SentrySessionReplayIntegration.h>
+#if __has_include(<Sentry/SentryLevel.h>)
+#    import <Sentry/SentryLevel.h>
 #else
-#    import "SentrySessionReplayIntegration.h"
+#    import "SentryLevel.h"
 #endif
 
 NS_ASSUME_NONNULL_BEGIN
@@ -18,12 +18,12 @@ NS_ASSUME_NONNULL_BEGIN
 @protocol SentryReplayBreadcrumbConverter;
 @protocol SentryRRWebEvent;
 
-@interface SentrySessionReplayIntegration ()
+@interface SentrySessionReplayHybridSDK : NSObject
 
 + (id<SentryRRWebEvent>)createBreadcrumbwithTimestamp:(NSDate *)timestamp
                                              category:(NSString *)category
                                               message:(nullable NSString *)message
-                                                level:(enum SentryLevel)level
+                                                level:(SentryLevel)level
                                                  data:(nullable NSDictionary<NSString *, id> *)data;
 
 + (id<SentryRRWebEvent>)createNetworkBreadcrumbWithTimestamp:(NSDate *)timestamp

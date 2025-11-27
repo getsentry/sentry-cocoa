@@ -115,10 +115,6 @@ import Foundation
         get { session.environment }
         set { session.environment = newValue }
     }
-    @objc public var user: User? {
-        get { session.user }
-        set { session.user = newValue }
-    }
     @objc public var abnormalMechanism: String? {
         get { session.abnormalMechanism }
         set { session.abnormalMechanism = newValue }

@@ -4,6 +4,7 @@
 #import "SentryDefines.h"
 #import "SentryEvent+Private.h"
 #import "SentryInternalDefines.h"
+#import "SentryLevel.h"
 #import "SentryLevelMapper.h"
 #import "SentryLogC.h"
 #import "SentryPropagationContext.h"
@@ -418,7 +419,7 @@ NS_ASSUME_NONNULL_BEGIN
     }
 }
 
-- (void)setLevel:(enum SentryLevel)level
+- (void)setLevel:(SentryLevel)level
 {
     self.levelEnum = level;
 
@@ -525,11 +526,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)applyToSession:(SentrySession *)session
 {
-    SentryUser *userObject = self.userObject;
-    if (userObject != nil) {
-        session.user = userObject.copy;
-    }
-
     NSString *environment = self.environmentString;
     if (environment != nil) {
         // TODO: Make sure environment set on options is applied to the

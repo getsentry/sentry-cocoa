@@ -761,7 +761,7 @@ NS_ASSUME_NONNULL_BEGIN
                                     wasHandled:(BOOL *)handled;
 {
     for (SentryEnvelopeItem *item in items) {
-        if ([item.header.type isEqualToString:SentryEnvelopeItemTypes.event]) {
+        if ([item.type isEqualToString:SentryEnvelopeItemTypes.event]) {
             if (!item.data) {
                 return NO;
             }

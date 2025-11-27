@@ -111,7 +111,9 @@ final class SentryDependencyContainerTests: XCTestCase {
 #endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 
 #if os(iOS) || os(macOS)
-                    XCTAssertNotNil(SentryDependencyContainer.sharedInstance().metricKitManager)
+                    if #available(macOS 12, *) {
+                        XCTAssertNotNil(SentryDependencyContainer.sharedInstance().metricKitManager)
+                    }
 #endif // os(iOS) || os(macOS)
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)

@@ -76,7 +76,7 @@ jobs:
     timeout-minutes: ${{inputs.timeout}}
     if: ${{!inputs.should_skip}}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - run: ./scripts/ci-select-xcode.sh "$XCODE_VERSION"
         env:
           XCODE_VERSION: ${{inputs.xcode}}
@@ -93,6 +93,14 @@ jobs:
           PLATFORMS: ${{ inputs.platform }}
           OS_VERSION: ${{ inputs.test-destination-os }}
         run: ./scripts/ci-install-platforms.sh --platforms "$PLATFORMS" --os-version "$OS_VERSION"
+
+      - name: Ensure required runtime is loaded
+        # Ideally we will not need this, but CI sometimes is failing to load some runtimes, this will ensure they are loaded
+        if: ${{ inputs.platform == 'iOS' }}
+        timeout-minutes: 5 # 5 minutes timeout
+        env:
+          OS_VERSION: ${{ inputs.test-destination-os }}
+        run: ./scripts/ci-ensure-runtime-loaded.sh --os-version "$OS_VERSION"
 
       # Create simulator devices for non-preinstalled simulators
       # Required for iOS 16.4, iOS 17.5 (on Xcode 15.4), and iOS/tvOS 26.1

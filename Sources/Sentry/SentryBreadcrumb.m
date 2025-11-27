@@ -2,6 +2,7 @@
 #import "SentryBreadcrumb+Private.h"
 #import "SentryDateUtils.h"
 #import "SentryInternalDefines.h"
+#import "SentryLevel.h"
 #import "SentryLevelMapper.h"
 #import "SentryNSDictionarySanitize.h"
 #import "SentrySwift.h"
@@ -39,7 +40,7 @@
     return self;
 }
 
-- (instancetype)initWithLevel:(enum SentryLevel)level category:(NSString *)category
+- (instancetype)initWithLevel:(SentryLevel)level category:(NSString *)category
 {
     self = [super init];
     if (self) {

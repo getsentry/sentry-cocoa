@@ -47,12 +47,6 @@
 #    import "SentryCrashExceptionApplication.h"
 #endif // TARGET_OS_MAC
 
-#if SENTRY_HAS_UIKIT
-#    if TARGET_OS_IOS
-#        import "SentryFeedbackAPI.h"
-#    endif // TARGET_OS_IOS
-#endif // SENTRY_HAS_UIKIT
-
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 #    import "SentryContinuousProfiler.h"
 #    import "SentryProfileConfiguration.h"
@@ -619,36 +613,39 @@ static NSDate *_Nullable startTimestamp = nil;
 {
     SENTRY_LOG_DEBUG(@"Starting to close SDK.");
 
+    [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchSyncOnMainQueue:^{
+
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-    [SentryContinuousProfiler stop];
+        [SentryContinuousProfiler stop];
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
-    startTimestamp = nil;
+        startTimestamp = nil;
 
-    SentryHubInternal *hub = SentrySDKInternal.currentHub;
-    [hub removeAllIntegrations];
+        SentryHubInternal *hub = SentrySDKInternal.currentHub;
+        [hub removeAllIntegrations];
 
-    SENTRY_LOG_DEBUG(@"Uninstalled all integrations.");
+        SENTRY_LOG_DEBUG(@"Uninstalled all integrations.");
 
 #if SENTRY_HAS_UIKIT
-    // force the AppStateManager to unsubscribe, see
-    // https://github.com/getsentry/sentry-cocoa/issues/2455
-    [[SentryDependencyContainer sharedInstance].appStateManager stopWithForce:YES];
+        // force the AppStateManager to unsubscribe, see
+        // https://github.com/getsentry/sentry-cocoa/issues/2455
+        [[SentryDependencyContainer sharedInstance].appStateManager stopWithForce:YES];
 #endif
 
-    [hub close];
-    [hub bindClient:nil];
+        [hub close];
+        [hub bindClient:nil];
 
-    [SentrySDKInternal setCurrentHub:nil];
+        [SentrySDKInternal setCurrentHub:nil];
 
-    [SentryDependencyContainer.sharedInstance.crashWrapper stopBinaryImageCache];
-    [SentryDependencyContainer.sharedInstance.binaryImageCache stop];
+        [SentryDependencyContainer.sharedInstance.crashWrapper stopBinaryImageCache];
+        [SentryDependencyContainer.sharedInstance.binaryImageCache stop];
 
 #if TARGET_OS_IOS && SENTRY_HAS_UIKIT
-    [SentryDependencyContainer.sharedInstance.uiDeviceWrapper stop];
+        [SentryDependencyContainer.sharedInstance.uiDeviceWrapper stop];
 #endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
 
-    [SentryDependencyContainer reset];
+        [SentryDependencyContainer reset];
+    }];
     SENTRY_LOG_DEBUG(@"SDK closed!");
 }
 
