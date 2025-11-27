@@ -145,8 +145,8 @@ NS_SWIFT_NAME(Scope)
 /**
  * Set global attributes. Attributes are searchable key/value string pairs attached to every log
  * message.
- * @note Attributes are only supported for Logs and Metrics in the future. Other events such as
- * Events, Transactions, Spans, Profiles, Session Replay will ignore these attributes.
+ * @note The SDK only applies attributes to Logs. The SDK doesn't apply the attributes to
+ * Events, Transactions, Spans, Profiles, Session Replay.
  * @param value Supported values are string, integers, boolean and double
  * @param key The key to store, cannot be an empty string
  */
@@ -154,8 +154,8 @@ NS_SWIFT_NAME(Scope)
 
 /**
  * Remove the attribute for the specified key.
- * @note Attributes are only supported for Logs and Metrics in the future. Other events such as
- * Events, Transactions, Spans, Profiles, Session Replay will ignore these attributes.
+ * @note The SDK only applies attributes to Logs. The SDK doesn't apply the attributes to
+ * Events, Transactions, Spans, Profiles, Session Replay.
  * @param key The key to remove
  */
 - (void)removeAttributeForKey:(NSString *)key NS_SWIFT_NAME(removeAttribute(key:));
