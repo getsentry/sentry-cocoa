@@ -24,7 +24,6 @@
 //
 
 #import <XCTest/XCTest.h>
-#include <pthread.h>
 
 #import "SentryCrashCachedData.h"
 #import "TestThread.h"
