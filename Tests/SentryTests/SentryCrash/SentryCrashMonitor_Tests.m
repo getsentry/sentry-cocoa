@@ -29,7 +29,6 @@
 
 #import "SentryCrashMonitor.h"
 #import "SentryCrashMonitorContext.h"
-#import "SentryCrashMonitor_MachException.h"
 
 @interface SentryCrashMonitor_Tests : XCTestCase
 @end
