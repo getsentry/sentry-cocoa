@@ -4,7 +4,7 @@ import Foundation
 import Sentry
 import SwiftUI
 
-#if CARTHAGE || SWIFT_PACKAGE
+#if XCODE || SWIFT_PACKAGE
 @_implementationOnly import SentryInternal
 #endif
 

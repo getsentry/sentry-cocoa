@@ -5,18 +5,13 @@ import Foundation
 private enum SentryPackageManagerOption: UInt {
     case swiftPackageManager = 0
     case cocoaPods = 1
-    case carthage = 2
-    case unknown = 3
+    case unknown = 2
 }
 
 #if SWIFT_PACKAGE
 private var SENTRY_PACKAGE_INFO: SentryPackageManagerOption = .swiftPackageManager
 #elseif COCOAPODS
 private var SENTRY_PACKAGE_INFO: SentryPackageManagerOption = .cocoaPods
-#elseif CARTHAGE_YES
-// CARTHAGE is a xcodebuild build setting with value `YES`, we need to convert it into a compiler
-// definition to be able to use it.
-private var SENTRY_PACKAGE_INFO: SentryPackageManagerOption = .carthage
 #else
 private var SENTRY_PACKAGE_INFO: SentryPackageManagerOption = .unknown
 #endif
@@ -30,9 +25,8 @@ private var SENTRY_PACKAGE_INFO: SentryPackageManagerOption = .unknown
             return "spm:getsentry/\(SentryMeta.sdkName)"
         case .cocoaPods:
             return "cocoapods:getsentry/\(SentryMeta.sdkName)"
-        case .carthage:
-            return "carthage:getsentry/\(SentryMeta.sdkName)"
         case .unknown:
+            // We don't know if the user installed Sentry with Xcode, manually or Carthage using the prebuild xcframework
             return nil
         }
     }

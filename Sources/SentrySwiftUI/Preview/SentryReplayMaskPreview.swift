@@ -3,7 +3,7 @@ import Sentry
 import SwiftUI
 import UIKit
 
-#if CARTHAGE || SWIFT_PACKAGE
+#if XCODE || SWIFT_PACKAGE
 @_implementationOnly import SentryInternal
 #endif
 

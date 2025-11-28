@@ -45,7 +45,6 @@ if [ "$sdk" = "maccatalyst" ]; then
         -derivedDataPath ./Carthage/DerivedData \
         CODE_SIGNING_REQUIRED=NO \
         CODE_SIGN_IDENTITY= \
-        CARTHAGE=YES \
         MACH_O_TYPE="$MACH_O_TYPE" \
         SUPPORTS_MACCATALYST=YES \
         ENABLE_CODE_COVERAGE=NO \
@@ -73,7 +72,6 @@ else
         CODE_SIGNING_REQUIRED=NO \
         SKIP_INSTALL=NO \
         CODE_SIGN_IDENTITY= \
-        CARTHAGE=YES \
         MACH_O_TYPE="$MACH_O_TYPE" \
         ENABLE_CODE_COVERAGE=NO \
         GCC_GENERATE_DEBUGGING_SYMBOLS="$GCC_GENERATE_DEBUGGING_SYMBOLS" \
