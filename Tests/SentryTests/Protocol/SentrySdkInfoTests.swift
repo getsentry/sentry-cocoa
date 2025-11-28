@@ -108,18 +108,7 @@ class SentrySdkInfoTests: XCTestCase {
         XCTAssertEqual(packages[0]["version"] as? String, SentryMeta.versionString)
     }
 
-    func testCarthage_packageInfo() throws {
-        SentrySdkPackage.setPackageManager(2)
-        let actual = SentrySdkInfo.global()
-        let serialization = actual.serialize()
-
-        let packages = try XCTUnwrap(serialization["packages"] as? [[String: Any]])
-        XCTAssertEqual(1, packages.count)
-        XCTAssertEqual(packages[0]["name"] as? String, "carthage:getsentry/\(SentryMeta.sdkName)")
-        XCTAssertEqual(packages[0]["version"] as? String, SentryMeta.versionString)
-    }
-
-    func testcocoapods_packageInfo() throws {
+    func testCocoapods_packageInfo() throws {
         SentrySdkPackage.setPackageManager(1)
         let actual = SentrySdkInfo.global()
         let serialization = actual.serialize()
@@ -131,7 +120,8 @@ class SentrySdkInfoTests: XCTestCase {
     }
 
     func testNoPackageNames() {
-        SentrySdkPackage.setPackageManager(3)
+        // Unkown package
+        SentrySdkPackage.setPackageManager(2)
         let actual = SentrySdkInfo.global()
 
         XCTAssertEqual(0, actual.packages.count)
