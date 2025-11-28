@@ -1,10 +1,12 @@
-# Integrations in other repositories
+# 3rd Party Library Integrations in Other Repositories
+
+This document outlines our approach to managing integrations with **3rd party libraries** (such as CocoaLumberjack, SwiftLog, etc.).
 
 We have identified that **SPM** downloads _all_ declared dependencies in a package, even if none the added actually added modules use them.
 
-This means that if `sentry-cocoa` declares dependencies like **CocoaLumberjack** or **SwiftLog**, _all_ downstream consumers download these libraries, even if they don’t use the corresponding integrations.
+This means that if `sentry-cocoa` declares dependencies like **CocoaLumberjack** or **SwiftLog**, _all_ downstream consumers download these libraries, even if they don't use the corresponding integrations.
 
-To avoid forcing unnecessary dependencies on users, we already agreed to **remove integrations from the main repository**.
+To avoid forcing unnecessary 3rd party dependencies on users, we already agreed to **remove the integrations from the main Package.swift on on this repository**.
 
 However, maintaining multiple repositories introduces overhead for the team.
 
@@ -46,3 +48,43 @@ However, maintaining multiple repositories introduces overhead for the team.
 
 > [!NOTE]
 > For other options that were considered, see the [3rd Party Library Integrations decision in DECISIONS.md](DECISIONS.md#3rd-party-library-integrations).
+
+### Contributing moving forward
+
+All integration development will continue in the main `sentry-cocoa` repository, organized in dedicated subdirectories for clean CI isolation.
+
+#### Directory Structure
+
+Each integration will be self-contained in `3rd-party-integration/INTEGRATION-NAME/` with:
+
+- `Sources/` - Integration source code
+- `README.md` - Integration-specific documentation
+- `Package.swift` - SPM package definition
+- `*.podspec` - CocoaPods specification
+
+**Example:**
+
+```
+3rd-party-integration/
+  ├── CocoaLumberjack/
+  │   ├── Sources/
+  │   ├── README.md
+  │   ├── Package.swift
+  │   └── SentryCocoaLumberjack.podspec
+  └── SwiftLog/
+      ├── Sources/
+      ├── README.md
+      ├── Package.swift
+      └── SentrySwiftLog.podspec
+```
+
+#### Release Process
+
+During each release, automated workflows will:
+
+1. Extract the integration directory contents
+2. Push to the dedicated integration repository (e.g., `sentry-cocoa-swift-log`)
+3. Create a tagged release matching the main SDK version
+
+> [!NOTE]
+> This process will be automated via GitHub Actions. Initial releases may be handled manually while tooling is being developed.
