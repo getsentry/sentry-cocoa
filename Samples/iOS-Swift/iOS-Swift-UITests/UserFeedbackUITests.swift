@@ -414,7 +414,7 @@ extension UserFeedbackUITests {
         submit(expectingError: true)
         
         XCTAssert(app.staticTexts["Error"].exists)
-        XCTAssert(app.staticTexts["You must provide all required information before submitting. Please check the following fields: thine email and thy complaint."].exists)
+        XCTAssert(app.staticTexts["You got many errors in this form: thine email and thy complaint."].exists)
         
         app.buttons["OK"].tap()
         
@@ -441,7 +441,7 @@ extension UserFeedbackUITests {
         submit(expectingError: true)
         
         XCTAssert(app.staticTexts["Error"].exists)
-        XCTAssert(app.staticTexts.element(matching: NSPredicate(format: "label LIKE 'You must provide all required information before submitting. Please check the following fields: thy name, thine email and thy complaint.'")).exists)
+        XCTAssert(app.staticTexts.element(matching: NSPredicate(format: "label LIKE 'You got many errors in this form: thy name, thine email and thy complaint.'")).exists)
         
         app.buttons["OK"].tap()
         

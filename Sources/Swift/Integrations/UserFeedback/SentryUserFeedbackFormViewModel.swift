@@ -325,7 +325,7 @@ extension SentryUserFeedbackFormViewModel {
     func updateSubmitButtonAccessibilityHint() {
         switch validate() {
         case .success(let hint): submitButton.accessibilityHint = hint
-        case .failure(let error): submitButton.accessibilityHint = error.description
+        case .failure(let error): submitButton.accessibilityHint = error.errorDescription
         }
     }
     
@@ -433,22 +433,31 @@ extension SentryUserFeedbackFormViewModel {
         }
         
         guard missing.isEmpty else {
-            let result = SentryUserFeedbackFormValidation.failure(InputError.validationError(missingFields: missing))
+            let localizedError = InputError.buildDescriptionFor(missingFields: missing, validationErrorMessage: config.formConfig.validationErrorMessage)
+            let result = SentryUserFeedbackFormValidation.failure(InputError.validationError(missingFields: missing, localizedError: localizedError))
             return result
         }
         
         return SentryUserFeedbackFormValidation.success(hint.joined(separator: " ").appending("."))
     }
     
-    enum InputError: Error {
-        case validationError(missingFields: [String])
+    enum InputError: LocalizedError {
+        case validationError(missingFields: [String], localizedError: String)
         
         var description: String {
             switch self {
-            case .validationError(let missingFields):
-                let list = missingFields.count == 1 ? missingFields[0] : missingFields[0 ..< missingFields.count - 1].joined(separator: ", ") + " and " + missingFields[missingFields.count - 1]
-                return "You must provide all required information before submitting. Please check the following field\(missingFields.count > 1 ? "s" : ""): \(list)."
+            case .validationError(_, let localizedError):
+                return localizedError
             }
+        }
+        
+        var errorDescription: String? {
+            return description
+        }
+        
+        static func buildDescriptionFor(missingFields: [String], validationErrorMessage: (Bool) -> String) -> String {
+            let list = missingFields.count == 1 ? missingFields[0] : missingFields[0 ..< missingFields.count - 1].joined(separator: ", ") + " and " + missingFields[missingFields.count - 1]
+            return "\(validationErrorMessage(missingFields.count > 1 )) \(list)."
         }
     }
     
