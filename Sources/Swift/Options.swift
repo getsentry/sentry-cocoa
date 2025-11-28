@@ -585,7 +585,7 @@
     /// recommend only changing this when the default, e.g., in security environments, can't be accessed.
     ///
     /// @note The default is `NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask,
-    /// @c true)`.
+    /// true)`.
     @objc public var cacheDirectoryPath: String = NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true).first ?? ""
 
     /// Whether to enable Spotlight for local development. For more information see
