@@ -140,7 +140,7 @@ build-signed-xcframework:
 	./scripts/build-xcframework-local.sh | tee build-xcframework.log
 
 build-xcframework-sample:
-	xcodebuild -project "Samples/XCFramework-Validation/XCFramework/XCFramework.xcodeproj" -configuration Release CODE_SIGNING_ALLOWED="NO" build
+	xcodebuild -project "Samples/XCFramework-Validation/XCFramework.xcodeproj" -configuration Release CODE_SIGNING_ALLOWED="NO" build
 
 # call this like `make bump-version TO=5.0.0-rc.0`
 bump-version: clean-version-bump
