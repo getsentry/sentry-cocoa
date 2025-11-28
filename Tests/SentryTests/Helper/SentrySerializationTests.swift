@@ -45,7 +45,7 @@ class SentrySerializationTests: XCTestCase {
     }
     
     func testEnvelopeWithData_InvalidEnvelopeHeaderJSON_ReturnsNil() {
-        let sdkInfoWithInvalidJSON = SentrySdkInfo(name: SentryInvalidJSONString() as String, version: "8.0.0", integrations: [], features: [], packages: [], settings: SentrySDKSettings(dict: [:]))
+        let sdkInfoWithInvalidJSON = SentrySdkInfo(name: SentryInvalidJSONString() as String, version: "8.0.0", integrations: [], features: [], packages: [], settings: SentrySDKSettings())
         let headerWithInvalidJSON = SentryEnvelopeHeader(id: nil, sdkInfo: sdkInfoWithInvalidJSON, traceContext: nil)
         
         let envelope = SentryEnvelope(header: headerWithInvalidJSON, items: [])
@@ -82,7 +82,7 @@ class SentrySerializationTests: XCTestCase {
         XCTAssertEqual("event", try XCTUnwrap(envelope.items.first).header.type)
         XCTAssertEqual(try XCTUnwrap(envelope.items.first).header.length, try XCTUnwrap(deserializedEnvelope.items.first).header.length)
         XCTAssertEqual(try XCTUnwrap(envelope.items.first).data, try XCTUnwrap(deserializedEnvelope.items.first).data)
-        XCTAssertNil(deserializedEnvelope.header.traceContext)
+        XCTAssertNil(deserializedEnvelope.header.trace)
         XCTAssertEqual(Date(timeIntervalSince1970: 9_001), deserializedEnvelope.header.sentAt)
     }
     
@@ -146,7 +146,7 @@ class SentrySerializationTests: XCTestCase {
     }
     
     func testEnvelopeWithData_WithSdkInfo_ReturnsSDKInfo() throws {
-        let sdkInfo = SentrySdkInfo(name: "sentry.cocoa", version: "5.0.1", integrations: [], features: [], packages: [], settings: SentrySDKSettings(dict: [:]))
+        let sdkInfo = SentrySdkInfo(name: "sentry.cocoa", version: "5.0.1", integrations: [], features: [], packages: [], settings: SentrySDKSettings())
         let envelopeHeader = SentryEnvelopeHeader(id: nil, sdkInfo: sdkInfo, traceContext: nil)
         let envelope = SentryEnvelope(header: envelopeHeader, singleItem: createItemWithEmptyAttachment())
         
@@ -159,9 +159,9 @@ class SentrySerializationTests: XCTestCase {
         let envelope = SentryEnvelope(header: envelopeHeader, singleItem: createItemWithEmptyAttachment())
         
         let deserializedEnvelope = try XCTUnwrap(SentrySerializationSwift.envelope(with: serializeEnvelope(envelope: envelope)))
-        XCTAssertNotNil(deserializedEnvelope.header.traceContext)
+        XCTAssertNotNil(deserializedEnvelope.header.trace)
 
-        let traceContext = try XCTUnwrap(deserializedEnvelope.header.traceContext)
+        let traceContext = try XCTUnwrap(deserializedEnvelope.header.trace)
         assertTraceState(firstTrace: Fixture.traceContext, secondTrace: traceContext)
     }
     
@@ -172,9 +172,9 @@ class SentrySerializationTests: XCTestCase {
         let envelope = SentryEnvelope(header: envelopeHeader, singleItem: createItemWithEmptyAttachment())
         
         let deserializedEnvelope = try XCTUnwrap(SentrySerializationSwift.envelope(with: serializeEnvelope(envelope: envelope)))
-        XCTAssertNotNil(deserializedEnvelope.header.traceContext)
+        XCTAssertNotNil(deserializedEnvelope.header.trace)
 
-        let traceContext = try XCTUnwrap(deserializedEnvelope.header.traceContext)
+        let traceContext = try XCTUnwrap(deserializedEnvelope.header.trace)
         assertTraceState(firstTrace: trace, secondTrace: traceContext)
     }
 
@@ -199,8 +199,8 @@ class SentrySerializationTests: XCTestCase {
         let deserializedEnvelope = try XCTUnwrap(SentrySerializationSwift.envelope(with: serializeEnvelope(envelope: envelope)))
 
         // -- Assert --
-        XCTAssertNotNil(deserializedEnvelope.header.traceContext)
-        let traceContext = try XCTUnwrap(deserializedEnvelope.header.traceContext)
+        XCTAssertNotNil(deserializedEnvelope.header.trace)
+        let traceContext = try XCTUnwrap(deserializedEnvelope.header.trace)
         assertTraceState(firstTrace: trace, secondTrace: traceContext)
     }
     
@@ -685,7 +685,7 @@ class SentrySerializationTests: XCTestCase {
     }
     
     private func assertDefaultSdkInfoSet(deserializedEnvelope: SentryEnvelope, file: StaticString = #file, line: UInt = #line) {
-        let sdkInfo = SentrySdkInfo(name: SentryMeta.sdkName, version: SentryMeta.versionString, integrations: [], features: [], packages: [], settings: SentrySDKSettings(dict: [:]))
+        let sdkInfo = SentrySdkInfo(name: SentryMeta.sdkName, version: SentryMeta.versionString, integrations: [], features: [], packages: [], settings: SentrySDKSettings())
         XCTAssertEqual(sdkInfo, deserializedEnvelope.header.sdkInfo, file: file, line: line)
     }
     

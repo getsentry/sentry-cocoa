@@ -48,23 +48,7 @@
     
     @objc(dataWithEnvelope:) public static func data(with envelope: SentryEnvelope) -> Data? {
         var envelopeData = Data()
-        var serializedData: [String: Any] = [:]
-        if let eventId = envelope.header.eventId {
-            serializedData["event_id"] = eventId.sentryIdString
-        }
-        
-        if let sdkInfo = envelope.header.sdkInfo {
-            serializedData["sdk"] = sdkInfo.serialize()
-        }
-        
-        if let traceContext = envelope.header.traceContext {
-            serializedData["trace"] = traceContext.serialize()
-        }
-        
-        if let sentAt = envelope.header.sentAt {
-            serializedData["sent_at"] = sentry_toIso8601String(sentAt)
-        }
-        guard let header = SentrySerializationSwift.data(withJSONObject: serializedData) else {
+        guard let header = try? JSONEncoder.snakeCase.encode(envelope.header) else {
             SentrySDKLog.error("Envelope header cannot be converted to JSON.")
             return nil
         }
@@ -109,29 +93,7 @@
                   }
                 #endif
                 do {
-                    let headerDictionary = try JSONSerialization.jsonObject(with: headerData) as? [String: Any]
-                    var eventId: SentryId?
-                    if let eventIdAsString = headerDictionary?["event_id"] as? String {
-                        eventId = SentryId(uuidString: eventIdAsString)
-                    }
-                    
-                    var sdkInfo: SentrySdkInfo?
-                    if let sdkDict = headerDictionary?["sdk"] as? [String: Any] {
-                        sdkInfo = SentrySdkInfo(dict: sdkDict)
-                    }
-
-                    var traceContext: TraceContext?
-                    if let traceDict = headerDictionary?["trace"] as? [String: Any] {
-                        traceContext = TraceContext(dict: traceDict)
-                    }
-                    
-                    envelopeHeader = SentryEnvelopeHeader(id: eventId,
-                                                      sdkInfo: sdkInfo,
-                                                      traceContext: traceContext)
-
-                    if let sentAtStr = headerDictionary?["sent_at"] as? String {
-                        envelopeHeader?.sentAt = sentry_fromIso8601String(sentAtStr)
-                    }
+                    envelopeHeader = try JSONDecoder.snakeCase.decode(SentryEnvelopeHeader.self, from: headerData)
                     break
                 } catch {
                     SentrySDKLog.error("Failed to parse envelope header \(error)")
@@ -241,4 +203,20 @@
         return SentryEnvelope(header: envelopeHeaderUnwrapped, items: items)
     }
     //swiftlint:enable cyclomatic_complexity function_body_length
+}
+
+extension JSONDecoder {
+    static var snakeCase: JSONDecoder {
+        let decoder = JSONDecoder()
+        decoder.keyDecodingStrategy = .convertFromSnakeCase
+        return decoder
+    }
+}
+
+extension JSONEncoder {
+    static var snakeCase: JSONEncoder {
+        let encoder = JSONEncoder()
+        encoder.keyEncodingStrategy = .convertToSnakeCase
+        return encoder
+    }
 }

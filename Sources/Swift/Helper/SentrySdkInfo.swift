@@ -6,7 +6,7 @@ import Foundation
  * @note Both name and version are required.
  * @see https://develop.sentry.dev/sdk/event-payloads/sdk/
  */
-@_spi(Private) @objc public final class SentrySdkInfo: NSObject, SentrySerializable {
+@_spi(Private) @objc public final class SentrySdkInfo: NSObject, Codable {
     
     @objc public static func global() -> Self {
         if let options = SentrySDKInternal.currentHub().getClient()?.getOptions() {
@@ -77,6 +77,20 @@ import Foundation
             settings: SentrySDKSettings(sendDefaultPii: sendDefaultPii))
     }
     
+    @objc public static func decode(dictionary: [AnyHashable: Any]) -> SentrySdkInfo {
+        if let data = try? JSONSerialization.data(withJSONObject: dictionary), let info = try? JSONDecoder.snakeCase.decode(SentrySdkInfo.self, from: data) {
+            return info
+        }
+        return SentrySdkInfo(name: "", version: "", integrations: [], features: [], packages: [], settings: SentrySDKSettings())
+    }
+    
+    @objc public func serialize() -> NSDictionary {
+        if let data = try? JSONEncoder.snakeCase.encode(self) {
+            return (try? JSONSerialization.jsonObject(with: data) as? NSDictionary) ?? [:]
+        }
+        return [:]
+    }
+    
     @objc public init(name: String?, version: String?, integrations: [String]?, features: [String]?, packages: [[String: String]]?, settings: SentrySDKSettings) {
         self.name = name ?? ""
         self.version = version ?? ""
@@ -84,75 +98,5 @@ import Foundation
         self.features = features ?? []
         self.packages = packages ?? []
         self.settings = settings
-    }
-    
-    // swiftlint:disable cyclomatic_complexity
-    @objc
-    public convenience init(dict: [AnyHashable: Any]) {
-        var name = ""
-        var version = ""
-        var integrations = Set<String>()
-        var features = Set<String>()
-        var packages = Set<[String: String]>()
-        var settings = SentrySDKSettings(dict: [:])
-
-        if let nameValue = dict["name"] as? String {
-            name = nameValue
-        }
-
-        if let versionValue = dict["version"] as? String {
-            version = versionValue
-        }
-
-        if let integrationArray = dict["integrations"] as? [Any] {
-            for item in integrationArray {
-                if let integration = item as? String {
-                    integrations.insert(integration)
-                }
-            }
-        }
-
-        if let featureArray = dict["features"] as? [Any] {
-            for item in featureArray {
-                if let feature = item as? String {
-                    features.insert(feature)
-                }
-            }
-        }
-
-        if let packageArray = dict["packages"] as? [Any] {
-            for item in packageArray {
-                if let package = item as? [String: Any],
-                   let name = package["name"] as? String,
-                   let version = package["version"] as? String {
-                    packages.insert(["name": name, "version": version])
-                }
-            }
-        }
-
-        if let settingsDict = dict["settings"] as? NSDictionary {
-            settings = SentrySDKSettings(dict: settingsDict)
-        }
-
-        self.init(
-            name: name,
-            version: version,
-            integrations: Array(integrations),
-            features: Array(features),
-            packages: Array(packages),
-            settings: settings
-        )
-    }
-    // swiftlint:enable cyclomatic_complexity
-    
-    @objc public func serialize() -> [String: Any] {
-        [
-            "name": self.name,
-            "version": self.version,
-            "integrations": self.integrations,
-            "features": self.features,
-            "packages": self.packages,
-            "settings": self.settings.serialize()
-        ]
     }
 }

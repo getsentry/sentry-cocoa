@@ -42,8 +42,8 @@ class SentrySDKSettingsTests: XCTestCase {
     
     // MARK: - initWithDict tests
     
-    func testInitWithDict_WhenInferIpIsAuto_SetsAutoInferIPToTrue() {
-        let settings = SentrySDKSettings(dict: [
+    func testInitWithDict_WhenInferIpIsAuto_SetsAutoInferIPToTrue() throws {
+        let settings = try SentrySDKSettings.decode(dict: [
             "infer_ip": "auto"
         ])
         
@@ -51,8 +51,8 @@ class SentrySDKSettingsTests: XCTestCase {
         XCTAssertTrue(settings.autoInferIP)
     }
     
-    func testInitWithDict_WhenInferIpIsNever_SetsAutoInferIPToFalse() {
-        let settings = SentrySDKSettings(dict: [
+    func testInitWithDict_WhenInferIpIsNever_SetsAutoInferIPToFalse() throws {
+        let settings = try SentrySDKSettings.decode(dict: [
             "infer_ip": "never"
         ])
         
@@ -60,8 +60,8 @@ class SentrySDKSettingsTests: XCTestCase {
         XCTAssertFalse(settings.autoInferIP)
     }
     
-    func testInitWithDict_WhenInferIpIsInvalidString_SetsAutoInferIPToFalse() {
-        let settings = SentrySDKSettings(dict: [
+    func testInitWithDict_WhenInferIpIsInvalidString_SetsAutoInferIPToFalse() throws {
+        let settings = try SentrySDKSettings.decode(dict: [
             "infer_ip": "invalid_value"
         ])
         
@@ -69,8 +69,8 @@ class SentrySDKSettingsTests: XCTestCase {
         XCTAssertFalse(settings.autoInferIP)
     }
     
-    func testInitWithDict_WhenInferIpIsNotString_SetsAutoInferIPToFalse() {
-        let settings = SentrySDKSettings(dict: [
+    func testInitWithDict_WhenInferIpIsNotString_SetsAutoInferIPToFalse() throws {
+        let settings = try SentrySDKSettings.decode(dict: [
             "infer_ip": true
         ])
         
@@ -78,15 +78,15 @@ class SentrySDKSettingsTests: XCTestCase {
         XCTAssertFalse(settings.autoInferIP)
     }
     
-    func testInitWithDict_WhenInferIpKeyMissing_SetsAutoInferIPToFalse() {
-        let settings = SentrySDKSettings(dict: [:])
+    func testInitWithDict_WhenInferIpKeyMissing_SetsAutoInferIPToFalse() throws {
+        let settings = try SentrySDKSettings.decode(dict: [:])
         
         XCTAssertNotNil(settings)
         XCTAssertFalse(settings.autoInferIP)
     }
     
-    func testInitWithDict_WhenInferIpIsNil_SetsAutoInferIPToFalse() {
-        let settings = SentrySDKSettings(dict: [
+    func testInitWithDict_WhenInferIpIsNil_SetsAutoInferIPToFalse() throws {
+        let settings = try SentrySDKSettings.decode(dict: [
             "infer_ip": NSNull()
         ])
         
@@ -96,43 +96,43 @@ class SentrySDKSettingsTests: XCTestCase {
     
     // MARK: - serialize tests
     
-    func testSerialize_WhenAutoInferIPIsTrue_ReturnsCorrectDictionary() {
-        let settings = SentrySDKSettings(dict: [
+    func testSerialize_WhenAutoInferIPIsTrue_ReturnsCorrectDictionary() throws {
+        let settings = try SentrySDKSettings.decode(dict: [
             "infer_ip": "auto"
         ])
         
-        let serialized = settings.serialize()
+        let serialized = try settings.serialize()
         
         XCTAssertNotNil(serialized)
         XCTAssertEqual(serialized["infer_ip"] as? String, "auto")
     }
     
-    func testSerialize_WhenAutoInferIPIsFalse_ReturnsCorrectDictionary() {
-        let settings = SentrySDKSettings(dict: [
+    func testSerialize_WhenAutoInferIPIsFalse_ReturnsCorrectDictionary() throws {
+        let settings = try SentrySDKSettings.decode(dict: [
             "infer_ip": "never"
         ])
         
-        let serialized = settings.serialize()
+        let serialized = try settings.serialize()
         
         XCTAssertNotNil(serialized)
         XCTAssertEqual(serialized["infer_ip"] as? String, "never")
     }
     
-    func testSerialize_WhenAutoInferIPIsSetDirectly_ReturnsCorrectDictionary() {
+    func testSerialize_WhenAutoInferIPIsSetDirectly_ReturnsCorrectDictionary() throws {
         let settings = SentrySDKSettings()
         settings.autoInferIP = true
         
-        let serialized = settings.serialize()
+        let serialized = try settings.serialize()
         
         XCTAssertNotNil(serialized)
         XCTAssertEqual(serialized["infer_ip"] as? String, "auto")
     }
     
-    func testSerialize_WhenAutoInferIPIsSetToFalseDirectly_ReturnsCorrectDictionary() {
+    func testSerialize_WhenAutoInferIPIsSetToFalseDirectly_ReturnsCorrectDictionary() throws {
         let settings = SentrySDKSettings()
         settings.autoInferIP = false
         
-        let serialized = settings.serialize()
+        let serialized = try settings.serialize()
         
         XCTAssertNotNil(serialized)
         XCTAssertEqual(serialized["infer_ip"] as? String, "never")
@@ -157,15 +157,15 @@ class SentrySDKSettingsTests: XCTestCase {
     
     // MARK: - edge case tests
     
-    func testEdgeCase_EmptyDictionaryInitialization() {
-        let settings = SentrySDKSettings(dict: [:])
+    func testEdgeCase_EmptyDictionaryInitialization() throws {
+        let settings = try SentrySDKSettings.decode(dict: [:])
         
         XCTAssertNotNil(settings)
         XCTAssertFalse(settings.autoInferIP)
     }
     
-    func testEdgeCase_NonStringValuesInDictionary() {
-        let settings = SentrySDKSettings(dict: [
+    func testEdgeCase_NonStringValuesInDictionary() throws {
+        let settings = try SentrySDKSettings.decode(dict: [
             "infer_ip": 42,
             "other_key": "value"
         ])
@@ -174,13 +174,25 @@ class SentrySDKSettingsTests: XCTestCase {
         XCTAssertFalse(settings.autoInferIP)
     }
     
-    func testEdgeCase_CaseSensitiveInferIpValues() {
-        let settings1 = SentrySDKSettings(dict: ["infer_ip": "AUTO"])
-        let settings2 = SentrySDKSettings(dict: ["infer_ip": "Auto"])
-        let settings3 = SentrySDKSettings(dict: ["infer_ip": "auto"])
+    func testEdgeCase_CaseSensitiveInferIpValues() throws {
+        let settings1 = try SentrySDKSettings.decode(dict: ["infer_ip": "AUTO"])
+        let settings2 = try SentrySDKSettings.decode(dict: ["infer_ip": "Auto"])
+        let settings3 = try SentrySDKSettings.decode(dict: ["infer_ip": "auto"])
         
         XCTAssertFalse(settings1.autoInferIP) // Should be case sensitive
         XCTAssertFalse(settings2.autoInferIP) // Should be case sensitive
         XCTAssertTrue(settings3.autoInferIP)  // Exact match should work
     }
 } 
+
+extension SentrySDKSettings {
+    static func decode(dict: [String: Any]) throws -> SentrySDKSettings {
+        let data = try JSONSerialization.data(withJSONObject: dict)
+        return try JSONDecoder.snakeCase.decode(SentrySDKSettings.self, from: data)
+    }
+
+    func serialize() throws -> NSDictionary {
+        let data = try JSONEncoder.snakeCase.encode(self)
+        return try JSONSerialization.jsonObject(with: data) as? NSDictionary ?? [:]
+    }
+}

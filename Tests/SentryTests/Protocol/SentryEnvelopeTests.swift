@@ -60,7 +60,7 @@ class SentryEnvelopeTests: XCTestCase {
         clearTestState()
     }
 
-    private let defaultSdkSettings = SentrySDKSettings(dict: [:])
+    private let defaultSdkSettings = SentrySDKSettings()
     private lazy var defaultSdkInfo = SentrySdkInfo(name: SentryMeta.sdkName,
                                                version: SentryMeta.versionString,
                                                integrations: [],
@@ -135,19 +135,19 @@ class SentryEnvelopeTests: XCTestCase {
         let allNil = SentryEnvelopeHeader(id: nil, sdkInfo: nil, traceContext: nil)
         XCTAssertNil(allNil.eventId)
         XCTAssertNil(allNil.sdkInfo)
-        XCTAssertNil(allNil.traceContext)
+        XCTAssertNil(allNil.trace)
     }
     
     func testInitSentryEnvelopeHeader_IdAndTraceStateNil() {
         let allNil = SentryEnvelopeHeader(id: nil, traceContext: nil)
         XCTAssertNil(allNil.eventId)
         XCTAssertNotNil(allNil.sdkInfo)
-        XCTAssertNil(allNil.traceContext)
+        XCTAssertNil(allNil.trace)
     }
     
     func testInitSentryEnvelopeHeader_SetIdAndSdkInfo() {
         let eventId = SentryId()
-        let sdkInfo = SentrySdkInfo(name: "sdk", version: "1.2.3-alpha.0", integrations: [], features: [], packages: [], settings: SentrySDKSettings(dict: [:]))
+        let sdkInfo = SentrySdkInfo(name: "sdk", version: "1.2.3-alpha.0", integrations: [], features: [], packages: [], settings: SentrySDKSettings())
         
         let envelopeHeader = SentryEnvelopeHeader(id: eventId, sdkInfo: sdkInfo, traceContext: nil)
         XCTAssertEqual(eventId, envelopeHeader.eventId)
@@ -160,7 +160,7 @@ class SentryEnvelopeTests: XCTestCase {
         
         let envelopeHeader = SentryEnvelopeHeader(id: eventId, traceContext: traceContext)
         XCTAssertEqual(eventId, envelopeHeader.eventId)
-        XCTAssertEqual(traceContext, envelopeHeader.traceContext)
+        XCTAssertEqual(traceContext, envelopeHeader.trace)
     }
     
     func testInitSentryEnvelopeWithSession_DefaultSdkInfoIsSet() {
@@ -220,7 +220,7 @@ class SentryEnvelopeTests: XCTestCase {
     func testEmptyHeader() {
         let sut = SentryEnvelopeHeader.empty()
         XCTAssertNil(sut.eventId)
-        XCTAssertNil(sut.traceContext)
+        XCTAssertNil(sut.trace)
     }
     
     func testInitWithFileAttachment() {

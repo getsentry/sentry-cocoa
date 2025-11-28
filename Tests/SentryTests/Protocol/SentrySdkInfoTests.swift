@@ -21,7 +21,7 @@ class SentrySdkInfoTests: XCTestCase {
 
     func testWithPatchLevelSuffix() {
         let version = "50.10.20-beta1"
-        let settings = SentrySDKSettings(dict: [:])
+        let settings = SentrySDKSettings()
         let actual = SentrySdkInfo(
             name: sdkName,
             version: version,
@@ -37,7 +37,7 @@ class SentrySdkInfoTests: XCTestCase {
     
     func testWithAnyVersion() {
         let version = "anyVersion"
-        let settings = SentrySDKSettings(dict: [:])
+        let settings = SentrySDKSettings()
         let actual = SentrySdkInfo(
             name: sdkName,
             version: version,
@@ -53,7 +53,7 @@ class SentrySdkInfoTests: XCTestCase {
     
     func testSerialization() {
         let version = "5.2.0"
-        let settings = SentrySDKSettings(dict: [:])
+        let settings = SentrySDKSettings()
         let sdkInfo = SentrySdkInfo(
             name: sdkName,
             version: version,
@@ -70,7 +70,7 @@ class SentrySdkInfoTests: XCTestCase {
     }
 
     func testSerializationValidIntegrations() {
-        let settings = SentrySDKSettings(dict: [:])
+        let settings = SentrySDKSettings()
         let sdkInfo = SentrySdkInfo(
             name: "",
             version: "",
@@ -84,7 +84,7 @@ class SentrySdkInfoTests: XCTestCase {
     }
 
     func testSerializationValidFeatures() {
-        let settings = SentrySDKSettings(dict: [:])
+        let settings = SentrySDKSettings()
         let sdkInfo = SentrySdkInfo(
             name: "",
             version: "",
@@ -137,7 +137,7 @@ class SentrySdkInfoTests: XCTestCase {
         XCTAssertEqual(0, actual.packages.count)
     }
     
-    func testInitWithDict_SdkInfo() {
+    func testInitWithDict_SdkInfo() throws {
         let version = "10.3.1"
         let settings = SentrySDKSettings()
         settings.autoInferIP = true
@@ -167,12 +167,12 @@ class SentrySdkInfoTests: XCTestCase {
             ]
         ] as [String: Any]
 
-        XCTAssertEqual(expected, SentrySdkInfo(dict: dict))
+        XCTAssertEqual(expected, SentrySdkInfo.decode(dictionary: dict))
     }
 
-    func testInitWithDict_SdkInfo_RemovesDuplicates() {
+    func testInitWithDict_SdkInfo_RemovesDuplicates() throws {
         let version = "10.3.1"
-        let settings = SentrySDKSettings(dict: ["infer_ip": "auto"])
+        let settings = try SentrySDKSettings.decode(dict: ["infer_ip": "auto"])
         let expected = SentrySdkInfo(
             name: sdkName,
             version: version,
@@ -198,12 +198,12 @@ class SentrySdkInfoTests: XCTestCase {
             ]
         ] as [String: Any]
 
-        XCTAssertEqual(expected, SentrySdkInfo(dict: dict))
+        XCTAssertEqual(expected, SentrySdkInfo.decode(dictionary: dict))
     }
 
-    func testInitWithDict_SdkInfo_IgnoresOrder() {
+    func testInitWithDict_SdkInfo_IgnoresOrder() throws {
         let version = "10.3.1"
-        let settings = SentrySDKSettings(dict: ["infer_ip": "never"])
+        let settings = try SentrySDKSettings.decode(dict: ["infer_ip": "never"])
         let expected = SentrySdkInfo(
             name: sdkName,
             version: version,
@@ -231,10 +231,10 @@ class SentrySdkInfoTests: XCTestCase {
             ]
         ] as [String: Any]
 
-        XCTAssertEqual(expected, SentrySdkInfo(dict: dict))
+        XCTAssertEqual(expected, SentrySdkInfo.decode(dictionary: dict))
     }
 
-    func testInitWithDict_AllNil() {
+    func testInitWithDict_AllNil() throws {
         let dict = [
             "name": nil,
             "version": nil,
@@ -243,10 +243,10 @@ class SentrySdkInfoTests: XCTestCase {
             "packages": nil
         ] as [String: Any?]
 
-        assertEmptySdkInfo(actual: SentrySdkInfo(dict: dict as [AnyHashable: Any]))
+        try assertEmptySdkInfo(actual: SentrySdkInfo.decode(dictionary: dict as [AnyHashable: Any]))
     }
     
-    func testInitWithDict_WrongTypes() {
+    func testInitWithDict_WrongTypes() throws {
         let dict = [
             "name": 0,
             "version": 0,
@@ -255,12 +255,12 @@ class SentrySdkInfoTests: XCTestCase {
             "packages": 0
         ]
 
-        assertEmptySdkInfo(actual: SentrySdkInfo(dict: dict))
+        try assertEmptySdkInfo(actual: SentrySdkInfo.decode(dictionary: dict))
     }
 
-    func testInitWithDict_WrongTypesInArrays() {
+    func testInitWithDict_WrongTypesInArrays() throws {
         let version = "10.3.1"
-        let settings = SentrySDKSettings(dict: [:])
+        let settings = try SentrySDKSettings.decode(dict: [:])
         settings.autoInferIP = false
         let expected = SentrySdkInfo(
             name: sdkName,
@@ -301,13 +301,13 @@ class SentrySdkInfoTests: XCTestCase {
             ]
         ] as [String: Any]
 
-        XCTAssertEqual(expected, SentrySdkInfo(dict: dict))
+        XCTAssertEqual(expected, SentrySdkInfo.decode(dictionary: dict))
     }
 
-    func testInitWithDict_SdkInfoIsString() {
+    func testInitWithDict_SdkInfoIsString() throws {
         let dict = ["sdk": ""]
         
-        assertEmptySdkInfo(actual: SentrySdkInfo(dict: dict))
+        try assertEmptySdkInfo(actual: SentrySdkInfo.decode(dictionary: dict))
     }
     
     func testglobal() throws {
@@ -339,9 +339,9 @@ class SentrySdkInfoTests: XCTestCase {
         XCTAssertTrue(actual.packages.contains(["name": "cocoapods:getsentry/\(SentryMeta.sdkName)", "version": SentryMeta.versionString]))
     }
 
-    func testSerializationIncludesSettings() {
+    func testSerializationIncludesSettings() throws {
         let version = "5.2.0"
-        let settings = SentrySDKSettings(dict: ["infer_ip": "auto"])
+        let settings = try SentrySDKSettings.decode(dict: ["infer_ip": "auto"])
         let sdkInfo = SentrySdkInfo(
             name: sdkName,
             version: version,
@@ -378,7 +378,7 @@ class SentrySdkInfoTests: XCTestCase {
             ]
         ] as [String: Any]
 
-        let actual = SentrySdkInfo(dict: dict)
+        let actual = SentrySdkInfo.decode(dictionary: dict)
         
         XCTAssertEqual(sdkName, actual.name)
         XCTAssertEqual(version, actual.version)
@@ -397,7 +397,7 @@ class SentrySdkInfoTests: XCTestCase {
             "settings": nil
         ] as [String: Any?]
 
-        let actual = SentrySdkInfo(dict: dict as [AnyHashable: Any])
+        let actual = SentrySdkInfo.decode(dictionary: dict as [AnyHashable: Any])
         
         XCTAssertNotNil(actual.settings)
         XCTAssertFalse(actual.settings.autoInferIP)
@@ -409,7 +409,7 @@ class SentrySdkInfoTests: XCTestCase {
             "version": "1.0.0"
         ] as [String: Any]
 
-        let actual = SentrySdkInfo(dict: dict)
+        let actual = SentrySdkInfo.decode(dictionary: dict)
         
         XCTAssertNotNil(actual.settings)
         XCTAssertFalse(actual.settings.autoInferIP)
@@ -422,15 +422,15 @@ class SentrySdkInfoTests: XCTestCase {
             "settings": "not_a_dict"
         ] as [String: Any]
 
-        let actual = SentrySdkInfo(dict: dict)
+        let actual = SentrySdkInfo.decode(dictionary: dict)
         
         XCTAssertNotNil(actual.settings)
         XCTAssertFalse(actual.settings.autoInferIP)
     }
 
-    func testEquality_IncludesSettings() {
-        let settings1 = SentrySDKSettings(dict: ["infer_ip": "auto"])
-        let settings2 = SentrySDKSettings(dict: ["infer_ip": "never"])
+    func testEquality_IncludesSettings() throws {
+        let settings1 = try SentrySDKSettings.decode(dict: ["infer_ip": "auto"])
+        let settings2 = try SentrySDKSettings.decode(dict: ["infer_ip": "never"])
         
         let sdkInfo1 = SentrySdkInfo(
             name: sdkName,
@@ -466,14 +466,14 @@ class SentrySdkInfoTests: XCTestCase {
         XCTAssertEqual(sdkInfo1, sdkInfo3)
     }
 
-    private func assertEmptySdkInfo(actual: SentrySdkInfo) {
+    private func assertEmptySdkInfo(actual: SentrySdkInfo) throws {
         XCTAssertEqual(SentrySdkInfo(
             name: "",
             version: "",
             integrations: [],
             features: [],
             packages: [],
-            settings: SentrySDKSettings(dict: [:])
+            settings: try SentrySDKSettings.decode(dict: [:])
         ), actual)
     }
 }

@@ -1,6 +1,6 @@
 @_implementationOnly import _SentryPrivate
 
-@_spi(Private) @objc public final class SentryEnvelopeHeader: NSObject {
+@_spi(Private) @objc public final class SentryEnvelopeHeader: NSObject, Codable {
     /**
      * Initializes an @c SentryEnvelopeHeader object with the specified eventId.
      * @note Sets the @c sdkInfo from @c SentryMeta.
@@ -35,7 +35,7 @@
     init(id eventId: SentryId?, sdkInfo: SentrySdkInfo?, traceContext: TraceContext?) {
         self.eventId = eventId
         self.sdkInfo = sdkInfo
-        self.traceContext = traceContext
+        self.trace = traceContext
     }
     
     @objc public static func empty() -> Self {
@@ -49,7 +49,7 @@
      */
     @objc public var eventId: SentryId?
     @objc public var sdkInfo: SentrySdkInfo?
-    @objc public var traceContext: TraceContext?
+    @objc public var trace: TraceContext?
     
     /**
      * The timestamp when the event was sent from the SDK as string in RFC 3339 format. Used
@@ -60,4 +60,59 @@
      * minimized.
      */
     @objc public var sentAt: Date?
+    
+    enum CodingKeys: String, CodingKey {
+        case eventId
+        case sdkInfo
+        case trace
+        case sentAt
+    }
+    
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        if let eventId = try container.decodeIfPresent(String.self, forKey: .eventId) {
+            self.eventId = SentryId(uuidString: eventId)
+        }
+        self.sdkInfo = try container.decodeIfPresent(SentrySdkInfo.self, forKey: .sdkInfo)
+        if let trace = try container.decodeIfPresent(TraceContextSwift.self, forKey: .trace) {
+            self.trace = TraceContext(
+                trace: SentryId(uuidString: trace.traceId),
+                publicKey: trace.publicKey,
+                releaseName: trace.release,
+                environment: trace.environment,
+                transaction: trace.transaction,
+                sampleRate: trace.sampleRate,
+                sampleRand: trace.sampleRand,
+                sampled: trace.sampled,
+                replayId: trace.replayId)
+        }
+        if let sentAt = try container.decodeIfPresent(String.self, forKey: .sentAt) {
+            self.sentAt = sentry_fromIso8601String(sentAt)
+        }
+    }
+    
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encodeIfPresent(eventId?.sentryIdString, forKey: .eventId)
+        try container.encodeIfPresent(sdkInfo, forKey: .sdkInfo)
+        if let trace {
+            let traceSwift = TraceContextSwift(traceId: trace.traceId.sentryIdString, publicKey: trace.publicKey, release: trace.releaseName, environment: trace.environment, transaction: trace.transaction, sampleRand: trace.sampleRand, sampleRate: trace.sampleRate, sampled: trace.sampled, replayId: trace.replayId)
+            try container.encode(traceSwift, forKey: .trace)
+        }
+        if let sentAt {
+            try container.encodeIfPresent(sentry_toIso8601String(sentAt), forKey: .sentAt)
+        }
+    }
+}
+
+struct TraceContextSwift: Codable {
+    let traceId: String
+    let publicKey: String
+    let release: String?
+    let environment: String?
+    let transaction: String?
+    let sampleRand: String?
+    let sampleRate: String?
+    let sampled: String?
+    let replayId: String?
 }
