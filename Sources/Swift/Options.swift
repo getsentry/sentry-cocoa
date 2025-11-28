@@ -343,6 +343,11 @@
     /// @note The default is @c NO .
     @objc public var enableFileManagerSwizzling: Bool = false
 
+    /// When enabled, the SDK tracks performance for file IO operations with NSFileHandle if auto
+    /// performance tracking and enableSwizzling are enabled.
+    /// @note The default is @c NO .
+    @objc public var enableFileHandleSwizzling: Bool = false
+
     /// Indicates the percentage of the tracing data that is collected.
     /// @discussion Specifying @c 0 or @c nil discards all trace data, @c 1.0 collects all trace data,
     /// @c 0.01 collects 1% of all trace data.

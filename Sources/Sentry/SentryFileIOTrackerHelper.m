@@ -162,6 +162,124 @@ NSString *const SENTRY_TRACKING_COUNTER_KEY = @"SENTRY_TRACKING_COUNTER_KEY";
     return result;
 }
 
+- (NSData *)measureNSFileHandle:(NSFileHandle *)fileHandle
+               readDataOfLength:(NSUInteger)length
+                         origin:(NSString *)origin
+           processDirectoryPath:(NSString *)processDirectoryPath
+                         method:(NSData * (^)(NSUInteger))method
+{
+    NSString *filePath = nil;
+    if (@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)) {
+        filePath = fileHandle.filePath;
+    }
+
+    // Skip tracking if no file path (e.g., pipes, sockets)
+    if (filePath == nil) {
+        return method(length);
+    }
+
+    id<SentrySpan> span = [self startTrackingReadingFilePath:filePath
+                                                      origin:origin
+                                                   operation:SentrySpanOperationFileRead
+                                        processDirectoryPath:processDirectoryPath];
+
+    NSData *result = method(length);
+
+    if (span != nil) {
+        [self finishTrackingNSData:@(result.length) span:span];
+    }
+
+    [self endTrackingFile];
+    return result;
+}
+
+- (NSData *)measureNSFileHandle:(NSFileHandle *)fileHandle
+            readDataToEndOfFile:(NSString *)origin
+           processDirectoryPath:(NSString *)processDirectoryPath
+                         method:(NSData * (^)(void))method
+{
+    NSString *filePath = nil;
+    if (@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)) {
+        filePath = fileHandle.filePath;
+    }
+
+    // Skip tracking if no file path (e.g., pipes, sockets)
+    if (filePath == nil) {
+        return method();
+    }
+
+    id<SentrySpan> span = [self startTrackingReadingFilePath:filePath
+                                                      origin:origin
+                                                   operation:SentrySpanOperationFileRead
+                                        processDirectoryPath:processDirectoryPath];
+
+    NSData *result = method();
+
+    if (span != nil) {
+        [self finishTrackingNSData:@(result.length) span:span];
+    }
+
+    [self endTrackingFile];
+    return result;
+}
+
+- (void)measureNSFileHandle:(NSFileHandle *)fileHandle
+                  writeData:(NSData *)data
+                     origin:(NSString *)origin
+       processDirectoryPath:(NSString *)processDirectoryPath
+                     method:(void (^)(NSData *))method
+{
+    NSString *filePath = nil;
+    if (@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)) {
+        filePath = fileHandle.filePath;
+    }
+
+    // Skip tracking if no file path (e.g., pipes, sockets)
+    if (filePath == nil) {
+        method(data);
+        return;
+    }
+
+    id<SentrySpan> span = [self startTrackingWritingNSData:data
+                                                  filePath:filePath
+                                                    origin:origin
+                                      processDirectoryPath:processDirectoryPath];
+
+    method(data);
+
+    if (span != nil) {
+        [self finishTrackingNSData:@(data.length) span:span];
+    }
+}
+
+- (void)measureNSFileHandle:(NSFileHandle *)fileHandle
+            synchronizeFile:(NSString *)origin
+       processDirectoryPath:(NSString *)processDirectoryPath
+                     method:(void (^)(void))method
+{
+    NSString *filePath = nil;
+    if (@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)) {
+        filePath = fileHandle.filePath;
+    }
+
+    // Skip tracking if no file path (e.g., pipes, sockets)
+    if (filePath == nil) {
+        method();
+        return;
+    }
+
+    id<SentrySpan> span = [self spanForPath:filePath
+                                     origin:origin
+                                  operation:SentrySpanOperationFileWrite
+                       processDirectoryPath:processDirectoryPath];
+
+    method();
+
+    if (span != nil) {
+        [span finish];
+    }
+}
+
 - (nullable id<SentrySpan>)spanForPath:(NSString *)path
                                 origin:(NSString *)origin
                              operation:(NSString *)operation

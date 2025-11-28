@@ -61,6 +61,40 @@ SENTRY_NO_INIT
                                       method:(BOOL (^)(NSString *, NSData *,
                                                  NSDictionary<NSFileAttributeKey, id> *))method;
 
+/**
+ * Measure NSFileHandle 'readDataOfLength:' method.
+ */
+- (NSData *)measureNSFileHandle:(NSFileHandle *)fileHandle
+               readDataOfLength:(NSUInteger)length
+                         origin:(NSString *)origin
+           processDirectoryPath:(NSString *)processDirectoryPath
+                         method:(NSData * (^)(NSUInteger))method;
+
+/**
+ * Measure NSFileHandle 'readDataToEndOfFile' method.
+ */
+- (NSData *)measureNSFileHandle:(NSFileHandle *)fileHandle
+            readDataToEndOfFile:(NSString *)origin
+           processDirectoryPath:(NSString *)processDirectoryPath
+                         method:(NSData * (^)(void))method;
+
+/**
+ * Measure NSFileHandle 'writeData:' method.
+ */
+- (void)measureNSFileHandle:(NSFileHandle *)fileHandle
+                  writeData:(NSData *)data
+                     origin:(NSString *)origin
+       processDirectoryPath:(NSString *)processDirectoryPath
+                     method:(void (^)(NSData *))method;
+
+/**
+ * Measure NSFileHandle 'synchronizeFile' method.
+ */
+- (void)measureNSFileHandle:(NSFileHandle *)fileHandle
+            synchronizeFile:(NSString *)origin
+       processDirectoryPath:(NSString *)processDirectoryPath
+                     method:(void (^)(void))method;
+
 // MARK: - Internal Methods available for Swift Extension
 
 - (nullable id<SentrySpan>)spanForPath:(NSString *)path

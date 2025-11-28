@@ -11,7 +11,7 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
         let fileURL: URL!
         let fileDirectory: URL!
         
-        func getOptions(enableAutoPerformanceTracing: Bool = true, enableFileIOTracing: Bool = true, enableSwizzling: Bool = true, enableDataSwizzling: Bool = true, enableFileManagerSwizzling: Bool = true, tracesSampleRate: NSNumber = 1) -> Options {
+        func getOptions(enableAutoPerformanceTracing: Bool = true, enableFileIOTracing: Bool = true, enableSwizzling: Bool = true, enableDataSwizzling: Bool = true, enableFileManagerSwizzling: Bool = true, enableFileHandleSwizzling: Bool = false, tracesSampleRate: NSNumber = 1) -> Options {
             let result = Options()
             result.removeAllIntegrations()
             result.enableAutoPerformanceTracing = enableAutoPerformanceTracing
@@ -20,6 +20,7 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
             result.tracesSampleRate = tracesSampleRate
             result.enableDataSwizzling = enableDataSwizzling
             result.enableFileManagerSwizzling = enableFileManagerSwizzling
+            result.enableFileHandleSwizzling = enableFileHandleSwizzling
             return result
         }
         
@@ -347,6 +348,127 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
     private func assertWriteWithNoSpans() {
         assertSpans(0, "file.write") {
             try? fixture.data.write(to: fixture.fileURL)
+        }
+    }
+
+    func testFileHandle_ReadingTrackingDisabled_forSwizzlingOption() {
+        // -- Act --
+        SentrySDK.start(options: fixture.getOptions(enableFileHandleSwizzling: false))
+
+        // -- Assert --
+        assertFileHandleReadWithNoSpans()
+    }
+
+    func testFileHandle_ReadingTrackingDisabled_forIOOption() {
+        // -- Act --
+        SentrySDK.start(options: fixture.getOptions(enableFileIOTracing: false))
+
+        // -- Assert --
+        assertFileHandleReadWithNoSpans()
+    }
+
+    func testFileHandle_WritingTrackingDisabled_forSwizzlingOption() {
+        // -- Act --
+        SentrySDK.start(options: fixture.getOptions(enableFileHandleSwizzling: false))
+
+        // -- Assert --
+        assertFileHandleWriteWithNoSpans()
+    }
+
+    func testFileHandle_WritingTrackingDisabled_forIOOption() {
+        // -- Act --
+        SentrySDK.start(options: fixture.getOptions(enableFileIOTracing: false))
+
+        // -- Assert --
+        assertFileHandleWriteWithNoSpans()
+    }
+
+    func testFileHandle_Reading_Tracking() throws {
+        // -- Arrange --
+        let expectedSpanCount: Int
+        if #available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *) {
+            // FileHandle.filePath is only available on iOS 13+, so tracking will work
+            expectedSpanCount = 1
+        } else {
+            // On older versions, file path cannot be extracted, so no tracking
+            expectedSpanCount = 0
+        }
+
+        // -- Act --
+        SentrySDK.start(options: fixture.getOptions(enableFileHandleSwizzling: true))
+
+        // -- Assert --
+        try assertFileHandleReadWithSpans(expectedSpanCount)
+    }
+
+    func testFileHandle_Writing_Tracking() throws {
+        // -- Arrange --
+        let expectedSpanCount: Int
+        if #available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *) {
+            // FileHandle.filePath is only available on iOS 13+, so tracking will work
+            expectedSpanCount = 1
+        } else {
+            // On older versions, file path cannot be extracted, so no tracking
+            expectedSpanCount = 0
+        }
+
+        // -- Act --
+        SentrySDK.start(options: fixture.getOptions(enableFileHandleSwizzling: true))
+
+        // -- Assert --
+        try assertFileHandleWriteWithSpans(expectedSpanCount)
+    }
+
+    private func assertFileHandleReadWithNoSpans() {
+        guard let fileHandle = try? FileHandle(forReadingFrom: fixture.fileURL) else {
+            XCTFail("Could not create FileHandle for reading")
+            return
+        }
+        defer { try? fileHandle.close() }
+        
+        assertSpans(0, "file.read") {
+            try? fileHandle.readData(ofLength: fixture.data.count)
+        }
+    }
+
+    private func assertFileHandleWriteWithNoSpans() {
+        let writeURL = fixture.fileDirectory.appendingPathComponent("TestFileWrite")
+        FileManager.default.createFile(atPath: writeURL.path, contents: nil)
+        guard let fileHandle = try? FileHandle(forWritingTo: writeURL) else {
+            XCTFail("Could not create FileHandle for writing")
+            return
+        }
+        defer { try? fileHandle.close() }
+        
+        assertSpans(0, "file.write") {
+            try? fileHandle.write(fixture.data)
+        }
+    }
+
+    private func assertFileHandleReadWithSpans(_ expectedSpanCount: Int) throws {
+        guard let fileHandle = try? FileHandle(forReadingFrom: fixture.fileURL) else {
+            XCTFail("Could not create FileHandle for reading")
+            return
+        }
+        defer { try? fileHandle.close() }
+        
+        let data = assertSpans(expectedSpanCount, "file.read") {
+            try? fileHandle.readData(ofLength: fixture.data.count)
+        }
+        XCTAssertEqual(data?.count, fixture.data.count)
+    }
+
+    private func assertFileHandleWriteWithSpans(_ expectedSpanCount: Int) throws {
+        let writeURL = fixture.fileDirectory.appendingPathComponent("TestFileWrite")
+        FileManager.default.createFile(atPath: writeURL.path, contents: nil)
+        guard let fileHandle = try? FileHandle(forWritingTo: writeURL) else {
+            XCTFail("Could not create FileHandle for writing")
+            return
+        }
+        defer { try? fileHandle.close() }
+        
+        assertSpans(expectedSpanCount, "file.write") {
+            try? fileHandle.write(fixture.data)
         }
     }
 

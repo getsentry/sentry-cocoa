@@ -1,5 +1,6 @@
 #import "SentryFileIOTrackingIntegration.h"
 #import "SentryNSDataSwizzling.h"
+#import "SentryNSFileHandleSwizzling.h"
 #import "SentryNSFileManagerSwizzling.h"
 #import "SentrySwift.h"
 
@@ -22,6 +23,7 @@
 
     [SentryNSDataSwizzling.shared startWithOptions:options tracker:self.tracker];
     [SentryNSFileManagerSwizzling.shared startWithOptions:options tracker:self.tracker];
+    [SentryNSFileHandleSwizzling.shared startWithOptions:options tracker:self.tracker];
 
     return YES;
 }
@@ -38,6 +40,7 @@
 
     [SentryNSDataSwizzling.shared stop];
     [SentryNSFileManagerSwizzling.shared stop];
+    [SentryNSFileHandleSwizzling.shared stop];
 }
 
 @end

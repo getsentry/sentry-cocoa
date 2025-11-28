@@ -72,6 +72,34 @@
         helper.measureNSFileManagerCreateFile(atPath: path, data: data, attributes: attributes, origin: origin, processDirectoryPath: processInfoWrapper.processDirectoryPath, method: method)
     }
 
+    // This must use NSFileHandle not FileHandle because it is used to swizzle ObjC
+    @objc(measureNSFileHandle:readDataOfLength:origin:method:) public func measureNSFileHandle(_ fileHandle: FileHandle, readDataOfLength length: UInt, origin: String, method: @escaping (UInt) -> Data) -> Data {
+        let result = helper.measureNSFileHandle(fileHandle as NSFileHandle, readDataOfLength: length, origin: origin, processDirectoryPath: processInfoWrapper.processDirectoryPath) { length in
+            method(length) as NSData
+        }
+        return result as Data
+    }
+
+    // This must use NSFileHandle not FileHandle because it is used to swizzle ObjC
+    @objc(measureNSFileHandle:readDataToEndOfFile:origin:method:) public func measureNSFileHandle(_ fileHandle: FileHandle, readDataToEndOfFile origin: String, method: @escaping () -> Data) -> Data {
+        let result = helper.measureNSFileHandle(fileHandle as NSFileHandle, readDataToEndOfFile: origin, processDirectoryPath: processInfoWrapper.processDirectoryPath) {
+            method() as NSData
+        }
+        return result as Data
+    }
+
+    // This must use NSFileHandle not FileHandle because it is used to swizzle ObjC
+    @objc(measureNSFileHandle:writeData:origin:method:) public func measureNSFileHandle(_ fileHandle: FileHandle, writeData data: Data, origin: String, method: @escaping (Data) -> Void) {
+        helper.measureNSFileHandle(fileHandle as NSFileHandle, writeData: data as NSData, origin: origin, processDirectoryPath: processInfoWrapper.processDirectoryPath) { data in
+            method(data as Data)
+        }
+    }
+
+    // This must use NSFileHandle not FileHandle because it is used to swizzle ObjC
+    @objc(measureNSFileHandle:synchronizeFile:origin:method:) public func measureNSFileHandle(_ fileHandle: FileHandle, synchronizeFile origin: String, method: @escaping () -> Void) {
+        helper.measureNSFileHandle(fileHandle as NSFileHandle, synchronizeFile: origin, processDirectoryPath: processInfoWrapper.processDirectoryPath, method: method)
+    }
+
     func span(forPath path: String, origin: String, operation: String) -> (any Span)? {
         helper.span(forPath: path, origin: origin, operation: operation, processDirectoryPath: processInfoWrapper.processDirectoryPath)
     }

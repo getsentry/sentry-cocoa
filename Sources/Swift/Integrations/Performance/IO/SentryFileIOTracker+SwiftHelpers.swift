@@ -196,4 +196,132 @@ extension SentryFileIOTracker {
             throw error
         }
     }
+
+    // MARK: - FileHandle Operations
+
+    func measureReadingFileHandle(
+        _ fileHandle: FileHandle,
+        ofLength length: UInt,
+        origin: String,
+        method: (_ fileHandle: FileHandle, _ length: UInt) throws -> Data
+    ) rethrows -> Data {
+        // Extract file path if available (iOS 13+)
+        let filePath: String?
+        if #available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *) {
+            filePath = fileHandle.filePath
+        } else {
+            filePath = nil
+        }
+        
+        // Skip tracking if no file path (e.g., pipes, sockets)
+        guard let path = filePath else {
+            return try method(fileHandle, length)
+        }
+        
+        guard let span = self.span(forPath: path, origin: origin, operation: SentrySpanOperationFileRead) else {
+            return try method(fileHandle, length)
+        }
+        do {
+            let data = try method(fileHandle, length)
+            span.setData(value: data.count, key: SentrySpanDataKeyFileSize)
+            span.finish()
+            return data
+        } catch {
+            span.finish(status: .internalError)
+            throw error
+        }
+    }
+
+    func measureReadingFileHandleToEnd(
+        _ fileHandle: FileHandle,
+        origin: String,
+        method: (_ fileHandle: FileHandle) throws -> Data
+    ) rethrows -> Data {
+        // Extract file path if available (iOS 13+)
+        let filePath: String?
+        if #available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *) {
+            filePath = fileHandle.filePath
+        } else {
+            filePath = nil
+        }
+        
+        // Skip tracking if no file path (e.g., pipes, sockets)
+        guard let path = filePath else {
+            return try method(fileHandle)
+        }
+        
+        guard let span = self.span(forPath: path, origin: origin, operation: SentrySpanOperationFileRead) else {
+            return try method(fileHandle)
+        }
+        do {
+            let data = try method(fileHandle)
+            span.setData(value: data.count, key: SentrySpanDataKeyFileSize)
+            span.finish()
+            return data
+        } catch {
+            span.finish(status: .internalError)
+            throw error
+        }
+    }
+
+    func measureWritingFileHandle(
+        _ fileHandle: FileHandle,
+        data: Data,
+        origin: String,
+        method: (_ fileHandle: FileHandle, _ data: Data) throws -> Void
+    ) rethrows {
+        // Extract file path if available (iOS 13+)
+        let filePath: String?
+        if #available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *) {
+            filePath = fileHandle.filePath
+        } else {
+            filePath = nil
+        }
+        
+        // Skip tracking if no file path (e.g., pipes, sockets)
+        guard let path = filePath else {
+            return try method(fileHandle, data)
+        }
+        
+        guard let span = self.span(forPath: path, origin: origin, operation: SentrySpanOperationFileWrite, size: UInt(data.count)) else {
+            return try method(fileHandle, data)
+        }
+        do {
+            try method(fileHandle, data)
+            span.finish()
+        } catch {
+            span.finish(status: .internalError)
+            throw error
+        }
+    }
+
+    func measureSynchronizingFileHandle(
+        _ fileHandle: FileHandle,
+        origin: String,
+        method: (_ fileHandle: FileHandle) throws -> Void
+    ) rethrows {
+        // Extract file path if available (iOS 13+)
+        let filePath: String?
+        if #available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *) {
+            filePath = fileHandle.filePath
+        } else {
+            filePath = nil
+        }
+        
+        // Skip tracking if no file path (e.g., pipes, sockets)
+        guard let path = filePath else {
+            return try method(fileHandle)
+        }
+        
+        guard let span = self.span(forPath: path, origin: origin, operation: SentrySpanOperationFileWrite) else {
+            return try method(fileHandle)
+        }
+        do {
+            try method(fileHandle)
+            span.finish()
+        } catch {
+            span.finish(status: .internalError)
+            throw error
+        }
+    }
 }
