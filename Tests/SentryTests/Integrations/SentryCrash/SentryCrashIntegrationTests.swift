@@ -624,6 +624,32 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         XCTAssertEqual("transaction", envelope.items.first?.header.type)
     }
     
+    func testAttributesAreNotPassedToSentryCrash() throws {
+        // Start the SDK without any integration
+        SentrySDK.start { options in
+            options.dsn = SentryCrashIntegrationTests.dsnAsString
+            options.removeAllIntegrations()
+        }
+        
+        // Configure some attributes
+        SentrySDK.configureScope { scope in
+            scope.setAttribute(value: "value", key: "key")
+            scope.setEnvironment("test-attributes")
+        }
+        
+        // UserInfo is set when installing the integration, so let's manually install it again to use the new scope values
+        let sentryCrash = fixture.sentryCrash
+        let sut = SentryCrashIntegration(crashAdapter: sentryCrash, andDispatchQueueWrapper: fixture.dispatchQueueWrapper)
+        
+        sut.install(with: Options())
+
+        let userInfo = try XCTUnwrap(SentryDependencyContainer.sharedInstance().crashReporter.userInfo)
+        // Double check the environment just set is in the user info
+        assertUserInfoField(userInfo: userInfo, key: "environment", expected: "test-attributes")
+        // Validate there is no attributes in the user info
+        XCTAssertNil(userInfo["attributes"])
+    }
+    
     private func givenCurrentSession() -> SentrySession {
         // serialize sets the timestamp
         let session = SentrySession(jsonObject: fixture.session.serialize())!
