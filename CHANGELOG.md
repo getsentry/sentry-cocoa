@@ -2,12 +2,11 @@
 
 ## Unreleased
 
-### Features
 ### Breaking Changes
 
 - Change the `http.response.status_code` for spans to int (#6896)
 
-### Feature
+### Features
 
 - Add attributes data to `SentryScope` (#6830)
 - Add options to customize UserFeedback error messages (#6790)
