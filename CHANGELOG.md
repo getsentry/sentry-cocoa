@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Breaking Changes
+
+- Change the `http.response.status_code` for spans to int (#6896)
+
 ### Feature
 
 - Add options to customize UserFeedback error messages (#6790)

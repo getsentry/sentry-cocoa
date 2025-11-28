@@ -69,7 +69,7 @@ class TraceTestViewController: UIViewController {
                 return
             }
 
-            guard let child = children.first(where: { $0.operation == "http.client" && $0.data["url"] as? String == "https://sentry-brand.storage.googleapis.com/sentry-logo-black.png" && $0.data["http.response.status_code"] as? String == "200" }) else {
+            guard let child = children.first(where: { $0.operation == "http.client" && $0.data["url"] as? String == "https://sentry-brand.storage.googleapis.com/sentry-logo-black.png" && $0.data["http.response.status_code"] as? NSNumber == NSNumber(value: 200) }) else {
                 UIAssert.fail("Did not find child span for HTTP for retrieving the sentry brand logo.")
                 return
             }
