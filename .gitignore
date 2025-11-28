@@ -44,8 +44,6 @@ Packages
 Carthage/Build
 Carthage/Checkouts
 Carthage
-Sentry.Carthage.json
-SentrySwiftUI.Carthage.json
 
 # CocoaPods
 Examples/**/Pods

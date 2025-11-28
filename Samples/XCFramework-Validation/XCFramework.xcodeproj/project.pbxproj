@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 52;
+	objectVersion = 60;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -36,7 +36,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		1573CAE22BBCA4820018A2B7 /* SentrySwiftUI.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = SentrySwiftUI.xcframework; path = Carthage/Build/SentrySwiftUI.xcframework; sourceTree = "<group>"; };
+		1573CAE22BBCA4820018A2B7 /* SentrySwiftUI.xcframework */ = {isa = PBXFileReference; expectedSignature = "AppleDeveloperProgram:97JCY7859U:GetSentry LLC"; lastKnownFileType = wrapper.xcframework; name = SentrySwiftUI.xcframework; path = ../../Carthage/SentrySwiftUI.xcframework; sourceTree = "<group>"; };
 		1573CAE62BBCA8260018A2B7 /* CheckTracedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckTracedView.swift; sourceTree = "<group>"; };
 		7BA13E2E267B3F5200DEE308 /* XCFramework.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = XCFramework.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		7BA13E31267B3F5200DEE308 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -46,7 +46,7 @@
 		7BA13E3A267B3F5400DEE308 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		7BA13E3D267B3F5400DEE308 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		7BA13E3F267B3F5400DEE308 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		7BA13E46267B4A2D00DEE308 /* Sentry.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = Sentry.xcframework; path = Carthage/Build/Sentry.xcframework; sourceTree = "<group>"; };
+		7BA13E46267B4A2D00DEE308 /* Sentry.xcframework */ = {isa = PBXFileReference; expectedSignature = "AppleDeveloperProgram:97JCY7859U:GetSentry LLC"; lastKnownFileType = wrapper.xcframework; name = Sentry.xcframework; path = ../../Carthage/Sentry.xcframework; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */

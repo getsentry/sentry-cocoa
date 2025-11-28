@@ -127,6 +127,9 @@ jobs:
           pattern: xcframework-${{github.sha}}-sentry-swiftui
           path: Carthage/
       - run: ./scripts/ci-select-xcode.sh 16.4
+      - name: Unzip all XCFrameworks
+        run: |
+          find Carthage -name "*.xcframework.zip" -print0 | xargs -t0I @ unzip @ -d Carthage
       - run: make build-xcframework-sample
       - name: Run CI Diagnostics
         if: failure()
