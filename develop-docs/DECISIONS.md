@@ -479,3 +479,15 @@ Related links:
 
 - https://github.com/getsentry/sentry-cocoa/issues/6758
 - https://github.com/getsentry/sentry-cocoa/pull/6873
+
+## Deprecate Carthage Support
+
+Date: November 28, 2025
+Contributors: @philprime, @philipphofmann, @itaybre
+
+We have found that Carthage does not support downloading multiple XCFrameworks from GitHub Releases, nor does there appear to be an easy workaround for this limitation.
+We also decided to streamline our integrations by reducing the number of package managers that build from source. Therefore, we have decided to deprecate all official Carthage support with v9. Users may still be able to use Carthage, but it will no longer be recommended or officially supported.
+
+Related:
+
+- Fix for multiple files in Releases (stale for months): https://github.com/Carthage/Carthage/pull/3398
