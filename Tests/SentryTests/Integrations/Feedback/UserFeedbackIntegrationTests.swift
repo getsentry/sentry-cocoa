@@ -11,39 +11,32 @@ final class UserFeedbackIntegrationTests: XCTestCase {
         return options
     }
     
-    static private var optionsWithoutFeedback: Options {
-        return Options()
+    private struct TestDependencies: ScreenshotSourceProvider {
+        let screenshotSource: SentryScreenshotSource?
     }
     
-    static private var screenshotSource: SentryScreenshotSource {
+    func testUsesCorrectName() {
+        XCTAssertEqual(UserFeedbackIntegration<TestDependencies>.name, "SentryUserFeedbackIntegration")
+    }
+    
+    func testInitializerFailsWhenNoScreenshotSource() {
+        let integration = UserFeedbackIntegration(with: Self.optionsWithFeedback, dependencies: TestDependencies(screenshotSource: nil))
+        XCTAssertNil(integration)
+    }
+    
+    func testInitializerSucceedsWhenScreenshotSourceIsPresent() {
         let viewRenderer = SentryDefaultViewRenderer()
         let photographer = SentryViewPhotographer(
            renderer: viewRenderer,
            redactOptions: Options().screenshot,
             enableMaskRendererV2: false)
-        return SentryScreenshotSource(photographer: photographer)
-    }
-    
-    private struct MockDependencies: ScreenshotSourceProvider {
-        let screenshotSource: SentryScreenshotSource?
-    }
-    
-    func testUsesCorrectName() {
-        XCTAssertEqual(UserFeedbackIntegration<MockDependencies>.name, "SentryUserFeedbackIntegration")
-    }
-    
-    func testInitializerFailsWhenNoScreenshotSource() {
-        let integration = UserFeedbackIntegration(with: Self.optionsWithFeedback, dependencies: MockDependencies(screenshotSource: nil))
-        XCTAssertNil(integration)
-    }
-    
-    func testInitializerSucceedsWhenScreenshotSourceIsPresent() {
-        let integration = UserFeedbackIntegration(with: Self.optionsWithFeedback, dependencies: MockDependencies(screenshotSource: Self.screenshotSource))
+        let screenshotSource = SentryScreenshotSource(photographer: photographer)
+        let integration = UserFeedbackIntegration(with: Self.optionsWithFeedback, dependencies: TestDependencies(screenshotSource: screenshotSource))
         XCTAssertNotNil(integration)
     }
     
     func testInitializerFailsWhenFeedbackNotConfigured() {
-        let integration = UserFeedbackIntegration(with: Self.optionsWithoutFeedback, dependencies: MockDependencies(screenshotSource: nil))
+        let integration = UserFeedbackIntegration(with: Options(), dependencies: TestDependencies(screenshotSource: nil))
         XCTAssertNil(integration)
     }
 }
