@@ -33,7 +33,7 @@ writeJSONDataToMemory(const char *const data, const int length, void *const user
     const char *path = [filePath UTF8String];
     int fd = open(path, O_RDWR | O_CREAT | O_TRUNC, 0644);
     if (fd < 0) {
-        SENTRY_LOG_DEBUG(@"Could not open file %s for writing: %s", path, strerror(errno));
+        SENTRY_LOG_DEBUG(@"Could not open file %s for writing: %s", path, SENTRY_STRERROR_R(errno));
         return NO;
     }
 

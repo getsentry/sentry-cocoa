@@ -56,8 +56,8 @@ sentrySessionReplaySync_writeInfo(void)
     int fd = open(crashReplay.path, O_RDWR | O_CREAT | O_TRUNC, 0644);
 
     if (fd < 1) {
-        SENTRY_ASYNC_SAFE_LOG_ERROR(
-            "Could not open replay info crash for file %s: %s", crashReplay.path, strerror(errno));
+        SENTRY_ASYNC_SAFE_LOG_ERROR("Could not open replay info crash for file %s: %s",
+            crashReplay.path, SENTRY_STRERROR_R(errno));
         return;
     }
 
@@ -85,7 +85,7 @@ sentrySessionReplaySync_readInfo(SentryCrashReplay *output, const char *const pa
     int fd = open(path, O_RDONLY);
     if (fd < 0) {
         SENTRY_ASYNC_SAFE_LOG_ERROR(
-            "Could not open replay info crash file %s: %s", path, strerror(errno));
+            "Could not open replay info crash file %s: %s", path, SENTRY_STRERROR_R(errno));
         return false;
     }
 

@@ -31,6 +31,16 @@
 #define SENTRY_ASYNC_SAFE_LOG_C_BUFFER_SIZE 1024
 
 /**
+ * Buffer size for thread-safe strerror_r operations.
+ *
+ * POSIX doesn't specify a minimum buffer size for strerror_r. We use 1024 bytes to match
+ * glibc's implementation, which uses a 1024-byte buffer for strerror() to ensure sufficient
+ * space for error messages across all locales and systems. This provides a safe upper bound
+ * while being reasonable for stack allocation since it's allocated per macro expansion.
+ */
+#define SENTRY_STRERROR_R_BUFFER_SIZE 1024
+
+/**
  * In addition to writing to file, we can also write to the console. This is not safe to do from
  * actual async contexts, but can be helpful while running with the debugger attached in certain
  * cases. The logger will never write to the console if there is no debugger attached.
@@ -43,7 +53,10 @@
 extern "C" {
 #endif
 
+#include <errno.h>
 #include <stdbool.h>
+#include <stdio.h>
+#include <string.h>
 
 static char g_logFilename[1024];
 
@@ -149,6 +162,36 @@ int sentry_asyncLogSetFileName(const char *filename, bool overwrite);
 #endif
 
 /**
+ * Thread-safe version of strerror using strerror_r.
+ * On macOS/iOS, strerror_r follows XSI-compliant version which returns int.
+ * This macro evaluates to a pointer to a buffer containing the error string.
+ *
+ * The buffer size is defined by SENTRY_STRERROR_R_BUFFER_SIZE (1024 bytes, matching glibc).
+ *
+ * The macro uses a GCC statement expression ({ ... }) which allows a block of statements
+ * to be used as an expression. The last expression in the block (__strerror_buf;) becomes
+ * the value of the entire expression, allowing the macro to be used directly in function
+ * calls like: SENTRY_ASYNC_SAFE_LOG_ERROR("Error: %s", SENTRY_STRERROR_R(errno));
+ *
+ * IMPORTANT: Uses thread-local storage to ensure the pointer remains valid after the macro
+ * completes while maintaining thread safety. This is necessary because the macro is used
+ * as a function argument, and stack-allocated buffers would be deallocated before the
+ * function (e.g., vsnprintf) reads them. Thread-local storage ensures each thread has
+ * its own buffer, preventing race conditions.
+ *
+ * @param ERRNUM The error number (e.g., errno).
+ * @return Pointer to a thread-local buffer containing the error string.
+ */
+#define SENTRY_STRERROR_R(ERRNUM)                                                                  \
+    ({                                                                                             \
+        static __thread char __strerror_buf[SENTRY_STRERROR_R_BUFFER_SIZE];                        \
+        if (strerror_r((ERRNUM), __strerror_buf, sizeof(__strerror_buf)) != 0) {                   \
+            snprintf(__strerror_buf, sizeof(__strerror_buf), "Unknown error %d", (ERRNUM));        \
+        }                                                                                          \
+        __strerror_buf;                                                                            \
+    })
+
+/**
  * If @c errno is set to a non-zero value after @c statement finishes executing,
  * the error value is logged, and the original return value of @c statement is
  * returned.
@@ -160,7 +203,7 @@ int sentry_asyncLogSetFileName(const char *filename, bool overwrite);
         const int __log_errnum = errno;                                                            \
         if (__log_errnum != 0) {                                                                   \
             SENTRY_ASYNC_SAFE_LOG_ERROR("%s failed with code: %d, description: %s", #statement,    \
-                __log_errnum, strerror(__log_errnum));                                             \
+                __log_errnum, SENTRY_STRERROR_R(__log_errnum));                                    \
         }                                                                                          \
         __log_rv;                                                                                  \
     })

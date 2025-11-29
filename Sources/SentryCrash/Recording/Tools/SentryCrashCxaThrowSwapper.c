@@ -123,7 +123,7 @@ addPair(SentryCrashImageToOriginalCxaThrowPair pair)
 
         if (g_cxa_originals == NULL) {
             SENTRY_ASYNC_SAFE_LOG_ERROR(
-                "Failed to realloc memory for g_cxa_originals: %s", strerror(errno));
+                "Failed to realloc memory for g_cxa_originals: %s", SENTRY_STRERROR_R(errno));
             return;
         }
     }
@@ -200,7 +200,7 @@ perform_rebinding_with_section(const section_t *dataSection, intptr_t slide, nli
         if (mprotect(indirect_symbol_bindings, dataSection->size, PROT_READ | PROT_WRITE) != 0) {
             SENTRY_ASYNC_SAFE_LOG_DEBUG(
                 "mprotect failed to set PROT_READ | PROT_WRITE for section %s,%s: %s",
-                dataSection->segname, dataSection->sectname, strerror(errno));
+                dataSection->segname, dataSection->sectname, SENTRY_STRERROR_R(errno));
             return;
         }
     }
@@ -257,7 +257,7 @@ perform_rebinding_with_section(const section_t *dataSection, intptr_t slide, nli
         if (mprotect(indirect_symbol_bindings, dataSection->size, protection) != 0) {
             SENTRY_ASYNC_SAFE_LOG_ERROR(
                 "mprotect failed to restore protection for section %s,%s: %s", dataSection->segname,
-                dataSection->sectname, strerror(errno));
+                dataSection->sectname, SENTRY_STRERROR_R(errno));
         }
     }
 }
@@ -366,7 +366,7 @@ sentrycrashct_swap_cxa_throw(const cxa_throw_type handler)
             sizeof(SentryCrashImageToOriginalCxaThrowPair) * g_cxa_originals_capacity);
         if (g_cxa_originals == NULL) {
             SENTRY_ASYNC_SAFE_LOG_ERROR(
-                "Failed to allocate memory for g_cxa_originals: %s", strerror(errno));
+                "Failed to allocate memory for g_cxa_originals: %s", SENTRY_STRERROR_R(errno));
             return -1;
         }
     }
