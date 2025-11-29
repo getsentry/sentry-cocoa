@@ -34,10 +34,11 @@ private struct AnyIntegration {
 @_spi(Private) @objc public final class SentrySwiftIntegrationInstaller: NSObject {
     @objc public class func install(with options: Options) {
         let dependencies = SentryDependencyContainer.sharedInstance()
+        let commonIntegrations: [AnyIntegration] = [.init(SwiftAsyncIntegration.self)]
         #if os(iOS) && !SENTRY_NO_UIKIT
-        let integrations: [AnyIntegration] = [.init(UserFeedbackIntegration<SentryDependencyContainer>.self)]
+        let integrations: [AnyIntegration] = commonIntegrations + [.init(UserFeedbackIntegration<SentryDependencyContainer>.self)]
         #else
-        let integrations: [AnyIntegration] = []
+        let integrations: [AnyIntegration] = commonIntegrations
         #endif
         integrations.forEach { anyIntegration in
             guard let integration = anyIntegration.install(options, dependencies) else { return }
