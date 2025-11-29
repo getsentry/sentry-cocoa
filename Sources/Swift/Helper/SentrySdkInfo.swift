@@ -6,9 +6,9 @@ import Foundation
  * @note Both name and version are required.
  * @see https://develop.sentry.dev/sdk/event-payloads/sdk/
  */
-@_spi(Private) @objc public final class SentrySdkInfo: NSObject, SentrySerializable {
+final class SentrySdkInfo {
     
-    @objc public static func global() -> Self {
+    static func global() -> Self {
         if let options = SentrySDKInternal.currentHub().getClient()?.getOptions() {
             let enabledFeatures = SentryDependencyContainerSwiftHelper.enabledFeatures(options)
             return Self(withEnabledFeatures: enabledFeatures, sendDefaultPii: SentryDependencyContainerSwiftHelper.sendDefaultPii(options))
@@ -19,14 +19,14 @@ import Foundation
     /**
      * The name of the SDK. Examples: sentry.cocoa, sentry.cocoa.vapor, ...
      */
-    @objc public let name: String
+    let name: String
     
     /**
      * The version of the SDK. It should have the Semantic Versioning format MAJOR.MINOR.PATCH, without
      * any prefix (no v or anything else in front of the major version number). Examples:
      * 0.1.0, 1.0.0, 2.0.0-beta0
      */
-    @objc public let version: String
+    let version: String
     
     /**
      * A list of names identifying enabled integrations. The list should
@@ -34,7 +34,7 @@ import Foundation
      * integrations are included because different SDK releases may contain different
      * default integrations.
      */
-    @objc public let integrations: [String]
+    let integrations: [String]
     
     /**
      * A list of feature names identifying enabled SDK features. This list
@@ -42,26 +42,26 @@ import Foundation
      * options also adds an integration. We encourage tracking such features with either
      * integrations or features but not both to reduce the payload size.
      */
-    @objc public let features: [String]
+    let features: [String]
     
     /**
      * A list of packages that were installed as part of this SDK or the
      * activated integrations. Each package consists of a name in the format
      * source:identifier and version.
      */
-    @objc public let packages: [[String: String]]
+    let packages: [[String: String]]
     
     /**
      * A set of settings as part of this SDK.
      */
-    @objc public let settings: SentrySDKSettings
+    let settings: SentrySDKSettings
     
-    @objc public convenience init(withOptions options: Options?) {
+    convenience init(withOptions options: Options?) {
         let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
         self.init(withEnabledFeatures: features, sendDefaultPii: options?.sendDefaultPii ?? false)
     }
 
-    @objc public convenience init(withEnabledFeatures features: [String], sendDefaultPii: Bool) {
+    convenience init(withEnabledFeatures features: [String], sendDefaultPii: Bool) {
         let integrations = SentrySDKInternal.currentHub().trimmedInstalledIntegrationNames()
         var packages = SentryExtraPackages.getPackages()
         let sdkPackage = SentrySdkPackage.global()
@@ -77,7 +77,7 @@ import Foundation
             settings: SentrySDKSettings(sendDefaultPii: sendDefaultPii))
     }
     
-    @objc public init(name: String?, version: String?, integrations: [String]?, features: [String]?, packages: [[String: String]]?, settings: SentrySDKSettings) {
+    init(name: String?, version: String?, integrations: [String]?, features: [String]?, packages: [[String: String]]?, settings: SentrySDKSettings) {
         self.name = name ?? ""
         self.version = version ?? ""
         self.integrations = integrations ?? []
@@ -87,8 +87,7 @@ import Foundation
     }
     
     // swiftlint:disable cyclomatic_complexity
-    @objc
-    public convenience init(dict: [AnyHashable: Any]) {
+    convenience init(dict: [AnyHashable: Any]?) {
         var name = ""
         var version = ""
         var integrations = Set<String>()
@@ -96,15 +95,15 @@ import Foundation
         var packages = Set<[String: String]>()
         var settings = SentrySDKSettings(dict: [:])
 
-        if let nameValue = dict["name"] as? String {
+        if let nameValue = dict?["name"] as? String {
             name = nameValue
         }
 
-        if let versionValue = dict["version"] as? String {
+        if let versionValue = dict?["version"] as? String {
             version = versionValue
         }
 
-        if let integrationArray = dict["integrations"] as? [Any] {
+        if let integrationArray = dict?["integrations"] as? [Any] {
             for item in integrationArray {
                 if let integration = item as? String {
                     integrations.insert(integration)
@@ -112,7 +111,7 @@ import Foundation
             }
         }
 
-        if let featureArray = dict["features"] as? [Any] {
+        if let featureArray = dict?["features"] as? [Any] {
             for item in featureArray {
                 if let feature = item as? String {
                     features.insert(feature)
@@ -120,7 +119,7 @@ import Foundation
             }
         }
 
-        if let packageArray = dict["packages"] as? [Any] {
+        if let packageArray = dict?["packages"] as? [Any] {
             for item in packageArray {
                 if let package = item as? [String: Any],
                    let name = package["name"] as? String,
@@ -130,7 +129,7 @@ import Foundation
             }
         }
 
-        if let settingsDict = dict["settings"] as? NSDictionary {
+        if let settingsDict = dict?["settings"] as? NSDictionary {
             settings = SentrySDKSettings(dict: settingsDict)
         }
 
@@ -145,7 +144,7 @@ import Foundation
     }
     // swiftlint:enable cyclomatic_complexity
     
-    @objc public func serialize() -> [String: Any] {
+    func serialize() -> [String: Any] {
         [
             "name": self.name,
             "version": self.version,
@@ -155,4 +154,12 @@ import Foundation
             "settings": self.settings.serialize()
         ]
     }
+}
+
+@_spi(Private) @objc public final class SentrySdkInfoObjC: NSObject {
+    
+    @objc public static func optionsToDict(_ options: Options) -> [String: Any] {
+        SentrySdkInfo(withOptions: options).serialize()
+    }
+    
 }

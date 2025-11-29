@@ -18,6 +18,48 @@ class SentrySdkInfoTests: XCTestCase {
     override func tearDown() {
         cleanUp()
     }
+    
+    private func assertSDKInfoIsEmpty(sdkInfo: SentrySdkInfo) {
+        XCTAssertEqual("", sdkInfo.name)
+        XCTAssertEqual("", sdkInfo.version)
+        XCTAssertEqual([], sdkInfo.integrations)
+        XCTAssertEqual([], sdkInfo.features)
+    }
+    
+    func testSdkNameIsNil() {
+        let actual = SentrySdkInfo(name: nil, version: "", integrations: [], features: [], packages: [], settings: .init())
+        assertSDKInfoIsEmpty(sdkInfo: actual)
+    }
+    
+    func testVersionStringIsNil() {
+        let actual = SentrySdkInfo(name: "", version: nil, integrations: [], features: [], packages: [], settings: .init())
+        assertSDKInfoIsEmpty(sdkInfo: actual)
+    }
+    
+    func testIntegrationsAreNil() {
+        let actual = SentrySdkInfo(name: "", version: "", integrations: nil, features: [], packages: [], settings: .init())
+        assertSDKInfoIsEmpty(sdkInfo: actual)
+    }
+    
+    func testFeaturesAreNil() {
+        let actual = SentrySdkInfo(name: "", version: "", integrations: [], features: nil, packages: [], settings: .init())
+        assertSDKInfoIsEmpty(sdkInfo: actual)
+    }
+    
+    func testPackagesAreNil() {
+        let actual = SentrySdkInfo(name: "", version: "", integrations: [], features: [], packages: nil, settings: .init())
+        assertSDKInfoIsEmpty(sdkInfo: actual)
+    }
+    
+    func testInitWithNilDict() {
+        let actual = SentrySdkInfo(dict: nil)
+        assertEmptySdkInfo(actual: actual)
+    }
+    
+    func testInitWithDictWrongTypes() {
+        let actual = SentrySdkInfo(dict: ["name": 20, "version": 0])
+        assertEmptySdkInfo(actual: actual)
+    }
 
     func testWithPatchLevelSuffix() {
         let version = "50.10.20-beta1"

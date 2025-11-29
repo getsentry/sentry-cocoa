@@ -2,21 +2,21 @@
  * Describes the settings for the Sentry SDK
  * @see https://develop.sentry.dev/sdk/event-payloads/sdk/
  */
-@_spi(Private) @objc public final class SentrySDKSettings: NSObject {
+final class SentrySDKSettings {
     
-    @objc public override init() {
+    init() {
         autoInferIP = false
     }
     
-    @objc public convenience init(options: Options?) {
+    convenience init(options: Options?) {
         self.init(sendDefaultPii: options?.sendDefaultPii ?? false)
     }
 
-    @objc public init(sendDefaultPii: Bool) {
+    init(sendDefaultPii: Bool) {
         autoInferIP = sendDefaultPii
     }
     
-    @objc public init(dict: NSDictionary) {
+    init(dict: NSDictionary) {
         if let inferIp = dict["infer_ip"] as? String {
             autoInferIP = inferIp == "auto"
         } else {
@@ -24,9 +24,9 @@
         }
     }
     
-    @objc public var autoInferIP: Bool
+    var autoInferIP: Bool
     
-    @objc public func serialize() -> NSDictionary {
+    func serialize() -> NSDictionary {
         [
             "infer_ip": autoInferIP ? "auto" : "never"
         ]
