@@ -529,14 +529,8 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
     // Hybrid SDKs may override the sdk info for a replay Event,
     // the same SDK should be used for the envelope header.
-    SentrySdkInfo *sdkInfo = replayEvent.sdk
-        ? [[SentrySdkInfo alloc]
-              initWithDict:SENTRY_UNWRAP_NULLABLE_DICT(NSString *, id, replayEvent.sdk)]
-        : [SentrySdkInfo global];
     SentryEnvelopeHeader *envelopeHeader =
-        [[SentryEnvelopeHeader alloc] initWithId:replayEvent.eventId
-                                         sdkInfo:sdkInfo
-                                    traceContext:nil];
+        [[SentryEnvelopeHeader alloc] initWithId:replayEvent.eventId sdkInfo:replayEvent.sdk];
 
     SentryEnvelope *envelope = [[SentryEnvelope alloc] initWithHeader:envelopeHeader
                                                                 items:@[ videoEnvelopeItem ]];
@@ -907,7 +901,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         return;
     }
 
-    event.sdk = [[[SentrySdkInfo alloc] initWithOptions:self.options] serialize];
+    event.sdk = [SentrySdkInfoObjC optionsToDict:self.options];
 }
 
 - (void)setUserInfo:(NSDictionary *_Nullable)userInfo withEvent:(SentryEvent *_Nullable)event
