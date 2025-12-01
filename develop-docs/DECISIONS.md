@@ -485,7 +485,7 @@ Related links:
 Date: November 28, 2025
 Contributors: @philprime, @philipphofmann, @itaybre
 
-We have found that Carthage does not support downloading multiple XCFrameworks from GitHub Releases, nor does there appear to be an easy workaround for this limitation.
+We have found that Carthage does not support downloading multiple XCFrameworks from GitHub Releases, nor does there appear to be an easy workaround for this limitation. This wasn't a recent change, but by design (see the related PR), so Carthage was broken for some time without any user complaints, giving us confidence that very few people use Carthage for integrating with Sentry.
 We also decided to streamline our integrations by reducing the number of package managers that build from source. Therefore, we have decided to deprecate all official Carthage support with v9. Users may still be able to use Carthage, but it will no longer be recommended or officially supported.
 
 Related:
