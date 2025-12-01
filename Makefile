@@ -1,5 +1,5 @@
 .PHONY: init
-init: init-local init-ci-build init-ci-deploy init-ci-format
+init: init-local init-ci-build init-ci-format
 
 .PHONY: init-local
 init-local:
@@ -17,11 +17,6 @@ init-local:
 .PHONY: init-ci-build
 init-ci-build:
 	brew bundle --file Brewfile-ci-build
-	
-# installs the tools needed to run CI deploy tasks locally
-.PHONY: init-ci-deploy
-init-ci-deploy:
-	brew bundle --file Brewfile-ci-deploy
 
 # installs the tools needed to run CI format tasks locally
 .PHONY: init-ci-format
