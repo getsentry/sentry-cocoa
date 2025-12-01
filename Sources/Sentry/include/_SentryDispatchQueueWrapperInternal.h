@@ -33,8 +33,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)dispatchAsyncOnMainQueueIfNotMainThread:(void (^)(void))block
     NS_SWIFT_NAME(dispatchAsyncOnMainQueueIfNotMainThread(block:));
 
-- (BOOL)isCurrentQueue;
-
 @end
 
 NS_ASSUME_NONNULL_END
