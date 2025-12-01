@@ -32,8 +32,6 @@ NS_ASSUME_NONNULL_BEGIN
         dispatch_queue_attr_t attributes = dispatch_queue_attr_make_with_qos_class(
             DISPATCH_QUEUE_SERIAL, QOS_CLASS_UTILITY, relativePriority);
         _queue = dispatch_queue_create(name, attributes);
-        void *key = (__bridge void *)self;
-        dispatch_queue_set_specific(_queue, key, key, NULL);
     }
     return self;
 }
