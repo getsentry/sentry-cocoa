@@ -69,6 +69,10 @@ jobs:
           path: sentry-react-native
           ref: cocoa-v9
 
+      - name: Remove Brew's yarn
+        if: ${{ matrix.ci_runner == 'Cirrus' }}
+        run: brew uninstall yarn
+
       - name: Enable Corepack
         working-directory: sentry-react-native
         run: npm i -g corepack
