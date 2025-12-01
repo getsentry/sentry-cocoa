@@ -48,7 +48,15 @@ import Foundation
     func sentryMXBacktrace(inAppLogic: SentryInAppLogic, handled: Bool) -> [SentryThread] {
         callStacks.map { callStack in
             let thread = SentryThread(threadId: 0)
-            let frames = callStack.toFrames()
+            let samples = callStack.callStackRootFrames.flatMap { samplesFrom(mxFrame: $0) }
+            // Group by stacktrace in case there are multiple samples with the same trace
+            var samplesToCount = [[Sample.Frame]: Int]()
+            for sample in samples {
+                let count = samplesToCount[sample.frames] ?? 0
+                samplesToCount[sample.frames] = sample.count + count
+            }
+            // Need to reverse because the root node of a flamegraph is the first frame in a stacktrace (usually main)
+            let frames = samplesToCount.mostSampled()?.reversed().map { $0.toSentryFrame() } ?? []
             frames.forEach { $0.inApp = NSNumber(value: inAppLogic.is(inApp: $0.package)) }
             thread.stacktrace = SentryStacktrace(frames: frames, registers: [:])
             thread.crashed = NSNumber(value: (callStack.threadAttributed ?? false) && !handled)
@@ -57,14 +65,44 @@ import Foundation
     }
 }
 
-struct SentryMXCallStack: Codable {
+private func samplesFrom(mxFrame: SentryMXFrame) -> [Sample] {
+    let selfFrame = Sample.Frame(binaryUUID: mxFrame.binaryUUID, offsetIntoBinaryTextSegment: mxFrame.offsetIntoBinaryTextSegment, binaryName: mxFrame.binaryName, address: mxFrame.address)
+    let subframes = mxFrame.subFrames ?? []
+
+    let childCount = subframes.map { $0.sampleCount ?? 0 }.reduce(0, +)
+    let selfCount = (mxFrame.sampleCount ?? 0) - childCount
+    var result = subframes.flatMap { samplesFrom(mxFrame: $0) }.map { Sample(count: $0.count, frames: [selfFrame] + $0.frames) }
+    if selfCount > 0 {
+        result.append(Sample(count: selfCount, frames: [selfFrame]))
+    }
+    return result
+}
+
+// A Sample is the standard data format for a flamegraph taken from https://github.com/brendangregg/FlameGraph
+// It is less compact than Apple's MetricKit format, but contains the same data and is easier to work with
+struct Sample {
+    let count: Int
+    let frames: [Frame]
+    
+    struct Frame: Hashable {
+        let binaryUUID: UUID
+        let offsetIntoBinaryTextSegment: Int
+        let binaryName: String?
+        let address: UInt64
+        
+        func toSentryFrame() -> Sentry.Frame {
+            let frame = Sentry.Frame()
+            frame.package = binaryName
+            frame.instructionAddress = sentry_formatHexAddressUInt64Swift(address)
+            frame.imageAddress = sentry_formatHexAddressUInt64Swift(address - UInt64(offsetIntoBinaryTextSegment))
+            return frame
+        }
+    }
+}
+
+struct SentryMXCallStack: Decodable {
     let threadAttributed: Bool?
     let callStackRootFrames: [SentryMXFrame]
-
-    func toFrames() -> [Frame] {
-        // The root node of a flamegraph is the first frame in a stacktrace (usually main)
-        callStackRootFrames.mostSampled()?.toFrames().reversed() ?? []
-    }
     
     func toDebugMeta() -> [DebugMeta] {
         callStackRootFrames.flatMap { frame in
@@ -73,25 +111,13 @@ struct SentryMXCallStack: Codable {
     }
 }
 
-struct SentryMXFrame: Codable {
+struct SentryMXFrame: Decodable {
     let binaryUUID: UUID
     let offsetIntoBinaryTextSegment: Int
     let binaryName: String?
     let address: UInt64
     let subFrames: [SentryMXFrame]?
     let sampleCount: Int?
-    
-    func toSentryFrame() -> Frame {
-        let frame = Frame()
-        frame.package = binaryName
-        frame.instructionAddress = sentry_formatHexAddressUInt64Swift(address)
-        frame.imageAddress = sentry_formatHexAddressUInt64Swift(address - UInt64(offsetIntoBinaryTextSegment))
-        return frame
-    }
-
-    func toFrames() -> [Frame] {
-        return [toSentryFrame()] + (subFrames?.mostSampled()?.toFrames() ?? [])
-    }
     
     func toDebugMeta() -> [DebugMeta] {
         let result = DebugMeta()
@@ -119,18 +145,17 @@ extension Sequence {
     }
 }
 
-extension Sequence where Element == SentryMXFrame {
-    // A sentry frame is a list not a tree, find the most frequently sampled element at this level of the tree.
-    func mostSampled() -> SentryMXFrame? {
+extension Dictionary where Value == Int {
+    func mostSampled() -> Key? {
         var mostSamples = -1
-        var mostSampledFrame: SentryMXFrame?
-        for frame in self {
-            if frame.sampleCount ?? 0 > mostSamples {
-                mostSamples = frame.sampleCount ?? 0
-                mostSampledFrame = frame
+        var mostSampledKey: Key?
+        for (key, value) in self {
+            if value > mostSamples {
+                mostSamples = value
+                mostSampledKey = key
             }
         }
-        return mostSampledFrame
+        return mostSampledKey
     }
 }
 
