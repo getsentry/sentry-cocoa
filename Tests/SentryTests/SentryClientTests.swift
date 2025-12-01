@@ -2438,7 +2438,7 @@ class SentryClientTests: XCTestCase {
         XCTAssertEqual(testBatcher.captureLogsInvocations.count, 1)
     }
     
-    func testFlushLogsCallsLogBatcherCaptureLogs() {
+    func testCaptureLogsCallsLogBatcherCaptureLogs() {
         let sut = fixture.getSut()
         
         let testDelegate = TestLogBatcherDelegateForClient()
@@ -2451,7 +2451,7 @@ class SentryClientTests: XCTestCase {
         
         XCTAssertEqual(testBatcher.captureLogsInvocations.count, 0)
         
-        sut.flushLogs()
+        sut.captureLogs()
         
         XCTAssertEqual(testBatcher.captureLogsInvocations.count, 1)
     }

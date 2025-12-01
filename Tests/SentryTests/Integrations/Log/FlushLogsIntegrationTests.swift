@@ -3,7 +3,7 @@
 import XCTest
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-final class SentryLogFlushIntegrationTests: XCTestCase {
+final class FlushLogsIntegrationTests: XCTestCase {
     
     private static let dsnAsString = TestConstants.dsnAsString(username: "SentryLogFlushIntegrationTests")
     
@@ -16,7 +16,7 @@ final class SentryLogFlushIntegrationTests: XCTestCase {
         
         init() throws {
             options = Options()
-            options.dsn = SentryLogFlushIntegrationTests.dsnAsString
+            options.dsn = FlushLogsIntegrationTests.dsnAsString
             options.enableLogs = true
             
             client = TestClient(options: options)!
@@ -72,7 +72,7 @@ final class SentryLogFlushIntegrationTests: XCTestCase {
         
         fixture.notificationCenterWrapper.post(Notification(name: CrossPlatformApplication.willResignActiveNotification))
         
-        XCTAssertEqual(fixture.client.flushLogsInvocations.count, 1)
+        XCTAssertEqual(fixture.client.captureLogsInvocations.count, 1)
     }
     
     func testWillTerminate_FlushesLogs() {
@@ -85,7 +85,7 @@ final class SentryLogFlushIntegrationTests: XCTestCase {
         
         fixture.notificationCenterWrapper.post(Notification(name: CrossPlatformApplication.willTerminateNotification))
         
-        XCTAssertEqual(fixture.client.flushLogsInvocations.count, 1)
+        XCTAssertEqual(fixture.client.captureLogsInvocations.count, 1)
     }
     
     func testUninstall_RemovesObservers() {
@@ -100,7 +100,7 @@ final class SentryLogFlushIntegrationTests: XCTestCase {
         fixture.notificationCenterWrapper.post(Notification(name: CrossPlatformApplication.willTerminateNotification))
         
         // Should not flush logs after uninstall
-        XCTAssertEqual(fixture.client.flushLogsInvocations.count, 0)
+        XCTAssertEqual(fixture.client.captureLogsInvocations.count, 0)
     }
     
     func testMultipleNotifications_FlushesLogsMultipleTimes() {
@@ -115,7 +115,7 @@ final class SentryLogFlushIntegrationTests: XCTestCase {
         fixture.notificationCenterWrapper.post(Notification(name: CrossPlatformApplication.willTerminateNotification))
         fixture.notificationCenterWrapper.post(Notification(name: CrossPlatformApplication.willResignActiveNotification))
         
-        XCTAssertEqual(fixture.client.flushLogsInvocations.count, 3)
+        XCTAssertEqual(fixture.client.captureLogsInvocations.count, 3)
     }
 }
 #endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)

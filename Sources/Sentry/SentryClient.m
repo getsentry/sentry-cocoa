@@ -1113,7 +1113,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     }
 }
 
-- (void)flushLogs
+- (void)captureLogs
 {
     [self.logBatcher captureLogs];
 }

@@ -82,7 +82,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)_swiftCaptureLog:(NSObject *)log withScope:(SentryScope *)scope;
 
-- (void)flushLogs;
+- (void)captureLogs;
 
 @end
 

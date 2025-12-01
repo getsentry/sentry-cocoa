@@ -168,8 +168,8 @@ public class TestClient: SentryClientInternal {
         }
     }
     
-    public var flushLogsInvocations = Invocations<Void>()
-    public override func flushLogs() {
-        flushLogsInvocations.record(())
+    public var captureLogsInvocations = Invocations<Void>()
+    public override func captureLogs() {
+        captureLogsInvocations.record(())
     }
 }

@@ -64,14 +64,14 @@ final class FlushLogsIntegration<Dependencies: NotificationCenterProvider>: NSOb
         guard let client = SentrySDKInternal.currentHub().getClient() else {
             return
         }
-        client.flushLogs()
+        client.captureLogs()
     }
     
     @objc private func willTerminate() {
         guard let client = SentrySDKInternal.currentHub().getClient() else {
             return
         }
-        client.flushLogs()
+        client.captureLogs()
     }
     
     static var name: String {
