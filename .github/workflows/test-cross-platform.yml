@@ -73,9 +73,6 @@ jobs:
         if: ${{ matrix.ci_runner == 'Cirrus' }}
         run: npm uninstall -g yarn
 
-      - name: Install cocoapods
-        run: gem install cocoapods
-
       - name: Enable Corepack
         working-directory: sentry-react-native
         run: npm i -g corepack
@@ -103,6 +100,9 @@ jobs:
       - name: Disable test parallelization
         working-directory: sentry-react-native/packages/core/RNSentryCocoaTester
         run: sed -i '' "s/parallelizable = \"YES\"/parallelizable = \"NO\"/" RNSentryCocoaTester.xcodeproj/xcshareddata/xcschemes/RNSentryCocoaTester.xcscheme
+
+      - name: Install cocoapods
+        run: sudo gem install cocoapods
 
       - name: Install App Pods
         working-directory: sentry-react-native/packages/core/RNSentryCocoaTester
