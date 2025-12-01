@@ -256,3 +256,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
 #if os(iOS) && !SENTRY_NO_UIKIT
 extension SentryDependencyContainer: ScreenshotSourceProvider { }
 #endif
+
+#if ((os(iOS) || os(tvOS) || (swift(>=5.9) && os(visionOS))) && !SENTRY_NO_UIKIT) || ((os(macOS) || targetEnvironment(macCatalyst)) && !SENTRY_NO_UIKIT)
+extension SentryDependencyContainer: NotificationCenterProvider { }
+#endif

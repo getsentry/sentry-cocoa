@@ -124,7 +124,6 @@
 #import "SentryInvalidJSONString.h"
 #import "SentryLevelMapper.h"
 #import "SentryLogC.h"
-#import "SentryLogFlushIntegration.h"
 #import "SentryLogTestHelper.h"
 #import "SentryMechanism.h"
 #import "SentryMechanismContext.h"
