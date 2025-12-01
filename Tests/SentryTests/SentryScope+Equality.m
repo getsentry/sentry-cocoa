@@ -49,6 +49,9 @@
     if (self.attachmentArray != scope.attachmentArray
         && ![self.attachmentArray isEqualToArray:scope.attachmentArray])
         return NO;
+    if (self.attributes != scope.attributes
+        && ![self.attributes isEqualToDictionary:scope.attributes])
+        return NO;
     return YES;
 }
 
@@ -65,6 +68,7 @@
     hash = hash * 23 + (NSUInteger)self.levelEnum;
     hash = hash * 23 + self.maxBreadcrumbs;
     hash = hash * 23 + [self.attachmentArray hash];
+    hash = hash * 23 + [self.attributes hash];
     return hash;
 }
 
