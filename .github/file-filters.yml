@@ -541,3 +541,11 @@ run_size_analysis_for_prs: &run_size_analysis_for_prs
   # Build configuration
   - "Makefile"
   - "Brewfile*"
+
+run_swift_log_for_prs: &run_swift_log_for_prs
+  - "integrations/logs/sentry-cocoa-swiftlog/**"
+
+  # GH Actions
+  - ".github/workflows/integrations-common.yml"
+  - ".github/workflows/integrations-swift-log.yml"
+  - ".github/file-filters.yml"
