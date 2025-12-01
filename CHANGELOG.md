@@ -5,6 +5,7 @@
 ### Features
 
 - Add attributes data to `SentryScope` (#6830)
+- Add `SentryScope` attributes into log messages (#6834)
 
 ## 9.0.0
 

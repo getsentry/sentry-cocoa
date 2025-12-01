@@ -494,6 +494,47 @@ final class SentryLogBatcherTests: XCTestCase {
         XCTAssertNil(attributes["device.family"])
     }
     
+    func testAddLog_AddsScopeAttributes() throws {
+        let scope = Scope()
+        scope.setAttribute(value: "aString", key: "string-attribute")
+        scope.setAttribute(value: false, key: "bool-attribute")
+        scope.setAttribute(value: 1.765, key: "double-attribute")
+        scope.setAttribute(value: 5, key: "integer-attribute")
+        
+        let log = createTestLog(body: "Test log message with user")
+        sut.addLog(log, scope: scope)
+        sut.captureLogs()
+        
+        let capturedLogs = testDelegate.getCapturedLogs()
+        let capturedLog = try XCTUnwrap(capturedLogs.first)
+        let attributes = capturedLog.attributes
+        
+        XCTAssertEqual(attributes["string-attribute"]?.value as? String, "aString")
+        XCTAssertEqual(attributes["string-attribute"]?.type, "string")
+        XCTAssertEqual(attributes["bool-attribute"]?.value as? Bool, false)
+        XCTAssertEqual(attributes["bool-attribute"]?.type, "boolean")
+        XCTAssertEqual(attributes["double-attribute"]?.value as? Double, 1.765)
+        XCTAssertEqual(attributes["double-attribute"]?.type, "double")
+        XCTAssertEqual(attributes["integer-attribute"]?.value as? Int, 5)
+        XCTAssertEqual(attributes["integer-attribute"]?.type, "integer")
+    }
+    
+    func testAddLog_ScopeAttributesDoNotOverrideLogAttribute() throws {
+        let scope = Scope()
+        scope.setAttribute(value: true, key: "log-attribute")
+        
+        let log = createTestLog(body: "Test log message with user", attributes: [ "log-attribute": .init(value: false)])
+        sut.addLog(log, scope: scope)
+        sut.captureLogs()
+        
+        let capturedLogs = testDelegate.getCapturedLogs()
+        let capturedLog = try XCTUnwrap(capturedLogs.first)
+        let attributes = capturedLog.attributes
+        
+        XCTAssertEqual(attributes["log-attribute"]?.value as? Bool, false)
+        XCTAssertEqual(attributes["log-attribute"]?.type, "boolean")
+    }
+    
     // MARK: - Replay Attributes Tests
     
 #if canImport(UIKit) && !SENTRY_NO_UIKIT
