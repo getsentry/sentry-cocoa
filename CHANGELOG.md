@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Add attributes data to `SentryScope` (#6830)
+
 ## 9.0.0
 
 This changelog lists every breaking change. For a high-level overview and upgrade guidance, see the [migration guide](https://docs.sentry.io/platforms/apple/migration/).
@@ -53,7 +59,6 @@ This changelog lists every breaking change. For a high-level overview and upgrad
 
 ### Features
 
-- Add attributes data to `SentryScope` (#6830)
 - Add SentryDistribution as Swift Package Manager target (#6149)
 - Moves SentryClient and SentryHub to be written in Swift (#6627)
 - Add option `enablePropagateTraceparent` to support OTel/W3C trace propagation (#6356)
