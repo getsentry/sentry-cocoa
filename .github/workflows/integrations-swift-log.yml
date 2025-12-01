@@ -70,7 +70,6 @@ jobs:
       name: SwiftLog
       package-name: SentrySwiftLog
       working_directory: integrations/logs/sentry-cocoa-swiftlog
-      file-filter: run_swift_log_for_prs
       xcode_version: ${{ matrix.xcode }}
       test-destination-os: ${{ matrix.test-destination-os }}
       device: ${{ matrix.device }}
