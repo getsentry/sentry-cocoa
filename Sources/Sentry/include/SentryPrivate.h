@@ -18,7 +18,6 @@
 #import "SentryCrashUUIDConversion.h"
 #import "SentryDataCategoryMapper.h"
 #import "SentryDiscardReasonMapper.h"
-#import "SentryDsn+Private.h"
 #import "SentryEnvelopeAttachmentHeader.h"
 #import "SentryEventSwiftHelper.h"
 #import "SentryHub+Private.h"
