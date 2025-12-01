@@ -48,7 +48,7 @@ API_AVAILABLE(macos(12.0))
 
 @property (nonatomic, strong, nullable) SentryMXManager *metricKitManager;
 @property (nonatomic, strong) NSMeasurementFormatter *measurementFormatter;
-@property (nonatomic, strong) SentryInAppLogic *inAppLogic;
+@property (nonatomic, strong, nullable) SentryInAppLogic *inAppLogic;
 @property (nonatomic, assign) BOOL attachDiagnosticAsAttachment;
 
 @end
