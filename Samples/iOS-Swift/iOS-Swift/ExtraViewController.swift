@@ -434,7 +434,7 @@ extension ExtraViewController: ASWebAuthenticationPresentationContextProviding {
 
 extension ExtraViewController: PHPickerViewControllerDelegate {
     func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
-        // noop
+        picker.dismiss(animated: true)
     }
 }
 // swiftlint:enable file_length
