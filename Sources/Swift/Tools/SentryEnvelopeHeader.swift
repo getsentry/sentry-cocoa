@@ -7,7 +7,7 @@
      * @param eventId The identifier of the event. Can be nil if no event in the envelope or attachment
      * related to event.
      */
-    @objc public convenience init(id eventId: SentryId?) {
+    convenience init(id eventId: SentryId?) {
         self.init(id: eventId, traceContext: nil)
     }
     
@@ -31,13 +31,17 @@
      * instances should always provide a version.
      * @param traceContext Current trace state.
      */
-    @objc public
     init(id eventId: SentryId?, sdkInfo: SentrySdkInfo?, traceContext: TraceContext?) {
         self.eventId = eventId
         self.sdkInfo = sdkInfo
         self.traceContext = traceContext
     }
-    
+
+    @objc public convenience init(id eventId: SentryId?, sdkInfo: [AnyHashable: Any]?) {
+        let info = sdkInfo.map { SentrySdkInfo(dict: $0) } ?? SentrySdkInfo.global()
+        self.init(id: eventId, sdkInfo: info, traceContext: nil)
+    }
+
     @objc public static func empty() -> Self {
         Self(id: nil, traceContext: nil)
     }
@@ -48,7 +52,7 @@
      * Attachments
      */
     @objc public var eventId: SentryId?
-    @objc public var sdkInfo: SentrySdkInfo?
+    var sdkInfo: SentrySdkInfo?
     @objc public var traceContext: TraceContext?
     
     /**
