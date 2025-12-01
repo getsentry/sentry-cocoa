@@ -101,15 +101,17 @@ jobs:
         working-directory: sentry-react-native/packages/core/RNSentryCocoaTester
         run: sed -i '' "s/parallelizable = \"YES\"/parallelizable = \"NO\"/" RNSentryCocoaTester.xcodeproj/xcshareddata/xcschemes/RNSentryCocoaTester.xcscheme
 
-      - name: Install cocoapods
-        working-directory: sentry-react-native/packages/core/RNSentryCocoaTester
-        run: gem install cocoapods
-
       - name: Change ruby to 3.3.10
+        if: ${{ matrix.ci_runner == 'Cirrus' }}
         working-directory: sentry-react-native/packages/core/RNSentryCocoaTester
         run: |
           rbenv versions
           rbenv global 3.3.10
+
+      - name: Install cocoapods
+        if: ${{ matrix.ci_runner == 'Cirrus' }}
+        working-directory: sentry-react-native/packages/core/RNSentryCocoaTester
+        run: gem install cocoapods
 
       - name: Install App Pods
         working-directory: sentry-react-native/packages/core/RNSentryCocoaTester
