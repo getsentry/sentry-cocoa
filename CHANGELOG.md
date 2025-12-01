@@ -9,6 +9,7 @@
 ### Feature
 
 - Add options to customize UserFeedback error messages (#6790)
+- Add isiOSAppOnVisionOS, isiOSAppOnMac, isMacCatalystApp to device context #6939
 
 ### Fixes
 
