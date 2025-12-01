@@ -8,6 +8,7 @@
     func setEnvironment(_ environment: String?)
     func setFingerprint(_ fingerprint: [String]?)
     func setLevel(_ level: SentryLevel)
+    func setAttributes(_ attributes: [String: Any]?)
     func addSerializedBreadcrumb(_ serializedBreadcrumb: [String: Any])
     func clearBreadcrumbs()
     func clear()

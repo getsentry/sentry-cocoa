@@ -26,7 +26,7 @@ jobs:
     outputs:
       run_lint_cocoapods_specs_for_prs: ${{ steps.changes.outputs.run_lint_cocoapods_specs_for_prs }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Get changed files
         id: changes
         uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
@@ -48,7 +48,7 @@ jobs:
         library_type: ["dynamic", "static"]
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - run: ./scripts/ci-select-xcode.sh 16.4
       # We need to update the spec-repo, because it can happen that it is not up to date and then the lint fails.
       - run: pod repo update
@@ -67,7 +67,7 @@ jobs:
     runs-on: macos-15
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - run: ./scripts/ci-select-xcode.sh 16.4
       - run: pod repo update
       - name: Validate HybridPod Podspec

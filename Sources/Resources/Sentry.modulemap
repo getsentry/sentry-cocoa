@@ -6,6 +6,7 @@ framework module Sentry {
     
     explicit module _Hybrid {
         // Headers that are not part of the public API and should only be used by hybrid SDKs
+        header "SentryProfilingConditionals.h"
         header "PrivateSentrySDKOnly.h"
         header "PrivatesHeader.h"
         header "SentryAppStartMeasurement.h"
@@ -15,10 +16,7 @@ framework module Sentry {
         header "SentrySwizzle.h"
         header "SentryUser+Private.h"
 
-        header "SentryIntegrationProtocol.h"
-        header "SentryBaseIntegration.h"
-        header "SentrySessionReplayIntegration.h"
-        header "SentrySessionReplayIntegration-Hybrid.h"
+        header "SentrySessionReplayHybridSDK.h"
         
         header "SentryInternalSerializable.h"
         

@@ -82,7 +82,7 @@ jobs:
     runs-on: ${{ inputs.run_on_cirrus_labs && fromJSON(format('["ghcr.io/cirruslabs/macos-runner:{0}", "runner_group_id:10"]', inputs.macos_version)) || inputs.macos_version }}
     timeout-minutes: 40
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Setup Ruby
         uses: ruby/setup-ruby@8aeb6ff8030dd539317f8e1769a044873b56ea71 # v1.268.0
@@ -108,6 +108,14 @@ jobs:
           PLATFORM: ${{ inputs.platform }}
           OS_VERSION: ${{ inputs.test-destination-os }}
         run: ./scripts/ci-install-platforms.sh --platforms "$PLATFORM" --os-version "$OS_VERSION"
+
+      - name: Ensure required runtime is loaded
+        # Ideally we will not need this, but CI sometimes is failing to load some runtimes, this will ensure they are loaded
+        if: ${{ inputs.platform == 'iOS' }}
+        timeout-minutes: 5 # 5 minutes timeout
+        env:
+          OS_VERSION: ${{ inputs.test-destination-os }}
+        run: ./scripts/ci-ensure-runtime-loaded.sh --os-version "$OS_VERSION"
 
       - name: Create simulator device
         if: ${{ inputs.create_device }}

@@ -1,3 +1,9 @@
+// This import must be first. In SPM the file needs to be in the "include" directory since that is
+// the Public headers directory, but in Cocoapods it must be in HybridPublic because it is used in
+// that public interface too. In order to handle both these cases the file is in HybridPublic but
+// symlinked to include.
+#import "SentryProfilingConditionals.h"
+
 // Sentry internal headers that are needed for swift code; you cannot import headers that depend on
 // public interfaces here
 #import "NSLocale+Sentry.h"
@@ -16,6 +22,7 @@
 #import "SentryEnvelopeAttachmentHeader.h"
 #import "SentryEventSwiftHelper.h"
 #import "SentryHub+Private.h"
+#import "SentryIntegrationProtocol.h"
 #import "SentryNSDataUtils.h"
 #import "SentrySDK+Private.h"
 #import "SentryTime.h"
@@ -43,7 +50,6 @@
 #import "SentryDeviceContextKeys.h"
 #import "SentryFileIOTrackerHelper.h"
 #import "SentryFileManagerHelper.h"
-#import "SentryLevelHelper.h"
 #import "SentryMeta.h"
 #import "SentryMsgPackSerializer.h"
 #import "SentryNSDictionarySanitize.h"

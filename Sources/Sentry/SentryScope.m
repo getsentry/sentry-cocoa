@@ -4,6 +4,7 @@
 #import "SentryDefines.h"
 #import "SentryEvent+Private.h"
 #import "SentryInternalDefines.h"
+#import "SentryLevel.h"
 #import "SentryLevelMapper.h"
 #import "SentryLogC.h"
 #import "SentryPropagationContext.h"
@@ -76,6 +77,7 @@ NS_ASSUME_NONNULL_BEGIN
         [_breadcrumbArray addObjectsFromArray:crumbs];
         [_fingerprintArray addObjectsFromArray:[scope fingerprints]];
         [_attachmentArray addObjectsFromArray:[scope attachments]];
+        [_attributesDictionary addEntriesFromDictionary:[scope attributes]];
 
         self.propagationContext = scope.propagationContext;
         self.maxBreadcrumbs = scope.maxBreadcrumbs;
@@ -192,6 +194,9 @@ NS_ASSUME_NONNULL_BEGIN
     [self clearAttachments];
     @synchronized(_spanLock) {
         _span = nil;
+    }
+    @synchronized(_attributesDictionary) {
+        [_attributesDictionary removeAllObjects];
     }
 
     self.userObject = nil;
@@ -421,7 +426,7 @@ NS_ASSUME_NONNULL_BEGIN
     }
 }
 
-- (void)setLevel:(enum SentryLevel)level
+- (void)setLevel:(SentryLevel)level
 {
     self.levelEnum = level;
 
@@ -469,6 +474,40 @@ NS_ASSUME_NONNULL_BEGIN
     }
 }
 
+- (NSDictionary<NSString *, id> *)attributes
+{
+    @synchronized(_attributesDictionary) {
+        return _attributesDictionary.copy;
+    }
+}
+
+- (void)setAttributeValue:(id)value forKey:(NSString *)key
+{
+    if (key == nil || key.length == 0) {
+        SENTRY_LOG_ERROR(@"Attribute's key cannot be nil nor empty");
+        return;
+    }
+
+    @synchronized(_attributesDictionary) {
+        _attributesDictionary[key] = value;
+
+        for (id<SentryScopeObserver> observer in self.observers) {
+            [observer setAttributes:_attributesDictionary];
+        }
+    }
+}
+
+- (void)removeAttributeForKey:(NSString *)key
+{
+    @synchronized(_attributesDictionary) {
+        [_attributesDictionary removeObjectForKey:key];
+
+        for (id<SentryScopeObserver> observer in self.observers) {
+            [observer setAttributes:_attributesDictionary];
+        }
+    }
+}
+
 - (NSDictionary<NSString *, id> *)serialize
 {
     NSMutableDictionary *serializedData = [NSMutableDictionary new];
@@ -511,6 +550,9 @@ NS_ASSUME_NONNULL_BEGIN
     if (crumbs.count > 0) {
         [serializedData setValue:crumbs forKey:@"breadcrumbs"];
     }
+    if (self.attributes.count > 0) {
+        [serializedData setValue:[self attributes] forKey:@"attributes"];
+    }
     return serializedData;
 }
 
@@ -528,11 +570,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)applyToSession:(SentrySession *)session
 {
-    SentryUser *userObject = self.userObject;
-    if (userObject != nil) {
-        session.user = userObject.copy;
-    }
-
     NSString *environment = self.environmentString;
     if (environment != nil) {
         // TODO: Make sure environment set on options is applied to the

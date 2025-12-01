@@ -1,3 +1,4 @@
+#if os(iOS) || os(tvOS)
 @testable import SentrySwiftUI
 import XCTest
 
@@ -113,3 +114,4 @@ class PreviewRedactOptionsTests: XCTestCase {
         }
     }
 }
+#endif // os(iOS) || os(tvOS)

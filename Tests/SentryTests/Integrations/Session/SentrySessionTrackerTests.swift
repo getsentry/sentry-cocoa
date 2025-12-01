@@ -812,7 +812,6 @@ class SentrySessionTrackerTests: XCTestCase {
         XCTAssertNotNil(session.sessionId)
         XCTAssertNotNil(session.distinctId)
         XCTAssertEqual(fixture.options.environment, session.environment)
-        XCTAssertNil(session.user)
     }
     
     private func assertNoInitSessionSent(file: StaticString = #file, line: UInt = #line) {

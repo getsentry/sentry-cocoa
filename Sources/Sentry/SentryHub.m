@@ -761,7 +761,7 @@ NS_ASSUME_NONNULL_BEGIN
                                     wasHandled:(BOOL *)handled;
 {
     for (SentryEnvelopeItem *item in items) {
-        if ([item.header.type isEqualToString:SentryEnvelopeItemTypes.event]) {
+        if ([item.type isEqualToString:SentryEnvelopeItemTypes.event]) {
             if (!item.data) {
                 return NO;
             }
@@ -894,8 +894,8 @@ NS_ASSUME_NONNULL_BEGIN
 #if SENTRY_TARGET_REPLAY_SUPPORTED
 - (NSString *__nullable)getSessionReplayId
 {
-    SentrySessionReplayIntegration *integration =
-        [self getInstalledIntegration:[SentrySessionReplayIntegration class]];
+    SentrySessionReplayIntegration *integration = (SentrySessionReplayIntegration *)[self
+        getInstalledIntegration:[SentrySessionReplayIntegration class]];
     if (integration == nil || integration.sessionReplay == nil) {
         return nil;
     }

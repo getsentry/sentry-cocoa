@@ -7,6 +7,7 @@
 #endif
 #import SENTRY_HEADER(SentrySerializable)
 #import SENTRY_HEADER(SentrySpanProtocol)
+#import SENTRY_HEADER(SentryLevel)
 
 @class SentryAttachment;
 @class SentryBreadcrumb;
@@ -105,7 +106,7 @@ NS_SWIFT_NAME(Scope)
 /**
  * Sets the @c level in the scope
  */
-- (void)setLevel:(enum SentryLevel)level;
+- (void)setLevel:(SentryLevel)level;
 
 /**
  * Add a breadcrumb to the scope
@@ -144,11 +145,18 @@ NS_SWIFT_NAME(Scope)
 /**
  * Set global attributes. Attributes are searchable key/value string pairs attached to every log
  * message.
+ * @note The SDK only applies attributes to Logs. The SDK doesn't apply the attributes to
+ * Events, Transactions, Spans, Profiles, Session Replay.
+ * @param value Supported values are string, integers, boolean and double
+ * @param key The key to store, cannot be an empty string
  */
 - (void)setAttributeValue:(id)value forKey:(NSString *)key NS_SWIFT_NAME(setAttribute(value:key:));
 
 /**
  * Remove the attribute for the specified key.
+ * @note The SDK only applies attributes to Logs. The SDK doesn't apply the attributes to
+ * Events, Transactions, Spans, Profiles, Session Replay.
+ * @param key The key to remove
  */
 - (void)removeAttributeForKey:(NSString *)key NS_SWIFT_NAME(removeAttribute(key:));
 

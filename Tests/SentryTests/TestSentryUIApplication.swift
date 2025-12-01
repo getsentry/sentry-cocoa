@@ -9,6 +9,12 @@ final class TestSentryUIApplication: SentryApplication {
         return internal_getWindows()
     }
     
+#if (os(iOS) || os(tvOS))
+    func getActiveWindowSize() -> CGSize {
+        return internal_getActiveWindowSize()
+    }
+#endif // os(iOS) || os(tvOS)
+    
     private var _windows: [UIWindow]?
     private(set) var calledOnMainThread = true
     var windows: [UIWindow]? {

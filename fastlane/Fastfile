@@ -182,8 +182,9 @@ platform :ios do
       ]
     )
 
+    # Using the project instead of the workspace allows us to avoid resolving SPM dependencies.
     build_app(
-      workspace: "Sentry.xcworkspace",
+      project: "Samples/iOS-Swift/iOS-Swift.xcodeproj",
       scheme: "iOS-Swift",
       derived_data_path: "DerivedData",
       skip_archive: true,
@@ -233,8 +234,9 @@ platform :ios do
       ],
     )
 
+    # Using the project instead of the workspace allows us to avoid resolving SPM dependencies.
     build_app(
-      workspace: "Sentry.xcworkspace",
+      project: "Samples/iOS-Swift/iOS-Swift.xcodeproj",
       scheme: "iOS-Benchmarking",
       xcargs: "build-for-testing",
       derived_data_path: "DerivedData",

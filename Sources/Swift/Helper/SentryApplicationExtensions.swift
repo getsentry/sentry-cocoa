@@ -13,6 +13,12 @@ import UIKit
         internal_getWindows()
     }
     
+#if (os(iOS) || os(tvOS))
+    @objc public func getActiveWindowSize() -> CGSize {
+        internal_getActiveWindowSize()
+    }
+#endif // os(iOS) || os(tvOS)
+    
     @objc public func relevantViewControllersNames() -> [String]? {
         internal_relevantViewControllersNames()
     }
@@ -54,6 +60,21 @@ extension SentryApplication {
         }, timeout: 0.01)
         return Array(windows)
     }
+    
+#if (os(iOS) || os(tvOS))
+    public func internal_getActiveWindowSize() -> CGSize {
+        var size = CGSize.zero
+        Dependencies.dispatchQueueWrapper.dispatchSyncOnMainQueue({ [weak self] in
+            guard let self,
+                  let window = self.internal_getWindows()?.first else {
+                return
+            }
+            
+            size = window.screen.bounds.size
+        }, timeout: 0.01)
+        return size
+    }
+#endif // os(iOS) || os(tvOS)
     
     // This cannot be declared with @objc so until we delete more ObjC code it needs a separate
     // function than the objc visible one.

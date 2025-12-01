@@ -464,3 +464,30 @@ Date: 10.11.2025
 Contributors: @philipphofmann, @noahsmartin, @denrase
 
 The `swift-log` dependeceny we have added is primarly intendet to be used on backaned projects. While it could be used on the client, we do not want to have external dependencies in our `Package.swift`. So fot it and other logging integrations, a separate repo will be created.
+
+## Change macOS deployment target to 10.14
+
+Date: November 19, 2025
+Contributors: @philprime, @philipphofmann, @itaybre, @noahsmartin
+
+Our internal data has shown that ~0.25% of events originate from macOS 10.14 and earlier.
+While this number is very low, there is not apparent reason to not support it, therefore we will change the macOS deployment target to 10.14 to allow users to use the SDK on macOS 10.14 and later.
+
+The main reason for choosing exactly this version as the earliest supported version is that it's the first one offering `NWPathMonitor` as a replacement for `SCNetworkReachability`.
+
+Related links:
+
+- https://github.com/getsentry/sentry-cocoa/issues/6758
+- https://github.com/getsentry/sentry-cocoa/pull/6873
+
+## Deprecate Carthage Support
+
+Date: November 28, 2025
+Contributors: @philprime, @philipphofmann, @itaybre
+
+We have found that Carthage does not support downloading multiple XCFrameworks from GitHub Releases, nor does there appear to be an easy workaround for this limitation. This wasn't a recent change, but by design (see the related PR), so Carthage was broken for some time without any user complaints, giving us confidence that very few people use Carthage for integrating with Sentry.
+We also decided to streamline our integrations by reducing the number of package managers that build from source. Therefore, we have decided to deprecate all official Carthage support with v9. Users may still be able to use Carthage, but it will no longer be recommended or officially supported.
+
+Related:
+
+- Fix for multiple files in Releases (stale for months): https://github.com/Carthage/Carthage/pull/3398
