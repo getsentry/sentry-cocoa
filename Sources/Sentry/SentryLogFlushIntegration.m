@@ -2,16 +2,13 @@
 #import "SentryClient+Private.h"
 #import "SentryHub.h"
 #import "SentryLogC.h"
+#import "SentryNotificationNames.h"
 #import "SentrySDK+Private.h"
 #import "SentrySwift.h"
 
 #if SENTRY_HAS_UIKIT
 
 NS_ASSUME_NONNULL_BEGIN
-
-@interface SentryLogFlushIntegration () <SentryAppStateListener>
-
-@end
 
 @implementation SentryLogFlushIntegration
 
@@ -21,7 +18,15 @@ NS_ASSUME_NONNULL_BEGIN
         return NO;
     }
 
-    [[[SentryDependencyContainer sharedInstance] appStateManager] addListener:self];
+    [NSNotificationCenter.defaultCenter addObserver:self
+                                           selector:@selector(willResignActive)
+                                               name:SentryWillResignActiveNotification
+                                             object:nil];
+
+    [NSNotificationCenter.defaultCenter addObserver:self
+                                           selector:@selector(willTerminate)
+                                               name:SentryWillTerminateNotification
+                                             object:nil];
 
     return YES;
 }
@@ -33,12 +38,16 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)uninstall
 {
-    [[[SentryDependencyContainer sharedInstance] appStateManager] removeListener:self];
+    [NSNotificationCenter.defaultCenter removeObserver:self
+                                                  name:SentryWillResignActiveNotification
+                                                object:nil];
+
+    [NSNotificationCenter.defaultCenter removeObserver:self
+                                                  name:SentryWillTerminateNotification
+                                                object:nil];
 }
 
-#    pragma mark - SentryAppStateListener
-
-- (void)appStateManagerWillResignActive
+- (void)willResignActive
 {
     SentryClientInternal *client = [SentrySDKInternal.currentHub getClient];
     if (client != nil) {
@@ -46,12 +55,17 @@ NS_ASSUME_NONNULL_BEGIN
     }
 }
 
-- (void)appStateManagerWillTerminate
+- (void)willTerminate
 {
     SentryClientInternal *client = [SentrySDKInternal.currentHub getClient];
     if (client != nil) {
         [client flushLogs];
     }
+}
+
+- (void)dealloc
+{
+    [NSNotificationCenter.defaultCenter removeObserver:self];
 }
 
 @end

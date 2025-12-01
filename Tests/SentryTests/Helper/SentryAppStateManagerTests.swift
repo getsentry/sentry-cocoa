@@ -124,51 +124,5 @@ final class SentryAppStateManagerTests: XCTestCase {
 
         XCTAssertEqual(fixture.fileManager.readAppState()!.wasTerminated, true)
     }
-    
-    func testListnerCalledForWillResignActive() {
-        let listener = TestAppStateListener()
-        sut.addListener(listener)
-        sut.start()
-
-        fixture.notificationCenterWrapper.post(Notification(name: CrossPlatformApplication.willResignActiveNotification))
-
-        XCTAssertEqual(listener.appStateManagerWillResignActiveInvocations, 1)
-    }
-
-    func testListnerCalledForWillTerminate() {
-        let listener = TestAppStateListener()
-        sut.addListener(listener)
-        sut.start()
-
-        fixture.notificationCenterWrapper.post(Notification(name: CrossPlatformApplication.willTerminateNotification))
-
-        XCTAssertEqual(listener.appStateManagerWillTerminateInvocations, 1)
-    }
-    
-    func testListenerNotCalledAfterRemoval() {
-        let listener = TestAppStateListener()
-        sut.addListener(listener)
-        sut.start()
-        sut.removeListener(listener)
-        
-        fixture.notificationCenterWrapper.post(Notification(name: CrossPlatformApplication.willResignActiveNotification))
-        fixture.notificationCenterWrapper.post(Notification(name: CrossPlatformApplication.willTerminateNotification))
-        
-        XCTAssertEqual(listener.appStateManagerWillResignActiveInvocations, 0)
-        XCTAssertEqual(listener.appStateManagerWillTerminateInvocations, 0)
-    }
-}
-
-class TestAppStateListener: NSObject, SentryAppStateListener {
-    var appStateManagerWillResignActiveInvocations = 0
-    var appStateManagerWillTerminateInvocations = 0
-
-    func appStateManagerWillResignActive() {
-        appStateManagerWillResignActiveInvocations += 1
-    }
-    
-    func appStateManagerWillTerminate() {
-        appStateManagerWillTerminateInvocations += 1
-    }
 }
 #endif

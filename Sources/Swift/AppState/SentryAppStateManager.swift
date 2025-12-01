@@ -12,9 +12,7 @@ import UIKit
 #if (os(iOS) || os(tvOS) || (swift(>=5.9) && os(visionOS))) && !SENTRY_NO_UIKIT
     private let _updateAppState: (@escaping (SentryAppState) -> Void) -> Void
     private let _buildCurrentAppState: () -> SentryAppState
-    private var helper: SentryDefaultAppStateManager?
-    private let listeners = NSHashTable<SentryAppStateListener>.weakObjects()
-    private let listenersLock = NSRecursiveLock()
+    private var helper: SentryDefaultAppStateManager
 #endif
     
     init(releaseName: String?, crashWrapper: SentryCrashWrapper, fileManager: SentryFileManager?, sysctlWrapper: SentrySysctl) {
@@ -43,38 +41,32 @@ import UIKit
             }
         }
         _updateAppState = updateAppState
-        super.init()
         
-        let helper = SentryDefaultAppStateManager(storeCurrent: {
+        helper = SentryDefaultAppStateManager(storeCurrent: {
             fileManager?.store(buildCurrentAppState())
-        }, updateTerminated: { [weak self] in
+        }, updateTerminated: {
             updateAppState { $0.wasTerminated = true }
-            self?.notifyListeners { $0.appStateManagerWillTerminate?() }
         }, updateSDKNotRunning: {
             updateAppState { $0.isSDKRunning = false }
-        }, updateActive: { [weak self] active in
+        }, updateActive: { active in
             updateAppState { $0.isActive = active }
-            if !active {
-                self?.notifyListeners { $0.appStateManagerWillResignActive?() }
-            }
         })
-        self.helper = helper
 #endif
     }
     
 #if (os(iOS) || os(tvOS) || (swift(>=5.9) && os(visionOS))) && !SENTRY_NO_UIKIT
     var startCount: Int {
-        helper?.startCount ?? 0
+        helper.startCount
     }
     
     @objc public func start() {
-        helper?.start()
+        helper.start()
     }
     @objc public func stop() {
-        helper?.stop()
+        helper.stop()
     }
     @objc public func stop(withForce force: Bool) {
-        helper?.stop(withForce: force)
+        helper.stop(withForce: force)
     }
     
     /**
@@ -98,24 +90,6 @@ import UIKit
     
     @objc public func updateAppState(_ block: @escaping (SentryAppState) -> Void) {
         _updateAppState(block)
-    }
-    
-    @objc public func addListener(_ listener: SentryAppStateListener) {
-        listenersLock.synchronized {
-            listeners.add(listener)
-        }
-    }
-    
-    @objc public func removeListener(_ listener: SentryAppStateListener) {
-        listenersLock.synchronized {
-            listeners.remove(listener)
-        }
-    }
-    
-    @objc private func notifyListeners(_ block: @escaping (SentryAppStateListener) -> Void) {
-        listenersLock.synchronized {
-            listeners.allObjects.forEach(block)
-        }
     }
 #endif
 }
