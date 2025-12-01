@@ -57,6 +57,12 @@ jobs:
         env:
           XCODE_VERSION: 16.4
         run: ./scripts/ci-select-xcode.sh "$XCODE_VERSION"
+      - name: Prepare Package.swift
+        shell: bash
+        run: |
+          ./scripts/use-local-sentry-dependency.sh \
+            --package-file integrations/logs/sentry-cocoa-swiftlog/Package.swift \
+            --path-to-sentry-cocoa "../../../"
       - name: Run SPM Tests
         working-directory: integrations/logs/sentry-cocoa-swiftlog
         run: swift test
@@ -86,21 +92,21 @@ jobs:
             platform: "iOS"
             device: "iPhone 16 Pro"
 
-          - name: iOS 26 Sentry
-            runs-on: tahoe
+          - name: iOS 26
+            macos_version: macos-26
             xcode: "26.1.1"
             test-destination-os: "26.1"
             platform: "iOS"
             device: "iPhone 17 Pro"
 
           - name: macOS 15
-            runs-on: macos-15
+            macos_version: macos-15
             xcode: "16.4"
             test-destination-os: "latest"
             platform: "macOS"
 
           - name: macOS 26
-            runs-on: macos-26
+            macos_version: macos-26
             xcode: "26.1.1"
             test-destination-os: "26.1"
             platform: "macOS"

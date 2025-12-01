@@ -63,6 +63,13 @@ jobs:
           OS_VERSION: ${{ inputs.test-destination-os }}
         run: ./scripts/ci-boot-simulator.sh --xcode "$XCODE_VERSION" --device "$DEVICE_NAME" --os-version "$OS_VERSION"
 
+      - name: Prepare Package.swift
+        shell: bash
+        run: |
+          ./scripts/use-local-sentry-dependency.sh \
+            --package-file ${{ inputs.working_directory }}/Package.swift \
+            --path-to-sentry-cocoa "../../../"
+
       # We split building and running tests in two steps so we know how long running the tests takes.
       - name: Build Tests
         working-directory: ${{ inputs.working_directory }}
