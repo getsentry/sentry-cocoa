@@ -29,8 +29,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (atomic, strong) NSMutableArray<SentryBreadcrumb *> *breadcrumbArray;
 
-@property (atomic, strong) NSMutableDictionary<NSString *, id> *attributesDictionary;
-
 @end
 
 @implementation SentryScope {
@@ -52,7 +50,6 @@ NS_ASSUME_NONNULL_BEGIN
         self.contextDictionary = [NSMutableDictionary new];
         self.attachmentArray = [NSMutableArray new];
         self.fingerprintArray = [NSMutableArray new];
-        self.attributesDictionary = [NSMutableDictionary new];
         _spanLock = [[NSObject alloc] init];
         self.observers = [NSMutableArray new];
         self.propagationContext = [[SentryPropagationContext alloc] init];
@@ -77,7 +74,6 @@ NS_ASSUME_NONNULL_BEGIN
         [_breadcrumbArray addObjectsFromArray:crumbs];
         [_fingerprintArray addObjectsFromArray:[scope fingerprints]];
         [_attachmentArray addObjectsFromArray:[scope attachments]];
-        [_attributesDictionary addEntriesFromDictionary:[scope attributes]];
 
         self.propagationContext = scope.propagationContext;
         self.maxBreadcrumbs = scope.maxBreadcrumbs;
@@ -194,9 +190,6 @@ NS_ASSUME_NONNULL_BEGIN
     [self clearAttachments];
     @synchronized(_spanLock) {
         _span = nil;
-    }
-    @synchronized(_attributesDictionary) {
-        [_attributesDictionary removeAllObjects];
     }
 
     self.userObject = nil;
@@ -474,40 +467,6 @@ NS_ASSUME_NONNULL_BEGIN
     }
 }
 
-- (NSDictionary<NSString *, id> *)attributes
-{
-    @synchronized(_attributesDictionary) {
-        return _attributesDictionary.copy;
-    }
-}
-
-- (void)setAttributeValue:(id)value forKey:(NSString *)key
-{
-    if (key == nil || key.length == 0) {
-        SENTRY_LOG_ERROR(@"Attribute's key cannot be nil nor empty");
-        return;
-    }
-
-    @synchronized(_attributesDictionary) {
-        _attributesDictionary[key] = value;
-
-        for (id<SentryScopeObserver> observer in self.observers) {
-            [observer setAttributes:_attributesDictionary];
-        }
-    }
-}
-
-- (void)removeAttributeForKey:(NSString *)key
-{
-    @synchronized(_attributesDictionary) {
-        [_attributesDictionary removeObjectForKey:key];
-
-        for (id<SentryScopeObserver> observer in self.observers) {
-            [observer setAttributes:_attributesDictionary];
-        }
-    }
-}
-
 - (NSDictionary<NSString *, id> *)serialize
 {
     NSMutableDictionary *serializedData = [NSMutableDictionary new];
@@ -549,9 +508,6 @@ NS_ASSUME_NONNULL_BEGIN
     NSArray *crumbs = [self serializeBreadcrumbs];
     if (crumbs.count > 0) {
         [serializedData setValue:crumbs forKey:@"breadcrumbs"];
-    }
-    if (self.attributes.count > 0) {
-        [serializedData setValue:[self attributes] forKey:@"attributes"];
     }
     return serializedData;
 }
@@ -710,40 +666,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSString *)propagationContextTraceIdString
 {
     return [self.propagationContext.traceId sentryIdString];
-}
-
-- (NSDictionary<NSString *, id> *)attributes
-{
-    @synchronized(_attributesDictionary) {
-        return _attributesDictionary.copy;
-    }
-}
-
-- (void)setAttributeValue:(id)value forKey:(NSString *)key
-{
-    if (key == nil || key.length == 0) {
-        SENTRY_LOG_ERROR(@"Attribute's key cannot be nil nor empty");
-        return;
-    }
-
-    @synchronized(_attributesDictionary) {
-        _attributesDictionary[key] = value;
-
-        // ScopeObservers are not called since at this moment attributes are only used for Logs,
-        // which the LogBatcher obtains manually. At this moment not even Spans use this attributes.
-        // Should this change, we will need to call the observers.
-    }
-}
-
-- (void)removeAttributeForKey:(NSString *)key
-{
-    @synchronized(_attributesDictionary) {
-        [_attributesDictionary removeObjectForKey:key];
-
-        // ScopeObservers are not called since at this moment attributes are only used for Logs,
-        // which the LogBatcher obtains manually. At this moment not even Spans use this attributes.
-        // Should this change, we will need to call the observers.
-    }
 }
 
 @end
