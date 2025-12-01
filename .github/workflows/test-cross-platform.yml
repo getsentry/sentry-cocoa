@@ -73,6 +73,9 @@ jobs:
         if: ${{ matrix.ci_runner == 'Cirrus' }}
         run: npm uninstall -g yarn
 
+      - name: Install cocoapods
+        run: gem install cocoapods
+
       - name: Enable Corepack
         working-directory: sentry-react-native
         run: npm i -g corepack
