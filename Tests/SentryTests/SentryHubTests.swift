@@ -1395,7 +1395,7 @@ class SentryHubTests: XCTestCase {
         let integration = EmptyIntegration()
         sut.addInstalledIntegration(integration, name: "EmptyIntegration")
         
-        let installedIntegration = sut.getInstalledIntegration(EmptyIntegration.self)
+        let installedIntegration = sut.getInstalledIntegration(EmptyIntegration.self) as? NSObject
         
         XCTAssert(integration === installedIntegration)
     }

@@ -26,7 +26,6 @@
 #import "SentrySwiftAsyncIntegration.h"
 #import "SentryTransactionContext.h"
 #import "SentryUseNSExceptionCallstackWrapper.h"
-#import "SentryUserFeedbackIntegration.h"
 
 #if SENTRY_HAS_UIKIT
 #    import "SentryAppStartTrackingIntegration.h"
@@ -35,7 +34,6 @@
 #    import "SentryPerformanceTrackingIntegration.h"
 #    import "SentryScreenshotIntegration.h"
 #    import "SentryUIEventTrackingIntegration.h"
-#    import "SentryUserFeedbackIntegration.h"
 #    import "SentryViewHierarchyIntegration.h"
 #    import "SentryWatchdogTerminationTrackingIntegration.h"
 #endif // SENTRY_HAS_UIKIT
@@ -536,10 +534,6 @@ static NSDate *_Nullable startTimestamp = nil;
         [SentryFileIOTrackingIntegration class], [SentryNetworkTrackingIntegration class],
         [SentrySwiftAsyncIntegration class], nil];
 
-#if TARGET_OS_IOS && SENTRY_HAS_UIKIT
-    [defaultIntegrations addObject:[SentryUserFeedbackIntegration class]];
-#endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
-
 #if SENTRY_HAS_METRIC_KIT
     [defaultIntegrations addObject:[SentryMetricKitIntegration class]];
 #endif // SENTRY_HAS_METRIC_KIT
@@ -568,7 +562,7 @@ static NSDate *_Nullable startTimestamp = nil;
             continue;
         }
 
-        id<SentryIntegrationProtocol> integrationInstance = [[integrationClass alloc] init];
+        id<SentryObjCIntegrationProtocol> integrationInstance = [[integrationClass alloc] init];
         BOOL shouldInstall = [integrationInstance installWithOptions:options];
         if (shouldInstall) {
             SENTRY_LOG_DEBUG(@"Integration installed: %@", NSStringFromClass(integrationClass));
@@ -577,6 +571,7 @@ static NSDate *_Nullable startTimestamp = nil;
                                    name:NSStringFromClass(integrationClass)];
         }
     }
+    [SentrySwiftIntegrationInstaller installWith:options];
 }
 
 + (void)reportFullyDisplayed
@@ -614,36 +609,39 @@ static NSDate *_Nullable startTimestamp = nil;
 {
     SENTRY_LOG_DEBUG(@"Starting to close SDK.");
 
+    [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchSyncOnMainQueue:^{
+
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-    [SentryContinuousProfiler stop];
+        [SentryContinuousProfiler stop];
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
-    startTimestamp = nil;
+        startTimestamp = nil;
 
-    SentryHubInternal *hub = SentrySDKInternal.currentHub;
-    [hub removeAllIntegrations];
+        SentryHubInternal *hub = SentrySDKInternal.currentHub;
+        [hub removeAllIntegrations];
 
-    SENTRY_LOG_DEBUG(@"Uninstalled all integrations.");
+        SENTRY_LOG_DEBUG(@"Uninstalled all integrations.");
 
 #if SENTRY_HAS_UIKIT
-    // force the AppStateManager to unsubscribe, see
-    // https://github.com/getsentry/sentry-cocoa/issues/2455
-    [[SentryDependencyContainer sharedInstance].appStateManager stopWithForce:YES];
+        // force the AppStateManager to unsubscribe, see
+        // https://github.com/getsentry/sentry-cocoa/issues/2455
+        [[SentryDependencyContainer sharedInstance].appStateManager stopWithForce:YES];
 #endif
 
-    [hub close];
-    [hub bindClient:nil];
+        [hub close];
+        [hub bindClient:nil];
 
-    [SentrySDKInternal setCurrentHub:nil];
+        [SentrySDKInternal setCurrentHub:nil];
 
-    [SentryDependencyContainer.sharedInstance.crashWrapper stopBinaryImageCache];
-    [SentryDependencyContainer.sharedInstance.binaryImageCache stop];
+        [SentryDependencyContainer.sharedInstance.crashWrapper stopBinaryImageCache];
+        [SentryDependencyContainer.sharedInstance.binaryImageCache stop];
 
 #if TARGET_OS_IOS && SENTRY_HAS_UIKIT
-    [SentryDependencyContainer.sharedInstance.uiDeviceWrapper stop];
+        [SentryDependencyContainer.sharedInstance.uiDeviceWrapper stop];
 #endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
 
-    [SentryDependencyContainer reset];
+        [SentryDependencyContainer reset];
+    }];
     SENTRY_LOG_DEBUG(@"SDK closed!");
 }
 

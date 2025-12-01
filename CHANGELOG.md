@@ -6,6 +6,21 @@
 
 - Flush Logs on `WillTerminate` or `WillResignActive` App State (#6909)
 
+### Breaking Changes
+
+- Change the `http.response.status_code` for spans to int (#6896)
+
+### Feature
+
+- Add options to customize UserFeedback error messages (#6790)
+
+### Fixes
+
+- Fix UIWindow being possibly accessed from a background thread in SentryCrashWrapper (#6905)
+- Ensure SentrySDK.close resets everything on the main thread (#6907)
+- Allow transaction tags to be accessed and modified in `beforeSend` (#6910)
+- Convert bools to Swift in Options code docs (#6922)
+
 ## 9.0.0-rc.1
 
 ### Breaking Changes

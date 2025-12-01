@@ -45,20 +45,12 @@ class SentrySessionTestsSwift: XCTestCase {
     }
 
     func testCopySession() throws {
-        let user = User()
-        user.email = "someone@sentry.io"
-
         let session = SentrySession(releaseName: "1.0.0", distinctId: "some-id")
-        session.user = user
         session.abnormalMechanism = "app hang"
         let copiedSession = try XCTUnwrap(session.copy() as? SentrySession)
 
         XCTAssertEqual(session, copiedSession)
         XCTAssertEqual(session.abnormalMechanism, copiedSession.abnormalMechanism)
-
-        // The user is copied as well
-        session.user?.email = "someone_else@sentry.io"
-        XCTAssertNotEqual(session, copiedSession)
     }
     
     func testInitWithJson_Status_MapsToCorrectStatus() {

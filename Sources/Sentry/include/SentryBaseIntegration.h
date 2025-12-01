@@ -35,7 +35,7 @@ typedef NS_OPTIONS(NSUInteger, SentryIntegrationOption) {
 
 @class SentryOptions;
 
-@interface SentryBaseIntegration : NSObject <SentryIntegrationProtocol>
+@interface SentryBaseIntegration : NSObject <SentryObjCIntegrationProtocol>
 
 - (NSString *)integrationName;
 - (BOOL)installWithOptions:(SentryOptions *)options;

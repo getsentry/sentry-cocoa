@@ -265,10 +265,10 @@ public final class SentryCrashWrapper: NSObject {
     private func setScreenDimensions(_ deviceData: inout [String: Any]) {
         // The UIWindowScene is unavailable on visionOS
 #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT
-        if let appWindows = SentryDependencyContainerSwiftHelper.windows(),
-           let appScreen = appWindows.first?.screen {
-            deviceData["screen_height_pixels"] = appScreen.bounds.size.height
-            deviceData["screen_width_pixels"] = appScreen.bounds.size.width
+        let screenSize = SentryDependencyContainerSwiftHelper.activeScreenSize()
+        if screenSize != CGSize.zero {
+            deviceData["screen_height_pixels"] = screenSize.height
+            deviceData["screen_width_pixels"] = screenSize.width
         }
 #endif // (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT
     }

@@ -1312,6 +1312,186 @@ class SentryClientTests: XCTestCase {
         XCTAssertEqual([], actual.threads)
     }
     
+    func testBeforeSendTransaction_ReadTags() throws {
+        // Arrange
+        let transaction = fixture.transaction
+        transaction.trace.setTag(value: "tracer-value", key: "tracer-key")
+        let scope = Scope()
+        scope.setTag(value: "event-value", key: "event-key")
+        
+        // Act
+        fixture.getSut(configureOptions: { options in
+            options.beforeSend = { event in
+                guard let transaction = event as? Transaction else {
+                    return event
+                }
+                // Read tags - should return merged tags from tracer and event
+                guard let tags = transaction.tags else {
+                    XCTFail("Tags should not be nil")
+                    return transaction
+                }
+                XCTAssertEqual(tags["tracer-key"], "tracer-value")
+                XCTAssertEqual(tags["event-key"], "event-value")
+                return transaction
+            }
+        }).capture(event: transaction, scope: scope)
+        
+        // Assert
+        let actual = try lastSentEvent()
+        let serialized = actual.serialize()
+        let tags = try XCTUnwrap(serialized["tags"] as? [String: String])
+        XCTAssertEqual(tags["tracer-key"], "tracer-value")
+        XCTAssertEqual(tags["event-key"], "event-value")
+    }
+    
+    func testBeforeSendTransaction_AddTags() throws {
+        // Arrange
+        let transaction = fixture.transaction
+        transaction.trace.setTag(value: "existing-value", key: "existing-key")
+        
+        // Act
+        fixture.getSut(configureOptions: { options in
+            options.beforeSend = { event in
+                guard let transaction = event as? Transaction else {
+                    return event
+                }
+                // Add new tag
+                // Note: `transaction.tags?["key"] = "value"` is syntactic sugar that:
+                // 1. Gets the dictionary (calls getter)
+                // 2. Creates a mutable copy
+                // 3. Modifies the copy
+                // 4. Calls setter with the modified copy: `transaction.tags = modifiedDict`
+                // This is why modifications persist - the setter is called!
+                transaction.tags?["new-key"] = "new-value"
+                return transaction
+            }
+        }).capture(event: transaction)
+        
+        // Assert
+        let actual = try lastSentEvent()
+        let serialized = actual.serialize()
+        let tags = try XCTUnwrap(serialized["tags"] as? [String: String])
+        XCTAssertEqual(tags["existing-key"], "existing-value")
+        XCTAssertEqual(tags["new-key"], "new-value")
+    }
+    
+    func testBeforeSendTransaction_ModifyTags() throws {
+        // Arrange
+        let transaction = fixture.transaction
+        transaction.trace.setTag(value: "original-value", key: "tracer-key")
+        let scope = Scope()
+        scope.setTag(value: "original-event-value", key: "event-key")
+        
+        // Act
+        fixture.getSut(configureOptions: { options in
+            options.beforeSend = { event in
+                guard let transaction = event as? Transaction else {
+                    return event
+                }
+                // Modify both tracer tag and event tag
+                transaction.tags?["tracer-key"] = "modified-tracer-value"
+                transaction.tags?["event-key"] = "modified-event-value"
+                return transaction
+            }
+        }).capture(event: transaction, scope: scope)
+        
+        // Assert
+        let actual = try lastSentEvent()
+        let serialized = actual.serialize()
+        let tags = try XCTUnwrap(serialized["tags"] as? [String: String])
+        XCTAssertEqual(tags["tracer-key"], "modified-tracer-value")
+        XCTAssertEqual(tags["event-key"], "modified-event-value")
+    }
+    
+    func testBeforeSendTransaction_RemoveTags() throws {
+        // Arrange
+        let transaction = fixture.transaction
+        transaction.trace.setTag(value: "tracer-value", key: "tracer-key")
+        let scope = Scope()
+        scope.setTag(value: "event-value", key: "event-key")
+        
+        // Act
+        fixture.getSut(configureOptions: { options in
+            options.beforeSend = { event in
+                guard let transaction = event as? Transaction else {
+                    return event
+                }
+                // Remove both tracer tag and event tag
+                transaction.tags?["tracer-key"] = nil
+                transaction.tags?["event-key"] = nil
+                return transaction
+            }
+        }).capture(event: transaction, scope: scope)
+        
+        // Assert
+        let actual = try lastSentEvent()
+        let serialized = actual.serialize()
+        let tags = try XCTUnwrap(serialized["tags"] as? [String: String])
+        XCTAssertNil(tags["tracer-key"])
+        XCTAssertNil(tags["event-key"])
+    }
+    
+    func testBeforeSendTransaction_ReplaceTags() throws {
+        // Arrange
+        let transaction = fixture.transaction
+        transaction.trace.setTag(value: "tracer-value", key: "tracer-key")
+        let scope = Scope()
+        scope.setTag(value: "event-value", key: "event-key")
+        
+        // Act
+        fixture.getSut(configureOptions: { options in
+            options.beforeSend = { event in
+                guard let transaction = event as? Transaction else {
+                    return event
+                }
+                // Replace all tags
+                transaction.tags = ["replaced-key": "replaced-value"]
+                return transaction
+            }
+        }).capture(event: transaction, scope: scope)
+        
+        // Assert
+        let actual = try lastSentEvent()
+        let serialized = actual.serialize()
+        let tags = try XCTUnwrap(serialized["tags"] as? [String: String])
+        XCTAssertEqual(tags.count, 1)
+        XCTAssertEqual(tags["replaced-key"], "replaced-value")
+        XCTAssertNil(tags["tracer-key"])
+        XCTAssertNil(tags["event-key"])
+    }
+    
+    func testBeforeSendTransaction_DictionarySubscriptAssignmentCallsSetter() throws {
+        // Arrange
+        // This test verifies that `transaction.tags?["key"] = "value"` actually calls the setter
+        // In Swift, dictionary subscript assignment with optional chaining expands to:
+        //   if var tags = transaction.tags {
+        //       tags["key"] = "value"
+        //       transaction.tags = tags  // <-- setter is called here!
+        //   }
+        let transaction = fixture.transaction
+        transaction.trace.setTag(value: "original", key: "key")
+        
+        // Act - modify via subscript assignment
+        fixture.getSut(configureOptions: { options in
+            options.beforeSend = { event in
+                guard let transaction = event as? Transaction else {
+                    return event
+                }
+                // This subscript assignment calls the setter under the hood
+                transaction.tags?["key"] = "modified"
+                transaction.tags?["new-key"] = "new-value"
+                return transaction
+            }
+        }).capture(event: transaction)
+        
+        // Assert - verify the setter was called and changes persisted
+        let actual = try lastSentEvent()
+        let serialized = actual.serialize()
+        let tags = try XCTUnwrap(serialized["tags"] as? [String: String])
+        XCTAssertEqual(tags["key"], "modified", "Subscript assignment should call setter and persist changes")
+        XCTAssertEqual(tags["new-key"], "new-value", "New tags added via subscript should persist")
+    }
+    
     func testBeforeSendSpanDitchOneSpan_OtherChangedSpanSent() throws {
         let spanOne = getSpan(operation: "operation.one", tracer: fixture.trace)
         let spanTwo = getSpan(operation: "operation.two", tracer: fixture.trace)

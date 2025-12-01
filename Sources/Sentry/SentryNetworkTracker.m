@@ -270,11 +270,8 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
         NSInteger responseStatusCode = [self urlResponseStatusCode:sessionTask.response];
 
         if (responseStatusCode != -1) {
-            NSNumber *statusCode = [NSNumber numberWithInteger:responseStatusCode];
-
             if (netSpan != nil) {
-                [netSpan setDataValue:[NSString stringWithFormat:@"%@", statusCode]
-                               forKey:@"http.response.status_code"];
+                [netSpan setDataValue:@(responseStatusCode) forKey:@"http.response.status_code"];
             }
         }
     }

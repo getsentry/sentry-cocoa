@@ -35,7 +35,7 @@
 
     /// Turns debug mode on or off. If debug is enabled SDK will attempt to print out useful debugging
     /// information if something goes wrong.
-    /// @note Default is NO.
+    /// @note Default is @c false.
     @objc public var debug: Bool = false
 
     /// Minimum LogLevel to be used if debug is enabled.
@@ -58,8 +58,8 @@
     /// @note Default value is "production".
     @objc public var environment: String = Options.defaultEnvironment
 
-    /// Specifies whether this SDK should send events to Sentry. If set to NO events will be
-    /// dropped in the client and not sent to Sentry. Default is YES.
+    /// Specifies whether this SDK should send events to Sentry. If set to @c false events will be
+    /// dropped in the client and not sent to Sentry. Default is @c true.
     @objc public var enabled = true
 
     /// Controls the flush duration when calling SentrySDK/close.
@@ -69,7 +69,7 @@
     /// @note Disabling this feature disables the SentryWatchdogTerminationTrackingIntegration,
     /// because SentryWatchdogTerminationTrackingIntegration would falsely report every crash as watchdog
     /// termination.
-    /// @note Default value is YES.
+    /// @note Default value is @c true.
     /// @note Crash reporting is automatically disabled if a debugger is attached.
     @objc public var enableCrashHandler: Bool = true
 
@@ -86,7 +86,7 @@
     /// feature or use the `SentryCrashExceptionApplication`. Having both enabled can lead to duplicated
     /// reports.
     ///
-    /// @note Default value is NO.
+    /// @note Default value is @c false.
     @objc public var enableUncaughtNSExceptionReporting: Bool = false
     #endif
 
@@ -99,7 +99,7 @@
     /// aware that their app can receive a SIGTERM in various scenarios, such as  CPU or disk overuse,
     /// watchdog terminations, or when the OS updates your app.
     ///
-    /// @note The default value is NO.
+    /// @note The default value is @c false.
     @objc public var enableSigtermReporting: Bool = false
     #endif
 
@@ -111,7 +111,7 @@
     /// disabling enableSwizzling also disables this feature.
     /// @discussion If you want to enable or disable network tracking for performance monitoring, please
     /// use enableNetworkTracking instead.
-    /// @note Default value is YES.
+    /// @note Default value is @c true.
     @objc public var enableNetworkBreadcrumbs: Bool = true
 
     /// The maximum number of envelopes to keep in cache.
@@ -127,7 +127,7 @@
 
     /// When enabled, the SDK sends logs to Sentry. Logs can be captured using the SentrySDK.logger
     /// API, which provides structured logging with attributes.
-    /// @note Default value is NO.
+    /// @note Default value is @c false.
     @objc public var enableLogs: Bool = false
 
     /// Use this callback to drop or modify a log before the SDK sends it to Sentry. Return nil to
@@ -137,13 +137,13 @@
     /// This block can be used to modify the breadcrumb before it will be serialized and sent.
     @objc public var beforeBreadcrumb: SentryBeforeBreadcrumbCallback?
 
-    /// You can use this callback to decide if the SDK should capture a screenshot or not. Return true
-    /// if the SDK should capture a screenshot, return false if not. This callback doesn't work for
+    /// You can use this callback to decide if the SDK should capture a screenshot or not. Return @c true
+    /// if the SDK should capture a screenshot, return @c false if not. This callback doesn't work for
     /// crashes.
     @objc public var beforeCaptureScreenshot: SentryBeforeCaptureScreenshotCallback?
 
     /// You can use this callback to decide if the SDK should capture a view hierarchy or not. Return
-    /// true if the SDK should capture a view hierarchy, return false if not. This callback doesn't
+    /// @c true if the SDK should capture a view hierarchy, return @c false if not. This callback doesn't
     /// work for crashes.
     @objc public var beforeCaptureViewHierarchy: SentryBeforeCaptureScreenshotCallback?
 
@@ -182,17 +182,17 @@
     var _sampleRate: NSNumber? = 1
 
     /// Whether to enable automatic session tracking or not.
-    /// @note Default is YES.
+    /// @note Default is @c true.
     @objc public var enableAutoSessionTracking: Bool = true
 
     /// Whether to attach the top level `operationName` node of HTTP json requests to HTTP breadcrumbs
-    /// @note Default is NO.
+    /// @note Default is @c false.
     @objc public var enableGraphQLOperationTracking: Bool = false
 
     /// Whether to enable Watchdog Termination tracking or not.
     /// @note This feature requires the SentryCrashIntegration being enabled, otherwise it would
     /// falsely report every crash as watchdog termination.
-    /// @note Default is YES.
+    /// @note Default is @c true.
     @objc public var enableWatchdogTerminationTracking: Bool = true
 
     /// The interval to end a session after the App goes to the background.
@@ -213,8 +213,8 @@
     @objc public var maxAttachmentSize: UInt = 200 * 1_024 * 1_024
 
     /// When enabled, the SDK sends personal identifiable along with events.
-    /// @note The default is NO.
-    /// @discussion When the user of an event doesn't contain an IP address, and this flag is YES, the
+    /// @note The default is @c false.
+    /// @discussion When the user of an event doesn't contain an IP address, and this flag is @c true, the
     /// SDK sets sdk.settings.infer_ip to auto to instruct the server to use the connection IP address as
     /// the user address. Due to backward compatibility concerns, Sentry sets sdk.settings.infer_ip to
     /// auto out of the box for Cocoa. If you want to stop Sentry from using the connections IP address,
@@ -223,7 +223,7 @@
 
     /// When enabled, the SDK tracks performance for UIViewController subclasses and HTTP requests
     /// automatically. It also measures the app start and slow and frozen frames.
-    /// @note The default is YES.
+    /// @note The default is @c true.
     /// @note Performance Monitoring must be enabled for this flag to take effect. See:
     /// https://docs.sentry.io/platforms/apple/performance/
     @objc public var enableAutoPerformanceTracing: Bool = true
@@ -234,7 +234,7 @@
     /// crash event when your app crashes. The SDK skips adding profiles to increase the chance of
     /// keeping the transaction.
     ///
-    /// @note The default is NO.
+    /// @note The default is @c false.
     @objc public var enablePersistingTracesWhenCrashing: Bool = false
 
     /// A block that configures the initial scope when starting the SDK.
@@ -248,13 +248,13 @@
     /// When enabled, the SDK tracks performance for UIViewController subclasses.
     /// @warning This feature is not available in @c DebugWithoutUIKit and @c ReleaseWithoutUIKit
     /// configurations even when targeting iOS or tvOS platforms.
-    /// @note The default is @c YES .
+    /// @note The default is @c true.
     @objc public var enableUIViewControllerTracing: Bool = true
 
     /// Automatically attaches a screenshot when capturing an error or exception.
     /// @warning This feature is not available in @c DebugWithoutUIKit and @c ReleaseWithoutUIKit
     /// configurations even when targeting iOS or tvOS platforms.
-    /// @note Default value is @c NO .
+    /// @note Default value is @c false.
     @objc public var attachScreenshot: Bool = false
 
     /// Settings to configure screenshot attachments.
@@ -265,21 +265,21 @@
     /// error event.
     /// @warning This feature is not available in @c DebugWithoutUIKit and @c ReleaseWithoutUIKit
     /// configurations even when targeting iOS or tvOS platforms.
-    /// @note Default value is @c NO .
+    /// @note Default value is @c false.
     @objc public var attachViewHierarchy: Bool = false
 
     /// @brief If enabled, view hierarchy attachment will contain view `accessibilityIdentifier`.
-    /// Set it to @c NO if your project uses `accessibilityIdentifier` for PII.
+    /// Set it to @c false if your project uses `accessibilityIdentifier` for PII.
     /// @warning This feature is not available in @c DebugWithoutUIKit and @c ReleaseWithoutUIKit
     /// configurations even when targeting iOS or tvOS platforms.
-    /// @note Default value is @c YES.
+    /// @note Default value is @c true.
     @objc public var reportAccessibilityIdentifier: Bool = true
 
     /// When enabled, the SDK creates transactions for UI events like buttons clicks, switch toggles,
     /// and other ui elements that uses UIControl @c sendAction:to:forEvent:
     /// @warning This feature is not available in @c DebugWithoutUIKit and @c ReleaseWithoutUIKit
     /// configurations even when targeting iOS or tvOS platforms.
-    /// @note Default value is @c YES .
+    /// @note Default value is @c true.
     @objc public var enableUserInteractionTracing: Bool = true
 
     /// How long an idle transaction waits for new children after all its child spans finished. Only UI
@@ -300,13 +300,13 @@
     /// @warning This feature is not available in @c DebugWithoutUIKit and @c ReleaseWithoutUIKit
     /// configurations even when targeting iOS or tvOS platforms.
     ///
-    /// @note Default value is @c YES .
+    /// @note Default value is @c true.
     @objc public var enablePreWarmedAppStartTracing: Bool = true
     
     /// When enabled the SDK reports non-fully-blocking app hangs. A non-fully-blocking app hang is when
     /// the app appears stuck to the user but can still render a few frames.
     ///
-    /// @note The default is @c YES.
+    /// @note The default is @c true.
     @objc public var enableReportNonFullyBlockingAppHangs: Bool = true
     
     @_spi(Private) @objc public func isAppHangTrackingDisabled() -> Bool {
@@ -323,24 +323,24 @@
     
     /// When enabled, the SDK tracks performance for HTTP requests if auto performance tracking and
     /// @c enableSwizzling are enabled.
-    /// @note The default is @c YES .
+    /// @note The default is @c true.
     /// @discussion If you want to enable or disable network breadcrumbs, please use
     /// @c enableNetworkBreadcrumbs instead.
     @objc public var enableNetworkTracking: Bool = true
 
     /// When enabled, the SDK tracks performance for file IO reads and writes with NSData if auto
     /// performance tracking and enableSwizzling are enabled.
-    /// @note The default is @c YES .
+    /// @note The default is @c true.
     @objc public var enableFileIOTracing: Bool = true
 
     /// When enabled, the SDK tracks performance for file IO reads and writes with NSData if auto
     /// performance tracking and enableSwizzling are enabled.
-    /// @note The default is @c YES .
+    /// @note The default is @c true.
     @objc public var enableDataSwizzling: Bool = true
 
     /// When enabled, the SDK tracks performance for file IO operations with NSFileManager if auto
     /// performance tracking and enableSwizzling are enabled.
-    /// @note The default is @c NO .
+    /// @note The default is @c false.
     @objc public var enableFileManagerSwizzling: Bool = false
 
     /// Indicates the percentage of the tracing data that is collected.
@@ -375,8 +375,8 @@
     @objc public var tracesSampler: SentryTracesSamplerCallback?
 
     /// If tracing is enabled or not.
-    /// @discussion @c YES if @c tracesSampleRateis > @c 0 and \<= @c 1
-    /// or a @c tracesSampler is set, otherwise @c NO.
+    /// @discussion @c true if @c tracesSampleRate is > @c 0 and \<= @c 1
+    /// or a @c tracesSampler is set, otherwise @c false.
     @objc public var isTracingEnabled: Bool {
         (tracesSampleRate?.doubleValue ?? 0) > 0 && (tracesSampleRate?.doubleValue ?? 0) <= 1 || tracesSampler != nil
     }
@@ -410,7 +410,7 @@
     /// navigation with UIViewControllers, automatic instrumentation for UIViewControllers,
     /// automatic instrumentation for HTTP requests, automatic instrumentation for file IO with
     /// NSData, and automatically added sentry-trace header to HTTP requests for distributed tracing.
-    /// Default is true.
+    /// Default is @c true.
     @objc public var enableSwizzling: Bool = true
 
     /// A set of class names to ignore for swizzling.
@@ -421,7 +421,7 @@
     @objc public var swizzleClassNameExcludes: Set<String> = []
 
     /// When enabled, the SDK tracks the performance of Core Data operations. It requires enabling
-    /// performance monitoring. The default is true.
+    /// performance monitoring. The default is @c true.
     /// See: https://docs.sentry.io/platforms/apple/performance/
     @objc public var enableCoreDataTracing: Bool = true
     
@@ -454,7 +454,7 @@
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
     
     /// Whether to send client reports, which contain statistics about discarded events.
-    /// @note The default is @c YES.
+    /// @note The default is @c true.
     /// @see <https://develop.sentry.dev/sdk/client-reports/>
     @objc public var sendClientReports: Bool = true
 
@@ -472,7 +472,7 @@
     ///
     /// You can use @c enableReportNonFullyBlockingAppHangs to ignore non-fully-blocking app hangs.
     ///
-    /// @note The default is @c YES
+    /// @note The default is @c true.
     /// @note App Hang tracking is automatically disabled if a debugger is attached.
     @objc public var enableAppHangTracking: Bool = true
 
@@ -484,17 +484,17 @@
     @objc public var appHangTimeoutInterval: TimeInterval = 2.0
 
     /// When enabled, the SDK adds breadcrumbs for various system events.
-    /// @note Default value is @c YES.
+    /// @note Default value is @c true.
     @objc public var enableAutoBreadcrumbTracking: Bool = true
 
     /// When enabled, the SDK propagates the W3C Trace Context HTTP header traceparent on outgoing HTTP
     /// requests.
     ///
     /// @discussion This is useful when the receiving services only support OTel/W3C propagation. The
-    /// traceparent header is only sent when this option is @c YES and the request matches @c
+    /// traceparent header is only sent when this option is @c true and the request matches @c
     /// tracePropagationTargets.
     ///
-    /// @note Default value is @c NO.
+    /// @note Default value is @c false.
     @objc public var enablePropagateTraceparent: Bool = false
     
     static let everythingAllowedRegex = try? NSRegularExpression(pattern: ".*", options: .caseInsensitive)
@@ -518,7 +518,7 @@
 
     /// When enabled, the SDK captures HTTP Client errors.
     /// @note This feature requires @c enableSwizzling enabled as well.
-    /// @note Default value is @c YES.
+    /// @note Default value is @c true.
     @objc public var enableCaptureFailedRequests: Bool = true
 
     /// The SDK will only capture HTTP Client errors if the HTTP Response status code is within the
@@ -558,7 +558,7 @@
     /// When enabled, the SDK adds the raw MXDiagnosticPayloads as an attachment to the converted
     /// SentryEvent. You need to enable @c enableMetricKit for this flag to work.
     ///
-    /// @note Default value is @c NO.
+    /// @note Default value is @c false.
     @objc public var enableMetricKitRawPayload = false
     
     #endif
@@ -570,7 +570,7 @@
     /// If @c SentrySDK.reportFullyDisplayed() is not called, the transaction will finish
     /// automatically after 30 seconds and the `Time to full display` Span will be
     /// finished with @c DeadlineExceeded status.
-    /// @note Default value is `NO`.
+    /// @note Default value is `false`.
     @objc public var enableTimeToFullDisplayTracing: Bool = false
 
     /// This feature is only available from Xcode 13 and from macOS 12.0, iOS 15.0, tvOS 15.0,
@@ -578,20 +578,20 @@
     ///
     /// @warning This is an experimental feature and may still have bugs.
     /// @brief Stitches the call to Swift Async functions in one consecutive stack trace.
-    /// @note Default value is @c NO .
+    /// @note Default value is @c false.
     @objc public var swiftAsyncStacktraces: Bool = false
 
     /// The path to store SDK data, like events, transactions, profiles, raw crash data, etc. We
     /// recommend only changing this when the default, e.g., in security environments, can't be accessed.
     ///
     /// @note The default is `NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask,
-    /// YES)`.
+    /// true)`.
     @objc public var cacheDirectoryPath: String = NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true).first ?? ""
 
     /// Whether to enable Spotlight for local development. For more information see
     /// https://spotlightjs.com/.
     ///
-    /// @note Only set this option to @c YES while developing, not in production!
+    /// @note Only set this option to @c true while developing, not in production!
     @objc public var enableSpotlight: Bool = false {
         didSet {
             #if !DEBUG
