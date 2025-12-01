@@ -713,7 +713,7 @@ typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull 
     XCTAssertEqual(200 * 1024 * 1024, options.maxAttachmentSize);
     XCTAssertEqual(NO, options.sendDefaultPii);
     XCTAssertTrue(options.enableAutoPerformanceTracing);
-#if SENTRY_HAS_UIKIT
+#if SENTRY_HAS_UIKIT && !TARGET_OS_VISION
     XCTAssertTrue(options.enableUIViewControllerTracing);
     XCTAssertFalse(options.attachScreenshot);
     XCTAssertEqual(3.0, options.idleTimeout);
@@ -893,6 +893,7 @@ typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull 
     [self testBooleanField:@"enablePreWarmedAppStartTracing" defaultValue:YES];
 }
 
+#    if !TARGET_OS_VISION
 - (void)testSessionReplaySettingsInit
 {
     if (@available(iOS 16.0, tvOS 16.0, *)) {
@@ -912,7 +913,7 @@ typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull 
         XCTAssertEqual(options.sessionReplay.onErrorSampleRate, 0);
     }
 }
-
+#    endif
 #endif // SENTRY_HAS_UIKIT
 
 #if SENTRY_HAS_METRIC_KIT

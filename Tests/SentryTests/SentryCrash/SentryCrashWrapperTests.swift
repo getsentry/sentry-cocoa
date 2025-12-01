@@ -1,4 +1,5 @@
 @_spi(Private) @testable import Sentry
+@_spi(Private) import SentryTestUtils
 import XCTest
 
 final class SentryCrashWrapperTests: XCTestCase {
@@ -129,7 +130,97 @@ final class SentryCrashWrapperTests: XCTestCase {
             
             let runtimeContext = try XCTUnwrap(scope.contextDictionary["runtime"] as? [String: Any])
             XCTAssertEqual(runtimeContext["name"] as? String, "Mac Catalyst App")
-            XCTAssertEqual(runtimeContext["raw_description"] as? String, "raw_description")
+            XCTAssertEqual(runtimeContext["raw_description"] as? String, "mac-catalyst-app")
             #endif
+    }
+    
+    @available(macOS 12.0, *)
+    func testEnrichScope_DeviceContext_iOSAppOnMac() throws {
+        let mockProcessInfo = MockSentryProcessInfo()
+        mockProcessInfo.overrides.isiOSAppOnMac = true
+        mockProcessInfo.overrides.isMacCatalystApp = false
+        
+        let testScope = Scope()
+        let crashWrapper = SentryCrashWrapper(processInfoWrapper: mockProcessInfo, systemInfo: [
+            "osVersion": "23A344",
+            "kernelVersion": "23.0.0",
+            "isJailbroken": false,
+            "systemName": "iOS",
+            "cpuArchitecture": "arm64",
+            "machine": "iPhone14,2",
+            "model": "iPhone 13 Pro",
+            "freeMemorySize": UInt64(1_073_741_824),
+            "usableMemorySize": UInt64(4_294_967_296),
+            "memorySize": UInt64(6_442_450_944),
+            "appStartTime": "2023-01-01T12:00:00Z",
+            "deviceAppHash": "abc123",
+            "appID": "12345",
+            "buildType": "debug"
+        ])
+        
+        crashWrapper.enrichScope(testScope)
+        
+        let deviceContext = try XCTUnwrap(testScope.contextDictionary["device"] as? [String: Any])
+        XCTAssertEqual(deviceContext["ios_app_on_macos"] as? Bool, true)
+        XCTAssertEqual(deviceContext["mac_catalyst_app"] as? Bool, false)
+    }
+    
+    @available(macOS 12.0, *)
+    func testEnrichScope_DeviceContext_MacCatalyst() throws {
+        let mockProcessInfo = MockSentryProcessInfo()
+        mockProcessInfo.overrides.isiOSAppOnMac = false
+        mockProcessInfo.overrides.isMacCatalystApp = true
+        
+        let testScope = Scope()
+        let crashWrapper = SentryCrashWrapper(processInfoWrapper: mockProcessInfo, systemInfo: [
+            "osVersion": "23A344",
+            "kernelVersion": "23.0.0",
+            "isJailbroken": false,
+            "systemName": "iOS",
+            "cpuArchitecture": "arm64",
+            "machine": "iPhone14,2",
+            "model": "iPhone 13 Pro",
+            "freeMemorySize": UInt64(1_073_741_824),
+            "usableMemorySize": UInt64(4_294_967_296),
+            "memorySize": UInt64(6_442_450_944),
+            "appStartTime": "2023-01-01T12:00:00Z",
+            "deviceAppHash": "abc123",
+            "appID": "12345",
+            "buildType": "debug"
+        ])
+        
+        crashWrapper.enrichScope(testScope)
+        
+        let deviceContext = try XCTUnwrap(testScope.contextDictionary["device"] as? [String: Any])
+        XCTAssertEqual(deviceContext["ios_app_on_macos"] as? Bool, false)
+        XCTAssertEqual(deviceContext["mac_catalyst_app"] as? Bool, true)
+    }
+    
+    func testEnrichScope_DeviceContext_iOSAppOnVisionOS() throws {
+        let mockProcessInfo = MockSentryProcessInfo()
+        mockProcessInfo.overrides.isiOSAppOnVisionOS = true
+        
+        let testScope = Scope()
+        let crashWrapper = SentryCrashWrapper(processInfoWrapper: mockProcessInfo, systemInfo: [
+            "osVersion": "23A344",
+            "kernelVersion": "23.0.0",
+            "isJailbroken": false,
+            "systemName": "iOS",
+            "cpuArchitecture": "arm64",
+            "machine": "iPhone14,2",
+            "model": "iPhone 13 Pro",
+            "freeMemorySize": UInt64(1_073_741_824),
+            "usableMemorySize": UInt64(4_294_967_296),
+            "memorySize": UInt64(6_442_450_944),
+            "appStartTime": "2023-01-01T12:00:00Z",
+            "deviceAppHash": "abc123",
+            "appID": "12345",
+            "buildType": "debug"
+        ])
+        
+        crashWrapper.enrichScope(testScope)
+        
+        let deviceContext = try XCTUnwrap(testScope.contextDictionary["device"] as? [String: Any])
+        XCTAssertEqual(deviceContext["ios_app_on_visionos"] as? Bool, true)
     }
 }
