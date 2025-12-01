@@ -12,7 +12,7 @@ import UIKit
 #if (os(iOS) || os(tvOS) || (swift(>=5.9) && os(visionOS))) && !SENTRY_NO_UIKIT
     private let _updateAppState: (@escaping (SentryAppState) -> Void) -> Void
     private let _buildCurrentAppState: () -> SentryAppState
-    private var helper: SentryDefaultAppStateManager
+    private let helper: SentryDefaultAppStateManager
 #endif
     
     init(releaseName: String?, crashWrapper: SentryCrashWrapper, fileManager: SentryFileManager?, sysctlWrapper: SentrySysctl) {
@@ -41,7 +41,6 @@ import UIKit
             }
         }
         _updateAppState = updateAppState
-        
         helper = SentryDefaultAppStateManager(storeCurrent: {
             fileManager?.store(buildCurrentAppState())
         }, updateTerminated: {

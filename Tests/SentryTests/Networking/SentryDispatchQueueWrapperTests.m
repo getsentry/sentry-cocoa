@@ -77,7 +77,6 @@ NS_ASSUME_NONNULL_BEGIN
     XCTAssertEqual(actualQoSClass, QOS_CLASS_UNSPECIFIED);
     XCTAssertEqual(actualRelativePriority, 0);
 }
-
 @end
 
 NS_ASSUME_NONNULL_END
