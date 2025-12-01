@@ -54,6 +54,10 @@ class SentryWatchdogTerminationScopeObserver: NSObject, SentryScopeObserver {
         // Nothing to do here, watchdog termination events are always Fatal
     }
     
+    func setAttributes(_ attributes: [String: Any]?) {
+        // Nothing to do here, watchdog termination events don't support attributes
+    }
+    
     func addSerializedBreadcrumb(_ serializedBreadcrumb: [String: Any]) {
         breadcrumbProcessor.addSerializedBreadcrumb(serializedBreadcrumb)
     }

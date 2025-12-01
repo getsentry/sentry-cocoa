@@ -10,7 +10,7 @@ public final class SentryFeedbackAPI: NSObject {
     /// - seealso: See `SentryOptions.configureUserFeedback` to configure the widget.
     @available(iOSApplicationExtension, unavailable)
     @objc public func showWidget() {
-        SentryFeedbackAPIHelper.showWidget()
+        getIntegration()?.driver.showWidget()
     }
     
     /// Hide the feedback widget button.
@@ -18,7 +18,11 @@ public final class SentryFeedbackAPI: NSObject {
     /// - seealso: See `SentryOptions.configureUserFeedback` to configure the widget.
     @available(iOSApplicationExtension, unavailable)
     @objc public func hideWidget() {
-        SentryFeedbackAPIHelper.hideWidget()
+        getIntegration()?.driver.hideWidget()
+    }
+    
+    private func getIntegration() -> UserFeedbackIntegration<SentryDependencyContainer>? {
+        SentrySDKInternal.currentHub().getInstalledIntegration(UserFeedbackIntegration<SentryDependencyContainer>.self) as? UserFeedbackIntegration<SentryDependencyContainer>
     }
 }
 #endif

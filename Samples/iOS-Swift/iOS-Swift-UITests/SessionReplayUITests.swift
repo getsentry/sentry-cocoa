@@ -13,7 +13,7 @@ class SessionReplayUITests: BaseUITest {
         app.buttons["Extra"].tap()
 
         // -- Act --
-        app.buttons["Show Camera UI"].tap()
+        app.buttons["show-camera-ui"].tap()
         
         // We need to verify the camera UI is shown by checking for the existence of a UI element.
         // This can be any element that is part of the camera UI and can be found reliably.
