@@ -22,7 +22,7 @@ final class SentryMXCallStackTreeTests: XCTestCase {
         let contents = try contentsOfResource("MetricKitCallstacks/not-per-thread")
         let callStackTree = try SentryMXCallStackTree.from(data: contents)
         
-        try assertCallStackTree(callStackTree, perThread: false, framesAmount: 14, threadAttributed: nil, subFrameCount: [2, 4, 0])
+        try assertCallStackTree(callStackTree, perThread: false, samplesAmount: 14, threadAttributed: nil, subFrameCount: [2, 4, 0])
     }
     
     func testDecodeCallStackTree_UnknownFieldsPayload() throws {
@@ -41,7 +41,6 @@ final class SentryMXCallStackTreeTests: XCTestCase {
         // Only validate some properties as this only validates that we can
         // decode a real payload
         XCTAssertEqual(16, callStackTree.callStacks.count)
-        XCTAssertEqual(27, try XCTUnwrap(callStackTree.callStacks.first).flattenedRootFrames.count)
     }
     
     func testDecodeCallStackTree_GarbagePayload() throws {
@@ -49,7 +48,7 @@ final class SentryMXCallStackTreeTests: XCTestCase {
         XCTAssertThrowsError(try SentryMXCallStackTree.from(data: contents))
     }
     
-    private func assertCallStackTree(_ callStackTree: SentryMXCallStackTree, perThread: Bool = true, callStackCount: Int = 1, framesAmount: Int = 3, threadAttributed: Bool? = true, subFrameCount: [Int] = [1, 1, 0]) throws {
+    private func assertCallStackTree(_ callStackTree: SentryMXCallStackTree, perThread: Bool = true, callStackCount: Int = 1, samplesAmount: Int = 3, threadAttributed: Bool? = true, subFrameCount: [Int] = [1, 1, 0]) throws {
         
         assert(subFrameCount.count == 3, "subFrameCount must contain 3 elements.")
         
@@ -61,9 +60,9 @@ final class SentryMXCallStackTreeTests: XCTestCase {
         let callStack = try XCTUnwrap(callStackTree.callStacks.first)
         XCTAssertEqual(threadAttributed, callStack.threadAttributed)
         
-        XCTAssertEqual(framesAmount, callStack.flattenedRootFrames.count)
+        XCTAssertEqual(samplesAmount, callStack.callStackRootFrames[0].toSamples().count)
         
-        let firstFrame = try XCTUnwrap(callStack.flattenedRootFrames.first)
+        let firstFrame = try XCTUnwrap(callStack.callStackRootFrames.first)
         XCTAssertEqual(UUID(uuidString: "9E8D8DE6-EEC1-3199-8720-9ED68EE3F967"), firstFrame.binaryUUID)
         XCTAssertEqual(414_732, firstFrame.offsetIntoBinaryTextSegment)
         XCTAssertEqual(1, firstFrame.sampleCount)
@@ -71,7 +70,7 @@ final class SentryMXCallStackTreeTests: XCTestCase {
         XCTAssertEqual(4_312_798_220, firstFrame.address)
         XCTAssertEqual(try XCTUnwrap(subFrameCount.first), firstFrame.subFrames?.count)
         
-        let secondFrame = try XCTUnwrap(try XCTUnwrap(callStack.flattenedRootFrames.element(at: 1)))
+        let secondFrame = try XCTUnwrap(try XCTUnwrap(callStack.callStackRootFrames.element(at: 1)))
         XCTAssertEqual(UUID(uuidString: "CA12CAFA-91BA-3E1C-BE9C-E34DB96FE7DF"), secondFrame.binaryUUID)
         XCTAssertEqual(46_380, secondFrame.offsetIntoBinaryTextSegment)
         XCTAssertEqual(1, secondFrame.sampleCount)
@@ -79,15 +78,13 @@ final class SentryMXCallStackTreeTests: XCTestCase {
         XCTAssertEqual(4_310_988_076, secondFrame.address)
         XCTAssertEqual(try XCTUnwrap(subFrameCount.element(at: 1)), secondFrame.subFrames?.count)
         
-        let thirdFrame = try XCTUnwrap(try XCTUnwrap(callStack.flattenedRootFrames.element(at: 2)))
+        let thirdFrame = try XCTUnwrap(try XCTUnwrap(callStack.callStackRootFrames.element(at: 2)))
         XCTAssertEqual(UUID(uuidString: "CA12CAFA-91BA-3E1C-BE9C-E34DB96FE7DF"), thirdFrame.binaryUUID)
         XCTAssertEqual(46_370, thirdFrame.offsetIntoBinaryTextSegment)
         XCTAssertEqual(1, thirdFrame.sampleCount)
         XCTAssertEqual("iOS-Swift", thirdFrame.binaryName)
         XCTAssertEqual(4_310_988_026, thirdFrame.address)
         XCTAssertEqual(try XCTUnwrap(subFrameCount.element(at: 2)), thirdFrame.subFrames?.count ?? 0)
-        
-        XCTAssertEqual(try XCTUnwrap(firstFrame.subFrames?.first), secondFrame)
     }
 }
 
