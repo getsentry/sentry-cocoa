@@ -1,6 +1,7 @@
 // swiftlint:disable file_length
 import AuthenticationServices
 import Foundation
+import PhotosUI
 import SafariServices
 @_spi(Private) import Sentry
 import SentrySampleShared
@@ -410,6 +411,16 @@ class ExtraViewController: UIViewController {
         imagePicker.cameraCaptureMode = .photo
         self.present(imagePicker, animated: true, completion: nil)
     }
+
+    @IBAction func showGalleryUIAction(_ sender: Any) {
+        var config = PHPickerConfiguration(photoLibrary: .shared())
+        config.selectionLimit = 1
+        config.filter = .images
+
+        let picker = PHPickerViewController(configuration: config)
+        picker.delegate = self
+        self.present(picker, animated: true, completion: nil)
+    }
 }
 
 extension ExtraViewController: ASWebAuthenticationPresentationContextProviding {
@@ -418,6 +429,12 @@ extension ExtraViewController: ASWebAuthenticationPresentationContextProviding {
             fatalError("No window available for ASAuthorizationControllerPresentationContextProviding.")
         }
         return window
+    }
+}
+
+extension ExtraViewController: PHPickerViewControllerDelegate {
+    func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
+        picker.dismiss(animated: true)
     }
 }
 // swiftlint:enable file_length

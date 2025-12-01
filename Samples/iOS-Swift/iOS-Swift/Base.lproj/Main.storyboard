@@ -1204,16 +1204,31 @@
                                                                     <segue destination="ehF-Y7-8St" kind="presentation" id="H7t-Et-KMM"/>
                                                                 </connections>
                                                             </button>
-                                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="4Dg-dP-BxN" userLabel="Show Camera UI">
+                                                            <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" translatesAutoresizingMaskIntoConstraints="NO" id="hXd-kh-5nx">
                                                                 <rect key="frame" x="0.0" y="420" width="160" height="28"/>
-                                                                <accessibility key="accessibilityConfiguration" identifier="show-camera-ui"/>
-                                                                <fontDescription key="fontDescription" type="system" pointSize="13"/>
-                                                                <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
-                                                                <state key="normal" title="Show Camera UI"/>
-                                                                <connections>
-                                                                    <action selector="showCameraUIAction:" destination="VqS-l1-kwe" eventType="touchUpInside" id="dyU-je-aIj"/>
-                                                                </connections>
-                                                            </button>
+                                                                <subviews>
+                                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="4Dg-dP-BxN" userLabel="Camera">
+                                                                        <rect key="frame" x="0.0" y="0.0" width="80" height="28"/>
+                                                                        <accessibility key="accessibilityConfiguration" identifier="show-camera-ui"/>
+                                                                        <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                                                                        <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                                                                        <state key="normal" title="Camera"/>
+                                                                        <connections>
+                                                                            <action selector="showCameraUIAction:" destination="VqS-l1-kwe" eventType="touchUpInside" id="dyU-je-aIj"/>
+                                                                        </connections>
+                                                                    </button>
+                                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="dIS-13-JMa" userLabel="Gallery">
+                                                                        <rect key="frame" x="80" y="0.0" width="80" height="28"/>
+                                                                        <accessibility key="accessibilityConfiguration" identifier="show-gallerya-ui"/>
+                                                                        <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                                                                        <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                                                                        <state key="normal" title="Gallery"/>
+                                                                        <connections>
+                                                                            <action selector="showGalleryUIAction:" destination="VqS-l1-kwe" eventType="touchUpInside" id="DPJ-Cg-5La"/>
+                                                                        </connections>
+                                                                    </button>
+                                                                </subviews>
+                                                            </stackView>
                                                             <stackView opaque="NO" contentMode="scaleToFill" distribution="fillProportionally" translatesAutoresizingMaskIntoConstraints="NO" id="mOm-Ca-55v">
                                                                 <rect key="frame" x="0.0" y="448" width="160" height="38"/>
                                                                 <subviews>
