@@ -446,7 +446,7 @@ extension SentrySDKOverrides.Special {
 extension SentrySDKOverrides.Metrics {
     public var ignoresDisableEverything: Bool {
         switch self {
-        case .enable: return false
+        case .enable: return true
         }
     }
 }
