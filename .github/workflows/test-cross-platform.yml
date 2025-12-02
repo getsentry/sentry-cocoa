@@ -35,21 +35,11 @@ jobs:
           filters: .github/file-filters.yml
 
   test-react-native:
-    name: React Native Installation on ${{ matrix.ci_runner }}
+    name: React Native Installation
     # Run the job only for PRs with related changes or non-PR events.
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_test_cross_platform_for_prs == 'true'
     needs: files-changed
-    runs-on: ${{ matrix.runs-on }}
-    strategy:
-      matrix:
-        include:
-          - ci_runner: GitHub
-            runs-on: ["macos-15"]
-          - ci_runner: Cirrus
-            runs-on: [
-              "ghcr.io/cirruslabs/macos-runner:sequoia",
-              "runner_group_id:10",
-            ]
+    runs-on: ["ghcr.io/cirruslabs/macos-runner:sequoia", "runner_group_id:10"]
     # This job can take a while to run, so we set a timeout.
     timeout-minutes: 30
     steps:
@@ -69,13 +59,9 @@ jobs:
           path: sentry-react-native
           ref: cocoa-v9
 
-      - name: Remove yarn
-        if: ${{ matrix.ci_runner == 'Cirrus' }}
-        run: npm uninstall -g yarn
-
       - name: Enable Corepack
         working-directory: sentry-react-native
-        run: npm i -g corepack
+        run: npm i -g corepack --force
 
       - uses: actions/setup-node@v6
         with:
@@ -102,14 +88,11 @@ jobs:
         run: sed -i '' "s/parallelizable = \"YES\"/parallelizable = \"NO\"/" RNSentryCocoaTester.xcodeproj/xcshareddata/xcschemes/RNSentryCocoaTester.xcscheme
 
       - name: Change ruby to 3.3.10
-        if: ${{ matrix.ci_runner == 'Cirrus' }}
         working-directory: sentry-react-native/packages/core/RNSentryCocoaTester
         run: |
-          rbenv versions
           rbenv global 3.3.10
 
       - name: Install cocoapods
-        if: ${{ matrix.ci_runner == 'Cirrus' }}
         working-directory: sentry-react-native/packages/core/RNSentryCocoaTester
         run: gem install cocoapods
 
