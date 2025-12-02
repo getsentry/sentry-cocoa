@@ -116,3 +116,6 @@ analyzer
 
 # Output of snapshot testing
 **/__Snapshots__
+
+# Output folder for Sentry local builds
+SentryOutput/

@@ -34,7 +34,7 @@ fi
 
 ./scripts/build-xcframework-slice.sh "iphoneos" "Sentry" "-Dynamic" "mh_dylib"
 
-./scripts/assemble-xcframework.sh "Sentry" "-Dynamic" "" "iphoneos" "$(pwd)/Carthage/archive/Sentry-Dynamic/SDK_NAME.xcarchive"
+./scripts/assemble-xcframework.sh "Sentry" "-Dynamic" "" "iphoneos" "$(pwd)/SentryOutput/archive/Sentry-Dynamic/SDK_NAME.xcarchive"
 
 # Delete private .swiftinterface files before running swift-api-digester
 # This ensures only public interfaces are analyzed

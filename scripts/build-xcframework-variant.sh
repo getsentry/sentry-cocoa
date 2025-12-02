@@ -24,8 +24,8 @@ for sdk in "${sdks[@]}"; do
 done
 
 if [ -n "$excluded_archs" ]; then
-    ./scripts/remove-architectures.sh "$(pwd)/Carthage/archive/$scheme$suffix/" "$excluded_archs"
+    ./scripts/remove-architectures.sh "$(pwd)/SentryOutput/archive/$scheme$suffix/" "$excluded_archs"
 fi
 
 xcframework_sdks="$(IFS=,; echo "${sdks[*]}")"
-./scripts/assemble-xcframework.sh "$scheme" "$suffix" "$configuration_suffix" "$xcframework_sdks" "$(pwd)/Carthage/archive/$scheme$suffix/SDK_NAME.xcarchive"
+./scripts/assemble-xcframework.sh "$scheme" "$suffix" "$configuration_suffix" "$xcframework_sdks" "$(pwd)/SentryOutput/archive/$scheme$suffix/SDK_NAME.xcarchive"

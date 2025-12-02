@@ -32,7 +32,7 @@ jobs:
       - uses: actions/download-artifact@v6
         with:
           name: xcframeworks.zip
-          path: Carthage/
+          path: SentryOutput/
           github-token: ${{ secrets.GITHUB_TOKEN }}
           run-id: ${{ env.FRAMEWORK_RUN_ID }}
 
@@ -44,4 +44,4 @@ jobs:
           if-no-files-found: error
           overwrite: true
           path: |
-            ${{github.workspace}}/Carthage/*.zip
+            ${{github.workspace}}/SentryOutput/*.zip
