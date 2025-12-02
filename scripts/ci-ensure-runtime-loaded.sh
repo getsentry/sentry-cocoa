@@ -56,7 +56,7 @@ sudo pkill -9 com.apple.CoreSimulator.CoreSimulatorService || true
 
 # Wait for a runtime to be loaded
 count=0
-MAX_ATTEMPTS=100 # 500 seconds timeout
+MAX_ATTEMPTS=60 # 300 seconds (5 minutes) timeout
 while [ $count -lt $MAX_ATTEMPTS ]; do
     if xcrun simctl list runtimes -v | grep -qE "iOS $OS_VERSION" && ! xcrun simctl list runtimes -v | grep -qE "iOS $OS_VERSION.*unavailable"; then
         echo "Runtime $OS_VERSION is loaded after $count attempts"
