@@ -63,7 +63,8 @@ public final class SentryDsn: NSObject {
     
     /// Generates a SHA1 hash of the DSN URL.
     /// - Returns: A hexadecimal string representation of the hash.
-    @objc
+    /// - Note: This is internal SDK API, not for public use.
+    @_spi(Private) @objc
     public func getHash() -> String {
         let data: Data
         if let encodedData = url.absoluteString.data(using: .utf8) {
@@ -109,8 +110,7 @@ public final class SentryDsn: NSObject {
     
     /// Returns the base API endpoint URL for this DSN.
     /// - Returns: The base endpoint URL.
-    @objc
-    public func getBaseEndpoint() -> URL {
+    private func getBaseEndpoint() -> URL {
         let projectId = url.lastPathComponent
         var paths = url.pathComponents
         
