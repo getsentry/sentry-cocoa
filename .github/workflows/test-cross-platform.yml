@@ -70,6 +70,13 @@ jobs:
           cache-dependency-path: sentry-react-native/yarn.lock
       - run: ./sentry-cocoa/scripts/ci-select-xcode.sh 16.4
 
+      - name: Ensure required runtime is loaded
+        # Ideally we will not need this, but CI sometimes is failing to load some runtimes, this will ensure they are loaded
+        timeout-minutes: 5 # 5 minutes timeout
+        env:
+          OS_VERSION: "18.4"
+        run: ./scripts/ci-ensure-runtime-loaded.sh --os-version "$OS_VERSION"
+
       - name: Create simulator device for iOS 18.4
         run: ./sentry-cocoa/scripts/ci-create-simulator.sh --platform "iOS" --os-version "18.4" --device-name "iPhone 15 Pro"
 
