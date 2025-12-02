@@ -3,7 +3,7 @@ import XCTest
 
 class MyTestIntegration: SentryBaseIntegration {
     override func integrationOptions() -> SentryIntegrationOption {
-        return .integrationOptionEnableMetricKit
+        return .integrationOptionEnableWatchdogTerminationTracking
     }
 }
 
@@ -43,9 +43,9 @@ class SentryBaseIntegrationTests: XCTestCase {
     func testInstall_FailingIntegrationOption() {
         let sut = MyTestIntegration()
         let options = Options()
-        options.enableMetricKit = false
+        options.enableWatchdogTerminationTracking = false
         let result = sut.install(with: options)
         XCTAssertFalse(result)
-        XCTAssertFalse(logOutput.loggedMessages.filter({ $0.contains("Not going to enable SentryTests.MyTestIntegration because enableMetricKit is disabled.") }).isEmpty)
+        XCTAssertFalse(logOutput.loggedMessages.filter({ $0.contains("Not going to enable SentryTests.MyTestIntegration because enableWatchdogTerminationTracking is disabled.") }).isEmpty)
     }
 }
