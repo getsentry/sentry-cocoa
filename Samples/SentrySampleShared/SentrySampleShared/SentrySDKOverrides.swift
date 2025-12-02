@@ -47,6 +47,7 @@ public enum SentrySDKOverrides: String, CaseIterable {
         case .tracing: return SentrySDKOverrides.Tracing.allCases
         case .profiling: return SentrySDKOverrides.Profiling.allCases
         case .networking: return SentrySDKOverrides.Networking.allCases
+        case .metrics: return SentrySDKOverrides.Metrics.allCases
         }
     }
 
@@ -167,6 +168,11 @@ public enum SentrySDKOverrides: String, CaseIterable {
         case immediateStop              = "--io.sentry.profiling.continuous-profiler-immediate-stop"
     }
     case profiling = "Profiling"
+
+    public enum Metrics: String, SentrySDKOverride {
+        case enable = "--io.sentry.metrics.enable"
+    }
+    case metrics = "Metrics"
 }
 
 // MARK: Public flag/variable value access
@@ -348,6 +354,14 @@ extension SentrySDKOverrides.Special {
     }
 }
 
+extension SentrySDKOverrides.Metrics {
+    public var overrideType: OverrideType {
+        switch self {
+        case .enable: return .boolean
+        }
+    }
+}
+
 // MARK: Disable Everything Helper
 
 // These are listed exhaustively, without using default cases, so that when new cases are added to the enums above, the compiler helps remind you to annotate what type it is down here.
@@ -429,4 +443,11 @@ extension SentrySDKOverrides.Special {
     }
 }
 
+extension SentrySDKOverrides.Metrics {
+    public var ignoresDisableEverything: Bool {
+        switch self {
+        case .enable: return false
+        }
+    }
+}
 // swiftlint:enable file_length
