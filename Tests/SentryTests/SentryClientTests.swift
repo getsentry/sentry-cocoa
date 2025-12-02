@@ -2442,6 +2442,50 @@ class SentryClientTests: XCTestCase {
         XCTAssertEqual(testBatcher.captureLogsInvocations.count, 1)
     }
     
+    func testCaptureMetricsData_CreatesEnvelopeItem() throws {
+        let sut = fixture.getSut()
+        
+        // Create test metrics data
+        let metric1 = SentryMetric(
+            timestamp: Date(timeIntervalSince1970: 1_234_567_890),
+            traceId: SentryId(uuidString: "550e8400e29b41d4a716446655440000"),
+            spanId: nil,
+            name: "test.metric",
+            value: NSNumber(value: 1),
+            type: .counter,
+            unit: nil,
+            attributes: [:]
+        )
+        
+        let metric1Data = try encodeToJSONData(data: metric1)
+        
+        // Create payload in the format expected by the batcher: {"items": [...]}
+        var payloadData = Data()
+        payloadData.append(Data("{\"items\":[".utf8))
+        payloadData.append(metric1Data)
+        payloadData.append(Data("]}".utf8))
+        
+        // Act
+        sut.captureMetricsData(payloadData as NSData, with: NSNumber(value: 1))
+        
+        // Assert
+        XCTAssertEqual(sut.captureEnvelopeInvocations.count, 1)
+        let envelope = try XCTUnwrap(sut.captureEnvelopeInvocations.first)
+        XCTAssertEqual(envelope.items.count, 1)
+        
+        let item = try XCTUnwrap(envelope.items.first)
+        XCTAssertEqual(item.header.type, SentryEnvelopeItemTypes.traceMetric)
+        XCTAssertEqual(item.header.contentType, "application/vnd.sentry.items.trace-metric+json")
+        XCTAssertEqual(item.header.itemCount?.intValue, 1)
+        
+        // Verify payload structure
+        let payload = try XCTUnwrap(JSONSerialization.jsonObject(with: try XCTUnwrap(item.data)) as? [String: Any])
+        let items = try XCTUnwrap(payload["items"] as? [[String: Any]])
+        XCTAssertEqual(items.count, 1)
+        XCTAssertEqual(items[0]["name"] as? String, "test.metric")
+        XCTAssertEqual(items[0]["type"] as? String, "counter")
+    }
+    
     func testCaptureSentryWrappedException() throws {
 #if os(macOS)
         let exception = NSException(name: NSExceptionName("exception"), reason: "reason", userInfo: nil)

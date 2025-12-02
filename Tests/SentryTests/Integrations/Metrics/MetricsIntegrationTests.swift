@@ -4,7 +4,7 @@ import Foundation
 import XCTest
 
 class MetricsIntegrationTests: XCTestCase {
-
+    
     override func tearDown() {
         super.tearDown()
         clearTestState()
@@ -27,6 +27,56 @@ class MetricsIntegrationTests: XCTestCase {
         // -- Assert --
         XCTAssertEqual(SentrySDKInternal.currentHub().trimmedInstalledIntegrationNames().count, 1)
     }
+    
+    func testMetricsIntegration_AddsMetricsToBatcher() throws {
+        // -- Arrange --
+        startSDK(isEnabled: true)
+        let integration = try getSut()
+        let scope = Scope()
+        let metric = SentryMetric(
+            timestamp: Date(),
+            traceId: SentryId(),
+            spanId: nil,
+            name: "test.metric",
+            value: NSNumber(value: 1),
+            type: .counter,
+            unit: nil,
+            attributes: [:]
+        )
+        
+        // -- Act --
+        integration.addMetric(metric, scope: scope)
+        
+        // -- Assert --
+        // Metric should be added to batcher (no crash)
+        // Flush to verify it's processed
+        SentrySDK.flush(timeout: 1.0)
+    }
+    
+    func testMetricsIntegration_Uninstall_FlushesMetrics() throws {
+        // -- Arrange --
+        startSDK(isEnabled: true)
+        let integration = try getSut()
+        let scope = Scope()
+        let metric = SentryMetric(
+            timestamp: Date(),
+            traceId: SentryId(),
+            spanId: nil,
+            name: "test.metric",
+            value: NSNumber(value: 1),
+            type: .counter,
+            unit: nil,
+            attributes: [:]
+        )
+        
+        integration.addMetric(metric, scope: scope)
+        
+        // -- Act --
+        integration.uninstall()
+        
+        // -- Assert --
+        // Uninstall should flush metrics (no crash)
+    }
 
     // MARK: - Helpers
 
@@ -43,6 +93,6 @@ class MetricsIntegrationTests: XCTestCase {
     }
 
     private func getSut() throws -> MetricsIntegration<SentryDependencyContainer> {
-        return try XCTUnwrap(SentrySDKInternal.currentHub().installedIntegrations().first as? MetricsIntegration)
+        return try XCTUnwrap(SentrySDKInternal.currentHub().getInstalledIntegration(MetricsIntegration<SentryDependencyContainer>.self) as? MetricsIntegration<SentryDependencyContainer>)
     }
 }

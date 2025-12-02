@@ -139,6 +139,10 @@
     /// drop the log.
     @objc public var beforeSendLog: ((SentryLog) -> SentryLog?)?
 
+    /// Use this callback to drop or modify a metric before the SDK sends it to Sentry. Return nil to
+    /// drop the metric.
+    @objc public var beforeSendMetric: ((SentryMetric) -> SentryMetric?)?
+
     /// This block can be used to modify the breadcrumb before it will be serialized and sent.
     @objc public var beforeBreadcrumb: SentryBeforeBreadcrumbCallback?
 
