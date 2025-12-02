@@ -75,7 +75,7 @@ jobs:
         timeout-minutes: 5 # 5 minutes timeout
         env:
           OS_VERSION: "18.4"
-        run: ./scripts/ci-ensure-runtime-loaded.sh --os-version "$OS_VERSION"
+        run: ./sentry-cocoa/scripts/ci-ensure-runtime-loaded.sh --os-version "$OS_VERSION"
 
       - name: Create simulator device for iOS 18.4
         run: ./sentry-cocoa/scripts/ci-create-simulator.sh --platform "iOS" --os-version "18.4" --device-name "iPhone 15 Pro"
