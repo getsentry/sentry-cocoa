@@ -1,7 +1,7 @@
 import Foundation
 @_spi(Private) @testable import Sentry
 
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(tvOS) || os(visionOS) || targetEnvironment(macCatalyst)
 
 public enum GPUFrame {
     case normal
@@ -18,7 +18,7 @@ public enum FrameRate: UInt64 {
     }
 }
 
-@_spi(Private) public class TestDisplayLinkWrapper: SentryDisplayLinkWrapper, SentryReplayDisplayLinkWrapper {
+@_spi(Private) public class TestDisplayLinkWrapper: SentryDisplayLinkWrapper {
     public var target: AnyObject!
     public var selector: Selector!
     public var currentFrameRate: FrameRate = .low
@@ -145,4 +145,8 @@ public enum FrameRate: UInt64 {
     }
 }
 
+#endif
+
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+extension TestDisplayLinkWrapper: SentryReplayDisplayLinkWrapper {}
 #endif

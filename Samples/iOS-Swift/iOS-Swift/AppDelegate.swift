@@ -26,7 +26,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         SampleAppDebugMenu.shared.display()
         
         metricKit.receiveReports()
-        
+
         return true
     }
     

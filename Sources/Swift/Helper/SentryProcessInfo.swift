@@ -10,6 +10,8 @@
 
     @available(macOS 12.0, *)
     var isMacCatalystApp: Bool { get }
+    
+    var isiOSAppOnVisionOS: Bool { get }
 }
 
 // This is needed because a file that only contains an @objc extension will get automatically stripped out
@@ -25,5 +27,17 @@
     
     public var processPath: String? {
         Bundle.main.executablePath
+    }
+    
+    public var isiOSAppOnVisionOS: Bool {
+        if #available(iOS 26.1, visionOS 26.1, *) {
+            // Use official API when available
+            // https://developer.apple.com/documentation/foundation/processinfo/isiosapponvision
+            return self.isiOSAppOnVision
+        } else {
+            // Fallback for older versions: `UIWindowSceneGeometryPreferencesVision` is only available on visionOS
+            // https://developer.apple.com/documentation/uikit/uiwindowscene/geometrypreferences/vision?language=objc
+            return NSClassFromString("UIWindowSceneGeometryPreferencesVision") != nil
+        }
     }
 }

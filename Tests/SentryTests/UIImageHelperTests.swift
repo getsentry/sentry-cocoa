@@ -1,4 +1,5 @@
 #if canImport(UIKit)
+#if os(iOS) || os(tvOS)
 import Foundation
 @testable import Sentry
 import XCTest
@@ -61,4 +62,5 @@ class UIImageHelperTests: XCTestCase {
     }
 }
 
-#endif
+#endif // os(iOS) || os(tvOS)
+#endif // canImport(UIKit)

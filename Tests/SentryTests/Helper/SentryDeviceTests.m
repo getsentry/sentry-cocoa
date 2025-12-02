@@ -79,6 +79,18 @@
     // TODO: create a watch UI test target to test this branch as it cannot run on the watch
     // simulator
     SENTRY_ASSERT_CONTAINS(arch, @"arm"); // Real Watches
+#elif TARGET_OS_VISION
+#    if TARGET_OS_SIMULATOR
+#        if TARGET_CPU_ARM64
+    SENTRY_ASSERT_CONTAINS(arch, @"arm"); // Vision Pro simulator on M1 macs
+#        elif TARGET_CPU_X86_64
+    SENTRY_ASSERT_CONTAINS(arch, @"x86"); // Vision Pro simulator on Intel macs
+#        else
+    XCTFail(@"Unexpected CPU type on test host.");
+#        endif // TARGET_CPU_ARM64
+#    else
+    SENTRY_ASSERT_CONTAINS(arch, @"arm"); // Real Vision Pro devices
+#    endif
 #else
     XCTFail(@"Unexpected device OS");
 #endif
@@ -127,6 +139,8 @@
 #elif TARGET_OS_WATCH
     // TODO: create a watch UI test target to test this branch
     SENTRY_ASSERT_EQUAL(osName, @"watchOS");
+#elif TARGET_OS_VISION
+    SENTRY_ASSERT_EQUAL(osName, @"visionOS");
 #else
     XCTFail(@"Unexpected device OS");
 #endif
@@ -161,6 +175,8 @@
     // TODO: create a watch UI test target to test this branch as it cannot run on the watch
     // simulator
     SENTRY_ASSERT_CONTAINS(modelName, @"Watch");
+#elif TARGET_OS_VISION
+    SENTRY_ASSERT_CONTAINS(modelName, @"RealityDevice");
 #else
     XCTFail(@"Unexpected target OS");
 #endif
@@ -205,6 +221,8 @@
     // TODO: create a watch UI test target to test this branch as it cannot run on the watch
     // simulator
     SENTRY_ASSERT_CONTAINS(modelName, @"Watch");
+#    elif TARGET_OS_VISION
+    SENTRY_ASSERT_CONTAINS(modelName, @"RealityDevice");
 #    else
     XCTFail(@"Unexpected device OS");
 #    endif

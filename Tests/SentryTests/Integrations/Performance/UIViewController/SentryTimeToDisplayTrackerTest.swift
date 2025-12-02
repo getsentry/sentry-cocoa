@@ -3,10 +3,9 @@ import Foundation
 @_spi(Private) import SentryTestUtils
 import XCTest
 
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-
 class TestDelayedWrapper: SentryDelayedFramesTracker {}
 
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 class SentryTimeToDisplayTrackerTest: XCTestCase {
 
     private class Fixture {
@@ -323,7 +322,7 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
         let expectedInvocations = invocationsBefore + 1
         XCTAssertEqual(dispatchQueueWrapper.blockOnMainInvocations.count, expectedInvocations, "reportFullyDisplayed should be dispatched on the main queue. ")
     }
-    
+
     func testNotWaitingForFullyDisplayed_AfterTracerTimesOut() throws {
         fixture.dateProvider.setDate(date: Date(timeIntervalSince1970: 9))
 

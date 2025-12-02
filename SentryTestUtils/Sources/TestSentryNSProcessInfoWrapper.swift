@@ -12,6 +12,7 @@
         public var environment: [String: String]?
         public var isiOSAppOnMac: Bool?
         public var isMacCatalystApp: Bool?
+        public var isiOSAppOnVisionOS: Bool?
     }
 
     public var overrides = Override()
@@ -44,5 +45,9 @@
     @available(macOS 11.0, *)
     public var isMacCatalystApp: Bool {
         return overrides.isMacCatalystApp ?? ProcessInfo.processInfo.isMacCatalystApp
+    }
+    
+    public var isiOSAppOnVisionOS: Bool {
+        return overrides.isiOSAppOnVisionOS ?? ProcessInfo.processInfo.isiOSAppOnVisionOS
     }
 }
