@@ -23,7 +23,7 @@ import Foundation
     private var encodedMetricsSize: Int = 0
     private var timerWorkItem: DispatchWorkItem?
         
-    private weak var delegate: SentryMetricBatcherDelegate?
+    weak var delegate: SentryMetricBatcherDelegate?
     
     /// Convenience initializer with default flush timeout, max metric count (100), and buffer size.
     /// - Parameters:
@@ -37,16 +37,14 @@ import Foundation
     /// - Note: Setting `maxMetricCount` to 100. This matches the logs batcher limit.
     @_spi(Private) public convenience init(
         options: Options,
-        dispatchQueue: SentryDispatchQueueWrapper,
-        delegate: SentryMetricBatcherDelegate
+        dispatchQueue: SentryDispatchQueueWrapper
     ) {
         self.init(
             options: options,
             flushTimeout: 5,
             maxMetricCount: 100, // Maximum 100 metrics per batch
             maxBufferSizeBytes: 1_024 * 1_024, // 1MB buffer size
-            dispatchQueue: dispatchQueue,
-            delegate: delegate
+            dispatchQueue: dispatchQueue
         )
     }
 
@@ -68,15 +66,13 @@ import Foundation
         flushTimeout: TimeInterval,
         maxMetricCount: Int,
         maxBufferSizeBytes: Int,
-        dispatchQueue: SentryDispatchQueueWrapper,
-        delegate: SentryMetricBatcherDelegate
+        dispatchQueue: SentryDispatchQueueWrapper
     ) {
         self.options = options
         self.flushTimeout = flushTimeout
         self.maxMetricCount = maxMetricCount
         self.maxBufferSizeBytes = maxBufferSizeBytes
         self.dispatchQueue = dispatchQueue
-        self.delegate = delegate
         super.init()
     }
     

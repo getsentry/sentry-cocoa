@@ -1,29 +1,27 @@
-final class MetricsIntegration<Dependencies>: NSObject, SwiftIntegration, SentryMetricBatcherDelegate {
+@_implementationOnly import _SentryPrivate
+
+protocol DispatchQueueWrapperProvider {
+    var dispatchQueueWrapper: SentryDispatchQueueWrapper { get }
+}
+
+final class MetricsIntegration<Dependencies: DispatchQueueWrapperProvider>: NSObject, SwiftIntegration, SentryMetricBatcherDelegate {
     private let options: Options
-    private let metricBatcher: SentryMetricBatcher
+    private var metricBatcher: SentryMetricBatcher!
     private let dispatchQueue: SentryDispatchQueueWrapper
     
     init?(with options: Options, dependencies: Dependencies) {
         guard options.enableMetrics else { return nil }
-        
-        guard let dispatchQueueWrapper = dependencies.dispatchQueueWrapper else {
-            SentrySDKLog.error("MetricsIntegration: dispatchQueueWrapper not available in dependencies")
-            return nil
-        }
-        
+
         self.options = options
-        self.dispatchQueue = dispatchQueueWrapper
-        
-        super.init()
-        
-        // Create the batcher with self as delegate after initialization
+        self.dispatchQueue = dependencies.dispatchQueueWrapper
         self.metricBatcher = SentryMetricBatcher(
             options: options,
-            dispatchQueue: dispatchQueue,
-            delegate: self
+            dispatchQueue: dispatchQueue
         )
-        
-        SentrySDKLog.debug("MetricsIntegration initialized")
+
+        super.init()
+
+        self.metricBatcher.delegate = self
     }
 
     func uninstall() {
@@ -48,11 +46,11 @@ final class MetricsIntegration<Dependencies>: NSObject, SwiftIntegration, Sentry
         // Get the client from the current hub
         let hub = SentrySDKInternal.currentHub()
         guard let client = hub.getClient() else {
-            SentrySDKLog.warn("MetricsIntegration: No client available, dropping metrics")
+            SentrySDKLog.debug("MetricsIntegration: No client available, dropping metrics")
             return
         }
         
         // Call the client's captureMetricsData method
-        client.captureMetricsData(metricsData, with: count)
+        client.captureMetricsData(metricsData as Data, with: count)
     }
 }
