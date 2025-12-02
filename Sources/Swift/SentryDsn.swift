@@ -9,13 +9,16 @@ import CommonCrypto
 @objc(SentryDsn)
 public final class SentryDsn: NSObject {
     
-    // Error constants - must match SentryError.h
+    // Error code constant - must match SentryError.h
+    // Note: We use the numeric value directly since kSentryErrorInvalidDsnError
+    // is not accessible from Swift (it's a C enum value)
     private static let kSentryErrorInvalidDsnError: Int = 100
-    private static let sentryErrorDomain = "SentryErrorDomain"
     
     private static func createError(code: Int, description: String) -> NSError {
+        // Use the Objective-C constant instead of hardcoding the string
+        // SentryErrorDomain is accessible because it's in the public header
         return NSError(
-            domain: sentryErrorDomain,
+            domain: SentryErrorDomain,
             code: code,
             userInfo: [NSLocalizedDescriptionKey: description]
         )
