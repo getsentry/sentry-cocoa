@@ -16,7 +16,7 @@ class SentrySessionGeneratorTests: NotificationCenterTestCase {
     }
     
     private var sentryCrash: TestSentryCrashWrapper!
-    private var autoSessionTrackingIntegration: SentryAutoSessionTrackingIntegration!
+    private var autoSessionTrackingIntegration: SentryAutoSessionTrackingIntegration<SentryDependencyContainer>!
     private var crashIntegration: SentryCrashIntegration!
     private var options: Options!
     private var fileManager: SentryFileManager!
@@ -93,7 +93,7 @@ class SentrySessionGeneratorTests: NotificationCenterTestCase {
             // send crashed session
             crashIntegration.install(with: options)
             autoSessionTrackingIntegration.stop()
-            autoSessionTrackingIntegration.install(with: options)
+            autoSessionTrackingIntegration = SentryAutoSessionTrackingIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance())
             goToForeground()
             
             // Almost always the AutoSessionTrackingIntegration is faster
@@ -116,7 +116,7 @@ class SentrySessionGeneratorTests: NotificationCenterTestCase {
             crashIntegration.install(with: options)
             
             autoSessionTrackingIntegration.stop()
-            autoSessionTrackingIntegration.install(with: options)
+            autoSessionTrackingIntegration = SentryAutoSessionTrackingIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance())
             goToForeground()
             
             SentrySDKInternal.captureFatalEvent(TestData.oomEvent)
@@ -126,7 +126,7 @@ class SentrySessionGeneratorTests: NotificationCenterTestCase {
         
         for _ in Array(1...amount.abnormal) {
             autoSessionTrackingIntegration.stop()
-            autoSessionTrackingIntegration.install(with: options)
+            autoSessionTrackingIntegration = SentryAutoSessionTrackingIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance())
             goToForeground()
         }
         
@@ -149,8 +149,7 @@ class SentrySessionGeneratorTests: NotificationCenterTestCase {
         crashIntegration = SentryCrashIntegration(crashAdapter: sentryCrash, andDispatchQueueWrapper: TestSentryDispatchQueueWrapper())
         crashIntegration.install(with: options)
         
-        autoSessionTrackingIntegration = SentryAutoSessionTrackingIntegration()
-        autoSessionTrackingIntegration.install(with: options)
+        autoSessionTrackingIntegration = SentryAutoSessionTrackingIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance())
     }
     
     private func goToForeground(forSeconds: TimeInterval = 0.2) {

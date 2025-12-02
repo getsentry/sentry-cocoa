@@ -1,22 +1,27 @@
+@_spi(Private) @testable import Sentry
 import SentryTestUtils
 import XCTest
 
 class SentryAutoSessionTrackingIntegrationTests: XCTestCase {
 
-    func test_AutoSessionTrackingEnabled_TrackerInitialized() {
-        let sut = SentryAutoSessionTrackingIntegration()
-        sut.install(with: Options())
-        
-        XCTAssertNotNil(Dynamic(sut).tracker.asAnyObject)
-    }
-    
     func test_AutoSessionTracking_Disabled() {
         let options = Options()
         options.enableAutoSessionTracking = false
         
-        let sut = SentryAutoSessionTrackingIntegration()
-        let result = sut.install(with: options)
+        let sut = SentryAutoSessionTrackingIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance())
         
-        XCTAssertFalse(result)
+        XCTAssertNil(sut)
+    }
+    
+    func test_AutoSessionTracking_Enabled() {
+        let options = Options()
+        options.enableAutoSessionTracking = true
+        
+        let sut = SentryAutoSessionTrackingIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance())
+        defer {
+            sut?.uninstall()
+        }
+        
+        XCTAssertNotNil(sut)
     }
 }
