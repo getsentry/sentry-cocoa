@@ -7,7 +7,7 @@ import CommonCrypto
 
 /// Represents a Sentry Data Source Name (DSN) which identifies a Sentry project.
 @objc(SentryDsn)
-public class SentryDsn: NSObject {
+public final class SentryDsn: NSObject {
     
     // Error constants - must match SentryError.h
     private static let kSentryErrorInvalidDsnError: Int = 100
