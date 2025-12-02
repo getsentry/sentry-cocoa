@@ -1,5 +1,5 @@
 .PHONY: init
-init: init-local init-ci-build init-ci-deploy init-ci-format
+init: init-local init-ci-build init-ci-format
 
 .PHONY: init-local
 init-local:
@@ -17,11 +17,6 @@ init-local:
 .PHONY: init-ci-build
 init-ci-build:
 	brew bundle --file Brewfile-ci-build
-	
-# installs the tools needed to run CI deploy tasks locally (note that carthage is preinstalled in github actions)
-.PHONY: init-ci-deploy
-init-ci-deploy:
-	brew bundle --file Brewfile-ci-deploy
 
 # installs the tools needed to run CI format tasks locally
 .PHONY: init-ci-format
@@ -131,21 +126,16 @@ analyze:
 		exit 1; \
 	fi
 
-# Since Carthage 0.38.0 we need to create separate .framework.zip and .xcframework.zip archives.
-# After creating the zips we create a JSON to be able to test Carthage locally.
-# For more info check out: https://github.com/Carthage/Carthage/releases/tag/0.38.0
 build-xcframework:
-	@echo "--> Carthage: creating Sentry xcframework"
+	@echo "--> Creating Sentry xcframework"
 	./scripts/build-xcframework-local.sh | tee build-xcframework.log
 
 build-signed-xcframework:
-	@echo "--> Carthage: creating Signed Sentry xcframework"
+	@echo "--> Creating Signed Sentry xcframework"
 	./scripts/build-xcframework-local.sh | tee build-xcframework.log
 
 build-xcframework-sample:
-	./scripts/create-carthage-json.sh
-	cd Samples/Carthage-Validation/XCFramework/ && carthage update --use-xcframeworks
-	xcodebuild -project "Samples/Carthage-Validation/XCFramework/XCFramework.xcodeproj" -configuration Release CODE_SIGNING_ALLOWED="NO" build
+	xcodebuild -project "Samples/XCFramework-Validation/XCFramework.xcodeproj" -configuration Release CODE_SIGNING_ALLOWED="NO" build
 
 # call this like `make bump-version TO=5.0.0-rc.0`
 bump-version: clean-version-bump
