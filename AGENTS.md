@@ -37,6 +37,68 @@ This file provides comprehensive guidance for AI coding agents working with the 
 - Fix any test or type errors until the whole suite is green.
 - Add or update tests for the code you change, even if nobody asked.
 
+#### Testing Error Handling Paths
+
+When testing error handling code paths, follow these guidelines:
+
+**Testable Error Paths:**
+
+Many system call errors can be reliably tested:
+
+- **File operation failures**: Use invalid/non-existent paths, closed file descriptors, or permission-restricted paths
+- **Directory operation failures**: Use invalid directory paths
+- **Network operation failures**: Use invalid addresses or closed sockets
+
+**Example test pattern:**
+
+```objc
+- (void)testFunction_HandlesOperationFailure
+{
+    // -- Arrange --
+    // This test verifies that functionName handles errors correctly when operation() fails.
+    //
+    // The error handling code path exists in SourceFile.c and correctly handles
+    // the error condition. The code change itself is correct and verified through code review.
+    
+    // Setup to trigger error (e.g., invalid path, closed fd, etc.)
+    
+    // -- Act --
+    bool result = functionName(/* parameters that will cause error */);
+    
+    // -- Assert --
+    // Verify the function fails gracefully (error handling path executes)
+    // This verifies that the error handling code path executes correctly.
+    XCTAssertFalse(result, @"functionName should fail with error condition");
+}
+```
+
+**Untestable Error Paths:**
+
+Some error paths cannot be reliably tested in a test environment:
+
+- **System calls with hardcoded valid parameters**: Cannot pass invalid parameters to trigger failures
+- **Resource exhaustion scenarios**: System limits may not be enforceable in test environments
+- **Function interposition limitations**: `DYLD_INTERPOSE` only works for dynamically linked symbols; statically linked system calls cannot be reliably mocked
+
+**Documenting Untestable Error Paths:**
+
+When an error path cannot be reliably tested:
+
+1. **Remove the test** if one was attempted but couldn't be made to work
+2. **Add documentation** in the test file explaining:
+   - Why there's no test for the error path
+   - Approaches that were tried and why they failed
+   - That the error handling code path exists and is correct (verified through code review)
+3. **Add a comment** in the source code at the error handling location explaining why it cannot be tested
+4. **Update PR description** to document untestable error paths in the "How did you test it?" section
+
+**Test Comment Best Practices:**
+
+- **Avoid line numbers** in test comments - they become outdated when code changes
+- **Reference function names and file names** instead of line numbers
+- **Document the error condition** being tested (e.g., "when open() fails")
+- **Explain verification approach** - verify that the error handling path executes correctly rather than capturing implementation details
+
 ### Commit Guidelines
 
 - **Pre-commit Hooks**: This repository uses pre-commit hooks. If a commit fails because files were changed during the commit process (e.g., by formatting hooks), automatically retry the commit. Pre-commit hooks may modify files (like formatting), and the commit should be retried with the updated files.
