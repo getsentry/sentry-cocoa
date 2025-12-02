@@ -7,6 +7,10 @@
 - Add attributes data to `SentryScope` (#6830)
 - Add `SentryScope` attributes into log messages (#6834)
 
+### Fixes
+
+- System Extensions not working when automatic session tracking is enabled. Now System Extensions won't enable tracking (#6962)
+
 ## 9.0.0
 
 This changelog lists every breaking change. For a high-level overview and upgrade guidance, see the [migration guide](https://docs.sentry.io/platforms/apple/migration/).
