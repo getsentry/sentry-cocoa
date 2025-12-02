@@ -35,7 +35,7 @@ class MetricsIntegrationTests: XCTestCase {
         SentrySDKInternal.currentHub().startSession()
     }
 
-    private func getSut() throws -> MetricsIntegration<Dependencies> {
+    private func getSut() throws -> MetricsIntegration<SentryDependencyContainer> {
         return try XCTUnwrap(SentrySDKInternal.currentHub().installedIntegrations().first as? MetricsIntegration)
     }
 }
