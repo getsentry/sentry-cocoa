@@ -256,3 +256,5 @@ extension SentryFileManager: SentryFileManagerProtocol { }
 #if os(iOS) && !SENTRY_NO_UIKIT
 extension SentryDependencyContainer: ScreenshotSourceProvider { }
 #endif
+
+extension SentryDependencyContainer: DispatchQueueWrapperProvider { }
