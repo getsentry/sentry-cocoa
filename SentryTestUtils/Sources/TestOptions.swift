@@ -21,6 +21,7 @@ public extension Options {
         attachViewHierarchy = false
         enableUIViewControllerTracing = false
         #endif
+        enableMetrics = false
     }
 
     static func noIntegrations() -> Options {
