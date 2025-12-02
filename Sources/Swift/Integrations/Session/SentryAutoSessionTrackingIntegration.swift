@@ -8,7 +8,10 @@ final class SentryAutoSessionTrackingIntegration<Dependencies: SessionTrackerPro
     let tracker: SessionTracker
     
     init?(with options: Options, dependencies: Dependencies) {
-        guard options.enableAutoSessionTracking else { return nil }
+        guard options.enableAutoSessionTracking else { 
+            SentrySDKLog.debug("Not going to enable \(Self.name) because enableAutoSessionTracking is disabled.")
+            return nil 
+        }
 
         tracker = dependencies.getSessionTracker(with: options)
         tracker.start()
