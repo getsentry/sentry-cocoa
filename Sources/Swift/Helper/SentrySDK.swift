@@ -23,6 +23,13 @@ import Foundation
     @objc public static var replay: SentryReplayApi {
         return SentrySDKInternal.replay
     }
+    
+    /// API to control screenshot masking
+    @objc public static var screenshot: SentryScreenshotApi {
+        // swiftlint:disable force_cast
+        return SentrySDKInternal.screenshot as! SentryScreenshotApi
+        // swiftlint:enable force_cast
+    }
     #endif
 
     /// API to access Sentry logs

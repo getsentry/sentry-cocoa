@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 55;
+	objectVersion = 70;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -2528,6 +2528,10 @@
 		FAF0F3CA2EA7DD0700E44E9B /* SentryANRTrackerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryANRTrackerTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		D45C039F2EDF0E4700975137 /* Public */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Public; sourceTree = "<group>"; };
+/* End PBXFileSystemSynchronizedRootGroup section */
+
 /* Begin PBXFrameworksBuildPhase section */
 		63AA75971EB8AEF500D153DE /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
@@ -4465,6 +4469,7 @@
 				621D9F2D2B9B030E003D94DE /* Helper */,
 				D44DB3802DDCCF1700174EF4 /* Persistence */,
 				D8F016B12B9622B7007B9AFB /* Protocol */,
+				D45C039F2EDF0E4700975137 /* Public */,
 				D856272A2A374A6800FB8062 /* Tools */,
 				D8B665BB2B95F5A100BD0E7B /* module.modulemap */,
 				FA4C32962DF7513F001D7B00 /* SentryExperimentalOptions.swift */,
@@ -5409,6 +5414,9 @@
 			buildRules = (
 			);
 			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				D45C039F2EDF0E4700975137 /* Public */,
 			);
 			name = Sentry;
 			productName = "Sentry-iOS";

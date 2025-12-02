@@ -109,6 +109,14 @@ static NSDate *_Nullable startTimestamp = nil;
     dispatch_once(&onceToken, ^{ replay = [[SentryReplayApi alloc] init]; });
     return replay;
 }
+
++ (SentryScreenshotApi *)screenshot
+{
+    static SentryScreenshotApi *screenshot;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{ screenshot = [[SentryScreenshotApi alloc] init]; });
+    return screenshot;
+}
 #endif
 
 /** Internal, only needed for testing. */
