@@ -141,7 +141,7 @@ class SentrySDKTests: XCTestCase {
         if !SentryDependencyContainer.sharedInstance().crashWrapper.isBeingTraced {
             expectedIntegrations.append("SentryANRTrackingIntegration")
         }
-#if os(iOS) || os(tvOS) || os(visionOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
         expectedIntegrations.append("SentryFramesTrackingIntegration")
 #endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 

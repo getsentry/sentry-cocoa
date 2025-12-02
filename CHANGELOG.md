@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Add isiOSAppOnVisionOS, isiOSAppOnMac, isMacCatalystApp to device context #6939
+
 ## 9.0.0
 
 This changelog lists every breaking change. For a high-level overview and upgrade guidance, see the [migration guide](https://docs.sentry.io/platforms/apple/migration/).
@@ -62,7 +68,6 @@ This changelog lists every breaking change. For a high-level overview and upgrad
 - Add `sentry.replay_id` attribute to logs ([#6515](https://github.com/getsentry/sentry-cocoa/pull/6515))
 - Structured Logs: Add log APIs to `Hub` and `Client` (#6737)
 - Add options to customize UserFeedback error messages (#6790)
-- Add isiOSAppOnVisionOS, isiOSAppOnMac, isMacCatalystApp to device context #6939
 
 ### Fixes
 

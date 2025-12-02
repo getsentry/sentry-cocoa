@@ -30,7 +30,7 @@
 #    import "SentryProfiledTracerConcurrency.h"
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
-#if SENTRY_HAS_UIKIT
+#if SENTRY_HAS_UIKIT && !TARGET_OS_VISION
 #    import "SentryAppStartMeasurement.h"
 #    import "SentryBuildAppStartSpans.h"
 #endif // SENTRY_HAS_UIKIT
@@ -39,7 +39,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 static const void *spanTimestampObserver = &spanTimestampObserver;
 
-#if SENTRY_HAS_UIKIT
+#if SENTRY_HAS_UIKIT && !TARGET_OS_VISION
 /**
  * The maximum amount of seconds the app start measurement end time and the start time of the
  * transaction are allowed to be apart.
@@ -114,7 +114,7 @@ static BOOL appStartMeasurementRead;
                              configuration:(SentryTracerConfiguration *)configuration;
 {
     if (!(self = [super initWithContext:transactionContext
-#if SENTRY_HAS_UIKIT
+#if SENTRY_HAS_UIKIT && !TARGET_OS_VISION
                           framesTracker:SentryDependencyContainer.sharedInstance.framesTracker
 #endif // SENTRY_HAS_UIKIT
     ])) {
@@ -390,7 +390,7 @@ static BOOL appStartMeasurementRead;
     SentrySpan *child =
         [[SentrySpan alloc] initWithTracer:self
                                    context:context
-#if SENTRY_HAS_UIKIT
+#if SENTRY_HAS_UIKIT && !TARGET_OS_VISION
                              framesTracker:SentryDependencyContainer.sharedInstance.framesTracker
 #endif // SENTRY_HAS_UIKIT
     ];
@@ -615,13 +615,13 @@ static BOOL appStartMeasurementRead;
         }
         [super finishWithStatus:_finishStatus];
     }
-#if SENTRY_HAS_UIKIT
+#if SENTRY_HAS_UIKIT && !TARGET_OS_VISION
     appStartMeasurement = [self getAppStartMeasurement];
 
     if (appStartMeasurement != nil) {
         [self updateStartTime:appStartMeasurement.appStartTimestamp];
     }
-#endif // SENTRY_HAS_UIKIT
+#endif // SENTRY_HAS_UIKIT && !TARGET_OS_VISION
 
     if (shouldCleanUp) {
         [self.delegate tracerDidFinish:self];
@@ -721,7 +721,7 @@ static BOOL appStartMeasurementRead;
 {
 
     NSUInteger capacity;
-#if SENTRY_HAS_UIKIT
+#if SENTRY_HAS_UIKIT && !TARGET_OS_VISION
     [self addFrameStatistics];
 
     NSArray<id<SentrySpan>> *appStartSpans = sentryBuildAppStartSpans(self, appStartMeasurement);
@@ -736,7 +736,7 @@ static BOOL appStartMeasurementRead;
         [spans addObjectsFromArray:_children];
     }
 
-#if SENTRY_HAS_UIKIT
+#if SENTRY_HAS_UIKIT && !TARGET_OS_VISION
     [spans addObjectsFromArray:appStartSpans];
 #endif // SENTRY_HAS_UIKIT
 
@@ -763,7 +763,7 @@ static BOOL appStartMeasurementRead;
             [debugImageProvider getDebugImagesFromCacheForFrames:framesOfAllSpans];
     }
 
-#if SENTRY_HAS_UIKIT
+#if SENTRY_HAS_UIKIT && !TARGET_OS_VISION
     [self addAppStartMeasurements:transaction];
 
     if ([viewNames count] > 0) {
@@ -774,7 +774,7 @@ static BOOL appStartMeasurementRead;
     return transaction;
 }
 
-#if SENTRY_HAS_UIKIT
+#if SENTRY_HAS_UIKIT && !TARGET_OS_VISION
 
 - (nullable SentryAppStartMeasurement *)getAppStartMeasurement SENTRY_DISABLE_THREAD_SANITIZER(
     "double-checked lock produce false alarms")

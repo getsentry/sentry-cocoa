@@ -322,7 +322,7 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
         let expectedInvocations = invocationsBefore + 1
         XCTAssertEqual(dispatchQueueWrapper.blockOnMainInvocations.count, expectedInvocations, "reportFullyDisplayed should be dispatched on the main queue. ")
     }
-
+    
     func testNotWaitingForFullyDisplayed_AfterTracerTimesOut() throws {
         fixture.dateProvider.setDate(date: Date(timeIntervalSince1970: 9))
 

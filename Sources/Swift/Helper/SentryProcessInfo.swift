@@ -33,11 +33,17 @@
         if #available(iOS 26.1, visionOS 26.1, *) {
             // Use official API when available
             // https://developer.apple.com/documentation/foundation/processinfo/isiosapponvision
-            return self.isiOSAppOnVision
-        } else {
-            // Fallback for older versions: `UIWindowSceneGeometryPreferencesVision` is only available on visionOS
-            // https://developer.apple.com/documentation/uikit/uiwindowscene/geometrypreferences/vision?language=objc
-            return NSClassFromString("UIWindowSceneGeometryPreferencesVision") != nil
+            //
+            // For unknown reasons when running an iOS app "Designed for iPad" on visionOS 1.1, the simulator system
+            // version is simulator 17.4, but it still enters this block.
+            //
+            // Due to that it crashes with an uncaught exception 'NSInvalidArgumentException', reason: '-[NSProcessInfo isiOSAppOnVision]: unrecognized selector sent to instance 0x600001549230'
+            if self.responds(to: NSSelectorFromString("isiOSAppOnVision")) {
+                return self.isiOSAppOnVision
+            }
         }
+        // Fallback for older versions: `UIWindowSceneGeometryPreferencesVision` is only available on visionOS
+        // https://developer.apple.com/documentation/uikit/uiwindowscene/geometrypreferences/vision?language=objc
+        return NSClassFromString("UIWindowSceneGeometryPreferencesVision") != nil
     }
 }

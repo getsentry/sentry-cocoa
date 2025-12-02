@@ -78,7 +78,7 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         
         let tracker = try XCTUnwrap(Dynamic(sut).tracker.asAnyObject as? SentryANRTracker)
 
-#if os(iOS) || os(tvOS) || os(visionOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
         XCTAssertTrue(tracker.helper is SentryANRTrackerV2, "Expected SentryANRTrackerV2, but got \(type(of: tracker))")
 #else
         XCTAssertTrue(tracker.helper is SentryANRTrackerV1, "Expected SentryANRTrackerV1 on macOS, but got \(type(of: tracker))")
