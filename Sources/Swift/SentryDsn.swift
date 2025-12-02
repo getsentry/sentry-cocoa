@@ -62,8 +62,18 @@ public final class SentryDsn: NSObject {
     /// - Returns: A hexadecimal string representation of the hash.
     @objc
     public func getHash() -> String {
-        guard let data = url.absoluteString.data(using: .utf8) else {
-            return ""
+        let data: Data
+        if let encodedData = url.absoluteString.data(using: .utf8) {
+            data = encodedData
+        } else {
+            // This should never happen for a valid URL, but handle it defensively
+            // to match Objective-C behavior (hash of empty data)
+            assertionFailure("Failed to encode URL to UTF-8: \(url.absoluteString)")
+            // Log the error for production builds
+            #if DEBUG
+            print("[Sentry] Warning: Failed to encode DSN URL to UTF-8, using empty data for hash")
+            #endif
+            data = Data()
         }
         
         var digest = [UInt8](repeating: 0, count: Int(CC_SHA1_DIGEST_LENGTH))
