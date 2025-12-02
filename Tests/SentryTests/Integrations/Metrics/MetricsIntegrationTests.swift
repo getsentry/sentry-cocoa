@@ -5,6 +5,13 @@ import XCTest
 
 class MetricsIntegrationTests: XCTestCase {
 
+    override func tearDown() {
+        super.tearDown()
+        clearTestState()
+    }
+
+    // MARK: - Tests
+    
     func testStartSDK_whenIntegrationIsNotEnabled_shouldNotBeInstalled() {
         // -- Act --
         startSDK(isEnabled: false)
