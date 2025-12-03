@@ -35,7 +35,7 @@
 		2C101B6F28A2956900D320BC /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		2C101B7128A2956A00D320BC /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		2C101B7428A2956A00D320BC /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
-		D856EFED2B8F706600078BA3 /* Sentry-Dynamic.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = "Sentry-Dynamic.xcframework"; path = "../../../Carthage/Sentry-Dynamic.xcframework"; sourceTree = "<group>"; };
+		D856EFED2B8F706600078BA3 /* Sentry-Dynamic.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = "Sentry-Dynamic.xcframework"; path = "../../../XCFrameworkBuildPath/Sentry-Dynamic.xcframework"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
