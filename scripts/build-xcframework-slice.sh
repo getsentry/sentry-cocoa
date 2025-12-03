@@ -20,7 +20,7 @@ if [ "$MACH_O_TYPE" = "staticlib" ]; then
     GCC_GENERATE_DEBUGGING_SYMBOLS="NO"
 fi
 
-rm -rf Carthage/DerivedData
+rm -rf XCFrameworkBuildPath/DerivedData
 
 ## watchos and watchsimulator don't support make_mergeable: ld: unknown option: -make_mergeable
 if [[ "$sdk" == "watchos" || "$sdk" == "watchsimulator" ]]; then
@@ -31,8 +31,8 @@ fi
 
 slice_id="${scheme}${suffix}-${sdk}"
 
-carthage_xcarchive_path="Carthage/archive/${scheme}${suffix}"
-sentry_xcarchive_path="$carthage_xcarchive_path/${sdk}.xcarchive"
+output_xcarchive_path="XCFrameworkBuildPath/archive/${scheme}${suffix}"
+sentry_xcarchive_path="$output_xcarchive_path/${sdk}.xcarchive"
 
 if [ "$sdk" = "maccatalyst" ]; then
     # we can't use the "archive" action here because it doesn't support the -destination option, which we need to build the maccatalyst slice. so we'll have to build it manually and then copy the build product to an xcarchive directory we create.
@@ -42,7 +42,7 @@ if [ "$sdk" = "maccatalyst" ]; then
         -configuration "$resolved_configuration" \
         -sdk iphoneos \
         -destination 'platform=macOS,variant=Mac Catalyst' \
-        -derivedDataPath ./Carthage/DerivedData \
+        -derivedDataPath ./XCFrameworkBuildPath/DerivedData \
         CODE_SIGNING_REQUIRED=NO \
         CODE_SIGN_IDENTITY= \
         MACH_O_TYPE="$MACH_O_TYPE" \
@@ -51,14 +51,14 @@ if [ "$sdk" = "maccatalyst" ]; then
         GCC_GENERATE_DEBUGGING_SYMBOLS="$GCC_GENERATE_DEBUGGING_SYMBOLS" \
         OTHER_LDFLAGS="$OTHER_LDFLAGS" 2>&1 | tee "${slice_id}.maccatalyst.log" | xcbeautify
 
-    maccatalyst_build_product_directory="Carthage/DerivedData/Build/Products/$resolved_configuration-maccatalyst"
+    maccatalyst_build_product_directory="XCFrameworkBuildPath/DerivedData/Build/Products/$resolved_configuration-maccatalyst"
 
     maccatalyst_xcarchive_framework_directory="${sentry_xcarchive_path}/Products/Library/Frameworks"
     mkdir -p "${maccatalyst_xcarchive_framework_directory}"
     cp -R "${maccatalyst_build_product_directory}/${resolved_product_name}" "${maccatalyst_xcarchive_framework_directory}"
 
     if [ -d "${maccatalyst_build_product_directory}/${resolved_product_name}.dSYM" ]; then
-        maccatalyst_archive_dsym_destination="${carthage_xcarchive_path}/maccatalyst.xcarchive/dSYMs"
+        maccatalyst_archive_dsym_destination="${output_xcarchive_path}/maccatalyst.xcarchive/dSYMs"
         mkdir "${maccatalyst_archive_dsym_destination}"
         cp -R "${maccatalyst_build_product_directory}/${resolved_product_name}.dSYM" "${maccatalyst_archive_dsym_destination}"
     fi
