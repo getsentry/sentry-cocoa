@@ -6,7 +6,7 @@ SENTRY_MODULE_NAME = Sentry
 SENTRY_WITHOUT_UIKIT_MODULE_NAME = SentryWithoutUIKit
 
 // This config is required so the test code can access the SentryPrivate module. Removing this setting
-// leads to an error: no such module '_SentryPrivate' when including the XCFramework with Carthage
+// leads to an error: no such module '_SentryPrivate' when including the XCFramework
 HEADER_SEARCH_PATHS = $(SRCROOT)/Sources/Sentry/include/**
 
 PRODUCT_MODULE_NAME_Debug = $(SENTRY_MODULE_NAME)
@@ -22,8 +22,6 @@ PRODUCT_BUNDLE_IDENTIFIER = io.sentry.$(PRODUCT_MODULE_NAME)
 MODULEMAP_FILE = $(SRCROOT)/Sources/Resources/$(PRODUCT_MODULE_NAME_$(CONFIGURATION)).modulemap
 ARCHS = $(ARCHS_STANDARD) arm64e
 ARCHS[sdk=*simulator] = $(ARCHS_STANDARD)
-
-OTHER_CFLAGS = -DCARTHAGE_$(CARTHAGE)
 
 BUILD_LIBRARY_FOR_DISTRIBUTION = YES
 INSTALL_PATH = $(LOCAL_LIBRARY_DIR)/Frameworks
