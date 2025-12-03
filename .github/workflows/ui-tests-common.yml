@@ -149,12 +149,12 @@ jobs:
         uses: actions/download-artifact@v6
         with:
           name: xcframework-${{github.sha}}-sentry-static
-          path: SentryOutput/
+          path: XCFrameworkBuildPath/
 
       - name: Unzip XCFramework
         if: ${{ inputs.needs_xcframework }}
         run: |
-          unzip -o SentryOutput/Sentry.xcframework.zip -d SentryOutput/
+          unzip -o XCFrameworkBuildPath/Sentry.xcframework.zip -d XCFrameworkBuildPath/
 
       - name: Run Fastlane
         env:

@@ -93,7 +93,7 @@
 /* Begin PBXFileReference section */
 		D89DD6362CEF650A009C3509 /* ModuleA.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ModuleA.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D89DD6482CEF6516009C3509 /* ModuleB.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ModuleB.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		D89DD6552CEF652B009C3509 /* Sentry.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = Sentry.xcframework; path = ../../SentryOutput/Sentry.xcframework; sourceTree = "<group>"; };
+		D89DD6552CEF652B009C3509 /* Sentry.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = Sentry.xcframework; path = ../../XCFrameworkBuildPath/Sentry.xcframework; sourceTree = "<group>"; };
 		D89DD6732CEF7ADF009C3509 /* UITest-DuplicatedSDK.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "UITest-DuplicatedSDK.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D8C030CE2CEF633A007FC5B4 /* DuplicatedSDKTest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DuplicatedSDKTest.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F45243122DE56862003E8F50 /* Unit Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Unit Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };

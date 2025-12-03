@@ -12,8 +12,8 @@ IFS=',' read -r -a sdks <<< "$4"
 #   /path/to/.../xcframework-slices/xcframework-sentry-swiftui-slice-macosx/Library/Frameworks/SentrySwiftUI.framework
 #   /path/to/.../xcframework-slices/xcframework-sentry-swiftui-slice-iphoneos/Library/Frameworks/SentrySwiftUI.framework
 # in the local build script they're in something like:
-#   /path/to/.../SentryOutput/archive/Sentry-WithoutUIKitOrAppKit/iphoneos.xcarchive
-#   /path/to/.../SentryOutput/archive/Sentry-WithoutUIKitOrAppKit/macos.xcarchive
+#   /path/to/.../XCFrameworkBuildPath/archive/Sentry-WithoutUIKitOrAppKit/iphoneos.xcarchive
+#   /path/to/.../XCFrameworkBuildPath/archive/Sentry-WithoutUIKitOrAppKit/macos.xcarchive
 # the issue is that we need to inject the sdk name once into the local version, and twice into the ci version. a template string satisfies this requirement.
 xcarchive_path_template="${5}" # may contain any number of instances of the template query string "SDK_NAME" that will be replaced with the actual sdk name below
 

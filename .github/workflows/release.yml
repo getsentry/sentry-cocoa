@@ -121,15 +121,15 @@ jobs:
       - uses: actions/download-artifact@v6
         with:
           pattern: xcframework-${{github.sha}}-sentry-static
-          path: SentryOutput/
+          path: XCFrameworkBuildPath/
       - uses: actions/download-artifact@v6
         with:
           pattern: xcframework-${{github.sha}}-sentry-swiftui
-          path: SentryOutput/
+          path: XCFrameworkBuildPath/
       - run: ./scripts/ci-select-xcode.sh 16.4
       - name: Unzip all XCFrameworks
         run: |
-          find SentryOutput -name "*.xcframework.zip" -print0 | xargs -t0I @ unzip @ -d SentryOutput
+          find XCFrameworkBuildPath -name "*.xcframework.zip" -print0 | xargs -t0I @ unzip @ -d XCFrameworkBuildPath
       - run: make build-xcframework-sample
       - name: Run CI Diagnostics
         if: failure()
@@ -289,8 +289,8 @@ jobs:
       - uses: actions/download-artifact@v6
         with:
           pattern: xcframework-${{github.sha}}-sentry-dynamic
-          path: SentryOutput/
-      - run: find SentryOutput -name "Sentry-Dynamic.xcframework.zip" -print0 | xargs -t0I @ unzip @ -d SentryOutput
+          path: XCFrameworkBuildPath/
+      - run: find XCFrameworkBuildPath -name "Sentry-Dynamic.xcframework.zip" -print0 | xargs -t0I @ unzip @ -d XCFrameworkBuildPath
       - name: Build test app with sentry
         run: bundle exec fastlane build_perf_test_app_sentry
         env:
@@ -342,7 +342,7 @@ jobs:
         with:
           pattern: xcframework-${{github.sha}}-*
           merge-multiple: true
-          path: SentryOutput/
+          path: XCFrameworkBuildPath/
 
       - name: Archive XCFrameworks for Craft
         uses: actions/upload-artifact@v5
@@ -351,7 +351,7 @@ jobs:
           if-no-files-found: error
           overwrite: true
           path: |
-            ${{github.workspace}}/SentryOutput/*.zip
+            ${{github.workspace}}/XCFrameworkBuildPath/*.zip
 
       # update-package-sha.sh uses this env variable to update Package.swift.
       # During release Craft calls bump.sh that uses update-package-sha.sh.

@@ -20,7 +20,7 @@ if [ "$MACH_O_TYPE" = "staticlib" ]; then
     GCC_GENERATE_DEBUGGING_SYMBOLS="NO"
 fi
 
-rm -rf SentryOutput/DerivedData
+rm -rf XCFrameworkBuildPath/DerivedData
 
 ## watchos and watchsimulator don't support make_mergeable: ld: unknown option: -make_mergeable
 if [[ "$sdk" == "watchos" || "$sdk" == "watchsimulator" ]]; then
@@ -31,7 +31,7 @@ fi
 
 slice_id="${scheme}${suffix}-${sdk}"
 
-output_xcarchive_path="SentryOutput/archive/${scheme}${suffix}"
+output_xcarchive_path="XCFrameworkBuildPath/archive/${scheme}${suffix}"
 sentry_xcarchive_path="$output_xcarchive_path/${sdk}.xcarchive"
 
 if [ "$sdk" = "maccatalyst" ]; then
@@ -42,7 +42,7 @@ if [ "$sdk" = "maccatalyst" ]; then
         -configuration "$resolved_configuration" \
         -sdk iphoneos \
         -destination 'platform=macOS,variant=Mac Catalyst' \
-        -derivedDataPath ./SentryOutput/DerivedData \
+        -derivedDataPath ./XCFrameworkBuildPath/DerivedData \
         CODE_SIGNING_REQUIRED=NO \
         CODE_SIGN_IDENTITY= \
         MACH_O_TYPE="$MACH_O_TYPE" \
@@ -51,7 +51,7 @@ if [ "$sdk" = "maccatalyst" ]; then
         GCC_GENERATE_DEBUGGING_SYMBOLS="$GCC_GENERATE_DEBUGGING_SYMBOLS" \
         OTHER_LDFLAGS="$OTHER_LDFLAGS" 2>&1 | tee "${slice_id}.maccatalyst.log" | xcbeautify
 
-    maccatalyst_build_product_directory="SentryOutput/DerivedData/Build/Products/$resolved_configuration-maccatalyst"
+    maccatalyst_build_product_directory="XCFrameworkBuildPath/DerivedData/Build/Products/$resolved_configuration-maccatalyst"
 
     maccatalyst_xcarchive_framework_directory="${sentry_xcarchive_path}/Products/Library/Frameworks"
     mkdir -p "${maccatalyst_xcarchive_framework_directory}"

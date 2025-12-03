@@ -9,7 +9,7 @@ excluded:
   - SentryTestUtils/Dynamic/**
   - .build/**
   - .git/**
-  - SentryOutput/**
+  - XCFrameworkBuildPath/**
 
 only_rules:
   - class_delegate_protocol

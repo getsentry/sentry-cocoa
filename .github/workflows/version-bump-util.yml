@@ -79,12 +79,12 @@ jobs:
 
       - name: Create fake xcframework for update-package-sha.sh
         run: |
-          mkdir -p SentryOutput
-          echo "<FAKE STATIC ZIP>" > SentryOutput/Sentry.xcframework.zip
-          echo "<FAKE DYNAMIC ZIP>" > SentryOutput/Sentry-Dynamic.xcframework.zip
-          echo "<FAKE DYNAMIC WITH ARM64E ZIP>" > SentryOutput/Sentry-Dynamic-WithARM64e.xcframework.zip
-          echo "<FAKE WITHOUT UIKIT OR APPKIT ZIP>" > SentryOutput/Sentry-WithoutUIKitOrAppKit.xcframework.zip
-          echo "<FAKE WITHOUT UIKIT OR APPKIT WITH ARM64E ZIP>" > SentryOutput/Sentry-WithoutUIKitOrAppKit-WithARM64e.xcframework.zip
+          mkdir -p XCFrameworkBuildPath
+          echo "<FAKE STATIC ZIP>" > XCFrameworkBuildPath/Sentry.xcframework.zip
+          echo "<FAKE DYNAMIC ZIP>" > XCFrameworkBuildPath/Sentry-Dynamic.xcframework.zip
+          echo "<FAKE DYNAMIC WITH ARM64E ZIP>" > XCFrameworkBuildPath/Sentry-Dynamic-WithARM64e.xcframework.zip
+          echo "<FAKE WITHOUT UIKIT OR APPKIT ZIP>" > XCFrameworkBuildPath/Sentry-WithoutUIKitOrAppKit.xcframework.zip
+          echo "<FAKE WITHOUT UIKIT OR APPKIT WITH ARM64E ZIP>" > XCFrameworkBuildPath/Sentry-WithoutUIKitOrAppKit-WithARM64e.xcframework.zip
 
       - name: Bump version
         run: ./scripts/bump.sh ${{ steps.generate-version-number.outputs.OLD_VERSION }} ${{ steps.generate-version-number.outputs.NEW_VERSION }}

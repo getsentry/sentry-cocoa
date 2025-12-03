@@ -13,11 +13,11 @@ if [ -z "$PACKAGE_FILES" ]; then
     exit 1
 fi
 
-NEW_CHECKSUM_STATIC=$(shasum -a 256 SentryOutput/Sentry.xcframework.zip | awk '{print $1}')
-NEW_CHECKSUM_DYNAMIC=$(shasum -a 256 SentryOutput/Sentry-Dynamic.xcframework.zip | awk '{print $1}')
-NEW_CHECKSUM_DYNAMIC_WITH_ARM64E=$(shasum -a 256 SentryOutput/Sentry-Dynamic-WithARM64e.xcframework.zip | awk '{print $1}')
-NEW_CHECKSUM_WITHOUT_UIKIT_OR_APPKIT=$(shasum -a 256 SentryOutput/Sentry-WithoutUIKitOrAppKit.xcframework.zip | awk '{print $1}')
-NEW_CHECKSUM_WITHOUT_UIKIT_OR_APPKIT_WITH_ARM64E=$(shasum -a 256 SentryOutput/Sentry-WithoutUIKitOrAppKit-WithARM64e.xcframework.zip | awk '{print $1}')
+NEW_CHECKSUM_STATIC=$(shasum -a 256 XCFrameworkBuildPath/Sentry.xcframework.zip | awk '{print $1}')
+NEW_CHECKSUM_DYNAMIC=$(shasum -a 256 XCFrameworkBuildPath/Sentry-Dynamic.xcframework.zip | awk '{print $1}')
+NEW_CHECKSUM_DYNAMIC_WITH_ARM64E=$(shasum -a 256 XCFrameworkBuildPath/Sentry-Dynamic-WithARM64e.xcframework.zip | awk '{print $1}')
+NEW_CHECKSUM_WITHOUT_UIKIT_OR_APPKIT=$(shasum -a 256 XCFrameworkBuildPath/Sentry-WithoutUIKitOrAppKit.xcframework.zip | awk '{print $1}')
+NEW_CHECKSUM_WITHOUT_UIKIT_OR_APPKIT_WITH_ARM64E=$(shasum -a 256 XCFrameworkBuildPath/Sentry-WithoutUIKitOrAppKit-WithARM64e.xcframework.zip | awk '{print $1}')
 
 os=$(uname)
 
