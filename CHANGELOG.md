@@ -9,7 +9,7 @@
 
 ### Improvements
 
-- Flush Logs on `WillTerminate` or `WillResignActive` App State (#6909)
+- Flush Logs on `WillTerminate` or `WillResignActive` Notifications (#6909)
 
 ## 9.0.0
 
