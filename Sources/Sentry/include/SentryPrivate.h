@@ -20,6 +20,7 @@
 #import "SentryDataCategoryMapper.h"
 #import "SentryDiscardReasonMapper.h"
 #import "SentryEnvelopeAttachmentHeader.h"
+#import "SentryError.h"
 #import "SentryEventSwiftHelper.h"
 #import "SentryHub+Private.h"
 #import "SentryIntegrationProtocol.h"
