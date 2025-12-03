@@ -30,7 +30,6 @@ typedef NS_OPTIONS(NSUInteger, SentryIntegrationOption) {
     kIntegrationOptionEnableMetricKit = 1 << 17,
     kIntegrationOptionEnableReplay = 1 << 18,
     kIntegrationOptionStartFramesTracker = 1 << 19,
-    kIntegrationOptionEnableLogs = 1 << 20,
 };
 
 @class SentryOptions;
