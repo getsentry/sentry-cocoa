@@ -37,7 +37,7 @@ private struct AnyIntegration {
 
         var integrations: [AnyIntegration] = [.init(SwiftAsyncIntegration.self)]
         #if os(iOS) && !SENTRY_NO_UIKIT
-        integrations.append(UserFeedbackIntegration<SentryDependencyContainer>.self)
+        integrations.append(.init(UserFeedbackIntegration<SentryDependencyContainer>.self))
         #endif
         
         #if ((os(iOS) || os(tvOS) || (swift(>=5.9) && os(visionOS))) && !SENTRY_NO_UIKIT) || ((os(macOS) || targetEnvironment(macCatalyst)) && !SENTRY_NO_UIKIT)
