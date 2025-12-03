@@ -370,9 +370,10 @@ jobs:
             scheme: "Sentry"
 
   swiftlog-integration-unit-tests:
-    name: SentrySwiftLog Unit Tests
+    name: Integrations/Logs/SentrySwiftLog Unit Tests
+    if: needs.files-changed.outputs.run_unit_tests_for_prs == 'true'
+    needs: files-changed
     runs-on: macos-15
-    # TODO: Add gate when this is run before merging...
     steps:
       - uses: actions/checkout@v6
 
