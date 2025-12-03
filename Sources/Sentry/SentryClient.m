@@ -117,8 +117,8 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
         // Uses DEFAULT priority (not LOW) because captureLogs() is called synchronously during
         // app lifecycle events (willResignActive, willTerminate) and needs to complete quickly.
-        dispatch_queue_attr_t attributes = dispatch_queue_attr_make_with_qos_class(
-            DISPATCH_QUEUE_SERIAL, DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+        dispatch_queue_attr_t attributes
+            = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, QOS_CLASS_DEFAULT, 0);
         SentryDispatchQueueWrapper *logBatcherQueue =
             [[SentryDispatchQueueWrapper alloc] initWithName:"io.sentry.log-batcher"
                                                   attributes:attributes];
