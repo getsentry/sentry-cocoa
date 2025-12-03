@@ -5,7 +5,7 @@ import XCTest
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 final class FlushLogsIntegrationTests: XCTestCase {
     
-    private static let dsnAsString = TestConstants.dsnAsString(username: "SentryLogFlushIntegrationTests")
+    private static let dsnAsString = TestConstants.dsnForTestCase(type: FlushLogsIntegrationTests.self)
     
     private class Fixture {
         let options: Options

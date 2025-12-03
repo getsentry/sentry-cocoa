@@ -4,7 +4,7 @@ import XCTest
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 final class SentryAppStateManagerTests: XCTestCase {
-    private static let dsnAsString = TestConstants.dsnAsString(username: "SentryAppStateManagerTests")
+    private static let dsnAsString = TestConstants.dsnForTestCase(type: SentryAppStateManagerTests.self)
 
     private class Fixture {
 
