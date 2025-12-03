@@ -12,6 +12,7 @@
 #import "SentryBinaryImageCacheCallbacks.h"
 #import "SentryClient+Private.h"
 #import "SentryConcurrentRateLimitsDictionary.h"
+#import "SentryCrashAsync.h"
 #import "SentryCrashBinaryImageCache.h"
 #import "SentryCrashDynamicLinker.h"
 #import "SentryCrashExceptionApplicationHelper.h"

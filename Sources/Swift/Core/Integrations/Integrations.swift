@@ -34,10 +34,10 @@ private struct AnyIntegration {
 @_spi(Private) @objc public final class SentrySwiftIntegrationInstaller: NSObject {
     @objc public class func install(with options: Options) {
         let dependencies = SentryDependencyContainer.sharedInstance()
-        var integrations: [AnyIntegration] = []
-        
+
+        var integrations: [AnyIntegration] = [.init(SwiftAsyncIntegration.self)]
         #if os(iOS) && !SENTRY_NO_UIKIT
-        integrations.append(.init(UserFeedbackIntegration<SentryDependencyContainer>.self))
+        integrations.append(UserFeedbackIntegration<SentryDependencyContainer>.self)
         #endif
         
         #if ((os(iOS) || os(tvOS) || (swift(>=5.9) && os(visionOS))) && !SENTRY_NO_UIKIT) || ((os(macOS) || targetEnvironment(macCatalyst)) && !SENTRY_NO_UIKIT)

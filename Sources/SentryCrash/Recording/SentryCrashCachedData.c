@@ -163,7 +163,7 @@ sentrycrashccd_init(int pollingIntervalInSeconds)
     int error = pthread_create(
         &g_cacheThread, &attr, &monitorCachedData, "SentryCrash Cached Data Monitor");
     if (error != 0) {
-        SENTRY_ASYNC_SAFE_LOG_ERROR("pthread_create_suspended_np: %s", strerror(error));
+        SENTRY_ASYNC_SAFE_LOG_ERROR("pthread_create_suspended_np: %s", SENTRY_STRERROR_R(error));
     }
     pthread_attr_destroy(&attr);
 }

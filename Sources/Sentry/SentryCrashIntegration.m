@@ -239,6 +239,10 @@ sentry_finishAndSaveTransaction(void)
         userInfo[@"release"] = self.options.releaseName;
         userInfo[@"dist"] = self.options.dist;
 
+        // Crashes don't use the attributes field, we remove them to avoid uploading them
+        // unnecessarily.
+        [userInfo removeObjectForKey:@"attributes"];
+
         [SentryDependencyContainer.sharedInstance.crashReporter setUserInfo:userInfo];
 
         [outerScope addObserver:self.scopeObserver];
