@@ -23,7 +23,6 @@
 #import "SentrySerialization.h"
 #import "SentrySessionReplayIntegration.h"
 #import "SentrySwift.h"
-#import "SentrySwiftAsyncIntegration.h"
 #import "SentryTransactionContext.h"
 #import "SentryUseNSExceptionCallstackWrapper.h"
 
@@ -530,8 +529,7 @@ static NSDate *_Nullable startTimestamp = nil;
 #endif // SENTRY_TARGET_REPLAY_SUPPORTED
         [SentryANRTrackingIntegration class], [SentryAutoBreadcrumbTrackingIntegration class],
         [SentryAutoSessionTrackingIntegration class], [SentryCoreDataTrackingIntegration class],
-        [SentryFileIOTrackingIntegration class], [SentryNetworkTrackingIntegration class],
-        [SentrySwiftAsyncIntegration class], nil];
+        [SentryFileIOTrackingIntegration class], [SentryNetworkTrackingIntegration class], nil];
 
 #if SENTRY_HAS_METRIC_KIT
     [defaultIntegrations addObject:[SentryMetricKitIntegration class]];
