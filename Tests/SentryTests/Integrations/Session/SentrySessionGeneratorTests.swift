@@ -149,6 +149,8 @@ class SentrySessionGeneratorTests: NotificationCenterTestCase {
         crashIntegration = SentryCrashIntegration(crashAdapter: sentryCrash, andDispatchQueueWrapper: TestSentryDispatchQueueWrapper())
         crashIntegration.install(with: options)
         
+        // We need to enable auto session tracking in options or SentryAutoSessionTrackingIntegration's init will return nil
+        options.enableAutoSessionTracking = true
         autoSessionTrackingIntegration = SentryAutoSessionTrackingIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance())
     }
     
