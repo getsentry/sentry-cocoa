@@ -176,6 +176,9 @@ struct ContentView: View {
                             Button(action: captureTransactionAction) {
                                 Text("Capture Transaction")
                             }
+                            Button("UIApplication sendEvent") {
+                              UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+                            }
                             Button(action: showTTD) {
                                 Text("Show TTD")
                             }.sentryReplayUnmask()
