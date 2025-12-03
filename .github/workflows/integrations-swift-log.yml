@@ -116,9 +116,10 @@ jobs:
       [
         ready-to-merge-gate,
         files-changed,
+        spm-integrations-tests,
         test-integration,
       ]
-    name: Swift Log Tests
+    name: Swift Log Tests - Required Check
     # This is necessary since a failed/skipped dependent job would cause this job to be skipped
     if: always()
     runs-on: ubuntu-latest
