@@ -5,8 +5,6 @@ import XCTest
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 final class FlushLogsIntegrationTests: XCTestCase {
     
-    private static let dsnAsString = TestConstants.dsnForTestCase(type: FlushLogsIntegrationTests.self)
-    
     private class Fixture {
         let options: Options
         let client: TestClient
@@ -16,7 +14,7 @@ final class FlushLogsIntegrationTests: XCTestCase {
         
         init() throws {
             options = Options()
-            options.dsn = FlushLogsIntegrationTests.dsnAsString
+            options.dsn = TestConstants.dsnForTestCase(type: FlushLogsIntegrationTests.self)
             options.enableLogs = true
             
             client = TestClient(options: options)!
@@ -32,6 +30,7 @@ final class FlushLogsIntegrationTests: XCTestCase {
     }
     
     private var fixture: Fixture!
+    private var sut: FlushLogsIntegration<SentryDependencyContainer>?
     
     override func setUpWithError() throws {
         try super.setUpWithError()
@@ -42,33 +41,29 @@ final class FlushLogsIntegrationTests: XCTestCase {
     override func tearDown() {
         super.tearDown()
         clearTestState()
+        sut = nil
     }
     
     func testInstall_Success() {
-        let sut = fixture.getSut()
-        
+        sut = fixture.getSut()
         XCTAssertNotNil(sut)
     }
     
     func testInstall_FailsWhenLogsDisabled() {
         fixture.options.enableLogs = false
-        
-        let sut = fixture.getSut()
+        sut = fixture.getSut()
         
         XCTAssertNil(sut)
     }
     
     func testName_ReturnsCorrectName() {
+        sut = fixture.getSut()
+        
         XCTAssertEqual(FlushLogsIntegration<SentryDependencyContainer>.name, "FlushLogsIntegration")
     }
     
     func testWillResignActive_FlushesLogs() {
-        guard let sut = fixture.getSut() else {
-            XCTFail("Integration should be initialized")
-            return
-        }
-        // Keep sut alive so observers don't get deallocated
-        _ = sut
+        sut = fixture.getSut()
         
         fixture.notificationCenterWrapper.post(Notification(name: CrossPlatformApplication.willResignActiveNotification))
         
@@ -76,12 +71,7 @@ final class FlushLogsIntegrationTests: XCTestCase {
     }
     
     func testWillTerminate_FlushesLogs() {
-        guard let sut = fixture.getSut() else {
-            XCTFail("Integration should be initialized")
-            return
-        }
-        // Keep sut alive so observers don't get deallocated
-        _ = sut
+        sut = fixture.getSut()
         
         fixture.notificationCenterWrapper.post(Notification(name: CrossPlatformApplication.willTerminateNotification))
         
@@ -89,11 +79,10 @@ final class FlushLogsIntegrationTests: XCTestCase {
     }
     
     func testUninstall_RemovesObservers() {
-        guard let sut = fixture.getSut() else {
+        guard let sut = fixture.getSut()else {
             XCTFail("Integration should be initialized")
             return
         }
-        
         sut.uninstall()
         
         fixture.notificationCenterWrapper.post(Notification(name: CrossPlatformApplication.willResignActiveNotification))
@@ -104,12 +93,7 @@ final class FlushLogsIntegrationTests: XCTestCase {
     }
     
     func testMultipleNotifications_FlushesLogsMultipleTimes() {
-        guard let sut = fixture.getSut() else {
-            XCTFail("Integration should be initialized")
-            return
-        }
-        // Keep sut alive so observers don't get deallocated
-        _ = sut
+        sut = fixture.getSut()
         
         fixture.notificationCenterWrapper.post(Notification(name: CrossPlatformApplication.willResignActiveNotification))
         fixture.notificationCenterWrapper.post(Notification(name: CrossPlatformApplication.willTerminateNotification))
