@@ -80,12 +80,17 @@ public final class SentryDsn: NSObject {
             data = Data()
         }
         
+        #if canImport(CommonCrypto)
         var digest = [UInt8](repeating: 0, count: Int(CC_SHA1_DIGEST_LENGTH))
         data.withUnsafeBytes { bytes in
             _ = CC_SHA1(bytes.baseAddress, CC_LONG(data.count), &digest)
         }
         
         return digest.map { String(format: "%02x", $0) }.joined()
+        #else
+        // Last resort: This should never happen on Apple platforms
+        #error("CommonCrypto is not available on this platform")
+        #endif
     }
     
     /// Returns the envelope endpoint URL for this DSN.
