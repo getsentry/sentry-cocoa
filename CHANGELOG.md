@@ -7,6 +7,10 @@
 - Add attributes data to `SentryScope` (#6830)
 - Add `SentryScope` attributes into log messages (#6834)
 
+### Improvements
+
+- Flush Logs on `WillTerminate` or `WillResignActive` App State (#6909)
+
 ## 9.0.0
 
 This changelog lists every breaking change. For a high-level overview and upgrade guidance, see the [migration guide](https://docs.sentry.io/platforms/apple/migration/).
@@ -90,7 +94,6 @@ This changelog lists every breaking change. For a high-level overview and upgrad
 - Expose attachment type on `SentryAttachment` for downstream SDKs (like sentry-godot) (#6521)
 - Increase attachment max size to 100MB (#6537)
 - Increase maximum attachment size to 200MB (#6726)
-- Flush Logs on `WillTerminate` or `WillResignActive` App State (#6909)
 
 ## 9.0.0-rc.1
 
