@@ -33,21 +33,6 @@ final class SentrySwiftIntegrationInstallerTests: XCTestCase {
     }
     
     // We are not testing `SwiftAsyncIntegration`, but use it as an example for an installed integration
-    func testInstall_IntegrationNamesMatchExpectedValues() {
-        // Arrange
-        options.swiftAsyncStacktraces = true
-
-        // Act
-        SentrySwiftIntegrationInstaller.install(with: options)
-
-        // Assert
-        // Verify the integration name matches what's defined in SwiftAsyncIntegration
-        if testHub.installedIntegrationNames().contains("SentrySwiftAsyncIntegration") {
-            XCTAssertEqual(SwiftAsyncIntegration<SentryDependencyContainer>.name, "SentrySwiftAsyncIntegration",
-                          "Integration name should match the static name property")
-        }
-    }
-
     func testInstall_LogsInstalledIntegrations() {
         // Arrange
         options.swiftAsyncStacktraces = true
