@@ -40,7 +40,6 @@ body:
       options:
         - Swift Package Manager
         - CocoaPods
-        - Carthage
         - Manually
     validations:
       required: true

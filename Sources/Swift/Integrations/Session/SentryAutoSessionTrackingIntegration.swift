@@ -24,10 +24,6 @@ final class SentryAutoSessionTrackingIntegration<Dependencies: AutoSessionTracki
     }
     
     func uninstall() {
-        stop()
-    }
-    
-    func stop() {
         tracker.stop()
     }
     

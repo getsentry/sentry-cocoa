@@ -54,7 +54,7 @@ class SentrySessionGeneratorTests: NotificationCenterTestCase {
         fileManager.deleteCrashedSession()
         fileManager.deleteTimestampLastInForeground()
         fileManager.deleteAppState()
-        autoSessionTrackingIntegration.stop()
+        autoSessionTrackingIntegration.uninstall()
     }
     
     /**
@@ -92,7 +92,7 @@ class SentrySessionGeneratorTests: NotificationCenterTestCase {
         for _ in Array(1...amount.crashed) {
             // send crashed session
             crashIntegration.install(with: options)
-            autoSessionTrackingIntegration.stop()
+            autoSessionTrackingIntegration.uninstall()
             autoSessionTrackingIntegration = SentryAutoSessionTrackingIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance())
             goToForeground()
             
@@ -115,7 +115,7 @@ class SentrySessionGeneratorTests: NotificationCenterTestCase {
             // send crashed session
             crashIntegration.install(with: options)
             
-            autoSessionTrackingIntegration.stop()
+            autoSessionTrackingIntegration.uninstall()
             autoSessionTrackingIntegration = SentryAutoSessionTrackingIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance())
             goToForeground()
             
@@ -125,7 +125,7 @@ class SentrySessionGeneratorTests: NotificationCenterTestCase {
         #endif
         
         for _ in Array(1...amount.abnormal) {
-            autoSessionTrackingIntegration.stop()
+            autoSessionTrackingIntegration.uninstall()
             autoSessionTrackingIntegration = SentryAutoSessionTrackingIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance())
             goToForeground()
         }
@@ -149,6 +149,8 @@ class SentrySessionGeneratorTests: NotificationCenterTestCase {
         crashIntegration = SentryCrashIntegration(crashAdapter: sentryCrash, andDispatchQueueWrapper: TestSentryDispatchQueueWrapper())
         crashIntegration.install(with: options)
         
+        // We need to enable auto session tracking in options or SentryAutoSessionTrackingIntegration's init will return nil
+        options.enableAutoSessionTracking = true
         autoSessionTrackingIntegration = SentryAutoSessionTrackingIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance())
     }
     

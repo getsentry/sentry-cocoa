@@ -1,12 +1,8 @@
 @_spi(Private) @testable import Sentry
-@_spi(Private) import SentryTestUtils
+import SentryTestUtils
 import XCTest
 
 class SentryAutoSessionTrackingIntegrationTests: XCTestCase {
-    
-    override func tearDown() {
-        clearTestState()
-    }
 
     func test_AutoSessionTracking_Disabled() {
         let logOutput = TestLogOutput()

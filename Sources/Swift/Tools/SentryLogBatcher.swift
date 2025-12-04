@@ -245,17 +245,7 @@ import Foundation
         }
 
         // Create the payload.
-        
-        var payloadData = Data()
-        payloadData.append(Data("{\"items\":[".utf8))
-        let separator = Data(",".utf8)
-        for (index, encodedLog) in encodedLogs.enumerated() {
-            if index > 0 {
-                payloadData.append(separator)
-            }
-            payloadData.append(encodedLog)
-        }
-        payloadData.append(Data("]}".utf8))
+        let payloadData = Data("{\"items\":[".utf8) + encodedLogs.joined(separator: Data(",".utf8)) + Data("]}".utf8)
         
         // Send the payload.
         
