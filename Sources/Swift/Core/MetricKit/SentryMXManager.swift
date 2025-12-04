@@ -21,7 +21,7 @@ import MetricKit
 @available(macOS 12.0, *)
 @available(tvOS, unavailable)
 @available(watchOS, unavailable)
-@objcMembers @_spi(Private) public class SentryMXManager: NSObject, MXMetricManagerSubscriber {
+@objcMembers @_spi(Private) public final class SentryMXManager: NSObject, MXMetricManagerSubscriber {
     
     let disableCrashDiagnostics: Bool
     
