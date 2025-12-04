@@ -23,6 +23,7 @@ DERIVED_DATA_PATH=""
 TEST_SCHEME="Sentry"
 TEST_PLAN=""
 RESULT_BUNDLE_PATH="results.xcresult"
+SPM_PROJECT="false"
 
 usage() {
     echo "Usage: $0"
@@ -36,6 +37,7 @@ usage() {
     echo "  -s|--scheme <scheme>            Test scheme (default: Sentry)"
     echo "  -t|--test-plan <plan>           Test plan name (default: empty)"
     echo "  -R|--result-bundle <path>       Result bundle path (default: results.xcresult)"
+    echo "  -S|--spm-project <bool>         Use SPM project (default: false)"
     exit 1
 }
 
@@ -81,6 +83,10 @@ while [[ $# -gt 0 ]]; do
         -R|--result-bundle)
             RESULT_BUNDLE_PATH="$2"
             shift 2
+            ;;
+        -S|--spm-project)
+            SPM_PROJECT="true"
+            shift 1
             ;;
         *)
             echo "Unknown option: $1"
@@ -169,15 +175,22 @@ if [ -n "$TEST_PLAN" ]; then
     TEST_PLAN_ARGS+=("-testPlan" "$TEST_PLAN")
 fi
 
+WORKSPACE_ARG="-workspace Sentry.xcworkspace"
+CONFIGURATION_ARG="-configuration $CONFIGURATION"
+if [ $SPM_PROJECT == "true" ]; then
+    WORKSPACE_ARG=""
+    CONFIGURATION_ARG=""
+fi
+
 if [ $RUN_BUILD_FOR_TESTING == true ]; then
     # When no test plan is provided, we skip the -testPlan argument so xcodebuild uses the default test plan
     log_notice "Running xcodebuild build-for-testing"
 
     set -o pipefail && NSUnbufferedIO=YES xcodebuild \
-        -workspace Sentry.xcworkspace \
+        "$WORKSPACE_ARG" \
         -scheme "$TEST_SCHEME" \
         "${TEST_PLAN_ARGS[@]+${TEST_PLAN_ARGS[@]}}" \
-        -configuration "$CONFIGURATION" \
+        "$CONFIGURATION_ARG" \
         -destination "$DESTINATION" \
         build-for-testing 2>&1 |
         tee raw-build-for-testing-output.log |
@@ -189,10 +202,10 @@ if [ $RUN_TEST_WITHOUT_BUILDING == true ]; then
     log_notice "Running xcodebuild test-without-building"
 
     set -o pipefail && NSUnbufferedIO=YES xcodebuild \
-        -workspace Sentry.xcworkspace \
+        "$WORKSPACE_ARG" \
         -scheme "$TEST_SCHEME" \
         "${TEST_PLAN_ARGS[@]+${TEST_PLAN_ARGS[@]}}" \
-        -configuration "$CONFIGURATION" \
+        "$CONFIGURATION_ARG" \
         -destination "$DESTINATION" \
         -resultBundlePath "$RESULT_BUNDLE_PATH" \
         test-without-building 2>&1 |

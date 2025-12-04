@@ -80,12 +80,13 @@ jobs:
           DEVICE_NAME: ${{ inputs.device }}
           SCHEME: ${{ inputs.package-name }}
         run: |
-          ../../../scripts/integration-xcodebuild.sh \
+          ../../../scripts/sentry-xcodebuild.sh \
             --platform "$PLATFORM" \
             --os "$OS_VERSION" \
             --command build-for-testing \
             --device "$DEVICE_NAME" \
-            --scheme "$SCHEME"
+            --scheme "$SCHEME" \
+            --spm-project
 
       - name: Run Tests
         working-directory: ${{ inputs.working_directory }}
@@ -96,10 +97,11 @@ jobs:
           DEVICE_NAME: ${{ inputs.device }}
           SCHEME: ${{ inputs.package-name }}
         run: |
-          ../../../scripts/integration-xcodebuild.sh \
+          ../../../scripts/sentry-xcodebuild.sh \
             --platform "$PLATFORM" \
             --os "$OS_VERSION" \
             --command test-without-building \
             --device "$DEVICE_NAME" \
             --scheme "$SCHEME" \
-            --result-bundle integration-results.xcresult
+            --result-bundle integration-results.xcresult \
+            --spm-project
