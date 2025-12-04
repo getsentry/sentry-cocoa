@@ -61,7 +61,7 @@ jobs:
         working-directory: 3rd-party-integrations/SwiftLog
         shell: bash
         run: |
-          ../../../scripts/prepare-package.sh \
+          ../../scripts/prepare-package.sh \
           --package-file Package.swift \
           --update-path-to-sentry-cocoa true
       - name: Run SPM Tests
@@ -77,7 +77,7 @@ jobs:
       name: SwiftLog
       scheme: SentrySwiftLog
       working_directory: 3rd-party-integrations/SwiftLog
-      path_to_scripts_folder: ../../../scripts
+      path_to_scripts_folder: ../../scripts
       xcode: ${{ matrix.xcode }}
       test-destination-os: ${{ matrix.test-destination-os }}
       device: ${{ matrix.device }}
