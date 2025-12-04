@@ -32,20 +32,6 @@ However, maintaining multiple repositories introduces overhead for the team.
 
   https://github.com/marvinpinto/action-automatic-releases
 
-  Pros:
-
-  - Source of truth stays in **one repository**.
-  - Development flow simpler (single CI, single contribution workflow).
-  - Users still get the benefit of **modular SPM dependencies**, without downloading everything.
-  - Mirrors how some SDKs manage platform-specific or optional components
-
-  Cons:
-
-  - Requires building a **custom mirroring release workflow**.
-  - Potential risk of divergence if mirror fails or is misconfigured.
-  - Release cadence may still be tied to `sentry-cocoa` unless new workflows are built.
-  - Requires tooling to ensure code in the main repo remains cleanly partitioned.
-
 > [!NOTE]
 > For other options that were considered, see the [3rd Party Library Integrations decision in DECISIONS.md](DECISIONS.md#3rd-party-library-integrations).
 
@@ -58,6 +44,7 @@ All integration development will continue in the main `sentry-cocoa` repository,
 Each integration will be self-contained in `3rd-party-integration/INTEGRATION-NAME/` with:
 
 - `Sources/` - Integration source code
+- `Tests/` - Test for the integration
 - `README.md` - Integration-specific documentation
 - `Package.swift` - SPM package definition
 - `*.podspec` - CocoaPods specification
