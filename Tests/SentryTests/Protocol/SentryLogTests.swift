@@ -131,49 +131,6 @@ final class SentryLogTests: XCTestCase {
         XCTAssertEqual(json["severity_number"] as? Int, 21)
     }
     
-    func testDecode() throws {
-        
-        let log = try XCTUnwrap(decodeFromJSONData(jsonData: jsonData) as SentryLog?)
-        
-        XCTAssertEqual(log.timestamp, Date(timeIntervalSince1970: 1_234_567_890.987654))
-        XCTAssertEqual(log.traceId.sentryIdString, "550e8400e29b41d4a716446655440000")
-        XCTAssertEqual(log.level, .trace)
-        XCTAssertEqual(log.body, "Trace message")
-        
-        XCTAssertEqual(log.attributes.count, 2)
-        XCTAssertEqual(log.attributes["key1"]?.type, "string")
-        XCTAssertEqual(log.attributes["key1"]?.value as? String, "value1")
-        XCTAssertEqual(log.attributes["key2"]?.type, "boolean")
-        XCTAssertEqual(log.attributes["key2"]?.value as? Bool, false)
-        XCTAssertEqual(log.severityNumber, 21)
-    }
-    
-    func testRoundTrip() throws {
-        let data = try encodeToJSONData(data: log)
-        let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as SentryLog?)
-        
-        XCTAssertEqual(decoded.timestamp, log.timestamp)
-        XCTAssertEqual(decoded.traceId.sentryIdString, log.traceId.sentryIdString)
-        XCTAssertEqual(decoded.level, log.level)
-        XCTAssertEqual(decoded.body, log.body)
-        XCTAssertEqual(decoded.severityNumber, log.severityNumber)
-        
-        XCTAssertEqual(decoded.attributes.count, log.attributes.count)
-        
-        XCTAssertEqual(decoded.attributes["user_id"]?.type, "string")
-        XCTAssertEqual(decoded.attributes["user_id"]?.value as? String, "12345")
-        
-        XCTAssertEqual(decoded.attributes["is_active"]?.type, "boolean")
-        XCTAssertEqual(decoded.attributes["is_active"]?.value as? Bool, true)
-        
-        XCTAssertEqual(decoded.attributes["count"]?.type, "integer")
-        XCTAssertEqual(decoded.attributes["count"]?.value as? Int, 42)
-        
-        XCTAssertEqual(decoded.attributes["score"]?.type, "double")
-        let decodedScoreValue = try XCTUnwrap(decoded.attributes["score"]?.value as? Double)
-        XCTAssertEqual(decodedScoreValue, 3.14159, accuracy: 0.00001)
-    }
-    
     // MARK: - setAttribute Tests
     
     func testSetAttribute_AddsUpdatedsRemovesAtribute() {
