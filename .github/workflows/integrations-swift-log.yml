@@ -58,10 +58,11 @@ jobs:
           XCODE_VERSION: 16.4
         run: ./scripts/ci-select-xcode.sh "$XCODE_VERSION"
       - name: Prepare Package.swift
+        working-directory: integrations/logs/sentry-cocoa-swiftlog
         shell: bash
         run: |
-          ./scripts/prepare-package.sh \
-          --package-file integrations/logs/sentry-cocoa-swiftlog/Package.swift \
+          ../../../scripts/prepare-package.sh \
+          --package-file Package.swift \
           --update-path-to-sentry-cocoa true
       - name: Run SPM Tests
         working-directory: integrations/logs/sentry-cocoa-swiftlog
