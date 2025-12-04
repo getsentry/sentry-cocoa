@@ -86,6 +86,12 @@ on:
         required: false
         type: boolean
 
+      test_spm_package:
+        description: "Whether to test the SPM package"
+        default: false
+        required: false
+        type: boolean
+
 jobs:
   unit-tests:
     name: Unit ${{inputs.name}}
@@ -169,7 +175,7 @@ jobs:
             --command build-for-testing \
             --device "$DEVICE_NAME" \
             --configuration TestCI \
-            --scheme "$SCHEME"
+            --scheme "$SCHEME" ${{ inputs.test_spm_package && '--spm-project' || '' }}
 
       # Run Flaky Tests TestPlan which has a retry mechanism on failure.
       # We intentionally run these before the other test plan to fail early.
@@ -217,7 +223,7 @@ jobs:
             --command test-without-building \
             --device "$DEVICE_NAME" \
             --configuration TestCI \
-            --scheme "$SCHEME" \
+            --scheme "$SCHEME" ${{ inputs.test_spm_package && '--spm-project' || '' }} \
             --result-bundle results.xcresult
 
       - name: Publish Test Report

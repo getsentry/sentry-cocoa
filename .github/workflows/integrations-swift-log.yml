@@ -85,6 +85,7 @@ jobs:
       runs-on: ${{ matrix.macos_version }}
       timeout: 10
       update_path_to_sentry_cocoa: true
+      test_spm_package: true
     strategy:
       fail-fast: false
       matrix:
