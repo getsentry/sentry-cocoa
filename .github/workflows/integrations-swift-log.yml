@@ -60,9 +60,9 @@ jobs:
       - name: Prepare Package.swift
         shell: bash
         run: |
-          ./scripts/use-local-sentry-dependency.sh \
-            --package-file integrations/logs/sentry-cocoa-swiftlog/Package.swift \
-            --path-to-sentry-cocoa "../../../"
+          ./scripts/prepare-package.sh \
+          --package-file integrations/logs/sentry-cocoa-swiftlog/Package.swift \
+          --update-path-to-sentry-cocoa true
       - name: Run SPM Tests
         working-directory: integrations/logs/sentry-cocoa-swiftlog
         run: swift test
@@ -71,11 +71,12 @@ jobs:
     name: Unit Tests for Swift Log
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_swift_log_for_prs == 'true'
     needs: files-changed
-    uses: ./.github/workflows/integrations-common.yml
+    uses: ./.github/workflows/unit-test-common.yml
     with:
       name: SwiftLog
       package-name: SentrySwiftLog
       working_directory: integrations/logs/sentry-cocoa-swiftlog
+      path_to_scripts_folder: ../../../
       xcode_version: ${{ matrix.xcode }}
       test-destination-os: ${{ matrix.test-destination-os }}
       device: ${{ matrix.device }}

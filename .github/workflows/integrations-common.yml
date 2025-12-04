@@ -66,9 +66,9 @@ jobs:
       - name: Prepare Package.swift
         shell: bash
         run: |
-          ./scripts/use-local-sentry-dependency.sh \
-            --package-file ${{ inputs.working_directory }}/Package.swift \
-            --path-to-sentry-cocoa "../../../"
+          ./scripts/prepare-package.sh \
+          --package-file ${{ inputs.working_directory }}/Package.swift \
+          --update-path-to-sentry-cocoa true
 
       # We split building and running tests in two steps so we know how long running the tests takes.
       - name: Build Tests

@@ -69,6 +69,17 @@ on:
         default: false
         type: boolean
 
+      working_directory:
+        description: "The working directory to run the tests in"
+        required: false
+        type: string
+
+      path_to_scripts_folder:
+        description: "The path to the scripts folder"
+        default: .
+        required: false
+        type: string
+
 jobs:
   unit-tests:
     name: Unit ${{inputs.name}}
@@ -77,7 +88,9 @@ jobs:
     if: ${{!inputs.should_skip}}
     steps:
       - uses: actions/checkout@v6
-      - run: ./scripts/ci-select-xcode.sh "$XCODE_VERSION"
+      - name: Select Xcode version
+        working-directory: ${{ inputs.working_directory }}
+        run: ${{ inputs.path_to_scripts_folder }}/ci-select-xcode.sh "$XCODE_VERSION"
         env:
           XCODE_VERSION: ${{inputs.xcode}}
 
@@ -86,42 +99,47 @@ jobs:
 
       # Install platform runtimes that are not included by default
       - name: Install required platforms
+        working-directory: ${{ inputs.working_directory }}
         if: ${{ inputs.install_platforms }}
         env:
           PLATFORMS: ${{ inputs.platform }}
           OS_VERSION: ${{ inputs.test-destination-os }}
-        run: ./scripts/ci-install-platforms.sh --platforms "$PLATFORMS" --os-version "$OS_VERSION"
+        run: ${{ inputs.path_to_scripts_folder }}/ci-install-platforms.sh --platforms "$PLATFORMS" --os-version "$OS_VERSION"
 
       - name: Ensure required runtime is loaded
         # Ideally we will not need this, but CI sometimes is failing to load some runtimes, this will ensure they are loaded
         if: ${{ inputs.platform == 'iOS' }}
         timeout-minutes: 5 # 5 minutes timeout
+        working-directory: ${{ inputs.working_directory }}
         env:
           OS_VERSION: ${{ inputs.test-destination-os }}
-        run: ./scripts/ci-ensure-runtime-loaded.sh --os-version "$OS_VERSION"
+        run: ${{ inputs.path_to_scripts_folder }}/ci-ensure-runtime-loaded.sh --os-version "$OS_VERSION"
 
       # Create simulator devices for non-preinstalled simulators
       # Required for iOS 16.4, iOS 17.5 (on Xcode 15.4), and iOS/tvOS 26.1
       - name: Create simulator device
         if: ${{ inputs.create_device }}
+        working-directory: ${{ inputs.working_directory }}
         env:
           PLATFORM: ${{ inputs.platform }}
           OS_VERSION: ${{ inputs.test-destination-os }}
           DEVICE_NAME: ${{inputs.device}}
-        run: ./scripts/ci-create-simulator.sh --platform "$PLATFORM" --os-version "$OS_VERSION" --device-name "$DEVICE_NAME"
+        run: ${{ inputs.path_to_scripts_folder }}/ci-create-simulator.sh --platform "$PLATFORM" --os-version "$OS_VERSION" --device-name "$DEVICE_NAME"
 
       # Boot created simulators to ensure they're ready before tests run
       # Based on CircleCI forum comment, booting is especially important for Xcode 26: https://discuss.circleci.com/t/xcode-26-rc/54066/18
       - name: Boot simulator
         if: ${{ inputs.create_device && inputs.platform == 'iOS' }}
+        working-directory: ${{ inputs.working_directory }}
         env:
           XCODE_VERSION: ${{ inputs.xcode }}
           DEVICE_NAME: ${{ inputs.device }}
           OS_VERSION: ${{ inputs.test-destination-os }}
-        run: ./scripts/ci-boot-simulator.sh --xcode "$XCODE_VERSION" --device "$DEVICE_NAME" --os-version "$OS_VERSION"
+        run: ${{ inputs.path_to_scripts_folder }}/ci-boot-simulator.sh --xcode "$XCODE_VERSION" --device "$DEVICE_NAME" --os-version "$OS_VERSION"
 
       # We split building and running tests in two steps so we know how long running the tests takes.
       - name: Build Tests
+        working-directory: ${{ inputs.working_directory }}
         id: build_tests
         env:
           PLATFORM: ${{ inputs.platform }}
@@ -130,7 +148,7 @@ jobs:
           DEVICE_NAME: ${{ inputs.device }}
           SCHEME: ${{ inputs.scheme }}
         run: |
-          ./scripts/sentry-xcodebuild.sh \
+          ${{ inputs.path_to_scripts_folder }}/sentry-xcodebuild.sh \
             --platform "$PLATFORM" \
             --os "$OS_VERSION" \
             --ref "$REF_NAME" \
@@ -146,6 +164,7 @@ jobs:
       - name: Run Flaky Tests
         # Only the Sentry Scheme has the Flaky TestPlan.
         if: ${{ inputs.scheme == 'Sentry' }}
+        working-directory: ${{ inputs.working_directory }}
         env:
           PLATFORM: ${{ inputs.platform }}
           OS_VERSION: ${{ inputs.test-destination-os }}
@@ -153,7 +172,7 @@ jobs:
           DEVICE_NAME: ${{ inputs.device }}
           SCHEME: ${{ inputs.scheme }}
         run: |
-          ./scripts/sentry-xcodebuild.sh \
+          ${{ inputs.path_to_scripts_folder }}/sentry-xcodebuild.sh \
             --platform "$PLATFORM" \
             --os "$OS_VERSION" \
             --ref "$REF_NAME" \
@@ -169,6 +188,7 @@ jobs:
         # passed to xcodebuild doesn't end up in the job name,
         # because GitHub Actions don't provide an easy way of
         # manipulating string in expressions.
+        working-directory: ${{ inputs.working_directory }}
         env:
           PLATFORM: ${{ inputs.platform }}
           OS_VERSION: ${{ inputs.test-destination-os }}
@@ -176,7 +196,7 @@ jobs:
           DEVICE_NAME: ${{ inputs.device }}
           SCHEME: ${{ inputs.scheme }}
         run: |
-          ./scripts/sentry-xcodebuild.sh \
+          ${{ inputs.path_to_scripts_folder }}/sentry-xcodebuild.sh \
             --platform "$PLATFORM" \
             --os "$OS_VERSION" \
             --ref "$REF_NAME" \
@@ -190,7 +210,7 @@ jobs:
         uses: mikepenz/action-junit-report@e08919a3b1fb83a78393dfb775a9c37f17d8eea6 # v6.0.1
         if: always()
         with:
-          report_paths: "build/reports/junit.xml"
+          report_paths: "${{ inputs.working_directory }}/build/reports/junit.xml"
           fail_on_failure: true
           fail_on_parse_error: true
           detailed_summary: true
