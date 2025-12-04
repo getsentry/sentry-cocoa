@@ -140,7 +140,7 @@ var targets: [Target] = [\
 fi
 
 if is_enabled "$UPDATE_PATH_TO_SENTRY_COCOA"; then
-  sed -i '' 's|\.package(url: "https://github\.com/getsentry/sentry-cocoa", from: "[^"]*")|.package(path: "'../../../'")|g' "$PACKAGE_FILE"
+  sed -i '' 's|\.package(url: "https://github\.com/getsentry/sentry-cocoa", from: "[^"]*")|.package(path: "'../../'")|g' "$PACKAGE_FILE"
 fi
 
 echo

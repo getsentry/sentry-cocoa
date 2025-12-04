@@ -80,6 +80,12 @@ on:
         required: false
         type: string
 
+      update_path_to_sentry_cocoa:
+        description: "The path to the scripts folder"
+        default: false
+        required: false
+        type: boolean
+
 jobs:
   unit-tests:
     name: Unit ${{inputs.name}}
@@ -136,6 +142,14 @@ jobs:
           DEVICE_NAME: ${{ inputs.device }}
           OS_VERSION: ${{ inputs.test-destination-os }}
         run: ${{ inputs.path_to_scripts_folder }}/ci-boot-simulator.sh --xcode "$XCODE_VERSION" --device "$DEVICE_NAME" --os-version "$OS_VERSION"
+
+      - name: Prepare Package.swift
+        working-directory: ${{ inputs.working_directory }}
+        shell: bash
+        run: |
+          ${{ inputs.path_to_scripts_folder }}/prepare-package.sh \
+            --package-file Package.swift \
+            --update-path-to-sentry-cocoa true
 
       # We split building and running tests in two steps so we know how long running the tests takes.
       - name: Build Tests
