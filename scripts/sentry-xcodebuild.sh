@@ -175,23 +175,22 @@ if [ -n "$TEST_PLAN" ]; then
     TEST_PLAN_ARGS+=("-testPlan" "$TEST_PLAN")
 fi
 
-WORKSPACE_ARG="-workspace Sentry.xcworkspace"
-CONFIGURATION_ARG="-configuration $CONFIGURATION"
-if [ $SPM_PROJECT == "true" ]; then
-    WORKSPACE_ARG=""
-    CONFIGURATION_ARG=""
+# Build xcodebuild arguments based on project type
+XCODEBUILD_ARGS=()
+if [ $SPM_PROJECT != "true" ]; then
+    XCODEBUILD_ARGS+=("-workspace" "Sentry.xcworkspace")
+    XCODEBUILD_ARGS+=("-configuration" "$CONFIGURATION")
 fi
+XCODEBUILD_ARGS+=("-scheme" "$TEST_SCHEME")
+XCODEBUILD_ARGS+=("${TEST_PLAN_ARGS[@]+${TEST_PLAN_ARGS[@]}}")
+XCODEBUILD_ARGS+=("-destination" "$DESTINATION")
 
 if [ $RUN_BUILD_FOR_TESTING == true ]; then
     # When no test plan is provided, we skip the -testPlan argument so xcodebuild uses the default test plan
     log_notice "Running xcodebuild build-for-testing"
 
     set -o pipefail && NSUnbufferedIO=YES xcodebuild \
-        "$WORKSPACE_ARG" \
-        -scheme "$TEST_SCHEME" \
-        "${TEST_PLAN_ARGS[@]+${TEST_PLAN_ARGS[@]}}" \
-        "$CONFIGURATION_ARG" \
-        -destination "$DESTINATION" \
+        "${XCODEBUILD_ARGS[@]}" \
         build-for-testing 2>&1 |
         tee raw-build-for-testing-output.log |
         xcbeautify --preserve-unbeautified
@@ -201,13 +200,10 @@ if [ $RUN_TEST_WITHOUT_BUILDING == true ]; then
     # When no test plan is provided, we skip the -testPlan argument so xcodebuild uses the default test plan
     log_notice "Running xcodebuild test-without-building"
 
+    XCODEBUILD_ARGS+=("-resultBundlePath" "$RESULT_BUNDLE_PATH")
+
     set -o pipefail && NSUnbufferedIO=YES xcodebuild \
-        "$WORKSPACE_ARG" \
-        -scheme "$TEST_SCHEME" \
-        "${TEST_PLAN_ARGS[@]+${TEST_PLAN_ARGS[@]}}" \
-        "$CONFIGURATION_ARG" \
-        -destination "$DESTINATION" \
-        -resultBundlePath "$RESULT_BUNDLE_PATH" \
+        "${XCODEBUILD_ARGS[@]}" \
         test-without-building 2>&1 |
         tee raw-test-output.log |
         xcbeautify --report junit
