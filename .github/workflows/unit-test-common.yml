@@ -76,7 +76,7 @@ on:
 
       path_to_scripts_folder:
         description: "The path to the scripts folder"
-        default: .
+        default: ./scripts
         required: false
         type: string
 
