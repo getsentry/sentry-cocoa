@@ -32,6 +32,9 @@ class SentryAutoSessionTrackingIntegrationTests: XCTestCase {
         let processInfoWrapper = MockSentryProcessInfo()
         processInfoWrapper.overrides.processDirectoryPath = "randomPath/myApp.systemextension"
         SentryDependencyContainer.sharedInstance().processInfoWrapper = processInfoWrapper
+        defer {
+            SentryDependencyContainer.sharedInstance().processInfoWrapper = Dependencies.processInfoWrapper
+        }
         
         let sut = SentryAutoSessionTrackingIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance())
         
