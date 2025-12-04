@@ -1,5 +1,4 @@
 excluded:
-  - "**/Carthage"
   - Pods
   - Utils/**/.build
   - DependencyManagerTests
@@ -10,6 +9,7 @@ excluded:
   - SentryTestUtils/Dynamic/**
   - .build/**
   - .git/**
+  - XCFrameworkBuildPath/**
 
 only_rules:
   - class_delegate_protocol

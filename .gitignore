@@ -41,6 +41,8 @@ playground.xcworkspace
 Packages
 
 # Carthage
+# We don't use Carthage anymore, but we keep this folder to avoid uploading local files by mistake.
+# Will be removed in the future.
 Carthage/Build
 Carthage/Checkouts
 Carthage
@@ -116,3 +118,6 @@ analyzer
 
 # Output of snapshot testing
 **/__Snapshots__
+
+# Output folder for Sentry local builds
+XCFrameworkBuildPath/

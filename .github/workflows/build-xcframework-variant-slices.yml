@@ -107,8 +107,8 @@ jobs:
         env:
           GITHUB_WORKSPACE: ${{ github.workspace }}
         run: |
-          find "$GITHUB_WORKSPACE/Carthage/archive" -name "Sentry.framework" -print0 | xargs -t0 rm -rf
-          find "$GITHUB_WORKSPACE/Carthage/archive" -name "Sentry.framework.dSYM" -print0 | xargs -t0 rm -rf
+          find "$GITHUB_WORKSPACE/XCFrameworkBuildPath/archive" -name "Sentry.framework" -print0 | xargs -t0 rm -rf
+          find "$GITHUB_WORKSPACE/XCFrameworkBuildPath/archive" -name "Sentry.framework.dSYM" -print0 | xargs -t0 rm -rf
         shell: bash
 
       # the upload action broke symlinks in the mac sdk slice's xcarchive
@@ -119,7 +119,7 @@ jobs:
           INPUT_SUFFIX: ${{ inputs.suffix }}
           MATRIX_SDK: ${{ matrix.sdk }}
         run: |
-          ditto -c -k -X --rsrc --keepParent ${GITHUB_WORKSPACE}/Carthage/archive/${INPUT_NAME}${INPUT_SUFFIX}/${MATRIX_SDK}.xcarchive ${INPUT_NAME}${INPUT_SUFFIX}.xcarchive.zip
+          ditto -c -k -X --rsrc --keepParent ${GITHUB_WORKSPACE}/XCFrameworkBuildPath/archive/${INPUT_NAME}${INPUT_SUFFIX}/${MATRIX_SDK}.xcarchive ${INPUT_NAME}${INPUT_SUFFIX}.xcarchive.zip
         shell: bash
 
       - name: Upload xcarchive

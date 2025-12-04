@@ -157,6 +157,7 @@ run_test_cross_platform_for_prs: &run_test_cross_platform_for_prs
   - "scripts/ci-select-xcode.sh"
   - "scripts/ci-diagnostics.sh"
   - "scripts/ci-utils.sh"
+  - "scripts/ci-ensure-runtime-loaded.sh"
 
   # Build configuration
   - "Makefile"
