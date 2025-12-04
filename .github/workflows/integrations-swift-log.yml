@@ -81,7 +81,7 @@ jobs:
       test-destination-os: ${{ matrix.test-destination-os }}
       device: ${{ matrix.device }}
       platform: ${{ matrix.platform }}
-      macos_version: ${{ matrix.macos_version }}
+      runs-on: ${{ matrix.macos_version }}
     strategy:
       fail-fast: false
       matrix:
