@@ -4,10 +4,6 @@
 
 See //Samples/README.md for more information about how to use the sample apps to test SDK functionality.
 
-## Generating classes
-
-You can use the `generate-classes.sh` to generate ViewControllers and other classes to emulate a large project. This is useful, for example, to test the performance of swizzling in a large project without having to check in thousands of lines of code.
-
 ## Tests
 
 The tests depend on our test server. To run the automated tests, you first need to have the server running locally with
