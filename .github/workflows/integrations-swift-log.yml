@@ -58,14 +58,14 @@ jobs:
           XCODE_VERSION: 16.4
         run: ./scripts/ci-select-xcode.sh "$XCODE_VERSION"
       - name: Prepare Package.swift
-        working-directory: integrations/logs/sentry-cocoa-swiftlog
+        working-directory: 3rd-party-integrations/SwiftLog
         shell: bash
         run: |
           ../../../scripts/prepare-package.sh \
           --package-file Package.swift \
           --update-path-to-sentry-cocoa true
       - name: Run SPM Tests
-        working-directory: integrations/logs/sentry-cocoa-swiftlog
+        working-directory: 3rd-party-integrations/SwiftLog
         run: swift test
 
   test-integration:
@@ -76,7 +76,7 @@ jobs:
     with:
       name: SwiftLog
       scheme: SentrySwiftLog
-      working_directory: integrations/logs/sentry-cocoa-swiftlog
+      working_directory: 3rd-party-integrations/SwiftLog
       path_to_scripts_folder: ../../../scripts
       xcode: ${{ matrix.xcode }}
       test-destination-os: ${{ matrix.test-destination-os }}
