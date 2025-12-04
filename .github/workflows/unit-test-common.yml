@@ -88,6 +88,11 @@ jobs:
     if: ${{!inputs.should_skip}}
     steps:
       - uses: actions/checkout@v6
+      - name: Test
+        run: |
+          ls -la .
+          ls -la sentry-cocoa
+          ls -la ${{ inputs.working_directory }}
       - name: Select Xcode version
         working-directory: ${{ inputs.working_directory }}
         run: ${{ inputs.path_to_scripts_folder }}/ci-select-xcode.sh "$XCODE_VERSION"
