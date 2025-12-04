@@ -1212,10 +1212,10 @@ class SentryNetworkTrackerTests: XCTestCase {
 
         sut.urlSessionTask(task, setState: state)
 
-        let httpStatusCode = span.data["http.response.status_code"] as? String
+        let httpStatusCode = span.data["http.response.status_code"] as? NSNumber
 
         if let httpResponse = response as? HTTPURLResponse {
-            XCTAssertEqual("\(httpResponse.statusCode)", httpStatusCode)
+            XCTAssertEqual(NSNumber(value: httpResponse.statusCode), httpStatusCode)
         } else {
             XCTAssertNil(httpStatusCode)
         }

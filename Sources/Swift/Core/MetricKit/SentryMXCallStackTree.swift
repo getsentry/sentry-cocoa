@@ -5,7 +5,7 @@ import Foundation
  * JSON specification of MXCallStackTree can be found here https://developer.apple.com/documentation/metrickit/mxcallstacktree/3552293-jsonrepresentation
  */
 @objcMembers
-@_spi(Private) public class SentryMXCallStackTree: NSObject, Codable {
+@_spi(Private) public class SentryMXCallStackTree: NSObject, Decodable {
     
     public let callStacks: [SentryMXCallStack]
     public let callStackPerThread: Bool
@@ -16,7 +16,7 @@ import Foundation
 }
 
 @objcMembers
-@_spi(Private) public class SentryMXCallStack: NSObject, Codable {
+@_spi(Private) public class SentryMXCallStack: NSObject, Decodable {
     public let threadAttributed: Bool?
     public let callStackRootFrames: [SentryMXFrame]
     
@@ -26,7 +26,7 @@ import Foundation
 }
 
 @objcMembers
-@_spi(Private) public class SentryMXFrame: NSObject, Codable {
+@_spi(Private) public class SentryMXFrame: NSObject, Decodable {
     public let binaryUUID: UUID
     public let offsetIntoBinaryTextSegment: Int
     public let binaryName: String?

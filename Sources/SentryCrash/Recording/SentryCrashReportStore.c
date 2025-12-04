@@ -257,14 +257,15 @@ sentrycrashcrs_addUserReport(const char *report, int reportLength)
 
     int fd = open(crashReportPath, O_WRONLY | O_CREAT, 0644);
     if (fd < 0) {
-        SENTRY_ASYNC_SAFE_LOG_ERROR("Could not open file %s: %s", crashReportPath, strerror(errno));
+        SENTRY_ASYNC_SAFE_LOG_ERROR(
+            "Could not open file %s: %s", crashReportPath, SENTRY_STRERROR_R(errno));
         goto done;
     }
 
     int bytesWritten = (int)write(fd, report, (unsigned)reportLength);
     if (bytesWritten < 0) {
         SENTRY_ASYNC_SAFE_LOG_ERROR(
-            "Could not write to file %s: %s", crashReportPath, strerror(errno));
+            "Could not write to file %s: %s", crashReportPath, SENTRY_STRERROR_R(errno));
         goto done;
     } else if (bytesWritten < reportLength) {
         SENTRY_ASYNC_SAFE_LOG_ERROR("Expected to write %d bytes to file %s, but only wrote %d",

@@ -31,6 +31,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (nullable NSArray<UIWindow *> *)windows;
 
+#    if TARGET_OS_IOS || TARGET_OS_TV
++ (CGSize)activeScreenSize;
+#    endif // TARGET_OS_IOS || TARGET_OS_TV
+
 #endif // SENTRY_HAS_UIKIT
 
 + (NSString *_Nullable)release:(SentryOptionsObjC *)options;

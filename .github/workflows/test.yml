@@ -304,7 +304,7 @@ jobs:
           # macOS 26
           - name: macOS 26 Sentry
             runs-on: macos-26
-            xcode: "26.1"
+            xcode: "26.1.1"
             test-destination-os: "26.1"
             platform: "macOS"
             scheme: "Sentry"
@@ -361,7 +361,7 @@ jobs:
           # tvOS 26
           - name: tvOS 26 Sentry
             runs-on: macos-26
-            xcode: "26.1"
+            xcode: "26.1.1"
             test-destination-os: "26.1"
             install_platforms: true
             platform: "tvOS"
