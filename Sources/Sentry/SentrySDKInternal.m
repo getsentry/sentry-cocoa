@@ -3,7 +3,6 @@
 #import "SentryANRTrackingIntegration.h"
 #import "SentryAppStartMeasurement.h"
 #import "SentryAutoBreadcrumbTrackingIntegration.h"
-#import "SentryAutoSessionTrackingIntegration.h"
 #import "SentryBreadcrumb.h"
 #import "SentryClient+Private.h"
 #import "SentryCoreDataTrackingIntegration.h"
@@ -528,7 +527,7 @@ static NSDate *_Nullable startTimestamp = nil;
         [SentryScreenshotIntegration class],
 #endif // SENTRY_TARGET_REPLAY_SUPPORTED
         [SentryANRTrackingIntegration class], [SentryAutoBreadcrumbTrackingIntegration class],
-        [SentryAutoSessionTrackingIntegration class], [SentryCoreDataTrackingIntegration class],
+        [SentryCoreDataTrackingIntegration class],
         [SentryFileIOTrackingIntegration class], [SentryNetworkTrackingIntegration class], nil];
 
 #if SENTRY_HAS_METRIC_KIT
