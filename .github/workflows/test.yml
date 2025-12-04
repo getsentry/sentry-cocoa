@@ -381,11 +381,11 @@ jobs:
         run: ./scripts/ci-select-xcode.sh 16.4
 
       - name: Setup local sentry-cocoa dependency
-        working-directory: integrations/logs/sentry-cocoa-swiftlog
-        run: swift package edit sentry-cocoa --path ../../..
+        working-directory: 3rd-party-integrations/SwiftLog
+        run: swift package edit sentry-cocoa --path ../..
 
       - name: Run SwiftLog tests
-        working-directory: integrations/logs/sentry-cocoa-swiftlog
+        working-directory: 3rd-party-integrations/SwiftLog
         run: swift test
 
       - name: Archiving Raw Logs
@@ -394,7 +394,7 @@ jobs:
         with:
           name: raw-output-swiftlog-integration
           path: |
-            integrations/logs/sentry-cocoa-swiftlog/.build/**/*.log
+            3rd-party-integrations/SwiftLog/.build/**/*.log
 
       - name: Run CI Diagnostics
         if: failure()
