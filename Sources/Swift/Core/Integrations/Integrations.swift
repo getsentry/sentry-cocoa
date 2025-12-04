@@ -44,7 +44,6 @@ private struct AnyIntegration {
             guard let integration = anyIntegration.install(options, dependencies) else { return }
 
             SentrySDKInternal.currentHub().addInstalledIntegration(integration, name: anyIntegration.name)
-            SentrySDKLog.debug("Integration installed: \(anyIntegration.name)")
         }
     }
 }

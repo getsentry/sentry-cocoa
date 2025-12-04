@@ -562,7 +562,6 @@ static NSDate *_Nullable startTimestamp = nil;
         id<SentryObjCIntegrationProtocol> integrationInstance = [[integrationClass alloc] init];
         BOOL shouldInstall = [integrationInstance installWithOptions:options];
         if (shouldInstall) {
-            SENTRY_LOG_DEBUG(@"Integration installed: %@", NSStringFromClass(integrationClass));
             [SentrySDKInternal.currentHub
                 addInstalledIntegration:integrationInstance
                                    name:NSStringFromClass(integrationClass)];
