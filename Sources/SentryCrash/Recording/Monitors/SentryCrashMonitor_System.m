@@ -469,8 +469,11 @@ getBuildType(void)
         return "debug";
     }
     SentryMobileProvisionParser *parser = [[SentryMobileProvisionParser alloc] init];
+    if ([[parser apsEnvironment] isEqualToString:@"development"] && [parser getTaskAllow]) {
+        return "debug";
+    }
     if ([parser hasEmbeddedMobileProvisionProfile]) {
-        return [parser mobileProvisionProfileProvisionsAllDevices] ? "enterprise" : "adhoc";
+        return [parser provisionsAllDevices] ? "enterprise" : "adhoc";
     }
     if (isTestBuild()) {
         return "test";
