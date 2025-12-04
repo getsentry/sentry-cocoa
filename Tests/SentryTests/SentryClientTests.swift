@@ -4,7 +4,7 @@ import XCTest
 
 extension SentryClientInternal {
     convenience init(options: Options, fileManager: SentryFileManager) {
-        let transports = TransportInitializer.initTransports(options, dateProvider: SentryDependencyContainer.sharedInstance().dateProvider, sentryFileManager: fileManager, rateLimits: SentryDependencyContainer.sharedInstance().rateLimits)
+        let transports = TransportInitializer.initTransports(options, dateProvider: SentryDependencyContainer.sharedInstance().dateProvider, sentryFileManager: fileManager, rateLimits: SentryDependencyContainer.sharedInstance().rateLimits, reachability: TestSentryReachability())
 
         let transportAdapter = SentryTransportAdapter(transports: transports, options: options)
 
