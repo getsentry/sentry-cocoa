@@ -53,17 +53,23 @@ Each integration will be self-contained in `3rd-party-integration/INTEGRATION-NA
 
 ```
 3rd-party-integration/
-  ├── CocoaLumberjack/
+  ├── SentryCocoaLumberjack/
   │   ├── Sources/
   │   ├── README.md
   │   ├── Package.swift
   │   └── SentryCocoaLumberjack.podspec
-  └── SwiftLog/
+  └── SentrySwiftLog/
       ├── Sources/
       ├── README.md
       ├── Package.swift
       └── SentrySwiftLog.podspec
 ```
+
+Since SPM fails to resolve dependencies if the folder has the same name as one of the dependencies, we cannot use the library name as the folder name.
+We will use the name of our dependency, for example:
+
+- `SentryCocoaLumberjack` for `CocoaLumberjack`
+- `SentrySwiftLog` for `SwiftLog`
 
 #### Release Process
 
