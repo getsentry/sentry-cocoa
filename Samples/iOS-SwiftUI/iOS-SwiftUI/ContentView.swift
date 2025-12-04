@@ -176,7 +176,8 @@ struct ContentView: View {
                             Button(action: captureTransactionAction) {
                                 Text("Capture Transaction")
                             }
-                            Button("UIApplication sendEvent") {
+                            // This is used by a UI test since UIApplication.shared is nil in unit tests.
+                            Button("UIApplication sendEmptyEvent") {
                               UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
                             }
                             Button(action: showTTD) {
