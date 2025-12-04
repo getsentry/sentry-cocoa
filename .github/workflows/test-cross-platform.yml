@@ -39,7 +39,7 @@ jobs:
     # Run the job only for PRs with related changes or non-PR events.
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_test_cross_platform_for_prs == 'true'
     needs: files-changed
-    runs-on: macos-15
+    runs-on: ["ghcr.io/cirruslabs/macos-runner:sequoia", "runner_group_id:10"]
     # This job can take a while to run, so we set a timeout.
     timeout-minutes: 30
     steps:
@@ -61,7 +61,7 @@ jobs:
 
       - name: Enable Corepack
         working-directory: sentry-react-native
-        run: npm i -g corepack
+        run: npm i -g corepack --force
 
       - uses: actions/setup-node@v6
         with:
@@ -69,6 +69,13 @@ jobs:
           cache: "yarn"
           cache-dependency-path: sentry-react-native/yarn.lock
       - run: ./sentry-cocoa/scripts/ci-select-xcode.sh 16.4
+
+      - name: Ensure required runtime is loaded
+        # Ideally we will not need this, but CI sometimes is failing to load some runtimes, this will ensure they are loaded
+        timeout-minutes: 5 # 5 minutes timeout
+        env:
+          OS_VERSION: "18.4"
+        run: ./sentry-cocoa/scripts/ci-ensure-runtime-loaded.sh --os-version "$OS_VERSION"
 
       - name: Create simulator device for iOS 18.4
         run: ./sentry-cocoa/scripts/ci-create-simulator.sh --platform "iOS" --os-version "18.4" --device-name "iPhone 15 Pro"
@@ -86,6 +93,17 @@ jobs:
       - name: Disable test parallelization
         working-directory: sentry-react-native/packages/core/RNSentryCocoaTester
         run: sed -i '' "s/parallelizable = \"YES\"/parallelizable = \"NO\"/" RNSentryCocoaTester.xcodeproj/xcshareddata/xcschemes/RNSentryCocoaTester.xcscheme
+
+      - name: Change ruby to 3.3.10
+        # We use the same ruby version used by Cirrus to install fastlane and other tools
+        # see: https://github.com/cirruslabs/macos-image-templates/blob/9115ef25530497999073cdf0f5497a4d142e3256/templates/xcode.pkr.hcl#L235
+        working-directory: sentry-react-native/packages/core/RNSentryCocoaTester
+        run: |
+          rbenv global 3.3.10
+
+      - name: Install cocoapods
+        working-directory: sentry-react-native/packages/core/RNSentryCocoaTester
+        run: gem install cocoapods
 
       - name: Install App Pods
         working-directory: sentry-react-native/packages/core/RNSentryCocoaTester
