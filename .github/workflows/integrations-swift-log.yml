@@ -45,6 +45,7 @@ jobs:
           token: ${{ github.token }}
           filters: .github/file-filters.yml
 
+  # TODO: All tests here are validating against the released SPM package, so we need to build the XCFramework first.
   spm-integrations-tests:
     name: "SPM Tests for Swift Log"
     needs: files-changed
