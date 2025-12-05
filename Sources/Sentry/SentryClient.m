@@ -72,11 +72,12 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         return nil;
     }
 
-    NSArray<id<SentryTransport>> *transports =
-        [SentryTransportFactory initTransports:options
-                                  dateProvider:SentryDependencyContainer.sharedInstance.dateProvider
-                             sentryFileManager:fileManager
-                                    rateLimits:SentryDependencyContainer.sharedInstance.rateLimits];
+    NSArray<id<SentryTransport>> *transports = [SentryTransportFactory
+           initTransports:options
+             dateProvider:SentryDependencyContainer.sharedInstance.dateProvider
+        sentryFileManager:fileManager
+               rateLimits:SentryDependencyContainer.sharedInstance.rateLimits
+             reachability:SentryDependencyContainer.sharedInstance.reachability];
 
     SentryTransportAdapter *transportAdapter =
         [[SentryTransportAdapter alloc] initWithTransports:transports options:options];
