@@ -29,9 +29,7 @@ class SentryHttpTransportTests: XCTestCase {
             return dqw
         }()
 
-#if !os(watchOS)
         let reachability = TestSentryReachability()
-#endif // !os(watchOS)
 
         let flushTimeout: TimeInterval = 2.0
 
@@ -127,7 +125,8 @@ class SentryHttpTransportTests: XCTestCase {
 
         func getSut(
             fileManager: SentryFileManager? = nil,
-            dispatchQueueWrapper: SentryDispatchQueueWrapper? = nil
+            dispatchQueueWrapper: SentryDispatchQueueWrapper? = nil,
+            reachability: SentryReachability? = nil
         ) throws -> SentryHttpTransport {
             return SentryHttpTransport(
                 dsn: try XCTUnwrap(options.parsedDsn),
@@ -139,7 +138,8 @@ class SentryHttpTransportTests: XCTestCase {
                 requestBuilder: requestBuilder,
                 rateLimits: rateLimits,
                 envelopeRateLimit: EnvelopeRateLimit(rateLimits: rateLimits),
-                dispatchQueueWrapper: dispatchQueueWrapper ?? self.dispatchQueueWrapper
+                dispatchQueueWrapper: dispatchQueueWrapper ?? self.dispatchQueueWrapper,
+                reachability: reachability ?? self.reachability
             )
         }
     }

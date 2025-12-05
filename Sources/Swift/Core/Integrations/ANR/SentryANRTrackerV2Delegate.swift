@@ -9,7 +9,7 @@ import Foundation
 }
 
 @objcMembers
-@_spi(Private) public class SentryANRStoppedResult: NSObject {
+@_spi(Private) public final class SentryANRStoppedResult: NSObject {
     
     public let minDuration: TimeInterval
     public let maxDuration: TimeInterval

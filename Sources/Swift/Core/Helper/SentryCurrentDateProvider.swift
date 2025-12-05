@@ -13,7 +13,7 @@ import Foundation
 }
 
 @objcMembers
-@_spi(Private) public class SentryDefaultCurrentDateProvider: NSObject, SentryCurrentDateProvider {
+@_spi(Private) public final class SentryDefaultCurrentDateProvider: NSObject, SentryCurrentDateProvider {
     public func date() -> Date {
         return Date()
     }
