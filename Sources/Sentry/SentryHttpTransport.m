@@ -2,7 +2,6 @@
 #import "SentryDataCategory.h"
 #import "SentryDataCategoryMapper.h"
 #import "SentryDiscardReasonMapper.h"
-#import "SentryDsn.h"
 #import "SentryEnvelopeItemHeader.h"
 #import "SentryEnvelopeRateLimit.h"
 #import "SentryEvent.h"

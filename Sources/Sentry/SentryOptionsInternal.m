@@ -1,5 +1,4 @@
 #import "SentryOptionsInternal.h"
-#import "SentryDsn.h"
 #import "SentryInternalDefines.h"
 #import "SentryLevelMapper.h"
 #import "SentrySwift.h"

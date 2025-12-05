@@ -1,7 +1,6 @@
 #import "SentryTraceContext.h"
 #import "SentryBaggage.h"
 #import "SentryDefines.h"
-#import "SentryDsn.h"
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"
 #import "SentrySampleDecision.h"
