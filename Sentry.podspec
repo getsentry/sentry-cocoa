@@ -32,6 +32,7 @@ Pod::Spec.new do |s|
     fi
 
     unzip -o Sentry-Dynamic.xcframework.zip
+    rm -rf Sentry.xcframework
     mv Sentry-Dynamic.xcframework Sentry.xcframework
   CMD
 
