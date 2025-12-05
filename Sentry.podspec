@@ -15,6 +15,10 @@ Pod::Spec.new do |s|
   s.visionos.deployment_target = "1.0"
   s.module_name  = "Sentry"
 
+  s.swift_versions = "5.5"
+  s.pod_target_xcconfig = {
+      'CLANG_CXX_LIBRARY' => 'libc++'
+  }
   s.preserve_paths = 'Sentry.xcframework'
 
   # Manually download the Sentry.xcframework and unzip it because we also need the headers for the HybridSDK subspec
