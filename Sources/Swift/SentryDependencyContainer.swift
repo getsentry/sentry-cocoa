@@ -257,4 +257,4 @@ extension SentryFileManager: SentryFileManagerProtocol { }
 extension SentryDependencyContainer: ScreenshotSourceProvider { }
 #endif
 
-extension SentryDependencyContainer: SessionTrackerProvider { }
+extension SentryDependencyContainer: AutoSessionTrackingProvider { }
