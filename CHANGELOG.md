@@ -9,7 +9,7 @@
 
 ### Fixes
 
-- System Extensions not working when automatic session tracking is enabled. Now System Extensions won't enable tracking (#6962)
+- System Extensions not working when automatic session tracking is enabled. Now System Extensions won't enable automatic session tracking (#6962)
 
 ## 9.0.0
 
