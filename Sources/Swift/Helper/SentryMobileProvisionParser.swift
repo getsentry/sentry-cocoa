@@ -1,13 +1,11 @@
 @objc @_spi(Private)
-public class SentryMobileProvisionParser: NSObject {
-    private var provisionsAllDevices: Bool = false
-    private var embeddedProfilePath: String?
-    
+
+public final class SentryMobileProvisionParser: NSObject {
     // If the profile provisions all devices, it indicates Enterprise distribution
-    @objc 
-    public var mobileProvisionProfileProvisionsAllDevices: Bool {
-        return provisionsAllDevices
-    }
+    @objc public private(set) var provisionsAllDevices: Bool = false
+    private var embeddedProfilePath: String?
+    @objc public private(set) var apsEnvironment: String?
+    @objc public private(set) var getTaskAllow: Bool = false
     
     // This convenience initializer exists so we can use it from ObjC.
     // Functions with Optional parameters (used for testing) are not available to ObjC
@@ -58,6 +56,9 @@ public class SentryMobileProvisionParser: NSObject {
               let dict = obj as? [String: Any] else {
             return
         }
+        let entitlements = (dict["Entitlements"] as? Dictionary<AnyHashable, Any>)
+        getTaskAllow = entitlements?["get-task-allow"] as? Int == 1
+        apsEnvironment = entitlements?["aps-environment"] as? String
         provisionsAllDevices = dict["ProvisionsAllDevices"] as? Bool ?? false
     }
 }
