@@ -7,6 +7,7 @@
 #    import "SentryEvent+Private.h"
 #    import "SentryException.h"
 #    import "SentryHub+Private.h"
+#    import "SentryInternalDefines.h"
 #    import "SentrySDK+Private.h"
 #    import "SentrySwift.h"
 
@@ -26,6 +27,7 @@ saveScreenShot(const char *path)
 @interface SentryScreenshotIntegration () <SentryClientAttachmentProcessor>
 
 @property (nonatomic, strong) SentryOptions *options;
+@property (nonatomic, strong, nullable) SentryMaskingPreviewView *previewView;
 
 @end
 
@@ -104,6 +106,41 @@ saveScreenShot(const char *path)
     }
 
     return result;
+}
+
+- (void)showMaskPreview:(CGFloat)opacity
+{
+    SENTRY_LOG_DEBUG(@"[Screenshot] Showing mask preview with opacity: %f", opacity);
+    if ([SentryDependencyContainer.sharedInstance.crashWrapper isBeingTraced] == NO) {
+        SENTRY_LOG_DEBUG(@"[Screenshot] No tracing is active, not showing mask preview");
+        return;
+    }
+
+    UIWindow *window =
+        [SentryDependencyContainer.sharedInstance.application getWindows].firstObject;
+    if (window == nil) {
+        SENTRY_LOG_WARN(@"[Screenshot] No UIWindow available to display preview");
+        return;
+    }
+
+    if (_previewView == nil) {
+        SentryViewScreenshotOptions *screenshotOptions = self.options.screenshot;
+        _previewView = [[SentryMaskingPreviewView alloc] initWithRedactOptions:screenshotOptions];
+    }
+
+    SentryMaskingPreviewView *previewView = _previewView;
+    if (previewView != nil) {
+        previewView.opacity = opacity;
+        [previewView setFrame:window.bounds];
+        [window addSubview:previewView];
+    }
+}
+
+- (void)hideMaskPreview
+{
+    SENTRY_LOG_DEBUG(@"[Screenshot] Hiding mask preview");
+    [_previewView removeFromSuperview];
+    _previewView = nil;
 }
 
 @end
