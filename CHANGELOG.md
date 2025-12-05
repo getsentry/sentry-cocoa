@@ -9,7 +9,7 @@
 
 ### Fixes
 
-- System Extensions not working when automatic session tracking is enabled. Now System Extensions won't enable automatic session tracking (#6962)
+- Disabled automatic session tracking in system extensions to prevent extension blocking and unwanted dock icon behavior (#6962) (#6962)
 
 ## 9.0.0
 
