@@ -19,19 +19,20 @@ Pod::Spec.new do |s|
       'CLANG_CXX_LIBRARY' => 'libc++'
   }
   s.preserve_paths = 'Sentry.xcframework'
+  s.static_framework = true
 
   # Manually download the Sentry.xcframework and unzip it because we also need the headers for the HybridSDK subspec
   s.prepare_command = <<-CMD
-    curl -L "https://github.com/getsentry/sentry-cocoa/releases/download/9.0.0/Sentry.xcframework.zip" -o Sentry.xcframework.zip
+    curl -L "https://github.com/getsentry/sentry-cocoa/releases/download/9.0.0/Sentry-Dynamic.xcframework.zip" -o Sentry-Dynamic.xcframework.zip
     
-    export SENTRY_CHECKSUM="e54ed4597496468737e917e7826d90a40ee98f4985554651e32ddfcd82050f27"
-    shasum -a 256 Sentry.xcframework.zip | awk '{print $1}' | grep "$SENTRY_CHECKSUM"
+    export SENTRY_CHECKSUM="9e7571fc539a6e6850e3d792a0afc9abe63c75261774da6b99d66f426e0c52f7"
+    shasum -a 256 Sentry-Dynamic.xcframework.zip | awk '{print $1}' | grep "$SENTRY_CHECKSUM"
     if [ $? -ne 0 ]; then
-      echo "Error: Sentry.xcframework.zip checksum does not match"
+      echo "Error: Sentry-Dynamic.xcframework.zip checksum does not match"
       exit 1
     fi
 
-    unzip -o Sentry.xcframework.zip
+    unzip -o Sentry-Dynamic.xcframework.zip
   CMD
 
   s.default_subspecs = ['Core']
