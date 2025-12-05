@@ -164,11 +164,6 @@ git-commit-add:
 	git push
 	git push --tags
 
-release-pod:
-	pod trunk push SentryPrivate.podspec
-	pod trunk push Sentry.podspec
-	pod trunk push SentrySwiftUI.podspec
-
 xcode:
 	make xcode-ci
 	open Sentry.xcworkspace
