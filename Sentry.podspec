@@ -14,7 +14,7 @@ Pod::Spec.new do |s|
   s.watchos.deployment_target = "8.0"
   s.visionos.deployment_target = "1.0"
   s.module_name  = "Sentry"
-
+  s.framework = true
   s.swift_versions = "5.5"
   s.pod_target_xcconfig = {
       'CLANG_CXX_LIBRARY' => 'libc++'
