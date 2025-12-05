@@ -486,6 +486,12 @@ installExceptionHandler(void)
         }
     }
 
+    if (sentrycrashcm_isManagedRuntime()) {
+        SENTRY_ASYNC_SAFE_LOG_DEBUG("Not registering Mach exception port for EXC_BAD_ACCESS "
+                                    "or EXC_MASK_ARITHMETIC in a managed Mono/CoreCLR runtime");
+        mask &= ~(EXC_MASK_BAD_ACCESS | EXC_MASK_ARITHMETIC);
+    }
+
     SENTRY_ASYNC_SAFE_LOG_DEBUG("Installing port as exception handler.");
     kr = task_set_exception_ports(thisTask, mask, g_exceptionPort,
         (int)(EXCEPTION_DEFAULT | MACH_EXCEPTION_CODES), THREAD_STATE_NONE);

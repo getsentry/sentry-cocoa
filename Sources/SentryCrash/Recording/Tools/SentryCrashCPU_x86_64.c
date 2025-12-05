@@ -51,15 +51,33 @@ sentrycrashcpu_framePointer(const SentryCrashMachineContext *const context)
 }
 
 uintptr_t
+sentrycrashcpu_framePointerFromUserContext(const void *const userContext)
+{
+    return ((const ucontext_t *)userContext)->uc_mcontext->__ss.__rbp;
+}
+
+uintptr_t
 sentrycrashcpu_stackPointer(const SentryCrashMachineContext *const context)
 {
     return context->machineContext.__ss.__rsp;
 }
 
 uintptr_t
+sentrycrashcpu_stackPointerFromUserContext(const void *const userContext)
+{
+    return ((const ucontext_t *)userContext)->uc_mcontext->__ss.__rsp;
+}
+
+uintptr_t
 sentrycrashcpu_instructionAddress(const SentryCrashMachineContext *const context)
 {
     return context->machineContext.__ss.__rip;
+}
+
+uintptr_t
+sentrycrashcpu_instructionAddressFromUserContext(const void *const userContext)
+{
+    return ((const ucontext_t *)userContext)->uc_mcontext->__ss.__rip;
 }
 
 uintptr_t
