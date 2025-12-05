@@ -18,7 +18,7 @@ Pod::Spec.new do |s|
   s.pod_target_xcconfig = {
       'CLANG_CXX_LIBRARY' => 'libc++'
   }
-  s.preserve_paths = 'Sentry-Dynamic.xcframework'
+  s.preserve_paths = 'Sentry.xcframework'
 
   # Manually download the Sentry.xcframework and unzip it because we also need the headers for the HybridSDK subspec
   s.prepare_command = <<-CMD
@@ -32,12 +32,13 @@ Pod::Spec.new do |s|
     fi
 
     unzip -o Sentry-Dynamic.xcframework.zip
+    mv Sentry-Dynamic.xcframework Sentry.xcframework
   CMD
 
   s.default_subspecs = ['Core']
 
   s.subspec 'Core' do |sp|
-    sp.vendored_frameworks = 'Sentry-Dynamic.xcframework'
+    sp.vendored_frameworks = 'Sentry.xcframework'
   end
   
   s.subspec 'HybridSDK' do |sp|
