@@ -5,6 +5,14 @@ import XCTest
 class SentryAutoSessionTrackingIntegrationTests: XCTestCase {
 
     func test_AutoSessionTracking_Disabled() {
+        let oldDebug = SentrySDKLog.isDebug
+        let oldLevel = SentrySDKLog.diagnosticLevel
+        let oldOutput = SentrySDKLog.getLogOutput()
+        defer {
+            SentrySDKLogSupport.configure(oldDebug, diagnosticLevel: oldLevel)
+            SentrySDKLog.setOutput(oldOutput)
+        }
+        
         let logOutput = TestLogOutput()
         SentrySDKLog.setLogOutput(logOutput)
         SentrySDKLog.configureLog(true, diagnosticLevel: .debug)
@@ -22,6 +30,14 @@ class SentryAutoSessionTrackingIntegrationTests: XCTestCase {
     }
     
     func test_AutoSessionTracking_DisabledOnSystemExtension() {
+        let oldDebug = SentrySDKLog.isDebug
+        let oldLevel = SentrySDKLog.diagnosticLevel
+        let oldOutput = SentrySDKLog.getLogOutput()
+        defer {
+            SentrySDKLogSupport.configure(oldDebug, diagnosticLevel: oldLevel)
+            SentrySDKLog.setOutput(oldOutput)
+        }
+        
         let logOutput = TestLogOutput()
         SentrySDKLog.setLogOutput(logOutput)
         SentrySDKLog.configureLog(true, diagnosticLevel: .debug)
