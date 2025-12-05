@@ -19,7 +19,6 @@ Pod::Spec.new do |s|
       'CLANG_CXX_LIBRARY' => 'libc++'
   }
   s.preserve_paths = 'Sentry.xcframework'
-  s.static_framework = true
 
   # Manually download the Sentry.xcframework and unzip it because we also need the headers for the HybridSDK subspec
   s.prepare_command = <<-CMD
