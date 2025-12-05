@@ -21,6 +21,7 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
             options.dsn = SentryANRTrackingIntegrationTests.dsn
             options.enableAppHangTracking = true
             options.appHangTimeoutInterval = 4.5
+            options.releaseName = "release-name-test"
 
             debugImageProvider.debugImages = [TestData.debugImage]
         }
@@ -424,6 +425,8 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
             // Ensure we capture the event with an empty scope
             XCTAssertEqual(scope?.tags.count, 0)
             XCTAssertEqual(scope?.breadcrumbs().count, 0)
+            
+            XCTAssertEqual(event?.releaseName, "release-name-test")
         }
     }
 
@@ -472,6 +475,8 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
             // Ensure we capture the event with an empty scope
             XCTAssertEqual(scope?.tags.count, 0)
             XCTAssertEqual(scope?.breadcrumbs().count, 0)
+            
+            XCTAssertEqual(event?.releaseName, "release-name-test")
         }
     }
 
@@ -529,6 +534,8 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
             let breadcrumbs = try XCTUnwrap(event?.breadcrumbs)
             XCTAssertEqual(1, breadcrumbs.count)
             XCTAssertEqual("crumb", breadcrumbs.first?.message)
+            
+            XCTAssertEqual(event?.releaseName, "release-name-test")
         }
     }
 
@@ -566,6 +573,8 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
             let breadcrumbs = try XCTUnwrap(event?.breadcrumbs)
             XCTAssertEqual(1, breadcrumbs.count)
             XCTAssertEqual("crumb", breadcrumbs.first?.message)
+            
+            XCTAssertEqual(event?.releaseName, "release-name-test")
         }
     }
 
@@ -618,6 +627,8 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         XCTAssertEqual("distinct", actualSession.distinctId)
         XCTAssertEqual(fixture.currentDate.date(), actualSession.timestamp)
         XCTAssertEqual("anr_foreground", actualSession.abnormalMechanism)
+        
+        XCTAssertEqual(event.releaseName, "release-name-test")
     }
     
     func testV2_ANRDetected_StopNotCalledAndCrashed_SendsNormalAppHangEvent() throws {

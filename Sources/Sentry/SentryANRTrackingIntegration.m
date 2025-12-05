@@ -180,6 +180,18 @@ static NSString *const SentryANRMechanismDataAppHangDuration = @"app_hang_durati
         [scope applyToEvent:event maxBreadcrumb:options.maxBreadcrumbs];
     }
 
+    // We need to apply the release name now, if the app hang turns into a fatal one
+    // we might en up submitting a wrong version.
+    event.releaseName = options.releaseName;
+
+    if (event.dist == nil && options.dist != nil) {
+        event.dist = options.dist;
+    }
+
+    if (event.environment == nil && options.environment != nil) {
+        event.environment = options.environment;
+    }
+
     [self.fileManager storeAppHangEvent:event];
 #else
     [SentrySDK captureEvent:event];
