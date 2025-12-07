@@ -1,4 +1,4 @@
-import Sentry
+@_spi(Private) import Sentry
 import SentrySwiftUI
 import SwiftUI
 
@@ -198,6 +198,13 @@ struct ContentView: View {
                             }) {
                                 Text("Async Crash")
                             }
+                          
+                          Button("MetricKit") {
+                            let url = Bundle.main.url(forResource: "MXDiagnosticPayload-2", withExtension: "json")!
+                            let data = try! Data(contentsOf: url)
+                            let tree = try! JSONDecoder().decode(SentryMXCallStackTree.self, from: data)
+                            SentryMXManager.test(tree: tree)
+                          }
                             
                             Button(action: oomCrashAction) {
                                 Text("OOM Crash")
