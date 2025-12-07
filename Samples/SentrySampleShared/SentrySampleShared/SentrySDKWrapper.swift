@@ -32,7 +32,7 @@ public struct SentrySDKWrapper {
     }
 
     func configureSentryOptions(options: Options) {
-        options.dsn = dsn
+        options.dsn = "https://00baf901d992a95f8e38837778b392a7@o4509277191143424.ingest.us.sentry.io/4510320463642624"
         if let sampleRate = SentrySDKOverrides.Events.sampleRate.floatValue {
             options.sampleRate = NSNumber(value: sampleRate)
         }
@@ -68,10 +68,10 @@ public struct SentrySDKWrapper {
         }
 
 #if !os(tvOS)
-        if #available(iOS 15.0, *), !SentrySDKOverrides.Other.disableMetricKit.boolValue {
+        //if #available(iOS 15.0, *), !SentrySDKOverrides.Other.disableMetricKit.boolValue {
             options.enableMetricKit = true
-            options.enableMetricKitRawPayload = !SentrySDKOverrides.Other.disableMetricKitRawPayloads.boolValue
-        }
+            options.enableMetricKitRawPayload = true
+        //}
 #endif // !os(tvOS)
 #endif // !os(macOS) && !os(watchOS) && !os(visionOS)
 

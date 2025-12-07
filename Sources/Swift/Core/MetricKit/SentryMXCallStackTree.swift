@@ -55,8 +55,7 @@ import Foundation
                 let count = samplesToCount[sample.frames] ?? 0
                 samplesToCount[sample.frames] = sample.count + count
             }
-            // Need to reverse because the root node of a flamegraph is the first frame in a stacktrace (usually main)
-            let frames = samplesToCount.mostSampled()?.reversed().map { $0.toSentryFrame() } ?? []
+            let frames = samplesToCount.mostSampled()?.map { $0.toSentryFrame() } ?? []
             frames.forEach { $0.inApp = NSNumber(value: inAppLogic?.is(inApp: $0.package) ?? false) }
             thread.stacktrace = SentryStacktrace(frames: frames, registers: [:])
             thread.crashed = NSNumber(value: (callStack.threadAttributed ?? false) && !handled)
