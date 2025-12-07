@@ -8,7 +8,6 @@
 #import "SentryEvent.h"
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"
-#import "SentryNSURLRequestBuilder.h"
 #import "SentrySerialization.h"
 #import "SentrySwift.h"
 
@@ -350,7 +349,7 @@
     NSError *_Nullable requestError = nil;
     NSURLRequest *request = [self.requestBuilder createEnvelopeRequest:rateLimitedEnvelope
                                                                    dsn:self.dsn
-                                                      didFailWithError:&requestError];
+                                                                 error:&requestError];
 
     if (nil == request || nil != requestError) {
         if (nil != requestError) {

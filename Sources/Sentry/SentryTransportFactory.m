@@ -3,7 +3,6 @@
 #import "SentryHttpTransport.h"
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"
-#import "SentryNSURLRequestBuilder.h"
 #import "SentryQueueableRequestManager.h"
 #import "SentrySpotlightTransport.h"
 #import "SentrySwift.h"
