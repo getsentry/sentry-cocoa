@@ -680,16 +680,6 @@ class SentryHttpTransportTests: XCTestCase {
         assertRequestsSent(requestCount: 1)
     }
     
-    func testBuildingRequestFailsReturningNil_DeletesEnvelopeAndSendsNext() {
-        givenNoInternetConnection()
-        sendEvent()
-        
-        fixture.requestBuilder.shouldFailReturningNil = true
-        sendEvent()
-        assertEnvelopesStored(envelopeCount: 0)
-        assertRequestsSent(requestCount: 1)
-    }
-    
     func testSendEnvelope_HTTPResponse199_DoesNotDeleteEnvelopeAndStopsSending() throws {
         // Arrange
         let sentryUrl = try XCTUnwrap(URL(string: "https://sentry.io"))

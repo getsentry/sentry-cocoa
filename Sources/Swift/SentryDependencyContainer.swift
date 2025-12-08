@@ -98,7 +98,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
         return defaultApplicationProvider()
     }
     
-    @objc(getSessionTrackerWithOptions:) public func getSessionTracker(with options: Options) -> SessionTracker {
+    func getSessionTracker(with options: Options) -> SessionTracker {
         return SessionTracker(options: options, applicationProvider: defaultApplicationProvider, dateProvider: dateProvider, notificationCenter: notificationCenterWrapper)
     }
     
@@ -257,4 +257,4 @@ extension SentryFileManager: SentryFileManagerProtocol { }
 extension SentryDependencyContainer: ScreenshotSourceProvider { }
 #endif
 
-extension SentryDependencyContainer: SessionTrackerProvider { }
+extension SentryDependencyContainer: AutoSessionTrackingProvider { }
