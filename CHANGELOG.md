@@ -9,6 +9,7 @@
 
 ### Fixes
 
+- Save app context information (release name, dist, environment) on app hang events before saving to disk to prevent incorrect version information when an app hang turns fatal (#6698)
 - Disabled automatic session tracking in system extensions to prevent extension blocking and unwanted dock icon behavior (#6962) (#6962)
 - Fixes crash when null values are passed to `UIApplication sendAction:to:from:forEvent:` (#6970)
 
