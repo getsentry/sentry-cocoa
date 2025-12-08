@@ -91,6 +91,7 @@ import Foundation
         addUserAttributes(to: &log.attributes, scope: scope)
         addReplayAttributes(to: &log.attributes, scope: scope)
         addScopeAttributes(to: &log.attributes, scope: scope)
+        addDefaultUserIdIfNeeded(to: &log.attributes, scope: scope, options: options)
 
         let propagationContextTraceIdString = scope.propagationContextTraceIdString
         log.traceId = SentryId(uuidString: propagationContextTraceIdString)
@@ -194,6 +195,16 @@ import Foundation
         for (key, value) in scope.attributes where attributes[key] == nil {
             attributes[key] = .init(value: value)
         }
+    }
+    
+    private func addDefaultUserIdIfNeeded(to attributes: inout [String: SentryLog.Attribute], scope: Scope, options: Options) {
+        guard attributes["user.id"] == nil && attributes["user.name"] == nil && attributes["user.email"] == nil else {
+            return
+        }
+        
+        // We only want to set the id if the customer didn't set a user so we at least set something to
+        // identify the user.
+        attributes["user.id"] = .init(value: SentryInstallation.id(withCacheDirectoryPath: options.cacheDirectoryPath))
     }
 
     // Only ever call this from the serial dispatch queue.
