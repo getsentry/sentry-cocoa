@@ -67,7 +67,7 @@ jobs:
             platform: tvOS
     with:
       fastlane_command: ui_tests_${{matrix.target}}
-      xcode_version: 16.4
+      xcode_version: 26.1.1
       build_with_make: true
       macos_version: "sequoia"
       run_on_cirrus_labs: true
@@ -88,7 +88,7 @@ jobs:
       fastlane_command: ui_tests_ios_swiftui
       build_with_make: true
       codecov_test_analytics: true
-      xcode_version: 16.4
+      xcode_version: 26.1.1
       macos_version: "sequoia"
       run_on_cirrus_labs: true
       test-destination-os: "18.6"
@@ -118,25 +118,22 @@ jobs:
           - ios_18
           - ios_26
         include:
-          # iOS 17 - Use iOS 17.5 runtime on macOS-15 with Xcode 16.4
           - job_id: ios_17
             name: iOS 17
             runs_on: sequoia
-            xcode: "16.4"
+            xcode: "26.1.1"
             test_destination_os: "17.5"
             platform: "iOS"
             device: iPhone 15 Pro
 
-          # iOS 18 - Use pre-installed iOS 18.4 runtime on macOS-15
           - job_id: ios_18
             name: iOS 18
             runs_on: sequoia
-            xcode: "16.4"
+            xcode: "26.1.1"
             test_destination_os: "18.4"
             platform: "iOS"
             device: iPhone 16 Pro
 
-          # iOS 26 - Use pre-installed iOS 26.1 runtime on macOS-26
           - job_id: ios_26
             name: iOS 26
             runs_on: tahoe
@@ -170,7 +167,7 @@ jobs:
           - Cirrus Labs
     with:
       fastlane_command: ui_tests_ios_swift6
-      xcode_version: 16.4
+      xcode_version: 26.1.1
       build_with_make: true
       macos_version: "sequoia"
       run_on_cirrus_labs: true
