@@ -365,6 +365,24 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
     }
     
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+    func testV2_ANRDetected_StoresAppHangEventInFile() throws {
+        // Arrange
+        options.releaseName = "my-release-name-test"
+        options.environment = "testing-environment"
+        options.dist = "adhoc"
+        setUpThreadInspector()
+        givenInitializedTracker()
+        
+        // Act
+        Dynamic(sut).anrDetectedWithType(SentryANRType.nonFullyBlocking)
+        
+        // Assert
+        let event = try XCTUnwrap(SentrySDKInternal.currentHub().client()?.fileManager.readAppHangEvent())
+        XCTAssertEqual(event.releaseName, "my-release-name-test")
+        XCTAssertEqual(event.environment, "testing-environment")
+        XCTAssertEqual(event.dist, "adhoc")
+    }
+    
     func testV2_ANRDetected_DoesNotCaptureEvent() throws {
         // Arrange
         setUpThreadInspector()
