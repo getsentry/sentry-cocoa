@@ -426,7 +426,7 @@ final class SentryLogBatcherTests: XCTestCase {
         let attributes = capturedLog.attributes
         
         XCTAssertNotNil(attributes["user.id"])
-        XCTAssertNotNil(attributes["user.id"], SentryInstallation.id(withCacheDirectoryPath: options.cacheDirectoryPath))
+        XCTAssertEqual(attributes["user.id"]?.value as? String, SentryInstallation.id(withCacheDirectoryPath: options.cacheDirectoryPath))
         XCTAssertNil(attributes["user.name"])
         XCTAssertNil(attributes["user.email"])
     }

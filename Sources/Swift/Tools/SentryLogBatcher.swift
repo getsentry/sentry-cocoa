@@ -202,9 +202,11 @@ import Foundation
             return
         }
         
-        // We only want to set the id if the customer didn't set a user so we at least set something to
-        // identify the user.
-        attributes["user.id"] = .init(value: SentryInstallation.id(withCacheDirectoryPath: options.cacheDirectoryPath))
+        if let installationId = SentryInstallation.cachedId(withCacheDirectoryPath: options.cacheDirectoryPath) {
+            // We only want to set the id if the customer didn't set a user so we at least set something to
+            // identify the user.
+            attributes["user.id"] = .init(value: installationId)
+        }
     }
 
     // Only ever call this from the serial dispatch queue.
