@@ -110,20 +110,9 @@
                 #endif
                 do {
                     let headerDictionary = try JSONSerialization.jsonObject(with: headerData) as? [String: Any]
-                    var eventId: SentryId?
-                    if let eventIdAsString = headerDictionary?["event_id"] as? String {
-                        eventId = SentryId(uuidString: eventIdAsString)
-                    }
-                    
-                    var sdkInfo: SentrySdkInfo?
-                    if let sdkDict = headerDictionary?["sdk"] as? [String: Any] {
-                        sdkInfo = SentrySdkInfo(dict: sdkDict)
-                    }
-
-                    var traceContext: TraceContext?
-                    if let traceDict = headerDictionary?["trace"] as? [String: Any] {
-                        traceContext = TraceContext(dict: traceDict)
-                    }
+                    let eventId = (headerDictionary?["event_id"] as? String).map { SentryId(uuidString: $0) }
+                    let sdkInfo = (headerDictionary?["sdk"] as? [String: Any]).map { SentrySdkInfo(dict: $0) }
+                    let traceContext = (headerDictionary?["trace"] as? [String: Any]).map { TraceContext(dict: $0) } ?? .none
                     
                     envelopeHeader = SentryEnvelopeHeader(id: eventId,
                                                       sdkInfo: sdkInfo,
