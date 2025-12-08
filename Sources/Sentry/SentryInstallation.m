@@ -83,6 +83,13 @@ NS_ASSUME_NONNULL_BEGIN
     return [cacheDirectoryPath stringByAppendingPathComponent:@"INSTALLATION"];
 }
 
++ (nullable NSString *)cachedIdWithCacheDirectoryPath:(NSString *)cacheDirectoryPath
+{
+    @synchronized(self) {
+        return self.installationStringsByCacheDirectoryPaths[cacheDirectoryPath];
+    }
+}
+
 @end
 
 NS_ASSUME_NONNULL_END
