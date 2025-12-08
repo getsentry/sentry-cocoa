@@ -11,6 +11,7 @@
 
 - Disabled automatic session tracking in system extensions to prevent extension blocking and unwanted dock icon behavior (#6962) (#6962)
 - Fixes crash when null values are passed to `UIApplication sendAction:to:from:forEvent:` (#6970)
+- Fixes `user.id` not set to installationId if no user is set (#7005)
 
 ## 9.0.0
 
