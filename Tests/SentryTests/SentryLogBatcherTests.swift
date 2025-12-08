@@ -414,8 +414,27 @@ final class SentryLogBatcherTests: XCTestCase {
         XCTAssertNil(attributes["user.email"])
     }
     
+    func testAddLog_NoUserAtributesAreSetIfInstallationIdIsNotCached() throws {
+        // No user set on scope
+        // InstallationId not cached
+        
+        let log = createTestLog(body: "Test log message without user")
+        sut.addLog(log, scope: scope)
+        sut.captureLogs()
+        
+        let capturedLogs = testDelegate.getCapturedLogs()
+        let capturedLog = try XCTUnwrap(capturedLogs.first)
+        let attributes = capturedLog.attributes
+        
+        XCTAssertNil(attributes["user.id"])
+        XCTAssertNil(attributes["user.name"])
+        XCTAssertNil(attributes["user.email"])
+    }
+    
     func testAddLog_OnlySetsUserIdToInstallationIdWhenNoUserIsSet() throws {
         // No user set on scope
+        // Create and cache installationId
+        _ = SentryInstallation.id(withCacheDirectoryPath: options.cacheDirectoryPath)
         
         let log = createTestLog(body: "Test log message without user")
         sut.addLog(log, scope: scope)
