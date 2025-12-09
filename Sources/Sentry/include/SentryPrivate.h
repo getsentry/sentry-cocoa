@@ -1,7 +1,5 @@
 // This import must be first. In SPM the file needs to be in the "include" directory since that is
-// the Public headers directory, but in Cocoapods it must be in HybridPublic because it is used in
-// that public interface too. In order to handle both these cases the file is in HybridPublic but
-// symlinked to include.
+// the Public headers directory.
 #import "SentryProfilingConditionals.h"
 
 // Sentry internal headers that are needed for swift code; you cannot import headers that depend on

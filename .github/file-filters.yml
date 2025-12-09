@@ -150,7 +150,6 @@ run_test_cross_platform_for_prs: &run_test_cross_platform_for_prs
   - "Sentry.podspec"
   - "SentrySwiftUI.podspec"
   - "Package*.swift"
-  - "Tests/HybridSDKTest/HybridPod.podspec"
 
   # Scripts
   - "scripts/ci-select-xcode.sh"
@@ -238,7 +237,6 @@ run_lint_cocoapods_specs_for_prs: &run_lint_cocoapods_specs_for_prs
   # Project files
   - "Sentry.xcodeproj/**"
   - "*.podspec"
-  - "Tests/HybridSDKTest/HybridPod.podspec"
 
   # Build configuration
   - "Makefile"
@@ -426,7 +424,6 @@ run_version_bump_util_for_prs: &run_version_bump_util_for_prs
   - "Sentry.podspec"
   - "SentrySwiftUI.podspec"
   - "Package*.swift"
-  - "Tests/HybridSDKTest/HybridPod.podspec"
 
   # Configuration files
   - "Sources/Configuration/SDK.xcconfig"

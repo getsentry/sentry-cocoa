@@ -87,8 +87,7 @@ var targets: [Target] = [
             dependencies: ["SentryHeaders"],
             path: "Sources/Sentry",
             sources: ["SentryDummyPrivateEmptyClass.m"],
-            publicHeadersPath: "include",
-            cSettings: [.headerSearchPath("include/HybridPublic")]),
+            publicHeadersPath: "include"),
         .target(
             name: "SentrySwift",
             dependencies: ["_SentryPrivate", "SentryHeaders"],
@@ -102,7 +101,6 @@ var targets: [Target] = [
             path: "Sources",
             exclude: ["Sentry/SentryDummyPublicEmptyClass.m", "Sentry/SentryDummyPrivateEmptyClass.m", "Swift", "SentrySwiftUI", "Resources", "Configuration", "SentryCppHelper", "SentryDistribution", "SentryDistributionTests"],
             cSettings: [
-                .headerSearchPath("Sentry/include/HybridPublic"),
                 .headerSearchPath("Sentry"),
                 .headerSearchPath("SentryCrash/Recording"),
                 .headerSearchPath("SentryCrash/Recording/Monitors"),
