@@ -1,6 +1,6 @@
 # Sentry Pulse Integration
 
-A Pulse integration that automatically forwards log entries to Sentry's structured logging system, capturing application logs with full context including metadata, source location, and log levels.
+A [Pulse](https://github.com/kean/Pulse) integration that automatically forwards log entries to Sentry's structured logging system, capturing application logs with full context including metadata, source location, and log levels.
 
 > [!NOTE]
 > This repo is a mirror of [github.com/getsentry/sentry-cocoa](https://github.com/getsentry/sentry-cocoa). The source code lives in `3rd-party-integrations/SentryPulse/`. This allows users to import only what they need via SPM while keeping all integration code in the main repository.
@@ -119,7 +119,7 @@ All Pulse metadata is prefixed with `pulse.` in Sentry attributes (e.g., `pulse.
 
 - [Sentry Cocoa SDK Documentation](https://docs.sentry.io/platforms/apple/)
 - [Sentry Logs Documentation](https://docs.sentry.io/platforms/apple/logs/)
-- [Pulse Documentation](https://github.com/kean/Pulse)
+- [Pulse Repository](https://github.com/kean/Pulse)
 
 ## License
 
