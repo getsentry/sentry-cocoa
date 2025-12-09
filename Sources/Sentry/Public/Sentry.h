@@ -7,7 +7,6 @@ FOUNDATION_EXPORT double SentryVersionNumber;
 //! Project version string for Sentry.
 FOUNDATION_EXPORT const unsigned char SentryVersionString[];
 
-#    import <Sentry/PrivateSentrySDKOnly.h>
 #    import <Sentry/SentryAttachment.h>
 #    import <Sentry/SentryBaggage.h>
 #    import <Sentry/SentryBreadcrumb.h>
@@ -45,4 +44,14 @@ FOUNDATION_EXPORT const unsigned char SentryVersionString[];
 #    import <Sentry/SentryTransactionContext.h>
 #    import <Sentry/SentryUser.h>
 #    import <Sentry/SentryWithoutUIKit.h>
+
+// Headers here are to be used by Hybrid SDKs
+// Be careful when using them
+#    import <Sentry/PrivateSentrySDKOnly.h>
+#    import <Sentry/PrivatesHeader.h>
+#    import <Sentry/SentryAppStartMeasurement.h>
+#    import <Sentry/SentryBreadcrumb+HybridSDK.h>
+#    import <Sentry/SentryFormatter.h>
+#    import <Sentry/SentryOptionsInternal.h>
+#    import <Sentry/SentryProfilingConditionals.h>
 #endif // __has_include(<Sentry/Sentry.h>)
