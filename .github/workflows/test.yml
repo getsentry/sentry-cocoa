@@ -370,7 +370,7 @@ jobs:
             scheme: "Sentry"
 
   swiftlog-integration-unit-tests:
-    name: Integrations/Logs/SentrySwiftLog Unit Tests
+    name: SentrySwiftLog Unit Tests
     if: needs.files-changed.outputs.run_unit_tests_for_prs == 'true'
     needs: files-changed
     runs-on: macos-15
@@ -381,11 +381,11 @@ jobs:
         run: ./scripts/ci-select-xcode.sh 16.4
 
       - name: Setup local sentry-cocoa dependency
-        working-directory: 3rd-party-integrations/SwiftLog
+        working-directory: 3rd-party-integrations/SentrySwiftLog
         run: swift package edit sentry-cocoa --path ../..
 
       - name: Run SwiftLog tests
-        working-directory: 3rd-party-integrations/SwiftLog
+        working-directory: 3rd-party-integrations/SentrySwiftLog
         run: swift test
 
       - name: Archiving Raw Logs
@@ -394,7 +394,7 @@ jobs:
         with:
           name: raw-output-swiftlog-integration
           path: |
-            3rd-party-integrations/SwiftLog/.build/**/*.log
+            3rd-party-integrations/SentrySwiftLog/.build/**/*.log
 
       - name: Run CI Diagnostics
         if: failure()
