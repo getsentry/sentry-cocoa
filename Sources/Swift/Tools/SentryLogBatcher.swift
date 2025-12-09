@@ -26,20 +26,19 @@ import Foundation
     private weak var delegate: SentryLogBatcherDelegate?
     
     /// Convenience initializer with default flush timeout, max log count (100), and buffer size.
+    /// Creates its own serial dispatch queue with DEFAULT QoS for thread-safe access to mutable state.
     /// - Parameters:
     ///   - options: The Sentry configuration options
-    ///   - dispatchQueue: A **serial** dispatch queue wrapper for thread-safe access to mutable state
     ///   - delegate: The delegate to handle captured log batches
     ///
-    /// - Important: The `dispatchQueue` parameter MUST be a serial queue to ensure thread safety.
-    ///              Passing a concurrent queue will result in undefined behavior and potential data races.
-    ///
+    /// - Note: Uses DEFAULT priority (not LOW) because captureLogs() is called synchronously during
+    ///         app lifecycle events (willResignActive, willTerminate) and needs to complete quickly.
     /// - Note: Setting `maxLogCount` to 100. While Replay hard limit is 1000, we keep this lower, as it's hard to lower once released.
     @_spi(Private) public convenience init(
         options: Options,
-        dispatchQueue: SentryDispatchQueueWrapper,
         delegate: SentryLogBatcherDelegate
     ) {
+        let dispatchQueue = SentryDispatchQueueWrapper(name: "io.sentry.log-batcher")
         self.init(
             options: options,
             flushTimeout: 5,
@@ -91,6 +90,7 @@ import Foundation
         addUserAttributes(to: &log.attributes, scope: scope)
         addReplayAttributes(to: &log.attributes, scope: scope)
         addScopeAttributes(to: &log.attributes, scope: scope)
+        addDefaultUserIdIfNeeded(to: &log.attributes, scope: scope, options: options)
 
         let propagationContextTraceIdString = scope.propagationContextTraceIdString
         log.traceId = SentryId(uuidString: propagationContextTraceIdString)
@@ -195,6 +195,18 @@ import Foundation
             attributes[key] = .init(value: value)
         }
     }
+    
+    private func addDefaultUserIdIfNeeded(to attributes: inout [String: SentryLog.Attribute], scope: Scope, options: Options) {
+        guard attributes["user.id"] == nil && attributes["user.name"] == nil && attributes["user.email"] == nil else {
+            return
+        }
+        
+        if let installationId = SentryInstallation.cachedId(withCacheDirectoryPath: options.cacheDirectoryPath) {
+            // We only want to set the id if the customer didn't set a user so we at least set something to
+            // identify the user.
+            attributes["user.id"] = .init(value: installationId)
+        }
+    }
 
     // Only ever call this from the serial dispatch queue.
     private func encodeAndBuffer(log: SentryLog) {
@@ -245,17 +257,7 @@ import Foundation
         }
 
         // Create the payload.
-        
-        var payloadData = Data()
-        payloadData.append(Data("{\"items\":[".utf8))
-        let separator = Data(",".utf8)
-        for (index, encodedLog) in encodedLogs.enumerated() {
-            if index > 0 {
-                payloadData.append(separator)
-            }
-            payloadData.append(encodedLog)
-        }
-        payloadData.append(Data("]}".utf8))
+        let payloadData = Data("{\"items\":[".utf8) + encodedLogs.joined(separator: Data(",".utf8)) + Data("]}".utf8)
         
         // Send the payload.
         

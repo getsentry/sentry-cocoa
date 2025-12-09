@@ -8,7 +8,6 @@
 #import "SentryEvent.h"
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"
-#import "SentryNSURLRequestBuilder.h"
 #import "SentrySerialization.h"
 #import "SentrySwift.h"
 
@@ -25,6 +24,7 @@
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueue;
 @property (nonatomic, strong) dispatch_group_t dispatchGroup;
 @property (nonatomic, strong) id<SentryCurrentDateProvider> dateProvider;
+@property (nonatomic, strong) SentryReachability *reachability;
 
 #if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
 @property (nullable, nonatomic, strong) void (^startFlushCallback)(void);
@@ -63,6 +63,7 @@
                  rateLimits:(id<SentryRateLimits>)rateLimits
           envelopeRateLimit:(SentryEnvelopeRateLimit *)envelopeRateLimit
        dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
+               reachability:(SentryReachability *)reachability
 {
     if (self = [super init]) {
         self.dsn = dsn;
@@ -76,6 +77,7 @@
         self.dispatchQueue = dispatchQueueWrapper;
         self.dateProvider = dateProvider;
         self.dispatchGroup = dispatch_group_create();
+        self.reachability = reachability;
         _isSending = NO;
         _isFlushing = NO;
         self.discardedEvents = [NSMutableDictionary new];
@@ -90,7 +92,7 @@
 
         [self sendAllCachedEnvelopes];
 
-        [SentryDependencyContainer.sharedInstance.reachability addObserver:self];
+        [self.reachability addObserver:self];
     }
     return self;
 }
@@ -107,7 +109,7 @@
 
 - (void)dealloc
 {
-    [SentryDependencyContainer.sharedInstance.reachability removeObserver:self];
+    [self.reachability removeObserver:self];
 }
 
 - (void)sendEnvelope:(SentryEnvelope *)envelope
@@ -347,7 +349,7 @@
     NSError *_Nullable requestError = nil;
     NSURLRequest *request = [self.requestBuilder createEnvelopeRequest:rateLimitedEnvelope
                                                                    dsn:self.dsn
-                                                      didFailWithError:&requestError];
+                                                                 error:&requestError];
 
     if (nil == request || nil != requestError) {
         if (nil != requestError) {

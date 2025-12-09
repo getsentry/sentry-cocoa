@@ -6,7 +6,7 @@ import Foundation
  * @note Both name and version are required.
  * @see https://develop.sentry.dev/sdk/event-payloads/sdk/
  */
-final class SentrySdkInfo {
+struct SentrySdkInfo {
     
     static func global() -> Self {
         if let options = SentrySDKInternal.currentHub().getClient()?.getOptions() {
@@ -56,12 +56,12 @@ final class SentrySdkInfo {
      */
     let settings: SentrySDKSettings
     
-    convenience init(withOptions options: Options?) {
+    init(withOptions options: Options?) {
         let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
         self.init(withEnabledFeatures: features, sendDefaultPii: options?.sendDefaultPii ?? false)
     }
 
-    convenience init(withEnabledFeatures features: [String], sendDefaultPii: Bool) {
+    init(withEnabledFeatures features: [String], sendDefaultPii: Bool) {
         let integrations = SentrySDKInternal.currentHub().trimmedInstalledIntegrationNames()
         var packages = SentryExtraPackages.getPackages()
         let sdkPackage = SentrySdkPackage.global()
@@ -87,7 +87,7 @@ final class SentrySdkInfo {
     }
     
     // swiftlint:disable cyclomatic_complexity
-    convenience init(dict: [AnyHashable: Any]?) {
+    init(dict: [AnyHashable: Any]?) {
         var name = ""
         var version = ""
         var integrations = Set<String>()

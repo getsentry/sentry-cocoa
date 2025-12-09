@@ -69,33 +69,11 @@ extension SentryLog {
     }
 }
 
-// MARK: - Internal Codable Support
-@_spi(Private) extension SentryLog.Attribute: Codable {
+// MARK: - Internal Encodable Support
+@_spi(Private) extension SentryLog.Attribute: Encodable {
     private enum CodingKeys: String, CodingKey {
         case value
         case type
-    }
-    
-    @_spi(Private) public convenience init(from decoder: any Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        
-        let type = try container.decode(String.self, forKey: .type)
-        
-        let value: Any
-        switch type {
-        case "string":
-            value = try container.decode(String.self, forKey: .value)
-        case "boolean":
-            value = try container.decode(Bool.self, forKey: .value)
-        case "integer":
-            value = try container.decode(Int.self, forKey: .value)
-        case "double":
-            value = try container.decode(Double.self, forKey: .value)
-        default:
-            throw DecodingError.dataCorruptedError(forKey: .type, in: container, debugDescription: "Unknown type: \(type)")
-        }
-        
-        self.init(value: value)
     }
     
     @_spi(Private) public func encode(to encoder: any Encoder) throws {

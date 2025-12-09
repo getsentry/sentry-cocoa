@@ -12,6 +12,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (void)cacheIDAsyncWithCacheDirectoryPath:(NSString *)cacheDirectoryPath;
 
++ (nullable NSString *)cachedIdWithCacheDirectoryPath:(NSString *)cacheDirectoryPath;
+
 @end
 
 NS_ASSUME_NONNULL_END

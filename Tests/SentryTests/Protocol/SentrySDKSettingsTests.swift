@@ -3,43 +3,6 @@ import XCTest
 
 class SentrySDKSettingsTests: XCTestCase {
     
-    // MARK: - initWithOptions tests
-    
-    func testInitWithOptions_WhenOptionsNil_ReturnsDefaultSettings() {
-        let settings = SentrySDKSettings(options: nil)
-        
-        XCTAssertNotNil(settings)
-        XCTAssertFalse(settings.autoInferIP)
-    }
-    
-    func testInitWithOptions_WhenSendDefaultPiiTrue_SetsAutoInferIPToTrue() throws {
-        let options = try XCTUnwrap(SentryOptionsInternal.initWithDict([
-            "dsn": "https://username:password@app.getsentry.com/12345",
-            "sendDefaultPii": true
-        ]))
-
-        XCTAssertNotNil(options)
-        
-        let settings = SentrySDKSettings(options: options)
-        
-        XCTAssertNotNil(settings)
-        XCTAssertTrue(settings.autoInferIP)
-    }
-    
-    func testInitWithOptions_WhenSendDefaultPiiFalse_SetsAutoInferIPToFalse() throws {
-        let options = try XCTUnwrap(SentryOptionsInternal.initWithDict([
-            "dsn": "https://username:password@app.getsentry.com/12345",
-            "sendDefaultPii": false
-        ]))
-
-        XCTAssertNotNil(options)
-        
-        let settings = SentrySDKSettings(options: options)
-        
-        XCTAssertNotNil(settings)
-        XCTAssertFalse(settings.autoInferIP)
-    }
-    
     // MARK: - initWithDict tests
     
     func testInitWithDict_WhenInferIpIsAuto_SetsAutoInferIPToTrue() {
@@ -119,8 +82,7 @@ class SentrySDKSettingsTests: XCTestCase {
     }
     
     func testSerialize_WhenAutoInferIPIsSetDirectly_ReturnsCorrectDictionary() {
-        let settings = SentrySDKSettings()
-        settings.autoInferIP = true
+        let settings = SentrySDKSettings(sendDefaultPii: true)
         
         let serialized = settings.serialize()
         
@@ -129,8 +91,7 @@ class SentrySDKSettingsTests: XCTestCase {
     }
     
     func testSerialize_WhenAutoInferIPIsSetToFalseDirectly_ReturnsCorrectDictionary() {
-        let settings = SentrySDKSettings()
-        settings.autoInferIP = false
+        let settings = SentrySDKSettings(sendDefaultPii: false)
         
         let serialized = settings.serialize()
         
@@ -141,17 +102,17 @@ class SentrySDKSettingsTests: XCTestCase {
     // MARK: - autoInferIP property tests
     
     func testAutoInferIPProperty_CanBeSetAndRetrieved() {
-        let settings = SentrySDKSettings()
+        var settings = SentrySDKSettings()
         
         // Test default value
         XCTAssertFalse(settings.autoInferIP)
         
         // Test setting to true
-        settings.autoInferIP = true
+        settings = SentrySDKSettings(sendDefaultPii: true)
         XCTAssertTrue(settings.autoInferIP)
         
         // Test setting to false
-        settings.autoInferIP = false
+        settings = SentrySDKSettings(sendDefaultPii: false)
         XCTAssertFalse(settings.autoInferIP)
     }
     

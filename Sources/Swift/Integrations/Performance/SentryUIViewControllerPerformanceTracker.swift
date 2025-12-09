@@ -7,7 +7,7 @@ import UIKit
     func reportInitialDisplay()
 }
 
-@_spi(Private) @objc public class SentrySwiftUISpanHelper: NSObject {
+@_spi(Private) @objc public final class SentrySwiftUISpanHelper: NSObject {
     @objc public let hasSpan: Bool
     
     @objc public func reportInitialDisplay() {
