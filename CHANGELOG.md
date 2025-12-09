@@ -7,6 +7,10 @@
 - Add attributes data to `SentryScope` (#6830)
 - Add `SentryScope` attributes into log messages (#6834)
 
+### Improvements
+
+- Flush Logs on `WillTerminate` or `WillResignActive` Notifications (#6909)
+
 ### Fixes
 
 - Disabled automatic session tracking in system extensions to prevent extension blocking and unwanted dock icon behavior (#6962) (#6962)
