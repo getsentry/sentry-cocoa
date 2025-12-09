@@ -30,12 +30,12 @@ final class FlushLogsIntegrationTests: XCTestCase {
     
     override func tearDown() {
         super.tearDown()
-        clearTestState()
+        SentrySDKInternal.setCurrentHub(nil)
         sut = nil
     }
     
     func testInstall_Success() {
-        sut = FlushLogsIntegration(with: options, dependencies: dependencies)
+        let sut = FlushLogsIntegration(with: options, dependencies: dependencies)
         XCTAssertNotNil(sut)
     }
     
