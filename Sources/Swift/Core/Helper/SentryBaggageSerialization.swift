@@ -1,7 +1,7 @@
 import Foundation
 
 @objcMembers
-@_spi(Private) public class SentryBaggageSerialization: NSObject {
+@_spi(Private) public final class SentryBaggageSerialization: NSObject {
     
     private static let SENTRY_BAGGAGE_MAX_SIZE = 8_192
     private static let allowedSet = {

@@ -10,6 +10,10 @@
     public override init() {
         internalWrapper = _SentryDispatchQueueWrapperInternal()
     }
+
+    public init(name: UnsafePointer<CChar>) {
+        internalWrapper = _SentryDispatchQueueWrapperInternal(name: name)
+    }
     
     public init(name: UnsafePointer<CChar>, relativePriority: Int32) {
         internalWrapper = _SentryDispatchQueueWrapperInternal(name: name, relativePriority: relativePriority)

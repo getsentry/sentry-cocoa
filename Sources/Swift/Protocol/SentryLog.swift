@@ -83,8 +83,8 @@ public final class SentryLog: NSObject {
     }
 }
 
-// MARK: - Internal Codable Support
-@_spi(Private) extension SentryLog: Codable {
+// MARK: - Internal Encodable Support
+@_spi(Private) extension SentryLog: Encodable {
     private enum CodingKeys: String, CodingKey {
         case timestamp
         case traceId = "trace_id"
@@ -92,27 +92,6 @@ public final class SentryLog: NSObject {
         case body
         case attributes
         case severityNumber = "severity_number"
-    }
-    
-    @_spi(Private) public convenience init(from decoder: any Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        
-        let timestamp = try container.decode(Date.self, forKey: .timestamp)
-        let traceIdString = try container.decode(String.self, forKey: .traceId)
-        let traceId = SentryId(uuidString: traceIdString)
-        let level = try container.decode(Level.self, forKey: .level)
-        let body = try container.decode(String.self, forKey: .body)
-        let attributes = try container.decode([String: Attribute].self, forKey: .attributes)
-        let severityNumber = try container.decodeIfPresent(Int.self, forKey: .severityNumber).map { NSNumber(value: $0) }
-        
-        self.init(
-            timestamp: timestamp,
-            traceId: traceId,
-            level: level,
-            body: body,
-            attributes: attributes,
-            severityNumber: severityNumber
-        )
     }
     
     @_spi(Private) public func encode(to encoder: any Encoder) throws {
