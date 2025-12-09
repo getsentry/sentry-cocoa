@@ -2,7 +2,6 @@
 #import "SentryEnvelopeItemHeader.h"
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"
-#import "SentryNSURLRequestBuilder.h"
 #import "SentrySerialization.h"
 #import "SentrySwift.h"
 #import "SentryTransport.h"
@@ -66,7 +65,7 @@ NS_ASSUME_NONNULL_BEGIN
     NSURLRequest *request =
         [self.requestBuilder createEnvelopeRequest:envelopeToSend
                                                url:SENTRY_UNWRAP_NULLABLE(NSURL, self.apiURL)
-                                  didFailWithError:&requestError];
+                                             error:&requestError];
 
     if (nil == request || nil != requestError) {
         if (nil != requestError) {

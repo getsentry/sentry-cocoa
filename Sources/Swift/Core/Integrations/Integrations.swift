@@ -35,7 +35,10 @@ private struct AnyIntegration {
     @objc public class func install(with options: Options) {
         let dependencies = SentryDependencyContainer.sharedInstance()
 
-        var integrations: [AnyIntegration] = [.init(SwiftAsyncIntegration.self)]
+        var integrations: [AnyIntegration] = [
+            .init(SwiftAsyncIntegration.self),
+            .init(SentryAutoSessionTrackingIntegration.self)
+        ]
         
         #if os(iOS) && !SENTRY_NO_UIKIT
         integrations.append(.init(UserFeedbackIntegration<SentryDependencyContainer>.self))

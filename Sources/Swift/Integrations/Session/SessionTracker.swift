@@ -10,7 +10,7 @@ typealias Application = NSApplication
 
 /// Tracks sessions for release health. For more info see:
 /// https://docs.sentry.io/workflow/releases/health/#session
-@_spi(Private) @objc(SentrySessionTracker) public final class SessionTracker: NSObject {
+final class SessionTracker {
     
     // MARK: Private
 
@@ -39,9 +39,9 @@ typealias Application = NSApplication
         self.notificationCenter.removeObserver(self, name: nil, object: nil)
     }
 
-    // MARK: Public
+    // MARK: Internal
     
-    @objc public func start() {
+    func start() {
         // We don't want to use WillEnterForeground because tvOS doesn't call it when it launches an app
         // the first time. It only calls it when the app was open and the user navigates back to it.
         // DidEnterBackground is called when the app launches a background task so we would need to
@@ -73,7 +73,7 @@ typealias Application = NSApplication
     #endif
     }
     
-    @objc public func stop() {
+    func stop() {
         SentrySDKInternal.currentHub().endSession()
 
         removeObservers()
@@ -83,7 +83,7 @@ typealias Application = NSApplication
         wasStartSessionCalled = false
     }
     
-    @objc public func removeObservers() {
+    func removeObservers() {
 #if ((os(iOS) || os(tvOS) || (swift(>=5.9) && os(visionOS))) && !SENTRY_NO_UIKIT) || os(macOS)
         // Remove the observers with the most specific detail possible, see
         // https://developer.apple.com/documentation/foundation/nsnotificationcenter/1413994-removeobserver
@@ -93,8 +93,6 @@ typealias Application = NSApplication
         notificationCenter.removeObserver(self, name: Application.willTerminateNotification, object: nil)
 #endif
     }
-    
-    // MARK: Internal
     
     let options: Options
     let dateProvider: SentryCurrentDateProvider

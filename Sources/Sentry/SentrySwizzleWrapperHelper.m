@@ -8,7 +8,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentrySwizzleWrapperHelper
 
-+ (void)swizzle:(void (^)(SEL action, id target, id sender, UIEvent *event))callback;
++ (void)swizzle:(void (^)(SEL action, _Nullable id target, _Nullable id sender,
+                    UIEvent *_Nullable event))callback;
 {
 #    pragma clang diagnostic push
 #    pragma clang diagnostic ignored "-Wshadow"

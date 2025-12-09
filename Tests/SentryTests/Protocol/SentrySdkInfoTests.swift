@@ -171,8 +171,7 @@ class SentrySdkInfoTests: XCTestCase {
     
     func testInitWithDict_SdkInfo() {
         let version = "10.3.1"
-        let settings = SentrySDKSettings()
-        settings.autoInferIP = true
+        let settings = SentrySDKSettings(sendDefaultPii: true)
         let expected = SentrySdkInfo(
             name: sdkName,
             version: version,
@@ -292,8 +291,7 @@ class SentrySdkInfoTests: XCTestCase {
 
     func testInitWithDict_WrongTypesInArrays() {
         let version = "10.3.1"
-        let settings = SentrySDKSettings(dict: [:])
-        settings.autoInferIP = false
+        let settings = SentrySDKSettings(sendDefaultPii: false)
         let expected = SentrySdkInfo(
             name: sdkName,
             version: version,

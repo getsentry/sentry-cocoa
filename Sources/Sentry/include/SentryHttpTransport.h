@@ -8,6 +8,7 @@
 @class SentryNSURLRequestBuilder;
 @class SentryDsn;
 @class SentryFileManager;
+@class SentryReachability;
 @protocol SentryCurrentDateProvider;
 @protocol SentryRateLimits;
 
@@ -25,7 +26,8 @@ SENTRY_NO_INIT
              requestBuilder:(SentryNSURLRequestBuilder *)requestBuilder
                  rateLimits:(id<SentryRateLimits>)rateLimits
           envelopeRateLimit:(SentryEnvelopeRateLimit *)envelopeRateLimit
-       dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper;
+       dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
+               reachability:(SentryReachability *)reachability;
 
 @end
 

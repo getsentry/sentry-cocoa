@@ -13,6 +13,7 @@ class SentrySDKInternalTests: XCTestCase {
             let options = Options.noIntegrations()
             options.dsn = SentrySDKInternalTests.dsnAsString
             options.releaseName = "1.0.0"
+            options.enableAutoSessionTracking = false
             return options
         }()
 
@@ -90,12 +91,6 @@ class SentrySDKInternalTests: XCTestCase {
         super.tearDown()
 
         givenSdkWithHubButNoClient()
-
-        if let autoSessionTracking = SentrySDKInternal.currentHub().installedIntegrations().first(where: { it in
-            it is SentryAutoSessionTrackingIntegration
-        }) as? SentryAutoSessionTrackingIntegration {
-            autoSessionTracking.stop()
-        }
 
         clearTestState()
     }

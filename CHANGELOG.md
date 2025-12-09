@@ -11,6 +11,12 @@
 
 - Flush Logs on `WillTerminate` or `WillResignActive` Notifications (#6909)
 
+### Fixes
+
+- Disabled automatic session tracking in system extensions to prevent extension blocking and unwanted dock icon behavior (#6962) (#6962)
+- Fixes crash when null values are passed to `UIApplication sendAction:to:from:forEvent:` (#6970)
+- Fixes `user.id` not set to installationId if no user is set (#7005)
+
 ## 9.0.0
 
 This changelog lists every breaking change. For a high-level overview and upgrade guidance, see the [migration guide](https://docs.sentry.io/platforms/apple/migration/).

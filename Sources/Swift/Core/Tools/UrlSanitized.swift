@@ -1,7 +1,7 @@
 import Foundation
 
 @objcMembers
-@_spi(Private) public class UrlSanitized: NSObject {
+@_spi(Private) public final class UrlSanitized: NSObject {
     static let SENSITIVE_DATA_SUBSTITUTE = "[Filtered]"
     private var components: URLComponents?
 

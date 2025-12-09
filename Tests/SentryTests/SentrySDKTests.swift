@@ -12,6 +12,7 @@ class SentrySDKTests: XCTestCase {
             let options = Options.noIntegrations()
             options.dsn = SentrySDKTests.dsnAsString
             options.releaseName = "1.0.0"
+            options.enableAutoSessionTracking = false
             return options
         }()
 
@@ -89,12 +90,6 @@ class SentrySDKTests: XCTestCase {
         super.tearDown()
 
         givenSdkWithHubButNoClient()
-
-        if let autoSessionTracking = SentrySDKInternal.currentHub().installedIntegrations().first(where: { it in
-            it is SentryAutoSessionTrackingIntegration
-        }) as? SentryAutoSessionTrackingIntegration {
-            autoSessionTracking.stop()
-        }
 
         clearTestState()
     }
@@ -503,7 +498,7 @@ extension SentrySDKTests {
             if let integrationClass = NSClassFromString(integration) {
                 XCTAssertTrue(SentrySDKInternal.currentHub().isIntegrationInstalled(integrationClass), "\(integration) not installed")
             } else {
-                XCTFail("Integration \(integration) not installed.")
+                XCTAssertTrue(SentrySDKInternal.currentHub().hasIntegration(integration), "\(integration) not installed with legacy ObjC API nor Swift")
             }
         }
     }

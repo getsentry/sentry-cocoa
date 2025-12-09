@@ -98,7 +98,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
         return defaultApplicationProvider()
     }
     
-    @objc(getSessionTrackerWithOptions:) public func getSessionTracker(with options: Options) -> SessionTracker {
+    func getSessionTracker(with options: Options) -> SessionTracker {
         return SessionTracker(options: options, applicationProvider: defaultApplicationProvider, dateProvider: dateProvider, notificationCenter: notificationCenterWrapper)
     }
     
@@ -256,6 +256,8 @@ extension SentryFileManager: SentryFileManagerProtocol { }
 #if os(iOS) && !SENTRY_NO_UIKIT
 extension SentryDependencyContainer: ScreenshotSourceProvider { }
 #endif
+
+extension SentryDependencyContainer: AutoSessionTrackingProvider { }
 
 #if ((os(iOS) || os(tvOS) || (swift(>=5.9) && os(visionOS))) && !SENTRY_NO_UIKIT) || os(macOS)
 extension SentryDependencyContainer: NotificationCenterProvider { }

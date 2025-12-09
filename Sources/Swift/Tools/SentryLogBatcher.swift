@@ -91,6 +91,7 @@ import Foundation
         addUserAttributes(to: &log.attributes, scope: scope)
         addReplayAttributes(to: &log.attributes, scope: scope)
         addScopeAttributes(to: &log.attributes, scope: scope)
+        addDefaultUserIdIfNeeded(to: &log.attributes, scope: scope, options: options)
 
         let propagationContextTraceIdString = scope.propagationContextTraceIdString
         log.traceId = SentryId(uuidString: propagationContextTraceIdString)
@@ -195,6 +196,18 @@ import Foundation
             attributes[key] = .init(value: value)
         }
     }
+    
+    private func addDefaultUserIdIfNeeded(to attributes: inout [String: SentryLog.Attribute], scope: Scope, options: Options) {
+        guard attributes["user.id"] == nil && attributes["user.name"] == nil && attributes["user.email"] == nil else {
+            return
+        }
+        
+        if let installationId = SentryInstallation.cachedId(withCacheDirectoryPath: options.cacheDirectoryPath) {
+            // We only want to set the id if the customer didn't set a user so we at least set something to
+            // identify the user.
+            attributes["user.id"] = .init(value: installationId)
+        }
+    }
 
     // Only ever call this from the serial dispatch queue.
     private func encodeAndBuffer(log: SentryLog) {
@@ -245,17 +258,7 @@ import Foundation
         }
 
         // Create the payload.
-        
-        var payloadData = Data()
-        payloadData.append(Data("{\"items\":[".utf8))
-        let separator = Data(",".utf8)
-        for (index, encodedLog) in encodedLogs.enumerated() {
-            if index > 0 {
-                payloadData.append(separator)
-            }
-            payloadData.append(encodedLog)
-        }
-        payloadData.append(Data("]}".utf8))
+        let payloadData = Data("{\"items\":[".utf8) + encodedLogs.joined(separator: Data(",".utf8)) + Data("]}".utf8)
         
         // Send the payload.
         
