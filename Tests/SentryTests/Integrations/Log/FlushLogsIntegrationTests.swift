@@ -5,12 +5,16 @@ import XCTest
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 final class FlushLogsIntegrationTests: XCTestCase {
     
+    private struct TestDependencies: NotificationCenterProvider {
+        let notificationCenterWrapper: SentryNSNotificationCenterWrapper
+    }
+    
     private var options: Options!
     private var client: TestClient!
     private var hub: SentryHubInternal!
-    private var dependencies: SentryDependencyContainer!
+    private var dependencies: TestDependencies!
     private var notificationCenterWrapper: TestNSNotificationCenterWrapper!
-    private var sut: FlushLogsIntegration<SentryDependencyContainer>?
+    private var sut: FlushLogsIntegration<TestDependencies>?
     
     override func setUpWithError() throws {
         try super.setUpWithError()
@@ -21,9 +25,9 @@ final class FlushLogsIntegrationTests: XCTestCase {
         
         client = TestClient(options: options)!
         hub = TestHub(client: client, andScope: nil)
-        dependencies = SentryDependencyContainer.sharedInstance()
+        
         notificationCenterWrapper = TestNSNotificationCenterWrapper()
-        dependencies.notificationCenterWrapper = notificationCenterWrapper
+        dependencies = TestDependencies(notificationCenterWrapper: notificationCenterWrapper)
         
         SentrySDKInternal.setCurrentHub(hub)
     }
