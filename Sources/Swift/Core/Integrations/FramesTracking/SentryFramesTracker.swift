@@ -4,7 +4,7 @@
 #if (os(iOS) || os(tvOS) || (swift(>=5.9) && os(visionOS))) && !SENTRY_NO_UIKIT
 import UIKit
 private typealias CrossPlatformApplication = UIApplication
-#elseif os(macOS)
+#elseif (os(macOS) || targetEnvironment(macCatalyst)) && !SENTRY_NO_UIKIT
 import AppKit
 private typealias CrossPlatformApplication = NSApplication
 #endif

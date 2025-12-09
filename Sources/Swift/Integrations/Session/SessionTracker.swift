@@ -3,7 +3,7 @@
 #if (os(iOS) || os(tvOS) || (swift(>=5.9) && os(visionOS))) && !SENTRY_NO_UIKIT
 import UIKit
 typealias Application = UIApplication
-#elseif os(macOS)
+#elseif (os(macOS) || targetEnvironment(macCatalyst)) && !SENTRY_NO_UIKIT
 import AppKit
 typealias Application = NSApplication
 #endif
@@ -50,7 +50,7 @@ final class SessionTracker {
         // WillTerminate is called no matter if started from the background or launched into the
         // foreground.
 
-    #if ((os(iOS) || os(tvOS) || (swift(>=5.9) && os(visionOS))) && !SENTRY_NO_UIKIT) || os(macOS)
+    #if ((os(iOS) || os(tvOS) || (swift(>=5.9) && os(visionOS))) && !SENTRY_NO_UIKIT) || ((os(macOS) || targetEnvironment(macCatalyst)) && !SENTRY_NO_UIKIT)
         
         // Call before subscribing to the notifications to avoid that didBecomeActive gets called before
         // ending the cached session.
@@ -84,7 +84,7 @@ final class SessionTracker {
     }
     
     func removeObservers() {
-#if ((os(iOS) || os(tvOS) || (swift(>=5.9) && os(visionOS))) && !SENTRY_NO_UIKIT) || os(macOS)
+#if ((os(iOS) || os(tvOS) || (swift(>=5.9) && os(visionOS))) && !SENTRY_NO_UIKIT) || ((os(macOS) || targetEnvironment(macCatalyst)) && !SENTRY_NO_UIKIT)
         // Remove the observers with the most specific detail possible, see
         // https://developer.apple.com/documentation/foundation/nsnotificationcenter/1413994-removeobserver
         notificationCenter.removeObserver(self, name: Application.didBecomeActiveNotification, object: nil)
