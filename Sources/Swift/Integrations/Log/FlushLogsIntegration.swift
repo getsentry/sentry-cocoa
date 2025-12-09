@@ -62,6 +62,7 @@ final class FlushLogsIntegration<Dependencies: NotificationCenterProvider>: NSOb
     
     @objc private func willResignActive() {
         guard let client = SentrySDKInternal.currentHub().getClient() else {
+            SentrySDKLog.debug("No need to flush logs on `willResignActive` because there is no client.")
             return
         }
         client.captureLogs()
@@ -69,6 +70,7 @@ final class FlushLogsIntegration<Dependencies: NotificationCenterProvider>: NSOb
     
     @objc private func willTerminate() {
         guard let client = SentrySDKInternal.currentHub().getClient() else {
+            SentrySDKLog.debug("No need to flush logs on `willTerminate` because there is no client.")
             return
         }
         client.captureLogs()
