@@ -1,5 +1,16 @@
 @_implementationOnly import _SentryPrivate
 
+protocol SentryDispatchQueueWrapperProtocol {
+    func dispatchSync(_ block: @escaping () -> Void)
+    func dispatchAsync(_ block: @escaping () -> Void)
+    func dispatch(after interval: TimeInterval, block: @escaping () -> Void)
+    func dispatchAsyncOnMainQueueIfNotMainThread(block: @escaping () -> Void)
+    func dispatchSyncOnMainQueue(block: @escaping () -> Void)
+    func dispatchSyncOnMainQueue(_ block: @escaping () -> Void, timeout: Double)
+    func dispatchOnce(_ predicate: UnsafeMutablePointer<CLong>, block: @escaping () -> Void)
+    func dispatch(after interval: TimeInterval, workItem: DispatchWorkItem)
+}
+
 // This is the Swift version of `_SentryDispatchQueueWrapperInternal`
 // It exists to allow the implementation of `_SentryDispatchQueueWrapperInternal`
 // to be accessible to Swift without making that header file public
@@ -76,3 +87,5 @@
         return true
     }
 }
+
+extension SentryDispatchQueueWrapper: SentryDispatchQueueWrapperProtocol {}

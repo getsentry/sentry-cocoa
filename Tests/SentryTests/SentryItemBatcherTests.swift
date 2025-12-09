@@ -63,7 +63,7 @@ final class SentryItemBatcherTests: XCTestCase {
         sut.captureItems()
         
         // -- Assert --
-        XCTAssertEqual(testDelegate.captureItemsDataInvocations.count, 1)
+        XCTAssertEqual(testDelegate.captureItemsBatcherDataInvocations.count, 1)
         
         let capturedItems = testDelegate.getCapturedItems()
         XCTAssertEqual(capturedItems.count, 2)
@@ -83,7 +83,7 @@ final class SentryItemBatcherTests: XCTestCase {
         sut.addItem(largeItem, scope: scope)
 
         // -- Assert --
-        XCTAssertEqual(testDelegate.captureItemsDataInvocations.count, 1)
+        XCTAssertEqual(testDelegate.captureItemsBatcherDataInvocations.count, 1)
         
         // Verify the large item is sent
         let capturedItems = testDelegate.getCapturedItems()
@@ -103,13 +103,13 @@ final class SentryItemBatcherTests: XCTestCase {
             sut.addItem(item, scope: scope)
         }
         
-        XCTAssertEqual(testDelegate.captureItemsDataInvocations.count, 0)
+        XCTAssertEqual(testDelegate.captureItemsBatcherDataInvocations.count, 0)
         
         let item = createTestItem(body: "Item \(10)") // Reached 10 max items limit
         sut.addItem(item, scope: scope)
         
         // -- Assert --
-        XCTAssertEqual(testDelegate.captureItemsDataInvocations.count, 1)
+        XCTAssertEqual(testDelegate.captureItemsBatcherDataInvocations.count, 1)
         
         let capturedItems = testDelegate.getCapturedItems()
         XCTAssertEqual(capturedItems.count, 10, "Should have captured exactly \(10) items")
@@ -129,7 +129,7 @@ final class SentryItemBatcherTests: XCTestCase {
         // -- Assert --
         XCTAssertEqual(testDispatchQueue.dispatchAfterWorkItemInvocations.count, 1)
         XCTAssertEqual(testDispatchQueue.dispatchAfterWorkItemInvocations.first?.interval, 0.1)
-        XCTAssertEqual(testDelegate.captureItemsDataInvocations.count, 1)
+        XCTAssertEqual(testDelegate.captureItemsBatcherDataInvocations.count, 1)
         
         let capturedItems = testDelegate.getCapturedItems()
         XCTAssertEqual(capturedItems.count, 1)
@@ -149,7 +149,7 @@ final class SentryItemBatcherTests: XCTestCase {
         // -- Assert --
         XCTAssertEqual(testDispatchQueue.dispatchAfterWorkItemInvocations.count, 1)
         XCTAssertEqual(testDispatchQueue.dispatchAfterWorkItemInvocations.first?.interval, 0.1)
-        XCTAssertEqual(testDelegate.captureItemsDataInvocations.count, 1)
+        XCTAssertEqual(testDelegate.captureItemsBatcherDataInvocations.count, 1)
         
         let capturedItems = testDelegate.getCapturedItems()
         XCTAssertEqual(capturedItems.count, 2)
@@ -169,7 +169,7 @@ final class SentryItemBatcherTests: XCTestCase {
         sut.captureItems()
         
         // -- Assert --
-        XCTAssertEqual(testDelegate.captureItemsDataInvocations.count, 1)
+        XCTAssertEqual(testDelegate.captureItemsBatcherDataInvocations.count, 1)
         
         let capturedItems = testDelegate.getCapturedItems()
         XCTAssertEqual(capturedItems.count, 2)
@@ -187,7 +187,7 @@ final class SentryItemBatcherTests: XCTestCase {
         timerWorkItem.perform()
         
         // -- Assert --
-        XCTAssertEqual(testDelegate.captureItemsDataInvocations.count, 1, "Manual flush should work and timer should be cancelled")
+        XCTAssertEqual(testDelegate.captureItemsBatcherDataInvocations.count, 1, "Manual flush should work and timer should be cancelled")
     }
     
     func testManualCaptureItems_WithEmptyBuffer_DoesNothing() {
@@ -198,7 +198,7 @@ final class SentryItemBatcherTests: XCTestCase {
         sut.captureItems()
         
         // -- Assert --
-        XCTAssertEqual(testDelegate.captureItemsDataInvocations.count, 0)
+        XCTAssertEqual(testDelegate.captureItemsBatcherDataInvocations.count, 0)
     }
     
     // MARK: - Edge Cases Tests
@@ -217,7 +217,7 @@ final class SentryItemBatcherTests: XCTestCase {
         timerWorkItem.perform()
         
         // -- Assert --
-        XCTAssertEqual(testDelegate.captureItemsDataInvocations.count, 1)
+        XCTAssertEqual(testDelegate.captureItemsBatcherDataInvocations.count, 1)
     }
     
     func testAddItemAfterFlush_StartsNewBatch() throws {
@@ -233,7 +233,7 @@ final class SentryItemBatcherTests: XCTestCase {
         sut.captureItems()
         
         // -- Assert --
-        XCTAssertEqual(testDelegate.captureItemsDataInvocations.count, 2)
+        XCTAssertEqual(testDelegate.captureItemsBatcherDataInvocations.count, 2)
         
         let allCapturedItems = testDelegate.getCapturedItems()
         XCTAssertEqual(allCapturedItems.count, 2)
@@ -303,7 +303,7 @@ final class SentryItemBatcherTests: XCTestCase {
         
         // -- Act --
         sutWithRealQueue.addItem(item, scope: scope)
-        XCTAssertEqual(testDelegate.captureItemsDataInvocations.count, 0)
+        XCTAssertEqual(testDelegate.captureItemsBatcherDataInvocations.count, 0)
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
             expectation.fulfill()
@@ -311,7 +311,7 @@ final class SentryItemBatcherTests: XCTestCase {
         wait(for: [expectation], timeout: 1.0)
         
         // -- Assert --
-        XCTAssertEqual(testDelegate.captureItemsDataInvocations.count, 1, "Timeout should trigger flush")
+        XCTAssertEqual(testDelegate.captureItemsBatcherDataInvocations.count, 1, "Timeout should trigger flush")
         
         let capturedItems = self.testDelegate.getCapturedItems()
         XCTAssertEqual(capturedItems.count, 1, "Should contain exactly one item")
@@ -711,7 +711,7 @@ final class SentryItemBatcherTests: XCTestCase {
         
         // -- Assert --
         XCTAssertTrue(beforeSendCalled)
-        XCTAssertEqual(testDelegate.captureItemsDataInvocations.count, 0)
+        XCTAssertEqual(testDelegate.captureItemsBatcherDataInvocations.count, 0)
     }
     
     func testBeforeSendItem_NotSet_ItemCapturedUnmodified() throws {
@@ -813,17 +813,17 @@ struct TestItem: SentryItemBatcherItem {
 // MARK: - Test Helpers
 
 final class TestItemBatcherDelegate: NSObject, SentryItemBatcherDelegate {
-    var captureItemsDataInvocations = Invocations<(data: Data, count: Int)>()
+    var captureItemsBatcherDataInvocations = Invocations<(data: Data, count: Int)>()
     
-    func capture(itemsData: Data, count: Int) {
-        captureItemsDataInvocations.record((itemsData, count))
+    func capture(itemBatcherData: Data, count: Int) {
+        captureItemsBatcherDataInvocations.record((itemBatcherData, count))
     }
     
     // Helper to get captured items
     func getCapturedItems() -> [TestItem] {
         var allItems: [TestItem] = []
         
-        for invocation in captureItemsDataInvocations.invocations {
+        for invocation in captureItemsBatcherDataInvocations.invocations {
             if let jsonObject = try? JSONSerialization.jsonObject(with: invocation.data) as? [String: Any],
                let items = jsonObject["items"] as? [[String: Any]] {
                 for item in items {

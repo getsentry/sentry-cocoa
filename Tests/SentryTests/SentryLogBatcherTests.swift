@@ -297,6 +297,7 @@ final class SentryLogBatcherTests: XCTestCase {
     
     func testAddLog_AddsDefaultAttributes() throws {
         // -- Arrange --
+        options.environment = "test-environment"
         options.releaseName = "1.0.0"
         let sut = getSut()
 

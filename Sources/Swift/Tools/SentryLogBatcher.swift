@@ -100,11 +100,11 @@ extension SentryLog: SentryItemBatcherItem {}
 }
 
 extension SentryLogBatcher: SentryItemBatcherDelegate {
-    func capture(itemsData: Data, count: Int) {
+    func capture(itemBatcherData: Data, count: Int) {
         guard let delegate else {
             SentrySDKLog.debug("SentryLogBatcher: Delegate not set, not capturing logs data.")
             return
         }
-        delegate.capture(logsData: itemsData as NSData, count: NSNumber(value: count))
+        delegate.capture(logsData: itemBatcherData as NSData, count: NSNumber(value: count))
     }
 }

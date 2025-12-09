@@ -2,7 +2,7 @@
 import Foundation
 
 protocol SentryItemBatcherDelegate: AnyObject {
-    func capture(itemsData: Data, count: Int)
+    func capture(itemBatcherData: Data, count: Int)
 }
 
 protocol SentryItemBatcherItem: Encodable {
@@ -11,7 +11,7 @@ protocol SentryItemBatcherItem: Encodable {
     var body: String { get }
 }
 
-class SentryItemBatcher<Item: SentryItemBatcherItem> {
+final class SentryItemBatcher<Item: SentryItemBatcherItem> {
     struct Config {
         let beforeSendItem: ((Item) -> Item?)?
         let environment: String
@@ -25,7 +25,7 @@ class SentryItemBatcher<Item: SentryItemBatcherItem> {
     }
 
     private let config: Config
-    private let dispatchQueue: SentryDispatchQueueWrapper
+    private let dispatchQueue: SentryDispatchQueueWrapperProtocol
 
     // Every items data is added sepratley. They are flushed together in an envelope.
     private var encodedItems: [Data] = []
@@ -49,7 +49,7 @@ class SentryItemBatcher<Item: SentryItemBatcherItem> {
     /// - Note: Items are flushed when either `maxItemCount` or `maxBufferSizeBytes` limit is reached.
     @_spi(Private) public init(
         config: Config,
-        dispatchQueue: SentryDispatchQueueWrapper
+        dispatchQueue: SentryDispatchQueueWrapperProtocol
     ) {
         self.config = config
         self.dispatchQueue = dispatchQueue
@@ -236,6 +236,6 @@ class SentryItemBatcher<Item: SentryItemBatcherItem> {
             SentrySDKLog.debug("Delegate not set, not capturing items data.")
             return
         }
-        delegate.capture(itemsData: payloadData, count: encodedItems.count)
+        delegate.capture(itemBatcherData: payloadData, count: encodedItems.count)
     }
 }
