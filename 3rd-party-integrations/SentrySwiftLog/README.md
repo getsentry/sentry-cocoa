@@ -2,6 +2,9 @@
 
 A `swift-log` handler that forwards log entries to Sentry's structured logging system, automatically capturing application logs with full context including metadata, source location, and log levels.
 
+> [!NOTE]
+> This repo is a mirror of [github.com/getsentry/sentry-cocoa](https://github.com/getsentry/sentry-cocoa). The source code lives in `3rd-party-integrations/SentrySwiftLog/`. This allows users to import only what they need via SPM while keeping all integration code in the main repository.
+
 ## Installation
 
 ### Swift Package Manager
