@@ -4,6 +4,9 @@
 @objc
 @objcMembers
 public final class SentryLog: NSObject {
+    /// Alias for `SentryAttribute` to maintain backward compatibility after `SentryLog.Attribute` was renamed to `SentryAttribute`.
+    public typealias Attribute = SentryAttribute
+
     /// The timestamp when the log event occurred
     public var timestamp: Date
     /// The trace ID to associate this log with distributed tracing. This will be set to a valid non-empty value during processing.
