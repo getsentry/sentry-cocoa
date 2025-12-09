@@ -7,6 +7,7 @@ FOUNDATION_EXPORT double SentryVersionNumber;
 //! Project version string for Sentry.
 FOUNDATION_EXPORT const unsigned char SentryVersionString[];
 
+#    import <Sentry/PrivateSentrySDKOnly.h>
 #    import <Sentry/SentryAttachment.h>
 #    import <Sentry/SentryBaggage.h>
 #    import <Sentry/SentryBreadcrumb.h>
