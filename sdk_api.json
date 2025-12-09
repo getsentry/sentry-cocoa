@@ -455,6 +455,16 @@
         ]
       },
       {
+        "kind": "Import",
+        "name": "Sentry.SentrySessionReplayHybridSDK",
+        "printedName": "Sentry.SentrySessionReplayHybridSDK",
+        "declKind": "Import",
+        "moduleName": "Sentry",
+        "declAttributes": [
+          "Exported"
+        ]
+      },
+      {
         "kind": "TypeDecl",
         "name": "Attachment",
         "printedName": "Attachment",
@@ -25714,6 +25724,286 @@
             "name": "NSObjectProtocol",
             "printedName": "NSObjectProtocol",
             "usr": "c:objc(pl)NSObject"
+          }
+        ]
+      },
+      {
+        "kind": "TypeDecl",
+        "name": "SentrySessionReplayHybridSDK",
+        "printedName": "SentrySessionReplayHybridSDK",
+        "children": [
+          {
+            "kind": "Function",
+            "name": "createBreadcrumbwithTimestamp",
+            "printedName": "createBreadcrumbwithTimestamp(_:category:message:level:data:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "SentryRRWebEventProtocol",
+                "printedName": "any Sentry.SentryRRWebEventProtocol",
+                "usr": "c:@M@Sentry@objc(pl)SentryRRWebEvent"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Date",
+                "printedName": "Foundation.Date",
+                "usr": "s:10Foundation4DateV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Swift.String?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "SentryLevel",
+                "printedName": "Sentry.SentryLevel",
+                "usr": "c:@E@SentryLevel"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "[Swift.String : Any]?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Dictionary",
+                    "printedName": "[Swift.String : Any]",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "ProtocolComposition",
+                        "printedName": "Any"
+                      }
+                    ],
+                    "usr": "s:SD"
+                  }
+                ],
+                "usr": "s:Sq"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "c:objc(cs)SentrySessionReplayHybridSDK(cm)createBreadcrumbwithTimestamp:category:message:level:data:",
+            "moduleName": "Sentry",
+            "static": true,
+            "isOpen": true,
+            "objc_name": "createBreadcrumbwithTimestamp:category:message:level:data:",
+            "declAttributes": [
+              "DiscardableResult",
+              "ObjC",
+              "Dynamic"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "createNetworkBreadcrumb",
+            "printedName": "createNetworkBreadcrumb(withTimestamp:endTimestamp:operation:description:data:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "SentryRRWebEventProtocol",
+                "printedName": "any Sentry.SentryRRWebEventProtocol",
+                "usr": "c:@M@Sentry@objc(pl)SentryRRWebEvent"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Date",
+                "printedName": "Foundation.Date",
+                "usr": "s:10Foundation4DateV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Date",
+                "printedName": "Foundation.Date",
+                "usr": "s:10Foundation4DateV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Dictionary",
+                "printedName": "[Swift.String : Any]",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "ProtocolComposition",
+                    "printedName": "Any"
+                  }
+                ],
+                "usr": "s:SD"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "c:objc(cs)SentrySessionReplayHybridSDK(cm)createNetworkBreadcrumbWithTimestamp:endTimestamp:operation:description:data:",
+            "moduleName": "Sentry",
+            "static": true,
+            "isOpen": true,
+            "objc_name": "createNetworkBreadcrumbWithTimestamp:endTimestamp:operation:description:data:",
+            "declAttributes": [
+              "DiscardableResult",
+              "ObjC",
+              "Dynamic"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "createDefaultBreadcrumbConverter",
+            "printedName": "createDefaultBreadcrumbConverter()",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "SentryReplayBreadcrumbConverter",
+                "printedName": "any Sentry.SentryReplayBreadcrumbConverter",
+                "usr": "c:@M@Sentry@objc(pl)SentryReplayBreadcrumbConverter"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "c:objc(cs)SentrySessionReplayHybridSDK(cm)createDefaultBreadcrumbConverter",
+            "moduleName": "Sentry",
+            "static": true,
+            "isOpen": true,
+            "objc_name": "createDefaultBreadcrumbConverter",
+            "declAttributes": [
+              "DiscardableResult",
+              "ObjC",
+              "Dynamic"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init()",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "SentrySessionReplayHybridSDK",
+                "printedName": "Sentry.SentrySessionReplayHybridSDK",
+                "usr": "c:objc(cs)SentrySessionReplayHybridSDK"
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "c:objc(cs)NSObject(im)init",
+            "moduleName": "Sentry",
+            "overriding": true,
+            "implicit": true,
+            "objc_name": "init",
+            "declAttributes": [
+              "Override",
+              "ObjC",
+              "Dynamic"
+            ],
+            "init_kind": "Designated"
+          }
+        ],
+        "declKind": "Class",
+        "usr": "c:objc(cs)SentrySessionReplayHybridSDK",
+        "moduleName": "Sentry",
+        "isOpen": true,
+        "objc_name": "SentrySessionReplayHybridSDK",
+        "declAttributes": [
+          "ObjC",
+          "Dynamic"
+        ],
+        "superclassUsr": "c:objc(cs)NSObject",
+        "inheritsConvenienceInitializers": true,
+        "superclassNames": [
+          "ObjectiveC.NSObject"
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "NSObjectProtocol",
+            "printedName": "NSObjectProtocol",
+            "usr": "c:objc(pl)NSObject"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Equatable",
+            "printedName": "Equatable",
+            "usr": "s:SQ",
+            "mangledName": "$sSQ"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Hashable",
+            "printedName": "Hashable",
+            "usr": "s:SH",
+            "mangledName": "$sSH"
+          },
+          {
+            "kind": "Conformance",
+            "name": "CVarArg",
+            "printedName": "CVarArg",
+            "usr": "s:s7CVarArgP",
+            "mangledName": "$ss7CVarArgP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "CustomStringConvertible",
+            "printedName": "CustomStringConvertible",
+            "usr": "s:s23CustomStringConvertibleP",
+            "mangledName": "$ss23CustomStringConvertibleP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "CustomDebugStringConvertible",
+            "printedName": "CustomDebugStringConvertible",
+            "usr": "s:s28CustomDebugStringConvertibleP",
+            "mangledName": "$ss28CustomDebugStringConvertibleP"
           }
         ]
       },
