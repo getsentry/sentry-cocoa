@@ -2398,6 +2398,9 @@ class SentryClientTests: XCTestCase {
         let testDelegate = TestLogBatcherDelegateForClient()
         let testBatcher = TestLogBatcherForClient(
             options: sut.options,
+            flushTimeout: 5,
+            maxLogCount: 100,
+            maxBufferSizeBytes: 1_024 * 1_024,
             dispatchQueue: TestSentryDispatchQueueWrapper(),
             delegate: testDelegate
         )
@@ -2426,6 +2429,9 @@ class SentryClientTests: XCTestCase {
         let testDelegate = TestLogBatcherDelegateForClient()
         let testBatcher = TestLogBatcherForClient(
             options: sut.options,
+            flushTimeout: 5,
+            maxLogCount: 100,
+            maxBufferSizeBytes: 1_024 * 1_024,
             dispatchQueue: TestSentryDispatchQueueWrapper(),
             delegate: testDelegate
         )
@@ -2444,6 +2450,9 @@ class SentryClientTests: XCTestCase {
         let testDelegate = TestLogBatcherDelegateForClient()
         let testBatcher = TestLogBatcherForClient(
             options: sut.options,
+            flushTimeout: 5,
+            maxLogCount: 100,
+            maxBufferSizeBytes: 1_024 * 1_024,
             dispatchQueue: TestSentryDispatchQueueWrapper(),
             delegate: testDelegate
         )

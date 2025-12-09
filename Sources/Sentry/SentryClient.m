@@ -116,17 +116,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         self.timezone = timezone;
         self.attachmentProcessors = [[NSMutableArray alloc] init];
 
-        // Uses DEFAULT priority (not LOW) because captureLogs() is called synchronously during
-        // app lifecycle events (willResignActive, willTerminate) and needs to complete quickly.
-        dispatch_queue_attr_t attributes
-            = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, QOS_CLASS_DEFAULT, 0);
-        SentryDispatchQueueWrapper *logBatcherQueue =
-            [[SentryDispatchQueueWrapper alloc] initWithName:"io.sentry.log-batcher"
-                                                  attributes:attributes];
-
-        self.logBatcher = [[SentryLogBatcher alloc] initWithOptions:options
-                                                      dispatchQueue:logBatcherQueue
-                                                           delegate:self];
+        self.logBatcher = [[SentryLogBatcher alloc] initWithOptions:options delegate:self];
 
         // The SDK stores the installationID in a file. The first call requires file IO. To avoid
         // executing this on the main thread, we cache the installationID async here.
