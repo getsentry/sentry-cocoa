@@ -52,7 +52,7 @@
 #import "SentryAutoBreadcrumbTrackingIntegration+Test.h"
 #import "SentryAutoBreadcrumbTrackingIntegration.h"
 #import "SentryBooleanSerialization.h"
-#import "SentryBreadcrumb+Private.h"
+#import "SentryBreadcrumb+HybridSDK.h"
 #import "SentryBreadcrumbDelegate.h"
 #import "SentryBreadcrumbTracker.h"
 #import "SentryBuildAppStartSpans.h"

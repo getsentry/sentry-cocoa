@@ -1,6 +1,6 @@
 #import <XCTest/XCTest.h>
 
-#import "SentryBreadcrumb+Private.h"
+#import "SentryBreadcrumb+HybridSDK.h"
 #import "SentryBreadcrumb.h"
 #import "SentryDateUtils.h"
 #import "SentryEvent.h"

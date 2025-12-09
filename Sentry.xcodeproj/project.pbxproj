@@ -703,7 +703,7 @@
 		925189AC2EDDA6A300557BD1 /* FlushLogsIntegration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 925189AA2EDDA6A300557BD1 /* FlushLogsIntegration.swift */; };
 		9264E1EB2E2E385E00B077CF /* SentryLogMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9264E1EA2E2E385B00B077CF /* SentryLogMessage.swift */; };
 		9264E1ED2E2E397C00B077CF /* SentryLogMessageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9264E1EC2E2E397400B077CF /* SentryLogMessageTests.swift */; };
-		92672BB629C9A2A9006B021C /* SentryBreadcrumb+Private.h in Headers */ = {isa = PBXBuildFile; fileRef = 92672BB529C9A2A9006B021C /* SentryBreadcrumb+Private.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		92672BB629C9A2A9006B021C /* SentryBreadcrumb+HybridSDK.h in Headers */ = {isa = PBXBuildFile; fileRef = 92672BB529C9A2A9006B021C /* SentryBreadcrumb+HybridSDK.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		927A5CC42DD7626B00B82404 /* SentryEnvelopeItemHeaderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 927A5CC32DD7626400B82404 /* SentryEnvelopeItemHeaderTests.swift */; };
 		927D21FB2ED5DE8A00916D31 /* FlushLogsIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 927D21FA2ED5DE7F00916D31 /* FlushLogsIntegrationTests.swift */; };
 		928207C42E251B8F009285A4 /* SentryScope+PrivateSwift.h in Headers */ = {isa = PBXBuildFile; fileRef = 928207C32E251B8F009285A4 /* SentryScope+PrivateSwift.h */; };
@@ -2063,7 +2063,7 @@
 		925189AA2EDDA6A300557BD1 /* FlushLogsIntegration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlushLogsIntegration.swift; sourceTree = "<group>"; };
 		9264E1EA2E2E385B00B077CF /* SentryLogMessage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryLogMessage.swift; sourceTree = "<group>"; };
 		9264E1EC2E2E397400B077CF /* SentryLogMessageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryLogMessageTests.swift; sourceTree = "<group>"; };
-		92672BB529C9A2A9006B021C /* SentryBreadcrumb+Private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "SentryBreadcrumb+Private.h"; path = "include/SentryBreadcrumb+Private.h"; sourceTree = "<group>"; };
+		92672BB529C9A2A9006B021C /* SentryBreadcrumb+HybridSDK.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "SentryBreadcrumb+HybridSDK.h"; path = "include/SentryBreadcrumb+HybridSDK.h"; sourceTree = "<group>"; };
 		927A5CC32DD7626400B82404 /* SentryEnvelopeItemHeaderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryEnvelopeItemHeaderTests.swift; sourceTree = "<group>"; };
 		927D21FA2ED5DE7F00916D31 /* FlushLogsIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlushLogsIntegrationTests.swift; sourceTree = "<group>"; };
 		928207C32E251B8F009285A4 /* SentryScope+PrivateSwift.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "SentryScope+PrivateSwift.h"; path = "include/SentryScope+PrivateSwift.h"; sourceTree = "<group>"; };
@@ -2782,7 +2782,7 @@
 				63B818F81EC34639002FDF4C /* SentryDebugMeta.m */,
 				6360850B1ED2AFE100E8599E /* SentryBreadcrumb.h */,
 				6360850C1ED2AFE100E8599E /* SentryBreadcrumb.m */,
-				92672BB529C9A2A9006B021C /* SentryBreadcrumb+Private.h */,
+				92672BB529C9A2A9006B021C /* SentryBreadcrumb+HybridSDK.h */,
 				7B4E24FB251C97B400060D68 /* SentrySessionInternal.h */,
 				15E0A8F12411A45A00F044E3 /* SentrySessionInternal.m */,
 				7BFC169A2524995700FF6266 /* SentryMessage.h */,
@@ -5096,7 +5096,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				92E5F3D62CDBB3BF00B7AD98 /* SentrySampling.h in Headers */,
-				92672BB629C9A2A9006B021C /* SentryBreadcrumb+Private.h in Headers */,
+				92672BB629C9A2A9006B021C /* SentryBreadcrumb+HybridSDK.h in Headers */,
 				03BCC38E27E2A377003232C7 /* SentryProfilingConditionals.h in Headers */,
 				848A451A2BBF8D33006AAAEC /* SentryContinuousProfiler.h in Headers */,
 				8E133FA625E72EB400ABD0BF /* SentrySamplingContext.h in Headers */,

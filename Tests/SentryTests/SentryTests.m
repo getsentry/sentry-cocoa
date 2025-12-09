@@ -10,7 +10,7 @@
 #import "SentryMeta.h"
 #import "SentryOptionsInternal.h"
 #import "SentrySDK+Private.h"
-#import <SentryBreadcrumb+Private.h>
+#import <SentryBreadcrumb+HybridSDK.h>
 #import <XCTest/XCTest.h>
 @import Sentry;
 
