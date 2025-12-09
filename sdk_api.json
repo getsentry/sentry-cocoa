@@ -396,16 +396,6 @@
       },
       {
         "kind": "Import",
-        "name": "Sentry.SentryProfilingConditionals",
-        "printedName": "Sentry.SentryProfilingConditionals",
-        "declKind": "Import",
-        "moduleName": "Sentry",
-        "declAttributes": [
-          "Exported"
-        ]
-      },
-      {
-        "kind": "Import",
         "name": "Sentry.PrivatesHeader",
         "printedName": "Sentry.PrivatesHeader",
         "declKind": "Import",
@@ -448,6 +438,16 @@
         "kind": "Import",
         "name": "Sentry.SentryOptionsInternal",
         "printedName": "Sentry.SentryOptionsInternal",
+        "declKind": "Import",
+        "moduleName": "Sentry",
+        "declAttributes": [
+          "Exported"
+        ]
+      },
+      {
+        "kind": "Import",
+        "name": "Sentry.SentryProfilingConditionals",
+        "printedName": "Sentry.SentryProfilingConditionals",
         "declKind": "Import",
         "moduleName": "Sentry",
         "declAttributes": [
