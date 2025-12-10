@@ -5,7 +5,6 @@ on:
       - main
       - v8.x
       - release/**
-      - philprime/test
 
   pull_request:
     types: [opened, synchronize, reopened, labeled]
