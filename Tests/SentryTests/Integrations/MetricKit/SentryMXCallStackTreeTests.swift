@@ -45,8 +45,8 @@ final class SentryMXCallStackTreeTests: XCTestCase {
         let frames = try XCTUnwrap(threads[0].stacktrace).frames
         XCTAssertEqual(3, frames.count)
         XCTAssertEqual("0x0000000000000000", frames[0].instructionAddress)
-        XCTAssertEqual("0x0000000000000001", frames[0].instructionAddress)
-        XCTAssertEqual("0x0000000000000003", frames[0].instructionAddress)
+        XCTAssertEqual("0x0000000000000001", frames[1].instructionAddress)
+        XCTAssertEqual("0x0000000000000003", frames[2].instructionAddress)
     }
     
     func testDecodeCallStackTree_UnknownFieldsPayload() throws {

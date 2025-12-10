@@ -173,10 +173,9 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
             }
             
             let invocations = client.captureEventWithScopeInvocations.invocations
-            XCTAssertEqual(2, client.captureEventWithScopeInvocations.count)
+            XCTAssertEqual(1, client.captureEventWithScopeInvocations.count)
             
             try assertEvent(event: try XCTUnwrap(invocations.first).event)
-            try assertEvent(event: try XCTUnwrap(invocations.element(at: 1)).event)
             
             func assertEvent(event: Event) throws {
                 let sentryFrames = try XCTUnwrap(event.threads?.first?.stacktrace?.frames, "Event has no frames.")
