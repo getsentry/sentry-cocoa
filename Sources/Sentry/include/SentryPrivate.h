@@ -26,7 +26,6 @@
 #import "SentryFormatterSwift.h"
 #import "SentryHub+Private.h"
 #import "SentryIntegrationProtocol.h"
-#import "SentryInternalDefines.h"
 #import "SentryNSDataUtils.h"
 #import "SentrySDK+Private.h"
 #import "SentryTime.h"

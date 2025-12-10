@@ -50,7 +50,7 @@ import Foundation
             let thread = SentryThread(threadId: 0)
             let samples = callStack.callStackRootFrames.flatMap { $0.toSamples() }
             // Group by stacktrace in case there are multiple samples with the same trace
-            var samplesToCount = [[Sample.Frame]: Int]()
+            var samplesToCount = [[Sample.MXFrame]: Int]()
             for sample in samples {
                 let count = samplesToCount[sample.frames] ?? 0
                 samplesToCount[sample.frames] = sample.count + count
@@ -68,16 +68,16 @@ import Foundation
 // It is less compact than Apple's MetricKit format, but contains the same data and is easier to work with
 struct Sample {
     let count: Int
-    let frames: [Frame]
+    let frames: [MXFrame]
     
-    struct Frame: Hashable {
+    struct MXFrame: Hashable {
         let binaryUUID: UUID
         let offsetIntoBinaryTextSegment: Int
         let binaryName: String?
         let address: UInt64
         
-        func toSentryFrame() -> Sentry.Frame {
-            let frame = Sentry.Frame()
+        func toSentryFrame() -> Frame {
+            let frame = Frame()
             frame.package = binaryName
             frame.instructionAddress = sentry_formatHexAddressUInt64Swift(address)
             frame.imageAddress = sentry_formatHexAddressUInt64Swift(address - UInt64(offsetIntoBinaryTextSegment))
@@ -107,7 +107,7 @@ struct SentryMXFrame: Decodable {
     
     func toDebugMeta() -> [DebugMeta] {
         let result = DebugMeta()
-        result.type = SentryDebugImageType
+        result.type = "macho"
         result.debugID = binaryUUID.uuidString
         result.codeFile = binaryName
         result.imageAddress = sentry_formatHexAddressUInt64Swift(address - UInt64(offsetIntoBinaryTextSegment))
@@ -115,7 +115,7 @@ struct SentryMXFrame: Decodable {
     }
     
     func toSamples() -> [Sample] {
-        let selfFrame = Sample.Frame(binaryUUID: binaryUUID, offsetIntoBinaryTextSegment: offsetIntoBinaryTextSegment, binaryName: binaryName, address: address)
+        let selfFrame = Sample.MXFrame(binaryUUID: binaryUUID, offsetIntoBinaryTextSegment: offsetIntoBinaryTextSegment, binaryName: binaryName, address: address)
         let subframes = subFrames ?? []
 
         let childCount = subframes.map { $0.sampleCount ?? 0 }.reduce(0, +)
