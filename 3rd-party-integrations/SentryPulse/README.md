@@ -9,27 +9,12 @@ A [Pulse](https://github.com/kean/Pulse) integration that automatically forwards
 
 ### Swift Package Manager
 
-Add the following dependencies to your `Package.swift`:
+Add the following dependencies to your `Package.swift` or Xcode package manager:
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/getsentry/sentry-cocoa", from: "9.0.0"),
-    .package(url: "https://github.com/getsentry/sentry-cocoa-pulse", from: "1.0.0"),
-    .package(url: "https://github.com/kean/Pulse", from: "5.0.0")
+    .package(url: "https://github.com/getsentry/sentry-cocoa-pulse", from: "1.0.0")
 ]
-```
-
-Then add the required products to your target dependencies:
-
-```swift
-.target(
-    name: "YourTarget",
-    dependencies: [
-        .product(name: "Sentry", package: "sentry-cocoa"),
-        .product(name: "SentryPulse", package: "sentry-cocoa-pulse"),
-        .product(name: "Pulse", package: "Pulse")
-    ]
-)
 ```
 
 ## Quick Start
