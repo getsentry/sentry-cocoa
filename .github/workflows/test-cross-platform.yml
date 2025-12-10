@@ -127,11 +127,83 @@ jobs:
         if: failure()
         run: ./sentry-cocoa/scripts/ci-diagnostics.sh
 
+  test-flutter:
+    name: Flutter Installation
+    # Run the job only for PRs with related changes or non-PR events.
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_test_cross_platform_for_prs == 'true'
+    needs: files-changed
+    runs-on: ["ghcr.io/cirruslabs/macos-runner:sequoia", "runner_group_id:10"]
+    # This job can take a while to run, so we set a timeout.
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          repository: getsentry/sentry-cocoa
+          path: sentry-cocoa
+
+      - name: Initialize tools
+        run: make init-ci-build
+        working-directory: sentry-cocoa
+
+      - name: Clone Sentry Flutter Repository
+        uses: actions/checkout@v6
+        with:
+          repository: getsentry/sentry-dart
+          path: sentry-dart
+          ref: main
+
+      - name: Ensure required runtime is loaded
+        # Ideally we will not need this, but CI sometimes is failing to load some runtimes, this will ensure they are loaded
+        timeout-minutes: 5 # 5 minutes timeout
+        env:
+          OS_VERSION: "18.4"
+        run: ./sentry-cocoa/scripts/ci-ensure-runtime-loaded.sh --os-version "$OS_VERSION"
+
+      - name: Remove Sentry/HybridSDK Dependency from sentry-dart/packages/flutter/ios/sentry_flutter.podspec
+        run: sed -i '' "s/s.dependency 'Sentry\/HybridSDK', '[0-9]*\.[0-9]*\.[0-9]*'/s.dependency 'Sentry\/HybridSDK'/" sentry-dart/packages/flutter/ios/sentry_flutter.podspec
+
+      - name: Add Sentry/HybridSDK Dependency to RNSentryCocoaTester/Podfile
+        run: sed -i '' -e "s/use_modular_headers\!/use_modular_headers\!\n  pod 'Sentry\/HybridSDK', :path => '..\/..\/..\/sentry-cocoa'/" sentry-dart/min_version_test/ios/Podfile
+
+      # Steps cloned from https://github.com/getsentry/sentry-dart/blob/main/.github/workflows/min_version_test.yml
+      - uses: subosito/flutter-action@v2.21.0
+        with:
+          flutter-version: "3.24.0"
+
+      - name: Get dependencies
+        working-directory: sentry-dart/min_version_test
+        run: flutter pub get
+
+      - name: Change ruby to 3.3.10
+        # We use the same ruby version used by Cirrus to install fastlane and other tools
+        # see: https://github.com/cirruslabs/macos-image-templates/blob/9115ef25530497999073cdf0f5497a4d142e3256/templates/xcode.pkr.hcl#L235
+        working-directory: sentry-dart/min_version_test
+        run: |
+          rbenv global 3.3.10
+
+      - name: Install cocoapods
+        working-directory: sentry-dart/min_version_test/ios
+        run: gem install cocoapods
+
+      - name: Install App Pods
+        working-directory: sentry-dart/min_version_test/ios
+        run: pod install
+
+      - name: Build iOS
+        working-directory: sentry-dart/min_version_test
+        run: |
+          flutter build ios --no-codesign
+
+      - name: Run CI Diagnostics
+        if: failure()
+        run: ./sentry-cocoa/scripts/ci-diagnostics.sh
+
   test_cross_platform-required-check:
     needs:
       [
         files-changed,
         test-react-native,
+        test-flutter,
       ]
     name: Test Cross Platform
     # This is necessary since a failed/skipped dependent job would cause this job to be skipped
