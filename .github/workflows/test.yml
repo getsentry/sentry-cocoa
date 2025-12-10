@@ -48,7 +48,7 @@ jobs:
 
   build-test-server:
     name: Build test server
-    if: needs.files-changed.outputs.run_unit_tests_for_prs == 'true'
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_unit_tests_for_prs == 'true'
     needs: files-changed
     runs-on: macos-15
     steps:
@@ -236,7 +236,7 @@ jobs:
     with:
       name: ${{matrix.name}}
       runs-on: ${{ matrix.runs-on }}
-      should_skip: ${{needs.files-changed.outputs.run_unit_tests_for_prs != 'true'}}
+      should_skip: ${{github.event_name == 'pull_request' && needs.files-changed.outputs.run_unit_tests_for_prs != 'true'}}
       xcode: ${{matrix.xcode}}
       platform: ${{matrix.platform}}
       test-destination-os: ${{matrix.test-destination-os || 'latest'}}
