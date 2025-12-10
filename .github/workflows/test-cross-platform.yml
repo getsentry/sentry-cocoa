@@ -162,7 +162,7 @@ jobs:
         run: ./sentry-cocoa/scripts/ci-ensure-runtime-loaded.sh --os-version "$OS_VERSION" --platform "$PLATFORM"
 
       - name: Remove Sentry/HybridSDK Dependency from sentry-dart/packages/flutter/ios/sentry_flutter.podspec
-        run: sed -i '' "s/s.dependency 'Sentry\/HybridSDK', '[0-9]*\.[0-9]*\.[0-9]*'/s.dependency 'Sentry\/HybridSDK'/" sentry-dart/packages/flutter/ios/sentry_flutter.podspec
+        run: sed -i '' -e "s/s.dependency 'Sentry\/HybridSDK', '[0-9]+\.[0-9]+\.[0-9]+(-alpha\.[0-9]+)?'/s.dependency 'Sentry\/HybridSDK'/" sentry-dart/packages/flutter/ios/sentry_flutter.podspec
 
       - name: Add Sentry/HybridSDK Dependency to RNSentryCocoaTester/Podfile
         run: sed -i '' -e "s/use_modular_headers\!/use_modular_headers\!\n  pod 'Sentry\/HybridSDK', :path => '..\/..\/..\/sentry-cocoa'/" sentry-dart/min_version_test/ios/Podfile
