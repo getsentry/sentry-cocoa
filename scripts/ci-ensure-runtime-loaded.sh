@@ -47,7 +47,7 @@ if [ -z "$PLATFORM" ]; then
     usage
 fi
 
-echo "Ensuring runtime $OS_VERSION is loaded"
+echo "Ensuring runtime $PLATFORM ($OS_VERSION) is loaded"
 
 # Check if the runtime is loaded
 if xcrun simctl list runtimes -v | grep -qE "$PLATFORM $OS_VERSION" && ! xcrun simctl list runtimes -v | grep -qE "$PLATFORM $OS_VERSION.*unavailable" ; then
@@ -55,7 +55,7 @@ if xcrun simctl list runtimes -v | grep -qE "$PLATFORM $OS_VERSION" && ! xcrun s
     exit 0
 fi
 
-echo "Runtime $OS_VERSION is not loaded, will try to load it"
+echo "Runtime $PLATFORM ($OS_VERSION) is not loaded, will try to load it"
 
 # Unmount simulator volumes once before checking
 for dir in /Library/Developer/CoreSimulator/Volumes/*; do
@@ -78,5 +78,5 @@ while [ $count -lt $MAX_ATTEMPTS ]; do
     sleep 5
 done
 
-echo "Runtime $OS_VERSION is not loaded after $count attempts"
+echo "Runtime $PLATFORM ($OS_VERSION) is not loaded after $count attempts"
 exit 1
