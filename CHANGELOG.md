@@ -6,6 +6,10 @@
 > The class `SentryDsn` has been converted from Objective-C to Swift. While the public API remains the same, you might have to remove imports of the `SentryDsn.h` from your Objective-C code. 
 We acknowledge that this is a breaking change introduced in a minor release, but it should have been part of the major release 9.0.0 already before - apologies for any inconveniences caused.
 
+## Breaking Changes
+
+- Refactored type `SentryDsn` from Objective-C to Swift, removing the `SentryDsn.h` from the public header files.
+
 ### Features
 
 - Add attributes data to `SentryScope` (#6830)
