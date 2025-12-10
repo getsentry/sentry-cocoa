@@ -151,7 +151,7 @@ jobs:
         with:
           repository: getsentry/sentry-dart
           path: sentry-dart
-          ref: main
+          ref: itay/cocoa-v9-bump
 
       - name: Ensure required runtime is loaded
         # Ideally we will not need this, but CI sometimes is failing to load some runtimes, this will ensure they are loaded
