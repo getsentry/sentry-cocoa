@@ -369,6 +369,7 @@ jobs:
             device: "Apple TV"
             scheme: "Sentry"
 
+  # This will be replaced once #6945 is merged.
   swiftlog-integration-unit-tests:
     name: SentrySwiftLog Unit Tests
     if: needs.files-changed.outputs.run_unit_tests_for_prs == 'true'
