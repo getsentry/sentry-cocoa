@@ -15,13 +15,13 @@ final class SentryMXCallStackTreeTests: XCTestCase {
         let contents = try contentsOfResource("MetricKitCallstacks/per-thread")
         let callStackTree = try SentryMXCallStackTree.from(data: contents)
         
-        XCTAssertEqual(false, callStackTree.callStackPerThread)
+        XCTAssertEqual(true, callStackTree.callStackPerThread)
         XCTAssertEqual(2, callStackTree.callStacks.count)
         try assertCallStackTree(callStackTree)
         
         let debugMeta = callStackTree.toDebugMeta()
         let image = try XCTUnwrap(debugMeta.first { $0.debugID == "9E8D8DE6-EEC1-3199-8720-9ED68EE3F967" })
-        XCTAssertEqual(414_732, image.imageAddress)
+        XCTAssertEqual(sentry_formatHexAddressUInt64Swift(4_312_798_220 - 414_732), image.imageAddress)
     }
     
     func testDecodeCallStackTree_NotPerThread() throws {
@@ -35,6 +35,18 @@ final class SentryMXCallStackTreeTests: XCTestCase {
         XCTAssertEqual(7, firstSamples.count)
         XCTAssertEqual(1, firstSamples[0].count)
         XCTAssertEqual(2, secondSamples.count)
+    }
+    
+    func testMostCommonStack() throws {
+        let contents = try contentsOfResource("MetricKitCallstacks/per-thread-flamegraph")
+        let callStackTree = try SentryMXCallStackTree.from(data: contents)
+        let threads = callStackTree.sentryMXBacktrace(inAppLogic: nil, handled: false)
+        XCTAssertEqual(1, threads.count)
+        let frames = try XCTUnwrap(threads[0].stacktrace).frames
+        XCTAssertEqual(3, frames.count)
+        XCTAssertEqual("0x0000000000000000", frames[0].instructionAddress)
+        XCTAssertEqual("0x0000000000000001", frames[0].instructionAddress)
+        XCTAssertEqual("0x0000000000000003", frames[0].instructionAddress)
     }
     
     func testDecodeCallStackTree_UnknownFieldsPayload() throws {
@@ -69,30 +81,6 @@ final class SentryMXCallStackTreeTests: XCTestCase {
             XCTAssertEqual(1, mxFrame.toSamples().count)
             XCTAssertEqual(1, mxFrame.toSamples()[0].count)
         }
-        
-//        let firstFrame = try XCTUnwrap(callStack.callStackRootFrames.first)
-//        XCTAssertEqual(UUID(uuidString: "9E8D8DE6-EEC1-3199-8720-9ED68EE3F967"), firstFrame.binaryUUID)
-//        XCTAssertEqual(414_732, firstFrame.offsetIntoBinaryTextSegment)
-//        XCTAssertEqual(1, firstFrame.sampleCount)
-//        XCTAssertEqual("Sentry", firstFrame.binaryName)
-//        XCTAssertEqual(4_312_798_220, firstFrame.address)
-//        XCTAssertEqual(try XCTUnwrap(subFrameCount.first), firstFrame.subFrames?.count)
-//        
-//        let secondFrame = try XCTUnwrap(try XCTUnwrap(callStack.callStackRootFrames.element(at: 1)))
-//        XCTAssertEqual(UUID(uuidString: "CA12CAFA-91BA-3E1C-BE9C-E34DB96FE7DF"), secondFrame.binaryUUID)
-//        XCTAssertEqual(46_380, secondFrame.offsetIntoBinaryTextSegment)
-//        XCTAssertEqual(1, secondFrame.sampleCount)
-//        XCTAssertEqual("iOS-Swift", secondFrame.binaryName)
-//        XCTAssertEqual(4_310_988_076, secondFrame.address)
-//        XCTAssertEqual(try XCTUnwrap(subFrameCount.element(at: 1)), secondFrame.subFrames?.count)
-//        
-//        let thirdFrame = try XCTUnwrap(try XCTUnwrap(callStack.callStackRootFrames.element(at: 2)))
-//        XCTAssertEqual(UUID(uuidString: "CA12CAFA-91BA-3E1C-BE9C-E34DB96FE7DF"), thirdFrame.binaryUUID)
-//        XCTAssertEqual(46_370, thirdFrame.offsetIntoBinaryTextSegment)
-//        XCTAssertEqual(1, thirdFrame.sampleCount)
-//        XCTAssertEqual("iOS-Swift", thirdFrame.binaryName)
-//        XCTAssertEqual(4_310_988_026, thirdFrame.address)
-//        XCTAssertEqual(try XCTUnwrap(subFrameCount.element(at: 2)), thirdFrame.subFrames?.count ?? 0)
     }
 }
 

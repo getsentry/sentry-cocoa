@@ -15,7 +15,7 @@ import MetricKit
     
     func didReceiveCpuExceptionDiagnostic(_ diagnostic: MXCPUExceptionDiagnostic, callStackTree: SentryMXCallStackTree, timeStampBegin: Date, timeStampEnd: Date)
     
-    func didReceiveHangDiagnosticCallStackTree(_ callStackTree: SentryMXCallStackTree, timeStampBegin: Date, timeStampEnd: Date)
+    func didReceiveHangDiagnostic(_ diagnostic: MXHangDiagnostic, callStackTree: SentryMXCallStackTree, timeStampBegin: Date, timeStampEnd: Date)
 }
 
 @available(macOS 12.0, *)
@@ -24,10 +24,10 @@ import MetricKit
 @objcMembers @_spi(Private) public final class SentryMXManager: NSObject, MXMetricManagerSubscriber {
     
     static var shared: SentryMXManager?
-    static public func test(tree: SentryMXCallStackTree) {
-        let start = Date.now.addingTimeInterval(-60)
-        shared?.delegate?.didReceiveHangDiagnosticCallStackTree(tree, timeStampBegin: start, timeStampEnd: Date.now)
-    }
+//    static public func test(tree: SentryMXCallStackTree) {
+//        let start = Date.now.addingTimeInterval(-60)
+//        shared?.delegate?.didReceiveHangDiagnosticCallStackTree(tree, timeStampBegin: start, timeStampEnd: Date.now)
+//    }
     
     let disableCrashDiagnostics: Bool
     
@@ -85,7 +85,7 @@ import MetricKit
             
             payload.hangDiagnostics?.forEach { diagnostic in
                 actOn(callStackTree: diagnostic.callStackTree) { callStackTree in
-                    delegate?.didReceiveHangDiagnosticCallStackTree(callStackTree, timeStampBegin: payload.timeStampBegin, timeStampEnd: payload.timeStampEnd)
+                    delegate?.didReceiveHangDiagnostic(diagnostic, callStackTree: callStackTree, timeStampBegin: payload.timeStampBegin, timeStampEnd: payload.timeStampEnd)
                 }
             }
         }

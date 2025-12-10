@@ -177,12 +177,13 @@ API_AVAILABLE(macos(12.0))
           diagnosticJSON:[diagnostic JSONRepresentation]];
 }
 
-- (void)didReceiveHangDiagnosticCallStackTree:(SentryMXCallStackTree *)callStackTree
+- (void)didReceiveHangDiagnostic:(MXHangDiagnostic *)diagnostic
+                   callStackTree:(SentryMXCallStackTree *)callStackTree
                   timeStampBegin:(NSDate *)timeStampBegin
                     timeStampEnd:(NSDate *)timeStampEnd
 {
-    NSString *hangDuration = @"2s";
-        // [self.measurementFormatter stringFromMeasurement:diagnostic.hangDuration];
+    NSString *hangDuration =
+        [self.measurementFormatter stringFromMeasurement:diagnostic.hangDuration];
 
     NSString *exceptionValue = [NSString
         stringWithFormat:@"%@ hangDuration:%@", SentryMetricKitHangDiagnosticType, hangDuration];
@@ -195,9 +196,7 @@ API_AVAILABLE(macos(12.0))
     params.exceptionMechanism = SentryMetricKitHangDiagnosticMechanism;
     params.timeStampBegin = timeStampBegin;
 
-    [self captureMXEvent:callStackTree
-                  params:params
-          diagnosticJSON:[NSData data]];
+    [self captureMXEvent:callStackTree params:params diagnosticJSON:[NSData data]];
 }
 
 - (void)captureMXEvent:(SentryMXCallStackTree *)callStackTree
