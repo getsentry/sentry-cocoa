@@ -569,3 +569,24 @@ This is a wild idea, but we have to double check if using `canImport(SwiftLog)` 
 Needs a POC to confirm this is possible
 
 </details>
+
+## Remove HybridSDK target
+
+Date: December 10, 2025
+Contributors: @itaybre, @philprime, @philipphofmann
+
+Until v9.1.0, we maintained a separate variant of the SDK with additional public headers and APIs intended for downstream SDKs (React Native, Flutter, .NET, and our SwiftUI variant). This meant any change that affected our distribution system required maintaining at least one extra variant of the SDK, which increased the team's workload significantly.
+
+However, there was nothing stopping users from using these APIs. They could simply change their dependency to the HybridSDK variant and access any of the "internal" APIs, so the separation provided no real protection.
+
+Given these drawbacks with no tangible benefits, we decided to remove the HybridSDK submodule and subspec, merging all APIs into the regular target. Moving forward, we will treat Hybrid SDKs as first-class citizens by:
+
+- Exposing required APIs in a documented manner
+- Avoiding breaking changes to these APIs in minor versions
+- Using naming conventions or namespaces (TBD) to clearly distinguish internal APIs from user-facing ones, discouraging direct usage by end users
+
+Steps:
+
+1. Consolidate Headers into the main target and remove `HybridSDK` subspec
+2. Update downstream SDKs
+3. Align on an API naming convention (ask other maintainers for input regarding what they need)
