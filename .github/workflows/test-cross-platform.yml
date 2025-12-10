@@ -158,7 +158,8 @@ jobs:
         timeout-minutes: 5 # 5 minutes timeout
         env:
           OS_VERSION: "18.4"
-        run: ./sentry-cocoa/scripts/ci-ensure-runtime-loaded.sh --os-version "$OS_VERSION"
+          PLATFORM: "iOS"
+        run: ./sentry-cocoa/scripts/ci-ensure-runtime-loaded.sh --os-version "$OS_VERSION" --platform "$PLATFORM"
 
       - name: Remove Sentry/HybridSDK Dependency from sentry-dart/packages/flutter/ios/sentry_flutter.podspec
         run: sed -i '' "s/s.dependency 'Sentry\/HybridSDK', '[0-9]*\.[0-9]*\.[0-9]*'/s.dependency 'Sentry\/HybridSDK'/" sentry-dart/packages/flutter/ios/sentry_flutter.podspec
