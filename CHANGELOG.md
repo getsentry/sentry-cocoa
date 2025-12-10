@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+> [!Warning]
+> **`SentryDsn` converted from Objective-C to Swift**
+> The `SentryDsn` class has been converted from Objective-C to Swift. The public API remains the same but this may affect Objective-C code that directly interacts with `SentryDsn`.
+
 ### Features
 
 - Add attributes data to `SentryScope` (#6830)
