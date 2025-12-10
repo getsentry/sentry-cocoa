@@ -29,7 +29,7 @@ SentrySDK.start { options in
     options.enableLogs = true
 }
 
-DDLog.add(SentryCocoaLumberjackLogger())
+DDLog.addLogger(SentryCocoaLumberjackLogger(), withLogLevel: .info)
 
 DDLogInfo("User logged in")
 DDLogError("Payment failed")
@@ -42,13 +42,12 @@ DDLogVerbose("Detailed trace information")
 
 ### Log Level Threshold
 
-Set the minimum log level for messages to be sent to Sentry:
+Use CocoaLumberjack's built-in filtering API when adding the logger to set the minimum log level for messages to be sent to Sentry:
 
 ```swift
-DDLog.add(SentryCocoaLumberjackLogger(logLevel: .verbose))
+// Only send error logs to Sentry
+DDLog.addLogger(SentryCocoaLumberjackLogger(), withLogLevel: .error)
 ```
-
-Messages below the configured threshold will be filtered out and not sent to Sentry.
 
 ## Log Level Mapping
 

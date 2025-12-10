@@ -28,8 +28,8 @@ final class SentryCocoaLumberjackLoggerTests: XCTestCase {
         capturedLogs = []
     }
     
-    private func getSut(logLevel: DDLogLevel = .all) -> SentryCocoaLumberjackLogger {
-        return SentryCocoaLumberjackLogger(logLevel: logLevel)
+    private func getSut() -> SentryCocoaLumberjackLogger {
+        return SentryCocoaLumberjackLogger()
     }
     
     // MARK: - Basic Logging Tests
@@ -289,85 +289,6 @@ final class SentryCocoaLumberjackLoggerTests: XCTestCase {
         XCTAssertEqual(timestampAttribute.type, "double")
         let timestampValue = try XCTUnwrap(timestampAttribute.value as? Double, "Expected cocoalumberjack.timestamp to be a Double")
         XCTAssertEqual(timestampValue, 1_234_567_890.123, accuracy: 0.001)
-    }
-    
-    // MARK: - Log Level Filtering Tests
-    
-    func testLogLevel_FiltersDebugWhenSetToInfo() {
-        let sut = getSut(logLevel: .info)
-        
-        let debugMessage = DDLogMessage(
-            format: "Debug message",
-            formatted: "Debug message",
-            level: .debug,
-            flag: .debug,
-            context: 0,
-            file: "TestFile.swift",
-            function: "testFunction",
-            line: 10,
-            tag: nil,
-            options: [],
-            timestamp: Date()
-        )
-        
-        sut.log(message: debugMessage)
-        
-        XCTAssertEqual(capturedLogs.count, 0, "Debug message should be filtered out when log level is .info")
-    }
-    
-    func testLogLevel_AllowsInfoWhenSetToInfo() {
-        let sut = getSut(logLevel: .info)
-        
-        let infoMessage = DDLogMessage(
-            format: "Info message",
-            formatted: "Info message",
-            level: .info,
-            flag: .info,
-            context: 0,
-            file: "TestFile.swift",
-            function: "testFunction",
-            line: 10,
-            tag: nil,
-            options: [],
-            timestamp: Date()
-        )
-        
-        sut.log(message: infoMessage)
-        
-        XCTAssertEqual(capturedLogs.count, 1, "Info message should be logged when log level is .info")
-    }
-    
-    func testLogLevel_AllowsErrorWhenSetToInfo() {
-        let sut = getSut(logLevel: .info)
-        
-        let errorMessage = DDLogMessage(
-            format: "Error message",
-            formatted: "Error message",
-            level: .error,
-            flag: .error,
-            context: 0,
-            file: "TestFile.swift",
-            function: "testFunction",
-            line: 10,
-            tag: nil,
-            options: [],
-            timestamp: Date()
-        )
-        
-        sut.log(message: errorMessage)
-        
-        XCTAssertEqual(capturedLogs.count, 1, "Error message should be logged when log level is .info")
-    }
-    
-    func testLogLevelConfiguration() {
-        let sut = getSut()
-        XCTAssertEqual(sut.logLevel, .all)
-        
-        sut.logLevel = .info
-        XCTAssertEqual(sut.logLevel, .info)
-        
-        sut.logLevel = .error
-        XCTAssertEqual(sut.logLevel, .error)
     }
     
     // MARK: - Helper Methods

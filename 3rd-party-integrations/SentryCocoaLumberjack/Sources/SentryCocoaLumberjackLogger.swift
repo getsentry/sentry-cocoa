@@ -8,8 +8,11 @@ import Sentry
 /// application logs from CocoaLumberjack and send them to Sentry for analysis and monitoring.
 ///
 /// ## Level Filtering
-/// The logger supports filtering by log level. Only logs at or above the configured `logLevel` will be
-/// sent to Sentry. Defaults to `.info`.
+/// Use CocoaLumberjack's built-in filtering API when adding the logger:
+/// ```swift
+/// DDLog.addLogger(SentryCocoaLumberjackLogger(), withLogLevel: .info)
+/// ```
+/// This ensures only logs at or above the specified level are sent to Sentry.
 ///
 /// ## Level Mapping
 /// CocoaLumberjack log levels are mapped to Sentry log levels:
@@ -32,7 +35,7 @@ import Sentry
 ///
 /// // Add SentryCocoaLumberjackLogger to CocoaLumberjack
 /// // Only logs at .info level and above will be sent to Sentry
-/// DDLog.add(SentryCocoaLumberjackLogger(logLevel: .info))
+/// DDLog.addLogger(SentryCocoaLumberjackLogger(), withLogLevel: .info)
 ///
 /// // Use CocoaLumberjack as usual
 /// DDLogInfo("User logged in")
@@ -43,28 +46,11 @@ import Sentry
 /// - Warning: This logger requires Sentry SDK to be initialized before use.
 public class SentryCocoaLumberjackLogger: DDAbstractLogger {
     
-    private let sentryLogger: SentryLogger
-    
-    /// The minimum log level for messages to be sent to Sentry.
-    ///
-    /// Messages below this level will be filtered out and not sent to Sentry.
-    /// Defaults to `.info`.
-    public var logLevel: DDLogLevel
-    
     /// Creates a new SentryCocoaLumberjackLogger instance.
     ///
-    /// - Parameter logLevel: The minimum log level for messages to be sent to Sentry.
-    ///   Defaults to `.info`.
     /// - Note: Make sure to initialize the Sentry SDK before creating this logger.
-    public init(logLevel: DDLogLevel = .info) {
-        self.sentryLogger = SentrySDK.logger
-        self.logLevel = logLevel
-        super.init()
-    }
-    
-    init(logLevel: DDLogLevel = .info, sentryLogger: SentryLogger) {
-        self.sentryLogger = sentryLogger
-        self.logLevel = logLevel
+    ///   Use `DDLog.addLogger(_:withLogLevel:)` to configure log level filtering.
+    public init() {
         super.init()
     }
     
@@ -72,10 +58,6 @@ public class SentryCocoaLumberjackLogger: DDAbstractLogger {
     ///
     /// - Parameter logMessage: The log message from CocoaLumberjack containing the message, level, and metadata.
     public override func log(message logMessage: DDLogMessage) {
-        guard logMessage.level.rawValue <= logLevel.rawValue else {
-            return
-        }
-        
         var attributes: [String: Any] = [:]
         attributes["sentry.origin"] = "auto.logging.cocoalumberjack"
         
@@ -100,17 +82,17 @@ public class SentryCocoaLumberjackLogger: DDAbstractLogger {
     
     private func forwardToSentry(message: String, flag: DDLogFlag, attributes: [String: Any]) {
         if flag.contains(.error) {
-            sentryLogger.error(message, attributes: attributes)
+            SentrySDK.logger.error(message, attributes: attributes)
         } else if flag.contains(.warning) {
-            sentryLogger.warn(message, attributes: attributes)
+            SentrySDK.logger.warn(message, attributes: attributes)
         } else if flag.contains(.info) {
-            sentryLogger.info(message, attributes: attributes)
+            SentrySDK.logger.info(message, attributes: attributes)
         } else if flag.contains(.debug) {
-            sentryLogger.debug(message, attributes: attributes)
+            SentrySDK.logger.debug(message, attributes: attributes)
         } else if flag.contains(.verbose) {
-            sentryLogger.trace(message, attributes: attributes)
+            SentrySDK.logger.trace(message, attributes: attributes)
         } else {
-            sentryLogger.info(message, attributes: attributes)
+            SentrySDK.logger.info(message, attributes: attributes)
         }
     }
 
