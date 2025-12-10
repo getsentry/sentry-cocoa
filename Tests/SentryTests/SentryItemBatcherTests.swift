@@ -3,29 +3,167 @@
 import XCTest
 
 final class SentryItemBatcherTests: XCTestCase {
-    
-    private var options: Options!
-    private var testDelegate: TestItemBatcherDelegate!
-    private var testDispatchQueue: TestSentryDispatchQueueWrapper!
-    private var scope: Scope!
+    private struct TestItem: SentryItemBatcherItem, Codable {
+        var attributes: [String: SentryAttribute]
+        var traceId: SentryId
+        var body: String
 
-    private func getSut() -> SentryItemBatcher<TestItem> {
-        let sut = SentryItemBatcher<TestItem>(
-            config: .init(
-                beforeSendItem: nil,
-                environment: options.environment,
-                releaseName: options.releaseName,
-                flushTimeout: 0.1, // Very small timeout for testing
-                maxItemCount: 10, // Maximum 10 items per batch
-                maxBufferSizeBytes: 8_000, // byte limit for testing (item with attributes ~390 bytes)
-                getInstallationId: { [options] in
-                    SentryInstallation.cachedId(withCacheDirectoryPath: options.cacheDirectoryPath)
+        enum CodingKeys: String, CodingKey {
+            case body
+            case traceId = "trace_id"
+            case attributes
+        }
+
+        func encode(to encoder: Encoder) throws {
+            var container = encoder.container(keyedBy: CodingKeys.self)
+            try container.encode(body, forKey: .body)
+            try container.encode(traceId.sentryIdString, forKey: .traceId)
+            try container.encode(attributes, forKey: .attributes)
+        }
+
+        init(from decoder: Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            body = try container.decode(String.self, forKey: .body)
+            
+            let traceIdString = try container.decode(String.self, forKey: .traceId)
+            traceId = SentryId(uuidString: traceIdString)
+            
+            // Decode attributes dictionary
+            let attributesDict = try container.decode([String: SentryAttributeCodable].self, forKey: .attributes)
+            attributes = attributesDict.mapValues { codableAttr in
+                switch codableAttr.type {
+                case "string":
+                    return SentryAttribute(string: codableAttr.value.value as! String)
+                case "boolean":
+                    return SentryAttribute(boolean: codableAttr.value.value as! Bool)
+                case "integer":
+                    return SentryAttribute(integer: codableAttr.value.value as! Int)
+                case "double":
+                    return SentryAttribute(double: codableAttr.value.value as! Double)
+                default:
+                    return SentryAttribute(value: codableAttr.value.value)
                 }
-            ),
+            }
+        }
+
+        init(attributes: [String: SentryAttribute], traceId: SentryId, body: String) {
+            self.attributes = attributes
+            self.traceId = traceId
+            self.body = body
+        }
+    }
+
+    // Helper struct for decoding SentryAttribute from JSON
+    private struct SentryAttributeCodable: Codable {
+        let type: String
+        let value: AnyCodableValue
+
+        enum CodingKeys: String, CodingKey {
+            case type
+            case value
+        }
+
+        init(from decoder: Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            type = try container.decode(String.self, forKey: .type)
+            value = try container.decode(AnyCodableValue.self, forKey: .value)
+        }
+    }
+
+    // Helper enum to decode Any value from JSON
+    private enum AnyCodableValue: Codable {
+        case string(String)
+        case bool(Bool)
+        case int(Int)
+        case double(Double)
+
+        init(from decoder: Decoder) throws {
+            let container = try decoder.singleValueContainer()
+            if let stringValue = try? container.decode(String.self) {
+                self = .string(stringValue)
+            } else if let boolValue = try? container.decode(Bool.self) {
+                self = .bool(boolValue)
+            } else if let intValue = try? container.decode(Int.self) {
+                self = .int(intValue)
+            } else if let doubleValue = try? container.decode(Double.self) {
+                self = .double(doubleValue)
+            } else {
+                throw DecodingError.dataCorruptedError(in: container, debugDescription: "Unsupported value type")
+            }
+        }
+
+        var value: Any {
+            switch self {
+            case .string(let v): return v
+            case .bool(let v): return v
+            case .int(let v): return v
+            case .double(let v): return v
+            }
+        }
+    }
+
+    // Batch payload structure for decoding
+    private struct BatchPayload: Codable {
+        let items: [TestItem]
+    }
+
+    // Minimal test scope that conforms to SentryItemBatcherScope
+    private struct TestScope: SentryItemBatcherScope {
+        var replayId: String?
+        var propagationContext: SentryPropagationContext?
+        var span: Span?
+        var userObject: User?
+        var contextStore: [String: [String: Any]] = [:]
+        var attributes: [String: Any] = [:]
+
+        var propagationContextTraceIdString: String {
+            return propagationContext?.traceId.sentryIdString ?? SentryId().sentryIdString
+        }
+
+        func getContextForKey(_ key: String) -> [String: Any]? {
+            return contextStore[key]
+        }
+
+        mutating func setUser(_ user: User?) {
+            userObject = user
+        }
+
+        mutating func setContext(value: [String: Any], key: String) {
+            contextStore[key] = value
+        }
+
+        mutating func removeContext(key: String) {
+            contextStore.removeValue(forKey: key)
+        }
+    }
+
+    private var options: Options!
+    private var testDateProvider: TestCurrentDateProvider!
+    private var testDispatchQueue: TestSentryDispatchQueueWrapper!
+    private var scope: TestScope!
+    private var capturedDataInvocations: [(data: Data, count: Int)] = []
+
+    private func getSut() -> SentryItemBatcher<TestItem, TestScope> {
+        var config = SentryItemBatcher<TestItem, TestScope>.Config(
+            environment: options.environment,
+            releaseName: options.releaseName,
+            flushTimeout: 0.1, // Very small timeout for testing
+            maxItemCount: 10, // Maximum 10 items per batch
+            maxBufferSizeBytes: 8_000, // byte limit for testing (item with attributes ~390 bytes)
+            beforeSendItem: nil,
+            getInstallationId: { [options] in
+                SentryInstallation.cachedId(withCacheDirectoryPath: options.cacheDirectoryPath)
+            }
+        )
+        config.capturedDataCallback = { [weak self] data, count in
+            self?.capturedDataInvocations.append((data, count))
+        }
+        
+        return SentryItemBatcher<TestItem, TestScope>(
+            config: config,
+            dateProvider: testDateProvider,
             dispatchQueue: testDispatchQueue
         )
-        sut.delegate = testDelegate
-        return sut
     }
 
     override func setUp() {
@@ -35,18 +173,34 @@ final class SentryItemBatcherTests: XCTestCase {
         options.dsn = TestConstants.dsnForTestCase(type: Self.self)
         options.environment = "test-environment"
         
-        testDelegate = TestItemBatcherDelegate()
+        capturedDataInvocations = []
+        testDateProvider = TestCurrentDateProvider()
         testDispatchQueue = TestSentryDispatchQueueWrapper()
         testDispatchQueue.dispatchAsyncExecutesBlock = true // Execute encoding immediately
 
-        scope = Scope()
+        scope = TestScope()
     }
     
     override func tearDown() {
         super.tearDown()
-        testDelegate = nil
+        capturedDataInvocations = []
         testDispatchQueue = nil
         scope = nil
+    }
+
+    // MARK: - Helper Methods
+
+    /// Decodes all captured items from all invocations using Codable
+    private func getCapturedItems() -> [TestItem] {
+        var allItems: [TestItem] = []
+        
+        for invocation in capturedDataInvocations {
+            if let batchPayload = try? JSONDecoder().decode(BatchPayload.self, from: invocation.data) {
+                allItems.append(contentsOf: batchPayload.items)
+            }
+        }
+        
+        return allItems
     }
     
     // MARK: - Basic Functionality Tests
@@ -58,14 +212,14 @@ final class SentryItemBatcherTests: XCTestCase {
         let item2 = createTestItem(body: "Item 2")
         
         // -- Act --
-        sut.addItem(item1, scope: scope)
-        sut.addItem(item2, scope: scope)
-        sut.captureItems()
+        sut.add(item1, scope: scope)
+        sut.add(item2, scope: scope)
+        _ = sut.capture()
         
         // -- Assert --
-        XCTAssertEqual(testDelegate.captureItemsBatcherDataInvocations.count, 1)
+        XCTAssertEqual(capturedDataInvocations.count, 1)
         
-        let capturedItems = testDelegate.getCapturedItems()
+        let capturedItems = getCapturedItems()
         XCTAssertEqual(capturedItems.count, 2)
         XCTAssertEqual(capturedItems[0].body, "Item 1")
         XCTAssertEqual(capturedItems[1].body, "Item 2")
@@ -80,13 +234,13 @@ final class SentryItemBatcherTests: XCTestCase {
         let largeItem = createTestItem(body: largeItemBody)
         
         // -- Act --
-        sut.addItem(largeItem, scope: scope)
+        sut.add(largeItem, scope: scope)
 
         // -- Assert --
-        XCTAssertEqual(testDelegate.captureItemsBatcherDataInvocations.count, 1)
+        XCTAssertEqual(capturedDataInvocations.count, 1)
         
         // Verify the large item is sent
-        let capturedItems = testDelegate.getCapturedItems()
+        let capturedItems = getCapturedItems()
         XCTAssertEqual(capturedItems.count, 1)
         XCTAssertEqual(capturedItems[0].body, largeItemBody)
     }
@@ -100,18 +254,18 @@ final class SentryItemBatcherTests: XCTestCase {
         // -- Act --
         for i in 0..<9 {
             let item = createTestItem(body: "Item \(i + 1)")
-            sut.addItem(item, scope: scope)
+            sut.add(item, scope: scope)
         }
         
-        XCTAssertEqual(testDelegate.captureItemsBatcherDataInvocations.count, 0)
+        XCTAssertEqual(capturedDataInvocations.count, 0)
         
         let item = createTestItem(body: "Item \(10)") // Reached 10 max items limit
-        sut.addItem(item, scope: scope)
+        sut.add(item, scope: scope)
         
         // -- Assert --
-        XCTAssertEqual(testDelegate.captureItemsBatcherDataInvocations.count, 1)
+        XCTAssertEqual(capturedDataInvocations.count, 1)
         
-        let capturedItems = testDelegate.getCapturedItems()
+        let capturedItems = getCapturedItems()
         XCTAssertEqual(capturedItems.count, 10, "Should have captured exactly \(10) items")
     }
     
@@ -123,15 +277,15 @@ final class SentryItemBatcherTests: XCTestCase {
         let item = createTestItem()
 
         // -- Act --
-        sut.addItem(item, scope: scope)
+        sut.add(item, scope: scope)
         testDispatchQueue.invokeLastDispatchAfterWorkItem()
         
         // -- Assert --
         XCTAssertEqual(testDispatchQueue.dispatchAfterWorkItemInvocations.count, 1)
         XCTAssertEqual(testDispatchQueue.dispatchAfterWorkItemInvocations.first?.interval, 0.1)
-        XCTAssertEqual(testDelegate.captureItemsBatcherDataInvocations.count, 1)
+        XCTAssertEqual(capturedDataInvocations.count, 1)
         
-        let capturedItems = testDelegate.getCapturedItems()
+        let capturedItems = getCapturedItems()
         XCTAssertEqual(capturedItems.count, 1)
     }
     
@@ -142,16 +296,16 @@ final class SentryItemBatcherTests: XCTestCase {
         let item2 = createTestItem(body: "Item 2")
         
         // -- Act --
-        sut.addItem(item1, scope: scope)
-        sut.addItem(item2, scope: scope)
+        sut.add(item1, scope: scope)
+        sut.add(item2, scope: scope)
         testDispatchQueue.invokeLastDispatchAfterWorkItem()
         
         // -- Assert --
         XCTAssertEqual(testDispatchQueue.dispatchAfterWorkItemInvocations.count, 1)
         XCTAssertEqual(testDispatchQueue.dispatchAfterWorkItemInvocations.first?.interval, 0.1)
-        XCTAssertEqual(testDelegate.captureItemsBatcherDataInvocations.count, 1)
+        XCTAssertEqual(capturedDataInvocations.count, 1)
         
-        let capturedItems = testDelegate.getCapturedItems()
+        let capturedItems = getCapturedItems()
         XCTAssertEqual(capturedItems.count, 2)
     }
     
@@ -164,14 +318,14 @@ final class SentryItemBatcherTests: XCTestCase {
         let item2 = createTestItem(body: "Item 2")
         
         // -- Act --
-        sut.addItem(item1, scope: scope)
-        sut.addItem(item2, scope: scope)
-        sut.captureItems()
+        sut.add(item1, scope: scope)
+        sut.add(item2, scope: scope)
+        _ = sut.capture()
         
         // -- Assert --
-        XCTAssertEqual(testDelegate.captureItemsBatcherDataInvocations.count, 1)
+        XCTAssertEqual(capturedDataInvocations.count, 1)
         
-        let capturedItems = testDelegate.getCapturedItems()
+        let capturedItems = getCapturedItems()
         XCTAssertEqual(capturedItems.count, 2)
     }
     
@@ -179,15 +333,15 @@ final class SentryItemBatcherTests: XCTestCase {
         // -- Arrange --
         let sut = getSut()
         let item = createTestItem()
-        sut.addItem(item, scope: scope)
+        sut.add(item, scope: scope)
         let timerWorkItem = try XCTUnwrap(testDispatchQueue.dispatchAfterWorkItemInvocations.first?.workItem)
         
         // -- Act --
-        sut.captureItems()
+        _ = sut.capture()
         timerWorkItem.perform()
         
         // -- Assert --
-        XCTAssertEqual(testDelegate.captureItemsBatcherDataInvocations.count, 1, "Manual flush should work and timer should be cancelled")
+        XCTAssertEqual(capturedDataInvocations.count, 1, "Manual flush should work and timer should be cancelled")
     }
     
     func testManualCaptureItems_WithEmptyBuffer_DoesNothing() {
@@ -195,10 +349,10 @@ final class SentryItemBatcherTests: XCTestCase {
         let sut = getSut()
 
         // -- Act --
-        sut.captureItems()
+        _ = sut.capture()
         
         // -- Assert --
-        XCTAssertEqual(testDelegate.captureItemsBatcherDataInvocations.count, 0)
+        XCTAssertEqual(capturedDataInvocations.count, 0)
     }
     
     // MARK: - Edge Cases Tests
@@ -211,13 +365,13 @@ final class SentryItemBatcherTests: XCTestCase {
         let item2 = createTestItem(body: largeItemBody)
         
         // -- Act --
-        sut.addItem(item1, scope: scope)
+        sut.add(item1, scope: scope)
         let timerWorkItem = try XCTUnwrap(testDispatchQueue.dispatchAfterWorkItemInvocations.first?.workItem)
-        sut.addItem(item2, scope: scope)
+        sut.add(item2, scope: scope)
         timerWorkItem.perform()
         
         // -- Assert --
-        XCTAssertEqual(testDelegate.captureItemsBatcherDataInvocations.count, 1)
+        XCTAssertEqual(capturedDataInvocations.count, 1)
     }
     
     func testAddItemAfterFlush_StartsNewBatch() throws {
@@ -227,15 +381,15 @@ final class SentryItemBatcherTests: XCTestCase {
         let item2 = createTestItem(body: "Item 2")
         
         // -- Act --
-        sut.addItem(item1, scope: scope)
-        sut.captureItems()
-        sut.addItem(item2, scope: scope)
-        sut.captureItems()
+        sut.add(item1, scope: scope)
+        _ = sut.capture()
+        sut.add(item2, scope: scope)
+        _ = sut.capture()
         
         // -- Assert --
-        XCTAssertEqual(testDelegate.captureItemsBatcherDataInvocations.count, 2)
+        XCTAssertEqual(capturedDataInvocations.count, 2)
         
-        let allCapturedItems = testDelegate.getCapturedItems()
+        let allCapturedItems = getCapturedItems()
         XCTAssertEqual(allCapturedItems.count, 2)
         XCTAssertEqual(allCapturedItems[0].body, "Item 1")
         XCTAssertEqual(allCapturedItems[1].body, "Item 2")
@@ -245,21 +399,26 @@ final class SentryItemBatcherTests: XCTestCase {
     
     func testConcurrentAdds_ThreadSafe() throws {
         // -- Arrange --
-        let sutWithRealQueue = SentryItemBatcher<TestItem>(
-            config: .init(
-                beforeSendItem: nil,
-                environment: options.environment,
-                releaseName: options.releaseName,
-                flushTimeout: 5,
-                maxItemCount: 1_000, // Maximum 1000 items per batch
-                maxBufferSizeBytes: 10_000,
-                getInstallationId: { [options] in
-                    SentryInstallation.cachedId(withCacheDirectoryPath: options.cacheDirectoryPath)
-                }
-            ),
+        var config = SentryItemBatcher<TestItem, TestScope>.Config(
+            environment: options.environment,
+            releaseName: options.releaseName,
+            flushTimeout: 5,
+            maxItemCount: 1_000, // Maximum 1000 items per batch
+            maxBufferSizeBytes: 10_000,
+            beforeSendItem: nil,
+            getInstallationId: { [options] in
+                SentryInstallation.cachedId(withCacheDirectoryPath: options.cacheDirectoryPath)
+            }
+        )
+        config.capturedDataCallback = { [weak self] data, count in
+            self?.capturedDataInvocations.append((data, count))
+        }
+        
+        let sutWithRealQueue = SentryItemBatcher<TestItem, TestScope>(
+            config: config,
+            dateProvider: TestCurrentDateProvider(),
             dispatchQueue: SentryDispatchQueueWrapper()
         )
-        sutWithRealQueue.delegate = testDelegate
         
         let expectation = XCTestExpectation(description: "Concurrent adds")
         expectation.expectedFulfillmentCount = 10
@@ -268,42 +427,47 @@ final class SentryItemBatcherTests: XCTestCase {
         for i in 0..<10 {
             DispatchQueue.global().async {
                 let item = self.createTestItem(body: "Item \(i)")
-                sutWithRealQueue.addItem(item, scope: self.scope)
+                sutWithRealQueue.add(item, scope: self.scope)
                 expectation.fulfill()
             }
         }
         wait(for: [expectation], timeout: 1.0)
-        sutWithRealQueue.captureItems()
+        _ = sutWithRealQueue.capture()
         
         // -- Assert --
-        let capturedItems = self.testDelegate.getCapturedItems()
+        let capturedItems = getCapturedItems()
         XCTAssertEqual(capturedItems.count, 10, "All 10 concurrently added items should be in the batch")
     }
 
     func testDispatchAfterTimeoutWithRealDispatchQueue() throws {
         // -- Arrange --
-        let sutWithRealQueue = SentryItemBatcher<TestItem>(
-            config: .init(
-                beforeSendItem: nil,
-                environment: options.environment,
-                releaseName: options.releaseName,
-                flushTimeout: 0.2,
-                maxItemCount: 1_000, // Maximum 1000 items per batch
-                maxBufferSizeBytes: 10_000,
-                getInstallationId: { [options] in
-                    SentryInstallation.cachedId(withCacheDirectoryPath: options.cacheDirectoryPath)
-                }
-            ),
+        var config = SentryItemBatcher<TestItem, TestScope>.Config(
+            environment: options.environment,
+            releaseName: options.releaseName,
+            flushTimeout: 0.2,
+            maxItemCount: 1_000, // Maximum 1000 items per batch
+            maxBufferSizeBytes: 10_000,
+            beforeSendItem: nil,
+            getInstallationId: { [options] in
+                SentryInstallation.cachedId(withCacheDirectoryPath: options.cacheDirectoryPath)
+            }
+        )
+        config.capturedDataCallback = { [weak self] data, count in
+            self?.capturedDataInvocations.append((data, count))
+        }
+        
+        let sutWithRealQueue = SentryItemBatcher<TestItem, TestScope>(
+            config: config,
+            dateProvider: TestCurrentDateProvider(),
             dispatchQueue: SentryDispatchQueueWrapper()
         )
-        sutWithRealQueue.delegate = testDelegate
         
         let item = createTestItem(body: "Real timeout test item")
         let expectation = XCTestExpectation(description: "Real timeout flush")
         
         // -- Act --
-        sutWithRealQueue.addItem(item, scope: scope)
-        XCTAssertEqual(testDelegate.captureItemsBatcherDataInvocations.count, 0)
+        sutWithRealQueue.add(item, scope: scope)
+        XCTAssertEqual(capturedDataInvocations.count, 0)
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
             expectation.fulfill()
@@ -311,9 +475,9 @@ final class SentryItemBatcherTests: XCTestCase {
         wait(for: [expectation], timeout: 1.0)
         
         // -- Assert --
-        XCTAssertEqual(testDelegate.captureItemsBatcherDataInvocations.count, 1, "Timeout should trigger flush")
+        XCTAssertEqual(capturedDataInvocations.count, 1, "Timeout should trigger flush")
         
-        let capturedItems = self.testDelegate.getCapturedItems()
+        let capturedItems = getCapturedItems()
         XCTAssertEqual(capturedItems.count, 1, "Should contain exactly one item")
         XCTAssertEqual(capturedItems[0].body, "Real timeout test item")
     }
@@ -329,11 +493,11 @@ final class SentryItemBatcherTests: XCTestCase {
         let item = createTestItem(body: "Test item message")
         
         // -- Act --
-        sut.addItem(item, scope: scope)
-        sut.captureItems()
+        sut.add(item, scope: scope)
+        _ = sut.capture()
         
         // -- Assert --
-        let capturedItems = testDelegate.getCapturedItems()
+        let capturedItems = getCapturedItems()
         XCTAssertEqual(capturedItems.count, 1)
         
         let capturedItem = try XCTUnwrap(capturedItems.first)
@@ -353,11 +517,11 @@ final class SentryItemBatcherTests: XCTestCase {
         let item = createTestItem(body: "Test item message")
         
         // -- Act --
-        sut.addItem(item, scope: scope)
-        sut.captureItems()
+        sut.add(item, scope: scope)
+        _ = sut.capture()
         
         // -- Assert --
-        let capturedItems = testDelegate.getCapturedItems()
+        let capturedItems = getCapturedItems()
         let capturedItem = try XCTUnwrap(capturedItems.first)
         let attributes = capturedItem.attributes
         
@@ -377,11 +541,11 @@ final class SentryItemBatcherTests: XCTestCase {
         let item = createTestItem(body: "Test item message with trace ID")
         
         // -- Act --
-        sut.addItem(item, scope: scope)
-        sut.captureItems()
+        sut.add(item, scope: scope)
+        _ = sut.capture()
         
         // -- Assert --
-        let capturedItems = testDelegate.getCapturedItems()
+        let capturedItems = getCapturedItems()
         let capturedItem = try XCTUnwrap(capturedItems.first)
         XCTAssertEqual(capturedItem.traceId, expectedTraceId)
     }
@@ -397,11 +561,11 @@ final class SentryItemBatcherTests: XCTestCase {
         let item = createTestItem(body: "Test item message with user")
         
         // -- Act --
-        sut.addItem(item, scope: scope)
-        sut.captureItems()
+        sut.add(item, scope: scope)
+        _ = sut.capture()
         
         // -- Assert --
-        let capturedItems = testDelegate.getCapturedItems()
+        let capturedItems = getCapturedItems()
         let capturedItem = try XCTUnwrap(capturedItems.first)
         let attributes = capturedItem.attributes
         
@@ -419,11 +583,11 @@ final class SentryItemBatcherTests: XCTestCase {
         let item = createTestItem(body: "Test item message with partial user")
         
         // -- Act --
-        sut.addItem(item, scope: scope)
-        sut.captureItems()
+        sut.add(item, scope: scope)
+        _ = sut.capture()
         
         // -- Assert --
-        let capturedItems = testDelegate.getCapturedItems()
+        let capturedItems = getCapturedItems()
         let capturedItem = try XCTUnwrap(capturedItems.first)
         let attributes = capturedItem.attributes
         
@@ -438,11 +602,11 @@ final class SentryItemBatcherTests: XCTestCase {
         let item = createTestItem(body: "Test item message without user")
         
         // -- Act --
-        sut.addItem(item, scope: scope)
-        sut.captureItems()
+        sut.add(item, scope: scope)
+        _ = sut.capture()
         
         // -- Assert --
-        let capturedItems = testDelegate.getCapturedItems()
+        let capturedItems = getCapturedItems()
         let capturedItem = try XCTUnwrap(capturedItems.first)
         let attributes = capturedItem.attributes
         
@@ -458,11 +622,11 @@ final class SentryItemBatcherTests: XCTestCase {
         let item = createTestItem(body: "Test item message without user")
         
         // -- Act --
-        sut.addItem(item, scope: scope)
-        sut.captureItems()
+        sut.add(item, scope: scope)
+        _ = sut.capture()
         
         // -- Assert --
-        let capturedItems = testDelegate.getCapturedItems()
+        let capturedItems = getCapturedItems()
         let capturedItem = try XCTUnwrap(capturedItems.first)
         let attributes = capturedItem.attributes
         
@@ -482,11 +646,11 @@ final class SentryItemBatcherTests: XCTestCase {
         let item = createTestItem(body: "Test item message")
         
         // -- Act --
-        sut.addItem(item, scope: scope)
-        sut.captureItems()
+        sut.add(item, scope: scope)
+        _ = sut.capture()
         
         // -- Assert --
-        let capturedItems = testDelegate.getCapturedItems()
+        let capturedItems = getCapturedItems()
         let capturedItem = try XCTUnwrap(capturedItems.first)
         let attributes = capturedItem.attributes
         
@@ -507,11 +671,11 @@ final class SentryItemBatcherTests: XCTestCase {
         let item = createTestItem(body: "Test item message")
         
         // -- Act --
-        sut.addItem(item, scope: scope)
-        sut.captureItems()
+        sut.add(item, scope: scope)
+        _ = sut.capture()
         
         // -- Assert --
-        let capturedItems = testDelegate.getCapturedItems()
+        let capturedItems = getCapturedItems()
         let capturedItem = try XCTUnwrap(capturedItems.first)
         let attributes = capturedItem.attributes
         
@@ -530,11 +694,11 @@ final class SentryItemBatcherTests: XCTestCase {
         let item = createTestItem(body: "Test item message")
         
         // -- Act --
-        sut.addItem(item, scope: scope)
-        sut.captureItems()
+        sut.add(item, scope: scope)
+        _ = sut.capture()
         
         // -- Assert --
-        let capturedItems = testDelegate.getCapturedItems()
+        let capturedItems = getCapturedItems()
         let capturedItem = try XCTUnwrap(capturedItems.first)
         let attributes = capturedItem.attributes
         
@@ -547,20 +711,21 @@ final class SentryItemBatcherTests: XCTestCase {
     
     func testAddItem_AddsScopeAttributes() throws {
         // -- Arrange --
-        let scope = Scope()
-        scope.setAttribute(value: "aString", key: "string-attribute")
-        scope.setAttribute(value: false, key: "bool-attribute")
-        scope.setAttribute(value: 1.765, key: "double-attribute")
-        scope.setAttribute(value: 5, key: "integer-attribute")
+        let scope = TestScope(attributes: [
+            "string-attribute": "aString",
+            "bool-attribute": false,
+            "double-attribute": 1.765,
+            "integer-attribute": 5
+        ])
         let sut = getSut()
         let item = createTestItem(body: "Test item message")
         
         // -- Act --
-        sut.addItem(item, scope: scope)
-        sut.captureItems()
+        sut.add(item, scope: scope)
+        _ = sut.capture()
         
         // -- Assert --
-        let capturedItems = testDelegate.getCapturedItems()
+        let capturedItems = getCapturedItems()
         let capturedItem = try XCTUnwrap(capturedItems.first)
         let attributes = capturedItem.attributes
         
@@ -576,17 +741,18 @@ final class SentryItemBatcherTests: XCTestCase {
     
     func testAddItem_ScopeAttributesDoNotOverrideItemAttribute() throws {
         // -- Arrange --
-        let scope = Scope()
-        scope.setAttribute(value: true, key: "item-attribute")
+        let scope = TestScope(attributes: [
+            "item-attribute": true
+        ])
         let sut = getSut()
         let item = createTestItem(body: "Test item message", attributes: ["item-attribute": .init(boolean: false)])
         
         // -- Act --
-        sut.addItem(item, scope: scope)
-        sut.captureItems()
+        sut.add(item, scope: scope)
+        _ = sut.capture()
         
         // -- Assert --
-        let capturedItems = testDelegate.getCapturedItems()
+        let capturedItems = getCapturedItems()
         let capturedItem = try XCTUnwrap(capturedItems.first)
         let attributes = capturedItem.attributes
         
@@ -606,11 +772,11 @@ final class SentryItemBatcherTests: XCTestCase {
         let item = createTestItem(body: "Test message")
         
         // -- Act --
-        sut.addItem(item, scope: scope)
-        sut.captureItems()
+        sut.add(item, scope: scope)
+        _ = sut.capture()
         
         // -- Assert --
-        let capturedItems = testDelegate.getCapturedItems()
+        let capturedItems = getCapturedItems()
         let capturedItem = try XCTUnwrap(capturedItems.first)
         XCTAssertEqual(capturedItem.attributes["sentry.replay_id"]?.value as? String, replayId)
     }
@@ -622,11 +788,11 @@ final class SentryItemBatcherTests: XCTestCase {
         let item = createTestItem(body: "Test message")
         
         // -- Act --
-        sut.addItem(item, scope: scope)
-        sut.captureItems()
+        sut.add(item, scope: scope)
+        _ = sut.capture()
         
         // -- Assert --
-        let capturedItems = testDelegate.getCapturedItems()
+        let capturedItems = getCapturedItems()
         let capturedItem = try XCTUnwrap(capturedItems.first)
         XCTAssertNil(capturedItem.attributes["sentry.replay_id"])
     }
@@ -638,43 +804,47 @@ final class SentryItemBatcherTests: XCTestCase {
     func testBeforeSendItem_ReturnsModifiedItem() throws {
         // -- Arrange --
         var beforeSendCalled = false
-        let config = SentryItemBatcher<TestItem>.Config(
-            beforeSendItem: { item in
-                beforeSendCalled = true
-                
-                XCTAssertEqual(item.body, "Original message")
-                
-                var modifiedItem = item
-                modifiedItem.body = "Modified by callback"
-                modifiedItem.attributes["callback_modified"] = SentryAttribute(boolean: true)
-                
-                return modifiedItem
-            },
+        var config = SentryItemBatcher<TestItem, TestScope>.Config(
             environment: options.environment,
             releaseName: options.releaseName,
             flushTimeout: 0.1,
             maxItemCount: 10,
             maxBufferSizeBytes: 8_000,
+            beforeSendItem: { item in
+                beforeSendCalled = true
+
+                XCTAssertEqual(item.body, "Original message")
+
+                var modifiedItem = item
+                modifiedItem.body = "Modified by callback"
+                modifiedItem.attributes["callback_modified"] = SentryAttribute(boolean: true)
+
+                return modifiedItem
+            },
             getInstallationId: { [options] in
                 SentryInstallation.cachedId(withCacheDirectoryPath: options.cacheDirectoryPath)
             }
         )
         
-        let sutWithCallback = SentryItemBatcher<TestItem>(
+        config.capturedDataCallback = { [weak self] data, count in
+            self?.capturedDataInvocations.append((data, count))
+        }
+        
+        let sutWithCallback = SentryItemBatcher<TestItem, TestScope>(
             config: config,
+            dateProvider: TestCurrentDateProvider(),
             dispatchQueue: testDispatchQueue
         )
-        sutWithCallback.delegate = testDelegate
         let item = createTestItem(body: "Original message")
         
         // -- Act --
-        sutWithCallback.addItem(item, scope: scope)
-        sutWithCallback.captureItems()
+        sutWithCallback.add(item, scope: scope)
+        _ = sutWithCallback.capture()
         
         // -- Assert --
         XCTAssertTrue(beforeSendCalled)
         
-        let capturedItems = testDelegate.getCapturedItems()
+        let capturedItems = getCapturedItems()
         let capturedItem = try XCTUnwrap(capturedItems.first)
         XCTAssertEqual(capturedItem.body, "Modified by callback")
         XCTAssertEqual(capturedItem.attributes["callback_modified"]?.value as? Bool, true)
@@ -683,35 +853,38 @@ final class SentryItemBatcherTests: XCTestCase {
     func testBeforeSendItem_ReturnsNil_ItemNotCaptured() {
         // -- Arrange --
         var beforeSendCalled = false
-        let config = SentryItemBatcher<TestItem>.Config(
-            beforeSendItem: { _ in
-                beforeSendCalled = true
-                return nil // Drop the item
-            },
+        var config = SentryItemBatcher<TestItem, TestScope>.Config(
             environment: options.environment,
             releaseName: options.releaseName,
             flushTimeout: 0.1,
             maxItemCount: 10,
             maxBufferSizeBytes: 8_000,
+            beforeSendItem: { _ in
+                beforeSendCalled = true
+                return nil // Drop the item
+            },
             getInstallationId: { [options] in
                 SentryInstallation.cachedId(withCacheDirectoryPath: options.cacheDirectoryPath)
             }
         )
+        config.capturedDataCallback = { [weak self] data, count in
+            self?.capturedDataInvocations.append((data, count))
+        }
         
-        let sutWithCallback = SentryItemBatcher<TestItem>(
+        let sutWithCallback = SentryItemBatcher<TestItem, TestScope>(
             config: config,
+            dateProvider: TestCurrentDateProvider(),
             dispatchQueue: testDispatchQueue
         )
-        sutWithCallback.delegate = testDelegate
         let item = createTestItem(body: "This item should be dropped")
         
         // -- Act --
-        sutWithCallback.addItem(item, scope: scope)
-        sutWithCallback.captureItems()
+        sutWithCallback.add(item, scope: scope)
+        _ = sutWithCallback.capture()
         
         // -- Assert --
         XCTAssertTrue(beforeSendCalled)
-        XCTAssertEqual(testDelegate.captureItemsBatcherDataInvocations.count, 0)
+        XCTAssertEqual(capturedDataInvocations.count, 0)
     }
     
     func testBeforeSendItem_NotSet_ItemCapturedUnmodified() throws {
@@ -720,11 +893,11 @@ final class SentryItemBatcherTests: XCTestCase {
         let item = createTestItem(body: "Debug message")
         
         // -- Act --
-        sut.addItem(item, scope: scope)
-        sut.captureItems()
+        sut.add(item, scope: scope)
+        _ = sut.capture()
         
         // -- Assert --
-        let capturedItems = testDelegate.getCapturedItems()
+        let capturedItems = getCapturedItems()
         XCTAssertEqual(capturedItems.count, 1)
         
         let capturedItem = try XCTUnwrap(capturedItems.first)
@@ -733,27 +906,31 @@ final class SentryItemBatcherTests: XCTestCase {
     
     func testBeforeSendItem_PreservesOriginalItemAttributes() throws {
         // -- Arrange --
-        let config = SentryItemBatcher<TestItem>.Config(
-            beforeSendItem: { item in
-                var modifiedItem = item
-                modifiedItem.attributes["added_by_callback"] = SentryAttribute(string: "callback_value")
-                return modifiedItem
-            },
+        var config = SentryItemBatcher<TestItem, TestScope>.Config(
             environment: options.environment,
             releaseName: options.releaseName,
             flushTimeout: 0.1,
             maxItemCount: 10,
             maxBufferSizeBytes: 8_000,
+            beforeSendItem: { item in
+                var modifiedItem = item
+                modifiedItem.attributes["added_by_callback"] = SentryAttribute(string: "callback_value")
+                return modifiedItem
+            },
             getInstallationId: { [options] in
                 SentryInstallation.cachedId(withCacheDirectoryPath: options.cacheDirectoryPath)
             }
         )
         
-        let sutWithCallback = SentryItemBatcher<TestItem>(
+        config.capturedDataCallback = { [weak self] data, count in
+            self?.capturedDataInvocations.append((data, count))
+        }
+        
+        let sutWithCallback = SentryItemBatcher<TestItem, TestScope>(
             config: config,
+            dateProvider: TestCurrentDateProvider(),
             dispatchQueue: testDispatchQueue
         )
-        sutWithCallback.delegate = testDelegate
         
         let itemAttributes: [String: SentryAttribute] = [
             "original_key": SentryAttribute(string: "original_value"),
@@ -762,11 +939,11 @@ final class SentryItemBatcherTests: XCTestCase {
         let item = createTestItem(body: "Test message", attributes: itemAttributes)
         
         // -- Act --
-        sutWithCallback.addItem(item, scope: scope)
-        sutWithCallback.captureItems()
+        sutWithCallback.add(item, scope: scope)
+        _ = sutWithCallback.capture()
         
         // -- Assert --
-        let capturedItems = testDelegate.getCapturedItems()
+        let capturedItems = getCapturedItems()
         let capturedItem = try XCTUnwrap(capturedItems.first)
         let attributes = capturedItem.attributes
         
@@ -786,74 +963,5 @@ final class SentryItemBatcherTests: XCTestCase {
             traceId: SentryId.empty,
             body: body
         )
-    }
-}
-
-// MARK: - Test Item Type
-
-struct TestItem: SentryItemBatcherItem {
-    var attributes: [String: SentryAttribute]
-    var traceId: SentryId
-    var body: String
-    
-    enum CodingKeys: String, CodingKey {
-        case body
-        case traceId = "trace_id"
-        case attributes
-    }
-    
-    func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(body, forKey: .body)
-        try container.encode(traceId.sentryIdString, forKey: .traceId)
-        try container.encode(attributes, forKey: .attributes)
-    }
-}
-
-// MARK: - Test Helpers
-
-final class TestItemBatcherDelegate: NSObject, SentryItemBatcherDelegate {
-    var captureItemsBatcherDataInvocations = Invocations<(data: Data, count: Int)>()
-    
-    func capture(itemBatcherData: Data, count: Int) {
-        captureItemsBatcherDataInvocations.record((itemBatcherData, count))
-    }
-    
-    // Helper to get captured items
-    func getCapturedItems() -> [TestItem] {
-        var allItems: [TestItem] = []
-        
-        for invocation in captureItemsBatcherDataInvocations.invocations {
-            if let jsonObject = try? JSONSerialization.jsonObject(with: invocation.data) as? [String: Any],
-               let items = jsonObject["items"] as? [[String: Any]] {
-                for item in items {
-                    if let testItem = parseTestItem(from: item) {
-                        allItems.append(testItem)
-                    }
-                }
-            }
-        }
-        
-        return allItems
-    }
-    
-    private func parseTestItem(from dict: [String: Any]) -> TestItem? {
-        guard let body = dict["body"] as? String else {
-            return nil
-        }
-        
-        let traceIdString = dict["trace_id"] as? String ?? ""
-        let traceId = SentryId(uuidString: traceIdString)
-        
-        var attributes: [String: SentryAttribute] = [:]
-        if let attributesDict = dict["attributes"] as? [String: [String: Any]] {
-            for (key, value) in attributesDict {
-                if let attrValue = value["value"] {
-                    attributes[key] = SentryAttribute(value: attrValue)
-                }
-            }
-        }
-        
-        return TestItem(attributes: attributes, traceId: traceId, body: body)
     }
 }

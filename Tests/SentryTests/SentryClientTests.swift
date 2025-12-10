@@ -2401,6 +2401,7 @@ class SentryClientTests: XCTestCase {
             flushTimeout: 5,
             maxLogCount: 100,
             maxBufferSizeBytes: 1_024 * 1_024,
+            dateProvider: TestCurrentDateProvider(),
             dispatchQueue: TestSentryDispatchQueueWrapper(),
             delegate: testDelegate
         )
@@ -2432,6 +2433,7 @@ class SentryClientTests: XCTestCase {
             flushTimeout: 5,
             maxLogCount: 100,
             maxBufferSizeBytes: 1_024 * 1_024,
+            dateProvider: TestCurrentDateProvider(),
             dispatchQueue: TestSentryDispatchQueueWrapper(),
             delegate: testDelegate
         )
@@ -2453,6 +2455,7 @@ class SentryClientTests: XCTestCase {
             flushTimeout: 5,
             maxLogCount: 100,
             maxBufferSizeBytes: 1_024 * 1_024,
+            dateProvider: TestCurrentDateProvider(),
             dispatchQueue: TestSentryDispatchQueueWrapper(),
             delegate: testDelegate
         )

@@ -1,19 +1,33 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
-protocol SentryItemBatcherDelegate: AnyObject {
-    func capture(itemBatcherData: Data, count: Int)
-}
-
 protocol SentryItemBatcherItem: Encodable {
     var attributes: [String: SentryAttribute] { get set }
     var traceId: SentryId { get set }
     var body: String { get }
 }
 
-final class SentryItemBatcher<Item: SentryItemBatcherItem> {
+protocol SentryItemBatcherScope {
+    var replayId: String? { get }
+    var propagationContextTraceIdString: String { get }
+    var span: Span? { get }
+    var userObject: User? { get }
+    func getContextForKey(_ key: String) -> [String: Any]?
+    var attributes: [String: Any] { get }
+}
+
+protocol SentryItemBatcherProtocol<Item, Scope>: AnyObject {
+    associatedtype Item: SentryItemBatcherItem
+    associatedtype Scope: SentryItemBatcherScope
+
+    func add(_ item: Item, scope: Scope)
+    func capture() -> TimeInterval
+}
+
+extension SentryItemBatcherProtocol {}
+
+final class SentryItemBatcher<Item: SentryItemBatcherItem, Scope: SentryItemBatcherScope>: SentryItemBatcherProtocol {
     struct Config {
-        let beforeSendItem: ((Item) -> Item?)?
         let environment: String
         let releaseName: String?
 
@@ -21,19 +35,20 @@ final class SentryItemBatcher<Item: SentryItemBatcherItem> {
         let maxItemCount: Int
         let maxBufferSizeBytes: Int
 
+        let beforeSendItem: ((Item) -> Item?)?
         let getInstallationId: () -> String?
+
+        var capturedDataCallback: (_ data: Data, _ count: Int) -> Void = { _, _ in }
     }
 
     private let config: Config
+    private let dateProvider: SentryCurrentDateProvider
     private let dispatchQueue: SentryDispatchQueueWrapperProtocol
 
     // Every items data is added sepratley. They are flushed together in an envelope.
     private var encodedItems: [Data] = []
     private var encodedItemsSize: Int = 0
     private var timerWorkItem: DispatchWorkItem?
-
-    ///  The delegate to handle captured item batches
-    weak var delegate: SentryItemBatcherDelegate?
 
     /// Initializes a new SentryItemBatcher.
     /// - Parameters:
@@ -49,13 +64,15 @@ final class SentryItemBatcher<Item: SentryItemBatcherItem> {
     /// - Note: Items are flushed when either `maxItemCount` or `maxBufferSizeBytes` limit is reached.
     @_spi(Private) public init(
         config: Config,
+        dateProvider: SentryCurrentDateProvider,
         dispatchQueue: SentryDispatchQueueWrapperProtocol
     ) {
         self.config = config
+        self.dateProvider = dateProvider
         self.dispatchQueue = dispatchQueue
     }
-    
-    func addItem(_ item: Item, scope: Scope) {
+
+    func add(_ item: Item, scope: Scope) {
         var item = item
         addDefaultAttributes(to: &item.attributes, scope: scope)
         addOSAttributes(to: &item.attributes, scope: scope)
@@ -83,13 +100,12 @@ final class SentryItemBatcher<Item: SentryItemBatcherItem> {
     }
 
     // Captures batched items sync and returns the duration.
-    @discardableResult
-    @_spi(Private) @objc public func captureItems() -> TimeInterval {
-        let startTimeNs = SentryDefaultCurrentDateProvider.getAbsoluteTime()
+    @discardableResult func capture() -> TimeInterval {
+        let startTimeNs = dateProvider.getAbsoluteTime()
         dispatchQueue.dispatchSync { [weak self] in
             self?.performCaptureItems()
         }
-        let endTimeNs = SentryDefaultCurrentDateProvider.getAbsoluteTime()
+        let endTimeNs = dateProvider.getAbsoluteTime()
         return TimeInterval(endTimeNs - startTimeNs) / 1_000_000_000.0 // Convert nanoseconds to seconds
     }
 
@@ -231,11 +247,6 @@ final class SentryItemBatcher<Item: SentryItemBatcherItem> {
         let payloadData = Data("{\"items\":[".utf8) + encodedItems.joined(separator: Data(",".utf8)) + Data("]}".utf8)
         
         // Send the payload.
-        
-        guard let delegate else {
-            SentrySDKLog.debug("Delegate not set, not capturing items data.")
-            return
-        }
-        delegate.capture(itemBatcherData: payloadData, count: encodedItems.count)
+        config.capturedDataCallback(payloadData, encodedItems.count)
     }
 }

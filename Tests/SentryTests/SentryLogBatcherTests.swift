@@ -5,6 +5,7 @@ import XCTest
 final class SentryLogBatcherTests: XCTestCase {
     
     private var options: Options!
+    private var testDateProvider: TestCurrentDateProvider!
     private var testDelegate: TestLogBatcherDelegate!
     private var testDispatchQueue: TestSentryDispatchQueueWrapper!
     private var scope: Scope!
@@ -15,6 +16,7 @@ final class SentryLogBatcherTests: XCTestCase {
             flushTimeout: 0.1, // Very small timeout for testing
             maxLogCount: 10, // Maximum 10 logs per batch
             maxBufferSizeBytes: 8_000, // byte limit for testing (log with attributes ~390 bytes)
+            dateProvider: testDateProvider,
             dispatchQueue: testDispatchQueue,
             delegate: testDelegate
         )
@@ -26,7 +28,8 @@ final class SentryLogBatcherTests: XCTestCase {
         options = Options()
         options.dsn = TestConstants.dsnForTestCase(type: Self.self)
         options.enableLogs = true
-        
+
+        testDateProvider = TestCurrentDateProvider()
         testDelegate = TestLogBatcherDelegate()
         testDispatchQueue = TestSentryDispatchQueueWrapper()
         testDispatchQueue.dispatchAsyncExecutesBlock = true // Execute encoding immediately
@@ -241,6 +244,7 @@ final class SentryLogBatcherTests: XCTestCase {
             flushTimeout: 5,
             maxLogCount: 1_000, // Maximum 1000 logs per batch
             maxBufferSizeBytes: 10_000,
+            dateProvider: testDateProvider,
             dispatchQueue: SentryDispatchQueueWrapper(),
             delegate: testDelegate
         )
@@ -271,6 +275,7 @@ final class SentryLogBatcherTests: XCTestCase {
             flushTimeout: 0.2,
             maxLogCount: 1_000, // Maximum 1000 logs per batch
             maxBufferSizeBytes: 10_000,
+            dateProvider: testDateProvider,
             dispatchQueue: SentryDispatchQueueWrapper(),
             delegate: testDelegate
         )

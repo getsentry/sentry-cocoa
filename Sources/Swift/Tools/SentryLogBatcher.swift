@@ -6,13 +6,11 @@ import Foundation
     func capture(logsData: NSData, count: NSNumber)
 }
 
-extension SentryLog: SentryItemBatcherItem {}
-
 @objc
 @objcMembers
 @_spi(Private) public class SentryLogBatcher: NSObject {
     private let options: Options
-    private let batcher: SentryItemBatcher<SentryLog>
+    private let batcher: any SentryItemBatcherProtocol<SentryLog, Scope>
     private weak var delegate: SentryLogBatcherDelegate?
 
     /// Convenience initializer with default flush timeout, max log count (100), and buffer size.
@@ -26,6 +24,7 @@ extension SentryLog: SentryItemBatcherItem {}
     /// - Note: Setting `maxLogCount` to 100. While Replay hard limit is 1000, we keep this lower, as it's hard to lower once released.
     @_spi(Private) public convenience init(
         options: Options,
+        dateProvider: SentryCurrentDateProvider,
         delegate: SentryLogBatcherDelegate
     ) {
         let dispatchQueue = SentryDispatchQueueWrapper(name: "io.sentry.log-batcher")
@@ -34,6 +33,7 @@ extension SentryLog: SentryItemBatcherItem {}
             flushTimeout: 5,
             maxLogCount: 100, // Maximum 100 logs per batch
             maxBufferSizeBytes: 1_024 * 1_024, // 1MB buffer size
+            dateProvider: dateProvider,
             dispatchQueue: dispatchQueue,
             delegate: delegate
         )
@@ -57,27 +57,35 @@ extension SentryLog: SentryItemBatcherItem {}
         flushTimeout: TimeInterval,
         maxLogCount: Int,
         maxBufferSizeBytes: Int,
+        dateProvider: SentryCurrentDateProvider,
         dispatchQueue: SentryDispatchQueueWrapper,
         delegate: SentryLogBatcherDelegate
     ) {
         self.batcher = SentryItemBatcher(
             config: .init(
-                beforeSendItem: options.beforeSendLog,
                 environment: options.environment,
                 releaseName: options.releaseName,
                 flushTimeout: flushTimeout,
                 maxItemCount: maxLogCount,
                 maxBufferSizeBytes: maxBufferSizeBytes,
+                beforeSendItem: options.beforeSendLog,
                 getInstallationId: {
                     SentryInstallation.cachedId(withCacheDirectoryPath: options.cacheDirectoryPath)
+                },
+                capturedDataCallback: { [weak delegate] data, count in
+                    guard let delegate else {
+                        SentrySDKLog.debug("SentryLogBatcher: Delegate not set, not capturing logs data.")
+                        return
+                    }
+                    delegate.capture(logsData: data as NSData, count: NSNumber(value: count))
                 }
             ),
+            dateProvider: dateProvider,
             dispatchQueue: dispatchQueue
         )
         self.options = options
         self.delegate = delegate
         super.init()
-        self.batcher.delegate = self
     }
 
     /// Adds a log to the batcher.
@@ -89,22 +97,15 @@ extension SentryLog: SentryItemBatcherItem {}
             return
         }
         
-        batcher.addItem(log, scope: scope)
+        batcher.add(log, scope: scope)
     }
 
     /// Captures batched logs sync and returns the duration.
     @discardableResult
     @_spi(Private) @objc public func captureLogs() -> TimeInterval {
-        return batcher.captureItems()
+        return batcher.capture()
     }
 }
 
-extension SentryLogBatcher: SentryItemBatcherDelegate {
-    func capture(itemBatcherData: Data, count: Int) {
-        guard let delegate else {
-            SentrySDKLog.debug("SentryLogBatcher: Delegate not set, not capturing logs data.")
-            return
-        }
-        delegate.capture(logsData: itemBatcherData as NSData, count: NSNumber(value: count))
-    }
-}
+extension SentryLog: SentryItemBatcherItem {}
+extension Scope: SentryItemBatcherScope {}
