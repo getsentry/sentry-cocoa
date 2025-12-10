@@ -68,10 +68,6 @@ public class SentryDestination: BaseDestination {
         line: Int,
         context: Any? = nil
     ) -> String? {
-        // Additional guard for level filtering.
-        guard level.rawValue >= minLevel.rawValue else {
-            return nil
-        }
         var attributes: [String: Any] = [:]
         attributes["sentry.origin"] = "auto.logging.swiftybeaver"
         attributes["swiftybeaver.level"] = "\(level.rawValue)"

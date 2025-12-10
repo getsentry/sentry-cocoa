@@ -39,11 +39,11 @@ log.info("User logged in", context: ["userId": "12345", "sessionId": "abc"])
 
 ### Log Level Threshold
 
-Set the minimum log level for messages to be sent to Sentry using SwiftyBeaver's built-in `minLevel` property. Messages below the configured threshold will be filtered out and not sent to Sentry.
+SwiftyBeaver automatically filters log messages based on each destination's `minLevel` property. Set `minLevel` to control which messages are sent to Sentry.
 
 ```swift
 let sentryDestination = SentryDestination()
-sentryDestination.minLevel = .info
+sentryDestination.minLevel = .error
 log.addDestination(sentryDestination)
 ```
 

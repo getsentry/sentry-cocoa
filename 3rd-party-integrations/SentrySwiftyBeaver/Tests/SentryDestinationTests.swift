@@ -215,30 +215,4 @@ final class SentryDestinationTests: XCTestCase {
         XCTAssertNotNil(log.attributes["swiftybeaver.context"])
         XCTAssertEqual(log.attributes["swiftybeaver.context"]?.value as? String, "simple string context")
     }
-    
-    func testIntegration_MinLevelWarning_CapturesWarningAndAbove() throws {
-        let sut = SentryDestination()
-        sut.minLevel = .warning
-        
-        // Log messages below the threshold (should be filtered out)
-        _ = sut.send(.verbose, msg: "Verbose message", thread: "main", file: "Test.swift", function: "testFunction", line: 1)
-        _ = sut.send(.debug, msg: "Debug message", thread: "main", file: "Test.swift", function: "testFunction", line: 2)
-        _ = sut.send(.info, msg: "Info message", thread: "main", file: "Test.swift", function: "testFunction", line: 3)
-        
-        // Log messages at or above the threshold
-        _ = sut.send(.warning, msg: "Warning message", thread: "main", file: "Test.swift", function: "testFunction", line: 4)
-        _ = sut.send(.error, msg: "Error message", thread: "main", file: "Test.swift", function: "testFunction", line: 5)
-        _ = sut.send(.critical, msg: "Critical message", thread: "main", file: "Test.swift", function: "testFunction", line: 6)
-        
-        XCTAssertEqual(capturedLogs.count, 3, "Expected all logs at or above .warning to be captured")
-        let expectedLogs: [(body: String, level: SentryLog.Level)] = [
-            ("Warning message", .warn),
-            ("Error message", .error),
-            ("Critical message", .fatal)
-        ]
-        for (index, expected) in expectedLogs.enumerated() {
-            XCTAssertEqual(capturedLogs[index].body, expected.body)
-            XCTAssertEqual(capturedLogs[index].level, expected.level)
-        }
-    }
 }
