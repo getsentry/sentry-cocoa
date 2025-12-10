@@ -401,6 +401,7 @@ jobs:
         if: failure()
         run: ./scripts/ci-diagnostics.sh
 
+  # This will be replaced once #6945 is merged.
   pulse-integration-unit-tests:
     name: SentryPulse Unit Tests
     if: needs.files-changed.outputs.run_unit_tests_for_prs == 'true'
