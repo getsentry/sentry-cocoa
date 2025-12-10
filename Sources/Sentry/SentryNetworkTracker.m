@@ -3,7 +3,6 @@
 #import "SentryBreadcrumb.h"
 #import "SentryClient+Private.h"
 #import "SentryDefaultThreadInspector.h"
-#import "SentryDsn.h"
 #import "SentryEvent.h"
 #import "SentryException.h"
 #import "SentryHttpStatusCodeRange+Private.h"
