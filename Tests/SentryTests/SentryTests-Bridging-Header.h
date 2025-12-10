@@ -101,7 +101,6 @@
 #import "SentryDefaultThreadInspector.h"
 #import "SentryDiscardReason.h"
 #import "SentryDiscardReasonMapper.h"
-#import "SentryDsn.h"
 #import "SentryEnvelopeAttachmentHeader.h"
 #import "SentryEnvelopeRateLimit.h"
 #import "SentryEvent+Private.h"
