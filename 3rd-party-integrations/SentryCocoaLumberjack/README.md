@@ -29,7 +29,7 @@ SentrySDK.start { options in
     options.enableLogs = true
 }
 
-DDLog.addLogger(SentryCocoaLumberjackLogger(), withLogLevel: .info)
+DDLog.add(SentryCocoaLumberjackLogger(), with: .info)
 
 DDLogInfo("User logged in")
 DDLogError("Payment failed")
@@ -46,7 +46,7 @@ Use CocoaLumberjack's built-in filtering API when adding the logger to set the m
 
 ```swift
 // Only send error logs to Sentry
-DDLog.addLogger(SentryCocoaLumberjackLogger(), withLogLevel: .error)
+DDLog.add(SentryCocoaLumberjackLogger(), with: .error)
 ```
 
 ## Log Level Mapping

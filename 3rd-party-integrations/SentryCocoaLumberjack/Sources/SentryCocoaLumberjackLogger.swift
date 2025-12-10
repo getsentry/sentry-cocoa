@@ -10,7 +10,7 @@ import Sentry
 /// ## Level Filtering
 /// Use CocoaLumberjack's built-in filtering API when adding the logger:
 /// ```swift
-/// DDLog.addLogger(SentryCocoaLumberjackLogger(), withLogLevel: .info)
+/// DDLog.add(SentryCocoaLumberjackLogger(), with: .info)
 /// ```
 /// This ensures only logs at or above the specified level are sent to Sentry.
 ///
@@ -35,7 +35,7 @@ import Sentry
 ///
 /// // Add SentryCocoaLumberjackLogger to CocoaLumberjack
 /// // Only logs at .info level and above will be sent to Sentry
-/// DDLog.addLogger(SentryCocoaLumberjackLogger(), withLogLevel: .info)
+/// DDLog.add(SentryCocoaLumberjackLogger(), with: .info)
 ///
 /// // Use CocoaLumberjack as usual
 /// DDLogInfo("User logged in")
@@ -49,8 +49,8 @@ public class SentryCocoaLumberjackLogger: DDAbstractLogger {
     /// Creates a new SentryCocoaLumberjackLogger instance.
     ///
     /// - Note: Make sure to initialize the Sentry SDK before creating this logger.
-    ///   Use `DDLog.addLogger(_:withLogLevel:)` to configure log level filtering.
-    public init() {
+    ///   Use `DDLog.add(_:with:)` to configure log level filtering.
+    public override init() {
         super.init()
     }
     
