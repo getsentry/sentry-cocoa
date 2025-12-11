@@ -102,7 +102,7 @@ jobs:
         run: ./scripts/ci-ensure-runtime-loaded.sh --os-version "$OS_VERSION" --platform "$PLATFORM"
 
       # Create simulator devices for non-preinstalled simulators
-      # Required for iOS 16.4, iOS 17.5 (on Xcode 15.4), and iOS/tvOS 26.1
+      # Required for iOS 17.5 (on Xcode 15.4), and iOS/tvOS 26.1
       - name: Create simulator device
         if: ${{ inputs.create_device }}
         env:
