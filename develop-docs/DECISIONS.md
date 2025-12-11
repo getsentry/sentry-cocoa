@@ -577,7 +577,7 @@ Contributors: @itaybre, @philprime, @philipphofmann
 
 Until v9.1.0, we maintained a separate variant of the SDK with additional public headers and APIs intended for downstream SDKs (React Native, Flutter, .NET, and our SwiftUI variant). This meant any change that affected our distribution system required maintaining at least one extra variant of the SDK, which increased the team's workload significantly.
 
-However, there was nothing stopping users from using these APIs. They could simply change their dependency to the HybridSDK variant and access any of the "internal" APIs, so the separation provided no real protection.
+However, there is nothing stopping users from using these APIs. They could simply change their dependency to the HybridSDK variant and access any of the "internal" APIs, so the separation provided no real protection.
 
 Given these drawbacks with no tangible benefits, we decided to remove the HybridSDK submodule and subspec, merging all APIs into the regular target. Moving forward, we will treat Hybrid SDKs as first-class citizens by:
 
