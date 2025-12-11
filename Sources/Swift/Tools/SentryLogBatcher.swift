@@ -10,7 +10,7 @@ import Foundation
 @objcMembers
 @_spi(Private) public class SentryLogBatcher: NSObject {
     private let options: Options
-    private let batcher: any SentryItemBatcherProtocol<SentryLog, Scope>
+    private let batcher: any BatcherProtocol<SentryLog, Scope>
     private weak var delegate: SentryLogBatcherDelegate?
 
     /// Convenience initializer with default flush timeout, max log count (100), and buffer size.
@@ -61,7 +61,7 @@ import Foundation
         dispatchQueue: SentryDispatchQueueWrapper,
         delegate: SentryLogBatcherDelegate
     ) {
-        self.batcher = SentryItemBatcher(
+        self.batcher = Batcher(
             config: .init(
                 environment: options.environment,
                 releaseName: options.releaseName,
@@ -80,6 +80,7 @@ import Foundation
                     delegate.capture(logsData: data as NSData, count: NSNumber(value: count))
                 }
             ),
+            batchStorage: InMemoryBatchStorage(),
             dateProvider: dateProvider,
             dispatchQueue: dispatchQueue
         )
@@ -107,5 +108,4 @@ import Foundation
     }
 }
 
-extension SentryLog: SentryItemBatcherItem {}
-extension Scope: SentryItemBatcherScope {}
+extension SentryLog: BatcherItem {}

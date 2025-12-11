@@ -10,6 +10,7 @@ extension SentryClientInternal {
 
         self.init(
             options: options,
+            dateProvider: SentryDependencyContainer.sharedInstance().dateProvider,
             transportAdapter: transportAdapter,
             fileManager: fileManager,
             threadInspector: SentryDefaultThreadInspector(options: options),
@@ -112,6 +113,7 @@ class SentryClientTests: XCTestCase {
 
                 client = SentryClientInternal(
                     options: options,
+                    dateProvider: dateProvider,
                     transportAdapter: transportAdapter,
                     fileManager: fileManager,
                     threadInspector: threadInspector,
