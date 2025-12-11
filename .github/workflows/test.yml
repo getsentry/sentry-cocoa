@@ -248,8 +248,6 @@ jobs:
       platform: ${{matrix.platform}}
       test-destination-os: ${{matrix.test-destination-os || 'latest'}}
       timeout: 20
-      create_device: ${{matrix.create_device || false}}
-      install_platforms: ${{matrix.install_platforms || false}}
       device: ${{matrix.device || ''}}
       scheme: ${{matrix.scheme || 'Sentry'}}
       run_on_cirrus_labs: ${{ !contains(matrix.runs-on, 'macos-') }}
@@ -266,7 +264,6 @@ jobs:
             xcode: "16.2"
             test-destination-os: "17.5"
             platform: "iOS"
-            create_device: false
             device: "iPhone 15 Pro"
             scheme: "Sentry"
 
@@ -353,7 +350,6 @@ jobs:
             xcode: "16.2"
             test-destination-os: "17.5"
             platform: "iOS"
-            create_device: false
             device: "iPhone 15 Pro"
             scheme: "SentrySwiftUI"
 
@@ -370,9 +366,7 @@ jobs:
             runs-on: macos-26
             xcode: "26.1.1"
             test-destination-os: "26.1"
-            install_platforms: true
             platform: "tvOS"
-            create_device: false
             device: "Apple TV"
             scheme: "Sentry"
 
