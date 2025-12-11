@@ -1,4 +1,4 @@
-/// A typed attribute that can be attached to structured item entries used by Logs and Metrics
+/// A typed attribute that can be attached to structured item entries used by Logs
 ///
 /// `Attribute` provides a type-safe way to store structured data alongside item messages.
 /// Supports String, Bool, Int, and Double types.
