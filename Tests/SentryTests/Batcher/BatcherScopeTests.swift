@@ -440,7 +440,7 @@ final class BatcherScopeTests: XCTestCase {
     func testApplyToItem_withScopeAttributes_shouldAddScopeAttributes() {
         // -- Arrange --
         var scope = TestScope(propagationContextTraceIdString: SentryId().sentryIdString)
-        scope.attributes = ["custom.key": "custom.value"]
+        scope.attributes = ["custom.key": "custom.value", "custom.number": 42, "custom.bool": true]
         let config = createTestConfig()
         var item = createTestItem()
 
@@ -448,9 +448,25 @@ final class BatcherScopeTests: XCTestCase {
         scope.applyToItem(&item, config: config)
 
         // -- Assert --
-        // Note: The current implementation has a bug - it iterates over item attributes instead of scope attributes
-        // This test verifies current behavior, which may not match the intended behavior
-        // The scope attributes may not be added due to the bug
+        XCTAssertEqual(item.attributes["custom.key"]?.value as? String, "custom.value")
+        XCTAssertEqual(item.attributes["custom.number"]?.value as? Int, 42)
+        XCTAssertEqual(item.attributes["custom.bool"]?.value as? Bool, true)
+    }
+    
+    func testApplyToItem_withScopeAttributes_whenItemHasExistingAttribute_shouldNotOverride() {
+        // -- Arrange --
+        var scope = TestScope(propagationContextTraceIdString: SentryId().sentryIdString)
+        scope.attributes = ["custom.key": "scope.value"]
+        let config = createTestConfig()
+        var item = createTestItem()
+        item.attributes["custom.key"] = .init(string: "item.value")
+
+        // -- Act --
+        scope.applyToItem(&item, config: config)
+
+        // -- Assert --
+        // Scope attributes should not override existing item attributes
+        XCTAssertEqual(item.attributes["custom.key"]?.value as? String, "item.value")
     }
 
     // MARK: - Default User ID Tests

@@ -235,6 +235,22 @@ final class BatcherTests: XCTestCase {
         XCTAssertEqual(testStorage.flushCallCount, 1)
     }
     
+    func testCapture_whenMultipleItems_shouldPassCorrectItemCount() {
+        // -- Arrange --
+        let sut = getSut()
+        sut.add(TestItem(body: "Item 1"), scope: testScope)
+        sut.add(TestItem(body: "Item 2"), scope: testScope)
+        sut.add(TestItem(body: "Item 3"), scope: testScope)
+        
+        // -- Act --
+        _ = sut.capture()
+        
+        // -- Assert --
+        XCTAssertEqual(capturedDataInvocations.count, 1)
+        let invocation = capturedDataInvocations.invocations.first!
+        XCTAssertEqual(invocation.1, 3, "Callback should receive item count, not byte size")
+    }
+    
     func testCapture_whenEmptyBuffer_shouldNotCallCallback() {
         // -- Arrange --
         let sut = getSut()

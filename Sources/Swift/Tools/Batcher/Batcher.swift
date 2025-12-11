@@ -59,8 +59,10 @@ final class Batcher<Storage: BatchStorage<Item>, Item: BatcherItem, Scope: Batch
     ///   - item: The item to add to the batch
     ///   - scope: The scope to apply to the item (adds attributes, trace ID, etc.)
     ///
-    /// - Note: The item is processed asynchronously on the batcher's serial dispatch queue.
-    ///        If `config.beforeSendItem` returns `nil`, the item is dropped and not added to the batch.
+    /// - Note: Scope application (attribute enrichment) and the `beforeSendItem` callback are executed
+    ///        synchronously on the caller's thread. Only encoding and buffering happen asynchronously
+    ///        on the batcher's serial dispatch queue. If `config.beforeSendItem` returns `nil`,
+    ///        the item is dropped and not added to the batch.
     func add(_ item: Item, scope: Scope) {
         var item = item
         scope.applyToItem(&item, config: config)
@@ -84,6 +86,11 @@ final class Batcher<Storage: BatchStorage<Item>, Item: BatcherItem, Scope: Batch
     /// - Returns: The time taken to capture items in seconds
     ///
     /// - Note: This method blocks until all items are captured. The batcher's buffer is cleared after capture.
+    ///
+    /// - Important: This method uses `dispatchSync` to synchronously execute on the batcher's serial dispatch queue.
+    ///              **Do not call this method from within the batcher's dispatch queue or from within the
+    ///              `capturedDataCallback` closure**, as this will cause a deadlock. This method should only be
+    ///              called from external threads or queues (e.g., main thread, app lifecycle callbacks).
     @discardableResult func capture() -> TimeInterval {
         let startTimeNs = dateProvider.getAbsoluteTime()
         dispatchQueue.dispatchSync { [weak self] in
@@ -148,6 +155,6 @@ final class Batcher<Storage: BatchStorage<Item>, Item: BatcherItem, Scope: Batch
             SentrySDKLog.debug("No items to flush.")
             return
         }
-        config.capturedDataCallback(batchStorage.data, batchStorage.size)
+        config.capturedDataCallback(batchStorage.data, batchStorage.count)
     }
 }
