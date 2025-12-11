@@ -72,4 +72,17 @@ final class SentryInstallationTests: XCTestCase {
         XCTAssertEqual(cachedID, nonCachedID)
 
     }
+    
+    func testCachedIDIsNilWhenNoInstallationIsFound() {
+        let cachedID = SentryInstallation.cachedId(withCacheDirectoryPath: basePath)
+        XCTAssertNil(cachedID)
+    }
+    
+    func testCachedID_returnsActuallyCachedId() {
+        let id1 = SentryInstallation.id(withCacheDirectoryPath: basePath)
+        
+        let cachedID = SentryInstallation.cachedId(withCacheDirectoryPath: basePath)
+        
+        XCTAssertEqual(id1, cachedID)
+    }
 }

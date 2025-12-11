@@ -657,6 +657,7 @@ NS_ASSUME_NONNULL_BEGIN
         [_installedIntegrations addObject:integration];
         [_installedIntegrationNames addObject:name];
     }
+    SENTRY_LOG_DEBUG(@"Integration installed: %@", name);
 }
 
 - (void)removeAllIntegrations

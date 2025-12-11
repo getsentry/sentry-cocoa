@@ -25,7 +25,7 @@ import ObjectiveC
  * /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS.simruntime/Contents/Resources/RuntimeRoot/System/Library/...
  *
  */
-@objc @_spi(Private) public class SentryInAppLogic: NSObject {
+@objc @_spi(Private) public final class SentryInAppLogic: NSObject {
     
     @objc public let inAppIncludes: [String]
     

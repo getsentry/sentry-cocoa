@@ -55,7 +55,7 @@ format: format-clang format-swift-all format-markdown format-json format-yaml
 # Format ObjC, ObjC++, C, and C++
 format-clang:
 	@find . -type f \( -name "*.h" -or -name "*.hpp" -or -name "*.c" -or -name "*.cpp" -or -name "*.m" -or -name "*.mm" \) -and \
-		! \( -path "**.build/*" -or -path "**Build/*" -or -path "**/Carthage/Checkouts/*"  -or -path "**/libs/**" -or -path "**/Pods/**" -or -path "**/*.xcarchive/*" \) \
+		! \( -path "**.build/*" -or -path "**Build/*"  -or -path "**/libs/**" -or -path "**/Pods/**" -or -path "**/*.xcarchive/*" \) \
 		| xargs clang-format -i -style=file
 
 # Format all Swift files
@@ -163,11 +163,6 @@ git-commit-add:
 	git tag ${TO}
 	git push
 	git push --tags
-
-release-pod:
-	pod trunk push SentryPrivate.podspec
-	pod trunk push Sentry.podspec
-	pod trunk push SentrySwiftUI.podspec
 
 xcode:
 	make xcode-ci

@@ -10,7 +10,7 @@ import Foundation
 }
 
 @objc
-@_spi(Private) public class SentryAppHangTypeMapper: NSObject {
+@_spi(Private) public final class SentryAppHangTypeMapper: NSObject {
 
     private enum ExceptionType: String {
         case fatalFullyBlocking = "Fatal App Hang Fully Blocked"

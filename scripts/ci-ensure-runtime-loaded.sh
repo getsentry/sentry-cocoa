@@ -9,11 +9,13 @@ set -euo pipefail
 
 # Parse named arguments
 OS_VERSION=""
+PLATFORM=""
 
 usage() {
-    echo "Usage: $0 --os-version <os_version>"
+    echo "Usage: $0 --os-version <os_version> --platform <platform>"
     echo "  OS version: Version to ensure is loaded (e.g., 26.1 for beta, 16.4 for older iOS)"
-    echo "  Example: $0 --os-version 26.1"
+    echo "  Platform: Platform to ensure is loaded (e.g., iOS, tvOS, visionOS)"
+    echo "  Example: $0 --os-version 26.1 --platform iOS"
     echo "  Example: $0 --os-version 16.4"
     exit 1
 }
@@ -22,6 +24,10 @@ while [[ $# -gt 0 ]]; do
     case $1 in
         --os-version)
             OS_VERSION="$2"
+            shift 2
+            ;;
+        --platform)
+            PLATFORM="$2"
             shift 2
             ;;
         *)
@@ -36,15 +42,20 @@ if [ -z "$OS_VERSION" ]; then
     usage
 fi
 
-echo "Ensuring runtime $OS_VERSION is loaded"
+if [ -z "$PLATFORM" ]; then
+    echo "Error: --platform argument is required"
+    usage
+fi
+
+echo "Ensuring runtime $PLATFORM ($OS_VERSION) is loaded"
 
 # Check if the runtime is loaded
-if xcrun simctl list runtimes -v | grep -qE "iOS $OS_VERSION" && ! xcrun simctl list runtimes -v | grep -qE "iOS $OS_VERSION.*unavailable" ; then
+if xcrun simctl list runtimes -v | grep -qE "$PLATFORM $OS_VERSION" && ! xcrun simctl list runtimes -v | grep -qE "$PLATFORM $OS_VERSION.*unavailable" ; then
     echo "Runtime $OS_VERSION is loaded"
     exit 0
 fi
 
-echo "Runtime $OS_VERSION is not loaded, will try to load it"
+echo "Runtime $PLATFORM ($OS_VERSION) is not loaded, will try to load it"
 
 # Unmount simulator volumes once before checking
 for dir in /Library/Developer/CoreSimulator/Volumes/*; do
@@ -56,9 +67,9 @@ sudo pkill -9 com.apple.CoreSimulator.CoreSimulatorService || true
 
 # Wait for a runtime to be loaded
 count=0
-MAX_ATTEMPTS=100 # 500 seconds timeout
+MAX_ATTEMPTS=60 # 300 seconds (5 minutes) timeout
 while [ $count -lt $MAX_ATTEMPTS ]; do
-    if xcrun simctl list runtimes -v | grep -qE "iOS $OS_VERSION" && ! xcrun simctl list runtimes -v | grep -qE "iOS $OS_VERSION.*unavailable"; then
+    if xcrun simctl list runtimes -v | grep -qE "$PLATFORM $OS_VERSION" && ! xcrun simctl list runtimes -v | grep -qE "$PLATFORM $OS_VERSION.*unavailable"; then
         echo "Runtime $OS_VERSION is loaded after $count attempts"
         exit 0
     fi
@@ -67,5 +78,5 @@ while [ $count -lt $MAX_ATTEMPTS ]; do
     sleep 5
 done
 
-echo "Runtime $OS_VERSION is not loaded after $count attempts"
+echo "Runtime $PLATFORM ($OS_VERSION) is not loaded after $count attempts"
 exit 1

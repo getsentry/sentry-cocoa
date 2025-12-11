@@ -1,7 +1,7 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
-@objc class SentryRRWebOptionsEvent: SentryRRWebCustomEvent {
+final class SentryRRWebOptionsEvent: SentryRRWebCustomEvent {
     
     init(timestamp: Date, customOptions: [String: Any]) {
         super.init(timestamp: timestamp, tag: "options", payload: customOptions)

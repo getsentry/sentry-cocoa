@@ -3,8 +3,8 @@
 import XCTest
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-class SentryAppStateManagerTests: XCTestCase {
-    private static let dsnAsString = TestConstants.dsnAsString(username: "SentryOutOfMemoryTrackerTests")
+final class SentryAppStateManagerTests: XCTestCase {
+    private static let dsnAsString = TestConstants.dsnForTestCase(type: SentryAppStateManagerTests.self)
 
     private class Fixture {
 
@@ -51,6 +51,7 @@ class SentryAppStateManagerTests: XCTestCase {
 
     override func tearDown() {
         super.tearDown()
+        sut.stop(withForce: true)
         fixture.fileManager.deleteAppState()
         clearTestState()
     }
