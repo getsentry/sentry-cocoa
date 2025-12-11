@@ -445,8 +445,6 @@ run_ui_tests_for_prs: &run_ui_tests_for_prs
 
   # Scripts
   - "scripts/ci-select-xcode.sh"
-  - "scripts/build-xcframework-slice.sh"
-  - "scripts/assemble-xcframework.sh"
   - "scripts/ci-diagnostics.sh"
   - "scripts/ci-utils.sh"
   - "scripts/ci-ensure-runtime-loaded.sh"
