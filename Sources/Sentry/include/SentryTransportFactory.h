@@ -2,6 +2,7 @@
 
 @class SentryFileManager;
 @class SentryOptions;
+@class SentryReachability;
 @protocol SentryCurrentDateProvider;
 @protocol SentryRateLimits;
 
@@ -13,7 +14,8 @@ NS_SWIFT_NAME(TransportInitializer)
 + (NSArray<id<SentryTransport>> *)initTransports:(SentryOptions *)options
                                     dateProvider:(id<SentryCurrentDateProvider>)dateProvider
                                sentryFileManager:(SentryFileManager *)sentryFileManager
-                                      rateLimits:(id<SentryRateLimits>)rateLimits;
+                                      rateLimits:(id<SentryRateLimits>)rateLimits
+                                    reachability:(SentryReachability *)reachability;
 
 @end
 

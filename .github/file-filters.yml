@@ -156,6 +156,7 @@ run_test_cross_platform_for_prs: &run_test_cross_platform_for_prs
   - "scripts/ci-select-xcode.sh"
   - "scripts/ci-diagnostics.sh"
   - "scripts/ci-utils.sh"
+  - "scripts/ci-ensure-runtime-loaded.sh"
 
   # Build configuration
   - "Makefile"
@@ -423,7 +424,6 @@ run_version_bump_util_for_prs: &run_version_bump_util_for_prs
 
   # Project files with version info
   - "Sentry.podspec"
-  - "SentryPrivate.podspec"
   - "SentrySwiftUI.podspec"
   - "Package*.swift"
   - "Tests/HybridSDKTest/HybridPod.podspec"

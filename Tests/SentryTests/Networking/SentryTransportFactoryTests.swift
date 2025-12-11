@@ -30,7 +30,8 @@ class SentryTransportFactoryTests: XCTestCase {
             options,
             dateProvider: dateProvider,
             sentryFileManager: fileManager,
-            rateLimits: rateLimiting()
+            rateLimits: rateLimiting(),
+            reachability: TestSentryReachability()
         )
         let httpTransport = transports.first
         let requestManager = try XCTUnwrap(Dynamic(httpTransport).requestManager.asObject as? SentryQueueableRequestManager)
@@ -70,7 +71,8 @@ class SentryTransportFactoryTests: XCTestCase {
             options,
             dateProvider: dateProvider,
             sentryFileManager: fileManager,
-            rateLimits: rateLimiting()
+            rateLimits: rateLimiting(),
+            reachability: TestSentryReachability()
         )
                 
         let httpTransport = transports.first
@@ -103,7 +105,8 @@ class SentryTransportFactoryTests: XCTestCase {
                 dateProvider: dateProvider,
                 dispatchQueueWrapper: TestSentryDispatchQueueWrapper()
             ),
-            rateLimits: rateLimiting()
+            rateLimits: rateLimiting(),
+            reachability: TestSentryReachability()
         )
 
         // -- Assert --
@@ -133,7 +136,8 @@ class SentryTransportFactoryTests: XCTestCase {
                 dateProvider: dateProvider,
                 dispatchQueueWrapper: TestSentryDispatchQueueWrapper()
             ),
-            rateLimits: rateLimiting()
+            rateLimits: rateLimiting(),
+            reachability: TestSentryReachability()
         )
 
         // -- Assert --
@@ -157,7 +161,8 @@ class SentryTransportFactoryTests: XCTestCase {
                 dateProvider: dateProvider,
                 dispatchQueueWrapper: TestSentryDispatchQueueWrapper()
             ),
-            rateLimits: rateLimiting()
+            rateLimits: rateLimiting(),
+            reachability: TestSentryReachability()
         )
 
         // -- Assert --

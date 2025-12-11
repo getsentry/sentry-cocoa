@@ -1324,6 +1324,25 @@ class SentryHubTests: XCTestCase {
         })
     }
     
+    func testAddIntegration() {
+        let oldOutput = SentrySDKLog.getLogOutput()
+        defer {
+            SentrySDKLog.setOutput(oldOutput)
+        }
+        let logOutput = TestLogOutput()
+        SentrySDKLog.setLogOutput(logOutput)
+        SentrySDKLog.configureLog(true, diagnosticLevel: .debug)
+        
+        let sut = fixture.getSut()
+
+        sut.addInstalledIntegration(EmptyIntegration(), name: "MyIntegrationName")
+        
+        let logs = logOutput.loggedMessages.joined()
+        XCTAssertTrue(logs.contains("Integration installed: MyIntegrationName"), "Should log when MyIntegrationName is installed")
+        XCTAssertTrue(sut.hasIntegration("MyIntegrationName"))
+        XCTAssertNotNil(sut.getInstalledIntegration(EmptyIntegration.self))
+    }
+    
     func testModifyIntegrationsConcurrently() {
         
         let sut = fixture.getSut()

@@ -4,12 +4,13 @@ import XCTest
 
 extension SentryClientInternal {
     convenience init(options: Options, fileManager: SentryFileManager) {
-        let transports = TransportInitializer.initTransports(options, dateProvider: SentryDependencyContainer.sharedInstance().dateProvider, sentryFileManager: fileManager, rateLimits: SentryDependencyContainer.sharedInstance().rateLimits)
+        let transports = TransportInitializer.initTransports(options, dateProvider: SentryDependencyContainer.sharedInstance().dateProvider, sentryFileManager: fileManager, rateLimits: SentryDependencyContainer.sharedInstance().rateLimits, reachability: TestSentryReachability())
 
         let transportAdapter = SentryTransportAdapter(transports: transports, options: options)
 
         self.init(
             options: options,
+            dateProvider: SentryDependencyContainer.sharedInstance().dateProvider,
             transportAdapter: transportAdapter,
             fileManager: fileManager,
             threadInspector: SentryDefaultThreadInspector(options: options),
@@ -112,6 +113,7 @@ class SentryClientTests: XCTestCase {
 
                 client = SentryClientInternal(
                     options: options,
+                    dateProvider: dateProvider,
                     transportAdapter: transportAdapter,
                     fileManager: fileManager,
                     threadInspector: threadInspector,
@@ -2398,6 +2400,10 @@ class SentryClientTests: XCTestCase {
         let testDelegate = TestLogBatcherDelegateForClient()
         let testBatcher = TestLogBatcherForClient(
             options: sut.options,
+            flushTimeout: 5,
+            maxLogCount: 100,
+            maxBufferSizeBytes: 1_024 * 1_024,
+            dateProvider: TestCurrentDateProvider(),
             dispatchQueue: TestSentryDispatchQueueWrapper(),
             delegate: testDelegate
         )
@@ -2423,22 +2429,44 @@ class SentryClientTests: XCTestCase {
     func testFlushCallsLogBatcherCaptureLogs() {
         let sut = fixture.getSut()
         
-        // Create a test batcher to verify captureLogs is called
         let testDelegate = TestLogBatcherDelegateForClient()
         let testBatcher = TestLogBatcherForClient(
             options: sut.options,
+            flushTimeout: 5,
+            maxLogCount: 100,
+            maxBufferSizeBytes: 1_024 * 1_024,
+            dateProvider: TestCurrentDateProvider(),
             dispatchQueue: TestSentryDispatchQueueWrapper(),
             delegate: testDelegate
         )
         Dynamic(sut).logBatcher = testBatcher
         
-        // Verify initial state
         XCTAssertEqual(testBatcher.captureLogsInvocations.count, 0)
         
-        // Call flush - this should trigger the log batcher to capture logs
         sut.flush(timeout: 1.0)
         
-        // Verify that captureLogs was called on the log batcher
+        XCTAssertEqual(testBatcher.captureLogsInvocations.count, 1)
+    }
+    
+    func testCaptureLogsCallsLogBatcherCaptureLogs() {
+        let sut = fixture.getSut()
+        
+        let testDelegate = TestLogBatcherDelegateForClient()
+        let testBatcher = TestLogBatcherForClient(
+            options: sut.options,
+            flushTimeout: 5,
+            maxLogCount: 100,
+            maxBufferSizeBytes: 1_024 * 1_024,
+            dateProvider: TestCurrentDateProvider(),
+            dispatchQueue: TestSentryDispatchQueueWrapper(),
+            delegate: testDelegate
+        )
+        Dynamic(sut).logBatcher = testBatcher
+        
+        XCTAssertEqual(testBatcher.captureLogsInvocations.count, 0)
+        
+        sut.captureLogs()
+        
         XCTAssertEqual(testBatcher.captureLogsInvocations.count, 1)
     }
     

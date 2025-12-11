@@ -1,7 +1,7 @@
 import Foundation
 
 @objc
-@_spi(Private) public class SentryDateUtil: NSObject {
+@_spi(Private) public final class SentryDateUtil: NSObject {
 
     private let currentDateProvider: SentryCurrentDateProvider
 

@@ -31,7 +31,8 @@ class SentryTransportInitializerTests: XCTestCase {
             options,
             dateProvider: dateProvider,
             sentryFileManager: fileManager,
-            rateLimits: rateLimits
+            rateLimits: rateLimits,
+            reachability: TestSentryReachability()
         )
         XCTAssertEqual(result.count, 1)
         

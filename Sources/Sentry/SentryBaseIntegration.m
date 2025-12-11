@@ -34,12 +34,6 @@ NS_ASSUME_NONNULL_BEGIN
         return YES;
     }
 
-    if ((integrationOptions & kIntegrationOptionEnableAutoSessionTracking)
-        && !options.enableAutoSessionTracking) {
-        [self logWithOptionName:@"enableAutoSessionTracking"];
-        return NO;
-    }
-
     if ((integrationOptions & kIntegrationOptionEnableWatchdogTerminationTracking)
         && !options.enableWatchdogTerminationTracking) {
         [self logWithOptionName:@"enableWatchdogTerminationTracking"];
