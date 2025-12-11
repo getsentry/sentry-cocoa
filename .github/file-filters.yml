@@ -441,8 +441,6 @@ run_ui_tests_for_prs: &run_ui_tests_for_prs
   - ".github/workflows/ui-tests.yml"
   - ".github/workflows/ui-tests-cirrus-labs.yml"
   - ".github/workflows/ui-tests-common.yml"
-  - ".github/workflows/build-xcframework-variant-slices.yml"
-  - ".github/workflows/assemble-xcframework-variant.yml"
   - ".github/file-filters.yml"
 
   # Scripts
