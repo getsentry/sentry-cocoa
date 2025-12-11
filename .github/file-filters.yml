@@ -69,7 +69,7 @@ run_api_stability_for_prs: &run_api_stability_for_prs
   - "Sentry.xcodeproj/**"
   - "Package*.swift"
 
-  # Scripts  
+  # Scripts
   - "scripts/build-xcframework-slice.sh"
   - "scripts/assemble-xcframework.sh"
   - "scripts/update-api.sh"
