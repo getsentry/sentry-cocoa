@@ -6,6 +6,7 @@
 
 - Change default attributes of Logs to only include user attributes when `options.sendDefaultPii = true` (#7055)
 - Rename log attribute `sentry.trace.parent_span_id` to `span_id` (#7055)
+- Fixes stacktraces for MetricKit events (#6908)
 
 ## 9.1.0
 

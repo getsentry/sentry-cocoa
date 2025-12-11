@@ -196,7 +196,9 @@ API_AVAILABLE(macos(12.0))
     params.exceptionMechanism = SentryMetricKitHangDiagnosticMechanism;
     params.timeStampBegin = timeStampBegin;
 
-    [self captureMXEvent:callStackTree params:params diagnosticJSON:[NSData data]];
+    [self captureMXEvent:callStackTree
+                  params:params
+          diagnosticJSON:[diagnostic JSONRepresentation]];
 }
 
 - (void)captureMXEvent:(SentryMXCallStackTree *)callStackTree
