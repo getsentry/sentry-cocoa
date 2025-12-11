@@ -258,3 +258,7 @@ extension SentryDependencyContainer: ScreenshotSourceProvider { }
 #endif
 
 extension SentryDependencyContainer: AutoSessionTrackingProvider { }
+
+#if ((os(iOS) || os(tvOS) || (swift(>=5.9) && os(visionOS))) && !SENTRY_NO_UIKIT) || os(macOS)
+extension SentryDependencyContainer: NotificationCenterProvider { }
+#endif

@@ -1,16 +1,30 @@
 # Changelog
 
-## Unreleased
+## 9.1.0
+
+> [!Warning]
+> The class `SentryDsn` has been converted from Objective-C to Swift. While the public API remains the same, you might have to remove imports of the `SentryDsn.h` from your Objective-C code.
+> We acknowledge that this is a breaking change introduced in a minor release, but it should have been part of the major release 9.0.0 already before - apologies for any inconveniences caused.
+
+### Breaking Changes
+
+- Refactored type `SentryDsn` from Objective-C to Swift, removing the `SentryDsn.h` from the public header files.
 
 ### Features
 
 - Add attributes data to `SentryScope` (#6830)
 - Add `SentryScope` attributes into log messages (#6834)
 
+### Improvements
+
+- Flush Logs on `WillTerminate` or `WillResignActive` Notifications (#6909)
+
 ### Fixes
 
+- Save app context information (release name, dist, environment) on app hang events before saving to disk to prevent incorrect version information when an app hang turns fatal (#6998)
 - Disabled automatic session tracking in system extensions to prevent extension blocking and unwanted dock icon behavior (#6962) (#6962)
 - Fixes crash when null values are passed to `UIApplication sendAction:to:from:forEvent:` (#6970)
+- Fixes `user.id` not set to installationId if no user is set (#7005)
 
 ## 9.0.0
 

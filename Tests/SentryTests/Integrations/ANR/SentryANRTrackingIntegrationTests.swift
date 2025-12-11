@@ -21,6 +21,7 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
             options.dsn = SentryANRTrackingIntegrationTests.dsn
             options.enableAppHangTracking = true
             options.appHangTimeoutInterval = 4.5
+            options.releaseName = "release-name-test"
 
             debugImageProvider.debugImages = [TestData.debugImage]
         }
@@ -364,6 +365,24 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
     }
     
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+    func testV2_ANRDetected_StoresAppHangEventInFile() throws {
+        // Arrange
+        options.releaseName = "my-release-name-test"
+        options.environment = "testing-environment"
+        options.dist = "adhoc"
+        setUpThreadInspector()
+        givenInitializedTracker()
+        
+        // Act
+        Dynamic(sut).anrDetectedWithType(SentryANRType.nonFullyBlocking)
+        
+        // Assert
+        let event = try XCTUnwrap(SentrySDKInternal.currentHub().client()?.fileManager.readAppHangEvent())
+        XCTAssertEqual(event.releaseName, "my-release-name-test")
+        XCTAssertEqual(event.environment, "testing-environment")
+        XCTAssertEqual(event.dist, "adhoc")
+    }
+    
     func testV2_ANRDetected_DoesNotCaptureEvent() throws {
         // Arrange
         setUpThreadInspector()
@@ -424,6 +443,8 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
             // Ensure we capture the event with an empty scope
             XCTAssertEqual(scope?.tags.count, 0)
             XCTAssertEqual(scope?.breadcrumbs().count, 0)
+            
+            XCTAssertEqual(event?.releaseName, "release-name-test")
         }
     }
 
@@ -472,6 +493,8 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
             // Ensure we capture the event with an empty scope
             XCTAssertEqual(scope?.tags.count, 0)
             XCTAssertEqual(scope?.breadcrumbs().count, 0)
+            
+            XCTAssertEqual(event?.releaseName, "release-name-test")
         }
     }
 
@@ -529,6 +552,8 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
             let breadcrumbs = try XCTUnwrap(event?.breadcrumbs)
             XCTAssertEqual(1, breadcrumbs.count)
             XCTAssertEqual("crumb", breadcrumbs.first?.message)
+            
+            XCTAssertEqual(event?.releaseName, "release-name-test")
         }
     }
 
@@ -566,6 +591,8 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
             let breadcrumbs = try XCTUnwrap(event?.breadcrumbs)
             XCTAssertEqual(1, breadcrumbs.count)
             XCTAssertEqual("crumb", breadcrumbs.first?.message)
+            
+            XCTAssertEqual(event?.releaseName, "release-name-test")
         }
     }
 
@@ -618,6 +645,8 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         XCTAssertEqual("distinct", actualSession.distinctId)
         XCTAssertEqual(fixture.currentDate.date(), actualSession.timestamp)
         XCTAssertEqual("anr_foreground", actualSession.abnormalMechanism)
+        
+        XCTAssertEqual(event.releaseName, "release-name-test")
     }
     
     func testV2_ANRDetected_StopNotCalledAndCrashed_SendsNormalAppHangEvent() throws {
