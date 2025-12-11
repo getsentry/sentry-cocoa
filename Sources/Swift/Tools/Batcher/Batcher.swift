@@ -30,18 +30,18 @@ final class Batcher<Storage: BatchStorage<Item>, Item: BatcherItem, Scope: Batch
 
     private var timerWorkItem: DispatchWorkItem?
 
-    /// Initializes a new SentryItemBatcher.
+    /// Initializes a new `Batcher`.
     /// - Parameters:
-    ///   - options: The Sentry configuration options
-    ///   - flushTimeout: The timeout interval after which buffered items will be flushed
-    ///   - maxItemCount: Maximum number of items to batch before triggering an immediate flush.
-    ///   - maxBufferSizeBytes: The maximum buffer size in bytes before triggering an immediate flush
+    ///   - config: The batcher configuration containing flush timeout, limits, and callbacks
+    ///   - batchStorage: The storage implementation for buffering items
+    ///   - dateProvider: Provider for current date/time used for timing measurements
     ///   - dispatchQueue: A **serial** dispatch queue wrapper for thread-safe access to mutable state
     ///
     /// - Important: The `dispatchQueue` parameter MUST be a serial queue to ensure thread safety.
     ///              Passing a concurrent queue will result in undefined behavior and potential data races.
     ///
-    /// - Note: Items are flushed when either `maxItemCount` or `maxBufferSizeBytes` limit is reached.
+    /// - Note: Items are flushed when either `config.maxItemCount` or `config.maxBufferSizeBytes` limit is reached,
+    ///        or after `config.flushTimeout` seconds have elapsed since the first item was added to an empty buffer.
     @_spi(Private) public init(
         config: Config,
         batchStorage: Storage,
@@ -54,6 +54,13 @@ final class Batcher<Storage: BatchStorage<Item>, Item: BatcherItem, Scope: Batch
         self.dispatchQueue = dispatchQueue
     }
 
+    /// Adds an item to the batcher with the given scope.
+    /// - Parameters:
+    ///   - item: The item to add to the batch
+    ///   - scope: The scope to apply to the item (adds attributes, trace ID, etc.)
+    ///
+    /// - Note: The item is processed asynchronously on the batcher's serial dispatch queue.
+    ///        If `config.beforeSendItem` returns `nil`, the item is dropped and not added to the batch.
     func add(_ item: Item, scope: Scope) {
         var item = item
         scope.applyToItem(&item, config: config)
@@ -73,7 +80,10 @@ final class Batcher<Storage: BatchStorage<Item>, Item: BatcherItem, Scope: Batch
         }
     }
 
-    // Captures batched items sync and returns the duration.
+    /// Captures all currently batched items synchronously and returns the duration of the operation.
+    /// - Returns: The time taken to capture items in seconds
+    ///
+    /// - Note: This method blocks until all items are captured. The batcher's buffer is cleared after capture.
     @discardableResult func capture() -> TimeInterval {
         let startTimeNs = dateProvider.getAbsoluteTime()
         dispatchQueue.dispatchSync { [weak self] in
@@ -83,7 +93,10 @@ final class Batcher<Storage: BatchStorage<Item>, Item: BatcherItem, Scope: Batch
         return TimeInterval(endTimeNs - startTimeNs) / 1_000_000_000.0 // Convert nanoseconds to seconds
     }
 
-    // Only ever call this from the serial dispatch queue.
+    /// Encodes and buffers an item, triggering a flush if limits are reached.
+    ///
+    /// - Important: Only call this method from the serial dispatch queue to ensure thread safety.
+    /// - Parameter item: The item to encode and add to the buffer
     private func encodeAndBuffer(item: Item) {
         do {
             let encodedItemsWereEmpty = batchStorage.size == 0
@@ -100,7 +113,11 @@ final class Batcher<Storage: BatchStorage<Item>, Item: BatcherItem, Scope: Batch
         }
     }
     
-    // Only ever call this from the serial dispatch queue.
+    /// Starts a timer that will trigger a flush after the configured timeout.
+    ///
+    /// - Important: Only call this method from the serial dispatch queue to ensure thread safety.
+    ///
+    /// - Note: The timer is only started when the buffer transitions from empty to non-empty.
     private func startTimer() {
         let timerWorkItem = DispatchWorkItem { [weak self] in
             SentrySDKLog.debug("Timer fired, calling performFlush().")
@@ -110,7 +127,12 @@ final class Batcher<Storage: BatchStorage<Item>, Item: BatcherItem, Scope: Batch
         dispatchQueue.dispatch(after: config.flushTimeout, workItem: timerWorkItem)
     }
 
-    // Only ever call this from the serial dispatch queue.
+    /// Captures all buffered items by invoking the configured callback and clears the buffer.
+    ///
+    /// - Important: Only call this method from the serial dispatch queue to ensure thread safety.
+    ///
+    /// - Note: This method cancels any pending timer and clears the buffer after invoking the callback.
+    ///        If the buffer is empty, the callback is not invoked.
     private func performCaptureItems() {
         // Reset items on function exit
         defer {

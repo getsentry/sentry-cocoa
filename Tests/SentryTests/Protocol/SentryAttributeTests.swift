@@ -1,7 +1,7 @@
 @testable import Sentry
 import XCTest
 
-final class SentryttributeTests: XCTestCase {
+final class SentryAttributeTests: XCTestCase {
     
     // MARK: - Encoding Tests
     
