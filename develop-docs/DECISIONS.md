@@ -575,7 +575,12 @@ Needs a POC to confirm this is possible
 Date: December 10, 2025
 Contributors: @itaybre, @philprime, @philipphofmann
 
-Until v9.1.0, we maintained a separate variant of the SDK with additional public headers and APIs intended for downstream SDKs (React Native, Flutter, .NET, and our SwiftUI variant). This meant any change that affected our distribution system required maintaining at least one extra variant of the SDK, which increased the team's workload significantly.
+Until v9.1.0, we maintained a separate variant of the SDK with additional public headers and APIs intended for downstream SDKs (React Native, Flutter, .NET, and our SwiftUI variant). This meant any change that affected our distribution system required maintaining at least one extra variant of the SDK, which increased the team's workload significantly:
+
+- Extra linting jobs
+- Additional integration tests
+- More complex header management (Public, HybridPublic, modulemap)
+- Additional SDK variants if we want to migrate CocoaPods to XCFrameworks
 
 However, there is nothing stopping users from using these APIs. They could simply change their dependency to the HybridSDK variant and access any of the "internal" APIs, so the separation provided no real protection.
 
