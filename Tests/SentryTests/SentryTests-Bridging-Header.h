@@ -147,7 +147,6 @@
 #import "SentrySampleDecision+Private.h"
 #import "SentryScope+Private.h"
 #import "SentryScopeSyncC.h"
-#import "SentryScreenshotIntegration.h"
 #import "SentrySerialization.h"
 #import "SentrySessionReplaySyncC.h"
 #import "SentrySpan.h"
