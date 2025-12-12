@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Fixes stacktraces for MetricKit events (#6908)
+
 ## 9.1.0
 
 > [!Warning]

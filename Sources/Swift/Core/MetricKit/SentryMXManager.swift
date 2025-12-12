@@ -27,6 +27,7 @@ import MetricKit
     
     init(disableCrashDiagnostics: Bool = true) {
         self.disableCrashDiagnostics = disableCrashDiagnostics
+        super.init()
     }
 
     public weak var delegate: SentryMXManagerDelegate?
