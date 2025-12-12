@@ -17,7 +17,13 @@ final class SentrySwiftIntegrationInstallerTests: XCTestCase {
         options.dsn = TestConstants.dsnAsString(username: "SentrySwiftIntegrationInstallerTests")
         options.debug = true
         options.swiftAsyncStacktraces = true
+        
+        // Disable other integrations
         options.enableAutoSessionTracking = false
+        options.enableAutoPerformanceTracing = false
+        options.tracesSampleRate = 0
+        options.enableAppHangTracking = false
+        options.enableWatchdogTerminationTracking = false
         
         let testHub = TestHub(client: nil, andScope: nil)
         SentrySDKInternal.setCurrentHub(testHub)
@@ -37,7 +43,13 @@ final class SentrySwiftIntegrationInstallerTests: XCTestCase {
         options.dsn = TestConstants.dsnAsString(username: "SentrySwiftIntegrationInstallerTests")
         options.debug = true
         options.swiftAsyncStacktraces = false
+        
+        // Disable other integrations
         options.enableAutoSessionTracking = false
+        options.enableAutoPerformanceTracing = false
+        options.tracesSampleRate = 0
+        options.enableAppHangTracking = false
+        options.enableWatchdogTerminationTracking = false
         
         let testHub = TestHub(client: nil, andScope: nil)
         SentrySDKInternal.setCurrentHub(testHub)
