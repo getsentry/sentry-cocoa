@@ -118,6 +118,13 @@ jobs:
             --remove-duplicate true \
             --change-path false \
             --remove-binary-targets true
+      - name: Ensure required runtime is loaded
+        # Ideally we will not need this, but CI sometimes is failing to load some runtimes, this will ensure they are loaded
+        timeout-minutes: 5 # 5 minutes timeout
+        env:
+          OS_VERSION: "18.4"
+          PLATFORM: "iOS"
+        run: ./scripts/ci-ensure-runtime-loaded.sh --os-version "$OS_VERSION" --platform "$PLATFORM"
       - run: rm -r Sentry.xcodeproj && rm -r Sentry.xcworkspace
       - run: set -o pipefail && NSUnbufferedIO=YES SKIP_BINARIES=1 xcodebuild test -scheme Sentry-Package -sdk iphonesimulator -destination 'platform=iOS Simulator,OS=18.4,name=iPhone 16 Pro' | tee raw-test-output-distribution.log | xcbeautify --preserve-unbeautified
         shell: sh

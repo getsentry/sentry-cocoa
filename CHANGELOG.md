@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 9.1.0
 
 > [!Warning]
 > The class `SentryDsn` has been converted from Objective-C to Swift. While the public API remains the same, you might have to remove imports of the `SentryDsn.h` from your Objective-C code.
