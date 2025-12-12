@@ -59,29 +59,11 @@ jobs:
         if: failure()
         run: ./scripts/ci-diagnostics.sh
 
-  lint-hybrid-sdk-podspec:
-    name: Sentry/HybridSDK
-    # Run the job only for PRs with related changes or non-PR events.
-    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_lint_cocoapods_specs_for_prs == 'true'
-    needs: files-changed
-    runs-on: macos-15
-
-    steps:
-      - uses: actions/checkout@v6
-      - run: ./scripts/ci-select-xcode.sh 16.4
-      - run: pod repo update
-      - name: Validate HybridPod Podspec
-        run: pod lib lint ./Tests/HybridSDKTest/HybridPod.podspec --allow-warnings --verbose --platforms=ios "--include-podspecs={Sentry.podspec}"
-      - name: Run CI Diagnostics
-        if: failure()
-        run: ./scripts/ci-diagnostics.sh
-
   lint_cocoapods_Specs-required-check:
     needs:
       [
         files-changed,
         lint-podspec,
-        lint-hybrid-sdk-podspec,
       ]
     name: Lint CocoaPods Specs
     # This is necessary since a failed/skipped dependent job would cause this job to be skipped

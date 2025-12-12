@@ -1,5 +1,5 @@
 #import "SentryCrashReportConverter.h"
-#import "SentryBreadcrumb+Private.h"
+#import "SentryBreadcrumb+HybridSDK.h"
 #import "SentryBreadcrumb.h"
 #import "SentryCrashStackCursor.h"
 #import "SentryDateUtils.h"
