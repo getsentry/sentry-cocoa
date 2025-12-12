@@ -14,38 +14,37 @@ Pod::Spec.new do |s|
   s.watchos.deployment_target = "8.0"
   s.visionos.deployment_target = "1.0"
   s.module_name  = "Sentry"
-  s.requires_arc = true
-  s.frameworks = 'Foundation'
   s.swift_versions = "5.5"
   s.pod_target_xcconfig = {
-      'GCC_ENABLE_CPP_EXCEPTIONS' => 'YES',
-      'APPLICATION_EXTENSION_API_ONLY' => 'NO',
-      'CLANG_CXX_LANGUAGE_STANDARD' => 'c++14',
-      'CLANG_CXX_LIBRARY' => 'libc++',
-      'SWIFT_INCLUDE_PATHS' => '${PODS_TARGET_SRCROOT}/Sources/Sentry/include',
-      'OTHER_CFLAGS' => '$(inherited)'
+      'CLANG_CXX_LIBRARY' => 'libc++'
   }
-  s.watchos.pod_target_xcconfig = {
-      'OTHER_LDFLAGS' => '$(inherited) -framework WatchKit'
-  }
+  s.preserve_paths = 'Sentry.xcframework'
+
+  # Manually download the Sentry.xcframework and unzip it because we also need the headers for the HybridSDK subspec
+  s.prepare_command = <<-CMD
+    curl -L "https://github.com/getsentry/sentry-cocoa/releases/download/9.0.0/Sentry-Dynamic.xcframework.zip" -o Sentry-Dynamic.xcframework.zip
+    
+    export SENTRY_CHECKSUM="9e7571fc539a6e6850e3d792a0afc9abe63c75261774da6b99d66f426e0c52f7"
+    shasum -a 256 Sentry-Dynamic.xcframework.zip | awk '{print $1}' | grep "$SENTRY_CHECKSUM"
+    if [ $? -ne 0 ]; then
+      echo "Error: Sentry-Dynamic.xcframework.zip checksum does not match"
+      exit 1
+    fi
+
+    unzip -o Sentry-Dynamic.xcframework.zip
+    rm -rf Sentry.xcframework
+    mv Sentry-Dynamic.xcframework Sentry.xcframework
+  CMD
 
   s.default_subspecs = ['Core']
 
   s.subspec 'Core' do |sp|
-      sp.source_files = "Sources/Sentry/**/*.{h,hpp,m,mm,c,cpp}",
-        "Sources/SentryCrash/**/*.{h,hpp,m,mm,c,cpp}", "Sources/Swift/**/*.{swift,h,hpp,m,mm,c,cpp}"
-      sp.public_header_files =
-        "Sources/Sentry/Public/*.h"
-      sp.preserve_path = "Sources/Sentry/include/module.modulemap"
-      sp.resource_bundles = { "Sentry" => "Sources/Resources/PrivacyInfo.xcprivacy" }
+    sp.vendored_frameworks = 'Sentry.xcframework'
   end
   
   s.subspec 'HybridSDK' do |sp|
-      sp.source_files = "Sources/Sentry/**/*.{h,hpp,m,mm,c,cpp}",
-        "Sources/SentryCrash/**/*.{h,hpp,m,mm,c,cpp}", "Sources/Swift/**/*.{swift,h,hpp,m,mm,c,cpp}"
-      sp.public_header_files =
-        "Sources/Sentry/Public/*.h", "Sources/Sentry/include/HybridPublic/*.h"
-      sp.preserve_path = "Sources/Sentry/include/module.modulemap"
-      sp.resource_bundles = { "Sentry" => "Sources/Resources/PrivacyInfo.xcprivacy" }
+      sp.dependency 'Sentry/Core'
+      sp.source_files = "Sources/Sentry/Public/*.h", "Sources/Sentry/include/HybridPublic/*.h"
+      sp.public_header_files = "Sources/Sentry/Public/*.h", "Sources/Sentry/include/HybridPublic/*.h"
   end
 end
