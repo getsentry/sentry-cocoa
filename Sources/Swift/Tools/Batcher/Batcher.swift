@@ -14,8 +14,8 @@ final class Batcher<Buffer: BatchBuffer<Item>, Item: BatcherItem, Scope: Batcher
         let flushTimeout: TimeInterval
         let maxItemCount: Int
         let maxBufferSizeBytes: Int
+        
         let beforeSendItem: ((Item) -> Item?)?
-        let installationId: String?
 
         var capturedDataCallback: (Data, Int) -> Void = { _, _ in }
     }
@@ -23,6 +23,7 @@ final class Batcher<Buffer: BatchBuffer<Item>, Item: BatcherItem, Scope: Batcher
     struct Metadata: BatcherMetadata {
         let environment: String
         let releaseName: String?
+        let installationId: String?
     }
 
     private let config: Config

@@ -27,7 +27,7 @@ extension BatcherScope {
         addUserAttributes(to: &item.attributes, config: config)
         addReplayAttributes(to: &item.attributes, config: config)
         addScopeAttributes(to: &item.attributes, config: config)
-        addDefaultUserIdIfNeeded(to: &item.attributes, config: config)
+        addDefaultUserIdIfNeeded(to: &item.attributes, config: config, metadata: metadata)
 
         item.traceId = SentryId(uuidString: propagationContextTraceIdString)
     }
@@ -101,12 +101,16 @@ extension BatcherScope {
         }
     }
 
-    private func addDefaultUserIdIfNeeded(to attributes: inout [String: SentryAttribute], config: any BatcherConfig) {
+    private func addDefaultUserIdIfNeeded(
+        to attributes: inout [String: SentryAttribute],
+        config: any BatcherConfig,
+        metadata: any BatcherMetadata
+    ) {
         guard attributes["user.id"] == nil && attributes["user.name"] == nil && attributes["user.email"] == nil else {
             return
         }
 
-        if let installationId = config.installationId {
+        if let installationId = metadata.installationId {
             // We only want to set the id if the customer didn't set a user so we at least set something to
             // identify the user.
             attributes["user.id"] = .init(value: installationId)

@@ -28,14 +28,16 @@ final class BatcherScopeTests: XCTestCase {
         let flushTimeout: TimeInterval
         let maxItemCount: Int
         let maxBufferSizeBytes: Int
+
         let beforeSendItem: ((TestItem) -> TestItem?)?
-        let installationId: String?
+
         var capturedDataCallback: (Data, Int) -> Void
     }
 
     private struct TestMetadata: BatcherMetadata {
         let environment: String
         let releaseName: String?
+        let installationId: String?
     }
 
     private struct TestScope: BatcherScope {
@@ -413,8 +415,8 @@ final class BatcherScopeTests: XCTestCase {
     func testApplyToItem_withoutUser_shouldNotAddUserAttributes() {
         // -- Arrange --
         let scope = TestScope(propagationContextTraceIdString: SentryId().sentryIdString)
-        let config = createTestConfig(installationId: nil)
-        let metadata = createTestMetadata()
+        let config = createTestConfig()
+        let metadata = createTestMetadata(installationId: nil)
         var item = createTestItem()
 
         // -- Act --
@@ -504,8 +506,8 @@ final class BatcherScopeTests: XCTestCase {
     func testApplyToItem_withoutUserAndWithInstallationId_shouldAddInstallationIdAsUserId() {
         // -- Arrange --
         let scope = TestScope(propagationContextTraceIdString: SentryId().sentryIdString)
-        let config = createTestConfig(installationId: "installation-123")
-        let metadata = createTestMetadata()
+        let config = createTestConfig()
+        let metadata = createTestMetadata(installationId: "installation-123")
         var item = createTestItem()
 
         // -- Act --
@@ -518,8 +520,8 @@ final class BatcherScopeTests: XCTestCase {
     func testApplyToItem_withoutUserAndWithoutInstallationId_shouldNotAddUserId() {
         // -- Arrange --
         let scope = TestScope(propagationContextTraceIdString: SentryId().sentryIdString)
-        let config = createTestConfig(installationId: nil)
-        let metadata = createTestMetadata()
+        let config = createTestConfig()
+        let metadata = createTestMetadata(installationId: nil)
         var item = createTestItem()
 
         // -- Act --
@@ -536,8 +538,8 @@ final class BatcherScopeTests: XCTestCase {
             propagationContextTraceIdString: SentryId().sentryIdString,
             userObject: user
         )
-        let config = createTestConfig(installationId: "installation-123")
-        let metadata = createTestMetadata()
+        let config = createTestConfig()
+        let metadata = createTestMetadata(installationId: "installation-123")
         var item = createTestItem()
 
         // -- Act --
@@ -556,8 +558,8 @@ final class BatcherScopeTests: XCTestCase {
             propagationContextTraceIdString: SentryId().sentryIdString,
             userObject: user
         )
-        let config = createTestConfig(installationId: "installation-123")
-        let metadata = createTestMetadata()
+        let config = createTestConfig()
+        let metadata = createTestMetadata(installationId: "installation-123")
         var item = createTestItem()
 
         // -- Act --
@@ -575,8 +577,8 @@ final class BatcherScopeTests: XCTestCase {
             propagationContextTraceIdString: SentryId().sentryIdString,
             userObject: user
         )
-        let config = createTestConfig(installationId: "installation-123")
-        let metadata = createTestMetadata()
+        let config = createTestConfig()
+        let metadata = createTestMetadata(installationId: "installation-123")
         var item = createTestItem()
 
         // -- Act --
@@ -639,8 +641,8 @@ final class BatcherScopeTests: XCTestCase {
         scope.setContext(value: ["name": "iOS", "version": "17.0"], key: "os")
         scope.setContext(value: ["model": "iPhone15,2", "family": "iPhone"], key: "device")
 
-        let config = createTestConfig(installationId: "installation-123")
-        let metadata = createTestMetadata(environment: "production", releaseName: "1.0.0")
+        let config = createTestConfig()
+        let metadata = createTestMetadata(environment: "production", releaseName: "1.0.0", installationId: "installation-123")
         var item = createTestItem()
 
         // -- Act --
@@ -676,8 +678,8 @@ final class BatcherScopeTests: XCTestCase {
         // -- Arrange --
         let traceId = SentryId()
         let scope = TestScope(propagationContextTraceIdString: traceId.sentryIdString)
-        let config = createTestConfig(installationId: nil)
-        let metadata = createTestMetadata(environment: "test", releaseName: nil)
+        let config = createTestConfig()
+        let metadata = createTestMetadata(environment: "test", releaseName: nil, installationId: nil)
         var item = createTestItem()
 
         // -- Act --
@@ -708,26 +710,25 @@ final class BatcherScopeTests: XCTestCase {
         )
     }
 
-    private func createTestConfig(
-        installationId: String? = "test-installation-id"
-    ) -> TestConfig {
+    private func createTestConfig() -> TestConfig {
         return TestConfig(
             flushTimeout: 0.1,
             maxItemCount: 10,
             maxBufferSizeBytes: 8_000,
             beforeSendItem: nil,
-            installationId: installationId,
             capturedDataCallback: { _, _ in }
         )
     }
 
     private func createTestMetadata(
         environment: String = "test-environment",
-        releaseName: String? = "test-release"
+        releaseName: String? = "test-release",
+        installationId: String? = "test-installation-id"
     ) -> TestMetadata {
         return TestMetadata(
             environment: environment,
-            releaseName: releaseName
+            releaseName: releaseName,
+            installationId: installationId
         )
     }
 }

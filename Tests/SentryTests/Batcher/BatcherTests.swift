@@ -98,12 +98,12 @@ final class BatcherTests: XCTestCase {
             flushTimeout: flushTimeout,
             maxItemCount: maxItemCount,
             maxBufferSizeBytes: maxBufferSizeBytes,
-            beforeSendItem: beforeSendItem,
-            installationId: "test-installation-id"
+            beforeSendItem: beforeSendItem
         )
         let metadata = Batcher<MockBuffer, TestItem, TestScope>.Metadata(
             environment: "test",
-            releaseName: "test-release"
+            releaseName: "test-release",
+            installationId: "test-installation-id"
         )
         config.capturedDataCallback = { [weak self] data, count in
             self?.capturedDataInvocations.record((data, count))
