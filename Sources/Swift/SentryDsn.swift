@@ -1,7 +1,6 @@
 @_implementationOnly import _SentryPrivate
+import CryptoKit
 import Foundation
-
-import CommonCrypto
 
 /// Represents a Sentry Data Source Name (DSN) which identifies a Sentry project.
 @objc(SentryDsn)
@@ -78,12 +77,8 @@ public final class SentryDsn: NSObject {
             data = Data()
         }
         
-        var digest = [UInt8](repeating: 0, count: Int(CC_SHA1_DIGEST_LENGTH))
-        data.withUnsafeBytes { bytes in
-            _ = CC_SHA1(bytes.baseAddress, CC_LONG(data.count), &digest)
-        }
-        
-        return digest.map { String(format: "%02x", $0) }.joined()
+        let hash = Insecure.SHA1.hash(data: data)
+        return hash.map { String(format: "%02x", $0) }.joined()
     }
     
     /// Returns the envelope endpoint URL for this DSN.

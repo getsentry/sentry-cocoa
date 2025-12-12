@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Breaking Changes
+
+- Bumped minimum macOS version from 10.14.0 to 10.15.0
+
 ## 9.1.0
 
 > [!Warning]
