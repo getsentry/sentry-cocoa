@@ -107,7 +107,8 @@ jobs:
         timeout-minutes: 5 # 5 minutes timeout
         env:
           OS_VERSION: "18.4"
-        run: ./scripts/ci-ensure-runtime-loaded.sh --os-version "$OS_VERSION"
+          PLATFORM: "iOS"
+        run: ./scripts/ci-ensure-runtime-loaded.sh --os-version "$OS_VERSION" --platform "$PLATFORM"
 
       - name: Boot simulator
         run: ./scripts/ci-boot-simulator.sh

@@ -41,21 +41,11 @@ on:
         required: false
         default: ""
         type: string
-      create_device:
-        description: "Whether to create the device for the given platform and OS version"
-        required: false
-        default: false
-        type: boolean
       device:
         description: "Device"
         required: false
         default: ""
         type: string
-      install_platforms:
-        description: "Whether to install the platforms"
-        required: false
-        default: false
-        type: boolean
       platform:
         description: "Additional platform to install"
         required: false
@@ -89,41 +79,19 @@ jobs:
         with:
           bundler-cache: true
 
-      - name: Install old xcodegen
-        if: ${{ inputs.xcode_version == '14.3.1' || inputs.xcode_version == '15.4' }}
-        # Install xcodegen 2.43.0 for since newer versions don't work with Xcode older than Xcode 16
-        # We need to set HOMEBREW_DEVELOPER=1 to allow installing from a local formula
-        run: |
-          HOMEBREW_DEVELOPER=1 brew install --formula ./scripts/xcodegen.rb
-          brew pin xcodegen
-
       - name: Select Xcode version
         env:
           XCODE_VERSION: ${{ inputs.xcode_version }}
         run: ./scripts/ci-select-xcode.sh "$XCODE_VERSION"
 
-      - name: Install required platforms for Xcode 26
-        if: ${{ inputs.install_platforms }}
-        env:
-          PLATFORM: ${{ inputs.platform }}
-          OS_VERSION: ${{ inputs.test-destination-os }}
-        run: ./scripts/ci-install-platforms.sh --platforms "$PLATFORM" --os-version "$OS_VERSION"
-
       - name: Ensure required runtime is loaded
+        if: ${{ inputs.platform == 'iOS' || inputs.platform == 'tvOS' }}
         # Ideally we will not need this, but CI sometimes is failing to load some runtimes, this will ensure they are loaded
-        if: ${{ inputs.platform == 'iOS' }}
         timeout-minutes: 5 # 5 minutes timeout
         env:
           OS_VERSION: ${{ inputs.test-destination-os }}
-        run: ./scripts/ci-ensure-runtime-loaded.sh --os-version "$OS_VERSION"
-
-      - name: Create simulator device
-        if: ${{ inputs.create_device }}
-        env:
           PLATFORM: ${{ inputs.platform }}
-          OS_VERSION: ${{ inputs.test-destination-os }}
-          DEVICE_NAME: ${{ inputs.device }}
-        run: ./scripts/ci-create-simulator.sh --platform "$PLATFORM" --os-version "$OS_VERSION" --device-name "$DEVICE_NAME"
+        run: ./scripts/ci-ensure-runtime-loaded.sh --os-version "$OS_VERSION" --platform "$PLATFORM"
 
       # Boot created simulators to ensure they're ready before tests run
       # Based on CircleCI forum comment, booting is especially important for Xcode 26: https://discuss.circleci.com/t/xcode-26-rc/54066/18

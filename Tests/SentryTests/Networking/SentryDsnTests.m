@@ -1,4 +1,3 @@
-#import "SentryDsn.h"
 #import "SentryError.h"
 #import "SentryMeta.h"
 #import "SentryOptionsInternal.h"

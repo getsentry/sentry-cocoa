@@ -7,7 +7,6 @@
 #import "SentryCrashStackEntryMapper.h"
 #import "SentryDefaultThreadInspector.h"
 #import "SentryDeviceContextKeys.h"
-#import "SentryDsn.h"
 #import "SentryEvent+Private.h"
 #import "SentryException.h"
 #import "SentryInstallation.h"
@@ -86,6 +85,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         [[SentryDefaultThreadInspector alloc] initWithOptions:options];
 
     return [self initWithOptions:options
+                    dateProvider:SentryDependencyContainer.sharedInstance.dateProvider
                 transportAdapter:transportAdapter
                      fileManager:fileManager
                  threadInspector:threadInspector
@@ -96,6 +96,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 }
 
 - (instancetype)initWithOptions:(SentryOptions *)options
+                   dateProvider:(id<SentryCurrentDateProvider>)dateProvider
                transportAdapter:(SentryTransportAdapter *)transportAdapter
                     fileManager:(SentryFileManager *)fileManager
                 threadInspector:(SentryDefaultThreadInspector *)threadInspector
@@ -116,7 +117,9 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         self.timezone = timezone;
         self.attachmentProcessors = [[NSMutableArray alloc] init];
 
-        self.logBatcher = [[SentryLogBatcher alloc] initWithOptions:options delegate:self];
+        self.logBatcher = [[SentryLogBatcher alloc] initWithOptions:options
+                                                       dateProvider:dateProvider
+                                                           delegate:self];
 
         // The SDK stores the installationID in a file. The first call requires file IO. To avoid
         // executing this on the main thread, we cache the installationID async here.

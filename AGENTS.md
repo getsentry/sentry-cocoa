@@ -37,6 +37,65 @@ This file provides comprehensive guidance for AI coding agents working with the 
 - Fix any test or type errors until the whole suite is green.
 - Add or update tests for the code you change, even if nobody asked.
 
+#### Test Naming Convention
+
+Use the pattern `test<Function>_when<Condition>_should<Expected>()` for test method names:
+
+**Format:** `test<Function>_when<Condition>_should<Expected>()`
+
+**Examples:**
+
+- ✅ `testAdd_whenSingleItem_shouldAppendToStorage()`
+- ✅ `testAdd_whenMaxItemCountReached_shouldFlushImmediately()`
+- ✅ `testCapture_whenEmptyBuffer_shouldDoNothing()`
+- ✅ `testAdd_whenBeforeSendItemReturnsNil_shouldDropItem()`
+
+**Benefits:**
+
+- Clear function being tested
+- Explicit condition/scenario
+- Expected outcome is obvious
+- Easy to understand test purpose without reading implementation
+
+#### Prefer Structs Over Classes
+
+When creating test helpers, mocks, or test data structures, prefer `struct` over `class`:
+
+**Prefer:**
+
+```swift
+private struct TestItem: BatcherItem {
+    var body: String
+    // ...
+}
+```
+
+**Avoid (unless reference semantics are required):**
+
+```swift
+private class TestItem: BatcherItem {
+    var body: String
+    // ...
+}
+```
+
+**When to use classes:**
+
+- When reference semantics are required (e.g., shared mutable state that needs to be observed from tests)
+- When conforming to protocols that require reference types (e.g., `AnyObject` protocols)
+- When creating mock objects that need to be passed by reference to observe changes
+
+**Example of when class is necessary:**
+
+```swift
+// MockStorage must be a class because Batcher stores it internally
+// and we need to observe changes from the test. Using a struct would create a copy.
+private class MockStorage: BatchStorage {
+    var appendedItems: [TestItem] = []
+    // ...
+}
+```
+
 #### Testing Error Handling Paths
 
 When testing error handling code paths, follow these guidelines:

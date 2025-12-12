@@ -67,7 +67,7 @@ jobs:
   assemble-xcframework-variant:
     name: ${{ inputs.override-name || format('{0}{1}', inputs.scheme, inputs.suffix) }}
 
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
       - uses: actions/checkout@v6
 

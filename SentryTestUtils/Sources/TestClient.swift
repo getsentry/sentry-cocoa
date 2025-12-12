@@ -7,6 +7,7 @@ public class TestClient: SentryClientInternal {
     public override init?(options: NSObject) {
         super.init(
             options: options,
+            dateProvider: TestCurrentDateProvider(),
             transportAdapter: TestTransportAdapter(transports: [TestTransport()], options: options as! Options),
             fileManager: try! TestFileManager(
                 options: options as? Options,
@@ -23,9 +24,20 @@ public class TestClient: SentryClientInternal {
     
     // Without this override we get a fatal error: use of unimplemented initializer
     // see https://stackoverflow.com/questions/28187261/ios-swift-fatal-error-use-of-unimplemented-initializer-init
-    @_spi(Private) public override init(options: NSObject, transportAdapter: SentryTransportAdapter, fileManager: SentryFileManager, threadInspector: SentryDefaultThreadInspector, debugImageProvider: SentryDebugImageProvider, random: SentryRandomProtocol, locale: Locale, timezone: TimeZone) {
+    @_spi(Private) public override init(
+        options: NSObject,
+        dateProvider: SentryCurrentDateProvider,
+        transportAdapter: SentryTransportAdapter,
+        fileManager: SentryFileManager,
+        threadInspector: SentryDefaultThreadInspector,
+        debugImageProvider: SentryDebugImageProvider,
+        random: SentryRandomProtocol,
+        locale: Locale,
+        timezone: TimeZone
+    ) {
         super.init(
             options: options,
+            dateProvider: dateProvider,
             transportAdapter: transportAdapter,
             fileManager: fileManager,
             threadInspector: threadInspector,
