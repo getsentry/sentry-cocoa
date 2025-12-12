@@ -9,7 +9,7 @@ protocol BatcherProtocol<Item, Scope>: AnyObject {
     func capture() -> TimeInterval
 }
 
-final class Batcher<Storage: BatchStorage<Item>, Item: BatcherItem, Scope: BatcherScope>: BatcherProtocol {
+final class Batcher<Buffer: BatchBuffer<Item>, Item: BatcherItem, Scope: BatcherScope>: BatcherProtocol {
     struct Config: BatcherConfig {
         let environment: String
         let releaseName: String?
@@ -24,7 +24,7 @@ final class Batcher<Storage: BatchStorage<Item>, Item: BatcherItem, Scope: Batch
 
     private let config: Config
 
-    private var storage: Storage
+    private var buffer: Buffer
     private let dateProvider: SentryCurrentDateProvider
     private let dispatchQueue: SentryDispatchQueueWrapperProtocol
 
@@ -33,7 +33,7 @@ final class Batcher<Storage: BatchStorage<Item>, Item: BatcherItem, Scope: Batch
     /// Initializes a new `Batcher`.
     /// - Parameters:
     ///   - config: The batcher configuration containing flush timeout, limits, and callbacks
-    ///   - storage: The storage implementation for buffering items
+    ///   - buffer: The buffer implementation for buffering items
     ///   - dateProvider: Provider for current date/time used for timing measurements
     ///   - dispatchQueue: A **serial** dispatch queue wrapper for thread-safe access to mutable state
     ///
@@ -44,12 +44,12 @@ final class Batcher<Storage: BatchStorage<Item>, Item: BatcherItem, Scope: Batch
     ///        or after `config.flushTimeout` seconds have elapsed since the first item was added to an empty buffer.
     @_spi(Private) public init(
         config: Config,
-        storage: Storage,
+        buffer: Buffer,
         dateProvider: SentryCurrentDateProvider,
         dispatchQueue: SentryDispatchQueueWrapperProtocol
     ) {
         self.config = config
-        self.storage = storage
+        self.buffer = buffer
         self.dateProvider = dateProvider
         self.dispatchQueue = dispatchQueue
     }
@@ -106,11 +106,11 @@ final class Batcher<Storage: BatchStorage<Item>, Item: BatcherItem, Scope: Batch
     /// - Parameter item: The item to encode and add to the buffer
     private func encodeAndBuffer(item: Item) {
         do {
-            let encodedItemsWereEmpty = storage.itemsDataSize == 0
-            try storage.append(item)
+            let encodedItemsWereEmpty = buffer.itemsDataSize == 0
+            try buffer.append(item)
 
             // Flush when we reach max item count or max buffer size
-            if storage.itemsCount >= config.maxItemCount || storage.itemsDataSize >= config.maxBufferSizeBytes {
+            if buffer.itemsCount >= config.maxItemCount || buffer.itemsDataSize >= config.maxBufferSizeBytes {
                 performCaptureItems()
             } else if encodedItemsWereEmpty && timerWorkItem == nil {
                 startTimer()
@@ -143,7 +143,7 @@ final class Batcher<Storage: BatchStorage<Item>, Item: BatcherItem, Scope: Batch
     private func performCaptureItems() {
         // Reset items on function exit
         defer {
-            storage.clear()
+            buffer.clear()
         }
         
         // Reset timer state
@@ -151,10 +151,10 @@ final class Batcher<Storage: BatchStorage<Item>, Item: BatcherItem, Scope: Batch
         timerWorkItem = nil
 
         // Fetch and send any available data
-        guard storage.itemsCount > 0 else {
+        guard buffer.itemsCount > 0 else {
             SentrySDKLog.debug("No items to flush.")
             return
         }
-        config.capturedDataCallback(storage.batchedData, storage.itemsCount)
+        config.capturedDataCallback(buffer.batchedData, buffer.itemsCount)
     }
 }

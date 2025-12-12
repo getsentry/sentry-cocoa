@@ -80,7 +80,7 @@ import Foundation
                     delegate.capture(logsData: data as NSData, count: NSNumber(value: count))
                 }
             ),
-            storage: InMemoryBatchStorage(),
+            buffer: InMemoryBatchBuffer(),
             dateProvider: dateProvider,
             dispatchQueue: dispatchQueue
         )

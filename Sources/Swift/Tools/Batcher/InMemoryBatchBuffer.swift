@@ -1,4 +1,4 @@
-struct InMemoryBatchStorage<Item: Encodable>: BatchStorage {
+struct InMemoryBatchBuffer<Item: Encodable>: BatchBuffer {
     private var elements: [Data] = []
     var itemsDataSize: Int = 0
 

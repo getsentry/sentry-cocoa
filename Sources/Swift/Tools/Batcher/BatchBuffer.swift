@@ -1,4 +1,4 @@
-protocol BatchStorage<Item> {
+protocol BatchBuffer<Item> {
     associatedtype Item
 
     /// Adds the given item to the storage
