@@ -11,8 +11,6 @@ protocol BatcherProtocol<Item, Scope>: AnyObject {
 
 final class Batcher<Buffer: BatchBuffer<Item>, Item: BatcherItem, Scope: BatcherScope>: BatcherProtocol {
     struct Config: BatcherConfig {
-        let environment: String
-        let releaseName: String?
         let flushTimeout: TimeInterval
         let maxItemCount: Int
         let maxBufferSizeBytes: Int
@@ -22,7 +20,13 @@ final class Batcher<Buffer: BatchBuffer<Item>, Item: BatcherItem, Scope: Batcher
         var capturedDataCallback: (Data, Int) -> Void = { _, _ in }
     }
 
+    struct Metadata: BatcherMetadata {
+        let environment: String
+        let releaseName: String?
+    }
+
     private let config: Config
+    private let metadata: Metadata
 
     private var buffer: Buffer
     private let dateProvider: SentryCurrentDateProvider
@@ -33,6 +37,7 @@ final class Batcher<Buffer: BatchBuffer<Item>, Item: BatcherItem, Scope: Batcher
     /// Initializes a new `Batcher`.
     /// - Parameters:
     ///   - config: The batcher configuration containing flush timeout, limits, and callbacks
+    ///   - metadata: The batcher metadata containing fields like environment or release
     ///   - buffer: The buffer implementation for buffering items
     ///   - dateProvider: Provider for current date/time used for timing measurements
     ///   - dispatchQueue: A **serial** dispatch queue wrapper for thread-safe access to mutable state
@@ -44,11 +49,13 @@ final class Batcher<Buffer: BatchBuffer<Item>, Item: BatcherItem, Scope: Batcher
     ///        or after `config.flushTimeout` seconds have elapsed since the first item was added to an empty buffer.
     @_spi(Private) public init(
         config: Config,
+        metadata: Metadata,
         buffer: Buffer,
         dateProvider: SentryCurrentDateProvider,
         dispatchQueue: SentryDispatchQueueWrapperProtocol
     ) {
         self.config = config
+        self.metadata = metadata
         self.buffer = buffer
         self.dateProvider = dateProvider
         self.dispatchQueue = dispatchQueue
@@ -65,7 +72,7 @@ final class Batcher<Buffer: BatchBuffer<Item>, Item: BatcherItem, Scope: Batcher
     ///        the item is dropped and not added to the batch.
     func add(_ item: Item, scope: Scope) {
         var item = item
-        scope.applyToItem(&item, config: config)
+        scope.applyToItem(&item, config: config, metadata: metadata)
 
         // The before send item closure can be used to drop items by returning nil
         // In case it is nil, we can stop processing

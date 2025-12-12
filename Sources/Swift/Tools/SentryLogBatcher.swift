@@ -63,8 +63,6 @@ import Foundation
     ) {
         self.batcher = Batcher(
             config: .init(
-                environment: options.environment,
-                releaseName: options.releaseName,
                 flushTimeout: flushTimeout,
                 maxItemCount: maxLogCount,
                 maxBufferSizeBytes: maxBufferSizeBytes,
@@ -77,6 +75,10 @@ import Foundation
                     }
                     delegate.capture(logsData: data as NSData, count: NSNumber(value: count))
                 }
+            ),
+            metadata: .init(
+                environment: options.environment,
+                releaseName: options.releaseName
             ),
             buffer: InMemoryBatchBuffer(),
             dateProvider: dateProvider,

@@ -95,20 +95,23 @@ final class BatcherTests: XCTestCase {
         beforeSendItem: ((TestItem) -> TestItem?)? = nil
     ) -> Batcher<MockBuffer, TestItem, TestScope> {
         var config = Batcher<MockBuffer, TestItem, TestScope>.Config(
-            environment: "test",
-            releaseName: "test-release",
             flushTimeout: flushTimeout,
             maxItemCount: maxItemCount,
             maxBufferSizeBytes: maxBufferSizeBytes,
             beforeSendItem: beforeSendItem,
             installationId: "test-installation-id"
         )
+        let metadata = Batcher<MockBuffer, TestItem, TestScope>.Metadata(
+            environment: "test",
+            releaseName: "test-release"
+        )
         config.capturedDataCallback = { [weak self] data, count in
             self?.capturedDataInvocations.record((data, count))
         }
         
-        return Batcher<MockBuffer, TestItem, TestScope>(
+        return Batcher(
             config: config,
+            metadata: metadata,
             buffer: testBuffer,
             dateProvider: testDateProvider,
             dispatchQueue: testDispatchQueue
