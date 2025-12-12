@@ -51,7 +51,7 @@ private class MockStorage: BatchStorage {
         mockSize += 100
     }
 
-    func flush() {
+    func clear() {
         appendedItems.removeAll()
         mockSize = 0
         flushCallCount += 1

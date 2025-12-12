@@ -7,7 +7,7 @@ protocol BatchStorage<Item> {
     mutating func append(_ item: Item) throws
 
     /// Clears all items from the storage
-    mutating func flush()
+    mutating func clear()
 
     /// Number of elements in the storage
     var itemsCount: Int { get }

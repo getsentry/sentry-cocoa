@@ -129,7 +129,7 @@ final class InMemoryBatchStorageTests: XCTestCase {
         XCTAssertEqual(sut.itemsDataSize, 0)
 
         // -- Act --
-        sut.flush()
+        sut.clear()
 
         // -- Assert --
         XCTAssertEqual(sut.itemsCount, 0)
@@ -146,7 +146,7 @@ final class InMemoryBatchStorageTests: XCTestCase {
         XCTAssertGreaterThan(sut.itemsDataSize, 0)
 
         // -- Act --
-        sut.flush()
+        sut.clear()
 
         // -- Assert --
         XCTAssertEqual(sut.itemsCount, 0)
@@ -167,7 +167,7 @@ final class InMemoryBatchStorageTests: XCTestCase {
         XCTAssertGreaterThan(sut.itemsDataSize, 0)
 
         // -- Act --
-        sut.flush()
+        sut.clear()
 
         // -- Assert --
         XCTAssertEqual(sut.itemsCount, 0)
@@ -183,7 +183,7 @@ final class InMemoryBatchStorageTests: XCTestCase {
         try sut.append(TestElement(id: 2))
 
         // -- Act --
-        sut.flush()
+        sut.clear()
         try sut.append(TestElement(id: 3))
 
         // -- Assert --
@@ -332,7 +332,7 @@ final class InMemoryBatchStorageTests: XCTestCase {
         XCTAssertGreaterThan(sut.itemsDataSize, 0)
 
         // -- Act --
-        sut.flush()
+        sut.clear()
 
         // -- Assert --
         XCTAssertEqual(sut.itemsDataSize, 0)
@@ -368,7 +368,7 @@ final class InMemoryBatchStorageTests: XCTestCase {
         XCTAssertEqual(sut.itemsCount, 1)
         XCTAssertGreaterThan(sut.itemsDataSize, 0)
 
-        sut.flush()
+        sut.clear()
         XCTAssertEqual(sut.itemsCount, 0)
         XCTAssertEqual(sut.itemsDataSize, 0)
 
@@ -389,9 +389,9 @@ final class InMemoryBatchStorageTests: XCTestCase {
         try sut.append(TestElement(id: 1))
 
         // -- Act --
-        sut.flush()
-        sut.flush()
-        sut.flush()
+        sut.clear()
+        sut.clear()
+        sut.clear()
 
         // -- Assert --
         XCTAssertEqual(sut.itemsCount, 0)

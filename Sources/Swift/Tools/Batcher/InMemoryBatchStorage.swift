@@ -10,7 +10,7 @@ struct InMemoryBatchStorage<Item: Encodable>: BatchStorage {
         itemsDataSize += encoded.count
     }
 
-    mutating func flush() {
+    mutating func clear() {
         elements.removeAll()
         itemsDataSize = 0
     }

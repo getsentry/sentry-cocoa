@@ -143,7 +143,7 @@ final class Batcher<Storage: BatchStorage<Item>, Item: BatcherItem, Scope: Batch
     private func performCaptureItems() {
         // Reset items on function exit
         defer {
-            storage.flush()
+            storage.clear()
         }
         
         // Reset timer state
