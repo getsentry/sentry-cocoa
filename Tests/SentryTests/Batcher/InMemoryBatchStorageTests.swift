@@ -18,7 +18,7 @@ final class InMemoryBatchStorageTests: XCTestCase {
         let sut = InMemoryBatchStorage<TestElement>()
 
         // -- Assert --
-        XCTAssertEqual(sut.count, 0)
+        XCTAssertEqual(sut.itemsCount, 0)
     }
 
     func testCount_withSingleElement_shouldReturnOne() throws {
@@ -29,7 +29,7 @@ final class InMemoryBatchStorageTests: XCTestCase {
         try sut.append(TestElement(id: 1))
 
         // -- Assert --
-        XCTAssertEqual(sut.count, 1)
+        XCTAssertEqual(sut.itemsCount, 1)
     }
 
     func testCount_withMultipleElements_shouldReturnCorrectCount() throws {
@@ -42,7 +42,7 @@ final class InMemoryBatchStorageTests: XCTestCase {
         try sut.append(TestElement(id: 3))
 
         // -- Assert --
-        XCTAssertEqual(sut.count, 3)
+        XCTAssertEqual(sut.itemsCount, 3)
     }
 
     // MARK: - Append Method Tests
@@ -55,8 +55,8 @@ final class InMemoryBatchStorageTests: XCTestCase {
         try sut.append(TestElement(id: 1))
 
         // -- Assert --
-        XCTAssertEqual(sut.count, 1)
-        let decoded = try decodePayload(data: sut.data)
+        XCTAssertEqual(sut.itemsCount, 1)
+        let decoded = try decodePayload(data: sut.batchedData)
         XCTAssertEqual(decoded.items, [TestElement(id: 1)])
     }
 
@@ -70,8 +70,8 @@ final class InMemoryBatchStorageTests: XCTestCase {
         try sut.append(TestElement(id: 3))
 
         // -- Assert --
-        XCTAssertEqual(sut.count, 3)
-        let decoded = try decodePayload(data: sut.data)
+        XCTAssertEqual(sut.itemsCount, 3)
+        let decoded = try decodePayload(data: sut.batchedData)
         XCTAssertEqual(decoded.items, [
             TestElement(id: 1),
             TestElement(id: 2),
@@ -89,7 +89,7 @@ final class InMemoryBatchStorageTests: XCTestCase {
         try sut.append(TestElement(id: 3))
 
         // -- Assert --
-        let decoded = try decodePayload(data: sut.data)
+        let decoded = try decodePayload(data: sut.batchedData)
         XCTAssertEqual(decoded.items[0].id, 1)
         XCTAssertEqual(decoded.items[1].id, 2)
         XCTAssertEqual(decoded.items[2].id, 3)
@@ -98,7 +98,7 @@ final class InMemoryBatchStorageTests: XCTestCase {
     func testAppend_shouldIncreaseSize() throws {
         // -- Arrange --
         var sut = InMemoryBatchStorage<TestElement>()
-        let initialSize = sut.size
+        let initialSize = sut.itemsDataSize
         XCTAssertEqual(initialSize, 0)
 
         // -- Act --
@@ -107,7 +107,7 @@ final class InMemoryBatchStorageTests: XCTestCase {
         try sut.append(element1)
 
         // -- Assert --
-        XCTAssertEqual(sut.size, encoded1.count)
+        XCTAssertEqual(sut.itemsDataSize, encoded1.count)
 
         // -- Act --
         let element2 = TestElement(id: 2)
@@ -115,7 +115,7 @@ final class InMemoryBatchStorageTests: XCTestCase {
         try sut.append(element2)
 
         // -- Assert --
-        XCTAssertEqual(sut.size, encoded1.count + encoded2.count)
+        XCTAssertEqual(sut.itemsDataSize, encoded1.count + encoded2.count)
     }
 
     // MARK: - Flush Method Tests
@@ -125,15 +125,15 @@ final class InMemoryBatchStorageTests: XCTestCase {
         var sut = InMemoryBatchStorage<TestElement>()
 
         // Assert pre-condition
-        XCTAssertEqual(sut.count, 0)
-        XCTAssertEqual(sut.size, 0)
+        XCTAssertEqual(sut.itemsCount, 0)
+        XCTAssertEqual(sut.itemsDataSize, 0)
 
         // -- Act --
         sut.flush()
 
         // -- Assert --
-        XCTAssertEqual(sut.count, 0)
-        XCTAssertEqual(sut.size, 0)
+        XCTAssertEqual(sut.itemsCount, 0)
+        XCTAssertEqual(sut.itemsDataSize, 0)
     }
 
     func testFlush_withSingleElement_shouldClearStorage() throws {
@@ -142,16 +142,16 @@ final class InMemoryBatchStorageTests: XCTestCase {
         try sut.append(TestElement(id: 1))
 
         // Assert pre-condition
-        XCTAssertEqual(sut.count, 1)
-        XCTAssertGreaterThan(sut.size, 0)
+        XCTAssertEqual(sut.itemsCount, 1)
+        XCTAssertGreaterThan(sut.itemsDataSize, 0)
 
         // -- Act --
         sut.flush()
 
         // -- Assert --
-        XCTAssertEqual(sut.count, 0)
-        XCTAssertEqual(sut.size, 0)
-        let decoded = try decodePayload(data: sut.data)
+        XCTAssertEqual(sut.itemsCount, 0)
+        XCTAssertEqual(sut.itemsDataSize, 0)
+        let decoded = try decodePayload(data: sut.batchedData)
         XCTAssertEqual(decoded.items, [])
     }
 
@@ -163,16 +163,16 @@ final class InMemoryBatchStorageTests: XCTestCase {
         try sut.append(TestElement(id: 3))
 
         // Assert pre-condition
-        XCTAssertEqual(sut.count, 3)
-        XCTAssertGreaterThan(sut.size, 0)
+        XCTAssertEqual(sut.itemsCount, 3)
+        XCTAssertGreaterThan(sut.itemsDataSize, 0)
 
         // -- Act --
         sut.flush()
 
         // -- Assert --
-        XCTAssertEqual(sut.count, 0)
-        XCTAssertEqual(sut.size, 0)
-        let decoded = try decodePayload(data: sut.data)
+        XCTAssertEqual(sut.itemsCount, 0)
+        XCTAssertEqual(sut.itemsDataSize, 0)
+        let decoded = try decodePayload(data: sut.batchedData)
         XCTAssertEqual(decoded.items, [])
     }
 
@@ -187,8 +187,8 @@ final class InMemoryBatchStorageTests: XCTestCase {
         try sut.append(TestElement(id: 3))
 
         // -- Assert --
-        XCTAssertEqual(sut.count, 1)
-        let decoded = try decodePayload(data: sut.data)
+        XCTAssertEqual(sut.itemsCount, 1)
+        let decoded = try decodePayload(data: sut.batchedData)
         XCTAssertEqual(decoded.items, [TestElement(id: 3)])
     }
 
@@ -199,7 +199,7 @@ final class InMemoryBatchStorageTests: XCTestCase {
         let sut = InMemoryBatchStorage<TestElement>()
 
         // -- Act --
-        let data = sut.data
+        let data = sut.batchedData
 
         // -- Assert --
         let decoded = try decodePayload(data: data)
@@ -212,7 +212,7 @@ final class InMemoryBatchStorageTests: XCTestCase {
         try sut.append(TestElement(id: 1))
 
         // -- Act --
-        let data = sut.data
+        let data = sut.batchedData
 
         // -- Assert --
         let decoded = try decodePayload(data: data)
@@ -227,7 +227,7 @@ final class InMemoryBatchStorageTests: XCTestCase {
         try sut.append(TestElement(id: 3))
 
         // -- Act --
-        let data = sut.data
+        let data = sut.batchedData
 
         // -- Assert --
         let decoded = try decodePayload(data: data)
@@ -245,7 +245,7 @@ final class InMemoryBatchStorageTests: XCTestCase {
         try sut.append(TestElement(id: 2))
 
         // -- Act --
-        let data = sut.data
+        let data = sut.batchedData
 
         // -- Assert --
         // Verify it's valid JSON by decoding
@@ -266,7 +266,7 @@ final class InMemoryBatchStorageTests: XCTestCase {
         try sut.append(TestElement(id: 30))
 
         // -- Act --
-        let data = sut.data
+        let data = sut.batchedData
 
         // -- Assert --
         let decoded = try decodePayload(data: data)
@@ -282,7 +282,7 @@ final class InMemoryBatchStorageTests: XCTestCase {
         let sut = InMemoryBatchStorage<TestElement>()
 
         // -- Act --
-        let size = sut.size
+        let size = sut.itemsDataSize
 
         // -- Assert --
         XCTAssertEqual(size, 0)
@@ -298,7 +298,7 @@ final class InMemoryBatchStorageTests: XCTestCase {
         try sut.append(element)
 
         // -- Assert --
-        XCTAssertEqual(sut.size, expectedSize)
+        XCTAssertEqual(sut.itemsDataSize, expectedSize)
     }
 
     func testSize_withMultipleElements_shouldReturnSumOfEncodedSizes() throws {
@@ -319,7 +319,7 @@ final class InMemoryBatchStorageTests: XCTestCase {
         try sut.append(element3)
 
         // -- Assert --
-        XCTAssertEqual(sut.size, expectedTotalSize)
+        XCTAssertEqual(sut.itemsDataSize, expectedTotalSize)
     }
 
     func testSize_afterFlush_shouldReturnZero() throws {
@@ -329,13 +329,13 @@ final class InMemoryBatchStorageTests: XCTestCase {
         try sut.append(TestElement(id: 2))
 
         // Assert pre-condition
-        XCTAssertGreaterThan(sut.size, 0)
+        XCTAssertGreaterThan(sut.itemsDataSize, 0)
 
         // -- Act --
         sut.flush()
 
         // -- Assert --
-        XCTAssertEqual(sut.size, 0)
+        XCTAssertEqual(sut.itemsDataSize, 0)
     }
 
     func testSize_shouldUpdateAfterEachAppend() throws {
@@ -348,13 +348,13 @@ final class InMemoryBatchStorageTests: XCTestCase {
         let size2 = try encoder.encode(element2).count
 
         // -- Act & Assert --
-        XCTAssertEqual(sut.size, 0)
+        XCTAssertEqual(sut.itemsDataSize, 0)
 
         try sut.append(element1)
-        XCTAssertEqual(sut.size, size1)
+        XCTAssertEqual(sut.itemsDataSize, size1)
 
         try sut.append(element2)
-        XCTAssertEqual(sut.size, size1 + size2)
+        XCTAssertEqual(sut.itemsDataSize, size1 + size2)
     }
 
     // MARK: - Integration Tests
@@ -365,18 +365,18 @@ final class InMemoryBatchStorageTests: XCTestCase {
 
         // -- Act & Assert --
         try sut.append(TestElement(id: 1))
-        XCTAssertEqual(sut.count, 1)
-        XCTAssertGreaterThan(sut.size, 0)
+        XCTAssertEqual(sut.itemsCount, 1)
+        XCTAssertGreaterThan(sut.itemsDataSize, 0)
 
         sut.flush()
-        XCTAssertEqual(sut.count, 0)
-        XCTAssertEqual(sut.size, 0)
+        XCTAssertEqual(sut.itemsCount, 0)
+        XCTAssertEqual(sut.itemsDataSize, 0)
 
         try sut.append(TestElement(id: 2))
         try sut.append(TestElement(id: 3))
-        XCTAssertEqual(sut.count, 2)
+        XCTAssertEqual(sut.itemsCount, 2)
 
-        let decoded = try decodePayload(data: sut.data)
+        let decoded = try decodePayload(data: sut.batchedData)
         XCTAssertEqual(decoded.items, [
             TestElement(id: 2),
             TestElement(id: 3)
@@ -394,9 +394,9 @@ final class InMemoryBatchStorageTests: XCTestCase {
         sut.flush()
 
         // -- Assert --
-        XCTAssertEqual(sut.count, 0)
-        XCTAssertEqual(sut.size, 0)
-        let decoded = try decodePayload(data: sut.data)
+        XCTAssertEqual(sut.itemsCount, 0)
+        XCTAssertEqual(sut.itemsDataSize, 0)
+        let decoded = try decodePayload(data: sut.batchedData)
         XCTAssertEqual(decoded.items, [])
     }
 

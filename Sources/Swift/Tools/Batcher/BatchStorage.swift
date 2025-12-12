@@ -1,10 +1,20 @@
-protocol BatchStorage<Element> {
-    associatedtype Element
+protocol BatchStorage<Item> {
+    associatedtype Item
 
-    mutating func append(_ element: Element) throws
+    /// Adds the given item to the storage
+    ///
+    /// - Throws: Can throw errors due to e.g. encoding errors
+    mutating func append(_ item: Item) throws
+
+    /// Clears all items from the storage
     mutating func flush()
 
-    var data: Data { get }
-    var count: Int { get }
-    var size: Int { get }
+    /// Number of elements in the storage
+    var itemsCount: Int { get }
+
+    /// Sum of the size of encoded items in the storage
+    var itemsDataSize: Int { get }
+
+    /// Returns the data collected in this storage in batched format
+    var batchedData: Data { get }
 }

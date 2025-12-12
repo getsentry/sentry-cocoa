@@ -1,25 +1,25 @@
-struct InMemoryBatchStorage<Element: Encodable>: BatchStorage {
+struct InMemoryBatchStorage<Item: Encodable>: BatchStorage {
     private var elements: [Data] = []
-    var size: Int = 0
+    var itemsDataSize: Int = 0
 
     init() {}
 
-    mutating func append(_ element: Element) throws {
-        let encoded = try JSONEncoder().encode(element)
+    mutating func append(_ item: Item) throws {
+        let encoded = try JSONEncoder().encode(item)
         elements.append(encoded)
-        size += encoded.count
+        itemsDataSize += encoded.count
     }
 
     mutating func flush() {
         elements.removeAll()
-        size = 0
+        itemsDataSize = 0
     }
 
-    var count: Int {
+    var itemsCount: Int {
         elements.count
     }
 
-    var data: Data {
+    var batchedData: Data {
         Data("{\"items\":[".utf8) + elements.joined(separator: Data(",".utf8)) + Data("]}".utf8)
     }
 }
