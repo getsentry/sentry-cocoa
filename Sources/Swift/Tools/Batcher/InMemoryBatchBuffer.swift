@@ -5,7 +5,9 @@ struct InMemoryBatchBuffer<Item: Encodable>: BatchBuffer {
     init() {}
 
     mutating func append(_ item: Item) throws {
-        let encoded = try JSONEncoder().encode(item)
+        let encoder = JSONEncoder()
+        encoder.dateEncodingStrategy = .secondsSince1970
+        let encoded = try encoder.encode(item)
         elements.append(encoded)
         itemsDataSize += encoded.count
     }

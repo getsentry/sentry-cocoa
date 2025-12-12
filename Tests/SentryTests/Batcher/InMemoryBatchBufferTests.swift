@@ -400,6 +400,43 @@ final class InMemoryBatchBufferTests: XCTestCase {
         XCTAssertEqual(decoded.items, [])
     }
 
+    // MARK: - Date Encoding Tests
+
+    private struct TestElementWithDate: Codable {
+        let id: Int
+        let timestamp: Date
+    }
+
+    private struct TestPayloadWithDate: Decodable {
+        let items: [TestElementWithDate]
+    }
+
+    func testAppend_withDateProperty_shouldEncodeAsSecondsSince1970() throws {
+        // -- Arrange --
+        var sut = InMemoryBatchBuffer<TestElementWithDate>()
+        let expectedTimestamp = Date(timeIntervalSince1970: 1_234_567_890.987654)
+        let element = TestElementWithDate(id: 1, timestamp: expectedTimestamp)
+
+        // -- Act --
+        try sut.append(element)
+
+        // -- Assert --
+        let data = sut.batchedData
+        let jsonObject = try JSONSerialization.jsonObject(with: data) as? [String: Any]
+        let items = try XCTUnwrap(jsonObject?["items"] as? [[String: Any]])
+        let firstItem = try XCTUnwrap(items.first)
+        
+        // Verify timestamp is encoded as seconds since 1970 (not seconds since reference date)
+        let timestampValue = try XCTUnwrap(firstItem["timestamp"] as? TimeInterval)
+        XCTAssertEqual(timestampValue, 1_234_567_890.987654, accuracy: 0.000001)
+        
+        // Verify we can decode it back correctly
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .secondsSince1970
+        let decoded = try decoder.decode(TestPayloadWithDate.self, from: data)
+        XCTAssertEqual(decoded.items.first?.timestamp.timeIntervalSince1970, expectedTimestamp.timeIntervalSince1970, accuracy: 0.000001)
+    }
+
     // MARK: - Helpers
 
     private func decodePayload(data: Data) throws -> TestPayload {
