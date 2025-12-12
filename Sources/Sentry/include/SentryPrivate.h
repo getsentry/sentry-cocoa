@@ -30,6 +30,9 @@
 #import "SentryUserAccess.h"
 #import "SentryViewHierarchyProviderHelper.h"
 #import "_SentryDispatchQueueWrapperInternal.h"
+// TODO: Remove this once we remove the HybridSDK
+// WE SHOULD NOT MERGE THIS YET
+#import "HybridPublic/PrivateSentrySDKOnly.h"
 
 // Headers that also import SentryDefines should be at the end of this list
 // otherwise it wont compile
