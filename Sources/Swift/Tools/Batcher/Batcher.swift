@@ -151,7 +151,7 @@ final class Batcher<Storage: BatchStorage<Item>, Item: BatcherItem, Scope: Batch
         timerWorkItem = nil
 
         // Fetch and send any available data
-        guard storage.itemsDataSize > 0 else {
+        guard storage.itemsCount > 0 else {
             SentrySDKLog.debug("No items to flush.")
             return
         }
