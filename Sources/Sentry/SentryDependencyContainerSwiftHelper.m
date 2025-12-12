@@ -45,6 +45,11 @@
     return options.enableLogs;
 }
 
++ (BOOL)enableMetrics:(SentryOptions *)options
+{
+    return options.enableMetrics;
+}
+
 + (NSArray<NSString *> *)enabledFeatures:(SentryOptions *)options
 {
     return [SentryEnabledFeaturesBuilder getEnabledFeaturesWithOptions:options];

@@ -14,6 +14,7 @@
 
 - Add attributes data to `SentryScope` (#6830)
 - Add `SentryScope` attributes into log messages (#6834)
+- Add integration to collect Metrics, can be enabled by setting `options.enableMetrics = true` (#6956)
 
 ### Improvements
 

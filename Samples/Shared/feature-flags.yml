@@ -82,6 +82,9 @@ schemeTemplates:
         "--io.sentry.other.reject-view-hierarchy-in-before-capture-view-hierarchy": false
         "--io.sentry.other.reject-all-spans": false
 
+        # metrics
+        "--io.sentry.metrics.enable": false
+
       environmentVariables:
         # events
         - variable: "--io.sentry.events.sampleRate"
