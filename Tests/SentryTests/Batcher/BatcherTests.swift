@@ -101,7 +101,7 @@ final class BatcherTests: XCTestCase {
             maxItemCount: maxItemCount,
             maxBufferSizeBytes: maxBufferSizeBytes,
             beforeSendItem: beforeSendItem,
-            getInstallationId: { "test-installation-id" }
+            installationId: "test-installation-id"
         )
         config.capturedDataCallback = { [weak self] data, count in
             self?.capturedDataInvocations.record((data, count))

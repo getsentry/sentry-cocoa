@@ -31,7 +31,7 @@ final class BatcherScopeTests: XCTestCase {
         let maxItemCount: Int
         let maxBufferSizeBytes: Int
         let beforeSendItem: ((TestItem) -> TestItem?)?
-        let getInstallationId: () -> String?
+        let installationId: String?
         var capturedDataCallback: (Data, Int) -> Void
     }
 
@@ -685,7 +685,7 @@ final class BatcherScopeTests: XCTestCase {
             maxItemCount: 10,
             maxBufferSizeBytes: 8_000,
             beforeSendItem: nil,
-            getInstallationId: { installationId },
+            installationId: installationId,
             capturedDataCallback: { _, _ in }
         )
     }

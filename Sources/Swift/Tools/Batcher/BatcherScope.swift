@@ -98,7 +98,7 @@ extension BatcherScope {
             return
         }
 
-        if let installationId = config.getInstallationId() {
+        if let installationId = config.installationId {
             // We only want to set the id if the customer didn't set a user so we at least set something to
             // identify the user.
             attributes["user.id"] = .init(value: installationId)

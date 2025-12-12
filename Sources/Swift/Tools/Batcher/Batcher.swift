@@ -17,7 +17,7 @@ final class Batcher<Buffer: BatchBuffer<Item>, Item: BatcherItem, Scope: Batcher
         let maxItemCount: Int
         let maxBufferSizeBytes: Int
         let beforeSendItem: ((Item) -> Item?)?
-        let getInstallationId: () -> String?
+        let installationId: String?
 
         var capturedDataCallback: (Data, Int) -> Void = { _, _ in }
     }

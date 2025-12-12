@@ -69,9 +69,7 @@ import Foundation
                 maxItemCount: maxLogCount,
                 maxBufferSizeBytes: maxBufferSizeBytes,
                 beforeSendItem: options.beforeSendLog,
-                getInstallationId: {
-                    SentryInstallation.cachedId(withCacheDirectoryPath: options.cacheDirectoryPath)
-                },
+                installationId: SentryInstallation.cachedId(withCacheDirectoryPath: options.cacheDirectoryPath),
                 capturedDataCallback: { [weak delegate] data, count in
                     guard let delegate else {
                         SentrySDKLog.debug("SentryLogBatcher: Delegate not set, not capturing logs data.")
