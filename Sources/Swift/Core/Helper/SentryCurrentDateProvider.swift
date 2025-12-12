@@ -10,6 +10,13 @@ import Foundation
     func timezoneOffset() -> Int
     func systemTime() -> UInt64
     func systemUptime() -> TimeInterval
+    func getAbsoluteTime() -> UInt64
+}
+
+extension SentryCurrentDateProvider {
+    public func getAbsoluteTime() -> UInt64 {
+        clock_gettime_nsec_np(CLOCK_UPTIME_RAW)
+    }
 }
 
 @objcMembers
@@ -32,6 +39,10 @@ import Foundation
     
     public func systemUptime() -> TimeInterval {
         ProcessInfo.processInfo.systemUptime
+    }
+
+    public func getAbsoluteTime() -> UInt64 {
+        SentryDefaultCurrentDateProvider.getAbsoluteTime()
     }
 
     public static func getAbsoluteTime() -> UInt64 {

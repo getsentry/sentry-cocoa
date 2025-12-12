@@ -14,6 +14,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SentryClientInternal ()
 
 - (instancetype)initWithOptions:(NSObject *)options
+                   dateProvider:(id<SentryCurrentDateProvider>)dateProvider
                transportAdapter:(SentryTransportAdapter *)transportAdapter
                     fileManager:(SentryFileManager *)fileManager
                 threadInspector:(SentryDefaultThreadInspector *)threadInspector
