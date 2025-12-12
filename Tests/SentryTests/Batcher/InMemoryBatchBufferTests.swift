@@ -434,7 +434,12 @@ final class InMemoryBatchBufferTests: XCTestCase {
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .secondsSince1970
         let decoded = try decoder.decode(TestPayloadWithDate.self, from: data)
-        XCTAssertEqual(decoded.items.first?.timestamp.timeIntervalSince1970, expectedTimestamp.timeIntervalSince1970, accuracy: 0.000001)
+        let decodedItem = try XCTUnwrap(decoded.items.first)
+        XCTAssertEqual(
+            decodedItem.timestamp.timeIntervalSince1970,
+            expectedTimestamp.timeIntervalSince1970,
+            accuracy: 0.000001
+        )
     }
 
     // MARK: - Helpers
