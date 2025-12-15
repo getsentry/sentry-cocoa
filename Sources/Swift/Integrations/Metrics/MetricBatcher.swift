@@ -15,8 +15,7 @@ protocol MetricBatcherProtocol: AnyObject {
     /// - Note: This method blocks until all items are captured. The batcher's buffer is cleared after capture.
     ///         This is safe to call from any thread, but be aware that it uses dispatchSync internally,
     ///         so calling it from a context that holds locks or is on the batcher's queue itself could cause a deadlock.
-    @discardableResult
-    func captureMetrics() -> TimeInterval
+    @discardableResult func captureMetrics() -> TimeInterval
 }
 
 protocol MetricBatcherOptionsProtocol {

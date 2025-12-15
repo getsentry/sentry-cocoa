@@ -138,6 +138,37 @@ public struct Metric {
     }
 }
 
+extension Metric: Encodable {
+    private enum CodingKeys: String, CodingKey {
+        case timestamp
+        case traceId = "trace_id"
+        case spanId = "span_id"
+        case name
+        case value
+        case type
+        case unit
+        case attributes
+    }
+    
+    public func encode(to encoder: any Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        
+        try container.encode(timestamp, forKey: .timestamp)
+        try container.encode(traceId.sentryIdString, forKey: .traceId)
+        try container.encodeIfPresent(spanId?.sentrySpanIdString, forKey: .spanId)
+        try container.encode(name, forKey: .name)
+        try container.encode(value, forKey: .value)
+        
+        try container.encode(type, forKey: .type)
+        try container.encodeIfPresent(unit, forKey: .unit)
+        try container.encode(attributes, forKey: .attributes)
+    }
+}
+
+extension Metric: BatcherItem {}
+
+// MARK: - MetricType
+
 /// The type of metric being recorded.
 ///
 /// Different metric types serve different purposes:
@@ -189,6 +220,8 @@ public enum MetricType: Encodable {
         try container.encode(stringValue)
     }
 }
+
+// MARK: - MetricValue
 
 /// Represents the numeric value of a metric with type-safe distinction between integers and doubles.
 ///
@@ -258,33 +291,3 @@ public enum MetricValue: Encodable, ExpressibleByIntegerLiteral, ExpressibleByFl
         self = .integer(Int64(value))
     }
 }
-
-// MARK: - Internal Codable Support
-extension Metric: Encodable {
-    private enum CodingKeys: String, CodingKey {
-        case timestamp
-        case traceId = "trace_id"
-        case spanId = "span_id"
-        case name
-        case value
-        case type
-        case unit
-        case attributes
-    }
-    
-    public func encode(to encoder: any Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        
-        try container.encode(timestamp, forKey: .timestamp)
-        try container.encode(traceId.sentryIdString, forKey: .traceId)
-        try container.encodeIfPresent(spanId?.sentrySpanIdString, forKey: .spanId)
-        try container.encode(name, forKey: .name)
-        try container.encode(value, forKey: .value)
-        
-        try container.encode(type, forKey: .type)
-        try container.encodeIfPresent(unit, forKey: .unit)
-        try container.encode(attributes, forKey: .attributes)
-    }
-}
-
-extension Metric: BatcherItem {}

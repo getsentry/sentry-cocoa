@@ -1,11 +1,6 @@
 @_implementationOnly import _SentryPrivate
 
-protocol DispatchQueueWrapperProvider {
-    var dateProvider: SentryCurrentDateProvider { get }
-    var dispatchQueueWrapper: SentryDispatchQueueWrapper { get }
-}
-
-final class MetricsIntegration<Dependencies: DispatchQueueWrapperProvider>: NSObject, SwiftIntegration {
+final class MetricsIntegration<Dependencies: DateProviderProvider & DispatchQueueWrapperProvider>: NSObject, SwiftIntegration {
     private let options: Options
     private let metricBatcher: MetricBatcherProtocol
 

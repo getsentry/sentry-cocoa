@@ -257,7 +257,16 @@ extension SentryFileManager: SentryFileManagerProtocol { }
 extension SentryDependencyContainer: ScreenshotSourceProvider { }
 #endif
 
+protocol DateProviderProvider {
+    var dateProvider: SentryCurrentDateProvider { get }
+}
+extension SentryDependencyContainer: DateProviderProvider {}
+
+protocol DispatchQueueWrapperProvider {
+    var dispatchQueueWrapper: SentryDispatchQueueWrapper { get }
+}
 extension SentryDependencyContainer: DispatchQueueWrapperProvider { }
+
 extension SentryDependencyContainer: AutoSessionTrackingProvider { }
 
 #if ((os(iOS) || os(tvOS) || (swift(>=5.9) && os(visionOS))) && !SENTRY_NO_UIKIT) || os(macOS)
