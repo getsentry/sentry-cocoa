@@ -25,14 +25,19 @@ final class BatcherScopeTests: XCTestCase {
     private struct TestConfig: BatcherConfig {
         typealias Item = TestItem
 
-        let environment: String
-        let releaseName: String?
         let flushTimeout: TimeInterval
         let maxItemCount: Int
         let maxBufferSizeBytes: Int
+
         let beforeSendItem: ((TestItem) -> TestItem?)?
-        let getInstallationId: () -> String?
+
         var capturedDataCallback: (Data, Int) -> Void
+    }
+
+    private struct TestMetadata: BatcherMetadata {
+        let environment: String
+        let releaseName: String?
+        let installationId: String?
     }
 
     private struct TestScope: BatcherScope {
@@ -58,10 +63,11 @@ final class BatcherScopeTests: XCTestCase {
         // -- Arrange --
         let scope = TestScope(propagationContextTraceIdString: SentryId().sentryIdString)
         let config = createTestConfig()
+        let metadata = createTestMetadata()
         var item = createTestItem()
 
         // -- Act --
-        scope.applyToItem(&item, config: config)
+        scope.applyToItem(&item, config: config, metadata: metadata)
 
         // -- Assert --
         XCTAssertEqual(item.attributes["sentry.sdk.name"]?.value as? String, SentryMeta.sdkName)
@@ -71,10 +77,11 @@ final class BatcherScopeTests: XCTestCase {
         // -- Arrange --
         let scope = TestScope(propagationContextTraceIdString: SentryId().sentryIdString)
         let config = createTestConfig()
+        let metadata = createTestMetadata()
         var item = createTestItem()
 
         // -- Act --
-        scope.applyToItem(&item, config: config)
+        scope.applyToItem(&item, config: config, metadata: metadata)
 
         // -- Assert --
         XCTAssertEqual(item.attributes["sentry.sdk.version"]?.value as? String, SentryMeta.versionString)
@@ -83,11 +90,12 @@ final class BatcherScopeTests: XCTestCase {
     func testApplyToItem_shouldAddEnvironment() {
         // -- Arrange --
         let scope = TestScope(propagationContextTraceIdString: SentryId().sentryIdString)
-        let config = createTestConfig(environment: "test-environment")
+        let config = createTestConfig()
+        let metadata = createTestMetadata(environment: "test-environment")
         var item = createTestItem()
 
         // -- Act --
-        scope.applyToItem(&item, config: config)
+        scope.applyToItem(&item, config: config, metadata: metadata)
 
         // -- Assert --
         XCTAssertEqual(item.attributes["sentry.environment"]?.value as? String, "test-environment")
@@ -96,11 +104,12 @@ final class BatcherScopeTests: XCTestCase {
     func testApplyToItem_withReleaseName_shouldAddRelease() {
         // -- Arrange --
         let scope = TestScope(propagationContextTraceIdString: SentryId().sentryIdString)
-        let config = createTestConfig(releaseName: "test-release-1.0.0")
+        let config = createTestConfig()
+        let metadata = createTestMetadata(releaseName: "test-release-1.0.0")
         var item = createTestItem()
 
         // -- Act --
-        scope.applyToItem(&item, config: config)
+        scope.applyToItem(&item, config: config, metadata: metadata)
 
         // -- Assert --
         XCTAssertEqual(item.attributes["sentry.release"]?.value as? String, "test-release-1.0.0")
@@ -109,11 +118,12 @@ final class BatcherScopeTests: XCTestCase {
     func testApplyToItem_withoutReleaseName_shouldNotAddRelease() {
         // -- Arrange --
         let scope = TestScope(propagationContextTraceIdString: SentryId().sentryIdString)
-        let config = createTestConfig(releaseName: nil)
+        let config = createTestConfig()
+        let metadata = createTestMetadata(releaseName: nil)
         var item = createTestItem()
 
         // -- Act --
-        scope.applyToItem(&item, config: config)
+        scope.applyToItem(&item, config: config, metadata: metadata)
 
         // -- Assert --
         XCTAssertNil(item.attributes["sentry.release"])
@@ -128,10 +138,11 @@ final class BatcherScopeTests: XCTestCase {
             span: span
         )
         let config = createTestConfig()
+        let metadata = createTestMetadata()
         var item = createTestItem()
 
         // -- Act --
-        scope.applyToItem(&item, config: config)
+        scope.applyToItem(&item, config: config, metadata: metadata)
 
         // -- Assert --
         XCTAssertEqual(item.attributes["sentry.trace.parent_span_id"]?.value as? String, span.spanId.sentrySpanIdString)
@@ -141,10 +152,11 @@ final class BatcherScopeTests: XCTestCase {
         // -- Arrange --
         let scope = TestScope(propagationContextTraceIdString: SentryId().sentryIdString)
         let config = createTestConfig()
+        let metadata = createTestMetadata()
         var item = createTestItem()
 
         // -- Act --
-        scope.applyToItem(&item, config: config)
+        scope.applyToItem(&item, config: config, metadata: metadata)
 
         // -- Assert --
         XCTAssertNil(item.attributes["sentry.trace.parent_span_id"])
@@ -157,10 +169,11 @@ final class BatcherScopeTests: XCTestCase {
         var scope = TestScope(propagationContextTraceIdString: SentryId().sentryIdString)
         scope.setContext(value: ["name": "iOS", "version": "17.0"], key: "os")
         let config = createTestConfig()
+        let metadata = createTestMetadata()
         var item = createTestItem()
 
         // -- Act --
-        scope.applyToItem(&item, config: config)
+        scope.applyToItem(&item, config: config, metadata: metadata)
 
         // -- Assert --
         XCTAssertEqual(item.attributes["os.name"]?.value as? String, "iOS")
@@ -171,10 +184,11 @@ final class BatcherScopeTests: XCTestCase {
         var scope = TestScope(propagationContextTraceIdString: SentryId().sentryIdString)
         scope.setContext(value: ["name": "iOS", "version": "17.0"], key: "os")
         let config = createTestConfig()
+        let metadata = createTestMetadata()
         var item = createTestItem()
 
         // -- Act --
-        scope.applyToItem(&item, config: config)
+        scope.applyToItem(&item, config: config, metadata: metadata)
 
         // -- Assert --
         XCTAssertEqual(item.attributes["os.version"]?.value as? String, "17.0")
@@ -185,10 +199,11 @@ final class BatcherScopeTests: XCTestCase {
         var scope = TestScope(propagationContextTraceIdString: SentryId().sentryIdString)
         scope.setContext(value: ["version": "17.0"], key: "os")
         let config = createTestConfig()
+        let metadata = createTestMetadata()
         var item = createTestItem()
 
         // -- Act --
-        scope.applyToItem(&item, config: config)
+        scope.applyToItem(&item, config: config, metadata: metadata)
 
         // -- Assert --
         XCTAssertNil(item.attributes["os.name"])
@@ -199,10 +214,11 @@ final class BatcherScopeTests: XCTestCase {
         var scope = TestScope(propagationContextTraceIdString: SentryId().sentryIdString)
         scope.setContext(value: ["name": "iOS"], key: "os")
         let config = createTestConfig()
+        let metadata = createTestMetadata()
         var item = createTestItem()
 
         // -- Act --
-        scope.applyToItem(&item, config: config)
+        scope.applyToItem(&item, config: config, metadata: metadata)
 
         // -- Assert --
         XCTAssertNil(item.attributes["os.version"])
@@ -212,10 +228,11 @@ final class BatcherScopeTests: XCTestCase {
         // -- Arrange --
         let scope = TestScope(propagationContextTraceIdString: SentryId().sentryIdString)
         let config = createTestConfig()
+        let metadata = createTestMetadata()
         var item = createTestItem()
 
         // -- Act --
-        scope.applyToItem(&item, config: config)
+        scope.applyToItem(&item, config: config, metadata: metadata)
 
         // -- Assert --
         XCTAssertNil(item.attributes["os.name"])
@@ -229,10 +246,11 @@ final class BatcherScopeTests: XCTestCase {
         var scope = TestScope(propagationContextTraceIdString: SentryId().sentryIdString)
         scope.setContext(value: ["model": "iPhone15,2"], key: "device")
         let config = createTestConfig()
+        let metadata = createTestMetadata()
         var item = createTestItem()
 
         // -- Act --
-        scope.applyToItem(&item, config: config)
+        scope.applyToItem(&item, config: config, metadata: metadata)
 
         // -- Assert --
         XCTAssertEqual(item.attributes["device.brand"]?.value as? String, "Apple")
@@ -243,10 +261,11 @@ final class BatcherScopeTests: XCTestCase {
         var scope = TestScope(propagationContextTraceIdString: SentryId().sentryIdString)
         scope.setContext(value: ["model": "iPhone15,2"], key: "device")
         let config = createTestConfig()
+        let metadata = createTestMetadata()
         var item = createTestItem()
 
         // -- Act --
-        scope.applyToItem(&item, config: config)
+        scope.applyToItem(&item, config: config, metadata: metadata)
 
         // -- Assert --
         XCTAssertEqual(item.attributes["device.model"]?.value as? String, "iPhone15,2")
@@ -257,10 +276,11 @@ final class BatcherScopeTests: XCTestCase {
         var scope = TestScope(propagationContextTraceIdString: SentryId().sentryIdString)
         scope.setContext(value: ["family": "iPhone"], key: "device")
         let config = createTestConfig()
+        let metadata = createTestMetadata()
         var item = createTestItem()
 
         // -- Act --
-        scope.applyToItem(&item, config: config)
+        scope.applyToItem(&item, config: config, metadata: metadata)
 
         // -- Assert --
         XCTAssertEqual(item.attributes["device.family"]?.value as? String, "iPhone")
@@ -271,10 +291,11 @@ final class BatcherScopeTests: XCTestCase {
         var scope = TestScope(propagationContextTraceIdString: SentryId().sentryIdString)
         scope.setContext(value: ["family": "iPhone"], key: "device")
         let config = createTestConfig()
+        let metadata = createTestMetadata()
         var item = createTestItem()
 
         // -- Act --
-        scope.applyToItem(&item, config: config)
+        scope.applyToItem(&item, config: config, metadata: metadata)
 
         // -- Assert --
         XCTAssertNil(item.attributes["device.model"])
@@ -285,10 +306,11 @@ final class BatcherScopeTests: XCTestCase {
         var scope = TestScope(propagationContextTraceIdString: SentryId().sentryIdString)
         scope.setContext(value: ["model": "iPhone15,2"], key: "device")
         let config = createTestConfig()
+        let metadata = createTestMetadata()
         var item = createTestItem()
 
         // -- Act --
-        scope.applyToItem(&item, config: config)
+        scope.applyToItem(&item, config: config, metadata: metadata)
 
         // -- Assert --
         XCTAssertNil(item.attributes["device.family"])
@@ -298,10 +320,11 @@ final class BatcherScopeTests: XCTestCase {
         // -- Arrange --
         let scope = TestScope(propagationContextTraceIdString: SentryId().sentryIdString)
         let config = createTestConfig()
+        let metadata = createTestMetadata()
         var item = createTestItem()
 
         // -- Act --
-        scope.applyToItem(&item, config: config)
+        scope.applyToItem(&item, config: config, metadata: metadata)
 
         // -- Assert --
         XCTAssertNil(item.attributes["device.brand"])
@@ -319,10 +342,11 @@ final class BatcherScopeTests: XCTestCase {
             userObject: user
         )
         let config = createTestConfig()
+        let metadata = createTestMetadata()
         var item = createTestItem()
 
         // -- Act --
-        scope.applyToItem(&item, config: config)
+        scope.applyToItem(&item, config: config, metadata: metadata)
 
         // -- Assert --
         XCTAssertEqual(item.attributes["user.id"]?.value as? String, "user-123")
@@ -337,10 +361,11 @@ final class BatcherScopeTests: XCTestCase {
             userObject: user
         )
         let config = createTestConfig()
+        let metadata = createTestMetadata()
         var item = createTestItem()
 
         // -- Act --
-        scope.applyToItem(&item, config: config)
+        scope.applyToItem(&item, config: config, metadata: metadata)
 
         // -- Assert --
         XCTAssertEqual(item.attributes["user.name"]?.value as? String, "John Doe")
@@ -355,10 +380,11 @@ final class BatcherScopeTests: XCTestCase {
             userObject: user
         )
         let config = createTestConfig()
+        let metadata = createTestMetadata()
         var item = createTestItem()
 
         // -- Act --
-        scope.applyToItem(&item, config: config)
+        scope.applyToItem(&item, config: config, metadata: metadata)
 
         // -- Assert --
         XCTAssertEqual(item.attributes["user.email"]?.value as? String, "john@example.com")
@@ -374,10 +400,11 @@ final class BatcherScopeTests: XCTestCase {
             userObject: user
         )
         let config = createTestConfig()
+        let metadata = createTestMetadata()
         var item = createTestItem()
 
         // -- Act --
-        scope.applyToItem(&item, config: config)
+        scope.applyToItem(&item, config: config, metadata: metadata)
 
         // -- Assert --
         XCTAssertEqual(item.attributes["user.id"]?.value as? String, "user-123")
@@ -388,11 +415,12 @@ final class BatcherScopeTests: XCTestCase {
     func testApplyToItem_withoutUser_shouldNotAddUserAttributes() {
         // -- Arrange --
         let scope = TestScope(propagationContextTraceIdString: SentryId().sentryIdString)
-        let config = createTestConfig(installationId: nil)
+        let config = createTestConfig()
+        let metadata = createTestMetadata(installationId: nil)
         var item = createTestItem()
 
         // -- Act --
-        scope.applyToItem(&item, config: config)
+        scope.applyToItem(&item, config: config, metadata: metadata)
 
         // -- Assert --
         XCTAssertNil(item.attributes["user.id"])
@@ -402,8 +430,8 @@ final class BatcherScopeTests: XCTestCase {
 
     // MARK: - Replay Attributes Tests
 
-    #if canImport(UIKit) && !SENTRY_NO_UIKIT
-    #if os(iOS) || os(tvOS)
+#if canImport(UIKit) && !SENTRY_NO_UIKIT
+#if os(iOS) || os(tvOS)
     func testApplyToItem_withReplayId_shouldAddReplayId() {
         // -- Arrange --
         let scope = TestScope(
@@ -411,10 +439,11 @@ final class BatcherScopeTests: XCTestCase {
             propagationContextTraceIdString: SentryId().sentryIdString
         )
         let config = createTestConfig()
+        let metadata = createTestMetadata()
         var item = createTestItem()
 
         // -- Act --
-        scope.applyToItem(&item, config: config)
+        scope.applyToItem(&item, config: config, metadata: metadata)
 
         // -- Assert --
         XCTAssertEqual(item.attributes["sentry.replay_id"]?.value as? String, "replay-123")
@@ -424,16 +453,17 @@ final class BatcherScopeTests: XCTestCase {
         // -- Arrange --
         let scope = TestScope(propagationContextTraceIdString: SentryId().sentryIdString)
         let config = createTestConfig()
+        let metadata = createTestMetadata()
         var item = createTestItem()
 
         // -- Act --
-        scope.applyToItem(&item, config: config)
+        scope.applyToItem(&item, config: config, metadata: metadata)
 
         // -- Assert --
         XCTAssertNil(item.attributes["sentry.replay_id"])
     }
-    #endif
-    #endif
+#endif
+#endif
 
     // MARK: - Scope Attributes Tests
 
@@ -442,27 +472,29 @@ final class BatcherScopeTests: XCTestCase {
         var scope = TestScope(propagationContextTraceIdString: SentryId().sentryIdString)
         scope.attributes = ["custom.key": "custom.value", "custom.number": 42, "custom.bool": true]
         let config = createTestConfig()
+        let metadata = createTestMetadata()
         var item = createTestItem()
 
         // -- Act --
-        scope.applyToItem(&item, config: config)
+        scope.applyToItem(&item, config: config, metadata: metadata)
 
         // -- Assert --
         XCTAssertEqual(item.attributes["custom.key"]?.value as? String, "custom.value")
         XCTAssertEqual(item.attributes["custom.number"]?.value as? Int, 42)
         XCTAssertEqual(item.attributes["custom.bool"]?.value as? Bool, true)
     }
-    
+
     func testApplyToItem_withScopeAttributes_whenItemHasExistingAttribute_shouldNotOverride() {
         // -- Arrange --
         var scope = TestScope(propagationContextTraceIdString: SentryId().sentryIdString)
         scope.attributes = ["custom.key": "scope.value"]
         let config = createTestConfig()
+        let metadata = createTestMetadata()
         var item = createTestItem()
         item.attributes["custom.key"] = .init(string: "item.value")
 
         // -- Act --
-        scope.applyToItem(&item, config: config)
+        scope.applyToItem(&item, config: config, metadata: metadata)
 
         // -- Assert --
         // Scope attributes should not override existing item attributes
@@ -474,11 +506,12 @@ final class BatcherScopeTests: XCTestCase {
     func testApplyToItem_withoutUserAndWithInstallationId_shouldAddInstallationIdAsUserId() {
         // -- Arrange --
         let scope = TestScope(propagationContextTraceIdString: SentryId().sentryIdString)
-        let config = createTestConfig(installationId: "installation-123")
+        let config = createTestConfig()
+        let metadata = createTestMetadata(installationId: "installation-123")
         var item = createTestItem()
 
         // -- Act --
-        scope.applyToItem(&item, config: config)
+        scope.applyToItem(&item, config: config, metadata: metadata)
 
         // -- Assert --
         XCTAssertEqual(item.attributes["user.id"]?.value as? String, "installation-123")
@@ -487,11 +520,12 @@ final class BatcherScopeTests: XCTestCase {
     func testApplyToItem_withoutUserAndWithoutInstallationId_shouldNotAddUserId() {
         // -- Arrange --
         let scope = TestScope(propagationContextTraceIdString: SentryId().sentryIdString)
-        let config = createTestConfig(installationId: nil)
+        let config = createTestConfig()
+        let metadata = createTestMetadata(installationId: nil)
         var item = createTestItem()
 
         // -- Act --
-        scope.applyToItem(&item, config: config)
+        scope.applyToItem(&item, config: config, metadata: metadata)
 
         // -- Assert --
         XCTAssertNil(item.attributes["user.id"])
@@ -504,11 +538,12 @@ final class BatcherScopeTests: XCTestCase {
             propagationContextTraceIdString: SentryId().sentryIdString,
             userObject: user
         )
-        let config = createTestConfig(installationId: "installation-123")
+        let config = createTestConfig()
+        let metadata = createTestMetadata(installationId: "installation-123")
         var item = createTestItem()
 
         // -- Act --
-        scope.applyToItem(&item, config: config)
+        scope.applyToItem(&item, config: config, metadata: metadata)
 
         // -- Assert --
         XCTAssertEqual(item.attributes["user.id"]?.value as? String, "user-123")
@@ -523,11 +558,12 @@ final class BatcherScopeTests: XCTestCase {
             propagationContextTraceIdString: SentryId().sentryIdString,
             userObject: user
         )
-        let config = createTestConfig(installationId: "installation-123")
+        let config = createTestConfig()
+        let metadata = createTestMetadata(installationId: "installation-123")
         var item = createTestItem()
 
         // -- Act --
-        scope.applyToItem(&item, config: config)
+        scope.applyToItem(&item, config: config, metadata: metadata)
 
         // -- Assert --
         XCTAssertNil(item.attributes["user.id"])
@@ -541,11 +577,12 @@ final class BatcherScopeTests: XCTestCase {
             propagationContextTraceIdString: SentryId().sentryIdString,
             userObject: user
         )
-        let config = createTestConfig(installationId: "installation-123")
+        let config = createTestConfig()
+        let metadata = createTestMetadata(installationId: "installation-123")
         var item = createTestItem()
 
         // -- Act --
-        scope.applyToItem(&item, config: config)
+        scope.applyToItem(&item, config: config, metadata: metadata)
 
         // -- Assert --
         XCTAssertNil(item.attributes["user.id"])
@@ -558,10 +595,11 @@ final class BatcherScopeTests: XCTestCase {
         let traceId = SentryId()
         let scope = TestScope(propagationContextTraceIdString: traceId.sentryIdString)
         let config = createTestConfig()
+        let metadata = createTestMetadata()
         var item = createTestItem()
 
         // -- Act --
-        scope.applyToItem(&item, config: config)
+        scope.applyToItem(&item, config: config, metadata: metadata)
 
         // -- Assert --
         XCTAssertEqual(item.traceId, traceId)
@@ -573,11 +611,12 @@ final class BatcherScopeTests: XCTestCase {
         let traceId2 = SentryId()
         let scope = TestScope(propagationContextTraceIdString: traceId1.sentryIdString)
         let config = createTestConfig()
+        let metadata = createTestMetadata()
         var item = createTestItem()
         item.traceId = traceId2
 
         // -- Act --
-        scope.applyToItem(&item, config: config)
+        scope.applyToItem(&item, config: config, metadata: metadata)
 
         // -- Assert --
         XCTAssertEqual(item.traceId, traceId1)
@@ -602,15 +641,12 @@ final class BatcherScopeTests: XCTestCase {
         scope.setContext(value: ["name": "iOS", "version": "17.0"], key: "os")
         scope.setContext(value: ["model": "iPhone15,2", "family": "iPhone"], key: "device")
 
-        let config = createTestConfig(
-            environment: "production",
-            releaseName: "1.0.0",
-            installationId: "installation-123"
-        )
+        let config = createTestConfig()
+        let metadata = createTestMetadata(environment: "production", releaseName: "1.0.0", installationId: "installation-123")
         var item = createTestItem()
 
         // -- Act --
-        scope.applyToItem(&item, config: config)
+        scope.applyToItem(&item, config: config, metadata: metadata)
 
         // -- Assert --
         // Default attributes
@@ -642,11 +678,12 @@ final class BatcherScopeTests: XCTestCase {
         // -- Arrange --
         let traceId = SentryId()
         let scope = TestScope(propagationContextTraceIdString: traceId.sentryIdString)
-        let config = createTestConfig(environment: "test", releaseName: nil, installationId: nil)
+        let config = createTestConfig()
+        let metadata = createTestMetadata(environment: "test", releaseName: nil, installationId: nil)
         var item = createTestItem()
 
         // -- Act --
-        scope.applyToItem(&item, config: config)
+        scope.applyToItem(&item, config: config, metadata: metadata)
 
         // -- Assert --
         // Should always have these
@@ -673,20 +710,25 @@ final class BatcherScopeTests: XCTestCase {
         )
     }
 
-    private func createTestConfig(
-        environment: String = "test-environment",
-        releaseName: String? = "test-release",
-        installationId: String? = "test-installation-id"
-    ) -> TestConfig {
+    private func createTestConfig() -> TestConfig {
         return TestConfig(
-            environment: environment,
-            releaseName: releaseName,
             flushTimeout: 0.1,
             maxItemCount: 10,
             maxBufferSizeBytes: 8_000,
             beforeSendItem: nil,
-            getInstallationId: { installationId },
             capturedDataCallback: { _, _ in }
+        )
+    }
+
+    private func createTestMetadata(
+        environment: String = "test-environment",
+        releaseName: String? = "test-release",
+        installationId: String? = "test-installation-id"
+    ) -> TestMetadata {
+        return TestMetadata(
+            environment: environment,
+            releaseName: releaseName,
+            installationId: installationId
         )
     }
 }

@@ -63,15 +63,10 @@ import Foundation
     ) {
         self.batcher = Batcher(
             config: .init(
-                environment: options.environment,
-                releaseName: options.releaseName,
                 flushTimeout: flushTimeout,
                 maxItemCount: maxLogCount,
                 maxBufferSizeBytes: maxBufferSizeBytes,
                 beforeSendItem: options.beforeSendLog,
-                getInstallationId: {
-                    SentryInstallation.cachedId(withCacheDirectoryPath: options.cacheDirectoryPath)
-                },
                 capturedDataCallback: { [weak delegate] data, count in
                     guard let delegate else {
                         SentrySDKLog.debug("SentryLogBatcher: Delegate not set, not capturing logs data.")
@@ -80,7 +75,12 @@ import Foundation
                     delegate.capture(logsData: data as NSData, count: NSNumber(value: count))
                 }
             ),
-            batchStorage: InMemoryBatchStorage(),
+            metadata: .init(
+                environment: options.environment,
+                releaseName: options.releaseName,
+                installationId: SentryInstallation.cachedId(withCacheDirectoryPath: options.cacheDirectoryPath)
+            ),
+            buffer: InMemoryBatchBuffer(),
             dateProvider: dateProvider,
             dispatchQueue: dispatchQueue
         )
