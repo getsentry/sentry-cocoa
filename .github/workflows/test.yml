@@ -401,6 +401,38 @@ jobs:
         if: failure()
         run: ./scripts/ci-diagnostics.sh
 
+  # This will be replaced once #6945 is merged.
+  cocoalumberjack-integration-unit-tests:
+    name: SentryCocoaLumberjack Unit Tests
+    if: needs.files-changed.outputs.run_unit_tests_for_prs == 'true'
+    needs: files-changed
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Select Xcode
+        run: ./scripts/ci-select-xcode.sh 16.4
+
+      - name: Setup local sentry-cocoa dependency
+        working-directory: 3rd-party-integrations/SentryCocoaLumberjack
+        run: swift package edit sentry-cocoa --path ../..
+
+      - name: Run CocoaLumberjack tests
+        working-directory: 3rd-party-integrations/SentryCocoaLumberjack
+        run: swift test
+
+      - name: Archiving Raw Logs
+        uses: actions/upload-artifact@v5
+        if: ${{ failure() || cancelled() }}
+        with:
+          name: raw-output-cocoalumberjack-integration
+          path: |
+            3rd-party-integrations/SentryCocoaLumberjack/.build/**/*.log
+
+      - name: Run CI Diagnostics
+        if: failure()
+        run: ./scripts/ci-diagnostics.sh
+
   # This check validates that either all unit tests passed or were skipped, which allows us
   # to make unit tests a required check with only running the unit tests when required.
   # So, we don't have to run unit tests, for example, for Changelog or ReadMe changes.
