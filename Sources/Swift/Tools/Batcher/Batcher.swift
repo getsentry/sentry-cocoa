@@ -9,22 +9,27 @@ protocol BatcherProtocol<Item, Scope>: AnyObject {
     func capture() -> TimeInterval
 }
 
-final class Batcher<Storage: BatchStorage<Item>, Item: BatcherItem, Scope: BatcherScope>: BatcherProtocol {
+final class Batcher<Buffer: BatchBuffer<Item>, Item: BatcherItem, Scope: BatcherScope>: BatcherProtocol {
     struct Config: BatcherConfig {
-        let environment: String
-        let releaseName: String?
         let flushTimeout: TimeInterval
         let maxItemCount: Int
         let maxBufferSizeBytes: Int
+        
         let beforeSendItem: ((Item) -> Item?)?
-        let getInstallationId: () -> String?
 
         var capturedDataCallback: (Data, Int) -> Void = { _, _ in }
     }
 
-    private let config: Config
+    struct Metadata: BatcherMetadata {
+        let environment: String
+        let releaseName: String?
+        let installationId: String?
+    }
 
-    private var batchStorage: Storage
+    private let config: Config
+    private let metadata: Metadata
+
+    private var buffer: Buffer
     private let dateProvider: SentryCurrentDateProvider
     private let dispatchQueue: SentryDispatchQueueWrapperProtocol
 
@@ -33,7 +38,8 @@ final class Batcher<Storage: BatchStorage<Item>, Item: BatcherItem, Scope: Batch
     /// Initializes a new `Batcher`.
     /// - Parameters:
     ///   - config: The batcher configuration containing flush timeout, limits, and callbacks
-    ///   - batchStorage: The storage implementation for buffering items
+    ///   - metadata: The batcher metadata containing fields like environment or release
+    ///   - buffer: The buffer implementation for buffering items
     ///   - dateProvider: Provider for current date/time used for timing measurements
     ///   - dispatchQueue: A **serial** dispatch queue wrapper for thread-safe access to mutable state
     ///
@@ -44,12 +50,14 @@ final class Batcher<Storage: BatchStorage<Item>, Item: BatcherItem, Scope: Batch
     ///        or after `config.flushTimeout` seconds have elapsed since the first item was added to an empty buffer.
     @_spi(Private) public init(
         config: Config,
-        batchStorage: Storage,
+        metadata: Metadata,
+        buffer: Buffer,
         dateProvider: SentryCurrentDateProvider,
         dispatchQueue: SentryDispatchQueueWrapperProtocol
     ) {
         self.config = config
-        self.batchStorage = batchStorage
+        self.metadata = metadata
+        self.buffer = buffer
         self.dateProvider = dateProvider
         self.dispatchQueue = dispatchQueue
     }
@@ -65,7 +73,7 @@ final class Batcher<Storage: BatchStorage<Item>, Item: BatcherItem, Scope: Batch
     ///        the item is dropped and not added to the batch.
     func add(_ item: Item, scope: Scope) {
         var item = item
-        scope.applyToItem(&item, config: config)
+        scope.applyToItem(&item, config: config, metadata: metadata)
 
         // The before send item closure can be used to drop items by returning nil
         // In case it is nil, we can stop processing
@@ -106,11 +114,11 @@ final class Batcher<Storage: BatchStorage<Item>, Item: BatcherItem, Scope: Batch
     /// - Parameter item: The item to encode and add to the buffer
     private func encodeAndBuffer(item: Item) {
         do {
-            let encodedItemsWereEmpty = batchStorage.size == 0
-            try batchStorage.append(item)
+            let encodedItemsWereEmpty = buffer.itemsDataSize == 0
+            try buffer.append(item)
 
             // Flush when we reach max item count or max buffer size
-            if batchStorage.count >= config.maxItemCount || batchStorage.size >= config.maxBufferSizeBytes {
+            if buffer.itemsCount >= config.maxItemCount || buffer.itemsDataSize >= config.maxBufferSizeBytes {
                 performCaptureItems()
             } else if encodedItemsWereEmpty && timerWorkItem == nil {
                 startTimer()
@@ -143,7 +151,7 @@ final class Batcher<Storage: BatchStorage<Item>, Item: BatcherItem, Scope: Batch
     private func performCaptureItems() {
         // Reset items on function exit
         defer {
-            batchStorage.flush()
+            buffer.clear()
         }
         
         // Reset timer state
@@ -151,10 +159,10 @@ final class Batcher<Storage: BatchStorage<Item>, Item: BatcherItem, Scope: Batch
         timerWorkItem = nil
 
         // Fetch and send any available data
-        guard batchStorage.size > 0 else {
+        guard buffer.itemsCount > 0 else {
             SentrySDKLog.debug("No items to flush.")
             return
         }
-        config.capturedDataCallback(batchStorage.data, batchStorage.count)
+        config.capturedDataCallback(buffer.batchedData, buffer.itemsCount)
     }
 }
