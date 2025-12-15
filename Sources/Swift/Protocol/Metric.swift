@@ -252,7 +252,7 @@ public enum MetricType: Encodable {
 ///     return modified
 /// }
 /// ```
-public enum MetricValue: Encodable, ExpressibleByIntegerLiteral, ExpressibleByFloatLiteral {
+public enum MetricValue: Encodable, Equatable, ExpressibleByIntegerLiteral, ExpressibleByFloatLiteral, Hashable {
     /// A 64-bit signed integer value, typically used for counters.
     case integer(Int64)
 

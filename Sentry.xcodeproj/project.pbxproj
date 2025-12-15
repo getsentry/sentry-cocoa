@@ -783,6 +783,7 @@
 		D46B044F2EDF260A00AF4A0A /* MetricBatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = D46B044E2EDF260A00AF4A0A /* MetricBatcher.swift */; };
 		D473ACD72D8090FC000F1CC6 /* FileManager+SentryTracing.swift in Sources */ = {isa = PBXBuildFile; fileRef = D473ACD62D8090FC000F1CC6 /* FileManager+SentryTracing.swift */; };
 		D4749EF02EF042C1000F9AE7 /* MetricTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4749EEF2EF042C1000F9AE7 /* MetricTests.swift */; };
+		D4749F482EF062FD000F9AE7 /* MetricBatcherTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4749F472EF062FD000F9AE7 /* MetricBatcherTests.swift */; };
 		D480F9D92DE47A50009A0594 /* TestSentryScopePersistentStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = D480F9D82DE47A48009A0594 /* TestSentryScopePersistentStore.swift */; };
 		D480F9DB2DE47AF2009A0594 /* SentryScopePersistentStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D480F9DA2DE47AEB009A0594 /* SentryScopePersistentStoreTests.swift */; };
 		D48225A12EEC4B6D00CDF32C /* BatcherMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = D48225A02EEC4B6D00CDF32C /* BatcherMetadata.swift */; };
@@ -2159,6 +2160,7 @@
 		D46D45E92D5F411700A1CB35 /* SentrySwiftUI_Base.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; name = SentrySwiftUI_Base.xctestplan; path = Plans/SentrySwiftUI_Base.xctestplan; sourceTree = SOURCE_ROOT; };
 		D473ACD62D8090FC000F1CC6 /* FileManager+SentryTracing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FileManager+SentryTracing.swift"; sourceTree = "<group>"; };
 		D4749EEF2EF042C1000F9AE7 /* MetricTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetricTests.swift; sourceTree = "<group>"; };
+		D4749F472EF062FD000F9AE7 /* MetricBatcherTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetricBatcherTests.swift; sourceTree = "<group>"; };
 		D480F9D82DE47A48009A0594 /* TestSentryScopePersistentStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestSentryScopePersistentStore.swift; sourceTree = "<group>"; };
 		D480F9DA2DE47AEB009A0594 /* SentryScopePersistentStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryScopePersistentStoreTests.swift; sourceTree = "<group>"; };
 		D48225A02EEC4B6D00CDF32C /* BatcherMetadata.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BatcherMetadata.swift; sourceTree = "<group>"; };
@@ -4419,6 +4421,7 @@
 			isa = PBXGroup;
 			children = (
 				D46B041F2EDF175600AF4A0A /* MetricsIntegrationTests.swift */,
+				D4749F472EF062FD000F9AE7 /* MetricBatcherTests.swift */,
 			);
 			path = Metrics;
 			sourceTree = "<group>";
@@ -6440,6 +6443,7 @@
 				7B16FD022654F86B008177D3 /* SentrySysctlTests.swift in Sources */,
 				7BAF3DB5243C743E008A5414 /* SentryClientTests.swift in Sources */,
 				D8F67AF12BE0D33F00C9197B /* UIImageHelperTests.swift in Sources */,
+				D4749F482EF062FD000F9AE7 /* MetricBatcherTests.swift in Sources */,
 				8EAE8E5E2681768000D6958B /* URLSessionTaskMock.m in Sources */,
 				62CB191E2E77F8B500AF5DA2 /* SentryDispatchSourceWrapperTests.swift in Sources */,
 				D8CE69BC277E39C700C6EC5C /* SentryFileIOTrackingIntegrationObjCTests.m in Sources */,

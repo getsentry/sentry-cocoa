@@ -36,8 +36,9 @@ class MetricsIntegrationTests: XCTestCase {
     
     func testAddMetric_whenMetricAdded_shouldAddToBatcher() throws {
         // -- Arrange --
-        givenSdkWithHub()
+        try givenSdkWithHub()
         let integration = try getSut()
+        
         let scope = Scope()
         let metric = Metric(
             timestamp: Date(),
@@ -66,8 +67,9 @@ class MetricsIntegrationTests: XCTestCase {
     
     func testUninstall_whenMetricsExist_shouldFlushMetrics() throws {
         // -- Arrange --
-        givenSdkWithHub()
+        try givenSdkWithHub()
         let integration = try getSut()
+
         let scope = Scope()
         let metric = Metric(
             timestamp: Date(),
@@ -97,7 +99,18 @@ class MetricsIntegrationTests: XCTestCase {
 
     // MARK: - Helpers
 
-    private func givenSdkWithHub() {
+    private func startSDK(isEnabled: Bool, configure: ((Options) -> Void)? = nil) {
+        SentrySDK.start {
+            $0.dsn = TestConstants.dsnForTestCase(type: MetricsIntegrationTests.self)
+            $0.removeAllIntegrations()
+
+            $0.enableMetrics = isEnabled
+
+            configure?($0)
+        }
+    }
+
+    private func givenSdkWithHub() throws {
         let options = Options()
         options.dsn = TestConstants.dsnForTestCase(type: MetricsIntegrationTests.self)
         options.enableMetrics = true
@@ -116,22 +129,10 @@ class MetricsIntegrationTests: XCTestCase {
         
         // Manually install the MetricsIntegration since we're not using SentrySDK.start()
         let dependencies = SentryDependencyContainer.sharedInstance()
-        if let integration = MetricsIntegration<SentryDependencyContainer>(with: options, dependencies: dependencies) {
-            hub.addInstalledIntegration(integration, name: MetricsIntegration<SentryDependencyContainer>.name)
-        }
+        let integration = try XCTUnwrap(MetricsIntegration<SentryDependencyContainer>(with: options, dependencies: dependencies))
+        hub.addInstalledIntegration(integration, name: MetricsIntegration<SentryDependencyContainer>.name)
         
         hub.startSession()
-    }
-
-    private func startSDK(isEnabled: Bool, configure: ((Options) -> Void)? = nil) {
-        SentrySDK.start {
-            $0.dsn = TestConstants.dsnForTestCase(type: MetricsIntegrationTests.self)
-            $0.removeAllIntegrations()
-
-            $0.enableMetrics = isEnabled
-
-            configure?($0)
-        }
     }
 
     private func getSut() throws -> MetricsIntegration<SentryDependencyContainer> {
