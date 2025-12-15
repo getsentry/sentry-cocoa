@@ -5,7 +5,8 @@ import XCTest
 final class SentryMetricBatcherTests: XCTestCase {
     
     private var options: Options!
-    private var testDelegate: TestMetricBatcherDelegate!
+    private var testDateProvider: TestCurrentDateProvider!
+    private var testCallbackHelper: TestMetricBatcherCallbackHelper!
     private var testDispatchQueue: TestSentryDispatchQueueWrapper!
     private var sut: SentryMetricBatcher!
     private var scope: Scope!
@@ -17,7 +18,8 @@ final class SentryMetricBatcherTests: XCTestCase {
         options.dsn = TestConstants.dsnAsString(username: "SentryMetricBatcherTests")
         options.enableMetrics = true
         
-        testDelegate = TestMetricBatcherDelegate()
+        testDateProvider = TestCurrentDateProvider()
+        testCallbackHelper = TestMetricBatcherCallbackHelper()
         testDispatchQueue = TestSentryDispatchQueueWrapper()
         testDispatchQueue.dispatchAsyncExecutesBlock = true // Execute encoding immediately
         
@@ -26,8 +28,9 @@ final class SentryMetricBatcherTests: XCTestCase {
             flushTimeout: 0.1, // Very small timeout for testing
             maxMetricCount: 10, // Maximum 10 metrics per batch
             maxBufferSizeBytes: 8_000, // byte limit for testing
+            dateProvider: testDateProvider,
             dispatchQueue: testDispatchQueue,
-            delegate: testDelegate
+            capturedDataCallback: testCallbackHelper.captureCallback
         )
         scope = Scope()
     }
@@ -35,7 +38,7 @@ final class SentryMetricBatcherTests: XCTestCase {
     override func tearDown() {
         super.tearDown()
         clearTestState()
-        testDelegate = nil
+        testCallbackHelper = nil
         testDispatchQueue = nil
         sut = nil
         scope = nil
@@ -53,15 +56,15 @@ final class SentryMetricBatcherTests: XCTestCase {
         sut.addMetric(metric2, scope: scope)
         
         // -- Assert --
-        XCTAssertEqual(testDelegate.captureMetricsDataInvocations.count, 0)
+        XCTAssertEqual(testCallbackHelper.captureMetricsDataInvocations.count, 0)
         
         // Trigger flush manually
         sut.captureMetrics()
         
         // Verify both metrics are batched together
-        XCTAssertEqual(testDelegate.captureMetricsDataInvocations.count, 1)
+        XCTAssertEqual(testCallbackHelper.captureMetricsDataInvocations.count, 1)
         
-        let capturedMetrics = testDelegate.getCapturedMetrics()
+        let capturedMetrics = testCallbackHelper.getCapturedMetrics()
         XCTAssertEqual(capturedMetrics.count, 2)
         XCTAssertEqual(capturedMetrics[0].name, "metric.one")
         XCTAssertEqual(capturedMetrics[1].name, "metric.two")
@@ -91,9 +94,9 @@ final class SentryMetricBatcherTests: XCTestCase {
         sut.addMetric(largeMetric, scope: scope)
         
         // -- Assert --
-        XCTAssertEqual(testDelegate.captureMetricsDataInvocations.count, 1)
+        XCTAssertEqual(testCallbackHelper.captureMetricsDataInvocations.count, 1)
         
-        let capturedMetrics = testDelegate.getCapturedMetrics()
+        let capturedMetrics = testCallbackHelper.getCapturedMetrics()
         XCTAssertEqual(capturedMetrics.count, 1)
         XCTAssertEqual(capturedMetrics[0].name, "large.metric")
     }
@@ -107,15 +110,15 @@ final class SentryMetricBatcherTests: XCTestCase {
             sut.addMetric(metric, scope: scope)
         }
         
-        XCTAssertEqual(testDelegate.captureMetricsDataInvocations.count, 0)
+        XCTAssertEqual(testCallbackHelper.captureMetricsDataInvocations.count, 0)
         
         let metric = createTestMetric(name: "metric.10", value: 10, type: .counter) // Reached 10 max metrics limit
         sut.addMetric(metric, scope: scope)
         
         // -- Assert -- Should have flushed once when reaching maxMetricCount
-        XCTAssertEqual(testDelegate.captureMetricsDataInvocations.count, 1)
+        XCTAssertEqual(testCallbackHelper.captureMetricsDataInvocations.count, 1)
         
-        let capturedMetrics = testDelegate.getCapturedMetrics()
+        let capturedMetrics = testCallbackHelper.getCapturedMetrics()
         XCTAssertEqual(capturedMetrics.count, 10, "Should have captured exactly 10 metrics")
     }
     
@@ -129,7 +132,7 @@ final class SentryMetricBatcherTests: XCTestCase {
         sut.addMetric(metric, scope: scope)
         
         // -- Assert --
-        XCTAssertEqual(testDelegate.captureMetricsDataInvocations.count, 0)
+        XCTAssertEqual(testCallbackHelper.captureMetricsDataInvocations.count, 0)
         XCTAssertEqual(testDispatchQueue.dispatchAfterWorkItemInvocations.count, 1)
         XCTAssertEqual(testDispatchQueue.dispatchAfterWorkItemInvocations.first?.interval, 0.1)
         
@@ -137,8 +140,8 @@ final class SentryMetricBatcherTests: XCTestCase {
         testDispatchQueue.invokeLastDispatchAfterWorkItem()
         
         // Verify flush occurred
-        XCTAssertEqual(testDelegate.captureMetricsDataInvocations.count, 1)
-        let capturedMetrics = testDelegate.getCapturedMetrics()
+        XCTAssertEqual(testCallbackHelper.captureMetricsDataInvocations.count, 1)
+        let capturedMetrics = testCallbackHelper.getCapturedMetrics()
         XCTAssertEqual(capturedMetrics.count, 1)
     }
     
@@ -159,7 +162,7 @@ final class SentryMetricBatcherTests: XCTestCase {
         XCTAssertEqual(testDispatchQueue.dispatchAfterWorkItemInvocations.count, 1)
         
         // Should not flush immediately
-        XCTAssertEqual(testDelegate.captureMetricsDataInvocations.count, 0)
+        XCTAssertEqual(testCallbackHelper.captureMetricsDataInvocations.count, 0)
     }
     
     // MARK: - Manual Capture Metrics Tests
@@ -172,14 +175,14 @@ final class SentryMetricBatcherTests: XCTestCase {
         // -- Act --
         sut.addMetric(metric1, scope: scope)
         sut.addMetric(metric2, scope: scope)
-        XCTAssertEqual(testDelegate.captureMetricsDataInvocations.count, 0)
+        XCTAssertEqual(testCallbackHelper.captureMetricsDataInvocations.count, 0)
         
         sut.captureMetrics()
         
         // -- Assert --
-        XCTAssertEqual(testDelegate.captureMetricsDataInvocations.count, 1)
+        XCTAssertEqual(testCallbackHelper.captureMetricsDataInvocations.count, 1)
         
-        let capturedMetrics = testDelegate.getCapturedMetrics()
+        let capturedMetrics = testCallbackHelper.getCapturedMetrics()
         XCTAssertEqual(capturedMetrics.count, 2)
     }
     
@@ -194,7 +197,7 @@ final class SentryMetricBatcherTests: XCTestCase {
         sut.captureMetrics()
         
         // -- Assert --
-        XCTAssertEqual(testDelegate.captureMetricsDataInvocations.count, 1)
+        XCTAssertEqual(testCallbackHelper.captureMetricsDataInvocations.count, 1)
         XCTAssertTrue(timerWorkItem.isCancelled)
     }
     
@@ -204,6 +207,17 @@ final class SentryMetricBatcherTests: XCTestCase {
         // -- Arrange --
         options.enableMetrics = false
         
+        // Rebuild the batcher with the updated options since enableMetrics is read during initialization
+        sut = SentryMetricBatcher(
+            options: options,
+            flushTimeout: 0.1,
+            maxMetricCount: 10,
+            maxBufferSizeBytes: 8_000,
+            dateProvider: testDateProvider,
+            dispatchQueue: testDispatchQueue,
+            capturedDataCallback: testCallbackHelper.captureCallback
+        )
+        
         let metric = createTestMetric(name: "test.metric", value: 1, type: .counter)
         
         // -- Act --
@@ -211,7 +225,7 @@ final class SentryMetricBatcherTests: XCTestCase {
         sut.captureMetrics()
         
         // -- Assert --
-        XCTAssertEqual(testDelegate.captureMetricsDataInvocations.count, 0)
+        XCTAssertEqual(testCallbackHelper.captureMetricsDataInvocations.count, 0)
     }
     
     // MARK: - Edge Cases Tests
@@ -245,17 +259,17 @@ final class SentryMetricBatcherTests: XCTestCase {
         
         // -- Act --
         sut.addMetric(metric1, scope: scope)
-        XCTAssertEqual(testDelegate.captureMetricsDataInvocations.count, 0)
+        XCTAssertEqual(testCallbackHelper.captureMetricsDataInvocations.count, 0)
         XCTAssertEqual(testDispatchQueue.dispatchAfterWorkItemInvocations.count, 1)
         let timerWorkItem = try XCTUnwrap(testDispatchQueue.dispatchAfterWorkItemInvocations.first?.workItem)
         
         sut.addMetric(metric2, scope: scope)
-        XCTAssertEqual(testDelegate.captureMetricsDataInvocations.count, 1)
+        XCTAssertEqual(testCallbackHelper.captureMetricsDataInvocations.count, 1)
         
         timerWorkItem.perform()
         
         // -- Assert --
-        XCTAssertEqual(testDelegate.captureMetricsDataInvocations.count, 1)
+        XCTAssertEqual(testCallbackHelper.captureMetricsDataInvocations.count, 1)
     }
     
     func testAddMetric_whenAfterFlush_shouldStartNewBatch() throws {
@@ -267,16 +281,16 @@ final class SentryMetricBatcherTests: XCTestCase {
         sut.addMetric(metric1, scope: scope)
         sut.captureMetrics()
         
-        XCTAssertEqual(testDelegate.captureMetricsDataInvocations.count, 1)
+        XCTAssertEqual(testCallbackHelper.captureMetricsDataInvocations.count, 1)
         
         sut.addMetric(metric2, scope: scope)
         sut.captureMetrics()
         
         // -- Assert --
-        XCTAssertEqual(testDelegate.captureMetricsDataInvocations.count, 2)
+        XCTAssertEqual(testCallbackHelper.captureMetricsDataInvocations.count, 2)
         
         // Verify each flush contains only one metric
-        let allCapturedMetrics = testDelegate.getCapturedMetrics()
+        let allCapturedMetrics = testCallbackHelper.getCapturedMetrics()
         XCTAssertEqual(allCapturedMetrics.count, 2)
         XCTAssertEqual(allCapturedMetrics[0].name, "metric.1")
         XCTAssertEqual(allCapturedMetrics[1].name, "metric.2")
@@ -289,6 +303,17 @@ final class SentryMetricBatcherTests: XCTestCase {
         options.environment = "test-environment"
         options.releaseName = "1.0.0"
         
+        // Rebuild the batcher with updated options since environment and releaseName are read during initialization
+        sut = SentryMetricBatcher(
+            options: options,
+            flushTimeout: 0.1,
+            maxMetricCount: 10,
+            maxBufferSizeBytes: 8_000,
+            dateProvider: testDateProvider,
+            dispatchQueue: testDispatchQueue,
+            capturedDataCallback: testCallbackHelper.captureCallback
+        )
+        
         let span = SentryTracer(transactionContext: TransactionContext(name: "Test Transaction", operation: "test-operation"), hub: nil)
         scope.span = span
         
@@ -299,7 +324,7 @@ final class SentryMetricBatcherTests: XCTestCase {
         sut.captureMetrics()
         
         // -- Assert --
-        let capturedMetrics = testDelegate.getCapturedMetrics()
+        let capturedMetrics = testCallbackHelper.getCapturedMetrics()
         XCTAssertEqual(capturedMetrics.count, 1)
         
         let capturedMetric = try XCTUnwrap(capturedMetrics.first)
@@ -315,8 +340,19 @@ final class SentryMetricBatcherTests: XCTestCase {
     func testAddMetric_whenNilDefaultAttributes_shouldNotAddNilAttributes() throws {
         // -- Arrange --
         options.releaseName = nil
-        // No span set on scope
         
+        // Rebuild the batcher with updated options since releaseName is read during initialization
+        sut = SentryMetricBatcher(
+            options: options,
+            flushTimeout: 0.1,
+            maxMetricCount: 10,
+            maxBufferSizeBytes: 8_000,
+            dateProvider: testDateProvider,
+            dispatchQueue: testDispatchQueue,
+            capturedDataCallback: testCallbackHelper.captureCallback
+        )
+        
+        // No span set on scope
         let metric = createTestMetric(name: "test.metric", value: 1, type: .counter)
         
         // -- Act --
@@ -324,7 +360,7 @@ final class SentryMetricBatcherTests: XCTestCase {
         sut.captureMetrics()
         
         // -- Assert --
-        let capturedMetrics = testDelegate.getCapturedMetrics()
+        let capturedMetrics = testCallbackHelper.getCapturedMetrics()
         let capturedMetric = try XCTUnwrap(capturedMetrics.first)
         let attributes = capturedMetric.attributes
         
@@ -350,7 +386,7 @@ final class SentryMetricBatcherTests: XCTestCase {
         sut.captureMetrics()
         
         // -- Assert --
-        let capturedMetrics = testDelegate.getCapturedMetrics()
+        let capturedMetrics = testCallbackHelper.getCapturedMetrics()
         let capturedMetric = try XCTUnwrap(capturedMetrics.first)
         XCTAssertEqual(capturedMetric.traceId, expectedTraceId)
     }
@@ -367,7 +403,7 @@ final class SentryMetricBatcherTests: XCTestCase {
         sut.captureMetrics()
         
         // -- Assert --
-        let capturedMetrics = testDelegate.getCapturedMetrics()
+        let capturedMetrics = testCallbackHelper.getCapturedMetrics()
         let capturedMetric = try XCTUnwrap(capturedMetrics.first)
         XCTAssertEqual(capturedMetric.spanId, span.spanId)
     }
@@ -382,7 +418,7 @@ final class SentryMetricBatcherTests: XCTestCase {
         sut.captureMetrics()
         
         // -- Assert --
-        let capturedMetrics = testDelegate.getCapturedMetrics()
+        let capturedMetrics = testCallbackHelper.getCapturedMetrics()
         let capturedMetric = try XCTUnwrap(capturedMetrics.first)
         XCTAssertNil(capturedMetric.spanId)
     }
@@ -403,7 +439,7 @@ final class SentryMetricBatcherTests: XCTestCase {
         sut.captureMetrics()
         
         // -- Assert --
-        let capturedMetrics = testDelegate.getCapturedMetrics()
+        let capturedMetrics = testCallbackHelper.getCapturedMetrics()
         let capturedMetric = try XCTUnwrap(capturedMetrics.first)
         let attributes = capturedMetric.attributes
         
@@ -428,7 +464,7 @@ final class SentryMetricBatcherTests: XCTestCase {
         sut.captureMetrics()
         
         // -- Assert --
-        let capturedMetrics = testDelegate.getCapturedMetrics()
+        let capturedMetrics = testCallbackHelper.getCapturedMetrics()
         let capturedMetric = try XCTUnwrap(capturedMetrics.first)
         let attributes = capturedMetric.attributes
         
@@ -448,7 +484,7 @@ final class SentryMetricBatcherTests: XCTestCase {
         sut.captureMetrics()
         
         // -- Assert --
-        let capturedMetrics = testDelegate.getCapturedMetrics()
+        let capturedMetrics = testCallbackHelper.getCapturedMetrics()
         let capturedMetric = try XCTUnwrap(capturedMetrics.first)
         let attributes = capturedMetric.attributes
         
@@ -467,7 +503,7 @@ final class SentryMetricBatcherTests: XCTestCase {
         sut.captureMetrics()
         
         // -- Assert --
-        let capturedMetrics = testDelegate.getCapturedMetrics()
+        let capturedMetrics = testCallbackHelper.getCapturedMetrics()
         let capturedMetric = try XCTUnwrap(capturedMetrics.first)
         let attributes = capturedMetric.attributes
         
@@ -492,7 +528,7 @@ final class SentryMetricBatcherTests: XCTestCase {
         sut.captureMetrics()
         
         // -- Assert --
-        let capturedMetrics = testDelegate.getCapturedMetrics()
+        let capturedMetrics = testCallbackHelper.getCapturedMetrics()
         let capturedMetric = try XCTUnwrap(capturedMetrics.first)
         XCTAssertEqual(capturedMetric.attributes["test-attr"]?.value as? String, "modified")
     }
@@ -508,7 +544,7 @@ final class SentryMetricBatcherTests: XCTestCase {
         sut.captureMetrics()
         
         // -- Assert --
-        XCTAssertEqual(testDelegate.captureMetricsDataInvocations.count, 0)
+        XCTAssertEqual(testCallbackHelper.captureMetricsDataInvocations.count, 0)
     }
     
     // MARK: - Metric Type Tests
@@ -522,7 +558,7 @@ final class SentryMetricBatcherTests: XCTestCase {
         sut.captureMetrics()
         
         // -- Assert --
-        let capturedMetrics = testDelegate.getCapturedMetrics()
+        let capturedMetrics = testCallbackHelper.getCapturedMetrics()
         let capturedMetric = try XCTUnwrap(capturedMetrics.first)
         XCTAssertEqual(capturedMetric.type, .counter)
         XCTAssertEqual(capturedMetric.value.intValue, 5)
@@ -537,7 +573,7 @@ final class SentryMetricBatcherTests: XCTestCase {
         sut.captureMetrics()
         
         // -- Assert --
-        let capturedMetrics = testDelegate.getCapturedMetrics()
+        let capturedMetrics = testCallbackHelper.getCapturedMetrics()
         let capturedMetric = try XCTUnwrap(capturedMetrics.first)
         XCTAssertEqual(capturedMetric.type, .distribution)
         XCTAssertEqual(capturedMetric.value.doubleValue, 125.5, accuracy: 0.001)
@@ -553,7 +589,7 @@ final class SentryMetricBatcherTests: XCTestCase {
         sut.captureMetrics()
         
         // -- Assert --
-        let capturedMetrics = testDelegate.getCapturedMetrics()
+        let capturedMetrics = testCallbackHelper.getCapturedMetrics()
         let capturedMetric = try XCTUnwrap(capturedMetrics.first)
         XCTAssertEqual(capturedMetric.type, .gauge)
         XCTAssertEqual(capturedMetric.value.doubleValue, 42.0, accuracy: 0.001)
@@ -576,16 +612,20 @@ final class SentryMetricBatcherTests: XCTestCase {
     }
 }
 
-// MARK: - Test Delegate
+// MARK: - Test Callback Helper
 
-final class TestMetricBatcherDelegate: NSObject, SentryMetricBatcherDelegate {
-    var captureMetricsDataInvocations = Invocations<(data: Data, count: NSNumber)>()
+final class TestMetricBatcherCallbackHelper {
+    var captureMetricsDataInvocations = Invocations<(data: Data, count: Int)>()
     
-    func capture(metricsData: NSData, count: NSNumber) {
-        captureMetricsDataInvocations.record((metricsData as Data, count))
+    // The callback that matches the MetricBatcher capturedDataCallback signature
+    var captureCallback: (Data, Int) -> Void {
+        return { [weak self] data, count in
+            self?.captureMetricsDataInvocations.record((data, count))
+        }
     }
     
     // Helper to get captured metrics
+    // Note: The batcher produces JSON in the format {"items":[...]} as verified by InMemoryBatchBuffer.batchedData
     func getCapturedMetrics() -> [SentryMetric] {
         var allMetrics: [SentryMetric] = []
         
@@ -617,11 +657,15 @@ final class TestMetricBatcherDelegate: NSObject, SentryMetricBatcherDelegate {
         let spanIdString = dict["span_id"] as? String
         let spanId = spanIdString.map { SentrySpanId(value: $0) }
         
+        // Decode value - can be Int64 or Double
         let value: NSNumber
         if let intValue = dict["value"] as? Int64 {
             value = NSNumber(value: intValue)
         } else if let doubleValue = dict["value"] as? Double {
             value = NSNumber(value: doubleValue)
+        } else if let intValue = dict["value"] as? Int {
+            // Handle Int case as well
+            value = NSNumber(value: intValue)
         } else {
             return nil
         }

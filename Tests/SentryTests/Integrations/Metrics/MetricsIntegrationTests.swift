@@ -39,12 +39,12 @@ class MetricsIntegrationTests: XCTestCase {
         startSDK(isEnabled: true)
         let integration = try getSut()
         let scope = Scope()
-        let metric = SentryMetric(
+        let metric = Metric(
             timestamp: Date(),
             traceId: SentryId(),
             spanId: nil,
             name: "test.metric",
-            value: NSNumber(value: 1),
+            value: 1,
             type: .counter,
             unit: nil,
             attributes: [:]
@@ -64,12 +64,12 @@ class MetricsIntegrationTests: XCTestCase {
         startSDK(isEnabled: true)
         let integration = try getSut()
         let scope = Scope()
-        let metric = SentryMetric(
+        let metric = Metric(
             timestamp: Date(),
             traceId: SentryId(),
             spanId: nil,
             name: "test.metric",
-            value: NSNumber(value: 1),
+            value: 1,
             type: .counter,
             unit: nil,
             attributes: [:]

@@ -18,6 +18,85 @@ final class SentryMetricTests: XCTestCase {
         metric = nil
     }
     
+    // MARK: - Helper Methods
+    
+    /// Encodes a Metric to JSON Data
+    private func encodeToJSONData(data: SentryMetric) throws -> Data {
+        let encoder = JSONEncoder()
+        encoder.dateEncodingStrategy = .secondsSince1970
+        return try encoder.encode(data)
+    }
+    
+    /// Decodes a Metric from JSON Data
+    private func decodeFromJSONData(jsonData: Data) throws -> SentryMetric? {
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .secondsSince1970
+        
+        guard let jsonObject = try JSONSerialization.jsonObject(with: jsonData) as? [String: Any] else {
+            return nil
+        }
+        
+        guard let name = jsonObject["name"] as? String,
+              let typeString = jsonObject["type"] as? String,
+              let type = parseMetricType(typeString) else {
+            return nil
+        }
+        
+        let timestamp = Date(timeIntervalSince1970: (jsonObject["timestamp"] as? TimeInterval) ?? 0)
+        let traceIdString = jsonObject["trace_id"] as? String ?? ""
+        let traceId = SentryId(uuidString: traceIdString)
+        
+        let spanIdString = jsonObject["span_id"] as? String
+        let spanId = spanIdString.map { SentrySpanId(value: $0) }
+        
+        // Decode value - can be Int64 or Double
+        let value: NSNumber
+        if let intValue = jsonObject["value"] as? Int64 {
+            value = NSNumber(value: intValue)
+        } else if let intValue = jsonObject["value"] as? Int {
+            value = NSNumber(value: intValue)
+        } else if let doubleValue = jsonObject["value"] as? Double {
+            value = NSNumber(value: doubleValue)
+        } else {
+            return nil
+        }
+        
+        let unit = jsonObject["unit"] as? String
+        
+        var attributes: [String: SentryMetric.Attribute] = [:]
+        if let attributesDict = jsonObject["attributes"] as? [String: [String: Any]] {
+            for (key, attrDict) in attributesDict {
+                if let attrValue = attrDict["value"] {
+                    attributes[key] = SentryMetric.Attribute(value: attrValue)
+                }
+            }
+        }
+        
+        return SentryMetric(
+            timestamp: timestamp,
+            traceId: traceId,
+            spanId: spanId,
+            name: name,
+            value: value,
+            type: type,
+            unit: unit,
+            attributes: attributes
+        )
+    }
+    
+    private func parseMetricType(_ string: String) -> MetricType? {
+        switch string {
+        case "counter":
+            return .counter
+        case "gauge":
+            return .gauge
+        case "distribution":
+            return .distribution
+        default:
+            return nil
+        }
+    }
+    
     // MARK: - Counter Metric Tests
     
     func testInit_whenCounterMetric_shouldInitializeCorrectly() {
