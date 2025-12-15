@@ -178,7 +178,7 @@ final class SentryHttpTransportFlushIntegrationTests: XCTestCase {
 
         let rateLimits = DefaultRateLimits(retryAfterHeaderParser: RetryAfterHeaderParser(httpDateParser: HttpDateParser(), currentDateProvider: currentDate), andRateLimitParser: RateLimitParser(currentDateProvider: currentDate), currentDateProvider: currentDate)
 
-        return (SentryHttpTransport(
+        let transport = SentryHttpTransport(
             dsn: try XCTUnwrap(options.parsedDsn),
             sendClientReports: options.sendClientReports,
             cachedEnvelopeSendDelay: 0.0,
@@ -188,8 +188,11 @@ final class SentryHttpTransportFlushIntegrationTests: XCTestCase {
             requestBuilder: TestNSURLRequestBuilder(),
             rateLimits: rateLimits,
             envelopeRateLimit: EnvelopeRateLimit(rateLimits: rateLimits),
-            dispatchQueueWrapper: dispatchQueueWrapper
-        ), requestManager, fileManager, dispatchQueueWrapper)
+            dispatchQueueWrapper: dispatchQueueWrapper,
+            reachability: TestSentryReachability()
+        )
+
+        return (transport, requestManager, fileManager, dispatchQueueWrapper)
     }
 
     private func waitForEnvelopeToBeStored(_ dispatchQueueWrapper: SentryDispatchQueueWrapper) {

@@ -81,23 +81,13 @@ if [ -n "$DEVICE_NAME" ] && [ -n "$OS_VERSION" ]; then
 else
     # Fallback to Xcode version-based selection for backward compatibility
     SIMULATOR="iPhone 16 Pro"
-    IOS_VERSION="18.4"
+    IOS_VERSION="18.5"
 
     # Select simulator based on Xcode version
     case "$XCODE_VERSION" in
-        "14.3.1")
-            SIMULATOR="iPhone 14 Pro"
-            IOS_VERSION="16.4"
-            log_notice "Selected: $SIMULATOR with iOS $IOS_VERSION for Xcode $XCODE_VERSION"
-            ;;
-        "15.4")
-            SIMULATOR="iPhone 15 Pro"
-            IOS_VERSION="17.5"
-            log_notice "Selected: $SIMULATOR with iOS $IOS_VERSION for Xcode $XCODE_VERSION"
-            ;;
         "16.2")
             SIMULATOR="iPhone 16 Pro"
-            IOS_VERSION="18.4"
+            IOS_VERSION="18.2"
             log_notice "Selected: $SIMULATOR with iOS $IOS_VERSION for Xcode $XCODE_VERSION"
             ;;
         "26.1")

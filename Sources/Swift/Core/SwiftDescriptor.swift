@@ -5,7 +5,7 @@ import UIKit
 #endif
 
 @objc
-@_spi(Private) public class SwiftDescriptor: NSObject {
+@_spi(Private) public final class SwiftDescriptor: NSObject {
     
     @objc
     public static func getObjectClassName(_ object: AnyObject) -> String {

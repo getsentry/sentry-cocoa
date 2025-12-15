@@ -4,12 +4,13 @@ import XCTest
 
 extension SentryClientInternal {
     convenience init(options: Options, fileManager: SentryFileManager) {
-        let transports = TransportInitializer.initTransports(options, dateProvider: SentryDependencyContainer.sharedInstance().dateProvider, sentryFileManager: fileManager, rateLimits: SentryDependencyContainer.sharedInstance().rateLimits)
+        let transports = TransportInitializer.initTransports(options, dateProvider: SentryDependencyContainer.sharedInstance().dateProvider, sentryFileManager: fileManager, rateLimits: SentryDependencyContainer.sharedInstance().rateLimits, reachability: TestSentryReachability())
 
         let transportAdapter = SentryTransportAdapter(transports: transports, options: options)
 
         self.init(
             options: options,
+            dateProvider: SentryDependencyContainer.sharedInstance().dateProvider,
             transportAdapter: transportAdapter,
             fileManager: fileManager,
             threadInspector: SentryDefaultThreadInspector(options: options),
@@ -112,6 +113,7 @@ class SentryClientTests: XCTestCase {
 
                 client = SentryClientInternal(
                     options: options,
+                    dateProvider: dateProvider,
                     transportAdapter: transportAdapter,
                     fileManager: fileManager,
                     threadInspector: threadInspector,
@@ -2398,6 +2400,10 @@ class SentryClientTests: XCTestCase {
         let testDelegate = TestLogBatcherDelegateForClient()
         let testBatcher = TestLogBatcherForClient(
             options: sut.options,
+            flushTimeout: 5,
+            maxLogCount: 100,
+            maxBufferSizeBytes: 1_024 * 1_024,
+            dateProvider: TestCurrentDateProvider(),
             dispatchQueue: TestSentryDispatchQueueWrapper(),
             delegate: testDelegate
         )
@@ -2423,67 +2429,70 @@ class SentryClientTests: XCTestCase {
     func testFlushCallsLogBatcherCaptureLogs() {
         let sut = fixture.getSut()
         
-        // Create a test batcher to verify captureLogs is called
         let testDelegate = TestLogBatcherDelegateForClient()
         let testBatcher = TestLogBatcherForClient(
             options: sut.options,
+            flushTimeout: 5,
+            maxLogCount: 100,
+            maxBufferSizeBytes: 1_024 * 1_024,
+            dateProvider: TestCurrentDateProvider(),
             dispatchQueue: TestSentryDispatchQueueWrapper(),
             delegate: testDelegate
         )
         Dynamic(sut).logBatcher = testBatcher
         
-        // Verify initial state
         XCTAssertEqual(testBatcher.captureLogsInvocations.count, 0)
         
-        // Call flush - this should trigger the log batcher to capture logs
         sut.flush(timeout: 1.0)
         
-        // Verify that captureLogs was called on the log batcher
         XCTAssertEqual(testBatcher.captureLogsInvocations.count, 1)
     }
     
-    func testCaptureMetricsData_CreatesEnvelopeItem() throws {
+    func testCaptureLogsCallsLogBatcherCaptureLogs() {
         let sut = fixture.getSut()
         
-        // Create test metrics data
-        let metric1 = SentryMetric(
-            timestamp: Date(timeIntervalSince1970: 1_234_567_890),
-            traceId: SentryId(uuidString: "550e8400e29b41d4a716446655440000"),
-            spanId: nil,
-            name: "test.metric",
-            value: NSNumber(value: 1),
-            type: .counter,
-            unit: nil,
-            attributes: [:]
+        let testDelegate = TestLogBatcherDelegateForClient()
+        let testBatcher = TestLogBatcherForClient(
+            options: sut.options,
+            flushTimeout: 5,
+            maxLogCount: 100,
+            maxBufferSizeBytes: 1_024 * 1_024,
+            dateProvider: TestCurrentDateProvider(),
+            dispatchQueue: TestSentryDispatchQueueWrapper(),
+            delegate: testDelegate
         )
+        Dynamic(sut).logBatcher = testBatcher
         
-        let metric1Data = try encodeToJSONData(data: metric1)
+        XCTAssertEqual(testBatcher.captureLogsInvocations.count, 0)
         
-        // Create payload in the format expected by the batcher: {"items": [...]}
-        var payloadData = Data()
-        payloadData.append(Data("{\"items\":[".utf8))
-        payloadData.append(metric1Data)
-        payloadData.append(Data("]}".utf8))
+        sut.captureLogs()
         
-        // Act
-        sut.captureMetricsData(payloadData as NSData, with: NSNumber(value: 1))
+        XCTAssertEqual(testBatcher.captureLogsInvocations.count, 1)
+    }
+    
+    func testCaptureMetricsData_whenCalled_shouldCreateEnvelopeWithCorrectItem() throws {
+        // -- Arrange --
+        let testData = Data("test metrics data".utf8)
+        let itemCount = NSNumber(value: 5)
+        let sut = fixture.getSut()
         
-        // Assert
-        XCTAssertEqual(sut.captureEnvelopeInvocations.count, 1)
-        let envelope = try XCTUnwrap(sut.captureEnvelopeInvocations.first)
-        XCTAssertEqual(envelope.items.count, 1)
+        // -- Act --
+        sut.captureMetricsData(testData, with: itemCount)
         
-        let item = try XCTUnwrap(envelope.items.first)
-        XCTAssertEqual(item.header.type, SentryEnvelopeItemTypes.traceMetric)
-        XCTAssertEqual(item.header.contentType, "application/vnd.sentry.items.trace-metric+json")
-        XCTAssertEqual(item.header.itemCount?.intValue, 1)
+        // -- Assert --
+        XCTAssertEqual(fixture.transport.sentEnvelopes.count, 1, "Should send exactly one envelope")
         
-        // Verify payload structure
-        let payload = try XCTUnwrap(JSONSerialization.jsonObject(with: try XCTUnwrap(item.data)) as? [String: Any])
-        let items = try XCTUnwrap(payload["items"] as? [[String: Any]])
-        XCTAssertEqual(items.count, 1)
-        XCTAssertEqual(items[0]["name"] as? String, "test.metric")
-        XCTAssertEqual(items[0]["type"] as? String, "counter")
+        let envelope = try XCTUnwrap(fixture.transport.sentEnvelopes.first)
+        XCTAssertEqual(envelope.items.count, 1, "Envelope should contain exactly one item")
+        
+        let envelopeItem = try XCTUnwrap(envelope.items.first)
+        XCTAssertEqual(envelopeItem.header.type, SentryEnvelopeItemTypes.traceMetric, "Envelope item type should be trace_metric")
+        XCTAssertEqual(envelopeItem.header.contentType, "application/vnd.sentry.items.trace-metric+json", "Content type should match expected value")
+        XCTAssertEqual(envelopeItem.header.itemCount, itemCount, "Item count should match provided value")
+        XCTAssertEqual(envelopeItem.data, testData, "Envelope item data should match provided data")
+        
+        // Verify envelope header is empty (as per implementation)
+        XCTAssertNil(envelope.header.eventId, "Envelope header eventId should be nil")
     }
     
     func testCaptureSentryWrappedException() throws {

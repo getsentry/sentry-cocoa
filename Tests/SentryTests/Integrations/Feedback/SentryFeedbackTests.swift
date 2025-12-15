@@ -218,13 +218,15 @@ class SentryFeedbackTests: XCTestCase {
 
         let transport = TestTransport()
         let transportAdapter = TestTransportAdapter(transports: [transport], options: options)
+        let dateProvider = TestCurrentDateProvider()
 
         let client = SentryClientInternal(
             options: options,
+            dateProvider: dateProvider,
             transportAdapter: transportAdapter,
             fileManager: try XCTUnwrap(SentryFileManager(
                 options: options,
-                dateProvider: TestCurrentDateProvider(),
+                dateProvider: dateProvider,
                 dispatchQueueWrapper: TestSentryDispatchQueueWrapper()
             )),
             threadInspector: TestDefaultThreadInspector.instance,
@@ -260,13 +262,15 @@ class SentryFeedbackTests: XCTestCase {
 
         let transport = TestTransport()
         let transportAdapter = TestTransportAdapter(transports: [transport], options: options)
+        let dateProvider = TestCurrentDateProvider()
 
         let client = SentryClientInternal(
             options: options,
+            dateProvider: dateProvider,
             transportAdapter: transportAdapter,
             fileManager: try XCTUnwrap(SentryFileManager(
                 options: options,
-                dateProvider: TestCurrentDateProvider(),
+                dateProvider: dateProvider,
                 dispatchQueueWrapper: TestSentryDispatchQueueWrapper()
             )),
             threadInspector: TestDefaultThreadInspector.instance,
@@ -302,13 +306,15 @@ class SentryFeedbackTests: XCTestCase {
 
         let transport = TestTransport()
         let transportAdapter = TestTransportAdapter(transports: [transport], options: options)
-
+        let dateProvider = TestCurrentDateProvider()
+        
         let client = SentryClientInternal(
             options: options,
+            dateProvider: dateProvider,
             transportAdapter: transportAdapter,
             fileManager: try XCTUnwrap(SentryFileManager(
                 options: options,
-                dateProvider: TestCurrentDateProvider(),
+                dateProvider: dateProvider,
                 dispatchQueueWrapper: TestSentryDispatchQueueWrapper()
             )),
             threadInspector: TestDefaultThreadInspector.instance,

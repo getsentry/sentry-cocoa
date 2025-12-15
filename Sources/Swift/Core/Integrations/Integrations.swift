@@ -34,15 +34,21 @@ private struct AnyIntegration {
 @_spi(Private) @objc public final class SentrySwiftIntegrationInstaller: NSObject {
     @objc public class func install(with options: Options) {
         let dependencies = SentryDependencyContainer.sharedInstance()
-        let commonIntegrations: [AnyIntegration] = [
-            .init(MetricsIntegration.self),
-            .init(SwiftAsyncIntegration.self)
+
+        var integrations: [AnyIntegration] = [
+            .init(SwiftAsyncIntegration.self),
+            .init(SentryAutoSessionTrackingIntegration.self),
+            .init(MetricsIntegration.self)
         ]
+        
         #if os(iOS) && !SENTRY_NO_UIKIT
-        let integrations: [AnyIntegration] = commonIntegrations + [.init(UserFeedbackIntegration<SentryDependencyContainer>.self)]
-        #else
-        let integrations: [AnyIntegration] = commonIntegrations
+        integrations.append(.init(UserFeedbackIntegration<SentryDependencyContainer>.self))
         #endif
+        
+        #if ((os(iOS) || os(tvOS) || (swift(>=5.9) && os(visionOS))) && !SENTRY_NO_UIKIT) || os(macOS)
+        integrations.append(.init(FlushLogsIntegration<SentryDependencyContainer>.self))
+        #endif
+        
         integrations.forEach { anyIntegration in
             guard let integration = anyIntegration.install(options, dependencies) else { return }
 
