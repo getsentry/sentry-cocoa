@@ -94,7 +94,7 @@ jobs:
         suite: ["High-end device", "Mid-range device", "Low-end device"]
     steps:
       - uses: actions/checkout@v6
-      - uses: actions/download-artifact@v6
+      - uses: actions/download-artifact@v7
         with:
           name: benchmark-apps
       - run: npm install -g saucectl@0.197.2
