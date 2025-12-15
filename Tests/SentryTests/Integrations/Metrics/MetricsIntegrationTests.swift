@@ -13,6 +13,9 @@ class MetricsIntegrationTests: XCTestCase {
     // MARK: - Tests
     
     func testStartSDK_whenIntegrationIsNotEnabled_shouldNotBeInstalled() {
+        // -- Arrange --
+        // SDK not enabled in startSDK call
+        
         // -- Act --
         startSDK(isEnabled: false)
 
@@ -21,6 +24,9 @@ class MetricsIntegrationTests: XCTestCase {
     }
 
     func testStartSDK_whenIntegrationIsEnabled_shouldBeInstalled() {
+        // -- Arrange --
+        // SDK enabled in startSDK call
+        
         // -- Act --
         startSDK(isEnabled: true)
 
@@ -28,7 +34,7 @@ class MetricsIntegrationTests: XCTestCase {
         XCTAssertEqual(SentrySDKInternal.currentHub().trimmedInstalledIntegrationNames().count, 1)
     }
     
-    func testMetricsIntegration_AddsMetricsToBatcher() throws {
+    func testAddMetric_whenMetricAdded_shouldAddToBatcher() throws {
         // -- Arrange --
         startSDK(isEnabled: true)
         let integration = try getSut()
@@ -53,7 +59,7 @@ class MetricsIntegrationTests: XCTestCase {
         SentrySDK.flush(timeout: 1.0)
     }
     
-    func testMetricsIntegration_Uninstall_FlushesMetrics() throws {
+    func testUninstall_whenMetricsExist_shouldFlushMetrics() throws {
         // -- Arrange --
         startSDK(isEnabled: true)
         let integration = try getSut()

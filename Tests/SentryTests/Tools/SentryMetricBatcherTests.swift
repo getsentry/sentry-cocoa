@@ -43,7 +43,7 @@ final class SentryMetricBatcherTests: XCTestCase {
     
     // MARK: - Basic Functionality Tests
     
-    func testAddMultipleMetrics_BatchesTogether() throws {
+    func testAddMetric_whenMultipleMetrics_shouldBatchTogether() throws {
         // -- Arrange --
         let metric1 = createTestMetric(name: "metric.one", value: 1, type: .counter)
         let metric2 = createTestMetric(name: "metric.two", value: 2, type: .counter)
@@ -69,7 +69,7 @@ final class SentryMetricBatcherTests: XCTestCase {
     
     // MARK: - Buffer Size Tests
     
-    func testBufferReachesMaxSize_FlushesImmediately() throws {
+    func testAddMetric_whenBufferReachesMaxSize_shouldFlushImmediately() throws {
         // -- Arrange --
         // Create a metric with large attributes to exceed buffer size
         var largeAttributes: [String: SentryMetric.Attribute] = [:]
@@ -100,7 +100,7 @@ final class SentryMetricBatcherTests: XCTestCase {
     
     // MARK: - Max Metric Count Tests
     
-    func testMaxMetricCount_FlushesWhenReached() throws {
+    func testAddMetric_whenMaxMetricCountReached_shouldFlush() throws {
         // -- Act -- Add exactly maxMetricCount metrics
         for i in 0..<9 {
             let metric = createTestMetric(name: "metric.\(i + 1)", value: Double(i + 1), type: .counter)
@@ -121,7 +121,7 @@ final class SentryMetricBatcherTests: XCTestCase {
     
     // MARK: - Timeout Tests
     
-    func testTimeout_FlushesAfterDelay() throws {
+    func testAddMetric_whenTimeoutExpires_shouldFlush() throws {
         // -- Arrange --
         let metric = createTestMetric(name: "test.metric", value: 1, type: .counter)
         
@@ -142,7 +142,7 @@ final class SentryMetricBatcherTests: XCTestCase {
         XCTAssertEqual(capturedMetrics.count, 1)
     }
     
-    func testAddingMetricToEmptyBuffer_StartsTimer() throws {
+    func testAddMetric_whenEmptyBuffer_shouldStartTimer() throws {
         // -- Arrange --
         let metric1 = createTestMetric(name: "metric.1", value: 1, type: .counter)
         let metric2 = createTestMetric(name: "metric.2", value: 2, type: .counter)
@@ -164,7 +164,7 @@ final class SentryMetricBatcherTests: XCTestCase {
     
     // MARK: - Manual Capture Metrics Tests
     
-    func testManualCaptureMetrics_CapturesImmediately() throws {
+    func testCaptureMetrics_whenMetricsExist_shouldCaptureImmediately() throws {
         // -- Arrange --
         let metric1 = createTestMetric(name: "metric.1", value: 1, type: .counter)
         let metric2 = createTestMetric(name: "metric.2", value: 2, type: .counter)
@@ -183,7 +183,7 @@ final class SentryMetricBatcherTests: XCTestCase {
         XCTAssertEqual(capturedMetrics.count, 2)
     }
     
-    func testManualCaptureMetrics_CancelsScheduledCapture() throws {
+    func testCaptureMetrics_whenScheduledCaptureExists_shouldCancelScheduledCapture() throws {
         // -- Arrange --
         let metric = createTestMetric(name: "test.metric", value: 1, type: .counter)
         sut.addMetric(metric, scope: scope)
@@ -200,7 +200,7 @@ final class SentryMetricBatcherTests: XCTestCase {
     
     // MARK: - Metrics Disabled Tests
     
-    func testMetricsDisabled_DoesNotAddMetrics() throws {
+    func testAddMetric_whenMetricsDisabled_shouldNotAddMetrics() throws {
         // -- Arrange --
         options.enableMetrics = false
         
@@ -216,7 +216,7 @@ final class SentryMetricBatcherTests: XCTestCase {
     
     // MARK: - Edge Cases Tests
     
-    func testScheduledFlushAfterBufferAlreadyFlushed_DoesNothing() throws {
+    func testFlush_whenBufferAlreadyFlushed_shouldDoNothing() throws {
         // -- Arrange --
         var largeAttributes: [String: SentryMetric.Attribute] = [:]
         for i in 0..<50 {
@@ -258,7 +258,7 @@ final class SentryMetricBatcherTests: XCTestCase {
         XCTAssertEqual(testDelegate.captureMetricsDataInvocations.count, 1)
     }
     
-    func testAddMetricAfterFlush_StartsNewBatch() throws {
+    func testAddMetric_whenAfterFlush_shouldStartNewBatch() throws {
         // -- Arrange --
         let metric1 = createTestMetric(name: "metric.1", value: 1, type: .counter)
         let metric2 = createTestMetric(name: "metric.2", value: 2, type: .counter)
@@ -284,7 +284,7 @@ final class SentryMetricBatcherTests: XCTestCase {
     
     // MARK: - Attribute Enrichment Tests
     
-    func testAddMetric_AddsDefaultAttributes() throws {
+    func testAddMetric_whenDefaultAttributesExist_shouldAddDefaultAttributes() throws {
         // -- Arrange --
         options.environment = "test-environment"
         options.releaseName = "1.0.0"
@@ -312,7 +312,7 @@ final class SentryMetricBatcherTests: XCTestCase {
         XCTAssertEqual(attributes["sentry.trace.parent_span_id"]?.value as? String, span.spanId.sentrySpanIdString)
     }
     
-    func testAddMetric_DoesNotAddNilDefaultAttributes() throws {
+    func testAddMetric_whenNilDefaultAttributes_shouldNotAddNilAttributes() throws {
         // -- Arrange --
         options.releaseName = nil
         // No span set on scope
@@ -337,7 +337,7 @@ final class SentryMetricBatcherTests: XCTestCase {
         XCTAssertNotNil(attributes["sentry.environment"])
     }
     
-    func testAddMetric_SetsTraceIdFromPropagationContext() throws {
+    func testAddMetric_whenPropagationContextExists_shouldSetTraceIdFromPropagationContext() throws {
         // -- Arrange --
         let expectedTraceId = SentryId()
         let propagationContext = SentryPropagationContext(trace: expectedTraceId, spanId: SpanId())
@@ -355,7 +355,7 @@ final class SentryMetricBatcherTests: XCTestCase {
         XCTAssertEqual(capturedMetric.traceId, expectedTraceId)
     }
     
-    func testAddMetric_SetsSpanIdFromActiveSpan() throws {
+    func testAddMetric_whenActiveSpanExists_shouldSetSpanIdFromActiveSpan() throws {
         // -- Arrange --
         let span = SentryTracer(transactionContext: TransactionContext(name: "Test Transaction", operation: "test-operation"), hub: nil)
         scope.span = span
@@ -372,7 +372,7 @@ final class SentryMetricBatcherTests: XCTestCase {
         XCTAssertEqual(capturedMetric.spanId, span.spanId)
     }
     
-    func testAddMetric_DoesNotSetSpanIdWhenNoActiveSpan() throws {
+    func testAddMetric_whenNoActiveSpan_shouldNotSetSpanId() throws {
         // -- Arrange --
         // No span set on scope
         let metric = createTestMetric(name: "test.metric", value: 1, type: .counter)
@@ -387,7 +387,7 @@ final class SentryMetricBatcherTests: XCTestCase {
         XCTAssertNil(capturedMetric.spanId)
     }
     
-    func testAddMetric_AddsUserAttributes() throws {
+    func testAddMetric_whenUserAttributesExist_shouldAddUserAttributes() throws {
         // -- Arrange --
         options.sendDefaultPii = true
         let user = User()
@@ -412,7 +412,7 @@ final class SentryMetricBatcherTests: XCTestCase {
         XCTAssertEqual(attributes["user.email"]?.value as? String, "test@test.com")
     }
     
-    func testAddMetric_DoesNotAddUserAttributesWhenSendDefaultPiiFalse() throws {
+    func testAddMetric_whenSendDefaultPiiFalse_shouldNotAddUserAttributes() throws {
         // -- Arrange --
         options.sendDefaultPii = false
         let user = User()
@@ -437,7 +437,7 @@ final class SentryMetricBatcherTests: XCTestCase {
         XCTAssertNil(attributes["user.email"])
     }
     
-    func testAddMetric_AddsScopeAttributes() throws {
+    func testAddMetric_whenScopeAttributesExist_shouldAddScopeAttributes() throws {
         // -- Arrange --
         scope.setAttribute(value: "scope-value", key: "scope-key")
         
@@ -455,7 +455,7 @@ final class SentryMetricBatcherTests: XCTestCase {
         XCTAssertEqual(attributes["scope-key"]?.value as? String, "scope-value")
     }
     
-    func testAddMetric_ScopeAttributesDoNotOverrideExistingAttributes() throws {
+    func testAddMetric_whenScopeAttributesExist_shouldNotOverrideExistingAttributes() throws {
         // -- Arrange --
         scope.setAttribute(value: "scope-value", key: "existing-key")
         
@@ -477,7 +477,7 @@ final class SentryMetricBatcherTests: XCTestCase {
     
     // MARK: - BeforeSendMetric Tests
     
-    func testBeforeSendMetric_ModifiesMetric() throws {
+    func testAddMetric_whenBeforeSendMetricModifiesMetric_shouldCaptureModifiedMetric() throws {
         // -- Arrange --
         options.beforeSendMetric = { metric in
             var modifiedMetric = metric
@@ -497,7 +497,7 @@ final class SentryMetricBatcherTests: XCTestCase {
         XCTAssertEqual(capturedMetric.attributes["test-attr"]?.value as? String, "modified")
     }
     
-    func testBeforeSendMetric_ReturnsNil_DropsMetric() throws {
+    func testAddMetric_whenBeforeSendMetricReturnsNil_shouldDropMetric() throws {
         // -- Arrange --
         options.beforeSendMetric = { _ in nil }
         
@@ -513,7 +513,7 @@ final class SentryMetricBatcherTests: XCTestCase {
     
     // MARK: - Metric Type Tests
     
-    func testAddMetric_Counter() throws {
+    func testAddMetric_whenCounterType_shouldCaptureCounter() throws {
         // -- Arrange --
         let metric = createTestMetric(name: "counter.metric", value: 5, type: .counter)
         
@@ -528,7 +528,7 @@ final class SentryMetricBatcherTests: XCTestCase {
         XCTAssertEqual(capturedMetric.value.intValue, 5)
     }
     
-    func testAddMetric_Distribution() throws {
+    func testAddMetric_whenDistributionType_shouldCaptureDistribution() throws {
         // -- Arrange --
         let metric = createTestMetric(name: "distribution.metric", value: 125.5, type: .distribution, unit: "millisecond")
         
@@ -544,7 +544,7 @@ final class SentryMetricBatcherTests: XCTestCase {
         XCTAssertEqual(capturedMetric.unit, "millisecond")
     }
     
-    func testAddMetric_Gauge() throws {
+    func testAddMetric_whenGaugeType_shouldCaptureGauge() throws {
         // -- Arrange --
         let metric = createTestMetric(name: "gauge.metric", value: 42.0, type: .gauge, unit: "connection")
         
