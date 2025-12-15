@@ -25,7 +25,7 @@ class MetricsIntegrationTests: XCTestCase {
         startSDK(isEnabled: true)
 
         // -- Assert --
-        XCTAssertEqual(SentrySDKInternal.currentHub().trimmedInstalledIntegrationNames().count, 1)
+        XCTAssertEqual(SentrySDKInternal.currentHub().trimmedInstalledIntegrationNames().first, "Metrics")
     }
 
     // MARK: - Helpers
@@ -39,10 +39,5 @@ class MetricsIntegrationTests: XCTestCase {
 
             configure?($0)
         }
-        SentrySDKInternal.currentHub().startSession()
-    }
-
-    private func getSut() throws -> MetricsIntegration<SentryDependencyContainer> {
-        return try XCTUnwrap(SentrySDKInternal.currentHub().installedIntegrations().first as? MetricsIntegration)
     }
 }
