@@ -40,14 +40,6 @@ import SwiftyBeaver
 /// ```
 public class SentryDestination: BaseDestination {
     
-    /// Creates a new SentryDestination.
-    ///
-    /// Log level filtering should be configured on the destination itself using SwiftyBeaver's
-    /// built-in `minLevel` property after initialization.
-    public override init() {
-        super.init()
-    }
-    
     /// Sends a log message to Sentry's structured logging system.
     ///
     /// - Parameters:
