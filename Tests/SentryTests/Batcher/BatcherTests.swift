@@ -36,36 +36,36 @@ private struct TestItem: BatcherItem {
     }
 }
 
-// Note: MockStorage must be a class (not struct) because Batcher stores it internally
+// Note: MockBuffer must be a class (not struct) because Batcher stores it internally
 // and we need to observe changes from the test. Using a struct would create a copy.
-private class MockStorage: BatchStorage {
-    typealias Element = TestItem
+private class MockBuffer: BatchBuffer {
+    typealias Item = TestItem
 
     var appendedItems: [TestItem] = []
     var flushCallCount = 0
     var mockSize: Int = 0
 
-    func append(_ element: Element) throws {
+    func append(_ element: Item) throws {
         appendedItems.append(element)
         // Simulate size growth - each item adds ~100 bytes
         mockSize += 100
     }
 
-    func flush() {
+    func clear() {
         appendedItems.removeAll()
         mockSize = 0
         flushCallCount += 1
     }
 
-    var count: Int {
+    var itemsCount: Int {
         appendedItems.count
     }
 
-    var size: Int {
+    var itemsDataSize: Int {
         mockSize
     }
 
-    var data: Data {
+    var batchedData: Data {
         // Return minimal data for testing - we don't need to decode it
         Data("test".utf8)
     }
@@ -73,7 +73,7 @@ private class MockStorage: BatchStorage {
 
 final class BatcherTests: XCTestCase {
     private var capturedDataInvocations: Invocations<(data: Data, count: Int)>!
-    private var testStorage: MockStorage!
+    private var testBuffer: MockBuffer!
     private var testDateProvider: TestCurrentDateProvider!
     private var testDispatchQueue: TestSentryDispatchQueueWrapper!
     private var testScope: TestScope!
@@ -84,7 +84,7 @@ final class BatcherTests: XCTestCase {
         testDateProvider = TestCurrentDateProvider()
         testDispatchQueue = TestSentryDispatchQueueWrapper()
         testDispatchQueue.dispatchAsyncExecutesBlock = true
-        testStorage = MockStorage()
+        testBuffer = MockBuffer()
         testScope = TestScope()
     }
 
@@ -93,23 +93,26 @@ final class BatcherTests: XCTestCase {
         maxItemCount: Int = 10,
         maxBufferSizeBytes: Int = 8_000,
         beforeSendItem: ((TestItem) -> TestItem?)? = nil
-    ) -> Batcher<MockStorage, TestItem, TestScope> {
-        var config = Batcher<MockStorage, TestItem, TestScope>.Config(
-            environment: "test",
-            releaseName: "test-release",
+    ) -> Batcher<MockBuffer, TestItem, TestScope> {
+        var config = Batcher<MockBuffer, TestItem, TestScope>.Config(
             flushTimeout: flushTimeout,
             maxItemCount: maxItemCount,
             maxBufferSizeBytes: maxBufferSizeBytes,
-            beforeSendItem: beforeSendItem,
-            getInstallationId: { "test-installation-id" }
+            beforeSendItem: beforeSendItem
+        )
+        let metadata = Batcher<MockBuffer, TestItem, TestScope>.Metadata(
+            environment: "test",
+            releaseName: "test-release",
+            installationId: "test-installation-id"
         )
         config.capturedDataCallback = { [weak self] data, count in
             self?.capturedDataInvocations.record((data, count))
         }
         
-        return Batcher<MockStorage, TestItem, TestScope>(
+        return Batcher(
             config: config,
-            batchStorage: testStorage,
+            metadata: metadata,
+            buffer: testBuffer,
             dateProvider: testDateProvider,
             dispatchQueue: testDispatchQueue
         )
@@ -117,7 +120,7 @@ final class BatcherTests: XCTestCase {
 
     // MARK: - Add Method Tests
     
-    func testAdd_whenSingleItem_shouldAppendToStorage() {
+    func testAdd_whenSingleItem_shouldAppendToBuffer() {
         // -- Arrange --
         let sut = getSut()
         let item = TestItem(body: "test item")
@@ -126,8 +129,8 @@ final class BatcherTests: XCTestCase {
         sut.add(item, scope: testScope)
         
         // -- Assert --
-        XCTAssertEqual(testStorage.count, 1)
-        XCTAssertEqual(testStorage.appendedItems.first?.body, "test item")
+        XCTAssertEqual(testBuffer.itemsCount, 1)
+        XCTAssertEqual(testBuffer.appendedItems.first?.body, "test item")
     }
     
     func testAdd_whenMultipleItems_shouldBatchTogether() {
@@ -139,9 +142,9 @@ final class BatcherTests: XCTestCase {
         sut.add(TestItem(body: "Item 2"), scope: testScope)
         
         // -- Assert --
-        XCTAssertEqual(testStorage.count, 2)
-        XCTAssertEqual(testStorage.appendedItems[0].body, "Item 1")
-        XCTAssertEqual(testStorage.appendedItems[1].body, "Item 2")
+        XCTAssertEqual(testBuffer.itemsCount, 2)
+        XCTAssertEqual(testBuffer.appendedItems[0].body, "Item 1")
+        XCTAssertEqual(testBuffer.appendedItems[1].body, "Item 2")
     }
     
     // MARK: - Max Item Count Tests
@@ -159,7 +162,7 @@ final class BatcherTests: XCTestCase {
         
         // -- Assert --
         XCTAssertEqual(capturedDataInvocations.count, 1)
-        XCTAssertEqual(testStorage.flushCallCount, 1)
+        XCTAssertEqual(testBuffer.flushCallCount, 1)
     }
     
     // MARK: - Buffer Size Tests
@@ -176,7 +179,7 @@ final class BatcherTests: XCTestCase {
         
         // -- Assert --
         XCTAssertEqual(capturedDataInvocations.count, 1)
-        XCTAssertEqual(testStorage.flushCallCount, 1)
+        XCTAssertEqual(testBuffer.flushCallCount, 1)
     }
     
     // MARK: - Timeout Tests
@@ -203,7 +206,7 @@ final class BatcherTests: XCTestCase {
         
         // -- Assert --
         XCTAssertEqual(capturedDataInvocations.count, 1)
-        XCTAssertEqual(testStorage.flushCallCount, 1)
+        XCTAssertEqual(testBuffer.flushCallCount, 1)
     }
     
     func testAdd_whenBufferNotEmpty_shouldNotStartAdditionalTimer() {
@@ -232,7 +235,7 @@ final class BatcherTests: XCTestCase {
         
         // -- Assert --
         XCTAssertEqual(capturedDataInvocations.count, 1)
-        XCTAssertEqual(testStorage.flushCallCount, 1)
+        XCTAssertEqual(testBuffer.flushCallCount, 1)
     }
     
     func testCapture_whenMultipleItems_shouldPassCorrectItemCount() {
@@ -293,8 +296,8 @@ final class BatcherTests: XCTestCase {
         
         // -- Act --
         sut.add(TestItem(body: "Original"), scope: testScope)
-        // Check before capture since capture flushes the storage
-        XCTAssertEqual(testStorage.appendedItems.first?.body, "Modified")
+        // Check before capture since capture flushes the buffer
+        XCTAssertEqual(testBuffer.appendedItems.first?.body, "Modified")
         _ = sut.capture()
         
         // -- Assert --
@@ -312,7 +315,7 @@ final class BatcherTests: XCTestCase {
         
         // -- Assert --
         XCTAssertEqual(capturedDataInvocations.count, 0)
-        XCTAssertEqual(testStorage.count, 0)
+        XCTAssertEqual(testBuffer.itemsCount, 0)
     }
     
     // MARK: - Edge Cases Tests
@@ -329,7 +332,7 @@ final class BatcherTests: XCTestCase {
         
         // -- Assert --
         XCTAssertEqual(capturedDataInvocations.count, 1)
-        XCTAssertEqual(testStorage.flushCallCount, 1)
+        XCTAssertEqual(testBuffer.flushCallCount, 1)
     }
     
     func testAdd_whenAfterFlush_shouldStartNewBatch() {
@@ -344,6 +347,6 @@ final class BatcherTests: XCTestCase {
         
         // -- Assert --
         XCTAssertEqual(capturedDataInvocations.count, 2)
-        XCTAssertEqual(testStorage.flushCallCount, 2)
+        XCTAssertEqual(testBuffer.flushCallCount, 2)
     }
 }

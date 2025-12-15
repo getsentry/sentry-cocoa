@@ -122,11 +122,11 @@ jobs:
         # Ideally we will not need this, but CI sometimes is failing to load some runtimes, this will ensure they are loaded
         timeout-minutes: 5 # 5 minutes timeout
         env:
-          OS_VERSION: "18.4"
+          OS_VERSION: "18.5"
           PLATFORM: "iOS"
         run: ./scripts/ci-ensure-runtime-loaded.sh --os-version "$OS_VERSION" --platform "$PLATFORM"
       - run: rm -r Sentry.xcodeproj && rm -r Sentry.xcworkspace
-      - run: set -o pipefail && NSUnbufferedIO=YES SKIP_BINARIES=1 xcodebuild test -scheme Sentry-Package -sdk iphonesimulator -destination 'platform=iOS Simulator,OS=18.4,name=iPhone 16 Pro' | tee raw-test-output-distribution.log | xcbeautify --preserve-unbeautified
+      - run: set -o pipefail && NSUnbufferedIO=YES SKIP_BINARIES=1 xcodebuild test -scheme Sentry-Package -sdk iphonesimulator -destination 'platform=iOS Simulator,OS=18.5,name=iPhone 16 Pro' | tee raw-test-output-distribution.log | xcbeautify --preserve-unbeautified
         shell: sh
       - name: Upload Distribution Test Logs
         uses: actions/upload-artifact@v5
@@ -248,8 +248,6 @@ jobs:
       platform: ${{matrix.platform}}
       test-destination-os: ${{matrix.test-destination-os || 'latest'}}
       timeout: 20
-      create_device: ${{matrix.create_device || false}}
-      install_platforms: ${{matrix.install_platforms || false}}
       device: ${{matrix.device || ''}}
       scheme: ${{matrix.scheme || 'Sentry'}}
       run_on_cirrus_labs: ${{ !contains(matrix.runs-on, 'macos-') }}
@@ -260,26 +258,25 @@ jobs:
         include:
           # We are running tests on iOS 17 and later, as there were OS-internal changes introduced in succeeding versions.
 
-          # iOS 17 - Use pre-installed iOS 17.5 runtime on macOS-14 with Xcode 15.4
+          # iOS 17
           - name: iOS 17 Sentry
             runs-on: macos-14
-            xcode: "15.4"
+            xcode: "16.2"
             test-destination-os: "17.5"
             platform: "iOS"
-            create_device: true
             device: "iPhone 15 Pro"
             scheme: "Sentry"
 
-          # iOS 18 - Use pre-installed iOS 18.4 runtime on macOS-15
+          # iOS 18
           - name: iOS 18 Sentry
             runs-on: macos-15
             xcode: "16.4"
-            test-destination-os: "18.4"
+            test-destination-os: "18.5"
             platform: "iOS"
             device: "iPhone 16 Pro"
             scheme: "Sentry"
 
-          # iOS 26 - Use pre-installed iOS 26.1 runtime on macOS-26
+          # iOS 26
           - name: iOS 26 Sentry
             runs-on: tahoe
             xcode: "26.1.1"
@@ -295,7 +292,7 @@ jobs:
           # macOS 14
           - name: macOS 14 Sentry
             runs-on: macos-14
-            xcode: "15.4"
+            xcode: "16.2"
             test-destination-os: "latest"
             platform: "macOS"
             scheme: "Sentry"
@@ -321,7 +318,7 @@ jobs:
           # In addition we are running tests on macOS 14, as there were OS-internal changes introduced in succeeding versions.
           - name: Catalyst 14 Sentry
             runs-on: macos-14
-            xcode: "15.4"
+            xcode: "16.2"
             test-destination-os: "latest"
             platform: "Catalyst"
             scheme: "Sentry"
@@ -341,19 +338,18 @@ jobs:
 
           # tvOS 17
           - name: tvOS 17 Sentry
-            runs-on: macos-14
-            xcode: "15.4"
+            runs-on: sequoia
+            xcode: "16.4"
             test-destination-os: "17.5"
             platform: "tvOS"
             scheme: "Sentry"
 
-          # iOS 17 - Use pre-installed iOS 17.5 runtime on macOS-14 with Xcode 15.4
+          # iOS 17 - SwiftUI
           - name: iOS 17 SentrySwiftUI
             runs-on: macos-14
-            xcode: "15.4"
+            xcode: "16.2"
             test-destination-os: "17.5"
             platform: "iOS"
-            create_device: true
             device: "iPhone 15 Pro"
             scheme: "SentrySwiftUI"
 
@@ -361,7 +357,7 @@ jobs:
           - name: tvOS 18 Sentry
             runs-on: macos-15
             xcode: "16.4"
-            test-destination-os: "18.4"
+            test-destination-os: "18.5"
             platform: "tvOS"
             scheme: "Sentry"
 
@@ -370,9 +366,7 @@ jobs:
             runs-on: macos-26
             xcode: "26.1.1"
             test-destination-os: "26.1"
-            install_platforms: true
             platform: "tvOS"
-            create_device: true
             device: "Apple TV"
             scheme: "Sentry"
 

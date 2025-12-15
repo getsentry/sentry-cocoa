@@ -8,27 +8,35 @@ protocol BatcherScope {
     func getContextForKey(_ key: String) -> [String: Any]?
     var attributes: [String: Any] { get }
 
-    func applyToItem<Item: BatcherItem, Config: BatcherConfig<Item>>(_ item: inout Item, config: Config)
+    func applyToItem<Item: BatcherItem, Config: BatcherConfig<Item>, Metadata: BatcherMetadata>(
+        _ item: inout Item,
+        config: Config,
+        metadata: Metadata
+    )
 }
 
 extension BatcherScope {
-    func applyToItem<Item: BatcherItem, Config: BatcherConfig<Item>>(_ item: inout Item, config: Config) {
-        addDefaultAttributes(to: &item.attributes, config: config)
+    func applyToItem<Item: BatcherItem, Config: BatcherConfig<Item>, Metadata: BatcherMetadata>(
+        _ item: inout Item,
+        config: Config,
+        metadata: Metadata
+    ) {
+        addDefaultAttributes(to: &item.attributes, config: config, metadata: metadata)
         addOSAttributes(to: &item.attributes, config: config)
         addDeviceAttributes(to: &item.attributes, config: config)
         addUserAttributes(to: &item.attributes, config: config)
         addReplayAttributes(to: &item.attributes, config: config)
         addScopeAttributes(to: &item.attributes, config: config)
-        addDefaultUserIdIfNeeded(to: &item.attributes, config: config)
+        addDefaultUserIdIfNeeded(to: &item.attributes, config: config, metadata: metadata)
 
         item.traceId = SentryId(uuidString: propagationContextTraceIdString)
     }
 
-    private func addDefaultAttributes(to attributes: inout [String: SentryAttribute], config: any BatcherConfig) {
+    private func addDefaultAttributes(to attributes: inout [String: SentryAttribute], config: any BatcherConfig, metadata: any BatcherMetadata) {
         attributes["sentry.sdk.name"] = .init(string: SentryMeta.sdkName)
         attributes["sentry.sdk.version"] = .init(string: SentryMeta.versionString)
-        attributes["sentry.environment"] = .init(string: config.environment)
-        if let releaseName = config.releaseName {
+        attributes["sentry.environment"] = .init(string: metadata.environment)
+        if let releaseName = metadata.releaseName {
             attributes["sentry.release"] = .init(string: releaseName)
         }
         if let span = self.span {
@@ -93,12 +101,16 @@ extension BatcherScope {
         }
     }
 
-    private func addDefaultUserIdIfNeeded(to attributes: inout [String: SentryAttribute], config: any BatcherConfig) {
+    private func addDefaultUserIdIfNeeded(
+        to attributes: inout [String: SentryAttribute],
+        config: any BatcherConfig,
+        metadata: any BatcherMetadata
+    ) {
         guard attributes["user.id"] == nil && attributes["user.name"] == nil && attributes["user.email"] == nil else {
             return
         }
 
-        if let installationId = config.getInstallationId() {
+        if let installationId = metadata.installationId {
             // We only want to set the id if the customer didn't set a user so we at least set something to
             // identify the user.
             attributes["user.id"] = .init(value: installationId)
