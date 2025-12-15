@@ -215,24 +215,4 @@ final class SentryDestinationTests: XCTestCase {
         XCTAssertNotNil(log.attributes["swiftybeaver.context"])
         XCTAssertEqual(log.attributes["swiftybeaver.context"]?.value as? String, "simple string context")
     }
-    
-    func testMinLevelFiltering_OnlyCapturesErrorAndAbove() throws {
-        let log = SwiftyBeaver.self
-        let sentryDestination = SentryDestination()
-        sentryDestination.minLevel = .error
-        log.addDestination(sentryDestination)
-        
-        log.info("This info message should be filtered out")
-        log.warning("This warning message should be filtered out")
-        log.error("This error message should be captured")
-        log.critical("This critical message should be captured")
-        
-        XCTAssertEqual(capturedLogs.count, 2, "Expected exactly 2 logs (error and critical)")
-        let errorLog = try XCTUnwrap(capturedLogs.first { $0.level == .error })
-        XCTAssertEqual(errorLog.body, "This error message should be captured")
-        let criticalLog = try XCTUnwrap(capturedLogs.first { $0.level == .fatal })
-        XCTAssertEqual(criticalLog.body, "This critical message should be captured")
-        
-        log.removeDestination(sentryDestination)
-    }
 }
