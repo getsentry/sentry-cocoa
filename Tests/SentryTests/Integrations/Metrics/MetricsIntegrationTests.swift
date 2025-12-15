@@ -36,7 +36,7 @@ class MetricsIntegrationTests: XCTestCase {
     
     func testAddMetric_whenMetricAdded_shouldAddToBatcher() throws {
         // -- Arrange --
-        startSDK(isEnabled: true)
+        givenSdkWithHub()
         let integration = try getSut()
         let scope = Scope()
         let metric = Metric(
@@ -51,16 +51,22 @@ class MetricsIntegrationTests: XCTestCase {
         
         // -- Act --
         integration.addMetric(metric, scope: scope)
+        SentrySDK.flush(timeout: 1.0)
         
         // -- Assert --
-        // Metric should be added to batcher (no crash)
-        // Flush to verify it's processed
-        SentrySDK.flush(timeout: 1.0)
+        guard let client = SentrySDKInternal.currentHub().getClient() as? TestClient else {
+            XCTFail("Hub Client is not a `TestClient`")
+            return
+        }
+        XCTAssertEqual(1, client.captureMetricsDataInvocations.count, "Metrics should be captured")
+        let capturedMetrics = try XCTUnwrap(client.captureMetricsDataInvocations.first)
+        XCTAssertEqual(1, capturedMetrics.count.intValue, "Should capture 1 metric")
+        XCTAssertFalse(capturedMetrics.data.isEmpty, "Captured metrics data should not be empty")
     }
     
     func testUninstall_whenMetricsExist_shouldFlushMetrics() throws {
         // -- Arrange --
-        startSDK(isEnabled: true)
+        givenSdkWithHub()
         let integration = try getSut()
         let scope = Scope()
         let metric = Metric(
@@ -79,10 +85,43 @@ class MetricsIntegrationTests: XCTestCase {
         integration.uninstall()
         
         // -- Assert --
-        // Uninstall should flush metrics (no crash)
+        guard let client = SentrySDKInternal.currentHub().getClient() as? TestClient else {
+            XCTFail("Hub Client is not a `TestClient`")
+            return
+        }
+        XCTAssertEqual(1, client.captureMetricsDataInvocations.count, "Uninstall should flush metrics")
+        let capturedMetrics = try XCTUnwrap(client.captureMetricsDataInvocations.first)
+        XCTAssertEqual(1, capturedMetrics.count.intValue, "Should capture 1 metric")
+        XCTAssertFalse(capturedMetrics.data.isEmpty, "Captured metrics data should not be empty")
     }
 
     // MARK: - Helpers
+
+    private func givenSdkWithHub() {
+        let options = Options()
+        options.dsn = TestConstants.dsnForTestCase(type: MetricsIntegrationTests.self)
+        options.enableMetrics = true
+        options.removeAllIntegrations()
+        
+        let client = TestClient(options: options)
+        let hub = SentryHubInternal(
+            client: client,
+            andScope: Scope(),
+            andCrashWrapper: TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo),
+            andDispatchQueue: SentryDispatchQueueWrapper()
+        )
+        
+        SentrySDK.setStart(with: options)
+        SentrySDKInternal.setCurrentHub(hub)
+        
+        // Manually install the MetricsIntegration since we're not using SentrySDK.start()
+        let dependencies = SentryDependencyContainer.sharedInstance()
+        if let integration = MetricsIntegration<SentryDependencyContainer>(with: options, dependencies: dependencies) {
+            hub.addInstalledIntegration(integration, name: MetricsIntegration<SentryDependencyContainer>.name)
+        }
+        
+        hub.startSession()
+    }
 
     private func startSDK(isEnabled: Bool, configure: ((Options) -> Void)? = nil) {
         SentrySDK.start {

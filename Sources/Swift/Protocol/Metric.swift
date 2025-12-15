@@ -29,31 +29,35 @@ public struct Metric {
 
     /// The numeric value of the metric.
     ///
-    /// The setter enforces type safety: counters can only have integer values, while
-    /// distributions and gauges can only have double values. This prevents accidentally
-    /// mixing value types in `beforeSendMetric` callbacks.
+    /// The setter performs automatic type conversion when needed:
+    /// - Setting a double on a counter: floors the value and converts to integer
+    /// - Setting an integer on a gauge/distribution: converts to double
     ///
-    /// - Note: Counters must use `.integer()` values, distributions and gauges must use `.double()` values.
+    /// - Note: Counters use integer values, distributions and gauges use double values.
     private var _value: MetricValue
     public var value: MetricValue {
         get {
             return _value
         }
         set {
-            // Enforce type safety: counters must be integers, distributions/gauges must be doubles
+            // Perform type conversion when needed
             switch (metricType, newValue) {
             case (.counter, .integer):
                 _value = newValue
-            case (.counter, .double):
-                // Prevent setting double values on counters
-                SentrySDKLog.warning("Attempted to set a double value on a counter metric. Counters must use integer values.")
-                return // Silently ignore invalid assignment
+            case (.counter, .double(let doubleValue)):
+                // Convert double to integer by flooring
+                SentrySDKLog.warning("Attempted to set a double value (\(doubleValue)) on a counter metric. Converting to integer by flooring: \(Int64(floor(doubleValue))).")
+                _value = .integer(Int64(floor(doubleValue)))
             case (.gauge, .double), (.distribution, .double):
                 _value = newValue
-            case (.gauge, .integer), (.distribution, .integer):
-                // Prevent setting integer values on distributions/gauges
-                SentrySDKLog.warning("Attempted to set an integer value on a \(metricType) metric. \(metricType == .gauge ? "Gauges" : "Distributions") must use double values.")
-                return // Silently ignore invalid assignment
+            case (.gauge, .integer(let intValue)):
+                // Convert integer to double
+                SentrySDKLog.warning("Attempted to set an integer value (\(intValue)) on a gauge metric. Converting to double: \(Double(intValue)).")
+                _value = .double(Double(intValue))
+            case (.distribution, .integer(let intValue)):
+                // Convert integer to double
+                SentrySDKLog.warning("Attempted to set an integer value (\(intValue)) on a distribution metric. Converting to double: \(Double(intValue)).")
+                _value = .double(Double(intValue))
             }
         }
     }
@@ -73,10 +77,8 @@ public struct Metric {
 
     /// Creates a metric entry with the specified properties.
     ///
-    /// - Note: For type safety, prefer using the convenience initializers:
-    ///   - `init(counter:timestamp:traceId:name:value:attributes:)` for counters
-    ///   - `init(distribution:timestamp:traceId:name:value:unit:attributes:)` for distributions
-    ///   - `init(gauge:timestamp:traceId:name:value:unit:attributes:)` for gauges
+    /// - Note: This initializer is internal. Metrics should be created by the SDK through the public metrics API.
+    ///         Users can modify metrics in the `beforeSendMetric` callback.
     ///
     /// - Parameters:
     ///   - timestamp: The timestamp when the metric was recorded
@@ -102,19 +104,21 @@ public struct Metric {
         self.unit = unit
         self.attributes = attributes
         
-        // Validate value type matches metric type at initialization
+        // Perform type conversion when needed
         switch (type, value) {
         case (.counter, .integer), (.gauge, .double), (.distribution, .double):
             self._value = value
         case (.counter, .double(let doubleValue)):
-            // Prevent creating counter with double - this should not happen with type-safe initializers
-            SentrySDKLog.error("Counter metric created with double value \(doubleValue). This is invalid. Use integer value instead.")
-            self._value = .integer(Int64(doubleValue))
+            // Convert double to integer by flooring
+            SentrySDKLog.warning("Counter metric created with double value \(doubleValue). Converting to integer by flooring: \(Int64(floor(doubleValue))).")
+            self._value = .integer(Int64(floor(doubleValue)))
         case (.gauge, .integer(let intValue)):
-            SentrySDKLog.error("Gauge metric created with integer value \(intValue). This is invalid. Use double value instead.")
+            // Convert integer to double
+            SentrySDKLog.warning("Gauge metric created with integer value \(intValue). Converting to double: \(Double(intValue)).")
             self._value = .double(Double(intValue))
         case (.distribution, .integer(let intValue)):
-            SentrySDKLog.error("Distribution metric created with integer value \(intValue). This is invalid. Use double value instead.")
+            // Convert integer to double
+            SentrySDKLog.warning("Distribution metric created with integer value \(intValue). Converting to double: \(Double(intValue)).")
             self._value = .double(Double(intValue))
         }
     }
