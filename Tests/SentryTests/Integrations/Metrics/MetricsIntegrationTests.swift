@@ -113,9 +113,10 @@ class MetricsIntegrationTests: XCTestCase {
     private func givenSdkWithHub() throws {
         let options = Options()
         options.dsn = TestConstants.dsnForTestCase(type: MetricsIntegrationTests.self)
-        options.enableMetrics = true
         options.removeAllIntegrations()
-        
+
+        options.enableMetrics = true
+
         let client = TestClient(options: options)
         let hub = SentryHubInternal(
             client: client,
@@ -129,8 +130,8 @@ class MetricsIntegrationTests: XCTestCase {
         
         // Manually install the MetricsIntegration since we're not using SentrySDK.start()
         let dependencies = SentryDependencyContainer.sharedInstance()
-        let integration: SentryIntegrationProtocol? = MetricsIntegration<SentryDependencyContainer>(with: options, dependencies: dependencies)
-        hub.addInstalledIntegration(try XCTUnwrap(integration), name: MetricsIntegration<SentryDependencyContainer>.name)
+        let integration = try XCTUnwrap(MetricsIntegration<SentryDependencyContainer>(with: options, dependencies: dependencies) as? SentryIntegrationProtocol)
+        hub.addInstalledIntegration(integration, name: MetricsIntegration<SentryDependencyContainer>.name)
 
         hub.startSession()
     }
