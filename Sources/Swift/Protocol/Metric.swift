@@ -2,16 +2,25 @@
 ///
 /// Use the `options.beforeSendMetric` callback to modify or filter metric data.
 public struct Metric {
+    /// A typed attribute that can be attached to structured item entries
+    public typealias Attribute = SentryAttribute
+
+    /// The timestamp when the metric was recorded.
+    public var timestamp: Date
+
     /// The type of metric (counter, gauge, or distribution).
     ///
     /// - `.counter`: Incrementing integer values (e.g., request counts)
     /// - `.gauge`: Current value at a point in time (e.g., active connections)
     /// - `.distribution`: Statistical distribution of values (e.g., response times)
-    public let type: MetricType
+    public let metricType: MetricType
 
-    /// The timestamp when the metric was recorded.
-    public var timestamp: Date
-    
+    /// The name of the metric (e.g., "api.response_time", "db.query.duration").
+    ///
+    /// Metric names should follow a dot-separated hierarchical naming convention
+    /// to enable better organization and querying in Sentry.
+    public var name: String
+
     /// The trace ID to associate this metric with distributed tracing.
     ///
     /// This will be set to a valid non-empty value during processing by the batcher,
@@ -23,12 +32,6 @@ public struct Metric {
     /// This is optional and will be automatically populated from the active span
     /// in the scope when the metric is processed by the batcher.
     public var spanId: SpanId?
-    
-    /// The name of the metric (e.g., "api.response_time", "db.query.duration").
-    ///
-    /// Metric names should follow a dot-separated hierarchical naming convention
-    /// to enable better organization and querying in Sentry.
-    public var name: String
 
     /// The numeric value of the metric.
     ///
@@ -44,7 +47,7 @@ public struct Metric {
         }
         set {
             // Enforce type safety: counters must be integers, distributions/gauges must be doubles
-            switch (type, newValue) {
+            switch (metricType, newValue) {
             case (.counter, .integer):
                 _value = newValue
             case (.counter, .double):
@@ -55,7 +58,7 @@ public struct Metric {
                 _value = newValue
             case (.gauge, .integer), (.distribution, .integer):
                 // Prevent setting integer values on distributions/gauges
-                SentrySDKLog.warning("Attempted to set an integer value on a \(type) metric. \(type == .gauge ? "Gauges" : "Distributions") must use double values.")
+                SentrySDKLog.warning("Attempted to set an integer value on a \(metricType) metric. \(metricType == .gauge ? "Gauges" : "Distributions") must use double values.")
                 return // Silently ignore invalid assignment
             }
         }
@@ -87,7 +90,7 @@ public struct Metric {
     ///   - spanId: The span ID of the span that was active when the metric was emitted (optional)
     ///   - name: The name of the metric
     ///   - value: The numeric value of the metric
-    ///   - type: The type of metric
+    ///   - metricType: The type of metric
     ///   - unit: The unit of measurement for the metric value (optional)
     ///   - attributes: A dictionary of structured attributes to add to the metric
     internal init(
@@ -104,7 +107,7 @@ public struct Metric {
         self.traceId = traceId
         self.spanId = spanId
         self.name = name
-        self.type = type
+        self.metricType = type
         self.unit = unit
         self.attributes = attributes
         
@@ -159,7 +162,7 @@ extension Metric: Encodable {
         try container.encode(name, forKey: .name)
         try container.encode(value, forKey: .value)
         
-        try container.encode(type, forKey: .type)
+        try container.encode(metricType, forKey: .type)
         try container.encodeIfPresent(unit, forKey: .unit)
         try container.encode(attributes, forKey: .attributes)
     }
