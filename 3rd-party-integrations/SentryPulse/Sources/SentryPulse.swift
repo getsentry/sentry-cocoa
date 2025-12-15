@@ -48,6 +48,8 @@ import Sentry
 /// - Note: Sentry Logs is currently in Beta. See the [Sentry Logs Documentation](https://docs.sentry.io/platforms/apple/logs/).
 public final class SentryPulse {
     
+    // The `nonisolated(unsafe)` attribute is used to silence compiler warnings,
+    // as the lock ensures that access is thread-safe.
     private nonisolated(unsafe) static var shared: SentryPulse?
     private static let lock = NSLock()
     
