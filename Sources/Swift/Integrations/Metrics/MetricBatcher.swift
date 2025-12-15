@@ -1,11 +1,36 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
-class SentryMetricBatcher {
-    private let isEnabled: Bool
-    private let batcher: any BatcherProtocol<SentryMetric, Scope>
+/// Protocol for batching metrics with scope-based attribute enrichment.
+protocol MetricBatcherProtocol: AnyObject {
+    /// Adds a metric to the batcher.
+    /// - Parameters:
+    ///   - metric: The metric to add
+    ///   - scope: The scope to add the metric to
+    func addMetric(_ metric: Metric, scope: Scope)
+    
+    /// Captures batched metrics synchronously and returns the duration.
+    /// - Returns: The time taken to capture items in seconds
+    ///
+    /// - Note: This method blocks until all items are captured. The batcher's buffer is cleared after capture.
+    ///         This is safe to call from any thread, but be aware that it uses dispatchSync internally,
+    ///         so calling it from a context that holds locks or is on the batcher's queue itself could cause a deadlock.
+    @discardableResult func captureMetrics() -> TimeInterval
+}
 
-    /// Initializes a new SentryMetricBatcher.
+protocol MetricBatcherOptionsProtocol {
+    var enableMetrics: Bool { get }
+    var beforeSendMetric: ((Metric) -> Metric?)? { get }
+    var environment: String { get }
+    var releaseName: String? { get }
+    var cacheDirectoryPath: String { get }
+}
+
+final class MetricBatcher: MetricBatcherProtocol {
+    private let isEnabled: Bool
+    private let batcher: any BatcherProtocol<Metric, Scope>
+
+    /// Initializes a new MetricBatcher.
     /// - Parameters:
     ///   - options: The Sentry configuration options
     ///   - flushTimeout: The timeout interval after which buffered metrics will be flushed
@@ -13,14 +38,15 @@ class SentryMetricBatcher {
     ///   - maxBufferSizeBytes: The maximum buffer size in bytes before triggering an immediate flush
     ///   - dateProvider: Instance used to determine current time
     ///   - dispatchQueue: A **serial** dispatch queue wrapper for thread-safe access to mutable state
-    ///   - delegate: The delegate to handle captured metric batches
+    ///   - capturedDataCallback: The callback to handle captured metric batches. This callback is responsible
+    ///                          for invoking client.captureMetricsData() with the batched data.
     ///
     /// - Important: The `dispatchQueue` parameter MUST be a serial queue to ensure thread safety.
     ///              Passing a concurrent queue will result in undefined behavior and potential data races.
     ///
     /// - Note: Metrics are flushed when either `maxMetricCount` or `maxBufferSizeBytes` limit is reached.
     init(
-        options: Options,
+        options: MetricBatcherOptionsProtocol,
         flushTimeout: TimeInterval = 5,
         maxMetricCount: Int = 100, // Maximum 100 metrics per batch
         maxBufferSizeBytes: Int = 1_024 * 1_024, // 1MB buffer size
@@ -48,18 +74,17 @@ class SentryMetricBatcher {
         )
     }
     
-    func addMetric(_ metric: SentryMetric, scope: Scope) {
+    func addMetric(_ metric: Metric, scope: Scope) {
         guard isEnabled else {
             return
         }
         batcher.add(metric, scope: scope)
     }
 
-    /// Captures batched metrics sync and returns the duration.
     @discardableResult
     func captureMetrics() -> TimeInterval {
         return batcher.capture()
     }
 }
 
-extension SentryMetric: BatcherItem {}
+extension Options: MetricBatcherOptionsProtocol {}

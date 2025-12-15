@@ -2,32 +2,22 @@
 @_spi(Private) import SentryTestUtils
 import XCTest
 
-final class SentryMetricTests: XCTestCase {
+final class MetricTests: XCTestCase {
     
-    private var metric: SentryMetric!
     private let testTimestamp = Date(timeIntervalSince1970: 1_234_567_890.987654)
     private let testTraceId = SentryId(uuidString: "550e8400e29b41d4a716446655440000")
-    private let testSpanId = SentrySpanId(value: "b0e6f15b45c36b12")
-    
-    override func setUp() {
-        super.setUp()
-    }
-    
-    override func tearDown() {
-        super.tearDown()
-        metric = nil
-    }
-    
+    private let testSpanId = SpanId(value: "b0e6f15b45c36b12")
+
     // MARK: - Counter Metric Tests
     
-    func testCounterMetric_Initialization() {
-        // -- Arrange & Act --
-        metric = SentryMetric(
+    func testInit_whenCounterMetric_shouldInitializeCorrectly() {
+        // -- Act --
+        let metric = Metric(
             timestamp: testTimestamp,
             traceId: testTraceId,
             spanId: nil,
             name: "api.requests",
-            value: NSNumber(value: 1),
+            value: .integer(1),
             type: .counter,
             unit: nil,
             attributes: [:]
@@ -38,26 +28,31 @@ final class SentryMetricTests: XCTestCase {
         XCTAssertEqual(metric.traceId, testTraceId)
         XCTAssertNil(metric.spanId)
         XCTAssertEqual(metric.name, "api.requests")
-        XCTAssertEqual(metric.value.intValue, 1)
-        XCTAssertEqual(metric.type, .counter)
+        if case .integer(let intValue) = metric.value {
+            XCTAssertEqual(intValue, 1)
+        } else {
+            XCTFail("Expected integer value")
+        }
+        XCTAssertEqual(metric.metricType, .counter)
         XCTAssertNil(metric.unit)
         XCTAssertEqual(metric.attributes.count, 0)
     }
     
-    func testCounterMetric_WithAttributes() {
-        // -- Arrange & Act --
-        let attributes: [String: SentryMetric.Attribute] = [
+    func testInit_whenCounterMetricWithAttributes_shouldInitializeWithAttributes() {
+        // -- Arrange --
+        let attributes: [String: SentryAttribute] = [
             "endpoint": .init(string: "/api/users"),
             "method": .init(string: "GET"),
             "status_code": .init(integer: 200)
         ]
         
-        metric = SentryMetric(
+        // -- Act --
+        let metric = Metric(
             timestamp: testTimestamp,
             traceId: testTraceId,
             spanId: testSpanId,
             name: "api.requests",
-            value: NSNumber(value: 1),
+            value: .integer(1),
             type: .counter,
             unit: nil,
             attributes: attributes
@@ -72,14 +67,16 @@ final class SentryMetricTests: XCTestCase {
     
     // MARK: - Distribution Metric Tests
     
-    func testDistributionMetric_Initialization() {
-        // -- Arrange & Act --
-        metric = SentryMetric(
+    func testInit_whenDistributionMetric_shouldInitializeCorrectly() {
+        // -- Arrange --
+        
+        // -- Act --
+        let metric = Metric(
             timestamp: testTimestamp,
             traceId: testTraceId,
             spanId: nil,
             name: "api.response_time",
-            value: NSNumber(value: 125.5),
+            value: .double(125.5),
             type: .distribution,
             unit: "millisecond",
             attributes: [:]
@@ -87,21 +84,27 @@ final class SentryMetricTests: XCTestCase {
         
         // -- Assert --
         XCTAssertEqual(metric.name, "api.response_time")
-        XCTAssertEqual(metric.value.doubleValue, 125.5, accuracy: 0.001)
-        XCTAssertEqual(metric.type, .distribution)
+        if case .double(let doubleValue) = metric.value {
+            XCTAssertEqual(doubleValue, 125.5, accuracy: 0.001)
+        } else {
+            XCTFail("Expected double value")
+        }
+        XCTAssertEqual(metric.metricType, .distribution)
         XCTAssertEqual(metric.unit, "millisecond")
     }
     
     // MARK: - Gauge Metric Tests
     
-    func testGaugeMetric_Initialization() {
-        // -- Arrange & Act --
-        metric = SentryMetric(
+    func testInit_whenGaugeMetric_shouldInitializeCorrectly() {
+        // -- Arrange --
+        
+        // -- Act --
+        let metric = Metric(
             timestamp: testTimestamp,
             traceId: testTraceId,
             spanId: nil,
             name: "db.connection_pool.active",
-            value: NSNumber(value: 42.0),
+            value: .double(42.0),
             type: .gauge,
             unit: "connection",
             attributes: [:]
@@ -109,21 +112,25 @@ final class SentryMetricTests: XCTestCase {
         
         // -- Assert --
         XCTAssertEqual(metric.name, "db.connection_pool.active")
-        XCTAssertEqual(metric.value.doubleValue, 42.0, accuracy: 0.001)
-        XCTAssertEqual(metric.type, .gauge)
+        if case .double(let doubleValue) = metric.value {
+            XCTAssertEqual(doubleValue, 42.0, accuracy: 0.001)
+        } else {
+            XCTFail("Expected double value")
+        }
+        XCTAssertEqual(metric.metricType, .gauge)
         XCTAssertEqual(metric.unit, "connection")
     }
     
     // MARK: - Attribute Tests
     
-    func testSetAttribute() {
+    func testSetAttribute_whenAttributeSet_shouldAddAttribute() {
         // -- Arrange --
-        metric = SentryMetric(
+        var metric = Metric(
             timestamp: testTimestamp,
             traceId: testTraceId,
             spanId: nil,
             name: "test.metric",
-            value: NSNumber(value: 1),
+            value: .integer(1),
             type: .counter,
             unit: nil,
             attributes: [:]
@@ -136,14 +143,14 @@ final class SentryMetricTests: XCTestCase {
         XCTAssertEqual(metric.attributes["test_key"]?.value as? String, "test_value")
     }
     
-    func testRemoveAttribute() {
+    func testSetAttribute_whenAttributeSetToNil_shouldRemoveAttribute() {
         // -- Arrange --
-        metric = SentryMetric(
+        var metric = Metric(
             timestamp: testTimestamp,
             traceId: testTraceId,
             spanId: nil,
             name: "test.metric",
-            value: NSNumber(value: 1),
+            value: .integer(1),
             type: .counter,
             unit: nil,
             attributes: ["test_key": .init(string: "test_value")]
@@ -158,14 +165,14 @@ final class SentryMetricTests: XCTestCase {
     
     // MARK: - Encoding Tests
     
-    func testEncode_Counter() throws {
+    func testEncode_whenCounterMetric_shouldEncodeCorrectly() throws {
         // -- Arrange --
-        metric = SentryMetric(
+        let metric = Metric(
             timestamp: testTimestamp,
             traceId: testTraceId,
             spanId: testSpanId,
             name: "api.requests",
-            value: NSNumber(value: 1),
+            value: .integer(1),
             type: .counter,
             unit: nil,
             attributes: [
@@ -195,14 +202,14 @@ final class SentryMetricTests: XCTestCase {
         XCTAssertEqual(encodedAttributes["status_code"]?["value"] as? Int, 200)
     }
     
-    func testEncode_Distribution() throws {
+    func testEncode_whenDistributionMetric_shouldEncodeCorrectly() throws {
         // -- Arrange --
-        metric = SentryMetric(
+        let metric = Metric(
             timestamp: testTimestamp,
             traceId: testTraceId,
             spanId: nil,
             name: "api.response_time",
-            value: NSNumber(value: 125.5),
+            value: .double(125.5),
             type: .distribution,
             unit: "millisecond",
             attributes: [:]
@@ -221,14 +228,14 @@ final class SentryMetricTests: XCTestCase {
         XCTAssertNil(json["span_id"])
     }
     
-    func testEncode_Gauge() throws {
+    func testEncode_whenGaugeMetric_shouldEncodeCorrectly() throws {
         // -- Arrange --
-        metric = SentryMetric(
+        let metric = Metric(
             timestamp: testTimestamp,
             traceId: testTraceId,
             spanId: nil,
             name: "db.connection_pool.active",
-            value: NSNumber(value: 42.0),
+            value: .double(42.0),
             type: .gauge,
             unit: "connection",
             attributes: [
@@ -249,96 +256,20 @@ final class SentryMetricTests: XCTestCase {
         XCTAssertEqual(json["unit"] as? String, "connection")
     }
     
-    // MARK: - Decoding Tests
-    
-    func testDecode_Counter() throws {
-        // -- Arrange --
-        let jsonData = Data("""
-        {
-            "timestamp": 1234567890.987654,
-            "trace_id": "550e8400e29b41d4a716446655440000",
-            "span_id": "b0e6f15b45c36b12",
-            "name": "api.requests",
-            "value": 1,
-            "type": "counter",
-            "attributes": {
-                "endpoint": {"type": "string", "value": "/api/users"},
-                "status_code": {"type": "integer", "value": 200}
-            }
-        }
-        """.utf8)
-        
-        // -- Act --
-        let decodedMetric = try XCTUnwrap(decodeFromJSONData(jsonData: jsonData) as SentryMetric?)
-        
-        // -- Assert --
-        XCTAssertEqual(decodedMetric.timestamp, Date(timeIntervalSince1970: 1_234_567_890.987654))
-        XCTAssertEqual(decodedMetric.traceId.sentryIdString, "550e8400e29b41d4a716446655440000")
-        XCTAssertEqual(decodedMetric.spanId?.sentrySpanIdString, "b0e6f15b45c36b12")
-        XCTAssertEqual(decodedMetric.name, "api.requests")
-        XCTAssertEqual(decodedMetric.value.intValue, 1)
-        XCTAssertEqual(decodedMetric.type, .counter)
-        XCTAssertEqual(decodedMetric.attributes["endpoint"]?.value as? String, "/api/users")
-        XCTAssertEqual(decodedMetric.attributes["status_code"]?.value as? Int, 200)
-    }
-    
-    func testDecode_Distribution() throws {
-        // -- Arrange --
-        let jsonData = Data("""
-        {
-            "timestamp": 1234567890.987654,
-            "trace_id": "550e8400e29b41d4a716446655440000",
-            "name": "api.response_time",
-            "value": 125.5,
-            "type": "distribution",
-            "unit": "millisecond"
-        }
-        """.utf8)
-        
-        // -- Act --
-        let decodedMetric = try XCTUnwrap(decodeFromJSONData(jsonData: jsonData) as SentryMetric?)
-        
-        // -- Assert --
-        XCTAssertEqual(decodedMetric.name, "api.response_time")
-        XCTAssertEqual(decodedMetric.value.doubleValue, 125.5, accuracy: 0.001)
-        XCTAssertEqual(decodedMetric.type, .distribution)
-        XCTAssertEqual(decodedMetric.unit, "millisecond")
-        XCTAssertNil(decodedMetric.spanId)
-    }
-    
-    func testDecode_Gauge() throws {
-        // -- Arrange --
-        let jsonData = Data("""
-        {
-            "timestamp": 1234567890.987654,
-            "trace_id": "550e8400e29b41d4a716446655440000",
-            "name": "db.connection_pool.active",
-            "value": 42.0,
-            "type": "gauge",
-            "unit": "connection"
-        }
-        """)
-        
-        // -- Act --
-        let decodedMetric = try XCTUnwrap(decodeFromJSONData(jsonData: jsonData) as SentryMetric?)
-        
-        // -- Assert --
-        XCTAssertEqual(decodedMetric.name, "db.connection_pool.active")
-        XCTAssertEqual(decodedMetric.value.doubleValue, 42.0, accuracy: 0.001)
-        XCTAssertEqual(decodedMetric.type, .gauge)
-        XCTAssertEqual(decodedMetric.unit, "connection")
-    }
-    
     // MARK: - MetricType Tests
     
-    func testMetricType_StringValues() {
+    func testStringValue_whenMetricType_shouldReturnCorrectString() {
+        // -- Arrange & Act & Assert --
         XCTAssertEqual(MetricType.counter.stringValue, "counter")
         XCTAssertEqual(MetricType.gauge.stringValue, "gauge")
         XCTAssertEqual(MetricType.distribution.stringValue, "distribution")
     }
     
-    func testMetricType_Encode() throws {
+    func testEncode_whenMetricType_shouldEncodeCorrectly() throws {
+        // -- Arrange --
         let encoder = JSONEncoder()
+        
+        // -- Act & Assert --
         let counterData = try encoder.encode(MetricType.counter)
         let counterString = String(data: counterData, encoding: .utf8)
         XCTAssertEqual(counterString, "\"counter\"")
@@ -351,20 +282,13 @@ final class SentryMetricTests: XCTestCase {
         let distributionString = String(data: distributionData, encoding: .utf8)
         XCTAssertEqual(distributionString, "\"distribution\"")
     }
-    
-    func testMetricType_Decode() throws {
-        let decoder = JSONDecoder()
-        
-        let counterData = Data("\"counter\"".utf8)
-        let counter = try decoder.decode(MetricType.self, from: counterData)
-        XCTAssertEqual(counter, .counter)
-        
-        let gaugeData = Data("\"gauge\"".utf8)
-        let gauge = try decoder.decode(MetricType.self, from: gaugeData)
-        XCTAssertEqual(gauge, .gauge)
-        
-        let distributionData = Data("\"distribution\"".utf8)
-        let distribution = try decoder.decode(MetricType.self, from: distributionData)
-        XCTAssertEqual(distribution, .distribution)
+
+    // MARK: - Helper Methods
+
+    /// Encodes a Metric to JSON Data
+    private func encodeToJSONData(data: Metric) throws -> Data {
+        let encoder = JSONEncoder()
+        encoder.dateEncodingStrategy = .secondsSince1970
+        return try encoder.encode(data)
     }
 }

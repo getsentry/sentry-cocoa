@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Add integration to collect Metrics, can be enabled by setting `options.enableMetrics = true` (#6956)
+
 ## 9.1.0
 
 > [!Warning]

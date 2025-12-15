@@ -37,7 +37,7 @@ import Foundation
             return SentryLogger(dateProvider: SentryDependencyContainer.sharedInstance().dateProvider)
         }
     }
-
+    
     /// Inits and configures Sentry (`SentryHub`, `SentryClient`) and sets up all integrations. Make sure to
     /// set a valid DSN.
     /// - note: Call this method on the main thread. When calling it from a background thread, the

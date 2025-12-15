@@ -119,10 +119,6 @@
         sentryOptions.beforeSendLog = options[@"beforeSendLog"];
     }
 
-    if ([self isBlock:options[@"beforeSendMetric"]]) {
-        sentryOptions.beforeSendMetric = options[@"beforeSendMetric"];
-    }
-
     if ([self isBlock:options[@"beforeSendSpan"]]) {
         sentryOptions.beforeSendSpan = options[@"beforeSendSpan"];
     }
