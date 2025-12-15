@@ -35,7 +35,7 @@ final class MetricsIntegration<Dependencies: DispatchQueueWrapperProvider>: NSOb
     }
 
     static var name: String {
-        "SentryMetricsIntegration"
+        "MetricsIntegration"
     }
     
     // MARK: - Public API for MetricsApi
