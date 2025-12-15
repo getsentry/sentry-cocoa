@@ -82,7 +82,6 @@ final class SentryMetricBatcherTests: XCTestCase {
         let largeMetric = SentryMetric(
             timestamp: Date(),
             traceId: SentryId(),
-            spanId: nil,
             name: "large.metric",
             value: NSNumber(value: 1),
             type: .counter,
@@ -239,7 +238,6 @@ final class SentryMetricBatcherTests: XCTestCase {
         let metric1 = SentryMetric(
             timestamp: Date(),
             traceId: SentryId(),
-            spanId: nil,
             name: "large.metric.1",
             value: NSNumber(value: 1),
             type: .counter,
@@ -249,7 +247,6 @@ final class SentryMetricBatcherTests: XCTestCase {
         let metric2 = SentryMetric(
             timestamp: Date(),
             traceId: SentryId(),
-            spanId: nil,
             name: "large.metric.2",
             value: NSNumber(value: 2),
             type: .counter,
@@ -405,7 +402,9 @@ final class SentryMetricBatcherTests: XCTestCase {
         // -- Assert --
         let capturedMetrics = testCallbackHelper.getCapturedMetrics()
         let capturedMetric = try XCTUnwrap(capturedMetrics.first)
-        XCTAssertEqual(capturedMetric.spanId, span.spanId)
+        let attributes = capturedMetric.attributes
+        XCTAssertEqual(attributes["span_id"]?.value as? String, span.spanId.sentrySpanIdString)
+        XCTAssertEqual(attributes["sentry.trace.parent_span_id"]?.value as? String, span.spanId.sentrySpanIdString)
     }
     
     func testAddMetric_whenNoActiveSpan_shouldNotSetSpanId() throws {
@@ -420,7 +419,9 @@ final class SentryMetricBatcherTests: XCTestCase {
         // -- Assert --
         let capturedMetrics = testCallbackHelper.getCapturedMetrics()
         let capturedMetric = try XCTUnwrap(capturedMetrics.first)
-        XCTAssertNil(capturedMetric.spanId)
+        let attributes = capturedMetric.attributes
+        XCTAssertNil(attributes["span_id"])
+        XCTAssertNil(attributes["sentry.trace.parent_span_id"])
     }
     
     func testAddMetric_whenUserAttributesExist_shouldAddUserAttributes() throws {
@@ -602,7 +603,6 @@ final class SentryMetricBatcherTests: XCTestCase {
         return SentryMetric(
             timestamp: Date(),
             traceId: SentryId.empty,
-            spanId: nil,
             name: name,
             value: NSNumber(value: value),
             type: type,
@@ -654,9 +654,6 @@ final class TestMetricBatcherCallbackHelper {
         let traceIdString = dict["trace_id"] as? String ?? ""
         let traceId = SentryId(uuidString: traceIdString)
         
-        let spanIdString = dict["span_id"] as? String
-        let spanId = spanIdString.map { SentrySpanId(value: $0) }
-        
         // Decode value - can be Int64 or Double
         let value: NSNumber
         if let intValue = dict["value"] as? Int64 {
@@ -684,7 +681,6 @@ final class TestMetricBatcherCallbackHelper {
         return SentryMetric(
             timestamp: timestamp,
             traceId: traceId,
-            spanId: spanId,
             name: name,
             value: value,
             type: type,

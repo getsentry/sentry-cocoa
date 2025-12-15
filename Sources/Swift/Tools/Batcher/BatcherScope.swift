@@ -40,6 +40,7 @@ extension BatcherScope {
             attributes["sentry.release"] = .init(string: releaseName)
         }
         if let span = self.span {
+            attributes["span_id"] = .init(string: span.spanId.sentrySpanIdString)
             attributes["sentry.trace.parent_span_id"] = .init(string: span.spanId.sentrySpanIdString)
         }
     }

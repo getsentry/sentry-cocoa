@@ -26,12 +26,6 @@ public struct Metric {
     /// This will be set to a valid non-empty value during processing by the batcher,
     /// which applies scope-based attribute enrichment including trace context.
     public var traceId: SentryId
-    
-    /// The span ID of the span that was active when the metric was emitted.
-    ///
-    /// This is optional and will be automatically populated from the active span
-    /// in the scope when the metric is processed by the batcher.
-    public var spanId: SpanId?
 
     /// The numeric value of the metric.
     ///
@@ -80,14 +74,13 @@ public struct Metric {
     /// Creates a metric entry with the specified properties.
     ///
     /// - Note: For type safety, prefer using the convenience initializers:
-    ///   - `init(counter:timestamp:traceId:spanId:name:value:attributes:)` for counters
-    ///   - `init(distribution:timestamp:traceId:spanId:name:value:unit:attributes:)` for distributions
-    ///   - `init(gauge:timestamp:traceId:spanId:name:value:unit:attributes:)` for gauges
+    ///   - `init(counter:timestamp:traceId:name:value:attributes:)` for counters
+    ///   - `init(distribution:timestamp:traceId:name:value:unit:attributes:)` for distributions
+    ///   - `init(gauge:timestamp:traceId:name:value:unit:attributes:)` for gauges
     ///
     /// - Parameters:
     ///   - timestamp: The timestamp when the metric was recorded
     ///   - traceId: The trace ID to associate this metric with distributed tracing
-    ///   - spanId: The span ID of the span that was active when the metric was emitted (optional)
     ///   - name: The name of the metric
     ///   - value: The numeric value of the metric
     ///   - metricType: The type of metric
@@ -96,7 +89,6 @@ public struct Metric {
     internal init(
         timestamp: Date,
         traceId: SentryId,
-        spanId: SpanId?,
         name: String,
         value: MetricValue,
         type: MetricType,
@@ -105,7 +97,6 @@ public struct Metric {
     ) {
         self.timestamp = timestamp
         self.traceId = traceId
-        self.spanId = spanId
         self.name = name
         self.metricType = type
         self.unit = unit
@@ -145,7 +136,6 @@ extension Metric: Encodable {
     private enum CodingKeys: String, CodingKey {
         case timestamp
         case traceId = "trace_id"
-        case spanId = "span_id"
         case name
         case value
         case type
@@ -158,7 +148,6 @@ extension Metric: Encodable {
         
         try container.encode(timestamp, forKey: .timestamp)
         try container.encode(traceId.sentryIdString, forKey: .traceId)
-        try container.encodeIfPresent(spanId?.sentrySpanIdString, forKey: .spanId)
         try container.encode(name, forKey: .name)
         try container.encode(value, forKey: .value)
         

@@ -42,7 +42,6 @@ class MetricsIntegrationTests: XCTestCase {
         let metric = Metric(
             timestamp: Date(),
             traceId: SentryId(),
-            spanId: nil,
             name: "test.metric",
             value: 1,
             type: .counter,
@@ -67,7 +66,6 @@ class MetricsIntegrationTests: XCTestCase {
         let metric = Metric(
             timestamp: Date(),
             traceId: SentryId(),
-            spanId: nil,
             name: "test.metric",
             value: 1,
             type: .counter,

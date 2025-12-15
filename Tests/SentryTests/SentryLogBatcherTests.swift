@@ -325,6 +325,7 @@ final class SentryLogBatcherTests: XCTestCase {
         XCTAssertEqual(attributes["sentry.sdk.version"]?.value as? String, SentryMeta.versionString)
         XCTAssertEqual(attributes["sentry.environment"]?.value as? String, "test-environment")
         XCTAssertEqual(attributes["sentry.release"]?.value as? String, "1.0.0")
+        XCTAssertEqual(attributes["span_id"]?.value as? String, span.spanId.sentrySpanIdString)
         XCTAssertEqual(attributes["sentry.trace.parent_span_id"]?.value as? String, span.spanId.sentrySpanIdString)
     }
     
@@ -344,6 +345,7 @@ final class SentryLogBatcherTests: XCTestCase {
         let attributes = capturedLog.attributes
         
         XCTAssertNil(attributes["sentry.release"])
+        XCTAssertNil(attributes["span_id"])
         XCTAssertNil(attributes["sentry.trace.parent_span_id"])
         XCTAssertEqual(attributes["sentry.sdk.name"]?.value as? String, SentryMeta.sdkName)
         XCTAssertEqual(attributes["sentry.sdk.version"]?.value as? String, SentryMeta.versionString)
