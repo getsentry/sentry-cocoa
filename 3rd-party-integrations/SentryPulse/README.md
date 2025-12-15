@@ -13,7 +13,7 @@ Add the following dependencies to your `Package.swift` or Xcode package manager:
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/getsentry/sentry-cocoa-pulse", from: "1.0.0")
+    .package(url: "https://github.com/getsentry/sentry-cocoa-pulse", from: "9.0.0")
 ]
 ```
 
