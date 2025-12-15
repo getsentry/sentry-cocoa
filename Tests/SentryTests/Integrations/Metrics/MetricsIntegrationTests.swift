@@ -31,7 +31,7 @@ class MetricsIntegrationTests: XCTestCase {
         startSDK(isEnabled: true)
 
         // -- Assert --
-        XCTAssertEqual(SentrySDKInternal.currentHub().trimmedInstalledIntegrationNames().count, 1)
+        XCTAssertEqual(SentrySDKInternal.currentHub().trimmedInstalledIntegrationNames().first, "Metrics")
     }
     
     func testAddMetric_whenMetricAdded_shouldAddToBatcher() throws {
@@ -132,7 +132,6 @@ class MetricsIntegrationTests: XCTestCase {
 
             configure?($0)
         }
-        SentrySDKInternal.currentHub().startSession()
     }
 
     private func getSut() throws -> MetricsIntegration<SentryDependencyContainer> {
