@@ -93,6 +93,6 @@ class MetricsIntegrationTests: XCTestCase {
     }
 
     private func getSut() throws -> MetricsIntegration<SentryDependencyContainer> {
-        return try XCTUnwrap(SentrySDKInternal.currentHub().getInstalledIntegration(MetricsIntegration<SentryDependencyContainer>.self) as? MetricsIntegration<SentryDependencyContainer>)
+        return try XCTUnwrap(SentrySDKInternal.currentHub().getInstalledIntegration(MetricsIntegration<SentryDependencyContainer>.self) as? MetricsIntegration)
     }
 }
