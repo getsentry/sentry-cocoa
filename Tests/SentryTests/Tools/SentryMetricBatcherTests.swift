@@ -626,6 +626,15 @@ final class TestMetricBatcherCallbackHelper {
     
     // Helper to get captured metrics
     // Note: The batcher produces JSON in the format {"items":[...]} as verified by InMemoryBatchBuffer.batchedData
+    //
+    // Design decision: We use JSONSerialization instead of:
+    // 1. Decodable: Would introduce decoding logic in tests that could be wrong, creating a risk that tests pass
+    //    even when the actual encoding/decoding logic is broken.
+    // 2. Direct string comparison: JSON key ordering is not guaranteed, so tests would be flaky.
+    //
+    // JSONSerialization provides a good middle ground: it parses the JSON structure without duplicating
+    // the encoding/decoding logic, and it's order-agnostic, making tests stable while still verifying
+    // the actual data structure produced by the batcher.
     func getCapturedMetrics() -> [SentryMetric] {
         var allMetrics: [SentryMetric] = []
         
