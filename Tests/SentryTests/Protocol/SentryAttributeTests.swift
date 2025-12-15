@@ -138,4 +138,196 @@ final class SentryAttributeTests: XCTestCase {
         XCTAssertEqual(attribute.type, "string")
         XCTAssertTrue((attribute.value as? String)?.contains("key") == true)
     }
+    
+    // MARK: - Attributable Protocol Tests
+    
+    func testAttributable_StringConstant() {
+        // -- Arrange --
+        let endpoint = "api/users"
+        
+        // -- Act --
+        let attribute = endpoint.asAttribute
+        
+        // -- Assert --
+        XCTAssertEqual(attribute.type, "string")
+        XCTAssertEqual(attribute.value as? String, "api/users")
+    }
+    
+    func testAttributable_BooleanConstant() {
+        // -- Arrange --
+        let success = true
+        let failure = false
+        
+        // -- Act --
+        let successAttr = success.asAttribute
+        let failureAttr = failure.asAttribute
+        
+        // -- Assert --
+        XCTAssertEqual(successAttr.type, "boolean")
+        XCTAssertEqual(successAttr.value as? Bool, true)
+        XCTAssertEqual(failureAttr.type, "boolean")
+        XCTAssertEqual(failureAttr.value as? Bool, false)
+    }
+    
+    func testAttributable_IntegerConstant() {
+        // -- Arrange --
+        let statusCode = 200
+        
+        // -- Act --
+        let attribute = statusCode.asAttribute
+        
+        // -- Assert --
+        XCTAssertEqual(attribute.type, "integer")
+        XCTAssertEqual(attribute.value as? Int, 200)
+    }
+    
+    func testAttributable_DoubleConstant() {
+        // -- Arrange --
+        let queryTime = 3.14159
+        
+        // -- Act --
+        let attribute = queryTime.asAttribute
+        
+        // -- Assert --
+        XCTAssertEqual(attribute.type, "double")
+        XCTAssertEqual(attribute.value as? Double, 3.14159)
+    }
+    
+    func testAttributable_FloatConstant() {
+        // -- Arrange --
+        let floatValue: Float = 2.71828
+        
+        // -- Act --
+        let attribute = floatValue.asAttribute
+        
+        // -- Assert --
+        XCTAssertEqual(attribute.type, "double")
+        let doubleValue = attribute.value as? Double
+        XCTAssertNotNil(doubleValue)
+        XCTAssertEqual(doubleValue!, 2.71828, accuracy: 0.00001)
+    }
+    
+    func testAttributable_SentryAttribute() {
+        // -- Arrange --
+        let originalAttr = SentryLog.Attribute(string: "test")
+        
+        // -- Act --
+        let convertedAttr = originalAttr.asAttribute
+        
+        // -- Assert --
+        XCTAssertEqual(convertedAttr.type, "string")
+        XCTAssertEqual(convertedAttr.value as? String, "test")
+        // Should be the same instance
+        XCTAssertTrue(convertedAttr === originalAttr)
+    }
+    
+    // MARK: - Expressible By Literal Tests
+    
+    func testExpressibleByStringLiteral() {
+        // -- Arrange --
+        let attribute: SentryAttribute = "test literal string"
+        
+        // -- Act & Assert --
+        XCTAssertEqual(attribute.type, "string")
+        XCTAssertEqual(attribute.value as? String, "test literal string")
+    }
+    
+    func testExpressibleByStringLiteral_whenEmptyString_shouldCreateStringAttribute() {
+        // -- Arrange --
+        let attribute: SentryAttribute = ""
+        
+        // -- Act & Assert --
+        XCTAssertEqual(attribute.type, "string")
+        XCTAssertEqual(attribute.value as? String, "")
+    }
+    
+    func testExpressibleByBooleanLiteral() {
+        // -- Arrange --
+        let trueAttribute: SentryAttribute = true
+        let falseAttribute: SentryAttribute = false
+        
+        // -- Act & Assert --
+        XCTAssertEqual(trueAttribute.type, "boolean")
+        XCTAssertEqual(trueAttribute.value as? Bool, true)
+        
+        XCTAssertEqual(falseAttribute.type, "boolean")
+        XCTAssertEqual(falseAttribute.value as? Bool, false)
+    }
+    
+    func testExpressibleByIntegerLiteral() {
+        // -- Arrange --
+        let attribute: SentryAttribute = 42
+        
+        // -- Act & Assert --
+        XCTAssertEqual(attribute.type, "integer")
+        XCTAssertEqual(attribute.value as? Int, 42)
+    }
+    
+    func testExpressibleByIntegerLiteral_whenZero_shouldCreateIntegerAttribute() {
+        // -- Arrange --
+        let attribute: SentryAttribute = 0
+        
+        // -- Act & Assert --
+        XCTAssertEqual(attribute.type, "integer")
+        XCTAssertEqual(attribute.value as? Int, 0)
+    }
+    
+    func testExpressibleByIntegerLiteral_whenNegative_shouldCreateIntegerAttribute() {
+        // -- Arrange --
+        let attribute: SentryAttribute = -42
+        
+        // -- Act & Assert --
+        XCTAssertEqual(attribute.type, "integer")
+        XCTAssertEqual(attribute.value as? Int, -42)
+    }
+    
+    func testExpressibleByFloatLiteral() {
+        // -- Arrange --
+        let attribute: SentryAttribute = 3.14159
+        
+        // -- Act & Assert --
+        XCTAssertEqual(attribute.type, "double")
+        XCTAssertEqual(attribute.value as? Double, 3.14159)
+    }
+    
+    func testExpressibleByFloatLiteral_whenZero_shouldCreateDoubleAttribute() {
+        // -- Arrange --
+        let attribute: SentryAttribute = 0.0
+        
+        // -- Act & Assert --
+        XCTAssertEqual(attribute.type, "double")
+        XCTAssertEqual(attribute.value as? Double, 0.0)
+    }
+    
+    func testExpressibleByFloatLiteral_whenNegative_shouldCreateDoubleAttribute() {
+        // -- Arrange --
+        let attribute: SentryAttribute = -3.14
+        
+        // -- Act & Assert --
+        XCTAssertEqual(attribute.type, "double")
+        XCTAssertEqual(attribute.value as? Double, -3.14)
+    }
+    
+    func testExpressibleByX_inDictionary() {
+        // -- Arrange --
+        let attributes: [String: SentryAttribute] = [
+            "string": "hello",
+            "boolean": true,
+            "integer": 42,
+            "double": 3.14159
+        ]
+        
+        // -- Act & Assert --
+        XCTAssertEqual(attributes["string"]?.type, "string")
+        XCTAssertEqual(attributes["string"]?.value as? String, "hello")
+        
+        XCTAssertEqual(attributes["boolean"]?.type, "boolean")
+        XCTAssertEqual(attributes["boolean"]?.value as? Bool, true)
+        
+        XCTAssertEqual(attributes["integer"]?.type, "integer")
+        XCTAssertEqual(attributes["integer"]?.value as? Int, 42)
+        
+        XCTAssertEqual(attributes["double"]?.type, "double")
+        XCTAssertEqual(attributes["double"]?.value as? Double, 3.14159)
+    }
 }

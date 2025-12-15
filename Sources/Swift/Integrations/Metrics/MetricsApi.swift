@@ -1,8 +1,7 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
-@objc public class MetricsApi: NSObject {
-
+public class MetricsApi {
     /// Records a count metric for the specified key.
     /// 
     /// Use this to increment or set a discrete occurrence count associated with a metric key,
@@ -14,9 +13,10 @@ import Foundation
     ///   - value: The count value to record. Typically a non-negative integer (e.g., 1 to increment by one).
     ///            Values less than zero may be ignored or clamped by the metrics backend.
     ///   - unit: Optional unit of measurement (e.g., "request", "error")
-    ///   - attributes: Optional dictionary of attributes to attach to the metric
-    @objc(count:value:unit:attributes:)
-    public func count(key: String, value: Int, unit: String? = nil, attributes: [String: Any] = [:]) {
+    ///   - attributes: Optional dictionary of attributes to attach to the metric.
+    ///                 Values can be String, Bool, Int, Double, Float, or SentryAttribute.
+    ///                 Example: `["endpoint": "api/users", "success": true, "status_code": 200]`
+    public func count(key: String, value: Int, unit: String? = nil, attributes: [String: Attributable] = [:]) {
         recordMetric(name: key, value: NSNumber(value: value), type: .counter, unit: unit, attributes: attributes)
     }
 
@@ -32,9 +32,10 @@ import Foundation
     ///   - value: The value to record in the distribution. This can be any numeric value
     ///            representing the measurement (e.g., milliseconds for response time).
     ///   - unit: Optional unit of measurement (e.g., "millisecond", "byte")
-    ///   - attributes: Optional dictionary of attributes to attach to the metric
-    @objc(distribution:value:unit:attributes:)
-    public func distribution(key: String, value: Double, unit: String? = nil, attributes: [String: Any] = [:]) {
+    ///   - attributes: Optional dictionary of attributes to attach to the metric.
+    ///                 Values can be String, Bool, Int, Double, Float, or SentryAttribute.
+    ///                 Example: `["endpoint": "/api/data", "cached": false, "response_size": 1024.5]`
+    public func distribution(key: String, value: Double, unit: String? = nil, attributes: [String: Attributable] = [:]) {
         recordMetric(name: key, value: NSNumber(value: value), type: .distribution, unit: unit, attributes: attributes)
     }
 
@@ -50,15 +51,16 @@ import Foundation
     ///   - value: The current gauge value to record. This represents the state at the time of
     ///            recording (e.g., current memory in bytes, current number of items in queue).
     ///   - unit: Optional unit of measurement (e.g., "byte", "connection")
-    ///   - attributes: Optional dictionary of attributes to attach to the metric
-    @objc(gauge:value:unit:attributes:)
-    public func gauge(key: String, value: Double, unit: String? = nil, attributes: [String: Any] = [:]) {
+    ///   - attributes: Optional dictionary of attributes to attach to the metric.
+    ///                 Values can be String, Bool, Int, Double, Float, or SentryAttribute.
+    ///                 Example: `["process": "main_app", "compressed": true, "pressure_level": 2]`
+    public func gauge(key: String, value: Double, unit: String? = nil, attributes: [String: Attributable] = [:]) {
         recordMetric(name: key, value: NSNumber(value: value), type: .gauge, unit: unit, attributes: attributes)
     }
     
     // MARK: - Private
     
-    private func recordMetric(name: String, value: NSNumber, type: MetricType, unit: String?, attributes: [String: Any]) {
+    private func recordMetric(name: String, value: NSNumber, type: MetricType, unit: String?, attributes: [String: Attributable]) {
         // Check if SDK is enabled and metrics are enabled
         guard SentrySDKInternal.isEnabled else {
             return
@@ -75,12 +77,20 @@ import Foundation
         }
         
         // Create the metric
-        let metric = SentryMetric(
+        let metricValue: MetricValue
+        switch type {
+        case .counter:
+            metricValue = .integer(value.int64Value)
+        case .gauge, .distribution:
+            metricValue = .double(value.doubleValue)
+        }
+        
+        let metric = Metric(
             timestamp: Date(),
             traceId: SentryId.empty, // Will be set by batcher from scope
             spanId: nil, // Will be set by batcher if active span exists
             name: name,
-            value: value,
+            value: metricValue,
             type: type,
             unit: unit,
             attributes: convertAttributes(attributes)
@@ -91,10 +101,10 @@ import Foundation
         integration.addMetric(metric, scope: scope)
     }
     
-    private func convertAttributes(_ attributes: [String: Any]) -> [String: SentryMetric.Attribute] {
-        var result: [String: SentryMetric.Attribute] = [:]
+    private func convertAttributes(_ attributes: [String: Attributable]) -> [String: Metric.Attribute] {
+        var result: [String: Metric.Attribute] = [:]
         for (key, value) in attributes {
-            result[key] = SentryMetric.Attribute(value: value)
+            result[key] = value.asAttribute
         }
         return result
     }
