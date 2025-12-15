@@ -117,7 +117,7 @@ extension SentryMetric {
 }
 
 // MARK: - Internal Codable Support
-@_spi(Private) extension SentryMetric: Codable {
+@_spi(Private) extension SentryMetric: Encodable {
     private enum CodingKeys: String, CodingKey {
         case timestamp
         case traceId = "trace_id"
@@ -129,47 +129,47 @@ extension SentryMetric {
         case attributes
     }
     
-    @_spi(Private) public convenience init(from decoder: any Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        
-        let timestamp = try container.decode(Date.self, forKey: .timestamp)
-        let traceIdString = try container.decode(String.self, forKey: .traceId)
-        let traceId = SentryId(uuidString: traceIdString)
-        let spanIdString = try container.decodeIfPresent(String.self, forKey: .spanId)
-        let spanId = spanIdString.map { SpanId(value: $0) }
-        let name = try container.decode(String.self, forKey: .name)
-        
-        // Decode value - can be Int or Double
-        let value: NSNumber
-        if let intValue = try? container.decode(Int64.self, forKey: .value) {
-            value = NSNumber(value: intValue)
-        } else if let doubleValue = try? container.decode(Double.self, forKey: .value) {
-            value = NSNumber(value: doubleValue)
-        } else {
-            throw DecodingError.typeMismatch(
-                NSNumber.self,
-                DecodingError.Context(
-                    codingPath: decoder.codingPath + [CodingKeys.value],
-                    debugDescription: "Expected Int64 or Double for value"
-                )
-            )
-        }
-        
-        let type = try container.decode(MetricType.self, forKey: .type)
-        let unit = try container.decodeIfPresent(String.self, forKey: .unit)
-        let attributes = try container.decode([String: Attribute].self, forKey: .attributes)
-        
-        self.init(
-            timestamp: timestamp,
-            traceId: traceId,
-            spanId: spanId,
-            name: name,
-            value: value,
-            type: type,
-            unit: unit,
-            attributes: attributes
-        )
-    }
+//    @_spi(Private) public convenience init(from decoder: any Decoder) throws {
+//        let container = try decoder.container(keyedBy: CodingKeys.self)
+//        
+//        let timestamp = try container.decode(Date.self, forKey: .timestamp)
+//        let traceIdString = try container.decode(String.self, forKey: .traceId)
+//        let traceId = SentryId(uuidString: traceIdString)
+//        let spanIdString = try container.decodeIfPresent(String.self, forKey: .spanId)
+//        let spanId = spanIdString.map { SpanId(value: $0) }
+//        let name = try container.decode(String.self, forKey: .name)
+//        
+//        // Decode value - can be Int or Double
+//        let value: NSNumber
+//        if let intValue = try? container.decode(Int64.self, forKey: .value) {
+//            value = NSNumber(value: intValue)
+//        } else if let doubleValue = try? container.decode(Double.self, forKey: .value) {
+//            value = NSNumber(value: doubleValue)
+//        } else {
+//            throw DecodingError.typeMismatch(
+//                NSNumber.self,
+//                DecodingError.Context(
+//                    codingPath: decoder.codingPath + [CodingKeys.value],
+//                    debugDescription: "Expected Int64 or Double for value"
+//                )
+//            )
+//        }
+//        
+//        let type = try container.decode(MetricType.self, forKey: .type)
+//        let unit = try container.decodeIfPresent(String.self, forKey: .unit)
+//        let attributes = try container.decode([String: Attribute].self, forKey: .attributes)
+//        
+//        self.init(
+//            timestamp: timestamp,
+//            traceId: traceId,
+//            spanId: spanId,
+//            name: name,
+//            value: value,
+//            type: type,
+//            unit: unit,
+//            attributes: attributes
+//        )
+//    }
     
     @_spi(Private) public func encode(to encoder: any Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)

@@ -38,9 +38,6 @@ import Foundation
         }
     }
 
-    /// API to collect metrics
-    @objc public static var metrics = MetricsApi()
-
     /// Inits and configures Sentry (`SentryHub`, `SentryClient`) and sets up all integrations. Make sure to
     /// set a valid DSN.
     /// - note: Call this method on the main thread. When calling it from a background thread, the

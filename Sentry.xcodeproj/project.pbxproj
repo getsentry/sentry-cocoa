@@ -4407,6 +4407,7 @@
 			isa = PBXGroup;
 			children = (
 				D46B041C2EDF167D00AF4A0A /* MetricsIntegration.swift */,
+				D46B044E2EDF260A00AF4A0A /* SentryMetricBatcher.swift */,
 			);
 			path = Metrics;
 			sourceTree = "<group>";
@@ -4692,16 +4693,11 @@
 			isa = PBXGroup;
 			children = (
 				D4D7AA6D2EEAD89300E28DFB /* Batcher */,
-				F451FAA52E0B304E0050ACF2 /* LoadValidator.swift */,
 				FA94E68B2E6B92BE00576666 /* SentryClientReport.swift */,
-				FA01BCB12E69352A00968DFA /* SentryDiscardedEvent.swift */,
 				FAE57C072E83092A00B710F9 /* SentryDispatchFactory.swift */,
 				FA94E6B12E6D265500576666 /* SentryEnvelope.swift */,
 				FA3AEE772E68E2830092283E /* SentryEnvelopeHeader.swift */,
 				FA01BCB12E69352A00968DFA /* SentryDiscardedEvent.swift */,
-				92235CAD2E15549C00865983 /* SentryLogger.swift */,
-				92235CAB2E15369900865983 /* SentryLogBatcher.swift */,
-				D46B044E2EDF260A00AF4A0A /* SentryMetricBatcher.swift */,
 				F451FAA52E0B304E0050ACF2 /* LoadValidator.swift */,
 				FA34C1A22E692A5000BC52AA /* SentryEnvelopeItem.swift */,
 				92235CAB2E15369900865983 /* SentryLogBatcher.swift */,

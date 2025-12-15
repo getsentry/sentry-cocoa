@@ -185,9 +185,9 @@ public class TestClient: SentryClientInternal {
         captureLogsInvocations.record(())
     }
 
-    public var captureMetricsDataInvocations = Invocations<(data: NSData, count: NSNumber)>()
-    public override func captureMetricsData(_ data: NSData, with itemCount: NSNumber) {
+    public var captureMetricsDataInvocations = Invocations<(data: Data, count: NSNumber)>()
+    public override func captureMetricsData(_ data: Data, with itemCount: NSNumber) {
         captureMetricsDataInvocations.record((data, itemCount))
         super.captureMetricsData(data, with: itemCount)
-    
+    }
 }
