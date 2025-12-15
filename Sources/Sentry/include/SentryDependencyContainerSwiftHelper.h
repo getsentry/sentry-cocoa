@@ -41,7 +41,6 @@ NS_ASSUME_NONNULL_BEGIN
 + (NSString *)environment:(SentryOptionsObjC *)options;
 + (NSObject *_Nullable)beforeSendLog:(NSObject *)beforeSendLog options:(SentryOptionsObjC *)options;
 + (BOOL)enableLogs:(SentryOptionsObjC *)options;
-+ (BOOL)enableMetrics:(SentryOptionsObjC *)options;
 + (NSArray<NSString *> *)enabledFeatures:(SentryOptionsObjC *)options;
 + (BOOL)sendDefaultPii:(SentryOptionsObjC *)options;
 

@@ -8,6 +8,6 @@ final class MetricsIntegration<Dependencies>: NSObject, SwiftIntegration {
     func uninstall() {}
 
     static var name: String {
-        "SentryMetricsIntegration"
+        "MetricsIntegration"
     }
 }
