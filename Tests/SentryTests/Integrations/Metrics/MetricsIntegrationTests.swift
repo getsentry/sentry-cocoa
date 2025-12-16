@@ -37,8 +37,10 @@ class MetricsIntegrationTests: XCTestCase {
     func testAddMetric_whenMetricAdded_shouldAddToBatcher() throws {
         // -- Arrange --
         try givenSdkWithHub()
+        let client = try XCTUnwrap(SentrySDKInternal.currentHub().getClient() as? TestClient, "Hub Client is not a `TestClient`")
+
         let integration = try getSut()
-        
+
         let scope = Scope()
         let metric = Metric(
             timestamp: Date(),
@@ -52,22 +54,27 @@ class MetricsIntegrationTests: XCTestCase {
         
         // -- Act --
         integration.addMetric(metric, scope: scope)
-        SentrySDK.flush(timeout: 1.0)
-        
+
+        // We can not rely on the SentrySDK.flush(), because we are using a test client which is not actually
+        // flushing integrations as of Dec 16, 2025.
+        //
+        // Calling uninstall will flush the data, allowing us to assert the client invocations
+        integration.uninstall()
+
         // -- Assert --
-        guard let client = SentrySDKInternal.currentHub().getClient() as? TestClient else {
-            XCTFail("Hub Client is not a `TestClient`")
-            return
-        }
-        XCTAssertEqual(1, client.captureMetricsDataInvocations.count, "Metrics should be captured")
         let capturedMetrics = try XCTUnwrap(client.captureMetricsDataInvocations.first)
         XCTAssertEqual(1, capturedMetrics.count.intValue, "Should capture 1 metric")
         XCTAssertFalse(capturedMetrics.data.isEmpty, "Captured metrics data should not be empty")
+
+        // Assert no furhter invocations
+        XCTAssertEqual(1, client.captureMetricsDataInvocations.count, "Metrics should be captured")
     }
     
     func testUninstall_whenMetricsExist_shouldFlushMetrics() throws {
         // -- Arrange --
         try givenSdkWithHub()
+        let client = try XCTUnwrap(SentrySDKInternal.currentHub().getClient() as? TestClient, "Hub Client is not a `TestClient`")
+
         let integration = try getSut()
 
         let scope = Scope()
@@ -87,14 +94,12 @@ class MetricsIntegrationTests: XCTestCase {
         integration.uninstall()
         
         // -- Assert --
-        guard let client = SentrySDKInternal.currentHub().getClient() as? TestClient else {
-            XCTFail("Hub Client is not a `TestClient`")
-            return
-        }
-        XCTAssertEqual(1, client.captureMetricsDataInvocations.count, "Uninstall should flush metrics")
         let capturedMetrics = try XCTUnwrap(client.captureMetricsDataInvocations.first)
         XCTAssertEqual(1, capturedMetrics.count.intValue, "Should capture 1 metric")
         XCTAssertFalse(capturedMetrics.data.isEmpty, "Captured metrics data should not be empty")
+
+        // Assert no furhter invocations
+        XCTAssertEqual(1, client.captureMetricsDataInvocations.count, "Uninstall should flush metrics")
     }
 
     // MARK: - Helpers
