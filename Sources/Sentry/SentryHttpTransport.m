@@ -405,19 +405,18 @@
 
             SENTRY_LOG_DEBUG(@"Received response status code: %li", (long)response.statusCode);
 
+            BOOL is2xx = (response.statusCode >= 200 && response.statusCode < 300);
+            BOOL is4xxOr5xx = (response.statusCode >= 400 && response.statusCode < 600);
+
             // Relay already records a client report for a 429, so we must not record it again
             // to avoid double-counting.
             BOOL isNotRateLimitStatusCode = response.statusCode != 429;
-
-            BOOL is4xxOr5xx = (response.statusCode >= 400 && response.statusCode < 600);
 
             if ((error != nil || is4xxOr5xx) && isNotRateLimitStatusCode) {
                 [weakSelf recordLostEventFor:envelope.items];
             }
 
             // We must delete the envelope on all 2xx, 4xx and 5xx responses.
-            BOOL is2xx = (response.statusCode >= 200 && response.statusCode < 300);
-
             if (is2xx || is4xxOr5xx) {
                 [weakSelf deleteEnvelopeAndSendNext:envelopePath];
             } else {
