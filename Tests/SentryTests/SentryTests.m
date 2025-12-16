@@ -1,4 +1,4 @@
-#import "SentryBreadcrumb+HybridSDK.h"
+#import "SentryBreadcrumb+Private.h"
 #import "SentryBreadcrumb.h"
 #import "SentryBreadcrumbTracker.h"
 #import "SentryClient.h"

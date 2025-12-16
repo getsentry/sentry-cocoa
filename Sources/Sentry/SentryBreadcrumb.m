@@ -1,5 +1,5 @@
 #import "SentryBreadcrumb.h"
-#import "SentryBreadcrumb+HybridSDK.h"
+#import "SentryBreadcrumb+Private.h"
 #import "SentryDateUtils.h"
 #import "SentryInternalDefines.h"
 #import "SentryLevel.h"
