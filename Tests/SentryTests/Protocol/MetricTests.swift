@@ -15,7 +15,6 @@ final class MetricTests: XCTestCase {
         let metric = Metric(
             timestamp: testTimestamp,
             traceId: testTraceId,
-            spanId: nil,
             name: "api.requests",
             value: .integer(1),
             type: .counter,
@@ -26,7 +25,6 @@ final class MetricTests: XCTestCase {
         // -- Assert --
         XCTAssertEqual(metric.timestamp, testTimestamp)
         XCTAssertEqual(metric.traceId, testTraceId)
-        XCTAssertNil(metric.spanId)
         XCTAssertEqual(metric.name, "api.requests")
         if case .integer(let intValue) = metric.value {
             XCTAssertEqual(intValue, 1)
@@ -50,7 +48,6 @@ final class MetricTests: XCTestCase {
         let metric = Metric(
             timestamp: testTimestamp,
             traceId: testTraceId,
-            spanId: testSpanId,
             name: "api.requests",
             value: .integer(1),
             type: .counter,
@@ -74,7 +71,6 @@ final class MetricTests: XCTestCase {
         let metric = Metric(
             timestamp: testTimestamp,
             traceId: testTraceId,
-            spanId: nil,
             name: "api.response_time",
             value: .double(125.5),
             type: .distribution,
@@ -102,7 +98,6 @@ final class MetricTests: XCTestCase {
         let metric = Metric(
             timestamp: testTimestamp,
             traceId: testTraceId,
-            spanId: nil,
             name: "db.connection_pool.active",
             value: .double(42.0),
             type: .gauge,
@@ -128,7 +123,6 @@ final class MetricTests: XCTestCase {
         var metric = Metric(
             timestamp: testTimestamp,
             traceId: testTraceId,
-            spanId: nil,
             name: "test.metric",
             value: .integer(1),
             type: .counter,
@@ -148,7 +142,6 @@ final class MetricTests: XCTestCase {
         var metric = Metric(
             timestamp: testTimestamp,
             traceId: testTraceId,
-            spanId: nil,
             name: "test.metric",
             value: .integer(1),
             type: .counter,
@@ -170,7 +163,6 @@ final class MetricTests: XCTestCase {
         let metric = Metric(
             timestamp: testTimestamp,
             traceId: testTraceId,
-            spanId: testSpanId,
             name: "api.requests",
             value: .integer(1),
             type: .counter,
@@ -189,7 +181,7 @@ final class MetricTests: XCTestCase {
         // -- Assert --
         XCTAssertEqual(json["timestamp"] as? TimeInterval, 1_234_567_890.987654)
         XCTAssertEqual(json["trace_id"] as? String, "550e8400e29b41d4a716446655440000")
-        XCTAssertEqual(json["span_id"] as? String, "b0e6f15b45c36b12")
+        XCTAssertNil(json["span_id"])
         XCTAssertEqual(json["name"] as? String, "api.requests")
         XCTAssertEqual(json["value"] as? Int, 1)
         XCTAssertEqual(json["type"] as? String, "counter")
@@ -207,7 +199,6 @@ final class MetricTests: XCTestCase {
         let metric = Metric(
             timestamp: testTimestamp,
             traceId: testTraceId,
-            spanId: nil,
             name: "api.response_time",
             value: .double(125.5),
             type: .distribution,
@@ -233,7 +224,6 @@ final class MetricTests: XCTestCase {
         let metric = Metric(
             timestamp: testTimestamp,
             traceId: testTraceId,
-            spanId: nil,
             name: "db.connection_pool.active",
             value: .double(42.0),
             type: .gauge,

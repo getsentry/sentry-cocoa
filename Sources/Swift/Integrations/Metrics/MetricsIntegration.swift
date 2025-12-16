@@ -21,7 +21,6 @@ final class MetricsIntegration<Dependencies: DateProviderProvider & DispatchQueu
                 client.captureMetricsData(data, with: NSNumber(value: count))
             }
         )
-        super.init()
     }
 
     func uninstall() {

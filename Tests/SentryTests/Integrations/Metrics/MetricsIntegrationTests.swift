@@ -31,18 +31,20 @@ class MetricsIntegrationTests: XCTestCase {
         startSDK(isEnabled: true)
 
         // -- Assert --
-        XCTAssertEqual(SentrySDKInternal.currentHub().trimmedInstalledIntegrationNames().count, 1)
+        XCTAssertEqual(SentrySDKInternal.currentHub().trimmedInstalledIntegrationNames().first, "Metrics")
     }
     
     func testAddMetric_whenMetricAdded_shouldAddToBatcher() throws {
         // -- Arrange --
-        startSDK(isEnabled: true)
+        try givenSdkWithHub()
+        let client = try XCTUnwrap(SentrySDKInternal.currentHub().getClient() as? TestClient, "Hub Client is not a `TestClient`")
+
         let integration = try getSut()
+
         let scope = Scope()
         let metric = Metric(
             timestamp: Date(),
             traceId: SentryId(),
-            spanId: nil,
             name: "test.metric",
             value: 1,
             type: .counter,
@@ -52,22 +54,33 @@ class MetricsIntegrationTests: XCTestCase {
         
         // -- Act --
         integration.addMetric(metric, scope: scope)
-        
+
+        // We can not rely on the SentrySDK.flush(), because we are using a test client which is not actually
+        // flushing integrations as of Dec 16, 2025.
+        //
+        // Calling uninstall will flush the data, allowing us to assert the client invocations
+        integration.uninstall()
+
         // -- Assert --
-        // Metric should be added to batcher (no crash)
-        // Flush to verify it's processed
-        SentrySDK.flush(timeout: 1.0)
+        let capturedMetrics = try XCTUnwrap(client.captureMetricsDataInvocations.first)
+        XCTAssertEqual(1, capturedMetrics.count.intValue, "Should capture 1 metric")
+        XCTAssertFalse(capturedMetrics.data.isEmpty, "Captured metrics data should not be empty")
+
+        // Assert no furhter invocations
+        XCTAssertEqual(1, client.captureMetricsDataInvocations.count, "Metrics should be captured")
     }
     
     func testUninstall_whenMetricsExist_shouldFlushMetrics() throws {
         // -- Arrange --
-        startSDK(isEnabled: true)
+        try givenSdkWithHub()
+        let client = try XCTUnwrap(SentrySDKInternal.currentHub().getClient() as? TestClient, "Hub Client is not a `TestClient`")
+
         let integration = try getSut()
+
         let scope = Scope()
         let metric = Metric(
             timestamp: Date(),
             traceId: SentryId(),
-            spanId: nil,
             name: "test.metric",
             value: 1,
             type: .counter,
@@ -81,7 +94,12 @@ class MetricsIntegrationTests: XCTestCase {
         integration.uninstall()
         
         // -- Assert --
-        // Uninstall should flush metrics (no crash)
+        let capturedMetrics = try XCTUnwrap(client.captureMetricsDataInvocations.first)
+        XCTAssertEqual(1, capturedMetrics.count.intValue, "Should capture 1 metric")
+        XCTAssertFalse(capturedMetrics.data.isEmpty, "Captured metrics data should not be empty")
+
+        // Assert no furhter invocations
+        XCTAssertEqual(1, client.captureMetricsDataInvocations.count, "Uninstall should flush metrics")
     }
 
     // MARK: - Helpers
@@ -95,7 +113,32 @@ class MetricsIntegrationTests: XCTestCase {
 
             configure?($0)
         }
-        SentrySDKInternal.currentHub().startSession()
+    }
+
+    private func givenSdkWithHub() throws {
+        let options = Options()
+        options.dsn = TestConstants.dsnForTestCase(type: MetricsIntegrationTests.self)
+        options.removeAllIntegrations()
+
+        options.enableMetrics = true
+
+        let client = TestClient(options: options)
+        let hub = SentryHubInternal(
+            client: client,
+            andScope: Scope(),
+            andCrashWrapper: TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo),
+            andDispatchQueue: SentryDispatchQueueWrapper()
+        )
+        
+        SentrySDK.setStart(with: options)
+        SentrySDKInternal.setCurrentHub(hub)
+        
+        // Manually install the MetricsIntegration since we're not using SentrySDK.start()
+        let dependencies = SentryDependencyContainer.sharedInstance()
+        let integration = try XCTUnwrap(MetricsIntegration<SentryDependencyContainer>(with: options, dependencies: dependencies) as? SentryIntegrationProtocol)
+        hub.addInstalledIntegration(integration, name: MetricsIntegration<SentryDependencyContainer>.name)
+
+        hub.startSession()
     }
 
     private func getSut() throws -> MetricsIntegration<SentryDependencyContainer> {

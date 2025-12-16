@@ -9,6 +9,7 @@ private struct TestScope: BatcherScope {
     var userObject: User?
     var contextStore: [String: [String: Any]] = [:]
     var attributes: [String: Any] = [:]
+    var sendDefaultPii = true
 
     init(propagationContextTraceIdString: String = SentryId().sentryIdString) {
         self.propagationContextTraceIdString = propagationContextTraceIdString
