@@ -98,8 +98,9 @@ final class InMemoryBatchBufferTests: XCTestCase {
     func testAppend_shouldIncreaseSize() throws {
         // -- Arrange --
         var sut = InMemoryBatchBuffer<TestElement>()
-        let initialSize = sut.itemsDataSize
-        XCTAssertEqual(initialSize, 0)
+        let initialSize = sut.batchedData.count
+        // Initial size is the empty payload: {"items":[]} = 12 bytes
+        XCTAssertEqual(initialSize, 12)
 
         // -- Act --
         let element1 = TestElement(id: 1)
@@ -107,7 +108,10 @@ final class InMemoryBatchBufferTests: XCTestCase {
         try sut.append(element1)
 
         // -- Assert --
-        XCTAssertEqual(sut.itemsDataSize, encoded1.count)
+        // batchedDataSize includes the complete JSON structure: {"items":[item1]}
+        // Prefix (10 bytes) + item1 + suffix (2 bytes) = 10 + encoded1.count + 2
+        let expectedSize1 = 10 + encoded1.count + 2
+        XCTAssertEqual(sut.batchedData.count, expectedSize1)
 
         // -- Act --
         let element2 = TestElement(id: 2)
@@ -115,47 +119,50 @@ final class InMemoryBatchBufferTests: XCTestCase {
         try sut.append(element2)
 
         // -- Assert --
-        XCTAssertEqual(sut.itemsDataSize, encoded1.count + encoded2.count)
+        // batchedDataSize includes: {"items":[item1,item2]}
+        // Prefix (10) + item1 + comma (1) + item2 + suffix (2) = 10 + encoded1.count + 1 + encoded2.count + 2
+        let expectedSize2 = 10 + encoded1.count + 1 + encoded2.count + 2
+        XCTAssertEqual(sut.batchedData.count, expectedSize2)
     }
 
     // MARK: - Flush Method Tests
 
-    func testFlush_withNoElements_shouldDoNothing() {
+    func testClear_withNoElements_shouldDoNothing() {
         // -- Arrange --
         var sut = InMemoryBatchBuffer<TestElement>()
 
         // Assert pre-condition
         XCTAssertEqual(sut.itemsCount, 0)
-        XCTAssertEqual(sut.itemsDataSize, 0)
+        XCTAssertEqual(sut.batchedData.count, 12) // Empty payload size
 
         // -- Act --
         sut.clear()
 
         // -- Assert --
         XCTAssertEqual(sut.itemsCount, 0)
-        XCTAssertEqual(sut.itemsDataSize, 0)
+        XCTAssertEqual(sut.batchedData.count, 12) // Empty payload size after clear
     }
 
-    func testFlush_withSingleElement_shouldClearStorage() throws {
+    func testClear_withSingleElement_shouldClearStorage() throws {
         // -- Arrange --
         var sut = InMemoryBatchBuffer<TestElement>()
         try sut.append(TestElement(id: 1))
 
         // Assert pre-condition
         XCTAssertEqual(sut.itemsCount, 1)
-        XCTAssertGreaterThan(sut.itemsDataSize, 0)
+        XCTAssertGreaterThan(sut.batchedData.count, 0)
 
         // -- Act --
         sut.clear()
 
         // -- Assert --
         XCTAssertEqual(sut.itemsCount, 0)
-        XCTAssertEqual(sut.itemsDataSize, 0)
+        XCTAssertEqual(sut.batchedData.count, 12)
         let decoded = try decodePayload(data: sut.batchedData)
         XCTAssertEqual(decoded.items, [])
     }
 
-    func testFlush_withMultipleElements_shouldClearStorage() throws {
+    func testClear_withMultipleElements_shouldClearStorage() throws {
         // -- Arrange --
         var sut = InMemoryBatchBuffer<TestElement>()
         try sut.append(TestElement(id: 1))
@@ -164,19 +171,19 @@ final class InMemoryBatchBufferTests: XCTestCase {
 
         // Assert pre-condition
         XCTAssertEqual(sut.itemsCount, 3)
-        XCTAssertGreaterThan(sut.itemsDataSize, 0)
+        XCTAssertGreaterThan(sut.batchedData.count, 0)
 
         // -- Act --
         sut.clear()
 
         // -- Assert --
         XCTAssertEqual(sut.itemsCount, 0)
-        XCTAssertEqual(sut.itemsDataSize, 0)
+        XCTAssertEqual(sut.batchedData.count, 12)
         let decoded = try decodePayload(data: sut.batchedData)
         XCTAssertEqual(decoded.items, [])
     }
 
-    func testFlush_afterFlush_shouldAllowNewAppends() throws {
+    func testClear_afterFlush_shouldAllowNewAppends() throws {
         // -- Arrange --
         var sut = InMemoryBatchBuffer<TestElement>()
         try sut.append(TestElement(id: 1))
@@ -194,7 +201,7 @@ final class InMemoryBatchBufferTests: XCTestCase {
 
     // MARK: - Data Property Tests
 
-    func testData_withNoElements_shouldReturnEmptyArray() throws {
+    func testBatchedData_withNoElements_shouldReturnEmptyArray() throws {
         // -- Arrange --
         let sut = InMemoryBatchBuffer<TestElement>()
 
@@ -206,7 +213,7 @@ final class InMemoryBatchBufferTests: XCTestCase {
         XCTAssertEqual(decoded.items, [])
     }
 
-    func testData_withSingleElement_shouldReturnSingleElement() throws {
+    func testBatchedData_withSingleElement_shouldReturnSingleElement() throws {
         // -- Arrange --
         var sut = InMemoryBatchBuffer<TestElement>()
         try sut.append(TestElement(id: 1))
@@ -219,7 +226,7 @@ final class InMemoryBatchBufferTests: XCTestCase {
         XCTAssertEqual(decoded.items, [TestElement(id: 1)])
     }
 
-    func testData_withMultipleElements_shouldReturnAllElements() throws {
+    func testBatchedData_withMultipleElements_shouldReturnAllElements() throws {
         // -- Arrange --
         var sut = InMemoryBatchBuffer<TestElement>()
         try sut.append(TestElement(id: 1))
@@ -238,7 +245,7 @@ final class InMemoryBatchBufferTests: XCTestCase {
         ])
     }
 
-    func testData_shouldReturnValidJSONFormat() throws {
+    func testBatched_shouldReturnValidJSONFormat() throws {
         // -- Arrange --
         var sut = InMemoryBatchBuffer<TestElement>()
         try sut.append(TestElement(id: 1))
@@ -258,7 +265,7 @@ final class InMemoryBatchBufferTests: XCTestCase {
         XCTAssertTrue(jsonString.hasSuffix("]}"))
     }
 
-    func testData_shouldMaintainElementOrder() throws {
+    func testBatched_shouldMaintainElementOrder() throws {
         // -- Arrange --
         var sut = InMemoryBatchBuffer<TestElement>()
         try sut.append(TestElement(id: 10))
@@ -277,41 +284,44 @@ final class InMemoryBatchBufferTests: XCTestCase {
 
     // MARK: - Size Property Tests
 
-    func testSize_withNoElements_shouldReturnZero() {
+    func testBatchedDataSize_withNoElements_shouldReturnEmptyPayloadSize() {
         // -- Arrange --
         let sut = InMemoryBatchBuffer<TestElement>()
 
         // -- Act --
-        let size = sut.itemsDataSize
+        let size = sut.batchedData.count
 
         // -- Assert --
-        XCTAssertEqual(size, 0)
+        // batchedDataSize returns the size of the empty JSON payload: {"items":[]} = 12 bytes
+        XCTAssertEqual(size, 12)
     }
 
-    func testSize_withSingleElement_shouldReturnEncodedElementSize() throws {
+    func testBatchedDataSize_withSingleElement_shouldReturnEncodedElementSize() throws {
         // -- Arrange --
         var sut = InMemoryBatchBuffer<TestElement>()
         let element = TestElement(id: 1)
-        let expectedSize = try JSONEncoder().encode(element).count
+        let encodedSize = try JSONEncoder().encode(element).count
 
         // -- Act --
         try sut.append(element)
 
         // -- Assert --
-        XCTAssertEqual(sut.itemsDataSize, expectedSize)
+        // batchedDataSize includes the complete JSON structure: {"items":[item]}
+        // Prefix (10 bytes) + encoded item + suffix (2 bytes)
+        let expectedSize = 10 + encodedSize + 2
+        XCTAssertEqual(sut.batchedData.count, expectedSize)
     }
 
-    func testSize_withMultipleElements_shouldReturnSumOfEncodedSizes() throws {
+    func testBatchedDataSize_withMultipleElements_shouldReturnSumOfEncodedSizes() throws {
         // -- Arrange --
         var sut = InMemoryBatchBuffer<TestElement>()
         let element1 = TestElement(id: 1)
         let element2 = TestElement(id: 2)
         let element3 = TestElement(id: 3)
         let encoder = JSONEncoder()
-        let expectedSize1 = try encoder.encode(element1).count
-        let expectedSize2 = try encoder.encode(element2).count
-        let expectedSize3 = try encoder.encode(element3).count
-        let expectedTotalSize = expectedSize1 + expectedSize2 + expectedSize3
+        let encodedSize1 = try encoder.encode(element1).count
+        let encodedSize2 = try encoder.encode(element2).count
+        let encodedSize3 = try encoder.encode(element3).count
 
         // -- Act --
         try sut.append(element1)
@@ -319,58 +329,66 @@ final class InMemoryBatchBufferTests: XCTestCase {
         try sut.append(element3)
 
         // -- Assert --
-        XCTAssertEqual(sut.itemsDataSize, expectedTotalSize)
+        // batchedDataSize includes the complete JSON structure: {"items":[item1,item2,item3]}
+        // Prefix (10) + item1 + comma (1) + item2 + comma (1) + item3 + suffix (2)
+        let expectedTotalSize = 10 + encodedSize1 + 1 + encodedSize2 + 1 + encodedSize3 + 2
+        XCTAssertEqual(sut.batchedData.count, expectedTotalSize)
     }
 
-    func testSize_afterFlush_shouldReturnZero() throws {
+    func testBatchedDataSize_afterFlush_shouldReturnDefault() throws {
         // -- Arrange --
         var sut = InMemoryBatchBuffer<TestElement>()
         try sut.append(TestElement(id: 1))
         try sut.append(TestElement(id: 2))
 
         // Assert pre-condition
-        XCTAssertGreaterThan(sut.itemsDataSize, 0)
+        XCTAssertGreaterThan(sut.batchedData.count, 12)
 
         // -- Act --
         sut.clear()
 
         // -- Assert --
-        XCTAssertEqual(sut.itemsDataSize, 0)
+        XCTAssertEqual(sut.batchedData.count, 12)
     }
 
-    func testSize_shouldUpdateAfterEachAppend() throws {
+    func testBatchedDataSize_shouldUpdateAfterEachAppend() throws {
         // -- Arrange --
         var sut = InMemoryBatchBuffer<TestElement>()
         let element1 = TestElement(id: 1)
         let element2 = TestElement(id: 2)
         let encoder = JSONEncoder()
-        let size1 = try encoder.encode(element1).count
-        let size2 = try encoder.encode(element2).count
+        let encodedSize1 = try encoder.encode(element1).count
+        let encodedSize2 = try encoder.encode(element2).count
 
         // -- Act & Assert --
-        XCTAssertEqual(sut.itemsDataSize, 0)
+        // Initial size is the empty payload: {"items":[]} = 12 bytes
+        XCTAssertEqual(sut.batchedData.count, 12)
 
         try sut.append(element1)
-        XCTAssertEqual(sut.itemsDataSize, size1)
+        // After first item: {"items":[item1]} = prefix (10) + item1 + suffix (2)
+        let expectedSize1 = 10 + encodedSize1 + 2
+        XCTAssertEqual(sut.batchedData.count, expectedSize1)
 
         try sut.append(element2)
-        XCTAssertEqual(sut.itemsDataSize, size1 + size2)
+        // After second item: {"items":[item1,item2]} = prefix (10) + item1 + comma (1) + item2 + suffix (2)
+        let expectedSize2 = 10 + encodedSize1 + 1 + encodedSize2 + 2
+        XCTAssertEqual(sut.batchedData.count, expectedSize2)
     }
 
     // MARK: - Integration Tests
 
-    func testAppendFlushAppend_shouldWorkCorrectly() throws {
+    func testAppendClearAppend_shouldWorkCorrectly() throws {
         // -- Arrange --
         var sut = InMemoryBatchBuffer<TestElement>()
 
         // -- Act & Assert --
         try sut.append(TestElement(id: 1))
         XCTAssertEqual(sut.itemsCount, 1)
-        XCTAssertGreaterThan(sut.itemsDataSize, 0)
+        XCTAssertGreaterThan(sut.batchedData.count, 0)
 
         sut.clear()
         XCTAssertEqual(sut.itemsCount, 0)
-        XCTAssertEqual(sut.itemsDataSize, 0)
+        XCTAssertEqual(sut.batchedData.count, 12) // Empty payload size
 
         try sut.append(TestElement(id: 2))
         try sut.append(TestElement(id: 3))
@@ -395,7 +413,7 @@ final class InMemoryBatchBufferTests: XCTestCase {
 
         // -- Assert --
         XCTAssertEqual(sut.itemsCount, 0)
-        XCTAssertEqual(sut.itemsDataSize, 0)
+        XCTAssertEqual(sut.batchedData.count, 12) // Empty payload size
         let decoded = try decodePayload(data: sut.batchedData)
         XCTAssertEqual(decoded.items, [])
     }

@@ -61,7 +61,7 @@ private class MockBuffer: BatchBuffer {
         appendedItems.count
     }
 
-    var itemsDataSize: Int {
+    var batchedDataSize: Int {
         mockSize
     }
 

@@ -1,3 +1,8 @@
+/// Errors that can occur when using `BatchBuffers`.
+enum BatchBufferError: Error {
+    case bufferFull
+}
+
 protocol BatchBuffer<Item> {
     associatedtype Item
 
@@ -11,9 +16,6 @@ protocol BatchBuffer<Item> {
 
     /// Number of elements in the storage
     var itemsCount: Int { get }
-
-    /// Sum of the size of encoded items in the storage
-    var itemsDataSize: Int { get }
 
     /// Returns the data collected in this storage in batched format
     var batchedData: Data { get }
