@@ -6,6 +6,7 @@
 
 - Add integration to collect Metrics, can be enabled by setting `options.enableMetrics = true` (#6956)
 - Add implementation for Metrics Protocol (#6960)
+- Add `Sentry.metrics.count(..)`, `Sentry.metrics.distribution(..)` and `Sentry.metrics.gauge(..)` to public API (#6957)
 
 ### Fixes
 
@@ -25,8 +26,6 @@
 
 - Add attributes data to `SentryScope` (#6830)
 - Add `SentryScope` attributes into log messages (#6834)
-- Add integration to collect Metrics, can be enabled by setting `options.enableMetrics = true` (#6956)
-- Add `Sentry.metrics.count(..)`, `Sentry.metrics.distribution(..)` and `Sentry.metrics.gauge(..)` to public API (#6957)
 
 ### Improvements
 
