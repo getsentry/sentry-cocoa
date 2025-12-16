@@ -1599,7 +1599,7 @@ This bug caused unhandled/crash events to have the unhandled property and mach i
 
 - Stop FramesTracker when app is in background (#3979)
 - Speed up adding breadcrumbs (#4029, #4034)
-- Skip evaluating log messages when not logged (#4028)git
+- Skip evaluating log messages when not logged (#4028)
 
 ### Fixes
 
