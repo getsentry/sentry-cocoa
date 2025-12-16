@@ -46,6 +46,12 @@ NS_SWIFT_NAME(Scope)
  */
 @property (nonatomic, readonly, copy) NSDictionary<NSString *, id> *attributes;
 
+/**
+ * Indicates if default PII should be sent with events.
+ * This is set from ``SentryOptions.sendDefaultPii`` during SDK initialization.
+ */
+@property (nonatomic) BOOL sendDefaultPii;
+
 - (instancetype)initWithMaxBreadcrumbs:(NSInteger)maxBreadcrumbs NS_DESIGNATED_INITIALIZER;
 - (instancetype)init;
 - (instancetype)initWithScope:(SentryScope *)scope;
