@@ -3,9 +3,9 @@ CFLAGS = -Wall -Wextra -std=c11 -g
 TARGET = buffer_test
 SIGNAL_TEST = signal_test
 BUFFER_SIGNAL_TEST = buffer_signal_test
-SOURCES = sentry_buffer.c main.c
+SOURCES = sentry_batch_buffer.c main.c
 SIGNAL_SOURCES = sentry_signal_handler.c test_signal_handler.c
-BUFFER_SIGNAL_SOURCES = sentry_buffer.c sentry_signal_handler.c test_buffer_with_signals.c
+BUFFER_SIGNAL_SOURCES = sentry_batch_buffer.c sentry_signal_handler.c test_buffer_with_signals.c
 BUFFER_SIGNAL_OBJECTS = $(BUFFER_SIGNAL_SOURCES:.c=.o)
 SIGNAL_OBJECTS = $(SIGNAL_SOURCES:.c=.o)
 OBJECTS = $(SOURCES:.c=.o)
