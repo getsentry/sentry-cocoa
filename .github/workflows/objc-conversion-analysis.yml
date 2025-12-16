@@ -71,7 +71,7 @@ jobs:
           dot -Tsvg objc_dependencies_topo.dot -o objc_dependencies_topo.svg
 
       - name: Upload analysis artifacts
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: objc-conversion-analysis
           path: |
