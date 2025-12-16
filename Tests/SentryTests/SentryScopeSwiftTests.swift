@@ -157,6 +157,30 @@ class SentryScopeSwiftTests: XCTestCase {
         XCTAssertEqual(try XCTUnwrap(scope.serialize() as? [String: AnyHashable]), snapshot)
         XCTAssertNotEqual(try XCTUnwrap(scope.serialize() as? [String: AnyHashable]), try XCTUnwrap(cloned.serialize() as? [String: AnyHashable]))
     }
+
+    func testInitWithScope_whenSendDefaultPiiIsSet_shouldCopySendDefaultPii() {
+        // -- Arrange --
+        let scope = fixture.scope
+        scope.sendDefaultPii = true
+
+        // -- Act --
+        let cloned = Scope(scope: scope)
+
+        // -- Assert --
+        XCTAssertTrue(cloned.sendDefaultPii, "Cloned scope should have sendDefaultPii set to true when original scope has it set to true")
+    }
+
+    func testInitWithScope_whenSendDefaultPiiIsFalse_shouldCopySendDefaultPii() {
+        // -- Arrange --
+        let scope = fixture.scope
+        scope.sendDefaultPii = false
+
+        // -- Act --
+        let cloned = Scope(scope: scope)
+
+        // -- Assert --
+        XCTAssertFalse(cloned.sendDefaultPii, "Cloned scope should have sendDefaultPii set to false when original scope has it set to false")
+    }
     
     func testApplyToEvent() {
         let actual = fixture.scope.applyTo(event: fixture.event, maxBreadcrumbs: 10)

@@ -123,7 +123,7 @@ jobs:
         shell: bash
 
       - name: Upload xcarchive
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: xcframework-${{inputs.variant-id}}-slice-${{matrix.sdk}}
           if-no-files-found: error
@@ -131,7 +131,7 @@ jobs:
             ${{inputs.name}}${{inputs.suffix}}.xcarchive.zip
 
       - name: Upload build log if failed
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         if: ${{ failure() || cancelled() }}
         with:
           name: raw-build-output-build-xcframework-${{inputs.variant-id}}-${{matrix.sdk}}

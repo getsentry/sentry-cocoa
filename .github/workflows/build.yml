@@ -147,7 +147,7 @@ jobs:
           | xcbeautify --preserve-unbeautified
 
       - name: Archiving Raw Build Logs
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         if: ${{ failure() || cancelled() }}
         with:
           name: raw-build-output-scheme-${{matrix.scheme}}
@@ -174,7 +174,7 @@ jobs:
       - run: set -o pipefail && NSUnbufferedIO=YES xcodebuild build -scheme SentryDistribution -sdk iphoneos -destination 'generic/platform=iphoneos' | tee raw-build-output-spm.log | xcbeautify
         shell: sh
       - name: Upload SPM Build Logs
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         if: ${{ failure() || cancelled() }}
         with:
           name: raw-build-output-spm
@@ -199,7 +199,7 @@ jobs:
         shell: sh
 
       - name: Upload SPM Build Logs
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         if: ${{ failure() || cancelled() }}
         with:
           name: raw-build-output-spm
@@ -227,7 +227,7 @@ jobs:
             --device "iPhone 16 Pro"  \
             --configuration Debug
       - name: Archiving Raw Build Logs
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         if: ${{ failure() || cancelled() }}
         with:
           name: raw-build-output-v9

@@ -7,6 +7,7 @@ protocol BatcherScope {
     var userObject: User? { get }
     func getContextForKey(_ key: String) -> [String: Any]?
     var attributes: [String: Any] { get }
+    var sendDefaultPii: Bool { get }
 
     func applyToItem<Item: BatcherItem, Config: BatcherConfig<Item>, Metadata: BatcherMetadata>(
         _ item: inout Item,
@@ -41,7 +42,6 @@ extension BatcherScope {
         }
         if let span = self.span {
             attributes["span_id"] = .init(string: span.spanId.sentrySpanIdString)
-            attributes["sentry.trace.parent_span_id"] = .init(string: span.spanId.sentrySpanIdString)
         }
     }
 
@@ -73,6 +73,9 @@ extension BatcherScope {
     }
 
     private func addUserAttributes(to attributes: inout [String: SentryAttribute], config: any BatcherConfig) {
+        guard self.sendDefaultPii else {
+            return
+        }
         if let userId = userObject?.userId {
             attributes["user.id"] = .init(string: userId)
         }

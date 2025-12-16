@@ -336,7 +336,6 @@ final class MetricBatcherTests: XCTestCase {
         XCTAssertEqual(attributes["sentry.sdk.version"]?.value as? String, SentryMeta.versionString)
         XCTAssertEqual(attributes["sentry.environment"]?.value as? String, "test-environment")
         XCTAssertEqual(attributes["sentry.release"]?.value as? String, "1.0.0")
-        XCTAssertEqual(attributes["sentry.trace.parent_span_id"]?.value as? String, span.spanId.sentrySpanIdString)
     }
     
     func testAddMetric_whenNilDefaultAttributes_shouldNotAddNilAttributes() throws {
@@ -409,7 +408,6 @@ final class MetricBatcherTests: XCTestCase {
         let capturedMetric = try XCTUnwrap(capturedMetrics.first)
         let attributes = capturedMetric.attributes
         XCTAssertEqual(attributes["span_id"]?.value as? String, span.spanId.sentrySpanIdString)
-        XCTAssertEqual(attributes["sentry.trace.parent_span_id"]?.value as? String, span.spanId.sentrySpanIdString)
     }
     
     func testAddMetric_whenNoActiveSpan_shouldNotSetSpanId() throws {
@@ -431,7 +429,8 @@ final class MetricBatcherTests: XCTestCase {
     
     func testAddMetric_whenUserAttributesExist_shouldAddUserAttributes() throws {
         // -- Arrange --
-        options.sendDefaultPii = true
+        scope.sendDefaultPii = true
+
         let user = User()
         user.userId = "123"
         user.email = "test@test.com"
@@ -456,7 +455,9 @@ final class MetricBatcherTests: XCTestCase {
     
     func testAddMetric_whenSendDefaultPiiFalse_shouldNotAddUserAttributes() throws {
         // -- Arrange --
-        options.sendDefaultPii = false
+        let installationId = SentryInstallation.id(withCacheDirectoryPath: options.cacheDirectoryPath)
+        scope.sendDefaultPii = false
+
         let user = User()
         user.userId = "123"
         user.email = "test@test.com"
@@ -474,7 +475,7 @@ final class MetricBatcherTests: XCTestCase {
         let capturedMetric = try XCTUnwrap(capturedMetrics.first)
         let attributes = capturedMetric.attributes
         
-        XCTAssertNil(attributes["user.id"])
+        XCTAssertEqual(attributes["user.id"]?.value as? String, installationId)
         XCTAssertNil(attributes["user.name"])
         XCTAssertNil(attributes["user.email"])
     }

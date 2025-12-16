@@ -56,6 +56,7 @@ NS_ASSUME_NONNULL_BEGIN
         _spanLock = [[NSObject alloc] init];
         self.observers = [NSMutableArray new];
         self.propagationContext = [[SentryPropagationContext alloc] init];
+        _sendDefaultPii = NO;
     }
     return self;
 }
@@ -87,6 +88,7 @@ NS_ASSUME_NONNULL_BEGIN
         self.levelEnum = scope.levelEnum;
         self.span = scope.span;
         self.replayId = scope.replayId;
+        self.sendDefaultPii = scope.sendDefaultPii;
     }
     return self;
 }
