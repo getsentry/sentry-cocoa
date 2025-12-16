@@ -7,7 +7,7 @@ final class SentryANRTrackerTests: XCTestCase {
         let helper = MockSentryANRTrackerHelper()
         let tracker = SentryANRTracker(helper: helper)
         var delegate: MockANRTrackerDelegate? = MockANRTrackerDelegate()
-        weak let delegateWeak: MockANRTrackerDelegate? = delegate
+        weak var delegateWeak: MockANRTrackerDelegate? = delegate
         tracker.add(listener: try XCTUnwrap(delegate))
         
         delegate = nil
