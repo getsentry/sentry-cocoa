@@ -270,7 +270,7 @@ jobs:
         uses: ruby/setup-ruby@d697be2f83c6234b20877c3b5eac7a7f342f0d0c # v1.269.0
         with:
           bundler-cache: true
-      - uses: actions/cache@v4
+      - uses: actions/cache@v5
         id: app-plain-cache
         with:
           path: Tests/Perf/test-app-plain.ipa
