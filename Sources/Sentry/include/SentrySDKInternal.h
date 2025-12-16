@@ -47,6 +47,11 @@ SENTRY_NO_INIT
  * API to control session replay
  */
 @property (class, nonatomic, readonly) SentryReplayApi *replay;
+
+/**
+ * API to control screenshot masking
+ */
+@property (class, nonatomic, readonly) NSObject *screenshot;
 #endif
 
 /**
