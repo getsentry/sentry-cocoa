@@ -5,6 +5,7 @@
 ### Features
 
 - Add integration to collect Metrics, can be enabled by setting `options.enableMetrics = true` (#6956)
+
 ### Fixes
 
 - Use `sendDefaultPii` and `span_id` for attributes in `BatcherScope` (#7055)
