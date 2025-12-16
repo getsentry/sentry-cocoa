@@ -415,12 +415,6 @@ This changelog lists every breaking change. For a high-level overview and upgrad
   - Add layer class filtering for views used in multiple contexts (e.g., SwiftUI._UIGraphicsView)
   - Improve transform calculations for views with custom anchor points
   - Fix axis-aligned transform detection for optimized opaque view clipping
-- Fix issue where a too-large breadcrumb would prevent future errors and messages from being uploaded (#6618)
-
-### Improvements
-
-- Replace deprecated SCNetworkReachability with NWPathMonitor (#6019)
-- Increase attachment max size to 100MB (#6537)
 - Fix conversion of frame rate to time interval for session replay (#6623)
 - Change Session Replay masking to prevent semi‑transparent full‑screen overlays from clearing redactions by making opaque clipping stricter (#6629)
   Views now need to be fully opaque (view and layer backgrounds with alpha == 1) and report opaque to qualify for clip‑out.
