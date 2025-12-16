@@ -403,13 +403,15 @@
 
             [weakSelf.rateLimits update:SENTRY_UNWRAP_NULLABLE(NSHTTPURLResponse, response)];
 
-            BOOL is4xxOr5xx = (response.statusCode >= 400 && response.statusCode < 600);
+            SENTRY_LOG_DEBUG(@"Received response status code: %li", (long)response.statusCode);
 
             // Relay already records a client report for a 429, so we must not record it again
             // to avoid double-counting.
-            if ((error != nil || is4xxOr5xx) && response.statusCode != 429) {
-                SENTRY_LOG_DEBUG(@"Received response status code: %li", (long)response.statusCode);
+            BOOL isNotRateLimitStatusCode = response.statusCode != 429;
 
+            BOOL is4xxOr5xx = (response.statusCode >= 400 && response.statusCode < 600);
+
+            if ((error != nil || is4xxOr5xx) && isNotRateLimitStatusCode) {
                 [weakSelf recordLostEventFor:envelope.items];
             }
 
