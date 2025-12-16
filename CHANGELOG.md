@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Use `sendDefaultPii` and `span_id` for attributes in `BatcherScope` (#7055)
+
 ## 9.1.0
 
 > [!Warning]
