@@ -837,14 +837,14 @@ class SentryHttpTransportTests: XCTestCase {
         XCTAssertNotNil(dict)
         XCTAssertEqual(1, dict?.count)
         
-        let attachment = dict?["attachment:network_error"]
+        let attachment = dict?["attachment:send_error"]
         XCTAssertEqual(1, attachment?.quantity)
         
         assertEnvelopesStored(envelopeCount: 0)
         assertRequestsSent(requestCount: 1)
     }
     
-    func testBuildingRequestFails_RecordsLostSpans() {
+    func testBuildingRequestFails_RecordsLostSpans() throws {
         sendTransaction()
         
         fixture.requestBuilder.shouldFailWithError = true
@@ -854,20 +854,20 @@ class SentryHttpTransportTests: XCTestCase {
         XCTAssertNotNil(dict)
         XCTAssertEqual(3, dict?.count)
         
-        let transaction = dict?["transaction:network_error"]
-        XCTAssertEqual(1, transaction?.quantity)
+        let transaction = try XCTUnwrap(dict?["transaction:send_error"])
+        XCTAssertEqual(1, transaction.quantity)
         
-        let span = dict?["span:network_error"]
-        XCTAssertEqual(4, span?.quantity)
+        let span = try XCTUnwrap(dict?["span:send_error"])
+        XCTAssertEqual(4, span.quantity)
         
-        let attachment = dict?["attachment:network_error"]
-        XCTAssertEqual(1, attachment?.quantity)
+        let attachment = try XCTUnwrap(dict?["attachment:send_error"])
+        XCTAssertEqual(1, attachment.quantity)
         
         assertEnvelopesStored(envelopeCount: 0)
         assertRequestsSent(requestCount: 1)
     }
     
-    func testBuildingRequestFails_ClientReportNotRecordedAsLostEvent() {
+    func testBuildingRequestFails_ClientReportNotRecordedAsLostEvent() throws {
         fixture.requestBuilder.shouldFailWithError = true
         sendEvent()
         sendEvent()
@@ -876,10 +876,10 @@ class SentryHttpTransportTests: XCTestCase {
         XCTAssertNotNil(dict)
         XCTAssertEqual(2, dict?.count)
         
-        let event = dict?["error:network_error"]
-        let attachment = dict?["attachment:network_error"]
-        XCTAssertEqual(1, event?.quantity)
-        XCTAssertEqual(1, attachment?.quantity)
+        let event = try XCTUnwrap(dict?["error:send_error"])
+        let attachment = try XCTUnwrap(dict?["attachment:send_error"])
+        XCTAssertEqual(1, event.quantity)
+        XCTAssertEqual(1, attachment.quantity)
         
         assertEnvelopesStored(envelopeCount: 0)
         assertRequestsSent(requestCount: 0)
