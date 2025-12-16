@@ -343,7 +343,7 @@ class SentryHttpTransportTests: XCTestCase {
         assertEnvelopesStored(envelopeCount: 0)
     }
 
-    func testSendEventWithRetryAfterResponse() {
+    func testSendEventWithRetryAfterResponse() throws {
         fixture.requestManager.nextError = NSError(domain: "something", code: 12)
         
         let response = givenRetryAfterResponse()
@@ -351,10 +351,10 @@ class SentryHttpTransportTests: XCTestCase {
         sendEvent()
 
         assertRateLimitUpdated(response: response)
-        assertClientReportNotStoredInMemory()
+        try assertClientReportNotStoredInMemory()
     }
 
-    func testSendEventWithRateLimitResponse() {
+    func testSendEventWithRateLimitResponse() throws {
         fixture.requestManager.nextError = NSError(domain: "something", code: 12)
 
         let response = givenRateLimitResponse(forCategory: SentryEnvelopeItemTypes.session)
@@ -362,10 +362,19 @@ class SentryHttpTransportTests: XCTestCase {
         sendEvent()
 
         assertRateLimitUpdated(response: response)
-        assertClientReportStoredInMemory()
+        try assertClientReportStoredInMemory()
     }
-    
-    func testSendEventWithMetricBucketRateLimitResponse() {
+
+    func testSendEventWithRateLimitResponse_WithoutError() throws {
+        let response = givenRateLimitResponse(forCategory: SentryEnvelopeItemTypes.session)
+
+        sendEvent()
+
+        assertRateLimitUpdated(response: response)
+        try assertClientReportNotStoredInMemory()
+    }
+
+    func testSendEventWithMetricBucketRateLimitResponse() throws {
         fixture.requestManager.nextError = NSError(domain: "something", code: 12)
 
         let response = givenRateLimitResponse(forCategory: SentryEnvelopeItemTypes.session)
@@ -373,7 +382,7 @@ class SentryHttpTransportTests: XCTestCase {
         sendEvent()
 
         assertRateLimitUpdated(response: response)
-        assertClientReportStoredInMemory()
+        try assertClientReportStoredInMemory()
     }
 
     func testSendEnvelopeWithRetryAfterResponse() {
@@ -693,23 +702,106 @@ class SentryHttpTransportTests: XCTestCase {
         // Assert
         assertEnvelopesStored(envelopeCount: 1)
         assertRequestsSent(requestCount: 1)
+        try assertClientReportNotStoredInMemory()
     }
     
-    func testSendEnvelope_HTTPResponse201_DoesNotDeleteEnvelopeAndStopsSending() throws {
+    func testSendEnvelope_HTTPResponse200_DeletesEnvelopeAndStopsSending() throws {
         // Arrange
         let sentryUrl = try XCTUnwrap(URL(string: "https://sentry.io"))
-        let response = HTTPURLResponse(url: sentryUrl, statusCode: 201, httpVersion: nil, headerFields: nil)
-        
+        let response = HTTPURLResponse(url: sentryUrl, statusCode: 200, httpVersion: nil, headerFields: nil)
+
         fixture.requestManager.returnResponse(response: response)
         
         // Act
         sendEvent()
         
         // Assert
+        assertEnvelopesStored(envelopeCount: 0)
+        assertRequestsSent(requestCount: 1)
+        try assertClientReportNotStoredInMemory()
+    }
+
+    func testSendEnvelope_HTTPResponse201_DeletesEnvelopeAndStopsSending() throws {
+        // Arrange
+        let sentryUrl = try XCTUnwrap(URL(string: "https://sentry.io"))
+        let response = HTTPURLResponse(url: sentryUrl, statusCode: 201, httpVersion: nil, headerFields: nil)
+
+        fixture.requestManager.returnResponse(response: response)
+
+        // Act
+        sendEvent()
+
+        // Assert
+        assertEnvelopesStored(envelopeCount: 0)
+        assertRequestsSent(requestCount: 1)
+        try assertClientReportNotStoredInMemory()
+    }
+
+    func testSendEnvelope_HTTPResponse300_DoesNotDeleteEnvelopeAndStopsSending() throws {
+        // Arrange
+        let sentryUrl = try XCTUnwrap(URL(string: "https://sentry.io"))
+        let response = HTTPURLResponse(url: sentryUrl, statusCode: 300, httpVersion: nil, headerFields: nil)
+
+        fixture.requestManager.returnResponse(response: response)
+
+        // Act
+        sendEvent()
+
+        // Assert
         assertEnvelopesStored(envelopeCount: 1)
         assertRequestsSent(requestCount: 1)
+        try assertClientReportNotStoredInMemory()
     }
-    
+
+    func testSendEnvelope_HTTPResponse400_DeletesEnvelopeRecordsClientReportAndStopsSending() throws {
+        // Arrange
+        let sentryUrl = try XCTUnwrap(URL(string: "https://sentry.io"))
+        let response = HTTPURLResponse(url: sentryUrl, statusCode: 400, httpVersion: nil, headerFields: nil)
+
+        fixture.requestManager.returnResponse(response: response)
+
+        // Act
+        sendEvent()
+
+        // Assert
+        assertEnvelopesStored(envelopeCount: 0)
+        assertRequestsSent(requestCount: 1)
+        try assertClientReportStoredInMemory()
+    }
+
+    func testSendEnvelope_HTTPResponse429_DeletesEnvelopeRecordsClientReportAndStopsSending() throws {
+        // Arrange
+        let sentryUrl = try XCTUnwrap(URL(string: "https://sentry.io"))
+        let response = HTTPURLResponse(url: sentryUrl, statusCode: 429, httpVersion: nil, headerFields: nil)
+
+        fixture.requestManager.returnResponse(response: response)
+
+        // Act
+        sendEvent()
+
+        // Assert
+        assertEnvelopesStored(envelopeCount: 0)
+        assertRequestsSent(requestCount: 1)
+        try assertClientReportNotStoredInMemory()
+    }
+
+    /// We are very well aware that 599 doesn't exist, but we only use it for testing purposes
+    func testSendEnvelope_HTTPResponse599_DeletesEnvelopeRecordsClientReportAndStopsSending() throws {
+        // Arrange
+        let sentryUrl = try XCTUnwrap(URL(string: "https://sentry.io"))
+        let response = HTTPURLResponse(url: sentryUrl, statusCode: 599, httpVersion: nil, headerFields: nil)
+
+        fixture.requestManager.returnResponse(response: response)
+
+        // Act
+        sendEvent()
+
+        // Assert
+        assertEnvelopesStored(envelopeCount: 0)
+        assertRequestsSent(requestCount: 1)
+        try assertClientReportStoredInMemory()
+    }
+
     func testDeallocated_CachedEnvelopesNotAllSent() throws {
         givenNoInternetConnection()
         givenCachedEvents(amount: 10)
@@ -793,20 +885,20 @@ class SentryHttpTransportTests: XCTestCase {
         assertRequestsSent(requestCount: 0)
     }
     
-    func testRequestManagerReturnsError_RecordsLostEvent() {
+    func testRequestManagerReturnsError_RecordsLostEvent() throws {
         givenErrorResponse()
         
         sendEvent()
         
-        assertClientReportStoredInMemory()
+        try assertClientReportStoredInMemory()
     }
     
-    func testRequestManagerReturnsError_ClientReportNotRecordedAsLostEvent() {
+    func testRequestManagerReturnsError_ClientReportNotRecordedAsLostEvent() throws {
         givenErrorResponse()
         sendEvent()
         sendEvent()
         
-        assertClientReportStoredInMemory()
+        try assertClientReportStoredInMemory()
     }
     
     func testSendClientReportsDisabled_DoesNotRecordLostEvents() throws {
@@ -816,7 +908,7 @@ class SentryHttpTransportTests: XCTestCase {
         
         sendEvent()
         
-        assertClientReportNotStoredInMemory()
+        try assertClientReportNotStoredInMemory()
     }
     
     func testSendClientReportsDisabled_DoesSendClientReport() throws {
@@ -1025,20 +1117,19 @@ class SentryHttpTransportTests: XCTestCase {
         XCTAssertEqual(envelopeCount, fixture.fileManager.getAllEnvelopes().count)
     }
     
-    private func assertClientReportStoredInMemory() {
-        let dict = Dynamic(sut).discardedEvents.asDictionary as? [String: SentryDiscardedEvent]
-        XCTAssertNotNil(dict)
-        XCTAssertEqual(2, dict?.count)
-        let event = dict?["error:network_error"]
-        let attachment = dict?["attachment:network_error"]
-        XCTAssertEqual(1, event?.quantity)
-        XCTAssertEqual(1, attachment?.quantity)
+    private func assertClientReportStoredInMemory() throws {
+        let dict = try XCTUnwrap(Dynamic(sut).discardedEvents.asDictionary as? [String: SentryDiscardedEvent])
+        XCTAssertEqual(2, dict.count)
+        
+        let event = try XCTUnwrap(dict["error:network_error"])
+        let attachment = try XCTUnwrap(dict["attachment:network_error"])
+        XCTAssertEqual(1, event.quantity)
+        XCTAssertEqual(1, attachment.quantity)
     }
     
-    private func assertClientReportNotStoredInMemory() {
-        let dict = Dynamic(sut).discardedEvents.asDictionary as? [String: SentryDiscardedEvent]
-        XCTAssertNotNil(dict)
-        XCTAssertEqual(0, dict?.count)
+    private func assertClientReportNotStoredInMemory() throws {
+        let dict = try XCTUnwrap(Dynamic(sut).discardedEvents.asDictionary as? [String: SentryDiscardedEvent])
+        XCTAssertEqual(0, dict.count)
     }
 }
 // swiftlint:enable file_length

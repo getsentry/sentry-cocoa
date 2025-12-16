@@ -395,11 +395,6 @@
                 return;
             }
 
-            if (error && response.statusCode != 429) {
-                SENTRY_LOG_DEBUG(@"Request error other than rate limit: %@", error);
-                [weakSelf recordLostEventFor:envelope.items];
-            }
-
             if (response == nil) {
                 SENTRY_LOG_DEBUG(@"No internet connection.");
                 [weakSelf finishedSending];
@@ -408,21 +403,24 @@
 
             [weakSelf.rateLimits update:SENTRY_UNWRAP_NULLABLE(NSHTTPURLResponse, response)];
 
-            if (response.statusCode == 200) {
-                SENTRY_LOG_DEBUG(@"Envelope sent successfully!");
-                [weakSelf deleteEnvelopeAndSendNext:envelopePath];
-                return;
+            BOOL is4xxOr5xx = (response.statusCode >= 400 && response.statusCode < 600);
+
+            // Relay already records a client report for a 429, so we must not record it again
+            // to avoid double-counting.
+            if ((error != nil || is4xxOr5xx) && response.statusCode != 429) {
+                SENTRY_LOG_DEBUG(@"Received response status code: %li", (long)response.statusCode);
+
+                [weakSelf recordLostEventFor:envelope.items];
             }
 
-            if (response.statusCode >= 400 && response.statusCode < 500 && response.statusCode != 429) {
-                SENTRY_LOG_DEBUG(@"Received 4xx response code: %li", (long)response.statusCode);
-                // 4xx means the payload is bad and will not succeed on retry. Drop it on the floor and enable sending the next one.
-                [weakSelf deleteEnvelopeAndSendNext:envelopePath];
-                return;
-            }
+            // We must delete the envelope on all 2xx, 4xx and 5xx responses.
+            BOOL is2xx = (response.statusCode >= 200 && response.statusCode < 300);
 
-            SENTRY_LOG_DEBUG(@"Received non-200 response code: %li", (long)response.statusCode);
-            [weakSelf finishedSending];
+            if (is2xx || is4xxOr5xx) {
+                [weakSelf deleteEnvelopeAndSendNext:envelopePath];
+            } else {
+                [weakSelf finishedSending];
+            }
         }];
 }
 
