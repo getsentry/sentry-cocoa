@@ -63,7 +63,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         fixture = Fixture()
 
         SentrySDKInternal.setCurrentHub(fixture.hub)
-        SentrySDKInternal.setStart(with: fixture.options)
+        SentrySDK.setStart(with: fixture.options)
         SentryDependencyContainer.sharedInstance().dateProvider = fixture.dateProvider
     }
 
@@ -960,7 +960,6 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertEqual(task.currentRequest?.allHTTPHeaderFields?["traceparent"] ?? "", "test")
     }
 
-    @available(*, deprecated)
     func testDefaultHeadersWhenDisabled() throws {
         let sut = fixture.getSut()
         sut.disable()
@@ -976,7 +975,6 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertEqual(task.currentRequest?.allHTTPHeaderFields?["sentry-trace"] ?? "", expectedTraceHeader)
     }
 
-    @available(*, deprecated)
     func testDefaultHeadersWhenNoTransaction() {
         let sut = fixture.getSut()
         let task = createDataTask()
@@ -1015,11 +1013,9 @@ class SentryNetworkTrackerTests: XCTestCase {
 
         sut.urlSessionTask(task, setState: .completed)
 
-        guard let envelope = self.fixture.hub.capturedEventsWithScopes.first else {
-            XCTFail("Expected to capture 1 event")
-            return
-        }
-        let sentryRequest = try XCTUnwrap(envelope.event.request)
+        XCTAssertEqual(self.fixture.hub.capturedErrorEvents.count, 1, "Expected only one error event to be captured")
+        let capturedErrorEvent = try XCTUnwrap(self.fixture.hub.capturedErrorEvents.first)
+        let sentryRequest = try XCTUnwrap(capturedErrorEvent.request)
 
         XCTAssertEqual(sentryRequest.url, "https://www.domain.com/api")
         XCTAssertEqual(sentryRequest.method, "GET")
@@ -1052,13 +1048,11 @@ class SentryNetworkTrackerTests: XCTestCase {
 
         sut.urlSessionTask(task, setState: .completed)
         
-        let envelope = try XCTUnwrap(
-            fixture.hub.capturedEventsWithScopes.first,
-            "Expected to capture 1 event"
-        )
-        
+        XCTAssertEqual(self.fixture.hub.capturedErrorEvents.count, 1, "Expected only one error event to be captured")
+        let capturedErrorEvent = try XCTUnwrap(fixture.hub.capturedErrorEvents.first)
+
         let graphQLContext = try XCTUnwrap(
-            envelope.event.context?["graphql"],
+            capturedErrorEvent.context?["graphql"],
             "Expected 'graphql' object in context"
         )
         
@@ -1082,11 +1076,10 @@ class SentryNetworkTrackerTests: XCTestCase {
         task.setResponse(try createResponse(code: 500))
         sut.urlSessionTask(task, setState: .completed)
 
-        guard let envelope = self.fixture.hub.capturedEventsWithScopes.first else {
-            XCTFail("Expected to capture 1 event")
-            return
-        }
-        let sentryRequest = try XCTUnwrap(envelope.event.request)
+        XCTAssertEqual(self.fixture.hub.capturedErrorEvents.count, 1, "Expected only one error event to be captured")
+        let capturedErrorEvent = try XCTUnwrap(self.fixture.hub.capturedErrorEvents.first)
+
+        let sentryRequest = try XCTUnwrap(capturedErrorEvent.request)
 
         XCTAssertEqual(sentryRequest.url, "https://[Filtered]:[Filtered]@www.domain.com/api")
         XCTAssertEqual(sentryRequest.headers, ["VALID_HEADER": "value"])
@@ -1106,11 +1099,11 @@ class SentryNetworkTrackerTests: XCTestCase {
 
         sut.urlSessionTask(task, setState: .completed)
 
-        guard let envelope = self.fixture.hub.capturedEventsWithScopes.first else {
-            XCTFail("Expected to capture 1 event")
-            return
-        }
-        let sentryResponse = try XCTUnwrap(envelope.event.context?["response"])
+        XCTAssertEqual(self.fixture.hub.capturedErrorEvents.count, 1, "Expected only one error event to be captured")
+
+        let capturedErrorEvent = try XCTUnwrap(self.fixture.hub.capturedErrorEvents.first)
+
+        let sentryResponse = try XCTUnwrap(capturedErrorEvent.context?["response"])
 
         XCTAssertEqual(sentryResponse["status_code"] as? NSNumber, 500)
         XCTAssertEqual(sentryResponse["headers"] as? [String: String], ["test": "test"])
@@ -1131,11 +1124,10 @@ class SentryNetworkTrackerTests: XCTestCase {
         task.setResponse(response)
         sut.urlSessionTask(task, setState: .completed)
 
-        guard let envelope = self.fixture.hub.capturedEventsWithScopes.first else {
-            XCTFail("Expected to capture 1 event")
-            return
-        }
-        let sentryResponse = try XCTUnwrap(envelope.event.context?["response"])
+        XCTAssertEqual(self.fixture.hub.capturedErrorEvents.count, 1, "Expected only one error event to be captured")
+        let capturedErrorEvent = try XCTUnwrap(self.fixture.hub.capturedErrorEvents.first)
+
+        let sentryResponse = try XCTUnwrap(capturedErrorEvent.context?["response"])
 
         XCTAssertEqual(sentryResponse["headers"] as? [String: String], ["VALID_HEADER": "value"])
     }
@@ -1147,9 +1139,10 @@ class SentryNetworkTrackerTests: XCTestCase {
 
         sut.urlSessionTask(task, setState: .completed)
 
-        let envelope = try XCTUnwrap(self.fixture.hub.capturedEventsWithScopes.first)
-        
-        let exceptions = try XCTUnwrap(envelope.event.exceptions)
+        XCTAssertEqual(self.fixture.hub.capturedErrorEvents.count, 1, "Expected only one error event to be captured")
+        let capturedErrorEvent = try XCTUnwrap(self.fixture.hub.capturedErrorEvents.first)
+
+        let exceptions = try XCTUnwrap(capturedErrorEvent.exceptions)
         XCTAssertEqual(exceptions.count, 1)
         let exception = try XCTUnwrap(exceptions.first)
 
@@ -1219,10 +1212,10 @@ class SentryNetworkTrackerTests: XCTestCase {
 
         sut.urlSessionTask(task, setState: state)
 
-        let httpStatusCode = span.data["http.response.status_code"] as? String
+        let httpStatusCode = span.data["http.response.status_code"] as? NSNumber
 
         if let httpResponse = response as? HTTPURLResponse {
-            XCTAssertEqual("\(httpResponse.statusCode)", httpStatusCode)
+            XCTAssertEqual(NSNumber(value: httpResponse.statusCode), httpStatusCode)
         } else {
             XCTAssertNil(httpStatusCode)
         }

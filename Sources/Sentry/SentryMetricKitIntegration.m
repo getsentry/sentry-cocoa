@@ -3,7 +3,6 @@
 #if SENTRY_HAS_METRIC_KIT
 
 #    import "SentryInternalDefines.h"
-#    import "SentryOptions.h"
 #    import "SentryScope.h"
 #    import "SentrySwift.h"
 #    import <Foundation/Foundation.h>
@@ -44,6 +43,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
+API_AVAILABLE(macos(12.0))
 @interface SentryMetricKitIntegration () <SentryMXManagerDelegate>
 
 @property (nonatomic, strong, nullable) SentryMXManager *metricKitManager;
@@ -53,6 +53,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
+API_AVAILABLE(macos(12.0))
 @implementation SentryMetricKitIntegration
 
 - (BOOL)installWithOptions:(SentryOptions *)options
@@ -67,8 +68,7 @@ NS_ASSUME_NONNULL_BEGIN
     self.measurementFormatter = [[NSMeasurementFormatter alloc] init];
     self.measurementFormatter.locale = [[NSLocale alloc] initWithLocaleIdentifier:@"en_US"];
     self.measurementFormatter.unitOptions = NSMeasurementFormatterUnitOptionsProvidedUnit;
-    self.inAppLogic = [[SentryInAppLogic alloc] initWithInAppIncludes:options.inAppIncludes
-                                                        inAppExcludes:options.inAppExcludes];
+    self.inAppLogic = [[SentryInAppLogic alloc] initWithInAppIncludes:options.inAppIncludes];
     self.attachDiagnosticAsAttachment = options.enableMetricKitRawPayload;
 
     return YES;

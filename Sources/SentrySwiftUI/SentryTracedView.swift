@@ -4,7 +4,7 @@ import Foundation
 import Sentry
 import SwiftUI
 
-#if CARTHAGE || SWIFT_PACKAGE
+#if XCODE || SWIFT_PACKAGE
 @_implementationOnly import SentryInternal
 #endif
 
@@ -113,6 +113,7 @@ class SentryTraceViewModel {
 ///         //The part of your content you want to measure
 ///     }.sentryTrace("My Awesome Screen")
 ///
+@available(macOS 10.15, *)
 public struct SentryTracedView<Content: View>: View {
     @State private var viewModel: SentryTraceViewModel
     let content: () -> Content
@@ -169,6 +170,7 @@ public struct SentryTracedView<Content: View>: View {
     }
 }
 
+@available(macOS 10.15, *)
 public extension View {
 
 #if canImport(UIKit) && os(iOS) || os(tvOS)

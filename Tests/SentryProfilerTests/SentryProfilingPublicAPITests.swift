@@ -11,6 +11,7 @@ class SentryProfilingPublicAPITests: XCTestCase {
             let options = Options.noIntegrations()
             options.dsn = TestConstants.dsnAsString(username: "SentrySDKTests")
             options.releaseName = "1.0.0"
+            options.enableAutoSessionTracking = false
             return options
         }()
 
@@ -36,7 +37,7 @@ class SentryProfilingPublicAPITests: XCTestCase {
         let currentDate = TestCurrentDateProvider()
         lazy var timerFactory = TestSentryNSTimerFactory(currentDateProvider: currentDate)
         lazy var client = TestClient(options: options)!
-        lazy var hub = SentryHub(client: client, andScope: scope)
+        lazy var hub = SentryHubInternal(client: client, andScope: scope)
     }
 
     private let fixture = Fixture()
@@ -56,12 +57,6 @@ class SentryProfilingPublicAPITests: XCTestCase {
         super.tearDown()
 
         givenSdkWithHubButNoClient()
-
-        if let autoSessionTracking = SentrySDKInternal.currentHub().installedIntegrations().first(where: { it in
-            it is SentryAutoSessionTrackingIntegration
-        }) as? SentryAutoSessionTrackingIntegration {
-            autoSessionTracking.stop()
-        }
 
         clearTestState()
     }
@@ -478,13 +473,13 @@ extension SentryProfilingPublicAPITests {
 private extension SentryProfilingPublicAPITests {
     func givenSdkWithHub() {
         SentrySDKInternal.setCurrentHub(fixture.hub)
-        SentrySDKInternal.setStart(with: fixture.options)
+        SentrySDK.setStart(with: fixture.options)
         sentry_sdkInitProfilerTasks(fixture.options, fixture.hub)
     }
 
     func givenSdkWithHubButNoClient() {
-        SentrySDKInternal.setCurrentHub(SentryHub(client: nil, andScope: nil))
-        SentrySDKInternal.setStart(with: fixture.options)
+        SentrySDKInternal.setCurrentHub(SentryHubInternal(client: nil, andScope: nil))
+        SentrySDK.setStart(with: fixture.options)
     }
 
     func stopProfiler() throws {

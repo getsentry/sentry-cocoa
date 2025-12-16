@@ -3,8 +3,6 @@
 #import "SentryHttpTransport.h"
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"
-#import "SentryNSURLRequestBuilder.h"
-#import "SentryOptions.h"
 #import "SentryQueueableRequestManager.h"
 #import "SentrySpotlightTransport.h"
 #import "SentrySwift.h"
@@ -22,6 +20,7 @@ NS_ASSUME_NONNULL_BEGIN
                                     dateProvider:(id<SentryCurrentDateProvider>)dateProvider
                                sentryFileManager:(SentryFileManager *)sentryFileManager
                                       rateLimits:(id<SentryRateLimits>)rateLimits
+                                    reachability:(SentryReachability *)reachability
 {
     NSMutableArray<id<SentryTransport>> *transports = [NSMutableArray array];
 
@@ -61,7 +60,8 @@ NS_ASSUME_NONNULL_BEGIN
                                       requestBuilder:requestBuilder
                                           rateLimits:rateLimits
                                    envelopeRateLimit:envelopeRateLimit
-                                dispatchQueueWrapper:dispatchQueueWrapper];
+                                dispatchQueueWrapper:dispatchQueueWrapper
+                                        reachability:reachability];
 
         [transports addObject:httpTransport];
     } else {

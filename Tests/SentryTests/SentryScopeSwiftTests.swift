@@ -1,3 +1,4 @@
+// swiftlint:disable file_length
 @_spi(Private) import Sentry
 import SentryTestUtils
 import XCTest
@@ -24,7 +25,6 @@ class SentryScopeSwiftTests: XCTestCase {
         let transactionOperation = "Some Operation"
         let maxBreadcrumbs = 5
 
-        @available(*, deprecated)
         init() {
             date = Date(timeIntervalSince1970: 10)
             
@@ -64,6 +64,8 @@ class SentryScopeSwiftTests: XCTestCase {
             
             scope.addAttachment(TestData.fileAttachment)
             
+            scope.setAttribute(value: "my-value", key: "my-attribute-key")
+            
             event = Event()
             event.message = SentryMessage(formatted: "message")
             
@@ -81,7 +83,6 @@ class SentryScopeSwiftTests: XCTestCase {
     
     private var fixture: Fixture!
     
-    @available(*, deprecated)
     override func setUp() {
         super.setUp()
         fixture = Fixture()
@@ -133,6 +134,7 @@ class SentryScopeSwiftTests: XCTestCase {
         XCTAssertEqual(try XCTUnwrap(cloned.serialize() as? [String: AnyHashable]), snapshot)
         XCTAssertEqual(scope.propagationContext.spanId, cloned.propagationContext.spanId)
         XCTAssertEqual(scope.propagationContext.traceId, cloned.propagationContext.traceId)
+        XCTAssertEqual(scope.attributes as NSDictionary, cloned.attributes as NSDictionary)
 
         let (event1, event2) = (Event(), Event())
         (event1.timestamp, event2.timestamp) = (fixture.date, fixture.date)
@@ -360,6 +362,7 @@ class SentryScopeSwiftTests: XCTestCase {
         let expected = Scope(maxBreadcrumbs: fixture.maxBreadcrumbs)
         XCTAssertEqual(expected, scope)
         XCTAssertEqual(0, scope.attachments.count)
+        XCTAssertEqual(0, scope.attributes.count)
     }
     
     func testAttachmentsIsACopy() {
@@ -562,6 +565,24 @@ class SentryScopeSwiftTests: XCTestCase {
         sut.setLevel(level)
         
         XCTAssertEqual(level, observer.level)
+    }
+    
+    func testScopeObserver_setAttributes() {
+        let sut = Scope()
+        let observer = fixture.observer
+        sut.add(observer)
+        
+        sut.setAttribute(value: "my-attribute", key: "key-string")
+        sut.setAttribute(value: false, key: "key-bool")
+        sut.setAttribute(value: 1.5, key: "key-double")
+        sut.setAttribute(value: 4, key: "key-integer")
+        
+        XCTAssertEqual([
+            "key-string": "my-attribute",
+            "key-bool": false,
+            "key-double": 1.5,
+            "key-integer": 4
+        ] as [String: AnyHashable], try XCTUnwrap(sut.attributes as? [String: AnyHashable]))
     }
     
     func testScopeObserver_addBreadcrumb() {
@@ -800,6 +821,130 @@ class SentryScopeSwiftTests: XCTestCase {
         XCTAssertEqual(spanId.sentrySpanIdString, traceContext["span_id"] as? String)
     }
 
+    func testGetCasedInternalSpan_SpanIsNil() {
+        // -- Arrange --
+        let scope = Scope()
+
+        // -- Act --
+        let span = scope.getCastedInternalSpan()
+
+        // -- Assert --
+        XCTAssertNil(span)
+    }
+
+#if os(macOS)
+    // We test this only on macOS because the SentrySpan init methods require a frames tracker.
+    // As we're testing simple logic here, we can skip the other platforms.
+    func testGetCasedInternalSpan_SpanIsOfInternalTypeSpan() throws {
+        // -- Arrange --
+        let scope = Scope()
+        let span = SentrySpan(context: SpanContext(operation: "TEST"))
+
+        scope.span = span
+
+        // -- Act --
+        let actualSpan = try XCTUnwrap(scope.getCastedInternalSpan())
+
+        // -- Assert --
+        XCTAssertEqual(actualSpan, span)
+        XCTAssertEqual(actualSpan.spanId, span.spanId)
+    }
+
+    func testGetCasedInternalSpan_SpanIsSubClassOfInternalTypeSpan() throws {
+        // -- Arrange --
+        let scope = Scope()
+        let span = SubClassOfSentrySpan(context: SpanContext(operation: "TEST"))
+
+        scope.span = span
+
+        // -- Act --
+        let actualSpan = try XCTUnwrap(scope.getCastedInternalSpan())
+
+        // -- Assert --
+        XCTAssertEqual(actualSpan, span)
+        XCTAssertEqual(actualSpan.spanId, span.spanId)
+    }
+#endif // os(macOS)
+
+    func testGetCasedInternalSpan_SpanIsOfDifferentType() {
+        // -- Arrange --
+        let scope = Scope()
+        let span = NotOfTypeSpan()
+
+        scope.span = span
+
+        // -- Act --
+        let actualSpan = scope.getCastedInternalSpan()
+
+        // -- Assert --
+        XCTAssertNil(actualSpan)
+    }
+    
+    func testSetStringAttribute() {
+        let scope = Scope()
+        
+        scope.setAttribute(value: "test-string", key: "a-string-key")
+        
+        XCTAssertEqual(try XCTUnwrap(scope.attributes["a-string-key"] as? String), "test-string")
+    }
+    
+    func testSetStringAttributeAgainChangesValue() {
+        let scope = Scope()
+        
+        scope.setAttribute(value: "test-string", key: "a-string-key")
+        
+        XCTAssertEqual(try XCTUnwrap(scope.attributes["a-string-key"] as? String), "test-string")
+        
+        scope.setAttribute(value: "another-string", key: "a-string-key")
+        
+        XCTAssertEqual(try XCTUnwrap(scope.attributes["a-string-key"] as? String), "another-string")
+    }
+
+    func testSetBoolAttribute() {
+        let scope = Scope()
+        
+        scope.setAttribute(value: true, key: "a-bool-key")
+        scope.setAttribute(value: false, key: "a-bool-key-false")
+
+        XCTAssertEqual(try XCTUnwrap(scope.attributes["a-bool-key-false"] as? Bool), false)
+        XCTAssertEqual(try XCTUnwrap(scope.attributes["a-bool-key"] as? Bool), true)
+    }
+
+    func testSetDoubleAttribute() {
+        let scope = Scope()
+        
+        scope.setAttribute(value: 1.4728, key: "a-double-key")
+        
+        XCTAssertEqual(try XCTUnwrap(scope.attributes["a-double-key"] as? Double), 1.4728)
+    }
+
+    func testSetIntegerAttribute() {
+        let scope = Scope()
+        
+        scope.setAttribute(value: 4, key: "an-integer-key")
+        
+        XCTAssertEqual(try XCTUnwrap(scope.attributes["an-integer-key"] as? Int), 4)
+    }
+
+    func testRemoveAttribute() {
+        let scope = Scope()
+        
+        scope.setAttribute(value: "test-string", key: "a-key")
+        
+        scope.removeAttribute(key: "a-key")
+
+        XCTAssertNil(scope.attributes["a-key"])
+    }
+    
+    func testRemoveNotExistingAttributeDoesNotCrash() {
+        let scope = Scope()
+        
+        // This should not crash
+        scope.removeAttribute(key: "an-invalid-key")
+
+        XCTAssertTrue(scope.attributes.isEmpty)
+    }
+
     private class TestScopeObserver: NSObject, SentryScopeObserver {
         var tags: [String: String]?
         func setTags(_ tags: [String: String]?) {
@@ -863,5 +1008,54 @@ class SentryScopeSwiftTests: XCTestCase {
         func setUser(_ user: User?) {
             self.user = user
         }
+        
+        var attributes: [String: Any]?
+        func setAttributes(_ attributes: [String: Any]?) {
+            self.attributes = attributes
+        }
     }
 }
+
+// A minimal dummy Span implementation that is not SentrySpan.
+private final class NotOfTypeSpan: NSObject, Span {
+
+    init(traceId: SentryId = SentryId()) {
+        self.traceId = traceId
+    }
+
+    // MARK: - Properties required by Span (set to neutral values)
+    var traceId: SentryId = SentryId()
+    var spanId: SpanId = SpanId()
+    var parentSpanId: SpanId?
+    var sampled: SentrySampleDecision = .undecided
+    var operation: String = ""
+    var origin: String = ""
+    var spanDescription: String?
+    var status: SentrySpanStatus = .undefined
+    var timestamp: Date?
+    var startTimestamp: Date?
+    var data: [String: Any] { [:] }
+    var tags: [String: String] { [:] }
+    var isFinished: Bool { false }
+    var traceContext: TraceContext? { nil }
+
+    // MARK: - Methods required by Span (no-ops)
+    func startChild(operation: String) -> Span { return self }
+    func startChild(operation: String, description: String?) -> Span { return self }
+    func setData(value: Any?, key: String) {}
+    func removeData(key: String) {}
+    func setTag(value: String, key: String) {}
+    func removeTag(key: String) {}
+    func setMeasurement(name: String, value: NSNumber) {}
+    func setMeasurement(name: String, value: NSNumber, unit: MeasurementUnit) {}
+    func finish() {}
+    func finish(status: SentrySpanStatus) {}
+    func toTraceHeader() -> TraceHeader { return TraceHeader(trace: traceId, spanId: spanId, sampled: sampled) }
+    func baggageHttpHeader() -> String? { return nil }
+
+    // MARK: - SentrySerializable (no-op payload)
+    func serialize() -> [String: Any] { return [:] }
+}
+
+private final class SubClassOfSentrySpan: SentrySpan {}
+// swiftlint:enable file_length

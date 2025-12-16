@@ -1,10 +1,18 @@
+// This import must be first. In SPM the file needs to be in the "include" directory since that is
+// the Public headers directory, but in Cocoapods it must be in HybridPublic because it is used in
+// that public interface too. In order to handle both these cases the file is in HybridPublic but
+// symlinked to include.
+#import "SentryProfilingConditionals.h"
+
 // Sentry internal headers that are needed for swift code; you cannot import headers that depend on
 // public interfaces here
 #import "NSLocale+Sentry.h"
 #import "SentryANRStoppedResultInternal.h"
 #import "SentryANRTrackerInternalDelegate.h"
 #import "SentryBinaryImageCacheCallbacks.h"
+#import "SentryClient+Private.h"
 #import "SentryConcurrentRateLimitsDictionary.h"
+#import "SentryCrashAsync.h"
 #import "SentryCrashBinaryImageCache.h"
 #import "SentryCrashDynamicLinker.h"
 #import "SentryCrashExceptionApplicationHelper.h"
@@ -12,9 +20,10 @@
 #import "SentryDataCategoryMapper.h"
 #import "SentryDiscardReasonMapper.h"
 #import "SentryEnvelopeAttachmentHeader.h"
-#import "SentryEnvelopeHeaderHelper.h"
+#import "SentryError.h"
 #import "SentryEventSwiftHelper.h"
 #import "SentryHub+Private.h"
+#import "SentryIntegrationProtocol.h"
 #import "SentryNSDataUtils.h"
 #import "SentrySDK+Private.h"
 #import "SentryTime.h"
@@ -27,7 +36,6 @@
 #import "SentryANRTrackerV1.h"
 #import "SentryANRTrackerV2.h"
 #import "SentryAsyncLog.h"
-#import "SentryClient+Logs.h"
 #import "SentryContinuousProfiler.h"
 #import "SentryCrash.h"
 #import "SentryCrashDebug.h"
@@ -43,11 +51,10 @@
 #import "SentryDeviceContextKeys.h"
 #import "SentryFileIOTrackerHelper.h"
 #import "SentryFileManagerHelper.h"
-#import "SentryLevelHelper.h"
+#import "SentryInstallation.h"
 #import "SentryMeta.h"
 #import "SentryMsgPackSerializer.h"
 #import "SentryNSDictionarySanitize.h"
-#import "SentryOptions+Private.h"
 #import "SentryPerformanceTracker.h"
 #import "SentryProfiler+Private.h"
 #import "SentrySDKInternal.h"
@@ -59,6 +66,7 @@
 #import "SentrySpanOperation.h"
 #import "SentrySwizzleWrapperHelper.h"
 #import "SentrySysctlObjC.h"
+#import "SentryTraceContext+Private.h"
 #import "SentryTraceHeader.h"
 #import "SentryTraceOrigin.h"
 #import "SentryTraceProfiler.h"

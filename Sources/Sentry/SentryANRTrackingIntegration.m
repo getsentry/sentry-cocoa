@@ -11,7 +11,6 @@
 #import "SentryStacktrace.h"
 #import "SentrySwift.h"
 #import "SentryThread.h"
-#import <SentryOptions+Private.h>
 
 #if SENTRY_HAS_UIKIT
 #    import <UIKit/UIKit.h>
@@ -40,6 +39,18 @@ static NSString *const SentryANRMechanismDataAppHangDuration = @"app_hang_durati
 - (BOOL)installWithOptions:(SentryOptions *)options
 {
     if (![super installWithOptions:options]) {
+        return NO;
+    }
+
+    // Disable app hang tracking for Widgets, Live Activities, and certain extensions
+    // where app hang detection might report false positives. These components run
+    // in separate processes or sandboxes with different execution characteristics.
+    SentryExtensionDetector *extensionDetector = SentryDependencies.extensionDetector;
+    if ([extensionDetector shouldDisableAppHangTracking]) {
+        NSString *extensionType = [extensionDetector getExtensionPointIdentifier];
+        SENTRY_LOG_WARN(@"Not enabling app hang tracking for extension: %@", extensionType);
+        [self logWithReason:[NSString stringWithFormat:@"because it's running in an extension (%@)",
+                                extensionType]];
         return NO;
     }
 
@@ -164,15 +175,34 @@ static NSString *const SentryANRMechanismDataAppHangDuration = @"app_hang_durati
     // we would lose the scope. Furthermore, we want to know in which state the app was when the
     // app hang started.
     SentryScope *scope = [SentrySDKInternal currentHub].scope;
-    SentryOptions *options = SentrySDKInternal.options;
+    SentryOptions *options = SentrySDK.startOption;
     if (scope != nil && options != nil) {
         [scope applyToEvent:event maxBreadcrumb:options.maxBreadcrumbs];
     }
+
+    [self applyOptions:options toEvent:event];
 
     [self.fileManager storeAppHangEvent:event];
 #else
     [SentrySDK captureEvent:event];
 #endif
+}
+
+- (void)applyOptions:(SentryOptions *)options toEvent:(SentryEvent *)event
+{
+    // We need to apply the release name now, if the app hang turns into a fatal one
+    // we might en up submitting a wrong version.
+    event.releaseName = options.releaseName;
+
+    // Only apply dist if it wasn't set by the Scope previously
+    if (event.dist == nil && options.dist != nil) {
+        event.dist = options.dist;
+    }
+
+    // Only apply environment if it wasn't set by the Scope previously
+    if (event.environment == nil && options.environment != nil) {
+        event.environment = options.environment;
+    }
 }
 
 - (void)anrStoppedWithResult:(SentryANRStoppedResult *_Nullable)result

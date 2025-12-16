@@ -11,7 +11,7 @@
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"
 #import "SentryMechanism.h"
-#import "SentryMechanismMeta.h"
+#import "SentryMechanismContext.h"
 #import "SentryStacktrace.h"
 #import "SentrySwift.h"
 #import "SentryThread.h"
@@ -307,15 +307,11 @@
         = (uintptr_t)[frameDictionary[@"instruction_addr"] unsignedLongLongValue];
     NSDictionary *binaryImage = [self binaryImageForAddress:instructionAddress];
     SentryFrame *frame = [[SentryFrame alloc] init];
-    frame.symbolAddress = sentry_formatHexAddress(frameDictionary[@"symbol_addr"]);
     frame.instructionAddress = sentry_formatHexAddress(frameDictionary[@"instruction_addr"]);
     frame.imageAddress = sentry_formatHexAddress(binaryImage[@"image_addr"]);
     frame.package = binaryImage[@"name"];
     BOOL isInApp = [self.inAppLogic isInApp:binaryImage[@"name"]];
     frame.inApp = @(isInApp);
-    if (frameDictionary[@"symbol_name"]) {
-        frame.function = frameDictionary[@"symbol_name"];
-    }
     return frame;
 }
 
@@ -482,17 +478,17 @@
 
 - (SentryException *)parseNSException
 {
-    NSString *reason = @"";
-    if (nil != self.exceptionContext[@"nsexception"][@"reason"]) {
+    NSString *reason = nil;
+    if (self.exceptionContext[@"nsexception"][@"reason"] != nil) {
         reason = self.exceptionContext[@"nsexception"][@"reason"];
-    } else if (nil != self.exceptionContext[@"reason"]) {
+    } else if (self.exceptionContext[@"reason"] != nil) {
         reason = self.exceptionContext[@"reason"];
     }
 
-    return [[SentryException alloc] initWithValue:[NSString stringWithFormat:@"%@", reason]
-                                             type:self.exceptionContext[@"nsexception"][@"name"]
-            ?: @"NSException"]; // The fallback value is best-attempt in case the exception name is
-                                // not available
+    // The fallback value is best-attempt in case the exception name is not available
+    NSString *type = self.exceptionContext[@"nsexception"][@"name"] ?: @"NSException";
+
+    return [[SentryException alloc] initWithValue:reason type:type];
 }
 
 - (void)enhanceValueFromNotableAddresses:(SentryException *)exception
@@ -557,7 +553,7 @@
     if (nil != self.exceptionContext[@"mach"]) {
         mechanism.handled = @(NO);
 
-        SentryMechanismMeta *meta = [[SentryMechanismMeta alloc] init];
+        SentryMechanismContext *meta = [[SentryMechanismContext alloc] init];
 
         NSMutableDictionary *machException = [NSMutableDictionary new];
         [machException setValue:self.exceptionContext[@"mach"][@"exception_name"] forKey:@"name"];

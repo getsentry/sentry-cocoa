@@ -4,6 +4,7 @@
 #import "SentryDefines.h"
 #import "SentryEvent+Private.h"
 #import "SentryInternalDefines.h"
+#import "SentryLevel.h"
 #import "SentryLevelMapper.h"
 #import "SentryLogC.h"
 #import "SentryPropagationContext.h"
@@ -28,6 +29,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (atomic, strong) NSMutableArray<SentryBreadcrumb *> *breadcrumbArray;
 
+@property (atomic, strong) NSMutableDictionary<NSString *, id> *attributesDictionary;
+
 @end
 
 @implementation SentryScope {
@@ -49,6 +52,7 @@ NS_ASSUME_NONNULL_BEGIN
         self.contextDictionary = [NSMutableDictionary new];
         self.attachmentArray = [NSMutableArray new];
         self.fingerprintArray = [NSMutableArray new];
+        self.attributesDictionary = [NSMutableDictionary new];
         _spanLock = [[NSObject alloc] init];
         self.observers = [NSMutableArray new];
         self.propagationContext = [[SentryPropagationContext alloc] init];
@@ -73,6 +77,7 @@ NS_ASSUME_NONNULL_BEGIN
         [_breadcrumbArray addObjectsFromArray:crumbs];
         [_fingerprintArray addObjectsFromArray:[scope fingerprints]];
         [_attachmentArray addObjectsFromArray:[scope attachments]];
+        [_attributesDictionary addEntriesFromDictionary:[scope attributes]];
 
         self.propagationContext = scope.propagationContext;
         self.maxBreadcrumbs = scope.maxBreadcrumbs;
@@ -150,6 +155,23 @@ NS_ASSUME_NONNULL_BEGIN
     }
 }
 
+- (nullable SentrySpan *)getCastedInternalSpan
+{
+    id<SentrySpan> span = self.span;
+
+    if (span == nil) {
+        return nil;
+    }
+
+    if (span && [span isKindOfClass:[SentrySpan class]]) {
+        return (SentrySpan *)span;
+    }
+
+    SENTRY_LOG_DEBUG(@"The span on the scope is not of type SentrySpan, returning nil.");
+
+    return nil;
+}
+
 - (void)clear
 {
     // As we need to synchronize the accesses of the arrays and dictionaries and we use the
@@ -172,6 +194,9 @@ NS_ASSUME_NONNULL_BEGIN
     [self clearAttachments];
     @synchronized(_spanLock) {
         _span = nil;
+    }
+    @synchronized(_attributesDictionary) {
+        [_attributesDictionary removeAllObjects];
     }
 
     self.userObject = nil;
@@ -401,7 +426,7 @@ NS_ASSUME_NONNULL_BEGIN
     }
 }
 
-- (void)setLevel:(enum SentryLevel)level
+- (void)setLevel:(SentryLevel)level
 {
     self.levelEnum = level;
 
@@ -449,6 +474,40 @@ NS_ASSUME_NONNULL_BEGIN
     }
 }
 
+- (NSDictionary<NSString *, id> *)attributes
+{
+    @synchronized(_attributesDictionary) {
+        return _attributesDictionary.copy;
+    }
+}
+
+- (void)setAttributeValue:(id)value forKey:(NSString *)key
+{
+    if (key == nil || key.length == 0) {
+        SENTRY_LOG_ERROR(@"Attribute's key cannot be nil nor empty");
+        return;
+    }
+
+    @synchronized(_attributesDictionary) {
+        _attributesDictionary[key] = value;
+
+        for (id<SentryScopeObserver> observer in self.observers) {
+            [observer setAttributes:_attributesDictionary];
+        }
+    }
+}
+
+- (void)removeAttributeForKey:(NSString *)key
+{
+    @synchronized(_attributesDictionary) {
+        [_attributesDictionary removeObjectForKey:key];
+
+        for (id<SentryScopeObserver> observer in self.observers) {
+            [observer setAttributes:_attributesDictionary];
+        }
+    }
+}
+
 - (NSDictionary<NSString *, id> *)serialize
 {
     NSMutableDictionary *serializedData = [NSMutableDictionary new];
@@ -491,6 +550,9 @@ NS_ASSUME_NONNULL_BEGIN
     if (crumbs.count > 0) {
         [serializedData setValue:crumbs forKey:@"breadcrumbs"];
     }
+    if (self.attributes.count > 0) {
+        [serializedData setValue:[self attributes] forKey:@"attributes"];
+    }
     return serializedData;
 }
 
@@ -508,11 +570,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)applyToSession:(SentrySession *)session
 {
-    SentryUser *userObject = self.userObject;
-    if (userObject != nil) {
-        session.user = userObject.copy;
-    }
-
     NSString *environment = self.environmentString;
     if (environment != nil) {
         // TODO: Make sure environment set on options is applied to the

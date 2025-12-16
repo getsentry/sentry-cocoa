@@ -81,23 +81,13 @@ if [ -n "$DEVICE_NAME" ] && [ -n "$OS_VERSION" ]; then
 else
     # Fallback to Xcode version-based selection for backward compatibility
     SIMULATOR="iPhone 16 Pro"
-    IOS_VERSION="18.4"
+    IOS_VERSION="18.5"
 
     # Select simulator based on Xcode version
     case "$XCODE_VERSION" in
-        "14.3.1")
-            SIMULATOR="iPhone 14 Pro"
-            IOS_VERSION="16.4"
-            log_notice "Selected: $SIMULATOR with iOS $IOS_VERSION for Xcode $XCODE_VERSION"
-            ;;
-        "15.4")
-            SIMULATOR="iPhone 15 Pro"
-            IOS_VERSION="17.5"
-            log_notice "Selected: $SIMULATOR with iOS $IOS_VERSION for Xcode $XCODE_VERSION"
-            ;;
         "16.2")
             SIMULATOR="iPhone 16 Pro"
-            IOS_VERSION="18.4"
+            IOS_VERSION="18.2"
             log_notice "Selected: $SIMULATOR with iOS $IOS_VERSION for Xcode $XCODE_VERSION"
             ;;
         "26.1")
@@ -174,8 +164,9 @@ for attempt in $(seq 1 $MAX_BOOT_ATTEMPTS); do
     # Open Simulator app UI (only on first attempt)
     if [ "$attempt" -eq 1 ]; then
         log_notice "Opening Simulator app UI"
-        if ! open -a Simulator; then
-            log_error "Failed to open Simulator app"
+        SIMULATOR_APP_PATH="$(xcode-select -p)/Applications/Simulator.app"
+        if ! open "$SIMULATOR_APP_PATH"; then
+            log_error "Failed to open Simulator app at $SIMULATOR_APP_PATH"
             exit 1
         fi
         log_notice "Simulator app opened successfully"

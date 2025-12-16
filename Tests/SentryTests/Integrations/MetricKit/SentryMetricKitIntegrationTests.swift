@@ -11,6 +11,7 @@ import XCTest
 import MetricKit
 #endif // canImport(MetricKit)
 
+@available(macOS 12.0, *)
 final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
     
     var callStackTreePerThread: SentryMXCallStackTree!
@@ -39,27 +40,22 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
     }
 
     func testOptionEnabled_MetricKitManagerInitialized() {
-        if #available(iOS 15, macOS 12, macCatalyst 15, *) {
             let sut = SentryMetricKitIntegration()
             
             givenInstalledWithEnabled(sut)
             
             XCTAssertNotNil(Dynamic(sut).metricKitManager as SentryMXManager?)
-        }
     }
     
     func testOptionDisabled_MetricKitManagerNotInitialized() {
-        if #available(iOS 15, macOS 12, macCatalyst 15, *) {
             let sut = SentryMetricKitIntegration()
             
             sut.install(with: Options())
             
             XCTAssertNil(Dynamic(sut).metricKitManager as SentryMXManager?)
-        }
     }
     
     func testUninstall_MetricKitManagerSetToNil() {
-        if #available(iOS 15, macOS 12, macCatalyst 15, *) {
             let sut = SentryMetricKitIntegration()
             
             let options = Options()
@@ -68,11 +64,9 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
             sut.uninstall()
             
             XCTAssertNil(Dynamic(sut).metricKitManager as SentryMXManager?)
-        }
     }
     
     func testMXCrashPayloadReceived() throws {
-        if #available(iOS 15, macOS 12, macCatalyst 15, *) {
             givenSDKWithHubWithScope()
             
             let sut = SentryMetricKitIntegration()
@@ -82,11 +76,9 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
             mxDelegate.didReceiveCrashDiagnostic(MXCrashDiagnostic(), callStackTree: callStackTreePerThread, timeStampBegin: timeStampBegin, timeStampEnd: timeStampEnd)
             
             try assertPerThread(exceptionType: "MXCrashDiagnostic", exceptionValue: "MachException Type:(null) Code:(null) Signal:(null)", exceptionMechanism: "MXCrashDiagnostic", handled: false)
-        }
     }
     
     func testAttachDiagnosticAsAttachment() throws {
-        if #available(iOS 15, macOS 12, macCatalyst 15, *) {
             givenSDKWithHubWithScope()
             
             let sut = SentryMetricKitIntegration()
@@ -101,11 +93,9 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
                 
                 XCTAssertEqual(diagnosticAttachment?.data, diagnostic.jsonRepresentation())
             }
-        }
     }
     
     func testDontAttachDiagnosticAsAttachment() throws {
-        if #available(iOS 15, macOS 12, macCatalyst 15, *) {
             givenSDKWithHubWithScope()
             
             let sut = SentryMetricKitIntegration()
@@ -119,11 +109,9 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
                 
                 XCTAssertNil(diagnosticAttachment)
             }
-        }
     }
     
     func testSetInAppIncludes_AppliesInAppToStackTrace() throws {
-        if #available(iOS 15, macOS 12, macCatalyst 15, *) {
             givenSDKWithHubWithScope()
             
             let sut = SentryMetricKitIntegration()
@@ -135,31 +123,27 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
             mxDelegate.didReceiveCrashDiagnostic(MXCrashDiagnostic(), callStackTree: callStackTreePerThread, timeStampBegin: timeStampBegin, timeStampEnd: timeStampEnd)
             
             try assertEventWithScopeCaptured { event, _, _ in
-                let stacktrace = try! XCTUnwrap( event?.threads?.first?.stacktrace)
+                let stacktrace = try XCTUnwrap( event?.threads?.first?.stacktrace)
                 
                 let inAppFramesCount = stacktrace.frames.filter { $0.inApp as? Bool ?? false }.count
                 
                 XCTAssertEqual(2, inAppFramesCount)
             }
-        }
     }
     
     func testCPUExceptionDiagnostic_PerThread() throws {
-        if #available(iOS 15, macOS 12, macCatalyst 15, *) {
             givenSDKWithHubWithScope()
             
             let sut = SentryMetricKitIntegration()
             givenInstalledWithEnabled(sut)
             
-            let mxDelegate = sut as! SentryMXManagerDelegate
+            let mxDelegate = try XCTUnwrap(sut as? SentryMXManagerDelegate)
             mxDelegate.didReceiveCpuExceptionDiagnostic(TestMXCPUExceptionDiagnostic(), callStackTree: callStackTreePerThread, timeStampBegin: timeStampBegin, timeStampEnd: timeStampEnd)
             
             assertNothingCaptured()
-        }
     }
     
     func testCPUExceptionDiagnostic_NotPerThread() throws {
-        if #available(iOS 15, macOS 12, macCatalyst 15, *) {
             givenSDKWithHubWithScope()
             
             let sut = SentryMetricKitIntegration()
@@ -169,11 +153,9 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
             mxDelegate.didReceiveCpuExceptionDiagnostic(TestMXCPUExceptionDiagnostic(), callStackTree: callStackTreeNotPerThread, timeStampBegin: timeStampBegin, timeStampEnd: timeStampEnd)
             
             try assertNotPerThread(exceptionType: "MXCPUException", exceptionValue: "MXCPUException totalCPUTime:2.2 ms totalSampledTime:5.5 ms", exceptionMechanism: "mx_cpu_exception")
-        }
     }
     
     func testCPUExceptionDiagnostic_OnlyOneFrame() throws {
-        if #available(iOS 15, macOS 12, macCatalyst 15, *) {
             givenSDKWithHubWithScope()
             
             let sut = SentryMetricKitIntegration()
@@ -201,16 +183,13 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
                 
                 XCTAssertEqual(1, sentryFrames.count)
                 let frame = sentryFrames.first
-                XCTAssertEqual("<redacted>", frame?.function)
                 XCTAssertEqual("0x000000021f1a0001", frame?.imageAddress)
                 XCTAssertEqual("libsystem_pthread.dylib", frame?.package)
                 XCTAssertFalse(frame?.inApp?.boolValue ?? true)
             }
-        }
     }
     
     func testDiskWriteExceptionDiagnostic() throws {
-        if #available(iOS 15, macOS 12, macCatalyst 15, *) {
             givenSDKWithHubWithScope()
             
             let sut = SentryMetricKitIntegration()
@@ -220,11 +199,9 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
             mxDelegate.didReceiveDiskWriteExceptionDiagnostic(TestMXDiskWriteExceptionDiagnostic(), callStackTree: callStackTreeNotPerThread, timeStampBegin: timeStampBegin, timeStampEnd: timeStampEnd)
             
             try assertNotPerThread(exceptionType: "MXDiskWriteException", exceptionValue: "MXDiskWriteException totalWritesCaused:5.5 Mib", exceptionMechanism: "mx_disk_write_exception")
-        }
     }
     
     func testHangDiagnostic() throws {
-        if #available(iOS 15, macOS 12, macCatalyst 15, *) {
             givenSDKWithHubWithScope()
             
             let sut = SentryMetricKitIntegration()
@@ -234,10 +211,8 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
             mxDelegate.didReceiveHangDiagnostic(TestMXHangDiagnostic(), callStackTree: callStackTreeNotPerThread, timeStampBegin: timeStampBegin, timeStampEnd: timeStampEnd)
             
             try assertNotPerThread(exceptionType: "MXHangDiagnostic", exceptionValue: "MXHangDiagnostic hangDuration:6.6 sec", exceptionMechanism: "mx_hang_diagnostic")
-        }
     }
     
-    @available(iOS 15, macOS 12, macCatalyst 15, *)
     private func givenInstalledWithEnabled(_ integration: SentryMetricKitIntegration, optionsBlock: (Options) -> Void = { _ in }) {
         let options = Options()
         options.enableMetricKit = true
@@ -264,7 +239,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
                 var flattenedRootFrames = callSack.flattenedRootFrames
                 flattenedRootFrames.reverse()
                 
-                try! assertFrames(frames: flattenedRootFrames, event: event, exceptionType, exceptionValue, exceptionMechanism, handled: handled)
+                try assertFrames(frames: flattenedRootFrames, event: event, exceptionType, exceptionValue, exceptionMechanism, handled: handled)
             }
         }
     }
@@ -331,10 +306,10 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         XCTAssertEqual(frames.count, sentryFrames.count)
         
         XCTAssertEqual(1, event?.exceptions?.count)
-        let exception = try! XCTUnwrap(event?.exceptions?.first, "Event has exception.")
+        let exception = try XCTUnwrap(event?.exceptions?.first, "Event has exception.")
         XCTAssertEqual(frames.count, exception.stacktrace?.frames.count)
         
-        let exceptionFrames = try! XCTUnwrap(exception.stacktrace?.frames, "Exception has no frames.")
+        let exceptionFrames = try XCTUnwrap(exception.stacktrace?.frames, "Exception has no frames.")
     
         for i in 0..<frames.count {
             let mxFrame = frames[i]
@@ -383,9 +358,9 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
   
 }
 
-@available(iOS 15, macOS 12, macCatalyst 15, *)
 @available(tvOS, unavailable)
 @available(watchOS, unavailable)
+@available(macOS 12.0, *)
 class TestMXCallStackTree: MXCallStackTree {
     struct Override {
         var jsonRepresentation = Data()
@@ -398,9 +373,9 @@ class TestMXCallStackTree: MXCallStackTree {
     }
 }
 
-@available(iOS 15, macOS 12, macCatalyst 15, *)
 @available(tvOS, unavailable)
 @available(watchOS, unavailable)
+@available(macOS 12.0, *)
 class TestMXCrashDiagnostic: MXCrashDiagnostic {
     struct Override {
         var callStackTree = TestMXCallStackTree()
@@ -413,9 +388,9 @@ class TestMXCrashDiagnostic: MXCrashDiagnostic {
     }
 }
 
-@available(iOS 15, macOS 12, macCatalyst 15, *)
 @available(tvOS, unavailable)
 @available(watchOS, unavailable)
+@available(macOS 12.0, *)
 class TestMXCPUExceptionDiagnostic: MXCPUExceptionDiagnostic {
     struct Override {
         var callStackTree = TestMXCallStackTree()
@@ -436,9 +411,9 @@ class TestMXCPUExceptionDiagnostic: MXCPUExceptionDiagnostic {
     }
 }
 
-@available(iOS 15, macOS 12, macCatalyst 15, *)
 @available(tvOS, unavailable)
 @available(watchOS, unavailable)
+@available(macOS 12.0, *)
 class TestMXDiskWriteExceptionDiagnostic: MXDiskWriteExceptionDiagnostic {
     struct Override {
         var callStackTree = TestMXCallStackTree()
@@ -455,9 +430,9 @@ class TestMXDiskWriteExceptionDiagnostic: MXDiskWriteExceptionDiagnostic {
     }
 }
 
-@available(iOS 15, macOS 12, macCatalyst 15, *)
 @available(tvOS, unavailable)
 @available(watchOS, unavailable)
+@available(macOS 12.0, *)
 class TestMXHangDiagnostic: MXHangDiagnostic {
     struct Override {
         var callStackTree = TestMXCallStackTree()

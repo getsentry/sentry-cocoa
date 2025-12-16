@@ -1,6 +1,6 @@
 @_implementationOnly import _SentryPrivate
 
-@_spi(Private) @objc public class SentryFileIOTracker: NSObject {
+@_spi(Private) @objc public final class SentryFileIOTracker: NSObject {
 
     private let helper: SentryFileIOTrackerHelper
     private let processInfoWrapper: SentryProcessInfoSource

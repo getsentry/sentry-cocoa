@@ -1,6 +1,336 @@
 # Changelog
 
-## Unreleased
+## 9.1.0
+
+> [!Warning]
+> The class `SentryDsn` has been converted from Objective-C to Swift. While the public API remains the same, you might have to remove imports of the `SentryDsn.h` from your Objective-C code.
+> We acknowledge that this is a breaking change introduced in a minor release, but it should have been part of the major release 9.0.0 already before - apologies for any inconveniences caused.
+
+### Breaking Changes
+
+- Refactored type `SentryDsn` from Objective-C to Swift, removing the `SentryDsn.h` from the public header files.
+
+### Features
+
+- Add attributes data to `SentryScope` (#6830)
+- Add `SentryScope` attributes into log messages (#6834)
+
+### Improvements
+
+- Flush Logs on `WillTerminate` or `WillResignActive` Notifications (#6909)
+
+### Fixes
+
+- Save app context information (release name, dist, environment) on app hang events before saving to disk to prevent incorrect version information when an app hang turns fatal (#6998)
+- Disabled automatic session tracking in system extensions to prevent extension blocking and unwanted dock icon behavior (#6962) (#6962)
+- Fixes crash when null values are passed to `UIApplication sendAction:to:from:forEvent:` (#6970)
+- Fixes `user.id` not set to installationId if no user is set (#7005)
+
+## 9.0.0
+
+This changelog lists every breaking change. For a high-level overview and upgrade guidance, see the [migration guide](https://docs.sentry.io/platforms/apple/migration/).
+
+### Breaking Changes
+
+- Bumped minimum OS versions to iOS 15.0, macOS 10.14.0, tvOS 15.0, visionOS 1.0, and watchOS 8.0 (#6873)
+- Moves `SentryEventDecoder` to SPI (#6365)
+- Makes `PreviewRedactOptions`, `SentryProfileOptions`, `SentryRedactViewHelper`, `SentryViewScreenshotOptions`, `SentryReplayOptions`, `SentryUserFeedbackConfiguration`, `SentryUserFeedbackFormConfiguration`, `SentryUserFeedbackThemeConfiguration`, `SentryUserFeedbackWidgetConfiguration`, `SentryFeedback`, and `SentryExperimentalOptions` `final` (#6365)
+- Removes Decodable conformances from the public API of model classes (#5691)
+- Removes unused SentryLogLevel (#5591)
+- Removes deprecated `setExtraValue` from SentrySpan (#5864)
+- Removes deprecated getStoreEndpoint (#5591)
+- Remove legacy profiling, the only supported profiling is now what was known as continuous V2 (#6386)
+- Removes deprecated useSpan function (#5591)
+- Makes app hang tracking V2 the default and removes the option to enable/disable it (#5615)
+- Removes initializers for SentryTraceContext from the public API (#6662)
+- Removes `integrations` property from `SentryOptions` (#5749)
+- Removes `defaultIntegrations` function from `SentryOptions` (#6664)
+- Makes `SentryEventDecodable` internal (#5808)
+- The `span` property on `SentryScope` is now readonly (#5866)
+- Removes `SentryIntegrationProtocol` from the API. This is not used after the removal of the `integrations` property (#6660)
+- Removes deprecated SentryDebugImageProvider class (#5598)
+- Properties on SentryOptions that had no effect on the WithoutUIKit variant are now removed from the API (#6644)
+- Removes the SentryOptions.inAppExclude property because it had no effect (#6646)
+- Removes segment property on SentryUser, SentryBaggage, and SentryTraceContext (#5638)
+- Removes deprecated TraceContext initializers (#6348)
+- Removes deprecated user feedback API, this is replaced with the new feedback API (#5591)
+- Removes `enablePerformanceV2` option and makes this the default. The app start duration will now finish when the first frame is drawn instead of when the OS posts the UIWindowDidBecomeVisibleNotification. (#6008)
+- Removes enableTracing property from SentryOptions (#5694)
+- Structured Logs: Move options out of experimental (#6359)
+- Remove unused `SentryFrame.instruction` property (#6504)
+- Remove `uuid` and `name` of `SentryDebugMeta` (#6512) Use `debugID` instead of `uuid` and `codeFile` instead of `name`.
+- Enable enablePreWarmedAppStartTracing by default (#6508). With this option enabled, the SDK collects [prewarmed app starts](https://docs.sentry.io/platforms/apple/tracing/instrumentation/automatic-instrumentation/#prewarmed-app-start-tracing).
+- Set `SentryFrame.function` default to `nil` instead of `<redacted>` (#6608)
+- Change `value` and `type` of `SentryException` to be nullable (#6563)
+- Change the default trace context status to "ok" instead of "undefined" (#6611)
+- Remove `getHash` from SentryDsn (#6605)
+- The precompiled XCFramework is now built with Xcode 16. To submit to the App Store, [Apple now requires Xcode 16](https://developer.apple.com/news/upcoming-requirements/?id=02212025a).
+  If you need a precompiled XCFramework built with Xcode 15, continue using Sentry SDK 8.x.x.
+- Set `SentryException.type` to `nil` when `NSException` has no `reason` (#6653). The backend then can provide a proper message when there is no reason.
+- Rename `SentryLog.Level` and `SentryLog.Attribute` for ObjC (#6666)
+- Change `SentryFeedback` initializer to support multiple attachments (#6752)
+- App hang tracking is now automatically disabled for Widgets, Live Activities, Action Extensions, (Siri) Intent Extensions, and Share Extensions (#6670).
+  These components run in separate processes or sandboxes with different execution characteristics, which can cause false positive app hang reports.
+- [HTTP Client errors](https://docs.sentry.io/platforms/apple/guides/ios/configuration/http-client-errors/) now mark sessions as errored (#6633)
+- The Package.swift has swift-tools-version set to 6.0 (#6764)
+- Converts the `SentryLevel` enum to be written in ObjC (#6802)
+- Removes SentryEnvelopeItemHeader from the public API (#6870)
+- Change the `http.response.status_code` for spans to int (#6896)
+
+### Features
+
+- Add SentryDistribution as Swift Package Manager target (#6149)
+- Moves SentryClient and SentryHub to be written in Swift (#6627)
+- Add option `enablePropagateTraceparent` to support OTel/W3C trace propagation (#6356)
+- Move `enableFileManagerSwizzling` from experimental options to top-level options (#6592).
+  This option is still disabled by default and will be enabled in a future major release.
+- Move `enableDataSwizzling` from experimental options to top-level options (#6592). This option remains enabled by default.
+- Add `sentry.replay_id` attribute to logs ([#6515](https://github.com/getsentry/sentry-cocoa/pull/6515))
+- Structured Logs: Add log APIs to `Hub` and `Client` (#6737)
+- Add options to customize UserFeedback error messages (#6790)
+
+### Fixes
+
+- Fixes warnings about minimum OS version being lower than Xcode supported version (#5591)
+- Fixes a crash when setting configureUserFeedback to nil (#6642)
+- Fix issue where the thread that generated an event could be missing when more than 100 threads are running (#6377)
+- Fix wrong Frame Delay when becoming active, which lead to false reported app hangs when the app moves to the foreground after being in the background (#6381)
+- Rename `SentryMechanismMeta` to `SentryMechanismContext` to resolve Kotlin Multi-Platform build errors (#6607)
+- Remove unnecesary dependency on `SentryCppHelper` to Sentry (#6754)
+- Limit log batching to maximum 100 logs per batch (#6768)
+- Fix UIWindow being possibly accessed from a background thread in SentryCrashWrapper (#6905)
+- Ensure SentrySDK.close resets everything on the main thread (#6907)
+- Allow transaction tags to be accessed and modified in `beforeSend` (#6910)
+- Convert bools to Swift in Options code docs (#6922)
+
+### Improvements
+
+- Replace deprecated SCNetworkReachability with NWPathMonitor (#6019)
+- Expose attachment type on `SentryAttachment` for downstream SDKs (like sentry-godot) (#6521)
+- Increase attachment max size to 100MB (#6537)
+- Increase maximum attachment size to 200MB (#6726)
+
+## 9.0.0-rc.1
+
+### Breaking Changes
+
+- Bumped minimum OS versions to iOS 15.0, macOS 10.14.0, tvOS 15.0, visionOS 1.0, and watchOS 8.0 (#6873)
+- Moves `SentryEventDecoder` to SPI (#6365)
+- Makes `PreviewRedactOptions`, `SentryProfileOptions`, `SentryRedactViewHelper`, `SentryViewScreenshotOptions`, `SentryReplayOptions`, `SentryUserFeedbackConfiguration`, `SentryUserFeedbackFormConfiguration`, `SentryUserFeedbackThemeConfiguration`, `SentryUserFeedbackWidgetConfiguration`, `SentryFeedback`, and `SentryExperimentalOptions` `final` (#6365)
+- Removes Decodable conformances from the public API of model classes (#5691)
+- Removes unused SentryLogLevel (#5591)
+- Removes deprecated `setExtraValue` from SentrySpan (#5864)
+- Removes deprecated getStoreEndpoint (#5591)
+- Remove legacy profiling, the only supported profiling is now what was known as continuous V2 (#6386)
+- Removes deprecated useSpan function (#5591)
+- Makes app hang tracking V2 the default and removes the option to enable/disable it (#5615)
+- Removes initializers for SentryTraceContext from the public API (#6662)
+- Removes `integrations` property from `SentryOptions` (#5749)
+- Removes `defaultIntegrations` function from `SentryOptions` (#6664)
+- Makes `SentryEventDecodable` internal (#5808)
+- The `span` property on `SentryScope` is now readonly (#5866)
+- Removes `SentryIntegrationProtocol` from the API. This is not used after the removal of the `integrations` property (#6660)
+- Removes deprecated SentryDebugImageProvider class (#5598)
+- Properties on SentryOptions that had no effect on the WithoutUIKit variant are now removed from the API (#6644)
+- Removes the SentryOptions.inAppExclude property because it had no effect (#6646)
+- Removes segment property on SentryUser, SentryBaggage, and SentryTraceContext (#5638)
+- Removes deprecated TraceContext initializers (#6348)
+- Removes deprecated user feedback API, this is replaced with the new feedback API (#5591)
+- Removes `enablePerformanceV2` option and makes this the default. The app start duration will now finish when the first frame is drawn instead of when the OS posts the UIWindowDidBecomeVisibleNotification. (#6008)
+- Removes enableTracing property from SentryOptions (#5694)
+- Structured Logs: Move options out of experimental (#6359)
+- Remove unused `SentryFrame.instruction` property (#6504)
+- Remove `uuid` and `name` of `SentryDebugMeta` (#6512) Use `debugID` instead of `uuid` and `codeFile` instead of `name`.
+- Enable enablePreWarmedAppStartTracing by default (#6508). With this option enabled, the SDK collects [prewarmed app starts](https://docs.sentry.io/platforms/apple/tracing/instrumentation/automatic-instrumentation/#prewarmed-app-start-tracing).
+- Set `SentryFrame.function` default to `nil` instead of `<redacted>` (#6608)
+- Change `value` and `type` of `SentryException` to be nullable (#6563)
+- Change the default trace context status to "ok" instead of "undefined" (#6611)
+- Remove `getHash` from SentryDsn (#6605)
+- The precompiled XCFramework is now built with Xcode 16. To submit to the App Store, [Apple now requires Xcode 16](https://developer.apple.com/news/upcoming-requirements/?id=02212025a).
+  If you need a precompiled XCFramework built with Xcode 15, continue using Sentry SDK 8.x.x.
+- Set `SentryException.type` to `nil` when `NSException` has no `reason` (#6653). The backend then can provide a proper message when there is no reason.
+- Rename `SentryLog.Level` and `SentryLog.Attribute` for ObjC (#6666)
+- Change `SentryFeedback` initializer to support multiple attachments (#6752)
+- App hang tracking is now automatically disabled for Widgets, Live Activities, Action Extensions, (Siri) Intent Extensions, and Share Extensions (#6670).
+  These components run in separate processes or sandboxes with different execution characteristics, which can cause false positive app hang reports.
+- [HTTP Client errors](https://docs.sentry.io/platforms/apple/guides/ios/configuration/http-client-errors/) now mark sessions as errored (#6633)
+- The Package.swift has swift-tools-version set to 6.0 (#6764)
+- Converts the `SentryLevel` enum to be written in ObjC (#6802)
+- Removes SentryEnvelopeItemHeader from the public API (#6870)
+
+### Features
+
+- Add SentryDistribution as Swift Package Manager target (#6149)
+- Moves SentryClient and SentryHub to be written in Swift (#6627)
+- Add option `enablePropagateTraceparent` to support OTel/W3C trace propagation (#6356)
+- Move `enableFileManagerSwizzling` from experimental options to top-level options (#6592).
+  This option is still disabled by default and will be enabled in a future major release.
+- Move `enableDataSwizzling` from experimental options to top-level options (#6592). This option remains enabled by default.
+- Add `sentry.replay_id` attribute to logs ([#6515](https://github.com/getsentry/sentry-cocoa/pull/6515))
+- Structured Logs: Add log APIs to `Hub` and `Client` (#6737)
+
+### Fixes
+
+- Fixes warnings about minimum OS version being lower than Xcode supported version (#5591)
+- Fixes a crash when setting configureUserFeedback to nil (#6642)
+- Fix issue where the thread that generated an event could be missing when more than 100 threads are running (#6377)
+- Fix wrong Frame Delay when becoming active, which lead to false reported app hangs when the app moves to the foreground after being in the background (#6381)
+- Rename `SentryMechanismMeta` to `SentryMechanismContext` to resolve Kotlin Multi-Platform build errors (#6607)
+- Remove unnecesary dependency on `SentryCppHelper` to Sentry (#6754)
+- Limit log batching to maximum 100 logs per batch (#6768)
+
+### Improvements
+
+- Replace deprecated SCNetworkReachability with NWPathMonitor (#6019)
+- Expose attachment type on `SentryAttachment` for downstream SDKs (like sentry-godot) (#6521)
+- Increase attachment max size to 100MB (#6537)
+- Increase maximum attachment size to 200MB (#6726)
+
+## 9.0.0-rc.0
+
+### Breaking Changes
+
+- Bumped minimum OS versions to iOS 15.0, macOS 12.0, tvOS 15.0, visionOS 1.0, and watchOS 8.0
+- Moves `SentryEventDecoder` to SPI (#6365)
+- Makes `PreviewRedactOptions`, `SentryProfileOptions`, `SentryRedactViewHelper`, `SentryViewScreenshotOptions`, `SentryReplayOptions`, `SentryUserFeedbackConfiguration`, `SentryUserFeedbackFormConfiguration`, `SentryUserFeedbackThemeConfiguration`, `SentryUserFeedbackWidgetConfiguration`, `SentryFeedback`, and `SentryExperimentalOptions` `final` (#6365)
+- Removes Decodable conformances from the public API of model classes (#5691)
+- Removes unused SentryLogLevel (#5591)
+- Removes deprecated `setExtraValue` from SentrySpan (#5864)
+- Removes deprecated getStoreEndpoint (#5591)
+- Remove legacy profiling, the only supported profiling is now what was known as continuous V2 (#6386)
+- Removes deprecated useSpan function (#5591)
+- Makes app hang tracking V2 the default and removes the option to enable/disable it (#5615)
+- Removes initializers for SentryTraceContext from the public API (#6662)
+- Removes `integrations` property from `SentryOptions` (#5749)
+- Removes `defaultIntegrations` function from `SentryOptions` (#6664)
+- Makes `SentryEventDecodable` internal (#5808)
+- The `span` property on `SentryScope` is now readonly (#5866)
+- Removes `SentryIntegrationProtocol` from the API. This is not used after the removal of the `integrations` property (#6660)
+- Removes deprecated SentryDebugImageProvider class (#5598)
+- Properties on SentryOptions that had no effect on the WithoutUIKit variant are now removed from the API (#6644)
+- Removes the SentryOptions.inAppExclude property because it had no effect (#6646)
+- Removes segment property on SentryUser, SentryBaggage, and SentryTraceContext (#5638)
+- Removes deprecated TraceContext initializers (#6348)
+- Removes deprecated user feedback API, this is replaced with the new feedback API (#5591)
+- Removes `enablePerformanceV2` option and makes this the default. The app start duration will now finish when the first frame is drawn instead of when the OS posts the UIWindowDidBecomeVisibleNotification. (#6008)
+- Removes enableTracing property from SentryOptions (#5694)
+- Structured Logs: Move options out of experimental (#6359)
+- Remove unused `SentryFrame.instruction` property (#6504)
+- Remove `uuid` and `name` of `SentryDebugMeta` (#6512) Use `debugID` instead of `uuid` and `codeFile` instead of `name`.
+- Enable enablePreWarmedAppStartTracing by default (#6508). With this option enabled, the SDK collects [prewarmed app starts](https://docs.sentry.io/platforms/apple/tracing/instrumentation/automatic-instrumentation/#prewarmed-app-start-tracing).
+- Set `SentryFrame.function` default to `nil` instead of `<redacted>` (#6608)
+- Change `value` and `type` of `SentryException` to be nullable (#6563)
+- Change the default trace context status to "ok" instead of "undefined" (#6611)
+- Remove `getHash` from SentryDsn (#6605)
+- The precompiled XCFramework is now built with Xcode 16. To submit to the App Store, [Apple now requires Xcode 16](https://developer.apple.com/news/upcoming-requirements/?id=02212025a).
+  If you need a precompiled XCFramework built with Xcode 15, continue using Sentry SDK 8.x.x.
+- Set `SentryException.type` to `nil` when `NSException` has no `reason` (#6653). The backend then can provide a proper message when there is no reason.
+- Rename `SentryLog.Level` and `SentryLog.Attribute` for ObjC (#6666)
+- Change `SentryFeedback` initializer to support multiple attachments (#6752)
+- App hang tracking is now automatically disabled for Widgets, Live Activities, Action Extensions, (Siri) Intent Extensions, and Share Extensions (#6670).
+  These components run in separate processes or sandboxes with different execution characteristics, which can cause false positive app hang reports.
+- [HTTP Client errors](https://docs.sentry.io/platforms/apple/guides/ios/configuration/http-client-errors/) now mark sessions as errored (#6633)
+- The Package.swift has swift-tools-version set to 6.0 (#6764)
+- Converts the `SentryLevel` enum to be written in ObjC (#6802)
+
+### Features
+
+- Add SentryDistribution as Swift Package Manager target (#6149)
+- Moves SentryClient and SentryHub to be written in Swift (#6627)
+- Add option `enablePropagateTraceparent` to support OTel/W3C trace propagation (#6356)
+- Move `enableFileManagerSwizzling` from experimental options to top-level options (#6592).
+  This option is still disabled by default and will be enabled in a future major release.
+- Move `enableDataSwizzling` from experimental options to top-level options (#6592). This option remains enabled by default.
+- Add `sentry.replay_id` attribute to logs ([#6515](https://github.com/getsentry/sentry-cocoa/pull/6515))
+- Structured Logs: Add log APIs to `Hub` and `Client` (#6737)
+
+### Fixes
+
+- Fixes warnings about minimum OS version being lower than Xcode supported version (#5591)
+- Fixes a crash when setting configureUserFeedback to nil (#6642)
+- Fix issue where the thread that generated an event could be missing when more than 100 threads are running (#6377)
+- Fix wrong Frame Delay when becoming active, which lead to false reported app hangs when the app moves to the foreground after being in the background (#6381)
+- Rename `SentryMechanismMeta` to `SentryMechanismContext` to resolve Kotlin Multi-Platform build errors (#6607)
+- Remove unnecesary dependency on `SentryCppHelper` to Sentry (#6754)
+- Limit log batching to maximum 100 logs per batch (#6768)
+
+### Improvements
+
+- Replace deprecated SCNetworkReachability with NWPathMonitor (#6019)
+- Expose attachment type on `SentryAttachment` for downstream SDKs (like sentry-godot) (#6521)
+- Increase attachment max size to 100MB (#6537)
+- Increase maximum attachment size to 200MB (#6726)
+
+## 9.0.0-alpha.1
+
+### Breaking Changes
+
+- Bumped minimum OS versions to iOS 15.0, macOS 12.0, tvOS 15.0, visionOS 1.0, and watchOS 8.0
+- Moves `SentryEventDecoder` to SPI (#6365)
+- Makes `PreviewRedactOptions`, `SentryProfileOptions`, `SentryRedactViewHelper`, `SentryViewScreenshotOptions`, `SentryReplayOptions`, `SentryUserFeedbackConfiguration`, `SentryUserFeedbackFormConfiguration`, `SentryUserFeedbackThemeConfiguration`, `SentryUserFeedbackWidgetConfiguration`, `SentryFeedback`, and `SentryExperimentalOptions` `final` (#6365)
+- Removes Decodable conformances from the public API of model classes (#5691)
+- Removes unused SentryLogLevel (#5591)
+- Removes deprecated `setExtraValue` from SentrySpan (#5864)
+- Removes deprecated getStoreEndpoint (#5591)
+- Remove legacy profiling, the only supported profiling is now what was known as continuous V2 (#6386)
+- Removes deprecated useSpan function (#5591)
+- Makes app hang tracking V2 the default and removes the option to enable/disable it (#5615)
+- Removes initializers for SentryTraceContext from the public API (#6662)
+- Removes `integrations` property from `SentryOptions` (#5749)
+- Removes `defaultIntegrations` function from `SentryOptions` (#6664)
+- Makes `SentryEventDecodable` internal (#5808)
+- The `span` property on `SentryScope` is now readonly (#5866)
+- Removes `SentryIntegrationProtocol` from the API. This is not used after the removal of the `integrations` property (#6660)
+- Removes deprecated SentryDebugImageProvider class (#5598)
+- Properties on SentryOptions that had no effect on the WithoutUIKit variant are now removed from the API (#6644)
+- Removes the SentryOptions.inAppExclude property because it had no effect (#6646)
+- Removes segment property on SentryUser, SentryBaggage, and SentryTraceContext (#5638)
+- Removes deprecated TraceContext initializers (#6348)
+- Removes deprecated user feedback API, this is replaced with the new feedback API (#5591)
+- Removes `enablePerformanceV2` option and makes this the default. The app start duration will now finish when the first frame is drawn instead of when the OS posts the UIWindowDidBecomeVisibleNotification. (#6008)
+- Removes enableTracing property from SentryOptions (#5694)
+- Structured Logs: Move options out of experimental (#6359)
+- Remove unused `SentryFrame.instruction` property (#6504)
+- Remove `uuid` and `name` of `SentryDebugMeta` (#6512) Use `debugID` instead of `uuid` and `codeFile` instead of `name`.
+- Enable enablePreWarmedAppStartTracing by default (#6508). With this option enabled, the SDK collects [prewarmed app starts](https://docs.sentry.io/platforms/apple/tracing/instrumentation/automatic-instrumentation/#prewarmed-app-start-tracing).
+- Set `SentryFrame.function` default to `nil` instead of `<redacted>` (#6608)
+- Change `value` and `type` of `SentryException` to be nullable (#6563)
+- Change the default trace context status to "ok" instead of "undefined" (#6611)
+- Remove `getHash` from SentryDsn (#6605)
+- The precompiled XCFramework is now built with Xcode 16. To submit to the App Store, [Apple now requires Xcode 16](https://developer.apple.com/news/upcoming-requirements/?id=02212025a).
+  If you need a precompiled XCFramework built with Xcode 15, continue using Sentry SDK 8.x.x.
+- Set `SentryException.type` to `nil` when `NSException` has no `reason` (#6653). The backend then can provide a proper message when there is no reason.
+- Rename `SentryLog.Level` and `SentryLog.Attribute` for ObjC (#6666)
+- Change `SentryFeedback` initializer to support multiple attachments (#6752)
+
+### Fixes
+
+- Fixes warnings about minimum OS version being lower than Xcode supported version (#5591)
+- Fixes a crash when setting configureUserFeedback to nil (#6642)
+- Fix issue where the thread that generated an event could be missing when more than 100 threads are running (#6377)
+- Fix wrong Frame Delay when becoming active, which lead to false reported app hangs when the app moves to the foreground after being in the background (#6381)
+- Rename `SentryMechanismMeta` to `SentryMechanismContext` to resolve Kotlin Multi-Platform build errors (#6607)
+- Remove unnecesary dependency on `SentryCppHelper` to Sentry (#6754)
+
+### Improvements
+
+- Replace deprecated SCNetworkReachability with NWPathMonitor (#6019)
+- Expose attachment type on `SentryAttachment` for downstream SDKs (like sentry-godot) (#6521)
+- Increase attachment max size to 100MB (#6537)
+- Increase maximum attachment size to 200MB (#6726)
+
+### Features
+
+- Add SentryDistribution as Swift Package Manager target (#6149)
+- Moves SentryClient and SentryHub to be written in Swift (#6627)
+- Add option `enablePropagateTraceparent` to support OTel/W3C trace propagation (#6356)
+- Move `enableFileManagerSwizzling` from experimental options to top-level options (#6592).
+  This option is still disabled by default and will be enabled in a future major release.
+- Move `enableDataSwizzling` from experimental options to top-level options (#6592). This option remains enabled by default.
+- Add `sentry.replay_id` attribute to logs ([#6515](https://github.com/getsentry/sentry-cocoa/pull/6515))
+- Structured Logs: Add log APIs to `Hub` and `Client` (#6737)
+
+## 9.0.0-alpha.0
 
 ### Breaking Changes
 
@@ -12,9 +342,17 @@
 - Removes deprecated getStoreEndpoint (#5591)
 - Remove legacy profiling, the only supported profiling is now what was known as continuous V2 (#6386)
 - Removes deprecated useSpan function (#5591)
-- The `span` property on `SentryScope` is now readonly (#5866)
+- Makes app hang tracking V2 the default and removes the option to enable/disable it (#5615)
+- Removes initializers for SentryTraceContext from the public API (#6662)
+- Removes `integrations` property from `SentryOptions` (#5749)
+- Removes `defaultIntegrations` function from `SentryOptions` (#6664)
+- Makes `SentryEventDecodable` internal (#5808)
+- Removes `SentryIntegrationProtocol` from the API. This is not used after the removal of the `integrations` property (#6660)
 - Removes deprecated SentryDebugImageProvider class (#5598)
+- Properties on SentryOptions that had no effect on the WithoutUIKit variant are now removed from the API (#6644)
+- Removes the SentryOptions.inAppExclude property because it had no effect (#6646)
 - Removes segment property on SentryUser, SentryBaggage, and SentryTraceContext (#5638)
+- Removes local symbolication when `debug=True` which fixes various deadlocks (#6562)
 - Removes deprecated TraceContext initializers (#6348)
 - Removes deprecated user feedback API, this is replaced with the new feedback API (#5591)
 - Removes `enablePerformanceV2` option and makes this the default. The app start duration will now finish when the first frame is drawn instead of when the OS posts the UIWindowDidBecomeVisibleNotification. (#6008)
@@ -23,23 +361,51 @@
 - Remove unused `SentryFrame.instruction` property (#6504)
 - Remove `uuid` and `name` of `SentryDebugMeta` (#6512) Use `debugID` instead of `uuid` and `codeFile` instead of `name`.
 - Enable enablePreWarmedAppStartTracing by default (#6508). With this option enabled, the SDK collects [prewarmed app starts](https://docs.sentry.io/platforms/apple/tracing/instrumentation/automatic-instrumentation/#prewarmed-app-start-tracing).
+- Set `SentryFrame.function` default to `nil` instead of `<redacted>` (#6608)
 - Change `value` and `type` of `SentryException` to be nullable (#6563)
 - Change the default trace context status to "ok" instead of "undefined" (#6611)
-
-### Features
-
-- Add SentryDistribution as Swift Package Manager target (#6149)
-- Add option `enablePropagateTraceparent` to support OTel/W3C trace propagation (#6356)
-- Move `enableFileManagerSwizzling` from experimental options to top-level options (#6592).
-  This option is still disabled by default and will be enabled in a future major release.
-- Move `enableDataSwizzling` from experimental options to top-level options (#6592). This option remains enabled by default.
+- Remove `getHash` from SentryDsn (#6605)
+- The precompiled XCFramework is now built with Xcode 16. To submit to the App Store, [Apple now requires Xcode 16](https://developer.apple.com/news/upcoming-requirements/?id=02212025a).
+  If you need a precompiled XCFramework built with Xcode 15, continue using Sentry SDK 8.x.x.
+- Set `SentryException.type` to `nil` when `NSException` has no `reason` (#6653). The backend then can provide a proper message when there is no reason.
+- Rename `SentryLog.Level` and `SentryLog.Attribute` for ObjC (#6666)
 
 ### Fixes
 
 - Fixes warnings about minimum OS version being lower than Xcode supported version (#5591)
-- Fix rendering method for fast view rendering (#6360)
+- Fixes a crash when setting configureUserFeedback to nil (#6642)
 - Fix issue where the thread that generated an event could be missing when more than 100 threads are running (#6377)
 - Fix wrong Frame Delay when becoming active, which lead to false reported app hangs when the app moves to the foreground after being in the background (#6381)
+- Rename `SentryMechanismMeta` to `SentryMechanismContext` to resolve Kotlin Multi-Platform build errors (#6607)
+
+### Improvements
+
+- Replace deprecated SCNetworkReachability with NWPathMonitor (#6019)
+- Expose attachment type on `SentryAttachment` for downstream SDKs (like sentry-godot) (#6521)
+- Increase attachment max size to 100MB (#6537)
+
+### Features
+
+- Add SentryDistribution as Swift Package Manager target (#6149)
+- Moves SentryClient and SentryHub to be written in Swift (#6627)
+- Add option `enablePropagateTraceparent` to support OTel/W3C trace propagation (#6356)
+- Move `enableFileManagerSwizzling` from experimental options to top-level options (#6592).
+  This option is still disabled by default and will be enabled in a future major release.
+- Move `enableDataSwizzling` from experimental options to top-level options (#6592). This option remains enabled by default.
+- Add `sentry.replay_id` attribute to logs ([#6515](https://github.com/getsentry/sentry-cocoa/pull/6515))
+
+## 8.57.3
+
+### Fixes
+
+- Remove unnecesary dependency on `SentryCppHelper` to Sentry (#6754) (#6761)
+- Resolve SDK crash caused by UIPrintPanelViewController incorrectly casting to UISplitViewController (#6771)
+
+## 8.57.2
+
+### Fixes
+
+- Fix rendering method for fast view rendering (#6360)
 - Session Replay masking improvements (#6292)
   - Fix SwiftUI.List background decoration view causing incorrect clipping of screen content
   - Fix sublayer rendering order by properly sorting by zPosition with insertion order as tie-breaker
@@ -55,6 +421,10 @@
 
 - Replace deprecated SCNetworkReachability with NWPathMonitor (#6019)
 - Increase attachment max size to 100MB (#6537)
+- Fix conversion of frame rate to time interval for session replay (#6623)
+- Change Session Replay masking to prevent semi‑transparent full‑screen overlays from clearing redactions by making opaque clipping stricter (#6629)
+  Views now need to be fully opaque (view and layer backgrounds with alpha == 1) and report opaque to qualify for clip‑out.
+  This avoids leaks at the cost of fewer clip‑out optimizations.
 
 ## 8.57.1
 

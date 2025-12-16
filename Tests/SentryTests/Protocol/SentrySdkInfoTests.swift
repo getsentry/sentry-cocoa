@@ -18,6 +18,48 @@ class SentrySdkInfoTests: XCTestCase {
     override func tearDown() {
         cleanUp()
     }
+    
+    private func assertSDKInfoIsEmpty(sdkInfo: SentrySdkInfo) {
+        XCTAssertEqual("", sdkInfo.name)
+        XCTAssertEqual("", sdkInfo.version)
+        XCTAssertEqual([], sdkInfo.integrations)
+        XCTAssertEqual([], sdkInfo.features)
+    }
+    
+    func testSdkNameIsNil() {
+        let actual = SentrySdkInfo(name: nil, version: "", integrations: [], features: [], packages: [], settings: .init())
+        assertSDKInfoIsEmpty(sdkInfo: actual)
+    }
+    
+    func testVersionStringIsNil() {
+        let actual = SentrySdkInfo(name: "", version: nil, integrations: [], features: [], packages: [], settings: .init())
+        assertSDKInfoIsEmpty(sdkInfo: actual)
+    }
+    
+    func testIntegrationsAreNil() {
+        let actual = SentrySdkInfo(name: "", version: "", integrations: nil, features: [], packages: [], settings: .init())
+        assertSDKInfoIsEmpty(sdkInfo: actual)
+    }
+    
+    func testFeaturesAreNil() {
+        let actual = SentrySdkInfo(name: "", version: "", integrations: [], features: nil, packages: [], settings: .init())
+        assertSDKInfoIsEmpty(sdkInfo: actual)
+    }
+    
+    func testPackagesAreNil() {
+        let actual = SentrySdkInfo(name: "", version: "", integrations: [], features: [], packages: nil, settings: .init())
+        assertSDKInfoIsEmpty(sdkInfo: actual)
+    }
+    
+    func testInitWithNilDict() {
+        let actual = SentrySdkInfo(dict: nil)
+        assertEmptySdkInfo(actual: actual)
+    }
+    
+    func testInitWithDictWrongTypes() {
+        let actual = SentrySdkInfo(dict: ["name": 20, "version": 0])
+        assertEmptySdkInfo(actual: actual)
+    }
 
     func testWithPatchLevelSuffix() {
         let version = "50.10.20-beta1"
@@ -108,18 +150,7 @@ class SentrySdkInfoTests: XCTestCase {
         XCTAssertEqual(packages[0]["version"] as? String, SentryMeta.versionString)
     }
 
-    func testCarthage_packageInfo() throws {
-        SentrySdkPackage.setPackageManager(2)
-        let actual = SentrySdkInfo.global()
-        let serialization = actual.serialize()
-
-        let packages = try XCTUnwrap(serialization["packages"] as? [[String: Any]])
-        XCTAssertEqual(1, packages.count)
-        XCTAssertEqual(packages[0]["name"] as? String, "carthage:getsentry/\(SentryMeta.sdkName)")
-        XCTAssertEqual(packages[0]["version"] as? String, SentryMeta.versionString)
-    }
-
-    func testcocoapods_packageInfo() throws {
+    func testCocoapods_packageInfo() throws {
         SentrySdkPackage.setPackageManager(1)
         let actual = SentrySdkInfo.global()
         let serialization = actual.serialize()
@@ -131,7 +162,8 @@ class SentrySdkInfoTests: XCTestCase {
     }
 
     func testNoPackageNames() {
-        SentrySdkPackage.setPackageManager(3)
+        // Unkown package
+        SentrySdkPackage.setPackageManager(2)
         let actual = SentrySdkInfo.global()
 
         XCTAssertEqual(0, actual.packages.count)
@@ -139,8 +171,7 @@ class SentrySdkInfoTests: XCTestCase {
     
     func testInitWithDict_SdkInfo() {
         let version = "10.3.1"
-        let settings = SentrySDKSettings()
-        settings.autoInferIP = true
+        let settings = SentrySDKSettings(sendDefaultPii: true)
         let expected = SentrySdkInfo(
             name: sdkName,
             version: version,
@@ -260,8 +291,7 @@ class SentrySdkInfoTests: XCTestCase {
 
     func testInitWithDict_WrongTypesInArrays() {
         let version = "10.3.1"
-        let settings = SentrySDKSettings(dict: [:])
-        settings.autoInferIP = false
+        let settings = SentrySDKSettings(sendDefaultPii: false)
         let expected = SentrySdkInfo(
             name: sdkName,
             version: version,

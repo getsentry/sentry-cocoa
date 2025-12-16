@@ -7,6 +7,7 @@
 #endif
 #import SENTRY_HEADER(SentrySerializable)
 #import SENTRY_HEADER(SentrySpanProtocol)
+#import SENTRY_HEADER(SentryLevel)
 
 @class SentryAttachment;
 @class SentryBreadcrumb;
@@ -28,7 +29,7 @@ NS_SWIFT_NAME(Scope)
  * Returns current Span or Transaction.
  * @return current Span or Transaction or null if transaction has not been set.
  */
-@property (nullable, nonatomic, readonly, strong) id<SentrySpan> span;
+@property (nullable, nonatomic, strong) id<SentrySpan> span;
 
 /**
  * The id of current session replay.
@@ -39,6 +40,11 @@ NS_SWIFT_NAME(Scope)
  * Gets the dictionary of currently set tags.
  */
 @property (nonatomic, readonly, copy) NSDictionary<NSString *, NSString *> *tags;
+
+/**
+ * Gets the dictionary of currently set attributes.
+ */
+@property (nonatomic, readonly, copy) NSDictionary<NSString *, id> *attributes;
 
 - (instancetype)initWithMaxBreadcrumbs:(NSInteger)maxBreadcrumbs NS_DESIGNATED_INITIALIZER;
 - (instancetype)init;
@@ -100,15 +106,12 @@ NS_SWIFT_NAME(Scope)
 /**
  * Sets the @c level in the scope
  */
-- (void)setLevel:(enum SentryLevel)level;
+- (void)setLevel:(SentryLevel)level;
 
 /**
  * Add a breadcrumb to the scope
  */
 - (void)addBreadcrumb:(SentryBreadcrumb *)crumb NS_SWIFT_NAME(addBreadcrumb(_:));
-
-- (void)add:(SentryBreadcrumb *)crumb DEPRECATED_MSG_ATTRIBUTE("use `addBreadcrumb` instead")
-                NS_SWIFT_NAME(add(_:));
 
 /**
  * Clears all breadcrumbs in the scope
@@ -139,10 +142,23 @@ NS_SWIFT_NAME(Scope)
  */
 - (void)addAttachment:(SentryAttachment *)attachment NS_SWIFT_NAME(addAttachment(_:));
 
-// We want to keep the old Swift `add(_ attachment:)` function as deprecated, but we cant have
-// another objc `add` method
-- (void)includeAttachment:(SentryAttachment *)attachment
-    DEPRECATED_MSG_ATTRIBUTE("use `addAttachment` instead")NS_SWIFT_NAME(add(_:));
+/**
+ * Set global attributes. Attributes are searchable key/value string pairs attached to every log
+ * message.
+ * @note The SDK only applies attributes to Logs. The SDK doesn't apply the attributes to
+ * Events, Transactions, Spans, Profiles, Session Replay.
+ * @param value Supported values are string, integers, boolean and double
+ * @param key The key to store, cannot be an empty string
+ */
+- (void)setAttributeValue:(id)value forKey:(NSString *)key NS_SWIFT_NAME(setAttribute(value:key:));
+
+/**
+ * Remove the attribute for the specified key.
+ * @note The SDK only applies attributes to Logs. The SDK doesn't apply the attributes to
+ * Events, Transactions, Spans, Profiles, Session Replay.
+ * @param key The key to remove
+ */
+- (void)removeAttributeForKey:(NSString *)key NS_SWIFT_NAME(removeAttribute(key:));
 
 /**
  * Clears all attachments in the scope.

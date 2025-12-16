@@ -3,7 +3,7 @@ extension SentryLog {
     ///
     /// Log levels are ordered by severity from least (`trace`) to most severe (`fatal`).
     /// Each level corresponds to a numeric severity value following the OpenTelemetry specification.
-    @objc(SentryStructuredLogLevel)
+    @objc(SentryLogLevel)
     public enum Level: Int {
         case trace
         case debug
@@ -74,13 +74,8 @@ extension SentryLog {
     }
 }
 
-// MARK: - Internal Codable Support
-@_spi(Private) extension SentryLog.Level: Codable {
-    @_spi(Private) public init(from decoder: Decoder) throws {
-        let container = try decoder.singleValueContainer()
-        let stringValue = try container.decode(String.self)
-        self = try .init(value: stringValue)
-    }
+// MARK: - Internal Encodable Support
+@_spi(Private) extension SentryLog.Level: Encodable {
     
     @_spi(Private) public func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()

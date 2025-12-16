@@ -10,15 +10,16 @@ class SentryTransportInitializerTests: XCTestCase {
     private var dateProvider: TestCurrentDateProvider!
     private var rateLimits: (any RateLimits)!
 
-    override func setUp() {
-        super.setUp()
+    override func setUpWithError() throws {
+        try super.setUpWithError()
+
         let options = Options()
         options.dsn = SentryTransportInitializerTests.dsnAsString
-        fileManager = try! SentryFileManager(
+        fileManager = try XCTUnwrap(SentryFileManager(
             options: options,
             dateProvider: TestCurrentDateProvider(),
             dispatchQueueWrapper: TestSentryDispatchQueueWrapper()
-        )
+        ))
         dateProvider = TestCurrentDateProvider()
         rateLimits = SentryDependencyContainer.sharedInstance().rateLimits
     }
@@ -30,7 +31,8 @@ class SentryTransportInitializerTests: XCTestCase {
             options,
             dateProvider: dateProvider,
             sentryFileManager: fileManager,
-            rateLimits: rateLimits
+            rateLimits: rateLimits,
+            reachability: TestSentryReachability()
         )
         XCTAssertEqual(result.count, 1)
         

@@ -6,7 +6,7 @@
 #import "SentryException.h"
 #import "SentryFrame.h"
 #import "SentryMechanism.h"
-#import "SentryMechanismMeta.h"
+#import "SentryMechanismContext.h"
 #import "SentryStacktrace.h"
 #import "SentrySwift.h"
 #import "SentryThread.h"
@@ -25,7 +25,7 @@
 - (void)setUp
 {
     [super setUp];
-    self.inAppLogic = [[SentryInAppLogic alloc] initWithInAppIncludes:@[] inAppExcludes:@[]];
+    self.inAppLogic = [[SentryInAppLogic alloc] initWithInAppIncludes:@[]];
 }
 
 - (void)tearDown
@@ -55,8 +55,6 @@
     XCTAssertEqualObjects(firstDebugImage.imageSize, @(65536));
 
     SentryException *exception = event.exceptions.firstObject;
-    XCTAssertEqualObjects(
-        exception.stacktrace.frames.lastObject.symbolAddress, @"0x000000010014c1ec");
     XCTAssertEqualObjects(
         exception.stacktrace.frames.lastObject.instructionAddress, @"0x000000010014caa4");
     XCTAssertEqualObjects(
@@ -220,11 +218,35 @@
 - (void)testNSException
 {
     [self isValidReport:@"Resources/NSException"];
+
+    NSDictionary *rawCrash = [self getCrashReport:@"Resources/NSException"];
+    SentryCrashReportConverter *reportConverter =
+        [[SentryCrashReportConverter alloc] initWithReport:rawCrash inAppLogic:self.inAppLogic];
+    SentryEvent *event = [reportConverter convertReportToEvent];
+
+    SentryException *exception = event.exceptions.firstObject;
+    XCTAssertEqualObjects(exception.type, @"NSInvalidArgumentException");
+    XCTAssertEqualObjects(exception.value,
+        @"-[__NSArrayI objectForKey:]: unrecognized selector sent to instance 0x1e59bc50");
 }
 
 - (void)testUnknownTypeException
 {
     [self isValidReport:@"Resources/UnknownTypeException"];
+}
+
+- (void)testNSExceptionWithoutReason
+{
+    [self isValidReport:@"Resources/NSExceptionWithoutReason"];
+
+    NSDictionary *rawCrash = [self getCrashReport:@"Resources/NSExceptionWithoutReason"];
+    SentryCrashReportConverter *reportConverter =
+        [[SentryCrashReportConverter alloc] initWithReport:rawCrash inAppLogic:self.inAppLogic];
+    SentryEvent *event = [reportConverter convertReportToEvent];
+
+    SentryException *exception = event.exceptions.firstObject;
+    XCTAssertEqualObjects(exception.type, @"MyCustomException");
+    XCTAssertNil(exception.value);
 }
 
 - (void)testStackoverflow
@@ -255,7 +277,7 @@
         [[SentryCrashReportConverter alloc] initWithReport:rawCrash inAppLogic:self.inAppLogic];
     SentryEvent *event = [reportConverter convertReportToEvent];
     SentryException *exception = event.exceptions.firstObject;
-    XCTAssertEqualObjects(exception.stacktrace.frames.lastObject.function, @"<redacted>");
+    XCTAssertNil(exception.stacktrace.frames.lastObject.function);
 }
 
 - (void)testReactNative

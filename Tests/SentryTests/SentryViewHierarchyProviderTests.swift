@@ -20,21 +20,6 @@ class SentryViewHierarchyProviderTests: XCTestCase {
         fixture = Fixture()
     }
 
-    override func setUpWithError() throws {
-        try super.setUpWithError()
-
-        /**
-         * This test is making iOS 13 simulator hang in GH workflow,
-         * thats why we need to check for iOS 13 or later.
-         * By testing this in the other versions of iOS we guarantee the behavior
-         * mean while, running an iOS 12 sample with Saucelabs ensures this feature
-         * is not crashing the app.
-         */
-        guard #available(iOS 13, *) else {
-            throw XCTSkip("Skipping for iOS < 13")
-        }
-    }
-
     func test_Multiple_Window() {
         let firstWindow = UIWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
         let secondWindow = UIWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))

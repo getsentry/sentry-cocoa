@@ -1,4 +1,5 @@
 #import "SentryDefines.h"
+#import "SentryLevel.h"
 
 @class SentryUser;
 
@@ -37,7 +38,7 @@ SENTRY_NO_INIT
 
 - (void)setFingerprint:(nullable NSArray<NSString *> *)fingerprint;
 
-- (void)setLevel:(enum SentryLevel)level;
+- (void)setLevel:(SentryLevel)level;
 
 - (void)addSerializedBreadcrumb:(NSDictionary<NSString *, id> *)crumb;
 

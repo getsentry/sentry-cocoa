@@ -1,8 +1,8 @@
 #import "SentryCrashThread.h"
 #import "SentryDefines.h"
+#import "SentryOptionsObjC.h"
 #import <Foundation/Foundation.h>
 
-@class SentryOptions;
 @class SentryStacktrace;
 @class SentryStacktraceBuilder;
 @class SentryThread;
@@ -15,10 +15,9 @@ NS_ASSUME_NONNULL_BEGIN
 SENTRY_NO_INIT
 
 - (id)initWithStacktraceBuilder:(SentryStacktraceBuilder *)stacktraceBuilder
-       andMachineContextWrapper:(id<SentryCrashMachineContextWrapper>)machineContextWrapper
-                    symbolicate:(BOOL)symbolicate;
+       andMachineContextWrapper:(id<SentryCrashMachineContextWrapper>)machineContextWrapper;
 
-- (instancetype)initWithOptions:(SentryOptions *_Nullable)options;
+- (instancetype)initWithOptions:(SentryOptionsObjC *_Nullable)options;
 
 - (nullable SentryStacktrace *)stacktraceForCurrentThreadAsyncUnsafe;
 

@@ -1,10 +1,12 @@
 #import <Foundation/Foundation.h>
 
+#import "SentryLevel.h"
 #import "SentryScope.h"
 
 @class SentryAttachment;
 @class SentryPropagationContext;
 @class SentrySession;
+@class SentrySpan;
 
 @protocol SentryScopeObserver;
 
@@ -13,7 +15,6 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SentryScope ()
 
 @property (atomic, copy, nullable) NSString *environmentString;
-@property (nullable, nonatomic, strong) id<SentrySpan> span;
 
 @property (atomic, strong, readonly) NSArray<SentryAttachment *> *attachments;
 
@@ -40,13 +41,13 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * SentryLevel of the event
  */
-@property (atomic) enum SentryLevel levelEnum;
+@property (atomic) SentryLevel levelEnum;
 
 @property (nonatomic, nullable, copy) NSString *currentScreen;
 
 - (NSArray<SentryBreadcrumb *> *)breadcrumbs;
 
-- (void)setSpan:(nullable id<SentrySpan>)span;
+- (nullable SentrySpan *)getCastedInternalSpan;
 
 /**
  * used to add values in event context.

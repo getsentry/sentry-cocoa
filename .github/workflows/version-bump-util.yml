@@ -26,7 +26,7 @@ jobs:
     outputs:
       run_version_bump_util_for_prs: ${{ steps.changes.outputs.run_version_bump_util_for_prs }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Get changed files
         id: changes
         uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
@@ -42,7 +42,7 @@ jobs:
     # We intentionally run this on ubuntu because the release workflow also runs on ubuntu, which uses the version bump util.
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Generate Version Number
         id: generate-version-number
         run: |
@@ -59,7 +59,7 @@ jobs:
     name: Run Version Bump (Shell Script)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Generate Version Number
         id: generate-version-number
         run: |
@@ -79,12 +79,12 @@ jobs:
 
       - name: Create fake xcframework for update-package-sha.sh
         run: |
-          mkdir -p Carthage
-          echo "<FAKE STATIC ZIP>" > Carthage/Sentry.xcframework.zip
-          echo "<FAKE DYNAMIC ZIP>" > Carthage/Sentry-Dynamic.xcframework.zip
-          echo "<FAKE DYNAMIC WITH ARM64E ZIP>" > Carthage/Sentry-Dynamic-WithARM64e.xcframework.zip
-          echo "<FAKE WITHOUT UIKIT OR APPKIT ZIP>" > Carthage/Sentry-WithoutUIKitOrAppKit.xcframework.zip
-          echo "<FAKE WITHOUT UIKIT OR APPKIT WITH ARM64E ZIP>" > Carthage/Sentry-WithoutUIKitOrAppKit-WithARM64e.xcframework.zip
+          mkdir -p XCFrameworkBuildPath
+          echo "<FAKE STATIC ZIP>" > XCFrameworkBuildPath/Sentry.xcframework.zip
+          echo "<FAKE DYNAMIC ZIP>" > XCFrameworkBuildPath/Sentry-Dynamic.xcframework.zip
+          echo "<FAKE DYNAMIC WITH ARM64E ZIP>" > XCFrameworkBuildPath/Sentry-Dynamic-WithARM64e.xcframework.zip
+          echo "<FAKE WITHOUT UIKIT OR APPKIT ZIP>" > XCFrameworkBuildPath/Sentry-WithoutUIKitOrAppKit.xcframework.zip
+          echo "<FAKE WITHOUT UIKIT OR APPKIT WITH ARM64E ZIP>" > XCFrameworkBuildPath/Sentry-WithoutUIKitOrAppKit-WithARM64e.xcframework.zip
 
       - name: Bump version
         run: ./scripts/bump.sh ${{ steps.generate-version-number.outputs.OLD_VERSION }} ${{ steps.generate-version-number.outputs.NEW_VERSION }}

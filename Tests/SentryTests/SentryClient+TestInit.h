@@ -11,26 +11,12 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryClient ()
+@interface SentryClientInternal ()
 
-- (_Nullable instancetype)initWithOptions:(SentryOptions *)options
-                             dateProvider:(id<SentryCurrentDateProvider>)dateProvider
-                            dispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue
-                   deleteOldEnvelopeItems:(BOOL)deleteOldEnvelopeItems;
-
-- (_Nullable instancetype)initWithOptions:(SentryOptions *)options
-                              fileManager:(SentryFileManager *)fileManager
-                   deleteOldEnvelopeItems:(BOOL)deleteOldEnvelopeItems;
-
-- (instancetype)initWithOptions:(SentryOptions *)options
-                    fileManager:(SentryFileManager *)fileManager
-         deleteOldEnvelopeItems:(BOOL)deleteOldEnvelopeItems
-               transportAdapter:(SentryTransportAdapter *)transportAdapter;
-
-- (instancetype)initWithOptions:(SentryOptions *)options
+- (instancetype)initWithOptions:(NSObject *)options
+                   dateProvider:(id<SentryCurrentDateProvider>)dateProvider
                transportAdapter:(SentryTransportAdapter *)transportAdapter
                     fileManager:(SentryFileManager *)fileManager
-         deleteOldEnvelopeItems:(BOOL)deleteOldEnvelopeItems
                 threadInspector:(SentryDefaultThreadInspector *)threadInspector
              debugImageProvider:(SentryDebugImageProvider *)debugImageProvider
                          random:(id<SentryRandomProtocol>)random

@@ -64,10 +64,9 @@ extension SentryEventDecodable {
 
         if let rawLevel = try container.decodeIfPresent(String.self, forKey: .level) {
             let level = SentryLevelHelper.levelForName(rawLevel)
-            SentryLevelBridge.setBreadcrumbLevelOn(self, level: level.rawValue)
+            self.level = level
         } else {
-            SentryLevelBridge.setBreadcrumbLevelOn(self, level:
-            SentryLevel.none.rawValue)
+            self.level = .none
         }
 
         self.platform = try container.decode(String.self, forKey: .platform)

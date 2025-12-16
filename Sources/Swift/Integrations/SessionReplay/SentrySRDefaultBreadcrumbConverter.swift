@@ -45,7 +45,7 @@ import Foundation
                                               data: data)
         }
         
-        let level = getLevel(breadcrumb: breadcrumb)
+        let level = breadcrumb.level
         return SentryRRWebBreadcrumbEvent(timestamp: timestamp, category: breadcrumb.category, message: breadcrumb.message, level: level, data: breadcrumb.data)
     }
     
@@ -81,15 +81,5 @@ import Foundation
         
         //We dont have end of the request in the breadcrumb.
         return SentryRRWebSpanEvent(timestamp: startTimestamp, endTimestamp: timestamp, operation: "resource.http", description: description, data: data)
-    }
-    
-    private func getLevel(breadcrumb: Breadcrumb) -> SentryLevel {
-        return SentryLevelHelper.breadcrumbLevel(breadcrumb) ?? .none
-    }
-}
-
-extension SentryLevelHelper {
-    static func breadcrumbLevel(_ breadcrumb: Breadcrumb) -> SentryLevel? {
-        SentryLevel(rawValue: SentryLevelBridge.breadcrumbLevel(breadcrumb))
     }
 }

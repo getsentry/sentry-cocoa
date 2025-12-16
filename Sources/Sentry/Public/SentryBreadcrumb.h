@@ -7,6 +7,7 @@
 #    import <SentryDefines.h>
 #endif
 #import SENTRY_HEADER(SentrySerializable)
+#import SENTRY_HEADER(SentryLevel)
 
 NS_ASSUME_NONNULL_BEGIN
 

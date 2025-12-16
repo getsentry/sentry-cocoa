@@ -4,9 +4,11 @@
     var processorCount: Int { get }
     var thermalState: ProcessInfo.ThermalState { get }
     var environment: [String: String] { get }
-    
+
+    @available(macOS 12.0, *)
     var isiOSAppOnMac: Bool { get }
-    
+
+    @available(macOS 12.0, *)
     var isMacCatalystApp: Bool { get }
 }
 

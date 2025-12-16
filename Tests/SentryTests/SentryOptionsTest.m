@@ -1,6 +1,4 @@
-#import "SentryOptions.h"
 #import "SentryError.h"
-#import "SentryOptionsInternal.h"
 #import "SentrySDKInternal.h"
 #import "SentrySpan.h"
 #import "SentryTests-Swift.h"
@@ -97,7 +95,7 @@
 - (void)testEnvironment
 {
     SentryOptions *options = [self getValidOptions:@{}];
-    XCTAssertEqual(options.environment, kSentryDefaultEnvironment);
+    XCTAssertEqualObjects(options.environment, [SentryOptions defaultEnvironment]);
 
     options = [self getValidOptions:@{ @"environment" : @"xxx" }];
     XCTAssertEqualObjects(options.environment, @"xxx");
@@ -289,10 +287,15 @@
 
 - (void)testBeforeSend
 {
-    SentryBeforeSendEventCallback callback = ^(SentryEvent *event) { return event; };
+    __block BOOL called = false;
+    SentryBeforeSendEventCallback callback = ^(SentryEvent *event) {
+        called = true;
+        return event;
+    };
     SentryOptions *options = [self getValidOptions:@{ @"beforeSend" : callback }];
+    options.beforeSend([[SentryEvent alloc] init]);
 
-    XCTAssertEqual(callback, options.beforeSend);
+    XCTAssertTrue(called);
 }
 
 - (void)testDefaultBeforeSend
@@ -316,13 +319,20 @@
     XCTAssertFalse([options.beforeSend isEqual:[NSNull null]]);
 }
 
-#if !SWIFT_PACKAGE
+typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull log);
 - (void)testBeforeSendLog
 {
-    SentryBeforeSendLogCallback callback = ^(SentryLog *log) { return log; };
+    __block BOOL called = false;
+    SentryBeforeSendLogCallback callback = ^(SentryLog *log) {
+        called = true;
+        return log;
+    };
     SentryOptions *options = [self getValidOptions:@{ @"beforeSendLog" : callback }];
+    // Not calling `init` here because it is not available in ObjC, but it doesn't matter because
+    // the object is not used in the stub callback;
+    options.beforeSendLog([SentryLog alloc]);
 
-    XCTAssertEqual(callback, options.beforeSendLog);
+    XCTAssertTrue(called);
 }
 
 - (void)testDefaultBeforeSendLog
@@ -338,14 +348,23 @@
 
     XCTAssertNil(options.beforeSendLog);
 }
-#endif // !SWIFT_PACKAGE
 
 - (void)testBeforeSendSpan
 {
-    SentryBeforeSendSpanCallback callback = ^(id<SentrySpan> span) { return span; };
+    __block BOOL called = false;
+    SentryBeforeSendSpanCallback callback = ^(id<SentrySpan> span) {
+        called = true;
+        return span;
+    };
     SentryOptions *options = [self getValidOptions:@{ @"beforeSendSpan" : callback }];
+    options.beforeSendSpan(
+        [[SentrySpan alloc] initWithContext:[[SentrySpanContext alloc] initWithOperation:@""]
+#if SENTRY_HAS_UIKIT
+                              framesTracker:NULL
+#endif
+    ]);
 
-    XCTAssertEqual(callback, options.beforeSendSpan);
+    XCTAssertTrue(called);
 }
 
 - (void)testDefaultBeforeSendSpan
@@ -357,11 +376,15 @@
 
 - (void)testBeforeBreadcrumb
 {
-    SentryBeforeBreadcrumbCallback callback
-        = ^(SentryBreadcrumb *breadcrumb) { return breadcrumb; };
+    __block BOOL called = false;
+    SentryBeforeBreadcrumbCallback callback = ^(SentryBreadcrumb *breadcrumb) {
+        called = true;
+        return breadcrumb;
+    };
     SentryOptions *options = [self getValidOptions:@{ @"beforeBreadcrumb" : callback }];
+    options.beforeBreadcrumb([[SentryBreadcrumb alloc] init]);
 
-    XCTAssertEqual(callback, options.beforeBreadcrumb);
+    XCTAssertTrue(called);
 }
 
 - (void)testDefaultBeforeBreadcrumb
@@ -373,16 +396,18 @@
 
 - (void)testBeforeCaptureScreenshot
 {
+    __block BOOL called = false;
     SentryBeforeCaptureScreenshotCallback callback = ^(SentryEvent *event) {
+        called = true;
         if (event.level == kSentryLevelFatal) {
             return NO;
         }
-
-        return YES;
+        return NO;
     };
     SentryOptions *options = [self getValidOptions:@{ @"beforeCaptureScreenshot" : callback }];
+    options.beforeCaptureScreenshot([[SentryEvent alloc] init]);
 
-    XCTAssertEqual(callback, options.beforeCaptureScreenshot);
+    XCTAssertTrue(called);
 }
 
 - (void)testDefaultBeforeCaptureScreenshot
@@ -394,16 +419,18 @@
 
 - (void)testBeforeCaptureViewHierarchy
 {
+    __block BOOL called = false;
     SentryBeforeCaptureScreenshotCallback callback = ^(SentryEvent *event) {
+        called = true;
         if (event.level == kSentryLevelFatal) {
             return NO;
         }
-
-        return YES;
+        return NO;
     };
     SentryOptions *options = [self getValidOptions:@{ @"beforeCaptureViewHierarchy" : callback }];
+    options.beforeCaptureViewHierarchy([[SentryEvent alloc] init]);
 
-    XCTAssertEqual(callback, options.beforeCaptureViewHierarchy);
+    XCTAssertTrue(called);
 }
 
 - (void)testDefaultBeforeCaptureViewHierarchy
@@ -487,7 +514,6 @@
 
     options.onCrashedLastRun([[SentryEvent alloc] init]);
 
-    XCTAssertEqual(callback, options.onCrashedLastRun);
     XCTAssertTrue(onCrashedLastRunCalled);
 }
 
@@ -617,9 +643,7 @@
         @"maxCacheItems" : [NSNull null],
         @"cacheDirectoryPath" : [NSNull null],
         @"beforeSend" : [NSNull null],
-#if !SWIFT_PACKAGE
         @"beforeSendLog" : [NSNull null],
-#endif
         @"beforeBreadcrumb" : [NSNull null],
         @"onCrashedLastRun" : [NSNull null],
         @"integrations" : [NSNull null],
@@ -647,7 +671,6 @@
         @"profilesSampler" : [NSNull null],
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
         @"inAppIncludes" : [NSNull null],
-        @"inAppExcludes" : [NSNull null],
         @"urlSessionDelegate" : [NSNull null],
         @"enableSwizzling" : [NSNull null],
         @"swizzleClassNameExcludes" : [NSNull null],
@@ -672,7 +695,7 @@
     XCTAssertEqual(2.0, options.shutdownTimeInterval);
     XCTAssertEqual(NO, options.debug);
     XCTAssertEqual(kSentryLevelDebug, options.diagnosticLevel);
-    XCTAssertEqual(options.environment, kSentryDefaultEnvironment);
+    XCTAssertEqualObjects(options.environment, [SentryOptions defaultEnvironment]);
     XCTAssertNil(options.dist);
     XCTAssertEqual(defaultMaxBreadcrumbs, options.maxBreadcrumbs);
     XCTAssertTrue(options.enableNetworkBreadcrumbs);
@@ -687,7 +710,7 @@
     XCTAssertEqual(YES, options.enableWatchdogTerminationTracking);
     XCTAssertEqual([@30000 unsignedIntValue], options.sessionTrackingIntervalMillis);
     XCTAssertEqual(YES, options.attachStacktrace);
-    XCTAssertEqual(100 * 1024 * 1024, options.maxAttachmentSize);
+    XCTAssertEqual(200 * 1024 * 1024, options.maxAttachmentSize);
     XCTAssertEqual(NO, options.sendDefaultPii);
     XCTAssertTrue(options.enableAutoPerformanceTracing);
 #if SENTRY_HAS_UIKIT
@@ -707,20 +730,17 @@
     XCTAssertNil(options.tracesSampleRate);
     XCTAssertNil(options.tracesSampler);
     XCTAssertEqualObjects([self getDefaultInAppIncludes], options.inAppIncludes);
-    XCTAssertEqual(@[], options.inAppExcludes);
     XCTAssertNil(options.urlSessionDelegate);
     XCTAssertNil(options.urlSession);
     XCTAssertEqual(YES, options.enableSwizzling);
-    XCTAssertEqual([NSSet new], options.swizzleClassNameExcludes);
+    XCTAssertEqualObjects([NSSet new], options.swizzleClassNameExcludes);
     XCTAssertEqual(YES, options.enableFileIOTracing);
     XCTAssertEqual(YES, options.enableAutoBreadcrumbTracking);
     XCTAssertFalse(options.swiftAsyncStacktraces);
 
 #if SENTRY_HAS_METRIC_KIT
-    if (@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, *)) {
-        XCTAssertEqual(NO, options.enableMetricKit);
-        XCTAssertEqual(NO, options.enableMetricKitRawPayload);
-    }
+    XCTAssertEqual(NO, options.enableMetricKit);
+    XCTAssertEqual(NO, options.enableMetricKitRawPayload);
 #endif // SENTRY_HAS_METRIC_KIT
 
     NSRegularExpression *regexTrace = options.tracePropagationTargets[0];
@@ -807,7 +827,7 @@
 {
     SentryOptions *options = [self getValidOptions:@{}];
 
-    XCTAssertEqual(100 * 1024 * 1024, options.maxAttachmentSize);
+    XCTAssertEqual(200 * 1024 * 1024, options.maxAttachmentSize);
 }
 
 - (void)testSendDefaultPii
@@ -899,16 +919,12 @@
 
 - (void)testEnableMetricKit
 {
-    if (@available(iOS 14.0, macOS 12.0, macCatalyst 14.0, *)) {
-        [self testBooleanField:@"enableMetricKit" defaultValue:NO];
-    }
+    [self testBooleanField:@"enableMetricKit" defaultValue:NO];
 }
 
 - (void)testenableMetricKitRawPayload
 {
-    if (@available(iOS 14.0, macOS 12.0, macCatalyst 14.0, *)) {
-        [self testBooleanField:@"enableMetricKitRawPayload" defaultValue:NO];
-    }
+    [self testBooleanField:@"enableMetricKitRawPayload" defaultValue:NO];
 }
 #endif // SENTRY_HAS_METRIC_KIT
 
@@ -1106,29 +1122,6 @@
     XCTAssertEqualObjects([self getDefaultInAppIncludes], options.inAppIncludes);
 }
 
-- (void)testInAppExcludes
-{
-    NSArray<NSString *> *expected = @[ @"Sentry" ];
-    NSArray *inAppExcludes = @[ @"Sentry", @2 ];
-
-    SentryOptions *options = [self getValidOptions:@{ @"inAppExcludes" : inAppExcludes }];
-
-    XCTAssertEqualObjects(expected, options.inAppExcludes);
-}
-
-- (void)testAddInAppExcludes
-{
-    SentryOptions *options = [self getValidOptions:@{}];
-    [options addInAppExclude:@"App"];
-    XCTAssertEqualObjects(@[ @"App" ], options.inAppExcludes);
-}
-
-- (void)testDefaultInAppExcludes
-{
-    SentryOptions *options = [self getValidOptions:@{}];
-    XCTAssertEqualObjects(@[], options.inAppExcludes);
-}
-
 - (void)testDefaultInitialScope
 {
     SentryOptions *options = [self getValidOptions:@{}];
@@ -1138,10 +1131,14 @@
 
 - (void)testInitialScope
 {
-    SentryScope * (^initialScope)(SentryScope *)
-        = ^SentryScope *(SentryScope *scope) { return scope; };
+    __block BOOL called = false;
+    SentryScope * (^initialScope)(SentryScope *) = ^SentryScope *(SentryScope *scope) {
+        called = true;
+        return scope;
+    };
     SentryOptions *options = [self getValidOptions:@{ @"initialScope" : initialScope }];
-    XCTAssertIdentical(initialScope, options.initialScope);
+    options.initialScope([[SentryScope alloc] init]);
+    XCTAssertTrue(called);
 }
 
 - (SentryOptions *)getValidOptions:(NSDictionary<NSString *, id> *)dict
@@ -1194,19 +1191,6 @@
 {
     SentryOptions *options = [self getValidOptions:@{ @"swiftAsyncStacktraces" : @YES }];
     XCTAssertTrue(options.swiftAsyncStacktraces);
-}
-
-- (void)testOptionsDebugDescription
-{
-    NSNumber *_Nullable (^tracesSampler)(void) = ^NSNumber *_Nullable { return nil; };
-    SentryOptions *options = [self getValidOptions:@{
-        @"tracesSampler" : tracesSampler,
-        @"sampleRate" : @0.123,
-    }];
-    NSString *debugDescription = options.debugDescription;
-    XCTAssertNotNil(debugDescription);
-    XCTAssert([debugDescription containsString:@"sampleRate: 0.123"]);
-    XCTAssert([debugDescription containsString:@"tracesSampler: <__NSGlobalBlock__: "]);
 }
 
 - (void)testEnableSpotlight

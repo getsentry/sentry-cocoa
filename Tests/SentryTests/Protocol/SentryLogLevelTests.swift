@@ -59,80 +59,6 @@ final class SentryLogLevelTests: XCTestCase {
         XCTAssertEqual(jsonString, "\"fatal\"")
     }
     
-    // MARK: - Decoding Tests
-    
-    func testDecodeTrace() throws {
-        let jsonData = Data("\"trace\"".utf8)
-        
-        let level = try XCTUnwrap(decodeFromJSONData(jsonData: jsonData) as SentryLog.Level?)
-        
-        XCTAssertEqual(level, .trace)
-    }
-    
-    func testDecodeDebug() throws {
-        let jsonData = Data("\"debug\"".utf8)
-        
-        let level = try XCTUnwrap(decodeFromJSONData(jsonData: jsonData) as SentryLog.Level?)
-        
-        XCTAssertEqual(level, .debug)
-    }
-    
-    func testDecodeInfo() throws {
-        let jsonData = Data("\"info\"".utf8)
-        
-        let level = try XCTUnwrap(decodeFromJSONData(jsonData: jsonData) as SentryLog.Level?)
-        
-        XCTAssertEqual(level, .info)
-    }
-    
-    func testDecodeWarn() throws {
-        let jsonData = Data("\"warn\"".utf8)
-        
-        let level = try XCTUnwrap(decodeFromJSONData(jsonData: jsonData) as SentryLog.Level?)
-        
-        XCTAssertEqual(level, .warn)
-    }
-    
-    func testDecodeError() throws {
-        let jsonData = Data("\"error\"".utf8)
-        
-        let level = try XCTUnwrap(decodeFromJSONData(jsonData: jsonData) as SentryLog.Level?)
-        
-        XCTAssertEqual(level, .error)
-    }
-    
-    func testDecodeFatal() throws {
-        let jsonData = Data("\"fatal\"".utf8)
-        
-        let level = try XCTUnwrap(decodeFromJSONData(jsonData: jsonData) as SentryLog.Level?)
-        
-        XCTAssertEqual(level, .fatal)
-    }
-    
-    // MARK: - Error Cases
-    
-    func testDecodeCaseSensitive_ReturnsNil() {
-        let jsonData = Data("\"TRACE\"".utf8)
-        
-        let level = decodeFromJSONData(jsonData: jsonData) as SentryLog.Level?
-        
-        XCTAssertNil(level)
-    }
-    
-    // MARK: - Round-trip Tests
-    
-    func testRoundTrip() throws {
-        let levels: [SentryLog.Level] = [.trace, .debug, .info, .warn, .error, .fatal]
-        
-        for original in levels {
-            
-            let data = try JSONEncoder().encode(original)
-            let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as SentryLog.Level?)
-            
-            XCTAssertEqual(decoded, original)
-        }
-    }
-    
     // MARK: - Array Tests
     
     func testEncodeArrayOfLogLevels() throws {
@@ -144,22 +70,6 @@ final class SentryLogLevelTests: XCTestCase {
         XCTAssertEqual(jsonString, "[\"trace\",\"debug\",\"info\",\"warn\",\"error\",\"fatal\"]")
     }
     
-    func testDecodeArrayOfLogLevels() throws {
-        let jsonData = Data("[\"trace\",\"debug\",\"info\",\"warn\",\"error\",\"fatal\"]".utf8)
-        
-        let levels = try XCTUnwrap(decodeFromJSONData(jsonData: jsonData) as [SentryLog.Level]?)
-        
-        XCTAssertEqual(levels, [.trace, .debug, .info, .warn, .error, .fatal])
-    }
-    
-    func testDecodeArrayWithInvalidLevel_ReturnsNil() {
-        let jsonData = Data("[\"trace\",\"invalid\",\"debug\"]".utf8)
-        
-        let levels = decodeFromJSONData(jsonData: jsonData) as [SentryLog.Level]?
-        
-        XCTAssertNil(levels)
-    }
-    
     // MARK: - Dictionary Tests
     
     func testEncodeLogLevelInDictionary() throws {
@@ -169,14 +79,6 @@ final class SentryLogLevelTests: XCTestCase {
         let jsonString = String(data: data, encoding: .utf8)
         
         XCTAssertEqual(jsonString, "{\"level\":\"error\"}")
-    }
-    
-    func testDecodeLogLevelFromDictionary() throws {
-        let jsonData = Data("{\"level\":\"warn\"}".utf8)
-        
-        let dict = try XCTUnwrap(decodeFromJSONData(jsonData: jsonData) as [String: SentryLog.Level]?)
-        
-        XCTAssertEqual(dict["level"], .warn)
     }
     
     // MARK: - Value Property Tests

@@ -41,11 +41,11 @@ playground.xcworkspace
 Packages
 
 # Carthage
+# We don't use Carthage anymore, but we keep this folder to avoid uploading local files by mistake.
+# Will be removed in the future.
 Carthage/Build
 Carthage/Checkouts
 Carthage
-Sentry.Carthage.json
-SentrySwiftUI.Carthage.json
 
 # CocoaPods
 Examples/**/Pods
@@ -87,6 +87,7 @@ Samples/iOS-ObjectiveC/iOS-ObjectiveC.xcodeproj
 Samples/iOS-Swift/iOS-Swift.xcodeproj
 Samples/iOS-Swift6/iOS-Swift6.xcodeproj
 Samples/iOS-SwiftUI/iOS-SwiftUI.xcodeproj
+Samples/iOS-SwiftUI-Widgets/iOS-SwiftUI-Widgets.xcodeproj
 Samples/iOS15-SwiftUI/iOS15-SwiftUI.xcodeproj
 Samples/macOS-Swift/macOS-Swift.xcodeproj
 Samples/macOS-SwiftUI/macOS-SwiftUI.xcodeproj
@@ -95,6 +96,8 @@ Samples/visionOS-Swift/visionOS-Swift.xcodeproj
 Samples/watchOS-Swift/watchOS-Swift.xcodeproj
 Samples/SentrySampleShared/SentrySampleShared.xcodeproj
 Samples/DistributionSample/DistributionSample.xcodeproj
+Samples/SPM/SPM.xcodeproj
+Samples/SDK-Size/SDK-Size.xcodeproj
 TestSamples/SwiftUITestSample/SwiftUITestSample.xcodeproj
 TestSamples/SwiftUICrashTest/SwiftUICrashTest.xcodeproj
 
@@ -112,3 +115,9 @@ uikit-check-build
 
 # Output of `make analyze`
 analyzer
+
+# Output of snapshot testing
+**/__Snapshots__
+
+# Output folder for Sentry local builds
+XCFrameworkBuildPath/

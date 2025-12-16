@@ -1,4 +1,4 @@
-// swift-tools-version:5.5
+// swift-tools-version:6.0
 #if canImport(Darwin)
 import Darwin.C
 #elseif canImport(Glibc)
@@ -22,47 +22,48 @@ var products: [Product] = [
 var targets: [Target] = [
     .binaryTarget(
         name: "Sentry",
-        url: "https://github.com/getsentry/sentry-cocoa/releases/download/8.57.1/Sentry.xcframework.zip",
-        checksum: "f187d5cc4f8c34533efb5b5ac74cab59ca5354c846d7230f3cbf8ecc81f3fa50" //Sentry-Static
+        url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.1.0/Sentry.xcframework.zip",
+        checksum: "dbe8684753ee9590d2785edfd3ae2a48f4953cb7a8e5251de8a3b534238d9f93" //Sentry-Static
     ),
     .binaryTarget(
         name: "Sentry-Dynamic",
-        url: "https://github.com/getsentry/sentry-cocoa/releases/download/8.57.1/Sentry-Dynamic.xcframework.zip",
-        checksum: "191d76b1228cd52745ec2c875b2b5ed3d319f435db025ac9cea9ba300c62bbc6" //Sentry-Dynamic
+        url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.1.0/Sentry-Dynamic.xcframework.zip",
+        checksum: "71d1e398eb21e933887a71289008df38a180ac3d0047d24301dec4e9977e52ac" //Sentry-Dynamic
     ),
     .binaryTarget(
         name: "Sentry-Dynamic-WithARM64e",
-        url: "https://github.com/getsentry/sentry-cocoa/releases/download/8.57.1/Sentry-Dynamic-WithARM64e.xcframework.zip",
-        checksum: "cbd168b1b496daf5dc9668520f64c58a1843645e6f335613db3f62e45bb64b90" //Sentry-Dynamic-WithARM64e
+        url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.1.0/Sentry-Dynamic-WithARM64e.xcframework.zip",
+        checksum: "7104ff7d0a454a587eaefaf804ab63adabe6623803811ce47e33c516ae556be7" //Sentry-Dynamic-WithARM64e
     ),
     .binaryTarget(
         name: "Sentry-WithoutUIKitOrAppKit",
-        url: "https://github.com/getsentry/sentry-cocoa/releases/download/8.57.1/Sentry-WithoutUIKitOrAppKit.xcframework.zip",
-        checksum: "c38f99b532807f79ef3b7960099ba1db0a3e4663e8f2838875e100fa5b78611b" //Sentry-WithoutUIKitOrAppKit
+        url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.1.0/Sentry-WithoutUIKitOrAppKit.xcframework.zip",
+        checksum: "8d1ddafc78732e3b03e8bfa2a2f41e6c914a938f06dd5f7330f47435553c21d1" //Sentry-WithoutUIKitOrAppKit
     ),
     .binaryTarget(
         name: "Sentry-WithoutUIKitOrAppKit-WithARM64e",
-        url: "https://github.com/getsentry/sentry-cocoa/releases/download/8.57.1/Sentry-WithoutUIKitOrAppKit-WithARM64e.xcframework.zip",
-        checksum: "6f3b991969a02f02878d052d0edf7076110f0ea577f84b2c5ad706a9bd302c54" //Sentry-WithoutUIKitOrAppKit-WithARM64e
+        url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.1.0/Sentry-WithoutUIKitOrAppKit-WithARM64e.xcframework.zip",
+        checksum: "e653ba630e9858c33090b24cb1be97c4d88a9e8157adab119eb100bf479bebf8" //Sentry-WithoutUIKitOrAppKit-WithARM64e
     ),
-    .target (
+    .target(
         name: "SentrySwiftUI",
         dependencies: ["Sentry", "SentryInternal"],
         path: "Sources/SentrySwiftUI",
         exclude: ["SentryInternal/", "module.modulemap"],
         linkerSettings: [
             .linkedFramework("Sentry")
-        ]),
+        ]
+    ),
     .target(
         name: "SentryInternal",
         path: "Sources/SentrySwiftUI",
         sources: [
             "SentryInternal/"
         ],
-        publicHeadersPath: "SentryInternal/"),
+        publicHeadersPath: "SentryInternal/"
+    ),
     .target(
         name: "SentryCppHelper",
-        dependencies: ["Sentry"],
         path: "Sources/SentryCppHelper",
         linkerSettings: [
          .linkedLibrary("c++")
@@ -72,9 +73,7 @@ var targets: [Target] = [
     .testTarget(name: "SentryDistributionTests", dependencies: ["SentryDistribution"], path: "Sources/SentryDistributionTests")
 ]
 
-let env = getenv("EXPERIMENTAL_SPM_BUILDS")
-if let env = env, String(cString: env, encoding: .utf8) == "1" {
-    products.append(.library(name: "SentrySPM", type: .dynamic, targets: ["SentryObjc"]))
+    products.append(.library(name: "SentrySPM", targets: ["SentryObjc"]))
     targets.append(contentsOf: [
         // At least one source file is required, therefore we use a dummy class to satisfy the SPM build system
         .target(
@@ -95,10 +94,7 @@ if let env = env, String(cString: env, encoding: .utf8) == "1" {
             dependencies: ["_SentryPrivate", "SentryHeaders"],
             path: "Sources/Swift",
             swiftSettings: [
-                .unsafeFlags(["-enable-library-evolution"]),
-                // Some API breaking changes are necessary for the framework to compile with SPM, we’ll ship
-                // those in V9.
-                .define("SDK_V9")
+                .unsafeFlags(["-enable-library-evolution"])
             ]),
         .target(
             name: "SentryObjc",
@@ -113,15 +109,14 @@ if let env = env, String(cString: env, encoding: .utf8) == "1" {
                 .headerSearchPath("SentryCrash/Recording/Tools"),
                 .headerSearchPath("SentryCrash/Installations"),
                 .headerSearchPath("SentryCrash/Reporting/Filters"),
-                .headerSearchPath("SentryCrash/Reporting/Filters/Tools"),
-                .define("SDK_V9")])
+                .headerSearchPath("SentryCrash/Reporting/Filters/Tools")])
     ])
-}
 
 let package = Package(
     name: "Sentry",
-    platforms: [.iOS(.v15), .macOS(.v12), .tvOS(.v15), .watchOS(.v8)],
+    platforms: [.iOS(.v15), .macOS(.v10_14), .tvOS(.v15), .watchOS(.v8), .visionOS(.v1)],
     products: products,
     targets: targets,
+    swiftLanguageModes: [.v5],
     cxxLanguageStandard: .cxx14
 )

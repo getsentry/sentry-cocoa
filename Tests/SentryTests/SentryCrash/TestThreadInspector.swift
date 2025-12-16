@@ -7,10 +7,10 @@ class TestDefaultThreadInspector: SentryDefaultThreadInspector {
     
     static var instance: TestDefaultThreadInspector {
         // We need something to pass to the super initializer, because the empty initializer has been marked unavailable.
-        let inAppLogic = SentryInAppLogic(inAppIncludes: [], inAppExcludes: [])
+        let inAppLogic = SentryInAppLogic(inAppIncludes: [])
         let crashStackEntryMapper = SentryCrashStackEntryMapper(inAppLogic: inAppLogic)
         let stacktraceBuilder = SentryStacktraceBuilder(crashStackEntryMapper: crashStackEntryMapper)
-        return TestDefaultThreadInspector(stacktraceBuilder: stacktraceBuilder, andMachineContextWrapper: SentryCrashDefaultMachineContextWrapper(), symbolicate: false)
+        return TestDefaultThreadInspector(stacktraceBuilder: stacktraceBuilder, andMachineContextWrapper: SentryCrashDefaultMachineContextWrapper())
     }
 
     override func stacktraceForCurrentThreadAsyncUnsafe() -> SentryStacktrace? {

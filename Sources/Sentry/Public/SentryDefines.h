@@ -65,12 +65,19 @@
     -(instancetype)init NS_UNAVAILABLE;                                                            \
     +(instancetype) new NS_UNAVAILABLE;
 
+@class SentryAttribute;
 @class SentryBreadcrumb;
 @class SentryEvent;
 @class SentrySamplingContext;
 @class SentryUserFeedbackConfiguration;
 @class SentryLog;
 @protocol SentrySpan;
+
+// Compatibility alias to maintain backward compatibility with existing Objective-C code.
+// SentryLogAttribute is an alias for SentryAttribute, allowing code like
+// [[SentryLogAttribute alloc] initWithString:...] to continue working, after `SentryLog.Attribute`
+// was renamed to `SentryAttribute`.
+@compatibility_alias SentryLogAttribute SentryAttribute;
 
 /**
  * Block used for returning after a request finished
@@ -101,14 +108,6 @@ typedef SentryEvent *_Nullable (^SentryBeforeSendEventCallback)(SentryEvent *_No
  * the span.
  */
 typedef id<SentrySpan> _Nullable (^SentryBeforeSendSpanCallback)(id<SentrySpan> _Nonnull span);
-
-#if !SWIFT_PACKAGE
-/**
- * Use this block to drop or modify a log before the SDK sends it to Sentry. Return @c nil to drop
- * the log.
- */
-typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull log);
-#endif // !SWIFT_PACKAGE
 
 /**
  * Block can be used to decide if the SDK should capture a screenshot or not. Return @c true if the
@@ -145,26 +144,6 @@ typedef BOOL (^SentryShouldQueueEvent)(
  */
 typedef NSNumber *_Nullable (^SentryTracesSamplerCallback)(
     SentrySamplingContext *_Nonnull samplingContext);
-
-/**
- * Sentry level.
- */
-typedef NS_ENUM(NSUInteger,
-    SentryLevel); // This is a forward declaration, the actual enum is implemented in Swift.
-
-/**
- * Static internal helper to convert enum to string.
- */
-static DEPRECATED_MSG_ATTRIBUTE(
-    "Use nameForSentryLevel() instead.") NSString *_Nonnull const SentryLevelNames[]
-    = {
-          @"none",
-          @"debug",
-          @"info",
-          @"warning",
-          @"error",
-          @"fatal",
-      };
 
 static NSUInteger const defaultMaxBreadcrumbs = 100;
 

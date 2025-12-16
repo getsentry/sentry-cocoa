@@ -7,6 +7,7 @@ on:
       - release/**
 
   pull_request:
+    types: [opened, synchronize, reopened, labeled]
 
 # Concurrency configuration:
 # - We use workflow-specific concurrency groups to prevent multiple build runs of the same code,
@@ -20,13 +21,18 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
+  ready-to-merge-gate:
+    name: Ready-to-merge gate
+    uses: ./.github/workflows/ready-to-merge-workflow.yml
+
   files-changed:
     name: Detect File Changes
     runs-on: ubuntu-latest
+    needs: ready-to-merge-gate
     outputs:
       run_build_for_prs: ${{ steps.changes.outputs.run_build_for_prs }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Get changed files
         id: changes
         uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
@@ -39,13 +45,26 @@ jobs:
   ios-swift-release:
     name: Release Build of iOS Swift
     # Run the job only for PRs with related changes or non-PR events.
-    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_build_for_prs == 'true'
+    # Don't run this on release branches, cause the SPM Package.swift points to the unreleased versions.
+    if: startsWith(github.ref, 'refs/heads/release/') == false && (github.event_name != 'pull_request' || needs.files-changed.outputs.run_build_for_prs == 'true')
     needs: files-changed
     runs-on: macos-15
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
+
+      # As the DistributionSample project uses local SPM, xcodebuild resolves SPM dependencies for all
+      # sample projects. The Package.swift references binary targets, which in release branch commits points
+      # to non-existent download URLs. This creates chicken-egg failures when building these sample apps for
+      # a release commit build. When building these sample apps for a release commit, xcodebuild tries to
+      # resolve all SPM dependencies, including the binary targets pointing to these non-existent URLs.  The
+      # sample projects don't use SPM for including Sentry. Only the DistributionSample uses local SPM.
+      # Therefore, we only keep the local DistributionSample reference in the Package.swift as a workaround.
+      - name: Only keep distribution lib and target in Package.swift
+        run: ./scripts/prepare-package.sh --remove-binary-targets true
+
       - run: ./scripts/ci-select-xcode.sh 16.4
-      - uses: ruby/setup-ruby@v1
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@d697be2f83c6234b20877c3b5eac7a7f342f0d0c # v1.269.0
         with:
           bundler-cache: true
       - run: make init-ci-build
@@ -82,22 +101,35 @@ jobs:
           - scheme: SessionReplay-CameraTest
             config: Debug
           - scheme: iOS-Swift
-            config: DebugV9
+            config: Debug
           - scheme: macOS-Swift
-            config: DebugV9
+            config: Debug
           - scheme: tvOS-Swift
-            config: DebugV9
+            config: Debug
           - scheme: visionOS-Swift
-            config: DebugV9
+            config: Debug
           - scheme: iOS-SwiftUI
-            config: DebugV9
+            config: Debug
           - scheme: iOS-ObjectiveC
-            config: DebugV9
+            config: Debug
+          - scheme: SPM
+            config: Debug
           - scheme: DistributionSample
             config: Debug
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
+
+      # As the DistributionSample project uses local SPM, xcodebuild resolves SPM dependencies for all
+      # sample projects. The Package.swift references binary targets, which in release branch commits points
+      # to non-existent download URLs. This creates chicken-egg failures when building these sample apps for
+      # a release commit build. When building these sample apps for a release commit, xcodebuild tries to
+      # resolve all SPM dependencies, including the binary targets pointing to these non-existent URLs.  The
+      # sample projects don't use SPM for including Sentry. Only the DistributionSample uses local SPM.
+      # Therefore, we only keep the local DistributionSample reference in the Package.swift as a workaround.
+      - name: Only keep distribution lib and target in Package.swift
+        run: ./scripts/prepare-package.sh --remove-binary-targets true
+
       - run: ./scripts/ci-select-xcode.sh 16.4
       - run: make init-ci-build
       - run: make xcode-ci
@@ -115,7 +147,7 @@ jobs:
           | xcbeautify --preserve-unbeautified
 
       - name: Archiving Raw Build Logs
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         if: ${{ failure() || cancelled() }}
         with:
           name: raw-build-output-scheme-${{matrix.scheme}}
@@ -129,17 +161,20 @@ jobs:
   build-distribution:
     name: Build the distribution framework
     runs-on: macos-15
+    # Don't run this on release branches, cause the SPM Package.swift points to the unreleased versions.
+    if: startsWith(github.ref, 'refs/heads/release/') == false && (github.event_name != 'pull_request' || needs.files-changed.outputs.run_build_for_prs == 'true')
     needs: files-changed
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - run: ./scripts/ci-select-xcode.sh 16.4
         shell: sh
+
       - run: rm -r Sentry.xcodeproj && rm -r Sentry.xcworkspace
       - run: set -o pipefail && NSUnbufferedIO=YES xcodebuild build -scheme SentryDistribution -sdk iphoneos -destination 'generic/platform=iphoneos' | tee raw-build-output-spm.log | xcbeautify
         shell: sh
       - name: Upload SPM Build Logs
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         if: ${{ failure() || cancelled() }}
         with:
           name: raw-build-output-spm
@@ -153,7 +188,7 @@ jobs:
     if: startsWith(github.ref, 'refs/heads/release/') == false && (github.event_name != 'pull_request' || needs.files-changed.outputs.run_build_for_prs == 'true')
     needs: files-changed
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - run: ./scripts/ci-select-xcode.sh 16.4
         shell: sh
@@ -164,7 +199,7 @@ jobs:
         shell: sh
 
       - name: Upload SPM Build Logs
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         if: ${{ failure() || cancelled() }}
         with:
           name: raw-build-output-spm
@@ -182,7 +217,7 @@ jobs:
     needs: files-changed
     runs-on: macos-15
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - run: ./scripts/ci-select-xcode.sh 16.4
       - run: |
           ./scripts/sentry-xcodebuild.sh \
@@ -190,9 +225,9 @@ jobs:
             --os 18.4 \
             --command build \
             --device "iPhone 16 Pro"  \
-            --configuration DebugV9
+            --configuration Debug
       - name: Archiving Raw Build Logs
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         if: ${{ failure() || cancelled() }}
         with:
           name: raw-build-output-v9
@@ -208,7 +243,7 @@ jobs:
     needs: files-changed
     runs-on: macos-15
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - run: ./scripts/ci-select-xcode.sh 16.4
 
@@ -236,7 +271,7 @@ jobs:
     needs: files-changed
     runs-on: macos-15
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - run: ./scripts/ci-select-xcode.sh 16.4
 
@@ -264,7 +299,7 @@ jobs:
     needs: files-changed
     runs-on: macos-15
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - run: ./scripts/ci-select-xcode.sh 16.4
 
@@ -292,7 +327,7 @@ jobs:
     needs: files-changed
     runs-on: macos-15
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - run: ./scripts/ci-select-xcode.sh 16.4
 
@@ -324,7 +359,7 @@ jobs:
     needs: files-changed
     runs-on: macos-15
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       # If the SentryAsyncSafeLog doesn't contain the SENTRY_ASYNC_SAFE_LOG_LEVEL_ERROR this fails.
       - name: Async Safe Log Level is Error
@@ -365,6 +400,7 @@ jobs:
         check-debug-with-UIKit,
         check-release-with-UIKit,
         check-compiling-async-safe-logs,
+        ready-to-merge-gate,
       ]
     name: Build
     # This is necessary since a failed/skipped dependent job would cause this job to be skipped

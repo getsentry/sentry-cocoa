@@ -29,8 +29,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-extern NSString *const SENTRY_XCODE_PREVIEW_ENVIRONMENT_KEY;
-
 typedef NS_ENUM(NSInteger, SentryTransactionNameSource);
 
 @class SentrySpanId;
@@ -125,6 +123,8 @@ typedef NS_ENUM(NSUInteger, SentrySpanStatus);
 
 @end
 
+@class SentryHubInternal;
+
 #if __has_include("SentrySDKInternal.h")
 @interface SentrySDKInternal ()
 #else
@@ -132,7 +132,7 @@ typedef NS_ENUM(NSUInteger, SentrySpanStatus);
 #endif
 
 @property (nonatomic, nullable, readonly, class) SentryOptions *options;
-+ (void)setCurrentHub:(nullable SentryHub *)hub;
++ (void)setCurrentHub:(nullable SentryHubInternal *)hub;
 + (void)setStartOptions:(nullable SentryOptions *)options NS_SWIFT_NAME(setStart(with:));
 
 @end

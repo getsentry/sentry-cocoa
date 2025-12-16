@@ -1,144 +1,111 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
+@objc @_spi(Private) public protocol SentryLogBatcherDelegate: AnyObject {
+    @objc(captureLogsData:with:)
+    func capture(logsData: NSData, count: NSNumber)
+}
+
 @objc
 @objcMembers
 @_spi(Private) public class SentryLogBatcher: NSObject {
-    
-    private let client: SentryClient
-    private let flushTimeout: TimeInterval
-    private let maxBufferSizeBytes: Int
-    private let dispatchQueue: SentryDispatchQueueWrapper
-    
-    internal let options: Options
+    private let options: Options
+    private let batcher: any BatcherProtocol<SentryLog, Scope>
+    private weak var delegate: SentryLogBatcherDelegate?
 
-    // All mutable state is accessed from the same serial dispatch queue.
-    
-    // Every logs data is added sepratley. They are flushed together in an envelope.
-    private var encodedLogs: [Data] = []
-    private var encodedLogsSize: Int = 0
-    private var timerWorkItem: DispatchWorkItem?
+    /// Convenience initializer with default flush timeout, max log count (100), and buffer size.
+    /// Creates its own serial dispatch queue with DEFAULT QoS for thread-safe access to mutable state.
+    /// - Parameters:
+    ///   - options: The Sentry configuration options
+    ///   - delegate: The delegate to handle captured log batches
+    ///
+    /// - Note: Uses DEFAULT priority (not LOW) because captureLogs() is called synchronously during
+    ///         app lifecycle events (willResignActive, willTerminate) and needs to complete quickly.
+    /// - Note: Setting `maxLogCount` to 100. While Replay hard limit is 1000, we keep this lower, as it's hard to lower once released.
+    @_spi(Private) public convenience init(
+        options: Options,
+        dateProvider: SentryCurrentDateProvider,
+        delegate: SentryLogBatcherDelegate
+    ) {
+        let dispatchQueue = SentryDispatchQueueWrapper(name: "io.sentry.log-batcher")
+        self.init(
+            options: options,
+            flushTimeout: 5,
+            maxLogCount: 100, // Maximum 100 logs per batch
+            maxBufferSizeBytes: 1_024 * 1_024, // 1MB buffer size
+            dateProvider: dateProvider,
+            dispatchQueue: dispatchQueue,
+            delegate: delegate
+        )
+    }
 
     /// Initializes a new SentryLogBatcher.
     /// - Parameters:
-    ///   - client: The SentryClient to use for sending logs
+    ///   - options: The Sentry configuration options
     ///   - flushTimeout: The timeout interval after which buffered logs will be flushed
+    ///   - maxLogCount: Maximum number of logs to batch before triggering an immediate flush.
     ///   - maxBufferSizeBytes: The maximum buffer size in bytes before triggering an immediate flush
     ///   - dispatchQueue: A **serial** dispatch queue wrapper for thread-safe access to mutable state
+    ///   - delegate: The delegate to handle captured log batches
     ///
     /// - Important: The `dispatchQueue` parameter MUST be a serial queue to ensure thread safety.
     ///              Passing a concurrent queue will result in undefined behavior and potential data races.
+    ///
+    /// - Note: Logs are flushed when either `maxLogCount` or `maxBufferSizeBytes` limit is reached.
     @_spi(Private) public init(
-        client: SentryClient,
+        options: Options,
         flushTimeout: TimeInterval,
+        maxLogCount: Int,
         maxBufferSizeBytes: Int,
-        dispatchQueue: SentryDispatchQueueWrapper
+        dateProvider: SentryCurrentDateProvider,
+        dispatchQueue: SentryDispatchQueueWrapper,
+        delegate: SentryLogBatcherDelegate
     ) {
-        self.client = client
-        self.options = client.options
-        self.flushTimeout = flushTimeout
-        self.maxBufferSizeBytes = maxBufferSizeBytes
-        self.dispatchQueue = dispatchQueue
-        super.init()
-    }
-    
-    /// Convenience initializer with default flush timeout and buffer size.
-    /// - Parameters:
-    ///   - client: The SentryClient to use for sending logs
-    ///   - dispatchQueue: A **serial** dispatch queue wrapper for thread-safe access to mutable state
-    ///
-    /// - Important: The `dispatchQueue` parameter MUST be a serial queue to ensure thread safety.
-    ///              Passing a concurrent queue will result in undefined behavior and potential data races.
-    @_spi(Private) public convenience init(client: SentryClient, dispatchQueue: SentryDispatchQueueWrapper) {
-        self.init(
-            client: client,
-            flushTimeout: 5,
-            maxBufferSizeBytes: 1_024 * 1_024, // 1MB
+        self.batcher = Batcher(
+            config: .init(
+                flushTimeout: flushTimeout,
+                maxItemCount: maxLogCount,
+                maxBufferSizeBytes: maxBufferSizeBytes,
+                beforeSendItem: options.beforeSendLog,
+                capturedDataCallback: { [weak delegate] data, count in
+                    guard let delegate else {
+                        SentrySDKLog.debug("SentryLogBatcher: Delegate not set, not capturing logs data.")
+                        return
+                    }
+                    delegate.capture(logsData: data as NSData, count: NSNumber(value: count))
+                }
+            ),
+            metadata: .init(
+                environment: options.environment,
+                releaseName: options.releaseName,
+                installationId: SentryInstallation.cachedId(withCacheDirectoryPath: options.cacheDirectoryPath)
+            ),
+            buffer: InMemoryBatchBuffer(),
+            dateProvider: dateProvider,
             dispatchQueue: dispatchQueue
         )
-    }
-    
-    @_spi(Private) func add(_ log: SentryLog) {
-        dispatchQueue.dispatchAsync { [weak self] in
-            self?.encodeAndBuffer(log: log)
-        }
-    }
-    
-    // Captures batched logs sync and returns the duration.
-    @discardableResult
-    @_spi(Private) func captureLogs() -> TimeInterval {
-        let startTimeNs = SentryDefaultCurrentDateProvider.getAbsoluteTime()
-        dispatchQueue.dispatchSync { [weak self] in
-            self?.performCaptureLogs()
-        }
-        let endTimeNs = SentryDefaultCurrentDateProvider.getAbsoluteTime()
-        return TimeInterval(endTimeNs - startTimeNs) / 1_000_000_000.0 // Convert nanoseconds to seconds
+        self.options = options
+        self.delegate = delegate
+        super.init()
     }
 
-    // Helper
-
-    // Only ever call this from the serial dispatch queue.
-    private func encodeAndBuffer(log: SentryLog) {
-        do {
-            let encodedLog = try encodeToJSONData(data: log)
-            
-            let encodedLogsWereEmpty = encodedLogs.isEmpty
-            
-            encodedLogs.append(encodedLog)
-            encodedLogsSize += encodedLog.count
-            
-            if encodedLogsSize >= maxBufferSizeBytes {
-                performCaptureLogs()
-            } else if encodedLogsWereEmpty && timerWorkItem == nil {
-                startTimer()
-            }
-        } catch {
-            SentrySDKLog.error("Failed to encode log: \(error)")
-        }
-    }
-    
-    // Only ever call this from the serial dispatch queue.
-    private func startTimer() {
-        let timerWorkItem = DispatchWorkItem { [weak self] in
-            SentrySDKLog.debug("SentryLogBatcher: Timer fired, calling performFlush().")
-            self?.performCaptureLogs()
-        }
-        self.timerWorkItem = timerWorkItem
-        dispatchQueue.dispatch(after: flushTimeout, workItem: timerWorkItem)
-    }
-
-    // Only ever call this from the serial dispatch queue.
-    private func performCaptureLogs() {
-        // Reset logs on function exit
-        defer {
-            encodedLogs.removeAll()
-            encodedLogsSize = 0
-        }
-        
-        // Reset timer state
-        timerWorkItem?.cancel()
-        timerWorkItem = nil
-        
-        guard encodedLogs.count > 0 else {
-            SentrySDKLog.debug("SentryLogBatcher: No logs to flush.")
+    /// Adds a log to the batcher.
+    /// - Parameters:
+    ///   - log: The log to add
+    ///   - scope: The scope to add the log to
+    @_spi(Private) @objc public func addLog(_ log: SentryLog, scope: Scope) {
+        guard options.enableLogs else {
             return
         }
+        
+        batcher.add(log, scope: scope)
+    }
 
-        // Create the payload.
-        
-        var payloadData = Data()
-        payloadData.append(Data("{\"items\":[".utf8))
-        let separator = Data(",".utf8)
-        for (index, encodedLog) in encodedLogs.enumerated() {
-            if index > 0 {
-                payloadData.append(separator)
-            }
-            payloadData.append(encodedLog)
-        }
-        payloadData.append(Data("]}".utf8))
-        
-        // Send the payload.
-        
-        client.captureLogsData(payloadData, with: NSNumber(value: encodedLogs.count))
+    /// Captures batched logs sync and returns the duration.
+    @discardableResult
+    @_spi(Private) @objc public func captureLogs() -> TimeInterval {
+        return batcher.capture()
     }
 }
+
+extension SentryLog: BatcherItem {}

@@ -7,7 +7,7 @@ import UIKit
     func reportInitialDisplay()
 }
 
-@_spi(Private) @objc public class SentrySwiftUISpanHelper: NSObject {
+@_spi(Private) @objc public final class SentrySwiftUISpanHelper: NSObject {
     @objc public let hasSpan: Bool
     
     @objc public func reportInitialDisplay() {
@@ -26,8 +26,8 @@ import UIKit
     @objc private let helper: SentryDefaultUIViewControllerPerformanceTracker
     
     override init() {
-        let options = SentrySDKInternal.options
-        inAppLogic = SentryInAppLogic(inAppIncludes: options?.inAppIncludes ?? [], inAppExcludes: options?.inAppExcludes ?? [])
+        let inAppIncludes = SentrySDK.startOption?.inAppIncludes ?? []
+        inAppLogic = SentryInAppLogic(inAppIncludes: inAppIncludes)
         helper = SentryDefaultUIViewControllerPerformanceTracker(tracker: SentryPerformanceTracker.shared)
     }
     

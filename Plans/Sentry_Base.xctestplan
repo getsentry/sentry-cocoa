@@ -32,11 +32,15 @@
         "SentryANRTrackerTests\/testMultipleListeners()",
         "SentryCoreDataTrackerTests\/testFetchRequestBackgroundThread()",
         "SentryCoreDataTrackerTests\/testSaveBackgroundThread()",
+        "SentryCrashBinaryImageCacheTests\/testRemoveImageAddAgain",
         "SentryCrashBinaryImageCacheTests\/testRemoveImageFromBeginning",
+        "SentryCrashBinaryImageCacheTests\/testRemoveImageFromTail",
         "SentryCrashIntegrationTests\/testStartUpCrash_CallsFlush()",
         "SentryCrashReportStore_Tests\/testCrashReportCount1",
         "SentryCrashReportStore_Tests\/testDeleteAllReports",
+        "SentryCrashReportStore_Tests\/testPruneReports",
         "SentryCrashReportStore_Tests\/testStoresLoadsMultipleReports",
+        "SentryFileManagerTests\/testCreateDirectoryIfNotExists_successful_shouldNotLogError()",
         "SentryHttpTransportFlushIntegrationTests",
         "SentryHttpTransportTests\/testFlush_WhenNoInternet_BlocksAndFinishes()",
         "SentryNetworkTrackerIntegrationTestServerTests",
@@ -52,7 +56,6 @@
         "SentryThreadInspectorTests\/testGetCurrentThreadsWithStacktrace_WithSymbolication()",
         "SentryThreadInspectorTests\/testStacktraceHasFrames_forEveryThread()",
         "SentryThreadWrapperTests\/testOnMainThreadFromNonMainContext()",
-        "SentryTracerTests\/testDeadlineTimer_StartedAndCancelledOnMainThread()",
         "SentryWatchdogTerminationTrackerTests\/testTerminateApp_RunsOnMainThread()"
       ],
       "target" : {

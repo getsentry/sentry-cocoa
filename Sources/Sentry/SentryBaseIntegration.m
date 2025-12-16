@@ -1,7 +1,6 @@
 #import "SentryBaseIntegration.h"
 #import "SentryLogC.h"
 #import "SentrySwift.h"
-#import <SentryOptions+Private.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -33,12 +32,6 @@ NS_ASSUME_NONNULL_BEGIN
 
     if (integrationOptions & kIntegrationOptionNone) {
         return YES;
-    }
-
-    if ((integrationOptions & kIntegrationOptionEnableAutoSessionTracking)
-        && !options.enableAutoSessionTracking) {
-        [self logWithOptionName:@"enableAutoSessionTracking"];
-        return NO;
     }
 
     if ((integrationOptions & kIntegrationOptionEnableWatchdogTerminationTracking)

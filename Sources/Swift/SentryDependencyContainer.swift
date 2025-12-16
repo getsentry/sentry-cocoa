@@ -17,31 +17,6 @@ let defaultApplicationProvider: () -> SentryApplication? = {
 
 let SENTRY_AUTO_TRANSACTION_MAX_DURATION = 500.0
 
-// MARK: - RedactWrapper
-
-final class RedactWrapper: SentryRedactOptions {
-    var maskAllText: Bool {
-        defaultOptions.maskAllText
-    }
-    
-    var maskAllImages: Bool {
-        defaultOptions.maskAllImages
-    }
-    
-    var maskedViewClasses: [AnyClass] {
-        defaultOptions.maskedViewClasses
-    }
-    
-    var unmaskedViewClasses: [AnyClass] {
-        defaultOptions.unmaskedViewClasses
-    }
-    
-    private let defaultOptions: SentryDefaultRedactOptions
-    init(_ defaultOptions: SentryDefaultRedactOptions) {
-        self.defaultOptions = defaultOptions
-    }
-}
-
 // MARK: - Extensions
 
 extension SentryFileManager: SentryFileManagerProtocol { }
@@ -123,7 +98,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
         return defaultApplicationProvider()
     }
     
-    @objc(getSessionTrackerWithOptions:) public func getSessionTracker(with options: Options) -> SessionTracker {
+    func getSessionTracker(with options: Options) -> SessionTracker {
         return SessionTracker(options: options, applicationProvider: defaultApplicationProvider, dateProvider: dateProvider, notificationCenter: notificationCenterWrapper)
     }
     
@@ -159,7 +134,17 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     // Disable crash diagnostics as we only use it for validation of the symbolication
     // of stacktraces, because crashes are easy to trigger for MetricKit. We don't want
     // crash reports of MetricKit in production as we have SentryCrash.
-    @objc public var metricKitManager = SentryMXManager(disableCrashDiagnostics: true)
+    private var _metricKitManager: AnyObject!
+
+    @available(macOS 12.0, *)
+    @objc public var metricKitManager: SentryMXManager {
+        if let manager = _metricKitManager as? SentryMXManager {
+            return manager
+        }
+        let manager = SentryMXManager(disableCrashDiagnostics: true)
+        _metricKitManager = manager as AnyObject
+        return manager
+    }
 #endif
 
 #if (os(iOS) || os(tvOS) || (swift(>=5.9) && os(visionOS))) && !SENTRY_NO_UIKIT
@@ -206,21 +191,21 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     @objc public lazy var screenshotSource: SentryScreenshotSource? = getOptionalLazyVar(\._screenshotSource) {
         // The options could be null here, but this is a general issue in the dependency
         // container and will be fixed in a future refactoring.
-        guard let options = SentrySDKInternal.options else {
+        guard let options = SentrySDK.startOption else {
             return nil
         }
         
         let viewRenderer: SentryViewRenderer
-        if SentryDependencyContainerSwiftHelper.viewRendererV2Enabled(options) {
-            viewRenderer = SentryViewRendererV2(enableFastViewRendering: SentryDependencyContainerSwiftHelper.fastViewRenderingEnabled(options))
+        if options.screenshot.enableViewRendererV2 {
+            viewRenderer = SentryViewRendererV2(enableFastViewRendering: options.screenshot.enableFastViewRendering)
         } else {
             viewRenderer = SentryDefaultViewRenderer()
         }
 
         let photographer = SentryViewPhotographer(
             renderer: viewRenderer,
-            redactOptions: RedactWrapper(SentryDependencyContainerSwiftHelper.redactOptions(options)),
-            enableMaskRendererV2: SentryDependencyContainerSwiftHelper.viewRendererV2Enabled(options))
+            redactOptions: options.screenshot,
+            enableMaskRendererV2: options.screenshot.enableViewRendererV2)
         return SentryScreenshotSource(photographer: photographer)
     }
 #endif
@@ -228,7 +213,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     private var _fileManager: SentryFileManager?
     @objc public lazy var fileManager: SentryFileManager? = getOptionalLazyVar(\._fileManager) {
         do {
-            return try SentryFileManager(options: SentrySDKInternal.options, dateProvider: Dependencies.dateProvider, dispatchQueueWrapper: Dependencies.dispatchQueueWrapper)
+            return try SentryFileManager(dateProvider: Dependencies.dateProvider, dispatchQueueWrapper: Dependencies.dispatchQueueWrapper)
         } catch {
             SentrySDKLog.debug("Could not create file manager - \(error)")
             return nil
@@ -244,15 +229,16 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     }
     private var _appStateManager: SentryAppStateManager?
     @objc public lazy var appStateManager = getLazyVar(\._appStateManager) {
-        SentryAppStateManager(
-            options: SentrySDKInternal.options,
+        let release = SentrySDK.startOption?.releaseName
+        return SentryAppStateManager(
+            releaseName: release,
             crashWrapper: crashWrapper,
             fileManager: fileManager,
             sysctlWrapper: sysctlWrapper)
     }
     private var _crashReporter: SentryCrashSwift?
     @objc public lazy var crashReporter = getLazyVar(\._crashReporter) {
-        SentryCrashSwift(with: SentrySDKInternal.options?.cacheDirectoryPath)
+        SentryCrashSwift(with: SentrySDK.startOption?.cacheDirectoryPath)
     }
     
     private var anrTracker: SentryANRTracker?
@@ -266,3 +252,13 @@ extension SentryFileManager: SentryFileManagerProtocol { }
         }
     }
 }
+
+#if os(iOS) && !SENTRY_NO_UIKIT
+extension SentryDependencyContainer: ScreenshotSourceProvider { }
+#endif
+
+extension SentryDependencyContainer: AutoSessionTrackingProvider { }
+
+#if ((os(iOS) || os(tvOS) || (swift(>=5.9) && os(visionOS))) && !SENTRY_NO_UIKIT) || os(macOS)
+extension SentryDependencyContainer: NotificationCenterProvider { }
+#endif

@@ -153,9 +153,7 @@ public struct SentrySDKWrapper {
         }
 
 #if !os(macOS) && !os(tvOS) && !os(watchOS) && !os(visionOS)
-        if #available(iOS 13.0, *) {
-            options.configureUserFeedback = configureFeedback(config:)
-        }
+        options.configureUserFeedback = configureFeedback(config:)
 #endif // !os(macOS) && !os(tvOS) && !os(watchOS) && !os(visionOS)
 
         options.enableLogs = true
@@ -198,6 +196,10 @@ public struct SentrySDKWrapper {
         }
         let data = Data("hello".utf8)
         scope.addAttachment(Attachment(data: data, filename: "log.txt"))
+        
+        scope.setAttribute(value: "\(Bundle.main.bundleIdentifier ?? "")-custom-attribute", key: "custom-attribute-text")
+        scope.setAttribute(value: Date().timeIntervalSince1970, key: "custom-attribute-numeric")
+        scope.setAttribute(value: true, key: "custom-attribute-boolean")
 
         return scope
     }
@@ -251,7 +253,6 @@ public struct SentrySDKWrapper {
 
 #if !os(macOS) && !os(tvOS) && !os(watchOS) && !os(visionOS)
 // MARK: User feedback configuration
-@available(iOS 13.0, *)
 extension SentrySDKWrapper {
     var layoutOffset: UIOffset { UIOffset(horizontal: 25, vertical: 75) }
 
@@ -291,6 +292,10 @@ extension SentrySDKWrapper {
         config.messageLabel = "Thy complaint"
         config.emailLabel = "Thine email"
         config.nameLabel = "Thy name"
+        config.unexpectedErrorText = "Santry doesn't know how to process this error"
+        config.validationErrorMessage = { multipleErrors in
+            return "You got \(multipleErrors ? "many" : "an" ) error\(multipleErrors ? "s" : "") in this form:"
+        }
     }
 
     func configureFeedbackTheme(config: SentryUserFeedbackThemeConfiguration) {
@@ -351,10 +356,19 @@ extension SentrySDKWrapper {
             alert.addAction(.init(title: "Deal with it 🕶️", style: .default))
             UIApplication.shared.delegate?.window??.rootViewController?.present(alert, animated: true)
 
-            // if there's a screenshot's Data in this dictionary, JSONSerialization crashes _even though_ there's a `try?`, so we'll write the base64 encoding of it
             var infoToWriteToFile = info
-            if let attachments = info["attachments"] as? [Any], let screenshot = attachments.first as? Data {
-                infoToWriteToFile["attachments"] = [screenshot.base64EncodedString()]
+            if let attachments = info["attachments"] as? [[String: Any]] {
+                // Extract data from each attachment dictionary (JSONSerialization crashes _even though_ there's a `try?`, so we'll write the base64 encoding of it)
+                let processedAttachments = attachments.compactMap { attachment -> [String: Any]? in
+                    var processed = attachment
+                    if let data = attachment["data"] as? Data {
+                        processed["data"] = data.base64EncodedString()
+                    }
+                    return processed
+                }
+                if !processedAttachments.isEmpty {
+                    infoToWriteToFile["attachments"] = processedAttachments
+                }
             }
 
             let jsonData = (try? JSONSerialization.data(withJSONObject: infoToWriteToFile, options: .sortedKeys)) ?? Data()

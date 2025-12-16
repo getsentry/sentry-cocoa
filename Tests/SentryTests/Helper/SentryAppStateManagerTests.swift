@@ -3,8 +3,8 @@
 import XCTest
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-class SentryAppStateManagerTests: XCTestCase {
-    private static let dsnAsString = TestConstants.dsnAsString(username: "SentryOutOfMemoryTrackerTests")
+final class SentryAppStateManagerTests: XCTestCase {
+    private static let dsnAsString = TestConstants.dsnForTestCase(type: SentryAppStateManagerTests.self)
 
     private class Fixture {
 
@@ -14,16 +14,16 @@ class SentryAppStateManagerTests: XCTestCase {
         let dispatchQueue = TestSentryDispatchQueueWrapper()
         let notificationCenterWrapper = TestNSNotificationCenterWrapper()
 
-        init() {
+        init() throws {
             options = Options()
             options.dsn = SentryAppStateManagerTests.dsnAsString
             options.releaseName = TestData.appState.releaseName
             
-            fileManager = try! SentryFileManager(
+            fileManager = try XCTUnwrap(SentryFileManager(
                 options: options,
                 dateProvider: currentDate,
                 dispatchQueueWrapper: dispatchQueue
-            )
+            ))
         }
 
         func getSut() -> SentryAppStateManager {
@@ -31,7 +31,7 @@ class SentryAppStateManagerTests: XCTestCase {
             SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
             SentryDependencyContainer.sharedInstance().notificationCenterWrapper = notificationCenterWrapper
             return SentryAppStateManager(
-                options: options,
+                releaseName: options.releaseName,
                 crashWrapper: TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo),
                 fileManager: fileManager,
                 sysctlWrapper: SentryDependencyContainer.sharedInstance().sysctlWrapper
@@ -42,15 +42,16 @@ class SentryAppStateManagerTests: XCTestCase {
     private var fixture: Fixture!
     private var sut: SentryAppStateManager!
 
-    override func setUp() {
-        super.setUp()
+    override func setUpWithError() throws {
+        try super.setUpWithError()
 
-        fixture = Fixture()
+        fixture = try Fixture()
         sut = fixture.getSut()
     }
 
     override func tearDown() {
         super.tearDown()
+        sut.stop(withForce: true)
         fixture.fileManager.deleteAppState()
         clearTestState()
     }

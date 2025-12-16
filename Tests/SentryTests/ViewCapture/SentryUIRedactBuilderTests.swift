@@ -55,11 +55,6 @@ class SentryUIRedactBuilderTests: XCTestCase {
 
     // MARK: - Helper Methods
 
-    func createMaskedScreenshot(view: UIView, regions: [SentryRedactRegion]) -> UIImage {
-        let image = SentryViewRendererV2(enableFastViewRendering: true).render(view: view)
-        return SentryMaskRendererV2().maskScreenshot(screenshot: image, size: view.bounds.size, masking: regions)
-    }
-
     /// Creates a fake instance of a view for tests.
     ///
     /// This function is used for views that cannot be instantiated normally (e.g., unavailable initializers).

@@ -91,6 +91,11 @@
     sentrycrash_scopesync_setLevel([json bytes]);
 }
 
+- (void)setAttributes:(nullable NSDictionary<NSString *, id> *)attributes
+{
+    // Nothing to do here, crash events don't support attributes
+}
+
 - (void)addSerializedBreadcrumb:(NSDictionary *)crumb
 {
     NSData *json = [self toJSONEncodedCString:crumb];

@@ -6,8 +6,8 @@
 #    import "SentryEvent+Private.h"
 #    import "SentryHub+Private.h"
 #    import "SentryInternalDefines.h"
+#    import "SentryLevel.h"
 #    import "SentryLogC.h"
-#    import "SentryOptions.h"
 #    import "SentrySDK+Private.h"
 #    import "SentryScope+Private.h"
 #    import "SentrySerialization.h"
@@ -716,44 +716,6 @@ static SentryTouchTracker *_touchTracker;
     return _touchTracker;
 }
 #    endif
-
-+ (id<SentryRRWebEvent>)createBreadcrumbwithTimestamp:(NSDate *)timestamp
-                                             category:(NSString *)category
-                                              message:(nullable NSString *)message
-                                                level:(enum SentryLevel)level
-                                                 data:(nullable NSDictionary<NSString *, id> *)data
-{
-    SENTRY_LOG_DEBUG(@"[Session Replay] Creating breadcrumb with timestamp: %@, category: %@, "
-                     @"message: %@, level: %lu, data: %@",
-        timestamp, category, message, level, data);
-    return [[SentryRRWebBreadcrumbEvent alloc] initWithTimestamp:timestamp
-                                                        category:category
-                                                         message:message
-                                                           level:level
-                                                            data:data];
-}
-
-+ (id<SentryRRWebEvent>)createNetworkBreadcrumbWithTimestamp:(NSDate *)timestamp
-                                                endTimestamp:(NSDate *)endTimestamp
-                                                   operation:(NSString *)operation
-                                                 description:(NSString *)description
-                                                        data:(NSDictionary<NSString *, id> *)data
-{
-    SENTRY_LOG_DEBUG(@"[Session Replay] Creating network breadcrumb with timestamp: %@, "
-                     @"endTimestamp: %@, operation: %@, description: %@, data: %@",
-        timestamp, endTimestamp, operation, description, data);
-    return [[SentryRRWebSpanEvent alloc] initWithTimestamp:timestamp
-                                              endTimestamp:endTimestamp
-                                                 operation:operation
-                                               description:description
-                                                      data:data];
-}
-
-+ (id<SentryReplayBreadcrumbConverter>)createDefaultBreadcrumbConverter
-{
-    SENTRY_LOG_DEBUG(@"[Session Replay] Creating default breadcrumb converter");
-    return [[SentrySRDefaultBreadcrumbConverter alloc] init];
-}
 
 #    pragma mark - SessionReplayDelegate
 

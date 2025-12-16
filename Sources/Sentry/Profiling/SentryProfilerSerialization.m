@@ -8,6 +8,7 @@
 #    import "SentryEnvelopeItemHeader.h"
 #    import "SentryEvent+Private.h"
 #    import "SentryFormatter.h"
+#    import "SentryHub.h"
 #    import "SentryInternalDefines.h"
 #    import "SentryLogC.h"
 #    import "SentryMeta.h"
@@ -110,7 +111,7 @@ NSMutableDictionary<NSString *, id> *
 sentry_serializedTraceProfileData(
     NSDictionary<NSString *, id> *profileData, uint64_t startSystemTime, uint64_t endSystemTime,
     NSString *truncationReason, NSDictionary<NSString *, id> *serializedMetrics,
-    NSArray<SentryDebugMeta *> *debugMeta, SentryHub *hub
+    NSArray<SentryDebugMeta *> *debugMeta, SentryHubInternal *hub
 #    if SENTRY_HAS_UIKIT
     ,
     SentryScreenFrames *gpuData
@@ -222,7 +223,7 @@ sentry_serializedTraceProfileData(
 NSMutableDictionary<NSString *, id> *
 sentry_serializedContinuousProfileChunk(SentryId *profileID, SentryId *chunkID,
     NSDictionary<NSString *, id> *profileData, NSDictionary<NSString *, id> *serializedMetrics,
-    NSArray<SentryDebugMeta *> *debugMeta, SentryHub *hub
+    NSArray<SentryDebugMeta *> *debugMeta, SentryHubInternal *hub
 #    if SENTRY_HAS_UIKIT
     ,
     SentryScreenFrames *gpuData
@@ -345,12 +346,10 @@ SentryEnvelope *_Nullable sentry_continuousProfileChunkEnvelope(
     }
 #    endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
 
-    SentryEnvelopeItemHeader *header =
-        [[SentryEnvelopeItemHeader alloc] initWithType:SentryEnvelopeItemTypes.profileChunk
-                                                length:JSONData.length];
-    header.platform = @"cocoa";
-    SentryEnvelopeItem *envelopeItem = [[SentryEnvelopeItem alloc] initWithHeader:header
-                                                                             data:JSONData];
+    SentryEnvelopeItem *envelopeItem =
+        [[SentryEnvelopeItem alloc] initWithType:SentryEnvelopeItemTypes.profileChunk
+                                            data:JSONData
+                                     addPlatform:YES];
 
 #    pragma clang diagnostic push
 #    pragma clang diagnostic ignored "-Wdeprecated-declarations"
@@ -358,7 +357,7 @@ SentryEnvelope *_Nullable sentry_continuousProfileChunkEnvelope(
 #    pragma clang diagnostic pop
 }
 
-SentryEnvelopeItem *_Nullable sentry_traceProfileEnvelopeItem(SentryHub *hub,
+SentryEnvelopeItem *_Nullable sentry_traceProfileEnvelopeItem(SentryHubInternal *hub,
     SentryProfiler *profiler, NSDictionary<NSString *, id> *profilingData,
     SentryTransaction *transaction, NSDate *startTimestamp)
 {
@@ -407,14 +406,13 @@ SentryEnvelopeItem *_Nullable sentry_traceProfileEnvelopeItem(SentryHub *hub,
     sentry_writeProfileFile(JSONData, false /*continuous*/);
 #    endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
 
-    SentryEnvelopeItemHeader *header =
-        [[SentryEnvelopeItemHeader alloc] initWithType:SentryEnvelopeItemTypes.profile
-                                                length:JSONData.length];
-    return [[SentryEnvelopeItem alloc] initWithHeader:header data:JSONData];
+    return [[SentryEnvelopeItem alloc] initWithType:SentryEnvelopeItemTypes.profile
+                                               data:JSONData
+                                        addPlatform:NO];
 }
 
 NSMutableDictionary<NSString *, id> *_Nullable sentry_collectProfileDataHybridSDK(
-    uint64_t startSystemTime, uint64_t endSystemTime, SentryId *traceId, SentryHub *hub)
+    uint64_t startSystemTime, uint64_t endSystemTime, SentryId *traceId, SentryHubInternal *hub)
 {
     SentryProfiler *profiler = sentry_profilerForFinishedTracer(traceId);
     if (!profiler) {

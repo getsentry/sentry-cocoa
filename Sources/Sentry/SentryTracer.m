@@ -7,7 +7,6 @@
 #import "SentryLogC.h"
 #import "SentryNSDictionarySanitize.h"
 #import "SentryNoOpSpan.h"
-#import "SentryOptions+Private.h"
 #import "SentryProfilingConditionals.h"
 #import "SentrySDK+Private.h"
 #import "SentrySamplerDecision.h"
@@ -19,6 +18,7 @@
 #import "SentrySpanOperation.h"
 #import "SentrySwift.h"
 #import "SentryTime.h"
+#import "SentryTraceContext+Private.h"
 #import "SentryTraceContext.h"
 #import "SentryTracer+Private.h"
 #import "SentryTracerConfiguration.h"
@@ -102,7 +102,7 @@ static BOOL appStartMeasurementRead;
 }
 
 - (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext
-                                       hub:(nullable SentryHub *)hub
+                                       hub:(nullable SentryHubInternal *)hub
 {
     return [self initWithTransactionContext:transactionContext
                                         hub:hub
@@ -110,7 +110,7 @@ static BOOL appStartMeasurementRead;
 }
 
 - (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext
-                                       hub:(nullable SentryHub *)hub
+                                       hub:(nullable SentryHubInternal *)hub
                              configuration:(SentryTracerConfiguration *)configuration;
 {
     if (!(self = [super initWithContext:transactionContext
@@ -428,8 +428,8 @@ static BOOL appStartMeasurementRead;
                 _traceContext = [[SentryTraceContext alloc] initWithTracer:self
                                                                      scope:_hub.scope
                                                                    options:_hub.client.options
-                        ?: SentrySDKInternal.options]; // We should remove static classes and always
-                                                       // inject dependencies.
+                        ?: SentrySDK.startOption]; // We should remove static classes and always
+                                                   // inject dependencies.
             }
         }
     }

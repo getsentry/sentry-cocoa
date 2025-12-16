@@ -4,9 +4,6 @@
 static NSString *const SentryDebugImageType = @"macho";
 static NSString *const SentryPlatformName = @"cocoa";
 
-#define SENTRY_DEFAULT_SAMPLE_RATE @1
-#define SENTRY_DEFAULT_TRACES_SAMPLE_RATE @0
-
 /**
  * The value we give when initializing the options object, and what it will be if a consumer never
  * modifies it in their SDK config.

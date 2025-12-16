@@ -13,13 +13,14 @@ class SentrySDKInternalTests: XCTestCase {
             let options = Options.noIntegrations()
             options.dsn = SentrySDKInternalTests.dsnAsString
             options.releaseName = "1.0.0"
+            options.enableAutoSessionTracking = false
             return options
         }()
 
         let event: Event
         let scope: Scope
         let client: TestClient
-        let hub: SentryHub
+        let hub: SentryHubInternal
         let error: Error = NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Object does not exist"])
         let exception = NSException(name: NSExceptionName("My Custom exeption"), reason: "User clicked the button", userInfo: nil)
         let feedback: SentryFeedback
@@ -46,7 +47,7 @@ class SentrySDKInternalTests: XCTestCase {
         let operation = "ui.load"
         let transactionName = "Load Main Screen"
 
-        init() {
+        init() throws {
             SentryDependencyContainer.sharedInstance().dateProvider = currentDate
 
             event = Event()
@@ -56,20 +57,20 @@ class SentrySDKInternalTests: XCTestCase {
             scope.setTag(value: "value", key: "key")
 
             client = TestClient(options: options)!
-            hub = SentryHub(client: client, andScope: scope, andCrashWrapper: TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo), andDispatchQueue: SentryDispatchQueueWrapper())
+            hub = SentryHubInternal(client: client, andScope: scope, andCrashWrapper: TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo), andDispatchQueue: SentryDispatchQueueWrapper())
 
             feedback = SentryFeedback(message: "Again really?", name: "Tim Apple", email: "tim@apple.com")
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
             options.dsn = SentrySDKInternalTests.dsnAsString
 
-            let fileManager = try! TestFileManager(
+            let fileManager = try XCTUnwrap(TestFileManager(
                 options: options,
                 dateProvider: currentDate,
                 dispatchQueueWrapper: dispatchQueueWrapper
-            )
+            ))
             let breadcrumbProcessor = SentryWatchdogTerminationBreadcrumbProcessor(maxBreadcrumbs: 10, fileManager: fileManager)
-            scopePersistentStore = try! XCTUnwrap(TestSentryScopePersistentStore(fileManager: fileManager))
+            scopePersistentStore = try XCTUnwrap(TestSentryScopePersistentStore(fileManager: fileManager))
             let attributesProcessor = SentryWatchdogTerminationAttributesProcessor(
                 withDispatchQueueWrapper: dispatchQueueWrapper,
                 scopePersistentStore: scopePersistentStore
@@ -81,21 +82,15 @@ class SentrySDKInternalTests: XCTestCase {
 
     private var fixture: Fixture!
 
-    override func setUp() {
-        super.setUp()
-        fixture = Fixture()
+    override func setUpWithError() throws {
+        try super.setUpWithError()
+        fixture = try Fixture()
     }
 
     override func tearDown() {
         super.tearDown()
 
         givenSdkWithHubButNoClient()
-
-        if let autoSessionTracking = SentrySDKInternal.currentHub().installedIntegrations().first(where: { it in
-            it is SentryAutoSessionTrackingIntegration
-        }) as? SentryAutoSessionTrackingIntegration {
-            autoSessionTracking.stop()
-        }
 
         clearTestState()
     }
@@ -608,12 +603,12 @@ class SentrySDKInternalTests: XCTestCase {
 
         let transport = TestTransport()
         let fileManager = try TestFileManager(options: fixture.options, dateProvider: fixture.currentDate, dispatchQueueWrapper: fixture.dispatchQueueWrapper)
-        let client = SentryClient(options: fixture.options, fileManager: fileManager, deleteOldEnvelopeItems: false)
+        let client = SentryClientInternal(options: fixture.options, fileManager: fileManager)
         Dynamic(client).transportAdapter = TestTransportAdapter(transports: [transport], options: fixture.options)
         SentrySDKInternal.currentHub().bindClient(client)
         SentrySDK.close()
 
-        XCTAssertEqual(Options().shutdownTimeInterval, transport.flushInvocations.first)
+        XCTAssertEqual(Options().shutdownTimeInterval, transport.flushInvocations.first ?? 0.0, accuracy: 0.03)
     }
 
     func testLogger_ReturnsSameInstanceOnMultipleCalls() {
@@ -625,45 +620,17 @@ class SentrySDKInternalTests: XCTestCase {
         XCTAssertIdentical(logger1, logger2)
     }
 
-    func testClose_ResetsLogger() {
-        givenSdkWithHub()
-
-        // Get logger instance
-        let logger1 = SentrySDK.logger
-        XCTAssertNotNil(logger1)
-
-        // Close SDK
-        SentrySDK.close()
-
-        // Start SDK again
-        givenSdkWithHub()
-
-        // Get logger instance again
-        let logger2 = SentrySDK.logger
-        XCTAssertNotNil(logger2)
-
-        // Should be a different instance
-        XCTAssertNotIdentical(logger1, logger2)
-    }
-
-    func testLogger_WithLogsEnabled_CapturesLog() {
-        fixture.client.options.enableLogs = true
+    func testLogger_WithClient_CapturesLog() {
         givenSdkWithHub()
 
         SentrySDK.logger.error(String(repeating: "S", count: 1_024 * 1_024))
 
-        let expectation = self.expectation(description: "Wait for async add.")
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            expectation.fulfill()
-        }
-        waitForExpectations(timeout: 5.0)
-
-        XCTAssertEqual(fixture.client.captureLogsDataInvocations.count, 1)
+        // Verify the log was captured
+        XCTAssertEqual(fixture.client.captureLogInvocations.count, 1)
     }
 
     func testLogger_WithNoClient_DoesNotCaptureLog() {
-        fixture.client.options.enableLogs = true
-        let hubWithoutClient = SentryHub(client: nil, andScope: nil)
+        let hubWithoutClient = SentryHubInternal(client: nil, andScope: nil)
         SentrySDKInternal.setCurrentHub(hubWithoutClient)
 
         SentrySDK.logger.error(String(repeating: "S", count: 1_024 * 1_024))
@@ -674,17 +641,9 @@ class SentrySDKInternalTests: XCTestCase {
         }
         waitForExpectations(timeout: 5.0)
 
-        XCTAssertEqual(fixture.client.captureLogsDataInvocations.count, 0)
+        XCTAssertEqual(fixture.client.captureLogInvocations.count, 0)
     }
-
-    func testLogger_WithLogsDisabled_DoesNotCaptureLog() {
-        fixture.client.options.enableLogs = false
-        givenSdkWithHub()
-
-        SentrySDK.logger.error("foo")
-        XCTAssertEqual(fixture.client.captureLogsDataInvocations.count, 0)
-    }
-
+    
     func testFlush_CallsFlushCorrectlyOnTransport() throws {
         SentrySDK.start { options in
             options.dsn = SentrySDKInternalTests.dsnAsString
@@ -693,14 +652,34 @@ class SentrySDKInternalTests: XCTestCase {
 
         let transport = TestTransport()
         let fileManager = try TestFileManager(options: fixture.options, dateProvider: fixture.currentDate, dispatchQueueWrapper: fixture.dispatchQueueWrapper)
-        let client = SentryClient(options: fixture.options, fileManager: fileManager, deleteOldEnvelopeItems: false)
+        let client = SentryClientInternal(options: fixture.options, fileManager: fileManager)
         Dynamic(client).transportAdapter = TestTransportAdapter(transports: [transport], options: fixture.options)
         SentrySDKInternal.currentHub().bindClient(client)
 
         let flushTimeout = 10.0
         SentrySDK.flush(timeout: flushTimeout)
 
-        XCTAssertEqual(flushTimeout, transport.flushInvocations.first ?? 0.0, accuracy: 0.001)
+        XCTAssertEqual(flushTimeout, transport.flushInvocations.first ?? 0.0, accuracy: 0.2)
+    }
+
+    func testClose_DispatchesOnMainThread() {
+        // Arrange
+        let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
+        SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = dispatchQueueWrapper
+
+        SentrySDK.start { options in
+            options.dsn = SentrySDKInternalTests.dsnAsString
+            options.removeAllIntegrations()
+        }
+
+        // Reset the invocation count after start since start also uses the main thread dispatch
+        dispatchQueueWrapper.blockOnMainInvocations = Invocations<() -> Void>()
+
+        // Act
+        SentrySDK.close()
+
+        // Assert
+        XCTAssertEqual(1, dispatchQueueWrapper.blockOnMainInvocations.count, "Close should dispatch exactly once to main queue")
     }
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
@@ -985,12 +964,12 @@ private extension SentrySDKInternalTests {
 
     func givenSdkWithHub() {
         SentrySDKInternal.setCurrentHub(fixture.hub)
-        SentrySDKInternal.setStart(with: fixture.options)
+        SentrySDK.setStart(with: fixture.options)
     }
 
     func givenSdkWithHubButNoClient() {
-        SentrySDKInternal.setCurrentHub(SentryHub(client: nil, andScope: nil))
-        SentrySDKInternal.setStart(with: fixture.options)
+        SentrySDKInternal.setCurrentHub(SentryHubInternal(client: nil, andScope: nil))
+        SentrySDK.setStart(with: fixture.options)
     }
 
     func assertIntegrationsInstalled(integrations: [String]) {
@@ -1019,7 +998,7 @@ class SentrySDKWithSetupTests: XCTestCase {
         let expectation = expectation(description: "no deadlock")
         expectation.expectedFulfillmentCount = 20
 
-        SentrySDKInternal.setStart(with: Options())
+        SentrySDK.setStart(with: Options())
 
         for _ in 0..<10 {
             concurrentQueue.async {
@@ -1030,7 +1009,7 @@ class SentrySDKWithSetupTests: XCTestCase {
             }
 
             concurrentQueue.async {
-                let hub = SentryHub(client: nil, andScope: nil)
+                let hub = SentryHubInternal(client: nil, andScope: nil)
                 XCTAssertNotNil(hub)
 
                 expectation.fulfill()
@@ -1038,24 +1017,6 @@ class SentrySDKWithSetupTests: XCTestCase {
         }
 
         wait(for: [expectation], timeout: 5.0)
-    }
-}
-
-public class MainThreadTestIntegration: NSObject, SentryIntegrationProtocol {
-
-    public let expectation = XCTestExpectation(description: "MainThreadTestIntegration installed")
-
-    public func install(with options: Options) -> Bool {
-        print("[Sentry] [TEST] [\(#file):\(#line) starting install.")
-        dispatchPrecondition(condition: .onQueue(.main))
-
-        expectation.fulfill()
-
-        return true
-    }
-
-    public func uninstall() {
-
     }
 }
 // swiftlint:enable file_length

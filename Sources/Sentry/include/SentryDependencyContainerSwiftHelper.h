@@ -1,4 +1,5 @@
 #import "SentryDefines.h"
+#import "SentryOptionsObjC.h"
 #import "SentryProfilingConditionals.h"
 #import <Foundation/Foundation.h>
 
@@ -6,9 +7,8 @@
 #    import <UIKit/UIKit.h>
 #endif // SENTRY_HAS_UIKIT
 
-@class SentryHub;
+@class SentryHubInternal;
 @class SentryDispatchQueueWrapper;
-@class SentryOptions;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -31,16 +31,21 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (nullable NSArray<UIWindow *> *)windows;
 
-// Since SentryOptions is in ObjC, Swift code can't see the SentryViewScreenshotOptions property
-+ (BOOL)fastViewRenderingEnabled:(SentryOptions *)options;
-+ (BOOL)viewRendererV2Enabled:(SentryOptions *)options;
-+ (SentryDefaultRedactOptions *)redactOptions:(SentryOptions *)options;
+#    if TARGET_OS_IOS || TARGET_OS_TV
++ (CGSize)activeScreenSize;
+#    endif // TARGET_OS_IOS || TARGET_OS_TV
 
 #endif // SENTRY_HAS_UIKIT
 
++ (NSString *_Nullable)release:(SentryOptionsObjC *)options;
++ (NSString *)environment:(SentryOptionsObjC *)options;
++ (NSObject *_Nullable)beforeSendLog:(NSObject *)beforeSendLog options:(SentryOptionsObjC *)options;
++ (BOOL)enableLogs:(SentryOptionsObjC *)options;
++ (NSArray<NSString *> *)enabledFeatures:(SentryOptionsObjC *)options;
++ (BOOL)sendDefaultPii:(SentryOptionsObjC *)options;
+
 + (SentryDispatchQueueWrapper *)dispatchQueueWrapper;
 + (void)dispatchSyncOnMainQueue:(void (^)(void))block;
-+ (SentryHub *)currentHub;
 + (nullable NSDate *)readTimestampLastInForeground;
 + (void)deleteTimestampLastInForeground;
 + (void)storeTimestampLastInForeground:(NSDate *)timestamp;

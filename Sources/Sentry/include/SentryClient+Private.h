@@ -12,6 +12,12 @@
 @class SentrySession;
 @class SentryDefaultThreadInspector;
 
+@protocol SentrySessionDelegate <NSObject>
+
+- (nullable SentrySession *)incrementSessionErrors;
+
+@end
+
 NS_ASSUME_NONNULL_BEGIN
 
 @protocol SentryClientAttachmentProcessor <NSObject>
@@ -21,20 +27,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-@interface SentryClient ()
+@interface SentryClientInternal ()
 
 @property (nonatomic, strong)
     NSMutableArray<id<SentryClientAttachmentProcessor>> *attachmentProcessors;
 @property (nonatomic, strong) SentryDefaultThreadInspector *threadInspector;
 @property (nonatomic, strong) SentryFileManager *fileManager;
-
-- (SentryId *)captureError:(NSError *)error
-                 withScope:(SentryScope *)scope
-    incrementSessionErrors:(SentrySession * (^)(void))sessionBlock;
-
-- (SentryId *)captureException:(NSException *)exception
-                     withScope:(SentryScope *)scope
-        incrementSessionErrors:(SentrySession * (^)(void))sessionBlock;
+@property (nonatomic, weak, nullable) id<SentrySessionDelegate> sessionDelegate;
 
 - (SentryId *)captureFatalEvent:(SentryEvent *)event withScope:(SentryScope *)scope;
 
@@ -55,6 +54,9 @@ NS_ASSUME_NONNULL_BEGIN
                   withScope:(SentryScope *)scope
     additionalEnvelopeItems:(NSArray<SentryEnvelopeItem *> *)additionalEnvelopeItems
     NS_SWIFT_NAME(capture(event:scope:additionalEnvelopeItems:));
+
+- (SentryId *)captureEventIncrementingSessionErrorCount:(SentryEvent *)event
+                                              withScope:(SentryScope *)scope;
 
 - (void)captureReplayEvent:(SentryReplayEvent *)replayEvent
            replayRecording:(SentryReplayRecording *)replayRecording
@@ -77,6 +79,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)addAttachmentProcessor:(id<SentryClientAttachmentProcessor>)attachmentProcessor;
 - (void)removeAttachmentProcessor:(id<SentryClientAttachmentProcessor>)attachmentProcessor;
+
+- (void)_swiftCaptureLog:(NSObject *)log withScope:(SentryScope *)scope;
+
+- (void)captureLogs;
 
 @end
 
