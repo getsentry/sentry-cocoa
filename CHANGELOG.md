@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+## Fixes
+
+- The transport now correctly discard envelopes on 4xx and 5xx responses and records client reports `send_error` (#6618) This also fixes edge cases in which the SDK kept retrying sending a faulty envelope until the offline cache overflowed.
+
 ## 9.1.0
 
 > [!Warning]
@@ -1593,7 +1599,7 @@ This bug caused unhandled/crash events to have the unhandled property and mach i
 
 - Stop FramesTracker when app is in background (#3979)
 - Speed up adding breadcrumbs (#4029, #4034)
-- Skip evaluating log messages when not logged (#4028)
+- Skip evaluating log messages when not logged (#4028)git
 
 ### Fixes
 

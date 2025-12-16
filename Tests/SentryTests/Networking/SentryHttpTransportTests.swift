@@ -1121,8 +1121,8 @@ class SentryHttpTransportTests: XCTestCase {
         let dict = try XCTUnwrap(Dynamic(sut).discardedEvents.asDictionary as? [String: SentryDiscardedEvent])
         XCTAssertEqual(2, dict.count)
         
-        let event = try XCTUnwrap(dict["error:network_error"])
-        let attachment = try XCTUnwrap(dict["attachment:network_error"])
+        let event = try XCTUnwrap(dict["error:send_error"])
+        let attachment = try XCTUnwrap(dict["attachment:send_error"])
         XCTAssertEqual(1, event.quantity)
         XCTAssertEqual(1, attachment.quantity)
     }

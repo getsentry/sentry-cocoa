@@ -442,8 +442,8 @@
             continue;
         }
         SentryDataCategory category = sentryDataCategoryForEnvelopItemType(itemType);
-        [self recordLostEvent:category reason:kSentryDiscardReasonNetworkError];
-        [self recordLostSpans:item reason:kSentryDiscardReasonNetworkError];
+        [self recordLostEvent:category reason:kSentryDiscardReasonSendError];
+        [self recordLostSpans:item reason:kSentryDiscardReasonSendError];
     }
 }
 
