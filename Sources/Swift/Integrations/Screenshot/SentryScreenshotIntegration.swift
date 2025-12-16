@@ -6,10 +6,6 @@
 // nor we want to continue using the DependencyContainer
 private weak var globalScreenshotSource: SentryScreenshotSource?
 
-protocol ScreenshotIntegrationProvider {
-    var screenshotSource: SentryScreenshotSource? { get }
-}
-
 final class SentryScreenshotIntegration<Dependencies: ScreenshotIntegrationProvider>: NSObject, SwiftIntegration, SentryClientAttachmentProcessor {
     private let options: Options
     private let screenshotSource: SentryScreenshotSource
@@ -82,20 +78,14 @@ final class SentryScreenshotIntegration<Dependencies: ScreenshotIntegrationProvi
             return attachments
         }
 
-        var result = attachments
-
         let screenshots = screenshotSource.appScreenshotDatasFromMainThread()
 
-        for (index, data) in screenshots.enumerated() {
+        let screenshotsAsAttachments = screenshots.enumerated().map { (index, data) in
             let name = index == 0 ? "screenshot.png" : "screenshot-\(index + 1).png"
-            let attachment = Attachment(data: data, filename: name, contentType: "image/png")
-            result.append(attachment)
+            return Attachment(data: data, filename: name, contentType: "image/png")
         }
-
-        return result
+        return attachments + screenshotsAsAttachments
     }
 }
-
-extension SentryDependencyContainer: ScreenshotIntegrationProvider { }
 
 #endif // SENTRY_TARGET_REPLAY_SUPPORTED
