@@ -2,7 +2,7 @@
 import Foundation
 
 /// Protocol for batching metrics with scope-based attribute enrichment.
-protocol MetricBatcherProtocol: AnyObject {
+protocol MetricBatcherProtocol {
     /// Adds a metric to the batcher.
     /// - Parameters:
     ///   - metric: The metric to add
@@ -26,7 +26,7 @@ protocol MetricBatcherOptionsProtocol {
     var cacheDirectoryPath: String { get }
 }
 
-final class MetricBatcher: MetricBatcherProtocol {
+struct MetricBatcher: MetricBatcherProtocol {
     private let isEnabled: Bool
     private let batcher: any BatcherProtocol<Metric, Scope>
 
