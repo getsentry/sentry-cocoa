@@ -17,7 +17,7 @@ public class MetricsApi {
     ///                 Values can be String, Bool, Int, Double, Float, or SentryAttribute.
     ///                 Example: `["endpoint": "api/users", "success": true, "status_code": 200]`
     public func count(key: String, value: Int, unit: String? = nil, attributes: [String: Attributable] = [:]) {
-        recordMetric(name: key, value: NSNumber(value: value), type: .counter, unit: unit, attributes: attributes)
+        recordMetric(name: key, value: .integer(Int64(value)), type: .counter, unit: unit, attributes: attributes)
     }
 
     /// Records a distribution metric for the specified key.
@@ -36,7 +36,7 @@ public class MetricsApi {
     ///                 Values can be String, Bool, Int, Double, Float, or SentryAttribute.
     ///                 Example: `["endpoint": "/api/data", "cached": false, "response_size": 1024.5]`
     public func distribution(key: String, value: Double, unit: String? = nil, attributes: [String: Attributable] = [:]) {
-        recordMetric(name: key, value: NSNumber(value: value), type: .distribution, unit: unit, attributes: attributes)
+        recordMetric(name: key, value: .double(value), type: .distribution, unit: unit, attributes: attributes)
     }
 
     /// Records a gauge metric for the specified key.
@@ -55,50 +55,39 @@ public class MetricsApi {
     ///                 Values can be String, Bool, Int, Double, Float, or SentryAttribute.
     ///                 Example: `["process": "main_app", "compressed": true, "pressure_level": 2]`
     public func gauge(key: String, value: Double, unit: String? = nil, attributes: [String: Attributable] = [:]) {
-        recordMetric(name: key, value: NSNumber(value: value), type: .gauge, unit: unit, attributes: attributes)
+        recordMetric(name: key, value: .double(value), type: .gauge, unit: unit, attributes: attributes)
     }
     
     // MARK: - Private
     
-    private func recordMetric(name: String, value: NSNumber, type: MetricType, unit: String?, attributes: [String: Attributable]) {
-        // Check if SDK is enabled and metrics are enabled
+    private func recordMetric(
+        name: String,
+        value: MetricValue,
+        type: MetricType,
+        unit: String?,
+        attributes: [String: Attributable]
+    ) {
         guard SentrySDKInternal.isEnabled else {
             return
         }
-        
         let hub = SentrySDKInternal.currentHub()
         guard let options = hub.getClient()?.getOptions() as? Options, options.enableMetrics else {
             return
         }
-        
-        // Get the metrics integration
         guard let integration = hub.getInstalledIntegration(MetricsIntegration<SentryDependencyContainer>.self) as? MetricsIntegration<SentryDependencyContainer> else {
             return
-        }
-        
-        // Create the metric
-        let metricValue: MetricValue
-        switch type {
-        case .counter:
-            metricValue = .integer(value.int64Value)
-        case .gauge, .distribution:
-            metricValue = .double(value.doubleValue)
         }
         
         let metric = Metric(
             timestamp: Date(),
             traceId: SentryId.empty, // Will be set by batcher from scope
-            spanId: nil, // Will be set by batcher if active span exists
             name: name,
-            value: metricValue,
+            value: value,
             type: type,
             unit: unit,
             attributes: convertAttributes(attributes)
         )
-        
-        // Get current scope and add metric
-        let scope = hub.scope
-        integration.addMetric(metric, scope: scope)
+        integration.addMetric(metric, scope: hub.scope)
     }
     
     private func convertAttributes(_ attributes: [String: Attributable]) -> [String: Metric.Attribute] {
