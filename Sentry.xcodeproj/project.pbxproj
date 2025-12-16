@@ -2070,7 +2070,7 @@
 		925189AA2EDDA6A300557BD1 /* FlushLogsIntegration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlushLogsIntegration.swift; sourceTree = "<group>"; };
 		9264E1EA2E2E385B00B077CF /* SentryLogMessage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryLogMessage.swift; sourceTree = "<group>"; };
 		9264E1EC2E2E397400B077CF /* SentryLogMessageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryLogMessageTests.swift; sourceTree = "<group>"; };
-		92672BB529C9A2A9006B021C /* SentryBreadcrumb+Private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "SentryBreadcrumb+Private.h"; path = "Public/SentryBreadcrumb+Private.h"; sourceTree = "<group>"; };
+		92672BB529C9A2A9006B021C /* SentryBreadcrumb+Private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "SentryBreadcrumb+Private.h"; sourceTree = "<group>"; };
 		927A5CC32DD7626400B82404 /* SentryEnvelopeItemHeaderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryEnvelopeItemHeaderTests.swift; sourceTree = "<group>"; };
 		927D21FA2ED5DE7F00916D31 /* FlushLogsIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlushLogsIntegrationTests.swift; sourceTree = "<group>"; };
 		928207C32E251B8F009285A4 /* SentryScope+PrivateSwift.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "SentryScope+PrivateSwift.h"; path = "include/SentryScope+PrivateSwift.h"; sourceTree = "<group>"; };
@@ -2416,7 +2416,7 @@
 		FA27EBDB2EB639D100F2ECF7 /* SentryId.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryId.h; path = Public/SentryId.h; sourceTree = "<group>"; };
 		FA27EBDD2EB639D700F2ECF7 /* SentryId.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryId.m; sourceTree = "<group>"; };
 		FA27EBEF2EB82FA800F2ECF7 /* FileIOTrackerTestHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileIOTrackerTestHelpers.swift; sourceTree = "<group>"; };
-		FA27EC0D2EB922F200F2ECF7 /* SentryOptionsInternal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryOptionsInternal.h; path = Public/SentryOptionsInternal.h; sourceTree = "<group>"; };
+		FA27EC0D2EB922F200F2ECF7 /* SentryOptionsInternal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SentryOptionsInternal.h; sourceTree = "<group>"; };
 		FA27EC152EB9236000F2ECF7 /* Options.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Options.swift; sourceTree = "<group>"; };
 		FA27EC9B2EBA325400F2ECF7 /* SentryTraceContext+Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "SentryTraceContext+Private.h"; path = "include/SentryTraceContext+Private.h"; sourceTree = "<group>"; };
 		FA34C1A22E692A5000BC52AA /* SentryEnvelopeItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryEnvelopeItem.swift; sourceTree = "<group>"; };
