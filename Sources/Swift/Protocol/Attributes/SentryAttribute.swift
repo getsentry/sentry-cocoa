@@ -1,7 +1,7 @@
 /// A typed attribute that can be attached to structured item entries used by Logs & Metrics
 ///
 /// `Attribute` provides a type-safe way to store structured data alongside item messages.
-/// Supports String, Bool, Int, and Double types.
+/// Supports String, Bool, Int, Double types and their homogeneous arrays (String[], Bool[], Int[], Double[]).
 ///
 /// You can create attributes using literal syntax thanks to `ExpressibleByX` protocol support:
 /// ```swift
@@ -15,7 +15,7 @@ public final class SentryAttribute: NSObject {
     /// The type-safe value stored in this attribute
     let attributeValue: AttributeValue
 
-    /// The type identifier for this attribute ("string", "boolean", "integer", "double")
+    /// The type identifier for this attribute ("string", "boolean", "integer", "double", "string[]", "boolean[]", "integer[]", "double[]")
     public var type: String {
         return attributeValue.type
     }
@@ -53,8 +53,40 @@ public final class SentryAttribute: NSObject {
     }
 
     /// Creates a string array attribute
+    public init(stringArray value: [String]) {
+        self.attributeValue = .stringArray(value)
+        super.init()
+    }
+
+    /// Creates a boolean array attribute
+    public init(booleanArray value: [Bool]) {
+        self.attributeValue = .booleanArray(value)
+        super.init()
+    }
+
+    /// Creates an integer array attribute
+    public init(integerArray value: [Int]) {
+        self.attributeValue = .integerArray(value)
+        super.init()
+    }
+
+    /// Creates a double array attribute
+    public init(doubleArray value: [Double]) {
+        self.attributeValue = .doubleArray(value)
+        super.init()
+    }
+
+    /// Creates a float array attribute (converted to double array)
+    public init(floatArray value: [Float]) {
+        self.attributeValue = .doubleArray(value.map { Double($0) })
+        super.init()
+    }
+
+    /// Creates an array attribute from an array of SentryAttribute.
+    /// The array must be homogeneous (all elements of the same type).
+    /// If the array is empty or contains mixed types, it will be converted to a string array.
     public init(array value: [SentryAttribute]) {
-        self.attributeValue = .array(value)
+        self.attributeValue = AttributeValue(fromAny: value)
         super.init()
     }
 
@@ -78,6 +110,14 @@ public final class SentryAttribute: NSObject {
 extension SentryAttribute: Attributable {
     public var asAttribute: SentryAttribute {
         return self
+    }
+}
+
+// MARK: - Encodable Support
+
+extension SentryAttribute: Encodable {
+    public func encode(to encoder: any Encoder) throws {
+        try attributeValue.encode(to: encoder)
     }
 }
 

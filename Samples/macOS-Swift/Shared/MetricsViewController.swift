@@ -1,8 +1,8 @@
+import AppKit
 import Sentry
-import UIKit
 
-class MetricsViewController: UIViewController {
-    @IBAction func addCountAction(_ sender: UIButton) {
+class MetricsViewController: NSViewController {
+    @IBAction func addCountAction(_ sender: Any) {
         // Counter metric - demonstrates all supported attribute types as variables and literals
         let actionType = "button_click"
         let windowActive = true
@@ -15,7 +15,7 @@ class MetricsViewController: UIViewController {
         let clickDurations = [0.1, 0.2, 0.3]
 
         SentrySDK.metrics.count(
-            key: "ios.app.action",
+            key: "macos.app.action",
             value: 1,
             unit: "action",
             attributes: [
@@ -44,7 +44,7 @@ class MetricsViewController: UIViewController {
         )
     }
 
-    @IBAction func addDistributionAction(_ sender: UIButton) {
+    @IBAction func addDistributionAction(_ sender: Any) {
         // Distribution metric - demonstrates all supported attribute types as variables and literals
         let responseTime = Double.random(in: 10...100)
         let endpoint = "/api/data"
@@ -58,7 +58,7 @@ class MetricsViewController: UIViewController {
         let responseSizes = [512.0, 1_024.0, 2_048.0]
 
         SentrySDK.metrics.distribution(
-            key: "ios.network.response_time",
+            key: "macos.network.response_time",
             value: responseTime,
             unit: "millisecond",
             attributes: [
@@ -87,7 +87,7 @@ class MetricsViewController: UIViewController {
         )
     }
 
-    @IBAction func addGaugeAction(_ sender: UIButton) {
+    @IBAction func addGaugeAction(_ sender: Any) {
         // Gauge metric - demonstrates all supported attribute types as variables and literals
         let memoryUsage = Double.random(in: 512...2_048)
         let process = "main_app"
@@ -101,7 +101,7 @@ class MetricsViewController: UIViewController {
         let compressionRatios = [0.8, 0.9, 0.7]
 
         SentrySDK.metrics.gauge(
-            key: "ios.memory.usage",
+            key: "macos.memory.usage",
             value: memoryUsage,
             unit: "megabyte",
             attributes: [

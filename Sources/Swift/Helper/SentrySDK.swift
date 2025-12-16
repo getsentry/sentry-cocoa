@@ -37,7 +37,10 @@ import Foundation
             return SentryLogger(dateProvider: SentryDependencyContainer.sharedInstance().dateProvider)
         }
     }
-    
+
+    /// API to access Sentry metrics
+    public static let metrics = MetricsApi()
+
     /// Inits and configures Sentry (`SentryHub`, `SentryClient`) and sets up all integrations. Make sure to
     /// set a valid DSN.
     /// - note: Call this method on the main thread. When calling it from a background thread, the

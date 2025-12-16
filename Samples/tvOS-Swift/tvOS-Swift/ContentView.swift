@@ -136,34 +136,44 @@ struct ContentView: View {
             // MARK: - Metrics Examples
             
             Button(action: {
-                // Counter metric with attributes using Attributable protocol - all types
-                // Scalar types
-                let interactionType = "button_press" // String constant
-                let focused = true // Boolean constant
-                let sessionId = 12_345 // Integer constant
-                let interactionDuration = 0.5 // Double constant
+                // Counter metric - demonstrates all supported attribute types as variables and literals
+                // Showcases Attributable protocol and ExpressibleBy implementations
+                let interactionType = "button_press"
+                let focused = true
+                let sessionId = 12_345
+                let interactionDuration = 0.5
                 
-                // Array types
-                let interactionTypes = ["button_press", "swipe", "tap"] // String array constant
-                let focusStates = [true, false, true] // Boolean array constant
-                let sessionIds = [12_345, 12_346, 12_347] // Integer array constant
-                let interactionDurations = [0.3, 0.5, 0.7] // Double array constant
+                let interactionTypes = ["button_press", "swipe", "tap"]
+                let focusStates = [true, false, true]
+                let sessionIds = [12_345, 12_346, 12_347]
+                let interactionDurations = [0.3, 0.5, 0.7]
                 
                 SentrySDK.metrics.count(
                     key: "tvos.app.interaction",
                     value: 1,
                     unit: "interaction",
                     attributes: [
-                        // Scalar types - constants and literals
-                        "interaction_type": interactionType, "device": "apple_tv", // String
-                        "focused": focused, "active": false, // Boolean
-                        "session_id": sessionId, "retry_count": 0, // Integer
-                        "interaction_duration": interactionDuration, "avg_duration": 0.4, // Double
-                        // Array types - constants and literals
-                        "interaction_types": interactionTypes, "devices": ["apple_tv", "remote"], // String array
-                        "focus_states": focusStates, "active_states": [true, false], // Boolean array
-                        "session_ids": sessionIds, "retry_counts": [0, 1, 2], // Integer array
-                        "interaction_durations": interactionDurations, "avg_durations": [0.3, 0.4] // Double array
+                        // -- Variables --
+                        "interaction_type": interactionType, // String
+                        "focused": focused, // Boolean
+                        "session_id": sessionId, // Integer
+                        "interaction_duration": interactionDuration, // Double
+
+                        "interaction_types": interactionTypes, // String array
+                        "focus_states": focusStates, // Boolean array
+                        "session_ids": sessionIds, // Integer array
+                        "interaction_durations": interactionDurations, // Double array
+                        
+                        // -- Literals (showcases ExpressibleBy implementations) --
+                        "device": "apple_tv", // String
+                        "active": false, // Boolean
+                        "retry_count": 0, // Integer
+                        "avg_duration": 0.4, // Double
+
+                        "devices": ["apple_tv", "remote"], // String array
+                        "active_states": [true, false], // Boolean array
+                        "retry_counts": [0, 1, 2], // Integer array
+                        "avg_durations": [0.3, 0.4] // Double array
                     ]
                 )
             }) {
@@ -171,35 +181,45 @@ struct ContentView: View {
             }
             
             Button(action: {
-                // Distribution metric with attributes using Attributable protocol - all types
+                // Distribution metric - demonstrates all supported attribute types as variables and literals
+                // Showcases Attributable protocol and ExpressibleBy implementations
                 let frameTime = Double.random(in: 16...33)
-                // Scalar types
-                let scene = "main_menu" // String constant
-                let vsyncEnabled = true // Boolean constant
-                let frameCount = 60 // Integer constant
-                let fps = 60.0 // Double constant
+                let scene = "main_menu"
+                let vsyncEnabled = true
+                let frameCount = 60
+                let fps = 60.0
                 
-                // Array types
-                let scenes = ["main_menu", "settings", "player"] // String array constant
-                let vsyncStates = [true, false, true] // Boolean array constant
-                let frameCounts = [30, 60, 120] // Integer array constant
-                let fpsValues = [30.0, 60.0, 120.0] // Double array constant
+                let scenes = ["main_menu", "settings", "player"]
+                let vsyncStates = [true, false, true]
+                let frameCounts = [30, 60, 120]
+                let fpsValues = [30.0, 60.0, 120.0]
                 
                 SentrySDK.metrics.distribution(
                     key: "tvos.rendering.frame_time",
                     value: frameTime,
                     unit: "millisecond",
                     attributes: [
-                        // Scalar types - constants and literals
-                        "scene": scene, "resolution": "4k", // String
-                        "vsync_enabled": vsyncEnabled, "hdr_enabled": false, // Boolean
-                        "frame_count": frameCount, "buffer_count": 3, // Integer
-                        "fps": fps, "avg_fps": 59.5, // Double
-                        // Array types - constants and literals
-                        "scenes": scenes, "resolutions": ["4k", "1080p"], // String array
-                        "vsync_states": vsyncStates, "hdr_states": [true, false], // Boolean array
-                        "frame_counts": frameCounts, "buffer_counts": [2, 3, 4], // Integer array
-                        "fps_values": fpsValues, "avg_fps_values": [59.0, 60.0] // Double array
+                        // -- Variables --
+                        "scene": scene, // String
+                        "vsync_enabled": vsyncEnabled, // Boolean
+                        "frame_count": frameCount, // Integer
+                        "fps": fps, // Double
+
+                        "scenes": scenes, // String array
+                        "vsync_states": vsyncStates, // Boolean array
+                        "frame_counts": frameCounts, // Integer array
+                        "fps_values": fpsValues, // Double array
+                        
+                        // -- Literals (showcases ExpressibleBy implementations) --
+                        "resolution": "4k", // String
+                        "hdr_enabled": false, // Boolean
+                        "buffer_count": 3, // Integer
+                        "avg_fps": 59.5, // Double
+
+                        "resolutions": ["4k", "1080p"], // String array
+                        "hdr_states": [true, false], // Boolean array
+                        "buffer_counts": [2, 3, 4], // Integer array
+                        "avg_fps_values": [59.0, 60.0] // Double array
                     ]
                 )
             }) {
@@ -207,35 +227,45 @@ struct ContentView: View {
             }
             
             Button(action: {
-                // Gauge metric with attributes using Attributable protocol - all types
+                // Gauge metric - demonstrates all supported attribute types as variables and literals
+                // Showcases Attributable protocol and ExpressibleBy implementations
                 let activeConnections = Double.random(in: 0...10)
-                // Scalar types
-                let networkType = "wifi" // String constant
-                let secure = true // Boolean constant
-                let port = 443 // Integer constant
-                let maxBandwidth = 100.0 // Double constant
+                let networkType = "wifi"
+                let secure = true
+                let port = 443
+                let maxBandwidth = 100.0
                 
-                // Array types
-                let networkTypes = ["wifi", "ethernet", "cellular"] // String array constant
-                let secureStates = [true, false, true] // Boolean array constant
-                let ports = [80, 443, 8_080] // Integer array constant
-                let maxBandwidths = [50.0, 100.0, 200.0] // Double array constant
+                let networkTypes = ["wifi", "ethernet", "cellular"]
+                let secureStates = [true, false, true]
+                let ports = [80, 443, 8_080]
+                let maxBandwidths = [50.0, 100.0, 200.0]
                 
                 SentrySDK.metrics.gauge(
                     key: "tvos.network.connections",
                     value: activeConnections,
                     unit: "connection",
                     attributes: [
-                        // Scalar types - constants and literals
-                        "network_type": networkType, "protocol": "tcp", // String
-                        "secure": secure, "compressed": false, // Boolean
-                        "port": port, "max_connections": 100, // Integer
-                        "max_bandwidth": maxBandwidth, "utilization": 0.75, // Double
-                        // Array types - constants and literals
-                        "network_types": networkTypes, "protocols": ["tcp", "udp"], // String array
-                        "secure_states": secureStates, "compressed_states": [true, false], // Boolean array
-                        "ports": ports, "max_connections_list": [50, 100, 200], // Integer array
-                        "max_bandwidths": maxBandwidths, "utilizations": [0.7, 0.8] // Double array
+                        // -- Variables --
+                        "network_type": networkType, // String
+                        "secure": secure, // Boolean
+                        "port": port, // Integer
+                        "max_bandwidth": maxBandwidth, // Double
+
+                        "network_types": networkTypes, // String array
+                        "secure_states": secureStates, // Boolean array
+                        "ports": ports, // Integer array
+                        "max_bandwidths": maxBandwidths, // Double array
+                        
+                        // -- Literals (showcases ExpressibleBy implementations) --
+                        "protocol": "tcp", // String
+                        "compressed": false, // Boolean
+                        "max_connections": 100, // Integer
+                        "utilization": 0.75, // Double
+
+                        "protocols": ["tcp", "udp"], // String array
+                        "compressed_states": [true, false], // Boolean array
+                        "max_connections_list": [50, 100, 200], // Integer array
+                        "utilizations": [0.7, 0.8] // Double array
                     ]
                 )
             }) {

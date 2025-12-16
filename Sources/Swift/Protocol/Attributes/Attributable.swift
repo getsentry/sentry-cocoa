@@ -48,8 +48,20 @@ extension Float: Attributable {
 
 extension Array: Attributable where Element: Attributable {
     public var asAttribute: SentryAttribute {
-        return SentryAttribute(array: self.map { attr in
-            SentryAttribute(value: attr)
-        })
+        // Create typed arrays directly for type safety
+        if let stringArray = self as? [String] {
+            return SentryAttribute(stringArray: stringArray)
+        } else if let boolArray = self as? [Bool] {
+            return SentryAttribute(booleanArray: boolArray)
+        } else if let intArray = self as? [Int] {
+            return SentryAttribute(integerArray: intArray)
+        } else if let doubleArray = self as? [Double] {
+            return SentryAttribute(doubleArray: doubleArray)
+        } else if let floatArray = self as? [Float] {
+            return SentryAttribute(floatArray: floatArray)
+        } else {
+            // For other Attributable types, convert to string array
+            return SentryAttribute(stringArray: self.map { String(describing: $0) })
+        }
     }
 }
