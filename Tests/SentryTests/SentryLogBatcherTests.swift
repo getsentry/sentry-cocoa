@@ -344,7 +344,7 @@ final class SentryLogBatcherTests: XCTestCase {
         let attributes = capturedLog.attributes
         
         XCTAssertNil(attributes["sentry.release"])
-        XCTAssertNil(attributes["sentry.trace.parent_span_id"])
+        XCTAssertNil(attributes["span_id"])
         XCTAssertEqual(attributes["sentry.sdk.name"]?.value as? String, SentryMeta.sdkName)
         XCTAssertEqual(attributes["sentry.sdk.version"]?.value as? String, SentryMeta.versionString)
         XCTAssertNotNil(attributes["sentry.environment"])
