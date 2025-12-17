@@ -82,7 +82,7 @@ import Foundation
                 installationId: SentryInstallation.cachedId(withCacheDirectoryPath: options.cacheDirectoryPath)
             ),
             buffer: InMemoryBatchBuffer(
-                dataCapacity: maxBufferSizeBytes * 2, // Use double the size to allow adding items slightly over max
+                dataCapacity: maxBufferSizeBytes,
                 itemsCapacity: maxLogCount
             ),
             dateProvider: dateProvider,
