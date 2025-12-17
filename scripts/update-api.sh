@@ -3,7 +3,7 @@ set -euo pipefail
 
 # Check if Xcode 16 is selected
 # Read full output first to avoid broken pipe (SIGPIPE) error with pipefail
-XCODE_VERSION_OUTPUT=$(xcodebuild -version 2>&1)
+XCODE_VERSION_OUTPUT=$(xcodebuild -version)
 XCODE_VERSION=$(echo "$XCODE_VERSION_OUTPUT" | awk 'NR==1 {print $2}')
 XCODE_MAJOR_VERSION=$(echo "$XCODE_VERSION" | cut -d. -f1)
 
@@ -18,7 +18,7 @@ if [[ "$XCODE_MAJOR_VERSION" != "16" ]]; then
         
         # Verify the Xcode 16 installation works
         # Read full output first to avoid broken pipe (SIGPIPE) error with pipefail
-        XCODE_16_VERSION_OUTPUT=$(xcodebuild -version 2>&1)
+        XCODE_16_VERSION_OUTPUT=$(xcodebuild -version)
         XCODE_16_VERSION=$(echo "$XCODE_16_VERSION_OUTPUT" | awk 'NR==1 {print $2}')
         XCODE_16_MAJOR_VERSION=$(echo "$XCODE_16_VERSION" | cut -d. -f1)
         
