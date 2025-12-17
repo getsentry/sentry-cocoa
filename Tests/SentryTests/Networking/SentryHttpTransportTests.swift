@@ -355,14 +355,12 @@ class SentryHttpTransportTests: XCTestCase {
     }
 
     func testSendEventWithRateLimitResponse() throws {
-        fixture.requestManager.nextError = NSError(domain: "something", code: 12)
-
         let response = givenRateLimitResponse(forCategory: SentryEnvelopeItemTypes.session)
 
         sendEvent()
 
         assertRateLimitUpdated(response: response)
-        try assertClientReportStoredInMemory()
+        try assertClientReportNotStoredInMemory()
     }
 
     func testSendEventWithRateLimitResponse_WithoutError() throws {
@@ -375,14 +373,12 @@ class SentryHttpTransportTests: XCTestCase {
     }
 
     func testSendEventWithMetricBucketRateLimitResponse() throws {
-        fixture.requestManager.nextError = NSError(domain: "something", code: 12)
-
         let response = givenRateLimitResponse(forCategory: SentryEnvelopeItemTypes.session)
 
         sendEvent()
 
         assertRateLimitUpdated(response: response)
-        try assertClientReportStoredInMemory()
+        try assertClientReportNotStoredInMemory()
     }
 
     func testSendEnvelopeWithRetryAfterResponse() {
@@ -885,16 +881,34 @@ class SentryHttpTransportTests: XCTestCase {
         assertRequestsSent(requestCount: 0)
     }
     
-    func testRequestManagerReturnsError_RecordsLostEvent() throws {
-        givenErrorResponse()
-        
+    func testRequestManagerReturnsErroredResponse_RecordsLostEvent() throws {
+        try givenErrorResponse()
+
         sendEvent()
         
         try assertClientReportStoredInMemory()
     }
-    
-    func testRequestManagerReturnsError_ClientReportNotRecordedAsLostEvent() throws {
-        givenErrorResponse()
+
+    func testRequestManagerReturnsErroredResponseAndError_RecordsLostEvent() throws {
+        try givenErrorResponse()
+        fixture.requestManager.nextError = NSError(domain: "something", code: 12)
+
+        sendEvent()
+
+        try assertClientReportStoredInMemory()
+    }
+
+    func testRequestManagerReturnsErrorWithOKResponse_RecordsNoLostEvent() throws {
+        fixture.requestManager.nextError = NSError(domain: "something", code: 12)
+
+        sendEvent()
+
+        try assertClientReportNotStoredInMemory()
+    }
+
+    func testRequestManagerReturnsErroredResponse_ClientReportNotRecordedAsLostEvent() throws {
+        try givenErrorResponse()
+
         sendEvent()
         sendEvent()
         
@@ -904,15 +918,15 @@ class SentryHttpTransportTests: XCTestCase {
     func testSendClientReportsDisabled_DoesNotRecordLostEvents() throws {
         fixture.options.sendClientReports = false
         sut = try fixture.getSut()
-        givenErrorResponse()
-        
+        try givenErrorResponse()
+
         sendEvent()
         
         try assertClientReportNotStoredInMemory()
     }
     
     func testSendClientReportsDisabled_DoesSendClientReport() throws {
-        givenErrorResponse()
+        try givenErrorResponse()
         sendEvent()
         
         givenOkResponse()
@@ -1025,9 +1039,10 @@ class SentryHttpTransportTests: XCTestCase {
         givenOkResponse()
     }
     
-    private func givenErrorResponse() {
-        fixture.requestManager.returnResponse(response: HTTPURLResponse())
-        fixture.requestManager.nextError = NSError(domain: "something", code: 12)
+    private func givenErrorResponse() throws {
+        let sentryUrl = try XCTUnwrap(URL(string: "https://sentry.io"))
+        let response = HTTPURLResponse(url: sentryUrl, statusCode: 400, httpVersion: nil, headerFields: nil)
+        fixture.requestManager.returnResponse(response: response)
     }
     
     private func givenRecordedLostEvents() {

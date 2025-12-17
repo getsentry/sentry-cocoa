@@ -395,11 +395,21 @@
                 return;
             }
 
+            // When the response is nil, we can't know if the envelope made it successfully to
+            // Sentry. This can happen when there's no connection, or connection was lost during
+            // transmission. In that case, it's OK to retry sending later. See
+            // https://develop.sentry.dev/sdk/expected-features/#dealing-with-network-failures
             if (response == nil) {
-                SENTRY_LOG_DEBUG(@"No internet connection.");
+                SENTRY_LOG_DEBUG(@"Response is nil. Stopping sending and not deleting envelope. "
+                                 @"Will retry sending envelope later.");
                 [weakSelf finishedSending];
                 return;
             }
+
+            // If we get a response with an error (e.g., a connection dropped while reading the body
+            // or an SSL error after the initial handshake), we must assume the envelope reached
+            // Sentry and only care about the response status codes. Therefore, we intentionally
+            // ignore the error here.
 
             [weakSelf.rateLimits update:SENTRY_UNWRAP_NULLABLE(NSHTTPURLResponse, response)];
 
@@ -412,7 +422,7 @@
             // to avoid double-counting.
             BOOL isNotRateLimitStatusCode = response.statusCode != 429;
 
-            if ((error != nil || is4xxOr5xx) && isNotRateLimitStatusCode) {
+            if (is4xxOr5xx && isNotRateLimitStatusCode) {
                 [weakSelf recordLostEventFor:envelope.items];
             }
 
