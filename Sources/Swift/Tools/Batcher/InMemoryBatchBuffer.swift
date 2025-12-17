@@ -1,45 +1,31 @@
 struct InMemoryBatchBuffer<Item: Encodable>: BatchBuffer {
-    private var wrapper: SentryBatchBufferWrapper?
-    
+    private var elements: [Data] = []
+    var itemsDataSize: Int = 0
+
     private let encoder: JSONEncoder = {
         let encoder = JSONEncoder()
         encoder.dateEncodingStrategy = .secondsSince1970
         return encoder
     }()
 
-    /// Initializes a new in-memory batch buffer.
-    ///
-    /// - Parameter capacity: The maximum capacity of the buffer in bytes. Defaults to 1MB.
-    init(capacity: Int = 1_024 * 1_024) {
-        do {
-            self.wrapper = try SentryBatchBufferWrapper(capacity: capacity)
-        } catch {
-            SentrySDKLog.debug("InMemoryBatchBuffer: Could not init buffer.")
-        }
-    }
+    init() {}
 
     mutating func append(_ item: Item) throws {
-        guard let wrapper else {
-            return
-        }
         let encoded = try encoder.encode(item)
-        guard wrapper.addItem(data: encoded) else {
-            throw BatchBufferError.bufferFull
-        }
+        elements.append(encoded)
+        itemsDataSize += encoded.count
     }
 
     mutating func clear() {
-        wrapper?.clear()
+        elements.removeAll()
+        itemsDataSize = 0
     }
 
     var itemsCount: Int {
-        wrapper?.itemCount ?? 0
+        elements.count
     }
-    
+
     var batchedData: Data {
-        guard let wrapper else {
-            return Data("{\"items\":[]}".utf8)
-        }
-        return wrapper.data
+        Data("{\"items\":[".utf8) + elements.joined(separator: Data(",".utf8)) + Data("]}".utf8)
     }
 }

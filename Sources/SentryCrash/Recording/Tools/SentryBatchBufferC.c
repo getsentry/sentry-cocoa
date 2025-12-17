@@ -8,24 +8,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-static const char JSON_EMPTY_PAYLOAD[] = "{\"items\":[]}";
-static const size_t JSON_EMPTY_PAYLOAD_SIZE = 12;
-
-static const char JSON_SUFFIX[] = "]}";
-static const size_t JSON_SUFFIX_SIZE = 2;
-
-/** Initialize a batch buffer.
- *
- * @param buffer The buffer to initialize.
- * @param capacity The capacity of the buffer in bytes.
- * @return true if initialization was successful, false otherwise.
- *
- * @note This function is NOT async-signal-safe because it calls malloc().
- *       The buffer must be pre-allocated before installing signal handlers
- *       if it will be used from within signal handlers.
- */
 bool
-sentry_batch_buffer_init(SentryBatchBuffer *buffer, size_t capacity)
+sentry_batch_buffer_init(SentryBatchBufferC *buffer, size_t data_capacity, size_t max_items)
 {
     if (buffer == NULL) {
         return false;
@@ -34,35 +18,44 @@ sentry_batch_buffer_init(SentryBatchBuffer *buffer, size_t capacity)
     buffer->data = NULL;
     buffer->data_capacity = 0;
     buffer->data_size = 0;
+    buffer->item_offsets = NULL;
+    buffer->item_sizes = NULL;
+    buffer->items_capacity = 0;
     buffer->item_count = 0;
 
-    if (capacity == 0) {
+    if (data_capacity == 0 || max_items == 0) {
         return true;
     }
 
-    buffer->data = (char *)malloc(capacity);
+    buffer->data = (char *)malloc(data_capacity);
     if (buffer->data == NULL) {
         return false;
     }
+    buffer->data_capacity = data_capacity;
 
-    buffer->data_capacity = capacity;
-
-    // Initialize with empty JSON payload
-    if (capacity < JSON_EMPTY_PAYLOAD_SIZE) {
+    buffer->item_offsets = (size_t *)malloc(max_items * sizeof(size_t));
+    if (buffer->item_offsets == NULL) {
         free(buffer->data);
         buffer->data = NULL;
-        buffer->data_capacity = 0;
         return false;
     }
 
-    memcpy(buffer->data, JSON_EMPTY_PAYLOAD, JSON_EMPTY_PAYLOAD_SIZE);
-    buffer->data_size = JSON_EMPTY_PAYLOAD_SIZE;
+    buffer->item_sizes = (size_t *)malloc(max_items * sizeof(size_t));
+    if (buffer->item_sizes == NULL) {
+        free(buffer->item_offsets);
+        free(buffer->data);
+        buffer->item_offsets = NULL;
+        buffer->data = NULL;
+        return false;
+    }
+
+    buffer->items_capacity = max_items;
 
     return true;
 }
 
 void
-sentry_batch_buffer_destroy(SentryBatchBuffer *buffer)
+sentry_batch_buffer_destroy(SentryBatchBufferC *buffer)
 {
     if (buffer == NULL) {
         return;
@@ -73,13 +66,24 @@ sentry_batch_buffer_destroy(SentryBatchBuffer *buffer)
         buffer->data = NULL;
     }
 
+    if (buffer->item_offsets != NULL) {
+        free(buffer->item_offsets);
+        buffer->item_offsets = NULL;
+    }
+
+    if (buffer->item_sizes != NULL) {
+        free(buffer->item_sizes);
+        buffer->item_sizes = NULL;
+    }
+
     buffer->data_capacity = 0;
     buffer->data_size = 0;
+    buffer->items_capacity = 0;
     buffer->item_count = 0;
 }
 
 bool
-sentry_batch_buffer_add_item(SentryBatchBuffer *buffer, const char *data, size_t length)
+sentry_batch_buffer_add_item(SentryBatchBufferC *buffer, const char *data, size_t length)
 {
     if (buffer == NULL || data == NULL) {
         return false;
@@ -89,36 +93,44 @@ sentry_batch_buffer_add_item(SentryBatchBuffer *buffer, const char *data, size_t
         return true;
     }
 
-    size_t comma_size = (buffer->item_count > 0) ? 1 : 0;
-    size_t required_capacity = buffer->data_size + comma_size + length;
-    if (required_capacity > buffer->data_capacity) {
+    if (buffer->item_count >= buffer->items_capacity) {
         return false;
     }
 
-    // Remove the closing suffix
-    buffer->data_size -= JSON_SUFFIX_SIZE;
-
-    // Add comma separator for subsequent items
-    if (buffer->item_count > 0) {
-        buffer->data[buffer->data_size] = ',';
-        buffer->data_size++;
+    if (buffer->data_size + length > buffer->data_capacity) {
+        return false;
     }
 
-    // Copy data to the end of the buffer
+    buffer->item_offsets[buffer->item_count] = buffer->data_size;
+    buffer->item_sizes[buffer->item_count] = length;
+
     memcpy(buffer->data + buffer->data_size, data, length);
     buffer->data_size += length;
 
-    // Append the closing suffix
-    memcpy(buffer->data + buffer->data_size, JSON_SUFFIX, JSON_SUFFIX_SIZE);
-    buffer->data_size += JSON_SUFFIX_SIZE;
-
     buffer->item_count++;
-
     return true;
 }
 
 const char *
-sentry_batch_buffer_get_data(const SentryBatchBuffer *buffer)
+sentry_batch_buffer_get_item(const SentryBatchBufferC *buffer, size_t index, size_t *size_out)
+{
+    if (buffer == NULL) {
+        return NULL;
+    }
+
+    if (index >= buffer->item_count) {
+        return NULL;
+    }
+
+    if (size_out != NULL) {
+        *size_out = buffer->item_sizes[index];
+    }
+
+    return buffer->data + buffer->item_offsets[index];
+}
+
+const char *
+sentry_batch_buffer_get_data(const SentryBatchBufferC *buffer)
 {
     if (buffer == NULL || buffer->data == NULL || buffer->data_size == 0) {
         return NULL;
@@ -127,7 +139,7 @@ sentry_batch_buffer_get_data(const SentryBatchBuffer *buffer)
 }
 
 size_t
-sentry_batch_buffer_get_data_size(const SentryBatchBuffer *buffer)
+sentry_batch_buffer_get_data_size(const SentryBatchBufferC *buffer)
 {
     if (buffer == NULL) {
         return 0;
@@ -136,7 +148,7 @@ sentry_batch_buffer_get_data_size(const SentryBatchBuffer *buffer)
 }
 
 size_t
-sentry_batch_buffer_get_data_capacity(const SentryBatchBuffer *buffer)
+sentry_batch_buffer_get_data_capacity(const SentryBatchBufferC *buffer)
 {
     if (buffer == NULL) {
         return 0;
@@ -145,25 +157,18 @@ sentry_batch_buffer_get_data_capacity(const SentryBatchBuffer *buffer)
 }
 
 void
-sentry_batch_buffer_clear(SentryBatchBuffer *buffer)
+sentry_batch_buffer_clear(SentryBatchBufferC *buffer)
 {
     if (buffer == NULL) {
         return;
     }
 
-    // Reset to empty JSON payload
-    if (buffer->data != NULL && buffer->data_capacity >= JSON_EMPTY_PAYLOAD_SIZE) {
-        memcpy(buffer->data, JSON_EMPTY_PAYLOAD, JSON_EMPTY_PAYLOAD_SIZE);
-        buffer->data_size = JSON_EMPTY_PAYLOAD_SIZE;
-    } else {
-        buffer->data_size = 0;
-    }
-
+    buffer->data_size = 0;
     buffer->item_count = 0;
 }
 
 size_t
-sentry_batch_buffer_get_item_count(const SentryBatchBuffer *buffer)
+sentry_batch_buffer_get_item_count(const SentryBatchBufferC *buffer)
 {
     if (buffer == NULL) {
         return 0;
