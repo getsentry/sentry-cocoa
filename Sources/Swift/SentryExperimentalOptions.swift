@@ -29,6 +29,11 @@ public final class SentryExperimentalOptions: NSObject {
      */
     public var enableSessionReplayInUnreliableEnvironment = false
 
+    /// When enabled, the SDK sends metrics to Sentry. Metrics can be captured using the SentrySDK.metrics
+    /// API, which allows you to send, view and query counters, gauges and measurements.
+    /// @note Default value is @c false.
+    @objc public var enableMetrics: Bool = false
+
     @_spi(Private) public func validateOptions(_ options: [String: Any]?) {
     }
 }

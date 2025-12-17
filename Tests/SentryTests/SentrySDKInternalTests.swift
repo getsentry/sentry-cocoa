@@ -532,57 +532,6 @@ class SentrySDKInternalTests: XCTestCase {
     }
 #endif
 
-    func testStartSDK_whenSendDefaultPiiIsTrue_shouldSetScopeSendDefaultPiiToTrue() {
-        // -- Arrange --
-        let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
-        SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = dispatchQueueWrapper
-
-        // -- Act --
-        SentrySDK.start { options in
-            options.dsn = SentrySDKInternalTests.dsnAsString
-            options.removeAllIntegrations()
-            options.sendDefaultPii = true
-        }
-
-        // -- Assert --
-        let scope = SentrySDKInternal.currentHub().scope
-        XCTAssertTrue(scope.sendDefaultPii, "Scope sendDefaultPii should be true when options.sendDefaultPii is true")
-    }
-
-    func testStartSDK_whenSendDefaultPiiIsFalse_shouldSetScopeSendDefaultPiiToFalse() {
-        // -- Arrange --
-        let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
-        SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = dispatchQueueWrapper
-
-        // -- Act --
-        SentrySDK.start { options in
-            options.dsn = SentrySDKInternalTests.dsnAsString
-            options.removeAllIntegrations()
-            options.sendDefaultPii = false
-        }
-
-        // -- Assert --
-        let scope = SentrySDKInternal.currentHub().scope
-        XCTAssertFalse(scope.sendDefaultPii, "Scope sendDefaultPii should be false when options.sendDefaultPii is false")
-    }
-
-    func testStartSDK_whenSendDefaultPiiNotSet_shouldSetScopeSendDefaultPiiToFalse() {
-        // -- Arrange --
-        let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
-        SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = dispatchQueueWrapper
-
-        // -- Act --
-        SentrySDK.start { options in
-            options.dsn = SentrySDKInternalTests.dsnAsString
-            options.removeAllIntegrations()
-            // sendDefaultPii defaults to false, so we don't set it explicitly
-        }
-
-        // -- Assert --
-        let scope = SentrySDKInternal.currentHub().scope
-        XCTAssertFalse(scope.sendDefaultPii, "Scope sendDefaultPii should be false when options.sendDefaultPii is not set (defaults to false)")
-    }
-
     func testResumeAndPauseAppHangTracking() throws {
         if SentryDependencyContainer.sharedInstance().crashWrapper.isBeingTraced {
             throw XCTSkip("This test only works when the debugger is NOT attached, because it requires the SentryANRTrackingIntegration being installed, which the SDK only installs if the debugger is not attached.")

@@ -83,7 +83,7 @@ schemeTemplates:
         "--io.sentry.other.reject-all-spans": false
 
         # metrics
-        "--io.sentry.metrics.enable": false
+        "--io.sentry.metrics.enable": true
 
       environmentVariables:
         # events
