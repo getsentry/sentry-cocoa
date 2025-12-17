@@ -42,7 +42,7 @@ class MetricsIntegrationTests: XCTestCase {
         let integration = try getSut()
 
         let scope = Scope()
-        let metric = Metric(
+        let metric = SentryMetric(
             timestamp: Date(),
             traceId: SentryId(),
             name: "test.metric",
@@ -78,7 +78,7 @@ class MetricsIntegrationTests: XCTestCase {
         let integration = try getSut()
 
         let scope = Scope()
-        let metric = Metric(
+        let metric = SentryMetric(
             timestamp: Date(),
             traceId: SentryId(),
             name: "test.metric",
@@ -120,7 +120,7 @@ class MetricsIntegrationTests: XCTestCase {
         options.dsn = TestConstants.dsnForTestCase(type: MetricsIntegrationTests.self)
         options.removeAllIntegrations()
 
-        options.enableMetrics = true
+        options.experimental.enableMetrics = true
 
         let client = TestClient(options: options)
         let hub = SentryHubInternal(
@@ -135,13 +135,13 @@ class MetricsIntegrationTests: XCTestCase {
         
         // Manually install the MetricsIntegration since we're not using SentrySDK.start()
         let dependencies = SentryDependencyContainer.sharedInstance()
-        let integration = try XCTUnwrap(MetricsIntegration<SentryDependencyContainer>(with: options, dependencies: dependencies) as? SentryIntegrationProtocol)
-        hub.addInstalledIntegration(integration, name: MetricsIntegration<SentryDependencyContainer>.name)
+        let integration = try XCTUnwrap(SentryMetricsIntegration<SentryDependencyContainer>(with: options, dependencies: dependencies) as? SentryIntegrationProtocol)
+        hub.addInstalledIntegration(integration, name: SentryMetricsIntegration<SentryDependencyContainer>.name)
 
         hub.startSession()
     }
 
-    private func getSut() throws -> MetricsIntegration<SentryDependencyContainer> {
-        return try XCTUnwrap(SentrySDKInternal.currentHub().getInstalledIntegration(MetricsIntegration<SentryDependencyContainer>.self) as? MetricsIntegration)
+    private func getSut() throws -> SentryMetricsIntegration<SentryDependencyContainer> {
+        return try XCTUnwrap(SentrySDKInternal.currentHub().getInstalledIntegration(SentryMetricsIntegration<SentryDependencyContainer>.self) as? SentryMetricsIntegration)
     }
 }

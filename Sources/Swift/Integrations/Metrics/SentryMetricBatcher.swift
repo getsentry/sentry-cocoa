@@ -2,12 +2,12 @@
 import Foundation
 
 /// Protocol for batching metrics with scope-based attribute enrichment.
-protocol MetricBatcherProtocol {
+protocol SentryMetricBatcherProtocol {
     /// Adds a metric to the batcher.
     /// - Parameters:
     ///   - metric: The metric to add
     ///   - scope: The scope to add the metric to
-    func addMetric(_ metric: Metric, scope: Scope)
+    func addMetric(_ metric: SentryMetric, scope: Scope)
     
     /// Captures batched metrics synchronously and returns the duration.
     /// - Returns: The time taken to capture items in seconds
@@ -18,17 +18,18 @@ protocol MetricBatcherProtocol {
     @discardableResult func captureMetrics() -> TimeInterval
 }
 
-protocol MetricBatcherOptionsProtocol {
+protocol SentryMetricBatcherOptionsProtocol {
     var enableMetrics: Bool { get }
-    var beforeSendMetric: ((Metric) -> Metric?)? { get }
+    var beforeSendMetric: ((SentryMetric) -> SentryMetric?)? { get }
     var environment: String { get }
     var releaseName: String? { get }
     var cacheDirectoryPath: String { get }
+    var sendDefaultPii: Bool { get }
 }
 
-struct MetricBatcher: MetricBatcherProtocol {
+struct SentryMetricBatcher: SentryMetricBatcherProtocol {
     private let isEnabled: Bool
-    private let batcher: any BatcherProtocol<Metric, Scope>
+    private let batcher: any BatcherProtocol<SentryMetric, Scope>
 
     /// Initializes a new MetricBatcher.
     /// - Parameters:
@@ -46,10 +47,10 @@ struct MetricBatcher: MetricBatcherProtocol {
     ///
     /// - Note: Metrics are flushed when either `maxMetricCount` or `maxBufferSizeBytes` limit is reached.
     init(
-        options: MetricBatcherOptionsProtocol,
+        options: SentryMetricBatcherOptionsProtocol,
         flushTimeout: TimeInterval = 5,
         maxMetricCount: Int = 100, // Maximum 100 metrics per batch
-        maxBufferSizeBytes: Int = 1_024 * 1_024, // 1MB buffer size
+        maxBufferSizeBytes: Int = 2 * 1_024, // 2KiB buffer size
         dateProvider: SentryCurrentDateProvider,
         dispatchQueue: SentryDispatchQueueWrapper,
         capturedDataCallback: @escaping (_ data: Data, _ count: Int) -> Void
@@ -57,6 +58,7 @@ struct MetricBatcher: MetricBatcherProtocol {
         self.isEnabled = options.enableMetrics
         self.batcher = Batcher(
             config: .init(
+                sendDefaultPii: options.sendDefaultPii,
                 flushTimeout: flushTimeout,
                 maxItemCount: maxMetricCount,
                 maxBufferSizeBytes: maxBufferSizeBytes,
@@ -74,7 +76,7 @@ struct MetricBatcher: MetricBatcherProtocol {
         )
     }
     
-    func addMetric(_ metric: Metric, scope: Scope) {
+    func addMetric(_ metric: SentryMetric, scope: Scope) {
         guard isEnabled else {
             return
         }
@@ -87,4 +89,8 @@ struct MetricBatcher: MetricBatcherProtocol {
     }
 }
 
-extension Options: MetricBatcherOptionsProtocol {}
+extension Options: SentryMetricBatcherOptionsProtocol {
+    var enableMetrics: Bool {
+        return experimental.enableMetrics
+    }
+}

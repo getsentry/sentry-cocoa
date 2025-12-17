@@ -1,7 +1,7 @@
 /// A metric entry that captures metric data with associated attribute metadata.
 ///
 /// Use the `options.beforeSendMetric` callback to modify or filter metric data.
-public struct Metric {
+public struct SentryMetric {
     /// A typed attribute that can be attached to structured item entries
     public typealias Attribute = SentryAttribute
 
@@ -13,7 +13,7 @@ public struct Metric {
     /// - `.counter`: Incrementing integer values (e.g., request counts)
     /// - `.gauge`: Current value at a point in time (e.g., active connections)
     /// - `.distribution`: Statistical distribution of values (e.g., response times)
-    public let metricType: MetricType
+    public let metricType: SentryMetricType
 
     /// The name of the metric (e.g., "api.response_time", "db.query.duration").
     ///
@@ -34,8 +34,8 @@ public struct Metric {
     /// - Setting an integer on a gauge/distribution: converts to double
     ///
     /// - Note: Counters use integer values, distributions and gauges use double values.
-    private var _value: MetricValue
-    public var value: MetricValue {
+    private var _value: SentryMetricValue
+    public var value: SentryMetricValue {
         get {
             return _value
         }
@@ -92,8 +92,8 @@ public struct Metric {
         timestamp: Date,
         traceId: SentryId,
         name: String,
-        value: MetricValue,
-        type: MetricType,
+        value: SentryMetricValue,
+        type: SentryMetricType,
         unit: String?,
         attributes: [String: SentryAttribute]
     ) {
@@ -136,7 +136,7 @@ public struct Metric {
     }
 }
 
-extension Metric: Encodable {
+extension SentryMetric: Encodable {
     private enum CodingKeys: String, CodingKey {
         case timestamp
         case traceId = "trace_id"
@@ -161,9 +161,9 @@ extension Metric: Encodable {
     }
 }
 
-extension Metric: BatcherItem {}
+extension SentryMetric: BatcherItem {}
 
-// MARK: - MetricType
+// MARK: - SentryMetricType
 
 /// The type of metric being recorded.
 ///
@@ -171,7 +171,7 @@ extension Metric: BatcherItem {}
 /// - **Counter**: Incrementing integer values that only increase (e.g., total requests, errors)
 /// - **Gauge**: Current value at a point in time that can go up or down (e.g., active connections, queue size)
 /// - **Distribution**: Statistical distribution of values for aggregation (e.g., response times, payload sizes)
-public enum MetricType: Encodable {
+public enum SentryMetricType: Encodable {
     /// Incrementing integer values that only increase.
     case counter
     
@@ -217,7 +217,7 @@ public enum MetricType: Encodable {
     }
 }
 
-// MARK: - MetricValue
+// MARK: - SentryMetricValue
 
 /// Represents the numeric value of a metric with type-safe distinction between integers and doubles.
 ///
@@ -252,7 +252,7 @@ public enum MetricType: Encodable {
 ///     return modified
 /// }
 /// ```
-public enum MetricValue: Encodable, Equatable, ExpressibleByIntegerLiteral, ExpressibleByFloatLiteral, Hashable {
+public enum SentryMetricValue: Encodable, Equatable, ExpressibleByIntegerLiteral, ExpressibleByFloatLiteral, Hashable {
     /// A 64-bit signed integer value, typically used for counters.
     case integer(Int64)
 

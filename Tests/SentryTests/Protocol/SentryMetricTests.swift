@@ -2,7 +2,7 @@
 @_spi(Private) import SentryTestUtils
 import XCTest
 
-final class MetricTests: XCTestCase {
+final class SentryMetricTests: XCTestCase {
     
     private let testTimestamp = Date(timeIntervalSince1970: 1_234_567_890.987654)
     private let testTraceId = SentryId(uuidString: "550e8400e29b41d4a716446655440000")
@@ -12,7 +12,7 @@ final class MetricTests: XCTestCase {
     
     func testInit_whenCounterMetric_shouldInitializeCorrectly() {
         // -- Act --
-        let metric = Metric(
+        let metric = SentryMetric(
             timestamp: testTimestamp,
             traceId: testTraceId,
             name: "api.requests",
@@ -45,7 +45,7 @@ final class MetricTests: XCTestCase {
         ]
         
         // -- Act --
-        let metric = Metric(
+        let metric = SentryMetric(
             timestamp: testTimestamp,
             traceId: testTraceId,
             name: "api.requests",
@@ -68,7 +68,7 @@ final class MetricTests: XCTestCase {
         // -- Arrange --
         
         // -- Act --
-        let metric = Metric(
+        let metric = SentryMetric(
             timestamp: testTimestamp,
             traceId: testTraceId,
             name: "api.response_time",
@@ -95,7 +95,7 @@ final class MetricTests: XCTestCase {
         // -- Arrange --
         
         // -- Act --
-        let metric = Metric(
+        let metric = SentryMetric(
             timestamp: testTimestamp,
             traceId: testTraceId,
             name: "db.connection_pool.active",
@@ -120,7 +120,7 @@ final class MetricTests: XCTestCase {
     
     func testSetAttribute_whenAttributeSet_shouldAddAttribute() {
         // -- Arrange --
-        var metric = Metric(
+        var metric = SentryMetric(
             timestamp: testTimestamp,
             traceId: testTraceId,
             name: "test.metric",
@@ -139,7 +139,7 @@ final class MetricTests: XCTestCase {
     
     func testSetAttribute_whenAttributeSetToNil_shouldRemoveAttribute() {
         // -- Arrange --
-        var metric = Metric(
+        var metric = SentryMetric(
             timestamp: testTimestamp,
             traceId: testTraceId,
             name: "test.metric",
@@ -160,7 +160,7 @@ final class MetricTests: XCTestCase {
     
     func testEncode_whenCounterMetric_shouldEncodeCorrectly() throws {
         // -- Arrange --
-        let metric = Metric(
+        let metric = SentryMetric(
             timestamp: testTimestamp,
             traceId: testTraceId,
             name: "api.requests",
@@ -196,7 +196,7 @@ final class MetricTests: XCTestCase {
     
     func testEncode_whenDistributionMetric_shouldEncodeCorrectly() throws {
         // -- Arrange --
-        let metric = Metric(
+        let metric = SentryMetric(
             timestamp: testTimestamp,
             traceId: testTraceId,
             name: "api.response_time",
@@ -221,7 +221,7 @@ final class MetricTests: XCTestCase {
     
     func testEncode_whenGaugeMetric_shouldEncodeCorrectly() throws {
         // -- Arrange --
-        let metric = Metric(
+        let metric = SentryMetric(
             timestamp: testTimestamp,
             traceId: testTraceId,
             name: "db.connection_pool.active",
@@ -246,13 +246,13 @@ final class MetricTests: XCTestCase {
         XCTAssertEqual(json["unit"] as? String, "connection")
     }
     
-    // MARK: - MetricType Tests
+    // MARK: - SentryMetricType Tests
     
     func testStringValue_whenMetricType_shouldReturnCorrectString() {
         // -- Arrange & Act & Assert --
-        XCTAssertEqual(MetricType.counter.stringValue, "counter")
-        XCTAssertEqual(MetricType.gauge.stringValue, "gauge")
-        XCTAssertEqual(MetricType.distribution.stringValue, "distribution")
+        XCTAssertEqual(SentryMetricType.counter.stringValue, "counter")
+        XCTAssertEqual(SentryMetricType.gauge.stringValue, "gauge")
+        XCTAssertEqual(SentryMetricType.distribution.stringValue, "distribution")
     }
     
     func testEncode_whenMetricType_shouldEncodeCorrectly() throws {
@@ -260,15 +260,15 @@ final class MetricTests: XCTestCase {
         let encoder = JSONEncoder()
         
         // -- Act & Assert --
-        let counterData = try encoder.encode(MetricType.counter)
+        let counterData = try encoder.encode(SentryMetricType.counter)
         let counterString = String(data: counterData, encoding: .utf8)
         XCTAssertEqual(counterString, "\"counter\"")
         
-        let gaugeData = try encoder.encode(MetricType.gauge)
+        let gaugeData = try encoder.encode(SentryMetricType.gauge)
         let gaugeString = String(data: gaugeData, encoding: .utf8)
         XCTAssertEqual(gaugeString, "\"gauge\"")
         
-        let distributionData = try encoder.encode(MetricType.distribution)
+        let distributionData = try encoder.encode(SentryMetricType.distribution)
         let distributionString = String(data: distributionData, encoding: .utf8)
         XCTAssertEqual(distributionString, "\"distribution\"")
     }
@@ -276,7 +276,7 @@ final class MetricTests: XCTestCase {
     // MARK: - Helper Methods
 
     /// Encodes a Metric to JSON Data
-    private func encodeToJSONData(data: Metric) throws -> Data {
+    private func encodeToJSONData(data: SentryMetric) throws -> Data {
         let encoder = JSONEncoder()
         encoder.dateEncodingStrategy = .secondsSince1970
         return try encoder.encode(data)
