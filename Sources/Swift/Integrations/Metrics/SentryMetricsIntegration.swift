@@ -1,6 +1,6 @@
-final class MetricsIntegration<Dependencies>: NSObject, SwiftIntegration {
+final class SentryMetricsIntegration<Dependencies>: NSObject, SwiftIntegration {
     init?(with options: Options, dependencies: Dependencies) {
-        guard options.enableMetrics else { return nil }
+        guard options.experimental.enableMetrics else { return nil }
 
         SentrySDKLog.debug("Integration initialized")
     }
@@ -8,6 +8,6 @@ final class MetricsIntegration<Dependencies>: NSObject, SwiftIntegration {
     func uninstall() {}
 
     static var name: String {
-        "MetricsIntegration"
+        "SentryMetricsIntegration"
     }
 }

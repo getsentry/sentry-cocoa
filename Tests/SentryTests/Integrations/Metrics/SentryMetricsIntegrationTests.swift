@@ -35,7 +35,7 @@ class MetricsIntegrationTests: XCTestCase {
             $0.dsn = TestConstants.dsnForTestCase(type: MetricsIntegrationTests.self)
             $0.removeAllIntegrations()
 
-            $0.enableMetrics = isEnabled
+            $0.experimental.enableMetrics = isEnabled
 
             configure?($0)
         }
