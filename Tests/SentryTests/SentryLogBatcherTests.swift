@@ -370,7 +370,7 @@ final class SentryLogBatcherTests: XCTestCase {
     
     func testAddLog_whenSendDefaultPiiTrue_shouldAddUserAttributes() throws {
         // -- Arrange --
-        scope.sendDefaultPii = true
+        options.sendDefaultPii = true
 
         let user = User()
         user.userId = "123"
@@ -398,7 +398,7 @@ final class SentryLogBatcherTests: XCTestCase {
     func testAddLog_whenSendDefaultPiiFalse_shouldNotAddUserAttributes() throws {
         // -- Arrange --
         let installationId = SentryInstallation.id(withCacheDirectoryPath: options.cacheDirectoryPath)
-        scope.sendDefaultPii = false
+        options.sendDefaultPii = false
 
         let user = User()
         user.userId = "123"
@@ -426,7 +426,7 @@ final class SentryLogBatcherTests: XCTestCase {
 
     func testAddLog_whenSendDefaultPiiTrue_shouldNotAddNilUserAttributes() throws {
         // -- Arrange --
-        scope.sendDefaultPii = true
+        options.sendDefaultPii = true
 
         let user = User()
         user.userId = "123"
