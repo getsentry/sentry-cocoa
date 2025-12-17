@@ -49,6 +49,5 @@ FOUNDATION_EXPORT const unsigned char SentryVersionString[];
 #    import <Sentry/PrivateSentrySDKOnly.h>
 #    import <Sentry/PrivatesHeader.h>
 #    import <Sentry/SentryAppStartMeasurement.h>
-#    import <Sentry/SentryFormatter.h>
 #    import <Sentry/SentrySessionReplayHybridSDK.h>
 #endif // __has_include(<Sentry/Sentry.h>)
