@@ -110,18 +110,6 @@ public struct SentryMetric {
         self._value = value
         self.value = value
     }
-    
-    /// Adds or updates an attribute in the metric entry.
-    /// - Parameters:
-    ///   - attribute: The attribute value to add
-    ///   - key: The key for the attribute
-    public mutating func setAttribute(_ attribute: SentryAttribute?, forKey key: String) {
-        if let attribute = attribute {
-            attributes[key] = attribute
-        } else {
-            attributes.removeValue(forKey: key)
-        }
-    }
 }
 
 extension SentryMetric: Encodable {
@@ -159,7 +147,7 @@ extension SentryMetric: BatcherItem {}
 /// - **Counter**: Incrementing integer values that only increase (e.g., total requests, errors)
 /// - **Gauge**: Current value at a point in time that can go up or down (e.g., active connections, queue size)
 /// - **Distribution**: Statistical distribution of values for aggregation (e.g., response times, payload sizes)
-public enum SentryMetricType: Encodable {
+public enum SentryMetricType: String, Encodable {
     /// Incrementing integer values that only increase.
     case counter
     
@@ -168,18 +156,6 @@ public enum SentryMetricType: Encodable {
     
     /// Statistical distribution of values for aggregation.
     case distribution
-    
-    /// The string representation of the metric type for JSON encoding.
-    var stringValue: String {
-        switch self {
-        case .counter:
-            return "counter"
-        case .gauge:
-            return "gauge"
-        case .distribution:
-            return "distribution"
-        }
-    }
     
     public init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
@@ -201,7 +177,7 @@ public enum SentryMetricType: Encodable {
     
     public func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
-        try container.encode(stringValue)
+        try container.encode(self.rawValue)
     }
 }
 

@@ -116,46 +116,6 @@ final class SentryMetricTests: XCTestCase {
         XCTAssertEqual(metric.unit, "connection")
     }
     
-    // MARK: - Attribute Tests
-    
-    func testSetAttribute_whenAttributeSet_shouldAddAttribute() {
-        // -- Arrange --
-        var metric = SentryMetric(
-            timestamp: testTimestamp,
-            traceId: testTraceId,
-            name: "test.metric",
-            value: .integer(1),
-            type: .counter,
-            unit: nil,
-            attributes: [:]
-        )
-        
-        // -- Act --
-        metric.setAttribute(.init(string: "test_value"), forKey: "test_key")
-        
-        // -- Assert --
-        XCTAssertEqual(metric.attributes["test_key"]?.value as? String, "test_value")
-    }
-    
-    func testSetAttribute_whenAttributeSetToNil_shouldRemoveAttribute() {
-        // -- Arrange --
-        var metric = SentryMetric(
-            timestamp: testTimestamp,
-            traceId: testTraceId,
-            name: "test.metric",
-            value: .integer(1),
-            type: .counter,
-            unit: nil,
-            attributes: ["test_key": .init(string: "test_value")]
-        )
-        
-        // -- Act --
-        metric.setAttribute(nil, forKey: "test_key")
-        
-        // -- Assert --
-        XCTAssertNil(metric.attributes["test_key"])
-    }
-    
     // MARK: - Encoding Tests
     
     func testEncode_whenCounterMetric_shouldEncodeCorrectly() throws {
@@ -248,11 +208,11 @@ final class SentryMetricTests: XCTestCase {
     
     // MARK: - SentryMetricType Tests
     
-    func testStringValue_whenMetricType_shouldReturnCorrectString() {
+    func testRawValue_whenMetricType_shouldReturnCorrectString() {
         // -- Arrange & Act & Assert --
-        XCTAssertEqual(SentryMetricType.counter.stringValue, "counter")
-        XCTAssertEqual(SentryMetricType.gauge.stringValue, "gauge")
-        XCTAssertEqual(SentryMetricType.distribution.stringValue, "distribution")
+        XCTAssertEqual(SentryMetricType.counter.rawValue, "counter")
+        XCTAssertEqual(SentryMetricType.gauge.rawValue, "gauge")
+        XCTAssertEqual(SentryMetricType.distribution.rawValue, "distribution")
     }
     
     func testEncode_whenMetricType_shouldEncodeCorrectly() throws {
@@ -271,6 +231,220 @@ final class SentryMetricTests: XCTestCase {
         let distributionData = try encoder.encode(SentryMetricType.distribution)
         let distributionString = String(data: distributionData, encoding: .utf8)
         XCTAssertEqual(distributionString, "\"distribution\"")
+    }
+    
+    // MARK: - Value Setter Type Conversion Tests
+    
+    func testSetValue_whenCounterWithInteger_shouldKeepIntegerValue() {
+        // -- Arrange --
+        var metric = SentryMetric(
+            timestamp: testTimestamp,
+            traceId: testTraceId,
+            name: "test.counter",
+            value: .integer(10),
+            type: .counter,
+            unit: nil,
+            attributes: [:]
+        )
+        
+        // -- Act --
+        metric.value = .integer(42)
+        
+        // -- Assert --
+        if case .integer(let intValue) = metric.value {
+            XCTAssertEqual(intValue, 42)
+        } else {
+            XCTFail("Expected integer value")
+        }
+    }
+    
+    func testSetValue_whenCounterWithDouble_shouldConvertToIntegerAndLogWarning() {
+        // -- Arrange --
+        let logOutput = TestLogOutput()
+        SentrySDKLog.setLogOutput(logOutput)
+        SentrySDKLog.configureLog(true, diagnosticLevel: .warning)
+        
+        var metric = SentryMetric(
+            timestamp: testTimestamp,
+            traceId: testTraceId,
+            name: "test.counter",
+            value: .integer(10),
+            type: .counter,
+            unit: nil,
+            attributes: [:]
+        )
+        
+        // -- Act --
+        metric.value = .double(125.7)
+        
+        // -- Assert --
+        if case .integer(let intValue) = metric.value {
+            XCTAssertEqual(intValue, 125)
+        } else {
+            XCTFail("Expected integer value")
+        }
+        XCTAssertTrue(logOutput.loggedMessages.contains { $0.contains("Attempted to set a double value (125.7) on a counter metric") })
+        XCTAssertTrue(logOutput.loggedMessages.contains { $0.contains("Converting to integer by flooring: 125") })
+    }
+    
+    func testSetValue_whenCounterWithNegativeDouble_shouldFloorToZero() {
+        // -- Arrange --
+        let logOutput = TestLogOutput()
+        SentrySDKLog.setLogOutput(logOutput)
+        SentrySDKLog.configureLog(true, diagnosticLevel: .warning)
+        
+        var metric = SentryMetric(
+            timestamp: testTimestamp,
+            traceId: testTraceId,
+            name: "test.counter",
+            value: .integer(10),
+            type: .counter,
+            unit: nil,
+            attributes: [:]
+        )
+        
+        // -- Act --
+        metric.value = .double(-5.5)
+        
+        // -- Assert --
+        if case .integer(let intValue) = metric.value {
+            XCTAssertEqual(intValue, 0)
+        } else {
+            XCTFail("Expected integer value")
+        }
+        XCTAssertTrue(logOutput.loggedMessages.contains { $0.contains("Attempted to set a double value (-5.5) on a counter metric") })
+        XCTAssertTrue(logOutput.loggedMessages.contains { $0.contains("Converting to integer by flooring: 0") })
+    }
+    
+    func testSetValue_whenCounterWithFractionalDouble_shouldFloorCorrectly() {
+        // -- Arrange --
+        let logOutput = TestLogOutput()
+        SentrySDKLog.setLogOutput(logOutput)
+        SentrySDKLog.configureLog(true, diagnosticLevel: .warning)
+        
+        var metric = SentryMetric(
+            timestamp: testTimestamp,
+            traceId: testTraceId,
+            name: "test.counter",
+            value: .integer(10),
+            type: .counter,
+            unit: nil,
+            attributes: [:]
+        )
+        
+        // -- Act --
+        metric.value = .double(99.999)
+        
+        // -- Assert --
+        if case .integer(let intValue) = metric.value {
+            XCTAssertEqual(intValue, 99)
+        } else {
+            XCTFail("Expected integer value")
+        }
+    }
+    
+    func testSetValue_whenGaugeWithDouble_shouldKeepDoubleValue() {
+        // -- Arrange --
+        var metric = SentryMetric(
+            timestamp: testTimestamp,
+            traceId: testTraceId,
+            name: "test.gauge",
+            value: .double(10.0),
+            type: .gauge,
+            unit: nil,
+            attributes: [:]
+        )
+        
+        // -- Act --
+        metric.value = .double(42.5)
+        
+        // -- Assert --
+        if case .double(let doubleValue) = metric.value {
+            XCTAssertEqual(doubleValue, 42.5, accuracy: 0.001)
+        } else {
+            XCTFail("Expected double value")
+        }
+    }
+    
+    func testSetValue_whenGaugeWithInteger_shouldConvertToDoubleAndLogWarning() {
+        // -- Arrange --
+        let logOutput = TestLogOutput()
+        SentrySDKLog.setLogOutput(logOutput)
+        SentrySDKLog.configureLog(true, diagnosticLevel: .warning)
+        
+        var metric = SentryMetric(
+            timestamp: testTimestamp,
+            traceId: testTraceId,
+            name: "test.gauge",
+            value: .double(10.0),
+            type: .gauge,
+            unit: nil,
+            attributes: [:]
+        )
+        
+        // -- Act --
+        metric.value = .integer(42)
+        
+        // -- Assert --
+        if case .double(let doubleValue) = metric.value {
+            XCTAssertEqual(doubleValue, 42.0, accuracy: 0.001)
+        } else {
+            XCTFail("Expected double value")
+        }
+        XCTAssertTrue(logOutput.loggedMessages.contains { $0.contains("Attempted to set an integer value (42) on a gauge metric") })
+        XCTAssertTrue(logOutput.loggedMessages.contains { $0.contains("Converting to double: 42.0") })
+    }
+    
+    func testSetValue_whenDistributionWithDouble_shouldKeepDoubleValue() {
+        // -- Arrange --
+        var metric = SentryMetric(
+            timestamp: testTimestamp,
+            traceId: testTraceId,
+            name: "test.distribution",
+            value: .double(10.0),
+            type: .distribution,
+            unit: nil,
+            attributes: [:]
+        )
+        
+        // -- Act --
+        metric.value = .double(125.5)
+        
+        // -- Assert --
+        if case .double(let doubleValue) = metric.value {
+            XCTAssertEqual(doubleValue, 125.5, accuracy: 0.001)
+        } else {
+            XCTFail("Expected double value")
+        }
+    }
+    
+    func testSetValue_whenDistributionWithInteger_shouldConvertToDoubleAndLogWarning() {
+        // -- Arrange --
+        let logOutput = TestLogOutput()
+        SentrySDKLog.setLogOutput(logOutput)
+        SentrySDKLog.configureLog(true, diagnosticLevel: .warning)
+        
+        var metric = SentryMetric(
+            timestamp: testTimestamp,
+            traceId: testTraceId,
+            name: "test.distribution",
+            value: .double(10.0),
+            type: .distribution,
+            unit: nil,
+            attributes: [:]
+        )
+        
+        // -- Act --
+        metric.value = .integer(100)
+        
+        // -- Assert --
+        if case .double(let doubleValue) = metric.value {
+            XCTAssertEqual(doubleValue, 100.0, accuracy: 0.001)
+        } else {
+            XCTFail("Expected double value")
+        }
+        XCTAssertTrue(logOutput.loggedMessages.contains { $0.contains("Attempted to set an integer value (100) on a distribution metric") })
+        XCTAssertTrue(logOutput.loggedMessages.contains { $0.contains("Converting to double: 100.0") })
     }
 
     // MARK: - Helper Methods

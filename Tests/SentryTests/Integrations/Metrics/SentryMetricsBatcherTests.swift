@@ -580,7 +580,7 @@ final class SentryMetricsBatcherTests: XCTestCase {
         scope.setAttribute(value: "scope-value", key: "existing-key")
         
         var metric = createTestMetric(name: "test.metric", value: 1, type: .counter)
-        metric.setAttribute(.init(string: "metric-value"), forKey: "existing-key")
+        metric.attributes["existing-key"] = .init(string: "original-value")
         
         // -- Act --
         let sut = getSut()
@@ -602,7 +602,7 @@ final class SentryMetricsBatcherTests: XCTestCase {
         // -- Arrange --
         options.experimental.beforeSendMetric = { metric in
             var modifiedMetric = metric
-            modifiedMetric.setAttribute(.init(string: "modified"), forKey: "test-attr")
+            modifiedMetric.attributes["test-attr"] = .init(string: "modified")
             return modifiedMetric
         }
         
