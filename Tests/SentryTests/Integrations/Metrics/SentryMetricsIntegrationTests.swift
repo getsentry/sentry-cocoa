@@ -3,7 +3,7 @@ import Foundation
 @_spi(Private) import SentryTestUtils
 import XCTest
 
-class MetricsIntegrationTests: XCTestCase {
+class SentryMetricsIntegrationTests: XCTestCase {
     
     override func tearDown() {
         super.tearDown()
@@ -106,7 +106,7 @@ class MetricsIntegrationTests: XCTestCase {
 
     private func startSDK(isEnabled: Bool, configure: ((Options) -> Void)? = nil) {
         SentrySDK.start {
-            $0.dsn = TestConstants.dsnForTestCase(type: MetricsIntegrationTests.self)
+            $0.dsn = TestConstants.dsnForTestCase(type: Self.self)
             $0.removeAllIntegrations()
 
             $0.experimental.enableMetrics = isEnabled
@@ -117,7 +117,7 @@ class MetricsIntegrationTests: XCTestCase {
 
     private func givenSdkWithHub() throws {
         let options = Options()
-        options.dsn = TestConstants.dsnForTestCase(type: MetricsIntegrationTests.self)
+        options.dsn = TestConstants.dsnForTestCase(type: Self.self)
         options.removeAllIntegrations()
 
         options.experimental.enableMetrics = true

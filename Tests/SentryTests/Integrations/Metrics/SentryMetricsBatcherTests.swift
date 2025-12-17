@@ -2,11 +2,11 @@
 @_spi(Private) import SentryTestUtils
 import XCTest
 
-final class SentryMetricBatcherTests: XCTestCase {
+final class SentryMetricsBatcherTests: XCTestCase {
 
     private var options: Options!
     private var testDateProvider: TestCurrentDateProvider!
-    private var testCallbackHelper: TestMetricBatcherCallbackHelper!
+    private var testCallbackHelper: TestMetricsBatcherCallbackHelper!
     private var testDispatchQueue: TestSentryDispatchQueueWrapper!
     private var scope: Scope!
     
@@ -18,7 +18,7 @@ final class SentryMetricBatcherTests: XCTestCase {
         options.experimental.enableMetrics = true
 
         testDateProvider = TestCurrentDateProvider()
-        testCallbackHelper = TestMetricBatcherCallbackHelper()
+        testCallbackHelper = TestMetricsBatcherCallbackHelper()
         testDispatchQueue = TestSentryDispatchQueueWrapper()
         testDispatchQueue.dispatchAsyncExecutesBlock = true // Execute encoding immediately
 
@@ -33,8 +33,8 @@ final class SentryMetricBatcherTests: XCTestCase {
         scope = nil
     }
 
-    private func getSut() -> SentryMetricBatcher {
-        return SentryMetricBatcher(
+    private func getSut() -> SentryMetricsBatcher {
+        return SentryMetricsBatcher(
             options: options,
             flushTimeout: 0.1, // Very small timeout for testing
             maxMetricCount: 10, // Maximum 10 metrics per batch
@@ -175,7 +175,7 @@ final class SentryMetricBatcherTests: XCTestCase {
     func testInit_whenFlushTimeoutNotProvided_shouldUseDefaultValue() throws {
         // -- Arrange --
         // Create a new batcher without specifying flushTimeout to use default
-        let defaultBatcher = SentryMetricBatcher(
+        let defaultBatcher = SentryMetricsBatcher(
             options: options,
             dateProvider: testDateProvider,
             dispatchQueue: testDispatchQueue,
@@ -195,7 +195,7 @@ final class SentryMetricBatcherTests: XCTestCase {
     func testInit_whenMaxMetricCountNotProvided_shouldUseDefaultValue() throws {
         // -- Arrange --
         // Create a new batcher without specifying maxMetricCount to use default (100)
-        let defaultBatcher = SentryMetricBatcher(
+        let defaultBatcher = SentryMetricsBatcher(
             options: options,
             dateProvider: testDateProvider,
             dispatchQueue: testDispatchQueue,
@@ -224,7 +224,7 @@ final class SentryMetricBatcherTests: XCTestCase {
     func testInit_whenMaxBufferSizeBytesNotProvided_shouldUseDefaultValue() throws {
         // -- Arrange --
         // Create a new batcher without specifying maxBufferSizeBytes to use default (2048 bytes / 2KiB)
-        let defaultBatcher = SentryMetricBatcher(
+        let defaultBatcher = SentryMetricsBatcher(
             options: options,
             dateProvider: testDateProvider,
             dispatchQueue: testDispatchQueue,
@@ -623,7 +623,7 @@ final class SentryMetricBatcherTests: XCTestCase {
     func testAddMetric_whenBeforeSendMetricReturnsNil_shouldDropMetric() throws {
         // -- Arrange --
         options.experimental.beforeSendMetric = { _ in nil }
-        
+
         let metric = createTestMetric(name: "test.metric", value: 1, type: .counter)
         
         // -- Act --
@@ -705,7 +705,7 @@ final class SentryMetricBatcherTests: XCTestCase {
 
 // MARK: - Test Callback Helper
 
-final class TestMetricBatcherCallbackHelper {
+final class TestMetricsBatcherCallbackHelper {
     var captureMetricsDataInvocations = Invocations<(data: Data, count: Int)>()
     
     // The callback that matches the MetricBatcher capturedDataCallback signature

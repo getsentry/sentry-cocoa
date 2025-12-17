@@ -1,12 +1,12 @@
 @_implementationOnly import _SentryPrivate
 
 final class SentryMetricsIntegration<Dependencies: DateProviderProvider & DispatchQueueWrapperProvider>: NSObject, SwiftIntegration {
-    private let metricBatcher: SentryMetricBatcherProtocol
+    private let metricBatcher: SentryMetricsBatcherProtocol
 
     init?(with options: Options, dependencies: Dependencies) {
         guard options.experimental.enableMetrics else { return nil }
 
-        self.metricBatcher = SentryMetricBatcher(
+        self.metricBatcher = SentryMetricsBatcher(
             options: options,
             dateProvider: dependencies.dateProvider,
             dispatchQueue: dependencies.dispatchQueueWrapper,

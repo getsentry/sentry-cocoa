@@ -46,8 +46,9 @@ public struct SentryMetric {
                 _value = newValue
             case (.counter, .double(let doubleValue)):
                 // Convert double to integer by flooring
-                SentrySDKLog.warning("Attempted to set a double value (\(doubleValue)) on a counter metric. Converting to integer by flooring: \(Int64(floor(doubleValue))).")
-                _value = .integer(Int64(floor(doubleValue)))
+                let converted = Int64(max(0, floor(doubleValue)))
+                SentrySDKLog.warning("Attempted to set a double value (\(doubleValue)) on a counter metric. Converting to integer by flooring: \(converted).")
+                _value = .integer(converted)
             case (.gauge, .double), (.distribution, .double):
                 _value = newValue
             case (.gauge, .integer(let intValue)):

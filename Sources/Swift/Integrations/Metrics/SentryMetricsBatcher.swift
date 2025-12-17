@@ -2,7 +2,7 @@
 import Foundation
 
 /// Protocol for batching metrics with scope-based attribute enrichment.
-protocol SentryMetricBatcherProtocol {
+protocol SentryMetricsBatcherProtocol {
     /// Adds a metric to the batcher.
     /// - Parameters:
     ///   - metric: The metric to add
@@ -18,7 +18,7 @@ protocol SentryMetricBatcherProtocol {
     @discardableResult func captureMetrics() -> TimeInterval
 }
 
-protocol SentryMetricBatcherOptionsProtocol {
+protocol SentryMetricsBatcherOptionsProtocol {
     var enableMetrics: Bool { get }
     var beforeSendMetric: ((SentryMetric) -> SentryMetric?)? { get }
     var environment: String { get }
@@ -27,7 +27,7 @@ protocol SentryMetricBatcherOptionsProtocol {
     var sendDefaultPii: Bool { get }
 }
 
-struct SentryMetricBatcher: SentryMetricBatcherProtocol {
+struct SentryMetricsBatcher: SentryMetricsBatcherProtocol {
     private let isEnabled: Bool
     private let batcher: any BatcherProtocol<SentryMetric, Scope>
 
@@ -47,7 +47,7 @@ struct SentryMetricBatcher: SentryMetricBatcherProtocol {
     ///
     /// - Note: Metrics are flushed when either `maxMetricCount` or `maxBufferSizeBytes` limit is reached.
     init(
-        options: SentryMetricBatcherOptionsProtocol,
+        options: SentryMetricsBatcherOptionsProtocol,
         flushTimeout: TimeInterval = 5,
         maxMetricCount: Int = 100, // Maximum 100 metrics per batch
         maxBufferSizeBytes: Int = 2 * 1_024, // 2 KiB buffer size, see: https://develop.sentry.dev/sdk/data-model/envelopes/#size-limits
@@ -89,7 +89,7 @@ struct SentryMetricBatcher: SentryMetricBatcherProtocol {
     }
 }
 
-extension Options: SentryMetricBatcherOptionsProtocol {
+extension Options: SentryMetricsBatcherOptionsProtocol {
     var enableMetrics: Bool {
         return experimental.enableMetrics
     }
