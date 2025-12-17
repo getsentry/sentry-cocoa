@@ -1,5 +1,6 @@
 struct InMemoryBatchBuffer<Item: Encodable>: BatchBuffer {
-    private var wrapper: SentryBatchBufferWrapper?
+    private var elements: [Data] = []
+    var itemsDataSize: Int = 0
 
     private let encoder: JSONEncoder = {
         let encoder = JSONEncoder()
@@ -7,45 +8,24 @@ struct InMemoryBatchBuffer<Item: Encodable>: BatchBuffer {
         return encoder
     }()
 
-    init(dataCapacity: Int, maxItems: Int) {
-        do {
-            self.wrapper = try SentryBatchBufferWrapper(dataCapacity: dataCapacity, maxItems: maxItems)
-        } catch {
-            SentrySDKLog.error("InMemoryBatchBuffer could not create buffer backend.")
-            self.wrapper = nil
-        }
-    }
+    init() {}
 
     mutating func append(_ item: Item) throws {
-        guard let wrapper else {
-            return
-        }
         let encoded = try encoder.encode(item)
-        guard wrapper.addItem(data: encoded) else {
-            throw BatchBufferError.bufferFull
-        }
+        elements.append(encoded)
+        itemsDataSize += encoded.count
     }
 
     mutating func clear() {
-        guard let wrapper else {
-            return
-        }
-        wrapper.clear()
+        elements.removeAll()
+        itemsDataSize = 0
     }
 
     var itemsCount: Int {
-        wrapper?.itemCount ?? 0
-    }
-
-    var itemsDataSize: Int {
-        wrapper?.dataSize ?? 0
+        elements.count
     }
 
     var batchedData: Data {
-        guard let wrapper else {
-            return Data("{\"items\":[]}".utf8)
-        }
-        let items = wrapper.getItems()
-        return Data("{\"items\":[".utf8) + items.joined(separator: Data(",".utf8)) + Data("]}".utf8)
+        Data("{\"items\":[".utf8) + elements.joined(separator: Data(",".utf8)) + Data("]}".utf8)
     }
 }
