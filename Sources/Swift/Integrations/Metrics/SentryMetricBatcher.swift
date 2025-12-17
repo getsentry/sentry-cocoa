@@ -50,7 +50,7 @@ struct SentryMetricBatcher: SentryMetricBatcherProtocol {
         options: SentryMetricBatcherOptionsProtocol,
         flushTimeout: TimeInterval = 5,
         maxMetricCount: Int = 100, // Maximum 100 metrics per batch
-        maxBufferSizeBytes: Int = 2 * 1_024, // 2KiB buffer size
+        maxBufferSizeBytes: Int = 2 * 1_024, // 2 KiB buffer size, see: https://develop.sentry.dev/sdk/data-model/envelopes/#size-limits
         dateProvider: SentryCurrentDateProvider,
         dispatchQueue: SentryDispatchQueueWrapper,
         capturedDataCallback: @escaping (_ data: Data, _ count: Int) -> Void
