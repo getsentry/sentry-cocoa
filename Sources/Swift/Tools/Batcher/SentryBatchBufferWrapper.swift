@@ -6,9 +6,12 @@ import Foundation
 /// This wrapper provides a Swift interface to the C batch buffer implementation.
 /// It stores generic binary data items in a pre-allocated buffer.
 ///
-/// - Note: The C buffer has a fixed capacity and will fail to add items if the capacity is exceeded.
+/// - Note: Internally, the buffer uses double the specified capacity to allow items
+///   slightly over the capacity to still be added. The public API reports the original capacity.
 final class SentryBatchBufferWrapper {
     private var buffer: SentryBatchBufferC
+    /// The original capacity requested by the user (not the doubled internal capacity).
+    private let originalDataCapacity: Int
     
     /// Initializes a new C batch buffer with the specified capacities.
     ///
@@ -16,9 +19,14 @@ final class SentryBatchBufferWrapper {
     ///   - dataCapacity: The maximum capacity of the data buffer in bytes.
     ///   - maxItems: The maximum number of items that can be stored.
     /// - Throws: An error if the buffer initialization fails.
+    /// - Note: Internally, the buffer uses double the specified capacity to allow items
+    ///   slightly over the capacity to still be added, but this is abstracted away.
     init(dataCapacity: Int, maxItems: Int) throws {
+        self.originalDataCapacity = dataCapacity
         var cBuffer = SentryBatchBufferC()
-        guard sentry_batch_buffer_init(&cBuffer, dataCapacity, maxItems) else {
+        // Use double the capacity internally to allow items slightly over the capacity
+        let internalCapacity = dataCapacity * 2
+        guard sentry_batch_buffer_init(&cBuffer, internalCapacity, maxItems) else {
             throw SentryBatchBufferError.initializationFailed
         }
         self.buffer = cBuffer
@@ -64,7 +72,8 @@ final class SentryBatchBufferWrapper {
     }
     
     var dataCapacity: Int {
-        return Int(sentry_batch_buffer_get_data_capacity(&buffer))
+        // Return the original capacity, not the doubled internal capacity
+        return originalDataCapacity
     }
     
     var itemCount: Int {

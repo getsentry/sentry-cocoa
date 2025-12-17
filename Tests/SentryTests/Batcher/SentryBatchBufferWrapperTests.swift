@@ -76,8 +76,9 @@ final class SentryBatchBufferWrapperTests: XCTestCase {
     
     func testAddItem_whenDataCapacityExceeded_shouldReturnFalse() throws {
         // -- Arrange --
+        // The buffer internally uses double the capacity, so we need to exceed 2x to fail
         let sut = try SentryBatchBufferWrapper(dataCapacity: 10, maxItems: 10)
-        let largeData = Data(count: 11)
+        let largeData = Data(count: 21) // Exceeds 2x capacity (20)
         
         // -- Act --
         let result = sut.addItem(data: largeData)
@@ -100,6 +101,22 @@ final class SentryBatchBufferWrapperTests: XCTestCase {
         XCTAssertTrue(result)
         XCTAssertEqual(sut.itemCount, 1)
         XCTAssertEqual(sut.dataSize, 10)
+    }
+    
+    func testAddItem_whenSlightlyOverCapacity_shouldSucceed() throws {
+        // -- Arrange --
+        // The buffer internally uses double the capacity, so items slightly over
+        // the original capacity should still be added
+        let sut = try SentryBatchBufferWrapper(dataCapacity: 10, maxItems: 10)
+        let slightlyOverData = Data(count: 15) // Over original capacity (10) but under 2x (20)
+        
+        // -- Act --
+        let result = sut.addItem(data: slightlyOverData)
+        
+        // -- Assert --
+        XCTAssertTrue(result, "Items slightly over the original capacity should succeed due to doubled internal buffer")
+        XCTAssertEqual(sut.itemCount, 1)
+        XCTAssertEqual(sut.dataSize, 15)
     }
     
     func testAddItem_whenItemCountExceeded_shouldReturnFalse() throws {
@@ -294,15 +311,17 @@ final class SentryBatchBufferWrapperTests: XCTestCase {
         XCTAssertEqual(sut.dataSize, data1.count + data2.count)
     }
     
-    func testDataCapacity_shouldReturnInitialCapacity() throws {
+    func testDataCapacity_shouldReturnOriginalCapacity() throws {
         // -- Arrange --
+        // Even though the buffer internally uses double the capacity,
+        // the public API should return the original capacity
         let sut = try SentryBatchBufferWrapper(dataCapacity: 2_048, maxItems: 20)
         
         // -- Act --
         let capacity = sut.dataCapacity
         
         // -- Assert --
-        XCTAssertEqual(capacity, 2_048)
+        XCTAssertEqual(capacity, 2_048, "dataCapacity should return the original capacity, not the doubled internal capacity")
     }
     
     func testItemCount_whenNoItems_shouldReturnZero() throws {

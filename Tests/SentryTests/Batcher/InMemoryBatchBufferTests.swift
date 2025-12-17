@@ -13,9 +13,9 @@ final class InMemoryBatchBufferTests: XCTestCase {
 
     // MARK: - Count Property Tests
 
-    func testCount_withNoElements_shouldReturnZero() {
+    func testCount_withNoElements_shouldReturnZero() throws {
         // -- Act --
-        let sut = InMemoryBatchBuffer<TestElement>()
+        let sut = InMemoryBatchBuffer<TestElement>(dataCapacity: 1_024 * 1_024, maxItems: 1_000)
 
         // -- Assert --
         XCTAssertEqual(sut.itemsCount, 0)
@@ -23,7 +23,7 @@ final class InMemoryBatchBufferTests: XCTestCase {
 
     func testCount_withSingleElement_shouldReturnOne() throws {
         // -- Arrange --
-        var sut = InMemoryBatchBuffer<TestElement>()
+        var sut = InMemoryBatchBuffer<TestElement>(dataCapacity: 1_024 * 1_024, maxItems: 1_000)
 
         // -- Act --
         try sut.append(TestElement(id: 1))
@@ -34,7 +34,7 @@ final class InMemoryBatchBufferTests: XCTestCase {
 
     func testCount_withMultipleElements_shouldReturnCorrectCount() throws {
         // -- Arrange --
-        var sut = InMemoryBatchBuffer<TestElement>()
+        var sut = InMemoryBatchBuffer<TestElement>(dataCapacity: 1_024 * 1_024, maxItems: 1_000)
 
         // -- Act --
         try sut.append(TestElement(id: 1))
@@ -49,7 +49,7 @@ final class InMemoryBatchBufferTests: XCTestCase {
 
     func testAppend_withSingleElement_shouldAddElement() throws {
         // -- Arrange --
-        var sut = InMemoryBatchBuffer<TestElement>()
+        var sut = InMemoryBatchBuffer<TestElement>(dataCapacity: 1_024 * 1_024, maxItems: 1_000)
 
         // -- Act --
         try sut.append(TestElement(id: 1))
@@ -62,7 +62,7 @@ final class InMemoryBatchBufferTests: XCTestCase {
 
     func testAppend_withMultipleElements_shouldAddAllElements() throws {
         // -- Arrange --
-        var sut = InMemoryBatchBuffer<TestElement>()
+        var sut = InMemoryBatchBuffer<TestElement>(dataCapacity: 1_024 * 1_024, maxItems: 1_000)
 
         // -- Act --
         try sut.append(TestElement(id: 1))
@@ -81,7 +81,7 @@ final class InMemoryBatchBufferTests: XCTestCase {
 
     func testAppend_withMultipleElements_shouldMaintainOrder() throws {
         // -- Arrange --
-        var sut = InMemoryBatchBuffer<TestElement>()
+        var sut = InMemoryBatchBuffer<TestElement>(dataCapacity: 1_024 * 1_024, maxItems: 1_000)
 
         // -- Act --
         try sut.append(TestElement(id: 1))
@@ -97,7 +97,7 @@ final class InMemoryBatchBufferTests: XCTestCase {
 
     func testAppend_shouldIncreaseSize() throws {
         // -- Arrange --
-        var sut = InMemoryBatchBuffer<TestElement>()
+        var sut = InMemoryBatchBuffer<TestElement>(dataCapacity: 1_024 * 1_024, maxItems: 1_000)
         let initialSize = sut.itemsDataSize
         XCTAssertEqual(initialSize, 0)
 
@@ -120,9 +120,9 @@ final class InMemoryBatchBufferTests: XCTestCase {
 
     // MARK: - Flush Method Tests
 
-    func testFlush_withNoElements_shouldDoNothing() {
+    func testFlush_withNoElements_shouldDoNothing() throws {
         // -- Arrange --
-        var sut = InMemoryBatchBuffer<TestElement>()
+        var sut = InMemoryBatchBuffer<TestElement>(dataCapacity: 1_024 * 1_024, maxItems: 1_000)
 
         // Assert pre-condition
         XCTAssertEqual(sut.itemsCount, 0)
@@ -138,7 +138,7 @@ final class InMemoryBatchBufferTests: XCTestCase {
 
     func testFlush_withSingleElement_shouldClearStorage() throws {
         // -- Arrange --
-        var sut = InMemoryBatchBuffer<TestElement>()
+        var sut = InMemoryBatchBuffer<TestElement>(dataCapacity: 1_024 * 1_024, maxItems: 1_000)
         try sut.append(TestElement(id: 1))
 
         // Assert pre-condition
@@ -157,7 +157,7 @@ final class InMemoryBatchBufferTests: XCTestCase {
 
     func testFlush_withMultipleElements_shouldClearStorage() throws {
         // -- Arrange --
-        var sut = InMemoryBatchBuffer<TestElement>()
+        var sut = InMemoryBatchBuffer<TestElement>(dataCapacity: 1_024 * 1_024, maxItems: 1_000)
         try sut.append(TestElement(id: 1))
         try sut.append(TestElement(id: 2))
         try sut.append(TestElement(id: 3))
@@ -178,7 +178,7 @@ final class InMemoryBatchBufferTests: XCTestCase {
 
     func testFlush_afterFlush_shouldAllowNewAppends() throws {
         // -- Arrange --
-        var sut = InMemoryBatchBuffer<TestElement>()
+        var sut = InMemoryBatchBuffer<TestElement>(dataCapacity: 1_024 * 1_024, maxItems: 1_000)
         try sut.append(TestElement(id: 1))
         try sut.append(TestElement(id: 2))
 
@@ -196,7 +196,7 @@ final class InMemoryBatchBufferTests: XCTestCase {
 
     func testData_withNoElements_shouldReturnEmptyArray() throws {
         // -- Arrange --
-        let sut = InMemoryBatchBuffer<TestElement>()
+        let sut = InMemoryBatchBuffer<TestElement>(dataCapacity: 1_024 * 1_024, maxItems: 1_000)
 
         // -- Act --
         let data = sut.batchedData
@@ -208,7 +208,7 @@ final class InMemoryBatchBufferTests: XCTestCase {
 
     func testData_withSingleElement_shouldReturnSingleElement() throws {
         // -- Arrange --
-        var sut = InMemoryBatchBuffer<TestElement>()
+        var sut = InMemoryBatchBuffer<TestElement>(dataCapacity: 1_024 * 1_024, maxItems: 1_000)
         try sut.append(TestElement(id: 1))
 
         // -- Act --
@@ -221,7 +221,7 @@ final class InMemoryBatchBufferTests: XCTestCase {
 
     func testData_withMultipleElements_shouldReturnAllElements() throws {
         // -- Arrange --
-        var sut = InMemoryBatchBuffer<TestElement>()
+        var sut = InMemoryBatchBuffer<TestElement>(dataCapacity: 1_024 * 1_024, maxItems: 1_000)
         try sut.append(TestElement(id: 1))
         try sut.append(TestElement(id: 2))
         try sut.append(TestElement(id: 3))
@@ -240,7 +240,7 @@ final class InMemoryBatchBufferTests: XCTestCase {
 
     func testData_shouldReturnValidJSONFormat() throws {
         // -- Arrange --
-        var sut = InMemoryBatchBuffer<TestElement>()
+        var sut = InMemoryBatchBuffer<TestElement>(dataCapacity: 1_024 * 1_024, maxItems: 1_000)
         try sut.append(TestElement(id: 1))
         try sut.append(TestElement(id: 2))
 
@@ -260,7 +260,7 @@ final class InMemoryBatchBufferTests: XCTestCase {
 
     func testData_shouldMaintainElementOrder() throws {
         // -- Arrange --
-        var sut = InMemoryBatchBuffer<TestElement>()
+        var sut = InMemoryBatchBuffer<TestElement>(dataCapacity: 1_024 * 1_024, maxItems: 1_000)
         try sut.append(TestElement(id: 10))
         try sut.append(TestElement(id: 20))
         try sut.append(TestElement(id: 30))
@@ -277,9 +277,9 @@ final class InMemoryBatchBufferTests: XCTestCase {
 
     // MARK: - Size Property Tests
 
-    func testSize_withNoElements_shouldReturnZero() {
+    func testSize_withNoElements_shouldReturnZero() throws {
         // -- Arrange --
-        let sut = InMemoryBatchBuffer<TestElement>()
+        let sut = InMemoryBatchBuffer<TestElement>(dataCapacity: 1_024 * 1_024, maxItems: 1_000)
 
         // -- Act --
         let size = sut.itemsDataSize
@@ -290,7 +290,7 @@ final class InMemoryBatchBufferTests: XCTestCase {
 
     func testSize_withSingleElement_shouldReturnEncodedElementSize() throws {
         // -- Arrange --
-        var sut = InMemoryBatchBuffer<TestElement>()
+        var sut = InMemoryBatchBuffer<TestElement>(dataCapacity: 1_024 * 1_024, maxItems: 1_000)
         let element = TestElement(id: 1)
         let expectedSize = try JSONEncoder().encode(element).count
 
@@ -303,7 +303,7 @@ final class InMemoryBatchBufferTests: XCTestCase {
 
     func testSize_withMultipleElements_shouldReturnSumOfEncodedSizes() throws {
         // -- Arrange --
-        var sut = InMemoryBatchBuffer<TestElement>()
+        var sut = InMemoryBatchBuffer<TestElement>(dataCapacity: 1_024 * 1_024, maxItems: 1_000)
         let element1 = TestElement(id: 1)
         let element2 = TestElement(id: 2)
         let element3 = TestElement(id: 3)
@@ -324,7 +324,7 @@ final class InMemoryBatchBufferTests: XCTestCase {
 
     func testSize_afterFlush_shouldReturnZero() throws {
         // -- Arrange --
-        var sut = InMemoryBatchBuffer<TestElement>()
+        var sut = InMemoryBatchBuffer<TestElement>(dataCapacity: 1_024 * 1_024, maxItems: 1_000)
         try sut.append(TestElement(id: 1))
         try sut.append(TestElement(id: 2))
 
@@ -340,7 +340,7 @@ final class InMemoryBatchBufferTests: XCTestCase {
 
     func testSize_shouldUpdateAfterEachAppend() throws {
         // -- Arrange --
-        var sut = InMemoryBatchBuffer<TestElement>()
+        var sut = InMemoryBatchBuffer<TestElement>(dataCapacity: 1_024 * 1_024, maxItems: 1_000)
         let element1 = TestElement(id: 1)
         let element2 = TestElement(id: 2)
         let encoder = JSONEncoder()
@@ -361,7 +361,7 @@ final class InMemoryBatchBufferTests: XCTestCase {
 
     func testAppendFlushAppend_shouldWorkCorrectly() throws {
         // -- Arrange --
-        var sut = InMemoryBatchBuffer<TestElement>()
+        var sut = InMemoryBatchBuffer<TestElement>(dataCapacity: 1_024 * 1_024, maxItems: 1_000)
 
         // -- Act & Assert --
         try sut.append(TestElement(id: 1))
@@ -385,7 +385,7 @@ final class InMemoryBatchBufferTests: XCTestCase {
 
     func testMultipleFlushCalls_shouldNotCauseIssues() throws {
         // -- Arrange --
-        var sut = InMemoryBatchBuffer<TestElement>()
+        var sut = InMemoryBatchBuffer<TestElement>(dataCapacity: 1_024 * 1_024, maxItems: 1_000)
         try sut.append(TestElement(id: 1))
 
         // -- Act --
@@ -413,7 +413,7 @@ final class InMemoryBatchBufferTests: XCTestCase {
 
     func testAppend_withDateProperty_shouldEncodeAsSecondsSince1970() throws {
         // -- Arrange --
-        var sut = InMemoryBatchBuffer<TestElementWithDate>()
+        var sut = InMemoryBatchBuffer<TestElementWithDate>(dataCapacity: 1_024 * 1_024, maxItems: 1_000)
         let expectedTimestamp = Date(timeIntervalSince1970: 1_234_567_890.987654)
         let element = TestElementWithDate(id: 1, timestamp: expectedTimestamp)
 
