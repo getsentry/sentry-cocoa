@@ -29,6 +29,7 @@ final class SentryBatchBufferWrapper {
     }
     
     // Returns true if the item was successfully added, false if the buffer is full.
+    @discardableResult
     func addItem(data: Data) -> Bool {
         guard !data.isEmpty else {
             return true
