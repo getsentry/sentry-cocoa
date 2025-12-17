@@ -4,8 +4,8 @@
 
 ### Features
 
-- Add integration to collect Metrics, can be enabled by setting `options.enableMetrics = true` (#6956)
-- Add implementation for Metrics Protocol (#6960)
+- Add integration to collect Metrics, can be enabled by setting `options.experimental.enableMetrics = true` (#6956)
+- Add implementation for Metrics Protocol with modification of items in `options.experimental.beforeSendMetrics` (#6960)
 
 ### Fixes
 
