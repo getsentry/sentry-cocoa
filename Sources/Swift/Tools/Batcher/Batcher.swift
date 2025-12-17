@@ -114,13 +114,11 @@ final class Batcher<Buffer: BatchBuffer<Item>, Item: BatcherItem, Scope: Batcher
     /// - Parameter item: The item to encode and add to the buffer
     private func encodeAndBuffer(item: Item) {
         do {
-            // @denis Handle flow when buffer throws because it's full...
-            
-            let encodedItemsWereEmpty = buffer.itemsCount == 0
+            let encodedItemsWereEmpty = buffer.itemsDataSize == 0
             try buffer.append(item)
 
             // Flush when we reach max item count or max buffer size
-            if buffer.itemsCount >= config.maxItemCount || buffer.batchedData.count >= config.maxBufferSizeBytes {
+            if buffer.itemsCount >= config.maxItemCount || buffer.itemsDataSize >= config.maxBufferSizeBytes {
                 performCaptureItems()
             } else if encodedItemsWereEmpty && timerWorkItem == nil {
                 startTimer()
