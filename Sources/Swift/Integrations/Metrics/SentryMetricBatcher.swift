@@ -93,4 +93,8 @@ extension Options: SentryMetricBatcherOptionsProtocol {
     var enableMetrics: Bool {
         return experimental.enableMetrics
     }
+
+    var beforeSendMetric: ((SentryMetric) -> SentryMetric?)? {
+        return experimental.beforeSendMetric
+    }
 }

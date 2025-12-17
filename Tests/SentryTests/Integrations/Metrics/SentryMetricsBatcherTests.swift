@@ -600,7 +600,7 @@ final class SentryMetricBatcherTests: XCTestCase {
     
     func testAddMetric_whenBeforeSendMetricModifiesMetric_shouldCaptureModifiedMetric() throws {
         // -- Arrange --
-        options.beforeSendMetric = { metric in
+        options.experimental.beforeSendMetric = { metric in
             var modifiedMetric = metric
             modifiedMetric.setAttribute(.init(string: "modified"), forKey: "test-attr")
             return modifiedMetric
@@ -622,7 +622,7 @@ final class SentryMetricBatcherTests: XCTestCase {
     
     func testAddMetric_whenBeforeSendMetricReturnsNil_shouldDropMetric() throws {
         // -- Arrange --
-        options.beforeSendMetric = { _ in nil }
+        options.experimental.beforeSendMetric = { _ in nil }
         
         let metric = createTestMetric(name: "test.metric", value: 1, type: .counter)
         
