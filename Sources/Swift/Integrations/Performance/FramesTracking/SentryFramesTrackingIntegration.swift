@@ -2,10 +2,6 @@
 
 #if (os(iOS) || os(tvOS) || (swift(>=5.9) && os(visionOS))) && !SENTRY_NO_UIKIT
 
-protocol FramesTrackingProvider {
-    var framesTracker: SentryFramesTracker { get }
-}
-
 final class SentryFramesTrackingIntegration<Dependencies: FramesTrackingProvider>: NSObject, SwiftIntegration {
     let tracker: SentryFramesTracker
 
