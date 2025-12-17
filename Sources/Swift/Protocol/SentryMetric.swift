@@ -104,24 +104,11 @@ public struct SentryMetric {
         self.metricType = type
         self.unit = unit
         self.attributes = attributes
-        
-        // Perform type conversion when needed
-        switch (type, value) {
-        case (.counter, .integer), (.gauge, .double), (.distribution, .double):
-            self._value = value
-        case (.counter, .double(let doubleValue)):
-            // Convert double to integer by flooring
-            SentrySDKLog.warning("Counter metric created with double value \(doubleValue). Converting to integer by flooring: \(Int64(floor(doubleValue))).")
-            self._value = .integer(Int64(floor(doubleValue)))
-        case (.gauge, .integer(let intValue)):
-            // Convert integer to double
-            SentrySDKLog.warning("Gauge metric created with integer value \(intValue). Converting to double: \(Double(intValue)).")
-            self._value = .double(Double(intValue))
-        case (.distribution, .integer(let intValue)):
-            // Convert integer to double
-            SentrySDKLog.warning("Distribution metric created with integer value \(intValue). Converting to double: \(Double(intValue)).")
-            self._value = .double(Double(intValue))
-        }
+
+        // We first assign the `_value` so that all values of self are set.
+        // Then we set `value` because it will enforce the custom setter
+        self._value = value
+        self.value = value
     }
     
     /// Adds or updates an attribute in the metric entry.
