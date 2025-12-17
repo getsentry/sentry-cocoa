@@ -231,7 +231,6 @@ static NSDate *_Nullable startTimestamp = nil;
 
     SentryScope *scope
         = options.initialScope([[SentryScope alloc] initWithMaxBreadcrumbs:options.maxBreadcrumbs]);
-    scope.sendDefaultPii = options.sendDefaultPii;
 
     SENTRY_LOG_DEBUG(@"Dispatching init work required to run on main thread.");
     [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper

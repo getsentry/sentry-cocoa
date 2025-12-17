@@ -11,6 +11,8 @@ protocol BatcherProtocol<Item, Scope>: AnyObject {
 
 final class Batcher<Buffer: BatchBuffer<Item>, Item: BatcherItem, Scope: BatcherScope>: BatcherProtocol {
     struct Config: BatcherConfig {
+        let sendDefaultPii: Bool
+
         let flushTimeout: TimeInterval
         let maxItemCount: Int
         let maxBufferSizeBytes: Int
