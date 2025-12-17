@@ -223,42 +223,46 @@ final class SentryMetricsBatcherTests: XCTestCase {
     
     func testInit_whenMaxBufferSizeBytesNotProvided_shouldUseDefaultValue() throws {
         // -- Arrange --
-        // Create a new batcher without specifying maxBufferSizeBytes to use default (2048 bytes / 2KiB)
+        // Create a new batcher without specifying maxBufferSizeBytes to use default (1MB)
+        // Note: Individual trace metrics must not exceed 2KB each (Relay's max_trace_metric_size limit),
+        // but the buffer can accumulate up to 1MB before flushing.
         let defaultBatcher = SentryMetricsBatcher(
             options: options,
+            flushTimeout: 0.1,
+            maxMetricCount: 100_000, // High count to avoid count-based flush, focus on size limit
             dateProvider: testDateProvider,
             dispatchQueue: testDispatchQueue,
             capturedDataCallback: testCallbackHelper.captureCallback
         )
-        
-        // Create a metric with large attributes that exceeds the default buffer size of 2048 bytes
-        // Each attribute key-value pair adds significant size, so we'll create enough to exceed 2048 bytes
-        var largeAttributes: [String: SentryMetric.Attribute] = [:]
-        // Create attributes that will exceed 2048 bytes when serialized
-        // Each attribute with ~50 bytes of data, so ~40 attributes should exceed 2048 bytes
-        for i in 0..<50 {
-            largeAttributes["key\(i)"] = .init(string: String(repeating: "A", count: 50))
+
+        // -- Act --
+        // Add metrics until we exceed the 1MB buffer limit (approximately 500+ metrics at ~2KB each)
+        // We'll add enough to ensure we exceed the 1MB limit
+        for index in 0..<500 {
+            var attributes: [String: SentryMetric.Attribute] = [:]
+            // Create attributes that make the metric close to 2KB when serialized
+            // Each attribute with ~40 bytes of data, ~40 attributes should be close to 2KB
+            for i in 0..<40 {
+                attributes["key\(i)"] = .init(string: String(repeating: "A", count: 40))
+            }
+            let metric = SentryMetric(
+                timestamp: Date(),
+                traceId: SentryId(),
+                name: "large.metric.\(index)",
+                value: .integer(Int64(index)),
+                type: .counter,
+                unit: nil,
+                attributes: attributes
+            )
+            defaultBatcher.addMetric(metric, scope: scope)
         }
         
-        let largeMetric = SentryMetric(
-            timestamp: Date(),
-            traceId: SentryId(),
-            name: "large.metric",
-            value: 1,
-            type: .counter,
-            unit: nil,
-            attributes: largeAttributes
-        )
-        
-        // -- Act --
-        defaultBatcher.addMetric(largeMetric, scope: scope)
-        
         // -- Assert --
-        XCTAssertEqual(testCallbackHelper.captureMetricsDataInvocations.count, 1, "Should flush when exceeding default maxBufferSizeBytes of 2048 bytes")
+        XCTAssertEqual(testCallbackHelper.captureMetricsDataInvocations.count, 1, "Should flush when exceeding default maxBufferSizeBytes of 1MB")
         
         let capturedMetrics = testCallbackHelper.getCapturedMetrics()
-        XCTAssertEqual(capturedMetrics.count, 1)
-        XCTAssertEqual(capturedMetrics[0].name, "large.metric")
+        XCTAssertGreaterThan(capturedMetrics.count, 0, "Should have captured at least one metric")
+        XCTAssertLessThanOrEqual(capturedMetrics.count, 600, "Should not have captured more metrics than were added")
     }
     
     // MARK: - Manual Capture Metrics Tests
@@ -580,7 +584,7 @@ final class SentryMetricsBatcherTests: XCTestCase {
         scope.setAttribute(value: "scope-value", key: "existing-key")
         
         var metric = createTestMetric(name: "test.metric", value: 1, type: .counter)
-        metric.attributes["existing-key"] = .init(string: "original-value")
+        metric.attributes["existing-key"] = .init(string: "metric-value")
         
         // -- Act --
         let sut = getSut()
