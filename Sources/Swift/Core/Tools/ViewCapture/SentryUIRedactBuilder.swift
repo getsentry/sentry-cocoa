@@ -74,7 +74,7 @@ final class SentryUIRedactBuilder {
     /// This object identifier is used to identify views of this class type during the redaction process.
     /// This workaround is specifically for Xcode 16 building for iOS 26 where accessing CameraUI.ModeLoupeLayer
     /// causes a crash due to unimplemented init(layer:) initializer.
-    private static let cameraSwiftUIViewClassId = ClassIdentifier(classId: "CameraUI.ChromeSwiftUIView")
+    static let cameraSwiftUIViewClassId = ClassIdentifier(classId: "CameraUI.ChromeSwiftUIView")
 
     // MARK: - Properties
 
@@ -105,6 +105,12 @@ final class SentryUIRedactBuilder {
     
     /// Optimized lookup: class IDs with layer constraints (includes both classId and layerId)
     private var constrainedRedactClasses: Set<ClassIdentifier> = []
+
+    /// A set of view type identifiers (as strings) for which subtree traversal should be ignored.
+    ///
+    /// Views matching these types will have their subtrees skipped during redaction to avoid crashes
+    /// caused by traversing problematic view hierarchies.
+    private var subtreeTraversalIgnoredViewTypes: Set<String>
 
     /// Initializes a new instance of the redaction process with the specified options.
     ///
@@ -208,6 +214,7 @@ final class SentryUIRedactBuilder {
         }
         
         redactClassesIdentifiers = redactClasses
+        subtreeTraversalIgnoredViewTypes = options.subtreeTraversalIgnoredViewTypes
         
         // didSet doesn't run during initialization, so we need to manually build the optimization structures
         rebuildOptimizedLookups()
@@ -567,12 +574,8 @@ final class SentryUIRedactBuilder {
         // [2] https://github.com/getsentry/sentry-cocoa/blob/00d97404946a37e983eabb21cc64bd3d5d2cb474/Sources/Sentry/SentrySubClassFinder.m#L58-L84   
         let viewTypeId = type(of: view).description()
         
-        if #available(iOS 26.0, *), viewTypeId == Self.cameraSwiftUIViewClassId.classId {
-            // CameraUI.ChromeSwiftUIView is a special case because it contains layers which can not be iterated due to this error:
-            //
-            // Fatal error: Use of unimplemented initializer 'init(layer:)' for class 'CameraUI.ModeLoupeLayer'
-            //
-            // This crash only occurs when building with Xcode 16 for iOS 26, so we add a runtime check
+        // Check if this view type is in the configurable list of ignored subtree traversal types
+        if subtreeTraversalIgnoredViewTypes.contains(viewTypeId) {
             return true
         }
 

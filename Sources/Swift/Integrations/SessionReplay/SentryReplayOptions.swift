@@ -22,6 +22,20 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
         public static let maskedViewClasses: [AnyClass] = []
         public static let unmaskedViewClasses: [AnyClass] = []
 
+        /// Default view types for which subtree traversal should be ignored.
+        ///
+        /// By default, includes:
+        ///   - `CameraUI.ChromeSwiftUIView` on iOS 26+ to avoid crashes.
+        fileprivate static var subtreeTraversalIgnoredViewTypes: Set<String> {
+            var defaults: Set<String> = []
+            // CameraUI.ChromeSwiftUIView is a special case because it contains layers which can not be iterated due to this error:
+            //   Fatal error: Use of unimplemented initializer 'init(layer:)' for class 'CameraUI.ModeLoupeLayer'
+            if #available(iOS 26.0, *) {
+                defaults.insert(SentryUIRedactBuilder.cameraSwiftUIViewClassId.classId)
+            }
+            return defaults
+        }
+
         // The following properties are defaults which are not configurable by the user.
 
         fileprivate static let sdkInfo: [String: Any]? = nil
@@ -161,6 +175,49 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
      * - Note: See ``SentryReplayOptions.DefaultValues.unmaskedViewClasses`` for the default value.
      */
     public var unmaskedViewClasses: [AnyClass]
+
+    /**
+     * A set of view type identifiers (as strings) for which subtree traversal should be ignored.
+     *
+     * Views matching these types will have their subtrees skipped during redaction to avoid crashes
+     * caused by traversing problematic view hierarchies (e.g., views that activate internal CoreAnimation
+     * animations when their layers are accessed).
+     *
+     * The string values should match the result of `type(of: view).description()`.
+     *
+     * - Note: You must use the methods ``includeSubtreeTraversalForViewType(_:)`` and ``excludeSubtreeTraversalForViewType(_:)``
+     *         to add and remove view types, so do not accidentally remove our defaults.
+     * - Note: By default, this includes `CameraUI.ChromeSwiftUIView` on iOS 26+ to avoid crashes
+     *         when accessing `CameraUI.ModeLoupeLayer`.
+     */
+    public private(set) var subtreeTraversalIgnoredViewTypes: Set<String>
+
+    /**
+     * Adds a view type to the list of views for which subtree traversal should be ignored.
+     *
+     * - Parameter viewType: The view type identifier as a string (e.g., "MyCustomView").
+     *                      This should match the result of `type(of: view).description()`.
+     *
+     * Use this method to prevent crashes when traversing problematic view hierarchies.
+     * For example, if you encounter crashes when certain views are traversed, you can add
+     * their type identifier to skip their subtrees.
+     */
+    public func includeSubtreeTraversalForViewType(_ viewType: String) {
+        subtreeTraversalIgnoredViewTypes.insert(viewType)
+    }
+
+    /**
+     * Removes a view type from the list of views for which subtree traversal should be ignored.
+     *
+     * - Parameter viewType: The view type identifier as a string (e.g., "CameraUI.ChromeSwiftUIView").
+     *                      This should match the result of `type(of: view).description()`.
+     *
+     * Use this method to remove default or previously added view types from the ignore list,
+     * allowing their subtrees to be traversed normally.
+     */
+    public func excludeSubtreeTraversalForViewType(_ viewType: String) {
+        subtreeTraversalIgnoredViewTypes.remove(viewType)
+    }
 
     /**
      * Alias for ``enableViewRendererV2``.
@@ -410,6 +467,7 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
         self.errorReplayDuration = errorReplayDuration ?? DefaultValues.errorReplayDuration
         self.sessionSegmentDuration = sessionSegmentDuration ?? DefaultValues.sessionSegmentDuration
         self.maximumDuration = maximumDuration ?? DefaultValues.maximumDuration
+        self.subtreeTraversalIgnoredViewTypes = DefaultValues.subtreeTraversalIgnoredViewTypes
         
         super.init()
     }

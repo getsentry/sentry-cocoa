@@ -15,6 +15,7 @@ public class SentryViewScreenshotOptions: NSObject, SentryRedactOptions {
         public static let maskAllImages: Bool = true
         public static let maskedViewClasses: [AnyClass] = []
         public static let unmaskedViewClasses: [AnyClass] = []
+        public static let subtreeTraversalIgnoredViewTypes: Set<String> = []
     }
     
     // MARK: - Rendering
@@ -95,6 +96,19 @@ public class SentryViewScreenshotOptions: NSObject, SentryRedactOptions {
     public var unmaskedViewClasses: [AnyClass]
     
     /**
+     * A set of view type identifiers (as strings) for which subtree traversal should be ignored.
+     *
+     * Views matching these types will have their subtrees skipped during redaction to avoid crashes
+     * caused by traversing problematic view hierarchies (e.g., views that activate internal CoreAnimation
+     * animations when their layers are accessed).
+     *
+     * The string values should match the result of `type(of: view).description()`.
+     *
+     * - Note: See ``SentryViewScreenshotOptions.init`` for the default value.
+     */
+    public var subtreeTraversalIgnoredViewTypes: Set<String>
+    
+    /**
      * Initialize screenshot options disabled
      *
      * - Note: This initializer is added for Objective-C compatibility, as constructors with default values
@@ -109,7 +123,8 @@ public class SentryViewScreenshotOptions: NSObject, SentryRedactOptions {
             maskAllText: DefaultValues.maskAllText,
             maskAllImages: DefaultValues.maskAllImages,
             maskedViewClasses: DefaultValues.maskedViewClasses,
-            unmaskedViewClasses: DefaultValues.unmaskedViewClasses
+            unmaskedViewClasses: DefaultValues.unmaskedViewClasses,
+            subtreeTraversalIgnoredViewTypes: DefaultValues.subtreeTraversalIgnoredViewTypes
         )
     }
     
@@ -133,7 +148,8 @@ public class SentryViewScreenshotOptions: NSObject, SentryRedactOptions {
             }) ?? DefaultValues.maskedViewClasses,
             unmaskedViewClasses: (dictionary["unmaskedViewClasses"] as? NSArray)?.compactMap({ element in
                 NSClassFromString((element as? String) ?? "")
-            }) ?? DefaultValues.unmaskedViewClasses
+            }) ?? DefaultValues.unmaskedViewClasses,
+            subtreeTraversalIgnoredViewTypes: (dictionary["subtreeTraversalIgnoredViewTypes"] as? [String]).map { Set($0) } ?? DefaultValues.subtreeTraversalIgnoredViewTypes
         )
     }
     
@@ -147,6 +163,7 @@ public class SentryViewScreenshotOptions: NSObject, SentryRedactOptions {
      *   - maskAllImages: Flag to redact all images in the app by drawing a rectangle over it.
      *   - maskedViewClasses: A list of custom UIView subclasses that need to be masked during the screenshot.
      *   - unmaskedViewClasses: A list of custom UIView subclasses to be ignored during masking step of the screenshot.
+     *   - subtreeTraversalIgnoredViewTypes: A set of view type identifiers for which subtree traversal should be ignored.
      *
      * - Note: See ``SentryViewScreenshotOptions.DefaultValues`` for the default values of each parameter.
      */
@@ -156,7 +173,8 @@ public class SentryViewScreenshotOptions: NSObject, SentryRedactOptions {
         maskAllText: Bool = DefaultValues.maskAllText,
         maskAllImages: Bool = DefaultValues.maskAllImages,
         maskedViewClasses: [AnyClass] = DefaultValues.maskedViewClasses,
-        unmaskedViewClasses: [AnyClass] = DefaultValues.unmaskedViewClasses
+        unmaskedViewClasses: [AnyClass] = DefaultValues.unmaskedViewClasses,
+        subtreeTraversalIgnoredViewTypes: Set<String> = DefaultValues.subtreeTraversalIgnoredViewTypes
     ) {
         // - This initializer is publicly available for Swift, but not for Objective-C, because automatically bridged Swift initializers
         //   with default values result in a single initializer requiring all parameters.
@@ -170,6 +188,7 @@ public class SentryViewScreenshotOptions: NSObject, SentryRedactOptions {
         self.maskAllImages = maskAllImages
         self.maskedViewClasses = maskedViewClasses
         self.unmaskedViewClasses = unmaskedViewClasses
+        self.subtreeTraversalIgnoredViewTypes = subtreeTraversalIgnoredViewTypes
 
         super.init()
     }

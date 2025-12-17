@@ -850,4 +850,100 @@ class SentryReplayOptionsTests: XCTestCase {
         // -- Assert --
         XCTAssertNil(options.sdkInfo)
     }
+    
+    // MARK: subtreeTraversalIgnoredViewTypes
+    
+    func testSubtreeTraversalIgnoredViewTypes_defaultInitialization_shouldIncludeCameraUIViewOniOS26() {
+        // -- Act --
+        let options = SentryReplayOptions()
+        
+        // -- Assert --
+        if #available(iOS 26.0, *) {
+            XCTAssertTrue(options.subtreeTraversalIgnoredViewTypes.contains("CameraUI.ChromeSwiftUIView"))
+        } else {
+            XCTAssertFalse(options.subtreeTraversalIgnoredViewTypes.contains("CameraUI.ChromeSwiftUIView"))
+        }
+    }
+    
+    func testSubtreeTraversalIgnoredViewTypes_includeSubtreeTraversalForViewType_shouldAddViewType() {
+        // -- Arrange --
+        let options = SentryReplayOptions()
+        
+        // -- Act --
+        options.includeSubtreeTraversalForViewType("MyCustomView")
+        
+        // -- Assert --
+        XCTAssertTrue(options.subtreeTraversalIgnoredViewTypes.contains("MyCustomView"))
+    }
+    
+    func testSubtreeTraversalIgnoredViewTypes_includeSubtreeTraversalForViewType_multipleCalls_shouldAddAllViewTypes() {
+        // -- Arrange --
+        let options = SentryReplayOptions()
+        
+        // -- Act --
+        options.includeSubtreeTraversalForViewType("MyCustomView1")
+        options.includeSubtreeTraversalForViewType("MyCustomView2")
+        options.includeSubtreeTraversalForViewType("MyCustomView3")
+        
+        // -- Assert --
+        XCTAssertTrue(options.subtreeTraversalIgnoredViewTypes.contains("MyCustomView1"))
+        XCTAssertTrue(options.subtreeTraversalIgnoredViewTypes.contains("MyCustomView2"))
+        XCTAssertTrue(options.subtreeTraversalIgnoredViewTypes.contains("MyCustomView3"))
+        XCTAssertEqual(options.subtreeTraversalIgnoredViewTypes.count, 3 + (options.subtreeTraversalIgnoredViewTypes.contains("CameraUI.ChromeSwiftUIView") ? 1 : 0))
+    }
+    
+    func testSubtreeTraversalIgnoredViewTypes_excludeSubtreeTraversalForViewType_shouldRemoveViewType() {
+        // -- Arrange --
+        let options = SentryReplayOptions()
+        options.includeSubtreeTraversalForViewType("MyCustomView")
+        XCTAssertTrue(options.subtreeTraversalIgnoredViewTypes.contains("MyCustomView"))
+        
+        // -- Act --
+        options.excludeSubtreeTraversalForViewType("MyCustomView")
+        
+        // -- Assert --
+        XCTAssertFalse(options.subtreeTraversalIgnoredViewTypes.contains("MyCustomView"))
+    }
+    
+    func testSubtreeTraversalIgnoredViewTypes_excludeSubtreeTraversalForViewType_shouldRemoveDefaultCameraUIView() {
+        // -- Arrange --
+        let options = SentryReplayOptions()
+        
+        // Only test on iOS 26+ where CameraUI.ChromeSwiftUIView is included by default
+        guard #available(iOS 26.0, *) else {
+            return
+        }
+        
+        XCTAssertTrue(options.subtreeTraversalIgnoredViewTypes.contains("CameraUI.ChromeSwiftUIView"))
+        
+        // -- Act --
+        options.excludeSubtreeTraversalForViewType("CameraUI.ChromeSwiftUIView")
+        
+        // -- Assert --
+        XCTAssertFalse(options.subtreeTraversalIgnoredViewTypes.contains("CameraUI.ChromeSwiftUIView"))
+    }
+    
+    func testSubtreeTraversalIgnoredViewTypes_excludeSubtreeTraversalForViewType_nonExistentViewType_shouldNotCrash() {
+        // -- Arrange --
+        let options = SentryReplayOptions()
+        let initialCount = options.subtreeTraversalIgnoredViewTypes.count
+        
+        // -- Act --
+        options.excludeSubtreeTraversalForViewType("NonExistentView")
+        
+        // -- Assert --
+        XCTAssertEqual(options.subtreeTraversalIgnoredViewTypes.count, initialCount)
+    }
+    
+    func testSubtreeTraversalIgnoredViewTypes_propertyGetter_shouldReturnCurrentValue() {
+        // -- Arrange --
+        let options = SentryReplayOptions()
+        options.includeSubtreeTraversalForViewType("TestView")
+        
+        // -- Act --
+        let retrievedSet = options.subtreeTraversalIgnoredViewTypes
+        
+        // -- Assert --
+        XCTAssertTrue(retrievedSet.contains("TestView"))
+    }
 }
