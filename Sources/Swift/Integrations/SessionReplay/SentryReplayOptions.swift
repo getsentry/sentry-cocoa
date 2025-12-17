@@ -366,11 +366,6 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
      * - Warning: This initializer is primarily used by Hybrid SDKs and is not intended for public use.
      */
     @_spi(Private) public convenience init(dictionary: [String: Any]) {
-        var viewTypesIgnoredFromSubtreeTraversal: Set<String>?
-        if let array = dictionary["viewTypesIgnoredFromSubtreeTraversal"] as? NSArray {
-            viewTypesIgnoredFromSubtreeTraversal = Set(_immutableCocoaSet: array)
-        }
-
         // This initalizer is calling the one with optional parameters, so that defaults can be applied
         // for absent values.
         self.init(
@@ -393,7 +388,7 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
             errorReplayDuration: (dictionary["errorReplayDuration"] as? NSNumber)?.doubleValue,
             sessionSegmentDuration: (dictionary["sessionSegmentDuration"] as? NSNumber)?.doubleValue,
             maximumDuration: (dictionary["maximumDuration"] as? NSNumber)?.doubleValue,
-            viewTypesIgnoredFromSubtreeTraversal: viewTypesIgnoredFromSubtreeTraversal
+            viewTypesIgnoredFromSubtreeTraversal: (dictionary["viewTypesIgnoredFromSubtreeTraversal"] as? [String]).map { Set($0) }
         )
     }
 
