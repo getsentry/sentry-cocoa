@@ -121,3 +121,4 @@ analyzer
 
 # Output folder for Sentry local builds
 XCFrameworkBuildPath/
+*.xcresult
