@@ -102,7 +102,7 @@ final class SentryUIRedactBuilder {
 
     /// Optimized lookup: class IDs that should be redacted without layer constraints
     private var unconstrainedRedactClasses: Set<ClassIdentifier> = []
-    
+
     /// Optimized lookup: class IDs with layer constraints (includes both classId and layerId)
     private var constrainedRedactClasses: Set<ClassIdentifier> = []
 
@@ -110,7 +110,7 @@ final class SentryUIRedactBuilder {
     ///
     /// Views matching these types will have their subtrees skipped during redaction to avoid crashes
     /// caused by traversing problematic view hierarchies.
-    private var subtreeTraversalIgnoredViewTypes: Set<String>
+    private var viewTypesIgnoredFromSubtreeTraversal: Set<String>
 
     /// Initializes a new instance of the redaction process with the specified options.
     ///
@@ -151,7 +151,7 @@ final class SentryUIRedactBuilder {
             redactClasses.insert(ClassIdentifier(classId: "_TtCOCV7SwiftUI11DisplayList11ViewUpdater8Platform13CGDrawingView"))
 
         }
-        
+
         if options.maskAllImages {
             redactClasses.insert(ClassIdentifier(objcType: UIImageView.self))
 
@@ -169,7 +169,7 @@ final class SentryUIRedactBuilder {
             // Used by React Native to display images
             redactClasses.insert(ClassIdentifier(classId: "RCTImageView"))
         }
-        
+
 #if os(iOS)
         redactClasses.insert(ClassIdentifier(objcType: PDFView.self))
         redactClasses.insert(ClassIdentifier(objcType: WKWebView.self))
@@ -204,18 +204,18 @@ final class SentryUIRedactBuilder {
 #else
         ignoreClassesIdentifiers = []
 #endif
-        
+
         for type in options.unmaskedViewClasses {
             ignoreClassesIdentifiers.insert(ClassIdentifier(class: type))
         }
-        
+
         for type in options.maskedViewClasses {
             redactClasses.insert(ClassIdentifier(class: type))
         }
-        
+
         redactClassesIdentifiers = redactClasses
-        subtreeTraversalIgnoredViewTypes = options.subtreeTraversalIgnoredViewTypes
-        
+        viewTypesIgnoredFromSubtreeTraversal = options.viewTypesIgnoredFromSubtreeTraversal
+
         // didSet doesn't run during initialization, so we need to manually build the optimization structures
         rebuildOptimizedLookups()
     }
@@ -231,7 +231,7 @@ final class SentryUIRedactBuilder {
     private func rebuildOptimizedLookups() {
         unconstrainedRedactClasses.removeAll()
         constrainedRedactClasses.removeAll()
-        
+
         for identifier in redactClassesIdentifiers {
             if identifier.layerId == nil {
                 // No layer constraint - add to unconstrained set
@@ -290,40 +290,40 @@ final class SentryUIRedactBuilder {
     /// - `UIImageView` will match the class rule; the final decision is refined by `shouldRedact(imageView:)`.
     func containsRedactClass(viewClass: AnyClass, layerClass: AnyClass) -> Bool {
         var currentClass: AnyClass? = viewClass
-        
+
         while let iteratorClass = currentClass {
             // Check if this class is in the unconstrained set (O(1) lookup)
             // This matches any layer type
             if unconstrainedRedactClasses.contains(ClassIdentifier(class: iteratorClass)) {
                 return true
             }
-            
+
             // Check if this class+layer combination is in the constrained set (O(1) lookup)
             // This only matches specific layer types
             if constrainedRedactClasses.contains(ClassIdentifier(class: iteratorClass, layer: layerClass)) {
                 return true
             }
-            
+
             currentClass = iteratorClass.superclass()
         }
         return false
     }
-    
+
     /// Adds a class to the ignore list.
     func addIgnoreClass(_ ignoreClass: AnyClass) {
         ignoreClassesIdentifiers.insert(ClassIdentifier(class: ignoreClass))
     }
-    
+
     /// Adds a class to the redact list.
     func addRedactClass(_ redactClass: AnyClass) {
         redactClassesIdentifiers.insert(ClassIdentifier(class: redactClass))
     }
-    
+
     /// Adds multiple classes to the ignore list.
     func addIgnoreClasses(_ ignoreClasses: [AnyClass]) {
         ignoreClasses.forEach(addIgnoreClass(_:))
     }
-    
+
     /// Adds multiple classes to the redact list.
     func addRedactClasses(_ redactClasses: [AnyClass]) {
         redactClasses.forEach(addRedactClass(_:))
@@ -384,7 +384,7 @@ final class SentryUIRedactBuilder {
 
         var swiftUIRedact = [SentryRedactRegion]()
         var otherRegions = [SentryRedactRegion]()
-        
+
         for region in redactingRegions {
             if region.type == .redactSwiftUI {
                 swiftUIRedact.append(region)
@@ -392,11 +392,11 @@ final class SentryUIRedactBuilder {
                 otherRegions.append(region)
             }
         }
-        
+
         //The swiftUI type needs to appear first in the list so it always get masked
         return (otherRegions + swiftUIRedact).reversed()
     }
-    
+
     private func shouldIgnore(view: UIView) -> Bool {
         return SentryRedactViewHelper.shouldUnmask(view) || containsIgnoreClassId(ClassIdentifier(class: type(of: view))) || shouldIgnoreParentContainer(view)
     }
@@ -444,7 +444,7 @@ final class SentryUIRedactBuilder {
 
         return true
     }
-    
+
     /// Special handling for `UIImageView` to avoid masking tiny gradient strips and
     /// bundle‑provided assets (e.g. SF Symbols or app assets), which are unlikely to contain PII.
     private func shouldRedact(imageView: UIImageView) -> Bool {
@@ -571,15 +571,15 @@ final class SentryUIRedactBuilder {
         // - In Sentry's own SubClassFinder where storing or accessing class objects on a background thread caused crashes due to `+initialize` being called on UIKit classes [2]
         //
         // [1] https://github.com/EmergeTools/SnapshotPreviews/blob/main/Sources/SnapshotPreviewsCore/View%2BSnapshot.swift#L248
-        // [2] https://github.com/getsentry/sentry-cocoa/blob/00d97404946a37e983eabb21cc64bd3d5d2cb474/Sources/Sentry/SentrySubClassFinder.m#L58-L84   
+        // [2] https://github.com/getsentry/sentry-cocoa/blob/00d97404946a37e983eabb21cc64bd3d5d2cb474/Sources/Sentry/SentrySubClassFinder.m#L58-L84
         let viewTypeId = type(of: view).description()
-        
+
         // Check if this view type is in the configurable list of ignored subtree traversal types
-        if subtreeTraversalIgnoredViewTypes.contains(viewTypeId) {
+        if viewTypesIgnoredFromSubtreeTraversal.contains(viewTypeId) {
             return true
         }
 
-        #if os(iOS)
+#if os(iOS)
         // UISwitch uses UIImageView internally, which can be in the list of redacted views.
         // But UISwitch is in the list of ignored class identifiers by default, because it uses
         // non-sensitive images. Therefore we want to ignore the subtree of UISwitch, unless
@@ -587,8 +587,8 @@ final class SentryUIRedactBuilder {
         if viewTypeId == "UISwitch" && containsIgnoreClassId(ClassIdentifier(classId: viewTypeId)) {
             return true
         }
-        #endif // os(iOS)
-        
+#endif // os(iOS)
+
         return false
     }
 
@@ -597,14 +597,14 @@ final class SentryUIRedactBuilder {
         let size = layer.bounds.size
         let anchorPoint = CGPoint(x: size.width * layer.anchorPoint.x, y: size.height * layer.anchorPoint.y)
         let position = parentLayer?.convert(layer.position, to: nil) ?? layer.position
-        
+
         var newTransform = transform
         newTransform.tx = position.x
         newTransform.ty = position.y
         newTransform = CATransform3DGetAffineTransform(layer.transform).concatenating(newTransform)
         return newTransform.translatedBy(x: -anchorPoint.x, y: -anchorPoint.y)
     }
-    
+
     /// Whether the transform does not contain rotation or skew.
     private func isAxisAligned(_ transform: CGAffineTransform) -> Bool {
         // Rotation exists if b or c are not zero
@@ -619,7 +619,7 @@ final class SentryUIRedactBuilder {
     private func color(for view: UIView) -> UIColor? {
         return (view as? UILabel)?.textColor.withAlphaComponent(1)
     }
-    
+
     /// Indicates whether the view is opaque and will block other views behind it.
     ///
     /// A view is considered opaque if it completely covers and hides any content behind it.

@@ -13,13 +13,13 @@ import XCTest
 
 /// See `SentryUIRedactBuilderTests.swift` for more information on how to print the internal view hierarchy of a view.
 class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftlint:disable:this type_name
-    private func getSut(maskAllText: Bool, maskAllImages: Bool, maskedViewClasses: [AnyClass] = [], unmaskedViewClasses: [AnyClass] = [], subtreeTraversalIgnoredViewTypes: Set<String> = []) -> SentryUIRedactBuilder {
+    private func getSut(maskAllText: Bool, maskAllImages: Bool, maskedViewClasses: [AnyClass] = [], unmaskedViewClasses: [AnyClass] = [], viewTypesIgnoredFromSubtreeTraversal: Set<String> = []) -> SentryUIRedactBuilder {
         return SentryUIRedactBuilder(options: TestRedactOptions(
             maskAllText: maskAllText,
             maskAllImages: maskAllImages,
             maskedViewClasses: maskedViewClasses,
             unmaskedViewClasses: unmaskedViewClasses,
-            subtreeTraversalIgnoredViewTypes: subtreeTraversalIgnoredViewTypes
+            viewTypesIgnoredFromSubtreeTraversal: viewTypesIgnoredFromSubtreeTraversal
         ))
     }
 
@@ -1319,7 +1319,7 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftli
         let sut = getSut(
             maskAllText: true,
             maskAllImages: true,
-            subtreeTraversalIgnoredViewTypes: [viewTypeId]
+            viewTypesIgnoredFromSubtreeTraversal: [viewTypeId]
         )
 
         // Reset the sublayers before redaction in case it was called by UIKit internals
@@ -1350,7 +1350,7 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftli
         let sut = getSut(
             maskAllText: true,
             maskAllImages: true,
-            subtreeTraversalIgnoredViewTypes: [] // Empty set - no ignored types
+            viewTypesIgnoredFromSubtreeTraversal: [] // Empty set - no ignored types
         )
         
         // Reset the sublayers before redaction in case it was called by UIKit internals
@@ -1392,7 +1392,7 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftli
         let sut = getSut(
             maskAllText: true,
             maskAllImages: true,
-            subtreeTraversalIgnoredViewTypes: [viewTypeId1, viewTypeId2]
+            viewTypesIgnoredFromSubtreeTraversal: [viewTypeId1, viewTypeId2]
         )
         
         // Reset the sublayers before redaction in case it was called by UIKit internals
@@ -1417,9 +1417,9 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftli
         // -- Assert --
         // On iOS 26+, CameraUI.ChromeSwiftUIView should be in the ignored set
         if #available(iOS 26.0, *) {
-            XCTAssertTrue(options.subtreeTraversalIgnoredViewTypes.contains("CameraUI.ChromeSwiftUIView"), "CameraUI.ChromeSwiftUIView should be ignored by default on iOS 26+")
+            XCTAssertTrue(options.viewTypesIgnoredFromSubtreeTraversal.contains("CameraUI.ChromeSwiftUIView"), "CameraUI.ChromeSwiftUIView should be ignored by default on iOS 26+")
         } else {
-            XCTAssertFalse(options.subtreeTraversalIgnoredViewTypes.contains("CameraUI.ChromeSwiftUIView"), "CameraUI.ChromeSwiftUIView should not be ignored on iOS < 26")
+            XCTAssertFalse(options.viewTypesIgnoredFromSubtreeTraversal.contains("CameraUI.ChromeSwiftUIView"), "CameraUI.ChromeSwiftUIView should not be ignored on iOS < 26")
         }
     }
 }

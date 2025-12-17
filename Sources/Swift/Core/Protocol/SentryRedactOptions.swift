@@ -6,7 +6,7 @@ public protocol SentryRedactOptions {
     var maskAllImages: Bool { get }
     var maskedViewClasses: [AnyClass] { get }
     var unmaskedViewClasses: [AnyClass] { get }
-    var subtreeTraversalIgnoredViewTypes: Set<String> { get }
+    var viewTypesIgnoredFromSubtreeTraversal: Set<String> { get }
 }
 
 @objcMembers
@@ -20,7 +20,7 @@ public protocol SentryRedactOptions {
     ///
     /// By default, includes `CameraUI.ChromeSwiftUIView` on iOS 26+ to avoid crashes
     /// when accessing `CameraUI.ModeLoupeLayer`.
-    public var subtreeTraversalIgnoredViewTypes: Set<String> {
+    public var viewTypesIgnoredFromSubtreeTraversal: Set<String> {
         var defaults: Set<String> = []
         // CameraUI.ChromeSwiftUIView is a special case because it contains layers which can not be iterated due to this error:
         //   Fatal error: Use of unimplemented initializer 'init(layer:)' for class 'CameraUI.ModeLoupeLayer'

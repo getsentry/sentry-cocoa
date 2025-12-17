@@ -26,7 +26,7 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
         ///
         /// By default, includes:
         ///   - `CameraUI.ChromeSwiftUIView` on iOS 26+ to avoid crashes.
-        fileprivate static var subtreeTraversalIgnoredViewTypes: Set<String> {
+        public static var viewTypesIgnoredFromSubtreeTraversal: Set<String> {
             var defaults: Set<String> = []
             // CameraUI.ChromeSwiftUIView is a special case because it contains layers which can not be iterated due to this error:
             //   Fatal error: Use of unimplemented initializer 'init(layer:)' for class 'CameraUI.ModeLoupeLayer'
@@ -185,12 +185,12 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
      *
      * The string values should match the result of `type(of: view).description()`.
      *
-     * - Note: You must use the methods ``includeSubtreeTraversalForViewType(_:)`` and ``excludeSubtreeTraversalForViewType(_:)``
+     * - Note: You must use the methods ``excludeViewTypeFromSubtreeTraversal(_:)`` and ``includeViewTypeInSubtreeTraversal(_:)``
      *         to add and remove view types, so do not accidentally remove our defaults.
      * - Note: By default, this includes `CameraUI.ChromeSwiftUIView` on iOS 26+ to avoid crashes
      *         when accessing `CameraUI.ModeLoupeLayer`.
      */
-    public private(set) var subtreeTraversalIgnoredViewTypes: Set<String>
+    public private(set) var viewTypesIgnoredFromSubtreeTraversal: Set<String>
 
     /**
      * Adds a view type to the list of views for which subtree traversal should be ignored.
@@ -202,8 +202,8 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
      * For example, if you encounter crashes when certain views are traversed, you can add
      * their type identifier to skip their subtrees.
      */
-    public func includeSubtreeTraversalForViewType(_ viewType: String) {
-        subtreeTraversalIgnoredViewTypes.insert(viewType)
+    public func excludeViewTypeFromSubtreeTraversal(_ viewType: String) {
+        viewTypesIgnoredFromSubtreeTraversal.insert(viewType)
     }
 
     /**
@@ -215,8 +215,8 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
      * Use this method to remove default or previously added view types from the ignore list,
      * allowing their subtrees to be traversed normally.
      */
-    public func excludeSubtreeTraversalForViewType(_ viewType: String) {
-        subtreeTraversalIgnoredViewTypes.remove(viewType)
+    public func includeViewTypeInSubtreeTraversal(_ viewType: String) {
+        viewTypesIgnoredFromSubtreeTraversal.remove(viewType)
     }
 
     /**
@@ -366,6 +366,11 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
      * - Warning: This initializer is primarily used by Hybrid SDKs and is not intended for public use.
      */
     @_spi(Private) public convenience init(dictionary: [String: Any]) {
+        var viewTypesIgnoredFromSubtreeTraversal: Set<String>?
+        if let array = dictionary["viewTypesIgnoredFromSubtreeTraversal"] as? NSArray {
+            viewTypesIgnoredFromSubtreeTraversal = Set(_immutableCocoaSet: array)
+        }
+
         // This initalizer is calling the one with optional parameters, so that defaults can be applied
         // for absent values.
         self.init(
@@ -387,7 +392,8 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
             frameRate: (dictionary["frameRate"] as? NSNumber)?.uintValue,
             errorReplayDuration: (dictionary["errorReplayDuration"] as? NSNumber)?.doubleValue,
             sessionSegmentDuration: (dictionary["sessionSegmentDuration"] as? NSNumber)?.doubleValue,
-            maximumDuration: (dictionary["maximumDuration"] as? NSNumber)?.doubleValue
+            maximumDuration: (dictionary["maximumDuration"] as? NSNumber)?.doubleValue,
+            viewTypesIgnoredFromSubtreeTraversal: viewTypesIgnoredFromSubtreeTraversal
         )
     }
 
@@ -432,7 +438,8 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
             frameRate: nil,
             errorReplayDuration: nil,
             sessionSegmentDuration: nil,
-            maximumDuration: nil
+            maximumDuration: nil,
+            viewTypesIgnoredFromSubtreeTraversal: nil
         )
     }
 
@@ -451,7 +458,8 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
         frameRate: UInt?,
         errorReplayDuration: TimeInterval?,
         sessionSegmentDuration: TimeInterval?,
-        maximumDuration: TimeInterval?
+        maximumDuration: TimeInterval?,
+        viewTypesIgnoredFromSubtreeTraversal: Set<String>? = nil
     ) {
         self.sessionSampleRate = sessionSampleRate ?? DefaultValues.sessionSampleRate
         self.onErrorSampleRate = onErrorSampleRate ?? DefaultValues.onErrorSampleRate
@@ -467,8 +475,8 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
         self.errorReplayDuration = errorReplayDuration ?? DefaultValues.errorReplayDuration
         self.sessionSegmentDuration = sessionSegmentDuration ?? DefaultValues.sessionSegmentDuration
         self.maximumDuration = maximumDuration ?? DefaultValues.maximumDuration
-        self.subtreeTraversalIgnoredViewTypes = DefaultValues.subtreeTraversalIgnoredViewTypes
-        
+        self.viewTypesIgnoredFromSubtreeTraversal = viewTypesIgnoredFromSubtreeTraversal ?? DefaultValues.viewTypesIgnoredFromSubtreeTraversal
+
         super.init()
     }
 }

@@ -15,7 +15,20 @@ public class SentryViewScreenshotOptions: NSObject, SentryRedactOptions {
         public static let maskAllImages: Bool = true
         public static let maskedViewClasses: [AnyClass] = []
         public static let unmaskedViewClasses: [AnyClass] = []
-        public static let subtreeTraversalIgnoredViewTypes: Set<String> = []
+
+        /// Default view types for which subtree traversal should be ignored.
+        ///
+        /// By default, includes:
+        ///   - `CameraUI.ChromeSwiftUIView` on iOS 26+ to avoid crashes.
+        public static var viewTypesIgnoredFromSubtreeTraversal: Set<String> {
+            var defaults: Set<String> = []
+            // CameraUI.ChromeSwiftUIView is a special case because it contains layers which can not be iterated due to this error:
+            //   Fatal error: Use of unimplemented initializer 'init(layer:)' for class 'CameraUI.ModeLoupeLayer'
+            if #available(iOS 26.0, *) {
+                defaults.insert("CameraUI.ChromeSwiftUIView")
+            }
+            return defaults
+        }
     }
     
     // MARK: - Rendering
@@ -94,7 +107,7 @@ public class SentryViewScreenshotOptions: NSObject, SentryRedactOptions {
      * - Note: See ``SentryViewScreenshotOptions.init`` for the default value.
      */
     public var unmaskedViewClasses: [AnyClass]
-    
+
     /**
      * A set of view type identifiers (as strings) for which subtree traversal should be ignored.
      *
@@ -104,10 +117,40 @@ public class SentryViewScreenshotOptions: NSObject, SentryRedactOptions {
      *
      * The string values should match the result of `type(of: view).description()`.
      *
-     * - Note: See ``SentryViewScreenshotOptions.init`` for the default value.
+     * - Note: You must use the methods ``excludeViewTypeFromSubtreeTraversal(_:)`` and ``includeViewTypeInSubtreeTraversal(_:)``
+     *         to add and remove view types, so do not accidentally remove our defaults.
+     * - Note: By default, this includes `CameraUI.ChromeSwiftUIView` on iOS 26+ to avoid crashes
+     *         when accessing `CameraUI.ModeLoupeLayer`.
      */
-    public var subtreeTraversalIgnoredViewTypes: Set<String>
-    
+    public private(set) var viewTypesIgnoredFromSubtreeTraversal: Set<String>
+
+    /**
+     * Adds a view type to the list of views for which subtree traversal should be ignored.
+     *
+     * - Parameter viewType: The view type identifier as a string (e.g., "MyCustomView").
+     *                      This should match the result of `type(of: view).description()`.
+     *
+     * Use this method to prevent crashes when traversing problematic view hierarchies.
+     * For example, if you encounter crashes when certain views are traversed, you can add
+     * their type identifier to skip their subtrees.
+     */
+    public func excludeViewTypeFromSubtreeTraversal(_ viewType: String) {
+        viewTypesIgnoredFromSubtreeTraversal.insert(viewType)
+    }
+
+    /**
+     * Removes a view type from the list of views for which subtree traversal should be ignored.
+     *
+     * - Parameter viewType: The view type identifier as a string (e.g., "CameraUI.ChromeSwiftUIView").
+     *                      This should match the result of `type(of: view).description()`.
+     *
+     * Use this method to remove default or previously added view types from the ignore list,
+     * allowing their subtrees to be traversed normally.
+     */
+    public func includeViewTypeInSubtreeTraversal(_ viewType: String) {
+        viewTypesIgnoredFromSubtreeTraversal.remove(viewType)
+    }
+
     /**
      * Initialize screenshot options disabled
      *
@@ -124,7 +167,7 @@ public class SentryViewScreenshotOptions: NSObject, SentryRedactOptions {
             maskAllImages: DefaultValues.maskAllImages,
             maskedViewClasses: DefaultValues.maskedViewClasses,
             unmaskedViewClasses: DefaultValues.unmaskedViewClasses,
-            subtreeTraversalIgnoredViewTypes: DefaultValues.subtreeTraversalIgnoredViewTypes
+            viewTypesIgnoredFromSubtreeTraversal: DefaultValues.viewTypesIgnoredFromSubtreeTraversal
         )
     }
     
@@ -149,7 +192,7 @@ public class SentryViewScreenshotOptions: NSObject, SentryRedactOptions {
             unmaskedViewClasses: (dictionary["unmaskedViewClasses"] as? NSArray)?.compactMap({ element in
                 NSClassFromString((element as? String) ?? "")
             }) ?? DefaultValues.unmaskedViewClasses,
-            subtreeTraversalIgnoredViewTypes: (dictionary["subtreeTraversalIgnoredViewTypes"] as? [String]).map { Set($0) } ?? DefaultValues.subtreeTraversalIgnoredViewTypes
+            viewTypesIgnoredFromSubtreeTraversal: (dictionary["viewTypesIgnoredFromSubtreeTraversal"] as? [String]).map { Set($0) } ?? DefaultValues.viewTypesIgnoredFromSubtreeTraversal
         )
     }
     
@@ -163,7 +206,7 @@ public class SentryViewScreenshotOptions: NSObject, SentryRedactOptions {
      *   - maskAllImages: Flag to redact all images in the app by drawing a rectangle over it.
      *   - maskedViewClasses: A list of custom UIView subclasses that need to be masked during the screenshot.
      *   - unmaskedViewClasses: A list of custom UIView subclasses to be ignored during masking step of the screenshot.
-     *   - subtreeTraversalIgnoredViewTypes: A set of view type identifiers for which subtree traversal should be ignored.
+     *   - viewTypesIgnoredFromSubtreeTraversal: A set of view type identifiers for which subtree traversal should be ignored.
      *
      * - Note: See ``SentryViewScreenshotOptions.DefaultValues`` for the default values of each parameter.
      */
@@ -174,7 +217,7 @@ public class SentryViewScreenshotOptions: NSObject, SentryRedactOptions {
         maskAllImages: Bool = DefaultValues.maskAllImages,
         maskedViewClasses: [AnyClass] = DefaultValues.maskedViewClasses,
         unmaskedViewClasses: [AnyClass] = DefaultValues.unmaskedViewClasses,
-        subtreeTraversalIgnoredViewTypes: Set<String> = DefaultValues.subtreeTraversalIgnoredViewTypes
+        viewTypesIgnoredFromSubtreeTraversal: Set<String> = DefaultValues.viewTypesIgnoredFromSubtreeTraversal
     ) {
         // - This initializer is publicly available for Swift, but not for Objective-C, because automatically bridged Swift initializers
         //   with default values result in a single initializer requiring all parameters.
@@ -188,12 +231,12 @@ public class SentryViewScreenshotOptions: NSObject, SentryRedactOptions {
         self.maskAllImages = maskAllImages
         self.maskedViewClasses = maskedViewClasses
         self.unmaskedViewClasses = unmaskedViewClasses
-        self.subtreeTraversalIgnoredViewTypes = subtreeTraversalIgnoredViewTypes
+        self.viewTypesIgnoredFromSubtreeTraversal = viewTypesIgnoredFromSubtreeTraversal
 
         super.init()
     }
     
     public override var description: String {
-        return "SentryViewScreenshotOptions(enableViewRendererV2: \(enableViewRendererV2), enableFastViewRendering: \(enableFastViewRendering), maskAllText: \(maskAllText), maskAllImages: \(maskAllImages), maskedViewClasses: \(maskedViewClasses), unmaskedViewClasses: \(unmaskedViewClasses))"
+        return "SentryViewScreenshotOptions(enableViewRendererV2: \(enableViewRendererV2), enableFastViewRendering: \(enableFastViewRendering), maskAllText: \(maskAllText), maskAllImages: \(maskAllImages), maskedViewClasses: \(maskedViewClasses), unmaskedViewClasses: \(unmaskedViewClasses), viewTypesIgnoredFromSubtreeTraversal: \(viewTypesIgnoredFromSubtreeTraversal))"
     }
 }
