@@ -31,7 +31,7 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
             // CameraUI.ChromeSwiftUIView is a special case because it contains layers which can not be iterated due to this error:
             //   Fatal error: Use of unimplemented initializer 'init(layer:)' for class 'CameraUI.ModeLoupeLayer'
             if #available(iOS 26.0, *) {
-                defaults.insert(SentryUIRedactBuilder.cameraSwiftUIViewClassId.classId)
+                defaults.insert("CameraUI.ChromeSwiftUIView")
             }
             return defaults
         }

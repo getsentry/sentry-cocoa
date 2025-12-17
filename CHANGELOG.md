@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Add options `options.sessionReplay.includeSubtreeTraversalForViewType` and `options.sessionReplay.excludeSubtreeTraversalForViewType` to ignore views from subtree traversal (#7063)
+
 ## 8.57.3
 
 ### Fixes
