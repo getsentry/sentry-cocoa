@@ -529,7 +529,7 @@ class SentryHttpTransportTests: XCTestCase {
     }
     
     func testRecordLostEvent_SendingEvent_AttachesClientReport() throws {
-        givenRecordedLostEvents()
+        try givenRecordedLostEvents()
         
         sendEvent()
         
@@ -538,7 +538,7 @@ class SentryHttpTransportTests: XCTestCase {
     }
     
     func testRecordLostEvent_SendingEvent_ClearsLostEvents() throws {
-        givenRecordedLostEvents()
+        try givenRecordedLostEvents()
         
         sendEvent()
         
@@ -549,8 +549,8 @@ class SentryHttpTransportTests: XCTestCase {
     
     func testRecordLostEvent_NoInternet_StoredWithEnvelope() throws {
         givenNoInternetConnection()
-        givenRecordedLostEvents()
-        
+        try givenRecordedLostEvents()
+
         sendEvent()
         givenOkResponse()
         sendEvent()
@@ -1045,15 +1045,15 @@ class SentryHttpTransportTests: XCTestCase {
         fixture.requestManager.returnResponse(response: response)
     }
     
-    private func givenRecordedLostEvents() {
-        fixture.clientReport.discardedEvents.forEach { event in
+    private func givenRecordedLostEvents() throws {
+        try fixture.clientReport.discardedEvents.forEach { event in
             for _ in 0..<event.quantity {
-                sut.recordLostEvent(sentryDataCategoryForString(event.category), reason: sentryDiscardReasonForString(event.reason))
+                sut.recordLostEvent(sentryDataCategoryForString(event.category), reason: try XCTUnwrap( sentryDiscardReasonForString(event.reason)))
             }
         }
     }
 
-    private func sentryDiscardReasonForString(_ reason: String) -> SentryDiscardReason {
+    private func sentryDiscardReasonForString(_ reason: String) -> SentryDiscardReason? {
         switch reason {
         case kSentryDiscardReasonNameBeforeSend:
             return .beforeSend
@@ -1071,8 +1071,10 @@ class SentryHttpTransportTests: XCTestCase {
             return .rateLimitBackoff
         case kSentryDiscardReasonNameInsufficientData:
             return .insufficientData
+        case kSentryDiscardReasonNameSendError:
+            return .sendError
         default:
-            fatalError("Unsupported reason: \(reason)")
+            return nil
         }
     }
 
