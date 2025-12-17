@@ -2,13 +2,13 @@
 @_spi(Private) import SentryTestUtils
 import XCTest
 
-final class SentryBatchBufferWrapperTests: XCTestCase {
+final class CrashSafeBatchBufferTests: XCTestCase {
     
     // MARK: - Initialization Tests
     
     func testInit_whenValidCapacity_shouldSucceed() throws {
         // -- Act --
-        let sut = try SentryBatchBufferWrapper(dataCapacity: 1_024, maxItems: 10)
+        let sut = try CrashSafeBatchBuffer(dataCapacity: 1_024, maxItems: 10)
         
         // -- Assert --
         XCTAssertEqual(sut.dataCapacity, 1_024)
@@ -20,7 +20,7 @@ final class SentryBatchBufferWrapperTests: XCTestCase {
     
     func testAddItem_whenEmptyData_shouldReturnTrue() throws {
         // -- Arrange --
-        let sut = try SentryBatchBufferWrapper(dataCapacity: 1_024, maxItems: 10)
+        let sut = try CrashSafeBatchBuffer(dataCapacity: 1_024, maxItems: 10)
         
         // -- Act --
         let result = sut.addItem(data: Data())
@@ -33,7 +33,7 @@ final class SentryBatchBufferWrapperTests: XCTestCase {
     
     func testAddItem_whenSingleItem_shouldAddItem() throws {
         // -- Arrange --
-        let sut = try SentryBatchBufferWrapper(dataCapacity: 1_024, maxItems: 10)
+        let sut = try CrashSafeBatchBuffer(dataCapacity: 1_024, maxItems: 10)
         let testData = Data("test item".utf8)
         
         // -- Act --
@@ -51,7 +51,7 @@ final class SentryBatchBufferWrapperTests: XCTestCase {
     
     func testAddItem_whenMultipleItems_shouldAddAllItems() throws {
         // -- Arrange --
-        let sut = try SentryBatchBufferWrapper(dataCapacity: 1_024, maxItems: 10)
+        let sut = try CrashSafeBatchBuffer(dataCapacity: 1_024, maxItems: 10)
         let data1 = Data("item 1".utf8)
         let data2 = Data("item 2".utf8)
         let data3 = Data("item 3".utf8)
@@ -77,7 +77,7 @@ final class SentryBatchBufferWrapperTests: XCTestCase {
     func testAddItem_whenDataCapacityExceeded_shouldReturnFalse() throws {
         // -- Arrange --
         // The buffer internally uses double the capacity, so we need to exceed 2x to fail
-        let sut = try SentryBatchBufferWrapper(dataCapacity: 10, maxItems: 10)
+        let sut = try CrashSafeBatchBuffer(dataCapacity: 10, maxItems: 10)
         let largeData = Data(count: 21) // Exceeds 2x capacity (20)
         
         // -- Act --
@@ -91,7 +91,7 @@ final class SentryBatchBufferWrapperTests: XCTestCase {
     
     func testAddItem_whenDataCapacityExactlyFilled_shouldSucceed() throws {
         // -- Arrange --
-        let sut = try SentryBatchBufferWrapper(dataCapacity: 10, maxItems: 10)
+        let sut = try CrashSafeBatchBuffer(dataCapacity: 10, maxItems: 10)
         let exactData = Data(count: 10)
         
         // -- Act --
@@ -107,7 +107,7 @@ final class SentryBatchBufferWrapperTests: XCTestCase {
         // -- Arrange --
         // The buffer internally uses double the capacity, so items slightly over
         // the original capacity should still be added
-        let sut = try SentryBatchBufferWrapper(dataCapacity: 10, maxItems: 10)
+        let sut = try CrashSafeBatchBuffer(dataCapacity: 10, maxItems: 10)
         let slightlyOverData = Data(count: 15) // Over original capacity (10) but under 2x (20)
         
         // -- Act --
@@ -121,7 +121,7 @@ final class SentryBatchBufferWrapperTests: XCTestCase {
     
     func testAddItem_whenItemCountExceeded_shouldReturnFalse() throws {
         // -- Arrange --
-        let sut = try SentryBatchBufferWrapper(dataCapacity: 1_024, maxItems: 3)
+        let sut = try CrashSafeBatchBuffer(dataCapacity: 1_024, maxItems: 3)
         let data = Data("test".utf8)
         
         // -- Act --
@@ -139,7 +139,7 @@ final class SentryBatchBufferWrapperTests: XCTestCase {
     
     func testGetItems_whenNoItems_shouldReturnEmptyArray() throws {
         // -- Arrange --
-        let sut = try SentryBatchBufferWrapper(dataCapacity: 1_024, maxItems: 10)
+        let sut = try CrashSafeBatchBuffer(dataCapacity: 1_024, maxItems: 10)
         
         // -- Act --
         let items = sut.getItems()
@@ -150,7 +150,7 @@ final class SentryBatchBufferWrapperTests: XCTestCase {
     
     func testGetItems_whenSingleItem_shouldReturnSingleItem() throws {
         // -- Arrange --
-        let sut = try SentryBatchBufferWrapper(dataCapacity: 1_024, maxItems: 10)
+        let sut = try CrashSafeBatchBuffer(dataCapacity: 1_024, maxItems: 10)
         let testData = Data("test".utf8)
         sut.addItem(data: testData)
         
@@ -164,7 +164,7 @@ final class SentryBatchBufferWrapperTests: XCTestCase {
     
     func testGetItems_whenMultipleItems_shouldReturnAllItems() throws {
         // -- Arrange --
-        let sut = try SentryBatchBufferWrapper(dataCapacity: 1_024, maxItems: 10)
+        let sut = try CrashSafeBatchBuffer(dataCapacity: 1_024, maxItems: 10)
         let data1 = Data("item 1".utf8)
         let data2 = Data("item 2".utf8)
         let data3 = Data("item 3".utf8)
@@ -186,7 +186,7 @@ final class SentryBatchBufferWrapperTests: XCTestCase {
     
     func testClear_whenNoItems_shouldDoNothing() throws {
         // -- Arrange --
-        let sut = try SentryBatchBufferWrapper(dataCapacity: 1_024, maxItems: 10)
+        let sut = try CrashSafeBatchBuffer(dataCapacity: 1_024, maxItems: 10)
         
         // Assert pre-condition
         XCTAssertEqual(sut.itemCount, 0)
@@ -202,7 +202,7 @@ final class SentryBatchBufferWrapperTests: XCTestCase {
     
     func testClear_whenMultipleItems_shouldClearBuffer() throws {
         // -- Arrange --
-        let sut = try SentryBatchBufferWrapper(dataCapacity: 1_024, maxItems: 10)
+        let sut = try CrashSafeBatchBuffer(dataCapacity: 1_024, maxItems: 10)
         sut.addItem(data: Data("item 1".utf8))
         sut.addItem(data: Data("item 2".utf8))
         sut.addItem(data: Data("item 3".utf8))
@@ -222,7 +222,7 @@ final class SentryBatchBufferWrapperTests: XCTestCase {
     
     func testClear_afterClear_shouldAllowNewItems() throws {
         // -- Arrange --
-        let sut = try SentryBatchBufferWrapper(dataCapacity: 1_024, maxItems: 10)
+        let sut = try CrashSafeBatchBuffer(dataCapacity: 1_024, maxItems: 10)
         sut.addItem(data: Data("item 1".utf8))
         sut.addItem(data: Data("item 2".utf8))
         
@@ -242,7 +242,7 @@ final class SentryBatchBufferWrapperTests: XCTestCase {
     
     func testDataSize_whenNoItems_shouldReturnZero() throws {
         // -- Arrange --
-        let sut = try SentryBatchBufferWrapper(dataCapacity: 1_024, maxItems: 10)
+        let sut = try CrashSafeBatchBuffer(dataCapacity: 1_024, maxItems: 10)
         
         // -- Act --
         let size = sut.dataSize
@@ -253,7 +253,7 @@ final class SentryBatchBufferWrapperTests: XCTestCase {
     
     func testDataSize_whenSingleItem_shouldReturnItemSize() throws {
         // -- Arrange --
-        let sut = try SentryBatchBufferWrapper(dataCapacity: 1_024, maxItems: 10)
+        let sut = try CrashSafeBatchBuffer(dataCapacity: 1_024, maxItems: 10)
         let testData = Data("test".utf8)
         
         // -- Act --
@@ -265,7 +265,7 @@ final class SentryBatchBufferWrapperTests: XCTestCase {
     
     func testDataSize_whenMultipleItems_shouldReturnSumOfSizes() throws {
         // -- Arrange --
-        let sut = try SentryBatchBufferWrapper(dataCapacity: 1_024, maxItems: 10)
+        let sut = try CrashSafeBatchBuffer(dataCapacity: 1_024, maxItems: 10)
         let data1 = Data("item 1".utf8)
         let data2 = Data("item 2".utf8)
         let data3 = Data("item 3".utf8)
@@ -281,7 +281,7 @@ final class SentryBatchBufferWrapperTests: XCTestCase {
     
     func testDataSize_afterClear_shouldReturnZero() throws {
         // -- Arrange --
-        let sut = try SentryBatchBufferWrapper(dataCapacity: 1_024, maxItems: 10)
+        let sut = try CrashSafeBatchBuffer(dataCapacity: 1_024, maxItems: 10)
         sut.addItem(data: Data("test".utf8))
         sut.addItem(data: Data("test2".utf8))
         
@@ -297,7 +297,7 @@ final class SentryBatchBufferWrapperTests: XCTestCase {
     
     func testDataSize_shouldUpdateAfterEachAdd() throws {
         // -- Arrange --
-        let sut = try SentryBatchBufferWrapper(dataCapacity: 1_024, maxItems: 10)
+        let sut = try CrashSafeBatchBuffer(dataCapacity: 1_024, maxItems: 10)
         let data1 = Data("item 1".utf8)
         let data2 = Data("item 2".utf8)
         
@@ -315,7 +315,7 @@ final class SentryBatchBufferWrapperTests: XCTestCase {
         // -- Arrange --
         // Even though the buffer internally uses double the capacity,
         // the public API should return the original capacity
-        let sut = try SentryBatchBufferWrapper(dataCapacity: 2_048, maxItems: 20)
+        let sut = try CrashSafeBatchBuffer(dataCapacity: 2_048, maxItems: 20)
         
         // -- Act --
         let capacity = sut.dataCapacity
@@ -326,7 +326,7 @@ final class SentryBatchBufferWrapperTests: XCTestCase {
     
     func testItemCount_whenNoItems_shouldReturnZero() throws {
         // -- Arrange --
-        let sut = try SentryBatchBufferWrapper(dataCapacity: 1_024, maxItems: 10)
+        let sut = try CrashSafeBatchBuffer(dataCapacity: 1_024, maxItems: 10)
         
         // -- Act --
         let count = sut.itemCount
@@ -337,7 +337,7 @@ final class SentryBatchBufferWrapperTests: XCTestCase {
     
     func testItemCount_whenSingleItem_shouldReturnOne() throws {
         // -- Arrange --
-        let sut = try SentryBatchBufferWrapper(dataCapacity: 1_024, maxItems: 10)
+        let sut = try CrashSafeBatchBuffer(dataCapacity: 1_024, maxItems: 10)
         
         // -- Act --
         sut.addItem(data: Data("test".utf8))
@@ -348,7 +348,7 @@ final class SentryBatchBufferWrapperTests: XCTestCase {
     
     func testItemCount_whenMultipleItems_shouldReturnCorrectCount() throws {
         // -- Arrange --
-        let sut = try SentryBatchBufferWrapper(dataCapacity: 1_024, maxItems: 10)
+        let sut = try CrashSafeBatchBuffer(dataCapacity: 1_024, maxItems: 10)
         
         // -- Act --
         sut.addItem(data: Data("item 1".utf8))
@@ -361,7 +361,7 @@ final class SentryBatchBufferWrapperTests: XCTestCase {
     
     func testItemCount_afterClear_shouldReturnZero() throws {
         // -- Arrange --
-        let sut = try SentryBatchBufferWrapper(dataCapacity: 1_024, maxItems: 10)
+        let sut = try CrashSafeBatchBuffer(dataCapacity: 1_024, maxItems: 10)
         sut.addItem(data: Data("test".utf8))
         sut.addItem(data: Data("test2".utf8))
         

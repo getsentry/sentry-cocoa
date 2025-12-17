@@ -1,33 +1,22 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
-/// A Swift wrapper around the C `SentryBatchBufferC` API.
-///
-/// This wrapper provides a Swift interface to the C batch buffer implementation.
-/// It stores generic binary data items in a pre-allocated buffer.
+/// A BatchBuffer that is using the `SentryBatchBufferC` as backend.
 ///
 /// - Note: Internally, the buffer uses double the specified capacity to allow items
 ///   slightly over the capacity to still be added. The public API reports the original capacity.
-final class SentryBatchBufferWrapper {
+final class CrashSafeBatchBuffer {
     private var buffer: SentryBatchBufferC
     /// The original capacity requested by the user (not the doubled internal capacity).
     private let originalDataCapacity: Int
     
-    /// Initializes a new C batch buffer with the specified capacities.
-    ///
-    /// - Parameters:
-    ///   - dataCapacity: The maximum capacity of the data buffer in bytes.
-    ///   - maxItems: The maximum number of items that can be stored.
-    /// - Throws: An error if the buffer initialization fails.
-    /// - Note: Internally, the buffer uses double the specified capacity to allow items
-    ///   slightly over the capacity to still be added, but this is abstracted away.
     init(dataCapacity: Int, maxItems: Int) throws {
         self.originalDataCapacity = dataCapacity
         var cBuffer = SentryBatchBufferC()
         // Use double the capacity internally to allow items slightly over the capacity
         let internalCapacity = dataCapacity * 2
         guard sentry_batch_buffer_init(&cBuffer, internalCapacity, maxItems) else {
-            throw SentryBatchBufferError.initializationFailed
+            throw CrashSafeBatchBufferError.initializationFailed
         }
         self.buffer = cBuffer
     }
@@ -36,7 +25,6 @@ final class SentryBatchBufferWrapper {
         sentry_batch_buffer_destroy(&buffer)
     }
     
-    // Returns true if the item was successfully added, false if the buffer is full.
     @discardableResult
     func addItem(data: Data) -> Bool {
         guard !data.isEmpty else {
@@ -81,7 +69,7 @@ final class SentryBatchBufferWrapper {
     }
 }
 
-/// Errors that can occur when using `SentryBatchBufferWrapper`.
-enum SentryBatchBufferError: Error {
+/// Errors that can occur when using `CrashSafeBatchBuffer`.
+enum CrashSafeBatchBufferError: Error {
     case initializationFailed
 }
