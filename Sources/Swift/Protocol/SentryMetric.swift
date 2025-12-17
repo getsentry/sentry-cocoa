@@ -147,34 +147,18 @@ extension SentryMetric: BatcherItem {}
 /// - **Counter**: Incrementing integer values that only increase (e.g., total requests, errors)
 /// - **Gauge**: Current value at a point in time that can go up or down (e.g., active connections, queue size)
 /// - **Distribution**: Statistical distribution of values for aggregation (e.g., response times, payload sizes)
-public enum SentryMetricType: String, Encodable {
+public enum SentryMetricType: String {
     /// Incrementing integer values that only increase.
     case counter
-    
+
     /// Current value at a point in time that can fluctuate.
     case gauge
-    
+
     /// Statistical distribution of values for aggregation.
     case distribution
-    
-    public init(from decoder: Decoder) throws {
-        let container = try decoder.singleValueContainer()
-        let stringValue = try container.decode(String.self)
-        switch stringValue {
-        case "counter":
-            self = .counter
-        case "gauge":
-            self = .gauge
-        case "distribution":
-            self = .distribution
-        default:
-            throw DecodingError.dataCorruptedError(
-                in: container,
-                debugDescription: "Unknown metric type: \(stringValue)"
-            )
-        }
-    }
-    
+}
+
+extension SentryMetricType: Encodable {
     public func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
         try container.encode(self.rawValue)
@@ -216,26 +200,12 @@ public enum SentryMetricType: String, Encodable {
 ///     return modified
 /// }
 /// ```
-public enum SentryMetricValue: Encodable, Equatable, ExpressibleByIntegerLiteral, ExpressibleByFloatLiteral, Hashable {
+public enum SentryMetricValue: Equatable, ExpressibleByIntegerLiteral, ExpressibleByFloatLiteral, Hashable {
     /// A 64-bit signed integer value, typically used for counters.
     case integer(Int64)
 
     /// A 64-bit floating point value, typically used for distributions and gauges.
     case double(Double)
-
-    /// Encodes the value according to the metrics specification.
-    ///
-    /// Integer values are encoded as `Int64` and double values as `Double` to ensure
-    /// accurate representation in the metric payload.
-    public func encode(to encoder: Encoder) throws {
-        var container = encoder.singleValueContainer()
-        switch self {
-        case .integer(let value):
-            try container.encode(value)
-        case .double(let value):
-            try container.encode(value)
-        }
-    }
 
     /// Initializes a `Metric.Value` from a floating point literal.
     /// - Parameters:
@@ -250,4 +220,21 @@ public enum SentryMetricValue: Encodable, Equatable, ExpressibleByIntegerLiteral
     public init(integerLiteral value: IntegerLiteralType) {
         self = .integer(Int64(value))
     }
+}
+
+extension SentryMetricValue: Encodable {
+    /// Encodes the value according to the metrics specification.
+    ///
+    /// Integer values are encoded as `Int64` and double values as `Double` to ensure
+    /// accurate representation in the metric payload.
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+        switch self {
+        case .integer(let value):
+            try container.encode(value)
+        case .double(let value):
+            try container.encode(value)
+        }
+    }
+
 }
