@@ -2,7 +2,9 @@
 set -euo pipefail
 
 # Check if Xcode 16 is selected
-XCODE_VERSION=$(xcodebuild -version | head -n 1 | awk '{print $2}')
+# Read full output first to avoid broken pipe (SIGPIPE) error with pipefail
+XCODE_VERSION_OUTPUT=$(xcodebuild -version 2>&1)
+XCODE_VERSION=$(echo "$XCODE_VERSION_OUTPUT" | awk 'NR==1 {print $2}')
 XCODE_MAJOR_VERSION=$(echo "$XCODE_VERSION" | cut -d. -f1)
 
 if [[ "$XCODE_MAJOR_VERSION" != "16" ]]; then
@@ -15,7 +17,9 @@ if [[ "$XCODE_MAJOR_VERSION" != "16" ]]; then
         export DEVELOPER_DIR="$XCODE_16_PATH/Contents/Developer"
         
         # Verify the Xcode 16 installation works
-        XCODE_16_VERSION=$(xcodebuild -version | head -n 1 | awk '{print $2}')
+        # Read full output first to avoid broken pipe (SIGPIPE) error with pipefail
+        XCODE_16_VERSION_OUTPUT=$(xcodebuild -version 2>&1)
+        XCODE_16_VERSION=$(echo "$XCODE_16_VERSION_OUTPUT" | awk 'NR==1 {print $2}')
         XCODE_16_MAJOR_VERSION=$(echo "$XCODE_16_VERSION" | cut -d. -f1)
         
         if [[ "$XCODE_16_MAJOR_VERSION" != "16" ]]; then
@@ -32,14 +36,18 @@ if [[ "$XCODE_MAJOR_VERSION" != "16" ]]; then
     fi
 fi
 
+echo "Building Sentry-Dynamic slice"
 ./scripts/build-xcframework-slice.sh "iphoneos" "Sentry" "-Dynamic" "mh_dylib"
 
+echo "Assembling Sentry-Dynamic xcframework"
 ./scripts/assemble-xcframework.sh "Sentry" "-Dynamic" "" "iphoneos" "$(pwd)/XCFrameworkBuildPath/archive/Sentry-Dynamic/SDK_NAME.xcarchive"
 
+echo "Deleting private .swiftinterface files"
 # Delete private .swiftinterface files before running swift-api-digester
 # This ensures only public interfaces are analyzed
 find ./Sentry-Dynamic.xcframework -name "*.private.swiftinterface" -type f -delete
 
+echo "Running swift-api-digester"
 xcrun --sdk iphoneos swift-api-digester \
     -dump-sdk \
     -o sdk_api.json \
