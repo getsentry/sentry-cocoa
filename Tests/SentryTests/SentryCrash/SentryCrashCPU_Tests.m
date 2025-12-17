@@ -32,6 +32,9 @@
 #import "TestThread.h"
 
 #import <mach/mach.h>
+#if defined(__arm64__)
+#    include <sys/_types/_ucontext64.h>
+#endif
 
 @interface SentryCrashCPU_Tests : XCTestCase
 @end
@@ -81,12 +84,22 @@
     XCTAssertTrue(value == 0, @"");
 
     uintptr_t address;
+#if defined(__arm64__)
+    ucontext64_t userContext;
+    userContext.uc_mcontext64 = &machineContext->machineContext;
+#else
+    ucontext_t userContext;
+    userContext.uc_mcontext = &machineContext->machineContext;
+#endif
     address = sentrycrashcpu_framePointer(machineContext);
     XCTAssertTrue(address != 0, @"");
+    XCTAssertEqual(sentrycrashcpu_framePointerFromUserContext(&userContext), address);
     address = sentrycrashcpu_stackPointer(machineContext);
     XCTAssertTrue(address != 0, @"");
+    XCTAssertEqual(sentrycrashcpu_stackPointerFromUserContext(&userContext), address);
     address = sentrycrashcpu_instructionAddress(machineContext);
     XCTAssertTrue(address != 0, @"");
+    XCTAssertEqual(sentrycrashcpu_instructionAddressFromUserContext(&userContext), address);
 
     numRegisters = sentrycrashcpu_numExceptionRegisters();
     for (int i = 0; i < numRegisters; i++) {

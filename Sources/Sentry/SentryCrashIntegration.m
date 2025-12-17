@@ -1,4 +1,6 @@
 #import "SentryCrashIntegration.h"
+
+#import "PrivateSentrySDKOnly.h"
 #import "SentryCrashC.h"
 #import "SentryCrashInstallationReporter.h"
 #import "SentryCrashIntegrationSessionHandler.h"
@@ -155,6 +157,7 @@ sentry_finishAndSaveTransaction(void)
         }
 
         sentrycrashcm_setEnableSigtermReporting(enableSigtermReporting);
+        sentrycrashcm_setManagedRuntime([PrivateSentrySDKOnly isManagedRuntime]);
 
         [installation install:cacheDirectory];
 

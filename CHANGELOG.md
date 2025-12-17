@@ -423,6 +423,7 @@ This changelog lists every breaking change. For a high-level overview and upgrad
   - Improve transform calculations for views with custom anchor points
   - Fix axis-aligned transform detection for optimized opaque view clipping
 - Fix conversion of frame rate to time interval for session replay (#6623)
+- Fix AOT interop with managed .NET runtimes (#6193)
 - Change Session Replay masking to prevent semi‑transparent full‑screen overlays from clearing redactions by making opaque clipping stricter (#6629)
   Views now need to be fully opaque (view and layer backgrounds with alpha == 1) and report opaque to qualify for clip‑out.
   This avoids leaks at the cost of fewer clip‑out optimizations.
