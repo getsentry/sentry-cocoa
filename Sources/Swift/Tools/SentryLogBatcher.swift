@@ -63,6 +63,7 @@ import Foundation
     ) {
         self.batcher = Batcher(
             config: .init(
+                sendDefaultPii: options.sendDefaultPii,
                 flushTimeout: flushTimeout,
                 maxItemCount: maxLogCount,
                 maxBufferSizeBytes: maxBufferSizeBytes,
