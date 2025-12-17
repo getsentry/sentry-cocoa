@@ -3,246 +3,160 @@
 import XCTest
 
 final class CrashSafeBatchBufferTests: XCTestCase {
-    
     // MARK: - Initialization Tests
     
     func testInit_whenValidCapacity_shouldSucceed() throws {
         // -- Act --
-        let sut = try CrashSafeBatchBuffer(dataCapacity: 1_024, maxItems: 10)
+        let sut = try CrashSafeBatchBuffer(dataCapacity: 1_024, itemsCapacity: 10)
         
         // -- Assert --
-        XCTAssertEqual(sut.dataCapacity, 1_024)
         XCTAssertEqual(sut.itemCount, 0)
         XCTAssertEqual(sut.dataSize, 0)
+    }
+    
+    func testInit_whenZeroCapacity_shouldSucceed() throws {
+        // -- Act --
+        let sut = try CrashSafeBatchBuffer(dataCapacity: 0, itemsCapacity: 0)
+        
+        // -- Assert --
+        XCTAssertEqual(sut.itemCount, 0)
+        XCTAssertEqual(sut.dataSize, 0)
+    }
+    
+    // MARK: - Item Count Tests
+    
+    func testItemCount_withNoElements_shouldReturnZero() throws {
+        // -- Act --
+        let sut = try CrashSafeBatchBuffer(dataCapacity: 1_024, itemsCapacity: 10)
+        
+        // -- Assert --
+        XCTAssertEqual(sut.itemCount, 0)
+    }
+    
+    func testItemCount_withSingleElement_shouldReturnOne() throws {
+        // -- Arrange --
+        let sut = try CrashSafeBatchBuffer(dataCapacity: 1_024, itemsCapacity: 10)
+        let data = Data("test".utf8)
+        
+        // -- Act --
+        let success = sut.addItem(data)
+        
+        // -- Assert --
+        XCTAssertTrue(success)
+        XCTAssertEqual(sut.itemCount, 1)
+    }
+    
+    func testItemCount_withMultipleElements_shouldReturnCorrectCount() throws {
+        // -- Arrange --
+        let sut = try CrashSafeBatchBuffer(dataCapacity: 1_024, itemsCapacity: 10)
+        
+        // -- Act --
+        XCTAssertTrue(sut.addItem(Data("item1".utf8)))
+        XCTAssertTrue(sut.addItem(Data("item2".utf8)))
+        XCTAssertTrue(sut.addItem(Data("item3".utf8)))
+        
+        // -- Assert --
+        XCTAssertEqual(sut.itemCount, 3)
     }
     
     // MARK: - Add Item Tests
     
-    func testAddItem_whenEmptyData_shouldReturnTrue() throws {
+    func testAddItem_withSingleElement_shouldAddElement() throws {
         // -- Arrange --
-        let sut = try CrashSafeBatchBuffer(dataCapacity: 1_024, maxItems: 10)
-        
-        // -- Act --
-        let result = sut.addItem(data: Data())
-        
-        // -- Assert --
-        XCTAssertTrue(result)
-        XCTAssertEqual(sut.itemCount, 0)
-        XCTAssertEqual(sut.dataSize, 0)
-    }
-    
-    func testAddItem_whenSingleItem_shouldAddItem() throws {
-        // -- Arrange --
-        let sut = try CrashSafeBatchBuffer(dataCapacity: 1_024, maxItems: 10)
-        let testData = Data("test item".utf8)
-        
-        // -- Act --
-        let result = sut.addItem(data: testData)
-        
-        // -- Assert --
-        XCTAssertTrue(result)
-        XCTAssertEqual(sut.itemCount, 1)
-        XCTAssertEqual(sut.dataSize, testData.count)
-        
-        let items = sut.getItems()
-        XCTAssertEqual(items.count, 1)
-        XCTAssertEqual(items[0], testData)
-    }
-    
-    func testAddItem_whenMultipleItems_shouldAddAllItems() throws {
-        // -- Arrange --
-        let sut = try CrashSafeBatchBuffer(dataCapacity: 1_024, maxItems: 10)
-        let data1 = Data("item 1".utf8)
-        let data2 = Data("item 2".utf8)
-        let data3 = Data("item 3".utf8)
-        
-        // -- Act --
-        XCTAssertTrue(sut.addItem(data: data1))
-        XCTAssertTrue(sut.addItem(data: data2))
-        XCTAssertTrue(sut.addItem(data: data3))
-        
-        // -- Assert --
-        XCTAssertEqual(sut.itemCount, 3)
-        XCTAssertEqual(sut.dataSize, data1.count + data2.count + data3.count)
-        
-        let items = sut.getItems()
-        XCTAssertEqual(items.count, 3)
-        XCTAssertEqual(items[0], data1)
-        XCTAssertEqual(items[1], data2)
-        XCTAssertEqual(items[2], data3)
-    }
-    
-    // MARK: - Capacity Limit Tests
-    
-    func testAddItem_whenDataCapacityExceeded_shouldReturnFalse() throws {
-        // -- Arrange --
-        // The buffer internally uses double the capacity, so we need to exceed 2x to fail
-        let sut = try CrashSafeBatchBuffer(dataCapacity: 10, maxItems: 10)
-        let largeData = Data(count: 21) // Exceeds 2x capacity (20)
-        
-        // -- Act --
-        let result = sut.addItem(data: largeData)
-        
-        // -- Assert --
-        XCTAssertFalse(result)
-        XCTAssertEqual(sut.itemCount, 0)
-        XCTAssertEqual(sut.dataSize, 0)
-    }
-    
-    func testAddItem_whenDataCapacityExactlyFilled_shouldSucceed() throws {
-        // -- Arrange --
-        let sut = try CrashSafeBatchBuffer(dataCapacity: 10, maxItems: 10)
-        let exactData = Data(count: 10)
-        
-        // -- Act --
-        let result = sut.addItem(data: exactData)
-        
-        // -- Assert --
-        XCTAssertTrue(result)
-        XCTAssertEqual(sut.itemCount, 1)
-        XCTAssertEqual(sut.dataSize, 10)
-    }
-    
-    func testAddItem_whenSlightlyOverCapacity_shouldSucceed() throws {
-        // -- Arrange --
-        // The buffer internally uses double the capacity, so items slightly over
-        // the original capacity should still be added
-        let sut = try CrashSafeBatchBuffer(dataCapacity: 10, maxItems: 10)
-        let slightlyOverData = Data(count: 15) // Over original capacity (10) but under 2x (20)
-        
-        // -- Act --
-        let result = sut.addItem(data: slightlyOverData)
-        
-        // -- Assert --
-        XCTAssertTrue(result, "Items slightly over the original capacity should succeed due to doubled internal buffer")
-        XCTAssertEqual(sut.itemCount, 1)
-        XCTAssertEqual(sut.dataSize, 15)
-    }
-    
-    func testAddItem_whenItemCountExceeded_shouldReturnFalse() throws {
-        // -- Arrange --
-        let sut = try CrashSafeBatchBuffer(dataCapacity: 1_024, maxItems: 3)
+        let sut = try CrashSafeBatchBuffer(dataCapacity: 1_024, itemsCapacity: 10)
         let data = Data("test".utf8)
         
         // -- Act --
-        XCTAssertTrue(sut.addItem(data: data))
-        XCTAssertTrue(sut.addItem(data: data))
-        XCTAssertTrue(sut.addItem(data: data))
-        let result = sut.addItem(data: data)
+        let success = sut.addItem(data)
         
         // -- Assert --
-        XCTAssertFalse(result)
-        XCTAssertEqual(sut.itemCount, 3)
-    }
-    
-    // MARK: - Get Items Tests
-    
-    func testGetItems_whenNoItems_shouldReturnEmptyArray() throws {
-        // -- Arrange --
-        let sut = try CrashSafeBatchBuffer(dataCapacity: 1_024, maxItems: 10)
-        
-        // -- Act --
-        let items = sut.getItems()
-        
-        // -- Assert --
-        XCTAssertEqual(items.count, 0)
-    }
-    
-    func testGetItems_whenSingleItem_shouldReturnSingleItem() throws {
-        // -- Arrange --
-        let sut = try CrashSafeBatchBuffer(dataCapacity: 1_024, maxItems: 10)
-        let testData = Data("test".utf8)
-        sut.addItem(data: testData)
-        
-        // -- Act --
-        let items = sut.getItems()
-        
-        // -- Assert --
+        XCTAssertTrue(success)
+        XCTAssertEqual(sut.itemCount, 1)
+        let items = sut.getAllItems()
         XCTAssertEqual(items.count, 1)
-        XCTAssertEqual(items[0], testData)
+        XCTAssertEqual(items[0], data)
     }
     
-    func testGetItems_whenMultipleItems_shouldReturnAllItems() throws {
+    func testAddItem_withMultipleElements_shouldAddAllElements() throws {
         // -- Arrange --
-        let sut = try CrashSafeBatchBuffer(dataCapacity: 1_024, maxItems: 10)
-        let data1 = Data("item 1".utf8)
-        let data2 = Data("item 2".utf8)
-        let data3 = Data("item 3".utf8)
-        sut.addItem(data: data1)
-        sut.addItem(data: data2)
-        sut.addItem(data: data3)
+        let sut = try CrashSafeBatchBuffer(dataCapacity: 1_024, itemsCapacity: 10)
+        let data1 = Data("item1".utf8)
+        let data2 = Data("item2".utf8)
+        let data3 = Data("item3".utf8)
         
         // -- Act --
-        let items = sut.getItems()
+        XCTAssertTrue(sut.addItem(data1))
+        XCTAssertTrue(sut.addItem(data2))
+        XCTAssertTrue(sut.addItem(data3))
         
         // -- Assert --
+        XCTAssertEqual(sut.itemCount, 3)
+        let items = sut.getAllItems()
         XCTAssertEqual(items.count, 3)
         XCTAssertEqual(items[0], data1)
         XCTAssertEqual(items[1], data2)
         XCTAssertEqual(items[2], data3)
     }
     
-    // MARK: - Clear Tests
-    
-    func testClear_whenNoItems_shouldDoNothing() throws {
+    func testAddItem_withMultipleElements_shouldMaintainOrder() throws {
         // -- Arrange --
-        let sut = try CrashSafeBatchBuffer(dataCapacity: 1_024, maxItems: 10)
-        
-        // Assert pre-condition
-        XCTAssertEqual(sut.itemCount, 0)
-        XCTAssertEqual(sut.dataSize, 0)
+        let sut = try CrashSafeBatchBuffer(dataCapacity: 1_024, itemsCapacity: 10)
         
         // -- Act --
-        sut.clear()
+        XCTAssertTrue(sut.addItem(Data("first".utf8)))
+        XCTAssertTrue(sut.addItem(Data("second".utf8)))
+        XCTAssertTrue(sut.addItem(Data("third".utf8)))
         
         // -- Assert --
-        XCTAssertEqual(sut.itemCount, 0)
-        XCTAssertEqual(sut.dataSize, 0)
+        let items = sut.getAllItems()
+        XCTAssertEqual(String(data: items[0], encoding: .utf8), "first")
+        XCTAssertEqual(String(data: items[1], encoding: .utf8), "second")
+        XCTAssertEqual(String(data: items[2], encoding: .utf8), "third")
     }
     
-    func testClear_whenMultipleItems_shouldClearBuffer() throws {
+    func testAddItem_withEmptyData_shouldReturnTrue() throws {
         // -- Arrange --
-        let sut = try CrashSafeBatchBuffer(dataCapacity: 1_024, maxItems: 10)
-        sut.addItem(data: Data("item 1".utf8))
-        sut.addItem(data: Data("item 2".utf8))
-        sut.addItem(data: Data("item 3".utf8))
-        
-        // Assert pre-condition
-        XCTAssertEqual(sut.itemCount, 3)
-        XCTAssertGreaterThan(sut.dataSize, 0)
+        let sut = try CrashSafeBatchBuffer(dataCapacity: 1_024, itemsCapacity: 10)
         
         // -- Act --
-        sut.clear()
+        let success = sut.addItem(Data())
         
         // -- Assert --
-        XCTAssertEqual(sut.itemCount, 0)
-        XCTAssertEqual(sut.dataSize, 0)
-        XCTAssertEqual(sut.getItems().count, 0)
+        XCTAssertTrue(success)
+        XCTAssertEqual(sut.itemCount, 0) // Empty data doesn't add an item
     }
     
-    func testClear_afterClear_shouldAllowNewItems() throws {
+    func testAddItem_whenBufferFull_shouldReturnFalse() throws {
         // -- Arrange --
-        let sut = try CrashSafeBatchBuffer(dataCapacity: 1_024, maxItems: 10)
-        sut.addItem(data: Data("item 1".utf8))
-        sut.addItem(data: Data("item 2".utf8))
+        let sut = try CrashSafeBatchBuffer(dataCapacity: 10, itemsCapacity: 2)
+        let largeData = Data("this is too large".utf8) // 17 bytes, exceeds capacity
         
         // -- Act --
-        sut.clear()
-        let result = sut.addItem(data: Data("item 3".utf8))
+        let success = sut.addItem(largeData)
         
         // -- Assert --
-        XCTAssertTrue(result)
-        XCTAssertEqual(sut.itemCount, 1)
-        let items = sut.getItems()
-        XCTAssertEqual(items.count, 1)
-        XCTAssertEqual(String(data: items[0], encoding: .utf8), "item 3")
+        XCTAssertFalse(success)
     }
     
-    // MARK: - Property Tests
-    
-    func testDataSize_whenNoItems_shouldReturnZero() throws {
+    func testAddItem_whenItemsCapacityReached_shouldReturnFalse() throws {
         // -- Arrange --
-        let sut = try CrashSafeBatchBuffer(dataCapacity: 1_024, maxItems: 10)
+        let sut = try CrashSafeBatchBuffer(dataCapacity: 1_024, itemsCapacity: 2)
+        
+        // -- Act --
+        XCTAssertTrue(sut.addItem(Data("item1".utf8)))
+        XCTAssertTrue(sut.addItem(Data("item2".utf8)))
+        let success = sut.addItem(Data("item3".utf8)) // Should fail
+        
+        // -- Assert --
+        XCTAssertFalse(success)
+        XCTAssertEqual(sut.itemCount, 2)
+    }
+    
+    // MARK: - Data Size Tests
+    
+    func testDataSize_withNoElements_shouldReturnZero() throws {
+        // -- Arrange --
+        let sut = try CrashSafeBatchBuffer(dataCapacity: 1_024, itemsCapacity: 10)
         
         // -- Act --
         let size = sut.dataSize
@@ -251,29 +165,29 @@ final class CrashSafeBatchBufferTests: XCTestCase {
         XCTAssertEqual(size, 0)
     }
     
-    func testDataSize_whenSingleItem_shouldReturnItemSize() throws {
+    func testDataSize_withSingleElement_shouldReturnElementSize() throws {
         // -- Arrange --
-        let sut = try CrashSafeBatchBuffer(dataCapacity: 1_024, maxItems: 10)
-        let testData = Data("test".utf8)
+        let sut = try CrashSafeBatchBuffer(dataCapacity: 1_024, itemsCapacity: 10)
+        let data = Data("test".utf8)
         
         // -- Act --
-        sut.addItem(data: testData)
+        XCTAssertTrue(sut.addItem(data))
         
         // -- Assert --
-        XCTAssertEqual(sut.dataSize, testData.count)
+        XCTAssertEqual(sut.dataSize, data.count)
     }
     
-    func testDataSize_whenMultipleItems_shouldReturnSumOfSizes() throws {
+    func testDataSize_withMultipleElements_shouldReturnSumOfSizes() throws {
         // -- Arrange --
-        let sut = try CrashSafeBatchBuffer(dataCapacity: 1_024, maxItems: 10)
-        let data1 = Data("item 1".utf8)
-        let data2 = Data("item 2".utf8)
-        let data3 = Data("item 3".utf8)
+        let sut = try CrashSafeBatchBuffer(dataCapacity: 1_024, itemsCapacity: 10)
+        let data1 = Data("item1".utf8)
+        let data2 = Data("item2".utf8)
+        let data3 = Data("item3".utf8)
         
         // -- Act --
-        sut.addItem(data: data1)
-        sut.addItem(data: data2)
-        sut.addItem(data: data3)
+        XCTAssertTrue(sut.addItem(data1))
+        XCTAssertTrue(sut.addItem(data2))
+        XCTAssertTrue(sut.addItem(data3))
         
         // -- Assert --
         XCTAssertEqual(sut.dataSize, data1.count + data2.count + data3.count)
@@ -281,9 +195,9 @@ final class CrashSafeBatchBufferTests: XCTestCase {
     
     func testDataSize_afterClear_shouldReturnZero() throws {
         // -- Arrange --
-        let sut = try CrashSafeBatchBuffer(dataCapacity: 1_024, maxItems: 10)
-        sut.addItem(data: Data("test".utf8))
-        sut.addItem(data: Data("test2".utf8))
+        let sut = try CrashSafeBatchBuffer(dataCapacity: 1_024, itemsCapacity: 10)
+        XCTAssertTrue(sut.addItem(Data("test1".utf8)))
+        XCTAssertTrue(sut.addItem(Data("test2".utf8)))
         
         // Assert pre-condition
         XCTAssertGreaterThan(sut.dataSize, 0)
@@ -297,81 +211,226 @@ final class CrashSafeBatchBufferTests: XCTestCase {
     
     func testDataSize_shouldUpdateAfterEachAdd() throws {
         // -- Arrange --
-        let sut = try CrashSafeBatchBuffer(dataCapacity: 1_024, maxItems: 10)
-        let data1 = Data("item 1".utf8)
-        let data2 = Data("item 2".utf8)
+        let sut = try CrashSafeBatchBuffer(dataCapacity: 1_024, itemsCapacity: 10)
+        let data1 = Data("first".utf8)
+        let data2 = Data("second".utf8)
         
         // -- Act & Assert --
         XCTAssertEqual(sut.dataSize, 0)
         
-        sut.addItem(data: data1)
+        XCTAssertTrue(sut.addItem(data1))
         XCTAssertEqual(sut.dataSize, data1.count)
         
-        sut.addItem(data: data2)
+        XCTAssertTrue(sut.addItem(data2))
         XCTAssertEqual(sut.dataSize, data1.count + data2.count)
     }
     
-    func testDataCapacity_shouldReturnOriginalCapacity() throws {
-        // -- Arrange --
-        // Even though the buffer internally uses double the capacity,
-        // the public API should return the original capacity
-        let sut = try CrashSafeBatchBuffer(dataCapacity: 2_048, maxItems: 20)
-        
-        // -- Act --
-        let capacity = sut.dataCapacity
-        
-        // -- Assert --
-        XCTAssertEqual(capacity, 2_048, "dataCapacity should return the original capacity, not the doubled internal capacity")
-    }
+    // MARK: - Clear Tests
     
-    func testItemCount_whenNoItems_shouldReturnZero() throws {
+    func testClear_withNoElements_shouldDoNothing() throws {
         // -- Arrange --
-        let sut = try CrashSafeBatchBuffer(dataCapacity: 1_024, maxItems: 10)
-        
-        // -- Act --
-        let count = sut.itemCount
-        
-        // -- Assert --
-        XCTAssertEqual(count, 0)
-    }
-    
-    func testItemCount_whenSingleItem_shouldReturnOne() throws {
-        // -- Arrange --
-        let sut = try CrashSafeBatchBuffer(dataCapacity: 1_024, maxItems: 10)
-        
-        // -- Act --
-        sut.addItem(data: Data("test".utf8))
-        
-        // -- Assert --
-        XCTAssertEqual(sut.itemCount, 1)
-    }
-    
-    func testItemCount_whenMultipleItems_shouldReturnCorrectCount() throws {
-        // -- Arrange --
-        let sut = try CrashSafeBatchBuffer(dataCapacity: 1_024, maxItems: 10)
-        
-        // -- Act --
-        sut.addItem(data: Data("item 1".utf8))
-        sut.addItem(data: Data("item 2".utf8))
-        sut.addItem(data: Data("item 3".utf8))
-        
-        // -- Assert --
-        XCTAssertEqual(sut.itemCount, 3)
-    }
-    
-    func testItemCount_afterClear_shouldReturnZero() throws {
-        // -- Arrange --
-        let sut = try CrashSafeBatchBuffer(dataCapacity: 1_024, maxItems: 10)
-        sut.addItem(data: Data("test".utf8))
-        sut.addItem(data: Data("test2".utf8))
+        let sut = try CrashSafeBatchBuffer(dataCapacity: 1_024, itemsCapacity: 10)
         
         // Assert pre-condition
-        XCTAssertEqual(sut.itemCount, 2)
+        XCTAssertEqual(sut.itemCount, 0)
+        XCTAssertEqual(sut.dataSize, 0)
         
         // -- Act --
         sut.clear()
         
         // -- Assert --
         XCTAssertEqual(sut.itemCount, 0)
+        XCTAssertEqual(sut.dataSize, 0)
+    }
+    
+    func testClear_withSingleElement_shouldClearStorage() throws {
+        // -- Arrange --
+        let sut = try CrashSafeBatchBuffer(dataCapacity: 1_024, itemsCapacity: 10)
+        XCTAssertTrue(sut.addItem(Data("test".utf8)))
+        
+        // Assert pre-condition
+        XCTAssertEqual(sut.itemCount, 1)
+        XCTAssertGreaterThan(sut.dataSize, 0)
+        
+        // -- Act --
+        sut.clear()
+        
+        // -- Assert --
+        XCTAssertEqual(sut.itemCount, 0)
+        XCTAssertEqual(sut.dataSize, 0)
+        XCTAssertEqual(sut.getAllItems().count, 0)
+    }
+    
+    func testClear_withMultipleElements_shouldClearStorage() throws {
+        // -- Arrange --
+        let sut = try CrashSafeBatchBuffer(dataCapacity: 1_024, itemsCapacity: 10)
+        XCTAssertTrue(sut.addItem(Data("item1".utf8)))
+        XCTAssertTrue(sut.addItem(Data("item2".utf8)))
+        XCTAssertTrue(sut.addItem(Data("item3".utf8)))
+        
+        // Assert pre-condition
+        XCTAssertEqual(sut.itemCount, 3)
+        XCTAssertGreaterThan(sut.dataSize, 0)
+        
+        // -- Act --
+        sut.clear()
+        
+        // -- Assert --
+        XCTAssertEqual(sut.itemCount, 0)
+        XCTAssertEqual(sut.dataSize, 0)
+        XCTAssertEqual(sut.getAllItems().count, 0)
+    }
+    
+    func testClear_afterClear_shouldAllowNewAdds() throws {
+        // -- Arrange --
+        let sut = try CrashSafeBatchBuffer(dataCapacity: 1_024, itemsCapacity: 10)
+        XCTAssertTrue(sut.addItem(Data("item1".utf8)))
+        XCTAssertTrue(sut.addItem(Data("item2".utf8)))
+        
+        // -- Act --
+        sut.clear()
+        XCTAssertTrue(sut.addItem(Data("item3".utf8)))
+        
+        // -- Assert --
+        XCTAssertEqual(sut.itemCount, 1)
+        let items = sut.getAllItems()
+        XCTAssertEqual(items.count, 1)
+        XCTAssertEqual(String(data: items[0], encoding: .utf8), "item3")
+    }
+    
+    func testMultipleClearCalls_shouldNotCauseIssues() throws {
+        // -- Arrange --
+        let sut = try CrashSafeBatchBuffer(dataCapacity: 1_024, itemsCapacity: 10)
+        XCTAssertTrue(sut.addItem(Data("test".utf8)))
+        
+        // -- Act --
+        sut.clear()
+        sut.clear()
+        sut.clear()
+        
+        // -- Assert --
+        XCTAssertEqual(sut.itemCount, 0)
+        XCTAssertEqual(sut.dataSize, 0)
+        XCTAssertEqual(sut.getAllItems().count, 0)
+    }
+    
+    // MARK: - GetAllItems Tests
+    
+    func testGetAllItems_withNoElements_shouldReturnEmptyArray() throws {
+        // -- Arrange --
+        let sut = try CrashSafeBatchBuffer(dataCapacity: 1_024, itemsCapacity: 10)
+        
+        // -- Act --
+        let items = sut.getAllItems()
+        
+        // -- Assert --
+        XCTAssertEqual(items.count, 0)
+    }
+    
+    func testGetAllItems_withSingleElement_shouldReturnSingleElement() throws {
+        // -- Arrange --
+        let sut = try CrashSafeBatchBuffer(dataCapacity: 1_024, itemsCapacity: 10)
+        let data = Data("test".utf8)
+        XCTAssertTrue(sut.addItem(data))
+        
+        // -- Act --
+        let items = sut.getAllItems()
+        
+        // -- Assert --
+        XCTAssertEqual(items.count, 1)
+        XCTAssertEqual(items[0], data)
+    }
+    
+    func testGetAllItems_withMultipleElements_shouldReturnAllElements() throws {
+        // -- Arrange --
+        let sut = try CrashSafeBatchBuffer(dataCapacity: 1_024, itemsCapacity: 10)
+        let data1 = Data("item1".utf8)
+        let data2 = Data("item2".utf8)
+        let data3 = Data("item3".utf8)
+        XCTAssertTrue(sut.addItem(data1))
+        XCTAssertTrue(sut.addItem(data2))
+        XCTAssertTrue(sut.addItem(data3))
+        
+        // -- Act --
+        let items = sut.getAllItems()
+        
+        // -- Assert --
+        XCTAssertEqual(items.count, 3)
+        XCTAssertEqual(items[0], data1)
+        XCTAssertEqual(items[1], data2)
+        XCTAssertEqual(items[2], data3)
+    }
+    
+    func testGetAllItems_shouldMaintainElementOrder() throws {
+        // -- Arrange --
+        let sut = try CrashSafeBatchBuffer(dataCapacity: 1_024, itemsCapacity: 10)
+        XCTAssertTrue(sut.addItem(Data("first".utf8)))
+        XCTAssertTrue(sut.addItem(Data("second".utf8)))
+        XCTAssertTrue(sut.addItem(Data("third".utf8)))
+        
+        // -- Act --
+        let items = sut.getAllItems()
+        
+        // -- Assert --
+        XCTAssertEqual(String(data: items[0], encoding: .utf8), "first")
+        XCTAssertEqual(String(data: items[1], encoding: .utf8), "second")
+        XCTAssertEqual(String(data: items[2], encoding: .utf8), "third")
+    }
+    
+    // MARK: - Integration Tests
+    
+    func testAddClearAdd_shouldWorkCorrectly() throws {
+        // -- Arrange --
+        let sut = try CrashSafeBatchBuffer(dataCapacity: 1_024, itemsCapacity: 10)
+        
+        // -- Act & Assert --
+        XCTAssertTrue(sut.addItem(Data("item1".utf8)))
+        XCTAssertEqual(sut.itemCount, 1)
+        XCTAssertGreaterThan(sut.dataSize, 0)
+        
+        sut.clear()
+        XCTAssertEqual(sut.itemCount, 0)
+        XCTAssertEqual(sut.dataSize, 0)
+        
+        XCTAssertTrue(sut.addItem(Data("item2".utf8)))
+        XCTAssertTrue(sut.addItem(Data("item3".utf8)))
+        XCTAssertEqual(sut.itemCount, 2)
+        
+        let items = sut.getAllItems()
+        XCTAssertEqual(items.count, 2)
+        XCTAssertEqual(String(data: items[0], encoding: .utf8), "item2")
+        XCTAssertEqual(String(data: items[1], encoding: .utf8), "item3")
+    }
+    
+    // MARK: - Binary Data Tests
+    
+    func testAddItem_withBinaryData_shouldPreserveData() throws {
+        // -- Arrange --
+        let sut = try CrashSafeBatchBuffer(dataCapacity: 1_024, itemsCapacity: 10)
+        let binaryData = Data([0x00, 0x01, 0x02, 0xFF, 0xFE, 0xFD])
+        
+        // -- Act --
+        XCTAssertTrue(sut.addItem(binaryData))
+        
+        // -- Assert --
+        let items = sut.getAllItems()
+        XCTAssertEqual(items.count, 1)
+        XCTAssertEqual(items[0], binaryData)
+    }
+    
+    func testAddItem_withLargeData_shouldWork() throws {
+        // -- Arrange --
+        let sut = try CrashSafeBatchBuffer(dataCapacity: 10_000, itemsCapacity: 100)
+        let largeData = Data(repeating: 0x42, count: 5_000)
+        
+        // -- Act --
+        let success = sut.addItem(largeData)
+        
+        // -- Assert --
+        XCTAssertTrue(success)
+        XCTAssertEqual(sut.itemCount, 1)
+        XCTAssertEqual(sut.dataSize, 5_000)
+        let items = sut.getAllItems()
+        XCTAssertEqual(items[0].count, 5_000)
     }
 }

@@ -9,7 +9,7 @@
 #include <string.h>
 
 bool
-sentry_batch_buffer_init(SentryBatchBufferC *buffer, size_t data_capacity, size_t max_items)
+sentry_batch_buffer_init(SentryBatchBufferC *buffer, size_t data_capacity, size_t items_capacity)
 {
     if (buffer == NULL) {
         return false;
@@ -23,7 +23,7 @@ sentry_batch_buffer_init(SentryBatchBufferC *buffer, size_t data_capacity, size_
     buffer->items_capacity = 0;
     buffer->item_count = 0;
 
-    if (data_capacity == 0 || max_items == 0) {
+    if (data_capacity == 0 || items_capacity == 0) {
         return true;
     }
 
@@ -33,14 +33,14 @@ sentry_batch_buffer_init(SentryBatchBufferC *buffer, size_t data_capacity, size_
     }
     buffer->data_capacity = data_capacity;
 
-    buffer->item_offsets = (size_t *)malloc(max_items * sizeof(size_t));
+    buffer->item_offsets = (size_t *)malloc(items_capacity * sizeof(size_t));
     if (buffer->item_offsets == NULL) {
         free(buffer->data);
         buffer->data = NULL;
         return false;
     }
 
-    buffer->item_sizes = (size_t *)malloc(max_items * sizeof(size_t));
+    buffer->item_sizes = (size_t *)malloc(items_capacity * sizeof(size_t));
     if (buffer->item_sizes == NULL) {
         free(buffer->item_offsets);
         free(buffer->data);
@@ -49,7 +49,7 @@ sentry_batch_buffer_init(SentryBatchBufferC *buffer, size_t data_capacity, size_
         return false;
     }
 
-    buffer->items_capacity = max_items;
+    buffer->items_capacity = items_capacity;
 
     return true;
 }
@@ -145,15 +145,6 @@ sentry_batch_buffer_get_data_size(const SentryBatchBufferC *buffer)
         return 0;
     }
     return buffer->data_size;
-}
-
-size_t
-sentry_batch_buffer_get_data_capacity(const SentryBatchBufferC *buffer)
-{
-    if (buffer == NULL) {
-        return 0;
-    }
-    return buffer->data_capacity;
 }
 
 void

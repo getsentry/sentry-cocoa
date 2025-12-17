@@ -26,7 +26,8 @@ typedef struct {
  *
  * @note This function is NOT async-signal-safe because it calls malloc().
  */
-bool sentry_batch_buffer_init(SentryBatchBufferC *buffer, size_t data_capacity, size_t max_items);
+bool sentry_batch_buffer_init(
+    SentryBatchBufferC *buffer, size_t data_capacity, size_t items_capacity);
 
 void sentry_batch_buffer_destroy(SentryBatchBufferC *buffer);
 
@@ -41,8 +42,6 @@ const char *sentry_batch_buffer_get_item(
 const char *sentry_batch_buffer_get_data(const SentryBatchBufferC *buffer);
 
 size_t sentry_batch_buffer_get_data_size(const SentryBatchBufferC *buffer);
-
-size_t sentry_batch_buffer_get_data_capacity(const SentryBatchBufferC *buffer);
 
 void sentry_batch_buffer_clear(SentryBatchBufferC *buffer);
 
