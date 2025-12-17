@@ -28,19 +28,6 @@ SENTRY_NO_INIT
 SENTRY_NO_INIT
 
 /**
- * Initializes SentryAppStartMeasurement with the given parameters.
- */
-- (instancetype)initWithType:(SentryAppStartType)type
-                      isPreWarmed:(BOOL)isPreWarmed
-                appStartTimestamp:(NSDate *)appStartTimestamp
-       runtimeInitSystemTimestamp:(uint64_t)runtimeInitSystemTimestamp
-                         duration:(NSTimeInterval)duration
-             runtimeInitTimestamp:(NSDate *)runtimeInitTimestamp
-    moduleInitializationTimestamp:(NSDate *)moduleInitializationTimestamp
-                sdkStartTimestamp:(NSDate *)sdkStartTimestamp
-      didFinishLaunchingTimestamp:(NSDate *)didFinishLaunchingTimestamp;
-
-/**
  * The type of the app start.
  */
 @property (readonly, nonatomic, assign) SentryAppStartType type;
@@ -49,8 +36,7 @@ SENTRY_NO_INIT
 
 /**
  * How long the app start took. From appStartTimestamp to when the SDK creates the
- * AppStartMeasurement, which is done when the OS posts UIWindowDidBecomeVisibleNotification and
- * when `enablePerformanceV2` is enabled when the app draws it's first frame.
+ * AppStartMeasurement, which is done when the first CADisplayLink callback is received.
  */
 @property (readonly, nonatomic, assign) NSTimeInterval duration;
 

@@ -375,6 +375,46 @@
         ]
       },
       {
+        "kind": "Import",
+        "name": "Sentry.PrivateSentrySDKOnly",
+        "printedName": "Sentry.PrivateSentrySDKOnly",
+        "declKind": "Import",
+        "moduleName": "Sentry",
+        "declAttributes": [
+          "Exported"
+        ]
+      },
+      {
+        "kind": "Import",
+        "name": "Sentry.PrivatesHeader",
+        "printedName": "Sentry.PrivatesHeader",
+        "declKind": "Import",
+        "moduleName": "Sentry",
+        "declAttributes": [
+          "Exported"
+        ]
+      },
+      {
+        "kind": "Import",
+        "name": "Sentry.SentryAppStartMeasurement",
+        "printedName": "Sentry.SentryAppStartMeasurement",
+        "declKind": "Import",
+        "moduleName": "Sentry",
+        "declAttributes": [
+          "Exported"
+        ]
+      },
+      {
+        "kind": "Import",
+        "name": "Sentry.SentrySessionReplayHybridSDK",
+        "printedName": "Sentry.SentrySessionReplayHybridSDK",
+        "declKind": "Import",
+        "moduleName": "Sentry",
+        "declAttributes": [
+          "Exported"
+        ]
+      },
+      {
         "kind": "TypeDecl",
         "name": "Attachment",
         "printedName": "Attachment",
@@ -16365,6 +16405,51 @@
             "funcSelfKind": "NonMutating"
           },
           {
+            "kind": "Function",
+            "name": "options",
+            "printedName": "options(with:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Options",
+                "printedName": "Sentry.Options",
+                "usr": "c:@M@Sentry@objc(cs)SentryOptions"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Dictionary",
+                "printedName": "[Swift.String : Any]",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "ProtocolComposition",
+                    "printedName": "Any"
+                  }
+                ],
+                "usr": "s:SD"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "c:objc(cs)PrivateSentrySDKOnly(cm)optionsWithDictionary:didFailWithError:",
+            "moduleName": "Sentry",
+            "static": true,
+            "isOpen": true,
+            "objc_name": "optionsWithDictionary:didFailWithError:",
+            "declAttributes": [
+              "DiscardableResult",
+              "ObjC",
+              "Dynamic"
+            ],
+            "throwing": true,
+            "funcSelfKind": "NonMutating"
+          },
+          {
             "kind": "Constructor",
             "name": "init",
             "printedName": "init()",
@@ -18581,89 +18666,6 @@
         "name": "SentryAppStartMeasurement",
         "printedName": "SentryAppStartMeasurement",
         "children": [
-          {
-            "kind": "Constructor",
-            "name": "init",
-            "printedName": "init(type:isPreWarmed:appStartTimestamp:runtimeInitSystemTimestamp:duration:runtimeInitTimestamp:moduleInitializationTimestamp:sdkStartTimestamp:didFinishLaunchingTimestamp:)",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "SentryAppStartMeasurement",
-                "printedName": "Sentry.SentryAppStartMeasurement",
-                "usr": "c:objc(cs)SentryAppStartMeasurement"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "SentryAppStartType",
-                "printedName": "Sentry.SentryAppStartType",
-                "usr": "c:@E@SentryAppStartType"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "Bool",
-                "printedName": "Swift.Bool",
-                "usr": "s:Sb"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "Date",
-                "printedName": "Foundation.Date",
-                "usr": "s:10Foundation4DateV"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "UInt64",
-                "printedName": "Swift.UInt64",
-                "usr": "s:s6UInt64V"
-              },
-              {
-                "kind": "TypeNameAlias",
-                "name": "TimeInterval",
-                "printedName": "Foundation.TimeInterval",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Double",
-                    "printedName": "Swift.Double",
-                    "usr": "s:Sd"
-                  }
-                ]
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "Date",
-                "printedName": "Foundation.Date",
-                "usr": "s:10Foundation4DateV"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "Date",
-                "printedName": "Foundation.Date",
-                "usr": "s:10Foundation4DateV"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "Date",
-                "printedName": "Foundation.Date",
-                "usr": "s:10Foundation4DateV"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "Date",
-                "printedName": "Foundation.Date",
-                "usr": "s:10Foundation4DateV"
-              }
-            ],
-            "declKind": "Constructor",
-            "usr": "c:objc(cs)SentryAppStartMeasurement(im)initWithType:isPreWarmed:appStartTimestamp:runtimeInitSystemTimestamp:duration:runtimeInitTimestamp:moduleInitializationTimestamp:sdkStartTimestamp:didFinishLaunchingTimestamp:",
-            "moduleName": "Sentry",
-            "objc_name": "initWithType:isPreWarmed:appStartTimestamp:runtimeInitSystemTimestamp:duration:runtimeInitTimestamp:moduleInitializationTimestamp:sdkStartTimestamp:didFinishLaunchingTimestamp:",
-            "declAttributes": [
-              "ObjC",
-              "Dynamic"
-            ],
-            "init_kind": "Designated"
-          },
           {
             "kind": "Var",
             "name": "type",

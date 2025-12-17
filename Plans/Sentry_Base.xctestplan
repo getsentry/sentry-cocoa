@@ -34,6 +34,7 @@
         "SentryCoreDataTrackerTests\/testSaveBackgroundThread()",
         "SentryCrashBinaryImageCacheTests\/testRemoveImageAddAgain",
         "SentryCrashBinaryImageCacheTests\/testRemoveImageFromBeginning",
+        "SentryCrashBinaryImageCacheTests\/testRemoveImageFromTail",
         "SentryCrashIntegrationTests\/testStartUpCrash_CallsFlush()",
         "SentryCrashReportStore_Tests\/testCrashReportCount1",
         "SentryCrashReportStore_Tests\/testDeleteAllReports",

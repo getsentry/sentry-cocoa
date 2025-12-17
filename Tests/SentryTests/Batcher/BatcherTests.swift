@@ -9,7 +9,7 @@ private struct TestScope: BatcherScope {
     var userObject: User?
     var contextStore: [String: [String: Any]] = [:]
     var attributes: [String: Any] = [:]
-
+    
     init(propagationContextTraceIdString: String = SentryId().sentryIdString) {
         self.propagationContextTraceIdString = propagationContextTraceIdString
     }
@@ -89,12 +89,14 @@ final class BatcherTests: XCTestCase {
     }
 
     private func getSut(
+        sendDefaultPii: Bool = false,
         flushTimeout: TimeInterval = 0.1,
         maxItemCount: Int = 10,
         maxBufferSizeBytes: Int = 8_000,
         beforeSendItem: ((TestItem) -> TestItem?)? = nil
     ) -> Batcher<MockBuffer, TestItem, TestScope> {
         var config = Batcher<MockBuffer, TestItem, TestScope>.Config(
+            sendDefaultPii: sendDefaultPii,
             flushTimeout: flushTimeout,
             maxItemCount: maxItemCount,
             maxBufferSizeBytes: maxBufferSizeBytes,
