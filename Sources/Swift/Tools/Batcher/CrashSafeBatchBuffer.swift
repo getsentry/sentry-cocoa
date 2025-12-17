@@ -1,6 +1,11 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
+/// Errors that can occur when using `CrashSafeBatchBuffer`.
+enum CrashSafeBatchBufferError: Error {
+    case initializationFailed
+}
+
 /// A wrapper around the `SentryBatchBufferC` C API.
 final class CrashSafeBatchBuffer {
     private var buffer: SentryBatchBufferC
@@ -32,23 +37,18 @@ final class CrashSafeBatchBuffer {
         }
     }
     
-    /// Clears all items from the buffer.
     func clear() {
         sentry_batch_buffer_clear(&buffer)
     }
     
-    /// Returns the number of items in the buffer.
     var itemCount: Int {
         return Int(sentry_batch_buffer_get_item_count(&buffer))
     }
     
-    /// Returns the total size of all data in the buffer.
     var dataSize: Int {
         return Int(sentry_batch_buffer_get_data_size(&buffer))
     }
     
-    /// Gets all items in the buffer.
-    /// - Returns: An array of all item data
     func getAllItems() -> [Data] {
         var items: [Data] = []
         let count = itemCount
@@ -61,9 +61,4 @@ final class CrashSafeBatchBuffer {
         }
         return items
     }
-}
-
-/// Errors that can occur when using `CrashSafeBatchBuffer`.
-enum CrashSafeBatchBufferError: Error {
-    case initializationFailed
 }

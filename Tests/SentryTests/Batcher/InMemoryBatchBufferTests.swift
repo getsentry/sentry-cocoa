@@ -442,6 +442,78 @@ final class InMemoryBatchBufferTests: XCTestCase {
         )
     }
 
+    // MARK: - Capacity Limit Tests
+
+    private struct TestElementWithSize: Codable {
+        let id: Int
+        let data: String
+        
+        init(id: Int, size: Int) {
+            self.id = id
+            // Create a string of approximately the desired size
+            // JSON encoding adds overhead, so we adjust
+            let baseSize = "{\"id\":\(id),\"data\":\"".utf8.count + "\"}".utf8.count
+            let dataSize = max(0, size - baseSize)
+            self.data = String(repeating: "x", count: dataSize)
+        }
+    }
+
+    func testAppend_whenDoubleDataCapacity_shouldSucceed() throws {
+        // -- Arrange --
+        let dataCapacity = 100
+        var sut = InMemoryBatchBuffer<TestElementWithSize>(dataCapacity: dataCapacity, itemsCapacity: 10)
+        
+        let elementSize = dataCapacity * 2
+        let element = TestElementWithSize(id: 1, size: elementSize)
+        let encoded = try JSONEncoder().encode(element)
+        
+        // Verify the encoded size is what we expect (slightly over dataCapacity)
+        XCTAssertGreaterThan(encoded.count, dataCapacity)
+        XCTAssertLessThan(encoded.count, dataCapacity * 2)
+        
+        // -- Act --
+        try sut.append(element)
+        
+        // -- Assert --
+        XCTAssertEqual(sut.itemsCount, 1)
+        XCTAssertGreaterThan(sut.itemsDataSize, dataCapacity)
+        XCTAssertLessThan(sut.itemsDataSize, dataCapacity * 2)
+    }
+
+    func testAppend_whenGreaterDoubleDataCapacity_shouldThrowBufferFull() throws {
+        // -- Arrange --
+        let dataCapacity = 100
+        var sut = InMemoryBatchBuffer<TestElementWithSize>(dataCapacity: dataCapacity, itemsCapacity: 10)
+        
+        let elementSize = dataCapacity * 2 + 1
+        let element = TestElementWithSize(id: 1, size: elementSize)
+        
+        // -- Act & Assert --
+        XCTAssertThrowsError(try sut.append(element)) { error in
+            XCTAssertEqual(error as? BatchBufferError, BatchBufferError.bufferFull)
+        }
+        XCTAssertEqual(sut.itemsCount, 0)
+    }
+
+    func testAppend_whenItemsCapacityReached_shouldThrowBufferFull() throws {
+        // -- Arrange --
+        let itemsCapacity = 3
+        var sut = InMemoryBatchBuffer<TestElement>(dataCapacity: 1_024 * 1_024, itemsCapacity: itemsCapacity)
+        
+        // -- Act --
+        try sut.append(TestElement(id: 1))
+        try sut.append(TestElement(id: 2))
+        try sut.append(TestElement(id: 3))
+        
+        XCTAssertEqual(sut.itemsCount, itemsCapacity)
+        
+        // -- Act & Assert --
+        XCTAssertThrowsError(try sut.append(TestElement(id: 4))) { error in
+            XCTAssertEqual(error as? BatchBufferError, BatchBufferError.bufferFull)
+        }
+        XCTAssertEqual(sut.itemsCount, itemsCapacity)
+    }
+
     // MARK: - Helpers
 
     private func decodePayload(data: Data) throws -> TestPayload {
