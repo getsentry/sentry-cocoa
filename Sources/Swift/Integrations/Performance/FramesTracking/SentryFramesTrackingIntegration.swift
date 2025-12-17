@@ -1,9 +1,5 @@
 @_implementationOnly import _SentryPrivate
 
-// We should be able to remove this once we remove the HybridSDK
-// WE SHOULD NOT MERGE THIS YET
-import Sentry._Hybrid
-
 #if (os(iOS) || os(tvOS) || (swift(>=5.9) && os(visionOS))) && !SENTRY_NO_UIKIT
 
 protocol FramesTrackingProvider {
