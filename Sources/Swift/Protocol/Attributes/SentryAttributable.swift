@@ -48,29 +48,25 @@ extension Float: SentryAttributable {
 
 extension Array: SentryAttributable where Element: SentryAttributable {
     public var asAttribute: SentryAttribute {
-        // Create typed arrays directly for type safety
-        if let stringArray = self as? [String] {
+        switch self {
+        case let stringArray as [String]:
             return SentryAttribute(stringArray: stringArray)
-        } else if let boolArray = self as? [Bool] {
+        case let integerArray as [Int]:
+            return SentryAttribute(integerArray: integerArray)
+        case let boolArray as [Bool]:
             return SentryAttribute(booleanArray: boolArray)
-        } else if let intArray = self as? [Int] {
-            return SentryAttribute(integerArray: intArray)
-        } else if let doubleArray = self as? [Double] {
+        case let doubleArray as [Double]:
             return SentryAttribute(doubleArray: doubleArray)
-        } else if let floatArray = self as? [Float] {
+        case let floatArray as [Float]:
             return SentryAttribute(floatArray: floatArray)
-        } else if let attributeArray = self as? [SentryAttribute] {
+        case let attributeArray as [SentryAttribute]:
             // Handle arrays of SentryAttribute objects using the dedicated initializer
             // which properly handles homogeneous arrays and converts mixed types to string arrays
             return SentryAttribute(array: attributeArray)
-        } else {
+        default:
             // For other Attributable types, convert each element to its attribute value,
             // then extract the underlying value and convert to string array
-            return SentryAttribute(stringArray: self.map { element in
-                let attr = element.asAttribute
-                // Extract the actual value from the attribute, not the object description
-                return String(describing: attr.value)
-            })
+            return SentryAttribute(array: self.map(\.asAttribute))
         }
     }
 }
