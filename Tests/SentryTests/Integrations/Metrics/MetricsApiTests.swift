@@ -23,7 +23,7 @@ class MetricsApiTests: XCTestCase {
     func testCount_withValidKeyAndValue_shouldNotCrash() {
         // -- Arrange --
         startSDK()
-        let sut = MetricsApi()
+        let sut = SentryMetricsApi()
         let key = "network.request.count"
         let value = 1
 
@@ -40,7 +40,7 @@ class MetricsApiTests: XCTestCase {
     func testCount_withSDKEnabled_CreatesMetric() {
         // -- Arrange --
         startSDK()
-        let sut = MetricsApi()
+        let sut = SentryMetricsApi()
         
         // -- Act --
         sut.count(key: "test.metric", value: 1)
@@ -58,7 +58,7 @@ class MetricsApiTests: XCTestCase {
     func testCount_withMetricsDisabled_DoesNotCreateMetric() {
         // -- Arrange --
         startSDK(enableMetrics: false)
-        let sut = MetricsApi()
+        let sut = SentryMetricsApi()
         
         // -- Act --
         sut.count(key: "test.metric", value: 1)
@@ -76,7 +76,7 @@ class MetricsApiTests: XCTestCase {
     func testDistribution_withSDKEnabled_CreatesMetric() {
         // -- Arrange --
         startSDK()
-        let sut = MetricsApi()
+        let sut = SentryMetricsApi()
         
         // -- Act --
         sut.distribution(key: "test.distribution", value: 125.5, unit: "millisecond")
@@ -94,7 +94,7 @@ class MetricsApiTests: XCTestCase {
     func testGauge_withSDKEnabled_CreatesMetric() {
         // -- Arrange --
         startSDK()
-        let sut = MetricsApi()
+        let sut = SentryMetricsApi()
         
         // -- Act --
         sut.gauge(key: "test.gauge", value: 42.0, unit: "connection")
@@ -122,7 +122,7 @@ class MetricsApiTests: XCTestCase {
 
     func testCount_withZeroValue_shouldNotCrash() {
         // -- Arrange --
-        let sut = MetricsApi()
+        let sut = SentryMetricsApi()
         let key = "button.click"
         let value = 0
 
@@ -136,7 +136,7 @@ class MetricsApiTests: XCTestCase {
 
     func testCount_withLargeValue_shouldNotCrash() {
         // -- Arrange --
-        let sut = MetricsApi()
+        let sut = SentryMetricsApi()
         let key = "events.processed"
         let value = 1_000_000
 
@@ -150,7 +150,7 @@ class MetricsApiTests: XCTestCase {
 
     func testCount_withNegativeValue_shouldNotCrash() {
         // -- Arrange --
-        let sut = MetricsApi()
+        let sut = SentryMetricsApi()
         let key = "error.count"
         let value = -1
 
@@ -164,7 +164,7 @@ class MetricsApiTests: XCTestCase {
 
     func testCount_withEmptyKey_shouldNotCrash() {
         // -- Arrange --
-        let sut = MetricsApi()
+        let sut = SentryMetricsApi()
         let key = ""
 
         // -- Act --
@@ -177,7 +177,7 @@ class MetricsApiTests: XCTestCase {
 
     func testCount_withDotDelimitedKey_shouldNotCrash() {
         // -- Arrange --
-        let sut = MetricsApi()
+        let sut = SentryMetricsApi()
         let key = "service.api.endpoint.request.count"
 
         // -- Act --
@@ -190,7 +190,7 @@ class MetricsApiTests: XCTestCase {
 
     func testCount_canBeCalledMultipleTimes_shouldNotCrash() {
         // -- Arrange --
-        let sut = MetricsApi()
+        let sut = SentryMetricsApi()
         let key = "event.count"
 
         // -- Act --
@@ -207,7 +207,7 @@ class MetricsApiTests: XCTestCase {
 
     func testDistribution_withValidKeyAndValue_shouldNotCrash() {
         // -- Arrange --
-        let sut = MetricsApi()
+        let sut = SentryMetricsApi()
         let key = "http.request.duration"
         let value = 187.5
 
@@ -221,7 +221,7 @@ class MetricsApiTests: XCTestCase {
 
     func testDistribution_withZeroValue_shouldNotCrash() {
         // -- Arrange --
-        let sut = MetricsApi()
+        let sut = SentryMetricsApi()
         let key = "response.time"
         let value = 0.0
 
@@ -235,7 +235,7 @@ class MetricsApiTests: XCTestCase {
 
     func testDistribution_withLargeValue_shouldNotCrash() {
         // -- Arrange --
-        let sut = MetricsApi()
+        let sut = SentryMetricsApi()
         let key = "processing.duration"
         let value = 999_999.99
 
@@ -249,7 +249,7 @@ class MetricsApiTests: XCTestCase {
 
     func testDistribution_withNegativeValue_shouldNotCrash() {
         // -- Arrange --
-        let sut = MetricsApi()
+        let sut = SentryMetricsApi()
         let key = "latency"
         let value = -10.5
 
@@ -263,7 +263,7 @@ class MetricsApiTests: XCTestCase {
 
     func testDistribution_withEmptyKey_shouldNotCrash() {
         // -- Arrange --
-        let sut = MetricsApi()
+        let sut = SentryMetricsApi()
         let key = ""
 
         // -- Act --
@@ -276,7 +276,7 @@ class MetricsApiTests: XCTestCase {
 
     func testDistribution_withDotDelimitedKey_shouldNotCrash() {
         // -- Arrange --
-        let sut = MetricsApi()
+        let sut = SentryMetricsApi()
         let key = "service.api.endpoint.request.duration"
 
         // -- Act --
@@ -289,7 +289,7 @@ class MetricsApiTests: XCTestCase {
 
     func testDistribution_canBeCalledMultipleTimes_shouldNotCrash() {
         // -- Arrange --
-        let sut = MetricsApi()
+        let sut = SentryMetricsApi()
         let key = "response.time"
 
         // -- Act --
@@ -306,7 +306,7 @@ class MetricsApiTests: XCTestCase {
 
     func testGauge_withValidKeyAndValue_shouldNotCrash() {
         // -- Arrange --
-        let sut = MetricsApi()
+        let sut = SentryMetricsApi()
         let key = "memory.usage"
         let value = 1_024.0
 
@@ -320,7 +320,7 @@ class MetricsApiTests: XCTestCase {
 
     func testGauge_withZeroValue_shouldNotCrash() {
         // -- Arrange --
-        let sut = MetricsApi()
+        let sut = SentryMetricsApi()
         let key = "queue.depth"
         let value = 0.0
 
@@ -334,7 +334,7 @@ class MetricsApiTests: XCTestCase {
 
     func testGauge_withLargeValue_shouldNotCrash() {
         // -- Arrange --
-        let sut = MetricsApi()
+        let sut = SentryMetricsApi()
         let key = "active.connections"
         let value = 50_000.0
 
@@ -348,7 +348,7 @@ class MetricsApiTests: XCTestCase {
 
     func testGauge_withNegativeValue_shouldNotCrash() {
         // -- Arrange --
-        let sut = MetricsApi()
+        let sut = SentryMetricsApi()
         let key = "temperature"
         let value = -5.0
 
@@ -362,7 +362,7 @@ class MetricsApiTests: XCTestCase {
 
     func testGauge_withEmptyKey_shouldNotCrash() {
         // -- Arrange --
-        let sut = MetricsApi()
+        let sut = SentryMetricsApi()
         let key = ""
 
         // -- Act --
@@ -375,7 +375,7 @@ class MetricsApiTests: XCTestCase {
 
     func testGauge_withDotDelimitedKey_shouldNotCrash() {
         // -- Arrange --
-        let sut = MetricsApi()
+        let sut = SentryMetricsApi()
         let key = "service.api.endpoint.queue.depth"
 
         // -- Act --
@@ -388,7 +388,7 @@ class MetricsApiTests: XCTestCase {
 
     func testGauge_canBeCalledMultipleTimes_shouldNotCrash() {
         // -- Arrange --
-        let sut = MetricsApi()
+        let sut = SentryMetricsApi()
         let key = "queue.size"
 
         // -- Act --

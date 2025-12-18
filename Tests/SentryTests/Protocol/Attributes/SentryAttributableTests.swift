@@ -2,7 +2,7 @@
 @_spi(Private) import SentryTestUtils
 import XCTest
 
-class AttributableTests: XCTestCase {
+class SentryAttributableTests: XCTestCase {
 
     // MARK: - String Attributable Tests
 
@@ -48,7 +48,7 @@ class AttributableTests: XCTestCase {
 
     // MARK: - Double Attributable Tests
 
-    func testAsAttribute_whenDouble_shouldReturnDoubleAttribute() {
+    func testAsAttribute_whenDouble_shouldReturnDoubleAttribute() throws {
         // -- Arrange --
         let double = 3.14
 
@@ -57,12 +57,13 @@ class AttributableTests: XCTestCase {
 
         // -- Assert --
         XCTAssertEqual(attribute.type, "double")
-        XCTAssertEqual(attribute.value as? Double, 3.14, accuracy: 0.001)
+        let value = try XCTUnwrap(attribute.value as? Double)
+        XCTAssertEqual(value, 3.14, accuracy: 0.001)
     }
 
     // MARK: - Float Attributable Tests
 
-    func testAsAttribute_whenFloat_shouldReturnDoubleAttribute() {
+    func testAsAttribute_whenFloat_shouldReturnDoubleAttribute() throws {
         // -- Arrange --
         let float: Float = 3.14
 
@@ -71,7 +72,8 @@ class AttributableTests: XCTestCase {
 
         // -- Assert --
         XCTAssertEqual(attribute.type, "double")
-        XCTAssertEqual(attribute.value as? Double, 3.14, accuracy: 0.001)
+        let value = try XCTUnwrap(attribute.value as? Double)
+        XCTAssertEqual(value, 3.14, accuracy: 0.001)
     }
 
     // MARK: - Array Attributable Tests
@@ -128,7 +130,7 @@ class AttributableTests: XCTestCase {
         XCTAssertEqual(value, [1.1, 2.2, 3.3])
     }
 
-    func testAsAttribute_whenFloatArray_shouldReturnDoubleArrayAttribute() {
+    func testAsAttribute_whenFloatArray_shouldReturnDoubleArrayAttribute() throws {
         // -- Arrange --
         let array: [Float] = [1.1, 2.2, 3.3]
 
@@ -137,8 +139,10 @@ class AttributableTests: XCTestCase {
 
         // -- Assert --
         XCTAssertEqual(attribute.type, "double[]")
-        let value = attribute.value as? [Double]
-        XCTAssertEqual(value, [1.1, 2.2, 3.3], accuracy: 0.01)
+        let value = try XCTUnwrap(attribute.value as? [Double])
+        XCTAssertEqual(try XCTUnwrap(value.element(at: 0)), 1.1, accuracy: 0.01)
+        XCTAssertEqual(try XCTUnwrap(value.element(at: 1)), 2.2, accuracy: 0.01)
+        XCTAssertEqual(try XCTUnwrap(value.element(at: 2)), 3.3, accuracy: 0.01)
     }
 
     func testAsAttribute_whenEmptyStringArray_shouldReturnStringArrayAttribute() {

@@ -9,44 +9,44 @@
 /// let endpoint = "api/users"
 /// SentrySDK.metrics.count(key: "requests", value: 1, attributes: ["endpoint": endpoint])
 /// ```
-public protocol Attributable: Encodable {
+public protocol SentryAttributable: Encodable {
     /// Converts this value to a `SentryAttribute`.
     var asAttribute: SentryAttribute { get }
 }
 
 // MARK: - Default Attributable Conformances
 
-extension String: Attributable {
+extension String: SentryAttributable {
     public var asAttribute: SentryAttribute {
         return SentryAttribute(string: self)
     }
 }
 
-extension Bool: Attributable {
+extension Bool: SentryAttributable {
     public var asAttribute: SentryAttribute {
         return SentryAttribute(boolean: self)
     }
 }
 
-extension Int: Attributable {
+extension Int: SentryAttributable {
     public var asAttribute: SentryAttribute {
         return SentryAttribute(integer: self)
     }
 }
 
-extension Double: Attributable {
+extension Double: SentryAttributable {
     public var asAttribute: SentryAttribute {
         return SentryAttribute(double: self)
     }
 }
 
-extension Float: Attributable {
+extension Float: SentryAttributable {
     public var asAttribute: SentryAttribute {
         return SentryAttribute(float: self)
     }
 }
 
-extension Array: Attributable where Element: Attributable {
+extension Array: SentryAttributable where Element: SentryAttributable {
     public var asAttribute: SentryAttribute {
         // Create typed arrays directly for type safety
         if let stringArray = self as? [String] {

@@ -1,5 +1,5 @@
 /// A type-safe value that can be stored in an attribute.
-enum AttributeValue {
+enum SentryAttributeValue {
     case string(String)
     case boolean(Bool)
     case integer(Int)
@@ -111,7 +111,7 @@ enum AttributeValue {
     }
 }
 
-extension AttributeValue: Encodable {
+extension SentryAttributeValue: Encodable {
     private enum CodingKeys: String, CodingKey {
         case attributeType = "type"
         case attributeValue = "value"
@@ -142,25 +142,25 @@ extension AttributeValue: Encodable {
     }
 }
 
-extension AttributeValue: ExpressibleByStringLiteral {
+extension SentryAttributeValue: ExpressibleByStringLiteral {
     init(stringLiteral value: StringLiteralType) {
         self = .string(value)
     }
 }
 
-extension AttributeValue: ExpressibleByBooleanLiteral {
+extension SentryAttributeValue: ExpressibleByBooleanLiteral {
     init(booleanLiteral value: BooleanLiteralType) {
         self = .boolean(value)
     }
 }
 
-extension AttributeValue: ExpressibleByIntegerLiteral {
+extension SentryAttributeValue: ExpressibleByIntegerLiteral {
     init(integerLiteral value: IntegerLiteralType) {
         self = .integer(value)
     }
 }
 
-extension AttributeValue: ExpressibleByFloatLiteral {
+extension SentryAttributeValue: ExpressibleByFloatLiteral {
     init(floatLiteral value: FloatLiteralType) {
         self = .double(value)
     }

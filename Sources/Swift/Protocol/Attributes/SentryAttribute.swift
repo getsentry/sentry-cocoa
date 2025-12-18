@@ -13,7 +13,7 @@
 @objcMembers
 public final class SentryAttribute: NSObject {
     /// The type-safe value stored in this attribute
-    let attributeValue: AttributeValue
+    let attributeValue: SentryAttributeValue
 
     /// The type identifier for this attribute ("string", "boolean", "integer", "double", "string[]", "boolean[]", "integer[]", "double[]")
     public var type: String {
@@ -86,7 +86,7 @@ public final class SentryAttribute: NSObject {
     /// The array must be homogeneous (all elements of the same type).
     /// If the array is empty or contains mixed types, it will be converted to a string array.
     public init(array value: [SentryAttribute]) {
-        self.attributeValue = AttributeValue(fromAny: value)
+        self.attributeValue = SentryAttributeValue(fromAny: value)
         super.init()
     }
 
@@ -100,14 +100,14 @@ public final class SentryAttribute: NSObject {
     ///                    String, Bool, Int, Double, and Float. Other types will be
     ///                    converted to their string representation.
     public init(value: Any) {
-        self.attributeValue = AttributeValue(fromAny: value)
+        self.attributeValue = SentryAttributeValue(fromAny: value)
         super.init()
     }
 }
 
 // MARK: - Attributable Protocol Support
 
-extension SentryAttribute: Attributable {
+extension SentryAttribute: SentryAttributable {
     public var asAttribute: SentryAttribute {
         return self
     }

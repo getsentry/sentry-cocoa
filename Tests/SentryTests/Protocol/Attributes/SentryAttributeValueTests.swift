@@ -2,13 +2,13 @@
 @_spi(Private) import SentryTestUtils
 import XCTest
 
-class AttributeValueTests: XCTestCase {
+class SentryAttributeValueTests: XCTestCase {
 
     // MARK: - Type Property Tests
 
     func testType_whenString_shouldReturnString() {
         // -- Arrange --
-        let value = AttributeValue.string("test")
+        let value = SentryAttributeValue.string("test")
 
         // -- Act --
         let type = value.type
@@ -19,7 +19,7 @@ class AttributeValueTests: XCTestCase {
 
     func testType_whenBoolean_shouldReturnBoolean() {
         // -- Arrange --
-        let value = AttributeValue.boolean(true)
+        let value = SentryAttributeValue.boolean(true)
 
         // -- Act --
         let type = value.type
@@ -30,7 +30,7 @@ class AttributeValueTests: XCTestCase {
 
     func testType_whenInteger_shouldReturnInteger() {
         // -- Arrange --
-        let value = AttributeValue.integer(42)
+        let value = SentryAttributeValue.integer(42)
 
         // -- Act --
         let type = value.type
@@ -41,7 +41,7 @@ class AttributeValueTests: XCTestCase {
 
     func testType_whenDouble_shouldReturnDouble() {
         // -- Arrange --
-        let value = AttributeValue.double(3.14)
+        let value = SentryAttributeValue.double(3.14)
 
         // -- Act --
         let type = value.type
@@ -52,7 +52,7 @@ class AttributeValueTests: XCTestCase {
 
     func testType_whenStringArray_shouldReturnStringArray() {
         // -- Arrange --
-        let value = AttributeValue.stringArray(["a", "b", "c"])
+        let value = SentryAttributeValue.stringArray(["a", "b", "c"])
 
         // -- Act --
         let type = value.type
@@ -63,7 +63,7 @@ class AttributeValueTests: XCTestCase {
 
     func testType_whenBooleanArray_shouldReturnBooleanArray() {
         // -- Arrange --
-        let value = AttributeValue.booleanArray([true, false])
+        let value = SentryAttributeValue.booleanArray([true, false])
 
         // -- Act --
         let type = value.type
@@ -74,7 +74,7 @@ class AttributeValueTests: XCTestCase {
 
     func testType_whenIntegerArray_shouldReturnIntegerArray() {
         // -- Arrange --
-        let value = AttributeValue.integerArray([1, 2, 3])
+        let value = SentryAttributeValue.integerArray([1, 2, 3])
 
         // -- Act --
         let type = value.type
@@ -85,7 +85,7 @@ class AttributeValueTests: XCTestCase {
 
     func testType_whenDoubleArray_shouldReturnDoubleArray() {
         // -- Arrange --
-        let value = AttributeValue.doubleArray([1.1, 2.2, 3.3])
+        let value = SentryAttributeValue.doubleArray([1.1, 2.2, 3.3])
 
         // -- Act --
         let type = value.type
@@ -98,7 +98,7 @@ class AttributeValueTests: XCTestCase {
 
     func testAnyValue_whenString_shouldReturnString() {
         // -- Arrange --
-        let value = AttributeValue.string("test")
+        let value = SentryAttributeValue.string("test")
 
         // -- Act --
         let anyValue = value.anyValue
@@ -109,7 +109,7 @@ class AttributeValueTests: XCTestCase {
 
     func testAnyValue_whenBoolean_shouldReturnBoolean() {
         // -- Arrange --
-        let value = AttributeValue.boolean(true)
+        let value = SentryAttributeValue.boolean(true)
 
         // -- Act --
         let anyValue = value.anyValue
@@ -120,7 +120,7 @@ class AttributeValueTests: XCTestCase {
 
     func testAnyValue_whenInteger_shouldReturnInteger() {
         // -- Arrange --
-        let value = AttributeValue.integer(42)
+        let value = SentryAttributeValue.integer(42)
 
         // -- Act --
         let anyValue = value.anyValue
@@ -131,7 +131,7 @@ class AttributeValueTests: XCTestCase {
 
     func testAnyValue_whenDouble_shouldReturnDouble() {
         // -- Arrange --
-        let value = AttributeValue.double(3.14)
+        let value = SentryAttributeValue.double(3.14)
 
         // -- Act --
         let anyValue = value.anyValue
@@ -143,7 +143,7 @@ class AttributeValueTests: XCTestCase {
     func testAnyValue_whenStringArray_shouldReturnStringArray() {
         // -- Arrange --
         let array = ["a", "b", "c"]
-        let value = AttributeValue.stringArray(array)
+        let value = SentryAttributeValue.stringArray(array)
 
         // -- Act --
         let anyValue = value.anyValue
@@ -155,7 +155,7 @@ class AttributeValueTests: XCTestCase {
     func testAnyValue_whenBooleanArray_shouldReturnBooleanArray() {
         // -- Arrange --
         let array = [true, false]
-        let value = AttributeValue.booleanArray(array)
+        let value = SentryAttributeValue.booleanArray(array)
 
         // -- Act --
         let anyValue = value.anyValue
@@ -167,7 +167,7 @@ class AttributeValueTests: XCTestCase {
     func testAnyValue_whenIntegerArray_shouldReturnIntegerArray() {
         // -- Arrange --
         let array = [1, 2, 3]
-        let value = AttributeValue.integerArray(array)
+        let value = SentryAttributeValue.integerArray(array)
 
         // -- Act --
         let anyValue = value.anyValue
@@ -179,7 +179,7 @@ class AttributeValueTests: XCTestCase {
     func testAnyValue_whenDoubleArray_shouldReturnDoubleArray() {
         // -- Arrange --
         let array = [1.1, 2.2, 3.3]
-        let value = AttributeValue.doubleArray(array)
+        let value = SentryAttributeValue.doubleArray(array)
 
         // -- Act --
         let anyValue = value.anyValue
@@ -195,7 +195,7 @@ class AttributeValueTests: XCTestCase {
         let input: Any = "test"
 
         // -- Act --
-        let value = AttributeValue(fromAny: input)
+        let value = SentryAttributeValue(fromAny: input)
 
         // -- Assert --
         if case .string(let stringValue) = value {
@@ -210,7 +210,7 @@ class AttributeValueTests: XCTestCase {
         let input: Any = true
 
         // -- Act --
-        let value = AttributeValue(fromAny: input)
+        let value = SentryAttributeValue(fromAny: input)
 
         // -- Assert --
         if case .boolean(let boolValue) = value {
@@ -225,7 +225,7 @@ class AttributeValueTests: XCTestCase {
         let input: Any = 42
 
         // -- Act --
-        let value = AttributeValue(fromAny: input)
+        let value = SentryAttributeValue(fromAny: input)
 
         // -- Assert --
         if case .integer(let intValue) = value {
@@ -240,7 +240,7 @@ class AttributeValueTests: XCTestCase {
         let input: Any = 3.14
 
         // -- Act --
-        let value = AttributeValue(fromAny: input)
+        let value = SentryAttributeValue(fromAny: input)
 
         // -- Assert --
         if case .double(let doubleValue) = value {
@@ -255,7 +255,7 @@ class AttributeValueTests: XCTestCase {
         let input: Any = Float(3.14)
 
         // -- Act --
-        let value = AttributeValue(fromAny: input)
+        let value = SentryAttributeValue(fromAny: input)
 
         // -- Assert --
         if case .double(let doubleValue) = value {
@@ -270,7 +270,7 @@ class AttributeValueTests: XCTestCase {
         let input: Any = ["a", "b", "c"]
 
         // -- Act --
-        let value = AttributeValue(fromAny: input)
+        let value = SentryAttributeValue(fromAny: input)
 
         // -- Assert --
         if case .stringArray(let arrayValue) = value {
@@ -285,7 +285,7 @@ class AttributeValueTests: XCTestCase {
         let input: Any = [true, false]
 
         // -- Act --
-        let value = AttributeValue(fromAny: input)
+        let value = SentryAttributeValue(fromAny: input)
 
         // -- Assert --
         if case .booleanArray(let arrayValue) = value {
@@ -300,7 +300,7 @@ class AttributeValueTests: XCTestCase {
         let input: Any = [1, 2, 3]
 
         // -- Act --
-        let value = AttributeValue(fromAny: input)
+        let value = SentryAttributeValue(fromAny: input)
 
         // -- Assert --
         if case .integerArray(let arrayValue) = value {
@@ -315,7 +315,7 @@ class AttributeValueTests: XCTestCase {
         let input: Any = [1.1, 2.2, 3.3]
 
         // -- Act --
-        let value = AttributeValue(fromAny: input)
+        let value = SentryAttributeValue(fromAny: input)
 
         // -- Assert --
         if case .doubleArray(let arrayValue) = value {
@@ -330,7 +330,7 @@ class AttributeValueTests: XCTestCase {
         let input: Any = [Float(1.1), Float(2.2), Float(3.3)]
 
         // -- Act --
-        let value = AttributeValue(fromAny: input)
+        let value = SentryAttributeValue(fromAny: input)
 
         // -- Assert --
         if case .doubleArray(let arrayValue) = value {
@@ -350,7 +350,7 @@ class AttributeValueTests: XCTestCase {
         let input: Any = attributes
 
         // -- Act --
-        let value = AttributeValue(fromAny: input)
+        let value = SentryAttributeValue(fromAny: input)
 
         // -- Assert --
         if case .stringArray(let arrayValue) = value {
@@ -370,7 +370,7 @@ class AttributeValueTests: XCTestCase {
         let input: Any = attributes
 
         // -- Act --
-        let value = AttributeValue(fromAny: input)
+        let value = SentryAttributeValue(fromAny: input)
 
         // -- Assert --
         if case .stringArray(let arrayValue) = value {
@@ -387,7 +387,7 @@ class AttributeValueTests: XCTestCase {
         let input: Any = attributes
 
         // -- Act --
-        let value = AttributeValue(fromAny: input)
+        let value = SentryAttributeValue(fromAny: input)
 
         // -- Assert --
         if case .stringArray(let arrayValue) = value {
@@ -402,7 +402,7 @@ class AttributeValueTests: XCTestCase {
         let input: Any = Date()
 
         // -- Act --
-        let value = AttributeValue(fromAny: input)
+        let value = SentryAttributeValue(fromAny: input)
 
         // -- Assert --
         if case .string(let stringValue) = value {
@@ -416,7 +416,7 @@ class AttributeValueTests: XCTestCase {
 
     func testEncode_whenString_shouldEncodeCorrectly() throws {
         // -- Arrange --
-        let value = AttributeValue.string("test")
+        let value = SentryAttributeValue.string("test")
         let encoder = JSONEncoder()
 
         // -- Act --
@@ -430,7 +430,7 @@ class AttributeValueTests: XCTestCase {
 
     func testEncode_whenBoolean_shouldEncodeCorrectly() throws {
         // -- Arrange --
-        let value = AttributeValue.boolean(true)
+        let value = SentryAttributeValue.boolean(true)
         let encoder = JSONEncoder()
 
         // -- Act --
@@ -444,7 +444,7 @@ class AttributeValueTests: XCTestCase {
 
     func testEncode_whenInteger_shouldEncodeCorrectly() throws {
         // -- Arrange --
-        let value = AttributeValue.integer(42)
+        let value = SentryAttributeValue.integer(42)
         let encoder = JSONEncoder()
 
         // -- Act --
@@ -458,7 +458,7 @@ class AttributeValueTests: XCTestCase {
 
     func testEncode_whenDouble_shouldEncodeCorrectly() throws {
         // -- Arrange --
-        let value = AttributeValue.double(3.14)
+        let value = SentryAttributeValue.double(3.14)
         let encoder = JSONEncoder()
 
         // -- Act --
@@ -472,7 +472,7 @@ class AttributeValueTests: XCTestCase {
 
     func testEncode_whenStringArray_shouldEncodeAsPrimitiveArray() throws {
         // -- Arrange --
-        let value = AttributeValue.stringArray(["a", "b", "c"])
+        let value = SentryAttributeValue.stringArray(["a", "b", "c"])
         let encoder = JSONEncoder()
 
         // -- Act --
@@ -487,7 +487,7 @@ class AttributeValueTests: XCTestCase {
 
     func testEncode_whenBooleanArray_shouldEncodeAsPrimitiveArray() throws {
         // -- Arrange --
-        let value = AttributeValue.booleanArray([true, false])
+        let value = SentryAttributeValue.booleanArray([true, false])
         let encoder = JSONEncoder()
 
         // -- Act --
@@ -502,7 +502,7 @@ class AttributeValueTests: XCTestCase {
 
     func testEncode_whenIntegerArray_shouldEncodeAsPrimitiveArray() throws {
         // -- Arrange --
-        let value = AttributeValue.integerArray([1, 2, 3])
+        let value = SentryAttributeValue.integerArray([1, 2, 3])
         let encoder = JSONEncoder()
 
         // -- Act --
@@ -517,7 +517,7 @@ class AttributeValueTests: XCTestCase {
 
     func testEncode_whenDoubleArray_shouldEncodeAsPrimitiveArray() throws {
         // -- Arrange --
-        let value = AttributeValue.doubleArray([1.1, 2.2, 3.3])
+        let value = SentryAttributeValue.doubleArray([1.1, 2.2, 3.3])
         let encoder = JSONEncoder()
 
         // -- Act --
@@ -534,7 +534,7 @@ class AttributeValueTests: XCTestCase {
 
     func testExpressibleByStringLiteral_shouldCreateString() {
         // -- Arrange & Act --
-        let value: AttributeValue = "test"
+        let value: SentryAttributeValue = "test"
 
         // -- Assert --
         if case .string(let stringValue) = value {
@@ -546,7 +546,7 @@ class AttributeValueTests: XCTestCase {
 
     func testExpressibleByBooleanLiteral_shouldCreateBoolean() {
         // -- Arrange & Act --
-        let value: AttributeValue = true
+        let value: SentryAttributeValue = true
 
         // -- Assert --
         if case .boolean(let boolValue) = value {
@@ -558,7 +558,7 @@ class AttributeValueTests: XCTestCase {
 
     func testExpressibleByIntegerLiteral_shouldCreateInteger() {
         // -- Arrange & Act --
-        let value: AttributeValue = 42
+        let value: SentryAttributeValue = 42
 
         // -- Assert --
         if case .integer(let intValue) = value {
@@ -570,7 +570,7 @@ class AttributeValueTests: XCTestCase {
 
     func testExpressibleByFloatLiteral_shouldCreateDouble() {
         // -- Arrange & Act --
-        let value: AttributeValue = 3.14
+        let value: SentryAttributeValue = 3.14
 
         // -- Assert --
         if case .double(let doubleValue) = value {

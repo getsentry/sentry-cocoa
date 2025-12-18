@@ -39,7 +39,7 @@ import Foundation
     }
 
     /// API to access Sentry metrics
-    public static let metrics = MetricsApi()
+    public static let metrics = SentryMetricsApi()
 
     /// Inits and configures Sentry (`SentryHub`, `SentryClient`) and sets up all integrations. Make sure to
     /// set a valid DSN.
