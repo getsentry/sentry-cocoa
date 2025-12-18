@@ -160,7 +160,7 @@ public struct SentrySDKWrapper {
         options.enableLogs = true
 
         // Integration: Metrics
-        options.enableMetrics = SentrySDKOverrides.Metrics.enable.boolValue
+        options.experimental.enableMetrics = SentrySDKOverrides.Metrics.enable.boolValue
 
         // Experimental features
         options.enableFileManagerSwizzling = !SentrySDKOverrides.Other.disableFileManagerSwizzling.boolValue
