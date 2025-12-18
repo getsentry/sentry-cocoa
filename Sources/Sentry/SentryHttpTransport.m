@@ -410,6 +410,11 @@
             // or an SSL error after the initial handshake), we must assume the envelope reached
             // Sentry and only care about the response status codes. Therefore, we intentionally
             // ignore the error here.
+            if (error != nil) {
+                SENTRY_LOG_DEBUG(@"Response is not nil. We only care about the response and assume "
+                                 @"the envelope arrived at Sentry. Ignoring the error: %@",
+                    error);
+            }
 
             [weakSelf.rateLimits update:SENTRY_UNWRAP_NULLABLE(NSHTTPURLResponse, response)];
 

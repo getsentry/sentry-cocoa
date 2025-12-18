@@ -661,8 +661,12 @@ class SentryHttpTransportTests: XCTestCase {
 
         for _ in 0..<loopCount {
             queue.async {
-                self.givenRecordedLostEvents()
-                self.sendEventAsync()
+                do {
+                    try self.givenRecordedLostEvents()
+                    self.sendEventAsync()
+                } catch {
+                    XCTFail("givenRecordedLostEvents threw error: \(error)")
+                }
                 expectation.fulfill()
             }
         }
