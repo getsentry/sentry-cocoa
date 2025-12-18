@@ -174,7 +174,7 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
         // -- Arrange --
         let options = Options()
 
-        options.enableMetrics = true
+        options.experimental.enableMetrics = true
 
         // -- Act --
         let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
@@ -187,7 +187,7 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
         // -- Arrange --
         let options = Options()
 
-        options.enableMetrics = false
+        options.experimental.enableMetrics = false
 
         // -- Act --
         let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)

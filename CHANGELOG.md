@@ -7,10 +7,14 @@
 - Add integration to collect Metrics, can be enabled by setting `options.enableMetrics = true` (#6956)
 - Add implementation for Metrics Protocol (#6960)
 - Add `Sentry.metrics.count(..)`, `Sentry.metrics.distribution(..)` and `Sentry.metrics.gauge(..)` to public API (#6957)
+- Add integration to collect Metrics, can be enabled by setting `options.experimental.enableMetrics = true` (#6956)
+- Add implementation for Metrics Protocol with modification of items in `options.experimental.beforeSendMetrics` (#6960)
 
 ### Fixes
 
-- Use `sendDefaultPii` and `span_id` for attributes in `BatcherScope` (#7055)
+- The transport now correctly discard envelopes on 4xx and 5xx responses and records client reports `send_error` (#6618) This also fixes edge cases in which the SDK kept retrying sending a faulty envelope until the offline cache overflowed.
+- Change default attributes of Logs to only include user attributes when `options.sendDefaultPii = true` (#7055)
+- Rename log attribute `sentry.trace.parent_span_id` to `span_id` (#7055)
 
 ## 9.1.0
 

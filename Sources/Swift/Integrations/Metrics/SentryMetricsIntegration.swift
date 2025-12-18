@@ -1,14 +1,12 @@
 @_implementationOnly import _SentryPrivate
 
-final class MetricsIntegration<Dependencies: DateProviderProvider & DispatchQueueWrapperProvider>: NSObject, SwiftIntegration {
-    private let options: Options
-    private let metricBatcher: MetricBatcherProtocol
+final class SentryMetricsIntegration<Dependencies: DateProviderProvider & DispatchQueueWrapperProvider>: NSObject, SwiftIntegration {
+    private let metricBatcher: SentryMetricsBatcherProtocol
 
     init?(with options: Options, dependencies: Dependencies) {
-        guard options.enableMetrics else { return nil }
+        guard options.experimental.enableMetrics else { return nil }
 
-        self.options = options
-        self.metricBatcher = MetricBatcher(
+        self.metricBatcher = SentryMetricsBatcher(
             options: options,
             dateProvider: dependencies.dateProvider,
             dispatchQueue: dependencies.dispatchQueueWrapper,
@@ -33,12 +31,12 @@ final class MetricsIntegration<Dependencies: DateProviderProvider & DispatchQueu
     }
 
     static var name: String {
-        "MetricsIntegration"
+        "SentryMetricsIntegration"
     }
     
     // MARK: - Public API for MetricsApi
     
-    func addMetric(_ metric: Metric, scope: Scope) {
+    func addMetric(_ metric: SentryMetric, scope: Scope) {
         metricBatcher.addMetric(metric, scope: scope)
     }
 }

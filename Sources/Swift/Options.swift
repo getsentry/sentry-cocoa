@@ -130,18 +130,9 @@
     /// @note Default value is @c false.
     @objc public var enableLogs: Bool = false
 
-    /// When enabled, the SDK sends metrics to Sentry. Metrics can be captured using the SentrySDK.metrics
-    /// API, which allows you to send, view and query counters, gauges and measurements.
-    /// @note Default value is @c false.
-    @objc public var enableMetrics: Bool = false
-
     /// Use this callback to drop or modify a log before the SDK sends it to Sentry. Return nil to
     /// drop the log.
     @objc public var beforeSendLog: ((SentryLog) -> SentryLog?)?
-
-    /// Use this callback to drop or modify a metric before the SDK sends it to Sentry. Return nil to
-    /// drop the metric.
-    public var beforeSendMetric: ((Metric) -> Metric?)?
 
     /// This block can be used to modify the breadcrumb before it will be serialized and sent.
     @objc public var beforeBreadcrumb: SentryBeforeBreadcrumbCallback?

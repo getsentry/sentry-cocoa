@@ -45,7 +45,7 @@ import Foundation
         if options.experimental.enableUnhandledCPPExceptionsV2 {
             features.append("unhandledCPPExceptionsV2")
         }
-        if options.enableMetrics {
+        if options.experimental.enableMetrics {
             features.append("metrics")
         }
 

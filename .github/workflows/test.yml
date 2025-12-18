@@ -55,7 +55,7 @@ jobs:
       - uses: actions/checkout@v6
       - name: Cache for Test Server
         id: cache_test_server
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ./test-server/.build
           key: test-server-${{ hashFiles('./test-server') }}-universal
@@ -269,7 +269,7 @@ jobs:
 
           # iOS 18
           - name: iOS 18 Sentry
-            runs-on: macos-15
+            runs-on: sequoia
             xcode: "16.4"
             test-destination-os: "18.5"
             platform: "iOS"

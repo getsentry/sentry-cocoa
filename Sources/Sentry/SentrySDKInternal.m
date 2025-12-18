@@ -29,7 +29,6 @@
 #    import "SentryAppStartTrackingIntegration.h"
 #    import "SentryFramesTrackingIntegration.h"
 #    import "SentryPerformanceTrackingIntegration.h"
-#    import "SentryScreenshotIntegration.h"
 #    import "SentryUIEventTrackingIntegration.h"
 #    import "SentryViewHierarchyIntegration.h"
 #    import "SentryWatchdogTerminationTrackingIntegration.h"
@@ -231,7 +230,6 @@ static NSDate *_Nullable startTimestamp = nil;
 
     SentryScope *scope
         = options.initialScope([[SentryScope alloc] initWithMaxBreadcrumbs:options.maxBreadcrumbs]);
-    scope.sendDefaultPii = options.sendDefaultPii;
 
     SENTRY_LOG_DEBUG(@"Dispatching init work required to run on main thread.");
     [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper
@@ -524,9 +522,6 @@ static NSDate *_Nullable startTimestamp = nil;
         [SentryViewHierarchyIntegration class],
         [SentryWatchdogTerminationTrackingIntegration class],
 #endif // SENTRY_HAS_UIKIT
-#if SENTRY_TARGET_REPLAY_SUPPORTED
-        [SentryScreenshotIntegration class],
-#endif // SENTRY_TARGET_REPLAY_SUPPORTED
         [SentryANRTrackingIntegration class], [SentryAutoBreadcrumbTrackingIntegration class],
         [SentryCoreDataTrackingIntegration class], [SentryFileIOTrackingIntegration class],
         [SentryNetworkTrackingIntegration class], nil];

@@ -25,6 +25,8 @@ final class BatcherScopeTests: XCTestCase {
     private struct TestConfig: BatcherConfig {
         typealias Item = TestItem
 
+        let sendDefaultPii: Bool
+
         let flushTimeout: TimeInterval
         let maxItemCount: Int
         let maxBufferSizeBytes: Int
@@ -713,6 +715,7 @@ final class BatcherScopeTests: XCTestCase {
 
     private func createTestConfig() -> TestConfig {
         return TestConfig(
+            sendDefaultPii: true,
             flushTimeout: 0.1,
             maxItemCount: 10,
             maxBufferSizeBytes: 8_000,

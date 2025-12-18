@@ -160,8 +160,8 @@ public struct SentrySDKWrapper {
         options.enableLogs = true
 
         // Integration: Metrics
-        options.enableMetrics = SentrySDKOverrides.Metrics.enable.boolValue
-        options.beforeSendMetric = { metric in
+        options.experimental.enableMetrics = SentrySDKOverrides.Metrics.enable.boolValue
+        options.experimental.beforeSendMetric = { metric in
             var metric = metric // Make the metric mutable because it's a value type
             metric.attributes["custom-attribute"] = .init(string: "some-value")
             return metric

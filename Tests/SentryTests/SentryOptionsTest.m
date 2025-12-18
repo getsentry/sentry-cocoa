@@ -205,11 +205,6 @@
     [self testBooleanField:@"enableLogs" defaultValue:NO];
 }
 
-- (void)testEnableMetrics
-{
-    [self testBooleanField:@"enableMetrics" defaultValue:NO];
-}
-
 - (void)testEnableAutoBreadcrumbTracking
 {
     [self testBooleanField:@"enableAutoBreadcrumbTracking"];

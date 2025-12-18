@@ -38,7 +38,7 @@ private struct AnyIntegration {
         var integrations: [AnyIntegration] = [
             .init(SwiftAsyncIntegration.self),
             .init(SentryAutoSessionTrackingIntegration.self),
-            .init(MetricsIntegration.self)
+            .init(SentryMetricsIntegration.self)
         ]
         
         #if os(iOS) && !SENTRY_NO_UIKIT
@@ -47,6 +47,10 @@ private struct AnyIntegration {
         
         #if ((os(iOS) || os(tvOS) || (swift(>=5.9) && os(visionOS))) && !SENTRY_NO_UIKIT) || os(macOS)
         integrations.append(.init(FlushLogsIntegration<SentryDependencyContainer>.self))
+        #endif
+
+        #if (os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)) && !SENTRY_NO_UIKIT
+        integrations.append(.init(SentryScreenshotIntegration<SentryDependencyContainer>.self))
         #endif
         
         integrations.forEach { anyIntegration in

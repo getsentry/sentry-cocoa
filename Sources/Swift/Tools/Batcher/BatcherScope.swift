@@ -7,7 +7,6 @@ protocol BatcherScope {
     var userObject: User? { get }
     func getContextForKey(_ key: String) -> [String: Any]?
     var attributes: [String: Any] { get }
-    var sendDefaultPii: Bool { get }
 
     func applyToItem<Item: BatcherItem, Config: BatcherConfig<Item>, Metadata: BatcherMetadata>(
         _ item: inout Item,
@@ -36,7 +35,9 @@ extension BatcherScope {
     private func addDefaultAttributes(to attributes: inout [String: SentryAttribute], config: any BatcherConfig, metadata: any BatcherMetadata) {
         attributes["sentry.sdk.name"] = .init(string: SentryMeta.sdkName)
         attributes["sentry.sdk.version"] = .init(string: SentryMeta.versionString)
-        attributes["sentry.environment"] = .init(string: metadata.environment)
+        if metadata.environment.count > 0 {
+            attributes["sentry.environment"] = .init(string: metadata.environment)
+        }
         if let releaseName = metadata.releaseName {
             attributes["sentry.release"] = .init(string: releaseName)
         }
@@ -73,7 +74,7 @@ extension BatcherScope {
     }
 
     private func addUserAttributes(to attributes: inout [String: SentryAttribute], config: any BatcherConfig) {
-        guard self.sendDefaultPii else {
+        guard config.sendDefaultPii else {
             return
         }
         if let userId = userObject?.userId {
