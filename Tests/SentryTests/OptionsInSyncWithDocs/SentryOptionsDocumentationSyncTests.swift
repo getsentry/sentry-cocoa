@@ -15,106 +15,119 @@ final class SentryOptionsDocumentationSyncTests: XCTestCase {
     
     // MARK: - Ignore Lists
     
-    /// Platform-specific options that are only available on certain platforms.
-    /// These are excluded from validation since they may not be visible at runtime
-    /// depending on which platform the tests run on.
-    private let platformSpecificOptions: Set<String> = [
-        // macOS only (#if os(macOS))
-        "enableUncaughtNSExceptionReporting"
-    ]
-    
     /// Options not yet documented in the common options page.
     /// We plan to add documentation for all of these soon.
     /// Remove options from this list as they get documented.
-    private let undocumentedOptions: Set<String> = [
-        // Internal/derived properties (including @_spi(Private))
-        "parsedDsn",
-        "isTracingEnabled",
-        "profiling", // @_spi(Private) - internal backing for configureProfiling
-        "userFeedbackConfiguration", // @_spi(Private) - internal backing for configureUserFeedback
+    ///
+    /// Note: Platform-specific options are conditionally included using compiler flags
+    /// to match the availability in Options.swift.
+    private var undocumentedOptions: Set<String> {
+        var options: Set<String> = [
+            // Internal/derived properties (including @_spi(Private))
+            "parsedDsn",
+            "isTracingEnabled",
+            "profiling", // @_spi(Private) - internal backing for configureProfiling
+            
+            // SDK behavior
+            "enabled",
+            "shutdownTimeInterval",
+            
+            // Crash handling
+            "enableCrashHandler",
+            "enableWatchdogTerminationTracking",
+            
+            // Session tracking
+            "sessionTrackingIntervalMillis",
+            
+            // Attachments
+            "maxAttachmentSize",
+            
+            // Performance tracing
+            "enableAutoPerformanceTracing",
+            "enableNetworkTracking",
+            "enableFileIOTracing",
+            "enableDataSwizzling",
+            "enableFileManagerSwizzling",
+            "enableCoreDataTracing",
+            "enableTimeToFullDisplayTracing",
+            
+            // App hangs
+            "enableAppHangTracking",
+            "appHangTimeoutInterval",
+            
+            // Swizzling
+            "enableSwizzling",
+            "swizzleClassNameExcludes",
+            
+            // URLSession
+            "urlSessionDelegate",
+            "urlSession",
+            
+            // Breadcrumbs
+            "enableAutoBreadcrumbTracking",
+            
+            // Failed requests
+            "failedRequestStatusCodes",
+            "failedRequestTargets",
+            
+            // MetricKit
+            "enableMetricKit",
+            "enableMetricKitRawPayload",
+            
+            // Experimental
+            "swiftAsyncStacktraces",
+            "experimental",
+            
+            // Storage
+            "cacheDirectoryPath",
+            
+            // Spotlight
+            "enableSpotlight",
+            "spotlightUrl",
+            
+            // Profiling
+            "configureProfiling",
+            
+            // Callbacks
+            "beforeSendSpan",
+            "beforeSendLog",
+            "beforeCaptureScreenshot",
+            "beforeCaptureViewHierarchy",
+            "onCrashedLastRun",
+            
+            // Logs
+            "enableLogs"
+        ]
         
-        // SDK behavior
-        "enabled",
-        "shutdownTimeInterval",
+        // macOS only (#if os(macOS))
+        #if os(macOS)
+        options.insert("enableUncaughtNSExceptionReporting")
+        #endif
         
-        // Crash handling
-        "enableCrashHandler",
-        "enableWatchdogTerminationTracking",
+        // iOS/tvOS/visionOS with UIKit (#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT)
+        #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
+        options.insert("enableUIViewControllerTracing")
+        options.insert("screenshot")
+        options.insert("reportAccessibilityIdentifier")
+        options.insert("enableUserInteractionTracing")
+        options.insert("enablePreWarmedAppStartTracing")
+        options.insert("enableReportNonFullyBlockingAppHangs")
+        #endif
         
-        // Session tracking
-        "sessionTrackingIntervalMillis",
-        
-        // Attachments
-        "maxAttachmentSize",
-        "screenshot",
-        "reportAccessibilityIdentifier",
-        
-        // Performance tracing
-        "enableAutoPerformanceTracing",
-        "enableUIViewControllerTracing",
-        "enableUserInteractionTracing",
-        "enablePreWarmedAppStartTracing",
-        "enableNetworkTracking",
-        "enableFileIOTracing",
-        "enableDataSwizzling",
-        "enableFileManagerSwizzling",
-        "enableCoreDataTracing",
-        "enableTimeToFullDisplayTracing",
-        
-        // App hangs
-        "enableAppHangTracking",
-        "appHangTimeoutInterval",
-        "enableReportNonFullyBlockingAppHangs",
-        
-        // Swizzling
-        "enableSwizzling",
-        "swizzleClassNameExcludes",
-        
-        // URLSession
-        "urlSessionDelegate",
-        "urlSession",
-        
-        // Breadcrumbs
-        "enableAutoBreadcrumbTracking",
-        
-        // Failed requests
-        "failedRequestStatusCodes",
-        "failedRequestTargets",
-        
-        // MetricKit
-        "enableMetricKit",
-        "enableMetricKitRawPayload",
-        
-        // Experimental
-        "swiftAsyncStacktraces",
-        "experimental",
-        
-        // Storage
-        "cacheDirectoryPath",
-        
-        // Spotlight
-        "enableSpotlight",
-        "spotlightUrl",
-        
-        // Profiling
-        "configureProfiling",
-        
+        // iOS/tvOS with UIKit (#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT)
         // Session replay (documented at https://docs.sentry.io/platforms/apple/session-replay/)
-        "sessionReplay",
+        #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT
+        options.insert("sessionReplay")
+        #endif
         
-        // User feedback
-        "configureUserFeedback",
+        // iOS only with UIKit (#if os(iOS) && !SENTRY_NO_UIKIT)
+        #if os(iOS) && !SENTRY_NO_UIKIT
+        options.insert("userFeedbackConfiguration") // @_spi(Private) - internal backing for configureUserFeedback
+        options.insert("configureUserFeedback")
+        #endif
         
-        // Callbacks
-        "beforeSendSpan",
-        "beforeSendLog",
-        "beforeCaptureScreenshot",
-        "beforeCaptureViewHierarchy",
-        "onCrashedLastRun",
-        
-        // Logs
-        "enableLogs"
-    ]
+        return options
+    }
     
     /// Mapping between a code property name and its documentation name when they differ.
     private struct OptionNameMapping {
@@ -146,12 +159,9 @@ final class SentryOptionsDocumentationSyncTests: XCTestCase {
         // Find properties that are not documented and not ignored
         var missingDocs: [String] = []
         
-        // Combine all ignored options
-        let allIgnoredOptions = undocumentedOptions.union(platformSpecificOptions)
-        
         for property in codeProperties {
-            // Check if it's in the ignore list
-            if allIgnoredOptions.contains(property) {
+            // Check if it's in the undocumented ignore list
+            if undocumentedOptions.contains(property) {
                 continue
             }
             
@@ -197,11 +207,6 @@ final class SentryOptionsDocumentationSyncTests: XCTestCase {
         var invalidOptions: [String] = []
         
         for option in undocumentedOptions {
-            // Skip platform-specific options as they may not be visible at runtime
-            if platformSpecificOptions.contains(option) {
-                continue
-            }
-            
             if !codeProperties.contains(option) {
                 invalidOptions.append(option)
             }
@@ -213,8 +218,8 @@ final class SentryOptionsDocumentationSyncTests: XCTestCase {
             The following options in undocumentedOptions do not exist in Options.swift:
             \(missingList)
             
-            Remove them from undocumentedOptions or add them to platformSpecificOptions if they are
-            conditionally compiled for specific platforms.
+            Either remove them from undocumentedOptions, or if they are platform-specific,
+            add them with the appropriate compiler flags (e.g., #if os(iOS)).
             """)
         }
     }
