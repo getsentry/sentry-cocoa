@@ -9,3 +9,10 @@ targets:
   - name: registry
     sdks:
       cocoapods:sentry-cocoa:
+  - name: gcs
+    bucket: sentry-cocoa-prebuilt
+    includeNames: /.*\.zip$/
+    paths:
+      - path: /{{version}}/
+        metadata:
+          cacheControl: "public, max-age=31536000"
