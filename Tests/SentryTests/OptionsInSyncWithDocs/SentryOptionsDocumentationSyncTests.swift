@@ -8,6 +8,7 @@ import XCTest
 /// If this test fails, either:
 /// 1. Add documentation for the new option in sentry-docs
 /// 2. Add the option to `undocumentedOptions` (for options pending documentation)
+@available(iOS 26.0, tvOS 26.0, macOS 26.0, macCatalyst 26.0, *)
 final class SentryOptionsDocumentationSyncTests: XCTestCase {
     
     // MARK: - Ignore Lists
@@ -141,10 +142,9 @@ final class SentryOptionsDocumentationSyncTests: XCTestCase {
     
     // MARK: - Tests
     
-    @available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
     func testAllOptionsAreDocumented() async throws {
         // Extract properties from Options using Mirror reflection
-        let codeProperties = extractPropertiesFromOptions()
+        let codeProperties = extractPropertyNames(from: Options.self)
         
         // Fetch and parse documentation
         let documentedOptions = try await fetchDocumentedOptions()
@@ -195,7 +195,7 @@ final class SentryOptionsDocumentationSyncTests: XCTestCase {
     }
     
     func testIgnoredOptionsExistInCode() {
-        let codeProperties = extractPropertiesFromOptions()
+        let codeProperties = extractPropertyNames(from: Options.self)
         
         var invalidOptions: [String] = []
         
@@ -219,13 +219,7 @@ final class SentryOptionsDocumentationSyncTests: XCTestCase {
     
     // MARK: - Helpers
     
-    /// Extracts all stored property names from Options using Mirror reflection.
-    private func extractPropertiesFromOptions() -> Set<String> {
-        return extractPropertyNames(from: Options.self)
-    }
-    
     /// Fetches the options.mdx file from GitHub and extracts documented option names
-    @available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
     private func fetchDocumentedOptions() async throws -> Set<String> {
         let docsURL = "https://raw.githubusercontent.com/getsentry/sentry-docs/master/docs/platforms/apple/common/configuration/options.mdx"
         let url = try XCTUnwrap(URL(string: docsURL), "Invalid docs URL")
