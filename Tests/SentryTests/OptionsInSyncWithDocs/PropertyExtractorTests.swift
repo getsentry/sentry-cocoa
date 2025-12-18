@@ -47,13 +47,13 @@ final class PropertyExtractorTests: XCTestCase {
     // MARK: - @objc Property Tests
     
     func testExtractPropertyNames_whenSingleObjcProperty_shouldExtractIt() {
-        let result = extractPropertyNames(from: SinglePropertyClass.self)
+        let result = extractPropertyNames(from: SinglePropertyClass())
         
         XCTAssertTrue(result.contains("name"))
     }
     
     func testExtractPropertyNames_whenMultipleObjcProperties_shouldExtractAll() {
-        let result = extractPropertyNames(from: MultiplePropertiesClass.self)
+        let result = extractPropertyNames(from: MultiplePropertiesClass())
         
         XCTAssertTrue(result.contains("firstName"))
         XCTAssertTrue(result.contains("lastName"))
@@ -61,7 +61,7 @@ final class PropertyExtractorTests: XCTestCase {
     }
     
     func testExtractPropertyNames_whenComputedObjcProperty_shouldExtractIt() {
-        let result = extractPropertyNames(from: ComputedPropertyClass.self)
+        let result = extractPropertyNames(from: ComputedPropertyClass())
         
         // Should extract the computed property, not the private backing store
         XCTAssertTrue(result.contains("value"), "Should contain the computed property 'value'")
@@ -71,7 +71,7 @@ final class PropertyExtractorTests: XCTestCase {
     // MARK: - Swift-Only Property Tests
     
     func testExtractPropertyNames_whenSwiftOnlyProperties_shouldExtractThem() {
-        let result = extractPropertyNames(from: SwiftOnlyPropertiesClass.self)
+        let result = extractPropertyNames(from: SwiftOnlyPropertiesClass())
         
         XCTAssertTrue(result.contains("swiftStoredProperty"), "Should contain Swift-only stored property")
         XCTAssertTrue(result.contains("anotherSwiftProperty"), "Should contain another Swift-only property")
@@ -80,7 +80,7 @@ final class PropertyExtractorTests: XCTestCase {
     // MARK: - Mixed Property Tests
     
     func testExtractPropertyNames_whenMixedProperties_shouldExtractBoth() {
-        let result = extractPropertyNames(from: MixedPropertiesClass.self)
+        let result = extractPropertyNames(from: MixedPropertiesClass())
         
         XCTAssertTrue(result.contains("objcProperty"), "Should contain @objc property")
         XCTAssertTrue(result.contains("swiftOnlyProperty"), "Should contain Swift-only property")
@@ -89,14 +89,15 @@ final class PropertyExtractorTests: XCTestCase {
     // MARK: - Edge Case Tests
     
     func testExtractPropertyNames_whenEmptyClass_shouldReturnEmpty() {
-        let result = extractPropertyNames(from: EmptyClass.self)
+        let result = extractPropertyNames(from: EmptyClass())
         
         XCTAssertTrue(result.isEmpty)
     }
     
     func testExtractPropertyNames_shouldReturnConsistentResults() {
-        let result1 = extractPropertyNames(from: Options.self)
-        let result2 = extractPropertyNames(from: Options.self)
+        let options = Options()
+        let result1 = extractPropertyNames(from: options)
+        let result2 = extractPropertyNames(from: options)
         
         XCTAssertEqual(result1, result2, "Multiple calls should return the same properties")
     }
@@ -104,7 +105,7 @@ final class PropertyExtractorTests: XCTestCase {
     // MARK: - Options Class Tests
     
     func testExtractPropertyNames_whenOptions_shouldReturnKnownProperties() {
-        let result = extractPropertyNames(from: Options.self)
+        let result = extractPropertyNames(from: Options())
         
         // Verify some well-known Options properties are extracted
         XCTAssertTrue(result.contains("dsn"), "Should contain dsn property")
@@ -119,7 +120,7 @@ final class PropertyExtractorTests: XCTestCase {
     }
     
     func testExtractPropertyNames_whenOptions_shouldNotBeEmpty() {
-        let result = extractPropertyNames(from: Options.self)
+        let result = extractPropertyNames(from: Options())
         
         XCTAssertFalse(result.isEmpty, "Should extract at least some properties from Options")
         XCTAssertGreaterThan(result.count, 10, "Options should have more than 10 properties")

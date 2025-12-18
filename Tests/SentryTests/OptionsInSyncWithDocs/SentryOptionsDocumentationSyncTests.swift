@@ -143,8 +143,8 @@ final class SentryOptionsDocumentationSyncTests: XCTestCase {
     // MARK: - Tests
     
     func testAllOptionsAreDocumented() async throws {
-        // Extract properties from Options using Mirror reflection
-        let codeProperties = extractPropertyNames(from: Options.self)
+        // Extract properties from Options using Objective-C runtime and Mirror reflection
+        let codeProperties = extractPropertyNames(from: Options())
         
         // Fetch and parse documentation
         let documentedOptions = try await fetchDocumentedOptions()
@@ -195,7 +195,7 @@ final class SentryOptionsDocumentationSyncTests: XCTestCase {
     }
     
     func testIgnoredOptionsExistInCode() {
-        let codeProperties = extractPropertyNames(from: Options.self)
+        let codeProperties = extractPropertyNames(from: Options())
         
         var invalidOptions: [String] = []
         

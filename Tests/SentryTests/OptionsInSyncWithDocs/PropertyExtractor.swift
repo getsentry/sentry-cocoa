@@ -1,7 +1,11 @@
 import Foundation
 import ObjectiveC
 
-/// Extracts all property names from a class using both Objective-C runtime and Swift Mirror.
+/// Extracts all property names from an object using both Objective-C runtime and Swift Mirror.
+///
+/// This function requires an instance because Swift's `Mirror` can only reflect on instances,
+/// not types. While Objective-C runtime introspection works with types, we need the instance
+/// for Mirror to capture Swift-only stored properties.
 ///
 /// This combines two approaches:
 /// 1. **Objective-C runtime** (`class_copyPropertyList`): Captures all `@objc` properties,
@@ -11,16 +15,16 @@ import ObjectiveC
 ///
 /// The results are combined into a single set, automatically eliminating duplicates.
 ///
-/// - Parameter type: The class type to extract properties from.
-/// - Returns: A set of property names declared on the class.
-func extractPropertyNames(from type: AnyClass) -> Set<String> {
+/// - Parameter instance: The object instance to extract properties from.
+/// - Returns: A set of property names declared on the instance's class.
+func extractPropertyNames(from instance: AnyObject) -> Set<String> {
     var properties = Set<String>()
     
     // Extract @objc properties using Objective-C runtime
-    extractObjcProperties(from: type, into: &properties)
+    extractObjcProperties(from: type(of: instance), into: &properties)
     
     // Extract Swift stored properties using Mirror
-    extractSwiftProperties(from: type, into: &properties)
+    extractSwiftProperties(from: instance, into: &properties)
     
     return properties
 }
@@ -45,22 +49,10 @@ private func extractObjcProperties(from type: AnyClass, into properties: inout S
 
 /// Extracts Swift stored properties using Mirror reflection.
 /// Excludes private backing store properties (those starting with underscore).
-private func extractSwiftProperties(from type: AnyClass, into properties: inout Set<String>) {
-    // Create an instance to reflect on
-    guard let nsObjectType = type as? NSObject.Type else {
-        return
-    }
+private func extractSwiftProperties(from instance: AnyObject, into properties: inout Set<String>) {
+    let swiftProperties = Mirror(reflecting: instance).children
+        .compactMap { $0.label }
+        .filter { !$0.hasPrefix("_") } // Skip private backing store properties (e.g., _sampleRate)
     
-    let instance = nsObjectType.init()
-    let mirror = Mirror(reflecting: instance)
-    
-    for child in mirror.children {
-        if let label = child.label {
-            // Skip private backing store properties (e.g., _sampleRate)
-            if label.hasPrefix("_") {
-                continue
-            }
-            properties.insert(label)
-        }
-    }
+    properties.formUnion(swiftProperties)
 }
