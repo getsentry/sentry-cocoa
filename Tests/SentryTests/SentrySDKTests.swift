@@ -371,34 +371,23 @@ class SentrySDKTests: XCTestCase {
     /// When events don't have debug meta the backend can't symbolicate the stack trace of events.
     /// This is a regression test for https://github.com/getsentry/sentry-cocoa/issues/5334
     func testCaptureNonFatalEvent_HasDebugMeta() throws {
+
+        var eventInBeforeSend: Event?
+
         // Arrange
         SentrySDK.start { options in
             options.dsn = TestConstants.dsnAsString(username: "testCaptureNonFatalEvent_HasDebugMeta")
+            options.beforeSend = { event in
+                eventInBeforeSend = event
+                return nil
+            }
         }
-
-        let fileManager = try XCTUnwrap(SentrySDKInternal.currentHub().getClient()?.fileManager)
-        fileManager.deleteAllEnvelopes()
-
-        defer {
-            fileManager.deleteAllEnvelopes()
-        }
-
         // Act
         SentrySDK.capture(message: "Test message")
-        // Ensures that the capture envelope is written to disk before we read it.
-        SentrySDK.flush(timeout: 0.1)
 
         // Assert
-        let eventEnvelopeItems = try fileManager.getAllEnvelopes().map { fileContent in
-            return try XCTUnwrap(SentrySerializationSwift.envelope(with: fileContent.contents))
-        }.flatMap { envelope in
-            return envelope.items.filter { $0.header.type == SentryEnvelopeItemTypes.event }
-        }
 
-        XCTAssertEqual(eventEnvelopeItems.count, 1, "Expected exactly one event envelope item, but got \(eventEnvelopeItems.count)")
-        let eventEnvelopeItem = try XCTUnwrap(eventEnvelopeItems.first)
-
-        let event = try XCTUnwrap( SentryEventDecoder.decodeEvent(jsonData: XCTUnwrap(eventEnvelopeItem.data)))
+        let event = try XCTUnwrap(eventInBeforeSend)
 
         let debugMetas = try XCTUnwrap(event.debugMeta, "Expected event to have debug meta but got nil")
         // During local testing we got 6 debug metas, but to avoid flakiness in CI we only check for 3.
