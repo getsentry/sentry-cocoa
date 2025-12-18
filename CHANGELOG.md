@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-## Fixes
+### Fixes
 
 - The transport now correctly discard envelopes on 4xx and 5xx responses and records client reports `send_error` (#6618) This also fixes edge cases in which the SDK kept retrying sending a faulty envelope until the offline cache overflowed.
 - Change default attributes of Logs to only include user attributes when `options.sendDefaultPii = true` (#7055)
