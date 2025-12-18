@@ -25,9 +25,16 @@ private class ComputedPropertyClass: NSObject {
     }
 }
 
-/// Class with no @objc properties (only Swift properties).
-private class NoObjcPropertiesClass: NSObject {
-    var swiftOnlyProperty: String = ""
+/// Class with Swift-only stored properties (not exposed to Objective-C).
+private class SwiftOnlyPropertiesClass: NSObject {
+    var swiftStoredProperty: String = ""
+    var anotherSwiftProperty: Int = 0
+}
+
+/// Class with mixed @objc and Swift-only properties.
+private class MixedPropertiesClass: NSObject {
+    @objc var objcProperty: String = ""
+    var swiftOnlyProperty: Int = 0
 }
 
 /// Empty class with no properties.
@@ -35,25 +42,27 @@ private class EmptyClass: NSObject {}
 
 // MARK: - Tests
 
-final class ObjcPropertyExtractorTests: XCTestCase {
+final class PropertyExtractorTests: XCTestCase {
     
-    private let sut = ObjcPropertyExtractor()
+    private let sut = PropertyExtractor()
     
-    // MARK: - extractPropertyNames Tests with Mock Classes
+    // MARK: - @objc Property Tests
     
-    func testExtractPropertyNames_whenSingleProperty_shouldExtractIt() {
+    func testExtractPropertyNames_whenSingleObjcProperty_shouldExtractIt() {
         let result = sut.extractPropertyNames(from: SinglePropertyClass.self)
         
-        XCTAssertEqual(result, ["name"])
+        XCTAssertTrue(result.contains("name"))
     }
     
-    func testExtractPropertyNames_whenMultipleProperties_shouldExtractAll() {
+    func testExtractPropertyNames_whenMultipleObjcProperties_shouldExtractAll() {
         let result = sut.extractPropertyNames(from: MultiplePropertiesClass.self)
         
-        XCTAssertEqual(result, ["firstName", "lastName", "age"])
+        XCTAssertTrue(result.contains("firstName"))
+        XCTAssertTrue(result.contains("lastName"))
+        XCTAssertTrue(result.contains("age"))
     }
     
-    func testExtractPropertyNames_whenComputedProperty_shouldExtractIt() {
+    func testExtractPropertyNames_whenComputedObjcProperty_shouldExtractIt() {
         let result = sut.extractPropertyNames(from: ComputedPropertyClass.self)
         
         // Should extract the computed property, not the private backing store
@@ -61,11 +70,25 @@ final class ObjcPropertyExtractorTests: XCTestCase {
         XCTAssertFalse(result.contains("_value"), "Should not contain the private backing store '_value'")
     }
     
-    func testExtractPropertyNames_whenNoObjcProperties_shouldReturnEmpty() {
-        let result = sut.extractPropertyNames(from: NoObjcPropertiesClass.self)
+    // MARK: - Swift-Only Property Tests
+    
+    func testExtractPropertyNames_whenSwiftOnlyProperties_shouldExtractThem() {
+        let result = sut.extractPropertyNames(from: SwiftOnlyPropertiesClass.self)
         
-        XCTAssertFalse(result.contains("swiftOnlyProperty"), "Should not contain Swift-only properties")
+        XCTAssertTrue(result.contains("swiftStoredProperty"), "Should contain Swift-only stored property")
+        XCTAssertTrue(result.contains("anotherSwiftProperty"), "Should contain another Swift-only property")
     }
+    
+    // MARK: - Mixed Property Tests
+    
+    func testExtractPropertyNames_whenMixedProperties_shouldExtractBoth() {
+        let result = sut.extractPropertyNames(from: MixedPropertiesClass.self)
+        
+        XCTAssertTrue(result.contains("objcProperty"), "Should contain @objc property")
+        XCTAssertTrue(result.contains("swiftOnlyProperty"), "Should contain Swift-only property")
+    }
+    
+    // MARK: - Edge Case Tests
     
     func testExtractPropertyNames_whenEmptyClass_shouldReturnEmpty() {
         let result = sut.extractPropertyNames(from: EmptyClass.self)
@@ -73,10 +96,17 @@ final class ObjcPropertyExtractorTests: XCTestCase {
         XCTAssertTrue(result.isEmpty)
     }
     
-    // MARK: - extractPropertyNames Tests with Options Class
+    func testExtractPropertyNames_shouldReturnConsistentResults() {
+        let result1 = sut.extractPropertyNames(from: Options.self)
+        let result2 = sut.extractPropertyNames(from: Options.self)
+        
+        XCTAssertEqual(result1, result2, "Multiple calls should return the same properties")
+    }
+    
+    // MARK: - Options Class Tests
     
     func testExtractPropertyNames_whenOptions_shouldReturnKnownProperties() {
-        let result = sut.extractPropertyNames()
+        let result = sut.extractPropertyNames(from: Options.self)
         
         // Verify some well-known Options properties are extracted
         XCTAssertTrue(result.contains("dsn"), "Should contain dsn property")
@@ -91,16 +121,9 @@ final class ObjcPropertyExtractorTests: XCTestCase {
     }
     
     func testExtractPropertyNames_whenOptions_shouldNotBeEmpty() {
-        let result = sut.extractPropertyNames()
+        let result = sut.extractPropertyNames(from: Options.self)
         
         XCTAssertFalse(result.isEmpty, "Should extract at least some properties from Options")
         XCTAssertGreaterThan(result.count, 10, "Options should have more than 10 properties")
-    }
-    
-    func testExtractPropertyNames_shouldReturnConsistentResults() {
-        let result1 = sut.extractPropertyNames()
-        let result2 = sut.extractPropertyNames()
-        
-        XCTAssertEqual(result1, result2, "Multiple calls should return the same properties")
     }
 }

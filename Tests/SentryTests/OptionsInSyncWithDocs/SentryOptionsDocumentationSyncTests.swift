@@ -10,7 +10,7 @@ import XCTest
 /// 2. Add the option to `undocumentedOptions` (for options pending documentation)
 final class SentryOptionsDocumentationSyncTests: XCTestCase {
     
-    private let propertyExtractor = ObjcPropertyExtractor()
+    private let propertyExtractor = PropertyExtractor()
     private let mdxParser = MdxOptionsParser()
     
     // MARK: - Ignore Lists
@@ -223,7 +223,7 @@ final class SentryOptionsDocumentationSyncTests: XCTestCase {
     
     /// Extracts all stored property names from Options using Mirror reflection.
     private func extractPropertiesFromOptions() -> Set<String> {
-        return propertyExtractor.extractPropertyNames()
+        return propertyExtractor.extractPropertyNames(from: Options.self)
     }
     
     /// Fetches the options.mdx file from GitHub and extracts documented option names
