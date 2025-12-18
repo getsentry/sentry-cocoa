@@ -70,7 +70,7 @@ extension SentryMXFrame {
         result.type = "macho"
         result.debugID = binaryUUID.uuidString
         result.codeFile = binaryName
-        if offsetIntoBinaryTextSegment > 0 && offsetIntoBinaryTextSegment < address {
+        if offsetIntoBinaryTextSegment >= 0 && offsetIntoBinaryTextSegment < address {
             result.imageAddress = sentry_formatHexAddressUInt64Swift(address - UInt64(offsetIntoBinaryTextSegment))
         }
         return [result] + (subFrames?.flatMap { $0.toDebugMeta() } ?? [])
@@ -90,23 +90,26 @@ extension SentryMXFrame {
     }
 }
 
-extension Sequence {
-    func unique<T: Hashable>(by key: (Element) -> T) -> [Element] {
-        var seen = Set<T>()
-        var result: [Element] = []
-        for element in self {
-            let k = key(element)
-            if !seen.contains(k) {
-                seen.insert(k)
-                result.append(element)
-            }
+private extension MXSample.MXFrame {
+    func toSentryFrame() -> Frame {
+        let frame = Frame()
+        frame.package = binaryName
+        frame.instructionAddress = sentry_formatHexAddressUInt64Swift(address)
+        if offsetIntoBinaryTextSegment >= 0 && offsetIntoBinaryTextSegment < address {
+            frame.imageAddress = sentry_formatHexAddressUInt64Swift(address - UInt64(offsetIntoBinaryTextSegment))
         }
-
-        return result
+        return frame
     }
 }
 
-extension Dictionary where Value == Int {
+private extension Sequence {
+    func unique<T: Hashable>(by key: (Element) -> T) -> [Element] {
+        var seen = Set<T>()
+        return filter { seen.insert(key($0)).inserted }
+    }
+}
+
+private extension Dictionary where Value == Int {
     func mostSampled() -> Key? {
         var mostSamples = -1
         var mostSampledKey: Key?

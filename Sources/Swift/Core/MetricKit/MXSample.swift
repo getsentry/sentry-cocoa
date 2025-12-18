@@ -11,13 +11,5 @@ struct MXSample {
         let offsetIntoBinaryTextSegment: Int
         let binaryName: String?
         let address: UInt64
-        
-        func toSentryFrame() -> Frame {
-            let frame = Frame()
-            frame.package = binaryName
-            frame.instructionAddress = sentry_formatHexAddressUInt64Swift(address)
-            frame.imageAddress = sentry_formatHexAddressUInt64Swift(address - UInt64(offsetIntoBinaryTextSegment))
-            return frame
-        }
     }
 }
