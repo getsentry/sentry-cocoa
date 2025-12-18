@@ -129,7 +129,7 @@ class SentryAttributeValueTests: XCTestCase {
         XCTAssertEqual(anyValue as? Int, 42)
     }
 
-    func testAnyValue_whenDouble_shouldReturnDouble() {
+    func testAnyValue_whenDouble_shouldReturnDouble() throws {
         // -- Arrange --
         let value = SentryAttributeValue.double(3.14)
 
@@ -137,7 +137,7 @@ class SentryAttributeValueTests: XCTestCase {
         let anyValue = value.anyValue
 
         // -- Assert --
-        XCTAssertEqual(anyValue as? Double, 3.14, accuracy: 0.001)
+        XCTAssertEqual(try XCTUnwrap(anyValue as? Double), 3.14, accuracy: 0.001)
     }
 
     func testAnyValue_whenStringArray_shouldReturnStringArray() {
@@ -334,7 +334,9 @@ class SentryAttributeValueTests: XCTestCase {
 
         // -- Assert --
         if case .doubleArray(let arrayValue) = value {
-            XCTAssertEqual(arrayValue, [1.1, 2.2, 3.3], accuracy: 0.01)
+            XCTAssertEqual(try XCTUnwrap(arrayValue.element(at: 0)), 1.1, accuracy: 0.01)
+            XCTAssertEqual(try XCTUnwrap(arrayValue.element(at: 1)), 2.2, accuracy: 0.01)
+            XCTAssertEqual(try XCTUnwrap(arrayValue.element(at: 2)), 3.3, accuracy: 0.01)
         } else {
             XCTFail("Expected doubleArray case")
         }
@@ -467,7 +469,7 @@ class SentryAttributeValueTests: XCTestCase {
 
         // -- Assert --
         XCTAssertEqual(json?["type"] as? String, "double")
-        XCTAssertEqual(json?["value"] as? Double, 3.14, accuracy: 0.001)
+        XCTAssertEqual(try XCTUnwrap(json?["value"] as? Double), 3.14, accuracy: 0.001)
     }
 
     func testEncode_whenStringArray_shouldEncodeAsPrimitiveArray() throws {

@@ -4,18 +4,29 @@ import Foundation
 import XCTest
 
 class MetricsApiTests: XCTestCase {
-    
-    private var fixture: SentryClientTests.Fixture!
-    
-    override func setUp() {
+    private var client: TestClient!
+    private var hub: SentryHubInternal!
+
+    override func setUpWithError() throws {
         super.setUp()
-        fixture = SentryClientTests.Fixture()
+
+        let options = Options()
+        options.dsn = TestConstants.dsnForTestCase(type: MetricsApiTests.self)
+        options.removeAllIntegrations()
+        options.experimental.enableMetrics = true
+
+        client = try XCTUnwrap(TestClient(options: options))
+        hub = SentryHubInternal(
+            client: client,
+            andScope: Scope(),
+            andCrashWrapper: TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo),
+            andDispatchQueue: SentryDispatchQueueWrapper()
+        )
     }
     
     override func tearDown() {
         super.tearDown()
         clearTestState()
-        fixture = nil
     }
 
     // MARK: - Tests - Count
@@ -48,7 +59,7 @@ class MetricsApiTests: XCTestCase {
         
         // -- Assert --
         // Verify metrics are sent via envelope
-        let envelopes = fixture.client.captureEnvelopeInvocations.invocations
+        let envelopes = client.captureEnvelopeInvocations.invocations
         let metricEnvelopes = envelopes.filter { envelope in
             envelope.items.first?.header.type == SentryEnvelopeItemTypes.traceMetric
         }
@@ -66,7 +77,7 @@ class MetricsApiTests: XCTestCase {
         
         // -- Assert --
         // No metrics should be sent
-        let envelopes = fixture.client.captureEnvelopeInvocations.invocations
+        let envelopes = client.captureEnvelopeInvocations.invocations
         let metricEnvelopes = envelopes.filter { envelope in
             envelope.items.first?.header.type == SentryEnvelopeItemTypes.traceMetric
         }
@@ -84,7 +95,7 @@ class MetricsApiTests: XCTestCase {
         
         // -- Assert --
         // Verify metrics are sent via envelope
-        let envelopes = fixture.client.captureEnvelopeInvocations.invocations
+        let envelopes = client.captureEnvelopeInvocations.invocations
         let metricEnvelopes = envelopes.filter { envelope in
             envelope.items.first?.header.type == SentryEnvelopeItemTypes.traceMetric
         }
@@ -102,22 +113,11 @@ class MetricsApiTests: XCTestCase {
         
         // -- Assert --
         // Verify metrics are sent via envelope
-        let envelopes = fixture.client.captureEnvelopeInvocations.invocations
+        let envelopes = client.captureEnvelopeInvocations.invocations
         let metricEnvelopes = envelopes.filter { envelope in
             envelope.items.first?.header.type == SentryEnvelopeItemTypes.traceMetric
         }
         XCTAssertGreaterThanOrEqual(metricEnvelopes.count, 0) // May be 0 if batching delays
-    }
-    
-    // MARK: - Helpers
-    
-    private func startSDK(enableMetrics: Bool = true) {
-        SentrySDK.start {
-            $0.dsn = TestConstants.dsnForTestCase(type: MetricsApiTests.self)
-            $0.removeAllIntegrations()
-            $0.enableMetrics = enableMetrics
-        }
-        SentrySDKInternal.setCurrentHub(fixture.hub)
     }
 
     func testCount_withZeroValue_shouldNotCrash() {
@@ -400,4 +400,16 @@ class MetricsApiTests: XCTestCase {
         // Method should execute multiple times without crashing
         XCTAssertTrue(true)
     }
+
+    // MARK: - Helpers
+
+    private func startSDK(enableMetrics: Bool = true) {
+        SentrySDK.start {
+            $0.dsn = TestConstants.dsnForTestCase(type: MetricsApiTests.self)
+            $0.removeAllIntegrations()
+            $0.experimental.enableMetrics = enableMetrics
+        }
+        SentrySDKInternal.setCurrentHub(hub)
+    }
+
 }

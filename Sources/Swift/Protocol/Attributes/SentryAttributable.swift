@@ -59,9 +59,18 @@ extension Array: SentryAttributable where Element: SentryAttributable {
             return SentryAttribute(doubleArray: doubleArray)
         } else if let floatArray = self as? [Float] {
             return SentryAttribute(floatArray: floatArray)
+        } else if let attributeArray = self as? [SentryAttribute] {
+            // Handle arrays of SentryAttribute objects using the dedicated initializer
+            // which properly handles homogeneous arrays and converts mixed types to string arrays
+            return SentryAttribute(array: attributeArray)
         } else {
-            // For other Attributable types, convert to string array
-            return SentryAttribute(stringArray: self.map { String(describing: $0) })
+            // For other Attributable types, convert each element to its attribute value,
+            // then extract the underlying value and convert to string array
+            return SentryAttribute(stringArray: self.map { element in
+                let attr = element.asAttribute
+                // Extract the actual value from the attribute, not the object description
+                return String(describing: attr.value)
+            })
         }
     }
 }
