@@ -25,6 +25,8 @@ final class BatcherScopeTests: XCTestCase {
     private struct TestConfig: BatcherConfig {
         typealias Item = TestItem
 
+        let sendDefaultPii: Bool
+
         let flushTimeout: TimeInterval
         let maxItemCount: Int
         let maxBufferSizeBytes: Int
@@ -47,6 +49,7 @@ final class BatcherScopeTests: XCTestCase {
         var userObject: User?
         var contextStore: [String: [String: Any]] = [:]
         var attributes: [String: Any] = [:]
+        var sendDefaultPii = true
 
         func getContextForKey(_ key: String) -> [String: Any]? {
             return contextStore[key]
@@ -145,7 +148,7 @@ final class BatcherScopeTests: XCTestCase {
         scope.applyToItem(&item, config: config, metadata: metadata)
 
         // -- Assert --
-        XCTAssertEqual(item.attributes["sentry.trace.parent_span_id"]?.value as? String, span.spanId.sentrySpanIdString)
+        XCTAssertEqual(item.attributes["span_id"]?.value as? String, span.spanId.sentrySpanIdString)
     }
 
     func testApplyToItem_withoutSpan_shouldNotAddParentSpanId() {
@@ -654,7 +657,7 @@ final class BatcherScopeTests: XCTestCase {
         XCTAssertEqual(item.attributes["sentry.sdk.version"]?.value as? String, SentryMeta.versionString)
         XCTAssertEqual(item.attributes["sentry.environment"]?.value as? String, "production")
         XCTAssertEqual(item.attributes["sentry.release"]?.value as? String, "1.0.0")
-        XCTAssertEqual(item.attributes["sentry.trace.parent_span_id"]?.value as? String, span.spanId.sentrySpanIdString)
+        XCTAssertEqual(item.attributes["span_id"]?.value as? String, span.spanId.sentrySpanIdString)
 
         // OS attributes
         XCTAssertEqual(item.attributes["os.name"]?.value as? String, "iOS")
@@ -712,6 +715,7 @@ final class BatcherScopeTests: XCTestCase {
 
     private func createTestConfig() -> TestConfig {
         return TestConfig(
+            sendDefaultPii: true,
             flushTimeout: 0.1,
             maxItemCount: 10,
             maxBufferSizeBytes: 8_000,

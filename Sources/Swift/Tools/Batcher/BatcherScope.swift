@@ -40,7 +40,7 @@ extension BatcherScope {
             attributes["sentry.release"] = .init(string: releaseName)
         }
         if let span = self.span {
-            attributes["sentry.trace.parent_span_id"] = .init(string: span.spanId.sentrySpanIdString)
+            attributes["span_id"] = .init(string: span.spanId.sentrySpanIdString)
         }
     }
 
@@ -72,6 +72,9 @@ extension BatcherScope {
     }
 
     private func addUserAttributes(to attributes: inout [String: SentryAttribute], config: any BatcherConfig) {
+        guard config.sendDefaultPii else {
+            return
+        }
         if let userId = userObject?.userId {
             attributes["user.id"] = .init(string: userId)
         }

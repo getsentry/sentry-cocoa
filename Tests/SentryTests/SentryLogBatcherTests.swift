@@ -325,7 +325,7 @@ final class SentryLogBatcherTests: XCTestCase {
         XCTAssertEqual(attributes["sentry.sdk.version"]?.value as? String, SentryMeta.versionString)
         XCTAssertEqual(attributes["sentry.environment"]?.value as? String, "test-environment")
         XCTAssertEqual(attributes["sentry.release"]?.value as? String, "1.0.0")
-        XCTAssertEqual(attributes["sentry.trace.parent_span_id"]?.value as? String, span.spanId.sentrySpanIdString)
+        XCTAssertEqual(attributes["span_id"]?.value as? String, span.spanId.sentrySpanIdString)
     }
     
     func testAddLog_DoesNotAddNilDefaultAttributes() throws {
@@ -344,7 +344,7 @@ final class SentryLogBatcherTests: XCTestCase {
         let attributes = capturedLog.attributes
         
         XCTAssertNil(attributes["sentry.release"])
-        XCTAssertNil(attributes["sentry.trace.parent_span_id"])
+        XCTAssertNil(attributes["span_id"])
         XCTAssertEqual(attributes["sentry.sdk.name"]?.value as? String, SentryMeta.sdkName)
         XCTAssertEqual(attributes["sentry.sdk.version"]?.value as? String, SentryMeta.versionString)
         XCTAssertNotNil(attributes["sentry.environment"])
@@ -368,35 +368,70 @@ final class SentryLogBatcherTests: XCTestCase {
         XCTAssertEqual(capturedLog.traceId, expectedTraceId)
     }
     
-    func testAddLog_AddsUserAttributes() throws {
+    func testAddLog_whenSendDefaultPiiTrue_shouldAddUserAttributes() throws {
         // -- Arrange --
+        options.sendDefaultPii = true
+
         let user = User()
         user.userId = "123"
         user.email = "test@test.com"
         user.name = "test-name"
         scope.setUser(user)
+
         let sut = getSut()
         let log = createTestLog(body: "Test log message with user")
-        
+
         // -- Act --
         sut.addLog(log, scope: scope)
         sut.captureLogs()
-        
+
         // -- Assert --
         let capturedLogs = testDelegate.getCapturedLogs()
         let capturedLog = try XCTUnwrap(capturedLogs.first)
         let attributes = capturedLog.attributes
-        
+
         XCTAssertEqual(attributes["user.id"]?.value as? String, "123")
         XCTAssertEqual(attributes["user.name"]?.value as? String, "test-name")
         XCTAssertEqual(attributes["user.email"]?.value as? String, "test@test.com")
     }
-    
-    func testAddLog_DoesNotAddNilUserAttributes() throws {
+
+    func testAddLog_whenSendDefaultPiiFalse_shouldNotAddUserAttributes() throws {
         // -- Arrange --
+        let installationId = SentryInstallation.id(withCacheDirectoryPath: options.cacheDirectoryPath)
+        options.sendDefaultPii = false
+
+        let user = User()
+        user.userId = "123"
+        user.email = "test@test.com"
+        user.name = "test-name"
+        scope.setUser(user)
+
+        let sut = getSut()
+        let log = createTestLog(body: "Test log message with user")
+
+        // -- Act --
+        sut.addLog(log, scope: scope)
+        sut.captureLogs()
+
+        // -- Assert --
+        let capturedLogs = testDelegate.getCapturedLogs()
+        let capturedLog = try XCTUnwrap(capturedLogs.first)
+        let attributes = capturedLog.attributes
+
+        // The installation id is used as a fallback for the user.id
+        XCTAssertEqual(attributes["user.id"]?.value as? String, installationId)
+        XCTAssertNil(attributes["user.name"])
+        XCTAssertNil(attributes["user.email"])
+    }
+
+    func testAddLog_whenSendDefaultPiiTrue_shouldNotAddNilUserAttributes() throws {
+        // -- Arrange --
+        options.sendDefaultPii = true
+
         let user = User()
         user.userId = "123"
         scope.setUser(user)
+        
         let sut = getSut()
         let log = createTestLog(body: "Test log message with partial user")
         
