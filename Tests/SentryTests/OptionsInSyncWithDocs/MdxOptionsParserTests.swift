@@ -2,31 +2,29 @@ import XCTest
 
 final class MdxOptionsParserTests: XCTestCase {
     
-    private let sut = MdxOptionsParser()
+    // MARK: - extractMdxOptionNames Tests
     
-    // MARK: - extractOptionNames Tests
-    
-    func testExtractOptionNames_whenDoubleQuotes_shouldExtract() {
+    func testExtractMdxOptionNames_whenDoubleQuotes_shouldExtract() {
         let content = """
         <SdkOption name="dsn">
         """
         
-        let result = sut.extractOptionNames(from: content)
+        let result = extractMdxOptionNames(from: content)
         
         XCTAssertEqual(result, ["dsn"])
     }
     
-    func testExtractOptionNames_whenSingleQuotes_shouldExtract() {
+    func testExtractMdxOptionNames_whenSingleQuotes_shouldExtract() {
         let content = """
         <SdkOption name='dsn'>
         """
         
-        let result = sut.extractOptionNames(from: content)
+        let result = extractMdxOptionNames(from: content)
         
         XCTAssertEqual(result, ["dsn"])
     }
     
-    func testExtractOptionNames_whenMultipleOptions_shouldExtractAll() {
+    func testExtractMdxOptionNames_whenMultipleOptions_shouldExtractAll() {
         let content = """
         <SdkOption name="dsn">
         Some content
@@ -36,47 +34,47 @@ final class MdxOptionsParserTests: XCTestCase {
         </SdkOption>
         """
         
-        let result = sut.extractOptionNames(from: content)
+        let result = extractMdxOptionNames(from: content)
         
         XCTAssertEqual(result, ["dsn", "enabled"])
     }
     
-    func testExtractOptionNames_whenSpacesAroundEquals_shouldExtract() {
+    func testExtractMdxOptionNames_whenSpacesAroundEquals_shouldExtract() {
         let content = """
         <SdkOption name = "dsn">
         """
         
-        let result = sut.extractOptionNames(from: content)
+        let result = extractMdxOptionNames(from: content)
         
         XCTAssertEqual(result, ["dsn"])
     }
     
-    func testExtractOptionNames_whenEmptyContent_shouldReturnEmpty() {
+    func testExtractMdxOptionNames_whenEmptyContent_shouldReturnEmpty() {
         let content = ""
         
-        let result = sut.extractOptionNames(from: content)
+        let result = extractMdxOptionNames(from: content)
         
         XCTAssertTrue(result.isEmpty)
     }
     
-    func testExtractOptionNames_whenNoSdkOptions_shouldReturnEmpty() {
+    func testExtractMdxOptionNames_whenNoSdkOptions_shouldReturnEmpty() {
         let content = """
         # Options Page
         
         This page documents all options.
         """
         
-        let result = sut.extractOptionNames(from: content)
+        let result = extractMdxOptionNames(from: content)
         
         XCTAssertTrue(result.isEmpty)
     }
     
-    func testExtractOptionNames_whenHyphenatedName_shouldExtract() {
+    func testExtractMdxOptionNames_whenHyphenatedName_shouldExtract() {
         let content = """
         <SdkOption name="enable-propagate-trace-parent">
         """
         
-        let result = sut.extractOptionNames(from: content)
+        let result = extractMdxOptionNames(from: content)
         
         XCTAssertEqual(result, ["enable-propagate-trace-parent"])
     }

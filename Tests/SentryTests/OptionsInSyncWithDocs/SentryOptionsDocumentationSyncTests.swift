@@ -10,9 +10,6 @@ import XCTest
 /// 2. Add the option to `undocumentedOptions` (for options pending documentation)
 final class SentryOptionsDocumentationSyncTests: XCTestCase {
     
-    private let propertyExtractor = PropertyExtractor()
-    private let mdxParser = MdxOptionsParser()
-    
     // MARK: - Ignore Lists
     
     /// Options not yet documented in the common options page.
@@ -142,10 +139,6 @@ final class SentryOptionsDocumentationSyncTests: XCTestCase {
         OptionNameMapping(codeName: "enablePropagateTraceparent", docsName: "enable-propagate-trace-parent")
     ]
     
-    // MARK: - Constants
-    
-    private let docsURL = "https://raw.githubusercontent.com/getsentry/sentry-docs/master/docs/platforms/apple/common/configuration/options.mdx"
-    
     // MARK: - Tests
     
     @available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
@@ -228,12 +221,13 @@ final class SentryOptionsDocumentationSyncTests: XCTestCase {
     
     /// Extracts all stored property names from Options using Mirror reflection.
     private func extractPropertiesFromOptions() -> Set<String> {
-        return propertyExtractor.extractPropertyNames(from: Options.self)
+        return extractPropertyNames(from: Options.self)
     }
     
     /// Fetches the options.mdx file from GitHub and extracts documented option names
     @available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
     private func fetchDocumentedOptions() async throws -> Set<String> {
+        let docsURL = "https://raw.githubusercontent.com/getsentry/sentry-docs/master/docs/platforms/apple/common/configuration/options.mdx"
         let url = try XCTUnwrap(URL(string: docsURL), "Invalid docs URL")
         
         let (data, response) = try await URLSession.shared.data(from: url)
@@ -243,6 +237,6 @@ final class SentryOptionsDocumentationSyncTests: XCTestCase {
         
         let content = try XCTUnwrap(String(data: data, encoding: .utf8), "Could not decode docs content as UTF-8")
         
-        return mdxParser.extractOptionNames(from: content)
+        return extractMdxOptionNames(from: content)
     }
 }
