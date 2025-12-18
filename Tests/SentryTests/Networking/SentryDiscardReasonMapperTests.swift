@@ -11,5 +11,6 @@ class SentryDiscardReasonMapperTests: XCTestCase {
         XCTAssertEqual(kSentryDiscardReasonNameCacheOverflow, nameForSentryDiscardReason(.cacheOverflow))
         XCTAssertEqual(kSentryDiscardReasonNameRateLimitBackoff, nameForSentryDiscardReason(.rateLimitBackoff))
         XCTAssertEqual(kSentryDiscardReasonNameInsufficientData, nameForSentryDiscardReason(.insufficientData))
+        XCTAssertEqual(kSentryDiscardReasonNameSendError, nameForSentryDiscardReason(.sendError))
     }
 }
