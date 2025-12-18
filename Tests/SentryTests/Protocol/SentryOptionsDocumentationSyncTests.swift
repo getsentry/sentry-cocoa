@@ -10,15 +10,28 @@ import XCTest
 /// 2. Add the option to `undocumentedOptions` (for options pending documentation)
 final class SentryOptionsDocumentationSyncTests: XCTestCase {
     
-    // MARK: - Ignore List
+    private let propertyExtractor = ObjcPropertyExtractor()
+    private let mdxParser = MdxOptionsParser()
+    
+    // MARK: - Ignore Lists
+    
+    /// Platform-specific options that are only available on certain platforms.
+    /// These are excluded from validation since they may not be visible at runtime
+    /// depending on which platform the tests run on.
+    private let platformSpecificOptions: Set<String> = [
+        // macOS only (#if os(macOS))
+        "enableUncaughtNSExceptionReporting"
+    ]
     
     /// Options not yet documented in the common options page.
     /// We plan to add documentation for all of these soon.
     /// Remove options from this list as they get documented.
     private let undocumentedOptions: Set<String> = [
-        // Internal/derived properties
+        // Internal/derived properties (including @_spi(Private))
         "parsedDsn",
         "isTracingEnabled",
+        "profiling", // @_spi(Private) - internal backing for configureProfiling
+        "userFeedbackConfiguration", // @_spi(Private) - internal backing for configureUserFeedback
         
         // SDK behavior
         "enabled",
@@ -26,7 +39,6 @@ final class SentryOptionsDocumentationSyncTests: XCTestCase {
         
         // Crash handling
         "enableCrashHandler",
-        "enableUncaughtNSExceptionReporting",
         "enableWatchdogTerminationTracking",
         
         // Session tracking
@@ -119,15 +131,14 @@ final class SentryOptionsDocumentationSyncTests: XCTestCase {
     
     // MARK: - Constants
     
-    private let optionsSwiftPath = "Sources/Swift/Options.swift"
     private let docsURL = "https://raw.githubusercontent.com/getsentry/sentry-docs/master/docs/platforms/apple/common/configuration/options.mdx"
     
     // MARK: - Tests
     
     @available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
     func testAllOptionsAreDocumented() async throws {
-        // Extract properties from Options.swift
-        let codeProperties = try extractPropertiesFromOptionsSwift()
+        // Extract properties from Options using Mirror reflection
+        let codeProperties = extractPropertiesFromOptions()
         
         // Fetch and parse documentation
         let documentedOptions = try await fetchDocumentedOptions()
@@ -135,9 +146,12 @@ final class SentryOptionsDocumentationSyncTests: XCTestCase {
         // Find properties that are not documented and not ignored
         var missingDocs: [String] = []
         
+        // Combine all ignored options
+        let allIgnoredOptions = undocumentedOptions.union(platformSpecificOptions)
+        
         for property in codeProperties {
-            // Check if it's in the undocumented ignore list
-            if undocumentedOptions.contains(property) {
+            // Check if it's in the ignore list
+            if allIgnoredOptions.contains(property) {
                 continue
             }
             
@@ -177,12 +191,17 @@ final class SentryOptionsDocumentationSyncTests: XCTestCase {
         }
     }
     
-    func testIgnoredOptionsExistInCode() throws {
-        let codeProperties = try extractPropertiesFromOptionsSwift()
+    func testIgnoredOptionsExistInCode() {
+        let codeProperties = extractPropertiesFromOptions()
         
         var invalidOptions: [String] = []
         
         for option in undocumentedOptions {
+            // Skip platform-specific options as they may not be visible at runtime
+            if platformSpecificOptions.contains(option) {
+                continue
+            }
+            
             if !codeProperties.contains(option) {
                 invalidOptions.append(option)
             }
@@ -194,89 +213,17 @@ final class SentryOptionsDocumentationSyncTests: XCTestCase {
             The following options in undocumentedOptions do not exist in Options.swift:
             \(missingList)
             
-            Remove them from undocumentedOptions.
+            Remove them from undocumentedOptions or add them to platformSpecificOptions if they are
+            conditionally compiled for specific platforms.
             """)
         }
     }
     
     // MARK: - Helpers
     
-    /// Extracts all public property names from Options.swift
-    private func extractPropertiesFromOptionsSwift() throws -> Set<String> {
-        // Find the project root by looking for Options.swift
-        let fileManager = FileManager.default
-        var currentDir = URL(fileURLWithPath: #file)
-        
-        // Navigate up to find project root (contains Sources directory)
-        var optionsPath: URL?
-        for _ in 0..<10 {
-            currentDir = currentDir.deletingLastPathComponent()
-            let candidatePath = currentDir.appendingPathComponent(optionsSwiftPath)
-            if fileManager.fileExists(atPath: candidatePath.path) {
-                optionsPath = candidatePath
-                break
-            }
-        }
-        
-        guard let path = optionsPath else {
-            throw NSError(
-                domain: "SentryOptionsDocumentationSyncTests",
-                code: 1,
-                userInfo: [NSLocalizedDescriptionKey: "Could not find Options.swift at \(optionsSwiftPath)"]
-            )
-        }
-        
-        let content = try String(contentsOf: path, encoding: .utf8)
-        return extractPropertyNames(from: content)
-    }
-    
-    /// Parses Swift source to extract public property names
-    private func extractPropertyNames(from source: String) -> Set<String> {
-        var properties = Set<String>()
-        
-        // Pattern to match @objc public var declarations (excluding @_spi(Private))
-        // We want to capture the property name after "var"
-        let lines = source.components(separatedBy: .newlines)
-        
-        for line in lines {
-            let trimmedLine = line.trimmingCharacters(in: .whitespaces)
-            
-            // Skip lines with @_spi(Private) - these are internal APIs
-            if trimmedLine.contains("@_spi(Private)") {
-                continue
-            }
-            
-            // Match @objc public var declarations (including weak var, private(set) var, etc.)
-            // The line must contain all three: @objc, public, and var
-            if trimmedLine.contains("@objc") && trimmedLine.contains("public") && trimmedLine.contains("var") {
-                if let propertyName = extractPropertyName(from: trimmedLine) {
-                    properties.insert(propertyName)
-                }
-            }
-        }
-        
-        return properties
-    }
-    
-    /// Extracts the property name from a var declaration line
-    private func extractPropertyName(from line: String) -> String? {
-        // Find "var " and extract the identifier after it
-        guard let varRange = line.range(of: "var ") else {
-            return nil
-        }
-        
-        let afterVar = line[varRange.upperBound...]
-        
-        // Property name ends at : or = or { or space
-        var propertyName = ""
-        for char in afterVar {
-            if char == ":" || char == "=" || char == "{" || char == " " {
-                break
-            }
-            propertyName.append(char)
-        }
-        
-        return propertyName.isEmpty ? nil : propertyName
+    /// Extracts all stored property names from Options using Mirror reflection.
+    private func extractPropertiesFromOptions() -> Set<String> {
+        return propertyExtractor.extractPropertyNames()
     }
     
     /// Fetches the options.mdx file from GitHub and extracts documented option names
@@ -291,31 +238,6 @@ final class SentryOptionsDocumentationSyncTests: XCTestCase {
         
         let content = try XCTUnwrap(String(data: data, encoding: .utf8), "Could not decode docs content as UTF-8")
         
-        return extractDocumentedOptionNames(from: content)
-    }
-    
-    /// Parses the MDX content to extract SdkOption names
-    private func extractDocumentedOptionNames(from content: String) -> Set<String> {
-        var options = Set<String>()
-        
-        // Pattern: <SdkOption name="optionName"
-        // We need to handle both single and double quotes
-        let pattern = #"<SdkOption\s+name\s*=\s*[\"']([^\"']+)[\"']"#
-        
-        guard let regex = try? NSRegularExpression(pattern: pattern, options: []) else {
-            return options
-        }
-        
-        let range = NSRange(content.startIndex..., in: content)
-        let matches = regex.matches(in: content, options: [], range: range)
-        
-        for match in matches {
-            if let nameRange = Range(match.range(at: 1), in: content) {
-                let optionName = String(content[nameRange])
-                options.insert(optionName)
-            }
-        }
-        
-        return options
+        return mdxParser.extractOptionNames(from: content)
     }
 }
