@@ -1,7 +1,22 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
-public class SentryMetricsApi {
+protocol SentryMetricsApiDependencies {
+    associatedtype IntegrationDependencies: DateProviderProvider & DispatchQueueWrapperProvider
+
+    var isSDKEnabled: Bool { get }
+    var isMetricsEnabled: Bool { get }
+    var scope: Scope { get }
+    var metricsIntegration: SentryMetricsIntegration<SentryDependencyContainer>? { get }
+}
+
+public struct SentryMetricsApi {
+    private let dependencies: any SentryMetricsApiDependencies
+
+    init<Dependencies: SentryMetricsApiDependencies>(dependencies: Dependencies) {
+        self.dependencies = dependencies
+    }
+
     /// Records a count metric for the specified key.
     ///
     /// Use this to increment or set a discrete occurrence count associated with a metric key,
@@ -67,14 +82,10 @@ public class SentryMetricsApi {
         unit: String?,
         attributes: [String: SentryAttributable]
     ) {
-        guard SentrySDKInternal.isEnabled else {
+        guard dependencies.isSDKEnabled && dependencies.isMetricsEnabled else {
             return
         }
-        let hub = SentrySDKInternal.currentHub()
-        guard let options = hub.getClient()?.getOptions() as? Options, options.enableMetrics else {
-            return
-        }
-        guard let integration = hub.getInstalledIntegration(SentryMetricsIntegration<SentryDependencyContainer>.self) as? SentryMetricsIntegration<SentryDependencyContainer> else {
+        guard let integration = dependencies.metricsIntegration else {
             return
         }
 
@@ -89,6 +100,26 @@ public class SentryMetricsApi {
                 attributable.asAttribute
             }
         )
-        integration.addMetric(metric, scope: hub.scope)
+        integration.addMetric(metric, scope: dependencies.scope)
+    }
+}
+
+extension SentryDependencyContainer: SentryMetricsApiDependencies {
+    typealias IntegrationDependencies = SentryDependencyContainer
+
+    var isSDKEnabled: Bool {
+        SentrySDKInternal.isEnabled
+    }
+
+    var isMetricsEnabled: Bool {
+        SentrySDKInternal.options?.enableMetrics == true
+    }
+
+    var scope: Scope {
+        SentrySDKInternal.currentHub().scope
+    }
+
+    var metricsIntegration: SentryMetricsIntegration<SentryDependencyContainer>? {
+        return SentrySDKInternal.currentHub().getInstalledIntegration(SentryMetricsIntegration<SentryDependencyContainer>.self) as? SentryMetricsIntegration
     }
 }
