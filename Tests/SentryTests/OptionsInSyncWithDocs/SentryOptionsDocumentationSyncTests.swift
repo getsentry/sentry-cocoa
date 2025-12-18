@@ -150,36 +150,25 @@ final class SentryOptionsDocumentationSyncTests: XCTestCase {
         let documentedOptions = try await fetchDocumentedOptions()
         
         // Find properties that are not documented and not ignored
-        var missingDocs: [String] = []
-        
-        for property in codeProperties {
-            // Check if it's in the undocumented ignore list
-            if undocumentedOptions.contains(property) {
-                continue
+        let propertiesHavingMissingDocs = codeProperties
+            .filter { !undocumentedOptions.contains($0) }
+            .filter { !documentedOptions.contains($0) }
+            .filter { property in
+                // Check if there's a mapping with a documented name
+                guard let mapping = optionNameMappings.first(where: { $0.codeName == property }) else {
+                    return true // No mapping exists, property is missing
+                }
+                return !documentedOptions.contains(mapping.docsName)
             }
-            
-            // Check direct match
-            if documentedOptions.contains(property) {
-                continue
-            }
-            
-            // Check mapped name
-            if let mapping = optionNameMappings.first(where: { $0.codeName == property }),
-               documentedOptions.contains(mapping.docsName) {
-                continue
-            }
-            
-            // Not found
-            missingDocs.append(property)
-        }
+            .sorted()
         
         // Fail if there are undocumented options
-        if !missingDocs.isEmpty {
-            let message = """
+        if !propertiesHavingMissingDocs.isEmpty {
+            XCTFail("""
             
             ❌ The following Options.swift properties are not documented in sentry-docs:
             
-            \(missingDocs.map { "   - \($0)" }.joined(separator: "\n"))
+            \(propertiesHavingMissingDocs.map { "   - \($0)" }.joined(separator: "\n"))
             
             To fix this:
             1. Add documentation for these options in sentry-docs:
@@ -189,24 +178,19 @@ final class SentryOptionsDocumentationSyncTests: XCTestCase {
                - If docs PR is pending, include the PR link
                - If it's an internal property, explain why it shouldn't be documented
             
-            """
-            XCTFail(message)
+            """)
         }
     }
     
     func testIgnoredOptionsExistInCode() {
         let codeProperties = extractPropertyNames(from: Options())
         
-        var invalidOptions: [String] = []
-        
-        for option in undocumentedOptions {
-            if !codeProperties.contains(option) {
-                invalidOptions.append(option)
-            }
-        }
+        let invalidOptions = undocumentedOptions
+            .filter { !codeProperties.contains($0) }
+            .sorted()
         
         if !invalidOptions.isEmpty {
-            let missingList = invalidOptions.sorted().map { "   - \($0)" }.joined(separator: "\n")
+            let missingList = invalidOptions.map { "   - \($0)" }.joined(separator: "\n")
             XCTFail("""
             The following options in undocumentedOptions do not exist in Options.swift:
             \(missingList)

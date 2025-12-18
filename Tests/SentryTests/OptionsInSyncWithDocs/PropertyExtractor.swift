@@ -40,11 +40,10 @@ private func extractObjcProperties(from type: AnyClass, into properties: inout S
     
     defer { free(propertyList) }
     
-    for i in 0..<Int(propertyCount) {
-        let property = propertyList[i]
-        let name = String(cString: property_getName(property))
-        properties.insert(name)
-    }
+    let objcProperties = (0..<Int(propertyCount))
+        .map { String(cString: property_getName(propertyList[$0])) }
+    
+    properties.formUnion(objcProperties)
 }
 
 /// Extracts Swift stored properties using Mirror reflection.
