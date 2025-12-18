@@ -39,4 +39,14 @@ final class SentryMetricsIntegration<Dependencies: DateProviderProvider & Dispat
     func addMetric(_ metric: SentryMetric, scope: Scope) {
         metricBatcher.addMetric(metric, scope: scope)
     }
+    
+    /// Captures batched metrics synchronously and returns the duration.
+    /// - Returns: The time taken to capture metrics in seconds
+    ///
+    /// - Note: This method calls captureMetrics() on the internal batcher synchronously.
+    ///         This is safe to call from any thread, but be aware that it uses dispatchSync internally.
+    @discardableResult
+    func captureMetrics() -> TimeInterval {
+        return metricBatcher.captureMetrics()
+    }
 }

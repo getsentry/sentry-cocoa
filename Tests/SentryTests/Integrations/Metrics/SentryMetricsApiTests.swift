@@ -3,7 +3,7 @@ import Foundation
 @_spi(Private) import SentryTestUtils
 import XCTest
 
-class MetricsApiTests: XCTestCase {
+class SentryMetricsApiTests: XCTestCase {
     private var client: TestClient!
     private var hub: SentryHubInternal!
 
@@ -11,7 +11,7 @@ class MetricsApiTests: XCTestCase {
         super.setUp()
 
         let options = Options()
-        options.dsn = TestConstants.dsnForTestCase(type: MetricsApiTests.self)
+        options.dsn = TestConstants.dsnForTestCase(type: SentryMetricsApiTests.self)
         options.removeAllIntegrations()
         options.experimental.enableMetrics = true
 
@@ -31,7 +31,7 @@ class MetricsApiTests: XCTestCase {
 
     // MARK: - Tests - Count
 
-    func testCount_withValidKeyAndValue_shouldNotCrash() {
+    func testCount_withValidKeyAndValue_shouldCreateMetric() {
         // -- Arrange --
         startSDK()
         let sut = SentryMetricsApi()
@@ -40,12 +40,10 @@ class MetricsApiTests: XCTestCase {
 
         // -- Act --
         sut.count(key: key, value: value)
-        SentrySDK.flush(timeout: 1.0)
+        flushMetrics()
 
         // -- Assert --
-        // Method should execute without crashing
-        // If metrics are enabled and integration is installed, metrics should be sent
-        XCTAssertTrue(true)
+        XCTAssertGreaterThanOrEqual(getMetricDataCount(), 1, "Metric should be created when SDK is enabled")
     }
     
     func testCount_withSDKEnabled_CreatesMetric() {
@@ -55,15 +53,10 @@ class MetricsApiTests: XCTestCase {
         
         // -- Act --
         sut.count(key: "test.metric", value: 1)
-        SentrySDK.flush(timeout: 1.0)
+        flushMetrics()
         
         // -- Assert --
-        // Verify metrics are sent via envelope
-        let envelopes = client.captureEnvelopeInvocations.invocations
-        let metricEnvelopes = envelopes.filter { envelope in
-            envelope.items.first?.header.type == SentryEnvelopeItemTypes.traceMetric
-        }
-        XCTAssertGreaterThanOrEqual(metricEnvelopes.count, 0) // May be 0 if batching delays
+        XCTAssertGreaterThanOrEqual(getMetricDataCount(), 1, "Metric should be created when SDK is enabled")
     }
     
     func testCount_withMetricsDisabled_DoesNotCreateMetric() {
@@ -73,15 +66,10 @@ class MetricsApiTests: XCTestCase {
         
         // -- Act --
         sut.count(key: "test.metric", value: 1)
-        SentrySDK.flush(timeout: 1.0)
+        flushMetrics()
         
         // -- Assert --
-        // No metrics should be sent
-        let envelopes = client.captureEnvelopeInvocations.invocations
-        let metricEnvelopes = envelopes.filter { envelope in
-            envelope.items.first?.header.type == SentryEnvelopeItemTypes.traceMetric
-        }
-        XCTAssertEqual(metricEnvelopes.count, 0)
+        XCTAssertEqual(getMetricDataCount(), 0, "No metrics should be created when metrics are disabled")
     }
     
     func testDistribution_withSDKEnabled_CreatesMetric() {
@@ -91,15 +79,10 @@ class MetricsApiTests: XCTestCase {
         
         // -- Act --
         sut.distribution(key: "test.distribution", value: 125.5, unit: "millisecond")
-        SentrySDK.flush(timeout: 1.0)
+        flushMetrics()
         
         // -- Assert --
-        // Verify metrics are sent via envelope
-        let envelopes = client.captureEnvelopeInvocations.invocations
-        let metricEnvelopes = envelopes.filter { envelope in
-            envelope.items.first?.header.type == SentryEnvelopeItemTypes.traceMetric
-        }
-        XCTAssertGreaterThanOrEqual(metricEnvelopes.count, 0) // May be 0 if batching delays
+        XCTAssertGreaterThanOrEqual(getMetricDataCount(), 1, "Metric should be created when SDK is enabled")
     }
     
     func testGauge_withSDKEnabled_CreatesMetric() {
@@ -109,18 +92,13 @@ class MetricsApiTests: XCTestCase {
         
         // -- Act --
         sut.gauge(key: "test.gauge", value: 42.0, unit: "connection")
-        SentrySDK.flush(timeout: 1.0)
+        flushMetrics()
         
         // -- Assert --
-        // Verify metrics are sent via envelope
-        let envelopes = client.captureEnvelopeInvocations.invocations
-        let metricEnvelopes = envelopes.filter { envelope in
-            envelope.items.first?.header.type == SentryEnvelopeItemTypes.traceMetric
-        }
-        XCTAssertGreaterThanOrEqual(metricEnvelopes.count, 0) // May be 0 if batching delays
+        XCTAssertGreaterThanOrEqual(getMetricDataCount(), 1, "Metric should be created when SDK is enabled")
     }
 
-    func testCount_withZeroValue_shouldNotCrash() {
+    func testCount_withZeroValue_shouldNotCreateMetric() {
         // -- Arrange --
         let sut = SentryMetricsApi()
         let key = "button.click"
@@ -128,13 +106,13 @@ class MetricsApiTests: XCTestCase {
 
         // -- Act --
         sut.count(key: key, value: value)
+        flushMetrics()
 
         // -- Assert --
-        // Method should execute without crashing
-        XCTAssertTrue(true)
+        XCTAssertEqual(getMetricDataCount(), 0, "No metrics should be created when SDK is not started")
     }
 
-    func testCount_withLargeValue_shouldNotCrash() {
+    func testCount_withLargeValue_shouldNotCreateMetric() {
         // -- Arrange --
         let sut = SentryMetricsApi()
         let key = "events.processed"
@@ -142,13 +120,13 @@ class MetricsApiTests: XCTestCase {
 
         // -- Act --
         sut.count(key: key, value: value)
+        flushMetrics()
 
         // -- Assert --
-        // Method should execute without crashing
-        XCTAssertTrue(true)
+        XCTAssertEqual(getMetricDataCount(), 0, "No metrics should be created when SDK is not started")
     }
 
-    func testCount_withNegativeValue_shouldNotCrash() {
+    func testCount_withNegativeValue_shouldNotCreateMetric() {
         // -- Arrange --
         let sut = SentryMetricsApi()
         let key = "error.count"
@@ -156,39 +134,39 @@ class MetricsApiTests: XCTestCase {
 
         // -- Act --
         sut.count(key: key, value: value)
+        flushMetrics()
 
         // -- Assert --
-        // Method should execute without crashing (negative values may be ignored by backend)
-        XCTAssertTrue(true)
+        XCTAssertEqual(getMetricDataCount(), 0, "No metrics should be created when SDK is not started")
     }
 
-    func testCount_withEmptyKey_shouldNotCrash() {
+    func testCount_withEmptyKey_shouldNotCreateMetric() {
         // -- Arrange --
         let sut = SentryMetricsApi()
         let key = ""
 
         // -- Act --
         sut.count(key: key, value: 1)
+        flushMetrics()
 
         // -- Assert --
-        // Method should execute without crashing (empty keys may be handled by backend)
-        XCTAssertTrue(true)
+        XCTAssertEqual(getMetricDataCount(), 0, "No metrics should be created when SDK is not started")
     }
 
-    func testCount_withDotDelimitedKey_shouldNotCrash() {
+    func testCount_withDotDelimitedKey_shouldNotCreateMetric() {
         // -- Arrange --
         let sut = SentryMetricsApi()
         let key = "service.api.endpoint.request.count"
 
         // -- Act --
         sut.count(key: key, value: 1)
+        flushMetrics()
 
         // -- Assert --
-        // Method should execute without crashing
-        XCTAssertTrue(true)
+        XCTAssertEqual(getMetricDataCount(), 0, "No metrics should be created when SDK is not started")
     }
 
-    func testCount_canBeCalledMultipleTimes_shouldNotCrash() {
+    func testCount_canBeCalledMultipleTimes_shouldNotCreateMetric() {
         // -- Arrange --
         let sut = SentryMetricsApi()
         let key = "event.count"
@@ -197,15 +175,15 @@ class MetricsApiTests: XCTestCase {
         sut.count(key: key, value: 1)
         sut.count(key: key, value: 2)
         sut.count(key: key, value: 3)
+        flushMetrics()
 
         // -- Assert --
-        // Method should execute multiple times without crashing
-        XCTAssertTrue(true)
+        XCTAssertEqual(getMetricDataCount(), 0, "No metrics should be created when SDK is not started")
     }
 
     // MARK: - Tests - Distribution
 
-    func testDistribution_withValidKeyAndValue_shouldNotCrash() {
+    func testDistribution_withValidKeyAndValue_shouldNotCreateMetric() {
         // -- Arrange --
         let sut = SentryMetricsApi()
         let key = "http.request.duration"
@@ -213,13 +191,13 @@ class MetricsApiTests: XCTestCase {
 
         // -- Act --
         sut.distribution(key: key, value: value)
+        flushMetrics()
 
         // -- Assert --
-        // Method should execute without crashing
-        XCTAssertTrue(true)
+        XCTAssertEqual(getMetricDataCount(), 0, "No metrics should be created when SDK is not started")
     }
 
-    func testDistribution_withZeroValue_shouldNotCrash() {
+    func testDistribution_withZeroValue_shouldNotCreateMetric() {
         // -- Arrange --
         let sut = SentryMetricsApi()
         let key = "response.time"
@@ -227,13 +205,13 @@ class MetricsApiTests: XCTestCase {
 
         // -- Act --
         sut.distribution(key: key, value: value)
+        flushMetrics()
 
         // -- Assert --
-        // Method should execute without crashing
-        XCTAssertTrue(true)
+        XCTAssertEqual(getMetricDataCount(), 0, "No metrics should be created when SDK is not started")
     }
 
-    func testDistribution_withLargeValue_shouldNotCrash() {
+    func testDistribution_withLargeValue_shouldNotCreateMetric() {
         // -- Arrange --
         let sut = SentryMetricsApi()
         let key = "processing.duration"
@@ -241,13 +219,13 @@ class MetricsApiTests: XCTestCase {
 
         // -- Act --
         sut.distribution(key: key, value: value)
+        flushMetrics()
 
         // -- Assert --
-        // Method should execute without crashing
-        XCTAssertTrue(true)
+        XCTAssertEqual(getMetricDataCount(), 0, "No metrics should be created when SDK is not started")
     }
 
-    func testDistribution_withNegativeValue_shouldNotCrash() {
+    func testDistribution_withNegativeValue_shouldNotCreateMetric() {
         // -- Arrange --
         let sut = SentryMetricsApi()
         let key = "latency"
@@ -255,39 +233,39 @@ class MetricsApiTests: XCTestCase {
 
         // -- Act --
         sut.distribution(key: key, value: value)
+        flushMetrics()
 
         // -- Assert --
-        // Method should execute without crashing
-        XCTAssertTrue(true)
+        XCTAssertEqual(getMetricDataCount(), 0, "No metrics should be created when SDK is not started")
     }
 
-    func testDistribution_withEmptyKey_shouldNotCrash() {
+    func testDistribution_withEmptyKey_shouldNotCreateMetric() {
         // -- Arrange --
         let sut = SentryMetricsApi()
         let key = ""
 
         // -- Act --
         sut.distribution(key: key, value: 1.0)
+        flushMetrics()
 
         // -- Assert --
-        // Method should execute without crashing (empty keys may be handled by backend)
-        XCTAssertTrue(true)
+        XCTAssertEqual(getMetricDataCount(), 0, "No metrics should be created when SDK is not started")
     }
 
-    func testDistribution_withDotDelimitedKey_shouldNotCrash() {
+    func testDistribution_withDotDelimitedKey_shouldNotCreateMetric() {
         // -- Arrange --
         let sut = SentryMetricsApi()
         let key = "service.api.endpoint.request.duration"
 
         // -- Act --
         sut.distribution(key: key, value: 1.0)
+        flushMetrics()
 
         // -- Assert --
-        // Method should execute without crashing
-        XCTAssertTrue(true)
+        XCTAssertEqual(getMetricDataCount(), 0, "No metrics should be created when SDK is not started")
     }
 
-    func testDistribution_canBeCalledMultipleTimes_shouldNotCrash() {
+    func testDistribution_canBeCalledMultipleTimes_shouldNotCreateMetric() {
         // -- Arrange --
         let sut = SentryMetricsApi()
         let key = "response.time"
@@ -296,15 +274,15 @@ class MetricsApiTests: XCTestCase {
         sut.distribution(key: key, value: 100.0)
         sut.distribution(key: key, value: 200.0)
         sut.distribution(key: key, value: 150.0)
+        flushMetrics()
 
         // -- Assert --
-        // Method should execute multiple times without crashing
-        XCTAssertTrue(true)
+        XCTAssertEqual(getMetricDataCount(), 0, "No metrics should be created when SDK is not started")
     }
 
     // MARK: - Tests - Gauge
 
-    func testGauge_withValidKeyAndValue_shouldNotCrash() {
+    func testGauge_withValidKeyAndValue_shouldNotCreateMetric() {
         // -- Arrange --
         let sut = SentryMetricsApi()
         let key = "memory.usage"
@@ -312,13 +290,13 @@ class MetricsApiTests: XCTestCase {
 
         // -- Act --
         sut.gauge(key: key, value: value)
+        flushMetrics()
 
         // -- Assert --
-        // Method should execute without crashing
-        XCTAssertTrue(true)
+        XCTAssertEqual(getMetricDataCount(), 0, "No metrics should be created when SDK is not started")
     }
 
-    func testGauge_withZeroValue_shouldNotCrash() {
+    func testGauge_withZeroValue_shouldNotCreateMetric() {
         // -- Arrange --
         let sut = SentryMetricsApi()
         let key = "queue.depth"
@@ -326,13 +304,13 @@ class MetricsApiTests: XCTestCase {
 
         // -- Act --
         sut.gauge(key: key, value: value)
+        flushMetrics()
 
         // -- Assert --
-        // Method should execute without crashing
-        XCTAssertTrue(true)
+        XCTAssertEqual(getMetricDataCount(), 0, "No metrics should be created when SDK is not started")
     }
 
-    func testGauge_withLargeValue_shouldNotCrash() {
+    func testGauge_withLargeValue_shouldNotCreateMetric() {
         // -- Arrange --
         let sut = SentryMetricsApi()
         let key = "active.connections"
@@ -340,13 +318,13 @@ class MetricsApiTests: XCTestCase {
 
         // -- Act --
         sut.gauge(key: key, value: value)
+        flushMetrics()
 
         // -- Assert --
-        // Method should execute without crashing
-        XCTAssertTrue(true)
+        XCTAssertEqual(getMetricDataCount(), 0, "No metrics should be created when SDK is not started")
     }
 
-    func testGauge_withNegativeValue_shouldNotCrash() {
+    func testGauge_withNegativeValue_shouldNotCreateMetric() {
         // -- Arrange --
         let sut = SentryMetricsApi()
         let key = "temperature"
@@ -354,39 +332,39 @@ class MetricsApiTests: XCTestCase {
 
         // -- Act --
         sut.gauge(key: key, value: value)
+        flushMetrics()
 
         // -- Assert --
-        // Method should execute without crashing
-        XCTAssertTrue(true)
+        XCTAssertEqual(getMetricDataCount(), 0, "No metrics should be created when SDK is not started")
     }
 
-    func testGauge_withEmptyKey_shouldNotCrash() {
+    func testGauge_withEmptyKey_shouldNotCreateMetric() {
         // -- Arrange --
         let sut = SentryMetricsApi()
         let key = ""
 
         // -- Act --
         sut.gauge(key: key, value: 1.0)
+        flushMetrics()
 
         // -- Assert --
-        // Method should execute without crashing (empty keys may be handled by backend)
-        XCTAssertTrue(true)
+        XCTAssertEqual(getMetricDataCount(), 0, "No metrics should be created when SDK is not started")
     }
 
-    func testGauge_withDotDelimitedKey_shouldNotCrash() {
+    func testGauge_withDotDelimitedKey_shouldNotCreateMetric() {
         // -- Arrange --
         let sut = SentryMetricsApi()
         let key = "service.api.endpoint.queue.depth"
 
         // -- Act --
         sut.gauge(key: key, value: 1.0)
+        flushMetrics()
 
         // -- Assert --
-        // Method should execute without crashing
-        XCTAssertTrue(true)
+        XCTAssertEqual(getMetricDataCount(), 0, "No metrics should be created when SDK is not started")
     }
 
-    func testGauge_canBeCalledMultipleTimes_shouldNotCrash() {
+    func testGauge_canBeCalledMultipleTimes_shouldNotCreateMetric() {
         // -- Arrange --
         let sut = SentryMetricsApi()
         let key = "queue.size"
@@ -395,21 +373,42 @@ class MetricsApiTests: XCTestCase {
         sut.gauge(key: key, value: 10.0)
         sut.gauge(key: key, value: 20.0)
         sut.gauge(key: key, value: 15.0)
+        flushMetrics()
 
         // -- Assert --
-        // Method should execute multiple times without crashing
-        XCTAssertTrue(true)
+        XCTAssertEqual(getMetricDataCount(), 0, "No metrics should be created when SDK is not started")
     }
 
     // MARK: - Helpers
 
     private func startSDK(enableMetrics: Bool = true) {
         SentrySDK.start {
-            $0.dsn = TestConstants.dsnForTestCase(type: MetricsApiTests.self)
+            $0.dsn = TestConstants.dsnForTestCase(type: SentryMetricsApiTests.self)
             $0.removeAllIntegrations()
             $0.experimental.enableMetrics = enableMetrics
         }
         SentrySDKInternal.setCurrentHub(hub)
+    }
+
+    private func flushMetrics() {
+        // We can not rely on SentrySDK.flush() because we are using a test client which is not actually
+        // flushing integrations. Calling captureMetrics() on the metrics integration will flush the data
+        // synchronously, allowing us to assert the client invocations.
+        if let integration = SentrySDKInternal.currentHub().getInstalledIntegration(SentryMetricsIntegration<SentryDependencyContainer>.self) as? SentryMetricsIntegration<SentryDependencyContainer> {
+            _ = integration.captureMetrics()
+        }
+    }
+
+    private func getMetricDataCount() -> Int {
+        return client.captureMetricsDataInvocations.count
+    }
+
+    private func getMetricEnvelopeCount() -> Int {
+        let envelopes = client.captureEnvelopeInvocations.invocations
+        let metricEnvelopes = envelopes.filter { envelope in
+            envelope.items.first?.header.type == SentryEnvelopeItemTypes.traceMetric
+        }
+        return metricEnvelopes.count
     }
 
 }
