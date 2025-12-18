@@ -49,7 +49,7 @@ This changelog lists every breaking change. For a high-level overview and upgrad
 - Removes deprecated getStoreEndpoint (#5591)
 - Remove legacy profiling, the only supported profiling is now what was known as continuous V2 (#6386)
 - Removes deprecated useSpan function (#5591)
-- Makes app hang tracking V2 the default and removes the option to enable/disable it (#5615)
+- Makes app hang tracking V2 the default only on **iOS and tvOS** and removes the option to enable/disable it (#5615). macOS still uses V1.
 - Removes initializers for SentryTraceContext from the public API (#6662)
 - Removes `integrations` property from `SentryOptions` (#5749)
 - Removes `defaultIntegrations` function from `SentryOptions` (#6664)
