@@ -157,7 +157,7 @@ class SentryScopeSwiftTests: XCTestCase {
         XCTAssertEqual(try XCTUnwrap(scope.serialize() as? [String: AnyHashable]), snapshot)
         XCTAssertNotEqual(try XCTUnwrap(scope.serialize() as? [String: AnyHashable]), try XCTUnwrap(cloned.serialize() as? [String: AnyHashable]))
     }
-    
+
     func testApplyToEvent() {
         let actual = fixture.scope.applyTo(event: fixture.event, maxBreadcrumbs: 10)
         let actualContext = actual?.context as? [String: [String: String]]
