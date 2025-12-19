@@ -9,7 +9,7 @@ extension SentryMXCallStackTree {
         }.unique { $0.debugID }
     }
     
-    public func prepare(event: Event, inAppLogic: SentryInAppLogic?, handled: Bool) {
+    func prepare(event: Event, inAppLogic: SentryInAppLogic?, handled: Bool) {
         let debugMeta = toDebugMeta()
         let threads = sentryMXBacktrace(inAppLogic: inAppLogic, handled: handled)
         // First look for the crashing thread, but for events that were not a crash (like a hang) take the first thread

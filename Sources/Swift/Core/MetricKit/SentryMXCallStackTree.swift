@@ -4,8 +4,7 @@ import Foundation
 /**
  * JSON specification of MXCallStackTree can be found here https://developer.apple.com/documentation/metrickit/mxcallstacktree/3552293-jsonrepresentation
  */
-@objcMembers
-@_spi(Private) public class SentryMXCallStackTree: NSObject, Decodable {
+struct SentryMXCallStackTree: Decodable {
     
     let callStacks: [SentryMXCallStack]
     public let callStackPerThread: Bool
