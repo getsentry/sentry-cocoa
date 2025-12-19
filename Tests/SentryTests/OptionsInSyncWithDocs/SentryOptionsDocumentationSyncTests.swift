@@ -15,10 +15,9 @@ final class SentryOptionsDocumentationSyncTests: XCTestCase {
     /// to match the availability in Options.swift.
     private var undocumentedOptions: Set<String> {
         var options: Set<String> = [
-            // Internal/derived properties (including @_spi(Private))
+            // Internal/derived properties
             "parsedDsn",
             "isTracingEnabled",
-            "profiling", // @_spi(Private) - internal backing for configureProfiling
             
             // SDK behavior
             "enabled",
@@ -62,10 +61,6 @@ final class SentryOptionsDocumentationSyncTests: XCTestCase {
             "failedRequestStatusCodes",
             "failedRequestTargets",
             
-            // MetricKit
-            "enableMetricKit",
-            "enableMetricKitRawPayload",
-            
             // Experimental
             "swiftAsyncStacktraces",
             "experimental",
@@ -76,9 +71,6 @@ final class SentryOptionsDocumentationSyncTests: XCTestCase {
             // Spotlight
             "enableSpotlight",
             "spotlightUrl",
-            
-            // Profiling
-            "configureProfiling",
             
             // Callbacks
             "beforeSendSpan",
@@ -116,6 +108,18 @@ final class SentryOptionsDocumentationSyncTests: XCTestCase {
         #if os(iOS) && !SENTRY_NO_UIKIT
         options.insert("userFeedbackConfiguration") // @_spi(Private) - internal backing for configureUserFeedback
         options.insert("configureUserFeedback")
+        #endif
+        
+        // Profiling - iOS/macOS/macCatalyst only (#if !(os(watchOS) || os(tvOS) || os(visionOS)))
+        #if !(os(watchOS) || os(tvOS) || os(visionOS))
+        options.insert("profiling") // @_spi(Private) - internal backing for configureProfiling
+        options.insert("configureProfiling")
+        #endif
+        
+        // MetricKit - iOS/macOS only (#if canImport(MetricKit) && !os(tvOS) && !os(visionOS))
+        #if canImport(MetricKit) && !os(tvOS) && !os(visionOS)
+        options.insert("enableMetricKit")
+        options.insert("enableMetricKitRawPayload")
         #endif
         
         return options
@@ -172,16 +176,14 @@ final class SentryOptionsDocumentationSyncTests: XCTestCase {
             .filter { !codeProperties.contains($0) }
             .sorted()
         
-        if !invalidOptions.isEmpty {
-            let missingList = invalidOptions.map { "   - \($0)" }.joined(separator: "\n")
-            XCTFail("""
+        XCTAssertTrue(invalidOptions.isEmpty, """
             The following options in undocumentedOptions do not exist in Options.swift:
-            \(missingList)
+            
+            \(invalidOptions.map { "   - \($0)" }.joined(separator: "\n"))
             
             Either remove them from undocumentedOptions, or if they are platform-specific,
             add them with the appropriate compiler flags (e.g., #if os(iOS)).
             """)
-        }
     }
 
     private func fetchDocumentedOptions() async throws -> Set<String> {
