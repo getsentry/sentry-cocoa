@@ -6,7 +6,7 @@ public struct SentryMetric {
     public typealias Value = SentryMetricValue
 
     /// A typed attribute that can be attached to structured item entries
-    public typealias Attribute = SentryAttribute
+    public typealias Attribute = SentryAttributeValue
 
     /// The timestamp when the metric was recorded.
     public var timestamp: Date
@@ -43,7 +43,7 @@ public struct SentryMetric {
     /// Attributes provide additional context and can be used for filtering and
     /// grouping metrics in Sentry. Common attributes include endpoint names,
     /// HTTP methods, status codes, etc.
-    public var attributes: [String: SentryAttribute]
+    public var attributes: [String: Attribute]
 
     /// Creates a metric entry with the specified properties.
     ///
@@ -63,7 +63,7 @@ public struct SentryMetric {
         name: String,
         value: SentryMetricValue,
         unit: String?,
-        attributes: [String: SentryAttribute]
+        attributes: [String: Attribute]
     ) {
         self.timestamp = timestamp
         self.traceId = traceId
@@ -100,4 +100,13 @@ extension SentryMetric: Encodable {
     }
 }
 
-extension SentryMetric: BatcherItem {}
+extension SentryMetric: BatcherItem {
+    var attributeMap: [String: SentryAttributeValue] {
+        get {
+            return self.attributes
+        }
+        set {
+            self.attributes = newValue
+        }
+    }
+}

@@ -177,8 +177,18 @@ public final class SentryLogger: NSObject {
         guard let delegate else {
             return
         }
-        // Convert provided attributes to SentryLog.Attribute format
-        var logAttributes = attributes.mapValues { SentryLog.Attribute(value: $0) }
+        
+        // Convert attributes using protocol-based conversion where possible
+        var logAttributes: [String: SentryLog.Attribute] = [:]
+        for (key, value) in attributes {
+            // Try protocol-based conversion first
+            if let attributable = value as? SentryAttributable {
+                logAttributes[key] = SentryAttribute(wrappedValue: attributable.asAttributeValue)
+            } else {
+                // Fallback to Any-based initializer for unsupported types
+                logAttributes[key] = SentryLog.Attribute(value: value)
+            }
+        }
         
         // Add template string if there are interpolations
         if !logMessage.attributes.isEmpty {

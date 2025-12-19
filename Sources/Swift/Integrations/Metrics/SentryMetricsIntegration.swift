@@ -1,6 +1,10 @@
 @_implementationOnly import _SentryPrivate
 
-final class SentryMetricsIntegration<Dependencies: DateProviderProvider & DispatchQueueWrapperProvider>: NSObject, SwiftIntegration {
+protocol SentryMetricsIntegrationProtocol {
+    func addMetric(_ metric: SentryMetric, scope: Scope)
+}
+
+final class SentryMetricsIntegration<Dependencies: DateProviderProvider & DispatchQueueWrapperProvider>: NSObject, SwiftIntegration, SentryMetricsIntegrationProtocol {
     private let metricBatcher: SentryMetricsBatcherProtocol
 
     init?(with options: Options, dependencies: Dependencies) {

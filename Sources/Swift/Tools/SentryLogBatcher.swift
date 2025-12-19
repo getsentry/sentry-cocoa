@@ -109,4 +109,17 @@ import Foundation
     }
 }
 
-extension SentryLog: BatcherItem {}
+extension SentryLog: BatcherItem {
+    var attributeMap: [String: SentryAttributeValue] {
+        get {
+            attributes.mapValues { value in
+                value.asAttributeValue
+            }
+        }
+        set {
+            attributes = newValue.mapValues { value in
+                SentryAttribute(value: value.value)
+            }
+        }
+    }
+}

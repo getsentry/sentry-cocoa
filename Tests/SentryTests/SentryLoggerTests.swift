@@ -446,6 +446,66 @@ final class SentryLoggerTests: XCTestCase {
         XCTAssertNil(fixture.delegate.capturedLogs.invocations.first)
     }
     
+    // MARK: - Protocol-Based Conversion Tests
+    
+    /// Verifies that protocol-based conversion works for arrays through SentryLogger
+    func testLogger_ProtocolBasedConversion_StringArray() {
+        let stringArray: [String] = ["tag1", "tag2", "tag3"]
+        sut.info("Processing tags", attributes: ["tags": stringArray])
+        
+        assertLogCaptured(
+            .info,
+            "Processing tags",
+            [
+                "tags": SentryLog.Attribute(stringArray: ["tag1", "tag2", "tag3"])
+            ]
+        )
+    }
+    
+    /// Verifies that protocol-based conversion works for Int arrays through SentryLogger
+    func testLogger_ProtocolBasedConversion_IntArray() {
+        let intArray: [Int] = [1, 2, 3]
+        sut.info("Processing counts", attributes: ["counts": intArray])
+        
+        assertLogCaptured(
+            .info,
+            "Processing counts",
+            [
+                "counts": SentryLog.Attribute(integerArray: [1, 2, 3])
+            ]
+        )
+    }
+    
+    /// Verifies that protocol-based conversion works for Bool arrays through SentryLogger
+    func testLogger_ProtocolBasedConversion_BoolArray() {
+        let boolArray: [Bool] = [true, false, true]
+        sut.info("Processing flags", attributes: ["flags": boolArray])
+        
+        assertLogCaptured(
+            .info,
+            "Processing flags",
+            [
+                "flags": SentryLog.Attribute(booleanArray: [true, false, true])
+            ]
+        )
+    }
+    
+    /// Verifies that fallback works for unsupported types through SentryLogger
+    func testLogger_Fallback_UnsupportedType() {
+        let url = URL(string: "https://example.com")!
+        sut.info("Processing URL", attributes: ["url": url])
+        
+        let capturedLog = getLastCapturedLog()
+        XCTAssertEqual(capturedLog.level, .info)
+        XCTAssertEqual(capturedLog.body, "Processing URL")
+        let urlAttribute = capturedLog.attributeMap["url"]
+        XCTAssertNotNil(urlAttribute)
+        XCTAssertEqual(urlAttribute?.type, "string")
+        let stringValue = urlAttribute?.value as? String
+        XCTAssertNotNil(stringValue)
+        XCTAssertTrue(stringValue!.contains("https://example.com"))
+    }
+    
     // MARK: - Helper Methods
     
     private func assertLogCaptured(
@@ -462,7 +522,7 @@ final class SentryLoggerTests: XCTestCase {
         
         // Only verify the user-provided attributes, not the auto-enriched ones
         for (key, expectedAttribute) in expectedAttributes {
-            guard let actualAttribute = capturedLog.attributes[key] else {
+            guard let actualAttribute = capturedLog.attributeMap[key] else {
                 XCTFail("Missing attribute key: \(key)", file: file, line: line)
                 continue
             }
@@ -487,6 +547,22 @@ final class SentryLoggerTests: XCTestCase {
                 let expectedValue = expectedAttribute.value as! Double
                 let actualValue = actualAttribute.value as! Double
                 XCTAssertEqual(actualValue, expectedValue, accuracy: 0.000001, "Double attribute value mismatch for key: \(key)", file: file, line: line)
+            case "string[]":
+                let expectedValue = expectedAttribute.value as! [String]
+                let actualValue = actualAttribute.value as! [String]
+                XCTAssertEqual(actualValue, expectedValue, "String array attribute value mismatch for key: \(key)", file: file, line: line)
+            case "boolean[]":
+                let expectedValue = expectedAttribute.value as! [Bool]
+                let actualValue = actualAttribute.value as! [Bool]
+                XCTAssertEqual(actualValue, expectedValue, "Boolean array attribute value mismatch for key: \(key)", file: file, line: line)
+            case "integer[]":
+                let expectedValue = expectedAttribute.value as! [Int]
+                let actualValue = actualAttribute.value as! [Int]
+                XCTAssertEqual(actualValue, expectedValue, "Integer array attribute value mismatch for key: \(key)", file: file, line: line)
+            case "double[]":
+                let expectedValue = expectedAttribute.value as! [Double]
+                let actualValue = actualAttribute.value as! [Double]
+                XCTAssertEqual(actualValue, expectedValue, "Double array attribute value mismatch for key: \(key)", file: file, line: line)
             default:
                 XCTFail("Unknown attribute type for key: \(key). Type: \(expectedAttribute.type)", file: file, line: line)
             }

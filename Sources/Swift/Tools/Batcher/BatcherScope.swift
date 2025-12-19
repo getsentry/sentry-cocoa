@@ -21,74 +21,74 @@ extension BatcherScope {
         config: Config,
         metadata: Metadata
     ) {
-        addDefaultAttributes(to: &item.attributes, config: config, metadata: metadata)
-        addOSAttributes(to: &item.attributes, config: config)
-        addDeviceAttributes(to: &item.attributes, config: config)
-        addUserAttributes(to: &item.attributes, config: config)
-        addReplayAttributes(to: &item.attributes, config: config)
-        addScopeAttributes(to: &item.attributes, config: config)
-        addDefaultUserIdIfNeeded(to: &item.attributes, config: config, metadata: metadata)
+        addDefaultAttributes(to: &item.attributeMap, config: config, metadata: metadata)
+        addOSAttributes(to: &item.attributeMap, config: config)
+        addDeviceAttributes(to: &item.attributeMap, config: config)
+        addUserAttributes(to: &item.attributeMap, config: config)
+        addReplayAttributes(to: &item.attributeMap, config: config)
+        addScopeAttributes(to: &item.attributeMap, config: config)
+        addDefaultUserIdIfNeeded(to: &item.attributeMap, config: config, metadata: metadata)
 
         item.traceId = SentryId(uuidString: propagationContextTraceIdString)
     }
 
-    private func addDefaultAttributes(to attributes: inout [String: SentryAttribute], config: any BatcherConfig, metadata: any BatcherMetadata) {
-        attributes["sentry.sdk.name"] = .init(string: SentryMeta.sdkName)
-        attributes["sentry.sdk.version"] = .init(string: SentryMeta.versionString)
+    private func addDefaultAttributes(to attributes: inout [String: SentryAttributeValue], config: any BatcherConfig, metadata: any BatcherMetadata) {
+        attributes["sentry.sdk.name"] = .string(SentryMeta.sdkName)
+        attributes["sentry.sdk.version"] = .string(SentryMeta.versionString)
         if metadata.environment.count > 0 {
-            attributes["sentry.environment"] = .init(string: metadata.environment)
+            attributes["sentry.environment"] = .string(metadata.environment)
         }
         if let releaseName = metadata.releaseName {
-            attributes["sentry.release"] = .init(string: releaseName)
+            attributes["sentry.release"] = .string(releaseName)
         }
         if let span = self.span {
-            attributes["span_id"] = .init(string: span.spanId.sentrySpanIdString)
+            attributes["span_id"] = .string(span.spanId.sentrySpanIdString)
         }
     }
 
-    private func addOSAttributes(to attributes: inout [String: SentryAttribute], config: any BatcherConfig) {
+    private func addOSAttributes(to attributes: inout [String: SentryAttributeValue], config: any BatcherConfig) {
         guard let osContext = self.getContextForKey(SENTRY_CONTEXT_OS_KEY) else {
             return
         }
         if let osName = osContext["name"] as? String {
-            attributes["os.name"] = .init(string: osName)
+            attributes["os.name"] = .string(osName)
         }
         if let osVersion = osContext["version"] as? String {
-            attributes["os.version"] = .init(string: osVersion)
+            attributes["os.version"] = .string(osVersion)
         }
     }
 
-    private func addDeviceAttributes(to attributes: inout [String: SentryAttribute], config: any BatcherConfig) {
+    private func addDeviceAttributes(to attributes: inout [String: SentryAttributeValue], config: any BatcherConfig) {
         guard let deviceContext = self.getContextForKey(SENTRY_CONTEXT_DEVICE_KEY) else {
             return
         }
         // For Apple devices, brand is always "Apple"
-        attributes["device.brand"] = .init(string: "Apple")
+        attributes["device.brand"] = .string("Apple")
 
         if let deviceModel = deviceContext["model"] as? String {
-            attributes["device.model"] = .init(string: deviceModel)
+            attributes["device.model"] = .string(deviceModel)
         }
         if let deviceFamily = deviceContext["family"] as? String {
-            attributes["device.family"] = .init(string: deviceFamily)
+            attributes["device.family"] = .string(deviceFamily)
         }
     }
 
-    private func addUserAttributes(to attributes: inout [String: SentryAttribute], config: any BatcherConfig) {
+    private func addUserAttributes(to attributes: inout [String: SentryAttributeValue], config: any BatcherConfig) {
         guard config.sendDefaultPii else {
             return
         }
         if let userId = userObject?.userId {
-            attributes["user.id"] = .init(string: userId)
+            attributes["user.id"] = .string(userId)
         }
         if let userName = userObject?.name {
-            attributes["user.name"] = .init(string: userName)
+            attributes["user.name"] = .string(userName)
         }
         if let userEmail = userObject?.email {
-            attributes["user.email"] = .init(string: userEmail)
+            attributes["user.email"] = .string(userEmail)
         }
     }
 
-    private func addReplayAttributes(to attributes: inout [String: SentryAttribute], config: any BatcherConfig) {
+    private func addReplayAttributes(to attributes: inout [String: SentryAttributeValue], config: any BatcherConfig) {
 #if canImport(UIKit) && !SENTRY_NO_UIKIT
 #if os(iOS) || os(tvOS)
         if let scopeReplayId = replayId {
@@ -99,15 +99,15 @@ extension BatcherScope {
 #endif
     }
 
-    private func addScopeAttributes(to attributes: inout [String: SentryAttribute], config: any BatcherConfig) {
+    private func addScopeAttributes(to attributes: inout [String: SentryAttributeValue], config: any BatcherConfig) {
         // Scope attributes should not override any existing attribute in the item
         for (key, value) in self.attributes where attributes[key] == nil {
-            attributes[key] = .init(value: value)
+            attributes[key] = SentryAttributeValue.from(anyValue: value)
         }
     }
 
     private func addDefaultUserIdIfNeeded(
-        to attributes: inout [String: SentryAttribute],
+        to attributes: inout [String: SentryAttributeValue],
         config: any BatcherConfig,
         metadata: any BatcherMetadata
     ) {
@@ -118,7 +118,7 @@ extension BatcherScope {
         if let installationId = metadata.installationId {
             // We only want to set the id if the customer didn't set a user so we at least set something to
             // identify the user.
-            attributes["user.id"] = .init(value: installationId)
+            attributes["user.id"] = .string(installationId)
         }
     }
 }

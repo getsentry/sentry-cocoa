@@ -129,8 +129,8 @@ final class SentryAttributeTests: XCTestCase {
     
     func testInitializer_ArrayValue() {
         let attribute = SentryLog.Attribute(value: [1, 2, 3])
-        XCTAssertEqual(attribute.type, "string")
-        XCTAssertTrue((attribute.value as? String)?.contains("1") == true)
+        XCTAssertEqual(attribute.type, "integer[]")
+        XCTAssertEqual(attribute.value as? [Int], [1, 2, 3])
     }
     
     func testInitializer_DictionaryValue() {
@@ -139,195 +139,101 @@ final class SentryAttributeTests: XCTestCase {
         XCTAssertTrue((attribute.value as? String)?.contains("key") == true)
     }
     
-    // MARK: - Attributable Protocol Tests
+    // MARK: - Protocol-Based Conversion Tests
     
-    func testAttributable_StringConstant() {
-        // -- Arrange --
-        let endpoint = "api/users"
-        
-        // -- Act --
-        let attribute = endpoint.asAttribute
-        
-        // -- Assert --
+    /// Verifies that protocol-based conversion works for String through init(value: Any)
+    func testInitializer_ProtocolBasedConversion_String() {
+        let stringValue: String = "protocol string"
+        let attribute = SentryLog.Attribute(value: stringValue)
         XCTAssertEqual(attribute.type, "string")
-        XCTAssertEqual(attribute.value as? String, "api/users")
+        XCTAssertEqual(attribute.value as? String, "protocol string")
     }
     
-    func testAttributable_BooleanConstant() {
-        // -- Arrange --
-        let success = true
-        let failure = false
-        
-        // -- Act --
-        let successAttr = success.asAttribute
-        let failureAttr = failure.asAttribute
-        
-        // -- Assert --
-        XCTAssertEqual(successAttr.type, "boolean")
-        XCTAssertEqual(successAttr.value as? Bool, true)
-        XCTAssertEqual(failureAttr.type, "boolean")
-        XCTAssertEqual(failureAttr.value as? Bool, false)
+    /// Verifies that protocol-based conversion works for Bool through init(value: Any)
+    func testInitializer_ProtocolBasedConversion_Bool() {
+        let boolValue: Bool = true
+        let attribute = SentryLog.Attribute(value: boolValue)
+        XCTAssertEqual(attribute.type, "boolean")
+        XCTAssertEqual(attribute.value as? Bool, true)
     }
     
-    func testAttributable_IntegerConstant() {
-        // -- Arrange --
-        let statusCode = 200
-        
-        // -- Act --
-        let attribute = statusCode.asAttribute
-        
-        // -- Assert --
+    /// Verifies that protocol-based conversion works for Int through init(value: Any)
+    func testInitializer_ProtocolBasedConversion_Int() {
+        let intValue: Int = 42
+        let attribute = SentryLog.Attribute(value: intValue)
         XCTAssertEqual(attribute.type, "integer")
-        XCTAssertEqual(attribute.value as? Int, 200)
+        XCTAssertEqual(attribute.value as? Int, 42)
     }
     
-    func testAttributable_DoubleConstant() {
-        // -- Arrange --
-        let queryTime = 3.14159
-        
-        // -- Act --
-        let attribute = queryTime.asAttribute
-        
-        // -- Assert --
+    /// Verifies that protocol-based conversion works for Double through init(value: Any)
+    func testInitializer_ProtocolBasedConversion_Double() {
+        let doubleValue: Double = 3.14159
+        let attribute = SentryLog.Attribute(value: doubleValue)
         XCTAssertEqual(attribute.type, "double")
         XCTAssertEqual(attribute.value as? Double, 3.14159)
     }
     
-    func testAttributable_FloatConstant() {
-        // -- Arrange --
+    /// Verifies that protocol-based conversion works for Float through init(value: Any)
+    func testInitializer_ProtocolBasedConversion_Float() {
         let floatValue: Float = 2.71828
-        
-        // -- Act --
-        let attribute = floatValue.asAttribute
-        
-        // -- Assert --
+        let attribute = SentryLog.Attribute(value: floatValue)
         XCTAssertEqual(attribute.type, "double")
         let doubleValue = attribute.value as? Double
         XCTAssertNotNil(doubleValue)
         XCTAssertEqual(doubleValue!, 2.71828, accuracy: 0.00001)
     }
     
-    func testAttributable_SentryAttribute() {
-        // -- Arrange --
-        let originalAttr = SentryLog.Attribute(string: "test")
-        
-        // -- Act --
-        let convertedAttr = originalAttr.asAttribute
-        
-        // -- Assert --
-        XCTAssertEqual(convertedAttr.type, "string")
-        XCTAssertEqual(convertedAttr.value as? String, "test")
-        // Should be the same instance
-        XCTAssertTrue(convertedAttr === originalAttr)
+    /// Verifies that protocol-based conversion works for String arrays through init(value: Any)
+    func testInitializer_ProtocolBasedConversion_StringArray() {
+        let stringArray: [String] = ["a", "b", "c"]
+        let attribute = SentryLog.Attribute(value: stringArray)
+        XCTAssertEqual(attribute.type, "string[]")
+        XCTAssertEqual(attribute.value as? [String], ["a", "b", "c"])
     }
     
-    // MARK: - Expressible By Literal Tests
+    /// Verifies that protocol-based conversion works for Bool arrays through init(value: Any)
+    func testInitializer_ProtocolBasedConversion_BoolArray() {
+        let boolArray: [Bool] = [true, false, true]
+        let attribute = SentryLog.Attribute(value: boolArray)
+        XCTAssertEqual(attribute.type, "boolean[]")
+        XCTAssertEqual(attribute.value as? [Bool], [true, false, true])
+    }
     
-    func testExpressibleByStringLiteral() {
-        // -- Arrange --
-        let attribute: SentryAttribute = "test literal string"
-        
-        // -- Act & Assert --
+    /// Verifies that protocol-based conversion works for Int arrays through init(value: Any)
+    func testInitializer_ProtocolBasedConversion_IntArray() {
+        let intArray: [Int] = [1, 2, 3]
+        let attribute = SentryLog.Attribute(value: intArray)
+        XCTAssertEqual(attribute.type, "integer[]")
+        XCTAssertEqual(attribute.value as? [Int], [1, 2, 3])
+    }
+    
+    /// Verifies that protocol-based conversion works for Double arrays through init(value: Any)
+    func testInitializer_ProtocolBasedConversion_DoubleArray() {
+        let doubleArray: [Double] = [1.1, 2.2, 3.3]
+        let attribute = SentryLog.Attribute(value: doubleArray)
+        XCTAssertEqual(attribute.type, "double[]")
+        XCTAssertEqual(attribute.value as? [Double], [1.1, 2.2, 3.3])
+    }
+    
+    /// Verifies that protocol-based conversion works for Float arrays through init(value: Any)
+    func testInitializer_ProtocolBasedConversion_FloatArray() throws {
+        let floatArray: [Float] = [1.1, 2.2, 3.3]
+        let attribute = SentryLog.Attribute(value: floatArray)
+        XCTAssertEqual(attribute.type, "double[]")
+        let doubleArray = try XCTUnwrap(attribute.value as? [Double])
+        XCTAssertEqual(doubleArray, [1.1, 2.2, 3.3])
+    }
+    
+    /// Verifies that fallback to string conversion works for unsupported types
+    func testInitializer_Fallback_UnsupportedType() {
+        struct UnsupportedType {
+            let value = "test"
+        }
+        let unsupported = UnsupportedType()
+        let attribute = SentryLog.Attribute(value: unsupported)
         XCTAssertEqual(attribute.type, "string")
-        XCTAssertEqual(attribute.value as? String, "test literal string")
-    }
-    
-    func testExpressibleByStringLiteral_whenEmptyString_shouldCreateStringAttribute() {
-        // -- Arrange --
-        let attribute: SentryAttribute = ""
-        
-        // -- Act & Assert --
-        XCTAssertEqual(attribute.type, "string")
-        XCTAssertEqual(attribute.value as? String, "")
-    }
-    
-    func testExpressibleByBooleanLiteral() {
-        // -- Arrange --
-        let trueAttribute: SentryAttribute = true
-        let falseAttribute: SentryAttribute = false
-        
-        // -- Act & Assert --
-        XCTAssertEqual(trueAttribute.type, "boolean")
-        XCTAssertEqual(trueAttribute.value as? Bool, true)
-        
-        XCTAssertEqual(falseAttribute.type, "boolean")
-        XCTAssertEqual(falseAttribute.value as? Bool, false)
-    }
-    
-    func testExpressibleByIntegerLiteral() {
-        // -- Arrange --
-        let attribute: SentryAttribute = 42
-        
-        // -- Act & Assert --
-        XCTAssertEqual(attribute.type, "integer")
-        XCTAssertEqual(attribute.value as? Int, 42)
-    }
-    
-    func testExpressibleByIntegerLiteral_whenZero_shouldCreateIntegerAttribute() {
-        // -- Arrange --
-        let attribute: SentryAttribute = 0
-        
-        // -- Act & Assert --
-        XCTAssertEqual(attribute.type, "integer")
-        XCTAssertEqual(attribute.value as? Int, 0)
-    }
-    
-    func testExpressibleByIntegerLiteral_whenNegative_shouldCreateIntegerAttribute() {
-        // -- Arrange --
-        let attribute: SentryAttribute = -42
-        
-        // -- Act & Assert --
-        XCTAssertEqual(attribute.type, "integer")
-        XCTAssertEqual(attribute.value as? Int, -42)
-    }
-    
-    func testExpressibleByFloatLiteral() {
-        // -- Arrange --
-        let attribute: SentryAttribute = 3.14159
-        
-        // -- Act & Assert --
-        XCTAssertEqual(attribute.type, "double")
-        XCTAssertEqual(attribute.value as? Double, 3.14159)
-    }
-    
-    func testExpressibleByFloatLiteral_whenZero_shouldCreateDoubleAttribute() {
-        // -- Arrange --
-        let attribute: SentryAttribute = 0.0
-        
-        // -- Act & Assert --
-        XCTAssertEqual(attribute.type, "double")
-        XCTAssertEqual(attribute.value as? Double, 0.0)
-    }
-    
-    func testExpressibleByFloatLiteral_whenNegative_shouldCreateDoubleAttribute() {
-        // -- Arrange --
-        let attribute: SentryAttribute = -3.14
-        
-        // -- Act & Assert --
-        XCTAssertEqual(attribute.type, "double")
-        XCTAssertEqual(attribute.value as? Double, -3.14)
-    }
-    
-    func testExpressibleByX_inDictionary() {
-        // -- Arrange --
-        let attributes: [String: SentryAttribute] = [
-            "string": "hello",
-            "boolean": true,
-            "integer": 42,
-            "double": 3.14159
-        ]
-        
-        // -- Act & Assert --
-        XCTAssertEqual(attributes["string"]?.type, "string")
-        XCTAssertEqual(attributes["string"]?.value as? String, "hello")
-        
-        XCTAssertEqual(attributes["boolean"]?.type, "boolean")
-        XCTAssertEqual(attributes["boolean"]?.value as? Bool, true)
-        
-        XCTAssertEqual(attributes["integer"]?.type, "integer")
-        XCTAssertEqual(attributes["integer"]?.value as? Int, 42)
-        
-        XCTAssertEqual(attributes["double"]?.type, "double")
-        XCTAssertEqual(attributes["double"]?.value as? Double, 3.14159)
+        let stringValue = attribute.value as? String
+        XCTAssertNotNil(stringValue)
+        XCTAssertTrue(stringValue!.contains("UnsupportedType"))
     }
 }

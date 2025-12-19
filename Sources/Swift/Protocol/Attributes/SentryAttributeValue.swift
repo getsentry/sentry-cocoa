@@ -1,5 +1,5 @@
 /// A type-safe value that can be stored in an attribute.
-enum SentryAttributeValue {
+public enum SentryAttributeValue {
     case string(String)
     case boolean(Bool)
     case integer(Int)
@@ -32,7 +32,7 @@ enum SentryAttributeValue {
     }
 
     /// Returns the underlying value as `Any` for backward compatibility
-    var anyValue: Any {
+    var value: Any {
         switch self {
         case .string(let value):
             return value
@@ -53,60 +53,39 @@ enum SentryAttributeValue {
         }
     }
 
-    /// Creates an `AttributeValue` from any value, converting unsupported types to strings
-    init(fromAny value: Any) { // swiftlint:disable:this cyclomatic_complexity
-        switch value {
+    static func from(anyValue: Any) -> Self {
+        if let value = anyValue as? Self {
+            return value
+        }
+        // Try protocol-based conversion for types conforming to SentryAttributable
+        if let attributable = anyValue as? SentryAttributable {
+            return attributable.asAttributeValue
+        }
+
+        // Fallback: Handle Objective-C bridged types and other special cases
+        switch anyValue {
         case let stringValue as String:
-            self = .string(stringValue)
+            return .string(stringValue)
         case let boolValue as Bool:
-            self = .boolean(boolValue)
+            return .boolean(boolValue)
         case let intValue as Int:
-            self = .integer(intValue)
+            return .integer(intValue)
         case let doubleValue as Double:
-            self = .double(doubleValue)
+            return .double(doubleValue)
         case let floatValue as Float:
-            self = .double(Double(floatValue))
+            return .double(Double(floatValue))
         case let stringArrayValue as [String]:
-            self = .stringArray(stringArrayValue)
+            return .stringArray(stringArrayValue)
         case let boolArrayValue as [Bool]:
-            self = .booleanArray(boolArrayValue)
+            return .booleanArray(boolArrayValue)
         case let intArrayValue as [Int]:
-            self = .integerArray(intArrayValue)
+            return .integerArray(intArrayValue)
         case let doubleArrayValue as [Double]:
-            self = .doubleArray(doubleArrayValue)
+            return .doubleArray(doubleArrayValue)
         case let floatArrayValue as [Float]:
-            self = .doubleArray(floatArrayValue.map { Double($0) })
-        case let arrayValue as [SentryAttribute]:
-            // Convert homogeneous array of SentryAttribute to typed array
-            if arrayValue.isEmpty {
-                // Empty array defaults to string array
-                self = .stringArray([])
-            } else {
-                let firstType = arrayValue[0].attributeValue.type
-                let allSameType = arrayValue.allSatisfy { $0.attributeValue.type == firstType }
-                
-                if allSameType {
-                    switch firstType {
-                    case "string":
-                        self = .stringArray(arrayValue.compactMap { $0.attributeValue.anyValue as? String })
-                    case "boolean":
-                        self = .booleanArray(arrayValue.compactMap { $0.attributeValue.anyValue as? Bool })
-                    case "integer":
-                        self = .integerArray(arrayValue.compactMap { $0.attributeValue.anyValue as? Int })
-                    case "double":
-                        self = .doubleArray(arrayValue.compactMap { $0.attributeValue.anyValue as? Double })
-                    default:
-                        // Mixed or unknown types, convert to string array
-                        self = .stringArray(arrayValue.map { String(describing: $0.value) })
-                    }
-                } else {
-                    // Mixed types, convert to string array
-                    self = .stringArray(arrayValue.map { String(describing: $0.value) })
-                }
-            }
+            return .doubleArray(floatArrayValue.map { Double($0) })
         default:
-            // For any other type, convert to string representation
-            self = .string(String(describing: value))
+            return .string(String(describing: anyValue))
         }
     }
 }
@@ -117,7 +96,7 @@ extension SentryAttributeValue: Encodable {
         case attributeValue = "value"
     }
 
-    func encode(to encoder: any Encoder) throws {
+    public func encode(to encoder: any Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(self.type, forKey: .attributeType)
 
@@ -143,25 +122,25 @@ extension SentryAttributeValue: Encodable {
 }
 
 extension SentryAttributeValue: ExpressibleByStringLiteral {
-    init(stringLiteral value: StringLiteralType) {
+    public init(stringLiteral value: StringLiteralType) {
         self = .string(value)
     }
 }
 
 extension SentryAttributeValue: ExpressibleByBooleanLiteral {
-    init(booleanLiteral value: BooleanLiteralType) {
+    public init(booleanLiteral value: BooleanLiteralType) {
         self = .boolean(value)
     }
 }
 
 extension SentryAttributeValue: ExpressibleByIntegerLiteral {
-    init(integerLiteral value: IntegerLiteralType) {
+    public init(integerLiteral value: IntegerLiteralType) {
         self = .integer(value)
     }
 }
 
 extension SentryAttributeValue: ExpressibleByFloatLiteral {
-    init(floatLiteral value: FloatLiteralType) {
+    public init(floatLiteral value: FloatLiteralType) {
         self = .double(value)
     }
 }

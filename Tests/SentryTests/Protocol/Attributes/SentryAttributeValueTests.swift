@@ -101,7 +101,7 @@ class SentryAttributeValueTests: XCTestCase {
         let value = SentryAttributeValue.string("test")
 
         // -- Act --
-        let anyValue = value.anyValue
+        let anyValue = value.value
 
         // -- Assert --
         XCTAssertEqual(anyValue as? String, "test")
@@ -112,7 +112,7 @@ class SentryAttributeValueTests: XCTestCase {
         let value = SentryAttributeValue.boolean(true)
 
         // -- Act --
-        let anyValue = value.anyValue
+        let anyValue = value.value
 
         // -- Assert --
         XCTAssertEqual(anyValue as? Bool, true)
@@ -123,7 +123,7 @@ class SentryAttributeValueTests: XCTestCase {
         let value = SentryAttributeValue.integer(42)
 
         // -- Act --
-        let anyValue = value.anyValue
+        let anyValue = value.value
 
         // -- Assert --
         XCTAssertEqual(anyValue as? Int, 42)
@@ -134,7 +134,7 @@ class SentryAttributeValueTests: XCTestCase {
         let value = SentryAttributeValue.double(3.14)
 
         // -- Act --
-        let anyValue = value.anyValue
+        let anyValue = value.value
 
         // -- Assert --
         XCTAssertEqual(try XCTUnwrap(anyValue as? Double), 3.14, accuracy: 0.001)
@@ -146,7 +146,7 @@ class SentryAttributeValueTests: XCTestCase {
         let value = SentryAttributeValue.stringArray(array)
 
         // -- Act --
-        let anyValue = value.anyValue
+        let anyValue = value.value
 
         // -- Assert --
         XCTAssertEqual(anyValue as? [String], array)
@@ -158,7 +158,7 @@ class SentryAttributeValueTests: XCTestCase {
         let value = SentryAttributeValue.booleanArray(array)
 
         // -- Act --
-        let anyValue = value.anyValue
+        let anyValue = value.value
 
         // -- Assert --
         XCTAssertEqual(anyValue as? [Bool], array)
@@ -170,7 +170,7 @@ class SentryAttributeValueTests: XCTestCase {
         let value = SentryAttributeValue.integerArray(array)
 
         // -- Act --
-        let anyValue = value.anyValue
+        let anyValue = value.value
 
         // -- Assert --
         XCTAssertEqual(anyValue as? [Int], array)
@@ -182,7 +182,7 @@ class SentryAttributeValueTests: XCTestCase {
         let value = SentryAttributeValue.doubleArray(array)
 
         // -- Act --
-        let anyValue = value.anyValue
+        let anyValue = value.value
 
         // -- Assert --
         XCTAssertEqual(anyValue as? [Double], array)
@@ -195,7 +195,7 @@ class SentryAttributeValueTests: XCTestCase {
         let input: Any = "test"
 
         // -- Act --
-        let value = SentryAttributeValue(fromAny: input)
+        let value = SentryAttributeValue.from(anyValue: input)
 
         // -- Assert --
         if case .string(let stringValue) = value {
@@ -210,7 +210,7 @@ class SentryAttributeValueTests: XCTestCase {
         let input: Any = true
 
         // -- Act --
-        let value = SentryAttributeValue(fromAny: input)
+        let value = SentryAttributeValue.from(anyValue: input)
 
         // -- Assert --
         if case .boolean(let boolValue) = value {
@@ -225,7 +225,7 @@ class SentryAttributeValueTests: XCTestCase {
         let input: Any = 42
 
         // -- Act --
-        let value = SentryAttributeValue(fromAny: input)
+        let value = SentryAttributeValue.from(anyValue: input)
 
         // -- Assert --
         if case .integer(let intValue) = value {
@@ -240,7 +240,7 @@ class SentryAttributeValueTests: XCTestCase {
         let input: Any = 3.14
 
         // -- Act --
-        let value = SentryAttributeValue(fromAny: input)
+        let value = SentryAttributeValue.from(anyValue: input)
 
         // -- Assert --
         if case .double(let doubleValue) = value {
@@ -255,7 +255,7 @@ class SentryAttributeValueTests: XCTestCase {
         let input: Any = Float(3.14)
 
         // -- Act --
-        let value = SentryAttributeValue(fromAny: input)
+        let value = SentryAttributeValue.from(anyValue: input)
 
         // -- Assert --
         if case .double(let doubleValue) = value {
@@ -270,7 +270,7 @@ class SentryAttributeValueTests: XCTestCase {
         let input: Any = ["a", "b", "c"]
 
         // -- Act --
-        let value = SentryAttributeValue(fromAny: input)
+        let value = SentryAttributeValue.from(anyValue: input)
 
         // -- Assert --
         if case .stringArray(let arrayValue) = value {
@@ -285,7 +285,7 @@ class SentryAttributeValueTests: XCTestCase {
         let input: Any = [true, false]
 
         // -- Act --
-        let value = SentryAttributeValue(fromAny: input)
+        let value = SentryAttributeValue.from(anyValue: input)
 
         // -- Assert --
         if case .booleanArray(let arrayValue) = value {
@@ -300,7 +300,7 @@ class SentryAttributeValueTests: XCTestCase {
         let input: Any = [1, 2, 3]
 
         // -- Act --
-        let value = SentryAttributeValue(fromAny: input)
+        let value = SentryAttributeValue.from(anyValue: input)
 
         // -- Assert --
         if case .integerArray(let arrayValue) = value {
@@ -315,7 +315,7 @@ class SentryAttributeValueTests: XCTestCase {
         let input: Any = [1.1, 2.2, 3.3]
 
         // -- Act --
-        let value = SentryAttributeValue(fromAny: input)
+        let value = SentryAttributeValue.from(anyValue: input)
 
         // -- Assert --
         if case .doubleArray(let arrayValue) = value {
@@ -330,7 +330,7 @@ class SentryAttributeValueTests: XCTestCase {
         let input: Any = [Float(1.1), Float(2.2), Float(3.3)]
 
         // -- Act --
-        let value = SentryAttributeValue(fromAny: input)
+        let value = SentryAttributeValue.from(anyValue: input)
 
         // -- Assert --
         if case .doubleArray(let arrayValue) = value {
@@ -352,7 +352,7 @@ class SentryAttributeValueTests: XCTestCase {
         let input: Any = attributes
 
         // -- Act --
-        let value = SentryAttributeValue(fromAny: input)
+        let value = SentryAttributeValue.from(anyValue: input)
 
         // -- Assert --
         if case .stringArray(let arrayValue) = value {
@@ -372,7 +372,7 @@ class SentryAttributeValueTests: XCTestCase {
         let input: Any = attributes
 
         // -- Act --
-        let value = SentryAttributeValue(fromAny: input)
+        let value = SentryAttributeValue.from(anyValue: input)
 
         // -- Assert --
         if case .stringArray(let arrayValue) = value {
@@ -389,7 +389,7 @@ class SentryAttributeValueTests: XCTestCase {
         let input: Any = attributes
 
         // -- Act --
-        let value = SentryAttributeValue(fromAny: input)
+        let value = SentryAttributeValue.from(anyValue: input)
 
         // -- Assert --
         if case .stringArray(let arrayValue) = value {
@@ -404,7 +404,7 @@ class SentryAttributeValueTests: XCTestCase {
         let input: Any = Date()
 
         // -- Act --
-        let value = SentryAttributeValue(fromAny: input)
+        let value = SentryAttributeValue.from(anyValue: input)
 
         // -- Assert --
         if case .string(let stringValue) = value {
