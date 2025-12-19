@@ -284,8 +284,8 @@ class TestData {
     
     static var metricKitEvent: Event {
         let event = Event(level: .warning)
-        let exception = Exception(value: "MXCPUException totalCPUTime:90.009 sec totalSampledTime:91.952 sec", type: SentryMetricKitCpuExceptionType)
-        exception.mechanism = Mechanism(type: SentryMetricKitCpuExceptionMechanism)
+        let exception = Exception(value: "MXCPUException totalCPUTime:90.009 sec totalSampledTime:91.952 sec", type: "MXCPUException")
+        exception.mechanism = Mechanism(type: "mx_cpu_exception")
         event.exceptions = [exception]
         return event
     }

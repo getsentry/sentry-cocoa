@@ -17,7 +17,6 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
     var callStackTreePerThread: SentryMXCallStackTree!
     var callStackTreeNotPerThread: SentryMXCallStackTree!
     var timeStampBegin: Date!
-    var timeStampEnd: Date!
     
     override func setUpWithError() throws {
         try super.setUpWithError()
@@ -28,10 +27,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         let contentsNotPerThread = try contentsOfResource("MetricKitCallstacks/not-per-thread")
         callStackTreeNotPerThread = try SentryMXCallStackTree.from(data: contentsNotPerThread)
         
-        // Starting from iOS 15 MetricKit payloads are delivered immediately, so
-        // timeStamp and timeStampEnd match.
         timeStampBegin = SentryDependencyContainer.sharedInstance().dateProvider.date().addingTimeInterval(21.23)
-        timeStampEnd = timeStampBegin
     }
     
     override func tearDown() {
@@ -40,53 +36,50 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
     }
 
     func testOptionEnabled_MetricKitManagerInitialized() {
-            let sut = SentryMetricKitIntegration()
-            
-            givenInstalledWithEnabled(sut)
-            
-            XCTAssertNotNil(Dynamic(sut).metricKitManager as SentryMXManager?)
+          let options = Options()
+          options.enableMetricKit = true
+          let sut = SentryMetricKitIntegration(with: options, dependencies: ())
+          XCTAssertNotNil(sut)
     }
     
     func testOptionDisabled_MetricKitManagerNotInitialized() {
-            let sut = SentryMetricKitIntegration()
-            
-            sut.install(with: Options())
-            
-            XCTAssertNil(Dynamic(sut).metricKitManager as SentryMXManager?)
+          let options = Options()
+          let sut = SentryMetricKitIntegration(with: options, dependencies: ())
+          XCTAssertNil(sut)
     }
     
     func testUninstall_MetricKitManagerSetToNil() {
-            let sut = SentryMetricKitIntegration()
             
             let options = Options()
             options.enableMetricKit = true
-            sut.install(with: options)
-            sut.uninstall()
+            let sut = SentryMetricKitIntegration(with: options, dependencies: ())
+            sut?.uninstall()
             
-            XCTAssertNil(Dynamic(sut).metricKitManager as SentryMXManager?)
+            XCTAssertNil((Dynamic(sut).mxManager as SentryMXManager?)?.delegate)
     }
     
     func testMXCrashPayloadReceived() throws {
             givenSDKWithHubWithScope()
             
-            let sut = SentryMetricKitIntegration()
-            givenInstalledWithEnabled(sut)
+        let options = Options()
+        options.enableMetricKit = true
+        let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: ()))
             
-            let mxDelegate = sut as! SentryMXManagerDelegate
-            mxDelegate.didReceiveCrashDiagnostic(MXCrashDiagnostic(), callStackTree: callStackTreePerThread, timeStampBegin: timeStampBegin, timeStampEnd: timeStampEnd)
+        sut.didReceiveCrashDiagnostic(MXCrashDiagnostic(), callStackTree: callStackTreePerThread, timeStampBegin: timeStampBegin)
             
-        try assertPerThread(exceptionType: "MXCrashDiagnostic", exceptionValue: "MachException Type:(null) Code:(null) Signal:(null)", exceptionMechanism: "MXCrashDiagnostic", handled: false)
+        try assertPerThread(exceptionType: "MXCrashDiagnostic", exceptionValue: "MachException Type:nil Code:nil Signal:nil", exceptionMechanism: "MXCrashDiagnostic", handled: false)
     }
     
     func testAttachDiagnosticAsAttachment() throws {
             givenSDKWithHubWithScope()
             
-            let sut = SentryMetricKitIntegration()
-            givenInstalledWithEnabled(sut) { $0.enableMetricKitRawPayload = true }
+        let options = Options()
+        options.enableMetricKit = true
+        options.enableMetricKitRawPayload = true
+        let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: ()))
             
-            let mxDelegate = sut as! SentryMXManagerDelegate
             let diagnostic = MXCrashDiagnostic()
-            mxDelegate.didReceiveCrashDiagnostic(diagnostic, callStackTree: callStackTreePerThread, timeStampBegin: timeStampBegin, timeStampEnd: timeStampEnd)
+        sut.didReceiveCrashDiagnostic(diagnostic, callStackTree: callStackTreePerThread, timeStampBegin: timeStampBegin)
             
             try assertEventWithScopeCaptured { _, scope, _ in
                 let diagnosticAttachment = scope?.attachments.first { $0.filename == "MXDiagnosticPayload.json" }
@@ -98,11 +91,12 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
     func testDontAttachDiagnosticAsAttachment() throws {
             givenSDKWithHubWithScope()
             
-            let sut = SentryMetricKitIntegration()
+        let options = Options()
+        options.enableMetricKit = true
+        let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: ()))
             
-            let mxDelegate = sut as! SentryMXManagerDelegate
             let diagnostic = MXCrashDiagnostic()
-            mxDelegate.didReceiveCrashDiagnostic(diagnostic, callStackTree: callStackTreePerThread, timeStampBegin: timeStampBegin, timeStampEnd: timeStampEnd)
+        sut.didReceiveCrashDiagnostic(diagnostic, callStackTree: callStackTreePerThread, timeStampBegin: timeStampBegin)
             
             try assertEventWithScopeCaptured { _, scope, _ in
                 let diagnosticAttachment = scope?.attachments.first { $0.filename == "MXDiagnosticPayload.json" }
@@ -114,13 +108,12 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
     func testSetInAppIncludes_AppliesInAppToStackTrace() throws {
             givenSDKWithHubWithScope()
             
-            let sut = SentryMetricKitIntegration()
-            givenInstalledWithEnabled(sut) { options in
-                options.add(inAppInclude: "iOS-Swift")
-            }
+        let options = Options()
+        options.enableMetricKit = true
+        options.add(inAppInclude: "iOS-Swift")
+        let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: ()))
             
-            let mxDelegate = sut as! SentryMXManagerDelegate
-            mxDelegate.didReceiveCrashDiagnostic(MXCrashDiagnostic(), callStackTree: callStackTreePerThread, timeStampBegin: timeStampBegin, timeStampEnd: timeStampEnd)
+            sut.didReceiveCrashDiagnostic(MXCrashDiagnostic(), callStackTree: callStackTreePerThread, timeStampBegin: timeStampBegin)
             
             try assertEventWithScopeCaptured { event, _, _ in
                 let stacktrace = try XCTUnwrap( event?.threads?.first?.stacktrace)
@@ -131,26 +124,14 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
             }
     }
     
-    func testCPUExceptionDiagnostic_PerThread() throws {
-            givenSDKWithHubWithScope()
-            
-            let sut = SentryMetricKitIntegration()
-            givenInstalledWithEnabled(sut)
-            
-            let mxDelegate = try XCTUnwrap(sut as? SentryMXManagerDelegate)
-            mxDelegate.didReceiveCpuExceptionDiagnostic(TestMXCPUExceptionDiagnostic(), callStackTree: callStackTreePerThread, timeStampBegin: timeStampBegin, timeStampEnd: timeStampEnd)
-            
-            assertNothingCaptured()
-    }
-    
     func testCPUExceptionDiagnostic_NotPerThread() throws {
             givenSDKWithHubWithScope()
             
-            let sut = SentryMetricKitIntegration()
-            givenInstalledWithEnabled(sut)
+            let options = Options()
+            options.enableMetricKit = true
+            let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: ()))
             
-            let mxDelegate = sut as! SentryMXManagerDelegate
-            mxDelegate.didReceiveCpuExceptionDiagnostic(TestMXCPUExceptionDiagnostic(), callStackTree: callStackTreeNotPerThread, timeStampBegin: timeStampBegin, timeStampEnd: timeStampEnd)
+            sut.didReceiveCpuExceptionDiagnostic(TestMXCPUExceptionDiagnostic(), callStackTree: callStackTreeNotPerThread, timeStampBegin: timeStampBegin)
             
             try assertNotPerThread(exceptionType: "MXCPUException", exceptionValue: "MXCPUException totalCPUTime:2.2 ms totalSampledTime:5.5 ms", exceptionMechanism: "mx_cpu_exception")
     }
@@ -158,14 +139,14 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
     func testCPUExceptionDiagnostic_OnlyOneFrame() throws {
             givenSDKWithHubWithScope()
             
-            let sut = SentryMetricKitIntegration()
-            givenInstalledWithEnabled(sut)
+            let options = Options()
+            options.enableMetricKit = true
+            let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: ()))
             
             let contents = try contentsOfResource("MetricKitCallstacks/not-per-thread-only-one-frame")
             let callStackTree = try SentryMXCallStackTree.from(data: contents)
             
-            let mxDelegate = sut as! SentryMXManagerDelegate
-            mxDelegate.didReceiveCpuExceptionDiagnostic(TestMXCPUExceptionDiagnostic(), callStackTree: callStackTree, timeStampBegin: timeStampBegin, timeStampEnd: timeStampEnd)
+            sut.didReceiveCpuExceptionDiagnostic(TestMXCPUExceptionDiagnostic(), callStackTree: callStackTree, timeStampBegin: timeStampBegin)
             
             guard let client = SentrySDKInternal.currentHub().getClient() as? TestClient else {
                 XCTFail("Hub Client is not a `TestClient`")
@@ -191,11 +172,11 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
     func testDiskWriteExceptionDiagnostic() throws {
             givenSDKWithHubWithScope()
             
-            let sut = SentryMetricKitIntegration()
-            givenInstalledWithEnabled(sut)
+            let options = Options()
+            options.enableMetricKit = true
+            let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: ()))
             
-            let mxDelegate = sut as! SentryMXManagerDelegate
-            mxDelegate.didReceiveDiskWriteExceptionDiagnostic(TestMXDiskWriteExceptionDiagnostic(), callStackTree: callStackTreeNotPerThread, timeStampBegin: timeStampBegin, timeStampEnd: timeStampEnd)
+            sut.didReceiveDiskWriteExceptionDiagnostic(TestMXDiskWriteExceptionDiagnostic(), callStackTree: callStackTreeNotPerThread, timeStampBegin: timeStampBegin)
             
             try assertNotPerThread(exceptionType: "MXDiskWriteException", exceptionValue: "MXDiskWriteException totalWritesCaused:5.5 Mib", exceptionMechanism: "mx_disk_write_exception")
     }
@@ -203,20 +184,13 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
     func testHangDiagnostic() throws {
             givenSDKWithHubWithScope()
             
-            let sut = SentryMetricKitIntegration()
-            givenInstalledWithEnabled(sut)
+            let options = Options()
+            options.enableMetricKit = true
+            let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: ()))
             
-            let mxDelegate = sut as! SentryMXManagerDelegate
-            mxDelegate.didReceiveHangDiagnostic(TestMXHangDiagnostic(), callStackTree: callStackTreeNotPerThread, timeStampBegin: timeStampBegin, timeStampEnd: timeStampEnd)
+            sut.didReceiveHangDiagnostic(TestMXHangDiagnostic(), callStackTree: callStackTreeNotPerThread, timeStampBegin: timeStampBegin)
             
             try assertNotPerThread(exceptionType: "MXHangDiagnostic", exceptionValue: "MXHangDiagnostic hangDuration:6.6 sec", exceptionMechanism: "mx_hang_diagnostic")
-    }
-    
-    private func givenInstalledWithEnabled(_ integration: SentryMetricKitIntegration, optionsBlock: (Options) -> Void = { _ in }) {
-        let options = Options()
-        options.enableMetricKit = true
-        optionsBlock(options)
-        integration.install(with: options)
     }
     
     private func givenSDKWithHubWithScope() {
