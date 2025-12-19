@@ -7,7 +7,7 @@ import Foundation
 struct SentryMXCallStackTree: Decodable {
     
     let callStacks: [SentryMXCallStack]
-    public let callStackPerThread: Bool
+    let callStackPerThread: Bool
     
     static func from(data: Data) throws -> SentryMXCallStackTree {
         return try JSONDecoder().decode(SentryMXCallStackTree.self, from: data)

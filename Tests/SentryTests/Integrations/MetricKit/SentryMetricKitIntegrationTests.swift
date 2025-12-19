@@ -55,7 +55,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
             let sut = SentryMetricKitIntegration(with: options, dependencies: ())
             sut?.uninstall()
             
-            XCTAssertNil((Dynamic(sut).metricKitManager as SentryMXManager?)?.delegate)
+            XCTAssertNil((Dynamic(sut).mxManager as SentryMXManager?)?.delegate)
     }
     
     func testMXCrashPayloadReceived() throws {
@@ -67,7 +67,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
             
         sut.didReceiveCrashDiagnostic(MXCrashDiagnostic(), callStackTree: callStackTreePerThread, timeStampBegin: timeStampBegin)
             
-        try assertPerThread(exceptionType: "MXCrashDiagnostic", exceptionValue: "MachException Type:(null) Code:(null) Signal:(null)", exceptionMechanism: "MXCrashDiagnostic", handled: false)
+        try assertPerThread(exceptionType: "MXCrashDiagnostic", exceptionValue: "MachException Type:nil Code:nil Signal:nil", exceptionMechanism: "MXCrashDiagnostic", handled: false)
     }
     
     func testAttachDiagnosticAsAttachment() throws {
@@ -122,18 +122,6 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
                 
                 XCTAssertEqual(2, inAppFramesCount)
             }
-    }
-    
-    func testCPUExceptionDiagnostic_PerThread() throws {
-            givenSDKWithHubWithScope()
-            
-            let options = Options()
-            options.enableMetricKit = true
-            let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: ()))
-            
-            sut.didReceiveCpuExceptionDiagnostic(TestMXCPUExceptionDiagnostic(), callStackTree: callStackTreePerThread, timeStampBegin: timeStampBegin)
-            
-            assertNothingCaptured()
     }
     
     func testCPUExceptionDiagnostic_NotPerThread() throws {

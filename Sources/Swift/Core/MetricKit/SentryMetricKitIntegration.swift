@@ -73,7 +73,7 @@ private let hangDiagnosticMechanism = "mx_hang_diagnostic"
 @available(macOS 12.0, *)
 extension SentryMetricKitIntegration: SentryMXManagerDelegate {
     func didReceiveCrashDiagnostic(_ diagnostic: MXCrashDiagnostic, callStackTree: SentryMXCallStackTree, timeStampBegin: Date) {
-        let exceptionValue = "MachException Type:\(diagnostic.exceptionType ?? 0) Code:\(diagnostic.exceptionCode ?? 0) Signal:\(diagnostic.signal ?? 0)"
+        let exceptionValue = "MachException Type:\(String(describing: diagnostic.exceptionType)) Code:\(String(describing: diagnostic.exceptionCode)) Signal:\(String(describing: diagnostic.signal))"
         let event = Self.createEvent(handled: false, level: .error, exceptionValue: exceptionValue, exceptionType: "MXCrashDiagnostic", exceptionMechanism: crashMechanism, timeStampBegin: timeStampBegin)
         capture(event: event, handled: false, callStackTree: callStackTree, diagnosticJSON: diagnostic.jsonRepresentation())
     }
@@ -104,7 +104,7 @@ extension SentryMetricKitIntegration: SentryMXManagerDelegate {
 
 extension Event {
     @objc
-    public func isMetricKitEvent() -> Bool {
+    @_spi(Private) public func isMetricKitEvent() -> Bool {
         guard let mechanism = exceptions?.first?.mechanism, exceptions?.count == 1 else {
             return false
         }
