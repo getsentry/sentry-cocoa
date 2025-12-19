@@ -46,8 +46,7 @@ class SentryMetricsIntegrationTests: XCTestCase {
             timestamp: Date(),
             traceId: SentryId(),
             name: "test.metric",
-            value: 1,
-            type: .counter,
+            value: .counter(1),
             unit: nil,
             attributes: [:]
         )
@@ -82,8 +81,7 @@ class SentryMetricsIntegrationTests: XCTestCase {
             timestamp: Date(),
             traceId: SentryId(),
             name: "test.metric",
-            value: 1,
-            type: .counter,
+            value: .counter(1),
             unit: nil,
             attributes: [:]
         )
@@ -100,6 +98,49 @@ class SentryMetricsIntegrationTests: XCTestCase {
 
         // Assert no furhter invocations
         XCTAssertEqual(1, client.captureMetricsDataInvocations.count, "Uninstall should flush metrics")
+    }
+    
+    func testAddMetric_whenNoClientAvailable_shouldDropMetricsSilently() throws {
+        // -- Arrange --
+        try givenSdkWithHub()
+        let integration = try getSut()
+        
+        // Create a new hub without a client to simulate no client scenario
+        let hubWithoutClient = SentryHubInternal(
+            client: nil,
+            andScope: Scope(),
+            andCrashWrapper: TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo),
+            andDispatchQueue: SentryDispatchQueueWrapper()
+        )
+        let originalHub = SentrySDKInternal.currentHub()
+        SentrySDKInternal.setCurrentHub(hubWithoutClient)
+        defer {
+            // Restore original hub for cleanup
+            SentrySDKInternal.setCurrentHub(originalHub)
+        }
+
+        let scope = Scope()
+        let metric = SentryMetric(
+            timestamp: Date(),
+            traceId: SentryId(),
+            name: "test.metric",
+            value: .counter(1),
+            unit: nil,
+            attributes: [:]
+        )
+        
+        // -- Act --
+        integration.addMetric(metric, scope: scope)
+        integration.uninstall()
+        
+        // -- Assert --
+        // Should not crash and metrics should be dropped silently
+        // The callback should handle nil client gracefully (verified by no crash)
+    }
+    
+    func testName_shouldReturnCorrectName() {
+        // -- Act & Assert --
+        XCTAssertEqual(SentryMetricsIntegration<SentryDependencyContainer>.name, "SentryMetricsIntegration")
     }
 
     // MARK: - Helpers

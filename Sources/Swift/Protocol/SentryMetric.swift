@@ -2,18 +2,14 @@
 ///
 /// Use the `options.beforeSendMetric` callback to modify or filter metric data.
 public struct SentryMetric {
+    /// A typed value of the metric
+    public typealias Value = SentryMetricValue
+
     /// A typed attribute that can be attached to structured item entries
     public typealias Attribute = SentryAttribute
 
     /// The timestamp when the metric was recorded.
     public var timestamp: Date
-
-    /// The type of metric (counter, gauge, or distribution).
-    ///
-    /// - `.counter`: Incrementing integer values (e.g., request counts)
-    /// - `.gauge`: Current value at a point in time (e.g., active connections)
-    /// - `.distribution`: Statistical distribution of values (e.g., response times)
-    public let metricType: SentryMetricType
 
     /// The name of the metric (e.g., "api.response_time", "db.query.duration").
     ///
@@ -34,34 +30,7 @@ public struct SentryMetric {
     /// - Setting an integer on a gauge/distribution: converts to double
     ///
     /// - Note: Counters use integer values, distributions and gauges use double values.
-    private var _value: SentryMetricValue
-    public var value: SentryMetricValue {
-        get {
-            return _value
-        }
-        set {
-            // Perform type conversion when needed
-            switch (metricType, newValue) {
-            case (.counter, .integer):
-                _value = newValue
-            case (.counter, .double(let doubleValue)):
-                // Convert double to integer by flooring
-                let converted = Int64(max(0, floor(doubleValue)))
-                SentrySDKLog.warning("Attempted to set a double value (\(doubleValue)) on a counter metric. Converting to integer by flooring: \(converted).")
-                _value = .integer(converted)
-            case (.gauge, .double), (.distribution, .double):
-                _value = newValue
-            case (.gauge, .integer(let intValue)):
-                // Convert integer to double
-                SentrySDKLog.warning("Attempted to set an integer value (\(intValue)) on a gauge metric. Converting to double: \(Double(intValue)).")
-                _value = .double(Double(intValue))
-            case (.distribution, .integer(let intValue)):
-                // Convert integer to double
-                SentrySDKLog.warning("Attempted to set an integer value (\(intValue)) on a distribution metric. Converting to double: \(Double(intValue)).")
-                _value = .double(Double(intValue))
-            }
-        }
-    }
+    public var value: SentryMetricValue
     
     /// The unit of measurement for the metric value (optional).
     ///
@@ -86,7 +55,6 @@ public struct SentryMetric {
     ///   - traceId: The trace ID to associate this metric with distributed tracing
     ///   - name: The name of the metric
     ///   - value: The numeric value of the metric
-    ///   - metricType: The type of metric
     ///   - unit: The unit of measurement for the metric value (optional)
     ///   - attributes: A dictionary of structured attributes to add to the metric
     internal init(
@@ -94,20 +62,14 @@ public struct SentryMetric {
         traceId: SentryId,
         name: String,
         value: SentryMetricValue,
-        type: SentryMetricType,
         unit: String?,
         attributes: [String: SentryAttribute]
     ) {
         self.timestamp = timestamp
         self.traceId = traceId
         self.name = name
-        self.metricType = type
         self.unit = unit
         self.attributes = attributes
-
-        // We first assign the `_value` so that all values of self are set.
-        // Then we set `value` because it will enforce the custom setter
-        self._value = value
         self.value = value
     }
 }
@@ -129,112 +91,13 @@ extension SentryMetric: Encodable {
         try container.encode(timestamp, forKey: .timestamp)
         try container.encode(traceId.sentryIdString, forKey: .traceId)
         try container.encode(name, forKey: .name)
-        try container.encode(value, forKey: .value)
-        
-        try container.encode(metricType, forKey: .type)
         try container.encodeIfPresent(unit, forKey: .unit)
         try container.encode(attributes, forKey: .attributes)
+
+        // We need to call the encode method instead of passing the value to the encoder
+        // so that the `type` and `value` are set on the same level as the other keys.
+        try value.encode(to: encoder)
     }
 }
 
 extension SentryMetric: BatcherItem {}
-
-// MARK: - SentryMetricType
-
-/// The type of metric being recorded.
-///
-/// Different metric types serve different purposes:
-/// - **Counter**: Incrementing integer values that only increase (e.g., total requests, errors)
-/// - **Gauge**: Current value at a point in time that can go up or down (e.g., active connections, queue size)
-/// - **Distribution**: Statistical distribution of values for aggregation (e.g., response times, payload sizes)
-public enum SentryMetricType: String {
-    /// Incrementing integer values that only increase.
-    case counter
-
-    /// Current value at a point in time that can fluctuate.
-    case gauge
-
-    /// Statistical distribution of values for aggregation.
-    case distribution
-}
-
-extension SentryMetricType: Encodable {
-    public func encode(to encoder: Encoder) throws {
-        var container = encoder.singleValueContainer()
-        try container.encode(self.rawValue)
-    }
-}
-
-// MARK: - SentryMetricValue
-
-/// Represents the numeric value of a metric with type-safe distinction between integers and doubles.
-///
-/// This enum provides type safety to prevent accidentally mixing integer and floating-point values,
-/// especially useful in `beforeSendMetric` callbacks where you need to ensure counters remain integers
-/// and distributions remain doubles.
-///
-/// Per the metrics specification: "Integers should be a 64-bit signed integer, while doubles
-/// should be a 64-bit floating point number."
-///
-/// The enum conforms to `ExpressibleByIntegerLiteral` and `ExpressibleByFloatLiteral`, allowing
-/// convenient initialization:
-/// ```swift
-/// let counterValue: Metric.Value = 42        // Creates .integer(42)
-/// let gaugeValue: Metric.Value = 3.14159     // Creates .double(3.14159)
-/// ```
-///
-/// Example usage in `beforeSendMetric`:
-/// ```swift
-/// options.beforeSendMetric = { metric in
-///     var modified = metric
-///     switch modified.value {
-///     case .integer(let intValue):
-///         // Can safely modify as integer - e.g., for counters
-///         modified.value = .integer(intValue + 1)
-///         // Or use literal syntax: modified.value = intValue + 1
-///     case .double(let doubleValue):
-///         // Can safely modify as double - e.g., for distributions
-///         modified.value = .double(doubleValue * 1.5)
-///         // Or use literal syntax: modified.value = doubleValue * 1.5
-///     }
-///     return modified
-/// }
-/// ```
-public enum SentryMetricValue: Equatable, ExpressibleByIntegerLiteral, ExpressibleByFloatLiteral, Hashable {
-    /// A 64-bit signed integer value, typically used for counters.
-    case integer(Int64)
-
-    /// A 64-bit floating point value, typically used for distributions and gauges.
-    case double(Double)
-
-    /// Initializes a `Metric.Value` from a floating point literal.
-    /// - Parameters:
-    ///   - value: The floating point value to initialize the `Metric.Value` from
-    public init(floatLiteral value: FloatLiteralType) {
-        self = .double(value)
-    }
-
-    /// Initializes a `Metric.Value` from an integer literal.
-    /// - Parameters:
-    ///   - value: The integer value to initialize the `Metric.Value` from
-    public init(integerLiteral value: IntegerLiteralType) {
-        self = .integer(Int64(value))
-    }
-}
-
-extension SentryMetricValue: Encodable {
-    /// Encodes the value according to the metrics specification.
-    ///
-    /// Integer values are encoded as `Int64` and double values as `Double` to ensure
-    /// accurate representation in the metric payload.
-    public func encode(to encoder: Encoder) throws {
-        var container = encoder.singleValueContainer()
-        switch self {
-        case .integer(let value):
-            try container.encode(value)
-        case .double(let value):
-            try container.encode(value)
-        }
-    }
-
-}

@@ -162,9 +162,17 @@ public struct SentrySDKWrapper {
         // Integration: Metrics
         options.experimental.enableMetrics = SentrySDKOverrides.Metrics.enable.boolValue
         options.experimental.beforeSendMetric = { metric in
-            var metric = metric // Make the metric mutable because it's a value type
-            metric.attributes["custom-attribute"] = .init(string: "some-value")
-            return metric
+            // Modify the metric in the callback
+            var modifiedMetric = metric
+
+            // Modify the value of the metric
+            if case .counter(let value) = modifiedMetric.value, modifiedMetric.name == "test.metric" {
+                modifiedMetric.value = .counter(value + 100)
+            }
+
+            // Add a custom attribute to the metric
+            modifiedMetric.attributes["custom-attribute"] = .init(string: "some-value")
+            return modifiedMetric
         }
 
         // Experimental features
