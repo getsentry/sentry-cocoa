@@ -36696,6 +36696,23 @@
         "children": [
           {
             "kind": "TypeAlias",
+            "name": "Value",
+            "printedName": "Value",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "SentryMetricValue",
+                "printedName": "Sentry.SentryMetricValue",
+                "usr": "s:6Sentry0A11MetricValueO"
+              }
+            ],
+            "declKind": "TypeAlias",
+            "usr": "s:6Sentry0A6MetricV5Valuea",
+            "mangledName": "$s6Sentry0A6MetricV5Valuea",
+            "moduleName": "Sentry"
+          },
+          {
+            "kind": "TypeAlias",
             "name": "Attribute",
             "printedName": "Attribute",
             "children": [
@@ -36774,49 +36791,6 @@
                 "moduleName": "Sentry",
                 "implicit": true,
                 "accessorKind": "set"
-              }
-            ]
-          },
-          {
-            "kind": "Var",
-            "name": "metricType",
-            "printedName": "metricType",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "SentryMetricType",
-                "printedName": "Sentry.SentryMetricType",
-                "usr": "s:6Sentry0A10MetricTypeO"
-              }
-            ],
-            "declKind": "Var",
-            "usr": "s:6Sentry0A6MetricV10metricTypeAA0abD0Ovp",
-            "mangledName": "$s6Sentry0A6MetricV10metricTypeAA0abD0Ovp",
-            "moduleName": "Sentry",
-            "declAttributes": [
-              "HasStorage"
-            ],
-            "isLet": true,
-            "hasStorage": true,
-            "accessors": [
-              {
-                "kind": "Accessor",
-                "name": "Get",
-                "printedName": "Get()",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "SentryMetricType",
-                    "printedName": "Sentry.SentryMetricType",
-                    "usr": "s:6Sentry0A10MetricTypeO"
-                  }
-                ],
-                "declKind": "Accessor",
-                "usr": "s:6Sentry0A6MetricV10metricTypeAA0abD0Ovg",
-                "mangledName": "$s6Sentry0A6MetricV10metricTypeAA0abD0Ovg",
-                "moduleName": "Sentry",
-                "implicit": true,
-                "accessorKind": "get"
               }
             ]
           },
@@ -36968,6 +36942,10 @@
             "usr": "s:6Sentry0A6MetricV5valueAA0aB5ValueOvp",
             "mangledName": "$s6Sentry0A6MetricV5valueAA0aB5ValueOvp",
             "moduleName": "Sentry",
+            "declAttributes": [
+              "HasStorage"
+            ],
+            "hasStorage": true,
             "accessors": [
               {
                 "kind": "Accessor",
@@ -36985,6 +36963,7 @@
                 "usr": "s:6Sentry0A6MetricV5valueAA0aB5ValueOvg",
                 "mangledName": "$s6Sentry0A6MetricV5valueAA0aB5ValueOvg",
                 "moduleName": "Sentry",
+                "implicit": true,
                 "accessorKind": "get"
               },
               {
@@ -37008,6 +36987,7 @@
                 "usr": "s:6Sentry0A6MetricV5valueAA0aB5ValueOvs",
                 "mangledName": "$s6Sentry0A6MetricV5valueAA0aB5ValueOvs",
                 "moduleName": "Sentry",
+                "implicit": true,
                 "accessorKind": "set"
               }
             ]
@@ -37267,8 +37247,8 @@
       },
       {
         "kind": "TypeDecl",
-        "name": "SentryMetricType",
-        "printedName": "SentryMetricType",
+        "name": "SentryMetricValue",
+        "printedName": "SentryMetricValue",
         "children": [
           {
             "kind": "Var",
@@ -37278,312 +37258,12 @@
               {
                 "kind": "TypeFunc",
                 "name": "Function",
-                "printedName": "(Sentry.SentryMetricType.Type) -> Sentry.SentryMetricType",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "SentryMetricType",
-                    "printedName": "Sentry.SentryMetricType",
-                    "usr": "s:6Sentry0A10MetricTypeO"
-                  },
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Metatype",
-                    "printedName": "Sentry.SentryMetricType.Type",
-                    "children": [
-                      {
-                        "kind": "TypeNominal",
-                        "name": "SentryMetricType",
-                        "printedName": "Sentry.SentryMetricType",
-                        "usr": "s:6Sentry0A10MetricTypeO"
-                      }
-                    ]
-                  }
-                ]
-              }
-            ],
-            "declKind": "EnumElement",
-            "usr": "s:6Sentry0A10MetricTypeO7counteryA2CmF",
-            "mangledName": "$s6Sentry0A10MetricTypeO7counteryA2CmF",
-            "moduleName": "Sentry"
-          },
-          {
-            "kind": "Var",
-            "name": "gauge",
-            "printedName": "gauge",
-            "children": [
-              {
-                "kind": "TypeFunc",
-                "name": "Function",
-                "printedName": "(Sentry.SentryMetricType.Type) -> Sentry.SentryMetricType",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "SentryMetricType",
-                    "printedName": "Sentry.SentryMetricType",
-                    "usr": "s:6Sentry0A10MetricTypeO"
-                  },
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Metatype",
-                    "printedName": "Sentry.SentryMetricType.Type",
-                    "children": [
-                      {
-                        "kind": "TypeNominal",
-                        "name": "SentryMetricType",
-                        "printedName": "Sentry.SentryMetricType",
-                        "usr": "s:6Sentry0A10MetricTypeO"
-                      }
-                    ]
-                  }
-                ]
-              }
-            ],
-            "declKind": "EnumElement",
-            "usr": "s:6Sentry0A10MetricTypeO5gaugeyA2CmF",
-            "mangledName": "$s6Sentry0A10MetricTypeO5gaugeyA2CmF",
-            "moduleName": "Sentry"
-          },
-          {
-            "kind": "Var",
-            "name": "distribution",
-            "printedName": "distribution",
-            "children": [
-              {
-                "kind": "TypeFunc",
-                "name": "Function",
-                "printedName": "(Sentry.SentryMetricType.Type) -> Sentry.SentryMetricType",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "SentryMetricType",
-                    "printedName": "Sentry.SentryMetricType",
-                    "usr": "s:6Sentry0A10MetricTypeO"
-                  },
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Metatype",
-                    "printedName": "Sentry.SentryMetricType.Type",
-                    "children": [
-                      {
-                        "kind": "TypeNominal",
-                        "name": "SentryMetricType",
-                        "printedName": "Sentry.SentryMetricType",
-                        "usr": "s:6Sentry0A10MetricTypeO"
-                      }
-                    ]
-                  }
-                ]
-              }
-            ],
-            "declKind": "EnumElement",
-            "usr": "s:6Sentry0A10MetricTypeO12distributionyA2CmF",
-            "mangledName": "$s6Sentry0A10MetricTypeO12distributionyA2CmF",
-            "moduleName": "Sentry"
-          },
-          {
-            "kind": "Constructor",
-            "name": "init",
-            "printedName": "init(rawValue:)",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Optional",
-                "printedName": "Sentry.SentryMetricType?",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "SentryMetricType",
-                    "printedName": "Sentry.SentryMetricType",
-                    "usr": "s:6Sentry0A10MetricTypeO"
-                  }
-                ],
-                "usr": "s:Sq"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "String",
-                "printedName": "Swift.String",
-                "usr": "s:SS"
-              }
-            ],
-            "declKind": "Constructor",
-            "usr": "s:6Sentry0A10MetricTypeO8rawValueACSgSS_tcfc",
-            "mangledName": "$s6Sentry0A10MetricTypeO8rawValueACSgSS_tcfc",
-            "moduleName": "Sentry",
-            "init_kind": "Designated"
-          },
-          {
-            "kind": "TypeAlias",
-            "name": "RawValue",
-            "printedName": "RawValue",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "String",
-                "printedName": "Swift.String",
-                "usr": "s:SS"
-              }
-            ],
-            "declKind": "TypeAlias",
-            "usr": "s:6Sentry0A10MetricTypeO8RawValuea",
-            "mangledName": "$s6Sentry0A10MetricTypeO8RawValuea",
-            "moduleName": "Sentry"
-          },
-          {
-            "kind": "Var",
-            "name": "rawValue",
-            "printedName": "rawValue",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "String",
-                "printedName": "Swift.String",
-                "usr": "s:SS"
-              }
-            ],
-            "declKind": "Var",
-            "usr": "s:6Sentry0A10MetricTypeO8rawValueSSvp",
-            "mangledName": "$s6Sentry0A10MetricTypeO8rawValueSSvp",
-            "moduleName": "Sentry",
-            "accessors": [
-              {
-                "kind": "Accessor",
-                "name": "Get",
-                "printedName": "Get()",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "String",
-                    "printedName": "Swift.String",
-                    "usr": "s:SS"
-                  }
-                ],
-                "declKind": "Accessor",
-                "usr": "s:6Sentry0A10MetricTypeO8rawValueSSvg",
-                "mangledName": "$s6Sentry0A10MetricTypeO8rawValueSSvg",
-                "moduleName": "Sentry",
-                "accessorKind": "get"
-              }
-            ]
-          },
-          {
-            "kind": "Function",
-            "name": "encode",
-            "printedName": "encode(to:)",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Void",
-                "printedName": "()"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "Encoder",
-                "printedName": "any Swift.Encoder",
-                "usr": "s:s7EncoderP"
-              }
-            ],
-            "declKind": "Func",
-            "usr": "s:6Sentry0A10MetricTypeO6encode2toys7Encoder_p_tKF",
-            "mangledName": "$s6Sentry0A10MetricTypeO6encode2toys7Encoder_p_tKF",
-            "moduleName": "Sentry",
-            "isFromExtension": true,
-            "throwing": true,
-            "funcSelfKind": "NonMutating"
-          }
-        ],
-        "declKind": "Enum",
-        "usr": "s:6Sentry0A10MetricTypeO",
-        "mangledName": "$s6Sentry0A10MetricTypeO",
-        "moduleName": "Sentry",
-        "enumRawTypeName": "String",
-        "conformances": [
-          {
-            "kind": "Conformance",
-            "name": "Copyable",
-            "printedName": "Copyable",
-            "usr": "s:s8CopyableP",
-            "mangledName": "$ss8CopyableP"
-          },
-          {
-            "kind": "Conformance",
-            "name": "Escapable",
-            "printedName": "Escapable",
-            "usr": "s:s9EscapableP",
-            "mangledName": "$ss9EscapableP"
-          },
-          {
-            "kind": "Conformance",
-            "name": "Encodable",
-            "printedName": "Encodable",
-            "usr": "s:SE",
-            "mangledName": "$sSE"
-          },
-          {
-            "kind": "Conformance",
-            "name": "Equatable",
-            "printedName": "Equatable",
-            "usr": "s:SQ",
-            "mangledName": "$sSQ"
-          },
-          {
-            "kind": "Conformance",
-            "name": "Hashable",
-            "printedName": "Hashable",
-            "usr": "s:SH",
-            "mangledName": "$sSH"
-          },
-          {
-            "kind": "Conformance",
-            "name": "RawRepresentable",
-            "printedName": "RawRepresentable",
-            "children": [
-              {
-                "kind": "TypeWitness",
-                "name": "RawValue",
-                "printedName": "RawValue",
-                "children": [
-                  {
-                    "kind": "TypeNameAlias",
-                    "name": "RawValue",
-                    "printedName": "Sentry.SentryMetricType.RawValue",
-                    "children": [
-                      {
-                        "kind": "TypeNominal",
-                        "name": "String",
-                        "printedName": "Swift.String",
-                        "usr": "s:SS"
-                      }
-                    ]
-                  }
-                ]
-              }
-            ],
-            "usr": "s:SY",
-            "mangledName": "$sSY"
-          }
-        ]
-      },
-      {
-        "kind": "TypeDecl",
-        "name": "SentryMetricValue",
-        "printedName": "SentryMetricValue",
-        "children": [
-          {
-            "kind": "Var",
-            "name": "integer",
-            "printedName": "integer",
-            "children": [
-              {
-                "kind": "TypeFunc",
-                "name": "Function",
-                "printedName": "(Sentry.SentryMetricValue.Type) -> (Swift.Int64) -> Sentry.SentryMetricValue",
+                "printedName": "(Sentry.SentryMetricValue.Type) -> (Swift.UInt) -> Sentry.SentryMetricValue",
                 "children": [
                   {
                     "kind": "TypeFunc",
                     "name": "Function",
-                    "printedName": "(Swift.Int64) -> Sentry.SentryMetricValue",
+                    "printedName": "(Swift.UInt) -> Sentry.SentryMetricValue",
                     "children": [
                       {
                         "kind": "TypeNominal",
@@ -37593,9 +37273,9 @@
                       },
                       {
                         "kind": "TypeNominal",
-                        "name": "Int64",
-                        "printedName": "Swift.Int64",
-                        "usr": "s:s5Int64V"
+                        "name": "UInt",
+                        "printedName": "Swift.UInt",
+                        "usr": "s:Su"
                       }
                     ]
                   },
@@ -37616,14 +37296,14 @@
               }
             ],
             "declKind": "EnumElement",
-            "usr": "s:6Sentry0A11MetricValueO7integeryACs5Int64VcACmF",
-            "mangledName": "$s6Sentry0A11MetricValueO7integeryACs5Int64VcACmF",
+            "usr": "s:6Sentry0A11MetricValueO7counteryACSucACmF",
+            "mangledName": "$s6Sentry0A11MetricValueO7counteryACSucACmF",
             "moduleName": "Sentry"
           },
           {
             "kind": "Var",
-            "name": "double",
-            "printedName": "double",
+            "name": "gauge",
+            "printedName": "gauge",
             "children": [
               {
                 "kind": "TypeFunc",
@@ -37666,71 +37346,59 @@
               }
             ],
             "declKind": "EnumElement",
-            "usr": "s:6Sentry0A11MetricValueO6doubleyACSdcACmF",
-            "mangledName": "$s6Sentry0A11MetricValueO6doubleyACSdcACmF",
+            "usr": "s:6Sentry0A11MetricValueO5gaugeyACSdcACmF",
+            "mangledName": "$s6Sentry0A11MetricValueO5gaugeyACSdcACmF",
             "moduleName": "Sentry"
           },
           {
-            "kind": "Constructor",
-            "name": "init",
-            "printedName": "init(floatLiteral:)",
+            "kind": "Var",
+            "name": "distribution",
+            "printedName": "distribution",
             "children": [
               {
-                "kind": "TypeNominal",
-                "name": "SentryMetricValue",
-                "printedName": "Sentry.SentryMetricValue",
-                "usr": "s:6Sentry0A11MetricValueO"
-              },
-              {
-                "kind": "TypeNameAlias",
-                "name": "FloatLiteralType",
-                "printedName": "Swift.FloatLiteralType",
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(Sentry.SentryMetricValue.Type) -> (Swift.Double) -> Sentry.SentryMetricValue",
                 "children": [
                   {
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(Swift.Double) -> Sentry.SentryMetricValue",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SentryMetricValue",
+                        "printedName": "Sentry.SentryMetricValue",
+                        "usr": "s:6Sentry0A11MetricValueO"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Double",
+                        "printedName": "Swift.Double",
+                        "usr": "s:Sd"
+                      }
+                    ]
+                  },
+                  {
                     "kind": "TypeNominal",
-                    "name": "Double",
-                    "printedName": "Swift.Double",
-                    "usr": "s:Sd"
+                    "name": "Metatype",
+                    "printedName": "Sentry.SentryMetricValue.Type",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SentryMetricValue",
+                        "printedName": "Sentry.SentryMetricValue",
+                        "usr": "s:6Sentry0A11MetricValueO"
+                      }
+                    ]
                   }
                 ]
               }
             ],
-            "declKind": "Constructor",
-            "usr": "s:6Sentry0A11MetricValueO12floatLiteralACSd_tcfc",
-            "mangledName": "$s6Sentry0A11MetricValueO12floatLiteralACSd_tcfc",
-            "moduleName": "Sentry",
-            "init_kind": "Designated"
-          },
-          {
-            "kind": "Constructor",
-            "name": "init",
-            "printedName": "init(integerLiteral:)",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "SentryMetricValue",
-                "printedName": "Sentry.SentryMetricValue",
-                "usr": "s:6Sentry0A11MetricValueO"
-              },
-              {
-                "kind": "TypeNameAlias",
-                "name": "IntegerLiteralType",
-                "printedName": "Swift.IntegerLiteralType",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Int",
-                    "printedName": "Swift.Int",
-                    "usr": "s:Si"
-                  }
-                ]
-              }
-            ],
-            "declKind": "Constructor",
-            "usr": "s:6Sentry0A11MetricValueO14integerLiteralACSi_tcfc",
-            "mangledName": "$s6Sentry0A11MetricValueO14integerLiteralACSi_tcfc",
-            "moduleName": "Sentry",
-            "init_kind": "Designated"
+            "declKind": "EnumElement",
+            "usr": "s:6Sentry0A11MetricValueO12distributionyACSdcACmF",
+            "mangledName": "$s6Sentry0A11MetricValueO12distributionyACSdcACmF",
+            "moduleName": "Sentry"
           },
           {
             "kind": "Function",
@@ -37762,54 +37430,6 @@
             "moduleName": "Sentry",
             "static": true,
             "funcSelfKind": "NonMutating"
-          },
-          {
-            "kind": "TypeAlias",
-            "name": "FloatLiteralType",
-            "printedName": "FloatLiteralType",
-            "children": [
-              {
-                "kind": "TypeNameAlias",
-                "name": "FloatLiteralType",
-                "printedName": "Swift.FloatLiteralType",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Double",
-                    "printedName": "Swift.Double",
-                    "usr": "s:Sd"
-                  }
-                ]
-              }
-            ],
-            "declKind": "TypeAlias",
-            "usr": "s:6Sentry0A11MetricValueO16FloatLiteralTypea",
-            "mangledName": "$s6Sentry0A11MetricValueO16FloatLiteralTypea",
-            "moduleName": "Sentry"
-          },
-          {
-            "kind": "TypeAlias",
-            "name": "IntegerLiteralType",
-            "printedName": "IntegerLiteralType",
-            "children": [
-              {
-                "kind": "TypeNameAlias",
-                "name": "IntegerLiteralType",
-                "printedName": "Swift.IntegerLiteralType",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Int",
-                    "printedName": "Swift.Int",
-                    "usr": "s:Si"
-                  }
-                ]
-              }
-            ],
-            "declKind": "TypeAlias",
-            "usr": "s:6Sentry0A11MetricValueO18IntegerLiteralTypea",
-            "mangledName": "$s6Sentry0A11MetricValueO18IntegerLiteralTypea",
-            "moduleName": "Sentry"
           },
           {
             "kind": "Function",
@@ -37909,78 +37529,6 @@
             "printedName": "Equatable",
             "usr": "s:SQ",
             "mangledName": "$sSQ"
-          },
-          {
-            "kind": "Conformance",
-            "name": "ExpressibleByIntegerLiteral",
-            "printedName": "ExpressibleByIntegerLiteral",
-            "children": [
-              {
-                "kind": "TypeWitness",
-                "name": "IntegerLiteralType",
-                "printedName": "IntegerLiteralType",
-                "children": [
-                  {
-                    "kind": "TypeNameAlias",
-                    "name": "IntegerLiteralType",
-                    "printedName": "Sentry.SentryMetricValue.IntegerLiteralType",
-                    "children": [
-                      {
-                        "kind": "TypeNameAlias",
-                        "name": "IntegerLiteralType",
-                        "printedName": "Swift.IntegerLiteralType",
-                        "children": [
-                          {
-                            "kind": "TypeNominal",
-                            "name": "Int",
-                            "printedName": "Swift.Int",
-                            "usr": "s:Si"
-                          }
-                        ]
-                      }
-                    ]
-                  }
-                ]
-              }
-            ],
-            "usr": "s:s27ExpressibleByIntegerLiteralP",
-            "mangledName": "$ss27ExpressibleByIntegerLiteralP"
-          },
-          {
-            "kind": "Conformance",
-            "name": "ExpressibleByFloatLiteral",
-            "printedName": "ExpressibleByFloatLiteral",
-            "children": [
-              {
-                "kind": "TypeWitness",
-                "name": "FloatLiteralType",
-                "printedName": "FloatLiteralType",
-                "children": [
-                  {
-                    "kind": "TypeNameAlias",
-                    "name": "FloatLiteralType",
-                    "printedName": "Sentry.SentryMetricValue.FloatLiteralType",
-                    "children": [
-                      {
-                        "kind": "TypeNameAlias",
-                        "name": "FloatLiteralType",
-                        "printedName": "Swift.FloatLiteralType",
-                        "children": [
-                          {
-                            "kind": "TypeNominal",
-                            "name": "Double",
-                            "printedName": "Swift.Double",
-                            "usr": "s:Sd"
-                          }
-                        ]
-                      }
-                    ]
-                  }
-                ]
-              }
-            ],
-            "usr": "s:s25ExpressibleByFloatLiteralP",
-            "mangledName": "$ss25ExpressibleByFloatLiteralP"
           },
           {
             "kind": "Conformance",
