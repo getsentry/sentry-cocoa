@@ -4,15 +4,9 @@ import XCTest
 /// documentation entries in the sentry-docs repository.
 ///
 /// Docs source: https://github.com/getsentry/sentry-docs/blob/master/docs/platforms/apple/common/configuration/options.mdx
-///
-/// If this test fails, either:
-/// 1. Add documentation for the new option in sentry-docs
-/// 2. Add the option to `undocumentedOptions` (for options pending documentation)
 @available(iOS 26.0, tvOS 26.0, macOS 26.0, macCatalyst 26.0, *)
 final class SentryOptionsDocumentationSyncTests: XCTestCase {
-    
-    // MARK: - Ignore Lists
-    
+
     /// Options not yet documented in the common options page.
     /// We plan to add documentation for all of these soon.
     /// Remove options from this list as they get documented.
@@ -126,8 +120,7 @@ final class SentryOptionsDocumentationSyncTests: XCTestCase {
         
         return options
     }
-    
-    /// Mapping between a code property name and its documentation name when they differ.
+
     private struct OptionNameMapping {
         let codeName: String
         let docsName: String
@@ -140,17 +133,14 @@ final class SentryOptionsDocumentationSyncTests: XCTestCase {
         OptionNameMapping(codeName: "enablePropagateTraceparent", docsName: "enable-propagate-trace-parent")
     ]
     
-    // MARK: - Tests
-    
-    func testAllOptionsAreDocumented() async throws {
-        // Extract properties from Options using Objective-C runtime and Mirror reflection
-        let codeProperties = extractPropertyNames(from: Options())
-        
-        // Fetch and parse documentation
+    func testAllOptionsAreDocumentedInSentryDocs() async throws {
+
+        let optionProperties = extractPropertyNames(from: Options())
+
         let documentedOptions = try await fetchDocumentedOptions()
         
         // Find properties that are not documented and not ignored
-        let propertiesHavingMissingDocs = codeProperties
+        let propertiesMissingDocs = optionProperties
             .filter { !undocumentedOptions.contains($0) }
             .filter { !documentedOptions.contains($0) }
             .filter { property in
@@ -162,24 +152,17 @@ final class SentryOptionsDocumentationSyncTests: XCTestCase {
             }
             .sorted()
         
-        // Fail if there are undocumented options
-        if !propertiesHavingMissingDocs.isEmpty {
-            XCTFail("""
-            
+        XCTAssertTrue(propertiesMissingDocs.isEmpty, """
             ❌ The following Options.swift properties are not documented in sentry-docs:
             
-            \(propertiesHavingMissingDocs.map { "   - \($0)" }.joined(separator: "\n"))
+            \(propertiesMissingDocs.map { "   - \($0)" }.joined(separator: "\n"))
             
             To fix this:
             1. Add documentation for these options in sentry-docs:
                https://github.com/getsentry/sentry-docs/blob/master/docs/platforms/apple/common/configuration/options.mdx
             
-            2. OR add them to the ignoredOptions dictionary in this test with a reason:
-               - If docs PR is pending, include the PR link
-               - If it's an internal property, explain why it shouldn't be documented
-            
+            2. OR add them to the SentryOptionsDocumentationSyncTests.undocumentedOptions with a reason.
             """)
-        }
     }
     
     func testIgnoredOptionsExistInCode() {
@@ -200,10 +183,7 @@ final class SentryOptionsDocumentationSyncTests: XCTestCase {
             """)
         }
     }
-    
-    // MARK: - Helpers
-    
-    /// Fetches the options.mdx file from GitHub and extracts documented option names
+
     private func fetchDocumentedOptions() async throws -> Set<String> {
         let docsURL = "https://raw.githubusercontent.com/getsentry/sentry-docs/master/docs/platforms/apple/common/configuration/options.mdx"
         let url = try XCTUnwrap(URL(string: docsURL), "Invalid docs URL")

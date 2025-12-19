@@ -29,8 +29,6 @@ func extractPropertyNames(from instance: AnyObject) -> Set<String> {
     return properties
 }
 
-// MARK: - Private Helpers
-
 /// Extracts @objc properties using Objective-C runtime introspection.
 private func extractObjcProperties(from type: AnyClass, into properties: inout Set<String>) {
     var propertyCount: UInt32 = 0

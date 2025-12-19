@@ -40,8 +40,6 @@ private class MixedPropertiesClass: NSObject {
 /// Empty class with no properties.
 private class EmptyClass: NSObject {}
 
-// MARK: - Tests
-
 final class PropertyExtractorTests: XCTestCase {
     
     // MARK: - @objc Property Tests
