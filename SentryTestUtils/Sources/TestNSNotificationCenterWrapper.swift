@@ -11,7 +11,7 @@ public typealias CrossPlatformApplication = NSApplication
 
 @objcMembers public class TestNSNotificationCenterWrapper: NSObject {
     private enum Observer {
-        case observerWithObject(WeakReference<NSObject>, Selector, NSNotification.Name?, Any?)
+        case observerWithObject(WeakReference<AnyObject>, Selector, NSNotification.Name?, Any?)
         case observerForKeyPath(WeakReference<NSObject>, String, NSKeyValueObservingOptions, UnsafeMutableRawPointer?)
         case observerWithBlock(WeakReference<NSObject>, NSNotification.Name?, (Notification) -> Void)
     }
@@ -22,7 +22,7 @@ public typealias CrossPlatformApplication = NSApplication
     private var observers: [Observer] = []
 
     public var addObserverWithObjectInvocations = Invocations<(
-        observer: WeakReference<NSObject>,
+        observer: WeakReference<AnyObject>,
         selector: Selector,
         name: NSNotification.Name?,
         object: Any?
@@ -34,8 +34,8 @@ public typealias CrossPlatformApplication = NSApplication
         object anObject: Any? = nil
     ) {
         if ignoreAddObserver == false {
-            addObserverWithObjectInvocations.record((WeakReference(value: observer as! NSObject), aSelector, aName, anObject))
-            observers.append(.observerWithObject(WeakReference(value: observer as! NSObject), aSelector, aName, anObject))
+            addObserverWithObjectInvocations.record((WeakReference(value: observer as AnyObject), aSelector, aName, anObject))
+            observers.append(.observerWithObject(WeakReference(value: observer as AnyObject), aSelector, aName, anObject))
         }
     }
 

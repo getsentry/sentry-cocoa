@@ -34,12 +34,6 @@ NS_ASSUME_NONNULL_BEGIN
         return YES;
     }
 
-    if ((integrationOptions & kIntegrationOptionEnableAutoSessionTracking)
-        && !options.enableAutoSessionTracking) {
-        [self logWithOptionName:@"enableAutoSessionTracking"];
-        return NO;
-    }
-
     if ((integrationOptions & kIntegrationOptionEnableWatchdogTerminationTracking)
         && !options.enableWatchdogTerminationTracking) {
         [self logWithOptionName:@"enableWatchdogTerminationTracking"];
@@ -58,13 +52,6 @@ NS_ASSUME_NONNULL_BEGIN
         [self logWithOptionName:@"enableUIViewControllerTracing"];
         return NO;
     }
-
-#    if SENTRY_HAS_UIKIT
-    if ((integrationOptions & kIntegrationOptionAttachScreenshot) && !options.attachScreenshot) {
-        [self logWithOptionName:@"attachScreenshot"];
-        return NO;
-    }
-#    endif // SENTRY_HAS_UIKIT
 
     if ((integrationOptions & kIntegrationOptionEnableUserInteractionTracing)
         && !options.enableUserInteractionTracing) {

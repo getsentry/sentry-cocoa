@@ -43,7 +43,7 @@ jobs:
       - uses: actions/checkout@v6
       - run: ./scripts/ci-select-xcode.sh 16.4
       - name: Setup Ruby
-        uses: ruby/setup-ruby@8aeb6ff8030dd539317f8e1769a044873b56ea71 # v1.268.0
+        uses: ruby/setup-ruby@ac793fdd38cc468a4dd57246fa9d0e868aba9085 # v1.270.0
         with:
           bundler-cache: true
 
@@ -86,7 +86,7 @@ jobs:
           bundle exec fastlane ios_swift_to_testflight
 
       - name: Archiving
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: dSYMs
           path: |

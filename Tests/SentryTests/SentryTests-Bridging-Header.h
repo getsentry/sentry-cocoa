@@ -2,10 +2,6 @@
 
 #import "SentryLaunchProfiling+Tests.h"
 
-#if SENTRY_HAS_METRIC_KIT
-#    import "SentryMetricKitIntegration.h"
-#endif // SENTRY_HAS_METRIC_KIT
-
 #if SENTRY_HAS_UIKIT
 #    import "MockUIScene.h"
 #    import "SentryDefaultUIViewControllerPerformanceTracker.h"
@@ -46,14 +42,13 @@
 #import "SentryANRTrackerV1.h"
 #import "SentryANRTrackerV2.h"
 #import "SentryANRTrackingIntegration.h"
-#import "SentryAppStartMeasurement.h"
+#import "SentryAppStartMeasurement+Private.h"
 #import "SentryAppStartTracker.h"
 #import "SentryAppStartTrackingIntegration.h"
 #import "SentryArray.h"
 #import "SentryAttachment+Private.h"
 #import "SentryAutoBreadcrumbTrackingIntegration+Test.h"
 #import "SentryAutoBreadcrumbTrackingIntegration.h"
-#import "SentryAutoSessionTrackingIntegration.h"
 #import "SentryBooleanSerialization.h"
 #import "SentryBreadcrumb+Private.h"
 #import "SentryBreadcrumbDelegate.h"
@@ -104,7 +99,6 @@
 #import "SentryDefaultThreadInspector.h"
 #import "SentryDiscardReason.h"
 #import "SentryDiscardReasonMapper.h"
-#import "SentryDsn.h"
 #import "SentryEnvelopeAttachmentHeader.h"
 #import "SentryEnvelopeRateLimit.h"
 #import "SentryEvent+Private.h"
@@ -134,7 +128,6 @@
 #import "SentryNSDictionarySanitize+Tests.h"
 #import "SentryNSDictionarySanitize.h"
 #import "SentryNSError.h"
-#import "SentryNSURLRequestBuilder.h"
 #import "SentryNSURLSessionTaskSearch.h"
 #import "SentryNetworkTracker.h"
 #import "SentryNetworkTrackingIntegration.h"
@@ -152,7 +145,6 @@
 #import "SentrySampleDecision+Private.h"
 #import "SentryScope+Private.h"
 #import "SentryScopeSyncC.h"
-#import "SentryScreenshotIntegration.h"
 #import "SentrySerialization.h"
 #import "SentrySessionReplaySyncC.h"
 #import "SentrySpan.h"
@@ -164,7 +156,6 @@
 #import "SentryStacktraceBuilder.h"
 #import "SentrySubClassFinder.h"
 #import "SentrySwift.h"
-#import "SentrySwiftAsyncIntegration.h"
 #import "SentrySystemEventBreadcrumbs.h"
 #import "SentrySystemWrapper.h"
 #import "SentryTestIntegration.h"
@@ -190,7 +181,6 @@
 #import "SentryWatchdogTerminationTracker.h"
 #import "SentryWatchdogTerminationTrackingIntegration.h"
 #import "SentryWeakMap.h"
-#import "TestNSURLRequestBuilder.h"
 #import "TestSentrySpan.h"
 #import "TestSentryViewHierarchyProvider.h"
 #import "URLSessionTaskMock.h"

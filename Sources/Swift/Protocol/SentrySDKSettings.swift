@@ -2,14 +2,10 @@
  * Describes the settings for the Sentry SDK
  * @see https://develop.sentry.dev/sdk/event-payloads/sdk/
  */
-final class SentrySDKSettings {
+struct SentrySDKSettings {
     
     init() {
         autoInferIP = false
-    }
-    
-    convenience init(options: Options?) {
-        self.init(sendDefaultPii: options?.sendDefaultPii ?? false)
     }
 
     init(sendDefaultPii: Bool) {
@@ -24,7 +20,7 @@ final class SentrySDKSettings {
         }
     }
     
-    var autoInferIP: Bool
+    let autoInferIP: Bool
     
     func serialize() -> NSDictionary {
         [

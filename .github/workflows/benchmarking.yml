@@ -43,7 +43,7 @@ jobs:
       - uses: actions/checkout@v6
       - run: ./scripts/ci-select-xcode.sh 26.1.1
       - name: Setup Ruby
-        uses: ruby/setup-ruby@8aeb6ff8030dd539317f8e1769a044873b56ea71 # v1.268.0
+        uses: ruby/setup-ruby@ac793fdd38cc468a4dd57246fa9d0e868aba9085 # v1.270.0
         with:
           bundler-cache: true
       - run: make init-ci-build
@@ -72,7 +72,7 @@ jobs:
         run: |
           sentry-cli --auth-token ${{ secrets.SENTRY_AUTH_TOKEN }} upload-dif --org sentry-sdks --project sentry-cocoa DerivedData/Build/Products/Debug-iphoneos/iOS-Swift.app.dSYM
       - name: Upload Built Apps for SauceLabs
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: benchmark-apps
           path: |
@@ -94,7 +94,7 @@ jobs:
         suite: ["High-end device", "Mid-range device", "Low-end device"]
     steps:
       - uses: actions/checkout@v6
-      - uses: actions/download-artifact@v6
+      - uses: actions/download-artifact@v7
         with:
           name: benchmark-apps
       - run: npm install -g saucectl@0.197.2

@@ -102,6 +102,14 @@ jobs:
         shell: bash
         run: ./scripts/ci-enable-permissions.sh
 
+      - name: Ensure required runtime is loaded
+        # Ideally we will not need this, but CI sometimes is failing to load some runtimes, this will ensure they are loaded
+        timeout-minutes: 5 # 5 minutes timeout
+        env:
+          OS_VERSION: "18.4"
+          PLATFORM: "iOS"
+        run: ./scripts/ci-ensure-runtime-loaded.sh --os-version "$OS_VERSION" --platform "$PLATFORM"
+
       - name: Boot simulator
         run: ./scripts/ci-boot-simulator.sh
 
@@ -110,7 +118,7 @@ jobs:
           ./TestSamples/SwiftUICrashTest/test-crash-and-relaunch.sh --screenshots-dir "swiftui-crash-test-screenshots"
 
       - name: Upload SwiftUI Crash Test Screenshots
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         if: always()
         with:
           name: swiftui-crash-test-screenshots
@@ -121,7 +129,7 @@ jobs:
         run: xcrun simctl spawn booted log collect --output $(pwd)/swiftui-crash-test-log.logarchive
 
       - name: Upload Logs
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         if: always()
         with:
           name: swiftui-crash-test-log.logarchive

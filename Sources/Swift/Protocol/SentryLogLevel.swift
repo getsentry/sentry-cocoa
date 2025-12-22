@@ -74,13 +74,8 @@ extension SentryLog {
     }
 }
 
-// MARK: - Internal Codable Support
-@_spi(Private) extension SentryLog.Level: Codable {
-    @_spi(Private) public init(from decoder: Decoder) throws {
-        let container = try decoder.singleValueContainer()
-        let stringValue = try container.decode(String.self)
-        self = try .init(value: stringValue)
-    }
+// MARK: - Internal Encodable Support
+@_spi(Private) extension SentryLog.Level: Encodable {
     
     @_spi(Private) public func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()

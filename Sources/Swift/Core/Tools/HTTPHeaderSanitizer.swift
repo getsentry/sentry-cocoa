@@ -1,7 +1,7 @@
 import Foundation
 
 @objcMembers
-@_spi(Private) public class HTTPHeaderSanitizer: NSObject {
+@_spi(Private) public final class HTTPHeaderSanitizer: NSObject {
     public static func sanitizeHeaders(_ headers: [String: String]) -> [String: String] {
         let _securityHeaders = Set([
             "X-FORWARDED-FOR", "AUTHORIZATION", "COOKIE", "SET-COOKIE", "X-API-KEY", "X-REAL-IP",

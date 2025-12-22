@@ -9,42 +9,31 @@ import Foundation
 @objc
 @objcMembers
 @_spi(Private) public class SentryLogBatcher: NSObject {
-    
     private let options: Options
-    private let flushTimeout: TimeInterval
-    private let maxLogCount: Int
-    private let maxBufferSizeBytes: Int
-    private let dispatchQueue: SentryDispatchQueueWrapper
-
-    // All mutable state is accessed from the same serial dispatch queue.
-    
-    // Every logs data is added sepratley. They are flushed together in an envelope.
-    private var encodedLogs: [Data] = []
-    private var encodedLogsSize: Int = 0
-    private var timerWorkItem: DispatchWorkItem?
-        
+    private let batcher: any BatcherProtocol<SentryLog, Scope>
     private weak var delegate: SentryLogBatcherDelegate?
-    
+
     /// Convenience initializer with default flush timeout, max log count (100), and buffer size.
+    /// Creates its own serial dispatch queue with DEFAULT QoS for thread-safe access to mutable state.
     /// - Parameters:
     ///   - options: The Sentry configuration options
-    ///   - dispatchQueue: A **serial** dispatch queue wrapper for thread-safe access to mutable state
     ///   - delegate: The delegate to handle captured log batches
     ///
-    /// - Important: The `dispatchQueue` parameter MUST be a serial queue to ensure thread safety.
-    ///              Passing a concurrent queue will result in undefined behavior and potential data races.
-    ///
+    /// - Note: Uses DEFAULT priority (not LOW) because captureLogs() is called synchronously during
+    ///         app lifecycle events (willResignActive, willTerminate) and needs to complete quickly.
     /// - Note: Setting `maxLogCount` to 100. While Replay hard limit is 1000, we keep this lower, as it's hard to lower once released.
     @_spi(Private) public convenience init(
         options: Options,
-        dispatchQueue: SentryDispatchQueueWrapper,
+        dateProvider: SentryCurrentDateProvider,
         delegate: SentryLogBatcherDelegate
     ) {
+        let dispatchQueue = SentryDispatchQueueWrapper(name: "io.sentry.log-batcher")
         self.init(
             options: options,
             flushTimeout: 5,
             maxLogCount: 100, // Maximum 100 logs per batch
             maxBufferSizeBytes: 1_024 * 1_024, // 1MB buffer size
+            dateProvider: dateProvider,
             dispatchQueue: dispatchQueue,
             delegate: delegate
         )
@@ -68,193 +57,56 @@ import Foundation
         flushTimeout: TimeInterval,
         maxLogCount: Int,
         maxBufferSizeBytes: Int,
+        dateProvider: SentryCurrentDateProvider,
         dispatchQueue: SentryDispatchQueueWrapper,
         delegate: SentryLogBatcherDelegate
     ) {
+        self.batcher = Batcher(
+            config: .init(
+                sendDefaultPii: options.sendDefaultPii,
+                flushTimeout: flushTimeout,
+                maxItemCount: maxLogCount,
+                maxBufferSizeBytes: maxBufferSizeBytes,
+                beforeSendItem: options.beforeSendLog,
+                capturedDataCallback: { [weak delegate] data, count in
+                    guard let delegate else {
+                        SentrySDKLog.debug("SentryLogBatcher: Delegate not set, not capturing logs data.")
+                        return
+                    }
+                    delegate.capture(logsData: data as NSData, count: NSNumber(value: count))
+                }
+            ),
+            metadata: .init(
+                environment: options.environment,
+                releaseName: options.releaseName,
+                installationId: SentryInstallation.cachedId(withCacheDirectoryPath: options.cacheDirectoryPath)
+            ),
+            buffer: InMemoryBatchBuffer(),
+            dateProvider: dateProvider,
+            dispatchQueue: dispatchQueue
+        )
         self.options = options
-        self.flushTimeout = flushTimeout
-        self.maxLogCount = maxLogCount
-        self.maxBufferSizeBytes = maxBufferSizeBytes
-        self.dispatchQueue = dispatchQueue
         self.delegate = delegate
         super.init()
     }
-    
+
+    /// Adds a log to the batcher.
+    /// - Parameters:
+    ///   - log: The log to add
+    ///   - scope: The scope to add the log to
     @_spi(Private) @objc public func addLog(_ log: SentryLog, scope: Scope) {
         guard options.enableLogs else {
             return
         }
-
-        addDefaultAttributes(to: &log.attributes, scope: scope)
-        addOSAttributes(to: &log.attributes, scope: scope)
-        addDeviceAttributes(to: &log.attributes, scope: scope)
-        addUserAttributes(to: &log.attributes, scope: scope)
-        addReplayAttributes(to: &log.attributes, scope: scope)
-
-        let propagationContextTraceIdString = scope.propagationContextTraceIdString
-        log.traceId = SentryId(uuidString: propagationContextTraceIdString)
-
-        var processedLog: SentryLog? = log
-        if let beforeSendLog = options.beforeSendLog {
-            processedLog = beforeSendLog(log)
-        }
         
-        if let processedLog {
-            SentrySDKLog.log(
-                message: "[SentryLogger] \(processedLog.body)",
-                andLevel: processedLog.level.toSentryLevel()
-            )
-            dispatchQueue.dispatchAsync { [weak self] in
-                self?.encodeAndBuffer(log: processedLog)
-            }
-        }
+        batcher.add(log, scope: scope)
     }
-    
-    // Captures batched logs sync and returns the duration.
+
+    /// Captures batched logs sync and returns the duration.
     @discardableResult
     @_spi(Private) @objc public func captureLogs() -> TimeInterval {
-        let startTimeNs = SentryDefaultCurrentDateProvider.getAbsoluteTime()
-        dispatchQueue.dispatchSync { [weak self] in
-            self?.performCaptureLogs()
-        }
-        let endTimeNs = SentryDefaultCurrentDateProvider.getAbsoluteTime()
-        return TimeInterval(endTimeNs - startTimeNs) / 1_000_000_000.0 // Convert nanoseconds to seconds
-    }
-
-    // Helper
-
-    private func addDefaultAttributes(to attributes: inout [String: SentryLog.Attribute], scope: Scope) {
-        attributes["sentry.sdk.name"] = .init(string: SentryMeta.sdkName)
-        attributes["sentry.sdk.version"] = .init(string: SentryMeta.versionString)
-        attributes["sentry.environment"] = .init(string: options.environment)
-        if let releaseName = options.releaseName {
-            attributes["sentry.release"] = .init(string: releaseName)
-        }
-        if let span = scope.span {
-            attributes["sentry.trace.parent_span_id"] = .init(string: span.spanId.sentrySpanIdString)
-        }
-    }
-
-    private func addOSAttributes(to attributes: inout [String: SentryLog.Attribute], scope: Scope) {
-        guard let osContext = scope.getContextForKey(SENTRY_CONTEXT_OS_KEY) else {
-            return
-        }
-        if let osName = osContext["name"] as? String {
-            attributes["os.name"] = .init(string: osName)
-        }
-        if let osVersion = osContext["version"] as? String {
-            attributes["os.version"] = .init(string: osVersion)
-        }
-    }
-    
-    private func addDeviceAttributes(to attributes: inout [String: SentryLog.Attribute], scope: Scope) {
-        guard let deviceContext = scope.getContextForKey(SENTRY_CONTEXT_DEVICE_KEY) else {
-            return
-        }
-        // For Apple devices, brand is always "Apple"
-        attributes["device.brand"] = .init(string: "Apple")
-        
-        if let deviceModel = deviceContext["model"] as? String {
-            attributes["device.model"] = .init(string: deviceModel)
-        }
-        if let deviceFamily = deviceContext["family"] as? String {
-            attributes["device.family"] = .init(string: deviceFamily)
-        }
-    }
-
-    private func addUserAttributes(to attributes: inout [String: SentryLog.Attribute], scope: Scope) {
-        guard let user = scope.userObject else {
-            return
-        }
-        if let userId = user.userId {
-            attributes["user.id"] = .init(string: userId)
-        }
-        if let userName = user.name {
-            attributes["user.name"] = .init(string: userName)
-        }
-        if let userEmail = user.email {
-            attributes["user.email"] = .init(string: userEmail)
-        }
-    }
-
-    private func addReplayAttributes(to attributes: inout [String: SentryLog.Attribute], scope: Scope) {
-#if canImport(UIKit) && !SENTRY_NO_UIKIT
-#if os(iOS) || os(tvOS)
-        if let scopeReplayId = scope.replayId {
-            // Session mode: use scope replay ID
-            attributes["sentry.replay_id"] = .init(string: scopeReplayId)
-        }
-#endif
-#endif
-    }
-
-    // Only ever call this from the serial dispatch queue.
-    private func encodeAndBuffer(log: SentryLog) {
-        do {
-            let encodedLog = try encodeToJSONData(data: log)
-            
-            let encodedLogsWereEmpty = encodedLogs.isEmpty
-            
-            encodedLogs.append(encodedLog)
-            encodedLogsSize += encodedLog.count
-            
-            // Flush when we reach max log count or max buffer size
-            if encodedLogs.count >= maxLogCount || encodedLogsSize >= maxBufferSizeBytes {
-                performCaptureLogs()
-            } else if encodedLogsWereEmpty && timerWorkItem == nil {
-                startTimer()
-            }
-        } catch {
-            SentrySDKLog.error("Failed to encode log: \(error)")
-        }
-    }
-    
-    // Only ever call this from the serial dispatch queue.
-    private func startTimer() {
-        let timerWorkItem = DispatchWorkItem { [weak self] in
-            SentrySDKLog.debug("SentryLogBatcher: Timer fired, calling performFlush().")
-            self?.performCaptureLogs()
-        }
-        self.timerWorkItem = timerWorkItem
-        dispatchQueue.dispatch(after: flushTimeout, workItem: timerWorkItem)
-    }
-
-    // Only ever call this from the serial dispatch queue.
-    private func performCaptureLogs() {
-        // Reset logs on function exit
-        defer {
-            encodedLogs.removeAll()
-            encodedLogsSize = 0
-        }
-        
-        // Reset timer state
-        timerWorkItem?.cancel()
-        timerWorkItem = nil
-        
-        guard encodedLogs.count > 0 else {
-            SentrySDKLog.debug("SentryLogBatcher: No logs to flush.")
-            return
-        }
-
-        // Create the payload.
-        
-        var payloadData = Data()
-        payloadData.append(Data("{\"items\":[".utf8))
-        let separator = Data(",".utf8)
-        for (index, encodedLog) in encodedLogs.enumerated() {
-            if index > 0 {
-                payloadData.append(separator)
-            }
-            payloadData.append(encodedLog)
-        }
-        payloadData.append(Data("]}".utf8))
-        
-        // Send the payload.
-        
-        if let delegate {
-            delegate.capture(logsData: payloadData as NSData, count: NSNumber(value: encodedLogs.count))
-        } else {
-            SentrySDKLog.debug("SentryLogBatcher: Delegate not set, not capturing logs data.")
-        }
+        return batcher.capture()
     }
 }
+
+extension SentryLog: BatcherItem {}

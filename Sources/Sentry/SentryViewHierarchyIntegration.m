@@ -8,9 +8,6 @@
 #    import "SentryHub+Private.h"
 #    import "SentrySDK+Private.h"
 #    import "SentrySwift.h"
-#    if SENTRY_HAS_METRIC_KIT
-#        import "SentryMetricKitIntegration.h"
-#    endif // SENTRY_HAS_METRIC_KIT
 
 /**
  * Function to call through to the ObjC method to save a view hierarchy, which can be passed around

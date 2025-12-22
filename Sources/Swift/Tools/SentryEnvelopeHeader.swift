@@ -51,9 +51,9 @@
      * An event id exist if the envelope contains an event of items within it are related. i.e
      * Attachments
      */
-    @objc public var eventId: SentryId?
-    var sdkInfo: SentrySdkInfo?
-    @objc public var traceContext: TraceContext?
+    @objc public let eventId: SentryId?
+    let sdkInfo: SentrySdkInfo?
+    @objc public let traceContext: TraceContext?
     
     /**
      * The timestamp when the event was sent from the SDK as string in RFC 3339 format. Used

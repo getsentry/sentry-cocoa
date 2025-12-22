@@ -29,19 +29,19 @@ jobs:
       - name: Get Release workflow run ID
         run: echo "FRAMEWORK_RUN_ID=$(./scripts/xcframework-generated-run.sh)" >> $GITHUB_ENV
 
-      - uses: actions/download-artifact@v6
+      - uses: actions/download-artifact@v7
         with:
           name: xcframeworks.zip
-          path: Carthage/
+          path: XCFrameworkBuildPath/
           github-token: ${{ secrets.GITHUB_TOKEN }}
           run-id: ${{ env.FRAMEWORK_RUN_ID }}
 
       - name: Archive XCFrameworks for Craft
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           # Craft uses the git commit hash of the release branch to download the release artifacts.
           name: ${{ github.sha }}
           if-no-files-found: error
           overwrite: true
           path: |
-            ${{github.workspace}}/Carthage/*.zip
+            ${{github.workspace}}/XCFrameworkBuildPath/*.zip

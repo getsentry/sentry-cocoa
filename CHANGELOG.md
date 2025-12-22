@@ -5,6 +5,38 @@
 ### Features
 
 - Add isiOSAppOnVisionOS, isiOSAppOnMac, isMacCatalystApp to device context #6939
+### Fixes
+
+- The transport now correctly discard envelopes on 4xx and 5xx responses and records client reports `send_error` (#6618) This also fixes edge cases in which the SDK kept retrying sending a faulty envelope until the offline cache overflowed.
+- Change default attributes of Logs to only include user attributes when `options.sendDefaultPii = true` (#7055)
+- Rename log attribute `sentry.trace.parent_span_id` to `span_id` (#7055)
+- Fixes stacktraces for MetricKit events (#6908)
+
+## 9.1.0
+
+> [!Warning]
+> The class `SentryDsn` has been converted from Objective-C to Swift. While the public API remains the same, you might have to remove imports of the `SentryDsn.h` from your Objective-C code.
+> We acknowledge that this is a breaking change introduced in a minor release, but it should have been part of the major release 9.0.0 already before - apologies for any inconveniences caused.
+
+### Breaking Changes
+
+- Refactored type `SentryDsn` from Objective-C to Swift, removing the `SentryDsn.h` from the public header files.
+
+### Features
+
+- Add attributes data to `SentryScope` (#6830)
+- Add `SentryScope` attributes into log messages (#6834)
+
+### Improvements
+
+- Flush Logs on `WillTerminate` or `WillResignActive` Notifications (#6909)
+
+### Fixes
+
+- Save app context information (release name, dist, environment) on app hang events before saving to disk to prevent incorrect version information when an app hang turns fatal (#6998)
+- Disabled automatic session tracking in system extensions to prevent extension blocking and unwanted dock icon behavior (#6962) (#6962)
+- Fixes crash when null values are passed to `UIApplication sendAction:to:from:forEvent:` (#6970)
+- Fixes `user.id` not set to installationId if no user is set (#7005)
 
 ## 9.0.0
 
@@ -21,7 +53,7 @@ This changelog lists every breaking change. For a high-level overview and upgrad
 - Removes deprecated getStoreEndpoint (#5591)
 - Remove legacy profiling, the only supported profiling is now what was known as continuous V2 (#6386)
 - Removes deprecated useSpan function (#5591)
-- Makes app hang tracking V2 the default and removes the option to enable/disable it (#5615)
+- Makes app hang tracking V2 the default only on **iOS and tvOS** and removes the option to enable/disable it (#5615). macOS still uses V1.
 - Removes initializers for SentryTraceContext from the public API (#6662)
 - Removes `integrations` property from `SentryOptions` (#5749)
 - Removes `defaultIntegrations` function from `SentryOptions` (#6664)

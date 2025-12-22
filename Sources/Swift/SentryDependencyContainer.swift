@@ -98,7 +98,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
         return defaultApplicationProvider()
     }
     
-    @objc(getSessionTrackerWithOptions:) public func getSessionTracker(with options: Options) -> SessionTracker {
+    func getSessionTracker(with options: Options) -> SessionTracker {
         return SessionTracker(options: options, applicationProvider: defaultApplicationProvider, dateProvider: dateProvider, notificationCenter: notificationCenterWrapper)
     }
     
@@ -128,23 +128,6 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     @objc public var extraContextProvider = SentryExtraContextProvider(crashWrapper: Dependencies.crashWrapper, processInfoWrapper: Dependencies.processInfoWrapper, deviceWrapper: Dependencies.uiDeviceWrapper)
 #else
     @objc public var extraContextProvider = SentryExtraContextProvider(crashWrapper: Dependencies.crashWrapper, processInfoWrapper: Dependencies.processInfoWrapper)
-#endif
-    
-#if os(iOS) || os(macOS)
-    // Disable crash diagnostics as we only use it for validation of the symbolication
-    // of stacktraces, because crashes are easy to trigger for MetricKit. We don't want
-    // crash reports of MetricKit in production as we have SentryCrash.
-    private var _metricKitManager: AnyObject!
-
-    @available(macOS 12.0, *)
-    @objc public var metricKitManager: SentryMXManager {
-        if let manager = _metricKitManager as? SentryMXManager {
-            return manager
-        }
-        let manager = SentryMXManager(disableCrashDiagnostics: true)
-        _metricKitManager = manager as AnyObject
-        return manager
-    }
 #endif
 
 #if (os(iOS) || os(tvOS) || (swift(>=5.9) && os(visionOS))) && !SENTRY_NO_UIKIT
@@ -255,4 +238,18 @@ extension SentryFileManager: SentryFileManagerProtocol { }
 
 #if os(iOS) && !SENTRY_NO_UIKIT
 extension SentryDependencyContainer: ScreenshotSourceProvider { }
+#endif
+
+extension SentryDependencyContainer: AutoSessionTrackingProvider { }
+
+#if ((os(iOS) || os(tvOS) || (swift(>=5.9) && os(visionOS))) && !SENTRY_NO_UIKIT) || os(macOS)
+extension SentryDependencyContainer: NotificationCenterProvider { }
+#endif
+
+#if (os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)) && !SENTRY_NO_UIKIT
+protocol ScreenshotIntegrationProvider {
+    var screenshotSource: SentryScreenshotSource? { get }
+}
+
+extension SentryDependencyContainer: ScreenshotIntegrationProvider { }
 #endif

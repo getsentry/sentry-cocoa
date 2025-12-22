@@ -39,14 +39,14 @@
 #define CHECK_SYSCTL_NAME(TYPE, CALL)                                                              \
     if (0 != (CALL)) {                                                                             \
         SENTRY_ASYNC_SAFE_LOG_ERROR(                                                               \
-            "Could not get %s value for %s: %s", #CALL, name, strerror(errno));                    \
+            "Could not get %s value for %s: %s", #CALL, name, SENTRY_STRERROR_R(errno));           \
         return 0;                                                                                  \
     }
 
 #define CHECK_SYSCTL_CMD(TYPE, CALL)                                                               \
     if (0 != (CALL)) {                                                                             \
-        SENTRY_ASYNC_SAFE_LOG_ERROR(                                                               \
-            "Could not get %s value for %d,%d: %s", #CALL, major_cmd, minor_cmd, strerror(errno)); \
+        SENTRY_ASYNC_SAFE_LOG_ERROR("Could not get %s value for %d,%d: %s", #CALL, major_cmd,      \
+            minor_cmd, SENTRY_STRERROR_R(errno));                                                  \
         return 0;                                                                                  \
     }
 
@@ -172,8 +172,8 @@ sentrycrashsysctl_timeval(const int major_cmd, const int minor_cmd)
     size_t size = sizeof(value);
 
     if (0 != sysctl(cmd, sizeof(cmd) / sizeof(*cmd), &value, &size, NULL, 0)) {
-        SENTRY_ASYNC_SAFE_LOG_ERROR(
-            "Could not get timeval value for %d,%d: %s", major_cmd, minor_cmd, strerror(errno));
+        SENTRY_ASYNC_SAFE_LOG_ERROR("Could not get timeval value for %d,%d: %s", major_cmd,
+            minor_cmd, SENTRY_STRERROR_R(errno));
     }
 
     return value;
@@ -187,7 +187,7 @@ sentrycrashsysctl_timevalForName(const char *const name)
 
     if (0 != sysctlbyname(name, &value, &size, NULL, 0)) {
         SENTRY_ASYNC_SAFE_LOG_ERROR(
-            "Could not get timeval value for %s: %s", name, strerror(errno));
+            "Could not get timeval value for %s: %s", name, SENTRY_STRERROR_R(errno));
     }
 
     return value;
@@ -207,7 +207,7 @@ sentrycrashsysctl_currentProcessStartTime(void)
     size_t kpSize = sizeof(kp);
     if (0 != sysctl(mib, 4, &kp, &kpSize, NULL, 0)) {
         SENTRY_ASYNC_SAFE_LOG_ERROR(
-            "Could not get current process start time: %s", strerror(errno));
+            "Could not get current process start time: %s", SENTRY_STRERROR_R(errno));
     } else {
         value = kp.kp_proc.p_un.__p_starttime;
     }
@@ -223,7 +223,7 @@ sentrycrashsysctl_getProcessInfo(const int pid, struct kinfo_proc *const procInf
 
     if (0 != sysctl(cmd, sizeof(cmd) / sizeof(*cmd), procInfo, &size, NULL, 0)) {
         SENTRY_ASYNC_SAFE_LOG_ERROR(
-            "Could not get the name for process %d: %s", pid, strerror(errno));
+            "Could not get the name for process %d: %s", pid, SENTRY_STRERROR_R(errno));
         return false;
     }
     return true;
@@ -238,14 +238,14 @@ sentrycrashsysctl_getMacAddress(const char *const name, char *const macAddressBu
     int mib[6] = { CTL_NET, AF_ROUTE, 0, AF_LINK, NET_RT_IFLIST, (int)if_nametoindex(name) };
     if (mib[5] == 0) {
         SENTRY_ASYNC_SAFE_LOG_ERROR(
-            "Could not get interface index for %s: %s", name, strerror(errno));
+            "Could not get interface index for %s: %s", name, SENTRY_STRERROR_R(errno));
         return false;
     }
 
     size_t length;
     if (sysctl(mib, 6, NULL, &length, NULL, 0) != 0) {
         SENTRY_ASYNC_SAFE_LOG_ERROR(
-            "Could not get interface data for %s: %s", name, strerror(errno));
+            "Could not get interface data for %s: %s", name, SENTRY_STRERROR_R(errno));
         return false;
     }
 
@@ -257,7 +257,7 @@ sentrycrashsysctl_getMacAddress(const char *const name, char *const macAddressBu
 
     if (sysctl(mib, 6, ifBuffer, &length, NULL, 0) != 0) {
         SENTRY_ASYNC_SAFE_LOG_ERROR(
-            "Could not get interface data for %s: %s", name, strerror(errno));
+            "Could not get interface data for %s: %s", name, SENTRY_STRERROR_R(errno));
         free(ifBuffer);
         return false;
     }

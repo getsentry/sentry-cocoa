@@ -42,10 +42,10 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Select Xcode
-        run: ./scripts/ci-select-xcode.sh 16.4
+        run: ./scripts/ci-select-xcode.sh 26.1.1
 
       - name: Setup Ruby
-        uses: ruby/setup-ruby@8aeb6ff8030dd539317f8e1769a044873b56ea71 # v1.268.0
+        uses: ruby/setup-ruby@ac793fdd38cc468a4dd57246fa9d0e868aba9085 # v1.270.0
         with:
           bundler-cache: true
 

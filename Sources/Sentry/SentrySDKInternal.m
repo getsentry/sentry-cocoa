@@ -3,7 +3,6 @@
 #import "SentryANRTrackingIntegration.h"
 #import "SentryAppStartMeasurement.h"
 #import "SentryAutoBreadcrumbTrackingIntegration.h"
-#import "SentryAutoSessionTrackingIntegration.h"
 #import "SentryBreadcrumb.h"
 #import "SentryClient+Private.h"
 #import "SentryCoreDataTrackingIntegration.h"
@@ -23,7 +22,6 @@
 #import "SentrySerialization.h"
 #import "SentrySessionReplayIntegration.h"
 #import "SentrySwift.h"
-#import "SentrySwiftAsyncIntegration.h"
 #import "SentryTransactionContext.h"
 #import "SentryUseNSExceptionCallstackWrapper.h"
 
@@ -31,15 +29,10 @@
 #    import "SentryAppStartTrackingIntegration.h"
 #    import "SentryFramesTrackingIntegration.h"
 #    import "SentryPerformanceTrackingIntegration.h"
-#    import "SentryScreenshotIntegration.h"
 #    import "SentryUIEventTrackingIntegration.h"
 #    import "SentryViewHierarchyIntegration.h"
 #    import "SentryWatchdogTerminationTrackingIntegration.h"
 #endif // SENTRY_HAS_UIKIT
-
-#if SENTRY_HAS_METRIC_KIT
-#    import "SentryMetricKitIntegration.h"
-#endif // SENTRY_HAS_METRIC_KIT
 
 #if TARGET_OS_OSX
 #    import "SentryCrashExceptionApplication.h"
@@ -525,17 +518,9 @@ static NSDate *_Nullable startTimestamp = nil;
         [SentryViewHierarchyIntegration class],
         [SentryWatchdogTerminationTrackingIntegration class],
 #endif // SENTRY_HAS_UIKIT
-#if SENTRY_TARGET_REPLAY_SUPPORTED
-        [SentryScreenshotIntegration class],
-#endif // SENTRY_TARGET_REPLAY_SUPPORTED
         [SentryANRTrackingIntegration class], [SentryAutoBreadcrumbTrackingIntegration class],
-        [SentryAutoSessionTrackingIntegration class], [SentryCoreDataTrackingIntegration class],
-        [SentryFileIOTrackingIntegration class], [SentryNetworkTrackingIntegration class],
-        [SentrySwiftAsyncIntegration class], nil];
-
-#if SENTRY_HAS_METRIC_KIT
-    [defaultIntegrations addObject:[SentryMetricKitIntegration class]];
-#endif // SENTRY_HAS_METRIC_KIT
+        [SentryCoreDataTrackingIntegration class], [SentryFileIOTrackingIntegration class],
+        [SentryNetworkTrackingIntegration class], nil];
 
     return defaultIntegrations;
 }
@@ -564,7 +549,6 @@ static NSDate *_Nullable startTimestamp = nil;
         id<SentryObjCIntegrationProtocol> integrationInstance = [[integrationClass alloc] init];
         BOOL shouldInstall = [integrationInstance installWithOptions:options];
         if (shouldInstall) {
-            SENTRY_LOG_DEBUG(@"Integration installed: %@", NSStringFromClass(integrationClass));
             [SentrySDKInternal.currentHub
                 addInstalledIntegration:integrationInstance
                                    name:NSStringFromClass(integrationClass)];

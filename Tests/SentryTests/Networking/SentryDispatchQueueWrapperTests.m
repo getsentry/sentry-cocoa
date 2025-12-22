@@ -77,6 +77,26 @@ NS_ASSUME_NONNULL_BEGIN
     XCTAssertEqual(actualQoSClass, QOS_CLASS_UNSPECIFIED);
     XCTAssertEqual(actualRelativePriority, 0);
 }
+
+- (void)testInitWithName_shouldCreateQueueWithDefaultQoS
+{
+    // -- Arrange --
+    const char *queueName = "sentry-dispatch-factory.test-default-qos";
+
+    // -- Act --
+    SentryDispatchQueueWrapper *wrappedQueue =
+        [[SentryDispatchQueueWrapper alloc] initWithName:queueName];
+
+    // -- Assert --
+    const char *actualName = dispatch_queue_get_label(wrappedQueue.queue);
+    XCTAssertEqual(strcmp(actualName, queueName), 0);
+
+    int actualRelativePriority;
+    dispatch_qos_class_t actualQoSClass
+        = dispatch_queue_get_qos_class(wrappedQueue.queue, &actualRelativePriority);
+    XCTAssertEqual(actualQoSClass, QOS_CLASS_DEFAULT);
+    XCTAssertEqual(actualRelativePriority, 0);
+}
 @end
 
 NS_ASSUME_NONNULL_END
