@@ -142,20 +142,20 @@ final class SentryLogTests: XCTestCase {
         
         log.setAttribute(SentryLog.Attribute(string: "test_value"), forKey: "test_key")
         
-        XCTAssertEqual(log.attributes.count, 1)
-        XCTAssertEqual(log.attributes["test_key"]?.type, "string")
-        XCTAssertEqual(log.attributes["test_key"]?.value as? String, "test_value")
+        XCTAssertEqual(log.attributeMap.count, 1)
+        XCTAssertEqual(log.attributeMap["test_key"]?.type, "string")
+        XCTAssertEqual(log.attributeMap["test_key"]?.value as? String, "test_value")
 
         log.setAttribute(SentryLog.Attribute(string: "test_value_2"), forKey: "test_key")
 
-        XCTAssertEqual(log.attributes.count, 1)
-        XCTAssertEqual(log.attributes["test_key"]?.type, "string")
-        XCTAssertEqual(log.attributes["test_key"]?.value as? String, "test_value_2")
+        XCTAssertEqual(log.attributeMap.count, 1)
+        XCTAssertEqual(log.attributeMap["test_key"]?.type, "string")
+        XCTAssertEqual(log.attributeMap["test_key"]?.value as? String, "test_value_2")
 
         log.setAttribute(nil, forKey: "test_key")
 
-        XCTAssertEqual(log.attributes.count, 0)
-        XCTAssertNil(log.attributes["test_key"])
+        XCTAssertEqual(log.attributeMap.count, 0)
+        XCTAssertNil(log.attributeMap["test_key"])
     }
     
 }

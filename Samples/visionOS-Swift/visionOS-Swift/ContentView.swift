@@ -137,6 +137,7 @@ struct ContentView: View {
                             Text("Show Detail View 1")
                         }
                     }
+                    MetricsView()
                 }
             }
         }

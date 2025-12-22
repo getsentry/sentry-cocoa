@@ -41,9 +41,9 @@ final class SentryMetricTests: XCTestCase {
             value: .counter(1),
             unit: nil,
             attributes: [
-                "endpoint": .init(string: "/api/users"),
-                "method": .init(string: "GET"),
-                "status_code": .init(integer: 200)
+                "endpoint": "/api/users",
+                "method": "GET",
+                "status_code": 200
             ]
         )
         
@@ -100,8 +100,8 @@ final class SentryMetricTests: XCTestCase {
             value: .gauge(42.0),
             unit: "connection",
             attributes: [
-                "pool_name": .init(string: "main_db"),
-                "max_size": .init(integer: 100)
+                "pool_name": "main_db",
+                "max_size": 100
             ]
         )
         

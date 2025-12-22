@@ -696,8 +696,8 @@ class SentryHubTests: XCTestCase {
         
         XCTAssertEqual(1, fixture.client.captureLogInvocations.count)
         let capturedLog = fixture.client.captureLogInvocations.first?.log
-        XCTAssertEqual(capturedLog?.attributes["sentry.replay_id"]?.value as? String, replayId)
-        XCTAssertNil(capturedLog?.attributes["sentry._internal.replay_is_buffering"])
+        XCTAssertEqual(capturedLog?.attributeMap["sentry.replay_id"]?.value as? String, replayId)
+        XCTAssertNil(capturedLog?.attributeMap["sentry._internal.replay_is_buffering"])
     }
     
     func testCaptureLog_ReplayAttributes_BufferMode_AddsReplayIdAndBufferingFlag() {
@@ -711,9 +711,9 @@ class SentryHubTests: XCTestCase {
         
         XCTAssertEqual(1, fixture.client.captureLogInvocations.count)
         let capturedLog = fixture.client.captureLogInvocations.first?.log
-        let replayIdString = capturedLog?.attributes["sentry.replay_id"]?.value as? String
+        let replayIdString = capturedLog?.attributeMap["sentry.replay_id"]?.value as? String
         XCTAssertEqual(replayIdString, mockReplayId.sentryIdString)
-        XCTAssertEqual(capturedLog?.attributes["sentry._internal.replay_is_buffering"]?.value as? Bool, true)
+        XCTAssertEqual(capturedLog?.attributeMap["sentry._internal.replay_is_buffering"]?.value as? Bool, true)
     }
     
     func testCaptureLog_ReplayAttributes_NoReplay_NoAttributesAdded() {
@@ -724,8 +724,8 @@ class SentryHubTests: XCTestCase {
         
         XCTAssertEqual(1, fixture.client.captureLogInvocations.count)
         let capturedLog = fixture.client.captureLogInvocations.first?.log
-        XCTAssertNil(capturedLog?.attributes["sentry.replay_id"])
-        XCTAssertNil(capturedLog?.attributes["sentry._internal.replay_is_buffering"])
+        XCTAssertNil(capturedLog?.attributeMap["sentry.replay_id"])
+        XCTAssertNil(capturedLog?.attributeMap["sentry._internal.replay_is_buffering"])
     }
     
     func testCaptureLog_ReplayAttributes_BothSessionAndScopeReplayId_SessionMode() {
@@ -740,8 +740,8 @@ class SentryHubTests: XCTestCase {
         XCTAssertEqual(1, fixture.client.captureLogInvocations.count)
         let capturedLog = fixture.client.captureLogInvocations.first?.log
         // Session mode should use scope's ID (takes precedence) and not add buffering flag
-        XCTAssertEqual(capturedLog?.attributes["sentry.replay_id"]?.value as? String, replayId)
-        XCTAssertNil(capturedLog?.attributes["sentry._internal.replay_is_buffering"])
+        XCTAssertEqual(capturedLog?.attributeMap["sentry.replay_id"]?.value as? String, replayId)
+        XCTAssertNil(capturedLog?.attributeMap["sentry._internal.replay_is_buffering"])
     }
 #endif
 #endif
