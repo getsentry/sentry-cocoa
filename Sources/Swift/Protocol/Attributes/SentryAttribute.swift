@@ -1,165 +1,202 @@
-/// A typed attribute that can be attached to structured item entries used by Logs & Metrics
+/// A typed attribute that can be attached to structured item entries used by Logs
 ///
 /// `Attribute` provides a type-safe way to store structured data alongside item messages.
-/// Supports String, Bool, Int, Double types and their homogeneous arrays (String[], Bool[], Int[], Double[]).
-///
-/// You can create attributes using literal syntax thanks to `ExpressibleByX` protocol support:
-/// ```swift
-/// let stringAttr: SentryAttribute = "hello"
-/// let boolAttr: SentryAttribute = true
-/// let intAttr: SentryAttribute = 42
-/// let doubleAttr: SentryAttribute = 3.14159
-/// ```
+/// Supports String, Bool, Int, and Double types.
 @objcMembers
 public final class SentryAttribute: NSObject {
-    /// The type-safe value stored in this attribute
-    fileprivate let wrappedValue: SentryAttributeValue
-
-    /// The type identifier for this attribute ("string", "boolean", "integer", "double", "string[]", "boolean[]", "integer[]", "double[]")
-    public var type: String {
-        return wrappedValue.type
-    }
-    
-    /// The actual value stored in this attribute (for backward compatibility)
-    /// - Note: Prefer using the type-safe initializers or literal syntax instead of accessing this property
-    public var value: Any {
-        return wrappedValue.value
-    }
+    /// The type identifier for this attribute ("string", "boolean", "integer", "double")
+    public let type: String
+    /// The actual value stored in this attribute
+    public let value: Any
 
     public init(string value: String) {
-        self.wrappedValue = .string(value)
+        self.type = "string"
+        self.value = value
         super.init()
     }
 
     public init(boolean value: Bool) {
-        self.wrappedValue = .boolean(value)
+        self.type = "boolean"
+        self.value = value
         super.init()
     }
 
     public init(integer value: Int) {
-        self.wrappedValue = .integer(value)
+        self.type = "integer"
+        self.value = value
         super.init()
     }
 
     public init(double value: Double) {
-        self.wrappedValue = .double(value)
+        self.type = "double"
+        self.value = value
         super.init()
     }
 
     /// Creates a double attribute from a float value
     public init(float value: Float) {
-        self.wrappedValue = .double(Double(value))
+        self.type = "double"
+        self.value = Double(value)
         super.init()
     }
 
-    /// Creates a string array attribute
-    public init(stringArray value: [String]) {
-        self.wrappedValue = .stringArray(value)
+    public init(stringArray values: [String]) {
+        self.type = "string[]"
+        self.value = values
         super.init()
     }
 
-    /// Creates a boolean array attribute
-    public init(booleanArray value: [Bool]) {
-        self.wrappedValue = .booleanArray(value)
+    public init(booleanArray values: [Bool]) {
+        self.type = "boolean[]"
+        self.value = values
         super.init()
     }
 
-    /// Creates an integer array attribute
-    public init(integerArray value: [Int]) {
-        self.wrappedValue = .integerArray(value)
+    public init(integerArray values: [Int]) {
+        self.type = "integer[]"
+        self.value = values
         super.init()
     }
 
-    /// Creates a double array attribute
-    public init(doubleArray value: [Double]) {
-        self.wrappedValue = .doubleArray(value)
+    public init(doubleArray values: [Double]) {
+        self.type = "double[]"
+        self.value = values
         super.init()
     }
 
-    /// Creates a float array attribute (converted to double array)
-    public init(floatArray value: [Float]) {
-        self.wrappedValue = .doubleArray(value.map { Double($0) })
+    /// Creates a double attribute from a float value
+    public init(floatArray values: [Float]) {
+        self.type = "double[]"
+        self.value = values.map(Double.init)
         super.init()
     }
 
-    /// Creates an array attribute from an array of SentryAttribute.
-    /// 
-    /// The array must be homogeneous (all elements of the same type).
-    /// If the array is empty or contains mixed types, it will be converted to a string array.
-    public init(array value: [SentryAttribute]) {
-        wrappedValue = value.asAttributeValue
-        super.init()
-    }
-
-    /// Internal initializer to allow direct creation from `SentryAttributeValue`.
-    /// This enables protocol-based conversion without going through `init(value: Any)`.
-    internal init(wrappedValue: SentryAttributeValue) {
-        self.wrappedValue = wrappedValue
-        super.init()
-    }
-
-    /// Creates an attribute from any value, converting unsupported types to strings.
-    /// 
-    /// This initializer is provided for backward compatibility. For type safety,
-    /// prefer using the typed initializers (`init(string:)`, `init(boolean:)`, etc.)
-    /// or literal syntax (e.g., `let attr: SentryAttribute = "value"`).
-    /// 
-    /// - Parameter value: The value to convert to an attribute. Supported types are
-    ///                    String, Bool, Int, Double, and Float. Other types will be
-    ///                    converted to their string representation.
-    public init(value: Any) {
-        // First, try protocol-based conversion for types conforming to SentryAttributable
-        if let attributable = value as? SentryAttributable {
-            self.wrappedValue = attributable.asAttributeValue
-            super.init()
-            return
+    internal init(attributableValue: SentryAttributeValue) {
+        switch attributableValue {
+        case .boolean(let value):
+            self.type = "boolean"
+            self.value = value
+        case .string(let value):
+            self.type = "string"
+            self.value = value
+        case .integer(let value):
+            self.type = "integer"
+            self.value = value
+        case .double(let value):
+            self.type = "double"
+            self.value = value
+        case .booleanArray(let array):
+            self.type = "boolean[]"
+            self.value = array
+        case .stringArray(let array):
+            self.type = "string[]"
+            self.value = array
+        case .integerArray(let array):
+            self.type = "integer[]"
+            self.value = array
+        case .doubleArray(let array):
+            self.type = "double[]"
+            self.value = array
         }
-        
-        // Fallback: Handle Objective-C bridged types and other special cases
+    }
+
+    internal init(value: Any) { // swiftlint:disable:this cyclomatic_complexity
         switch value {
         case let stringValue as String:
-            wrappedValue = .string(stringValue)
-        case let nsStringValue as NSString:
-            // NSString bridges to String but doesn't conform to SentryAttributable
-            wrappedValue = .string(nsStringValue as String)
+            self.type = "string"
+            self.value = stringValue
         case let boolValue as Bool:
-            wrappedValue = .boolean(boolValue)
+            self.type = "boolean"
+            self.value = boolValue
         case let intValue as Int:
-            wrappedValue = .integer(intValue)
+            self.type = "integer"
+            self.value = intValue
         case let doubleValue as Double:
-            wrappedValue = .double(doubleValue)
+            self.type = "double"
+            self.value = doubleValue
         case let floatValue as Float:
-            wrappedValue = .double(Double(floatValue))
-        case let stringArrayValue as [String]:
-            wrappedValue = .stringArray(stringArrayValue)
-        case let boolArrayValue as [Bool]:
-            wrappedValue = .booleanArray(boolArrayValue)
-        case let intArrayValue as [Int]:
-            wrappedValue = .integerArray(intArrayValue)
-        case let doubleArrayValue as [Double]:
-            wrappedValue = .doubleArray(doubleArrayValue)
-        case let floatArrayValue as [Float]:
-            wrappedValue = .doubleArray(floatArrayValue.map { Double($0) })
+            self.type = "double"
+            self.value = Double(floatValue)
+        case let stringValues as [String]:
+            self.type = "string[]"
+            self.value = stringValues
+        case let boolValues as [Bool]:
+            self.type = "boolean[]"
+            self.value = boolValues
+        case let intValues as Int:
+            self.type = "integer[]"
+            self.value = intValues
+        case let doubleValues as [Double]:
+            self.type = "double[]"
+            self.value = doubleValues
+        case let floatValues as [Float]:
+            self.type = "double[]"
+            self.value = floatValues.map(Double.init)
+        case let attributable as SentryAttributeValuable:
+            let value = attributable.asAttributeValue
+            self.type = value.type
+            self.value = value.anyValue
+        case let attribute as SentryAttributeValue:
+            self.type = attribute.type
+            self.value = attribute.anyValue
+        case let attribute as SentryAttribute:
+            self.type = attribute.type
+            self.value = attribute.value
         default:
             // For any other type, convert to string representation
-            wrappedValue = .string(String(describing: value))
+            self.type = "string"
+            self.value = String(describing: value)
         }
         super.init()
     }
 }
 
-// MARK: - Attributable Protocol Support
+// MARK: - Internal Encodable Support
 
-extension SentryAttribute: SentryAttributable {
-    public var asAttributeValue: SentryAttributeValue {
-        return self.wrappedValue
+@_spi(Private) extension SentryAttribute: Encodable {
+    @_spi(Private) public func encode(to encoder: any Encoder) throws {
+        try self.asAttributeValue.encode(to: encoder)
     }
 }
 
-// MARK: - Encodable Support
-
-extension SentryAttribute: Encodable {
-    public func encode(to encoder: any Encoder) throws {
-        try wrappedValue.encode(to: encoder)
+@_spi(Private) extension SentryAttribute: SentryAttributeValuable {
+    @_spi(Private) public var asAttributeValue: SentryAttributeValue {
+        switch self.type {
+        case "string":
+            if let val = self.value as? String {
+                return .string(val)
+            }
+        case "boolean":
+            if let val = self.value as? Bool {
+                return .boolean(val)
+            }
+        case "integer":
+            if let val = self.value as? Int {
+                return .integer(val)
+            }
+        case "double":
+            if let val = self.value as? Double {
+                return .double(val)
+            }
+        case "string[]":
+            if let val = self.value as? [String] {
+                return .stringArray(val)
+            }
+        case "boolean[]":
+            if let val = self.value as? [Bool] {
+                return .booleanArray(val)
+            }
+        case "integer[]":
+            if let val = self.value as? [Int] {
+                return .integerArray(val)
+            }
+        case "double[]":
+            if let val = self.value as? [Double] {
+                return .doubleArray(val)
+            }
+        default:
+            break
+        }
+        return .string(String(describing: value))
     }
 }

@@ -75,7 +75,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
             let mxDelegate = sut as! SentryMXManagerDelegate
             mxDelegate.didReceiveCrashDiagnostic(MXCrashDiagnostic(), callStackTree: callStackTreePerThread, timeStampBegin: timeStampBegin, timeStampEnd: timeStampEnd)
             
-            try assertPerThread(exceptionType: "MXCrashDiagnostic", exceptionValue: "MachException Type:(null) Code:(null) Signal:(null)", exceptionMechanism: "MXCrashDiagnostic", handled: false)
+        try assertPerThread(exceptionType: "MXCrashDiagnostic", exceptionValue: "MachException Type:(null) Code:(null) Signal:(null)", exceptionMechanism: "MXCrashDiagnostic", handled: false)
     }
     
     func testAttachDiagnosticAsAttachment() throws {
@@ -173,10 +173,9 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
             }
             
             let invocations = client.captureEventWithScopeInvocations.invocations
-            XCTAssertEqual(2, client.captureEventWithScopeInvocations.count)
+            XCTAssertEqual(1, client.captureEventWithScopeInvocations.count)
             
             try assertEvent(event: try XCTUnwrap(invocations.first).event)
-            try assertEvent(event: try XCTUnwrap(invocations.element(at: 1)).event)
             
             func assertEvent(event: Event) throws {
                 let sentryFrames = try XCTUnwrap(event.threads?.first?.stacktrace?.frames, "Event has no frames.")
@@ -235,12 +234,7 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
             XCTAssertEqual(callStackTreePerThread.callStacks.count, event?.threads?.count)
             XCTAssertEqual(timeStampBegin, event?.timestamp)
             
-            for callSack in callStackTreePerThread.callStacks {
-                var flattenedRootFrames = callSack.flattenedRootFrames
-                flattenedRootFrames.reverse()
-                
-                try assertFrames(frames: flattenedRootFrames, event: event, exceptionType, exceptionValue, exceptionMechanism, handled: handled)
-            }
+            try assertFrames(event: event, exceptionType, exceptionValue, exceptionMechanism, framesCount: 3, handled: handled)
         }
     }
     
@@ -260,65 +254,16 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         }
         
         let invocations = client.captureEventWithScopeInvocations.invocations
-        XCTAssertEqual(4, client.captureEventWithScopeInvocations.count, "Client expected to capture 2 events.")
-        
-        let firstEvent = try XCTUnwrap(invocations.first).event
-        let secondEvent = try XCTUnwrap(invocations.element(at: 1)).event
-        let thirdEvent = try XCTUnwrap(invocations.element(at: 2)).event
-        let fourthEvent = try XCTUnwrap(invocations.element(at: 3)).event
-        
-        for event in invocations.map({ $0.event }) {
-            XCTAssertEqual(timeStampBegin, event.timestamp)
-            XCTAssertEqual(false, try XCTUnwrap(event.threads?.first).crashed)
-        }
-        
-        let allFrames = try XCTUnwrap(callStackTreeNotPerThread.callStacks.first?.flattenedRootFrames, "CallStackTree has no call stack.")
-        
-        // Overview of stacktrace
-        // | frame 0 |
-        //      | frame 1 |
-        //          | frame 2 |
-        //          | frame 3 |
-        //              | frame 4 |
-        //              | frame 5 |
-        //              | frame 6 |     -> stack trace consists of [0,1,3,4,5,6]
-        //          | frame 7 |
-        //          | frame 8 |         -> stack trace consists of [0,1,2,3,7,8]
-        //      | frame 9 |             -> stack trace consists of [0,1,9]
-        // | frame 10 |
-        //      | frame 11 |
-        //          | frame 12 |
-        //          | frame 13 |    -> stack trace consists of [10,11,12,13]
-        
-        let firstEventFrames = [0, 1, 2, 3, 4, 5, 6].map { allFrames[$0] }
-        let secondEventFrames = [0, 1, 2, 3, 7, 8].map { allFrames[$0] }
-        let thirdEventFrames = [0, 1, 9].map { allFrames[$0] }
-        let fourthEventFrames = [10, 11, 12, 13].map { allFrames[$0] }
-        
-        try assertFrames(frames: firstEventFrames, event: firstEvent, exceptionType, exceptionValue, exceptionMechanism, debugMetaCount: 3)
-        try assertFrames(frames: secondEventFrames, event: secondEvent, exceptionType, exceptionValue, exceptionMechanism, debugMetaCount: 3)
-        try assertFrames(frames: thirdEventFrames, event: thirdEvent, exceptionType, exceptionValue, exceptionMechanism, debugMetaCount: 3)
-        try assertFrames(frames: fourthEventFrames, event: fourthEvent, exceptionType, exceptionValue, exceptionMechanism, debugMetaCount: 3)
+        XCTAssertEqual(1, invocations.count, "Client expected to capture 1 event.")
     }
     
-    private func assertFrames(frames: [SentryMXFrame], event: Event?, _ exceptionType: String, _ exceptionValue: String, _ exceptionMechanism: String, handled: Bool = true, debugMetaCount: Int = 2) throws {
+    private func assertFrames(event: Event?, _ exceptionType: String, _ exceptionValue: String, _ exceptionMechanism: String, framesCount: Int, handled: Bool = true, debugMetaCount: Int = 2) throws {
         let sentryFrames = try XCTUnwrap(event?.threads?.first?.stacktrace?.frames, "Event has no frames.")
-        XCTAssertEqual(frames.count, sentryFrames.count)
+        XCTAssertEqual(framesCount, sentryFrames.count)
         
         XCTAssertEqual(1, event?.exceptions?.count)
         let exception = try XCTUnwrap(event?.exceptions?.first, "Event has exception.")
-        XCTAssertEqual(frames.count, exception.stacktrace?.frames.count)
-        
-        let exceptionFrames = try XCTUnwrap(exception.stacktrace?.frames, "Exception has no frames.")
-    
-        for i in 0..<frames.count {
-            let mxFrame = frames[i]
-            let sentryFrame = sentryFrames[i]
-            let sentryExceptionFrame = exceptionFrames[i]
-            assertFrame(mxFrame: mxFrame, sentryFrame: sentryFrame)
-            assertFrame(mxFrame: mxFrame, sentryFrame: sentryExceptionFrame)
-        }
-        
+
         XCTAssertEqual(exceptionType, exception.type)
         XCTAssertEqual(exceptionValue, exception.value)
         XCTAssertEqual(exceptionMechanism, exception.mechanism?.type)

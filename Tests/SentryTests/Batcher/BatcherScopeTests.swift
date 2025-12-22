@@ -4,7 +4,8 @@ import XCTest
 
 final class BatcherScopeTests: XCTestCase {
     private struct TestItem: BatcherItem, Encodable {
-        var attributeMap: [String: SentryAttributeValue]
+        var attributes: [String: SentryAttribute]
+        var attributesMap: [String: SentryAttributeValue]
         var traceId: SentryId
         var body: String
 
@@ -18,7 +19,7 @@ final class BatcherScopeTests: XCTestCase {
             var container = encoder.container(keyedBy: CodingKeys.self)
             try container.encode(body, forKey: .body)
             try container.encode(traceId.sentryIdString, forKey: .traceId)
-            try container.encode(attributeMap, forKey: .attributes)
+            try container.encode(attributesMap, forKey: .attributes)
         }
     }
 
@@ -73,7 +74,7 @@ final class BatcherScopeTests: XCTestCase {
         scope.applyToItem(&item, config: config, metadata: metadata)
 
         // -- Assert --
-        XCTAssertEqual(item.attributeMap["sentry.sdk.name"]?.value as? String, SentryMeta.sdkName)
+        XCTAssertEqual(item.attributesMap["sentry.sdk.name"], .string(SentryMeta.sdkName))
     }
 
     func testApplyToItem_shouldAddSDKVersion() {
@@ -87,7 +88,7 @@ final class BatcherScopeTests: XCTestCase {
         scope.applyToItem(&item, config: config, metadata: metadata)
 
         // -- Assert --
-        XCTAssertEqual(item.attributeMap["sentry.sdk.version"]?.value as? String, SentryMeta.versionString)
+        XCTAssertEqual(item.attributesMap["sentry.sdk.version"], .string(SentryMeta.versionString))
     }
 
     func testApplyToItem_shouldAddEnvironment() {
@@ -101,7 +102,7 @@ final class BatcherScopeTests: XCTestCase {
         scope.applyToItem(&item, config: config, metadata: metadata)
 
         // -- Assert --
-        XCTAssertEqual(item.attributeMap["sentry.environment"]?.value as? String, "test-environment")
+        XCTAssertEqual(item.attributesMap["sentry.environment"], .string("test-environment"))
     }
 
     func testApplyToItem_withReleaseName_shouldAddRelease() {
@@ -115,7 +116,7 @@ final class BatcherScopeTests: XCTestCase {
         scope.applyToItem(&item, config: config, metadata: metadata)
 
         // -- Assert --
-        XCTAssertEqual(item.attributeMap["sentry.release"]?.value as? String, "test-release-1.0.0")
+        XCTAssertEqual(item.attributesMap["sentry.release"], .string("test-release-1.0.0"))
     }
 
     func testApplyToItem_withoutReleaseName_shouldNotAddRelease() {
@@ -129,7 +130,7 @@ final class BatcherScopeTests: XCTestCase {
         scope.applyToItem(&item, config: config, metadata: metadata)
 
         // -- Assert --
-        XCTAssertNil(item.attributeMap["sentry.release"])
+        XCTAssertNil(item.attributesMap["sentry.release"])
     }
 
     func testApplyToItem_withSpan_shouldAddParentSpanId() {
@@ -148,7 +149,7 @@ final class BatcherScopeTests: XCTestCase {
         scope.applyToItem(&item, config: config, metadata: metadata)
 
         // -- Assert --
-        XCTAssertEqual(item.attributeMap["span_id"]?.value as? String, span.spanId.sentrySpanIdString)
+        XCTAssertEqual(item.attributesMap["span_id"], .string(span.spanId.sentrySpanIdString))
     }
 
     func testApplyToItem_withoutSpan_shouldNotAddParentSpanId() {
@@ -162,7 +163,7 @@ final class BatcherScopeTests: XCTestCase {
         scope.applyToItem(&item, config: config, metadata: metadata)
 
         // -- Assert --
-        XCTAssertNil(item.attributeMap["sentry.trace.parent_span_id"])
+        XCTAssertNil(item.attributesMap["sentry.trace.parent_span_id"])
     }
 
     // MARK: - OS Attributes Tests
@@ -179,7 +180,7 @@ final class BatcherScopeTests: XCTestCase {
         scope.applyToItem(&item, config: config, metadata: metadata)
 
         // -- Assert --
-        XCTAssertEqual(item.attributeMap["os.name"]?.value as? String, "iOS")
+        XCTAssertEqual(item.attributesMap["os.name"], .string("iOS"))
     }
 
     func testApplyToItem_withOSContext_shouldAddOSVersion() {
@@ -194,7 +195,7 @@ final class BatcherScopeTests: XCTestCase {
         scope.applyToItem(&item, config: config, metadata: metadata)
 
         // -- Assert --
-        XCTAssertEqual(item.attributeMap["os.version"]?.value as? String, "17.0")
+        XCTAssertEqual(item.attributesMap["os.version"], .string("17.0"))
     }
 
     func testApplyToItem_withOSContextWithoutName_shouldNotAddOSName() {
@@ -209,7 +210,7 @@ final class BatcherScopeTests: XCTestCase {
         scope.applyToItem(&item, config: config, metadata: metadata)
 
         // -- Assert --
-        XCTAssertNil(item.attributeMap["os.name"])
+        XCTAssertNil(item.attributesMap["os.name"])
     }
 
     func testApplyToItem_withOSContextWithoutVersion_shouldNotAddOSVersion() {
@@ -224,7 +225,7 @@ final class BatcherScopeTests: XCTestCase {
         scope.applyToItem(&item, config: config, metadata: metadata)
 
         // -- Assert --
-        XCTAssertNil(item.attributeMap["os.version"])
+        XCTAssertNil(item.attributesMap["os.version"])
     }
 
     func testApplyToItem_withoutOSContext_shouldNotAddOSAttributes() {
@@ -238,8 +239,8 @@ final class BatcherScopeTests: XCTestCase {
         scope.applyToItem(&item, config: config, metadata: metadata)
 
         // -- Assert --
-        XCTAssertNil(item.attributeMap["os.name"])
-        XCTAssertNil(item.attributeMap["os.version"])
+        XCTAssertNil(item.attributesMap["os.name"])
+        XCTAssertNil(item.attributesMap["os.version"])
     }
 
     // MARK: - Device Attributes Tests
@@ -256,7 +257,7 @@ final class BatcherScopeTests: XCTestCase {
         scope.applyToItem(&item, config: config, metadata: metadata)
 
         // -- Assert --
-        XCTAssertEqual(item.attributeMap["device.brand"]?.value as? String, "Apple")
+        XCTAssertEqual(item.attributesMap["device.brand"], .string("Apple"))
     }
 
     func testApplyToItem_withDeviceContext_shouldAddDeviceModel() {
@@ -271,7 +272,7 @@ final class BatcherScopeTests: XCTestCase {
         scope.applyToItem(&item, config: config, metadata: metadata)
 
         // -- Assert --
-        XCTAssertEqual(item.attributeMap["device.model"]?.value as? String, "iPhone15,2")
+        XCTAssertEqual(item.attributesMap["device.model"], .string("iPhone15,2"))
     }
 
     func testApplyToItem_withDeviceContext_shouldAddDeviceFamily() {
@@ -286,7 +287,7 @@ final class BatcherScopeTests: XCTestCase {
         scope.applyToItem(&item, config: config, metadata: metadata)
 
         // -- Assert --
-        XCTAssertEqual(item.attributeMap["device.family"]?.value as? String, "iPhone")
+        XCTAssertEqual(item.attributesMap["device.family"], .string("iPhone"))
     }
 
     func testApplyToItem_withDeviceContextWithoutModel_shouldNotAddDeviceModel() {
@@ -301,7 +302,7 @@ final class BatcherScopeTests: XCTestCase {
         scope.applyToItem(&item, config: config, metadata: metadata)
 
         // -- Assert --
-        XCTAssertNil(item.attributeMap["device.model"])
+        XCTAssertNil(item.attributesMap["device.model"])
     }
 
     func testApplyToItem_withDeviceContextWithoutFamily_shouldNotAddDeviceFamily() {
@@ -316,7 +317,7 @@ final class BatcherScopeTests: XCTestCase {
         scope.applyToItem(&item, config: config, metadata: metadata)
 
         // -- Assert --
-        XCTAssertNil(item.attributeMap["device.family"])
+        XCTAssertNil(item.attributesMap["device.family"])
     }
 
     func testApplyToItem_withoutDeviceContext_shouldNotAddDeviceAttributes() {
@@ -330,9 +331,9 @@ final class BatcherScopeTests: XCTestCase {
         scope.applyToItem(&item, config: config, metadata: metadata)
 
         // -- Assert --
-        XCTAssertNil(item.attributeMap["device.brand"])
-        XCTAssertNil(item.attributeMap["device.model"])
-        XCTAssertNil(item.attributeMap["device.family"])
+        XCTAssertNil(item.attributesMap["device.brand"])
+        XCTAssertNil(item.attributesMap["device.model"])
+        XCTAssertNil(item.attributesMap["device.family"])
     }
 
     // MARK: - User Attributes Tests
@@ -352,7 +353,7 @@ final class BatcherScopeTests: XCTestCase {
         scope.applyToItem(&item, config: config, metadata: metadata)
 
         // -- Assert --
-        XCTAssertEqual(item.attributeMap["user.id"]?.value as? String, "user-123")
+        XCTAssertEqual(item.attributesMap["user.id"], .string("user-123"))
     }
 
     func testApplyToItem_withUser_shouldAddUserName() {
@@ -371,7 +372,7 @@ final class BatcherScopeTests: XCTestCase {
         scope.applyToItem(&item, config: config, metadata: metadata)
 
         // -- Assert --
-        XCTAssertEqual(item.attributeMap["user.name"]?.value as? String, "John Doe")
+        XCTAssertEqual(item.attributesMap["user.name"], .string("John Doe"))
     }
 
     func testApplyToItem_withUser_shouldAddUserEmail() {
@@ -390,7 +391,7 @@ final class BatcherScopeTests: XCTestCase {
         scope.applyToItem(&item, config: config, metadata: metadata)
 
         // -- Assert --
-        XCTAssertEqual(item.attributeMap["user.email"]?.value as? String, "john@example.com")
+        XCTAssertEqual(item.attributesMap["user.email"], .string("john@example.com"))
     }
 
     func testApplyToItem_withUserWithAllFields_shouldAddAllUserAttributes() {
@@ -410,9 +411,9 @@ final class BatcherScopeTests: XCTestCase {
         scope.applyToItem(&item, config: config, metadata: metadata)
 
         // -- Assert --
-        XCTAssertEqual(item.attributeMap["user.id"]?.value as? String, "user-123")
-        XCTAssertEqual(item.attributeMap["user.name"]?.value as? String, "John Doe")
-        XCTAssertEqual(item.attributeMap["user.email"]?.value as? String, "john@example.com")
+        XCTAssertEqual(item.attributesMap["user.id"], .string("user-123"))
+        XCTAssertEqual(item.attributesMap["user.name"], .string("John Doe"))
+        XCTAssertEqual(item.attributesMap["user.email"], .string("john@example.com"))
     }
 
     func testApplyToItem_withoutUser_shouldNotAddUserAttributes() {
@@ -426,9 +427,9 @@ final class BatcherScopeTests: XCTestCase {
         scope.applyToItem(&item, config: config, metadata: metadata)
 
         // -- Assert --
-        XCTAssertNil(item.attributeMap["user.id"])
-        XCTAssertNil(item.attributeMap["user.name"])
-        XCTAssertNil(item.attributeMap["user.email"])
+        XCTAssertNil(item.attributesMap["user.id"])
+        XCTAssertNil(item.attributesMap["user.name"])
+        XCTAssertNil(item.attributesMap["user.email"])
     }
 
     // MARK: - Replay Attributes Tests
@@ -449,7 +450,7 @@ final class BatcherScopeTests: XCTestCase {
         scope.applyToItem(&item, config: config, metadata: metadata)
 
         // -- Assert --
-        XCTAssertEqual(item.attributeMap["sentry.replay_id"]?.value as? String, "replay-123")
+        XCTAssertEqual(item.attributesMap["sentry.replay_id"], .string("replay-123"))
     }
 
     func testApplyToItem_withoutReplayId_shouldNotAddReplayId() {
@@ -463,7 +464,7 @@ final class BatcherScopeTests: XCTestCase {
         scope.applyToItem(&item, config: config, metadata: metadata)
 
         // -- Assert --
-        XCTAssertNil(item.attributeMap["sentry.replay_id"])
+        XCTAssertNil(item.attributesMap["sentry.replay_id"])
     }
 #endif
 #endif
@@ -482,9 +483,9 @@ final class BatcherScopeTests: XCTestCase {
         scope.applyToItem(&item, config: config, metadata: metadata)
 
         // -- Assert --
-        XCTAssertEqual(item.attributeMap["custom.key"]?.value as? String, "custom.value")
-        XCTAssertEqual(item.attributeMap["custom.number"]?.value as? Int, 42)
-        XCTAssertEqual(item.attributeMap["custom.bool"]?.value as? Bool, true)
+        XCTAssertEqual(item.attributesMap["custom.key"], .string("custom.value"))
+        XCTAssertEqual(item.attributesMap["custom.number"], .integer(42))
+        XCTAssertEqual(item.attributesMap["custom.bool"], .boolean(true))
     }
 
     func testApplyToItem_withScopeAttributes_whenItemHasExistingAttribute_shouldNotOverride() {
@@ -494,14 +495,14 @@ final class BatcherScopeTests: XCTestCase {
         let config = createTestConfig()
         let metadata = createTestMetadata()
         var item = createTestItem()
-        item.attributeMap["custom.key"] = "item.value"
+        item.attributesMap["custom.key"] = .string("item.value")
 
         // -- Act --
         scope.applyToItem(&item, config: config, metadata: metadata)
 
         // -- Assert --
         // Scope attributes should not override existing item attributes
-        XCTAssertEqual(item.attributeMap["custom.key"]?.value as? String, "item.value")
+        XCTAssertEqual(item.attributesMap["custom.key"], .string("item.value"))
     }
 
     // MARK: - Default User ID Tests
@@ -517,7 +518,7 @@ final class BatcherScopeTests: XCTestCase {
         scope.applyToItem(&item, config: config, metadata: metadata)
 
         // -- Assert --
-        XCTAssertEqual(item.attributeMap["user.id"]?.value as? String, "installation-123")
+        XCTAssertEqual(item.attributesMap["user.id"], .string("installation-123"))
     }
 
     func testApplyToItem_withoutUserAndWithoutInstallationId_shouldNotAddUserId() {
@@ -531,7 +532,7 @@ final class BatcherScopeTests: XCTestCase {
         scope.applyToItem(&item, config: config, metadata: metadata)
 
         // -- Assert --
-        XCTAssertNil(item.attributeMap["user.id"])
+        XCTAssertNil(item.attributesMap["user.id"])
     }
 
     func testApplyToItem_withUser_shouldNotAddInstallationIdAsUserId() {
@@ -549,8 +550,8 @@ final class BatcherScopeTests: XCTestCase {
         scope.applyToItem(&item, config: config, metadata: metadata)
 
         // -- Assert --
-        XCTAssertEqual(item.attributeMap["user.id"]?.value as? String, "user-123")
-        XCTAssertNotEqual(item.attributeMap["user.id"]?.value as? String, "installation-123")
+        XCTAssertEqual(item.attributesMap["user.id"], .string("user-123"))
+        XCTAssertNotEqual(item.attributesMap["user.id"], .string("installation-123"))
     }
 
     func testApplyToItem_withUserName_shouldNotAddInstallationIdAsUserId() {
@@ -569,7 +570,7 @@ final class BatcherScopeTests: XCTestCase {
         scope.applyToItem(&item, config: config, metadata: metadata)
 
         // -- Assert --
-        XCTAssertNil(item.attributeMap["user.id"])
+        XCTAssertNil(item.attributesMap["user.id"])
     }
 
     func testApplyToItem_withUserEmail_shouldNotAddInstallationIdAsUserId() {
@@ -588,7 +589,7 @@ final class BatcherScopeTests: XCTestCase {
         scope.applyToItem(&item, config: config, metadata: metadata)
 
         // -- Assert --
-        XCTAssertNil(item.attributeMap["user.id"])
+        XCTAssertNil(item.attributesMap["user.id"])
     }
 
     // MARK: - Trace ID Tests
@@ -653,25 +654,25 @@ final class BatcherScopeTests: XCTestCase {
 
         // -- Assert --
         // Default attributes
-        XCTAssertEqual(item.attributeMap["sentry.sdk.name"]?.value as? String, SentryMeta.sdkName)
-        XCTAssertEqual(item.attributeMap["sentry.sdk.version"]?.value as? String, SentryMeta.versionString)
-        XCTAssertEqual(item.attributeMap["sentry.environment"]?.value as? String, "production")
-        XCTAssertEqual(item.attributeMap["sentry.release"]?.value as? String, "1.0.0")
-        XCTAssertEqual(item.attributeMap["span_id"]?.value as? String, span.spanId.sentrySpanIdString)
+        XCTAssertEqual(item.attributesMap["sentry.sdk.name"], .string(SentryMeta.sdkName))
+        XCTAssertEqual(item.attributesMap["sentry.sdk.version"], .string(SentryMeta.versionString))
+        XCTAssertEqual(item.attributesMap["sentry.environment"], .string("production"))
+        XCTAssertEqual(item.attributesMap["sentry.release"], .string("1.0.0"))
+        XCTAssertEqual(item.attributesMap["span_id"], .string(span.spanId.sentrySpanIdString))
 
         // OS attributes
-        XCTAssertEqual(item.attributeMap["os.name"]?.value as? String, "iOS")
-        XCTAssertEqual(item.attributeMap["os.version"]?.value as? String, "17.0")
+        XCTAssertEqual(item.attributesMap["os.name"], .string("iOS"))
+        XCTAssertEqual(item.attributesMap["os.version"], .string("17.0"))
 
         // Device attributes
-        XCTAssertEqual(item.attributeMap["device.brand"]?.value as? String, "Apple")
-        XCTAssertEqual(item.attributeMap["device.model"]?.value as? String, "iPhone15,2")
-        XCTAssertEqual(item.attributeMap["device.family"]?.value as? String, "iPhone")
+        XCTAssertEqual(item.attributesMap["device.brand"], .string("Apple"))
+        XCTAssertEqual(item.attributesMap["device.model"], .string("iPhone15,2"))
+        XCTAssertEqual(item.attributesMap["device.family"], .string("iPhone"))
 
         // User attributes
-        XCTAssertEqual(item.attributeMap["user.id"]?.value as? String, "user-123")
-        XCTAssertEqual(item.attributeMap["user.name"]?.value as? String, "John Doe")
-        XCTAssertEqual(item.attributeMap["user.email"]?.value as? String, "john@example.com")
+        XCTAssertEqual(item.attributesMap["user.id"], .string("user-123"))
+        XCTAssertEqual(item.attributesMap["user.name"], .string("John Doe"))
+        XCTAssertEqual(item.attributesMap["user.email"], .string("john@example.com"))
 
         // Trace ID
         XCTAssertEqual(item.traceId, traceId)
@@ -690,24 +691,25 @@ final class BatcherScopeTests: XCTestCase {
 
         // -- Assert --
         // Should always have these
-        XCTAssertEqual(item.attributeMap["sentry.sdk.name"]?.value as? String, SentryMeta.sdkName)
-        XCTAssertEqual(item.attributeMap["sentry.sdk.version"]?.value as? String, SentryMeta.versionString)
-        XCTAssertEqual(item.attributeMap["sentry.environment"]?.value as? String, "test")
+        XCTAssertEqual(item.attributesMap["sentry.sdk.name"], .string(SentryMeta.sdkName))
+        XCTAssertEqual(item.attributesMap["sentry.sdk.version"], .string(SentryMeta.versionString))
+        XCTAssertEqual(item.attributesMap["sentry.environment"], .string("test"))
         XCTAssertEqual(item.traceId, traceId)
 
         // Should not have these
-        XCTAssertNil(item.attributeMap["sentry.release"])
-        XCTAssertNil(item.attributeMap["sentry.trace.parent_span_id"])
-        XCTAssertNil(item.attributeMap["os.name"])
-        XCTAssertNil(item.attributeMap["device.brand"])
-        XCTAssertNil(item.attributeMap["user.id"])
+        XCTAssertNil(item.attributesMap["sentry.release"])
+        XCTAssertNil(item.attributesMap["sentry.trace.parent_span_id"])
+        XCTAssertNil(item.attributesMap["os.name"])
+        XCTAssertNil(item.attributesMap["device.brand"])
+        XCTAssertNil(item.attributesMap["user.id"])
     }
 
     // MARK: - Helpers
 
     private func createTestItem() -> TestItem {
         return TestItem(
-            attributeMap: [:],
+            attributes: [:],
+            attributesMap: [:],
             traceId: SentryId(),
             body: "test body"
         )

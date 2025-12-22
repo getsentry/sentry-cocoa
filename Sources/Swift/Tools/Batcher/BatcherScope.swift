@@ -6,7 +6,12 @@ protocol BatcherScope {
     var span: Span? { get }
     var userObject: User? { get }
     func getContextForKey(_ key: String) -> [String: Any]?
+
+    /// List of attributes with erased value type for compatibility with public ``Scope``.
     var attributes: [String: Any] { get }
+
+    /// Used for type-safe access of the attributes, uses default implementation in extension
+    var attributesMap: [String: SentryAttributeValue] { get }
 
     func applyToItem<Item: BatcherItem, Config: BatcherConfig<Item>, Metadata: BatcherMetadata>(
         _ item: inout Item,
@@ -16,18 +21,24 @@ protocol BatcherScope {
 }
 
 extension BatcherScope {
+    var attributesMap: [String: SentryAttributeValue] {
+        self.attributes.mapValues { value in
+            SentryAttributeValue.from(anyValue: value)
+        }
+    }
+
     func applyToItem<Item: BatcherItem, Config: BatcherConfig<Item>, Metadata: BatcherMetadata>(
         _ item: inout Item,
         config: Config,
         metadata: Metadata
     ) {
-        addDefaultAttributes(to: &item.attributeMap, config: config, metadata: metadata)
-        addOSAttributes(to: &item.attributeMap, config: config)
-        addDeviceAttributes(to: &item.attributeMap, config: config)
-        addUserAttributes(to: &item.attributeMap, config: config)
-        addReplayAttributes(to: &item.attributeMap, config: config)
-        addScopeAttributes(to: &item.attributeMap, config: config)
-        addDefaultUserIdIfNeeded(to: &item.attributeMap, config: config, metadata: metadata)
+        addDefaultAttributes(to: &item.attributesMap, config: config, metadata: metadata)
+        addOSAttributes(to: &item.attributesMap, config: config)
+        addDeviceAttributes(to: &item.attributesMap, config: config)
+        addUserAttributes(to: &item.attributesMap, config: config)
+        addReplayAttributes(to: &item.attributesMap, config: config)
+        addScopeAttributes(to: &item.attributesMap, config: config)
+        addDefaultUserIdIfNeeded(to: &item.attributesMap, config: config, metadata: metadata)
 
         item.traceId = SentryId(uuidString: propagationContextTraceIdString)
     }
@@ -35,9 +46,7 @@ extension BatcherScope {
     private func addDefaultAttributes(to attributes: inout [String: SentryAttributeValue], config: any BatcherConfig, metadata: any BatcherMetadata) {
         attributes["sentry.sdk.name"] = .string(SentryMeta.sdkName)
         attributes["sentry.sdk.version"] = .string(SentryMeta.versionString)
-        if metadata.environment.count > 0 {
-            attributes["sentry.environment"] = .string(metadata.environment)
-        }
+        attributes["sentry.environment"] = .string(metadata.environment)
         if let releaseName = metadata.releaseName {
             attributes["sentry.release"] = .string(releaseName)
         }
@@ -93,7 +102,7 @@ extension BatcherScope {
 #if os(iOS) || os(tvOS)
         if let scopeReplayId = replayId {
             // Session mode: use scope replay ID
-            attributes["sentry.replay_id"] = .init(string: scopeReplayId)
+            attributes["sentry.replay_id"] = .string(scopeReplayId)
         }
 #endif
 #endif
@@ -101,8 +110,8 @@ extension BatcherScope {
 
     private func addScopeAttributes(to attributes: inout [String: SentryAttributeValue], config: any BatcherConfig) {
         // Scope attributes should not override any existing attribute in the item
-        for (key, value) in self.attributes where attributes[key] == nil {
-            attributes[key] = SentryAttributeValue.from(anyValue: value)
+        for (key, value) in self.attributesMap where attributes[key] == nil {
+            attributes[key] = value
         }
     }
 
