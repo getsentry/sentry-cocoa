@@ -129,7 +129,7 @@ final class SentryCrashWrapperTests: XCTestCase {
             
             let runtimeContext = try XCTUnwrap(scope.contextDictionary["runtime"] as? [String: Any])
             XCTAssertEqual(runtimeContext["name"] as? String, "Mac Catalyst App")
-            XCTAssertEqual(runtimeContext["raw_description"] as? String, "raw_description")
+            XCTAssertEqual(runtimeContext["raw_description"] as? String, "mac-catalyst-app")
             #endif
     }
 }
