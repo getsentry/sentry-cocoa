@@ -123,7 +123,7 @@ public final class SentryAttribute: NSObject {
         case let boolValues as [Bool]:
             self.type = "boolean[]"
             self.value = boolValues
-        case let intValues as Int:
+        case let intValues as [Int]:
             self.type = "integer[]"
             self.value = intValues
         case let doubleValues as [Double]:
