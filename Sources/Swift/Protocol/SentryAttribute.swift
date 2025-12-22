@@ -40,6 +40,35 @@ public final class SentryAttribute: NSObject {
         super.init()
     }
 
+    internal init(attributableValue: SentryAttributeValue) {
+        switch attributableValue {
+        case .boolean(let value):
+            self.type = "boolean"
+            self.value = value
+        case .string(let value):
+            self.type = "string"
+            self.value = value
+        case .integer(let value):
+            self.type = "integer"
+            self.value = value
+        case .double(let value):
+            self.type = "double"
+            self.value = value
+        case .booleanArray(let array):
+            self.type = "boolean[]"
+            self.value = array
+        case .stringArray(let array):
+            self.type = "string[]"
+            self.value = array
+        case .integerArray(let array):
+            self.type = "integer[]"
+            self.value = array
+        case .doubleArray(let array):
+            self.type = "double[]"
+            self.value = array
+        }
+    }
+
     internal init(value: Any) {
         switch value {
         case let stringValue as String:
@@ -57,6 +86,13 @@ public final class SentryAttribute: NSObject {
         case let floatValue as Float:
             self.type = "double"
             self.value = Double(floatValue)
+        case let attributable as SentryAttributeValuable:
+            let value = attributable.asAttributeValue
+            self.type = value.type
+            self.value = value.anyValue
+        case let attribute as SentryAttribute:
+            self.type = attribute.type
+            self.value = attribute.value
         default:
             // For any other type, convert to string representation
             self.type = "string"
