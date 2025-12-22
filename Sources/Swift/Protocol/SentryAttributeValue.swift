@@ -96,6 +96,9 @@ extension SentryAttributeValue {
         if let val = value as? SentryAttributeValue {
             return val
         }
+        if let val = value as? SentryAttribute {
+            return val.asAttributeValue
+        }
         if let val = value as? SentryAttributeValuable {
             return val.asAttributeValue
         }

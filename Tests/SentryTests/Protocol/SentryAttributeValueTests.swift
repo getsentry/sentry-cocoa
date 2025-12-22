@@ -357,6 +357,48 @@ final class SentryAttributeValueTests: XCTestCase {
         XCTAssertEqual(value, "test")
     }
     
+    func testFromAnyValue_whenSentryAttribute_shouldReturnAttributeValue() {
+        // -- Arrange --
+        let input: Any = SentryAttribute(string: "test")
+        
+        // -- Act --
+        let result = SentryAttributeValue.from(anyValue: input)
+        
+        // -- Assert --
+        guard case .string(let value) = result else {
+            return XCTFail("Expected .string case")
+        }
+        XCTAssertEqual(value, "test")
+    }
+    
+    func testFromAnyValue_whenSentryAttributeWithInteger_shouldReturnIntegerCase() {
+        // -- Arrange --
+        let input: Any = SentryAttribute(integer: 42)
+        
+        // -- Act --
+        let result = SentryAttributeValue.from(anyValue: input)
+        
+        // -- Assert --
+        guard case .integer(let value) = result else {
+            return XCTFail("Expected .integer case")
+        }
+        XCTAssertEqual(value, 42)
+    }
+    
+    func testFromAnyValue_whenSentryAttributeWithBoolean_shouldReturnBooleanCase() {
+        // -- Arrange --
+        let input: Any = SentryAttribute(boolean: true)
+        
+        // -- Act --
+        let result = SentryAttributeValue.from(anyValue: input)
+        
+        // -- Assert --
+        guard case .boolean(let value) = result else {
+            return XCTFail("Expected .boolean case")
+        }
+        XCTAssertEqual(value, true)
+    }
+    
     func testFromAnyValue_whenUnsupportedType_shouldReturnStringCase() {
         // -- Arrange --
         let input: Any = URL(string: "https://example.com")!
