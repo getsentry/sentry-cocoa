@@ -62,7 +62,7 @@ extension SentryAttributeValue: Encodable {
 }
 
 extension SentryAttributeValue {
-    static func from(anyValue value: Any) -> Self {
+    static func from(anyValue value: Any) -> Self { // swiftlint:disable:this cyclomatic_complexity
         if let val = value as? String {
             return .string(val)
         }
@@ -77,6 +77,21 @@ extension SentryAttributeValue {
         }
         if let val = value as? Float {
             return .double(Double(val))
+        }
+        if let val = value as? [String] {
+            return .stringArray(val)
+        }
+        if let val = value as? [Bool] {
+            return .booleanArray(val)
+        }
+        if let val = value as? [Int] {
+            return .integerArray(val)
+        }
+        if let val = value as? [Double] {
+            return .doubleArray(val)
+        }
+        if let val = value as? [Float] {
+            return .doubleArray(val.map(Double.init))
         }
         if let val = value as? SentryAttributeValue {
             return val

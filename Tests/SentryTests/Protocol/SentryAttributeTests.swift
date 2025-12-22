@@ -366,12 +366,6 @@ final class SentryAttributeTests: XCTestCase {
         XCTAssertTrue((attribute.value as? String)?.contains("https://example.com") == true)
     }
     
-    func testInitializer_ArrayValue() {
-        let attribute = SentryLog.Attribute(value: [1, 2, 3])
-        XCTAssertEqual(attribute.type, "string")
-        XCTAssertTrue((attribute.value as? String)?.contains("1") == true)
-    }
-    
     func testInitializer_DictionaryValue() {
         let attribute = SentryLog.Attribute(value: ["key": "value"])
         XCTAssertEqual(attribute.type, "string")
