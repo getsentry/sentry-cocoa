@@ -6,7 +6,12 @@ protocol BatcherScope {
     var span: Span? { get }
     var userObject: User? { get }
     func getContextForKey(_ key: String) -> [String: Any]?
+
+    /// List of attributes with erased value type for compatibility with public ``Scope``.
     var attributes: [String: Any] { get }
+
+    /// Used for type-safe access of the attributes, uses default implementation in extension
+    var attributesMap: [String: SentryAttributeValue] { get }
 
     func applyToItem<Item: BatcherItem, Config: BatcherConfig<Item>, Metadata: BatcherMetadata>(
         _ item: inout Item,
@@ -16,6 +21,12 @@ protocol BatcherScope {
 }
 
 extension BatcherScope {
+    var attributesMap: [String: SentryAttributeValue] {
+        self.attributes.mapValues { value in
+            SentryAttributeValue.from(anyValue: value)
+        }
+    }
+
     func applyToItem<Item: BatcherItem, Config: BatcherConfig<Item>, Metadata: BatcherMetadata>(
         _ item: inout Item,
         config: Config,
@@ -99,8 +110,8 @@ extension BatcherScope {
 
     private func addScopeAttributes(to attributes: inout [String: SentryAttributeValue], config: any BatcherConfig) {
         // Scope attributes should not override any existing attribute in the item
-        for (key, value) in self.attributes where attributes[key] == nil {
-            attributes[key] = SentryAttributeValue.from(anyValue: value)
+        for (key, value) in self.attributesMap where attributes[key] == nil {
+            attributes[key] = value
         }
     }
 

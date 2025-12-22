@@ -81,6 +81,9 @@ extension SentryAttributeValue {
         if let val = value as? SentryAttributeValue {
             return val
         }
+        if let val = value as? SentryAttributeValuable {
+            return val.asAttributeValue
+        }
         return .string(String(describing: value))
     }
 
@@ -103,5 +106,29 @@ extension SentryAttributeValue {
         case .doubleArray(let value):
             return value
         }
+    }
+}
+
+extension SentryAttributeValue: ExpressibleByStringLiteral {
+    public init(stringLiteral value: StringLiteralType) {
+        self = .string(value)
+    }
+}
+
+extension SentryAttributeValue: ExpressibleByBooleanLiteral {
+    public init(booleanLiteral value: BooleanLiteralType) {
+        self = .boolean(value)
+    }
+}
+
+extension SentryAttributeValue: ExpressibleByFloatLiteral {
+    public init(floatLiteral value: FloatLiteralType) {
+        self = .double(value)
+    }
+}
+
+extension SentryAttributeValue: ExpressibleByIntegerLiteral {
+    public init(integerLiteral value: IntegerLiteralType) {
+        self = .integer(value)
     }
 }

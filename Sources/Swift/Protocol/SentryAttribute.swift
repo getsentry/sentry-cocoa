@@ -90,6 +90,9 @@ public final class SentryAttribute: NSObject {
             let value = attributable.asAttributeValue
             self.type = value.type
             self.value = value.anyValue
+        case let attribute as SentryAttributeValue:
+            self.type = attribute.type
+            self.value = attribute.anyValue
         case let attribute as SentryAttribute:
             self.type = attribute.type
             self.value = attribute.value
@@ -103,40 +106,35 @@ public final class SentryAttribute: NSObject {
 }
 
 // MARK: - Internal Encodable Support
+
 @_spi(Private) extension SentryAttribute: Encodable {
-    private enum CodingKeys: String, CodingKey {
-        case value
-        case type
-    }
-
     @_spi(Private) public func encode(to encoder: any Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
+        try self.asAttributeValue.encode(to: encoder)
+    }
+}
 
-        try container.encode(type, forKey: .type)
-
-        switch type {
+@_spi(Private) extension SentryAttribute: SentryAttributeValuable {
+    @_spi(Private) public var asAttributeValue: SentryAttributeValue {
+        switch self.type {
         case "string":
-            guard let stringValue = value as? String else {
-                throw EncodingError.invalidValue(value, EncodingError.Context(codingPath: encoder.codingPath, debugDescription: "Expected String but got \(Swift.type(of: value))"))
+            if let val = self.value as? String {
+                return .string(val)
             }
-            try container.encode(stringValue, forKey: .value)
         case "boolean":
-            guard let boolValue = value as? Bool else {
-                throw EncodingError.invalidValue(value, EncodingError.Context(codingPath: encoder.codingPath, debugDescription: "Expected Bool but got \(Swift.type(of: value))"))
+            if let val = self.value as? Bool {
+                return .boolean(val)
             }
-            try container.encode(boolValue, forKey: .value)
         case "integer":
-            guard let intValue = value as? Int else {
-                throw EncodingError.invalidValue(value, EncodingError.Context(codingPath: encoder.codingPath, debugDescription: "Expected Int but got \(Swift.type(of: value))"))
+            if let val = self.value as? Int {
+                return .integer(val)
             }
-            try container.encode(intValue, forKey: .value)
         case "double":
-            guard let doubleValue = value as? Double else {
-                throw EncodingError.invalidValue(value, EncodingError.Context(codingPath: encoder.codingPath, debugDescription: "Expected Double but got \(Swift.type(of: value))"))
+            if let val = self.value as? Double {
+                return .double(val)
             }
-            try container.encode(doubleValue, forKey: .value)
         default:
-            try container.encode(String(describing: value), forKey: .value)
+            break
         }
+        return .string(String(describing: value))
     }
 }
