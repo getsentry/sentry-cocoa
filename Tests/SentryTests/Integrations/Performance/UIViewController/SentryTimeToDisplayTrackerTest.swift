@@ -3,10 +3,9 @@ import Foundation
 @_spi(Private) import SentryTestUtils
 import XCTest
 
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-
 class TestDelayedWrapper: SentryDelayedFramesTracker {}
 
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 class SentryTimeToDisplayTrackerTest: XCTestCase {
 
     private class Fixture {

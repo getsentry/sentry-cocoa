@@ -210,7 +210,7 @@ public final class SentryCrashWrapper: NSObject {
 
             if self.processInfoWrapper.isMacCatalystApp {
                 runtimeContext["name"] = "Mac Catalyst App"
-                runtimeContext["raw_description"] = "raw_description"
+                runtimeContext["raw_description"] = "mac-catalyst-app"
             }
         }
 

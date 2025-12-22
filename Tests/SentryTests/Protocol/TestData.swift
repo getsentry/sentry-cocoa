@@ -2,7 +2,7 @@ import Sentry
 @_spi(Private) import Sentry
 @_spi(Private) import SentryTestUtils
 
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(tvOS) || os(visionOS) || targetEnvironment(macCatalyst)
 import UIKit
 #endif
 
@@ -340,8 +340,8 @@ class TestData {
         return request
     }
 
-    #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-    
+    #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst) || os(visionOS)
+
     static func getAppStartMeasurement(
         type: SentryAppStartType,
         appStartTimestamp: Date = TestData.timestamp,

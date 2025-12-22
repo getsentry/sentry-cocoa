@@ -240,7 +240,7 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         XCTAssertEqual(PrivateSentrySDKOnly.options.enabled, true)
     }
 
-    #if !os(tvOS) && !os(watchOS)
+    #if !os(tvOS) && !os(watchOS) && !os(visionOS)
     /**
       * Smoke Tests profiling via PrivateSentrySDKOnly. Actual profiling unit tests are done elsewhere.
      */
@@ -349,6 +349,7 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
     #endif
 
     #if canImport(UIKit)
+    #if SENTRY_TARGET_REPLAY_SUPPORTED
     func testCaptureReplayShouldCallReplayIntegration() throws {
         guard #available(iOS 16.0, tvOS 16.0, *) else { return }
 
@@ -443,6 +444,11 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         XCTAssertTrue(redactBuilder.isRedactContainerClassTestOnly(RedactContainer.self))
     }
 
+    private func getFirstIntegrationAsReplay() throws -> SentrySessionReplayIntegration {
+        return try XCTUnwrap(SentrySDKInternal.currentHub().installedIntegrations().first as? SentrySessionReplayIntegration)
+    }
+    #endif // SENTRY_TARGET_REPLAY_SUPPORTED
+
     func testAddExtraSdkPackages() throws {
         PrivateSentrySDKOnly.addSdkPackage("package1", version: "version1")
         PrivateSentrySDKOnly.addSdkPackage("package2", version: "version2")
@@ -460,10 +466,6 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
             XCTAssertEqual(expected[index]["name"], package["name"])
             XCTAssertEqual(expected[index]["version"], package["version"])
         }
-    }
-
-    private func getFirstIntegrationAsReplay() throws -> SentrySessionReplayIntegration {
-        return try XCTUnwrap(SentrySDKInternal.currentHub().installedIntegrations().first as? SentrySessionReplayIntegration)
     }
 
     private let VALID_REPLAY_ID = "0eac7ab503354dd5819b03e263627a29"

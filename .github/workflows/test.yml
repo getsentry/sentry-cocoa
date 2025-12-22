@@ -370,6 +370,14 @@ jobs:
             device: "Apple TV"
             scheme: "Sentry"
 
+          # visionOS 26
+          - name: visionOS 26 Sentry
+            runs-on: macos-26
+            xcode: "26.1.1"
+            test-destination-os: "26.1"
+            platform: "visionOS"
+            scheme: "Sentry"
+
   # This check validates that either all unit tests passed or were skipped, which allows us
   # to make unit tests a required check with only running the unit tests when required.
   # So, we don't have to run unit tests, for example, for Changelog or ReadMe changes.

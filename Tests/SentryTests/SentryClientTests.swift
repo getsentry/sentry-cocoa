@@ -1953,7 +1953,7 @@ class SentryClientTests: XCTestCase {
         if !SentryDependencyContainer.sharedInstance().crashWrapper.isBeingTraced {
             expectedIntegrations = ["ANRTracking"] + expectedIntegrations
         }
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(tvOS) || os(visionOS) || targetEnvironment(macCatalyst)
         expectedIntegrations.append("FramesTracking")
 #endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 
