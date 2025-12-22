@@ -462,7 +462,9 @@
     /// time defined by the @c appHangTimeoutInterval option.
     ///
     /// On iOS, tvOS and visionOS, the SDK can differentiate between fully-blocking and non-fully
-    /// blocking app hangs.
+    /// blocking app hangs. Important: this feature can't differentiate between fully-blocking and
+    /// non-fully-blocking app hangs on macOS.
+    ///
     /// A fully-blocking app hang is when the main thread is stuck completely, and the app can't render a
     /// single frame. A non-fully-blocking app hang is when the app appears stuck to the user but can still
     /// render a few frames. Fully-blocking app hangs are more actionable because the stacktrace shows the
