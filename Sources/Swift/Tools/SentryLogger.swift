@@ -209,11 +209,7 @@ public final class SentryLogger: NSObject {
     
     // MARK: - Private
     
-    private func captureLog(
-        level: SentryLog.Level,
-        logMessage: SentryLogMessage,
-        attributes: [String: Any]
-    ) {
+    private func captureLog(level: SentryLog.Level, logMessage: SentryLogMessage, attributes: [String: Any]) {
         guard let delegate else {
             return
         }
