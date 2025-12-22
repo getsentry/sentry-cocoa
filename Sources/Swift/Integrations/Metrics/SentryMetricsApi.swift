@@ -17,15 +17,16 @@ struct SentryMetricsApi<Dependencies: SentryMetricsApiDependencies>: SentryMetri
         self.dependencies = dependencies
     }
 
-    func count(key: String, value: UInt, unit: String? = nil, attributes: [String: SentryAttributable] = [:]) {
+    func count(key: String, value: UInt, unit: SentryMetricsUnit? = nil, attributes: [String: SentryAttributeValuable] = [:]) {
         recordMetric(name: key, value: .counter(value), unit: unit, attributes: attributes)
     }
 
-    func distribution(key: String, value: Double, unit: String? = nil, attributes: [String: SentryAttributable] = [:]) {
+    func distribution(key: String, value: Double, unit: SentryMetricsUnit? = nil, attributes: [String: SentryAttributeValuable] = [:]) {
         recordMetric(name: key, value: .distribution(value), unit: unit, attributes: attributes)
     }
 
-    func gauge(key: String, value: Double, unit: String? = nil, attributes: [String: SentryAttributable] = [:]) {
+    func gauge(key: String, value: Double, unit: SentryMetricsUnit? = nil, attributes: [String: SentryAttributeValuable] = [:]
+    ) {
         recordMetric(name: key, value: .gauge(value), unit: unit, attributes: attributes)
     }
 
@@ -34,8 +35,8 @@ struct SentryMetricsApi<Dependencies: SentryMetricsApiDependencies>: SentryMetri
     private func recordMetric(
         name: String,
         value: SentryMetric.Value,
-        unit: String?,
-        attributes: [String: SentryAttributable]
+        unit: SentryMetricsUnit?,
+        attributes: [String: SentryAttributeValuable]
     ) {
         guard dependencies.isSDKEnabled && dependencies.isMetricsEnabled else {
             return

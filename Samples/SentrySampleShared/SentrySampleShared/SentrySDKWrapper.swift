@@ -171,7 +171,8 @@ public struct SentrySDKWrapper {
             }
 
             // Add a custom attribute to the metric
-            modifiedMetric.attributeMap["custom-attribute"] = .init(string: "some-value")
+            modifiedMetric.attributes["custom-attribute"] = .string("some-value")
+            modifiedMetric.attributes["custom-attribute-2"] = "some-value-2"
             return modifiedMetric
         }
 

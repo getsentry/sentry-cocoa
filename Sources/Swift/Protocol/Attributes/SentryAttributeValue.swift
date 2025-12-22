@@ -1,5 +1,4 @@
-/// A type-safe value that can be stored in an attribute.
-public enum SentryAttributeValue {
+public enum SentryAttributeValue: Equatable, Hashable {
     case string(String)
     case boolean(Bool)
     case integer(Int)
@@ -9,7 +8,6 @@ public enum SentryAttributeValue {
     case integerArray([Int])
     case doubleArray([Double])
 
-    /// The type identifier for this attribute value ("string", "boolean", "integer", "double", "string[]", "boolean[]", "integer[]", "double[]")
     var type: String {
         switch self {
         case .string:
@@ -30,9 +28,66 @@ public enum SentryAttributeValue {
             return "double[]"
         }
     }
+}
 
-    /// Returns the underlying value as `Any` for backward compatibility
-    var value: Any {
+extension SentryAttributeValue: Encodable {
+    private enum CodingKeys: String, CodingKey {
+        case type
+        case value
+    }
+
+    public func encode(to encoder: any Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(type, forKey: .type)
+
+        switch self {
+        case .string(let value):
+            try container.encode(value, forKey: .value)
+        case .boolean(let value):
+            try container.encode(value, forKey: .value)
+        case .integer(let value):
+            try container.encode(value, forKey: .value)
+        case .double(let value):
+            try container.encode(value, forKey: .value)
+        case .stringArray(let value):
+            try container.encode(value, forKey: .value)
+        case .booleanArray(let value):
+            try container.encode(value, forKey: .value)
+        case .integerArray(let value):
+            try container.encode(value, forKey: .value)
+        case .doubleArray(let value):
+            try container.encode(value, forKey: .value)
+        }
+    }
+}
+
+extension SentryAttributeValue {
+    static func from(anyValue value: Any) -> Self {
+        if let val = value as? String {
+            return .string(val)
+        }
+        if let val = value as? Bool {
+            return .boolean(val)
+        }
+        if let val = value as? Int {
+            return .integer(val)
+        }
+        if let val = value as? Double {
+            return .double(val)
+        }
+        if let val = value as? Float {
+            return .double(Double(val))
+        }
+        if let val = value as? SentryAttributeValue {
+            return val
+        }
+        if let val = value as? SentryAttributeValuable {
+            return val.asAttributeValue
+        }
+        return .string(String(describing: value))
+    }
+
+    var anyValue: Any {
         switch self {
         case .string(let value):
             return value
@@ -52,73 +107,6 @@ public enum SentryAttributeValue {
             return value
         }
     }
-
-    static func from(anyValue: Any) -> Self {
-        if let value = anyValue as? Self {
-            return value
-        }
-        // Try protocol-based conversion for types conforming to SentryAttributable
-        if let attributable = anyValue as? SentryAttributable {
-            return attributable.asAttributeValue
-        }
-
-        // Fallback: Handle Objective-C bridged types and other special cases
-        switch anyValue {
-        case let stringValue as String:
-            return .string(stringValue)
-        case let boolValue as Bool:
-            return .boolean(boolValue)
-        case let intValue as Int:
-            return .integer(intValue)
-        case let doubleValue as Double:
-            return .double(doubleValue)
-        case let floatValue as Float:
-            return .double(Double(floatValue))
-        case let stringArrayValue as [String]:
-            return .stringArray(stringArrayValue)
-        case let boolArrayValue as [Bool]:
-            return .booleanArray(boolArrayValue)
-        case let intArrayValue as [Int]:
-            return .integerArray(intArrayValue)
-        case let doubleArrayValue as [Double]:
-            return .doubleArray(doubleArrayValue)
-        case let floatArrayValue as [Float]:
-            return .doubleArray(floatArrayValue.map { Double($0) })
-        default:
-            return .string(String(describing: anyValue))
-        }
-    }
-}
-
-extension SentryAttributeValue: Encodable {
-    private enum CodingKeys: String, CodingKey {
-        case attributeType = "type"
-        case attributeValue = "value"
-    }
-
-    public func encode(to encoder: any Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(self.type, forKey: .attributeType)
-
-        switch self {
-        case .string(let stringValue):
-            try container.encode(stringValue, forKey: .attributeValue)
-        case .boolean(let boolValue):
-            try container.encode(boolValue, forKey: .attributeValue)
-        case .integer(let intValue):
-            try container.encode(intValue, forKey: .attributeValue)
-        case .double(let doubleValue):
-            try container.encode(doubleValue, forKey: .attributeValue)
-        case .stringArray(let arrayValue):
-            try container.encode(arrayValue, forKey: .attributeValue)
-        case .booleanArray(let arrayValue):
-            try container.encode(arrayValue, forKey: .attributeValue)
-        case .integerArray(let arrayValue):
-            try container.encode(arrayValue, forKey: .attributeValue)
-        case .doubleArray(let arrayValue):
-            try container.encode(arrayValue, forKey: .attributeValue)
-        }
-    }
 }
 
 extension SentryAttributeValue: ExpressibleByStringLiteral {
@@ -133,14 +121,14 @@ extension SentryAttributeValue: ExpressibleByBooleanLiteral {
     }
 }
 
-extension SentryAttributeValue: ExpressibleByIntegerLiteral {
-    public init(integerLiteral value: IntegerLiteralType) {
-        self = .integer(value)
-    }
-}
-
 extension SentryAttributeValue: ExpressibleByFloatLiteral {
     public init(floatLiteral value: FloatLiteralType) {
         self = .double(value)
+    }
+}
+
+extension SentryAttributeValue: ExpressibleByIntegerLiteral {
+    public init(integerLiteral value: IntegerLiteralType) {
+        self = .integer(value)
     }
 }

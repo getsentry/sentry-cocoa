@@ -197,19 +197,6 @@ class SentryAttributableTests: XCTestCase {
         XCTAssertEqual(value, [])
     }
 
-    // MARK: - SentryAttribute Attributable Tests
-
-    func testasAttributeValue_whenSentryAttribute_shouldReturnSelf() {
-        // -- Arrange --
-        let attribute = SentryAttribute(string: "test")
-
-        // -- Act --
-        let result = attribute.asAttributeValue
-
-        // -- Assert --
-        XCTAssertTrue(result === attribute, "asAttributeValue should return self for SentryAttribute")
-    }
-
     // MARK: - Encoding Tests
 
     func testEncode_whenStringAttribute_shouldEncodeCorrectly() throws {
