@@ -40,6 +40,37 @@ public final class SentryAttribute: NSObject {
         super.init()
     }
 
+    public init(stringArray values: [String]) {
+        self.type = "string[]"
+        self.value = values
+        super.init()
+    }
+
+    public init(booleanArray values: [Bool]) {
+        self.type = "boolean[]"
+        self.value = values
+        super.init()
+    }
+
+    public init(integerArray values: [Int]) {
+        self.type = "integer[]"
+        self.value = values
+        super.init()
+    }
+
+    public init(doubleArray values: [Double]) {
+        self.type = "double[]"
+        self.value = values
+        super.init()
+    }
+
+    /// Creates a double attribute from a float value
+    public init(floatArray values: [Float]) {
+        self.type = "double[]"
+        self.value = values.map(Double.init)
+        super.init()
+    }
+
     internal init(attributableValue: SentryAttributeValue) {
         switch attributableValue {
         case .boolean(let value):
@@ -69,7 +100,7 @@ public final class SentryAttribute: NSObject {
         }
     }
 
-    internal init(value: Any) {
+    internal init(value: Any) { // swiftlint:disable:this cyclomatic_complexity
         switch value {
         case let stringValue as String:
             self.type = "string"
@@ -86,6 +117,21 @@ public final class SentryAttribute: NSObject {
         case let floatValue as Float:
             self.type = "double"
             self.value = Double(floatValue)
+        case let stringValues as [String]:
+            self.type = "string[]"
+            self.value = stringValues
+        case let boolValues as [Bool]:
+            self.type = "boolean[]"
+            self.value = boolValues
+        case let intValues as Int:
+            self.type = "integer[]"
+            self.value = intValues
+        case let doubleValues as [Double]:
+            self.type = "double[]"
+            self.value = doubleValues
+        case let floatValues as [Float]:
+            self.type = "double[]"
+            self.value = floatValues.map(Double.init)
         case let attributable as SentryAttributeValuable:
             let value = attributable.asAttributeValue
             self.type = value.type
@@ -131,6 +177,22 @@ public final class SentryAttribute: NSObject {
         case "double":
             if let val = self.value as? Double {
                 return .double(val)
+            }
+        case "string[]":
+            if let val = self.value as? [String] {
+                return .stringArray(val)
+            }
+        case "boolean[]":
+            if let val = self.value as? [Bool] {
+                return .booleanArray(val)
+            }
+        case "integer[]":
+            if let val = self.value as? [Int] {
+                return .integerArray(val)
+            }
+        case "double[]":
+            if let val = self.value as? [Double] {
+                return .doubleArray(val)
             }
         default:
             break

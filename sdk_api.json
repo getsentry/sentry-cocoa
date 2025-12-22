@@ -59350,6 +59350,186 @@
               "ObjC"
             ],
             "init_kind": "Designated"
+          },
+          {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init(stringArray:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "SentryAttribute",
+                "printedName": "Sentry.SentryAttribute",
+                "usr": "c:@M@Sentry@objc(cs)SentryAttribute"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Array",
+                "printedName": "[Swift.String]",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "usr": "s:Sa"
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "c:@M@Sentry@objc(cs)SentryAttribute(im)initWithStringArray:",
+            "mangledName": "$s6Sentry0A9AttributeC11stringArrayACSaySSG_tcfc",
+            "moduleName": "Sentry",
+            "objc_name": "initWithStringArray:",
+            "declAttributes": [
+              "ObjC"
+            ],
+            "init_kind": "Designated"
+          },
+          {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init(booleanArray:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "SentryAttribute",
+                "printedName": "Sentry.SentryAttribute",
+                "usr": "c:@M@Sentry@objc(cs)SentryAttribute"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Array",
+                "printedName": "[Swift.Bool]",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  }
+                ],
+                "usr": "s:Sa"
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "c:@M@Sentry@objc(cs)SentryAttribute(im)initWithBooleanArray:",
+            "mangledName": "$s6Sentry0A9AttributeC12booleanArrayACSaySbG_tcfc",
+            "moduleName": "Sentry",
+            "objc_name": "initWithBooleanArray:",
+            "declAttributes": [
+              "ObjC"
+            ],
+            "init_kind": "Designated"
+          },
+          {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init(integerArray:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "SentryAttribute",
+                "printedName": "Sentry.SentryAttribute",
+                "usr": "c:@M@Sentry@objc(cs)SentryAttribute"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Array",
+                "printedName": "[Swift.Int]",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Int",
+                    "printedName": "Swift.Int",
+                    "usr": "s:Si"
+                  }
+                ],
+                "usr": "s:Sa"
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "c:@M@Sentry@objc(cs)SentryAttribute(im)initWithIntegerArray:",
+            "mangledName": "$s6Sentry0A9AttributeC12integerArrayACSaySiG_tcfc",
+            "moduleName": "Sentry",
+            "objc_name": "initWithIntegerArray:",
+            "declAttributes": [
+              "ObjC"
+            ],
+            "init_kind": "Designated"
+          },
+          {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init(doubleArray:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "SentryAttribute",
+                "printedName": "Sentry.SentryAttribute",
+                "usr": "c:@M@Sentry@objc(cs)SentryAttribute"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Array",
+                "printedName": "[Swift.Double]",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Double",
+                    "printedName": "Swift.Double",
+                    "usr": "s:Sd"
+                  }
+                ],
+                "usr": "s:Sa"
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "c:@M@Sentry@objc(cs)SentryAttribute(im)initWithDoubleArray:",
+            "mangledName": "$s6Sentry0A9AttributeC11doubleArrayACSaySdG_tcfc",
+            "moduleName": "Sentry",
+            "objc_name": "initWithDoubleArray:",
+            "declAttributes": [
+              "ObjC"
+            ],
+            "init_kind": "Designated"
+          },
+          {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init(floatArray:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "SentryAttribute",
+                "printedName": "Sentry.SentryAttribute",
+                "usr": "c:@M@Sentry@objc(cs)SentryAttribute"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Array",
+                "printedName": "[Swift.Float]",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Float",
+                    "printedName": "Swift.Float",
+                    "usr": "s:Sf"
+                  }
+                ],
+                "usr": "s:Sa"
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "c:@M@Sentry@objc(cs)SentryAttribute(im)initWithFloatArray:",
+            "mangledName": "$s6Sentry0A9AttributeC10floatArrayACSaySfG_tcfc",
+            "moduleName": "Sentry",
+            "objc_name": "initWithFloatArray:",
+            "declAttributes": [
+              "ObjC"
+            ],
+            "init_kind": "Designated"
           }
         ],
         "declKind": "Class",
