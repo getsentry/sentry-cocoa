@@ -590,27 +590,27 @@ final class SentryLogBatcherTests: XCTestCase {
         XCTAssertEqual(attributes["integer-attribute"]?.value as? Int, 5)
         XCTAssertEqual(attributes["integer-attribute"]?.type, "integer")
     }
-    
+
     func testAddLog_ScopeAttributesDoNotOverrideLogAttribute() throws {
         // -- Arrange --
         let scope = Scope()
         scope.setAttribute(value: true, key: "log-attribute")
         let sut = getSut()
         let log = createTestLog(body: "Test log message with user", attributes: [ "log-attribute": .init(value: false)])
-        
+
         // -- Act --
         sut.addLog(log, scope: scope)
         sut.captureLogs()
-        
+
         // -- Assert --
         let capturedLogs = testDelegate.getCapturedLogs()
         let capturedLog = try XCTUnwrap(capturedLogs.first)
         let attributes = capturedLog.attributes
-        
+
         XCTAssertEqual(attributes["log-attribute"]?.value as? Bool, false)
         XCTAssertEqual(attributes["log-attribute"]?.type, "boolean")
     }
-    
+
     // MARK: - Replay Attributes Tests
     
 #if canImport(UIKit) && !SENTRY_NO_UIKIT

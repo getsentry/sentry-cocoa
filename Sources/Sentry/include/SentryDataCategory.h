@@ -20,5 +20,6 @@ typedef NS_ENUM(NSUInteger, SentryDataCategory) {
     kSentryDataCategorySpan = 11,
     kSentryDataCategoryFeedback = 12,
     kSentryDataCategoryLogItem = 13,
-    kSentryDataCategoryUnknown = 14,
+    kSentryDataCategoryTraceMetric = 14,
+    kSentryDataCategoryUnknown = 15,
 };
