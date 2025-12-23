@@ -74,7 +74,7 @@ final class SentryUIRedactBuilder {
     /// This object identifier is used to identify views of this class type during the redaction process.
     /// This workaround is specifically for Xcode 16 building for iOS 26 where accessing CameraUI.ModeLoupeLayer
     /// causes a crash due to unimplemented init(layer:) initializer.
-    static let cameraSwiftUIViewClassId = ClassIdentifier(classId: "CameraUI.ChromeSwiftUIView")
+    private static let cameraSwiftUIViewClassId = ClassIdentifier(classId: "CameraUI.ChromeSwiftUIView")
 
     // MARK: - Properties
 
@@ -106,15 +106,25 @@ final class SentryUIRedactBuilder {
     /// Optimized lookup: class IDs with layer constraints (includes both classId and layerId)
     private var constrainedRedactClasses: Set<ClassIdentifier> = []
 
-    /// A set of view type identifier strings for which subtree traversal should be ignored.
+    /// A set of view type identifier strings that should be excluded from subtree traversal.
     ///
-    /// Views matching these types will have their subtrees skipped during redaction to avoid crashes
+    /// Views matching these patterns will have their subtrees skipped during redaction to avoid crashes
     /// caused by traversing problematic view hierarchies.
     ///
     /// Matching is done using partial string matching: if the view's class name contains any of these
     /// strings, the subtree will be ignored. For example, "MyView" will match "MyApp.MyView",
     /// "MyViewSubclass", etc.
-    private var viewTypesIgnoredFromSubtreeTraversal: Set<String>
+    private var excludedViewClassPatterns: Set<String>
+    
+    /// A set of view type identifier strings that should be included in subtree traversal.
+    ///
+    /// Views exactly matching these strings will be removed from the excluded set, allowing their subtrees
+    /// to be traversed even if they would otherwise be excluded.
+    ///
+    /// Matching is done using exact string matching: the view's class name must exactly equal one of these
+    /// strings. For example, "MyApp.MyView" will only match exactly "MyApp.MyView", not "MyApp.MyViewSubclass".
+    /// This prevents accidental matches where "ChromeCameraUI" is excluded but "Camera" is included.
+    private var includedViewClassPatterns: Set<String>
 
     /// Initializes a new instance of the redaction process with the specified options.
     ///
@@ -219,22 +229,26 @@ final class SentryUIRedactBuilder {
 
         redactClassesIdentifiers = redactClasses
         
-        // Compute the final set of view types excluded from subtree traversal using the formula:
-        // Default View Classes + Excluded View Classes - Included View Classes
-        // Default view classes are defined here (e.g., CameraUI.ChromeSwiftUIView on iOS 26+).
+        // Compile excluded and included patterns into separate sets for efficient lookup.
+        // The final decision is computed at runtime using the formula:
+        //
+        //   Default View Classes + Excluded View Classes - Included View Classes
+        //
         // SDK users can add exclusions via options.excludedViewClasses and remove defaults via options.includedViewClasses.
-        // Matching uses partial string containment: if a view's class name contains any excluded string,
-        // the subtree will be ignored. For example, "MyView" will match "MyApp.MyView", "MyViewSubclass", etc.
+        // Matching rules:
+        // - Excluded patterns use partial matching (contains): "MyView" matches "MyApp.MyView", "MyViewSubclass", etc.
+        // - Included patterns use exact matching (Set.contains): "MyViewSubclass" only matches exactly "MyViewSubclass"
+        //
+        // This prevents accidental matches where "ChromeCameraUI" is excluded but "Camera" is included from causing crashes.
         var defaultExcluded: Set<String> = []
         #if os(iOS)
         if #available(iOS 26.0, *) {
-            defaultExcluded.insert("CameraUI.ChromeSwiftUIView")
+            defaultExcluded.insert(Self.cameraSwiftUIViewClassId.classId)
         }
         #endif
         
-        viewTypesIgnoredFromSubtreeTraversal = defaultExcluded
-            .union(options.excludedViewClasses)
-            .subtracting(options.includedViewClasses)
+        excludedViewClassPatterns = defaultExcluded.union(options.excludedViewClasses)
+        includedViewClassPatterns = options.includedViewClasses
         
         // didSet doesn't run during initialization, so we need to manually build the optimization structures
         rebuildOptimizedLookups()
@@ -594,13 +608,22 @@ final class SentryUIRedactBuilder {
         // [2] https://github.com/getsentry/sentry-cocoa/blob/00d97404946a37e983eabb21cc64bd3d5d2cb474/Sources/Sentry/SentrySubClassFinder.m#L58-L84
         let viewTypeId = type(of: view).description()
 
-        // Check if this view type matches any excluded pattern using partial string matching.
-        // If the view's class name contains any excluded string, the subtree will be ignored.
-        // For example, "MyView" will match "MyApp.MyView", "MyViewSubclass", etc.
-        for exclude in viewTypesIgnoredFromSubtreeTraversal {
-            if viewTypeId.contains(exclude) {
-                return true
-            }
+        // Check if the view type id is in the list of included view classes (exact matching).
+        // If yes we can exit early as this list overrules other matchings.
+        if includedViewClassPatterns.contains(viewTypeId) {
+            // Matches included pattern exactly, so don't ignore subtree
+            return false
+        }
+
+        // Check excluded patterns using partial matching, with overruling using the included patterns with exact matching.
+        //
+        // For example, excluding "ChromeCameraUI" will match "MyApp.ChromeCameraUI", "ChromeCameraUISubclass", etc.
+        //
+        // However, if "ChromeCameraUI" is excluded and "Camera" is included, "ChromeCameraUI" will
+        // still be excluded because "Camera" doesn't exactly match "ChromeCameraUI".
+        for pattern in excludedViewClassPatterns where viewTypeId.contains(pattern) {
+            // Matches excluded but not exactly included, so ignore subtree
+            return true
         }
 
 #if os(iOS)

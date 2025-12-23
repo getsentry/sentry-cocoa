@@ -1465,9 +1465,9 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftli
         XCTAssertGreaterThanOrEqual(otherViewLayer.sublayerInvocations.count, 1, "SomeOtherView's sublayers should be accessed normally")
     }
     
-    func testSubtreeTraversalIgnored_withPartialMatchingIncluded_shouldRemoveFromExcluded() throws {
+    func testSubtreeTraversalIgnored_withExactMatchingIncluded_shouldRemoveFromExcluded() throws {
         // -- Arrange --
-        // Test that included patterns can remove views from excluded set using partial matching
+        // Test that included patterns use exact matching to remove views from excluded set
         class MyAppProblematicView: ProblematicView {}
         class ProblematicViewSubclass: ProblematicView {}
         
@@ -1485,12 +1485,14 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftli
         normalView.addSubview(problematicView2)
         
         // -- Act --
-        // Exclude "Problematic" but include "Subclass" - so ProblematicViewSubclass should be traversed
+        // Exclude "Problematic" (partial match) but include exact class name "ProblematicViewSubclass"
+        // So ProblematicViewSubclass should be traversed, but MyAppProblematicView should not
+        let problematicView2TypeId = type(of: problematicView2).description()
         let options = TestRedactOptions(
             maskAllText: true,
             maskAllImages: true,
             excludedViewClasses: ["Problematic"],
-            includedViewClasses: ["Subclass"]
+            includedViewClasses: [problematicView2TypeId] // Exact match required
         )
         let sut = SentryUIRedactBuilder(options: options)
         
@@ -1504,10 +1506,50 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftli
         // -- Assert --
         // Normal view's sublayers should be accessed
         XCTAssertGreaterThanOrEqual(normalViewLayer.sublayerInvocations.count, 1, "Normal view's sublayers should be accessed")
-        // MyAppProblematicView's sublayers should NOT be accessed (matches "Problematic" but not "Subclass")
+        // MyAppProblematicView's sublayers should NOT be accessed (matches "Problematic" but doesn't exactly match included)
         XCTAssertEqual(problematicView1Layer.sublayerInvocations.count, 0, "MyAppProblematicView's sublayers should not be accessed")
-        // ProblematicViewSubclass's sublayers SHOULD be accessed (matches "Problematic" but also matches "Subclass" which removes it from excluded)
-        XCTAssertGreaterThanOrEqual(problematicView2Layer.sublayerInvocations.count, 1, "ProblematicViewSubclass's sublayers should be accessed because 'Subclass' is included")
+        // ProblematicViewSubclass's sublayers SHOULD be accessed (matches "Problematic" but exactly matches included pattern)
+        XCTAssertGreaterThanOrEqual(problematicView2Layer.sublayerInvocations.count, 1, "ProblematicViewSubclass's sublayers should be accessed because it exactly matches the included pattern")
+    }
+    
+    func testSubtreeTraversalIgnored_withIncludedPartialMatch_shouldNotRemoveFromExcluded() throws {
+        // -- Arrange --
+        // Test that included patterns require exact matching, so partial matches don't accidentally remove exclusions
+        // This prevents cases where "ChromeCameraUI" is excluded but "Camera" is included from causing crashes
+        class ChromeCameraUIView: ProblematicView {}
+        
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+        let normalView = NormalView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+        let normalViewLayer = try XCTUnwrap(normalView.layer as? NormalLayer)
+        rootView.addSubview(normalView)
+        
+        let chromeCameraView = ChromeCameraUIView(frame: CGRect(x: 10, y: 10, width: 30, height: 30))
+        let chromeCameraViewLayer = try XCTUnwrap(chromeCameraView.layer as? ProblematicLayer)
+        normalView.addSubview(chromeCameraView)
+        
+        // -- Act --
+        // Exclude "ChromeCameraUI" but include "Camera" - ChromeCameraUIView should still be excluded
+        // because "Camera" doesn't exactly match "ChromeCameraUIView"
+        let chromeCameraViewTypeId = type(of: chromeCameraView).description()
+        let options = TestRedactOptions(
+            maskAllText: true,
+            maskAllImages: true,
+            excludedViewClasses: [chromeCameraViewTypeId],
+            includedViewClasses: ["Camera"] // Partial match should NOT work
+        )
+        let sut = SentryUIRedactBuilder(options: options)
+        
+        // Reset the sublayers before redaction
+        normalViewLayer.sublayerInvocations.removeAll()
+        chromeCameraViewLayer.sublayerInvocations.removeAll()
+        
+        let _ = sut.redactRegionsFor(view: rootView)
+        
+        // -- Assert --
+        // Normal view's sublayers should be accessed
+        XCTAssertGreaterThanOrEqual(normalViewLayer.sublayerInvocations.count, 1, "Normal view's sublayers should be accessed")
+        // ChromeCameraUIView's sublayers should NOT be accessed because "Camera" doesn't exactly match the class name
+        XCTAssertEqual(chromeCameraViewLayer.sublayerInvocations.count, 0, "ChromeCameraUIView's sublayers should not be accessed because included pattern requires exact match")
     }
 }
 

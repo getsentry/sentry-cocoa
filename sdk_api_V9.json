@@ -1123,8 +1123,8 @@
               },
               {
                 "kind": "Var",
-                "name": "viewTypesIgnoredFromSubtreeTraversal",
-                "printedName": "viewTypesIgnoredFromSubtreeTraversal",
+                "name": "excludedViewClasses",
+                "printedName": "excludedViewClasses",
                 "children": [
                   {
                     "kind": "TypeNominal",
@@ -1142,13 +1142,16 @@
                   }
                 ],
                 "declKind": "Var",
-                "usr": "s:6Sentry0A21ViewScreenshotOptionsC13DefaultValuesC36viewTypesIgnoredFromSubtreeTraversalShySSGvpZ",
-                "mangledName": "$s6Sentry0A21ViewScreenshotOptionsC13DefaultValuesC36viewTypesIgnoredFromSubtreeTraversalShySSGvpZ",
+                "usr": "s:6Sentry0A21ViewScreenshotOptionsC13DefaultValuesC08excludedB7ClassesShySSGvpZ",
+                "mangledName": "$s6Sentry0A21ViewScreenshotOptionsC13DefaultValuesC08excludedB7ClassesShySSGvpZ",
                 "moduleName": "Sentry",
                 "static": true,
                 "declAttributes": [
-                  "Final"
+                  "Final",
+                  "HasStorage"
                 ],
+                "isLet": true,
+                "hasStorage": true,
                 "accessors": [
                   {
                     "kind": "Accessor",
@@ -1171,10 +1174,76 @@
                       }
                     ],
                     "declKind": "Accessor",
-                    "usr": "s:6Sentry0A21ViewScreenshotOptionsC13DefaultValuesC36viewTypesIgnoredFromSubtreeTraversalShySSGvgZ",
-                    "mangledName": "$s6Sentry0A21ViewScreenshotOptionsC13DefaultValuesC36viewTypesIgnoredFromSubtreeTraversalShySSGvgZ",
+                    "usr": "s:6Sentry0A21ViewScreenshotOptionsC13DefaultValuesC08excludedB7ClassesShySSGvgZ",
+                    "mangledName": "$s6Sentry0A21ViewScreenshotOptionsC13DefaultValuesC08excludedB7ClassesShySSGvgZ",
                     "moduleName": "Sentry",
                     "static": true,
+                    "implicit": true,
+                    "declAttributes": [
+                      "Final"
+                    ],
+                    "accessorKind": "get"
+                  }
+                ]
+              },
+              {
+                "kind": "Var",
+                "name": "includedViewClasses",
+                "printedName": "includedViewClasses",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Set",
+                    "printedName": "Swift.Set<Swift.String>",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ],
+                    "usr": "s:Sh"
+                  }
+                ],
+                "declKind": "Var",
+                "usr": "s:6Sentry0A21ViewScreenshotOptionsC13DefaultValuesC08includedB7ClassesShySSGvpZ",
+                "mangledName": "$s6Sentry0A21ViewScreenshotOptionsC13DefaultValuesC08includedB7ClassesShySSGvpZ",
+                "moduleName": "Sentry",
+                "static": true,
+                "declAttributes": [
+                  "Final",
+                  "HasStorage"
+                ],
+                "isLet": true,
+                "hasStorage": true,
+                "accessors": [
+                  {
+                    "kind": "Accessor",
+                    "name": "Get",
+                    "printedName": "Get()",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Set",
+                        "printedName": "Swift.Set<Swift.String>",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "String",
+                            "printedName": "Swift.String",
+                            "usr": "s:SS"
+                          }
+                        ],
+                        "usr": "s:Sh"
+                      }
+                    ],
+                    "declKind": "Accessor",
+                    "usr": "s:6Sentry0A21ViewScreenshotOptionsC13DefaultValuesC08includedB7ClassesShySSGvgZ",
+                    "mangledName": "$s6Sentry0A21ViewScreenshotOptionsC13DefaultValuesC08includedB7ClassesShySSGvgZ",
+                    "moduleName": "Sentry",
+                    "static": true,
+                    "implicit": true,
                     "declAttributes": [
                       "Final"
                     ],
@@ -1863,8 +1932,8 @@
           },
           {
             "kind": "Var",
-            "name": "viewTypesIgnoredFromSubtreeTraversal",
-            "printedName": "viewTypesIgnoredFromSubtreeTraversal",
+            "name": "excludedViewClasses",
+            "printedName": "excludedViewClasses",
             "children": [
               {
                 "kind": "TypeNominal",
@@ -1882,10 +1951,10 @@
               }
             ],
             "declKind": "Var",
-            "usr": "c:@M@Sentry@objc(cs)SentryViewScreenshotOptions(py)viewTypesIgnoredFromSubtreeTraversal",
-            "mangledName": "$s6Sentry0A21ViewScreenshotOptionsC36viewTypesIgnoredFromSubtreeTraversalShySSGvp",
+            "usr": "c:@M@Sentry@objc(cs)SentryViewScreenshotOptions(py)excludedViewClasses",
+            "mangledName": "$s6Sentry0A21ViewScreenshotOptionsC08excludedB7ClassesShySSGvp",
             "moduleName": "Sentry",
-            "objc_name": "viewTypesIgnoredFromSubtreeTraversal",
+            "objc_name": "excludedViewClasses",
             "declAttributes": [
               "ObjC"
             ],
@@ -1911,10 +1980,71 @@
                   }
                 ],
                 "declKind": "Accessor",
-                "usr": "c:@M@Sentry@objc(cs)SentryViewScreenshotOptions(im)viewTypesIgnoredFromSubtreeTraversal",
-                "mangledName": "$s6Sentry0A21ViewScreenshotOptionsC36viewTypesIgnoredFromSubtreeTraversalShySSGvg",
+                "usr": "c:@M@Sentry@objc(cs)SentryViewScreenshotOptions(im)excludedViewClasses",
+                "mangledName": "$s6Sentry0A21ViewScreenshotOptionsC08excludedB7ClassesShySSGvg",
                 "moduleName": "Sentry",
-                "objc_name": "viewTypesIgnoredFromSubtreeTraversal",
+                "objc_name": "excludedViewClasses",
+                "declAttributes": [
+                  "ObjC"
+                ],
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "includedViewClasses",
+            "printedName": "includedViewClasses",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Set",
+                "printedName": "Swift.Set<Swift.String>",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "usr": "s:Sh"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "c:@M@Sentry@objc(cs)SentryViewScreenshotOptions(py)includedViewClasses",
+            "mangledName": "$s6Sentry0A21ViewScreenshotOptionsC08includedB7ClassesShySSGvp",
+            "moduleName": "Sentry",
+            "objc_name": "includedViewClasses",
+            "declAttributes": [
+              "ObjC"
+            ],
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Set",
+                    "printedName": "Swift.Set<Swift.String>",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ],
+                    "usr": "s:Sh"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "c:@M@Sentry@objc(cs)SentryViewScreenshotOptions(im)includedViewClasses",
+                "mangledName": "$s6Sentry0A21ViewScreenshotOptionsC08includedB7ClassesShySSGvg",
+                "moduleName": "Sentry",
+                "objc_name": "includedViewClasses",
                 "declAttributes": [
                   "ObjC"
                 ],
@@ -2002,7 +2132,7 @@
           {
             "kind": "Constructor",
             "name": "init",
-            "printedName": "init(enableViewRendererV2:enableFastViewRendering:maskAllText:maskAllImages:maskedViewClasses:unmaskedViewClasses:viewTypesIgnoredFromSubtreeTraversal:)",
+            "printedName": "init(enableViewRendererV2:enableFastViewRendering:maskAllText:maskAllImages:maskedViewClasses:unmaskedViewClasses:excludedViewClasses:includedViewClasses:)",
             "children": [
               {
                 "kind": "TypeNominal",
@@ -2136,13 +2266,28 @@
                 ],
                 "hasDefaultArg": true,
                 "usr": "s:Sh"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Set",
+                "printedName": "Swift.Set<Swift.String>",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "hasDefaultArg": true,
+                "usr": "s:Sh"
               }
             ],
             "declKind": "Constructor",
-            "usr": "c:@M@Sentry@objc(cs)SentryViewScreenshotOptions(im)initWithEnableViewRendererV2:enableFastViewRendering:maskAllText:maskAllImages:maskedViewClasses:unmaskedViewClasses:viewTypesIgnoredFromSubtreeTraversal:",
-            "mangledName": "$s6Sentry0A21ViewScreenshotOptionsC06enableB10RendererV20e4FastB9Rendering11maskAllText0jK6Images06maskedB7Classes08unmaskedbO036viewTypesIgnoredFromSubtreeTraversalACSb_S3bSayyXlXpGAKShySSGtcfc",
+            "usr": "c:@M@Sentry@objc(cs)SentryViewScreenshotOptions(im)initWithEnableViewRendererV2:enableFastViewRendering:maskAllText:maskAllImages:maskedViewClasses:unmaskedViewClasses:excludedViewClasses:includedViewClasses:",
+            "mangledName": "$s6Sentry0A21ViewScreenshotOptionsC06enableB10RendererV20e4FastB9Rendering11maskAllText0jK6Images06maskedB7Classes08unmaskedbO008excludedbO008includedbO0ACSb_S3bSayyXlXpGALShySSGAMtcfc",
             "moduleName": "Sentry",
-            "objc_name": "initWithEnableViewRendererV2:enableFastViewRendering:maskAllText:maskAllImages:maskedViewClasses:unmaskedViewClasses:viewTypesIgnoredFromSubtreeTraversal:",
+            "objc_name": "initWithEnableViewRendererV2:enableFastViewRendering:maskAllText:maskAllImages:maskedViewClasses:unmaskedViewClasses:excludedViewClasses:includedViewClasses:",
             "declAttributes": [
               "ObjC"
             ],
@@ -6098,8 +6243,8 @@
               },
               {
                 "kind": "Var",
-                "name": "viewTypesIgnoredFromSubtreeTraversal",
-                "printedName": "viewTypesIgnoredFromSubtreeTraversal",
+                "name": "excludedViewClasses",
+                "printedName": "excludedViewClasses",
                 "children": [
                   {
                     "kind": "TypeNominal",
@@ -6117,13 +6262,16 @@
                   }
                 ],
                 "declKind": "Var",
-                "usr": "s:6Sentry0A13ReplayOptionsC13DefaultValuesC36viewTypesIgnoredFromSubtreeTraversalShySSGvpZ",
-                "mangledName": "$s6Sentry0A13ReplayOptionsC13DefaultValuesC36viewTypesIgnoredFromSubtreeTraversalShySSGvpZ",
+                "usr": "s:6Sentry0A13ReplayOptionsC13DefaultValuesC19excludedViewClassesShySSGvpZ",
+                "mangledName": "$s6Sentry0A13ReplayOptionsC13DefaultValuesC19excludedViewClassesShySSGvpZ",
                 "moduleName": "Sentry",
                 "static": true,
                 "declAttributes": [
-                  "Final"
+                  "Final",
+                  "HasStorage"
                 ],
+                "isLet": true,
+                "hasStorage": true,
                 "accessors": [
                   {
                     "kind": "Accessor",
@@ -6146,10 +6294,76 @@
                       }
                     ],
                     "declKind": "Accessor",
-                    "usr": "s:6Sentry0A13ReplayOptionsC13DefaultValuesC36viewTypesIgnoredFromSubtreeTraversalShySSGvgZ",
-                    "mangledName": "$s6Sentry0A13ReplayOptionsC13DefaultValuesC36viewTypesIgnoredFromSubtreeTraversalShySSGvgZ",
+                    "usr": "s:6Sentry0A13ReplayOptionsC13DefaultValuesC19excludedViewClassesShySSGvgZ",
+                    "mangledName": "$s6Sentry0A13ReplayOptionsC13DefaultValuesC19excludedViewClassesShySSGvgZ",
                     "moduleName": "Sentry",
                     "static": true,
+                    "implicit": true,
+                    "declAttributes": [
+                      "Final"
+                    ],
+                    "accessorKind": "get"
+                  }
+                ]
+              },
+              {
+                "kind": "Var",
+                "name": "includedViewClasses",
+                "printedName": "includedViewClasses",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Set",
+                    "printedName": "Swift.Set<Swift.String>",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ],
+                    "usr": "s:Sh"
+                  }
+                ],
+                "declKind": "Var",
+                "usr": "s:6Sentry0A13ReplayOptionsC13DefaultValuesC19includedViewClassesShySSGvpZ",
+                "mangledName": "$s6Sentry0A13ReplayOptionsC13DefaultValuesC19includedViewClassesShySSGvpZ",
+                "moduleName": "Sentry",
+                "static": true,
+                "declAttributes": [
+                  "Final",
+                  "HasStorage"
+                ],
+                "isLet": true,
+                "hasStorage": true,
+                "accessors": [
+                  {
+                    "kind": "Accessor",
+                    "name": "Get",
+                    "printedName": "Get()",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Set",
+                        "printedName": "Swift.Set<Swift.String>",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "String",
+                            "printedName": "Swift.String",
+                            "usr": "s:SS"
+                          }
+                        ],
+                        "usr": "s:Sh"
+                      }
+                    ],
+                    "declKind": "Accessor",
+                    "usr": "s:6Sentry0A13ReplayOptionsC13DefaultValuesC19includedViewClassesShySSGvgZ",
+                    "mangledName": "$s6Sentry0A13ReplayOptionsC13DefaultValuesC19includedViewClassesShySSGvgZ",
+                    "moduleName": "Sentry",
+                    "static": true,
+                    "implicit": true,
                     "declAttributes": [
                       "Final"
                     ],
@@ -7235,8 +7449,8 @@
           },
           {
             "kind": "Var",
-            "name": "viewTypesIgnoredFromSubtreeTraversal",
-            "printedName": "viewTypesIgnoredFromSubtreeTraversal",
+            "name": "excludedViewClasses",
+            "printedName": "excludedViewClasses",
             "children": [
               {
                 "kind": "TypeNominal",
@@ -7254,13 +7468,15 @@
               }
             ],
             "declKind": "Var",
-            "usr": "c:@M@Sentry@objc(cs)SentryReplayOptions(py)viewTypesIgnoredFromSubtreeTraversal",
-            "mangledName": "$s6Sentry0A13ReplayOptionsC36viewTypesIgnoredFromSubtreeTraversalShySSGvp",
+            "usr": "c:@M@Sentry@objc(cs)SentryReplayOptions(py)excludedViewClasses",
+            "mangledName": "$s6Sentry0A13ReplayOptionsC19excludedViewClassesShySSGvp",
             "moduleName": "Sentry",
-            "objc_name": "viewTypesIgnoredFromSubtreeTraversal",
+            "objc_name": "excludedViewClasses",
             "declAttributes": [
-              "ObjC"
+              "ObjC",
+              "HasStorage"
             ],
+            "hasStorage": true,
             "accessors": [
               {
                 "kind": "Accessor",
@@ -7283,14 +7499,149 @@
                   }
                 ],
                 "declKind": "Accessor",
-                "usr": "c:@M@Sentry@objc(cs)SentryReplayOptions(im)viewTypesIgnoredFromSubtreeTraversal",
-                "mangledName": "$s6Sentry0A13ReplayOptionsC36viewTypesIgnoredFromSubtreeTraversalShySSGvg",
+                "usr": "c:@M@Sentry@objc(cs)SentryReplayOptions(im)excludedViewClasses",
+                "mangledName": "$s6Sentry0A13ReplayOptionsC19excludedViewClassesShySSGvg",
                 "moduleName": "Sentry",
-                "objc_name": "viewTypesIgnoredFromSubtreeTraversal",
+                "implicit": true,
+                "objc_name": "excludedViewClasses",
                 "declAttributes": [
                   "ObjC"
                 ],
                 "accessorKind": "get"
+              },
+              {
+                "kind": "Accessor",
+                "name": "Set",
+                "printedName": "Set()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Set",
+                    "printedName": "Swift.Set<Swift.String>",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ],
+                    "usr": "s:Sh"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "c:@M@Sentry@objc(cs)SentryReplayOptions(im)setExcludedViewClasses:",
+                "mangledName": "$s6Sentry0A13ReplayOptionsC19excludedViewClassesShySSGvs",
+                "moduleName": "Sentry",
+                "implicit": true,
+                "declAttributes": [
+                  "ObjC"
+                ],
+                "accessorKind": "set"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "includedViewClasses",
+            "printedName": "includedViewClasses",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Set",
+                "printedName": "Swift.Set<Swift.String>",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "usr": "s:Sh"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "c:@M@Sentry@objc(cs)SentryReplayOptions(py)includedViewClasses",
+            "mangledName": "$s6Sentry0A13ReplayOptionsC19includedViewClassesShySSGvp",
+            "moduleName": "Sentry",
+            "objc_name": "includedViewClasses",
+            "declAttributes": [
+              "ObjC",
+              "HasStorage"
+            ],
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Set",
+                    "printedName": "Swift.Set<Swift.String>",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ],
+                    "usr": "s:Sh"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "c:@M@Sentry@objc(cs)SentryReplayOptions(im)includedViewClasses",
+                "mangledName": "$s6Sentry0A13ReplayOptionsC19includedViewClassesShySSGvg",
+                "moduleName": "Sentry",
+                "implicit": true,
+                "objc_name": "includedViewClasses",
+                "declAttributes": [
+                  "ObjC"
+                ],
+                "accessorKind": "get"
+              },
+              {
+                "kind": "Accessor",
+                "name": "Set",
+                "printedName": "Set()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Set",
+                    "printedName": "Swift.Set<Swift.String>",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ],
+                    "usr": "s:Sh"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "c:@M@Sentry@objc(cs)SentryReplayOptions(im)setIncludedViewClasses:",
+                "mangledName": "$s6Sentry0A13ReplayOptionsC19includedViewClassesShySSGvs",
+                "moduleName": "Sentry",
+                "implicit": true,
+                "declAttributes": [
+                  "ObjC"
+                ],
+                "accessorKind": "set"
               }
             ]
           },
@@ -13168,8 +13519,8 @@
           },
           {
             "kind": "Var",
-            "name": "viewTypesIgnoredFromSubtreeTraversal",
-            "printedName": "viewTypesIgnoredFromSubtreeTraversal",
+            "name": "excludedViewClasses",
+            "printedName": "excludedViewClasses",
             "children": [
               {
                 "kind": "TypeNominal",
@@ -13187,8 +13538,8 @@
               }
             ],
             "declKind": "Var",
-            "usr": "c:@M@Sentry@objc(pl)SentryRedactOptions(py)viewTypesIgnoredFromSubtreeTraversal",
-            "mangledName": "$s6Sentry0A13RedactOptionsP36viewTypesIgnoredFromSubtreeTraversalShySSGvp",
+            "usr": "c:@M@Sentry@objc(pl)SentryRedactOptions(py)excludedViewClasses",
+            "mangledName": "$s6Sentry0A13RedactOptionsP19excludedViewClassesShySSGvp",
             "moduleName": "Sentry",
             "protocolReq": true,
             "declAttributes": [
@@ -13216,8 +13567,71 @@
                   }
                 ],
                 "declKind": "Accessor",
-                "usr": "c:@M@Sentry@objc(pl)SentryRedactOptions(im)viewTypesIgnoredFromSubtreeTraversal",
-                "mangledName": "$s6Sentry0A13RedactOptionsP36viewTypesIgnoredFromSubtreeTraversalShySSGvg",
+                "usr": "c:@M@Sentry@objc(pl)SentryRedactOptions(im)excludedViewClasses",
+                "mangledName": "$s6Sentry0A13RedactOptionsP19excludedViewClassesShySSGvg",
+                "moduleName": "Sentry",
+                "genericSig": "<Self where Self : Sentry.SentryRedactOptions>",
+                "protocolReq": true,
+                "declAttributes": [
+                  "ObjC"
+                ],
+                "reqNewWitnessTableEntry": true,
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "includedViewClasses",
+            "printedName": "includedViewClasses",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Set",
+                "printedName": "Swift.Set<Swift.String>",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "usr": "s:Sh"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "c:@M@Sentry@objc(pl)SentryRedactOptions(py)includedViewClasses",
+            "mangledName": "$s6Sentry0A13RedactOptionsP19includedViewClassesShySSGvp",
+            "moduleName": "Sentry",
+            "protocolReq": true,
+            "declAttributes": [
+              "ObjC"
+            ],
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Set",
+                    "printedName": "Swift.Set<Swift.String>",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ],
+                    "usr": "s:Sh"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "c:@M@Sentry@objc(pl)SentryRedactOptions(im)includedViewClasses",
+                "mangledName": "$s6Sentry0A13RedactOptionsP19includedViewClassesShySSGvg",
                 "moduleName": "Sentry",
                 "genericSig": "<Self where Self : Sentry.SentryRedactOptions>",
                 "protocolReq": true,
