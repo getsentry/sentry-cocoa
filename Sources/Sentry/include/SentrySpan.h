@@ -96,7 +96,7 @@ SENTRY_NO_INIT
  */
 - (instancetype)initWithTracer:(SentryTracer *)transaction
                        context:(SentrySpanContext *)context
-#if SENTRY_HAS_UIKIT && !TARGET_OS_VISION
+#if SENTRY_HAS_UIKIT
                  framesTracker:(nullable SentryFramesTracker *)framesTracker;
 #endif // SENTRY_HAS_UIKIT
 ;
@@ -106,7 +106,7 @@ SENTRY_NO_INIT
  * @param context This span context information.
  */
 - (instancetype)initWithContext:(SentrySpanContext *)context
-#if SENTRY_HAS_UIKIT && !TARGET_OS_VISION
+#if SENTRY_HAS_UIKIT
                   framesTracker:(nullable SentryFramesTracker *)framesTracker;
 #endif // SENTRY_HAS_UIKIT
 ;

@@ -46,7 +46,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (instancetype)initWithContext:(SentrySpanContext *)context
-#if SENTRY_HAS_UIKIT && !TARGET_OS_VISION
+#if SENTRY_HAS_UIKIT
                   framesTracker:(nullable SentryFramesTracker *)framesTracker;
 #endif // SENTRY_HAS_UIKIT
 {
@@ -65,7 +65,7 @@ NS_ASSUME_NONNULL_BEGIN
                 getThreadName:currentThread];
         }
 
-#if SENTRY_HAS_UIKIT && !TARGET_OS_VISION
+#if SENTRY_HAS_UIKIT
         _framesTracker = framesTracker;
         if (_framesTracker.isRunning) {
             SentryScreenFrames *currentFrames = _framesTracker.currentFrames;
@@ -137,7 +137,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithTracer:(SentryTracer *)tracer
                        context:(SentrySpanContext *)context
-#if SENTRY_HAS_UIKIT && !TARGET_OS_VISION
+#if SENTRY_HAS_UIKIT
                  framesTracker:(nullable SentryFramesTracker *)framesTracker
 {
     if (self = [self initWithContext:context framesTracker:framesTracker]) {
@@ -258,7 +258,7 @@ NS_ASSUME_NONNULL_BEGIN
             (unsigned long long)SentryDependencyContainer.sharedInstance.dateProvider.systemTime);
     }
 
-#if SENTRY_HAS_UIKIT && !TARGET_OS_VISION
+#if SENTRY_HAS_UIKIT
     if (_framesTracker.isRunning) {
         CFTimeInterval framesDelay = [_framesTracker
              getFramesDelaySPI:_startSystemTime
@@ -286,7 +286,7 @@ NS_ASSUME_NONNULL_BEGIN
         }
     }
 
-#endif // SENTRY_HAS_UIKIT && !TARGET_OS_VISION
+#endif // SENTRY_HAS_UIKIT
 
     if (self.tracer == nil) {
         SENTRY_LOG_DEBUG(

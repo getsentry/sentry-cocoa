@@ -8,7 +8,6 @@
 - Change default attributes of Logs to only include user attributes when `options.sendDefaultPii = true` (#7055)
 - Rename log attribute `sentry.trace.parent_span_id` to `span_id` (#7055)
 - Fixes stacktraces for MetricKit events (#6908)
-- Fix Mac Catalyst runtime context tests to expect correct `"mac-catalyst-app"` value instead of `"raw_description"` (#7081)
 
 ## 9.1.0
 
