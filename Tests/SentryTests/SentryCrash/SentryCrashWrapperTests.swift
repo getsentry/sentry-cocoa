@@ -1,5 +1,4 @@
 @_spi(Private) @testable import Sentry
-@_spi(Private) import SentryTestUtils
 import XCTest
 
 final class SentryCrashWrapperTests: XCTestCase {
