@@ -247,7 +247,7 @@ jobs:
       xcode: ${{matrix.xcode}}
       platform: ${{matrix.platform}}
       test-destination-os: ${{matrix.test-destination-os || 'latest'}}
-      timeout: 20
+      timeout: ${{matrix.timeout || 20}}
       device: ${{matrix.device || ''}}
       scheme: ${{matrix.scheme || 'Sentry'}}
       run_on_cirrus_labs: ${{ !contains(matrix.runs-on, 'macos-') }}
@@ -369,6 +369,15 @@ jobs:
             platform: "tvOS"
             device: "Apple TV"
             scheme: "Sentry"
+
+          # visionOS 26
+          - name: visionOS 26 Sentry
+            runs-on: macos-26
+            xcode: "26.1.1"
+            test-destination-os: "26.1"
+            platform: "visionOS"
+            scheme: "Sentry"
+            timeout: 30
 
   # This check validates that either all unit tests passed or were skipped, which allows us
   # to make unit tests a required check with only running the unit tests when required.

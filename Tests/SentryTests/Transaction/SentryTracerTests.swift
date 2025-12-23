@@ -615,7 +615,7 @@ class SentryTracerTests: XCTestCase {
     }
     
     func testIdleTimeout_TracerDeallocated() throws {
-#if !os(tvOS) && !os(watchOS)
+#if !os(tvOS) && !os(watchOS) && !os(visionOS)
         if sentry_threadSanitizerIsPresent() {
             throw XCTSkip("doesn't currently work with TSAN enabled. the tracer instance remains retained by something in the TSAN dylib, and we cannot debug the memory graph with TSAN attached to see what is retaining it. it's likely out of our control.")
         }
