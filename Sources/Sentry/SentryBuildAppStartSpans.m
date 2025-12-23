@@ -7,7 +7,7 @@
 #import "SentryTracer.h"
 #import <SentryBuildAppStartSpans.h>
 
-#if SENTRY_HAS_UIKIT && !TARGET_OS_VISION
+#if SENTRY_HAS_UIKIT
 
 SentrySpan *
 sentryBuildAppStartSpan(

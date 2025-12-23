@@ -359,7 +359,7 @@ typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull 
     SentryOptions *options = [self getValidOptions:@{ @"beforeSendSpan" : callback }];
     options.beforeSendSpan(
         [[SentrySpan alloc] initWithContext:[[SentrySpanContext alloc] initWithOperation:@""]
-#if SENTRY_HAS_UIKIT && !TARGET_OS_VISION
+#if SENTRY_HAS_UIKIT
                               framesTracker:NULL
 #endif
     ]);
@@ -713,7 +713,7 @@ typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull 
     XCTAssertEqual(200 * 1024 * 1024, options.maxAttachmentSize);
     XCTAssertEqual(NO, options.sendDefaultPii);
     XCTAssertTrue(options.enableAutoPerformanceTracing);
-#if SENTRY_HAS_UIKIT && SENTRY_TARGET_REPLAY_SUPPORTED
+#if SENTRY_HAS_UIKIT
     XCTAssertTrue(options.enableUIViewControllerTracing);
     XCTAssertFalse(options.attachScreenshot);
     XCTAssertEqual(3.0, options.idleTimeout);
