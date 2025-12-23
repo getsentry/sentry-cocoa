@@ -212,15 +212,6 @@ jobs:
         include:
           # We are running tests on iOS 17 and later, as there were OS-internal changes introduced in succeeding versions.
 
-          # iOS 16
-          - name: iOS 16 Sentry
-            runs-on: macos-13
-            platform: "iOS"
-            xcode: "14.3.1"
-            test-destination-os: "16.4"
-            device: "iPhone 14 Pro"
-            scheme: "Sentry"
-
           # iOS 17
           - name: iOS 17 Sentry
             runs-on: macos-14
