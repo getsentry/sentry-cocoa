@@ -107,6 +107,10 @@ case $PLATFORM in
     DESTINATION="platform=tvOS Simulator,OS=$OS,name=Apple TV"
     ;;
 
+"visionOS")
+    DESTINATION="platform=visionOS Simulator,OS=$OS,name=Apple Vision Pro"
+    ;;
+
 *)
     echo "Xcode Test: Can't find destination for platform '$PLATFORM'"
     exit 1

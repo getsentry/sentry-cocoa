@@ -447,6 +447,8 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
     private func getFirstIntegrationAsReplay() throws -> SentrySessionReplayIntegration {
         return try XCTUnwrap(SentrySDKInternal.currentHub().installedIntegrations().first as? SentrySessionReplayIntegration)
     }
+    
+    private let VALID_REPLAY_ID = "0eac7ab503354dd5819b03e263627a29"
     #endif // SENTRY_TARGET_REPLAY_SUPPORTED
 
     func testAddExtraSdkPackages() throws {
@@ -468,7 +470,6 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         }
     }
 
-    private let VALID_REPLAY_ID = "0eac7ab503354dd5819b03e263627a29"
     #endif
     
     private func getUnhandledExceptionEnvelope() -> SentryEnvelope {

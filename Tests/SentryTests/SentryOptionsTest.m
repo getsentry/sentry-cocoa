@@ -721,8 +721,10 @@ typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull 
     XCTAssertEqual(options.enablePreWarmedAppStartTracing, YES);
     XCTAssertEqual(options.attachViewHierarchy, NO);
     XCTAssertEqual(options.reportAccessibilityIdentifier, YES);
+#    if SENTRY_TARGET_REPLAY_SUPPORTED
     XCTAssertEqual(options.sessionReplay.onErrorSampleRate, 0);
     XCTAssertEqual(options.sessionReplay.sessionSampleRate, 0);
+#    endif // SENTRY_TARGET_REPLAY_SUPPORTED
 #endif // SENTRY_HAS_UIKIT
     XCTAssertTrue(options.enableAppHangTracking);
     XCTAssertEqual(options.appHangTimeoutInterval, 2);
