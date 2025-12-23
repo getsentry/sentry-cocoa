@@ -21,6 +21,7 @@
 #import "SentryEnvelopeAttachmentHeader.h"
 #import "SentryError.h"
 #import "SentryEventSwiftHelper.h"
+#import "SentryFormatterSwift.h"
 #import "SentryHub+Private.h"
 #import "SentryIntegrationProtocol.h"
 #import "SentryNSDataUtils.h"

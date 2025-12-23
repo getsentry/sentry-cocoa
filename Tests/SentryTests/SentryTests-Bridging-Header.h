@@ -2,10 +2,6 @@
 
 #import "SentryLaunchProfiling+Tests.h"
 
-#if SENTRY_HAS_METRIC_KIT
-#    import "SentryMetricKitIntegration.h"
-#endif // SENTRY_HAS_METRIC_KIT
-
 #if SENTRY_HAS_UIKIT
 #    import "MockUIScene.h"
 #    import "SentryDefaultUIViewControllerPerformanceTracker.h"

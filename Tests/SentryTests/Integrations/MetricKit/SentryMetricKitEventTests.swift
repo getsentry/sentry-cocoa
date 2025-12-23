@@ -1,3 +1,4 @@
+@_spi(Private) import Sentry
 import XCTest
 
 #if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
@@ -9,11 +10,11 @@ final class SentryMetricKitEventTests: XCTestCase {
     }
     
     func testMXDiskWriteException_IsMetricKitEvent() {        
-        XCTAssertTrue(createMetricKitEventWith(mechanismType: SentryMetricKitDiskWriteExceptionMechanism).isMetricKitEvent())
+        XCTAssertTrue(createMetricKitEventWith(mechanismType: "mx_disk_write_exception").isMetricKitEvent())
     }
     
     func testMXHangDiagnostic_IsMetricKitEvent() {
-        XCTAssertTrue(createMetricKitEventWith(mechanismType: SentryMetricKitHangDiagnosticMechanism).isMetricKitEvent())
+        XCTAssertTrue(createMetricKitEventWith(mechanismType: "mx_hang_diagnostic").isMetricKitEvent())
     }
     
     func testWatchDogEvent_IsNotMetricKitEvent() {
