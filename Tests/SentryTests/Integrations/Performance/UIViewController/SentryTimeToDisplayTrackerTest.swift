@@ -15,8 +15,13 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
         let framesTracker: SentryFramesTracker
 
         init() throws {
-            framesTracker = SentryFramesTracker(displayLinkWrapper: displayLinkWrapper, dateProvider: dateProvider, dispatchQueueWrapper: dispatchQueue,
-                                                notificationCenter: TestNSNotificationCenterWrapper(), delayedFramesTracker: TestDelayedWrapper(keepDelayedFramesDuration: 0, dateProvider: dateProvider))
+            framesTracker = SentryFramesTracker(
+                displayLinkWrapper: displayLinkWrapper,
+                dateProvider: dateProvider,
+                dispatchQueueWrapper: dispatchQueue,
+                notificationCenter: TestNSNotificationCenterWrapper(),
+                delayedFramesTracker: TestDelayedWrapper(keepDelayedFramesDuration: 0, dateProvider: dateProvider)
+            )
             SentryDependencyContainer.sharedInstance().framesTracker = framesTracker
             framesTracker.start()
 
@@ -49,6 +54,9 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
 
     override func setUpWithError() throws {
         try super.setUpWithError()
+        // Ensure app start measurement is cleared before each test to avoid interference
+        // from previous tests that might have set it
+        SentrySDKInternal.setAppStartMeasurement(nil)
         fixture = try Fixture()
     }
 
@@ -573,9 +581,15 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
         XCTAssertEqual(self.fixture.framesTracker.listenersCount, 0, "Frames tracker listener should be removed")
     }
 
-    private func assertMeasurement(tracer: SentryTracer, name: String, duration: TimeInterval) {
-        XCTAssertEqual(tracer.measurements[name]?.value, NSNumber(value: duration))
-        XCTAssertEqual(tracer.measurements[name]?.unit?.unit, "millisecond")
+    private func assertMeasurement(
+        tracer: SentryTracer,
+        name: String,
+        duration: TimeInterval,
+        file: StaticString = #file,
+        line: UInt = #line
+    ) {
+        XCTAssertEqual(tracer.measurements[name]?.value, NSNumber(value: duration), file: file, line: line)
+        XCTAssertEqual(tracer.measurements[name]?.unit?.unit, "millisecond", file: file, line: line)
     }
 }
 
