@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 55;
+	objectVersion = 46;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -209,7 +209,6 @@
 		63AA769E1EB9C57A00D153DE /* SentryError.mm in Sources */ = {isa = PBXBuildFile; fileRef = 63AA769C1EB9C57A00D153DE /* SentryError.mm */; };
 		63AA76A31EB9CBAA00D153DE /* SentryDsn.m in Sources */ = {isa = PBXBuildFile; fileRef = 63AA76A11EB9CBAA00D153DE /* SentryDsn.m */; };
 		63AA76A51EB9CBC200D153DE /* SentryDsn.h in Headers */ = {isa = PBXBuildFile; fileRef = 63AA76A41EB9CBC200D153DE /* SentryDsn.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		63AF656C1ED87B8C00EBCFF7 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 6304360D1EC05CEF00C4D3FA /* libz.tbd */; };
 		63B818F91EC34639002FDF4C /* SentryDebugMeta.h in Headers */ = {isa = PBXBuildFile; fileRef = 63B818F71EC34639002FDF4C /* SentryDebugMeta.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		63B818FA1EC34639002FDF4C /* SentryDebugMeta.m in Sources */ = {isa = PBXBuildFile; fileRef = 63B818F81EC34639002FDF4C /* SentryDebugMeta.m */; };
 		63B819141EC352A7002FDF4C /* SentryInterfacesTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 63B819131EC352A7002FDF4C /* SentryInterfacesTests.m */; };
@@ -221,7 +220,6 @@
 		63FE707720DA4C1000CDBAE8 /* SentryDictionaryDeepSearch.m in Sources */ = {isa = PBXBuildFile; fileRef = 63FE6FBD20DA4C1000CDBAE8 /* SentryDictionaryDeepSearch.m */; };
 		63FE707B20DA4C1000CDBAE8 /* SentryDictionaryDeepSearch.h in Headers */ = {isa = PBXBuildFile; fileRef = 63FE6FBF20DA4C1000CDBAE8 /* SentryDictionaryDeepSearch.h */; };
 		63FE707F20DA4C1000CDBAE8 /* SentryCrashVarArgs.h in Headers */ = {isa = PBXBuildFile; fileRef = 63FE6FC120DA4C1000CDBAE8 /* SentryCrashVarArgs.h */; };
-		63FE708520DA4C1000CDBAE8 /* SentryCrashReportFilter.h in Headers */ = {isa = PBXBuildFile; fileRef = 63FE6FC420DA4C1000CDBAE8 /* SentryCrashReportFilter.h */; };
 		63FE708D20DA4C1000CDBAE8 /* SentryCrashReportFilterBasic.m in Sources */ = {isa = PBXBuildFile; fileRef = 63FE6FC820DA4C1000CDBAE8 /* SentryCrashReportFilterBasic.m */; };
 		63FE709520DA4C1000CDBAE8 /* SentryCrashReportFilterBasic.h in Headers */ = {isa = PBXBuildFile; fileRef = 63FE6FCC20DA4C1000CDBAE8 /* SentryCrashReportFilterBasic.h */; };
 		63FE70CB20DA4C1000CDBAE8 /* SentryCrashReportFixer.c in Sources */ = {isa = PBXBuildFile; fileRef = 63FE6FEA20DA4C1000CDBAE8 /* SentryCrashReportFixer.c */; };
@@ -700,8 +698,6 @@
 		84EB21942BF01C6C00EDDA28 /* TestNSNotificationCenterWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B18DE4328D9F8F6004845C6 /* TestNSNotificationCenterWrapper.swift */; };
 		84EB21962BF01CEA00EDDA28 /* SentryCrashInstallationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84EB21952BF01CEA00EDDA28 /* SentryCrashInstallationTests.swift */; };
 		84F2A1CE2E06001300A94524 /* (null) in Sources */ = {isa = PBXBuildFile; };
-		84F994E62A6894B500EC0190 /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 84F994E52A6894B500EC0190 /* CoreData.framework */; };
-		84F994E82A6894BD00EC0190 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 84F994E72A6894BD00EC0190 /* SystemConfiguration.framework */; platformFilters = (ios, maccatalyst, macos, tvos, ); };
 		861265F92404EC1500C4AFDE /* SentryArray.h in Headers */ = {isa = PBXBuildFile; fileRef = 861265F72404EC1500C4AFDE /* SentryArray.h */; };
 		861265FA2404EC1500C4AFDE /* SentryArray.m in Sources */ = {isa = PBXBuildFile; fileRef = 861265F82404EC1500C4AFDE /* SentryArray.m */; };
 		8E0551E026A7A63C00400526 /* TestProtocolClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E0551DF26A7A63C00400526 /* TestProtocolClient.swift */; };
@@ -1416,7 +1412,6 @@
 		62FC69352BEDFF18002D3EF2 /* SentryLogExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryLogExtensions.swift; sourceTree = "<group>"; };
 		630436081EC0595B00C4D3FA /* SentryNSDataUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryNSDataUtils.h; path = include/SentryNSDataUtils.h; sourceTree = "<group>"; };
 		630436091EC0595B00C4D3FA /* SentryNSDataUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentryNSDataUtils.m; sourceTree = "<group>"; };
-		6304360D1EC05CEF00C4D3FA /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.12.sdk/usr/lib/libz.tbd; sourceTree = DEVELOPER_DIR; };
 		6304360F1EC0600A00C4D3FA /* SentrySerializable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentrySerializable.h; path = Public/SentrySerializable.h; sourceTree = "<group>"; };
 		630436151EC0AD3100C4D3FA /* SentryNSDataCompressionTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentryNSDataCompressionTests.m; sourceTree = "<group>"; };
 		630C01931EC3402C00C52CEF /* SentryKSCrashReportConverterTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentryKSCrashReportConverterTests.m; sourceTree = "<group>"; };
@@ -1493,7 +1488,6 @@
 		63FE6FBD20DA4C1000CDBAE8 /* SentryDictionaryDeepSearch.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentryDictionaryDeepSearch.m; sourceTree = "<group>"; };
 		63FE6FBF20DA4C1000CDBAE8 /* SentryDictionaryDeepSearch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SentryDictionaryDeepSearch.h; sourceTree = "<group>"; };
 		63FE6FC120DA4C1000CDBAE8 /* SentryCrashVarArgs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SentryCrashVarArgs.h; sourceTree = "<group>"; };
-		63FE6FC420DA4C1000CDBAE8 /* SentryCrashReportFilter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SentryCrashReportFilter.h; sourceTree = "<group>"; };
 		63FE6FC820DA4C1000CDBAE8 /* SentryCrashReportFilterBasic.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentryCrashReportFilterBasic.m; sourceTree = "<group>"; };
 		63FE6FCC20DA4C1000CDBAE8 /* SentryCrashReportFilterBasic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SentryCrashReportFilterBasic.h; sourceTree = "<group>"; };
 		63FE6FEA20DA4C1000CDBAE8 /* SentryCrashReportFixer.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = SentryCrashReportFixer.c; sourceTree = "<group>"; };
@@ -2039,8 +2033,6 @@
 		84EACEBC2C33CA7A009B8753 /* SentryWithoutUIKit.modulemap */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.module-map"; name = SentryWithoutUIKit.modulemap; path = Sources/Resources/SentryWithoutUIKit.modulemap; sourceTree = SOURCE_ROOT; };
 		84EACEDF2C3DCAE2009B8753 /* DeploymentTargets.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = DeploymentTargets.xcconfig; sourceTree = "<group>"; };
 		84EB21952BF01CEA00EDDA28 /* SentryCrashInstallationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryCrashInstallationTests.swift; sourceTree = "<group>"; };
-		84F994E52A6894B500EC0190 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX13.3.sdk/System/Library/Frameworks/CoreData.framework; sourceTree = DEVELOPER_DIR; };
-		84F994E72A6894BD00EC0190 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX13.3.sdk/System/Library/Frameworks/SystemConfiguration.framework; sourceTree = DEVELOPER_DIR; };
 		861265F72404EC1500C4AFDE /* SentryArray.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryArray.h; path = include/SentryArray.h; sourceTree = "<group>"; };
 		861265F82404EC1500C4AFDE /* SentryArray.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryArray.m; sourceTree = "<group>"; };
 		8E0551DF26A7A63C00400526 /* TestProtocolClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestProtocolClient.swift; sourceTree = "<group>"; };
@@ -2523,9 +2515,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				84F994E82A6894BD00EC0190 /* SystemConfiguration.framework in Frameworks */,
-				84F994E62A6894B500EC0190 /* CoreData.framework in Frameworks */,
-				63AF656C1ED87B8C00EBCFF7 /* libz.tbd in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2819,10 +2808,7 @@
 			isa = PBXGroup;
 			children = (
 				D483AFA32E9D555300B43C27 /* XCTest.framework */,
-				84F994E72A6894BD00EC0190 /* SystemConfiguration.framework */,
-				84F994E52A6894B500EC0190 /* CoreData.framework */,
 				6387B82F1ED851970045A84C /* libz.tbd */,
-				6304360D1EC05CEF00C4D3FA /* libz.tbd */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -3172,7 +3158,6 @@
 			isa = PBXGroup;
 			children = (
 				63FE6FBC20DA4C1000CDBAE8 /* Tools */,
-				63FE6FC420DA4C1000CDBAE8 /* SentryCrashReportFilter.h */,
 				63FE6FCC20DA4C1000CDBAE8 /* SentryCrashReportFilterBasic.h */,
 				63FE6FC820DA4C1000CDBAE8 /* SentryCrashReportFilterBasic.m */,
 			);
@@ -5014,7 +4999,6 @@
 				D81A346C291AECC7005A27A9 /* PrivateSentrySDKOnly.h in Headers */,
 				D88817DA26D72AB800BF2251 /* SentryTraceContext.h in Headers */,
 				7B6C5F8126034354007F7DFF /* SentryWatchdogTerminationLogic.h in Headers */,
-				63FE708520DA4C1000CDBAE8 /* SentryCrashReportFilter.h in Headers */,
 				84354E1129BF944900CDBB8B /* SentryProfileTimeseries.h in Headers */,
 				D8ACE3CD2762187D00F5A213 /* SentryNSDataSwizzling.h in Headers */,
 				7B08A3452924CF6C0059603A /* SentryMetricKitIntegration.h in Headers */,
@@ -5504,12 +5488,18 @@
 					};
 					D4CBA2422DE06D0200581618 = {
 						CreatedOnToolsVersion = 16.3;
+						ProvisioningStyle = Manual;
 					};
 					D8199DA929376E9B0074249E = {
 						CreatedOnToolsVersion = 14.1;
+						ProvisioningStyle = Manual;
+					};
+					D833D61E2D1321C100961E7A = {
+						ProvisioningStyle = Manual;
 					};
 					D84DAD4C2B17428D003CF120 = {
 						CreatedOnToolsVersion = 15.0.1;
+						ProvisioningStyle = Manual;
 					};
 				};
 			};
@@ -6626,11 +6616,7 @@
 				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = Tests/SentryTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				OTHER_SWIFT_FLAGS = "-DSENTRY_USE_UIKIT";
 				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.Sentry.tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -6663,11 +6649,7 @@
 				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = Tests/SentryTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				OTHER_SWIFT_FLAGS = "-DSENTRY_USE_UIKIT";
 				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.Sentry.tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -6727,11 +6709,7 @@
 				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = Tests/SentryTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				OTHER_SWIFT_FLAGS = "-DSENTRY_USE_UIKIT";
 				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.Sentry.tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -6792,11 +6770,7 @@
 				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = Tests/SentryTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.Sentry.tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -6836,11 +6810,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2022 Sentry. All rights reserved.";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MARKETING_VERSION = 1.0;
 				MODULEMAP_FILE = "";
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
@@ -6872,11 +6842,7 @@
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = "SentryTests-Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.Sentry.tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -6933,11 +6899,7 @@
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = "SentryTests-Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.Sentry.tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -6963,11 +6925,7 @@
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = "SentryTests-Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.Sentry.tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -6993,11 +6951,7 @@
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = "SentryTests-Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.Sentry.tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -7023,11 +6977,7 @@
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = "SentryTests-Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.Sentry.tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -7203,11 +7153,7 @@
 				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = Tests/SentryTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				OTHER_SWIFT_FLAGS = "-DSENTRY_USE_UIKIT";
 				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.Sentry.tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -7248,11 +7194,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2022 Sentry. All rights reserved.";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MARKETING_VERSION = 1.0;
 				MODULEMAP_FILE = "";
 				MTL_FAST_MATH = YES;
@@ -7282,11 +7224,7 @@
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = "SentryTests-Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.Sentry.tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -7514,11 +7452,7 @@
 				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = Tests/SentryTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				OTHER_SWIFT_FLAGS = "-DSENTRY_USE_UIKIT";
 				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.Sentry.tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -7560,11 +7494,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2022 Sentry. All rights reserved.";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MARKETING_VERSION = 1.0;
 				MODULEMAP_FILE = "";
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
@@ -7608,11 +7538,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2022 Sentry. All rights reserved.";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MARKETING_VERSION = 1.0;
 				MODULEMAP_FILE = "";
 				MTL_FAST_MATH = YES;
@@ -7654,11 +7580,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2022 Sentry. All rights reserved.";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MARKETING_VERSION = 1.0;
 				MODULEMAP_FILE = "";
 				MTL_FAST_MATH = YES;
@@ -7700,11 +7622,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2022 Sentry. All rights reserved.";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MARKETING_VERSION = 1.0;
 				MODULEMAP_FILE = "";
 				MTL_FAST_MATH = YES;
@@ -7736,11 +7654,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				OTHER_SWIFT_FLAGS = "-DSENTRY_USE_UIKIT";
 				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.Sentry.tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -7772,11 +7686,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.Sentry.tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -7807,11 +7717,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				OTHER_SWIFT_FLAGS = "-DSENTRY_USE_UIKIT";
 				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.Sentry.tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -7843,11 +7749,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				OTHER_SWIFT_FLAGS = "-DSENTRY_USE_UIKIT";
 				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.Sentry.tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -7879,11 +7781,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				OTHER_SWIFT_FLAGS = "-DSENTRY_USE_UIKIT";
 				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.Sentry.tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -7914,11 +7812,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				OTHER_SWIFT_FLAGS = "-DSENTRY_USE_UIKIT";
 				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.Sentry.tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -7965,11 +7859,7 @@
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2023 Sentry. All rights reserved.";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MARKETING_VERSION = 1.0;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
@@ -8020,11 +7910,7 @@
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2023 Sentry. All rights reserved.";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MARKETING_VERSION = 1.0;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
@@ -8075,11 +7961,7 @@
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2023 Sentry. All rights reserved.";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MARKETING_VERSION = 1.0;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
@@ -8128,11 +8010,7 @@
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2023 Sentry. All rights reserved.";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MARKETING_VERSION = 1.0;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
@@ -8181,11 +8059,7 @@
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2023 Sentry. All rights reserved.";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MARKETING_VERSION = 1.0;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
@@ -8234,11 +8108,7 @@
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2023 Sentry. All rights reserved.";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MARKETING_VERSION = 1.0;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
@@ -8300,11 +8170,7 @@
 				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = Tests/SentryTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				OTHER_SWIFT_FLAGS = "-DSENTRY_USE_UIKIT";
 				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.Sentry.tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -8346,11 +8212,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2022 Sentry. All rights reserved.";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MARKETING_VERSION = 1.0;
 				MODULEMAP_FILE = "";
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
@@ -8382,11 +8244,7 @@
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = "SentryTests-Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.Sentry.tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -8461,11 +8319,7 @@
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2023 Sentry. All rights reserved.";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MARKETING_VERSION = 1.0;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
@@ -8500,11 +8354,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				OTHER_SWIFT_FLAGS = "-DSENTRY_USE_UIKIT";
 				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.Sentry.tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -8589,11 +8439,7 @@
 				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = Tests/SentryTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				OTHER_SWIFT_FLAGS = "-DSENTRY_USE_UIKIT";
 				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.Sentry.tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -8634,11 +8480,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2022 Sentry. All rights reserved.";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MARKETING_VERSION = 1.0;
 				MODULEMAP_FILE = "";
 				MTL_FAST_MATH = YES;
@@ -8668,11 +8510,7 @@
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = "SentryTests-Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.Sentry.tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -8744,11 +8582,7 @@
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2023 Sentry. All rights reserved.";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MARKETING_VERSION = 1.0;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
@@ -8781,11 +8615,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				OTHER_SWIFT_FLAGS = "-DSENTRY_USE_UIKIT";
 				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.Sentry.tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
