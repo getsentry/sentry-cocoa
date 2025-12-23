@@ -22,19 +22,8 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
         public static let maskedViewClasses: [AnyClass] = []
         public static let unmaskedViewClasses: [AnyClass] = []
 
-        /// Default view types for which subtree traversal should be ignored.
-        ///
-        /// By default, includes:
-        ///   - `CameraUI.ChromeSwiftUIView` on iOS 26+ to avoid crashes.
-        public static var viewTypesIgnoredFromSubtreeTraversal: Set<String> {
-            var defaults: Set<String> = []
-            // CameraUI.ChromeSwiftUIView is a special case because it contains layers which can not be iterated due to this error:
-            //   Fatal error: Use of unimplemented initializer 'init(layer:)' for class 'CameraUI.ModeLoupeLayer'
-            if #available(iOS 26.0, *) {
-                defaults.insert("CameraUI.ChromeSwiftUIView")
-            }
-            return defaults
-        }
+        public static let excludedViewClasses: Set<String> = []
+        public static let includedViewClasses: Set<String> = []
 
         // The following properties are defaults which are not configurable by the user.
 
@@ -177,46 +166,74 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
     public var unmaskedViewClasses: [AnyClass]
 
     /**
-     * A set of view type identifiers (as strings) for which subtree traversal should be ignored.
+     * A set of view type identifier strings that should be excluded from subtree traversal.
      *
      * Views matching these types will have their subtrees skipped during redaction to avoid crashes
      * caused by traversing problematic view hierarchies (e.g., views that activate internal CoreAnimation
      * animations when their layers are accessed).
      *
-     * The string values should match the result of `type(of: view).description()`.
+     * Matching uses partial string containment: if a view's class name (from `type(of: view).description()`)
+     * contains any of these strings, the subtree will be ignored. For example, "MyView" will match
+     * "MyApp.MyView", "MyViewSubclass", "Some.MyView.Container", etc.
      *
-     * - Note: You must use the methods ``excludeViewTypeFromSubtreeTraversal(_:)`` and ``includeViewTypeInSubtreeTraversal(_:)``
-     *         to add and remove view types, so do not accidentally remove our defaults.
-     * - Note: By default, this includes `CameraUI.ChromeSwiftUIView` on iOS 26+ to avoid crashes
-     *         when accessing `CameraUI.ModeLoupeLayer`.
+     * - Note: You should use the methods ``excludeViewTypeFromSubtreeTraversal(_:)`` and ``includeViewTypeInSubtreeTraversal(_:)``
+     *         to add and remove view types, so you do not accidentally remove our defaults.
+     * - Note: The final set of excluded view types is computed by `SentryUIRedactBuilder` using the formula:
+     *         **Default View Classes + Excluded View Classes - Included View Classes**
+     *         Default view classes are defined in `SentryUIRedactBuilder` (e.g., `CameraUI.ChromeSwiftUIView` on iOS 26+).
      */
-    public private(set) var viewTypesIgnoredFromSubtreeTraversal: Set<String>
-
+    public var excludedViewClasses: Set<String>
+    
     /**
-     * Adds a view type to the list of views for which subtree traversal should be ignored.
+     * A set of view type identifier strings that should be included in subtree traversal.
      *
-     * - Parameter viewType: The view type identifier as a string (e.g., "MyCustomView").
-     *                      This should match the result of `type(of: view).description()`.
+     * View types matching these patterns will be removed from the excluded set, allowing their subtrees
+     * to be traversed even if they would otherwise be excluded by default or via `excludedViewClasses`.
      *
-     * Use this method to prevent crashes when traversing problematic view hierarchies.
-     * For example, if you encounter crashes when certain views are traversed, you can add
-     * their type identifier to skip their subtrees.
+     * Matching uses partial string containment: if a view's class name (from `type(of: view).description()`)
+     * contains any of these strings, it will be removed from the excluded set. For example, "MyView" will
+     * match "MyApp.MyView", "MyViewSubclass", etc.
+     *
+     * - Note: You should use the methods ``excludeViewTypeFromSubtreeTraversal(_:)`` and ``includeViewTypeInSubtreeTraversal(_:)``
+     *         to add and remove view types, so you do not accidentally remove our defaults.
+     * - Note: The final set of excluded view types is computed by `SentryUIRedactBuilder` using the formula:
+     *         **Default View Classes + Excluded View Classes - Included View Classes**
+     *         Default view classes are defined in `SentryUIRedactBuilder` (e.g., `CameraUI.ChromeSwiftUIView` on iOS 26+).
+     *         For example, you can use this to re-enable traversal for `CameraUI.ChromeSwiftUIView` on iOS 26+
+     *         by calling ``includeViewTypeInSubtreeTraversal("CameraUI.ChromeSwiftUIView")``.
+     */
+    public var includedViewClasses: Set<String>
+    
+    /**
+     * Adds a view type pattern to the excluded set, preventing matching views' subtrees from being traversed.
+     *
+     * - Parameter viewType: The view type identifier pattern (as a string) to exclude from subtree traversal.
+     *                      Matching uses partial string containment: if a view's class name contains this string,
+     *                      the subtree will be ignored. For example, "MyView" will match "MyApp.MyView",
+     *                      "MyViewSubclass", etc.
+     *
+     * - Note: This method adds the pattern to `excludedViewClasses`, which is then combined with
+     *         default excluded types (defined in `SentryUIRedactBuilder`) and filtered by `includedViewClasses`
+     *         to produce the final set.
      */
     public func excludeViewTypeFromSubtreeTraversal(_ viewType: String) {
-        viewTypesIgnoredFromSubtreeTraversal.insert(viewType)
+        excludedViewClasses.insert(viewType)
     }
-
+    
     /**
-     * Removes a view type from the list of views for which subtree traversal should be ignored.
+     * Adds a view type pattern to the included set, allowing matching views' subtrees to be traversed.
      *
-     * - Parameter viewType: The view type identifier as a string (e.g., "CameraUI.ChromeSwiftUIView").
-     *                      This should match the result of `type(of: view).description()`.
+     * - Parameter viewType: The view type identifier pattern (as a string) to include in subtree traversal.
+     *                      Matching uses partial string containment: if a view's class name contains this string,
+     *                      it will be removed from the excluded set. For example, "MyView" will match
+     *                      "MyApp.MyView", "MyViewSubclass", etc.
      *
-     * Use this method to remove default or previously added view types from the ignore list,
-     * allowing their subtrees to be traversed normally.
+     * - Note: This method adds the pattern to `includedViewClasses`, which filters the combined set
+     *         of default excluded types (defined in `SentryUIRedactBuilder`) and `excludedViewClasses`.
+     *         For example, you can use this to re-enable traversal for `CameraUI.ChromeSwiftUIView` on iOS 26+.
      */
     public func includeViewTypeInSubtreeTraversal(_ viewType: String) {
-        viewTypesIgnoredFromSubtreeTraversal.remove(viewType)
+        includedViewClasses.insert(viewType)
     }
 
     /**
@@ -388,7 +405,8 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
             errorReplayDuration: (dictionary["errorReplayDuration"] as? NSNumber)?.doubleValue,
             sessionSegmentDuration: (dictionary["sessionSegmentDuration"] as? NSNumber)?.doubleValue,
             maximumDuration: (dictionary["maximumDuration"] as? NSNumber)?.doubleValue,
-            viewTypesIgnoredFromSubtreeTraversal: (dictionary["viewTypesIgnoredFromSubtreeTraversal"] as? [String]).map { Set($0) }
+            excludedViewClasses: (dictionary["excludedViewClasses"] as? [String]).map { Set($0) } ?? (dictionary["viewClassesExcludedFromSubtreeTraversal"] as? [String]).map { Set($0) },
+            includedViewClasses: (dictionary["includedViewClasses"] as? [String]).map { Set($0) },
         )
     }
 
@@ -434,7 +452,8 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
             errorReplayDuration: nil,
             sessionSegmentDuration: nil,
             maximumDuration: nil,
-            viewTypesIgnoredFromSubtreeTraversal: nil
+            excludedViewClasses: nil,
+            includedViewClasses: nil
         )
     }
 
@@ -454,7 +473,8 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
         errorReplayDuration: TimeInterval?,
         sessionSegmentDuration: TimeInterval?,
         maximumDuration: TimeInterval?,
-        viewTypesIgnoredFromSubtreeTraversal: Set<String>? = nil
+        excludedViewClasses: Set<String>? = nil,
+        includedViewClasses: Set<String>? = nil
     ) {
         self.sessionSampleRate = sessionSampleRate ?? DefaultValues.sessionSampleRate
         self.onErrorSampleRate = onErrorSampleRate ?? DefaultValues.onErrorSampleRate
@@ -470,7 +490,8 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
         self.errorReplayDuration = errorReplayDuration ?? DefaultValues.errorReplayDuration
         self.sessionSegmentDuration = sessionSegmentDuration ?? DefaultValues.sessionSegmentDuration
         self.maximumDuration = maximumDuration ?? DefaultValues.maximumDuration
-        self.viewTypesIgnoredFromSubtreeTraversal = viewTypesIgnoredFromSubtreeTraversal ?? DefaultValues.viewTypesIgnoredFromSubtreeTraversal
+        self.excludedViewClasses = excludedViewClasses ?? DefaultValues.excludedViewClasses
+        self.includedViewClasses = includedViewClasses ?? DefaultValues.includedViewClasses
 
         super.init()
     }

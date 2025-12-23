@@ -36,19 +36,39 @@ public class PreviewRedactOptions: SentryRedactOptions {
     public let unmaskedViewClasses: [AnyClass]
     
     /**
-     * A set of view type identifiers (as strings) for which subtree traversal should be ignored.
+     * A set of view type identifier strings that should be excluded from subtree traversal.
      *
      * Views matching these types will have their subtrees skipped during redaction to avoid crashes
      * caused by traversing problematic view hierarchies (e.g., views that activate internal CoreAnimation
      * animations when their layers are accessed).
      *
-     * The string values should match the result of `type(of: view).description()`.
+     * Matching uses partial string containment: if a view's class name (from `type(of: view).description()`)
+     * contains any of these strings, the subtree will be ignored. For example, "MyView" will match
+     * "MyApp.MyView", "MyViewSubclass", "Some.MyView.Container", etc.
      *
-     * - Note: See ``SentryReplayOptions.DefaultValues.viewTypesIgnoredFromSubtreeTraversal`` for the default value.
-     * - Note: By default, this includes `CameraUI.ChromeSwiftUIView` on iOS 26+ to avoid crashes
-     *         when accessing `CameraUI.ModeLoupeLayer`.
+     * - Note: See ``SentryReplayOptions.DefaultValues.excludedViewClasses`` for the default value.
+     * - Note: The final set of excluded view types is computed by `SentryUIRedactBuilder` using the formula:
+     *         **Default View Classes + Excluded View Classes - Included View Classes**
+     *         Default view classes are defined in `SentryUIRedactBuilder` (e.g., `CameraUI.ChromeSwiftUIView` on iOS 26+).
      */
-    public let viewTypesIgnoredFromSubtreeTraversal: Set<String>
+    public let excludedViewClasses: Set<String>
+    
+    /**
+     * A set of view type identifier strings that should be included in subtree traversal.
+     *
+     * View types matching these patterns will be removed from the excluded set, allowing their subtrees
+     * to be traversed even if they would otherwise be excluded by default or via `excludedViewClasses`.
+     *
+     * Matching uses partial string containment: if a view's class name (from `type(of: view).description()`)
+     * contains any of these strings, it will be removed from the excluded set. For example, "MyView" will
+     * match "MyApp.MyView", "MyViewSubclass", etc.
+     *
+     * - Note: See ``SentryReplayOptions.DefaultValues.includedViewClasses`` for the default value.
+     * - Note: The final set of excluded view types is computed by `SentryUIRedactBuilder` using the formula:
+     *         **Default View Classes + Excluded View Classes - Included View Classes**
+     *         Default view classes are defined in `SentryUIRedactBuilder` (e.g., `CameraUI.ChromeSwiftUIView` on iOS 26+).
+     */
+    public let includedViewClasses: Set<String>
     
     /**
      * Enables the up to 5x faster view renderer.
@@ -65,7 +85,8 @@ public class PreviewRedactOptions: SentryRedactOptions {
      *   - maskAllImages: Flag to redact all images in the app by drawing a rectangle over it.
      *   - maskedViewClasses: The classes of views to mask.
      *   - unmaskedViewClasses: The classes of views to exclude from masking.
-     *   - viewTypesIgnoredFromSubtreeTraversal: A set of view type identifiers for which subtree traversal should be ignored.
+     *   - excludedViewClasses: A set of view type identifiers that should be excluded from subtree traversal.
+     *   - includedViewClasses: A set of view type identifiers that should be included in subtree traversal.
      *   - enableViewRendererV2: Enables the up to 5x faster view renderer.
      *
      * - Note: See ``SentryReplayOptions.DefaultValues`` for the default values of each parameter.
@@ -75,14 +96,16 @@ public class PreviewRedactOptions: SentryRedactOptions {
         maskAllImages: Bool = SentryReplayOptions.DefaultValues.maskAllImages,
         maskedViewClasses: [AnyClass] = SentryReplayOptions.DefaultValues.maskedViewClasses,
         unmaskedViewClasses: [AnyClass] = SentryReplayOptions.DefaultValues.unmaskedViewClasses,
-        viewTypesIgnoredFromSubtreeTraversal: Set<String> = SentryReplayOptions.DefaultValues.viewTypesIgnoredFromSubtreeTraversal,
+        excludedViewClasses: Set<String> = SentryReplayOptions.DefaultValues.excludedViewClasses,
+        includedViewClasses: Set<String> = SentryReplayOptions.DefaultValues.includedViewClasses,
         enableViewRendererV2: Bool = SentryReplayOptions.DefaultValues.enableViewRendererV2
     ) {
         self.maskAllText = maskAllText
         self.maskAllImages = maskAllImages
         self.maskedViewClasses = maskedViewClasses
         self.unmaskedViewClasses = unmaskedViewClasses
-        self.viewTypesIgnoredFromSubtreeTraversal = viewTypesIgnoredFromSubtreeTraversal
+        self.excludedViewClasses = excludedViewClasses
+        self.includedViewClasses = includedViewClasses
         self.enableViewRendererV2 = enableViewRendererV2
     }
 }

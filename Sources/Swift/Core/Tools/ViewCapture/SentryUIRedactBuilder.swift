@@ -106,10 +106,14 @@ final class SentryUIRedactBuilder {
     /// Optimized lookup: class IDs with layer constraints (includes both classId and layerId)
     private var constrainedRedactClasses: Set<ClassIdentifier> = []
 
-    /// A set of view type identifiers (as strings) for which subtree traversal should be ignored.
+    /// A set of view type identifier strings for which subtree traversal should be ignored.
     ///
     /// Views matching these types will have their subtrees skipped during redaction to avoid crashes
     /// caused by traversing problematic view hierarchies.
+    ///
+    /// Matching is done using partial string matching: if the view's class name contains any of these
+    /// strings, the subtree will be ignored. For example, "MyView" will match "MyApp.MyView",
+    /// "MyViewSubclass", etc.
     private var viewTypesIgnoredFromSubtreeTraversal: Set<String>
 
     /// Initializes a new instance of the redaction process with the specified options.
@@ -214,8 +218,24 @@ final class SentryUIRedactBuilder {
         }
 
         redactClassesIdentifiers = redactClasses
-        viewTypesIgnoredFromSubtreeTraversal = options.viewTypesIgnoredFromSubtreeTraversal
-
+        
+        // Compute the final set of view types excluded from subtree traversal using the formula:
+        // Default View Classes + Excluded View Classes - Included View Classes
+        // Default view classes are defined here (e.g., CameraUI.ChromeSwiftUIView on iOS 26+).
+        // SDK users can add exclusions via options.excludedViewClasses and remove defaults via options.includedViewClasses.
+        // Matching uses partial string containment: if a view's class name contains any excluded string,
+        // the subtree will be ignored. For example, "MyView" will match "MyApp.MyView", "MyViewSubclass", etc.
+        var defaultExcluded: Set<String> = []
+        #if os(iOS)
+        if #available(iOS 26.0, *) {
+            defaultExcluded.insert("CameraUI.ChromeSwiftUIView")
+        }
+        #endif
+        
+        viewTypesIgnoredFromSubtreeTraversal = defaultExcluded
+            .union(options.excludedViewClasses)
+            .subtracting(options.includedViewClasses)
+        
         // didSet doesn't run during initialization, so we need to manually build the optimization structures
         rebuildOptimizedLookups()
     }
@@ -574,9 +594,13 @@ final class SentryUIRedactBuilder {
         // [2] https://github.com/getsentry/sentry-cocoa/blob/00d97404946a37e983eabb21cc64bd3d5d2cb474/Sources/Sentry/SentrySubClassFinder.m#L58-L84
         let viewTypeId = type(of: view).description()
 
-        // Check if this view type is in the configurable list of ignored subtree traversal types
-        if viewTypesIgnoredFromSubtreeTraversal.contains(viewTypeId) {
-            return true
+        // Check if this view type matches any excluded pattern using partial string matching.
+        // If the view's class name contains any excluded string, the subtree will be ignored.
+        // For example, "MyView" will match "MyApp.MyView", "MyViewSubclass", etc.
+        for exclude in viewTypesIgnoredFromSubtreeTraversal {
+            if viewTypeId.contains(exclude) {
+                return true
+            }
         }
 
 #if os(iOS)
