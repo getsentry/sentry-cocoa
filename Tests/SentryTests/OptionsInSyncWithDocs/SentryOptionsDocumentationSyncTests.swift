@@ -15,111 +15,27 @@ final class SentryOptionsDocumentationSyncTests: XCTestCase {
     /// to match the availability in Options.swift.
     private var undocumentedOptions: Set<String> {
         var options: Set<String> = [
-            // Internal/derived properties
             "parsedDsn",
-            "isTracingEnabled",
-            
-            // SDK behavior
-            "enabled",
-            "shutdownTimeInterval",
-            
-            // Crash handling
-            "enableCrashHandler",
-            "enableWatchdogTerminationTracking",
-            
-            // Session tracking
-            "sessionTrackingIntervalMillis",
-            
-            // Attachments
-            "maxAttachmentSize",
-            
-            // Performance tracing
-            "enableAutoPerformanceTracing",
-            "enableNetworkTracking",
-            "enableFileIOTracing",
-            "enableDataSwizzling",
-            "enableFileManagerSwizzling",
-            "enableCoreDataTracing",
-            "enableTimeToFullDisplayTracing",
-            
-            // App hangs
-            "enableAppHangTracking",
-            "appHangTimeoutInterval",
-            
-            // Swizzling
-            "enableSwizzling",
-            "swizzleClassNameExcludes",
-            
-            // URLSession
-            "urlSessionDelegate",
-            "urlSession",
-            
-            // Breadcrumbs
-            "enableAutoBreadcrumbTracking",
-            
-            // Failed requests
-            "failedRequestStatusCodes",
-            "failedRequestTargets",
-            
-            // Experimental
-            "swiftAsyncStacktraces",
-            "experimental",
-            
-            // Storage
-            "cacheDirectoryPath",
-            
-            // Spotlight
-            "enableSpotlight",
-            "spotlightUrl",
-            
-            // Callbacks
-            "beforeSendSpan",
-            "beforeSendLog",
-            "beforeCaptureScreenshot",
-            "beforeCaptureViewHierarchy",
-            "onCrashedLastRun",
-            
-            // Logs
-            "enableLogs"
+            "experimental"
         ]
         
-        // macOS only (#if os(macOS))
-        #if os(macOS)
-        options.insert("enableUncaughtNSExceptionReporting")
-        #endif
-        
-        // iOS/tvOS/visionOS with UIKit (#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT)
         #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
-        options.insert("enableUIViewControllerTracing")
         options.insert("screenshot")
-        options.insert("reportAccessibilityIdentifier")
-        options.insert("enableUserInteractionTracing")
-        options.insert("enablePreWarmedAppStartTracing")
-        options.insert("enableReportNonFullyBlockingAppHangs")
         #endif
-        
-        // iOS/tvOS with UIKit (#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT)
+
         // Session replay (documented at https://docs.sentry.io/platforms/apple/session-replay/)
         #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT
         options.insert("sessionReplay")
         #endif
-        
-        // iOS only with UIKit (#if os(iOS) && !SENTRY_NO_UIKIT)
+
         #if os(iOS) && !SENTRY_NO_UIKIT
         options.insert("userFeedbackConfiguration") // @_spi(Private) - internal backing for configureUserFeedback
         options.insert("configureUserFeedback")
         #endif
-        
-        // Profiling - iOS/macOS/macCatalyst only (#if !(os(watchOS) || os(tvOS) || os(visionOS)))
-        #if !(os(watchOS) || os(tvOS) || os(visionOS))
+
+        #if !(os(tvOS) || os(visionOS))
         options.insert("profiling") // @_spi(Private) - internal backing for configureProfiling
         options.insert("configureProfiling")
-        #endif
-        
-        // MetricKit - iOS/macOS only (#if canImport(MetricKit) && !os(tvOS) && !os(visionOS))
-        #if canImport(MetricKit) && !os(tvOS) && !os(visionOS)
-        options.insert("enableMetricKit")
-        options.insert("enableMetricKitRawPayload")
         #endif
         
         return options
@@ -142,6 +58,19 @@ final class SentryOptionsDocumentationSyncTests: XCTestCase {
         let optionProperties = extractPropertyNames(from: Options())
 
         let documentedOptions = try await fetchDocumentedOptions()
+        
+        // Warn about options in undocumentedOptions that are now documented
+        let undocumentedOptionsThatAreActuallyDocumented = undocumentedOptions
+            .filter { documentedOptions.contains($0) }
+            .sorted()
+        
+        if !undocumentedOptionsThatAreActuallyDocumented.isEmpty {
+            print("""
+                ⚠️ The following options are now documented and can be removed from undocumentedOptions:
+                
+                \(undocumentedOptionsThatAreActuallyDocumented.map { "   - \($0)" }.joined(separator: "\n"))
+                """)
+        }
         
         // Find properties that are not documented and not ignored
         let propertiesMissingDocs = optionProperties
