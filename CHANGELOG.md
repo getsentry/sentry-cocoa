@@ -9,6 +9,7 @@
 - Rename log attribute `sentry.trace.parent_span_id` to `span_id` (#7055)
 - Fixes stacktraces for MetricKit events (#6908)
 - Fix Mac Catalyst runtime context tests to expect correct `"mac-catalyst-app"` value instead of `"raw_description"` (#7081)
+- Fix `raw_description` in `runtime` context on Mac Catalyst (#7082)
 
 ## 9.1.0
 
