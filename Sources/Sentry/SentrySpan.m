@@ -258,7 +258,7 @@ NS_ASSUME_NONNULL_BEGIN
             (unsigned long long)SentryDependencyContainer.sharedInstance.dateProvider.systemTime);
     }
 
-#if SENTRY_HAS_UIKIT
+#if SENTRY_HAS_UIKIT && !TARGET_OS_VISION
     if (_framesTracker.isRunning) {
         CFTimeInterval framesDelay = [_framesTracker
              getFramesDelaySPI:_startSystemTime
@@ -286,7 +286,7 @@ NS_ASSUME_NONNULL_BEGIN
         }
     }
 
-#endif // SENTRY_HAS_UIKIT
+#endif // SENTRY_HAS_UIKIT && !TARGET_OS_VISION
 
     if (self.tracer == nil) {
         SENTRY_LOG_DEBUG(
