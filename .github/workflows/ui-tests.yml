@@ -98,9 +98,9 @@ jobs:
           - name: iOS 26
             runs-on: macos-15
             platform: "iOS"
-            xcode: "26.1"
+            xcode: "26.2"
             device: iPhone 16 Pro
-            test-destination-os: "26.1"
+            test-destination-os: "26.2"
     with:
       fastlane_command: ui_tests_ios_swift
       files_suffix: _xcode_${{matrix.xcode}}-${{matrix.device}}
