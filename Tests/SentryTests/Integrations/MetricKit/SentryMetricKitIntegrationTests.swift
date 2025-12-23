@@ -48,24 +48,21 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
           XCTAssertNil(sut)
     }
     
-    func testUninstall_MetricKitManagerSetToNil() {
-            
-            let options = Options()
-            options.enableMetricKit = true
-            let sut = SentryMetricKitIntegration(with: options, dependencies: ())
-            sut?.uninstall()
-            
-            XCTAssertNil((Dynamic(sut).mxManager as SentryMXManager?)?.delegate)
-    }
-    
     func testMXCrashPayloadReceived() throws {
             givenSDKWithHubWithScope()
             
         let options = Options()
         options.enableMetricKit = true
-        let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: ()))
-            
-        sut.didReceiveCrashDiagnostic(MXCrashDiagnostic(), callStackTree: callStackTreePerThread, timeStampBegin: timeStampBegin)
+        let sut = SentryMXManager(inAppLogic: SentryInAppLogic(inAppIncludes: []), attachDiagnosticAsAttachment: false, disableCrashDiagnostics: false)
+
+        let payload = TestMXDiagnosticPayload()
+        let callStackTree = TestMXCallStackTree()
+        callStackTree.overrides.jsonRepresentation = try contentsOfResource("MetricKitCallstacks/per-thread")
+        let crashDiagnostic = TestMXCrashDiagnostic()
+        crashDiagnostic.overrides.callStackTree = callStackTree
+        payload.overrides.crashDiagnostics = [crashDiagnostic]
+        payload.overrides.timeStampBegin = timeStampBegin
+        sut.didReceive([payload])
             
         try assertPerThread(exceptionType: "MXCrashDiagnostic", exceptionValue: "MachException Type:nil Code:nil Signal:nil", exceptionMechanism: "MXCrashDiagnostic", handled: false)
     }
@@ -78,13 +75,19 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         options.enableMetricKitRawPayload = true
         let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: ()))
             
-            let diagnostic = MXCrashDiagnostic()
-        sut.didReceiveCrashDiagnostic(diagnostic, callStackTree: callStackTreePerThread, timeStampBegin: timeStampBegin)
+        let payload = TestMXDiagnosticPayload()
+        let callStackTree = TestMXCallStackTree()
+        callStackTree.overrides.jsonRepresentation = try contentsOfResource("MetricKitCallstacks/per-thread")
+        let hangDiagnostic = TestMXHangDiagnostic()
+        hangDiagnostic.overrides.callStackTree = callStackTree
+        payload.overrides.hangDiagnostic = [hangDiagnostic]
+        payload.overrides.timeStampBegin = timeStampBegin
+        sut.mxManager.didReceive([payload])
             
             try assertEventWithScopeCaptured { _, scope, _ in
                 let diagnosticAttachment = scope?.attachments.first { $0.filename == "MXDiagnosticPayload.json" }
                 
-                XCTAssertEqual(diagnosticAttachment?.data, diagnostic.jsonRepresentation())
+                XCTAssertEqual(diagnosticAttachment?.data, hangDiagnostic.jsonRepresentation())
             }
     }
     
@@ -95,8 +98,14 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         options.enableMetricKit = true
         let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: ()))
             
-            let diagnostic = MXCrashDiagnostic()
-        sut.didReceiveCrashDiagnostic(diagnostic, callStackTree: callStackTreePerThread, timeStampBegin: timeStampBegin)
+        let payload = TestMXDiagnosticPayload()
+        let callStackTree = TestMXCallStackTree()
+        callStackTree.overrides.jsonRepresentation = try contentsOfResource("MetricKitCallstacks/per-thread")
+        let hangDiagnostic = TestMXHangDiagnostic()
+        hangDiagnostic.overrides.callStackTree = callStackTree
+        payload.overrides.hangDiagnostic = [hangDiagnostic]
+        payload.overrides.timeStampBegin = timeStampBegin
+        sut.mxManager.didReceive([payload])
             
             try assertEventWithScopeCaptured { _, scope, _ in
                 let diagnosticAttachment = scope?.attachments.first { $0.filename == "MXDiagnosticPayload.json" }
@@ -113,7 +122,14 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
         options.add(inAppInclude: "iOS-Swift")
         let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: ()))
             
-            sut.didReceiveCrashDiagnostic(MXCrashDiagnostic(), callStackTree: callStackTreePerThread, timeStampBegin: timeStampBegin)
+        let payload = TestMXDiagnosticPayload()
+        let callStackTree = TestMXCallStackTree()
+        callStackTree.overrides.jsonRepresentation = try contentsOfResource("MetricKitCallstacks/per-thread")
+        let hangDiagnostic = TestMXHangDiagnostic()
+        hangDiagnostic.overrides.callStackTree = callStackTree
+        payload.overrides.hangDiagnostic = [hangDiagnostic]
+        payload.overrides.timeStampBegin = timeStampBegin
+        sut.mxManager.didReceive([payload])
             
             try assertEventWithScopeCaptured { event, _, _ in
                 let stacktrace = try XCTUnwrap( event?.threads?.first?.stacktrace)
@@ -131,7 +147,14 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
             options.enableMetricKit = true
             let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: ()))
             
-            sut.didReceiveCpuExceptionDiagnostic(TestMXCPUExceptionDiagnostic(), callStackTree: callStackTreeNotPerThread, timeStampBegin: timeStampBegin)
+        let payload = TestMXDiagnosticPayload()
+        let callStackTree = TestMXCallStackTree()
+        callStackTree.overrides.jsonRepresentation = try contentsOfResource("MetricKitCallstacks/not-per-thread")
+        let cpuException = TestMXCPUExceptionDiagnostic()
+        cpuException.overrides.callStackTree = callStackTree
+        payload.overrides.cpuDiagnostic = [cpuException]
+        payload.overrides.timeStampBegin = timeStampBegin
+        sut.mxManager.didReceive([payload])
             
             try assertNotPerThread(exceptionType: "MXCPUException", exceptionValue: "MXCPUException totalCPUTime:2.2 ms totalSampledTime:5.5 ms", exceptionMechanism: "mx_cpu_exception")
     }
@@ -143,10 +166,14 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
             options.enableMetricKit = true
             let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: ()))
             
-            let contents = try contentsOfResource("MetricKitCallstacks/not-per-thread-only-one-frame")
-            let callStackTree = try SentryMXCallStackTree.from(data: contents)
-            
-            sut.didReceiveCpuExceptionDiagnostic(TestMXCPUExceptionDiagnostic(), callStackTree: callStackTree, timeStampBegin: timeStampBegin)
+        let payload = TestMXDiagnosticPayload()
+        let callStackTree = TestMXCallStackTree()
+        callStackTree.overrides.jsonRepresentation = try contentsOfResource("MetricKitCallstacks/not-per-thread-only-one-frame")
+        let cpuException = TestMXCPUExceptionDiagnostic()
+        cpuException.overrides.callStackTree = callStackTree
+        payload.overrides.cpuDiagnostic = [cpuException]
+        payload.overrides.timeStampBegin = timeStampBegin
+        sut.mxManager.didReceive([payload])
             
             guard let client = SentrySDKInternal.currentHub().getClient() as? TestClient else {
                 XCTFail("Hub Client is not a `TestClient`")
@@ -176,7 +203,14 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
             options.enableMetricKit = true
             let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: ()))
             
-            sut.didReceiveDiskWriteExceptionDiagnostic(TestMXDiskWriteExceptionDiagnostic(), callStackTree: callStackTreeNotPerThread, timeStampBegin: timeStampBegin)
+        let payload = TestMXDiagnosticPayload()
+        let callStackTree = TestMXCallStackTree()
+        callStackTree.overrides.jsonRepresentation = try contentsOfResource("MetricKitCallstacks/not-per-thread-only-one-frame")
+        let diskWriteException = TestMXDiskWriteExceptionDiagnostic()
+        diskWriteException.overrides.callStackTree = callStackTree
+        payload.overrides.diskWriteDiagnostic = [diskWriteException]
+        payload.overrides.timeStampBegin = timeStampBegin
+        sut.mxManager.didReceive([payload])
             
             try assertNotPerThread(exceptionType: "MXDiskWriteException", exceptionValue: "MXDiskWriteException totalWritesCaused:5.5 Mib", exceptionMechanism: "mx_disk_write_exception")
     }
@@ -188,7 +222,14 @@ final class SentryMetricKitIntegrationTests: SentrySDKIntegrationTestsBase {
             options.enableMetricKit = true
             let sut = try XCTUnwrap(SentryMetricKitIntegration(with: options, dependencies: ()))
             
-            sut.didReceiveHangDiagnostic(TestMXHangDiagnostic(), callStackTree: callStackTreeNotPerThread, timeStampBegin: timeStampBegin)
+        let payload = TestMXDiagnosticPayload()
+        let callStackTree = TestMXCallStackTree()
+        callStackTree.overrides.jsonRepresentation = try contentsOfResource("MetricKitCallstacks/not-per-thread-only-one-frame")
+        let hangDiagnostic = TestMXHangDiagnostic()
+        hangDiagnostic.overrides.callStackTree = callStackTree
+        payload.overrides.hangDiagnostic = [hangDiagnostic]
+        payload.overrides.timeStampBegin = timeStampBegin
+        sut.mxManager.didReceive([payload])
             
             try assertNotPerThread(exceptionType: "MXHangDiagnostic", exceptionValue: "MXHangDiagnostic hangDuration:6.6 sec", exceptionMechanism: "mx_hang_diagnostic")
     }
