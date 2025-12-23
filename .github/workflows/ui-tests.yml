@@ -137,7 +137,7 @@ jobs:
         ui-tests-swift,
         ui-tests-swift6,
       ]
-    name: UI Tests
+    name: UI Tests - Check
     # This is necessary since a failed/skipped dependent job would cause this job to be skipped
     if: always()
     runs-on: ubuntu-latest
