@@ -39,7 +39,11 @@
             //
             // Due to that it crashes with an uncaught exception 'NSInvalidArgumentException', reason: '-[NSProcessInfo isiOSAppOnVision]: unrecognized selector sent to instance 0x600001549230'
             if self.responds(to: NSSelectorFromString("isiOSAppOnVision")) {
-                return self.isiOSAppOnVision
+                // Use value(forKey:) to dynamically access the property at runtime
+                // This avoids compile-time errors when the API isn't available in the SDK headers of Xcode 16 or older.
+                if let value = self.value(forKey: "isiOSAppOnVision") as? Bool {
+                    return value
+                }
             }
         }
         // Fallback for older versions: `UIWindowSceneGeometryPreferencesVision` is only available on visionOS
