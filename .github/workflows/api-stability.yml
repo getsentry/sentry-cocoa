@@ -34,13 +34,10 @@ jobs:
           filters: .github/file-filters.yml
 
   api-stability:
-    name: Check API Stability (${{ matrix.version }})
+    name: Check API Stability
     if: needs.files-changed.outputs.run_api_stability_for_prs == 'true'
     needs: files-changed
     runs-on: macos-15
-    strategy:
-      matrix:
-        version: [default, v9]
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
@@ -49,21 +46,15 @@ jobs:
 
       - name: Generate HEAD SDK
         run: |
-          if [ "${{ matrix.version }}" = "v9" ]; then
-            mv sdk_api_v9.json sdk_api_base.json
-            ./scripts/update-api.sh V9
-            mv sdk_api_v9.json sdk_api.json
-          else
-            mv sdk_api.json sdk_api_base.json
-            ./scripts/update-api.sh
-          fi
+          mv sdk_api.json sdk_api_base.json
+          ./scripts/update-api.sh
 
       - name: Diagnose breaking changes
         run: |
           if diff -q "sdk_api_base.json" "sdk_api.json" > /dev/null; then
-            echo "No API changes detected for ${{ matrix.version }} version."
+            echo "No API changes detected."
           else
-            echo "❌ Public API changes are detected for ${{ matrix.version }} version. If they're intended run "make generate-public-api" and commit the changes."
+            echo "❌ Public API changes are detected. If they're intended run "make generate-public-api" and commit the changes."
             diff "sdk_api_base.json" "sdk_api.json" || true
             xcrun --sdk iphoneos swift-api-digester \
               -diagnose-sdk \
@@ -84,11 +75,7 @@ jobs:
   # So, we don't have to run API stability checks, for example, for Changelog or ReadMe changes.
 
   api-stability-required-check:
-    needs:
-      [
-        files-changed,
-        api-stability,
-      ]
+    needs: [files-changed, api-stability]
     name: API Stability
     # This is necessary since a failed/skipped dependent job would cause this job to be skipped
     if: always()
