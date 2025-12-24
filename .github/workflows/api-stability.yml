@@ -34,7 +34,7 @@ jobs:
           filters: .github/file-filters.yml
 
   api-stability:
-    name: Check API Stability (${{ matrix.version }})
+    name: Check API Stability
     if: needs.files-changed.outputs.run_api_stability_for_prs == 'true'
     needs: files-changed
     runs-on: macos-15
@@ -52,9 +52,9 @@ jobs:
       - name: Diagnose breaking changes
         run: |
           if diff -q "sdk_api_base.json" "sdk_api.json" > /dev/null; then
-            echo "No API changes detected for ${{ matrix.version }} version."
+            echo "No API changes detected."
           else
-            echo "❌ Public API changes are detected for ${{ matrix.version }} version. If they're intended run "make generate-public-api" and commit the changes."
+            echo "❌ Public API changes are detected. If they're intended run "make generate-public-api" and commit the changes."
             diff "sdk_api_base.json" "sdk_api.json" || true
             xcrun --sdk iphoneos swift-api-digester \
               -diagnose-sdk \

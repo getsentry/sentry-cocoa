@@ -212,15 +212,6 @@ jobs:
         include:
           # We are running tests on iOS 17 and later, as there were OS-internal changes introduced in succeeding versions.
 
-          # iOS 16
-          - name: iOS 16 Sentry
-            runs-on: macos-13
-            platform: "iOS"
-            xcode: "14.3.1"
-            test-destination-os: "16.4"
-            device: "iPhone 14 Pro"
-            scheme: "Sentry"
-
           # iOS 17
           - name: iOS 17 Sentry
             runs-on: macos-14
@@ -243,8 +234,8 @@ jobs:
           - name: iOS 26 Sentry
             runs-on: macos-26
             platform: "iOS"
-            xcode: "26.1"
-            test-destination-os: "26.1"
+            xcode: "26.2"
+            test-destination-os: "26.2"
             device: "iPhone 17 Pro"
             scheme: "Sentry"
 
@@ -272,8 +263,8 @@ jobs:
           - name: macOS 26 Sentry
             runs-on: macos-26
             platform: "macOS"
-            xcode: "26.1"
-            test-destination-os: "26.1"
+            xcode: "26.2"
+            test-destination-os: "26.2"
             scheme: "Sentry"
 
           # Catalyst. We test the latest version, as the risk something breaking on Catalyst and not
@@ -328,8 +319,8 @@ jobs:
           - name: tvOS 26 Sentry
             runs-on: macos-26
             platform: "tvOS"
-            xcode: "26.1"
-            test-destination-os: "26.1"
+            xcode: "26.2"
+            test-destination-os: "26.2"
             device: "Apple TV"
             scheme: "Sentry"
 
