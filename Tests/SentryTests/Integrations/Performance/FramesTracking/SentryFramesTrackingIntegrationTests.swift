@@ -2,7 +2,7 @@
 @_spi(Private) import SentryTestUtils
 import XCTest
 
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst) || (swift(>=5.9) && os(visionOS))
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst) || os(visionOS)
 class SentryFramesTrackingIntegrationTests: XCTestCase {
 
     private struct MockFramesTrackingProvider: FramesTrackingProvider {
