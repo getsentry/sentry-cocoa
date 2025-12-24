@@ -33,7 +33,6 @@
 
 // Headers that also import SentryDefines should be at the end of this list
 // otherwise it wont compile
-#import "PrivateSentrySDKOnly.h"
 #import "SentryANRTrackerV1.h"
 #import "SentryANRTrackerV2.h"
 #import "SentryAsyncLog.h"
