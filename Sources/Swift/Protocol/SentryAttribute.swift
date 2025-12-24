@@ -40,7 +40,67 @@ public final class SentryAttribute: NSObject {
         super.init()
     }
 
-    internal init(value: Any) {
+    public init(stringArray values: [String]) {
+        self.type = "string[]"
+        self.value = values
+        super.init()
+    }
+
+    public init(booleanArray values: [Bool]) {
+        self.type = "boolean[]"
+        self.value = values
+        super.init()
+    }
+
+    public init(integerArray values: [Int]) {
+        self.type = "integer[]"
+        self.value = values
+        super.init()
+    }
+
+    public init(doubleArray values: [Double]) {
+        self.type = "double[]"
+        self.value = values
+        super.init()
+    }
+
+    /// Creates a double attribute from a float value
+    public init(floatArray values: [Float]) {
+        self.type = "double[]"
+        self.value = values.map(Double.init)
+        super.init()
+    }
+
+    internal init(attributableValue: SentryAttributeValue) {
+        switch attributableValue {
+        case .boolean(let value):
+            self.type = "boolean"
+            self.value = value
+        case .string(let value):
+            self.type = "string"
+            self.value = value
+        case .integer(let value):
+            self.type = "integer"
+            self.value = value
+        case .double(let value):
+            self.type = "double"
+            self.value = value
+        case .booleanArray(let array):
+            self.type = "boolean[]"
+            self.value = array
+        case .stringArray(let array):
+            self.type = "string[]"
+            self.value = array
+        case .integerArray(let array):
+            self.type = "integer[]"
+            self.value = array
+        case .doubleArray(let array):
+            self.type = "double[]"
+            self.value = array
+        }
+    }
+
+    internal init(value: Any) { // swiftlint:disable:this cyclomatic_complexity
         switch value {
         case let stringValue as String:
             self.type = "string"
@@ -57,6 +117,31 @@ public final class SentryAttribute: NSObject {
         case let floatValue as Float:
             self.type = "double"
             self.value = Double(floatValue)
+        case let stringValues as [String]:
+            self.type = "string[]"
+            self.value = stringValues
+        case let boolValues as [Bool]:
+            self.type = "boolean[]"
+            self.value = boolValues
+        case let intValues as [Int]:
+            self.type = "integer[]"
+            self.value = intValues
+        case let doubleValues as [Double]:
+            self.type = "double[]"
+            self.value = doubleValues
+        case let floatValues as [Float]:
+            self.type = "double[]"
+            self.value = floatValues.map(Double.init)
+        case let attributable as SentryAttributeValuable:
+            let value = attributable.asAttributeValue
+            self.type = value.type
+            self.value = value.anyValue
+        case let attribute as SentryAttributeValue:
+            self.type = attribute.type
+            self.value = attribute.anyValue
+        case let attribute as SentryAttribute:
+            self.type = attribute.type
+            self.value = attribute.value
         default:
             // For any other type, convert to string representation
             self.type = "string"
@@ -67,40 +152,51 @@ public final class SentryAttribute: NSObject {
 }
 
 // MARK: - Internal Encodable Support
+
 @_spi(Private) extension SentryAttribute: Encodable {
-    private enum CodingKeys: String, CodingKey {
-        case value
-        case type
-    }
-
     @_spi(Private) public func encode(to encoder: any Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
+        try self.asAttributeValue.encode(to: encoder)
+    }
+}
 
-        try container.encode(type, forKey: .type)
-
-        switch type {
+@_spi(Private) extension SentryAttribute: SentryAttributeValuable {
+    @_spi(Private) public var asAttributeValue: SentryAttributeValue {
+        switch self.type {
         case "string":
-            guard let stringValue = value as? String else {
-                throw EncodingError.invalidValue(value, EncodingError.Context(codingPath: encoder.codingPath, debugDescription: "Expected String but got \(Swift.type(of: value))"))
+            if let val = self.value as? String {
+                return .string(val)
             }
-            try container.encode(stringValue, forKey: .value)
         case "boolean":
-            guard let boolValue = value as? Bool else {
-                throw EncodingError.invalidValue(value, EncodingError.Context(codingPath: encoder.codingPath, debugDescription: "Expected Bool but got \(Swift.type(of: value))"))
+            if let val = self.value as? Bool {
+                return .boolean(val)
             }
-            try container.encode(boolValue, forKey: .value)
         case "integer":
-            guard let intValue = value as? Int else {
-                throw EncodingError.invalidValue(value, EncodingError.Context(codingPath: encoder.codingPath, debugDescription: "Expected Int but got \(Swift.type(of: value))"))
+            if let val = self.value as? Int {
+                return .integer(val)
             }
-            try container.encode(intValue, forKey: .value)
         case "double":
-            guard let doubleValue = value as? Double else {
-                throw EncodingError.invalidValue(value, EncodingError.Context(codingPath: encoder.codingPath, debugDescription: "Expected Double but got \(Swift.type(of: value))"))
+            if let val = self.value as? Double {
+                return .double(val)
             }
-            try container.encode(doubleValue, forKey: .value)
+        case "string[]":
+            if let val = self.value as? [String] {
+                return .stringArray(val)
+            }
+        case "boolean[]":
+            if let val = self.value as? [Bool] {
+                return .booleanArray(val)
+            }
+        case "integer[]":
+            if let val = self.value as? [Int] {
+                return .integerArray(val)
+            }
+        case "double[]":
+            if let val = self.value as? [Double] {
+                return .doubleArray(val)
+            }
         default:
-            try container.encode(String(describing: value), forKey: .value)
+            break
         }
+        return .string(String(describing: value))
     }
 }
