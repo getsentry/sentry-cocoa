@@ -409,7 +409,7 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
             sessionSegmentDuration: (dictionary["sessionSegmentDuration"] as? NSNumber)?.doubleValue,
             maximumDuration: (dictionary["maximumDuration"] as? NSNumber)?.doubleValue,
             excludedViewClasses: (dictionary["excludedViewClasses"] as? [String]).map { Set($0) } ?? (dictionary["viewClassesExcludedFromSubtreeTraversal"] as? [String]).map { Set($0) },
-            includedViewClasses: (dictionary["includedViewClasses"] as? [String]).map { Set($0) },
+            includedViewClasses: (dictionary["includedViewClasses"] as? [String]).map { Set($0) }
         )
     }
 
