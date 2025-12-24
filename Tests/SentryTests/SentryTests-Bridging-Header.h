@@ -2,15 +2,13 @@
 
 #import "SentryLaunchProfiling+Tests.h"
 
-#if SENTRY_HAS_METRIC_KIT
-#    import "SentryMetricKitIntegration.h"
-#endif // SENTRY_HAS_METRIC_KIT
-
 #if SENTRY_HAS_UIKIT
 #    import "MockUIScene.h"
 #    import "SentryDefaultUIViewControllerPerformanceTracker.h"
-#    import "SentrySessionReplayIntegration+Private.h"
-#    import "SentrySessionReplayIntegration+Test.h"
+#    if SENTRY_TARGET_REPLAY_SUPPORTED
+#        import "SentrySessionReplayIntegration+Private.h"
+#        import "SentrySessionReplayIntegration+Test.h"
+#    endif // SENTRY_TARGET_REPLAY_SUPPORTED
 #    import "SentryUIEventTracker.h"
 #    import "SentryUIEventTrackerTransactionMode.h"
 #    import "SentryUIEventTrackingIntegration.h"

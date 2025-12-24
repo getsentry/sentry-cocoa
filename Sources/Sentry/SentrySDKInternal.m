@@ -33,10 +33,6 @@
 #    import "SentryWatchdogTerminationTrackingIntegration.h"
 #endif // SENTRY_HAS_UIKIT
 
-#if SENTRY_HAS_METRIC_KIT
-#    import "SentryMetricKitIntegration.h"
-#endif // SENTRY_HAS_METRIC_KIT
-
 #if TARGET_OS_OSX
 #    import "SentryCrashExceptionApplication.h"
 #endif // TARGET_OS_MAC
@@ -523,10 +519,6 @@ static NSDate *_Nullable startTimestamp = nil;
         [SentryANRTrackingIntegration class], [SentryAutoBreadcrumbTrackingIntegration class],
         [SentryCoreDataTrackingIntegration class], [SentryFileIOTrackingIntegration class],
         [SentryNetworkTrackingIntegration class], nil];
-
-#if SENTRY_HAS_METRIC_KIT
-    [defaultIntegrations addObject:[SentryMetricKitIntegration class]];
-#endif // SENTRY_HAS_METRIC_KIT
 
     return defaultIntegrations;
 }

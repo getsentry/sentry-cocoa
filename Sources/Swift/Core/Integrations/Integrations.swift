@@ -40,20 +40,26 @@ private struct AnyIntegration {
             .init(SentryAutoSessionTrackingIntegration.self)
         ]
 
-        #if (os(iOS) || os(tvOS) || targetEnvironment(macCatalyst) || (swift(>=5.9) && os(visionOS))) && !SENTRY_NO_UIKIT
+        #if (os(iOS) || os(tvOS) || targetEnvironment(macCatalyst) || os(visionOS)) && !SENTRY_NO_UIKIT
         integrations.append(.init(SentryFramesTrackingIntegration<SentryDependencyContainer>.self))
         #endif
 
         #if os(iOS) && !SENTRY_NO_UIKIT
-        integrations.append(.init(UserFeedbackIntegration<SentryDependencyContainer>.self))
+        integrations.append(.init(UserFeedbackIntegration.self))
         #endif
-
+        
         #if ((os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT) || os(macOS)
-        integrations.append(.init(FlushLogsIntegration<SentryDependencyContainer>.self))
+        integrations.append(.init(FlushLogsIntegration.self))
         #endif
 
         #if (os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)) && !SENTRY_NO_UIKIT
-        integrations.append(.init(SentryScreenshotIntegration<SentryDependencyContainer>.self))
+        integrations.append(.init(SentryScreenshotIntegration.self))
+        #endif
+        
+        #if os(iOS) || os(macOS)
+        if #available(macOS 12.0, *) {
+            integrations.append(.init(SentryMetricKitIntegration.self))
+        }
         #endif
         
         integrations.forEach { anyIntegration in
