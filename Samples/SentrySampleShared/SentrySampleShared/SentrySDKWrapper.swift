@@ -156,7 +156,11 @@ public struct SentrySDKWrapper {
         options.configureUserFeedback = configureFeedback(config:)
 #endif // !os(macOS) && !os(tvOS) && !os(watchOS) && !os(visionOS)
 
+        // Integration: Logs
         options.enableLogs = true
+
+        // Integration: Metrics
+        options.experimental.enableMetrics = SentrySDKOverrides.Metrics.enable.boolValue
 
         // Experimental features
         options.enableFileManagerSwizzling = !SentrySDKOverrides.Other.disableFileManagerSwizzling.boolValue
