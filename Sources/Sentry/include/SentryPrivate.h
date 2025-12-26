@@ -26,6 +26,7 @@
 #import "SentryIntegrationProtocol.h"
 #import "SentryNSDataUtils.h"
 #import "SentrySDK+Private.h"
+#import "SentryScope+Private.h"
 #import "SentryTime.h"
 #import "SentryUserAccess.h"
 #import "SentryViewHierarchyProviderHelper.h"

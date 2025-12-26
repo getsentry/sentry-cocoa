@@ -546,7 +546,7 @@ class SentrySDKInternalTests: XCTestCase {
         let client = fixture.client
         SentrySDKInternal.currentHub().bindClient(client)
 
-        let anrTrackingIntegration = try XCTUnwrap(SentrySDKInternal.currentHub().getInstalledIntegration(SentryANRTrackingIntegration.self))
+        let anrTrackingIntegration = try XCTUnwrap(SentrySDKInternal.currentHub().getInstalledIntegration(SentryHangTrackerIntegrationObjC.self))
 
         SentrySDK.pauseAppHangTracking()
         Dynamic(anrTrackingIntegration).anrDetectedWithType(SentryANRType.unknown)
