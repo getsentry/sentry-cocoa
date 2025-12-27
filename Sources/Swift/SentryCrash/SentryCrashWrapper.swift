@@ -170,6 +170,12 @@ public final class SentryCrashWrapper: NSObject {
         
         deviceData["locale"] = Locale.autoupdatingCurrent.identifier
         
+        if #available(macOS 12, *) {
+            deviceData["ios_app_on_macos"] = self.processInfoWrapper.isiOSAppOnMac
+            deviceData["mac_catalyst_app"] = self.processInfoWrapper.isMacCatalystApp
+        } 
+        deviceData["ios_app_on_visionos"] = self.processInfoWrapper.isiOSAppOnVisionOS
+        
         // Set screen dimensions if available
         setScreenDimensions(&deviceData)
         
