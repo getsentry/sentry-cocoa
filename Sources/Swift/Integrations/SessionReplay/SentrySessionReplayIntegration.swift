@@ -1,8 +1,8 @@
 //swiftlint:disable file_length
 @_implementationOnly import _SentryPrivate
-import UIKit
 
 #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT
+import UIKit
 
 @objc
 @_spi(Private) public protocol SentrySessionListener {
