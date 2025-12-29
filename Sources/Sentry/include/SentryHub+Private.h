@@ -1,3 +1,4 @@
+#import "SentryHub+SwiftPrivate.h"
 #import "SentryHub.h"
 
 @class SentryEnvelopeItem;
@@ -13,15 +14,9 @@
 @class SentryAttachment;
 @class SentryReplayRecording;
 @protocol SentryIntegrationProtocol;
+@protocol SentrySessionListener;
 
 NS_ASSUME_NONNULL_BEGIN
-
-@protocol SentrySessionListener
-
-- (void)sentrySessionEnded:(SentrySession *)session;
-- (void)sentrySessionStarted:(SentrySession *)session;
-
-@end
 
 @interface SentryHubInternal ()
 
@@ -49,10 +44,6 @@ NS_ASSUME_NONNULL_BEGIN
 #if SENTRY_HAS_UIKIT
 - (void)captureFatalAppHangEvent:(SentryEvent *)event;
 #endif // SENTRY_HAS_UIKIT
-
-- (void)captureReplayEvent:(SentryReplayEvent *)replayEvent
-           replayRecording:(SentryReplayRecording *)replayRecording
-                     video:(NSURL *)videoURL;
 
 - (void)closeCachedSessionWithTimestamp:(NSDate *_Nullable)timestamp;
 
@@ -82,8 +73,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)storeEnvelope:(SentryEnvelope *)envelope;
 - (void)captureEnvelope:(SentryEnvelope *)envelope;
 
-- (void)registerSessionListener:(id<SentrySessionListener>)listener;
-- (void)unregisterSessionListener:(id<SentrySessionListener>)listener;
 - (nullable id<SentryIntegrationProtocol>)getInstalledIntegration:(Class)integrationClass;
 - (NSSet<NSString *> *)installedIntegrationNames;
 

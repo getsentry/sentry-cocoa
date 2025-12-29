@@ -20,7 +20,6 @@
 #import "SentrySamplingContext.h"
 #import "SentryScope.h"
 #import "SentrySerialization.h"
-#import "SentrySessionReplayIntegration.h"
 #import "SentrySwift.h"
 #import "SentryTransactionContext.h"
 #import "SentryUseNSExceptionCallstackWrapper.h"
@@ -507,20 +506,17 @@ static NSDate *_Nullable startTimestamp = nil;
     // The order of integrations here is important.
     // SentryCrashIntegration needs to be initialized before SentryAutoSessionTrackingIntegration.
     // And SentrySessionReplayIntegration before SentryCrashIntegration.
-    NSMutableArray<Class> *defaultIntegrations = [NSMutableArray<Class> arrayWithObjects:
-#if SENTRY_TARGET_REPLAY_SUPPORTED
-            [SentrySessionReplayIntegration class],
-#endif // SENTRY_TARGET_REPLAY_SUPPORTED
-        [SentryCrashIntegration class],
+    NSMutableArray<Class> *defaultIntegrations =
+        [NSMutableArray<Class> arrayWithObjects:[SentryCrashIntegration class],
 #if SENTRY_HAS_UIKIT
-        [SentryAppStartTrackingIntegration class], [SentryFramesTrackingIntegration class],
-        [SentryPerformanceTrackingIntegration class], [SentryUIEventTrackingIntegration class],
-        [SentryViewHierarchyIntegration class],
-        [SentryWatchdogTerminationTrackingIntegration class],
+            [SentryAppStartTrackingIntegration class], [SentryFramesTrackingIntegration class],
+            [SentryPerformanceTrackingIntegration class], [SentryUIEventTrackingIntegration class],
+            [SentryViewHierarchyIntegration class],
+            [SentryWatchdogTerminationTrackingIntegration class],
 #endif // SENTRY_HAS_UIKIT
-        [SentryANRTrackingIntegration class], [SentryAutoBreadcrumbTrackingIntegration class],
-        [SentryCoreDataTrackingIntegration class], [SentryFileIOTrackingIntegration class],
-        [SentryNetworkTrackingIntegration class], nil];
+            [SentryANRTrackingIntegration class], [SentryAutoBreadcrumbTrackingIntegration class],
+            [SentryCoreDataTrackingIntegration class], [SentryFileIOTrackingIntegration class],
+            [SentryNetworkTrackingIntegration class], nil];
 
     return defaultIntegrations;
 }

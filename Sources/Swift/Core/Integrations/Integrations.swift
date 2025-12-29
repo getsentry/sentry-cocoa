@@ -51,6 +51,10 @@ private struct AnyIntegration {
         #if (os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)) && !SENTRY_NO_UIKIT
         integrations.append(.init(SentryScreenshotIntegration.self))
         #endif
+
+        #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT
+        integrations.append(.init(SentrySessionReplayIntegrationObjC.self))
+        #endif
         
         #if os(iOS) || os(macOS)
         if #available(macOS 12.0, *) {

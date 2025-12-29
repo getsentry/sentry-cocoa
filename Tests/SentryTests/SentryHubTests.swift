@@ -679,12 +679,12 @@ class SentryHubTests: XCTestCase {
     
 #if canImport(UIKit) && !SENTRY_NO_UIKIT
 #if os(iOS) || os(tvOS)
-    func testCaptureLog_ReplayAttributes_SessionMode_AddsReplayId() {
+    func testCaptureLog_ReplayAttributes_SessionMode_AddsReplayId() throws {
         // Setup replay integration
         let replayOptions = SentryReplayOptions(sessionSampleRate: 1.0, onErrorSampleRate: 0.0)
         fixture.options.sessionReplay = replayOptions
         
-        let replayIntegration = SentrySessionReplayIntegration()
+        let replayIntegration = try XCTUnwrap(SentrySessionReplayIntegrationObjC(with: fixture.options, dependencies: SentryDependencyContainer.sharedInstance()))
         sut.addInstalledIntegration(replayIntegration, name: "SentrySessionReplayIntegration")
         
         // Set replayId on scope (session mode)
@@ -1218,7 +1218,7 @@ class SentryHubTests: XCTestCase {
         let videoUrl = URL(string: "https://sentry.io")!
         
         sut.bindClient(mockClient)
-        sut.capture(replayEvent, replayRecording: replayRecording, video: videoUrl)
+        sut.captureReplayEvent(replayEvent, replayRecording: replayRecording, video: videoUrl)
         
         XCTAssertEqual(mockClient?.replayEvent, replayEvent)
         XCTAssertEqual(mockClient?.replayRecording, replayRecording)
@@ -1620,8 +1620,10 @@ class SentryHubTests: XCTestCase {
         XCTAssertNil(result)
     }
     
-    func testGetSessionReplayId_ReturnsNilWhenSessionReplayIsNil() {
-        let integration = SentrySessionReplayIntegration()
+    func testGetSessionReplayId_ReturnsNilWhenSessionReplayIsNil() throws {
+        let options = Options()
+        options.sessionReplay.sessionSampleRate = 1.0
+        let integration = try XCTUnwrap(SentrySessionReplayIntegrationObjC(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
         sut.addInstalledIntegration(integration, name: "SentrySessionReplayIntegration")
         
         let result = sut.getSessionReplayId()
@@ -1629,8 +1631,10 @@ class SentryHubTests: XCTestCase {
         XCTAssertNil(result)
     }
     
-    func testGetSessionReplayId_ReturnsNilWhenSessionReplayIdIsNil() {
-        let integration = SentrySessionReplayIntegration()
+    func testGetSessionReplayId_ReturnsNilWhenSessionReplayIdIsNil() throws {
+        let options = Options()
+        options.sessionReplay.sessionSampleRate = 1.0
+        let integration = try XCTUnwrap(SentrySessionReplayIntegrationObjC(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
         let mockSessionReplay = createMockSessionReplay()
         Dynamic(integration).sessionReplay = mockSessionReplay
         sut.addInstalledIntegration(integration, name: "SentrySessionReplayIntegration")
@@ -1640,13 +1644,15 @@ class SentryHubTests: XCTestCase {
         XCTAssertNil(result)
     }
     
-    func testGetSessionReplayId_ReturnsIdStringWhenSessionReplayIdExists() {
-        let integration = SentrySessionReplayIntegration()
+    func testGetSessionReplayId_ReturnsIdStringWhenSessionReplayIdExists() throws {
+        let options = Options()
+        options.sessionReplay.sessionSampleRate = 1.0
+        let integration = try XCTUnwrap(SentrySessionReplayIntegrationObjC(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
         let mockSessionReplay = createMockSessionReplay()
         let rootView = UIView()
         mockSessionReplay.start(rootView: rootView, fullSession: true)
         
-        Dynamic(integration).sessionReplay = mockSessionReplay
+        integration.sessionReplay = mockSessionReplay
         sut.addInstalledIntegration(integration, name: "SentrySessionReplayIntegration")
         
         let result = sut.getSessionReplayId()

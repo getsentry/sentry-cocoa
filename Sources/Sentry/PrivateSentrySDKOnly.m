@@ -11,7 +11,6 @@
 #import "SentryPropagationContext.h"
 #import "SentrySDK+Private.h"
 #import "SentrySerialization.h"
-#import "SentrySessionReplayIntegration+Private.h"
 #import "SentrySwift.h"
 #import "SentryUser+Private.h"
 #import <SentryBreadcrumb.h>
@@ -324,13 +323,13 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
     return [[SentryMaskingPreviewView alloc] initWithRedactOptions:options];
 }
 
-+ (nullable SentrySessionReplayIntegration *)getReplayIntegration
++ (nullable SentrySessionReplayIntegrationObjC *)getReplayIntegration
 {
 
     NSArray *integrations = [[SentrySDKInternal currentHub] installedIntegrations];
-    SentrySessionReplayIntegration *replayIntegration;
+    SentrySessionReplayIntegrationObjC *replayIntegration;
     for (id obj in integrations) {
-        if ([obj isKindOfClass:[SentrySessionReplayIntegration class]]) {
+        if ([obj isKindOfClass:[SentrySessionReplayIntegrationObjC class]]) {
             replayIntegration = obj;
             break;
         }

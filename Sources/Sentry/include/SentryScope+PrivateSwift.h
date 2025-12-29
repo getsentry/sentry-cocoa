@@ -18,6 +18,10 @@ static NSString *const SENTRY_CONTEXT_APP_KEY = @"app";
  */
 @property (atomic, strong) SentryUser *_Nullable userObject;
 
+@property (nonatomic, nullable, copy) NSString *currentScreen;
+
+- (NSArray<SentryBreadcrumb *> *)breadcrumbs;
+
 - (NSDictionary<NSString *, id> *_Nullable)getContextForKey:(NSString *)key;
 
 @end

@@ -3,7 +3,7 @@
 import UIKit
 
 /// A wrapper around DisplayLink for testability.
-@_spi(Private) @objc public class SentryDisplayLinkWrapper: NSObject {
+@_spi(Private) @objc public class SentryDisplayLinkWrapper: NSObject, SentryReplayDisplayLinkWrapper {
     
     var displayLink: CADisplayLink?
 

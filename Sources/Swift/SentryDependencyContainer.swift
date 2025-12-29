@@ -242,10 +242,6 @@ extension SentryDependencyContainer: ScreenshotSourceProvider { }
 
 extension SentryDependencyContainer: AutoSessionTrackingProvider { }
 
-#if ((os(iOS) || os(tvOS) || (swift(>=5.9) && os(visionOS))) && !SENTRY_NO_UIKIT) || os(macOS)
-extension SentryDependencyContainer: NotificationCenterProvider { }
-#endif
-
 #if (os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)) && !SENTRY_NO_UIKIT
 protocol ScreenshotIntegrationProvider {
     var screenshotSource: SentryScreenshotSource? { get }
@@ -253,3 +249,63 @@ protocol ScreenshotIntegrationProvider {
 
 extension SentryDependencyContainer: ScreenshotIntegrationProvider { }
 #endif
+
+protocol SessionReplayEnvironmentCheckerProvider {
+    var sessionReplayEnvironmentChecker: SentrySessionReplayEnvironmentCheckerProvider { get }
+}
+extension SentryDependencyContainer: SessionReplayEnvironmentCheckerProvider {}
+
+protocol NotificationCenterProvider {
+    var notificationCenterWrapper: SentryNSNotificationCenterWrapper { get }
+}
+extension SentryDependencyContainer: NotificationCenterProvider {}
+
+protocol RateLimitsProvider {
+    var rateLimits: RateLimits { get }
+}
+extension SentryDependencyContainer: RateLimitsProvider {}
+
+protocol CurrentDateProvider {
+    var dateProvider: SentryCurrentDateProvider { get }
+}
+extension SentryDependencyContainer: CurrentDateProvider {}
+
+protocol RandomProvider {
+    var random: SentryRandomProtocol { get }
+}
+extension SentryDependencyContainer: RandomProvider {}
+
+protocol FileManagerProvider {
+    var fileManager: SentryFileManager? { get }
+}
+extension SentryDependencyContainer: FileManagerProvider {}
+
+protocol ReachabilityProvider {
+    var reachability: SentryReachability { get }
+}
+extension SentryDependencyContainer: ReachabilityProvider {}
+
+protocol CrashWrapperProvider {
+    var crashWrapper: SentryCrashWrapper { get }
+}
+extension SentryDependencyContainer: CrashWrapperProvider {}
+
+protocol GlobalEventProcessorProvider {
+    var globalEventProcessor: SentryGlobalEventProcessor { get }
+}
+extension SentryDependencyContainer: GlobalEventProcessorProvider {}
+
+protocol DispatchQueueWrapperProvider {
+    var dispatchQueueWrapper: SentryDispatchQueueWrapper { get }
+}
+extension SentryDependencyContainer: DispatchQueueWrapperProvider {}
+
+protocol ApplicationProvider {
+    func application() -> SentryApplication?
+}
+extension SentryDependencyContainer: ApplicationProvider {}
+
+protocol DispatchFactoryProvider {
+    var dispatchFactory: SentryDispatchFactory { get }
+}
+extension SentryDependencyContainer: DispatchFactoryProvider {}

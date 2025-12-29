@@ -15,7 +15,6 @@
 #import "SentrySamplingContext.h"
 #import "SentryScope+Private.h"
 #import "SentrySerialization.h"
-#import "SentrySessionReplayIntegration+Private.h"
 #import "SentrySwift.h"
 #import "SentryTraceOrigin.h"
 #import "SentryTracer.h"
@@ -128,7 +127,8 @@ NS_ASSUME_NONNULL_BEGIN
         endSessionExitedWithTimestamp:[SentryDependencyContainer.sharedInstance.dateProvider date]];
     [self captureSession:lastSession];
 
-    [_sessionListener sentrySessionStarted:SENTRY_UNWRAP_NULLABLE(SentrySession, _session)];
+    [_sessionListener
+        sentrySessionStartedWithSession:SENTRY_UNWRAP_NULLABLE(SentrySession, _session)];
 }
 
 - (void)endSession
@@ -153,7 +153,7 @@ NS_ASSUME_NONNULL_BEGIN
     [currentSession endSessionExitedWithTimestamp:timestamp];
     [self captureSession:currentSession];
 
-    [_sessionListener sentrySessionEnded:currentSession];
+    [_sessionListener sentrySessionEndedWithSession:currentSession];
 }
 
 - (void)storeCurrentSession:(SentrySession *)session
@@ -891,8 +891,8 @@ NS_ASSUME_NONNULL_BEGIN
 #if SENTRY_TARGET_REPLAY_SUPPORTED
 - (NSString *__nullable)getSessionReplayId
 {
-    SentrySessionReplayIntegration *integration = (SentrySessionReplayIntegration *)[self
-        getInstalledIntegration:[SentrySessionReplayIntegration class]];
+    SentrySessionReplayIntegrationObjC *integration = (SentrySessionReplayIntegrationObjC *)[self
+        getInstalledIntegration:[SentrySessionReplayIntegrationObjC class]];
     if (integration == nil || integration.sessionReplay == nil) {
         return nil;
     }
