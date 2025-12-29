@@ -65,6 +65,12 @@ public final class SentrySessionReplayIntegrationObjC: NSObject, SwiftIntegratio
                                           experimentalOptions: options.experimental,
                                           fullSession: true)
     }
+    
+    // Helper function to cast SentrySessionReplayIntegrationObjC to SentryIntegrationProtocol
+    // Used only for testing with `addInstalledIntegration` or it fails to compile
+    func toIntegrationProtocol() -> SentryIntegrationProtocol {
+        return self
+    }
 }
 #endif
 
