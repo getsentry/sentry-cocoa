@@ -21,8 +21,6 @@ fileprivate var touchTracker: SentryTouchTracker?
 // This non final class is used for testing
 @_spi(Private) @objc
 public class SentrySessionReplayIntegrationObjC: NSObject, SwiftIntegration {
-    typealias Dependencies = SentryDependencyContainer
-
     private let integration: SentrySessionReplayIntegration<SentryDependencyContainer>
     
     @objc
@@ -40,12 +38,16 @@ public class SentrySessionReplayIntegrationObjC: NSObject, SwiftIntegration {
                                           experimentalOptions: options.experimental,
                                           fullSession: true)
     }
+    
+    // Helper function to cast SentrySessionReplayIntegrationObjC to SentryIntegrationProtocol
+    // Used only for testing with `addInstalledIntegration` or it fails to compile
+    func toIntegrationProtocol() -> SentryIntegrationProtocol {
+        return self
+    }
 }
 #else
 @_spi(Private) @objc
 public final class SentrySessionReplayIntegrationObjC: NSObject, SwiftIntegration {
-    typealias Dependencies = SentryDependencyContainer
-    
     private let integration: SentrySessionReplayIntegration<SentryDependencyContainer>
     
     @objc
