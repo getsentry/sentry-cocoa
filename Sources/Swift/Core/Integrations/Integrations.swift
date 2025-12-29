@@ -17,6 +17,14 @@ protocol SwiftIntegration: SentryIntegrationProtocol {
     static var name: String { get }
 }
 
+#if SENTRY_TEST || SENTRY_TEST_CI
+extension SwiftIntegration where Dependencies == SentryDependencyContainer {
+    func toIntegrationProtocol() -> SentryIntegrationProtocol {
+        return self
+    }
+}
+#endif
+
 // Type erases the `Integration` so that it can be stored in an array and used for `addInstalledIntegration`
 private struct AnyIntegration {
     let install: (Options, SentryDependencyContainer) -> SentryIntegrationProtocol?

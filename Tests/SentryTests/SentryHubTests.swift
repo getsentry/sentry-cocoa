@@ -685,7 +685,7 @@ class SentryHubTests: XCTestCase {
         fixture.options.sessionReplay = replayOptions
         
         let replayIntegration = try XCTUnwrap(SentrySessionReplayIntegrationObjC(with: fixture.options, dependencies: SentryDependencyContainer.sharedInstance()))
-        sut.addInstalledIntegration(replayIntegration, name: "SentrySessionReplayIntegration")
+        sut.addInstalledIntegration(replayIntegration.toIntegrationProtocol(), name: "SentrySessionReplayIntegration")
         
         // Set replayId on scope (session mode)
         let replayId = "12345678-1234-1234-1234-123456789012"
@@ -1624,7 +1624,7 @@ class SentryHubTests: XCTestCase {
         let options = Options()
         options.sessionReplay.sessionSampleRate = 1.0
         let integration = try XCTUnwrap(SentrySessionReplayIntegrationObjC(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
-        sut.addInstalledIntegration(integration, name: "SentrySessionReplayIntegration")
+        sut.addInstalledIntegration(integration.toIntegrationProtocol(), name: "SentrySessionReplayIntegration")
         
         let result = sut.getSessionReplayId()
         
@@ -1637,7 +1637,7 @@ class SentryHubTests: XCTestCase {
         let integration = try XCTUnwrap(SentrySessionReplayIntegrationObjC(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
         let mockSessionReplay = createMockSessionReplay()
         Dynamic(integration).sessionReplay = mockSessionReplay
-        sut.addInstalledIntegration(integration, name: "SentrySessionReplayIntegration")
+        sut.addInstalledIntegration(integration.toIntegrationProtocol(), name: "SentrySessionReplayIntegration")
         
         let result = sut.getSessionReplayId()
         
@@ -1653,7 +1653,7 @@ class SentryHubTests: XCTestCase {
         mockSessionReplay.start(rootView: rootView, fullSession: true)
         
         integration.sessionReplay = mockSessionReplay
-        sut.addInstalledIntegration(integration, name: "SentrySessionReplayIntegration")
+        sut.addInstalledIntegration(integration.toIntegrationProtocol(), name: "SentrySessionReplayIntegration")
         
         let result = sut.getSessionReplayId()
         
