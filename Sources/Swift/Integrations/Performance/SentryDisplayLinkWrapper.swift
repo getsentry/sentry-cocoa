@@ -3,7 +3,7 @@
 import UIKit
 
 /// A wrapper around DisplayLink for testability.
-@_spi(Private) @objc public class SentryDisplayLinkWrapper: NSObject, SentryReplayDisplayLinkWrapper {
+@_spi(Private) @objc public class SentryDisplayLinkWrapper: NSObject {
     
     var displayLink: CADisplayLink?
 
@@ -29,5 +29,9 @@ import UIKit
         !(displayLink?.isPaused ?? true)
     }
 }
+
+#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT
+extension SentryDisplayLinkWrapper: SentryReplayDisplayLinkWrapper {}
+#endif
 
 #endif
