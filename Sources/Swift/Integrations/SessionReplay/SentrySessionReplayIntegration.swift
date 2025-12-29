@@ -1,14 +1,14 @@
 //swiftlint:disable file_length
 @_implementationOnly import _SentryPrivate
 
-#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT
-import UIKit
-
 @objc
 @_spi(Private) public protocol SentrySessionListener {
     @objc func sentrySessionEnded(session: SentrySession)
     @objc func sentrySessionStarted(session: SentrySession)
 }
+
+#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT
+import UIKit
 
 typealias SessionReplayIntegrationScope = SessionReplayEnvironmentCheckerProvider & NotificationCenterProvider & RateLimitsProvider & CurrentDateProvider & RandomProvider & FileManagerProvider & CrashWrapperProvider & ReachabilityProvider & GlobalEventProcessorProvider & DispatchQueueWrapperProvider & ApplicationProvider & DispatchFactoryProvider
 
