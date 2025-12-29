@@ -18,7 +18,7 @@ protocol SwiftIntegration: SentryIntegrationProtocol {
 }
 
 #if SENTRY_TEST || SENTRY_TEST_CI
-extension SwiftIntegration where Dependencies == SentryDependencyContainer {
+extension SwiftIntegration {
     func toIntegrationProtocol() -> SentryIntegrationProtocol {
         return self
     }
