@@ -183,7 +183,12 @@ struct SessionReplayRecovery {
             video: video.path
         )
 
-        try? FileManager.default.removeItem(at: video.path)
+        do {
+            try FileManager.default.removeItem(at: video.path)
+        } catch {
+            SentrySDKLog.debug("[Session Replay] Could not delete replay segment from disk: \(error.localizedDescription)")
+        }
+        
     }
 }
 
