@@ -17,11 +17,13 @@ class SentryReplayApiTests: XCTestCase {
         // Arrange
         let options = Options()
         options.sessionReplay.sessionSampleRate = 1.0
+        // Ensure the integration will always be enabled
+        options.experimental.enableSessionReplayInUnreliableEnvironment = true
         let mockClient = TestClient(options: options)
         let mockReplayIntegration = try XCTUnwrap(MockSessionReplayIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
         let mockHub = TestHub(client: mockClient, andScope: Scope())
         mockHub.removeAllIntegrations()
-        mockHub.addInstalledIntegration(mockReplayIntegration, name: "SentrySessionReplayIntegration")
+        mockReplayIntegration.addItselfToSentryHub(hub: mockHub)
         SentrySDKInternal.setCurrentHub(mockHub)
         
         let sut = SentryReplayApi()

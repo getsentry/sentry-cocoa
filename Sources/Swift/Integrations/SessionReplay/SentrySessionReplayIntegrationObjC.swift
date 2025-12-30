@@ -3,6 +3,8 @@
 #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT
 
 // This class should be final but we are subclassing it in tests
+// Also, this class will be deprecated once SessionReplayIntegration
+// is no longer used from Objective C
 @_spi(Private) @objc
 public class SentrySessionReplayIntegrationObjC: NSObject, SwiftIntegration {
     private let integration: SentrySessionReplayIntegration<SentryDependencyContainer>
