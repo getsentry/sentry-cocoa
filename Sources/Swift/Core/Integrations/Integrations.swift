@@ -53,7 +53,7 @@ private struct AnyIntegration {
         #endif
 
         #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT
-        integrations.append(.init(SentrySessionReplayIntegrationObjC.self))
+        integrations.append(.init(SentrySessionReplayIntegration.self))
         #endif
         
         #if os(iOS) || os(macOS)

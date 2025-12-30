@@ -46,8 +46,8 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         clearTestState()
     }
     
-    private func getSut() throws -> SentrySessionReplayIntegrationObjC {
-        return try XCTUnwrap(SentrySDKInternal.currentHub().installedIntegrations().first as? SentrySessionReplayIntegrationObjC)
+    private func getSut() throws -> SentrySessionReplayIntegration {
+        return try XCTUnwrap(SentrySDKInternal.currentHub().installedIntegrations().first as? SentrySessionReplayIntegration)
     }
     
     private func startSDK(sessionSampleRate: Float, errorSampleRate: Float, enableSwizzling: Bool = true, noIntegrations: Bool = false, configure: ((Options) -> Void)? = nil) {
@@ -80,7 +80,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
     
     func testInstallNoSwizzlingNoTouchTracker() {
         startSDK(sessionSampleRate: 1, errorSampleRate: 0, enableSwizzling: false)
-        guard let integration = SentrySDKInternal.currentHub().installedIntegrations().first as? SentrySessionReplayIntegrationObjC
+        guard let integration = SentrySDKInternal.currentHub().installedIntegrations().first as? SentrySessionReplayIntegration
         else {
             XCTFail("Could not find session replay integration")
             return
@@ -385,7 +385,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
     
     func testStartWithNoSessionReplay() throws {
         startSDK(sessionSampleRate: 0, errorSampleRate: 0, noIntegrations: true)
-        var sut = SentrySDKInternal.currentHub().installedIntegrations().first as? SentrySessionReplayIntegrationObjC
+        var sut = SentrySDKInternal.currentHub().installedIntegrations().first as? SentrySessionReplayIntegration
         XCTAssertNil(sut)
         SentrySDK.replay.start()
         sut = try getSut()
@@ -561,7 +561,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         
         // We can't use SentrySDK.start because the dependency container dispatch queue is used for other tasks.
         // Manually starting the integration and initializing it makes the test more controlled.
-        _ = SentrySessionReplayIntegrationObjC(with: options, dependencies: SentryDependencyContainer.sharedInstance())
+        _ = SentrySessionReplayIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance())
         
         XCTAssertEqual(dispatchQueue.dispatchAsyncCalled, 0)
     }
@@ -718,14 +718,14 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
     func testSessionReplayIntegration_DoesNotLeakMemory() throws {
 
         // -- Arrange --
-        weak var weakSut: SentrySessionReplayIntegrationObjC?
+        weak var weakSut: SentrySessionReplayIntegration?
 
         // Put into extra func so ARC deallocates the sut
         func allocateSutAndDealloc() throws {
             let options = Options()
             options.sessionReplay = SentryReplayOptions(sessionSampleRate: 1.0, onErrorSampleRate: 1.0)
 
-            let instance = SentrySessionReplayIntegrationObjC(with: options, dependencies: SentryDependencyContainer.sharedInstance())
+            let instance = SentrySessionReplayIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance())
             instance?.uninstall()
 
             weakSut = instance
@@ -747,7 +747,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         SentryDependencyContainer.sharedInstance().sessionReplayEnvironmentChecker = TestSessionReplayEnvironmentChecker(mockedIsReliableReturnValue: false)
 
         // -- Act --
-        let instance = SentrySessionReplayIntegrationObjC(with: options, dependencies: SentryDependencyContainer.sharedInstance())
+        let instance = SentrySessionReplayIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance())
 
         // -- Assert --
         XCTAssertNil(instance)
@@ -762,7 +762,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         SentryDependencyContainer.sharedInstance().sessionReplayEnvironmentChecker = TestSessionReplayEnvironmentChecker(mockedIsReliableReturnValue: false)
 
         // -- Act --
-        let instance = SentrySessionReplayIntegrationObjC(with: options, dependencies: SentryDependencyContainer.sharedInstance())
+        let instance = SentrySessionReplayIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance())
 
         // -- Assert --
         XCTAssertNotNil(instance)
@@ -777,7 +777,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         SentryDependencyContainer.sharedInstance().sessionReplayEnvironmentChecker = TestSessionReplayEnvironmentChecker(mockedIsReliableReturnValue: true)
 
         // -- Act --
-        let instance = SentrySessionReplayIntegrationObjC(with: options, dependencies: SentryDependencyContainer.sharedInstance())
+        let instance = SentrySessionReplayIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance())
 
         // -- Assert --
         XCTAssertNotNil(instance)

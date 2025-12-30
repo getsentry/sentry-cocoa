@@ -323,13 +323,13 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
     return [[SentryMaskingPreviewView alloc] initWithRedactOptions:options];
 }
 
-+ (nullable SentrySessionReplayIntegrationObjC *)getReplayIntegration
++ (nullable SentrySessionReplayIntegration *)getReplayIntegration
 {
 
     NSArray *integrations = [[SentrySDKInternal currentHub] installedIntegrations];
-    SentrySessionReplayIntegrationObjC *replayIntegration;
+    SentrySessionReplayIntegration *replayIntegration;
     for (id obj in integrations) {
-        if ([obj isKindOfClass:[SentrySessionReplayIntegrationObjC class]]) {
+        if ([obj isKindOfClass:[SentrySessionReplayIntegration class]]) {
             replayIntegration = obj;
             break;
         }

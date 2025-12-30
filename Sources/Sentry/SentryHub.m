@@ -891,8 +891,8 @@ NS_ASSUME_NONNULL_BEGIN
 #if SENTRY_TARGET_REPLAY_SUPPORTED
 - (NSString *__nullable)getSessionReplayId
 {
-    SentrySessionReplayIntegrationObjC *integration = (SentrySessionReplayIntegrationObjC *)[self
-        getInstalledIntegration:[SentrySessionReplayIntegrationObjC class]];
+    SentrySessionReplayIntegration *integration = (SentrySessionReplayIntegration *)[self
+        getInstalledIntegration:[SentrySessionReplayIntegration class]];
     if (integration == nil || integration.sessionReplay == nil) {
         return nil;
     }

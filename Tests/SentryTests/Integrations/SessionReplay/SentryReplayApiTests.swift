@@ -85,19 +85,19 @@ class SentryReplayApiTests: XCTestCase {
         
         // Assert
         XCTAssertEqual(mockHub.installedIntegrations().count, 1)
-        let hub = try XCTUnwrap(mockHub.installedIntegrations().first as? SentrySessionReplayIntegrationObjC)
-        XCTAssertNotNil(hub.sessionReplay)
-        XCTAssertTrue(hub.sessionReplay?.isRunning ?? false)
+        let integration = try XCTUnwrap(mockHub.installedIntegrations().first as? SentrySessionReplayIntegration)
+        XCTAssertNotNil(integration.sessionReplay)
+        XCTAssertTrue(integration.sessionReplay?.isRunning ?? false)
         SentrySDKInternal.currentHub().endSession()
-        XCTAssertTrue(hub.sessionReplay?.isFullSession ?? false)
+        XCTAssertTrue(integration.sessionReplay?.isFullSession ?? false)
     }
 }
 
-private class MockSessionReplayIntegration: SentrySessionReplayIntegrationObjC {
+private class MockSessionReplayIntegration: SentrySessionReplayIntegration {
     var startCalled = false
     
-    func install(with hub: SentryHub) -> Bool {
-        return true
+    required convenience init?(with options: Options, dependencies: SentryDependencyContainer) {
+        self.init(nonOptionalWith: options, dependencies: dependencies)
     }
     
     @objc override func start() {

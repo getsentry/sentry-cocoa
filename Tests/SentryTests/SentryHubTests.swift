@@ -685,7 +685,7 @@ class SentryHubTests: XCTestCase {
         fixture.options.sessionReplay = replayOptions
         fixture.options.experimental.enableSessionReplayInUnreliableEnvironment = true
         
-        let replayIntegration = try XCTUnwrap(SentrySessionReplayIntegrationObjC(with: fixture.options, dependencies: SentryDependencyContainer.sharedInstance()))
+        let replayIntegration = try XCTUnwrap(SentrySessionReplayIntegration(with: fixture.options, dependencies: SentryDependencyContainer.sharedInstance()))
         replayIntegration.addItselfToSentryHub(hub: sut)
         
         // Set replayId on scope (session mode)
@@ -1625,7 +1625,7 @@ class SentryHubTests: XCTestCase {
         let options = Options()
         options.sessionReplay.sessionSampleRate = 1.0
         options.experimental.enableSessionReplayInUnreliableEnvironment = true
-        let integration = try XCTUnwrap(SentrySessionReplayIntegrationObjC(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
+        let integration = try XCTUnwrap(SentrySessionReplayIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
         integration.addItselfToSentryHub(hub: sut)
         
         let result = sut.getSessionReplayId()
@@ -1637,7 +1637,7 @@ class SentryHubTests: XCTestCase {
         let options = Options()
         options.sessionReplay.sessionSampleRate = 1.0
         options.experimental.enableSessionReplayInUnreliableEnvironment = true
-        let integration = try XCTUnwrap(SentrySessionReplayIntegrationObjC(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
+        let integration = try XCTUnwrap(SentrySessionReplayIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
         let mockSessionReplay = createMockSessionReplay()
         Dynamic(integration).sessionReplay = mockSessionReplay
         integration.addItselfToSentryHub(hub: sut)
@@ -1651,7 +1651,7 @@ class SentryHubTests: XCTestCase {
         let options = Options()
         options.sessionReplay.sessionSampleRate = 1.0
         options.experimental.enableSessionReplayInUnreliableEnvironment = true
-        let integration = try XCTUnwrap(SentrySessionReplayIntegrationObjC(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
+        let integration = try XCTUnwrap(SentrySessionReplayIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
         let mockSessionReplay = createMockSessionReplay()
         let rootView = UIView()
         mockSessionReplay.start(rootView: rootView, fullSession: true)

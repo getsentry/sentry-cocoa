@@ -9,13 +9,15 @@ typealias SessionReplayIntegrationScope = SessionReplayEnvironmentCheckerProvide
 private var touchTracker: SentryTouchTracker?
 
 // swiftlint:disable type_body_length
-final class SentrySessionReplayIntegration<Dependencies: SessionReplayIntegrationScope>: NSObject, SwiftIntegration, SentrySessionReplayDelegate, SentrySessionListener, SentryReachabilityObserver {
+// This class should be final but we are subclassing it in tests
+@_spi(Private) @objc
+public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentrySessionReplayDelegate, SentrySessionListener, SentryReachabilityObserver {
     
     // MARK: - Properties
     var replayProcessingQueue: SentryDispatchQueueWrapper
     var replayAssetWorkerQueue: SentryDispatchQueueWrapper
-    var sessionReplay: SentrySessionReplay?
-    let viewPhotographer: SentryViewPhotographer
+    @objc public var sessionReplay: SentrySessionReplay?
+    @objc public let viewPhotographer: SentryViewPhotographer
     
     private let replayOptions: SentryReplayOptions
     private let rateLimits: RateLimits
@@ -33,11 +35,11 @@ final class SentrySessionReplayIntegration<Dependencies: SessionReplayIntegratio
     private let replayFileManager: SessionReplayFileManager
     private var replayRecovery: SessionReplayRecovery?
     
-    static var name: String { "SentrySessionReplayIntegration" }
+    @objc public static var name: String { "SentrySessionReplayIntegration" }
 
     // MARK: - Initialization
 
-    convenience init?(with options: Options, dependencies: SessionReplayIntegrationScope) {
+    required convenience init?(with options: Options, dependencies: SentryDependencyContainer) {
         guard SentrySessionReplay.shouldEnableSessionReplay(
             environmentChecker: dependencies.sessionReplayEnvironmentChecker,
             experimentalOptions: options.experimental
@@ -54,11 +56,15 @@ final class SentrySessionReplayIntegration<Dependencies: SessionReplayIntegratio
         self.init(nonOptionalWith: options, dependencies: dependencies)
     }
     
-    convenience init(forManualUseWith options: Options, dependencies: SessionReplayIntegrationScope) {
+    @objc
+    public convenience init(forManualUseWith options: Options, dependencies: SentryDependencyContainer) {
         self.init(nonOptionalWith: options, dependencies: dependencies)
+        startWithOptions(options.sessionReplay,
+                         experimentalOptions: options.experimental,
+                         fullSession: true)
     }
     
-    private init(nonOptionalWith options: Options, dependencies: SessionReplayIntegrationScope) {
+    init(nonOptionalWith options: Options, dependencies: SessionReplayIntegrationScope) {
         self.replayOptions = options.sessionReplay
         self.experimentalOptions = options.experimental
         self.notificationCenter = dependencies.notificationCenterWrapper
@@ -95,7 +101,7 @@ final class SentrySessionReplayIntegration<Dependencies: SessionReplayIntegratio
         dependencies.reachability.add(self)
     }
 
-    func uninstall() {
+    public func uninstall() {
         SentrySDKLog.debug("[Session Replay] Uninstalling")
         SentrySDKInternal.currentHub().unregisterSessionListener(self)
         touchTracker = nil
@@ -161,13 +167,13 @@ final class SentrySessionReplayIntegration<Dependencies: SessionReplayIntegratio
 
     // MARK: - Session Listener
 
-    func sentrySessionStarted(session: SentrySession) {
+    public func sentrySessionStarted(session: SentrySession) {
         SentrySDKLog.debug("[Session Replay] Session started")
         rateLimited = false
         startSession()
     }
 
-    func sentrySessionEnded(session: SentrySession) {
+    public func sentrySessionEnded(session: SentrySession) {
         SentrySDKLog.debug("[Session Replay] Session ended")
         pause()
         removeBackgroundForegroundObservers()
@@ -260,18 +266,18 @@ final class SentrySessionReplayIntegration<Dependencies: SessionReplayIntegratio
     func moveCurrentReplay() { replayFileManager.moveCurrentReplay() }
 
     // MARK: - Pause/Resume
-    @objc func pause() { 
+    @objc public func pause() {
         SentrySDKLog.debug("[Session Replay] Pausing session")
         sessionReplay?.pause() 
     }
-    @objc func resume() { 
+    @objc public func resume() {
         SentrySDKLog.debug("[Session Replay] Resuming session")
         sessionReplay?.resume() 
     }
 
     // MARK: - Public API
 
-    func start() {
+    @objc public func start() {
         SentrySDKLog.debug("[Session Replay] Starting session")
         if rateLimited { 
             SentrySDKLog.debug("[Session Replay] Rate limited, not starting session")
@@ -287,18 +293,18 @@ final class SentrySessionReplayIntegration<Dependencies: SessionReplayIntegratio
         runReplayForAvailableWindow()
     }
 
-    func stop() { 
+    @objc public func stop() {
         SentrySDKLog.debug("[Session Replay] Stopping session")
         sessionReplay?.pause()
         sessionReplay = nil 
     }
 
-    @discardableResult func captureReplay() -> Bool { 
+    @objc @discardableResult public func captureReplay() -> Bool {
         SentrySDKLog.debug("[Session Replay] Capturing replay")
         return sessionReplay?.captureReplay() ?? false 
     }
 
-    func configureReplayWith(_ breadcrumbConverter: SentryReplayBreadcrumbConverter?, screenshotProvider: SentryViewScreenshotProvider?) {
+    @objc public func configureReplayWith(_ breadcrumbConverter: SentryReplayBreadcrumbConverter?, screenshotProvider: SentryViewScreenshotProvider?) {
         SentrySDKLog.debug("[Session Replay] Configuring replay")
         if let bc = breadcrumbConverter {
             currentBreadcrumbConverter = bc
@@ -310,12 +316,12 @@ final class SentrySessionReplayIntegration<Dependencies: SessionReplayIntegratio
         }
     }
 
-    func setReplayTags(_ tags: [String: Any]) { 
+    @objc public func setReplayTags(_ tags: [String: Any]) {
         SentrySDKLog.debug("[Session Replay] Setting replay tags: \(tags)")
         sessionReplay?.replayTags = tags 
     }
 
-    func showMaskPreview(_ opacity: Float) {
+    @objc public func showMaskPreview(_ opacity: Float) {
         SentrySDKLog.debug("[Session Replay] Showing mask preview with opacity: \(opacity)")
         guard crashWrapper.isBeingTraced else { 
             SentrySDKLog.debug("[Session Replay] No tracing is active, not showing mask preview")
@@ -331,16 +337,16 @@ final class SentrySessionReplayIntegration<Dependencies: SessionReplayIntegratio
         if let pv = previewView { window.addSubview(pv) }
     }
 
-    func hideMaskPreview() { 
+    @objc public func hideMaskPreview() { 
         SentrySDKLog.debug("[Session Replay] Hiding mask preview")
         previewView?.removeFromSuperview()
         previewView = nil 
     }
 
     // MARK: - SentrySessionReplayDelegate
-    func sessionReplayShouldCaptureReplayForError() -> Bool { random.nextNumber() <= Double(replayOptions.onErrorSampleRate) }
+    public func sessionReplayShouldCaptureReplayForError() -> Bool { random.nextNumber() <= Double(replayOptions.onErrorSampleRate) }
 
-    func sessionReplayNewSegment(replayEvent: SentryReplayEvent, replayRecording: SentryReplayRecording, videoUrl: URL) {
+    public func sessionReplayNewSegment(replayEvent: SentryReplayEvent, replayRecording: SentryReplayRecording, videoUrl: URL) {
         SentrySDKLog.debug("[Session Replay] New segment with replay event, eventId: \(replayEvent.eventId), segmentId: \(replayEvent.segmentId)")
 
         if rateLimits.isRateLimitActive(SentryDataCategory.replay.rawValue) || rateLimits.isRateLimitActive(SentryDataCategory.all.rawValue) {
@@ -353,30 +359,36 @@ final class SentrySessionReplayIntegration<Dependencies: SessionReplayIntegratio
         sentrySessionReplaySync_updateInfo(UInt32(replayEvent.segmentId), timestamp.timeIntervalSinceReferenceDate)
     }
 
-    func sessionReplayStarted(replayId: SentryId) {
+    public func sessionReplayStarted(replayId: SentryId) {
         SentrySDKLog.debug("[Session Replay] Session replay started with replayId: \(replayId.sentryIdString)")
         SentrySDKInternal.currentHub().configureScope { scope in scope.replayId = replayId.sentryIdString }
     }
 
-    func breadcrumbsForSessionReplay() -> [Breadcrumb] {
+    public func breadcrumbsForSessionReplay() -> [Breadcrumb] {
         var result: [Breadcrumb] = []
         SentrySDKInternal.currentHub().configureScope { scope in result = scope.breadcrumbs() }
         return result
     }
 
-    func currentScreenNameForSessionReplay() -> String? {
+    public func currentScreenNameForSessionReplay() -> String? {
         SentrySDKInternal.currentHub().scope.currentScreen ?? application?.relevantViewControllersNames()?.first ?? ""
     }
 
     // MARK: - SentryReachabilityObserver
-    func connectivityChanged(_ connected: Bool, typeDescription: String) {
+    public func connectivityChanged(_ connected: Bool, typeDescription: String) {
         SentrySDKLog.debug("[Session Replay] Connectivity changed to: \(connected ? "connected" : "disconnected"), type: \(typeDescription)")
         if connected { sessionReplay?.resume() } else { sessionReplay?.pauseSessionMode() }
     }
     
-    // MARK: Test only
+    // MARK: - Test only
 #if SENTRY_TEST || SENTRY_TEST_CI
     func getTouchTracker() -> SentryTouchTracker? { touchTracker }
+    
+    // Helper function to cast SentrySessionReplayIntegration to SentryIntegrationProtocol
+    // Used only for testing with `addInstalledIntegration` or it fails to compile
+    func addItselfToSentryHub(hub: SentryHubInternal) {
+        hub.addInstalledIntegration(self, name: Self.name)
+    }
 #endif
 }
 // swiftlint:enable type_body_length
