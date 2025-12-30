@@ -1,6 +1,6 @@
 @_implementationOnly import _SentryPrivate
 
-final class SentryNetworkTrackingIntegration<Dependencies>: NSObject, SwiftIntegration {
+final class SentryNetworkTrackingIntegration<Dependencies: SentryDependencyContainer>: NSObject, SwiftIntegration {
     
     let networkTracker: SentryNetworkTracker
     
