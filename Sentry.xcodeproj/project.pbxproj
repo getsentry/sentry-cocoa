@@ -977,6 +977,8 @@
 		F443DB272E09BE8C009A9045 /* LoadValidatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F443DB262E09BE8C009A9045 /* LoadValidatorTests.swift */; };
 		F44544012EDF5A6200EFE964 /* SentryAutoSessionTrackingIntegration.swift in Sources */ = {isa = PBXBuildFile; fileRef = F44544002EDF5A5C00EFE964 /* SentryAutoSessionTrackingIntegration.swift */; };
 		F44858132E03579D0013E63B /* SentryCrashDynamicLinker+Test.h in Headers */ = {isa = PBXBuildFile; fileRef = F44858122E0357940013E63B /* SentryCrashDynamicLinker+Test.h */; };
+		F44B331C2F041296005A04B8 /* SessionReplayFileManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F44B331A2F041296005A04B8 /* SessionReplayFileManager.swift */; };
+		F44B331D2F041296005A04B8 /* SessionReplayRecovery.swift in Sources */ = {isa = PBXBuildFile; fileRef = F44B331B2F041296005A04B8 /* SessionReplayRecovery.swift */; };
 		F44D2B592E6B779E00FF31FA /* SentryScreenFrames.swift in Sources */ = {isa = PBXBuildFile; fileRef = F44D2B582E6B779E00FF31FA /* SentryScreenFrames.swift */; };
 		F44D2B5C2E6B7E8700FF31FA /* SentryProfilingScreenFramesHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = F44D2B5A2E6B7E8700FF31FA /* SentryProfilingScreenFramesHelper.h */; };
 		F44D2B5D2E6B7E8700FF31FA /* SentryProfilingScreenFramesHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = F44D2B5B2E6B7E8700FF31FA /* SentryProfilingScreenFramesHelper.m */; };
@@ -2367,6 +2369,8 @@
 		F443DB262E09BE8C009A9045 /* LoadValidatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadValidatorTests.swift; sourceTree = "<group>"; };
 		F44544002EDF5A5C00EFE964 /* SentryAutoSessionTrackingIntegration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryAutoSessionTrackingIntegration.swift; sourceTree = "<group>"; };
 		F44858122E0357940013E63B /* SentryCrashDynamicLinker+Test.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SentryCrashDynamicLinker+Test.h"; sourceTree = "<group>"; };
+		F44B331A2F041296005A04B8 /* SessionReplayFileManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionReplayFileManager.swift; sourceTree = "<group>"; };
+		F44B331B2F041296005A04B8 /* SessionReplayRecovery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionReplayRecovery.swift; sourceTree = "<group>"; };
 		F44D2B582E6B779E00FF31FA /* SentryScreenFrames.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryScreenFrames.swift; sourceTree = "<group>"; };
 		F44D2B5A2E6B7E8700FF31FA /* SentryProfilingScreenFramesHelper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SentryProfilingScreenFramesHelper.h; sourceTree = "<group>"; };
 		F44D2B5B2E6B7E8700FF31FA /* SentryProfilingScreenFramesHelper.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryProfilingScreenFramesHelper.m; sourceTree = "<group>"; };
@@ -4952,6 +4956,8 @@
 		F4A2701B2EFC868E00C2364C /* SessionReplay */ = {
 			isa = PBXGroup;
 			children = (
+				F44B331A2F041296005A04B8 /* SessionReplayFileManager.swift */,
+				F44B331B2F041296005A04B8 /* SessionReplayRecovery.swift */,
 				F4CF8E7B2F031F0400F0FB13 /* SentrySessionListener.swift */,
 				F4CF8E742F031DF800F0FB13 /* SentrySessionReplayIntegrationObjC.swift */,
 				F4A270162EFC868E00C2364C /* SentrySessionReplayIntegration.swift */,
@@ -5885,6 +5891,8 @@
 				D84793262788737D00BE8E99 /* SentryByteCountFormatter.m in Sources */,
 				FAEFA12F2E4FAE1900C431D9 /* SentrySDKSettings.swift in Sources */,
 				63AA769E1EB9C57A00D153DE /* SentryError.mm in Sources */,
+				F44B331C2F041296005A04B8 /* SessionReplayFileManager.swift in Sources */,
+				F44B331D2F041296005A04B8 /* SessionReplayRecovery.swift in Sources */,
 				D48225A12EEC4B6D00CDF32C /* BatcherMetadata.swift in Sources */,
 				7B8713B026415B22006D6004 /* SentryAppStartTrackingIntegration.m in Sources */,
 				8E133FA225E72DEF00ABD0BF /* SentrySamplingContext.m in Sources */,
