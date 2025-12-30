@@ -4,6 +4,8 @@
 
 #    import <UIKit/UIKit.h>
 
+@class SentryNetworkTracker;
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface SentrySwizzleWrapperHelper : NSObject
@@ -11,7 +13,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (void)swizzle:(void (^)(SEL action, _Nullable id target, _Nullable id sender,
                     UIEvent *_Nullable event))callback;
 
-+ (void)swizzleURLSessionTask;
++ (void)swizzleURLSessionTask:(SentryNetworkTracker *)networkTracker;
 
 @end
 

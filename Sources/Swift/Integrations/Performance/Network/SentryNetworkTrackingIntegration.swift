@@ -2,6 +2,8 @@
 
 final class SentryNetworkTrackingIntegration<Dependencies>: NSObject, SwiftIntegration {
     
+    let networkTracker: SentryNetworkTracker
+    
     init?(with options: Options, dependencies: Dependencies) {
         guard options.enableSwizzling else {
             SentrySDKLog.debug("Not going to enable \(Self.name) because enableSwizzling is disabled.")
@@ -9,21 +11,23 @@ final class SentryNetworkTrackingIntegration<Dependencies>: NSObject, SwiftInteg
         }
 
         let shouldEnableNetworkTracking = Self.shouldBeEnabled(with: options)
+        
+        networkTracker = SentryNetworkTracker()
 
         if shouldEnableNetworkTracking {
-            SentryNetworkTracker.sharedInstance.enableNetworkTracking()
+            networkTracker.enableNetworkTracking()
         }
 
         if options.enableNetworkBreadcrumbs {
-            SentryNetworkTracker.sharedInstance.enableNetworkBreadcrumbs()
+            networkTracker.enableNetworkBreadcrumbs()
         }
 
         if options.enableCaptureFailedRequests {
-            SentryNetworkTracker.sharedInstance.enableCaptureFailedRequests()
+            networkTracker.enableCaptureFailedRequests()
         }
 
         if options.enableGraphQLOperationTracking {
-            SentryNetworkTracker.sharedInstance.enableGraphQLOperationTracking()
+            networkTracker.enableGraphQLOperationTracking()
         }
 
         guard shouldEnableNetworkTracking || options.enableNetworkBreadcrumbs || options.enableCaptureFailedRequests else {
@@ -32,11 +36,11 @@ final class SentryNetworkTrackingIntegration<Dependencies>: NSObject, SwiftInteg
 
         super.init()
 
-        SentrySwizzleWrapperHelper.swizzleURLSessionTask()
+        SentrySwizzleWrapperHelper.swizzleURLSessionTask(networkTracker)
     }
 
     func uninstall() {
-        SentryNetworkTracker.sharedInstance.disable()
+        networkTracker.disable()
     }
 
     static var name: String {
@@ -61,4 +65,10 @@ final class SentryNetworkTrackingIntegration<Dependencies>: NSObject, SwiftInteg
 
         return true
     }
+    
+    #if SENTRY_TEST || SENTRY_TEST_CI
+    func getNetworkTracker() -> SentryNetworkTracker {
+        return self.networkTracker
+    }
+    #endif
 }

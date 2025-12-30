@@ -86,23 +86,16 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
         assertIntegrationNotInstalled(options)
     }
     
-    func testBreadcrumbDisabled_WhenSwizzlingDisabled() {
-        fixture.options.enableSwizzling = false
-        startSDK()
-        
-        XCTAssertFalse(SentryNetworkTracker.sharedInstance.isNetworkBreadcrumbEnabled)
-    }
-    
     func testBreadcrumbDisabled() {
         fixture.options.enableNetworkBreadcrumbs = false
         startSDK()
         
-        XCTAssertFalse(SentryNetworkTracker.sharedInstance.isNetworkBreadcrumbEnabled)
+        XCTAssertFalse((try? getNetworkTracker()?.isNetworkBreadcrumbEnabled) ?? true)
     }
     
     func testBreadcrumbEnabled() {
         startSDK()
-        XCTAssertTrue(SentryNetworkTracker.sharedInstance.isNetworkBreadcrumbEnabled)
+        XCTAssertTrue((try? getNetworkTracker()?.isNetworkBreadcrumbEnabled) ?? false)
     }
     
     /**
@@ -155,39 +148,31 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
         let breadcrumbs = Dynamic(scope).breadcrumbArray as [Breadcrumb]?
         XCTAssertEqual(1, breadcrumbs?.count)
     }
-
-    func testCaptureFailedRequestsDisabled_WhenSwizzlingDisabled() {
-        fixture.options.enableSwizzling = false
-        fixture.options.enableCaptureFailedRequests = true
-        startSDK()
-
-        XCTAssertFalse(SentryNetworkTracker.sharedInstance.isCaptureFailedRequestsEnabled)
-    }
     
     func testCaptureFailedRequestsEnabled() {
         startSDK()
 
-        XCTAssertTrue(SentryNetworkTracker.sharedInstance.isCaptureFailedRequestsEnabled)
+        XCTAssertTrue((try? getNetworkTracker()?.isCaptureFailedRequestsEnabled) ?? false)
     }
     
     func testCaptureFailedRequestsDisabled() {
         fixture.options.enableCaptureFailedRequests = false
         startSDK()
 
-        XCTAssertFalse(SentryNetworkTracker.sharedInstance.isCaptureFailedRequestsEnabled)
+        XCTAssertFalse((try? getNetworkTracker()?.isCaptureFailedRequestsEnabled) ?? true)
     }
 
     func testGraphQLOperationTrackingEnabled() {
         fixture.options.enableGraphQLOperationTracking = true
         startSDK()
 
-        XCTAssertTrue(SentryNetworkTracker.sharedInstance.isGraphQLOperationTrackingEnabled)
+        XCTAssertTrue((try? getNetworkTracker()?.isGraphQLOperationTrackingEnabled) ?? false)
     }
 
     func testGraphQLOperationTrackingDisabled() {
         startSDK()
 
-        XCTAssertFalse(SentryNetworkTracker.sharedInstance.isGraphQLOperationTrackingEnabled)
+        XCTAssertFalse((try? getNetworkTracker()?.isGraphQLOperationTrackingEnabled) ?? true)
     }
     
     private func assertNetworkTrackerDisabled(configureOptions: (Options) -> Void) throws {
@@ -221,6 +206,12 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
         if error != nil {
             XCTFail("Failed to complete request : \(String(describing: error))")
         }
+    }
+    
+    private func getNetworkTracker() throws -> SentryNetworkTracker? {
+        let integration = SentrySDKInternal.currentHub().getInstalledIntegration(SentryNetworkTrackingIntegration<SentryDependencyContainer>.self) as? SentryNetworkTrackingIntegration<SentryDependencyContainer>
+
+        return integration?.getNetworkTracker()
     }
 }
 

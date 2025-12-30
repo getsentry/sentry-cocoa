@@ -56,14 +56,6 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
 
 @implementation SentryNetworkTracker
 
-+ (SentryNetworkTracker *)sharedInstance
-{
-    static SentryNetworkTracker *instance = nil;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{ instance = [[self alloc] init]; });
-    return instance;
-}
-
 - (instancetype)init
 {
     if (self = [super init]) {
