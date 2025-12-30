@@ -60,9 +60,11 @@
                     SentryOptions, SentrySDKInternal.currentHub.client.options);
                 SentryDependencyContainer *sharedContainer =
                     [SentryDependencyContainer sharedInstance];
-                if (![SentrySessionReplayIntegrationObjC
-                           shouldEnableFor:currentOptions
-                        environmentChecker:[sharedContainer sessionReplayEnvironmentChecker]]) {
+                if (![SentrySessionReplay
+                        shouldEnableSessionReplayWithEnvironmentChecker:
+                            [sharedContainer sessionReplayEnvironmentChecker]
+                                                    experimentalOptions:currentOptions
+                                                                            .experimental]) {
                     SENTRY_LOG_ERROR(@"[Session Replay] Session replay is disabled due to "
                                      @"environment potentially causing PII leaks.");
                     return;

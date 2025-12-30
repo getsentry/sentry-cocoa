@@ -48,13 +48,6 @@ public class SentrySessionReplayIntegrationObjC: NSObject, SwiftIntegration {
         integration.viewPhotographer
     }
     
-    @objc public static func shouldEnable(for options: Options, environmentChecker: SentrySessionReplayEnvironmentCheckerProvider) -> Bool {
-        return SentrySessionReplay.shouldEnableSessionReplay(
-            environmentChecker: environmentChecker,
-            experimentalOptions: options.experimental
-        )
-    }
-    
     @objc public func pause() {
         integration.pause()
     }
