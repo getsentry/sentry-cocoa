@@ -1,4 +1,6 @@
 #import "SentrySwizzleWrapperHelper.h"
+#import "SentryNSURLSessionTaskSearch.h"
+#import "SentryNetworkTracker.h"
 #import "SentrySwizzle.h"
 
 #if SENTRY_HAS_UIKIT
@@ -21,6 +23,35 @@ NS_ASSUME_NONNULL_BEGIN
             return SentrySWCallOriginal(action, target, sender, event);
         }),
         SentrySwizzleModeOncePerClassAndSuperclasses, swizzleSendActionKey);
+#    pragma clang diagnostic pop
+}
+
++ (void)swizzleURLSessionTask
+{
+    NSArray<Class> *classesToSwizzle = [SentryNSURLSessionTaskSearch urlSessionTaskClassesToTrack];
+
+    // SentrySwizzleInstanceMethod declaration shadows a local variable. The swizzling is working
+    // fine and we accept this warning.
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wshadow"
+    SEL setStateSelector = NSSelectorFromString(@"setState:");
+    SEL resumeSelector = NSSelectorFromString(@"resume");
+
+    for (Class classToSwizzle in classesToSwizzle) {
+        SentrySwizzleInstanceMethod(classToSwizzle, resumeSelector, SentrySWReturnType(void),
+            SentrySWArguments(), SentrySWReplacement({
+                [SentryNetworkTracker.sharedInstance urlSessionTaskResume:self];
+                SentrySWCallOriginal();
+            }),
+            SentrySwizzleModeOncePerClassAndSuperclasses, (void *)resumeSelector);
+
+        SentrySwizzleInstanceMethod(classToSwizzle, setStateSelector, SentrySWReturnType(void),
+            SentrySWArguments(NSURLSessionTaskState state), SentrySWReplacement({
+                [SentryNetworkTracker.sharedInstance urlSessionTask:self setState:state];
+                SentrySWCallOriginal(state);
+            }),
+            SentrySwizzleModeOncePerClassAndSuperclasses, (void *)setStateSelector);
+    }
 #    pragma clang diagnostic pop
 }
 

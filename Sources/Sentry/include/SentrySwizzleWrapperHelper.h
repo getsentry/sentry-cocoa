@@ -11,6 +11,8 @@ NS_ASSUME_NONNULL_BEGIN
 + (void)swizzle:(void (^)(SEL action, _Nullable id target, _Nullable id sender,
                     UIEvent *_Nullable event))callback;
 
++ (void)swizzleURLSessionTask;
+
 @end
 
 NS_ASSUME_NONNULL_END
