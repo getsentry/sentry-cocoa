@@ -209,7 +209,7 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
     }
     
     private func getNetworkTracker() throws -> SentryNetworkTracker? {
-        let integration = SentrySDKInternal.currentHub().getInstalledIntegration(SentryNetworkTrackingIntegration<SentryDependencyContainer>.self) as? SentryNetworkTrackingIntegration<SentryDependencyContainer>
+        let integration = SentrySDKInternal.currentHub().getInstalledIntegration(SentryNetworkTrackingIntegration.self) as? SentryNetworkTrackingIntegration
 
         return integration?.getNetworkTracker()
     }
