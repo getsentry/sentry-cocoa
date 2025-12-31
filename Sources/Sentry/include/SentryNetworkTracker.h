@@ -11,8 +11,6 @@ static NSString *const SENTRY_NETWORK_REQUEST_TRACKER_BREADCRUMB
 
 @interface SentryNetworkTracker : NSObject
 
-@property (class, readonly, nonatomic) SentryNetworkTracker *sharedInstance;
-
 - (void)urlSessionTaskResume:(NSURLSessionTask *)sessionTask;
 - (void)urlSessionTask:(NSURLSessionTask *)sessionTask setState:(NSURLSessionTaskState)newState;
 - (void)enableNetworkTracking;
