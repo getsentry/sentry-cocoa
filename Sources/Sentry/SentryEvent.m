@@ -1,4 +1,3 @@
-#import "SentryANRTrackingIntegration.h"
 #import "SentryBreadcrumb.h"
 #import "SentryClient.h"
 #import "SentryDebugMeta.h"
