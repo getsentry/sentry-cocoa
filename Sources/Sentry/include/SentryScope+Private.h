@@ -1,6 +1,7 @@
 #import <Foundation/Foundation.h>
 
 #import "SentryLevel.h"
+#import "SentryScope+PrivateSwift.h"
 #import "SentryScope.h"
 
 @class SentryAttachment;
@@ -42,10 +43,6 @@ NS_ASSUME_NONNULL_BEGIN
  * SentryLevel of the event
  */
 @property (atomic) SentryLevel levelEnum;
-
-@property (nonatomic, nullable, copy) NSString *currentScreen;
-
-- (NSArray<SentryBreadcrumb *> *)breadcrumbs;
 
 - (nullable SentrySpan *)getCastedInternalSpan;
 

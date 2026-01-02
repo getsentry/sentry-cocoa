@@ -13,7 +13,6 @@
 @class SentryEnvelope;
 @class SentryId;
 @class SentrySpanId;
-@class SentrySessionReplayIntegration;
 @class UIView;
 
 @protocol SentryReplayBreadcrumbConverter;

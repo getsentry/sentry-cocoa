@@ -10,10 +10,6 @@ private typealias CrossPlatformApplication = NSApplication
 
 #if ((os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT) || os(macOS)
 
-protocol NotificationCenterProvider {
-    var notificationCenterWrapper: SentryNSNotificationCenterWrapper { get }
-}
-
 final class FlushLogsIntegration<Dependencies: NotificationCenterProvider>: NSObject, SwiftIntegration {
     
     private let notificationCenter: SentryNSNotificationCenterWrapper

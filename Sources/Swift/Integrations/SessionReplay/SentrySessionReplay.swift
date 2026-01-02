@@ -68,6 +68,7 @@ import UIKit
     
     deinit { displayLink.invalidate() }
     
+    @objc
     static public func shouldEnableSessionReplay(environmentChecker: SentrySessionReplayEnvironmentCheckerProvider, experimentalOptions: SentryExperimentalOptions) -> Bool {
         // Detect if we are running on iOS 26.0 with Liquid Glass and disable session replay.
         // This needs to be done until masking for session replay is properly supported, as it can lead

@@ -59,8 +59,9 @@ public class TestHub: SentryHubInternal {
     
     public var onReplayCapture: (() -> Void)?
     @_spi(Private) public var capturedReplayRecordingVideo = Invocations<(replay: SentryReplayEvent, recording: SentryReplayRecording, video: URL)>()
-    @_spi(Private) public override func capture(_ replayEvent: SentryReplayEvent, replayRecording: SentryReplayRecording, video videoURL: URL) {
-        capturedReplayRecordingVideo.record((replayEvent, replayRecording, videoURL))
+    
+    @_spi(Private) public override func captureReplayEvent(_ replayEvent: Any, replayRecording: Any, video videoURL: URL) {
+        capturedReplayRecordingVideo.record((replayEvent as! SentryReplayEvent, replayRecording as! SentryReplayRecording, videoURL))
         onReplayCapture?()
     }
 #if canImport(UIKit) && !SENTRY_NO_UIKIT    
