@@ -13,7 +13,6 @@
 #import "SentryLogC.h"
 #import "SentryMechanism.h"
 #import "SentryNoOpSpan.h"
-#import "SentryPropagationContext.h"
 #import "SentryRequest.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
