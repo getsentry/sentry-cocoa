@@ -8,8 +8,10 @@ protocol ScreenshotSourceProvider {
 
 final class UserFeedbackIntegration<Dependencies: ScreenshotSourceProvider>: NSObject, SwiftIntegration {
 
+    @available(*, deprecated, message: "Create an instance of SentryUserFeedbackFormController directly.")
     let driver: SentryUserFeedbackIntegrationDriver
 
+    @available(*, deprecated, message: "Create an instance of SentryUserFeedbackFormController directly.")
     init?(with options: Options, dependencies: Dependencies) {
         guard let configuration = options.userFeedbackConfiguration else {
             return nil

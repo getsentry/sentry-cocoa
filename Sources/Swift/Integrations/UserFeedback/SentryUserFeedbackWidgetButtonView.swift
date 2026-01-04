@@ -3,6 +3,7 @@ import Foundation
 @_implementationOnly import _SentryPrivate
 import UIKit
 
+@available(*, deprecated, message: "Create an instance of SentryUserFeedbackFormController directly.")
 final class SentryUserFeedbackWidgetButtonView: UIView {
     // MARK: Measurements
     let svgSize: CGFloat = 16

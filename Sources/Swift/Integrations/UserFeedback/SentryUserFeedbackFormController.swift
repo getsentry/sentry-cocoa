@@ -8,16 +8,20 @@ protocol SentryUserFeedbackFormDelegate: NSObjectProtocol {
     func finished(with feedback: SentryFeedback?)
 }
 
-final class SentryUserFeedbackFormController: UIViewController {
+public final class SentryUserFeedbackFormController: UIViewController {
     let config: SentryUserFeedbackConfiguration
     weak var delegate: SentryUserFeedbackFormDelegate?
     let screenshot: UIImage?
     lazy var viewModel = SentryUserFeedbackFormViewModel(config: config, controller: self, screenshot: screenshot)
     
-    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+    public override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         config.theme.updateDefaultFonts()
         config.recalculateScaleFactors()
         viewModel.updateLayout()
+    }
+    
+    public convenience init(config: SentryUserFeedbackConfiguration, screenshot: UIImage?) {
+        self.init(config: config, delegate: nil, screenshot: screenshot)
     }
     
     init(config: SentryUserFeedbackConfiguration, delegate: SentryUserFeedbackFormDelegate?, screenshot: UIImage?) {
@@ -104,19 +108,19 @@ extension SentryUserFeedbackFormController: SentryUserFeedbackFormViewModelDeleg
 
 // MARK: UITextFieldDelegate
 extension SentryUserFeedbackFormController: UITextFieldDelegate {
-    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+    public func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
         return true
     }
     
-    func textFieldDidChangeSelection(_ textField: UITextField) {
+    public func textFieldDidChangeSelection(_ textField: UITextField) {
         viewModel.updateSubmitButtonAccessibilityHint()
     }
 }
 
 // MARK: UITextViewDelegate
 extension SentryUserFeedbackFormController: UITextViewDelegate {
-    func textViewDidChange(_ textView: UITextView) {
+    public func textViewDidChange(_ textView: UITextView) {
         viewModel.messageTextViewPlaceholder.isHidden = textView.text != ""
         viewModel.updateSubmitButtonAccessibilityHint()
     }
