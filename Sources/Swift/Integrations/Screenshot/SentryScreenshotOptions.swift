@@ -212,7 +212,7 @@ public class SentryViewScreenshotOptions: NSObject, SentryRedactOptions {
             unmaskedViewClasses: (dictionary["unmaskedViewClasses"] as? NSArray)?.compactMap({ element in
                 NSClassFromString((element as? String) ?? "")
             }) ?? DefaultValues.unmaskedViewClasses,
-            excludedViewClasses: (dictionary["excludedViewClasses"] as? [String]).map { Set($0) } ?? (dictionary["viewClassesExcludedFromSubtreeTraversal"] as? [String]).map { Set($0) } ?? DefaultValues.excludedViewClasses,
+            excludedViewClasses: (dictionary["excludedViewClasses"] as? [String]).map { Set($0) } ?? DefaultValues.excludedViewClasses,
             includedViewClasses: (dictionary["includedViewClasses"] as? [String]).map { Set($0) } ?? DefaultValues.includedViewClasses
         )
     }

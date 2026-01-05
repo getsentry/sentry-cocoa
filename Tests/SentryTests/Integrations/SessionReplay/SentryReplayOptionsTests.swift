@@ -229,6 +229,7 @@ class SentryReplayOptionsTests: XCTestCase {
             "maskedViewClasses": ["NSString"],
             "unmaskedViewClasses": ["NSNumber"],
             "excludedViewClasses": ["MyCustomView", "AnotherView"],
+            "includedViewClasses": ["CameraUI.ChromeSwiftUIView"],
             "quality": 0,
             "frameRate": 2,
             "errorReplayDuration": 300,
@@ -255,6 +256,9 @@ class SentryReplayOptionsTests: XCTestCase {
         XCTAssertTrue(options.excludedViewClasses.contains("MyCustomView"))
         XCTAssertTrue(options.excludedViewClasses.contains("AnotherView"))
         XCTAssertEqual(options.excludedViewClasses.count, 2)
+
+        XCTAssertTrue(options.includedViewClasses.contains("CameraUI.ChromeSwiftUIView"))
+        XCTAssertEqual(options.includedViewClasses.count, 1)
 
         XCTAssertEqual(options.quality, .low)
         XCTAssertEqual(options.frameRate, 2)
@@ -881,17 +885,6 @@ class SentryReplayOptionsTests: XCTestCase {
         XCTAssertTrue(options.excludedViewClasses.contains("MyCustomView2"))
         XCTAssertTrue(options.excludedViewClasses.contains("MyCustomView3"))
         XCTAssertEqual(options.excludedViewClasses.count, 3)
-    }
-    
-    func testInitFromDict_excludedViewClasses_whenLegacyKey_shouldSetValue() {
-        // -- Act --
-        let options = SentryReplayOptions(dictionary: [
-            "viewClassesExcludedFromSubtreeTraversal": ["MyCustomView"]
-        ])
-        
-        // -- Assert --
-        XCTAssertTrue(options.excludedViewClasses.contains("MyCustomView"))
-        XCTAssertEqual(options.excludedViewClasses.count, 1)
     }
     
     func testInitFromDict_excludedViewClasses_whenInvalidValue_shouldUseDefaultValue() {
