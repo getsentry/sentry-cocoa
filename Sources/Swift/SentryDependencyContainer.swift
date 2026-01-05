@@ -1,12 +1,12 @@
 @_implementationOnly import _SentryPrivate
-#if (os(iOS) || os(tvOS) || (swift(>=5.9) && os(visionOS))) && !SENTRY_NO_UIKIT
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
 import UIKit
 #endif
 
 // Declare the application provider block at the top level to prevent capturing 'self'
 // from the dependency container, which would create cyclic dependencies and memory leaks.
 let defaultApplicationProvider: () -> SentryApplication? = {
-#if (os(iOS) || os(tvOS) || (swift(>=5.9) && os(visionOS))) && !SENTRY_NO_UIKIT
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
     return UIApplication.shared
 #elseif os(macOS)
     return NSApplication.shared
@@ -22,7 +22,7 @@ let SENTRY_AUTO_TRANSACTION_MAX_DURATION = 500.0
 extension SentryFileManager: SentryFileManagerProtocol { }
 @_spi(Private) extension SentryANRTrackerV1: SentryANRTrackerInternalProtocol { }
 
-#if (os(iOS) || os(tvOS) || (swift(>=5.9) && os(visionOS))) && !SENTRY_NO_UIKIT
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
 @_spi(Private) extension SentryANRTrackerV2: SentryANRTrackerInternalProtocol { }
 
 @_spi(Private) extension SentryDelayedFramesTracker: SentryDelayedFramesTrackerWrapper {
@@ -78,7 +78,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     @objc public static func reset() {
         instanceLock.synchronized {
             instance.reachability.removeAllObservers()
-#if (os(iOS) || os(tvOS) || (swift(>=5.9) && os(visionOS))) && !SENTRY_NO_UIKIT
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
             instance._framesTracker?.stop()
 #endif
             instance = SentryDependencyContainer()
@@ -123,6 +123,9 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     @objc public var sessionReplayEnvironmentChecker: SentrySessionReplayEnvironmentCheckerProvider = Dependencies.sessionReplayEnvironmentChecker
     @objc public var debugImageProvider = Dependencies.debugImageProvider
     @objc public var objcRuntimeWrapper: SentryObjCRuntimeWrapper = SentryDefaultObjCRuntimeWrapper()
+    var extensionDetector: SentryExtensionDetector = {
+        SentryExtensionDetector(infoPlistWrapper: Dependencies.infoPlistWrapper)
+    }()
     
 #if os(iOS) && !SENTRY_NO_UIKIT
     @objc public var extraContextProvider = SentryExtraContextProvider(crashWrapper: Dependencies.crashWrapper, processInfoWrapper: Dependencies.processInfoWrapper, deviceWrapper: Dependencies.uiDeviceWrapper)
@@ -130,7 +133,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     @objc public var extraContextProvider = SentryExtraContextProvider(crashWrapper: Dependencies.crashWrapper, processInfoWrapper: Dependencies.processInfoWrapper)
 #endif
 
-#if (os(iOS) || os(tvOS) || (swift(>=5.9) && os(visionOS))) && !SENTRY_NO_UIKIT
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
     @objc public var uiDeviceWrapper: SentryUIDeviceWrapper = Dependencies.uiDeviceWrapper
     @objc public var threadsafeApplication = SentryThreadsafeApplication(applicationProvider: defaultApplicationProvider, notificationCenter: Dependencies.notificationCenterWrapper)
     @objc public var swizzleWrapper = SentrySwizzleWrapper()
@@ -227,7 +230,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     private var anrTracker: SentryANRTracker?
     @objc public func getANRTracker(_ timeout: TimeInterval) -> SentryANRTracker {
         getLazyVar(\.anrTracker) {
-        #if (os(iOS) || os(tvOS) || (swift(>=5.9) && os(visionOS))) && !SENTRY_NO_UIKIT
+        #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
             SentryANRTracker(helper: SentryANRTrackerV2(timeoutInterval: timeout))
         #else
             SentryANRTracker(helper: SentryANRTrackerV1(timeoutInterval: timeout))
@@ -250,7 +253,7 @@ protocol FramesTrackingProvider {
 extension SentryDependencyContainer: FramesTrackingProvider { }
 #endif
 
-#if ((os(iOS) || os(tvOS) || (swift(>=5.9) && os(visionOS))) && !SENTRY_NO_UIKIT) || os(macOS)
+#if ((os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT) || os(macOS)
 extension SentryDependencyContainer: NotificationCenterProvider { }
 #endif
 
@@ -261,3 +264,38 @@ protocol ScreenshotIntegrationProvider {
 
 extension SentryDependencyContainer: ScreenshotIntegrationProvider { }
 #endif
+
+protocol DispatchQueueWrapperProvider {
+    var dispatchQueueWrapper: SentryDispatchQueueWrapper { get }
+}
+extension SentryDependencyContainer: DispatchQueueWrapperProvider { }
+
+protocol CrashWrapperProvider {
+    var crashWrapper: SentryCrashWrapper { get }
+}
+extension SentryDependencyContainer: CrashWrapperProvider { }
+
+protocol ExtensionDetectorProvider {
+    var extensionDetector: SentryExtensionDetector { get }
+}
+extension SentryDependencyContainer: ExtensionDetectorProvider { }
+
+protocol DebugImageProvider {
+    var debugImageProvider: SentryDebugImageProvider { get }
+}
+extension SentryDependencyContainer: DebugImageProvider { }
+
+protocol ThreadInspectorProvider {
+    var threadInspector: SentryThreadInspector { get }
+}
+extension SentryDependencyContainer: ThreadInspectorProvider { }
+
+protocol FileManagerProvider {
+    var fileManager: SentryFileManager? { get }
+}
+extension SentryDependencyContainer: FileManagerProvider { }
+
+protocol ANRTrackerBuilder {
+    func getANRTracker(_ interval: TimeInterval) -> SentryANRTracker
+}
+extension SentryDependencyContainer: ANRTrackerBuilder { }

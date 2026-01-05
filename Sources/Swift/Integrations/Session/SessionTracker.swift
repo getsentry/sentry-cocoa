@@ -1,6 +1,6 @@
 @_implementationOnly import _SentryPrivate
 
-#if (os(iOS) || os(tvOS) || (swift(>=5.9) && os(visionOS))) && !SENTRY_NO_UIKIT
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
 import UIKit
 typealias Application = UIApplication
 #elseif (os(macOS) || targetEnvironment(macCatalyst)) && !SENTRY_NO_UIKIT
@@ -50,7 +50,7 @@ final class SessionTracker {
         // WillTerminate is called no matter if started from the background or launched into the
         // foreground.
 
-    #if ((os(iOS) || os(tvOS) || (swift(>=5.9) && os(visionOS))) && !SENTRY_NO_UIKIT) || ((os(macOS) || targetEnvironment(macCatalyst)) && !SENTRY_NO_UIKIT)
+    #if ((os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT) || ((os(macOS) || targetEnvironment(macCatalyst)) && !SENTRY_NO_UIKIT)
         
         // Call before subscribing to the notifications to avoid that didBecomeActive gets called before
         // ending the cached session.
@@ -84,7 +84,7 @@ final class SessionTracker {
     }
     
     func removeObservers() {
-#if ((os(iOS) || os(tvOS) || (swift(>=5.9) && os(visionOS))) && !SENTRY_NO_UIKIT) || ((os(macOS) || targetEnvironment(macCatalyst)) && !SENTRY_NO_UIKIT)
+#if ((os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT) || ((os(macOS) || targetEnvironment(macCatalyst)) && !SENTRY_NO_UIKIT)
         // Remove the observers with the most specific detail possible, see
         // https://developer.apple.com/documentation/foundation/nsnotificationcenter/1413994-removeobserver
         notificationCenter.removeObserver(self, name: Application.didBecomeActiveNotification, object: nil)
@@ -173,7 +173,7 @@ final class SessionTracker {
             self.lastInForeground = nil
         }
 
-    #if !(os(watchOS) || os(tvOS) || (swift(>=5.9) && os(visionOS)))
+    #if !(os(watchOS) || os(tvOS) || os(visionOS))
         if SentryDependencyContainerSwiftHelper.hasProfilingOptions() {
             sentry_reevaluateSessionSampleRate()
         }

@@ -4,14 +4,14 @@ import XCTest
 
 private struct TestScope: BatcherScope {
     var replayId: String?
-    var propagationContextTraceIdString: String
+    var propagationContextTraceId: SentryId
     var span: Span?
     var userObject: User?
     var contextStore: [String: [String: Any]] = [:]
     var attributes: [String: Any] = [:]
     
-    init(propagationContextTraceIdString: String = SentryId().sentryIdString) {
-        self.propagationContextTraceIdString = propagationContextTraceIdString
+    init(propagationContextTraceId: SentryId = SentryId()) {
+        self.propagationContextTraceId = propagationContextTraceId
     }
 
     func getContextForKey(_ key: String) -> [String: Any]? {
