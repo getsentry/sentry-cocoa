@@ -678,9 +678,16 @@ NS_ASSUME_NONNULL_BEGIN
     return event;
 }
 
-- (void)addObserver:(id<SentryScopeObserver>)observer
+- (void)addScopeObserver:(id)observer
 {
-    [self.observers addObject:observer];
+    // Validate if the observer conforms because the API doesn't require
+    // observers to conform anymore due to the protocol being written in Swift
+    // but protocol forwarded in ObjC
+    // Additionaly, conformsToProtocol:@protocol(SentryScopeObserver) seems to fail
+    // here, so we use `func setTraceContext(_ traceContext: [String: Any]?)`
+    if ([observer respondsToSelector:@selector(setTraceContext:)]) {
+        [self.observers addObject:observer];
+    }
 }
 
 - (NSDictionary *)buildTraceContext:(nullable id<SentrySpan>)span
