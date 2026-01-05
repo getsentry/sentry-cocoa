@@ -123,6 +123,9 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     @objc public var sessionReplayEnvironmentChecker: SentrySessionReplayEnvironmentCheckerProvider = Dependencies.sessionReplayEnvironmentChecker
     @objc public var debugImageProvider = Dependencies.debugImageProvider
     @objc public var objcRuntimeWrapper: SentryObjCRuntimeWrapper = SentryDefaultObjCRuntimeWrapper()
+    var extensionDetector: SentryExtensionDetector = {
+        SentryExtensionDetector(infoPlistWrapper: Dependencies.infoPlistWrapper)
+    }()
     
 #if os(iOS) && !SENTRY_NO_UIKIT
     @objc public var extraContextProvider = SentryExtraContextProvider(crashWrapper: Dependencies.crashWrapper, processInfoWrapper: Dependencies.processInfoWrapper, deviceWrapper: Dependencies.uiDeviceWrapper)
@@ -253,3 +256,38 @@ protocol ScreenshotIntegrationProvider {
 
 extension SentryDependencyContainer: ScreenshotIntegrationProvider { }
 #endif
+
+protocol DispatchQueueWrapperProvider {
+    var dispatchQueueWrapper: SentryDispatchQueueWrapper { get }
+}
+extension SentryDependencyContainer: DispatchQueueWrapperProvider { }
+
+protocol CrashWrapperProvider {
+    var crashWrapper: SentryCrashWrapper { get }
+}
+extension SentryDependencyContainer: CrashWrapperProvider { }
+
+protocol ExtensionDetectorProvider {
+    var extensionDetector: SentryExtensionDetector { get }
+}
+extension SentryDependencyContainer: ExtensionDetectorProvider { }
+
+protocol DebugImageProvider {
+    var debugImageProvider: SentryDebugImageProvider { get }
+}
+extension SentryDependencyContainer: DebugImageProvider { }
+
+protocol ThreadInspectorProvider {
+    var threadInspector: SentryThreadInspector { get }
+}
+extension SentryDependencyContainer: ThreadInspectorProvider { }
+
+protocol FileManagerProvider {
+    var fileManager: SentryFileManager? { get }
+}
+extension SentryDependencyContainer: FileManagerProvider { }
+
+protocol ANRTrackerBuilder {
+    func getANRTracker(_ interval: TimeInterval) -> SentryANRTracker
+}
+extension SentryDependencyContainer: ANRTrackerBuilder { }

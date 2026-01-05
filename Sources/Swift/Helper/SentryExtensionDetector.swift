@@ -1,8 +1,15 @@
 import Foundation
 
-@_spi(Private) public final class SentryExtensionDetector: NSObject {
+/// Detects if the current process is running in any extension where app hang tracking should be disabled.
+extension String {
+    var isDisabledExtensionPointIdentifier: Bool {
+        return SentryExtensionDetector.disabledAppHangTypes.contains { $0.identifier == self }
+    }
+}
+
+final class SentryExtensionDetector: NSObject {
     /// All extension types where app hang tracking should be disabled
-    private static var disabledAppHangTypes: [SentryExtensionType] {
+    fileprivate static var disabledAppHangTypes: [SentryExtensionType] {
         return [
             .widget,
             .intent,
@@ -18,16 +25,8 @@ import Foundation
         super.init()
     }
     
-    /// Detects if the current process is running in any extension where app hang tracking should be disabled.
-    @objc public func shouldDisableAppHangTracking() -> Bool {
-        guard let extensionPointIdentifier = getExtensionPointIdentifier() else {
-            return false
-        }
-        return Self.disabledAppHangTypes.contains { $0.identifier == extensionPointIdentifier }
-    }
-    
     /// Returns the NSExtensionPointIdentifier from the Bundle's Info.plist, if present.
-    @objc public func getExtensionPointIdentifier() -> String? {
+    func getExtensionPointIdentifier() -> String? {
         do {
             let extensionDict = try infoPlistWrapper.getAppValueDictionary(
                 for: SentryInfoPlistKey.extension.rawValue
