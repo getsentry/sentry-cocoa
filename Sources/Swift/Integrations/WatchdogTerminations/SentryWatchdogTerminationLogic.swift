@@ -1,8 +1,7 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst) && !SENTRY_NO_UIKIT
-
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
 @_spi(Private) @objc
 public final class SentryWatchdogTerminationLogic: NSObject {
 
@@ -24,6 +23,7 @@ public final class SentryWatchdogTerminationLogic: NSObject {
         }
 
         guard let previousAppState = appStateManager.loadPreviousAppState() else {
+            // If there is no previous app state, we can't do anything.
             return false
         }
 
@@ -99,5 +99,4 @@ public final class SentryWatchdogTerminationLogic: NSObject {
         return true
     }
 }
-
-#endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#endif

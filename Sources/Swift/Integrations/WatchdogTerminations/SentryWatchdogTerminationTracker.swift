@@ -1,8 +1,13 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
+/**
+ * Detect watchdog terminations based on heuristics described in a blog post:
+ * https://engineering.fb.com/2015/08/24/ios/reducing-fooms-in-the-facebook-ios-app/ If a watchdog
+ * termination is detected, the SDK sends it as crash event. Only works for iOS, tvOS and
+ * macCatalyst.
+ */
 @_spi(Private) @objc public
 final class SentryWatchdogTerminationTracker: NSObject {
     
@@ -103,5 +108,4 @@ final class SentryWatchdogTerminationTracker: NSObject {
         appStateManager.stop()
     }
 }
-
-#endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#endif
