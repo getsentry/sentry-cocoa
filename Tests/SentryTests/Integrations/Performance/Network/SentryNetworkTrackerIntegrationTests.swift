@@ -1,4 +1,4 @@
-@testable import Sentry
+@_spi(Private) @testable import Sentry
 @_spi(Private) import SentryTestUtils
 import XCTest
 
@@ -76,14 +76,14 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
         options.enableNetworkBreadcrumbs = false
         options.enableCaptureFailedRequests = false
                 
-        assertRemovedIntegration(options)
+        assertIntegrationNotInstalled(options)
     }
     
     func test_SwizzingDisabled_RemovesEnabledIntegration() {
         let options = Options()
         options.enableSwizzling = false
         
-        assertRemovedIntegration(options)
+        assertIntegrationNotInstalled(options)
     }
     
     func testBreadcrumbDisabled_WhenSwizzlingDisabled() {
@@ -210,11 +210,11 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
         return try XCTUnwrap(SentrySDK.startTransaction(name: "Test", operation: "test", bindToScope: true) as? SentryTracer)
     }
     
-    private func assertRemovedIntegration(_ options: Options) {
-        let sut = SentryNetworkTrackingIntegration()
-        let result = sut.install(with: options)
-        
-        XCTAssertFalse(result)
+    private func assertIntegrationNotInstalled(_ options: Options) {
+        let dependencies = SentryDependencyContainer.sharedInstance()
+        let sut = SentryNetworkTrackingIntegration(with: options, dependencies: dependencies)
+
+        XCTAssertNil(sut)
     }
     
     private func assertNetworkError(_ error: Error?) {

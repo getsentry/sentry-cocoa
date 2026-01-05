@@ -13,7 +13,6 @@
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"
 #import "SentryMeta.h"
-#import "SentryNetworkTrackingIntegration.h"
 #import "SentryProfilingConditionals.h"
 #import "SentryReplayApi.h"
 #import "SentrySamplerDecision.h"
@@ -519,8 +518,7 @@ static NSDate *_Nullable startTimestamp = nil;
         [SentryWatchdogTerminationTrackingIntegration class],
 #endif // SENTRY_HAS_UIKIT
         [SentryANRTrackingIntegration class], [SentryAutoBreadcrumbTrackingIntegration class],
-        [SentryCoreDataTrackingIntegration class], [SentryFileIOTrackingIntegration class],
-        [SentryNetworkTrackingIntegration class], nil];
+        [SentryCoreDataTrackingIntegration class], [SentryFileIOTrackingIntegration class], nil];
 
     return defaultIntegrations;
 }
