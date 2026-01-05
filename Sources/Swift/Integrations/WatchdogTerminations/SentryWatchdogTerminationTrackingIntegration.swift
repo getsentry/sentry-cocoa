@@ -3,18 +3,7 @@ import Foundation
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 
-protocol WatchdogTerminationTrackingProvider {
-    var processInfoWrapper: SentryProcessInfoSource { get }
-    var dispatchFactory: SentryDispatchFactory { get }
-    var fileManager: SentryFileManager? { get }
-    var appStateManager: SentryAppStateManager { get }
-    var crashWrapper: SentryCrashWrapper { get }
-    var scopePersistentStore: SentryScopePersistentStore? { get }
-    func getANRTracker(_ interval: TimeInterval) -> SentryANRTracker
-    func getWatchdogTerminationScopeObserverWithOptions(_ options: Options) -> SentryScopeObserver
-}
-
-extension SentryDependencyContainer: WatchdogTerminationTrackingProvider {}
+typealias WatchdogTerminationTrackingProvider = FileManagerProvider & ANRTrackerBuilder & CrashWrapperProvider & ProcessInfoProvider & DispatchFactoryProvider & AppStateManagerProvider & ScopePersistentStoreProvider & WatchdogTerminationScopeObserverBuilder
 
 final class SentryWatchdogTerminationTrackingIntegration<Dependencies: WatchdogTerminationTrackingProvider>: NSObject, SwiftIntegration, SentryANRTrackerDelegate {
 

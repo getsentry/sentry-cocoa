@@ -291,3 +291,28 @@ protocol ANRTrackerBuilder {
     func getANRTracker(_ interval: TimeInterval) -> SentryANRTracker
 }
 extension SentryDependencyContainer: ANRTrackerBuilder { }
+
+protocol ProcessInfoProvider {
+    var processInfoWrapper: SentryProcessInfoSource { get }
+}
+extension SentryDependencyContainer: ProcessInfoProvider { }
+
+protocol DispatchFactoryProvider {
+    var dispatchFactory: SentryDispatchFactory { get }
+}
+extension SentryDependencyContainer: DispatchFactoryProvider { }
+
+protocol AppStateManagerProvider {
+    var appStateManager: SentryAppStateManager { get }
+}
+extension SentryDependencyContainer: AppStateManagerProvider { }
+
+protocol ScopePersistentStoreProvider {
+    var scopePersistentStore: SentryScopePersistentStore? { get }
+}
+extension SentryDependencyContainer: ScopePersistentStoreProvider { }
+
+protocol WatchdogTerminationScopeObserverBuilder {
+    func getWatchdogTerminationScopeObserverWithOptions(_ options: Options) -> SentryScopeObserver
+}
+extension SentryDependencyContainer: WatchdogTerminationScopeObserverBuilder { }
