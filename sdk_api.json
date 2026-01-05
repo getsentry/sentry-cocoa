@@ -42573,12 +42573,9 @@
             "mangledName": "$s6Sentry0A25UserFeedbackConfigurationC18configureDarkThemeyAA0abcgD0CcSgvp",
             "moduleName": "Sentry",
             "declAttributes": [
-              "HasInitialValue",
               "Final",
-              "ObjC",
-              "HasStorage"
+              "ObjC"
             ],
-            "hasStorage": true,
             "accessors": [
               {
                 "kind": "Accessor",
@@ -42623,7 +42620,6 @@
                 "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackConfiguration(im)configureDarkTheme",
                 "mangledName": "$s6Sentry0A25UserFeedbackConfigurationC18configureDarkThemeyAA0abcgD0CcSgvg",
                 "moduleName": "Sentry",
-                "implicit": true,
                 "declAttributes": [
                   "Final",
                   "ObjC"
@@ -42678,9 +42674,11 @@
                 "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackConfiguration(im)setConfigureDarkTheme:",
                 "mangledName": "$s6Sentry0A25UserFeedbackConfigurationC18configureDarkThemeyAA0abcgD0CcSgvs",
                 "moduleName": "Sentry",
-                "implicit": true,
+                "deprecated": true,
+                "objc_name": "setConfigureDarkTheme:",
                 "declAttributes": [
                   "Final",
+                  "Available",
                   "ObjC"
                 ],
                 "accessorKind": "set"
