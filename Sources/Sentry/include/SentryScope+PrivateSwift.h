@@ -18,6 +18,9 @@ static NSString *const SENTRY_CONTEXT_APP_KEY = @"app";
 
 - (NSDictionary<NSString *, id> *_Nullable)getContextForKey:(NSString *)key;
 
+// TODO: Argument should be a SentryScopeObserver
+- (void)addScopeObserver:(id)observer NS_SWIFT_NAME(add(_:));
+
 @end
 
 NS_ASSUME_NONNULL_END

@@ -722,8 +722,8 @@ class SentryScopeSwiftTests: XCTestCase {
     
     func testModifyScopeFromDifferentThreads() {
         let scope = Scope()
-        scope.add(SentryCrashScopeHelper.getScopeObserver(withMaxBreacdrumb: 100))
-        
+        scope.add(SentryCrashScopeHelper.getScopeObserver(withMaxBreacdrumb: 100) as Any)
+
         testConcurrentModifications(asyncWorkItems: 10, writeLoopCount: 1_000, writeWork: { i in
             let user = User()
             user.name = "name \(i)"
