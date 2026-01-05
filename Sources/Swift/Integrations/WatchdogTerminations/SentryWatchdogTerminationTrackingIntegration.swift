@@ -114,6 +114,12 @@ final class SentryWatchdogTerminationTrackingIntegration<Dependencies: WatchdogT
             appState.isANROngoing = false
         }
     }
+    
+    #if SENTRY_TEST || SENTRY_TEST_CI
+    func getTracker() -> SentryWatchdogTerminationTracker {
+        tracker
+    }
+    #endif
 }
 
 #endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)

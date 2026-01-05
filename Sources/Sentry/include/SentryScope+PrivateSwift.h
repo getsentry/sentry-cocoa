@@ -18,7 +18,11 @@ static NSString *const SENTRY_CONTEXT_APP_KEY = @"app";
 
 - (NSDictionary<NSString *, id> *_Nullable)getContextForKey:(NSString *)key;
 
-// TODO: Argument should be a SentryScopeObserver
+/**
+ * Adds a scope observer. The observer will be notified of scope changes.
+ * The observer should conform to SentryScopeObserver protocol, but the type is id
+ * because Swift-defined protocols don't work correctly with Objective-C's id<Protocol> syntax.
+ */
 - (void)addScopeObserver:(id)observer NS_SWIFT_NAME(add(_:));
 
 @end
