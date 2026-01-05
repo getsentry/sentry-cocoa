@@ -17,12 +17,12 @@ final class SentryWatchdogTerminationTracker: NSObject {
     private let fileManager: SentryFileManager
     private let scopePersistentStore: SentryScopePersistentStore
 
-    init(options: Options,
-         watchdogTerminationLogic: SentryWatchdogTerminationLogic,
-         appStateManager: SentryAppStateManager,
-         dispatchQueueWrapper: SentryDispatchQueueWrapper,
-         fileManager: SentryFileManager,
-         scopePersistentStore: SentryScopePersistentStore) {
+    @objc public init(options: Options,
+                      watchdogTerminationLogic: SentryWatchdogTerminationLogic,
+                      appStateManager: SentryAppStateManager,
+                      dispatchQueueWrapper: SentryDispatchQueueWrapper,
+                      fileManager: SentryFileManager,
+                      scopePersistentStore: SentryScopePersistentStore) {
         self.options = options
         self.watchdogTerminationLogic = watchdogTerminationLogic
         self.appStateManager = appStateManager
@@ -31,7 +31,7 @@ final class SentryWatchdogTerminationTracker: NSObject {
         self.scopePersistentStore = scopePersistentStore
     }
 
-    func start() {
+    @objc public func start() {
         appStateManager.start()
 
         dispatchQueue.dispatchAsync {
@@ -99,7 +99,7 @@ final class SentryWatchdogTerminationTracker: NSObject {
         event.context = context
     }
 
-    func stop() {
+    @objc public func stop() {
         appStateManager.stop()
     }
 }
