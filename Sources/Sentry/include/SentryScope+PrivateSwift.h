@@ -9,9 +9,7 @@ static NSString *const SENTRY_CONTEXT_APP_KEY = @"app";
 // Added to only expose a limited sub-set of internal API needed in the Swift layer.
 @interface SentryScope ()
 
-// This is a workaround to make the traceId available in the Swift layer.
-// Can't expose the SentryId directly for some reason.
-@property (nonatomic, readonly) NSString *propagationContextTraceIdString;
+@property (nonatomic, readonly) SentryId *propagationContextTraceId;
 
 /**
  * Set global user -> thus will be sent with every event

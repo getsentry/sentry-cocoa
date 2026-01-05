@@ -138,7 +138,6 @@
 #import "SentryPerformanceTrackingIntegration.h"
 #import "SentryPredicateDescriptor.h"
 #import "SentryProfilingConditionals.h"
-#import "SentryPropagationContext.h"
 #import "SentryQueueableRequestManager.h"
 #import "SentrySDK+Private.h"
 #import "SentrySDKInternal+Tests.h"

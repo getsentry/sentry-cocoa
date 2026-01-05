@@ -353,7 +353,7 @@ final class SentryLogBatcherTests: XCTestCase {
     func testAddLog_SetsTraceIdFromPropagationContext() throws {
         // -- Arrange --
         let expectedTraceId = SentryId()
-        let propagationContext = SentryPropagationContext(trace: expectedTraceId, spanId: SpanId())
+        let propagationContext = SentryPropagationContext(traceId: expectedTraceId, spanId: SpanId())
         scope.propagationContext = propagationContext
         let sut = getSut()
         let log = createTestLog(body: "Test log message with trace ID")
