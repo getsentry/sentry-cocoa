@@ -34,7 +34,6 @@
 #import "SentryTransportFactory.h"
 #import "SentryUseNSExceptionCallstackWrapper.h"
 #import "SentryUser.h"
-#import "SentryWatchdogTerminationTracker.h"
 
 #if SENTRY_HAS_UIKIT
 #    import <UIKit/UIKit.h>
@@ -943,7 +942,8 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
     SentryException *exception = event.exceptions[0];
     return exception.mechanism != nil &&
-        [exception.mechanism.type isEqualToString:SentryWatchdogTerminationMechanismType];
+        [exception.mechanism.type isEqualToString:SentryWatchdogTerminationTracker
+                                                      .SentryWatchdogTerminationMechanismType];
 }
 
 - (void)applyCultureContextToEvent:(SentryEvent *)event
