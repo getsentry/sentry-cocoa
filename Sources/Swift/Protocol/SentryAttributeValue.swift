@@ -1,3 +1,14 @@
+internal enum SentryAttributeType: String {
+    case string = "string"
+    case boolean = "boolean"
+    case integer = "integer"
+    case double = "double"
+    case stringArray = "string[]"
+    case booleanArray = "boolean[]"
+    case integerArray = "integer[]"
+    case doubleArray = "double[]"
+}
+
 public enum SentryAttributeValue: Equatable, Hashable {
     case string(String)
     case boolean(Bool)
@@ -11,21 +22,21 @@ public enum SentryAttributeValue: Equatable, Hashable {
     var type: String {
         switch self {
         case .string:
-            return "string"
+            return SentryAttributeType.string.rawValue
         case .boolean:
-            return "boolean"
+            return SentryAttributeType.boolean.rawValue
         case .integer:
-            return "integer"
+            return SentryAttributeType.integer.rawValue
         case .double:
-            return "double"
+            return SentryAttributeType.double.rawValue
         case .stringArray:
-            return "string[]"
+            return SentryAttributeType.stringArray.rawValue
         case .booleanArray:
-            return "boolean[]"
+            return SentryAttributeType.booleanArray.rawValue
         case .integerArray:
-            return "integer[]"
+            return SentryAttributeType.integerArray.rawValue
         case .doubleArray:
-            return "double[]"
+            return SentryAttributeType.doubleArray.rawValue
         }
     }
 }
@@ -97,10 +108,10 @@ extension SentryAttributeValue {
             return val
         }
         if let val = value as? SentryAttribute {
-            return val.asAttributeValue
+            return val.asSentryAttributeValue
         }
         if let val = value as? SentryAttributeValuable {
-            return val.asAttributeValue
+            return val.asSentryAttributeValue
         }
         return .string(String(describing: value))
     }

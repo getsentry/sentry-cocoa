@@ -1,39 +1,39 @@
 public protocol SentryAttributeValuable {
-    var asAttributeValue: SentryAttributeValue { get }
+    var asSentryAttributeValue: SentryAttributeValue { get }
 }
 
 extension String: SentryAttributeValuable {
-    public var asAttributeValue: SentryAttributeValue {
+    public var asSentryAttributeValue: SentryAttributeValue {
         return .string(self)
     }
 }
 
 extension Bool: SentryAttributeValuable {
-    public var asAttributeValue: SentryAttributeValue {
+    public var asSentryAttributeValue: SentryAttributeValue {
         return .boolean(self)
     }
 }
 
 extension Int: SentryAttributeValuable {
-    public var asAttributeValue: SentryAttributeValue {
+    public var asSentryAttributeValue: SentryAttributeValue {
         return .integer(self)
     }
 }
 
 extension Double: SentryAttributeValuable {
-    public var asAttributeValue: SentryAttributeValue {
+    public var asSentryAttributeValue: SentryAttributeValue {
         return .double(self)
     }
 }
 
 extension Float: SentryAttributeValuable {
-    public var asAttributeValue: SentryAttributeValue {
+    public var asSentryAttributeValue: SentryAttributeValue {
         return .double(Double(self))
     }
 }
 
 extension Array: SentryAttributeValuable {
-    public var asAttributeValue: SentryAttributeValue {
+    public var asSentryAttributeValue: SentryAttributeValue {
         // Arrays can be heterogenous, therefore we must validate if all elements are of the same type.
         // We must assert the element type too, because due to Objective-C bridging we noticed invalid conversions
         // of empty String Arrays to Bool Arrays.
@@ -76,7 +76,7 @@ extension Array: SentryAttributeValuable {
         }
         // If the values are not homogenous we resolve the individual valuables to strings
         return .stringArray(values.map { value in
-            switch value.asAttributeValue {
+            switch value.asSentryAttributeValue {
             case .boolean(let value):
                 return String(describing: value)
             case .double(let value):
@@ -93,7 +93,7 @@ extension Array: SentryAttributeValuable {
 
     func castValuesToBooleanArray(_ values: [SentryAttributeValuable]) -> SentryAttributeValue? {
         let mappedBooleanValues = values.compactMap { element -> Bool? in
-            guard case .boolean(let value) = element.asAttributeValue else {
+            guard case .boolean(let value) = element.asSentryAttributeValue else {
                 return nil
             }
             return value
@@ -106,7 +106,7 @@ extension Array: SentryAttributeValuable {
 
     func castValuesToDoubleArray(_ values: [SentryAttributeValuable]) -> SentryAttributeValue? {
         let mappedDoubleValues = values.compactMap { element -> Double? in
-            guard case .double(let value) = element.asAttributeValue else {
+            guard case .double(let value) = element.asSentryAttributeValue else {
                 return nil
             }
             return value
@@ -119,7 +119,7 @@ extension Array: SentryAttributeValuable {
 
     func castValuesToIntegerArray(_ values: [SentryAttributeValuable]) -> SentryAttributeValue? {
         let mappedIntegerValues = values.compactMap { element -> Int? in
-            guard case .integer(let value) = element.asAttributeValue else {
+            guard case .integer(let value) = element.asSentryAttributeValue else {
                 return nil
             }
             return value
@@ -132,7 +132,7 @@ extension Array: SentryAttributeValuable {
 
     func castValuesToStringArray(_ values: [SentryAttributeValuable]) -> SentryAttributeValue? {
         let mappedStringValues = values.compactMap { element -> String? in
-            guard case .string(let value) = element.asAttributeValue else {
+            guard case .string(let value) = element.asSentryAttributeValue else {
                 return nil
             }
             return value

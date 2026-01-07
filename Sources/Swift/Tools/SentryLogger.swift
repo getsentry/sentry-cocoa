@@ -246,7 +246,7 @@ public final class SentryLogger: NSObject {
         // Convert provided attributes to SentryLog.Attribute format
         var logAttributes = attributes.mapValues { value in
             if let attributableValue = value as? SentryAttributeValuable {
-                return SentryLog.Attribute(value: attributableValue.asAttributeValue)
+                return SentryLog.Attribute(value: attributableValue.asSentryAttributeValue)
             }
             return SentryLog.Attribute(value: value)
         }
