@@ -14,6 +14,8 @@
 - Change default attributes of Logs to only include user attributes when `options.sendDefaultPii = true` (#7055)
 - Rename log attribute `sentry.trace.parent_span_id` to `span_id` (#7055)
 - Fixes stacktraces for MetricKit events (#6908)
+- Fix `raw_description` in `runtime` context on Mac Catalyst (#7082)
+- Deprecates `configureDarkTheme` for user feedback (#7114)
 
 ## 9.1.0
 
@@ -56,7 +58,7 @@ This changelog lists every breaking change. For a high-level overview and upgrad
 - Removes deprecated getStoreEndpoint (#5591)
 - Remove legacy profiling, the only supported profiling is now what was known as continuous V2 (#6386)
 - Removes deprecated useSpan function (#5591)
-- Makes app hang tracking V2 the default and removes the option to enable/disable it (#5615)
+- Makes app hang tracking V2 the default only on **iOS and tvOS** and removes the option to enable/disable it (#5615). macOS still uses V1.
 - Removes initializers for SentryTraceContext from the public API (#6662)
 - Removes `integrations` property from `SentryOptions` (#5749)
 - Removes `defaultIntegrations` function from `SentryOptions` (#6664)

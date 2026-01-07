@@ -319,7 +319,7 @@ final class SentryLogBatcherTests: XCTestCase {
         XCTAssertEqual(capturedLogs.count, 1)
         
         let capturedLog = try XCTUnwrap(capturedLogs.first)
-        let attributes = capturedLog.attributeMap
+        let attributes = capturedLog.attributes
         
         XCTAssertEqual(attributes["sentry.sdk.name"]?.value as? String, SentryMeta.sdkName)
         XCTAssertEqual(attributes["sentry.sdk.version"]?.value as? String, SentryMeta.versionString)
@@ -341,7 +341,7 @@ final class SentryLogBatcherTests: XCTestCase {
         // -- Assert --
         let capturedLogs = testDelegate.getCapturedLogs()
         let capturedLog = try XCTUnwrap(capturedLogs.first)
-        let attributes = capturedLog.attributeMap
+        let attributes = capturedLog.attributes
         
         XCTAssertNil(attributes["sentry.release"])
         XCTAssertNil(attributes["span_id"])
@@ -353,7 +353,7 @@ final class SentryLogBatcherTests: XCTestCase {
     func testAddLog_SetsTraceIdFromPropagationContext() throws {
         // -- Arrange --
         let expectedTraceId = SentryId()
-        let propagationContext = SentryPropagationContext(trace: expectedTraceId, spanId: SpanId())
+        let propagationContext = SentryPropagationContext(traceId: expectedTraceId, spanId: SpanId())
         scope.propagationContext = propagationContext
         let sut = getSut()
         let log = createTestLog(body: "Test log message with trace ID")
@@ -388,7 +388,7 @@ final class SentryLogBatcherTests: XCTestCase {
         // -- Assert --
         let capturedLogs = testDelegate.getCapturedLogs()
         let capturedLog = try XCTUnwrap(capturedLogs.first)
-        let attributes = capturedLog.attributeMap
+        let attributes = capturedLog.attributes
 
         XCTAssertEqual(attributes["user.id"]?.value as? String, "123")
         XCTAssertEqual(attributes["user.name"]?.value as? String, "test-name")
@@ -416,7 +416,7 @@ final class SentryLogBatcherTests: XCTestCase {
         // -- Assert --
         let capturedLogs = testDelegate.getCapturedLogs()
         let capturedLog = try XCTUnwrap(capturedLogs.first)
-        let attributes = capturedLog.attributeMap
+        let attributes = capturedLog.attributes
 
         // The installation id is used as a fallback for the user.id
         XCTAssertEqual(attributes["user.id"]?.value as? String, installationId)
@@ -442,7 +442,7 @@ final class SentryLogBatcherTests: XCTestCase {
         // -- Assert --
         let capturedLogs = testDelegate.getCapturedLogs()
         let capturedLog = try XCTUnwrap(capturedLogs.first)
-        let attributes = capturedLog.attributeMap
+        let attributes = capturedLog.attributes
         
         XCTAssertEqual(attributes["user.id"]?.value as? String, "123")
         XCTAssertNil(attributes["user.name"])
@@ -461,7 +461,7 @@ final class SentryLogBatcherTests: XCTestCase {
         // -- Assert --
         let capturedLogs = testDelegate.getCapturedLogs()
         let capturedLog = try XCTUnwrap(capturedLogs.first)
-        let attributes = capturedLog.attributeMap
+        let attributes = capturedLog.attributes
         
         XCTAssertNil(attributes["user.id"])
         XCTAssertNil(attributes["user.name"])
@@ -481,7 +481,7 @@ final class SentryLogBatcherTests: XCTestCase {
         // -- Assert --
         let capturedLogs = testDelegate.getCapturedLogs()
         let capturedLog = try XCTUnwrap(capturedLogs.first)
-        let attributes = capturedLog.attributeMap
+        let attributes = capturedLog.attributes
         
         XCTAssertNotNil(attributes["user.id"])
         XCTAssertEqual(attributes["user.id"]?.value as? String, SentryInstallation.id(withCacheDirectoryPath: options.cacheDirectoryPath))
@@ -505,7 +505,7 @@ final class SentryLogBatcherTests: XCTestCase {
         // -- Assert --
         let capturedLogs = testDelegate.getCapturedLogs()
         let capturedLog = try XCTUnwrap(capturedLogs.first)
-        let attributes = capturedLog.attributeMap
+        let attributes = capturedLog.attributes
         
         XCTAssertEqual(attributes["os.name"]?.value as? String, "iOS")
         XCTAssertEqual(attributes["os.version"]?.value as? String, "16.0.1")
@@ -530,7 +530,7 @@ final class SentryLogBatcherTests: XCTestCase {
         // -- Assert --
         let capturedLogs = testDelegate.getCapturedLogs()
         let capturedLog = try XCTUnwrap(capturedLogs.first)
-        let attributes = capturedLog.attributeMap
+        let attributes = capturedLog.attributes
         
         XCTAssertEqual(attributes["os.name"]?.value as? String, "macOS")
         XCTAssertNil(attributes["os.version"])
@@ -553,7 +553,7 @@ final class SentryLogBatcherTests: XCTestCase {
         // -- Assert --
         let capturedLogs = testDelegate.getCapturedLogs()
         let capturedLog = try XCTUnwrap(capturedLogs.first)
-        let attributes = capturedLog.attributeMap
+        let attributes = capturedLog.attributes
         
         XCTAssertNil(attributes["os.name"])
         XCTAssertNil(attributes["os.version"])
@@ -579,7 +579,7 @@ final class SentryLogBatcherTests: XCTestCase {
         // -- Assert --
         let capturedLogs = testDelegate.getCapturedLogs()
         let capturedLog = try XCTUnwrap(capturedLogs.first)
-        let attributes = capturedLog.attributeMap
+        let attributes = capturedLog.attributes
         
         XCTAssertEqual(attributes["string-attribute"]?.value as? String, "aString")
         XCTAssertEqual(attributes["string-attribute"]?.type, "string")
@@ -605,7 +605,7 @@ final class SentryLogBatcherTests: XCTestCase {
         // -- Assert --
         let capturedLogs = testDelegate.getCapturedLogs()
         let capturedLog = try XCTUnwrap(capturedLogs.first)
-        let attributes = capturedLog.attributeMap
+        let attributes = capturedLog.attributes
 
         XCTAssertEqual(attributes["log-attribute"]?.value as? Bool, false)
         XCTAssertEqual(attributes["log-attribute"]?.type, "boolean")
@@ -629,8 +629,8 @@ final class SentryLogBatcherTests: XCTestCase {
         // -- Assert --
         let capturedLogs = testDelegate.getCapturedLogs()
         let capturedLog = try XCTUnwrap(capturedLogs.first)
-        XCTAssertEqual(capturedLog.attributeMap["sentry.replay_id"]?.value as? String, replayId)
-        XCTAssertNil(capturedLog.attributeMap["sentry._internal.replay_is_buffering"])
+        XCTAssertEqual(capturedLog.attributes["sentry.replay_id"]?.value as? String, replayId)
+        XCTAssertNil(capturedLog.attributes["sentry._internal.replay_is_buffering"])
     }
     
     func testAddLog_ReplayAttributes_NoReplayId_NoAttributesAdded() throws {
@@ -646,8 +646,8 @@ final class SentryLogBatcherTests: XCTestCase {
         // -- Assert --
         let capturedLogs = testDelegate.getCapturedLogs()
         let capturedLog = try XCTUnwrap(capturedLogs.first)
-        XCTAssertNil(capturedLog.attributeMap["sentry.replay_id"])
-        XCTAssertNil(capturedLog.attributeMap["sentry._internal.replay_is_buffering"])
+        XCTAssertNil(capturedLog.attributes["sentry.replay_id"])
+        XCTAssertNil(capturedLog.attributes["sentry._internal.replay_is_buffering"])
     }
 #endif
 #endif
@@ -665,7 +665,7 @@ final class SentryLogBatcherTests: XCTestCase {
             
             log.body = "Modified by callback"
             log.level = .warn
-            log.attributeMap["callback_modified"] = SentryLog.Attribute(boolean: true)
+            log.attributes["callback_modified"] = SentryLog.Attribute(boolean: true)
             
             return log
         }
@@ -683,7 +683,7 @@ final class SentryLogBatcherTests: XCTestCase {
         let capturedLog = try XCTUnwrap(capturedLogs.first)
         XCTAssertEqual(capturedLog.level, .warn)
         XCTAssertEqual(capturedLog.body, "Modified by callback")
-        XCTAssertEqual(capturedLog.attributeMap["callback_modified"]?.value as? Bool, true)
+        XCTAssertEqual(capturedLog.attributes["callback_modified"]?.value as? Bool, true)
     }
     
     func testBeforeSendLog_ReturnsNil_LogNotCaptured() {
@@ -727,7 +727,7 @@ final class SentryLogBatcherTests: XCTestCase {
     func testBeforeSendLog_PreservesOriginalLogAttributes() throws {
         // -- Arrange --
         options.beforeSendLog = { log in
-            log.attributeMap["added_by_callback"] = SentryLog.Attribute(string: "callback_value")
+            log.attributes["added_by_callback"] = SentryLog.Attribute(string: "callback_value")
             return log
         }
         let sut = getSut()
@@ -745,7 +745,7 @@ final class SentryLogBatcherTests: XCTestCase {
         // -- Assert --
         let capturedLogs = testDelegate.getCapturedLogs()
         let capturedLog = try XCTUnwrap(capturedLogs.first)
-        let attributes = capturedLog.attributeMap
+        let attributes = capturedLog.attributes
         
         XCTAssertEqual(attributes["original_key"]?.value as? String, "original_value")
         XCTAssertEqual(attributes["user_id"]?.value as? Int, 12_345)

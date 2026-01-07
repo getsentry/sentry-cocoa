@@ -52,7 +52,7 @@ struct SentryMetricsApi<Dependencies: SentryMetricsApiDependencies>: SentryMetri
             value: value,
             unit: unit,
             attributes: attributes.mapValues { attributable in
-                attributable.asAttributeValue
+                attributable.asSentryAttributeValue
             }
         )
         integration.addMetric(metric, scope: dependencies.scope)

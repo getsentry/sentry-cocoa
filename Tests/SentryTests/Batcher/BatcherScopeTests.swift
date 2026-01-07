@@ -45,7 +45,7 @@ final class BatcherScopeTests: XCTestCase {
 
     private struct TestScope: BatcherScope {
         var replayId: String?
-        var propagationContextTraceIdString: String
+        var propagationContextTraceId: SentryId
         var span: Span?
         var userObject: User?
         var contextStore: [String: [String: Any]] = [:]
@@ -65,7 +65,7 @@ final class BatcherScopeTests: XCTestCase {
 
     func testApplyToItem_shouldAddSDKName() {
         // -- Arrange --
-        let scope = TestScope(propagationContextTraceIdString: SentryId().sentryIdString)
+        let scope = TestScope(propagationContextTraceId: SentryId())
         let config = createTestConfig()
         let metadata = createTestMetadata()
         var item = createTestItem()
@@ -79,7 +79,7 @@ final class BatcherScopeTests: XCTestCase {
 
     func testApplyToItem_shouldAddSDKVersion() {
         // -- Arrange --
-        let scope = TestScope(propagationContextTraceIdString: SentryId().sentryIdString)
+        let scope = TestScope(propagationContextTraceId: SentryId())
         let config = createTestConfig()
         let metadata = createTestMetadata()
         var item = createTestItem()
@@ -93,7 +93,7 @@ final class BatcherScopeTests: XCTestCase {
 
     func testApplyToItem_shouldAddEnvironment() {
         // -- Arrange --
-        let scope = TestScope(propagationContextTraceIdString: SentryId().sentryIdString)
+        let scope = TestScope(propagationContextTraceId: SentryId())
         let config = createTestConfig()
         let metadata = createTestMetadata(environment: "test-environment")
         var item = createTestItem()
@@ -107,7 +107,7 @@ final class BatcherScopeTests: XCTestCase {
 
     func testApplyToItem_withReleaseName_shouldAddRelease() {
         // -- Arrange --
-        let scope = TestScope(propagationContextTraceIdString: SentryId().sentryIdString)
+        let scope = TestScope(propagationContextTraceId: SentryId())
         let config = createTestConfig()
         let metadata = createTestMetadata(releaseName: "test-release-1.0.0")
         var item = createTestItem()
@@ -121,7 +121,7 @@ final class BatcherScopeTests: XCTestCase {
 
     func testApplyToItem_withoutReleaseName_shouldNotAddRelease() {
         // -- Arrange --
-        let scope = TestScope(propagationContextTraceIdString: SentryId().sentryIdString)
+        let scope = TestScope(propagationContextTraceId: SentryId())
         let config = createTestConfig()
         let metadata = createTestMetadata(releaseName: nil)
         var item = createTestItem()
@@ -138,7 +138,7 @@ final class BatcherScopeTests: XCTestCase {
         let spanId = SentryId()
         let span = TestSpan(spanId: spanId)
         let scope = TestScope(
-            propagationContextTraceIdString: SentryId().sentryIdString,
+            propagationContextTraceId: SentryId(),
             span: span
         )
         let config = createTestConfig()
@@ -154,7 +154,7 @@ final class BatcherScopeTests: XCTestCase {
 
     func testApplyToItem_withoutSpan_shouldNotAddParentSpanId() {
         // -- Arrange --
-        let scope = TestScope(propagationContextTraceIdString: SentryId().sentryIdString)
+        let scope = TestScope(propagationContextTraceId: SentryId())
         let config = createTestConfig()
         let metadata = createTestMetadata()
         var item = createTestItem()
@@ -170,7 +170,7 @@ final class BatcherScopeTests: XCTestCase {
 
     func testApplyToItem_withOSContext_shouldAddOSName() {
         // -- Arrange --
-        var scope = TestScope(propagationContextTraceIdString: SentryId().sentryIdString)
+        var scope = TestScope(propagationContextTraceId: SentryId())
         scope.setContext(value: ["name": "iOS", "version": "17.0"], key: "os")
         let config = createTestConfig()
         let metadata = createTestMetadata()
@@ -185,7 +185,7 @@ final class BatcherScopeTests: XCTestCase {
 
     func testApplyToItem_withOSContext_shouldAddOSVersion() {
         // -- Arrange --
-        var scope = TestScope(propagationContextTraceIdString: SentryId().sentryIdString)
+        var scope = TestScope(propagationContextTraceId: SentryId())
         scope.setContext(value: ["name": "iOS", "version": "17.0"], key: "os")
         let config = createTestConfig()
         let metadata = createTestMetadata()
@@ -200,7 +200,7 @@ final class BatcherScopeTests: XCTestCase {
 
     func testApplyToItem_withOSContextWithoutName_shouldNotAddOSName() {
         // -- Arrange --
-        var scope = TestScope(propagationContextTraceIdString: SentryId().sentryIdString)
+        var scope = TestScope(propagationContextTraceId: SentryId())
         scope.setContext(value: ["version": "17.0"], key: "os")
         let config = createTestConfig()
         let metadata = createTestMetadata()
@@ -215,7 +215,7 @@ final class BatcherScopeTests: XCTestCase {
 
     func testApplyToItem_withOSContextWithoutVersion_shouldNotAddOSVersion() {
         // -- Arrange --
-        var scope = TestScope(propagationContextTraceIdString: SentryId().sentryIdString)
+        var scope = TestScope(propagationContextTraceId: SentryId())
         scope.setContext(value: ["name": "iOS"], key: "os")
         let config = createTestConfig()
         let metadata = createTestMetadata()
@@ -230,7 +230,7 @@ final class BatcherScopeTests: XCTestCase {
 
     func testApplyToItem_withoutOSContext_shouldNotAddOSAttributes() {
         // -- Arrange --
-        let scope = TestScope(propagationContextTraceIdString: SentryId().sentryIdString)
+        let scope = TestScope(propagationContextTraceId: SentryId())
         let config = createTestConfig()
         let metadata = createTestMetadata()
         var item = createTestItem()
@@ -247,7 +247,7 @@ final class BatcherScopeTests: XCTestCase {
 
     func testApplyToItem_withDeviceContext_shouldAddDeviceBrand() {
         // -- Arrange --
-        var scope = TestScope(propagationContextTraceIdString: SentryId().sentryIdString)
+        var scope = TestScope(propagationContextTraceId: SentryId())
         scope.setContext(value: ["model": "iPhone15,2"], key: "device")
         let config = createTestConfig()
         let metadata = createTestMetadata()
@@ -262,7 +262,7 @@ final class BatcherScopeTests: XCTestCase {
 
     func testApplyToItem_withDeviceContext_shouldAddDeviceModel() {
         // -- Arrange --
-        var scope = TestScope(propagationContextTraceIdString: SentryId().sentryIdString)
+        var scope = TestScope(propagationContextTraceId: SentryId())
         scope.setContext(value: ["model": "iPhone15,2"], key: "device")
         let config = createTestConfig()
         let metadata = createTestMetadata()
@@ -277,7 +277,7 @@ final class BatcherScopeTests: XCTestCase {
 
     func testApplyToItem_withDeviceContext_shouldAddDeviceFamily() {
         // -- Arrange --
-        var scope = TestScope(propagationContextTraceIdString: SentryId().sentryIdString)
+        var scope = TestScope(propagationContextTraceId: SentryId())
         scope.setContext(value: ["family": "iPhone"], key: "device")
         let config = createTestConfig()
         let metadata = createTestMetadata()
@@ -292,7 +292,7 @@ final class BatcherScopeTests: XCTestCase {
 
     func testApplyToItem_withDeviceContextWithoutModel_shouldNotAddDeviceModel() {
         // -- Arrange --
-        var scope = TestScope(propagationContextTraceIdString: SentryId().sentryIdString)
+        var scope = TestScope(propagationContextTraceId: SentryId())
         scope.setContext(value: ["family": "iPhone"], key: "device")
         let config = createTestConfig()
         let metadata = createTestMetadata()
@@ -307,7 +307,7 @@ final class BatcherScopeTests: XCTestCase {
 
     func testApplyToItem_withDeviceContextWithoutFamily_shouldNotAddDeviceFamily() {
         // -- Arrange --
-        var scope = TestScope(propagationContextTraceIdString: SentryId().sentryIdString)
+        var scope = TestScope(propagationContextTraceId: SentryId())
         scope.setContext(value: ["model": "iPhone15,2"], key: "device")
         let config = createTestConfig()
         let metadata = createTestMetadata()
@@ -322,7 +322,7 @@ final class BatcherScopeTests: XCTestCase {
 
     func testApplyToItem_withoutDeviceContext_shouldNotAddDeviceAttributes() {
         // -- Arrange --
-        let scope = TestScope(propagationContextTraceIdString: SentryId().sentryIdString)
+        let scope = TestScope(propagationContextTraceId: SentryId())
         let config = createTestConfig()
         let metadata = createTestMetadata()
         var item = createTestItem()
@@ -342,7 +342,7 @@ final class BatcherScopeTests: XCTestCase {
         // -- Arrange --
         let user = User(userId: "user-123")
         let scope = TestScope(
-            propagationContextTraceIdString: SentryId().sentryIdString,
+            propagationContextTraceId: SentryId(),
             userObject: user
         )
         let config = createTestConfig()
@@ -361,7 +361,7 @@ final class BatcherScopeTests: XCTestCase {
         let user = User()
         user.name = "John Doe"
         let scope = TestScope(
-            propagationContextTraceIdString: SentryId().sentryIdString,
+            propagationContextTraceId: SentryId(),
             userObject: user
         )
         let config = createTestConfig()
@@ -380,7 +380,7 @@ final class BatcherScopeTests: XCTestCase {
         let user = User()
         user.email = "john@example.com"
         let scope = TestScope(
-            propagationContextTraceIdString: SentryId().sentryIdString,
+            propagationContextTraceId: SentryId(),
             userObject: user
         )
         let config = createTestConfig()
@@ -400,7 +400,7 @@ final class BatcherScopeTests: XCTestCase {
         user.name = "John Doe"
         user.email = "john@example.com"
         let scope = TestScope(
-            propagationContextTraceIdString: SentryId().sentryIdString,
+            propagationContextTraceId: SentryId(),
             userObject: user
         )
         let config = createTestConfig()
@@ -418,7 +418,7 @@ final class BatcherScopeTests: XCTestCase {
 
     func testApplyToItem_withoutUser_shouldNotAddUserAttributes() {
         // -- Arrange --
-        let scope = TestScope(propagationContextTraceIdString: SentryId().sentryIdString)
+        let scope = TestScope(propagationContextTraceId: SentryId())
         let config = createTestConfig()
         let metadata = createTestMetadata(installationId: nil)
         var item = createTestItem()
@@ -440,7 +440,7 @@ final class BatcherScopeTests: XCTestCase {
         // -- Arrange --
         let scope = TestScope(
             replayId: "replay-123",
-            propagationContextTraceIdString: SentryId().sentryIdString
+            propagationContextTraceId: SentryId()
         )
         let config = createTestConfig()
         let metadata = createTestMetadata()
@@ -455,7 +455,7 @@ final class BatcherScopeTests: XCTestCase {
 
     func testApplyToItem_withoutReplayId_shouldNotAddReplayId() {
         // -- Arrange --
-        let scope = TestScope(propagationContextTraceIdString: SentryId().sentryIdString)
+        let scope = TestScope(propagationContextTraceId: SentryId())
         let config = createTestConfig()
         let metadata = createTestMetadata()
         var item = createTestItem()
@@ -473,7 +473,7 @@ final class BatcherScopeTests: XCTestCase {
 
     func testApplyToItem_withScopeAttributes_shouldAddScopeAttributes() {
         // -- Arrange --
-        var scope = TestScope(propagationContextTraceIdString: SentryId().sentryIdString)
+        var scope = TestScope(propagationContextTraceId: SentryId())
         scope.attributes = ["custom.key": "custom.value", "custom.number": 42, "custom.bool": true]
         let config = createTestConfig()
         let metadata = createTestMetadata()
@@ -490,7 +490,7 @@ final class BatcherScopeTests: XCTestCase {
 
     func testApplyToItem_withScopeAttributes_whenItemHasExistingAttribute_shouldNotOverride() {
         // -- Arrange --
-        var scope = TestScope(propagationContextTraceIdString: SentryId().sentryIdString)
+        var scope = TestScope(propagationContextTraceId: SentryId())
         scope.attributes = ["custom.key": "scope.value"]
         let config = createTestConfig()
         let metadata = createTestMetadata()
@@ -509,7 +509,7 @@ final class BatcherScopeTests: XCTestCase {
 
     func testApplyToItem_withoutUserAndWithInstallationId_shouldAddInstallationIdAsUserId() {
         // -- Arrange --
-        let scope = TestScope(propagationContextTraceIdString: SentryId().sentryIdString)
+        let scope = TestScope(propagationContextTraceId: SentryId())
         let config = createTestConfig()
         let metadata = createTestMetadata(installationId: "installation-123")
         var item = createTestItem()
@@ -523,7 +523,7 @@ final class BatcherScopeTests: XCTestCase {
 
     func testApplyToItem_withoutUserAndWithoutInstallationId_shouldNotAddUserId() {
         // -- Arrange --
-        let scope = TestScope(propagationContextTraceIdString: SentryId().sentryIdString)
+        let scope = TestScope(propagationContextTraceId: SentryId())
         let config = createTestConfig()
         let metadata = createTestMetadata(installationId: nil)
         var item = createTestItem()
@@ -539,7 +539,7 @@ final class BatcherScopeTests: XCTestCase {
         // -- Arrange --
         let user = User(userId: "user-123")
         let scope = TestScope(
-            propagationContextTraceIdString: SentryId().sentryIdString,
+            propagationContextTraceId: SentryId(),
             userObject: user
         )
         let config = createTestConfig()
@@ -559,7 +559,7 @@ final class BatcherScopeTests: XCTestCase {
         let user = User()
         user.name = "John Doe"
         let scope = TestScope(
-            propagationContextTraceIdString: SentryId().sentryIdString,
+            propagationContextTraceId: SentryId(),
             userObject: user
         )
         let config = createTestConfig()
@@ -578,7 +578,7 @@ final class BatcherScopeTests: XCTestCase {
         let user = User()
         user.email = "john@example.com"
         let scope = TestScope(
-            propagationContextTraceIdString: SentryId().sentryIdString,
+            propagationContextTraceId: SentryId(),
             userObject: user
         )
         let config = createTestConfig()
@@ -597,7 +597,7 @@ final class BatcherScopeTests: XCTestCase {
     func testApplyToItem_shouldSetTraceId() {
         // -- Arrange --
         let traceId = SentryId()
-        let scope = TestScope(propagationContextTraceIdString: traceId.sentryIdString)
+        let scope = TestScope(propagationContextTraceId: traceId)
         let config = createTestConfig()
         let metadata = createTestMetadata()
         var item = createTestItem()
@@ -613,7 +613,7 @@ final class BatcherScopeTests: XCTestCase {
         // -- Arrange --
         let traceId1 = SentryId()
         let traceId2 = SentryId()
-        let scope = TestScope(propagationContextTraceIdString: traceId1.sentryIdString)
+        let scope = TestScope(propagationContextTraceId: traceId1)
         let config = createTestConfig()
         let metadata = createTestMetadata()
         var item = createTestItem()
@@ -638,7 +638,7 @@ final class BatcherScopeTests: XCTestCase {
         user.email = "john@example.com"
 
         var scope = TestScope(
-            propagationContextTraceIdString: traceId.sentryIdString,
+            propagationContextTraceId: traceId,
             span: span,
             userObject: user
         )
@@ -681,7 +681,7 @@ final class BatcherScopeTests: XCTestCase {
     func testApplyToItem_withMinimalAttributes_shouldAddOnlyRequiredAttributes() {
         // -- Arrange --
         let traceId = SentryId()
-        let scope = TestScope(propagationContextTraceIdString: traceId.sentryIdString)
+        let scope = TestScope(propagationContextTraceId: traceId)
         let config = createTestConfig()
         let metadata = createTestMetadata(environment: "test", releaseName: nil, installationId: nil)
         var item = createTestItem()

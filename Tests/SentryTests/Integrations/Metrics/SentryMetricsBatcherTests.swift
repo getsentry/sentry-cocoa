@@ -80,7 +80,7 @@ final class SentryMetricsBatcherTests: XCTestCase {
         // Create a metric with large attributes to exceed buffer size
         var largeAttributes: [String: SentryMetric.Attribute] = [:]
         for i in 0..<100 {
-            largeAttributes["key\(i)"] = .init(string: String(repeating: "A", count: 80))
+            largeAttributes["key\(i)"] = .string(String(repeating: "A", count: 80))
         }
         let largeMetric = SentryMetric(
             timestamp: Date(),
@@ -245,7 +245,7 @@ final class SentryMetricsBatcherTests: XCTestCase {
             // Create attributes that make the metric close to 2KB when serialized
             // Each attribute with ~40 bytes of data, ~40 attributes should be close to 2KB
             for i in 0..<40 {
-                attributes["key\(i)"] = .init(string: String(repeating: "A", count: 40))
+                attributes["key\(i)"] = .string(String(repeating: "A", count: 40))
             }
             let metric = SentryMetric(
                 timestamp: Date(),
@@ -353,7 +353,7 @@ final class SentryMetricsBatcherTests: XCTestCase {
         // -- Arrange --
         var largeAttributes: [String: SentryMetric.Attribute] = [:]
         for i in 0..<50 {
-            largeAttributes["key\(i)"] = .init(string: String(repeating: "B", count: 100))
+            largeAttributes["key\(i)"] = .string(String(repeating: "B", count: 100))
         }
         let metric1 = SentryMetric(
             timestamp: Date(),
@@ -476,7 +476,7 @@ final class SentryMetricsBatcherTests: XCTestCase {
     func testAddMetric_whenPropagationContextExists_shouldSetTraceIdFromPropagationContext() throws {
         // -- Arrange --
         let expectedTraceId = SentryId()
-        let propagationContext = SentryPropagationContext(trace: expectedTraceId, spanId: SpanId())
+        let propagationContext = SentryPropagationContext(traceId: expectedTraceId, spanId: SpanId())
         scope.propagationContext = propagationContext
         
         let metric = createTestMetric(name: "test.metric", value: .counter(1))
@@ -614,7 +614,7 @@ final class SentryMetricsBatcherTests: XCTestCase {
         scope.setAttribute(value: "scope-value", key: "existing-key")
         
         var metric = createTestMetric(name: "test.metric", value: .counter(1))
-        metric.attributeMap["existing-key"] = .init(string: "metric-value")
+        metric.attributes["existing-key"] = .string("metric-value")
         
         // -- Act --
         let sut = getSut()
@@ -637,7 +637,7 @@ final class SentryMetricsBatcherTests: XCTestCase {
         // -- Arrange --
         options.experimental.beforeSendMetric = { metric in
             var modifiedMetric = metric
-            modifiedMetric.attributeMap["test-attr"] = .init(string: "modified")
+            modifiedMetric.attributes["test-attr"] = .string("modified")
             return modifiedMetric
         }
         
@@ -750,12 +750,13 @@ final class SentryMetricsBatcherTests: XCTestCase {
     // MARK: - Helper Methods
     
     private func createTestMetric(name: String, value: SentryMetric.Value, unit: String? = nil, attributes: [String: SentryMetric.Attribute] = [:]) -> SentryMetric {
+        let metricsUnit: SentryMetricsUnit? = unit.map { .generic($0) }
         return SentryMetric(
             timestamp: Date(),
             traceId: SentryId.empty,
             name: name,
             value: value,
-            unit: unit,
+            unit: metricsUnit,
             attributes: attributes
         )
     }

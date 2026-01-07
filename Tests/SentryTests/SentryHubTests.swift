@@ -238,7 +238,7 @@ class SentryHubTests: XCTestCase {
         // Assert
         let runtimeContext = try XCTUnwrap (hub.scope.contextDictionary["runtime"] as? [String: String])
         XCTAssertEqual(runtimeContext["name"], "Mac Catalyst App")
-        XCTAssertEqual(runtimeContext["raw_description"], "raw_description")
+        XCTAssertEqual(runtimeContext["raw_description"], "mac-catalyst-app")
     }
 
     func testScopeNotEnriched_WhenScopeIsNil() {
@@ -1423,7 +1423,7 @@ class SentryHubTests: XCTestCase {
         let integration = EmptyIntegration()
         sut.addInstalledIntegration(integration, name: "EmptyIntegration")
         
-        XCTAssertNil(sut.getInstalledIntegration(SentryANRTrackingIntegration.self))
+        XCTAssertNil(sut.getInstalledIntegration(SentryHangTrackerIntegrationObjC.self))
     }
     
     func testEventContainsOnlyHandledErrors() {

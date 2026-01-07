@@ -449,11 +449,11 @@ final class SentryLoggerTests: XCTestCase {
     // MARK: - Protocol-Based Conversion Tests
     
     /// Verifies that protocol-based conversion works for arrays through SentryLogger
-    func testLogger_ProtocolBasedConversion_StringArray() {
+    func testLogger_ProtocolBasedConversion_StringArray() throws {
         let stringArray: [String] = ["tag1", "tag2", "tag3"]
         sut.info("Processing tags", attributes: ["tags": stringArray])
         
-        assertLogCaptured(
+        try assertLogCaptured(
             .info,
             "Processing tags",
             [
@@ -463,11 +463,11 @@ final class SentryLoggerTests: XCTestCase {
     }
     
     /// Verifies that protocol-based conversion works for Int arrays through SentryLogger
-    func testLogger_ProtocolBasedConversion_IntArray() {
+    func testLogger_ProtocolBasedConversion_IntArray() throws {
         let intArray: [Int] = [1, 2, 3]
         sut.info("Processing counts", attributes: ["counts": intArray])
         
-        assertLogCaptured(
+        try assertLogCaptured(
             .info,
             "Processing counts",
             [
@@ -477,11 +477,11 @@ final class SentryLoggerTests: XCTestCase {
     }
     
     /// Verifies that protocol-based conversion works for Bool arrays through SentryLogger
-    func testLogger_ProtocolBasedConversion_BoolArray() {
+    func testLogger_ProtocolBasedConversion_BoolArray() throws {
         let boolArray: [Bool] = [true, false, true]
         sut.info("Processing flags", attributes: ["flags": boolArray])
         
-        assertLogCaptured(
+        try assertLogCaptured(
             .info,
             "Processing flags",
             [
@@ -498,7 +498,7 @@ final class SentryLoggerTests: XCTestCase {
         let capturedLog = getLastCapturedLog()
         XCTAssertEqual(capturedLog.level, .info)
         XCTAssertEqual(capturedLog.body, "Processing URL")
-        let urlAttribute = capturedLog.attributeMap["url"]
+        let urlAttribute = capturedLog.attributes["url"]
         XCTAssertNotNil(urlAttribute)
         XCTAssertEqual(urlAttribute?.type, "string")
         let stringValue = urlAttribute?.value as? String
@@ -522,7 +522,7 @@ final class SentryLoggerTests: XCTestCase {
         
         // Only verify the user-provided attributes, not the auto-enriched ones
         for (key, expectedAttribute) in expectedAttributes {
-            guard let actualAttribute = capturedLog.attributeMap[key] else {
+            guard let actualAttribute = capturedLog.attributes[key] else {
                 XCTFail("Missing attribute key: \(key)", file: file, line: line)
                 continue
             }

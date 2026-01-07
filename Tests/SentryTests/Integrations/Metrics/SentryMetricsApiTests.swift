@@ -82,7 +82,7 @@ final class SentryMetricsApiTests: XCTestCase {
         XCTAssertEqual(metric.name, "network.request.count", "Metric key should match")
         XCTAssertEqual(metric.value, SentryMetric.Value.counter(1), "Metric value should match")
         XCTAssertNil(metric.unit, "Metric unit should be nil")
-        XCTAssertEqual(metric.attributes["other-key"]?.value as? String, "other-value", "Custom metric attributes should be set")
+        XCTAssertEqual(metric.attributes["other-key"]?.anyValue as? String, "other-value", "Custom metric attributes should be set")
 
         let invokedScope: Scope = invocation.1
         XCTAssertEqual(invokedScope, scope, "Scope should be passed to the integration")
@@ -109,7 +109,7 @@ final class SentryMetricsApiTests: XCTestCase {
         XCTAssertEqual(metric.name, "network.request.count", "Metric key should match")
         XCTAssertEqual(metric.value, SentryMetric.Value.counter(1), "Metric value should match")
         XCTAssertEqual(metric.unit, "requests", "Metric unit should be nil")
-        XCTAssertEqual(metric.attributes["other-key"]?.value as? String, "other-value", "Custom metric attributes should be set")
+        XCTAssertEqual(metric.attributes["other-key"]?.anyValue as? String, "other-value", "Custom metric attributes should be set")
 
         let invokedScope: Scope = invocation.1
         XCTAssertEqual(invokedScope, scope, "Scope should be passed to the integration")
@@ -217,10 +217,10 @@ final class SentryMetricsApiTests: XCTestCase {
         XCTAssertEqual(metric.name, "api.request.count", "Metric key should match")
         XCTAssertEqual(metric.value, SentryMetric.Value.counter(1), "Metric value should match")
         
-        XCTAssertEqual(metric.attributes["endpoint"]?.value as? String, "api/users", "endpoint attribute value should match")
-        XCTAssertEqual(metric.attributes["success"]?.value as? Bool, true, "success attribute value should match")
-        XCTAssertEqual(metric.attributes["status_code"]?.value as? Int, 200, "status_code attribute value should match")
-        XCTAssertEqual(try XCTUnwrap(metric.attributes["response_time"]?.value as? Double), 0.125, accuracy: 0.001, "response_time attribute value should match")
+        XCTAssertEqual(metric.attributes["endpoint"]?.anyValue as? String, "api/users", "endpoint attribute value should match")
+        XCTAssertEqual(metric.attributes["success"]?.anyValue as? Bool, true, "success attribute value should match")
+        XCTAssertEqual(metric.attributes["status_code"]?.anyValue as? Int, 200, "status_code attribute value should match")
+        XCTAssertEqual(try XCTUnwrap(metric.attributes["response_time"]?.anyValue as? Double), 0.125, accuracy: 0.001, "response_time attribute value should match")
     }
 //    
     // MARK: - Distribution
@@ -367,10 +367,10 @@ final class SentryMetricsApiTests: XCTestCase {
         XCTAssertEqual(metric.name, "db.query.duration", "Metric key should match")
         XCTAssertEqual(metric.value, SentryMetric.Value.distribution(45.7), "Metric value should match")
         
-        XCTAssertEqual(metric.attributes["database"]?.value as? String, "postgres", "database attribute value should match")
-        XCTAssertEqual(metric.attributes["cached"]?.value as? Bool, false, "cached attribute value should match")
-        XCTAssertEqual(metric.attributes["query_count"]?.value as? Int, 3, "query_count attribute value should match")
-        XCTAssertEqual(try XCTUnwrap(metric.attributes["cache_hit_rate"]?.value as? Double), 0.85, accuracy: 0.001, "cache_hit_rate attribute value should match")
+        XCTAssertEqual(metric.attributes["database"]?.anyValue as? String, "postgres", "database attribute value should match")
+        XCTAssertEqual(metric.attributes["cached"]?.anyValue as? Bool, false, "cached attribute value should match")
+        XCTAssertEqual(metric.attributes["query_count"]?.anyValue as? Int, 3, "query_count attribute value should match")
+        XCTAssertEqual(try XCTUnwrap(metric.attributes["cache_hit_rate"]?.anyValue as? Double), 0.85, accuracy: 0.001, "cache_hit_rate attribute value should match")
     }
     
     // MARK: - Gauge
@@ -517,10 +517,10 @@ final class SentryMetricsApiTests: XCTestCase {
         XCTAssertEqual(metric.name, "system.cpu.usage", "Metric key should match")
         XCTAssertEqual(metric.value, SentryMetric.Value.gauge(75.5), "Metric value should match")
         
-        XCTAssertEqual(metric.attributes["process"]?.value as? String, "main_app", "process attribute value should match")
-        XCTAssertEqual(metric.attributes["compressed"]?.value as? Bool, true, "compressed attribute value should match")
-        XCTAssertEqual(metric.attributes["core_count"]?.value as? Int, 8, "core_count attribute value should match")
-        XCTAssertEqual(try XCTUnwrap(metric.attributes["utilization"]?.value as? Double), 0.755, accuracy: 0.001, "utilization attribute value should match")
+        XCTAssertEqual(metric.attributes["process"]?.anyValue as? String, "main_app", "process attribute value should match")
+        XCTAssertEqual(metric.attributes["compressed"]?.anyValue as? Bool, true, "compressed attribute value should match")
+        XCTAssertEqual(metric.attributes["core_count"]?.anyValue as? Int, 8, "core_count attribute value should match")
+        XCTAssertEqual(try XCTUnwrap(metric.attributes["utilization"]?.anyValue as? Double), 0.755, accuracy: 0.001, "utilization attribute value should match")
     }
 }
 
