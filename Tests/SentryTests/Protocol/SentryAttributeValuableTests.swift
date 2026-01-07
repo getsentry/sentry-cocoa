@@ -418,4 +418,26 @@ final class SentryAttributeValuableTests: XCTestCase {
         }
         XCTAssertEqual(value, ["single"])
     }
+    
+    func testAsSentryAttributeValue_whenEmptyCustomAttributeValuableArray_shouldReturnStringArrayCase() {
+        // -- Arrange --
+        struct CustomStringType: SentryAttributeValuable {
+            var asSentryAttributeValue: SentryAttributeValue {
+                return .string("custom")
+            }
+        }
+        
+        let array: [CustomStringType] = []
+        
+        // -- Act --
+        let result = array.asSentryAttributeValue
+        
+        // -- Assert --
+        // Empty arrays of custom SentryAttributeValuable types cannot determine the intended type,
+        // so they should default to stringArray as a safe fallback
+        guard case .stringArray(let value) = result else {
+            return XCTFail("Expected .stringArray case for empty custom array (should not be booleanArray)")
+        }
+        XCTAssertEqual(value, [])
+    }
 }

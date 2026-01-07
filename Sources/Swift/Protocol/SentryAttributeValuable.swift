@@ -61,6 +61,11 @@ extension Array: SentryAttributeValuable {
     }
 
     private func castArrayToAttributeValue(values: [SentryAttributeValuable]) -> SentryAttributeValue {
+        // Empty arrays cannot determine the intended type, so default to stringArray as a safe fallback
+        guard !values.isEmpty else {
+            return .stringArray([])
+        }
+        
         // Check if the values are homogeneous and can be casted to a specific array type
         if let booleanArray = castValuesToBooleanArray(values) {
             return booleanArray
