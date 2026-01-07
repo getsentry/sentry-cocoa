@@ -38,15 +38,15 @@ jobs:
     name: Skip Testflight for Non-Contributors
     runs-on: ubuntu-latest
     needs: files-changed
-    if: github.event_name == 'pull_request' && needs.files-changed.outputs.run_testflight_for_changes == 'true' && !contains(fromJson('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.pull_request.author_association)
+    if: github.event_name == 'pull_request' && needs.files-changed.outputs.run_testflight_for_changes == 'true' && !contains(fromJson('["OWNER", "MEMBER", "COLLABORATOR", "CONTRIBUTOR"]'), github.event.pull_request.author_association)
     steps:
       - name: Skip Testflight for Non-Contributors
         run: |
-          echo "Skipping testflight for non-contributors, current author association: ${{ github.event.pull_request.author_association }}"
+          echo "Skipping testflight for non-contributors"
           exit 0
 
   upload_to_testflight:
-    if: needs.files-changed.outputs.run_testflight_for_changes == 'true' && contains(fromJson('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.pull_request.author_association)
+    if: needs.files-changed.outputs.run_testflight_for_changes == 'true' && contains(fromJson('["OWNER", "MEMBER", "COLLABORATOR", "CONTRIBUTOR"]'), github.event.pull_request.author_association)
     needs: files-changed
     name: Build and Upload iOS-Swift to Testflight
     runs-on: macos-15

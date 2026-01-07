@@ -261,7 +261,7 @@ jobs:
     runs-on: macos-15
     needs: [files-changed, assemble-xcframework-variant]
     # Run the job only for PRs with related changes (from contributors) or non-PR events.
-    if: github.event_name != 'pull_request' || (needs.files-changed.outputs.run_release_for_prs == 'true' && contains(fromJson('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.pull_request.author_association))
+    if: github.event_name != 'pull_request' || (needs.files-changed.outputs.run_release_for_prs == 'true' && contains(fromJson('["OWNER", "MEMBER", "COLLABORATOR", "CONTRIBUTOR"]'), github.event.pull_request.author_association))
     timeout-minutes: 20
     steps:
       - name: Git checkout

@@ -20,7 +20,7 @@ jobs:
   check_for_issue_reference:
     runs-on: ubuntu-latest
     # Only run on PRs from contributors.
-    if: contains(fromJson('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.pull_request.author_association)
+    if: contains(fromJson('["OWNER", "MEMBER", "COLLABORATOR", "CONTRIBUTOR"]'), github.event.pull_request.author_association)
     steps:
       - name: Check PR Body and Title for Issue Reference
         uses: actions/github-script@v8

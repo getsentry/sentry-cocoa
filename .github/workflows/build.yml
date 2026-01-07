@@ -46,7 +46,7 @@ jobs:
     name: Release Build of iOS Swift
     # Run the job only for PRs with related changes (from contributors) or non-PR events.
     # Don't run this on release branches, cause the SPM Package.swift points to the unreleased versions.
-    if: startsWith(github.ref, 'refs/heads/release/') == false && (github.event_name != 'pull_request' || (needs.files-changed.outputs.run_build_for_prs == 'true' && contains(fromJson('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.pull_request.author_association)))
+    if: startsWith(github.ref, 'refs/heads/release/') == false && (github.event_name != 'pull_request' || (needs.files-changed.outputs.run_build_for_prs == 'true' && contains(fromJson('["OWNER", "MEMBER", "COLLABORATOR", "CONTRIBUTOR"]'), github.event.pull_request.author_association)))
     needs: files-changed
     runs-on: macos-15
     steps:
