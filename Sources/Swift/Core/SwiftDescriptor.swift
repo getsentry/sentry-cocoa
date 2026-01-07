@@ -1,7 +1,7 @@
 import Foundation
 
 #if canImport(UIKit) && !SENTRY_NO_UIKIT
-import UIKit
+import UIKit 
 #endif
 
 @objc
