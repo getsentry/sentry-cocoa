@@ -46,7 +46,7 @@ jobs:
           exit 0
 
   upload_to_testflight:
-    if: needs.files-changed.outputs.run_testflight_for_changes == 'true' && contains(fromJson('["OWNER", "MEMBER", "COLLABORATOR", "CONTRIBUTOR"]'), github.event.pull_request.author_association)
+    if: github.event_name != 'pull_request' || ( needs.files-changed.outputs.run_testflight_for_changes == 'true' && contains(fromJson('["OWNER", "MEMBER", "COLLABORATOR", "CONTRIBUTOR"]'), github.event.pull_request.author_association))
     needs: files-changed
     name: Build and Upload iOS-Swift to Testflight
     runs-on: macos-15
