@@ -255,6 +255,7 @@ import Foundation
     }
     
     #if os(iOS) && !SENTRY_NO_UIKIT
+    @available(*, deprecated, message: "Create an instance of SentryUserFeedbackFormController directly.")
     @objc public static let feedback = {
       return SentryFeedbackAPI()
     }()

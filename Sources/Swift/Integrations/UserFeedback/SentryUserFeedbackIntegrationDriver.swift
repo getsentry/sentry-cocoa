@@ -8,6 +8,7 @@ import UIKit
  * - note: The default method to show the feedback form is via a floating widget placed in the bottom trailing corner of the screen. See the configuration classes for alternative options.
  */
 @available(iOSApplicationExtension, unavailable)
+@available(*, deprecated, message: "Create an instance of SentryUserFeedbackFormController directly.")
 final class SentryUserFeedbackIntegrationDriver: NSObject {
     let configuration: SentryUserFeedbackConfiguration
     private var widget: SentryUserFeedbackWidget?
@@ -79,6 +80,7 @@ final class SentryUserFeedbackIntegrationDriver: NSObject {
 
 // MARK: SentryUserFeedbackFormDelegate
 @available(iOSApplicationExtension, unavailable)
+@available(*, deprecated, message: "Create an instance of SentryUserFeedbackFormController directly.")
 extension SentryUserFeedbackIntegrationDriver: SentryUserFeedbackFormDelegate {
     func finished(with feedback: SentryFeedback?) {
         if let feedback = feedback {
@@ -94,6 +96,7 @@ extension SentryUserFeedbackIntegrationDriver: SentryUserFeedbackFormDelegate {
 
 // MARK: SentryUserFeedbackWidgetDelegate
 @available(iOSApplicationExtension, unavailable)
+@available(*, deprecated, message: "Create an instance of SentryUserFeedbackFormController directly.")
 extension SentryUserFeedbackIntegrationDriver: SentryUserFeedbackWidgetDelegate {
     func showForm() {
         showForm(screenshot: nil)
@@ -102,6 +105,7 @@ extension SentryUserFeedbackIntegrationDriver: SentryUserFeedbackWidgetDelegate 
 
 // MARK: UIAdaptivePresentationControllerDelegate
 @available(iOSApplicationExtension, unavailable)
+@available(*, deprecated, message: "Create an instance of SentryUserFeedbackFormController directly.")
 extension SentryUserFeedbackIntegrationDriver: UIAdaptivePresentationControllerDelegate {
     public func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
         widget?.rootVC.setWidget(visible: true, animated: configuration.animations)
@@ -112,6 +116,7 @@ extension SentryUserFeedbackIntegrationDriver: UIAdaptivePresentationControllerD
 
 // MARK: Private
 @available(iOSApplicationExtension, unavailable)
+@available(*, deprecated, message: "Create an instance of SentryUserFeedbackFormController directly.")
 private extension SentryUserFeedbackIntegrationDriver {
     func showForm(screenshot: UIImage?) {
         let form = SentryUserFeedbackFormController(config: configuration, delegate: self, screenshot: screenshot)

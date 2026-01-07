@@ -9,6 +9,7 @@ public final class SentryFeedbackAPI: NSObject {
     /// - warning: This is an experimental feature and may still have bugs.
     /// - seealso: See `SentryOptions.configureUserFeedback` to configure the widget.
     @available(iOSApplicationExtension, unavailable)
+    @available(*, deprecated, message: "Create an instance of SentryUserFeedbackFormController directly.")
     @objc public func showWidget() {
         getIntegration()?.driver.showWidget()
     }
@@ -17,10 +18,12 @@ public final class SentryFeedbackAPI: NSObject {
     /// - warning: This is an experimental feature and may still have bugs.
     /// - seealso: See `SentryOptions.configureUserFeedback` to configure the widget.
     @available(iOSApplicationExtension, unavailable)
+    @available(*, deprecated, message: "Create an instance of SentryUserFeedbackFormController directly.")
     @objc public func hideWidget() {
         getIntegration()?.driver.hideWidget()
     }
     
+    @available(*, deprecated, message: "Create an instance of SentryUserFeedbackFormController directly.")
     private func getIntegration() -> UserFeedbackIntegration<SentryDependencyContainer>? {
         SentrySDKInternal.currentHub().getInstalledIntegration(UserFeedbackIntegration<SentryDependencyContainer>.self) as? UserFeedbackIntegration<SentryDependencyContainer>
     }

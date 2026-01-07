@@ -18,8 +18,10 @@ public final class SentryUserFeedbackConfiguration: NSObject {
      * Configuration settings specific to the managed widget that displays the UI form.
      * - note: Default: `nil` to use the default widget settings.
      */
+    @available(*, deprecated, message: "Create an instance of SentryUserFeedbackFormController directly.")
     public var configureWidget: ((SentryUserFeedbackWidgetConfiguration) -> Void)?
     
+    @available(*, deprecated, message: "Create an instance of SentryUserFeedbackFormController directly.")
     lazy var widgetConfig = SentryUserFeedbackWidgetConfiguration()
     
     /**
@@ -27,6 +29,7 @@ public final class SentryUserFeedbackConfiguration: NSObject {
      * - note: Default: `false`
      * - note: Setting this to true does not disable the widget. In order to do so, you must set `SentryUserFeedbackWidgetConfiguration.autoInject` to `false` using the `SentryUserFeedbackConfiguration.configureWidget` config builder.
      */
+    @available(*, deprecated, message: "Create an instance of SentryUserFeedbackFormController directly.")
     public var useShakeGesture: Bool = false
     
     /**
@@ -34,6 +37,7 @@ public final class SentryUserFeedbackConfiguration: NSObject {
      * - note: Default: `false`
      * - note: Setting this to true does not disable the widget. In order to do so, you must set `SentryUserFeedbackWidgetConfiguration.autoInject` to `false` using the `SentryUserFeedbackConfiguration.configureWidget` config builder.
      */
+    @available(*, deprecated, message: "Create an instance of SentryUserFeedbackFormController directly.")
     public var showFormForScreenshots: Bool = false
 
     /**
@@ -41,6 +45,7 @@ public final class SentryUserFeedbackConfiguration: NSObject {
      * - note: If this is set, `configureWidget` is ignored.
      * - note: Default: `nil`
      */
+    @available(*, deprecated, message: "Create an instance of SentryUserFeedbackFormController directly.")
     public var customButton: UIButton?
 
     /**
@@ -62,6 +67,7 @@ public final class SentryUserFeedbackConfiguration: NSObject {
      * Called when the managed feedback form is opened.
      * - note: Default: `nil`
      */
+    @available(*, deprecated, message: "Create an instance of SentryUserFeedbackFormController directly.")
     public var onFormOpen: (() -> Void)?
     
     /**
