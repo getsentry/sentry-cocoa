@@ -9,6 +9,11 @@ internal enum SentryAttributeType: String {
     case doubleArray = "double[]"
 }
 
+/// A type-safe representation of attribute values used by structured logging.
+///
+/// `SentryAttributeValue` provides a strongly-typed enum for representing various attribute types
+/// including strings, booleans, integers, doubles, and their array variants. This enum conforms to
+/// `Equatable`, `Hashable`, and `Encodable` for use in structured data contexts.
 public enum SentryAttributeValue: Equatable, Hashable {
     case string(String)
     case boolean(Bool)
@@ -47,6 +52,12 @@ extension SentryAttributeValue: Encodable {
         case value
     }
 
+    /// Encodes the attribute value to the given encoder.
+    ///
+    /// The encoded format includes both the type identifier and the value itself.
+    ///
+    /// - Parameter encoder: The encoder to write data to.
+    /// - Throws: An error if encoding fails.
     public func encode(to encoder: any Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(type, forKey: .type)
@@ -139,24 +150,56 @@ extension SentryAttributeValue {
 }
 
 extension SentryAttributeValue: ExpressibleByStringLiteral {
+    /// Creates a string attribute value from a string literal.
+    ///
+    /// This allows `SentryAttributeValue` to be initialized directly from string literals:
+    /// ```swift
+    /// let value: SentryAttributeValue = "hello"
+    /// ```
+    ///
+    /// - Parameter value: The string literal value.
     public init(stringLiteral value: StringLiteralType) {
         self = .string(value)
     }
 }
 
 extension SentryAttributeValue: ExpressibleByBooleanLiteral {
+    /// Creates a boolean attribute value from a boolean literal.
+    ///
+    /// This allows `SentryAttributeValue` to be initialized directly from boolean literals:
+    /// ```swift
+    /// let value: SentryAttributeValue = true
+    /// ```
+    ///
+    /// - Parameter value: The boolean literal value.
     public init(booleanLiteral value: BooleanLiteralType) {
         self = .boolean(value)
     }
 }
 
 extension SentryAttributeValue: ExpressibleByFloatLiteral {
+    /// Creates a double attribute value from a float literal.
+    ///
+    /// This allows `SentryAttributeValue` to be initialized directly from float literals:
+    /// ```swift
+    /// let value: SentryAttributeValue = 3.14
+    /// ```
+    ///
+    /// - Parameter value: The float literal value.
     public init(floatLiteral value: FloatLiteralType) {
         self = .double(value)
     }
 }
 
 extension SentryAttributeValue: ExpressibleByIntegerLiteral {
+    /// Creates an integer attribute value from an integer literal.
+    ///
+    /// This allows `SentryAttributeValue` to be initialized directly from integer literals:
+    /// ```swift
+    /// let value: SentryAttributeValue = 42
+    /// ```
+    ///
+    /// - Parameter value: The integer literal value.
     public init(integerLiteral value: IntegerLiteralType) {
         self = .integer(value)
     }
