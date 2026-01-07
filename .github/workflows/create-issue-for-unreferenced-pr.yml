@@ -19,6 +19,8 @@ concurrency:
 jobs:
   check_for_issue_reference:
     runs-on: ubuntu-latest
+    # Only run on PRs from contributors.
+    if: github.event.pull_request.author_association == 'OWNER' || github.event.pull_request.author_association == 'MEMBER' || github.event.pull_request.author_association == 'COLLABORATOR'
     steps:
       - name: Check PR Body and Title for Issue Reference
         uses: actions/github-script@v8

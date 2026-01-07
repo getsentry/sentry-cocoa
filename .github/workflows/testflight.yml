@@ -34,8 +34,19 @@ jobs:
           token: ${{ github.token }}
           filters: .github/file-filters.yml
 
+  skip-testflight-for-non-contributors:
+    name: Skip Testflight for Non-Contributors
+    runs-on: ubuntu-latest
+    needs: files-changed
+    if: github.event_name == 'pull_request' && needs.files-changed.outputs.run_testflight_for_changes == 'true' && github.event.pull_request.author_association != 'OWNER' && github.event.pull_request.author_association != 'MEMBER' && github.event.pull_request.author_association != 'COLLABORATOR'
+    steps:
+      - name: Skip Testflight for Non-Contributors
+        run: |
+          echo "Skipping testflight for non-contributors"
+          exit 0
+
   upload_to_testflight:
-    if: needs.files-changed.outputs.run_testflight_for_changes == 'true'
+    if: needs.files-changed.outputs.run_testflight_for_changes == 'true' && (github.event.pull_request.author_association == 'OWNER' || github.event.pull_request.author_association == 'MEMBER' || github.event.pull_request.author_association == 'COLLABORATOR')
     needs: files-changed
     name: Build and Upload iOS-Swift to Testflight
     runs-on: macos-15
@@ -102,7 +113,11 @@ jobs:
   # to make testflight a required check with only running the upload_to_testflight when required.
   # So, we don't have to run upload_to_testflight, for example, for unrelated changes.
   testflight-required-check:
-    needs: [files-changed, upload_to_testflight]
+    needs: [
+      files-changed,
+      upload_to_testflight,
+      skip-testflight-for-non-contributors,
+    ]
     name: Testflight
     # This is necessary since a failed/skipped dependent job would cause this job to be skipped
     if: always()

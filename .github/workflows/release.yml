@@ -101,7 +101,8 @@ jobs:
       suffix: ${{matrix.variant.suffix}}
       configuration-suffix: ${{matrix.variant.configuration-suffix}}
       variant-id: ${{matrix.variant.id}}
-      signed: true
+      # Only sign the XCFramework on releases
+      signed: ${{ github.event_name != 'pull_request' }}
       release-version: ${{ github.event.inputs.version }}
       excluded-archs: ${{matrix.variant.excluded-archs}}
       override-name: ${{matrix.variant.override-name}}
@@ -260,7 +261,8 @@ jobs:
     runs-on: macos-15
     needs: [files-changed, assemble-xcframework-variant]
     # Run the job only for PRs with related changes or non-PR events.
-    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
+    # Only run on PRs from contributors.
+    if: (github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true') && (github.event.pull_request.author_association == 'OWNER' || github.event.pull_request.author_association == 'MEMBER' || github.event.pull_request.author_association == 'COLLABORATOR')
     timeout-minutes: 20
     steps:
       - name: Git checkout
