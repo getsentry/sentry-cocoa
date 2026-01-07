@@ -131,6 +131,9 @@ jobs:
       - name: Unzip all XCFrameworks
         run: |
           find XCFrameworkBuildPath -name "*.xcframework.zip" -print0 | xargs -t0I @ unzip @ -d XCFrameworkBuildPath
+      - name: Strip expectedSignature attributes from XCFramework project
+        if: ${{ github.event_name == 'pull_request' }}
+        run: make strip-xcframework-expected-signature
       - run: make build-xcframework-sample
       - name: Run CI Diagnostics
         if: failure()
