@@ -2,7 +2,7 @@
 @_spi(Private) import SentryTestUtils
 import XCTest
 
-class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
+class SentryHangTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
     
     private static let dsn = TestConstants.dsnAsString(username: "SentryANRTrackingIntegrationTests")
     
@@ -18,7 +18,7 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
 
         init() {
             options = Options()
-            options.dsn = SentryANRTrackingIntegrationTests.dsn
+            options.dsn = SentryHangTrackingIntegrationTests.dsn
             options.enableAppHangTracking = true
             options.appHangTimeoutInterval = 4.5
             options.releaseName = "release-name-test"
@@ -32,21 +32,20 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
                 dateProvider: currentDate,
                 dispatchQueueWrapper: dispatchQueueWrapper
             )
-
-            originalExtensionDetector = Dependencies.extensionDetector
-            Dependencies.extensionDetector = extensionDetector
+            originalExtensionDetector = SentryDependencyContainer.sharedInstance().extensionDetector
+            SentryDependencyContainer.sharedInstance().extensionDetector = extensionDetector
         }
 
         func tearDownDI() throws {
             SentryDependencyContainer.sharedInstance().fileManager = nil
             if let extensionDetector = originalExtensionDetector {
-                Dependencies.extensionDetector = extensionDetector
+                SentryDependencyContainer.sharedInstance().extensionDetector = extensionDetector
             }
         }
     }
     
     private var fixture: Fixture!
-    private var sut: SentryANRTrackingIntegration!
+    private var sut: SentryHangTrackingIntegration<SentryDependencyContainer>?
     
     override var options: Options {
         self.fixture.options
@@ -68,18 +67,22 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         clearTestState()
         super.tearDown()
     }
+    
+    private func hangTracker(with options: Options) -> SentryHangTrackingIntegration<SentryDependencyContainer>? {
+        SentryHangTrackingIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance())
+    }
 
     func testWhenBeingTraced_TrackerNotInitialized() {
         givenInitializedTracker(isBeingTraced: true)
-        XCTAssertNil(Dynamic(sut).tracker.asAnyObject)
+        XCTAssertNil(sut?.tracker)
     }
 
     func testWhenNoDebuggerAttached_TrackerInitialized() throws {
         givenInitializedTracker()
         
-        let tracker = try XCTUnwrap(Dynamic(sut).tracker.asAnyObject as? SentryANRTracker)
+        let tracker = try XCTUnwrap(sut?.tracker)
 
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(tvOS) || os(visionOS) || targetEnvironment(macCatalyst)
         XCTAssertTrue(tracker.helper is SentryANRTrackerV2, "Expected SentryANRTrackerV2, but got \(type(of: tracker))")
 #else
         XCTAssertTrue(tracker.helper is SentryANRTrackerV1, "Expected SentryANRTrackerV1 on macOS, but got \(type(of: tracker))")
@@ -90,10 +93,8 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         let options = Options()
         options.enableAppHangTracking = false
         
-        sut = SentryANRTrackingIntegration()
-        let result = sut.install(with: options)
-
-        XCTAssertFalse(result)
+        let result = hangTracker(with: options)
+        XCTAssertNil(result)
     }
     
     func test_appHangsTimeoutInterval_Zero() {
@@ -101,10 +102,8 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         options.enableAppHangTracking = true
         options.appHangTimeoutInterval = 0
         
-        sut = SentryANRTrackingIntegration()
-        let result = sut.install(with: options)
-        
-        XCTAssertFalse(result)
+        let result = hangTracker(with: options)
+        XCTAssertNil(result)
     }
 
 #if os(macOS)
@@ -273,8 +272,8 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
     func testANRDetected_DetectingPausedResumed_EventCaptured() throws {
         givenInitializedTracker()
         setUpThreadInspector()
-        sut.pauseAppHangTracking()
-        sut.resumeAppHangTracking()
+        try XCTUnwrap(sut).pauseAppHangTracking()
+        try XCTUnwrap(sut).resumeAppHangTracking()
 
         Dynamic(sut).anrDetectedWithType(SentryANRType.unknown)
 
@@ -299,10 +298,10 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
     }
 #endif
     
-    func testANRDetected_DetectingPaused_NoEventCaptured() {
+    func testANRDetected_DetectingPaused_NoEventCaptured() throws {
         givenInitializedTracker()
         setUpThreadInspector()
-        sut.pauseAppHangTracking()
+        try XCTUnwrap(sut).pauseAppHangTracking()
         
         Dynamic(sut).anrDetectedWithType(SentryANRType.unknown)
         
@@ -313,10 +312,10 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         givenInitializedTracker()
         
         testConcurrentModifications(asyncWorkItems: 100, writeLoopCount: 10, writeWork: {_ in
-            self.sut.pauseAppHangTracking()
+            self.sut?.pauseAppHangTracking()
             Dynamic(self.sut).anrDetectedWithType(SentryANRType.unknown)
         }, readWork: {
-            self.sut.resumeAppHangTracking()
+            self.sut?.resumeAppHangTracking()
             Dynamic(self.sut).anrDetectedWithType(SentryANRType.unknown)
         })
     }
@@ -351,8 +350,7 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         // // So ARC deallocates the SentryANRTrackingIntegration
         func initIntegration() {
             self.crashWrapper.internalIsBeingTraced = false
-            let sut = SentryANRTrackingIntegration()
-            sut.install(with: self.options)
+            let _ = hangTracker(with: self.options)
         }
         
         initIntegration()
@@ -455,7 +453,7 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
 
         Dynamic(sut).anrDetectedWithType(SentryANRType.fullyBlocking)
 
-        sut.pauseAppHangTracking()
+        try XCTUnwrap(sut).pauseAppHangTracking()
 
         // Act
         let result = SentryANRStoppedResult(minDuration: 1.851, maxDuration: 2.249)
@@ -563,11 +561,11 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         givenInitializedTracker()
 
         Dynamic(sut).anrDetectedWithType(SentryANRType.nonFullyBlocking)
-        sut.pauseAppHangTracking()
+        try XCTUnwrap(sut).pauseAppHangTracking()
 
         // Act
         givenInitializedTracker()
-        sut.pauseAppHangTracking()
+        try XCTUnwrap(sut).pauseAppHangTracking()
 
         // Assert
         try assertFatalEventWithScope { event, _ in
@@ -695,7 +693,7 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         Dynamic(sut).anrStoppedWithResult(result)
 
         // Act
-        sut.install(with: self.options)
+        let _ = hangTracker(with: self.options)
         
         // Assert
         try assertEventWithScopeCaptured { event, _, _ in
@@ -761,14 +759,11 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         )
         crashWrapper.internalIsBeingTraced = false
 
-        sut = SentryANRTrackingIntegration()
-        
-        // Act
-        let result = sut.install(with: options)
+        let sut = hangTracker(with: options)
         
         // Assert
-        XCTAssertTrue(result, "Should install when not running in an extension")
-        XCTAssertNotNil(Dynamic(sut).tracker.asAnyObject, "Tracker should be initialized")
+        XCTAssertNotNil(sut, "Should install when not running in an extension")
+        XCTAssertNotNil(sut?.tracker, "Tracker should be initialized")
     }
     
     func testInstall_runningInWidgetExtension_shouldNotInstall() throws {
@@ -782,14 +777,10 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         )
         crashWrapper.internalIsBeingTraced = false
 
-        sut = SentryANRTrackingIntegration()
-
-        // Act
-        let result = sut.install(with: options)
+        let sut = hangTracker(with: options)
         
         // Assert
-        XCTAssertFalse(result, "Should not install when running in a Widget extension")
-        XCTAssertNil(Dynamic(sut).tracker.asAnyObject, "Tracker should not be initialized")
+        XCTAssertNil(sut, "Should not install when running in a Widget extension")
     }
     
     func testInstall_runningInIntentExtension_shouldNotInstall() throws {
@@ -803,14 +794,10 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         )
         crashWrapper.internalIsBeingTraced = false
 
-        sut = SentryANRTrackingIntegration()
-
-        // Act
-        let result = sut.install(with: options)
+        let sut = hangTracker(with: options)
         
         // Assert
-        XCTAssertFalse(result, "Should not install when running in an Intent extension")
-        XCTAssertNil(Dynamic(sut).tracker.asAnyObject, "Tracker should not be initialized")
+        XCTAssertNil(sut, "Should not install when running in an Intent extension")
     }
     
     func testInstall_runningInActionExtension_shouldNotInstall() throws {
@@ -824,14 +811,10 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         )
         crashWrapper.internalIsBeingTraced = false
 
-        sut = SentryANRTrackingIntegration()
-
-        // Act
-        let result = sut.install(with: options)
+        let sut = hangTracker(with: options)
         
         // Assert
-        XCTAssertFalse(result, "Should not install when running in an Action extension")
-        XCTAssertNil(Dynamic(sut).tracker.asAnyObject, "Tracker should not be initialized")
+        XCTAssertNil(sut, "Should not install when running in an Action extension")
     }
     
     func testInstall_runningInShareExtension_shouldNotInstall() throws {
@@ -845,14 +828,10 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         )
         crashWrapper.internalIsBeingTraced = false
 
-        sut = SentryANRTrackingIntegration()
-
-        // Act
-        let result = sut.install(with: options)
+        let sut = hangTracker(with: options)
         
         // Assert
-        XCTAssertFalse(result, "Should not install when running in a Share extension")
-        XCTAssertNil(Dynamic(sut).tracker.asAnyObject, "Tracker should not be initialized")
+        XCTAssertNil(sut, "Should not install when running in a Share extension")
     }
     
     func testInstall_runningInUnknownExtension_shouldInstall() throws {
@@ -869,14 +848,11 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         }
         crashWrapper.internalIsBeingTraced = false
 
-        sut = SentryANRTrackingIntegration()
-
-        // Act
-        let result = sut.install(with: options)
+        let sut = hangTracker(with: options)
         
         // Assert
-        XCTAssertTrue(result, "Should install when running in an unknown extension type")
-        XCTAssertNotNil(Dynamic(sut).tracker.asAnyObject, "Tracker should be initialized")
+        XCTAssertNotNil(sut, "Should install when running in an unknown extension type")
+        XCTAssertNotNil(sut?.tracker, "Tracker should be initialized")
     }
     
     private func givenInitializedTracker(isBeingTraced: Bool = false, crashedLastLaunch: Bool = false) {
@@ -891,8 +867,7 @@ class SentryANRTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         
         self.crashWrapper.internalIsBeingTraced = isBeingTraced
         self.crashWrapper.internalCrashedLastLaunch = crashedLastLaunch
-        sut = SentryANRTrackingIntegration()
-        sut.install(with: self.options)
+        sut = hangTracker(with: self.options)
     }
     
     private func setUpThreadInspector(addThreads: Bool = true) {

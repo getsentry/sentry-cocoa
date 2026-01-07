@@ -1,6 +1,6 @@
 import Foundation
 
-#if (os(iOS) || os(tvOS) || (swift(>=5.9) && os(visionOS)))
+#if (os(iOS) || os(tvOS) || os(visionOS))
 
 #if os(iOS)
 /// An array of dictionaries that each contain a start and end timestamp for a rendered frame.
@@ -73,7 +73,7 @@ public final class SentryScreenFrames: NSObject, NSCopying {
         self.total = total
         self.frozen = frozen
         self.slow = slow
-    #endif // !(os(watchOS) || os(tvOS) || (swift(>=5.9) && os(visionOS)))
+    #endif // !(os(watchOS) || os(tvOS) || os(visionOS))
 
         super.init()
     }
@@ -184,4 +184,4 @@ public final class SentryScreenFrames: NSObject, NSCopying {
     }
 }
 
-#endif // (os(iOS) || os(tvOS) || (swift(>=5.9) && os(visionOS)))
+#endif // (os(iOS) || os(tvOS) || os(visionOS))
