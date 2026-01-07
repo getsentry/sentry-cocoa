@@ -75,7 +75,7 @@ jobs:
       - uses: actions/checkout@v6
 
       - name: Setup Ruby
-        uses: ruby/setup-ruby@ac793fdd38cc468a4dd57246fa9d0e868aba9085 # v1.270.0
+        uses: ruby/setup-ruby@ae195bbe749a7cef685ac729197124a48305c1cb # v1.276.0
         with:
           bundler-cache: true
 
@@ -114,7 +114,7 @@ jobs:
 
       - name: Download XCFramework
         if: ${{ inputs.needs_xcframework }}
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           name: xcframework-${{github.sha}}-sentry-static
           path: XCFrameworkBuildPath/
@@ -137,7 +137,7 @@ jobs:
           fi
 
       - name: Publish Test Report
-        uses: mikepenz/action-junit-report@e08919a3b1fb83a78393dfb775a9c37f17d8eea6 # v6.0.1
+        uses: mikepenz/action-junit-report@a294a61c909bd8a4b563024a2faa28897fd53ebc # v6.1.0
         if: always()
         with:
           report_paths: build/reports/*junit.xml
@@ -147,7 +147,7 @@ jobs:
 
       - name: Codecov test analytics
         if: ${{ !cancelled() && inputs.codecov_test_analytics }}
-        uses: codecov/test-results-action@47f89e9acb64b76debcd5ea40642d25a4adced9f # pin@v1.1.1
+        uses: codecov/test-results-action@0fa95f0e1eeaafde2c782583b36b28ad0d8c77d3 # pin@v1.2.1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           verbose: true

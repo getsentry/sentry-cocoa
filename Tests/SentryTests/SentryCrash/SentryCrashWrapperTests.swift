@@ -31,7 +31,7 @@ final class SentryCrashWrapperTests: XCTestCase {
         ])
         scope = Scope()
         
-#if (os(iOS) || os(tvOS) || (swift(>=5.9) && os(visionOS))) && !targetEnvironment(macCatalyst)
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !targetEnvironment(macCatalyst)
         // Ensure DeviceWrapper info is initialized
         // This is done at SentrySDKInteral, but during tests that might not be the case
         Dependencies.uiDeviceWrapper.start()
@@ -129,7 +129,7 @@ final class SentryCrashWrapperTests: XCTestCase {
             
             let runtimeContext = try XCTUnwrap(scope.contextDictionary["runtime"] as? [String: Any])
             XCTAssertEqual(runtimeContext["name"] as? String, "Mac Catalyst App")
-            XCTAssertEqual(runtimeContext["raw_description"] as? String, "raw_description")
+            XCTAssertEqual(runtimeContext["raw_description"] as? String, "mac-catalyst-app")
             #endif
     }
 }

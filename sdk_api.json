@@ -35279,6 +35279,1075 @@
       },
       {
         "kind": "TypeDecl",
+        "name": "SentryFeedback",
+        "printedName": "SentryFeedback",
+        "children": [
+          {
+            "kind": "TypeDecl",
+            "name": "SentryFeedbackSource",
+            "printedName": "SentryFeedbackSource",
+            "children": [
+              {
+                "kind": "Var",
+                "name": "serialize",
+                "printedName": "serialize",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "declKind": "Var",
+                "usr": "s:6Sentry0A8FeedbackC0aB6SourceO9serializeSSvp",
+                "mangledName": "$s6Sentry0A8FeedbackC0aB6SourceO9serializeSSvp",
+                "moduleName": "Sentry",
+                "accessors": [
+                  {
+                    "kind": "Accessor",
+                    "name": "Get",
+                    "printedName": "Get()",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ],
+                    "declKind": "Accessor",
+                    "usr": "s:6Sentry0A8FeedbackC0aB6SourceO9serializeSSvg",
+                    "mangledName": "$s6Sentry0A8FeedbackC0aB6SourceO9serializeSSvg",
+                    "moduleName": "Sentry",
+                    "accessorKind": "get"
+                  }
+                ]
+              },
+              {
+                "kind": "Var",
+                "name": "widget",
+                "printedName": "widget",
+                "children": [
+                  {
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(Sentry.SentryFeedback.SentryFeedbackSource.Type) -> Sentry.SentryFeedback.SentryFeedbackSource",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SentryFeedbackSource",
+                        "printedName": "Sentry.SentryFeedback.SentryFeedbackSource",
+                        "usr": "s:6Sentry0A8FeedbackC0aB6SourceO"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryFeedback.SentryFeedbackSource.Type",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SentryFeedbackSource",
+                            "printedName": "Sentry.SentryFeedback.SentryFeedbackSource",
+                            "usr": "s:6Sentry0A8FeedbackC0aB6SourceO"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ],
+                "declKind": "EnumElement",
+                "usr": "s:6Sentry0A8FeedbackC0aB6SourceO6widgetyA2EmF",
+                "mangledName": "$s6Sentry0A8FeedbackC0aB6SourceO6widgetyA2EmF",
+                "moduleName": "Sentry",
+                "declAttributes": [
+                  "ObjC"
+                ]
+              },
+              {
+                "kind": "Var",
+                "name": "custom",
+                "printedName": "custom",
+                "children": [
+                  {
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(Sentry.SentryFeedback.SentryFeedbackSource.Type) -> Sentry.SentryFeedback.SentryFeedbackSource",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SentryFeedbackSource",
+                        "printedName": "Sentry.SentryFeedback.SentryFeedbackSource",
+                        "usr": "s:6Sentry0A8FeedbackC0aB6SourceO"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryFeedback.SentryFeedbackSource.Type",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SentryFeedbackSource",
+                            "printedName": "Sentry.SentryFeedback.SentryFeedbackSource",
+                            "usr": "s:6Sentry0A8FeedbackC0aB6SourceO"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ],
+                "declKind": "EnumElement",
+                "usr": "s:6Sentry0A8FeedbackC0aB6SourceO6customyA2EmF",
+                "mangledName": "$s6Sentry0A8FeedbackC0aB6SourceO6customyA2EmF",
+                "moduleName": "Sentry",
+                "declAttributes": [
+                  "ObjC"
+                ]
+              },
+              {
+                "kind": "Constructor",
+                "name": "init",
+                "printedName": "init(rawValue:)",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Sentry.SentryFeedback.SentryFeedbackSource?",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SentryFeedbackSource",
+                        "printedName": "Sentry.SentryFeedback.SentryFeedbackSource",
+                        "usr": "s:6Sentry0A8FeedbackC0aB6SourceO"
+                      }
+                    ],
+                    "usr": "s:Sq"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Int",
+                    "printedName": "Swift.Int",
+                    "usr": "s:Si"
+                  }
+                ],
+                "declKind": "Constructor",
+                "usr": "s:6Sentry0A8FeedbackC0aB6SourceO8rawValueAESgSi_tcfc",
+                "mangledName": "$s6Sentry0A8FeedbackC0aB6SourceO8rawValueAESgSi_tcfc",
+                "moduleName": "Sentry",
+                "init_kind": "Designated"
+              },
+              {
+                "kind": "TypeAlias",
+                "name": "RawValue",
+                "printedName": "RawValue",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Int",
+                    "printedName": "Swift.Int",
+                    "usr": "s:Si"
+                  }
+                ],
+                "declKind": "TypeAlias",
+                "usr": "s:6Sentry0A8FeedbackC0aB6SourceO8RawValuea",
+                "mangledName": "$s6Sentry0A8FeedbackC0aB6SourceO8RawValuea",
+                "moduleName": "Sentry"
+              },
+              {
+                "kind": "Var",
+                "name": "rawValue",
+                "printedName": "rawValue",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Int",
+                    "printedName": "Swift.Int",
+                    "usr": "s:Si"
+                  }
+                ],
+                "declKind": "Var",
+                "usr": "s:6Sentry0A8FeedbackC0aB6SourceO8rawValueSivp",
+                "mangledName": "$s6Sentry0A8FeedbackC0aB6SourceO8rawValueSivp",
+                "moduleName": "Sentry",
+                "accessors": [
+                  {
+                    "kind": "Accessor",
+                    "name": "Get",
+                    "printedName": "Get()",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Int",
+                        "printedName": "Swift.Int",
+                        "usr": "s:Si"
+                      }
+                    ],
+                    "declKind": "Accessor",
+                    "usr": "s:6Sentry0A8FeedbackC0aB6SourceO8rawValueSivg",
+                    "mangledName": "$s6Sentry0A8FeedbackC0aB6SourceO8rawValueSivg",
+                    "moduleName": "Sentry",
+                    "accessorKind": "get"
+                  }
+                ]
+              }
+            ],
+            "declKind": "Enum",
+            "usr": "s:6Sentry0A8FeedbackC0aB6SourceO",
+            "mangledName": "$s6Sentry0A8FeedbackC0aB6SourceO",
+            "moduleName": "Sentry",
+            "declAttributes": [
+              "ObjC"
+            ],
+            "enumRawTypeName": "Int",
+            "conformances": [
+              {
+                "kind": "Conformance",
+                "name": "Copyable",
+                "printedName": "Copyable",
+                "usr": "s:s8CopyableP",
+                "mangledName": "$ss8CopyableP"
+              },
+              {
+                "kind": "Conformance",
+                "name": "Escapable",
+                "printedName": "Escapable",
+                "usr": "s:s9EscapableP",
+                "mangledName": "$ss9EscapableP"
+              },
+              {
+                "kind": "Conformance",
+                "name": "Equatable",
+                "printedName": "Equatable",
+                "usr": "s:SQ",
+                "mangledName": "$sSQ"
+              },
+              {
+                "kind": "Conformance",
+                "name": "Hashable",
+                "printedName": "Hashable",
+                "usr": "s:SH",
+                "mangledName": "$sSH"
+              },
+              {
+                "kind": "Conformance",
+                "name": "RawRepresentable",
+                "printedName": "RawRepresentable",
+                "children": [
+                  {
+                    "kind": "TypeWitness",
+                    "name": "RawValue",
+                    "printedName": "RawValue",
+                    "children": [
+                      {
+                        "kind": "TypeNameAlias",
+                        "name": "RawValue",
+                        "printedName": "Sentry.SentryFeedback.SentryFeedbackSource.RawValue",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "Int",
+                            "printedName": "Swift.Int",
+                            "usr": "s:Si"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ],
+                "usr": "s:SY",
+                "mangledName": "$sSY"
+              }
+            ]
+          },
+          {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init(message:name:email:source:associatedEventId:attachments:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "SentryFeedback",
+                "printedName": "Sentry.SentryFeedback",
+                "usr": "c:@M@Sentry@objc(cs)SentryFeedback"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Swift.String?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Swift.String?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "SentryFeedbackSource",
+                "printedName": "Sentry.SentryFeedback.SentryFeedbackSource",
+                "hasDefaultArg": true,
+                "usr": "s:6Sentry0A8FeedbackC0aB6SourceO"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Sentry.SentryId?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SentryId",
+                    "printedName": "Sentry.SentryId",
+                    "usr": "c:objc(cs)SentryId"
+                  }
+                ],
+                "hasDefaultArg": true,
+                "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "[Sentry.Attachment]?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Array",
+                    "printedName": "[Sentry.Attachment]",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Attachment",
+                        "printedName": "Sentry.Attachment",
+                        "usr": "c:objc(cs)SentryAttachment"
+                      }
+                    ],
+                    "usr": "s:Sa"
+                  }
+                ],
+                "hasDefaultArg": true,
+                "usr": "s:Sq"
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "c:@M@Sentry@objc(cs)SentryFeedback(im)initWithMessage:name:email:source:associatedEventId:attachments:",
+            "mangledName": "$s6Sentry0A8FeedbackC7message4name5email6source17associatedEventId11attachmentsACSS_SSSgAjC0aB6SourceOSo0aI0CSgSaySo0A10AttachmentCGSgtcfc",
+            "moduleName": "Sentry",
+            "objc_name": "initWithMessage:name:email:source:associatedEventId:attachments:",
+            "declAttributes": [
+              "ObjC"
+            ],
+            "init_kind": "Designated"
+          },
+          {
+            "kind": "Function",
+            "name": "serialize",
+            "printedName": "serialize()",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Dictionary",
+                "printedName": "[Swift.String : Any]",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "ProtocolComposition",
+                    "printedName": "Any"
+                  }
+                ],
+                "usr": "s:SD"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "c:@CM@Sentry@objc(cs)SentryFeedback(im)serialize",
+            "mangledName": "$s6Sentry0A8FeedbackC9serializeSDySSypGyF",
+            "moduleName": "Sentry",
+            "objc_name": "serialize",
+            "declAttributes": [
+              "ObjC",
+              "Final"
+            ],
+            "isFromExtension": true,
+            "funcSelfKind": "NonMutating"
+          }
+        ],
+        "declKind": "Class",
+        "usr": "c:@M@Sentry@objc(cs)SentryFeedback",
+        "mangledName": "$s6Sentry0A8FeedbackC",
+        "moduleName": "Sentry",
+        "declAttributes": [
+          "Final",
+          "ObjCMembers",
+          "ObjC"
+        ],
+        "superclassUsr": "c:objc(cs)NSObject",
+        "superclassNames": [
+          "ObjectiveC.NSObject"
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "NSObjectProtocol",
+            "printedName": "NSObjectProtocol",
+            "usr": "c:objc(pl)NSObject"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Equatable",
+            "printedName": "Equatable",
+            "usr": "s:SQ",
+            "mangledName": "$sSQ"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Hashable",
+            "printedName": "Hashable",
+            "usr": "s:SH",
+            "mangledName": "$sSH"
+          },
+          {
+            "kind": "Conformance",
+            "name": "CVarArg",
+            "printedName": "CVarArg",
+            "usr": "s:s7CVarArgP",
+            "mangledName": "$ss7CVarArgP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "CustomStringConvertible",
+            "printedName": "CustomStringConvertible",
+            "usr": "s:s23CustomStringConvertibleP",
+            "mangledName": "$ss23CustomStringConvertibleP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "CustomDebugStringConvertible",
+            "printedName": "CustomDebugStringConvertible",
+            "usr": "s:s28CustomDebugStringConvertibleP",
+            "mangledName": "$ss28CustomDebugStringConvertibleP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "SentrySerializable",
+            "printedName": "SentrySerializable",
+            "usr": "c:objc(pl)SentrySerializable"
+          }
+        ]
+      },
+      {
+        "kind": "TypeDecl",
+        "name": "SentryLogMessage",
+        "printedName": "SentryLogMessage",
+        "children": [
+          {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init(stringLiteral:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "SentryLogMessage",
+                "printedName": "Sentry.SentryLogMessage",
+                "usr": "s:6Sentry0A10LogMessageV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "s:6Sentry0A10LogMessageV13stringLiteralACSS_tcfc",
+            "mangledName": "$s6Sentry0A10LogMessageV13stringLiteralACSS_tcfc",
+            "moduleName": "Sentry",
+            "init_kind": "Designated"
+          },
+          {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init(stringInterpolation:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "SentryLogMessage",
+                "printedName": "Sentry.SentryLogMessage",
+                "usr": "s:6Sentry0A10LogMessageV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "StringInterpolation",
+                "printedName": "Sentry.SentryLogMessage.StringInterpolation",
+                "usr": "s:6Sentry0A10LogMessageV19StringInterpolationV"
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "s:6Sentry0A10LogMessageV19stringInterpolationA2C06StringE0V_tcfc",
+            "mangledName": "$s6Sentry0A10LogMessageV19stringInterpolationA2C06StringE0V_tcfc",
+            "moduleName": "Sentry",
+            "init_kind": "Designated"
+          },
+          {
+            "kind": "TypeDecl",
+            "name": "StringInterpolation",
+            "printedName": "StringInterpolation",
+            "children": [
+              {
+                "kind": "Constructor",
+                "name": "init",
+                "printedName": "init(literalCapacity:interpolationCount:)",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "StringInterpolation",
+                    "printedName": "Sentry.SentryLogMessage.StringInterpolation",
+                    "usr": "s:6Sentry0A10LogMessageV19StringInterpolationV"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Int",
+                    "printedName": "Swift.Int",
+                    "usr": "s:Si"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Int",
+                    "printedName": "Swift.Int",
+                    "usr": "s:Si"
+                  }
+                ],
+                "declKind": "Constructor",
+                "usr": "s:6Sentry0A10LogMessageV19StringInterpolationV15literalCapacity18interpolationCountAESi_Sitcfc",
+                "mangledName": "$s6Sentry0A10LogMessageV19StringInterpolationV15literalCapacity18interpolationCountAESi_Sitcfc",
+                "moduleName": "Sentry",
+                "init_kind": "Designated"
+              },
+              {
+                "kind": "Function",
+                "name": "appendLiteral",
+                "printedName": "appendLiteral(_:)",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "declKind": "Func",
+                "usr": "s:6Sentry0A10LogMessageV19StringInterpolationV13appendLiteralyySSF",
+                "mangledName": "$s6Sentry0A10LogMessageV19StringInterpolationV13appendLiteralyySSF",
+                "moduleName": "Sentry",
+                "funcSelfKind": "Mutating"
+              },
+              {
+                "kind": "Function",
+                "name": "appendInterpolation",
+                "printedName": "appendInterpolation(_:)",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  },
+                  {
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "() -> Swift.String",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Void",
+                        "printedName": "()"
+                      }
+                    ]
+                  }
+                ],
+                "declKind": "Func",
+                "usr": "s:6Sentry0A10LogMessageV19StringInterpolationV06appendE0yySSyXAF",
+                "mangledName": "$s6Sentry0A10LogMessageV19StringInterpolationV06appendE0yySSyXAF",
+                "moduleName": "Sentry",
+                "funcSelfKind": "Mutating"
+              },
+              {
+                "kind": "Function",
+                "name": "appendInterpolation",
+                "printedName": "appendInterpolation(_:)",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  },
+                  {
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "() -> Swift.Bool",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Bool",
+                        "printedName": "Swift.Bool",
+                        "usr": "s:Sb"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Void",
+                        "printedName": "()"
+                      }
+                    ]
+                  }
+                ],
+                "declKind": "Func",
+                "usr": "s:6Sentry0A10LogMessageV19StringInterpolationV06appendE0yySbyXAF",
+                "mangledName": "$s6Sentry0A10LogMessageV19StringInterpolationV06appendE0yySbyXAF",
+                "moduleName": "Sentry",
+                "funcSelfKind": "Mutating"
+              },
+              {
+                "kind": "Function",
+                "name": "appendInterpolation",
+                "printedName": "appendInterpolation(_:)",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  },
+                  {
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "() -> Swift.Int",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Int",
+                        "printedName": "Swift.Int",
+                        "usr": "s:Si"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Void",
+                        "printedName": "()"
+                      }
+                    ]
+                  }
+                ],
+                "declKind": "Func",
+                "usr": "s:6Sentry0A10LogMessageV19StringInterpolationV06appendE0yySiyXAF",
+                "mangledName": "$s6Sentry0A10LogMessageV19StringInterpolationV06appendE0yySiyXAF",
+                "moduleName": "Sentry",
+                "funcSelfKind": "Mutating"
+              },
+              {
+                "kind": "Function",
+                "name": "appendInterpolation",
+                "printedName": "appendInterpolation(_:)",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  },
+                  {
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "() -> Swift.Double",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Double",
+                        "printedName": "Swift.Double",
+                        "usr": "s:Sd"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Void",
+                        "printedName": "()"
+                      }
+                    ]
+                  }
+                ],
+                "declKind": "Func",
+                "usr": "s:6Sentry0A10LogMessageV19StringInterpolationV06appendE0yySdyXAF",
+                "mangledName": "$s6Sentry0A10LogMessageV19StringInterpolationV06appendE0yySdyXAF",
+                "moduleName": "Sentry",
+                "funcSelfKind": "Mutating"
+              },
+              {
+                "kind": "Function",
+                "name": "appendInterpolation",
+                "printedName": "appendInterpolation(_:)",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  },
+                  {
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "() -> Swift.Float",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Float",
+                        "printedName": "Swift.Float",
+                        "usr": "s:Sf"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Void",
+                        "printedName": "()"
+                      }
+                    ]
+                  }
+                ],
+                "declKind": "Func",
+                "usr": "s:6Sentry0A10LogMessageV19StringInterpolationV06appendE0yySfyXAF",
+                "mangledName": "$s6Sentry0A10LogMessageV19StringInterpolationV06appendE0yySfyXAF",
+                "moduleName": "Sentry",
+                "funcSelfKind": "Mutating"
+              },
+              {
+                "kind": "Function",
+                "name": "appendInterpolation",
+                "printedName": "appendInterpolation(_:)",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  },
+                  {
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "() -> T",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "GenericTypeParam",
+                        "printedName": "T"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Void",
+                        "printedName": "()"
+                      }
+                    ]
+                  }
+                ],
+                "declKind": "Func",
+                "usr": "s:6Sentry0A10LogMessageV19StringInterpolationV06appendE0yyxyXAs06CustomD11ConvertibleRzlF",
+                "mangledName": "$s6Sentry0A10LogMessageV19StringInterpolationV06appendE0yyxyXAs06CustomD11ConvertibleRzlF",
+                "moduleName": "Sentry",
+                "genericSig": "<T where T : Swift.CustomStringConvertible>",
+                "funcSelfKind": "Mutating"
+              },
+              {
+                "kind": "TypeAlias",
+                "name": "StringLiteralType",
+                "printedName": "StringLiteralType",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "declKind": "TypeAlias",
+                "usr": "s:6Sentry0A10LogMessageV19StringInterpolationV0D11LiteralTypea",
+                "mangledName": "$s6Sentry0A10LogMessageV19StringInterpolationV0D11LiteralTypea",
+                "moduleName": "Sentry"
+              }
+            ],
+            "declKind": "Struct",
+            "usr": "s:6Sentry0A10LogMessageV19StringInterpolationV",
+            "mangledName": "$s6Sentry0A10LogMessageV19StringInterpolationV",
+            "moduleName": "Sentry",
+            "conformances": [
+              {
+                "kind": "Conformance",
+                "name": "StringInterpolationProtocol",
+                "printedName": "StringInterpolationProtocol",
+                "children": [
+                  {
+                    "kind": "TypeWitness",
+                    "name": "StringLiteralType",
+                    "printedName": "StringLiteralType",
+                    "children": [
+                      {
+                        "kind": "TypeNameAlias",
+                        "name": "StringLiteralType",
+                        "printedName": "Sentry.SentryLogMessage.StringInterpolation.StringLiteralType",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "String",
+                            "printedName": "Swift.String",
+                            "usr": "s:SS"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ],
+                "usr": "s:s27StringInterpolationProtocolP",
+                "mangledName": "$ss27StringInterpolationProtocolP"
+              },
+              {
+                "kind": "Conformance",
+                "name": "Copyable",
+                "printedName": "Copyable",
+                "usr": "s:s8CopyableP",
+                "mangledName": "$ss8CopyableP"
+              },
+              {
+                "kind": "Conformance",
+                "name": "Escapable",
+                "printedName": "Escapable",
+                "usr": "s:s9EscapableP",
+                "mangledName": "$ss9EscapableP"
+              }
+            ]
+          },
+          {
+            "kind": "TypeAlias",
+            "name": "ExtendedGraphemeClusterLiteralType",
+            "printedName": "ExtendedGraphemeClusterLiteralType",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "TypeAlias",
+            "usr": "s:6Sentry0A10LogMessageV34ExtendedGraphemeClusterLiteralTypea",
+            "mangledName": "$s6Sentry0A10LogMessageV34ExtendedGraphemeClusterLiteralTypea",
+            "moduleName": "Sentry"
+          },
+          {
+            "kind": "TypeAlias",
+            "name": "StringLiteralType",
+            "printedName": "StringLiteralType",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "TypeAlias",
+            "usr": "s:6Sentry0A10LogMessageV17StringLiteralTypea",
+            "mangledName": "$s6Sentry0A10LogMessageV17StringLiteralTypea",
+            "moduleName": "Sentry"
+          },
+          {
+            "kind": "TypeAlias",
+            "name": "UnicodeScalarLiteralType",
+            "printedName": "UnicodeScalarLiteralType",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "TypeAlias",
+            "usr": "s:6Sentry0A10LogMessageV24UnicodeScalarLiteralTypea",
+            "mangledName": "$s6Sentry0A10LogMessageV24UnicodeScalarLiteralTypea",
+            "moduleName": "Sentry"
+          }
+        ],
+        "declKind": "Struct",
+        "usr": "s:6Sentry0A10LogMessageV",
+        "mangledName": "$s6Sentry0A10LogMessageV",
+        "moduleName": "Sentry",
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "ExpressibleByStringInterpolation",
+            "printedName": "ExpressibleByStringInterpolation",
+            "children": [
+              {
+                "kind": "TypeWitness",
+                "name": "StringInterpolation",
+                "printedName": "StringInterpolation",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "StringInterpolation",
+                    "printedName": "Sentry.SentryLogMessage.StringInterpolation",
+                    "usr": "s:6Sentry0A10LogMessageV19StringInterpolationV"
+                  }
+                ]
+              }
+            ],
+            "usr": "s:s32ExpressibleByStringInterpolationP",
+            "mangledName": "$ss32ExpressibleByStringInterpolationP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "ExpressibleByStringLiteral",
+            "printedName": "ExpressibleByStringLiteral",
+            "children": [
+              {
+                "kind": "TypeWitness",
+                "name": "StringLiteralType",
+                "printedName": "StringLiteralType",
+                "children": [
+                  {
+                    "kind": "TypeNameAlias",
+                    "name": "StringLiteralType",
+                    "printedName": "Sentry.SentryLogMessage.StringLiteralType",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "usr": "s:s26ExpressibleByStringLiteralP",
+            "mangledName": "$ss26ExpressibleByStringLiteralP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "ExpressibleByExtendedGraphemeClusterLiteral",
+            "printedName": "ExpressibleByExtendedGraphemeClusterLiteral",
+            "children": [
+              {
+                "kind": "TypeWitness",
+                "name": "ExtendedGraphemeClusterLiteralType",
+                "printedName": "ExtendedGraphemeClusterLiteralType",
+                "children": [
+                  {
+                    "kind": "TypeNameAlias",
+                    "name": "ExtendedGraphemeClusterLiteralType",
+                    "printedName": "Sentry.SentryLogMessage.ExtendedGraphemeClusterLiteralType",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "usr": "s:s43ExpressibleByExtendedGraphemeClusterLiteralP",
+            "mangledName": "$ss43ExpressibleByExtendedGraphemeClusterLiteralP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "ExpressibleByUnicodeScalarLiteral",
+            "printedName": "ExpressibleByUnicodeScalarLiteral",
+            "children": [
+              {
+                "kind": "TypeWitness",
+                "name": "UnicodeScalarLiteralType",
+                "printedName": "UnicodeScalarLiteralType",
+                "children": [
+                  {
+                    "kind": "TypeNameAlias",
+                    "name": "UnicodeScalarLiteralType",
+                    "printedName": "Sentry.SentryLogMessage.UnicodeScalarLiteralType",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "usr": "s:s33ExpressibleByUnicodeScalarLiteralP",
+            "mangledName": "$ss33ExpressibleByUnicodeScalarLiteralP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          }
+        ]
+      },
+      {
+        "kind": "TypeDecl",
         "name": "SentryViewScreenshotOptions",
         "printedName": "SentryViewScreenshotOptions",
         "children": [
@@ -36708,1075 +37777,6 @@
             "printedName": "CustomDebugStringConvertible",
             "usr": "s:s28CustomDebugStringConvertibleP",
             "mangledName": "$ss28CustomDebugStringConvertibleP"
-          }
-        ]
-      },
-      {
-        "kind": "TypeDecl",
-        "name": "SentryFeedback",
-        "printedName": "SentryFeedback",
-        "children": [
-          {
-            "kind": "TypeDecl",
-            "name": "SentryFeedbackSource",
-            "printedName": "SentryFeedbackSource",
-            "children": [
-              {
-                "kind": "Var",
-                "name": "serialize",
-                "printedName": "serialize",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "String",
-                    "printedName": "Swift.String",
-                    "usr": "s:SS"
-                  }
-                ],
-                "declKind": "Var",
-                "usr": "s:6Sentry0A8FeedbackC0aB6SourceO9serializeSSvp",
-                "mangledName": "$s6Sentry0A8FeedbackC0aB6SourceO9serializeSSvp",
-                "moduleName": "Sentry",
-                "accessors": [
-                  {
-                    "kind": "Accessor",
-                    "name": "Get",
-                    "printedName": "Get()",
-                    "children": [
-                      {
-                        "kind": "TypeNominal",
-                        "name": "String",
-                        "printedName": "Swift.String",
-                        "usr": "s:SS"
-                      }
-                    ],
-                    "declKind": "Accessor",
-                    "usr": "s:6Sentry0A8FeedbackC0aB6SourceO9serializeSSvg",
-                    "mangledName": "$s6Sentry0A8FeedbackC0aB6SourceO9serializeSSvg",
-                    "moduleName": "Sentry",
-                    "accessorKind": "get"
-                  }
-                ]
-              },
-              {
-                "kind": "Var",
-                "name": "widget",
-                "printedName": "widget",
-                "children": [
-                  {
-                    "kind": "TypeFunc",
-                    "name": "Function",
-                    "printedName": "(Sentry.SentryFeedback.SentryFeedbackSource.Type) -> Sentry.SentryFeedback.SentryFeedbackSource",
-                    "children": [
-                      {
-                        "kind": "TypeNominal",
-                        "name": "SentryFeedbackSource",
-                        "printedName": "Sentry.SentryFeedback.SentryFeedbackSource",
-                        "usr": "s:6Sentry0A8FeedbackC0aB6SourceO"
-                      },
-                      {
-                        "kind": "TypeNominal",
-                        "name": "Metatype",
-                        "printedName": "Sentry.SentryFeedback.SentryFeedbackSource.Type",
-                        "children": [
-                          {
-                            "kind": "TypeNominal",
-                            "name": "SentryFeedbackSource",
-                            "printedName": "Sentry.SentryFeedback.SentryFeedbackSource",
-                            "usr": "s:6Sentry0A8FeedbackC0aB6SourceO"
-                          }
-                        ]
-                      }
-                    ]
-                  }
-                ],
-                "declKind": "EnumElement",
-                "usr": "s:6Sentry0A8FeedbackC0aB6SourceO6widgetyA2EmF",
-                "mangledName": "$s6Sentry0A8FeedbackC0aB6SourceO6widgetyA2EmF",
-                "moduleName": "Sentry",
-                "declAttributes": [
-                  "ObjC"
-                ]
-              },
-              {
-                "kind": "Var",
-                "name": "custom",
-                "printedName": "custom",
-                "children": [
-                  {
-                    "kind": "TypeFunc",
-                    "name": "Function",
-                    "printedName": "(Sentry.SentryFeedback.SentryFeedbackSource.Type) -> Sentry.SentryFeedback.SentryFeedbackSource",
-                    "children": [
-                      {
-                        "kind": "TypeNominal",
-                        "name": "SentryFeedbackSource",
-                        "printedName": "Sentry.SentryFeedback.SentryFeedbackSource",
-                        "usr": "s:6Sentry0A8FeedbackC0aB6SourceO"
-                      },
-                      {
-                        "kind": "TypeNominal",
-                        "name": "Metatype",
-                        "printedName": "Sentry.SentryFeedback.SentryFeedbackSource.Type",
-                        "children": [
-                          {
-                            "kind": "TypeNominal",
-                            "name": "SentryFeedbackSource",
-                            "printedName": "Sentry.SentryFeedback.SentryFeedbackSource",
-                            "usr": "s:6Sentry0A8FeedbackC0aB6SourceO"
-                          }
-                        ]
-                      }
-                    ]
-                  }
-                ],
-                "declKind": "EnumElement",
-                "usr": "s:6Sentry0A8FeedbackC0aB6SourceO6customyA2EmF",
-                "mangledName": "$s6Sentry0A8FeedbackC0aB6SourceO6customyA2EmF",
-                "moduleName": "Sentry",
-                "declAttributes": [
-                  "ObjC"
-                ]
-              },
-              {
-                "kind": "Constructor",
-                "name": "init",
-                "printedName": "init(rawValue:)",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Optional",
-                    "printedName": "Sentry.SentryFeedback.SentryFeedbackSource?",
-                    "children": [
-                      {
-                        "kind": "TypeNominal",
-                        "name": "SentryFeedbackSource",
-                        "printedName": "Sentry.SentryFeedback.SentryFeedbackSource",
-                        "usr": "s:6Sentry0A8FeedbackC0aB6SourceO"
-                      }
-                    ],
-                    "usr": "s:Sq"
-                  },
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Int",
-                    "printedName": "Swift.Int",
-                    "usr": "s:Si"
-                  }
-                ],
-                "declKind": "Constructor",
-                "usr": "s:6Sentry0A8FeedbackC0aB6SourceO8rawValueAESgSi_tcfc",
-                "mangledName": "$s6Sentry0A8FeedbackC0aB6SourceO8rawValueAESgSi_tcfc",
-                "moduleName": "Sentry",
-                "init_kind": "Designated"
-              },
-              {
-                "kind": "TypeAlias",
-                "name": "RawValue",
-                "printedName": "RawValue",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Int",
-                    "printedName": "Swift.Int",
-                    "usr": "s:Si"
-                  }
-                ],
-                "declKind": "TypeAlias",
-                "usr": "s:6Sentry0A8FeedbackC0aB6SourceO8RawValuea",
-                "mangledName": "$s6Sentry0A8FeedbackC0aB6SourceO8RawValuea",
-                "moduleName": "Sentry"
-              },
-              {
-                "kind": "Var",
-                "name": "rawValue",
-                "printedName": "rawValue",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Int",
-                    "printedName": "Swift.Int",
-                    "usr": "s:Si"
-                  }
-                ],
-                "declKind": "Var",
-                "usr": "s:6Sentry0A8FeedbackC0aB6SourceO8rawValueSivp",
-                "mangledName": "$s6Sentry0A8FeedbackC0aB6SourceO8rawValueSivp",
-                "moduleName": "Sentry",
-                "accessors": [
-                  {
-                    "kind": "Accessor",
-                    "name": "Get",
-                    "printedName": "Get()",
-                    "children": [
-                      {
-                        "kind": "TypeNominal",
-                        "name": "Int",
-                        "printedName": "Swift.Int",
-                        "usr": "s:Si"
-                      }
-                    ],
-                    "declKind": "Accessor",
-                    "usr": "s:6Sentry0A8FeedbackC0aB6SourceO8rawValueSivg",
-                    "mangledName": "$s6Sentry0A8FeedbackC0aB6SourceO8rawValueSivg",
-                    "moduleName": "Sentry",
-                    "accessorKind": "get"
-                  }
-                ]
-              }
-            ],
-            "declKind": "Enum",
-            "usr": "s:6Sentry0A8FeedbackC0aB6SourceO",
-            "mangledName": "$s6Sentry0A8FeedbackC0aB6SourceO",
-            "moduleName": "Sentry",
-            "declAttributes": [
-              "ObjC"
-            ],
-            "enumRawTypeName": "Int",
-            "conformances": [
-              {
-                "kind": "Conformance",
-                "name": "Copyable",
-                "printedName": "Copyable",
-                "usr": "s:s8CopyableP",
-                "mangledName": "$ss8CopyableP"
-              },
-              {
-                "kind": "Conformance",
-                "name": "Escapable",
-                "printedName": "Escapable",
-                "usr": "s:s9EscapableP",
-                "mangledName": "$ss9EscapableP"
-              },
-              {
-                "kind": "Conformance",
-                "name": "Equatable",
-                "printedName": "Equatable",
-                "usr": "s:SQ",
-                "mangledName": "$sSQ"
-              },
-              {
-                "kind": "Conformance",
-                "name": "Hashable",
-                "printedName": "Hashable",
-                "usr": "s:SH",
-                "mangledName": "$sSH"
-              },
-              {
-                "kind": "Conformance",
-                "name": "RawRepresentable",
-                "printedName": "RawRepresentable",
-                "children": [
-                  {
-                    "kind": "TypeWitness",
-                    "name": "RawValue",
-                    "printedName": "RawValue",
-                    "children": [
-                      {
-                        "kind": "TypeNameAlias",
-                        "name": "RawValue",
-                        "printedName": "Sentry.SentryFeedback.SentryFeedbackSource.RawValue",
-                        "children": [
-                          {
-                            "kind": "TypeNominal",
-                            "name": "Int",
-                            "printedName": "Swift.Int",
-                            "usr": "s:Si"
-                          }
-                        ]
-                      }
-                    ]
-                  }
-                ],
-                "usr": "s:SY",
-                "mangledName": "$sSY"
-              }
-            ]
-          },
-          {
-            "kind": "Constructor",
-            "name": "init",
-            "printedName": "init(message:name:email:source:associatedEventId:attachments:)",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "SentryFeedback",
-                "printedName": "Sentry.SentryFeedback",
-                "usr": "c:@M@Sentry@objc(cs)SentryFeedback"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "String",
-                "printedName": "Swift.String",
-                "usr": "s:SS"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "Optional",
-                "printedName": "Swift.String?",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "String",
-                    "printedName": "Swift.String",
-                    "usr": "s:SS"
-                  }
-                ],
-                "usr": "s:Sq"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "Optional",
-                "printedName": "Swift.String?",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "String",
-                    "printedName": "Swift.String",
-                    "usr": "s:SS"
-                  }
-                ],
-                "usr": "s:Sq"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "SentryFeedbackSource",
-                "printedName": "Sentry.SentryFeedback.SentryFeedbackSource",
-                "hasDefaultArg": true,
-                "usr": "s:6Sentry0A8FeedbackC0aB6SourceO"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "Optional",
-                "printedName": "Sentry.SentryId?",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "SentryId",
-                    "printedName": "Sentry.SentryId",
-                    "usr": "c:objc(cs)SentryId"
-                  }
-                ],
-                "hasDefaultArg": true,
-                "usr": "s:Sq"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "Optional",
-                "printedName": "[Sentry.Attachment]?",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Array",
-                    "printedName": "[Sentry.Attachment]",
-                    "children": [
-                      {
-                        "kind": "TypeNominal",
-                        "name": "Attachment",
-                        "printedName": "Sentry.Attachment",
-                        "usr": "c:objc(cs)SentryAttachment"
-                      }
-                    ],
-                    "usr": "s:Sa"
-                  }
-                ],
-                "hasDefaultArg": true,
-                "usr": "s:Sq"
-              }
-            ],
-            "declKind": "Constructor",
-            "usr": "c:@M@Sentry@objc(cs)SentryFeedback(im)initWithMessage:name:email:source:associatedEventId:attachments:",
-            "mangledName": "$s6Sentry0A8FeedbackC7message4name5email6source17associatedEventId11attachmentsACSS_SSSgAjC0aB6SourceOSo0aI0CSgSaySo0A10AttachmentCGSgtcfc",
-            "moduleName": "Sentry",
-            "objc_name": "initWithMessage:name:email:source:associatedEventId:attachments:",
-            "declAttributes": [
-              "ObjC"
-            ],
-            "init_kind": "Designated"
-          },
-          {
-            "kind": "Function",
-            "name": "serialize",
-            "printedName": "serialize()",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Dictionary",
-                "printedName": "[Swift.String : Any]",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "String",
-                    "printedName": "Swift.String",
-                    "usr": "s:SS"
-                  },
-                  {
-                    "kind": "TypeNominal",
-                    "name": "ProtocolComposition",
-                    "printedName": "Any"
-                  }
-                ],
-                "usr": "s:SD"
-              }
-            ],
-            "declKind": "Func",
-            "usr": "c:@CM@Sentry@objc(cs)SentryFeedback(im)serialize",
-            "mangledName": "$s6Sentry0A8FeedbackC9serializeSDySSypGyF",
-            "moduleName": "Sentry",
-            "objc_name": "serialize",
-            "declAttributes": [
-              "ObjC",
-              "Final"
-            ],
-            "isFromExtension": true,
-            "funcSelfKind": "NonMutating"
-          }
-        ],
-        "declKind": "Class",
-        "usr": "c:@M@Sentry@objc(cs)SentryFeedback",
-        "mangledName": "$s6Sentry0A8FeedbackC",
-        "moduleName": "Sentry",
-        "declAttributes": [
-          "Final",
-          "ObjCMembers",
-          "ObjC"
-        ],
-        "superclassUsr": "c:objc(cs)NSObject",
-        "superclassNames": [
-          "ObjectiveC.NSObject"
-        ],
-        "conformances": [
-          {
-            "kind": "Conformance",
-            "name": "Copyable",
-            "printedName": "Copyable",
-            "usr": "s:s8CopyableP",
-            "mangledName": "$ss8CopyableP"
-          },
-          {
-            "kind": "Conformance",
-            "name": "Escapable",
-            "printedName": "Escapable",
-            "usr": "s:s9EscapableP",
-            "mangledName": "$ss9EscapableP"
-          },
-          {
-            "kind": "Conformance",
-            "name": "NSObjectProtocol",
-            "printedName": "NSObjectProtocol",
-            "usr": "c:objc(pl)NSObject"
-          },
-          {
-            "kind": "Conformance",
-            "name": "Equatable",
-            "printedName": "Equatable",
-            "usr": "s:SQ",
-            "mangledName": "$sSQ"
-          },
-          {
-            "kind": "Conformance",
-            "name": "Hashable",
-            "printedName": "Hashable",
-            "usr": "s:SH",
-            "mangledName": "$sSH"
-          },
-          {
-            "kind": "Conformance",
-            "name": "CVarArg",
-            "printedName": "CVarArg",
-            "usr": "s:s7CVarArgP",
-            "mangledName": "$ss7CVarArgP"
-          },
-          {
-            "kind": "Conformance",
-            "name": "CustomStringConvertible",
-            "printedName": "CustomStringConvertible",
-            "usr": "s:s23CustomStringConvertibleP",
-            "mangledName": "$ss23CustomStringConvertibleP"
-          },
-          {
-            "kind": "Conformance",
-            "name": "CustomDebugStringConvertible",
-            "printedName": "CustomDebugStringConvertible",
-            "usr": "s:s28CustomDebugStringConvertibleP",
-            "mangledName": "$ss28CustomDebugStringConvertibleP"
-          },
-          {
-            "kind": "Conformance",
-            "name": "SentrySerializable",
-            "printedName": "SentrySerializable",
-            "usr": "c:objc(pl)SentrySerializable"
-          }
-        ]
-      },
-      {
-        "kind": "TypeDecl",
-        "name": "SentryLogMessage",
-        "printedName": "SentryLogMessage",
-        "children": [
-          {
-            "kind": "Constructor",
-            "name": "init",
-            "printedName": "init(stringLiteral:)",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "SentryLogMessage",
-                "printedName": "Sentry.SentryLogMessage",
-                "usr": "s:6Sentry0A10LogMessageV"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "String",
-                "printedName": "Swift.String",
-                "usr": "s:SS"
-              }
-            ],
-            "declKind": "Constructor",
-            "usr": "s:6Sentry0A10LogMessageV13stringLiteralACSS_tcfc",
-            "mangledName": "$s6Sentry0A10LogMessageV13stringLiteralACSS_tcfc",
-            "moduleName": "Sentry",
-            "init_kind": "Designated"
-          },
-          {
-            "kind": "Constructor",
-            "name": "init",
-            "printedName": "init(stringInterpolation:)",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "SentryLogMessage",
-                "printedName": "Sentry.SentryLogMessage",
-                "usr": "s:6Sentry0A10LogMessageV"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "StringInterpolation",
-                "printedName": "Sentry.SentryLogMessage.StringInterpolation",
-                "usr": "s:6Sentry0A10LogMessageV19StringInterpolationV"
-              }
-            ],
-            "declKind": "Constructor",
-            "usr": "s:6Sentry0A10LogMessageV19stringInterpolationA2C06StringE0V_tcfc",
-            "mangledName": "$s6Sentry0A10LogMessageV19stringInterpolationA2C06StringE0V_tcfc",
-            "moduleName": "Sentry",
-            "init_kind": "Designated"
-          },
-          {
-            "kind": "TypeDecl",
-            "name": "StringInterpolation",
-            "printedName": "StringInterpolation",
-            "children": [
-              {
-                "kind": "Constructor",
-                "name": "init",
-                "printedName": "init(literalCapacity:interpolationCount:)",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "StringInterpolation",
-                    "printedName": "Sentry.SentryLogMessage.StringInterpolation",
-                    "usr": "s:6Sentry0A10LogMessageV19StringInterpolationV"
-                  },
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Int",
-                    "printedName": "Swift.Int",
-                    "usr": "s:Si"
-                  },
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Int",
-                    "printedName": "Swift.Int",
-                    "usr": "s:Si"
-                  }
-                ],
-                "declKind": "Constructor",
-                "usr": "s:6Sentry0A10LogMessageV19StringInterpolationV15literalCapacity18interpolationCountAESi_Sitcfc",
-                "mangledName": "$s6Sentry0A10LogMessageV19StringInterpolationV15literalCapacity18interpolationCountAESi_Sitcfc",
-                "moduleName": "Sentry",
-                "init_kind": "Designated"
-              },
-              {
-                "kind": "Function",
-                "name": "appendLiteral",
-                "printedName": "appendLiteral(_:)",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Void",
-                    "printedName": "()"
-                  },
-                  {
-                    "kind": "TypeNominal",
-                    "name": "String",
-                    "printedName": "Swift.String",
-                    "usr": "s:SS"
-                  }
-                ],
-                "declKind": "Func",
-                "usr": "s:6Sentry0A10LogMessageV19StringInterpolationV13appendLiteralyySSF",
-                "mangledName": "$s6Sentry0A10LogMessageV19StringInterpolationV13appendLiteralyySSF",
-                "moduleName": "Sentry",
-                "funcSelfKind": "Mutating"
-              },
-              {
-                "kind": "Function",
-                "name": "appendInterpolation",
-                "printedName": "appendInterpolation(_:)",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Void",
-                    "printedName": "()"
-                  },
-                  {
-                    "kind": "TypeFunc",
-                    "name": "Function",
-                    "printedName": "() -> Swift.String",
-                    "children": [
-                      {
-                        "kind": "TypeNominal",
-                        "name": "String",
-                        "printedName": "Swift.String",
-                        "usr": "s:SS"
-                      },
-                      {
-                        "kind": "TypeNominal",
-                        "name": "Void",
-                        "printedName": "()"
-                      }
-                    ]
-                  }
-                ],
-                "declKind": "Func",
-                "usr": "s:6Sentry0A10LogMessageV19StringInterpolationV06appendE0yySSyXAF",
-                "mangledName": "$s6Sentry0A10LogMessageV19StringInterpolationV06appendE0yySSyXAF",
-                "moduleName": "Sentry",
-                "funcSelfKind": "Mutating"
-              },
-              {
-                "kind": "Function",
-                "name": "appendInterpolation",
-                "printedName": "appendInterpolation(_:)",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Void",
-                    "printedName": "()"
-                  },
-                  {
-                    "kind": "TypeFunc",
-                    "name": "Function",
-                    "printedName": "() -> Swift.Bool",
-                    "children": [
-                      {
-                        "kind": "TypeNominal",
-                        "name": "Bool",
-                        "printedName": "Swift.Bool",
-                        "usr": "s:Sb"
-                      },
-                      {
-                        "kind": "TypeNominal",
-                        "name": "Void",
-                        "printedName": "()"
-                      }
-                    ]
-                  }
-                ],
-                "declKind": "Func",
-                "usr": "s:6Sentry0A10LogMessageV19StringInterpolationV06appendE0yySbyXAF",
-                "mangledName": "$s6Sentry0A10LogMessageV19StringInterpolationV06appendE0yySbyXAF",
-                "moduleName": "Sentry",
-                "funcSelfKind": "Mutating"
-              },
-              {
-                "kind": "Function",
-                "name": "appendInterpolation",
-                "printedName": "appendInterpolation(_:)",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Void",
-                    "printedName": "()"
-                  },
-                  {
-                    "kind": "TypeFunc",
-                    "name": "Function",
-                    "printedName": "() -> Swift.Int",
-                    "children": [
-                      {
-                        "kind": "TypeNominal",
-                        "name": "Int",
-                        "printedName": "Swift.Int",
-                        "usr": "s:Si"
-                      },
-                      {
-                        "kind": "TypeNominal",
-                        "name": "Void",
-                        "printedName": "()"
-                      }
-                    ]
-                  }
-                ],
-                "declKind": "Func",
-                "usr": "s:6Sentry0A10LogMessageV19StringInterpolationV06appendE0yySiyXAF",
-                "mangledName": "$s6Sentry0A10LogMessageV19StringInterpolationV06appendE0yySiyXAF",
-                "moduleName": "Sentry",
-                "funcSelfKind": "Mutating"
-              },
-              {
-                "kind": "Function",
-                "name": "appendInterpolation",
-                "printedName": "appendInterpolation(_:)",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Void",
-                    "printedName": "()"
-                  },
-                  {
-                    "kind": "TypeFunc",
-                    "name": "Function",
-                    "printedName": "() -> Swift.Double",
-                    "children": [
-                      {
-                        "kind": "TypeNominal",
-                        "name": "Double",
-                        "printedName": "Swift.Double",
-                        "usr": "s:Sd"
-                      },
-                      {
-                        "kind": "TypeNominal",
-                        "name": "Void",
-                        "printedName": "()"
-                      }
-                    ]
-                  }
-                ],
-                "declKind": "Func",
-                "usr": "s:6Sentry0A10LogMessageV19StringInterpolationV06appendE0yySdyXAF",
-                "mangledName": "$s6Sentry0A10LogMessageV19StringInterpolationV06appendE0yySdyXAF",
-                "moduleName": "Sentry",
-                "funcSelfKind": "Mutating"
-              },
-              {
-                "kind": "Function",
-                "name": "appendInterpolation",
-                "printedName": "appendInterpolation(_:)",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Void",
-                    "printedName": "()"
-                  },
-                  {
-                    "kind": "TypeFunc",
-                    "name": "Function",
-                    "printedName": "() -> Swift.Float",
-                    "children": [
-                      {
-                        "kind": "TypeNominal",
-                        "name": "Float",
-                        "printedName": "Swift.Float",
-                        "usr": "s:Sf"
-                      },
-                      {
-                        "kind": "TypeNominal",
-                        "name": "Void",
-                        "printedName": "()"
-                      }
-                    ]
-                  }
-                ],
-                "declKind": "Func",
-                "usr": "s:6Sentry0A10LogMessageV19StringInterpolationV06appendE0yySfyXAF",
-                "mangledName": "$s6Sentry0A10LogMessageV19StringInterpolationV06appendE0yySfyXAF",
-                "moduleName": "Sentry",
-                "funcSelfKind": "Mutating"
-              },
-              {
-                "kind": "Function",
-                "name": "appendInterpolation",
-                "printedName": "appendInterpolation(_:)",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Void",
-                    "printedName": "()"
-                  },
-                  {
-                    "kind": "TypeFunc",
-                    "name": "Function",
-                    "printedName": "() -> T",
-                    "children": [
-                      {
-                        "kind": "TypeNominal",
-                        "name": "GenericTypeParam",
-                        "printedName": "T"
-                      },
-                      {
-                        "kind": "TypeNominal",
-                        "name": "Void",
-                        "printedName": "()"
-                      }
-                    ]
-                  }
-                ],
-                "declKind": "Func",
-                "usr": "s:6Sentry0A10LogMessageV19StringInterpolationV06appendE0yyxyXAs06CustomD11ConvertibleRzlF",
-                "mangledName": "$s6Sentry0A10LogMessageV19StringInterpolationV06appendE0yyxyXAs06CustomD11ConvertibleRzlF",
-                "moduleName": "Sentry",
-                "genericSig": "<T where T : Swift.CustomStringConvertible>",
-                "funcSelfKind": "Mutating"
-              },
-              {
-                "kind": "TypeAlias",
-                "name": "StringLiteralType",
-                "printedName": "StringLiteralType",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "String",
-                    "printedName": "Swift.String",
-                    "usr": "s:SS"
-                  }
-                ],
-                "declKind": "TypeAlias",
-                "usr": "s:6Sentry0A10LogMessageV19StringInterpolationV0D11LiteralTypea",
-                "mangledName": "$s6Sentry0A10LogMessageV19StringInterpolationV0D11LiteralTypea",
-                "moduleName": "Sentry"
-              }
-            ],
-            "declKind": "Struct",
-            "usr": "s:6Sentry0A10LogMessageV19StringInterpolationV",
-            "mangledName": "$s6Sentry0A10LogMessageV19StringInterpolationV",
-            "moduleName": "Sentry",
-            "conformances": [
-              {
-                "kind": "Conformance",
-                "name": "StringInterpolationProtocol",
-                "printedName": "StringInterpolationProtocol",
-                "children": [
-                  {
-                    "kind": "TypeWitness",
-                    "name": "StringLiteralType",
-                    "printedName": "StringLiteralType",
-                    "children": [
-                      {
-                        "kind": "TypeNameAlias",
-                        "name": "StringLiteralType",
-                        "printedName": "Sentry.SentryLogMessage.StringInterpolation.StringLiteralType",
-                        "children": [
-                          {
-                            "kind": "TypeNominal",
-                            "name": "String",
-                            "printedName": "Swift.String",
-                            "usr": "s:SS"
-                          }
-                        ]
-                      }
-                    ]
-                  }
-                ],
-                "usr": "s:s27StringInterpolationProtocolP",
-                "mangledName": "$ss27StringInterpolationProtocolP"
-              },
-              {
-                "kind": "Conformance",
-                "name": "Copyable",
-                "printedName": "Copyable",
-                "usr": "s:s8CopyableP",
-                "mangledName": "$ss8CopyableP"
-              },
-              {
-                "kind": "Conformance",
-                "name": "Escapable",
-                "printedName": "Escapable",
-                "usr": "s:s9EscapableP",
-                "mangledName": "$ss9EscapableP"
-              }
-            ]
-          },
-          {
-            "kind": "TypeAlias",
-            "name": "ExtendedGraphemeClusterLiteralType",
-            "printedName": "ExtendedGraphemeClusterLiteralType",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "String",
-                "printedName": "Swift.String",
-                "usr": "s:SS"
-              }
-            ],
-            "declKind": "TypeAlias",
-            "usr": "s:6Sentry0A10LogMessageV34ExtendedGraphemeClusterLiteralTypea",
-            "mangledName": "$s6Sentry0A10LogMessageV34ExtendedGraphemeClusterLiteralTypea",
-            "moduleName": "Sentry"
-          },
-          {
-            "kind": "TypeAlias",
-            "name": "StringLiteralType",
-            "printedName": "StringLiteralType",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "String",
-                "printedName": "Swift.String",
-                "usr": "s:SS"
-              }
-            ],
-            "declKind": "TypeAlias",
-            "usr": "s:6Sentry0A10LogMessageV17StringLiteralTypea",
-            "mangledName": "$s6Sentry0A10LogMessageV17StringLiteralTypea",
-            "moduleName": "Sentry"
-          },
-          {
-            "kind": "TypeAlias",
-            "name": "UnicodeScalarLiteralType",
-            "printedName": "UnicodeScalarLiteralType",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "String",
-                "printedName": "Swift.String",
-                "usr": "s:SS"
-              }
-            ],
-            "declKind": "TypeAlias",
-            "usr": "s:6Sentry0A10LogMessageV24UnicodeScalarLiteralTypea",
-            "mangledName": "$s6Sentry0A10LogMessageV24UnicodeScalarLiteralTypea",
-            "moduleName": "Sentry"
-          }
-        ],
-        "declKind": "Struct",
-        "usr": "s:6Sentry0A10LogMessageV",
-        "mangledName": "$s6Sentry0A10LogMessageV",
-        "moduleName": "Sentry",
-        "conformances": [
-          {
-            "kind": "Conformance",
-            "name": "ExpressibleByStringInterpolation",
-            "printedName": "ExpressibleByStringInterpolation",
-            "children": [
-              {
-                "kind": "TypeWitness",
-                "name": "StringInterpolation",
-                "printedName": "StringInterpolation",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "StringInterpolation",
-                    "printedName": "Sentry.SentryLogMessage.StringInterpolation",
-                    "usr": "s:6Sentry0A10LogMessageV19StringInterpolationV"
-                  }
-                ]
-              }
-            ],
-            "usr": "s:s32ExpressibleByStringInterpolationP",
-            "mangledName": "$ss32ExpressibleByStringInterpolationP"
-          },
-          {
-            "kind": "Conformance",
-            "name": "ExpressibleByStringLiteral",
-            "printedName": "ExpressibleByStringLiteral",
-            "children": [
-              {
-                "kind": "TypeWitness",
-                "name": "StringLiteralType",
-                "printedName": "StringLiteralType",
-                "children": [
-                  {
-                    "kind": "TypeNameAlias",
-                    "name": "StringLiteralType",
-                    "printedName": "Sentry.SentryLogMessage.StringLiteralType",
-                    "children": [
-                      {
-                        "kind": "TypeNominal",
-                        "name": "String",
-                        "printedName": "Swift.String",
-                        "usr": "s:SS"
-                      }
-                    ]
-                  }
-                ]
-              }
-            ],
-            "usr": "s:s26ExpressibleByStringLiteralP",
-            "mangledName": "$ss26ExpressibleByStringLiteralP"
-          },
-          {
-            "kind": "Conformance",
-            "name": "ExpressibleByExtendedGraphemeClusterLiteral",
-            "printedName": "ExpressibleByExtendedGraphemeClusterLiteral",
-            "children": [
-              {
-                "kind": "TypeWitness",
-                "name": "ExtendedGraphemeClusterLiteralType",
-                "printedName": "ExtendedGraphemeClusterLiteralType",
-                "children": [
-                  {
-                    "kind": "TypeNameAlias",
-                    "name": "ExtendedGraphemeClusterLiteralType",
-                    "printedName": "Sentry.SentryLogMessage.ExtendedGraphemeClusterLiteralType",
-                    "children": [
-                      {
-                        "kind": "TypeNominal",
-                        "name": "String",
-                        "printedName": "Swift.String",
-                        "usr": "s:SS"
-                      }
-                    ]
-                  }
-                ]
-              }
-            ],
-            "usr": "s:s43ExpressibleByExtendedGraphemeClusterLiteralP",
-            "mangledName": "$ss43ExpressibleByExtendedGraphemeClusterLiteralP"
-          },
-          {
-            "kind": "Conformance",
-            "name": "ExpressibleByUnicodeScalarLiteral",
-            "printedName": "ExpressibleByUnicodeScalarLiteral",
-            "children": [
-              {
-                "kind": "TypeWitness",
-                "name": "UnicodeScalarLiteralType",
-                "printedName": "UnicodeScalarLiteralType",
-                "children": [
-                  {
-                    "kind": "TypeNameAlias",
-                    "name": "UnicodeScalarLiteralType",
-                    "printedName": "Sentry.SentryLogMessage.UnicodeScalarLiteralType",
-                    "children": [
-                      {
-                        "kind": "TypeNominal",
-                        "name": "String",
-                        "printedName": "Swift.String",
-                        "usr": "s:SS"
-                      }
-                    ]
-                  }
-                ]
-              }
-            ],
-            "usr": "s:s33ExpressibleByUnicodeScalarLiteralP",
-            "mangledName": "$ss33ExpressibleByUnicodeScalarLiteralP"
-          },
-          {
-            "kind": "Conformance",
-            "name": "Copyable",
-            "printedName": "Copyable",
-            "usr": "s:s8CopyableP",
-            "mangledName": "$ss8CopyableP"
-          },
-          {
-            "kind": "Conformance",
-            "name": "Escapable",
-            "printedName": "Escapable",
-            "usr": "s:s9EscapableP",
-            "mangledName": "$ss9EscapableP"
           }
         ]
       },
@@ -44222,12 +44222,9 @@
             "mangledName": "$s6Sentry0A25UserFeedbackConfigurationC18configureDarkThemeyAA0abcgD0CcSgvp",
             "moduleName": "Sentry",
             "declAttributes": [
-              "HasInitialValue",
               "Final",
-              "ObjC",
-              "HasStorage"
+              "ObjC"
             ],
-            "hasStorage": true,
             "accessors": [
               {
                 "kind": "Accessor",
@@ -44272,7 +44269,6 @@
                 "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackConfiguration(im)configureDarkTheme",
                 "mangledName": "$s6Sentry0A25UserFeedbackConfigurationC18configureDarkThemeyAA0abcgD0CcSgvg",
                 "moduleName": "Sentry",
-                "implicit": true,
                 "declAttributes": [
                   "Final",
                   "ObjC"
@@ -44327,9 +44323,11 @@
                 "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackConfiguration(im)setConfigureDarkTheme:",
                 "mangledName": "$s6Sentry0A25UserFeedbackConfigurationC18configureDarkThemeyAA0abcgD0CcSgvs",
                 "moduleName": "Sentry",
-                "implicit": true,
+                "deprecated": true,
+                "objc_name": "setConfigureDarkTheme:",
                 "declAttributes": [
                   "Final",
+                  "Available",
                   "ObjC"
                 ],
                 "accessorKind": "set"
@@ -46666,8 +46664,8 @@
         "children": [
           {
             "kind": "Var",
-            "name": "asAttributeValue",
-            "printedName": "asAttributeValue",
+            "name": "asSentryAttributeValue",
+            "printedName": "asSentryAttributeValue",
             "children": [
               {
                 "kind": "TypeNominal",
@@ -46677,8 +46675,8 @@
               }
             ],
             "declKind": "Var",
-            "usr": "s:6Sentry0A17AttributeValuableP02asB5ValueAA0abE0Ovp",
-            "mangledName": "$s6Sentry0A17AttributeValuableP02asB5ValueAA0abE0Ovp",
+            "usr": "s:6Sentry0A17AttributeValuableP02asaB5ValueAA0abE0Ovp",
+            "mangledName": "$s6Sentry0A17AttributeValuableP02asaB5ValueAA0abE0Ovp",
             "moduleName": "Sentry",
             "protocolReq": true,
             "accessors": [
@@ -46695,8 +46693,8 @@
                   }
                 ],
                 "declKind": "Accessor",
-                "usr": "s:6Sentry0A17AttributeValuableP02asB5ValueAA0abE0Ovg",
-                "mangledName": "$s6Sentry0A17AttributeValuableP02asB5ValueAA0abE0Ovg",
+                "usr": "s:6Sentry0A17AttributeValuableP02asaB5ValueAA0abE0Ovg",
+                "mangledName": "$s6Sentry0A17AttributeValuableP02asaB5ValueAA0abE0Ovg",
                 "moduleName": "Sentry",
                 "genericSig": "<Self where Self : Sentry.SentryAttributeValuable>",
                 "protocolReq": true,
@@ -62555,8 +62553,8 @@
         "children": [
           {
             "kind": "Var",
-            "name": "asAttributeValue",
-            "printedName": "asAttributeValue",
+            "name": "asSentryAttributeValue",
+            "printedName": "asSentryAttributeValue",
             "children": [
               {
                 "kind": "TypeNominal",
@@ -62566,8 +62564,8 @@
               }
             ],
             "declKind": "Var",
-            "usr": "s:SS6SentryE16asAttributeValueAA0acD0Ovp",
-            "mangledName": "$sSS6SentryE16asAttributeValueAA0acD0Ovp",
+            "usr": "s:SS6SentryE02asA14AttributeValueAA0acD0Ovp",
+            "mangledName": "$sSS6SentryE02asA14AttributeValueAA0acD0Ovp",
             "moduleName": "Sentry",
             "isFromExtension": true,
             "accessors": [
@@ -62584,8 +62582,8 @@
                   }
                 ],
                 "declKind": "Accessor",
-                "usr": "s:SS6SentryE16asAttributeValueAA0acD0Ovg",
-                "mangledName": "$sSS6SentryE16asAttributeValueAA0acD0Ovg",
+                "usr": "s:SS6SentryE02asA14AttributeValueAA0acD0Ovg",
+                "mangledName": "$sSS6SentryE02asA14AttributeValueAA0acD0Ovg",
                 "moduleName": "Sentry",
                 "isFromExtension": true,
                 "accessorKind": "get"
@@ -63186,8 +63184,8 @@
         "children": [
           {
             "kind": "Var",
-            "name": "asAttributeValue",
-            "printedName": "asAttributeValue",
+            "name": "asSentryAttributeValue",
+            "printedName": "asSentryAttributeValue",
             "children": [
               {
                 "kind": "TypeNominal",
@@ -63197,8 +63195,8 @@
               }
             ],
             "declKind": "Var",
-            "usr": "s:Sb6SentryE16asAttributeValueAA0acD0Ovp",
-            "mangledName": "$sSb6SentryE16asAttributeValueAA0acD0Ovp",
+            "usr": "s:Sb6SentryE02asA14AttributeValueAA0acD0Ovp",
+            "mangledName": "$sSb6SentryE02asA14AttributeValueAA0acD0Ovp",
             "moduleName": "Sentry",
             "isFromExtension": true,
             "accessors": [
@@ -63215,8 +63213,8 @@
                   }
                 ],
                 "declKind": "Accessor",
-                "usr": "s:Sb6SentryE16asAttributeValueAA0acD0Ovg",
-                "mangledName": "$sSb6SentryE16asAttributeValueAA0acD0Ovg",
+                "usr": "s:Sb6SentryE02asA14AttributeValueAA0acD0Ovg",
+                "mangledName": "$sSb6SentryE02asA14AttributeValueAA0acD0Ovg",
                 "moduleName": "Sentry",
                 "isFromExtension": true,
                 "accessorKind": "get"
@@ -63362,8 +63360,8 @@
         "children": [
           {
             "kind": "Var",
-            "name": "asAttributeValue",
-            "printedName": "asAttributeValue",
+            "name": "asSentryAttributeValue",
+            "printedName": "asSentryAttributeValue",
             "children": [
               {
                 "kind": "TypeNominal",
@@ -63373,8 +63371,8 @@
               }
             ],
             "declKind": "Var",
-            "usr": "s:Si6SentryE16asAttributeValueAA0acD0Ovp",
-            "mangledName": "$sSi6SentryE16asAttributeValueAA0acD0Ovp",
+            "usr": "s:Si6SentryE02asA14AttributeValueAA0acD0Ovp",
+            "mangledName": "$sSi6SentryE02asA14AttributeValueAA0acD0Ovp",
             "moduleName": "Sentry",
             "isFromExtension": true,
             "accessors": [
@@ -63391,8 +63389,8 @@
                   }
                 ],
                 "declKind": "Accessor",
-                "usr": "s:Si6SentryE16asAttributeValueAA0acD0Ovg",
-                "mangledName": "$sSi6SentryE16asAttributeValueAA0acD0Ovg",
+                "usr": "s:Si6SentryE02asA14AttributeValueAA0acD0Ovg",
+                "mangledName": "$sSi6SentryE02asA14AttributeValueAA0acD0Ovg",
                 "moduleName": "Sentry",
                 "isFromExtension": true,
                 "accessorKind": "get"
@@ -63774,8 +63772,8 @@
         "children": [
           {
             "kind": "Var",
-            "name": "asAttributeValue",
-            "printedName": "asAttributeValue",
+            "name": "asSentryAttributeValue",
+            "printedName": "asSentryAttributeValue",
             "children": [
               {
                 "kind": "TypeNominal",
@@ -63785,8 +63783,8 @@
               }
             ],
             "declKind": "Var",
-            "usr": "s:Sd6SentryE16asAttributeValueAA0acD0Ovp",
-            "mangledName": "$sSd6SentryE16asAttributeValueAA0acD0Ovp",
+            "usr": "s:Sd6SentryE02asA14AttributeValueAA0acD0Ovp",
+            "mangledName": "$sSd6SentryE02asA14AttributeValueAA0acD0Ovp",
             "moduleName": "Sentry",
             "isFromExtension": true,
             "accessors": [
@@ -63803,8 +63801,8 @@
                   }
                 ],
                 "declKind": "Accessor",
-                "usr": "s:Sd6SentryE16asAttributeValueAA0acD0Ovg",
-                "mangledName": "$sSd6SentryE16asAttributeValueAA0acD0Ovg",
+                "usr": "s:Sd6SentryE02asA14AttributeValueAA0acD0Ovg",
+                "mangledName": "$sSd6SentryE02asA14AttributeValueAA0acD0Ovg",
                 "moduleName": "Sentry",
                 "isFromExtension": true,
                 "accessorKind": "get"
@@ -64257,8 +64255,8 @@
         "children": [
           {
             "kind": "Var",
-            "name": "asAttributeValue",
-            "printedName": "asAttributeValue",
+            "name": "asSentryAttributeValue",
+            "printedName": "asSentryAttributeValue",
             "children": [
               {
                 "kind": "TypeNominal",
@@ -64268,8 +64266,8 @@
               }
             ],
             "declKind": "Var",
-            "usr": "s:Sf6SentryE16asAttributeValueAA0acD0Ovp",
-            "mangledName": "$sSf6SentryE16asAttributeValueAA0acD0Ovp",
+            "usr": "s:Sf6SentryE02asA14AttributeValueAA0acD0Ovp",
+            "mangledName": "$sSf6SentryE02asA14AttributeValueAA0acD0Ovp",
             "moduleName": "Sentry",
             "isFromExtension": true,
             "accessors": [
@@ -64286,8 +64284,8 @@
                   }
                 ],
                 "declKind": "Accessor",
-                "usr": "s:Sf6SentryE16asAttributeValueAA0acD0Ovg",
-                "mangledName": "$sSf6SentryE16asAttributeValueAA0acD0Ovg",
+                "usr": "s:Sf6SentryE02asA14AttributeValueAA0acD0Ovg",
+                "mangledName": "$sSf6SentryE02asA14AttributeValueAA0acD0Ovg",
                 "moduleName": "Sentry",
                 "isFromExtension": true,
                 "accessorKind": "get"
@@ -64740,8 +64738,8 @@
         "children": [
           {
             "kind": "Var",
-            "name": "asAttributeValue",
-            "printedName": "asAttributeValue",
+            "name": "asSentryAttributeValue",
+            "printedName": "asSentryAttributeValue",
             "children": [
               {
                 "kind": "TypeNominal",
@@ -64751,8 +64749,8 @@
               }
             ],
             "declKind": "Var",
-            "usr": "s:Sa6SentryE16asAttributeValueAA0acD0Ovp",
-            "mangledName": "$sSa6SentryE16asAttributeValueAA0acD0Ovp",
+            "usr": "s:Sa6SentryE02asA14AttributeValueAA0acD0Ovp",
+            "mangledName": "$sSa6SentryE02asA14AttributeValueAA0acD0Ovp",
             "moduleName": "Sentry",
             "isFromExtension": true,
             "accessors": [
@@ -64769,8 +64767,8 @@
                   }
                 ],
                 "declKind": "Accessor",
-                "usr": "s:Sa6SentryE16asAttributeValueAA0acD0Ovg",
-                "mangledName": "$sSa6SentryE16asAttributeValueAA0acD0Ovg",
+                "usr": "s:Sa6SentryE02asA14AttributeValueAA0acD0Ovg",
+                "mangledName": "$sSa6SentryE02asA14AttributeValueAA0acD0Ovg",
                 "moduleName": "Sentry",
                 "genericSig": "<Element>",
                 "isFromExtension": true,
