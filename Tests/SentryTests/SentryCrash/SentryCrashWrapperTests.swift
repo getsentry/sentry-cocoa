@@ -162,7 +162,8 @@ final class SentryCrashWrapperTests: XCTestCase {
         
         let deviceContext = try XCTUnwrap(testScope.contextDictionary["device"] as? [String: Any])
         XCTAssertEqual(deviceContext["ios_app_on_macos"] as? Bool, true)
-        XCTAssertEqual(deviceContext["mac_catalyst_app"] as? Bool, false)
+        // When false, the flag is not included in the dictionary to reduce payload size
+        XCTAssertNil(deviceContext["mac_catalyst_app"])
     }
     
     @available(macOS 12.0, *)
@@ -192,7 +193,8 @@ final class SentryCrashWrapperTests: XCTestCase {
         crashWrapper.enrichScope(testScope)
         
         let deviceContext = try XCTUnwrap(testScope.contextDictionary["device"] as? [String: Any])
-        XCTAssertEqual(deviceContext["ios_app_on_macos"] as? Bool, false)
+        // When false, the flag is not included in the dictionary to reduce payload size
+        XCTAssertNil(deviceContext["ios_app_on_macos"])
         XCTAssertEqual(deviceContext["mac_catalyst_app"] as? Bool, true)
     }
     
@@ -222,5 +224,40 @@ final class SentryCrashWrapperTests: XCTestCase {
         
         let deviceContext = try XCTUnwrap(testScope.contextDictionary["device"] as? [String: Any])
         XCTAssertEqual(deviceContext["ios_app_on_visionos"] as? Bool, true)
+    }
+    
+    @available(macOS 12.0, *)
+    func testEnrichScope_DeviceContext_FlagsNotIncludedWhenFalse() throws {
+        // Verify that boolean flags are not included when they are false to reduce payload size
+        let mockProcessInfo = MockSentryProcessInfo()
+        mockProcessInfo.overrides.isiOSAppOnMac = false
+        mockProcessInfo.overrides.isMacCatalystApp = false
+        mockProcessInfo.overrides.isiOSAppOnVisionOS = false
+        
+        let testScope = Scope()
+        let crashWrapper = SentryCrashWrapper(processInfoWrapper: mockProcessInfo, systemInfo: [
+            "osVersion": "23A344",
+            "kernelVersion": "23.0.0",
+            "isJailbroken": false,
+            "systemName": "iOS",
+            "cpuArchitecture": "arm64",
+            "machine": "iPhone14,2",
+            "model": "iPhone 13 Pro",
+            "freeMemorySize": UInt64(1_073_741_824),
+            "usableMemorySize": UInt64(4_294_967_296),
+            "memorySize": UInt64(6_442_450_944),
+            "appStartTime": "2023-01-01T12:00:00Z",
+            "deviceAppHash": "abc123",
+            "appID": "12345",
+            "buildType": "debug"
+        ])
+        
+        crashWrapper.enrichScope(testScope)
+        
+        let deviceContext = try XCTUnwrap(testScope.contextDictionary["device"] as? [String: Any])
+        // All flags should be absent when false
+        XCTAssertNil(deviceContext["ios_app_on_macos"])
+        XCTAssertNil(deviceContext["mac_catalyst_app"])
+        XCTAssertNil(deviceContext["ios_app_on_visionos"])
     }
 }

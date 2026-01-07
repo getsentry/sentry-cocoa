@@ -170,11 +170,20 @@ public final class SentryCrashWrapper: NSObject {
         
         deviceData["locale"] = Locale.autoupdatingCurrent.identifier
         
+        // Only include these boolean flags when they are `true` to reduce payload size.
+        // These flags are `false` for the vast majority of events (regular iOS apps, native macOS apps, etc.),
+        // so omitting them when `false` significantly reduces the payload size without losing meaningful information.
         if #available(macOS 12, *) {
-            deviceData["ios_app_on_macos"] = self.processInfoWrapper.isiOSAppOnMac
-            deviceData["mac_catalyst_app"] = self.processInfoWrapper.isMacCatalystApp
-        } 
-        deviceData["ios_app_on_visionos"] = self.processInfoWrapper.isiOSAppOnVisionOS
+            if self.processInfoWrapper.isiOSAppOnMac {
+                deviceData["ios_app_on_macos"] = true
+            }
+            if self.processInfoWrapper.isMacCatalystApp {
+                deviceData["mac_catalyst_app"] = true
+            }
+        }
+        if self.processInfoWrapper.isiOSAppOnVisionOS {
+            deviceData["ios_app_on_visionos"] = true
+        }
         
         // Set screen dimensions if available
         setScreenDimensions(&deviceData)
