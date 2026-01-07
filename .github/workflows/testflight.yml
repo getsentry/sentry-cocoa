@@ -42,7 +42,7 @@ jobs:
     steps:
       - name: Skip Testflight for Non-Contributors
         run: |
-          echo "Skipping testflight for non-contributors"
+          echo "Skipping testflight for non-contributors, current author association: ${{ github.event.pull_request.author_association }}"
           exit 0
 
   upload_to_testflight:
