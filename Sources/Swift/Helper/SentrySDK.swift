@@ -367,7 +367,7 @@ import Foundation
         SentrySDKInternal.close()
     }
     
-#if !(os(watchOS) || os(tvOS) || (swift(>=5.9) && os(visionOS)))
+#if !(os(watchOS) || os(tvOS) || os(visionOS))
     /// Start a new continuous profiling session if one is not already running.
     /// - warning: Continuous profiling mode is experimental and may still contain bugs.
     /// - note: Unlike transaction-based profiling, continuous profiling does not take into account

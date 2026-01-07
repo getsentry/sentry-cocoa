@@ -13,6 +13,7 @@
 - Rename log attribute `sentry.trace.parent_span_id` to `span_id` (#7055)
 - Fixes stacktraces for MetricKit events (#6908)
 - Fix `raw_description` in `runtime` context on Mac Catalyst (#7082)
+- Deprecates `configureDarkTheme` for user feedback (#7114)
 
 ## 9.1.0
 

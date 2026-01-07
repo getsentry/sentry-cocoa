@@ -32,7 +32,7 @@ final class SentryCrashWrapperTests: XCTestCase {
         ])
         scope = Scope()
         
-#if (os(iOS) || os(tvOS) || (swift(>=5.9) && os(visionOS))) && !targetEnvironment(macCatalyst)
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !targetEnvironment(macCatalyst)
         // Ensure DeviceWrapper info is initialized
         // This is done at SentrySDKInteral, but during tests that might not be the case
         Dependencies.uiDeviceWrapper.start()

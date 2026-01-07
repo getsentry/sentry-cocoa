@@ -64,7 +64,7 @@ jobs:
 
       - run: ./scripts/ci-select-xcode.sh 16.4
       - name: Setup Ruby
-        uses: ruby/setup-ruby@d354de180d0c9e813cfddfcbdc079945d4be589b # v1.275.0
+        uses: ruby/setup-ruby@b90be12699fdfcbee4440c2bba85f6f460446bb0 # v1.279.0
         with:
           bundler-cache: true
       - run: make init-ci-build
