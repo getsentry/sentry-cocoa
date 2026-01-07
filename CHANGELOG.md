@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Encode SwiftUI internal class names in session replay redaction to avoid App Store rejections
+
 ## 8.57.3
 
 ### Fixes
