@@ -1,6 +1,5 @@
 #import "SentrySDKInternal.h"
 #import "PrivateSentrySDKOnly.h"
-#import "SentryANRTrackingIntegration.h"
 #import "SentryAppStartMeasurement.h"
 #import "SentryAutoBreadcrumbTrackingIntegration.h"
 #import "SentryBreadcrumb.h"
@@ -29,15 +28,10 @@
 #    import "SentryAppStartTrackingIntegration.h"
 #    import "SentryFramesTrackingIntegration.h"
 #    import "SentryPerformanceTrackingIntegration.h"
-#    import "SentryScreenshotIntegration.h"
 #    import "SentryUIEventTrackingIntegration.h"
 #    import "SentryViewHierarchyIntegration.h"
 #    import "SentryWatchdogTerminationTrackingIntegration.h"
 #endif // SENTRY_HAS_UIKIT
-
-#if SENTRY_HAS_METRIC_KIT
-#    import "SentryMetricKitIntegration.h"
-#endif // SENTRY_HAS_METRIC_KIT
 
 #if TARGET_OS_OSX
 #    import "SentryCrashExceptionApplication.h"
@@ -523,16 +517,8 @@ static NSDate *_Nullable startTimestamp = nil;
         [SentryViewHierarchyIntegration class],
         [SentryWatchdogTerminationTrackingIntegration class],
 #endif // SENTRY_HAS_UIKIT
-#if SENTRY_TARGET_REPLAY_SUPPORTED
-        [SentryScreenshotIntegration class],
-#endif // SENTRY_TARGET_REPLAY_SUPPORTED
-        [SentryANRTrackingIntegration class], [SentryAutoBreadcrumbTrackingIntegration class],
-        [SentryCoreDataTrackingIntegration class], [SentryFileIOTrackingIntegration class],
-        [SentryNetworkTrackingIntegration class], nil];
-
-#if SENTRY_HAS_METRIC_KIT
-    [defaultIntegrations addObject:[SentryMetricKitIntegration class]];
-#endif // SENTRY_HAS_METRIC_KIT
+        [SentryAutoBreadcrumbTrackingIntegration class], [SentryCoreDataTrackingIntegration class],
+        [SentryFileIOTrackingIntegration class], [SentryNetworkTrackingIntegration class], nil];
 
     return defaultIntegrations;
 }
@@ -576,18 +562,18 @@ static NSDate *_Nullable startTimestamp = nil;
 
 + (void)pauseAppHangTracking
 {
-    SentryANRTrackingIntegration *anrTrackingIntegration
-        = (SentryANRTrackingIntegration *)[SentrySDKInternal.currentHub
-            getInstalledIntegration:[SentryANRTrackingIntegration class]];
+    SentryHangTrackerIntegrationObjC *anrTrackingIntegration
+        = (SentryHangTrackerIntegrationObjC *)[SentrySDKInternal.currentHub
+            getInstalledIntegration:[SentryHangTrackerIntegrationObjC class]];
 
     [anrTrackingIntegration pauseAppHangTracking];
 }
 
 + (void)resumeAppHangTracking
 {
-    SentryANRTrackingIntegration *anrTrackingIntegration
-        = (SentryANRTrackingIntegration *)[SentrySDKInternal.currentHub
-            getInstalledIntegration:[SentryANRTrackingIntegration class]];
+    SentryHangTrackerIntegrationObjC *anrTrackingIntegration
+        = (SentryHangTrackerIntegrationObjC *)[SentrySDKInternal.currentHub
+            getInstalledIntegration:[SentryHangTrackerIntegrationObjC class]];
 
     [anrTrackingIntegration resumeAppHangTracking];
 }

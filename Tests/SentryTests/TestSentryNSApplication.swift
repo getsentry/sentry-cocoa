@@ -1,6 +1,6 @@
 @_spi(Private) @testable import Sentry
 
-#if !(os(iOS) || targetEnvironment(macCatalyst) || os(tvOS))
+#if !(os(iOS) || targetEnvironment(macCatalyst) || os(tvOS) || os(visionOS))
 class TestSentryNSApplication: SentryApplication {
     private var _underlyingIsActive = true
     func setIsActive(_ isActive: Bool) {

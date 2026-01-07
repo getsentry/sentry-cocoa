@@ -65,12 +65,19 @@
     -(instancetype)init NS_UNAVAILABLE;                                                            \
     +(instancetype) new NS_UNAVAILABLE;
 
+@class SentryAttribute;
 @class SentryBreadcrumb;
 @class SentryEvent;
 @class SentrySamplingContext;
 @class SentryUserFeedbackConfiguration;
 @class SentryLog;
 @protocol SentrySpan;
+
+// Compatibility alias to maintain backward compatibility with existing Objective-C code.
+// SentryLogAttribute is an alias for SentryAttribute, allowing code like
+// [[SentryLogAttribute alloc] initWithString:...] to continue working, after `SentryLog.Attribute`
+// was renamed to `SentryAttribute`.
+@compatibility_alias SentryLogAttribute SentryAttribute;
 
 /**
  * Block used for returning after a request finished

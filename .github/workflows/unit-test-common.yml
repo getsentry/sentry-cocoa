@@ -40,18 +40,6 @@ on:
         required: true
         type: string
 
-      create_device:
-        description: whether to create a device for the job
-        required: false
-        default: false
-        type: boolean
-
-      install_platforms:
-        description: whether to install the platforms
-        required: false
-        default: false
-        type: boolean
-
       device:
         description: the device to test on
         required: false
@@ -84,36 +72,19 @@ jobs:
       - name: Install Slather
         run: gem install slather
 
-      # Install platform runtimes that are not included by default
-      - name: Install required platforms
-        if: ${{ inputs.install_platforms }}
-        env:
-          PLATFORMS: ${{ inputs.platform }}
-          OS_VERSION: ${{ inputs.test-destination-os }}
-        run: ./scripts/ci-install-platforms.sh --platforms "$PLATFORMS" --os-version "$OS_VERSION"
-
       - name: Ensure required runtime is loaded
+        if: ${{ inputs.platform == 'iOS' || inputs.platform == 'tvOS' || inputs.platform == 'visionOS' }}
         # Ideally we will not need this, but CI sometimes is failing to load some runtimes, this will ensure they are loaded
-        if: ${{ inputs.platform == 'iOS' }}
         timeout-minutes: 5 # 5 minutes timeout
         env:
           OS_VERSION: ${{ inputs.test-destination-os }}
-        run: ./scripts/ci-ensure-runtime-loaded.sh --os-version "$OS_VERSION"
-
-      # Create simulator devices for non-preinstalled simulators
-      # Required for iOS 16.4, iOS 17.5 (on Xcode 15.4), and iOS/tvOS 26.1
-      - name: Create simulator device
-        if: ${{ inputs.create_device }}
-        env:
           PLATFORM: ${{ inputs.platform }}
-          OS_VERSION: ${{ inputs.test-destination-os }}
-          DEVICE_NAME: ${{inputs.device}}
-        run: ./scripts/ci-create-simulator.sh --platform "$PLATFORM" --os-version "$OS_VERSION" --device-name "$DEVICE_NAME"
+        run: ./scripts/ci-ensure-runtime-loaded.sh --os-version "$OS_VERSION" --platform "$PLATFORM"
 
       # Boot created simulators to ensure they're ready before tests run
       # Based on CircleCI forum comment, booting is especially important for Xcode 26: https://discuss.circleci.com/t/xcode-26-rc/54066/18
       - name: Boot simulator
-        if: ${{ inputs.create_device && inputs.platform == 'iOS' }}
+        if: ${{ inputs.platform == 'iOS' }}
         env:
           XCODE_VERSION: ${{ inputs.xcode }}
           DEVICE_NAME: ${{ inputs.device }}
@@ -196,7 +167,7 @@ jobs:
           detailed_summary: true
 
       - name: Archiving DerivedData Logs
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         if: steps.build_tests.outcome == 'failure'
         with:
           name: derived-data-${{inputs.platform}}-xcode-${{inputs.xcode}}-os-${{inputs.test-destination-os}}
@@ -204,7 +175,7 @@ jobs:
             /Users/runner/Library/Developer/Xcode/DerivedData/**/Logs/**
 
       - name: Archiving Raw Logs
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         if: ${{ failure() || cancelled() }}
         with:
           name: raw-output-${{inputs.platform}}-xcode-${{inputs.xcode}}-os-${{inputs.test-destination-os}}
@@ -214,7 +185,7 @@ jobs:
             raw-test-output.log
 
       - name: Archiving Crash Logs
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         if: ${{ failure() || cancelled() }}
         with:
           name: crash-logs-${{inputs.platform}}-xcode-${{inputs.xcode}}-os-${{inputs.test-destination-os}}
@@ -222,7 +193,7 @@ jobs:
             ~/Library/Logs/DiagnosticReports/**
 
       - name: Archiving Test Results
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         if: ${{ failure() || cancelled() }}
         with:
           name: result-bundle-${{inputs.platform}}-xcode-${{inputs.xcode}}-os-${{inputs.test-destination-os}}
@@ -240,7 +211,7 @@ jobs:
       # We don't upload codecov for scheduled runs as CodeCov only accepts a limited amount of uploads per commit.
       - name: Push code coverage to codecov
         id: codecov_1
-        uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # pin@v5.5.1
+        uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # pin@v5.5.2
         if: ${{ contains(inputs.platform, 'iOS') && !contains(github.ref, 'release') && github.event.schedule == '' }}
         with:
           # Although public repos should not have to specify a token there seems to be a bug with the Codecov GH action, which can
@@ -252,7 +223,7 @@ jobs:
       # Sometimes codecov uploads etc can fail. Retry one time to rule out e.g. intermittent network failures.
       - name: Push code coverage to codecov
         id: codecov_2
-        uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # pin@v5.5.1
+        uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # pin@v5.5.2
         if: ${{ steps.codecov_1.outcome == 'failure' && contains(inputs.platform, 'iOS') && !contains(github.ref, 'release') && github.event.schedule == '' }}
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
@@ -261,7 +232,7 @@ jobs:
 
       - name: Codecov test analytics
         if: ${{ !cancelled() && !contains(github.ref, 'release') && github.event.schedule == '' }}
-        uses: codecov/test-results-action@47f89e9acb64b76debcd5ea40642d25a4adced9f # pin@v1.1.1
+        uses: codecov/test-results-action@0fa95f0e1eeaafde2c782583b36b28ad0d8c77d3 # pin@v1.2.1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           verbose: true

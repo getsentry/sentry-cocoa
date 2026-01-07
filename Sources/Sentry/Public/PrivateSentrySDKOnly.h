@@ -198,6 +198,9 @@ typedef void (^SentryOnAppStartMeasurementAvailable)(
 
 + (SentryBreadcrumb *)breadcrumbWithDictionary:(NSDictionary *)dictionary;
 
++ (nullable SentryOptions *)optionsWithDictionary:(NSDictionary<NSString *, id> *)options
+                                 didFailWithError:(NSError *_Nullable *_Nullable)error;
+
 @end
 
 NS_ASSUME_NONNULL_END

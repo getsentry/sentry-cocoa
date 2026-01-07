@@ -41,21 +41,11 @@ on:
         required: false
         default: ""
         type: string
-      create_device:
-        description: "Whether to create the device for the given platform and OS version"
-        required: false
-        default: false
-        type: boolean
       device:
         description: "Device"
         required: false
         default: ""
         type: string
-      install_platforms:
-        description: "Whether to install the platforms"
-        required: false
-        default: false
-        type: boolean
       platform:
         description: "Additional platform to install"
         required: false
@@ -85,45 +75,23 @@ jobs:
       - uses: actions/checkout@v6
 
       - name: Setup Ruby
-        uses: ruby/setup-ruby@d697be2f83c6234b20877c3b5eac7a7f342f0d0c # v1.269.0
+        uses: ruby/setup-ruby@ae195bbe749a7cef685ac729197124a48305c1cb # v1.276.0
         with:
           bundler-cache: true
-
-      - name: Install old xcodegen
-        if: ${{ inputs.xcode_version == '14.3.1' || inputs.xcode_version == '15.4' }}
-        # Install xcodegen 2.43.0 for since newer versions don't work with Xcode older than Xcode 16
-        # We need to set HOMEBREW_DEVELOPER=1 to allow installing from a local formula
-        run: |
-          HOMEBREW_DEVELOPER=1 brew install --formula ./scripts/xcodegen.rb
-          brew pin xcodegen
 
       - name: Select Xcode version
         env:
           XCODE_VERSION: ${{ inputs.xcode_version }}
         run: ./scripts/ci-select-xcode.sh "$XCODE_VERSION"
 
-      - name: Install required platforms for Xcode 26
-        if: ${{ inputs.install_platforms }}
-        env:
-          PLATFORM: ${{ inputs.platform }}
-          OS_VERSION: ${{ inputs.test-destination-os }}
-        run: ./scripts/ci-install-platforms.sh --platforms "$PLATFORM" --os-version "$OS_VERSION"
-
       - name: Ensure required runtime is loaded
+        if: ${{ inputs.platform == 'iOS' || inputs.platform == 'tvOS' }}
         # Ideally we will not need this, but CI sometimes is failing to load some runtimes, this will ensure they are loaded
-        if: ${{ inputs.platform == 'iOS' }}
         timeout-minutes: 5 # 5 minutes timeout
         env:
           OS_VERSION: ${{ inputs.test-destination-os }}
-        run: ./scripts/ci-ensure-runtime-loaded.sh --os-version "$OS_VERSION"
-
-      - name: Create simulator device
-        if: ${{ inputs.create_device }}
-        env:
           PLATFORM: ${{ inputs.platform }}
-          OS_VERSION: ${{ inputs.test-destination-os }}
-          DEVICE_NAME: ${{ inputs.device }}
-        run: ./scripts/ci-create-simulator.sh --platform "$PLATFORM" --os-version "$OS_VERSION" --device-name "$DEVICE_NAME"
+        run: ./scripts/ci-ensure-runtime-loaded.sh --os-version "$OS_VERSION" --platform "$PLATFORM"
 
       # Boot created simulators to ensure they're ready before tests run
       # Based on CircleCI forum comment, booting is especially important for Xcode 26: https://discuss.circleci.com/t/xcode-26-rc/54066/18
@@ -146,7 +114,7 @@ jobs:
 
       - name: Download XCFramework
         if: ${{ inputs.needs_xcframework }}
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           name: xcframework-${{github.sha}}-sentry-static
           path: XCFrameworkBuildPath/
@@ -179,7 +147,7 @@ jobs:
 
       - name: Codecov test analytics
         if: ${{ !cancelled() && inputs.codecov_test_analytics }}
-        uses: codecov/test-results-action@47f89e9acb64b76debcd5ea40642d25a4adced9f # pin@v1.1.1
+        uses: codecov/test-results-action@0fa95f0e1eeaafde2c782583b36b28ad0d8c77d3 # pin@v1.2.1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           verbose: true
@@ -187,7 +155,7 @@ jobs:
           flags: ui-tests-${{ inputs.fastlane_command }}-${{ inputs.xcode_version }}, ui-tests
 
       - name: Upload Result Bundle
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         if: ${{ failure() }}
         with:
           name: ${{ inputs.fastlane_command }}${{ inputs.files_suffix }}
@@ -195,7 +163,7 @@ jobs:
             fastlane/test_results/**/*.xcresult
 
       - name: Upload iOS Simulator Crash Logs
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         if: ${{ failure() }}
         with:
           name: ${{ inputs.fastlane_command }}${{ inputs.files_suffix }}_crash_logs
@@ -203,7 +171,7 @@ jobs:
             ~/Library/Logs/DiagnosticReports/**
 
       - name: Archiving Raw Test Logs
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         if: ${{ failure() || cancelled() }}
         with:
           name: ${{ inputs.fastlane_command }}${{ inputs.files_suffix }}_raw_output

@@ -41,7 +41,6 @@ let files = [
     "./Package.swift",
     "./SentrySwiftUI.podspec",
     "./Sources/Sentry/SentryMeta.m",
-    "./Tests/HybridSDKTest/HybridPod.podspec",
     "./3rd-party-integrations/SentrySwiftLog/Package.swift"
 ]
 
@@ -175,9 +174,6 @@ func verifyRestrictedFile(_ file: String, expectedVersion: String) throws {
 
 func getRegexString(for file: String) throws -> String {
     if file.hasSuffix(".podspec") {
-        if file == "./Tests/HybridSDKTest/HybridPod.podspec" {
-            return "s\\.dependency\\s\"Sentry\\/HybridSDK\",\\s\"(?<version>[a-zA-z0-9\\.\\-]+)\""
-        }
         return "\\ss\\.version\\s+=\\s\"(?<version>[a-zA-z0-9\\.\\-]+)\""
     } else if file.hasPrefix("./Package") && file.hasSuffix(".swift") {
         return "https:\\/\\/github\\.com\\/getsentry\\/sentry-cocoa\\/releases\\/download\\/(?<version>[a-zA-z0-9\\.\\-]+)\\/Sentry"
