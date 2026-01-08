@@ -77,7 +77,7 @@ schemeTemplates:
         # other
         "--io.sentry.other.base64-attachment-data": false
         "--io.sentry.other.disable-http-transport": false
-        "--io.sentry.other.disable-spotlight": false
+        "--io.sentry.other.disable-spotlight": true
         "--io.sentry.other.reject-screenshots-in-before-capture-screenshot": false
         "--io.sentry.other.reject-view-hierarchy-in-before-capture-view-hierarchy": false
         "--io.sentry.other.reject-all-spans": false

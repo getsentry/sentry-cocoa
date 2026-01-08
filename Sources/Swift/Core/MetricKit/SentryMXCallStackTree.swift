@@ -4,43 +4,28 @@ import Foundation
 /**
  * JSON specification of MXCallStackTree can be found here https://developer.apple.com/documentation/metrickit/mxcallstacktree/3552293-jsonrepresentation
  */
-@objcMembers
-@_spi(Private) public class SentryMXCallStackTree: NSObject, Decodable {
+struct SentryMXCallStackTree: Decodable {
     
-    public let callStacks: [SentryMXCallStack]
-    public let callStackPerThread: Bool
+    let callStacks: [SentryMXCallStack]
+    let callStackPerThread: Bool
     
     static func from(data: Data) throws -> SentryMXCallStackTree {
         return try JSONDecoder().decode(SentryMXCallStackTree.self, from: data)
     }
 }
 
-@objcMembers
-@_spi(Private) public class SentryMXCallStack: NSObject, Decodable {
-    public let threadAttributed: Bool?
-    public let callStackRootFrames: [SentryMXFrame]
-    
-    public var flattenedRootFrames: [SentryMXFrame] {
-        return callStackRootFrames.flatMap { [$0] + $0.frames }
-    }
+struct SentryMXCallStack: Decodable {
+    let threadAttributed: Bool?
+    let callStackRootFrames: [SentryMXFrame]
 }
 
-@objcMembers
-@_spi(Private) public class SentryMXFrame: NSObject, Decodable {
-    public let binaryUUID: UUID
-    public let offsetIntoBinaryTextSegment: Int
-    public let binaryName: String?
-    public let address: UInt64
-    public let subFrames: [SentryMXFrame]?
-    public let sampleCount: Int?
-    
-    var frames: [SentryMXFrame] {
-        return (subFrames?.flatMap { [$0] + $0.frames } ?? [])
-    }
-    
-    var framesIncludingSelf: [SentryMXFrame] {
-        return [self] + frames
-    }
+struct SentryMXFrame: Decodable {
+    let binaryUUID: UUID
+    let offsetIntoBinaryTextSegment: Int
+    let binaryName: String?
+    let address: UInt64
+    let subFrames: [SentryMXFrame]?
+    let sampleCount: Int?
 }
 
 #endif

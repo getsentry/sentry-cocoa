@@ -2,7 +2,7 @@
 
 protocol BatcherScope {
     var replayId: String? { get }
-    var propagationContextTraceIdString: String { get }
+    var propagationContextTraceId: SentryId { get }
     var span: Span? { get }
     var userObject: User? { get }
     func getContextForKey(_ key: String) -> [String: Any]?
@@ -29,7 +29,7 @@ extension BatcherScope {
         addScopeAttributes(to: &item.attributes, config: config)
         addDefaultUserIdIfNeeded(to: &item.attributes, config: config, metadata: metadata)
 
-        item.traceId = SentryId(uuidString: propagationContextTraceIdString)
+        item.traceId = propagationContextTraceId
     }
 
     private func addDefaultAttributes(to attributes: inout [String: SentryAttribute], config: any BatcherConfig, metadata: any BatcherMetadata) {
