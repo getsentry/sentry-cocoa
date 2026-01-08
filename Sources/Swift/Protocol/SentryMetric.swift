@@ -104,7 +104,7 @@ extension SentryMetric: Encodable {
 }
 
 extension SentryMetric: BatcherItem {
-    var attributesMap: [String: SentryAttributeContent] {
+    var attributesDict: [String: SentryAttributeContent] {
         get {
             return self.attributes
         }

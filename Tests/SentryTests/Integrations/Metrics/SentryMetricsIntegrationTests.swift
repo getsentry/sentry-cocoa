@@ -62,11 +62,11 @@ class SentryMetricsIntegrationTests: XCTestCase {
 
         // -- Assert --
         let capturedMetrics = try XCTUnwrap(client.captureMetricsDataInvocations.first)
-        XCTAssertEqual(1, capturedMetrics.count.intValue, "Should capture 1 metric")
+        XCTAssertEqual(capturedMetrics.count.intValue, 1, "Should capture 1 metric")
         XCTAssertFalse(capturedMetrics.data.isEmpty, "Captured metrics data should not be empty")
 
-        // Assert no furhter invocations
-        XCTAssertEqual(1, client.captureMetricsDataInvocations.count, "Metrics should be captured")
+        // Assert no further invocations
+        XCTAssertEqual(client.captureMetricsDataInvocations.count, 1, "Metrics should be captured")
     }
 
     func testUninstall_whenMetricsExist_shouldFlushMetrics() throws {
@@ -93,11 +93,11 @@ class SentryMetricsIntegrationTests: XCTestCase {
 
         // -- Assert --
         let capturedMetrics = try XCTUnwrap(client.captureMetricsDataInvocations.first)
-        XCTAssertEqual(1, capturedMetrics.count.intValue, "Should capture 1 metric")
+        XCTAssertEqual(capturedMetrics.count.intValue, 1, "Should capture 1 metric")
         XCTAssertFalse(capturedMetrics.data.isEmpty, "Captured metrics data should not be empty")
 
-        // Assert no furhter invocations
-        XCTAssertEqual(1, client.captureMetricsDataInvocations.count, "Uninstall should flush metrics")
+        // Assert no further invocations
+        XCTAssertEqual(client.captureMetricsDataInvocations.count, 1, "Uninstall should flush metrics")
     }
 
     func testAddMetric_whenNoClientAvailable_shouldDropMetricsSilently() throws {

@@ -703,7 +703,7 @@ final class SentryMetricsBatcherTests: XCTestCase {
         // -- Arrange --
         let metric = createTestMetric(
             name: "distribution.metric",
-            value: .distribution(42.0),
+            value: .distribution(42.123456),
             unit: "percent"
         )
         
@@ -716,7 +716,7 @@ final class SentryMetricsBatcherTests: XCTestCase {
         let capturedMetrics = testCallbackHelper.getCapturedMetrics()
         let capturedMetric = try XCTUnwrap(capturedMetrics.first)
         XCTAssertEqual(capturedMetric["type"] as? String, "distribution")
-        XCTAssertEqual(capturedMetric["value"] as? Double, 42.0)
+        XCTAssertEqual(capturedMetric["value"] as? Double, 42.123456)
         XCTAssertEqual(capturedMetric["unit"] as? String, "percent")
         
         // Assert no additional metrics

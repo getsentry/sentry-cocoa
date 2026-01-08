@@ -11,7 +11,7 @@ protocol BatcherScope {
     var attributes: [String: Any] { get }
 
     /// Used for type-safe access of the attributes, uses default implementation in extension
-    var attributesMap: [String: SentryAttributeContent] { get }
+    var attributesDict: [String: SentryAttributeContent] { get }
 
     func applyToItem<Item: BatcherItem, Config: BatcherConfig<Item>, Metadata: BatcherMetadata>(
         _ item: inout Item,
@@ -21,7 +21,7 @@ protocol BatcherScope {
 }
 
 extension BatcherScope {
-    var attributesMap: [String: SentryAttributeContent] {
+    var attributesDict: [String: SentryAttributeContent] {
         self.attributes.mapValues { value in
             SentryAttributeContent.from(anyValue: value)
         }
@@ -32,13 +32,13 @@ extension BatcherScope {
         config: Config,
         metadata: Metadata
     ) {
-        addDefaultAttributes(to: &item.attributesMap, config: config, metadata: metadata)
-        addOSAttributes(to: &item.attributesMap, config: config)
-        addDeviceAttributes(to: &item.attributesMap, config: config)
-        addUserAttributes(to: &item.attributesMap, config: config)
-        addReplayAttributes(to: &item.attributesMap, config: config)
-        addScopeAttributes(to: &item.attributesMap, config: config)
-        addDefaultUserIdIfNeeded(to: &item.attributesMap, config: config, metadata: metadata)
+        addDefaultAttributes(to: &item.attributesDict, config: config, metadata: metadata)
+        addOSAttributes(to: &item.attributesDict, config: config)
+        addDeviceAttributes(to: &item.attributesDict, config: config)
+        addUserAttributes(to: &item.attributesDict, config: config)
+        addReplayAttributes(to: &item.attributesDict, config: config)
+        addScopeAttributes(to: &item.attributesDict, config: config)
+        addDefaultUserIdIfNeeded(to: &item.attributesDict, config: config, metadata: metadata)
 
         item.traceId = propagationContextTraceId
     }
@@ -110,7 +110,7 @@ extension BatcherScope {
 
     private func addScopeAttributes(to attributes: inout [String: SentryAttributeContent], config: any BatcherConfig) {
         // Scope attributes should not override any existing attribute in the item
-        for (key, value) in self.attributesMap where attributes[key] == nil {
+        for (key, value) in self.attributesDict where attributes[key] == nil {
             attributes[key] = value
         }
     }
