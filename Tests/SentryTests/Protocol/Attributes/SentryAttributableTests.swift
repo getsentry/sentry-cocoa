@@ -11,7 +11,7 @@ class SentryAttributableTests: XCTestCase {
         let string = "test"
 
         // -- Act --
-        let attribute = string.asSentryAttributeValue
+        let attribute = string.asSentryAttributeContent
 
         // -- Assert --
         XCTAssertEqual(attribute.type, "string")
@@ -25,7 +25,7 @@ class SentryAttributableTests: XCTestCase {
         let bool = true
 
         // -- Act --
-        let attribute = bool.asSentryAttributeValue
+        let attribute = bool.asSentryAttributeContent
 
         // -- Assert --
         XCTAssertEqual(attribute.type, "boolean")
@@ -39,7 +39,7 @@ class SentryAttributableTests: XCTestCase {
         let int = 42
 
         // -- Act --
-        let attribute = int.asSentryAttributeValue
+        let attribute = int.asSentryAttributeContent
 
         // -- Assert --
         XCTAssertEqual(attribute.type, "integer")
@@ -53,7 +53,7 @@ class SentryAttributableTests: XCTestCase {
         let double = 3.14
 
         // -- Act --
-        let attribute = double.asSentryAttributeValue
+        let attribute = double.asSentryAttributeContent
 
         // -- Assert --
         XCTAssertEqual(attribute.type, "double")
@@ -68,7 +68,7 @@ class SentryAttributableTests: XCTestCase {
         let float: Float = 3.14
 
         // -- Act --
-        let attribute = float.asSentryAttributeValue
+        let attribute = float.asSentryAttributeContent
 
         // -- Assert --
         XCTAssertEqual(attribute.type, "double")
@@ -83,7 +83,7 @@ class SentryAttributableTests: XCTestCase {
         let array = ["a", "b", "c"]
 
         // -- Act --
-        let attribute = array.asSentryAttributeValue
+        let attribute = array.asSentryAttributeContent
 
         // -- Assert --
         XCTAssertEqual(attribute.type, "string[]")
@@ -96,7 +96,7 @@ class SentryAttributableTests: XCTestCase {
         let array = [true, false]
 
         // -- Act --
-        let attribute = array.asSentryAttributeValue
+        let attribute = array.asSentryAttributeContent
 
         // -- Assert --
         XCTAssertEqual(attribute.type, "boolean[]")
@@ -109,7 +109,7 @@ class SentryAttributableTests: XCTestCase {
         let array = [1, 2, 3]
 
         // -- Act --
-        let attribute = array.asSentryAttributeValue
+        let attribute = array.asSentryAttributeContent
 
         // -- Assert --
         XCTAssertEqual(attribute.type, "integer[]")
@@ -122,7 +122,7 @@ class SentryAttributableTests: XCTestCase {
         let array = [1.1, 2.2, 3.3]
 
         // -- Act --
-        let attribute = array.asSentryAttributeValue
+        let attribute = array.asSentryAttributeContent
 
         // -- Assert --
         XCTAssertEqual(attribute.type, "double[]")
@@ -135,7 +135,7 @@ class SentryAttributableTests: XCTestCase {
         let array: [Float] = [1.1, 2.2, 3.3]
 
         // -- Act --
-        let attribute = array.asSentryAttributeValue
+        let attribute = array.asSentryAttributeContent
 
         // -- Assert --
         XCTAssertEqual(attribute.type, "double[]")
@@ -150,7 +150,7 @@ class SentryAttributableTests: XCTestCase {
         let array: [String] = []
 
         // -- Act --
-        let attribute = array.asSentryAttributeValue
+        let attribute = array.asSentryAttributeContent
 
         // -- Assert --
         XCTAssertEqual(attribute.type, "string[]")
@@ -163,7 +163,7 @@ class SentryAttributableTests: XCTestCase {
         let array: [Bool] = []
 
         // -- Act --
-        let attribute = array.asSentryAttributeValue
+        let attribute = array.asSentryAttributeContent
 
         // -- Assert --
         XCTAssertEqual(attribute.type, "boolean[]")
@@ -176,7 +176,7 @@ class SentryAttributableTests: XCTestCase {
         let array: [Int] = []
 
         // -- Act --
-        let attribute = array.asSentryAttributeValue
+        let attribute = array.asSentryAttributeContent
 
         // -- Assert --
         XCTAssertEqual(attribute.type, "integer[]")
@@ -189,7 +189,7 @@ class SentryAttributableTests: XCTestCase {
         let array: [Double] = []
 
         // -- Act --
-        let attribute = array.asSentryAttributeValue
+        let attribute = array.asSentryAttributeContent
 
         // -- Assert --
         XCTAssertEqual(attribute.type, "double[]")
@@ -201,7 +201,7 @@ class SentryAttributableTests: XCTestCase {
 
     func testEncode_whenStringAttribute_shouldEncodeCorrectly() throws {
         // -- Arrange --
-        let attribute = "test".asSentryAttributeValue
+        let attribute = "test".asSentryAttributeContent
         let encoder = JSONEncoder()
 
         // -- Act --
@@ -215,7 +215,7 @@ class SentryAttributableTests: XCTestCase {
 
     func testEncode_whenStringArrayAttribute_shouldEncodeAsPrimitiveArray() throws {
         // -- Arrange --
-        let attribute = ["a", "b", "c"].asSentryAttributeValue
+        let attribute = ["a", "b", "c"].asSentryAttributeContent
         let encoder = JSONEncoder()
 
         // -- Act --
@@ -230,7 +230,7 @@ class SentryAttributableTests: XCTestCase {
 
     func testEncode_whenBooleanArrayAttribute_shouldEncodeAsPrimitiveArray() throws {
         // -- Arrange --
-        let attribute = [true, false].asSentryAttributeValue
+        let attribute = [true, false].asSentryAttributeContent
         let encoder = JSONEncoder()
 
         // -- Act --
@@ -245,7 +245,7 @@ class SentryAttributableTests: XCTestCase {
 
     func testEncode_whenIntegerArrayAttribute_shouldEncodeAsPrimitiveArray() throws {
         // -- Arrange --
-        let attribute = [1, 2, 3].asSentryAttributeValue
+        let attribute = [1, 2, 3].asSentryAttributeContent
         let encoder = JSONEncoder()
 
         // -- Act --
@@ -260,7 +260,7 @@ class SentryAttributableTests: XCTestCase {
 
     func testEncode_whenDoubleArrayAttribute_shouldEncodeAsPrimitiveArray() throws {
         // -- Arrange --
-        let attribute = [1.1, 2.2, 3.3].asSentryAttributeValue
+        let attribute = [1.1, 2.2, 3.3].asSentryAttributeContent
         let encoder = JSONEncoder()
 
         // -- Act --

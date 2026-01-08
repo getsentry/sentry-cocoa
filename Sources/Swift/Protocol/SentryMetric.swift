@@ -6,7 +6,7 @@ public struct SentryMetric {
     public typealias Value = SentryMetricValue
 
     /// A typed attribute that can be attached to structured item entries
-    public typealias Attribute = SentryAttributeValue
+    public typealias Attribute = SentryAttributeContent
 
     /// A typed unit
     public typealias Unit = SentryMetricsUnit
@@ -104,7 +104,7 @@ extension SentryMetric: Encodable {
 }
 
 extension SentryMetric: BatcherItem {
-    var attributesMap: [String: SentryAttributeValue] {
+    var attributesMap: [String: SentryAttributeContent] {
         get {
             return self.attributes
         }

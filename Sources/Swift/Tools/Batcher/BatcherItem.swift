@@ -1,4 +1,4 @@
 protocol BatcherItem: Encodable {
-    var attributesMap: [String: SentryAttributeValue] { get set }
+    var attributesMap: [String: SentryAttributeContent] { get set }
     var traceId: SentryId { get set }
 }

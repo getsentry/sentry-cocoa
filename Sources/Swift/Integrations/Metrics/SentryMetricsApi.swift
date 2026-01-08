@@ -17,15 +17,15 @@ struct SentryMetricsApi<Dependencies: SentryMetricsApiDependencies>: SentryMetri
         self.dependencies = dependencies
     }
 
-    func count(key: String, value: UInt, unit: SentryMetricsUnit? = nil, attributes: [String: SentryAttributeValuable] = [:]) {
+    func count(key: String, value: UInt, unit: SentryMetricsUnit? = nil, attributes: [String: SentryAttributeValue] = [:]) {
         recordMetric(name: key, value: .counter(value), unit: unit, attributes: attributes)
     }
 
-    func distribution(key: String, value: Double, unit: SentryMetricsUnit? = nil, attributes: [String: SentryAttributeValuable] = [:]) {
+    func distribution(key: String, value: Double, unit: SentryMetricsUnit? = nil, attributes: [String: SentryAttributeValue] = [:]) {
         recordMetric(name: key, value: .distribution(value), unit: unit, attributes: attributes)
     }
 
-    func gauge(key: String, value: Double, unit: SentryMetricsUnit? = nil, attributes: [String: SentryAttributeValuable] = [:]
+    func gauge(key: String, value: Double, unit: SentryMetricsUnit? = nil, attributes: [String: SentryAttributeValue] = [:]
     ) {
         recordMetric(name: key, value: .gauge(value), unit: unit, attributes: attributes)
     }
@@ -36,7 +36,7 @@ struct SentryMetricsApi<Dependencies: SentryMetricsApiDependencies>: SentryMetri
         name: String,
         value: SentryMetric.Value,
         unit: SentryMetricsUnit?,
-        attributes: [String: SentryAttributeValuable]
+        attributes: [String: SentryAttributeValue]
     ) {
         guard dependencies.isSDKEnabled && dependencies.isMetricsEnabled else {
             return
@@ -52,7 +52,7 @@ struct SentryMetricsApi<Dependencies: SentryMetricsApiDependencies>: SentryMetri
             value: value,
             unit: unit,
             attributes: attributes.mapValues { attributable in
-                attributable.asSentryAttributeValue
+                attributable.asSentryAttributeContent
             }
         )
         integration.addMetric(metric, scope: dependencies.scope)

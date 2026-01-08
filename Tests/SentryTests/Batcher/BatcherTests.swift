@@ -20,11 +20,11 @@ private struct TestScope: BatcherScope {
 }
 
 private struct TestItem: BatcherItem {
-    var attributesMap: [String: SentryAttributeValue]
+    var attributesMap: [String: SentryAttributeContent]
     var traceId: SentryId
     var body: String
 
-    init(body: String = "test", attributes: [String: SentryAttributeValue] = [:]) {
+    init(body: String = "test", attributes: [String: SentryAttributeContent] = [:]) {
         self.body = body
         self.attributesMap = attributes
         self.traceId = SentryId.empty

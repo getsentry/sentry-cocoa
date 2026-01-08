@@ -110,10 +110,10 @@ import Foundation
 }
 
 extension SentryLog: BatcherItem {
-    var attributesMap: [String: SentryAttributeValue] {
+    var attributesMap: [String: SentryAttributeContent] {
         get {
             attributes.mapValues { value in
-                SentryAttributeValue.from(anyValue: value)
+                SentryAttributeContent.from(anyValue: value)
             }
         }
         set {

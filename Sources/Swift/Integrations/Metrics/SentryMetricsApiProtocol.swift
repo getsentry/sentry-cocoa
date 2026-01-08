@@ -13,7 +13,7 @@ public protocol SentryMetricsApiProtocol {
     ///   - attributes: Optional dictionary of attributes to attach to the metric.
     ///                 Values can be String, Bool, Int, Double, Float, or SentryAttribute.
     ///                 Example: `["endpoint": "api/users", "success": true, "status_code": 200]`
-    func count(key: String, value: UInt, unit: SentryMetricsUnit?, attributes: [String: SentryAttributeValuable])
+    func count(key: String, value: UInt, unit: SentryMetricsUnit?, attributes: [String: SentryAttributeValue])
 
     /// Records a distribution metric for the specified key.
     ///
@@ -30,7 +30,7 @@ public protocol SentryMetricsApiProtocol {
     ///   - attributes: Optional dictionary of attributes to attach to the metric.
     ///                 Values can be String, Bool, Int, Double, Float, or SentryAttribute.
     ///                 Example: `["endpoint": "/api/data", "cached": false, "response_size": 1024.5]`
-    func distribution(key: String, value: Double, unit: SentryMetricsUnit?, attributes: [String: SentryAttributeValuable])
+    func distribution(key: String, value: Double, unit: SentryMetricsUnit?, attributes: [String: SentryAttributeValue])
 
     /// Records a gauge metric for the specified key.
     ///
@@ -47,19 +47,19 @@ public protocol SentryMetricsApiProtocol {
     ///   - attributes: Optional dictionary of attributes to attach to the metric.
     ///                 Values can be String, Bool, Int, Double, Float, or SentryAttribute.
     ///                 Example: `["process": "main_app", "compressed": true, "pressure_level": 2]`
-    func gauge(key: String, value: Double, unit: SentryMetricsUnit?, attributes: [String: SentryAttributeValuable])
+    func gauge(key: String, value: Double, unit: SentryMetricsUnit?, attributes: [String: SentryAttributeValue])
 }
 
 public extension SentryMetricsApiProtocol {
-    func count(key: String, value: UInt, unit: SentryMetricsUnit? = nil, attributes: [String: SentryAttributeValuable] = [:]) {
+    func count(key: String, value: UInt, unit: SentryMetricsUnit? = nil, attributes: [String: SentryAttributeValue] = [:]) {
         self.count(key: key, value: value, unit: unit, attributes: attributes)
     }
 
-    func distribution(key: String, value: Double, unit: SentryMetricsUnit? = nil, attributes: [String: SentryAttributeValuable] = [:]) {
+    func distribution(key: String, value: Double, unit: SentryMetricsUnit? = nil, attributes: [String: SentryAttributeValue] = [:]) {
         self.distribution(key: key, value: value, unit: unit, attributes: attributes)
     }
 
-    func gauge(key: String, value: Double, unit: SentryMetricsUnit? = nil, attributes: [String: SentryAttributeValuable] = [:]) {
+    func gauge(key: String, value: Double, unit: SentryMetricsUnit? = nil, attributes: [String: SentryAttributeValue] = [:]) {
         self.gauge(key: key, value: value, unit: unit, attributes: attributes)
     }
 }
