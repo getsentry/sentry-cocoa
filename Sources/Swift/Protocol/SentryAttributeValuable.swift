@@ -123,7 +123,9 @@ extension Array: SentryAttributeValue {
             return .stringArray([])
         }
         
-        // Check if the values are homogeneous and can be casted to a specific array type
+        // Check if the values are homogeneous and can be casted to a specific array type.
+        // Each cast method optimizes by checking the first element first, avoiding full iterations
+        // when the first element doesn't match the expected type.
         if let booleanArray = castValuesToBooleanArray(values) {
             return booleanArray
         }
@@ -136,6 +138,7 @@ extension Array: SentryAttributeValue {
         if let stringArray = castValuesToStringArray(values) {
             return stringArray
         }
+        
         // If the values are not homogenous we resolve the individual values to strings
         return .stringArray(values.map { value in
             switch value.asSentryAttributeContent {
@@ -154,6 +157,11 @@ extension Array: SentryAttributeValue {
     }
 
     func castValuesToBooleanArray(_ values: [SentryAttributeValue]) -> SentryAttributeContent? {
+        // Early exit optimization: if the first element isn't a boolean, skip the full iteration
+        guard !values.isEmpty, case .boolean = values[0].asSentryAttributeContent else {
+            return nil
+        }
+        
         let mappedBooleanValues = values.compactMap { element -> Bool? in
             guard case .boolean(let value) = element.asSentryAttributeContent else {
                 return nil
@@ -167,6 +175,11 @@ extension Array: SentryAttributeValue {
     }
 
     func castValuesToDoubleArray(_ values: [SentryAttributeValue]) -> SentryAttributeContent? {
+        // Early exit optimization: if the first element isn't a double, skip the full iteration
+        guard !values.isEmpty, case .double = values[0].asSentryAttributeContent else {
+            return nil
+        }
+        
         let mappedDoubleValues = values.compactMap { element -> Double? in
             guard case .double(let value) = element.asSentryAttributeContent else {
                 return nil
@@ -180,6 +193,11 @@ extension Array: SentryAttributeValue {
     }
 
     func castValuesToIntegerArray(_ values: [SentryAttributeValue]) -> SentryAttributeContent? {
+        // Early exit optimization: if the first element isn't an integer, skip the full iteration
+        guard !values.isEmpty, case .integer = values[0].asSentryAttributeContent else {
+            return nil
+        }
+        
         let mappedIntegerValues = values.compactMap { element -> Int? in
             guard case .integer(let value) = element.asSentryAttributeContent else {
                 return nil
@@ -193,6 +211,11 @@ extension Array: SentryAttributeValue {
     }
 
     func castValuesToStringArray(_ values: [SentryAttributeValue]) -> SentryAttributeContent? {
+        // Early exit optimization: if the first element isn't a string, skip the full iteration
+        guard !values.isEmpty, case .string = values[0].asSentryAttributeContent else {
+            return nil
+        }
+        
         let mappedStringValues = values.compactMap { element -> String? in
             guard case .string(let value) = element.asSentryAttributeContent else {
                 return nil
