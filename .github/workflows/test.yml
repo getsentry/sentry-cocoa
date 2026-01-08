@@ -422,6 +422,7 @@ jobs:
         build-test-server,
         distribution-tests,
         unit-tests,
+        swiftlog-integration-unit-tests,
         ready-to-merge-gate,
         unit-tests-with-test-server,
       ]
