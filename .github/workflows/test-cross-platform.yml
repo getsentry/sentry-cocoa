@@ -86,7 +86,7 @@ jobs:
         run: yarn install
 
       - name: Remove fixed version of Sentry Dependency from RNSentry.podspec
-        run: sed -i '' "s/s.dependency 'Sentry', '[0-9]*\.[0-9]*\.[0-9]*'/s.dependency 'Sentry'/" sentry-react-native/packages/core/RNSentry.podspec
+        run: sed -E -i '' "s/s.dependency 'Sentry', '[0-9]*\.[0-9]*\.[0-9]*(-[a-z]+\.[0-9]+)?'/s.dependency 'Sentry'/" sentry-react-native/packages/core/RNSentry.podspec
 
       - name: Add Sentry Dependency with path to Sentry Cocoa SDK to RNSentryCocoaTester/Podfile
         run: sed -i '' -e "s/RNSentry.podspec'/RNSentry.podspec'\\n  pod 'Sentry', :path => '..\/..\/..\/..\/sentry-cocoa'/" sentry-react-native/packages/core/RNSentryCocoaTester/Podfile
