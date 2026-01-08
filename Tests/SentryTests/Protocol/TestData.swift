@@ -2,7 +2,7 @@ import Sentry
 @_spi(Private) import Sentry
 @_spi(Private) import SentryTestUtils
 
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(tvOS) || os(visionOS) || targetEnvironment(macCatalyst)
 import UIKit
 #endif
 
@@ -284,8 +284,8 @@ class TestData {
     
     static var metricKitEvent: Event {
         let event = Event(level: .warning)
-        let exception = Exception(value: "MXCPUException totalCPUTime:90.009 sec totalSampledTime:91.952 sec", type: SentryMetricKitCpuExceptionType)
-        exception.mechanism = Mechanism(type: SentryMetricKitCpuExceptionMechanism)
+        let exception = Exception(value: "MXCPUException totalCPUTime:90.009 sec totalSampledTime:91.952 sec", type: "MXCPUException")
+        exception.mechanism = Mechanism(type: "mx_cpu_exception")
         event.exceptions = [exception]
         return event
     }
@@ -340,8 +340,8 @@ class TestData {
         return request
     }
 
-    #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-    
+    #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst) || os(visionOS)
+
     static func getAppStartMeasurement(
         type: SentryAppStartType,
         appStartTimestamp: Date = TestData.timestamp,

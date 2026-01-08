@@ -5,7 +5,6 @@
 #    import <SentryANRTrackerV1.h>
 #    import <SentryClient+Private.h>
 #    import <SentryHub.h>
-#    import <SentryPropagationContext.h>
 #    import <SentrySDK+Private.h>
 #    import <SentryScope+PrivateSwift.h>
 #    import <SentrySwift.h>

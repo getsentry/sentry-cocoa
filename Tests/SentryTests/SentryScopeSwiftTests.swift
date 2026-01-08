@@ -1,5 +1,5 @@
 // swiftlint:disable file_length
-@_spi(Private) import Sentry
+@_spi(Private) @testable import Sentry
 import SentryTestUtils
 import XCTest
 
@@ -306,7 +306,7 @@ class SentryScopeSwiftTests: XCTestCase {
     
     func testApplyToEvent_EventWithContext() {
         let context = NSMutableDictionary(dictionary: ["my": ["extra": "context"],
-                                                       "trace": fixture.scope.propagationContext.traceForEvent() ])
+                                                       "trace": fixture.scope.propagationContext.traceContextForEvent() ])
         let event = fixture.event
         event.context = context as? [String: [String: String]]
         
@@ -328,7 +328,7 @@ class SentryScopeSwiftTests: XCTestCase {
     
     func testApplyToEvent_EventWithContext_MergesContext() {
         let context = NSMutableDictionary(dictionary: [
-            "first": ["a": "b", "c": "d"], "trace": fixture.scope.propagationContext.traceForEvent()])
+            "first": ["a": "b", "c": "d"], "trace": fixture.scope.propagationContext.traceContextForEvent()])
         let event = fixture.event
         event.context = context as? [String: [String: String]]
         
@@ -809,7 +809,7 @@ class SentryScopeSwiftTests: XCTestCase {
         
         let traceId = SentryId(uuidString: "12345678123456781234567812345678")
         let spanId = SpanId(value: "1234567812345678")
-        let propagationContext = SentryPropagationContext(trace: traceId, spanId: spanId)
+        let propagationContext = SentryPropagationContext(traceId: traceId, spanId: spanId)
         
         // -- Act --
         sut.propagationContext = propagationContext
