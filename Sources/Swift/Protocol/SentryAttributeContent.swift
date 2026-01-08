@@ -14,6 +14,9 @@ internal enum SentryAttributeType: String {
 /// `SentryAttributeContent` provides a strongly-typed enum for representing various attribute types
 /// including strings, booleans, integers, doubles, and their array variants. This enum conforms to
 /// `Equatable`, `Hashable`, and `Encodable` for use in structured data contexts.
+///
+/// - Warning: **Experimental API** - This API is experimental and will be used by the upcoming
+///   experimental Metrics product. The API may change in future releases.
 public enum SentryAttributeContent: Equatable, Hashable {
     case string(String)
     case boolean(Bool)

@@ -1,5 +1,8 @@
 /// A protocol that represents values that can be used as structured logging attributes.
 ///
+/// - Warning: **Experimental API** - This API is experimental and will be used by the upcoming
+///   experimental Metrics product. The API may change in future releases.
+///
 /// `SentryAttributeValue` provides a protocol-oriented approach for accepting attribute values
 /// in public APIs. This allows APIs to accept a wide variety of types without requiring a concrete
 /// enum type, making the API more flexible and user-friendly.

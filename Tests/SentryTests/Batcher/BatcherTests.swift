@@ -20,13 +20,13 @@ private struct TestScope: BatcherScope {
 }
 
 private struct TestItem: BatcherItem {
-    var attributesMap: [String: SentryAttributeContent]
+    var attributesDict: [String: SentryAttributeContent]
     var traceId: SentryId
     var body: String
 
     init(body: String = "test", attributes: [String: SentryAttributeContent] = [:]) {
         self.body = body
-        self.attributesMap = attributes
+        self.attributesDict = attributes
         self.traceId = SentryId.empty
     }
 
