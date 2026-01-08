@@ -521,8 +521,8 @@ final class SentryAttributeContentTests: XCTestCase {
     
     func testInit_whenBooleanLiteral_shouldCreateBooleanCase() {
         // -- Arrange & Act --
-        let value: SentryAttributeValue = true
-        
+        let value: SentryAttributeContent = true
+
         // -- Assert --
         guard case .boolean(let bool) = value else {
             return XCTFail("Expected .boolean case")
@@ -532,8 +532,8 @@ final class SentryAttributeContentTests: XCTestCase {
     
     func testInit_whenIntegerLiteral_shouldCreateIntegerCase() {
         // -- Arrange & Act --
-        let value: SentryAttributeValue = 42
-        
+        let value: SentryAttributeContent = 42
+
         // -- Assert --
         guard case .integer(let int) = value else {
             return XCTFail("Expected .integer case")
@@ -543,7 +543,7 @@ final class SentryAttributeContentTests: XCTestCase {
     
     func testInit_whenFloatLiteral_shouldCreateDoubleCase() {
         // -- Arrange & Act --
-        let value: SentryAttributeValue = 3.14
+        let value: SentryAttributeContent = 3.14
         
         // -- Assert --
         guard case .double(let double) = value else {

@@ -5,7 +5,7 @@ import XCTest
 final class BatcherScopeTests: XCTestCase {
     private struct TestItem: BatcherItem, Encodable {
         var attributes: [String: SentryAttribute]
-        var attributesMap: [String: SentryAttributeValue]
+        var attributesMap: [String: SentryAttributeContent]
         var traceId: SentryId
         var body: String
 

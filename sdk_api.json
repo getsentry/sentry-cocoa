@@ -34188,8 +34188,8 @@
       },
       {
         "kind": "TypeDecl",
-        "name": "SentryAttributeValue",
-        "printedName": "SentryAttributeValue",
+        "name": "SentryAttributeContent",
+        "printedName": "SentryAttributeContent",
         "children": [
           {
             "kind": "Var",
@@ -34199,18 +34199,18 @@
               {
                 "kind": "TypeFunc",
                 "name": "Function",
-                "printedName": "(Sentry.SentryAttributeValue.Type) -> (Swift.String) -> Sentry.SentryAttributeValue",
+                "printedName": "(Sentry.SentryAttributeContent.Type) -> (Swift.String) -> Sentry.SentryAttributeContent",
                 "children": [
                   {
                     "kind": "TypeFunc",
                     "name": "Function",
-                    "printedName": "(Swift.String) -> Sentry.SentryAttributeValue",
+                    "printedName": "(Swift.String) -> Sentry.SentryAttributeContent",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentryAttributeValue",
-                        "printedName": "Sentry.SentryAttributeValue",
-                        "usr": "s:6Sentry0A14AttributeValueO"
+                        "name": "SentryAttributeContent",
+                        "printedName": "Sentry.SentryAttributeContent",
+                        "usr": "s:6Sentry0A16AttributeContentO"
                       },
                       {
                         "kind": "TypeNominal",
@@ -34223,13 +34223,13 @@
                   {
                     "kind": "TypeNominal",
                     "name": "Metatype",
-                    "printedName": "Sentry.SentryAttributeValue.Type",
+                    "printedName": "Sentry.SentryAttributeContent.Type",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentryAttributeValue",
-                        "printedName": "Sentry.SentryAttributeValue",
-                        "usr": "s:6Sentry0A14AttributeValueO"
+                        "name": "SentryAttributeContent",
+                        "printedName": "Sentry.SentryAttributeContent",
+                        "usr": "s:6Sentry0A16AttributeContentO"
                       }
                     ]
                   }
@@ -34237,8 +34237,8 @@
               }
             ],
             "declKind": "EnumElement",
-            "usr": "s:6Sentry0A14AttributeValueO6stringyACSScACmF",
-            "mangledName": "$s6Sentry0A14AttributeValueO6stringyACSScACmF",
+            "usr": "s:6Sentry0A16AttributeContentO6stringyACSScACmF",
+            "mangledName": "$s6Sentry0A16AttributeContentO6stringyACSScACmF",
             "moduleName": "Sentry"
           },
           {
@@ -34249,18 +34249,18 @@
               {
                 "kind": "TypeFunc",
                 "name": "Function",
-                "printedName": "(Sentry.SentryAttributeValue.Type) -> (Swift.Bool) -> Sentry.SentryAttributeValue",
+                "printedName": "(Sentry.SentryAttributeContent.Type) -> (Swift.Bool) -> Sentry.SentryAttributeContent",
                 "children": [
                   {
                     "kind": "TypeFunc",
                     "name": "Function",
-                    "printedName": "(Swift.Bool) -> Sentry.SentryAttributeValue",
+                    "printedName": "(Swift.Bool) -> Sentry.SentryAttributeContent",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentryAttributeValue",
-                        "printedName": "Sentry.SentryAttributeValue",
-                        "usr": "s:6Sentry0A14AttributeValueO"
+                        "name": "SentryAttributeContent",
+                        "printedName": "Sentry.SentryAttributeContent",
+                        "usr": "s:6Sentry0A16AttributeContentO"
                       },
                       {
                         "kind": "TypeNominal",
@@ -34273,13 +34273,13 @@
                   {
                     "kind": "TypeNominal",
                     "name": "Metatype",
-                    "printedName": "Sentry.SentryAttributeValue.Type",
+                    "printedName": "Sentry.SentryAttributeContent.Type",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentryAttributeValue",
-                        "printedName": "Sentry.SentryAttributeValue",
-                        "usr": "s:6Sentry0A14AttributeValueO"
+                        "name": "SentryAttributeContent",
+                        "printedName": "Sentry.SentryAttributeContent",
+                        "usr": "s:6Sentry0A16AttributeContentO"
                       }
                     ]
                   }
@@ -34287,8 +34287,8 @@
               }
             ],
             "declKind": "EnumElement",
-            "usr": "s:6Sentry0A14AttributeValueO7booleanyACSbcACmF",
-            "mangledName": "$s6Sentry0A14AttributeValueO7booleanyACSbcACmF",
+            "usr": "s:6Sentry0A16AttributeContentO7booleanyACSbcACmF",
+            "mangledName": "$s6Sentry0A16AttributeContentO7booleanyACSbcACmF",
             "moduleName": "Sentry"
           },
           {
@@ -34299,18 +34299,18 @@
               {
                 "kind": "TypeFunc",
                 "name": "Function",
-                "printedName": "(Sentry.SentryAttributeValue.Type) -> (Swift.Int) -> Sentry.SentryAttributeValue",
+                "printedName": "(Sentry.SentryAttributeContent.Type) -> (Swift.Int) -> Sentry.SentryAttributeContent",
                 "children": [
                   {
                     "kind": "TypeFunc",
                     "name": "Function",
-                    "printedName": "(Swift.Int) -> Sentry.SentryAttributeValue",
+                    "printedName": "(Swift.Int) -> Sentry.SentryAttributeContent",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentryAttributeValue",
-                        "printedName": "Sentry.SentryAttributeValue",
-                        "usr": "s:6Sentry0A14AttributeValueO"
+                        "name": "SentryAttributeContent",
+                        "printedName": "Sentry.SentryAttributeContent",
+                        "usr": "s:6Sentry0A16AttributeContentO"
                       },
                       {
                         "kind": "TypeNominal",
@@ -34323,13 +34323,13 @@
                   {
                     "kind": "TypeNominal",
                     "name": "Metatype",
-                    "printedName": "Sentry.SentryAttributeValue.Type",
+                    "printedName": "Sentry.SentryAttributeContent.Type",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentryAttributeValue",
-                        "printedName": "Sentry.SentryAttributeValue",
-                        "usr": "s:6Sentry0A14AttributeValueO"
+                        "name": "SentryAttributeContent",
+                        "printedName": "Sentry.SentryAttributeContent",
+                        "usr": "s:6Sentry0A16AttributeContentO"
                       }
                     ]
                   }
@@ -34337,8 +34337,8 @@
               }
             ],
             "declKind": "EnumElement",
-            "usr": "s:6Sentry0A14AttributeValueO7integeryACSicACmF",
-            "mangledName": "$s6Sentry0A14AttributeValueO7integeryACSicACmF",
+            "usr": "s:6Sentry0A16AttributeContentO7integeryACSicACmF",
+            "mangledName": "$s6Sentry0A16AttributeContentO7integeryACSicACmF",
             "moduleName": "Sentry"
           },
           {
@@ -34349,18 +34349,18 @@
               {
                 "kind": "TypeFunc",
                 "name": "Function",
-                "printedName": "(Sentry.SentryAttributeValue.Type) -> (Swift.Double) -> Sentry.SentryAttributeValue",
+                "printedName": "(Sentry.SentryAttributeContent.Type) -> (Swift.Double) -> Sentry.SentryAttributeContent",
                 "children": [
                   {
                     "kind": "TypeFunc",
                     "name": "Function",
-                    "printedName": "(Swift.Double) -> Sentry.SentryAttributeValue",
+                    "printedName": "(Swift.Double) -> Sentry.SentryAttributeContent",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentryAttributeValue",
-                        "printedName": "Sentry.SentryAttributeValue",
-                        "usr": "s:6Sentry0A14AttributeValueO"
+                        "name": "SentryAttributeContent",
+                        "printedName": "Sentry.SentryAttributeContent",
+                        "usr": "s:6Sentry0A16AttributeContentO"
                       },
                       {
                         "kind": "TypeNominal",
@@ -34373,13 +34373,13 @@
                   {
                     "kind": "TypeNominal",
                     "name": "Metatype",
-                    "printedName": "Sentry.SentryAttributeValue.Type",
+                    "printedName": "Sentry.SentryAttributeContent.Type",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentryAttributeValue",
-                        "printedName": "Sentry.SentryAttributeValue",
-                        "usr": "s:6Sentry0A14AttributeValueO"
+                        "name": "SentryAttributeContent",
+                        "printedName": "Sentry.SentryAttributeContent",
+                        "usr": "s:6Sentry0A16AttributeContentO"
                       }
                     ]
                   }
@@ -34387,8 +34387,8 @@
               }
             ],
             "declKind": "EnumElement",
-            "usr": "s:6Sentry0A14AttributeValueO6doubleyACSdcACmF",
-            "mangledName": "$s6Sentry0A14AttributeValueO6doubleyACSdcACmF",
+            "usr": "s:6Sentry0A16AttributeContentO6doubleyACSdcACmF",
+            "mangledName": "$s6Sentry0A16AttributeContentO6doubleyACSdcACmF",
             "moduleName": "Sentry"
           },
           {
@@ -34399,18 +34399,18 @@
               {
                 "kind": "TypeFunc",
                 "name": "Function",
-                "printedName": "(Sentry.SentryAttributeValue.Type) -> ([Swift.String]) -> Sentry.SentryAttributeValue",
+                "printedName": "(Sentry.SentryAttributeContent.Type) -> ([Swift.String]) -> Sentry.SentryAttributeContent",
                 "children": [
                   {
                     "kind": "TypeFunc",
                     "name": "Function",
-                    "printedName": "([Swift.String]) -> Sentry.SentryAttributeValue",
+                    "printedName": "([Swift.String]) -> Sentry.SentryAttributeContent",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentryAttributeValue",
-                        "printedName": "Sentry.SentryAttributeValue",
-                        "usr": "s:6Sentry0A14AttributeValueO"
+                        "name": "SentryAttributeContent",
+                        "printedName": "Sentry.SentryAttributeContent",
+                        "usr": "s:6Sentry0A16AttributeContentO"
                       },
                       {
                         "kind": "TypeNominal",
@@ -34431,13 +34431,13 @@
                   {
                     "kind": "TypeNominal",
                     "name": "Metatype",
-                    "printedName": "Sentry.SentryAttributeValue.Type",
+                    "printedName": "Sentry.SentryAttributeContent.Type",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentryAttributeValue",
-                        "printedName": "Sentry.SentryAttributeValue",
-                        "usr": "s:6Sentry0A14AttributeValueO"
+                        "name": "SentryAttributeContent",
+                        "printedName": "Sentry.SentryAttributeContent",
+                        "usr": "s:6Sentry0A16AttributeContentO"
                       }
                     ]
                   }
@@ -34445,8 +34445,8 @@
               }
             ],
             "declKind": "EnumElement",
-            "usr": "s:6Sentry0A14AttributeValueO11stringArrayyACSaySSGcACmF",
-            "mangledName": "$s6Sentry0A14AttributeValueO11stringArrayyACSaySSGcACmF",
+            "usr": "s:6Sentry0A16AttributeContentO11stringArrayyACSaySSGcACmF",
+            "mangledName": "$s6Sentry0A16AttributeContentO11stringArrayyACSaySSGcACmF",
             "moduleName": "Sentry"
           },
           {
@@ -34457,18 +34457,18 @@
               {
                 "kind": "TypeFunc",
                 "name": "Function",
-                "printedName": "(Sentry.SentryAttributeValue.Type) -> ([Swift.Bool]) -> Sentry.SentryAttributeValue",
+                "printedName": "(Sentry.SentryAttributeContent.Type) -> ([Swift.Bool]) -> Sentry.SentryAttributeContent",
                 "children": [
                   {
                     "kind": "TypeFunc",
                     "name": "Function",
-                    "printedName": "([Swift.Bool]) -> Sentry.SentryAttributeValue",
+                    "printedName": "([Swift.Bool]) -> Sentry.SentryAttributeContent",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentryAttributeValue",
-                        "printedName": "Sentry.SentryAttributeValue",
-                        "usr": "s:6Sentry0A14AttributeValueO"
+                        "name": "SentryAttributeContent",
+                        "printedName": "Sentry.SentryAttributeContent",
+                        "usr": "s:6Sentry0A16AttributeContentO"
                       },
                       {
                         "kind": "TypeNominal",
@@ -34489,13 +34489,13 @@
                   {
                     "kind": "TypeNominal",
                     "name": "Metatype",
-                    "printedName": "Sentry.SentryAttributeValue.Type",
+                    "printedName": "Sentry.SentryAttributeContent.Type",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentryAttributeValue",
-                        "printedName": "Sentry.SentryAttributeValue",
-                        "usr": "s:6Sentry0A14AttributeValueO"
+                        "name": "SentryAttributeContent",
+                        "printedName": "Sentry.SentryAttributeContent",
+                        "usr": "s:6Sentry0A16AttributeContentO"
                       }
                     ]
                   }
@@ -34503,8 +34503,8 @@
               }
             ],
             "declKind": "EnumElement",
-            "usr": "s:6Sentry0A14AttributeValueO12booleanArrayyACSaySbGcACmF",
-            "mangledName": "$s6Sentry0A14AttributeValueO12booleanArrayyACSaySbGcACmF",
+            "usr": "s:6Sentry0A16AttributeContentO12booleanArrayyACSaySbGcACmF",
+            "mangledName": "$s6Sentry0A16AttributeContentO12booleanArrayyACSaySbGcACmF",
             "moduleName": "Sentry"
           },
           {
@@ -34515,18 +34515,18 @@
               {
                 "kind": "TypeFunc",
                 "name": "Function",
-                "printedName": "(Sentry.SentryAttributeValue.Type) -> ([Swift.Int]) -> Sentry.SentryAttributeValue",
+                "printedName": "(Sentry.SentryAttributeContent.Type) -> ([Swift.Int]) -> Sentry.SentryAttributeContent",
                 "children": [
                   {
                     "kind": "TypeFunc",
                     "name": "Function",
-                    "printedName": "([Swift.Int]) -> Sentry.SentryAttributeValue",
+                    "printedName": "([Swift.Int]) -> Sentry.SentryAttributeContent",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentryAttributeValue",
-                        "printedName": "Sentry.SentryAttributeValue",
-                        "usr": "s:6Sentry0A14AttributeValueO"
+                        "name": "SentryAttributeContent",
+                        "printedName": "Sentry.SentryAttributeContent",
+                        "usr": "s:6Sentry0A16AttributeContentO"
                       },
                       {
                         "kind": "TypeNominal",
@@ -34547,13 +34547,13 @@
                   {
                     "kind": "TypeNominal",
                     "name": "Metatype",
-                    "printedName": "Sentry.SentryAttributeValue.Type",
+                    "printedName": "Sentry.SentryAttributeContent.Type",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentryAttributeValue",
-                        "printedName": "Sentry.SentryAttributeValue",
-                        "usr": "s:6Sentry0A14AttributeValueO"
+                        "name": "SentryAttributeContent",
+                        "printedName": "Sentry.SentryAttributeContent",
+                        "usr": "s:6Sentry0A16AttributeContentO"
                       }
                     ]
                   }
@@ -34561,8 +34561,8 @@
               }
             ],
             "declKind": "EnumElement",
-            "usr": "s:6Sentry0A14AttributeValueO12integerArrayyACSaySiGcACmF",
-            "mangledName": "$s6Sentry0A14AttributeValueO12integerArrayyACSaySiGcACmF",
+            "usr": "s:6Sentry0A16AttributeContentO12integerArrayyACSaySiGcACmF",
+            "mangledName": "$s6Sentry0A16AttributeContentO12integerArrayyACSaySiGcACmF",
             "moduleName": "Sentry"
           },
           {
@@ -34573,18 +34573,18 @@
               {
                 "kind": "TypeFunc",
                 "name": "Function",
-                "printedName": "(Sentry.SentryAttributeValue.Type) -> ([Swift.Double]) -> Sentry.SentryAttributeValue",
+                "printedName": "(Sentry.SentryAttributeContent.Type) -> ([Swift.Double]) -> Sentry.SentryAttributeContent",
                 "children": [
                   {
                     "kind": "TypeFunc",
                     "name": "Function",
-                    "printedName": "([Swift.Double]) -> Sentry.SentryAttributeValue",
+                    "printedName": "([Swift.Double]) -> Sentry.SentryAttributeContent",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentryAttributeValue",
-                        "printedName": "Sentry.SentryAttributeValue",
-                        "usr": "s:6Sentry0A14AttributeValueO"
+                        "name": "SentryAttributeContent",
+                        "printedName": "Sentry.SentryAttributeContent",
+                        "usr": "s:6Sentry0A16AttributeContentO"
                       },
                       {
                         "kind": "TypeNominal",
@@ -34605,13 +34605,13 @@
                   {
                     "kind": "TypeNominal",
                     "name": "Metatype",
-                    "printedName": "Sentry.SentryAttributeValue.Type",
+                    "printedName": "Sentry.SentryAttributeContent.Type",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentryAttributeValue",
-                        "printedName": "Sentry.SentryAttributeValue",
-                        "usr": "s:6Sentry0A14AttributeValueO"
+                        "name": "SentryAttributeContent",
+                        "printedName": "Sentry.SentryAttributeContent",
+                        "usr": "s:6Sentry0A16AttributeContentO"
                       }
                     ]
                   }
@@ -34619,8 +34619,8 @@
               }
             ],
             "declKind": "EnumElement",
-            "usr": "s:6Sentry0A14AttributeValueO11doubleArrayyACSaySdGcACmF",
-            "mangledName": "$s6Sentry0A14AttributeValueO11doubleArrayyACSaySdGcACmF",
+            "usr": "s:6Sentry0A16AttributeContentO11doubleArrayyACSaySdGcACmF",
+            "mangledName": "$s6Sentry0A16AttributeContentO11doubleArrayyACSaySdGcACmF",
             "moduleName": "Sentry"
           },
           {
@@ -34636,20 +34636,20 @@
               },
               {
                 "kind": "TypeNominal",
-                "name": "SentryAttributeValue",
-                "printedName": "Sentry.SentryAttributeValue",
-                "usr": "s:6Sentry0A14AttributeValueO"
+                "name": "SentryAttributeContent",
+                "printedName": "Sentry.SentryAttributeContent",
+                "usr": "s:6Sentry0A16AttributeContentO"
               },
               {
                 "kind": "TypeNominal",
-                "name": "SentryAttributeValue",
-                "printedName": "Sentry.SentryAttributeValue",
-                "usr": "s:6Sentry0A14AttributeValueO"
+                "name": "SentryAttributeContent",
+                "printedName": "Sentry.SentryAttributeContent",
+                "usr": "s:6Sentry0A16AttributeContentO"
               }
             ],
             "declKind": "Func",
-            "usr": "s:6Sentry0A14AttributeValueO2eeoiySbAC_ACtFZ",
-            "mangledName": "$s6Sentry0A14AttributeValueO2eeoiySbAC_ACtFZ",
+            "usr": "s:6Sentry0A16AttributeContentO2eeoiySbAC_ACtFZ",
+            "mangledName": "$s6Sentry0A16AttributeContentO2eeoiySbAC_ACtFZ",
             "moduleName": "Sentry",
             "static": true,
             "funcSelfKind": "NonMutating"
@@ -34673,8 +34673,8 @@
               }
             ],
             "declKind": "Func",
-            "usr": "s:6Sentry0A14AttributeValueO4hash4intoys6HasherVz_tF",
-            "mangledName": "$s6Sentry0A14AttributeValueO4hash4intoys6HasherVz_tF",
+            "usr": "s:6Sentry0A16AttributeContentO4hash4intoys6HasherVz_tF",
+            "mangledName": "$s6Sentry0A16AttributeContentO4hash4intoys6HasherVz_tF",
             "moduleName": "Sentry",
             "funcSelfKind": "NonMutating"
           },
@@ -34691,8 +34691,8 @@
               }
             ],
             "declKind": "Var",
-            "usr": "s:6Sentry0A14AttributeValueO04hashC0Sivp",
-            "mangledName": "$s6Sentry0A14AttributeValueO04hashC0Sivp",
+            "usr": "s:6Sentry0A16AttributeContentO9hashValueSivp",
+            "mangledName": "$s6Sentry0A16AttributeContentO9hashValueSivp",
             "moduleName": "Sentry",
             "accessors": [
               {
@@ -34708,8 +34708,8 @@
                   }
                 ],
                 "declKind": "Accessor",
-                "usr": "s:6Sentry0A14AttributeValueO04hashC0Sivg",
-                "mangledName": "$s6Sentry0A14AttributeValueO04hashC0Sivg",
+                "usr": "s:6Sentry0A16AttributeContentO9hashValueSivg",
+                "mangledName": "$s6Sentry0A16AttributeContentO9hashValueSivg",
                 "moduleName": "Sentry",
                 "accessorKind": "get"
               }
@@ -34733,8 +34733,8 @@
               }
             ],
             "declKind": "Func",
-            "usr": "s:6Sentry0A14AttributeValueO6encode2toys7Encoder_p_tKF",
-            "mangledName": "$s6Sentry0A14AttributeValueO6encode2toys7Encoder_p_tKF",
+            "usr": "s:6Sentry0A16AttributeContentO6encode2toys7Encoder_p_tKF",
+            "mangledName": "$s6Sentry0A16AttributeContentO6encode2toys7Encoder_p_tKF",
             "moduleName": "Sentry",
             "isFromExtension": true,
             "throwing": true,
@@ -34747,9 +34747,9 @@
             "children": [
               {
                 "kind": "TypeNominal",
-                "name": "SentryAttributeValue",
-                "printedName": "Sentry.SentryAttributeValue",
-                "usr": "s:6Sentry0A14AttributeValueO"
+                "name": "SentryAttributeContent",
+                "printedName": "Sentry.SentryAttributeContent",
+                "usr": "s:6Sentry0A16AttributeContentO"
               },
               {
                 "kind": "TypeNameAlias",
@@ -34766,8 +34766,8 @@
               }
             ],
             "declKind": "Constructor",
-            "usr": "s:6Sentry0A14AttributeValueO13stringLiteralACSS_tcfc",
-            "mangledName": "$s6Sentry0A14AttributeValueO13stringLiteralACSS_tcfc",
+            "usr": "s:6Sentry0A16AttributeContentO13stringLiteralACSS_tcfc",
+            "mangledName": "$s6Sentry0A16AttributeContentO13stringLiteralACSS_tcfc",
             "moduleName": "Sentry",
             "isFromExtension": true,
             "init_kind": "Designated"
@@ -34792,8 +34792,8 @@
               }
             ],
             "declKind": "TypeAlias",
-            "usr": "s:6Sentry0A14AttributeValueO34ExtendedGraphemeClusterLiteralTypea",
-            "mangledName": "$s6Sentry0A14AttributeValueO34ExtendedGraphemeClusterLiteralTypea",
+            "usr": "s:6Sentry0A16AttributeContentO34ExtendedGraphemeClusterLiteralTypea",
+            "mangledName": "$s6Sentry0A16AttributeContentO34ExtendedGraphemeClusterLiteralTypea",
             "moduleName": "Sentry",
             "isFromExtension": true
           },
@@ -34817,8 +34817,8 @@
               }
             ],
             "declKind": "TypeAlias",
-            "usr": "s:6Sentry0A14AttributeValueO17StringLiteralTypea",
-            "mangledName": "$s6Sentry0A14AttributeValueO17StringLiteralTypea",
+            "usr": "s:6Sentry0A16AttributeContentO17StringLiteralTypea",
+            "mangledName": "$s6Sentry0A16AttributeContentO17StringLiteralTypea",
             "moduleName": "Sentry",
             "isFromExtension": true
           },
@@ -34842,8 +34842,8 @@
               }
             ],
             "declKind": "TypeAlias",
-            "usr": "s:6Sentry0A14AttributeValueO24UnicodeScalarLiteralTypea",
-            "mangledName": "$s6Sentry0A14AttributeValueO24UnicodeScalarLiteralTypea",
+            "usr": "s:6Sentry0A16AttributeContentO24UnicodeScalarLiteralTypea",
+            "mangledName": "$s6Sentry0A16AttributeContentO24UnicodeScalarLiteralTypea",
             "moduleName": "Sentry",
             "isFromExtension": true
           },
@@ -34854,9 +34854,9 @@
             "children": [
               {
                 "kind": "TypeNominal",
-                "name": "SentryAttributeValue",
-                "printedName": "Sentry.SentryAttributeValue",
-                "usr": "s:6Sentry0A14AttributeValueO"
+                "name": "SentryAttributeContent",
+                "printedName": "Sentry.SentryAttributeContent",
+                "usr": "s:6Sentry0A16AttributeContentO"
               },
               {
                 "kind": "TypeNameAlias",
@@ -34873,8 +34873,8 @@
               }
             ],
             "declKind": "Constructor",
-            "usr": "s:6Sentry0A14AttributeValueO14booleanLiteralACSb_tcfc",
-            "mangledName": "$s6Sentry0A14AttributeValueO14booleanLiteralACSb_tcfc",
+            "usr": "s:6Sentry0A16AttributeContentO14booleanLiteralACSb_tcfc",
+            "mangledName": "$s6Sentry0A16AttributeContentO14booleanLiteralACSb_tcfc",
             "moduleName": "Sentry",
             "isFromExtension": true,
             "init_kind": "Designated"
@@ -34899,8 +34899,8 @@
               }
             ],
             "declKind": "TypeAlias",
-            "usr": "s:6Sentry0A14AttributeValueO18BooleanLiteralTypea",
-            "mangledName": "$s6Sentry0A14AttributeValueO18BooleanLiteralTypea",
+            "usr": "s:6Sentry0A16AttributeContentO18BooleanLiteralTypea",
+            "mangledName": "$s6Sentry0A16AttributeContentO18BooleanLiteralTypea",
             "moduleName": "Sentry",
             "isFromExtension": true
           },
@@ -34911,9 +34911,9 @@
             "children": [
               {
                 "kind": "TypeNominal",
-                "name": "SentryAttributeValue",
-                "printedName": "Sentry.SentryAttributeValue",
-                "usr": "s:6Sentry0A14AttributeValueO"
+                "name": "SentryAttributeContent",
+                "printedName": "Sentry.SentryAttributeContent",
+                "usr": "s:6Sentry0A16AttributeContentO"
               },
               {
                 "kind": "TypeNameAlias",
@@ -34930,8 +34930,8 @@
               }
             ],
             "declKind": "Constructor",
-            "usr": "s:6Sentry0A14AttributeValueO12floatLiteralACSd_tcfc",
-            "mangledName": "$s6Sentry0A14AttributeValueO12floatLiteralACSd_tcfc",
+            "usr": "s:6Sentry0A16AttributeContentO12floatLiteralACSd_tcfc",
+            "mangledName": "$s6Sentry0A16AttributeContentO12floatLiteralACSd_tcfc",
             "moduleName": "Sentry",
             "isFromExtension": true,
             "init_kind": "Designated"
@@ -34956,8 +34956,8 @@
               }
             ],
             "declKind": "TypeAlias",
-            "usr": "s:6Sentry0A14AttributeValueO16FloatLiteralTypea",
-            "mangledName": "$s6Sentry0A14AttributeValueO16FloatLiteralTypea",
+            "usr": "s:6Sentry0A16AttributeContentO16FloatLiteralTypea",
+            "mangledName": "$s6Sentry0A16AttributeContentO16FloatLiteralTypea",
             "moduleName": "Sentry",
             "isFromExtension": true
           },
@@ -34968,9 +34968,9 @@
             "children": [
               {
                 "kind": "TypeNominal",
-                "name": "SentryAttributeValue",
-                "printedName": "Sentry.SentryAttributeValue",
-                "usr": "s:6Sentry0A14AttributeValueO"
+                "name": "SentryAttributeContent",
+                "printedName": "Sentry.SentryAttributeContent",
+                "usr": "s:6Sentry0A16AttributeContentO"
               },
               {
                 "kind": "TypeNameAlias",
@@ -34987,8 +34987,8 @@
               }
             ],
             "declKind": "Constructor",
-            "usr": "s:6Sentry0A14AttributeValueO14integerLiteralACSi_tcfc",
-            "mangledName": "$s6Sentry0A14AttributeValueO14integerLiteralACSi_tcfc",
+            "usr": "s:6Sentry0A16AttributeContentO14integerLiteralACSi_tcfc",
+            "mangledName": "$s6Sentry0A16AttributeContentO14integerLiteralACSi_tcfc",
             "moduleName": "Sentry",
             "isFromExtension": true,
             "init_kind": "Designated"
@@ -35013,15 +35013,15 @@
               }
             ],
             "declKind": "TypeAlias",
-            "usr": "s:6Sentry0A14AttributeValueO18IntegerLiteralTypea",
-            "mangledName": "$s6Sentry0A14AttributeValueO18IntegerLiteralTypea",
+            "usr": "s:6Sentry0A16AttributeContentO18IntegerLiteralTypea",
+            "mangledName": "$s6Sentry0A16AttributeContentO18IntegerLiteralTypea",
             "moduleName": "Sentry",
             "isFromExtension": true
           }
         ],
         "declKind": "Enum",
-        "usr": "s:6Sentry0A14AttributeValueO",
-        "mangledName": "$s6Sentry0A14AttributeValueO",
+        "usr": "s:6Sentry0A16AttributeContentO",
+        "mangledName": "$s6Sentry0A16AttributeContentO",
         "moduleName": "Sentry",
         "conformances": [
           {
@@ -35072,7 +35072,7 @@
                   {
                     "kind": "TypeNameAlias",
                     "name": "StringLiteralType",
-                    "printedName": "Sentry.SentryAttributeValue.StringLiteralType",
+                    "printedName": "Sentry.SentryAttributeContent.StringLiteralType",
                     "children": [
                       {
                         "kind": "TypeNameAlias",
@@ -35108,7 +35108,7 @@
                   {
                     "kind": "TypeNameAlias",
                     "name": "ExtendedGraphemeClusterLiteralType",
-                    "printedName": "Sentry.SentryAttributeValue.ExtendedGraphemeClusterLiteralType",
+                    "printedName": "Sentry.SentryAttributeContent.ExtendedGraphemeClusterLiteralType",
                     "children": [
                       {
                         "kind": "TypeNameAlias",
@@ -35144,7 +35144,7 @@
                   {
                     "kind": "TypeNameAlias",
                     "name": "UnicodeScalarLiteralType",
-                    "printedName": "Sentry.SentryAttributeValue.UnicodeScalarLiteralType",
+                    "printedName": "Sentry.SentryAttributeContent.UnicodeScalarLiteralType",
                     "children": [
                       {
                         "kind": "TypeNameAlias",
@@ -35180,7 +35180,7 @@
                   {
                     "kind": "TypeNameAlias",
                     "name": "BooleanLiteralType",
-                    "printedName": "Sentry.SentryAttributeValue.BooleanLiteralType",
+                    "printedName": "Sentry.SentryAttributeContent.BooleanLiteralType",
                     "children": [
                       {
                         "kind": "TypeNameAlias",
@@ -35216,7 +35216,7 @@
                   {
                     "kind": "TypeNameAlias",
                     "name": "FloatLiteralType",
-                    "printedName": "Sentry.SentryAttributeValue.FloatLiteralType",
+                    "printedName": "Sentry.SentryAttributeContent.FloatLiteralType",
                     "children": [
                       {
                         "kind": "TypeNameAlias",
@@ -35252,7 +35252,7 @@
                   {
                     "kind": "TypeNameAlias",
                     "name": "IntegerLiteralType",
-                    "printedName": "Sentry.SentryAttributeValue.IntegerLiteralType",
+                    "printedName": "Sentry.SentryAttributeContent.IntegerLiteralType",
                     "children": [
                       {
                         "kind": "TypeNameAlias",
@@ -46101,24 +46101,24 @@
       },
       {
         "kind": "TypeDecl",
-        "name": "SentryAttributeValuable",
-        "printedName": "SentryAttributeValuable",
+        "name": "SentryAttributeValue",
+        "printedName": "SentryAttributeValue",
         "children": [
           {
             "kind": "Var",
-            "name": "asSentryAttributeValue",
-            "printedName": "asSentryAttributeValue",
+            "name": "asSentryAttributeContent",
+            "printedName": "asSentryAttributeContent",
             "children": [
               {
                 "kind": "TypeNominal",
-                "name": "SentryAttributeValue",
-                "printedName": "Sentry.SentryAttributeValue",
-                "usr": "s:6Sentry0A14AttributeValueO"
+                "name": "SentryAttributeContent",
+                "printedName": "Sentry.SentryAttributeContent",
+                "usr": "s:6Sentry0A16AttributeContentO"
               }
             ],
             "declKind": "Var",
-            "usr": "s:6Sentry0A17AttributeValuableP02asaB5ValueAA0abE0Ovp",
-            "mangledName": "$s6Sentry0A17AttributeValuableP02asaB5ValueAA0abE0Ovp",
+            "usr": "s:6Sentry0A14AttributeValueP02asaB7ContentAA0abE0Ovp",
+            "mangledName": "$s6Sentry0A14AttributeValueP02asaB7ContentAA0abE0Ovp",
             "moduleName": "Sentry",
             "protocolReq": true,
             "accessors": [
@@ -46129,16 +46129,16 @@
                 "children": [
                   {
                     "kind": "TypeNominal",
-                    "name": "SentryAttributeValue",
-                    "printedName": "Sentry.SentryAttributeValue",
-                    "usr": "s:6Sentry0A14AttributeValueO"
+                    "name": "SentryAttributeContent",
+                    "printedName": "Sentry.SentryAttributeContent",
+                    "usr": "s:6Sentry0A16AttributeContentO"
                   }
                 ],
                 "declKind": "Accessor",
-                "usr": "s:6Sentry0A17AttributeValuableP02asaB5ValueAA0abE0Ovg",
-                "mangledName": "$s6Sentry0A17AttributeValuableP02asaB5ValueAA0abE0Ovg",
+                "usr": "s:6Sentry0A14AttributeValueP02asaB7ContentAA0abE0Ovg",
+                "mangledName": "$s6Sentry0A14AttributeValueP02asaB7ContentAA0abE0Ovg",
                 "moduleName": "Sentry",
-                "genericSig": "<Self where Self : Sentry.SentryAttributeValuable>",
+                "genericSig": "<Self where Self : Sentry.SentryAttributeValue>",
                 "protocolReq": true,
                 "reqNewWitnessTableEntry": true,
                 "accessorKind": "get"
@@ -46147,8 +46147,8 @@
           }
         ],
         "declKind": "Protocol",
-        "usr": "s:6Sentry0A17AttributeValuableP",
-        "mangledName": "$s6Sentry0A17AttributeValuableP",
+        "usr": "s:6Sentry0A14AttributeValueP",
+        "mangledName": "$s6Sentry0A14AttributeValueP",
         "moduleName": "Sentry",
         "conformances": [
           {
@@ -61995,19 +61995,19 @@
         "children": [
           {
             "kind": "Var",
-            "name": "asSentryAttributeValue",
-            "printedName": "asSentryAttributeValue",
+            "name": "asSentryAttributeContent",
+            "printedName": "asSentryAttributeContent",
             "children": [
               {
                 "kind": "TypeNominal",
-                "name": "SentryAttributeValue",
-                "printedName": "Sentry.SentryAttributeValue",
-                "usr": "s:6Sentry0A14AttributeValueO"
+                "name": "SentryAttributeContent",
+                "printedName": "Sentry.SentryAttributeContent",
+                "usr": "s:6Sentry0A16AttributeContentO"
               }
             ],
             "declKind": "Var",
-            "usr": "s:SS6SentryE02asA14AttributeValueAA0acD0Ovp",
-            "mangledName": "$sSS6SentryE02asA14AttributeValueAA0acD0Ovp",
+            "usr": "s:SS6SentryE02asA16AttributeContentAA0acD0Ovp",
+            "mangledName": "$sSS6SentryE02asA16AttributeContentAA0acD0Ovp",
             "moduleName": "Sentry",
             "isFromExtension": true,
             "accessors": [
@@ -62018,14 +62018,14 @@
                 "children": [
                   {
                     "kind": "TypeNominal",
-                    "name": "SentryAttributeValue",
-                    "printedName": "Sentry.SentryAttributeValue",
-                    "usr": "s:6Sentry0A14AttributeValueO"
+                    "name": "SentryAttributeContent",
+                    "printedName": "Sentry.SentryAttributeContent",
+                    "usr": "s:6Sentry0A16AttributeContentO"
                   }
                 ],
                 "declKind": "Accessor",
-                "usr": "s:SS6SentryE02asA14AttributeValueAA0acD0Ovg",
-                "mangledName": "$sSS6SentryE02asA14AttributeValueAA0acD0Ovg",
+                "usr": "s:SS6SentryE02asA16AttributeContentAA0acD0Ovg",
+                "mangledName": "$sSS6SentryE02asA16AttributeContentAA0acD0Ovg",
                 "moduleName": "Sentry",
                 "isFromExtension": true,
                 "accessorKind": "get"
@@ -62059,10 +62059,10 @@
           },
           {
             "kind": "Conformance",
-            "name": "SentryAttributeValuable",
-            "printedName": "SentryAttributeValuable",
-            "usr": "s:6Sentry0A17AttributeValuableP",
-            "mangledName": "$s6Sentry0A17AttributeValuableP"
+            "name": "SentryAttributeValue",
+            "printedName": "SentryAttributeValue",
+            "usr": "s:6Sentry0A14AttributeValueP",
+            "mangledName": "$s6Sentry0A14AttributeValueP"
           },
           {
             "kind": "Conformance",
@@ -62626,19 +62626,19 @@
         "children": [
           {
             "kind": "Var",
-            "name": "asSentryAttributeValue",
-            "printedName": "asSentryAttributeValue",
+            "name": "asSentryAttributeContent",
+            "printedName": "asSentryAttributeContent",
             "children": [
               {
                 "kind": "TypeNominal",
-                "name": "SentryAttributeValue",
-                "printedName": "Sentry.SentryAttributeValue",
-                "usr": "s:6Sentry0A14AttributeValueO"
+                "name": "SentryAttributeContent",
+                "printedName": "Sentry.SentryAttributeContent",
+                "usr": "s:6Sentry0A16AttributeContentO"
               }
             ],
             "declKind": "Var",
-            "usr": "s:Sb6SentryE02asA14AttributeValueAA0acD0Ovp",
-            "mangledName": "$sSb6SentryE02asA14AttributeValueAA0acD0Ovp",
+            "usr": "s:Sb6SentryE02asA16AttributeContentAA0acD0Ovp",
+            "mangledName": "$sSb6SentryE02asA16AttributeContentAA0acD0Ovp",
             "moduleName": "Sentry",
             "isFromExtension": true,
             "accessors": [
@@ -62649,14 +62649,14 @@
                 "children": [
                   {
                     "kind": "TypeNominal",
-                    "name": "SentryAttributeValue",
-                    "printedName": "Sentry.SentryAttributeValue",
-                    "usr": "s:6Sentry0A14AttributeValueO"
+                    "name": "SentryAttributeContent",
+                    "printedName": "Sentry.SentryAttributeContent",
+                    "usr": "s:6Sentry0A16AttributeContentO"
                   }
                 ],
                 "declKind": "Accessor",
-                "usr": "s:Sb6SentryE02asA14AttributeValueAA0acD0Ovg",
-                "mangledName": "$sSb6SentryE02asA14AttributeValueAA0acD0Ovg",
+                "usr": "s:Sb6SentryE02asA16AttributeContentAA0acD0Ovg",
+                "mangledName": "$sSb6SentryE02asA16AttributeContentAA0acD0Ovg",
                 "moduleName": "Sentry",
                 "isFromExtension": true,
                 "accessorKind": "get"
@@ -62696,10 +62696,10 @@
           },
           {
             "kind": "Conformance",
-            "name": "SentryAttributeValuable",
-            "printedName": "SentryAttributeValuable",
-            "usr": "s:6Sentry0A17AttributeValuableP",
-            "mangledName": "$s6Sentry0A17AttributeValuableP"
+            "name": "SentryAttributeValue",
+            "printedName": "SentryAttributeValue",
+            "usr": "s:6Sentry0A14AttributeValueP",
+            "mangledName": "$s6Sentry0A14AttributeValueP"
           },
           {
             "kind": "Conformance",
@@ -62802,19 +62802,19 @@
         "children": [
           {
             "kind": "Var",
-            "name": "asSentryAttributeValue",
-            "printedName": "asSentryAttributeValue",
+            "name": "asSentryAttributeContent",
+            "printedName": "asSentryAttributeContent",
             "children": [
               {
                 "kind": "TypeNominal",
-                "name": "SentryAttributeValue",
-                "printedName": "Sentry.SentryAttributeValue",
-                "usr": "s:6Sentry0A14AttributeValueO"
+                "name": "SentryAttributeContent",
+                "printedName": "Sentry.SentryAttributeContent",
+                "usr": "s:6Sentry0A16AttributeContentO"
               }
             ],
             "declKind": "Var",
-            "usr": "s:Si6SentryE02asA14AttributeValueAA0acD0Ovp",
-            "mangledName": "$sSi6SentryE02asA14AttributeValueAA0acD0Ovp",
+            "usr": "s:Si6SentryE02asA16AttributeContentAA0acD0Ovp",
+            "mangledName": "$sSi6SentryE02asA16AttributeContentAA0acD0Ovp",
             "moduleName": "Sentry",
             "isFromExtension": true,
             "accessors": [
@@ -62825,14 +62825,14 @@
                 "children": [
                   {
                     "kind": "TypeNominal",
-                    "name": "SentryAttributeValue",
-                    "printedName": "Sentry.SentryAttributeValue",
-                    "usr": "s:6Sentry0A14AttributeValueO"
+                    "name": "SentryAttributeContent",
+                    "printedName": "Sentry.SentryAttributeContent",
+                    "usr": "s:6Sentry0A16AttributeContentO"
                   }
                 ],
                 "declKind": "Accessor",
-                "usr": "s:Si6SentryE02asA14AttributeValueAA0acD0Ovg",
-                "mangledName": "$sSi6SentryE02asA14AttributeValueAA0acD0Ovg",
+                "usr": "s:Si6SentryE02asA16AttributeContentAA0acD0Ovg",
+                "mangledName": "$sSi6SentryE02asA16AttributeContentAA0acD0Ovg",
                 "moduleName": "Sentry",
                 "isFromExtension": true,
                 "accessorKind": "get"
@@ -63023,10 +63023,10 @@
           },
           {
             "kind": "Conformance",
-            "name": "SentryAttributeValuable",
-            "printedName": "SentryAttributeValuable",
-            "usr": "s:6Sentry0A17AttributeValuableP",
-            "mangledName": "$s6Sentry0A17AttributeValuableP"
+            "name": "SentryAttributeValue",
+            "printedName": "SentryAttributeValue",
+            "usr": "s:6Sentry0A14AttributeValueP",
+            "mangledName": "$s6Sentry0A14AttributeValueP"
           },
           {
             "kind": "Conformance",
@@ -63214,19 +63214,19 @@
         "children": [
           {
             "kind": "Var",
-            "name": "asSentryAttributeValue",
-            "printedName": "asSentryAttributeValue",
+            "name": "asSentryAttributeContent",
+            "printedName": "asSentryAttributeContent",
             "children": [
               {
                 "kind": "TypeNominal",
-                "name": "SentryAttributeValue",
-                "printedName": "Sentry.SentryAttributeValue",
-                "usr": "s:6Sentry0A14AttributeValueO"
+                "name": "SentryAttributeContent",
+                "printedName": "Sentry.SentryAttributeContent",
+                "usr": "s:6Sentry0A16AttributeContentO"
               }
             ],
             "declKind": "Var",
-            "usr": "s:Sd6SentryE02asA14AttributeValueAA0acD0Ovp",
-            "mangledName": "$sSd6SentryE02asA14AttributeValueAA0acD0Ovp",
+            "usr": "s:Sd6SentryE02asA16AttributeContentAA0acD0Ovp",
+            "mangledName": "$sSd6SentryE02asA16AttributeContentAA0acD0Ovp",
             "moduleName": "Sentry",
             "isFromExtension": true,
             "accessors": [
@@ -63237,14 +63237,14 @@
                 "children": [
                   {
                     "kind": "TypeNominal",
-                    "name": "SentryAttributeValue",
-                    "printedName": "Sentry.SentryAttributeValue",
-                    "usr": "s:6Sentry0A14AttributeValueO"
+                    "name": "SentryAttributeContent",
+                    "printedName": "Sentry.SentryAttributeContent",
+                    "usr": "s:6Sentry0A16AttributeContentO"
                   }
                 ],
                 "declKind": "Accessor",
-                "usr": "s:Sd6SentryE02asA14AttributeValueAA0acD0Ovg",
-                "mangledName": "$sSd6SentryE02asA14AttributeValueAA0acD0Ovg",
+                "usr": "s:Sd6SentryE02asA16AttributeContentAA0acD0Ovg",
+                "mangledName": "$sSd6SentryE02asA16AttributeContentAA0acD0Ovg",
                 "moduleName": "Sentry",
                 "isFromExtension": true,
                 "accessorKind": "get"
@@ -63683,10 +63683,10 @@
           },
           {
             "kind": "Conformance",
-            "name": "SentryAttributeValuable",
-            "printedName": "SentryAttributeValuable",
-            "usr": "s:6Sentry0A17AttributeValuableP",
-            "mangledName": "$s6Sentry0A17AttributeValuableP"
+            "name": "SentryAttributeValue",
+            "printedName": "SentryAttributeValue",
+            "usr": "s:6Sentry0A14AttributeValueP",
+            "mangledName": "$s6Sentry0A14AttributeValueP"
           }
         ]
       },
@@ -63697,19 +63697,19 @@
         "children": [
           {
             "kind": "Var",
-            "name": "asSentryAttributeValue",
-            "printedName": "asSentryAttributeValue",
+            "name": "asSentryAttributeContent",
+            "printedName": "asSentryAttributeContent",
             "children": [
               {
                 "kind": "TypeNominal",
-                "name": "SentryAttributeValue",
-                "printedName": "Sentry.SentryAttributeValue",
-                "usr": "s:6Sentry0A14AttributeValueO"
+                "name": "SentryAttributeContent",
+                "printedName": "Sentry.SentryAttributeContent",
+                "usr": "s:6Sentry0A16AttributeContentO"
               }
             ],
             "declKind": "Var",
-            "usr": "s:Sf6SentryE02asA14AttributeValueAA0acD0Ovp",
-            "mangledName": "$sSf6SentryE02asA14AttributeValueAA0acD0Ovp",
+            "usr": "s:Sf6SentryE02asA16AttributeContentAA0acD0Ovp",
+            "mangledName": "$sSf6SentryE02asA16AttributeContentAA0acD0Ovp",
             "moduleName": "Sentry",
             "isFromExtension": true,
             "accessors": [
@@ -63720,14 +63720,14 @@
                 "children": [
                   {
                     "kind": "TypeNominal",
-                    "name": "SentryAttributeValue",
-                    "printedName": "Sentry.SentryAttributeValue",
-                    "usr": "s:6Sentry0A14AttributeValueO"
+                    "name": "SentryAttributeContent",
+                    "printedName": "Sentry.SentryAttributeContent",
+                    "usr": "s:6Sentry0A16AttributeContentO"
                   }
                 ],
                 "declKind": "Accessor",
-                "usr": "s:Sf6SentryE02asA14AttributeValueAA0acD0Ovg",
-                "mangledName": "$sSf6SentryE02asA14AttributeValueAA0acD0Ovg",
+                "usr": "s:Sf6SentryE02asA16AttributeContentAA0acD0Ovg",
+                "mangledName": "$sSf6SentryE02asA16AttributeContentAA0acD0Ovg",
                 "moduleName": "Sentry",
                 "isFromExtension": true,
                 "accessorKind": "get"
@@ -64166,10 +64166,10 @@
           },
           {
             "kind": "Conformance",
-            "name": "SentryAttributeValuable",
-            "printedName": "SentryAttributeValuable",
-            "usr": "s:6Sentry0A17AttributeValuableP",
-            "mangledName": "$s6Sentry0A17AttributeValuableP"
+            "name": "SentryAttributeValue",
+            "printedName": "SentryAttributeValue",
+            "usr": "s:6Sentry0A14AttributeValueP",
+            "mangledName": "$s6Sentry0A14AttributeValueP"
           }
         ]
       },
@@ -64180,19 +64180,19 @@
         "children": [
           {
             "kind": "Var",
-            "name": "asSentryAttributeValue",
-            "printedName": "asSentryAttributeValue",
+            "name": "asSentryAttributeContent",
+            "printedName": "asSentryAttributeContent",
             "children": [
               {
                 "kind": "TypeNominal",
-                "name": "SentryAttributeValue",
-                "printedName": "Sentry.SentryAttributeValue",
-                "usr": "s:6Sentry0A14AttributeValueO"
+                "name": "SentryAttributeContent",
+                "printedName": "Sentry.SentryAttributeContent",
+                "usr": "s:6Sentry0A16AttributeContentO"
               }
             ],
             "declKind": "Var",
-            "usr": "s:Sa6SentryE02asA14AttributeValueAA0acD0Ovp",
-            "mangledName": "$sSa6SentryE02asA14AttributeValueAA0acD0Ovp",
+            "usr": "s:Sa6SentryE02asA16AttributeContentAA0acD0Ovp",
+            "mangledName": "$sSa6SentryE02asA16AttributeContentAA0acD0Ovp",
             "moduleName": "Sentry",
             "isFromExtension": true,
             "accessors": [
@@ -64203,14 +64203,14 @@
                 "children": [
                   {
                     "kind": "TypeNominal",
-                    "name": "SentryAttributeValue",
-                    "printedName": "Sentry.SentryAttributeValue",
-                    "usr": "s:6Sentry0A14AttributeValueO"
+                    "name": "SentryAttributeContent",
+                    "printedName": "Sentry.SentryAttributeContent",
+                    "usr": "s:6Sentry0A16AttributeContentO"
                   }
                 ],
                 "declKind": "Accessor",
-                "usr": "s:Sa6SentryE02asA14AttributeValueAA0acD0Ovg",
-                "mangledName": "$sSa6SentryE02asA14AttributeValueAA0acD0Ovg",
+                "usr": "s:Sa6SentryE02asA16AttributeContentAA0acD0Ovg",
+                "mangledName": "$sSa6SentryE02asA16AttributeContentAA0acD0Ovg",
                 "moduleName": "Sentry",
                 "genericSig": "<Element>",
                 "isFromExtension": true,
@@ -64246,10 +64246,10 @@
           },
           {
             "kind": "Conformance",
-            "name": "SentryAttributeValuable",
-            "printedName": "SentryAttributeValuable",
-            "usr": "s:6Sentry0A17AttributeValuableP",
-            "mangledName": "$s6Sentry0A17AttributeValuableP"
+            "name": "SentryAttributeValue",
+            "printedName": "SentryAttributeValue",
+            "usr": "s:6Sentry0A14AttributeValueP",
+            "mangledName": "$s6Sentry0A14AttributeValueP"
           },
           {
             "kind": "Conformance",
