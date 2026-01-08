@@ -1,13 +1,13 @@
 @testable import Sentry
 import XCTest
 
-final class SentryAttributeValueTests: XCTestCase {
+final class SentryAttributeContentTests: XCTestCase {
     
     // MARK: - Type Property Tests
     
     func testType_whenString_shouldReturnString() {
         // -- Arrange --
-        let value = SentryAttributeValue.string("test")
+        let value = SentryAttributeContent.string("test")
         
         // -- Act & Assert --
         XCTAssertEqual(value.type, "string")
@@ -15,7 +15,7 @@ final class SentryAttributeValueTests: XCTestCase {
     
     func testType_whenBoolean_shouldReturnBoolean() {
         // -- Arrange --
-        let value = SentryAttributeValue.boolean(true)
+        let value = SentryAttributeContent.boolean(true)
         
         // -- Act & Assert --
         XCTAssertEqual(value.type, "boolean")
@@ -23,7 +23,7 @@ final class SentryAttributeValueTests: XCTestCase {
     
     func testType_whenInteger_shouldReturnInteger() {
         // -- Arrange --
-        let value = SentryAttributeValue.integer(42)
+        let value = SentryAttributeContent.integer(42)
         
         // -- Act & Assert --
         XCTAssertEqual(value.type, "integer")
@@ -31,7 +31,7 @@ final class SentryAttributeValueTests: XCTestCase {
     
     func testType_whenDouble_shouldReturnDouble() {
         // -- Arrange --
-        let value = SentryAttributeValue.double(3.14)
+        let value = SentryAttributeContent.double(3.14)
         
         // -- Act & Assert --
         XCTAssertEqual(value.type, "double")
@@ -39,7 +39,7 @@ final class SentryAttributeValueTests: XCTestCase {
     
     func testType_whenStringArray_shouldReturnStringArray() {
         // -- Arrange --
-        let value = SentryAttributeValue.stringArray(["a", "b"])
+        let value = SentryAttributeContent.stringArray(["a", "b"])
         
         // -- Act & Assert --
         XCTAssertEqual(value.type, "string[]")
@@ -47,7 +47,7 @@ final class SentryAttributeValueTests: XCTestCase {
     
     func testType_whenBooleanArray_shouldReturnBooleanArray() {
         // -- Arrange --
-        let value = SentryAttributeValue.booleanArray([true, false])
+        let value = SentryAttributeContent.booleanArray([true, false])
         
         // -- Act & Assert --
         XCTAssertEqual(value.type, "boolean[]")
@@ -55,7 +55,7 @@ final class SentryAttributeValueTests: XCTestCase {
     
     func testType_whenIntegerArray_shouldReturnIntegerArray() {
         // -- Arrange --
-        let value = SentryAttributeValue.integerArray([1, 2])
+        let value = SentryAttributeContent.integerArray([1, 2])
         
         // -- Act & Assert --
         XCTAssertEqual(value.type, "integer[]")
@@ -63,7 +63,7 @@ final class SentryAttributeValueTests: XCTestCase {
     
     func testType_whenDoubleArray_shouldReturnDoubleArray() {
         // -- Arrange --
-        let value = SentryAttributeValue.doubleArray([1.1, 2.2])
+        let value = SentryAttributeContent.doubleArray([1.1, 2.2])
         
         // -- Act & Assert --
         XCTAssertEqual(value.type, "double[]")
@@ -73,7 +73,7 @@ final class SentryAttributeValueTests: XCTestCase {
     
     func testEncode_whenString_shouldEncodeCorrectly() throws {
         // -- Arrange --
-        let value = SentryAttributeValue.string("test value")
+        let value = SentryAttributeContent.string("test value")
         
         // -- Act --
         let data = try JSONEncoder().encode(value)
@@ -86,7 +86,7 @@ final class SentryAttributeValueTests: XCTestCase {
     
     func testEncode_whenBoolean_shouldEncodeCorrectly() throws {
         // -- Arrange --
-        let value = SentryAttributeValue.boolean(true)
+        let value = SentryAttributeContent.boolean(true)
         
         // -- Act --
         let data = try JSONEncoder().encode(value)
@@ -99,7 +99,7 @@ final class SentryAttributeValueTests: XCTestCase {
     
     func testEncode_whenInteger_shouldEncodeCorrectly() throws {
         // -- Arrange --
-        let value = SentryAttributeValue.integer(42)
+        let value = SentryAttributeContent.integer(42)
         
         // -- Act --
         let data = try JSONEncoder().encode(value)
@@ -112,7 +112,7 @@ final class SentryAttributeValueTests: XCTestCase {
     
     func testEncode_whenDouble_shouldEncodeCorrectly() throws {
         // -- Arrange --
-        let value = SentryAttributeValue.double(3.14159)
+        let value = SentryAttributeContent.double(3.14159)
         
         // -- Act --
         let data = try JSONEncoder().encode(value)
@@ -126,7 +126,7 @@ final class SentryAttributeValueTests: XCTestCase {
     
     func testEncode_whenStringArray_shouldEncodeCorrectly() throws {
         // -- Arrange --
-        let value = SentryAttributeValue.stringArray(["hello", "world"])
+        let value = SentryAttributeContent.stringArray(["hello", "world"])
         
         // -- Act --
         let data = try JSONEncoder().encode(value)
@@ -140,7 +140,7 @@ final class SentryAttributeValueTests: XCTestCase {
     
     func testEncode_whenBooleanArray_shouldEncodeCorrectly() throws {
         // -- Arrange --
-        let value = SentryAttributeValue.booleanArray([true, false, true])
+        let value = SentryAttributeContent.booleanArray([true, false, true])
         
         // -- Act --
         let data = try JSONEncoder().encode(value)
@@ -154,7 +154,7 @@ final class SentryAttributeValueTests: XCTestCase {
     
     func testEncode_whenIntegerArray_shouldEncodeCorrectly() throws {
         // -- Arrange --
-        let value = SentryAttributeValue.integerArray([1, 2, 3])
+        let value = SentryAttributeContent.integerArray([1, 2, 3])
         
         // -- Act --
         let data = try JSONEncoder().encode(value)
@@ -168,7 +168,7 @@ final class SentryAttributeValueTests: XCTestCase {
     
     func testEncode_whenDoubleArray_shouldEncodeCorrectly() throws {
         // -- Arrange --
-        let value = SentryAttributeValue.doubleArray([1.1, 2.2, 3.14159])
+        let value = SentryAttributeContent.doubleArray([1.1, 2.2, 3.14159])
         
         // -- Act --
         let data = try JSONEncoder().encode(value)
@@ -190,7 +190,7 @@ final class SentryAttributeValueTests: XCTestCase {
         let input: Any = "test"
         
         // -- Act --
-        let result = SentryAttributeValue.from(anyValue: input)
+        let result = SentryAttributeContent.from(anyValue: input)
         
         // -- Assert --
         guard case .string(let value) = result else {
@@ -204,7 +204,7 @@ final class SentryAttributeValueTests: XCTestCase {
         let input: Any = true
         
         // -- Act --
-        let result = SentryAttributeValue.from(anyValue: input)
+        let result = SentryAttributeContent.from(anyValue: input)
         
         // -- Assert --
         guard case .boolean(let value) = result else {
@@ -218,7 +218,7 @@ final class SentryAttributeValueTests: XCTestCase {
         let input: Any = 42
         
         // -- Act --
-        let result = SentryAttributeValue.from(anyValue: input)
+        let result = SentryAttributeContent.from(anyValue: input)
         
         // -- Assert --
         guard case .integer(let value) = result else {
@@ -232,7 +232,7 @@ final class SentryAttributeValueTests: XCTestCase {
         let input: Any = 3.14
         
         // -- Act --
-        let result = SentryAttributeValue.from(anyValue: input)
+        let result = SentryAttributeContent.from(anyValue: input)
         
         // -- Assert --
         guard case .double(let value) = result else {
@@ -246,7 +246,7 @@ final class SentryAttributeValueTests: XCTestCase {
         let input: Any = Float(2.71828)
         
         // -- Act --
-        let result = SentryAttributeValue.from(anyValue: input)
+        let result = SentryAttributeContent.from(anyValue: input)
         
         // -- Assert --
         guard case .double(let value) = result else {
@@ -260,7 +260,7 @@ final class SentryAttributeValueTests: XCTestCase {
         let input: Any = ["a", "b", "c"]
         
         // -- Act --
-        let result = SentryAttributeValue.from(anyValue: input)
+        let result = SentryAttributeContent.from(anyValue: input)
         
         // -- Assert --
         guard case .stringArray(let value) = result else {
@@ -274,7 +274,7 @@ final class SentryAttributeValueTests: XCTestCase {
         let input: Any = [true, false]
         
         // -- Act --
-        let result = SentryAttributeValue.from(anyValue: input)
+        let result = SentryAttributeContent.from(anyValue: input)
         
         // -- Assert --
         guard case .booleanArray(let value) = result else {
@@ -288,7 +288,7 @@ final class SentryAttributeValueTests: XCTestCase {
         let input: Any = [1, 2, 3]
         
         // -- Act --
-        let result = SentryAttributeValue.from(anyValue: input)
+        let result = SentryAttributeContent.from(anyValue: input)
         
         // -- Assert --
         guard case .integerArray(let value) = result else {
@@ -302,7 +302,7 @@ final class SentryAttributeValueTests: XCTestCase {
         let input: Any = [1.1, 2.2]
         
         // -- Act --
-        let result = SentryAttributeValue.from(anyValue: input)
+        let result = SentryAttributeContent.from(anyValue: input)
         
         // -- Assert --
         guard case .doubleArray(let value) = result else {
@@ -318,7 +318,7 @@ final class SentryAttributeValueTests: XCTestCase {
         let input: Any = [Float(1.1), Float(2.2)]
         
         // -- Act --
-        let result = SentryAttributeValue.from(anyValue: input)
+        let result = SentryAttributeContent.from(anyValue: input)
         
         // -- Assert --
         guard case .doubleArray(let value) = result else {
@@ -329,12 +329,12 @@ final class SentryAttributeValueTests: XCTestCase {
         XCTAssertEqual(value[1], 2.2, accuracy: 0.00001)
     }
     
-    func testFromAnyValue_whenSentryAttributeValue_shouldReturnSameValue() {
+    func testFromAnyValue_whenSentryAttributeContent_shouldReturnSameValue() {
         // -- Arrange --
-        let input: Any = SentryAttributeValue.string("test")
+        let input: Any = SentryAttributeContent.string("test")
         
         // -- Act --
-        let result = SentryAttributeValue.from(anyValue: input)
+        let result = SentryAttributeContent.from(anyValue: input)
         
         // -- Assert --
         guard case .string(let value) = result else {
@@ -343,12 +343,12 @@ final class SentryAttributeValueTests: XCTestCase {
         XCTAssertEqual(value, "test")
     }
     
-    func testFromAnyValue_whenSentryAttributeValuable_shouldReturnAttributeValue() {
+    func testFromAnyValue_whenSentryAttributeValue_shouldReturnAttributeContent() {
         // -- Arrange --
         let input: Any = "test" as String
         
         // -- Act --
-        let result = SentryAttributeValue.from(anyValue: input)
+        let result = SentryAttributeContent.from(anyValue: input)
         
         // -- Assert --
         guard case .string(let value) = result else {
@@ -362,7 +362,7 @@ final class SentryAttributeValueTests: XCTestCase {
         let input: Any = SentryAttribute(string: "test")
         
         // -- Act --
-        let result = SentryAttributeValue.from(anyValue: input)
+        let result = SentryAttributeContent.from(anyValue: input)
         
         // -- Assert --
         guard case .string(let value) = result else {
@@ -376,7 +376,7 @@ final class SentryAttributeValueTests: XCTestCase {
         let input: Any = SentryAttribute(integer: 42)
         
         // -- Act --
-        let result = SentryAttributeValue.from(anyValue: input)
+        let result = SentryAttributeContent.from(anyValue: input)
         
         // -- Assert --
         guard case .integer(let value) = result else {
@@ -390,7 +390,7 @@ final class SentryAttributeValueTests: XCTestCase {
         let input: Any = SentryAttribute(boolean: true)
         
         // -- Act --
-        let result = SentryAttributeValue.from(anyValue: input)
+        let result = SentryAttributeContent.from(anyValue: input)
         
         // -- Assert --
         guard case .boolean(let value) = result else {
@@ -404,7 +404,7 @@ final class SentryAttributeValueTests: XCTestCase {
         let input: Any = URL(string: "https://example.com")!
         
         // -- Act --
-        let result = SentryAttributeValue.from(anyValue: input)
+        let result = SentryAttributeContent.from(anyValue: input)
         
         // -- Assert --
         guard case .string(let value) = result else {
@@ -417,7 +417,7 @@ final class SentryAttributeValueTests: XCTestCase {
     
     func testAnyValue_whenString_shouldReturnStringValue() {
         // -- Arrange --
-        let value = SentryAttributeValue.string("test")
+        let value = SentryAttributeContent.string("test")
         
         // -- Act --
         let result = value.anyValue
@@ -428,7 +428,7 @@ final class SentryAttributeValueTests: XCTestCase {
     
     func testAnyValue_whenBoolean_shouldReturnBooleanValue() {
         // -- Arrange --
-        let value = SentryAttributeValue.boolean(true)
+        let value = SentryAttributeContent.boolean(true)
         
         // -- Act --
         let result = value.anyValue
@@ -439,7 +439,7 @@ final class SentryAttributeValueTests: XCTestCase {
     
     func testAnyValue_whenInteger_shouldReturnIntegerValue() {
         // -- Arrange --
-        let value = SentryAttributeValue.integer(42)
+        let value = SentryAttributeContent.integer(42)
         
         // -- Act --
         let result = value.anyValue
@@ -450,7 +450,7 @@ final class SentryAttributeValueTests: XCTestCase {
     
     func testAnyValue_whenDouble_shouldReturnDoubleValue() throws {
         // -- Arrange --
-        let value = SentryAttributeValue.double(3.14)
+        let value = SentryAttributeContent.double(3.14)
         
         // -- Act --
         let result = value.anyValue
@@ -461,7 +461,7 @@ final class SentryAttributeValueTests: XCTestCase {
     
     func testAnyValue_whenStringArray_shouldReturnStringArrayValue() {
         // -- Arrange --
-        let value = SentryAttributeValue.stringArray(["a", "b"])
+        let value = SentryAttributeContent.stringArray(["a", "b"])
         
         // -- Act --
         let result = value.anyValue
@@ -472,7 +472,7 @@ final class SentryAttributeValueTests: XCTestCase {
     
     func testAnyValue_whenBooleanArray_shouldReturnBooleanArrayValue() {
         // -- Arrange --
-        let value = SentryAttributeValue.booleanArray([true, false])
+        let value = SentryAttributeContent.booleanArray([true, false])
         
         // -- Act --
         let result = value.anyValue
@@ -483,7 +483,7 @@ final class SentryAttributeValueTests: XCTestCase {
     
     func testAnyValue_whenIntegerArray_shouldReturnIntegerArrayValue() {
         // -- Arrange --
-        let value = SentryAttributeValue.integerArray([1, 2])
+        let value = SentryAttributeContent.integerArray([1, 2])
         
         // -- Act --
         let result = value.anyValue
@@ -494,7 +494,7 @@ final class SentryAttributeValueTests: XCTestCase {
     
     func testAnyValue_whenDoubleArray_shouldReturnDoubleArrayValue() throws {
         // -- Arrange --
-        let value = SentryAttributeValue.doubleArray([1.1, 2.2])
+        let value = SentryAttributeContent.doubleArray([1.1, 2.2])
         
         // -- Act --
         let result = value.anyValue
@@ -510,7 +510,7 @@ final class SentryAttributeValueTests: XCTestCase {
     
     func testInit_whenStringLiteral_shouldCreateStringCase() {
         // -- Arrange & Act --
-        let value: SentryAttributeValue = "test"
+        let value: SentryAttributeContent = "test"
         
         // -- Assert --
         guard case .string(let str) = value else {
@@ -556,9 +556,9 @@ final class SentryAttributeValueTests: XCTestCase {
     
     func testEquatable_whenSameStringValues_shouldBeEqual() {
         // -- Arrange --
-        let value1 = SentryAttributeValue.string("test")
-        let value2 = SentryAttributeValue.string("test")
-        let value3 = SentryAttributeValue.string("other")
+        let value1 = SentryAttributeContent.string("test")
+        let value2 = SentryAttributeContent.string("test")
+        let value3 = SentryAttributeContent.string("other")
         
         // -- Act & Assert --
         XCTAssertEqual(value1, value2)
@@ -567,9 +567,9 @@ final class SentryAttributeValueTests: XCTestCase {
     
     func testEquatable_whenSameStringArrayValues_shouldBeEqual() {
         // -- Arrange --
-        let value1 = SentryAttributeValue.stringArray(["a", "b"])
-        let value2 = SentryAttributeValue.stringArray(["a", "b"])
-        let value3 = SentryAttributeValue.stringArray(["c", "d"])
+        let value1 = SentryAttributeContent.stringArray(["a", "b"])
+        let value2 = SentryAttributeContent.stringArray(["a", "b"])
+        let value3 = SentryAttributeContent.stringArray(["c", "d"])
         
         // -- Act & Assert --
         XCTAssertEqual(value1, value2)
@@ -578,8 +578,8 @@ final class SentryAttributeValueTests: XCTestCase {
     
     func testEquatable_whenDifferentTypes_shouldNotBeEqual() {
         // -- Arrange --
-        let stringValue = SentryAttributeValue.string("42")
-        let intValue = SentryAttributeValue.integer(42)
+        let stringValue = SentryAttributeContent.string("42")
+        let intValue = SentryAttributeContent.integer(42)
         
         // -- Act & Assert --
         XCTAssertNotEqual(stringValue, intValue)

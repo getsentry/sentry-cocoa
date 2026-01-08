@@ -110,10 +110,10 @@ public final class SentryAttribute: NSObject {
         super.init()
     }
 
-    /// Creates an attribute from a SentryAttributeValue
+    /// Creates an attribute from a SentryAttributeContent
     ///
-    /// - Parameter attributableValue: The SentryAttributeValue to store in the attribute.
-    internal init(attributableValue: SentryAttributeValue) {
+    /// - Parameter attributableValue: The SentryAttributeContent to store in the attribute.
+    internal init(attributableValue: SentryAttributeContent) {
         switch attributableValue {
         case .boolean(let value):
             self.type = SentryAttributeType.boolean.rawValue
@@ -177,11 +177,11 @@ public final class SentryAttribute: NSObject {
         case let floatValues as [Float]:
             self.type = SentryAttributeType.doubleArray.rawValue
             self.value = floatValues.map(Double.init)
-        case let attributable as SentryAttributeValuable:
-            let value = attributable.asSentryAttributeValue
+        case let attributable as SentryAttributeValue:
+            let value = attributable.asSentryAttributeContent
             self.type = value.type
             self.value = value.anyValue
-        case let attribute as SentryAttributeValue:
+        case let attribute as SentryAttributeContent:
             self.type = attribute.type
             self.value = attribute.anyValue
         case let attribute as SentryAttribute:
@@ -203,15 +203,15 @@ public final class SentryAttribute: NSObject {
     ///
     /// - Parameter encoder: The encoder to encode the attribute to.
     @_spi(Private) public func encode(to encoder: any Encoder) throws {
-        try self.asSentryAttributeValue.encode(to: encoder)
+        try self.asSentryAttributeContent.encode(to: encoder)
     }
 }
 
-@_spi(Private) extension SentryAttribute: SentryAttributeValuable {
-    /// Converts the attribute to a SentryAttributeValue
+@_spi(Private) extension SentryAttribute: SentryAttributeValue {
+    /// Converts the attribute to a SentryAttributeContent
     ///
-    /// - Returns: The SentryAttributeValue representation of the attribute.
-    @_spi(Private) public var asSentryAttributeValue: SentryAttributeValue {
+    /// - Returns: The SentryAttributeContent representation of the attribute.
+    @_spi(Private) public var asSentryAttributeContent: SentryAttributeContent {
         switch self.type {
         case SentryAttributeType.string.rawValue:
             if let val = self.value as? String {

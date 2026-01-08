@@ -113,7 +113,7 @@ extension SentryLog: BatcherItem {
     var attributesMap: [String: SentryAttributeValue] {
         get {
             attributes.mapValues { value in
-                SentryAttributeValue.from(anyValue: value)
+                SentryAttributeContent.from(anyValue: value)
             }
         }
         set {

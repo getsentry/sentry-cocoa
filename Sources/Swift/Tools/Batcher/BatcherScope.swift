@@ -23,7 +23,7 @@ protocol BatcherScope {
 extension BatcherScope {
     var attributesMap: [String: SentryAttributeValue] {
         self.attributes.mapValues { value in
-            SentryAttributeValue.from(anyValue: value)
+            SentryAttributeContent.from(anyValue: value)
         }
     }
 
