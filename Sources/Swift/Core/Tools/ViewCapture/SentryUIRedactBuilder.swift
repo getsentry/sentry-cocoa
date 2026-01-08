@@ -139,7 +139,7 @@ final class SentryUIRedactBuilder {
     ///
     /// - note: On iOS, views such as `WKWebView` and `UIWebView` are always redacted, and controls like
     ///   `UISlider` and `UISwitch` are ignored by default.
-    init(options: SentryRedactOptions) {
+    init(options: SentryRedactOptions) { // swiftlint:disable:this function_body_length
         var redactClasses = Set<ClassIdentifier>()
 
         if options.maskAllText {
