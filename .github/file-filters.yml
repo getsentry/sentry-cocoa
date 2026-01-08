@@ -524,3 +524,4 @@ run_size_analysis_for_prs: &run_size_analysis_for_prs
   # Build configuration
   - "Makefile"
   - "Brewfile*"
+
