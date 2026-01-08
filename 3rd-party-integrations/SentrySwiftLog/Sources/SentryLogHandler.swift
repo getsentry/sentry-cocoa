@@ -71,6 +71,10 @@ public struct SentryLogHandler: LogHandler {
         function: String,
         line: UInt
     ) {
+        guard SentrySDK.isEnabled else {
+            return
+        }
+        
         // Filter out messages below the configured log level threshold
         guard level >= self.logLevel else {
             return
