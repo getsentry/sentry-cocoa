@@ -143,7 +143,7 @@ final class SentryUIRedactBuilder {
 
             // Used to render SwiftUI.Text on iOS versions prior to iOS 18
             // This is the base64 representation of `_TtCOCV7SwiftUI11DisplayList11ViewUpdater8Platform13CGDrawingView`
-            // Encoded to avoid triggering apple's rejections, see https://github.com/getsentry/sentry-cocoa/issues/7121
+            // Encoded to avoid triggering Apple's false-positive app review rejections, see https://github.com/getsentry/sentry-cocoa/issues/7121
             let encodedDrawingView = "X1R0Q09DVjdTd2lmdFVJMTFEaXNwbGF5TGlzdDExVmlld1VwZGF0ZXI4UGxhdGZvcm0xM0NHRHJhd2luZ1ZpZXc="
             if let decodedDrawingView = encodedDrawingView.base64Decoded() {
                 redactClasses.insert(ClassIdentifier(classId: decodedDrawingView))
@@ -156,7 +156,7 @@ final class SentryUIRedactBuilder {
 
             // Used by SwiftUI.Image to display SFSymbols, e.g. `Image(systemName: "star.fill")`
             // This is the base64 representation of `_TtC7SwiftUIP33_A34643117F00277B93DEBAB70EC0697122_UIShapeHitTestingView`
-            // Encoded to avoid triggering apple's rejections, see https://github.com/getsentry/sentry-cocoa/issues/7121
+            // Encoded to avoid triggering Apple's false-positive app review rejections, see https://github.com/getsentry/sentry-cocoa/issues/7121
             let encodedHitTestingView = "X1R0QzdTd2lmdFVJUDMzX0EzNDY0MzExN0YwMDI3N0I5M0RFQkFCNzBFQzA2OTcxMjJfVUlTaGFwZUhpdFRlc3RpbmdWaWV3"
             if let decodedHitTestingView = encodedHitTestingView.base64Decoded() {
                 redactClasses.insert(ClassIdentifier(classId: decodedHitTestingView))
