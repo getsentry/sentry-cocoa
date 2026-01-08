@@ -21,6 +21,26 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftli
             unmaskedViewClasses: unmaskedViewClasses
         ))
     }
+    
+    // MARK: - Initialization
+    func testBase64EncodedClassesAreCorrectlyDecoded() {
+        // -- Arrange --
+        let sut = getSut(maskAllText: true, maskAllImages: true)
+
+        // -- Act --
+        let redactClassesIdentifiers = sut.getRedactClassesIdentifiersTestOnly()
+        
+        let containsCGDrawingView = redactClassesIdentifiers.contains(where: { identifier in
+            return identifier.classId == "_TtCOCV7SwiftUI11DisplayList11ViewUpdater8Platform13CGDrawingView"
+        })
+        let containsUIShapeHitTestingView = redactClassesIdentifiers.contains(where: { identifier in
+            return identifier.classId == "_TtC7SwiftUIP33_A34643117F00277B93DEBAB70EC0697122_UIShapeHitTestingView"
+        })
+
+        // -- Assert --
+        XCTAssertTrue(containsCGDrawingView)
+        XCTAssertTrue(containsUIShapeHitTestingView)
+    }
 
     // MARK: - Baseline
 
