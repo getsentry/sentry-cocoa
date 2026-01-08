@@ -2,6 +2,13 @@
 ///
 /// `Attribute` provides a type-safe way to store structured data alongside item messages.
 /// Supports String, Bool, Int, and Double types.
+///
+/// This class exists primarily for Objective-C compatibility, inheriting from `NSObject` and
+/// using `@objcMembers` to ensure it can be used from Objective-C code. For Swift code, prefer
+/// using the `SentryAttributeValue` protocol instead, which provides a more idiomatic Swift API
+/// and allows you to pass native Swift types (String, Bool, Int, Double, Float, and their arrays)
+/// directly without wrapping them in a class instance. This Objective-C-compatible class will be
+/// removed in a future major version release.
 @objcMembers
 public final class SentryAttribute: NSObject {
     /// The type identifier for this attribute

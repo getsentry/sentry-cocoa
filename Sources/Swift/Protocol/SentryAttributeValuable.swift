@@ -4,6 +4,10 @@
 /// in public APIs. This allows APIs to accept a wide variety of types without requiring a concrete
 /// enum type, making the API more flexible and user-friendly.
 ///
+/// This is the Swift-native API for structured logging attributes. For Swift code, prefer using
+/// `SentryAttributeValue` over the Objective-C-compatible `SentryAttribute` class, as it allows
+/// you to pass native Swift types directly without wrapping them in a class instance.
+///
 /// ## Purpose
 ///
 /// This protocol is designed to be used in public API method signatures, particularly for
