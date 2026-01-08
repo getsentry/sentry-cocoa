@@ -1,3 +1,4 @@
+// swiftlint:disable file_length
 import Foundation
 @_spi(Private) @testable import Sentry
 import XCTest
@@ -227,6 +228,8 @@ class SentryReplayOptionsTests: XCTestCase {
             "enableFastViewRendering": false,
             "maskedViewClasses": ["NSString"],
             "unmaskedViewClasses": ["NSNumber"],
+            "excludedViewClasses": ["MyCustomView", "AnotherView"],
+            "includedViewClasses": ["CameraUI.ChromeSwiftUIView"],
             "quality": 0,
             "frameRate": 2,
             "errorReplayDuration": 300,
@@ -249,6 +252,13 @@ class SentryReplayOptionsTests: XCTestCase {
         XCTAssertEqual(options.unmaskedViewClasses.count, 1)
         let unmaskedViewClass: AnyClass = try XCTUnwrap(options.unmaskedViewClasses.first)
         XCTAssertEqual(ObjectIdentifier(unmaskedViewClass), ObjectIdentifier(NSNumber.self))
+
+        XCTAssertTrue(options.excludedViewClasses.contains("MyCustomView"))
+        XCTAssertTrue(options.excludedViewClasses.contains("AnotherView"))
+        XCTAssertEqual(options.excludedViewClasses.count, 2)
+
+        XCTAssertTrue(options.includedViewClasses.contains("CameraUI.ChromeSwiftUIView"))
+        XCTAssertEqual(options.includedViewClasses.count, 1)
 
         XCTAssertEqual(options.quality, .low)
         XCTAssertEqual(options.frameRate, 2)
@@ -850,4 +860,126 @@ class SentryReplayOptionsTests: XCTestCase {
         // -- Assert --
         XCTAssertNil(options.sdkInfo)
     }
+    
+    // MARK: excludedViewClasses and includedViewClasses
+    
+    func testInitFromDict_excludedViewClasses_whenValidValue_shouldSetValue() {
+        // -- Act --
+        let options = SentryReplayOptions(dictionary: [
+            "excludedViewClasses": ["MyCustomView"]
+        ])
+        
+        // -- Assert --
+        XCTAssertTrue(options.excludedViewClasses.contains("MyCustomView"))
+        XCTAssertEqual(options.excludedViewClasses.count, 1)
+    }
+    
+    func testInitFromDict_excludedViewClasses_whenMultipleValidValues_shouldKeepAll() {
+        // -- Act --
+        let options = SentryReplayOptions(dictionary: [
+            "excludedViewClasses": ["MyCustomView1", "MyCustomView2", "MyCustomView3"]
+        ])
+        
+        // -- Assert --
+        XCTAssertTrue(options.excludedViewClasses.contains("MyCustomView1"))
+        XCTAssertTrue(options.excludedViewClasses.contains("MyCustomView2"))
+        XCTAssertTrue(options.excludedViewClasses.contains("MyCustomView3"))
+        XCTAssertEqual(options.excludedViewClasses.count, 3)
+    }
+    
+    func testInitFromDict_excludedViewClasses_whenInvalidValue_shouldUseDefaultValue() {
+        // -- Act --
+        let options = SentryReplayOptions(dictionary: [
+            "excludedViewClasses": "invalid_value"
+        ])
+        
+        // -- Assert --
+        XCTAssertEqual(options.excludedViewClasses.count, 0)
+    }
+    
+    func testInitFromDict_excludedViewClasses_whenKeyOmitted_shouldUseDefaultValue() {
+        // -- Act --
+        let options = SentryReplayOptions(dictionary: [:])
+        
+        // -- Assert --
+        XCTAssertEqual(options.excludedViewClasses.count, 0)
+        XCTAssertEqual(options.includedViewClasses.count, 0)
+    }
+    
+    func testExcludedViewClasses_defaultInitialization_shouldBeEmpty() {
+        // -- Act --
+        let options = SentryReplayOptions()
+        
+        // -- Assert --
+        XCTAssertEqual(options.excludedViewClasses.count, 0)
+        XCTAssertEqual(options.includedViewClasses.count, 0)
+    }
+    
+    func testExcludedViewClasses_excludeViewTypeFromSubtreeTraversal_shouldAddViewType() {
+        // -- Arrange --
+        let options = SentryReplayOptions()
+        
+        // -- Act --
+        options.excludeViewTypeFromSubtreeTraversal("MyCustomView")
+        
+        // -- Assert --
+        XCTAssertTrue(options.excludedViewClasses.contains("MyCustomView"))
+        XCTAssertEqual(options.excludedViewClasses.count, 1)
+    }
+    
+    func testExcludedViewClasses_excludeViewTypeFromSubtreeTraversal_multipleCalls_shouldAddAllViewTypes() {
+        // -- Arrange --
+        let options = SentryReplayOptions()
+        
+        // -- Act --
+        options.excludeViewTypeFromSubtreeTraversal("MyCustomView1")
+        options.excludeViewTypeFromSubtreeTraversal("MyCustomView2")
+        options.excludeViewTypeFromSubtreeTraversal("MyCustomView3")
+        
+        // -- Assert --
+        XCTAssertTrue(options.excludedViewClasses.contains("MyCustomView1"))
+        XCTAssertTrue(options.excludedViewClasses.contains("MyCustomView2"))
+        XCTAssertTrue(options.excludedViewClasses.contains("MyCustomView3"))
+        XCTAssertEqual(options.excludedViewClasses.count, 3)
+    }
+    
+    func testIncludedViewClasses_includeViewTypeInSubtreeTraversal_shouldAddViewType() {
+        // -- Arrange --
+        let options = SentryReplayOptions()
+        options.excludeViewTypeFromSubtreeTraversal("MyCustomView")
+        XCTAssertTrue(options.excludedViewClasses.contains("MyCustomView"))
+        
+        // -- Act --
+        options.includeViewTypeInSubtreeTraversal("MyCustomView")
+        
+        // -- Assert --
+        XCTAssertTrue(options.includedViewClasses.contains("MyCustomView"))
+        XCTAssertEqual(options.includedViewClasses.count, 1)
+    }
+    
+    func testIncludedViewClasses_includeViewTypeInSubtreeTraversal_shouldAllowRemovingDefaultCameraUIView() {
+        // -- Arrange --
+        let options = SentryReplayOptions()
+        
+        // -- Act --
+        options.includeViewTypeInSubtreeTraversal("CameraUI.ChromeSwiftUIView")
+        
+        // -- Assert --
+        XCTAssertTrue(options.includedViewClasses.contains("CameraUI.ChromeSwiftUIView"))
+        XCTAssertEqual(options.includedViewClasses.count, 1)
+    }
+    
+    func testIncludedViewClasses_includeViewTypeInSubtreeTraversal_nonExistentViewType_shouldNotCrash() {
+        // -- Arrange --
+        let options = SentryReplayOptions()
+        let initialCount = options.includedViewClasses.count
+        
+        // -- Act --
+        options.includeViewTypeInSubtreeTraversal("NonExistentView")
+        
+        // -- Assert --
+        XCTAssertEqual(options.includedViewClasses.count, initialCount + 1)
+        XCTAssertTrue(options.includedViewClasses.contains("NonExistentView"))
+    }
 }
+// swiftlint:enable file_length
