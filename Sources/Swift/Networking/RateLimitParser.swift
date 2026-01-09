@@ -3,7 +3,7 @@ import Foundation
 
 /** Parses the custom X-Sentry-Rate-Limits header.
 
- This header exists of a multiple quotaLimits seperated by ",".
+ This header exists of a multiple quotaLimits separated by ",".
  Each quotaLimit exists of retry_after:categories:scope.
  retry_after: seconds until the rate limit expires.
  categories: semicolon separated list of categories. If empty, this limit

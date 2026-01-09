@@ -21,7 +21,7 @@ import UIKit
     ///   - redactOptions: Options provided to redact sensitive information.
     ///   - enableMaskRendererV2: Flag to enable experimental view renderer.
     /// - Note: The option `enableMaskRendererV2` is an internal flag, which is not part of the public API.
-    ///         Therefore, it is not part of the the `redactOptions` parameter, to not further expose it.
+    ///         Therefore, it is not part of the `redactOptions` parameter, to not further expose it.
     public init(
         renderer: SentryViewRenderer,
         redactOptions: SentryRedactOptions,
