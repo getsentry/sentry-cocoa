@@ -377,6 +377,7 @@ jobs:
             test-destination-os: "26.1"
             platform: "visionOS"
             scheme: "Sentry"
+            device: "Apple Vision Pro"
             timeout: 30
 
   # This check validates that either all unit tests passed or were skipped, which allows us
