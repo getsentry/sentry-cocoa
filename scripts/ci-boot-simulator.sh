@@ -79,31 +79,36 @@ log_notice "Starting simulator boot process with Xcode version: $XCODE_VERSION"
 begin_group "Simulator Selection"
 
 # If device and OS version are provided, use them directly
-if [ -n "$DEVICE_NAME" ] && [ -n "$OS_VERSION" ]; then
+if [ -n "$DEVICE_NAME" ] && [ -n "$OS_VERSION" ] && [ -n "$PLATFORM" ]; then
     SIMULATOR="$DEVICE_NAME"
     PLATFORM_VERSION="$OS_VERSION"
-    log_notice "Using provided parameters: $SIMULATOR with $PLATFORM $PLATFORM_VERSION"
+    PLATFORM_NAME="$PLATFORM"
+    log_notice "Using provided parameters: $SIMULATOR with $PLATFORM_NAME $PLATFORM_VERSION"
 else
     # Fallback to Xcode version-based selection for backward compatibility
     SIMULATOR="iPhone 16 Pro"
     PLATFORM_VERSION="18.5"
+    PLATFORM_NAME="iOS"
 
     # Select simulator based on Xcode version
     case "$XCODE_VERSION" in
         "16.2")
             SIMULATOR="iPhone 16 Pro"
             PLATFORM_VERSION="18.2"
-            log_notice "Selected: $SIMULATOR with iOS $PLATFORM_VERSION for Xcode $XCODE_VERSION"
+            PLATFORM_NAME="iOS"
+            log_notice "Selected: $SIMULATOR with $PLATFORM_NAME $PLATFORM_VERSION for Xcode $XCODE_VERSION"
             ;;
         "26.1")
             SIMULATOR="iPhone 17 Pro"
             PLATFORM_VERSION="26.1"
-            log_notice "Selected: $SIMULATOR with iOS $PLATFORM_VERSION for Xcode $XCODE_VERSION"
+            PLATFORM_NAME="iOS"
+            log_notice "Selected: $SIMULATOR with $PLATFORM_NAME $PLATFORM_VERSION for Xcode $XCODE_VERSION"
             ;;
         *)
             SIMULATOR="iPhone 16 Pro" # Default fallback
             PLATFORM_VERSION="18.4"
-            log_warning "Unknown Xcode version '$XCODE_VERSION', using default: $SIMULATOR with iOS $PLATFORM_VERSION"
+            PLATFORM_NAME="iOS"
+            log_warning "Unknown Xcode version '$XCODE_VERSION', using default: $SIMULATOR with $PLATFORM_NAME $PLATFORM_VERSION"
             ;;
     esac
 fi
@@ -115,16 +120,16 @@ xcrun simctl list devices available
 end_group
 
 begin_group "Device Discovery"
-log_notice "Searching for simulator: $SIMULATOR running $PLATFORM $PLATFORM_VERSION"
+log_notice "Searching for simulator: $SIMULATOR running $PLATFORM_NAME $PLATFORM_VERSION"
 
 UDID=$(xcrun simctl list devices available | \
-grep -A 5 "^-- $PLATFORM $PLATFORM_VERSION --" | \
+grep -A 5 "^-- $PLATFORM_NAME $PLATFORM_VERSION --" | \
 grep "$SIMULATOR (" | \
 sed -n 's/.*(\([0-9A-F-]\{36\}\)).*/\1/p' | \
 head -n1)
 
 if [ -z "$UDID" ]; then
-    log_error "Failed to find UDID for simulator: $SIMULATOR with $PLATFORM $PLATFORM_VERSION"
+    log_error "Failed to find UDID for simulator: $SIMULATOR with $PLATFORM_NAME $PLATFORM_VERSION"
     log_error "Available devices:"
     xcrun simctl list devices available
     exit 1
@@ -134,7 +139,7 @@ log_notice "Found simulator UDID: $UDID"
 end_group
 
 begin_group "Simulator Boot"
-log_notice "Booting simulator: $SIMULATOR - $PLATFORM $PLATFORM_VERSION (UDID: $UDID)"
+log_notice "Booting simulator: $SIMULATOR - $PLATFORM_NAME $PLATFORM_VERSION (UDID: $UDID)"
 
 MAX_BOOT_ATTEMPTS=5
 BOOT_TIMEOUT=180 # 3 minutes
