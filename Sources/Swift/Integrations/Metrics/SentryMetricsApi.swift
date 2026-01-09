@@ -67,7 +67,7 @@ extension SentryDependencyContainer: SentryMetricsApiDependencies {
     }
 
     var isMetricsEnabled: Bool {
-        SentrySDKInternal.options?.enableMetrics == true
+        SentrySDKInternal.options?.experimental.enableMetrics == true
     }
 
     var scope: Scope {
@@ -75,6 +75,6 @@ extension SentryDependencyContainer: SentryMetricsApiDependencies {
     }
 
     var metricsIntegration: SentryMetricsIntegration<SentryDependencyContainer>? {
-        return SentrySDKInternal.currentHub().getInstalledIntegration(SentryMetricsIntegration<SentryDependencyContainer>.self) as? SentryMetricsIntegration
+        SentrySDKInternal.currentHub().getInstalledIntegration(SentryMetricsIntegration<SentryDependencyContainer>.self) as? SentryMetricsIntegration
     }
 }
