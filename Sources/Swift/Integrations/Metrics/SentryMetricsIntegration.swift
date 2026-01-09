@@ -39,7 +39,7 @@ final class SentryMetricsIntegration<Dependencies: DateProviderProvider & Dispat
     }
     
     // MARK: - Public API for SentryMetricsApi
-    
+
     func addMetric(_ metric: SentryMetric, scope: Scope) {
         metricBatcher.addMetric(metric, scope: scope)
     }

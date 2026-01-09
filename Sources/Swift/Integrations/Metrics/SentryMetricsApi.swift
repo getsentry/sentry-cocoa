@@ -5,8 +5,9 @@ protocol SentryMetricsApiDependencies {
     associatedtype Integration: SentryMetricsIntegrationProtocol
 
     var isSDKEnabled: Bool { get }
-    var isMetricsEnabled: Bool { get }
     var scope: Scope { get }
+
+    /// The integration is nullable, meaning if it's not installed or not enabled, it will return nil
     var metricsIntegration: Integration? { get }
 }
 
@@ -38,7 +39,7 @@ struct SentryMetricsApi<Dependencies: SentryMetricsApiDependencies>: SentryMetri
         unit: SentryMetricsUnit?,
         attributes: [String: SentryAttributeValue]
     ) {
-        guard dependencies.isSDKEnabled && dependencies.isMetricsEnabled else {
+        guard dependencies.isSDKEnabled else {
             return
         }
         guard let integration = dependencies.metricsIntegration else {
@@ -64,10 +65,6 @@ extension SentryDependencyContainer: SentryMetricsApiDependencies {
 
     var isSDKEnabled: Bool {
         SentrySDKInternal.isEnabled
-    }
-
-    var isMetricsEnabled: Bool {
-        SentrySDKInternal.options?.experimental.enableMetrics == true
     }
 
     var scope: Scope {
