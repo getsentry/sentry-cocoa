@@ -266,12 +266,13 @@ This project uses [Conventional Commits 1.0.0](https://www.conventionalcommits.o
 
 The 50-character limit for the subject ensures readability in git log output and GitHub's UI. The 72-character limit for body lines follows the git convention for optimal display in terminals and tools.
 
-**Required Types:**
+**Types that appear in CHANGELOG:**
 
 - `feat:` - A new feature (correlates with MINOR in SemVer)
 - `fix:` - A bug fix (correlates with PATCH in SemVer)
+- `impr:` - An improvement to existing functionality
 
-**Other Allowed Types:**
+**Other Allowed Types (require `#skip-changelog` in PR description):**
 
 - `build:` - Changes to build system or dependencies
 - `chore:` - Routine tasks, maintenance
@@ -282,6 +283,10 @@ The 50-character limit for the subject ensures readability in git log output and
 - `perf:` - Performance improvements
 - `test:` - Adding or updating tests
 
+**PR Description Requirements:**
+
+Add `#skip-changelog` to PR descriptions for changes that should not appear in the changelog. Only `feat:`, `fix:`, and `impr:` commits generate changelog entries.
+
 **Breaking Changes:**
 
 - Add `!` after type/scope: `feat!:` or `feat(api)!:`
@@ -291,7 +296,7 @@ The 50-character limit for the subject ensures readability in git log output and
 
 ```
 feat: add new session replay feature
-fix: resolve memory leak in session
+fix: resolve memory leak in session storage
 docs: update installation guide
 ref: simplify event serialization
 chore: update dependencies
