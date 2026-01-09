@@ -449,12 +449,25 @@ final class SentryAttributeTests: XCTestCase {
     }
     
     /// Verifies that protocol-based conversion works for Float arrays through init(value: Any)
+    ///
+    /// Note: Float literals like `1.1`, `2.2`, `3.3` are already approximations in binary representation
+    /// (e.g., `Float(1.1)` ≈ `1.100000023841858`). When converting Float arrays to Double arrays,
+    /// these approximations are preserved, which is the correct behavior. This is why we use
+    /// tolerance-based comparison (`accuracy` parameter) rather than exact equality for floating-point values.
     func testInitializer_ProtocolBasedConversion_FloatArray() throws {
+        // -- Arrange --
         let floatArray: [Float] = [1.1, 2.2, 3.3]
+        
+        // -- Act --
         let attribute = SentryLog.Attribute(value: floatArray)
+        
+        // -- Assert --
         XCTAssertEqual(attribute.type, "double[]")
         let doubleArray = try XCTUnwrap(attribute.value as? [Double])
-        XCTAssertEqual(doubleArray, [1.1, 2.2, 3.3])
+        XCTAssertEqual(doubleArray.count, 3)
+        XCTAssertEqual(doubleArray[0], 1.1, accuracy: 0.00001)
+        XCTAssertEqual(doubleArray[1], 2.2, accuracy: 0.00001)
+        XCTAssertEqual(doubleArray[2], 3.3, accuracy: 0.00001)
     }
     
     /// Verifies that fallback to string conversion works for unsupported types
