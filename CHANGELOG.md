@@ -2,10 +2,13 @@
 
 ## Unreleased
 
+### Features
+
+- Add options `options.sessionReplay.includedViewClasses` and `options.sessionReplay.excludedViewClasses` to ignore views from subtree traversal (#7063)
+
 ### Fixes
 
 - Encode SwiftUI internal class names in session replay redaction to avoid false-positive App Store review rejections (#7123)
-- Add options `options.sessionReplay.includedViewClasses` and `options.sessionReplay.excludedViewClasses` to ignore views from subtree traversal (#7063)
 
 ## 8.57.3
 
