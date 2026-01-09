@@ -101,7 +101,8 @@ jobs:
       suffix: ${{matrix.variant.suffix}}
       configuration-suffix: ${{matrix.variant.configuration-suffix}}
       variant-id: ${{matrix.variant.id}}
-      signed: true
+      # Only sign the XCFramework on releases
+      signed: ${{ github.event_name != 'pull_request' }}
       release-version: ${{ github.event.inputs.version }}
       excluded-archs: ${{matrix.variant.excluded-archs}}
       override-name: ${{matrix.variant.override-name}}
@@ -130,6 +131,9 @@ jobs:
       - name: Unzip all XCFrameworks
         run: |
           find XCFrameworkBuildPath -name "*.xcframework.zip" -print0 | xargs -t0I @ unzip @ -d XCFrameworkBuildPath
+      - name: Strip expectedSignature attributes from XCFramework project
+        if: ${{ github.event_name == 'pull_request' }}
+        run: make strip-xcframework-expected-signature
       - run: make build-xcframework-sample
       - name: Run CI Diagnostics
         if: failure()
@@ -259,15 +263,15 @@ jobs:
     name: Collect App Metrics
     runs-on: macos-15
     needs: [files-changed, assemble-xcframework-variant]
-    # Run the job only for PRs with related changes or non-PR events.
-    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
+    # Run the job only for PRs with related changes (from contributors) or non-PR events.
+    if: github.event_name != 'pull_request' || (needs.files-changed.outputs.run_release_for_prs == 'true' && contains(fromJson('["OWNER", "MEMBER", "COLLABORATOR", "CONTRIBUTOR"]'), github.event.pull_request.author_association))
     timeout-minutes: 20
     steps:
       - name: Git checkout
         uses: actions/checkout@v6
       - run: ./scripts/ci-select-xcode.sh 16.4
       - name: Setup Ruby
-        uses: ruby/setup-ruby@ae195bbe749a7cef685ac729197124a48305c1cb # v1.276.0
+        uses: ruby/setup-ruby@b90be12699fdfcbee4440c2bba85f6f460446bb0 # v1.279.0
         with:
           bundler-cache: true
       - uses: actions/cache@v5
