@@ -132,6 +132,7 @@ struct ContentView: View {
             Button(action: oomCrashAction) {
                 Text("OOM Crash")
             }
+            MetricsView()
         }
     }
 }
