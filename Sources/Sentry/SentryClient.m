@@ -943,8 +943,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
     SentryException *exception = event.exceptions[0];
     return exception.mechanism != nil &&
-        [exception.mechanism.type isEqualToString:SentryWatchdogTerminationTracker
-                                                      .SentryWatchdogTerminationMechanismType];
+        [exception.mechanism.type isEqualToString:SentryWatchdogTerminationTracker.MechanismType];
 #else
     return NO;
 #endif

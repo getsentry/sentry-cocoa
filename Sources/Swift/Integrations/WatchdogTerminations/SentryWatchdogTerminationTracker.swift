@@ -11,9 +11,9 @@ import Foundation
 @_spi(Private) @objc public
 final class SentryWatchdogTerminationTracker: NSObject {
     
-    @objc public static let SentryWatchdogTerminationExceptionType: String = "WatchdogTermination"
-    @objc public static let SentryWatchdogTerminationExceptionValue: String = "The OS watchdog terminated your app, possibly because it overused RAM."
-    @objc public static let SentryWatchdogTerminationMechanismType: String = "watchdog_termination"
+    @objc public static let ExceptionType: String = "WatchdogTermination"
+    @objc public static let ExceptionValue: String = "The OS watchdog terminated your app, possibly because it overused RAM."
+    @objc public static let MechanismType: String = "watchdog_termination"
 
     private let options: Options
     private let watchdogTerminationLogic: SentryWatchdogTerminationLogic
@@ -57,9 +57,9 @@ final class SentryWatchdogTerminationTracker: NSObject {
             // Termination events always have fatal level, so we are not reading from disk
 
             let exception = Exception(
-                value: SentryWatchdogTerminationTracker.SentryWatchdogTerminationExceptionValue,
-                type: SentryWatchdogTerminationTracker.SentryWatchdogTerminationExceptionType)
-            let mechanism = Mechanism(type: SentryWatchdogTerminationTracker.SentryWatchdogTerminationMechanismType)
+                value: SentryWatchdogTerminationTracker.ExceptionValue,
+                type: SentryWatchdogTerminationTracker.ExceptionType)
+            let mechanism = Mechanism(type: SentryWatchdogTerminationTracker.MechanismType)
             mechanism.handled = false
             exception.mechanism = mechanism
             event.exceptions = [exception]
