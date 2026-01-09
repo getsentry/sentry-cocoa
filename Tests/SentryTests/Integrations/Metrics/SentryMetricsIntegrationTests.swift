@@ -176,7 +176,7 @@ class SentryMetricsIntegrationTests: XCTestCase {
         
         // Manually install the MetricsIntegration since we're not using SentrySDK.start()
         let dependencies = SentryDependencyContainer.sharedInstance()
-        let integration = try XCTUnwrap(SentryMetricsIntegration<SentryDependencyContainer>(with: options, dependencies: dependencies) as? SentryIntegrationProtocol)
+        let integration = try XCTUnwrap(SentryMetricsIntegration<SentryDependencyContainer>(with: options, dependencies: dependencies) as Any as? SentryIntegrationProtocol)
         hub.addInstalledIntegration(integration, name: SentryMetricsIntegration<SentryDependencyContainer>.name)
 
         hub.startSession()

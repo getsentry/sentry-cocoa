@@ -476,7 +476,7 @@ final class SentryMetricsBatcherTests: XCTestCase {
     func testAddMetric_whenPropagationContextExists_shouldSetTraceIdFromPropagationContext() throws {
         // -- Arrange --
         let expectedTraceId = SentryId()
-        let propagationContext = SentryPropagationContext(trace: expectedTraceId, spanId: SpanId())
+        let propagationContext = SentryPropagationContext(traceId: expectedTraceId, spanId: SpanId())
         scope.propagationContext = propagationContext
         
         let metric = createTestMetric(name: "test.metric", value: .counter(1))

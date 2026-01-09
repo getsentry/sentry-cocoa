@@ -36589,10 +36589,17 @@
             "printedName": "value",
             "children": [
               {
-                "kind": "TypeNominal",
-                "name": "SentryMetricValue",
-                "printedName": "Sentry.SentryMetricValue",
-                "usr": "s:6Sentry0A11MetricValueO"
+                "kind": "TypeNameAlias",
+                "name": "Value",
+                "printedName": "Sentry.SentryMetric.Value",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SentryMetricValue",
+                    "printedName": "Sentry.SentryMetricValue",
+                    "usr": "s:6Sentry0A11MetricValueO"
+                  }
+                ]
               }
             ],
             "declKind": "Var",
@@ -36610,10 +36617,17 @@
                 "printedName": "Get()",
                 "children": [
                   {
-                    "kind": "TypeNominal",
-                    "name": "SentryMetricValue",
-                    "printedName": "Sentry.SentryMetricValue",
-                    "usr": "s:6Sentry0A11MetricValueO"
+                    "kind": "TypeNameAlias",
+                    "name": "Value",
+                    "printedName": "Sentry.SentryMetric.Value",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SentryMetricValue",
+                        "printedName": "Sentry.SentryMetricValue",
+                        "usr": "s:6Sentry0A11MetricValueO"
+                      }
+                    ]
                   }
                 ],
                 "declKind": "Accessor",
@@ -36634,10 +36648,17 @@
                     "printedName": "()"
                   },
                   {
-                    "kind": "TypeNominal",
-                    "name": "SentryMetricValue",
-                    "printedName": "Sentry.SentryMetricValue",
-                    "usr": "s:6Sentry0A11MetricValueO"
+                    "kind": "TypeNameAlias",
+                    "name": "Value",
+                    "printedName": "Sentry.SentryMetric.Value",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SentryMetricValue",
+                        "printedName": "Sentry.SentryMetricValue",
+                        "usr": "s:6Sentry0A11MetricValueO"
+                      }
+                    ]
                   }
                 ],
                 "declKind": "Accessor",
@@ -36748,7 +36769,7 @@
               {
                 "kind": "TypeNominal",
                 "name": "Dictionary",
-                "printedName": "[Swift.String : Sentry.SentryAttribute]",
+                "printedName": "[Swift.String : Sentry.SentryMetric.Attribute]",
                 "children": [
                   {
                     "kind": "TypeNominal",
@@ -36757,10 +36778,17 @@
                     "usr": "s:SS"
                   },
                   {
-                    "kind": "TypeNominal",
-                    "name": "SentryAttribute",
-                    "printedName": "Sentry.SentryAttribute",
-                    "usr": "c:@M@Sentry@objc(cs)SentryAttribute"
+                    "kind": "TypeNameAlias",
+                    "name": "Attribute",
+                    "printedName": "Sentry.SentryMetric.Attribute",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SentryAttribute",
+                        "printedName": "Sentry.SentryAttribute",
+                        "usr": "c:@M@Sentry@objc(cs)SentryAttribute"
+                      }
+                    ]
                   }
                 ],
                 "usr": "s:SD"
@@ -36783,7 +36811,7 @@
                   {
                     "kind": "TypeNominal",
                     "name": "Dictionary",
-                    "printedName": "[Swift.String : Sentry.SentryAttribute]",
+                    "printedName": "[Swift.String : Sentry.SentryMetric.Attribute]",
                     "children": [
                       {
                         "kind": "TypeNominal",
@@ -36792,10 +36820,17 @@
                         "usr": "s:SS"
                       },
                       {
-                        "kind": "TypeNominal",
-                        "name": "SentryAttribute",
-                        "printedName": "Sentry.SentryAttribute",
-                        "usr": "c:@M@Sentry@objc(cs)SentryAttribute"
+                        "kind": "TypeNameAlias",
+                        "name": "Attribute",
+                        "printedName": "Sentry.SentryMetric.Attribute",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SentryAttribute",
+                            "printedName": "Sentry.SentryAttribute",
+                            "usr": "c:@M@Sentry@objc(cs)SentryAttribute"
+                          }
+                        ]
                       }
                     ],
                     "usr": "s:SD"
@@ -36821,7 +36856,7 @@
                   {
                     "kind": "TypeNominal",
                     "name": "Dictionary",
-                    "printedName": "[Swift.String : Sentry.SentryAttribute]",
+                    "printedName": "[Swift.String : Sentry.SentryMetric.Attribute]",
                     "children": [
                       {
                         "kind": "TypeNominal",
@@ -36830,10 +36865,17 @@
                         "usr": "s:SS"
                       },
                       {
-                        "kind": "TypeNominal",
-                        "name": "SentryAttribute",
-                        "printedName": "Sentry.SentryAttribute",
-                        "usr": "c:@M@Sentry@objc(cs)SentryAttribute"
+                        "kind": "TypeNameAlias",
+                        "name": "Attribute",
+                        "printedName": "Sentry.SentryMetric.Attribute",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SentryAttribute",
+                            "printedName": "Sentry.SentryAttribute",
+                            "usr": "c:@M@Sentry@objc(cs)SentryAttribute"
+                          }
+                        ]
                       }
                     ],
                     "usr": "s:SD"
