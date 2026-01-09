@@ -690,6 +690,8 @@ final class BatcherScopeTests: XCTestCase {
         let traceId = SentryId()
         let spanId = SentryId()
         let span = TestSpan(spanId: spanId)
+        // Set span traceId to match propagationContext traceId for consistency
+        span.traceId = traceId
         let user = User(userId: "user-123")
         user.name = "John Doe"
         user.email = "john@example.com"
