@@ -14,6 +14,7 @@
 - Fixes stacktraces for MetricKit events (#6908)
 - Fix `raw_description` in `runtime` context on Mac Catalyst (#7082)
 - Deprecates `configureDarkTheme` for user feedback (#7114)
+- Fix incorrect variable assignment for 'sampled' key (#7120)
 
 ## 9.1.0
 
