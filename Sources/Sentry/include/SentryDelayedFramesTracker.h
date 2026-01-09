@@ -62,7 +62,7 @@ SENTRY_NO_INIT
  * @param startSystemTimestamp The start system time stamp for the time interval to query frames
  * delay.
  * @param endSystemTimestamp The end system time stamp for the time interval to query frames delay.
- * @param isRunning Wether the frames tracker is running or not.
+ * @param isRunning Whether the frames tracker is running or not.
  * @param slowFrameThreshold The threshold for a slow frame. For 60 fps this is roughly 16.67 ms.
  */
 - (SentryFramesDelayResultObjC *)getFramesDelayObjC:(uint64_t)startSystemTimestamp
