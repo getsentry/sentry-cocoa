@@ -54,6 +54,38 @@ import UIKit
     }
     
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
+
+#if SENTRY_TEST || SENTRY_TEST_CI
+    /// Test-only initializer to allow injecting a custom `buildCurrentAppState` closure for testing
+    /// scenarios where the current app state needs specific values (e.g., nil vendorId).
+    init(releaseName: String?, crashWrapper: SentryCrashWrapper, fileManager: SentryFileManager?, sysctlWrapper: SentrySysctl, customBuildCurrentAppState: @escaping () -> SentryAppState) {
+        self.releaseName = releaseName
+        self.crashWrapper = crashWrapper
+        self.fileManager = fileManager
+        let lock = NSRecursiveLock()
+        _buildCurrentAppState = customBuildCurrentAppState
+        let updateAppState: (@escaping (SentryAppState) -> Void) -> Void = { block in
+            lock.synchronized {
+                let appState = fileManager?.readAppState()
+                if let appState {
+                    block(appState)
+                    fileManager?.store(appState)
+                }
+            }
+        }
+        _updateAppState = updateAppState
+        helper = SentryDefaultAppStateManager(storeCurrent: {
+            fileManager?.store(customBuildCurrentAppState())
+        }, updateTerminated: {
+            updateAppState { $0.wasTerminated = true }
+        }, updateSDKNotRunning: {
+            updateAppState { $0.isSDKRunning = false }
+        }, updateActive: { active in
+            updateAppState { $0.isActive = active }
+        })
+    }
+#endif
+
     var startCount: Int {
         helper.startCount
     }
