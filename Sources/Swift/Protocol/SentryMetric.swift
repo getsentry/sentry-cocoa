@@ -33,8 +33,8 @@ public struct SentryMetric {
     /// - Setting an integer on a gauge/distribution: converts to double
     ///
     /// - Note: Counters use integer values, distributions and gauges use double values.
-    public var value: SentryMetricValue
-    
+    public var value: Value
+
     /// The unit of measurement for the metric value (optional).
     ///
     /// Examples: "millisecond", "byte", "connection", "request". This helps

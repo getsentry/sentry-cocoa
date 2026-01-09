@@ -32,14 +32,21 @@ extension BatcherScope {
         config: Config,
         metadata: Metadata
     ) {
-        addDefaultAttributes(to: &item.attributesDict, config: config, metadata: metadata)
-        addOSAttributes(to: &item.attributesDict, config: config)
-        addDeviceAttributes(to: &item.attributesDict, config: config)
-        addUserAttributes(to: &item.attributesDict, config: config)
-        addReplayAttributes(to: &item.attributesDict, config: config)
-        addScopeAttributes(to: &item.attributesDict, config: config)
-        addDefaultUserIdIfNeeded(to: &item.attributesDict, config: config, metadata: metadata)
+        // Extract attributesDict once to avoid multiple getter/setter calls on computed property
+        // Each inout parameter access triggers both getter and setter, which is expensive for
+        // computed properties that perform dictionary conversions.
+        var attributes = item.attributesDict
+        
+        addDefaultAttributes(to: &attributes, config: config, metadata: metadata)
+        addOSAttributes(to: &attributes, config: config)
+        addDeviceAttributes(to: &attributes, config: config)
+        addUserAttributes(to: &attributes, config: config)
+        addReplayAttributes(to: &attributes, config: config)
+        addScopeAttributes(to: &attributes, config: config)
+        addDefaultUserIdIfNeeded(to: &attributes, config: config, metadata: metadata)
 
+        // Set the modified dictionary back once
+        item.attributesDict = attributes
         item.traceId = propagationContextTraceId
     }
 

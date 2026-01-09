@@ -248,11 +248,6 @@ protocol DateProviderProvider {
 }
 extension SentryDependencyContainer: DateProviderProvider {}
 
-protocol DispatchQueueWrapperProvider {
-    var dispatchQueueWrapper: SentryDispatchQueueWrapper { get }
-}
-extension SentryDependencyContainer: DispatchQueueWrapperProvider { }
-
 extension SentryDependencyContainer: AutoSessionTrackingProvider { }
 
 #if ((os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT) || os(macOS)
@@ -266,6 +261,11 @@ protocol ScreenshotIntegrationProvider {
 
 extension SentryDependencyContainer: ScreenshotIntegrationProvider { }
 #endif
+
+protocol DispatchQueueWrapperProvider {
+    var dispatchQueueWrapper: SentryDispatchQueueWrapper { get }
+}
+extension SentryDependencyContainer: DispatchQueueWrapperProvider { }
 
 protocol CrashWrapperProvider {
     var crashWrapper: SentryCrashWrapper { get }

@@ -1,206 +1,233 @@
-internal enum SentryAttributeType: String {
-    case string = "string"
-    case boolean = "boolean"
-    case integer = "integer"
-    case double = "double"
-    case stringArray = "string[]"
-    case booleanArray = "boolean[]"
-    case integerArray = "integer[]"
-    case doubleArray = "double[]"
-}
-
-/// A type-safe representation of attribute values used by structured logging.
+/// A protocol that represents values that can be used as structured logging attributes.
 ///
-/// `SentryAttributeContent` provides a strongly-typed enum for representing various attribute types
-/// including strings, booleans, integers, doubles, and their array variants. This enum conforms to
-/// `Equatable`, `Hashable`, and `Encodable` for use in structured data contexts.
-public enum SentryAttributeContent: Equatable, Hashable {
-    case string(String)
-    case boolean(Bool)
-    case integer(Int)
-    case double(Double)
-    case stringArray([String])
-    case booleanArray([Bool])
-    case integerArray([Int])
-    case doubleArray([Double])
+/// - Warning: **Experimental API** - This API is experimental and will be used by the upcoming
+///   experimental Metrics product. The API may change in future releases.
+///
+/// `SentryAttributeValue` provides a protocol-oriented approach for accepting attribute values
+/// in public APIs. This allows APIs to accept a wide variety of types without requiring a concrete
+/// enum type, making the API more flexible and user-friendly.
+///
+/// This is the Swift-native API for structured logging attributes. For Swift code, prefer using
+/// `SentryAttributeValue` over the Objective-C-compatible `SentryAttribute` class, as it allows
+/// you to pass native Swift types directly without wrapping them in a class instance.
+///
+/// ## Purpose
+///
+/// This protocol is designed to be used in public API method signatures, particularly for
+/// structured logging attributes. For example:
+///
+/// ```swift
+/// func log(_ message: String, attributes: [String: SentryAttributeValue])
+/// ```
+///
+/// Using `SentryAttributeValue` in public APIs provides several benefits:
+/// - **Flexibility**: Accepts multiple types (String, Bool, Int, Double, Float, Arrays) without
+///   requiring users to wrap values in a concrete enum type
+/// - **Type Safety**: The protocol ensures all values can be converted to a structured format
+/// - **Conciseness**: Users can pass values directly without explicit conversions
+/// - **Dictionary Clarity**: `[String: SentryAttributeValue]` clearly communicates that it's a
+///   dictionary and prevents duplicate keys
+///
+/// ## Conforming Types
+///
+/// The following types conform to `SentryAttributeValue`:
+/// - `String`
+/// - `Bool`
+/// - `Int`
+/// - `Double`
+/// - `Float` (converted to Double)
+/// - `Array` (with various element types)
+///
+/// ## Implementation
+///
+/// Conforming types implement `asSentryAttributeContent` to convert themselves to a
+/// `SentryAttributeContent` enum value, which provides the structured representation used
+/// internally for encoding and type identification.
+public protocol SentryAttributeValue {
+    /// Converts the conforming value to a `SentryAttributeContent` enum representation.
+    ///
+    /// This method is used internally to convert protocol-conforming values to the structured
+    /// `SentryAttributeContent` enum format for encoding and type identification.
+    ///
+    /// - Returns: A `SentryAttributeContent` enum case representing this value.
+    var asSentryAttributeContent: SentryAttributeContent { get }
+}
 
-    var type: String {
-        switch self {
-        case .string:
-            return SentryAttributeType.string.rawValue
-        case .boolean:
-            return SentryAttributeType.boolean.rawValue
-        case .integer:
-            return SentryAttributeType.integer.rawValue
-        case .double:
-            return SentryAttributeType.double.rawValue
-        case .stringArray:
-            return SentryAttributeType.stringArray.rawValue
-        case .booleanArray:
-            return SentryAttributeType.booleanArray.rawValue
-        case .integerArray:
-            return SentryAttributeType.integerArray.rawValue
-        case .doubleArray:
-            return SentryAttributeType.doubleArray.rawValue
-        }
+extension String: SentryAttributeValue {
+    public var asSentryAttributeContent: SentryAttributeContent {
+        return .string(self)
     }
 }
 
-extension SentryAttributeContent: Encodable {
-    private enum CodingKeys: String, CodingKey {
-        case type
-        case value
-    }
-
-    /// Encodes the attribute value to the given encoder.
-    ///
-    /// The encoded format includes both the type identifier and the value itself.
-    ///
-    /// - Parameter encoder: The encoder to write data to.
-    /// - Throws: An error if encoding fails.
-    public func encode(to encoder: any Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(type, forKey: .type)
-
-        switch self {
-        case .string(let value):
-            try container.encode(value, forKey: .value)
-        case .boolean(let value):
-            try container.encode(value, forKey: .value)
-        case .integer(let value):
-            try container.encode(value, forKey: .value)
-        case .double(let value):
-            try container.encode(value, forKey: .value)
-        case .stringArray(let value):
-            try container.encode(value, forKey: .value)
-        case .booleanArray(let value):
-            try container.encode(value, forKey: .value)
-        case .integerArray(let value):
-            try container.encode(value, forKey: .value)
-        case .doubleArray(let value):
-            try container.encode(value, forKey: .value)
-        }
+extension Bool: SentryAttributeValue {
+    public var asSentryAttributeContent: SentryAttributeContent {
+        return .boolean(self)
     }
 }
 
-extension SentryAttributeContent {
-    static func from(anyValue value: Any) -> Self { // swiftlint:disable:this cyclomatic_complexity
-        if let val = value as? String {
-            return .string(val)
-        }
-        if let val = value as? Bool {
-            return .boolean(val)
-        }
-        if let val = value as? Int {
-            return .integer(val)
-        }
-        if let val = value as? Double {
-            return .double(val)
-        }
-        if let val = value as? Float {
-            return .double(Double(val))
-        }
-        if let val = value as? [String] {
-            return .stringArray(val)
-        }
-        if let val = value as? [Bool] {
-            return .booleanArray(val)
-        }
-        if let val = value as? [Int] {
-            return .integerArray(val)
-        }
-        if let val = value as? [Double] {
-            return .doubleArray(val)
-        }
-        if let val = value as? [Float] {
-            return .doubleArray(val.map(Double.init))
-        }
-        if let val = value as? SentryAttributeContent {
-            return val
-        }
-        if let val = value as? SentryAttribute {
-            return val.asSentryAttributeContent
-        }
-        if let val = value as? SentryAttributeValue {
-            return val.asSentryAttributeContent
-        }
-        return .string(String(describing: value))
-    }
-
-    var anyValue: Any {
-        switch self {
-        case .string(let value):
-            return value
-        case .boolean(let value):
-            return value
-        case .integer(let value):
-            return value
-        case .double(let value):
-            return value
-        case .stringArray(let value):
-            return value
-        case .booleanArray(let value):
-            return value
-        case .integerArray(let value):
-            return value
-        case .doubleArray(let value):
-            return value
-        }
+extension Int: SentryAttributeValue {
+    public var asSentryAttributeContent: SentryAttributeContent {
+        return .integer(self)
     }
 }
 
-extension SentryAttributeContent: ExpressibleByStringLiteral {
-    /// Creates a string attribute value from a string literal.
-    ///
-    /// This allows `SentryAttributeContent` to be initialized directly from string literals:
-    /// ```swift
-    /// let value: SentryAttributeContent = "hello"
-    /// ```
-    ///
-    /// - Parameter value: The string literal value.
-    public init(stringLiteral value: StringLiteralType) {
-        self = .string(value)
+extension Double: SentryAttributeValue {
+    public var asSentryAttributeContent: SentryAttributeContent {
+        return .double(self)
     }
 }
 
-extension SentryAttributeContent: ExpressibleByBooleanLiteral {
-    /// Creates a boolean attribute value from a boolean literal.
-    ///
-    /// This allows `SentryAttributeContent` to be initialized directly from boolean literals:
-    /// ```swift
-    /// let value: SentryAttributeContent = true
-    /// ```
-    ///
-    /// - Parameter value: The boolean literal value.
-    public init(booleanLiteral value: BooleanLiteralType) {
-        self = .boolean(value)
+extension Float: SentryAttributeValue {
+    public var asSentryAttributeContent: SentryAttributeContent {
+        return .double(Double(self))
     }
 }
 
-extension SentryAttributeContent: ExpressibleByFloatLiteral {
-    /// Creates a double attribute value from a float literal.
+extension Array: SentryAttributeValue {
+    /// Converts an array to a SentryAttributeContent value.
     ///
-    /// This allows `SentryAttributeContent` to be initialized directly from float literals:
-    /// ```swift
-    /// let value: SentryAttributeContent = 3.14
-    /// ```
+    /// This extension cannot be scoped to `where Element == SentryAttributeValue` because:
+    /// - Mixed arrays (arrays containing elements of different types) are automatically converted to `[Any]` by Swift
+    /// - If we used `where Element == SentryAttributeValue`, mixed arrays would not compile, preventing users
+    ///   from passing heterogeneous arrays
+    /// - We accept this trade-off: while we can't enforce compile-time safety for mixed arrays, we can convert
+    ///   the values to strings at runtime without losing any data
     ///
-    /// - Parameter value: The float literal value.
-    public init(floatLiteral value: FloatLiteralType) {
-        self = .double(value)
+    /// Arrays can be heterogenous, therefore we must validate if all elements are of the same type.
+    /// We must assert the element type too, because due to Objective-C bridging we noticed invalid conversions
+    /// of empty String Arrays to Bool Arrays.
+    public var asSentryAttributeContent: SentryAttributeContent {
+        if Element.self == Bool.self, let values = self as? [Bool] {
+            return .booleanArray(values)
+        }
+        if Element.self == Double.self, let values = self as? [Double] {
+            return .doubleArray(values)
+        }
+        if Element.self == Float.self, let values = self as? [Float] {
+            return .doubleArray(values.map(Double.init))
+        }
+        if Element.self == Int.self, let values = self as? [Int] {
+            return .integerArray(values)
+        }
+        if Element.self == String.self, let values = self as? [String] {
+            return .stringArray(values)
+        }
+        if let values = self as? [SentryAttributeValue] {
+            return castArrayToAttributeContent(values: values)
+        }
+        return .stringArray(self.map { element in
+            String(describing: element)
+        })
     }
-}
 
-extension SentryAttributeContent: ExpressibleByIntegerLiteral {
-    /// Creates an integer attribute value from an integer literal.
-    ///
-    /// This allows `SentryAttributeContent` to be initialized directly from integer literals:
-    /// ```swift
-    /// let value: SentryAttributeContent = 42
-    /// ```
-    ///
-    /// - Parameter value: The integer literal value.
-    public init(integerLiteral value: IntegerLiteralType) {
-        self = .integer(value)
+    private func castArrayToAttributeContent(values: [SentryAttributeValue]) -> SentryAttributeContent {
+        // Empty arrays cannot determine the intended type, so default to stringArray as a safe fallback
+        guard !values.isEmpty else {
+            return .stringArray([])
+        }
+        
+        // Check if the values are homogeneous and can be casted to a specific array type.
+        // Each cast method optimizes by checking the first element first, avoiding full iterations
+        // when the first element doesn't match the expected type.
+        if let booleanArray = castValuesToBooleanArray(values) {
+            return booleanArray
+        }
+        if let doubleArray = castValuesToDoubleArray(values) {
+            return doubleArray
+        }
+        if let integerArray = castValuesToIntegerArray(values) {
+            return integerArray
+        }
+        if let stringArray = castValuesToStringArray(values) {
+            return stringArray
+        }
+        
+        // If the values are not homogenous we resolve the individual values to strings
+        return .stringArray(values.map { value in
+            switch value.asSentryAttributeContent {
+            case .boolean(let value):
+                return String(describing: value)
+            case .double(let value):
+                return String(describing: value)
+            case .integer(let value):
+                return String(describing: value)
+            case .string(let value):
+                return value
+            default:
+                return String(describing: value)
+            }
+        })
     }
+
+    func castValuesToBooleanArray(_ values: [SentryAttributeValue]) -> SentryAttributeContent? {
+        // Early exit optimization: if the first element isn't a boolean, skip the full iteration
+        guard !values.isEmpty, case .boolean = values[0].asSentryAttributeContent else {
+            return nil
+        }
+        
+        let mappedBooleanValues = values.compactMap { element -> Bool? in
+            guard case .boolean(let value) = element.asSentryAttributeContent else {
+                return nil
+            }
+            return value
+        }
+        guard mappedBooleanValues.count == values.count else {
+            return nil
+        }
+        return .booleanArray(mappedBooleanValues)
+    }
+
+    func castValuesToDoubleArray(_ values: [SentryAttributeValue]) -> SentryAttributeContent? {
+        // Early exit optimization: if the first element isn't a double, skip the full iteration
+        guard !values.isEmpty, case .double = values[0].asSentryAttributeContent else {
+            return nil
+        }
+        
+        let mappedDoubleValues = values.compactMap { element -> Double? in
+            guard case .double(let value) = element.asSentryAttributeContent else {
+                return nil
+            }
+            return value
+        }
+        guard mappedDoubleValues.count == values.count else {
+            return nil
+        }
+        return .doubleArray(mappedDoubleValues)
+    }
+
+    func castValuesToIntegerArray(_ values: [SentryAttributeValue]) -> SentryAttributeContent? {
+        // Early exit optimization: if the first element isn't an integer, skip the full iteration
+        guard !values.isEmpty, case .integer = values[0].asSentryAttributeContent else {
+            return nil
+        }
+        
+        let mappedIntegerValues = values.compactMap { element -> Int? in
+            guard case .integer(let value) = element.asSentryAttributeContent else {
+                return nil
+            }
+            return value
+        }
+        guard mappedIntegerValues.count == values.count else {
+            return nil
+        }
+        return .integerArray(mappedIntegerValues)
+    }
+
+    func castValuesToStringArray(_ values: [SentryAttributeValue]) -> SentryAttributeContent? {
+        // Early exit optimization: if the first element isn't a string, skip the full iteration
+        guard !values.isEmpty, case .string = values[0].asSentryAttributeContent else {
+            return nil
+        }
+        
+        let mappedStringValues = values.compactMap { element -> String? in
+            guard case .string(let value) = element.asSentryAttributeContent else {
+                return nil
+            }
+            return value
+        }
+        guard mappedStringValues.count == values.count else {
+            return nil
+        }
+        return .stringArray(mappedStringValues)
+    }   
 }
