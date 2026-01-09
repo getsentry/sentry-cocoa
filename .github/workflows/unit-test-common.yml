@@ -89,7 +89,8 @@ jobs:
           XCODE_VERSION: ${{ inputs.xcode }}
           DEVICE_NAME: ${{ inputs.device }}
           OS_VERSION: ${{ inputs.test-destination-os }}
-        run: ./scripts/ci-boot-simulator.sh --xcode "$XCODE_VERSION" --device "$DEVICE_NAME" --os-version "$OS_VERSION"
+          PLATFORM: ${{ inputs.platform }}
+        run: ./scripts/ci-boot-simulator.sh --xcode "$XCODE_VERSION" --device "$DEVICE_NAME" --os-version "$OS_VERSION" --platform "$PLATFORM"
 
       # We split building and running tests in two steps so we know how long running the tests takes.
       - name: Build Tests

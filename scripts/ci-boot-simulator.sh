@@ -46,6 +46,7 @@ source "$(cd "$(dirname "$0")" && pwd)/ci-utils.sh"
 XCODE_VERSION="16.2" # Default value
 DEVICE_NAME=""
 OS_VERSION=""
+PLATFORM="iOS"
 
 while [[ $# -gt 0 ]]; do
     case $1 in
@@ -59,6 +60,10 @@ while [[ $# -gt 0 ]]; do
             ;;
         -o|--os-version)
             OS_VERSION="$2"
+            shift 2
+            ;;
+        -p|--platform)
+            PLATFORM="$2"
             shift 2
             ;;
         *)
@@ -76,29 +81,29 @@ begin_group "Simulator Selection"
 # If device and OS version are provided, use them directly
 if [ -n "$DEVICE_NAME" ] && [ -n "$OS_VERSION" ]; then
     SIMULATOR="$DEVICE_NAME"
-    IOS_VERSION="$OS_VERSION"
-    log_notice "Using provided parameters: $SIMULATOR with iOS $IOS_VERSION"
+    PLATFORM_VERSION="$OS_VERSION"
+    log_notice "Using provided parameters: $SIMULATOR with $PLATFORM $PLATFORM_VERSION"
 else
     # Fallback to Xcode version-based selection for backward compatibility
     SIMULATOR="iPhone 16 Pro"
-    IOS_VERSION="18.5"
+    PLATFORM_VERSION="18.5"
 
     # Select simulator based on Xcode version
     case "$XCODE_VERSION" in
         "16.2")
             SIMULATOR="iPhone 16 Pro"
-            IOS_VERSION="18.2"
-            log_notice "Selected: $SIMULATOR with iOS $IOS_VERSION for Xcode $XCODE_VERSION"
+            PLATFORM_VERSION="18.2"
+            log_notice "Selected: $SIMULATOR with iOS $PLATFORM_VERSION for Xcode $XCODE_VERSION"
             ;;
         "26.1")
             SIMULATOR="iPhone 17 Pro"
-            IOS_VERSION="26.1"
-            log_notice "Selected: $SIMULATOR with iOS $IOS_VERSION for Xcode $XCODE_VERSION"
+            PLATFORM_VERSION="26.1"
+            log_notice "Selected: $SIMULATOR with iOS $PLATFORM_VERSION for Xcode $XCODE_VERSION"
             ;;
         *)
             SIMULATOR="iPhone 16 Pro" # Default fallback
-            IOS_VERSION="18.4"
-            log_warning "Unknown Xcode version '$XCODE_VERSION', using default: $SIMULATOR with iOS $IOS_VERSION"
+            PLATFORM_VERSION="18.4"
+            log_warning "Unknown Xcode version '$XCODE_VERSION', using default: $SIMULATOR with iOS $PLATFORM_VERSION"
             ;;
     esac
 fi
@@ -110,16 +115,16 @@ xcrun simctl list devices available
 end_group
 
 begin_group "Device Discovery"
-log_notice "Searching for simulator: $SIMULATOR running iOS $IOS_VERSION"
+log_notice "Searching for simulator: $SIMULATOR running $PLATFORM $PLATFORM_VERSION"
 
 UDID=$(xcrun simctl list devices available | \
-grep -A 5 "^-- iOS $IOS_VERSION --" | \
+grep -A 5 "^-- $PLATFORM $PLATFORM_VERSION --" | \
 grep "$SIMULATOR (" | \
 sed -n 's/.*(\([0-9A-F-]\{36\}\)).*/\1/p' | \
 head -n1)
 
 if [ -z "$UDID" ]; then
-    log_error "Failed to find UDID for simulator: $SIMULATOR with iOS $IOS_VERSION"
+    log_error "Failed to find UDID for simulator: $SIMULATOR with $PLATFORM $PLATFORM_VERSION"
     log_error "Available devices:"
     xcrun simctl list devices available
     exit 1
@@ -129,7 +134,7 @@ log_notice "Found simulator UDID: $UDID"
 end_group
 
 begin_group "Simulator Boot"
-log_notice "Booting simulator: $SIMULATOR - iOS $IOS_VERSION (UDID: $UDID)"
+log_notice "Booting simulator: $SIMULATOR - $PLATFORM $PLATFORM_VERSION (UDID: $UDID)"
 
 MAX_BOOT_ATTEMPTS=5
 BOOT_TIMEOUT=180 # 3 minutes
