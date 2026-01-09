@@ -96,7 +96,7 @@
     /// It's crucial for developers to understand that the OS sends a SIGTERM to their app as a prelude
     /// to a graceful shutdown, before resorting to a SIGKILL. This SIGKILL, which your app can't catch
     /// or ignore, is a direct order to terminate your app's process immediately. Developers should be
-    /// aware that their app can receive a SIGTERM in various scenarios, such as  CPU or disk overuse,
+    /// aware that their app can receive a SIGTERM in various scenarios, such as CPU or disk overuse,
     /// watchdog terminations, or when the OS updates your app.
     ///
     /// @note The default value is @c false.
