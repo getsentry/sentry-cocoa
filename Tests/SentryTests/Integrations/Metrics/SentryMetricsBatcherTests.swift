@@ -615,7 +615,7 @@ final class SentryMetricsBatcherTests: XCTestCase {
         
         var metric = createTestMetric(name: "test.metric", value: .counter(1))
         metric.attributes["existing-key"] = .string("metric-value")
-        
+
         // -- Act --
         let sut = getSut()
         sut.addMetric(metric, scope: scope)
