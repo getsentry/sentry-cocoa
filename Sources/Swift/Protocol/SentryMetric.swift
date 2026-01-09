@@ -30,8 +30,8 @@ public struct SentryMetric {
     /// - Setting an integer on a gauge/distribution: converts to double
     ///
     /// - Note: Counters use integer values, distributions and gauges use double values.
-    public var value: SentryMetricValue
-    
+    public var value: Value
+
     /// The unit of measurement for the metric value (optional).
     ///
     /// Examples: "millisecond", "byte", "connection", "request". This helps
@@ -43,7 +43,7 @@ public struct SentryMetric {
     /// Attributes provide additional context and can be used for filtering and
     /// grouping metrics in Sentry. Common attributes include endpoint names,
     /// HTTP methods, status codes, etc.
-    public var attributes: [String: SentryAttribute]
+    public var attributes: [String: Attribute]
 
     /// Creates a metric entry with the specified properties.
     ///
@@ -63,7 +63,7 @@ public struct SentryMetric {
         name: String,
         value: SentryMetricValue,
         unit: String?,
-        attributes: [String: SentryAttribute]
+        attributes: [String: Attribute]
     ) {
         self.timestamp = timestamp
         self.traceId = traceId
@@ -100,4 +100,17 @@ extension SentryMetric: Encodable {
     }
 }
 
-extension SentryMetric: BatcherItem {}
+extension SentryMetric: BatcherItem {
+    var attributesDict: [String: SentryAttributeContent] {
+        get {
+            attributes.mapValues { value in
+                value.asSentryAttributeContent
+            }
+        }
+        set {
+            attributes = newValue.mapValues { value in
+                SentryAttribute(attributableValue: value)
+            }
+        }
+    }
+}
