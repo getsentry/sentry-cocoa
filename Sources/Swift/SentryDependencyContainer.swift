@@ -15,8 +15,6 @@ let defaultApplicationProvider: () -> SentryApplication? = {
 #endif
 }
 
-let sentryAutoTransactionMaxDuration = 500.0
-
 // MARK: - Extensions
 
 extension SentryFileManager: SentryFileManagerProtocol { }
@@ -155,6 +153,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     
     private var _framesTracker: SentryFramesTracker?
     @objc public lazy var framesTracker = getLazyVar(\._framesTracker) {
+        let sentryAutoTransactionMaxDuration = 500.0
         let delayedFramesTracker = SentryDelayedFramesTracker(keepDelayedFramesDuration: sentryAutoTransactionMaxDuration)
         return SentryFramesTracker(displayLinkWrapper: SentryDisplayLinkWrapper(), dateProvider: dateProvider, dispatchQueueWrapper: dispatchQueueWrapper, notificationCenter: notificationCenterWrapper, delayedFramesTracker: delayedFramesTracker)
     }
