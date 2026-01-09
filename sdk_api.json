@@ -36375,9 +36375,9 @@
             "children": [
               {
                 "kind": "TypeNominal",
-                "name": "SentryAttribute",
-                "printedName": "Sentry.SentryAttribute",
-                "usr": "c:@M@Sentry@objc(cs)SentryAttribute"
+                "name": "SentryAttributeContent",
+                "printedName": "Sentry.SentryAttributeContent",
+                "usr": "s:6Sentry0A16AttributeContentO"
               }
             ],
             "declKind": "TypeAlias",
@@ -36784,9 +36784,9 @@
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentryAttribute",
-                        "printedName": "Sentry.SentryAttribute",
-                        "usr": "c:@M@Sentry@objc(cs)SentryAttribute"
+                        "name": "SentryAttributeContent",
+                        "printedName": "Sentry.SentryAttributeContent",
+                        "usr": "s:6Sentry0A16AttributeContentO"
                       }
                     ]
                   }
@@ -36795,8 +36795,8 @@
               }
             ],
             "declKind": "Var",
-            "usr": "s:6Sentry0A6MetricV10attributesSDySSAA0A9AttributeCGvp",
-            "mangledName": "$s6Sentry0A6MetricV10attributesSDySSAA0A9AttributeCGvp",
+            "usr": "s:6Sentry0A6MetricV10attributesSDySSAA0A16AttributeContentOGvp",
+            "mangledName": "$s6Sentry0A6MetricV10attributesSDySSAA0A16AttributeContentOGvp",
             "moduleName": "Sentry",
             "declAttributes": [
               "HasStorage"
@@ -36826,9 +36826,9 @@
                         "children": [
                           {
                             "kind": "TypeNominal",
-                            "name": "SentryAttribute",
-                            "printedName": "Sentry.SentryAttribute",
-                            "usr": "c:@M@Sentry@objc(cs)SentryAttribute"
+                            "name": "SentryAttributeContent",
+                            "printedName": "Sentry.SentryAttributeContent",
+                            "usr": "s:6Sentry0A16AttributeContentO"
                           }
                         ]
                       }
@@ -36837,8 +36837,8 @@
                   }
                 ],
                 "declKind": "Accessor",
-                "usr": "s:6Sentry0A6MetricV10attributesSDySSAA0A9AttributeCGvg",
-                "mangledName": "$s6Sentry0A6MetricV10attributesSDySSAA0A9AttributeCGvg",
+                "usr": "s:6Sentry0A6MetricV10attributesSDySSAA0A16AttributeContentOGvg",
+                "mangledName": "$s6Sentry0A6MetricV10attributesSDySSAA0A16AttributeContentOGvg",
                 "moduleName": "Sentry",
                 "implicit": true,
                 "accessorKind": "get"
@@ -36871,9 +36871,9 @@
                         "children": [
                           {
                             "kind": "TypeNominal",
-                            "name": "SentryAttribute",
-                            "printedName": "Sentry.SentryAttribute",
-                            "usr": "c:@M@Sentry@objc(cs)SentryAttribute"
+                            "name": "SentryAttributeContent",
+                            "printedName": "Sentry.SentryAttributeContent",
+                            "usr": "s:6Sentry0A16AttributeContentO"
                           }
                         ]
                       }
@@ -36882,8 +36882,8 @@
                   }
                 ],
                 "declKind": "Accessor",
-                "usr": "s:6Sentry0A6MetricV10attributesSDySSAA0A9AttributeCGvs",
-                "mangledName": "$s6Sentry0A6MetricV10attributesSDySSAA0A9AttributeCGvs",
+                "usr": "s:6Sentry0A6MetricV10attributesSDySSAA0A16AttributeContentOGvs",
+                "mangledName": "$s6Sentry0A6MetricV10attributesSDySSAA0A16AttributeContentOGvs",
                 "moduleName": "Sentry",
                 "implicit": true,
                 "accessorKind": "set"
