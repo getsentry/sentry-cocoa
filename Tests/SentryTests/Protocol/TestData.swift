@@ -275,8 +275,8 @@ class TestData {
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
     static var oomEvent: Event {
         let event = Event(level: SentryLevel.fatal)
-        let exception = Exception(value: SentryWatchdogTerminationTracker.ExceptionValue, type: SentryWatchdogTerminationTracker.ExceptionType)
-        exception.mechanism = Mechanism(type: SentryWatchdogTerminationTracker.MechanismType)
+        let exception = Exception(value: SentryWatchdogTerminationConstants.ExceptionValue, type: SentryWatchdogTerminationConstants.ExceptionType)
+        exception.mechanism = Mechanism(type: SentryWatchdogTerminationConstants.MechanismType)
         event.exceptions = [exception]
         return event
     }

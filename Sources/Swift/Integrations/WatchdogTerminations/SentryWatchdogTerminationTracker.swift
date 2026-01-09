@@ -62,9 +62,9 @@ final class SentryWatchdogTerminationTracker: NSObject {
         // Termination events always have fatal level, so we are not reading from disk
 
         let exception = Exception(
-            value: SentryWatchdogTerminationTracker.ExceptionValue,
-            type: SentryWatchdogTerminationTracker.ExceptionType)
-        let mechanism = Mechanism(type: SentryWatchdogTerminationTracker.MechanismType)
+            value: SentryWatchdogTerminationConstants.ExceptionValue,
+            type: SentryWatchdogTerminationConstants.ExceptionType)
+        let mechanism = Mechanism(type: SentryWatchdogTerminationConstants.MechanismType)
         mechanism.handled = false
         exception.mechanism = mechanism
         event.exceptions = [exception]
