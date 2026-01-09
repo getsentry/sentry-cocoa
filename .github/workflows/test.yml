@@ -372,7 +372,7 @@ jobs:
 
           # visionOS 26
           - name: visionOS 26 Sentry
-            runs-on: macos-26
+            runs-on: tahoe
             xcode: "26.1.1"
             test-destination-os: "26.1"
             platform: "visionOS"
