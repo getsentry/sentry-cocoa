@@ -6,7 +6,7 @@ public struct SentryMetric {
     public typealias Value = SentryMetricValue
 
     /// A typed attribute that can be attached to structured item entries
-    public typealias Attribute = SentryAttribute
+    public typealias Attribute = SentryAttributeContent
 
     /// The timestamp when the metric was recorded.
     public var timestamp: Date
@@ -103,14 +103,10 @@ extension SentryMetric: Encodable {
 extension SentryMetric: BatcherItem {
     var attributesDict: [String: SentryAttributeContent] {
         get {
-            attributes.mapValues { value in
-                value.asSentryAttributeContent
-            }
+            attributes
         }
         set {
-            attributes = newValue.mapValues { value in
-                SentryAttribute(attributableValue: value)
-            }
+            attributes = newValue
         }
     }
 }
