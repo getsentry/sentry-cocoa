@@ -589,11 +589,7 @@ found && !lookingForDeps { \
 	} \
 	print ""; \
 	printf "Usage:\n"; \
-	if (length(firstDep) > 0) { \
-		printf "  make %s\n", firstDep; \
-	} else { \
-		printf "  make %s\n", T; \
-	} \
+	printf "  make %s\n", T; \
 	printed = 1; \
 	found = 0; summary = ""; detailsCount = 0; delete details; firstDep = ""; \
 	next \
