@@ -245,6 +245,14 @@ extension SentryDependencyContainer: ScreenshotSourceProvider { }
 
 extension SentryDependencyContainer: AutoSessionTrackingProvider { }
 
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
+protocol FramesTrackingProvider {
+    var framesTracker: SentryFramesTracker { get }
+}
+
+extension SentryDependencyContainer: FramesTrackingProvider { }
+#endif
+
 #if ((os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT) || os(macOS)
 extension SentryDependencyContainer: NotificationCenterProvider { }
 #endif
