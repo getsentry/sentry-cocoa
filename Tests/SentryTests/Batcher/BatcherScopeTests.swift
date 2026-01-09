@@ -626,6 +626,63 @@ final class BatcherScopeTests: XCTestCase {
         XCTAssertEqual(item.traceId, traceId1)
     }
 
+    func testApplyToItem_whenSpanIsActive_shouldSetTraceIdFromSpan() {
+        // -- Arrange --
+        let propagationTraceId = SentryId()
+        let spanTraceId = SentryId()
+        let spanId = SentryId()
+        let span = TestSpan(spanId: spanId)
+        span.traceId = spanTraceId
+        
+        let scope = TestScope(
+            propagationContextTraceId: propagationTraceId,
+            span: span
+        )
+        let config = createTestConfig()
+        let metadata = createTestMetadata()
+        var item = createTestItem()
+
+        // -- Act --
+        scope.applyToItem(&item, config: config, metadata: metadata)
+
+        // -- Assert --
+        // When a span is active, traceId should come from the span, not propagationContext
+        // This ensures consistency with span_id which also comes from the span
+        XCTAssertEqual(item.traceId, spanTraceId)
+        XCTAssertNotEqual(item.traceId, propagationTraceId)
+        XCTAssertEqual(item.attributesDict["span_id"], .string(span.spanId.sentrySpanIdString))
+    }
+
+    func testApplyToItem_whenSpanIsActive_shouldUseSpanTraceIdEvenIfDifferentFromPropagationContext() {
+        // -- Arrange --
+        let propagationTraceId = SentryId()
+        let spanTraceId = SentryId()
+        // Ensure they are different
+        XCTAssertNotEqual(propagationTraceId, spanTraceId)
+        
+        let spanId = SentryId()
+        let span = TestSpan(spanId: spanId)
+        span.traceId = spanTraceId
+        
+        let scope = TestScope(
+            propagationContextTraceId: propagationTraceId,
+            span: span
+        )
+        let config = createTestConfig()
+        let metadata = createTestMetadata()
+        var item = createTestItem()
+        // Set initial traceId to something else to verify it gets overwritten
+        item.traceId = SentryId()
+
+        // -- Act --
+        scope.applyToItem(&item, config: config, metadata: metadata)
+
+        // -- Assert --
+        // traceId should be from span, ensuring correlation with span_id
+        XCTAssertEqual(item.traceId, spanTraceId)
+        XCTAssertNotEqual(item.traceId, propagationTraceId)
+    }
+
     // MARK: - Integration Tests
 
     func testApplyToItem_withAllAttributes_shouldAddAllAttributes() {
