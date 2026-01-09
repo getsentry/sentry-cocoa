@@ -259,6 +259,13 @@ This project uses [Conventional Commits 1.0.0](https://www.conventionalcommits.o
 [optional footer(s)]
 ```
 
+**Line Length Limits:**
+
+- **Subject line:** Maximum 50 characters (including type prefix)
+- **Body lines:** Maximum 72 characters per line
+
+The 50-character limit for the subject ensures readability in git log output and GitHub's UI. The 72-character limit for body lines follows the git convention for optimal display in terminals and tools.
+
 **Required Types:**
 
 - `feat:` - A new feature (correlates with MINOR in SemVer)
@@ -271,7 +278,7 @@ This project uses [Conventional Commits 1.0.0](https://www.conventionalcommits.o
 - `ci:` - Changes to CI configuration
 - `docs:` - Documentation changes
 - `style:` - Code style changes (formatting, missing semi-colons, etc.)
-- `refactor:` - Code refactoring without changing functionality
+- `refactor:` (or `ref:`) - Code refactoring without changing functionality
 - `perf:` - Performance improvements
 - `test:` - Adding or updating tests
 
@@ -284,12 +291,23 @@ This project uses [Conventional Commits 1.0.0](https://www.conventionalcommits.o
 
 ```
 feat: add new session replay feature
-fix: resolve memory leak in session storage
+fix: resolve memory leak in session
 docs: update installation guide
-refactor: simplify event serialization
+ref: simplify event serialization
+chore: update dependencies
 feat!: change API response format
 
 BREAKING CHANGE: API now returns JSON instead of XML
+```
+
+**Example with body (respecting 72-char line limit):**
+
+```
+ref: rename constant to Swift naming convention
+
+Renamed SENTRY_AUTO_TRANSACTION_MAX_DURATION to use camelCase as per
+Swift naming conventions for module-level constants. This improves
+consistency with the rest of the codebase.
 ```
 
 #### No AI References
