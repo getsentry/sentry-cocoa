@@ -52,9 +52,11 @@ public final class SentryWatchdogTerminationLogic: NSObject {
 
         // This value can change when installing test builds using Xcode or when installing an app
         // on a device using ad-hoc distribution.
-        if let currentVendorId = currentAppState.vendorId,
-           let previousVendorId = previousAppState.vendorId,
-           currentVendorId != previousVendorId {
+        // SentryAppState return nil id vendorId is missing when loaded from a JSON file, so
+        // any case where vendorId is nil, is automatically handled
+        guard let currentVendorId = currentAppState.vendorId,
+              let previousVendorId = previousAppState.vendorId,
+              currentVendorId == previousVendorId else {
             return false
         }
 
