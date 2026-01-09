@@ -47,7 +47,9 @@ extension BatcherScope {
 
         // Set the modified dictionary back once
         item.attributesDict = attributes
-        item.traceId = propagationContextTraceId
+        // When a span is active, use its traceId to ensure consistency with span_id.
+        // Otherwise, fall back to propagationContext traceId.
+        item.traceId = span?.traceId ?? propagationContextTraceId
     }
 
     private func addDefaultAttributes(to attributes: inout [String: SentryAttributeContent], config: any BatcherConfig, metadata: any BatcherMetadata) {
