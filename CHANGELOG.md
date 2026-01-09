@@ -5,6 +5,7 @@
 ### Features
 
 - Add integration to collect Metrics, can be enabled by setting `options.enableMetrics = true` (#6956)
+- Add isiOSAppOnVisionOS, isiOSAppOnMac, isMacCatalystApp to device context #6939
 
 ### Fixes
 
