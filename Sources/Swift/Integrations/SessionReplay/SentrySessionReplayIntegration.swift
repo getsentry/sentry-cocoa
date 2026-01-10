@@ -21,7 +21,6 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
     
     private let replayOptions: SentryReplayOptions
     private let rateLimits: RateLimits
-    private var rateLimited = false
     private let random: SentryRandomProtocol
     private let application: SentryApplication?
     private var startedAsFullSession = false
@@ -35,6 +34,10 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
     private let replayFileManager: SessionReplayFileManager
     private var replayRecovery: SessionReplayRecovery?
     
+    /// We need to use this variable to identify whether rate limiting was ever activated for session replay
+    /// in this session, instead of always looking for the rate status in `SentryRateLimits`. This is the
+    /// easiest way to ensure segment 0 will always reach the server, because session replay needs segment 0.
+    private var rateLimited = false
     @objc public static var name: String { "SentrySessionReplayIntegration" }
 
     // MARK: - Initialization
@@ -125,21 +128,16 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
             SentrySDKLog.debug("[Session Replay] Setting up default view renderer")
             viewRenderer = SentryDefaultViewRenderer()
         }
+        // We are using the flag for the view renderer V2 also for the mask renderer V2, as it would
+        // just introduce another option without affecting the SDK user experience.
         return SentryViewPhotographer(renderer: viewRenderer, redactOptions: options.sessionReplay, enableMaskRendererV2: options.sessionReplay.enableViewRendererV2)
     }
     
     private static func createDispatchQueues(dependencies: SessionReplayIntegrationScope) -> (processing: SentryDispatchQueueWrapper, assetWorker: SentryDispatchQueueWrapper) {
-        // The asset worker queue is used to work on video and frames data.
-        // Use a relative priority of -1 to make it lower than the default background priority.
-        // The processing queue is used to process the events and capture the replay.
-        // Use a relative priority of -2 to make it lower than the asset worker queue.
+        // The asset worker queue handles video and frames data (priority -1).
+        // The processing queue waits for asset worker to finish - must have lower priority (-2) to avoid deadlock.
         let assetWorkerQueue = dependencies.dispatchFactory.createUtilityQueue("io.sentry.session-replay.asset-worker", relativePriority: -1)
-        
-        // The dispatch queue is used to asynchronously wait for the asset worker queue to finish its
-        // work. To avoid a deadlock, the priority of the processing queue must be lower than the asset
-        // worker queue. Use a relative priority of -2 to make it lower than the asset worker queue.
         let processingQueue = dependencies.dispatchFactory.createUtilityQueue("io.sentry.session-replay.processing", relativePriority: -2)
-        
         return (processingQueue, assetWorkerQueue)
     }
     
@@ -223,7 +221,10 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
     private func startWithOptions(_ replayOptions: SentryReplayOptions, experimentalOptions: SentryExperimentalOptions,
                                   screenshotProvider: SentryViewScreenshotProvider, breadcrumbConverter: SentryReplayBreadcrumbConverter, fullSession: Bool) {
         SentrySDKLog.debug("[Session Replay] Starting session")
-        guard let sessionDocs = replayFileManager.createSessionDirectory() else { return }
+        guard let sessionDocs = replayFileManager.createSessionDirectory() else {
+            SentrySDKLog.warning("[Session Replay] Failed to create session direcotry, cancelling starting session")
+            return
+        }
         
         let replayMaker = createReplayMaker(outputPath: sessionDocs.path, fullSession: fullSession)
         let newSessionReplay = SentrySessionReplay(
@@ -234,9 +235,10 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
         self.sessionReplay = newSessionReplay
         newSessionReplay.start(rootView: application?.getWindows()?.first, fullSession: fullSession)
         addBackgroundForegroundObservers()
-
-        guard let replayId = newSessionReplay.sessionReplayId else { return }
-        replayFileManager.saveCurrentSessionInfo(replayId, path: sessionDocs.path, options: replayOptions)
+        
+        if let replayId = newSessionReplay.sessionReplayId {
+            replayFileManager.saveCurrentSessionInfo(replayId, path: sessionDocs.path, options: replayOptions)
+        }
     }
     
     private func createReplayMaker(outputPath: String, fullSession: Bool) -> SentryOnDemandReplay {
@@ -244,6 +246,8 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
         replayMaker.bitRate = replayOptions.replayBitRate
         replayMaker.videoScale = replayOptions.sizeScale
         replayMaker.frameRate = Int(replayOptions.frameRate)
+        // The cache should be at least the amount of frames fitting into the session segment duration
+        // plus one frame to ensure that the last frame is not dropped.
         let duration = Int(fullSession ? replayOptions.sessionSegmentDuration : replayOptions.errorReplayDuration)
         replayMaker.cacheMaxSize = UInt((duration * Int(replayOptions.frameRate)) + 1)
         return replayMaker
@@ -260,28 +264,24 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
         notificationCenter.removeObserver(self, name: UIApplication.didEnterBackgroundNotification, object: nil)
         notificationCenter.removeObserver(self, name: UIApplication.willEnterForegroundNotification, object: nil)
     }
-    
-    // MARK: - Public API for Testing
-    func replayDirectory() -> URL? { replayFileManager.replayDirectory() }
-    func moveCurrentReplay() { replayFileManager.moveCurrentReplay() }
 
-    // MARK: - Pause/Resume
+    // MARK: - API Exposed to ObjC
+    
     @objc public func pause() {
         SentrySDKLog.debug("[Session Replay] Pausing session")
-        sessionReplay?.pause() 
+        sessionReplay?.pause()
     }
+    
     @objc public func resume() {
         SentrySDKLog.debug("[Session Replay] Resuming session")
-        sessionReplay?.resume() 
+        sessionReplay?.resume()
     }
-
-    // MARK: - Public API
 
     @objc public func start() {
         SentrySDKLog.debug("[Session Replay] Starting session")
-        if rateLimited { 
-            SentrySDKLog.debug("[Session Replay] Rate limited, not starting session")
-            return 
+        if rateLimited {
+            SentrySDKLog.warning("[Session Replay] This session was rate limited. Not starting session replay until next app session")
+            return
         }
         if let replay = sessionReplay {
             if !replay.isFullSession {
@@ -382,6 +382,10 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
     
     // MARK: - Test only
 #if SENTRY_TEST || SENTRY_TEST_CI
+    func replayDirectory() -> URL? { replayFileManager.replayDirectory() }
+    
+    func moveCurrentReplay() { replayFileManager.moveCurrentReplay() }
+    
     func getTouchTracker() -> SentryTouchTracker? { touchTracker }
     
     // Helper function to cast SentrySessionReplayIntegration to SentryIntegrationProtocol

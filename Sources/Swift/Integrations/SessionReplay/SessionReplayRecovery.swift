@@ -4,7 +4,7 @@
 import Foundation
 
 /// Configuration for recovering a previous session replay after a crash or app restart.
-struct PreviousReplayConfig {
+private struct PreviousReplayConfig {
     let type: SentryReplayType
     let duration: TimeInterval
     let segmentId: Int
@@ -35,7 +35,12 @@ struct SessionReplayRecovery {
     }
     
     // MARK: - Recovery
-    
+
+    /// Send the cached frames from a previous session that eventually crashed.
+    ///
+    /// This function is called when processing an event created by SentryCrashIntegration,
+    /// which runs in the background. That's why we don't need to dispatch the generation of the
+    /// replay to the background in this function.
     func resumePreviousSessionReplay(_ event: Event) {
         SentrySDKLog.debug("[Session Replay] Resuming previous session replay")
         guard let dir = replayFileManager.replayDirectory(),
@@ -149,11 +154,13 @@ struct SessionReplayRecovery {
 
         SentrySDKLog.debug("[Session Replay] Created replay with \(videos.count) video segments")
 
+        // For each segment we need to create a new event with the video.
         var currentSegmentId = config.segmentId
         var currentType = config.type
         for video in videos {
             captureVideo(video, replayId: replayId, segmentId: currentSegmentId, type: currentType)
             currentSegmentId += 1
+            // type buffer is only for the first segment
             currentType = .session
         }
 
@@ -186,7 +193,7 @@ struct SessionReplayRecovery {
         do {
             try FileManager.default.removeItem(at: video.path)
         } catch {
-            SentrySDKLog.debug("[Session Replay] Could not delete replay segment from disk: \(error.localizedDescription)")
+            SentrySDKLog.warning("[Session Replay] Could not delete replay segment from disk: \(error.localizedDescription)")
         }
         
     }

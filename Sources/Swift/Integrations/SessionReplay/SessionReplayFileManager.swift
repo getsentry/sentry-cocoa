@@ -7,6 +7,12 @@ import Foundation
 // Helps reducing the login in SentrySessionReplayIntegration
 struct SessionReplayFileManager {
     
+    private enum Constants {
+        static let replayFolder = "replay"
+        static let currentReplay = "replay.current"
+        static let lastReplay = "replay.last"
+    }
+    
     private let fileManager: SentryFileManager?
     private let sharedDispatchQueue: SentryDispatchQueueWrapper
     
@@ -19,7 +25,7 @@ struct SessionReplayFileManager {
     
     func replayDirectory() -> URL? {
         guard let sentryPath = fileManager?.sentryPath else { return nil }
-        return URL(fileURLWithPath: sentryPath).appendingPathComponent("replay")
+        return URL(fileURLWithPath: sentryPath).appendingPathComponent(Constants.replayFolder)
     }
     
     // MARK: - Session Info
@@ -38,18 +44,21 @@ struct SessionReplayFileManager {
             return
         }
 
-        let infoPath = ((path as NSString).deletingLastPathComponent as NSString).appendingPathComponent("replay.current")
+        let infoPath = ((path as NSString).deletingLastPathComponent as NSString).appendingPathComponent(Constants.currentReplay)
         removeFileIfExists(atPath: infoPath)
-        try? data.write(to: URL(fileURLWithPath: infoPath), options: .atomic)
-
-        SentrySDKLog.debug("[Session Replay] Saved current session info at path: \(infoPath)")
+        do {
+            try data.write(to: URL(fileURLWithPath: infoPath), options: .atomic)
+            SentrySDKLog.debug("[Session Replay] Saved current session info at path: \(infoPath)")
+        } catch {
+            SentrySDKLog.error("[Session Replay] Failed to write session info to path: \(infoPath), error: \(error)")
+        }
         let crashInfoPath = (path as NSString).appendingPathComponent("crashInfo")
         sentrySessionReplaySync_start(crashInfoPath)
     }
     
     func lastReplayInfo() -> [String: Any]? {
         guard let dir = replayDirectory() else { return nil }
-        let lastReplayUrl = dir.appendingPathComponent("replay.last")
+        let lastReplayUrl = dir.appendingPathComponent(Constants.lastReplay)
         guard let lastReplay = try? Data(contentsOf: lastReplayUrl) else {
             SentrySDKLog.debug("[Session Replay] No last replay info found")
             return nil
@@ -70,13 +79,18 @@ struct SessionReplayFileManager {
 
         if !FileManager.default.fileExists(atPath: sessionDocs.path) {
             SentrySDKLog.debug("[Session Replay] Creating directory at path: \(sessionDocs.path)")
-            try? FileManager.default.createDirectory(
-                at: sessionDocs,
-                withIntermediateDirectories: true,
-                attributes: nil
-            )
+            do {
+                try FileManager.default.createDirectory(
+                    at: sessionDocs,
+                    withIntermediateDirectories: true,
+                    attributes: nil
+                )
+            } catch {
+                SentrySDKLog.error("[Session Replay] Failed to create directory at path: \(sessionDocs.path), error: \(error)")
+                return nil
+            }
         }
-        
+
         return sessionDocs
     }
     
@@ -86,8 +100,8 @@ struct SessionReplayFileManager {
         SentrySDKLog.debug("[Session Replay] Moving current replay")
         guard let path = replayDirectory() else { return }
 
-        let current = path.appendingPathComponent("replay.current")
-        let last = path.appendingPathComponent("replay.last")
+        let current = path.appendingPathComponent(Constants.currentReplay)
+        let last = path.appendingPathComponent(Constants.lastReplay)
 
         removeFileIfExists(at: last)
         moveFileIfExists(from: current, to: last)
@@ -100,6 +114,8 @@ struct SessionReplayFileManager {
         guard let replayDir = replayDirectory(), let fileManager = fileManager else { return }
 
         let lastReplayFolder = lastReplayInfo()?["path"] as? String
+        // Mapping replay folder here and not in dispatched queue to prevent a race condition between
+        // listing files and creating a new replay session.
         let replayFiles = fileManager.allFilesInFolder(replayDir.path)
 
         guard !replayFiles.isEmpty else {
@@ -119,11 +135,13 @@ struct SessionReplayFileManager {
         fileManager: SentryFileManager
     ) {
         for file in files {
+            // Skip the last replay folder.
             if file == lastFolder {
                 SentrySDKLog.debug("[Session Replay] Skipping last replay folder: \(file)")
                 continue
             }
 
+            // Check if the file is a directory before deleting it.
             let filePath = (directory.path as NSString).appendingPathComponent(file)
             if fileManager.isDirectory(filePath) {
                 SentrySDKLog.debug("[Session Replay] Removing replay directory at path: \(filePath)")
@@ -137,7 +155,11 @@ struct SessionReplayFileManager {
     func removeFileIfExists(atPath path: String) {
         guard FileManager.default.fileExists(atPath: path) else { return }
         SentrySDKLog.debug("[Session Replay] Removing file at path: \(path)")
-        try? FileManager.default.removeItem(atPath: path)
+        do {
+            try FileManager.default.removeItem(atPath: path)
+        } catch {
+            SentrySDKLog.error("[Session Replay] Failed to remove file at path: \(path), error: \(error)")
+        }
     }
     
     func removeFileIfExists(at url: URL) {
@@ -146,7 +168,11 @@ struct SessionReplayFileManager {
             return
         }
         SentrySDKLog.debug("[Session Replay] Removing file at path: \(url)")
-        try? FileManager.default.removeItem(at: url)
+        do {
+            try FileManager.default.removeItem(at: url)
+        } catch {
+            SentrySDKLog.error("[Session Replay] Failed to remove file at path: \(url), error: \(error)")
+        }
     }
     
     private func moveFileIfExists(from source: URL, to destination: URL) {
@@ -155,7 +181,11 @@ struct SessionReplayFileManager {
             return
         }
         SentrySDKLog.debug("[Session Replay] Moving file from: \(source) to: \(destination)")
-        try? FileManager.default.moveItem(at: source, to: destination)
+        do {
+            try FileManager.default.moveItem(at: source, to: destination)
+        } catch {
+            SentrySDKLog.error("[Session Replay] Failed to move file from: \(source) to: \(destination), error: \(error)")
+        }
     }
 }
 
