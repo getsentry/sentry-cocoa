@@ -31,10 +31,22 @@ jobs:
           token: ${{ github.token }}
           filters: .github/file-filters.yml
 
+  skip-size-analysis-for-non-contributors:
+    name: Skip Size Analysis for Non-Contributors
+    runs-on: ubuntu-latest
+    needs: files-changed
+    if: github.event_name == 'pull_request' && needs.files-changed.outputs.run_size_analysis_for_prs == 'true' && !contains(fromJson('["OWNER", "MEMBER", "COLLABORATOR", "CONTRIBUTOR"]'), github.event.pull_request.author_association)
+    steps:
+      - name: Skip Size Analysis for Non-Contributors
+        run: |
+          echo "Skipping size analysis for non-contributors"
+          exit 0
+
   build:
     name: Build and Analyze SDK Size
     runs-on: macos-26
-    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_size_analysis_for_prs == 'true'
+    # Run the job only for PRs with related changes (from contributors) or non-PR events.
+    if: github.event_name != 'pull_request' || (needs.files-changed.outputs.run_size_analysis_for_prs == 'true' && contains(fromJson('["OWNER", "MEMBER", "COLLABORATOR", "CONTRIBUTOR"]'), github.event.pull_request.author_association))
     needs: files-changed
     timeout-minutes: 20
     steps:
@@ -45,7 +57,7 @@ jobs:
         run: ./scripts/ci-select-xcode.sh 26.1.1
 
       - name: Setup Ruby
-        uses: ruby/setup-ruby@d354de180d0c9e813cfddfcbdc079945d4be589b # v1.275.0
+        uses: ruby/setup-ruby@b90be12699fdfcbee4440c2bba85f6f460446bb0 # v1.279.0
         with:
           bundler-cache: true
 
@@ -80,6 +92,7 @@ jobs:
         ready-to-merge-gate,
         files-changed,
         build,
+        skip-size-analysis-for-non-contributors,
       ]
     name: Size Analysis
     # This is necessary since a failed/skipped dependent job would cause this job to be skipped

@@ -8,7 +8,6 @@
 #import "SentryMeta.h"
 #import "SentryOptionsInternal.h"
 #import "SentryProfileCollector.h"
-#import "SentryPropagationContext.h"
 #import "SentrySDK+Private.h"
 #import "SentrySerialization.h"
 #import "SentrySwift.h"

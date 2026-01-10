@@ -1424,7 +1424,7 @@ class SentryHubTests: XCTestCase {
         let integration = EmptyIntegration()
         sut.addInstalledIntegration(integration, name: "EmptyIntegration")
         
-        XCTAssertNil(sut.getInstalledIntegration(SentryANRTrackingIntegration.self))
+        XCTAssertNil(sut.getInstalledIntegration(SentryHangTrackerIntegrationObjC.self))
     }
     
     func testEventContainsOnlyHandledErrors() {

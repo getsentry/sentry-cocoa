@@ -27,6 +27,7 @@
 #import "SentryIntegrationProtocol.h"
 #import "SentryNSDataUtils.h"
 #import "SentrySDK+Private.h"
+#import "SentryScope+Private.h"
 #import "SentrySessionReplaySyncC.h"
 #import "SentryTime.h"
 #import "SentryUserAccess.h"
