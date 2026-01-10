@@ -262,7 +262,7 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
     
     private func removeBackgroundForegroundObservers() {
         notificationCenter.removeObserver(self, name: UIApplication.didEnterBackgroundNotification, object: nil)
-        notificationCenter.removeObserver(self, name: UIApplication.willEnterForegroundNotification, object: nil)
+        notificationCenter.removeObserver(self, name: UIApplication.didBecomeActiveNotification, object: nil)
     }
 
     // MARK: - API Exposed to ObjC

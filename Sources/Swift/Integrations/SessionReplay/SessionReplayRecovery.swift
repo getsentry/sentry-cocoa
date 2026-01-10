@@ -69,8 +69,12 @@ struct SessionReplayRecovery {
             event: event
         )
 
-        try? FileManager.default.removeItem(at: lastReplayURL)
-        SentrySDKLog.debug("[Session Replay] Deleted last replay file at path: \(lastReplayURL)")
+        do {
+            try FileManager.default.removeItem(at: lastReplayURL)
+            SentrySDKLog.debug("[Session Replay] Deleted last replay file at path: \(lastReplayURL)")
+        } catch {
+            SentrySDKLog.warning("[Session Replay] Could not delete last replay file at path: \(lastReplayURL), error : \(error.localizedDescription)")
+        }
     }
     
     // MARK: - Parsing
@@ -195,7 +199,6 @@ struct SessionReplayRecovery {
         } catch {
             SentrySDKLog.warning("[Session Replay] Could not delete replay segment from disk: \(error.localizedDescription)")
         }
-        
     }
 }
 
