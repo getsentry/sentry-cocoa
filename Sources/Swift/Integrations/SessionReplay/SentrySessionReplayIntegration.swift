@@ -192,7 +192,7 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
     }
 
     private func runReplayForAvailableWindow() {
-        if application?.getWindows()?.count ?? 0 > 0 {
+        if let windowCount = application?.getWindows()?.count, windowCount > 0 {
             SentrySDKLog.debug("[Session Replay] Running replay for available window")
             // If a window its already available start replay right away
             startWithOptions(replayOptions, experimentalOptions: experimentalOptions, fullSession: startedAsFullSession)
