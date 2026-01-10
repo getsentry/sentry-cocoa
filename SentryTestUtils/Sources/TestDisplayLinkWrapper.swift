@@ -146,7 +146,3 @@ public enum FrameRate: UInt64 {
 }
 
 #endif
-
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-extension TestDisplayLinkWrapper: SentryReplayDisplayLinkWrapper {}
-#endif
