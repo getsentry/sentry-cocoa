@@ -244,10 +244,6 @@ extension SentryDependencyContainer: ScreenshotSourceProvider { }
 
 extension SentryDependencyContainer: AutoSessionTrackingProvider { }
 
-#if ((os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT) || os(macOS)
-extension SentryDependencyContainer: NotificationCenterProvider { }
-#endif
-
 #if (os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)) && !SENTRY_NO_UIKIT
 protocol ScreenshotIntegrationProvider {
     var screenshotSource: SentryScreenshotSource? { get }
@@ -285,6 +281,11 @@ protocol FileManagerProvider {
     var fileManager: SentryFileManager? { get }
 }
 extension SentryDependencyContainer: FileManagerProvider { }
+
+protocol NotificationCenterProvider {
+    var notificationCenterWrapper: SentryNSNotificationCenterWrapper { get }
+}
+extension SentryDependencyContainer: NotificationCenterProvider { }
 
 protocol ANRTrackerBuilder {
     func getANRTracker(_ interval: TimeInterval) -> SentryANRTracker

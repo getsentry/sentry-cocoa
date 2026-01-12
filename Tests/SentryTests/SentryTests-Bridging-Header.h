@@ -46,8 +46,6 @@
 #import "SentryAppStartTrackingIntegration.h"
 #import "SentryArray.h"
 #import "SentryAttachment+Private.h"
-#import "SentryAutoBreadcrumbTrackingIntegration+Test.h"
-#import "SentryAutoBreadcrumbTrackingIntegration.h"
 #import "SentryBooleanSerialization.h"
 #import "SentryBreadcrumb+Private.h"
 #import "SentryBreadcrumbDelegate.h"
