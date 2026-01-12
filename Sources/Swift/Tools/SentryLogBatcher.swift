@@ -106,9 +106,8 @@ import Foundation
     }
 
     /// Captures batched logs sync and returns the duration.
-    @discardableResult
-    @_spi(Private) @objc public func captureLogs() -> TimeInterval {
-        return batcher.capture()
+    @_spi(Private) @objc public func captureLogs() {
+        batcher.capture()
     }
 }
 
