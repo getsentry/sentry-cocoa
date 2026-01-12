@@ -39,9 +39,9 @@ final class SentryLogHandlerTests: XCTestCase {
         XCTAssertEqual(log.attributes["sentry.origin"]?.value as? String, "auto.logging.swift-log")
         XCTAssertEqual(log.attributes["swift-log.level"]?.value as? String, "info")
         XCTAssertEqual(log.attributes["swift-log.source"]?.value as? String, "test")
-        XCTAssertEqual(log.attributes["swift-log.file"]?.value as? String, "TestFile.swift")
-        XCTAssertEqual(log.attributes["swift-log.function"]?.value as? String, "testFunction")
-        XCTAssertEqual(log.attributes["swift-log.line"]?.value as? String, "42")
+        XCTAssertEqual(log.attributes["code.file.path"]?.value as? String, "TestFile.swift")
+        XCTAssertEqual(log.attributes["code.function.name"]?.value as? String, "testFunction")
+        XCTAssertEqual(log.attributes["code.line.number"]?.value as? Int, 42)
     }
     
     func testLog_WithErrorLevel() throws {
