@@ -159,7 +159,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     }
     
     private var _viewHierarchyProvider: SentryViewHierarchyProvider?
-    @objc public lazy var viewHierarchyProvider = getLazyVar(\._viewHierarchyProvider) {
+    @objc public lazy var viewHierarchyProvider: SentryViewHierarchyProvider? = getOptionalLazyVar(\._viewHierarchyProvider) {
         SentryViewHierarchyProvider(dispatchQueueWrapper: dispatchQueueWrapper, applicationProvider: defaultApplicationProvider)
     }
     
@@ -254,6 +254,12 @@ protocol ScreenshotIntegrationProvider {
 }
 
 extension SentryDependencyContainer: ScreenshotIntegrationProvider { }
+
+protocol ViewHierarchyIntegrationProvider {
+    var viewHierarchyProvider: SentryViewHierarchyProvider? { get }
+}
+
+extension SentryDependencyContainer: ViewHierarchyIntegrationProvider { }
 #endif
 
 protocol DispatchQueueWrapperProvider {

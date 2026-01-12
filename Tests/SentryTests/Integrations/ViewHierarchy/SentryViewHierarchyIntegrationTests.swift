@@ -9,16 +9,19 @@ class SentryViewHierarchyIntegrationTests: XCTestCase {
 
     private class Fixture {
         let viewHierarchyProvider: TestSentryViewHierarchyProvider
+        let defaultOptions: Options
 
         init() {
             let testViewHierarchy = TestSentryViewHierarchyProvider(dispatchQueueWrapper: TestSentryDispatchQueueWrapper(), applicationProvider: { TestSentryUIApplication() })
             testViewHierarchy.result = Data("view hierarchy".utf8)
             viewHierarchyProvider = testViewHierarchy
+            
+            defaultOptions = Options()
+            defaultOptions.attachViewHierarchy = true
         }
 
-        func getSut() -> SentryViewHierarchyIntegration {
-            let result = SentryViewHierarchyIntegration()
-            return result
+        func getSut(options: Options? = nil) throws -> SentryViewHierarchyIntegration<SentryDependencyContainer> {
+            return try XCTUnwrap(SentryViewHierarchyIntegration(with: options ?? defaultOptions, dependencies: SentryDependencyContainer.sharedInstance()))
         }
     }
 
@@ -73,8 +76,11 @@ class SentryViewHierarchyIntegrationTests: XCTestCase {
         XCTAssertEqual("/test/path/view-hierarchy.json", fixture.viewHierarchyProvider.saveFilePathUsed)
     }
 
-    func test_processAttachments() {
-        let sut = fixture.getSut()
+    func test_processAttachments() throws {
+        let sut = try fixture.getSut()
+        defer {
+            sut.uninstall()
+        }
         let event = Event(error: NSError(domain: "", code: -1))
 
         let newAttachmentList = sut.processAttachments([], for: event)
@@ -84,8 +90,11 @@ class SentryViewHierarchyIntegrationTests: XCTestCase {
         XCTAssertEqual(newAttachmentList.first?.attachmentType, .viewHierarchy)
     }
 
-    func test_noViewHierarchy_attachment() {
-        let sut = fixture.getSut()
+    func test_noViewHierarchy_attachment() throws {
+        let sut = try fixture.getSut()
+        defer {
+            sut.uninstall()
+        }
         let event = Event()
 
         let newAttachmentList = sut.processAttachments([], for: event)
@@ -93,8 +102,11 @@ class SentryViewHierarchyIntegrationTests: XCTestCase {
         XCTAssertEqual(newAttachmentList.count, 0)
     }
 
-    func test_noViewHierarchy_FatalEvent() {
-        let sut = fixture.getSut()
+    func test_noViewHierarchy_FatalEvent() throws {
+        let sut = try fixture.getSut()
+        defer {
+            sut.uninstall()
+        }
         let event = Event(error: NSError(domain: "", code: -1))
         event.isFatalEvent = true
 
@@ -104,8 +116,11 @@ class SentryViewHierarchyIntegrationTests: XCTestCase {
     }
 
 #if os(iOS) || targetEnvironment(macCatalyst)
-    func test_noViewHierarchy_MetricKitEvent() {
-        let sut = fixture.getSut()
+    func test_noViewHierarchy_MetricKitEvent() throws {
+        let sut = try fixture.getSut()
+        defer {
+            sut.uninstall()
+        }
         
         let newAttachmentList = sut.processAttachments([], for: TestData.metricKitEvent)
 
@@ -113,9 +128,7 @@ class SentryViewHierarchyIntegrationTests: XCTestCase {
     }
 #endif // os(iOS) || targetEnvironment(macCatalyst)
     
-    func test_noViewHierarchy_WhenDiscardedInCallback() {
-        let sut = fixture.getSut()
-
+    func test_noViewHierarchy_WhenDiscardedInCallback() throws {
         let expectation = expectation(description: "BeforeCaptureViewHierarchy must be called.")
 
         let options = Options()
@@ -125,7 +138,10 @@ class SentryViewHierarchyIntegrationTests: XCTestCase {
             return false
         }
 
-        sut.install(with: options)
+        let sut = try fixture.getSut(options: options)
+        defer {
+            sut.uninstall()
+        }
 
         let newAttachmentList = sut.processAttachments([], for: Event(error: NSError(domain: "", code: -1)))
 
@@ -134,8 +150,11 @@ class SentryViewHierarchyIntegrationTests: XCTestCase {
         XCTAssertEqual(newAttachmentList.count, 0)
     }
 
-    func test_noViewHierarchy_keepAttachment() {
-        let sut = fixture.getSut()
+    func test_noViewHierarchy_keepAttachment() throws {
+        let sut = try fixture.getSut()
+        defer {
+            sut.uninstall()
+        }
         let event = Event()
 
         let attachment = Attachment(data: Data(), filename: "Some Attachment")
@@ -146,8 +165,11 @@ class SentryViewHierarchyIntegrationTests: XCTestCase {
         XCTAssertEqual(newAttachmentList.first, attachment)
     }
     
-    func test_backgroundForAppHangs() {
-        let sut = fixture.getSut()
+    func test_backgroundForAppHangs() throws {
+        let sut = try fixture.getSut()
+        defer {
+            sut.uninstall()
+        }
         let testVH = TestSentryViewHierarchyProvider(dispatchQueueWrapper: TestSentryDispatchQueueWrapper(), applicationProvider: { TestSentryUIApplication() })
         SentryDependencyContainer.sharedInstance().viewHierarchyProvider = testVH
 
@@ -174,7 +196,7 @@ class SentryViewHierarchyIntegrationTests: XCTestCase {
             $0.removeAllIntegrations()
             $0.attachViewHierarchy = true
         }
-        XCTAssertTrue(SentryDependencyContainer.sharedInstance().viewHierarchyProvider.reportAccessibilityIdentifier)
+        XCTAssertTrue(try XCTUnwrap(SentryDependencyContainer.sharedInstance().viewHierarchyProvider?.reportAccessibilityIdentifier))
     }
     
     func testReportAccessibilityIdentifierFalse() {
@@ -183,7 +205,7 @@ class SentryViewHierarchyIntegrationTests: XCTestCase {
             $0.attachViewHierarchy = true
             $0.reportAccessibilityIdentifier = false
         }
-        XCTAssertFalse(SentryDependencyContainer.sharedInstance().viewHierarchyProvider.reportAccessibilityIdentifier)
+        XCTAssertFalse(try XCTUnwrap(SentryDependencyContainer.sharedInstance().viewHierarchyProvider?.reportAccessibilityIdentifier))
     }
 }
 
