@@ -61,36 +61,83 @@ import Foundation
         dispatchQueue: SentryDispatchQueueWrapper,
         delegate: SentryLogBatcherDelegate
     ) {
-        self.batcher = Batcher(
+        let capturedDataCallback = Self.createCapturedDataCallback(delegate: delegate)
+        
+        do {
+            let crashSafeBuffer = try CrashSafeBatchBuffer<SentryLog>(
+                dataCapacity: maxBufferSizeBytes * 2,
+                itemsCapacity: maxLogCount
+            )
+            self.batcher = Self.createBatcher(
+                options: options,
+                flushTimeout: flushTimeout,
+                maxLogCount: maxLogCount,
+                maxBufferSizeBytes: maxBufferSizeBytes,
+                capturedDataCallback: capturedDataCallback,
+                buffer: crashSafeBuffer,
+                dateProvider: dateProvider,
+                dispatchQueue: dispatchQueue
+            )
+        } catch {
+            SentrySDKLog.warning("SentryLogBatcher: Could not init crash safe storage, falling back to in-memory buffer. Error: \(error)")
+            let inMemoryBuffer = InMemoryBatchBuffer<SentryLog>(
+                dataCapacity: maxBufferSizeBytes,
+                itemsCapacity: maxLogCount
+            )
+            self.batcher = Self.createBatcher(
+                options: options,
+                flushTimeout: flushTimeout,
+                maxLogCount: maxLogCount,
+                maxBufferSizeBytes: maxBufferSizeBytes,
+                capturedDataCallback: capturedDataCallback,
+                buffer: inMemoryBuffer,
+                dateProvider: dateProvider,
+                dispatchQueue: dispatchQueue
+            )
+        }
+        self.options = options
+        self.delegate = delegate
+        super.init()
+    }
+    
+    private static func createCapturedDataCallback(delegate: SentryLogBatcherDelegate) -> (Data, Int) -> Void {
+        return { [weak delegate] data, count in
+            guard let delegate else {
+                SentrySDKLog.debug("SentryLogBatcher: Delegate not set, not capturing logs data.")
+                return
+            }
+            delegate.capture(logsData: data as NSData, count: NSNumber(value: count))
+        }
+    }
+    
+    private static func createBatcher<Buffer: BatchBuffer<SentryLog>>(
+        options: Options,
+        flushTimeout: TimeInterval,
+        maxLogCount: Int,
+        maxBufferSizeBytes: Int,
+        capturedDataCallback: @escaping (Data, Int) -> Void,
+        buffer: Buffer,
+        dateProvider: SentryCurrentDateProvider,
+        dispatchQueue: SentryDispatchQueueWrapper
+    ) -> Batcher<Buffer, SentryLog, Scope> {
+        return Batcher(
             config: .init(
                 sendDefaultPii: options.sendDefaultPii,
                 flushTimeout: flushTimeout,
                 maxItemCount: maxLogCount,
                 maxBufferSizeBytes: maxBufferSizeBytes,
                 beforeSendItem: options.beforeSendLog,
-                capturedDataCallback: { [weak delegate] data, count in
-                    guard let delegate else {
-                        SentrySDKLog.debug("SentryLogBatcher: Delegate not set, not capturing logs data.")
-                        return
-                    }
-                    delegate.capture(logsData: data as NSData, count: NSNumber(value: count))
-                }
+                capturedDataCallback: capturedDataCallback
             ),
             metadata: .init(
                 environment: options.environment,
                 releaseName: options.releaseName,
                 installationId: SentryInstallation.cachedId(withCacheDirectoryPath: options.cacheDirectoryPath)
             ),
-            buffer: InMemoryBatchBuffer(
-                dataCapacity: maxBufferSizeBytes,
-                itemsCapacity: maxLogCount
-            ),
+            buffer: buffer,
             dateProvider: dateProvider,
             dispatchQueue: dispatchQueue
         )
-        self.options = options
-        self.delegate = delegate
-        super.init()
     }
 
     /// Adds a log to the batcher.

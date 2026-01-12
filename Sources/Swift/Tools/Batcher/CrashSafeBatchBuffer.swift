@@ -13,9 +13,15 @@ enum CrashSafeBatchBufferError: Error {
 ///
 /// - Important: Only one `CrashSafeBatchBuffer` should be active at a time.
 ///              Creating a new instance will destroy any previously created buffer.
-final class CrashSafeBatchBuffer {
+final class CrashSafeBatchBuffer<Item: Encodable>: BatchBuffer {
     
     let lock = NSLock()
+    
+    private let encoder: JSONEncoder = {
+        let encoder = JSONEncoder()
+        encoder.dateEncodingStrategy = .secondsSince1970
+        return encoder
+    }()
     
     /// Creates a new crash-safe batch buffer.
     /// - Parameters:
@@ -31,23 +37,26 @@ final class CrashSafeBatchBuffer {
         sentrycrash_logSync_stop()
     }
     
-    /// Adds raw data to the buffer.
-    /// - Parameter data: The data to add
-    /// - Returns: `true` if the item was successfully added, `false` if the buffer is full
-    func addItem(_ data: Data) -> Bool {
-        guard !data.isEmpty else {
-            return true
+    // MARK: - BatchBuffer Protocol
+    
+    func append(_ item: Item) throws {
+        let encoded = try encoder.encode(item)
+        guard !encoded.isEmpty else {
+            return
         }
-        return lock.synchronized {
+        let success = lock.synchronized {
             guard let buffer = sentrycrash_logSync_getBuffer() else {
                 return false
             }
-            return data.withUnsafeBytes { bytes in
+            return encoded.withUnsafeBytes { bytes in
                 guard let baseAddress = bytes.baseAddress else {
                     return false
                 }
-                return sentry_batch_buffer_add_item(buffer, baseAddress.assumingMemoryBound(to: CChar.self), data.count)
+                return sentry_batch_buffer_add_item(buffer, baseAddress.assumingMemoryBound(to: CChar.self), encoded.count)
             }
+        }
+        if !success {
+            throw BatchBufferError.bufferFull
         }
     }
     
@@ -60,7 +69,7 @@ final class CrashSafeBatchBuffer {
         }
     }
     
-    var itemCount: Int {
+    var itemsCount: Int {
         return lock.synchronized {
             guard let buffer = sentrycrash_logSync_getBuffer() else {
                 return 0
@@ -69,7 +78,7 @@ final class CrashSafeBatchBuffer {
         }
     }
     
-    var dataSize: Int {
+    var itemsDataSize: Int {
         return lock.synchronized {
             guard let buffer = sentrycrash_logSync_getBuffer() else {
                 return 0
@@ -78,13 +87,13 @@ final class CrashSafeBatchBuffer {
         }
     }
     
-    func getAllItems() -> [Data] {
-        return lock.synchronized {
+    var batchedData: Data {
+        let elements: [Data] = lock.synchronized {
             guard let buffer = sentrycrash_logSync_getBuffer() else {
                 return []
             }
             var items: [Data] = []
-            let count = itemCount
+            let count = Int(sentry_batch_buffer_get_item_count(buffer))
             for i in 0..<count {
                 var itemSize: size_t = 0
                 guard let itemData = sentry_batch_buffer_get_item(buffer, i, &itemSize) else {
@@ -94,5 +103,6 @@ final class CrashSafeBatchBuffer {
             }
             return items
         }
+        return Data("{\"items\":[".utf8) + elements.joined(separator: Data(",".utf8)) + Data("]}".utf8)
     }
 }

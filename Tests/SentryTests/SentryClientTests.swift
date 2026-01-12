@@ -2689,10 +2689,9 @@ final class TestLogBatcherForClient: SentryLogBatcher {
         addLogInvocations.record((log, scope))
     }
     
-    @discardableResult
-    override func captureLogs() -> TimeInterval {
+    override func captureLogs() {
         captureLogsInvocations.record(())
-        return super.captureLogs()
+        super.captureLogs()
     }
 }
 
