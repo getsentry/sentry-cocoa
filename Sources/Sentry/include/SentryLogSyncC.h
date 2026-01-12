@@ -15,14 +15,14 @@
  * @note Only one global buffer can exist at a time. Calling this again will destroy the previous
  * buffer.
  */
-bool sentrycrash_logSync_start(size_t data_capacity, size_t items_capacity);
+bool sentryLogSync_start(size_t data_capacity, size_t items_capacity);
 
 /**
  * Destroys the global log buffer and frees all associated memory.
  *
  * @note This function is NOT async-signal-safe.
  */
-void sentrycrash_logSync_stop(void);
+void sentryLogSync_stop(void);
 
 /**
  * Gets the global log buffer pointer.
@@ -31,6 +31,28 @@ void sentrycrash_logSync_stop(void);
  *
  * @note This function is async-signal-safe and can be called from the crash handler.
  */
-SentryBatchBufferC *sentrycrash_logSync_getBuffer(void);
+SentryBatchBufferC *sentryLogSync_getBuffer(void);
+
+/**
+ * Sets the file path where logs will be written on crash.
+ *
+ * @param path The file path to write logs to on crash.
+ *
+ * @note This function is NOT async-signal-safe.
+ */
+void sentryLogSync_setPath(const char *path);
+
+/**
+ * Writes the log buffer contents to the configured file path.
+ * Called from the crash handler to persist logs before the process terminates.
+ *
+ * File format (JSON):
+ * {"items":[<log1>,<log2>,...]}
+ *
+ * Each log item is an already JSON-encoded SentryLog object.
+ *
+ * @note This function uses async-signal-safe file I/O operations.
+ */
+void sentryLogSync_writeToFile(void);
 
 #endif /* SentryLogSyncC_h */

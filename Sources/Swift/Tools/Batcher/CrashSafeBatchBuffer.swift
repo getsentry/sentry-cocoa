@@ -28,13 +28,13 @@ final class CrashSafeBatchBuffer<Item: Encodable>: BatchBuffer {
     ///   - dataCapacity: Maximum capacity in bytes for storing data
     ///   - itemsCapacity: Maximum number of items the buffer can hold
     init(dataCapacity: Int, itemsCapacity: Int) throws {
-        guard sentrycrash_logSync_start(dataCapacity, itemsCapacity) else {
+        guard sentryLogSync_start(dataCapacity, itemsCapacity) else {
             throw CrashSafeBatchBufferError.initializationFailed
         }
     }
     
     deinit {
-        sentrycrash_logSync_stop()
+        sentryLogSync_stop()
     }
     
     // MARK: - BatchBuffer Protocol
@@ -45,7 +45,7 @@ final class CrashSafeBatchBuffer<Item: Encodable>: BatchBuffer {
             return
         }
         let success = lock.synchronized {
-            guard let buffer = sentrycrash_logSync_getBuffer() else {
+            guard let buffer = sentryLogSync_getBuffer() else {
                 return false
             }
             return encoded.withUnsafeBytes { bytes in
@@ -62,7 +62,7 @@ final class CrashSafeBatchBuffer<Item: Encodable>: BatchBuffer {
     
     func clear() {
         lock.synchronized {
-            guard let buffer = sentrycrash_logSync_getBuffer() else {
+            guard let buffer = sentryLogSync_getBuffer() else {
                 return
             }
             sentry_batch_buffer_clear(buffer)
@@ -71,7 +71,7 @@ final class CrashSafeBatchBuffer<Item: Encodable>: BatchBuffer {
     
     var itemsCount: Int {
         return lock.synchronized {
-            guard let buffer = sentrycrash_logSync_getBuffer() else {
+            guard let buffer = sentryLogSync_getBuffer() else {
                 return 0
             }
             return Int(sentry_batch_buffer_get_item_count(buffer))
@@ -80,7 +80,7 @@ final class CrashSafeBatchBuffer<Item: Encodable>: BatchBuffer {
     
     var itemsDataSize: Int {
         return lock.synchronized {
-            guard let buffer = sentrycrash_logSync_getBuffer() else {
+            guard let buffer = sentryLogSync_getBuffer() else {
                 return 0
             }
             return Int(sentry_batch_buffer_get_data_size(buffer))
@@ -89,7 +89,7 @@ final class CrashSafeBatchBuffer<Item: Encodable>: BatchBuffer {
     
     var batchedData: Data {
         let elements: [Data] = lock.synchronized {
-            guard let buffer = sentrycrash_logSync_getBuffer() else {
+            guard let buffer = sentryLogSync_getBuffer() else {
                 return []
             }
             var items: [Data] = []

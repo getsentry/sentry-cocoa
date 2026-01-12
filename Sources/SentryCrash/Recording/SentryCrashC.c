@@ -41,6 +41,7 @@
 
 #include "SentryAsyncSafeLog.h"
 
+#include "SentryLogSyncC.h"
 #include "SentrySessionReplaySyncC.h"
 #include <inttypes.h>
 #include <stdio.h>
@@ -85,6 +86,7 @@ onCrash(struct SentryCrash_MonitorContext *monitorContext)
         strlcpy(g_lastCrashReportFilePath, crashReportFilePath, sizeof(g_lastCrashReportFilePath));
         sentrycrashreport_writeStandardReport(monitorContext, crashReportFilePath);
         sentrySessionReplaySync_writeInfo();
+        sentryLogSync_writeToFile();
     }
 
     // Report is saved to disk, now we try to take screenshots
