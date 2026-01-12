@@ -69,8 +69,7 @@ jobs:
 
     runs-on: macos-15
     steps:
-      - uses: actions/checkout@v6
-
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
       - name: Setup Ruby
         uses: ruby/setup-ruby@b90be12699fdfcbee4440c2bba85f6f460446bb0 # v1.279.0
         if: ${{ inputs.signed }}

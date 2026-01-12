@@ -137,6 +137,12 @@ build-signed-xcframework:
 build-xcframework-sample:
 	xcodebuild -project "Samples/XCFramework-Validation/XCFramework.xcodeproj" -configuration Release CODE_SIGNING_ALLOWED="NO" build
 
+# Removes expectedSignature attributes from XCFramework project for CI builds
+# These attributes are developer-specific and cause issues in CI environments
+strip-xcframework-expected-signature:
+	sed -i '' 's/expectedSignature = "[^"]*"; //g' Samples/XCFramework-Validation/XCFramework.xcodeproj/project.pbxproj
+.PHONY: strip-xcframework-expected-signature
+
 # call this like `make bump-version TO=5.0.0-rc.0`
 bump-version: clean-version-bump
 	@echo "--> Bumping version from ${TO}"

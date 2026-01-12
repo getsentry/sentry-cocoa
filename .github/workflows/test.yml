@@ -38,7 +38,7 @@ jobs:
     outputs:
       run_unit_tests_for_prs: ${{ steps.changes.outputs.run_unit_tests_for_prs }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
       - name: Get changed files
         id: changes
         uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
@@ -52,7 +52,7 @@ jobs:
     needs: files-changed
     runs-on: macos-15
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
       - name: Cache for Test Server
         id: cache_test_server
         uses: actions/cache@v5
@@ -108,7 +108,7 @@ jobs:
     if: startsWith(github.ref, 'refs/heads/release/') == false && (github.event_name != 'pull_request' || needs.files-changed.outputs.run_unit_tests_for_prs == 'true')
     needs: files-changed
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
       - name: Prepare Package.swift
         shell: bash
         run: |
@@ -161,7 +161,7 @@ jobs:
             test-destination-os: "15.0"
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
       - uses: actions/download-artifact@v7
         with:
           name: test-server
@@ -372,11 +372,12 @@ jobs:
 
           # visionOS 26
           - name: visionOS 26 Sentry
-            runs-on: macos-26
+            runs-on: tahoe
             xcode: "26.1.1"
             test-destination-os: "26.1"
             platform: "visionOS"
             scheme: "Sentry"
+            device: "Apple Vision Pro"
             timeout: 30
 
   # This will be replaced once #6945 is merged.

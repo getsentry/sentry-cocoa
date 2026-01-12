@@ -234,7 +234,7 @@ perform_rebinding_with_section(const section_t *dataSection, intptr_t slide, nli
                         SENTRY_ASYNC_SAFE_LOG_TRACE("Restored original __cxa_throw function at %p",
                             (void *)original_function);
                     } else {
-                        SENTRY_ASYNC_SAFE_LOG_WARN("Can't unswap orignal __cxa_throw function for "
+                        SENTRY_ASYNC_SAFE_LOG_WARN("Can't unswap original __cxa_throw function for "
                                                    "image with base address %p",
                             (void *)info.dli_fbase);
                     }
