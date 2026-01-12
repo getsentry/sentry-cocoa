@@ -15,6 +15,7 @@
 - Fix `raw_description` in `runtime` context on Mac Catalyst (#7082)
 - Deprecates `configureDarkTheme` for user feedback (#7114)
 - Fix incorrect variable assignment for 'sampled' key (#7120)
+- [SentryFramesTracker removeListener:] crash ([#7155](https://github.com/getsentry/sentry-cocoa/pull/7155))
 
 ## 9.1.0
 
