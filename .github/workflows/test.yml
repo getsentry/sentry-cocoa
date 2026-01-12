@@ -372,11 +372,12 @@ jobs:
 
           # visionOS 26
           - name: visionOS 26 Sentry
-            runs-on: macos-26
+            runs-on: tahoe
             xcode: "26.1.1"
             test-destination-os: "26.1"
             platform: "visionOS"
             scheme: "Sentry"
+            device: "Apple Vision Pro"
             timeout: 30
 
   # This check validates that either all unit tests passed or were skipped, which allows us
