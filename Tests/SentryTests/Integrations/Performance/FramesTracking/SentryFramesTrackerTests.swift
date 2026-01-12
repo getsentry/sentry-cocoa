@@ -775,6 +775,21 @@ class SentryFramesTrackerTests: XCTestCase {
         XCTAssertEqual(dispatchQueueWrapper.blockOnMainInvocations.count, 1)
     }
 
+    func testListenersAreRemovedInMainThread() {
+        let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
+        let sut = SentryFramesTracker(displayLinkWrapper: fixture.displayLinkWrapper, dateProvider: fixture.dateProvider, dispatchQueueWrapper: dispatchQueueWrapper, notificationCenter: fixture.notificationCenter, delayedFramesTracker: TestDelayedWrapper(keepDelayedFramesDuration: fixture.keepDelayedFramesDuration, dateProvider: fixture.dateProvider))
+        let listener = FrameTrackerListener()
+        
+        sut.addListener(listener)
+        sut.start()
+        
+        XCTAssertEqual(dispatchQueueWrapper.blockOnMainInvocations.count, 1)
+        
+        sut.stop()
+        
+        XCTAssertEqual(dispatchQueueWrapper.blockOnMainInvocations.count, 2)
+    }
+
     func testRemoveListener() {
         let sut = fixture.sut
         let listener = FrameTrackerListener()
