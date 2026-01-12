@@ -1,0 +1,360 @@
+@_implementationOnly import _SentryPrivate
+import Foundation
+
+#if os(iOS) || os(tvOS) || os(visionOS)
+import UIKit
+#endif
+
+// MARK: - C Callback Function
+
+/// Global function to finish and save transaction when a crash occurs.
+/// This function is called from C crash reporting code.
+@_cdecl("sentry_finishAndSaveTransaction")
+public func sentry_finishAndSaveTransaction() {
+    let scope = SentrySDKInternal.currentHub().scope as SentryScope
+    guard let span = scope.getCastedInternalSpan() else {
+        return
+    }
+    span.tracer()?.finishForCrash()
+}
+
+// MARK: - Dependency Provider
+
+/// Provides dependencies for `SentryCrashIntegration`.
+/// Uses existing providers plus app state manager access.
+typealias CrashIntegrationProvider = DispatchQueueWrapperProvider & CrashWrapperProvider
+
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
+protocol AppStateManagerProvider {
+    var appStateManager: SentryAppStateManager { get }
+}
+
+extension SentryDependencyContainer: AppStateManagerProvider { }
+
+typealias CrashIntegrationProviderWithAppState = CrashIntegrationProvider & AppStateManagerProvider
+#endif
+
+// MARK: - Static State
+
+/// Static installation state shared across instances.
+/// SentryCrash installation is a one-time operation per app lifecycle.
+private final class CrashInstallationState {
+    static let shared = CrashInstallationState()
+
+    private let lock = NSLock()
+    private var _installationToken: Int = 0
+    private var _installation: AnyObject?
+
+    var installationToken: UnsafeMutablePointer<Int> {
+        lock.withLock {
+            return withUnsafeMutablePointer(to: &_installationToken) { $0 }
+        }
+    }
+
+    var installation: SentryCrashInstallationReporter? {
+        get { lock.withLock { _installation as? SentryCrashInstallationReporter } }
+        set { lock.withLock { _installation = newValue } }
+    }
+
+    func reset() {
+        lock.withLock {
+            _installation = nil
+            _installationToken = 0
+        }
+    }
+}
+
+// MARK: - Constants
+
+private let localeKey = "locale"
+
+// MARK: - SentryCrashIntegration
+
+final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSObject, SwiftIntegration {
+
+    private weak var options: Options?
+    private let dispatchQueueWrapper: SentryDispatchQueueWrapper
+    private let crashWrapper: SentryCrashWrapper
+    private var sessionHandler: SentryCrashIntegrationSessionHandler?
+    private var scopeObserver: SentryCrashScopeObserver?
+
+    // MARK: - Initialization
+
+    init?(with options: Options, dependencies: Dependencies) {
+        guard options.enableCrashHandler else {
+            SentrySDKLog.debug("Not going to enable \(Self.name) because enableCrashHandler is disabled.")
+            return nil
+        }
+
+        self.options = options
+        self.dispatchQueueWrapper = dependencies.dispatchQueueWrapper
+        self.crashWrapper = dependencies.crashWrapper
+
+        super.init()
+
+        // Create session handler and scope observer
+        // Note: These Objective-C classes will need to be migrated to Swift or properly bridged
+        // For now, create them using the SentryDependencyContainer which has access to them
+        #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
+        if let deps = dependencies as? AppStateManagerProvider {
+            let watchdogLogic = SentryWatchdogTerminationLogic(
+                options: options,
+                crashAdapter: crashWrapper,
+                appStateManager: deps.appStateManager
+            )
+            self.sessionHandler = SentryCrashIntegrationSessionHandler(
+                crashWrapper: crashWrapper,
+                watchdogTerminationLogic: watchdogLogic
+            ) as? SentryCrashIntegrationSessionHandler
+        } else {
+            self.sessionHandler = SentryCrashIntegrationSessionHandler(crashWrapper: crashWrapper) as? SentryCrashIntegrationSessionHandler
+        }
+        #else
+        self.sessionHandler = SentryCrashIntegrationSessionHandler(crashWrapper: crashWrapper) as? SentryCrashIntegrationSessionHandler
+        #endif
+
+        self.scopeObserver = SentryCrashScopeObserver(maxBreadcrumbs: options.maxBreadcrumbs) as? SentryCrashScopeObserver
+
+        guard self.sessionHandler != nil, self.scopeObserver != nil else {
+            SentrySDKLog.warning("Failed to initialize SentryCrashIntegration dependencies")
+            return nil
+        }
+
+        var enableSigtermReporting = false
+        #if !os(watchOS)
+        enableSigtermReporting = options.enableSigtermReporting
+        #endif
+
+        var enableUncaughtNSExceptionReporting = false
+        #if os(macOS)
+        if options.enableSwizzling {
+            enableUncaughtNSExceptionReporting = options.enableUncaughtNSExceptionReporting
+        }
+        #endif
+
+        startCrashHandler(
+            cacheDirectory: options.cacheDirectoryPath,
+            enableSigtermReporting: enableSigtermReporting,
+            enableReportingUncaughtExceptions: enableUncaughtNSExceptionReporting,
+            enableCppExceptionsV2: options.experimental.enableUnhandledCPPExceptionsV2
+        )
+
+        configureScope()
+
+        if options.enablePersistingTracesWhenCrashing {
+            configureTracingWhenCrashing()
+        }
+    }
+
+    /// Internal constructor for testing
+    init(options: Options, crashWrapper: SentryCrashWrapper, dispatchQueueWrapper: SentryDispatchQueueWrapper) {
+        self.options = options
+        self.dispatchQueueWrapper = dispatchQueueWrapper
+        self.crashWrapper = crashWrapper
+
+        super.init()
+
+        // Perform the same setup as the main initializer
+        #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
+        let appStateManager = SentryDependencyContainer.sharedInstance().appStateManager
+        let watchdogLogic = SentryWatchdogTerminationLogic(
+            options: options,
+            crashAdapter: crashWrapper,
+            appStateManager: appStateManager
+        )
+        self.sessionHandler = SentryCrashIntegrationSessionHandler(
+            crashWrapper: crashWrapper,
+            watchdogTerminationLogic: watchdogLogic
+        )
+        #else
+        self.sessionHandler = SentryCrashIntegrationSessionHandler(crashWrapper: crashWrapper)
+        #endif
+
+        self.scopeObserver = SentryCrashScopeObserver(maxBreadcrumbs: Int(options.maxBreadcrumbs))
+
+        var enableSigtermReporting = false
+        #if !os(watchOS)
+        enableSigtermReporting = options.enableSigtermReporting
+        #endif
+
+        var enableUncaughtNSExceptionReporting = false
+        #if os(macOS)
+        if options.enableSwizzling {
+            enableUncaughtNSExceptionReporting = options.enableUncaughtNSExceptionReporting
+        }
+        #endif
+
+        startCrashHandler(
+            cacheDirectory: options.cacheDirectoryPath,
+            enableSigtermReporting: enableSigtermReporting,
+            enableReportingUncaughtExceptions: enableUncaughtNSExceptionReporting,
+            enableCppExceptionsV2: options.experimental.enableUnhandledCPPExceptionsV2
+        )
+
+        configureScope()
+
+        if options.enablePersistingTracesWhenCrashing {
+            configureTracingWhenCrashing()
+        }
+    }
+
+    // MARK: - SwiftIntegration
+
+    static var name: String {
+        "SentryCrashIntegration"
+    }
+
+    func uninstall() {
+        if let installation = CrashInstallationState.shared.installation {
+            installation.uninstall()
+            CrashInstallationState.shared.reset()
+        }
+
+        sentrycrash_setSaveTransaction(nil)
+
+        NotificationCenter.default.removeObserver(
+            self,
+            name: NSLocale.currentLocaleDidChangeNotification,
+            object: nil
+        )
+    }
+
+    // MARK: - Crash Handler
+
+    private func startCrashHandler(
+        cacheDirectory: String,
+        enableSigtermReporting: Bool,
+        enableReportingUncaughtExceptions: Bool,
+        enableCppExceptionsV2: Bool
+    ) {
+        let token = CrashInstallationState.shared.installationToken
+
+        dispatchQueueWrapper.dispatchOnce(token) {
+            var canSendReports = false
+
+            if CrashInstallationState.shared.installation == nil {
+                guard let options = self.options else { return }
+
+                let inAppLogic = SentryInAppLogic(inAppIncludes: options.inAppIncludes)
+
+                let installation = SentryCrashInstallationReporter(
+                    inAppLogic: inAppLogic,
+                    crashWrapper: self.crashWrapper,
+                    dispatchQueue: self.dispatchQueueWrapper
+                )
+
+                CrashInstallationState.shared.installation = installation
+                canSendReports = true
+            }
+
+            sentrycrashcm_setEnableSigtermReporting(enableSigtermReporting)
+
+            CrashInstallationState.shared.installation?.install(cacheDirectory)
+
+            #if os(macOS)
+            if enableReportingUncaughtExceptions {
+                SentryUncaughtNSExceptions.configureCrashOnExceptions()
+                SentryUncaughtNSExceptions.swizzleNSApplicationReportException()
+            }
+            #endif
+
+            if enableCppExceptionsV2 {
+                SentrySDKLog.debug("Enabling CppExceptionsV2 by swapping cxa_throw.")
+                sentrycrashcm_cppexception_enable_swap_cxa_throw()
+            }
+
+            // We need to send the crashed event together with the crashed session in the same envelope
+            // to have proper statistics in release health. To achieve this we need both synchronously
+            // in the hub. The crashed event is converted from a SentryCrashReport to an event in
+            // SentryCrashReportSink and then passed to the SDK on a background thread. This process is
+            // started with installing this integration. We need to end and delete the previous session
+            // before being able to start a new session for the AutoSessionTrackingIntegration. The
+            // SentryCrashIntegration is installed before the AutoSessionTrackingIntegration so there is
+            // no guarantee if the crashed event is created before or after the
+            // AutoSessionTrackingIntegration. By ending the previous session and storing it as crashed
+            // in here we have the guarantee once the crashed event is sent to the hub it is already
+            // there and the AutoSessionTrackingIntegration can work properly.
+            //
+            // This is a pragmatic and not the most optimal place for this logic.
+            self.sessionHandler?.endCurrentSessionIfRequired()
+
+            // We only need to send all reports on the first initialization of SentryCrash. If
+            // SentryCrash was deactivated there are no new reports to send. Furthermore, the
+            // g_reportsPath in SentryCrashReportsStore gets set when SentryCrash is installed. In
+            // production usage, this path is not supposed to change. When testing, this path can
+            // change, and therefore, the initial set g_reportsPath can be deleted. sendAllReports calls
+            // deleteAllReports, which fails it can't access g_reportsPath. We could fix SentryCrash or
+            // just not call sendAllReports as it doesn't make sense to call it twice as described
+            // above.
+            if canSendReports {
+                Self.sendAllSentryCrashReports()
+            }
+        }
+    }
+
+    /// Internal, only needed for testing.
+    @objc static func sendAllSentryCrashReports() {
+        CrashInstallationState.shared.installation?.sendAllReports(completion: nil)
+    }
+
+    // MARK: - Scope Configuration
+
+    private func configureScope() {
+        // We need to make sure to set always the scope to KSCrash so we have it in
+        // case of a crash
+        SentrySDKInternal.currentHub().configureScope { [weak self] outerScope in
+            guard let self = self, let options = self.options else { return }
+
+            var userInfo = outerScope.serialize() as? [String: Any] ?? [:]
+
+            // SentryCrashReportConverter.convertReportToEvent needs the release name and
+            // the dist of the SentryOptions in the UserInfo. When SentryCrash records a
+            // crash it writes the UserInfo into SentryCrashField_User of the report.
+            // SentryCrashReportConverter.initWithReport loads the contents of
+            // SentryCrashField_User into self.userContext and convertReportToEvent can map
+            // the release name and dist to the SentryEvent. Fixes GH-581
+            userInfo["release"] = options.releaseName
+            userInfo["dist"] = options.dist
+
+            // Crashes don't use the attributes field, we remove them to avoid uploading them
+            // unnecessarily.
+            userInfo.removeValue(forKey: "attributes")
+
+            SentryDependencyContainer.sharedInstance().crashReporter.setUserInfo(userInfo as [AnyHashable: Any])
+
+            if let scopeObserver = self.scopeObserver {
+                outerScope.add(scopeObserver)
+            }
+        }
+
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(currentLocaleDidChange),
+            name: NSLocale.currentLocaleDidChangeNotification,
+            object: nil
+        )
+    }
+
+    @objc private func currentLocaleDidChange() {
+        SentrySDKInternal.currentHub().configureScope { scope in
+            var device: [String: Any]
+            if let contextDictionary = scope.contextDictionary,
+               let existingDevice = contextDictionary[SENTRY_CONTEXT_DEVICE_KEY] as? [String: Any] {
+                device = existingDevice
+            } else {
+                device = [:]
+            }
+
+            let locale = Locale.autoupdatingCurrent.identifier
+            device[localeKey] = locale
+
+            scope.setContext(value: device, key: SENTRY_CONTEXT_DEVICE_KEY)
+        }
+    }
+
+    // MARK: - Tracing Configuration
+
+    private func configureTracingWhenCrashing() {
+        sentrycrash_setSaveTransaction(sentry_finishAndSaveTransaction)
+    }
+}

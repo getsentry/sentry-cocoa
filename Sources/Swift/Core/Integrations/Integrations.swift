@@ -37,6 +37,7 @@ private struct AnyIntegration {
 
         var integrations: [AnyIntegration] = [
             .init(SwiftAsyncIntegration.self),
+            .init(SentryCrashIntegration.self),
             .init(SentryAutoSessionTrackingIntegration.self),
             .init(SentryHangTrackerIntegrationObjC.self)
         ]

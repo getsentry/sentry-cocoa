@@ -49,18 +49,18 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
             return session
         }
         
-        func getSut() -> SentryCrashIntegration {
+        func getSut() -> SentryCrashIntegration<SentryDependencyContainer> {
             return getSut(crashWrapper: sentryCrash)
         }
-        
-        func getSut(crashWrapper: SentryCrashWrapper) -> SentryCrashIntegration {
-            return SentryCrashIntegration(crashAdapter: crashWrapper, andDispatchQueueWrapper: dispatchQueueWrapper)
+
+        func getSut(crashWrapper: SentryCrashWrapper) -> SentryCrashIntegration<SentryDependencyContainer> {
+            return SentryCrashIntegration(options: options, crashWrapper: crashWrapper, dispatchQueueWrapper: dispatchQueueWrapper)
         }
-        
-        var sutWithoutCrash: SentryCrashIntegration {
+
+        var sutWithoutCrash: SentryCrashIntegration<SentryDependencyContainer> {
             let crash = sentryCrash
             crash.internalCrashedLastLaunch = false
-            return SentryCrashIntegration(crashAdapter: crash, andDispatchQueueWrapper: dispatchQueueWrapper)
+            return SentryCrashIntegration(options: options, crashWrapper: crash, dispatchQueueWrapper: dispatchQueueWrapper)
         }
     }
 
@@ -130,7 +130,6 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         try advanceTime(bySeconds: 10)
         
         let sut = fixture.getSut()
-        sut.install(with: Options())
         
         assertCrashedSessionStored(expected: expectedCrashedSession)
     }
@@ -146,7 +145,6 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         try advanceTime(bySeconds: 10)
         
         let sut = fixture.sutWithoutCrash
-        sut.install(with: fixture.options)
         
         assertCrashedSessionStored(expected: expectedCrashedSession)
     }
@@ -159,7 +157,6 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         let sut = fixture.sutWithoutCrash
         let options = fixture.options
         options.enableWatchdogTerminationTracking = false
-        sut.install(with: options)
         
         let fileManager = fixture.client.fileManager
         XCTAssertEqual(session, fileManager.readCurrentSession())
@@ -172,8 +169,6 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     func testEndSessionAsCrashed_NoClientSet() {
         let (sut, _) = givenSutWithGlobalHub()
         
-        sut.install(with: Options())
-        
         let fileManager = fixture.client.fileManager
         XCTAssertNil(fileManager.readCurrentSession())
         XCTAssertNil(fileManager.readCrashedSession())
@@ -182,12 +177,11 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     
     func testEndSessionAsCrashed_NoCrashLastLaunch() {
         let session = givenCurrentSession()
-        
+
         let sentryCrash = fixture.sentryCrash
         sentryCrash.internalCrashedLastLaunch = false
-        let sut = SentryCrashIntegration(crashAdapter: sentryCrash, andDispatchQueueWrapper: fixture.dispatchQueueWrapper)
-        sut.install(with: Options())
-        
+        let sut = SentryCrashIntegration(options: fixture.options, crashWrapper: sentryCrash, dispatchQueueWrapper: fixture.dispatchQueueWrapper)
+
         let fileManager = fixture.client.fileManager
         XCTAssertEqual(session, fileManager.readCurrentSession())
         XCTAssertNil(fileManager.readCrashedSession())
@@ -196,8 +190,6 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
 
     func testEndSessionAsCrashed_NoCurrentSession() {
         let (sut, _) = givenSutWithGlobalHub()
-        
-        sut.install(with: Options())
         
         let fileManager = fixture.client.fileManager
         XCTAssertNil(fileManager.readCurrentSession())
@@ -212,10 +204,9 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         // Arrange
         let sentryCrash = fixture.sentryCrash
         sentryCrash.internalCrashedLastLaunch = false
-        let sut = SentryCrashIntegration(crashAdapter: sentryCrash, andDispatchQueueWrapper: fixture.dispatchQueueWrapper)
+        let sut = SentryCrashIntegration(options: fixture.options, crashWrapper: sentryCrash, dispatchQueueWrapper: fixture.dispatchQueueWrapper)
         
         // Act
-        sut.install(with: Options())
         
         // Assert
         let fileManager = fixture.client.fileManager
@@ -229,10 +220,9 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         SentrySDKInternal.setCurrentHub(fixture.hub)
         let sentryCrash = fixture.sentryCrash
         sentryCrash.internalCrashedLastLaunch = false
-        let sut = SentryCrashIntegration(crashAdapter: sentryCrash, andDispatchQueueWrapper: fixture.dispatchQueueWrapper)
+        let sut = SentryCrashIntegration(options: fixture.options, crashWrapper: sentryCrash, dispatchQueueWrapper: fixture.dispatchQueueWrapper)
         
         // Act
-        sut.install(with: Options())
         
         // Assert
         let fileManager = fixture.client.fileManager
@@ -246,12 +236,11 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         SentrySDKInternal.setCurrentHub(fixture.hub)
         let sentryCrash = fixture.sentryCrash
         sentryCrash.internalCrashedLastLaunch = false
-        let sut = SentryCrashIntegration(crashAdapter: sentryCrash, andDispatchQueueWrapper: fixture.dispatchQueueWrapper)
+        let sut = SentryCrashIntegration(options: fixture.options, crashWrapper: sentryCrash, dispatchQueueWrapper: fixture.dispatchQueueWrapper)
         
         let session = givenCurrentSession()
         
         // Act
-        sut.install(with: Options())
         
         // Assert
         let fileManager = fixture.client.fileManager
@@ -272,14 +261,13 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         SentrySDKInternal.setCurrentHub(fixture.hub)
         let sentryCrash = fixture.sentryCrash
         sentryCrash.internalCrashedLastLaunch = false
-        let sut = SentryCrashIntegration(crashAdapter: sentryCrash, andDispatchQueueWrapper: fixture.dispatchQueueWrapper)
+        let sut = SentryCrashIntegration(options: fixture.options, crashWrapper: sentryCrash, dispatchQueueWrapper: fixture.dispatchQueueWrapper)
         
         let session = givenCurrentSession()
         let appHangEvent = Event()
         fileManager.storeAppHang(appHangEvent)
         
         // Act
-        sut.install(with: Options())
         
         // Assert
         XCTAssertEqual(session, fileManager.readCurrentSession())
@@ -292,7 +280,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         SentrySDKInternal.setCurrentHub(fixture.hub)
         let sentryCrash = fixture.sentryCrash
         sentryCrash.internalCrashedLastLaunch = false
-        let sut = SentryCrashIntegration(crashAdapter: sentryCrash, andDispatchQueueWrapper: fixture.dispatchQueueWrapper)
+        let sut = SentryCrashIntegration(options: fixture.options, crashWrapper: sentryCrash, dispatchQueueWrapper: fixture.dispatchQueueWrapper)
         
         let session = givenCurrentSession()
         
@@ -301,7 +289,6 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         fileManager.storeAppHang(appHangEvent)
         
         // Act
-        sut.install(with: Options())
         
         // Assert
         XCTAssertNil(fileManager.readCurrentSession())
@@ -329,7 +316,6 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         
         // Act
         let sut = fixture.getSut()
-        sut.install(with: Options())
         
         // Assert
         assertCrashedSessionStored(expected: expectedCrashedSession)
@@ -340,8 +326,6 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
             
     func testUninstall_DoesNotUpdateLocale_OnLocaleDidChangeNotification() {
         let (sut, hub) = givenSutWithGlobalHubAndCrashWrapper()
-
-        sut.install(with: Options())
 
         let locale = "garbage"
         setLocaleToGlobalScope(locale: locale)
@@ -356,15 +340,11 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     func testOSCorrectlySetToScopeContext() {
         let (sut, hub) = givenSutWithGlobalHubAndCrashWrapper()
         
-        sut.install(with: Options())
-        
         assertContext(context: hub.scope.contextDictionary as? [String: Any] ?? ["": ""])
     }
     
     func testLocaleChanged_NoDeviceContext_SetsCurrentLocale() {
         let (sut, hub) = givenSutWithGlobalHub()
-        
-        sut.install(with: Options())
         
         SentrySDK.configureScope { scope in
             scope.removeContext(key: "device")
@@ -378,8 +358,6 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     func testLocaleChanged_DifferentLocale_SetsCurrentLocale() {
         let (sut, hub) = givenSutWithGlobalHubAndCrashWrapper()
         
-        sut.install(with: Options())
-        
         setLocaleToGlobalScope(locale: "garbage")
         
         localeDidChange()
@@ -389,7 +367,6 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
 
     func testStartUpCrash_CallsFlush() throws {
         let (sut, hub) = givenSutWithGlobalHubAndCrashWrapper()
-        sut.install(with: Options())
         
         // Manually reset and enable the crash state because tearing down the global state in SentryCrash to achieve the same is complicated and doesn't really work.
         let crashStatePath = String(cString: sentrycrashstate_filePath())
@@ -426,69 +403,95 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     
     func testUncaughtExceptions_Enabled() throws {
         defer { resetUserDefaults() }
-        
-        let (sut, _) = givenSutWithGlobalHubAndCrashWrapper()
+
         let options = Options()
+        options.dsn = SentryCrashIntegrationTests.dsnAsString
         options.enableUncaughtNSExceptionReporting = true
-        sut.install(with: options)
-        
+        options.enableSwizzling = true
+        options.enableCrashHandler = true
+
+        #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+        SentryDependencyContainer.sharedInstance().uiDeviceWrapper.start()
+        #endif
+        let hub = fixture.hub
+        SentrySDKInternal.setCurrentHub(hub)
+
+        // Create sut with the options that enable uncaught exception reporting
+        let sut = SentryCrashIntegration(options: options, crashWrapper: SentryDependencyContainer.sharedInstance().crashWrapper, dispatchQueueWrapper: fixture.dispatchQueueWrapper)
+
         XCTAssertTrue(UserDefaults.standard.bool(forKey: "NSApplicationCrashOnExceptions"))
         // We have to set the flat to false, cause otherwise we would crash
         UserDefaults.standard.set(false, forKey: "NSApplicationCrashOnExceptions")
-        
+
         let crashReporter = SentryDependencyContainer.sharedInstance().crashReporter
-        
+
         defer {
             crashReporter.uncaughtExceptionHandler = nil
             wasUncaughtExceptionHandlerCalled = false
         }
         crashReporter.uncaughtExceptionHandler = uncaughtExceptionHandler
-        
+
         NSApplication.shared.reportException(uncaughtInternalInconsistencyException)
         XCTAssertTrue(wasUncaughtExceptionHandlerCalled)
     }
-    
+
     func testUncaughtExceptions_Enabled_ButSwizzlingDisabled() throws {
         defer { resetUserDefaults() }
-        
-        let (sut, _) = givenSutWithGlobalHubAndCrashWrapper()
+
         let options = Options()
+        options.dsn = SentryCrashIntegrationTests.dsnAsString
         options.enableUncaughtNSExceptionReporting = true
         options.enableSwizzling = false
-        sut.install(with: options)
-        
+        options.enableCrashHandler = true
+
+        #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+        SentryDependencyContainer.sharedInstance().uiDeviceWrapper.start()
+        #endif
+        let hub = fixture.hub
+        SentrySDKInternal.setCurrentHub(hub)
+
+        let sut = SentryCrashIntegration(options: options, crashWrapper: SentryDependencyContainer.sharedInstance().crashWrapper, dispatchQueueWrapper: fixture.dispatchQueueWrapper)
+
         XCTAssertFalse(UserDefaults.standard.bool(forKey: "NSApplicationCrashOnExceptions"))
-        
+
         let crashReporter = SentryDependencyContainer.sharedInstance().crashReporter
-        
+
         defer {
             crashReporter.uncaughtExceptionHandler = nil
             wasUncaughtExceptionHandlerCalled = false
         }
         crashReporter.uncaughtExceptionHandler = uncaughtExceptionHandler
-        
+
         NSApplication.shared.reportException(uncaughtInternalInconsistencyException)
         XCTAssertFalse(wasUncaughtExceptionHandlerCalled)
     }
-    
+
     func testUncaughtExceptions_Disabled() {
         defer { resetUserDefaults() }
-        
-        let (sut, _) = givenSutWithGlobalHubAndCrashWrapper()
+
         let options = Options()
+        options.dsn = SentryCrashIntegrationTests.dsnAsString
         options.enableUncaughtNSExceptionReporting = false
-        sut.install(with: options)
-        
+        options.enableCrashHandler = true
+
+        #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+        SentryDependencyContainer.sharedInstance().uiDeviceWrapper.start()
+        #endif
+        let hub = fixture.hub
+        SentrySDKInternal.setCurrentHub(hub)
+
+        let sut = SentryCrashIntegration(options: options, crashWrapper: SentryDependencyContainer.sharedInstance().crashWrapper, dispatchQueueWrapper: fixture.dispatchQueueWrapper)
+
         XCTAssertFalse(UserDefaults.standard.bool(forKey: "NSApplicationCrashOnExceptions"))
-        
+
         let crashReporter = SentryDependencyContainer.sharedInstance().crashReporter
-        
+
         defer {
             crashReporter.uncaughtExceptionHandler = nil
             wasUncaughtExceptionHandlerCalled = false
         }
         crashReporter.uncaughtExceptionHandler = uncaughtExceptionHandler
-        
+
         NSApplication.shared.reportException(uncaughtInternalInconsistencyException)
         XCTAssertFalse(wasUncaughtExceptionHandlerCalled)
     }
@@ -497,13 +500,20 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     func testEnableCppExceptionsV2_SwapsCxaThrow() {
         // Arrange
         defer { sentrycrashct_unswap_cxa_throw() }
-        let (sut, _) = givenSutWithGlobalHubAndCrashWrapper()
 
         let options = Options()
+        options.dsn = SentryCrashIntegrationTests.dsnAsString
         options.experimental.enableUnhandledCPPExceptionsV2 = true
+        options.enableCrashHandler = true
+
+        #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+        SentryDependencyContainer.sharedInstance().uiDeviceWrapper.start()
+        #endif
+        let hub = fixture.hub
+        SentrySDKInternal.setCurrentHub(hub)
 
         // Act
-        sut.install(with: options)
+        let sut = SentryCrashIntegration(options: options, crashWrapper: SentryDependencyContainer.sharedInstance().crashWrapper, dispatchQueueWrapper: fixture.dispatchQueueWrapper)
 
         // Assert
         XCTAssertTrue(sentrycrashct_is_cxa_throw_swapped(), "C++ exception throw handler must be swapped when enableUnhandledCPPExceptionsV2 is true.")
@@ -512,44 +522,75 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     func testCppExceptionsV2NotEnabled_DoesNotSwapCxaThrow() {
         // Arrange
         defer { sentrycrashct_unswap_cxa_throw() }
-        let (sut, _) = givenSutWithGlobalHubAndCrashWrapper()
 
         let options = Options()
+        options.dsn = SentryCrashIntegrationTests.dsnAsString
         options.experimental.enableUnhandledCPPExceptionsV2 = false
+        options.enableCrashHandler = true
+
+        #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+        SentryDependencyContainer.sharedInstance().uiDeviceWrapper.start()
+        #endif
+        let hub = fixture.hub
+        SentrySDKInternal.setCurrentHub(hub)
 
         // Act
-        sut.install(with: options)
+        let sut = SentryCrashIntegration(options: options, crashWrapper: SentryDependencyContainer.sharedInstance().crashWrapper, dispatchQueueWrapper: fixture.dispatchQueueWrapper)
 
         // Assert
         XCTAssertFalse(sentrycrashct_is_cxa_throw_swapped(), "C++ exception throw handler must NOT be swapped when enableUnhandledCPPExceptionsV2 is false.")
     }
 
     func testEnableTracingForCrashes_SetsCallback() throws {
-        let (sut, _) = givenSutWithGlobalHubAndCrashWrapper()
         let options = Options()
+        options.dsn = SentryCrashIntegrationTests.dsnAsString
         options.enablePersistingTracesWhenCrashing = true
-        sut.install(with: options)
-        
+        options.enableCrashHandler = true
+
+        #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+        SentryDependencyContainer.sharedInstance().uiDeviceWrapper.start()
+        #endif
+        let hub = fixture.hub
+        SentrySDKInternal.setCurrentHub(hub)
+
+        let sut = SentryCrashIntegration(options: options, crashWrapper: SentryDependencyContainer.sharedInstance().crashWrapper, dispatchQueueWrapper: fixture.dispatchQueueWrapper)
+
         XCTAssertTrue(sentrycrash_hasSaveTransaction())
     }
-    
+
     func testEnableTracingForCrashes_Uninstall_RemovesCallback() throws {
-        let (sut, _) = givenSutWithGlobalHubAndCrashWrapper()
         let options = Options()
+        options.dsn = SentryCrashIntegrationTests.dsnAsString
         options.enablePersistingTracesWhenCrashing = true
-        sut.install(with: options)
-        
+        options.enableCrashHandler = true
+
+        #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+        SentryDependencyContainer.sharedInstance().uiDeviceWrapper.start()
+        #endif
+        let hub = fixture.hub
+        SentrySDKInternal.setCurrentHub(hub)
+
+        let sut = SentryCrashIntegration(options: options, crashWrapper: SentryDependencyContainer.sharedInstance().crashWrapper, dispatchQueueWrapper: fixture.dispatchQueueWrapper)
+
         sut.uninstall()
-        
+
         XCTAssertFalse(sentrycrash_hasSaveTransaction())
     }
-    
+
     func testEnableTracingForCrashes_Disabled_DoesNotSetCallback() throws {
-        let (sut, _) = givenSutWithGlobalHubAndCrashWrapper()
         let options = Options()
+        options.dsn = SentryCrashIntegrationTests.dsnAsString
         options.enablePersistingTracesWhenCrashing = false
-        sut.install(with: options)
-        
+        options.enableCrashHandler = true
+
+        #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+        SentryDependencyContainer.sharedInstance().uiDeviceWrapper.start()
+        #endif
+        let hub = fixture.hub
+        SentrySDKInternal.setCurrentHub(hub)
+
+        let sut = SentryCrashIntegration(options: options, crashWrapper: SentryDependencyContainer.sharedInstance().crashWrapper, dispatchQueueWrapper: fixture.dispatchQueueWrapper)
+
         XCTAssertFalse(sentrycrash_hasSaveTransaction())
     }
     
@@ -563,7 +604,6 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         SentrySDKInternal.setCurrentHub(hub)
         
         let sut = fixture.getSut(crashWrapper: SentryDependencyContainer.sharedInstance().crashWrapper)
-        sut.install(with: options)
         
         let transaction = SentrySDK.startTransaction(name: "Crashing", operation: "Operation", bindToScope: true)
         
@@ -588,7 +628,6 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         SentrySDKInternal.setCurrentHub(hub)
         
         let sut = fixture.getSut(crashWrapper: SentryDependencyContainer.sharedInstance().crashWrapper)
-        sut.install(with: options)
         
         let transaction = SentrySDK.startTransaction(name: "name", operation: "operation", bindToScope: true)
         SentrySDKInternal.currentHub().scope.span = nil
@@ -609,7 +648,6 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         SentrySDKInternal.setCurrentHub(hub)
         
         let sut = fixture.getSut(crashWrapper: SentryDependencyContainer.sharedInstance().crashWrapper)
-        sut.install(with: options)
         
         let transaction = SentrySDK.startTransaction(name: "name", operation: "operation", bindToScope: true)
         let span = transaction.startChild(operation: "child")
@@ -639,10 +677,8 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         
         // UserInfo is set when installing the integration, so let's manually install it again to use the new scope values
         let sentryCrash = fixture.sentryCrash
-        let sut = SentryCrashIntegration(crashAdapter: sentryCrash, andDispatchQueueWrapper: fixture.dispatchQueueWrapper)
+        let sut = SentryCrashIntegration(options: fixture.options, crashWrapper: sentryCrash, dispatchQueueWrapper: fixture.dispatchQueueWrapper)
         
-        sut.install(with: Options())
-
         let userInfo = try XCTUnwrap(SentryDependencyContainer.sharedInstance().crashReporter.userInfo)
         // Double check the environment just set is in the user info
         assertUserInfoField(userInfo: userInfo, key: "environment", expected: "test-attributes")
