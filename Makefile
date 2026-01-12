@@ -448,6 +448,14 @@ generate-public-api:
 # VERSION MANAGEMENT
 # ============================================================================
 
+## Remove expectedSignature attributes from XCFramework project
+#
+# Removes expectedSignature attributes from XCFramework project for CI builds.
+# These attributes are developer-specific and cause issues in CI environments.
+.PHONY: strip-xcframework-expected-signature
+strip-xcframework-expected-signature:
+	sed -i '' 's/expectedSignature = "[^"]*"; //g' Samples/XCFramework-Validation/XCFramework.xcodeproj/project.pbxproj
+
 ## Bump version to specified version
 #
 # Updates the version across all project files.
