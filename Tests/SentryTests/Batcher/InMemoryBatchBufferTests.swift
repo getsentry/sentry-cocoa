@@ -467,9 +467,10 @@ final class InMemoryBatchBufferTests: XCTestCase {
         let element = TestElementWithSize(id: 1, size: elementSize)
         let encoded = try JSONEncoder().encode(element)
         
-        // Verify the encoded size is what we expect (slightly over dataCapacity)
+        // Verify the encoded size is what we expect (larger than dataCapacity, up to double)
+        // The buffer is created with dataCapacity * 2, so anything <= double should succeed
         XCTAssertGreaterThan(encoded.count, dataCapacity)
-        XCTAssertLessThan(encoded.count, dataCapacity * 2)
+        XCTAssertLessThanOrEqual(encoded.count, dataCapacity * 2)
         
         // -- Act --
         try sut.append(element)
@@ -477,7 +478,7 @@ final class InMemoryBatchBufferTests: XCTestCase {
         // -- Assert --
         XCTAssertEqual(sut.itemsCount, 1)
         XCTAssertGreaterThan(sut.itemsDataSize, dataCapacity)
-        XCTAssertLessThan(sut.itemsDataSize, dataCapacity * 2)
+        XCTAssertLessThanOrEqual(sut.itemsDataSize, dataCapacity * 2)
     }
 
     func testAppend_whenGreaterDoubleDataCapacity_shouldThrowBufferFull() throws {
