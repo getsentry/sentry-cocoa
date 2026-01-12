@@ -69,7 +69,7 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_DEADLINE = 30.0;
 @end
 
 @implementation SentryTracer {
-    /** Wether the tracer should wait for child spans to finish before finishing itself. */
+    /** Whether the tracer should wait for child spans to finish before finishing itself. */
     SentryTraceContext *_traceContext;
 
 #if SENTRY_HAS_UIKIT

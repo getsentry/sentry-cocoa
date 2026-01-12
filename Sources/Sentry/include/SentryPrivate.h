@@ -27,6 +27,7 @@
 #import "SentryNSDataUtils.h"
 #import "SentryNetworkTracker.h"
 #import "SentrySDK+Private.h"
+#import "SentryScope+Private.h"
 #import "SentrySwizzleWrapperHelper.h"
 #import "SentryTime.h"
 #import "SentryUserAccess.h"

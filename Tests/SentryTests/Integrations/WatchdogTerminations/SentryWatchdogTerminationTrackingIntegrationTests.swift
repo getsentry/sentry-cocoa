@@ -229,7 +229,7 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         fixture.scope.distString = "dist-124"
         fixture.scope.environmentString = "test"
         fixture.scope.tagDictionary = ["tag1": "value1", "tag2": "value2"]
-        fixture.scope.propagationContext = SentryPropagationContext(trace: SentryId(uuidString: "12345678123456781234567812345678"), spanId: SpanId(value: "1234567812345678"))
+        fixture.scope.propagationContext = SentryPropagationContext(traceId: SentryId(uuidString: "12345678123456781234567812345678"), spanId: SpanId(value: "1234567812345678"))
         fixture.scope.extraDictionary = ["key": "value"]
         fixture.scope.fingerprintArray = ["fingerprint1", "fingerprint2"]
 

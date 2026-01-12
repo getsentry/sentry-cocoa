@@ -65,8 +65,7 @@ jobs:
         sdk: ${{ fromJson(inputs.sdk-list) }}
 
     steps:
-      - uses: actions/checkout@v6
-
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
       # We use Xcode 16.4 for building XCFrameworks as it's the standard version available on macos-15 runners.
       - run: ./scripts/ci-select-xcode.sh 16.4
         shell: bash
