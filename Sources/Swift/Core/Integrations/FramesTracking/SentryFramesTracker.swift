@@ -23,7 +23,6 @@ public class SentryFramesTracker: NSObject {
     @objc public private(set) var isRunning: Bool = false
     
     // MARK: Private properties
-    private var lock = NSLock()
     private var previousFrameTimestamp: CFTimeInterval = SentryFramesTracker.previousFrameInitialValue
     private var previousFrameSystemTimestamp: UInt64 = 0
     private var currentFrameRate: UInt64 = 60
@@ -114,9 +113,7 @@ public class SentryFramesTracker: NSObject {
             object: nil
         )
 
-        lock.synchronized {
-            listeners.removeAllObjects()
-        }
+        removeAllListeners()
     }
 
     @objc
@@ -168,6 +165,12 @@ public class SentryFramesTracker: NSObject {
     @objc public func removeListener(_ listener: SentryFramesTrackerListener) {
         dispatchQueueWrapper.dispatchAsyncOnMainQueueIfNotMainThread {
             self.listeners.remove(listener)
+        }
+    }
+
+    func removeAllListeners() {
+        dispatchQueueWrapper.dispatchAsyncOnMainQueueIfNotMainThread {
+            self.listeners.removeAllObjects()
         }
     }
     
