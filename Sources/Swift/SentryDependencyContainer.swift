@@ -311,7 +311,9 @@ protocol ScopePersistentStoreProvider {
 }
 extension SentryDependencyContainer: ScopePersistentStoreProvider { }
 
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
 protocol WatchdogTerminationScopeObserverBuilder {
     func getWatchdogTerminationScopeObserverWithOptions(_ options: Options) -> SentryScopeObserver
 }
 extension SentryDependencyContainer: WatchdogTerminationScopeObserverBuilder { }
+#endif
