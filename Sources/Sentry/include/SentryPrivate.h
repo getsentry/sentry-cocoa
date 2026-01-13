@@ -79,4 +79,3 @@
 #import "SentryTraceProfiler.h"
 #import "SentryUncaughtNSExceptions.h"
 #import "SentryWatchdogTerminationBreadcrumbProcessor.h"
-#import "SentryWatchdogTerminationLogic.h"

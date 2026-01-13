@@ -21,18 +21,8 @@ public func sentry_finishAndSaveTransaction() {
 // MARK: - Dependency Provider
 
 /// Provides dependencies for `SentryCrashIntegration`.
-/// Uses existing providers plus app state manager access.
-typealias CrashIntegrationProvider = DispatchQueueWrapperProvider & CrashWrapperProvider
-
-#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
-protocol AppStateManagerProvider {
-    var appStateManager: SentryAppStateManager { get }
-}
-
-extension SentryDependencyContainer: AppStateManagerProvider { }
-
-typealias CrashIntegrationProviderWithAppState = CrashIntegrationProvider & AppStateManagerProvider
-#endif
+/// Uses existing providers (AppStateManagerProvider already defined in SentryDependencyContainer.swift).
+typealias CrashIntegrationProvider = DispatchQueueWrapperProvider & CrashWrapperProvider & AppStateManagerProvider
 
 // MARK: - Static State
 
