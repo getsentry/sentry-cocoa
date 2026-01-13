@@ -1,6 +1,6 @@
 struct InMemoryBatchBuffer<Item: Encodable>: BatchBuffer {
     private var elements: [Data] = []
-    private var elementsDataSize: Int = 0
+    var itemsDataSize: Int = 0
 
     private let encoder: JSONEncoder = {
         let encoder = JSONEncoder()
@@ -8,31 +8,24 @@ struct InMemoryBatchBuffer<Item: Encodable>: BatchBuffer {
         return encoder
     }()
 
-    init(dataCapacity: Int, itemsCapacity: Int) {
-        // InMemoryBatchBuffer is a simple in-memory fallback buffer
-        // No initialization needed
-    }
+    init() {}
 
     mutating func append(_ item: Item) throws {
         let encoded = try encoder.encode(item)
         elements.append(encoded)
-        elementsDataSize += encoded.count
+        itemsDataSize += encoded.count
     }
 
     mutating func clear() {
         elements.removeAll()
-        elementsDataSize = 0
+        itemsDataSize = 0
     }
     
-    var itemsDataSize: Int {
-        return elementsDataSize
-    }
-
     var itemsCount: Int {
         return elements.count
     }
 
     var batchedData: Data {
-        return Data("{\"items\":[".utf8) + elements.joined(separator: Data(",".utf8)) + Data("]}".utf8)
+        Data("{\"items\":[".utf8) + elements.joined(separator: Data(",".utf8)) + Data("]}".utf8)
     }
 }

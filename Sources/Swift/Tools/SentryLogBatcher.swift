@@ -80,10 +80,7 @@ import Foundation
             )
         } catch {
             SentrySDKLog.warning("SentryLogBatcher: Could not init crash safe storage, falling back to in-memory buffer. Error: \(error)")
-            let inMemoryBuffer = InMemoryBatchBuffer<SentryLog>(
-                dataCapacity: maxBufferSizeBytes,
-                itemsCapacity: maxLogCount
-            )
+            let inMemoryBuffer = InMemoryBatchBuffer<SentryLog>()
             self.batcher = Self.createBatcher(
                 options: options,
                 flushTimeout: flushTimeout,
