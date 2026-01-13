@@ -2,15 +2,13 @@
 
 #import "SentryLaunchProfiling+Tests.h"
 
-#if SENTRY_HAS_METRIC_KIT
-#    import "SentryMetricKitIntegration.h"
-#endif // SENTRY_HAS_METRIC_KIT
-
 #if SENTRY_HAS_UIKIT
 #    import "MockUIScene.h"
 #    import "SentryDefaultUIViewControllerPerformanceTracker.h"
-#    import "SentrySessionReplayIntegration+Private.h"
-#    import "SentrySessionReplayIntegration+Test.h"
+#    if SENTRY_TARGET_REPLAY_SUPPORTED
+#        import "SentrySessionReplayIntegration+Private.h"
+#        import "SentrySessionReplayIntegration+Test.h"
+#    endif // SENTRY_TARGET_REPLAY_SUPPORTED
 #    import "SentryUIEventTracker.h"
 #    import "SentryUIEventTrackerTransactionMode.h"
 #    import "SentryUIEventTrackingIntegration.h"
@@ -43,8 +41,7 @@
 #import "Sentry/Sentry-Swift.h"
 #import "SentryANRTrackerV1.h"
 #import "SentryANRTrackerV2.h"
-#import "SentryANRTrackingIntegration.h"
-#import "SentryAppStartMeasurement.h"
+#import "SentryAppStartMeasurement+Private.h"
 #import "SentryAppStartTracker.h"
 #import "SentryAppStartTrackingIntegration.h"
 #import "SentryArray.h"
@@ -101,7 +98,6 @@
 #import "SentryDefaultThreadInspector.h"
 #import "SentryDiscardReason.h"
 #import "SentryDiscardReasonMapper.h"
-#import "SentryDsn.h"
 #import "SentryEnvelopeAttachmentHeader.h"
 #import "SentryEnvelopeRateLimit.h"
 #import "SentryEvent+Private.h"
@@ -141,14 +137,12 @@
 #import "SentryPerformanceTrackingIntegration.h"
 #import "SentryPredicateDescriptor.h"
 #import "SentryProfilingConditionals.h"
-#import "SentryPropagationContext.h"
 #import "SentryQueueableRequestManager.h"
 #import "SentrySDK+Private.h"
 #import "SentrySDKInternal+Tests.h"
 #import "SentrySampleDecision+Private.h"
 #import "SentryScope+Private.h"
 #import "SentryScopeSyncC.h"
-#import "SentryScreenshotIntegration.h"
 #import "SentrySerialization.h"
 #import "SentrySessionReplaySyncC.h"
 #import "SentrySpan.h"

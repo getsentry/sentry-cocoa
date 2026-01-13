@@ -19,6 +19,7 @@ coverage:
 ignore:
   - "SentryTestUtilsTests/**"
   - "Tests/**"
+  - "3rd-party-integrations/**/Tests/**"
 
 comment:
   layout: "reach,diff,flags,files,footer"

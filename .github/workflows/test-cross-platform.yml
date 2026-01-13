@@ -26,7 +26,7 @@ jobs:
     outputs:
       run_test_cross_platform_for_prs: ${{ steps.changes.outputs.run_test_cross_platform_for_prs }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
       - name: Get changed files
         id: changes
         uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
@@ -43,7 +43,7 @@ jobs:
     # This job can take a while to run, so we set a timeout.
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
         with:
           repository: getsentry/sentry-cocoa
           path: sentry-cocoa
@@ -53,17 +53,17 @@ jobs:
         working-directory: sentry-cocoa
 
       - name: Clone Sentry React Native Repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
         with:
           repository: getsentry/sentry-react-native
           path: sentry-react-native
-          ref: cocoa-v9
+          ref: itay/use_regular_podspec
 
       - name: Enable Corepack
         working-directory: sentry-react-native
         run: npm i -g corepack --force
 
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f # v6
         with:
           node-version: 18
           cache: "yarn"
@@ -75,7 +75,8 @@ jobs:
         timeout-minutes: 5 # 5 minutes timeout
         env:
           OS_VERSION: "18.4"
-        run: ./sentry-cocoa/scripts/ci-ensure-runtime-loaded.sh --os-version "$OS_VERSION"
+          PLATFORM: "iOS"
+        run: ./sentry-cocoa/scripts/ci-ensure-runtime-loaded.sh --os-version "$OS_VERSION" --platform "$PLATFORM"
 
       - name: Create simulator device for iOS 18.4
         run: ./sentry-cocoa/scripts/ci-create-simulator.sh --platform "iOS" --os-version "18.4" --device-name "iPhone 15 Pro"
@@ -84,11 +85,11 @@ jobs:
         working-directory: sentry-react-native
         run: yarn install
 
-      - name: Remove Sentry/HybridSDK Dependency from RNSentry.podspec
-        run: sed -i '' "s/s.dependency 'Sentry\/HybridSDK', '[0-9]*\.[0-9]*\.[0-9]*'/s.dependency 'Sentry\/HybridSDK'/" sentry-react-native/packages/core/RNSentry.podspec
+      - name: Remove fixed version of Sentry Dependency from RNSentry.podspec
+        run: sed -E -i '' "s/s.dependency 'Sentry', '[0-9]*\.[0-9]*\.[0-9]*(-[a-z]+\.[0-9]+)?'/s.dependency 'Sentry'/" sentry-react-native/packages/core/RNSentry.podspec
 
-      - name: Add Sentry/HybridSDK Dependency to RNSentryCocoaTester/Podfile
-        run: sed -i '' -e "s/RNSentry.podspec'/RNSentry.podspec'\\n  pod 'Sentry\/HybridSDK', :path => '..\/..\/..\/..\/sentry-cocoa'/" sentry-react-native/packages/core/RNSentryCocoaTester/Podfile
+      - name: Add Sentry Dependency with path to Sentry Cocoa SDK to RNSentryCocoaTester/Podfile
+        run: sed -i '' -e "s/RNSentry.podspec'/RNSentry.podspec'\\n  pod 'Sentry', :path => '..\/..\/..\/..\/sentry-cocoa'/" sentry-react-native/packages/core/RNSentryCocoaTester/Podfile
 
       - name: Disable test parallelization
         working-directory: sentry-react-native/packages/core/RNSentryCocoaTester

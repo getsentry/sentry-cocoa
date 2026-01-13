@@ -110,12 +110,6 @@ final class SentryDependencyContainerTests: XCTestCase {
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().uiViewControllerPerformanceTracker)
 #endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 
-#if os(iOS) || os(macOS)
-                    if #available(macOS 12, *) {
-                        XCTAssertNotNil(SentryDependencyContainer.sharedInstance().metricKitManager)
-                    }
-#endif // os(iOS) || os(macOS)
-
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().watchdogTerminationAttributesProcessor)
 #endif

@@ -5,12 +5,7 @@ import XCTest
 
 #if os(iOS) || os(macOS)
 
-/**
- * We need to check if MetricKit is available for compatibility on iOS 12 and below. As there are no compiler directives for iOS versions we use canImport.
- */
-#if canImport(MetricKit)
 import MetricKit
-#endif
 
 @available(macOS 12.0, *)
 final class SentryMXManagerTests: XCTestCase {
@@ -19,69 +14,13 @@ final class SentryMXManagerTests: XCTestCase {
         super.tearDown()
         clearTestState()
     }
-
-    func testReceiveNoPayloads() {
-            let (sut, delegate) = givenSut()
-            
-            sut.didReceive([])
-            
-            XCTAssertEqual(0, delegate.crashInvocations.count)
-            XCTAssertEqual(0, delegate.diskWriteExceptionInvocations.count)
-            XCTAssertEqual(0, delegate.cpuExceptionInvocations.count)
-            XCTAssertEqual(0, delegate.hangDiagnosticInvocations.count)
-    }
     
-    func testReceiveCrashPayload_DoesNothing() throws {
-            let (sut, delegate) = givenSut()
-            
-            let payload = try givenPayloads()
-            
-            sut.didReceive([payload])
-            
-            XCTAssertEqual(0, delegate.crashInvocations.count)
-            XCTAssertEqual(1, delegate.diskWriteExceptionInvocations.count)
-            XCTAssertEqual(1, delegate.cpuExceptionInvocations.count)
-            XCTAssertEqual(1, delegate.hangDiagnosticInvocations.count)
-    }
-    
-    func testReceivePayloadsWithFaultyJSON_DoesNothing() throws {
-            let (sut, delegate) = givenSut(disableCrashDiagnostics: false)
-            
-            let payload = try givenPayloads(withCallStackJSON: false)
-            
-            sut.didReceive([payload])
-            
-            XCTAssertEqual(0, delegate.crashInvocations.count)
-            XCTAssertEqual(0, delegate.diskWriteExceptionInvocations.count)
-            XCTAssertEqual(0, delegate.cpuExceptionInvocations.count)
-            XCTAssertEqual(0, delegate.hangDiagnosticInvocations.count)
-    }
-    
-    func testReceiveCrashPayloadEnabled_ForwardPayload() throws {
-            let (sut, delegate) = givenSut(disableCrashDiagnostics: false)
-            
-            let payload = try givenPayloads()
-            
-            sut.didReceive([payload])
-            
-            XCTAssertEqual(1, delegate.crashInvocations.count)
-            XCTAssertEqual(1, delegate.diskWriteExceptionInvocations.count)
-            XCTAssertEqual(1, delegate.cpuExceptionInvocations.count)
-            XCTAssertEqual(1, delegate.hangDiagnosticInvocations.count)
-    }
-    
-    @available(tvOS, unavailable)
-    @available(watchOS, unavailable)
-    private func givenSut(disableCrashDiagnostics: Bool = true) -> (SentryMXManager, SentryMXManagerTestDelegate) {
-        let sut = SentryMXManager(disableCrashDiagnostics: disableCrashDiagnostics)
-        let delegate = SentryMXManagerTestDelegate()
-        sut.delegate = delegate
+    private func givenSut(disableCrashDiagnostics: Bool = true) -> SentryMXManager {
+        let sut = SentryMXManager(inAppLogic: SentryInAppLogic(inAppIncludes: []), attachDiagnosticAsAttachment: false, disableCrashDiagnostics: disableCrashDiagnostics)
         
-        return (sut, delegate)
+        return sut
     }
     
-    @available(tvOS, unavailable)
-    @available(watchOS, unavailable)
     private func givenPayloads(withCallStackJSON: Bool = true) throws -> TestMXDiagnosticPayload {
         let payload = TestMXDiagnosticPayload()
         
@@ -111,8 +50,6 @@ final class SentryMXManagerTests: XCTestCase {
     }
 }
 
-@available(tvOS, unavailable)
-@available(watchOS, unavailable)
 @available(macOS 12.0, *)
 class TestMXDiagnosticPayload: MXDiagnosticPayload {
     struct Override {
@@ -122,7 +59,6 @@ class TestMXDiagnosticPayload: MXDiagnosticPayload {
         var hangDiagnostic: [MXHangDiagnostic]?
         
         var timeStampBegin = SentryDependencyContainer.sharedInstance().dateProvider.date()
-        var timeStampEnd = SentryDependencyContainer.sharedInstance().dateProvider.date()
     }
     
     var overrides = Override()
@@ -145,36 +81,6 @@ class TestMXDiagnosticPayload: MXDiagnosticPayload {
     
     override var timeStampBegin: Date {
         return overrides.timeStampBegin
-    }
-    
-    override var timeStampEnd: Date {
-        return overrides.timeStampEnd
-    }
-}
-
-@available(tvOS, unavailable)
-@available(watchOS, unavailable)
-@available(macOS 12.0, *)
-class SentryMXManagerTestDelegate: SentryMXManagerDelegate {
-
-    var crashInvocations = Invocations<(diagnostic: MXCrashDiagnostic, callStackTree: Sentry.SentryMXCallStackTree, timeStampBegin: Date, timeStampEnd: Date)>()
-    func didReceiveCrashDiagnostic(_ diagnostic: MXCrashDiagnostic, callStackTree: Sentry.SentryMXCallStackTree, timeStampBegin: Date, timeStampEnd: Date) {
-        crashInvocations.record((diagnostic, callStackTree, timeStampBegin, timeStampEnd))
-    }
-    
-    var diskWriteExceptionInvocations = Invocations<(diagnostic: MXDiskWriteExceptionDiagnostic, callStackTree: Sentry.SentryMXCallStackTree, timeStampBegin: Date, timeStampEnd: Date)>()
-    func didReceiveDiskWriteExceptionDiagnostic(_ diagnostic: MXDiskWriteExceptionDiagnostic, callStackTree: Sentry.SentryMXCallStackTree, timeStampBegin: Date, timeStampEnd: Date) {
-        diskWriteExceptionInvocations.record((diagnostic, callStackTree, timeStampBegin, timeStampEnd))
-    }
-    
-    var cpuExceptionInvocations = Invocations<(diagnostic: MXCPUExceptionDiagnostic, callStackTree: Sentry.SentryMXCallStackTree, timeStampBegin: Date, timeStampEnd: Date)>()
-    func didReceiveCpuExceptionDiagnostic(_ diagnostic: MXCPUExceptionDiagnostic, callStackTree: Sentry.SentryMXCallStackTree, timeStampBegin: Date, timeStampEnd: Date) {
-        cpuExceptionInvocations.record((diagnostic, callStackTree, timeStampBegin, timeStampEnd))
-    }
-    
-    var hangDiagnosticInvocations = Invocations<(diagnostic: MXHangDiagnostic, callStackTree: Sentry.SentryMXCallStackTree, timeStampBegin: Date, timeStampEnd: Date)>()
-    func didReceiveHangDiagnostic(_ diagnostic: MXHangDiagnostic, callStackTree: Sentry.SentryMXCallStackTree, timeStampBegin: Date, timeStampEnd: Date) {
-        hangDiagnosticInvocations.record((diagnostic, callStackTree, timeStampBegin, timeStampEnd))
     }
 }
 

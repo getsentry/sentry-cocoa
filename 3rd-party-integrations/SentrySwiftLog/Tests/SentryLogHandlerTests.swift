@@ -39,9 +39,9 @@ final class SentryLogHandlerTests: XCTestCase {
         XCTAssertEqual(log.attributes["sentry.origin"]?.value as? String, "auto.logging.swift-log")
         XCTAssertEqual(log.attributes["swift-log.level"]?.value as? String, "info")
         XCTAssertEqual(log.attributes["swift-log.source"]?.value as? String, "test")
-        XCTAssertEqual(log.attributes["swift-log.file"]?.value as? String, "TestFile.swift")
-        XCTAssertEqual(log.attributes["swift-log.function"]?.value as? String, "testFunction")
-        XCTAssertEqual(log.attributes["swift-log.line"]?.value as? String, "42")
+        XCTAssertEqual(log.attributes["code.file.path"]?.value as? String, "TestFile.swift")
+        XCTAssertEqual(log.attributes["code.function.name"]?.value as? String, "testFunction")
+        XCTAssertEqual(log.attributes["code.line.number"]?.value as? Int, 42)
     }
     
     func testLog_WithErrorLevel() throws {
@@ -213,6 +213,17 @@ final class SentryLogHandlerTests: XCTestCase {
         XCTAssertTrue(tagsString?.contains("\"production\"") ?? false)
         XCTAssertTrue(tagsString?.contains("\"api\"") ?? false)
         XCTAssertTrue(tagsString?.contains("\"42\"") ?? false)
+    }
+    
+    // MARK: - SDK State Tests
+    
+    func testLog_whenSentrySDKNotEnabled_shouldNotLog() {
+        SentrySDK.close()
+        
+        let sut = SentryLogHandler(logLevel: .info)
+        sut.log(level: .info, message: "Test message", metadata: nil, source: "test", file: "TestFile.swift", function: "testFunction", line: 1)
+        
+        XCTAssertEqual(capturedLogs.count, 0, "Expected no logs when SentrySDK is not enabled")
     }
     
     // MARK: - Log Level Configuration Tests

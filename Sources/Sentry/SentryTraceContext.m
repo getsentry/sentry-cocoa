@@ -1,7 +1,6 @@
 #import "SentryTraceContext.h"
 #import "SentryBaggage.h"
 #import "SentryDefines.h"
-#import "SentryDsn.h"
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"
 #import "SentrySampleDecision.h"
@@ -187,7 +186,7 @@ NS_ASSUME_NONNULL_BEGIN
     }
 
     if (_sampled != nil) {
-        [result setValue:_sampleRate forKey:@"sampled"];
+        [result setValue:_sampled forKey:@"sampled"];
     }
 
     if (_replayId != nil) {

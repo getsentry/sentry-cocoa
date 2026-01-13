@@ -1,8 +1,6 @@
 #import "SentryFileManagerHelper.h"
 #import "SentryDataCategoryMapper.h"
 #import "SentryDateUtils.h"
-#import "SentryDsn+Private.h"
-#import "SentryDsn.h"
 #import "SentryEnvelopeItemHeader.h"
 #import "SentryError.h"
 #import "SentryEvent.h"

@@ -12,6 +12,7 @@ import Foundation
     public var driftTimeInterval = 0.1
 
     private var _systemUptime: TimeInterval = 0
+    private var _absoluteTime: UInt64 = 0
 
     // NSLock isn't reentrant, so we use NSRecursiveLock.
     private let lock = NSRecursiveLock()
@@ -36,6 +37,7 @@ import Foundation
         lock.synchronized {
             setDate(date: TestCurrentDateProvider.defaultStartingDate)
             internalSystemTime = 0
+            _absoluteTime = 0
         }
     }
 
@@ -49,7 +51,9 @@ import Foundation
     public func advance(by seconds: TimeInterval) {
         lock.synchronized {
             setDate(date: date().addingTimeInterval(seconds))
-            internalSystemTime += seconds.toNanoSeconds()
+            let nanoseconds = seconds.toNanoSeconds()
+            internalSystemTime += nanoseconds
+            _absoluteTime += nanoseconds
         }
     }
 
@@ -57,13 +61,16 @@ import Foundation
         lock.synchronized {
             setDate(date: date().addingTimeInterval(nanoseconds.toTimeInterval()))
             internalSystemTime += nanoseconds
+            _absoluteTime += nanoseconds
         }
     }
 
     public func advanceBy(interval: TimeInterval) {
         lock.synchronized {
             setDate(date: date().addingTimeInterval(interval))
-            internalSystemTime += interval.toNanoSeconds()
+            let nanoseconds = interval.toNanoSeconds()
+            internalSystemTime += nanoseconds
+            _absoluteTime += nanoseconds
         }
     }
 
@@ -99,6 +106,12 @@ import Foundation
     public func timezoneOffset() -> Int {
         return lock.synchronized {
             return _timezoneOffsetValue
+        }
+    }
+
+    public func getAbsoluteTime() -> UInt64 {
+        return lock.synchronized {
+            return _absoluteTime
         }
     }
 }

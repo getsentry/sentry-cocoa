@@ -7,7 +7,6 @@
 #import "SentryLevel.h"
 #import "SentryLevelMapper.h"
 #import "SentryLogC.h"
-#import "SentryPropagationContext.h"
 #import "SentryScope+Private.h"
 #import "SentryScope+PrivateSwift.h"
 #import "SentrySpan+Private.h"
@@ -707,9 +706,9 @@ NS_ASSUME_NONNULL_BEGIN
     }
 }
 
-- (NSString *)propagationContextTraceIdString
+- (SentryId *)propagationContextTraceId
 {
-    return [self.propagationContext.traceId sentryIdString];
+    return self.propagationContext.traceId;
 }
 
 @end
