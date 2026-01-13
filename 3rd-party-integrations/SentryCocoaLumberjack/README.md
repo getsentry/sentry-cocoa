@@ -67,9 +67,9 @@ The logger automatically includes the following attributes with every log entry:
 
 - `sentry.origin`: `"auto.logging.cocoalumberjack"`
 - `cocoalumberjack.level`: The original CocoaLumberjack log level (error, warning, info, debug, verbose)
-- `cocoalumberjack.file`: The source file name
-- `cocoalumberjack.function`: The function name
-- `cocoalumberjack.line`: The line number
+- `code.file.path`: The source file name
+- `code.function.name`: The function name
+- `code.line.number`: The line number
 - `cocoalumberjack.context`: The log context (integer)
 - `cocoalumberjack.timestamp`: The log timestamp
 - `cocoalumberjack.threadID`: The thread ID

@@ -62,9 +62,9 @@ public class SentryCocoaLumberjackLogger: DDAbstractLogger {
         attributes["sentry.origin"] = "auto.logging.cocoalumberjack"
         
         attributes["cocoalumberjack.level"] = logFlagToString(logMessage.flag)
-        attributes["cocoalumberjack.file"] = logMessage.file
-        attributes["cocoalumberjack.function"] = logMessage.function ?? ""
-        attributes["cocoalumberjack.line"] = String(logMessage.line)
+        attributes["code.file.path"] = logMessage.file
+        attributes["code.function.name"] = logMessage.function ?? ""
+        attributes["code.line.number"] = Int(logMessage.line)
         attributes["cocoalumberjack.context"] = String(logMessage.context)
         attributes["cocoalumberjack.timestamp"] = logMessage.timestamp.timeIntervalSince1970
         attributes["cocoalumberjack.threadID"] = String(logMessage.threadID)

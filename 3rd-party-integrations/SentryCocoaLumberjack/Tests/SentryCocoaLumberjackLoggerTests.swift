@@ -59,9 +59,9 @@ final class SentryCocoaLumberjackLoggerTests: XCTestCase {
             [
                 "sentry.origin": SentryLog.Attribute(string: "auto.logging.cocoalumberjack"),
                 "cocoalumberjack.level": SentryLog.Attribute(string: "error"),
-                "cocoalumberjack.file": SentryLog.Attribute(string: "TestFile.swift"),
-                "cocoalumberjack.function": SentryLog.Attribute(string: "testFunction"),
-                "cocoalumberjack.line": SentryLog.Attribute(string: "100"),
+                "code.file.path": SentryLog.Attribute(string: "TestFile.swift"),
+                "code.function.name": SentryLog.Attribute(string: "testFunction"),
+                "code.line.number": SentryLog.Attribute(integer: 100),
                 "cocoalumberjack.context": SentryLog.Attribute(string: "0")
             ]
         )
@@ -91,9 +91,9 @@ final class SentryCocoaLumberjackLoggerTests: XCTestCase {
             [
                 "sentry.origin": SentryLog.Attribute(string: "auto.logging.cocoalumberjack"),
                 "cocoalumberjack.level": SentryLog.Attribute(string: "warning"),
-                "cocoalumberjack.file": SentryLog.Attribute(string: "TestFile.swift"),
-                "cocoalumberjack.function": SentryLog.Attribute(string: "testFunction"),
-                "cocoalumberjack.line": SentryLog.Attribute(string: "75"),
+                "code.file.path": SentryLog.Attribute(string: "TestFile.swift"),
+                "code.function.name": SentryLog.Attribute(string: "testFunction"),
+                "code.line.number": SentryLog.Attribute(integer: 75),
                 "cocoalumberjack.context": SentryLog.Attribute(string: "0")
             ]
         )
@@ -123,9 +123,9 @@ final class SentryCocoaLumberjackLoggerTests: XCTestCase {
             [
                 "sentry.origin": SentryLog.Attribute(string: "auto.logging.cocoalumberjack"),
                 "cocoalumberjack.level": SentryLog.Attribute(string: "info"),
-                "cocoalumberjack.file": SentryLog.Attribute(string: "TestFile.swift"),
-                "cocoalumberjack.function": SentryLog.Attribute(string: "testFunction"),
-                "cocoalumberjack.line": SentryLog.Attribute(string: "42"),
+                "code.file.path": SentryLog.Attribute(string: "TestFile.swift"),
+                "code.function.name": SentryLog.Attribute(string: "testFunction"),
+                "code.line.number": SentryLog.Attribute(integer: 42),
                 "cocoalumberjack.context": SentryLog.Attribute(string: "0")
             ]
         )
@@ -155,9 +155,9 @@ final class SentryCocoaLumberjackLoggerTests: XCTestCase {
             [
                 "sentry.origin": SentryLog.Attribute(string: "auto.logging.cocoalumberjack"),
                 "cocoalumberjack.level": SentryLog.Attribute(string: "debug"),
-                "cocoalumberjack.file": SentryLog.Attribute(string: "TestFile.swift"),
-                "cocoalumberjack.function": SentryLog.Attribute(string: "testFunction"),
-                "cocoalumberjack.line": SentryLog.Attribute(string: "50"),
+                "code.file.path": SentryLog.Attribute(string: "TestFile.swift"),
+                "code.function.name": SentryLog.Attribute(string: "testFunction"),
+                "code.line.number": SentryLog.Attribute(integer: 50),
                 "cocoalumberjack.context": SentryLog.Attribute(string: "0")
             ]
         )
@@ -187,9 +187,9 @@ final class SentryCocoaLumberjackLoggerTests: XCTestCase {
             [
                 "sentry.origin": SentryLog.Attribute(string: "auto.logging.cocoalumberjack"),
                 "cocoalumberjack.level": SentryLog.Attribute(string: "verbose"),
-                "cocoalumberjack.file": SentryLog.Attribute(string: "TestFile.swift"),
-                "cocoalumberjack.function": SentryLog.Attribute(string: "testFunction"),
-                "cocoalumberjack.line": SentryLog.Attribute(string: "10"),
+                "code.file.path": SentryLog.Attribute(string: "TestFile.swift"),
+                "code.function.name": SentryLog.Attribute(string: "testFunction"),
+                "code.line.number": SentryLog.Attribute(integer: 10),
                 "cocoalumberjack.context": SentryLog.Attribute(string: "0")
             ]
         )
@@ -251,9 +251,9 @@ final class SentryCocoaLumberjackLoggerTests: XCTestCase {
             [
                 "sentry.origin": SentryLog.Attribute(string: "auto.logging.cocoalumberjack"),
                 "cocoalumberjack.level": SentryLog.Attribute(string: "info"),
-                "cocoalumberjack.file": SentryLog.Attribute(string: "TestFile.swift"),
-                "cocoalumberjack.function": SentryLog.Attribute(string: "testFunction"),
-                "cocoalumberjack.line": SentryLog.Attribute(string: "30"),
+                "code.file.path": SentryLog.Attribute(string: "TestFile.swift"),
+                "code.function.name": SentryLog.Attribute(string: "testFunction"),
+                "code.line.number": SentryLog.Attribute(integer: 30),
                 "cocoalumberjack.context": SentryLog.Attribute(string: "12345")
             ]
         )
