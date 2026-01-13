@@ -107,6 +107,7 @@ The handler automatically includes the following attributes with every log entry
 - [Sentry Cocoa SDK Documentation](https://docs.sentry.io/platforms/apple/)
 - [Sentry Logs Documentation](https://docs.sentry.io/platforms/apple/logs/)
 - [SwiftLog Repo](https://github.com/apple/swift-log)
+- [Sentry Conventions](https://getsentry.github.io/sentry-conventions/generated/attributes/)
 
 ## License
 
