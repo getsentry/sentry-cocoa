@@ -11,9 +11,9 @@ import Foundation
 @_spi(Private) @objc public
 final class SentryWatchdogTerminationTracker: NSObject {
     
-    @objc public static let SentryWatchdogTerminationExceptionType: String = "WatchdogTermination"
-    @objc public static let SentryWatchdogTerminationExceptionValue: String = "The OS watchdog terminated your app, possibly because it overused RAM."
-    @objc public static let SentryWatchdogTerminationMechanismType: String = "watchdog_termination"
+    @objc public static let ExceptionType: String = "WatchdogTermination"
+    @objc public static let ExceptionValue: String = "The OS watchdog terminated your app, possibly because it overused RAM."
+    @objc public static let MechanismType: String = "watchdog_termination"
 
     private let options: Options
     private let watchdogTerminationLogic: SentryWatchdogTerminationLogic
@@ -40,35 +40,39 @@ final class SentryWatchdogTerminationTracker: NSObject {
         appStateManager.start()
 
         dispatchQueue.dispatchAsync {
-            guard self.watchdogTerminationLogic.isWatchdogTermination() else {
-                return
-            }
-
-            let event = Event(level: .fatal)
-
-            self.addBreadcrumbs(to: event)
-            self.addContext(to: event)
-            event.user = self.scopePersistentStore.readPreviousUserFromDisk()
-            event.dist = self.scopePersistentStore.readPreviousDistFromDisk()
-            event.environment = self.scopePersistentStore.readPreviousEnvironmentFromDisk()
-            event.tags = self.scopePersistentStore.readPreviousTagsFromDisk()
-            event.extra = self.scopePersistentStore.readPreviousExtrasFromDisk()
-            event.fingerprint = self.scopePersistentStore.readPreviousFingerprintFromDisk()
-            // Termination events always have fatal level, so we are not reading from disk
-
-            let exception = Exception(
-                value: SentryWatchdogTerminationTracker.SentryWatchdogTerminationExceptionValue,
-                type: SentryWatchdogTerminationTracker.SentryWatchdogTerminationExceptionType)
-            let mechanism = Mechanism(type: SentryWatchdogTerminationTracker.SentryWatchdogTerminationMechanismType)
-            mechanism.handled = false
-            exception.mechanism = mechanism
-            event.exceptions = [exception]
-
-            // We don't need to update the releaseName of the event to the previous app state as we
-            // assume it's not a watchdog termination when the releaseName changed between app
-            // starts.
-            SentrySDKInternal.captureFatalEvent(event)
+            self.captureStartEvent()
         }
+    }
+
+    private func captureStartEvent() {
+        guard self.watchdogTerminationLogic.isWatchdogTermination() else {
+            return
+        }
+
+        let event = Event(level: .fatal)
+
+        self.addBreadcrumbs(to: event)
+        self.addContext(to: event)
+        event.user = self.scopePersistentStore.readPreviousUserFromDisk()
+        event.dist = self.scopePersistentStore.readPreviousDistFromDisk()
+        event.environment = self.scopePersistentStore.readPreviousEnvironmentFromDisk()
+        event.tags = self.scopePersistentStore.readPreviousTagsFromDisk()
+        event.extra = self.scopePersistentStore.readPreviousExtrasFromDisk()
+        event.fingerprint = self.scopePersistentStore.readPreviousFingerprintFromDisk()
+        // Termination events always have fatal level, so we are not reading from disk
+
+        let exception = Exception(
+            value: SentryWatchdogTerminationConstants.ExceptionValue,
+            type: SentryWatchdogTerminationConstants.ExceptionType)
+        let mechanism = Mechanism(type: SentryWatchdogTerminationConstants.MechanismType)
+        mechanism.handled = false
+        exception.mechanism = mechanism
+        event.exceptions = [exception]
+
+        // We don't need to update the releaseName of the event to the previous app state as we
+        // assume it's not a watchdog termination when the releaseName changed between app
+        // starts.
+        SentrySDKInternal.captureFatalEvent(event)
     }
 
     private func addBreadcrumbs(to event: Event) {

@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- Add isiOSAppOnVisionOS, isiOSAppOnMac, isMacCatalystApp to device context #6939
+
 ### Fixes
 
 - The transport now correctly discard envelopes on 4xx and 5xx responses and records client reports `send_error` (#6618) This also fixes edge cases in which the SDK kept retrying sending a faulty envelope until the offline cache overflowed.
@@ -9,6 +13,8 @@
 - Rename log attribute `sentry.trace.parent_span_id` to `span_id` (#7055)
 - Fixes stacktraces for MetricKit events (#6908)
 - Fix `raw_description` in `runtime` context on Mac Catalyst (#7082)
+- Deprecates `configureDarkTheme` for user feedback (#7114)
+- Fix incorrect variable assignment for 'sampled' key (#7120)
 
 ## 9.1.0
 

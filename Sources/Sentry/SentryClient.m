@@ -932,7 +932,6 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
 - (BOOL)isWatchdogTermination:(SentryEvent *)event isFatalEvent:(BOOL)isFatalEvent
 {
-#if SENTRY_HAS_UIKIT
     if (!isFatalEvent) {
         return NO;
     }
@@ -943,11 +942,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
     SentryException *exception = event.exceptions[0];
     return exception.mechanism != nil &&
-        [exception.mechanism.type isEqualToString:SentryWatchdogTerminationTracker
-                                                      .SentryWatchdogTerminationMechanismType];
-#else
-    return NO;
-#endif
+        [exception.mechanism.type isEqualToString:SentryWatchdogTerminationConstants.MechanismType];
 }
 
 - (void)applyCultureContextToEvent:(SentryEvent *)event

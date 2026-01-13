@@ -123,7 +123,7 @@ public struct SentryTracedView<Content: View>: View {
     ///
     /// - Parameter viewName: The name that will be used for the span, if nil we try to get the name of the content class.
     /// - Parameter waitForFullDisplay: Indicates whether this view transaction should wait for `SentrySDK.reportFullyDisplayed()`
-    /// in case you need to track some asyncronous task. This is ignored for any `SentryTracedView` that is child of another `SentryTracedView`.
+    /// in case you need to track some asynchronous task. This is ignored for any `SentryTracedView` that is child of another `SentryTracedView`.
     /// If nil, it will use the `enableTimeToFullDisplayTracing` option from the SDK.
     /// - Parameter content: The content that you want to track the performance
     public init(_ viewName: String? = nil, waitForFullDisplay: Bool? = nil, @ViewBuilder content: @escaping () -> Content) {
