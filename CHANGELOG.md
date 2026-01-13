@@ -5,6 +5,7 @@
 ### Features
 
 - Add isiOSAppOnVisionOS, isiOSAppOnMac, isMacCatalystApp to device context #6939
+- Add `CrashSafeBatchBuffer` and save/restore/send logs on crash ([](#7061)
 
 ### Fixes
 
