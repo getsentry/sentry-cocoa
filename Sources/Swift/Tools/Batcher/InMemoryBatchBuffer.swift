@@ -22,7 +22,7 @@ struct InMemoryBatchBuffer<Item: Encodable>: BatchBuffer {
     }
     
     var itemsCount: Int {
-        return elements.count
+        elements.count
     }
 
     var batchedData: Data {
