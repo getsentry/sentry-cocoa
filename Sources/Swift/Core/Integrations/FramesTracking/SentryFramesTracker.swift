@@ -18,8 +18,8 @@ public protocol SentryFramesTrackerListener: NSObjectProtocol {
 
 @_spi(Private) @objc
 public class SentryFramesTracker: NSObject {
-
-    var isStarted: Bool = false
+    
+    private var isStarted: Bool = false
     @objc public private(set) var isRunning: Bool = false
     
     // MARK: Private properties
@@ -67,11 +67,24 @@ public class SentryFramesTracker: NSObject {
         resetFrames()
         SentrySDKLog.debug("Initialized frame tracker")
     }
+    
+    deinit {
+        // Avoid async dispatch with self capture on deinit.
+        dispatchQueueWrapper.dispatchSyncOnMainQueue {
+            self.stopInternal()
+        }
+    }
 
     // MARK: - Public Methods
 
     @objc
     public func start() {
+        dispatchQueueWrapper.dispatchAsyncOnMainQueueIfNotMainThread {
+            self.startInternal()
+        }
+    }
+    
+    private func startInternal() {
         guard !isStarted else { return }
 
         isStarted = true
@@ -95,6 +108,12 @@ public class SentryFramesTracker: NSObject {
 
     @objc
     public func stop() {
+        dispatchQueueWrapper.dispatchAsyncOnMainQueueIfNotMainThread {
+            self.stopInternal()
+        }
+    }
+    
+    private func stopInternal() {
         guard isStarted else { return }
 
         isStarted = false
@@ -113,7 +132,7 @@ public class SentryFramesTracker: NSObject {
             object: nil
         )
 
-        removeAllListeners()
+        listeners.removeAllObjects()
     }
 
     @objc
@@ -168,16 +187,6 @@ public class SentryFramesTracker: NSObject {
         }
     }
 
-    func removeAllListeners() {
-        dispatchQueueWrapper.dispatchAsyncOnMainQueueIfNotMainThread {
-            self.listeners.removeAllObjects()
-        }
-    }
-    
-    deinit {
-        stop()
-    }
-
 #if os(iOS)
     @objc public func resetProfilingTimestamps() {
         // The DisplayLink callback always runs on the main thread. We dispatch this to the main thread
@@ -225,7 +234,7 @@ public class SentryFramesTracker: NSObject {
     private func willResignActive() {
         pause()
     }
-
+    
     private func unpause() {
         guard !isRunning else { return }
 
