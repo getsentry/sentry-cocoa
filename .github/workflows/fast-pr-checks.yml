@@ -51,7 +51,7 @@ jobs:
       timeout: 20
       should_skip: false
       xcode: "16.4"
-      test-destination-os: "18.4"
+      test-destination-os: "18.5"
       platform: iOS
       device: iPhone 16 Pro
       scheme: Sentry
