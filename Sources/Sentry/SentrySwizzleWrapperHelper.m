@@ -29,7 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 #endif // SENTRY_HAS_UIKIT
 
-+ (void)swizzleURLSessionTask
++ (void)swizzleURLSessionTask:(SentryNetworkTracker *)networkTracker
 {
     NSArray<Class> *classesToSwizzle = [SentryNSURLSessionTaskSearch urlSessionTaskClassesToTrack];
 
@@ -43,14 +43,14 @@ NS_ASSUME_NONNULL_BEGIN
     for (Class classToSwizzle in classesToSwizzle) {
         SentrySwizzleInstanceMethod(classToSwizzle, resumeSelector, SentrySWReturnType(void),
             SentrySWArguments(), SentrySWReplacement({
-                [SentryNetworkTracker.sharedInstance urlSessionTaskResume:self];
+                [networkTracker urlSessionTaskResume:self];
                 SentrySWCallOriginal();
             }),
             SentrySwizzleModeOncePerClassAndSuperclasses, (void *)resumeSelector);
 
         SentrySwizzleInstanceMethod(classToSwizzle, setStateSelector, SentrySWReturnType(void),
             SentrySWArguments(NSURLSessionTaskState state), SentrySWReplacement({
-                [SentryNetworkTracker.sharedInstance urlSessionTask:self setState:state];
+                [networkTracker urlSessionTask:self setState:state];
                 SentrySWCallOriginal(state);
             }),
             SentrySwizzleModeOncePerClassAndSuperclasses, (void *)setStateSelector);

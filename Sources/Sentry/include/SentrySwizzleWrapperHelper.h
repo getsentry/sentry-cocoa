@@ -6,6 +6,8 @@
 
 #endif // SENTRY_HAS_UIKIT
 
+@class SentryNetworkTracker;
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface SentrySwizzleWrapperHelper : NSObject
@@ -15,7 +17,7 @@ NS_ASSUME_NONNULL_BEGIN
                     UIEvent *_Nullable event))callback;
 #endif // SENTRY_HAS_UIKIT
 
-+ (void)swizzleURLSessionTask;
++ (void)swizzleURLSessionTask:(SentryNetworkTracker *)networkTracker;
 
 @end
 
