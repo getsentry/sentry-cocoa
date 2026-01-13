@@ -38,7 +38,7 @@ jobs:
     outputs:
       run_unit_tests_for_prs: ${{ steps.changes.outputs.run_unit_tests_for_prs }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
       - name: Get changed files
         id: changes
         uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
@@ -52,10 +52,10 @@ jobs:
     needs: files-changed
     runs-on: macos-15
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
       - name: Cache for Test Server
         id: cache_test_server
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ./test-server/.build
           key: test-server-${{ hashFiles('./test-server') }}-universal
@@ -81,14 +81,14 @@ jobs:
           lipo -create -output test-server-exec $(swift build --show-bin-path -c release --triple arm64-apple-macosx)/Run $(swift build --show-bin-path -c release --triple x86_64-apple-macosx)/Run
 
       - name: Archiving DerivedData
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: test-server
           path: |
             ./test-server/test-server-exec
 
       - name: Archiving Raw Test Logs
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         if: ${{ failure() || cancelled() }}
         with:
           name: test-server-build-log
@@ -108,7 +108,7 @@ jobs:
     if: startsWith(github.ref, 'refs/heads/release/') == false && (github.event_name != 'pull_request' || needs.files-changed.outputs.run_unit_tests_for_prs == 'true')
     needs: files-changed
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
       - name: Prepare Package.swift
         shell: bash
         run: |
@@ -118,11 +118,18 @@ jobs:
             --remove-duplicate true \
             --change-path false \
             --remove-binary-targets true
+      - name: Ensure required runtime is loaded
+        # Ideally we will not need this, but CI sometimes is failing to load some runtimes, this will ensure they are loaded
+        timeout-minutes: 5 # 5 minutes timeout
+        env:
+          OS_VERSION: "18.5"
+          PLATFORM: "iOS"
+        run: ./scripts/ci-ensure-runtime-loaded.sh --os-version "$OS_VERSION" --platform "$PLATFORM"
       - run: rm -r Sentry.xcodeproj && rm -r Sentry.xcworkspace
-      - run: set -o pipefail && NSUnbufferedIO=YES SKIP_BINARIES=1 xcodebuild test -scheme Sentry-Package -sdk iphonesimulator -destination 'platform=iOS Simulator,OS=18.4,name=iPhone 16 Pro' | tee raw-test-output-distribution.log | xcbeautify --preserve-unbeautified
+      - run: set -o pipefail && NSUnbufferedIO=YES SKIP_BINARIES=1 xcodebuild test -scheme Sentry-Package -sdk iphonesimulator -destination 'platform=iOS Simulator,OS=18.5,name=iPhone 16 Pro' | tee raw-test-output-distribution.log | xcbeautify --preserve-unbeautified
         shell: sh
       - name: Upload Distribution Test Logs
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         if: ${{ failure() || cancelled() }}
         with:
           name: raw-test-output-distribution
@@ -154,8 +161,8 @@ jobs:
             test-destination-os: "15.0"
 
     steps:
-      - uses: actions/checkout@v6
-      - uses: actions/download-artifact@v6
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
+      - uses: actions/download-artifact@v7
         with:
           name: test-server
 
@@ -193,7 +200,7 @@ jobs:
             --test-plan Sentry_TestServer
 
       - name: Archiving DerivedData Logs
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         if: steps.build_tests.outcome == 'failure'
         with:
           name: derived-data-test-server-${{matrix.platform}}-xcode-${{matrix.xcode}}
@@ -201,7 +208,7 @@ jobs:
             /Users/runner/Library/Developer/Xcode/DerivedData/**/Logs/**
 
       - name: Archiving Raw Logs
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         if: ${{ failure() || cancelled() }}
         with:
           name: raw-output-test-server-${{matrix.platform}}-xcode-${{matrix.xcode}}
@@ -211,7 +218,7 @@ jobs:
             raw-test-output.log
 
       - name: Archiving Crash Logs
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         if: ${{ failure() || cancelled() }}
         with:
           name: crash-logs-test-server-${{matrix.platform}}-xcode-${{matrix.xcode}}
@@ -240,9 +247,7 @@ jobs:
       xcode: ${{matrix.xcode}}
       platform: ${{matrix.platform}}
       test-destination-os: ${{matrix.test-destination-os || 'latest'}}
-      timeout: 20
-      create_device: ${{matrix.create_device || false}}
-      install_platforms: ${{matrix.install_platforms || false}}
+      timeout: ${{matrix.timeout || 20}}
       device: ${{matrix.device || ''}}
       scheme: ${{matrix.scheme || 'Sentry'}}
       run_on_cirrus_labs: ${{ !contains(matrix.runs-on, 'macos-') }}
@@ -253,26 +258,25 @@ jobs:
         include:
           # We are running tests on iOS 17 and later, as there were OS-internal changes introduced in succeeding versions.
 
-          # iOS 17 - Use pre-installed iOS 17.5 runtime on macOS-14 with Xcode 15.4
+          # iOS 17
           - name: iOS 17 Sentry
             runs-on: macos-14
-            xcode: "15.4"
+            xcode: "16.2"
             test-destination-os: "17.5"
             platform: "iOS"
-            create_device: true
             device: "iPhone 15 Pro"
             scheme: "Sentry"
 
-          # iOS 18 - Use pre-installed iOS 18.4 runtime on macOS-15
+          # iOS 18
           - name: iOS 18 Sentry
-            runs-on: macos-15
+            runs-on: sequoia
             xcode: "16.4"
-            test-destination-os: "18.4"
+            test-destination-os: "18.5"
             platform: "iOS"
             device: "iPhone 16 Pro"
             scheme: "Sentry"
 
-          # iOS 26 - Use pre-installed iOS 26.1 runtime on macOS-26
+          # iOS 26
           - name: iOS 26 Sentry
             runs-on: tahoe
             xcode: "26.1.1"
@@ -288,7 +292,7 @@ jobs:
           # macOS 14
           - name: macOS 14 Sentry
             runs-on: macos-14
-            xcode: "15.4"
+            xcode: "16.2"
             test-destination-os: "latest"
             platform: "macOS"
             scheme: "Sentry"
@@ -314,7 +318,7 @@ jobs:
           # In addition we are running tests on macOS 14, as there were OS-internal changes introduced in succeeding versions.
           - name: Catalyst 14 Sentry
             runs-on: macos-14
-            xcode: "15.4"
+            xcode: "16.2"
             test-destination-os: "latest"
             platform: "Catalyst"
             scheme: "Sentry"
@@ -334,19 +338,18 @@ jobs:
 
           # tvOS 17
           - name: tvOS 17 Sentry
-            runs-on: macos-14
-            xcode: "15.4"
+            runs-on: sequoia
+            xcode: "16.4"
             test-destination-os: "17.5"
             platform: "tvOS"
             scheme: "Sentry"
 
-          # iOS 17 - Use pre-installed iOS 17.5 runtime on macOS-14 with Xcode 15.4
+          # iOS 17 - SwiftUI
           - name: iOS 17 SentrySwiftUI
             runs-on: macos-14
-            xcode: "15.4"
+            xcode: "16.2"
             test-destination-os: "17.5"
             platform: "iOS"
-            create_device: true
             device: "iPhone 15 Pro"
             scheme: "SentrySwiftUI"
 
@@ -354,7 +357,7 @@ jobs:
           - name: tvOS 18 Sentry
             runs-on: macos-15
             xcode: "16.4"
-            test-destination-os: "18.4"
+            test-destination-os: "18.5"
             platform: "tvOS"
             scheme: "Sentry"
 
@@ -363,11 +366,19 @@ jobs:
             runs-on: macos-26
             xcode: "26.1.1"
             test-destination-os: "26.1"
-            install_platforms: true
             platform: "tvOS"
-            create_device: true
             device: "Apple TV"
             scheme: "Sentry"
+
+          # visionOS 26
+          - name: visionOS 26 Sentry
+            runs-on: tahoe
+            xcode: "26.1.1"
+            test-destination-os: "26.1"
+            platform: "visionOS"
+            scheme: "Sentry"
+            device: "Apple Vision Pro"
+            timeout: 30
 
   # This will be replaced once #6945 is merged.
   swiftlog-integration-unit-tests:
@@ -444,6 +455,7 @@ jobs:
         build-test-server,
         distribution-tests,
         unit-tests,
+        swiftlog-integration-unit-tests,
         ready-to-merge-gate,
         unit-tests-with-test-server,
       ]

@@ -37,6 +37,148 @@ This file provides comprehensive guidance for AI coding agents working with the 
 - Fix any test or type errors until the whole suite is green.
 - Add or update tests for the code you change, even if nobody asked.
 
+#### Test Naming Convention
+
+Use the pattern `test<Function>_when<Condition>_should<Expected>()` for test method names:
+
+**Format:** `test<Function>_when<Condition>_should<Expected>()`
+
+**Examples:**
+
+- ✅ `testAdd_whenSingleItem_shouldAppendToStorage()`
+- ✅ `testAdd_whenMaxItemCountReached_shouldFlushImmediately()`
+- ✅ `testCapture_whenEmptyBuffer_shouldDoNothing()`
+- ✅ `testAdd_whenBeforeSendItemReturnsNil_shouldDropItem()`
+
+**Benefits:**
+
+- Clear function being tested
+- Explicit condition/scenario
+- Expected outcome is obvious
+- Easy to understand test purpose without reading implementation
+
+#### Prefer Structs Over Classes
+
+When creating test helpers, mocks, or test data structures, prefer `struct` over `class`:
+
+**Prefer:**
+
+```swift
+private struct TestItem: BatcherItem {
+    var body: String
+    // ...
+}
+```
+
+**Avoid (unless reference semantics are required):**
+
+```swift
+private class TestItem: BatcherItem {
+    var body: String
+    // ...
+}
+```
+
+**When to use classes:**
+
+- When reference semantics are required (e.g., shared mutable state that needs to be observed from tests)
+- When conforming to protocols that require reference types (e.g., `AnyObject` protocols)
+- When creating mock objects that need to be passed by reference to observe changes
+
+**Example of when class is necessary:**
+
+```swift
+// MockStorage must be a class because Batcher stores it internally
+// and we need to observe changes from the test. Using a struct would create a copy.
+private class MockStorage: BatchStorage {
+    var appendedItems: [TestItem] = []
+    // ...
+}
+```
+
+#### Test Code Style
+
+**Prefer `guard case` over `if case`:**
+
+When pattern matching in tests, prefer `guard case` with early return over `if case` to reduce nesting and keep tests linear with an exit-early approach.
+
+**Prefer:**
+
+```swift
+// -- Assert --
+guard case .string(let value) = result else {
+    return XCTFail("Expected .string case")
+}
+XCTAssertEqual(value, "test")
+```
+
+**Avoid:**
+
+```swift
+// -- Assert --
+if case .string(let value) = result {
+    XCTAssertEqual(value, "test")
+} else {
+    XCTFail("Expected .string case")
+}
+```
+
+**Benefits:**
+
+- Reduces nesting level
+- Keeps tests linear with exit-early approach
+- Makes the happy path more obvious
+- Easier to read and maintain
+
+**Use `XCTUnwrap` for optional assertions with precision:**
+
+When using `XCTAssertEqual` with the `accuracy` parameter, the assertion does not accept optionals. Use `XCTUnwrap` to unwrap the optional first.
+
+**Prefer:**
+
+```swift
+// -- Assert --
+XCTAssertEqual(try XCTUnwrap(result as? Double), 3.14, accuracy: 0.00001)
+```
+
+**Avoid:**
+
+```swift
+// -- Assert --
+XCTAssertEqual(result as? Double, 3.14, accuracy: 0.00001) // Compiler error: optional not accepted
+```
+
+**Note:** This also applies to array assertions with precision. Prefer using `element(at:)` with `XCTUnwrap` instead of direct subscript access:
+
+**Prefer:**
+
+```swift
+// -- Assert --
+let array = try XCTUnwrap(result as? [Double])
+XCTAssertEqual(try XCTUnwrap(array.element(at: 0)), 1.1, accuracy: 0.00001)
+XCTAssertEqual(try XCTUnwrap(array.element(at: 1)), 2.2, accuracy: 0.00001)
+
+// Assert no additional elements
+XCTAssertEqual(array.count, 2)
+```
+
+**Avoid:**
+
+```swift
+// -- Assert --
+let array = try XCTUnwrap(result as? [Double])
+XCTAssertEqual(array.count, 2)
+XCTAssertEqual(array[0], 1.1, accuracy: 0.00001)
+XCTAssertEqual(array[1], 2.2, accuracy: 0.00001)
+```
+
+**Benefits:**
+
+- Safer access - `element(at:)` returns `nil` for out-of-bounds indices instead of crashing
+- Clearer test failures - `XCTUnwrap` provides explicit failure messages when elements are missing
+- Better test structure - Asserting count at the end ensures no unexpected additional elements
+- Consistent pattern - Uses the same `XCTUnwrap` pattern as other optional assertions
+
 #### Testing Error Handling Paths
 
 When testing error handling code paths, follow these guidelines:
@@ -117,21 +259,33 @@ This project uses [Conventional Commits 1.0.0](https://www.conventionalcommits.o
 [optional footer(s)]
 ```
 
-**Required Types:**
+**Line Length Limits:**
+
+- **Subject line:** Maximum 50 characters (including type prefix)
+- **Body lines:** Maximum 72 characters per line
+
+The 50-character limit for the subject ensures readability in git log output and GitHub's UI. The 72-character limit for body lines follows the git convention for optimal display in terminals and tools.
+
+**Types that appear in CHANGELOG:**
 
 - `feat:` - A new feature (correlates with MINOR in SemVer)
 - `fix:` - A bug fix (correlates with PATCH in SemVer)
+- `impr:` - An improvement to existing functionality
 
-**Other Allowed Types:**
+**Other Allowed Types (require `#skip-changelog` in PR description):**
 
 - `build:` - Changes to build system or dependencies
 - `chore:` - Routine tasks, maintenance
 - `ci:` - Changes to CI configuration
 - `docs:` - Documentation changes
 - `style:` - Code style changes (formatting, missing semi-colons, etc.)
-- `refactor:` - Code refactoring without changing functionality
+- `refactor:` (or `ref:`) - Code refactoring without changing functionality
 - `perf:` - Performance improvements
 - `test:` - Adding or updating tests
+
+**PR Description Requirements:**
+
+Add `#skip-changelog` to PR descriptions for changes that should not appear in the changelog. Only `feat:`, `fix:`, and `impr:` commits generate changelog entries.
 
 **Breaking Changes:**
 
@@ -144,10 +298,21 @@ This project uses [Conventional Commits 1.0.0](https://www.conventionalcommits.o
 feat: add new session replay feature
 fix: resolve memory leak in session storage
 docs: update installation guide
-refactor: simplify event serialization
+ref: simplify event serialization
+chore: update dependencies
 feat!: change API response format
 
 BREAKING CHANGE: API now returns JSON instead of XML
+```
+
+**Example with body (respecting 72-char line limit):**
+
+```
+ref: rename constant to Swift naming convention
+
+Renamed SENTRY_AUTO_TRANSACTION_MAX_DURATION to use camelCase as per
+Swift naming conventions for module-level constants. This improves
+consistency with the rest of the codebase.
 ```
 
 #### No AI References
@@ -595,6 +760,7 @@ run_unit_tests_for_prs: &run_unit_tests_for_prs
   - "SentryTestUtils/**" # Test utility changes
   - "SentryTestUtilsDynamic/**" # Dynamic test utilities
   - "SentryTestUtilsTests/**" # Test utility tests
+  - "3rd-party-integrations/**" # Third-party integration code
   - ".github/workflows/test.yml" # Workflow definition
   - ".github/file-filters.yml" # Filter changes
   - "scripts/ci-*.sh" # CI scripts

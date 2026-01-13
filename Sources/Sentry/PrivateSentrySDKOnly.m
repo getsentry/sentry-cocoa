@@ -6,8 +6,8 @@
 #import "SentryInstallation.h"
 #import "SentryInternalDefines.h"
 #import "SentryMeta.h"
+#import "SentryOptionsInternal.h"
 #import "SentryProfileCollector.h"
-#import "SentryPropagationContext.h"
 #import "SentrySDK+Private.h"
 #import "SentrySerialization.h"
 #import "SentrySessionReplayIntegration+Private.h"
@@ -308,6 +308,12 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 + (SentryBreadcrumb *)breadcrumbWithDictionary:(NSDictionary *)dictionary
 {
     return [[SentryBreadcrumb alloc] initWithDictionary:dictionary];
+}
+
++ (nullable SentryOptions *)optionsWithDictionary:(NSDictionary<NSString *, id> *)options
+                                 didFailWithError:(NSError *_Nullable *_Nullable)error
+{
+    return [SentryOptionsInternal initWithDict:options didFailWithError:error];
 }
 
 #if SENTRY_TARGET_REPLAY_SUPPORTED

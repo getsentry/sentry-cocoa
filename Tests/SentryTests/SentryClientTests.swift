@@ -10,6 +10,7 @@ extension SentryClientInternal {
 
         self.init(
             options: options,
+            dateProvider: SentryDependencyContainer.sharedInstance().dateProvider,
             transportAdapter: transportAdapter,
             fileManager: fileManager,
             threadInspector: SentryDefaultThreadInspector(options: options),
@@ -112,6 +113,7 @@ class SentryClientTests: XCTestCase {
 
                 client = SentryClientInternal(
                     options: options,
+                    dateProvider: dateProvider,
                     transportAdapter: transportAdapter,
                     fileManager: fileManager,
                     threadInspector: threadInspector,
@@ -1951,7 +1953,7 @@ class SentryClientTests: XCTestCase {
         if !SentryDependencyContainer.sharedInstance().crashWrapper.isBeingTraced {
             expectedIntegrations = ["ANRTracking"] + expectedIntegrations
         }
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(tvOS) || os(visionOS) || targetEnvironment(macCatalyst)
         expectedIntegrations.append("FramesTracking")
 #endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 
@@ -2401,6 +2403,7 @@ class SentryClientTests: XCTestCase {
             flushTimeout: 5,
             maxLogCount: 100,
             maxBufferSizeBytes: 1_024 * 1_024,
+            dateProvider: TestCurrentDateProvider(),
             dispatchQueue: TestSentryDispatchQueueWrapper(),
             delegate: testDelegate
         )
@@ -2432,6 +2435,7 @@ class SentryClientTests: XCTestCase {
             flushTimeout: 5,
             maxLogCount: 100,
             maxBufferSizeBytes: 1_024 * 1_024,
+            dateProvider: TestCurrentDateProvider(),
             dispatchQueue: TestSentryDispatchQueueWrapper(),
             delegate: testDelegate
         )
@@ -2453,6 +2457,7 @@ class SentryClientTests: XCTestCase {
             flushTimeout: 5,
             maxLogCount: 100,
             maxBufferSizeBytes: 1_024 * 1_024,
+            dateProvider: TestCurrentDateProvider(),
             dispatchQueue: TestSentryDispatchQueueWrapper(),
             delegate: testDelegate
         )
@@ -2526,7 +2531,7 @@ private extension SentryClientTests {
     }
     
     private func getSpan(operation: String, tracer: SentryTracer) -> Span {
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(tvOS) || os(visionOS) || targetEnvironment(macCatalyst)
         return SentrySpan(tracer: tracer, context: SpanContext(operation: operation), framesTracker: nil)
 #else
         return  SentrySpan(tracer: tracer, context: SpanContext(operation: operation))
