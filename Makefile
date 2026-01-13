@@ -119,7 +119,7 @@ build-ios:
 		--device "$(IOS_DEVICE_NAME)" \
 		--ref $(GIT-REF) \
 		--command build \
-		--configuration Test
+		--configuration Debug
 
 ## Build macOS target
 #
@@ -133,7 +133,7 @@ build-macos:
 		--os latest \
 		--ref $(GIT-REF) \
 		--command build \
-		--configuration Test
+		--configuration Debug
 
 ## Build Catalyst target
 #
@@ -147,7 +147,7 @@ build-catalyst:
 		--os latest \
 		--ref $(GIT-REF) \
 		--command build \
-		--configuration Test
+		--configuration Debug
 
 ## Build tvOS target
 #
@@ -162,7 +162,7 @@ build-tvos:
 		--device "$(TVOS_DEVICE_NAME)" \
 		--ref $(GIT-REF) \
 		--command build \
-		--configuration Test
+		--configuration Debug
 
 ## Build visionOS target
 #
@@ -177,7 +177,7 @@ build-visionos:
 		--device "$(VISIONOS_DEVICE_NAME)" \
 		--ref $(GIT-REF) \
 		--command build \
-		--configuration Test
+		--configuration Debug
 
 ## Build watchOS target
 #
