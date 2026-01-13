@@ -456,6 +456,7 @@ jobs:
         distribution-tests,
         unit-tests,
         swiftlog-integration-unit-tests,
+        swiftybeaver-integration-unit-tests,
         ready-to-merge-gate,
         unit-tests-with-test-server,
       ]
