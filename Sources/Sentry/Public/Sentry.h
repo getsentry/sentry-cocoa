@@ -13,7 +13,6 @@ FOUNDATION_EXPORT const unsigned char SentryVersionString[];
 #    import <Sentry/SentryCrashExceptionApplication.h>
 #    import <Sentry/SentryDebugMeta.h>
 #    import <Sentry/SentryDefines.h>
-#    import <Sentry/SentryDsn.h>
 #    import <Sentry/SentryError.h>
 #    import <Sentry/SentryEvent.h>
 #    import <Sentry/SentryException.h>
@@ -44,4 +43,11 @@ FOUNDATION_EXPORT const unsigned char SentryVersionString[];
 #    import <Sentry/SentryTransactionContext.h>
 #    import <Sentry/SentryUser.h>
 #    import <Sentry/SentryWithoutUIKit.h>
+
+// Headers here are to be used by Hybrid SDKs
+// Be careful when using them
+#    import <Sentry/PrivateSentrySDKOnly.h>
+#    import <Sentry/PrivatesHeader.h>
+#    import <Sentry/SentryAppStartMeasurement.h>
+#    import <Sentry/SentrySessionReplayHybridSDK.h>
 #endif // __has_include(<Sentry/Sentry.h>)

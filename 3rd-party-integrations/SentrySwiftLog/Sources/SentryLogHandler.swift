@@ -71,6 +71,10 @@ public struct SentryLogHandler: LogHandler {
         function: String,
         line: UInt
     ) {
+        guard SentrySDK.isEnabled else {
+            return
+        }
+        
         // Filter out messages below the configured log level threshold
         guard level >= self.logLevel else {
             return
@@ -80,9 +84,9 @@ public struct SentryLogHandler: LogHandler {
         attributes["sentry.origin"] = "auto.logging.swift-log"
         attributes["swift-log.level"] = level.rawValue
         attributes["swift-log.source"] = source
-        attributes["swift-log.file"] = file
-        attributes["swift-log.function"] = function
-        attributes["swift-log.line"] = String(line)
+        attributes["code.file.path"] = file
+        attributes["code.function.name"] = function
+        attributes["code.line.number"] = Int(line)
         
         let allMetadata = self.metadata.merging(metadata ?? [:]) { _, new in
             new

@@ -15,7 +15,7 @@ class SentrySpanTests: XCTestCase {
         let options: Options
         let notificationCenter = TestNSNotificationCenterWrapper()
         let currentDateProvider = TestCurrentDateProvider()
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(tvOS) || os(visionOS) || targetEnvironment(macCatalyst)
         let tracer = SentryTracer(context: SpanContext(operation: "TEST"), framesTracker: nil)
 #else
         let tracer = SentryTracer(context: SpanContext(operation: "TEST"))
@@ -41,7 +41,7 @@ class SentrySpanTests: XCTestCase {
         }
         
         func getSutWithTracer() -> SentrySpan {
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(tvOS) || os(visionOS) || targetEnvironment(macCatalyst)
             return SentrySpan(tracer: tracer, context: SpanContext(operation: someOperation, sampled: .undecided), framesTracker: nil)
 #else
             return SentrySpan(tracer: tracer, context: SpanContext(operation: someOperation, sampled: .undecided))
@@ -538,7 +538,7 @@ class SentrySpanTests: XCTestCase {
         // Span has a weak reference to tracer. If we don't keep a reference
         // to the tracer ARC will deallocate the tracer.
         let sutGenerator: () -> Span = {
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(tvOS) || os(visionOS) || targetEnvironment(macCatalyst)
             let tracer = SentryTracer(context: SpanContext(operation: "TEST"), framesTracker: nil)
             return SentrySpan(tracer: tracer, context: SpanContext(operation: ""), framesTracker: nil)
 #else

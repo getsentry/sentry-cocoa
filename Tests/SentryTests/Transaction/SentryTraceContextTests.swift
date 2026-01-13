@@ -205,6 +205,67 @@ class SentryTraceContextTests: XCTestCase {
         XCTAssertEqual(baggage.sampleRand, fixture.sampleRand)
         XCTAssertEqual(baggage.replayId, fixture.replayId)
     }
+    
+    func testSerialize_whenAllValuesSet_shouldIncludeAllFields() {
+        // Arrange
+        let traceContext = TraceContext(
+            trace: fixture.traceId,
+            publicKey: fixture.publicKey,
+            releaseName: fixture.releaseName,
+            environment: fixture.environment,
+            transaction: fixture.transactionName,
+            sampleRate: fixture.sampleRate,
+            sampleRand: fixture.sampleRand,
+            sampled: fixture.sampled,
+            replayId: fixture.replayId
+        )
+        
+        // Act
+        let serialized = traceContext.serialize()
+        
+        // Assert
+        XCTAssertEqual(serialized["trace_id"] as? String, fixture.traceId.sentryIdString)
+        XCTAssertEqual(serialized["public_key"] as? String, fixture.publicKey)
+        XCTAssertEqual(serialized["release"] as? String, fixture.releaseName)
+        XCTAssertEqual(serialized["environment"] as? String, fixture.environment)
+        XCTAssertEqual(serialized["transaction"] as? String, fixture.transactionName)
+        XCTAssertEqual(serialized["sample_rate"] as? String, fixture.sampleRate)
+        XCTAssertEqual(serialized["sample_rand"] as? String, fixture.sampleRand)
+        XCTAssertEqual(serialized["sampled"] as? String, fixture.sampled)
+        XCTAssertEqual(serialized["replay_id"] as? String, fixture.replayId)
+    }
+    
+    func testSerialize_whenOnlyRequiredValuesSet_shouldOnlyIncludeRequiredFields() {
+        // Arrange
+        let traceContext = TraceContext(
+            trace: fixture.traceId,
+            publicKey: fixture.publicKey,
+            releaseName: nil,
+            environment: nil,
+            transaction: nil,
+            sampleRate: nil,
+            sampleRand: nil,
+            sampled: nil,
+            replayId: nil
+        )
+        
+        // Act
+        let serialized = traceContext.serialize()
+        
+        // Assert
+        // Required fields must be present
+        XCTAssertEqual(serialized["trace_id"] as? String, fixture.traceId.sentryIdString)
+        XCTAssertEqual(serialized["public_key"] as? String, fixture.publicKey)
+        
+        // Optional fields should be absent
+        XCTAssertNil(serialized["release"])
+        XCTAssertNil(serialized["environment"])
+        XCTAssertNil(serialized["transaction"])
+        XCTAssertNil(serialized["sample_rate"])
+        XCTAssertNil(serialized["sample_rand"])
+        XCTAssertNil(serialized["sampled"])
+        XCTAssertNil(serialized["replay_id"])
+    }
         
     private func assertTraceState(traceContext: TraceContext) {
         XCTAssertEqual(traceContext.traceId, fixture.traceId)

@@ -98,15 +98,16 @@ The handler automatically includes the following attributes with every log entry
 - `sentry.origin`: `"auto.logging.swift-log"`
 - `swift-log.level`: The original swift-log level
 - `swift-log.source`: The log source
-- `swift-log.file`: The source file name
-- `swift-log.function`: The function name
-- `swift-log.line`: The line number
+- `code.file.path`: The source file name
+- `code.function.name`: The function name
+- `code.line.number`: The line number
 
 ## Documentation
 
 - [Sentry Cocoa SDK Documentation](https://docs.sentry.io/platforms/apple/)
 - [Sentry Logs Documentation](https://docs.sentry.io/platforms/apple/logs/)
 - [SwiftLog Repo](https://github.com/apple/swift-log)
+- [Sentry Conventions](https://getsentry.github.io/sentry-conventions/generated/attributes/)
 
 ## License
 
