@@ -63,7 +63,7 @@ sentryLogSync_setPath(const char *path)
         return;
     }
 
-    size_t pathLen = strlen(path) + 1;
+    size_t pathLen = strlen(path) + 1; // Add a byte for the null-terminator.
     logFilePath = malloc(pathLen);
     if (logFilePath != NULL) {
         strlcpy(logFilePath, path, pathLen);

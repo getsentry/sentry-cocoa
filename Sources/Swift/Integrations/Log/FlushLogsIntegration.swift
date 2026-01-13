@@ -17,7 +17,8 @@ protocol NotificationCenterProvider {
 final class FlushLogsIntegration<Dependencies: NotificationCenterProvider>: NSObject, SwiftIntegration {
     
     private let notificationCenter: SentryNSNotificationCenterWrapper
-    private let options: Options
+    private let cacheDirectoryPath: String
+    private let dsnHash: String?
     
     init?(with options: Options, dependencies: Dependencies) {
         guard options.enableLogs else {
@@ -25,7 +26,8 @@ final class FlushLogsIntegration<Dependencies: NotificationCenterProvider>: NSOb
         }
         
         self.notificationCenter = dependencies.notificationCenterWrapper
-        self.options = options
+        cacheDirectoryPath = options.cacheDirectoryPath
+        dsnHash = options.parsedDsn?.getHash()
         
         super.init()
         
@@ -110,9 +112,9 @@ final class FlushLogsIntegration<Dependencies: NotificationCenterProvider>: NSOb
     private func getTelemetryBufferFolderURL() -> URL {
         // Path: {cacheDirectoryPath}/io.sentry/{dsnHash}/telemetry-buffer
         
-        var url = URL(fileURLWithPath: options.cacheDirectoryPath)
+        var url = URL(fileURLWithPath: cacheDirectoryPath)
         url.appendPathComponent("io.sentry")
-        let dsnHash = options.parsedDsn?.getHash() ?? ""
+        let dsnHash = dsnHash ?? ""
         url.appendPathComponent(dsnHash)
         url.appendPathComponent("telemetry-buffer")
         return url
