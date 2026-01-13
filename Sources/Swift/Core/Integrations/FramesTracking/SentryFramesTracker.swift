@@ -69,10 +69,8 @@ public class SentryFramesTracker: NSObject {
     }
     
     deinit {
-        // Avoid async dispatch with self capture on deinit.
-        dispatchQueueWrapper.dispatchSyncOnMainQueue {
-            self.stopInternal()
-        }
+        // Need to invalidate so DisplayLink is releasing this object. Calling this is thread-safe.
+        displayLinkWrapper.invalidate()
     }
 
     // MARK: - Public Methods
