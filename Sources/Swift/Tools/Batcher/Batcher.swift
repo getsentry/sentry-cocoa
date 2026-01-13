@@ -89,13 +89,14 @@ final class Batcher<Buffer: BatchBuffer<Item>, Item: BatcherItem, Scope: Batcher
         encodeAndBuffer(item: item)
     }
 
-    /// Captures all currently batched items synchronously and returns the duration of the operation.
-    /// - Returns: The time taken to capture items in seconds (currently always returns 0)
+    /// Captures all currently batched items synchronously
     ///
     /// - Note: This method blocks until all items are captured. The batcher's buffer is cleared after capture.
     ///        Thread safety is ensured through internal locking.
     func capture() {
-        performCaptureItems()
+        lock.synchronized {
+            performCaptureItemsInternal()
+        }
     }
 
     /// Encodes and buffers an item, triggering a flush if limits are reached.
@@ -110,9 +111,9 @@ final class Batcher<Buffer: BatchBuffer<Item>, Item: BatcherItem, Scope: Batcher
 
                 // Flush when we reach max item count or max buffer size
                 if buffer.itemsCount >= config.maxItemCount || buffer.itemsDataSize >= config.maxBufferSizeBytes {
-                    performCaptureItemsLocked()
+                    performCaptureItemsInternal()
                 } else if encodedItemsWereEmpty && timerWorkItem == nil {
-                    startTimerLocked()
+                    startTimerInternal()
                 }
             } catch {
                 SentrySDKLog.error("Failed to encode item: \(error)")
@@ -124,30 +125,19 @@ final class Batcher<Buffer: BatchBuffer<Item>, Item: BatcherItem, Scope: Batcher
     ///
     /// - Note: The timer is only started when the buffer transitions from empty to non-empty.
     ///        Must be called while holding the lock.
-    private func startTimerLocked() {
+    private func startTimerInternal() {
         let timerWorkItem = DispatchWorkItem { [weak self] in
-            SentrySDKLog.debug("Timer fired, calling performFlush().")
-            self?.performCaptureItems()
+            SentrySDKLog.debug("Timer fired, calling capture().")
+            self?.capture()
         }
         self.timerWorkItem = timerWorkItem
         dispatchQueue.dispatch(after: config.flushTimeout, workItem: timerWorkItem)
-    }
-
-    /// Captures all buffered items by invoking the configured callback and clears the buffer.
-    ///
-    /// - Note: This method cancels any pending timer and clears the buffer after invoking the callback.
-    ///        If the buffer is empty, the callback is not invoked.
-    ///        Thread safety is ensured through internal locking.
-    private func performCaptureItems() {
-        lock.synchronized {
-            performCaptureItemsLocked()
-        }
     }
     
     /// Internal implementation of capture that assumes the lock is already held.
     ///
     /// - Note: Must be called while holding the lock.
-    private func performCaptureItemsLocked() {
+    private func performCaptureItemsInternal() {
         // Reset items on function exit
         defer {
             buffer.clear()
