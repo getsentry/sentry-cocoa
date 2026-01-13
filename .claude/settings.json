@@ -3,7 +3,6 @@
     "allow": [
       "Bash(ls:*)",
       "Bash(pwd:*)",
-      "Bash(find:*)",
       "Bash(file:*)",
       "Bash(stat:*)",
       "Bash(wc:*)",
