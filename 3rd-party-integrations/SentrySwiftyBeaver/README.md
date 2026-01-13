@@ -101,9 +101,9 @@ The destination automatically includes the following attributes with every log e
 - `sentry.origin`: `"auto.logging.swiftybeaver"`
 - `swiftybeaver.level`: The original SwiftyBeaver level (as raw value)
 - `swiftybeaver.thread`: The thread identifier
-- `swiftybeaver.file`: The source file name
-- `swiftybeaver.function`: The function name
-- `swiftybeaver.line`: The line number
+- `code.file.path`: The source file name
+- `code.function.name`: The function name
+- `code.line.number`: The line number
 
 ## Documentation
 

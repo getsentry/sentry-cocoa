@@ -64,9 +64,9 @@ public class SentryDestination: BaseDestination {
         attributes["sentry.origin"] = "auto.logging.swiftybeaver"
         attributes["swiftybeaver.level"] = "\(level.rawValue)"
         attributes["swiftybeaver.thread"] = thread
-        attributes["swiftybeaver.file"] = file
-        attributes["swiftybeaver.function"] = function
-        attributes["swiftybeaver.line"] = "\(line)"
+        attributes["code.file.path"] = file
+        attributes["code.function.name"] = function
+        attributes["code.line.number"] = line
         
         if let context = context {
             addContextToAttributes(&attributes, context: context)

@@ -39,9 +39,9 @@ final class SentryDestinationTests: XCTestCase {
         XCTAssertEqual(log.attributes["sentry.origin"]?.value as? String, "auto.logging.swiftybeaver")
         XCTAssertEqual(log.attributes["swiftybeaver.level"]?.value as? String, "0")
         XCTAssertEqual(log.attributes["swiftybeaver.thread"]?.value as? String, "main")
-        XCTAssertEqual(log.attributes["swiftybeaver.file"]?.value as? String, "Test.swift")
-        XCTAssertEqual(log.attributes["swiftybeaver.function"]?.value as? String, "testFunction")
-        XCTAssertEqual(log.attributes["swiftybeaver.line"]?.value as? String, "42")
+        XCTAssertEqual(log.attributes["code.file.path"]?.value as? String, "Test.swift")
+        XCTAssertEqual(log.attributes["code.function.name"]?.value as? String, "testFunction")
+        XCTAssertEqual(log.attributes["code.line.number"]?.value as? Int, 42)
         
         XCTAssertNil(result)
     }
@@ -57,9 +57,9 @@ final class SentryDestinationTests: XCTestCase {
         XCTAssertEqual(log.attributes["sentry.origin"]?.value as? String, "auto.logging.swiftybeaver")
         XCTAssertEqual(log.attributes["swiftybeaver.level"]?.value as? String, "1")
         XCTAssertEqual(log.attributes["swiftybeaver.thread"]?.value as? String, "main")
-        XCTAssertEqual(log.attributes["swiftybeaver.file"]?.value as? String, "Test.swift")
-        XCTAssertEqual(log.attributes["swiftybeaver.function"]?.value as? String, "testFunction")
-        XCTAssertEqual(log.attributes["swiftybeaver.line"]?.value as? String, "50")
+        XCTAssertEqual(log.attributes["code.file.path"]?.value as? String, "Test.swift")
+        XCTAssertEqual(log.attributes["code.function.name"]?.value as? String, "testFunction")
+        XCTAssertEqual(log.attributes["code.line.number"]?.value as? Int, 50)
         
         XCTAssertNil(result)
     }
@@ -75,9 +75,9 @@ final class SentryDestinationTests: XCTestCase {
         XCTAssertEqual(log.attributes["sentry.origin"]?.value as? String, "auto.logging.swiftybeaver")
         XCTAssertEqual(log.attributes["swiftybeaver.level"]?.value as? String, "2")
         XCTAssertEqual(log.attributes["swiftybeaver.thread"]?.value as? String, "main")
-        XCTAssertEqual(log.attributes["swiftybeaver.file"]?.value as? String, "Test.swift")
-        XCTAssertEqual(log.attributes["swiftybeaver.function"]?.value as? String, "testFunction")
-        XCTAssertEqual(log.attributes["swiftybeaver.line"]?.value as? String, "100")
+        XCTAssertEqual(log.attributes["code.file.path"]?.value as? String, "Test.swift")
+        XCTAssertEqual(log.attributes["code.function.name"]?.value as? String, "testFunction")
+        XCTAssertEqual(log.attributes["code.line.number"]?.value as? Int, 100)
         
         XCTAssertNil(result)
     }
@@ -93,9 +93,9 @@ final class SentryDestinationTests: XCTestCase {
         XCTAssertEqual(log.attributes["sentry.origin"]?.value as? String, "auto.logging.swiftybeaver")
         XCTAssertEqual(log.attributes["swiftybeaver.level"]?.value as? String, "3")
         XCTAssertEqual(log.attributes["swiftybeaver.thread"]?.value as? String, "main")
-        XCTAssertEqual(log.attributes["swiftybeaver.file"]?.value as? String, "Test.swift")
-        XCTAssertEqual(log.attributes["swiftybeaver.function"]?.value as? String, "testFunction")
-        XCTAssertEqual(log.attributes["swiftybeaver.line"]?.value as? String, "75")
+        XCTAssertEqual(log.attributes["code.file.path"]?.value as? String, "Test.swift")
+        XCTAssertEqual(log.attributes["code.function.name"]?.value as? String, "testFunction")
+        XCTAssertEqual(log.attributes["code.line.number"]?.value as? Int, 75)
         
         XCTAssertNil(result)
     }
@@ -111,9 +111,9 @@ final class SentryDestinationTests: XCTestCase {
         XCTAssertEqual(log.attributes["sentry.origin"]?.value as? String, "auto.logging.swiftybeaver")
         XCTAssertEqual(log.attributes["swiftybeaver.level"]?.value as? String, "4")
         XCTAssertEqual(log.attributes["swiftybeaver.thread"]?.value as? String, "main")
-        XCTAssertEqual(log.attributes["swiftybeaver.file"]?.value as? String, "Test.swift")
-        XCTAssertEqual(log.attributes["swiftybeaver.function"]?.value as? String, "testFunction")
-        XCTAssertEqual(log.attributes["swiftybeaver.line"]?.value as? String, "200")
+        XCTAssertEqual(log.attributes["code.file.path"]?.value as? String, "Test.swift")
+        XCTAssertEqual(log.attributes["code.function.name"]?.value as? String, "testFunction")
+        XCTAssertEqual(log.attributes["code.line.number"]?.value as? Int, 200)
         
         XCTAssertNil(result)
     }
@@ -129,9 +129,9 @@ final class SentryDestinationTests: XCTestCase {
         XCTAssertEqual(log.attributes["sentry.origin"]?.value as? String, "auto.logging.swiftybeaver")
         XCTAssertEqual(log.attributes["swiftybeaver.level"]?.value as? String, "5")
         XCTAssertEqual(log.attributes["swiftybeaver.thread"]?.value as? String, "main")
-        XCTAssertEqual(log.attributes["swiftybeaver.file"]?.value as? String, "Test.swift")
-        XCTAssertEqual(log.attributes["swiftybeaver.function"]?.value as? String, "testFunction")
-        XCTAssertEqual(log.attributes["swiftybeaver.line"]?.value as? String, "250")
+        XCTAssertEqual(log.attributes["code.file.path"]?.value as? String, "Test.swift")
+        XCTAssertEqual(log.attributes["code.function.name"]?.value as? String, "testFunction")
+        XCTAssertEqual(log.attributes["code.line.number"]?.value as? Int, 250)
         
         XCTAssertNil(result)
     }
@@ -147,9 +147,9 @@ final class SentryDestinationTests: XCTestCase {
         XCTAssertEqual(log.attributes["sentry.origin"]?.value as? String, "auto.logging.swiftybeaver")
         XCTAssertEqual(log.attributes["swiftybeaver.level"]?.value as? String, "6")
         XCTAssertEqual(log.attributes["swiftybeaver.thread"]?.value as? String, "main")
-        XCTAssertEqual(log.attributes["swiftybeaver.file"]?.value as? String, "Test.swift")
-        XCTAssertEqual(log.attributes["swiftybeaver.function"]?.value as? String, "testFunction")
-        XCTAssertEqual(log.attributes["swiftybeaver.line"]?.value as? String, "300")
+        XCTAssertEqual(log.attributes["code.file.path"]?.value as? String, "Test.swift")
+        XCTAssertEqual(log.attributes["code.function.name"]?.value as? String, "testFunction")
+        XCTAssertEqual(log.attributes["code.line.number"]?.value as? Int, 300)
         
         XCTAssertNil(result)
     }
