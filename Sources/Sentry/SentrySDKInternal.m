@@ -29,7 +29,6 @@
 #    import "SentryPerformanceTrackingIntegration.h"
 #    import "SentryUIEventTrackingIntegration.h"
 #    import "SentryViewHierarchyIntegration.h"
-#    import "SentryWatchdogTerminationTrackingIntegration.h"
 #endif // SENTRY_HAS_UIKIT
 
 #if TARGET_OS_OSX
@@ -515,7 +514,6 @@ static NSDate *_Nullable startTimestamp = nil;
         [SentryAppStartTrackingIntegration class], [SentryFramesTrackingIntegration class],
         [SentryPerformanceTrackingIntegration class], [SentryUIEventTrackingIntegration class],
         [SentryViewHierarchyIntegration class],
-        [SentryWatchdogTerminationTrackingIntegration class],
 #endif // SENTRY_HAS_UIKIT
         [SentryAutoBreadcrumbTrackingIntegration class], [SentryCoreDataTrackingIntegration class],
         [SentryFileIOTrackingIntegration class], [SentryNetworkTrackingIntegration class], nil];

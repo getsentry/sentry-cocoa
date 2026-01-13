@@ -175,7 +175,6 @@
 #import "SentryUseNSExceptionCallstackWrapper.h"
 #import "SentryViewHierarchyIntegration.h"
 #import "SentryWatchdogTerminationBreadcrumbProcessor.h"
-#import "SentryWatchdogTerminationTrackingIntegration.h"
 #import "SentryWeakMap.h"
 #import "TestSentrySpan.h"
 #import "TestSentryViewHierarchyProvider.h"

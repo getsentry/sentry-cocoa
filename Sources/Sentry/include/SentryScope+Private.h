@@ -60,8 +60,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (atomic, strong) NSMutableDictionary<NSString *, NSString *> *tagDictionary;
 
-- (void)addObserver:(id<SentryScopeObserver>)observer;
-
 - (nullable SentryEvent *)applyToEvent:(SentryEvent *_Nullable)event
                          maxBreadcrumb:(NSUInteger)maxBreadcrumbs
     NS_SWIFT_NAME(applyTo(event:maxBreadcrumbs:));
