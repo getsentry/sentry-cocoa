@@ -191,7 +191,7 @@ build-watchos:
 		-workspace Sentry.xcworkspace \
 		-scheme $(XCODE_SCHEME) \
 		-destination 'platform=watchOS Simulator,OS=$(WATCHOS_SIMULATOR_OS),name=$(WATCHOS_DEVICE_NAME)' \
-		-configuration Test \
+		-configuration Debug \
 		CODE_SIGNING_ALLOWED="NO" 2>&1 | xcbeautify --preserve-unbeautified
 
 ## Build XCFramework for distribution
