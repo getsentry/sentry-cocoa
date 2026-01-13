@@ -13,7 +13,6 @@
 #import "SentrySpan+Private.h"
 #import "SentrySwift.h"
 #import "SentryTracer.h"
-#import "SentryWatchdogTerminationLogic.h"
 #import <SentryClient+Private.h>
 #import <SentryCrashScopeObserver.h>
 #import <SentryLogC.h>
