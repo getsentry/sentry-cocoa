@@ -74,6 +74,7 @@ final class SentryAutoBreadcrumbTrackingIntegration<Dependencies: AutoBreadcrumb
 
     // MARK: - SentryBreadcrumbDelegate
 
+    @objc(addBreadcrumb:)
     func add(_ crumb: Breadcrumb) {
         SentrySDKInternal.addBreadcrumb(crumb)
     }

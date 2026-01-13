@@ -1,5 +1,5 @@
 @_spi(Private) import _SentryPrivate
-@testable import Sentry
+@_spi(Private) @testable import Sentry
 @_spi(Private) import SentryTestUtils
 import XCTest
 
