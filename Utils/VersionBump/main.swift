@@ -41,7 +41,6 @@ let files = [
     "./Package.swift",
     "./SentrySwiftUI.podspec",
     "./Sources/Sentry/SentryMeta.m",
-    "./Tests/HybridSDKTest/HybridPod.podspec",
     "./3rd-party-integrations/SentrySwiftLog/Package.swift",
     "./3rd-party-integrations/SentryPulse/Package.swift"
 ]
