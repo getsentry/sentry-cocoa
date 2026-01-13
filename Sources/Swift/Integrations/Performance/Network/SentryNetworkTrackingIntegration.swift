@@ -29,7 +29,7 @@ final class SentryNetworkTrackingIntegration<Dependencies: NetworkTrackerProvide
             networkTracker.enableGraphQLOperationTracking()
         }
 
-        guard shouldEnableNetworkTracking || options.enableNetworkBreadcrumbs || options.enableCaptureFailedRequests || options.enableGraphQLOperationTracking else {
+        guard shouldEnableNetworkTracking || options.enableNetworkBreadcrumbs || options.enableCaptureFailedRequests else {
             return nil
         }
 
