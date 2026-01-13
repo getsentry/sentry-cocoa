@@ -1,8 +1,7 @@
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 
-@_spi(Private) import Sentry
-@_spi(Private) import SentryTestUtils
-import SentryTestUtils
+@_spi(Private) @testable import Sentry
+@_spi(Private) @testable import SentryTestUtils
 import XCTest
 
 class SentryViewHierarchyIntegrationTests: XCTestCase {
@@ -184,7 +183,7 @@ class SentryViewHierarchyIntegrationTests: XCTestCase {
         
         let dispatch = DispatchQueue(label: "background")
         dispatch.async {
-            sut.processAttachments([], for: event)
+            _ = sut.processAttachments([], for: event)
             ex.fulfill()
         }
         
