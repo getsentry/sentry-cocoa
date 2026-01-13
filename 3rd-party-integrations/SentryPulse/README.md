@@ -94,9 +94,9 @@ The integration automatically includes the following attributes with every log e
 - `sentry.origin`: `"auto.logging.pulse"`
 - `pulse.level`: The original Pulse level name
 - `pulse.label`: The logger label
-- `pulse.file`: The source file name (if available)
-- `pulse.function`: The function name (if available)
-- `pulse.line`: The line number
+- `code.file.path`: The source file name (if available)
+- `code.function.name`: The function name (if available)
+- `code.line.number`: The line number
 
 All Pulse metadata is prefixed with `pulse.` in Sentry attributes (e.g., `pulse.userId`, `pulse.action`).
 

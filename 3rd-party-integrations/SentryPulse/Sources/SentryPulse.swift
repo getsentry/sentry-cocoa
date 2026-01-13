@@ -135,12 +135,14 @@ public final class SentryPulse {
         attributes["pulse.level"] = message.level.name
         attributes["pulse.label"] = message.label
         if !message.file.isEmpty {
-            attributes["pulse.file"] = message.file
+            attributes["code.file.path"] = message.file
         }
         if !message.function.isEmpty {
-            attributes["pulse.function"] = message.function
+            attributes["code.function.name"] = message.function
         }
-        attributes["pulse.line"] = message.line
+        if message.line > 0 {
+            attributes["code.line.number"] = Int(message.line)
+        }
         
         // Add metadata from Pulse message (already converted to [String: String])
         if let metadata = message.metadata {

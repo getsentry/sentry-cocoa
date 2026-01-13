@@ -58,9 +58,9 @@ final class SentryPulseTests: XCTestCase {
         XCTAssertEqual(log.attributes["sentry.origin"]?.value as? String, "auto.logging.pulse")
         XCTAssertEqual(log.attributes["pulse.level"]?.value as? String, "trace")
         XCTAssertEqual(log.attributes["pulse.label"]?.value as? String, "test")
-        XCTAssertEqual(log.attributes["pulse.file"]?.value as? String, "TestFile.swift")
-        XCTAssertEqual(log.attributes["pulse.function"]?.value as? String, "testFunction")
-        XCTAssertEqual(log.attributes["pulse.line"]?.value as? String, "1")
+        XCTAssertEqual(log.attributes["code.file.path"]?.value as? String, "TestFile.swift")
+        XCTAssertEqual(log.attributes["code.function.name"]?.value as? String, "testFunction")
+        XCTAssertEqual(log.attributes["code.line.number"]?.value as? Int, 1)
     }
     
     func testLog_WithDebugLevel() throws {
