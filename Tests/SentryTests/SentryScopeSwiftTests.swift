@@ -838,7 +838,7 @@ class SentryScopeSwiftTests: XCTestCase {
     func testGetCasedInternalSpan_SpanIsOfInternalTypeSpan() throws {
         // -- Arrange --
         let scope = Scope()
-        let span = SentrySpan(context: SpanContext(operation: "TEST"))
+        let span = SentrySpanInternal(context: SpanContext(operation: "TEST"))
 
         scope.span = span
 
