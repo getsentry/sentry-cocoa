@@ -34,7 +34,7 @@ jobs:
           filters: .github/file-filters.yml
 
   api-stability:
-    name: Check API Stability
+    name: Check API Stability (${{ matrix.version }})
     if: needs.files-changed.outputs.run_api_stability_for_prs == 'true'
     needs: files-changed
     runs-on: macos-15
@@ -75,7 +75,11 @@ jobs:
   # So, we don't have to run API stability checks, for example, for Changelog or ReadMe changes.
 
   api-stability-required-check:
-    needs: [files-changed, api-stability]
+    needs:
+      [
+        files-changed,
+        api-stability,
+      ]
     name: API Stability
     # This is necessary since a failed/skipped dependent job would cause this job to be skipped
     if: always()
