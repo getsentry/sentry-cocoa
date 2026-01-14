@@ -59,14 +59,14 @@
     }
 
     SENTRY_LOG_DEBUG(@"Starting initial display span");
-    self.initialDisplaySpan = (SentrySpan *)[tracer
+    self.initialDisplaySpan = (SentrySpanInternal *)[tracer
         startChildWithOperation:SentrySpanOperationUiLoadInitialDisplay
                     description:[NSString stringWithFormat:@"%@ initial display", _name]];
     self.initialDisplaySpan.origin = SentryTraceOriginAutoUITimeToDisplay;
 
     if (self.waitForFullDisplay) {
         SENTRY_LOG_DEBUG(@"Starting full display span");
-        self.fullDisplaySpan = (SentrySpan *)[tracer
+        self.fullDisplaySpan = (SentrySpanInternal *)[tracer
             startChildWithOperation:SentrySpanOperationUiLoadFullDisplay
                         description:[NSString stringWithFormat:@"%@ full display", _name]];
         self.fullDisplaySpan.origin = SentryTraceOriginManualUITimeToDisplay;

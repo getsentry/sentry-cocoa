@@ -24,10 +24,10 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentrySpan ()
+@interface SentrySpanInternal ()
 @end
 
-@implementation SentrySpan {
+@implementation SentrySpanInternal {
     NSMutableDictionary<NSString *, id> *_data;
     NSMutableDictionary<NSString *, id> *_tags;
     NSObject *_stateLock;

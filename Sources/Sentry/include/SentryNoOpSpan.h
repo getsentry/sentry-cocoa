@@ -5,7 +5,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryNoOpSpan : SentrySpan
+@interface SentryNoOpSpan : SentrySpanInternal
 SENTRY_NO_INIT
 
 + (instancetype)shared;

@@ -357,10 +357,10 @@ typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull 
         return span;
     };
     SentryOptions *options = [self getValidOptions:@{ @"beforeSendSpan" : callback }];
-    options.beforeSendSpan(
-        [[SentrySpan alloc] initWithContext:[[SentrySpanContext alloc] initWithOperation:@""]
+    options.beforeSendSpan([[SentrySpanInternal alloc]
+        initWithContext:[[SentrySpanContext alloc] initWithOperation:@""]
 #if SENTRY_HAS_UIKIT
-                              framesTracker:NULL
+          framesTracker:NULL
 #endif
     ]);
 
