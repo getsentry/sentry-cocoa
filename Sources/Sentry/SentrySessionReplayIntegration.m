@@ -444,11 +444,10 @@ static SentryTouchTracker *_touchTracker;
                                                                    delegate:self
                                                          displayLinkWrapper:displayLinkWrapper];
 
-    UIWindow *window =
-        [SentryDependencyContainer.sharedInstance.application getWindows].firstObject;
-    if (window != nil) {
-        [self.sessionReplay startWithRootView:window fullSession:shouldReplayFullSession];
-    }
+    [self.sessionReplay
+        startWithRootView:[SentryDependencyContainer.sharedInstance.application getWindows]
+                              .firstObject
+              fullSession:shouldReplayFullSession];
 
     [_notificationCenter addObserver:self
                             selector:@selector(pause)
