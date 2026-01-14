@@ -32,7 +32,7 @@ class SentryNetworkTrackingIntegrationSwiftTests: XCTestCase {
         let logMessages = logOutput.loggedMessages.filter {
             $0.contains("Not going to enable SentryNetworkTrackingIntegration because enableSwizzling is disabled.")
         }
-        XCTAssertEqual(logMessages.count, 1)
+        XCTAssertEqual(logMessages.count, 1, "Expected log not found")
     }
 
     func test_TracingDisabled_IntegrationNotInstalled() {
@@ -59,7 +59,7 @@ class SentryNetworkTrackingIntegrationSwiftTests: XCTestCase {
         let logMessages = logOutput.loggedMessages.filter {
             $0.contains("Not going to enable SentryNetworkTrackingIntegration because isTracingEnabled is disabled.")
         }
-        XCTAssertEqual(logMessages.count, 1)
+        XCTAssertEqual(logMessages.count, 1, "Expected log not found")
     }
 
     func test_AutoPerformanceTracingDisabled_IntegrationNotInstalled() {
@@ -87,7 +87,7 @@ class SentryNetworkTrackingIntegrationSwiftTests: XCTestCase {
         let logMessages = logOutput.loggedMessages.filter {
             $0.contains("Not going to enable SentryNetworkTrackingIntegration because enableAutoPerformanceTracing is disabled.")
         }
-        XCTAssertEqual(logMessages.count, 1)
+        XCTAssertEqual(logMessages.count, 1, "Expected log not found")
     }
 
     func test_NetworkTrackingDisabled_IntegrationNotInstalled() {
@@ -115,74 +115,69 @@ class SentryNetworkTrackingIntegrationSwiftTests: XCTestCase {
         let logMessages = logOutput.loggedMessages.filter {
             $0.contains("Not going to enable SentryNetworkTrackingIntegration because enableNetworkTracking is disabled.")
         }
-        XCTAssertEqual(logMessages.count, 1)
+        XCTAssertEqual(logMessages.count, 1, "Expected log not found")
     }
 
-    func test_NetworkTrackingEnabled_IntegrationInstalled() {
+    func test_NetworkTrackingEnabled_IntegrationInstalled() throws {
         let options = Options()
         options.tracesSampleRate = 1.0
         options.enableNetworkTracking = true
 
-        let sut = SentryNetworkTrackingIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance())
+        let sut = try XCTUnwrap(SentryNetworkTrackingIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
         defer {
-            sut?.uninstall()
+            sut.uninstall()
         }
 
-        XCTAssertNotNil(sut)
         XCTAssertTrue(SentryNetworkTracker.sharedInstance.isNetworkTrackingEnabled)
     }
 
-    func test_OnlyBreadcrumbsEnabled_IntegrationInstalled() {
+    func test_OnlyBreadcrumbsEnabled_IntegrationInstalled() throws {
         let options = Options()
         options.tracesSampleRate = 0.0
         options.enableNetworkBreadcrumbs = true
 
-        let sut = SentryNetworkTrackingIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance())
+        let sut = try XCTUnwrap(SentryNetworkTrackingIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
         defer {
-            sut?.uninstall()
+            sut.uninstall()
         }
 
-        XCTAssertNotNil(sut)
         XCTAssertTrue(SentryNetworkTracker.sharedInstance.isNetworkBreadcrumbEnabled)
     }
 
-    func test_OnlyCaptureFailedRequestsEnabled_IntegrationInstalled() {
+    func test_OnlyCaptureFailedRequestsEnabled_IntegrationInstalled() throws {
         let options = Options()
         options.tracesSampleRate = 0.0
         options.enableCaptureFailedRequests = true
 
-        let sut = SentryNetworkTrackingIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance())
+        let sut = try XCTUnwrap(SentryNetworkTrackingIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
         defer {
-            sut?.uninstall()
+            sut.uninstall()
         }
-
-        XCTAssertNotNil(sut)
+        
         XCTAssertTrue(SentryNetworkTracker.sharedInstance.isCaptureFailedRequestsEnabled)
     }
 
-    func test_GraphQLOperationTrackingEnabled() {
+    func test_GraphQLOperationTrackingEnabled() throws {
         let options = Options()
         options.tracesSampleRate = 1.0
         options.enableGraphQLOperationTracking = true
 
-        let sut = SentryNetworkTrackingIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance())
+        let sut = try XCTUnwrap(SentryNetworkTrackingIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
         defer {
-            sut?.uninstall()
+            sut.uninstall()
         }
 
-        XCTAssertNotNil(sut)
         XCTAssertTrue(SentryNetworkTracker.sharedInstance.isGraphQLOperationTrackingEnabled)
     }
 
-    func test_Uninstall_DisablesNetworkTracker() {
+    func test_Uninstall_DisablesNetworkTracker() throws {
         let options = Options()
         options.tracesSampleRate = 1.0
 
-        let sut = SentryNetworkTrackingIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance())
-        XCTAssertNotNil(sut)
+        let sut = try XCTUnwrap(SentryNetworkTrackingIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
         XCTAssertTrue(SentryNetworkTracker.sharedInstance.isNetworkTrackingEnabled)
 
-        sut?.uninstall()
+        sut.uninstall()
 
         XCTAssertFalse(SentryNetworkTracker.sharedInstance.isNetworkTrackingEnabled)
     }
