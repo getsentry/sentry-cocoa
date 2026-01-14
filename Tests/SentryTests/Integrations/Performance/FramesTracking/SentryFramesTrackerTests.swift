@@ -21,10 +21,10 @@ class SentryFramesTrackerTests: XCTestCase {
         init() {
             displayLinkWrapper = TestDisplayLinkWrapper(dateProvider: dateProvider)
 
-            slowestSlowFrameDelay = (displayLinkWrapper.slowestSlowFrameDuration - slowFrameThreshold(displayLinkWrapper.currentFrameRate.rawValue))
+            slowestSlowFrameDelay = (displayLinkWrapper.slowestSlowFrameDuration - SentryFramesTracker.slowFrameThreshold(displayLinkWrapper.currentFrameRate.rawValue))
         }
         
-        lazy var sut: SentryFramesTracker = SentryFramesTracker(displayLinkWrapper: displayLinkWrapper, dateProvider: dateProvider, dispatchQueueWrapper: SentryDispatchQueueWrapper(), notificationCenter: notificationCenter, keepDelayedFramesDuration: keepDelayedFramesDuration)
+        lazy var sut: SentryFramesTracker = SentryFramesTracker(displayLinkWrapper: displayLinkWrapper, dateProvider: dateProvider, dispatchQueueWrapper: SentryDispatchQueueWrapper(), notificationCenter: notificationCenter, delayedFramesTracker: TestDelayedWrapper(keepDelayedFramesDuration: keepDelayedFramesDuration, dateProvider: dateProvider))
         
     }
     
@@ -203,7 +203,7 @@ class SentryFramesTrackerTests: XCTestCase {
         
         let endSystemTime = fixture.dateProvider.systemTime()
         
-        let expectedDelay = displayLink.timeEpsilon + displayLink.slowestSlowFrameDuration - slowFrameThreshold(displayLink.currentFrameRate.rawValue)
+        let expectedDelay = displayLink.timeEpsilon + displayLink.slowestSlowFrameDuration - SentryFramesTracker.slowFrameThreshold(displayLink.currentFrameRate.rawValue)
         
         let actualFrameDelay = sut.getFramesDelay(startSystemTime, endSystemTimestamp: endSystemTime)
         XCTAssertEqual(actualFrameDelay.delayDuration, expectedDelay, accuracy: 0.0001)
@@ -231,7 +231,7 @@ class SentryFramesTrackerTests: XCTestCase {
         fixture.dateProvider.advance(by: delayWithoutFrameRecord)
         let endSystemTime = fixture.dateProvider.systemTime()
         
-        let expectedDelay = delayWithoutFrameRecord - slowFrameThreshold(displayLink.currentFrameRate.rawValue)
+        let expectedDelay = delayWithoutFrameRecord - SentryFramesTracker.slowFrameThreshold(displayLink.currentFrameRate.rawValue)
         
         let actualFrameDelay = sut.getFramesDelay(startSystemTime, endSystemTimestamp: endSystemTime)
         XCTAssertEqual(actualFrameDelay.delayDuration, expectedDelay, accuracy: 0.0001)
@@ -265,7 +265,7 @@ class SentryFramesTrackerTests: XCTestCase {
         let timeIntervalAfterFrameStart = 0.0001
         
         // The timeIntervalAfterFrameStart is not subtracted from the delay, because that's when the frame was expected to be rendered on time.
-        let expectedDelay = fixture.displayLinkWrapper.slowestSlowFrameDuration - slowFrameThreshold(fixture.displayLinkWrapper.currentFrameRate.rawValue)
+        let expectedDelay = fixture.displayLinkWrapper.slowestSlowFrameDuration - SentryFramesTracker.slowFrameThreshold(fixture.displayLinkWrapper.currentFrameRate.rawValue)
         
         testFrameDelay(timeIntervalAfterFrameStart: timeIntervalAfterFrameStart, expectedDelay: expectedDelay)
     }
@@ -343,7 +343,7 @@ class SentryFramesTrackerTests: XCTestCase {
         
         let endSystemTime = fixture.dateProvider.systemTime()
         
-        let expectedDelay = delay - slowFrameThreshold(fixture.displayLinkWrapper.currentFrameRate.rawValue)
+        let expectedDelay = delay - SentryFramesTracker.slowFrameThreshold(fixture.displayLinkWrapper.currentFrameRate.rawValue)
         
         let actualFrameDelay = sut.getFramesDelay(startSystemTime, endSystemTimestamp: endSystemTime)
         XCTAssertEqual(actualFrameDelay.delayDuration, expectedDelay, accuracy: 0.0001)
@@ -360,7 +360,7 @@ class SentryFramesTrackerTests: XCTestCase {
         displayLink.call()
         displayLink.normalFrame()
         
-        fixture.dateProvider.advance(by: slowFrameThreshold(fixture.displayLinkWrapper.currentFrameRate.rawValue))
+        fixture.dateProvider.advance(by: SentryFramesTracker.slowFrameThreshold(fixture.displayLinkWrapper.currentFrameRate.rawValue))
         
         let startSystemTime = fixture.dateProvider.systemTime()
         
@@ -414,10 +414,10 @@ class SentryFramesTrackerTests: XCTestCase {
         displayLink.normalFrame()
         _ = displayLink.fastestSlowFrame()
         
-        let timeIntervalBeforeFrameEnd = slowFrameThreshold(displayLink.currentFrameRate.rawValue) - 0.005
+        let timeIntervalBeforeFrameEnd = SentryFramesTracker.slowFrameThreshold(displayLink.currentFrameRate.rawValue) - 0.005
         let endSystemTime = fixture.dateProvider.systemTime() - timeIntervalToNanoseconds(timeIntervalBeforeFrameEnd)
         
-        let expectedDelay = displayLink.slowestSlowFrameDuration - slowFrameThreshold(displayLink.currentFrameRate.rawValue)
+        let expectedDelay = displayLink.slowestSlowFrameDuration - SentryFramesTracker.slowFrameThreshold(displayLink.currentFrameRate.rawValue)
         
         let actualFrameDelay = sut.getFramesDelay(startSystemTime, endSystemTimestamp: endSystemTime)
         XCTAssertEqual(actualFrameDelay.delayDuration, expectedDelay, accuracy: 0.0001)
@@ -470,7 +470,7 @@ class SentryFramesTrackerTests: XCTestCase {
         fixture.dateProvider.advance(by: delayWithoutFrameRecord)
         let endSystemTime = fixture.dateProvider.systemTime()
         
-        let delayNotRecorded = delayWithoutFrameRecord - slowFrameThreshold(displayLink.currentFrameRate.rawValue)
+        let delayNotRecorded = delayWithoutFrameRecord - SentryFramesTracker.slowFrameThreshold(displayLink.currentFrameRate.rawValue)
         let expectedDelay = slowFramesDelay + delayNotRecorded
 
         let actualFrameDelay = sut.getFramesDelay(startSystemTime, endSystemTimestamp: endSystemTime)
@@ -644,7 +644,7 @@ class SentryFramesTrackerTests: XCTestCase {
         // Act
         let frameDelay = sut.getFramesDelay(startSystemTime, endSystemTimestamp: endSystemTime)
 
-        let expectedDelay = fixture.displayLinkWrapper.slowestSlowFrameDuration - slowFrameThreshold(fixture.displayLinkWrapper.currentFrameRate.rawValue)
+        let expectedDelay = fixture.displayLinkWrapper.slowestSlowFrameDuration - SentryFramesTracker.slowFrameThreshold(fixture.displayLinkWrapper.currentFrameRate.rawValue)
 
         // Assert
         XCTAssertEqual(frameDelay.delayDuration, expectedDelay, accuracy: 0.0001)
@@ -749,8 +749,8 @@ class SentryFramesTrackerTests: XCTestCase {
         let listener1 = FrameTrackerListener()
         let listener2 = FrameTrackerListener()
         sut.start()
-        sut.add(listener1)
-        sut.add(listener2)
+        sut.addListener(listener1)
+        sut.addListener(listener2)
         
         fixture.dateProvider.driftTimeForEveryRead = true
 
@@ -767,10 +767,10 @@ class SentryFramesTrackerTests: XCTestCase {
     
     func testListenerAreAddedInMainThread() {
         let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
-        let sut = SentryFramesTracker(displayLinkWrapper: fixture.displayLinkWrapper, dateProvider: fixture.dateProvider, dispatchQueueWrapper: dispatchQueueWrapper, notificationCenter: fixture.notificationCenter, keepDelayedFramesDuration: fixture.keepDelayedFramesDuration)
+        let sut = SentryFramesTracker(displayLinkWrapper: fixture.displayLinkWrapper, dateProvider: fixture.dateProvider, dispatchQueueWrapper: dispatchQueueWrapper, notificationCenter: fixture.notificationCenter, delayedFramesTracker: TestDelayedWrapper(keepDelayedFramesDuration: fixture.keepDelayedFramesDuration, dateProvider: fixture.dateProvider))
         let listener = FrameTrackerListener()
         
-        sut.add(listener)
+        sut.addListener(listener)
         
         XCTAssertEqual(dispatchQueueWrapper.blockOnMainInvocations.count, 1)
     }
@@ -779,8 +779,8 @@ class SentryFramesTrackerTests: XCTestCase {
         let sut = fixture.sut
         let listener = FrameTrackerListener()
         sut.start()
-        sut.add(listener)
-        sut.remove(listener)
+        sut.addListener(listener)
+        sut.removeListener(listener)
 
         fixture.displayLinkWrapper.normalFrame()
 
@@ -792,10 +792,10 @@ class SentryFramesTrackerTests: XCTestCase {
         let listener1 = FrameTrackerListener()
         let listener2 = FrameTrackerListener()
         sut.start()
-        sut.add(listener1)
+        sut.addListener(listener1)
         sut.stop()
         sut.start()
-        sut.add(listener2)
+        sut.addListener(listener2)
 
         fixture.displayLinkWrapper.normalFrame()
 
@@ -813,7 +813,7 @@ class SentryFramesTrackerTests: XCTestCase {
             listener.callback = {
                 callbackCalls += 1
             }
-            sut.add(listener)
+            sut.addListener(listener)
             fixture.displayLinkWrapper.normalFrame()
         }
 
@@ -831,7 +831,7 @@ class SentryFramesTrackerTests: XCTestCase {
             let displayLinkWrapper = fixture.displayLinkWrapper
             displayLinkWrapper.ignoreLinkInvocations = true
             
-            let sut = SentryFramesTracker(displayLinkWrapper: displayLinkWrapper, dateProvider: fixture.dateProvider, dispatchQueueWrapper: SentryDispatchQueueWrapper(), notificationCenter: notificationCenter, keepDelayedFramesDuration: 0)
+            let sut = SentryFramesTracker(displayLinkWrapper: displayLinkWrapper, dateProvider: fixture.dateProvider, dispatchQueueWrapper: SentryDispatchQueueWrapper(), notificationCenter: notificationCenter, delayedFramesTracker: TestDelayedWrapper(keepDelayedFramesDuration: 0, dateProvider: fixture.dateProvider))
             
             sut.start()
         }
@@ -858,7 +858,7 @@ class SentryFramesTrackerTests: XCTestCase {
         listener.callback = {
             callbackCalls += 1
         }
-        sut.add(listener)
+        sut.addListener(listener)
         
         fixture.notificationCenter.post(Notification(name: CrossPlatformApplication.willResignActiveNotification))
         
