@@ -40,11 +40,11 @@ class SentrySpanTests: XCTestCase {
             return hub.startTransaction(name: someTransaction, operation: someOperation)
         }
         
-        func getSutWithTracer() -> SentrySpan {
+        func getSutWithTracer() -> SentrySpanInternal {
 #if os(iOS) || os(tvOS) || os(visionOS) || targetEnvironment(macCatalyst)
-            return SentrySpan(tracer: tracer, context: SpanContext(operation: someOperation, sampled: .undecided), framesTracker: nil)
+            return SentrySpanInternal(tracer: tracer, context: SpanContext(operation: someOperation, sampled: .undecided), framesTracker: nil)
 #else
-            return SentrySpan(tracer: tracer, context: SpanContext(operation: someOperation, sampled: .undecided))
+            return SentrySpanInternal(tracer: tracer, context: SpanContext(operation: someOperation, sampled: .undecided))
 #endif
         }
     }
@@ -540,10 +540,10 @@ class SentrySpanTests: XCTestCase {
         let sutGenerator: () -> Span = {
 #if os(iOS) || os(tvOS) || os(visionOS) || targetEnvironment(macCatalyst)
             let tracer = SentryTracer(context: SpanContext(operation: "TEST"), framesTracker: nil)
-            return SentrySpan(tracer: tracer, context: SpanContext(operation: ""), framesTracker: nil)
+            return SentrySpanInternal(tracer: tracer, context: SpanContext(operation: ""), framesTracker: nil)
 #else
             let tracer = SentryTracer(context: SpanContext(operation: "TEST"))
-            return SentrySpan(tracer: tracer, context: SpanContext(operation: ""))
+            return SentrySpanInternal(tracer: tracer, context: SpanContext(operation: ""))
 #endif
         }
         
@@ -614,7 +614,7 @@ class SentrySpanTests: XCTestCase {
     
     func testTraceContext() {
         let client = TestClient(options: fixture.options)!
-        let sut = fixture.getSut(client: client) as! SentrySpan
+        let sut = fixture.getSut(client: client) as! SentrySpanInternal
         
         let expectedTraceContext = sut.tracer?.traceContext
         XCTAssertEqual(expectedTraceContext, sut.traceContext)
@@ -622,7 +622,7 @@ class SentrySpanTests: XCTestCase {
     
     func testBaggageHttpHeader() {
         let client = TestClient(options: fixture.options)!
-        let sut = fixture.getSut(client: client) as! SentrySpan
+        let sut = fixture.getSut(client: client) as! SentrySpanInternal
         
         let expectedBaggage = sut.tracer?.traceContext?.toBaggage().toHTTPHeader(withOriginalBaggage: nil)
         XCTAssertEqual(expectedBaggage, sut.baggageHttpHeader())
@@ -632,7 +632,7 @@ class SentrySpanTests: XCTestCase {
     func testAddSlowFrozenFramesToData() {
         let (displayLinkWrapper, framesTracker) = givenFramesTracker()
         
-        let sut = SentrySpan(context: SpanContext(operation: "TEST"), framesTracker: framesTracker)
+        let sut = SentrySpanInternal(context: SpanContext(operation: "TEST"), framesTracker: framesTracker)
         
         let slow = 2
         let frozen = 1
@@ -649,7 +649,7 @@ class SentrySpanTests: XCTestCase {
     func testDontAddAllZeroSlowFrozenFramesToData() {
         let (_, framesTracker) = givenFramesTracker()
         
-        let sut = SentrySpan(context: SpanContext(operation: "TEST"), framesTracker: framesTracker)
+        let sut = SentrySpanInternal(context: SpanContext(operation: "TEST"), framesTracker: framesTracker)
         
         sut.finish()
         
@@ -665,7 +665,7 @@ class SentrySpanTests: XCTestCase {
         let preexistingNormal = 3
         displayLinkWrapper.renderFrames(preexistingSlow, preexistingFrozen, preexistingNormal)
         
-        let sut = SentrySpan(context: SpanContext(operation: "TEST"), framesTracker: framesTracker)
+        let sut = SentrySpanInternal(context: SpanContext(operation: "TEST"), framesTracker: framesTracker)
         
         let slowFrames = 1
         let frozenFrames = 1
@@ -688,7 +688,7 @@ class SentrySpanTests: XCTestCase {
     }
     
     func testNoFramesTracker_NoFramesAddedToData() {
-        let sut = SentrySpan(context: SpanContext(operation: "TEST"), framesTracker: nil)
+        let sut = SentrySpanInternal(context: SpanContext(operation: "TEST"), framesTracker: nil)
         
         sut.finish()
         

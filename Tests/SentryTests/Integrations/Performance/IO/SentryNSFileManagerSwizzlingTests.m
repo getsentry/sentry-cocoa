@@ -166,7 +166,7 @@
 
     XCTAssertEqual(parentTransaction.children.count, spanCount);
 
-    SentrySpan *ioSpan = (SentrySpan *)parentTransaction.children.firstObject;
+    SentrySpanInternal *ioSpan = (SentrySpanInternal *)parentTransaction.children.firstObject;
     if (spanCount > 0) {
         XCTAssertEqual([ioSpan.data[@"file.size"] unsignedIntValue], someData.length);
         XCTAssertEqualObjects(ioSpan.data[@"file.path"], filePath);

@@ -4,7 +4,7 @@
 
 static NSString *_Nonnull const kSentrySpanStatusSerializationKey = @"status";
 
-@interface SentrySpan ()
+@interface SentrySpanInternal ()
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 @property (copy, nonatomic) NSString *_Nullable profileSessionID;

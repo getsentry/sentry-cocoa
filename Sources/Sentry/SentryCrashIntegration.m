@@ -34,7 +34,7 @@ static NSString *const LOCALE_KEY = @"locale";
 void
 sentry_finishAndSaveTransaction(void)
 {
-    SentrySpan *span = [SentrySDKInternal.currentHub.scope getCastedInternalSpan];
+    SentrySpanInternal *_Nullable span = [SentrySDKInternal.currentHub.scope getCastedInternalSpan];
 
     if (span != nil) {
         SentryTracer *tracer = [span tracer];

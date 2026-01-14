@@ -147,14 +147,14 @@ NS_ASSUME_NONNULL_BEGIN
     }
 }
 
-- (nullable id<SentrySpan>)span
+- (nullable SentrySpanInternal *)span
 {
     @synchronized(_spanLock) {
         return _span;
     }
 }
 
-- (nullable SentrySpan *)getCastedInternalSpan
+- (nullable SentrySpanInternal *)getCastedInternalSpan
 {
     id<SentrySpan> span = self.span;
 
@@ -162,8 +162,8 @@ NS_ASSUME_NONNULL_BEGIN
         return nil;
     }
 
-    if (span && [span isKindOfClass:[SentrySpan class]]) {
-        return (SentrySpan *)span;
+    if (span && [span isKindOfClass:[SentrySpanInternal class]]) {
+        return (SentrySpanInternal *)span;
     }
 
     SENTRY_LOG_DEBUG(@"The span on the scope is not of type SentrySpan, returning nil.");

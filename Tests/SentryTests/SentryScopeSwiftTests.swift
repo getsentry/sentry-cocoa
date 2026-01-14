@@ -1057,5 +1057,5 @@ private final class NotOfTypeSpan: NSObject, Span {
     func serialize() -> [String: Any] { return [:] }
 }
 
-private final class SubClassOfSentrySpan: SentrySpan {}
+private final class SubClassOfSentrySpan: SentrySpanInternal {}
 // swiftlint:enable file_length
