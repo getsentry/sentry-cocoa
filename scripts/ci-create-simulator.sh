@@ -11,8 +11,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${SCRIPT_DIR}/ci-utils.sh"
 
 # Usage: ./scripts/ci-create-simulator.sh --platform <platform> --os-version <os_version> --device-name <device_name>
-# Example: ./scripts/ci-create-simulator.sh --platform iOS --os-version 26.1 --device-name "iPhone 17 Pro"
-# Example: ./scripts/ci-create-simulator.sh --platform iOS --os-version 16.4 --device-name "iPhone 14 Pro"
+# Example: ./scripts/ci-create-simulator.sh --platform iOS --os-version 26.1 --device-name "iPhone 16e"
 
 PLATFORM=""
 OS_VERSION=""
@@ -20,8 +19,7 @@ DEVICE_NAME=""
 
 usage() {
   log_error "Usage: $0 --platform <platform> --os-version <os_version> --device-name <device_name>"
-  log_error "  Example: $0 --platform iOS --os-version 26.1 --device-name \"iPhone 17 Pro\""
-  log_error "  Example: $0 --platform iOS --os-version 16.4 --device-name \"iPhone 14 Pro\""
+  log_error "  Example: $0 --platform iOS --os-version 26.1 --device-name \"iPhone 16e\""
   exit 1
 }
 
@@ -72,11 +70,6 @@ case "$PLATFORM" in
 esac
 
 begin_group "Finding runtime for ${SIMCTL_PLATFORM} ${OS_VERSION}"
-log_notice "Listing all available runtimes:"
-xcrun simctl list runtimes
-end_group
-
-begin_group "Finding runtime ID for ${SIMCTL_PLATFORM} ${OS_VERSION}"
 RUNTIME_ID=$(xcrun simctl list runtimes | grep "${SIMCTL_PLATFORM} ${OS_VERSION}" | grep -v unavailable | awk '{print $NF}' | head -n1)
 if [[ -z "$RUNTIME_ID" ]]; then
   log_error "Could not find runtime for ${SIMCTL_PLATFORM} ${OS_VERSION}"

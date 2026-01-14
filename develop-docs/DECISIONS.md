@@ -449,7 +449,7 @@ Contributors: @philipphofmann, @philprime, @kahest, @noahsmartin, @itaybre
 
 As of Oct 1st 2025, the [main branch](https://github.com/getsentry/sentry-cocoa/tree/main) is for v9 and the branch [v8.x](https://github.com/getsentry/sentry-cocoa/tree/v8.x) is for v8.
 
-To continue supporting users on version 8, we have created a dedicated v8 branch. This is the first time in the SDK’s history that we’ve maintained a legacy branch. Since v8 was released over two years ago, and with new features like Session Replay shipped this year, we know some important customers still require bugfixes on v8 before moving to v9. Maintaining a separate branch allows us to deliver those fixes without complicating the v9 release process.
+To continue supporting users on version 8, we have created a dedicated v8 branch. This is the first time in the SDK's history that we've maintained a legacy branch. Since v8 was released over two years ago, and with new features like Session Replay shipped this year, we know some important customers still require bugfixes on v8 before moving to v9. Maintaining a separate branch allows us to deliver those fixes without complicating the v9 release process.
 
 ## Remove iOS 16 support
 

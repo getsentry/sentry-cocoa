@@ -258,7 +258,7 @@ class SentryUIRedactBuilderTests_SpecialViews: SentryUIRedactBuilderTests { // s
 
             // Assert that there are no other regions
             XCTAssertEqual(regions.count, 1)
-        } else {
+        } else if #available(iOS 15, *) { // iOS 16 & 15
             let toolbarRegion = try XCTUnwrap(regions.element(at: 0)) // UIToolbar
             XCTAssertNil(toolbarRegion.color)
             XCTAssertEqual(toolbarRegion.size, CGSize(width: 0, height: 0))
@@ -285,6 +285,8 @@ class SentryUIRedactBuilderTests_SpecialViews: SentryUIRedactBuilderTests { // s
 
             // Assert that there are no other regions
             XCTAssertEqual(regions.count, 4)
+        } else {
+            throw XCTSkip("Redaction of SFSafariViewController is not tested on iOS versions below 15")
         }
     }
 

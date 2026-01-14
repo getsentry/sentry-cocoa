@@ -1,10 +1,16 @@
-final class SentryInfoPlistWrapper: SentryInfoPlistWrapperProvider {
+@objc @_spi(Private) public class SentryInfoPlistWrapper: NSObject, SentryInfoPlistWrapperProvider {
 
     private let bundle: Bundle
 
-    public init(bundle: Bundle = Bundle.main) {
+    public override init() {
         // We can not use defaults in the initializer because this class is used from Objective-C
+        self.bundle = Bundle.main
+        super.init()
+    }
+
+    public init(bundle: Bundle) {
         self.bundle = bundle
+        super.init()
     }
 
     // MARK: - Bridge to ObjC
@@ -23,13 +29,6 @@ final class SentryInfoPlistWrapper: SentryInfoPlistWrapperProvider {
 
     public func getAppValueString(for key: String) throws -> String {
         guard let value = try getAppValue(for: key, type: String.self) else {
-            throw SentryInfoPlistError.keyNotFound(key: key)
-        }
-        return value
-    }
-
-    public func getAppValueDictionary(for key: String) throws -> [String: Any] {
-        guard let value = try getAppValue(for: key, type: [String: Any].self) else {
             throw SentryInfoPlistError.keyNotFound(key: key)
         }
         return value

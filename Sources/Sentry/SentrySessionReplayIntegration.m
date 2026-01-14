@@ -69,6 +69,14 @@ static SentryTouchTracker *_touchTracker;
                                     experimentalOptions:options.experimental];
 }
 
++ (BOOL)shouldEnableForOptions:(SentryOptions *)options
+{
+    return [SentrySessionReplay
+        shouldEnableSessionReplayWithEnvironmentChecker:SentryDependencyContainer.sharedInstance
+                                                            .sessionReplayEnvironmentChecker
+                                    experimentalOptions:options.experimental];
+}
+
 - (instancetype)init
 {
     self = [super init];

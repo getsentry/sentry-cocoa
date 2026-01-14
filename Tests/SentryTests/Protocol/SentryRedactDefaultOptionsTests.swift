@@ -12,5 +12,7 @@ class SentryRedactDefaultOptionsTests: XCTestCase {
         XCTAssertTrue(options.maskAllImages)
         XCTAssertEqual(options.maskedViewClasses.count, 0)
         XCTAssertEqual(options.unmaskedViewClasses.count, 0)
+        XCTAssertEqual(options.excludedViewClasses.count, 0)
+        XCTAssertEqual(options.includedViewClasses.count, 0)
     }
 }

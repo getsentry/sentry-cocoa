@@ -413,6 +413,34 @@ format-yaml:
 # ANALYSIS
 # ============================================================================
 
+## Current git reference name
+GIT-REF := $(shell git rev-parse --abbrev-ref HEAD)
+
+test:
+	@echo "--> Running all tests"
+	./scripts/sentry-xcodebuild.sh \
+		--platform iOS \
+		--os 18.4 \
+		--device "iPhone 16 Pro" \
+		--ref $(GIT-REF) \
+		--command test \
+		--configuration Test
+.PHONY: test
+
+run-test-server:
+	cd ./test-server && swift build
+	cd ./test-server && swift run &
+
+run-test-server-sync:
+	cd ./test-server && swift build
+	cd ./test-server && swift run
+
+.PHONY: run-test-server run-test-server-sync
+
+test-ui-critical:
+	./scripts/test-ui-critical.sh
+.PHONY: test-ui-critical
+
 ## Run static analysis
 #
 # Runs Xcode's static analyzer and reports any issues found.

@@ -12,7 +12,7 @@
 
     private let infoPlistWrapper: SentryInfoPlistWrapperProvider
 
-    init(infoPlistWrapper: SentryInfoPlistWrapperProvider) {
+    @objc public init(infoPlistWrapper: SentryInfoPlistWrapperProvider) {
         self.infoPlistWrapper = infoPlistWrapper
         super.init()
     }
