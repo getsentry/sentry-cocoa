@@ -61,6 +61,8 @@
       "Bash(fastlane --version:*)",
       "Bash(slather version:*)",
       "Bash(carthage version:*)",
+      "// All make commands are allowed because only safe commands should exist in the Makefile",
+      "Bash(make *:*)",
       "Skill(sentry-skills:code-review)",
       "Skill(sentry-skills:find-bugs)",
       "Skill(sentry-skills:deslop)",
