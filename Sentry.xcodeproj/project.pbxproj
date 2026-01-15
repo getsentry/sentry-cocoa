@@ -4974,7 +4974,6 @@
 				9264E1EA2E2E385B00B077CF /* SentryLogMessage.swift */,
 				D46B04472EDF25E100AF4A0A /* SentryMetric.swift */,
 				D48953FD2EF5756A0086F240 /* SentryMetricValue.swift */,
-				D48954D92EF94FD20086F240 /* SentryUnit.swift */,
 				F458D1122E180BB00028273E /* SentryFileManagerProtocol.swift */,
 				D48954D92EF94FD20086F240 /* SentryUnit.swift */,
 			);
