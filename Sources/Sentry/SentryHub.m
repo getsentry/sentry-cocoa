@@ -844,13 +844,14 @@ NS_ASSUME_NONNULL_BEGIN
             // needs to use respondsToSelector: to check for the flush method dynamically.
             // This Swift-first approach allows us to maintain protocol-oriented design in Swift
             // while ensuring Objective-C interop works correctly.
-            if ([integration respondsToSelector:@selector(flush)]) {
+            SEL flushSelector = NSSelectorFromString(@"flush");
+            if ([integration respondsToSelector:flushSelector]) {
                 // Use NSInvocation to call flush and get the NSTimeInterval return value.
                 // We can't use performSelector: because it doesn't support non-object return types.
                 NSMethodSignature *signature =
-                    [(id)integration methodSignatureForSelector:@selector(flush)];
+                    [(id)integration methodSignatureForSelector:flushSelector];
                 NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:signature];
-                [invocation setSelector:@selector(flush)];
+                [invocation setSelector:flushSelector];
                 [invocation setTarget:integration];
                 [invocation invoke];
                 NSTimeInterval flushDuration = 0;

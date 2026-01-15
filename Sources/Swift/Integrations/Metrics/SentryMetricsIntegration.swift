@@ -75,19 +75,23 @@ final class SentryMetricsIntegration<Dependencies: SentryMetricsIntegrationDepen
     @objc func captureMetrics() -> TimeInterval {
         return metricBatcher.captureMetrics()
     }
-}
-
-// MARK: - FlushableIntegration
-
-extension SentryMetricsIntegration: FlushableIntegration {
+    
+    // MARK: - FlushableIntegration
+    
+    /// Flushes any buffered metrics synchronously.
+    /// - Returns: The time taken to flush in seconds
+    ///
+    /// This method is called by SentryHub.flush() via respondsToSelector: check.
+    /// We implement it directly in the class body (not in an extension) because
+    /// extensions of generic classes cannot contain @objc members.
+    @discardableResult
     @objc func flush() -> TimeInterval {
         return captureMetrics()
     }
-}
-
-// MARK: - Lifecycle Handling
-
-extension SentryMetricsIntegration {
+    
+    // MARK: - Lifecycle Handling
+    
+    #if ((os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT) || os(macOS)
     private func setupLifecycleObservers() {
         notificationCenter.addObserver(
             self,
@@ -118,6 +122,8 @@ extension SentryMetricsIntegration {
         )
     }
     
+    // These methods are implemented in the main class body (not in an extension)
+    // because extensions of generic classes cannot contain @objc members.
     @objc private func willResignActive() {
         // Flush metrics directly via the integration's flush method
         _ = flush() // Use discardable result
@@ -127,4 +133,5 @@ extension SentryMetricsIntegration {
         // Flush metrics directly via the integration's flush method
         _ = flush() // Use discardable result
     }
+    #endif
 }

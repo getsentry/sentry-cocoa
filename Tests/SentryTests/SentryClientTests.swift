@@ -2532,14 +2532,14 @@ class SentryClientTests: XCTestCase {
         metricsIntegration.addMetric(metric, scope: scope)
         
         // Clear any previous invocations
-        client.captureMetricsDataInvocations.clear()
+        client.captureMetricsDataInvocations.removeAll()
         
         // -- Act --
         hub.flush(timeout: 1.0)
         
         // -- Assert --
         // Verify metrics are flushed via Hub.flush()
-        XCTAssertGreaterThanOrEqual(client.captureMetricsDataInvocations.count, 0, "Hub.flush() should flush metrics integration")
+        XCTAssertEqual(client.captureMetricsDataInvocations.count, 1, "Hub.flush() should flush metrics integration")
     }
     
     func testCaptureSentryWrappedException() throws {

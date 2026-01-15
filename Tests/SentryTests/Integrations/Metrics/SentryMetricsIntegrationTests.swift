@@ -201,8 +201,8 @@ class SentryMetricsIntegrationTests: XCTestCase {
         metricsIntegration.addMetric(metric, scope: scope)
         
         // Clear any previous invocations
-        client.captureMetricsDataInvocations.clear()
-        
+        client.captureMetricsDataInvocations.removeAll()
+
         // -- Act --
         #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
         notificationCenterWrapper.post(Notification(name: UIApplication.willResignActiveNotification))
@@ -211,7 +211,7 @@ class SentryMetricsIntegrationTests: XCTestCase {
         #endif
         
         // -- Assert --
-        XCTAssertGreaterThanOrEqual(client.captureMetricsDataInvocations.count, 0, "Metrics should be flushed on willResignActive")
+        XCTAssertEqual(client.captureMetricsDataInvocations.count, 1, "Metrics should be flushed on willResignActive")
     }
     
     func testWillTerminate_whenClientAvailable_shouldFlushMetrics() throws {
@@ -261,7 +261,7 @@ class SentryMetricsIntegrationTests: XCTestCase {
         metricsIntegration.addMetric(metric, scope: scope)
         
         // Clear any previous invocations
-        client.captureMetricsDataInvocations.clear()
+        client.captureMetricsDataInvocations.removeAll()
         
         // -- Act --
         #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
@@ -271,7 +271,7 @@ class SentryMetricsIntegrationTests: XCTestCase {
         #endif
         
         // -- Assert --
-        XCTAssertGreaterThanOrEqual(client.captureMetricsDataInvocations.count, 0, "Metrics should be flushed on willTerminate")
+        XCTAssertEqual(client.captureMetricsDataInvocations.count, 1, "Metrics should be flushed on willTerminate")
     }
     
     func testWillResignActive_whenNoClient_shouldNotCrash() throws {
