@@ -58,7 +58,7 @@ private extension SentryAppStartProfilingConfigurationTests {
         if shouldProfileLaunch {
             XCTAssert(actualIsValid, "Expected to enable app launch profiling with options:\n\(expectedOptions.description)")
         } else {
-            XCTAssertFalse(actualIsValid, "Expected to disable app launch profiling with options:\(expectedOptions.description)")
+            XCTAssertFalse(actualIsValid, "Expected to disable app launch profiling with options:\n\(expectedOptions.description)")
         }
     }
 }

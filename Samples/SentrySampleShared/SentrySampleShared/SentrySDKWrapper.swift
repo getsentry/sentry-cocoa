@@ -20,7 +20,6 @@ public struct SentrySDKWrapper {
     }()
 #endif // !os(macOS) && !os(tvOS)  && !os(watchOS)
 
-    /// nodoc
     public func startSentry() {
         if SentrySDK.isEnabled {
             print("SentrySDK already enabled, closing it")
