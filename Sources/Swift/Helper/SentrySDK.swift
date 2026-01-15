@@ -71,7 +71,7 @@ import Foundation
     ///
     /// ## Requirements
     ///
-    /// Metrics must be enabled via ``Options/enableMetrics`` before metrics are sent to Sentry.
+    /// Metrics are enabled by default. To disable metrics, set ``Options/experimental`` ``SentryExperimentalOptions/enableMetrics`` to `false`.
     ///
     /// - Note: This feature is currently in open beta.
     ///
