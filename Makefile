@@ -344,7 +344,7 @@ STAGED_SWIFT_FILES := $(shell git diff --cached --diff-filter=d --name-only | gr
 lint:
 	@echo "--> Running Swiftlint and Clang-Format"
 	./scripts/check-clang-format.py -r Sources Tests
-	./scripts/check-objc-id-usage.py -r Sources/Sentry
+	ruby ./scripts/check-objc-id-usage.rb -r Sources/Sentry
 	swiftlint --strict
 	dprint check "**/*.{md,json,yaml,yml}"
 
@@ -355,7 +355,7 @@ lint:
 lint-staged:
 	@echo "--> Running Swiftlint and Clang-Format on staged files"
 	./scripts/check-clang-format.py -r Sources Tests
-	./scripts/check-objc-id-usage.py -r Sources/Sentry
+	ruby ./scripts/check-objc-id-usage.rb -r Sources/Sentry
 	swiftlint --strict $(STAGED_SWIFT_FILES)
 	dprint check "**/*.{md,json,yaml,yml}"
 
