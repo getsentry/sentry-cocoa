@@ -192,6 +192,11 @@ if [ $RUN_TEST_WITHOUT_BUILDING == true ]; then
     # When no test plan is provided, we skip the -testPlan argument so xcodebuild uses the default test plan
     log_notice "Running xcodebuild test-without-building"
 
+    if [ -d "$RESULT_BUNDLE_PATH" ]; then
+        log_notice "Removing existing result bundle at $RESULT_BUNDLE_PATH"
+        rm -rf "$RESULT_BUNDLE_PATH"
+    fi
+
     set -o pipefail && NSUnbufferedIO=YES xcodebuild \
         -workspace Sentry.xcworkspace \
         -scheme "$TEST_SCHEME" \
