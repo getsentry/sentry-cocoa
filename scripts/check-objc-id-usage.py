@@ -118,6 +118,39 @@ def has_inline_comment_exception(line):
     return False
 
 
+def has_comment_on_continuation_lines(lines, start_line_num):
+    """
+    Check if a multi-line declaration has an OK: comment on any line up to and including the semicolon.
+
+    For method declarations that span multiple lines, checks from start_line_num onwards
+    until we find a semicolon, looking for an inline comment exception.
+
+    Args:
+        lines: List of all lines in the file (original, with comments)
+        start_line_num: 1-based line number where the declaration starts
+
+    Returns:
+        True if an OK: comment is found on any continuation line, False otherwise
+    """
+    # Convert to 0-based index
+    idx = start_line_num - 1
+
+    while idx < len(lines):
+        current_line = lines[idx]
+
+        # Check if this line has the OK: comment
+        if has_inline_comment_exception(current_line):
+            return True
+
+        # Check if this line ends the declaration (contains semicolon)
+        if ';' in current_line:
+            break
+
+        idx += 1
+
+    return False
+
+
 def check_id_usage(file_path):
     """
     Check a single header file for bare 'id' usage.
@@ -173,7 +206,7 @@ def check_id_usage(file_path):
         # Pattern 1: @property declarations with bare id
         # @property (...) id propertyName
         if re.search(r'@property\s*\([^)]*\)\s*\bid\b(?!\s*<)', line_no_comment):
-            if not has_inline_comment_exception(line):
+            if not has_inline_comment_exception(line) and not has_comment_on_continuation_lines(lines, line_num):
                 violations.append((line_num, line.rstrip()))
                 continue
 
@@ -182,20 +215,20 @@ def check_id_usage(file_path):
         if re.search(r'^[+-]\s*\(\s*\bid\b(?!\s*<)\s*\)', line_no_comment):
             # Check if this is an init method
             if not re.search(r'^[+-]\s*\(\s*id\s*\)\s*init', line_no_comment):
-                if not has_inline_comment_exception(line):
+                if not has_inline_comment_exception(line) and not has_comment_on_continuation_lines(lines, line_num):
                     violations.append((line_num, line.rstrip()))
                     continue
 
         # Pattern 3: Method parameter type: :(id)paramName or :(id *)paramName
         if re.search(r':\s*\(\s*\bid\b(?!\s*<)\s*\**\s*\)', line_no_comment):
-            if not has_inline_comment_exception(line):
+            if not has_inline_comment_exception(line) and not has_comment_on_continuation_lines(lines, line_num):
                 violations.append((line_num, line.rstrip()))
                 continue
 
         # Pattern 4: Instance variable declaration: id _variableName;
         # Be more conservative - only match instance variables (usually start with _)
         if re.search(r'^\s*\bid\b(?!\s*<)\s+_[a-zA-Z_][a-zA-Z0-9_]*\s*;', line_no_comment):
-            if not has_inline_comment_exception(line):
+            if not has_inline_comment_exception(line) and not has_comment_on_continuation_lines(lines, line_num):
                 violations.append((line_num, line.rstrip()))
                 continue
 
