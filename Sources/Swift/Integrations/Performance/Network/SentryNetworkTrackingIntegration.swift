@@ -2,6 +2,11 @@
 
 final class SentryNetworkTrackingIntegration<Dependencies: NetworkTrackerProvider>: NSObject, SwiftIntegration {
     
+    /// References the shared `SentryNetworkTracker` instance (injected via dependencies).
+    ///
+    /// URLSession swizzling can only be applied once per process, so the same tracker instance
+    /// must persist across SDK restarts. Once swizzling supports re-application, this can be
+    /// replaced with a new instance per integration lifecycle.
     private let networkTracker: SentryNetworkTracker
     
     init?(with options: Options, dependencies: Dependencies) {
