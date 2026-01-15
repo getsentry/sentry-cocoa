@@ -6,7 +6,6 @@ import Sentry
  * Stores the DSN to a file in the cache directory.
  */
 public class DSNStorage {
-    /// nodoc
     public static let shared = DSNStorage()
     private let dsnFile: URL
 
@@ -17,13 +16,11 @@ public class DSNStorage {
         dsnFile = cachesDirectory.appendingPathComponent("dsn")
     }
 
-    /// nodoc
     public func saveDSN(dsn: String) throws {
         try deleteDSN()
         try dsn.write(to: dsnFile, atomically: true, encoding: .utf8)
     }
 
-    /// nodoc
     public func getDSN() throws -> String? {
         let fileManager = FileManager.default
 
@@ -34,7 +31,6 @@ public class DSNStorage {
         return try String(contentsOfFile: dsnFile.path)
     }
 
-    /// nodoc
     public func deleteDSN() throws {
         let fileManager = FileManager.default
         if fileManager.fileExists(atPath: dsnFile.path) {

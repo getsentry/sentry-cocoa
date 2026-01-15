@@ -3,11 +3,9 @@
 
 import UIKit
 
-/// nodoc
 public class FeaturesViewController: UIViewController {
     let tableView = UITableView(frame: .zero, style: .plain)
 
-    /// nodoc
     public override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
         super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
 

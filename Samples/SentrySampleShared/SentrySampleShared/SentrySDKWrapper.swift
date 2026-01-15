@@ -6,13 +6,10 @@ import Sentry
 import UIKit
 #endif // !os(macOS)
 
-/// nodoc
 public struct SentrySDKWrapper {
-    /// nodoc
     public static let shared = SentrySDKWrapper()
 
 #if !os(macOS) && !os(tvOS) && !os(watchOS)
-    /// nodoc
     public let feedbackButton = {
         let button = UIButton(type: .custom)
         button.setTitle("BYOB Feedback", for: .normal)
