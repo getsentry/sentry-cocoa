@@ -1,7 +1,10 @@
-/// Type used for known attribute units used by Metrics
+/// Type-safe units for telemetry data (Metrics, Spans, and Logs).
+///
+/// These units help Sentry display metric values in a human-readable format.
+/// Use the predefined cases for common units, or `.generic("custom")` for custom units.
 ///
 /// - SeeAlso: https://develop.sentry.dev/sdk/telemetry/attributes/#units
-public enum SentryMetricsUnit {
+public enum SentryMetricsUnit: Equatable {
     // MARK: - Duration Units
 
     case nanosecond
@@ -39,6 +42,14 @@ public enum SentryMetricsUnit {
 
     case generic(String)
 }
+
+// MARK: - RawRepresentable
+//
+// We implement RawRepresentable manually instead of using `enum SentryMetricsUnit: String` because
+// the enum includes `.generic(String)` for custom unit values. Swift's automatic String raw value
+// synthesis doesn't support associated values, so we need this custom implementation to:
+// 1. Map known unit strings to their corresponding enum cases
+// 2. Fall back to `.generic(rawValue)` for any unrecognized string (custom units)
 
 extension SentryMetricsUnit: RawRepresentable {
     public typealias RawValue = String
@@ -164,42 +175,6 @@ extension SentryMetricsUnit: RawRepresentable {
         // Generic
         case .generic(let value):
             return value
-        }
-    }
-}
-
-extension SentryMetricsUnit: Equatable {
-    public static func == (lhs: SentryMetricsUnit, rhs: SentryMetricsUnit) -> Bool {
-        switch (lhs, rhs) {
-        case (.nanosecond, .nanosecond),
-             (.microsecond, .microsecond),
-             (.millisecond, .millisecond),
-             (.second, .second),
-             (.minute, .minute),
-             (.hour, .hour),
-             (.day, .day),
-             (.week, .week),
-             (.bit, .bit),
-             (.byte, .byte),
-             (.kilobyte, .kilobyte),
-             (.kibibyte, .kibibyte),
-             (.megabyte, .megabyte),
-             (.mebibyte, .mebibyte),
-             (.gigabyte, .gigabyte),
-             (.gibibyte, .gibibyte),
-             (.terabyte, .terabyte),
-             (.tebibyte, .tebibyte),
-             (.petabyte, .petabyte),
-             (.pebibyte, .pebibyte),
-             (.exabyte, .exabyte),
-             (.exbibyte, .exbibyte),
-             (.ratio, .ratio),
-             (.percent, .percent):
-            return true
-        case (.generic(let lhsValue), .generic(let rhsValue)):
-            return lhsValue == rhsValue
-        default:
-            return false
         }
     }
 }
