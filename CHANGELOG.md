@@ -9,6 +9,7 @@
 - Add `Sentry.metrics.count(..)`, `Sentry.metrics.distribution(..)` and `Sentry.metrics.gauge(..)` to public API (#6957)
 - Add integration to collect Metrics, can be enabled by setting `options.enableMetrics = true` (#6956)
 - Add isiOSAppOnVisionOS, isiOSAppOnMac, isMacCatalystApp to device context #6939
+- Add flushing of Metrics to `SentrySDK.flush()` (#7182)
 
 ### Fixes
 
