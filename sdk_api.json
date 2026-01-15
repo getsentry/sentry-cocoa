@@ -63346,38 +63346,6 @@
           },
           {
             "kind": "Function",
-            "name": "==",
-            "printedName": "==(_:_:)",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Bool",
-                "printedName": "Swift.Bool",
-                "usr": "s:Sb"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "SentryMetricsUnit",
-                "printedName": "Sentry.SentryMetricsUnit",
-                "usr": "s:6Sentry0A11MetricsUnitO"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "SentryMetricsUnit",
-                "printedName": "Sentry.SentryMetricsUnit",
-                "usr": "s:6Sentry0A11MetricsUnitO"
-              }
-            ],
-            "declKind": "Func",
-            "usr": "s:6Sentry0A11MetricsUnitO2eeoiySbAC_ACtFZ",
-            "mangledName": "$s6Sentry0A11MetricsUnitO2eeoiySbAC_ACtFZ",
-            "moduleName": "Sentry",
-            "static": true,
-            "isFromExtension": true,
-            "funcSelfKind": "NonMutating"
-          },
-          {
-            "kind": "Function",
             "name": "encode",
             "printedName": "encode(to:)",
             "children": [
@@ -63516,6 +63484,13 @@
         "conformances": [
           {
             "kind": "Conformance",
+            "name": "Equatable",
+            "printedName": "Equatable",
+            "usr": "s:SQ",
+            "mangledName": "$sSQ"
+          },
+          {
+            "kind": "Conformance",
             "name": "Copyable",
             "printedName": "Copyable",
             "usr": "s:s8CopyableP",
@@ -63556,13 +63531,6 @@
             ],
             "usr": "s:SY",
             "mangledName": "$sSY"
-          },
-          {
-            "kind": "Conformance",
-            "name": "Equatable",
-            "printedName": "Equatable",
-            "usr": "s:SQ",
-            "mangledName": "$sSQ"
           },
           {
             "kind": "Conformance",
@@ -63904,6 +63872,7 @@
                 "kind": "TypeNominal",
                 "name": "UInt",
                 "printedName": "Swift.UInt",
+                "hasDefaultArg": true,
                 "usr": "s:Su"
               },
               {
