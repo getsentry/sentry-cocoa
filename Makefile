@@ -339,21 +339,25 @@ STAGED_SWIFT_FILES := $(shell git diff --cached --diff-filter=d --name-only | gr
 
 ## Run linting checks on all files
 #
-# Runs SwiftLint, Clang-Format checks, and dprint checks without modifying files.
+# Runs SwiftLint, Clang-Format checks, Objective-C id usage checks, and dprint checks without modifying files.
+# Note: The -e flag is used to exclude the Public directory from the id usage check.
 .PHONY: lint
 lint:
 	@echo "--> Running Swiftlint and Clang-Format"
 	./scripts/check-clang-format.py -r Sources Tests
+	./scripts/check-objc-id-usage.py -r Sources/Sentry -e 'Sources/Sentry/Public/*'
 	swiftlint --strict
 	dprint check "**/*.{md,json,yaml,yml}"
 
 ## Run linting checks on staged files only
 #
-# Runs SwiftLint, Clang-Format checks, and dprint checks on staged files only.
+# Runs SwiftLint, Clang-Format checks, Objective-C id usage checks, and dprint checks on staged files only.
+# Note: The -e flag is used to exclude the Public directory from the id usage check.
 .PHONY: lint-staged
 lint-staged:
 	@echo "--> Running Swiftlint and Clang-Format on staged files"
 	./scripts/check-clang-format.py -r Sources Tests
+	./scripts/check-objc-id-usage.py -r Sources/Sentry -e 'Sources/Sentry/Public/*'
 	swiftlint --strict $(STAGED_SWIFT_FILES)
 	dprint check "**/*.{md,json,yaml,yml}"
 
