@@ -38,7 +38,48 @@ import Foundation
         }
     }
 
-    /// API to access Sentry metrics
+    /// API to access Sentry Metrics.
+    ///
+    /// Sentry Metrics allows you to send counters, gauges, and distributions from your applications to Sentry.
+    /// Once in Sentry, these metrics can be viewed alongside related errors, traces, and logs, and searched
+    /// using their individual attributes.
+    ///
+    /// The `metrics` namespace exposes three methods to capture different types of metric information:
+    /// - ``SentryMetricsApiProtocol/count(key:value:unit:attributes:)``: Track discrete occurrence counts
+    ///   (e.g., button clicks, API requests, errors).
+    /// - ``SentryMetricsApiProtocol/gauge(key:value:unit:attributes:)``: Track values that can go up and down
+    ///   (e.g., memory usage, queue depth, active connections).
+    /// - ``SentryMetricsApiProtocol/distribution(key:value:unit:attributes:)``: Track the distribution of a value
+    ///   over time for statistical analysis like percentiles (e.g., response times, request durations).
+    ///
+    /// Each method supports optional units (via ``SentryMetricsUnit``) and attributes for filtering and grouping.
+    ///
+    /// ## Example Usage
+    ///
+    /// ```swift
+    /// // Simple counter
+    /// SentrySDK.metrics.count(key: "button_click", value: 1)
+    ///
+    /// // Distribution with unit and attributes
+    /// SentrySDK.metrics.distribution(
+    ///     key: "http.request.duration",
+    ///     value: 187.5,
+    ///     unit: .millisecond,
+    ///     attributes: ["endpoint": "/api/data", "cached": false]
+    /// )
+    /// ```
+    ///
+    /// ## Requirements
+    ///
+    /// Metrics must be enabled via ``Options/enableMetrics`` before metrics are sent to Sentry.
+    ///
+    /// - Note: This feature is currently in open beta.
+    ///
+    /// - Important: The Metrics API has been designed and optimized for Swift. Objective-C support is not
+    ///   currently available. If you need Objective-C support, please open an issue at
+    ///   https://github.com/getsentry/sentry-cocoa/issues to show demand for this feature.
+    ///
+    /// - SeeAlso: For complete documentation, visit https://docs.sentry.io/platforms/apple/metrics/
     public static var metrics: SentryMetricsApiProtocol = SentryMetricsApi(dependencies: SentryDependencyContainer.sharedInstance())
 
     /// Inits and configures Sentry (`SentryHub`, `SentryClient`) and sets up all integrations. Make sure to
