@@ -37,7 +37,7 @@ extern "C" {
 
 #include "SentryCrashMonitor.h"
 
-/** Wether to assign the signal handler for SIGTERM or not.
+/** Whether to assign the signal handler for SIGTERM or not.
  */
 void sentrycrashcm_setEnableSigtermReporting(bool enabled);
 

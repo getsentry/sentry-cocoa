@@ -274,8 +274,8 @@ class TestData {
     
     static var oomEvent: Event {
         let event = Event(level: SentryLevel.fatal)
-        let exception = Exception(value: SentryWatchdogTerminationExceptionValue, type: SentryWatchdogTerminationExceptionType)
-        exception.mechanism = Mechanism(type: SentryWatchdogTerminationMechanismType)
+        let exception = Exception(value: SentryWatchdogTerminationConstants.ExceptionValue, type: SentryWatchdogTerminationConstants.ExceptionType)
+        exception.mechanism = Mechanism(type: SentryWatchdogTerminationConstants.MechanismType)
         event.exceptions = [exception]
         return event
     }
