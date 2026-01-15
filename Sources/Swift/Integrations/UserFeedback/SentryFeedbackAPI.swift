@@ -1,10 +1,9 @@
-// swiftlint:disable missing_docs
 @_implementationOnly import _SentryPrivate
 
 #if os(iOS) && !SENTRY_NO_UIKIT
 
-@objc
-public final class SentryFeedbackAPI: NSObject {
+/// API for interacting with the feature User Feedback  
+@objc public final class SentryFeedbackAPI: NSObject {
     
     /// Show the feedback widget button.
     /// - warning: This is an experimental feature and may still have bugs.
@@ -27,4 +26,3 @@ public final class SentryFeedbackAPI: NSObject {
     }
 }
 #endif
-// swiftlint:enable missing_docs
