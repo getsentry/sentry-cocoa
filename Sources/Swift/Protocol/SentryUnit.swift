@@ -4,7 +4,7 @@
 /// Use the predefined cases for common units, or `.generic("custom")` for custom units.
 ///
 /// - SeeAlso: https://develop.sentry.dev/sdk/telemetry/attributes/#units
-public enum SentryMetricsUnit: Equatable {
+public enum SentryUnit: Equatable {
     // MARK: - Duration Units
 
     case nanosecond
@@ -51,7 +51,7 @@ public enum SentryMetricsUnit: Equatable {
 // 1. Map known unit strings to their corresponding enum cases
 // 2. Fall back to `.generic(rawValue)` for any unrecognized string (custom units)
 
-extension SentryMetricsUnit: RawRepresentable {
+extension SentryUnit: RawRepresentable {
     public typealias RawValue = String
 
     public init?(rawValue: String) { // swiftlint:disable:this cyclomatic_complexity function_body_length
@@ -179,14 +179,14 @@ extension SentryMetricsUnit: RawRepresentable {
     }
 }
 
-extension SentryMetricsUnit: Encodable {
+extension SentryUnit: Encodable {
     public func encode(to encoder: any Encoder) throws {
         var container = encoder.singleValueContainer()
         try container.encode(self.rawValue)
     }
 }
 
-extension SentryMetricsUnit: ExpressibleByStringLiteral {
+extension SentryUnit: ExpressibleByStringLiteral {
     public init(stringLiteral value: StringLiteralType) {
         self = .generic(value)
     }

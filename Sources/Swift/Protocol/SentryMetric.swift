@@ -9,7 +9,7 @@ public struct SentryMetric {
     public typealias Attribute = SentryAttributeContent
 
     /// A typed unit
-    public typealias Unit = SentryMetricsUnit
+    public typealias Unit = SentryUnit
 
     /// The timestamp when the metric was recorded.
     public var timestamp: Date
@@ -39,7 +39,7 @@ public struct SentryMetric {
     ///
     /// Examples: "millisecond", "byte", "connection", "request". This helps
     /// provide context for the metric value when viewing in Sentry.
-    public var unit: SentryMetricsUnit?
+    public var unit: SentryUnit?
 
     /// A dictionary of structured attributes added to the metric.
     ///
@@ -65,7 +65,7 @@ public struct SentryMetric {
         traceId: SentryId,
         name: String,
         value: SentryMetricValue,
-        unit: SentryMetricsUnit?,
+        unit: SentryUnit?,
         attributes: [String: Attribute]
     ) {
         self.timestamp = timestamp
