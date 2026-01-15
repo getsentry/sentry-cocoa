@@ -56,11 +56,9 @@ private extension SentryAppStartProfilingConfigurationTests {
 
         let actualIsValid = sentry_willProfileNextLaunch(actualOptions)
         if shouldProfileLaunch {
-            XCTAssert(actualIsValid, "Expected to enable app launch profiling with options:
-\(expectedOptions.description)")
+            XCTAssert(actualIsValid, "Expected to enable app launch profiling with options:\n\(expectedOptions.description)")
         } else {
-            XCTAssertFalse(actualIsValid, "Expected to disable app launch profiling with options:
-\(expectedOptions.description)")
+            XCTAssertFalse(actualIsValid, "Expected to disable app launch profiling with options:\(expectedOptions.description)")
         }
     }
 }
@@ -127,12 +125,9 @@ struct LaunchProfileOptions: Equatable {
 // MARK: -
 extension LaunchProfileOptions: CustomStringConvertible {
     var description: String {
-        return "LaunchProfileOptions(
-"
-        + "	tracesSampleRate: \(String(describing: tracesSampleRate)),
-"
-        + "	continuousProfileV2Options: \(String(describing: continuousProfileV2Options))
-"
+        return "LaunchProfileOptions(\n"
+        + "\ttracesSampleRate: \(String(describing: tracesSampleRate)),\n"
+        + "\tcontinuousProfileV2Options: \(String(describing: continuousProfileV2Options))\n"
         + ")"
     }
 }
@@ -152,15 +147,11 @@ extension SentryProfileOptions.SentryProfileLifecycle {
 
 extension LaunchProfileOptions.ContinuousProfileV2Options: CustomStringConvertible {
     var description: String {
-        return "ContinuousProfileV2Options(
-"
-        + "		lifecycle: \(lifecycle.description),
-"
-        + "		sessionSampleRate: \(sessionSampleRate),
-"
-        + "		profileAppStarts: \(profileAppStarts)
-"
-        + "	)"
+        return "ContinuousProfileV2Options(\n"
+        + "\t\tlifecycle: \(lifecycle.description),\n"
+        + "\t\tsessionSampleRate: \(sessionSampleRate),\n"
+        + "\t\tprofileAppStarts: \(profileAppStarts)\n"
+        + "\t)"
     }
 }
 

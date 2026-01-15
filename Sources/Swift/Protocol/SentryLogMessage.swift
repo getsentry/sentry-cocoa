@@ -1,4 +1,3 @@
-// swiftlint:disable missing_docs
 import Foundation
 
 /// A string type that supports structured logging with interpolation tracking.
@@ -106,4 +105,3 @@ public struct SentryLogMessage: ExpressibleByStringInterpolation {
         }
     }
 }
-// swiftlint:enable missing_docs

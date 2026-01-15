@@ -1,4 +1,3 @@
-// swiftlint:disable missing_docs
 @_implementationOnly import _SentryPrivate
 import Foundation
 
@@ -199,4 +198,3 @@ public final class SentryDsn: NSObject {
         }
     }
 }
-// swiftlint:enable missing_docs

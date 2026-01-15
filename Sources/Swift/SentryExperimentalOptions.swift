@@ -1,4 +1,3 @@
-// swiftlint:disable missing_docs
 import Foundation
 
 @objcMembers
@@ -33,4 +32,3 @@ public final class SentryExperimentalOptions: NSObject {
     @_spi(Private) public func validateOptions(_ options: [String: Any]?) {
     }
 }
-// swiftlint:enable missing_docs

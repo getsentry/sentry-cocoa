@@ -1,4 +1,3 @@
-// swiftlint:disable missing_docs
 @_implementationOnly import _SentryPrivate
 
 import Foundation
@@ -201,4 +200,3 @@ public final class SentryLogger: NSObject {
         delegate.capture(log: log)
     }
 }
-// swiftlint:enable missing_docs
