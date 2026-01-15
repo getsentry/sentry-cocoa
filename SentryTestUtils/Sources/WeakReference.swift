@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 import Foundation
 
 /// A wrapper class for a weak reference, which is handy when keeping a list
@@ -11,3 +12,4 @@ public class WeakReference<T: AnyObject> {
         self.value = value
     }
 }
+// swiftlint:enable missing_docs

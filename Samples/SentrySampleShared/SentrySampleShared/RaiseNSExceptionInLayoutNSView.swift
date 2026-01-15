@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 import Foundation
 
 #if os(macOS)
@@ -17,3 +18,4 @@ public class RaiseNSExceptionInLayoutNSView: NSView {
 }
 
 #endif // os(macOS)
+// swiftlint:enable missing_docs

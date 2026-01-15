@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 import Foundation
 
 public extension Array {
@@ -8,3 +9,4 @@ public extension Array {
         return self[index]
     }
 }
+// swiftlint:enable missing_docs

@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 extension SentryLog {
     /// Represents the severity level of a structured log entry.
     ///
@@ -100,3 +101,4 @@ extension SentryLog {
         }
     }
 }
+// swiftlint:enable missing_docs

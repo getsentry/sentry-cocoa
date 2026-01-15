@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 import Foundation
 @_spi(Private) import Sentry
 
@@ -162,3 +163,4 @@ public typealias CrossPlatformApplication = NSApplication
 
 @_spi(Private) extension TestNSNotificationCenterWrapper: SentryNSNotificationCenterWrapper {
 }
+// swiftlint:enable missing_docs

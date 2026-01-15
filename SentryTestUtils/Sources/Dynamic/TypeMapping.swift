@@ -5,7 +5,7 @@
 //  Copyright © 2020 Samabox. All rights reserved.
 //
 
-// swiftlint:disable cyclomatic_complexity syntactic_sugar
+// swiftlint:disable cyclomatic_complexity syntactic_sugar missing_docs
 
 import Foundation
 
@@ -117,3 +117,4 @@ class TypeMapping {
         convertToObjCType(object) ?? convertToSwiftType(object)
     }
 }
+// swiftlint:enable cyclomatic_complexity syntactic_sugar missing_docs

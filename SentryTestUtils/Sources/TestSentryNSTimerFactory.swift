@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 import Foundation
 @_spi(Private) @testable import Sentry
 
@@ -55,9 +56,9 @@ import Foundation
     @objc
     public override func scheduledTimer(withTimeInterval ti: TimeInterval, target aTarget: Any, selector aSelector: Selector, userInfo: Any?, repeats yesOrNo: Bool) -> Timer {
         let timer = Timer.scheduledTimer(timeInterval: ti, target: aTarget, selector: aSelector, userInfo: userInfo, repeats: yesOrNo)
-        //swiftlint:disable force_cast
+        // swiftlint:disable force_cast
         let invocationInfo = Overrides.InvocationInfo(target: aTarget as! NSObject, selector: aSelector)
-        //swiftlint:enable force_cast
+        // swiftlint:enable force_cast
         overrides = Overrides(timer: timer, interval: ti, lastFireDate: currentDateProvider.date(), invocationInfo: invocationInfo)
         return timer
     }
@@ -93,3 +94,4 @@ public extension TestSentryNSTimerFactory {
         return overrides != nil
     }
 }
+// swiftlint:enable missing_docs

@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 import Foundation
 @_spi(Private) @testable import Sentry
 
@@ -73,3 +74,4 @@ class TestCleanup: NSObject {
         #endif
     }
 }
+// swiftlint:enable missing_docs

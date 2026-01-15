@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 @_spi(Private) import Sentry
 
 public struct TestConstants {
@@ -37,3 +38,4 @@ public struct TestConstants {
         return SentryEnvelope(id: event.eventId, singleItem: envelopeItem)
     }
 }
+// swiftlint:enable missing_docs

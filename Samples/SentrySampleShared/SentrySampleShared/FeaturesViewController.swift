@@ -1,10 +1,13 @@
+// swiftlint:disable missing_docs
 #if !os(macOS) && !os(tvOS) && !os(watchOS) && !os(visionOS)
 
 import UIKit
 
+/// nodoc
 public class FeaturesViewController: UIViewController {
     let tableView = UITableView(frame: .zero, style: .plain)
 
+    /// nodoc
     public override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
         super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
 
@@ -82,3 +85,4 @@ extension FeaturesViewController: UITableViewDataSource {
     }
 }
 #endif // !os(macOS) && !os(tvOS) && !os(watchOS) && !os(visionOS)
+// swiftlint:enable missing_docs

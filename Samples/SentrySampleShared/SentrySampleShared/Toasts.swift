@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 #if !os(macOS) && !os(tvOS) && !os(watchOS) && !os(visionOS)
 
 import UIKit
@@ -44,3 +45,4 @@ public func showToast(in vc: UIViewController, type: ToastType, message: String)
 }
 
 #endif // !os(macOS) && !os(tvOS) && !os(watchOS) && !os(visionOS)
+// swiftlint:enable missing_docs

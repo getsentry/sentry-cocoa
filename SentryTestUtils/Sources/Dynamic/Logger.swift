@@ -5,6 +5,7 @@
 //  Copyright © 2020 Samabox. All rights reserved.
 //
 
+// swiftlint:disable missing_docs
 import Foundation
 
 protocol Loggable: AnyObject {
@@ -105,3 +106,4 @@ class DummyLogger: Logger {
         self
     }
 }
+// swiftlint:enable missing_docs

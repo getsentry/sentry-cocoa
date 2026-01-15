@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 /// A protocol that represents values that can be used as structured logging attributes.
 ///
 /// - Warning: **Experimental API** - This API is experimental and will be used by the upcoming
@@ -231,3 +232,4 @@ extension Array: SentryAttributeValue {
         return .stringArray(mappedStringValues)
     }   
 }
+// swiftlint:enable missing_docs

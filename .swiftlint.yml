@@ -43,6 +43,7 @@ only_rules:
   - legacy_nsgeometry_functions
   - line_length
   - mark
+  - missing_docs
   - nimble_operator
   - number_separator
   - opening_brace
@@ -100,3 +101,11 @@ type_name:
     error: 60
 large_tuple:
   - 3
+
+missing_docs:
+  warning: [open, public]
+  evaluate_effective_access_control_level: true
+  excludes_extensions: false
+  excludes_inherited_types: false
+  excludes_trivial_init: false
+  severity: error

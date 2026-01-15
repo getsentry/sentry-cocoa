@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 import Foundation
 import Sentry
 
@@ -29,3 +30,4 @@ public extension Options {
         return options
     }
 }
+// swiftlint:enable missing_docs

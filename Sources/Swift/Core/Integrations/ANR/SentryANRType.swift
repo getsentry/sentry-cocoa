@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 import Foundation
 
 @objc
@@ -50,3 +51,4 @@ import Foundation
         return ExceptionType(rawValue: exceptionType) != nil
     }
 }
+// swiftlint:enable missing_docs

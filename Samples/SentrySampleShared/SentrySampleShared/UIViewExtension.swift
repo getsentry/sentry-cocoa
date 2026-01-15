@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 #if !os(macOS) && !os(watchOS)
 
 import Foundation
@@ -25,3 +26,4 @@ public extension UIView {
 }
 
 #endif // !os(macOS) && !os(watchOS)
+// swiftlint:enable missing_docs

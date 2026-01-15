@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 import Foundation
 
 public class BundleResourceProvider: NSObject {
@@ -9,3 +10,4 @@ public class BundleResourceProvider: NSObject {
         Bundle(for: self).url(forResource: "screenshot", withExtension: "png")
     }
 }
+// swiftlint:enable missing_docs

@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 /// A structured log entry that captures log data with associated attribute metadata.
 ///
 /// Use the `options.beforeSendLog` callback to modify or filter log data.
@@ -108,3 +109,4 @@ public final class SentryLog: NSObject {
         try container.encodeIfPresent(severityNumber?.intValue, forKey: .severityNumber)
     }
 }
+// swiftlint:enable missing_docs

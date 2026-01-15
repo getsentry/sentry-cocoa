@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 /// Each item type must have a data category name mapped to it; see SentryDataCategoryMapper
 ///
 /// While these envelope item types might look similar to the data categories,
@@ -15,3 +16,4 @@
     public static let profileChunk = "profile_chunk"
     public static let log = "log"
 }
+// swiftlint:enable missing_docs

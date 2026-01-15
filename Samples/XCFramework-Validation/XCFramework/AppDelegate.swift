@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 import Sentry
 import UIKit
 
@@ -32,3 +33,4 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
 }
+// swiftlint:enable missing_docs

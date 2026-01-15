@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 public extension TimeInterval {
     func toNanoSeconds() -> UInt64 {
         return UInt64(self * Double(NSEC_PER_SEC))
@@ -9,3 +10,4 @@ public extension UInt64 {
         return Double(self) / Double(NSEC_PER_SEC)
     }
 }
+// swiftlint:enable missing_docs

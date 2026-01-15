@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 @_spi(Private) @testable import Sentry
 
 @_spi(Private) public class TestSessionReplayEnvironmentChecker: SentrySessionReplayEnvironmentCheckerProvider {
@@ -20,3 +21,4 @@
         mockedIsReliableReturnValue = returnValue
     }
 }
+// swiftlint:enable missing_docs

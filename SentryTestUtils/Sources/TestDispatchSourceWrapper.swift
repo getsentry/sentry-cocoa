@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 import Foundation
 @_spi(Private) @testable import Sentry
 
@@ -22,3 +23,4 @@ import Foundation
         self.overrides.eventHandler?()
     }
 }
+// swiftlint:enable missing_docs

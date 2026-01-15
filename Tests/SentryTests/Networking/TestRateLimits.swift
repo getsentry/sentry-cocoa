@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 import Foundation
 @_spi(Private) import Sentry
 
@@ -16,3 +17,4 @@ public class TestRateLimits: NSObject, RateLimits {
         responses.append(response)
     }
 }
+// swiftlint:enable missing_docs

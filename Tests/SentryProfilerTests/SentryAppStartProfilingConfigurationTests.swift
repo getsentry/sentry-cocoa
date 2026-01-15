@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 @_spi(Private) import Sentry
 @_spi(Private) import SentryTestUtils
 import XCTest
@@ -55,9 +56,11 @@ private extension SentryAppStartProfilingConfigurationTests {
 
         let actualIsValid = sentry_willProfileNextLaunch(actualOptions)
         if shouldProfileLaunch {
-            XCTAssert(actualIsValid, "Expected to enable app launch profiling with options:\n\(expectedOptions.description)")
+            XCTAssert(actualIsValid, "Expected to enable app launch profiling with options:
+\(expectedOptions.description)")
         } else {
-            XCTAssertFalse(actualIsValid, "Expected to disable app launch profiling with options:\n\(expectedOptions.description)")
+            XCTAssertFalse(actualIsValid, "Expected to disable app launch profiling with options:
+\(expectedOptions.description)")
         }
     }
 }
@@ -124,9 +127,12 @@ struct LaunchProfileOptions: Equatable {
 // MARK: -
 extension LaunchProfileOptions: CustomStringConvertible {
     var description: String {
-        return "LaunchProfileOptions(\n"
-        + "\ttracesSampleRate: \(String(describing: tracesSampleRate)),\n"
-        + "\tcontinuousProfileV2Options: \(String(describing: continuousProfileV2Options))\n"
+        return "LaunchProfileOptions(
+"
+        + "	tracesSampleRate: \(String(describing: tracesSampleRate)),
+"
+        + "	continuousProfileV2Options: \(String(describing: continuousProfileV2Options))
+"
         + ")"
     }
 }
@@ -146,12 +152,17 @@ extension SentryProfileOptions.SentryProfileLifecycle {
 
 extension LaunchProfileOptions.ContinuousProfileV2Options: CustomStringConvertible {
     var description: String {
-        return "ContinuousProfileV2Options(\n"
-        + "\t\tlifecycle: \(lifecycle.description),\n"
-        + "\t\tsessionSampleRate: \(sessionSampleRate),\n"
-        + "\t\tprofileAppStarts: \(profileAppStarts)\n"
-        + "\t)"
+        return "ContinuousProfileV2Options(
+"
+        + "		lifecycle: \(lifecycle.description),
+"
+        + "		sessionSampleRate: \(sessionSampleRate),
+"
+        + "		profileAppStarts: \(profileAppStarts)
+"
+        + "	)"
     }
 }
 
 #endif // os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
+// swiftlint:enable missing_docs

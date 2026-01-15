@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 import Foundation
 
 enum SampleError: Error {
@@ -21,3 +22,4 @@ public class RandomErrorGenerator {
         }
     }
 }
+// swiftlint:enable missing_docs

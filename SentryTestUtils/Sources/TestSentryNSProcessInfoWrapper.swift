@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 @_spi(Private) import Sentry
 
 @_spi(Private) public final class MockSentryProcessInfo: SentryProcessInfoSource {
@@ -51,3 +52,4 @@
         return overrides.isiOSAppOnVisionOS ?? ProcessInfo.processInfo.isiOSAppOnVisionOS
     }
 }
+// swiftlint:enable missing_docs

@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 import Foundation
 
 @objc
@@ -22,3 +23,4 @@ extension SentryReplayType: CustomStringConvertible {
         return toString()
     }
 }
+// swiftlint:enable missing_docs

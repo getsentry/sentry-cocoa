@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 @testable import Sentry
 
 extension SentrySDKSettings {
@@ -11,3 +12,4 @@ extension SentrySDKSettings: @retroactive Equatable { }
 #else
 extension SentrySDKSettings: Equatable { }
 #endif
+// swiftlint:enable missing_docs

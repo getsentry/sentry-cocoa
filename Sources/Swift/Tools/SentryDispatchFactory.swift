@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 @_spi(Private) @objc public class SentryDispatchFactory: NSObject {
     /// Generate a new @c SentryDispatchQueueWrapper .
     @objc public func queue(withName name: UnsafePointer<CChar>, attributes: __OS_dispatch_queue_attr) -> SentryDispatchQueueWrapper {
@@ -24,3 +25,4 @@
         SentryDispatchSourceWrapper(interval: interval, leeway: leeway, queue: self.queue(withName: queueName, attributes: attributes), eventHandler: eventHandler)
     }
 }
+// swiftlint:enable missing_docs

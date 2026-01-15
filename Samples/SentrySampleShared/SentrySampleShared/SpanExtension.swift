@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 import Foundation
 import Sentry
 
@@ -22,3 +23,4 @@ public extension Span {
         return self.perform(sel)?.takeUnretainedValue() as? Span
     }
 }
+// swiftlint:enable missing_docs

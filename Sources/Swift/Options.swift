@@ -1,4 +1,4 @@
-// swiftlint:disable file_length
+// swiftlint:disable file_length missing_docs
 @objc(SentryOptions) public final class Options: NSObject {
     
     @objc public override init() {
@@ -636,4 +636,4 @@ extension NSNumber {
     }
 }
 
-// swiftlint:enable file_length
+// swiftlint:enable file_length missing_docs

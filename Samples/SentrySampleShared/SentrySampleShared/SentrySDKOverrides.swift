@@ -1,4 +1,4 @@
-// swiftlint:disable file_length
+// swiftlint:disable file_length missing_docs
 
 import Foundation
 
@@ -429,4 +429,4 @@ extension SentrySDKOverrides.Special {
     }
 }
 
-// swiftlint:enable file_length
+// swiftlint:enable file_length missing_docs

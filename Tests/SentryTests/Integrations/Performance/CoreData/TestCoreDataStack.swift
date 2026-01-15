@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 import CoreData
 import Foundation
 
@@ -141,3 +142,4 @@ class TestNSManagedObjectContext: NSManagedObjectContext, @unchecked Sendable {
         ((updated?.count ?? 0) > 0) || super.hasChanges
     }
 }
+// swiftlint:enable missing_docs

@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 #if !os(macOS) && !os(watchOS)
 
 import Foundation
@@ -6,6 +7,7 @@ import UIKit
 
 public class AssertView: UIView {
     var span: Span?
+    /// nodoc
     public var autoHide = true
 
     private var assertLabel: UILabel!
@@ -92,3 +94,4 @@ public class AssertView: UIView {
 }
 
 #endif // !os(macOS) && !os(watchOS)
+// swiftlint:enable missing_docs

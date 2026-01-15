@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 import Foundation
 
 /**
@@ -62,3 +63,4 @@ public class Invocations<T> {
         }
     }
 }
+// swiftlint:enable missing_docs

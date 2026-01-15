@@ -1,4 +1,4 @@
-// swiftlint:disable file_length function_body_length
+// swiftlint:disable file_length function_body_length missing_docs
 
 import Sentry
 
@@ -6,10 +6,13 @@ import Sentry
 import UIKit
 #endif // !os(macOS)
 
+/// nodoc
 public struct SentrySDKWrapper {
+    /// nodoc
     public static let shared = SentrySDKWrapper()
 
 #if !os(macOS) && !os(tvOS) && !os(watchOS)
+    /// nodoc
     public let feedbackButton = {
         let button = UIButton(type: .custom)
         button.setTitle("BYOB Feedback", for: .normal)
@@ -20,6 +23,7 @@ public struct SentrySDKWrapper {
     }()
 #endif // !os(macOS) && !os(tvOS)  && !os(watchOS)
 
+    /// nodoc
     public func startSentry() {
         if SentrySDK.isEnabled {
             print("SentrySDK already enabled, closing it")
@@ -494,4 +498,4 @@ extension SentrySDKWrapper {
 }
 #endif // !os(tvOS) && !os(watchOS) && !os(visionOS)
 
-// swiftlint:enable file_length function_body_length
+// swiftlint:enable file_length function_body_length missing_docs

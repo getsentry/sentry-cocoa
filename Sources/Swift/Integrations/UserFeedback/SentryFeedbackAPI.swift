@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 @_implementationOnly import _SentryPrivate
 
 #if os(iOS) && !SENTRY_NO_UIKIT
@@ -26,3 +27,4 @@ public final class SentryFeedbackAPI: NSObject {
     }
 }
 #endif
+// swiftlint:enable missing_docs
