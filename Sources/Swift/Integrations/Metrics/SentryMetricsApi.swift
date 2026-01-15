@@ -6,6 +6,7 @@ protocol SentryMetricsApiDependencies {
 
     var isSDKEnabled: Bool { get }
     var scope: Scope { get }
+    var dateProvider: SentryCurrentDateProvider { get }
 
     /// The integration is nullable, meaning if it's not installed or not enabled, it will return nil
     var metricsIntegration: Integration? { get }
@@ -40,15 +41,34 @@ struct SentryMetricsApi<Dependencies: SentryMetricsApiDependencies>: SentryMetri
         attributes: [String: SentryAttributeValue]
     ) {
         guard dependencies.isSDKEnabled else {
+            SentrySDKLog.warning("Metric '\(name)' was not recorded because the Sentry SDK has not been started. Call SentrySDK.start(options:) first.")
             return
         }
         guard let integration = dependencies.metricsIntegration else {
+            SentrySDKLog.warning("Metric '\(name)' was not recorded because metrics are disabled. Enable metrics by setting 'options.enableMetrics = true' when starting the SDK.")
             return
         }
 
+        // Capture the traceId at metric creation time to ensure it reflects the active trace
+        // when the metric was recorded, not when it gets flushed by the batcher.
+        //
+        // This logic is intentionally duplicated from BatcherScope.applyToItem (used by Logs)
+        // for the following reasons:
+        // 1. Safety: If batcher enrichment is skipped or fails, metrics still have valid traceIds
+        //    rather than empty ones, which would break trace correlation entirely.
+        // 2. Semantic correctness: A metric recorded during a network request should correlate
+        //    with that request's trace, matching how we capture timestamp at creation time.
+        // 3. Fail-safe redundancy: The batchers scope enrichment will overwrite this value, producing
+        //    the same result but with a safety net for edge cases. We can not remove the duplication from
+        //    the batcher scope because it is used by Logs and other integrations.
+        //
+        // When a span is active, use its traceId to ensure consistency with span_id.
+        // Otherwise, fall back to propagationContext traceId.
+        let traceId = dependencies.scope.span?.traceId ?? dependencies.scope.propagationContextTraceId
+
         let metric = SentryMetric(
-            timestamp: Date(),
-            traceId: SentryId.empty, // Will be set by batcher from scope
+            timestamp: dependencies.dateProvider.date(),
+            traceId: traceId,
             name: name,
             value: value,
             unit: unit,

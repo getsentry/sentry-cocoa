@@ -516,5 +516,18 @@ fileprivate struct MockMetricsIntegration: SentryMetricsIntegrationProtocol {
 fileprivate struct MockMetricsApiDependencies: SentryMetricsApiDependencies {
     let isSDKEnabled: Bool
     let scope: Scope
+    let dateProvider: SentryCurrentDateProvider
     let metricsIntegration: MockMetricsIntegration?
+
+    init(
+        isSDKEnabled: Bool,
+        scope: Scope,
+        metricsIntegration: MockMetricsIntegration?,
+        dateProvider: SentryCurrentDateProvider = TestCurrentDateProvider()
+    ) {
+        self.isSDKEnabled = isSDKEnabled
+        self.scope = scope
+        self.dateProvider = dateProvider
+        self.metricsIntegration = metricsIntegration
+    }
 }
