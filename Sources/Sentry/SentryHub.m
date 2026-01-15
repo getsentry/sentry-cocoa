@@ -837,8 +837,25 @@ NS_ASSUME_NONNULL_BEGIN
 
     @synchronized(_integrationsLock) {
         for (id<SentryIntegrationProtocol> integration in _installedIntegrations) {
+            // We use respondsToSelector: instead of conformsToProtocol: for FlushableIntegration
+            // because Swift @objc protocols defined in files with @_implementationOnly import
+            // are not reliably accessible from Objective-C code at compile time. The protocol
+            // definition exists for Swift type safety and documentation, but Objective-C code
+            // needs to use respondsToSelector: to check for the flush method dynamically.
+            // This Swift-first approach allows us to maintain protocol-oriented design in Swift
+            // while ensuring Objective-C interop works correctly.
             if ([integration respondsToSelector:@selector(flush)]) {
-                totalDuration += [(id)integration flush];
+                // Use NSInvocation to call flush and get the NSTimeInterval return value.
+                // We can't use performSelector: because it doesn't support non-object return types.
+                NSMethodSignature *signature =
+                    [(id)integration methodSignatureForSelector:@selector(flush)];
+                NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:signature];
+                [invocation setSelector:@selector(flush)];
+                [invocation setTarget:integration];
+                [invocation invoke];
+                NSTimeInterval flushDuration = 0;
+                [invocation getReturnValue:&flushDuration];
+                totalDuration += flushDuration;
             }
         }
     }
