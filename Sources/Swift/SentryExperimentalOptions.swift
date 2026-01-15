@@ -1,5 +1,6 @@
 import Foundation
 
+/// Options for experimental features that are subject to change or may be removed in future versions.
 @objcMembers
 public final class SentryExperimentalOptions: NSObject {
     /**
@@ -29,6 +30,7 @@ public final class SentryExperimentalOptions: NSObject {
      */
     public var enableSessionReplayInUnreliableEnvironment = false
 
+    // swiftlint:disable:next missing_docs
     @_spi(Private) public func validateOptions(_ options: [String: Any]?) {
     }
 }
