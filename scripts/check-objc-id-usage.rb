@@ -62,36 +62,59 @@ def remove_comments(code)
   in_multiline_comment = false
 
   lines.each do |line|
-    if in_multiline_comment
-      # Check if this line ends the multi-line comment
-      end_pos = line.index('*/')
-      if end_pos
-        line = ' ' * (end_pos + 2) + line[(end_pos + 2)..-1].to_s
-        in_multiline_comment = false
-      else
-        line = ' ' * line.length
-      end
-    else
-      # Remove single-line comments
-      single_comment_pos = line.index('//')
-      line = line[0...single_comment_pos] if single_comment_pos
+    result = ''
+    pos = 0
 
-      # Check for start of multi-line comment
-      start_pos = line.index('/*')
-      if start_pos
-        end_pos = line.index('*/', start_pos)
+    while pos < line.length
+      if in_multiline_comment
+        # Look for end of multi-line comment
+        end_pos = line.index('*/', pos)
         if end_pos
-          # Comment starts and ends on same line
-          line = line[0...start_pos] + ' ' * (end_pos + 2 - start_pos) + line[(end_pos + 2)..-1].to_s
+          # Found end of multi-line comment
+          result += ' ' * (end_pos + 2 - pos)
+          pos = end_pos + 2
+          in_multiline_comment = false
         else
-          # Comment starts but doesn't end on this line
-          line = line[0...start_pos]
-          in_multiline_comment = true
+          # Rest of line is still in comment
+          result += ' ' * (line.length - pos)
+          break
+        end
+      else
+        # Look for the first comment marker (/* or //)
+        block_start = line.index('/*', pos)
+        line_comment = line.index('//', pos)
+
+        # Determine which comes first
+        if block_start && (!line_comment || block_start < line_comment)
+          # Block comment starts first
+          result += line[pos...block_start]
+
+          # Look for end of block comment on same line
+          end_pos = line.index('*/', block_start + 2)
+          if end_pos
+            # Block comment ends on same line
+            result += ' ' * (end_pos + 2 - block_start)
+            pos = end_pos + 2
+          else
+            # Block comment continues to next line
+            result += ' ' * (line.length - block_start)
+            in_multiline_comment = true
+            break
+          end
+        elsif line_comment
+          # Line comment starts first (or is the only comment)
+          result += line[pos...line_comment]
+          # Rest of line is comment, stop processing
+          break
+        else
+          # No more comments on this line
+          result += line[pos..-1]
+          break
         end
       end
     end
 
-    result_lines << line
+    result_lines << result
   end
 
   result_lines.join("\n")
@@ -145,7 +168,7 @@ def check_id_usage(file_path)
   begin
     content = File.read(file_path, encoding: 'utf-8')
     lines = content.lines.map(&:chomp)
-  rescue IOError => e
+  rescue SystemCallError, IOError => e
     warn "Error reading #{file_path}: #{e}"
     return violations
   end
@@ -162,7 +185,7 @@ def check_id_usage(file_path)
   # - Instance variable declarations: id _ivar;
   #
   # Exclusions:
-  # - id<Protocol> (protocol conformance) - these are acceptable
+  # - id<Protocol> (protocol conformance) - handled by (?!\s*<) negative lookahead in each pattern
   # - String literals containing "id"
   # - Already using SENTRY_SWIFT_MIGRATION_ID
   # - initializers
@@ -180,8 +203,10 @@ def check_id_usage(file_path)
     # Skip if this is a string literal (rough check)
     next if line_no_comment.include?('"id"') || line_no_comment.include?("'id'")
 
-    # Skip if this is id<Protocol> (protocol conformance)
-    next if line_no_comment =~ /\bid\s*<[^>]+>/
+    # Note: We don't skip lines containing id<Protocol> here because:
+    # 1. All detection patterns already use (?!\s*<) negative lookahead to exclude id<Protocol>
+    # 2. A line might contain both bare 'id' and 'id<Protocol>' (e.g., - (id)methodWithDelegate:(id<SomeDelegate>)delegate;)
+    #    and we need to detect the bare 'id' violation
 
     # Check for various patterns where bare 'id' is used as a type:
 
