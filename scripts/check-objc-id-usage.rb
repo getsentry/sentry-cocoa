@@ -348,15 +348,17 @@ def main
     end
   end
 
-  if total_violations > 0 && !options[:quiet]
-    puts "\n#{'=' * 80}"
-    violation_text = "Found #{total_violations} bare 'id' usage(s)"
-    violation_text = bold_red(violation_text) if use_color
-    puts violation_text
-    puts "\nTo fix:"
-    puts "1. Use SENTRY_SWIFT_MIGRATION_ID(ClassName) to track temporary workarounds"
-    puts "2. Or add inline comment: // OK: explanation why bare id is needed"
-    puts "3. Or add inline comment: /* OK: explanation */"
+  if total_violations > 0
+    unless options[:quiet]
+      puts "\n#{'=' * 80}"
+      violation_text = "Found #{total_violations} bare 'id' usage(s)"
+      violation_text = bold_red(violation_text) if use_color
+      puts violation_text
+      puts "\nTo fix:"
+      puts "1. Use SENTRY_SWIFT_MIGRATION_ID(ClassName) to track temporary workarounds"
+      puts "2. Or add inline comment: // OK: explanation why bare id is needed"
+      puts "3. Or add inline comment: /* OK: explanation */"
+    end
     return ExitStatus::VIOLATIONS_FOUND
   end
 
