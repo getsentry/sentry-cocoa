@@ -32,9 +32,10 @@ class SentryDataCategoryMapperTests: XCTestCase {
         XCTAssertEqual(sentryDataCategoryForNSUInteger(11), .span)
         XCTAssertEqual(sentryDataCategoryForNSUInteger(12), .feedback)
         XCTAssertEqual(sentryDataCategoryForNSUInteger(13), .logItem)
-        XCTAssertEqual(sentryDataCategoryForNSUInteger(14), .unknown)
+        XCTAssertEqual(sentryDataCategoryForNSUInteger(14), .traceMetric)
+        XCTAssertEqual(sentryDataCategoryForNSUInteger(15), .unknown)
 
-        XCTAssertEqual(.unknown, sentryDataCategoryForNSUInteger(14), "Failed to map unknown category number to case .unknown")
+        XCTAssertEqual(.unknown, sentryDataCategoryForNSUInteger(15), "Failed to map unknown category number to case .unknown")
     }
     
     func testMapStringToCategory() {

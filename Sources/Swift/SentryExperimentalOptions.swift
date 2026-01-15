@@ -34,6 +34,10 @@ public final class SentryExperimentalOptions: NSObject {
     /// @note Default value is @c false.
     @objc public var enableMetrics: Bool = false
 
+    /// Use this callback to drop or modify a metric before the SDK sends it to Sentry. Return nil to
+    /// drop the metric.
+    public var beforeSendMetric: ((SentryMetric) -> SentryMetric?)?
+
     @_spi(Private) public func validateOptions(_ options: [String: Any]?) {
     }
 }
