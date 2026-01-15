@@ -20,7 +20,7 @@
 #import "SentryScope.h"
 #import "SentrySerialization.h"
 #import "SentrySessionReplayIntegration.h"
-#import "SentrySpan.h"
+#import "SentrySpanInternal.h"
 #import "SentrySwift.h"
 #import "SentryTransactionContext.h"
 #import "SentryUseNSExceptionCallstackWrapper.h"

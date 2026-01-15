@@ -1,7 +1,7 @@
 #import "SentryAppStartMeasurement.h"
-#import "SentrySpan.h"
 #import "SentrySpanContext+Private.h"
 #import "SentrySpanId.h"
+#import "SentrySpanInternal.h"
 #import "SentrySwift.h"
 #import "SentryTraceOrigin.h"
 #import "SentryTracer.h"

@@ -1,4 +1,4 @@
-#import "SentrySpan.h"
+#import "SentrySpanInternal.h"
 
 #import "SentryProfilingConditionals.h"
 

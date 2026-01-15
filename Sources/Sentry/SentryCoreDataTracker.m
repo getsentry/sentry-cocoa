@@ -8,7 +8,7 @@
 #import "SentryPredicateDescriptor.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
-#import "SentrySpan.h"
+#import "SentrySpanInternal.h"
 #import "SentrySpanOperation.h"
 #import "SentrySpanProtocol.h"
 #import "SentryStacktrace.h"

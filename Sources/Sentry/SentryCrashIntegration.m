@@ -10,7 +10,7 @@
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
 #import "SentryScope+PrivateSwift.h"
-#import "SentrySpan+Private.h"
+#import "SentrySpanInternal+Private.h"
 #import "SentrySwift.h"
 #import "SentryTracer.h"
 #import <SentryClient+Private.h>

@@ -1,6 +1,6 @@
 #import "SentryDefines.h"
 #import "SentryProfilingConditionals.h"
-#import "SentrySpan.h"
+#import "SentrySpanInternal.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

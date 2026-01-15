@@ -9,7 +9,7 @@
 #import "SentryLogC.h"
 #import "SentryScope+Private.h"
 #import "SentryScope+PrivateSwift.h"
-#import "SentrySpan+Private.h"
+#import "SentrySpanInternal+Private.h"
 #import "SentrySwift.h"
 #import "SentryTracer.h"
 #import "SentryTransactionContext.h"
@@ -147,7 +147,7 @@ NS_ASSUME_NONNULL_BEGIN
     }
 }
 
-- (nullable SentrySpanInternal *)span
+- (nullable id<SentrySpan>)span
 {
     @synchronized(_spanLock) {
         return _span;
