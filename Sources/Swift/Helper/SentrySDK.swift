@@ -52,7 +52,7 @@ import Foundation
     /// - ``SentryMetricsApiProtocol/distribution(key:value:unit:attributes:)``: Track the distribution of a value
     ///   over time for statistical analysis like percentiles (e.g., response times, request durations).
     ///
-    /// Each method supports optional units (via ``SentryMetricsUnit``) and attributes for filtering and grouping.
+    /// Each method supports optional units (via ``SentryUnit``) and attributes for filtering and grouping.
     ///
     /// ## Example Usage
     ///

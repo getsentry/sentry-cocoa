@@ -36392,9 +36392,9 @@
             "children": [
               {
                 "kind": "TypeNominal",
-                "name": "SentryMetricsUnit",
-                "printedName": "Sentry.SentryMetricsUnit",
-                "usr": "s:6Sentry0A11MetricsUnitO"
+                "name": "SentryUnit",
+                "printedName": "Sentry.SentryUnit",
+                "usr": "s:6Sentry0A4UnitO"
               }
             ],
             "declKind": "TypeAlias",
@@ -36695,21 +36695,21 @@
               {
                 "kind": "TypeNominal",
                 "name": "Optional",
-                "printedName": "Sentry.SentryMetricsUnit?",
+                "printedName": "Sentry.SentryUnit?",
                 "children": [
                   {
                     "kind": "TypeNominal",
-                    "name": "SentryMetricsUnit",
-                    "printedName": "Sentry.SentryMetricsUnit",
-                    "usr": "s:6Sentry0A11MetricsUnitO"
+                    "name": "SentryUnit",
+                    "printedName": "Sentry.SentryUnit",
+                    "usr": "s:6Sentry0A4UnitO"
                   }
                 ],
                 "usr": "s:Sq"
               }
             ],
             "declKind": "Var",
-            "usr": "s:6Sentry0A6MetricV4unitAA0A11MetricsUnitOSgvp",
-            "mangledName": "$s6Sentry0A6MetricV4unitAA0A11MetricsUnitOSgvp",
+            "usr": "s:6Sentry0A6MetricV4unitAA0A4UnitOSgvp",
+            "mangledName": "$s6Sentry0A6MetricV4unitAA0A4UnitOSgvp",
             "moduleName": "Sentry",
             "declAttributes": [
               "HasInitialValue",
@@ -36725,21 +36725,21 @@
                   {
                     "kind": "TypeNominal",
                     "name": "Optional",
-                    "printedName": "Sentry.SentryMetricsUnit?",
+                    "printedName": "Sentry.SentryUnit?",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentryMetricsUnit",
-                        "printedName": "Sentry.SentryMetricsUnit",
-                        "usr": "s:6Sentry0A11MetricsUnitO"
+                        "name": "SentryUnit",
+                        "printedName": "Sentry.SentryUnit",
+                        "usr": "s:6Sentry0A4UnitO"
                       }
                     ],
                     "usr": "s:Sq"
                   }
                 ],
                 "declKind": "Accessor",
-                "usr": "s:6Sentry0A6MetricV4unitAA0A11MetricsUnitOSgvg",
-                "mangledName": "$s6Sentry0A6MetricV4unitAA0A11MetricsUnitOSgvg",
+                "usr": "s:6Sentry0A6MetricV4unitAA0A4UnitOSgvg",
+                "mangledName": "$s6Sentry0A6MetricV4unitAA0A4UnitOSgvg",
                 "moduleName": "Sentry",
                 "implicit": true,
                 "accessorKind": "get"
@@ -36757,21 +36757,21 @@
                   {
                     "kind": "TypeNominal",
                     "name": "Optional",
-                    "printedName": "Sentry.SentryMetricsUnit?",
+                    "printedName": "Sentry.SentryUnit?",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentryMetricsUnit",
-                        "printedName": "Sentry.SentryMetricsUnit",
-                        "usr": "s:6Sentry0A11MetricsUnitO"
+                        "name": "SentryUnit",
+                        "printedName": "Sentry.SentryUnit",
+                        "usr": "s:6Sentry0A4UnitO"
                       }
                     ],
                     "usr": "s:Sq"
                   }
                 ],
                 "declKind": "Accessor",
-                "usr": "s:6Sentry0A6MetricV4unitAA0A11MetricsUnitOSgvs",
-                "mangledName": "$s6Sentry0A6MetricV4unitAA0A11MetricsUnitOSgvs",
+                "usr": "s:6Sentry0A6MetricV4unitAA0A4UnitOSgvs",
+                "mangledName": "$s6Sentry0A6MetricV4unitAA0A4UnitOSgvs",
                 "moduleName": "Sentry",
                 "implicit": true,
                 "accessorKind": "set"
@@ -62313,8 +62313,8 @@
       },
       {
         "kind": "TypeDecl",
-        "name": "SentryMetricsUnit",
-        "printedName": "SentryMetricsUnit",
+        "name": "SentryUnit",
+        "printedName": "SentryUnit",
         "children": [
           {
             "kind": "Var",
@@ -62324,24 +62324,24 @@
               {
                 "kind": "TypeFunc",
                 "name": "Function",
-                "printedName": "(Sentry.SentryMetricsUnit.Type) -> Sentry.SentryMetricsUnit",
+                "printedName": "(Sentry.SentryUnit.Type) -> Sentry.SentryUnit",
                 "children": [
                   {
                     "kind": "TypeNominal",
-                    "name": "SentryMetricsUnit",
-                    "printedName": "Sentry.SentryMetricsUnit",
-                    "usr": "s:6Sentry0A11MetricsUnitO"
+                    "name": "SentryUnit",
+                    "printedName": "Sentry.SentryUnit",
+                    "usr": "s:6Sentry0A4UnitO"
                   },
                   {
                     "kind": "TypeNominal",
                     "name": "Metatype",
-                    "printedName": "Sentry.SentryMetricsUnit.Type",
+                    "printedName": "Sentry.SentryUnit.Type",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentryMetricsUnit",
-                        "printedName": "Sentry.SentryMetricsUnit",
-                        "usr": "s:6Sentry0A11MetricsUnitO"
+                        "name": "SentryUnit",
+                        "printedName": "Sentry.SentryUnit",
+                        "usr": "s:6Sentry0A4UnitO"
                       }
                     ]
                   }
@@ -62349,8 +62349,8 @@
               }
             ],
             "declKind": "EnumElement",
-            "usr": "s:6Sentry0A11MetricsUnitO10nanosecondyA2CmF",
-            "mangledName": "$s6Sentry0A11MetricsUnitO10nanosecondyA2CmF",
+            "usr": "s:6Sentry0A4UnitO10nanosecondyA2CmF",
+            "mangledName": "$s6Sentry0A4UnitO10nanosecondyA2CmF",
             "moduleName": "Sentry"
           },
           {
@@ -62361,24 +62361,24 @@
               {
                 "kind": "TypeFunc",
                 "name": "Function",
-                "printedName": "(Sentry.SentryMetricsUnit.Type) -> Sentry.SentryMetricsUnit",
+                "printedName": "(Sentry.SentryUnit.Type) -> Sentry.SentryUnit",
                 "children": [
                   {
                     "kind": "TypeNominal",
-                    "name": "SentryMetricsUnit",
-                    "printedName": "Sentry.SentryMetricsUnit",
-                    "usr": "s:6Sentry0A11MetricsUnitO"
+                    "name": "SentryUnit",
+                    "printedName": "Sentry.SentryUnit",
+                    "usr": "s:6Sentry0A4UnitO"
                   },
                   {
                     "kind": "TypeNominal",
                     "name": "Metatype",
-                    "printedName": "Sentry.SentryMetricsUnit.Type",
+                    "printedName": "Sentry.SentryUnit.Type",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentryMetricsUnit",
-                        "printedName": "Sentry.SentryMetricsUnit",
-                        "usr": "s:6Sentry0A11MetricsUnitO"
+                        "name": "SentryUnit",
+                        "printedName": "Sentry.SentryUnit",
+                        "usr": "s:6Sentry0A4UnitO"
                       }
                     ]
                   }
@@ -62386,8 +62386,8 @@
               }
             ],
             "declKind": "EnumElement",
-            "usr": "s:6Sentry0A11MetricsUnitO11microsecondyA2CmF",
-            "mangledName": "$s6Sentry0A11MetricsUnitO11microsecondyA2CmF",
+            "usr": "s:6Sentry0A4UnitO11microsecondyA2CmF",
+            "mangledName": "$s6Sentry0A4UnitO11microsecondyA2CmF",
             "moduleName": "Sentry"
           },
           {
@@ -62398,24 +62398,24 @@
               {
                 "kind": "TypeFunc",
                 "name": "Function",
-                "printedName": "(Sentry.SentryMetricsUnit.Type) -> Sentry.SentryMetricsUnit",
+                "printedName": "(Sentry.SentryUnit.Type) -> Sentry.SentryUnit",
                 "children": [
                   {
                     "kind": "TypeNominal",
-                    "name": "SentryMetricsUnit",
-                    "printedName": "Sentry.SentryMetricsUnit",
-                    "usr": "s:6Sentry0A11MetricsUnitO"
+                    "name": "SentryUnit",
+                    "printedName": "Sentry.SentryUnit",
+                    "usr": "s:6Sentry0A4UnitO"
                   },
                   {
                     "kind": "TypeNominal",
                     "name": "Metatype",
-                    "printedName": "Sentry.SentryMetricsUnit.Type",
+                    "printedName": "Sentry.SentryUnit.Type",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentryMetricsUnit",
-                        "printedName": "Sentry.SentryMetricsUnit",
-                        "usr": "s:6Sentry0A11MetricsUnitO"
+                        "name": "SentryUnit",
+                        "printedName": "Sentry.SentryUnit",
+                        "usr": "s:6Sentry0A4UnitO"
                       }
                     ]
                   }
@@ -62423,8 +62423,8 @@
               }
             ],
             "declKind": "EnumElement",
-            "usr": "s:6Sentry0A11MetricsUnitO11millisecondyA2CmF",
-            "mangledName": "$s6Sentry0A11MetricsUnitO11millisecondyA2CmF",
+            "usr": "s:6Sentry0A4UnitO11millisecondyA2CmF",
+            "mangledName": "$s6Sentry0A4UnitO11millisecondyA2CmF",
             "moduleName": "Sentry"
           },
           {
@@ -62435,24 +62435,24 @@
               {
                 "kind": "TypeFunc",
                 "name": "Function",
-                "printedName": "(Sentry.SentryMetricsUnit.Type) -> Sentry.SentryMetricsUnit",
+                "printedName": "(Sentry.SentryUnit.Type) -> Sentry.SentryUnit",
                 "children": [
                   {
                     "kind": "TypeNominal",
-                    "name": "SentryMetricsUnit",
-                    "printedName": "Sentry.SentryMetricsUnit",
-                    "usr": "s:6Sentry0A11MetricsUnitO"
+                    "name": "SentryUnit",
+                    "printedName": "Sentry.SentryUnit",
+                    "usr": "s:6Sentry0A4UnitO"
                   },
                   {
                     "kind": "TypeNominal",
                     "name": "Metatype",
-                    "printedName": "Sentry.SentryMetricsUnit.Type",
+                    "printedName": "Sentry.SentryUnit.Type",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentryMetricsUnit",
-                        "printedName": "Sentry.SentryMetricsUnit",
-                        "usr": "s:6Sentry0A11MetricsUnitO"
+                        "name": "SentryUnit",
+                        "printedName": "Sentry.SentryUnit",
+                        "usr": "s:6Sentry0A4UnitO"
                       }
                     ]
                   }
@@ -62460,8 +62460,8 @@
               }
             ],
             "declKind": "EnumElement",
-            "usr": "s:6Sentry0A11MetricsUnitO6secondyA2CmF",
-            "mangledName": "$s6Sentry0A11MetricsUnitO6secondyA2CmF",
+            "usr": "s:6Sentry0A4UnitO6secondyA2CmF",
+            "mangledName": "$s6Sentry0A4UnitO6secondyA2CmF",
             "moduleName": "Sentry"
           },
           {
@@ -62472,24 +62472,24 @@
               {
                 "kind": "TypeFunc",
                 "name": "Function",
-                "printedName": "(Sentry.SentryMetricsUnit.Type) -> Sentry.SentryMetricsUnit",
+                "printedName": "(Sentry.SentryUnit.Type) -> Sentry.SentryUnit",
                 "children": [
                   {
                     "kind": "TypeNominal",
-                    "name": "SentryMetricsUnit",
-                    "printedName": "Sentry.SentryMetricsUnit",
-                    "usr": "s:6Sentry0A11MetricsUnitO"
+                    "name": "SentryUnit",
+                    "printedName": "Sentry.SentryUnit",
+                    "usr": "s:6Sentry0A4UnitO"
                   },
                   {
                     "kind": "TypeNominal",
                     "name": "Metatype",
-                    "printedName": "Sentry.SentryMetricsUnit.Type",
+                    "printedName": "Sentry.SentryUnit.Type",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentryMetricsUnit",
-                        "printedName": "Sentry.SentryMetricsUnit",
-                        "usr": "s:6Sentry0A11MetricsUnitO"
+                        "name": "SentryUnit",
+                        "printedName": "Sentry.SentryUnit",
+                        "usr": "s:6Sentry0A4UnitO"
                       }
                     ]
                   }
@@ -62497,8 +62497,8 @@
               }
             ],
             "declKind": "EnumElement",
-            "usr": "s:6Sentry0A11MetricsUnitO6minuteyA2CmF",
-            "mangledName": "$s6Sentry0A11MetricsUnitO6minuteyA2CmF",
+            "usr": "s:6Sentry0A4UnitO6minuteyA2CmF",
+            "mangledName": "$s6Sentry0A4UnitO6minuteyA2CmF",
             "moduleName": "Sentry"
           },
           {
@@ -62509,24 +62509,24 @@
               {
                 "kind": "TypeFunc",
                 "name": "Function",
-                "printedName": "(Sentry.SentryMetricsUnit.Type) -> Sentry.SentryMetricsUnit",
+                "printedName": "(Sentry.SentryUnit.Type) -> Sentry.SentryUnit",
                 "children": [
                   {
                     "kind": "TypeNominal",
-                    "name": "SentryMetricsUnit",
-                    "printedName": "Sentry.SentryMetricsUnit",
-                    "usr": "s:6Sentry0A11MetricsUnitO"
+                    "name": "SentryUnit",
+                    "printedName": "Sentry.SentryUnit",
+                    "usr": "s:6Sentry0A4UnitO"
                   },
                   {
                     "kind": "TypeNominal",
                     "name": "Metatype",
-                    "printedName": "Sentry.SentryMetricsUnit.Type",
+                    "printedName": "Sentry.SentryUnit.Type",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentryMetricsUnit",
-                        "printedName": "Sentry.SentryMetricsUnit",
-                        "usr": "s:6Sentry0A11MetricsUnitO"
+                        "name": "SentryUnit",
+                        "printedName": "Sentry.SentryUnit",
+                        "usr": "s:6Sentry0A4UnitO"
                       }
                     ]
                   }
@@ -62534,8 +62534,8 @@
               }
             ],
             "declKind": "EnumElement",
-            "usr": "s:6Sentry0A11MetricsUnitO4houryA2CmF",
-            "mangledName": "$s6Sentry0A11MetricsUnitO4houryA2CmF",
+            "usr": "s:6Sentry0A4UnitO4houryA2CmF",
+            "mangledName": "$s6Sentry0A4UnitO4houryA2CmF",
             "moduleName": "Sentry"
           },
           {
@@ -62546,24 +62546,24 @@
               {
                 "kind": "TypeFunc",
                 "name": "Function",
-                "printedName": "(Sentry.SentryMetricsUnit.Type) -> Sentry.SentryMetricsUnit",
+                "printedName": "(Sentry.SentryUnit.Type) -> Sentry.SentryUnit",
                 "children": [
                   {
                     "kind": "TypeNominal",
-                    "name": "SentryMetricsUnit",
-                    "printedName": "Sentry.SentryMetricsUnit",
-                    "usr": "s:6Sentry0A11MetricsUnitO"
+                    "name": "SentryUnit",
+                    "printedName": "Sentry.SentryUnit",
+                    "usr": "s:6Sentry0A4UnitO"
                   },
                   {
                     "kind": "TypeNominal",
                     "name": "Metatype",
-                    "printedName": "Sentry.SentryMetricsUnit.Type",
+                    "printedName": "Sentry.SentryUnit.Type",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentryMetricsUnit",
-                        "printedName": "Sentry.SentryMetricsUnit",
-                        "usr": "s:6Sentry0A11MetricsUnitO"
+                        "name": "SentryUnit",
+                        "printedName": "Sentry.SentryUnit",
+                        "usr": "s:6Sentry0A4UnitO"
                       }
                     ]
                   }
@@ -62571,8 +62571,8 @@
               }
             ],
             "declKind": "EnumElement",
-            "usr": "s:6Sentry0A11MetricsUnitO3dayyA2CmF",
-            "mangledName": "$s6Sentry0A11MetricsUnitO3dayyA2CmF",
+            "usr": "s:6Sentry0A4UnitO3dayyA2CmF",
+            "mangledName": "$s6Sentry0A4UnitO3dayyA2CmF",
             "moduleName": "Sentry"
           },
           {
@@ -62583,24 +62583,24 @@
               {
                 "kind": "TypeFunc",
                 "name": "Function",
-                "printedName": "(Sentry.SentryMetricsUnit.Type) -> Sentry.SentryMetricsUnit",
+                "printedName": "(Sentry.SentryUnit.Type) -> Sentry.SentryUnit",
                 "children": [
                   {
                     "kind": "TypeNominal",
-                    "name": "SentryMetricsUnit",
-                    "printedName": "Sentry.SentryMetricsUnit",
-                    "usr": "s:6Sentry0A11MetricsUnitO"
+                    "name": "SentryUnit",
+                    "printedName": "Sentry.SentryUnit",
+                    "usr": "s:6Sentry0A4UnitO"
                   },
                   {
                     "kind": "TypeNominal",
                     "name": "Metatype",
-                    "printedName": "Sentry.SentryMetricsUnit.Type",
+                    "printedName": "Sentry.SentryUnit.Type",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentryMetricsUnit",
-                        "printedName": "Sentry.SentryMetricsUnit",
-                        "usr": "s:6Sentry0A11MetricsUnitO"
+                        "name": "SentryUnit",
+                        "printedName": "Sentry.SentryUnit",
+                        "usr": "s:6Sentry0A4UnitO"
                       }
                     ]
                   }
@@ -62608,8 +62608,8 @@
               }
             ],
             "declKind": "EnumElement",
-            "usr": "s:6Sentry0A11MetricsUnitO4weekyA2CmF",
-            "mangledName": "$s6Sentry0A11MetricsUnitO4weekyA2CmF",
+            "usr": "s:6Sentry0A4UnitO4weekyA2CmF",
+            "mangledName": "$s6Sentry0A4UnitO4weekyA2CmF",
             "moduleName": "Sentry"
           },
           {
@@ -62620,24 +62620,24 @@
               {
                 "kind": "TypeFunc",
                 "name": "Function",
-                "printedName": "(Sentry.SentryMetricsUnit.Type) -> Sentry.SentryMetricsUnit",
+                "printedName": "(Sentry.SentryUnit.Type) -> Sentry.SentryUnit",
                 "children": [
                   {
                     "kind": "TypeNominal",
-                    "name": "SentryMetricsUnit",
-                    "printedName": "Sentry.SentryMetricsUnit",
-                    "usr": "s:6Sentry0A11MetricsUnitO"
+                    "name": "SentryUnit",
+                    "printedName": "Sentry.SentryUnit",
+                    "usr": "s:6Sentry0A4UnitO"
                   },
                   {
                     "kind": "TypeNominal",
                     "name": "Metatype",
-                    "printedName": "Sentry.SentryMetricsUnit.Type",
+                    "printedName": "Sentry.SentryUnit.Type",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentryMetricsUnit",
-                        "printedName": "Sentry.SentryMetricsUnit",
-                        "usr": "s:6Sentry0A11MetricsUnitO"
+                        "name": "SentryUnit",
+                        "printedName": "Sentry.SentryUnit",
+                        "usr": "s:6Sentry0A4UnitO"
                       }
                     ]
                   }
@@ -62645,8 +62645,8 @@
               }
             ],
             "declKind": "EnumElement",
-            "usr": "s:6Sentry0A11MetricsUnitO3bityA2CmF",
-            "mangledName": "$s6Sentry0A11MetricsUnitO3bityA2CmF",
+            "usr": "s:6Sentry0A4UnitO3bityA2CmF",
+            "mangledName": "$s6Sentry0A4UnitO3bityA2CmF",
             "moduleName": "Sentry"
           },
           {
@@ -62657,24 +62657,24 @@
               {
                 "kind": "TypeFunc",
                 "name": "Function",
-                "printedName": "(Sentry.SentryMetricsUnit.Type) -> Sentry.SentryMetricsUnit",
+                "printedName": "(Sentry.SentryUnit.Type) -> Sentry.SentryUnit",
                 "children": [
                   {
                     "kind": "TypeNominal",
-                    "name": "SentryMetricsUnit",
-                    "printedName": "Sentry.SentryMetricsUnit",
-                    "usr": "s:6Sentry0A11MetricsUnitO"
+                    "name": "SentryUnit",
+                    "printedName": "Sentry.SentryUnit",
+                    "usr": "s:6Sentry0A4UnitO"
                   },
                   {
                     "kind": "TypeNominal",
                     "name": "Metatype",
-                    "printedName": "Sentry.SentryMetricsUnit.Type",
+                    "printedName": "Sentry.SentryUnit.Type",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentryMetricsUnit",
-                        "printedName": "Sentry.SentryMetricsUnit",
-                        "usr": "s:6Sentry0A11MetricsUnitO"
+                        "name": "SentryUnit",
+                        "printedName": "Sentry.SentryUnit",
+                        "usr": "s:6Sentry0A4UnitO"
                       }
                     ]
                   }
@@ -62682,8 +62682,8 @@
               }
             ],
             "declKind": "EnumElement",
-            "usr": "s:6Sentry0A11MetricsUnitO4byteyA2CmF",
-            "mangledName": "$s6Sentry0A11MetricsUnitO4byteyA2CmF",
+            "usr": "s:6Sentry0A4UnitO4byteyA2CmF",
+            "mangledName": "$s6Sentry0A4UnitO4byteyA2CmF",
             "moduleName": "Sentry"
           },
           {
@@ -62694,24 +62694,24 @@
               {
                 "kind": "TypeFunc",
                 "name": "Function",
-                "printedName": "(Sentry.SentryMetricsUnit.Type) -> Sentry.SentryMetricsUnit",
+                "printedName": "(Sentry.SentryUnit.Type) -> Sentry.SentryUnit",
                 "children": [
                   {
                     "kind": "TypeNominal",
-                    "name": "SentryMetricsUnit",
-                    "printedName": "Sentry.SentryMetricsUnit",
-                    "usr": "s:6Sentry0A11MetricsUnitO"
+                    "name": "SentryUnit",
+                    "printedName": "Sentry.SentryUnit",
+                    "usr": "s:6Sentry0A4UnitO"
                   },
                   {
                     "kind": "TypeNominal",
                     "name": "Metatype",
-                    "printedName": "Sentry.SentryMetricsUnit.Type",
+                    "printedName": "Sentry.SentryUnit.Type",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentryMetricsUnit",
-                        "printedName": "Sentry.SentryMetricsUnit",
-                        "usr": "s:6Sentry0A11MetricsUnitO"
+                        "name": "SentryUnit",
+                        "printedName": "Sentry.SentryUnit",
+                        "usr": "s:6Sentry0A4UnitO"
                       }
                     ]
                   }
@@ -62719,8 +62719,8 @@
               }
             ],
             "declKind": "EnumElement",
-            "usr": "s:6Sentry0A11MetricsUnitO8kilobyteyA2CmF",
-            "mangledName": "$s6Sentry0A11MetricsUnitO8kilobyteyA2CmF",
+            "usr": "s:6Sentry0A4UnitO8kilobyteyA2CmF",
+            "mangledName": "$s6Sentry0A4UnitO8kilobyteyA2CmF",
             "moduleName": "Sentry"
           },
           {
@@ -62731,24 +62731,24 @@
               {
                 "kind": "TypeFunc",
                 "name": "Function",
-                "printedName": "(Sentry.SentryMetricsUnit.Type) -> Sentry.SentryMetricsUnit",
+                "printedName": "(Sentry.SentryUnit.Type) -> Sentry.SentryUnit",
                 "children": [
                   {
                     "kind": "TypeNominal",
-                    "name": "SentryMetricsUnit",
-                    "printedName": "Sentry.SentryMetricsUnit",
-                    "usr": "s:6Sentry0A11MetricsUnitO"
+                    "name": "SentryUnit",
+                    "printedName": "Sentry.SentryUnit",
+                    "usr": "s:6Sentry0A4UnitO"
                   },
                   {
                     "kind": "TypeNominal",
                     "name": "Metatype",
-                    "printedName": "Sentry.SentryMetricsUnit.Type",
+                    "printedName": "Sentry.SentryUnit.Type",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentryMetricsUnit",
-                        "printedName": "Sentry.SentryMetricsUnit",
-                        "usr": "s:6Sentry0A11MetricsUnitO"
+                        "name": "SentryUnit",
+                        "printedName": "Sentry.SentryUnit",
+                        "usr": "s:6Sentry0A4UnitO"
                       }
                     ]
                   }
@@ -62756,8 +62756,8 @@
               }
             ],
             "declKind": "EnumElement",
-            "usr": "s:6Sentry0A11MetricsUnitO8kibibyteyA2CmF",
-            "mangledName": "$s6Sentry0A11MetricsUnitO8kibibyteyA2CmF",
+            "usr": "s:6Sentry0A4UnitO8kibibyteyA2CmF",
+            "mangledName": "$s6Sentry0A4UnitO8kibibyteyA2CmF",
             "moduleName": "Sentry"
           },
           {
@@ -62768,24 +62768,24 @@
               {
                 "kind": "TypeFunc",
                 "name": "Function",
-                "printedName": "(Sentry.SentryMetricsUnit.Type) -> Sentry.SentryMetricsUnit",
+                "printedName": "(Sentry.SentryUnit.Type) -> Sentry.SentryUnit",
                 "children": [
                   {
                     "kind": "TypeNominal",
-                    "name": "SentryMetricsUnit",
-                    "printedName": "Sentry.SentryMetricsUnit",
-                    "usr": "s:6Sentry0A11MetricsUnitO"
+                    "name": "SentryUnit",
+                    "printedName": "Sentry.SentryUnit",
+                    "usr": "s:6Sentry0A4UnitO"
                   },
                   {
                     "kind": "TypeNominal",
                     "name": "Metatype",
-                    "printedName": "Sentry.SentryMetricsUnit.Type",
+                    "printedName": "Sentry.SentryUnit.Type",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentryMetricsUnit",
-                        "printedName": "Sentry.SentryMetricsUnit",
-                        "usr": "s:6Sentry0A11MetricsUnitO"
+                        "name": "SentryUnit",
+                        "printedName": "Sentry.SentryUnit",
+                        "usr": "s:6Sentry0A4UnitO"
                       }
                     ]
                   }
@@ -62793,8 +62793,8 @@
               }
             ],
             "declKind": "EnumElement",
-            "usr": "s:6Sentry0A11MetricsUnitO8megabyteyA2CmF",
-            "mangledName": "$s6Sentry0A11MetricsUnitO8megabyteyA2CmF",
+            "usr": "s:6Sentry0A4UnitO8megabyteyA2CmF",
+            "mangledName": "$s6Sentry0A4UnitO8megabyteyA2CmF",
             "moduleName": "Sentry"
           },
           {
@@ -62805,24 +62805,24 @@
               {
                 "kind": "TypeFunc",
                 "name": "Function",
-                "printedName": "(Sentry.SentryMetricsUnit.Type) -> Sentry.SentryMetricsUnit",
+                "printedName": "(Sentry.SentryUnit.Type) -> Sentry.SentryUnit",
                 "children": [
                   {
                     "kind": "TypeNominal",
-                    "name": "SentryMetricsUnit",
-                    "printedName": "Sentry.SentryMetricsUnit",
-                    "usr": "s:6Sentry0A11MetricsUnitO"
+                    "name": "SentryUnit",
+                    "printedName": "Sentry.SentryUnit",
+                    "usr": "s:6Sentry0A4UnitO"
                   },
                   {
                     "kind": "TypeNominal",
                     "name": "Metatype",
-                    "printedName": "Sentry.SentryMetricsUnit.Type",
+                    "printedName": "Sentry.SentryUnit.Type",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentryMetricsUnit",
-                        "printedName": "Sentry.SentryMetricsUnit",
-                        "usr": "s:6Sentry0A11MetricsUnitO"
+                        "name": "SentryUnit",
+                        "printedName": "Sentry.SentryUnit",
+                        "usr": "s:6Sentry0A4UnitO"
                       }
                     ]
                   }
@@ -62830,8 +62830,8 @@
               }
             ],
             "declKind": "EnumElement",
-            "usr": "s:6Sentry0A11MetricsUnitO8mebibyteyA2CmF",
-            "mangledName": "$s6Sentry0A11MetricsUnitO8mebibyteyA2CmF",
+            "usr": "s:6Sentry0A4UnitO8mebibyteyA2CmF",
+            "mangledName": "$s6Sentry0A4UnitO8mebibyteyA2CmF",
             "moduleName": "Sentry"
           },
           {
@@ -62842,24 +62842,24 @@
               {
                 "kind": "TypeFunc",
                 "name": "Function",
-                "printedName": "(Sentry.SentryMetricsUnit.Type) -> Sentry.SentryMetricsUnit",
+                "printedName": "(Sentry.SentryUnit.Type) -> Sentry.SentryUnit",
                 "children": [
                   {
                     "kind": "TypeNominal",
-                    "name": "SentryMetricsUnit",
-                    "printedName": "Sentry.SentryMetricsUnit",
-                    "usr": "s:6Sentry0A11MetricsUnitO"
+                    "name": "SentryUnit",
+                    "printedName": "Sentry.SentryUnit",
+                    "usr": "s:6Sentry0A4UnitO"
                   },
                   {
                     "kind": "TypeNominal",
                     "name": "Metatype",
-                    "printedName": "Sentry.SentryMetricsUnit.Type",
+                    "printedName": "Sentry.SentryUnit.Type",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentryMetricsUnit",
-                        "printedName": "Sentry.SentryMetricsUnit",
-                        "usr": "s:6Sentry0A11MetricsUnitO"
+                        "name": "SentryUnit",
+                        "printedName": "Sentry.SentryUnit",
+                        "usr": "s:6Sentry0A4UnitO"
                       }
                     ]
                   }
@@ -62867,8 +62867,8 @@
               }
             ],
             "declKind": "EnumElement",
-            "usr": "s:6Sentry0A11MetricsUnitO8gigabyteyA2CmF",
-            "mangledName": "$s6Sentry0A11MetricsUnitO8gigabyteyA2CmF",
+            "usr": "s:6Sentry0A4UnitO8gigabyteyA2CmF",
+            "mangledName": "$s6Sentry0A4UnitO8gigabyteyA2CmF",
             "moduleName": "Sentry"
           },
           {
@@ -62879,24 +62879,24 @@
               {
                 "kind": "TypeFunc",
                 "name": "Function",
-                "printedName": "(Sentry.SentryMetricsUnit.Type) -> Sentry.SentryMetricsUnit",
+                "printedName": "(Sentry.SentryUnit.Type) -> Sentry.SentryUnit",
                 "children": [
                   {
                     "kind": "TypeNominal",
-                    "name": "SentryMetricsUnit",
-                    "printedName": "Sentry.SentryMetricsUnit",
-                    "usr": "s:6Sentry0A11MetricsUnitO"
+                    "name": "SentryUnit",
+                    "printedName": "Sentry.SentryUnit",
+                    "usr": "s:6Sentry0A4UnitO"
                   },
                   {
                     "kind": "TypeNominal",
                     "name": "Metatype",
-                    "printedName": "Sentry.SentryMetricsUnit.Type",
+                    "printedName": "Sentry.SentryUnit.Type",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentryMetricsUnit",
-                        "printedName": "Sentry.SentryMetricsUnit",
-                        "usr": "s:6Sentry0A11MetricsUnitO"
+                        "name": "SentryUnit",
+                        "printedName": "Sentry.SentryUnit",
+                        "usr": "s:6Sentry0A4UnitO"
                       }
                     ]
                   }
@@ -62904,8 +62904,8 @@
               }
             ],
             "declKind": "EnumElement",
-            "usr": "s:6Sentry0A11MetricsUnitO8gibibyteyA2CmF",
-            "mangledName": "$s6Sentry0A11MetricsUnitO8gibibyteyA2CmF",
+            "usr": "s:6Sentry0A4UnitO8gibibyteyA2CmF",
+            "mangledName": "$s6Sentry0A4UnitO8gibibyteyA2CmF",
             "moduleName": "Sentry"
           },
           {
@@ -62916,24 +62916,24 @@
               {
                 "kind": "TypeFunc",
                 "name": "Function",
-                "printedName": "(Sentry.SentryMetricsUnit.Type) -> Sentry.SentryMetricsUnit",
+                "printedName": "(Sentry.SentryUnit.Type) -> Sentry.SentryUnit",
                 "children": [
                   {
                     "kind": "TypeNominal",
-                    "name": "SentryMetricsUnit",
-                    "printedName": "Sentry.SentryMetricsUnit",
-                    "usr": "s:6Sentry0A11MetricsUnitO"
+                    "name": "SentryUnit",
+                    "printedName": "Sentry.SentryUnit",
+                    "usr": "s:6Sentry0A4UnitO"
                   },
                   {
                     "kind": "TypeNominal",
                     "name": "Metatype",
-                    "printedName": "Sentry.SentryMetricsUnit.Type",
+                    "printedName": "Sentry.SentryUnit.Type",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentryMetricsUnit",
-                        "printedName": "Sentry.SentryMetricsUnit",
-                        "usr": "s:6Sentry0A11MetricsUnitO"
+                        "name": "SentryUnit",
+                        "printedName": "Sentry.SentryUnit",
+                        "usr": "s:6Sentry0A4UnitO"
                       }
                     ]
                   }
@@ -62941,8 +62941,8 @@
               }
             ],
             "declKind": "EnumElement",
-            "usr": "s:6Sentry0A11MetricsUnitO8terabyteyA2CmF",
-            "mangledName": "$s6Sentry0A11MetricsUnitO8terabyteyA2CmF",
+            "usr": "s:6Sentry0A4UnitO8terabyteyA2CmF",
+            "mangledName": "$s6Sentry0A4UnitO8terabyteyA2CmF",
             "moduleName": "Sentry"
           },
           {
@@ -62953,24 +62953,24 @@
               {
                 "kind": "TypeFunc",
                 "name": "Function",
-                "printedName": "(Sentry.SentryMetricsUnit.Type) -> Sentry.SentryMetricsUnit",
+                "printedName": "(Sentry.SentryUnit.Type) -> Sentry.SentryUnit",
                 "children": [
                   {
                     "kind": "TypeNominal",
-                    "name": "SentryMetricsUnit",
-                    "printedName": "Sentry.SentryMetricsUnit",
-                    "usr": "s:6Sentry0A11MetricsUnitO"
+                    "name": "SentryUnit",
+                    "printedName": "Sentry.SentryUnit",
+                    "usr": "s:6Sentry0A4UnitO"
                   },
                   {
                     "kind": "TypeNominal",
                     "name": "Metatype",
-                    "printedName": "Sentry.SentryMetricsUnit.Type",
+                    "printedName": "Sentry.SentryUnit.Type",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentryMetricsUnit",
-                        "printedName": "Sentry.SentryMetricsUnit",
-                        "usr": "s:6Sentry0A11MetricsUnitO"
+                        "name": "SentryUnit",
+                        "printedName": "Sentry.SentryUnit",
+                        "usr": "s:6Sentry0A4UnitO"
                       }
                     ]
                   }
@@ -62978,8 +62978,8 @@
               }
             ],
             "declKind": "EnumElement",
-            "usr": "s:6Sentry0A11MetricsUnitO8tebibyteyA2CmF",
-            "mangledName": "$s6Sentry0A11MetricsUnitO8tebibyteyA2CmF",
+            "usr": "s:6Sentry0A4UnitO8tebibyteyA2CmF",
+            "mangledName": "$s6Sentry0A4UnitO8tebibyteyA2CmF",
             "moduleName": "Sentry"
           },
           {
@@ -62990,24 +62990,24 @@
               {
                 "kind": "TypeFunc",
                 "name": "Function",
-                "printedName": "(Sentry.SentryMetricsUnit.Type) -> Sentry.SentryMetricsUnit",
+                "printedName": "(Sentry.SentryUnit.Type) -> Sentry.SentryUnit",
                 "children": [
                   {
                     "kind": "TypeNominal",
-                    "name": "SentryMetricsUnit",
-                    "printedName": "Sentry.SentryMetricsUnit",
-                    "usr": "s:6Sentry0A11MetricsUnitO"
+                    "name": "SentryUnit",
+                    "printedName": "Sentry.SentryUnit",
+                    "usr": "s:6Sentry0A4UnitO"
                   },
                   {
                     "kind": "TypeNominal",
                     "name": "Metatype",
-                    "printedName": "Sentry.SentryMetricsUnit.Type",
+                    "printedName": "Sentry.SentryUnit.Type",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentryMetricsUnit",
-                        "printedName": "Sentry.SentryMetricsUnit",
-                        "usr": "s:6Sentry0A11MetricsUnitO"
+                        "name": "SentryUnit",
+                        "printedName": "Sentry.SentryUnit",
+                        "usr": "s:6Sentry0A4UnitO"
                       }
                     ]
                   }
@@ -63015,8 +63015,8 @@
               }
             ],
             "declKind": "EnumElement",
-            "usr": "s:6Sentry0A11MetricsUnitO8petabyteyA2CmF",
-            "mangledName": "$s6Sentry0A11MetricsUnitO8petabyteyA2CmF",
+            "usr": "s:6Sentry0A4UnitO8petabyteyA2CmF",
+            "mangledName": "$s6Sentry0A4UnitO8petabyteyA2CmF",
             "moduleName": "Sentry"
           },
           {
@@ -63027,24 +63027,24 @@
               {
                 "kind": "TypeFunc",
                 "name": "Function",
-                "printedName": "(Sentry.SentryMetricsUnit.Type) -> Sentry.SentryMetricsUnit",
+                "printedName": "(Sentry.SentryUnit.Type) -> Sentry.SentryUnit",
                 "children": [
                   {
                     "kind": "TypeNominal",
-                    "name": "SentryMetricsUnit",
-                    "printedName": "Sentry.SentryMetricsUnit",
-                    "usr": "s:6Sentry0A11MetricsUnitO"
+                    "name": "SentryUnit",
+                    "printedName": "Sentry.SentryUnit",
+                    "usr": "s:6Sentry0A4UnitO"
                   },
                   {
                     "kind": "TypeNominal",
                     "name": "Metatype",
-                    "printedName": "Sentry.SentryMetricsUnit.Type",
+                    "printedName": "Sentry.SentryUnit.Type",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentryMetricsUnit",
-                        "printedName": "Sentry.SentryMetricsUnit",
-                        "usr": "s:6Sentry0A11MetricsUnitO"
+                        "name": "SentryUnit",
+                        "printedName": "Sentry.SentryUnit",
+                        "usr": "s:6Sentry0A4UnitO"
                       }
                     ]
                   }
@@ -63052,8 +63052,8 @@
               }
             ],
             "declKind": "EnumElement",
-            "usr": "s:6Sentry0A11MetricsUnitO8pebibyteyA2CmF",
-            "mangledName": "$s6Sentry0A11MetricsUnitO8pebibyteyA2CmF",
+            "usr": "s:6Sentry0A4UnitO8pebibyteyA2CmF",
+            "mangledName": "$s6Sentry0A4UnitO8pebibyteyA2CmF",
             "moduleName": "Sentry"
           },
           {
@@ -63064,24 +63064,24 @@
               {
                 "kind": "TypeFunc",
                 "name": "Function",
-                "printedName": "(Sentry.SentryMetricsUnit.Type) -> Sentry.SentryMetricsUnit",
+                "printedName": "(Sentry.SentryUnit.Type) -> Sentry.SentryUnit",
                 "children": [
                   {
                     "kind": "TypeNominal",
-                    "name": "SentryMetricsUnit",
-                    "printedName": "Sentry.SentryMetricsUnit",
-                    "usr": "s:6Sentry0A11MetricsUnitO"
+                    "name": "SentryUnit",
+                    "printedName": "Sentry.SentryUnit",
+                    "usr": "s:6Sentry0A4UnitO"
                   },
                   {
                     "kind": "TypeNominal",
                     "name": "Metatype",
-                    "printedName": "Sentry.SentryMetricsUnit.Type",
+                    "printedName": "Sentry.SentryUnit.Type",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentryMetricsUnit",
-                        "printedName": "Sentry.SentryMetricsUnit",
-                        "usr": "s:6Sentry0A11MetricsUnitO"
+                        "name": "SentryUnit",
+                        "printedName": "Sentry.SentryUnit",
+                        "usr": "s:6Sentry0A4UnitO"
                       }
                     ]
                   }
@@ -63089,8 +63089,8 @@
               }
             ],
             "declKind": "EnumElement",
-            "usr": "s:6Sentry0A11MetricsUnitO7exabyteyA2CmF",
-            "mangledName": "$s6Sentry0A11MetricsUnitO7exabyteyA2CmF",
+            "usr": "s:6Sentry0A4UnitO7exabyteyA2CmF",
+            "mangledName": "$s6Sentry0A4UnitO7exabyteyA2CmF",
             "moduleName": "Sentry"
           },
           {
@@ -63101,24 +63101,24 @@
               {
                 "kind": "TypeFunc",
                 "name": "Function",
-                "printedName": "(Sentry.SentryMetricsUnit.Type) -> Sentry.SentryMetricsUnit",
+                "printedName": "(Sentry.SentryUnit.Type) -> Sentry.SentryUnit",
                 "children": [
                   {
                     "kind": "TypeNominal",
-                    "name": "SentryMetricsUnit",
-                    "printedName": "Sentry.SentryMetricsUnit",
-                    "usr": "s:6Sentry0A11MetricsUnitO"
+                    "name": "SentryUnit",
+                    "printedName": "Sentry.SentryUnit",
+                    "usr": "s:6Sentry0A4UnitO"
                   },
                   {
                     "kind": "TypeNominal",
                     "name": "Metatype",
-                    "printedName": "Sentry.SentryMetricsUnit.Type",
+                    "printedName": "Sentry.SentryUnit.Type",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentryMetricsUnit",
-                        "printedName": "Sentry.SentryMetricsUnit",
-                        "usr": "s:6Sentry0A11MetricsUnitO"
+                        "name": "SentryUnit",
+                        "printedName": "Sentry.SentryUnit",
+                        "usr": "s:6Sentry0A4UnitO"
                       }
                     ]
                   }
@@ -63126,8 +63126,8 @@
               }
             ],
             "declKind": "EnumElement",
-            "usr": "s:6Sentry0A11MetricsUnitO8exbibyteyA2CmF",
-            "mangledName": "$s6Sentry0A11MetricsUnitO8exbibyteyA2CmF",
+            "usr": "s:6Sentry0A4UnitO8exbibyteyA2CmF",
+            "mangledName": "$s6Sentry0A4UnitO8exbibyteyA2CmF",
             "moduleName": "Sentry"
           },
           {
@@ -63138,24 +63138,24 @@
               {
                 "kind": "TypeFunc",
                 "name": "Function",
-                "printedName": "(Sentry.SentryMetricsUnit.Type) -> Sentry.SentryMetricsUnit",
+                "printedName": "(Sentry.SentryUnit.Type) -> Sentry.SentryUnit",
                 "children": [
                   {
                     "kind": "TypeNominal",
-                    "name": "SentryMetricsUnit",
-                    "printedName": "Sentry.SentryMetricsUnit",
-                    "usr": "s:6Sentry0A11MetricsUnitO"
+                    "name": "SentryUnit",
+                    "printedName": "Sentry.SentryUnit",
+                    "usr": "s:6Sentry0A4UnitO"
                   },
                   {
                     "kind": "TypeNominal",
                     "name": "Metatype",
-                    "printedName": "Sentry.SentryMetricsUnit.Type",
+                    "printedName": "Sentry.SentryUnit.Type",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentryMetricsUnit",
-                        "printedName": "Sentry.SentryMetricsUnit",
-                        "usr": "s:6Sentry0A11MetricsUnitO"
+                        "name": "SentryUnit",
+                        "printedName": "Sentry.SentryUnit",
+                        "usr": "s:6Sentry0A4UnitO"
                       }
                     ]
                   }
@@ -63163,8 +63163,8 @@
               }
             ],
             "declKind": "EnumElement",
-            "usr": "s:6Sentry0A11MetricsUnitO5ratioyA2CmF",
-            "mangledName": "$s6Sentry0A11MetricsUnitO5ratioyA2CmF",
+            "usr": "s:6Sentry0A4UnitO5ratioyA2CmF",
+            "mangledName": "$s6Sentry0A4UnitO5ratioyA2CmF",
             "moduleName": "Sentry"
           },
           {
@@ -63175,24 +63175,24 @@
               {
                 "kind": "TypeFunc",
                 "name": "Function",
-                "printedName": "(Sentry.SentryMetricsUnit.Type) -> Sentry.SentryMetricsUnit",
+                "printedName": "(Sentry.SentryUnit.Type) -> Sentry.SentryUnit",
                 "children": [
                   {
                     "kind": "TypeNominal",
-                    "name": "SentryMetricsUnit",
-                    "printedName": "Sentry.SentryMetricsUnit",
-                    "usr": "s:6Sentry0A11MetricsUnitO"
+                    "name": "SentryUnit",
+                    "printedName": "Sentry.SentryUnit",
+                    "usr": "s:6Sentry0A4UnitO"
                   },
                   {
                     "kind": "TypeNominal",
                     "name": "Metatype",
-                    "printedName": "Sentry.SentryMetricsUnit.Type",
+                    "printedName": "Sentry.SentryUnit.Type",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentryMetricsUnit",
-                        "printedName": "Sentry.SentryMetricsUnit",
-                        "usr": "s:6Sentry0A11MetricsUnitO"
+                        "name": "SentryUnit",
+                        "printedName": "Sentry.SentryUnit",
+                        "usr": "s:6Sentry0A4UnitO"
                       }
                     ]
                   }
@@ -63200,8 +63200,8 @@
               }
             ],
             "declKind": "EnumElement",
-            "usr": "s:6Sentry0A11MetricsUnitO7percentyA2CmF",
-            "mangledName": "$s6Sentry0A11MetricsUnitO7percentyA2CmF",
+            "usr": "s:6Sentry0A4UnitO7percentyA2CmF",
+            "mangledName": "$s6Sentry0A4UnitO7percentyA2CmF",
             "moduleName": "Sentry"
           },
           {
@@ -63212,18 +63212,18 @@
               {
                 "kind": "TypeFunc",
                 "name": "Function",
-                "printedName": "(Sentry.SentryMetricsUnit.Type) -> (Swift.String) -> Sentry.SentryMetricsUnit",
+                "printedName": "(Sentry.SentryUnit.Type) -> (Swift.String) -> Sentry.SentryUnit",
                 "children": [
                   {
                     "kind": "TypeFunc",
                     "name": "Function",
-                    "printedName": "(Swift.String) -> Sentry.SentryMetricsUnit",
+                    "printedName": "(Swift.String) -> Sentry.SentryUnit",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentryMetricsUnit",
-                        "printedName": "Sentry.SentryMetricsUnit",
-                        "usr": "s:6Sentry0A11MetricsUnitO"
+                        "name": "SentryUnit",
+                        "printedName": "Sentry.SentryUnit",
+                        "usr": "s:6Sentry0A4UnitO"
                       },
                       {
                         "kind": "TypeNominal",
@@ -63236,13 +63236,13 @@
                   {
                     "kind": "TypeNominal",
                     "name": "Metatype",
-                    "printedName": "Sentry.SentryMetricsUnit.Type",
+                    "printedName": "Sentry.SentryUnit.Type",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "SentryMetricsUnit",
-                        "printedName": "Sentry.SentryMetricsUnit",
-                        "usr": "s:6Sentry0A11MetricsUnitO"
+                        "name": "SentryUnit",
+                        "printedName": "Sentry.SentryUnit",
+                        "usr": "s:6Sentry0A4UnitO"
                       }
                     ]
                   }
@@ -63250,8 +63250,8 @@
               }
             ],
             "declKind": "EnumElement",
-            "usr": "s:6Sentry0A11MetricsUnitO7genericyACSScACmF",
-            "mangledName": "$s6Sentry0A11MetricsUnitO7genericyACSScACmF",
+            "usr": "s:6Sentry0A4UnitO7genericyACSScACmF",
+            "mangledName": "$s6Sentry0A4UnitO7genericyACSScACmF",
             "moduleName": "Sentry"
           },
           {
@@ -63267,8 +63267,8 @@
               }
             ],
             "declKind": "TypeAlias",
-            "usr": "s:6Sentry0A11MetricsUnitO8RawValuea",
-            "mangledName": "$s6Sentry0A11MetricsUnitO8RawValuea",
+            "usr": "s:6Sentry0A4UnitO8RawValuea",
+            "mangledName": "$s6Sentry0A4UnitO8RawValuea",
             "moduleName": "Sentry",
             "isFromExtension": true
           },
@@ -63280,13 +63280,13 @@
               {
                 "kind": "TypeNominal",
                 "name": "Optional",
-                "printedName": "Sentry.SentryMetricsUnit?",
+                "printedName": "Sentry.SentryUnit?",
                 "children": [
                   {
                     "kind": "TypeNominal",
-                    "name": "SentryMetricsUnit",
-                    "printedName": "Sentry.SentryMetricsUnit",
-                    "usr": "s:6Sentry0A11MetricsUnitO"
+                    "name": "SentryUnit",
+                    "printedName": "Sentry.SentryUnit",
+                    "usr": "s:6Sentry0A4UnitO"
                   }
                 ],
                 "usr": "s:Sq"
@@ -63299,8 +63299,8 @@
               }
             ],
             "declKind": "Constructor",
-            "usr": "s:6Sentry0A11MetricsUnitO8rawValueACSgSS_tcfc",
-            "mangledName": "$s6Sentry0A11MetricsUnitO8rawValueACSgSS_tcfc",
+            "usr": "s:6Sentry0A4UnitO8rawValueACSgSS_tcfc",
+            "mangledName": "$s6Sentry0A4UnitO8rawValueACSgSS_tcfc",
             "moduleName": "Sentry",
             "isFromExtension": true,
             "init_kind": "Designated"
@@ -63318,8 +63318,8 @@
               }
             ],
             "declKind": "Var",
-            "usr": "s:6Sentry0A11MetricsUnitO8rawValueSSvp",
-            "mangledName": "$s6Sentry0A11MetricsUnitO8rawValueSSvp",
+            "usr": "s:6Sentry0A4UnitO8rawValueSSvp",
+            "mangledName": "$s6Sentry0A4UnitO8rawValueSSvp",
             "moduleName": "Sentry",
             "isFromExtension": true,
             "accessors": [
@@ -63336,8 +63336,8 @@
                   }
                 ],
                 "declKind": "Accessor",
-                "usr": "s:6Sentry0A11MetricsUnitO8rawValueSSvg",
-                "mangledName": "$s6Sentry0A11MetricsUnitO8rawValueSSvg",
+                "usr": "s:6Sentry0A4UnitO8rawValueSSvg",
+                "mangledName": "$s6Sentry0A4UnitO8rawValueSSvg",
                 "moduleName": "Sentry",
                 "isFromExtension": true,
                 "accessorKind": "get"
@@ -63362,8 +63362,8 @@
               }
             ],
             "declKind": "Func",
-            "usr": "s:6Sentry0A11MetricsUnitO6encode2toys7Encoder_p_tKF",
-            "mangledName": "$s6Sentry0A11MetricsUnitO6encode2toys7Encoder_p_tKF",
+            "usr": "s:6Sentry0A4UnitO6encode2toys7Encoder_p_tKF",
+            "mangledName": "$s6Sentry0A4UnitO6encode2toys7Encoder_p_tKF",
             "moduleName": "Sentry",
             "isFromExtension": true,
             "throwing": true,
@@ -63376,9 +63376,9 @@
             "children": [
               {
                 "kind": "TypeNominal",
-                "name": "SentryMetricsUnit",
-                "printedName": "Sentry.SentryMetricsUnit",
-                "usr": "s:6Sentry0A11MetricsUnitO"
+                "name": "SentryUnit",
+                "printedName": "Sentry.SentryUnit",
+                "usr": "s:6Sentry0A4UnitO"
               },
               {
                 "kind": "TypeNameAlias",
@@ -63395,8 +63395,8 @@
               }
             ],
             "declKind": "Constructor",
-            "usr": "s:6Sentry0A11MetricsUnitO13stringLiteralACSS_tcfc",
-            "mangledName": "$s6Sentry0A11MetricsUnitO13stringLiteralACSS_tcfc",
+            "usr": "s:6Sentry0A4UnitO13stringLiteralACSS_tcfc",
+            "mangledName": "$s6Sentry0A4UnitO13stringLiteralACSS_tcfc",
             "moduleName": "Sentry",
             "isFromExtension": true,
             "init_kind": "Designated"
@@ -63421,8 +63421,8 @@
               }
             ],
             "declKind": "TypeAlias",
-            "usr": "s:6Sentry0A11MetricsUnitO34ExtendedGraphemeClusterLiteralTypea",
-            "mangledName": "$s6Sentry0A11MetricsUnitO34ExtendedGraphemeClusterLiteralTypea",
+            "usr": "s:6Sentry0A4UnitO34ExtendedGraphemeClusterLiteralTypea",
+            "mangledName": "$s6Sentry0A4UnitO34ExtendedGraphemeClusterLiteralTypea",
             "moduleName": "Sentry",
             "isFromExtension": true
           },
@@ -63446,8 +63446,8 @@
               }
             ],
             "declKind": "TypeAlias",
-            "usr": "s:6Sentry0A11MetricsUnitO17StringLiteralTypea",
-            "mangledName": "$s6Sentry0A11MetricsUnitO17StringLiteralTypea",
+            "usr": "s:6Sentry0A4UnitO17StringLiteralTypea",
+            "mangledName": "$s6Sentry0A4UnitO17StringLiteralTypea",
             "moduleName": "Sentry",
             "isFromExtension": true
           },
@@ -63471,15 +63471,15 @@
               }
             ],
             "declKind": "TypeAlias",
-            "usr": "s:6Sentry0A11MetricsUnitO24UnicodeScalarLiteralTypea",
-            "mangledName": "$s6Sentry0A11MetricsUnitO24UnicodeScalarLiteralTypea",
+            "usr": "s:6Sentry0A4UnitO24UnicodeScalarLiteralTypea",
+            "mangledName": "$s6Sentry0A4UnitO24UnicodeScalarLiteralTypea",
             "moduleName": "Sentry",
             "isFromExtension": true
           }
         ],
         "declKind": "Enum",
-        "usr": "s:6Sentry0A11MetricsUnitO",
-        "mangledName": "$s6Sentry0A11MetricsUnitO",
+        "usr": "s:6Sentry0A4UnitO",
+        "mangledName": "$s6Sentry0A4UnitO",
         "moduleName": "Sentry",
         "conformances": [
           {
@@ -63516,7 +63516,7 @@
                   {
                     "kind": "TypeNameAlias",
                     "name": "RawValue",
-                    "printedName": "Sentry.SentryMetricsUnit.RawValue",
+                    "printedName": "Sentry.SentryUnit.RawValue",
                     "children": [
                       {
                         "kind": "TypeNominal",
@@ -63552,7 +63552,7 @@
                   {
                     "kind": "TypeNameAlias",
                     "name": "StringLiteralType",
-                    "printedName": "Sentry.SentryMetricsUnit.StringLiteralType",
+                    "printedName": "Sentry.SentryUnit.StringLiteralType",
                     "children": [
                       {
                         "kind": "TypeNameAlias",
@@ -63588,7 +63588,7 @@
                   {
                     "kind": "TypeNameAlias",
                     "name": "ExtendedGraphemeClusterLiteralType",
-                    "printedName": "Sentry.SentryMetricsUnit.ExtendedGraphemeClusterLiteralType",
+                    "printedName": "Sentry.SentryUnit.ExtendedGraphemeClusterLiteralType",
                     "children": [
                       {
                         "kind": "TypeNameAlias",
@@ -63624,7 +63624,7 @@
                   {
                     "kind": "TypeNameAlias",
                     "name": "UnicodeScalarLiteralType",
-                    "printedName": "Sentry.SentryMetricsUnit.UnicodeScalarLiteralType",
+                    "printedName": "Sentry.SentryUnit.UnicodeScalarLiteralType",
                     "children": [
                       {
                         "kind": "TypeNameAlias",
@@ -63679,13 +63679,13 @@
               {
                 "kind": "TypeNominal",
                 "name": "Optional",
-                "printedName": "Sentry.SentryMetricsUnit?",
+                "printedName": "Sentry.SentryUnit?",
                 "children": [
                   {
                     "kind": "TypeNominal",
-                    "name": "SentryMetricsUnit",
-                    "printedName": "Sentry.SentryMetricsUnit",
-                    "usr": "s:6Sentry0A11MetricsUnitO"
+                    "name": "SentryUnit",
+                    "printedName": "Sentry.SentryUnit",
+                    "usr": "s:6Sentry0A4UnitO"
                   }
                 ],
                 "usr": "s:Sq"
@@ -63712,8 +63712,8 @@
               }
             ],
             "declKind": "Func",
-            "usr": "s:6Sentry0A18MetricsApiProtocolP5count3key5value4unit10attributesySS_SuAA0aB4UnitOSgSDySSAA0A14AttributeValue_pGtF",
-            "mangledName": "$s6Sentry0A18MetricsApiProtocolP5count3key5value4unit10attributesySS_SuAA0aB4UnitOSgSDySSAA0A14AttributeValue_pGtF",
+            "usr": "s:6Sentry0A18MetricsApiProtocolP5count3key5value4unit10attributesySS_SuAA0A4UnitOSgSDySSAA0A14AttributeValue_pGtF",
+            "mangledName": "$s6Sentry0A18MetricsApiProtocolP5count3key5value4unit10attributesySS_SuAA0A4UnitOSgSDySSAA0A14AttributeValue_pGtF",
             "moduleName": "Sentry",
             "genericSig": "<Self where Self : Sentry.SentryMetricsApiProtocol>",
             "protocolReq": true,
@@ -63745,13 +63745,13 @@
               {
                 "kind": "TypeNominal",
                 "name": "Optional",
-                "printedName": "Sentry.SentryMetricsUnit?",
+                "printedName": "Sentry.SentryUnit?",
                 "children": [
                   {
                     "kind": "TypeNominal",
-                    "name": "SentryMetricsUnit",
-                    "printedName": "Sentry.SentryMetricsUnit",
-                    "usr": "s:6Sentry0A11MetricsUnitO"
+                    "name": "SentryUnit",
+                    "printedName": "Sentry.SentryUnit",
+                    "usr": "s:6Sentry0A4UnitO"
                   }
                 ],
                 "usr": "s:Sq"
@@ -63778,8 +63778,8 @@
               }
             ],
             "declKind": "Func",
-            "usr": "s:6Sentry0A18MetricsApiProtocolP12distribution3key5value4unit10attributesySS_SdAA0aB4UnitOSgSDySSAA0A14AttributeValue_pGtF",
-            "mangledName": "$s6Sentry0A18MetricsApiProtocolP12distribution3key5value4unit10attributesySS_SdAA0aB4UnitOSgSDySSAA0A14AttributeValue_pGtF",
+            "usr": "s:6Sentry0A18MetricsApiProtocolP12distribution3key5value4unit10attributesySS_SdAA0A4UnitOSgSDySSAA0A14AttributeValue_pGtF",
+            "mangledName": "$s6Sentry0A18MetricsApiProtocolP12distribution3key5value4unit10attributesySS_SdAA0A4UnitOSgSDySSAA0A14AttributeValue_pGtF",
             "moduleName": "Sentry",
             "genericSig": "<Self where Self : Sentry.SentryMetricsApiProtocol>",
             "protocolReq": true,
@@ -63811,13 +63811,13 @@
               {
                 "kind": "TypeNominal",
                 "name": "Optional",
-                "printedName": "Sentry.SentryMetricsUnit?",
+                "printedName": "Sentry.SentryUnit?",
                 "children": [
                   {
                     "kind": "TypeNominal",
-                    "name": "SentryMetricsUnit",
-                    "printedName": "Sentry.SentryMetricsUnit",
-                    "usr": "s:6Sentry0A11MetricsUnitO"
+                    "name": "SentryUnit",
+                    "printedName": "Sentry.SentryUnit",
+                    "usr": "s:6Sentry0A4UnitO"
                   }
                 ],
                 "usr": "s:Sq"
@@ -63844,8 +63844,8 @@
               }
             ],
             "declKind": "Func",
-            "usr": "s:6Sentry0A18MetricsApiProtocolP5gauge3key5value4unit10attributesySS_SdAA0aB4UnitOSgSDySSAA0A14AttributeValue_pGtF",
-            "mangledName": "$s6Sentry0A18MetricsApiProtocolP5gauge3key5value4unit10attributesySS_SdAA0aB4UnitOSgSDySSAA0A14AttributeValue_pGtF",
+            "usr": "s:6Sentry0A18MetricsApiProtocolP5gauge3key5value4unit10attributesySS_SdAA0A4UnitOSgSDySSAA0A14AttributeValue_pGtF",
+            "mangledName": "$s6Sentry0A18MetricsApiProtocolP5gauge3key5value4unit10attributesySS_SdAA0A4UnitOSgSDySSAA0A14AttributeValue_pGtF",
             "moduleName": "Sentry",
             "genericSig": "<Self where Self : Sentry.SentryMetricsApiProtocol>",
             "protocolReq": true,
@@ -63878,13 +63878,13 @@
               {
                 "kind": "TypeNominal",
                 "name": "Optional",
-                "printedName": "Sentry.SentryMetricsUnit?",
+                "printedName": "Sentry.SentryUnit?",
                 "children": [
                   {
                     "kind": "TypeNominal",
-                    "name": "SentryMetricsUnit",
-                    "printedName": "Sentry.SentryMetricsUnit",
-                    "usr": "s:6Sentry0A11MetricsUnitO"
+                    "name": "SentryUnit",
+                    "printedName": "Sentry.SentryUnit",
+                    "usr": "s:6Sentry0A4UnitO"
                   }
                 ],
                 "hasDefaultArg": true,
@@ -63913,8 +63913,8 @@
               }
             ],
             "declKind": "Func",
-            "usr": "s:6Sentry0A18MetricsApiProtocolPAAE5count3key5value4unit10attributesySS_SuAA0aB4UnitOSgSDySSAA0A14AttributeValue_pGtF",
-            "mangledName": "$s6Sentry0A18MetricsApiProtocolPAAE5count3key5value4unit10attributesySS_SuAA0aB4UnitOSgSDySSAA0A14AttributeValue_pGtF",
+            "usr": "s:6Sentry0A18MetricsApiProtocolPAAE5count3key5value4unit10attributesySS_SuAA0A4UnitOSgSDySSAA0A14AttributeValue_pGtF",
+            "mangledName": "$s6Sentry0A18MetricsApiProtocolPAAE5count3key5value4unit10attributesySS_SuAA0A4UnitOSgSDySSAA0A14AttributeValue_pGtF",
             "moduleName": "Sentry",
             "genericSig": "<Self where Self : Sentry.SentryMetricsApiProtocol>",
             "isFromExtension": true,
@@ -63945,13 +63945,13 @@
               {
                 "kind": "TypeNominal",
                 "name": "Optional",
-                "printedName": "Sentry.SentryMetricsUnit?",
+                "printedName": "Sentry.SentryUnit?",
                 "children": [
                   {
                     "kind": "TypeNominal",
-                    "name": "SentryMetricsUnit",
-                    "printedName": "Sentry.SentryMetricsUnit",
-                    "usr": "s:6Sentry0A11MetricsUnitO"
+                    "name": "SentryUnit",
+                    "printedName": "Sentry.SentryUnit",
+                    "usr": "s:6Sentry0A4UnitO"
                   }
                 ],
                 "hasDefaultArg": true,
@@ -63980,8 +63980,8 @@
               }
             ],
             "declKind": "Func",
-            "usr": "s:6Sentry0A18MetricsApiProtocolPAAE12distribution3key5value4unit10attributesySS_SdAA0aB4UnitOSgSDySSAA0A14AttributeValue_pGtF",
-            "mangledName": "$s6Sentry0A18MetricsApiProtocolPAAE12distribution3key5value4unit10attributesySS_SdAA0aB4UnitOSgSDySSAA0A14AttributeValue_pGtF",
+            "usr": "s:6Sentry0A18MetricsApiProtocolPAAE12distribution3key5value4unit10attributesySS_SdAA0A4UnitOSgSDySSAA0A14AttributeValue_pGtF",
+            "mangledName": "$s6Sentry0A18MetricsApiProtocolPAAE12distribution3key5value4unit10attributesySS_SdAA0A4UnitOSgSDySSAA0A14AttributeValue_pGtF",
             "moduleName": "Sentry",
             "genericSig": "<Self where Self : Sentry.SentryMetricsApiProtocol>",
             "isFromExtension": true,
@@ -64012,13 +64012,13 @@
               {
                 "kind": "TypeNominal",
                 "name": "Optional",
-                "printedName": "Sentry.SentryMetricsUnit?",
+                "printedName": "Sentry.SentryUnit?",
                 "children": [
                   {
                     "kind": "TypeNominal",
-                    "name": "SentryMetricsUnit",
-                    "printedName": "Sentry.SentryMetricsUnit",
-                    "usr": "s:6Sentry0A11MetricsUnitO"
+                    "name": "SentryUnit",
+                    "printedName": "Sentry.SentryUnit",
+                    "usr": "s:6Sentry0A4UnitO"
                   }
                 ],
                 "hasDefaultArg": true,
@@ -64047,8 +64047,8 @@
               }
             ],
             "declKind": "Func",
-            "usr": "s:6Sentry0A18MetricsApiProtocolPAAE5gauge3key5value4unit10attributesySS_SdAA0aB4UnitOSgSDySSAA0A14AttributeValue_pGtF",
-            "mangledName": "$s6Sentry0A18MetricsApiProtocolPAAE5gauge3key5value4unit10attributesySS_SdAA0aB4UnitOSgSDySSAA0A14AttributeValue_pGtF",
+            "usr": "s:6Sentry0A18MetricsApiProtocolPAAE5gauge3key5value4unit10attributesySS_SdAA0A4UnitOSgSDySSAA0A14AttributeValue_pGtF",
+            "mangledName": "$s6Sentry0A18MetricsApiProtocolPAAE5gauge3key5value4unit10attributesySS_SdAA0A4UnitOSgSDySSAA0A14AttributeValue_pGtF",
             "moduleName": "Sentry",
             "genericSig": "<Self where Self : Sentry.SentryMetricsApiProtocol>",
             "isFromExtension": true,

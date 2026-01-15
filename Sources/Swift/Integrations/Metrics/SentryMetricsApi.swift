@@ -19,15 +19,15 @@ struct SentryMetricsApi<Dependencies: SentryMetricsApiDependencies>: SentryMetri
         self.dependencies = dependencies
     }
 
-    func count(key: String, value: UInt, unit: SentryMetricsUnit? = nil, attributes: [String: SentryAttributeValue] = [:]) {
+    func count(key: String, value: UInt, unit: SentryUnit? = nil, attributes: [String: SentryAttributeValue] = [:]) {
         captureMetric(name: key, value: .counter(value), unit: unit, attributes: attributes)
     }
 
-    func distribution(key: String, value: Double, unit: SentryMetricsUnit? = nil, attributes: [String: SentryAttributeValue] = [:]) {
+    func distribution(key: String, value: Double, unit: SentryUnit? = nil, attributes: [String: SentryAttributeValue] = [:]) {
         captureMetric(name: key, value: .distribution(value), unit: unit, attributes: attributes)
     }
 
-    func gauge(key: String, value: Double, unit: SentryMetricsUnit? = nil, attributes: [String: SentryAttributeValue] = [:]
+    func gauge(key: String, value: Double, unit: SentryUnit? = nil, attributes: [String: SentryAttributeValue] = [:]
     ) {
         captureMetric(name: key, value: .gauge(value), unit: unit, attributes: attributes)
     }
@@ -37,7 +37,7 @@ struct SentryMetricsApi<Dependencies: SentryMetricsApiDependencies>: SentryMetri
     private func captureMetric(
         name: String,
         value: SentryMetric.Value,
-        unit: SentryMetricsUnit?,
+        unit: SentryUnit?,
         attributes: [String: SentryAttributeValue]
     ) {
         guard dependencies.isSDKEnabled else {

@@ -1,13 +1,13 @@
 @_spi(Private) @testable import Sentry
 import XCTest
 
-class SentryMetricsUnitTests: XCTestCase {
+class SentryUnitTests: XCTestCase {
 
     // MARK: - Duration Units Tests
 
     func testRawValue_whenNanosecond_shouldReturnNanosecond() {
         // -- Arrange --
-        let unit = SentryMetricsUnit.nanosecond
+        let unit = SentryUnit.nanosecond
 
         // -- Act --
         let rawValue = unit.rawValue
@@ -21,7 +21,7 @@ class SentryMetricsUnitTests: XCTestCase {
         let rawValue = "nanosecond"
 
         // -- Act --
-        let unit = SentryMetricsUnit(rawValue: rawValue)
+        let unit = SentryUnit(rawValue: rawValue)
 
         // -- Assert --
         XCTAssertEqual(unit, .nanosecond)
@@ -29,7 +29,7 @@ class SentryMetricsUnitTests: XCTestCase {
 
     func testRawValue_whenMicrosecond_shouldReturnMicrosecond() {
         // -- Arrange --
-        let unit = SentryMetricsUnit.microsecond
+        let unit = SentryUnit.microsecond
 
         // -- Act --
         let rawValue = unit.rawValue
@@ -43,7 +43,7 @@ class SentryMetricsUnitTests: XCTestCase {
         let rawValue = "microsecond"
 
         // -- Act --
-        let unit = SentryMetricsUnit(rawValue: rawValue)
+        let unit = SentryUnit(rawValue: rawValue)
 
         // -- Assert --
         XCTAssertEqual(unit, .microsecond)
@@ -51,7 +51,7 @@ class SentryMetricsUnitTests: XCTestCase {
 
     func testRawValue_whenMillisecond_shouldReturnMillisecond() {
         // -- Arrange --
-        let unit = SentryMetricsUnit.millisecond
+        let unit = SentryUnit.millisecond
 
         // -- Act --
         let rawValue = unit.rawValue
@@ -65,7 +65,7 @@ class SentryMetricsUnitTests: XCTestCase {
         let rawValue = "millisecond"
 
         // -- Act --
-        let unit = SentryMetricsUnit(rawValue: rawValue)
+        let unit = SentryUnit(rawValue: rawValue)
 
         // -- Assert --
         XCTAssertEqual(unit, .millisecond)
@@ -73,7 +73,7 @@ class SentryMetricsUnitTests: XCTestCase {
 
     func testRawValue_whenSecond_shouldReturnSecond() {
         // -- Arrange --
-        let unit = SentryMetricsUnit.second
+        let unit = SentryUnit.second
 
         // -- Act --
         let rawValue = unit.rawValue
@@ -87,7 +87,7 @@ class SentryMetricsUnitTests: XCTestCase {
         let rawValue = "second"
 
         // -- Act --
-        let unit = SentryMetricsUnit(rawValue: rawValue)
+        let unit = SentryUnit(rawValue: rawValue)
 
         // -- Assert --
         XCTAssertEqual(unit, .second)
@@ -95,7 +95,7 @@ class SentryMetricsUnitTests: XCTestCase {
 
     func testRawValue_whenMinute_shouldReturnMinute() {
         // -- Arrange --
-        let unit = SentryMetricsUnit.minute
+        let unit = SentryUnit.minute
 
         // -- Act --
         let rawValue = unit.rawValue
@@ -109,7 +109,7 @@ class SentryMetricsUnitTests: XCTestCase {
         let rawValue = "minute"
 
         // -- Act --
-        let unit = SentryMetricsUnit(rawValue: rawValue)
+        let unit = SentryUnit(rawValue: rawValue)
 
         // -- Assert --
         XCTAssertEqual(unit, .minute)
@@ -117,7 +117,7 @@ class SentryMetricsUnitTests: XCTestCase {
 
     func testRawValue_whenHour_shouldReturnHour() {
         // -- Arrange --
-        let unit = SentryMetricsUnit.hour
+        let unit = SentryUnit.hour
 
         // -- Act --
         let rawValue = unit.rawValue
@@ -131,7 +131,7 @@ class SentryMetricsUnitTests: XCTestCase {
         let rawValue = "hour"
 
         // -- Act --
-        let unit = SentryMetricsUnit(rawValue: rawValue)
+        let unit = SentryUnit(rawValue: rawValue)
 
         // -- Assert --
         XCTAssertEqual(unit, .hour)
@@ -139,7 +139,7 @@ class SentryMetricsUnitTests: XCTestCase {
 
     func testRawValue_whenDay_shouldReturnDay() {
         // -- Arrange --
-        let unit = SentryMetricsUnit.day
+        let unit = SentryUnit.day
 
         // -- Act --
         let rawValue = unit.rawValue
@@ -153,7 +153,7 @@ class SentryMetricsUnitTests: XCTestCase {
         let rawValue = "day"
 
         // -- Act --
-        let unit = SentryMetricsUnit(rawValue: rawValue)
+        let unit = SentryUnit(rawValue: rawValue)
 
         // -- Assert --
         XCTAssertEqual(unit, .day)
@@ -161,7 +161,7 @@ class SentryMetricsUnitTests: XCTestCase {
 
     func testRawValue_whenWeek_shouldReturnWeek() {
         // -- Arrange --
-        let unit = SentryMetricsUnit.week
+        let unit = SentryUnit.week
 
         // -- Act --
         let rawValue = unit.rawValue
@@ -175,7 +175,7 @@ class SentryMetricsUnitTests: XCTestCase {
         let rawValue = "week"
 
         // -- Act --
-        let unit = SentryMetricsUnit(rawValue: rawValue)
+        let unit = SentryUnit(rawValue: rawValue)
 
         // -- Assert --
         XCTAssertEqual(unit, .week)
@@ -185,7 +185,7 @@ class SentryMetricsUnitTests: XCTestCase {
 
     func testRawValue_whenBit_shouldReturnBit() {
         // -- Arrange --
-        let unit = SentryMetricsUnit.bit
+        let unit = SentryUnit.bit
 
         // -- Act --
         let rawValue = unit.rawValue
@@ -199,7 +199,7 @@ class SentryMetricsUnitTests: XCTestCase {
         let rawValue = "bit"
 
         // -- Act --
-        let unit = SentryMetricsUnit(rawValue: rawValue)
+        let unit = SentryUnit(rawValue: rawValue)
 
         // -- Assert --
         XCTAssertEqual(unit, .bit)
@@ -207,7 +207,7 @@ class SentryMetricsUnitTests: XCTestCase {
 
     func testRawValue_whenByte_shouldReturnByte() {
         // -- Arrange --
-        let unit = SentryMetricsUnit.byte
+        let unit = SentryUnit.byte
 
         // -- Act --
         let rawValue = unit.rawValue
@@ -221,7 +221,7 @@ class SentryMetricsUnitTests: XCTestCase {
         let rawValue = "byte"
 
         // -- Act --
-        let unit = SentryMetricsUnit(rawValue: rawValue)
+        let unit = SentryUnit(rawValue: rawValue)
 
         // -- Assert --
         XCTAssertEqual(unit, .byte)
@@ -229,7 +229,7 @@ class SentryMetricsUnitTests: XCTestCase {
 
     func testRawValue_whenKilobyte_shouldReturnKilobyte() {
         // -- Arrange --
-        let unit = SentryMetricsUnit.kilobyte
+        let unit = SentryUnit.kilobyte
 
         // -- Act --
         let rawValue = unit.rawValue
@@ -243,7 +243,7 @@ class SentryMetricsUnitTests: XCTestCase {
         let rawValue = "kilobyte"
 
         // -- Act --
-        let unit = SentryMetricsUnit(rawValue: rawValue)
+        let unit = SentryUnit(rawValue: rawValue)
 
         // -- Assert --
         XCTAssertEqual(unit, .kilobyte)
@@ -251,7 +251,7 @@ class SentryMetricsUnitTests: XCTestCase {
 
     func testRawValue_whenKibibyte_shouldReturnKibibyte() {
         // -- Arrange --
-        let unit = SentryMetricsUnit.kibibyte
+        let unit = SentryUnit.kibibyte
 
         // -- Act --
         let rawValue = unit.rawValue
@@ -265,7 +265,7 @@ class SentryMetricsUnitTests: XCTestCase {
         let rawValue = "kibibyte"
 
         // -- Act --
-        let unit = SentryMetricsUnit(rawValue: rawValue)
+        let unit = SentryUnit(rawValue: rawValue)
 
         // -- Assert --
         XCTAssertEqual(unit, .kibibyte)
@@ -273,7 +273,7 @@ class SentryMetricsUnitTests: XCTestCase {
 
     func testRawValue_whenMegabyte_shouldReturnMegabyte() {
         // -- Arrange --
-        let unit = SentryMetricsUnit.megabyte
+        let unit = SentryUnit.megabyte
 
         // -- Act --
         let rawValue = unit.rawValue
@@ -287,7 +287,7 @@ class SentryMetricsUnitTests: XCTestCase {
         let rawValue = "megabyte"
 
         // -- Act --
-        let unit = SentryMetricsUnit(rawValue: rawValue)
+        let unit = SentryUnit(rawValue: rawValue)
 
         // -- Assert --
         XCTAssertEqual(unit, .megabyte)
@@ -295,7 +295,7 @@ class SentryMetricsUnitTests: XCTestCase {
 
     func testRawValue_whenMebibyte_shouldReturnMebibyte() {
         // -- Arrange --
-        let unit = SentryMetricsUnit.mebibyte
+        let unit = SentryUnit.mebibyte
 
         // -- Act --
         let rawValue = unit.rawValue
@@ -309,7 +309,7 @@ class SentryMetricsUnitTests: XCTestCase {
         let rawValue = "mebibyte"
 
         // -- Act --
-        let unit = SentryMetricsUnit(rawValue: rawValue)
+        let unit = SentryUnit(rawValue: rawValue)
 
         // -- Assert --
         XCTAssertEqual(unit, .mebibyte)
@@ -317,7 +317,7 @@ class SentryMetricsUnitTests: XCTestCase {
 
     func testRawValue_whenGigabyte_shouldReturnGigabyte() {
         // -- Arrange --
-        let unit = SentryMetricsUnit.gigabyte
+        let unit = SentryUnit.gigabyte
 
         // -- Act --
         let rawValue = unit.rawValue
@@ -331,7 +331,7 @@ class SentryMetricsUnitTests: XCTestCase {
         let rawValue = "gigabyte"
 
         // -- Act --
-        let unit = SentryMetricsUnit(rawValue: rawValue)
+        let unit = SentryUnit(rawValue: rawValue)
 
         // -- Assert --
         XCTAssertEqual(unit, .gigabyte)
@@ -339,7 +339,7 @@ class SentryMetricsUnitTests: XCTestCase {
 
     func testRawValue_whenGibibyte_shouldReturnGibibyte() {
         // -- Arrange --
-        let unit = SentryMetricsUnit.gibibyte
+        let unit = SentryUnit.gibibyte
 
         // -- Act --
         let rawValue = unit.rawValue
@@ -353,7 +353,7 @@ class SentryMetricsUnitTests: XCTestCase {
         let rawValue = "gibibyte"
 
         // -- Act --
-        let unit = SentryMetricsUnit(rawValue: rawValue)
+        let unit = SentryUnit(rawValue: rawValue)
 
         // -- Assert --
         XCTAssertEqual(unit, .gibibyte)
@@ -361,7 +361,7 @@ class SentryMetricsUnitTests: XCTestCase {
 
     func testRawValue_whenTerabyte_shouldReturnTerabyte() {
         // -- Arrange --
-        let unit = SentryMetricsUnit.terabyte
+        let unit = SentryUnit.terabyte
 
         // -- Act --
         let rawValue = unit.rawValue
@@ -375,7 +375,7 @@ class SentryMetricsUnitTests: XCTestCase {
         let rawValue = "terabyte"
 
         // -- Act --
-        let unit = SentryMetricsUnit(rawValue: rawValue)
+        let unit = SentryUnit(rawValue: rawValue)
 
         // -- Assert --
         XCTAssertEqual(unit, .terabyte)
@@ -383,7 +383,7 @@ class SentryMetricsUnitTests: XCTestCase {
 
     func testRawValue_whenTebibyte_shouldReturnTebibyte() {
         // -- Arrange --
-        let unit = SentryMetricsUnit.tebibyte
+        let unit = SentryUnit.tebibyte
 
         // -- Act --
         let rawValue = unit.rawValue
@@ -397,7 +397,7 @@ class SentryMetricsUnitTests: XCTestCase {
         let rawValue = "tebibyte"
 
         // -- Act --
-        let unit = SentryMetricsUnit(rawValue: rawValue)
+        let unit = SentryUnit(rawValue: rawValue)
 
         // -- Assert --
         XCTAssertEqual(unit, .tebibyte)
@@ -405,7 +405,7 @@ class SentryMetricsUnitTests: XCTestCase {
 
     func testRawValue_whenPetabyte_shouldReturnPetabyte() {
         // -- Arrange --
-        let unit = SentryMetricsUnit.petabyte
+        let unit = SentryUnit.petabyte
 
         // -- Act --
         let rawValue = unit.rawValue
@@ -419,7 +419,7 @@ class SentryMetricsUnitTests: XCTestCase {
         let rawValue = "petabyte"
 
         // -- Act --
-        let unit = SentryMetricsUnit(rawValue: rawValue)
+        let unit = SentryUnit(rawValue: rawValue)
 
         // -- Assert --
         XCTAssertEqual(unit, .petabyte)
@@ -427,7 +427,7 @@ class SentryMetricsUnitTests: XCTestCase {
 
     func testRawValue_whenPebibyte_shouldReturnPebibyte() {
         // -- Arrange --
-        let unit = SentryMetricsUnit.pebibyte
+        let unit = SentryUnit.pebibyte
 
         // -- Act --
         let rawValue = unit.rawValue
@@ -441,7 +441,7 @@ class SentryMetricsUnitTests: XCTestCase {
         let rawValue = "pebibyte"
 
         // -- Act --
-        let unit = SentryMetricsUnit(rawValue: rawValue)
+        let unit = SentryUnit(rawValue: rawValue)
 
         // -- Assert --
         XCTAssertEqual(unit, .pebibyte)
@@ -449,7 +449,7 @@ class SentryMetricsUnitTests: XCTestCase {
 
     func testRawValue_whenExabyte_shouldReturnExabyte() {
         // -- Arrange --
-        let unit = SentryMetricsUnit.exabyte
+        let unit = SentryUnit.exabyte
 
         // -- Act --
         let rawValue = unit.rawValue
@@ -463,7 +463,7 @@ class SentryMetricsUnitTests: XCTestCase {
         let rawValue = "exabyte"
 
         // -- Act --
-        let unit = SentryMetricsUnit(rawValue: rawValue)
+        let unit = SentryUnit(rawValue: rawValue)
 
         // -- Assert --
         XCTAssertEqual(unit, .exabyte)
@@ -471,7 +471,7 @@ class SentryMetricsUnitTests: XCTestCase {
 
     func testRawValue_whenExbibyte_shouldReturnExbibyte() {
         // -- Arrange --
-        let unit = SentryMetricsUnit.exbibyte
+        let unit = SentryUnit.exbibyte
 
         // -- Act --
         let rawValue = unit.rawValue
@@ -485,7 +485,7 @@ class SentryMetricsUnitTests: XCTestCase {
         let rawValue = "exbibyte"
 
         // -- Act --
-        let unit = SentryMetricsUnit(rawValue: rawValue)
+        let unit = SentryUnit(rawValue: rawValue)
 
         // -- Assert --
         XCTAssertEqual(unit, .exbibyte)
@@ -495,7 +495,7 @@ class SentryMetricsUnitTests: XCTestCase {
 
     func testRawValue_whenRatio_shouldReturnRatio() {
         // -- Arrange --
-        let unit = SentryMetricsUnit.ratio
+        let unit = SentryUnit.ratio
 
         // -- Act --
         let rawValue = unit.rawValue
@@ -509,7 +509,7 @@ class SentryMetricsUnitTests: XCTestCase {
         let rawValue = "ratio"
 
         // -- Act --
-        let unit = SentryMetricsUnit(rawValue: rawValue)
+        let unit = SentryUnit(rawValue: rawValue)
 
         // -- Assert --
         XCTAssertEqual(unit, .ratio)
@@ -517,7 +517,7 @@ class SentryMetricsUnitTests: XCTestCase {
 
     func testRawValue_whenPercent_shouldReturnPercent() {
         // -- Arrange --
-        let unit = SentryMetricsUnit.percent
+        let unit = SentryUnit.percent
 
         // -- Act --
         let rawValue = unit.rawValue
@@ -531,7 +531,7 @@ class SentryMetricsUnitTests: XCTestCase {
         let rawValue = "percent"
 
         // -- Act --
-        let unit = SentryMetricsUnit(rawValue: rawValue)
+        let unit = SentryUnit(rawValue: rawValue)
 
         // -- Assert --
         XCTAssertEqual(unit, .percent)
@@ -542,7 +542,7 @@ class SentryMetricsUnitTests: XCTestCase {
     func testRawValue_whenGeneric_shouldReturnCustomValue() {
         // -- Arrange --
         let customValue = "custom_unit"
-        let unit = SentryMetricsUnit.generic(customValue)
+        let unit = SentryUnit.generic(customValue)
 
         // -- Act --
         let rawValue = unit.rawValue
@@ -556,7 +556,7 @@ class SentryMetricsUnitTests: XCTestCase {
         let rawValue = "unknown_unit"
 
         // -- Act --
-        let unit = SentryMetricsUnit(rawValue: rawValue)
+        let unit = SentryUnit(rawValue: rawValue)
 
         // -- Assert --
         if case .generic(let value) = unit {
@@ -571,7 +571,7 @@ class SentryMetricsUnitTests: XCTestCase {
         let rawValue = ""
 
         // -- Act --
-        let unit = SentryMetricsUnit(rawValue: rawValue)
+        let unit = SentryUnit(rawValue: rawValue)
 
         // -- Assert --
         if case .generic(let value) = unit {
@@ -585,11 +585,11 @@ class SentryMetricsUnitTests: XCTestCase {
 
     func testRoundTrip_whenKnownUnit_shouldPreserveValue() {
         // -- Arrange --
-        let originalUnit = SentryMetricsUnit.second
+        let originalUnit = SentryUnit.second
 
         // -- Act --
         let rawValue = originalUnit.rawValue
-        let reconstructedUnit = SentryMetricsUnit(rawValue: rawValue)
+        let reconstructedUnit = SentryUnit(rawValue: rawValue)
 
         // -- Assert --
         XCTAssertEqual(reconstructedUnit, originalUnit)
@@ -598,11 +598,11 @@ class SentryMetricsUnitTests: XCTestCase {
     func testRoundTrip_whenGenericUnit_shouldPreserveValue() {
         // -- Arrange --
         let customValue = "custom_metric_unit"
-        let originalUnit = SentryMetricsUnit.generic(customValue)
+        let originalUnit = SentryUnit.generic(customValue)
 
         // -- Act --
         let rawValue = originalUnit.rawValue
-        let reconstructedUnit = SentryMetricsUnit(rawValue: rawValue)
+        let reconstructedUnit = SentryUnit(rawValue: rawValue)
 
         // -- Assert --
         if case .generic(let value) = reconstructedUnit {
