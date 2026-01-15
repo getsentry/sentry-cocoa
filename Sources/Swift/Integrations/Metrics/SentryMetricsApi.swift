@@ -27,8 +27,7 @@ struct SentryMetricsApi<Dependencies: SentryMetricsApiDependencies>: SentryMetri
         captureMetric(name: key, value: .distribution(value), unit: unit, attributes: attributes)
     }
 
-    func gauge(key: String, value: Double, unit: SentryUnit? = nil, attributes: [String: SentryAttributeValue] = [:]
-    ) {
+    func gauge(key: String, value: Double, unit: SentryUnit? = nil, attributes: [String: SentryAttributeValue] = [:]) {
         captureMetric(name: key, value: .gauge(value), unit: unit, attributes: attributes)
     }
 
