@@ -37,7 +37,8 @@
                             error:(NSError **)error
                       originalImp:(NSArray *(NS_NOESCAPE ^)(NSFetchRequest *, NSError **))original
 {
-    SentrySpanInternal *_Nullable currentSpan = [SentrySDKInternal.currentHub.scope span];
+    SentrySpanInternal *_Nullable currentSpan
+        = (SentrySpanInternal *_Nullable)[SentrySDKInternal.currentHub.scope span];
     SentrySpanInternal *_Nullable fetchSpan;
     if (currentSpan) {
         NSString *spanDescription = [self descriptionFromRequest:request];
