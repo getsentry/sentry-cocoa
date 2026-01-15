@@ -7,7 +7,6 @@ import UIKit
 
 public class AssertView: UIView {
     var span: Span?
-    /// nodoc
     public var autoHide = true
 
     private var assertLabel: UILabel!
