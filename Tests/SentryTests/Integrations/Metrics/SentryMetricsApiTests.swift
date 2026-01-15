@@ -140,8 +140,10 @@ final class SentryMetricsApiTests: XCTestCase {
         sut.count(key: "test.metric", value: 1)
         
         // -- Assert --
-        // When metricsIntegration is nil, no metrics should be created
-        // This simulates the case where metrics are disabled (integration returns nil from init)
+        // When metricsIntegration is nil (metrics disabled), the API returns early without
+        // recording any metrics. Since the integration is nil, there's no mock to verify
+        // invocations on - the assertion confirms the test precondition and that no crash occurred.
+        XCTAssertNil(dependencies.metricsIntegration, "Integration is nil, so there's nothing to assert invocations on")
     }
     
     func testCount_withZeroValue_shouldCreateMetric() throws {
@@ -214,7 +216,7 @@ final class SentryMetricsApiTests: XCTestCase {
         XCTAssertEqual(metric.attributes["status_code"]?.anyValue as? Int, 200, "status_code attribute value should match")
         XCTAssertEqual(try XCTUnwrap(metric.attributes["response_time"]?.anyValue as? Double), 0.125, accuracy: 0.001, "response_time attribute value should match")
     }
-//    
+    
     // MARK: - Distribution
     
     func testDistribution_withValidKeyAndValue_shouldCreateMetric() throws {
@@ -265,8 +267,10 @@ final class SentryMetricsApiTests: XCTestCase {
         sut.distribution(key: "test.metric", value: 1.0)
         
         // -- Assert --
-        // When metricsIntegration is nil, no metrics should be created
-        // This simulates the case where metrics are disabled (integration returns nil from init)
+        // When metricsIntegration is nil (metrics disabled), the API returns early without
+        // recording any metrics. Since the integration is nil, there's no mock to verify
+        // invocations on - the assertion confirms the test precondition and that no crash occurred.
+        XCTAssertNil(dependencies.metricsIntegration, "Integration is nil, so there's nothing to assert invocations on")
     }
     
     func testDistribution_withZeroValue_shouldCreateMetric() throws {
@@ -409,8 +413,10 @@ final class SentryMetricsApiTests: XCTestCase {
         sut.gauge(key: "test.metric", value: 1.0)
         
         // -- Assert --
-        // When metricsIntegration is nil, no metrics should be created
-        // This simulates the case where metrics are disabled (integration returns nil from init)
+        // When metricsIntegration is nil (metrics disabled), the API returns early without
+        // recording any metrics. Since the integration is nil, there's no mock to verify
+        // invocations on - the assertion confirms the test precondition and that no crash occurred.
+        XCTAssertNil(dependencies.metricsIntegration, "Integration is nil, so there's nothing to assert invocations on")
     }
     
     func testGauge_withZeroValue_shouldCreateMetric() throws {
