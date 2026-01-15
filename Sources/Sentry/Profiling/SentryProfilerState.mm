@@ -2,7 +2,7 @@
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 #    import "SentryAsyncSafeLog.h"
 #    import "SentryBacktrace.hpp"
-#    import "SentryDependencyContainer.h"
+#    import "SentryDependencyContainerSwiftHelper.h"
 #    import "SentryFormatter.h"
 #    import "SentryInternalDefines.h"
 #    import "SentryProfileTimeseries.h"
@@ -72,7 +72,8 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
     if (self = [super init]) {
         _mutableState = [[SentryProfilerMutableState alloc] init];
         _mainThreadID = 0;
-        sentry_dispatchAsyncOnMain(SentryDependencyContainer.sharedInstance.dispatchQueueWrapper,
+        sentry_dispatchAsyncOnMainIfNotMainThread(
+            SentryDependencyContainerSwiftHelper.dispatchQueueWrapper,
             ^{ [self cacheMainThreadID]; });
     }
     return self;

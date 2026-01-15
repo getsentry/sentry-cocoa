@@ -1,4 +1,6 @@
 import Foundation
+@_spi(Private) @testable import Sentry
+
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 class TestSentrySwizzleWrapper: SentrySwizzleWrapper {
     

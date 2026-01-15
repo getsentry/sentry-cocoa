@@ -14,7 +14,7 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         let fileManager: SentryFileManager
         let processInfoWrapper: MockSentryProcessInfo
         let watchdogTerminationAttributesProcessor: TestSentryWatchdogTerminationAttributesProcessor
-        let hub: SentryHub
+        let hub: SentryHubInternal
         let scope: Scope
         let appStateManager: SentryAppStateManager
 
@@ -49,12 +49,13 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
             container.fileManager = fileManager
 
             let notificationCenterWrapper = TestNSNotificationCenterWrapper()
+            SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = dispatchQueueWrapper
+            SentryDependencyContainer.sharedInstance().notificationCenterWrapper = notificationCenterWrapper
             appStateManager = SentryAppStateManager(
-                options: options,
+                releaseName: options.releaseName,
                 crashWrapper: crashWrapper,
                 fileManager: fileManager,
-                dispatchQueueWrapper: dispatchQueueWrapper,
-                notificationCenterWrapper: notificationCenterWrapper
+                sysctlWrapper: SentryDependencyContainer.sharedInstance().sysctlWrapper
             )
             container.appStateManager = appStateManager
             appStateManager.start()
@@ -68,7 +69,7 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
 
             let client = TestClient(options: options)
             scope = Scope()
-            hub = SentryHub(client: client, andScope: scope, andCrashWrapper: crashWrapper, andDispatchQueue: dispatchQueueWrapper)
+            hub = SentryHubInternal(client: client, andScope: scope, andCrashWrapper: crashWrapper, andDispatchQueue: dispatchQueueWrapper)
             SentrySDKInternal.setCurrentHub(hub)
         }
 
@@ -228,7 +229,7 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         fixture.scope.distString = "dist-124"
         fixture.scope.environmentString = "test"
         fixture.scope.tagDictionary = ["tag1": "value1", "tag2": "value2"]
-        fixture.scope.propagationContext = SentryPropagationContext(trace: SentryId(uuidString: "12345678123456781234567812345678"), spanId: SpanId(value: "1234567812345678"))
+        fixture.scope.propagationContext = SentryPropagationContext(traceId: SentryId(uuidString: "12345678123456781234567812345678"), spanId: SpanId(value: "1234567812345678"))
         fixture.scope.extraDictionary = ["key": "value"]
         fixture.scope.fingerprintArray = ["fingerprint1", "fingerprint2"]
 

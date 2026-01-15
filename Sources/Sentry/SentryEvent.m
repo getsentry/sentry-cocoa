@@ -1,26 +1,21 @@
-#import "SentryANRTrackingIntegration.h"
 #import "SentryBreadcrumb.h"
 #import "SentryClient.h"
 #import "SentryDebugMeta.h"
-#import "SentryDependencyContainer.h"
 #import "SentryEvent+Private.h"
 #import "SentryException.h"
 #import "SentryInternalDefines.h"
 #import "SentryLevelMapper.h"
 #import "SentryMessage.h"
 #import "SentryMeta.h"
-#import "SentryModels+Serializable.h"
 #import "SentryNSDictionarySanitize.h"
 #import "SentryRequest.h"
 #import "SentryStacktrace.h"
 #import "SentrySwift.h"
 #import "SentryThread.h"
-#import "SentryUser+Serialize.h"
 #import "SentryUser.h"
 
 #if SENTRY_HAS_METRIC_KIT
 #    import "SentryMechanism.h"
-#    import "SentryMetricKitIntegration.h"
 #endif // SENTRY_HAS_METRIC_KIT
 
 NS_ASSUME_NONNULL_BEGIN
@@ -36,13 +31,13 @@ NS_ASSUME_NONNULL_BEGIN
     return [self commonInit:kSentryLevelNone];
 }
 
-- (instancetype)initWithLevel:(enum SentryLevel)level
+- (instancetype)initWithLevel:(SentryLevel)level
 {
     self = [super init];
     return [self commonInit:level];
 }
 
-- (instancetype)commonInit:(enum SentryLevel)level
+- (instancetype)commonInit:(SentryLevel)level
 {
     if (self) {
         self.eventId = [[SentryId alloc] init];
@@ -187,31 +182,6 @@ NS_ASSUME_NONNULL_BEGIN
     }
     return crumbs;
 }
-
-#if SENTRY_HAS_METRIC_KIT
-
-- (BOOL)isMetricKitEvent
-{
-    if (self.exceptions == nil || self.exceptions.count != 1) {
-        return NO;
-    }
-
-    NSArray<NSString *> *metricKitMechanisms = @[
-        SentryMetricKitDiskWriteExceptionMechanism, SentryMetricKitCpuExceptionMechanism,
-        SentryMetricKitHangDiagnosticMechanism, @"MXCrashDiagnostic"
-    ];
-
-    SentryException *exception = self.exceptions[0];
-    if (exception.mechanism != nil &&
-        [metricKitMechanisms
-            containsObject:SENTRY_UNWRAP_NULLABLE(NSString, exception.mechanism).type]) {
-        return YES;
-    } else {
-        return NO;
-    }
-}
-
-#endif // SENTRY_HAS_METRIC_KIT
 
 - (BOOL)isAppHangEvent
 {

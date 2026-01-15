@@ -1,6 +1,5 @@
 #import "SentryDefines.h"
 #import "SentryEnvelopeRateLimit.h"
-#import "SentryRateLimits.h"
 #import "SentryRequestManager.h"
 #import "SentryTransport.h"
 
@@ -8,7 +7,10 @@
 @class SentryDispatchQueueWrapper;
 @class SentryNSURLRequestBuilder;
 @class SentryDsn;
+@class SentryFileManager;
+@class SentryReachability;
 @protocol SentryCurrentDateProvider;
+@protocol SentryRateLimits;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -24,7 +26,8 @@ SENTRY_NO_INIT
              requestBuilder:(SentryNSURLRequestBuilder *)requestBuilder
                  rateLimits:(id<SentryRateLimits>)rateLimits
           envelopeRateLimit:(SentryEnvelopeRateLimit *)envelopeRateLimit
-       dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper;
+       dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
+               reachability:(SentryReachability *)reachability;
 
 @end
 

@@ -564,75 +564,6 @@ class SentryReplayOptionsTests: XCTestCase {
         // -- Assert --
         XCTAssertTrue(options.enableViewRendererV2)
     }
-    
-    func testInitFromDict_enableViewRendererV2_precedenceOverEnableExperimentalViewRenderer() {
-        // -- Act --
-        let options = SentryReplayOptions(dictionary: [
-            "enableViewRendererV2": false,
-            "enableExperimentalViewRenderer": true
-        ])
-
-        // -- Assert --
-        XCTAssertFalse(options.enableViewRendererV2)
-    }
-    
-    func testInitFromDict_enableExperimentalViewRenderer_whenValidValue_shouldSetValue() {
-        // To support backwards compatibility we keep support for the old key
-        // "experimentalViewRenderer" until we remove it in a future version.
-
-        // -- Act --
-        let options = SentryReplayOptions(dictionary: [
-            "enableExperimentalViewRenderer": true
-        ])
-
-        // -- Assert --
-        XCTAssertTrue(options.enableViewRendererV2)
-
-        let options2 = SentryReplayOptions(dictionary: [
-            "enableExperimentalViewRenderer": false
-        ])
-
-        // -- Assert --
-        XCTAssertTrue(options.enableViewRendererV2)
-        XCTAssertFalse(options2.enableViewRendererV2)
-    }
-
-    func testInitFromDict_enableExperimentalViewRenderer_whenInvalidValue_shouldUseDefaultValue() {
-        // To support backwards compatibility we keep support for the old key
-        // "experimentalViewRenderer" until we remove it in a future version.
-
-        // -- Act --
-        let options = SentryReplayOptions(dictionary: [
-            "enableExperimentalViewRenderer": "invalid_value"
-        ])
-
-        // -- Assert --
-        XCTAssertTrue(options.enableViewRendererV2)
-    }
-
-    func testInitFromDict_enableViewRendererV2WithBool_shouldIgnoreValue() {
-        // -- Act --
-        let options = SentryReplayOptions(dictionary: [
-            "enableExperimentalViewRenderer": true
-        ])
-        let options2 = SentryReplayOptions(dictionary: [
-            "enableExperimentalViewRenderer": false
-        ])
-
-        // -- Assert --
-        XCTAssertTrue(options.enableViewRendererV2)
-        XCTAssertFalse(options2.enableViewRendererV2)
-    }
-
-    func testInitFromDict_enableViewRendererV2WithString_shouldIgnoreValue() {
-        // -- Act --
-        let options = SentryReplayOptions(dictionary: [
-            "enableExperimentalViewRenderer": "invalid_value"
-        ])
-
-        // -- Assert --
-        XCTAssertTrue(options.enableViewRendererV2)
-    }
 
     func testInitFromDict_enableFastViewRendering_whenValidValue_shouldSetValue() {
         let options = SentryReplayOptions(dictionary: [
@@ -703,28 +634,6 @@ class SentryReplayOptionsTests: XCTestCase {
         XCTAssertEqual(options.unmaskedViewClasses.count, 1)
         XCTAssertEqual(ObjectIdentifier(options.unmaskedViewClasses.first!), ObjectIdentifier(NSNumber.self))
         XCTAssertEqual(options.quality, .low)
-    }
-
-    @available(*, deprecated, message: "The test is marked as deprecated to silence the deprecation warning of the tested property.")
-    func testExperimentalViewRenderer_shouldBeAnAliasForEnableViewRendererV2() {
-        // -- Arrange --
-        let options = SentryReplayOptions()
-        options.enableViewRendererV2 = false
-        options.enableExperimentalViewRenderer = false
-
-        // -- Act & Assert --
-        XCTAssertFalse(options.enableViewRendererV2)
-        XCTAssertFalse(options.enableExperimentalViewRenderer)
-
-        options.enableViewRendererV2 = true
-        
-        XCTAssertTrue(options.enableViewRendererV2)
-        XCTAssertTrue(options.enableExperimentalViewRenderer)
-
-        options.enableExperimentalViewRenderer = false
-
-        XCTAssertFalse(options.enableViewRendererV2)
-        XCTAssertFalse(options.enableExperimentalViewRenderer)
     }
 
     // MARK: frameRate

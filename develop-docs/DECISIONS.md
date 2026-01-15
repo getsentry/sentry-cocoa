@@ -1,5 +1,13 @@
 # Decision Log
 
+## No local symbolication of crashes
+
+Date: Nov 7th, 2025
+Contributors: @noahsmartin, @philipphofmann
+
+We decided to remove local symbolication. The existing local symbolication was not signal-safe and caused deadlocks (https://github.com/getsentry/sentry-cocoa/issues/6560).
+It is possible to implement local symbolication that does not cause deadlocks; however, it would be a debug-only feature, since in production apps should have their symbols stripped and only available in the dSYM. Therefore, to quickly fix the issue, we decided to remove all unsafe local symbolication in v9. The addition of signal-safe symbolication for binaries with symbols can always be added in a future minor version.
+
 ## Not capturing screenshots for crashes
 
 Date: April 21st 2022
@@ -393,8 +401,8 @@ Contributors: @armcknight, @philipphofmann, @kahest
 We will support versions of each platform going back 4 major versions, but we support no version which is not debuggable by the current Xcode required to submit apps to stores. There are 3 considerations:
 
 1. The distribution of events we receive from the various versions of iOS etc in the wild.
-1. Xcode support. As of the time of this writing, the oldest version of Xcode that can still submit apps to the app store is Xcode 15, which supports back to iOS 12, while the current is iOS 18.
-1. GitHub Actions support. This dictates which versions we can automatically test. Their oldest [macOS runner image](https://github.com/actions/runner-images/tree/main/images/macos) is `macos-13` with support going back to iOS 16.1
+2. Xcode support. As of the time of this writing, the oldest version of Xcode that can still submit apps to the app store is Xcode 15, which supports back to iOS 12, while the current is iOS 18.
+3. GitHub Actions support. This dictates which versions we can automatically test. Their oldest [macOS runner image](https://github.com/actions/runner-images/tree/main/images/macos) is `macos-13` with support going back to iOS 16.1
 
 Our major-4 standard would place us right in the middle of the earliest Xcode and GitHub Actions supported versions, which seems like a reasonable standard.
 
@@ -433,3 +441,131 @@ Future types conforming to Decodable can be written in Swift from the start and 
 ## v9
 
 Work on the v9 SDK is being done behind the compiler flag `SDK_V9`. CI builds the SDK with this flag enabled to ensure it does not break during the course of non-v9 development. This SDK version will focus on quality and be a part of Sentry’s quality quarter initiative. Notably, the minimum supported OS version will be bumped in this release. The changelog for this release is being tracked in [CHANGELOG-v9.md](../CHANGELOG-v9.md).
+
+## v8 Branch
+
+Date: Oct 2nd, 2025
+Contributors: @philipphofmann, @philprime, @kahest, @noahsmartin, @itaybre
+
+As of Oct 1st 2025, the [main branch](https://github.com/getsentry/sentry-cocoa/tree/main) is for v9 and the branch [v8.x](https://github.com/getsentry/sentry-cocoa/tree/v8.x) is for v8.
+
+To continue supporting users on version 8, we have created a dedicated v8 branch. This is the first time in the SDK’s history that we’ve maintained a legacy branch. Since v8 was released over two years ago, and with new features like Session Replay shipped this year, we know some important customers still require bugfixes on v8 before moving to v9. Maintaining a separate branch allows us to deliver those fixes without complicating the v9 release process.
+
+## Remove iOS 16 support
+
+Date: October 28, 2025
+Contributors: @philprime, @philipphofmann, @itaybre
+
+While we keep supporting iOS 16 in the v9 SDK, we will remove testing in iOS 16 due to flakiness when running on GitHub Actions simulators as the test runners keep timing out.
+
+## swift-log dependency removal
+
+Date: 10.11.2025
+Contributors: @philipphofmann, @noahsmartin, @denrase
+
+The `swift-log` dependeceny we have added is primarly intendet to be used on backaned projects. While it could be used on the client, we do not want to have external dependencies in our `Package.swift`. So fot it and other logging integrations, a separate repo will be created.
+
+## Change macOS deployment target to 10.14
+
+Date: November 19, 2025
+Contributors: @philprime, @philipphofmann, @itaybre, @noahsmartin
+
+Our internal data has shown that ~0.25% of events originate from macOS 10.14 and earlier.
+While this number is very low, there is not apparent reason to not support it, therefore we will change the macOS deployment target to 10.14 to allow users to use the SDK on macOS 10.14 and later.
+
+The main reason for choosing exactly this version as the earliest supported version is that it's the first one offering `NWPathMonitor` as a replacement for `SCNetworkReachability`.
+
+Related links:
+
+- https://github.com/getsentry/sentry-cocoa/issues/6758
+- https://github.com/getsentry/sentry-cocoa/pull/6873
+
+## Deprecate Carthage Support
+
+Date: November 28, 2025
+Contributors: @philprime, @philipphofmann, @itaybre
+
+We have found that Carthage does not support downloading multiple XCFrameworks from GitHub Releases, nor does there appear to be an easy workaround for this limitation. This wasn't a recent change, but by design (see the related PR), so Carthage was broken for some time without any user complaints, giving us confidence that very few people use Carthage for integrating with Sentry.
+We also decided to streamline our integrations by reducing the number of package managers that build from source. Therefore, we have decided to deprecate all official Carthage support with v9. Users may still be able to use Carthage, but it will no longer be recommended or officially supported.
+
+Related:
+
+- Fix for multiple files in Releases (stale for months): https://github.com/Carthage/Carthage/pull/3398
+
+## 3rd Party Library Integrations
+
+### Background
+
+SPM downloads all declared dependencies in a package, even if none of the actually added modules use them. If `sentry-cocoa` declares dependencies like **CocoaLumberjack** or **SwiftLog**, all downstream consumers download these libraries, even if they don't use the corresponding integrations.
+
+### Agreed solution
+
+**Keep all code in `sentry-cocoa`, but mirror releases into individual repositories**
+
+SPM users import the integration repos, but implementation lives in `sentry-cocoa`. Automated workflows push integration-specific code into dedicated repos during release.
+
+The idea comes from this repo: https://github.com/marvinpinto/action-automatic-releases
+
+#### Pros
+
+- Source of truth stays in **one repository**.
+- Development flow simpler (single CI, single contribution workflow).
+- Users still get the benefit of **modular SPM dependencies**, without downloading everything.
+- Mirrors how some SDKs manage platform-specific or optional components
+
+#### Cons
+
+- Requires building a **custom mirroring release workflow**.
+- Potential risk of divergence if mirror fails or is misconfigured.
+- Release cadence may still be tied to `sentry-cocoa` unless new workflows are built.
+- Requires tooling to ensure code in the main repo remains cleanly partitioned.
+
+### Discarded options
+
+<details>
+  <summary>See options</summary>
+
+#### Option 1: Move all integrations into new repository/ies
+
+Two possible sub-variants:
+
+- Option A — One repository containing _all_ integrations
+- Option B — Group integrations by theme (e.g., logging integrations, feature-flag integrations)
+
+Pros:
+
+- Integrations _can_ (doesn't mean they should) have **independent release schedules** from `sentry-cocoa`.
+- The main `sentry-cocoa` package remains **lean** and dependency-free.
+- Users only download dependencies for the specific integrations they choose.
+- The code remains centralized enough that cross-integration changes are simpler
+
+Cons:
+
+- Increases team workload due to more repositories to monitor.
+- Requires many new repository setup.
+- Cross-repo changes become harder.
+- Risk of fragmentation: documentation, ownership, issue tracking become more distributed.
+- Changes may require PRs across multiple repos.
+
+#### Option 2: One integration per repository
+
+Pros:
+
+- Users import only the exact integration they need.
+- Extremely granular release management.
+- Clean separation of concerns and dependency trees.
+
+Cons:
+
+- This is the **maximum possible repo overhead**.
+- Cross-integration changes require coordinating multiple PRs.
+- Significant overhead in monitoring issues and security alerts.
+- Harder to keep documentation centralized or coherent.
+
+#### Option 3: Make Package.swift dynamic
+
+This is a wild idea, but we have to double check if using `canImport(SwiftLog)` works for enabling the SwiftLog dependency.
+
+Needs a POC to confirm this is possible
+
+</details>

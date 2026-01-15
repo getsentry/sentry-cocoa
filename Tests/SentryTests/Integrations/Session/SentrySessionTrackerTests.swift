@@ -13,48 +13,52 @@ class SentrySessionTrackerTests: XCTestCase {
         let client: TestClient!
         let sentryCrash: TestSentryCrashWrapper
 
-        #if os(iOS) || targetEnvironment(macCatalyst) || os(tvOS)
-        let application: TestSentryUIApplication
+        #if os(iOS) || targetEnvironment(macCatalyst) || os(tvOS) || os(visionOS)
+        let _application: TestSentryUIApplication
         #else
-        let application: TestSentryNSApplication
+        let _application: TestSentryNSApplication
         #endif
+        var application: SentryApplication? {
+            _application
+        }
         let notificationCenter = TestNSNotificationCenterWrapper()
         let dispatchQueue = TestSentryDispatchQueueWrapper()
-        lazy var fileManager = try! SentryFileManager(options: options, dateProvider: currentDateProvider, dispatchQueueWrapper: dispatchQueue)
-        
-        init() {
+        let fileManager: SentryFileManager
+
+        init() throws {
             options = Options()
             options.dsn = SentrySessionTrackerTests.dsnAsString
             options.releaseName = "SentrySessionTrackerIntegrationTests"
             options.sessionTrackingIntervalMillis = 10_000
             options.environment = "debug"
-            
+
+            fileManager = try XCTUnwrap(SentryFileManager(options: options, dateProvider: currentDateProvider, dispatchQueueWrapper: dispatchQueue))
+
             client = TestClient(options: options)
             
             sentryCrash = TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo)
 
-            #if os(iOS) || targetEnvironment(macCatalyst) || os(tvOS)
-            application = TestSentryUIApplication()
-            application.unsafeApplicationState = .inactive
-            SentryDependencyContainer.sharedInstance().application = application
+            #if os(iOS) || targetEnvironment(macCatalyst) || os(tvOS) || os(visionOS)
+            _application = TestSentryUIApplication()
+            _application.unsafeApplicationState = .inactive
             #else
-            application = TestSentryNSApplication()
-            application.setIsActive(false)
-            SentryDependencyContainer.sharedInstance().application = application
+            _application = TestSentryNSApplication()
+            _application.setIsActive(false)
             #endif
         }
         
         func getSut() -> SessionTracker {
+            let application = self.application
             return SessionTracker(
                 options: options,
-                application: application,
+                applicationProvider: { application },
                 dateProvider: currentDateProvider,
                 notificationCenter: notificationCenter
             )
         }
         
         func setNewHubToSDK() {
-            let hub = SentryHub(client: client, andScope: nil, andCrashWrapper: self.sentryCrash, andDispatchQueue: SentryDispatchQueueWrapper())
+            let hub = SentryHubInternal(client: client, andScope: nil, andCrashWrapper: self.sentryCrash, andDispatchQueue: SentryDispatchQueueWrapper())
             SentrySDKInternal.setCurrentHub(hub)
         }
     }
@@ -67,10 +71,10 @@ class SentrySessionTrackerTests: XCTestCase {
         clearTestState()
     }
     
-    override func setUp() {
-        super.setUp()
-        
-        fixture = Fixture()
+    override func setUpWithError() throws {
+        try super.setUpWithError()
+
+        fixture = try Fixture()
 
         SentryDependencyContainer.sharedInstance().dateProvider = fixture.currentDateProvider
 
@@ -533,19 +537,19 @@ class SentrySessionTrackerTests: XCTestCase {
     // MARK: - Helpers
 
     private func startSutInAppDelegate() {
-        #if os(iOS) || targetEnvironment(macCatalyst) || os(tvOS)
+        #if os(iOS) || targetEnvironment(macCatalyst) || os(tvOS) || os(visionOS)
         // The Sentry SDK should be initialized in the `UIAppDelegate.didFinishLaunchingWithOptions`
         // At this point the application state is `inactive`, because the app just launched but did not
         // become the active app yet.
         //
         // This can be observed by viewing the application state in `UIAppDelegate.didFinishLaunchingWithOptions`.
-        fixture.application.unsafeApplicationState = .inactive
+        fixture._application.unsafeApplicationState = .inactive
         #else
         // The Sentry SDK should be initialized in the `NSApplicationDelegate.applicationDidFinishLaunching`
         // At this point the app is not active yet.
         //
         // This can be observed by checking `NSApplication.shared.isActive` in `NSApplicationDelegate.applicationDidFinishLaunching`.
-        fixture.application.setIsActive(false)
+        fixture._application.setIsActive(false)
         #endif
         sut.start()
     }
@@ -561,32 +565,32 @@ class SentrySessionTrackerTests: XCTestCase {
         // We remove the observers, to ensure future notifications are not handled.
         sut.removeObservers()
 
-        #if os(iOS) || targetEnvironment(macCatalyst) || os(tvOS)
+        #if os(iOS) || targetEnvironment(macCatalyst) || os(tvOS) || os(visionOS)
         // When the app stops, the app state is `inactive`.
         // This can be observed by viewing the application state in `UIAppDelegate.applicationDidEnterBackground`.
-        fixture.application.unsafeApplicationState = .inactive
+        fixture._application.unsafeApplicationState = .inactive
         #else
         // When the app crashes, the app state is `inactive`.
         //
         // This can not be observed in the view life cycle methods and is an assumption until proven otherwise.
         // macOS does not have a `applicationDidEnterBackground` method, so we can't observe the app state.
-        fixture.application.setIsActive(false)
+        fixture._application.setIsActive(false)
         #endif
     }
 
     private func crashSut() {
         sut.removeObservers()
-        #if os(iOS) || targetEnvironment(macCatalyst) || os(tvOS)
+        #if os(iOS) || targetEnvironment(macCatalyst) || os(tvOS) || os(visionOS)
         // When the app stops, the app state is `inactive`.
         //
         // This can be observed by viewing the application state in `UIAppDelegate.applicationDidEnterBackground`.
-        fixture.application.unsafeApplicationState = .inactive
+        fixture._application.unsafeApplicationState = .inactive
         #else
         // When the app crashes, the app state is `inactive`.
         //
         // This can not be observed in the view life cycle methods and is an assumption until proven otherwise.
         // macOS does not have a `applicationDidEnterBackground` method, so we can't observe the app state.
-        fixture.application.setIsActive(false)
+        fixture._application.setIsActive(false)
         #endif
         fixture.sentryCrash.internalCrashedLastLaunch = true
     }
@@ -596,14 +600,14 @@ class SentrySessionTrackerTests: XCTestCase {
     }
     
     private func goToForeground() {
-        #if os(iOS) || targetEnvironment(macCatalyst) || os(tvOS)
+        #if os(iOS) || targetEnvironment(macCatalyst) || os(tvOS) || os(visionOS)
         // When the app becomes active, the app state is `active`.
         // This can be observed by viewing the application state in `UIAppDelegate.applicationDidBecomeActive`.
-        fixture.application.unsafeApplicationState = .active
+        fixture._application.unsafeApplicationState = .active
         #else
         // When the app becomes active, the app state is `active`.
         // This can be observed by viewing the application state in `NSApplicationDelegate.applicationDidBecomeActive`.
-        fixture.application.setIsActive(true)
+        fixture._application.setIsActive(true)
         #endif
         fixture.notificationCenter
             .post(
@@ -618,9 +622,9 @@ class SentrySessionTrackerTests: XCTestCase {
     private func goToBackground() {
         // Before an app goes to background, it is still active and will resign from being active.
         willResignActive()
-        #if os(iOS) || targetEnvironment(macCatalyst) || os(tvOS)
+        #if os(iOS) || targetEnvironment(macCatalyst) || os(tvOS) || os(visionOS)
         // It is expected that the app state is background when the didEnterBackground is called
-        fixture.application.unsafeApplicationState = .background
+        fixture._application.unsafeApplicationState = .background
         fixture.notificationCenter
            .post(
                Notification(
@@ -633,21 +637,21 @@ class SentrySessionTrackerTests: XCTestCase {
         // When the app becomes active, the app state is `active`.
         //
         // This can be observed by viewing the application state in `NSAppDelegate.applicationDidResignActive`.
-        fixture.application.setIsActive(false)
+        fixture._application.setIsActive(false)
         #endif
     }
     
     private func willResignActive() {
-        #if os(iOS) || targetEnvironment(macCatalyst) || os(tvOS)
+        #if os(iOS) || targetEnvironment(macCatalyst) || os(tvOS) || os(visionOS)
         // When the app is about to resign being active, it is still active.
         //
         // This can be observed by viewing the application state in `UIAppDelegate.applicationWillResignActive`.
-        fixture.application.unsafeApplicationState = .active
+        fixture._application.unsafeApplicationState = .active
         #else
         // When the app becomes active, the app state is `active`.
         //
         // This can be observed by viewing the application state in `NSAppDelegate.applicationWillResignActive`.
-        fixture.application.setIsActive(true)
+        fixture._application.setIsActive(true)
         #endif
         fixture.notificationCenter
             .post(
@@ -661,10 +665,10 @@ class SentrySessionTrackerTests: XCTestCase {
     
     private func hybridSdkDidBecomeActive() {
         // When an app did become active, it is in the active state.
-        #if os(iOS) || targetEnvironment(macCatalyst) || os(tvOS)
-        fixture.application.unsafeApplicationState = .active
+        #if os(iOS) || targetEnvironment(macCatalyst) || os(tvOS) || os(visionOS)
+        fixture._application.unsafeApplicationState = .active
         #else
-        fixture.application.setIsActive(true)
+        fixture._application.setIsActive(true)
         #endif
         fixture.notificationCenter
             .post(
@@ -683,18 +687,18 @@ class SentrySessionTrackerTests: XCTestCase {
     }
     
     private  func willTerminate() {
-        #if os(iOS) || targetEnvironment(macCatalyst) || os(tvOS)
+        #if os(iOS) || targetEnvironment(macCatalyst) || os(tvOS) || os(visionOS)
         // When terminating an app, it will first move to the background and then terminate.
         //
         // This can be observed by viewing the application state in `UIAppDelegate.applicationWillTerminate`.
-        fixture.application.unsafeApplicationState = .background
+        fixture._application.unsafeApplicationState = .background
         #else
         // When terminating an app, it will first move to the background and then terminate.
         //
         // This can be observed by viewing the application state in `NSApplicationDelegate.applicationWillTerminate`.
         //
         // Important: According to the documentation, this method isn't called during sudden termination of an app.
-        fixture.application.setIsActive(false)
+        fixture._application.setIsActive(false)
         #endif
         fixture.notificationCenter
             .post(
@@ -808,30 +812,25 @@ class SentrySessionTrackerTests: XCTestCase {
         XCTAssertNotNil(session.sessionId)
         XCTAssertNotNil(session.distinctId)
         XCTAssertEqual(fixture.options.environment, session.environment)
-        XCTAssertNil(session.user)
     }
     
     private func assertNoInitSessionSent(file: StaticString = #file, line: UInt = #line) {
         let eventWithSessions = fixture.client.captureFatalEventWithSessionInvocations.invocations.map({ triple in triple.session })
-        let errorWithSessions = fixture.client.captureErrorWithSessionInvocations.invocations.map({ triple in triple.session })
-        let exceptionWithSessions = fixture.client.captureExceptionWithSessionInvocations.invocations.map({ triple in triple.session })
         
-        var sessions = fixture.client.captureSessionInvocations.invocations + eventWithSessions + errorWithSessions + exceptionWithSessions
+        var sessions = fixture.client.captureSessionInvocations.invocations + eventWithSessions
         
-        sessions.sort { first, second in return first!.started < second!.started }
+        sessions.sort { first, second in return first.started < second.started }
         
         if let session = sessions.last {
-            XCTAssertFalse(session?.flagInit?.boolValue ?? false, file: file, line: line)
+            XCTAssertFalse(session.flagInit?.boolValue ?? false, file: file, line: line)
         }
     }
     
     private func assertSessionsSent(count: Int, file: StaticString = #file, line: UInt = #line) {
         let eventWithSessions = fixture.client.captureFatalEventWithSessionInvocations.count
-        let errorWithSessions = fixture.client.captureErrorWithSessionInvocations.count
-        let exceptionWithSessions = fixture.client.captureExceptionWithSessionInvocations.count
         let sessions = fixture.client.captureSessionInvocations.count
         
-        let sessionsSent = eventWithSessions + errorWithSessions + exceptionWithSessions + sessions
+        let sessionsSent = eventWithSessions + sessions
         
         XCTAssertEqual(count, sessionsSent, file: file, line: line)
     }
@@ -877,10 +876,10 @@ class SentrySessionTrackerTests: XCTestCase {
 
     private func postHybridSdkDidBecomeActiveNotification() {
         // When the hybrid SDK posts this notification, the app should be in active state
-        #if os(iOS) || targetEnvironment(macCatalyst) || os(tvOS)
-        fixture.application.unsafeApplicationState = .active
+        #if os(iOS) || targetEnvironment(macCatalyst) || os(tvOS) || os(visionOS)
+        fixture._application.unsafeApplicationState = .active
         #else
-        fixture.application.setIsActive(true)
+        fixture._application.setIsActive(true)
         #endif
         fixture.notificationCenter
             .post(

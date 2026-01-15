@@ -13,7 +13,6 @@ class SentryFrameTests: XCTestCase {
         // Assert
         XCTAssertEqual(frame.symbolAddress, actual["symbol_addr"] as? String)
         XCTAssertEqual(frame.fileName, actual["filename"] as? String)
-        XCTAssertEqual(frame.function, actual["function"] as? String)
         XCTAssertEqual(frame.module, actual["module"] as? String)
         XCTAssertEqual(frame.lineNumber, actual["lineno"] as? NSNumber)
         XCTAssertEqual(frame.columnNumber, actual["colno"] as? NSNumber)
@@ -39,7 +38,6 @@ class SentryFrameTests: XCTestCase {
         // Assert
         XCTAssertEqual(frame.symbolAddress, actual["symbol_addr"] as? String)
         XCTAssertEqual(frame.fileName, actual["filename"] as? String)
-        XCTAssertEqual(frame.function, actual["function"] as? String)
         XCTAssertEqual(frame.module, actual["module"] as? String)
         XCTAssertEqual(frame.lineNumber, actual["lineno"] as? NSNumber)
         XCTAssertEqual(frame.columnNumber, actual["colno"] as? NSNumber)
@@ -61,12 +59,11 @@ class SentryFrameTests: XCTestCase {
         let data = try XCTUnwrap(SentrySerializationSwift.data(withJSONObject: frame.serialize()))
         
         // Act
-        let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as Frame?)
+        let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as FrameDecodable?)
         
         // Assert
         XCTAssertEqual(frame.symbolAddress, decoded.symbolAddress)
         XCTAssertEqual(frame.fileName, decoded.fileName)
-        XCTAssertEqual(frame.function, decoded.function)
         XCTAssertEqual(frame.module, decoded.module)
         XCTAssertEqual(frame.lineNumber, decoded.lineNumber)
         XCTAssertEqual(frame.columnNumber, decoded.columnNumber)
@@ -88,12 +85,11 @@ class SentryFrameTests: XCTestCase {
         let data = try XCTUnwrap(SentrySerializationSwift.data(withJSONObject: frame.serialize()))
         
         // Act
-        let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as Frame?)
+        let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as FrameDecodable?)
         
         // Assert
         XCTAssertEqual(frame.symbolAddress, decoded.symbolAddress)
         XCTAssertEqual(frame.fileName, decoded.fileName)
-        XCTAssertEqual(frame.function, decoded.function)
         XCTAssertEqual(frame.module, decoded.module)
         XCTAssertEqual(frame.lineNumber, decoded.lineNumber)
         XCTAssertEqual(frame.columnNumber, decoded.columnNumber)
@@ -115,12 +111,11 @@ class SentryFrameTests: XCTestCase {
         let data = try XCTUnwrap(SentrySerializationSwift.data(withJSONObject: frame.serialize()))
         
         // Act
-        let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as Frame?)
+        let decoded = try XCTUnwrap(decodeFromJSONData(jsonData: data) as FrameDecodable?)
         
         // Assert
         XCTAssertNil(decoded.symbolAddress)
         XCTAssertNil(decoded.fileName)
-        XCTAssertEqual("<redacted>", decoded.function)
         XCTAssertNil(decoded.module)
         XCTAssertNil(decoded.lineNumber)
         XCTAssertNil(decoded.columnNumber)

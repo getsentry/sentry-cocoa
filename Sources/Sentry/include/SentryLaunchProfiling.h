@@ -5,7 +5,7 @@
 #    import "SentryDefines.h"
 #    import <Foundation/Foundation.h>
 
-@class SentryHub;
+@class SentryHubInternal;
 @class SentryId;
 @class SentryOptions;
 @class SentryTracerConfiguration;
@@ -18,10 +18,6 @@ SENTRY_EXTERN NSString *const kSentryLaunchProfileConfigKeyTracesSampleRate;
 SENTRY_EXTERN NSString *const kSentryLaunchProfileConfigKeyTracesSampleRand;
 SENTRY_EXTERN NSString *const kSentryLaunchProfileConfigKeyProfilesSampleRate;
 SENTRY_EXTERN NSString *const kSentryLaunchProfileConfigKeyProfilesSampleRand;
-#    if !SDK_V9
-SENTRY_EXTERN NSString *const kSentryLaunchProfileConfigKeyContinuousProfiling;
-#    endif // !SDK_V9
-SENTRY_EXTERN NSString *const kSentryLaunchProfileConfigKeyContinuousProfilingV2;
 SENTRY_EXTERN NSString *const kSentryLaunchProfileConfigKeyContinuousProfilingV2Lifecycle;
 SENTRY_EXTERN NSString *const kSentryLaunchProfileConfigKeyWaitForFullDisplay;
 
@@ -44,7 +40,7 @@ SENTRY_EXTERN void sentry_startLaunchProfile(void);
  * @noteIf the hub is nil, the tracer/profile will be discarded. This normally should always have a
  * valid hub, but tests may not have one and call this with nil instead.
  */
-SENTRY_EXTERN void sentry_stopAndDiscardLaunchProfileTracer(SentryHub *_Nullable hub);
+SENTRY_EXTERN void sentry_stopAndDiscardLaunchProfileTracer(SentryHubInternal *_Nullable hub);
 
 /**
  * Write a file to disk containing profile configuration options. The presence of this file will let

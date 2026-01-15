@@ -13,7 +13,7 @@ class SentryWatchdogTerminationBreadcrumbProcessorTests: XCTestCase {
         let currentDate = TestCurrentDateProvider()
         let maxBreadcrumbs = 10
 
-        init() {
+        init() throws {
             breadcrumb = TestData.crumb
             breadcrumb.data = nil
 
@@ -21,7 +21,7 @@ class SentryWatchdogTerminationBreadcrumbProcessorTests: XCTestCase {
 
             options = Options()
             options.dsn = SentryWatchdogTerminationBreadcrumbProcessorTests.dsn
-            fileManager = try! SentryFileManager(
+            fileManager = try SentryFileManager(
                 options: options,
                 dateProvider: currentDate,
                 dispatchQueueWrapper: TestSentryDispatchQueueWrapper()
@@ -35,18 +35,17 @@ class SentryWatchdogTerminationBreadcrumbProcessorTests: XCTestCase {
         func getSut(fileManager: SentryFileManager) -> SentryWatchdogTerminationBreadcrumbProcessor {
             return SentryWatchdogTerminationBreadcrumbProcessor(
                 maxBreadcrumbs: maxBreadcrumbs,
-                fileManager: fileManager
-            )
+                fileManager: fileManager)
         }
     }
 
     private var fixture: Fixture!
     private var sut: SentryWatchdogTerminationBreadcrumbProcessor!
 
-    override func setUp() {
-        super.setUp()
+    override func setUpWithError() throws {
+        try super.setUpWithError()
 
-        fixture = Fixture()
+        fixture = try Fixture()
         sut = fixture.getSut()
     }
 

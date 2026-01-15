@@ -1,6 +1,5 @@
 #import "SentryInstallation.h"
 #import "SentryDefines.h"
-#import "SentryDependencyContainer.h"
 #import "SentryLogC.h"
 #import "SentrySwift.h"
 
@@ -82,6 +81,13 @@ NS_ASSUME_NONNULL_BEGIN
 + (NSString *)installationFilePath:(NSString *)cacheDirectoryPath
 {
     return [cacheDirectoryPath stringByAppendingPathComponent:@"INSTALLATION"];
+}
+
++ (nullable NSString *)cachedIdWithCacheDirectoryPath:(NSString *)cacheDirectoryPath
+{
+    @synchronized(self) {
+        return self.installationStringsByCacheDirectoryPaths[cacheDirectoryPath];
+    }
 }
 
 @end

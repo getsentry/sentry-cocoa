@@ -22,8 +22,7 @@ SENTRY_NO_INIT
 - (instancetype)initWithDispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
                              appStateManager:(SentryAppStateManager *)appStateManager
                                framesTracker:(SentryFramesTracker *)framesTracker
-              enablePreWarmedAppStartTracing:(BOOL)enablePreWarmedAppStartTracing
-                         enablePerformanceV2:(BOOL)enablePerformanceV2;
+              enablePreWarmedAppStartTracing:(BOOL)enablePreWarmedAppStartTracing;
 
 - (void)start;
 - (void)stop;

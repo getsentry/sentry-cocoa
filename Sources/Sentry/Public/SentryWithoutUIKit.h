@@ -11,28 +11,21 @@ FOUNDATION_EXPORT const unsigned char SentryVersionString[];
 #    import <SentryWithoutUIKit/SentryAttachment.h>
 #    import <SentryWithoutUIKit/SentryBaggage.h>
 #    import <SentryWithoutUIKit/SentryBreadcrumb.h>
-#    import <SentryWithoutUIKit/SentryClient.h>
 #    import <SentryWithoutUIKit/SentryCrashExceptionApplication.h>
-#    import <SentryWithoutUIKit/SentryDebugImageProvider.h>
 #    import <SentryWithoutUIKit/SentryDebugMeta.h>
 #    import <SentryWithoutUIKit/SentryDefines.h>
-#    import <SentryWithoutUIKit/SentryDsn.h>
-#    import <SentryWithoutUIKit/SentryEnvelopeItemHeader.h>
 #    import <SentryWithoutUIKit/SentryError.h>
 #    import <SentryWithoutUIKit/SentryEvent.h>
 #    import <SentryWithoutUIKit/SentryException.h>
-#    import <SentryWithoutUIKit/SentryFeedbackAPI.h>
 #    import <SentryWithoutUIKit/SentryFrame.h>
 #    import <SentryWithoutUIKit/SentryGeo.h>
 #    import <SentryWithoutUIKit/SentryHttpStatusCodeRange.h>
-#    import <SentryWithoutUIKit/SentryHub.h>
-#    import <SentryWithoutUIKit/SentryIntegrationProtocol.h>
+#    import <SentryWithoutUIKit/SentryId.h>
 #    import <SentryWithoutUIKit/SentryMeasurementUnit.h>
 #    import <SentryWithoutUIKit/SentryMechanism.h>
-#    import <SentryWithoutUIKit/SentryMechanismMeta.h>
+#    import <SentryWithoutUIKit/SentryMechanismContext.h>
 #    import <SentryWithoutUIKit/SentryMessage.h>
 #    import <SentryWithoutUIKit/SentryNSError.h>
-#    import <SentryWithoutUIKit/SentryOptions.h>
 #    import <SentryWithoutUIKit/SentryReplayApi.h>
 #    import <SentryWithoutUIKit/SentryRequest.h>
 #    import <SentryWithoutUIKit/SentrySampleDecision.h>
@@ -49,4 +42,11 @@ FOUNDATION_EXPORT const unsigned char SentryVersionString[];
 #    import <SentryWithoutUIKit/SentryTraceHeader.h>
 #    import <SentryWithoutUIKit/SentryTransactionContext.h>
 #    import <SentryWithoutUIKit/SentryUser.h>
+
+// Headers here are to be used by Hybrid SDKs
+// Be careful when using them
+#    import <SentryWithoutUIKit/PrivateSentrySDKOnly.h>
+#    import <SentryWithoutUIKit/PrivatesHeader.h>
+#    import <SentryWithoutUIKit/SentryAppStartMeasurement.h>
+#    import <SentryWithoutUIKit/SentrySessionReplayHybridSDK.h>
 #endif // __has_include(<SentryWithoutUIKit/Sentry.h>)

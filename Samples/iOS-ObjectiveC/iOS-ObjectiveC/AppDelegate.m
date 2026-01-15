@@ -51,34 +51,6 @@
             };
         }
 
-#if !SDK_V9
-        if (env[@"--io.sentry.profiling.profilesSampleRate"] != nil) {
-#    pragma clang diagnostic push
-#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
-            options.profilesSampleRate =
-                @([env[@"--io.sentry.profiling.profilesSampleRate"] floatValue]);
-#    pragma clang diagnostic pop
-        }
-
-        if (env[@"--io.sentry.profilesSamplerValue"] != nil) {
-#    pragma clang diagnostic push
-#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
-            options.profilesSampler
-                = ^NSNumber *_Nullable(SentrySamplingContext *_Nonnull samplingContext)
-            {
-                return @([env[@"--io.sentry.profilesSamplerValue"] floatValue]);
-            };
-#    pragma clang diagnostic pop
-        }
-
-        if (![args containsObject:@"--io.sentry.profiling.disable-app-start-profiling"]) {
-#    pragma clang diagnostic push
-#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
-            options.enableAppLaunchProfiling = YES;
-#    pragma clang diagnostic pop
-        }
-#endif // !SDK_V9
-
         SentryHttpStatusCodeRange *httpStatusCodeRange =
             [[SentryHttpStatusCodeRange alloc] initWithMin:400 max:599];
         options.failedRequestStatusCodes = @[ httpStatusCodeRange ];
@@ -91,7 +63,7 @@
                  enableViewRendererV2:![args containsObject:@"--disable-view-renderer-v2"]
               enableFastViewRendering:![args containsObject:@"--disable-fast-view-rendering"]];
 
-        options.experimental.enableFileManagerSwizzling
+        options.enableFileManagerSwizzling
             = ![args containsObject:@"--disable-filemanager-swizzling"];
 
         options.initialScope = ^(SentryScope *scope) {

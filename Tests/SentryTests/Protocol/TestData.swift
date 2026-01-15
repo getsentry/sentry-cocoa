@@ -2,7 +2,7 @@ import Sentry
 @_spi(Private) import Sentry
 @_spi(Private) import SentryTestUtils
 
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(tvOS) || os(visionOS) || targetEnvironment(macCatalyst)
 import UIKit
 #endif
 
@@ -85,10 +85,8 @@ class TestData {
         debugMeta.imageAddress = "0x0000000105705000"
         debugMeta.imageSize = 352_256
         debugMeta.imageVmAddress = "0x00007fff51af0000"
-        debugMeta.name = "/tmp/scratch/dyld_sim"
         debugMeta.codeFile = "/tmp/scratch/dyld_sim"
         debugMeta.type = "macho"
-        debugMeta.uuid = "84BAEBDA-AD1A-33F4-B35D-8A45F5DAF322"
         debugMeta.debugID = "84BAEBDA-AD1A-33F4-B35D-8A45F5DAF321"
         
         return debugMeta
@@ -117,8 +115,8 @@ class TestData {
         return mechanism
     }
     
-    static var mechanismMeta: MechanismMeta {
-        let mechanismMeta = MechanismMeta()
+    static var mechanismMeta: MechanismContext {
+        let mechanismMeta = MechanismContext()
         mechanismMeta.machException = [
             "name": "EXC_BAD_ACCESS",
             "exception": 1,
@@ -244,7 +242,7 @@ class TestData {
 
     static var debugImage: DebugMeta {
         let image = DebugMeta()
-        image.name = "sentrytest"
+        image.codeFile = "sentrytest"
         image.imageAddress = "0x0000000105705000"
         image.imageVmAddress = "0x0000000105705000"
         return image
@@ -276,8 +274,8 @@ class TestData {
     
     static var oomEvent: Event {
         let event = Event(level: SentryLevel.fatal)
-        let exception = Exception(value: SentryWatchdogTerminationExceptionValue, type: SentryWatchdogTerminationExceptionType)
-        exception.mechanism = Mechanism(type: SentryWatchdogTerminationMechanismType)
+        let exception = Exception(value: SentryWatchdogTerminationConstants.ExceptionValue, type: SentryWatchdogTerminationConstants.ExceptionType)
+        exception.mechanism = Mechanism(type: SentryWatchdogTerminationConstants.MechanismType)
         event.exceptions = [exception]
         return event
     }
@@ -286,8 +284,8 @@ class TestData {
     
     static var metricKitEvent: Event {
         let event = Event(level: .warning)
-        let exception = Exception(value: "MXCPUException totalCPUTime:90.009 sec totalSampledTime:91.952 sec", type: SentryMetricKitCpuExceptionType)
-        exception.mechanism = Mechanism(type: SentryMetricKitCpuExceptionMechanism)
+        let exception = Exception(value: "MXCPUException totalCPUTime:90.009 sec totalSampledTime:91.952 sec", type: "MXCPUException")
+        exception.mechanism = Mechanism(type: "mx_cpu_exception")
         event.exceptions = [exception]
         return event
     }
@@ -323,15 +321,6 @@ class TestData {
         return scope
     }
     
-    @available(*, deprecated, message: "SentryUserFeedback is deprecated in favor of SentryFeedback.")
-    static var userFeedback: UserFeedback {
-        let userFeedback = UserFeedback(eventId: SentryId())
-        userFeedback.comments = "It doesn't really"
-        userFeedback.email = "john@me.com"
-        userFeedback.name = "John Me"
-        return userFeedback
-    }
-    
     static var feedback = SentryFeedback(message: "It doesn't really", name: "John Me", email: "john@me.com", associatedEventId: SentryId())
     
     static func setContext(_ scope: Scope) {
@@ -351,8 +340,8 @@ class TestData {
         return request
     }
 
-    #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-    
+    #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst) || os(visionOS)
+
     static func getAppStartMeasurement(
         type: SentryAppStartType,
         appStartTimestamp: Date = TestData.timestamp,

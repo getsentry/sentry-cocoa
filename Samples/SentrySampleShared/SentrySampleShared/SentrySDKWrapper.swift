@@ -61,6 +61,10 @@ public struct SentrySDKWrapper {
             )
             let defaultReplayQuality = options.sessionReplay.quality
             options.sessionReplay.quality = SentryReplayOptions.SentryReplayQuality(rawValue: (SentrySDKOverrides.SessionReplay.quality.stringValue as? NSString)?.integerValue ?? defaultReplayQuality.rawValue) ?? defaultReplayQuality
+
+            // Allow configuring unreliable environment protection via SDK override.
+            // Default to false for the sample app to allow testing on iOS 26+ with Liquid Glass.
+            options.experimental.enableSessionReplayInUnreliableEnvironment = SentrySDKOverrides.SessionReplay.enableInUnreliableEnvironment.boolValue
         }
 
 #if !os(tvOS)
@@ -108,9 +112,6 @@ public struct SentrySDKWrapper {
         options.screenshot.maskAllText = !SentrySDKOverrides.Screenshot.disableMaskAllText.boolValue
 
         options.attachViewHierarchy = !SentrySDKOverrides.Other.disableAttachViewHierarchy.boolValue
-      #if !SDK_V9
-        options.enableAppHangTrackingV2 = !SentrySDKOverrides.Performance.disableAppHangTrackingV2.boolValue
-      #endif // SDK_V9
 #endif // !os(macOS) && !os(watchOS)
 
         // disable during benchmarks because we run CPU for 15 seconds at full throttle which can trigger ANRs
@@ -120,9 +121,6 @@ public struct SentrySDKWrapper {
         options.enableWatchdogTerminationTracking = !isUITest && !isBenchmarking && !SentrySDKOverrides.Performance.disableWatchdogTracking.boolValue
 
         options.enableAutoPerformanceTracing = !isBenchmarking && !SentrySDKOverrides.Performance.disablePerformanceTracing.boolValue
-      #if !SDK_V9
-        options.enableTracing = !isBenchmarking && !SentrySDKOverrides.Tracing.disableTracing.boolValue
-      #endif // !SDK_V9
 
         options.enableNetworkTracking = !SentrySDKOverrides.Networking.disablePerformanceTracking.boolValue
         options.enableCaptureFailedRequests = !SentrySDKOverrides.Networking.disableFailedRequestTracking.boolValue
@@ -135,9 +133,6 @@ public struct SentrySDKWrapper {
         options.enableCrashHandler = !SentrySDKOverrides.Other.disableCrashHandling.boolValue
         options.enablePersistingTracesWhenCrashing = true
         options.enableTimeToFullDisplayTracing = !SentrySDKOverrides.Performance.disableTimeToFullDisplayTracing.boolValue
-      #if !SDK_V9
-        options.enablePerformanceV2 = !SentrySDKOverrides.Performance.disablePerformanceV2.boolValue
-      #endif
         options.failedRequestStatusCodes = [ HttpStatusCodeRange(min: 400, max: 599) ]
 
     #if targetEnvironment(simulator)
@@ -158,15 +153,14 @@ public struct SentrySDKWrapper {
         }
 
 #if !os(macOS) && !os(tvOS) && !os(watchOS) && !os(visionOS)
-        if #available(iOS 13.0, *) {
-            options.configureUserFeedback = configureFeedback(config:)
-        }
+        options.configureUserFeedback = configureFeedback(config:)
 #endif // !os(macOS) && !os(tvOS) && !os(watchOS) && !os(visionOS)
 
+        options.enableLogs = true
+
         // Experimental features
-        options.experimental.enableFileManagerSwizzling = !SentrySDKOverrides.Other.disableFileManagerSwizzling.boolValue
+        options.enableFileManagerSwizzling = !SentrySDKOverrides.Other.disableFileManagerSwizzling.boolValue
         options.experimental.enableUnhandledCPPExceptionsV2 = true
-        options.experimental.enableLogs = true
     }
 
     func configureInitialScope(scope: Scope, options: Options) -> Scope {
@@ -202,6 +196,10 @@ public struct SentrySDKWrapper {
         }
         let data = Data("hello".utf8)
         scope.addAttachment(Attachment(data: data, filename: "log.txt"))
+        
+        scope.setAttribute(value: "\(Bundle.main.bundleIdentifier ?? "")-custom-attribute", key: "custom-attribute-text")
+        scope.setAttribute(value: Date().timeIntervalSince1970, key: "custom-attribute-numeric")
+        scope.setAttribute(value: true, key: "custom-attribute-boolean")
 
         return scope
     }
@@ -255,7 +253,6 @@ public struct SentrySDKWrapper {
 
 #if !os(macOS) && !os(tvOS) && !os(watchOS) && !os(visionOS)
 // MARK: User feedback configuration
-@available(iOS 13.0, *)
 extension SentrySDKWrapper {
     var layoutOffset: UIOffset { UIOffset(horizontal: 25, vertical: 75) }
 
@@ -295,6 +292,10 @@ extension SentrySDKWrapper {
         config.messageLabel = "Thy complaint"
         config.emailLabel = "Thine email"
         config.nameLabel = "Thy name"
+        config.unexpectedErrorText = "Santry doesn't know how to process this error"
+        config.validationErrorMessage = { multipleErrors in
+            return "You got \(multipleErrors ? "many" : "an" ) error\(multipleErrors ? "s" : "") in this form:"
+        }
     }
 
     func configureFeedbackTheme(config: SentryUserFeedbackThemeConfiguration) {
@@ -355,10 +356,19 @@ extension SentrySDKWrapper {
             alert.addAction(.init(title: "Deal with it 🕶️", style: .default))
             UIApplication.shared.delegate?.window??.rootViewController?.present(alert, animated: true)
 
-            // if there's a screenshot's Data in this dictionary, JSONSerialization crashes _even though_ there's a `try?`, so we'll write the base64 encoding of it
             var infoToWriteToFile = info
-            if let attachments = info["attachments"] as? [Any], let screenshot = attachments.first as? Data {
-                infoToWriteToFile["attachments"] = [screenshot.base64EncodedString()]
+            if let attachments = info["attachments"] as? [[String: Any]] {
+                // Extract data from each attachment dictionary (JSONSerialization crashes _even though_ there's a `try?`, so we'll write the base64 encoding of it)
+                let processedAttachments = attachments.compactMap { attachment -> [String: Any]? in
+                    var processed = attachment
+                    if let data = attachment["data"] as? Data {
+                        processed["data"] = data.base64EncodedString()
+                    }
+                    return processed
+                }
+                if !processedAttachments.isEmpty {
+                    infoToWriteToFile["attachments"] = processedAttachments
+                }
             }
 
             let jsonData = (try? JSONSerialization.data(withJSONObject: infoToWriteToFile, options: .sortedKeys)) ?? Data()
@@ -473,18 +483,6 @@ extension SentrySDKWrapper {
 #if !os(tvOS) && !os(watchOS) && !os(visionOS)
 extension SentrySDKWrapper {
     func configureProfiling(_ options: Options) {
-      #if !SDK_V9
-        if let sampleRate = SentrySDKOverrides.Profiling.sampleRate.floatValue {
-            options.profilesSampleRate = NSNumber(value: sampleRate)
-        }
-        if let samplerValue = SentrySDKOverrides.Profiling.samplerValue.floatValue {
-            options.profilesSampler = { _ in
-                return NSNumber(value: samplerValue)
-            }
-        }
-        options.enableAppLaunchProfiling = !SentrySDKOverrides.Profiling.disableAppStartProfiling.boolValue
-      #endif // !SDK_V9
-
         if !SentrySDKOverrides.Profiling.disableUIProfiling.boolValue {
             options.configureProfiling = {
                 $0.lifecycle = SentrySDKOverrides.Profiling.manualLifecycle.boolValue ? .manual : .trace

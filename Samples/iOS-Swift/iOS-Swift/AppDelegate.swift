@@ -24,36 +24,21 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         SentrySDKWrapper.shared.startSentry()
         SampleAppDebugMenu.shared.display()
-
-        if #available(iOS 15.0, *) {
-            metricKit.receiveReports()
-        }
+        
+        metricKit.receiveReports()
         
         return true
     }
     
     func applicationWillTerminate(_ application: UIApplication) {
-        if #available(iOS 15.0, *) {
-            metricKit.pauseReports()
-        }
+        metricKit.pauseReports()
         
         randomDistributionTimer?.invalidate()
         randomDistributionTimer = nil
     }
     
     // Workaround for 'Stored properties cannot be marked potentially unavailable with '@available''
-    private var _metricKit: Any?
-    @available(iOS 15.0, *)
-    fileprivate var metricKit: MetricKitManager {
-        if _metricKit == nil {
-            _metricKit = MetricKitManager()
-        }
-        
-        // We know the type so it's fine to force cast.
-        // swiftlint:disable force_cast
-        return _metricKit as! MetricKitManager
-        // swiftlint:enable force_cast
-    }
+    private var metricKit = MetricKitManager()
     
     /**
      * previously tried putting this in an AppDelegate.load override in ObjC, but it wouldn't run until

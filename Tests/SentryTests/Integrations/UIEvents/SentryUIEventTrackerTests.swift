@@ -1,4 +1,4 @@
-import Sentry
+@_spi(Private) import Sentry
 @_spi(Private) import SentryTestUtils
 import XCTest
 
@@ -8,7 +8,7 @@ class SentryUIEventTrackerTests: XCTestCase {
     private class Fixture {
         let swizzleWrapper = TestSentrySwizzleWrapper()
         let target = FirstViewController()
-        let hub = SentryHub(client: TestClient(options: Options()), andScope: nil)
+        let hub = SentryHubInternal(client: TestClient(options: Options()), andScope: nil)
         let dispatchQueue = TestSentryDispatchQueueWrapper()
         let uiEventTrackerMode: SentryUIEventTrackerMode
         let button = UIButton()
@@ -126,7 +126,7 @@ class SentryUIEventTrackerTests: XCTestCase {
         
         callExecuteAction(action: action, target: fixture.target, sender: button, event: TestUIEvent())
         
-        let span = try! XCTUnwrap(SentrySDK.span as? SentryTracer)
+        let span = try XCTUnwrap(SentrySDK.span as? SentryTracer)
         XCTAssertFalse(span.tags.contains {
             $0.key == "accessibilityIdentifier"
         })
@@ -150,7 +150,7 @@ class SentryUIEventTrackerTests: XCTestCase {
         try assertTransaction(name: "SentryTests.FirstViewController.\(expectedAction)", operation: operationClick)
     }
     
-    func test_OnGoingUILoadTransaction_StartNewUIEventTransaction_NotBoundToScope() {
+    func test_OnGoingUILoadTransaction_StartNewUIEventTransaction_NotBoundToScope() throws {
         // Arrange
         let uiLoadTransaction = SentrySDK.startTransaction(name: "test", operation: "ui.load", bindToScope: true)
         
@@ -159,10 +159,10 @@ class SentryUIEventTrackerTests: XCTestCase {
         
         // Assert
         XCTAssertTrue(uiLoadTransaction === SentrySDK.span)
-        XCTAssertEqual(getInternalTransactions().count, 0, "There shouldn't be an active ongoing UI event transaction.")
+        XCTAssertEqual(try getInternalTransactions().count, 0, "There shouldn't be an active ongoing UI event transaction.")
     }
     
-    func test_ManualTransactionOnScope_StartNewUIEventTransaction_NotBoundToScope() {
+    func test_ManualTransactionOnScope_StartNewUIEventTransaction_NotBoundToScope() throws {
         // Arrange
         let manualTransaction = SentrySDK.startTransaction(name: "test", operation: "my.operation", bindToScope: true)
         
@@ -171,7 +171,7 @@ class SentryUIEventTrackerTests: XCTestCase {
         
         // Assert
         XCTAssertTrue(manualTransaction === SentrySDK.span)
-        XCTAssertEqual(getInternalTransactions().count, 0, "There shouldn't be an active ongoing UI event transaction.")
+        XCTAssertEqual(try getInternalTransactions().count, 0, "There shouldn't be an active ongoing UI event transaction.")
     }
     
     func test_SameUIElementWithSameEvent_ResetsTimeout() throws {
@@ -239,16 +239,18 @@ class SentryUIEventTrackerTests: XCTestCase {
 
         callExecuteAction(action: "otherAction", target: fixture.target, sender: UIView(), event: TestUIEvent())
         
-        XCTAssertEqual(2, getInternalTransactions().count)
-        
+        XCTAssertEqual(2, try getInternalTransactions().count)
+
         let secondTransaction = try XCTUnwrap(SentrySDK.span as? SentryTracer)
-        
-        XCTAssertTrue(secondTransaction === getInternalTransactions().last)
-        
+
+        let internalTransactions1 = try getInternalTransactions()
+        XCTAssertTrue(secondTransaction === internalTransactions1.last)
+
         child.finish()
-        
-        XCTAssertEqual(1, getInternalTransactions().count)
-        XCTAssertTrue(secondTransaction === getInternalTransactions().last)
+
+        let internalTransactions2 = try getInternalTransactions()
+        XCTAssertEqual(1, internalTransactions2.count)
+        XCTAssertTrue(secondTransaction === internalTransactions2.last)
     }
     
     func test_Stop() {
@@ -273,8 +275,8 @@ class SentryUIEventTrackerTests: XCTestCase {
         fixture.swizzleWrapper.execute(action: action, target: target, sender: sender, event: event)
     }
     
-    private func getInternalTransactions() -> [SentryTracer] {
-        return try! XCTUnwrap(Dynamic(self.fixture.uiEventTrackerMode).activeTransactions.asArray as? [SentryTracer])
+    private func getInternalTransactions() throws -> [SentryTracer] {
+        return try XCTUnwrap(Dynamic(self.fixture.uiEventTrackerMode).activeTransactions.asArray as? [SentryTracer])
     }
     
     private func assertTransaction(name: String, operation: String, nameSource: SentryTransactionNameSource = .component) throws {
@@ -304,7 +306,7 @@ class SentryUIEventTrackerTests: XCTestCase {
         XCTAssertEqual(.ok, transaction.status)
         try assertTransaction(name: "SentryTests.FirstViewController.\(expectedAction)", operation: operation)
         
-        let transactions = getInternalTransactions()
+        let transactions = try getInternalTransactions()
         XCTAssertEqual(1, transactions.count)
     }
     

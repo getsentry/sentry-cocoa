@@ -26,7 +26,6 @@ func triggerFullyBlockingAppHangThreadSleeping() {
 }
 
 // Blocks the main thread for 5 seconds while decoding an image in a loop.
-@available(iOS 15.0, *)
 func triggerFullyBlockingAppHangWithImageDecoding() {
 
     let currentTime = Date()

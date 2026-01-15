@@ -3,19 +3,12 @@
 #if SENTRY_HAS_UIKIT
 #    import "SentryScope+Private.h"
 #    import <SentryANRTrackerV1.h>
-#    import <SentryAppStateManager.h>
 #    import <SentryClient+Private.h>
-#    import <SentryDependencyContainer.h>
 #    import <SentryHub.h>
-#    import <SentryOptions+Private.h>
-#    import <SentryPropagationContext.h>
 #    import <SentrySDK+Private.h>
 #    import <SentryScope+PrivateSwift.h>
 #    import <SentrySwift.h>
 #    import <SentryWatchdogTerminationBreadcrumbProcessor.h>
-#    import <SentryWatchdogTerminationLogic.h>
-#    import <SentryWatchdogTerminationScopeObserver.h>
-#    import <SentryWatchdogTerminationTracker.h>
 NS_ASSUME_NONNULL_BEGIN
 
 @interface SentryWatchdogTerminationTrackingIntegration ()
@@ -86,9 +79,8 @@ NS_ASSUME_NONNULL_BEGIN
 
     self.appStateManager = appStateManager;
 
-    SentryWatchdogTerminationScopeObserver *scopeObserver =
-        [SentryDependencyContainer.sharedInstance
-            getWatchdogTerminationScopeObserverWithOptions:options];
+    id<SentryScopeObserver> scopeObserver = [SentryDependencyContainer.sharedInstance
+        getWatchdogTerminationScopeObserverWithOptions:options];
 
     [SentrySDKInternal.currentHub configureScope:^(SentryScope *_Nonnull outerScope) {
         // Add the observer to the scope so that it can be notified when the scope changes.

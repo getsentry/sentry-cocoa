@@ -10,6 +10,21 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+@implementation SentryFramesDelayResultObjC
+
+- (instancetype)initWithDelayDuration:(CFTimeInterval)delayDuration
+       framesContributingToDelayCount:(NSUInteger)frames
+{
+    if (self = [super init]) {
+        _delayDuration = delayDuration;
+        _framesContributingToDelayCount = frames;
+        return self;
+    }
+    return nil;
+}
+
+@end
+
 @interface SentryDelayedFramesTracker ()
 
 @property (nonatomic, assign) CFTimeInterval keepDelayedFramesDuration;
@@ -23,14 +38,36 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation SentryDelayedFramesTracker
 
 - (instancetype)initWithKeepDelayedFramesDuration:(CFTimeInterval)keepDelayedFramesDuration
+{
+    return [self
+        initWithKeepDelayedFramesDuration:keepDelayedFramesDuration
+                             dateProvider:SentryDependencyContainer.sharedInstance.dateProvider];
+}
+
+- (instancetype)initWithKeepDelayedFramesDuration:(CFTimeInterval)keepDelayedFramesDuration
                                      dateProvider:(id<SentryCurrentDateProvider>)dateProvider
 {
     if (self = [super init]) {
         _keepDelayedFramesDuration = keepDelayedFramesDuration;
         _dateProvider = dateProvider;
-        [self resetDelayedFramesTimeStamps];
+        _delayedFrames = [NSMutableArray new];
+        [self reset];
     }
     return self;
+}
+
+- (void)reset
+{
+    @synchronized(self.delayedFrames) {
+        _previousFrameSystemTimestamp = 0;
+        SentryDelayedFrame *initialFrame =
+            [[SentryDelayedFrame alloc] initWithStartTimestamp:[self.dateProvider systemTime]
+                                              expectedDuration:0
+                                                actualDuration:0];
+
+        [_delayedFrames removeAllObjects];
+        [_delayedFrames addObject:initialFrame];
+    }
 }
 
 - (void)setPreviousFrameSystemTimestamp:(uint64_t)previousFrameSystemTimestamp
@@ -45,16 +82,6 @@ NS_ASSUME_NONNULL_BEGIN
     "thread.")
 {
     return _previousFrameSystemTimestamp;
-}
-
-- (void)resetDelayedFramesTimeStamps
-{
-    _delayedFrames = [NSMutableArray array];
-    SentryDelayedFrame *initialFrame =
-        [[SentryDelayedFrame alloc] initWithStartTimestamp:[self.dateProvider systemTime]
-                                          expectedDuration:0
-                                            actualDuration:0];
-    [_delayedFrames addObject:initialFrame];
 }
 
 - (void)recordDelayedFrame:(uint64_t)startSystemTimestamp
@@ -111,14 +138,14 @@ NS_ASSUME_NONNULL_BEGIN
     [self.delayedFrames removeObjectsInRange:NSMakeRange(0, left)];
 }
 
-- (SentryFramesDelayResult *)getFramesDelay:(uint64_t)startSystemTimestamp
-                         endSystemTimestamp:(uint64_t)endSystemTimestamp
-                                  isRunning:(BOOL)isRunning
-                         slowFrameThreshold:(CFTimeInterval)slowFrameThreshold
+- (SentryFramesDelayResultObjC *)getFramesDelayObjC:(uint64_t)startSystemTimestamp
+                                 endSystemTimestamp:(uint64_t)endSystemTimestamp
+                                          isRunning:(BOOL)isRunning
+                                 slowFrameThreshold:(CFTimeInterval)slowFrameThreshold
 {
-    SentryFramesDelayResult *cantCalculateFrameDelayReturnValue =
-        [[SentryFramesDelayResult alloc] initWithDelayDuration:-1.0
-                                framesContributingToDelayCount:0];
+    SentryFramesDelayResultObjC *cantCalculateFrameDelayReturnValue =
+        [[SentryFramesDelayResultObjC alloc] initWithDelayDuration:-1.0
+                                    framesContributingToDelayCount:0];
 
     if (isRunning == NO) {
         SENTRY_LOG_DEBUG(@"Not calculating frames delay because frames tracker isn't running.");
@@ -206,9 +233,9 @@ NS_ASSUME_NONNULL_BEGIN
         framesCount++;
     }
 
-    SentryFramesDelayResult *data =
-        [[SentryFramesDelayResult alloc] initWithDelayDuration:delay
-                                framesContributingToDelayCount:framesCount];
+    SentryFramesDelayResultObjC *data =
+        [[SentryFramesDelayResultObjC alloc] initWithDelayDuration:delay
+                                    framesContributingToDelayCount:framesCount];
 
     return data;
 }

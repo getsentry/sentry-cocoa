@@ -10,7 +10,7 @@
 #    import "SentryProfilerMocks.h"
 #    import "SentryProfilerSerialization+Test.h"
 #    import "SentryProfilerState+ObjCpp.h"
-#    import "SentryScreenFrames.h"
+#    import "SentrySwift.h"
 #    import "SentryThread.h"
 #    import "SentryTransaction.h"
 #    import "SentryTransactionContext+Private.h"
@@ -204,7 +204,7 @@ using namespace sentry::profiling;
 
     const auto serialization = sentry_serializedTraceProfileData(profileData, 1, 2,
         sentry_profilerTruncationReasonName(SentryProfilerTruncationReasonNormal), @{}, @[],
-        [[SentryHub alloc] initWithClient:nil andScope:nil]
+        [[SentryHubInternal alloc] initWithClient:nil andScope:nil]
 #    if SENTRY_HAS_UIKIT
         ,
         [[SentryScreenFrames alloc] initWithTotal:5

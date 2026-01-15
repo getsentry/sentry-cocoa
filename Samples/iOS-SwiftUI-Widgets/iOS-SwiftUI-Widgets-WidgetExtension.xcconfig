@@ -1,0 +1,30 @@
+#include "../Shared/Config/_Common.xcconfig"
+
+PRODUCT_BUNDLE_IDENTIFIER = io.sentry.sentry-cocoa.samples.iOS-SwiftUI-Widgets.Widget
+INFOPLIST_FILE = iOS-SwiftUI-Widgets-WidgetExtension/Resources/Info.plist
+CODE_SIGN_ENTITLEMENTS = iOS-SwiftUI-Widgets-WidgetExtension/Resources/Entitlements.entitlements
+
+GENERATE_INFOPLIST_FILE = NO
+
+IPHONEOS_DEPLOYMENT_TARGET = 18.0
+TARGETED_DEVICE_FAMILY = 1,2
+
+CODE_SIGN_STYLE = Manual
+
+SWIFT_OBJC_BRIDGING_HEADER = Shared/Headers/iOS-Swift-Widget-Bridging-Header.h
+
+SUPPORTED_PLATFORMS = iphoneos iphonesimulator
+SUPPORTS_MACCATALYST = NO
+
+ENABLE_USER_SCRIPT_SANDBOXING = YES
+
+// Force rebuild when main app changes - helps with incremental build issues
+ALWAYS_SEARCH_USER_PATHS = NO
+
+// Asset Catalog
+ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES
+ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor
+ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground
+
+// Swift Settings
+SWIFT_VERSION = 5.0

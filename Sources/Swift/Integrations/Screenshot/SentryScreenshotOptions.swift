@@ -1,13 +1,13 @@
 import Foundation
 
 @objcMembers
-public class SentryViewScreenshotOptions: NSObject, SentryRedactOptions {
+public final class SentryViewScreenshotOptions: NSObject, SentryRedactOptions {
     /**
      * Default values for the screenshot options.
      *
      * - Note: These values are used to ensure the different initializers use the same default values.
      */
-    public class DefaultValues {
+    public final class DefaultValues {
         public static let enableViewRendererV2: Bool = true
         public static let enableFastViewRendering: Bool = false
         
@@ -45,7 +45,7 @@ public class SentryViewScreenshotOptions: NSObject, SentryRedactOptions {
      * this method can be slow, especially when rendering complex views, therefore enabling this flag will switch to render the underlying `CALayer` instead.
      *
      * - Note: This flag can only be used together with `enableViewRendererV2` with up to 20% faster render times.
-     * - Warning: Rendering the view hiearchy using the `CALayer.render(in:)` method can lead to rendering issues, especially when using custom views.
+     * - Warning: Rendering the view hierarchy using the `CALayer.render(in:)` method can lead to rendering issues, especially when using custom views.
      *            For complete rendering, it is recommended to set this option to `false`. In case you prefer performance over completeness, you can
      *            set this option to `true`.
      * - Experiment: This is an experimental feature and is therefore disabled by default. In case you are noticing issues with the experimental
@@ -121,7 +121,7 @@ public class SentryViewScreenshotOptions: NSObject, SentryRedactOptions {
      * - Warning: This initializer is primarily used by Hybrid SDKs and is not intended for public use.
      */
     convenience init(dictionary: [String: Any]) {
-        // This initalizer is calling the one with optional parameters, so that defaults can be applied
+        // This initializer is calling the one with optional parameters, so that defaults can be applied
         // for absent values.
         self.init(
             enableViewRendererV2: (dictionary["enableViewRendererV2"] as? NSNumber)?.boolValue ?? DefaultValues.enableViewRendererV2,

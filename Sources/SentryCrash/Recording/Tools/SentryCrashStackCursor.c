@@ -25,7 +25,6 @@
 
 #include "SentryCrashStackCursor.h"
 #include "SentryCrashCPU.h"
-#include "SentryCrashSymbolicator.h"
 #include <stdlib.h>
 
 #include "SentryAsyncSafeLog.h"
@@ -46,17 +45,12 @@ sentrycrashsc_resetCursor(SentryCrashStackCursor *cursor)
     cursor->state.currentDepth = 0;
     cursor->state.hasGivenUp = false;
     cursor->stackEntry.address = 0;
-    cursor->stackEntry.imageAddress = 0;
-    cursor->stackEntry.imageName = NULL;
-    cursor->stackEntry.symbolAddress = 0;
-    cursor->stackEntry.symbolName = NULL;
 }
 
 void
 sentrycrashsc_initCursor(SentryCrashStackCursor *cursor,
     void (*resetCursor)(SentryCrashStackCursor *), bool (*advanceCursor)(SentryCrashStackCursor *))
 {
-    cursor->symbolicate = sentrycrashsymbolicator_symbolicate_async_unsafe_sentryDlAddr;
     cursor->advanceCursor = advanceCursor != NULL ? advanceCursor : g_advanceCursor;
     cursor->resetCursor = resetCursor != NULL ? resetCursor : sentrycrashsc_resetCursor;
     cursor->resetCursor(cursor);

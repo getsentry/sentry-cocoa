@@ -24,8 +24,6 @@ class SentryUIApplicationTests: XCTestCase {
         XCTAssertEqual(sut.getWindows()?.count, 1)
     }
 
-    //Somehow this is running under iOS 12 and is breaking the test. Disabling it.
-    @available(iOS 13.0, tvOS 13.0, *)
     func test_applicationWithScenes() {
         let sceneDelegate = TestUISceneDelegate()
         sceneDelegate.window = UIWindow()
@@ -39,8 +37,6 @@ class SentryUIApplicationTests: XCTestCase {
         XCTAssertEqual(sut.getWindows()?.count, 1)
     }
 
-    //Somehow this is running under iOS 12 and is breaking the test. Disabling it.
-    @available(iOS 13.0, tvOS 13.0, *)
     func test_applicationWithScenesAndDelegateWithWindow_Unique() {
         let sceneDelegate = TestUISceneDelegate()
         sceneDelegate.window = UIWindow()
@@ -57,8 +53,6 @@ class SentryUIApplicationTests: XCTestCase {
         XCTAssertEqual(sut.getWindows()?.count, 2)
     }
 
-    //Somehow this is running under iOS 12 and is breaking the test. Disabling it.
-    @available(iOS 13.0, tvOS 13.0, *)
     func test_applicationWithScenesAndDelegateWithWindow_Same() {
         let window = UIWindow()
         let sceneDelegate = TestUISceneDelegate()
@@ -76,8 +70,6 @@ class SentryUIApplicationTests: XCTestCase {
         XCTAssertEqual(sut.getWindows()?.count, 1)
     }
 
-    //Somehow this is running under iOS 12 and is breaking the test. Disabling it.
-    @available(iOS 13.0, tvOS 13.0, *)
     func test_applicationWithScenes_noWindow() {
         let sceneDelegate = TestUISceneDelegate()
 

@@ -1,4 +1,5 @@
 #import "_SentryDispatchQueueWrapperInternal.h"
+#import "SentryInternalDefines.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -6,11 +7,17 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)init
 {
-    // DISPATCH_QUEUE_SERIAL_WITH_AUTORELEASE_POOL is requires iOS 10. Since we are targeting
-    // iOS 9 we need to manually add the autoreleasepool.
-    dispatch_queue_attr_t attributes = dispatch_queue_attr_make_with_qos_class(
-        DISPATCH_QUEUE_SERIAL, DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
-    self = [self initWithName:"io.sentry.default" attributes:attributes];
+    self = [self initWithName:"io.sentry.default"];
+    return self;
+}
+
+- (instancetype)initWithName:(const char *)name
+{
+    if (self = [super init]) {
+        dispatch_queue_attr_t attributes
+            = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, QOS_CLASS_DEFAULT, 0);
+        _queue = dispatch_queue_create(name, attributes);
+    }
     return self;
 }
 
@@ -23,16 +30,19 @@ NS_ASSUME_NONNULL_BEGIN
     return self;
 }
 
-- (void)dispatchAsyncWithBlock:(void (^)(void))block
+- (instancetype)initWithName:(const char *)name relativePriority:(int)relativePriority
 {
-    dispatch_async(_queue, ^{
-        @autoreleasepool {
-            block();
-        }
-    });
+    if (self = [super init]) {
+        SENTRY_CASSERT(relativePriority <= 0 && relativePriority >= QOS_MIN_RELATIVE_PRIORITY,
+            @"Relative priority must be between 0 and %d", QOS_MIN_RELATIVE_PRIORITY);
+        dispatch_queue_attr_t attributes = dispatch_queue_attr_make_with_qos_class(
+            DISPATCH_QUEUE_SERIAL, QOS_CLASS_UTILITY, relativePriority);
+        _queue = dispatch_queue_create(name, attributes);
+    }
+    return self;
 }
 
-- (void)dispatchAsyncOnMainQueue:(void (^)(void))block
+- (void)dispatchAsyncOnMainQueueIfNotMainThread:(void (^)(void))block
 {
     if ([NSThread isMainThread]) {
         block();
@@ -43,6 +53,15 @@ NS_ASSUME_NONNULL_BEGIN
             }
         });
     }
+}
+
+- (void)dispatchAsyncWithBlock:(void (^)(void))block
+{
+    dispatch_async(_queue, ^{
+        @autoreleasepool {
+            block();
+        }
+    });
 }
 
 - (void)dispatchSync:(void (^)(void))block

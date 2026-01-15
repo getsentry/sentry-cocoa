@@ -2,8 +2,7 @@
 import Sentry
 import UIKit
 
-#if CARTHAGE || SWIFT_PACKAGE
-import Sentry._Hybrid
+#if XCODE || SWIFT_PACKAGE
 @_implementationOnly import SentryInternal
 #endif
 

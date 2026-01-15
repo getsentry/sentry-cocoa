@@ -4,10 +4,6 @@
 
 See //Samples/README.md for more information about how to use the sample apps to test SDK functionality.
 
-## Generating classes
-
-You can use the `generate-classes.sh` to generate ViewControllers and other classes to emulate a large project. This is useful, for example, to test the performance of swizzling in a large project without having to check in thousands of lines of code.
-
 ## Tests
 
 The tests depend on our test server. To run the automated tests, you first need to have the server running locally with
@@ -133,7 +129,9 @@ Once daily and for every PR via [Github action](../.github/workflows/benchmarkin
 
 ### Flaky tests
 
-If you see a test being flaky, you should ideally fix it immediately. If that's not feasible, you can disable the test in the test scheme by unchecking it in the associated test plan:
+If you see a test being flaky, you should ideally fix it immediately. If that's not feasible, you can add it to the Sentry_Flaky test plan and remove it from the SentryBase test plan. The Sentry_Flaky test plan has a retry mechanism of 3 times until a test officially fails.
+
+Or you disable the test in the test scheme by unchecking it in the associated test plan:
 
 ![Disabling test cases via the Xcode Tests navigator](./develop-docs/disabling_tests_xcode_test_plan.png)
 

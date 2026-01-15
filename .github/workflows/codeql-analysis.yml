@@ -2,10 +2,15 @@ name: CodeQL
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
+      - v8.x
+
   pull_request:
     branches:
       - main
+      - v8.x
+
   schedule:
     - cron: "40 4 * * 6" # Weekly scheduled run to catch issues regardless of changes
 
@@ -27,7 +32,7 @@ jobs:
     outputs:
       run_codeql_analysis_for_prs: ${{ steps.changes.outputs.run_codeql_analysis_for_prs }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
       - name: Get changed files
         id: changes
         uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
@@ -39,7 +44,7 @@ jobs:
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_codeql_analysis_for_prs == 'true'
     needs: files-changed
     name: Analyze (${{ matrix.language }})
-    runs-on: macos-14
+    runs-on: macos-26
 
     strategy:
       fail-fast: false
@@ -48,10 +53,9 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
-
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
+        uses: github/codeql-action/init@v4
         with:
           languages: ${{ matrix.language }}
 
@@ -60,13 +64,13 @@ jobs:
             -workspace Sentry.xcworkspace \
             -scheme Sentry \
             -configuration Release \
-            -destination platform="iOS Simulator,OS=16.4,name=iPhone 14 Pro" \
+            -destination platform="iOS Simulator,OS=26.1,name=iPhone 17 Pro" \
             build 2>&1 |
             tee raw-analyze-output.log |
             xcbeautify
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v3
+        uses: github/codeql-action/analyze@v4
 
       - name: Run CI Diagnostics
         if: failure()
@@ -76,11 +80,7 @@ jobs:
   # to make CodeQL analysis a required check with only running the analysis when required.
   # So, we don't have to run CodeQL analysis, for example, for unrelated changes.
   codeql_analysis-required-check:
-    needs:
-      [
-        files-changed,
-        analyze,
-      ]
+    needs: [files-changed, analyze]
     name: Analyze
     # This is necessary since a failed/skipped dependent job would cause this job to be skipped
     if: always()

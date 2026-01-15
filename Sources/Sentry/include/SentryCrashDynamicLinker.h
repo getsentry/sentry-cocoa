@@ -63,22 +63,6 @@ typedef struct {
     uintptr_t size;
 } SentrySegmentAddress;
 
-#if !SDK_V9
-/** Get the number of loaded binary images.
- */
-int sentrycrashdl_imageCount(void);
-
-/** Get information about a binary image.
- *
- * @param index The binary index.
- *
- * @param buffer A structure to hold the information.
- *
- * @return True if the image was successfully queried.
- */
-bool sentrycrashdl_getBinaryImage(int index, SentryCrashBinaryImage *buffer, bool isCrash);
-#endif // !SDK_V9
-
 /** Get information about a binary image based on mach_header.
  *
  * @param header_ptr The pointer to mach_header of the image.
@@ -112,26 +96,6 @@ uint32_t sentrycrashdl_imageNamed(const char *const imageName, bool exactMatch);
  *         wasn't found.
  */
 const uint8_t *sentrycrashdl_imageUUID(const char *const imageName, bool exactMatch);
-
-/**
- * ATTENTION: This method isn't async-safe as it accesses @c _dyld_get_image_header, which acquires
- * a lock. We plan on removing this method with
- * https://github.com/getsentry/sentry-cocoa/issues/2996.
- *
- *
- * This method searches the dynamic loader for information about any image
- * containing the specified address. It may not be entirely successful in
- * finding information, in which case any fields it could not find will be set
- * to NULL.
- *
- * Unlike dladdr(), this method does not make use of locks, and does not call
- * async-unsafe functions.
- *
- * @param address The address to search for.
- * @param info Gets filled out by this function.
- * @return true if at least some information was found.
- */
-bool sentrycrashdl_dladdr(const uintptr_t address, Dl_info *const info);
 
 void sentrycrashdl_getCrashInfo(uint64_t address, SentryCrashBinaryImage *buffer);
 

@@ -7,8 +7,7 @@
      * @param eventId The identifier of the event. Can be nil if no event in the envelope or attachment
      * related to event.
      */
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
-    @objc public convenience init(id eventId: SentryId?) {
+    convenience init(id eventId: SentryId?) {
         self.init(id: eventId, traceContext: nil)
     }
     
@@ -18,7 +17,6 @@
      * attachment related to event.
      * @param traceContext Current trace state.
      */
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     @objc public convenience init(id eventId: SentryId?, traceContext: TraceContext?) {
         self.init(id: eventId, sdkInfo: SentrySdkInfo.global(), traceContext: traceContext)
     }
@@ -33,14 +31,17 @@
      * instances should always provide a version.
      * @param traceContext Current trace state.
      */
-    @objc public
     init(id eventId: SentryId?, sdkInfo: SentrySdkInfo?, traceContext: TraceContext?) {
         self.eventId = eventId
         self.sdkInfo = sdkInfo
         self.traceContext = traceContext
     }
-    
-    @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
+
+    @objc public convenience init(id eventId: SentryId?, sdkInfo: [AnyHashable: Any]?) {
+        let info = sdkInfo.map { SentrySdkInfo(dict: $0) } ?? SentrySdkInfo.global()
+        self.init(id: eventId, sdkInfo: info, traceContext: nil)
+    }
+
     @objc public static func empty() -> Self {
         Self(id: nil, traceContext: nil)
     }
@@ -50,9 +51,9 @@
      * An event id exist if the envelope contains an event of items within it are related. i.e
      * Attachments
      */
-    @objc public var eventId: SentryId?
-    @objc public var sdkInfo: SentrySdkInfo?
-    @objc public var traceContext: TraceContext?
+    @objc public let eventId: SentryId?
+    let sdkInfo: SentrySdkInfo?
+    @objc public let traceContext: TraceContext?
     
     /**
      * The timestamp when the event was sent from the SDK as string in RFC 3339 format. Used

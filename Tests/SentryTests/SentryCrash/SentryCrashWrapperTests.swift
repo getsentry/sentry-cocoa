@@ -1,4 +1,5 @@
 @_spi(Private) @testable import Sentry
+@_spi(Private) import SentryTestUtils
 import XCTest
 
 final class SentryCrashWrapperTests: XCTestCase {
@@ -31,7 +32,7 @@ final class SentryCrashWrapperTests: XCTestCase {
         ])
         scope = Scope()
         
-#if (os(iOS) || os(tvOS) || (swift(>=5.9) && os(visionOS))) && !targetEnvironment(macCatalyst)
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !targetEnvironment(macCatalyst)
         // Ensure DeviceWrapper info is initialized
         // This is done at SentrySDKInteral, but during tests that might not be the case
         Dependencies.uiDeviceWrapper.start()
@@ -124,14 +125,139 @@ final class SentryCrashWrapperTests: XCTestCase {
     }
     
     func testEnrichScope_RuntimeContext_MacCatalyst() throws {
-        if #available(iOS 13.0, macOS 10.15, watchOS 6.0, tvOS 13.0, *) {
             #if targetEnvironment(macCatalyst)
             crashWrapper.enrichScope(scope)
             
             let runtimeContext = try XCTUnwrap(scope.contextDictionary["runtime"] as? [String: Any])
             XCTAssertEqual(runtimeContext["name"] as? String, "Mac Catalyst App")
-            XCTAssertEqual(runtimeContext["raw_description"] as? String, "raw_description")
+            XCTAssertEqual(runtimeContext["raw_description"] as? String, "mac-catalyst-app")
             #endif
-        }
+    }
+    
+    @available(macOS 12.0, *)
+    func testEnrichScope_DeviceContext_iOSAppOnMac() throws {
+        let mockProcessInfo = MockSentryProcessInfo()
+        mockProcessInfo.overrides.isiOSAppOnMac = true
+        mockProcessInfo.overrides.isMacCatalystApp = false
+        
+        let testScope = Scope()
+        let crashWrapper = SentryCrashWrapper(processInfoWrapper: mockProcessInfo, systemInfo: [
+            "osVersion": "23A344",
+            "kernelVersion": "23.0.0",
+            "isJailbroken": false,
+            "systemName": "iOS",
+            "cpuArchitecture": "arm64",
+            "machine": "iPhone14,2",
+            "model": "iPhone 13 Pro",
+            "freeMemorySize": UInt64(1_073_741_824),
+            "usableMemorySize": UInt64(4_294_967_296),
+            "memorySize": UInt64(6_442_450_944),
+            "appStartTime": "2023-01-01T12:00:00Z",
+            "deviceAppHash": "abc123",
+            "appID": "12345",
+            "buildType": "debug"
+        ])
+        
+        crashWrapper.enrichScope(testScope)
+        
+        let deviceContext = try XCTUnwrap(testScope.contextDictionary["device"] as? [String: Any])
+        XCTAssertEqual(deviceContext["ios_app_on_macos"] as? Bool, true)
+        // When false, the flag is not included in the dictionary to reduce payload size
+        XCTAssertNil(deviceContext["mac_catalyst_app"])
+    }
+    
+    @available(macOS 12.0, *)
+    func testEnrichScope_DeviceContext_MacCatalyst() throws {
+        let mockProcessInfo = MockSentryProcessInfo()
+        mockProcessInfo.overrides.isiOSAppOnMac = false
+        mockProcessInfo.overrides.isMacCatalystApp = true
+        
+        let testScope = Scope()
+        let crashWrapper = SentryCrashWrapper(processInfoWrapper: mockProcessInfo, systemInfo: [
+            "osVersion": "23A344",
+            "kernelVersion": "23.0.0",
+            "isJailbroken": false,
+            "systemName": "iOS",
+            "cpuArchitecture": "arm64",
+            "machine": "iPhone14,2",
+            "model": "iPhone 13 Pro",
+            "freeMemorySize": UInt64(1_073_741_824),
+            "usableMemorySize": UInt64(4_294_967_296),
+            "memorySize": UInt64(6_442_450_944),
+            "appStartTime": "2023-01-01T12:00:00Z",
+            "deviceAppHash": "abc123",
+            "appID": "12345",
+            "buildType": "debug"
+        ])
+        
+        crashWrapper.enrichScope(testScope)
+        
+        let deviceContext = try XCTUnwrap(testScope.contextDictionary["device"] as? [String: Any])
+        // When false, the flag is not included in the dictionary to reduce payload size
+        XCTAssertNil(deviceContext["ios_app_on_macos"])
+        XCTAssertEqual(deviceContext["mac_catalyst_app"] as? Bool, true)
+    }
+    
+    func testEnrichScope_DeviceContext_iOSAppOnVisionOS() throws {
+        let mockProcessInfo = MockSentryProcessInfo()
+        mockProcessInfo.overrides.isiOSAppOnVisionOS = true
+        
+        let testScope = Scope()
+        let crashWrapper = SentryCrashWrapper(processInfoWrapper: mockProcessInfo, systemInfo: [
+            "osVersion": "23A344",
+            "kernelVersion": "23.0.0",
+            "isJailbroken": false,
+            "systemName": "iOS",
+            "cpuArchitecture": "arm64",
+            "machine": "iPhone14,2",
+            "model": "iPhone 13 Pro",
+            "freeMemorySize": UInt64(1_073_741_824),
+            "usableMemorySize": UInt64(4_294_967_296),
+            "memorySize": UInt64(6_442_450_944),
+            "appStartTime": "2023-01-01T12:00:00Z",
+            "deviceAppHash": "abc123",
+            "appID": "12345",
+            "buildType": "debug"
+        ])
+        
+        crashWrapper.enrichScope(testScope)
+        
+        let deviceContext = try XCTUnwrap(testScope.contextDictionary["device"] as? [String: Any])
+        XCTAssertEqual(deviceContext["ios_app_on_visionos"] as? Bool, true)
+    }
+    
+    @available(macOS 12.0, *)
+    func testEnrichScope_DeviceContext_FlagsNotIncludedWhenFalse() throws {
+        // Verify that boolean flags are not included when they are false to reduce payload size
+        let mockProcessInfo = MockSentryProcessInfo()
+        mockProcessInfo.overrides.isiOSAppOnMac = false
+        mockProcessInfo.overrides.isMacCatalystApp = false
+        mockProcessInfo.overrides.isiOSAppOnVisionOS = false
+        
+        let testScope = Scope()
+        let crashWrapper = SentryCrashWrapper(processInfoWrapper: mockProcessInfo, systemInfo: [
+            "osVersion": "23A344",
+            "kernelVersion": "23.0.0",
+            "isJailbroken": false,
+            "systemName": "iOS",
+            "cpuArchitecture": "arm64",
+            "machine": "iPhone14,2",
+            "model": "iPhone 13 Pro",
+            "freeMemorySize": UInt64(1_073_741_824),
+            "usableMemorySize": UInt64(4_294_967_296),
+            "memorySize": UInt64(6_442_450_944),
+            "appStartTime": "2023-01-01T12:00:00Z",
+            "deviceAppHash": "abc123",
+            "appID": "12345",
+            "buildType": "debug"
+        ])
+        
+        crashWrapper.enrichScope(testScope)
+        
+        let deviceContext = try XCTUnwrap(testScope.contextDictionary["device"] as? [String: Any])
+        // All flags should be absent when false
+        XCTAssertNil(deviceContext["ios_app_on_macos"])
+        XCTAssertNil(deviceContext["mac_catalyst_app"])
+        XCTAssertNil(deviceContext["ios_app_on_visionos"])
     }
 }

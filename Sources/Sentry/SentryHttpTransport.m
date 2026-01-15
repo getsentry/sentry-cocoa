@@ -1,28 +1,16 @@
 #import "SentryHttpTransport.h"
 #import "SentryDataCategory.h"
 #import "SentryDataCategoryMapper.h"
-#import "SentryDependencyContainer.h"
 #import "SentryDiscardReasonMapper.h"
-#import "SentryDsn.h"
 #import "SentryEnvelopeItemHeader.h"
 #import "SentryEnvelopeRateLimit.h"
 #import "SentryEvent.h"
-#import "SentryFileManager.h"
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"
-#import "SentryNSURLRequestBuilder.h"
-#import "SentryOptions.h"
 #import "SentrySerialization.h"
 #import "SentrySwift.h"
 
-#if !TARGET_OS_WATCH
-#    import "SentryReachability.h"
-#endif // !TARGET_OS_WATCH
-
-@interface SentryHttpTransport ()
-#if SENTRY_HAS_REACHABILITY
-    <SentryReachabilityObserver>
-#endif // !TARGET_OS_WATCH
+@interface SentryHttpTransport () <SentryReachabilityObserver>
 
 @property (nonatomic, readonly) NSTimeInterval cachedEnvelopeSendDelay;
 @property (nonatomic, strong) SentryFileManager *fileManager;
@@ -35,6 +23,7 @@
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueue;
 @property (nonatomic, strong) dispatch_group_t dispatchGroup;
 @property (nonatomic, strong) id<SentryCurrentDateProvider> dateProvider;
+@property (nonatomic, strong) SentryReachability *reachability;
 
 #if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
 @property (nullable, nonatomic, strong) void (^startFlushCallback)(void);
@@ -73,6 +62,7 @@
                  rateLimits:(id<SentryRateLimits>)rateLimits
           envelopeRateLimit:(SentryEnvelopeRateLimit *)envelopeRateLimit
        dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
+               reachability:(SentryReachability *)reachability
 {
     if (self = [super init]) {
         self.dsn = dsn;
@@ -86,6 +76,7 @@
         self.dispatchQueue = dispatchQueueWrapper;
         self.dateProvider = dateProvider;
         self.dispatchGroup = dispatch_group_create();
+        self.reachability = reachability;
         _isSending = NO;
         _isFlushing = NO;
         self.discardedEvents = [NSMutableDictionary new];
@@ -93,20 +84,18 @@
         [self.envelopeRateLimit setDelegate:self];
         typeof(self) __weak weakSelf = self;
         [self.fileManager
-            setEnvelopeDeletedCallback:^(SentryEnvelopeItem *item, SentryDataCategory category) {
-                [weakSelf envelopeItemDeleted:item withCategory:category];
+            setEnvelopeDeletedCallback:^(SentryEnvelopeItem *item, NSUInteger category) {
+                [weakSelf envelopeItemDeleted:item
+                                 withCategory:sentryDataCategoryForNSUInteger(category)];
             }];
 
         [self sendAllCachedEnvelopes];
 
-#if SENTRY_HAS_REACHABILITY
-        [SentryDependencyContainer.sharedInstance.reachability addObserver:self];
-#endif // !TARGET_OS_WATCH
+        [self.reachability addObserver:self];
     }
     return self;
 }
 
-#if SENTRY_HAS_REACHABILITY
 - (void)connectivityChanged:(BOOL)connected typeDescription:(nonnull NSString *)typeDescription
 {
     if (connected) {
@@ -119,9 +108,8 @@
 
 - (void)dealloc
 {
-    [SentryDependencyContainer.sharedInstance.reachability removeObserver:self];
+    [self.reachability removeObserver:self];
 }
-#endif // !TARGET_OS_WATCH
 
 - (void)sendEnvelope:(SentryEnvelope *)envelope
 {
@@ -360,7 +348,7 @@
     NSError *_Nullable requestError = nil;
     NSURLRequest *request = [self.requestBuilder createEnvelopeRequest:rateLimitedEnvelope
                                                                    dsn:self.dsn
-                                                      didFailWithError:&requestError];
+                                                                 error:&requestError];
 
     if (nil == request || nil != requestError) {
         if (nil != requestError) {
@@ -407,27 +395,48 @@
                 return;
             }
 
-            if (error && response.statusCode != 429) {
-                SENTRY_LOG_DEBUG(@"Request error other than rate limit: %@", error);
-                [weakSelf recordLostEventFor:envelope.items];
-            }
-
+            // When the response is nil, we can't know if the envelope made it successfully to
+            // Sentry. This can happen when there's no connection, or connection was lost during
+            // transmission. In that case, it's OK to retry sending later. See
+            // https://develop.sentry.dev/sdk/expected-features/#dealing-with-network-failures
             if (response == nil) {
-                SENTRY_LOG_DEBUG(@"No internet connection.");
+                SENTRY_LOG_DEBUG(@"Response is nil. Stopping sending and not deleting envelope. "
+                                 @"Will retry sending envelope later.");
                 [weakSelf finishedSending];
                 return;
             }
 
-            [weakSelf.rateLimits update:SENTRY_UNWRAP_NULLABLE(NSHTTPURLResponse, response)];
-
-            if (response.statusCode == 200) {
-                SENTRY_LOG_DEBUG(@"Envelope sent successfully!");
-                [weakSelf deleteEnvelopeAndSendNext:envelopePath];
-                return;
+            // If we get a response with an error (e.g., a connection dropped while reading the body
+            // or an SSL error after the initial handshake), we must assume the envelope reached
+            // Sentry and only care about the response status codes. Therefore, we intentionally
+            // ignore the error here.
+            if (error != nil) {
+                SENTRY_LOG_DEBUG(@"Response is not nil. We only care about the response and assume "
+                                 @"the envelope arrived at Sentry. Ignoring the error: %@",
+                    error);
             }
 
-            SENTRY_LOG_DEBUG(@"Received non-200 response code: %li", (long)response.statusCode);
-            [weakSelf finishedSending];
+            [weakSelf.rateLimits update:SENTRY_UNWRAP_NULLABLE(NSHTTPURLResponse, response)];
+
+            SENTRY_LOG_DEBUG(@"Received response status code: %li", (long)response.statusCode);
+
+            BOOL is2xx = (response.statusCode >= 200 && response.statusCode < 300);
+            BOOL is4xxOr5xx = (response.statusCode >= 400 && response.statusCode < 600);
+
+            // Relay already records a client report for a 429, so we must not record it again
+            // to avoid double-counting.
+            BOOL isNotRateLimitStatusCode = response.statusCode != 429;
+
+            if (is4xxOr5xx && isNotRateLimitStatusCode) {
+                [weakSelf recordLostEventFor:envelope.items];
+            }
+
+            // We must delete the envelope on all 2xx, 4xx and 5xx responses.
+            if (is2xx || is4xxOr5xx) {
+                [weakSelf deleteEnvelopeAndSendNext:envelopePath];
+            } else {
+                [weakSelf finishedSending];
+            }
         }];
 }
 
@@ -442,23 +451,26 @@
 - (void)recordLostEventFor:(NSArray<SentryEnvelopeItem *> *)items
 {
     for (SentryEnvelopeItem *item in items) {
-        NSString *itemType = item.header.type;
+        NSString *itemType = item.type;
         // We don't want to record a lost event when it's a client report.
         // It's fine to drop it silently.
         if ([itemType isEqualToString:SentryEnvelopeItemTypes.clientReport]) {
             continue;
         }
         SentryDataCategory category = sentryDataCategoryForEnvelopItemType(itemType);
-        [self recordLostEvent:category reason:kSentryDiscardReasonNetworkError];
-        [self recordLostSpans:item reason:kSentryDiscardReasonNetworkError];
+        [self recordLostEvent:category reason:kSentryDiscardReasonSendError];
+        [self recordLostSpans:item reason:kSentryDiscardReasonSendError];
     }
 }
 
 - (void)recordLostSpans:(SentryEnvelopeItem *)envelopeItem reason:(SentryDiscardReason)reason
 {
-    if ([SentryEnvelopeItemTypes.transaction isEqualToString:envelopeItem.header.type]) {
-        NSDictionary *_Nullable transactionJson =
-            [SentrySerialization deserializeDictionaryFromJsonData:envelopeItem.data];
+    if ([SentryEnvelopeItemTypes.transaction isEqualToString:envelopeItem.type]) {
+        if (envelopeItem.data == nil) {
+            return;
+        }
+        NSDictionary *_Nullable transactionJson = [SentrySerialization
+            deserializeDictionaryFromJsonData:SENTRY_UNWRAP_NULLABLE(NSData, envelopeItem.data)];
         if (transactionJson == nil) {
             return;
         }

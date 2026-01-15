@@ -1,0 +1,16 @@
+@_spi(Private) @objc public protocol SentryScopeObserver: NSObjectProtocol {
+    func setUser(_ user: User?)
+    func setTags(_ tags: [String: String]?)
+    func setExtras(_ extras: [String: Any]?)
+    func setContext(_ context: [String: [String: Any]]?)
+    func setTraceContext(_ traceContext: [String: Any]?)
+    func setDist(_ dist: String?)
+    func setEnvironment(_ environment: String?)
+    func setFingerprint(_ fingerprint: [String]?)
+    func setLevel(_ level: SentryLevel)
+    func setAttributes(_ attributes: [String: Any]?)
+    func addSerializedBreadcrumb(_ serializedBreadcrumb: [String: Any])
+    func clearBreadcrumbs()
+    func clear()
+    @objc optional func setCurrentScreen(_ currentScreen: String?)
+}

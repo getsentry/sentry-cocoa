@@ -5,9 +5,8 @@ import UIKit
 /**
  * Settings to control the behavior and appearance of the UI form.
  */
-@available(iOS 13.0, *)
 @objcMembers
-public class SentryUserFeedbackFormConfiguration: NSObject {
+public final class SentryUserFeedbackFormConfiguration: NSObject {
     // MARK: General settings
     
     /**
@@ -155,6 +154,20 @@ public class SentryUserFeedbackFormConfiguration: NSObject {
     
     func fullLabelText(labelText: String, required: Bool) -> String {
         required ? labelText + " " + isRequiredLabel : labelText
+    }
+    
+    /**
+     * Message shown to the user when an unexpected error happens while submitting feedback.
+     * - note: Default: `"Unexpected client error."`
+     */
+    public var unexpectedErrorText: String = "Unexpected client error."
+    
+    /**
+     * Message shown to the user when the form fails the validation.
+     * - note: Default: `"You must provide all required information before submitting. Please check the following field(s)"`
+     */
+    public var validationErrorMessage: (Bool) -> String = { multipleErrors in
+        return "You must provide all required information before submitting. Please check the following field\(multipleErrors ? "s" : ""):"
     }
 }
 

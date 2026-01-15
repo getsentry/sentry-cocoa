@@ -31,7 +31,7 @@
 #include "SentryCrashMonitorContext.h"
 #import "SentryCrashStackCursor_Backtrace.h"
 #include "SentryCrashThread.h"
-#import "SentryDependencyContainer.h"
+#import "SentrySwift.h"
 
 #import "SentryLogC.h"
 

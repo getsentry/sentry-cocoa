@@ -1,0 +1,33 @@
+# yaml-language-server: $schema=../../schema/xcodegen.schema.json
+
+name: DistributionSample
+createIntermediateGroups: true
+generateEmptyDirectories: true
+configs:
+  Debug: debug
+  Release: release
+options:
+  bundleIdPrefix: io.sentry.sample.
+packages:
+  Sentry:
+    path: ../../
+targets:
+  DistributionSample:
+    type: application
+    platform: auto
+    sources:
+      - DistributionSample
+    dependencies:
+      - package: Sentry
+        products:
+          - SentryDistribution
+    configFiles:
+      Debug: DistributionSample.xcconfig
+      Release: DistributionSample.xcconfig
+schemes:
+  DistributionSample:
+    templates:
+      - SampleAppScheme
+    build:
+      targets:
+        DistributionSample: all

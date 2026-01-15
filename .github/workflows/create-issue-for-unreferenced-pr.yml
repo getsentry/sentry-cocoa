@@ -19,6 +19,8 @@ concurrency:
 jobs:
   check_for_issue_reference:
     runs-on: ubuntu-latest
+    # Only run on PRs from contributors.
+    if: contains(fromJson('["OWNER", "MEMBER", "COLLABORATOR", "CONTRIBUTOR"]'), github.event.pull_request.author_association)
     steps:
       - name: Check PR Body and Title for Issue Reference
         uses: actions/github-script@v8
@@ -55,7 +57,8 @@ jobs:
             const prNumber = pr.number;
 
             // Regex for GitHub issue references (e.g., #123, fixes #456)
-            const issueRegexGitHub = /(?:(?:close|closes|closed|fix|fixes|fixed|resolve|resolves|resolved)\s*)?#\d+/i;
+            // https://regex101.com/r/eDiGrQ/1
+            const issueRegexGitHub = /(?:(?:close|closes|closed|fix|fixes|fixed|resolve|resolves|resolved):?\s*)?(#\d+|https:\/\/github\.com\/getsentry\/[\w-]+\/issues\/\d+)/i;
 
             // Regex for Linear issue references (e.g., ENG-123, resolves ENG-456)
             const issueRegexLinear = /(?:(?:close|closes|closed|fix|fixes|fixed|resolve|resolves|resolved)\s*)?[A-Z]+-\d+/i;
@@ -65,6 +68,18 @@ jobs:
 
             if (hasIssueReference) {
               console.log(`PR #${prNumber} contains a valid issue reference.`);
+              return;
+            }
+
+            // Check if there's already an issue created by this automation for this PR
+            // Search for issues that mention this PR and were created by github-actions bot
+            const existingIssuesResponse = await github.rest.search.issuesAndPullRequests({
+              q: `repo:${context.repo.owner}/${context.repo.repo} is:issue is:open author:app/github-actions "${prUrl}" in:title in:body`,
+            });
+
+            if (existingIssuesResponse.data.total_count > 0) {
+              const existingIssue = existingIssuesResponse.data.items[0];
+              console.log(`An issue (#${existingIssue.number}) already exists for PR #${prNumber}, skipping creation.`);
               return;
             }
 

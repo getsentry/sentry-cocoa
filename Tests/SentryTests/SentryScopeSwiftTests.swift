@@ -1,4 +1,5 @@
-@_spi(Private) import Sentry
+// swiftlint:disable file_length
+@_spi(Private) @testable import Sentry
 import SentryTestUtils
 import XCTest
 
@@ -24,7 +25,6 @@ class SentryScopeSwiftTests: XCTestCase {
         let transactionOperation = "Some Operation"
         let maxBreadcrumbs = 5
 
-        @available(*, deprecated)
         init() {
             date = Date(timeIntervalSince1970: 10)
             
@@ -32,7 +32,6 @@ class SentryScopeSwiftTests: XCTestCase {
             user.email = "user@sentry.io"
             user.username = "user123"
             user.ipAddress = "127.0.0.1"
-            user.segment = "segmentA"
             user.name = "User"
             user.ipAddress = ipAddress
             
@@ -65,6 +64,8 @@ class SentryScopeSwiftTests: XCTestCase {
             
             scope.addAttachment(TestData.fileAttachment)
             
+            scope.setAttribute(value: "my-value", key: "my-attribute-key")
+            
             event = Event()
             event.message = SentryMessage(formatted: "message")
             
@@ -82,7 +83,6 @@ class SentryScopeSwiftTests: XCTestCase {
     
     private var fixture: Fixture!
     
-    @available(*, deprecated)
     override func setUp() {
         super.setUp()
         fixture = Fixture()
@@ -134,6 +134,7 @@ class SentryScopeSwiftTests: XCTestCase {
         XCTAssertEqual(try XCTUnwrap(cloned.serialize() as? [String: AnyHashable]), snapshot)
         XCTAssertEqual(scope.propagationContext.spanId, cloned.propagationContext.spanId)
         XCTAssertEqual(scope.propagationContext.traceId, cloned.propagationContext.traceId)
+        XCTAssertEqual(scope.attributes as NSDictionary, cloned.attributes as NSDictionary)
 
         let (event1, event2) = (Event(), Event())
         (event1.timestamp, event2.timestamp) = (fixture.date, fixture.date)
@@ -156,7 +157,7 @@ class SentryScopeSwiftTests: XCTestCase {
         XCTAssertEqual(try XCTUnwrap(scope.serialize() as? [String: AnyHashable]), snapshot)
         XCTAssertNotEqual(try XCTUnwrap(scope.serialize() as? [String: AnyHashable]), try XCTUnwrap(cloned.serialize() as? [String: AnyHashable]))
     }
-    
+
     func testApplyToEvent() {
         let actual = fixture.scope.applyTo(event: fixture.event, maxBreadcrumbs: 10)
         let actualContext = actual?.context as? [String: [String: String]]
@@ -219,17 +220,18 @@ class SentryScopeSwiftTests: XCTestCase {
         XCTAssertEqual(event.dist, actual?.dist)
     }
     
-    func testApplyToEvent_ScopeWithSpan() {
+    func testApplyToEvent_ScopeWithSpan() throws {
         let scope = fixture.scope
         scope.span = fixture.transaction
         
         let actual = scope.applyTo(event: fixture.event, maxBreadcrumbs: 10)
-        let trace = fixture.event.context?["trace"]
-              
+        let trace = try XCTUnwrap(fixture.event.context?["trace"])
+
         XCTAssertEqual(actual?.transaction, fixture.transactionName)
-        XCTAssertEqual(trace?["op"] as? String, fixture.transactionOperation)
-        XCTAssertEqual(trace?["trace_id"] as? String, fixture.transaction.traceId.sentryIdString)
-        XCTAssertEqual(trace?["span_id"] as? String, fixture.transaction.spanId.sentrySpanIdString)
+        XCTAssertEqual(trace["op"] as? String, fixture.transactionOperation)
+        XCTAssertEqual(trace["trace_id"] as? String, fixture.transaction.traceId.sentryIdString)
+        XCTAssertEqual(trace["span_id"] as? String, fixture.transaction.spanId.sentrySpanIdString)
+        XCTAssertEqual(trace["status"] as? String, "ok")
     }
     
     func testApplyToEvent_EventWithDist() {
@@ -271,73 +273,13 @@ class SentryScopeSwiftTests: XCTestCase {
         XCTAssertNil(actual?.tags)
         XCTAssertNil(actual?.extra)
     }
-
-    @available(*, deprecated, message: "The test is marked as deprecated to silence the deprecation warning of useSpan")
-    func testUseSpan() {
-        fixture.scope.span = fixture.transaction
-        fixture.scope.useSpan { (span) in
-            XCTAssert(span === self.fixture.transaction)
-        }
-    }
     
-    @available(*, deprecated, message: "The test is marked as deprecated to silence the deprecation warning of useSpan")
-    func testUseSpanLock_DoesNotBlock_WithBlockingCallback() {
-        let scope = fixture.scope
-        scope.span = fixture.transaction
-        let queue = DispatchQueue(label: "test-queue", attributes: [.initiallyInactive, .concurrent])
-        let expect = expectation(description: "useSpan callback is non-blocking")
-        
-        let condition = NSCondition()
-        var useSpanCalled = false
-        
-        queue.async {
-            scope.useSpan { _ in
-                condition.lock()
-                while !useSpanCalled {
-                    condition.wait()
-                }
-                condition.unlock()
-            }
-        }
-        
-        queue.async {
-            scope.useSpan { _ in
-                useSpanCalled = true
-                condition.broadcast()
-                expect.fulfill()
-            }
-        }
-        
-        queue.activate()
-        
-        wait(for: [expect], timeout: 0.1)
-    }
-    
-    @available(*, deprecated, message: "The test is marked as deprecated to silence the deprecation warning of useSpan")
-    func testUseSpanLock_IsReentrant() {
-        let expect = expectation(description: "finish on time")
-        let scope = fixture.scope
-        scope.span = fixture.transaction
-        scope.useSpan { _ in
-            scope.useSpan { _ in
-                expect.fulfill()
-            }
-
-        }
-        wait(for: [expect], timeout: 0.1)
-    }
-    
-    @available(*, deprecated, message: "The test is marked as deprecated to silence the deprecation warning of useSpan")
     func testSpan_FromMultipleThreads() {
         let scope = fixture.scope
         
         testConcurrentModifications(asyncWorkItems: 20, writeLoopCount: 10, writeWork: { _ in
             
             scope.span = SentryTracer(transactionContext: TransactionContext(name: self.fixture.transactionName, operation: self.fixture.transactionOperation), hub: nil)
-            
-            scope.useSpan { span in
-                XCTAssertNotNil(span)
-            }
             
         }, readWork: {
             XCTAssertNotNil(scope.span)
@@ -362,18 +304,9 @@ class SentryScopeSwiftTests: XCTestCase {
         XCTAssertNil(serialized["breadcrumbs"])
     }
     
-    @available(*, deprecated, message: "The test is marked as deprecated to silence the deprecation warning of useSpan")
-    func testUseSpanForClear() {
-        fixture.scope.span = fixture.transaction
-        fixture.scope.useSpan { (_) in
-            self.fixture.scope.span = nil
-        }
-        XCTAssertNil(fixture.scope.span)
-    }
-    
     func testApplyToEvent_EventWithContext() {
         let context = NSMutableDictionary(dictionary: ["my": ["extra": "context"],
-                                                       "trace": fixture.scope.propagationContext.traceForEvent() ])
+                                                       "trace": fixture.scope.propagationContext.traceContextForEvent() ])
         let event = fixture.event
         event.context = context as? [String: [String: String]]
         
@@ -395,7 +328,7 @@ class SentryScopeSwiftTests: XCTestCase {
     
     func testApplyToEvent_EventWithContext_MergesContext() {
         let context = NSMutableDictionary(dictionary: [
-            "first": ["a": "b", "c": "d"], "trace": fixture.scope.propagationContext.traceForEvent()])
+            "first": ["a": "b", "c": "d"], "trace": fixture.scope.propagationContext.traceContextForEvent()])
         let event = fixture.event
         event.context = context as? [String: [String: String]]
         
@@ -429,6 +362,7 @@ class SentryScopeSwiftTests: XCTestCase {
         let expected = Scope(maxBreadcrumbs: fixture.maxBreadcrumbs)
         XCTAssertEqual(expected, scope)
         XCTAssertEqual(0, scope.attachments.count)
+        XCTAssertEqual(0, scope.attributes.count)
     }
     
     func testAttachmentsIsACopy() {
@@ -633,6 +567,24 @@ class SentryScopeSwiftTests: XCTestCase {
         XCTAssertEqual(level, observer.level)
     }
     
+    func testScopeObserver_setAttributes() {
+        let sut = Scope()
+        let observer = fixture.observer
+        sut.add(observer)
+        
+        sut.setAttribute(value: "my-attribute", key: "key-string")
+        sut.setAttribute(value: false, key: "key-bool")
+        sut.setAttribute(value: 1.5, key: "key-double")
+        sut.setAttribute(value: 4, key: "key-integer")
+        
+        XCTAssertEqual([
+            "key-string": "my-attribute",
+            "key-bool": false,
+            "key-double": 1.5,
+            "key-integer": 4
+        ] as [String: AnyHashable], try XCTUnwrap(sut.attributes as? [String: AnyHashable]))
+    }
+    
     func testScopeObserver_addBreadcrumb() {
         let sut = Scope()
         let observer = fixture.observer
@@ -673,8 +625,12 @@ class SentryScopeSwiftTests: XCTestCase {
         let traceContext = try XCTUnwrap(observer.traceContext)
         let serializedTransaction = transaction.serialize()
 
-        XCTAssertEqual(Set(serializedTransaction.keys), Set(traceContext.keys))
-        
+        var expectedKeys = Set(serializedTransaction.keys)
+        // The transaction doesn't serialize the status when it's undefined, but the trace context sets it to OK.
+        expectedKeys.insert("status")
+
+        XCTAssertEqual(Set(traceContext.keys), expectedKeys)
+
         XCTAssertEqual(serializedTransaction["trace_id"] as? String, traceContext["trace_id"] as? String)
         XCTAssertEqual(serializedTransaction["span_id"] as? String, traceContext["span_id"] as? String)
         XCTAssertEqual(serializedTransaction["op"] as? String, traceContext["op"] as? String)
@@ -682,6 +638,7 @@ class SentryScopeSwiftTests: XCTestCase {
         XCTAssertEqual(serializedTransaction["type"] as? String, traceContext["type"] as? String)
         XCTAssertEqual(serializedTransaction["start_timestamp"] as? Double, traceContext["start_timestamp"] as? Double)
         XCTAssertEqual(serializedTransaction["timestamp"] as? Double, traceContext["timestamp"] as? Double)
+        XCTAssertEqual(traceContext["status"] as? String, "ok")
     }
 
     func testScopeObserver_setSpanToNil_SetsTraceContextToPropagationContext() throws {
@@ -765,7 +722,7 @@ class SentryScopeSwiftTests: XCTestCase {
     
     func testModifyScopeFromDifferentThreads() {
         let scope = Scope()
-        scope.add(SentryCrashScopeObserver(maxBreadcrumbs: 100))
+        scope.add(SentryCrashScopeHelper.getScopeObserver(withMaxBreacdrumb: 100))
         
         testConcurrentModifications(asyncWorkItems: 10, writeLoopCount: 1_000, writeWork: { i in
             let user = User()
@@ -852,7 +809,7 @@ class SentryScopeSwiftTests: XCTestCase {
         
         let traceId = SentryId(uuidString: "12345678123456781234567812345678")
         let spanId = SpanId(value: "1234567812345678")
-        let propagationContext = SentryPropagationContext(trace: traceId, spanId: spanId)
+        let propagationContext = SentryPropagationContext(traceId: traceId, spanId: spanId)
         
         // -- Act --
         sut.propagationContext = propagationContext
@@ -862,6 +819,130 @@ class SentryScopeSwiftTests: XCTestCase {
         XCTAssertEqual(2, traceContext.count)
         XCTAssertEqual(traceId.sentryIdString, traceContext["trace_id"] as? String)
         XCTAssertEqual(spanId.sentrySpanIdString, traceContext["span_id"] as? String)
+    }
+
+    func testGetCasedInternalSpan_SpanIsNil() {
+        // -- Arrange --
+        let scope = Scope()
+
+        // -- Act --
+        let span = scope.getCastedInternalSpan()
+
+        // -- Assert --
+        XCTAssertNil(span)
+    }
+
+#if os(macOS)
+    // We test this only on macOS because the SentrySpan init methods require a frames tracker.
+    // As we're testing simple logic here, we can skip the other platforms.
+    func testGetCasedInternalSpan_SpanIsOfInternalTypeSpan() throws {
+        // -- Arrange --
+        let scope = Scope()
+        let span = SentrySpan(context: SpanContext(operation: "TEST"))
+
+        scope.span = span
+
+        // -- Act --
+        let actualSpan = try XCTUnwrap(scope.getCastedInternalSpan())
+
+        // -- Assert --
+        XCTAssertEqual(actualSpan, span)
+        XCTAssertEqual(actualSpan.spanId, span.spanId)
+    }
+
+    func testGetCasedInternalSpan_SpanIsSubClassOfInternalTypeSpan() throws {
+        // -- Arrange --
+        let scope = Scope()
+        let span = SubClassOfSentrySpan(context: SpanContext(operation: "TEST"))
+
+        scope.span = span
+
+        // -- Act --
+        let actualSpan = try XCTUnwrap(scope.getCastedInternalSpan())
+
+        // -- Assert --
+        XCTAssertEqual(actualSpan, span)
+        XCTAssertEqual(actualSpan.spanId, span.spanId)
+    }
+#endif // os(macOS)
+
+    func testGetCasedInternalSpan_SpanIsOfDifferentType() {
+        // -- Arrange --
+        let scope = Scope()
+        let span = NotOfTypeSpan()
+
+        scope.span = span
+
+        // -- Act --
+        let actualSpan = scope.getCastedInternalSpan()
+
+        // -- Assert --
+        XCTAssertNil(actualSpan)
+    }
+    
+    func testSetStringAttribute() {
+        let scope = Scope()
+        
+        scope.setAttribute(value: "test-string", key: "a-string-key")
+        
+        XCTAssertEqual(try XCTUnwrap(scope.attributes["a-string-key"] as? String), "test-string")
+    }
+    
+    func testSetStringAttributeAgainChangesValue() {
+        let scope = Scope()
+        
+        scope.setAttribute(value: "test-string", key: "a-string-key")
+        
+        XCTAssertEqual(try XCTUnwrap(scope.attributes["a-string-key"] as? String), "test-string")
+        
+        scope.setAttribute(value: "another-string", key: "a-string-key")
+        
+        XCTAssertEqual(try XCTUnwrap(scope.attributes["a-string-key"] as? String), "another-string")
+    }
+
+    func testSetBoolAttribute() {
+        let scope = Scope()
+        
+        scope.setAttribute(value: true, key: "a-bool-key")
+        scope.setAttribute(value: false, key: "a-bool-key-false")
+
+        XCTAssertEqual(try XCTUnwrap(scope.attributes["a-bool-key-false"] as? Bool), false)
+        XCTAssertEqual(try XCTUnwrap(scope.attributes["a-bool-key"] as? Bool), true)
+    }
+
+    func testSetDoubleAttribute() {
+        let scope = Scope()
+        
+        scope.setAttribute(value: 1.4728, key: "a-double-key")
+        
+        XCTAssertEqual(try XCTUnwrap(scope.attributes["a-double-key"] as? Double), 1.4728)
+    }
+
+    func testSetIntegerAttribute() {
+        let scope = Scope()
+        
+        scope.setAttribute(value: 4, key: "an-integer-key")
+        
+        XCTAssertEqual(try XCTUnwrap(scope.attributes["an-integer-key"] as? Int), 4)
+    }
+
+    func testRemoveAttribute() {
+        let scope = Scope()
+        
+        scope.setAttribute(value: "test-string", key: "a-key")
+        
+        scope.removeAttribute(key: "a-key")
+
+        XCTAssertNil(scope.attributes["a-key"])
+    }
+    
+    func testRemoveNotExistingAttributeDoesNotCrash() {
+        let scope = Scope()
+        
+        // This should not crash
+        scope.removeAttribute(key: "an-invalid-key")
+
+        XCTAssertTrue(scope.attributes.isEmpty)
     }
 
     private class TestScopeObserver: NSObject, SentryScopeObserver {
@@ -875,8 +956,8 @@ class SentryScopeSwiftTests: XCTestCase {
             self.extras = extras
         }
         
-        var context: [String: Any]?
-        func setContext(_ context: [String: Any]?) {
+        var context: [String: [String: Any]]?
+        func setContext(_ context: [String: [String: Any]]?) {
             self.context = context
         }
         
@@ -927,5 +1008,54 @@ class SentryScopeSwiftTests: XCTestCase {
         func setUser(_ user: User?) {
             self.user = user
         }
+        
+        var attributes: [String: Any]?
+        func setAttributes(_ attributes: [String: Any]?) {
+            self.attributes = attributes
+        }
     }
 }
+
+// A minimal dummy Span implementation that is not SentrySpan.
+private final class NotOfTypeSpan: NSObject, Span {
+
+    init(traceId: SentryId = SentryId()) {
+        self.traceId = traceId
+    }
+
+    // MARK: - Properties required by Span (set to neutral values)
+    var traceId: SentryId = SentryId()
+    var spanId: SpanId = SpanId()
+    var parentSpanId: SpanId?
+    var sampled: SentrySampleDecision = .undecided
+    var operation: String = ""
+    var origin: String = ""
+    var spanDescription: String?
+    var status: SentrySpanStatus = .undefined
+    var timestamp: Date?
+    var startTimestamp: Date?
+    var data: [String: Any] { [:] }
+    var tags: [String: String] { [:] }
+    var isFinished: Bool { false }
+    var traceContext: TraceContext? { nil }
+
+    // MARK: - Methods required by Span (no-ops)
+    func startChild(operation: String) -> Span { return self }
+    func startChild(operation: String, description: String?) -> Span { return self }
+    func setData(value: Any?, key: String) {}
+    func removeData(key: String) {}
+    func setTag(value: String, key: String) {}
+    func removeTag(key: String) {}
+    func setMeasurement(name: String, value: NSNumber) {}
+    func setMeasurement(name: String, value: NSNumber, unit: MeasurementUnit) {}
+    func finish() {}
+    func finish(status: SentrySpanStatus) {}
+    func toTraceHeader() -> TraceHeader { return TraceHeader(trace: traceId, spanId: spanId, sampled: sampled) }
+    func baggageHttpHeader() -> String? { return nil }
+
+    // MARK: - SentrySerializable (no-op payload)
+    func serialize() -> [String: Any] { return [:] }
+}
+
+private final class SubClassOfSentrySpan: SentrySpan {}
+// swiftlint:enable file_length

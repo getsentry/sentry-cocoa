@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleName</key>
+	<string>TestBundle</string>
+	<key>CFBundleIdentifier</key>
+	<string>io.sentry.test</string>
+	<key>TestStringKey</key>
+	<string>TestStringValue</string>
+	<key>DTXcode</key>
+	<string>1610</string>
+	<key>DTXcodeBuild</key>
+	<string>16B40</string>
+	<key>TestBooleanTrue</key>
+	<true/>
+	<key>TestBooleanFalse</key>
+	<false/>
+	<key>DTPlatformBuild</key>
+	<string>21A5303d</string>
+	<key>TestNumberKey</key>
+	<integer>42</integer>
+	<key>TestArrayKey</key>
+	<array>
+		<string>item1</string>
+		<string>item2</string>
+	</array>
+	<key>TestDictionaryKey</key>
+	<dict>
+		<key>nestedKey</key>
+		<string>nestedValue</string>
+	</dict>
+	<key>UIDesignRequiresCompatibility</key>
+	<false/>
+</dict>
+</plist>

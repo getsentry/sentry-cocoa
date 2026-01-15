@@ -31,8 +31,4 @@
 @property (nonatomic) uint64_t endSystemTime;
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
-#if SENTRY_HAS_METRIC_KIT
-- (BOOL)isMetricKitEvent;
-#endif // SENTRY_HAS_METRIC_KIT
-
 @end

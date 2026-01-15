@@ -2,10 +2,8 @@
 
 #if SENTRY_HAS_UIKIT
 
-#    import "SentryDependencyContainer.h"
-#    import "SentryFramesTracker.h"
+#    import "SentryInternalDefines.h"
 #    import "SentryLogC.h"
-#    import "SentryOptions+Private.h"
 #    import "SentryProfilingConditionals.h"
 #    import "SentrySDK+Private.h"
 #    import "SentrySpan.h"
@@ -25,8 +23,8 @@
 
 @interface SentryTimeToDisplayTracker () <SentryFramesTrackerListener>
 
-@property (nonatomic, weak) SentrySpan *initialDisplaySpan;
-@property (nonatomic, weak) SentrySpan *fullDisplaySpan;
+@property (nonatomic, weak) id<SentrySpan> initialDisplaySpan;
+@property (nonatomic, weak) id<SentrySpan> fullDisplaySpan;
 @property (nonatomic, strong, readonly) SentryDispatchQueueWrapper *dispatchQueueWrapper;
 
 @end
@@ -134,7 +132,8 @@
     SENTRY_LOG_DEBUG(@"Reporting full display for %@", _name);
     // All other accesses to _fullyDisplayedReported run on the main thread.
     // To avoid using locks, we execute this on the main queue instead.
-    [_dispatchQueueWrapper dispatchAsyncOnMainQueue:^{ self->_fullyDisplayedReported = YES; }];
+    [_dispatchQueueWrapper
+        dispatchAsyncOnMainQueueIfNotMainThread:^{ self->_fullyDisplayedReported = YES; }];
 }
 
 - (void)finishSpansIfNotFinished
@@ -198,9 +197,14 @@
     }
 }
 
-- (void)addTimeToDisplayMeasurement:(SentrySpan *)span name:(NSString *)name
+- (void)addTimeToDisplayMeasurement:(id<SentrySpan>)span name:(NSString *)name
 {
-    NSTimeInterval duration = [span.timestamp timeIntervalSinceDate:span.startTimestamp] * 1000;
+    if (!span.startTimestamp) {
+        return;
+    }
+    NSTimeInterval duration =
+        [span.timestamp timeIntervalSinceDate:SENTRY_UNWRAP_NULLABLE(NSDate, span.startTimestamp)]
+        * 1000;
     [span setMeasurement:name value:@(duration) unit:SentryMeasurementUnitDuration.millisecond];
 }
 

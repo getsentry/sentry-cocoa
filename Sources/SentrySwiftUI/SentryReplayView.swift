@@ -3,7 +3,7 @@ import Sentry
 import SwiftUI
 import UIKit
 
-#if CARTHAGE || SWIFT_PACKAGE
+#if XCODE || SWIFT_PACKAGE
 @_implementationOnly import SentryInternal
 #endif
 
@@ -12,7 +12,6 @@ enum MaskBehavior {
     case unmask
 }
 
-@available(iOS 13, macOS 10.15, tvOS 13, *)
 struct SentryReplayView: UIViewRepresentable {
     let maskBehavior: MaskBehavior
     
@@ -31,7 +30,6 @@ struct SentryReplayView: UIViewRepresentable {
     }
 }
 
-@available(iOS 13, macOS 10.15, tvOS 13, *)
 struct SentryReplayModifier: ViewModifier {
     let behavior: MaskBehavior
     func body(content: Content) -> some View {
@@ -39,7 +37,6 @@ struct SentryReplayModifier: ViewModifier {
     }
 }
 
-@available(iOS 13, macOS 10.15, tvOS 13, *)
 public extension View {
     
     /// Marks the view as containing sensitive information that should be masked during replays.

@@ -1,7 +1,6 @@
 #import "SentrySessionInternal.h"
 #import "NSMutableDictionary+Sentry.h"
 #import "SentryDateUtils.h"
-#import "SentryDependencyContainer.h"
 #import "SentryLogC.h"
 #import "SentrySwift.h"
 
@@ -266,7 +265,6 @@ nameForSentrySessionStatus(SentrySessionStatus status)
         copy->_duration = _duration;
         copy->_releaseName = _releaseName;
         copy.environment = self.environment;
-        copy.user = self.user;
         copy->_abnormalMechanism = _abnormalMechanism;
         copy->_init = _init;
     }

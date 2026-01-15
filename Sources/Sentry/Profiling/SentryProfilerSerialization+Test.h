@@ -8,7 +8,7 @@
 #        import "SentryProfiler+Private.h"
 
 @class SentryDebugMeta;
-@class SentryHub;
+@class SentryHubInternal;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -26,7 +26,7 @@ SENTRY_EXTERN NSString *sentry_profilerTruncationReasonName(SentryProfilerTrunca
 SENTRY_EXTERN NSMutableDictionary<NSString *, id> *sentry_serializedTraceProfileData(
     NSDictionary<NSString *, id> *profileData, uint64_t startSystemTime, uint64_t endSystemTime,
     NSString *truncationReason, NSDictionary<NSString *, id> *serializedMetrics,
-    NSArray<SentryDebugMeta *> *debugMeta, SentryHub *hub
+    NSArray<SentryDebugMeta *> *debugMeta, SentryHubInternal *hub
 #        if SENTRY_HAS_UIKIT
     ,
     SentryScreenFrames *gpuData

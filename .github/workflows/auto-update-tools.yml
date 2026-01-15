@@ -23,16 +23,16 @@ permissions:
   pull-requests: write
 
 # Concurrency configuration:
-# - We use a named concurrency group to prevent multiple instances of this workflow from running
-#   simultaneously, which could lead to race conditions when creating branches and pull requests.
-#   Since this workflow modifies version files and creates PRs, concurrent runs could interfere
-#   with each other, resulting in conflicting branches or duplicate PRs.
+# - For pull requests, we use a workflow-and-ref–scoped group to keep runs isolated per PR while
+#   still cancelling outdated runs on the same PR.
+# - For non-PR events (schedule, workflow_dispatch, pushes), we use a fixed global group so only
+#   one repository-wide run can execute at a time, preventing race conditions when creating
+#   branches and pull requests.
 # - We enable cancellation of in-progress runs because only the most recent run matters for
-#   version updates. There's no value in completing outdated runs, especially for scheduled
-#   workflows that might queue up overnight. This approach conserves GitHub Actions minutes
-#   and ensures we're always working with the latest repository state.
+#   version updates. This conserves GitHub Actions minutes and ensures we always work with the
+#   latest repository state.
 concurrency:
-  group: "auto-update-tools"
+  group: ${{ github.event_name == 'pull_request' && format('{0}-{1}', github.workflow, github.ref) || 'auto-update-tools' }}
   cancel-in-progress: true
 
 jobs:
@@ -48,7 +48,7 @@ jobs:
     outputs:
       run_auto_update_tools_for_prs: ${{ steps.changes.outputs.run_auto_update_tools_for_prs }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
       - name: Get changed files
         id: changes
         uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
@@ -62,8 +62,7 @@ jobs:
     runs-on: macos-15
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v5
-
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
       - name: Update Homebrew
         run: brew update
 
@@ -82,7 +81,7 @@ jobs:
           git diff HEAD
 
       - name: Create pull request for clang-format version
-        uses: peter-evans/create-pull-request@271a8d0340265f705b14b6d32b9829c1cb33d45e #v7.0.8
+        uses: peter-evans/create-pull-request@98357b18bf14b5342f975ff684046ec3b2a07725 # v8.0.0
         if: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
         with:
           add-paths: scripts/.clang-format-version
@@ -94,7 +93,7 @@ jobs:
           base: main
 
       - name: Create pull request for swiftlint version
-        uses: peter-evans/create-pull-request@271a8d0340265f705b14b6d32b9829c1cb33d45e #v7.0.8
+        uses: peter-evans/create-pull-request@98357b18bf14b5342f975ff684046ec3b2a07725 # v8.0.0
         if: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
         with:
           add-paths: scripts/.swiftlint-version
@@ -113,11 +112,7 @@ jobs:
   # to make auto-update-tools a required check with only running the auto-update-tools when required.
   # So, we don't have to run auto-update-tools, for example, for unrelated changes.
   auto_update_tools-required-check:
-    needs:
-      [
-        files-changed,
-        auto-update-tools,
-      ]
+    needs: [files-changed, auto-update-tools]
     name: Auto Update Tools
     # This is necessary since a failed/skipped dependent job would cause this job to be skipped
     if: always()

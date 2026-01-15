@@ -2,8 +2,6 @@
 #import "SentryEnvelopeItemHeader.h"
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"
-#import "SentryNSURLRequestBuilder.h"
-#import "SentryOptions.h"
 #import "SentrySerialization.h"
 #import "SentrySwift.h"
 #import "SentryTransport.h"
@@ -52,10 +50,10 @@ NS_ASSUME_NONNULL_BEGIN
     // Not removing them leads to an error and events won't get displayed.
     NSMutableArray<SentryEnvelopeItem *> *allowedEnvelopeItems = [NSMutableArray new];
     for (SentryEnvelopeItem *item in envelope.items) {
-        if ([item.header.type isEqualToString:SentryEnvelopeItemTypes.event]) {
+        if ([item.type isEqualToString:SentryEnvelopeItemTypes.event]) {
             [allowedEnvelopeItems addObject:item];
         }
-        if ([item.header.type isEqualToString:SentryEnvelopeItemTypes.transaction]) {
+        if ([item.type isEqualToString:SentryEnvelopeItemTypes.transaction]) {
             [allowedEnvelopeItems addObject:item];
         }
     }
@@ -67,7 +65,7 @@ NS_ASSUME_NONNULL_BEGIN
     NSURLRequest *request =
         [self.requestBuilder createEnvelopeRequest:envelopeToSend
                                                url:SENTRY_UNWRAP_NULLABLE(NSURL, self.apiURL)
-                                  didFailWithError:&requestError];
+                                             error:&requestError];
 
     if (nil == request || nil != requestError) {
         if (nil != requestError) {

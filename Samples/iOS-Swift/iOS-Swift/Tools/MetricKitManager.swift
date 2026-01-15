@@ -2,7 +2,6 @@ import Foundation
 import MetricKit
 import Sentry
 
-@available(iOS 14.0, *)
 class MetricKitManager: NSObject, MXMetricManagerSubscriber {
     func receiveReports() {
         let shared = MXMetricManager.shared

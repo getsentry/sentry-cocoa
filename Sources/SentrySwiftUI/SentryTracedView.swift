@@ -4,7 +4,7 @@ import Foundation
 import Sentry
 import SwiftUI
 
-#if CARTHAGE || SWIFT_PACKAGE
+#if XCODE || SWIFT_PACKAGE
 @_implementationOnly import SentryInternal
 #endif
 
@@ -27,13 +27,13 @@ class SentryTraceViewModel {
     func startSpan() -> SpanId? {
         guard !viewAppeared else { return nil }
         
-        let trace = startRootTransaction()
-        let name = trace != nil ? "\(name) - body" : name
+        let hasTrace = startRootTransaction()
+        let name = hasTrace ? "\(name) - body" : name
         return createBodySpan(name: name)
     }
     
-    private func startRootTransaction() -> SentryTracer? {
-        guard SentryPerformanceTracker.shared.activeSpanId() == nil else { return nil }
+    private func startRootTransaction() -> Bool {
+        guard SentryPerformanceTracker.shared.activeSpanId() == nil else { return false }
         
         let transactionId = SentryPerformanceTracker.shared.startSpan(
             withName: name,
@@ -43,14 +43,14 @@ class SentryTraceViewModel {
         )
         SentryPerformanceTracker.shared.pushActiveSpan(transactionId)
         self.transactionId = transactionId
-        let tracer = SentryPerformanceTracker.shared.getSpan(transactionId) as? SentryTracer
 #if canImport(SwiftUI) && canImport(UIKit) && os(iOS) || os(tvOS)
-        if let tracer = tracer {
-            let uiViewControllerPerformanceTracker = SentryDependencyContainer.sharedInstance().uiViewControllerPerformanceTracker
-            tracker = uiViewControllerPerformanceTracker.startTimeToDisplay(forScreen: name, waitForFullDisplay: waitForFullDisplay, tracer: tracer)
-        }
+        let swiftUITraceHelper = SentryDefaultUIViewControllerPerformanceTracker.startTimeToDisplay(forScreen: name, waitForFullDisplay: waitForFullDisplay, transactionId: transactionId)
+        self.tracker = swiftUITraceHelper.initialDisplayReporting
+        return swiftUITraceHelper.hasSpan
+#else
+        return SentryPerformanceTracker.shared.hasSpan(transactionId)
 #endif
-        return tracer
+        
     }
     
     private func createBodySpan(name: String) -> SpanId {
@@ -113,7 +113,7 @@ class SentryTraceViewModel {
 ///         //The part of your content you want to measure
 ///     }.sentryTrace("My Awesome Screen")
 ///
-@available(iOS 13, macOS 10.15, tvOS 13, watchOS 6.0, *)
+@available(macOS 10.15, *)
 public struct SentryTracedView<Content: View>: View {
     @State private var viewModel: SentryTraceViewModel
     let content: () -> Content
@@ -123,7 +123,7 @@ public struct SentryTracedView<Content: View>: View {
     ///
     /// - Parameter viewName: The name that will be used for the span, if nil we try to get the name of the content class.
     /// - Parameter waitForFullDisplay: Indicates whether this view transaction should wait for `SentrySDK.reportFullyDisplayed()`
-    /// in case you need to track some asyncronous task. This is ignored for any `SentryTracedView` that is child of another `SentryTracedView`.
+    /// in case you need to track some asynchronous task. This is ignored for any `SentryTracedView` that is child of another `SentryTracedView`.
     /// If nil, it will use the `enableTimeToFullDisplayTracing` option from the SDK.
     /// - Parameter content: The content that you want to track the performance
     public init(_ viewName: String? = nil, waitForFullDisplay: Bool? = nil, @ViewBuilder content: @escaping () -> Content) {
@@ -170,7 +170,7 @@ public struct SentryTracedView<Content: View>: View {
     }
 }
 
-@available(iOS 13, macOS 10.15, tvOS 13, watchOS 6.0, *)
+@available(macOS 10.15, *)
 public extension View {
 
 #if canImport(UIKit) && os(iOS) || os(tvOS)

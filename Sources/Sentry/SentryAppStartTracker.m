@@ -2,13 +2,10 @@
 
 #if SENTRY_HAS_UIKIT
 
-#    import "SentryAppStartMeasurement.h"
-#    import "SentryAppStateManager.h"
+#    import "SentryAppStartMeasurement+Private.h"
 #    import "SentryDefines.h"
-#    import "SentryFramesTracker.h"
 #    import "SentryLogC.h"
 #    import <PrivateSentrySDKOnly.h>
-#    import <SentryDependencyContainer.h>
 #    import <SentryInternalDefines.h>
 #    import <SentryInternalNotificationNames.h>
 #    import <SentryLogC.h>
@@ -34,7 +31,6 @@ static const NSTimeInterval SENTRY_APP_START_MAX_DURATION = 180.0;
 @property (nonatomic, assign) BOOL wasInBackground;
 @property (nonatomic, strong) NSDate *didFinishLaunchingTimestamp;
 @property (nonatomic, assign) BOOL enablePreWarmedAppStartTracing;
-@property (nonatomic, assign) BOOL enablePerformanceV2;
 
 @end
 
@@ -56,16 +52,12 @@ static const NSTimeInterval SENTRY_APP_START_MAX_DURATION = 180.0;
                              appStateManager:(SentryAppStateManager *)appStateManager
                                framesTracker:(SentryFramesTracker *)framesTracker
               enablePreWarmedAppStartTracing:(BOOL)enablePreWarmedAppStartTracing
-                         enablePerformanceV2:(BOOL)enablePerformanceV2
 {
     if (self = [super init]) {
         self.dispatchQueue = dispatchQueueWrapper;
         self.appStateManager = appStateManager;
-        _enablePerformanceV2 = enablePerformanceV2;
-        if (_enablePerformanceV2) {
-            self.framesTracker = framesTracker;
-            [framesTracker addListener:self];
-        }
+        self.framesTracker = framesTracker;
+        [framesTracker addListener:self];
 
         self.previousAppState = [self.appStateManager loadPreviousAppState];
         self.wasInBackground = NO;
@@ -82,11 +74,7 @@ static const NSTimeInterval SENTRY_APP_START_MAX_DURATION = 180.0;
 #    if TARGET_OS_IOS
     // Customer data suggest that app starts are also prewarmed on iOS 14 although this contradicts
     // with Apple docs.
-    if (@available(iOS 14, *)) {
-        return YES;
-    } else {
-        return NO;
-    }
+    return YES;
 #    else // !TARGET_OS_IOS
     return NO;
 #    endif // TARGET_OS_IOS
@@ -103,11 +91,6 @@ static const NSTimeInterval SENTRY_APP_START_MAX_DURATION = 180.0;
     [NSNotificationCenter.defaultCenter addObserver:self
                                            selector:@selector(didFinishLaunching)
                                                name:UIApplicationDidFinishLaunchingNotification
-                                             object:nil];
-
-    [NSNotificationCenter.defaultCenter addObserver:self
-                                           selector:@selector(didBecomeVisible)
-                                               name:UIWindowDidBecomeVisibleNotification
                                              object:nil];
 
     [NSNotificationCenter.defaultCenter addObserver:self
@@ -205,6 +188,12 @@ static const NSTimeInterval SENTRY_APP_START_MAX_DURATION = 180.0;
             appStartDuration = 0;
         }
 
+        NSDate *sdkStart = SentrySDKInternal.startTimestamp;
+        if (sdkStart == nil) {
+            SENTRY_LOG_DEBUG(@"Skipping app start measurement: missing SDK start timestamp.");
+            return;
+        }
+
         SentryAppStartMeasurement *appStartMeasurement =
             [[SentryAppStartMeasurement alloc] initWithType:appStartType
                                                 isPreWarmed:isPreWarmed
@@ -213,7 +202,7 @@ static const NSTimeInterval SENTRY_APP_START_MAX_DURATION = 180.0;
                                                    duration:appStartDuration
                                        runtimeInitTimestamp:runtimeInit
                               moduleInitializationTimestamp:sysctl.moduleInitializationTimestamp
-                                          sdkStartTimestamp:SentrySDKInternal.startTimestamp
+                                          sdkStartTimestamp:sdkStart
                                 didFinishLaunchingTimestamp:self.didFinishLaunchingTimestamp];
 
         SentrySDKInternal.appStartMeasurement = appStartMeasurement;
@@ -228,19 +217,6 @@ static const NSTimeInterval SENTRY_APP_START_MAX_DURATION = 180.0;
     static dispatch_once_t once;
     [self.dispatchQueue dispatchOnce:&once block:block];
 #    endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
-}
-
-/**
- * This is when the window becomes visible, which is not when the first frame of the app is drawn.
- * When this is posted, the app screen is usually white. The correct time when the first frame is
- * drawn is called in framesTrackerHasNewFrame only when `enablePerformanceV2` is enabled.
- */
-- (void)didBecomeVisible
-{
-    if (!_enablePerformanceV2) {
-        [self
-            buildAppStartMeasurement:[SentryDependencyContainer.sharedInstance.dateProvider date]];
-    }
 }
 
 /**
@@ -302,10 +278,6 @@ static const NSTimeInterval SENTRY_APP_START_MAX_DURATION = 180.0;
     // https://developer.apple.com/documentation/foundation/nsnotificationcenter/1413994-removeobserver
     [NSNotificationCenter.defaultCenter removeObserver:self
                                                   name:UIApplicationDidFinishLaunchingNotification
-                                                object:nil];
-
-    [NSNotificationCenter.defaultCenter removeObserver:self
-                                                  name:UIWindowDidBecomeVisibleNotification
                                                 object:nil];
 
     [NSNotificationCenter.defaultCenter removeObserver:self

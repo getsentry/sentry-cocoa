@@ -218,24 +218,6 @@ imageIndexContainingAddress(const uintptr_t address)
     return UINT_MAX;
 }
 
-/** Get the segment base address of the specified image.
- *
- * This is required for any symtab command offsets.
- *
- * @param idx The image index.
- * @return The image's base address, or 0 if none was found.
- */
-static uintptr_t
-segmentBaseOfImageIndex(const uint32_t idx)
-{
-    const struct mach_header *header = _dyld_get_image_header(idx);
-    const sentry_segment_command_t *segCmd = getSegmentCommand(header, SEG_LINKEDIT);
-    if (segCmd != NULL) {
-        return (uintptr_t)(segCmd->vmaddr - segCmd->fileoff);
-    }
-    return 0;
-}
-
 uint32_t
 sentrycrashdl_imageNamed(const char *const imageName, bool exactMatch)
 {
@@ -281,99 +263,6 @@ sentrycrashdl_imageUUID(const char *const imageName, bool exactMatch)
         }
     }
     return NULL;
-}
-
-bool
-sentrycrashdl_dladdr(const uintptr_t address, Dl_info *const info)
-{
-    info->dli_fname = NULL;
-    info->dli_fbase = NULL;
-    info->dli_sname = NULL;
-    info->dli_saddr = NULL;
-
-    const uint32_t idx = imageIndexContainingAddress(address);
-
-    const struct mach_header *header = NULL;
-    uintptr_t imageVMAddrSlide = 0;
-    uintptr_t segmentBase = 0;
-
-    if (idx == SENTRY_DYLD_INDEX) {
-        // Handle dyld manually
-        header = sentryDyldHeader;
-        if (header == NULL) {
-            return false;
-        }
-
-        // Calculate dyld slide from __TEXT vmaddr
-        SentrySegmentAddress textSegment = getSegmentAddress(header, SEG_TEXT);
-        uintptr_t vmaddr = textSegment.start;
-        if (vmaddr != 0) {
-            imageVMAddrSlide = (uintptr_t)header - vmaddr;
-            segmentBase = (uintptr_t)header;
-        }
-
-        info->dli_fname = "dyld";
-    } else if (idx != UINT_MAX) {
-        // Normal image path
-        header = _dyld_get_image_header(idx);
-        imageVMAddrSlide = (uintptr_t)_dyld_get_image_vmaddr_slide(idx);
-        segmentBase = segmentBaseOfImageIndex(idx) + imageVMAddrSlide;
-        info->dli_fname = _dyld_get_image_name(idx);
-    } else {
-        return false;
-    }
-    const uintptr_t addressWithSlide = address - imageVMAddrSlide;
-    if (segmentBase == 0) {
-        return false;
-    }
-
-    info->dli_fbase = (void *)header;
-
-    // Find symbol tables and get whichever symbol is closest to the address.
-    const nlist_t *bestMatch = NULL;
-    uintptr_t bestDistance = ULONG_MAX;
-    uintptr_t cmdPtr = firstCmdAfterHeader(header);
-    if (cmdPtr == 0) {
-        return false;
-    }
-    for (uint32_t iCmd = 0; iCmd < header->ncmds; iCmd++) {
-        const struct load_command *loadCmd = (struct load_command *)cmdPtr;
-        if (loadCmd->cmd == LC_SYMTAB) {
-            const struct symtab_command *symtabCmd = (struct symtab_command *)cmdPtr;
-            const nlist_t *symbolTable = (nlist_t *)(segmentBase + symtabCmd->symoff);
-            const uintptr_t stringTable = segmentBase + symtabCmd->stroff;
-
-            for (uint32_t iSym = 0; iSym < symtabCmd->nsyms; iSym++) {
-                // If n_value is 0, the symbol refers to an external object.
-                if (symbolTable[iSym].n_value != 0) {
-                    uintptr_t symbolBase = symbolTable[iSym].n_value;
-                    uintptr_t currentDistance = addressWithSlide - symbolBase;
-                    if ((addressWithSlide >= symbolBase) && (currentDistance <= bestDistance)) {
-                        bestMatch = symbolTable + iSym;
-                        bestDistance = currentDistance;
-                    }
-                }
-            }
-            if (bestMatch != NULL) {
-                info->dli_saddr = (void *)(bestMatch->n_value + imageVMAddrSlide);
-                if (bestMatch->n_desc == 16) {
-                    // This image has been stripped. The name is meaningless,
-                    // and almost certainly resolves to "_mh_execute_header"
-                    info->dli_sname = NULL;
-                } else {
-                    info->dli_sname
-                        = (char *)((intptr_t)stringTable + (intptr_t)bestMatch->n_un.n_strx);
-                    if (*info->dli_sname == '_') {
-                        info->dli_sname++;
-                    }
-                }
-                break;
-            }
-        }
-        cmdPtr += loadCmd->cmdsize;
-    }
-
-    return true;
 }
 
 static bool
@@ -479,26 +368,6 @@ getCrashInfo(const struct mach_header *header, SentryCrashBinaryImage *buffer)
         buffer->crashInfoMessage2 = crashInfo->message2;
     }
 }
-
-#if !SDK_V9
-int
-sentrycrashdl_imageCount(void)
-{
-    return (int)_dyld_image_count();
-}
-
-bool
-sentrycrashdl_getBinaryImage(int index, SentryCrashBinaryImage *buffer, bool isCrash)
-{
-    const struct mach_header *header = _dyld_get_image_header((unsigned)index);
-    if (header == NULL) {
-        return false;
-    }
-
-    const char *imageName = _dyld_get_image_name((unsigned)index);
-    return sentrycrashdl_getBinaryImageForHeader((const void *)header, imageName, buffer, isCrash);
-}
-#endif // !SDK_V9
 
 void
 sentrycrashdl_getCrashInfo(uint64_t address, SentryCrashBinaryImage *buffer)

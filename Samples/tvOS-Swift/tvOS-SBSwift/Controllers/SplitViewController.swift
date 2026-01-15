@@ -3,7 +3,6 @@ import Sentry
 import UIKit
 
 class SplitViewController: UISplitViewController {
-    @available(iOS 14.0, *)
     override init(style: UISplitViewController.Style) {
         super.init(style: style)
         initialize()

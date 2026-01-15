@@ -3,16 +3,11 @@
 #if SENTRY_HAS_UIKIT
 #    import "SentryAttachment+Private.h"
 #    import "SentryCrashC.h"
-#    import "SentryDependencyContainer.h"
 #    import "SentryEvent+Private.h"
 #    import "SentryException.h"
 #    import "SentryHub+Private.h"
-#    import "SentryOptions.h"
 #    import "SentrySDK+Private.h"
 #    import "SentrySwift.h"
-#    if SENTRY_HAS_METRIC_KIT
-#        import "SentryMetricKitIntegration.h"
-#    endif // SENTRY_HAS_METRIC_KIT
 
 /**
  * Function to call through to the ObjC method to save a view hierarchy, which can be passed around
@@ -44,7 +39,7 @@ saveViewHierarchy(const char *reportDirectoryPath)
 
     self.options = options;
 
-    SentryClient *client = [SentrySDKInternal.currentHub getClient];
+    SentryClientInternal *client = [SentrySDKInternal.currentHub getClient];
     [client addAttachmentProcessor:self];
 
     sentrycrash_setSaveViewHierarchy(&saveViewHierarchy);
@@ -63,7 +58,7 @@ saveViewHierarchy(const char *reportDirectoryPath)
 {
     sentrycrash_setSaveViewHierarchy(NULL);
 
-    SentryClient *client = [SentrySDKInternal.currentHub getClient];
+    SentryClientInternal *client = [SentrySDKInternal.currentHub getClient];
     [client removeAttachmentProcessor:self];
 }
 

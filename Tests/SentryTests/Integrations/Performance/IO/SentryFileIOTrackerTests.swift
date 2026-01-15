@@ -47,7 +47,6 @@ class SentryFileIOTrackerTests: XCTestCase {
 
     private var fixture: Fixture!
 
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     override func setUpWithError() throws {
         try super.setUpWithError()
         fixture = try Fixture()
@@ -91,13 +90,13 @@ class SentryFileIOTrackerTests: XCTestCase {
         XCTAssertTrue(result)
     }
 
-    func testWritePathOptionsError() {
+    func testWritePathOptionsError() throws {
         let sut = fixture.getSut()
         var methodPath: String?
         var methodOptions: NSData.WritingOptions?
         var methodError: NSError?
 
-        try! sut.measure(fixture.data, writeToFile: fixture.filePath, options: .atomic, origin: "custom.origin") { path, writingOption, _ -> Bool in
+        try sut.measure(fixture.data, writeToFile: fixture.filePath, options: .atomic, origin: "custom.origin") { path, writingOption, _ -> Bool in
             methodPath = path
             methodOptions = writingOption
             return true
@@ -199,12 +198,12 @@ class SentryFileIOTrackerTests: XCTestCase {
         wait(for: [expect], timeout: 0.1)
     }
 
-    func testWriteWithOptionsAndError_CheckTrace() {
+    func testWriteWithOptionsAndError_CheckTrace() throws {
         let sut = fixture.getSut()
         let transaction = SentrySDK.startTransaction(name: "Transaction", operation: "Test", bindToScope: true)
         var span: Span?
 
-        try! sut.measure(fixture.data, writeToFile: fixture.filePath, options: .atomic, origin: "custom.origin") { _, _, _ -> Bool in
+        try sut.measure(fixture.data, writeToFile: fixture.filePath, options: .atomic, origin: "custom.origin") { _, _, _ -> Bool in
             span = self.firstSpan(transaction)
             XCTAssertFalse(span?.isFinished ?? true)
             self.advanceTime(bySeconds: 3)
@@ -215,13 +214,13 @@ class SentryFileIOTrackerTests: XCTestCase {
         assertDataSpan(span, path: fixture.filePath, operation: SentrySpanOperationFileWrite, size: fixture.data.count, origin: "custom.origin")
     }
 
-    func testDontTrackSentryFilesWrites() {
+    func testDontTrackSentryFilesWrites() throws {
         let sut = fixture.getSut()
         let transaction = SentrySDK.startTransaction(name: "Transaction", operation: "Test", bindToScope: true)
         var span: Span?
 
         let expect = expectation(description: "")
-        try! sut.measure(fixture.data, writeToFile: fixture.sentryPath, options: .atomic, origin: "custom.origin") { _, _, _ -> Bool in
+        try sut.measure(fixture.data, writeToFile: fixture.sentryPath, options: .atomic, origin: "custom.origin") { _, _, _ -> Bool in
             span = self.firstSpan(transaction)
             expect.fulfill()
             return true
@@ -240,7 +239,7 @@ class SentryFileIOTrackerTests: XCTestCase {
         let data = sut.measureNSData(fromFile: fixture.filePath, origin: "custom.origin") { path in
             span = self.firstSpan(transaction)
             usedPath = path
-            return self.fixture.data
+            return self.fixture.data as NSData
         }
 
         XCTAssertEqual(usedPath, fixture.filePath)
@@ -255,14 +254,16 @@ class SentryFileIOTrackerTests: XCTestCase {
         var span: Span?
         var usedPath: String?
         var usedOptions: NSData.ReadingOptions?
+        var error: NSError?
 
-        let data = try? sut.measureNSData(fromFile: self.fixture.filePath, options: .uncached, origin: "custom.origin") { path, options, _ -> Data in
+        let data = sut.measureNSData(fromFile: self.fixture.filePath, options: .uncached, origin: "custom.origin", error: &error) { path, options, _ in
             span = self.firstSpan(transaction)
             usedOptions = options
             usedPath = path
-            return self.fixture.data
+            return self.fixture.data as NSData
         }
 
+        XCTAssertNil(error)
         XCTAssertEqual(usedPath, fixture.filePath)
         XCTAssertEqual(data?.count, fixture.data.count)
         XCTAssertEqual(usedOptions, .uncached)
@@ -277,14 +278,16 @@ class SentryFileIOTrackerTests: XCTestCase {
         var usedUrl: URL?
         let url = URL(fileURLWithPath: fixture.filePath)
         var usedOptions: NSData.ReadingOptions?
+        var error: NSError?
 
-        let data = try? sut.measureNSData(from: url, options: .uncached, origin: "custom.origin") { url, options, _ in
+        let data = sut.measureNSData(from: url, options: .uncached, origin: "custom.origin", error: &error) { url, options, _ in
             span = self.firstSpan(transaction)
             usedOptions = options
             usedUrl = url
-            return self.fixture.data
+            return self.fixture.data as NSData
         }
 
+        XCTAssertNil(error)
         XCTAssertEqual(usedUrl, url)
         XCTAssertEqual(data?.count, fixture.data.count)
         XCTAssertEqual(usedOptions, .uncached)

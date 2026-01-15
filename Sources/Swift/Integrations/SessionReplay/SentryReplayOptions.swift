@@ -2,13 +2,13 @@
 import Foundation
 
 @objcMembers
-public class SentryReplayOptions: NSObject, SentryRedactOptions {
+public final class SentryReplayOptions: NSObject, SentryRedactOptions {
     /**
      * Default values for the session replay options.
      *
      * - Note: These values are used to ensure the different initializers use the same default values.
      */
-    public class DefaultValues {
+    public final class DefaultValues {
         public static let sessionSampleRate: Float = 0
         public static let onErrorSampleRate: Float = 0
         public static let maskAllText: Bool = true
@@ -163,22 +163,6 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
     public var unmaskedViewClasses: [AnyClass]
 
     /**
-     * Alias for ``enableViewRendererV2``.
-     *
-     * This flag is deprecated and will be removed in a future version.
-     * Please use ``enableViewRendererV2`` instead.
-     */
-    @available(*, deprecated, renamed: "enableViewRendererV2")
-    public var enableExperimentalViewRenderer: Bool {
-        get {
-            enableViewRendererV2
-        }
-        set {
-            enableViewRendererV2 = newValue
-        }
-    }
-
-    /**
      * Enables the up to 5x faster new view renderer used by the Session Replay integration.
      *
      * Enabling this flag will reduce the amount of time it takes to render each frame of the session replay on the main thread, therefore reducing
@@ -204,7 +188,7 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
      * this method can be slow, especially when rendering complex views, therefore enabling this flag will switch to render the underlying `CALayer` instead.
      *
      * - Note: This flag can only be used together with `enableViewRendererV2` with up to 20% faster render times.
-     * - Warning: Rendering the view hiearchy using the `CALayer.render(in:)` method can lead to rendering issues, especially when using custom views.
+     * - Warning: Rendering the view hierarchy using the `CALayer.render(in:)` method can lead to rendering issues, especially when using custom views.
      *            For complete rendering, it is recommended to set this option to `false`. In case you prefer performance over completeness, you can
      *            set this option to `true`.
      * - Experiment: This is an experimental feature and is therefore disabled by default. In case you are noticing issues with the experimental
@@ -309,15 +293,14 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
      * - Warning: This initializer is primarily used by Hybrid SDKs and is not intended for public use.
      */
     @_spi(Private) public convenience init(dictionary: [String: Any]) {
-        // This initalizer is calling the one with optional parameters, so that defaults can be applied
+        // This initializer is calling the one with optional parameters, so that defaults can be applied
         // for absent values.
         self.init(
             sessionSampleRate: (dictionary["sessionSampleRate"] as? NSNumber)?.floatValue,
             onErrorSampleRate: (dictionary["errorSampleRate"] as? NSNumber)?.floatValue,
             maskAllText: (dictionary["maskAllText"] as? NSNumber)?.boolValue,
             maskAllImages: (dictionary["maskAllImages"] as? NSNumber)?.boolValue,
-            enableViewRendererV2: (dictionary["enableViewRendererV2"] as? NSNumber)?.boolValue
-            ?? (dictionary["enableExperimentalViewRenderer"] as? NSNumber)?.boolValue,
+            enableViewRendererV2: (dictionary["enableViewRendererV2"] as? NSNumber)?.boolValue,
             enableFastViewRendering: (dictionary["enableFastViewRendering"] as? NSNumber)?.boolValue,
             maskedViewClasses: (dictionary["maskedViewClasses"] as? NSArray)?.compactMap({ element in
                 NSClassFromString((element as? String) ?? "")

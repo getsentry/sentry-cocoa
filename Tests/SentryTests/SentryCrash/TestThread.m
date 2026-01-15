@@ -41,6 +41,10 @@
     while (!self.isCancelled) {
         [[self class] sleepForTimeInterval:0.1];
     }
+
+    if (self.endExpectation) {
+        [self.endExpectation fulfill];
+    }
 }
 
 @end

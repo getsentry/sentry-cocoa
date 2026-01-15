@@ -1,5 +1,6 @@
 #import "SentryDependencyContainerSwiftHelper.h"
-#import "SentryDependencyContainer.h"
+#import "SentryClient+Private.h"
+#import "SentryHub+Private.h"
 #import "SentrySDK+Private.h"
 #import "SentrySwift.h"
 
@@ -12,26 +13,81 @@
     return [SentryDependencyContainer.sharedInstance.application getWindows];
 }
 
+#    if TARGET_OS_IOS || TARGET_OS_TV
++ (CGSize)activeScreenSize
+{
+    return [SentryDependencyContainer.sharedInstance.application getActiveWindowSize];
+}
+#    endif // TARGET_OS_IOS || TARGET_OS_TV
+
 #endif // SENTRY_HAS_UIKIT
+
++ (NSString *)release:(SentryOptions *)options
+{
+    return options.releaseName;
+}
+
++ (SentryLog *)beforeSendLog:(SentryLog *)log options:(SentryOptions *)options
+{
+    if (options.beforeSendLog) {
+        return options.beforeSendLog(log);
+    }
+    return log;
+}
+
++ (NSString *)environment:(SentryOptions *)options
+{
+    return options.environment;
+}
+
++ (BOOL)enableLogs:(SentryOptions *)options
+{
+    return options.enableLogs;
+}
+
++ (NSArray<NSString *> *)enabledFeatures:(SentryOptions *)options
+{
+    return [SentryEnabledFeaturesBuilder getEnabledFeaturesWithOptions:options];
+}
+
++ (BOOL)sendDefaultPii:(SentryOptions *)options
+{
+    return options.sendDefaultPii;
+}
+
++ (SentryDispatchQueueWrapper *)dispatchQueueWrapper
+{
+    return SentryDependencyContainer.sharedInstance.dispatchQueueWrapper;
+}
 
 + (void)dispatchSyncOnMainQueue:(void (^)(void))block
 {
     [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchSyncOnMainQueue:block];
 }
 
-+ (id<SentryObjCRuntimeWrapper>)objcRuntimeWrapper
++ (nullable NSDate *)readTimestampLastInForeground
 {
-    return SentryDependencyContainer.sharedInstance.objcRuntimeWrapper;
+    SentryHubInternal *hub = [SentrySDKInternal currentHub];
+    return [[[hub getClient] fileManager] readTimestampLastInForeground];
 }
 
-+ (SentryHub *)currentHub
++ (void)deleteTimestampLastInForeground
 {
-    return SentrySDKInternal.currentHub;
+    SentryHubInternal *hub = [SentrySDKInternal currentHub];
+    [[[hub getClient] fileManager] deleteTimestampLastInForeground];
 }
 
-+ (SentryCrash *)crashReporter
++ (void)storeTimestampLastInForeground:(NSDate *)timestamp
 {
-    return SentryDependencyContainer.sharedInstance.crashReporter;
+    SentryHubInternal *hub = [SentrySDKInternal currentHub];
+    [[[hub getClient] fileManager] storeTimestampLastInForeground:timestamp];
 }
+
+#if SENTRY_TARGET_PROFILING_SUPPORTED
++ (BOOL)hasProfilingOptions
+{
+    return SentrySDKInternal.currentHub.client.options.profiling != nil;
+}
+#endif
 
 @end

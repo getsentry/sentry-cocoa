@@ -7,7 +7,7 @@
     /**
      * The envelope item header.
      */
-    @objc public let header: SentryEnvelopeItemHeader
+    let header: SentryEnvelopeItemHeader
     
     /**
      * The envelope payload.
@@ -16,10 +16,23 @@
     
     // MARK: - Initializers
     
+    @objc public convenience init(type: String, data: Data?, contentType: String, itemCount: NSNumber) {
+        let header = SentryEnvelopeItemHeader(type: type, length: UInt(data?.count ?? 0), contentType: contentType, itemCount: itemCount)
+        self.init(header: header, data: data)
+    }
+    
+    @objc public convenience init(type: String, data: Data?, addPlatform: Bool) {
+        let header = SentryEnvelopeItemHeader(type: type, length: UInt(data?.count ?? 0))
+        if addPlatform {
+            header.platform = "cocoa"
+        }
+        self.init(header: header, data: data)
+    }
+    
     /**
      * Designated initializer for creating an envelope item with a header and data.
      */
-    @objc public init(header: SentryEnvelopeItemHeader, data: Data?) {
+    init(header: SentryEnvelopeItemHeader, data: Data?) {
         self.header = header
         self.data = data
     }
@@ -32,7 +45,7 @@
         if json == nil {
             // We don't know what caused the serialization to fail.
             let errorEvent = Event()
-            SentryLevelBridge.setBreadcrumbLevelOn(errorEvent, level: SentryLevel.warning.rawValue)
+            errorEvent.level = .warning
             
             // Add some context to the event. We can only set simple properties otherwise we
             // risk that the conversion fails again.
@@ -64,25 +77,6 @@
         let itemHeader = SentryEnvelopeItemHeader(type: SentryEnvelopeItemTypes.session, length: UInt(json?.count ?? 0))
         self.init(header: itemHeader, data: json)
     }
-    
-    #if !SDK_V9
-    /**
-     * @deprecated Building the envelopes for the new @c SentryFeedback type is done directly in @c
-     * -[SentryClient @c captureFeedback:withScope:]
-     */
-    @available(*, deprecated, message: "Building the envelopes for the new SentryFeedback type is done directly in -[SentryClient captureFeedback:withScope:] so there will be no analog to this initializer for SentryFeedback at this time.")
-    @objc public convenience init(userFeedback: UserFeedback) {
-        do {
-            let json = try JSONSerialization.data(withJSONObject: userFeedback.serialize(), options: [])
-            let itemHeader = SentryEnvelopeItemHeader(type: SentryEnvelopeItemTypes.userFeedback, length: UInt(json.count))
-            self.init(header: itemHeader, data: json)
-        } catch {
-            SentrySDKLog.error("Couldn't serialize user feedback.")
-            let itemHeader = SentryEnvelopeItemHeader(type: SentryEnvelopeItemTypes.userFeedback, length: 0)
-            self.init(header: itemHeader, data: Data())
-        }
-    }
-    #endif // !SDK_V9
     
     /**
      * Initializes an envelope item with an attachment.
@@ -207,5 +201,9 @@
         
         let itemHeader = SentryEnvelopeItemHeader(type: SentryEnvelopeItemTypes.replayVideo, length: UInt(envelopeItemContent?.count ?? 0))
         self.init(header: itemHeader, data: envelopeItemContent)
+    }
+    
+    @objc public func type() -> String {
+        header.type
     }
 }

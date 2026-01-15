@@ -51,7 +51,6 @@ SENTRY_NO_INIT
 
 @property (nonatomic, readonly, copy) NSString *_Nullable releaseName;
 @property (nonatomic, copy) NSString *_Nullable environment;
-@property (nonatomic, copy) SentryUser *_Nullable user;
 
 /**
  * The reason for session to become abnormal, for example an app hang.

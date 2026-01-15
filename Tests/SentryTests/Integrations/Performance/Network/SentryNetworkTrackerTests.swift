@@ -39,6 +39,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         init() {
             options = Options()
             options.dsn = SentryNetworkTrackerTests.dsnAsString
+            options.enablePropagateTraceparent = true
             sentryTask = URLSessionDataTaskMock(request: URLRequest(url: URL(string: options.dsn!)!))
             scope = Scope()
             client = TestClient(options: options)
@@ -62,7 +63,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         fixture = Fixture()
 
         SentrySDKInternal.setCurrentHub(fixture.hub)
-        SentrySDKInternal.setStart(with: fixture.options)
+        SentrySDK.setStart(with: fixture.options)
         SentryDependencyContainer.sharedInstance().dateProvider = fixture.dateProvider
     }
 
@@ -915,7 +916,50 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertEqual(task.currentRequest?.allHTTPHeaderFields?["sentry-trace"] ?? "", "test")
     }
 
-    @available(*, deprecated)
+    func testPropagateTraceparent() throws {
+        // Arrange
+        let sut = fixture.getSut()
+        let task = createDataTask()
+        let transaction = try XCTUnwrap(startTransaction() as? SentryTracer)
+
+        // Act
+        sut.urlSessionTaskResume(task)
+
+        // Assert
+        let children = try XCTUnwrap(Dynamic(transaction).children.asArray as? [SentrySpan])
+        let networkSpan = try XCTUnwrap(children.first)
+
+        let traceHeader = transaction.toTraceHeader()
+        let expectedTraceHeader = "00-\(traceHeader.traceId.sentryIdString)-\(networkSpan.spanId.sentrySpanIdString)-00"
+        XCTAssertEqual(task.currentRequest?.allHTTPHeaderFields?["traceparent"] ?? "", expectedTraceHeader)
+    }
+
+    func testPropagateTraceparent_WhenDisabled_NotAdded() throws {
+        // Arrange
+        let sut = fixture.getSut()
+        let task = createDataTask()
+        _ = try XCTUnwrap(startTransaction() as? SentryTracer)
+        fixture.options.enablePropagateTraceparent = false
+
+        // Act
+        sut.urlSessionTaskResume(task)
+
+        // Assert
+        XCTAssertNil(task.currentRequest?.allHTTPHeaderFields?["traceparent"])
+    }
+
+    func testDontOverrideTraceparent() {
+        let sut = fixture.getSut()
+        let task = createDataTask {
+            var request = $0
+            request.setValue("test", forHTTPHeaderField: "traceparent")
+            return request
+        }
+        sut.urlSessionTaskResume(task)
+
+        XCTAssertEqual(task.currentRequest?.allHTTPHeaderFields?["traceparent"] ?? "", "test")
+    }
+
     func testDefaultHeadersWhenDisabled() throws {
         let sut = fixture.getSut()
         sut.disable()
@@ -925,20 +969,19 @@ class SentryNetworkTrackerTests: XCTestCase {
         sut.urlSessionTaskResume(task)
 
         let expectedTraceHeader = SentrySDKInternal.currentHub().scope.propagationContext.traceHeader.value()
-        let traceContext = TraceContext(trace: SentrySDKInternal.currentHub().scope.propagationContext.traceId, options: self.fixture.options, userSegment: self.fixture.scope.userObject?.segment, replayId: nil)
+        let traceContext = TraceContext(trace: SentrySDKInternal.currentHub().scope.propagationContext.traceId, options: self.fixture.options, replayId: nil)
         let expectedBaggageHeader = traceContext.toBaggage().toHTTPHeader(withOriginalBaggage: nil)
         XCTAssertEqual(task.currentRequest?.allHTTPHeaderFields?["baggage"] ?? "", expectedBaggageHeader)
         XCTAssertEqual(task.currentRequest?.allHTTPHeaderFields?["sentry-trace"] ?? "", expectedTraceHeader)
     }
 
-    @available(*, deprecated)
     func testDefaultHeadersWhenNoTransaction() {
         let sut = fixture.getSut()
         let task = createDataTask()
         sut.urlSessionTaskResume(task)
 
         let expectedTraceHeader = SentrySDKInternal.currentHub().scope.propagationContext.traceHeader.value()
-        let traceContext = TraceContext(trace: SentrySDKInternal.currentHub().scope.propagationContext.traceId, options: self.fixture.options, userSegment: self.fixture.scope.userObject?.segment, replayId: nil)
+        let traceContext = TraceContext(trace: SentrySDKInternal.currentHub().scope.propagationContext.traceId, options: self.fixture.options, replayId: nil)
         let expectedBaggageHeader = traceContext.toBaggage().toHTTPHeader(withOriginalBaggage: nil)
         XCTAssertEqual(task.currentRequest?.allHTTPHeaderFields?["baggage"] ?? "", expectedBaggageHeader)
         XCTAssertEqual(task.currentRequest?.allHTTPHeaderFields?["sentry-trace"] ?? "", expectedTraceHeader)
@@ -956,38 +999,6 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertNil(task.currentRequest?.allHTTPHeaderFields?["sentry-trace"])
     }
 
-    func testIsTargetMatch() throws {
-        // Default: all urls
-        let defaultRegex = try XCTUnwrap(NSRegularExpression(pattern: ".*"))
-        let sut = fixture.getSut()
-        XCTAssertTrue(sut.isTargetMatch(try XCTUnwrap(URL(string: "http://localhost")), withTargets: [ defaultRegex ]))
-        XCTAssertTrue(sut.isTargetMatch(try XCTUnwrap(URL(string: "http://www.example.com/api/projects")), withTargets: [ defaultRegex ]))
-
-        // Strings: hostname
-        XCTAssertTrue(sut.isTargetMatch(try XCTUnwrap(URL(string: "http://localhost")), withTargets: ["localhost"]))
-        XCTAssertTrue(sut.isTargetMatch(try XCTUnwrap(URL(string: "http://localhost-but-not-really")), withTargets: ["localhost"])) // works because of `contains`
-        XCTAssertFalse(sut.isTargetMatch(try XCTUnwrap(URL(string: "http://www.example.com/api/projects")), withTargets: ["localhost"]))
-
-        XCTAssertFalse(sut.isTargetMatch(try XCTUnwrap(URL(string: "http://localhost")), withTargets: ["www.example.com"]))
-        XCTAssertTrue(sut.isTargetMatch(try XCTUnwrap(URL(string: "http://www.example.com/api/projects")), withTargets: ["www.example.com"]))
-        XCTAssertFalse(sut.isTargetMatch(try XCTUnwrap(URL(string: "http://api.example.com/api/projects")), withTargets: ["www.example.com"]))
-        XCTAssertTrue(sut.isTargetMatch(try XCTUnwrap(URL(string: "http://www.example.com.evil.com/api/projects")), withTargets: ["www.example.com"])) // works because of `contains`
-
-        // Test regex
-        let regex = try XCTUnwrap(NSRegularExpression(pattern: "http://www.example.com/api/.*"))
-        XCTAssertFalse(sut.isTargetMatch(try XCTUnwrap(URL(string: "http://localhost")), withTargets: [regex]))
-        XCTAssertFalse(sut.isTargetMatch(try XCTUnwrap(URL(string: "http://www.example.com/url")), withTargets: [regex]))
-        XCTAssertTrue(sut.isTargetMatch(try XCTUnwrap(URL(string: "http://www.example.com/api/projects")), withTargets: [regex]))
-
-        // Regex and string
-        XCTAssertTrue(sut.isTargetMatch(try XCTUnwrap(URL(string: "http://localhost")), withTargets: ["localhost", regex]))
-        XCTAssertFalse(sut.isTargetMatch(try XCTUnwrap(URL(string: "http://www.example.com/url")), withTargets: ["localhost", regex]))
-        XCTAssertTrue(sut.isTargetMatch(try XCTUnwrap(URL(string: "http://www.example.com/api/projects")), withTargets: ["localhost", regex]))
-
-        // String and integer (which isn't valid, make sure it doesn't crash)
-        XCTAssertTrue(sut.isTargetMatch(try XCTUnwrap(URL(string: "http://localhost")), withTargets: ["localhost", 123]))
-    }
-
     func testCaptureHTTPClientErrorRequest() throws {
         let sut = fixture.getSut()
 
@@ -1002,11 +1013,9 @@ class SentryNetworkTrackerTests: XCTestCase {
 
         sut.urlSessionTask(task, setState: .completed)
 
-        guard let envelope = self.fixture.hub.capturedEventsWithScopes.first else {
-            XCTFail("Expected to capture 1 event")
-            return
-        }
-        let sentryRequest = try XCTUnwrap(envelope.event.request)
+        XCTAssertEqual(self.fixture.hub.capturedErrorEvents.count, 1, "Expected only one error event to be captured")
+        let capturedErrorEvent = try XCTUnwrap(self.fixture.hub.capturedErrorEvents.first)
+        let sentryRequest = try XCTUnwrap(capturedErrorEvent.request)
 
         XCTAssertEqual(sentryRequest.url, "https://www.domain.com/api")
         XCTAssertEqual(sentryRequest.method, "GET")
@@ -1039,13 +1048,11 @@ class SentryNetworkTrackerTests: XCTestCase {
 
         sut.urlSessionTask(task, setState: .completed)
         
-        let envelope = try XCTUnwrap(
-            fixture.hub.capturedEventsWithScopes.first,
-            "Expected to capture 1 event"
-        )
-        
+        XCTAssertEqual(self.fixture.hub.capturedErrorEvents.count, 1, "Expected only one error event to be captured")
+        let capturedErrorEvent = try XCTUnwrap(fixture.hub.capturedErrorEvents.first)
+
         let graphQLContext = try XCTUnwrap(
-            envelope.event.context?["graphql"],
+            capturedErrorEvent.context?["graphql"],
             "Expected 'graphql' object in context"
         )
         
@@ -1069,11 +1076,10 @@ class SentryNetworkTrackerTests: XCTestCase {
         task.setResponse(try createResponse(code: 500))
         sut.urlSessionTask(task, setState: .completed)
 
-        guard let envelope = self.fixture.hub.capturedEventsWithScopes.first else {
-            XCTFail("Expected to capture 1 event")
-            return
-        }
-        let sentryRequest = try XCTUnwrap(envelope.event.request)
+        XCTAssertEqual(self.fixture.hub.capturedErrorEvents.count, 1, "Expected only one error event to be captured")
+        let capturedErrorEvent = try XCTUnwrap(self.fixture.hub.capturedErrorEvents.first)
+
+        let sentryRequest = try XCTUnwrap(capturedErrorEvent.request)
 
         XCTAssertEqual(sentryRequest.url, "https://[Filtered]:[Filtered]@www.domain.com/api")
         XCTAssertEqual(sentryRequest.headers, ["VALID_HEADER": "value"])
@@ -1093,11 +1099,11 @@ class SentryNetworkTrackerTests: XCTestCase {
 
         sut.urlSessionTask(task, setState: .completed)
 
-        guard let envelope = self.fixture.hub.capturedEventsWithScopes.first else {
-            XCTFail("Expected to capture 1 event")
-            return
-        }
-        let sentryResponse = try XCTUnwrap(envelope.event.context?["response"])
+        XCTAssertEqual(self.fixture.hub.capturedErrorEvents.count, 1, "Expected only one error event to be captured")
+
+        let capturedErrorEvent = try XCTUnwrap(self.fixture.hub.capturedErrorEvents.first)
+
+        let sentryResponse = try XCTUnwrap(capturedErrorEvent.context?["response"])
 
         XCTAssertEqual(sentryResponse["status_code"] as? NSNumber, 500)
         XCTAssertEqual(sentryResponse["headers"] as? [String: String], ["test": "test"])
@@ -1118,11 +1124,10 @@ class SentryNetworkTrackerTests: XCTestCase {
         task.setResponse(response)
         sut.urlSessionTask(task, setState: .completed)
 
-        guard let envelope = self.fixture.hub.capturedEventsWithScopes.first else {
-            XCTFail("Expected to capture 1 event")
-            return
-        }
-        let sentryResponse = try XCTUnwrap(envelope.event.context?["response"])
+        XCTAssertEqual(self.fixture.hub.capturedErrorEvents.count, 1, "Expected only one error event to be captured")
+        let capturedErrorEvent = try XCTUnwrap(self.fixture.hub.capturedErrorEvents.first)
+
+        let sentryResponse = try XCTUnwrap(capturedErrorEvent.context?["response"])
 
         XCTAssertEqual(sentryResponse["headers"] as? [String: String], ["VALID_HEADER": "value"])
     }
@@ -1134,9 +1139,10 @@ class SentryNetworkTrackerTests: XCTestCase {
 
         sut.urlSessionTask(task, setState: .completed)
 
-        let envelope = try XCTUnwrap(self.fixture.hub.capturedEventsWithScopes.first)
-        
-        let exceptions = try XCTUnwrap(envelope.event.exceptions)
+        XCTAssertEqual(self.fixture.hub.capturedErrorEvents.count, 1, "Expected only one error event to be captured")
+        let capturedErrorEvent = try XCTUnwrap(self.fixture.hub.capturedErrorEvents.first)
+
+        let exceptions = try XCTUnwrap(capturedErrorEvent.exceptions)
         XCTAssertEqual(exceptions.count, 1)
         let exception = try XCTUnwrap(exceptions.first)
 
@@ -1206,10 +1212,10 @@ class SentryNetworkTrackerTests: XCTestCase {
 
         sut.urlSessionTask(task, setState: state)
 
-        let httpStatusCode = span.data["http.response.status_code"] as? String
+        let httpStatusCode = span.data["http.response.status_code"] as? NSNumber
 
         if let httpResponse = response as? HTTPURLResponse {
-            XCTAssertEqual("\(httpResponse.statusCode)", httpStatusCode)
+            XCTAssertEqual(NSNumber(value: httpResponse.statusCode), httpStatusCode)
         } else {
             XCTAssertNil(httpStatusCode)
         }

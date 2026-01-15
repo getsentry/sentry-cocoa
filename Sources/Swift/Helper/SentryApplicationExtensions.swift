@@ -13,6 +13,12 @@ import UIKit
         internal_getWindows()
     }
     
+#if (os(iOS) || os(tvOS))
+    @objc public func getActiveWindowSize() -> CGSize {
+        internal_getActiveWindowSize()
+    }
+#endif // os(iOS) || os(tvOS)
+    
     @objc public func relevantViewControllersNames() -> [String]? {
         internal_relevantViewControllersNames()
     }
@@ -33,16 +39,14 @@ extension SentryApplication {
         var windows = Set<UIWindow>()
         Dependencies.dispatchQueueWrapper.dispatchSyncOnMainQueue({ [weak self] in
             guard let self else { return }
-            if #available(iOS 13.0, tvOS 13.0, *) {
-                let scenes = self.connectedScenes
-                for scene in scenes {
-                    if scene.activationState == .foregroundActive {
-                        if
-                            let delegate = scene.delegate as? UIWindowSceneDelegate,
-                            let window = delegate.window {
-                            if let window {
-                                windows.insert(window)
-                            }
+            let scenes = self.connectedScenes
+            for scene in scenes {
+                if scene.activationState == .foregroundActive {
+                    if
+                        let delegate = scene.delegate as? UIWindowSceneDelegate,
+                        let window = delegate.window {
+                        if let window {
+                            windows.insert(window)
                         }
                     }
                 }
@@ -56,6 +60,21 @@ extension SentryApplication {
         }, timeout: 0.01)
         return Array(windows)
     }
+    
+#if (os(iOS) || os(tvOS))
+    public func internal_getActiveWindowSize() -> CGSize {
+        var size = CGSize.zero
+        Dependencies.dispatchQueueWrapper.dispatchSyncOnMainQueue({ [weak self] in
+            guard let self,
+                  let window = self.internal_getWindows()?.first else {
+                return
+            }
+            
+            size = window.screen.bounds.size
+        }, timeout: 0.01)
+        return size
+    }
+#endif // os(iOS) || os(tvOS)
     
     // This cannot be declared with @objc so until we delete more ObjC code it needs a separate
     // function than the objc visible one.
@@ -136,8 +155,18 @@ extension SentryApplication {
                 return nil
             }
         }
+
         if let splitViewController = vc as? UISplitViewController {
-            if splitViewController.viewControllers.count > 0 {
+            // We encountered a case where the private class `UIPrintPanelViewController` overrides the `isKindOfClass:` method and wrongfully
+            // allows casting to `UISplitViewController`, while not actually being a subclass:
+            //
+            //   -[UIPrintPanelViewController viewControllers]: unrecognized selector sent to instance 0x124f45e00
+            //
+            // Check if the selector exists as a double-check mechanism
+            // See: https://github.com/getsentry/sentry-cocoa/issues/6725
+            if !splitViewController.responds(to: NSSelectorFromString("viewControllers")) {
+                SentrySDKLog.warning("Failed to get viewControllers from UISplitViewController. This is a known bug in iOS 26.1")
+            } else if splitViewController.viewControllers.count > 0 {
                 return splitViewController.viewControllers
             }
         }

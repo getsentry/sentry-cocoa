@@ -24,10 +24,12 @@ run_unit_tests_for_prs: &run_unit_tests_for_prs
   - "Tests/**"
   - "SentryTestUtils/**"
   - "SentryTestUtilsDynamic/**"
+  - "SentryTestUtilsTests/**"
 
   # GH Actions
   - ".github/workflows/test.yml"
   - ".github/file-filters.yml"
+  - ".github/workflows/unit-test-common.yml"
 
   # Scripts
   - "scripts/ci-select-xcode.sh"
@@ -36,6 +38,8 @@ run_unit_tests_for_prs: &run_unit_tests_for_prs
   - "scripts/sentry-xcodebuild.sh"
   - "scripts/start-test-server.sh"
   - "scripts/tests-with-thread-sanitizer.sh"
+  - "scripts/ci-boot-simulator.sh"
+  - "scripts/ci-ensure-runtime-loaded.sh"
 
   # Test infrastructure
   - "test-server/**"
@@ -45,6 +49,7 @@ run_unit_tests_for_prs: &run_unit_tests_for_prs
   # Project files
   - "Sentry.xcodeproj/**"
   - "Sentry.xcworkspace/**"
+  - "Package*.swift"
 
   # Build configuration
   - "fastlane/**"
@@ -65,16 +70,13 @@ run_api_stability_for_prs: &run_api_stability_for_prs
   - "Package*.swift"
 
   # Scripts
-  - "scripts/build-xcframework-local.sh"
   - "scripts/build-xcframework-slice.sh"
   - "scripts/assemble-xcframework.sh"
   - "scripts/update-api.sh"
-  - "scripts/ci-select-xcode.sh"
   - "scripts/ci-diagnostics.sh"
 
   # API files
   - "sdk_api.json"
-  - "sdk_api_v9.json"
 
   # Build configuration
   - "Makefile"
@@ -96,6 +98,7 @@ run_integration_test_for_prs: &run_integration_test_for_prs
   # Scripts
   - "scripts/ci-select-xcode.sh"
   - "scripts/ci-diagnostics.sh"
+  - "scripts/ci-utils.sh"
 
   # Build configuration
   - "fastlane/**"
@@ -106,8 +109,6 @@ run_benchmarking_for_prs: &run_benchmarking_for_prs
 
   # GH Actions
   - ".github/workflows/benchmarking.yml"
-  - ".github/workflows/build-xcframework-variant-slices.yml"
-  - ".github/workflows/assemble-xcframework-variant.yml"
   - ".github/file-filters.yml"
 
   # Benchmarking implementation
@@ -118,14 +119,14 @@ run_benchmarking_for_prs: &run_benchmarking_for_prs
   # Scripts
   - "scripts/ci-select-xcode.sh"
   - "scripts/ci-diagnostics.sh"
-  - "scripts/build-xcframework-slice.sh"
-  - "scripts/assemble-xcframework.sh"
+  - "scripts/ci-utils.sh"
 
   # Project files
   - "Samples/iOS-Swift/iOS-Swift.yml"
   - "Samples/iOS-Swift/iOS-Swift.xcconfig"
   - "Samples/iOS-Swift/iOS-SwiftClip.xcconfig"
   - "Samples/iOS-Swift/iOS-Benchmarking.xcconfig"
+  - "Package*.swift"
 
   # Build configuration
   - "fastlane/**"
@@ -141,11 +142,12 @@ run_test_cross_platform_for_prs: &run_test_cross_platform_for_prs
   - "Sentry.podspec"
   - "SentrySwiftUI.podspec"
   - "Package*.swift"
-  - "Tests/HybridSDKTest/HybridPod.podspec"
 
   # Scripts
   - "scripts/ci-select-xcode.sh"
   - "scripts/ci-diagnostics.sh"
+  - "scripts/ci-utils.sh"
+  - "scripts/ci-ensure-runtime-loaded.sh"
 
   # Build configuration
   - "Makefile"
@@ -170,6 +172,7 @@ run_lint_clang_formatting_for_prs: &run_lint_clang_formatting_for_prs
 
   # Scripts
   - "scripts/ci-diagnostics.sh"
+  - "scripts/ci-utils.sh"
 
   # Build configuration
   - "Makefile"
@@ -184,6 +187,7 @@ run_objc_conversion_analysis_for_prs: &run_objc_conversion_analysis_for_prs
 
   # Scripts
   - "scripts/ci-diagnostics.sh"
+  - "scripts/ci-utils.sh"
 
   # Build configuration
   - "Brewfile*"
@@ -200,6 +204,7 @@ run_auto_update_tools_for_prs: &run_auto_update_tools_for_prs
   # Scripts
   - "scripts/check-tooling-versions.sh"
   - "scripts/ci-diagnostics.sh"
+  - "scripts/ci-utils.sh"
   - "scripts/update-tooling-versions.sh"
 
   # Build configuration
@@ -218,12 +223,12 @@ run_lint_cocoapods_specs_for_prs: &run_lint_cocoapods_specs_for_prs
   # Scripts
   - "scripts/ci-select-xcode.sh"
   - "scripts/ci-diagnostics.sh"
+  - "scripts/ci-utils.sh"
   - "scripts/pod-lib-lint.sh"
 
   # Project files
   - "Sentry.xcodeproj/**"
   - "*.podspec"
-  - "Tests/HybridSDKTest/HybridPod.podspec"
 
   # Build configuration
   - "Makefile"
@@ -235,16 +240,17 @@ run_release_for_prs: &run_release_for_prs
   - "Sources/**"
 
   # GH Actions
-  - ".github/workflows/build-xcframework.yml"
   - ".github/workflows/release.yml"
   - ".github/workflows/build-xcframework-variant-slices.yml"
   - ".github/workflows/assemble-xcframework-variant.yml"
   - ".github/workflows/ui-tests-common.yml"
+  - ".github/workflows/fast-pr-checks.yml"
   - ".github/file-filters.yml"
 
   # Scripts
   - "scripts/ci-select-xcode.sh"
   - "scripts/ci-diagnostics.sh"
+  - "scripts/ci-utils.sh"
   - "scripts/build-xcframework-slice.sh"
   - "scripts/build-xcframework-local.sh"
   - "scripts/assemble-xcframework.sh"
@@ -280,6 +286,7 @@ run_lint_swift_formatting_for_prs: &run_lint_swift_formatting_for_prs
 
   # Scripts
   - "scripts/ci-diagnostics.sh"
+  - "scripts/ci-utils.sh"
 
   # Build configuration
   - "Makefile"
@@ -317,6 +324,7 @@ run_lint_xcode_analyze_for_prs: &run_lint_xcode_analyze_for_prs
   # Scripts
   - "scripts/ci-select-xcode.sh"
   - "scripts/ci-diagnostics.sh"
+  - "scripts/ci-utils.sh"
 
   # Project files
   - "Sentry.xcodeproj/**"
@@ -344,6 +352,7 @@ run_build_for_prs: &run_build_for_prs
   - "scripts/ci-diagnostics.sh"
   - "scripts/sentry-xcodebuild.sh"
   - "scripts/check-uikit-linkage.sh"
+  - "scripts/ci-utils.sh"
 
   # Build configuration
   - "fastlane/**"
@@ -366,6 +375,7 @@ run_testflight_for_pushes: &run_testflight_for_pushes
   # Scripts
   - "scripts/ci-select-xcode.sh"
   - "scripts/ci-diagnostics.sh"
+  - "scripts/ci-utils.sh"
 
   # Build configuration
   - "fastlane/**"
@@ -384,6 +394,7 @@ run_codeql_analysis_for_prs: &run_codeql_analysis_for_prs
 
   # Scripts
   - "scripts/ci-diagnostics.sh"
+  - "scripts/ci-utils.sh"
 
   # Build configuration
   - "Makefile"
@@ -403,10 +414,8 @@ run_version_bump_util_for_prs: &run_version_bump_util_for_prs
 
   # Project files with version info
   - "Sentry.podspec"
-  - "SentryPrivate.podspec"
   - "SentrySwiftUI.podspec"
   - "Package*.swift"
-  - "Tests/HybridSDKTest/HybridPod.podspec"
 
   # Configuration files
   - "Sources/Configuration/SDK.xcconfig"
@@ -420,15 +429,13 @@ run_ui_tests_for_prs: &run_ui_tests_for_prs
   # GH Actions
   - ".github/workflows/ui-tests.yml"
   - ".github/workflows/ui-tests-common.yml"
-  - ".github/workflows/build-xcframework-variant-slices.yml"
-  - ".github/workflows/assemble-xcframework-variant.yml"
   - ".github/file-filters.yml"
 
   # Scripts
   - "scripts/ci-select-xcode.sh"
-  - "scripts/build-xcframework-slice.sh"
-  - "scripts/assemble-xcframework.sh"
   - "scripts/ci-diagnostics.sh"
+  - "scripts/ci-utils.sh"
+  - "scripts/ci-ensure-runtime-loaded.sh"
 
   # Test plans
   - "**/*.xctestplan"
@@ -463,6 +470,8 @@ run_ui_tests_critical_for_prs: &run_ui_tests_critical_for_prs
   - "scripts/ci-boot-simulator.sh"
   - "scripts/ci-select-xcode.sh"
   - "scripts/ci-diagnostics.sh"
+  - "scripts/ci-utils.sh"
+  - "scripts/ci-ensure-runtime-loaded.sh"
 
   # Build configuration
   - "fastlane/**"
@@ -486,6 +495,28 @@ run_lint_swiftlint_for_prs: &run_lint_swiftlint_for_prs
   # Scripts
   - "scripts/ci-select-xcode.sh"
   - "scripts/ci-diagnostics.sh"
+  - "scripts/ci-utils.sh"
+
+  # Project files
+  - "Sentry.xcodeproj/**"
+  - "*.podspec"
+
+  # Build configuration
+  - "Makefile"
+  - "Brewfile*"
+
+run_size_analysis_for_prs: &run_size_analysis_for_prs
+  - "Sources/**"
+  - "Samples/**"
+
+  # GH Actions
+  - ".github/workflows/size-analysis.yml"
+  - ".github/file-filters.yml"
+
+  # Scripts
+  - "scripts/ci-select-xcode.sh"
+  - "scripts/ci-diagnostics.sh"
+  - "scripts/ci-utils.sh"
 
   # Project files
   - "Sentry.xcodeproj/**"

@@ -6,9 +6,8 @@ import UIKit
  * The settings to use for how the user feedback form is presented, what data is required and how
  * it's submitted, and some auxiliary hooks to customize the workflow.
  */
-@available(iOS 13.0, *)
 @objcMembers
-public class SentryUserFeedbackConfiguration: NSObject {
+public final class SentryUserFeedbackConfiguration: NSObject {
     /**
      * Whether or not to show animations, like for presenting and dismissing the form.
      * - note: Default: `true`.
@@ -75,8 +74,6 @@ public class SentryUserFeedbackConfiguration: NSObject {
      * Called when feedback is successfully submitted via the managed feedback form, indicating that the
      * user correctly filled out the form and confirmed submission. The data dictionary contains the feedback details.
      * - note: Default: `nil`
-     * - note: This is unrelated to `SentrySDK.captureUserFeedback` and is not called when using 
-     * that function.
      */
     public var onSubmitSuccess: (([String: Any]) -> Void)?
     
@@ -84,8 +81,6 @@ public class SentryUserFeedbackConfiguration: NSObject {
      * Called when there is an error submitting feedback via the managed feedback form, like missing
      * required inputs. The error object contains details of the error.
      * - note: Default: `nil`
-     * - note: This is unrelated to `SentrySDK.captureUserFeedback` and is not called when using 
-     * that function.
      */
     public var onSubmitError: ((Error) -> Void)?
     
@@ -93,8 +88,6 @@ public class SentryUserFeedbackConfiguration: NSObject {
     
     /**
      * Builder for default/light theme overrides.
-     * - note: On iOS versions predating dark mode (≤12) this is the only theme override used. Apps
-     * running on later versions that include dark mode should also consider `configureDarkTheme`.
      * - note: Default: `nil`
      */
     public var configureTheme: ((SentryUserFeedbackThemeConfiguration) -> Void)?
@@ -106,9 +99,19 @@ public class SentryUserFeedbackConfiguration: NSObject {
      * mode, but you still want to override some theme settings, assign the same builder to this
      * property as you do for `configureTheme`.
      * - note: Default: `nil`
-     * - note: Only applies to iOS ≤12.
      */
-    public var configureDarkTheme: ((SentryUserFeedbackThemeConfiguration) -> Void)?
+    public var configureDarkTheme: ((SentryUserFeedbackThemeConfiguration) -> Void)? {
+        // Only the setter is deprecated to avoid warnings when compiling the SDK. The getter is
+        // used from SentrySDK.init
+        @available(*, deprecated, message: "Use dynamic UIColor instead of the dark theme.")
+        set {
+            _configureDarkTheme = newValue
+        }
+        get {
+            _configureDarkTheme
+        }
+    }
+    var _configureDarkTheme: ((SentryUserFeedbackThemeConfiguration) -> Void)?
     
     lazy var darkTheme = SentryUserFeedbackThemeConfiguration()
     

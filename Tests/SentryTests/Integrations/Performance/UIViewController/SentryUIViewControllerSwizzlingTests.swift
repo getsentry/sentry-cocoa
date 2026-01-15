@@ -15,7 +15,6 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
         let binaryImageCache: SentryBinaryImageCache
         var options: Options
         
-        @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
         init() {
             subClassFinder = TestSubClassFinder(dispatchQueue: dispatchQueue, objcRuntimeWrapper: objcRuntimeWrapper, swizzleClassNameExcludes: [])
             binaryImageCache = SentryDependencyContainer.sharedInstance().binaryImageCache
@@ -33,7 +32,7 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
         }
         
         var sutWithDefaultObjCRuntimeWrapper: SentryUIViewControllerSwizzling {
-            return SentryUIViewControllerSwizzling(options: options, dispatchQueue: dispatchQueue, objcRuntimeWrapper: SentryDependencyContainerSwiftHelper.objcRuntimeWrapper(), subClassFinder: subClassFinder, processInfoWrapper: processInfoWrapper, binaryImageCache: binaryImageCache)
+            return SentryUIViewControllerSwizzling(options: options, dispatchQueue: dispatchQueue, objcRuntimeWrapper: SentryDependencyContainer.sharedInstance().objcRuntimeWrapper, subClassFinder: subClassFinder, processInfoWrapper: processInfoWrapper, binaryImageCache: binaryImageCache)
         }
         
         var testableSut: TestSentryUIViewControllerSwizzling {
@@ -49,7 +48,6 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
     
     private var fixture: Fixture!
 
-    @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     override func setUp() {
         super.setUp()
         fixture = Fixture()
@@ -154,13 +152,8 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
         let notification = Notification(name: NSNotification.Name(rawValue: "UISceneWillConnectNotification"), object: mockWindowScene)
         swizzler.swizzleRootViewController(fromSceneDelegateNotification: notification)
         
-        // UIScene is available from iOS 13 and above.
-        if #available(iOS 13.0, tvOS 13.0, macCatalyst 13.0, *) {
-            XCTAssertEqual(swizzler.viewControllers.count, 1)
-            XCTAssertTrue(try XCTUnwrap(swizzler.viewControllers.first) is TestViewController)
-        } else {
-            XCTAssertEqual(swizzler.viewControllers.count, 0)
-        }
+        XCTAssertEqual(swizzler.viewControllers.count, 1)
+        XCTAssertTrue(try XCTUnwrap(swizzler.viewControllers.first) is TestViewController)
     }
     
     func testSwizzlingOfExternalLibs() {

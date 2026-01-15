@@ -1,6 +1,5 @@
 #import "SentryLevelMapper.h"
 #import "SentrySwift.h"
-#import "SentryUser+Serialize.h"
 #import <SentryBreadcrumb.h>
 #import <SentryCrashJSONCodec.h>
 #import <SentryCrashJSONCodecObjC.h>
@@ -90,6 +89,11 @@
     NSData *json = [self toJSONEncodedCString:levelAsString];
 
     sentrycrash_scopesync_setLevel([json bytes]);
+}
+
+- (void)setAttributes:(nullable NSDictionary<NSString *, id> *)attributes
+{
+    // Nothing to do here, crash events don't support attributes
 }
 
 - (void)addSerializedBreadcrumb:(NSDictionary *)crumb

@@ -1,3 +1,5 @@
+# yaml-language-server: $schema=../../schema/xcodegen.schema.json
+
 name: tvOS-Swift
 include:
   - ../Shared/feature-flags.yml
@@ -5,7 +7,6 @@ createIntermediateGroups: true
 generateEmptyDirectories: true
 configs:
   Debug: debug
-  DebugV9: debug
   Test: debug
   TestCI: debug
   Release: release
@@ -34,7 +35,6 @@ targets:
       - target: SentrySampleShared/SentrySampleShared
     configFiles:
       Debug: tvOS-Swift.xcconfig
-      DebugV9: tvOS-Swift.xcconfig
       Release: tvOS-Swift.xcconfig
       Test: tvOS-Swift.xcconfig
       TestCI: tvOS-Swift.xcconfig

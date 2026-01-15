@@ -1,3 +1,4 @@
+@_spi(Private) @testable import Sentry
 import SentryTestUtils
 import XCTest
 
@@ -11,8 +12,8 @@ class SentryCrashReportTests: XCTestCase {
             reportPath = NSString.path(withComponents: [testPath, "SentryCrashReport.json"])
         }
         
-        var sut: SentryCrashScopeObserver {
-            return SentryCrashScopeObserver(maxBreadcrumbs: 10)
+        var sut: SentryScopeObserver {
+            return SentryCrashScopeHelper.getScopeObserver(withMaxBreacdrumb: 10)
         }
         
         var scope: Scope {

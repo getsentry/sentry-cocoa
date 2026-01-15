@@ -6,9 +6,8 @@
 #else
 #    import <SentryDefines.h>
 #endif
-#if !SDK_V9
-#    import SENTRY_HEADER(SentrySerializable)
-#endif // !SDK_V9
+#import SENTRY_HEADER(SentrySerializable)
+#import SENTRY_HEADER(SentryLevel)
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -24,10 +23,7 @@ NS_ASSUME_NONNULL_BEGIN
 @class SentryUser;
 
 NS_SWIFT_NAME(Event)
-@interface SentryEvent : NSObject
-#if !SDK_V9
-                         <SentrySerializable>
-#endif // !SDK_V9
+@interface SentryEvent : NSObject <SentrySerializable>
 
 /**
  * This will be set by the initializer.
@@ -59,7 +55,7 @@ NS_SWIFT_NAME(Event)
 /**
  * @c SentryLevel of the event.
  */
-@property (nonatomic) enum SentryLevel level;
+@property (nonatomic) SentryLevel level;
 
 /**
  * This will be used for symbolicating on the server should be "cocoa".
@@ -105,6 +101,14 @@ NS_SWIFT_NAME(Event)
 
 /**
  * Arbitrary key:value (string:string ) data that will be shown with the event.
+ *
+ * @note For @c SentryTransaction instances accessed in @c beforeSend callbacks, this property
+ * returns a merged dictionary of both event tags and tracer tags (with tracer tags taking
+ * precedence). Modifications to this dictionary persist when using Swift's dictionary subscript
+ * assignment (e.g., @c transaction.tags?["key"] = "value" ), which automatically calls the setter.
+ *
+ * In Objective-C, you must explicitly call the setter after modifying the dictionary to persist
+ * changes (e.g., @c transaction.tags = modifiedDict ).
  */
 @property (nonatomic, strong) NSDictionary<NSString *, NSString *> *_Nullable tags;
 

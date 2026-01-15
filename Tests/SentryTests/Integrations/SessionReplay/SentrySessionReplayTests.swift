@@ -80,7 +80,7 @@ class SentrySessionReplayTests: XCTestCase {
         let rootView = UIView()
         let replayMaker = TestReplayMaker()
         let cacheFolder = FileManager.default.temporaryDirectory
-        
+
         var breadcrumbs: [Breadcrumb]?
         var isFullSession = true
         var lastReplayEvent: SentryReplayEvent?
@@ -88,17 +88,22 @@ class SentrySessionReplayTests: XCTestCase {
         var lastVideoUrl: URL?
         var lastReplayId: SentryId?
         var currentScreen: String?
-        
-        func getSut(options: SentryReplayOptions = .init(sessionSampleRate: 0, onErrorSampleRate: 0), touchTracker: SentryTouchTracker? = nil) -> SentrySessionReplay {
-            return SentrySessionReplay(replayOptions: options,
-                                       replayFolderPath: cacheFolder,
-                                       screenshotProvider: screenshotProvider,
-                                       replayMaker: replayMaker,
-                                       breadcrumbConverter: SentrySRDefaultBreadcrumbConverter(),
-                                       touchTracker: touchTracker ?? SentryTouchTracker(dateProvider: dateProvider, scale: 0),
-                                       dateProvider: dateProvider,
-                                       delegate: self,
-                                       displayLinkWrapper: displayLink)
+
+        func getSut(
+            options: SentryReplayOptions = .init(sessionSampleRate: 0, onErrorSampleRate: 0),
+            touchTracker: SentryTouchTracker? = nil
+        ) -> SentrySessionReplay {
+            return SentrySessionReplay(
+                replayOptions: options,
+                replayFolderPath: cacheFolder,
+                screenshotProvider: screenshotProvider,
+                replayMaker: replayMaker,
+                breadcrumbConverter: SentrySRDefaultBreadcrumbConverter(),
+                touchTracker: touchTracker ?? SentryTouchTracker(dateProvider: dateProvider, scale: 0),
+                dateProvider: dateProvider,
+                delegate: self,
+                displayLinkWrapper: displayLink
+            )
         }
         
         func sessionReplayShouldCaptureReplayForError() -> Bool {
@@ -397,7 +402,7 @@ class SentrySessionReplayTests: XCTestCase {
         let touchTracker = TestTouchTracker(dateProvider: fixture.dateProvider, scale: 1)
         let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1), touchTracker: touchTracker)
         sut.start(rootView: fixture.rootView, fullSession: true)
-        
+
         //Starting session replay at time 0
         Dynamic(sut).newFrame(nil)
         
@@ -547,6 +552,146 @@ class SentrySessionReplayTests: XCTestCase {
         
         XCTAssertEqual(fixture.displayLink.invalidateInvocations.count, 1)
     }
+
+    func testShouldEnableSessionReplay_withUnreliableEnvironment_withoutOverrideOptionEnabled_shouldNotStart() {
+        // -- Arrange --
+        let environmentChecker = TestSessionReplayEnvironmentChecker(mockedIsReliableReturnValue: false)
+        let experimentalOptions = SentryExperimentalOptions()
+        experimentalOptions.enableSessionReplayInUnreliableEnvironment = false
+
+        // -- Assert --
+        // Verify that session replay will not actually start
+        // (it should have been blocked by isInUnreliableEnvironment)
+        XCTAssertFalse(SentrySessionReplay.shouldEnableSessionReplay(environmentChecker: environmentChecker, experimentalOptions: experimentalOptions))
+    }
+
+    func testShouldEnableSessionReplay_withUnreliableEnvironment_withOverrideOptionEnabled_shouldStart() {
+        // -- Arrange --
+        let environmentChecker = TestSessionReplayEnvironmentChecker(mockedIsReliableReturnValue: false)
+        let experimentalOptions = SentryExperimentalOptions()
+        experimentalOptions.enableSessionReplayInUnreliableEnvironment = true
+
+        // -- Assert --
+        // Verify that session replay will start despite unreliable environment
+        // (override option is enabled)
+        XCTAssertTrue(SentrySessionReplay.shouldEnableSessionReplay(environmentChecker: environmentChecker, experimentalOptions: experimentalOptions))
+    }
+
+    // MARK: - Frame Rate Tests
+
+    func testFrameRate_1FPS_takesScreenshotsAtCorrectInterval() {
+        // Arrange
+        let fixture = Fixture()
+        let options = SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1)
+        options.frameRate = 1
+        let sut = fixture.getSut(options: options)
+        sut.start(rootView: fixture.rootView, fullSession: true)
+        
+        fixture.screenshotProvider.lastImageCall = nil
+        
+        // Act & Assert - advance by 0.9 seconds, screenshot should NOT be taken
+        fixture.dateProvider.advance(by: 0.9)
+        Dynamic(sut).newFrame(nil)
+        XCTAssertNil(fixture.screenshotProvider.lastImageCall, "Screenshot should not be taken before 1 second interval")
+        
+        // Act & Assert - advance to exactly 1.0 seconds, screenshot SHOULD be taken
+        fixture.dateProvider.advance(by: 0.1)
+        Dynamic(sut).newFrame(nil)
+        XCTAssertNotNil(fixture.screenshotProvider.lastImageCall, "Screenshot should be taken at 1 second interval for 1 FPS")
+    }
+
+    func testFrameRate_2FPS_takesScreenshotsAtCorrectInterval() {
+        // Arrange
+        let fixture = Fixture()
+        let options = SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1)
+        options.frameRate = 2
+        let sut = fixture.getSut(options: options)
+        sut.start(rootView: fixture.rootView, fullSession: true)
+        
+        fixture.screenshotProvider.lastImageCall = nil
+        
+        // Act & Assert - advance by 0.4 seconds, screenshot should NOT be taken
+        fixture.dateProvider.advance(by: 0.4)
+        Dynamic(sut).newFrame(nil)
+        XCTAssertNil(fixture.screenshotProvider.lastImageCall, "Screenshot should not be taken before 0.5 second interval")
+        
+        // Act & Assert - advance to 0.5 seconds, screenshot SHOULD be taken
+        fixture.dateProvider.advance(by: 0.1)
+        Dynamic(sut).newFrame(nil)
+        XCTAssertNotNil(fixture.screenshotProvider.lastImageCall, "Screenshot should be taken at 0.5 second interval for 2 FPS")
+        
+        // Act & Assert - reset and test second screenshot
+        fixture.screenshotProvider.lastImageCall = nil
+        fixture.dateProvider.advance(by: 0.4)
+        Dynamic(sut).newFrame(nil)
+        XCTAssertNil(fixture.screenshotProvider.lastImageCall, "Screenshot should not be taken before another 0.5 seconds")
+        
+        fixture.dateProvider.advance(by: 0.1)
+        Dynamic(sut).newFrame(nil)
+        XCTAssertNotNil(fixture.screenshotProvider.lastImageCall, "Screenshot should be taken at next 0.5 second interval")
+    }
+
+    func testFrameRate_10FPS_takesScreenshotsAtCorrectInterval() {
+        // Arrange
+        let fixture = Fixture()
+        let options = SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1)
+        options.frameRate = 10
+        let sut = fixture.getSut(options: options)
+        sut.start(rootView: fixture.rootView, fullSession: true)
+        
+        // Expected interval: 1.0 / 10.0 = 0.1 seconds
+        // Take first screenshot to establish baseline
+        fixture.dateProvider.advance(by: 0.1)
+        Dynamic(sut).newFrame(nil)
+        XCTAssertNotNil(fixture.screenshotProvider.lastImageCall, "First screenshot should be taken")
+        
+        fixture.screenshotProvider.lastImageCall = nil
+        
+        // Act & Assert - advance by 0.09 seconds, screenshot should NOT be taken
+        fixture.dateProvider.advance(by: 0.09)
+        Dynamic(sut).newFrame(nil)
+        XCTAssertNil(fixture.screenshotProvider.lastImageCall, "Screenshot should not be taken before 0.1 second interval")
+        
+        // Act & Assert - advance to reach 0.1 second interval, screenshot SHOULD be taken
+        fixture.dateProvider.advance(by: 0.01)
+        Dynamic(sut).newFrame(nil)
+        XCTAssertNotNil(fixture.screenshotProvider.lastImageCall, "Screenshot should be taken at 0.1 second interval for 10 FPS")
+    }
+
+    func testFrameRate_multipleScreenshots_respectsInterval() {
+        // Arrange
+        let fixture = Fixture()
+        let options = SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1)
+        options.frameRate = 5
+        let sut = fixture.getSut(options: options)
+        sut.start(rootView: fixture.rootView, fullSession: true)
+        
+        // Expected interval: 1.0 / 5.0 = 0.2 seconds
+        var screenshotCount = 0
+        
+        // Act & Assert - take 5 screenshots over 1 second
+        // Each screenshot resets the timer, so we need to advance by the full interval each time
+        for i in 0..<5 {
+            // Advance by full interval
+            fixture.dateProvider.advance(by: 0.2)
+            Dynamic(sut).newFrame(nil)
+            
+            XCTAssertNotNil(fixture.screenshotProvider.lastImageCall, "Screenshot #\(i + 1) should be taken at \(Double(i + 1) * 0.2) seconds")
+            screenshotCount += 1
+            fixture.screenshotProvider.lastImageCall = nil
+            
+            // Advance by less than interval and verify no screenshot
+            if i < 4 { // Don't test after the last screenshot
+                fixture.dateProvider.advance(by: 0.1)
+                Dynamic(sut).newFrame(nil)
+                XCTAssertNil(fixture.screenshotProvider.lastImageCall, "No screenshot should be taken at \(Double(i + 1) * 0.2 + 0.1) seconds")
+            }
+        }
+        
+        XCTAssertEqual(screenshotCount, 5, "Should have taken exactly 5 screenshots in 1 second for 5 FPS")
+    }
+
+    // MARK: - Helpers
 
     private func assertFullSession(_ sessionReplay: SentrySessionReplay, expected: Bool) {
         XCTAssertEqual(sessionReplay.isFullSession, expected)

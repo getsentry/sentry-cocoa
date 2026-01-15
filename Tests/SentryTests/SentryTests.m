@@ -1,3 +1,4 @@
+#import "SentryBreadcrumb+Private.h"
 #import "SentryBreadcrumb.h"
 #import "SentryBreadcrumbTracker.h"
 #import "SentryClient.h"
@@ -10,7 +11,6 @@
 #import "SentryMeta.h"
 #import "SentryOptionsInternal.h"
 #import "SentrySDK+Private.h"
-#import <SentryBreadcrumb+Private.h>
 #import <XCTest/XCTest.h>
 @import Sentry;
 
@@ -38,7 +38,7 @@
             initWithDict:@{ @"dsn" : @"https://username:password@app.getsentry.com/12345" }
         didFailWithError:&error];
 
-    SentryClient *client = [[SentryClient alloc] initWithOptions:options];
+    SentryClientInternal *client = [[SentryClientInternal alloc] initWithOptions:options];
     XCTAssertNil(error);
     XCTAssertNil([SentrySDKInternal.currentHub getClient]);
     [SentrySDKInternal.currentHub bindClient:client];

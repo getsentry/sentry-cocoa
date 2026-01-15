@@ -4,12 +4,10 @@ import Foundation
 #if os(iOS) && !SENTRY_NO_UIKIT
 import UIKit
 
-@available(iOS 13.0, *)
 protocol SentryUserFeedbackFormDelegate: NSObjectProtocol {
     func finished(with feedback: SentryFeedback?)
 }
 
-@available(iOS 13.0, *)
 final class SentryUserFeedbackFormController: UIViewController {
     let config: SentryUserFeedbackConfiguration
     weak var delegate: SentryUserFeedbackFormDelegate?
@@ -42,7 +40,6 @@ final class SentryUserFeedbackFormController: UIViewController {
 }
 
 // MARK: Layout
-@available(iOS 13.0, *)
 extension SentryUserFeedbackFormController {
     func initLayout() {
         viewModel.setScrollViewBottomInset(0)
@@ -67,7 +64,6 @@ extension SentryUserFeedbackFormController {
 }
 
 // MARK: SentryUserFeedbackFormViewModelDelegate
-@available(iOS 13.0, *)
 extension SentryUserFeedbackFormController: SentryUserFeedbackFormViewModelDelegate {
     func submitFeedback() {
         switch viewModel.validate() {
@@ -90,13 +86,14 @@ extension SentryUserFeedbackFormController: SentryUserFeedbackFormViewModelDeleg
                 }
             }
             
-            guard case let SentryUserFeedbackFormViewModel.InputError.validationError(missing) = error else {
+            guard case let SentryUserFeedbackFormViewModel.InputError.validationError(missing, _) = error,
+                let errorDescription = error.errorDescription else {
                 SentrySDKLog.warning("Unexpected error type.")
-                presentAlert(message: "Unexpected client error.", errorCode: 2, info: [NSLocalizedDescriptionKey: "Client error: ."])
+                presentAlert(message: config.formConfig.unexpectedErrorText, errorCode: 2, info: [NSLocalizedDescriptionKey: "Client error: ."])
                 return
             }
             
-            presentAlert(message: error.description, errorCode: 1, info: ["missing_fields": missing, NSLocalizedDescriptionKey: "The user did not complete the feedback form."])
+            presentAlert(message: errorDescription, errorCode: 1, info: ["missing_fields": missing, NSLocalizedDescriptionKey: "The user did not complete the feedback form."])
         }
     }
     
@@ -106,7 +103,6 @@ extension SentryUserFeedbackFormController: SentryUserFeedbackFormViewModelDeleg
 }
 
 // MARK: UITextFieldDelegate
-@available(iOS 13.0, *)
 extension SentryUserFeedbackFormController: UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
@@ -119,7 +115,6 @@ extension SentryUserFeedbackFormController: UITextFieldDelegate {
 }
 
 // MARK: UITextViewDelegate
-@available(iOS 13.0, *)
 extension SentryUserFeedbackFormController: UITextViewDelegate {
     func textViewDidChange(_ textView: UITextView) {
         viewModel.messageTextViewPlaceholder.isHidden = textView.text != ""
@@ -130,7 +125,6 @@ extension SentryUserFeedbackFormController: UITextViewDelegate {
 #if DEBUG && swift(>=5.10)
 import SwiftUI
 
-@available(iOS 13.0, *)
 struct ViewControllerWrapper: UIViewControllerRepresentable {
     let viewController: UIViewController
 

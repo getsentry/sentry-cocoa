@@ -21,7 +21,7 @@ import UIKit
     ///   - redactOptions: Options provided to redact sensitive information.
     ///   - enableMaskRendererV2: Flag to enable experimental view renderer.
     /// - Note: The option `enableMaskRendererV2` is an internal flag, which is not part of the public API.
-    ///         Therefore, it is not part of the the `redactOptions` parameter, to not further expose it.
+    ///         Therefore, it is not part of the `redactOptions` parameter, to not further expose it.
     public init(
         renderer: SentryViewRenderer,
         redactOptions: SentryRedactOptions,
@@ -34,8 +34,12 @@ import UIKit
     }
 
     public func image(view: UIView, onComplete: @escaping ScreenshotCallback) {
+        // Define a helper variable for the size, so the view is not accessed in the async block
         let viewSize = view.bounds.size
+
+        // The redact regions are expected to be thread-safe data structures
         let redactRegions = redactBuilder.redactRegionsFor(view: view)
+
         // The render method is synchronous and must be called on the main thread.
         // This is because the render method accesses the view hierarchy which is managed from the main thread.
         let renderedScreenshot = renderer.render(view: view)

@@ -1,5 +1,7 @@
 #import "SentryDefines.h"
-#import "SentryScopeObserver.h"
+#import "SentryLevel.h"
+
+@class SentryUser;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -15,10 +17,34 @@ NS_ASSUME_NONNULL_BEGIN
  * thread. This has the downside of the scope not being 100% up to date when a crash happens and, of
  * course, lots of CPU overhead.
  */
-@interface SentryCrashScopeObserver : NSObject <SentryScopeObserver>
+@interface SentryCrashScopeObserver : NSObject
 SENTRY_NO_INIT
 
 - (instancetype)initWithMaxBreadcrumbs:(NSInteger)maxBreadcrumbs;
+
+- (void)setUser:(nullable SentryUser *)user;
+
+- (void)setTags:(nullable NSDictionary<NSString *, NSString *> *)tags;
+
+- (void)setExtras:(nullable NSDictionary<NSString *, id> *)extras;
+
+- (void)setContext:(nullable NSDictionary<NSString *, id> *)context;
+
+- (void)setTraceContext:(nullable NSDictionary<NSString *, id> *)traceContext;
+
+- (void)setDist:(nullable NSString *)dist;
+
+- (void)setEnvironment:(nullable NSString *)environment;
+
+- (void)setFingerprint:(nullable NSArray<NSString *> *)fingerprint;
+
+- (void)setLevel:(SentryLevel)level;
+
+- (void)addSerializedBreadcrumb:(NSDictionary<NSString *, id> *)crumb;
+
+- (void)clearBreadcrumbs;
+
+- (void)clear;
 
 @end
 

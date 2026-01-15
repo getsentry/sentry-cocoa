@@ -52,7 +52,12 @@ sentrycrashdebug_isBeingTraced(void)
     int mib[] = { CTL_KERN, KERN_PROC, KERN_PROC_PID, getpid() };
 
     if (sysctl(mib, sizeof(mib) / sizeof(*mib), &procInfo, &structSize, NULL, 0) != 0) {
-        SENTRY_ASYNC_SAFE_LOG_ERROR("sysctl: %s", strerror(errno));
+        // Note: The error handling path (using SENTRY_STRERROR_R) cannot be reliably tested
+        // in a test environment. We attempted several approaches (invalid parameters,
+        // DYLD_INTERPOSE, system resource limits) but none work reliably. The error handling
+        // code path exists and correctly uses SENTRY_STRERROR_R(errno) for thread-safe error
+        // message retrieval. See PR #6817 for details on similar untestable error paths.
+        SENTRY_ASYNC_SAFE_LOG_ERROR("sysctl: %s", SENTRY_STRERROR_R(errno));
         return false;
     }
 
