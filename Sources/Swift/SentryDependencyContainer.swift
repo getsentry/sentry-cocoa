@@ -295,3 +295,15 @@ protocol ANRTrackerBuilder {
     func getANRTracker(_ interval: TimeInterval) -> SentryANRTracker
 }
 extension SentryDependencyContainer: ANRTrackerBuilder { }
+
+protocol NetworkTrackerProvider {
+    var networkTracker: SentryNetworkTracker { get }
+}
+extension SentryDependencyContainer: NetworkTrackerProvider {
+    // Inject the network tracer via the Dependency Container
+    // Because this is used in swizzling, we cannot remove the singleton
+    // or that may lead to issues when stopping and enablign the SDK again
+    var networkTracker: SentryNetworkTracker {
+        SentryNetworkTracker.sharedInstance
+    }
+}
