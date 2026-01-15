@@ -4976,6 +4976,7 @@
 				D48953FD2EF5756A0086F240 /* SentryMetricValue.swift */,
 				D48954D92EF94FD20086F240 /* SentryUnit.swift */,
 				F458D1122E180BB00028273E /* SentryFileManagerProtocol.swift */,
+				D48954D92EF94FD20086F240 /* SentryUnit.swift */,
 			);
 			path = Protocol;
 			sourceTree = "<group>";

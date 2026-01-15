@@ -9,7 +9,7 @@ public protocol SentryMetricsApiProtocol {
     ///          Prefer stable, lowercase, dot-delimited names to aid aggregation and filtering.
     ///   - value: The count value to record. A non-negative integer (e.g., 1 to increment by one).
     ///            Defaults to 1.
-    ///   - unit: Optional unit of measurement. Use ``SentryMetricsUnit`` enum cases for type safety
+    ///   - unit: Optional unit of measurement. Use ``SentryUnit`` enum cases for type safety
     ///           (e.g., `.millisecond`, `.byte`, `.percent`), or `.generic("custom")` for custom units.
     ///   - attributes: Optional dictionary of attributes to attach to the metric.
     ///                 Supported types: `String`, `Bool`, `Int`, `Double`, and their array variants
@@ -29,7 +29,7 @@ public protocol SentryMetricsApiProtocol {
     ///          Prefer stable, lowercase, dot-delimited names to aid aggregation and filtering.
     ///   - value: The value to record in the distribution. This can be any numeric value
     ///            representing the measurement (e.g., milliseconds for response time).
-    ///   - unit: Optional unit of measurement. Use ``SentryMetricsUnit`` enum cases for type safety
+    ///   - unit: Optional unit of measurement. Use ``SentryUnit`` enum cases for type safety
     ///           (e.g., `.millisecond`, `.byte`, `.percent`), or `.generic("custom")` for custom units.
     ///   - attributes: Optional dictionary of attributes to attach to the metric.
     ///                 Supported types: `String`, `Bool`, `Int`, `Double`, and their array variants
@@ -49,7 +49,7 @@ public protocol SentryMetricsApiProtocol {
     ///          Prefer stable, lowercase, dot-delimited names to aid aggregation and filtering.
     ///   - value: The current gauge value to record. This represents the state at the time of
     ///            recording (e.g., current memory in bytes, current number of items in queue).
-    ///   - unit: Optional unit of measurement. Use ``SentryMetricsUnit`` enum cases for type safety
+    ///   - unit: Optional unit of measurement. Use ``SentryUnit`` enum cases for type safety
     ///           (e.g., `.millisecond`, `.byte`, `.percent`), or `.generic("custom")` for custom units.
     ///   - attributes: Optional dictionary of attributes to attach to the metric.
     ///                 Supported types: `String`, `Bool`, `Int`, `Double`, and their array variants

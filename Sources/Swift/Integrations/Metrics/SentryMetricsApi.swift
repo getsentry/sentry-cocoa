@@ -20,43 +20,42 @@ struct SentryMetricsApi<Dependencies: SentryMetricsApiDependencies>: SentryMetri
     }
 
     func count(key: String, value: UInt, unit: SentryUnit? = nil, attributes: [String: SentryAttributeValue] = [:]) {
-        recordMetric(name: key, value: .counter(value), unit: unit, attributes: attributes)
+        captureMetric(name: key, value: .counter(value), unit: unit, attributes: attributes)
     }
 
     func distribution(key: String, value: Double, unit: SentryUnit? = nil, attributes: [String: SentryAttributeValue] = [:]) {
-        recordMetric(name: key, value: .distribution(value), unit: unit, attributes: attributes)
+        captureMetric(name: key, value: .distribution(value), unit: unit, attributes: attributes)
     }
 
-    func gauge(key: String, value: Double, unit: SentryUnit? = nil, attributes: [String: SentryAttributeValue] = [:]
-    ) {
-        recordMetric(name: key, value: .gauge(value), unit: unit, attributes: attributes)
+    func gauge(key: String, value: Double, unit: SentryUnit? = nil, attributes: [String: SentryAttributeValue] = [:]) {
+        captureMetric(name: key, value: .gauge(value), unit: unit, attributes: attributes)
     }
 
     // MARK: - Private
 
-    private func recordMetric(
+    private func captureMetric(
         name: String,
         value: SentryMetric.Value,
         unit: SentryUnit?,
         attributes: [String: SentryAttributeValue]
     ) {
         guard dependencies.isSDKEnabled else {
-            SentrySDKLog.warning("Metric '\(name)' was not recorded because the Sentry SDK has not been started. Call SentrySDK.start(options:) first.")
+            SentrySDKLog.warning("Metric '\(name)' was not captured because the Sentry SDK has not been started. Call SentrySDK.start(options:) first.")
             return
         }
         guard let integration = dependencies.metricsIntegration else {
-            SentrySDKLog.warning("Metric '\(name)' was not recorded because metrics are disabled. Enable metrics by setting 'options.enableMetrics = true' when starting the SDK.")
+            SentrySDKLog.warning("Metric '\(name)' was not captured because metrics are disabled. Enable metrics by setting 'options.experimental.enableMetrics = true' when starting the SDK.")
             return
         }
 
         // Capture the traceId at metric creation time to ensure it reflects the active trace
-        // when the metric was recorded, not when it gets flushed by the batcher.
+        // when the metric was captured, not when it gets flushed by the batcher.
         //
         // This logic is intentionally duplicated from BatcherScope.applyToItem (used by Logs)
         // for the following reasons:
         // 1. Safety: If batcher enrichment is skipped or fails, metrics still have valid traceIds
         //    rather than empty ones, which would break trace correlation entirely.
-        // 2. Semantic correctness: A metric recorded during a network request should correlate
+        // 2. Semantic correctness: A metric captured during a network request should correlate
         //    with that request's trace, matching how we capture timestamp at creation time.
         // 3. Fail-safe redundancy: The batchers scope enrichment will overwrite this value, producing
         //    the same result but with a safety net for edge cases. We can not remove the duplication from

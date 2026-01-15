@@ -45,7 +45,7 @@ public enum SentryUnit: Equatable {
 
 // MARK: - RawRepresentable
 //
-// We implement RawRepresentable manually instead of using `enum SentryMetricsUnit: String` because
+// We implement RawRepresentable manually instead of using `enum SentryUnit: String` because
 // the enum includes `.generic(String)` for custom unit values. Swift's automatic String raw value
 // synthesis doesn't support associated values, so we need this custom implementation to:
 // 1. Map known unit strings to their corresponding enum cases

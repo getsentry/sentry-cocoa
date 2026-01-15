@@ -52,7 +52,7 @@ import Foundation
     /// - ``SentryMetricsApiProtocol/distribution(key:value:unit:attributes:)``: Track the distribution of a value
     ///   over time for statistical analysis like percentiles (e.g., response times, request durations).
     ///
-    /// Each method supports optional units (via ``SentryMetricsUnit``) and attributes for filtering and grouping.
+    /// Each method supports optional units (via ``SentryUnit``) and attributes for filtering and grouping.
     ///
     /// ## Example Usage
     ///
@@ -71,7 +71,7 @@ import Foundation
     ///
     /// ## Requirements
     ///
-    /// Metrics must be enabled via ``Options/enableMetrics`` before metrics are sent to Sentry.
+    /// Metrics are enabled by default. To disable metrics, set ``Options/experimental`` ``SentryExperimentalOptions/enableMetrics`` to `false`.
     ///
     /// - Note: This feature is currently in open beta.
     ///
