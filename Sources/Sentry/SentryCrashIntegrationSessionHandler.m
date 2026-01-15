@@ -5,7 +5,6 @@
 #import "SentryLogC.h"
 #import "SentrySDK+Private.h"
 #import "SentrySwift.h"
-#import "SentryWatchdogTerminationLogic.h"
 
 @interface SentryCrashIntegrationSessionHandler ()
 
