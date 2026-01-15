@@ -169,6 +169,35 @@ extension SentryFileManager: SentryFileManagerProtocol { }
                 maxBreadcrumbs: Int(options.maxBreadcrumbs)),
             attributesProcessor: watchdogTerminationAttributesProcessor)
     }
+    
+    private var terminationTracker: SentryWatchdogTerminationTracker?
+    func getWatchdogTerminationTracker(_ options: Options) -> SentryWatchdogTerminationTracker? {
+        getOptionalLazyVar(\.terminationTracker) {
+            
+            guard let fileManager = fileManager else {
+                SentrySDKLog.fatal("File manager is not available")
+                return nil
+            }
+            
+            guard let scopeStore = scopePersistentStore else {
+                SentrySDKLog.fatal("Scope persistent store is not available")
+                return nil
+            }
+            
+            let dispatchQueueWrapper = dispatchFactory.createUtilityQueue("io.sentry.watchdog-termination-tracker", relativePriority: 0)
+            
+            let logic = SentryWatchdogTerminationLogic(options: options,
+                                                       crashAdapter: crashWrapper,
+                                                       appStateManager: appStateManager)
+            return SentryWatchdogTerminationTracker(
+                options: options,
+                watchdogTerminationLogic: logic,
+                appStateManager: appStateManager,
+                dispatchQueueWrapper: dispatchQueueWrapper,
+                fileManager: fileManager,
+                scopePersistentStore: scopeStore)
+        }
+    }
 #endif
 
 #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT
@@ -316,4 +345,9 @@ protocol WatchdogTerminationScopeObserverBuilder {
     func getWatchdogTerminationScopeObserverWithOptions(_ options: Options) -> SentryScopeObserver
 }
 extension SentryDependencyContainer: WatchdogTerminationScopeObserverBuilder { }
+
+protocol WatchdogTerminationTrackerBuilder {
+    func getWatchdogTerminationTracker(_ options: Options) -> SentryWatchdogTerminationTracker?
+}
+extension SentryDependencyContainer: WatchdogTerminationTrackerBuilder {}
 #endif
