@@ -250,9 +250,11 @@ extension SentryDependencyContainer: DateProviderProvider {}
 
 extension SentryDependencyContainer: AutoSessionTrackingProvider { }
 
-#if ((os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT) || os(macOS)
+protocol NotificationCenterProvider {
+    var notificationCenterWrapper: SentryNSNotificationCenterWrapper { get }
+}
+
 extension SentryDependencyContainer: NotificationCenterProvider { }
-#endif
 
 #if (os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)) && !SENTRY_NO_UIKIT
 protocol ScreenshotIntegrationProvider {

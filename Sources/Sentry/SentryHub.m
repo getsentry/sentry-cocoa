@@ -818,10 +818,32 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)flush:(NSTimeInterval)timeout
 {
+    // Flush flushable integrations first (e.g., metrics)
+    NSTimeInterval flushIntegrationsDuration = [self flushIntegrations];
+
+    // Calculate remaining timeout for client flush (logs and transport)
+    NSTimeInterval remainingTimeout = fmax(timeout / 2, timeout - flushIntegrationsDuration);
+
+    // Delegate to client for logs and transport flushing
     SentryClientInternal *client = self.client;
     if (client != nil) {
-        [client flush:timeout];
+        [client flush:remainingTimeout];
     }
+}
+
+- (NSTimeInterval)flushIntegrations
+{
+    NSTimeInterval totalDuration = 0;
+
+    @synchronized(_integrationsLock) {
+        for (id<SentryIntegrationProtocol> integration in _installedIntegrations) {
+            if ([integration respondsToSelector:@selector(flush)]) {
+                totalDuration += [(id)integration flush];
+            }
+        }
+    }
+
+    return totalDuration;
 }
 
 - (void)close
