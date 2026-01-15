@@ -186,7 +186,7 @@ NS_ASSUME_NONNULL_BEGIN
     }
 
     if (_sampled != nil) {
-        [result setValue:_sampleRate forKey:@"sampled"];
+        [result setValue:_sampled forKey:@"sampled"];
     }
 
     if (_replayId != nil) {
