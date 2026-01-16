@@ -11,18 +11,18 @@ import UIKit
 /// This function is called from C crash reporting code.
 @_cdecl("sentry_finishAndSaveTransaction")
 public func sentry_finishAndSaveTransaction() {
-    let scope = SentrySDKInternal.currentHub().scope as SentryScope
+    let scope = SentrySDKInternal.currentHub().scope as Scope
     guard let span = scope.getCastedInternalSpan() else {
         return
     }
-    span.tracer()?.finishForCrash()
+    span.tracer?.finishForCrash()
 }
 
 // MARK: - Dependency Provider
 
 /// Provides dependencies for `SentryCrashIntegration`.
 /// Uses existing providers (AppStateManagerProvider already defined in SentryDependencyContainer.swift).
-typealias CrashIntegrationProvider = DispatchQueueWrapperProvider & CrashWrapperProvider & AppStateManagerProvider
+typealias CrashIntegrationProvider = DispatchQueueWrapperProvider & CrashWrapperProvider & AppStateManagerProvider & FileManagerProvider
 
 // MARK: - Static State
 
@@ -54,10 +54,6 @@ private final class CrashInstallationState {
     }
 }
 
-// MARK: - Constants
-
-private let localeKey = "locale"
-
 // MARK: - SentryCrashIntegration
 
 final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSObject, SwiftIntegration {
@@ -70,9 +66,15 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
 
     // MARK: - Initialization
 
+    // swiftlint:disable function_body_length
     init?(with options: Options, dependencies: Dependencies) {
         guard options.enableCrashHandler else {
             SentrySDKLog.debug("Not going to enable \(Self.name) because enableCrashHandler is disabled.")
+            return nil
+        }
+        
+        guard let fileManager = dependencies.fileManager else {
+            SentrySDKLog.debug("Not going to enable \(Self.name) because a filemanager was not provided")
             return nil
         }
 
@@ -86,24 +88,21 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
         // Note: These Objective-C classes will need to be migrated to Swift or properly bridged
         // For now, create them using the SentryDependencyContainer which has access to them
         #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
-        if let deps = dependencies as? AppStateManagerProvider {
-            let watchdogLogic = SentryWatchdogTerminationLogic(
-                options: options,
-                crashAdapter: crashWrapper,
-                appStateManager: deps.appStateManager
-            )
-            self.sessionHandler = SentryCrashIntegrationSessionHandler(
-                crashWrapper: crashWrapper,
-                watchdogTerminationLogic: watchdogLogic
-            ) as? SentryCrashIntegrationSessionHandler
-        } else {
-            self.sessionHandler = SentryCrashIntegrationSessionHandler(crashWrapper: crashWrapper) as? SentryCrashIntegrationSessionHandler
-        }
+        let watchdogLogic = SentryWatchdogTerminationLogic(
+            options: options,
+            crashAdapter: crashWrapper,
+            appStateManager: dependencies.appStateManager
+        )
+        self.sessionHandler = SentryCrashIntegrationSessionHandler(
+            crashWrapper: crashWrapper,
+            watchdogTerminationLogic: watchdogLogic,
+            fileManager: fileManager
+        )
         #else
         self.sessionHandler = SentryCrashIntegrationSessionHandler(crashWrapper: crashWrapper) as? SentryCrashIntegrationSessionHandler
         #endif
 
-        self.scopeObserver = SentryCrashScopeObserver(maxBreadcrumbs: options.maxBreadcrumbs) as? SentryCrashScopeObserver
+        self.scopeObserver = SentryCrashScopeObserver(maxBreadcrumbs: Int(options.maxBreadcrumbs))
 
         guard self.sessionHandler != nil, self.scopeObserver != nil else {
             SentrySDKLog.warning("Failed to initialize SentryCrashIntegration dependencies")
@@ -135,9 +134,10 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
             configureTracingWhenCrashing()
         }
     }
+    // swiftlint:enable function_body_length
 
     /// Internal constructor for testing
-    init(options: Options, crashWrapper: SentryCrashWrapper, dispatchQueueWrapper: SentryDispatchQueueWrapper) {
+    init(options: Options, crashWrapper: SentryCrashWrapper, dispatchQueueWrapper: SentryDispatchQueueWrapper, fileManager: SentryFileManager) {
         self.options = options
         self.dispatchQueueWrapper = dispatchQueueWrapper
         self.crashWrapper = crashWrapper
@@ -154,7 +154,8 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
         )
         self.sessionHandler = SentryCrashIntegrationSessionHandler(
             crashWrapper: crashWrapper,
-            watchdogTerminationLogic: watchdogLogic
+            watchdogTerminationLogic: watchdogLogic,
+            fileManager: fileManager
         )
         #else
         self.sessionHandler = SentryCrashIntegrationSessionHandler(crashWrapper: crashWrapper)
@@ -295,7 +296,7 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
         SentrySDKInternal.currentHub().configureScope { [weak self] outerScope in
             guard let self = self, let options = self.options else { return }
 
-            var userInfo = outerScope.serialize() as? [String: Any] ?? [:]
+            var userInfo = outerScope.serialize()
 
             // SentryCrashReportConverter.convertReportToEvent needs the release name and
             // the dist of the SentryOptions in the UserInfo. When SentryCrash records a
@@ -310,7 +311,7 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
             // unnecessarily.
             userInfo.removeValue(forKey: "attributes")
 
-            SentryDependencyContainer.sharedInstance().crashReporter.setUserInfo(userInfo as [AnyHashable: Any])
+            SentryDependencyContainer.sharedInstance().crashReporter.userInfo = userInfo
 
             if let scopeObserver = self.scopeObserver {
                 outerScope.add(scopeObserver)
@@ -328,15 +329,15 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
     @objc private func currentLocaleDidChange() {
         SentrySDKInternal.currentHub().configureScope { scope in
             var device: [String: Any]
-            if let contextDictionary = scope.contextDictionary,
-               let existingDevice = contextDictionary[SENTRY_CONTEXT_DEVICE_KEY] as? [String: Any] {
+            let contextDictionary = scope.contextDictionary
+            if let existingDevice = contextDictionary[SENTRY_CONTEXT_DEVICE_KEY] as? [String: Any] {
                 device = existingDevice
             } else {
                 device = [:]
             }
 
             let locale = Locale.autoupdatingCurrent.identifier
-            device[localeKey] = locale
+            device["locale"] = locale
 
             scope.setContext(value: device, key: SENTRY_CONTEXT_DEVICE_KEY)
         }

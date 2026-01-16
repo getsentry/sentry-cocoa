@@ -23,7 +23,8 @@ static NSString *const SENTRY_CONTEXT_APP_KEY = @"app";
  * The observer should conform to SentryScopeObserver protocol, but the type is id
  * because Swift-defined protocols don't work correctly with Objective-C's id<Protocol> syntax.
  */
-- (void)addScopeObserver:(id)observer NS_SWIFT_NAME(add(_:));
+- (void)addScopeObserver:(SENTRY_SWIFT_MIGRATION_ID(id<SentryScopeObserver>))observer
+    NS_SWIFT_NAME(add(_:));
 
 @end
 
