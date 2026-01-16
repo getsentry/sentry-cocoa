@@ -1,3 +1,5 @@
+//swiftlint:disable file_length
+
 @_implementationOnly import _SentryPrivate
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
 import UIKit
@@ -199,6 +201,30 @@ extension SentryFileManager: SentryFileManagerProtocol { }
         }
     }
 #endif
+    
+    private var crashIntegrationSessionHandler: SentryCrashIntegrationSessionHandler?
+    func getCrashIntegrationSessionBuilder(_ options: Options) -> SentryCrashIntegrationSessionHandler? {
+        getOptionalLazyVar(\.crashIntegrationSessionHandler) {
+            
+            guard let fileManager = fileManager else {
+                SentrySDKLog.fatal("File manager is not available")
+                return nil
+            }
+            
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
+            let watchdogLogic = SentryWatchdogTerminationLogic(options: options,
+                                                       crashAdapter: crashWrapper,
+                                                       appStateManager: appStateManager)
+            return SentryCrashIntegrationSessionHandler(
+                crashWrapper: crashWrapper,
+                watchdogTerminationLogic: watchdogLogic,
+                fileManager: fileManager
+            )
+#else
+            return SentryCrashIntegrationSessionHandler(crashWrapper: crashWrapper, fileManager: fileManager)
+#endif
+        }
+    }
 
 #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT
     private var _screenshotSource: SentryScreenshotSource?
@@ -366,3 +392,15 @@ extension SentryDependencyContainer: NetworkTrackerProvider {
         SentryNetworkTracker.sharedInstance
     }
 }
+
+protocol SentryCrashReporterProvider {
+    var crashReporter: SentryCrashSwift { get }
+}
+extension SentryDependencyContainer: SentryCrashReporterProvider {}
+
+protocol CrashIntegrationSessionHandlerBuilder {
+    func getCrashIntegrationSessionBuilder(_ options: Options) -> SentryCrashIntegrationSessionHandler?
+}
+extension SentryDependencyContainer: CrashIntegrationSessionHandlerBuilder {}
+
+//swiftlint:enable file_length

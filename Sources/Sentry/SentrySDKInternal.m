@@ -501,10 +501,7 @@ static NSDate *_Nullable startTimestamp = nil;
 + (NSArray<Class> *)defaultIntegrationClasses
 {
     // The order of integrations here is important.
-    // SentryCrashIntegration needs to be initialized before SentryAutoSessionTrackingIntegration.
-    // And SentrySessionReplayIntegration before SentryCrashIntegration.
-    // SentryCrashIntegration is now installed via Swift integrations in
-    // SentrySwiftIntegrationInstaller.
+    // SentrySessionReplayIntegration needs to be initialized before SentryCrashIntegration.
     NSMutableArray<Class> *defaultIntegrations = [NSMutableArray<Class> arrayWithObjects:
 #if SENTRY_TARGET_REPLAY_SUPPORTED
             [SentrySessionReplayIntegration class],

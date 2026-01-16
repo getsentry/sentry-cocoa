@@ -13,7 +13,6 @@ final class SentryCrashInstallationReporter: SentryCrashInstallation {
     private let crashWrapper: SentryCrashWrapper
     private let dispatchQueue: SentryDispatchQueueWrapper
 
-    @objc
     init(
         inAppLogic: SentryInAppLogic,
         crashWrapper: SentryCrashWrapper,

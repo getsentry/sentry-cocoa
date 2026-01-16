@@ -5,7 +5,6 @@ import Foundation
 import UIKit
 #endif
 
-@objc
 final class SentryCrashIntegrationSessionHandler: NSObject {
 
     private let crashWrapper: SentryCrashWrapper
@@ -16,7 +15,7 @@ final class SentryCrashIntegrationSessionHandler: NSObject {
     #endif
 
     #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
-    @objc public init(
+    init(
         crashWrapper: SentryCrashWrapper,
         watchdogTerminationLogic: SentryWatchdogTerminationLogic,
         fileManager: SentryFileManager
@@ -27,23 +26,23 @@ final class SentryCrashIntegrationSessionHandler: NSObject {
         super.init()
     }
     #else
-    @objc public init(crashWrapper: SentryCrashWrapper, fileManager: SentryFileManager) {
+    init(crashWrapper: SentryCrashWrapper, fileManager: SentryFileManager) {
         self.crashWrapper = crashWrapper
         self.fileManager = fileManager
         super.init()
     }
     #endif
 
-/**
- * When a crash or a watchdog termination happens, we end the current session as crashed, store it
- * in a dedicated location, and delete the current one. The same applies if a fatal app hang occurs.
- * Then, we end the current session as abnormal and store it in a dedicated abnormal session
- * location.
- *
- * Check out the SentryHub, which implements most of the session logic, for more details about
- * sessions.
- */
-    @objc public func endCurrentSessionIfRequired() {
+    /**
+     * When a crash or a watchdog termination happens, we end the current session as crashed, store it
+     * in a dedicated location, and delete the current one. The same applies if a fatal app hang occurs.
+     * Then, we end the current session as abnormal and store it in a dedicated abnormal session
+     * location.
+     *
+     * Check out the SentryHub, which implements most of the session logic, for more details about
+     * sessions.
+     */
+    func endCurrentSessionIfRequired() {
         guard let session = fileManager.readCurrentSession() else {
             SentrySDKLog.debug("No current session found to end.")
             return
