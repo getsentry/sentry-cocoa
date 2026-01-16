@@ -27,12 +27,13 @@ typealias CrashIntegrationProvider = DispatchQueueWrapperProvider & CrashWrapper
 
 /// Static installation state shared across instances.
 /// SentryCrash installation is a one-time operation per app lifecycle.
+/// We could use just 2 vars here, but using an singleton should make it easier to integrate with Swift 6
 private final class CrashInstallationState {
     static let shared = CrashInstallationState()
 
     private let lock = NSLock()
     private var _installationToken: Int = 0
-    private var _installation: AnyObject?
+    private var _installation: SentryCrashInstallationReporter?
 
     var installationToken: UnsafeMutablePointer<Int> {
         lock.withLock {
@@ -41,7 +42,7 @@ private final class CrashInstallationState {
     }
 
     var installation: SentryCrashInstallationReporter? {
-        get { lock.withLock { _installation as? SentryCrashInstallationReporter } }
+        get { lock.withLock { _installation } }
         set { lock.withLock { _installation = newValue } }
     }
 
