@@ -188,7 +188,7 @@ class SentryMetricsIntegrationTests: XCTestCase {
         let integration = try XCTUnwrap(SentryMetricsIntegration<TestDependencies>(with: options, dependencies: testDependencies) as Any as? SentryIntegrationProtocol)
         hub.addInstalledIntegration(integration, name: SentryMetricsIntegration<TestDependencies>.name)
         
-        let metricsIntegration = try XCTUnwrap(integration as? SentryMetricsIntegration<TestDependencies>)
+        let metricsIntegration = try XCTUnwrap(integration as Any as? SentryMetricsIntegration<TestDependencies>)
         let scope = Scope()
         let metric = SentryMetric(
             timestamp: Date(),
@@ -248,7 +248,7 @@ class SentryMetricsIntegrationTests: XCTestCase {
         let integration = try XCTUnwrap(SentryMetricsIntegration<TestDependencies>(with: options, dependencies: testDependencies) as Any as? SentryIntegrationProtocol)
         hub.addInstalledIntegration(integration, name: SentryMetricsIntegration<TestDependencies>.name)
         
-        let metricsIntegration = try XCTUnwrap(integration as? SentryMetricsIntegration<TestDependencies>)
+        let metricsIntegration = try XCTUnwrap(integration as Any as? SentryMetricsIntegration<TestDependencies>)
         let scope = Scope()
         let metric = SentryMetric(
             timestamp: Date(),

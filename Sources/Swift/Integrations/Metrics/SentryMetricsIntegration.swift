@@ -1,6 +1,6 @@
 @_implementationOnly import _SentryPrivate
 
-#if (os(iOS) || os(tvOS) || os(visionOS) || os(watchOS)) && !SENTRY_NO_UIKIT
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
 import UIKit
 private typealias CrossPlatformApplication = UIApplication
 #elseif os(macOS)
@@ -89,6 +89,7 @@ final class SentryMetricsIntegration<Dependencies: SentryMetricsIntegrationDepen
     // MARK: - Lifecycle Handling
     
     private func setupLifecycleObservers() {
+        #if ((os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT) || os(macOS)
         notificationCenter.addObserver(
             self,
             selector: #selector(willResignActive),
@@ -102,9 +103,11 @@ final class SentryMetricsIntegration<Dependencies: SentryMetricsIntegrationDepen
             name: CrossPlatformApplication.willTerminateNotification,
             object: nil
         )
+        #endif
     }
     
     private func removeLifecycleObservers() {
+        #if ((os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT) || os(macOS)
         notificationCenter.removeObserver(
             self,
             name: CrossPlatformApplication.willResignActiveNotification,
@@ -116,10 +119,12 @@ final class SentryMetricsIntegration<Dependencies: SentryMetricsIntegrationDepen
             name: CrossPlatformApplication.willTerminateNotification,
             object: nil
         )
+        #endif
     }
     
     // These methods are implemented in the main class body (not in an extension)
     // because extensions of generic classes cannot contain @objc members.
+    #if ((os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT) || os(macOS)
     @objc private func willResignActive() {
         // Flush metrics directly via the integration's flush method
         _ = flush() // Use discardable result
@@ -129,4 +134,5 @@ final class SentryMetricsIntegration<Dependencies: SentryMetricsIntegrationDepen
         // Flush metrics directly via the integration's flush method
         _ = flush() // Use discardable result
     }
+    #endif
 }
