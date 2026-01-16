@@ -33,11 +33,34 @@
         app.launchEnvironment = mutableEnvironment;
 
         [app launch];
-        [app.tabBars[@"Tab Bar"].buttons[@"Transactions"] tap];
+
+        // Switch to the transactions page
+        XCUIElement *tabBar = app.tabBars[@"Tab Bar"];
+        XCUIElement *tabItemTransactions = tabBar.buttons[@"Transactions"];
+        [tabItemTransactions tap];
 
         [app.buttons[@"startTransactionMainThread"] tap];
 
-        [app.tabBars[@"Tab Bar"].buttons[@"Benchmarking"] tap];
+        // Switch to the benchmarking page
+        XCUIElement *tabItemBenchmarking = tabBar.buttons[@"Benchmarking"];
+        if ([tabItemBenchmarking waitForExistenceWithTimeout:1]) {
+            [tabItemBenchmarking tap];
+        } else {
+            // The benchmarking button could be in the standard more menu of the tab bar
+            XCUIElement *moreButton = tabBar.buttons[@"More"];
+            if (![moreButton waitForExistenceWithTimeout:1]) {
+                XCTFail("Failed to find more tab item");
+            }
+            [moreButton tap];
+
+            // Overflowing items are displayed as a table view list
+            XCUIElement *buttonBenchmarking =
+                [app.cells.staticTexts matchingIdentifier:@"Benchmarking"].firstMatch;
+            if (![buttonBenchmarking waitForExistenceWithTimeout:1]) {
+                XCTFail("Failed to find button to benchmarking page");
+            }
+            [buttonBenchmarking tap];
+        }
 
         [app.buttons[@"Benchmark start"] tap];
 
