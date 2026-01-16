@@ -15,6 +15,8 @@ public final class SentryViewScreenshotOptions: NSObject, SentryRedactOptions {
         public static let maskAllImages: Bool = true
         public static let maskedViewClasses: [AnyClass] = []
         public static let unmaskedViewClasses: [AnyClass] = []
+        public static let excludedViewClasses: Set<String> = []
+        public static let includedViewClasses: Set<String> = []
     }
     
     // MARK: - Rendering
@@ -93,7 +95,81 @@ public final class SentryViewScreenshotOptions: NSObject, SentryRedactOptions {
      * - Note: See ``SentryViewScreenshotOptions.init`` for the default value.
      */
     public var unmaskedViewClasses: [AnyClass]
+
+    /**
+     * A set of view type identifier strings that should be excluded from subtree traversal.
+     *
+     * Views matching these types will have their subtrees skipped during redaction to avoid crashes
+     * caused by traversing problematic view hierarchies (e.g., views that activate internal CoreAnimation
+     * animations when their layers are accessed).
+     *
+     * Matching uses partial string containment: if a view's class name (from `type(of: view).description()`)
+     * contains any of these strings, the subtree will be ignored. For example, "MyView" will match
+     * "MyApp.MyView", "MyViewSubclass", "Some.MyView.Container", etc.
+     *
+     * - Note: You should use the methods ``excludeViewTypeFromSubtreeTraversal(_:)`` and ``includeViewTypeInSubtreeTraversal(_:)``
+     *         to add and remove view types, so you do not accidentally remove our defaults.
+     * - Note: The final set of excluded view types is computed by `SentryUIRedactBuilder` using the formula:
+     *         **Default View Classes + Excluded View Classes - Included View Classes**
+     *         Default view classes are defined in `SentryUIRedactBuilder` (e.g., `CameraUI.ChromeSwiftUIView` on iOS 26+).
+     */
+    public private(set) var excludedViewClasses: Set<String>
+
+    /**
+     * A set of view type identifier strings that should be included in subtree traversal.
+     *
+     * View types exactly matching these strings will be removed from the excluded set, allowing their subtrees
+     * to be traversed even if they would otherwise be excluded by default or via `excludedViewClasses`.
+     *
+     * Matching uses exact string matching: the view's class name (from `type(of: view).description()`)
+     * must exactly equal one of these strings. For example, "MyApp.MyView" will only match exactly "MyApp.MyView",
+     * not "MyApp.MyViewSubclass".
+     *
+     * - Note: You should use the methods ``excludeViewTypeFromSubtreeTraversal(_:)`` and ``includeViewTypeInSubtreeTraversal(_:)``
+     *         to add and remove view types, so you do not accidentally remove our defaults.
+     * - Note: The final set of excluded view types is computed by `SentryUIRedactBuilder` using the formula:
+     *         **Default View Classes + Excluded View Classes - Included View Classes**
+     *         Default view classes are defined in `SentryUIRedactBuilder` (e.g., `CameraUI.ChromeSwiftUIView` on iOS 26+).
+     *         For example, you can use this to re-enable traversal for `CameraUI.ChromeSwiftUIView` on iOS 26+
+     *         by calling ``includeViewTypeInSubtreeTraversal("CameraUI.ChromeSwiftUIView")``.
+     * - Note: Included patterns use exact matching (not partial) to prevent accidental matches. For example,
+     *         if "ChromeCameraUI" is excluded and "Camera" is included, "ChromeCameraUI" will still be excluded
+     *         because "Camera" doesn't exactly match "ChromeCameraUI".
+     */
+    public private(set) var includedViewClasses: Set<String>
     
+    /**
+     * Adds a view type pattern to the excluded set, preventing matching views' subtrees from being traversed.
+     *
+     * - Parameter viewType: The view type identifier pattern (as a string) to exclude from subtree traversal.
+     *                      Matching uses partial string containment: if a view's class name contains this string,
+     *                      the subtree will be ignored. For example, "MyView" will match "MyApp.MyView",
+     *                      "MyViewSubclass", etc.
+     *
+     * - Note: This method adds the pattern to `excludedViewClasses`, which is then combined with
+     *         default excluded types (defined in `SentryUIRedactBuilder`) and filtered by `includedViewClasses`
+     *         to produce the final set.
+     */
+    public func excludeViewTypeFromSubtreeTraversal(_ viewType: String) {
+        excludedViewClasses.insert(viewType)
+    }
+    
+    /**
+     * Adds a view type to the included set, allowing its subtree to be traversed.
+     *
+     * - Parameter viewType: The view type identifier (as a string) to include in subtree traversal.
+     *                      Must exactly match the result of `type(of: view).description()`.
+     *                      For example, "MyApp.MyView" will only match exactly "MyApp.MyView".
+     *
+     * - Note: This method adds the view type to `includedViewClasses`, which filters the combined set
+     *         of default excluded types (defined in `SentryUIRedactBuilder`) and `excludedViewClasses`.
+     *         For example, you can use this to re-enable traversal for `CameraUI.ChromeSwiftUIView` on iOS 26+.
+     * - Note: Included patterns use exact matching (not partial) to prevent accidental matches.
+     */
+    public func includeViewTypeInSubtreeTraversal(_ viewType: String) {
+        includedViewClasses.insert(viewType)
+    }
+
     /**
      * Initialize screenshot options disabled
      *
@@ -109,7 +185,9 @@ public final class SentryViewScreenshotOptions: NSObject, SentryRedactOptions {
             maskAllText: DefaultValues.maskAllText,
             maskAllImages: DefaultValues.maskAllImages,
             maskedViewClasses: DefaultValues.maskedViewClasses,
-            unmaskedViewClasses: DefaultValues.unmaskedViewClasses
+            unmaskedViewClasses: DefaultValues.unmaskedViewClasses,
+            excludedViewClasses: DefaultValues.excludedViewClasses,
+            includedViewClasses: DefaultValues.includedViewClasses
         )
     }
     
@@ -133,7 +211,9 @@ public final class SentryViewScreenshotOptions: NSObject, SentryRedactOptions {
             }) ?? DefaultValues.maskedViewClasses,
             unmaskedViewClasses: (dictionary["unmaskedViewClasses"] as? NSArray)?.compactMap({ element in
                 NSClassFromString((element as? String) ?? "")
-            }) ?? DefaultValues.unmaskedViewClasses
+            }) ?? DefaultValues.unmaskedViewClasses,
+            excludedViewClasses: (dictionary["excludedViewClasses"] as? [String]).map { Set($0) } ?? DefaultValues.excludedViewClasses,
+            includedViewClasses: (dictionary["includedViewClasses"] as? [String]).map { Set($0) } ?? DefaultValues.includedViewClasses
         )
     }
     
@@ -147,6 +227,8 @@ public final class SentryViewScreenshotOptions: NSObject, SentryRedactOptions {
      *   - maskAllImages: Flag to redact all images in the app by drawing a rectangle over it.
      *   - maskedViewClasses: A list of custom UIView subclasses that need to be masked during the screenshot.
      *   - unmaskedViewClasses: A list of custom UIView subclasses to be ignored during masking step of the screenshot.
+     *   - excludedViewClasses: A set of view type identifiers that should be excluded from subtree traversal.
+     *   - includedViewClasses: A set of view type identifiers that should be included in subtree traversal.
      *
      * - Note: See ``SentryViewScreenshotOptions.DefaultValues`` for the default values of each parameter.
      */
@@ -156,7 +238,9 @@ public final class SentryViewScreenshotOptions: NSObject, SentryRedactOptions {
         maskAllText: Bool = DefaultValues.maskAllText,
         maskAllImages: Bool = DefaultValues.maskAllImages,
         maskedViewClasses: [AnyClass] = DefaultValues.maskedViewClasses,
-        unmaskedViewClasses: [AnyClass] = DefaultValues.unmaskedViewClasses
+        unmaskedViewClasses: [AnyClass] = DefaultValues.unmaskedViewClasses,
+        excludedViewClasses: Set<String> = DefaultValues.excludedViewClasses,
+        includedViewClasses: Set<String> = DefaultValues.includedViewClasses
     ) {
         // - This initializer is publicly available for Swift, but not for Objective-C, because automatically bridged Swift initializers
         //   with default values result in a single initializer requiring all parameters.
@@ -170,11 +254,13 @@ public final class SentryViewScreenshotOptions: NSObject, SentryRedactOptions {
         self.maskAllImages = maskAllImages
         self.maskedViewClasses = maskedViewClasses
         self.unmaskedViewClasses = unmaskedViewClasses
+        self.excludedViewClasses = excludedViewClasses
+        self.includedViewClasses = includedViewClasses
 
         super.init()
     }
     
     public override var description: String {
-        return "SentryViewScreenshotOptions(enableViewRendererV2: \(enableViewRendererV2), enableFastViewRendering: \(enableFastViewRendering), maskAllText: \(maskAllText), maskAllImages: \(maskAllImages), maskedViewClasses: \(maskedViewClasses), unmaskedViewClasses: \(unmaskedViewClasses))"
+        return "SentryViewScreenshotOptions(enableViewRendererV2: \(enableViewRendererV2), enableFastViewRendering: \(enableFastViewRendering), maskAllText: \(maskAllText), maskAllImages: \(maskAllImages), maskedViewClasses: \(maskedViewClasses), unmaskedViewClasses: \(unmaskedViewClasses), excludedViewClasses: \(excludedViewClasses), includedViewClasses: \(includedViewClasses))"
     }
 }

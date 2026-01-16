@@ -15,6 +15,8 @@ NS_ASSUME_NONNULL_BEGIN
 @class SentryFramesTracker;
 #endif // SENTRY_HAS_UIKIT
 
+// This class used to be named SentrySpan, but it was renamed to SentrySpanInternal to avoid
+// confusion with the public SentrySpan protocol.
 @interface SentrySpanInternal : NSObject <SentrySpan, SentrySerializable>
 SENTRY_NO_INIT
 

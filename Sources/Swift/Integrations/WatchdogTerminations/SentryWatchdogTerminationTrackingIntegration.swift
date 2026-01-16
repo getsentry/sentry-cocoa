@@ -3,7 +3,7 @@ import Foundation
 
 #if (os(iOS) || os(tvOS) || targetEnvironment(macCatalyst) || os(visionOS)) && !SENTRY_NO_UIKIT
 
-typealias WatchdogTerminationTrackingProvider = FileManagerProvider & ANRTrackerBuilder & CrashWrapperProvider & ProcessInfoProvider & DispatchFactoryProvider & AppStateManagerProvider & ScopePersistentStoreProvider & WatchdogTerminationScopeObserverBuilder
+typealias WatchdogTerminationTrackingProvider = ANRTrackerBuilder & ProcessInfoProvider & AppStateManagerProvider & WatchdogTerminationScopeObserverBuilder & WatchdogTerminationTrackerBuilder
 
 final class SentryWatchdogTerminationTrackingIntegration<Dependencies: WatchdogTerminationTrackingProvider>: NSObject, SwiftIntegration, SentryANRTrackerDelegate {
 
@@ -27,33 +27,14 @@ final class SentryWatchdogTerminationTrackingIntegration<Dependencies: WatchdogT
             return nil
         }
 
-        let dispatchQueueWrapper = dependencies.dispatchFactory.createUtilityQueue("io.sentry.watchdog-termination-tracker", relativePriority: 0)
-
-        guard let fileManager = dependencies.fileManager else {
-            SentrySDKLog.fatal("File manager is not available")
+        guard let terminationTracker = dependencies.getWatchdogTerminationTracker(options) else {
+            SentrySDKLog.fatal("Watchdog Termination tracker not available")
             return nil
         }
 
-        guard let scopeStore = dependencies.scopePersistentStore else {
-            SentrySDKLog.fatal("Scope persistent store is not available")
-            return nil
-        }
-
-        let appStateManager = dependencies.appStateManager
-        let crashWrapper = dependencies.crashWrapper
-
-        let logic = SentryWatchdogTerminationLogic(options: options, crashAdapter: crashWrapper, appStateManager: appStateManager)
-
-        tracker = SentryWatchdogTerminationTracker(
-            options: options,
-            watchdogTerminationLogic: logic,
-            appStateManager: appStateManager,
-            dispatchQueueWrapper: dispatchQueueWrapper,
-            fileManager: fileManager,
-            scopePersistentStore: scopeStore)
-
+        tracker = terminationTracker
         anrTracker = dependencies.getANRTracker(options.appHangTimeoutInterval)
-        self.appStateManager = appStateManager
+        appStateManager = dependencies.appStateManager
 
         super.init()
 
@@ -103,12 +84,6 @@ final class SentryWatchdogTerminationTrackingIntegration<Dependencies: WatchdogT
             appState.isANROngoing = false
         }
     }
-    
-    #if SENTRY_TEST || SENTRY_TEST_CI
-    func getTracker() -> SentryWatchdogTerminationTracker {
-        tracker
-    }
-    #endif
 }
 
 #endif // (os(iOS) || os(tvOS) || targetEnvironment(macCatalyst) || os(visionOS)) && !SENTRY_NO_UIKIT

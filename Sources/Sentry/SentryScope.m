@@ -9,7 +9,7 @@
 #import "SentryLogC.h"
 #import "SentryScope+Private.h"
 #import "SentryScope+PrivateSwift.h"
-#import "SentrySpan+Private.h"
+#import "SentrySpanInternal+Private.h"
 #import "SentrySwift.h"
 #import "SentryTracer.h"
 #import "SentryTransactionContext.h"
@@ -678,14 +678,34 @@ NS_ASSUME_NONNULL_BEGIN
     return event;
 }
 
-- (void)addScopeObserver:(id)observer
+- (void)addScopeObserver:(SENTRY_SWIFT_MIGRATION_ID(id<SentryScopeObserver>))observer
 {
     // Validate if the observer conforms because the API doesn't require
     // observers to conform anymore due to the protocol being written in Swift
     // but protocol forwarded in ObjC
     // Additionaly, conformsToProtocol:@protocol(SentryScopeObserver) seems to fail
-    // here, so we use `func setTraceContext(_ traceContext: [String: Any]?)`
-    if ([observer respondsToSelector:@selector(setTraceContext:)]) {
+    // because the conformance is declared in a Category, so runtime checks fail.
+    // So we use check for all SentryScopeObserver functions AND an assertion to get alerts on tests
+    // As a compile check if any of these selectors cease to exist, this should fail to build.
+    // Once this class is converted to Swift, we shouldn't need this anymore
+
+    BOOL conformsToScopeObserver = [observer respondsToSelector:@selector(setTraceContext:)] &&
+        [observer respondsToSelector:@selector(setUser:)] &&
+        [observer respondsToSelector:@selector(setTags:)] &&
+        [observer respondsToSelector:@selector(setExtras:)] &&
+        [observer respondsToSelector:@selector(setContext:)] &&
+        [observer respondsToSelector:@selector(setDist:)] &&
+        [observer respondsToSelector:@selector(setEnvironment:)] &&
+        [observer respondsToSelector:@selector(setFingerprint:)] &&
+        [observer respondsToSelector:@selector(setLevel:)] &&
+        [observer respondsToSelector:@selector(setFingerprint:)] &&
+        [observer respondsToSelector:@selector(setAttributes:)] &&
+        [observer respondsToSelector:@selector(addSerializedBreadcrumb:)] &&
+        [observer respondsToSelector:@selector(clearBreadcrumbs)] &&
+        [observer respondsToSelector:@selector(clear)];
+    SENTRY_ASSERT(conformsToScopeObserver,
+        @"Observer must be an instance conforming to SentryScopeObserver protocol")
+    if (conformsToScopeObserver) {
         [self.observers addObject:observer];
     }
 }

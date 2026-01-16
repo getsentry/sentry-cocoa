@@ -161,9 +161,10 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
     }
 
     func testInit_whenNoUnitTests_trackerInitialized() throws {
-        let sut = fixture.getSut()
+        let dependencies = MockDependencies()
+        _ = SentryWatchdogTerminationTrackingIntegration(with: fixture.options, dependencies: dependencies)
 
-        XCTAssertNotNil(sut?.getTracker())
+        XCTAssertTrue(dependencies.getWatchdogTerminationTrackerCalled)
     }
 
     func testInit_shouldAddScopeObserverToHub() throws {
@@ -287,6 +288,30 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         // -- Assert --
         let appState = try XCTUnwrap(fixture.fileManager.readAppState())
         XCTAssertFalse(appState.isANROngoing)
+    }
+}
+
+private class MockDependencies: ANRTrackerBuilder & ProcessInfoProvider & AppStateManagerProvider & WatchdogTerminationScopeObserverBuilder & WatchdogTerminationTrackerBuilder {
+    func getANRTracker(_ interval: TimeInterval) -> Sentry.SentryANRTracker {
+        SentryDependencyContainer.sharedInstance().getANRTracker(interval)
+    }
+    
+    var processInfoWrapper: any Sentry.SentryProcessInfoSource {
+        SentryDependencyContainer.sharedInstance().processInfoWrapper
+    }
+    
+    var appStateManager: Sentry.SentryAppStateManager {
+        SentryDependencyContainer.sharedInstance().appStateManager
+    }
+    
+    func getWatchdogTerminationScopeObserverWithOptions(_ options: Sentry.Options) -> any Sentry.SentryScopeObserver {
+        return SentryDependencyContainer.sharedInstance().getWatchdogTerminationScopeObserverWithOptions(options)
+    }
+    
+    var getWatchdogTerminationTrackerCalled: Bool = false
+    func getWatchdogTerminationTracker(_ options: Sentry.Options) -> Sentry.SentryWatchdogTerminationTracker? {
+        getWatchdogTerminationTrackerCalled = true
+        return SentryDependencyContainer.sharedInstance().getWatchdogTerminationTracker(options)
     }
 }
 

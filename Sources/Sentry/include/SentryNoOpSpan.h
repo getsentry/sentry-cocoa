@@ -1,6 +1,6 @@
 #import "SentryDefines.h"
-#import "SentrySpan.h"
 #import "SentrySpanContext.h"
+#import "SentrySpanInternal.h"
 #import "SentrySpanProtocol.h"
 
 NS_ASSUME_NONNULL_BEGIN

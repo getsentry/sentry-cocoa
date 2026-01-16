@@ -11,7 +11,6 @@
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"
 #import "SentryMeta.h"
-#import "SentryNetworkTrackingIntegration.h"
 #import "SentryProfilingConditionals.h"
 #import "SentryReplayApi.h"
 #import "SentrySamplerDecision.h"
@@ -19,14 +18,13 @@
 #import "SentryScope.h"
 #import "SentrySerialization.h"
 #import "SentrySessionReplayIntegration.h"
-#import "SentrySpan.h"
+#import "SentrySpanInternal.h"
 #import "SentrySwift.h"
 #import "SentryTransactionContext.h"
 #import "SentryUseNSExceptionCallstackWrapper.h"
 
 #if SENTRY_HAS_UIKIT
 #    import "SentryAppStartTrackingIntegration.h"
-#    import "SentryFramesTrackingIntegration.h"
 #    import "SentryPerformanceTrackingIntegration.h"
 #    import "SentryUIEventTrackingIntegration.h"
 #    import "SentryViewHierarchyIntegration.h"
@@ -512,12 +510,11 @@ static NSDate *_Nullable startTimestamp = nil;
             [SentrySessionReplayIntegration class],
 #endif // SENTRY_TARGET_REPLAY_SUPPORTED
 #if SENTRY_HAS_UIKIT
-        [SentryAppStartTrackingIntegration class], [SentryFramesTrackingIntegration class],
-        [SentryPerformanceTrackingIntegration class], [SentryUIEventTrackingIntegration class],
-        [SentryViewHierarchyIntegration class],
+        [SentryAppStartTrackingIntegration class], [SentryPerformanceTrackingIntegration class],
+        [SentryUIEventTrackingIntegration class], [SentryViewHierarchyIntegration class],
 #endif // SENTRY_HAS_UIKIT
         [SentryAutoBreadcrumbTrackingIntegration class], [SentryCoreDataTrackingIntegration class],
-        [SentryFileIOTrackingIntegration class], [SentryNetworkTrackingIntegration class], nil];
+        [SentryFileIOTrackingIntegration class], nil];
 
     return defaultIntegrations;
 }

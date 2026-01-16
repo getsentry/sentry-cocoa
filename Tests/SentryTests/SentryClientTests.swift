@@ -911,6 +911,7 @@ class SentryClientTests: XCTestCase {
         XCTAssertNil(event.tags, "Tags from scope must not be applied to crash events.")
     }
     
+#if os(iOS) || os(tvOS) || os(visionOS) || targetEnvironment(macCatalyst)
     func testCaptureOOMEvent_RemovesMutableInfoFromDeviceContext() throws {
         // Arrange
         let oomEvent = TestData.oomEvent
@@ -966,6 +967,7 @@ class SentryClientTests: XCTestCase {
         XCTAssertEqual(oomEvent.eventId, actual.eventId)
         XCTAssertEqual(oomEvent.context?.count, actual.context?.count)
     }
+#endif
 
     func testCaptureFatalEventWithSession_DoesntApplyCurrentScope() throws {
         // Arrange
@@ -1949,7 +1951,7 @@ class SentryClientTests: XCTestCase {
 
         eventId.assertIsNotEmpty()
 
-        var expectedIntegrations = ["AutoBreadcrumbTracking", "AutoSessionTracking", "Crash", "NetworkTracking"]
+        var expectedIntegrations = ["AutoBreadcrumbTracking", "AutoSessionTracking", "Crash", "Metrics", "NetworkTracking"]
         if !SentryDependencyContainer.sharedInstance().crashWrapper.isBeingTraced {
             expectedIntegrations = ["ANRTracking"] + expectedIntegrations
         }
@@ -2468,6 +2470,31 @@ class SentryClientTests: XCTestCase {
         sut.captureLogs()
         
         XCTAssertEqual(testBatcher.captureLogsInvocations.count, 1)
+    }
+    
+    func testCaptureMetricsData_whenCalled_shouldCreateEnvelopeWithCorrectItem() throws {
+        // -- Arrange --
+        let testData = Data("test metrics data".utf8)
+        let itemCount = NSNumber(value: 5)
+        let sut = fixture.getSut()
+        
+        // -- Act --
+        sut.captureMetricsData(testData, with: itemCount)
+        
+        // -- Assert --
+        XCTAssertEqual(fixture.transport.sentEnvelopes.count, 1, "Should send exactly one envelope")
+        
+        let envelope = try XCTUnwrap(fixture.transport.sentEnvelopes.first)
+        XCTAssertEqual(envelope.items.count, 1, "Envelope should contain exactly one item")
+        
+        let envelopeItem = try XCTUnwrap(envelope.items.first)
+        XCTAssertEqual(envelopeItem.header.type, SentryEnvelopeItemTypes.traceMetric, "Envelope item type should be trace_metric")
+        XCTAssertEqual(envelopeItem.header.contentType, "application/vnd.sentry.items.trace-metric+json", "Content type should match expected value")
+        XCTAssertEqual(envelopeItem.header.itemCount, itemCount, "Item count should match provided value")
+        XCTAssertEqual(envelopeItem.data, testData, "Envelope item data should match provided data")
+        
+        // Verify envelope header is empty (as per implementation)
+        XCTAssertNil(envelope.header.eventId, "Envelope header eventId should be nil")
     }
     
     func testCaptureSentryWrappedException() throws {
