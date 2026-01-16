@@ -153,8 +153,10 @@ class SentryMetricsIntegrationTests: XCTestCase {
         XCTAssertGreaterThanOrEqual(duration, 0, "flush() should return non-negative duration")
     }
     
-    #if ((os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT) || os(macOS)
     func testWillResignActive_whenClientAvailable_shouldFlushMetrics() throws {
+        #if !(((os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT) || os(macOS))
+        XCTSkip("Not supported on this platform")
+        #else
         // -- Arrange --
         let options = Options()
         options.dsn = TestConstants.dsnForTestCase(type: Self.self)
@@ -212,9 +214,13 @@ class SentryMetricsIntegrationTests: XCTestCase {
         
         // -- Assert --
         XCTAssertEqual(client.captureMetricsDataInvocations.count, 1, "Metrics should be flushed on willResignActive")
+        #endif
     }
     
     func testWillTerminate_whenClientAvailable_shouldFlushMetrics() throws {
+        #if !(((os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT) || os(macOS))
+        XCTSkip("Not supported on this platform")
+        #else
         // -- Arrange --
         let options = Options()
         options.dsn = TestConstants.dsnForTestCase(type: Self.self)
@@ -272,9 +278,13 @@ class SentryMetricsIntegrationTests: XCTestCase {
         
         // -- Assert --
         XCTAssertEqual(client.captureMetricsDataInvocations.count, 1, "Metrics should be flushed on willTerminate")
+        #endif
     }
     
     func testWillResignActive_whenNoClient_shouldNotCrash() throws {
+        #if !(((os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT) || os(macOS))
+        XCTSkip("Not supported on this platform")
+        #else
         // -- Arrange --
         let options = Options()
         options.dsn = TestConstants.dsnForTestCase(type: Self.self)
@@ -316,8 +326,8 @@ class SentryMetricsIntegrationTests: XCTestCase {
         #endif
         
         XCTAssertTrue(true, "Should handle missing client gracefully")
+        #endif
     }
-    #endif
 
     // MARK: - Helpers
 

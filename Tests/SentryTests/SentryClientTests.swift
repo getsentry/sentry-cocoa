@@ -2519,7 +2519,7 @@ class SentryClientTests: XCTestCase {
         hub.addInstalledIntegration(integration, name: SentryMetricsIntegration<SentryDependencyContainer>.name)
         
         // Add a metric to flush
-        let metricsIntegration = try XCTUnwrap(integration as? SentryMetricsIntegration<SentryDependencyContainer>)
+        let metricsIntegration = try XCTUnwrap(integration as Any as? SentryMetricsIntegration<SentryDependencyContainer>)
         let scope = Scope()
         let metric = SentryMetric(
             timestamp: Date(),
