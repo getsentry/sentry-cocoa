@@ -99,7 +99,7 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
             fileManager: fileManager
         )
         #else
-        self.sessionHandler = SentryCrashIntegrationSessionHandler(crashWrapper: crashWrapper) as? SentryCrashIntegrationSessionHandler
+        self.sessionHandler = SentryCrashIntegrationSessionHandler(crashWrapper: crashWrapper, fileManager: fileManager)
         #endif
 
         self.scopeObserver = SentryCrashScopeObserver(maxBreadcrumbs: Int(options.maxBreadcrumbs))
@@ -135,59 +135,6 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
         }
     }
     // swiftlint:enable function_body_length
-
-    /// Internal constructor for testing
-    init(options: Options, crashWrapper: SentryCrashWrapper, dispatchQueueWrapper: SentryDispatchQueueWrapper, fileManager: SentryFileManager) {
-        self.options = options
-        self.dispatchQueueWrapper = dispatchQueueWrapper
-        self.crashWrapper = crashWrapper
-
-        super.init()
-
-        // Perform the same setup as the main initializer
-        #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
-        let appStateManager = SentryDependencyContainer.sharedInstance().appStateManager
-        let watchdogLogic = SentryWatchdogTerminationLogic(
-            options: options,
-            crashAdapter: crashWrapper,
-            appStateManager: appStateManager
-        )
-        self.sessionHandler = SentryCrashIntegrationSessionHandler(
-            crashWrapper: crashWrapper,
-            watchdogTerminationLogic: watchdogLogic,
-            fileManager: fileManager
-        )
-        #else
-        self.sessionHandler = SentryCrashIntegrationSessionHandler(crashWrapper: crashWrapper)
-        #endif
-
-        self.scopeObserver = SentryCrashScopeObserver(maxBreadcrumbs: Int(options.maxBreadcrumbs))
-
-        var enableSigtermReporting = false
-        #if !os(watchOS)
-        enableSigtermReporting = options.enableSigtermReporting
-        #endif
-
-        var enableUncaughtNSExceptionReporting = false
-        #if os(macOS)
-        if options.enableSwizzling {
-            enableUncaughtNSExceptionReporting = options.enableUncaughtNSExceptionReporting
-        }
-        #endif
-
-        startCrashHandler(
-            cacheDirectory: options.cacheDirectoryPath,
-            enableSigtermReporting: enableSigtermReporting,
-            enableReportingUncaughtExceptions: enableUncaughtNSExceptionReporting,
-            enableCppExceptionsV2: options.experimental.enableUnhandledCPPExceptionsV2
-        )
-
-        configureScope()
-
-        if options.enablePersistingTracesWhenCrashing {
-            configureTracingWhenCrashing()
-        }
-    }
 
     // MARK: - SwiftIntegration
 
