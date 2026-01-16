@@ -1526,7 +1526,7 @@
 		63FE6FBD20DA4C1000CDBAE8 /* SentryDictionaryDeepSearch.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentryDictionaryDeepSearch.m; sourceTree = "<group>"; };
 		63FE6FBF20DA4C1000CDBAE8 /* SentryDictionaryDeepSearch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SentryDictionaryDeepSearch.h; sourceTree = "<group>"; };
 		63FE6FC120DA4C1000CDBAE8 /* SentryCrashVarArgs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SentryCrashVarArgs.h; sourceTree = "<group>"; };
-		63FE6FC420DA4C1000CDBAE8 /* SentryCrashReportFilter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SentryCrashReportFilter.h; sourceTree = "<group>"; };
+		63FE6FC420DA4C1000CDBAE8 /* SentryCrashReportFilter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryCrashReportFilter.h; path = ../../../Sentry/include/SentryCrashReportFilter.h; sourceTree = "<group>"; };
 		63FE6FC820DA4C1000CDBAE8 /* SentryCrashReportFilterBasic.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentryCrashReportFilterBasic.m; sourceTree = "<group>"; };
 		63FE6FCC20DA4C1000CDBAE8 /* SentryCrashReportFilterBasic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SentryCrashReportFilterBasic.h; sourceTree = "<group>"; };
 		63FE6FEA20DA4C1000CDBAE8 /* SentryCrashReportFixer.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = SentryCrashReportFixer.c; sourceTree = "<group>"; };
@@ -1536,10 +1536,10 @@
 		63FE6FF020DA4C1000CDBAE8 /* SentryCrashMonitor_NSException.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentryCrashMonitor_NSException.m; sourceTree = "<group>"; };
 		63FE6FF120DA4C1000CDBAE8 /* SentryCrashMonitor_MachException.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = SentryCrashMonitor_MachException.c; sourceTree = "<group>"; };
 		63FE6FF320DA4C1000CDBAE8 /* SentryCrashMonitor_System.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentryCrashMonitor_System.m; sourceTree = "<group>"; };
-		63FE6FF420DA4C1000CDBAE8 /* SentryCrashMonitor_Signal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SentryCrashMonitor_Signal.h; sourceTree = "<group>"; };
+		63FE6FF420DA4C1000CDBAE8 /* SentryCrashMonitor_Signal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryCrashMonitor_Signal.h; path = ../../../Sentry/include/SentryCrashMonitor_Signal.h; sourceTree = "<group>"; };
 		63FE6FF520DA4C1000CDBAE8 /* SentryCrashMonitorType.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = SentryCrashMonitorType.c; sourceTree = "<group>"; };
 		63FE6FF620DA4C1000CDBAE8 /* SentryCrashMonitor_CPPException.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SentryCrashMonitor_CPPException.cpp; sourceTree = "<group>"; };
-		63FE6FF820DA4C1000CDBAE8 /* SentryCrashMonitor_CPPException.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SentryCrashMonitor_CPPException.h; sourceTree = "<group>"; };
+		63FE6FF820DA4C1000CDBAE8 /* SentryCrashMonitor_CPPException.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryCrashMonitor_CPPException.h; path = ../../../Sentry/include/SentryCrashMonitor_CPPException.h; sourceTree = "<group>"; };
 		63FE6FF920DA4C1000CDBAE8 /* SentryCrashMonitor.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = SentryCrashMonitor.c; sourceTree = "<group>"; };
 		63FE6FFB20DA4C1000CDBAE8 /* SentryCrashMonitor_MachException.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SentryCrashMonitor_MachException.h; sourceTree = "<group>"; };
 		63FE6FFC20DA4C1000CDBAE8 /* SentryCrashMonitor_NSException.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SentryCrashMonitor_NSException.h; sourceTree = "<group>"; };
@@ -1550,7 +1550,7 @@
 		63FE700220DA4C1000CDBAE8 /* SentryCrashMonitor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryCrashMonitor.h; path = ../../../Sentry/include/SentryCrashMonitor.h; sourceTree = "<group>"; };
 		63FE700420DA4C1000CDBAE8 /* SentryCrashCachedData.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = SentryCrashCachedData.c; sourceTree = "<group>"; };
 		63FE700720DA4C1000CDBAE8 /* SentryCrashDate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SentryCrashDate.h; sourceTree = "<group>"; };
-		63FE700820DA4C1000CDBAE8 /* SentryCrashMachineContext_Apple.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SentryCrashMachineContext_Apple.h; sourceTree = "<group>"; };
+		63FE700820DA4C1000CDBAE8 /* SentryCrashMachineContext_Apple.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryCrashMachineContext_Apple.h; path = ../../../Sentry/include/SentryCrashMachineContext_Apple.h; sourceTree = "<group>"; };
 		63FE700920DA4C1000CDBAE8 /* SentryAsyncSafeLog.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = SentryAsyncSafeLog.c; sourceTree = "<group>"; };
 		63FE700A20DA4C1000CDBAE8 /* SentryCrashStackCursor_SelfThread.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentryCrashStackCursor_SelfThread.m; sourceTree = "<group>"; };
 		63FE700B20DA4C1000CDBAE8 /* SentryCrashFileUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SentryCrashFileUtils.h; sourceTree = "<group>"; };
@@ -1568,7 +1568,7 @@
 		63FE701920DA4C1000CDBAE8 /* SentryCrashSignalInfo.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = SentryCrashSignalInfo.c; sourceTree = "<group>"; };
 		63FE701A20DA4C1000CDBAE8 /* SentryCrashThread.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = SentryCrashThread.c; sourceTree = "<group>"; };
 		63FE701B20DA4C1000CDBAE8 /* SentryCrashCPU_arm.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = SentryCrashCPU_arm.c; sourceTree = "<group>"; };
-		63FE701C20DA4C1000CDBAE8 /* SentryCrashStackCursor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SentryCrashStackCursor.h; sourceTree = "<group>"; };
+		63FE701C20DA4C1000CDBAE8 /* SentryCrashStackCursor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryCrashStackCursor.h; path = ../../../Sentry/include/SentryCrashStackCursor.h; sourceTree = "<group>"; };
 		63FE701D20DA4C1000CDBAE8 /* SentryCrashJSONCodecObjC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentryCrashJSONCodecObjC.m; sourceTree = "<group>"; };
 		63FE701E20DA4C1000CDBAE8 /* SentryCrashSysCtl.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = SentryCrashSysCtl.c; sourceTree = "<group>"; };
 		63FE701F20DA4C1000CDBAE8 /* SentryCrashDynamicLinker.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = SentryCrashDynamicLinker.c; sourceTree = "<group>"; };
@@ -1581,7 +1581,7 @@
 		63FE702620DA4C1000CDBAE8 /* SentryCrashStackCursor_SelfThread.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SentryCrashStackCursor_SelfThread.h; sourceTree = "<group>"; };
 		63FE702720DA4C1000CDBAE8 /* SentryCrashDate.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = SentryCrashDate.c; sourceTree = "<group>"; };
 		63FE702920DA4C1000CDBAE8 /* SentryCrashObjC.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = SentryCrashObjC.c; sourceTree = "<group>"; };
-		63FE702A20DA4C1000CDBAE8 /* SentryCrashMachineContext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SentryCrashMachineContext.h; sourceTree = "<group>"; };
+		63FE702A20DA4C1000CDBAE8 /* SentryCrashMachineContext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryCrashMachineContext.h; path = ../../../Sentry/include/SentryCrashMachineContext.h; sourceTree = "<group>"; };
 		63FE702B20DA4C1000CDBAE8 /* SentryCrashStackCursor_Backtrace.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SentryCrashStackCursor_Backtrace.h; sourceTree = "<group>"; };
 		63FE702C20DA4C1000CDBAE8 /* SentryCrashString.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SentryCrashString.h; sourceTree = "<group>"; };
 		63FE702D20DA4C1000CDBAE8 /* SentryCrashJSONCodec.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SentryCrashJSONCodec.h; sourceTree = "<group>"; };
@@ -1609,14 +1609,14 @@
 		63FE704620DA4C1000CDBAE8 /* SentryCrashReportFields.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SentryCrashReportFields.h; sourceTree = "<group>"; };
 		63FE704720DA4C1000CDBAE8 /* SentryCrashDoctor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentryCrashDoctor.m; sourceTree = "<group>"; };
 		63FE704820DA4C1000CDBAE8 /* SentryCrashReportFixer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SentryCrashReportFixer.h; sourceTree = "<group>"; };
-		63FE704920DA4C1000CDBAE8 /* SentryCrashC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SentryCrashC.h; sourceTree = "<group>"; };
+		63FE704920DA4C1000CDBAE8 /* SentryCrashC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryCrashC.h; path = ../../Sentry/include/SentryCrashC.h; sourceTree = "<group>"; };
 		63FE704A20DA4C1000CDBAE8 /* SentryCrashReportVersion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SentryCrashReportVersion.h; sourceTree = "<group>"; };
 		63FE704B20DA4C1000CDBAE8 /* SentryCrash.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryCrash.h; path = ../../Sentry/include/SentryCrash.h; sourceTree = "<group>"; };
 		63FE704C20DA4C1000CDBAE8 /* SentryCrashReport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SentryCrashReport.h; sourceTree = "<group>"; };
 		63FE704D20DA4C1000CDBAE8 /* SentryCrashReportStore.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = SentryCrashReportStore.c; sourceTree = "<group>"; };
 		63FE705C20DA4C1000CDBAE8 /* SentryCrashInstallation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentryCrashInstallation.m; sourceTree = "<group>"; };
-		63FE706320DA4C1000CDBAE8 /* SentryCrashInstallation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SentryCrashInstallation.h; sourceTree = "<group>"; };
-		63FE706920DA4C1000CDBAE8 /* SentryCrashInstallation+Private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "SentryCrashInstallation+Private.h"; sourceTree = "<group>"; };
+		63FE706320DA4C1000CDBAE8 /* SentryCrashInstallation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryCrashInstallation.h; path = ../../Sentry/include/SentryCrashInstallation.h; sourceTree = "<group>"; };
+		63FE706920DA4C1000CDBAE8 /* SentryCrashInstallation+Private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "SentryCrashInstallation+Private.h"; path = "../../Sentry/include/SentryCrashInstallation+Private.h"; sourceTree = "<group>"; };
 		63FE71D520DA66E600CDBAE8 /* RFC3339UTFString_Tests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RFC3339UTFString_Tests.m; sourceTree = "<group>"; };
 		63FE71D720DA66E700CDBAE8 /* SentryCrashCPU_Tests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentryCrashCPU_Tests.m; sourceTree = "<group>"; };
 		63FE71D820DA66E700CDBAE8 /* SentryCrashString_Tests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentryCrashString_Tests.m; sourceTree = "<group>"; };
