@@ -822,7 +822,10 @@ NS_ASSUME_NONNULL_BEGIN
     NSTimeInterval flushIntegrationsDuration = [self flushIntegrations];
 
     // Calculate remaining timeout for client flush (logs and transport)
-    NSTimeInterval remainingTimeout = fmax(timeout / 2, timeout - flushIntegrationsDuration);
+    // We subtract the time already spent on integrations to respect the overall timeout.
+    // If integrations took longer than the timeout, we still give the client a small
+    // chance (0.1s minimum) to flush critical data.
+    NSTimeInterval remainingTimeout = fmax(0.1, timeout - flushIntegrationsDuration);
 
     // Delegate to client for logs and transport flushing
     SentryClientInternal *client = self.client;

@@ -625,10 +625,12 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 - (void)flush:(NSTimeInterval)timeout
 {
     NSTimeInterval captureLogsDuration = [self.logBatcher captureLogs];
-    // Capturing batched logs should never take long, but we need to fall back to a sane value.
-    // This is a workaround for in-memory logs, until we'll write batched logs to disk,
-    // to avoid data loss due to crashes. This is a trade-off until then.
-    [self.transportAdapter flush:fmax(timeout / 2, timeout - captureLogsDuration)];
+    // Calculate remaining timeout for transport flush.
+    // We subtract the time already spent capturing logs to respect the overall timeout.
+    // If log capture took longer than the timeout, we still give the transport a small
+    // chance (0.1s minimum) to flush critical data.
+    NSTimeInterval remainingTimeout = fmax(0.1, timeout - captureLogsDuration);
+    [self.transportAdapter flush:remainingTimeout];
 }
 
 - (void)close
