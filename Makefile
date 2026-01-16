@@ -64,7 +64,7 @@ init-local:
 	rbenv exec gem update bundler
 	rbenv exec bundle install
 	# Install the tools needed to update tooling versions locally
-	$(MAKE) init-ci-format
+	"$(MAKE)" init-ci-format
 	./scripts/update-tooling-versions.sh
 
 ## Install CI build dependencies
@@ -612,7 +612,7 @@ endef
 .PHONY: help
 help:
 	@if [ -n "$(name)" ]; then \
-		$(MAKE) --no-print-directory help-target name="$(name)"; \
+		"$(MAKE)" --no-print-directory help-target name="$(name)"; \
 	else \
 		echo "=============================================="; \
 		echo "🚀 SENTRY COCOA SDK DEVELOPMENT COMMANDS"; \
