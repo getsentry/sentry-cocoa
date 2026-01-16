@@ -53,9 +53,9 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
             return try getSut(crashWrapper: sentryCrash)
         }
 
-        func getSut(crashWrapper: SentryCrashWrapper, fileManager: SentryFileManager? = nil) throws -> SentryCrashIntegration<MockCrashDependencies> {
+        func getSut(crashWrapper: SentryCrashWrapper, fileManager: SentryFileManager? = nil, options: Options? = nil) throws -> SentryCrashIntegration<MockCrashDependencies> {
             let mockedDependencies = MockCrashDependencies(crashWrapper: crashWrapper, dispatchQueueWrapper: dispatchQueueWrapper, fileManager: fileManager)
-            return try XCTUnwrap(SentryCrashIntegration(with: options, dependencies: mockedDependencies))
+            return try XCTUnwrap(SentryCrashIntegration(with: options ?? self.options, dependencies: mockedDependencies))
         }
 
         var sutWithoutCrash: SentryCrashIntegration<MockCrashDependencies>? {
@@ -414,20 +414,11 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         defer { resetUserDefaults() }
 
         let options = Options()
-        options.dsn = SentryCrashIntegrationTests.dsnAsString
         options.enableUncaughtNSExceptionReporting = true
         options.enableSwizzling = true
         options.enableCrashHandler = true
 
-        #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-        SentryDependencyContainer.sharedInstance().uiDeviceWrapper.start()
-        #endif
-        let hub = fixture.hub
-        SentrySDKInternal.setCurrentHub(hub)
-
-        // Create sut with the options that enable uncaught exception reporting
-        let mockedDependency = MockCrashDependencies(crashWrapper: SentryDependencyContainer.sharedInstance().crashWrapper, dispatchQueueWrapper: fixture.dispatchQueueWrapper)
-        _ = try XCTUnwrap(SentryCrashIntegration(with: options, dependencies: mockedDependency))
+        let (_, _) = try givenSutWithGlobalHubAndCrashWrapper(options)
 
         XCTAssertTrue(UserDefaults.standard.bool(forKey: "NSApplicationCrashOnExceptions"))
         // We have to set the flat to false, cause otherwise we would crash
@@ -449,19 +440,11 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         defer { resetUserDefaults() }
 
         let options = Options()
-        options.dsn = SentryCrashIntegrationTests.dsnAsString
         options.enableUncaughtNSExceptionReporting = true
         options.enableSwizzling = false
         options.enableCrashHandler = true
 
-        #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-        SentryDependencyContainer.sharedInstance().uiDeviceWrapper.start()
-        #endif
-        let hub = fixture.hub
-        SentrySDKInternal.setCurrentHub(hub)
-
-        let mockedDependency = MockCrashDependencies(crashWrapper: SentryDependencyContainer.sharedInstance().crashWrapper, dispatchQueueWrapper: fixture.dispatchQueueWrapper)
-        _ = try XCTUnwrap(SentryCrashIntegration(with: options, dependencies: mockedDependency))
+        let (_, _) = try givenSutWithGlobalHubAndCrashWrapper(options)
 
         XCTAssertFalse(UserDefaults.standard.bool(forKey: "NSApplicationCrashOnExceptions"))
 
@@ -481,18 +464,10 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         defer { resetUserDefaults() }
 
         let options = Options()
-        options.dsn = SentryCrashIntegrationTests.dsnAsString
         options.enableUncaughtNSExceptionReporting = false
         options.enableCrashHandler = true
 
-        #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-        SentryDependencyContainer.sharedInstance().uiDeviceWrapper.start()
-        #endif
-        let hub = fixture.hub
-        SentrySDKInternal.setCurrentHub(hub)
-
-        let mockedDependency = MockCrashDependencies(crashWrapper: SentryDependencyContainer.sharedInstance().crashWrapper, dispatchQueueWrapper: fixture.dispatchQueueWrapper)
-        _ = try XCTUnwrap(SentryCrashIntegration(with: options, dependencies: mockedDependency))
+        let (_, _) = try givenSutWithGlobalHubAndCrashWrapper(options)
 
         XCTAssertFalse(UserDefaults.standard.bool(forKey: "NSApplicationCrashOnExceptions"))
 
@@ -514,19 +489,10 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         defer { sentrycrashct_unswap_cxa_throw() }
 
         let options = Options()
-        options.dsn = SentryCrashIntegrationTests.dsnAsString
         options.experimental.enableUnhandledCPPExceptionsV2 = true
         options.enableCrashHandler = true
 
-        #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-        SentryDependencyContainer.sharedInstance().uiDeviceWrapper.start()
-        #endif
-        let hub = fixture.hub
-        SentrySDKInternal.setCurrentHub(hub)
-
-        // Act
-        let mockedDependency = MockCrashDependencies(crashWrapper: SentryDependencyContainer.sharedInstance().crashWrapper, dispatchQueueWrapper: fixture.dispatchQueueWrapper)
-        _ = try XCTUnwrap(SentryCrashIntegration(with: options, dependencies: mockedDependency))
+        let (_, _) = try givenSutWithGlobalHubAndCrashWrapper(options)
 
         // Assert
         XCTAssertTrue(sentrycrashct_is_cxa_throw_swapped(), "C++ exception throw handler must be swapped when enableUnhandledCPPExceptionsV2 is true.")
@@ -537,19 +503,11 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         defer { sentrycrashct_unswap_cxa_throw() }
 
         let options = Options()
-        options.dsn = SentryCrashIntegrationTests.dsnAsString
         options.experimental.enableUnhandledCPPExceptionsV2 = false
         options.enableCrashHandler = true
 
-        #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-        SentryDependencyContainer.sharedInstance().uiDeviceWrapper.start()
-        #endif
-        let hub = fixture.hub
-        SentrySDKInternal.setCurrentHub(hub)
-
         // Act
-        let mockedDependency = MockCrashDependencies(crashWrapper: SentryDependencyContainer.sharedInstance().crashWrapper, dispatchQueueWrapper: fixture.dispatchQueueWrapper)
-        _ = try XCTUnwrap(SentryCrashIntegration(with: options, dependencies: mockedDependency))
+        let (_, _) = try givenSutWithGlobalHubAndCrashWrapper(options)
 
         // Assert
         XCTAssertFalse(sentrycrashct_is_cxa_throw_swapped(), "C++ exception throw handler must NOT be swapped when enableUnhandledCPPExceptionsV2 is false.")
@@ -557,36 +515,20 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
 
     func testEnableTracingForCrashes_SetsCallback() throws {
         let options = Options()
-        options.dsn = SentryCrashIntegrationTests.dsnAsString
         options.enablePersistingTracesWhenCrashing = true
         options.enableCrashHandler = true
 
-        #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-        SentryDependencyContainer.sharedInstance().uiDeviceWrapper.start()
-        #endif
-        let hub = fixture.hub
-        SentrySDKInternal.setCurrentHub(hub)
-
-        let mockedDependency = MockCrashDependencies(crashWrapper: SentryDependencyContainer.sharedInstance().crashWrapper, dispatchQueueWrapper: fixture.dispatchQueueWrapper)
-        _ = try XCTUnwrap(SentryCrashIntegration(with: options, dependencies: mockedDependency))
+        let (_, _) = try givenSutWithGlobalHubAndCrashWrapper(options)
 
         XCTAssertTrue(sentrycrash_hasSaveTransaction())
     }
 
     func testEnableTracingForCrashes_Uninstall_RemovesCallback() throws {
         let options = Options()
-        options.dsn = SentryCrashIntegrationTests.dsnAsString
         options.enablePersistingTracesWhenCrashing = true
         options.enableCrashHandler = true
 
-        #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-        SentryDependencyContainer.sharedInstance().uiDeviceWrapper.start()
-        #endif
-        let hub = fixture.hub
-        SentrySDKInternal.setCurrentHub(hub)
-
-        let mockedDependency = MockCrashDependencies(crashWrapper: SentryDependencyContainer.sharedInstance().crashWrapper, dispatchQueueWrapper: fixture.dispatchQueueWrapper)
-        let sut = try XCTUnwrap(SentryCrashIntegration(with: options, dependencies: mockedDependency))
+        let (sut, _) = try givenSutWithGlobalHubAndCrashWrapper(options)
 
         sut.uninstall()
 
@@ -595,18 +537,10 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
 
     func testEnableTracingForCrashes_Disabled_DoesNotSetCallback() throws {
         let options = Options()
-        options.dsn = SentryCrashIntegrationTests.dsnAsString
         options.enablePersistingTracesWhenCrashing = false
         options.enableCrashHandler = true
 
-        #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-        SentryDependencyContainer.sharedInstance().uiDeviceWrapper.start()
-        #endif
-        let hub = fixture.hub
-        SentrySDKInternal.setCurrentHub(hub)
-
-        let mockedDependency = MockCrashDependencies(crashWrapper: SentryDependencyContainer.sharedInstance().crashWrapper, dispatchQueueWrapper: fixture.dispatchQueueWrapper)
-        _ = try XCTUnwrap(SentryCrashIntegration(with: options, dependencies: mockedDependency))
+        let (_, _) = try givenSutWithGlobalHubAndCrashWrapper(options)
 
         XCTAssertFalse(sentrycrash_hasSaveTransaction())
     }
@@ -733,11 +667,11 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         return (sut, hub)
     }
     
-    private func givenSutWithGlobalHubAndCrashWrapper() throws -> (SentryCrashIntegration<MockCrashDependencies>, SentryHubInternal) {
+    private func givenSutWithGlobalHubAndCrashWrapper(_ options: Options? = nil) throws -> (SentryCrashIntegration<MockCrashDependencies>, SentryHubInternal) {
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
         SentryDependencyContainer.sharedInstance().uiDeviceWrapper.start()
 #endif
-        let sut = try fixture.getSut(crashWrapper: SentryDependencyContainer.sharedInstance().crashWrapper)
+        let sut = try fixture.getSut(crashWrapper: SentryDependencyContainer.sharedInstance().crashWrapper, options: options)
         let hub = fixture.hub
         SentrySDKInternal.setCurrentHub(hub)
 
