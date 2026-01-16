@@ -7,9 +7,9 @@
 #import "SentryNSDictionarySanitize.h"
 #import "SentryNoOpSpan.h"
 #import "SentrySampleDecision+Private.h"
-#import "SentrySpan+Private.h"
 #import "SentrySpanContext.h"
 #import "SentrySpanId.h"
+#import "SentrySpanInternal+Private.h"
 #import "SentrySwift.h"
 #import "SentryTime.h"
 #import "SentryTraceContext.h"
@@ -24,10 +24,10 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentrySpan ()
+@interface SentrySpanInternal ()
 @end
 
-@implementation SentrySpan {
+@implementation SentrySpanInternal {
     NSMutableDictionary<NSString *, id> *_data;
     NSMutableDictionary<NSString *, id> *_tags;
     NSObject *_stateLock;
