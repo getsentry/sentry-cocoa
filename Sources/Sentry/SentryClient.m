@@ -716,15 +716,22 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
             [event.context mutableCopy] ?: [NSMutableDictionary dictionary];
         if (context[@"app"] == nil
             || ([context[@"app"] isKindOfClass:NSDictionary.self]
-                && context[@"app"][@"in_foreground"] == nil)) {
+                && (context[@"app"][@"in_foreground"] == nil
+                    || context[@"app"][@"is_active"] == nil))) {
             NSMutableDictionary *app =
                 [(NSDictionary *)context[@"app"] mutableCopy] ?: [NSMutableDictionary dictionary];
             context[@"app"] = app;
 
             UIApplicationState appState =
                 [SentryDependencyContainer sharedInstance].threadsafeApplication.applicationState;
-            BOOL inForeground = appState == UIApplicationStateActive;
-            app[@"in_foreground"] = @(inForeground);
+            BOOL isActive = appState == UIApplicationStateActive;
+            BOOL inForeground = appState != UIApplicationStateBackground;
+            if (app[@"in_foreground"] == nil) {
+                app[@"in_foreground"] = @(inForeground);
+            }
+            if (app[@"is_active"] == nil) {
+                app[@"is_active"] = @(isActive);
+            }
             event.context = context;
         }
     }
