@@ -1949,7 +1949,7 @@ class SentryClientTests: XCTestCase {
 
         eventId.assertIsNotEmpty()
 
-        var expectedIntegrations = ["AutoBreadcrumbTracking", "AutoSessionTracking", "Crash", "NetworkTracking"]
+        var expectedIntegrations = ["AutoBreadcrumbTracking", "AutoSessionTracking", "Crash", "Metrics", "NetworkTracking"]
         if !SentryDependencyContainer.sharedInstance().crashWrapper.isBeingTraced {
             expectedIntegrations = ["ANRTracking"] + expectedIntegrations
         }
@@ -2557,9 +2557,9 @@ private extension SentryClientTests {
     
     private func getSpan(operation: String, tracer: SentryTracer) -> Span {
 #if os(iOS) || os(tvOS) || os(visionOS) || targetEnvironment(macCatalyst)
-        return SentrySpan(tracer: tracer, context: SpanContext(operation: operation), framesTracker: nil)
+        return SentrySpanInternal(tracer: tracer, context: SpanContext(operation: operation), framesTracker: nil)
 #else
-        return  SentrySpan(tracer: tracer, context: SpanContext(operation: operation))
+        return  SentrySpanInternal(tracer: tracer, context: SpanContext(operation: operation))
         #endif
     }
     

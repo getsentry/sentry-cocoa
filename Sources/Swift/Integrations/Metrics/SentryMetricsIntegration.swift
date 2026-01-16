@@ -1,6 +1,10 @@
 @_implementationOnly import _SentryPrivate
 
-final class SentryMetricsIntegration<Dependencies: DateProviderProvider & DispatchQueueWrapperProvider>: NSObject, SwiftIntegration {
+protocol SentryMetricsIntegrationProtocol {
+    func addMetric(_ metric: SentryMetric, scope: Scope)
+}
+
+final class SentryMetricsIntegration<Dependencies: DateProviderProvider & DispatchQueueWrapperProvider>: NSObject, SwiftIntegration, SentryMetricsIntegrationProtocol {
     private let metricBatcher: SentryMetricsBatcherProtocol
 
     init?(with options: Options, dependencies: Dependencies) {
@@ -34,9 +38,18 @@ final class SentryMetricsIntegration<Dependencies: DateProviderProvider & Dispat
         "SentryMetricsIntegration"
     }
     
-    // MARK: - Public API for MetricsApi
-    
+    // MARK: - Public API for Metrics
+
     func addMetric(_ metric: SentryMetric, scope: Scope) {
         metricBatcher.addMetric(metric, scope: scope)
+    }
+    
+    /// Captures batched metrics synchronously and returns the duration.
+    /// - Returns: The time taken to capture metrics in seconds
+    ///
+    /// - Note: This method calls captureMetrics() on the internal batcher synchronously.
+    ///         This is safe to call from any thread, but be aware that it uses dispatchSync internally.
+    @discardableResult func captureMetrics() -> TimeInterval {
+        return metricBatcher.captureMetrics()
     }
 }

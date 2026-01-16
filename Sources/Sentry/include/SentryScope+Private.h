@@ -6,7 +6,7 @@
 @class SentryAttachment;
 @class SentryPropagationContext;
 @class SentrySession;
-@class SentrySpan;
+@class SentrySpanInternal;
 
 @protocol SentryScopeObserver;
 
@@ -47,7 +47,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (NSArray<SentryBreadcrumb *> *)breadcrumbs;
 
-- (nullable SentrySpan *)getCastedInternalSpan;
+- (nullable SentrySpanInternal *)getCastedInternalSpan;
 
 /**
  * used to add values in event context.

@@ -9,7 +9,7 @@
 #import "SentryLogC.h"
 #import "SentryScope+Private.h"
 #import "SentryScope+PrivateSwift.h"
-#import "SentrySpan+Private.h"
+#import "SentrySpanInternal+Private.h"
 #import "SentrySwift.h"
 #import "SentryTracer.h"
 #import "SentryTransactionContext.h"
@@ -154,7 +154,7 @@ NS_ASSUME_NONNULL_BEGIN
     }
 }
 
-- (nullable SentrySpan *)getCastedInternalSpan
+- (nullable SentrySpanInternal *)getCastedInternalSpan
 {
     id<SentrySpan> span = self.span;
 
@@ -162,8 +162,8 @@ NS_ASSUME_NONNULL_BEGIN
         return nil;
     }
 
-    if (span && [span isKindOfClass:[SentrySpan class]]) {
-        return (SentrySpan *)span;
+    if (span && [span isKindOfClass:[SentrySpanInternal class]]) {
+        return (SentrySpanInternal *)span;
     }
 
     SENTRY_LOG_DEBUG(@"The span on the scope is not of type SentrySpan, returning nil.");

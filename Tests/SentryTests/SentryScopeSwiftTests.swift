@@ -838,7 +838,7 @@ class SentryScopeSwiftTests: XCTestCase {
     func testGetCasedInternalSpan_SpanIsOfInternalTypeSpan() throws {
         // -- Arrange --
         let scope = Scope()
-        let span = SentrySpan(context: SpanContext(operation: "TEST"))
+        let span = SentrySpanInternal(context: SpanContext(operation: "TEST"))
 
         scope.span = span
 
@@ -853,7 +853,7 @@ class SentryScopeSwiftTests: XCTestCase {
     func testGetCasedInternalSpan_SpanIsSubClassOfInternalTypeSpan() throws {
         // -- Arrange --
         let scope = Scope()
-        let span = SubClassOfSentrySpan(context: SpanContext(operation: "TEST"))
+        let span = SubClassOfSentrySpanInternal(context: SpanContext(operation: "TEST"))
 
         scope.span = span
 
@@ -1057,5 +1057,5 @@ private final class NotOfTypeSpan: NSObject, Span {
     func serialize() -> [String: Any] { return [:] }
 }
 
-private final class SubClassOfSentrySpan: SentrySpan {}
+private final class SubClassOfSentrySpanInternal: SentrySpanInternal {}
 // swiftlint:enable file_length
