@@ -107,7 +107,6 @@
 #import "SentryFileManagerHelper.h"
 #import "SentryFormatter.h"
 #import "SentryFrame.h"
-#import "SentryFramesTrackingIntegration.h"
 #import "SentryHttpStatusCodeRange+Private.h"
 #import "SentryHttpTransport.h"
 #import "SentryHub+Private.h"
