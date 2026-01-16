@@ -19,10 +19,6 @@
 - Deprecates `configureDarkTheme` for user feedback (#7114)
 - Fix incorrect variable assignment for 'sampled' key (#7120)
 
-### Other
-
-- AGENTS.md makefile commands (#7189)
-
 ## 9.1.0
 
 > [!Warning]

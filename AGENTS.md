@@ -354,6 +354,11 @@ The repository includes a Makefile that contains common commands for building, t
 - Easier maintenance when build/test processes change
 - Better integration with CI/CD pipelines that use the same commands
 
+**Examples:**
+
+- To build the SDK for macOS use `make build-macos`, for iOS use `make build-ios`
+- To run tests use `make test-macos` or `make test-ios` for the respective platforms. 
+
 ## Helpful Commands
 
 - format code: `make format`
