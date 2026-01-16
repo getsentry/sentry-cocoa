@@ -244,7 +244,7 @@ sentry_finishAndSaveTransaction(void)
 
         [SentryDependencyContainer.sharedInstance.crashReporter setUserInfo:userInfo];
 
-        [outerScope addObserver:self.scopeObserver];
+        [outerScope addScopeObserver:self.scopeObserver];
     }];
 
     [NSNotificationCenter.defaultCenter addObserver:self

@@ -272,6 +272,7 @@ class TestData {
         return SentryAppState(releaseName: "1.0.0", osVersion: "14.4.1", vendorId: someUUID, isDebugging: false, systemBootTimestamp: timestamp)
     }
     
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
     static var oomEvent: Event {
         let event = Event(level: SentryLevel.fatal)
         let exception = Exception(value: SentryWatchdogTerminationConstants.ExceptionValue, type: SentryWatchdogTerminationConstants.ExceptionType)
@@ -279,6 +280,7 @@ class TestData {
         event.exceptions = [exception]
         return event
     }
+#endif
 
 #if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
     
