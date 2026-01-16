@@ -50,6 +50,7 @@
             XCUIElement *moreButton = tabBar.buttons[@"More"];
             if (![moreButton waitForExistenceWithTimeout:1]) {
                 XCTFail("Failed to find more tab item");
+                return;
             }
             [moreButton tap];
 
@@ -58,6 +59,7 @@
                 [app.cells.staticTexts matchingIdentifier:@"Benchmarking"].firstMatch;
             if (![buttonBenchmarking waitForExistenceWithTimeout:1]) {
                 XCTFail("Failed to find button to benchmarking page");
+                return;
             }
             [buttonBenchmarking tap];
         }
