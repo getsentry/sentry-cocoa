@@ -336,6 +336,24 @@ Keep commit messages focused on the technical changes made and their purpose.
 - ✅ "fix: resolve connection pool exhaustion"
 - ✅ "refactor: simplify error handling logic"
 
+## Using Makefile Commands
+
+The repository includes a Makefile that contains common commands for building, testing, formatting, and other development tasks. Agents should prefer using these Makefile commands instead of building custom commands.
+
+**Key Principles:**
+
+- **Prefer Makefile commands** - Before creating custom shell commands or scripts, check if a Makefile target already exists for the task
+- **Use `make help`** - Run `make help` to see all available commands and their descriptions
+- **Consistency** - Using Makefile commands ensures consistency with the project's standard workflows and CI/CD pipelines
+- **Maintainability** - Makefile commands are maintained by the project and updated as needed, reducing the need for custom command maintenance
+
+**Benefits:**
+
+- Standardized workflows across all developers and CI systems
+- Reduced risk of errors from incorrect command syntax or missing flags
+- Easier maintenance when build/test processes change
+- Better integration with CI/CD pipelines that use the same commands
+
 ## Helpful Commands
 
 - format code: `make format`
