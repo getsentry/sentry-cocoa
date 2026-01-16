@@ -13,7 +13,6 @@
 @class SentryBreadcrumb;
 @class SentryOptions;
 @class SentryUser;
-@class SentrySpanInternal;
 
 NS_ASSUME_NONNULL_BEGIN
 

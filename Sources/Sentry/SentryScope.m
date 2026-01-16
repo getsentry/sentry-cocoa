@@ -147,7 +147,7 @@ NS_ASSUME_NONNULL_BEGIN
     }
 }
 
-- (nullable SentrySpanInternal *)span
+- (nullable id<SentrySpan>)span
 {
     @synchronized(_spanLock) {
         return _span;
@@ -678,7 +678,7 @@ NS_ASSUME_NONNULL_BEGIN
     return event;
 }
 
-- (void)addScopeObserver:(SENTRY_SWIFT_MIGRATION_ID(id<SentryScopeObserver>))observer
+- (void)addScopeObserver:(id)observer
 {
     // Validate if the observer conforms because the API doesn't require
     // observers to conform anymore due to the protocol being written in Swift
