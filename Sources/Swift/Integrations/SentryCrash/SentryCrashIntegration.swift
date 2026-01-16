@@ -1,7 +1,7 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
-#if os(iOS) || os(tvOS) || os(visionOS)
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
 import UIKit
 #endif
 
