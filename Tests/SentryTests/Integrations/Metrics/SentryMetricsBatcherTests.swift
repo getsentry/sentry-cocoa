@@ -3,7 +3,7 @@
 import XCTest
 
 final class SentryMetricsBatcherTests: XCTestCase {
-    
+
     private var options: Options!
     private var testDateProvider: TestCurrentDateProvider!
     private var testCallbackHelper: TestMetricsBatcherCallbackHelper!
@@ -16,15 +16,15 @@ final class SentryMetricsBatcherTests: XCTestCase {
         options = Options()
         options.dsn = TestConstants.dsnForTestCase(type: Self.self)
         options.experimental.enableMetrics = true
-        
+
         testDateProvider = TestCurrentDateProvider()
         testCallbackHelper = TestMetricsBatcherCallbackHelper()
         testDispatchQueue = TestSentryDispatchQueueWrapper()
         testDispatchQueue.dispatchAsyncExecutesBlock = true // Execute encoding immediately
-        
+
         scope = Scope()
     }
-    
+
     override func tearDown() {
         super.tearDown()
         clearTestState()
@@ -32,7 +32,7 @@ final class SentryMetricsBatcherTests: XCTestCase {
         testDispatchQueue = nil
         scope = nil
     }
-    
+
     private func getSut() -> SentryMetricsBatcher {
         return SentryMetricsBatcher(
             options: options,
@@ -44,31 +44,31 @@ final class SentryMetricsBatcherTests: XCTestCase {
             capturedDataCallback: testCallbackHelper.captureCallback
         )
     }
-    
+
     // MARK: - Basic Functionality Tests
     
     func testAddMetric_whenMultipleMetrics_shouldBatchTogether() throws {
         // -- Arrange --
         let metric1 = createTestMetric(name: "metric.one", value: .counter(1))
         let metric2 = createTestMetric(name: "metric.two", value: .counter(2))
-        
+
         XCTAssertEqual(testCallbackHelper.captureMetricsDataInvocations.count, 0)
-        
+
         // -- Act --
         let sut = getSut()
         sut.addMetric(metric1, scope: scope)
         sut.addMetric(metric2, scope: scope)
-        
+
         // Trigger flush manually
         sut.captureMetrics()
-        
+
         // -- Assert --
         XCTAssertEqual(testCallbackHelper.captureMetricsDataInvocations.count, 1)
         
         let capturedMetrics = testCallbackHelper.getCapturedMetrics()
         XCTAssertEqual(capturedMetrics.element(at: 0)?["name"] as? String, "metric.one")
         XCTAssertEqual(capturedMetrics.element(at: 1)?["name"] as? String, "metric.two")
-        
+
         // Assert no further metrics
         XCTAssertEqual(capturedMetrics.count, 2)
     }
@@ -94,13 +94,13 @@ final class SentryMetricsBatcherTests: XCTestCase {
         // -- Act --
         let sut = getSut()
         sut.addMetric(largeMetric, scope: scope)
-        
+
         // -- Assert --
         XCTAssertEqual(testCallbackHelper.captureMetricsDataInvocations.count, 1)
         
         let capturedMetrics = testCallbackHelper.getCapturedMetrics()
         XCTAssertEqual(capturedMetrics.element(at: 0)?["name"] as? String, "large.metric")
-        
+
         // Assert no further metrics
         XCTAssertEqual(capturedMetrics.count, 1)
     }
@@ -132,11 +132,11 @@ final class SentryMetricsBatcherTests: XCTestCase {
     func testAddMetric_whenTimeoutExpires_shouldFlush() throws {
         // -- Arrange --
         let metric = createTestMetric(name: "test.metric", value: .counter(1))
-        
+
         // -- Act --
         let sut = getSut()
         sut.addMetric(metric, scope: scope)
-        
+
         // -- Assert --
         XCTAssertEqual(testCallbackHelper.captureMetricsDataInvocations.count, 0)
         XCTAssertEqual(testDispatchQueue.dispatchAfterWorkItemInvocations.count, 1)
@@ -155,11 +155,11 @@ final class SentryMetricsBatcherTests: XCTestCase {
         // -- Arrange --
         let metric1 = createTestMetric(name: "metric.1", value: .counter(1))
         let metric2 = createTestMetric(name: "metric.2", value: .counter(2))
-        
+
         // -- Act --
         let sut = getSut()
         sut.addMetric(metric1, scope: scope)
-        
+
         // -- Assert --
         XCTAssertEqual(testDispatchQueue.dispatchAfterWorkItemInvocations.count, 1)
         XCTAssertEqual(testDispatchQueue.dispatchAfterWorkItemInvocations.first?.interval, 0.1)
@@ -185,7 +185,7 @@ final class SentryMetricsBatcherTests: XCTestCase {
         )
         
         let metric = createTestMetric(name: "test.metric", value: .counter(1))
-        
+
         // -- Act --
         defaultBatcher.addMetric(metric, scope: scope)
         
@@ -236,7 +236,7 @@ final class SentryMetricsBatcherTests: XCTestCase {
             dispatchQueue: testDispatchQueue,
             capturedDataCallback: testCallbackHelper.captureCallback
         )
-        
+
         // -- Act --
         // Add metrics until we exceed the 1MB buffer limit (approximately 500+ metrics at ~2KB each)
         // We'll add enough to ensure we exceed the 1MB limit
@@ -272,7 +272,7 @@ final class SentryMetricsBatcherTests: XCTestCase {
         // -- Arrange --
         let metric1 = createTestMetric(name: "metric.1", value: .counter(1))
         let metric2 = createTestMetric(name: "metric.2", value: .counter(2))
-        
+
         // -- Act --
         let sut = getSut()
         sut.addMetric(metric1, scope: scope)
@@ -334,9 +334,9 @@ final class SentryMetricsBatcherTests: XCTestCase {
     func testAddMetric_whenMetricsDisabled_shouldNotAddMetrics() throws {
         // -- Arrange --
         options.experimental.enableMetrics = false
-        
+
         let metric = createTestMetric(name: "test.metric", value: .counter(1))
-        
+
         // -- Act --
         let sut = getSut()
         sut.addMetric(metric, scope: scope)
@@ -392,7 +392,7 @@ final class SentryMetricsBatcherTests: XCTestCase {
         // -- Arrange --
         let metric1 = createTestMetric(name: "metric.1", value: .counter(1))
         let metric2 = createTestMetric(name: "metric.2", value: .counter(2))
-        
+
         // -- Act --
         let sut = getSut()
         sut.addMetric(metric1, scope: scope)
@@ -412,7 +412,7 @@ final class SentryMetricsBatcherTests: XCTestCase {
         let capturedMetrics = testCallbackHelper.getCapturedMetrics()
         XCTAssertEqual(capturedMetrics.element(at: 0)?["name"] as? String, "metric.1")
         XCTAssertEqual(capturedMetrics.element(at: 1)?["name"] as? String, "metric.2")
-        
+
         // Assert no further metrics
         XCTAssertEqual(capturedMetrics.count, 2)
     }
@@ -428,7 +428,7 @@ final class SentryMetricsBatcherTests: XCTestCase {
         scope.span = span
         
         let metric = createTestMetric(name: "test.metric", value: .counter(1))
-        
+
         // -- Act --
         let sut = getSut()
         sut.addMetric(metric, scope: scope)
@@ -440,7 +440,7 @@ final class SentryMetricsBatcherTests: XCTestCase {
         
         let capturedMetric = try XCTUnwrap(capturedMetrics.first)
         let attributes = try XCTUnwrap(capturedMetric["attributes"] as? [String: Any])
-        
+
         XCTAssertEqual(try XCTUnwrap(attributes["sentry.sdk.name"] as? [String: Any])["value"] as? String, SentryMeta.sdkName)
         XCTAssertEqual(try XCTUnwrap(attributes["sentry.sdk.version"] as? [String: Any])["value"] as? String, SentryMeta.versionString)
         XCTAssertEqual(try XCTUnwrap(attributes["sentry.environment"] as? [String: Any])["value"] as? String, "test-environment")
@@ -450,10 +450,10 @@ final class SentryMetricsBatcherTests: XCTestCase {
     func testAddMetric_whenNilDefaultAttributes_shouldNotAddNilAttributes() throws {
         // -- Arrange --
         options.releaseName = nil
-        
+
         // No span set on scope
         let metric = createTestMetric(name: "test.metric", value: .counter(1))
-        
+
         // -- Act --
         let sut = getSut()
         sut.addMetric(metric, scope: scope)
@@ -463,7 +463,7 @@ final class SentryMetricsBatcherTests: XCTestCase {
         let capturedMetrics = testCallbackHelper.getCapturedMetrics()
         let capturedMetric = try XCTUnwrap(capturedMetrics.first)
         let attributes = try XCTUnwrap(capturedMetric["attributes"] as? [String: Any])
-        
+
         XCTAssertNil(attributes["sentry.release"])
         XCTAssertNil(attributes["sentry.trace.parent_span_id"])
         
@@ -480,7 +480,7 @@ final class SentryMetricsBatcherTests: XCTestCase {
         scope.propagationContext = propagationContext
         
         let metric = createTestMetric(name: "test.metric", value: .counter(1))
-        
+
         // -- Act --
         let sut = getSut()
         sut.addMetric(metric, scope: scope)
@@ -525,7 +525,7 @@ final class SentryMetricsBatcherTests: XCTestCase {
         let capturedMetrics = testCallbackHelper.getCapturedMetrics()
         let capturedMetric = try XCTUnwrap(capturedMetrics.first)
         let attributes = try XCTUnwrap(capturedMetric["attributes"] as? [String: Any])
-        
+
         XCTAssertNil(attributes["span_id"])
         XCTAssertNil(attributes["sentry.trace.parent_span_id"])
     }
@@ -533,7 +533,7 @@ final class SentryMetricsBatcherTests: XCTestCase {
     func testAddMetric_whenUserAttributesExist_shouldAddUserAttributes() throws {
         // -- Arrange --
         options.sendDefaultPii = true
-        
+
         let user = User()
         user.userId = "123"
         user.email = "test@test.com"
@@ -551,7 +551,7 @@ final class SentryMetricsBatcherTests: XCTestCase {
         let capturedMetrics = testCallbackHelper.getCapturedMetrics()
         let capturedMetric = try XCTUnwrap(capturedMetrics.first)
         let attributes = try XCTUnwrap(capturedMetric["attributes"] as? [String: Any])
-        
+
         let userIdAttr = try XCTUnwrap(attributes["user.id"] as? [String: Any])
         XCTAssertEqual(userIdAttr["value"] as? String, "123")
         let userNameAttr = try XCTUnwrap(attributes["user.name"] as? [String: Any])
@@ -564,7 +564,7 @@ final class SentryMetricsBatcherTests: XCTestCase {
         // -- Arrange --
         let installationId = SentryInstallation.id(withCacheDirectoryPath: options.cacheDirectoryPath)
         options.sendDefaultPii = false
-        
+
         let user = User()
         user.userId = "123"
         user.email = "test@test.com"
@@ -582,7 +582,7 @@ final class SentryMetricsBatcherTests: XCTestCase {
         let capturedMetrics = testCallbackHelper.getCapturedMetrics()
         let capturedMetric = try XCTUnwrap(capturedMetrics.first)
         let attributes = try XCTUnwrap(capturedMetric["attributes"] as? [String: Any])
-        
+
         let userIdAttr = try XCTUnwrap(attributes["user.id"] as? [String: Any])
         XCTAssertEqual(userIdAttr["value"] as? String, installationId)
         XCTAssertNil(attributes["user.name"])
@@ -604,7 +604,7 @@ final class SentryMetricsBatcherTests: XCTestCase {
         let capturedMetrics = testCallbackHelper.getCapturedMetrics()
         let capturedMetric = try XCTUnwrap(capturedMetrics.first)
         let attributes = try XCTUnwrap(capturedMetric["attributes"] as? [String: Any])
-        
+
         let scopeKeyAttr = try XCTUnwrap(attributes["scope-key"] as? [String: Any])
         XCTAssertEqual(scopeKeyAttr["value"] as? String, "scope-value")
     }
@@ -625,7 +625,7 @@ final class SentryMetricsBatcherTests: XCTestCase {
         let capturedMetrics = testCallbackHelper.getCapturedMetrics()
         let capturedMetric = try XCTUnwrap(capturedMetrics.first)
         let attributes = try XCTUnwrap(capturedMetric["attributes"] as? [String: Any])
-        
+
         // Metric attribute should take precedence
         let attr = try XCTUnwrap(attributes["existing-key"] as? [String: Any])
         XCTAssertEqual(attr["value"] as? String, "metric-value")
@@ -660,7 +660,7 @@ final class SentryMetricsBatcherTests: XCTestCase {
     func testAddMetric_whenBeforeSendMetricReturnsNil_shouldDropMetric() throws {
         // -- Arrange --
         options.experimental.beforeSendMetric = { _ in nil }
-        
+
         let metric = createTestMetric(name: "test.metric", value: .counter(1))
         
         // -- Act --
@@ -682,19 +682,19 @@ final class SentryMetricsBatcherTests: XCTestCase {
             value: .counter(42),
             unit: "connection"
         )
-        
+
         // -- Act --
         let sut = getSut()
         sut.addMetric(metric, scope: scope)
         sut.captureMetrics()
-        
+
         // -- Assert --
         let capturedMetrics = testCallbackHelper.getCapturedMetrics()
         let capturedMetric = try XCTUnwrap(capturedMetrics.first)
         XCTAssertEqual(capturedMetric["type"] as? String, "counter")
         XCTAssertEqual(capturedMetric["value"] as? Int64, 42)
         XCTAssertEqual(capturedMetric["unit"] as? String, "connection")
-        
+
         // Assert no additional metrics
         XCTAssertEqual(capturedMetrics.count, 1)
     }
@@ -706,19 +706,19 @@ final class SentryMetricsBatcherTests: XCTestCase {
             value: .distribution(42.123456),
             unit: "percent"
         )
-        
+
         // -- Act --
         let sut = getSut()
         sut.addMetric(metric, scope: scope)
         sut.captureMetrics()
-        
+
         // -- Assert --
         let capturedMetrics = testCallbackHelper.getCapturedMetrics()
         let capturedMetric = try XCTUnwrap(capturedMetrics.first)
         XCTAssertEqual(capturedMetric["type"] as? String, "distribution")
         XCTAssertEqual(capturedMetric["value"] as? Double, 42.123456)
         XCTAssertEqual(capturedMetric["unit"] as? String, "percent")
-        
+
         // Assert no additional metrics
         XCTAssertEqual(capturedMetrics.count, 1)
     }
@@ -730,7 +730,7 @@ final class SentryMetricsBatcherTests: XCTestCase {
             value: .gauge(42.0),
             unit: "connection"
         )
-        
+
         // -- Act --
         let sut = getSut()
         sut.addMetric(metric, scope: scope)
@@ -742,13 +742,13 @@ final class SentryMetricsBatcherTests: XCTestCase {
         XCTAssertEqual(capturedMetric["type"] as? String, "gauge")
         XCTAssertEqual(capturedMetric["value"] as? Double, 42.0)
         XCTAssertEqual(capturedMetric["unit"] as? String, "connection")
-        
+
         // Assert no additional metrics
         XCTAssertEqual(capturedMetrics.count, 1)
     }
-    
+
     // MARK: - Helper Methods
-    
+
     private func createTestMetric(name: String, value: SentryMetric.Value, unit: String? = nil, attributes: [String: SentryMetric.Attribute] = [:]) -> SentryMetric {
         let metricsUnit: SentryUnit? = unit.map { .generic($0) }
         return SentryMetric(
@@ -787,7 +787,7 @@ final class TestMetricsBatcherCallbackHelper {
     // the actual data structure produced by the batcher.
     func getCapturedMetrics() -> [[String: Any]] {
         var allMetrics: [[String: Any]] = []
-        
+
         for invocation in captureMetricsDataInvocations.invocations {
             if let jsonObject = try? JSONSerialization.jsonObject(with: invocation.data) as? [String: Any],
                let items = jsonObject["items"] as? [[String: Any]] {

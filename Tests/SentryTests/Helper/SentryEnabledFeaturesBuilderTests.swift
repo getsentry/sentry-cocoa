@@ -12,9 +12,9 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
 
         // -- Assert --
 #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT
-        XCTAssertEqual(features, ["captureFailedRequests", "experimentalViewRenderer", "dataSwizzling"])
+        XCTAssertEqual(features, ["captureFailedRequests", "experimentalViewRenderer", "dataSwizzling", "metrics"])
 #else
-        XCTAssertEqual(features, ["captureFailedRequests", "dataSwizzling"])
+        XCTAssertEqual(features, ["captureFailedRequests", "dataSwizzling", "metrics"])
 #endif
     }
 

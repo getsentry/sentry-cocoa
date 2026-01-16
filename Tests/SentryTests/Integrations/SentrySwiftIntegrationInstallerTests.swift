@@ -18,6 +18,8 @@ final class SentrySwiftIntegrationInstallerTests: XCTestCase {
         options.debug = true
         options.swiftAsyncStacktraces = true
         options.enableAutoSessionTracking = false
+        options.enableSwizzling = false
+        options.experimental.enableMetrics = false
         
         let testHub = TestHub(client: nil, andScope: nil)
         SentrySDKInternal.setCurrentHub(testHub)
@@ -38,6 +40,8 @@ final class SentrySwiftIntegrationInstallerTests: XCTestCase {
         options.debug = true
         options.swiftAsyncStacktraces = false
         options.enableAutoSessionTracking = false
+        options.enableSwizzling = false
+        options.experimental.enableMetrics = false
         
         let testHub = TestHub(client: nil, andScope: nil)
         SentrySDKInternal.setCurrentHub(testHub)

@@ -71,7 +71,12 @@ import Foundation
     ///
     /// ## Requirements
     ///
-    /// Metrics are enabled by default. To disable metrics, set ``Options/experimental`` ``SentryExperimentalOptions/enableMetrics`` to `false`.
+    /// Metrics are enabled by default even though it is an experimental feature, because you must still
+    /// manually call the API methods (``SentryMetricsApiProtocol/count(key:value:unit:attributes:)``,
+    /// ``SentryMetricsApiProtocol/gauge(key:value:unit:attributes:)``, or
+    /// ``SentryMetricsApiProtocol/distribution(key:value:unit:attributes:)``) to use it.
+    ///
+    /// To disable metrics, set ``Options/experimental`` ``SentryExperimentalOptions/enableMetrics`` to `false`.
     ///
     /// - Note: This feature is currently in open beta.
     ///

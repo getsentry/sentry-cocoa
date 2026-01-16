@@ -9,6 +9,9 @@
 - Add `Sentry.metrics.count(..)`, `Sentry.metrics.distribution(..)` and `Sentry.metrics.gauge(..)` to public API (#6957)
 - Add isiOSAppOnVisionOS, isiOSAppOnMac, isMacCatalystApp to device context #6939
 - Add flushing of Metrics to `SentrySDK.flush()` (#7182)
+- Add integration to collect Metrics, enabled by default. Can be disabled by setting `options.experimental.enableMetrics = false` (#6956)
+- Add implementation for Metrics Protocol with modification of items in `options.experimental.beforeSendMetrics` (#6960)
+- Add `Sentry.metrics.count(..)`, `Sentry.metrics.distribution(..)` and `Sentry.metrics.gauge(..)` to public API (#6957)
 
 ### Fixes
 
@@ -18,6 +21,7 @@
 - Fixes stacktraces for MetricKit events (#6908)
 - Fix `raw_description` in `runtime` context on Mac Catalyst (#7082)
 - Deprecates `configureDarkTheme` for user feedback (#7114)
+- Fix incorrect variable assignment for 'sampled' key (#7120)
 
 ## 9.1.0
 
