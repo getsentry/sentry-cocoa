@@ -79,12 +79,6 @@ NS_ASSUME_NONNULL_BEGIN
         }
     }
 
-    if ((integrationOptions & kIntegrationOptionEnableNetworkTracking)
-        && !options.enableNetworkTracking) {
-        [self logWithOptionName:@"enableNetworkTracking"];
-        return NO;
-    }
-
     if ((integrationOptions & kIntegrationOptionEnableFileIOTracing)
         && !options.enableFileIOTracing) {
         [self logWithOptionName:@"enableFileIOTracing"];

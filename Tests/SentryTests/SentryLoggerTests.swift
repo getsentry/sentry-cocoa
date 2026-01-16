@@ -45,17 +45,17 @@ final class SentryLoggerTests: XCTestCase {
     
     // MARK: - Trace Level Tests
     
-    func testTrace_WithBodyOnly() {
+    func testTrace_WithBodyOnly() throws {
         sut.trace("Test trace message")
         
-        assertLogCaptured(
+        try assertLogCaptured(
             .trace,
             "Test trace message",
             [:]
         )
     }
     
-    func testTrace_WithBodyAndAttributes() {
+    func testTrace_WithBodyAndAttributes() throws {
         let attributes: [String: Any] = [
             "user_id": "12345",
             "is_debug": true,
@@ -65,7 +65,7 @@ final class SentryLoggerTests: XCTestCase {
         
         sut.trace("Test trace with attributes", attributes: attributes)
         
-        assertLogCaptured(
+        try assertLogCaptured(
             .trace,
             "Test trace with attributes",
             [
@@ -79,17 +79,17 @@ final class SentryLoggerTests: XCTestCase {
     
     // MARK: - Debug Level Tests
     
-    func testDebug_WithBodyOnly() {
+    func testDebug_WithBodyOnly() throws {
         sut.debug("Test debug message")
         
-        assertLogCaptured(
+        try assertLogCaptured(
             .debug,
             "Test debug message",
             [:]
         )
     }
     
-    func testDebug_WithBodyAndAttributes() {
+    func testDebug_WithBodyAndAttributes() throws {
         let attributes: [String: Any] = [
             "module": "networking",
             "enabled": false
@@ -97,7 +97,7 @@ final class SentryLoggerTests: XCTestCase {
         
         sut.debug("Debug networking", attributes: attributes)
         
-        assertLogCaptured(
+        try assertLogCaptured(
             .debug,
             "Debug networking",
             [
@@ -109,17 +109,17 @@ final class SentryLoggerTests: XCTestCase {
     
     // MARK: - Info Level Tests
     
-    func testInfo_WithBodyOnly() {
+    func testInfo_WithBodyOnly() throws {
         sut.info("Test info message")
         
-        assertLogCaptured(
+        try assertLogCaptured(
             .info,
             "Test info message",
             [:]
         )
     }
     
-    func testInfo_WithBodyAndAttributes() {
+    func testInfo_WithBodyAndAttributes() throws {
         let attributes: [String: Any] = [
             "request_id": "req-123",
             "duration": 1.5
@@ -127,7 +127,7 @@ final class SentryLoggerTests: XCTestCase {
         
         sut.info("Request completed", attributes: attributes)
         
-        assertLogCaptured(
+        try assertLogCaptured(
             .info,
             "Request completed",
             [
@@ -139,17 +139,17 @@ final class SentryLoggerTests: XCTestCase {
     
     // MARK: - Warn Level Tests
     
-    func testWarn_WithBodyOnly() {
+    func testWarn_WithBodyOnly() throws {
         sut.warn("Test warning message")
         
-        assertLogCaptured(
+        try assertLogCaptured(
             .warn,
             "Test warning message",
             [:]
         )
     }
     
-    func testWarn_WithBodyAndAttributes() {
+    func testWarn_WithBodyAndAttributes() throws {
         let attributes: [String: Any] = [
             "retry_count": 3,
             "will_retry": true
@@ -157,7 +157,7 @@ final class SentryLoggerTests: XCTestCase {
         
         sut.warn("Connection failed", attributes: attributes)
         
-        assertLogCaptured(
+        try assertLogCaptured(
             .warn,
             "Connection failed",
             [
@@ -169,17 +169,17 @@ final class SentryLoggerTests: XCTestCase {
     
     // MARK: - Error Level Tests
     
-    func testError_WithBodyOnly() {
+    func testError_WithBodyOnly() throws {
         sut.error("Test error message")
         
-        assertLogCaptured(
+        try assertLogCaptured(
             .error,
             "Test error message",
             [:]
         )
     }
     
-    func testError_WithBodyAndAttributes() {
+    func testError_WithBodyAndAttributes() throws {
         let attributes: [String: Any] = [
             "error_code": 500,
             "recoverable": false
@@ -187,7 +187,7 @@ final class SentryLoggerTests: XCTestCase {
         
         sut.error("Server error occurred", attributes: attributes)
         
-        assertLogCaptured(
+        try assertLogCaptured(
             .error,
             "Server error occurred",
             [
@@ -199,17 +199,17 @@ final class SentryLoggerTests: XCTestCase {
     
     // MARK: - Fatal Level Tests
     
-    func testFatal_WithBodyOnly() {
+    func testFatal_WithBodyOnly() throws {
         sut.fatal("Test fatal message")
         
-        assertLogCaptured(
+        try assertLogCaptured(
             .fatal,
             "Test fatal message",
             [:]
         )
     }
     
-    func testFatal_WithBodyAndAttributes() {
+    func testFatal_WithBodyAndAttributes() throws {
         let attributes: [String: Any] = [
             "exit_code": -1,
             "critical": true
@@ -217,7 +217,7 @@ final class SentryLoggerTests: XCTestCase {
         
         sut.fatal("Application crashed", attributes: attributes)
         
-        assertLogCaptured(
+        try assertLogCaptured(
             .fatal,
             "Application crashed",
             [
@@ -227,10 +227,10 @@ final class SentryLoggerTests: XCTestCase {
         )
     }
     
-    func testEmptyAttributes() {
+    func testEmptyAttributes() throws {
         sut.info("Empty attributes", attributes: [:])
         
-        assertLogCaptured(
+        try assertLogCaptured(
             .info,
             "Empty attributes",
             [:]
@@ -239,7 +239,7 @@ final class SentryLoggerTests: XCTestCase {
     
     // MARK: - Date Provider Tests
     
-    func testUsesDateProviderForTimestamp() {
+    func testUsesDateProviderForTimestamp() throws {
         let expectedDate = Date(timeIntervalSince1970: 1_234_567_890.123456)
         fixture.dateProvider.setDate(date: expectedDate)
         
@@ -251,7 +251,7 @@ final class SentryLoggerTests: XCTestCase {
     
     // MARK: - Multiple Logs Tests
     
-    func testMultipleLogsCaptured() {
+    func testMultipleLogsCaptured() throws {
         sut.trace("Trace message")
         sut.debug("Debug message")
         sut.info("Info message")
@@ -273,7 +273,7 @@ final class SentryLoggerTests: XCTestCase {
     
     // MARK: - Formatted String Tests
     
-    func testTrace_WithFormattedString() {
+    func testTrace_WithFormattedString() throws {
         let user = "john"
         let count = 42
         let active = true
@@ -282,7 +282,7 @@ final class SentryLoggerTests: XCTestCase {
         let logString: SentryLogMessage = "User \(user) processed \(count) items, active: \(active), score: \(score)"
         sut.trace(logString)
         
-        assertLogCaptured(
+        try assertLogCaptured(
             .trace,
             "User john processed 42 items, active: true, score: 95.5",
             [
@@ -295,13 +295,13 @@ final class SentryLoggerTests: XCTestCase {
         )
     }
     
-    func testTrace_WithFormattedStringAndAttributes() {
+    func testTrace_WithFormattedStringAndAttributes() throws {
         let userId = "user123"
         let logString: SentryLogMessage = "Processing user \(userId)"
         
         sut.trace(logString, attributes: ["extra": "data", "count": 10])
         
-        assertLogCaptured(
+        try assertLogCaptured(
             .trace,
             "Processing user user123",
             [
@@ -313,14 +313,14 @@ final class SentryLoggerTests: XCTestCase {
         )
     }
     
-    func testDebug_WithFormattedString() {
+    func testDebug_WithFormattedString() throws {
         let value: Float = 3.14
         let enabled = false
         
         let logString: SentryLogMessage = "Float value: \(value), enabled: \(enabled)"
         sut.debug(logString)
         
-        assertLogCaptured(
+        try assertLogCaptured(
             .debug,
             "Float value: 3.14, enabled: false",
             [
@@ -331,14 +331,14 @@ final class SentryLoggerTests: XCTestCase {
         )
     }
     
-    func testInfo_WithFormattedString() {
+    func testInfo_WithFormattedString() throws {
         let temperature = 98.6
         let unit = "F"
         
         let logString: SentryLogMessage = "Temperature: \(temperature)°\(unit)"
         sut.info(logString)
         
-        assertLogCaptured(
+        try assertLogCaptured(
             .info,
             "Temperature: 98.6°F",
             [
@@ -349,14 +349,14 @@ final class SentryLoggerTests: XCTestCase {
         )
     }
     
-    func testWarn_WithFormattedString() {
+    func testWarn_WithFormattedString() throws {
         let attempts = 3
         let maxAttempts = 5
         
         let logString: SentryLogMessage = "Retry \(attempts) of \(maxAttempts)"
         sut.warn(logString, attributes: ["retry_policy": "exponential"])
         
-        assertLogCaptured(
+        try assertLogCaptured(
             .warn,
             "Retry 3 of 5",
             [
@@ -368,14 +368,14 @@ final class SentryLoggerTests: XCTestCase {
         )
     }
     
-    func testError_WithFormattedString() {
+    func testError_WithFormattedString() throws {
         let errorCode = 500
         let service = "payment"
         
         let logString: SentryLogMessage = "Service \(service) failed with code \(errorCode)"
         sut.error(logString)
         
-        assertLogCaptured(
+        try assertLogCaptured(
             .error,
             "Service payment failed with code 500",
             [
@@ -386,14 +386,14 @@ final class SentryLoggerTests: XCTestCase {
         )
     }
     
-    func testFatal_WithFormattedString() {
+    func testFatal_WithFormattedString() throws {
         let component = "database"
         let critical = true
         
         let logString: SentryLogMessage = "Critical failure in \(component): \(critical)"
         sut.fatal(logString, attributes: ["shutdown": true])
         
-        assertLogCaptured(
+        try assertLogCaptured(
             .fatal,
             "Critical failure in database: true",
             [
@@ -405,7 +405,7 @@ final class SentryLoggerTests: XCTestCase {
         )
     }
     
-    func testFormattedString_WithMixedTypes() {
+    func testFormattedString_WithMixedTypes() throws {
         let name = "test"
         let count = 0
         let percentage = 0.0
@@ -415,7 +415,7 @@ final class SentryLoggerTests: XCTestCase {
         let logString: SentryLogMessage = "Test \(name): \(count) items, \(percentage)% complete, success: \(success), float: \(value)"
         sut.debug(logString)
         
-        assertLogCaptured(
+        try assertLogCaptured(
             .debug,
             "Test test: 0 items, 0.0% complete, success: false, float: -1.5",
             [
@@ -429,21 +429,81 @@ final class SentryLoggerTests: XCTestCase {
         )
     }
     
-    func testFormattedString_EmptyAttributes() {
+    func testFormattedString_EmptyAttributes() throws {
         let logString: SentryLogMessage = "Simple message"
         sut.info(logString, attributes: [:])
         
-        assertLogCaptured(
+        try assertLogCaptured(
             .info,
             "Simple message",
             [:]  // No template should be added for string literals without interpolations
         )
     }
     
-    func testNoOpInit_DoesNotCapture() {
+    func testNoOpInit_DoesNotCapture() throws {
         let sut = SentryLogger(dateProvider: fixture.dateProvider)
         sut.info("foobar", attributes: [:])
         XCTAssertNil(fixture.delegate.capturedLogs.invocations.first)
+    }
+    
+    // MARK: - Protocol-Based Conversion Tests
+    
+    /// Verifies that protocol-based conversion works for arrays through SentryLogger
+    func testLogger_ProtocolBasedConversion_StringArray() throws {
+        let stringArray: [String] = ["tag1", "tag2", "tag3"]
+        sut.info("Processing tags", attributes: ["tags": stringArray])
+        
+        try assertLogCaptured(
+            .info,
+            "Processing tags",
+            [
+                "tags": SentryLog.Attribute(stringArray: ["tag1", "tag2", "tag3"])
+            ]
+        )
+    }
+    
+    /// Verifies that protocol-based conversion works for Int arrays through SentryLogger
+    func testLogger_ProtocolBasedConversion_IntArray() throws {
+        let intArray: [Int] = [1, 2, 3]
+        sut.info("Processing counts", attributes: ["counts": intArray])
+        
+        try assertLogCaptured(
+            .info,
+            "Processing counts",
+            [
+                "counts": SentryLog.Attribute(integerArray: [1, 2, 3])
+            ]
+        )
+    }
+    
+    /// Verifies that protocol-based conversion works for Bool arrays through SentryLogger
+    func testLogger_ProtocolBasedConversion_BoolArray() throws {
+        let boolArray: [Bool] = [true, false, true]
+        sut.info("Processing flags", attributes: ["flags": boolArray])
+        
+        try assertLogCaptured(
+            .info,
+            "Processing flags",
+            [
+                "flags": SentryLog.Attribute(booleanArray: [true, false, true])
+            ]
+        )
+    }
+    
+    /// Verifies that fallback works for unsupported types through SentryLogger
+    func testLogger_Fallback_UnsupportedType() {
+        let url = URL(string: "https://example.com")!
+        sut.info("Processing URL", attributes: ["url": url])
+        
+        let capturedLog = getLastCapturedLog()
+        XCTAssertEqual(capturedLog.level, .info)
+        XCTAssertEqual(capturedLog.body, "Processing URL")
+        let urlAttribute = capturedLog.attributes["url"]
+        XCTAssertNotNil(urlAttribute)
+        XCTAssertEqual(urlAttribute?.type, "string")
+        let stringValue = urlAttribute?.value as? String
+        XCTAssertNotNil(stringValue)
+        XCTAssertTrue(stringValue!.contains("https://example.com"))
     }
     
     // MARK: - Helper Methods
@@ -454,7 +514,7 @@ final class SentryLoggerTests: XCTestCase {
         _ expectedAttributes: [String: SentryLog.Attribute],
         file: StaticString = #file,
         line: UInt = #line
-    ) {
+    ) throws {
         let capturedLog = getLastCapturedLog()
         
         XCTAssertEqual(capturedLog.level, expectedLevel, "Log level mismatch", file: file, line: line)
@@ -472,21 +532,37 @@ final class SentryLoggerTests: XCTestCase {
             // Compare values based on type
             switch expectedAttribute.type {
             case "string":
-                let expectedValue = expectedAttribute.value as! String
-                let actualValue = actualAttribute.value as! String
+                let expectedValue = try XCTUnwrap(expectedAttribute.value as? String)
+                let actualValue = try XCTUnwrap(actualAttribute.value as? String)
                 XCTAssertEqual(actualValue, expectedValue, "String attribute value mismatch for key: \(key)", file: file, line: line)
             case "boolean":
-                let expectedValue = expectedAttribute.value as! Bool
-                let actualValue = actualAttribute.value as! Bool
+                let expectedValue = try XCTUnwrap(expectedAttribute.value as? Bool)
+                let actualValue = try XCTUnwrap(actualAttribute.value as? Bool)
                 XCTAssertEqual(actualValue, expectedValue, "Boolean attribute value mismatch for key: \(key)", file: file, line: line)
             case "integer":
-                let expectedValue = expectedAttribute.value as! Int
-                let actualValue = actualAttribute.value as! Int
+                let expectedValue = try XCTUnwrap(expectedAttribute.value as? Int)
+                let actualValue = try XCTUnwrap(actualAttribute.value as? Int)
                 XCTAssertEqual(actualValue, expectedValue, "Integer attribute value mismatch for key: \(key)", file: file, line: line)
             case "double":
-                let expectedValue = expectedAttribute.value as! Double
-                let actualValue = actualAttribute.value as! Double
+                let expectedValue = try XCTUnwrap(expectedAttribute.value as? Double)
+                let actualValue = try XCTUnwrap(actualAttribute.value as? Double)
                 XCTAssertEqual(actualValue, expectedValue, accuracy: 0.000001, "Double attribute value mismatch for key: \(key)", file: file, line: line)
+            case "string[]":
+                let expectedValue = expectedAttribute.value as! [String]
+                let actualValue = actualAttribute.value as! [String]
+                XCTAssertEqual(actualValue, expectedValue, "String array attribute value mismatch for key: \(key)", file: file, line: line)
+            case "boolean[]":
+                let expectedValue = expectedAttribute.value as! [Bool]
+                let actualValue = actualAttribute.value as! [Bool]
+                XCTAssertEqual(actualValue, expectedValue, "Boolean array attribute value mismatch for key: \(key)", file: file, line: line)
+            case "integer[]":
+                let expectedValue = expectedAttribute.value as! [Int]
+                let actualValue = actualAttribute.value as! [Int]
+                XCTAssertEqual(actualValue, expectedValue, "Integer array attribute value mismatch for key: \(key)", file: file, line: line)
+            case "double[]":
+                let expectedValue = expectedAttribute.value as! [Double]
+                let actualValue = actualAttribute.value as! [Double]
+                XCTAssertEqual(actualValue, expectedValue, "Double array attribute value mismatch for key: \(key)", file: file, line: line)
             default:
                 XCTFail("Unknown attribute type for key: \(key). Type: \(expectedAttribute.type)", file: file, line: line)
             }

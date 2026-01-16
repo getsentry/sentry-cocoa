@@ -259,21 +259,33 @@ This project uses [Conventional Commits 1.0.0](https://www.conventionalcommits.o
 [optional footer(s)]
 ```
 
-**Required Types:**
+**Line Length Limits:**
+
+- **Subject line:** Maximum 50 characters (including type prefix)
+- **Body lines:** Maximum 72 characters per line
+
+The 50-character limit for the subject ensures readability in git log output and GitHub's UI. The 72-character limit for body lines follows the git convention for optimal display in terminals and tools.
+
+**Types that appear in CHANGELOG:**
 
 - `feat:` - A new feature (correlates with MINOR in SemVer)
 - `fix:` - A bug fix (correlates with PATCH in SemVer)
+- `impr:` - An improvement to existing functionality
 
-**Other Allowed Types:**
+**Other Allowed Types (require `#skip-changelog` in PR description):**
 
 - `build:` - Changes to build system or dependencies
 - `chore:` - Routine tasks, maintenance
 - `ci:` - Changes to CI configuration
 - `docs:` - Documentation changes
 - `style:` - Code style changes (formatting, missing semi-colons, etc.)
-- `refactor:` - Code refactoring without changing functionality
+- `refactor:` (or `ref:`) - Code refactoring without changing functionality
 - `perf:` - Performance improvements
 - `test:` - Adding or updating tests
+
+**PR Description Requirements:**
+
+Add `#skip-changelog` to PR descriptions for changes that should not appear in the changelog. Only `feat:`, `fix:`, and `impr:` commits generate changelog entries.
 
 **Breaking Changes:**
 
@@ -286,10 +298,21 @@ This project uses [Conventional Commits 1.0.0](https://www.conventionalcommits.o
 feat: add new session replay feature
 fix: resolve memory leak in session storage
 docs: update installation guide
-refactor: simplify event serialization
+ref: simplify event serialization
+chore: update dependencies
 feat!: change API response format
 
 BREAKING CHANGE: API now returns JSON instead of XML
+```
+
+**Example with body (respecting 72-char line limit):**
+
+```
+ref: rename constant to Swift naming convention
+
+Renamed SENTRY_AUTO_TRANSACTION_MAX_DURATION to use camelCase as per
+Swift naming conventions for module-level constants. This improves
+consistency with the rest of the codebase.
 ```
 
 #### No AI References
@@ -312,6 +335,29 @@ Keep commit messages focused on the technical changes made and their purpose.
 - ✅ "feat: add user authentication system"
 - ✅ "fix: resolve connection pool exhaustion"
 - ✅ "refactor: simplify error handling logic"
+
+## Using Makefile Commands
+
+The repository includes a Makefile that contains common commands for building, testing, formatting, and other development tasks. Agents should prefer using these Makefile commands instead of building custom commands.
+
+**Key Principles:**
+
+- **Prefer Makefile commands** - Before creating custom shell commands or scripts, check if a Makefile target already exists for the task
+- **Use `make help`** - Run `make help` to see all available commands and their descriptions
+- **Consistency** - Using Makefile commands ensures consistency with the project's standard workflows and CI/CD pipelines
+- **Maintainability** - Makefile commands are maintained by the project and updated as needed, reducing the need for custom command maintenance
+
+**Benefits:**
+
+- Standardized workflows across all developers and CI systems
+- Reduced risk of errors from incorrect command syntax or missing flags
+- Easier maintenance when build/test processes change
+- Better integration with CI/CD pipelines that use the same commands
+
+**Examples:**
+
+- To build the SDK for macOS use `make build-macos`, for iOS use `make build-ios`
+- To run tests use `make test-macos` or `make test-ios` for the respective platforms.
 
 ## Helpful Commands
 
