@@ -52,6 +52,15 @@ final class SentryMetricsIntegration<Dependencies: SentryMetricsIntegrationDepen
         removeLifecycleObservers()
     }
 
+    /// Ensures cleanup happens even if the integration is deallocated without explicit `uninstall()`.
+    ///
+    /// This defensive pattern guarantees that:
+    /// 1. Pending metrics are flushed before deallocation (preventing data loss)
+    /// 2. Notification observers are removed (preventing crashes from dangling references)
+    deinit {
+        uninstall()
+    }
+
     static var name: String {
         "SentryMetricsIntegration"
     }
