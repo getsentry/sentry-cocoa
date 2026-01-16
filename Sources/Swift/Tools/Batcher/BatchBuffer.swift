@@ -1,3 +1,7 @@
+enum BatchBufferError: Error {
+    case bufferFull
+}
+
 protocol BatchBuffer<Item> {
     associatedtype Item
 

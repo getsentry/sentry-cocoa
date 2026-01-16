@@ -20,7 +20,7 @@ struct InMemoryBatchBuffer<Item: Encodable>: BatchBuffer {
         elements.removeAll()
         itemsDataSize = 0
     }
-
+    
     var itemsCount: Int {
         elements.count
     }

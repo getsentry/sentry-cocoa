@@ -33,6 +33,18 @@ class ErrorsViewController: UIViewController {
             NotificationCenter.default.post(name: UIApplication.userDidTakeScreenshotNotification, object: nil)
         }
     }
+    
+    @IBAction func crashWithLogs(_ sender: UIButton) {
+        highlightButton(sender)
+        
+        // Add several logs before crashing
+        SentrySDK.logger.info("About to crash - step 1")
+        SentrySDK.logger.debug("Crash test - step 2", attributes: ["testId": "crash-001"])
+        SentrySDK.logger.warn("Crash test - step 3", attributes: ["timestamp": Date().timeIntervalSince1970])
+        SentrySDK.logger.error("Crash test - step 4", attributes: ["severity": "high"])
+        
+        SentrySDK.crash()
+    }
 
     @IBAction func useAfterFree(_ sender: UIButton) {
         imageView.image = UIImage(named: "")

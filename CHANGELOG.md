@@ -8,6 +8,7 @@
 - Add implementation for Metrics Protocol with modification of items in `options.experimental.beforeSendMetrics` (#6960)
 - Add integration to collect Metrics, can be enabled by setting `options.enableMetrics = true` (#6956)
 - Add isiOSAppOnVisionOS, isiOSAppOnMac, isMacCatalystApp to device context #6939
+- Add `CrashSafeBatchBuffer` and save/restore/send logs on crash ([](#7061)
 
 ### Fixes
 

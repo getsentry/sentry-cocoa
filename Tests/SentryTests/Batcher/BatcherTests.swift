@@ -233,7 +233,7 @@ final class BatcherTests: XCTestCase {
         sut.add(TestItem(body: "Item 2"), scope: testScope)
         
         // -- Act --
-        _ = sut.capture()
+        sut.capture()
         
         // -- Assert --
         XCTAssertEqual(capturedDataInvocations.count, 1)
@@ -248,7 +248,7 @@ final class BatcherTests: XCTestCase {
         sut.add(TestItem(body: "Item 3"), scope: testScope)
         
         // -- Act --
-        _ = sut.capture()
+        sut.capture()
         
         // -- Assert --
         XCTAssertEqual(capturedDataInvocations.count, 1)
@@ -261,7 +261,7 @@ final class BatcherTests: XCTestCase {
         let sut = getSut()
         
         // -- Act --
-        _ = sut.capture()
+        sut.capture()
         
         // -- Assert --
         // Note: flush() is always called (in defer block), but callback should not be called when empty
@@ -275,7 +275,7 @@ final class BatcherTests: XCTestCase {
         let timerWorkItem = testDispatchQueue.dispatchAfterWorkItemInvocations.first?.workItem
         
         // -- Act --
-        _ = sut.capture()
+        sut.capture()
         timerWorkItem?.perform()
         
         // -- Assert --
@@ -300,7 +300,7 @@ final class BatcherTests: XCTestCase {
         sut.add(TestItem(body: "Original"), scope: testScope)
         // Check before capture since capture flushes the buffer
         XCTAssertEqual(testBuffer.appendedItems.first?.body, "Modified")
-        _ = sut.capture()
+        sut.capture()
         
         // -- Assert --
         XCTAssertTrue(beforeSendCalled)
@@ -313,7 +313,7 @@ final class BatcherTests: XCTestCase {
         
         // -- Act --
         sut.add(TestItem(), scope: testScope)
-        _ = sut.capture()
+        sut.capture()
         
         // -- Assert --
         XCTAssertEqual(capturedDataInvocations.count, 0)
@@ -343,9 +343,9 @@ final class BatcherTests: XCTestCase {
         
         // -- Act --
         sut.add(TestItem(body: "Item 1"), scope: testScope)
-        _ = sut.capture()
+        sut.capture()
         sut.add(TestItem(body: "Item 2"), scope: testScope)
-        _ = sut.capture()
+        sut.capture()
         
         // -- Assert --
         XCTAssertEqual(capturedDataInvocations.count, 2)
