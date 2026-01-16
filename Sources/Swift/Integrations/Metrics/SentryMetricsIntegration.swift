@@ -56,7 +56,7 @@ final class SentryMetricsIntegration<Dependencies: SentryMetricsIntegrationDepen
         "SentryMetricsIntegration"
     }
 
-    // MARK: - Public API for SentryMetricsApi
+    // MARK: - Public API for Metrics
 
     func addMetric(_ metric: SentryMetric, scope: Scope) {
         metricBatcher.addMetric(metric, scope: scope)
@@ -67,20 +67,22 @@ final class SentryMetricsIntegration<Dependencies: SentryMetricsIntegrationDepen
     ///
     /// - Note: This method calls captureMetrics() on the internal batcher synchronously.
     ///         This is safe to call from any thread, but be aware that it uses dispatchSync internally.
-    @discardableResult
-    @objc func captureMetrics() -> TimeInterval {
+    @discardableResult func captureMetrics() -> TimeInterval {
         return metricBatcher.captureMetrics()
     }
 
     // MARK: - FlushableIntegration
 
     /// Flushes any buffered metrics synchronously.
+    ///
     /// - Returns: The time taken to flush in seconds
     ///
     /// This method is called by SentryHub.flush() via respondsToSelector: check.
     /// We implement it directly in the class body (not in an extension) because
     /// extensions of generic classes cannot contain @objc members.
-    func flush() -> TimeInterval {
+    /// The @objc attribute is required so Objective-C code can find this method
+    /// via respondsToSelector: at runtime.
+    @objc func flush() -> TimeInterval {
         return captureMetrics()
     }
     
