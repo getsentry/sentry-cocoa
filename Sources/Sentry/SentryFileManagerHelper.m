@@ -120,12 +120,18 @@ _non_thread_safe_removeFileAtPath(NSString *path)
         [self removeFileAtPath:self.eventsPath];
 
         if (!createDirectoryIfNotExists(self.sentryPath, error)) {
+// Disabled fatal error logging in tests to reduce noise in test logs
+#if !SENTRY_TEST && !SENTRY_TEST_CI
             SENTRY_LOG_FATAL(@"Failed to create Sentry SDK working directory: %@", self.sentryPath);
+#endif
             return nil;
         }
         if (!createDirectoryIfNotExists(self.envelopesPath, error)) {
+// Disabled fatal error logging in tests to reduce noise in test logs
+#if !SENTRY_TEST && !SENTRY_TEST_CI
             SENTRY_LOG_FATAL(
                 @"Failed to create Sentry SDK envelopes directory: %@", self.envelopesPath);
+#endif
             return nil;
         }
 
