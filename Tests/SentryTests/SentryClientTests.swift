@@ -1949,7 +1949,7 @@ class SentryClientTests: XCTestCase {
 
         eventId.assertIsNotEmpty()
 
-        var expectedIntegrations = ["AutoBreadcrumbTracking", "AutoSessionTracking", "Crash", "NetworkTracking"]
+        var expectedIntegrations = ["AutoBreadcrumbTracking", "AutoSessionTracking", "Crash", "Metrics", "NetworkTracking"]
         if !SentryDependencyContainer.sharedInstance().crashWrapper.isBeingTraced {
             expectedIntegrations = ["ANRTracking"] + expectedIntegrations
         }

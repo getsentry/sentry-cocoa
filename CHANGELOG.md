@@ -4,10 +4,10 @@
 
 ### Features
 
-- Add integration to collect Metrics, can be enabled by setting `options.experimental.enableMetrics = true` (#6956)
-- Add implementation for Metrics Protocol with modification of items in `options.experimental.beforeSendMetrics` (#6960)
-- Add integration to collect Metrics, can be enabled by setting `options.enableMetrics = true` (#6956)
 - Add isiOSAppOnVisionOS, isiOSAppOnMac, isMacCatalystApp to device context #6939
+- Add integration to collect Metrics, enabled by default. Can be disabled by setting `options.experimental.enableMetrics = false` (#6956)
+- Add implementation for Metrics Protocol with modification of items in `options.experimental.beforeSendMetrics` (#6960)
+- Add `Sentry.metrics.count(..)`, `Sentry.metrics.distribution(..)` and `Sentry.metrics.gauge(..)` to public API (#6957)
 
 ### Fixes
 

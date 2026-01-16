@@ -750,12 +750,13 @@ final class SentryMetricsBatcherTests: XCTestCase {
     // MARK: - Helper Methods
 
     private func createTestMetric(name: String, value: SentryMetric.Value, unit: String? = nil, attributes: [String: SentryMetric.Attribute] = [:]) -> SentryMetric {
+        let metricsUnit: SentryUnit? = unit.map { .generic($0) }
         return SentryMetric(
             timestamp: Date(),
             traceId: SentryId.empty,
             name: name,
             value: value,
-            unit: unit,
+            unit: metricsUnit,
             attributes: attributes
         )
     }
