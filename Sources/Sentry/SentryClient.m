@@ -1112,11 +1112,29 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
 - (void)captureLogsData:(NSData *)data with:(NSNumber *)itemCount
 {
-    SentryEnvelopeItem *envelopeItem =
-        [[SentryEnvelopeItem alloc] initWithType:SentryEnvelopeItemTypes.log
-                                            data:data
-                                     contentType:@"application/vnd.sentry.items.log+json"
-                                       itemCount:itemCount];
+    [self captureData:data
+                 with:itemCount
+                 type:SentryEnvelopeItemTypes.log
+          contentType:@"application/vnd.sentry.items.log+json"];
+}
+
+- (void)captureMetricsData:(NSData *)data with:(NSNumber *)itemCount
+{
+    [self captureData:data
+                 with:itemCount
+                 type:SentryEnvelopeItemTypes.traceMetric
+          contentType:@"application/vnd.sentry.items.trace-metric+json"];
+}
+
+- (void)captureData:(NSData *)data
+               with:(NSNumber *)itemCount
+               type:(NSString *)type
+        contentType:(NSString *)contentType
+{
+    SentryEnvelopeItem *envelopeItem = [[SentryEnvelopeItem alloc] initWithType:type
+                                                                           data:data
+                                                                    contentType:contentType
+                                                                      itemCount:itemCount];
     SentryEnvelope *envelope = [[SentryEnvelope alloc] initWithHeader:[SentryEnvelopeHeader empty]
                                                            singleItem:envelopeItem];
     [self captureEnvelope:envelope];

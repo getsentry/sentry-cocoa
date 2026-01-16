@@ -38,7 +38,9 @@ private struct AnyIntegration {
         var integrations: [AnyIntegration] = [
             .init(SwiftAsyncIntegration.self),
             .init(SentryAutoSessionTrackingIntegration.self),
-            .init(SentryHangTrackerIntegrationObjC.self)
+            .init(SentryNetworkTrackingIntegration.self),
+            .init(SentryHangTrackerIntegrationObjC.self),
+            .init(SentryMetricsIntegration.self)
         ]
         
         #if (os(iOS) || os(tvOS) || targetEnvironment(macCatalyst) || os(visionOS)) && !SENTRY_NO_UIKIT

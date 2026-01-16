@@ -271,6 +271,11 @@ extension SentryFileManager: SentryFileManagerProtocol { }
 extension SentryDependencyContainer: ScreenshotSourceProvider { }
 #endif
 
+protocol DateProviderProvider {
+    var dateProvider: SentryCurrentDateProvider { get }
+}
+extension SentryDependencyContainer: DateProviderProvider {}
+
 extension SentryDependencyContainer: AutoSessionTrackingProvider { }
 
 #if ((os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT) || os(macOS)
@@ -325,20 +330,10 @@ protocol ProcessInfoProvider {
 }
 extension SentryDependencyContainer: ProcessInfoProvider { }
 
-protocol DispatchFactoryProvider {
-    var dispatchFactory: SentryDispatchFactory { get }
-}
-extension SentryDependencyContainer: DispatchFactoryProvider { }
-
 protocol AppStateManagerProvider {
     var appStateManager: SentryAppStateManager { get }
 }
 extension SentryDependencyContainer: AppStateManagerProvider { }
-
-protocol ScopePersistentStoreProvider {
-    var scopePersistentStore: SentryScopePersistentStore? { get }
-}
-extension SentryDependencyContainer: ScopePersistentStoreProvider { }
 
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
 protocol WatchdogTerminationScopeObserverBuilder {
@@ -351,3 +346,15 @@ protocol WatchdogTerminationTrackerBuilder {
 }
 extension SentryDependencyContainer: WatchdogTerminationTrackerBuilder {}
 #endif
+
+protocol NetworkTrackerProvider {
+    var networkTracker: SentryNetworkTracker { get }
+}
+extension SentryDependencyContainer: NetworkTrackerProvider {
+    // Inject the network tracer via the Dependency Container
+    // Because this is used in swizzling, we cannot remove the singleton
+    // or that may lead to issues when stopping and enablign the SDK again
+    var networkTracker: SentryNetworkTracker {
+        SentryNetworkTracker.sharedInstance
+    }
+}
