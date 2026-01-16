@@ -151,7 +151,9 @@ NS_SWIFT_NAME(Scope)
  * @param value Supported values are string, integers, boolean and double
  * @param key The key to store, cannot be an empty string
  */
-- (void)setAttributeValue:(id)value forKey:(NSString *)key NS_SWIFT_NAME(setAttribute(value:key:));
+- (void)setAttributeValue:(id)value
+                   forKey:(NSString *)key
+    NS_SWIFT_NAME(setAttribute(value:key:)); // OK: bare id is needed to support multiple types
 
 /**
  * Remove the attribute for the specified key.
