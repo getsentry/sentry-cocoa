@@ -1,11 +1,11 @@
 #import "SentryDefines.h"
-#import "SentrySpan.h"
 #import "SentrySpanContext.h"
+#import "SentrySpanInternal.h"
 #import "SentrySpanProtocol.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryNoOpSpan : SentrySpan
+@interface SentryNoOpSpan : SentrySpanInternal
 SENTRY_NO_INIT
 
 + (instancetype)shared;

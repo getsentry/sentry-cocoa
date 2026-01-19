@@ -2,13 +2,13 @@
 import Foundation
 
 @objcMembers
-public final class SentryReplayOptions: NSObject, SentryRedactOptions {
+public class SentryReplayOptions: NSObject, SentryRedactOptions {
     /**
      * Default values for the session replay options.
      *
      * - Note: These values are used to ensure the different initializers use the same default values.
      */
-    public final class DefaultValues {
+    public class DefaultValues {
         public static let sessionSampleRate: Float = 0
         public static let onErrorSampleRate: Float = 0
         public static let maskAllText: Bool = true
@@ -21,6 +21,9 @@ public final class SentryReplayOptions: NSObject, SentryRedactOptions {
 
         public static let maskedViewClasses: [AnyClass] = []
         public static let unmaskedViewClasses: [AnyClass] = []
+
+        public static let excludedViewClasses: Set<String> = []
+        public static let includedViewClasses: Set<String> = []
 
         // The following properties are defaults which are not configurable by the user.
 
@@ -163,6 +166,96 @@ public final class SentryReplayOptions: NSObject, SentryRedactOptions {
     public var unmaskedViewClasses: [AnyClass]
 
     /**
+     * A set of view type identifier strings that should be excluded from subtree traversal.
+     *
+     * Views matching these types will have their subtrees skipped during redaction to avoid crashes
+     * caused by traversing problematic view hierarchies (e.g., views that activate internal CoreAnimation
+     * animations when their layers are accessed).
+     *
+     * Matching uses partial string containment: if a view's class name (from `type(of: view).description()`)
+     * contains any of these strings, the subtree will be ignored. For example, "MyView" will match
+     * "MyApp.MyView", "MyViewSubclass", "Some.MyView.Container", etc.
+     *
+     * - Note: You should use the methods ``excludeViewTypeFromSubtreeTraversal(_:)`` and ``includeViewTypeInSubtreeTraversal(_:)``
+     *         to add and remove view types, so you do not accidentally remove our defaults.
+     * - Note: The final set of excluded view types is computed by `SentryUIRedactBuilder` using the formula:
+     *         **Default View Classes + Excluded View Classes - Included View Classes**
+     *         Default view classes are defined in `SentryUIRedactBuilder` (e.g., `CameraUI.ChromeSwiftUIView` on iOS 26+).
+     */
+    public var excludedViewClasses: Set<String>
+    
+    /**
+     * A set of view type identifier strings that should be included in subtree traversal.
+     *
+     * View types exactly matching these strings will be removed from the excluded set, allowing their subtrees
+     * to be traversed even if they would otherwise be excluded by default or via `excludedViewClasses`.
+     *
+     * Matching uses exact string matching: the view's class name (from `type(of: view).description()`)
+     * must exactly equal one of these strings. For example, "MyApp.MyView" will only match exactly "MyApp.MyView",
+     * not "MyApp.MyViewSubclass".
+     *
+     * - Note: You should use the methods ``excludeViewTypeFromSubtreeTraversal(_:)`` and ``includeViewTypeInSubtreeTraversal(_:)``
+     *         to add and remove view types, so you do not accidentally remove our defaults.
+     * - Note: The final set of excluded view types is computed by `SentryUIRedactBuilder` using the formula:
+     *         **Default View Classes + Excluded View Classes - Included View Classes**
+     *         Default view classes are defined in `SentryUIRedactBuilder` (e.g., `CameraUI.ChromeSwiftUIView` on iOS 26+).
+     *         For example, you can use this to re-enable traversal for `CameraUI.ChromeSwiftUIView` on iOS 26+
+     *         by calling ``includeViewTypeInSubtreeTraversal("CameraUI.ChromeSwiftUIView")``.
+     * - Note: Included patterns use exact matching (not partial) to prevent accidental matches. For example,
+     *         if "ChromeCameraUI" is excluded and "Camera" is included, "ChromeCameraUI" will still be excluded
+     *         because "Camera" doesn't exactly match "ChromeCameraUI".
+     */
+    public var includedViewClasses: Set<String>
+    
+    /**
+     * Adds a view type pattern to the excluded set, preventing matching views' subtrees from being traversed.
+     *
+     * - Parameter viewType: The view type identifier pattern (as a string) to exclude from subtree traversal.
+     *                      Matching uses partial string containment: if a view's class name contains this string,
+     *                      the subtree will be ignored. For example, "MyView" will match "MyApp.MyView",
+     *                      "MyViewSubclass", etc.
+     *
+     * - Note: This method adds the pattern to `excludedViewClasses`, which is then combined with
+     *         default excluded types (defined in `SentryUIRedactBuilder`) and filtered by `includedViewClasses`
+     *         to produce the final set.
+     */
+    public func excludeViewTypeFromSubtreeTraversal(_ viewType: String) {
+        excludedViewClasses.insert(viewType)
+    }
+    
+    /**
+     * Adds a view type to the included set, allowing its subtree to be traversed.
+     *
+     * - Parameter viewType: The view type identifier (as a string) to include in subtree traversal.
+     *                      Must exactly match the result of `type(of: view).description()`.
+     *                      For example, "MyApp.MyView" will only match exactly "MyApp.MyView".
+     *
+     * - Note: This method adds the view type to `includedViewClasses`, which filters the combined set
+     *         of default excluded types (defined in `SentryUIRedactBuilder`) and `excludedViewClasses`.
+     *         For example, you can use this to re-enable traversal for `CameraUI.ChromeSwiftUIView` on iOS 26+.
+     * - Note: Included patterns use exact matching (not partial) to prevent accidental matches.
+     */
+    public func includeViewTypeInSubtreeTraversal(_ viewType: String) {
+        includedViewClasses.insert(viewType)
+    }
+
+    /**
+     * Alias for ``enableViewRendererV2``.
+     *
+     * This flag is deprecated and will be removed in a future version.
+     * Please use ``enableViewRendererV2`` instead.
+     */
+    @available(*, deprecated, renamed: "enableViewRendererV2")
+    public var enableExperimentalViewRenderer: Bool {
+        get {
+            enableViewRendererV2
+        }
+        set {
+            enableViewRendererV2 = newValue
+        }
+    }
+
+    /**
      * Enables the up to 5x faster new view renderer used by the Session Replay integration.
      *
      * Enabling this flag will reduce the amount of time it takes to render each frame of the session replay on the main thread, therefore reducing
@@ -188,7 +281,7 @@ public final class SentryReplayOptions: NSObject, SentryRedactOptions {
      * this method can be slow, especially when rendering complex views, therefore enabling this flag will switch to render the underlying `CALayer` instead.
      *
      * - Note: This flag can only be used together with `enableViewRendererV2` with up to 20% faster render times.
-     * - Warning: Rendering the view hierarchy using the `CALayer.render(in:)` method can lead to rendering issues, especially when using custom views.
+     * - Warning: Rendering the view hiearchy using the `CALayer.render(in:)` method can lead to rendering issues, especially when using custom views.
      *            For complete rendering, it is recommended to set this option to `false`. In case you prefer performance over completeness, you can
      *            set this option to `true`.
      * - Experiment: This is an experimental feature and is therefore disabled by default. In case you are noticing issues with the experimental
@@ -293,14 +386,15 @@ public final class SentryReplayOptions: NSObject, SentryRedactOptions {
      * - Warning: This initializer is primarily used by Hybrid SDKs and is not intended for public use.
      */
     @_spi(Private) public convenience init(dictionary: [String: Any]) {
-        // This initializer is calling the one with optional parameters, so that defaults can be applied
+        // This initalizer is calling the one with optional parameters, so that defaults can be applied
         // for absent values.
         self.init(
             sessionSampleRate: (dictionary["sessionSampleRate"] as? NSNumber)?.floatValue,
             onErrorSampleRate: (dictionary["errorSampleRate"] as? NSNumber)?.floatValue,
             maskAllText: (dictionary["maskAllText"] as? NSNumber)?.boolValue,
             maskAllImages: (dictionary["maskAllImages"] as? NSNumber)?.boolValue,
-            enableViewRendererV2: (dictionary["enableViewRendererV2"] as? NSNumber)?.boolValue,
+            enableViewRendererV2: (dictionary["enableViewRendererV2"] as? NSNumber)?.boolValue
+            ?? (dictionary["enableExperimentalViewRenderer"] as? NSNumber)?.boolValue,
             enableFastViewRendering: (dictionary["enableFastViewRendering"] as? NSNumber)?.boolValue,
             maskedViewClasses: (dictionary["maskedViewClasses"] as? NSArray)?.compactMap({ element in
                 NSClassFromString((element as? String) ?? "")
@@ -313,7 +407,9 @@ public final class SentryReplayOptions: NSObject, SentryRedactOptions {
             frameRate: (dictionary["frameRate"] as? NSNumber)?.uintValue,
             errorReplayDuration: (dictionary["errorReplayDuration"] as? NSNumber)?.doubleValue,
             sessionSegmentDuration: (dictionary["sessionSegmentDuration"] as? NSNumber)?.doubleValue,
-            maximumDuration: (dictionary["maximumDuration"] as? NSNumber)?.doubleValue
+            maximumDuration: (dictionary["maximumDuration"] as? NSNumber)?.doubleValue,
+            excludedViewClasses: (dictionary["excludedViewClasses"] as? [String]).map { Set($0) },
+            includedViewClasses: (dictionary["includedViewClasses"] as? [String]).map { Set($0) }
         )
     }
 
@@ -358,7 +454,9 @@ public final class SentryReplayOptions: NSObject, SentryRedactOptions {
             frameRate: nil,
             errorReplayDuration: nil,
             sessionSegmentDuration: nil,
-            maximumDuration: nil
+            maximumDuration: nil,
+            excludedViewClasses: nil,
+            includedViewClasses: nil
         )
     }
 
@@ -377,7 +475,9 @@ public final class SentryReplayOptions: NSObject, SentryRedactOptions {
         frameRate: UInt?,
         errorReplayDuration: TimeInterval?,
         sessionSegmentDuration: TimeInterval?,
-        maximumDuration: TimeInterval?
+        maximumDuration: TimeInterval?,
+        excludedViewClasses: Set<String>? = nil,
+        includedViewClasses: Set<String>? = nil
     ) {
         self.sessionSampleRate = sessionSampleRate ?? DefaultValues.sessionSampleRate
         self.onErrorSampleRate = onErrorSampleRate ?? DefaultValues.onErrorSampleRate
@@ -393,7 +493,9 @@ public final class SentryReplayOptions: NSObject, SentryRedactOptions {
         self.errorReplayDuration = errorReplayDuration ?? DefaultValues.errorReplayDuration
         self.sessionSegmentDuration = sessionSegmentDuration ?? DefaultValues.sessionSegmentDuration
         self.maximumDuration = maximumDuration ?? DefaultValues.maximumDuration
-        
+        self.excludedViewClasses = excludedViewClasses ?? DefaultValues.excludedViewClasses
+        self.includedViewClasses = includedViewClasses ?? DefaultValues.includedViewClasses
+
         super.init()
     }
 }

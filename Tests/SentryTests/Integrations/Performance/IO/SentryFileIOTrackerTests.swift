@@ -163,10 +163,10 @@ class SentryFileIOTrackerTests: XCTestCase {
         thread.stacktrace = stackTrace
         fixture.threadInspector.allThreads = [thread]
 
-        var span: SentrySpan?
+        var span: SentrySpanInternal?
 
         sut.measure(fixture.data, writeToFile: fixture.filePath, atomically: false, origin: "custom.origin") { _, _ -> Bool in
-            span = self.firstSpan(transaction) as? SentrySpan
+            span = self.firstSpan(transaction) as? SentrySpanInternal
             XCTAssertFalse(span?.isFinished ?? true)
             return true
         }
@@ -384,7 +384,7 @@ class SentryFileIOTrackerTests: XCTestCase {
         XCTAssertEqual(span?.data["blocked_main_thread"] as? Bool ?? false, mainThread)
 
         if mainThread {
-            guard let frames = (span as? SentrySpan)?.frames else {
+            guard let frames = (span as? SentrySpanInternal)?.frames else {
                 XCTFail("File IO Span in the main thread has no frames", file: file, line: line)
                 return
             }

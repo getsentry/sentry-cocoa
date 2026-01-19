@@ -15,5 +15,6 @@
     public static let statsd = "statsd"
     public static let profileChunk = "profile_chunk"
     public static let log = "log"
+    public static let traceMetric = "trace_metric"
 }
 // swiftlint:enable missing_docs
