@@ -373,14 +373,14 @@ private extension SentryCoreDataTrackerTests {
         XCTAssert(try XCTUnwrap(dbSpan.data["db.name"] as? NSString).contains(databaseFilename), file: file, line: line)
 
         if mainThread {
-            guard let frames = (dbSpan as? SentrySpan)?.frames else {
+            guard let frames = (dbSpan as? SentrySpanInternal)?.frames else {
                 XCTFail("File IO Span in the main thread has no frames", file: file, line: line)
                 return
             }
             XCTAssertEqual(frames.first, TestData.mainFrame, file: file, line: line)
             XCTAssertEqual(frames.last, TestData.testFrame, file: file, line: line)
         } else {
-            XCTAssertNil((dbSpan as? SentrySpan)?.frames, file: file, line: line)
+            XCTAssertNil((dbSpan as? SentrySpanInternal)?.frames, file: file, line: line)
         }
     }
     

@@ -1,6 +1,6 @@
 #import "SentryByteCountFormatter.h"
 #import "SentryFileIOTrackerHelper.h"
-#import "SentrySpan.h"
+#import "SentrySpanInternal.h"
 #import "SentrySpanOperation.h"
 #import "SentrySwizzle.h"
 #import "SentryTracer.h"
@@ -210,7 +210,7 @@
 
     block();
 
-    SentrySpan *ioSpan = (SentrySpan *)parentTransaction.children.firstObject;
+    SentrySpanInternal *ioSpan = (SentrySpanInternal *)parentTransaction.children.firstObject;
 
     XCTAssertEqual(parentTransaction.children.count, 1);
     XCTAssertEqual([ioSpan.data[@"file.size"] unsignedIntValue], someData.length);
