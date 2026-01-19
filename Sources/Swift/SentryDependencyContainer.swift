@@ -291,6 +291,19 @@ extension SentryFileManager: SentryFileManagerProtocol { }
         #endif
         }
     }
+    
+    private var crashInstallationReporter: SentryCrashInstallationReporter?
+    func getCrashInstallationReporter(_ options: Options) -> SentryCrashInstallationReporter {
+        getLazyVar(\.crashInstallationReporter) {
+            let inAppLogic = SentryInAppLogic(inAppIncludes: options.inAppIncludes)
+
+            return SentryCrashInstallationReporter(
+                inAppLogic: inAppLogic,
+                crashWrapper: crashWrapper,
+                dispatchQueue: dispatchQueueWrapper
+            )
+        }
+    }
 }
 
 #if os(iOS) && !SENTRY_NO_UIKIT
@@ -402,5 +415,10 @@ protocol CrashIntegrationSessionHandlerBuilder {
     func getCrashIntegrationSessionBuilder(_ options: Options) -> SentryCrashIntegrationSessionHandler?
 }
 extension SentryDependencyContainer: CrashIntegrationSessionHandlerBuilder {}
+
+protocol CrashInstallationReporterBuilder {
+    func getCrashInstallationReporter(_ options: Options) -> SentryCrashInstallationReporter
+}
+extension SentryDependencyContainer: CrashInstallationReporterBuilder {}
 
 //swiftlint:enable file_length

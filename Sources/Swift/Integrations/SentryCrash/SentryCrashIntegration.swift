@@ -22,7 +22,7 @@ public func sentry_finishAndSaveTransaction() {
 // MARK: - Dependency Provider
 
 /// Provides dependencies for `SentryCrashIntegration`.
-typealias CrashIntegrationProvider = DispatchQueueWrapperProvider & CrashWrapperProvider & SentryCrashReporterProvider & CrashIntegrationSessionHandlerBuilder
+typealias CrashIntegrationProvider = DispatchQueueWrapperProvider & SentryCrashReporterProvider & CrashIntegrationSessionHandlerBuilder & CrashInstallationReporterBuilder
 
 // MARK: - SentryCrashIntegration
 
@@ -30,7 +30,6 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
 
     private weak var options: Options?
     private let dispatchQueueWrapper: SentryDispatchQueueWrapper
-    private let crashWrapper: SentryCrashWrapper
     private var sessionHandler: SentryCrashIntegrationSessionHandler?
     private var scopeObserver: SentryCrashScopeObserver?
     private var crashReporter: SentryCrashSwift
@@ -50,7 +49,6 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
 
         self.options = options
         self.dispatchQueueWrapper = dependencies.dispatchQueueWrapper
-        self.crashWrapper = dependencies.crashWrapper
         self.crashReporter = dependencies.crashReporter
 
         super.init()
@@ -79,7 +77,8 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
             cacheDirectory: options.cacheDirectoryPath,
             enableSigtermReporting: enableSigtermReporting,
             enableReportingUncaughtExceptions: enableUncaughtNSExceptionReporting,
-            enableCppExceptionsV2: options.experimental.enableUnhandledCPPExceptionsV2
+            enableCppExceptionsV2: options.experimental.enableUnhandledCPPExceptionsV2,
+            dependencies: dependencies
         )
 
         configureScope()
@@ -118,7 +117,8 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
         cacheDirectory: String,
         enableSigtermReporting: Bool,
         enableReportingUncaughtExceptions: Bool,
-        enableCppExceptionsV2: Bool
+        enableCppExceptionsV2: Bool,
+        dependencies: Dependencies
     ) {
         installationLock.synchronized {
             withUnsafeMutablePointer(to: &installationToken) { token in
@@ -127,7 +127,8 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
                         cacheDirectory: cacheDirectory,
                         enableSigtermReporting: enableSigtermReporting,
                         enableReportingUncaughtExceptions: enableReportingUncaughtExceptions,
-                        enableCppExceptionsV2: enableCppExceptionsV2
+                        enableCppExceptionsV2: enableCppExceptionsV2,
+                        dependencies: dependencies
                     )
                 }
             }
@@ -138,7 +139,8 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
         cacheDirectory: String,
         enableSigtermReporting: Bool,
         enableReportingUncaughtExceptions: Bool,
-        enableCppExceptionsV2: Bool
+        enableCppExceptionsV2: Bool,
+        dependencies: Dependencies
     ) {
         var canSendReports = false
 
@@ -148,15 +150,7 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
                 return 
             }
 
-            let inAppLogic = SentryInAppLogic(inAppIncludes: options.inAppIncludes)
-
-            let installation = SentryCrashInstallationReporter(
-                inAppLogic: inAppLogic,
-                crashWrapper: self.crashWrapper,
-                dispatchQueue: self.dispatchQueueWrapper
-            )
-
-            self.installation = installation
+            self.installation = dependencies.getCrashInstallationReporter(options)
             canSendReports = true
         }
 

@@ -814,4 +814,14 @@ class MockCrashDependencies: CrashIntegrationProvider {
     var crashReporter: Sentry.SentryCrashSwift {
         SentryDependencyContainer.sharedInstance().crashReporter
     }
+    
+    func getCrashInstallationReporter(_ options: Options) -> SentryCrashInstallationReporter {
+        let inAppLogic = SentryInAppLogic(inAppIncludes: options.inAppIncludes)
+
+        return SentryCrashInstallationReporter(
+            inAppLogic: inAppLogic,
+            crashWrapper: crashWrapper,
+            dispatchQueue: dispatchQueueWrapper
+        )
+    }
 }
