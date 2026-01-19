@@ -781,16 +781,8 @@ class MockCrashDependencies: CrashIntegrationProvider {
         SentryDependencyContainer.sharedInstance().appStateManager
     }
 
-    var crashWrapper: Sentry.SentryCrashWrapper {
-        mockedCrashWrapper
-    }
-
     var fileManager: Sentry.SentryFileManager? {
         mockedFileManager ?? SentryDependencyContainer.sharedInstance().fileManager
-    }
-
-    var dispatchQueueWrapper: Sentry.SentryDispatchQueueWrapper {
-        mockedDispatchQueueWrapper
     }
     
     func getCrashIntegrationSessionBuilder(_ options: Sentry.Options) -> Sentry.SentryCrashIntegrationSessionHandler? {
@@ -799,10 +791,10 @@ class MockCrashDependencies: CrashIntegrationProvider {
         }
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
         let watchdogLogic = SentryWatchdogTerminationLogic(options: options,
-                                                   crashAdapter: crashWrapper,
+                                                   crashAdapter: mockedCrashWrapper,
                                                    appStateManager: appStateManager)
         return SentryCrashIntegrationSessionHandler(
-            crashWrapper: crashWrapper,
+            crashWrapper: mockedCrashWrapper,
             watchdogTerminationLogic: watchdogLogic,
             fileManager: fileManager
         )
@@ -820,8 +812,8 @@ class MockCrashDependencies: CrashIntegrationProvider {
 
         return SentryCrashInstallationReporter(
             inAppLogic: inAppLogic,
-            crashWrapper: crashWrapper,
-            dispatchQueue: dispatchQueueWrapper
+            crashWrapper: mockedCrashWrapper,
+            dispatchQueue: mockedDispatchQueueWrapper
         )
     }
 }

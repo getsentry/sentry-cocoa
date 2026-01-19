@@ -22,20 +22,16 @@ public func sentry_finishAndSaveTransaction() {
 // MARK: - Dependency Provider
 
 /// Provides dependencies for `SentryCrashIntegration`.
-typealias CrashIntegrationProvider = DispatchQueueWrapperProvider & SentryCrashReporterProvider & CrashIntegrationSessionHandlerBuilder & CrashInstallationReporterBuilder
+typealias CrashIntegrationProvider = SentryCrashReporterProvider & CrashIntegrationSessionHandlerBuilder & CrashInstallationReporterBuilder
 
 // MARK: - SentryCrashIntegration
 
 final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSObject, SwiftIntegration {
 
     private weak var options: Options?
-    private let dispatchQueueWrapper: SentryDispatchQueueWrapper
     private var sessionHandler: SentryCrashIntegrationSessionHandler?
     private var scopeObserver: SentryCrashScopeObserver?
     private var crashReporter: SentryCrashSwift
-    
-    private let installationLock = NSRecursiveLock()
-    private var installationToken: Int = 0
     private var installation: SentryCrashInstallationReporter?
 
     // MARK: - Initialization
@@ -48,7 +44,6 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
         }
 
         self.options = options
-        self.dispatchQueueWrapper = dependencies.dispatchQueueWrapper
         self.crashReporter = dependencies.crashReporter
 
         super.init()
@@ -96,10 +91,8 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
     }
 
     func uninstall() {
-        installationLock.synchronized {
-            if let installation = installation {
-                installation.uninstall()
-            }
+        if let installation = installation {
+            installation.uninstall()
         }
 
         sentrycrash_setSaveTransaction(nil)
@@ -114,28 +107,6 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
     // MARK: - Crash Handler
 
     private func startCrashHandler(
-        cacheDirectory: String,
-        enableSigtermReporting: Bool,
-        enableReportingUncaughtExceptions: Bool,
-        enableCppExceptionsV2: Bool,
-        dependencies: Dependencies
-    ) {
-        installationLock.synchronized {
-            withUnsafeMutablePointer(to: &installationToken) { token in
-                dispatchQueueWrapper.dispatchOnce(token) {
-                    self.initializeCrashHandler(
-                        cacheDirectory: cacheDirectory,
-                        enableSigtermReporting: enableSigtermReporting,
-                        enableReportingUncaughtExceptions: enableReportingUncaughtExceptions,
-                        enableCppExceptionsV2: enableCppExceptionsV2,
-                        dependencies: dependencies
-                    )
-                }
-            }
-        }
-    }
-
-    private func initializeCrashHandler(
         cacheDirectory: String,
         enableSigtermReporting: Bool,
         enableReportingUncaughtExceptions: Bool,
