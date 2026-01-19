@@ -1,4 +1,3 @@
-// swiftlint:disable missing_docs
 import Sentry
 public extension Breadcrumb {
     static func navigation(screen: String, date: Date? = nil) -> Breadcrumb {
@@ -19,4 +18,3 @@ public extension Breadcrumb {
         return result
     }
 }
-// swiftlint:enable missing_docs

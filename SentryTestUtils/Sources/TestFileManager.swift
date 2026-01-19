@@ -1,4 +1,3 @@
-// swiftlint:disable missing_docs
 import _SentryPrivate
 import Foundation
 @_spi(Private) @testable import Sentry
@@ -60,4 +59,3 @@ import Foundation
         return appState
     }
 }
-// swiftlint:enable missing_docs

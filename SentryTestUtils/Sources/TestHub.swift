@@ -1,4 +1,3 @@
-// swiftlint:disable missing_docs
 import _SentryPrivate
 import Foundation
 @_spi(Private) @testable import Sentry
@@ -73,4 +72,3 @@ public class TestHub: SentryHubInternal {
 #endif
 #endif
 }
-// swiftlint:enable missing_docs

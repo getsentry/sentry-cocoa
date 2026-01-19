@@ -1,4 +1,3 @@
-// swiftlint:disable missing_docs
 import Foundation
 import SentryTestUtils
 
@@ -60,4 +59,3 @@ public class TestRequestManager: NSObject, RequestManager {
 }
 
 // swiftlint:enable avoid_dispatch_groups_in_tests
-// swiftlint:enable missing_docs

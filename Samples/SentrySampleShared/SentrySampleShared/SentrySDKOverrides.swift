@@ -1,4 +1,4 @@
-// swiftlint:disable file_length missing_docs
+// swiftlint:disable file_length
 
 import Foundation
 
@@ -450,4 +450,4 @@ extension SentrySDKOverrides.Metrics {
         }
     }
 }
-// swiftlint:enable file_length missing_docs
+// swiftlint:enable file_length

@@ -1,4 +1,3 @@
-// swiftlint:disable missing_docs
 import _SentryPrivate
 import Foundation
 @_spi(Private) import Sentry
@@ -25,4 +24,3 @@ import Foundation
         storeEventInvocations.record((event, traceContext))
     }
 }
-// swiftlint:enable missing_docs

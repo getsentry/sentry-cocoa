@@ -11,7 +11,15 @@ public protocol SentryRedactOptions {
     var maskedViewClasses: [AnyClass] { get }
     /// View classes that should never be masked, overriding default masking behavior.
     var unmaskedViewClasses: [AnyClass] { get }
+    /// A set of view type identifier strings that should be excluded from subtree traversal.
+    ///
+    /// Views matching these types will have their subtrees skipped during redaction to avoid crashes
+    /// caused by traversing problematic view hierarchies.
     var excludedViewClasses: Set<String> { get }
+    /// A set of view type identifier strings that should be included in subtree traversal.
+    ///
+    /// View types exactly matching these strings will be removed from the excluded set, allowing
+    /// their subtrees to be traversed even if they would otherwise be excluded.
     var includedViewClasses: Set<String> { get }
 }
 

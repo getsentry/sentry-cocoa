@@ -1,4 +1,3 @@
-// swiftlint:disable missing_docs
 import SwiftUI
 import UIKit
 
@@ -52,4 +51,3 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     }
 
 }
-// swiftlint:enable missing_docs

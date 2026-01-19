@@ -1,4 +1,3 @@
-// swiftlint:disable missing_docs
 import Foundation
 import Sentry
 
@@ -38,4 +37,3 @@ public class DSNStorage {
         }
     }
 }
-// swiftlint:enable missing_docs

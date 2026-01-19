@@ -1,4 +1,4 @@
-// swiftlint:disable file_length function_body_length missing_docs
+// swiftlint:disable file_length function_body_length
 
 import Sentry
 
@@ -513,4 +513,4 @@ extension SentrySDKWrapper {
 }
 #endif // !os(tvOS) && !os(watchOS) && !os(visionOS)
 
-// swiftlint:enable file_length function_body_length missing_docs
+// swiftlint:enable file_length function_body_length

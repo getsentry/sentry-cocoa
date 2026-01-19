@@ -1,4 +1,3 @@
-// swiftlint:disable missing_docs
 import Foundation
 @_spi(Private) @testable import Sentry
 
@@ -151,4 +150,3 @@ public enum FrameRate: UInt64 {
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 extension TestDisplayLinkWrapper: SentryReplayDisplayLinkWrapper {}
 #endif
-// swiftlint:enable missing_docs

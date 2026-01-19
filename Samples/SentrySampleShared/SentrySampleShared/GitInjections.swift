@@ -1,4 +1,3 @@
-// swiftlint:disable missing_docs
 import Foundation
 import Sentry
 
@@ -28,4 +27,3 @@ public class GitInjector: NSObject {
         injectGitInformation(scope: scope)
     }
 }
-// swiftlint:enable missing_docs

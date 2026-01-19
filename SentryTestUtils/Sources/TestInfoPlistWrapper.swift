@@ -1,4 +1,3 @@
-// swiftlint:disable missing_docs
 @_spi(Private) @testable import Sentry
 import XCTest
 
@@ -82,4 +81,3 @@ import XCTest
         }
     }
 }
-// swiftlint:enable missing_docs

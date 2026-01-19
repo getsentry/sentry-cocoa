@@ -1,4 +1,3 @@
-// swiftlint:disable missing_docs
 import _SentryPrivate
 import Foundation
 @_spi(Private) @testable import Sentry
@@ -192,4 +191,3 @@ public class TestClient: SentryClientInternal {
         super.captureMetricsData(data, with: itemCount)
     }
 }
-// swiftlint:enable missing_docs

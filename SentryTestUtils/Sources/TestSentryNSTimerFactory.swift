@@ -1,4 +1,3 @@
-// swiftlint:disable missing_docs
 import Foundation
 @_spi(Private) @testable import Sentry
 
@@ -94,4 +93,3 @@ public extension TestSentryNSTimerFactory {
         return overrides != nil
     }
 }
-// swiftlint:enable missing_docs

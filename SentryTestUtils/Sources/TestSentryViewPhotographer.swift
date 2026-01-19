@@ -1,4 +1,3 @@
-// swiftlint:disable missing_docs
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 
 @_spi(Private) @testable import Sentry
@@ -17,4 +16,3 @@
     }
 }
 #endif
-// swiftlint:enable missing_docs

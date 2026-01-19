@@ -1,4 +1,3 @@
-// swiftlint:disable missing_docs
 import Foundation
 @_spi(Private) @testable import Sentry
 
@@ -17,4 +16,3 @@ extension SentrySDKLog {
     }
     
 }
-// swiftlint:enable missing_docs

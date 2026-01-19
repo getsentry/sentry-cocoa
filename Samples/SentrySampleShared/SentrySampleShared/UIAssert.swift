@@ -1,4 +1,3 @@
-// swiftlint:disable missing_docs
 #if !os(macOS) && !os(watchOS)
 
 import Foundation
@@ -101,4 +100,3 @@ public class UIAssert {
 }
 
 #endif // !os(macOS) && !os(watchOS)
-// swiftlint:enable missing_docs

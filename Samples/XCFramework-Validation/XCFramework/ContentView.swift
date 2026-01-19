@@ -1,4 +1,3 @@
-// swiftlint:disable missing_docs
 import Sentry
 import SwiftUI
 
@@ -17,4 +16,3 @@ struct ContentView_Previews: PreviewProvider {
         ContentView()
     }
 }
-// swiftlint:enable missing_docs

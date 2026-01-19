@@ -1,4 +1,3 @@
-// swiftlint:disable missing_docs
 import Foundation
 import Sentry
 
@@ -53,4 +52,3 @@ public class SpanObserver: NSObject {
         callback(span)
     }
 }
-// swiftlint:enable missing_docs

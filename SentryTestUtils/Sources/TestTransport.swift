@@ -1,4 +1,3 @@
-// swiftlint:disable missing_docs
 import _SentryPrivate
 import Foundation
 
@@ -34,4 +33,3 @@ public class TestTransport: NSObject, Transport {
         
     }
 }
-// swiftlint:enable missing_docs

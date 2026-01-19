@@ -1,4 +1,3 @@
-// swiftlint:disable missing_docs
 #if !os(macOS) && !os(tvOS) && !os(watchOS) && !os(visionOS)
 import UIKit
 
@@ -37,4 +36,3 @@ extension LaunchArgumentTableViewCell: FeatureFlagCell {
     }
 }
 #endif // !os(macOS) && !os(tvOS) && !os(watchOS) && !os(visionOS)
-// swiftlint:enable missing_docs

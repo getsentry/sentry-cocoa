@@ -1,4 +1,3 @@
-// swiftlint:disable missing_docs
 import Sentry
 
 #if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
@@ -42,4 +41,3 @@ public class TestSentrySystemWrapper: SentrySystemWrapper {
 #endif
 }
 #endif // os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
-// swiftlint:enable missing_docs

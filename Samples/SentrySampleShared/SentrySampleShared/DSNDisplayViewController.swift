@@ -1,4 +1,3 @@
-// swiftlint:disable missing_docs
 #if !os(macOS) && !os(tvOS) && !os(watchOS) && !os(visionOS)
 
 import Sentry
@@ -166,4 +165,3 @@ class DSNDisplayViewController: UIViewController {
 }
 
 #endif // !os(macOS) && !os(tvOS) && !os(watchOS) && !os(visionOS)
-// swiftlint:enable missing_docs

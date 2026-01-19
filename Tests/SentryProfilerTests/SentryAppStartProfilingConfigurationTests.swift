@@ -1,4 +1,3 @@
-// swiftlint:disable missing_docs
 @_spi(Private) import Sentry
 @_spi(Private) import SentryTestUtils
 import XCTest
@@ -156,4 +155,3 @@ extension LaunchProfileOptions.ContinuousProfileV2Options: CustomStringConvertib
 }
 
 #endif // os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
-// swiftlint:enable missing_docs

@@ -1,4 +1,3 @@
-// swiftlint:disable missing_docs
 import Foundation
 import SentrySwiftUI
 import SwiftUI
@@ -22,4 +21,3 @@ extension View {
         sentryTrace(viewName)
     }
 }
-// swiftlint:enable missing_docs

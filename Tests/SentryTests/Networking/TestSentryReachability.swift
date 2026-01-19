@@ -1,4 +1,3 @@
-// swiftlint:disable missing_docs
 #if !os(watchOS) && !(os(visionOS) && !canImport(UIKit))
 
 @_spi(Private) @testable import Sentry
@@ -32,4 +31,3 @@ import SentryTestUtils
 }
 
 #endif // !os(watchOS) && !(os(visionOS) && !canImport(UIKit))
-// swiftlint:enable missing_docs
