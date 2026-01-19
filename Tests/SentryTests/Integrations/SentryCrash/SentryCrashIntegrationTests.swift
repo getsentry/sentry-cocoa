@@ -799,7 +799,7 @@ class MockCrashDependencies: CrashIntegrationProvider {
             fileManager: fileManager
         )
 #else
-            return SentryCrashIntegrationSessionHandler(crashWrapper: crashWrapper, fileManager: fileManager)
+        return SentryCrashIntegrationSessionHandler(crashWrapper: mockedCrashWrapper, fileManager: fileManager)
 #endif
     }
     
