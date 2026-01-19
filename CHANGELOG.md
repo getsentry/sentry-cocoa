@@ -4,6 +4,7 @@
 
 ### Features
 
+- Add options `options.sessionReplay.includedViewClasses` and `options.sessionReplay.excludedViewClasses` to ignore views from subtree traversal (#7063)
 - Add isiOSAppOnVisionOS, isiOSAppOnMac, isMacCatalystApp to device context #6939
 - Add integration to collect Metrics, enabled by default. Can be disabled by setting `options.experimental.enableMetrics = false` (#6956)
 - Add implementation for Metrics Protocol with modification of items in `options.experimental.beforeSendMetrics` (#6960)
