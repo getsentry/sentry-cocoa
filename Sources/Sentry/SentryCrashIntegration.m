@@ -10,10 +10,9 @@
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
 #import "SentryScope+PrivateSwift.h"
-#import "SentrySpan+Private.h"
+#import "SentrySpanInternal+Private.h"
 #import "SentrySwift.h"
 #import "SentryTracer.h"
-#import "SentryWatchdogTerminationLogic.h"
 #import <SentryClient+Private.h>
 #import <SentryCrashScopeObserver.h>
 #import <SentryLogC.h>
@@ -35,7 +34,7 @@ static NSString *const LOCALE_KEY = @"locale";
 void
 sentry_finishAndSaveTransaction(void)
 {
-    SentrySpan *span = [SentrySDKInternal.currentHub.scope getCastedInternalSpan];
+    SentrySpanInternal *_Nullable span = [SentrySDKInternal.currentHub.scope getCastedInternalSpan];
 
     if (span != nil) {
         SentryTracer *tracer = [span tracer];
@@ -245,7 +244,7 @@ sentry_finishAndSaveTransaction(void)
 
         [SentryDependencyContainer.sharedInstance.crashReporter setUserInfo:userInfo];
 
-        [outerScope addObserver:self.scopeObserver];
+        [outerScope addScopeObserver:self.scopeObserver];
     }];
 
     [NSNotificationCenter.defaultCenter addObserver:self

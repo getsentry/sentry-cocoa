@@ -8,7 +8,7 @@
 #import "SentryPredicateDescriptor.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
-#import "SentrySpan.h"
+#import "SentrySpanInternal.h"
 #import "SentrySpanOperation.h"
 #import "SentrySpanProtocol.h"
 #import "SentryStacktrace.h"
@@ -37,8 +37,9 @@
                             error:(NSError **)error
                       originalImp:(NSArray *(NS_NOESCAPE ^)(NSFetchRequest *, NSError **))original
 {
-    id<SentrySpan> _Nullable currentSpan = [SentrySDKInternal.currentHub.scope span];
-    id<SentrySpan> _Nullable fetchSpan;
+    SentrySpanInternal *_Nullable currentSpan
+        = (SentrySpanInternal *_Nullable)[SentrySDKInternal.currentHub.scope span];
+    SentrySpanInternal *_Nullable fetchSpan;
     if (currentSpan) {
         NSString *spanDescription = [self descriptionFromRequest:request];
         fetchSpan = [currentSpan startChildWithOperation:SentrySpanOperationCoredataFetchOperation
@@ -56,7 +57,7 @@
     NSArray *result = original(request, error);
 
     if (fetchSpan) {
-        [self addExtraInfoToSpan:(SentrySpan *)fetchSpan withContext:context];
+        [self addExtraInfoToSpan:fetchSpan withContext:context];
 
         [fetchSpan setDataValue:[NSNumber numberWithInteger:result.count] forKey:@"read_count"];
         [fetchSpan
@@ -103,7 +104,7 @@
     BOOL result = original(error);
 
     if (saveSpan) {
-        [self addExtraInfoToSpan:(SentrySpan *)saveSpan withContext:context];
+        [self addExtraInfoToSpan:saveSpan withContext:context];
         [saveSpan finishWithStatus:result ? kSentrySpanStatusOk : kSentrySpanStatusInternalError];
 
         SENTRY_LOG_DEBUG(@"SentryCoreDataTracker automatically finished span with status: %@",
@@ -113,7 +114,7 @@
     return result;
 }
 
-- (void)addExtraInfoToSpan:(SentrySpan *)span withContext:(NSManagedObjectContext *)context
+- (void)addExtraInfoToSpan:(SentrySpanInternal *)span withContext:(NSManagedObjectContext *)context
 {
     BOOL isMainThread = [NSThread isMainThread];
 

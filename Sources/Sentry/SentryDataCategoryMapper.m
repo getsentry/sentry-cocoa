@@ -18,6 +18,7 @@ NSString *const kSentryDataCategoryNameMetricBucket = @"metric_bucket";
 NSString *const kSentryDataCategoryNameSpan = @"span";
 NSString *const kSentryDataCategoryNameFeedback = @"feedback";
 NSString *const kSentryDataCategoryNameLogItem = @"log_item";
+NSString *const kSentryDataCategoryNameTraceMetric = @"trace_metric";
 NSString *const kSentryDataCategoryNameUnknown = @"unknown";
 
 NS_ASSUME_NONNULL_BEGIN
@@ -56,6 +57,9 @@ sentryDataCategoryForEnvelopItemType(NSString *itemType)
     }
     if ([itemType isEqualToString:SentryEnvelopeItemTypes.log]) {
         return kSentryDataCategoryLogItem;
+    }
+    if ([itemType isEqualToString:SentryEnvelopeItemTypes.traceMetric]) {
+        return kSentryDataCategoryTraceMetric;
     }
 
     return kSentryDataCategoryDefault;
@@ -113,6 +117,9 @@ sentryDataCategoryForString(NSString *value)
     if ([value isEqualToString:kSentryDataCategoryNameLogItem]) {
         return kSentryDataCategoryLogItem;
     }
+    if ([value isEqualToString:kSentryDataCategoryNameTraceMetric]) {
+        return kSentryDataCategoryTraceMetric;
+    }
 
     return kSentryDataCategoryUnknown;
 }
@@ -148,6 +155,8 @@ nameForSentryDataCategory(SentryDataCategory category)
         return kSentryDataCategoryNameFeedback;
     case kSentryDataCategoryLogItem:
         return kSentryDataCategoryNameLogItem;
+    case kSentryDataCategoryTraceMetric:
+        return kSentryDataCategoryNameTraceMetric;
 
     default: // !!!: fall-through!
     case kSentryDataCategoryUnknown:
