@@ -417,6 +417,7 @@ run_version_bump_util_for_prs: &run_version_bump_util_for_prs
   - "Sentry.podspec"
   - "SentrySwiftUI.podspec"
   - "Package*.swift"
+  - "3rd-party-integrations/**/Package.swift"
 
   # Configuration files
   - "Sources/Configuration/SDK.xcconfig"
