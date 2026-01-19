@@ -783,6 +783,7 @@ run_unit_tests_for_prs: &run_unit_tests_for_prs
   - "SentryTestUtils/**" # Test utility changes
   - "SentryTestUtilsDynamic/**" # Dynamic test utilities
   - "SentryTestUtilsTests/**" # Test utility tests
+  - "3rd-party-integrations/**" # Third-party integration code
   - ".github/workflows/test.yml" # Workflow definition
   - ".github/file-filters.yml" # Filter changes
   - "scripts/ci-*.sh" # CI scripts
