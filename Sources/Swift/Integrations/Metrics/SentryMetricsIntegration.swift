@@ -20,7 +20,7 @@ typealias SentryMetricsIntegrationDependencies = DateProviderProvider & Dispatch
 
 final class SentryMetricsIntegration<Dependencies: SentryMetricsIntegrationDependencies>: NSObject, SwiftIntegration, SentryMetricsIntegrationProtocol, FlushableIntegration {
     private let metricBatcher: SentryMetricsBatcherProtocol
-#if ((os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT) || os(macOS)
+    #if ((os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT) || os(macOS)
     private let notificationCenter: SentryNSNotificationCenterWrapper
     #endif
 
@@ -41,7 +41,7 @@ final class SentryMetricsIntegration<Dependencies: SentryMetricsIntegrationDepen
             }
         )
 
-#if ((os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT) || os(macOS)
+        #if ((os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT) || os(macOS)
         self.notificationCenter = dependencies.notificationCenterWrapper
         #endif
 
