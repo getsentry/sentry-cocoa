@@ -287,11 +287,11 @@ protocol FramesTrackingProvider {
 extension SentryDependencyContainer: FramesTrackingProvider { }
 #endif
 
+#if ((os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT) || os(macOS)
 protocol NotificationCenterProvider {
     var notificationCenterWrapper: SentryNSNotificationCenterWrapper { get }
 }
 
-#if ((os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT) || os(macOS)
 extension SentryDependencyContainer: NotificationCenterProvider { }
 #endif
 

@@ -12,11 +12,17 @@ protocol SentryMetricsIntegrationProtocol {
     func addMetric(_ metric: SentryMetric, scope: Scope)
 }
 
+#if ((os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT) || os(macOS)
 typealias SentryMetricsIntegrationDependencies = DateProviderProvider & DispatchQueueWrapperProvider & NotificationCenterProvider
+#else
+typealias SentryMetricsIntegrationDependencies = DateProviderProvider & DispatchQueueWrapperProvider
+#endif
 
 final class SentryMetricsIntegration<Dependencies: SentryMetricsIntegrationDependencies>: NSObject, SwiftIntegration, SentryMetricsIntegrationProtocol, FlushableIntegration {
     private let metricBatcher: SentryMetricsBatcherProtocol
+#if ((os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT) || os(macOS)
     private let notificationCenter: SentryNSNotificationCenterWrapper
+    #endif
 
     init?(with options: Options, dependencies: Dependencies) {
         guard options.experimental.enableMetrics else { return nil }
@@ -35,7 +41,10 @@ final class SentryMetricsIntegration<Dependencies: SentryMetricsIntegrationDepen
             }
         )
 
+#if ((os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT) || os(macOS)
         self.notificationCenter = dependencies.notificationCenterWrapper
+        #endif
+
         super.init()
 
         setupLifecycleObservers()
