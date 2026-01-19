@@ -54,11 +54,14 @@ final class SentryMetricsIntegration<Dependencies: SentryMetricsIntegrationDepen
 
     /// Ensures cleanup happens even if the integration is deallocated without explicit `uninstall()`.
     ///
-    /// This defensive pattern guarantees that:
-    /// 1. Pending metrics are flushed before deallocation (preventing data loss)
-    /// 2. Notification observers are removed (preventing crashes from dangling references)
+    /// This defensive pattern guarantees that notification observers are removed, preventing crashes from dangling references.
+    ///
+    /// Note: We do NOT flush metrics in deinit because:
+    /// - Flushing uses dispatchSync which can deadlock if deinit is called from the batcher's queue
+    /// - uninstall() should be called explicitly before deallocation to ensure metrics are flushed
+    /// - This prevents deadlocks during hub deallocation when integrations are released
     deinit {
-        uninstall()
+        removeLifecycleObservers()
     }
 
     static var name: String {

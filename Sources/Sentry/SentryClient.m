@@ -627,9 +627,9 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     NSTimeInterval captureLogsDuration = [self.logBatcher captureLogs];
     // Calculate remaining timeout for transport flush.
     // We subtract the time already spent capturing logs to respect the overall timeout.
-    // If log capture took longer than the timeout, we still give the transport a small
-    // chance (0.1s minimum) to flush critical data.
-    NSTimeInterval remainingTimeout = fmax(0.1, timeout - captureLogsDuration);
+    // If log capture took longer than the timeout, we use 0.0 which will still trigger
+    // sending events but won't block waiting for completion.
+    NSTimeInterval remainingTimeout = fmax(0.0, timeout - captureLogsDuration);
     [self.transportAdapter flush:remainingTimeout];
 }
 

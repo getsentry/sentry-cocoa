@@ -155,7 +155,7 @@ class SentryMetricsIntegrationTests: XCTestCase {
     
     func testWillResignActive_whenClientAvailable_shouldFlushMetrics() throws {
         #if !(((os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT) || os(macOS))
-        XCTSkip("Not supported on this platform")
+        throw XCTSkip("Not supported on this platform")
         #else
         // -- Arrange --
         let options = Options()
@@ -219,7 +219,7 @@ class SentryMetricsIntegrationTests: XCTestCase {
     
     func testWillTerminate_whenClientAvailable_shouldFlushMetrics() throws {
         #if !(((os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT) || os(macOS))
-        XCTSkip("Not supported on this platform")
+        throw XCTSkip("Not supported on this platform")
         #else
         // -- Arrange --
         let options = Options()
@@ -283,7 +283,7 @@ class SentryMetricsIntegrationTests: XCTestCase {
     
     func testWillResignActive_whenNoClient_shouldNotCrash() throws {
         #if !(((os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT) || os(macOS))
-        XCTSkip("Not supported on this platform")
+        throw XCTSkip("Not supported on this platform")
         #else
         // -- Arrange --
         let options = Options()
