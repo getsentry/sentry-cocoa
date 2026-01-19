@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 import Foundation
 
 @objcMembers
@@ -264,3 +265,4 @@ public final class SentryViewScreenshotOptions: NSObject, SentryRedactOptions {
         return "SentryViewScreenshotOptions(enableViewRendererV2: \(enableViewRendererV2), enableFastViewRendering: \(enableFastViewRendering), maskAllText: \(maskAllText), maskAllImages: \(maskAllImages), maskedViewClasses: \(maskedViewClasses), unmaskedViewClasses: \(unmaskedViewClasses), excludedViewClasses: \(excludedViewClasses), includedViewClasses: \(includedViewClasses))"
     }
 }
+// swiftlint:enable missing_docs

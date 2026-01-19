@@ -7,39 +7,64 @@
 public enum SentryUnit: Equatable {
     // MARK: - Duration Units
 
+    /// Nanosecond duration unit.
     case nanosecond
+    /// Microsecond duration unit.
     case microsecond
+    /// Millisecond duration unit.
     case millisecond
+    /// Second duration unit.
     case second
+    /// Minute duration unit.
     case minute
+    /// Hour duration unit.
     case hour
+    /// Day duration unit.
     case day
+    /// Week duration unit.
     case week
 
     // MARK: - Information Units
 
+    /// Bit information unit.
     case bit
+    /// Byte information unit.
     case byte
+    /// Kilobyte information unit (1000 bytes).
     case kilobyte
+    /// Kibibyte information unit (1024 bytes).
     case kibibyte
+    /// Megabyte information unit (1000^2 bytes).
     case megabyte
+    /// Mebibyte information unit (1024^2 bytes).
     case mebibyte
+    /// Gigabyte information unit (1000^3 bytes).
     case gigabyte
+    /// Gibibyte information unit (1024^3 bytes).
     case gibibyte
+    /// Terabyte information unit (1000^4 bytes).
     case terabyte
+    /// Tebibyte information unit (1024^4 bytes).
     case tebibyte
+    /// Petabyte information unit (1000^5 bytes).
     case petabyte
+    /// Pebibyte information unit (1024^5 bytes).
     case pebibyte
+    /// Exabyte information unit (1000^6 bytes).
     case exabyte
+    /// Exbibyte information unit (1024^6 bytes).
     case exbibyte
 
     // MARK: - Fraction Units
 
+    /// Ratio fraction unit (value between 0 and 1).
     case ratio
+    /// Percent fraction unit (value between 0 and 100).
     case percent
 
     // MARK: - Generic
 
+    /// Custom unit with a string value.
     case generic(String)
 }
 
@@ -52,8 +77,13 @@ public enum SentryUnit: Equatable {
 // 2. Fall back to `.generic(rawValue)` for any unrecognized string (custom units)
 
 extension SentryUnit: RawRepresentable {
+    /// The string representation of the unit.
     public typealias RawValue = String
 
+    /// Creates a unit from its string representation.
+    ///
+    /// Maps known unit strings to their corresponding enum cases, or falls back to
+    /// `.generic(rawValue)` for any unrecognized string (custom units).
     public init?(rawValue: String) { // swiftlint:disable:this cyclomatic_complexity function_body_length
         switch rawValue {
         // Duration Units
@@ -116,6 +146,7 @@ extension SentryUnit: RawRepresentable {
         }
     }
 
+    /// Returns the string representation of the unit.
     public var rawValue: String {
         switch self {
         // Duration Units
@@ -180,6 +211,7 @@ extension SentryUnit: RawRepresentable {
 }
 
 extension SentryUnit: Encodable {
+    /// Encodes the unit as its string representation.
     public func encode(to encoder: any Encoder) throws {
         var container = encoder.singleValueContainer()
         try container.encode(self.rawValue)
@@ -187,6 +219,7 @@ extension SentryUnit: Encodable {
 }
 
 extension SentryUnit: ExpressibleByStringLiteral {
+    /// Creates a generic unit from a string literal.
     public init(stringLiteral value: StringLiteralType) {
         self = .generic(value)
     }

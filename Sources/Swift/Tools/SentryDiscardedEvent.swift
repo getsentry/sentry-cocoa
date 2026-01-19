@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 import Foundation
 
 @objcMembers
@@ -23,3 +24,4 @@ public final class SentryDiscardedEvent: NSObject, SentrySerializable {
         ]
     }
 }
+// swiftlint:enable missing_docs

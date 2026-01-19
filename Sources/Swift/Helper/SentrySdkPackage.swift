@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 @_implementationOnly import _SentryPrivate
 import Foundation
 
@@ -60,3 +61,4 @@ private var SENTRY_PACKAGE_INFO: SentryPackageManagerOption = .unknown
     }
     #endif
 }
+// swiftlint:enable missing_docs

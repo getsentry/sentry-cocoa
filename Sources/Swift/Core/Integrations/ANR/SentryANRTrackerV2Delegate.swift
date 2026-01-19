@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 import Foundation
 
 /// The  methods are called from a  background thread.
@@ -19,3 +20,4 @@ import Foundation
         self.maxDuration = maxDuration
     }
 }
+// swiftlint:enable missing_docs
