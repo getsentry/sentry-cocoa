@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 @_spi(Private) public final class SentryFrameRemover: NSObject {
     
     /// Removes Sentry SDK frames until a frame from a different package is found.
@@ -20,3 +21,4 @@
         return frames
     }
 }
+// swiftlint:enable missing_docs

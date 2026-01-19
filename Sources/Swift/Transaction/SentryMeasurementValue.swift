@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 @_spi(Private) @objc public final class SentryMeasurementValue: NSObject {
     
     @objc public let value: NSNumber
@@ -23,3 +24,4 @@
         return result
     }
 }
+// swiftlint:enable missing_docs

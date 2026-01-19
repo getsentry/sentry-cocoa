@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 @_implementationOnly import _SentryPrivate
 
 /// A wrapper around sysctl for testability.
@@ -35,3 +36,4 @@
         objcHelper.moduleInitializationTimestamp
     }
 }
+// swiftlint:enable missing_docs

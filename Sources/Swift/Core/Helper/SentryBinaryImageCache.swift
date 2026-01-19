@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 @_implementationOnly import _SentryPrivate
 import Foundation
 
@@ -173,3 +174,4 @@ import Foundation
         }
     }   
 }
+// swiftlint:enable missing_docs

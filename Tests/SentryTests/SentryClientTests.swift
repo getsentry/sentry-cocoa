@@ -911,6 +911,7 @@ class SentryClientTests: XCTestCase {
         XCTAssertNil(event.tags, "Tags from scope must not be applied to crash events.")
     }
     
+#if os(iOS) || os(tvOS) || os(visionOS) || targetEnvironment(macCatalyst)
     func testCaptureOOMEvent_RemovesMutableInfoFromDeviceContext() throws {
         // Arrange
         let oomEvent = TestData.oomEvent
@@ -966,6 +967,7 @@ class SentryClientTests: XCTestCase {
         XCTAssertEqual(oomEvent.eventId, actual.eventId)
         XCTAssertEqual(oomEvent.context?.count, actual.context?.count)
     }
+#endif
 
     func testCaptureFatalEventWithSession_DoesntApplyCurrentScope() throws {
         // Arrange
@@ -2604,9 +2606,9 @@ private extension SentryClientTests {
     
     private func getSpan(operation: String, tracer: SentryTracer) -> Span {
 #if os(iOS) || os(tvOS) || os(visionOS) || targetEnvironment(macCatalyst)
-        return SentrySpan(tracer: tracer, context: SpanContext(operation: operation), framesTracker: nil)
+        return SentrySpanInternal(tracer: tracer, context: SpanContext(operation: operation), framesTracker: nil)
 #else
-        return  SentrySpan(tracer: tracer, context: SpanContext(operation: operation))
+        return  SentrySpanInternal(tracer: tracer, context: SpanContext(operation: operation))
         #endif
     }
     

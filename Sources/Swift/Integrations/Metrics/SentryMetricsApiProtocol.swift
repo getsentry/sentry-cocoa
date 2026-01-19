@@ -1,3 +1,7 @@
+/// Protocol for recording metrics (counters, distributions, and gauges) in Sentry.
+///
+/// This protocol provides a type-safe API for recording telemetry metrics that can be used
+/// for monitoring application performance, tracking business metrics, and analyzing system behavior.
 public protocol SentryMetricsApiProtocol {
     /// Records a count metric for the specified key.
     ///
@@ -65,15 +69,37 @@ public protocol SentryMetricsApiProtocol {
 // convenience overloads that call through to the protocol requirements with default values.
 // This pattern allows callers to omit optional parameters while keeping the protocol simple.
 
+/// Extension providing default parameter values for metric recording methods.
 public extension SentryMetricsApiProtocol {
+    /// Records a count metric with default parameter values.
+    ///
+    /// - Parameters:
+    ///   - key: A namespaced identifier for the metric
+    ///   - value: The count value to record (defaults to 1)
+    ///   - unit: Optional unit of measurement (defaults to nil)
+    ///   - attributes: Optional dictionary of attributes (defaults to empty)
     func count(key: String, value: UInt = 1, unit: SentryUnit? = nil, attributes: [String: SentryAttributeValue] = [:]) {
         self.count(key: key, value: value, unit: unit, attributes: attributes)
     }
 
+    /// Records a distribution metric with default parameter values.
+    ///
+    /// - Parameters:
+    ///   - key: A namespaced identifier for the metric
+    ///   - value: The value to record in the distribution
+    ///   - unit: Optional unit of measurement (defaults to nil)
+    ///   - attributes: Optional dictionary of attributes (defaults to empty)
     func distribution(key: String, value: Double, unit: SentryUnit? = nil, attributes: [String: SentryAttributeValue] = [:]) {
         self.distribution(key: key, value: value, unit: unit, attributes: attributes)
     }
 
+    /// Records a gauge metric with default parameter values.
+    ///
+    /// - Parameters:
+    ///   - key: A namespaced identifier for the metric
+    ///   - value: The current gauge value to record
+    ///   - unit: Optional unit of measurement (defaults to nil)
+    ///   - attributes: Optional dictionary of attributes (defaults to empty)
     func gauge(key: String, value: Double, unit: SentryUnit? = nil, attributes: [String: SentryAttributeValue] = [:]) {
         self.gauge(key: key, value: value, unit: unit, attributes: attributes)
     }

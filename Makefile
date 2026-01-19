@@ -64,7 +64,7 @@ init-local:
 	rbenv exec gem update bundler
 	rbenv exec bundle install
 	# Install the tools needed to update tooling versions locally
-	$(MAKE) init-ci-format
+	"$(MAKE)" init-ci-format
 	./scripts/update-tooling-versions.sh
 
 ## Install CI build dependencies
@@ -339,22 +339,24 @@ STAGED_SWIFT_FILES := $(shell git diff --cached --diff-filter=d --name-only | gr
 
 ## Run linting checks on all files
 #
-# Runs SwiftLint, Clang-Format checks, and dprint checks without modifying files.
+# Runs SwiftLint, Clang-Format checks, Objective-C id usage checks, and dprint checks without modifying files.
 .PHONY: lint
 lint:
 	@echo "--> Running Swiftlint and Clang-Format"
 	./scripts/check-clang-format.py -r Sources Tests
-	swiftlint --strict
+	ruby ./scripts/check-objc-id-usage.rb -r Sources/Sentry
+	swiftlint --strict --quiet
 	dprint check "**/*.{md,json,yaml,yml}"
 
 ## Run linting checks on staged files only
 #
-# Runs SwiftLint, Clang-Format checks, and dprint checks on staged files only.
+# Runs SwiftLint, Clang-Format checks, Objective-C id usage checks, and dprint checks on staged files only.
 .PHONY: lint-staged
 lint-staged:
 	@echo "--> Running Swiftlint and Clang-Format on staged files"
 	./scripts/check-clang-format.py -r Sources Tests
-	swiftlint --strict $(STAGED_SWIFT_FILES)
+	ruby ./scripts/check-objc-id-usage.rb -r Sources/Sentry
+	swiftlint --strict --quiet $(STAGED_SWIFT_FILES)
 	dprint check "**/*.{md,json,yaml,yml}"
 
 ## Format all files
@@ -378,7 +380,7 @@ format-clang:
 .PHONY: format-swift-all
 format-swift-all:
 	@echo "Running swiftlint --fix on all files"
-	swiftlint --fix
+	swiftlint --fix --quiet
 
 ## Format staged Swift files
 #
@@ -386,7 +388,7 @@ format-swift-all:
 .PHONY: format-swift-staged
 format-swift-staged:
 	@echo "Running swiftlint --fix on staged files"
-	swiftlint --fix $(STAGED_SWIFT_FILES)
+	swiftlint --fix --quiet $(STAGED_SWIFT_FILES)
 
 ## Format Markdown files
 #
@@ -612,7 +614,7 @@ endef
 .PHONY: help
 help:
 	@if [ -n "$(name)" ]; then \
-		$(MAKE) --no-print-directory help-target name="$(name)"; \
+		"$(MAKE)" --no-print-directory help-target name="$(name)"; \
 	else \
 		echo "=============================================="; \
 		echo "🚀 SENTRY COCOA SDK DEVELOPMENT COMMANDS"; \

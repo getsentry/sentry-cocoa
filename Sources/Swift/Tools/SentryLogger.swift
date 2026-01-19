@@ -2,7 +2,10 @@
 
 import Foundation
 
+/// A delegate that receives captured log entries from `SentryLogger`.
 @objc @_spi(Private) public protocol SentryLoggerDelegate: AnyObject {
+    /// Captures a log entry and sends it to Sentry.
+    /// - Parameter log: The log entry to capture.
     @objc(captureLog:)
     func capture(log: SentryLog)
 }
@@ -32,6 +35,10 @@ public final class SentryLogger: NSObject {
     private weak var delegate: SentryLoggerDelegate?
     private let dateProvider: SentryCurrentDateProvider
     
+    /// Initializes a logger with the given delegate and date provider.
+    /// - Parameters:
+    ///   - delegate: The delegate that receives captured log entries.
+    ///   - dateProvider: The date provider used to timestamp log entries.
     @objc(initWithDelegate:dateProvider:)
     @_spi(Private) public init(delegate: SentryLoggerDelegate, dateProvider: SentryCurrentDateProvider) {
         self.delegate = delegate

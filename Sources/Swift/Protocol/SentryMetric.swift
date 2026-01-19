@@ -88,6 +88,7 @@ extension SentryMetric: Encodable {
         case attributes
     }
     
+    /// Encodes the metric to the given encoder.
     public func encode(to encoder: any Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         

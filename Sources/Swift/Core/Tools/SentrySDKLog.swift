@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 import Foundation
 
 typealias SentryLogOutput = ((String) -> Void)
@@ -102,3 +103,4 @@ extension SentrySDKLog {
         log(level: .fatal, message: message, file: file, line: line)
     }
 }
+// swiftlint:enable missing_docs

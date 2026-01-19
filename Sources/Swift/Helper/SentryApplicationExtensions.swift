@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 // This is needed because a file that only contains an @objc extension will get automatically stripped out
 // in static builds. We need to either use the -all_load linker flag (which has downsides of app size increases)
 // or make sure that every file containing objc categories/extensions also have a concrete type that
@@ -193,3 +194,4 @@ extension SentryApplication {
     }
 }
 #endif
+// swiftlint:enable missing_docs

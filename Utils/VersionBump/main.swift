@@ -40,7 +40,9 @@ let files = [
     "./Sentry.podspec",
     "./Package.swift",
     "./SentrySwiftUI.podspec",
-    "./Sources/Sentry/SentryMeta.m"
+    "./Sources/Sentry/SentryMeta.m",
+    "./3rd-party-integrations/SentrySwiftLog/Package.swift",
+    "./3rd-party-integrations/SentryPulse/Package.swift"
 ]
 
 // Files that only accept the format x.x.x in order to release an app using the framework.
@@ -176,6 +178,8 @@ func getRegexString(for file: String) throws -> String {
         return "\\ss\\.version\\s+=\\s\"(?<version>[a-zA-z0-9\\.\\-]+)\""
     } else if file.hasPrefix("./Package") && file.hasSuffix(".swift") {
         return "https:\\/\\/github\\.com\\/getsentry\\/sentry-cocoa\\/releases\\/download\\/(?<version>[a-zA-z0-9\\.\\-]+)\\/Sentry"
+    } else if file.hasPrefix("./3rd-party-integrations/") && file.hasSuffix("/Package.swift") {
+        return "\\.package\\(url:\\s\"https:\\/\\/github\\.com\\/getsentry\\/sentry-cocoa\",\\sfrom:\\s\"(?<version>[a-zA-z0-9\\.\\-]+)\""
     } else if file == "./Sources/Sentry/SentryMeta.m" {
         return "static NSString \\*versionString = @\"(?<version>[a-zA-z0-9\\.\\-]+)\""
     }

@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 @_implementationOnly import _SentryPrivate
 import Foundation
 
@@ -112,3 +113,4 @@ extension Attachment {
         return attDict
     }
 }
+// swiftlint:enable missing_docs

@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 import Foundation
 #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT
 @_implementationOnly import _SentryPrivate
@@ -221,3 +222,4 @@ private extension UITouch.Phase {
 }
 
 #endif
+// swiftlint:enable missing_docs

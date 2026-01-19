@@ -304,6 +304,9 @@ import Foundation
     }
     
     #if os(iOS) && !SENTRY_NO_UIKIT
+    /// The API for capturing user feedback.
+    ///
+    /// Use this to programmatically show the feedback form or access feedback-related functionality.
     @objc public static let feedback = {
       return SentryFeedbackAPI()
     }()
@@ -459,11 +462,13 @@ import Foundation
     /// The option used to start the SDK
     private static var _startOption: Options?
     private static let startOptionLock = NSRecursiveLock()
+    // swiftlint:disable:next missing_docs
     @_spi(Private) @objc public static var startOption: Options? {
         startOptionLock.synchronized {
             return _startOption
         }
     }
+    // swiftlint:disable:next missing_docs
     @_spi(Private) @objc public static func setStart(with option: Options?) {
         startOptionLock.synchronized {
             _startOption = option

@@ -114,9 +114,9 @@ private extension ProfilingViewController {
             return
         }
 
-        //swiftlint:disable empty_count
+        // swiftlint:disable empty_count
         guard continuous || count > 0 else {
-            //swiftlint:enable empty_count
+            // swiftlint:enable empty_count
             profilingUITestDataMarshalingTextField.text = "<missing>"
             return
         }

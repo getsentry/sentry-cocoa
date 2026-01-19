@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT
 import Foundation
 import UIKit
@@ -72,3 +73,4 @@ import UIKit
 }
 
 #endif // (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT
+// swiftlint:enable missing_docs
