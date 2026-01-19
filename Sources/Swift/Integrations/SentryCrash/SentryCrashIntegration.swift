@@ -13,6 +13,7 @@ import UIKit
 public func sentry_finishAndSaveTransaction() {
     let scope = SentrySDKInternal.currentHub().scope as Scope
     guard let span = scope.getCastedInternalSpan() else {
+        SentrySDKLog.debug("No span found in current scope, skipping transaction finish and save")
         return
     }
     span.tracer?.finishForCrash()
@@ -166,7 +167,10 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
         var canSendReports = false
 
         if CrashInstallationState.shared.installation == nil {
-            guard let options = self.options else { return }
+            guard let options = self.options else { 
+                SentrySDKLog.debug("No options found, skipping crash handler initialization")
+                return 
+            }
 
             let inAppLogic = SentryInAppLogic(inAppIncludes: options.inAppIncludes)
 
