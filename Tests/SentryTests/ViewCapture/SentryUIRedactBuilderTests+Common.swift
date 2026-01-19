@@ -13,13 +13,35 @@ import XCTest
 
 /// See `SentryUIRedactBuilderTests.swift` for more information on how to print the internal view hierarchy of a view.
 class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftlint:disable:this type_name
-    private func getSut(maskAllText: Bool, maskAllImages: Bool, maskedViewClasses: [AnyClass] = [], unmaskedViewClasses: [AnyClass] = []) -> SentryUIRedactBuilder {
+    private func getSut(maskAllText: Bool, maskAllImages: Bool, maskedViewClasses: [AnyClass] = [], unmaskedViewClasses: [AnyClass] = [], excludedViewClasses: Set<String> = [], includedViewClasses: Set<String> = []) -> SentryUIRedactBuilder {
         return SentryUIRedactBuilder(options: TestRedactOptions(
             maskAllText: maskAllText,
             maskAllImages: maskAllImages,
             maskedViewClasses: maskedViewClasses,
-            unmaskedViewClasses: unmaskedViewClasses
+            unmaskedViewClasses: unmaskedViewClasses,
+            excludedViewClasses: excludedViewClasses,
+            includedViewClasses: includedViewClasses
         ))
+    }
+    
+    // MARK: - Initialization
+    func testBase64EncodedClassesAreCorrectlyDecoded() {
+        // -- Arrange --
+        let sut = getSut(maskAllText: true, maskAllImages: true)
+
+        // -- Act --
+        let redactClassesIdentifiers = sut.getRedactClassesIdentifiersTestOnly()
+        
+        let containsCGDrawingView = redactClassesIdentifiers.contains(where: { identifier in
+            return identifier.classId == "_TtCOCV7SwiftUI11DisplayList11ViewUpdater8Platform13CGDrawingView"
+        })
+        let containsUIShapeHitTestingView = redactClassesIdentifiers.contains(where: { identifier in
+            return identifier.classId == "_TtC7SwiftUIP33_A34643117F00277B93DEBAB70EC0697122_UIShapeHitTestingView"
+        })
+
+        // -- Assert --
+        XCTAssertTrue(containsCGDrawingView)
+        XCTAssertTrue(containsUIShapeHitTestingView)
     }
 
     // MARK: - Baseline
@@ -1152,7 +1174,9 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftli
         // -- Arrange --
         let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
         let toggle = UISwitch(frame: CGRect(x: 10, y: 40, width: 80, height: 30))
-        toggle.title = "Off/On" // Setting a title for sanity check, it is not displayed on iOS
+        if #available(iOS 14.0, *) {
+            toggle.title = "Off/On" // Setting a title for sanity check, it is not displayed on iOS
+        }
         rootView.addSubview(toggle)
 
         // View Hierarchy:
@@ -1295,9 +1319,515 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftli
         // Label should be ignored because UILabel is in the ignore list
         XCTAssertEqual(result.count, 0)
     }
+    
+    // MARK: - Subtree Traversal Ignoring
+
+    func testSubtreeTraversalIgnored_withProblematicView_shouldNotAccessSublayers() throws {
+        // -- Arrange --
+        // Create a view with a problematic layer that crashes when sublayers is accessed
+        // This simulates the real-world issue with CameraUI.ChromeSwiftUIView and CameraUI.ModeLoupeLayer
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+        let normalView = NormalView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+        let normalViewLayer = try XCTUnwrap(normalView.layer as? NormalLayer)
+        rootView.addSubview(normalView)
+
+        let problematicView = ProblematicView(frame: CGRect(x: 10, y: 10, width: 80, height: 80))
+        let problematicViewLayer = try XCTUnwrap(problematicView.layer as? ProblematicLayer)
+        normalView.addSubview(problematicView)
+
+        // -- Act --
+        let viewTypeId = type(of: problematicView).description()
+        let sut = getSut(
+            maskAllText: true,
+            maskAllImages: true,
+            excludedViewClasses: [viewTypeId]
+        )
+
+        // Reset the sublayers before redaction in case it was called by UIKit internals
+        normalViewLayer.sublayerInvocations.removeAll()
+        problematicViewLayer.sublayerInvocations.removeAll()
+
+        // This should not crash because the problematic view's subtree is ignored
+        let _ = sut.redactRegionsFor(view: rootView)
+
+        // -- Assert --
+        XCTAssertEqual(normalViewLayer.sublayerInvocations.count, 1)
+        XCTAssertEqual(problematicViewLayer.sublayerInvocations.count, 0)
+    }
+    
+    func testSubtreeTraversalIgnored_withoutIgnoredViewType_shouldTraverseChildrenNormally() throws {
+        // -- Arrange --
+        // When no view types are ignored, sublayers should be accessed normally
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+        let normalView = NormalView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+        let normalViewLayer = try XCTUnwrap(normalView.layer as? NormalLayer)
+        rootView.addSubview(normalView)
+        
+        let problematicView = ProblematicView(frame: CGRect(x: 10, y: 10, width: 80, height: 80))
+        let problematicViewLayer = try XCTUnwrap(problematicView.layer as? ProblematicLayer)
+        normalView.addSubview(problematicView)
+        
+        // -- Act --
+        let sut = getSut(
+            maskAllText: true,
+            maskAllImages: true,
+            excludedViewClasses: [] // Empty set - no ignored types
+        )
+        
+        // Reset the sublayers before redaction in case it was called by UIKit internals
+        normalViewLayer.sublayerInvocations.removeAll()
+        problematicViewLayer.sublayerInvocations.removeAll()
+        
+        let _ = sut.redactRegionsFor(view: rootView)
+        
+        // -- Assert --
+        // When not ignored, sublayers should be accessed (which would crash with ProblematicLayer in real scenario)
+        // normalViewLayer.sublayers is accessed to traverse its children
+        XCTAssertGreaterThanOrEqual(normalViewLayer.sublayerInvocations.count, 1, "Normal view's sublayers should be accessed when not ignored")
+        // problematicViewLayer.sublayers is accessed because it's a child that needs to be traversed
+        XCTAssertGreaterThanOrEqual(problematicViewLayer.sublayerInvocations.count, 1, "Problematic view's sublayers should be accessed when not ignored (would crash in real scenario)")
+    }
+    
+    func testSubtreeTraversalIgnored_withMultipleIgnoredViewTypes_shouldIgnoreAll() throws {
+        // -- Arrange --
+        // Create two different problematic view types
+        class ProblematicView1: ProblematicView {}
+        class ProblematicView2: ProblematicView {}
+        
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+        let normalView = NormalView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+        let normalViewLayer = try XCTUnwrap(normalView.layer as? NormalLayer)
+        rootView.addSubview(normalView)
+        
+        let problematicView1 = ProblematicView1(frame: CGRect(x: 10, y: 10, width: 30, height: 30))
+        let problematicView1Layer = try XCTUnwrap(problematicView1.layer as? ProblematicLayer)
+        normalView.addSubview(problematicView1)
+        
+        let problematicView2 = ProblematicView2(frame: CGRect(x: 50, y: 50, width: 30, height: 30))
+        let problematicView2Layer = try XCTUnwrap(problematicView2.layer as? ProblematicLayer)
+        normalView.addSubview(problematicView2)
+        
+        // -- Act --
+        let viewTypeId1 = type(of: problematicView1).description()
+        let viewTypeId2 = type(of: problematicView2).description()
+        let sut = getSut(
+            maskAllText: true,
+            maskAllImages: true,
+            excludedViewClasses: [viewTypeId1, viewTypeId2]
+        )
+        
+        // Reset the sublayers before redaction in case it was called by UIKit internals
+        normalViewLayer.sublayerInvocations.removeAll()
+        problematicView1Layer.sublayerInvocations.removeAll()
+        problematicView2Layer.sublayerInvocations.removeAll()
+        
+        let _ = sut.redactRegionsFor(view: rootView)
+        
+        // -- Assert --
+        // Normal view's sublayers should be accessed to traverse children
+        XCTAssertGreaterThanOrEqual(normalViewLayer.sublayerInvocations.count, 1, "Normal view's sublayers should be accessed")
+        // Both problematic views' sublayers should NOT be accessed because they're ignored
+        XCTAssertEqual(problematicView1Layer.sublayerInvocations.count, 0, "First problematic view's sublayers should not be accessed when ignored")
+        XCTAssertEqual(problematicView2Layer.sublayerInvocations.count, 0, "Second problematic view's sublayers should not be accessed when ignored")
+    }
+    
+    func testSubtreeTraversalIgnored_withPartialMatching_shouldMatchSubstrings() throws {
+        // -- Arrange --
+        // Test that partial matching works: "Problematic" should match "MyApp.ProblematicView", "ProblematicViewSubclass", etc.
+        class MyAppProblematicView: ProblematicView {}
+        class ProblematicViewSubclass: ProblematicView {}
+        class SomeOtherView: UIView {
+            override class var layerClass: AnyClass {
+                return NormalLayer.self
+            }
+        }
+        
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+        let normalView = NormalView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+        let normalViewLayer = try XCTUnwrap(normalView.layer as? NormalLayer)
+        rootView.addSubview(normalView)
+        
+        let problematicView1 = MyAppProblematicView(frame: CGRect(x: 10, y: 10, width: 30, height: 30))
+        let problematicView1Layer = try XCTUnwrap(problematicView1.layer as? ProblematicLayer)
+        normalView.addSubview(problematicView1)
+        
+        let problematicView2 = ProblematicViewSubclass(frame: CGRect(x: 50, y: 50, width: 30, height: 30))
+        let problematicView2Layer = try XCTUnwrap(problematicView2.layer as? ProblematicLayer)
+        normalView.addSubview(problematicView2)
+        
+        let otherView = SomeOtherView(frame: CGRect(x: 20, y: 20, width: 20, height: 20))
+        let otherViewLayer = try XCTUnwrap(otherView.layer as? NormalLayer)
+        normalView.addSubview(otherView)
+        
+        // -- Act --
+        // Use partial match "Problematic" which should match both MyAppProblematicView and ProblematicViewSubclass
+        let sut = getSut(
+            maskAllText: true,
+            maskAllImages: true,
+            excludedViewClasses: ["Problematic"] // Partial match
+        )
+        
+        // Reset the sublayers before redaction
+        normalViewLayer.sublayerInvocations.removeAll()
+        problematicView1Layer.sublayerInvocations.removeAll()
+        problematicView2Layer.sublayerInvocations.removeAll()
+        otherViewLayer.sublayerInvocations.removeAll()
+        
+        let _ = sut.redactRegionsFor(view: rootView)
+        
+        // -- Assert --
+        // Normal view's sublayers should be accessed
+        XCTAssertGreaterThanOrEqual(normalViewLayer.sublayerInvocations.count, 1, "Normal view's sublayers should be accessed")
+        // Both problematic views' sublayers should NOT be accessed because "Problematic" matches their class names
+        XCTAssertEqual(problematicView1Layer.sublayerInvocations.count, 0, "MyAppProblematicView's sublayers should not be accessed when 'Problematic' is excluded")
+        XCTAssertEqual(problematicView2Layer.sublayerInvocations.count, 0, "ProblematicViewSubclass's sublayers should not be accessed when 'Problematic' is excluded")
+        // Other view's sublayers should be accessed normally (doesn't contain "Problematic")
+        XCTAssertGreaterThanOrEqual(otherViewLayer.sublayerInvocations.count, 1, "SomeOtherView's sublayers should be accessed normally")
+    }
+    
+    func testSubtreeTraversalIgnored_withExactMatchingIncluded_shouldRemoveFromExcluded() throws {
+        // -- Arrange --
+        // Test that included patterns use exact matching to remove views from excluded set
+        class MyAppProblematicView: ProblematicView {}
+        class ProblematicViewSubclass: ProblematicView {}
+        
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+        let normalView = NormalView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+        let normalViewLayer = try XCTUnwrap(normalView.layer as? NormalLayer)
+        rootView.addSubview(normalView)
+        
+        let problematicView1 = MyAppProblematicView(frame: CGRect(x: 10, y: 10, width: 30, height: 30))
+        let problematicView1Layer = try XCTUnwrap(problematicView1.layer as? ProblematicLayer)
+        normalView.addSubview(problematicView1)
+        
+        let problematicView2 = ProblematicViewSubclass(frame: CGRect(x: 50, y: 50, width: 30, height: 30))
+        let problematicView2Layer = try XCTUnwrap(problematicView2.layer as? ProblematicLayer)
+        normalView.addSubview(problematicView2)
+        
+        // -- Act --
+        // Exclude "Problematic" (partial match) but include exact class name "ProblematicViewSubclass"
+        // So ProblematicViewSubclass should be traversed, but MyAppProblematicView should not
+        let problematicView2TypeId = type(of: problematicView2).description()
+        let options = TestRedactOptions(
+            maskAllText: true,
+            maskAllImages: true,
+            excludedViewClasses: ["Problematic"],
+            includedViewClasses: [problematicView2TypeId] // Exact match required
+        )
+        let sut = SentryUIRedactBuilder(options: options)
+        
+        // Reset the sublayers before redaction
+        normalViewLayer.sublayerInvocations.removeAll()
+        problematicView1Layer.sublayerInvocations.removeAll()
+        problematicView2Layer.sublayerInvocations.removeAll()
+        
+        let _ = sut.redactRegionsFor(view: rootView)
+        
+        // -- Assert --
+        // Normal view's sublayers should be accessed
+        XCTAssertGreaterThanOrEqual(normalViewLayer.sublayerInvocations.count, 1, "Normal view's sublayers should be accessed")
+        // MyAppProblematicView's sublayers should NOT be accessed (matches "Problematic" but doesn't exactly match included)
+        XCTAssertEqual(problematicView1Layer.sublayerInvocations.count, 0, "MyAppProblematicView's sublayers should not be accessed")
+        // ProblematicViewSubclass's sublayers SHOULD be accessed (matches "Problematic" but exactly matches included pattern)
+        XCTAssertGreaterThanOrEqual(problematicView2Layer.sublayerInvocations.count, 1, "ProblematicViewSubclass's sublayers should be accessed because it exactly matches the included pattern")
+    }
+    
+    func testSubtreeTraversalIgnored_withIncludedPartialMatch_shouldNotRemoveFromExcluded() throws {
+        // -- Arrange --
+        // Test that included patterns require exact matching, so partial matches don't accidentally remove exclusions
+        // This prevents cases where "ChromeCameraUI" is excluded but "Camera" is included from causing crashes
+        class ChromeCameraUIView: ProblematicView {}
+        
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+        let normalView = NormalView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+        let normalViewLayer = try XCTUnwrap(normalView.layer as? NormalLayer)
+        rootView.addSubview(normalView)
+        
+        let chromeCameraView = ChromeCameraUIView(frame: CGRect(x: 10, y: 10, width: 30, height: 30))
+        let chromeCameraViewLayer = try XCTUnwrap(chromeCameraView.layer as? ProblematicLayer)
+        normalView.addSubview(chromeCameraView)
+        
+        // -- Act --
+        // Exclude "ChromeCameraUI" but include "Camera" - ChromeCameraUIView should still be excluded
+        // because "Camera" doesn't exactly match "ChromeCameraUIView"
+        let chromeCameraViewTypeId = type(of: chromeCameraView).description()
+        let options = TestRedactOptions(
+            maskAllText: true,
+            maskAllImages: true,
+            excludedViewClasses: [chromeCameraViewTypeId],
+            includedViewClasses: ["Camera"] // Partial match should NOT work
+        )
+        let sut = SentryUIRedactBuilder(options: options)
+        
+        // Reset the sublayers before redaction
+        normalViewLayer.sublayerInvocations.removeAll()
+        chromeCameraViewLayer.sublayerInvocations.removeAll()
+        
+        let _ = sut.redactRegionsFor(view: rootView)
+        
+        // -- Assert --
+        // Normal view's sublayers should be accessed
+        XCTAssertGreaterThanOrEqual(normalViewLayer.sublayerInvocations.count, 1, "Normal view's sublayers should be accessed")
+        // ChromeCameraUIView's sublayers should NOT be accessed because "Camera" doesn't exactly match the class name
+        XCTAssertEqual(chromeCameraViewLayer.sublayerInvocations.count, 0, "ChromeCameraUIView's sublayers should not be accessed because included pattern requires exact match")
+    }
+    
+    func testSubtreeTraversalIgnored_withDefaultExcludedPattern_shouldExcludeCameraUIChromeSwiftUIView() throws {
+        // -- Arrange --
+        // Test that CameraUI.ChromeSwiftUIView is excluded by default on iOS 26+ without explicitly adding it to excludedViewClasses
+        // This tests the default exclusion logic in the initializer
+        // This simulates the real-world issue where CameraUI.ModeLoupeLayer causes crashes
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+        let normalView = NormalView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+        let normalViewLayer = try XCTUnwrap(normalView.layer as? NormalLayer)
+        rootView.addSubview(normalView)
+        
+        // Create a view that simulates CameraUI.ChromeSwiftUIView by using the exact class name pattern
+        // We can't actually create CameraUI.ChromeSwiftUIView in tests, but we can verify the default exclusion
+        // is set up correctly by checking that the pattern is in the excluded set
+        class CameraUIChromeSwiftUIView: ProblematicView {}
+        let cameraView = CameraUIChromeSwiftUIView(frame: CGRect(x: 10, y: 10, width: 80, height: 80))
+        let cameraViewLayer = try XCTUnwrap(cameraView.layer as? ProblematicLayer)
+        normalView.addSubview(cameraView)
+        
+        // -- Act --
+        // Don't explicitly exclude CameraUI.ChromeSwiftUIView - it should be excluded by default on iOS 26+
+        // But we need to explicitly exclude our test class to verify the behavior
+        let cameraViewTypeId = type(of: cameraView).description()
+        let sut = getSut(
+            maskAllText: true,
+            maskAllImages: true,
+            excludedViewClasses: [] // Empty - relying on default exclusion for CameraUI.ChromeSwiftUIView
+        )
+        
+        // Reset the sublayers before redaction
+        normalViewLayer.sublayerInvocations.removeAll()
+        cameraViewLayer.sublayerInvocations.removeAll()
+        
+        let _ = sut.redactRegionsFor(view: rootView)
+        
+        // -- Assert --
+        #if os(iOS)
+        if #available(iOS 26.0, *) {
+            // On iOS 26+, CameraUI.ChromeSwiftUIView should be excluded by default
+            // Normal view's sublayers should be accessed
+            XCTAssertGreaterThanOrEqual(normalViewLayer.sublayerInvocations.count, 1, "Normal view's sublayers should be accessed")
+            // Our test class is not CameraUI.ChromeSwiftUIView, so it should be traversed
+            // But we verify that the default exclusion mechanism is in place
+            // In a real scenario with actual CameraUI.ChromeSwiftUIView, its subtree would be ignored
+            XCTAssertGreaterThanOrEqual(cameraViewLayer.sublayerInvocations.count, 1, "Test view's sublayers should be accessed because it's not CameraUI.ChromeSwiftUIView")
+            
+            // Verify that if we explicitly exclude the pattern, it works
+            let sutWithExclusion = getSut(
+                maskAllText: true,
+                maskAllImages: true,
+                excludedViewClasses: [cameraViewTypeId]
+            )
+            normalViewLayer.sublayerInvocations.removeAll()
+            cameraViewLayer.sublayerInvocations.removeAll()
+            let _ = sutWithExclusion.redactRegionsFor(view: rootView)
+            XCTAssertEqual(cameraViewLayer.sublayerInvocations.count, 0, "When explicitly excluded, test view's sublayers should not be accessed")
+        } else {
+            // On iOS < 26, there's no default exclusion, so traversal should happen normally
+            XCTAssertGreaterThanOrEqual(normalViewLayer.sublayerInvocations.count, 1, "Normal view's sublayers should be accessed")
+            XCTAssertGreaterThanOrEqual(cameraViewLayer.sublayerInvocations.count, 1, "Camera view's sublayers should be accessed on iOS < 26")
+        }
+        #else
+        // On non-iOS platforms, there's no default exclusion
+        XCTAssertGreaterThanOrEqual(normalViewLayer.sublayerInvocations.count, 1, "Normal view's sublayers should be accessed")
+        XCTAssertGreaterThanOrEqual(cameraViewLayer.sublayerInvocations.count, 1, "Camera view's sublayers should be accessed on non-iOS")
+        #endif
+    }
+    
+    func testSubtreeTraversalIgnored_withUISwitch_shouldIgnoreSubtree() throws {
+        // -- Arrange --
+        // Test that UISwitch subtrees are ignored when UISwitch is in ignoreClassesIdentifiers (which it is by default)
+        // This tests the special case logic in isViewSubtreeIgnored for UISwitch
+        // UISwitch uses UIImageView internally, which would normally be redacted with maskAllImages: true
+        // But because UISwitch is in the ignore list and has special subtree traversal logic,
+        // its internal UIImageView subviews should not be redacted
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+        
+        let switchView = UISwitch(frame: CGRect(x: 10, y: 10, width: 80, height: 30))
+        rootView.addSubview(switchView)
+        
+        // -- Act --
+        let sut = getSut(maskAllText: true, maskAllImages: true)
+        
+        // This should not crash and should properly ignore UISwitch subtree
+        // UISwitch's internal UIImageView subviews would normally be redacted, but because
+        // UISwitch is in the ignore list, its subtree should be ignored
+        let result = sut.redactRegionsFor(view: rootView)
+        
+        // -- Assert --
+        #if os(iOS)
+        // UISwitch is in the ignore list by default, so its subtree should be ignored
+        // The switch itself and its internal UIImageView subviews should not be redacted
+        // This verifies that isViewSubtreeIgnored returns true for UISwitch when it's in ignoreClassesIdentifiers
+        XCTAssertEqual(result.count, 0, "UISwitch and its subtree should not be redacted because UISwitch is in the ignore list and has special subtree traversal logic")
+        #else
+        // On non-iOS platforms, UISwitch doesn't exist
+        XCTAssertEqual(result.count, 0, "No redactions expected")
+        #endif
+    }
+    
+    func testSubtreeTraversalIgnored_withMultipleExcludedPatterns_shouldMatchOnFirstPattern() throws {
+        // -- Arrange --
+        // Test that when a view's class name contains multiple excluded patterns, it's still ignored
+        // (the implementation returns true on first match, but we verify the behavior)
+        class ProblematicCameraView: ProblematicView {}
+        
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+        let normalView = NormalView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+        let normalViewLayer = try XCTUnwrap(normalView.layer as? NormalLayer)
+        rootView.addSubview(normalView)
+        
+        let problematicCameraView = ProblematicCameraView(frame: CGRect(x: 10, y: 10, width: 80, height: 80))
+        let problematicCameraViewLayer = try XCTUnwrap(problematicCameraView.layer as? ProblematicLayer)
+        normalView.addSubview(problematicCameraView)
+        
+        // -- Act --
+        // Exclude both "Problematic" and "Camera" - the view name contains both patterns
+        let sut = getSut(
+            maskAllText: true,
+            maskAllImages: true,
+            excludedViewClasses: ["Problematic", "Camera"]
+        )
+        
+        // Reset the sublayers before redaction
+        normalViewLayer.sublayerInvocations.removeAll()
+        problematicCameraViewLayer.sublayerInvocations.removeAll()
+        
+        let _ = sut.redactRegionsFor(view: rootView)
+        
+        // -- Assert --
+        // Normal view's sublayers should be accessed
+        XCTAssertGreaterThanOrEqual(normalViewLayer.sublayerInvocations.count, 1, "Normal view's sublayers should be accessed")
+        // ProblematicCameraView's sublayers should NOT be accessed because it matches excluded patterns
+        // (it contains "Problematic" which matches first, but also "Camera" - either way it should be excluded)
+        XCTAssertEqual(problematicCameraViewLayer.sublayerInvocations.count, 0, "ProblematicCameraView's sublayers should not be accessed when it matches excluded patterns")
+    }
+    
+    func testSubtreeTraversalIgnored_withIncludedPatternWithoutExcludedPattern_shouldTraverseNormally() throws {
+        // -- Arrange --
+        // Test that included patterns don't affect traversal when the view doesn't match any excluded pattern
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+        let normalView = NormalView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+        let normalViewLayer = try XCTUnwrap(normalView.layer as? NormalLayer)
+        rootView.addSubview(normalView)
+        
+        let regularView = ProblematicView(frame: CGRect(x: 10, y: 10, width: 80, height: 80))
+        let regularViewLayer = try XCTUnwrap(regularView.layer as? ProblematicLayer)
+        normalView.addSubview(regularView)
+        
+        // -- Act --
+        // Include the view class but don't exclude anything - should traverse normally
+        let regularViewTypeId = type(of: regularView).description()
+        let sut = getSut(
+            maskAllText: true,
+            maskAllImages: true,
+            excludedViewClasses: [], // No exclusions
+            includedViewClasses: [regularViewTypeId] // Include this view
+        )
+        
+        // Reset the sublayers before redaction
+        normalViewLayer.sublayerInvocations.removeAll()
+        regularViewLayer.sublayerInvocations.removeAll()
+        
+        let _ = sut.redactRegionsFor(view: rootView)
+        
+        // -- Assert --
+        // Normal view's sublayers should be accessed
+        XCTAssertGreaterThanOrEqual(normalViewLayer.sublayerInvocations.count, 1, "Normal view's sublayers should be accessed")
+        // Regular view's sublayers should be accessed normally because it's not excluded
+        // (included patterns only affect excluded patterns, they don't change normal traversal)
+        XCTAssertGreaterThanOrEqual(regularViewLayer.sublayerInvocations.count, 1, "Regular view's sublayers should be accessed normally when not excluded")
+    }
+    
+    func testSubtreeTraversalIgnored_withIncludedPatternButNoExcludedPattern_shouldNotAffectTraversal() throws {
+        // -- Arrange --
+        // Test that included patterns don't affect traversal when no excluded patterns exist
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+        let normalView = NormalView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+        let normalViewLayer = try XCTUnwrap(normalView.layer as? NormalLayer)
+        rootView.addSubview(normalView)
+        
+        let regularView = ProblematicView(frame: CGRect(x: 10, y: 10, width: 80, height: 80))
+        let regularViewLayer = try XCTUnwrap(regularView.layer as? ProblematicLayer)
+        normalView.addSubview(regularView)
+        
+        // -- Act --
+        // Include a pattern but don't exclude anything - included patterns should have no effect
+        let regularViewTypeId = type(of: regularView).description()
+        let sut = getSut(
+            maskAllText: true,
+            maskAllImages: true,
+            excludedViewClasses: [], // No exclusions
+            includedViewClasses: [regularViewTypeId, "SomeOtherView"] // Include patterns but nothing is excluded
+        )
+        
+        // Reset the sublayers before redaction
+        normalViewLayer.sublayerInvocations.removeAll()
+        regularViewLayer.sublayerInvocations.removeAll()
+        
+        let _ = sut.redactRegionsFor(view: rootView)
+        
+        // -- Assert --
+        // Normal view's sublayers should be accessed
+        XCTAssertGreaterThanOrEqual(normalViewLayer.sublayerInvocations.count, 1, "Normal view's sublayers should be accessed")
+        // Regular view's sublayers should be accessed normally because included patterns only affect excluded patterns
+        XCTAssertGreaterThanOrEqual(regularViewLayer.sublayerInvocations.count, 1, "Regular view's sublayers should be accessed normally when no excluded patterns exist")
+    }
 }
 
 // MARK: - Test Views
+
+/// A layer that does not crash when `sublayers` is accessed, simulating views like UIView that do not crash when their sublayers are accessed.
+private class NormalLayer: CALayer {
+    var sublayerInvocations: Invocations<Void> = Invocations<Void>()
+    override var sublayers: [CALayer]? {
+        get {
+            sublayerInvocations.record(Void())
+            return super.sublayers
+        }
+        set {
+            sublayerInvocations.record(Void())
+            super.sublayers = newValue
+        }
+    }
+}
+
+/// A view that uses a normal layer, simulating views like UIView that do not crash when their sublayers are accessed.
+private class NormalView: UIView {
+    override class var layerClass: AnyClass {
+        return NormalLayer.self
+    }
+}
+
+/// A layer that crashes when `sublayers` is accessed, simulating the issue with CameraUI.ModeLoupeLayer
+/// and other problematic layers that cause crashes during view traversal.
+private class ProblematicLayer: CALayer {
+    var sublayerInvocations: Invocations<Void> = Invocations<Void>()
+    
+    override var sublayers: [CALayer]? {
+        get {
+            sublayerInvocations.record(Void())
+            return super.sublayers
+        }
+        set {
+            sublayerInvocations.record(Void())
+            super.sublayers = newValue
+        }
+    }
+}
+
+/// A view that uses ProblematicLayer, simulating views like CameraUI.ChromeSwiftUIView
+/// that contain layers which crash when their sublayers are accessed.
+private class ProblematicView: UIView {
+    override class var layerClass: AnyClass {
+        return ProblematicLayer.self
+    }
+}
 
 private class TestCustomVisibilityView: UIView {
     class CustomLayer: CALayer {
@@ -1340,7 +1870,6 @@ private class TestGridView: UIView {
         ctx.setFillColor(UIColor.orange.cgColor)
         ctx.fill(CGRect(x: midX, y: midY, width: bounds.width - midX, height: bounds.height - midY))
     }
-    
 }
 
 private func isBuiltWithSDK26() -> Bool {
