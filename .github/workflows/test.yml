@@ -401,7 +401,7 @@ jobs:
         run: swift test
 
       - name: Archiving Raw Logs
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         if: ${{ failure() || cancelled() }}
         with:
           name: raw-output-swiftlog-integration
@@ -433,7 +433,7 @@ jobs:
         run: swift test
 
       - name: Archiving Raw Logs
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         if: ${{ failure() || cancelled() }}
         with:
           name: raw-output-pulse-integration
