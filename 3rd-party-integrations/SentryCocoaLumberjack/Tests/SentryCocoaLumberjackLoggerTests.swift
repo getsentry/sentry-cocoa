@@ -292,6 +292,31 @@ final class SentryCocoaLumberjackLoggerTests: XCTestCase {
         XCTAssertEqual(timestampValue, 1_234_567_890.123, accuracy: 0.001)
     }
     
+    // MARK: - SDK State Tests
+    
+    func testLog_whenSentrySDKNotEnabled_shouldNotLog() {
+        SentrySDK.close()
+        
+        let sut = getSut()
+        let logMessage = DDLogMessage(
+            format: "Test message",
+            formatted: "Test message",
+            level: .info,
+            flag: .info,
+            context: 0,
+            file: "TestFile.swift",
+            function: "testFunction",
+            line: 1,
+            tag: nil,
+            options: [],
+            timestamp: Date()
+        )
+        
+        sut.log(message: logMessage)
+        
+        XCTAssertEqual(capturedLogs.count, 0, "Expected no logs when SentrySDK is not enabled")
+    }
+    
     // MARK: - Helper Methods
     
     private func assertLogCaptured(

@@ -58,6 +58,10 @@ public class SentryCocoaLumberjackLogger: DDAbstractLogger {
     ///
     /// - Parameter logMessage: The log message from CocoaLumberjack containing the message, level, and metadata.
     public override func log(message logMessage: DDLogMessage) {
+        guard SentrySDK.isEnabled else {
+            return
+        }
+        
         var attributes: [String: Any] = [:]
         attributes["sentry.origin"] = "auto.logging.cocoalumberjack"
         
