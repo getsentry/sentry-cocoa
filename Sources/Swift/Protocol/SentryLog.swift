@@ -97,7 +97,6 @@ public final class SentryLog: NSObject {
         case severityNumber = "severity_number"
     }
     
-    // swiftlint:disable:next missing_docs
     @_spi(Private) public func encode(to encoder: any Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         
