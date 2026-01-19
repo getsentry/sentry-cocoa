@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 import Foundation
 
 @objcMembers
@@ -12,3 +13,4 @@ import Foundation
         return headers.filter { !_securityHeaders.contains($0.key.uppercased()) }
     }
 }
+// swiftlint:enable missing_docs

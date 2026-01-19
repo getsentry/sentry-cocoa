@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 @_implementationOnly import _SentryPrivate
 import Foundation
 
@@ -106,3 +107,4 @@ public final class RateLimitParser: NSObject {
         return SentryDateUtil.getMaximumDate(newDate, andOther: existingRateLimit) ?? newDate
     }
 }
+// swiftlint:enable missing_docs

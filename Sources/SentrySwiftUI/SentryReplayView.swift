@@ -37,6 +37,7 @@ struct SentryReplayModifier: ViewModifier {
     }
 }
 
+/// nodoc
 public extension View {
     
     /// Marks the view as containing sensitive information that should be masked during replays.

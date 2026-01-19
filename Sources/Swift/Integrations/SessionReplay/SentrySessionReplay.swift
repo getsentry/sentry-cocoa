@@ -1,4 +1,4 @@
-// swiftlint:disable file_length
+// swiftlint:disable file_length missing_docs
 import Foundation
 #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT
 @_implementationOnly import _SentryPrivate
@@ -391,4 +391,4 @@ import UIKit
 // swiftlint:enable type_body_length
 
 #endif
-// swiftlint:enable file_length
+// swiftlint:enable file_length missing_docs

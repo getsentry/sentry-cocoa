@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 @_implementationOnly import _SentryPrivate
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
 import UIKit
@@ -366,3 +367,4 @@ extension SentryDependencyContainer: NetworkTrackerProvider {
         SentryNetworkTracker.sharedInstance
     }
 }
+// swiftlint:enable missing_docs

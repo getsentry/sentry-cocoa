@@ -1,4 +1,5 @@
 // swiftlint:disable file_length
+/// Configuration options for the Sentry SDK.
 @objc(SentryOptions) public final class Options: NSObject {
     
     @objc public override init() {
@@ -309,6 +310,7 @@
     /// @note The default is @c true.
     @objc public var enableReportNonFullyBlockingAppHangs: Bool = true
     
+    // swiftlint:disable:next missing_docs
     @_spi(Private) @objc public func isAppHangTrackingDisabled() -> Bool {
         !enableAppHangTracking || appHangTimeoutInterval <= 0
     }
@@ -317,6 +319,7 @@
     
     #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT
     
+    /// Configuration options for Session Replay.
     @objc public var sessionReplay = SentryReplayOptions()
 
     #endif
@@ -441,16 +444,19 @@
             }
         }
     }
+
+    // swiftlint:disable:next missing_docs
     @_spi(Private) @objc public var profiling: SentryProfileOptions?
     
+    // swiftlint:disable:next missing_docs
     @_spi(Private) @objc public func isContinuousProfilingEnabled() -> Bool {
         profiling != nil
     }
 
+    // swiftlint:disable:next missing_docs
     @_spi(Private) @objc public func isProfilingCorrelatedToTraces() -> Bool {
         profiling?.lifecycle == .trace
     }
-
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
     
     /// Whether to send client reports, which contain statistics about discarded events.
@@ -608,11 +614,15 @@
     /// https://spotlightjs.com/
     @objc public var spotlightUrl = "http://localhost:8969/stream"
 
+    /// Options for experimental features that are subject to change.
     @objc public var experimental = SentryExperimentalOptions()
     
 #if os(iOS) && !SENTRY_NO_UIKIT
     
+    // swiftlint:disable:next missing_docs
     @_spi(Private) @objc public var userFeedbackConfiguration: SentryUserFeedbackConfiguration?
+    
+    /// A block that configures the user feedback feature.
     @available(iOSApplicationExtension, unavailable)
     @objc public var configureUserFeedback: ((SentryUserFeedbackConfiguration) -> Void)? {
         didSet {
@@ -623,10 +633,12 @@
     }
     #endif
     
+    // swiftlint:disable:next missing_docs
     @_spi(Private) @objc public static func isValidSampleRate(_ rate: NSNumber) -> Bool {
         rate.isValidSampleRate()
     }
     
+    // swiftlint:disable:next missing_docs
     @_spi(Private) @objc public static let defaultEnvironment = "production"
 }
 

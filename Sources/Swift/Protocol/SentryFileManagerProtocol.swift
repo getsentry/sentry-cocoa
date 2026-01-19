@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 @_spi(Private) @objc public protocol SentryFileManagerProtocol {
     func moveState(_ stateFilePath: String, toPreviousState previousStateFilePath: String)
     func readData(fromPath path: String) throws -> Data
@@ -6,3 +7,4 @@
     func removeFile(atPath path: String)
     func getSentryPathAsURL() -> URL
 }
+// swiftlint:enable missing_docs

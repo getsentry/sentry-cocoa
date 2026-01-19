@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 import Foundation
 
 /**
@@ -49,3 +50,4 @@ extension SentryCurrentDateProvider {
         clock_gettime_nsec_np(CLOCK_UPTIME_RAW)
     }
 }
+// swiftlint:enable missing_docs

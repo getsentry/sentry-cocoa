@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 import Foundation
 
 @objc
@@ -38,3 +39,4 @@ import Foundation
         return Int(date.timeIntervalSince1970 * 1_000)
     }
 }
+// swiftlint:enable missing_docs

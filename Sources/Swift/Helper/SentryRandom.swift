@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 import Foundation
 
 /// Protocol for generating random numbers.
@@ -14,3 +15,4 @@ import Foundation
         Double.random(in: 0...1)
     }
 }
+// swiftlint:enable missing_docs
