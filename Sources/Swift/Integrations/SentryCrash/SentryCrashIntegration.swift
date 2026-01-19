@@ -24,37 +24,6 @@ public func sentry_finishAndSaveTransaction() {
 /// Provides dependencies for `SentryCrashIntegration`.
 typealias CrashIntegrationProvider = DispatchQueueWrapperProvider & CrashWrapperProvider & SentryCrashReporterProvider & CrashIntegrationSessionHandlerBuilder
 
-// MARK: - Static State
-
-/// Static installation state shared across instances.
-/// SentryCrash installation is a one-time operation per app lifecycle.
-/// We could use just 2 vars here, but using an singleton should make it easier to integrate with Swift 6
-private final class CrashInstallationState {
-    static let shared = CrashInstallationState()
-
-    private let lock = NSRecursiveLock()
-    private var _installationToken: Int = 0
-    private var _installation: SentryCrashInstallationReporter?
-
-    func withInstallationToken<T>(_ body: (UnsafeMutablePointer<Int>) -> T) -> T {
-        lock.withLock {
-            withUnsafeMutablePointer(to: &_installationToken, body)
-        }
-    }
-
-    var installation: SentryCrashInstallationReporter? {
-        get { lock.withLock { _installation } }
-        set { lock.withLock { _installation = newValue } }
-    }
-
-    func reset() {
-        lock.withLock {
-            _installation = nil
-            _installationToken = 0
-        }
-    }
-}
-
 // MARK: - SentryCrashIntegration
 
 final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSObject, SwiftIntegration {
@@ -65,6 +34,10 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
     private var sessionHandler: SentryCrashIntegrationSessionHandler?
     private var scopeObserver: SentryCrashScopeObserver?
     private var crashReporter: SentryCrashSwift
+    
+    private let installationLock = NSRecursiveLock()
+    private var installationToken: Int = 0
+    private var installation: SentryCrashInstallationReporter?
 
     // MARK: - Initialization
 
@@ -124,9 +97,10 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
     }
 
     func uninstall() {
-        if let installation = CrashInstallationState.shared.installation {
-            installation.uninstall()
-            CrashInstallationState.shared.reset()
+        installationLock.synchronized {
+            if let installation = installation {
+                installation.uninstall()
+            }
         }
 
         sentrycrash_setSaveTransaction(nil)
@@ -146,14 +120,16 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
         enableReportingUncaughtExceptions: Bool,
         enableCppExceptionsV2: Bool
     ) {
-        CrashInstallationState.shared.withInstallationToken { token in
-            dispatchQueueWrapper.dispatchOnce(token) {
-                self.initializeCrashHandler(
-                    cacheDirectory: cacheDirectory,
-                    enableSigtermReporting: enableSigtermReporting,
-                    enableReportingUncaughtExceptions: enableReportingUncaughtExceptions,
-                    enableCppExceptionsV2: enableCppExceptionsV2
-                )
+        installationLock.synchronized {
+            withUnsafeMutablePointer(to: &installationToken) { token in
+                dispatchQueueWrapper.dispatchOnce(token) {
+                    self.initializeCrashHandler(
+                        cacheDirectory: cacheDirectory,
+                        enableSigtermReporting: enableSigtermReporting,
+                        enableReportingUncaughtExceptions: enableReportingUncaughtExceptions,
+                        enableCppExceptionsV2: enableCppExceptionsV2
+                    )
+                }
             }
         }
     }
@@ -166,7 +142,7 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
     ) {
         var canSendReports = false
 
-        if CrashInstallationState.shared.installation == nil {
+        if installation == nil {
             guard let options = self.options else { 
                 SentrySDKLog.debug("No options found, skipping crash handler initialization")
                 return 
@@ -180,13 +156,13 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
                 dispatchQueue: self.dispatchQueueWrapper
             )
 
-            CrashInstallationState.shared.installation = installation
+            self.installation = installation
             canSendReports = true
         }
 
         sentrycrashcm_setEnableSigtermReporting(enableSigtermReporting)
 
-        CrashInstallationState.shared.installation?.install(cacheDirectory)
+        installation?.install(cacheDirectory)
 
         #if os(macOS)
         if enableReportingUncaughtExceptions {
@@ -224,21 +200,21 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
         // just not call sendAllReports as it doesn't make sense to call it twice as described
         // above.
         if canSendReports {
-            Self.sendAllSentryCrashReportsInternal()
+            sendAllSentryCrashReportsInternal()
         }
     }
 
 #if SENTRY_TEST || SENTRY_TEST_CI
     /// Sends all pending crash reports. Called internally during initialization,
-    /// and exposed as static for testing purposes.
-    static func sendAllSentryCrashReports() {
+    /// and exposed for testing purposes.
+    func sendAllSentryCrashReports() {
         sendAllSentryCrashReportsInternal()
     }
 #endif
     
     /// Sends all pending crash reports. Called internally during initialization.
-    private static func sendAllSentryCrashReportsInternal() {
-        CrashInstallationState.shared.installation?.sendAllReports(completion: nil)
+    private func sendAllSentryCrashReportsInternal() {
+        installation?.sendAllReports(completion: nil)
     }
 
     // MARK: - Scope Configuration
