@@ -131,6 +131,7 @@ class SentrySDKTests: XCTestCase {
             "SentryCrashIntegration",
             "SentryAutoBreadcrumbTrackingIntegration",
             "SentryAutoSessionTrackingIntegration",
+            "SentryMetricsIntegration",
             "SentryNetworkTrackingIntegration"
         ]
         if !SentryDependencyContainer.sharedInstance().crashWrapper.isBeingTraced {

@@ -12,9 +12,9 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
 
         // -- Assert --
 #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT
-        XCTAssertEqual(features, ["captureFailedRequests", "experimentalViewRenderer", "dataSwizzling"])
+        XCTAssertEqual(features, ["captureFailedRequests", "experimentalViewRenderer", "dataSwizzling", "metrics"])
 #else
-        XCTAssertEqual(features, ["captureFailedRequests", "dataSwizzling"])
+        XCTAssertEqual(features, ["captureFailedRequests", "dataSwizzling", "metrics"])
 #endif
     }
 
@@ -168,5 +168,31 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
 
         // -- Assert --
         XCTAssert(features.contains("unhandledCPPExceptionsV2"))
+    }
+
+    func testEnableMetrics_isEnabled_shouldAddFeature() throws {
+        // -- Arrange --
+        let options = Options()
+
+        options.experimental.enableMetrics = true
+
+        // -- Act --
+        let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
+
+        // -- Assert --
+        XCTAssert(features.contains("metrics"))
+    }
+
+    func testEnableMetrics_isDisabled_shouldNotAddFeature() throws {
+        // -- Arrange --
+        let options = Options()
+
+        options.experimental.enableMetrics = false
+
+        // -- Act --
+        let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
+
+        // -- Assert --
+        XCTAssertFalse(features.contains("metrics"))
     }
 }
