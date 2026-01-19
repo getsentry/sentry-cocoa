@@ -62,6 +62,16 @@ public struct SentryLogHandler: LogHandler {
         self.logLevel = logLevel
     }
     
+    /// Logs a message to Sentry.
+    ///
+    /// - Parameters:
+    ///   - level: The severity level of the log entry.
+    ///   - message: The message to log.
+    ///   - metadata: The metadata to add to the log entry.
+    ///   - source: The source of the log entry.
+    ///   - file: The file the log entry was logged from.
+    ///   - function: The function the log entry was logged from.
+    ///   - line: The line the log entry was logged from.
     public func log(
         level: Logger.Level,
         message: Logger.Message,
@@ -118,6 +128,12 @@ public struct SentryLogHandler: LogHandler {
         }
     }
     
+    /// Subscript to access and set metadata.
+    ///
+    /// - Parameters:
+    ///   - metadataKey: The key of the metadata to access or set.
+    /// - Returns: The value of the metadata.
+    /// - Sets: The value of the metadata.
     public subscript(metadataKey metadataKey: String) -> Logger.Metadata.Value? {
         get {
             metadata[metadataKey]

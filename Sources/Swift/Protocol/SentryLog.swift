@@ -97,6 +97,7 @@ public final class SentryLog: NSObject {
         case severityNumber = "severity_number"
     }
     
+    /// nodoc
     @_spi(Private) public func encode(to encoder: any Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         

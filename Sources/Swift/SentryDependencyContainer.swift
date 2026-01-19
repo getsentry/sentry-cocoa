@@ -288,6 +288,10 @@ extension SentryDependencyContainer: FramesTrackingProvider { }
 #endif
 
 #if ((os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT) || os(macOS)
+protocol NotificationCenterProvider {
+    var notificationCenterWrapper: SentryNSNotificationCenterWrapper { get }
+}
+
 extension SentryDependencyContainer: NotificationCenterProvider { }
 #endif
 

@@ -9,6 +9,7 @@
 - Add integration to collect Metrics, enabled by default. Can be disabled by setting `options.experimental.enableMetrics = false` (#6956)
 - Add implementation for Metrics Protocol with modification of items in `options.experimental.beforeSendMetrics` (#6960)
 - Add `Sentry.metrics.count(..)`, `Sentry.metrics.distribution(..)` and `Sentry.metrics.gauge(..)` to public API (#6957)
+- Add flushing of Metrics to `SentrySDK.flush()` (#7182)
 
 ### Fixes
 
