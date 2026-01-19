@@ -69,6 +69,7 @@ public class SentryFramesTracker: NSObject {
     }
     
     deinit {
+        removeObservers()
         // Need to invalidate so DisplayLink is releasing this object. Calling this is thread-safe.
         displayLinkWrapper.invalidate()
     }
@@ -118,6 +119,12 @@ public class SentryFramesTracker: NSObject {
 
         pause()
 
+        removeObservers()
+
+        listeners.removeAllObjects()
+    }
+
+    private func removeObservers() {
         notificationCenter.removeObserver(
             self,
             name: CrossPlatformApplication.didBecomeActiveNotification,
@@ -129,8 +136,6 @@ public class SentryFramesTracker: NSObject {
             name: CrossPlatformApplication.willResignActiveNotification,
             object: nil
         )
-
-        listeners.removeAllObjects()
     }
 
     @objc
@@ -253,7 +258,7 @@ public class SentryFramesTracker: NSObject {
         displayLinkWrapper.invalidate()
     }
 
-// swiftlint:disable file_length function_body_length
+// swiftlint:disable function_body_length
     @objc
     private func displayLinkCallback() {
         let thisFrameTimestamp = displayLinkWrapper.timestamp
@@ -342,7 +347,7 @@ public class SentryFramesTracker: NSObject {
         previousFrameSystemTimestamp = thisFrameSystemTimestamp
         reportNewFrame()
     }
-// swiftlint:enable file_length function_body_length
+// swiftlint:enable function_body_length
 
     private func reportNewFrame() {
         let newFrameDate = dateProvider.date()
