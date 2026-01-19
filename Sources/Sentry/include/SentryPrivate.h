@@ -80,7 +80,5 @@
 #import "SentryTraceHeader.h"
 #import "SentryTraceOrigin.h"
 #import "SentryTraceProfiler.h"
-#if TARGET_OS_OSX
-#    import "SentryUncaughtNSExceptions.h"
-#endif
+#import "SentryUncaughtNSExceptions.h"
 #import "SentryWatchdogTerminationBreadcrumbProcessor.h"
