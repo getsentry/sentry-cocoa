@@ -31,13 +31,13 @@ typealias CrashIntegrationProvider = DispatchQueueWrapperProvider & CrashWrapper
 private final class CrashInstallationState {
     static let shared = CrashInstallationState()
 
-    private let lock = NSLock()
+    private let lock = NSRecursiveLock()
     private var _installationToken: Int = 0
     private var _installation: SentryCrashInstallationReporter?
 
-    var installationToken: UnsafeMutablePointer<Int> {
+    func withInstallationToken<T>(_ body: (UnsafeMutablePointer<Int>) -> T) -> T {
         lock.withLock {
-            return withUnsafeMutablePointer(to: &_installationToken) { $0 }
+            withUnsafeMutablePointer(to: &_installationToken, body)
         }
     }
 
@@ -145,68 +145,82 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
         enableReportingUncaughtExceptions: Bool,
         enableCppExceptionsV2: Bool
     ) {
-        let token = CrashInstallationState.shared.installationToken
-
-        dispatchQueueWrapper.dispatchOnce(token) {
-            var canSendReports = false
-
-            if CrashInstallationState.shared.installation == nil {
-                guard let options = self.options else { return }
-
-                let inAppLogic = SentryInAppLogic(inAppIncludes: options.inAppIncludes)
-
-                let installation = SentryCrashInstallationReporter(
-                    inAppLogic: inAppLogic,
-                    crashWrapper: self.crashWrapper,
-                    dispatchQueue: self.dispatchQueueWrapper
+        CrashInstallationState.shared.withInstallationToken { token in
+            dispatchQueueWrapper.dispatchOnce(token) {
+                self.initializeCrashHandler(
+                    cacheDirectory: cacheDirectory,
+                    enableSigtermReporting: enableSigtermReporting,
+                    enableReportingUncaughtExceptions: enableReportingUncaughtExceptions,
+                    enableCppExceptionsV2: enableCppExceptionsV2
                 )
-
-                CrashInstallationState.shared.installation = installation
-                canSendReports = true
             }
+        }
+    }
 
-            sentrycrashcm_setEnableSigtermReporting(enableSigtermReporting)
+    private func initializeCrashHandler(
+        cacheDirectory: String,
+        enableSigtermReporting: Bool,
+        enableReportingUncaughtExceptions: Bool,
+        enableCppExceptionsV2: Bool
+    ) {
+        var canSendReports = false
 
-            CrashInstallationState.shared.installation?.install(cacheDirectory)
+        if CrashInstallationState.shared.installation == nil {
+            guard let options = self.options else { return }
 
-            #if os(macOS)
-            if enableReportingUncaughtExceptions {
-                SentryUncaughtNSExceptions.configureCrashOnExceptions()
-                SentryUncaughtNSExceptions.swizzleNSApplicationReportException()
-            }
-            #endif
+            let inAppLogic = SentryInAppLogic(inAppIncludes: options.inAppIncludes)
 
-            if enableCppExceptionsV2 {
-                SentrySDKLog.debug("Enabling CppExceptionsV2 by swapping cxa_throw.")
-                sentrycrashcm_cppexception_enable_swap_cxa_throw()
-            }
+            let installation = SentryCrashInstallationReporter(
+                inAppLogic: inAppLogic,
+                crashWrapper: self.crashWrapper,
+                dispatchQueue: self.dispatchQueueWrapper
+            )
 
-            // We need to send the crashed event together with the crashed session in the same envelope
-            // to have proper statistics in release health. To achieve this we need both synchronously
-            // in the hub. The crashed event is converted from a SentryCrashReport to an event in
-            // SentryCrashReportSink and then passed to the SDK on a background thread. This process is
-            // started with installing this integration. We need to end and delete the previous session
-            // before being able to start a new session for the AutoSessionTrackingIntegration. The
-            // SentryCrashIntegration is installed before the AutoSessionTrackingIntegration so there is
-            // no guarantee if the crashed event is created before or after the
-            // AutoSessionTrackingIntegration. By ending the previous session and storing it as crashed
-            // in here we have the guarantee once the crashed event is sent to the hub it is already
-            // there and the AutoSessionTrackingIntegration can work properly.
-            //
-            // This is a pragmatic and not the most optimal place for this logic.
-            self.sessionHandler?.endCurrentSessionIfRequired()
+            CrashInstallationState.shared.installation = installation
+            canSendReports = true
+        }
 
-            // We only need to send all reports on the first initialization of SentryCrash. If
-            // SentryCrash was deactivated there are no new reports to send. Furthermore, the
-            // g_reportsPath in SentryCrashReportsStore gets set when SentryCrash is installed. In
-            // production usage, this path is not supposed to change. When testing, this path can
-            // change, and therefore, the initial set g_reportsPath can be deleted. sendAllReports calls
-            // deleteAllReports, which fails it can't access g_reportsPath. We could fix SentryCrash or
-            // just not call sendAllReports as it doesn't make sense to call it twice as described
-            // above.
-            if canSendReports {
-                Self.sendAllSentryCrashReportsInternal()
-            }
+        sentrycrashcm_setEnableSigtermReporting(enableSigtermReporting)
+
+        CrashInstallationState.shared.installation?.install(cacheDirectory)
+
+        #if os(macOS)
+        if enableReportingUncaughtExceptions {
+            SentryUncaughtNSExceptions.configureCrashOnExceptions()
+            SentryUncaughtNSExceptions.swizzleNSApplicationReportException()
+        }
+        #endif
+
+        if enableCppExceptionsV2 {
+            SentrySDKLog.debug("Enabling CppExceptionsV2 by swapping cxa_throw.")
+            sentrycrashcm_cppexception_enable_swap_cxa_throw()
+        }
+
+        // We need to send the crashed event together with the crashed session in the same envelope
+        // to have proper statistics in release health. To achieve this we need both synchronously
+        // in the hub. The crashed event is converted from a SentryCrashReport to an event in
+        // SentryCrashReportSink and then passed to the SDK on a background thread. This process is
+        // started with installing this integration. We need to end and delete the previous session
+        // before being able to start a new session for the AutoSessionTrackingIntegration. The
+        // SentryCrashIntegration is installed before the AutoSessionTrackingIntegration so there is
+        // no guarantee if the crashed event is created before or after the
+        // AutoSessionTrackingIntegration. By ending the previous session and storing it as crashed
+        // in here we have the guarantee once the crashed event is sent to the hub it is already
+        // there and the AutoSessionTrackingIntegration can work properly.
+        //
+        // This is a pragmatic and not the most optimal place for this logic.
+        self.sessionHandler?.endCurrentSessionIfRequired()
+
+        // We only need to send all reports on the first initialization of SentryCrash. If
+        // SentryCrash was deactivated there are no new reports to send. Furthermore, the
+        // g_reportsPath in SentryCrashReportsStore gets set when SentryCrash is installed. In
+        // production usage, this path is not supposed to change. When testing, this path can
+        // change, and therefore, the initial set g_reportsPath can be deleted. sendAllReports calls
+        // deleteAllReports, which fails it can't access g_reportsPath. We could fix SentryCrash or
+        // just not call sendAllReports as it doesn't make sense to call it twice as described
+        // above.
+        if canSendReports {
+            Self.sendAllSentryCrashReportsInternal()
         }
     }
 
