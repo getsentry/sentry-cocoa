@@ -383,7 +383,7 @@ jobs:
   # This will be replaced once #6945 is merged.
   swiftlog-integration-unit-tests:
     name: SentrySwiftLog Unit Tests
-    if: needs.files-changed.outputs.run_unit_tests_for_prs == 'true'
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_unit_tests_for_prs == 'true'
     needs: files-changed
     runs-on: macos-15
     steps:
