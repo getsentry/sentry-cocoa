@@ -143,7 +143,7 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
         let session = URLSession(configuration: URLSessionConfiguration.default)
         let attempts = 20
 
-        //swiftlint:disable:next for_where
+        // swiftlint:disable:next for_where
         for attempt in 1..<attempts {
             let group = DispatchGroup()
             var isReady = false

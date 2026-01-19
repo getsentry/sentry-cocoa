@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 @_spi(Private) @objc public class SentryNSURLRequestBuilder: NSObject {
     
     enum Error: Swift.Error {
@@ -23,3 +24,4 @@
         
     }
 }
+// swiftlint:enable missing_docs

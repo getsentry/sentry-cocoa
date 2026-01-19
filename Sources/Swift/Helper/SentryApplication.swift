@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 #if canImport(AppKit)
 import AppKit
 #endif
@@ -38,3 +39,4 @@ import UIKit
     func relevantViewControllersNames() -> [String]?
     #endif // canImport(UIKit) && !SENTRY_NO_UIKIT
 }
+// swiftlint:enable missing_docs

@@ -1,4 +1,4 @@
-//swiftlint:disable file_length
+//swiftlint:disable file_length missing_docs
 
 @_implementationOnly import _SentryPrivate
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
@@ -326,6 +326,10 @@ extension SentryDependencyContainer: FramesTrackingProvider { }
 #endif
 
 #if ((os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT) || os(macOS)
+protocol NotificationCenterProvider {
+    var notificationCenterWrapper: SentryNSNotificationCenterWrapper { get }
+}
+
 extension SentryDependencyContainer: NotificationCenterProvider { }
 #endif
 
@@ -421,4 +425,4 @@ protocol CrashInstallationReporterBuilder {
 }
 extension SentryDependencyContainer: CrashInstallationReporterBuilder {}
 
-//swiftlint:enable file_length
+//swiftlint:enable file_length missing_docs

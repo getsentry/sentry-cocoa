@@ -6,3 +6,4 @@ disabled_rules:
   - force_unwrapping
   - identifier_name
   - large_tuple
+  - missing_docs

@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 @_implementationOnly import _SentryPrivate
 import Darwin
 import Foundation
@@ -82,3 +83,4 @@ import MachO
         return c
     }
 }
+// swiftlint:enable missing_docs
