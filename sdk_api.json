@@ -33763,6 +33763,29 @@
         "funcSelfKind": "NonMutating"
       },
       {
+        "kind": "Function",
+        "name": "sentry_finishAndSaveTransaction",
+        "printedName": "sentry_finishAndSaveTransaction()",
+        "children": [
+          {
+            "kind": "TypeNameAlias",
+            "name": "Void",
+            "printedName": "Swift.Void",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              }
+            ]
+          }
+        ],
+        "declKind": "Func",
+        "usr": "c:@M@Sentry@F@sentry_finishAndSaveTransaction",
+        "moduleName": "Sentry",
+        "funcSelfKind": "NonMutating"
+      },
+      {
         "kind": "TypeAlias",
         "name": "swift_double2",
         "printedName": "swift_double2",
@@ -39049,6 +39072,26 @@
             "mangledName": "$ss28CustomDebugStringConvertibleP"
           }
         ]
+      },
+      {
+        "kind": "Function",
+        "name": "sentry_finishAndSaveTransaction",
+        "printedName": "sentry_finishAndSaveTransaction()",
+        "children": [
+          {
+            "kind": "TypeNominal",
+            "name": "Void",
+            "printedName": "()"
+          }
+        ],
+        "declKind": "Func",
+        "usr": "c:(cm)sentry_finishAndSaveTransaction",
+        "mangledName": "$s6Sentry31sentry_finishAndSaveTransactionyyF",
+        "moduleName": "Sentry",
+        "declAttributes": [
+          "CDecl"
+        ],
+        "funcSelfKind": "NonMutating"
       },
       {
         "kind": "TypeDecl",

@@ -1,6 +1,7 @@
 #import <Foundation/Foundation.h>
 
 #import "SentryLevel.h"
+#import "SentryScope+PrivateSwift.h"
 #import "SentryScope.h"
 
 @class SentryAttachment;
